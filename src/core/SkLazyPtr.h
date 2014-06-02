@@ -97,7 +97,7 @@ public:
         return ptr ? ptr : try_cas<T*, Destroy>(&fPtr, Create());
     }
 
-#ifdef SK_DEBUG
+#ifdef SK_DEVELOPER
     // FIXME: We know we leak refs on some classes.  For now, let them leak.
     void cleanup(SkFontConfigInterface*) {}
     void cleanup(SkTypeface*) {}
@@ -125,7 +125,7 @@ public:
         return ptr ? ptr : try_cas<T*, Destroy>(&fArray[i], Create(i));
     }
 
-#ifdef SK_DEBUG
+#ifdef SK_DEVELOPER
     ~SkLazyPtrArray() {
         for (int i = 0; i < N; i++) {
             Destroy((T*)fArray[i]);
