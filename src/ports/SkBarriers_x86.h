@@ -8,8 +8,6 @@
 #ifndef SkBarriers_x86_DEFINED
 #define SkBarriers_x86_DEFINED
 
-#include "SkDynamicAnnotations.h"
-
 #ifdef SK_BUILD_FOR_WIN
 #  include <intrin.h>
 static inline void sk_compiler_barrier() { _ReadWriteBarrier(); }
@@ -19,7 +17,7 @@ static inline void sk_compiler_barrier() { asm volatile("" : : : "memory"); }
 
 template <typename T>
 T sk_acquire_load(T* ptr) {
-    T val = SK_ANNOTATE_UNPROTECTED_READ(*ptr);
+    T val = *ptr;
     // On x86, all loads are acquire loads, so we only need a compiler barrier.
     sk_compiler_barrier();
     return val;
