@@ -84,6 +84,7 @@
       'dependencies': [
         'core.gyp:*',
         'utils.gyp:*',
+        'etc1.gyp:libetc1',
       ],
       'includes': [
         'gpu.gypi',

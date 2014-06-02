@@ -71,15 +71,26 @@ public:
      * two but underlying API requires a power of two texture then srcData
      * will be embedded in a power of two texture. The extra width and height
      * is filled as though srcData were rendered clamped into the texture.
+     * The exception is when using compressed data formats. In this case, the
+     * desc width and height must be a multiple of the compressed format block
+     * size otherwise this function returns NULL. Similarly, if the underlying
+     * API requires a power of two texture and the source width and height are not
+     * a power of two, then this function returns NULL.
      *
      * If kRenderTarget_TextureFlag is specified the GrRenderTarget is
      * accessible via GrTexture::asRenderTarget(). The texture will hold a ref
-     * on the render target until the texture is destroyed.
+     * on the render target until the texture is destroyed. Compressed textures
+     * cannot have the kRenderTarget_TextureFlag set.
      *
      * @param desc        describes the texture to be created.
      * @param srcData     texel data to load texture. Begins with full-size
-     *                    palette data for paletted textures. Contains width*
-     *                    height texels. If NULL texture data is uninitialized.
+     *                    palette data for paletted textures. For compressed
+     *                    formats it contains the compressed pixel data. Otherwise,
+     *                    it contains width*height texels. If NULL texture data
+     *                    is uninitialized.
+     * @param rowBytes    the number of bytes between consecutive rows. Zero
+     *                    means rows are tightly packed. This field is ignored
+     *                    for compressed formats.
      *
      * @return    The texture object if successful, otherwise NULL.
      */
@@ -414,6 +425,8 @@ private:
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
                                        size_t rowBytes) = 0;
+    virtual GrTexture* onCreateCompressedTexture(const GrTextureDesc& desc,
+                                                 const void* srcData) = 0;
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) = 0;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;
     virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) = 0;

@@ -641,6 +641,26 @@ enum GrGLBackendState {
 };
 
 /**
+ * Returns the data size for the given compressed pixel config
+ */ 
+static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
+                                                int width, int height) {
+    SkASSERT(GrPixelConfigIsCompressed(config));
+
+    switch (config) {
+        case kLATC_GrPixelConfig:
+        case kETC1_GrPixelConfig:
+            SkASSERT((width & 3) == 0);
+            SkASSERT((height & 3) == 0);
+            return (width >> 2) * (height >> 2) * 8;
+
+        default:
+            SkFAIL("Unknown compressed pixel config");
+            return 4 * width * height;
+    }
+}
+
+/**
  * This value translates to reseting all the context state for any backend.
  */
 static const uint32_t kAll_GrBackendState = 0xffffffff;
