@@ -1,12 +1,20 @@
 # Suppressions for Thread Sanitizer
+#
+# CAREFUL!  Comments must go on their own line or your suppressions will silently fail.
 
 # WebP races (harmlessly) choosing function pointers for SIMD versions of some of its functions.
 race:third_party/externals/libwebp
 
 # skia:2459  Seemingly misdiagnosed use-after-free, having something to do with software GL drivers.
-race:SkGLContextHelper::init  # We don't always get swrast_dri.so in the stack or we'd use that.
+# We don't always get swrast_dri.so in the stack or we'd use that.
+race:SkGLContextHelper::init
 
-# For now assume anything using SkOnce and calls on SkRefCntBase (ref, unref, unique) are safe.
-# TODO(mtklein): teach TSAN about SkOnce, SkRefCnt and SkSpinlock correctly.
-race:SkOnce
-race:SkRefCntBase
+# Threadsafe, should be ported to SkLazyPtr.
+race:SkFontHost_FreeType
+
+# Not threadsafe, should be fixed.
+race:SkFontHost_fontconfig_ref_global
+race:SkString::RefRec
+
+# Not threadsafe, should be deleted.
+race:SkPDF
