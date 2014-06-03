@@ -38,7 +38,7 @@ protected:
         SkString filename = SkOSPath::SkPathJoin(
                 INHERITED::gResourcePath.c_str(), "mandrill_512.pkm");
 
-        SkData *fileData = SkData::NewFromFileName(filename.c_str());
+        SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(filename.c_str()));
         if (NULL == fileData) {
             SkDebugf("Could not open the file. Did you forget to set the resourcePath?\n");
             return;
