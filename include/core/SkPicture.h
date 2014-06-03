@@ -132,6 +132,9 @@ public:
      */
     void clone(SkPicture* pictures, int count) const;
 
+    // TODO: kUsePathBoundsForClip_RecordingFlag no longer belongs in
+    // SkPicture. It should be moved to SkPictureRecorder (or just made
+    // the default behavior).
     enum RecordingFlags {
         /*  This flag specifies that when clipPath() is called, the path will
             be faithfully recorded, but the recording canvas' current clip will
@@ -143,68 +146,6 @@ public:
          */
         kUsePathBoundsForClip_RecordingFlag = 0x01
     };
-
-#ifndef SK_SUPPORT_DEPRECATED_RECORD_FLAGS
-    // TODO: once kOptimizeForClippedPlayback_RecordingFlag is hidden from
-    // all external consumers, SkPicture::createBBoxHierarchy can also be
-    // cleaned up.
-private:
-#endif
-    enum Deprecated_RecordingFlags {
-        /*  This flag causes the picture to compute bounding boxes and build
-            up a spatial hierarchy (currently an R-Tree), plus a tree of Canvas'
-            usually stack-based clip/etc state. This requires an increase in
-            recording time (often ~2x; likely more for very complex pictures),
-            but allows us to perform much faster culling at playback time, and
-            completely avoid some unnecessary clips and other operations. This
-            is ideal for tiled rendering, or any other situation where you're
-            drawing a fraction of a large scene into a smaller viewport.
-
-            In most cases the record cost is offset by the playback improvement
-            after a frame or two of tiled rendering (and complex pictures that
-            induce the worst record times will generally get the largest
-            speedups at playback time).
-
-            Note: Currently this is not serializable, the bounding data will be
-            discarded if you serialize into a stream and then deserialize.
-        */
-        kOptimizeForClippedPlayback_RecordingFlag = 0x02,
-    };
-#ifndef SK_SUPPORT_DEPRECATED_RECORD_FLAGS
-public:
-#endif
-
-#ifndef SK_SUPPORT_LEGACY_PICTURE_CAN_RECORD
-private:
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
-
-    /** Returns the canvas that records the drawing commands.
-        @param width the base width for the picture, as if the recording
-                     canvas' bitmap had this width.
-        @param height the base width for the picture, as if the recording
-                     canvas' bitmap had this height.
-        @param recordFlags optional flags that control recording.
-        @return the picture canvas.
-    */
-    SkCanvas* beginRecording(int width, int height, uint32_t recordFlags = 0);
-#endif
-
-    /** Returns the recording canvas if one is active, or NULL if recording is
-        not active. This does not alter the refcnt on the canvas (if present).
-    */
-    SkCanvas* getRecordingCanvas() const;
-    /** Signal that the caller is done recording. This invalidates the canvas
-        returned by beginRecording/getRecordingCanvas, and prepares the picture
-        for drawing. Note: this happens implicitly the first time the picture
-        is drawn.
-    */
-    void endRecording();
-
-#ifndef SK_SUPPORT_LEGACY_PICTURE_CAN_RECORD
-public:
-#endif
 
     /** Replays the drawing commands on the specified canvas. This internally
         calls endRecording() if that has not already been called.
@@ -353,14 +294,6 @@ protected:
     // playback is unchanged.
     SkPicture(SkPicturePlayback*, int width, int height);
 
-#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
-    // For testing. Derived classes may instantiate an alternate
-    // SkBBoxHierarchy implementation
-    virtual SkBBoxHierarchy* createBBoxHierarchy() const;
-#endif
-
-    SkCanvas* beginRecording(int width, int height, SkBBHFactory* factory, uint32_t recordFlags);
-
 private:
     friend class SkPictureRecord;
     friend class SkPictureTester;   // for unit testing
@@ -486,6 +419,31 @@ private:
     friend class GrGatherDevice;
     friend class SkDebugCanvas;
 
+    // TODO: beginRecording, getRecordingCanvas & endRecording can now be
+    // be moved out of SkPicture (and, presumably, be directly implemented
+    // in SkPictureRecorder)
+
+    /** Returns the canvas that records the drawing commands.
+        @param width the base width for the picture, as if the recording
+               canvas' bitmap had this width.
+        @param height the base width for the picture, as if the recording
+               canvas' bitmap had this height.
+        @param factory if non-NULL, the factory used to the BBH for the recorded picture
+        @param recordFlags optional flags that control recording.
+        @return the picture canvas.
+    */
+    SkCanvas* beginRecording(int width, int height, SkBBHFactory* factory, uint32_t recordFlags);
+    /** Returns the recording canvas if one is active, or NULL if recording is
+        not active. This does not alter the refcnt on the canvas (if present).
+    */
+    SkCanvas* getRecordingCanvas() const;
+    /** Signal that the caller is done recording. This invalidates the canvas
+        returned by beginRecording/getRecordingCanvas, and prepares the picture
+        for drawing. Note: this happens implicitly the first time the picture
+        is drawn.
+    */
+    void endRecording();
+
     typedef SkRefCnt INHERITED;
 };
 
@@ -506,24 +464,5 @@ public:
 
     virtual bool abortDrawing() = 0;
 };
-
-#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
-
-class SkPictureFactory : public SkRefCnt {
-public:
-    /**
-     *  Allocate a new SkPicture. Return NULL on failure.
-     */
-    virtual SkPicture* create(int width, int height) = 0;
-
-private:
-    typedef SkRefCnt INHERITED;
-};
-
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_PICTURE_HEADERS
-#include "SkPictureRecorder.h"
-#endif
 
 #endif

@@ -16,35 +16,6 @@ class SkCanvas;
 
 class SK_API SkPictureRecorder : SkNoncopyable {
 public:
-#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
-
-    SkPictureRecorder(SkPictureFactory* factory = NULL) {
-        fFactory.reset(factory);
-        if (NULL != fFactory.get()) {
-            fFactory.get()->ref();
-        }
-    }
-
-    /** Returns the canvas that records the drawing commands.
-        @param width the base width for the picture, as if the recording
-                     canvas' bitmap had this width.
-        @param height the base width for the picture, as if the recording
-                     canvas' bitmap had this height.
-        @param recordFlags optional flags that control recording.
-        @return the canvas.
-    */
-    SkCanvas* beginRecording(int width, int height, uint32_t recordFlags = 0) {
-        if (NULL != fFactory) {
-            fPicture.reset(fFactory->create(width, height));
-            recordFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
-        } else {
-            fPicture.reset(SkNEW(SkPicture));
-        }
-
-        return fPicture->beginRecording(width, height, recordFlags);
-    }
-#endif
-
     /** Returns the canvas that records the drawing commands.
         @param width the base width for the picture, as if the recording
                      canvas' bitmap had this width.
@@ -95,10 +66,6 @@ public:
     }
 
 private:
-#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
-    SkAutoTUnref<SkPictureFactory>  fFactory;
-#endif
-
 #ifdef SK_BUILD_FOR_ANDROID
     /** Replay the current (partially recorded) operation stream into
         canvas. This call doesn't close the current recording.

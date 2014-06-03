@@ -312,41 +312,6 @@ SkPicture::AccelData::Domain SkPicture::AccelData::GenerateDomain() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
-
-SkCanvas* SkPicture::beginRecording(int width, int height,
-                                    uint32_t recordingFlags) {
-    if (fPlayback) {
-        SkDELETE(fPlayback);
-        fPlayback = NULL;
-    }
-    SkSafeUnref(fAccelData);
-    SkSafeSetNull(fRecord);
-    fContentInfo.reset();
-
-    this->needsNewGenID();
-
-    // Must be set before calling createBBoxHierarchy
-    fWidth = width;
-    fHeight = height;
-
-    const SkISize size = SkISize::Make(width, height);
-
-    if (recordingFlags & kOptimizeForClippedPlayback_RecordingFlag) {
-        SkBBoxHierarchy* tree = this->createBBoxHierarchy();
-        SkASSERT(NULL != tree);
-        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (this, size, recordingFlags, tree));
-        tree->unref();
-    } else {
-        fRecord = SkNEW_ARGS(SkPictureRecord, (this, size, recordingFlags));
-    }
-    fRecord->beginRecording();
-
-    return fRecord;
-}
-
-#endif
-
 SkCanvas* SkPicture::beginRecording(int width, int height,
                                     SkBBHFactory* bbhFactory,
                                     uint32_t recordingFlags) {
@@ -369,10 +334,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     if (NULL != bbhFactory) {
         SkAutoTUnref<SkBBoxHierarchy> tree((*bbhFactory)(width, height));
         SkASSERT(NULL != tree);
-        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (this, size,
-                                                     recordingFlags|
-                                                     kOptimizeForClippedPlayback_RecordingFlag,
-                                                     tree.get()));
+        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (this, size, recordingFlags, tree.get()));
     } else {
         fRecord = SkNEW_ARGS(SkPictureRecord, (this, size, recordingFlags));
     }
@@ -380,29 +342,6 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
 
     return fRecord;
 }
-
-
-#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
-
-SkBBoxHierarchy* SkPicture::createBBoxHierarchy() const {
-    // TODO: this code is now replicated in SkRTreePicture. Once all external
-    // clients have been weaned off of kOptimizeForClippedPlayback_RecordingFlag,
-    // this code can be removed.
-
-    // These values were empirically determined to produce reasonable
-    // performance in most cases.
-    static const int kRTreeMinChildren = 6;
-    static const int kRTreeMaxChildren = 11;
-
-    SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(fWidth),
-                                       SkIntToScalar(fHeight));
-    bool sortDraws = false;  // Do not sort draw calls when bulk loading.
-
-    return SkRTree::Create(kRTreeMinChildren, kRTreeMaxChildren,
-                           aspectRatio, sortDraws);
-}
-
-#endif
 
 SkCanvas* SkPicture::getRecordingCanvas() const {
     // will be null if we are not recording
@@ -428,7 +367,7 @@ const SkPicture::OperationList& SkPicture::OperationList::InvalidList() {
 }
 
 const SkPicture::OperationList& SkPicture::EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) {
-    this->endRecording();  // TODO: remove eventually
+    SkASSERT(NULL != fPlayback && NULL == fRecord);
     if (NULL != fPlayback) {
         return fPlayback->getActiveOps(queryRect);
     }
@@ -443,7 +382,7 @@ size_t SkPicture::EXPERIMENTAL_curOpID() const {
 }
 
 void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) {
-    this->endRecording(); // TODO: remove eventually
+    SkASSERT(NULL != fPlayback && NULL == fRecord);
     if (NULL != fPlayback) {
         fPlayback->draw(*surface, callback);
     }
