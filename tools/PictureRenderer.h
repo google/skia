@@ -260,6 +260,10 @@ public:
             config.append("_quadtree");
         } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
             config.append("_grid");
+            config.append("_");
+            config.appendS32(fGridInfo.fTileInterval.width());
+            config.append("x");
+            config.appendS32(fGridInfo.fTileInterval.height());
         }
 #if SK_SUPPORT_GPU
         switch (fDeviceType) {
