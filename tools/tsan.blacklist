@@ -1,0 +1,11 @@
+# Blacklist (compile time suppressions) for TSAN.
+#
+# CAREFUL!  Comments must go on their own line or your suppressions will silently fail.
+
+# skia:2459  Seemingly misdiagnosed use-after-free, having something to do with software GL drivers.
+# Having trouble getting this suppression to match.
+# We've tried: race:swrast_dri.so
+#              race:SkGLContextHelper::init
+#              race:SkGLContextHelper
+# So now we'll try a compile time blacklist.  We'll use a file blacklist to nuke it from orbit.
+file:SkGLContextHelper.cpp

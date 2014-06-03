@@ -413,7 +413,7 @@
             'conditions' : [
               [ 'skia_sanitizer == "thread"', {
                 'defines': [ 'DYNAMIC_ANNOTATIONS_ENABLED=1' ],
-                'cflags': [ '-fPIC' ],
+                'cflags': [ '-fPIC', '-fsanitize-blacklist=>!(pwd)/../tools/tsan.blacklist' ],
                 'target_conditions': [
                   [ '_type == "executable"', {
                     'cflags': [ '-fPIE' ],
