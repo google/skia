@@ -162,7 +162,7 @@
 // ARM defines
 
 #if defined(__arm__) && (!defined(__APPLE__) || !TARGET_IPHONE_SIMULATOR)
-    #define SK_CPU_ARM
+    #define SK_CPU_ARM32
 
     #if defined(__GNUC__)
         #if defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) \

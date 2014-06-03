@@ -17,7 +17,7 @@
 #include "SkColor_opts_neon.h"
 #include <arm_neon.h>
 
-#ifdef SK_CPU_ARM
+#ifdef SK_CPU_ARM32
 void S32_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
                            const SkPMColor* SK_RESTRICT src, int count,
                            U8CPU alpha, int /*x*/, int /*y*/) {
@@ -921,7 +921,7 @@ void S32_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-#ifdef SK_CPU_ARM
+#ifdef SK_CPU_ARM32
 void S32A_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
                          const SkPMColor* SK_RESTRICT src,
                          int count, U8CPU alpha) {
@@ -1405,7 +1405,7 @@ void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
             // load src color, 8 pixels, 4 64 bit registers
             // (and increment src).
             uint32x2x4_t vsrc;
-#if defined(SK_CPU_ARM) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6)))
+#if defined(SK_CPU_ARM32) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6)))
             asm (
                 "vld1.32    %h[vsrc], [%[src]]!"
                 : [vsrc] "=w" (vsrc), [src] "+r" (src)
@@ -1447,7 +1447,7 @@ void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
 
             // store back the 8 calculated pixels (2 128 bit
             // registers), and increment dst.
-#if defined(SK_CPU_ARM) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6)))
+#if defined(SK_CPU_ARM32) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6)))
             asm (
                 "vst1.32    %h[vdst], [%[dst]]!"
                 : [dst] "+r" (dst)
@@ -1475,7 +1475,7 @@ void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
 ///////////////////////////////////////////////////////////////////////////////
 
 const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm_neon[] = {
-#ifdef SK_CPU_ARM
+#ifdef SK_CPU_ARM32
     // no dither
     S32_D565_Opaque_neon,
     S32_D565_Blend_neon,
@@ -1511,7 +1511,7 @@ const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm_neon[] = {
 #else
     S32A_Opaque_BlitRow32_neon,     // S32A_Opaque,
 #endif
-#ifdef SK_CPU_ARM
+#ifdef SK_CPU_ARM32
     S32A_Blend_BlitRow32_neon        // S32A_Blend
 #else
     NULL
