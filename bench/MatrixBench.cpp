@@ -41,17 +41,6 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-// we want to stop the compiler from eliminating code that it thinks is a no-op
-// so we have a non-static global we increment, hoping that will convince the
-// compiler to execute everything
-int gMatrixBench_NonStaticGlobal;
-
-#define always_do(pred)                     \
-    do {                                    \
-        if (pred) {                         \
-            ++gMatrixBench_NonStaticGlobal; \
-        }                                   \
-    } while (0)
 
 class EqualsMatrixBench : public MatrixBench {
 public:
@@ -63,9 +52,12 @@ protected:
         m0.reset();
         m1.reset();
         m2.reset();
-        always_do(m0 == m1);
-        always_do(m1 == m2);
-        always_do(m2 == m0);
+
+        // xor into a volatile prevents these comparisons from being optimized away.
+        volatile bool junk = false;
+        junk ^= (m0 == m1);
+        junk ^= (m1 == m2);
+        junk ^= (m2 == m0);
     }
 private:
     typedef MatrixBench INHERITED;
@@ -243,21 +235,23 @@ protected:
         fMatrix.setAll(fArray[0], fArray[1], fArray[2],
                        fArray[3], fArray[4], fArray[5],
                        fArray[6], fArray[7], fArray[8]);
-        always_do(fMatrix.getType());
+        // xoring into a volatile prevents the compiler from optimizing these away
+        volatile int junk = 0;
+        junk ^= (fMatrix.getType());
         fMatrix.dirtyMatrixTypeCache();
-        always_do(fMatrix.getType());
+        junk ^= (fMatrix.getType());
         fMatrix.dirtyMatrixTypeCache();
-        always_do(fMatrix.getType());
+        junk ^= (fMatrix.getType());
         fMatrix.dirtyMatrixTypeCache();
-        always_do(fMatrix.getType());
+        junk ^= (fMatrix.getType());
         fMatrix.dirtyMatrixTypeCache();
-        always_do(fMatrix.getType());
+        junk ^= (fMatrix.getType());
         fMatrix.dirtyMatrixTypeCache();
-        always_do(fMatrix.getType());
+        junk ^= (fMatrix.getType());
         fMatrix.dirtyMatrixTypeCache();
-        always_do(fMatrix.getType());
+        junk ^= (fMatrix.getType());
         fMatrix.dirtyMatrixTypeCache();
-        always_do(fMatrix.getType());
+        junk ^= (fMatrix.getType());
     }
 private:
     SkMatrix fMatrix;
