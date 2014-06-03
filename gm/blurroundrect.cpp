@@ -27,13 +27,12 @@ public:
     {
         SkRect r = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
         fRRect.setRectXY(r, SkIntToScalar(radius), SkIntToScalar(radius));
-        fName.appendf("-WH[%ix%i]-corner[%i]", width, height, radius);
+        fName.appendf("-WH-%ix%i-corner-%i", width, height, radius);
     }
 
     BlurRoundRectGM(int width, int height)
         : fName("blurroundrect") {
-        fName.appendf("-WH[%ix%i]-unevenCorners",
-                      width,  height);
+        fName.appendf("-WH-%ix%i-unevenCorners", width,  height);
         SkVector radii[4];
         radii[0].set(SkIntToScalar(30), SkIntToScalar(30));
         radii[1].set(SkIntToScalar(10), SkIntToScalar(10));
