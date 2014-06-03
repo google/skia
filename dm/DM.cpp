@@ -14,12 +14,20 @@
 #include "DMCpuGMTask.h"
 #include "DMGpuGMTask.h"
 #include "DMGpuSupport.h"
+#include "DMPDFTask.h"
 #include "DMReporter.h"
 #include "DMSKPTask.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"
 #include "DMTestTask.h"
 #include "DMWriteTask.h"
+
+#ifdef SK_BUILD_POPPLER
+#  include "SkPDFRasterizer.h"
+#  define RASTERIZE_PDF_PROC SkPopplerRasterizePDF
+#else
+#  define RASTERIZE_PDF_PROC NULL
+#endif
 
 #include <ctype.h>
 
@@ -49,9 +57,11 @@ DEFINE_string(match, "",  "[~][^]substring[$] [...] of GM name to run.\n"
                           "^ and $ requires an exact match\n"
                           "If a GM does not match any list entry,\n"
                           "it is skipped unless some list entry starts with ~");
-DEFINE_string(config, "565 8888 gpu nonrendering",
-              "Options: 565 8888 gpu nonrendering msaa4 msaa16 nvprmsaa4 nvprmsaa16 gpunull gpudebug angle mesa");
-DEFINE_bool(dryRun, false, "Just print the tests that would be run, without actually running them.");
+DEFINE_string(config, "565 8888 pdf gpu nonrendering",
+              "Options: 565 8888 pdf gpu nonrendering msaa4 msaa16 nvprmsaa4 nvprmsaa16 "
+              "gpunull gpudebug angle mesa");
+DEFINE_bool(dryRun, false,
+            "Just print the tests that would be run, without actually running them.");
 DEFINE_bool(leaks, false, "Print leaked instance-counted objects at exit?");
 DEFINE_string(skps, "", "Directory to read skps from.");
 
@@ -100,17 +110,18 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
     }
     for (int i = 0; i < gms.count(); i++) {
         for (int j = 0; j < configs.count(); j++) {
-            START("565",      CpuGMTask, kRGB_565_SkColorType);
-            START("8888",     CpuGMTask, kN32_SkColorType);
-            START("gpu",      GpuGMTask, native, 0);
-            START("msaa4",    GpuGMTask, native, 4);
-            START("msaa16",   GpuGMTask, native, 16);
-            START("nvprmsaa4", GpuGMTask, nvpr,  4);
+            START("565",        CpuGMTask, kRGB_565_SkColorType);
+            START("8888",       CpuGMTask, kN32_SkColorType);
+            START("gpu",        GpuGMTask, native, 0);
+            START("msaa4",      GpuGMTask, native, 4);
+            START("msaa16",     GpuGMTask, native, 16);
+            START("nvprmsaa4",  GpuGMTask, nvpr,  4);
             START("nvprmsaa16", GpuGMTask, nvpr, 16);
-            START("gpunull",  GpuGMTask, null,   0);
-            START("gpudebug", GpuGMTask, debug,  0);
-            START("angle",    GpuGMTask, angle,  0);
-            START("mesa",     GpuGMTask, mesa,   0);
+            START("gpunull",    GpuGMTask, null,   0);
+            START("gpudebug",   GpuGMTask, debug,  0);
+            START("angle",      GpuGMTask, angle,  0);
+            START("mesa",       GpuGMTask, mesa,   0);
+            START("pdf",        PDFTask,   RASTERIZE_PDF_PROC);
         }
     }
 #undef START

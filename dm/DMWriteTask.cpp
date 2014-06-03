@@ -28,13 +28,25 @@ static int split_suffixes(int N, const char* name, SkTArray<SkString>* out) {
     return consumed;
 }
 
-WriteTask::WriteTask(const Task& parent, SkBitmap bitmap)
-    : CpuTask(parent), fBitmap(bitmap) {
+inline static SkString find_gm_name(const Task& parent, SkTArray<SkString>* suffixList) {
     const int suffixes = parent.depth() + 1;
     const SkString& name = parent.name();
-    const int totalSuffixLength = split_suffixes(suffixes, name.c_str(), &fSuffixes);
-    fGmName.set(name.c_str(), name.size()-totalSuffixLength);
+    const int totalSuffixLength = split_suffixes(suffixes, name.c_str(), suffixList);
+    return SkString(name.c_str(), name.size() - totalSuffixLength);
 }
+
+WriteTask::WriteTask(const Task& parent, SkBitmap bitmap)
+    : CpuTask(parent)
+    , fGmName(find_gm_name(parent, &fSuffixes))
+    , fBitmap(bitmap)
+    , fData(NULL)
+    , fExtension(".png") {}
+
+WriteTask::WriteTask(const Task& parent, SkData *data, const char* ext)
+    : CpuTask(parent)
+    , fGmName(find_gm_name(parent, &fSuffixes))
+    , fData(SkRef(data))
+    , fExtension(ext) {}
 
 void WriteTask::makeDirOrFail(SkString dir) {
     if (!sk_mkdir(dir.c_str())) {
@@ -103,6 +115,16 @@ struct PngAndRaw {
     }
 };
 
+// Does not take ownership of data.
+bool save_data_to_file(const SkData* data, const char* path) {
+    SkFILEWStream stream(path);
+    if (!stream.isValid() || !stream.write(data->data(), data->size())) {
+        SkDebugf("Can't write %s.\n", path);
+        return false;
+    }
+    return true;
+}
+
 }  // namespace
 
 void WriteTask::draw() {
@@ -112,9 +134,13 @@ void WriteTask::draw() {
         dir = SkOSPath::SkPathJoin(dir.c_str(), fSuffixes[i].c_str());
         this->makeDirOrFail(dir);
     }
+
     SkString path = SkOSPath::SkPathJoin(dir.c_str(), fGmName.c_str());
-    path.append(".png");
-    if (!PngAndRaw::Encode(fBitmap, path.c_str())) {
+    path.append(fExtension);
+
+    const bool ok = fData.get() ? save_data_to_file(fData,   path.c_str())
+                                : PngAndRaw::Encode(fBitmap, path.c_str());
+    if (!ok) {
         this->fail();
     }
 }

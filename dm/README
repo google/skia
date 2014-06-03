@@ -1,13 +1,4 @@
-DM is like GM, but multithreaded.  It doesn't do everything GM does yet.
-
-Current approximate list of missing features:
-  --config pdf
-  --mismatchPath
-  --missingExpectationsPath
-  --writePicturePath
-
-  --deferred
-
+DM is like GM, but multithreaded.  It doesn't do everything GM does.
 
 DM's design is based around Tasks and a TaskRunner.
 
