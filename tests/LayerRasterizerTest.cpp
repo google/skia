@@ -81,6 +81,7 @@ static bool equals(const SkLayerRasterizer_Rec& rec1, const SkLayerRasterizer_Re
 
 DEF_TEST(LayerRasterizer_copy, reporter) {
     SkLayerRasterizer::Builder builder;
+    REPORTER_ASSERT(reporter, NULL == builder.snapshotRasterizer());
     SkPaint paint;
     // Create a bunch of paints with different flags.
     for (uint32_t flags = 0x01; flags < SkPaint::kAllFlags; flags <<= 1) {
@@ -135,4 +136,9 @@ DEF_TEST(LayerRasterizer_copy, reporter) {
             REPORTER_ASSERT(reporter, equals(*recFirstCopy, *recOneLarger));
         }
     }
+}
+
+DEF_TEST(LayerRasterizer_detachEmpty, reporter) {
+    SkLayerRasterizer::Builder builder;
+    REPORTER_ASSERT(reporter, NULL == builder.detachRasterizer());
 }

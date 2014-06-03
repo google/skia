@@ -213,12 +213,21 @@ void SkLayerRasterizer::Builder::addLayer(const SkPaint& paint, SkScalar dx,
 }
 
 SkLayerRasterizer* SkLayerRasterizer::Builder::detachRasterizer() {
-    SkLayerRasterizer* rasterizer = SkNEW_ARGS(SkLayerRasterizer, (fLayers));
+    SkLayerRasterizer* rasterizer;
+    if (0 == fLayers->count()) {
+        rasterizer = NULL;
+        SkDELETE(fLayers);
+    } else {
+        rasterizer = SkNEW_ARGS(SkLayerRasterizer, (fLayers));
+    }
     fLayers = NULL;
     return rasterizer;
 }
 
 SkLayerRasterizer* SkLayerRasterizer::Builder::snapshotRasterizer() const {
+    if (0 == fLayers->count()) {
+        return NULL;
+    }
     SkDeque* layers = SkNEW_ARGS(SkDeque, (sizeof(SkLayerRasterizer_Rec), fLayers->count()));
     SkDeque::F2BIter                iter(*fLayers);
     const SkLayerRasterizer_Rec*    recOrig;

@@ -39,9 +39,10 @@ public:
 
         /**
           *  Pass queue of layers on to newly created layer rasterizer and return it. The builder
-          *  *cannot* be used any more after calling this function.
+          *  *cannot* be used any more after calling this function. If no layers have been added,
+          *  returns NULL.
           *
-          *  The caller is responsible for calling unref() on the returned object.
+          *  The caller is responsible for calling unref() on the returned object, if non NULL.
           */
         SkLayerRasterizer* detachRasterizer();
 
@@ -51,11 +52,11 @@ public:
           *  *may* be used after calling this function. It will continue to hold any layers
           *  previously added, so consecutive calls to this function will return identical objects,
           *  and objects returned by future calls to this function contain all the layers in
-          *  previously returned objects.
+          *  previously returned objects. If no layers have been added, returns NULL.
           *
           *  Future calls to addLayer will not affect rasterizers previously returned by this call.
           *
-          *  The caller is responsible for calling unref() on the returned object.
+          *  The caller is responsible for calling unref() on the returned object, if non NULL.
           */
         SkLayerRasterizer* snapshotRasterizer() const;
 
