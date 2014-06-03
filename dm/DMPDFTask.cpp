@@ -13,7 +13,11 @@
 #include "SkCommandLineFlags.h"
 #include "SkDocument.h"
 
-DEFINE_bool(pdf, true, "PDF backend master switch.");
+// The PDF backend is not threadsafe.  If you run dm with --pdf repeatedly, you
+// will quickly find yourself crashed.  (while catchsegv out/Release/dm;; end).
+//
+// TODO(mtklein): re-enable by default, maybe moving to its own single thread.
+DEFINE_bool(pdf, false, "PDF backend master switch.");
 
 namespace DM {
 
