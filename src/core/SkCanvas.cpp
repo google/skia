@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -9,7 +8,6 @@
 
 #include "SkCanvas.h"
 #include "SkBitmapDevice.h"
-#include "SkBounder.h"
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
@@ -257,7 +255,6 @@ public:
         canvas->updateDeviceCMCache();
 
         fClipStack = &canvas->fClipStack;
-        fBounder = canvas->getBounder();
         fCurrLayer = canvas->fMCRec->fTopLayer;
         fSkipEmptyClips = skipEmptyClips;
     }
@@ -282,9 +279,6 @@ public:
             SkDEBUGCODE(this->validate();)
 
             fCurrLayer = rec->fNext;
-            if (fBounder) {
-                fBounder->setClip(fClip);
-            }
             // fCurrLayer may be NULL now
 
             return true;
@@ -424,23 +418,6 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     return true;
 }
 
-/*  Stack helper for managing a SkBounder. In the destructor, if we were
-    given a bounder, we call its commit() method, signifying that we are
-    done accumulating bounds for that draw.
-*/
-class SkAutoBounderCommit {
-public:
-    SkAutoBounderCommit(SkBounder* bounder) : fBounder(bounder) {}
-    ~SkAutoBounderCommit() {
-        if (NULL != fBounder) {
-            fBounder->commit();
-        }
-    }
-private:
-    SkBounder*  fBounder;
-};
-#define SkAutoBounderCommit(...) SK_REQUIRE_LOCAL_VAR(SkAutoBounderCommit)
-
 #include "SkColorPriv.h"
 
 ////////// macros to place around the internal draw calls //////////////////
@@ -449,14 +426,12 @@ private:
     this->predrawNotify();                                          \
     AutoDrawLooper  looper(this, paint, true);                      \
     while (looper.next(type)) {                                     \
-        SkAutoBounderCommit ac(fBounder);                           \
         SkDrawIter          iter(this);
 
 #define LOOPER_BEGIN(paint, type, bounds)                           \
     this->predrawNotify();                                          \
     AutoDrawLooper  looper(this, paint, false, bounds);             \
     while (looper.next(type)) {                                     \
-        SkAutoBounderCommit ac(fBounder);                           \
         SkDrawIter          iter(this);
 
 #define LOOPER_END    }
@@ -464,7 +439,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 
 SkBaseDevice* SkCanvas::init(SkBaseDevice* device) {
-    fBounder = NULL;
     fCachedLocalClipBounds.setEmpty();
     fCachedLocalClipBoundsDirty = true;
     fAllowSoftClip = true;
@@ -526,15 +500,9 @@ SkCanvas::~SkCanvas() {
 
     this->internalRestore();    // restore the last, since we're going away
 
-    SkSafeUnref(fBounder);
     SkDELETE(fMetaData);
 
     dec_canvas();
-}
-
-SkBounder* SkCanvas::setBounder(SkBounder* bounder) {
-    SkRefCnt_SafeAssign(fBounder, bounder);
-    return bounder;
 }
 
 SkDrawFilter* SkCanvas::getDrawFilter() const {

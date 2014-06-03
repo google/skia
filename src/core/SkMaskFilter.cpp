@@ -9,7 +9,6 @@
 
 #include "SkMaskFilter.h"
 #include "SkBlitter.h"
-#include "SkBounder.h"
 #include "SkDraw.h"
 #include "SkRasterClip.h"
 #include "SkRRect.h"
@@ -181,17 +180,15 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     }
 }
 
-static void draw_nine(const SkMask& mask, const SkIRect& outerR,
-                      const SkIPoint& center, bool fillCenter,
-                      const SkRasterClip& clip, SkBounder* bounder,
-                      SkBlitter* blitter) {
+static void draw_nine(const SkMask& mask, const SkIRect& outerR, const SkIPoint& center,
+                      bool fillCenter, const SkRasterClip& clip, SkBlitter* blitter) {
     // if we get here, we need to (possibly) resolve the clip and blitter
     SkAAClipBlitterWrapper wrapper(clip, blitter);
     blitter = wrapper.getBlitter();
 
     SkRegion::Cliperator clipper(wrapper.getRgn(), outerR);
 
-    if (!clipper.done() && (!bounder || bounder->doIRect(outerR))) {
+    if (!clipper.done()) {
         const SkIRect& cr = clipper.rect();
         do {
             draw_nine_clipped(mask, outerR, center, fillCenter, cr, blitter);
@@ -208,8 +205,8 @@ static int countNestedRects(const SkPath& path, SkRect rects[2]) {
 }
 
 bool SkMaskFilter::filterRRect(const SkRRect& devRRect, const SkMatrix& matrix,
-                               const SkRasterClip& clip, SkBounder* bounder,
-                               SkBlitter* blitter, SkPaint::Style style) const {
+                               const SkRasterClip& clip, SkBlitter* blitter,
+                               SkPaint::Style style) const {
     // Attempt to speed up drawing by creating a nine patch. If a nine patch
     // cannot be used, return false to allow our caller to recover and perform
     // the drawing another way.
@@ -221,15 +218,14 @@ bool SkMaskFilter::filterRRect(const SkRRect& devRRect, const SkMatrix& matrix,
         SkASSERT(NULL == patch.fMask.fImage);
         return false;
     }
-    draw_nine(patch.fMask, patch.fOuterRect, patch.fCenter, true, clip,
-              bounder, blitter);
+    draw_nine(patch.fMask, patch.fOuterRect, patch.fCenter, true, clip, blitter);
     SkMask::FreeImage(patch.fMask.fImage);
     return true;
 }
 
 bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
-                              const SkRasterClip& clip, SkBounder* bounder,
-                              SkBlitter* blitter, SkPaint::Style style) const {
+                              const SkRasterClip& clip, SkBlitter* blitter,
+                              SkPaint::Style style) const {
     SkRect rects[2];
     int rectCount = 0;
     if (SkPaint::kFill_Style == style) {
@@ -246,8 +242,8 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
                 return false;
 
             case kTrue_FilterReturn:
-                draw_nine(patch.fMask, patch.fOuterRect, patch.fCenter,
-                          1 == rectCount, clip, bounder, blitter);
+                draw_nine(patch.fMask, patch.fOuterRect, patch.fCenter, 1 == rectCount, clip,
+                          blitter);
                 SkMask::FreeImage(patch.fMask.fImage);
                 return true;
 
@@ -278,7 +274,7 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 
     SkRegion::Cliperator clipper(wrapper.getRgn(), dstM.fBounds);
 
-    if (!clipper.done() && (bounder == NULL || bounder->doIRect(dstM.fBounds))) {
+    if (!clipper.done()) {
         const SkIRect& cr = clipper.rect();
         do {
             blitter->blitMask(dstM, cr);

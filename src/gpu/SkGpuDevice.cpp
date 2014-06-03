@@ -20,7 +20,6 @@
 
 #include "SkGrTexturePixelRef.h"
 
-#include "SkBounder.h"
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
@@ -532,10 +531,6 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
                         // clipped out
                         return;
                     }
-                    if (NULL != draw.fBounder && !draw.fBounder->doIRect(finalIRect)) {
-                        // nothing to draw
-                        return;
-                    }
                     if (paint.getMaskFilter()->directFilterRRectMaskGPU(fContext, &grPaint,
                                                                         stroke, devRRect)) {
                         return;
@@ -611,7 +606,6 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
 }
 
 #include "SkMaskFilter.h"
-#include "SkBounder.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -638,7 +632,7 @@ bool draw_mask(GrContext* context, const SkRect& maskRect,
 }
 
 bool draw_with_mask_filter(GrContext* context, const SkPath& devPath,
-                           SkMaskFilter* filter, const SkRegion& clip, SkBounder* bounder,
+                           SkMaskFilter* filter, const SkRegion& clip,
                            GrPaint* grp, SkPaint::Style style) {
     SkMask  srcM, dstM;
 
@@ -655,9 +649,6 @@ bool draw_with_mask_filter(GrContext* context, const SkPath& devPath,
     SkAutoMaskFreeImage autoDst(dstM.fImage);
 
     if (clip.quickReject(dstM.fBounds)) {
-        return false;
-    }
-    if (bounder && !bounder->doIRect(dstM.fBounds)) {
         return false;
     }
 
@@ -819,10 +810,6 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                 // clipped out
                 return;
             }
-            if (NULL != draw.fBounder && !draw.fBounder->doIRect(finalIRect)) {
-                // nothing to draw
-                return;
-            }
 
             if (paint.getMaskFilter()->directFilterMaskGPU(fContext, &grPaint,
                                                            stroke, *devPathPtr)) {
@@ -862,8 +849,8 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         // GPU path fails
         SkPaint::Style style = stroke.isHairlineStyle() ? SkPaint::kStroke_Style :
                                                           SkPaint::kFill_Style;
-        draw_with_mask_filter(fContext, *devPathPtr, paint.getMaskFilter(),
-                              *draw.fClip, draw.fBounder, &grPaint, style);
+        draw_with_mask_filter(fContext, *devPathPtr, paint.getMaskFilter(), *draw.fClip, &grPaint,
+                              style);
         return;
     }
 

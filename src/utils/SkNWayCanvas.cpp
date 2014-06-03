@@ -291,14 +291,6 @@ void SkNWayCanvas::drawData(const void* data, size_t length) {
     }
 }
 
-SkBounder* SkNWayCanvas::setBounder(SkBounder* bounder) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->setBounder(bounder);
-    }
-    return this->INHERITED::setBounder(bounder);
-}
-
 SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
     Iter iter(fList);
     while (iter.next()) {

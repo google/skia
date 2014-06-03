@@ -14,38 +14,6 @@
 
 #define SK_EventDelayInval "\xd" "n" "\xa" "l"
 
-#define TEST_BOUNDERx
-
-#include "SkBounder.h"
-class TestSkBounder : public SkBounder {
-public:
-    explicit TestSkBounder(const SkBitmap& bm) : fCanvas(bm) {}
-
-protected:
-    virtual bool onIRect(const SkIRect& r) SK_OVERRIDE {
-        SkRect    rr;
-
-        rr.set(SkIntToScalar(r.fLeft), SkIntToScalar(r.fTop),
-                SkIntToScalar(r.fRight), SkIntToScalar(r.fBottom));
-
-        SkPaint    p;
-
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setColor(SK_ColorYELLOW);
-
-#if 0
-        rr.inset(SK_ScalarHalf, SK_ScalarHalf);
-#else
-        rr.inset(-SK_ScalarHalf, -SK_ScalarHalf);
-#endif
-
-        fCanvas.drawRect(rr, p);
-        return true;
-    }
-private:
-    SkCanvas    fCanvas;
-};
-
 SkWindow::SkWindow() : fFocusView(NULL) {
     fClicks.reset();
     fWaitingOnInval = false;
@@ -171,10 +139,6 @@ bool SkWindow::update(SkIRect* updateArea) {
         // might be made during the draw call.
         fDirtyRgn.setEmpty();
 
-#ifdef TEST_BOUNDER
-        TestSkBounder bounder(bm);
-        canvas->setBounder(&bounder);
-#endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
         gEnableControlledThrow = true;
 #endif
@@ -189,9 +153,6 @@ bool SkWindow::update(SkIRect* updateArea) {
 #endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
         gEnableControlledThrow = false;
-#endif
-#ifdef TEST_BOUNDER
-        canvas->setBounder(NULL);
 #endif
 
 #if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)

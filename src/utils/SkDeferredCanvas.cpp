@@ -953,13 +953,6 @@ void SkDeferredCanvas::drawVertices(VertexMode vmode, int vertexCount,
     this->recordedDrawCommand();
 }
 
-SkBounder* SkDeferredCanvas::setBounder(SkBounder* bounder) {
-    this->drawingCanvas()->setBounder(bounder);
-    this->INHERITED::setBounder(bounder);
-    this->recordedDrawCommand();
-    return bounder;
-}
-
 SkDrawFilter* SkDeferredCanvas::setDrawFilter(SkDrawFilter* filter) {
     this->drawingCanvas()->setDrawFilter(filter);
     this->INHERITED::setDrawFilter(filter);

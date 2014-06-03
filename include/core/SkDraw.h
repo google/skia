@@ -15,7 +15,6 @@
 #include "SkPaint.h"
 
 class SkBitmap;
-class SkBounder;
 class SkClipStack;
 class SkBaseDevice;
 class SkMatrix;
@@ -140,7 +139,6 @@ public:
 
     const SkClipStack* fClipStack;  // optional
     SkBaseDevice*   fDevice;        // optional
-    SkBounder*      fBounder;       // optional
     SkDrawProcs*    fProcs;         // optional
 
 #ifdef SK_DEBUG

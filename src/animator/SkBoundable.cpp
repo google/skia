@@ -42,7 +42,7 @@ void SkBoundable::enableBounder() {
 SkBoundableAuto::SkBoundableAuto(SkBoundable* boundable,
         SkAnimateMaker& maker) : fBoundable(boundable), fMaker(maker) {
     if (fBoundable->hasBounds()) {
-        fMaker.fCanvas->setBounder(&maker.fDisplayList);
+//        fMaker.fCanvas->setBounder(&maker.fDisplayList);
         fMaker.fDisplayList.fBounds.setEmpty();
     }
 }
@@ -50,6 +50,6 @@ SkBoundableAuto::SkBoundableAuto(SkBoundable* boundable,
 SkBoundableAuto::~SkBoundableAuto() {
     if (fBoundable->hasBounds() == false)
         return;
-    fMaker.fCanvas->setBounder(NULL);
+//    fMaker.fCanvas->setBounder(NULL);
     fBoundable->setBounds(fMaker.fDisplayList.fBounds);
 }

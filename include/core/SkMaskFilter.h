@@ -19,7 +19,6 @@ class GrContext;
 class GrPaint;
 class SkBitmap;
 class SkBlitter;
-class SkBounder;
 class SkMatrix;
 class SkPath;
 class SkRasterClip;
@@ -205,17 +204,15 @@ private:
      to render that mask. Returns false if filterMask() returned false.
      This method is not exported to java.
      */
-    bool filterPath(const SkPath& devPath, const SkMatrix& devMatrix,
-                    const SkRasterClip&, SkBounder*, SkBlitter* blitter,
-                    SkPaint::Style style) const;
+    bool filterPath(const SkPath& devPath, const SkMatrix& ctm, const SkRasterClip&, SkBlitter*,
+                    SkPaint::Style) const;
 
     /** Helper method that, given a roundRect in device space, will rasterize it into a kA8_Format
      mask and then call filterMask(). If this returns true, the specified blitter will be called
      to render that mask. Returns false if filterMask() returned false.
      */
-    bool filterRRect(const SkRRect& devRRect, const SkMatrix& devMatrix,
-                     const SkRasterClip&, SkBounder*, SkBlitter* blitter,
-                     SkPaint::Style style) const;
+    bool filterRRect(const SkRRect& devRRect, const SkMatrix& ctm, const SkRasterClip&,
+                     SkBlitter*, SkPaint::Style style) const;
 
     typedef SkFlattenable INHERITED;
 };

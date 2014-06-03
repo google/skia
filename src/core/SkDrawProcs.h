@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #ifndef SkDrawProcs_DEFINED
 #define SkDrawProcs_DEFINED
 
@@ -16,7 +16,6 @@ class SkBlitter;
 
 struct SkDraw1Glyph {
     const SkDraw* fDraw;
-    SkBounder* fBounder;
     const SkRegion* fClip;
     const SkAAClip* fAAClip;
     SkBlitter* fBlitter;

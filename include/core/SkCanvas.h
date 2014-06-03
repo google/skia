@@ -18,22 +18,12 @@
 #include "SkRegion.h"
 #include "SkXfermode.h"
 
-// if not defined, we always assume ClipToLayer for saveLayer()
-//#define SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-
-
-//#define SK_SUPPORT_LEGACY_GETCLIPTYPE
-//#define SK_SUPPORT_LEGACY_GETTOTALCLIP
-//#define SK_SUPPORT_LEGACY_GETTOPDEVICE
-
-//#define SK_SUPPORT_LEGACY_DRAWTEXT_VIRTUAL
 #ifdef SK_SUPPORT_LEGACY_DRAWTEXT_VIRTUAL
     #define SK_LEGACY_DRAWTEXT_VIRTUAL  virtual
 #else
     #define SK_LEGACY_DRAWTEXT_VIRTUAL
 #endif
 
-class SkBounder;
 class SkBaseDevice;
 class SkDraw;
 class SkDrawFilter;
@@ -1069,22 +1059,6 @@ public:
 
     //////////////////////////////////////////////////////////////////////////
 
-    /** Get the current bounder object.
-        The bounder's reference count is unchaged.
-        @return the canva's bounder (or NULL).
-    */
-    SkBounder*  getBounder() const { return fBounder; }
-
-    /** Set a new bounder (or NULL).
-        Pass NULL to clear any previous bounder.
-        As a convenience, the parameter passed is also returned.
-        If a previous bounder exists, its reference count is decremented.
-        If bounder is not NULL, its reference count is incremented.
-        @param bounder the new bounder (or NULL) to be installed in the canvas
-        @return the set bounder object
-    */
-    virtual SkBounder* setBounder(SkBounder* bounder);
-
     /** Get the current filter object. The filter's reference count is not
         affected. The filter is saved/restored, just like the matrix and clip.
         @return the canvas' filter (or NULL).
@@ -1304,7 +1278,6 @@ private:
     // the first N recs that can fit here mean we won't call malloc
     uint32_t    fMCRecStorage[32];
 
-    SkBounder*  fBounder;
     int         fSaveLayerCount;    // number of successful saveLayer calls
     int         fCullCount;         // number of active culls
 

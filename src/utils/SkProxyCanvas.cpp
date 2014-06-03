@@ -165,10 +165,6 @@ void SkProxyCanvas::endCommentGroup() {
     fProxy->endCommentGroup();
 }
 
-SkBounder* SkProxyCanvas::setBounder(SkBounder* bounder) {
-    return fProxy->setBounder(bounder);
-}
-
 SkDrawFilter* SkProxyCanvas::setDrawFilter(SkDrawFilter* filter) {
     return fProxy->setDrawFilter(filter);
 }

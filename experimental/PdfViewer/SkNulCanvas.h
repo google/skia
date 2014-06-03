@@ -57,7 +57,6 @@ public:
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE {}
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE {}
     virtual void endCommentGroup() SK_OVERRIDE {}
-    virtual SkBounder* setBounder(SkBounder* bounder) SK_OVERRIDE {return NULL;}
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE {return NULL;}
 
     virtual bool isClipEmpty() const SK_OVERRIDE { return false; }

@@ -632,10 +632,7 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter,
         canvas1->getClipDeviceBounds(&deviceBounds1) ==
         canvas2->getClipDeviceBounds(&deviceBounds2),
         testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, deviceBounds1 == deviceBounds2,
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, canvas1->getBounder() ==
-        canvas2->getBounder(), testStep->assertMessage());
+    REPORTER_ASSERT_MESSAGE(reporter, deviceBounds1 == deviceBounds2, testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, canvas1->getTotalMatrix() ==
         canvas2->getTotalMatrix(), testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, equal_clips(*canvas1, *canvas2), testStep->assertMessage());

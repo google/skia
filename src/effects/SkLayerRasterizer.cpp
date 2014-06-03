@@ -146,7 +146,6 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
         draw.fRC        = &rectClip;
         draw.fClip      = &rectClip.bwRgn();
         // we set the matrixproc in the loop, as the matrix changes each time (potentially)
-        draw.fBounder   = NULL;
 
         SkDeque::F2BIter        iter(*fLayers);
         SkLayerRasterizer_Rec*  rec;
