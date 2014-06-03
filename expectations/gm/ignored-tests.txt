@@ -49,6 +49,10 @@ downsamplebitmap_image_high_mandrill_512.png
 filterbitmap_checkerboard_192_192
 downsamplebitmap_text_high_72.00pt
 
+# bsalomon: Slight anti-aliasing changes in gpu version of this test
+# https://codereview.chromium.org/306063002/
+drrect
+
 # These are part of picture-version 27 -- removal of SkUnitMapp
 # just need to be rebaselined
 scaled_tilemode_bitmap

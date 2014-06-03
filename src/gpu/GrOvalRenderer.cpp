@@ -884,7 +884,10 @@ GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(GrGpu* gpu) {
 }
 
 bool GrOvalRenderer::drawDRRect(GrDrawTarget* target, GrContext* context, bool useAA,
-                                const SkRRect& outer, const SkRRect& origInner) {
+                                const SkRRect& origOuter, const SkRRect& origInner) {
+    bool applyAA = useAA &&
+                   !target->getDrawState().getRenderTarget()->isMultisampled() &&
+                   !target->shouldDisableCoverageAAForBlend();
     GrDrawState::AutoRestoreEffects are;
     if (!origInner.isEmpty()) {
         SkTCopyOnFirstWrite<SkRRect> inner(origInner);
@@ -893,9 +896,6 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target, GrContext* context, bool u
                 return false;
             }
         }
-        bool applyAA = useAA &&
-                       !target->getDrawState().getRenderTarget()->isMultisampled() &&
-                       !target->shouldDisableCoverageAAForBlend();
         GrEffectEdgeType edgeType = applyAA ? kInverseFillAA_GrEffectEdgeType :
                                               kInverseFillBW_GrEffectEdgeType;
         GrEffectRef* effect = GrRRectEffect::Create(edgeType, *inner);
@@ -907,7 +907,37 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target, GrContext* context, bool u
     }
 
     SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
-    return this->drawRRect(target, context, useAA, outer, fillRec);
+    if (this->drawRRect(target, context, useAA, origOuter, fillRec)) {
+        return true;
+    }
+
+    SkASSERT(!origOuter.isEmpty());
+    SkTCopyOnFirstWrite<SkRRect> outer(origOuter);
+    if (!context->getMatrix().isIdentity()) {
+        if (!origOuter.transform(context->getMatrix(), outer.writable())) {
+            return false;
+        }
+    }
+    GrEffectEdgeType edgeType = applyAA ? kFillAA_GrEffectEdgeType :
+                                          kFillBW_GrEffectEdgeType;
+    GrEffectRef* effect = GrRRectEffect::Create(edgeType, *outer);
+    if (NULL == effect) {
+        return false;
+    }
+    if (!are.isSet()) {
+        are.set(target->drawState());
+    }
+    GrDrawState::AutoViewMatrixRestore avmr;
+    if (!avmr.setIdentity(target->drawState())) {
+        return false;
+    }
+    target->drawState()->addCoverageEffect(effect)->unref();
+    SkRect bounds = outer->getBounds();
+    if (applyAA) {
+        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
+    }
+    target->drawRect(bounds, NULL, NULL, NULL);
+    return true;
 }
 
 bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool useAA,

@@ -411,6 +411,8 @@ public:
             }
         }
 
+        bool isSet() const { return NULL != fDrawState; }
+
     private:
         GrDrawState* fDrawState;
         int fColorEffectCnt;
