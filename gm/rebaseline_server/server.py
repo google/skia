@@ -250,6 +250,8 @@ class Server(object):
             PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR, GENERATED_HTML_SUBDIR,
             "index.html"),
         config_pairs=config_pairs)
+    # TODO(epoger): Create shareable functions within download_actuals.py that
+    # we can use both there and here to download the actual image results.
     if actuals_repo_url:
       self._actuals_repo = _create_svn_checkout(
           dir_path=actuals_dir, repo_url=actuals_repo_url)

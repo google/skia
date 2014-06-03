@@ -41,8 +41,17 @@ if TOOLS_DIRECTORY not in sys.path:
 import buildbot_globals
 import gm_json
 
-DEFAULT_ACTUALS_BASE_URL = posixpath.join(
-    buildbot_globals.Get('autogen_svn_url'), 'gm-actual')
+# Imports from third-party code
+APICLIENT_DIRECTORY = os.path.join(
+    TRUNK_DIRECTORY, 'third_party', 'externals', 'google-api-python-client')
+if APICLIENT_DIRECTORY not in sys.path:
+  sys.path.append(APICLIENT_DIRECTORY)
+from googleapiclient.discovery import build as build_service
+
+
+GM_SUMMARIES_BUCKET = buildbot_globals.Get('gm_summaries_bucket')
+DEFAULT_ACTUALS_BASE_URL = (
+    'http://storage.googleapis.com/%s' % GM_SUMMARIES_BUCKET)
 DEFAULT_JSON_FILENAME = 'actual-results.json'
 
 
@@ -96,6 +105,8 @@ class Download(object):
             test_name=test, hash_type=hash_type, hash_digest=hash_digest,
             gm_actuals_root_url=self._gm_actuals_root_url)
         dest_path = os.path.join(dest_dir, config, test + '.png')
+        # TODO(epoger): To speed this up, we should only download files that
+        # we don't already have on local disk.
         copy_contents(source_url=source_url, dest_path=dest_path,
                       create_subdirs_if_needed=True)
 
@@ -151,6 +162,43 @@ def copy_contents(source_url, dest_path, create_subdirs_if_needed=False):
       shutil.copyfileobj(fsrc=source_handle, fdst=dest_handle)
 
 
+def gcs_list_bucket_contents(bucket, subdir=None):
+  """ Returns files in the Google Cloud Storage bucket as a (dirs, files) tuple.
+
+  Uses the API documented at
+  https://developers.google.com/storage/docs/json_api/v1/objects/list
+
+  Args:
+    bucket: name of the Google Storage bucket
+    subdir: directory within the bucket to list, or None for root directory
+  """
+  # The GCS command relies on the subdir name (if any) ending with a slash.
+  if subdir and not subdir.endswith('/'):
+    subdir += '/'
+  subdir_length = len(subdir) if subdir else 0
+
+  storage = build_service('storage', 'v1')
+  command = storage.objects().list(
+      bucket=bucket, delimiter='/', fields='items(name),prefixes',
+      prefix=subdir)
+  results = command.execute()
+
+  # The GCS command returned two subdicts:
+  # prefixes: the full path of every directory within subdir, with trailing '/'
+  # items: property dict for each file object within subdir
+  #        (including 'name', which is full path of the object)
+  dirs = []
+  for dir_fullpath in results.get('prefixes', []):
+    dir_basename = dir_fullpath[subdir_length:]
+    dirs.append(dir_basename[:-1])  # strip trailing slash
+  files = []
+  for file_properties in results.get('items', []):
+    file_fullpath = file_properties['name']
+    file_basename = file_fullpath[subdir_length:]
+    files.append(file_basename)
+  return (dirs, files)
+
+
 def main():
   parser = optparse.OptionParser()
   required_params = []
@@ -159,16 +207,17 @@ def main():
                     default=DEFAULT_ACTUALS_BASE_URL,
                     help=('Base URL from which to read files containing JSON '
                           'summaries of actual GM results; defaults to '
-                          '"%default". To get a specific revision (useful for '
-                          'trybots) replace "svn" with "svn-history/r123".'))
-  # TODO(epoger): Rather than telling the user to run "svn ls" to get the list
-  # of builders, add a --list-builders option that will print the list.
+                          '"%default".'))
   required_params.append('builder')
+  # TODO(epoger): Before https://codereview.chromium.org/309653005 , when this
+  # tool downloaded the JSON summaries from skia-autogen, it had the ability
+  # to get results as of a specific revision number.  We should add similar
+  # functionality when retrieving the summaries from Google Storage.
   parser.add_option('--builder',
                     action='store', type='string',
                     help=('REQUIRED: Which builder to download results for. '
-                          'To see a list of builders, run "svn ls %s".' %
-                          DEFAULT_ACTUALS_BASE_URL))
+                          'To see a list of builders, run with the '
+                          '--list-builders option set.'))
   required_params.append('dest_dir')
   parser.add_option('--dest-dir',
                     action='store', type='string',
@@ -180,7 +229,14 @@ def main():
                     default=DEFAULT_JSON_FILENAME,
                     help=('JSON summary filename to read for each builder; '
                           'defaults to "%default".'))
+  parser.add_option('--list-builders', action='store_true',
+                    help=('List all available builders.'))
   (params, remaining_args) = parser.parse_args()
+
+  if params.list_builders:
+    dirs, _ = gcs_list_bucket_contents(bucket=GM_SUMMARIES_BUCKET)
+    print '\n'.join(dirs)
+    return
 
   # Make sure all required options were set,
   # and that there were no items left over in the command line.
