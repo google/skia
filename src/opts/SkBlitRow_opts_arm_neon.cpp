@@ -17,6 +17,7 @@
 #include "SkColor_opts_neon.h"
 #include <arm_neon.h>
 
+#ifdef SK_CPU_ARM
 void S32_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
                            const SkPMColor* SK_RESTRICT src, int count,
                            U8CPU alpha, int /*x*/, int /*y*/) {
@@ -575,6 +576,7 @@ void S32_D565_Blend_Dither_neon(uint16_t *dst, const SkPMColor *src,
         } while (--count != 0);
     }
 }
+#endif
 
 void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
                                 const SkPMColor* SK_RESTRICT src,
@@ -919,6 +921,7 @@ void S32_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
     }
 }
 
+#ifdef SK_CPU_ARM
 void S32A_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
                          const SkPMColor* SK_RESTRICT src,
                          int count, U8CPU alpha) {
@@ -1366,6 +1369,7 @@ void S32_D565_Opaque_Dither_neon(uint16_t* SK_RESTRICT dst,
         } while (--count != 0);
     }
 }
+#endif
 
 void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
                       SkPMColor color) {
@@ -1401,13 +1405,13 @@ void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
             // load src color, 8 pixels, 4 64 bit registers
             // (and increment src).
             uint32x2x4_t vsrc;
-#if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6))
+#if defined(SK_CPU_ARM) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6)))
             asm (
                 "vld1.32    %h[vsrc], [%[src]]!"
                 : [vsrc] "=w" (vsrc), [src] "+r" (src)
                 : :
             );
-#else // (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6))
+#else // 64bit targets and Clang
             vsrc.val[0] = vld1_u32(src);
             vsrc.val[1] = vld1_u32(src+2);
             vsrc.val[2] = vld1_u32(src+4);
@@ -1443,14 +1447,14 @@ void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
 
             // store back the 8 calculated pixels (2 128 bit
             // registers), and increment dst.
-#if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6))
+#if defined(SK_CPU_ARM) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6)))
             asm (
                 "vst1.32    %h[vdst], [%[dst]]!"
                 : [dst] "+r" (dst)
                 : [vdst] "w" (vdst)
                 : "memory"
             );
-#else // (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6))
+#else // 64bit targets and Clang
             vst1q_u32(dst, vdst.val[0]);
             vst1q_u32(dst+4, vdst.val[1]);
             dst += 8;
@@ -1471,6 +1475,7 @@ void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
 ///////////////////////////////////////////////////////////////////////////////
 
 const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm_neon[] = {
+#ifdef SK_CPU_ARM
     // no dither
     S32_D565_Opaque_neon,
     S32_D565_Blend_neon,
@@ -1482,6 +1487,10 @@ const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm_neon[] = {
     S32_D565_Blend_Dither_neon,
     S32A_D565_Opaque_Dither_neon,
     NULL,   // S32A_D565_Blend_Dither
+#else
+    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
+#endif
 };
 
 const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm_neon[] = {
@@ -1502,5 +1511,9 @@ const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm_neon[] = {
 #else
     S32A_Opaque_BlitRow32_neon,     // S32A_Opaque,
 #endif
+#ifdef SK_CPU_ARM
     S32A_Blend_BlitRow32_neon        // S32A_Blend
+#else
+    NULL
+#endif
 };
