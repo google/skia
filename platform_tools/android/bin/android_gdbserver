@@ -29,7 +29,6 @@ for library_file in \
     libm.so \
     liblog.so \
     libz.so \
-    libcutils.so \
     libgccdemangle.so \
     libcorkscrew.so \
     libutils.so \

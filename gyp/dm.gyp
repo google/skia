@@ -63,10 +63,7 @@
         ],
         'conditions': [
           ['skia_android_framework', {
-              'libraries': [
-                '-lcutils',
-                '-lskia',
-              ],
+              'libraries': [ '-lskia' ],
           }],
           ['skia_poppler_enabled', {
               'sources':      [ '../src/utils/SkPDFRasterizer.cpp' ],

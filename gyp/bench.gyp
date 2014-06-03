@@ -38,7 +38,6 @@
           {
             'libraries': [
               '-lskia',
-              '-lcutils',
             ],
           },
         ],

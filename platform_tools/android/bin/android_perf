@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # android_perf: utility for running perf on an android device
-# 
+#
 # The basic usage sequence is to run...
 #  1) perf record [gm/tests/bench] # runs profiler on specified app
 #  2) perf report # prints profiler results
@@ -42,7 +42,6 @@ perf_setup() {
     echo "Copying symbol files"
     adb_pull_if_needed /system/lib/libc.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libstlport.so $TMP_SYS_LIB
-    adb_pull_if_needed /system/lib/libcutils.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libGLESv2.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libandroid.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libm.so $TMP_SYS_LIB

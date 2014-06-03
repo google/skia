@@ -55,7 +55,6 @@
         ['skia_android_framework', {
           'libraries': [
             '-lskia',
-            '-lcutils',
           ],
         }],
         ['skia_run_pdfviewer_in_gm or skia_poppler_enabled', {
