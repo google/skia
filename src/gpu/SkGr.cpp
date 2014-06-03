@@ -16,6 +16,7 @@
 #include "GrDrawTargetCaps.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
+#  include "ktx.h"
 #  include "etc1.h"
 #endif
 
@@ -135,7 +136,7 @@ static void add_genID_listener(GrResourceKey key, SkPixelRef* pixelRef) {
 static GrTexture *load_etc1_texture(GrContext* ctx,
                                     const GrTextureParams* params,
                                     const SkBitmap &bm, GrTextureDesc desc) {
-    SkData *data = bm.pixelRef()->refEncodedData();
+    SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
 
     // Is this even encoded data?
     if (NULL == data) {
@@ -144,23 +145,39 @@ static GrTexture *load_etc1_texture(GrContext* ctx,
 
     // Is this a valid PKM encoded data?
     const uint8_t *bytes = data->bytes();
-    if (!etc1_pkm_is_valid(bytes)) {
+    if (etc1_pkm_is_valid(bytes)) {
+        uint32_t encodedWidth = etc1_pkm_get_width(bytes);
+        uint32_t encodedHeight = etc1_pkm_get_height(bytes);
+
+        // Does the data match the dimensions of the bitmap? If not,
+        // then we don't know how to scale the image to match it...
+        if (encodedWidth != static_cast<uint32_t>(bm.width()) ||
+            encodedHeight != static_cast<uint32_t>(bm.height())) {
+            return NULL;
+        }
+
+        // Everything seems good... skip ahead to the data.
+        bytes += ETC_PKM_HEADER_SIZE;
+        desc.fConfig = kETC1_GrPixelConfig;
+    } else if (SkKTXFile::is_ktx(bytes)) {
+        SkKTXFile ktx(data);
+
+        // Is it actually an ETC1 texture?
+        if (!ktx.isETC1()) {
+            return NULL;
+        }
+
+        // Does the data match the dimensions of the bitmap? If not,
+        // then we don't know how to scale the image to match it...
+        if (ktx.width() != bm.width() || ktx.height() != bm.height()) {
+            return NULL;
+        }        
+
+        bytes = ktx.pixelData();
+        desc.fConfig = kETC1_GrPixelConfig;
+    } else {
         return NULL;
     }
-
-    uint32_t encodedWidth = etc1_pkm_get_width(bytes);
-    uint32_t encodedHeight = etc1_pkm_get_height(bytes);
-
-    // Does the data match the dimensions of the bitmap? If not,
-    // then we don't know how to scale the image to match it...
-    if (encodedWidth != static_cast<uint32_t>(bm.width()) ||
-        encodedHeight != static_cast<uint32_t>(bm.height())) {
-        return NULL;
-    }
-
-    // Everything seems good... skip ahead to the data.
-    bytes += ETC_PKM_HEADER_SIZE;
-    desc.fConfig = kETC1_GrPixelConfig;
 
     // This texture is likely to be used again so leave it in the cache
     GrCacheID cacheID;

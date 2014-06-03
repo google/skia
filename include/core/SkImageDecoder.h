@@ -38,8 +38,9 @@ public:
         kWBMP_Format,
         kWEBP_Format,
         kPKM_Format,
+        kKTX_Format,
 
-        kLastKnownFormat = kWEBP_Format,
+        kLastKnownFormat = kKTX_Format,
     };
 
     /** Return the format of image this decoder can decode. If this decoder can decode multiple
@@ -527,7 +528,7 @@ DECLARE_DECODER_CREATOR(PNGImageDecoder);
 DECLARE_DECODER_CREATOR(WBMPImageDecoder);
 DECLARE_DECODER_CREATOR(WEBPImageDecoder);
 DECLARE_DECODER_CREATOR(PKMImageDecoder);
-
+DECLARE_DECODER_CREATOR(KTXImageDecoder);
 
 // Typedefs to make registering decoder and formatter callbacks easier.
 // These have to be defined outside SkImageDecoder. :(

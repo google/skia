@@ -10,6 +10,7 @@
         'core.gyp:*',
         'libjpeg.gyp:*',
         'etc1.gyp:libetc1',
+        'ktx.gyp:libSkKTX',
         'libwebp.gyp:libwebp',
         'utils.gyp:utils',
       ],
@@ -61,6 +62,7 @@
         # alphabetical order.
         '../src/images/SkImageDecoder_wbmp.cpp',
         '../src/images/SkImageDecoder_pkm.cpp',
+        '../src/images/SkImageDecoder_ktx.cpp',
         '../src/images/SkImageDecoder_libbmp.cpp',
         '../src/images/SkImageDecoder_libgif.cpp',
         '../src/images/SkImageDecoder_libico.cpp',

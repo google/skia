@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkData.h"
 #include "SkStream.h"
 #include "SkStreamHelpers.h"
 #include "SkTypes.h"
@@ -37,4 +38,30 @@ size_t CopyStreamToStorage(SkAutoMalloc* storage, SkStream* stream) {
     void* dst = storage->reset(length);
     tempStream.copyTo(dst);
     return length;
+}
+
+SkData *CopyStreamToData(SkStream* stream) {
+    SkASSERT(stream != NULL);
+
+    if (stream->hasLength()) {
+        const size_t length = stream->getLength();
+        void* dst = sk_malloc_throw(length);
+        if (stream->read(dst, length) != length) {
+            return 0;
+        }
+        return SkData::NewFromMalloc(dst, length);
+    }
+
+    SkDynamicMemoryWStream tempStream;
+    // Arbitrary buffer size.
+    const size_t bufferSize = 256 * 1024; // 256KB
+    char buffer[bufferSize];
+    SkDEBUGCODE(size_t debugLength = 0;)
+    do {
+        size_t bytesRead = stream->read(buffer, bufferSize);
+        tempStream.write(buffer, bytesRead);
+        SkDEBUGCODE(debugLength += bytesRead);
+        SkASSERT(tempStream.bytesWritten() == debugLength);
+    } while (!stream->isAtEnd());
+    return tempStream.copyToData();
 }

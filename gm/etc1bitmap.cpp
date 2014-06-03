@@ -15,7 +15,7 @@
 namespace skiagm {
 
 /**
- *  Test decoding an image from a PKM file and then
+ *  Test decoding an image from a PKM or KTX file and then
  *  from compressed ETC1 data.
  */
 class ETC1BitmapGM : public GM {
@@ -25,18 +25,22 @@ public:
 
 protected:
     virtual SkString onShortName() SK_OVERRIDE {
-        return SkString("etc1bitmap");
+        SkString str = SkString("etc1bitmap_");
+        str.append(this->fileExtension());
+        return str;
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(512, 512);
+        return make_isize(128, 128);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual SkString fileExtension() const = 0;
 
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkBitmap bm;
         SkString filename = SkOSPath::SkPathJoin(
-                INHERITED::gResourcePath.c_str(), "mandrill_512.pkm");
+                INHERITED::gResourcePath.c_str(), "mandrill_128.");
+        filename.append(this->fileExtension());
 
         SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(filename.c_str()));
         if (NULL == fileData) {
@@ -58,8 +62,37 @@ private:
     typedef GM INHERITED;
 };
 
+// This class specializes ETC1BitmapGM to load the mandrill_128.pkm file.
+class ETC1Bitmap_PKM_GM : public ETC1BitmapGM {
+public:
+    ETC1Bitmap_PKM_GM() : ETC1BitmapGM() { }
+    virtual ~ETC1Bitmap_PKM_GM() { }
+
+protected:
+
+    virtual SkString fileExtension() const SK_OVERRIDE { return SkString("pkm"); }
+
+private:
+    typedef ETC1BitmapGM INHERITED;
+};
+
+// This class specializes ETC1BitmapGM to load the mandrill_128.ktx file.
+class ETC1Bitmap_KTX_GM : public ETC1BitmapGM {
+public:
+    ETC1Bitmap_KTX_GM() : ETC1BitmapGM() { }
+    virtual ~ETC1Bitmap_KTX_GM() { }
+
+protected:
+
+    virtual SkString fileExtension() const SK_OVERRIDE { return SkString("ktx"); }
+
+private:
+    typedef ETC1BitmapGM INHERITED;
+};
+
 }  // namespace skiagm
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(skiagm::ETC1BitmapGM); )
+DEF_GM( return SkNEW(skiagm::ETC1Bitmap_PKM_GM); )
+DEF_GM( return SkNEW(skiagm::ETC1Bitmap_KTX_GM); )
