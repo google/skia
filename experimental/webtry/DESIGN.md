@@ -167,7 +167,7 @@ Initial setup of the database, the user, and the only table:
     );
 
     CREATE TABLE source_images (
-      id        INTEGER     PRIMARY KEY                NOT NULL,
+      id        INTEGER     PRIMARY KEY                NOT NULL AUTO_INCREMENT,
       image     MEDIUMBLOB  DEFAULT ''                 NOT NULL, -- Stored as PNG.
       width     INTEGER     DEFAULT 0                  NOT NULL,
       height    INTEGER     DEFAULT 0                  NOT NULL,
