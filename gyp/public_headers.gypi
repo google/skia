@@ -197,7 +197,6 @@
       'core/SkComposeShader.h',
       'core/SkUtils.h',
       'core/SkImage.h',
-      'core/SkTileGridPicture.h',
       'core/SkPaintOptionsAndroid.h',
       'core/SkDeviceProperties.h',
       'core/SkGraphics.h',
