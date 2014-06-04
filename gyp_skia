@@ -29,6 +29,7 @@ sys.path.insert(0, os.path.join(gyp_source_dir, 'pylib'))
 import gyp
 
 ENVVAR_GYP_GENERATORS = 'GYP_GENERATORS'
+ENVVAR_GYP_GENERATOR_FLAGS = 'GYP_GENERATOR_FLAGS'
 
 
 def additional_include_files(args=[]):
@@ -125,6 +126,13 @@ if __name__ == '__main__':
 
   # By default, we build 'most' instead of 'all' or 'everything'. See skia.gyp.
   args.extend(['-Gdefault_target=most'])
+
+  # Fail if any files specified in the project are missing
+  if sys.platform.startswith('win'):
+    gyp_generator_flags = os.getenv(ENVVAR_GYP_GENERATOR_FLAGS, '')
+    if not 'msvs_error_on_missing_sources' in gyp_generator_flags:
+      os.environ[ENVVAR_GYP_GENERATOR_FLAGS] = (
+          gyp_generator_flags + ' msvs_error_on_missing_sources=1')
 
   print 'Updating projects from gyp files...'
   sys.stdout.flush()
