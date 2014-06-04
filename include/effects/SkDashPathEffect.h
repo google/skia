@@ -61,6 +61,8 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
+    void setInternalMembers(SkScalar phase);
+
     SkScalar*   fIntervals;
     int32_t     fCount;
     SkScalar    fPhase;

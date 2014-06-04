@@ -72,8 +72,6 @@
         '../src/utils/SkCanvasStateUtils.cpp',
         '../src/utils/SkCubicInterval.cpp',
         '../src/utils/SkCullPoints.cpp',
-        '../src/utils/SkDashPath.cpp',
-        '../src/utils/SkDashPathPriv.h',
         '../src/utils/SkDeferredCanvas.cpp',
         '../src/utils/SkDumpCanvas.cpp',
         '../src/utils/SkEventTracer.cpp',
