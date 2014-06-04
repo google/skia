@@ -20,14 +20,28 @@ import re
 import shutil
 import socket
 import subprocess
+import sys
 import thread
 import threading
 import time
 import urlparse
 
 # Imports from within Skia
-import fix_pythonpath  # must do this first
-from pyutils import gs_utils
+#
+# We need to add the 'tools' directory for svn.py, and the 'gm' directory for
+# gm_json.py .
+# that directory.
+# Make sure that the 'tools' dir is in the PYTHONPATH, but add it at the *end*
+# so any dirs that are already in the PYTHONPATH will be preferred.
+PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+GM_DIRECTORY = os.path.dirname(PARENT_DIRECTORY)
+TRUNK_DIRECTORY = os.path.dirname(GM_DIRECTORY)
+TOOLS_DIRECTORY = os.path.join(TRUNK_DIRECTORY, 'tools')
+if TOOLS_DIRECTORY not in sys.path:
+  sys.path.append(TOOLS_DIRECTORY)
+import svn
+if GM_DIRECTORY not in sys.path:
+  sys.path.append(GM_DIRECTORY)
 import gm_json
 
 # Imports from local dir
@@ -37,7 +51,6 @@ import gm_json
 # https://codereview.chromium.org/195943004/diff/1/gm/rebaseline_server/server.py#newcode44
 import compare_configs
 import compare_to_expectations
-import download_actuals
 import imagepairset
 import results as results_mod
 
@@ -61,12 +74,10 @@ KEY__EDITS__OLD_RESULTS_HASH = 'oldResultsHash'
 KEY__EDITS__OLD_RESULTS_TYPE = 'oldResultsType'
 
 DEFAULT_ACTUALS_DIR = results_mod.DEFAULT_ACTUALS_DIR
-DEFAULT_GM_SUMMARIES_BUCKET = download_actuals.GM_SUMMARIES_BUCKET
-DEFAULT_JSON_FILENAME = download_actuals.DEFAULT_JSON_FILENAME
+DEFAULT_ACTUALS_REPO_REVISION = 'HEAD'
+DEFAULT_ACTUALS_REPO_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 DEFAULT_PORT = 8888
 
-PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(PARENT_DIRECTORY))
 # Directory, relative to PARENT_DIRECTORY, within which the server will serve
 # out live results (not static files).
 RESULTS_SUBDIR = 'results'
@@ -128,6 +139,24 @@ def _get_routable_ip_address():
   return host
 
 
+def _create_svn_checkout(dir_path, repo_url):
+  """Creates local checkout of an SVN repository at the specified directory
+  path, returning an svn.Svn object referring to the local checkout.
+
+  Args:
+    dir_path: path to the local checkout; if this directory does not yet exist,
+              it will be created and the repo will be checked out into it
+    repo_url: URL of SVN repo to check out into dir_path (unless the local
+              checkout already exists)
+  Returns: an svn.Svn object referring to the local checkout.
+  """
+  local_checkout = svn.Svn(dir_path)
+  if not os.path.isdir(dir_path):
+    os.makedirs(dir_path)
+    local_checkout.Checkout(repo_url, '.')
+  return local_checkout
+
+
 def _create_index(file_path, config_pairs):
   """Creates an index file linking to all results available from this server.
 
@@ -184,18 +213,18 @@ class Server(object):
 
   def __init__(self,
                actuals_dir=DEFAULT_ACTUALS_DIR,
-               json_filename=DEFAULT_JSON_FILENAME,
-               gm_summaries_bucket=DEFAULT_GM_SUMMARIES_BUCKET,
+               actuals_repo_revision=DEFAULT_ACTUALS_REPO_REVISION,
+               actuals_repo_url=DEFAULT_ACTUALS_REPO_URL,
                port=DEFAULT_PORT, export=False, editable=True,
                reload_seconds=0, config_pairs=None, builder_regex_list=None):
     """
     Args:
       actuals_dir: directory under which we will check out the latest actual
           GM results
-      json_filename: basename of the JSON summary file to load for each builder
-      gm_summaries_bucket: Google Storage bucket to download json_filename
-          files from; if None or '', don't fetch new actual-results files
-          at all, just compare to whatever files are already in actuals_dir
+      actuals_repo_revision: revision of actual-results.json files to process
+      actuals_repo_url: SVN repo to download actual-results.json files from;
+          if None or '', don't fetch new actual-results files at all,
+          just compare to whatever files are already in actuals_dir
       port: which TCP port to listen on for HTTP requests
       export: whether to allow HTTP clients on other hosts to access this server
       editable: whether HTTP clients are allowed to submit new baselines
@@ -208,8 +237,8 @@ class Server(object):
           we will process. If None, process all builders.
     """
     self._actuals_dir = actuals_dir
-    self._json_filename = json_filename
-    self._gm_summaries_bucket = gm_summaries_bucket
+    self._actuals_repo_revision = actuals_repo_revision
+    self._actuals_repo_url = actuals_repo_url
     self._port = port
     self._export = export
     self._editable = editable
@@ -221,6 +250,11 @@ class Server(object):
             PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR, GENERATED_HTML_SUBDIR,
             "index.html"),
         config_pairs=config_pairs)
+    # TODO(epoger): Create shareable functions within download_actuals.py that
+    # we can use both there and here to download the actual image results.
+    if actuals_repo_url:
+      self._actuals_repo = _create_svn_checkout(
+          dir_path=actuals_dir, repo_url=actuals_repo_url)
 
     # Reentrant lock that must be held whenever updating EITHER of:
     # 1. self._results
@@ -268,66 +302,26 @@ class Server(object):
     with self.results_rlock:
       if invalidate:
         self._results = None
-      if self._gm_summaries_bucket:
+      if self._actuals_repo_url:
         logging.info(
-            'Updating GM result summaries in %s from gm_summaries_bucket %s ...'
-            % (self._actuals_dir, self._gm_summaries_bucket))
-
-        # Clean out actuals_dir first, in case some builders have gone away
-        # since we last ran.
-        if os.path.isdir(self._actuals_dir):
-          shutil.rmtree(self._actuals_dir)
-
-        # Get the list of builders we care about.
-        all_builders = download_actuals.get_builders_list(
-            summaries_bucket=self._gm_summaries_bucket)
-        if self._builder_regex_list:
-          matching_builders = []
-          for builder in all_builders:
-            for regex in self._builder_regex_list:
-              if re.match(regex, builder):
-                matching_builders.append(builder)
-                break  # go on to the next builder, no need to try more regexes
-        else:
-          matching_builders = all_builders
-
-        # Download the JSON file for each builder we care about.
-        #
-        # TODO(epoger): When this is a large number of builders, we would be
-        # better off downloading them in parallel!
-        for builder in matching_builders:
-          gs_utils.download_file(
-              source_bucket=self._gm_summaries_bucket,
-              source_path=posixpath.join(builder, self._json_filename),
-              dest_path=os.path.join(self._actuals_dir, builder,
-                                     self._json_filename),
-              create_subdirs_if_needed=True)
+            'Updating actual GM results in %s to revision %s from repo %s ...'
+            % (
+                self._actuals_dir, self._actuals_repo_revision,
+                self._actuals_repo_url))
+        self._actuals_repo.Update(
+            path='.', revision=self._actuals_repo_revision)
 
       # We only update the expectations dir if the server was run with a
       # nonzero --reload argument; otherwise, we expect the user to maintain
       # her own expectations as she sees fit.
       #
-      # Because the Skia repo is hosted using git, and git does not
+      # Because the Skia repo is moving from SVN to git, and git does not
       # support updating a single directory tree, we have to update the entire
       # repo checkout.
       #
       # Because Skia uses depot_tools, we have to update using "gclient sync"
-      # instead of raw git commands.
-      #
-      # TODO(epoger): Fetch latest expectations in some other way.
-      # Eric points out that our official documentation recommends an
-      # unmanaged Skia checkout, so "gclient sync" will not bring down updated
-      # expectations from origin/master-- you'd have to do a "git pull" of
-      # some sort instead.
-      # However, the live rebaseline_server at
-      # http://skia-tree-status.appspot.com/redirect/rebaseline-server (which
-      # is probably the only user of the --reload flag!) uses a managed
-      # checkout, so "gclient sync" works in that case.
-      # Probably the best idea is to avoid all of this nonsense by fetching
-      # updated expectations into a temp directory, and leaving the rest of
-      # the checkout alone.  This could be done using "git show", or by
-      # downloading individual expectation JSON files from
-      # skia.googlesource.com .
+      # instead of raw git (or SVN) update.  Happily, this will work whether
+      # the checkout was created using git or SVN.
       if self._reload_seconds:
         logging.info(
             'Updating expected GM results in %s by syncing Skia repo ...' %
@@ -629,11 +623,18 @@ def main():
                           'actual GM results. If this directory does not '
                           'exist, it will be created. Defaults to %(default)s'),
                     default=DEFAULT_ACTUALS_DIR)
-  # TODO(epoger): Before https://codereview.chromium.org/310093003 ,
-  # when this tool downloaded the JSON summaries from skia-autogen,
-  # it had an --actuals-revision the caller could specify to download
-  # actual results as of a specific point in time.  We should add similar
-  # functionality when retrieving the summaries from Google Storage.
+  parser.add_argument('--actuals-repo',
+                    help=('URL of SVN repo to download actual-results.json '
+                          'files from. Defaults to %(default)s ; if set to '
+                          'empty string, just compare to actual-results '
+                          'already found in ACTUALS_DIR.'),
+                    default=DEFAULT_ACTUALS_REPO_URL)
+  parser.add_argument('--actuals-revision',
+                    help=('revision of actual-results.json files to process. '
+                          'Defaults to %(default)s .  Beware of setting this '
+                          'argument in conjunction with --editable; you '
+                          'probably only want to edit results at HEAD.'),
+                    default=DEFAULT_ACTUALS_REPO_REVISION)
   parser.add_argument('--builders', metavar='BUILDER_REGEX', nargs='+',
                       help=('Only process builders matching these regular '
                             'expressions.  If unspecified, process all '
@@ -651,17 +652,6 @@ def main():
                             'to access this server.  WARNING: doing so will '
                             'allow users on other hosts to modify your '
                             'GM expectations, if combined with --editable.'))
-  parser.add_argument('--gm-summaries-bucket',
-                    help=('Google Cloud Storage bucket to download '
-                          'JSON_FILENAME files from. '
-                          'Defaults to %(default)s ; if set to '
-                          'empty string, just compare to actual-results '
-                          'already found in ACTUALS_DIR.'),
-                    default=DEFAULT_GM_SUMMARIES_BUCKET)
-  parser.add_argument('--json-filename',
-                    help=('JSON summary filename to read for each builder; '
-                          'defaults to %(default)s.'),
-                    default=DEFAULT_JSON_FILENAME)
   parser.add_argument('--port', type=int,
                       help=('Which TCP port to listen on for HTTP requests; '
                             'defaults to %(default)s'),
@@ -682,8 +672,8 @@ def main():
 
   global _SERVER
   _SERVER = Server(actuals_dir=args.actuals_dir,
-                   json_filename=args.json_filename,
-                   gm_summaries_bucket=args.gm_summaries_bucket,
+                   actuals_repo_revision=args.actuals_revision,
+                   actuals_repo_url=args.actuals_repo,
                    port=args.port, export=args.export, editable=args.editable,
                    reload_seconds=args.reload, config_pairs=config_pairs,
                    builder_regex_list=args.builders)
