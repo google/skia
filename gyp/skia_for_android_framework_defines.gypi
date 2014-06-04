@@ -20,7 +20,6 @@
       # Transitional, for deprecated SkCanvas::SaveFlags methods.
       'SK_ATTR_DEPRECATED=SK_NOTHING_ARG1',
       'SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX',
-      'SK_SUPPORT_LEGACY_DRAWPICTURE_API',
     ],
   },
 }
