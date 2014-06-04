@@ -1651,14 +1651,14 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         SkPaint2GrPaintShader(this->context(), paint, NULL == colors, &grPaint);
     }
 
+#if 0
     if (NULL != xmode && NULL != texs && NULL != colors) {
         if (!SkXfermode::IsMode(xmode, SkXfermode::kModulate_Mode)) {
             SkDebugf("Unsupported vertex-color/texture xfer mode.\n");
-#if 0
-            return
-#endif
+            return;
         }
     }
+#endif
 
     SkAutoSTMalloc<128, GrColor> convertedColors(0);
     if (NULL != colors) {
