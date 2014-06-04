@@ -346,7 +346,7 @@ static void draw(SkPicture* pic, int width, int height, SkBitmap* result) {
     make_bm(result, width, height, SK_ColorBLACK, false);
 
     SkCanvas canvas(*result);
-    canvas.drawPicture(*pic);
+    canvas.drawPicture(pic);
 }
 
 template <typename T> int find_index(const T* array, T elem, int count) {
@@ -1066,7 +1066,7 @@ static void test_unbalanced_save_restores(skiatest::Reporter* reporter) {
         canvas->drawRect(rect, paint);
         SkAutoTUnref<SkPicture> extraSavePicture(recorder.endRecording());
 
-        testCanvas.drawPicture(*extraSavePicture);
+        testCanvas.drawPicture(extraSavePicture);
         REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
     }
 
@@ -1087,7 +1087,7 @@ static void test_unbalanced_save_restores(skiatest::Reporter* reporter) {
         canvas->restore();
         SkAutoTUnref<SkPicture> extraRestorePicture(recorder.endRecording());
 
-        testCanvas.drawPicture(*extraRestorePicture);
+        testCanvas.drawPicture(extraRestorePicture);
         REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
     }
 
@@ -1099,7 +1099,7 @@ static void test_unbalanced_save_restores(skiatest::Reporter* reporter) {
         canvas->drawRect(rect, paint);
         SkAutoTUnref<SkPicture> noSavePicture(recorder.endRecording());
 
-        testCanvas.drawPicture(*noSavePicture);
+        testCanvas.drawPicture(noSavePicture);
         REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
         REPORTER_ASSERT(reporter, testCanvas.getTotalMatrix().isIdentity());
     }
@@ -1152,7 +1152,7 @@ static void test_bad_bitmap() {
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     SkCanvas canvas;
-    canvas.drawPicture(*picture);
+    canvas.drawPicture(picture);
 }
 #endif
 
@@ -1247,7 +1247,7 @@ static void test_draw_empty(skiatest::Reporter* reporter) {
         recorder.beginRecording(1, 1, NULL, 0);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
-        canvas.drawPicture(*picture);
+        canvas.drawPicture(picture);
     }
 
     {
@@ -1262,7 +1262,7 @@ static void test_draw_empty(skiatest::Reporter* reporter) {
         recorder.beginRecording(1, 1, &factory, 0);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
-        canvas.drawPicture(*picture);
+        canvas.drawPicture(picture);
     }
 
     {
@@ -1272,7 +1272,7 @@ static void test_draw_empty(skiatest::Reporter* reporter) {
         recorder.beginRecording(1, 1, &factory, 0);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
-        canvas.drawPicture(*picture);
+        canvas.drawPicture(picture);
     }
 
     {
@@ -1282,7 +1282,7 @@ static void test_draw_empty(skiatest::Reporter* reporter) {
         recorder.beginRecording(1, 1, &factory, 0);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
-        canvas.drawPicture(*picture);
+        canvas.drawPicture(picture);
     }
 }
 
@@ -1460,27 +1460,27 @@ static void test_hierarchical(skiatest::Reporter* reporter) {
 
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10, NULL, 0);
-        canvas->drawPicture(*childPlain);
+        canvas->drawPicture(childPlain);
         SkAutoTUnref<SkPicture> parentPP(recorder.endRecording());
         REPORTER_ASSERT(reporter, !parentPP->willPlayBackBitmaps()); // 0
     }
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10, NULL, 0);
-        canvas->drawPicture(*childWithBitmap);
+        canvas->drawPicture(childWithBitmap);
         SkAutoTUnref<SkPicture> parentPWB(recorder.endRecording());
         REPORTER_ASSERT(reporter, parentPWB->willPlayBackBitmaps()); // 1
     }
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10, NULL, 0);
         canvas->drawBitmap(bm, 0, 0);
-        canvas->drawPicture(*childPlain);
+        canvas->drawPicture(childPlain);
         SkAutoTUnref<SkPicture> parentWBP(recorder.endRecording());
         REPORTER_ASSERT(reporter, parentWBP->willPlayBackBitmaps()); // 1
     }
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10, NULL, 0);
         canvas->drawBitmap(bm, 0, 0);
-        canvas->drawPicture(*childWithBitmap);
+        canvas->drawPicture(childWithBitmap);
         SkAutoTUnref<SkPicture> parentWBWB(recorder.endRecording());
         REPORTER_ASSERT(reporter, parentWBWB->willPlayBackBitmaps()); // 2
     }

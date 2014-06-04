@@ -74,13 +74,13 @@ public:
         canvas->drawBitmap(fBitmap, 0, 0, NULL);
 
         drawCircle(canvas, 50, SK_ColorBLACK);
-        canvas->drawPicture(*fSubPicture);
+        canvas->drawPicture(fSubPicture);
         canvas->translate(SkIntToScalar(50), 0);
-        canvas->drawPicture(*fSubPicture);
+        canvas->drawPicture(fSubPicture);
         canvas->translate(0, SkIntToScalar(50));
-        canvas->drawPicture(*fSubPicture);
+        canvas->drawPicture(fSubPicture);
         canvas->translate(SkIntToScalar(-50), 0);
-        canvas->drawPicture(*fSubPicture);
+        canvas->drawPicture(fSubPicture);
 
         fPicture = recorder.endRecording();
 
@@ -140,28 +140,28 @@ protected:
         canvas->translate(SkIntToScalar(300), SkIntToScalar(50));
         canvas->scale(-SK_Scalar1, -SK_Scalar1);
         canvas->translate(-SkIntToScalar(100), -SkIntToScalar(50));
-        canvas->drawPicture(*pict);
+        canvas->drawPicture(pict);
         canvas->restore();
 
         canvas->save();
         canvas->translate(SkIntToScalar(200), SkIntToScalar(150));
         canvas->scale(SK_Scalar1, -SK_Scalar1);
         canvas->translate(0, -SkIntToScalar(50));
-        canvas->drawPicture(*pict);
+        canvas->drawPicture(pict);
         canvas->restore();
 
         canvas->save();
         canvas->translate(SkIntToScalar(100), SkIntToScalar(100));
         canvas->scale(-SK_Scalar1, SK_Scalar1);
         canvas->translate(-SkIntToScalar(100), 0);
-        canvas->drawPicture(*pict);
+        canvas->drawPicture(pict);
         canvas->restore();
 
 #ifdef SK_DEVELOPER
         if (false) {
             SkDebugfDumper dumper;
             SkDumpCanvas dumpCanvas(&dumper);
-            dumpCanvas.drawPicture(*pict);
+            dumpCanvas.drawPicture(pict);
         }
 #endif
 
@@ -170,7 +170,7 @@ protected:
 
         SkRandom rand(SampleCode::GetAnimTime());
         canvas->translate(SkIntToScalar(10), SkIntToScalar(250));
-        canvas->drawPicture(*fPicture);
+        canvas->drawPicture(fPicture);
         delayInval(500);
     }
 

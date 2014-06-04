@@ -90,7 +90,6 @@ public:
                                   const SkPaint* paint) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap& bitmap, int left, int top,
                             const SkPaint* paint) SK_OVERRIDE;
-    virtual void drawPicture(SkPicture&) SK_OVERRIDE;
     virtual void drawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint vertices[], const SkPoint texs[],
                               const SkColor colors[], SkXfermode* xmode,
@@ -125,6 +124,8 @@ protected:
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
+
+    virtual void onDrawPicture(const SkPicture*) SK_OVERRIDE;
 
     static const char* EdgeStyleToAAString(ClipEdgeStyle edgeStyle);
 

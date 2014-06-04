@@ -35,7 +35,7 @@ void DrawPicture(SkPicture* picture, SkBitmap* bitmap) {
     SkASSERT(picture != NULL);
     SkASSERT(bitmap != NULL);
     SkCanvas canvas(*bitmap);
-    canvas.drawPicture(*picture);
+    canvas.drawPicture(picture);
     canvas.flush();
 }
 

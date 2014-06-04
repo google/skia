@@ -519,7 +519,7 @@ void SkDebugCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawPathCommand(path, paint));
 }
 
-void SkDebugCanvas::drawPicture(SkPicture& picture) {
+void SkDebugCanvas::onDrawPicture(const SkPicture* picture) {
     this->addDrawCommand(new SkDrawPictureCommand(picture));
 }
 

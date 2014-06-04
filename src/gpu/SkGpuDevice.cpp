@@ -1816,7 +1816,7 @@ SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info) {
     return SkSurface::NewRenderTarget(fContext, info, fRenderTarget->numSamples());
 }
 
-void SkGpuDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
+void SkGpuDevice::EXPERIMENTAL_optimize(const SkPicture* picture) {
     SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();
 
     const SkPicture::AccelData* existing = picture->EXPERIMENTAL_getAccelData(key);
@@ -1837,11 +1837,11 @@ static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* re
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
 }
 
-void SkGpuDevice::EXPERIMENTAL_purge(SkPicture* picture) {
+void SkGpuDevice::EXPERIMENTAL_purge(const SkPicture* picture) {
 
 }
 
-bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture) {
+bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture) {
 
     SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();
 

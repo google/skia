@@ -102,7 +102,7 @@ public:
 
     void freeAll();
 
-    GrCachedLayer* findLayerOrCreate(SkPicture* picture, int id);
+    GrCachedLayer* findLayerOrCreate(const SkPicture* picture, int id);
 
 private:
     SkAutoTUnref<GrGpu>       fGpu;
@@ -113,7 +113,7 @@ private:
     GrTAllocPool<GrCachedLayer> fLayerPool;
 
     void init();
-    GrCachedLayer* createLayer(SkPicture* picture, int id);
+    GrCachedLayer* createLayer(const SkPicture* picture, int id);
 
 };
 

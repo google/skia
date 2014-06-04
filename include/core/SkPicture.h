@@ -68,7 +68,7 @@ public:
     SkPicture(const SkPicture& src);
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
-    void EXPERIMENTAL_addAccelData(const AccelData* data) {
+    void EXPERIMENTAL_addAccelData(const AccelData* data) const {
         SkRefCnt_SafeAssign(fAccelData, data);
     }
     /**  PRIVATE / EXPERIMENTAL -- do not call */
@@ -151,7 +151,7 @@ public:
         calls endRecording() if that has not already been called.
         @param canvas the canvas receiving the drawing commands.
     */
-    void draw(SkCanvas* canvas, SkDrawPictureCallback* = NULL);
+    void draw(SkCanvas* canvas, SkDrawPictureCallback* = NULL) const;
 
     /** Return the width of the picture's recording canvas. This
         value reflects what was passed to setSize(), and does not necessarily
@@ -286,7 +286,7 @@ protected:
     SkPicturePlayback*    fPlayback;
     SkPictureRecord*      fRecord;
     int                   fWidth, fHeight;
-    const AccelData*      fAccelData;
+    mutable const AccelData* fAccelData;
 
     void needsNewGenID() { fUniqueID = SK_InvalidGenID; }
 
@@ -397,7 +397,7 @@ private:
     /** PRIVATE / EXPERIMENTAL -- do not call
         Return the operations required to render the content inside 'queryRect'.
     */
-    const OperationList& EXPERIMENTAL_getActiveOps(const SkIRect& queryRect);
+    const OperationList& EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) const;
 
     /** PRIVATE / EXPERIMENTAL -- do not call
         Return the ID of the operation currently being executed when playing

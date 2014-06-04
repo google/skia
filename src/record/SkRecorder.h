@@ -52,7 +52,6 @@ public:
                     int left,
                     int top,
                     const SkPaint* paint = NULL) SK_OVERRIDE;
-    void drawPicture(SkPicture& picture) SK_OVERRIDE;
     void drawVertices(VertexMode vmode,
                       int vertexCount,
                       const SkPoint vertices[],
@@ -94,6 +93,8 @@ public:
     void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;
     void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;
     void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) SK_OVERRIDE;
+
+    void onDrawPicture(const SkPicture* picture) SK_OVERRIDE;
 
     void onPushCull(const SkRect& cullRect) SK_OVERRIDE;
     void onPopCull() SK_OVERRIDE;

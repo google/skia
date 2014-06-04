@@ -186,8 +186,8 @@ void SkRecorder::onDrawTextOnPath(const void* text, size_t byteLength, const SkP
            this->copy(matrix));
 }
 
-void SkRecorder::drawPicture(SkPicture& picture) {
-    picture.draw(this);
+void SkRecorder::onDrawPicture(const SkPicture* picture) {
+    picture->draw(this);
 }
 
 void SkRecorder::drawVertices(VertexMode vmode,

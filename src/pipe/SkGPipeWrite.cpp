@@ -249,7 +249,6 @@ public:
                                 const SkRect& dst, const SkPaint* paint = NULL) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap&, int left, int top,
                             const SkPaint*) SK_OVERRIDE;
-    virtual void drawPicture(SkPicture& picture) SK_OVERRIDE;
     virtual void drawVertices(VertexMode, int vertexCount,
                           const SkPoint vertices[], const SkPoint texs[],
                           const SkColor colors[], SkXfermode*,
@@ -288,6 +287,8 @@ protected:
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
+
+    virtual void onDrawPicture(const SkPicture* picture) SK_OVERRIDE;
 
 private:
     void recordTranslate(const SkMatrix&);
@@ -929,9 +930,9 @@ void SkGPipeCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const 
     }
 }
 
-void SkGPipeCanvas::drawPicture(SkPicture& picture) {
+void SkGPipeCanvas::onDrawPicture(const SkPicture* picture) {
     // we want to playback the picture into individual draw calls
-    this->INHERITED::drawPicture(picture);
+    this->INHERITED::onDrawPicture(picture);
 }
 
 void SkGPipeCanvas::drawVertices(VertexMode vmode, int vertexCount,

@@ -969,13 +969,13 @@ public:
         drawPicture call.
         @param picture The recorded drawing commands to analyze/optimize
     */
-    void EXPERIMENTAL_optimize(SkPicture* picture);
+    void EXPERIMENTAL_optimize(const SkPicture* picture);
 
     /** PRIVATE / EXPERIMENTAL -- do not call
         Purge all the discardable optimization information associated with
         'picture'. If NULL is passed in, purge all discardable information.
     */
-    void EXPERIMENTAL_purge(SkPicture* picture);
+    void EXPERIMENTAL_purge(const SkPicture* picture);
 
     /** Draw the picture into this canvas. This method effective brackets the
         playback of the picture's draw calls with save/restore, so the state
@@ -983,7 +983,13 @@ public:
         @param picture The recorded drawing commands to playback into this
                        canvas.
     */
-    virtual void drawPicture(SkPicture& picture);
+    void drawPicture(const SkPicture* picture);
+
+#ifdef SK_SUPPORT_LEGACY_DRAWPICTURE_API
+    virtual void drawPicture(SkPicture& picture) {
+        this->drawPicture(&picture);
+    }
+#endif
 
     enum VertexMode {
         kTriangles_VertexMode,
@@ -1241,6 +1247,8 @@ protected:
     virtual void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op);
 
     virtual void onDiscard();
+
+    virtual void onDrawPicture(const SkPicture* picture);
 
     // Returns the canvas to be used by DrawIter. Default implementation
     // returns this. Subclasses that encapsulate an indirect canvas may

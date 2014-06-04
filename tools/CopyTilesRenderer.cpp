@@ -55,7 +55,7 @@ namespace sk_tools {
                 mat.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
                 fCanvas->setMatrix(mat);
                 // Draw the picture
-                fCanvas->drawPicture(*fPicture);
+                fCanvas->drawPicture(fPicture);
                 // Now extract the picture into tiles
                 const SkBitmap& baseBitmap = fCanvas->getDevice()->accessBitmap(false);
                 SkIRect subset;

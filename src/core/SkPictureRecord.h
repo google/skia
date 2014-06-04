@@ -55,7 +55,6 @@ public:
                                 const SkRect& dst, const SkPaint*) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap&, int left, int top,
                             const SkPaint*) SK_OVERRIDE;
-    virtual void drawPicture(SkPicture& picture) SK_OVERRIDE;
     virtual void drawVertices(VertexMode, int vertexCount,
                           const SkPoint vertices[], const SkPoint texs[],
                           const SkColor colors[], SkXfermode*,
@@ -70,7 +69,7 @@ public:
     void addFontMetricsTopBottom(const SkPaint& paint, const SkFlatData&,
                                  SkScalar minY, SkScalar maxY);
 
-    const SkTDArray<SkPicture* >& getPictureRefs() const {
+    const SkTDArray<const SkPicture* >& getPictureRefs() const {
         return fPictureRefs;
     }
 
@@ -156,7 +155,7 @@ private:
     const SkFlatData* addPaintPtr(const SkPaint* paint);
     void addFlatPaint(const SkFlatData* flatPaint);
     void addPath(const SkPath& path);
-    void addPicture(SkPicture& picture);
+    void addPicture(const SkPicture* picture);
     void addPoint(const SkPoint& point);
     void addPoints(const SkPoint pts[], int count);
     void addRect(const SkRect& rect);
@@ -236,6 +235,8 @@ protected:
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
 
+    virtual void onDrawPicture(const SkPicture* picture) SK_OVERRIDE;
+
     // Return fontmetrics.fTop,fBottom in topbot[0,1], after they have been
     // tweaked by paint.computeFastBounds().
     static void ComputeFontMetricsTopBottom(const SkPaint& paint, SkScalar topbot[2]);
@@ -295,7 +296,7 @@ private:
     SkWriter32 fWriter;
 
     // we ref each item in these arrays
-    SkTDArray<SkPicture*> fPictureRefs;
+    SkTDArray<const SkPicture*> fPictureRefs;
 
     uint32_t fRecordFlags;
     bool     fOptsEnabled;

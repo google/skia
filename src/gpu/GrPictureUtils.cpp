@@ -29,7 +29,7 @@ class GrGatherDevice : public SkBaseDevice {
 public:
     SK_DECLARE_INST_COUNT(GrGatherDevice)
 
-    GrGatherDevice(int width, int height, SkPicture* picture, GPUAccelData* accelData,
+    GrGatherDevice(int width, int height, const SkPicture* picture, GPUAccelData* accelData,
                    int saveLayerDepth) {
         fPicture = picture;
         fSaveLayerDepth = saveLayerDepth;
@@ -172,7 +172,7 @@ protected:
 
 private:
     // The picture being processed
-    SkPicture *fPicture;
+    const SkPicture *fPicture;
 
     SkBitmap fEmptyBitmap; // legacy -- need to remove
 
@@ -223,7 +223,7 @@ private:
 // which is all just to fill in 'accelData'
 class SK_API GrGatherCanvas : public SkCanvas {
 public:
-    GrGatherCanvas(GrGatherDevice* device, SkPicture* pict)
+    GrGatherCanvas(GrGatherDevice* device, const SkPicture* pict)
         : INHERITED(device)
         , fPicture(pict) {
     }
@@ -236,20 +236,9 @@ public:
         this->clipRect(SkRect::MakeWH(SkIntToScalar(fPicture->width()),
                                       SkIntToScalar(fPicture->height())),
                        SkRegion::kIntersect_Op, false);
-        this->drawPicture(*fPicture);
+        this->drawPicture(fPicture);
     }
 
-    virtual void drawPicture(SkPicture& picture) SK_OVERRIDE {
-        // BBH-based rendering doesn't re-issue many of the operations the gather
-        // process cares about (e.g., saves and restores) so it must be disabled.
-        if (NULL != picture.fPlayback) {
-            picture.fPlayback->setUseBBH(false);
-        }
-        picture.draw(this);
-        if (NULL != picture.fPlayback) {
-            picture.fPlayback->setUseBBH(true);
-        }
-    }
 protected:
     // disable aa for speed
     virtual void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle) SK_OVERRIDE {
@@ -266,15 +255,27 @@ protected:
         this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);
     }
 
+    virtual void onDrawPicture(const SkPicture* picture) SK_OVERRIDE {
+        // BBH-based rendering doesn't re-issue many of the operations the gather
+        // process cares about (e.g., saves and restores) so it must be disabled.
+        if (NULL != picture->fPlayback) {
+            picture->fPlayback->setUseBBH(false);
+        }
+        picture->draw(this);
+        if (NULL != picture->fPlayback) {
+            picture->fPlayback->setUseBBH(true);
+        }
+    }
+
 private:
-    SkPicture* fPicture;
+    const SkPicture* fPicture;
 
     typedef SkCanvas INHERITED;
 };
 
 // GatherGPUInfo is only intended to be called within the context of SkGpuDevice's
 // EXPERIMENTAL_optimize method.
-void GatherGPUInfo(SkPicture* pict, GPUAccelData* accelData) {
+void GatherGPUInfo(const SkPicture* pict, GPUAccelData* accelData) {
     if (0 == pict->width() || 0 == pict->height()) {
         return ;
     }

@@ -74,6 +74,6 @@ private:
     typedef SkPicture::AccelData INHERITED;
 };
 
-void GatherGPUInfo(SkPicture* pict, GPUAccelData* accelData);
+void GatherGPUInfo(const SkPicture* pict, GPUAccelData* accelData);
 
 #endif // GrPictureUtils_DEFINED

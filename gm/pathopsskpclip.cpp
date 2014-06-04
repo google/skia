@@ -55,13 +55,13 @@ protected:
 
         canvas->setAllowSimplifyClip(true);
         canvas->save();
-        canvas->drawPicture(*pict);
+        canvas->drawPicture(pict);
         canvas->restore();
 
         canvas->setAllowSimplifyClip(false);
         canvas->save();
         canvas->translate(SkIntToScalar(1200 / 2), 0);
-        canvas->drawPicture(*pict);
+        canvas->drawPicture(pict);
         canvas->restore();
     }
 

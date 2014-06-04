@@ -158,7 +158,7 @@ int tool_main(int argc, char** argv) {
                                                     L.get(), gAccumulateFunc));
 
                 call_canvas(L.get(), canvas.get(), path, gStartCanvasFunc);
-                canvas->drawPicture(*pic);
+                canvas->drawPicture(pic);
                 call_canvas(L.get(), canvas.get(), path, gEndCanvasFunc);
 
             } else {

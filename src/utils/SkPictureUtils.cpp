@@ -214,7 +214,7 @@ SkData* SkPictureUtils::GatherPixelRefs(SkPicture* pict, const SkRect& area) {
     SkNoSaveLayerCanvas canvas(&device);
 
     canvas.clipRect(area, SkRegion::kIntersect_Op, false);
-    canvas.drawPicture(*pict);
+    canvas.drawPicture(pict);
 
     SkData* data = NULL;
     int count = array.count();

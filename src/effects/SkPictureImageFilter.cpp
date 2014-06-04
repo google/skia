@@ -85,7 +85,7 @@ bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Co
 
     canvas.translate(-SkIntToScalar(bounds.fLeft), -SkIntToScalar(bounds.fTop));
     canvas.concat(ctx.ctm());
-    canvas.drawPicture(*fPicture);
+    canvas.drawPicture(fPicture);
 
     *result = device.get()->accessBitmap(false);
     offset->fX = bounds.fLeft;

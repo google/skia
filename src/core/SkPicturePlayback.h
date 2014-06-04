@@ -150,10 +150,10 @@ private:
         return fPicture->getPath(reader.readInt() - 1);
     }
 
-    SkPicture& getPicture(SkReader32& reader) {
+    const SkPicture* getPicture(SkReader32& reader) {
         int index = reader.readInt();
         SkASSERT(index > 0 && index <= fPictureCount);
-        return *fPictureRefs[index - 1];
+        return fPictureRefs[index - 1];
     }
 
     const SkPaint* getPaint(SkReader32& reader) {
@@ -246,7 +246,7 @@ private:
 
     SkData* fOpData;    // opcodes and parameters
 
-    SkPicture** fPictureRefs;
+    const SkPicture** fPictureRefs;
     int fPictureCount;
 
     SkBBoxHierarchy* fBoundingHierarchy;

@@ -129,10 +129,10 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture,
 
     picture->initForPlayback();
 
-    const SkTDArray<SkPicture* >& pictures = record.getPictureRefs();
+    const SkTDArray<const SkPicture* >& pictures = record.getPictureRefs();
     fPictureCount = pictures.count();
     if (fPictureCount > 0) {
-        fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
+        fPictureRefs = SkNEW_ARRAY(const SkPicture*, fPictureCount);
         for (int i = 0; i < fPictureCount; i++) {
             if (deepCopy) {
                 fPictureRefs[i] = pictures[i]->clone();
@@ -210,7 +210,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPicturePl
     }
 
     fPictureCount = src.fPictureCount;
-    fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
+    fPictureRefs = SkNEW_ARRAY(const SkPicture*, fPictureCount);
     for (int i = 0; i < fPictureCount; i++) {
         if (deepCopyInfo) {
             fPictureRefs[i] = src.fPictureRefs[i]->clone();
@@ -505,7 +505,7 @@ bool SkPicturePlayback::parseStreamTag(SkPicture* picture,
         } break;
         case SK_PICT_PICTURE_TAG: {
             fPictureCount = size;
-            fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
+            fPictureRefs = SkNEW_ARRAY(const SkPicture*, fPictureCount);
             bool success = true;
             int i = 0;
             for ( ; i < fPictureCount; i++) {
@@ -590,7 +590,7 @@ bool SkPicturePlayback::parseBufferTag(SkPicture* picture,
                 return false;
             }
             fPictureCount = size;
-            fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
+            fPictureRefs = SkNEW_ARRAY(const SkPicture*, fPictureCount);
             bool success = true;
             int i = 0;
             for ( ; i < fPictureCount; i++) {

@@ -2479,31 +2479,39 @@ void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void SkCanvas::EXPERIMENTAL_optimize(SkPicture* picture) {
+void SkCanvas::EXPERIMENTAL_optimize(const SkPicture* picture) {
     SkBaseDevice* device = this->getDevice();
     if (NULL != device) {
         device->EXPERIMENTAL_optimize(picture);
     }
 }
 
-void SkCanvas::EXPERIMENTAL_purge(SkPicture* picture) {
+void SkCanvas::EXPERIMENTAL_purge(const SkPicture* picture) {
     SkBaseDevice* device = this->getTopDevice();
     if (NULL != device) {
         device->EXPERIMENTAL_purge(picture);
     }
 }
 
-void SkCanvas::drawPicture(SkPicture& picture) {
+void SkCanvas::drawPicture(const SkPicture* picture) {
+    if (NULL != picture) {
+        this->onDrawPicture(picture);
+    }
+}
+
+void SkCanvas::onDrawPicture(const SkPicture* picture) {
+    SkASSERT(NULL != picture);
+
     SkBaseDevice* device = this->getTopDevice();
     if (NULL != device) {
         // Canvas has to first give the device the opportunity to render
         // the picture itself.
-        if (device->EXPERIMENTAL_drawPicture(this, &picture)) {
+        if (device->EXPERIMENTAL_drawPicture(this, picture)) {
             return; // the device has rendered the entire picture
         }
     }
 
-    picture.draw(this);
+    picture->draw(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

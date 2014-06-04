@@ -1470,7 +1470,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         if (true) {
             SkPicture* pict = new SkPicture(*picture);
             this->installDrawFilter(orig);
-            orig->drawPicture(*pict);
+            orig->drawPicture(pict);
             pict->unref();
         } else if (true) {
             SkDynamicMemoryWStream ostream;
@@ -1480,7 +1480,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             SkMemoryStream istream(data->data(), data->size());
             SkAutoTUnref<SkPicture> pict(SkPicture::CreateFromStream(&istream));
             if (pict.get() != NULL) {
-                orig->drawPicture(*pict.get());
+                orig->drawPicture(pict.get());
             }
         } else {
             picture->draw(orig);

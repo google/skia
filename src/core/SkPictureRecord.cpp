@@ -1411,7 +1411,7 @@ void SkPictureRecord::onDrawTextOnPath(const void* text, size_t byteLength, cons
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawPicture(SkPicture& picture) {
+void SkPictureRecord::onDrawPicture(const SkPicture* picture) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
@@ -1618,12 +1618,12 @@ void SkPictureRecord::addPath(const SkPath& path) {
     this->addInt(this->addPathToHeap(path));
 }
 
-void SkPictureRecord::addPicture(SkPicture& picture) {
-    int index = fPictureRefs.find(&picture);
+void SkPictureRecord::addPicture(const SkPicture* picture) {
+    int index = fPictureRefs.find(picture);
     if (index < 0) {    // not found
         index = fPictureRefs.count();
-        *fPictureRefs.append() = &picture;
-        picture.ref();
+        *fPictureRefs.append() = picture;
+        picture->ref();
     }
     // follow the convention of recording a 1-based index
     this->addInt(index + 1);

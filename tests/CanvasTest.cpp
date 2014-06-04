@@ -503,7 +503,7 @@ static void DrawPictureTestStep(SkCanvas* canvas,
     testCanvas->drawRect(kTestRect, kTestPaint);
     SkAutoTUnref<SkPicture> testPicture(recorder.endRecording());
 
-    canvas->drawPicture(*testPicture);
+    canvas->drawPicture(testPicture);
 }
 TEST_STEP(DrawPicture, DrawPictureTestStep);
 

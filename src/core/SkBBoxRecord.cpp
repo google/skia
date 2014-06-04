@@ -280,10 +280,10 @@ void SkBBoxRecord::drawVertices(VertexMode mode, int vertexCount,
     }
 }
 
-void SkBBoxRecord::drawPicture(SkPicture& picture) {
-    if (picture.width() > 0 && picture.height() > 0 &&
-        this->transformBounds(SkRect::MakeWH(picture.width(), picture.height()), NULL)) {
-        INHERITED::drawPicture(picture);
+void SkBBoxRecord::onDrawPicture(const SkPicture* picture) {
+    if (picture->width() > 0 && picture->height() > 0 &&
+        this->transformBounds(SkRect::MakeWH(picture->width(), picture->height()), NULL)) {
+        this->INHERITED::onDrawPicture(picture);
     }
 }
 

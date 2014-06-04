@@ -343,14 +343,14 @@ protected:
      *  PRIVATE / EXPERIMENTAL -- do not call
      *  Construct an acceleration object and attach it to 'picture'
      */
-    virtual void EXPERIMENTAL_optimize(SkPicture* picture);
+    virtual void EXPERIMENTAL_optimize(const SkPicture* picture);
 
     /**
      *  PRIVATE / EXPERIMENTAL -- do not call
      *  Purge all discardable optimization information for 'picture'. If
      *  picture is NULL then purge discardable information for all pictures.
      */
-    virtual void EXPERIMENTAL_purge(SkPicture* picture);
+    virtual void EXPERIMENTAL_purge(const SkPicture* picture);
 
     /**
      *  PRIVATE / EXPERIMENTAL -- do not call
@@ -362,7 +362,7 @@ protected:
      *  to perform some device-specific warm up tasks and then let SkCanvas
      *  perform the main rendering loop (by return false from here).
      */
-    virtual bool EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture);
+    virtual bool EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture);
 
 private:
     friend class SkCanvas;

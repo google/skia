@@ -366,7 +366,7 @@ const SkPicture::OperationList& SkPicture::OperationList::InvalidList() {
     return gInvalid;
 }
 
-const SkPicture::OperationList& SkPicture::EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) {
+const SkPicture::OperationList& SkPicture::EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) const {
     SkASSERT(NULL != fPlayback && NULL == fRecord);
     if (NULL != fPlayback) {
         return fPlayback->getActiveOps(queryRect);
@@ -381,7 +381,7 @@ size_t SkPicture::EXPERIMENTAL_curOpID() const {
     return 0;
 }
 
-void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) {
+void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) const {
     SkASSERT(NULL != fPlayback && NULL == fRecord);
     if (NULL != fPlayback) {
         fPlayback->draw(*surface, callback);

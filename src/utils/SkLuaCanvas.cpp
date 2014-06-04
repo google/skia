@@ -268,10 +268,10 @@ void SkLuaCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const Sk
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::drawPicture(SkPicture& picture) {
+void SkLuaCanvas::onDrawPicture(const SkPicture* picture) {
     AUTO_LUA("drawPicture");
     // call through so we can see the nested picture ops
-    this->INHERITED::drawPicture(picture);
+    this->INHERITED::onDrawPicture(picture);
 }
 
 void SkLuaCanvas::drawVertices(VertexMode vmode, int vertexCount,

@@ -100,7 +100,7 @@ protected:
             *picture = LoadPicture(fFilename.c_str(), fBBox);
         }
         if (*picture) {
-            canvas->drawPicture(**picture);
+            canvas->drawPicture(*picture);
         }
     }
 
@@ -140,7 +140,7 @@ private:
 
             if (false) {
                 SkSurface* surf = SkSurface::NewRasterPMColor(pic->width(), pic->height());
-                surf->getCanvas()->drawPicture(*pic);
+                surf->getCanvas()->drawPicture(pic);
                 surf->unref();
             }
             if (false) { // re-record

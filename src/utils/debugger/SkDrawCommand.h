@@ -343,12 +343,12 @@ private:
 
 class SkDrawPictureCommand : public SkDrawCommand {
 public:
-    SkDrawPictureCommand(SkPicture& picture);
+    SkDrawPictureCommand(const SkPicture* picture);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 
 private:
-    SkPicture fPicture;
+    SkAutoTUnref<const SkPicture> fPicture;
 
     typedef SkDrawCommand INHERITED;
 };

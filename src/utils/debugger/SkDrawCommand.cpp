@@ -502,11 +502,11 @@ bool SkDrawPathCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
-SkDrawPictureCommand::SkDrawPictureCommand(SkPicture& picture)
+SkDrawPictureCommand::SkDrawPictureCommand(const SkPicture* picture)
     : INHERITED(DRAW_PICTURE)
-    , fPicture(picture) {
+    , fPicture(SkRef(picture)) {
     SkString* temp = new SkString;
-    temp->appendf("SkPicture: W: %d H: %d", picture.width(), picture.height());
+    temp->appendf("SkPicture: W: %d H: %d", picture->width(), picture->height());
     fInfo.push(temp);
 }
 
@@ -518,11 +518,11 @@ bool SkDrawPictureCommand::render(SkCanvas* canvas) const {
     canvas->clear(0xFFFFFFFF);
     canvas->save();
 
-    SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture.width()),
-                                   SkIntToScalar(fPicture.height()));
+    SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
+                                   SkIntToScalar(fPicture->height()));
     xlate_and_scale_to_bounds(canvas, bounds);
 
-    canvas->drawPicture(const_cast<SkPicture&>(fPicture));
+    canvas->drawPicture(fPicture.get());
 
     canvas->restore();
 

@@ -491,7 +491,7 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
     recordingCanvas->restore(); // saveLayer
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
-    canvas.drawPicture(*picture);
+    canvas.drawPicture(picture);
 }
 
 DEF_TEST(ImageFilterPictureImageFilterTest, reporter) {
@@ -529,7 +529,7 @@ DEF_TEST(ImageFilterPictureImageFilterTest, reporter) {
 
     // The result here should be green, since the filter replaces the primitive's red interior.
     canvas.clear(0x0);
-    canvas.drawPicture(*outerPicture);
+    canvas.drawPicture(outerPicture);
     uint32_t pixel = *bitmap.getAddr32(0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
@@ -548,7 +548,7 @@ DEF_TEST(ImageFilterPictureImageFilterTest, reporter) {
     SkAutoTUnref<SkPicture> crossProcessPicture(crossProcessRecorder.endRecording());
 
     canvas.clear(0x0);
-    canvas.drawPicture(*crossProcessPicture);
+    canvas.drawPicture(crossProcessPicture);
     pixel = *bitmap.getAddr32(0, 0);
     // The result here should not be green, since the filter draws nothing.
     REPORTER_ASSERT(reporter, pixel != SK_ColorGREEN);
@@ -584,7 +584,7 @@ DEF_TEST(ImageFilterEmptySaveLayerTest, reporter) {
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     canvas.clear(0);
-    canvas.drawPicture(*picture);
+    canvas.drawPicture(picture);
     uint32_t pixel = *bitmap.getAddr32(0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
@@ -594,7 +594,7 @@ DEF_TEST(ImageFilterEmptySaveLayerTest, reporter) {
     SkAutoTUnref<SkPicture> picture2(recorder.endRecording());
 
     canvas.clear(0);
-    canvas.drawPicture(*picture2);
+    canvas.drawPicture(picture2);
     pixel = *bitmap.getAddr32(0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
@@ -604,7 +604,7 @@ DEF_TEST(ImageFilterEmptySaveLayerTest, reporter) {
     SkAutoTUnref<SkPicture> picture3(recorder.endRecording());
 
     canvas.clear(0);
-    canvas.drawPicture(*picture3);
+    canvas.drawPicture(picture3);
     pixel = *bitmap.getAddr32(0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 }

@@ -84,9 +84,9 @@ static void test_reference_picture(skiatest::Reporter* reporter) {
     SkCanvas bbhCanvas(bbhBitmap);
 
     referenceCanvas.drawColor(SK_ColorTRANSPARENT);
-    referenceCanvas.drawPicture(*referencePicture.get());
+    referenceCanvas.drawPicture(referencePicture.get());
     bbhCanvas.drawColor(SK_ColorTRANSPARENT);
-    bbhCanvas.drawPicture(*bbhPicture.get());
+    bbhCanvas.drawPicture(bbhPicture.get());
     REPORTER_ASSERT(reporter,
                     referenceCanvas.getSaveCount() == bbhCanvas.getSaveCount());
     REPORTER_ASSERT(reporter,
@@ -95,10 +95,10 @@ static void test_reference_picture(skiatest::Reporter* reporter) {
 
     referenceCanvas.drawColor(SK_ColorTRANSPARENT);
     referenceCanvas.clipRect(SkRect::MakeWH(50, 50));
-    referenceCanvas.drawPicture(*referencePicture.get());
+    referenceCanvas.drawPicture(referencePicture.get());
     bbhCanvas.drawColor(SK_ColorTRANSPARENT);
     bbhCanvas.clipRect(SkRect::MakeWH(50, 50));
-    bbhCanvas.drawPicture(*bbhPicture.get());
+    bbhCanvas.drawPicture(bbhPicture.get());
     REPORTER_ASSERT(reporter,
                     referenceCanvas.getSaveCount() == bbhCanvas.getSaveCount());
     REPORTER_ASSERT(reporter,
@@ -107,10 +107,10 @@ static void test_reference_picture(skiatest::Reporter* reporter) {
 
     referenceCanvas.drawColor(SK_ColorTRANSPARENT);
     referenceCanvas.clipRect(SkRect::MakeWH(10, 10));
-    referenceCanvas.drawPicture(*referencePicture.get());
+    referenceCanvas.drawPicture(referencePicture.get());
     bbhCanvas.drawColor(SK_ColorTRANSPARENT);
     bbhCanvas.clipRect(SkRect::MakeWH(10, 10));
-    bbhCanvas.drawPicture(*bbhPicture.get());
+    bbhCanvas.drawPicture(bbhPicture.get());
     REPORTER_ASSERT(reporter,
                     referenceCanvas.getSaveCount() == bbhCanvas.getSaveCount());
     REPORTER_ASSERT(reporter,

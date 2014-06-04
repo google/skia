@@ -66,7 +66,7 @@ void GrLayerCache::freeAll() {
     fAtlasMgr.free();
 }
 
-GrCachedLayer* GrLayerCache::createLayer(SkPicture* picture, int layerID) {
+GrCachedLayer* GrLayerCache::createLayer(const SkPicture* picture, int layerID) {
     GrCachedLayer* layer = fLayerPool.alloc();
 
     SkASSERT(picture->uniqueID() != SK_InvalidGenID);
@@ -76,7 +76,7 @@ GrCachedLayer* GrLayerCache::createLayer(SkPicture* picture, int layerID) {
 }
 
 
-GrCachedLayer* GrLayerCache::findLayerOrCreate(SkPicture* picture, int layerID) {
+GrCachedLayer* GrLayerCache::findLayerOrCreate(const SkPicture* picture, int layerID) {
     SkASSERT(picture->uniqueID() != SK_InvalidGenID);
     GrCachedLayer* layer = fLayerHash.find(PictureLayerKey(picture->uniqueID(), layerID));
     if (NULL == layer) {

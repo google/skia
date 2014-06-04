@@ -189,8 +189,6 @@ public:
 
     virtual void drawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
 
-    virtual void drawPicture(SkPicture& picture) SK_OVERRIDE;
-
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
                             const SkPaint&) SK_OVERRIDE;
 
@@ -256,6 +254,8 @@ protected:
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRegion(const SkRegion& region, SkRegion::Op) SK_OVERRIDE;
+
+    virtual void onDrawPicture(const SkPicture* picture) SK_OVERRIDE;
 
     void markActiveCommands(int index);
 

@@ -51,7 +51,7 @@ bool SimplePdfRenderer::render() {
         return false;
     }
 
-    fCanvas->drawPicture(*fPicture);
+    fCanvas->drawPicture(fPicture);
     fCanvas->flush();
 
     return fPdfDoc->close();

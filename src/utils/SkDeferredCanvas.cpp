@@ -936,7 +936,7 @@ void SkDeferredCanvas::onDrawTextOnPath(const void* text, size_t byteLength, con
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::drawPicture(SkPicture& picture) {
+void SkDeferredCanvas::onDrawPicture(const SkPicture* picture) {
     this->drawingCanvas()->drawPicture(picture);
     this->recordedDrawCommand();
 }

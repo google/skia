@@ -21,5 +21,5 @@ void SkPictureUtils::GatherPixelRefsAndRects(SkPicture* pict,
     canvas.clipRect(SkRect::MakeWH(SkIntToScalar(pict->width()),
                                    SkIntToScalar(pict->height())),
                     SkRegion::kIntersect_Op, false);
-    canvas.drawPicture(*pict);
+    canvas.drawPicture(pict);
 }

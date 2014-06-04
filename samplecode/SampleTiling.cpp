@@ -158,7 +158,7 @@ protected:
         }
 
         SkASSERT(NULL != fTextPicture);
-        canvas->drawPicture(*fTextPicture);
+        canvas->drawPicture(fTextPicture);
     }
 
 private:

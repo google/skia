@@ -390,7 +390,7 @@ bool PipePictureRenderer::render(SkBitmap** out) {
     PipeController pipeController(fCanvas.get());
     SkGPipeWriter writer;
     SkCanvas* pipeCanvas = writer.startRecording(&pipeController);
-    pipeCanvas->drawPicture(*fPicture);
+    pipeCanvas->drawPicture(fPicture);
     writer.endRecording();
     fCanvas->flush();
     if (NULL != out) {
@@ -426,7 +426,7 @@ bool SimplePictureRenderer::render(SkBitmap** out) {
         return false;
     }
 
-    fCanvas->drawPicture(*fPicture);
+    fCanvas->drawPicture(fPicture);
     fCanvas->flush();
     if (NULL != out) {
         *out = SkNEW(SkBitmap);
@@ -592,7 +592,7 @@ static void draw_tile_to_canvas(SkCanvas* canvas, const SkRect& tileRect, SkPict
     SkMatrix mat(canvas->getTotalMatrix());
     mat.postTranslate(-tileRect.fLeft, -tileRect.fTop);
     canvas->setMatrix(mat);
-    canvas->drawPicture(*picture);
+    canvas->drawPicture(picture);
     canvas->restoreToCount(saveCount);
     canvas->flush();
 }
@@ -893,7 +893,7 @@ void PlaybackCreationRenderer::setup() {
                                                  factory.get(),
                                                  this->recordFlags());
     this->scaleToScaleFactor(canvas);
-    canvas->drawPicture(*fPicture);
+    canvas->drawPicture(fPicture);
 }
 
 bool PlaybackCreationRenderer::render(SkBitmap** out) {

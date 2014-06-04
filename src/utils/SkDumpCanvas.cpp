@@ -422,14 +422,14 @@ void SkDumpCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const S
                str.c_str(), byteLength);
 }
 
-void SkDumpCanvas::drawPicture(SkPicture& picture) {
-    this->dump(kDrawPicture_Verb, NULL, "drawPicture(%p) %d:%d", &picture,
-               picture.width(), picture.height());
+void SkDumpCanvas::onDrawPicture(const SkPicture* picture) {
+    this->dump(kDrawPicture_Verb, NULL, "drawPicture(%p) %d:%d", picture,
+               picture->width(), picture->height());
     fNestLevel += 1;
-    this->INHERITED::drawPicture(picture);
+    this->INHERITED::onDrawPicture(picture);
     fNestLevel -= 1;
     this->dump(kDrawPicture_Verb, NULL, "endPicture(%p) %d:%d", &picture,
-               picture.width(), picture.height());
+               picture->width(), picture->height());
 }
 
 void SkDumpCanvas::drawVertices(VertexMode vmode, int vertexCount,

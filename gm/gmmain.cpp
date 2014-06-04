@@ -642,7 +642,7 @@ public:
             SkCanvas canvas(*bitmap);
             installFilter(&canvas);
             canvas.scale(scale, scale);
-            canvas.drawPicture(*pict);
+            canvas.drawPicture(pict);
             complete_bitmap(bitmap);
         }
     }
