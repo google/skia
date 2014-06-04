@@ -13,19 +13,9 @@ Repackage expected/actual GM results as needed by our HTML rebaseline viewer.
 import fnmatch
 import os
 import re
-import sys
 
 # Imports from within Skia
-#
-# We need to add the 'gm' directory, so that we can import gm_json.py within
-# that directory.  That script allows us to parse the actual-results.json file
-# written out by the GM tool.
-# Make sure that the 'gm' dir is in the PYTHONPATH, but add it at the *end*
-# so any dirs that are already in the PYTHONPATH will be preferred.
-PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-GM_DIRECTORY = os.path.dirname(PARENT_DIRECTORY)
-if GM_DIRECTORY not in sys.path:
-  sys.path.append(GM_DIRECTORY)
+import fix_pythonpath  # must do this first
 import gm_json
 import imagepairset
 
@@ -57,6 +47,7 @@ KEY__RESULT_TYPE__SUCCEEDED = gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED
 IMAGE_FILENAME_RE = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
 IMAGE_FILENAME_FORMATTER = '%s_%s.png'  # pass in (testname, config)
 
+PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 DEFAULT_ACTUALS_DIR = '.gm-actuals'
 DEFAULT_GENERATED_IMAGES_ROOT = os.path.join(
     PARENT_DIRECTORY, '.generated-images')

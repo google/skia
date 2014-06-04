@@ -14,28 +14,12 @@ import argparse
 import fnmatch
 import json
 import logging
-import os
 import re
-import sys
 import time
 
 # Imports from within Skia
-#
-# TODO(epoger): Once we move the create_filepath_url() function out of
-# download_actuals into a shared utility module, we won't need to import
-# download_actuals anymore.
-#
-# We need to add the 'gm' directory, so that we can import gm_json.py within
-# that directory.  That script allows us to parse the actual-results.json file
-# written out by the GM tool.
-# Make sure that the 'gm' dir is in the PYTHONPATH, but add it at the *end*
-# so any dirs that are already in the PYTHONPATH will be preferred.
-PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-GM_DIRECTORY = os.path.dirname(PARENT_DIRECTORY)
-TRUNK_DIRECTORY = os.path.dirname(GM_DIRECTORY)
-if GM_DIRECTORY not in sys.path:
-  sys.path.append(GM_DIRECTORY)
-import download_actuals
+import fix_pythonpath  # must do this first
+from pyutils import url_utils
 import gm_json
 import imagediffdb
 import imagepair
@@ -71,7 +55,7 @@ class ConfigComparisons(results.BaseComparisons):
     self._image_diff_db = imagediffdb.ImageDiffDB(generated_images_root)
     self._diff_base_url = (
         diff_base_url or
-        download_actuals.create_filepath_url(generated_images_root))
+        url_utils.create_filepath_url(generated_images_root))
     self._actuals_root = actuals_root
     self._load_config_pairs(configs)
     self._timestamp = int(time.time())
