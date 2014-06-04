@@ -149,6 +149,7 @@
         'pdf.gyp:pdf',
         'views_animated.gyp:views_animated',
         'lua.gyp:lua',
+        'etc1.gyp:libetc1',
       ],
      'conditions' : [
        [ 'sample_pdf_file_viewer == 1', {
