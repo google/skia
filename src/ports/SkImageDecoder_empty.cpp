@@ -147,9 +147,3 @@ bool SkImageEncoder::encodeFile(const char file[], const SkBitmap& bm, int quali
     return false;
 }
 /////////////////////////////////////////////////////////////////////////
-
-// Empty implementation for SkImages.
-
-#include "SkImages.h"
-
-void SkImages::InitializeFlattenables() {}

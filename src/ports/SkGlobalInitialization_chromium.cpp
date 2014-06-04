@@ -37,7 +37,6 @@
 #include "SkEmbossMaskFilter.h"
 #include "SkFlattenable.h"
 #include "SkGradientShader.h"
-#include "SkImages.h"
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
 #include "SkLerpXfermode.h"
@@ -115,7 +114,6 @@ static void InitializeFlattenables() {
     SkBlurMaskFilter::InitializeFlattenables();
     SkColorFilter::InitializeFlattenables();
     SkGradientShader::InitializeFlattenables();
-    SkImages::InitializeFlattenables();
     SkLightingImageFilter::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
     SkXfermode::InitializeFlattenables();
