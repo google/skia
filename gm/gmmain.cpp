@@ -151,7 +151,7 @@ enum ConfigFlags {
 };
 
 struct ConfigData {
-    SkBitmap::Config                fConfig;
+    SkColorType                     fColorType;
     Backend                         fBackend;
     GLContextType                   fGLContextType; // GPU backend only
     int                             fSampleCnt;     // GPU backend only
@@ -477,7 +477,8 @@ public:
      */
     static void setup_bitmap(const ConfigData& gRec, SkISize& size,
                              SkBitmap* bitmap) {
-        bitmap->allocConfigPixels(gRec.fConfig, size.width(), size.height());
+        bitmap->allocPixels(SkImageInfo::Make(size.width(), size.height(),
+                                              gRec.fColorType, kPremul_SkAlphaType));
         bitmap->eraseColor(SK_ColorTRANSPARENT);
     }
 
@@ -1287,39 +1288,36 @@ static const GLContextType kDontCare_GLContextType = 0;
 #endif
 
 static const ConfigData gRec[] = {
-    { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "8888",         true },
-#if 0   // stop testing this (for now at least) since we want to remove support for it (soon please!!!)
-    { SkBitmap::kARGB_4444_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "4444",         true },
-#endif
-    { SkBitmap::kRGB_565_Config,   kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "565",          true },
+    { kN32_SkColorType,     kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "8888",         true },
+    { kRGB_565_SkColorType, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "565",          true },
 #if SK_SUPPORT_GPU
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRW_ConfigFlag,    "gpu",          true },
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType, 16, kRW_ConfigFlag,    "msaa16",       false},
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  4, kRW_ConfigFlag,    "msaa4",        false},
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNVPR_GLContextType,    4, kRW_ConfigFlag,    "nvprmsaa4",   true },
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNVPR_GLContextType,   16, kRW_ConfigFlag,    "nvprmsaa16",  false},
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRW_ConfigFlag,    "gpu",          true },
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNative_GLContextType, 16, kRW_ConfigFlag,    "msaa16",       false},
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  4, kRW_ConfigFlag,    "msaa4",        false},
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNVPR_GLContextType,    4, kRW_ConfigFlag,    "nvprmsaa4",   true },
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNVPR_GLContextType,   16, kRW_ConfigFlag,    "nvprmsaa16",  false},
     /* The gpudebug context does not generate meaningful images, so don't record
      * the images it generates!  We only run it to look for asserts. */
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "gpudebug",     kDebugOnly},
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "gpudebug",     kDebugOnly},
     /* The gpunull context does the least amount of work possible and doesn't
        generate meaninful images, so don't record them!. It can be run to
        isolate the CPU-side processing expense from the GPU-side.
       */
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNull_GLContextType,    0, kNone_ConfigFlag,  "gpunull",      kDebugOnly},
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNull_GLContextType,    0, kNone_ConfigFlag,  "gpunull",      kDebugOnly},
 #if SK_ANGLE
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,   0, kRW_ConfigFlag,    "angle",        true },
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,  16, kRW_ConfigFlag,    "anglemsaa16",  true },
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,   0, kRW_ConfigFlag,    "angle",        true },
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,  16, kRW_ConfigFlag,    "anglemsaa16",  true },
 #endif // SK_ANGLE
 #ifdef SK_MESA
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kMESA_GLContextType,    0, kRW_ConfigFlag,    "mesa",         true },
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kMESA_GLContextType,    0, kRW_ConfigFlag,    "mesa",         true },
 #endif // SK_MESA
 #endif // SK_SUPPORT_GPU
 #ifdef SK_SUPPORT_XPS
     /* At present we have no way of comparing XPS files (either natively or by converting to PNG). */
-    { SkBitmap::kARGB_8888_Config, kXPS_Backend,    kDontCare_GLContextType,                  0, kWrite_ConfigFlag, "xps",          true },
+    { kN32_SkColorType, kXPS_Backend,    kDontCare_GLContextType,                  0, kWrite_ConfigFlag, "xps",          true },
 #endif // SK_SUPPORT_XPS
 #ifdef SK_SUPPORT_PDF
-    { SkBitmap::kARGB_8888_Config, kPDF_Backend,    kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "pdf",          true },
+    { kN32_SkColorType, kPDF_Backend,    kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "pdf",          true },
 #endif // SK_SUPPORT_PDF
 };
 
@@ -1740,7 +1738,7 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
         }
         if ((gmFlags & GM::kSkip565_Flag) &&
             (kRaster_Backend == config.fBackend) &&
-            (SkBitmap::kRGB_565_Config == config.fConfig)) {
+            (kRGB_565_SkColorType == config.fColorType)) {
             gmmain.RecordSkippedTest(shortNamePlusConfig,
                                      renderModeDescriptor,
                                      config.fBackend);

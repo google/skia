@@ -95,6 +95,7 @@ SkBitmap::Config SkBitmap::config() const {
     return SkColorTypeToBitmapConfig(fInfo.colorType());
 }
 
+#ifdef SK_SUPPORT_LEGACY_COMPUTE_CONFIG_SIZE
 int SkBitmap::ComputeBytesPerPixel(SkBitmap::Config config) {
     int bpp;
     switch (config) {
@@ -134,29 +135,7 @@ size_t SkBitmap::ComputeSize(Config c, int width, int height) {
     int64_t size = SkBitmap::ComputeSize64(c, width, height);
     return sk_64_isS32(size) ? sk_64_asS32(size) : 0;
 }
-
-int64_t SkBitmap::ComputeSafeSize64(Config config,
-                                    uint32_t width,
-                                    uint32_t height,
-                                    size_t rowBytes) {
-    SkImageInfo info = SkImageInfo::Make(width, height,
-                                         SkBitmapConfigToColorType(config),
-                                         kPremul_SkAlphaType);
-    return info.getSafeSize64(rowBytes);
-}
-
-size_t SkBitmap::ComputeSafeSize(Config config,
-                                 uint32_t width,
-                                 uint32_t height,
-                                 size_t rowBytes) {
-    int64_t safeSize = ComputeSafeSize64(config, width, height, rowBytes);
-    int32_t safeSize32 = (int32_t)safeSize;
-
-    if (safeSize32 != safeSize) {
-        safeSize32 = 0;
-    }
-    return safeSize32;
-}
+#endif
 
 void SkBitmap::getBounds(SkRect* bounds) const {
     SkASSERT(bounds);
@@ -276,34 +255,6 @@ void SkBitmap::updatePixelsFromRef() const {
             fColorTable = NULL;
         }
     }
-}
-
-static bool config_to_colorType(SkBitmap::Config config, SkColorType* ctOut) {
-    SkColorType ct;
-    switch (config) {
-        case SkBitmap::kA8_Config:
-            ct = kAlpha_8_SkColorType;
-            break;
-        case SkBitmap::kIndex8_Config:
-            ct = kIndex_8_SkColorType;
-            break;
-        case SkBitmap::kRGB_565_Config:
-            ct = kRGB_565_SkColorType;
-            break;
-        case SkBitmap::kARGB_4444_Config:
-            ct = kARGB_4444_SkColorType;
-            break;
-        case SkBitmap::kARGB_8888_Config:
-            ct = kN32_SkColorType;
-            break;
-        case SkBitmap::kNo_Config:
-        default:
-            return false;
-    }
-    if (ctOut) {
-        *ctOut = ct;
-    }
-    return true;
 }
 
 SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
@@ -470,17 +421,6 @@ bool SkBitmap::installMaskPixels(const SkMask& mask) {
     return this->installPixels(SkImageInfo::MakeA8(mask.fBounds.width(),
                                                    mask.fBounds.height()),
                                mask.fImage, mask.fRowBytes);
-}
-
-bool SkBitmap::allocConfigPixels(Config config, int width, int height,
-                                 bool isOpaque) {
-    SkColorType ct;
-    if (!config_to_colorType(config, &ct)) {
-        return false;
-    }
-
-    SkAlphaType at = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    return this->allocPixels(SkImageInfo::Make(width, height, ct, at));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
