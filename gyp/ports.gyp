@@ -171,11 +171,9 @@
         [ 'skia_os == "android"', {
           'sources!': [
             '../src/ports/SkDebug_stdio.cpp',
-            '../src/ports/SkDiscardableMemory_none.cpp',
           ],
           'sources': [
             '../src/ports/SkDebug_android.cpp',
-            '../src/ports/SkDiscardableMemory_ashmem.cpp',
             '../src/ports/SkFontConfigInterface_android.cpp',
             '../src/ports/SkFontConfigParser_android.cpp',
             '../src/ports/SkFontHost_fontconfig.cpp',

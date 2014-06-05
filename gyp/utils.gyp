@@ -110,11 +110,6 @@
             '../src/utils/SkThreadUtils_pthread_linux.cpp',
           ],
         }],
-        [ 'skia_os == "android"', {
-          'sources': [
-            '../src/utils/android/ashmem.cpp',
-          ],
-        }],
         ['skia_run_pdfviewer_in_gm', {
           'defines': [
             'SK_BUILD_NATIVE_PDF_RENDERER',

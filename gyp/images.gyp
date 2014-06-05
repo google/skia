@@ -148,11 +148,6 @@
               ],
             }],
           ],
-        },{ #else if skia_os != android
-          'sources!': [
-            '../src/images/SkImageRef_ashmem.h',
-            '../src/images/SkImageRef_ashmem.cpp',
-          ],
         }],
         [ 'skia_os == "chromeos"', {
           'dependencies': [
