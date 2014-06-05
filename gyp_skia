@@ -85,9 +85,9 @@ if __name__ == '__main__':
     if sys.platform.startswith('darwin'):
       default_gyp_generators = 'ninja,xcode'
     elif sys.platform.startswith('win'):
-      default_gyp_generators = 'ninja,msvs'
+      default_gyp_generators = 'ninja,msvs-ninja'
     elif sys.platform.startswith('cygwin'):
-      default_gyp_generators = 'ninja,msvs'
+      default_gyp_generators = 'ninja,msvs-ninja'
     else:
       default_gyp_generators = 'ninja'
     os.environ[ENVVAR_GYP_GENERATORS] = default_gyp_generators
