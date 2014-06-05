@@ -500,7 +500,7 @@ public:
     /** Returns a non-zero, unique value corresponding to the pixels in our
         pixelref. Each time the pixels are changed (and notifyPixelsChanged
         is called), a different generation ID will be returned. Finally, if
-        their is no pixelRef then zero is returned.
+        there is no pixelRef then zero is returned.
     */
     uint32_t getGenerationID() const;
 
