@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkDWrite_DEFINED
+#define SkDWrite_DEFINED
+
 #include "SkTemplates.h"
 
 #include <dwrite.h>
@@ -36,3 +39,38 @@ void sk_get_locale_string(IDWriteLocalizedStrings* names, const WCHAR* preferedL
 
 typedef decltype(GetUserDefaultLocaleName)* SkGetUserDefaultLocaleNameProc;
 HRESULT SkGetGetUserDefaultLocaleNameProc(SkGetUserDefaultLocaleNameProc* proc);
+
+////////////////////////////////////////////////////////////////////////////////
+// Table handling
+
+class AutoDWriteTable {
+public:
+    AutoDWriteTable(IDWriteFontFace* fontFace, UINT32 beTag) : fFontFace(fontFace), fExists(FALSE) {
+        // Any errors are ignored, user must check fExists anyway.
+        fontFace->TryGetFontTable(beTag,
+            reinterpret_cast<const void **>(&fData), &fSize, &fLock, &fExists);
+    }
+    ~AutoDWriteTable() {
+        if (fExists) {
+            fFontFace->ReleaseFontTable(fLock);
+        }
+    }
+
+    const uint8_t* fData;
+    UINT32 fSize;
+    BOOL fExists;
+private:
+    // Borrowed reference, the user must ensure the fontFace stays alive.
+    IDWriteFontFace* fFontFace;
+    void* fLock;
+};
+template<typename T> class AutoTDWriteTable : public AutoDWriteTable {
+public:
+    static const UINT32 tag = DWRITE_MAKE_OPENTYPE_TAG(T::TAG0, T::TAG1, T::TAG2, T::TAG3);
+    AutoTDWriteTable(IDWriteFontFace* fontFace) : AutoDWriteTable(fontFace, tag) { }
+
+    const T* get() const { return reinterpret_cast<const T*>(fData); }
+    const T* operator->() const { return reinterpret_cast<const T*>(fData); }
+};
+
+#endif
