@@ -14,8 +14,8 @@
 #include "SkTDArray.h"
 #include "Test.h"
 
-static const int kWidth = 1000;
-static const int kHeight = 1000;
+static const int kWidth = 1024;
+static const int kHeight = 1024;
 
 // Basic test of a GrRectanizer-derived class' functionality
 static void test_rectanizer_basic(skiatest::Reporter* reporter, GrRectanizer* rectanizer) {
@@ -59,16 +59,16 @@ static void test_pow2(skiatest::Reporter* reporter, const SkTDArray<SkISize>& re
 }
 
 DEF_GPUTEST(GpuRectanizer, reporter, factory) {
-    SkTDArray<SkISize> fRects;
+    SkTDArray<SkISize> rects;
     SkRandom rand;
 
     for (int i = 0; i < 50; i++) {
-        fRects.push(SkISize::Make(rand.nextRangeU(1, kWidth / 2),
-                                  rand.nextRangeU(1, kHeight / 2)));
+        rects.push(SkISize::Make(rand.nextRangeU(1, kWidth / 2),
+                                 rand.nextRangeU(1, kHeight / 2)));
     }
 
-    test_skyline(reporter, fRects);
-    test_pow2(reporter, fRects);
+    test_skyline(reporter, rects);
+    test_pow2(reporter, rects);
 }
 
 #endif

@@ -71,6 +71,7 @@
     '../bench/RTreeBench.cpp',
     '../bench/ReadPixBench.cpp',
     '../bench/RectBench.cpp',
+    '../bench/RectanizerBench.cpp',
     '../bench/RectoriBench.cpp',
     '../bench/RefCntBench.cpp',
     '../bench/RegionBench.cpp',
