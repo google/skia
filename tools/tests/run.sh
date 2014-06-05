@@ -201,7 +201,7 @@ jsondiff_test "$JSONDIFF_INPUT/old.json $JSONDIFF_INPUT/new.json" "$JSONDIFF_OUT
 # ('make tools/tests/run.sh work cross-platform')
 #
 
-COMMAND="python tools/tests/run_all.py"
+COMMAND="python tools/test_all.py"
 echo "$COMMAND"
 $COMMAND
 ret=$?

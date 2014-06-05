@@ -8,7 +8,6 @@ deps = {
   "third_party/externals/angle" : "https://chromium.googlesource.com/external/angleproject.git",
   "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git@bdc9b2f0ed9e365bf5a4d19799d93a512f07dd32",
   "third_party/externals/freetype" : "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
-  "third_party/externals/google-api-python-client" : "https://github.com/google/google-api-python-client.git@56557e2c1d2cbce0d2de26e3a7f32f836b8f5eb2",
   "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@11e243c9fd625728c086c264d5ca85cc786ddf82",
   "third_party/externals/libjpeg" : "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@82ce8a6d4ebe12a177c0c3597192f2b4f09e81c3",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/jsoncpp/jsoncpp.git@ab1e40f3bce061ea6f9bdc60351d6cde2a4f872b",
