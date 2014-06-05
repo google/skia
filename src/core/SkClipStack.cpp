@@ -1,10 +1,11 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "SkCanvas.h"
 #include "SkClipStack.h"
 #include "SkPath.h"
 #include "SkThread.h"
@@ -63,6 +64,25 @@ bool SkClipStack::Element::operator== (const Element& element) const {
         default:
             SkDEBUGFAIL("Unexpected type.");
             return false;
+    }
+}
+
+void SkClipStack::Element::replay(SkCanvasClipVisitor* visitor) const {
+    static const SkRect kEmptyRect = { 0, 0, 0, 0 };
+
+    switch (fType) {
+        case kPath_Type:
+            visitor->clipPath(this->getPath(), this->getOp(), this->isAA());
+            break;
+        case kRRect_Type:
+            visitor->clipRRect(this->getRRect(), this->getOp(), this->isAA());
+            break;
+        case kRect_Type:
+            visitor->clipRect(this->getRect(), this->getOp(), this->isAA());
+            break;
+        case kEmpty_Type:
+            visitor->clipRect(kEmptyRect, SkRegion::kIntersect_Op, false);
+            break;
     }
 }
 

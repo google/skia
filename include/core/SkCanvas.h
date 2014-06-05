@@ -24,6 +24,7 @@
     #define SK_LEGACY_DRAWTEXT_VIRTUAL
 #endif
 
+class SkCanvasClipVisitor;
 class SkBaseDevice;
 class SkDraw;
 class SkDrawFilter;
@@ -1134,14 +1135,7 @@ public:
         return &fClipStack;
     }
 
-    class ClipVisitor {
-    public:
-        virtual ~ClipVisitor();
-        virtual void clipRect(const SkRect&, SkRegion::Op, bool antialias) = 0;
-        virtual void clipRRect(const SkRRect&, SkRegion::Op, bool antialias) = 0;
-        virtual void clipPath(const SkPath&, SkRegion::Op, bool antialias) = 0;
-    };
-
+    typedef SkCanvasClipVisitor ClipVisitor;
     /**
      *  Replays the clip operations, back to front, that have been applied to
      *  the canvas, calling the appropriate method on the visitor for each
@@ -1504,5 +1498,12 @@ static inline SkCanvas::SaveFlags& operator|=(SkCanvas::SaveFlags& lhs,
     return lhs;
 }
 
+class SkCanvasClipVisitor {
+public:
+    virtual ~SkCanvasClipVisitor();
+    virtual void clipRect(const SkRect&, SkRegion::Op, bool antialias) = 0;
+    virtual void clipRRect(const SkRRect&, SkRegion::Op, bool antialias) = 0;
+    virtual void clipPath(const SkPath&, SkRegion::Op, bool antialias) = 0;
+};
 
 #endif

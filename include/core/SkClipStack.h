@@ -16,6 +16,7 @@
 #include "SkTDArray.h"
 #include "SkTLazy.h"
 
+class SkCanvasClipVisitor;
 
 // Because a single save/restore state can have multiple clips, this class
 // stores the stack depth (fSaveCount) and clips (fDeque) separately.
@@ -73,6 +74,9 @@ public:
 
         //!< Call to get the type of the clip element.
         Type getType() const { return fType; }
+
+        //!< Call to get the save count associated with this clip element.
+        int getSaveCount() const { return fSaveCount; }
 
         //!< Call if getType() is kPath to get the path.
         const SkPath& getPath() const { SkASSERT(kPath_Type == fType); return *fPath.get(); }
@@ -155,6 +159,11 @@ public:
         bool isInverseFilled() const {
             return kPath_Type == fType && fPath.get()->isInverseFillType();
         }
+
+        /**
+        * Replay this clip into the visitor.
+        */
+        void replay(SkCanvasClipVisitor*) const;
 
     private:
         friend class SkClipStack;

@@ -1666,22 +1666,8 @@ void SkCanvas::replayClips(ClipVisitor* visitor) const {
     SkClipStack::B2TIter                iter(fClipStack);
     const SkClipStack::Element*         element;
 
-    static const SkRect kEmpty = { 0, 0, 0, 0 };
     while ((element = iter.next()) != NULL) {
-        switch (element->getType()) {
-            case SkClipStack::Element::kPath_Type:
-                visitor->clipPath(element->getPath(), element->getOp(), element->isAA());
-                break;
-            case SkClipStack::Element::kRRect_Type:
-                visitor->clipRRect(element->getRRect(), element->getOp(), element->isAA());
-                break;
-            case SkClipStack::Element::kRect_Type:
-                visitor->clipRect(element->getRect(), element->getOp(), element->isAA());
-                break;
-            case SkClipStack::Element::kEmpty_Type:
-                visitor->clipRect(kEmpty, SkRegion::kIntersect_Op, false);
-                break;
-        }
+        element->replay(visitor);
     }
 }
 
@@ -2556,7 +2542,7 @@ int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkCanvas::ClipVisitor::~ClipVisitor() { }
+SkCanvasClipVisitor::~SkCanvasClipVisitor() { }
 
 ///////////////////////////////////////////////////////////////////////////////
 
