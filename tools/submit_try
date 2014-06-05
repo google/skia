@@ -23,7 +23,7 @@ import svn
 import sys
 import tempfile
 
-import buildbot_globals
+import retrieve_from_googlesource
 
 
 # Alias which can be used to run a try on every builder.
@@ -37,11 +37,13 @@ REGEX = 'regex'
 
 ALL_ALIASES = [ALL_BUILDERS, COMPILE_BUILDERS, REGEX, CQ_BUILDERS]
 
+LARGE_NUMBER_OF_BOTS = 5
+
 GIT = 'git.bat' if os.name == 'nt' else 'git'
 
 # URL of the slaves.cfg file in the Skia buildbot sources.
-SLAVES_CFG_URL = ('https://skia.googlesource.com/buildbot/+/master/'
-                  'master/slaves.cfg')
+SKIA_REPO = 'https://skia.googlesource.com/buildbot'
+SLAVES_CFG_PATH = 'master/slaves.cfg'
 
 # All try builders have this suffix.
 TRYBOT_SUFFIX = '-Trybot'
@@ -66,29 +68,14 @@ def FindDepotTools():
   return depot_tools_dir
 
 
-def GetCheckoutRoot(is_svn=True):
-  """ Determine where the local checkout is rooted.
-
-  is_svn: boolean; whether we're in an SVN checkout. If False, assume we're in
-      a git checkout.
-  """
-  if is_svn:
-    repo = svn.Svn(os.curdir)
-    svn_info = repo.GetInfo()
-    url = svn_info.get(URL_STR, None)
-    repo_root = svn_info.get(REPO_ROOT_STR, None)
-    if not url or not repo_root:
-      raise Exception('Couldn\'t find checkout root!')
-    if url == repo_root:
-      return 'svn'
-    return url[len(repo_root)+1:]
-  else:
-    cmd = ['git', 'rev-parse', '--show-toplevel']
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    if proc.wait() != 0:
-      raise Exception('Couldn\'t find checkout root!')
-    return os.path.basename(proc.communicate()[0])
+def GetCheckoutRoot():
+  """ Determine where the local checkout is rooted."""
+  cmd = ['git', 'rev-parse', '--show-toplevel']
+  proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                          stderr=subprocess.STDOUT)
+  if proc.wait() != 0:
+    raise Exception('Couldn\'t find checkout root!')
+  return os.path.basename(proc.communicate()[0])
 
 
 def GetTryRepo():
@@ -107,7 +94,7 @@ def RetrieveTrybotList():
   """Retrieve the list of known trybots from the checked-in buildbot
   configuration."""
   # Retrieve the slaves.cfg file from the repository.
-  slaves_cfg_text = buildbot_globals.retrieve_from_googlesource(SLAVES_CFG_URL)
+  slaves_cfg_text = retrieve_from_googlesource.get(SKIA_REPO, SLAVES_CFG_PATH)
 
   # Execute the slaves.cfg file to obtain the list of slaves.
   vars = {}
@@ -205,15 +192,6 @@ Can also use the following aliases to run on groups of builders-
             if using_bots:
               Error('Cannot specify "%s" with additional builder names or '
                     'aliases.' % bot)
-            if bot == ALL_BUILDERS:
-              are_you_sure = raw_input('Running a try on every bot is very '
-                                       'expensive. You may be able to get '
-                                       'enough information by running on a '
-                                       'smaller set of bots. Are you sure you '
-                                       'want to run your try job on all of the '
-                                       'trybots? [y,n]: ')
-              if are_you_sure == 'y':
-                using_bots = trybots
             elif bot == COMPILE_BUILDERS:
               using_bots = [t for t in trybots if t.startswith('Build')]
             elif bot == CQ_BUILDERS:
@@ -244,72 +222,57 @@ Can also use the following aliases to run on groups of builders-
     Error('You must specify a changelist name.')
   if not using_bots:
     Error('You must specify one or more builders using --bot.')
+  if len(using_bots) > LARGE_NUMBER_OF_BOTS:
+    are_you_sure = raw_input('Running a try on a large number of bots is very '
+                             'expensive. You may be able to get enough '
+                             'information by running on a smaller set of bots. '
+                             'Are you sure you want to do this? [y,n]: ')
+    if are_you_sure != 'y':
+      Error()
   return CollectedArgs(bots=using_bots, changelist=changelist,
                        revision=revision)
 
 
-def SubmitTryRequest(args, is_svn=True):
-  """ Submits a try request for the given changelist on the given list of
-  trybots.
+def SubmitTryRequest(trybots, revision=None):
+  """ Submits a try request on the given list of trybots.
 
-  args: Object whose properties are derived from command-line arguments. If
-      is_svn is True, it should contain:
-      - changelist: string; the name of the changelist to try.
-      - bot: list of strings; the names of the try builders to run.
-      - revision: optional, int; the revision number from which to run the try.
-      If is_svn is False, it should contain:
-      - bot: list of strings; the names of the try builders to run.
-      - revision: optional, int; the revision number from which to run the try. 
-  is_svn: boolean; are we in an SVN repo?
+  Args:
+      trybots: list of strings; the names of the try builders to run.
+      revision: optional string; the revision from which to run the try.
   """
-  botlist = ','.join(['%s%s' % (bot, TRYBOT_SUFFIX) for bot in args.bots])
-  if is_svn:
-    gcl_cmd = 'gcl.bat' if os.name == 'nt' else 'gcl'
-    try_args = [gcl_cmd, 'try', args.changelist,
-                '--root', GetCheckoutRoot(is_svn),
-                '--bot', botlist]
-    if args.revision:
-      try_args.extend(['-r', args.revision])
-    print ' '.join(try_args)
-    proc = subprocess.Popen(try_args, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    if proc.wait() != 0:
-      raise Exception('Failed to submit try request: %s' % (
-          proc.communicate()[0]))
-    print proc.communicate()[0]
-  else:
-    # Find depot_tools. This is needed to import git_cl and trychange.
-    sys.path.append(FindDepotTools())
-    import git_cl
-    import trychange
+  botlist = ','.join(['%s%s' % (bot, TRYBOT_SUFFIX) for bot in trybots])
+  # Find depot_tools. This is needed to import git_cl and trychange.
+  sys.path.append(FindDepotTools())
+  import git_cl
+  import trychange
 
-    cmd = [GIT, 'diff', git_cl.Changelist().GetUpstreamBranch(),
-           '--no-ext-diff']
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    git_data = proc.communicate()
-    if git_data[0] is None:
-      raise Exception('Failed to capture git diff!')
+  cmd = [GIT, 'diff', git_cl.Changelist().GetUpstreamBranch(),
+         '--no-ext-diff']
+  proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  git_data = proc.communicate()
+  if git_data[0] is None:
+    raise Exception('Failed to capture git diff!')
 
-    temp_dir = tempfile.mkdtemp()
-    try:
-      diff_file = os.path.join(temp_dir, 'patch.diff')
-      with open(diff_file, 'wb') as f:
-        f.write(git_data[0])
-        f.close()
+  temp_dir = tempfile.mkdtemp()
+  try:
+    diff_file = os.path.join(temp_dir, 'patch.diff')
+    with open(diff_file, 'wb') as f:
+      f.write(git_data[0])
+      f.close()
 
-      try_args = ['--use_svn',
-                  '--svn_repo', GetTryRepo(),
-                  '--root', GetCheckoutRoot(is_svn),
-                  '--bot', botlist,
-                  '--diff', diff_file,
-                  ]
-      if args.revision:
-        try_args.extend(['-r', args.revision])
+    try_args = ['--use_svn',
+                '--svn_repo', GetTryRepo(),
+                '--root', GetCheckoutRoot(),
+                '--bot', botlist,
+                '--diff', diff_file,
+                ]
+    if revision:
+      try_args.extend(['-r', revision])
 
-      # Submit the try request.
-      trychange.TryChange(try_args, None, False)
-    finally:
-      shutil.rmtree(temp_dir)
+    # Submit the try request.
+    trychange.TryChange(try_args, None, False)
+  finally:
+    shutil.rmtree(temp_dir)
 
 
 def main():
@@ -324,7 +287,7 @@ def main():
                       is_svn=is_svn)
 
   # Submit the try request.
-  SubmitTryRequest(args, is_svn=is_svn)
+  SubmitTryRequest(args.bots, args.revision)
 
 
 if __name__ == '__main__':

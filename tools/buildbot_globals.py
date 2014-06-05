@@ -9,23 +9,19 @@ Provides read access to buildbot's global_variables.json .
 """
 
 
-from contextlib import closing
-
 import HTMLParser
-import base64
 import json
 import re
+import retrieve_from_googlesource
 import svn
 import sys
-import urllib2
 
 
 _global_vars = None
 
 
-_GLOBAL_VARS_JSON_BASE64_URL = (
-    'https://skia.googlesource.com/buildbot/+/master/'
-    'site_config/global_variables.json?format=TEXT')
+SKIABOT_REPO = 'https://skia.googlesource.com/buildbot'
+_GLOBAL_VARS_PATH = 'site_config/global_variables.json'
 
 
 class GlobalVarsRetrievalError(Exception):
@@ -61,11 +57,11 @@ def Get(var_name):
   global _global_vars
   if not _global_vars:
     try:
-      with closing(urllib2.urlopen(_GLOBAL_VARS_JSON_BASE64_URL)) as f:
-        global_vars_text = base64.b64decode(f.read())
+      global_vars_text = retrieve_from_googlesource.get(SKIABOT_REPO,
+                                                        _GLOBAL_VARS_PATH)
     except Exception as e:
-      raise GlobalVarsRetrievalError('Failed to retrieve %s:\n%s' %
-                                     (_GLOBAL_VARS_JSON_BASE64_URL, str(e)))
+      raise GlobalVarsRetrievalError('Failed to retrieve %s from %s:\n%s' %
+                                     (_GLOBAL_VARS_PATH, SKIABOT_REPO, str(e)))
     try:
       _global_vars = json.loads(global_vars_text)
     except ValueError as e:
