@@ -12,7 +12,6 @@
 #include "SkBlitRect_opts_SSE2.h"
 #include "SkBlitRow.h"
 #include "SkBlitRow_opts_SSE2.h"
-#include "SkBlitRow_opts_SSE4.h"
 #include "SkBlurImage_opts_SSE2.h"
 #include "SkMorphology_opts.h"
 #include "SkMorphology_opts_SSE2.h"
@@ -207,30 +206,16 @@ SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
     }
 }
 
-static SkBlitRow::Proc32 platform_32_procs_SSE2[] = {
+static SkBlitRow::Proc32 platform_32_procs[] = {
     NULL,                               // S32_Opaque,
     S32_Blend_BlitRow32_SSE2,           // S32_Blend,
     S32A_Opaque_BlitRow32_SSE2,         // S32A_Opaque
     S32A_Blend_BlitRow32_SSE2,          // S32A_Blend,
 };
 
-#if !defined(_MSC_VER)
-static SkBlitRow::Proc32 platform_32_procs_SSE4[] = {
-    NULL,                               // S32_Opaque,
-    S32_Blend_BlitRow32_SSE2,           // S32_Blend,
-    S32A_Opaque_BlitRow32_SSE4_asm,     // S32A_Opaque
-    S32A_Blend_BlitRow32_SSE2,          // S32A_Blend,
-};
-#endif
-
 SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
-#if !defined(_MSC_VER)
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE42)) {
-        return platform_32_procs_SSE4[flags];
-    } else
-#endif
     if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
-        return platform_32_procs_SSE2[flags];
+        return platform_32_procs[flags];
     } else {
         return NULL;
     }
