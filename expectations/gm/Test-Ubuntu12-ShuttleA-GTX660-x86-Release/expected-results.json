@@ -8294,7 +8294,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4223157266221639889
+          12032414562671442267
         ]
       ], 
       "reviewed-by-human": true
@@ -8303,25 +8303,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12284507859286641943
+          12812244415353974975
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "drrect_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15972768781721313676
+          7753131063978727382
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "drrect_pdf-poppler.png": {
       "allowed-digests": [

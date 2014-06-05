@@ -38,10 +38,6 @@
 # I will likely just delete the GM.
 canvas-layer-state
 
-# bsalomon: Slight anti-aliasing changes in gpu version of this test
-# https://codereview.chromium.org/306063002/
-drrect
-
 # These are part of picture-version 27 -- removal of SkUnitMapp
 # just need to be rebaselined
 scaled_tilemode_bitmap
