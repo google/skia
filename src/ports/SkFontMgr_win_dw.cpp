@@ -728,8 +728,9 @@ SkTypeface* SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+#include "SkTypeface_win.h"
 
-SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory) {
+SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory) {
     if (NULL == factory) {
         factory = sk_get_dwrite_factory();
         if (NULL == factory) {
@@ -761,11 +762,8 @@ SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory) {
                                               localeName, localeNameLen));
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 #include "SkFontMgr_indirect.h"
-#include "SkTypeface_win.h"
-SkFontMgr* SkFontMgr_New_DirectWriteRenderer(SkRemotableFontMgr* proxy) {
+SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(SkRemotableFontMgr* proxy) {
     SkAutoTUnref<SkFontMgr> impl(SkFontMgr_New_DirectWrite());
     if (impl.get() == NULL) {
         return NULL;
