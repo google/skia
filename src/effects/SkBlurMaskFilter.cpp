@@ -630,7 +630,7 @@ void OutputRectBlurProfileLookup(GrGLShaderBuilder* builder,
                                  const char *profileSize, const char *loc,
                                  const char *blurred_width,
                                  const char *sharp_width) {
-    builder->fsCodeAppendf("\t\tfloat coord = (0.5 * (abs(2*%s - %s) - %s))/%s;\n",
+    builder->fsCodeAppendf("\t\tfloat coord = (0.5 * (abs(2.0*%s - %s) - %s))/%s;\n",
                            loc, blurred_width, sharp_width, profileSize);
     builder->fsCodeAppendf("\t\t%s = ", output);
     builder->fsAppendTextureLookup(sampler, "vec2(coord,0.5)");
@@ -670,7 +670,7 @@ void GrGLRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\tfloat height = %s.w - %s.y;\n", rectName, rectName);
 
     builder->fsCodeAppendf("\tvec2 smallDims = vec2(width - %s, height-%s);\n", profileSizeName, profileSizeName);
-    builder->fsCodeAppendf("\tfloat center = 2.0 * floor(%s/2 + .25) - 1;\n", profileSizeName);
+    builder->fsCodeAppendf("\tfloat center = 2.0 * floor(%s/2.0 + .25) - 1.0;\n", profileSizeName);
     builder->fsCodeAppendf("\tvec2 wh = smallDims - vec2(center,center);\n");
 
     builder->fsCodeAppendf("\tfloat horiz_lookup;\n");
@@ -685,7 +685,7 @@ void GrGLRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
 
     builder->fsCodeAppendf("\tfloat final = 1.0 - horiz_lookup * vert_lookup;\n");
 
-    builder->fsCodeAppendf("\t%s = vec4(final, final, final, 1);\n", outputColor );
+    builder->fsCodeAppendf("\t%s = vec4(final, final, final, 1.0);\n", outputColor );
 }
 
 void GrGLRectBlurEffect::setData(const GrGLUniformManager& uman,
