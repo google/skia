@@ -634,7 +634,7 @@ void OutputRectBlurProfileLookup(GrGLShaderBuilder* builder,
                            loc, blurred_width, sharp_width, profileSize);
     builder->fsCodeAppendf("\t\t%s = ", output);
     builder->fsAppendTextureLookup(sampler, "vec2(coord,0.5)");
-    builder->fsCodeAppend(";\n");
+    builder->fsCodeAppend(".a;\n");
 }
 
 void GrGLRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
