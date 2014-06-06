@@ -172,7 +172,7 @@ GrResourceKey::ResourceFlags get_texture_flags(const GrGpu* gpu,
     GrResourceKey::ResourceFlags flags = 0;
     bool tiled = NULL != params && params->isTiled();
     if (tiled && !gpu->caps()->npotTextureTileSupport()) {
-        if (!GrIsPow2(desc.fWidth) || !GrIsPow2(desc.fHeight)) {
+        if (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight)) {
             flags |= kStretchToPOT_TextureFlag;
             switch(params->filterMode()) {
                 case GrTextureParams::kNone_FilterMode:

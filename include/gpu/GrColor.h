@@ -106,7 +106,7 @@ enum GrColorComponentFlags {
 };
 
 static inline char GrColorComponentFlagToChar(GrColorComponentFlags component) {
-    SkASSERT(GrIsPow2(component));
+    SkASSERT(SkIsPow2(component));
     switch (component) {
         case kR_GrColorComponentFlag:
             return 'r';

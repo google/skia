@@ -47,11 +47,11 @@ public:
      * new callsites for these functions. They are slated for removal.
      */
     SkFixed normalizeFixedX(SkFixed x) const {
-        SkASSERT(GrIsPow2(fDesc.fWidth));
+        SkASSERT(SkIsPow2(fDesc.fWidth));
         return x >> fShiftFixedX;
     }
     SkFixed normalizeFixedY(SkFixed y) const {
-        SkASSERT(GrIsPow2(fDesc.fHeight));
+        SkASSERT(SkIsPow2(fDesc.fHeight));
         return y >> fShiftFixedY;
     }
 

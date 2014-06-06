@@ -618,7 +618,7 @@ bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
         return false;
     }
 
-    bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
+    bool isPow2 = SkIsPow2(width) && SkIsPow2(height);
 
     if (!isPow2) {
         bool tiled = NULL != params && params->isTiled();

@@ -125,10 +125,10 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
         SkASSERT((desc.fFlags & kRenderTarget_GrTextureFlagBit) == 0);
 
         if (!this->caps()->npotTextureTileSupport() &&
-            (!GrIsPow2(desc.fWidth) || !GrIsPow2(desc.fHeight))) {
+            (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight))) {
             return NULL;
         }
-        
+
         this->handleDirtyContext();
         tex = this->onCreateCompressedTexture(desc, srcData);
     } else {
