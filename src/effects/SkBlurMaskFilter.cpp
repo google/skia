@@ -695,6 +695,9 @@ void GrGLRectBlurEffect::setData(const GrGLUniformManager& uman,
 
     uman.set4f(fProxyRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
     uman.set1f(fProfileSizeUniform, SkScalarCeilToScalar(6*rbe.getSigma()));
+
+    SkDebugf( "proxy rect set to %f %f %f %f\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+    SkDebugf(" Profile size set to %f\n", SkScalarCeilToScalar(6*rbe.getSigma()));
 }
 
 bool GrRectBlurEffect::CreateBlurProfileTexture(GrContext *context, float sigma,
@@ -796,8 +799,8 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     SkMatrix ctm = context->getMatrix();
     SkScalar xformedSigma = this->computeXformedSigma(ctm);
 
-    float pad=SkScalarCeilToScalar(6*xformedSigma)/2.0f;
-    rect.outset(pad, pad);
+    int pad=SkScalarCeilToInt(6*xformedSigma)/2;
+    rect.outset(SkIntToScalar(pad), SkIntToScalar(pad));
 
     SkAutoTUnref<GrEffectRef> effect(GrRectBlurEffect::Create(
             context, rect, xformedSigma));
