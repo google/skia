@@ -189,6 +189,8 @@
     'arm_version%': '<(arm_version)',
     'arm_neon%': '<(arm_neon)',
     'arm_neon_optional%': 0,
+    'mips_arch_variant%': 'mips32',
+    'mips_dsp%': 0,
     'skia_os%': '<(skia_os)',
     'os_posix%': '<(os_posix)',
 
