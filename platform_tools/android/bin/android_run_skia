@@ -22,7 +22,7 @@ adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/lib/lib${APP_ARGS[0]}.so" /data/local
 
 STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"
 $ADB ${DEVICE_SERIAL} shell \
-    "/data/local/tmp/skia_launcher ${APP_ARGS[@]}; echo \$? > ${STATUS_FILENAME}"
+    "/data/local/tmp/skia_launcher ${APP_ARGS[*]}; echo \$? > ${STATUS_FILENAME}"
 if [ -z "$($ADB $DEVICE_SERIAL shell 'if [ -f $STATUS_FILENAME ]; then echo exists; fi')" ]; then
   echo "***********************************************************************"
   echo "The application terminated unexpectedly and did not produce an exit code"
