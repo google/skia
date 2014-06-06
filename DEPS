@@ -8,7 +8,7 @@ deps = {
   "third_party/externals/angle" : "https://chromium.googlesource.com/external/angleproject.git",
   "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git@bdc9b2f0ed9e365bf5a4d19799d93a512f07dd32",
   "third_party/externals/freetype" : "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
-  "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@23d664144f9209ec5d43d896ee7d4e399db7d783",
+  "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@3917682a16d5c19ff3576a8be0ffdb3a332954b1",
   "third_party/externals/libjpeg" : "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@82ce8a6d4ebe12a177c0c3597192f2b4f09e81c3",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/jsoncpp/jsoncpp.git@ab1e40f3bce061ea6f9bdc60351d6cde2a4f872b",
   # Move to a webp version newer than 0.3.0 to pickup NEON fix for iOS
