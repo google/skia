@@ -8,7 +8,6 @@
 #ifndef DMPDFRasterizeTask_DEFINED
 #define DMPDFRasterizeTask_DEFINED
 
-#include "DMExpectations.h"
 #include "DMTask.h"
 #include "SkBitmap.h"
 #include "SkData.h"
@@ -24,7 +23,6 @@ class PDFRasterizeTask : public CpuTask {
 public:
     PDFRasterizeTask(const Task& parent,
                      SkData* pdf,
-                     const Expectations&,
                      RasterizePdfProc);
 
     virtual void draw() SK_OVERRIDE;
@@ -34,7 +32,6 @@ public:
 private:
     const SkString fName;
     SkAutoTUnref<SkData> fPdf;
-    const Expectations& fExpectations;
     RasterizePdfProc fRasterize;
 };
 

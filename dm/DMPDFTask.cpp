@@ -6,7 +6,6 @@
  */
 
 #include "DMPDFTask.h"
-#include "DMExpectationsTask.h"
 #include "DMPDFRasterizeTask.h"
 #include "DMUtil.h"
 #include "DMWriteTask.h"
@@ -21,16 +20,24 @@ DEFINE_bool(pdf, false, "PDF backend master switch.");
 
 namespace DM {
 
-PDFTask::PDFTask(const char* suffix,
+PDFTask::PDFTask(const char* config,
                  Reporter* reporter,
                  TaskRunner* taskRunner,
-                 const Expectations& expectations,
                  skiagm::GMRegistry::Factory factory,
                  RasterizePdfProc rasterizePdfProc)
     : CpuTask(reporter, taskRunner)
     , fGM(factory(NULL))
-    , fName(UnderJoin(fGM->getName(), suffix))
-    , fExpectations(expectations)
+    , fName(UnderJoin(fGM->getName(), config))
+    , fRasterize(rasterizePdfProc) {}
+
+PDFTask::PDFTask(Reporter* reporter,
+                 TaskRunner* taskRunner,
+                 SkPicture* picture,
+                 SkString filename,
+                 RasterizePdfProc rasterizePdfProc)
+    : CpuTask(reporter, taskRunner)
+    , fPicture(SkRef(picture))
+    , fName(UnderJoin(FileToTaskName(filename).c_str(), "pdf"))
     , fRasterize(rasterizePdfProc) {}
 
 namespace {
@@ -59,17 +66,24 @@ private:
 }  // namespace
 
 void PDFTask::draw() {
-    SinglePagePDF pdf(fGM->width(), fGM->height());
-    //TODO(mtklein): GM doesn't do this.  Why not?
-    //pdf.canvas()->concat(fGM->getInitialTransform());
-    fGM->draw(pdf.canvas());
+    SkAutoTUnref<SkData> pdfData;
+    bool rasterize = true;
+    if (fGM.get()) {
+        rasterize = 0 == (fGM->getFlags() & skiagm::GM::kSkipPDFRasterization_Flag);
+        SinglePagePDF pdf(fGM->width(), fGM->height());
+        //TODO(mtklein): GM doesn't do this.  Why not?
+        //pdf.canvas()->concat(fGM->getInitialTransform());
+        fGM->draw(pdf.canvas());
+        pdfData.reset(pdf.end());
+    } else {
+        SinglePagePDF pdf(SkIntToScalar(fPicture->width()), SkIntToScalar(fPicture->height()));
+        fPicture->draw(pdf.canvas());
+        pdfData.reset(pdf.end());
+    }
 
-    SkAutoTUnref<SkData> pdfData(pdf.end());
     SkASSERT(pdfData.get());
-
-    if (!(fGM->getFlags() & skiagm::GM::kSkipPDFRasterization_Flag)) {
-        this->spawnChild(SkNEW_ARGS(PDFRasterizeTask,
-                                    (*this, pdfData.get(), fExpectations, fRasterize)));
+    if (rasterize) {
+        this->spawnChild(SkNEW_ARGS(PDFRasterizeTask, (*this, pdfData.get(), fRasterize)));
     }
     this->spawnChild(SkNEW_ARGS(WriteTask, (*this, pdfData.get(), ".pdf")));
 }
@@ -78,7 +92,7 @@ bool PDFTask::shouldSkip() const {
     if (!FLAGS_pdf) {
         return true;
     }
-    if (fGM->getFlags() & skiagm::GM::kSkipPDF_Flag) {
+    if (fGM.get() && 0 != (fGM->getFlags() & skiagm::GM::kSkipPDF_Flag)) {
         return true;
     }
     return false;

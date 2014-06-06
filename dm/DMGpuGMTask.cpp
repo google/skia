@@ -12,8 +12,8 @@ namespace DM {
 GpuGMTask::GpuGMTask(const char* config,
                      Reporter* reporter,
                      TaskRunner* taskRunner,
-                     const Expectations& expectations,
                      skiagm::GMRegistry::Factory gmFactory,
+                     const Expectations& expectations,
                      GrContextFactory::GLContextType contextType,
                      int sampleCount)
     : GpuTask(reporter, taskRunner)

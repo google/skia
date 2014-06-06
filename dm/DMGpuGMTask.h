@@ -20,8 +20,8 @@ public:
     GpuGMTask(const char* config,
               Reporter*,
               TaskRunner*,
-              const Expectations&,
               skiagm::GMRegistry::Factory,
+              const Expectations&,
               GrContextFactory::GLContextType,
               int sampleCount);
 

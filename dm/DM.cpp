@@ -103,24 +103,23 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
                          const DM::Expectations& expectations,
                          DM::Reporter* reporter,
                          DM::TaskRunner* tasks) {
-#define START(name, type, ...)                                                        \
-    if (lowercase(configs[j]).equals(name)) {                                         \
-        tasks->add(SkNEW_ARGS(DM::type,                                               \
-                    (name, reporter, tasks, expectations, gms[i], ## __VA_ARGS__)));  \
+#define START(name, type, ...)                                                              \
+    if (lowercase(configs[j]).equals(name)) {                                               \
+        tasks->add(SkNEW_ARGS(DM::type, (name, reporter, tasks, gms[i], ## __VA_ARGS__)));  \
     }
     for (int i = 0; i < gms.count(); i++) {
         for (int j = 0; j < configs.count(); j++) {
-            START("565",        CpuGMTask, kRGB_565_SkColorType);
-            START("8888",       CpuGMTask, kN32_SkColorType);
-            START("gpu",        GpuGMTask, native, 0);
-            START("msaa4",      GpuGMTask, native, 4);
-            START("msaa16",     GpuGMTask, native, 16);
-            START("nvprmsaa4",  GpuGMTask, nvpr,  4);
-            START("nvprmsaa16", GpuGMTask, nvpr, 16);
-            START("gpunull",    GpuGMTask, null,   0);
-            START("gpudebug",   GpuGMTask, debug,  0);
-            START("angle",      GpuGMTask, angle,  0);
-            START("mesa",       GpuGMTask, mesa,   0);
+            START("565",        CpuGMTask, expectations, kRGB_565_SkColorType);
+            START("8888",       CpuGMTask, expectations, kN32_SkColorType);
+            START("gpu",        GpuGMTask, expectations, native, 0);
+            START("msaa4",      GpuGMTask, expectations, native, 4);
+            START("msaa16",     GpuGMTask, expectations, native, 16);
+            START("nvprmsaa4",  GpuGMTask, expectations, nvpr,   4);
+            START("nvprmsaa16", GpuGMTask, expectations, nvpr,   16);
+            START("gpunull",    GpuGMTask, expectations, null,   0);
+            START("gpudebug",   GpuGMTask, expectations, debug,  0);
+            START("angle",      GpuGMTask, expectations, angle,  0);
+            START("mesa",       GpuGMTask, expectations, mesa,   0);
             START("pdf",        PDFTask,   RASTERIZE_PDF_PROC);
         }
     }
@@ -192,7 +191,9 @@ static void kick_off_skps(DM::Reporter* reporter, DM::TaskRunner* tasks) {
             exit(1);
         }
 
-        tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, pic.detach(), filename)));
+        tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, pic->clone(), filename)));
+        tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic->clone(), filename,
+                                            RASTERIZE_PDF_PROC)));
     }
 }
 

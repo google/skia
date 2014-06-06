@@ -15,6 +15,9 @@ namespace DM {
 // UnderJoin("a", "b") -> "a_b"
 SkString UnderJoin(const char* a, const char* b);
 
+// "foo_bar.skp" -> "foo-bar_skp"
+SkString FileToTaskName(SkString);
+
 // Draw gm to picture.  Passes recordFlags to SkPictureRecorder::beginRecording().
 SkPicture* RecordPicture(skiagm::GM* gm,
                          uint32_t recordFlags = 0,

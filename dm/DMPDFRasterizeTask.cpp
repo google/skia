@@ -17,24 +17,20 @@ namespace DM {
 
 PDFRasterizeTask::PDFRasterizeTask(const Task& parent,
                                    SkData* pdf,
-                                   const Expectations& expectations,
                                    RasterizePdfProc proc)
     : CpuTask(parent)
     , fName(UnderJoin(parent.name().c_str(), "rasterize"))
     , fPdf(SkRef(pdf))
-    , fExpectations(expectations)
     , fRasterize(proc) {}
 
 void PDFRasterizeTask::draw() {
     SkMemoryStream pdfStream(fPdf.get());
     SkBitmap bitmap;
 
-    if (!fRasterize(&pdfStream, &bitmap)) {
-        this->fail();
-    }
-    if (!fExpectations.check(*this, bitmap)) {
-        this->fail();
+    if (fRasterize(&pdfStream, &bitmap)) {
         this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
+    } else {
+        this->fail();
     }
 }
 

@@ -13,8 +13,8 @@ namespace DM {
 CpuGMTask::CpuGMTask(const char* config,
                      Reporter* reporter,
                      TaskRunner* taskRunner,
-                     const Expectations& expectations,
                      skiagm::GMRegistry::Factory gmFactory,
+                     const Expectations& expectations,
                      SkColorType colorType)
     : CpuTask(reporter, taskRunner)
     , fGMFactory(gmFactory)

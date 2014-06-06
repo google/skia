@@ -12,6 +12,14 @@ SkString UnderJoin(const char* a, const char* b) {
     return s;
 }
 
+SkString FileToTaskName(SkString filename) {
+    for (size_t i = 0; i < filename.size(); i++) {
+        if ('_' == filename[i]) { filename[i] = '-'; }
+        if ('.' == filename[i]) { filename[i] = '_'; }
+    }
+    return filename;
+}
+
 SkPicture* RecordPicture(skiagm::GM* gm, uint32_t recordFlags, SkBBHFactory* factory) {
     const SkISize size = gm->getISize();
     SkPictureRecorder recorder;

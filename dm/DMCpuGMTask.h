@@ -20,8 +20,8 @@ public:
     CpuGMTask(const char* config,
               Reporter*,
               TaskRunner*,
-              const Expectations&,
               skiagm::GMRegistry::Factory,
+              const Expectations&,
               SkColorType);
 
     virtual void draw() SK_OVERRIDE;
