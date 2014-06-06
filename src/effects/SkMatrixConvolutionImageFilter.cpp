@@ -86,7 +86,9 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkReadBuffer& buf
     buffer.validate((fKernel != 0) &&
                     SkScalarIsFinite(fGain) &&
                     SkScalarIsFinite(fBias) &&
-                    tile_mode_is_valid(fTileMode));
+                    tile_mode_is_valid(fTileMode) &&
+                    (fKernelOffset.fX >= 0) && (fKernelOffset.fX < fKernelSize.fWidth) &&
+                    (fKernelOffset.fY >= 0) && (fKernelOffset.fY < fKernelSize.fHeight));
 }
 
 void SkMatrixConvolutionImageFilter::flatten(SkWriteBuffer& buffer) const {
