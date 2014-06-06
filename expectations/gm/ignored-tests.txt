@@ -47,3 +47,8 @@ tilemode_bitmap
 tilemodes_npot
 tilemodes
 
+# Added by kevin.petit@arm.com for https://codereview.chromium.org/317193003
+# Only S32A_D565_Blend is causing mismatches
+shadertext3
+drawbitmaprect
+coloremoji
