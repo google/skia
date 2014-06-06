@@ -560,7 +560,7 @@ public:
         GrTexture *blurProfileTexture = NULL;
         int doubleProfileSize = SkScalarCeilToInt(12*sigma);
 
-        if (doubleProfileSize <= rect.width() || doubleProfileSize <= rect.height()) {
+        if (doubleProfileSize >= rect.width() || doubleProfileSize >= rect.height()) {
             // if the blur sigma is too large so the gaussian overlaps the whole
             // rect in either direction, fall back to CPU path for now.
 
