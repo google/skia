@@ -400,7 +400,9 @@
 #endif
 
 #ifndef SK_BARRIERS_PLATFORM_H
-#  if defined(SK_CPU_ARM32) || defined(SK_CPU_ARM64)
+#  if SK_HAS_COMPILER_FEATURE(thread_sanitizer)
+#    define SK_BARRIERS_PLATFORM_H "../../src/ports/SkBarriers_tsan.h"
+#  elif defined(SK_CPU_ARM32) || defined(SK_CPU_ARM64)
 #    define SK_BARRIERS_PLATFORM_H "../../src/ports/SkBarriers_arm.h"
 #  else
 #    define SK_BARRIERS_PLATFORM_H "../../src/ports/SkBarriers_x86.h"
