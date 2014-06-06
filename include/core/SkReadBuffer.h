@@ -84,7 +84,7 @@ public:
     size_t size() { return fReader.size(); }
     size_t offset() { return fReader.offset(); }
     bool eof() { return fReader.eof(); }
-    const void* skip(size_t size) { return fReader.skip(size); }
+    virtual const void* skip(size_t size) { return fReader.skip(size); }
     void* readFunctionPtr() { return fReader.readPtr(); }
 
     // primitives

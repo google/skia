@@ -23,7 +23,7 @@ public:
     SkValidatingReadBuffer(const void* data, size_t size);
     virtual ~SkValidatingReadBuffer();
 
-    const void* skip(size_t size);
+    virtual const void* skip(size_t size) SK_OVERRIDE;
 
     // primitives
     virtual bool readBool() SK_OVERRIDE;

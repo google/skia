@@ -199,8 +199,8 @@ bool SkReadBuffer::readBitmap(SkBitmap* bitmap) {
     if (this->readBool()) {
         // An SkBitmapHeap was used for writing. Read the index from the stream and find the
         // corresponding SkBitmap in fBitmapStorage.
-        const uint32_t index = fReader.readU32();
-        fReader.readU32(); // bitmap generation ID (see SkWriteBuffer::writeBitmap)
+        const uint32_t index = this->readUInt();
+        this->readUInt(); // bitmap generation ID (see SkWriteBuffer::writeBitmap)
         if (fBitmapStorage) {
             *bitmap = *fBitmapStorage->getBitmap(index);
             fBitmapStorage->releaseRef(index);
@@ -223,8 +223,8 @@ bool SkReadBuffer::readBitmap(SkBitmap* bitmap) {
             // A non-zero size means the SkBitmap was encoded. Read the data and pixel
             // offset.
             const void* data = this->skip(length);
-            const int32_t xOffset = fReader.readS32();
-            const int32_t yOffset = fReader.readS32();
+            const int32_t xOffset = this->readInt();
+            const int32_t yOffset = this->readInt();
             if (fBitmapDecoder != NULL && fBitmapDecoder(data, length, bitmap)) {
                 if (bitmap->width() == width && bitmap->height() == height) {
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
