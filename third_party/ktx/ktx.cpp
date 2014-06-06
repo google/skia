@@ -7,10 +7,13 @@
  */
 
 #include "ktx.h"
+#include "SkBitmap.h"
 #include "SkStream.h"
 #include "SkEndian.h"
 
 #include "gl/GrGLDefines.h"
+
+#include "etc1.h"
 
 #define KTX_FILE_IDENTIFIER_SIZE 12
 static const uint8_t KTX_FILE_IDENTIFIER[KTX_FILE_IDENTIFIER_SIZE] = {
@@ -39,14 +42,52 @@ bool SkKTXFile::KeyValue::readKeyAndValue(const uint8_t* data) {
     ++value;
 
     size_t bytesLeft = this->fDataSz - bytesRead;
-    this->fKey.set(key, bytesRead);
+
+    // We ignore the null terminator when setting the string value.
+    this->fKey.set(key, bytesRead - 1);
     if (bytesLeft > 0) {
-        this->fValue.set(value, bytesLeft);
+        this->fValue.set(value, bytesLeft - 1);
     } else {
         return false;
     }
 
     return true;
+}
+
+bool SkKTXFile::KeyValue::writeKeyAndValueForKTX(SkWStream* strm) {
+    size_t bytesWritten = 0;
+    if (!strm->write(&(this->fDataSz), 4)) {
+        return false;
+    }
+
+    bytesWritten += 4;
+
+    // Here we know that C-strings must end with a null terminating
+    // character, so when we get a c_str(), it will have as many
+    // bytes of data as size() returns plus a zero, so we just
+    // write size() + 1 bytes into the stream.
+
+    size_t keySize = this->fKey.size() + 1;
+    if (!strm->write(this->fKey.c_str(), keySize)) {
+        return false;
+    }
+
+    bytesWritten += keySize;
+
+    size_t valueSize = this->fValue.size() + 1;
+    if (!strm->write(this->fValue.c_str(), valueSize)) {
+        return false;
+    }
+
+    bytesWritten += valueSize;
+
+    size_t bytesWrittenPadFour = (bytesWritten + 3) & ~3;
+    uint8_t nullBuf[4] = { 0, 0, 0, 0 };
+
+    size_t padding = bytesWrittenPadFour - bytesWritten;
+    SkASSERT(padding < 4);
+
+    return strm->write(nullBuf, padding);
 }
 
 uint32_t SkKTXFile::readInt(const uint8_t** buf, size_t* bytesLeft) const {
@@ -69,6 +110,17 @@ uint32_t SkKTXFile::readInt(const uint8_t** buf, size_t* bytesLeft) const {
     *bytesLeft -= 4;
 
     return result;
+}
+
+SkString SkKTXFile::getValueForKey(const SkString& key) const {
+    const KeyValue *begin = this->fKeyValuePairs.begin();
+    const KeyValue *end = this->fKeyValuePairs.end();
+    for (const KeyValue *kv = begin; kv != end; ++kv) {
+        if (kv->key() == key) {
+            return kv->value();
+        }
+    }
+    return SkString();
 }
 
 bool SkKTXFile::isETC1() const {
@@ -239,4 +291,209 @@ bool SkKTXFile::is_ktx(SkStreamRewindable* stream) {
         return false;
     }
     return is_ktx(buf);
+}
+
+SkKTXFile::KeyValue SkKTXFile::CreateKeyValue(const char *cstrKey, const char *cstrValue) {
+    SkString key(cstrKey);
+    SkString value(cstrValue);
+
+    // Size of buffer is length of string plus the null terminators...
+    size_t size = key.size() + 1 + value.size() + 1;
+
+    SkAutoSMalloc<256> buf(size);
+    uint8_t* kvBuf = reinterpret_cast<uint8_t*>(buf.get());
+    memcpy(kvBuf, key.c_str(), key.size() + 1);
+    memcpy(kvBuf + key.size() + 1, value.c_str(), value.size() + 1);
+
+    KeyValue kv(size);
+    SkAssertResult(kv.readKeyAndValue(kvBuf));
+    return kv;
+}
+
+bool SkKTXFile::WriteETC1ToKTX(SkWStream* stream, const uint8_t *etc1Data,
+                               uint32_t width, uint32_t height) {
+    // First thing's first, write out the magic identifier and endianness...
+    if (!stream->write(KTX_FILE_IDENTIFIER, KTX_FILE_IDENTIFIER_SIZE)) {
+        return false;
+    }
+
+    if (!stream->write(&kKTX_ENDIANNESS_CODE, 4)) {
+        return false;
+    }
+    
+    Header hdr;
+    hdr.fGLType = 0;
+    hdr.fGLTypeSize = 1;
+    hdr.fGLFormat = 0;
+    hdr.fGLInternalFormat = GR_GL_COMPRESSED_RGB8_ETC1;
+    hdr.fGLBaseInternalFormat = GR_GL_RGB;
+    hdr.fPixelWidth = width;
+    hdr.fPixelHeight = height;
+    hdr.fNumberOfArrayElements = 0;
+    hdr.fNumberOfFaces = 1;
+    hdr.fNumberOfMipmapLevels = 1;
+
+    // !FIXME! The spec suggests that we put KTXOrientation as a
+    // key value pair in the header, but that means that we'd have to
+    // pipe through the bitmap's orientation to properly do that.
+    hdr.fBytesOfKeyValueData = 0;
+
+    // Write the header
+    if (!stream->write(&hdr, sizeof(hdr))) {
+        return false;
+    }
+
+    // Write the size of the image data
+    etc1_uint32 dataSize = etc1_get_encoded_data_size(width, height);
+    if (!stream->write(&dataSize, 4)) {
+        return false;
+    }
+
+    // Write the actual image data
+    if (!stream->write(etc1Data, dataSize)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
+    const SkBitmap::Config config = bitmap.config();
+    SkAutoLockPixels alp(bitmap);
+
+    const int width = bitmap.width();
+    const int height = bitmap.width();
+    const uint8_t* src = reinterpret_cast<uint8_t*>(bitmap.getPixels());
+    if (NULL == bitmap.getPixels()) {
+        return false;
+    }
+
+    // First thing's first, write out the magic identifier and endianness...
+    if (!stream->write(KTX_FILE_IDENTIFIER, KTX_FILE_IDENTIFIER_SIZE) ||
+        !stream->write(&kKTX_ENDIANNESS_CODE, 4)) {
+        return false;
+    }
+
+    // Collect our key/value pairs...
+    SkTArray<KeyValue> kvPairs;
+
+    // Next, write the header based on the bitmap's config.
+    Header hdr;
+    switch (config) {
+        case SkBitmap::kIndex8_Config:
+            // There is a compressed format for this, but we don't support it yet.
+            SkDebugf("Writing indexed bitmap to KTX unsupported.\n");
+            // VVV fall through VVV
+        default:
+        case SkBitmap::kNo_Config:
+            // Bitmap hasn't been configured.
+            return false;
+
+        case SkBitmap::kA8_Config:
+            hdr.fGLType = GR_GL_UNSIGNED_BYTE;
+            hdr.fGLTypeSize = 1;
+            hdr.fGLFormat = GR_GL_RED;
+            hdr.fGLInternalFormat = GR_GL_R8;
+            hdr.fGLBaseInternalFormat = GR_GL_RED;
+            break;
+
+        case SkBitmap::kRGB_565_Config:
+            hdr.fGLType = GR_GL_UNSIGNED_SHORT_5_6_5;
+            hdr.fGLTypeSize = 2;
+            hdr.fGLFormat = GR_GL_RGB;
+            hdr.fGLInternalFormat = GR_GL_RGB;
+            hdr.fGLBaseInternalFormat = GR_GL_RGB;
+            break;
+
+        case SkBitmap::kARGB_4444_Config:
+            hdr.fGLType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
+            hdr.fGLTypeSize = 2;
+            hdr.fGLFormat = GR_GL_RGBA;
+            hdr.fGLInternalFormat = GR_GL_RGBA4;
+            hdr.fGLBaseInternalFormat = GR_GL_RGBA;
+            kvPairs.push_back(CreateKeyValue("KTXPremultipliedAlpha", "True"));
+            break;
+
+        case SkBitmap::kARGB_8888_Config:
+            hdr.fGLType = GR_GL_UNSIGNED_BYTE;
+            hdr.fGLTypeSize = 1;
+            hdr.fGLFormat = GR_GL_RGBA;
+            hdr.fGLInternalFormat = GR_GL_RGBA8;
+            hdr.fGLBaseInternalFormat = GR_GL_RGBA;
+            kvPairs.push_back(CreateKeyValue("KTXPremultipliedAlpha", "True"));
+            break;
+    }
+
+    // Everything else in the header is shared.
+    hdr.fPixelWidth = width;
+    hdr.fPixelHeight = height;
+    hdr.fNumberOfArrayElements = 0;
+    hdr.fNumberOfFaces = 1;
+    hdr.fNumberOfMipmapLevels = 1;
+
+    // Calculate the key value data size
+    hdr.fBytesOfKeyValueData = 0;
+    for (KeyValue *kv = kvPairs.begin(); kv != kvPairs.end(); ++kv) {
+        // Key value size is the size of the key value data,
+        // four bytes for saying how big the key value size is
+        // and then additional bytes for padding to four byte boundary
+        size_t kvsize = kv->size();
+        kvsize += 4;
+        kvsize = (kvsize + 3) & ~3;
+        hdr.fBytesOfKeyValueData += kvsize;
+    }
+
+    // Write the header
+    if (!stream->write(&hdr, sizeof(hdr))) {
+        return false;
+    }
+
+    // Write out each key value pair
+    for (KeyValue *kv = kvPairs.begin(); kv != kvPairs.end(); ++kv) {
+        if (!kv->writeKeyAndValueForKTX(stream)) {
+            return false;
+        }
+    }
+
+    // Calculate the size of the data
+    int bpp = bitmap.bytesPerPixel();
+    uint32_t dataSz = bpp * width * height;
+
+    if (0 >= bpp) {
+        return false;
+    }
+
+    // Write it into the buffer
+    if (!stream->write(&dataSz, 4)) {
+        return false;
+    }
+
+    // Write the pixel data...
+    const uint8_t* rowPtr = src;
+    if (SkBitmap::kARGB_8888_Config == config) {
+        for (int j = 0; j < height; ++j) {
+            const uint32_t* pixelsPtr = reinterpret_cast<const uint32_t*>(rowPtr);
+            for (int i = 0; i < width; ++i) {
+                uint32_t pixel = pixelsPtr[i];
+                uint8_t dstPixel[4];
+                dstPixel[0] = pixel >> SK_R32_SHIFT;
+                dstPixel[1] = pixel >> SK_G32_SHIFT;
+                dstPixel[2] = pixel >> SK_B32_SHIFT;
+                dstPixel[3] = pixel >> SK_A32_SHIFT;
+                if (!stream->write(dstPixel, 4)) {
+                    return false;
+                }
+            }
+            rowPtr += bitmap.rowBytes();
+        }
+    } else {
+        for (int i = 0; i < height; ++i) {
+            if (!stream->write(rowPtr, bpp*width)) {
+                return false;
+            }
+            rowPtr += bitmap.rowBytes();
+        }
+    }
+    
+    return true;
 }

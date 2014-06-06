@@ -16,7 +16,9 @@
 #include "SkString.h"
 #include "SkRefCnt.h"
 
+class SkBitmap;
 class SkStreamRewindable;
+class SkWStream;
 
 // KTX Image File
 // ---
@@ -49,6 +51,11 @@ public:
         return this->valid() ? fPixelData[mipmap].data() : NULL;
     }
 
+    // If the decoded KTX file has the following key, then it will
+    // return the associated value. If not found, the empty string
+    // is returned.
+    SkString getValueForKey(const SkString& key) const;
+
     int numMipmaps() const { return static_cast<int>(fHeader.fNumberOfMipmapLevels); }
 
     bool isETC1() const;
@@ -58,6 +65,9 @@ public:
     static bool is_ktx(const uint8_t *data);
     static bool is_ktx(SkStreamRewindable* stream);
 
+    static bool WriteETC1ToKTX(SkWStream* stream, const uint8_t *etc1Data,
+                               uint32_t width, uint32_t height);
+    static bool WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap);
 private:
 
     // The blob holding the file data.
@@ -88,12 +98,17 @@ private:
     public:
         KeyValue(size_t size) : fDataSz(size) { }
         bool readKeyAndValue(const uint8_t *data);
-    
+        size_t size() const { return fDataSz; }
+        const SkString& key() const { return fKey; }
+        const SkString& value() const { return fValue; }
+        bool writeKeyAndValueForKTX(SkWStream* strm);
     private:
         const size_t fDataSz;
-        SkString fKey;
-        SkString fValue;
+        SkString     fKey;
+        SkString     fValue;
     };
+
+    static KeyValue CreateKeyValue(const char *key, const char *value);
 
     // The pixel data for a single mipmap level in an image. Based on how
     // the rest of the data is stored, this may be compressed, a cubemap, etc.

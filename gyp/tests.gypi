@@ -104,6 +104,7 @@
     '../tests/ImageFilterTest.cpp',
     '../tests/InfRectTest.cpp',
     '../tests/JpegTest.cpp',
+    '../tests/KtxTest.cpp',
     '../tests/LListTest.cpp',
     '../tests/LayerDrawLooperTest.cpp',
     '../tests/LayerRasterizerTest.cpp',

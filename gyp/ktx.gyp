@@ -14,7 +14,8 @@
       '../third_party/ktx/ktx.cpp',
     ],
     'dependencies': [
-      'core.gyp:*'
+      'core.gyp:*',
+      'etc1.gyp:libetc1',
     ],
     'direct_dependent_settings': {
       'include_dirs': [

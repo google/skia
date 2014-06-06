@@ -26,6 +26,7 @@ public:
         kPNG_Type,
         kWBMP_Type,
         kWEBP_Type,
+        kKTX_Type,
     };
     static SkImageEncoder* Create(Type);
 
@@ -96,6 +97,7 @@ protected:
 DECLARE_ENCODER_CREATOR(ARGBImageEncoder);
 DECLARE_ENCODER_CREATOR(JPEGImageEncoder);
 DECLARE_ENCODER_CREATOR(PNGImageEncoder);
+DECLARE_ENCODER_CREATOR(KTXImageEncoder);
 DECLARE_ENCODER_CREATOR(WEBPImageEncoder);
 
 // Typedef to make registering encoder callback easier
