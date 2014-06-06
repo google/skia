@@ -40,6 +40,7 @@ canvas-layer-state
 
 # humper:
 # Needs rebaselining after faster GPU blur patch lands
+megalooper_0x0
 megalooper_1x4
 megalooper_4x1
 bleed
