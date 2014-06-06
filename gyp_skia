@@ -134,6 +134,11 @@ if __name__ == '__main__':
       os.environ[ENVVAR_GYP_GENERATOR_FLAGS] = (
           gyp_generator_flags + ' msvs_error_on_missing_sources=1')
 
+  # GYP is very conservative about how many concurrent linker calls it allows,
+  # to fit in RAM. We don't need to be nearly as conservative as Chrome.  We'll
+  # just turn that feature off.
+  os.environ['GYP_LINK_CONCURRENCY'] = '9001'
+
   print 'Updating projects from gyp files...'
   sys.stdout.flush()
 
