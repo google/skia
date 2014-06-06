@@ -16,7 +16,6 @@
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 
 static const SkScalar kErrorTol = 0.00001f;
-static const SkScalar kEdgeErrorTol = 5.f * kErrorTol;
 
 /**
  * We have three general cases for 2pt conical gradients. First we always assume that
@@ -97,8 +96,7 @@ private:
         fRadius0(shader.getStartRadius()),
         fDiffRadius(shader.getDiffRadius()){
         // We should only be calling this shader if we are degenerate case with touching circles
-        SkASSERT(SkScalarAbs(SkScalarAbs(fDiffRadius) - SkScalarAbs(fCenterX1)) <
-                 fRadius0 * kEdgeErrorTol);
+        SkASSERT(SkScalarAbs(fDiffRadius) - SkScalarAbs(fCenterX1) < kErrorTol) ;
 
         // We pass the linear part of the quadratic as a varying.
         //    float b = -2.0 * (fCenterX1 * x + fRadius0 * fDiffRadius * z)
@@ -330,9 +328,9 @@ static ConicalType set_matrix_focal_conical(const SkTwoPointConicalGradient& sha
 
     // If the focal point is touching the edge of the circle it will
     // cause a degenerate case that must be handled separately
-    // kEdgeErrorTol = 5 * kErrorTol was picked after manual testing the
-    // stability trade off versus the linear approx used in the Edge Shader
-    if (SkScalarAbs(1.f - (*focalX)) < kEdgeErrorTol) {
+    // 5 * kErrorTol was picked after manual testing the stability trade off
+    // versus the linear approx used in the Edge Shader
+    if (SkScalarAbs(1.f - (*focalX)) < 5 *  kErrorTol) {
         return kEdge_ConicalType;
     }
 
@@ -773,10 +771,9 @@ static ConicalType set_matrix_circle_conical(const SkTwoPointConicalGradient& sh
 
     // Check to see if start circle is inside end circle with edges touching.
     // If touching we return that it is of kEdge_ConicalType, and leave the matrix setting
-    // to the edge shader. kEdgeErrorTol = 5 * kErrorTol was picked after manual testing
-    // so that C = 1 / A is stable, and the linear approximation used in the Edge shader is
-    // still accurate.
-    if (SkScalarAbs(A) < kEdgeErrorTol) {
+    // to the edge shader. 5 * kErrorTol was picked after manual testing so that C = 1 / A
+    // is stable, and the linear approximation used in the Edge shader is still accurate.
+    if (SkScalarAbs(A) < 5 * kErrorTol) {
         return kEdge_ConicalType;
     }
 
