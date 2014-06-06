@@ -46,6 +46,7 @@ megalooper_4x1
 bleed
 blurquickreject
 blurrects
+bigblurs
 
 # These are part of picture-version 27 -- removal of SkUnitMapp
 # just need to be rebaselined
