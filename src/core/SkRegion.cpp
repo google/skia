@@ -212,12 +212,6 @@ char* SkRegion::toString() {
 ///////////////////////////////////////////////////////////////////////////////
 
 int SkRegion::count_runtype_values(int* itop, int* ibot) const {
-    if (this == NULL) {
-        *itop = SK_MinS32;
-        *ibot = SK_MaxS32;
-        return 0;
-    }
-
     int maxT;
 
     if (this->isRect()) {

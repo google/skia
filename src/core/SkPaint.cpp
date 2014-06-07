@@ -106,11 +106,6 @@ SkPaint::SkPaint() {
 }
 
 SkPaint::SkPaint(const SkPaint& src) {
-    // Diagnoistic. May remove later. See crbug.com/364224
-    if (NULL == &src) {
-        sk_throw();
-    }
-
 #define COPY(field) field = src.field
 #define REF_COPY(field) field = SkSafeRef(src.field)
 
