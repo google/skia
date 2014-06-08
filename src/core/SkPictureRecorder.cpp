@@ -68,7 +68,6 @@ void SkPictureRecorder::internalOnly_EnableOpts(bool enableOpts) {
     }
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
 void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
     if (NULL == fPicture.get() || NULL == canvas) {
         // Not recording or nothing to replay into
@@ -82,4 +81,3 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
                                                                           false));
     playback->draw(*canvas, NULL);
 }
-#endif

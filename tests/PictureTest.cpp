@@ -919,7 +919,6 @@ static void set_canvas_to_save_count_4(SkCanvas* canvas) {
     canvas->save();
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
 /**
  * A canvas that records the number of saves, saveLayers and restores.
  */
@@ -1042,7 +1041,6 @@ DEF_TEST(PictureRecorder_replay, reporter) {
         REPORTER_ASSERT(reporter, !copy->willPlayBackBitmaps());
     }
 }
-#endif
 
 static void test_unbalanced_save_restores(skiatest::Reporter* reporter) {
     SkCanvas testCanvas(100, 100);
