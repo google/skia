@@ -13,9 +13,13 @@
 #include "SkRefCnt.h"
 
 class SkCanvas;
+class SkPictureRecord;
 
 class SK_API SkPictureRecorder : SkNoncopyable {
 public:
+    SkPictureRecorder() : fCanvas(NULL) { }
+    ~SkPictureRecorder();
+
     /** Returns the canvas that records the drawing commands.
         @param width the base width for the picture, as if the recording
                      canvas' bitmap had this width.
@@ -33,25 +37,14 @@ public:
     /** Returns the recording canvas if one is active, or NULL if recording is
         not active. This does not alter the refcnt on the canvas (if present).
     */
-    SkCanvas* getRecordingCanvas() {
-        if (NULL != fPicture.get()) {
-            return fPicture->getRecordingCanvas();
-        }
-        return NULL;
-    }
+    SkCanvas* getRecordingCanvas();
 
     /** Signal that the caller is done recording. This invalidates the canvas
         returned by beginRecording/getRecordingCanvas, and returns the
         created SkPicture. Note that the returned picture has its creation
         ref which the caller must take ownership of.
     */
-    SkPicture* endRecording() {
-        if (NULL != fPicture.get()) {
-            fPicture->endRecording();
-            return fPicture.detach();
-        }
-        return NULL;
-    }
+    SkPicture* endRecording();
 
     /** Enable/disable all the picture recording optimizations (i.e.,
         those in SkPictureRecord). It is mainly intended for testing the
@@ -59,11 +52,7 @@ public:
         appear in an .skp we have to disable the optimization). Call right
         after 'beginRecording'.
     */
-    void internalOnly_EnableOpts(bool enableOpts) {
-        if (NULL != fPicture.get()) {
-            fPicture->internalOnly_EnableOpts(enableOpts);
-        }
-    }
+    void internalOnly_EnableOpts(bool enableOpts);
 
 private:
 #ifdef SK_BUILD_FOR_ANDROID
@@ -75,7 +64,8 @@ private:
     void partialReplay(SkCanvas* canvas) const;
 #endif
 
-    SkAutoTUnref<SkPicture>         fPicture;
+    SkAutoTUnref<SkPicture> fPicture;
+    SkPictureRecord*        fCanvas;   // ref counted
 
     typedef SkNoncopyable INHERITED;
 };

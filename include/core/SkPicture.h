@@ -147,8 +147,7 @@ public:
         kUsePathBoundsForClip_RecordingFlag = 0x01
     };
 
-    /** Replays the drawing commands on the specified canvas. This internally
-        calls endRecording() if that has not already been called.
+    /** Replays the drawing commands on the specified canvas.
         @param canvas the canvas receiving the drawing commands.
     */
     void draw(SkCanvas* canvas, SkDrawPictureCallback* = NULL) const;
@@ -225,14 +224,6 @@ public:
     static bool InternalOnly_StreamIsSKP(SkStream*, SkPictInfo*);
     static bool InternalOnly_BufferIsSKP(SkReadBuffer&, SkPictInfo*);
 
-    /** Enable/disable all the picture recording optimizations (i.e.,
-        those in SkPictureRecord). It is mainly intended for testing the
-        existing optimizations (i.e., to actually have the pattern
-        appear in an .skp we have to disable the optimization). Call right
-        after 'beginRecording'.
-    */
-    void internalOnly_EnableOpts(bool enableOpts);
-
     /** Return true if the picture is suitable for rendering on the GPU.
      */
 
@@ -284,7 +275,6 @@ protected:
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived
     // recorders and set the picture size
     SkPicturePlayback*    fPlayback;
-    SkPictureRecord*      fRecord;
     int                   fWidth, fHeight;
     mutable const AccelData* fAccelData;
 
@@ -418,31 +408,6 @@ private:
     friend class GrGatherCanvas;
     friend class GrGatherDevice;
     friend class SkDebugCanvas;
-
-    // TODO: beginRecording, getRecordingCanvas & endRecording can now be
-    // be moved out of SkPicture (and, presumably, be directly implemented
-    // in SkPictureRecorder)
-
-    /** Returns the canvas that records the drawing commands.
-        @param width the base width for the picture, as if the recording
-               canvas' bitmap had this width.
-        @param height the base width for the picture, as if the recording
-               canvas' bitmap had this height.
-        @param factory if non-NULL, the factory used to the BBH for the recorded picture
-        @param recordFlags optional flags that control recording.
-        @return the picture canvas.
-    */
-    SkCanvas* beginRecording(int width, int height, SkBBHFactory* factory, uint32_t recordFlags);
-    /** Returns the recording canvas if one is active, or NULL if recording is
-        not active. This does not alter the refcnt on the canvas (if present).
-    */
-    SkCanvas* getRecordingCanvas() const;
-    /** Signal that the caller is done recording. This invalidates the canvas
-        returned by beginRecording/getRecordingCanvas, and prepares the picture
-        for drawing. Note: this happens implicitly the first time the picture
-        is drawn.
-    */
-    void endRecording();
 
     typedef SkRefCnt INHERITED;
 };
