@@ -107,8 +107,9 @@ public:
         fClearMask = clearMask;
     }
 
-    static void SetResourcePath(const char*);
-    static SkString GetResourcePath();
+    static void SetResourcePath(const char* resPath) { gResourcePath.set(resPath); }
+
+    static SkString& GetResourcePath() { return gResourcePath; }
 
 protected:
     virtual void setupPaint(SkPaint* paint);
@@ -128,7 +129,7 @@ private:
     bool    fForceFilter;
     SkTriState::State  fDither;
     uint32_t    fOrMask, fClearMask;
-    static const char* gResourcePath;
+    static  SkString gResourcePath;
 
     typedef SkRefCnt INHERITED;
 };

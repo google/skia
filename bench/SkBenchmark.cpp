@@ -12,7 +12,7 @@ const char* SkTriState::Name[] = { "default", "true", "false" };
 
 template BenchRegistry* BenchRegistry::gHead;
 
-const char* SkBenchmark::gResourcePath;
+SkString SkBenchmark::gResourcePath;
 
 SkBenchmark::SkBenchmark() {
     fForceAlpha = 0xFF;
@@ -55,13 +55,6 @@ void SkBenchmark::setupPaint(SkPaint* paint) {
     }
 }
 
-void SkBenchmark::SetResourcePath(const char* resourcePath) {
-    gResourcePath = resourcePath;
-}
-
-SkString SkBenchmark::GetResourcePath() {
-    return SkString(gResourcePath);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 

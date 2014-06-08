@@ -30,7 +30,8 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm, bm4444;
-        SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath, "mandrill_512.png");
+        SkString filename = SkOSPath::SkPathJoin(
+                INHERITED::gResourcePath.c_str(), "mandrill_512.png");
         if (!SkImageDecoder::DecodeFile(filename.c_str(), &bm,
                                         SkBitmap::kARGB_8888_Config,
                                         SkImageDecoder::kDecodePixels_Mode)) {
