@@ -6,9 +6,10 @@
  */
 
 #include "gm.h"
+
 using namespace skiagm;
 
-SkString GM::gResourcePath;
+const char* GM::gResourcePath;
 
 GM::GM() {
     fMode = kGM_Mode;
@@ -17,6 +18,7 @@ GM::GM() {
     fHaveCalledOnceBeforeDraw = false;
     fStarterMatrix.reset();
 }
+
 GM::~GM() {}
 
 void GM::draw(SkCanvas* canvas) {
@@ -62,6 +64,14 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
     SkPaint paint;
     paint.setColor(color);
     canvas->drawRect(r, paint);
+}
+
+void GM::SetResourcePath(const char* resourcePath) {
+    gResourcePath = resourcePath;
+}
+
+SkString GM::GetResourcePath() {
+    return SkString(gResourcePath);
 }
 
 // need to explicitly declare this, or we get some weird infinite loop llist

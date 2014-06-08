@@ -28,8 +28,7 @@ public:
 protected:
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
         // Copyright-free file from http://openclipart.org/detail/29213/paper-plane-by-ddoo
-        SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath.c_str(),
-                                                 "plane.png");
+        SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath, "plane.png");
         SkAutoDataUnref data(SkData::NewFromFileName(filename.c_str()));
         if (NULL != data.get()) {
             // Create a cache which will boot the pixels out anytime the
