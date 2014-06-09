@@ -194,6 +194,7 @@ static SkShader* Make2ConicalEdgeY(const SkPoint pts[2], const GradData& data,
                                                    data.fColors, data.fPos,
                                                    data.fCount, tm, 0, &localMatrix);
 }
+
 static SkShader* Make2ConicalZeroRadEdgeX(const SkPoint pts[2], const GradData& data,
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
