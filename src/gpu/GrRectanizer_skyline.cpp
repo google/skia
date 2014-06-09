@@ -81,8 +81,9 @@ void GrRectanizerSkyline::addSkylineLevel(int skylineIndex, int x, int y, int wi
     SkASSERT(newSegment.fX + newSegment.fWidth <= this->width());
     SkASSERT(newSegment.fY <= this->height());
 
-    // delete width of this skyline segment from following ones
+    // delete width of the new skyline segment from following ones
     for (int i = skylineIndex+1; i < fSkyline.count(); ++i) {
+        // The new segment subsumes all or part of fSkyline[i]
         SkASSERT(fSkyline[i-1].fX <= fSkyline[i].fX);
 
         if (fSkyline[i].fX < fSkyline[i-1].fX + fSkyline[i-1].fWidth) {
@@ -92,9 +93,11 @@ void GrRectanizerSkyline::addSkylineLevel(int skylineIndex, int x, int y, int wi
             fSkyline[i].fWidth -= shrink;
 
             if (fSkyline[i].fWidth <= 0) {
+                // fully consumed
                 fSkyline.remove(i);
                 --i;
             } else {
+                // only partially consumed
                 break;
             }
         } else {

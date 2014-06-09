@@ -32,7 +32,7 @@ public:
 
     virtual bool addRect(int w, int h, SkIPoint16* loc) SK_OVERRIDE;
 
-    virtual float percentFull() const SK_OVERRIDE{
+    virtual float percentFull() const SK_OVERRIDE {
         return fAreaSoFar / ((float)this->width() * this->height());
     }
 
@@ -47,7 +47,13 @@ private:
 
     int32_t fAreaSoFar;
 
+    // Can a width x height rectangle fit in the free space represented by
+    // the skyline segments >= 'skylineIndex'? If so, return true and fill in
+    // 'y' with the y-location at which it fits (the x location is pulled from 
+    // 'skylineIndex's segment.
     bool rectangleFits(int skylineIndex, int width, int height, int* y) const;
+    // Update the skyline structure to include a width x height rect located
+    // at x,y.
     void addSkylineLevel(int skylineIndex, int x, int y, int width, int height);
 
     typedef GrRectanizer INHERITED;
