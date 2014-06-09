@@ -34,6 +34,7 @@ private:
     SkScalar                fTextRatio;
     bool                    fUseLCDText;
     bool                    fEnableDFRendering;
+    GrTexture*              fGammaTexture;
 
     void init(const GrPaint&, const SkPaint&);
     void drawPackedGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);
