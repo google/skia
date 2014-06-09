@@ -39,8 +39,7 @@ static SkPicture* rerecord_with_tilegrid(SkPicture& src) {
     SkTileGridFactory factory(info);
 
     SkPictureRecorder recorder;
-    src.draw(recorder.beginRecording(src.width(), src.height(), &factory,
-                                     SkPicture::kUsePathBoundsForClip_RecordingFlag));
+    src.draw(recorder.beginRecording(src.width(), src.height(), &factory));
     return recorder.endRecording();
 }
 

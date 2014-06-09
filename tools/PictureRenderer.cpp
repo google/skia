@@ -256,12 +256,6 @@ void PictureRenderer::purgeTextures() {
 #endif
 }
 
-uint32_t PictureRenderer::recordFlags() {
-    return (kNone_BBoxHierarchyType == fBBoxHierarchyType)
-                            ? 0
-                            : SkPicture::kUsePathBoundsForClip_RecordingFlag;
-}
-
 /**
  * Write the canvas to an image file and/or JSON summary.
  *

@@ -1669,8 +1669,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
                 // result that can be validated against comparisonBitmap.
                 SkScalar recordScale = SkScalarInvert(replayScale);
                 SkPicture* pict = gmmain.generate_new_picture(
-                    gm, kTileGrid_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag,
-                    recordScale);
+                    gm, kTileGrid_BbhType, 0, recordScale);
                 SkAutoUnref aur(pict);
                 SkBitmap bitmap;
                 // We cannot yet pass 'true' to generate_image_from_picture to

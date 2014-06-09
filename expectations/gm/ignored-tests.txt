@@ -52,3 +52,7 @@ tilemodes
 shadertext3
 drawbitmaprect
 coloremoji
+
+# Added by robertphillips for https://codereview.chromium.org/316143003/
+# This CL actually fixes this GM's image
+distantclip

@@ -413,7 +413,7 @@ protected:
     void scaleToScaleFactor(SkCanvas*);
 
     SkBBHFactory* getFactory();
-    uint32_t recordFlags();
+    uint32_t recordFlags() const { return 0; }
     SkCanvas* setupCanvas();
     virtual SkCanvas* setupCanvas(int width, int height);
 

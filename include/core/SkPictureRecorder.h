@@ -29,10 +29,9 @@ public:
         @param recordFlags optional flags that control recording.
         @return the canvas.
     */
-    // TODO: allow default parameters once the other beginRecoding entry point is gone
     SkCanvas* beginRecording(int width, int height,
-                             SkBBHFactory* bbhFactory /* = NULL */,
-                             uint32_t recordFlags /* = 0 */);
+                             SkBBHFactory* bbhFactory = NULL,
+                             uint32_t recordFlags = 0);
 
     /** Returns the recording canvas if one is active, or NULL if recording is
         not active. This does not alter the refcnt on the canvas (if present).

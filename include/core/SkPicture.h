@@ -132,6 +132,7 @@ public:
      */
     void clone(SkPicture* pictures, int count) const;
 
+#ifdef SK_SUPPORT_LEGACY_RECORDING_FLAG
     // TODO: kUsePathBoundsForClip_RecordingFlag no longer belongs in
     // SkPicture. It should be moved to SkPictureRecorder (or just made
     // the default behavior).
@@ -146,6 +147,7 @@ public:
          */
         kUsePathBoundsForClip_RecordingFlag = 0x01
     };
+#endif
 
     /** Replays the drawing commands on the specified canvas.
         @param canvas the canvas receiving the drawing commands.
