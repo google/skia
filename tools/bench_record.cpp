@@ -25,7 +25,6 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string2(skps, r, "skps", "Directory containing SKPs to read and re-record.");
 DEFINE_int32(loops, 900, "Number of times to re-record each SKP.");
-DEFINE_int32(flags, 0, "RecordingFlags to use.");
 DEFINE_bool(endRecording, true, "If false, don't time SkPicture::endRecording()");
 DEFINE_int32(nullSize, 1000, "Pretend dimension of null source picture.");
 DEFINE_int32(tileGridSize, 512, "Set the tile grid size. Has no effect if bbh is not set to tilegrid.");
@@ -78,7 +77,7 @@ static void bench_record(SkPicture* src, const char* name, SkBBHFactory* bbhFact
             SkDELETE(recording.releasePlayback());
         } else {
             SkPictureRecorder recorder;
-            SkCanvas* canvas = recorder.beginRecording(width, height, bbhFactory, FLAGS_flags);
+            SkCanvas* canvas = recorder.beginRecording(width, height, bbhFactory);
             if (NULL != src) {
                 src->draw(canvas);
             }
