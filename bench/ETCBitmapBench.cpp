@@ -89,8 +89,9 @@ protected:
 
 private:
     SkData *loadPKM() {
-        SkString filename = SkOSPath::SkPathJoin(
-            INHERITED::GetResourcePath().c_str(), "mandrill_128.pkm");
+        SkString resourcePath = GetResourcePath();
+        SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(),
+                                                 "mandrill_128.pkm");
 
         // Expand the data
         SkAutoDataUnref fileData(SkData::NewFromFileName(filename.c_str()));

@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
 
 #include "SkCommandLineFlags.h"
@@ -40,6 +40,8 @@ void Reporter::endTest(Test* test) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+const char* Test::gResourcePath;
 
 Test::Test() : fReporter(NULL), fPassed(true) {}
 
@@ -121,8 +123,9 @@ SkString Test::GetTmpDir() {
     return SkString(tmpDir);
 }
 
-static const char* gResourcePath = NULL;
-void Test::SetResourcePath(const char* resourcePath) { gResourcePath = resourcePath; }
+void Test::SetResourcePath(const char* resourcePath) {
+    gResourcePath = resourcePath;
+}
 
 SkString Test::GetResourcePath() {
     return SkString(gResourcePath);

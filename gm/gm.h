@@ -96,13 +96,8 @@ namespace skiagm {
         // GM's getISize bounds.
         void drawSizeBounds(SkCanvas*, SkColor);
 
-        static void SetResourcePath(const char* resourcePath) {
-            gResourcePath = resourcePath;
-        }
-
-        static SkString& GetResourcePath() {
-            return gResourcePath;
-        }
+        static void SetResourcePath(const char*);
+        static SkString GetResourcePath();
 
         bool isCanvasDeferred() const { return fCanvasIsDeferred; }
         void setCanvasIsDeferred(bool isDeferred) {
@@ -115,7 +110,7 @@ namespace skiagm {
         }
 
     protected:
-        static SkString gResourcePath;
+        static const char* gResourcePath;
 
         virtual void onOnceBeforeDraw() {}
         virtual void onDraw(SkCanvas*) = 0;

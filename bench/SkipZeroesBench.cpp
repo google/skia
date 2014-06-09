@@ -45,13 +45,14 @@ protected:
     }
 
     virtual void onPreDraw() SK_OVERRIDE {
-        const char* resPath = GetResourcePath().c_str();
-        if (NULL == resPath) {
+        SkString resourcePath = GetResourcePath();
+        if (resourcePath.isEmpty()) {
             fValid = false;
             return;
         }
 
-        SkString fullPath = SkOSPath::SkPathJoin(resPath, fFilename.c_str());
+        SkString fullPath = SkOSPath::SkPathJoin(resourcePath.c_str(),
+                                                 fFilename.c_str());
         SkFILEStream fileStream(fullPath.c_str());
         fValid = fileStream.isValid() && fileStream.getLength() > 0;
         if (fValid) {

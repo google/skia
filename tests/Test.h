@@ -73,6 +73,8 @@ namespace skiatest {
         virtual void onRun(Reporter*) = 0;
 
     private:
+        static const char* gResourcePath;
+
         Reporter*   fReporter;
         SkString    fName;
         bool        fPassed;

@@ -93,8 +93,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkBitmap bm;
-        SkString filename = SkOSPath::SkPathJoin(
-                INHERITED::gResourcePath.c_str(), "mandrill_128.");
+        SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath, "mandrill_128.");
         filename.append(this->fileExtension());
 
         SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(filename.c_str()));
@@ -169,8 +168,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         SkBitmap bm;
-        SkString filename = SkOSPath::SkPathJoin(
-                INHERITED::gResourcePath.c_str(), "mandrill_128.pkm");
+        SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath, "mandrill_128.pkm");
 
         SkAutoDataUnref fileData(SkData::NewFromFileName(filename.c_str()));
         if (NULL == fileData) {
