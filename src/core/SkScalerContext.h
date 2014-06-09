@@ -184,17 +184,6 @@ public:
     void        getPath(const SkGlyph&, SkPath*);
     void        getFontMetrics(SkPaint::FontMetrics*);
 
-    /** Return the size in bytes of the associated gamma lookup table
-     */
-    static size_t GetGammaLUTSize(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
-                                  int* width, int* height);
-
-    /** Get the associated gamma lookup table. The 'data' pointer must point to pre-allocated
-        memory, with size in bytes greater than or equal to the return value of getGammaLUTSize().
-     */
-    static void   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
-                                  void* data);
-
 #ifdef SK_BUILD_FOR_ANDROID
     unsigned getBaseGlyphCount(SkUnichar charCode);
 
