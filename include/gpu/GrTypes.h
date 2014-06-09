@@ -363,6 +363,7 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
 
 static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
     switch (config) {
+        case kLATC_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
             return true;
         default:
