@@ -89,7 +89,7 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
     : INHERITED(gpu, kIsWrapped, path, stroke) {
     SkASSERT(!path.isEmpty());
 
-    GL_CALL_RET(fPathID, GenPaths(1));
+    fPathID = gpu->createGLPathObject();
 
     SkSTArray<16, GrGLubyte, true> pathCommands;
     SkSTArray<16, SkPoint, true> pathPoints;
@@ -135,7 +135,7 @@ GrGLPath::~GrGLPath() {
 
 void GrGLPath::onRelease() {
     if (0 != fPathID && !this->isWrapped()) {
-        GL_CALL(DeletePaths(fPathID, 1));
+        static_cast<GrGpuGL*>(this->getGpu())->deleteGLPathObject(fPathID);
         fPathID = 0;
     }
 

@@ -26,6 +26,8 @@
 #define PROGRAM_CACHE_STATS
 #endif
 
+class GrGLNameAllocator;
+
 class GrGpuGL : public GrGpu {
 public:
     GrGpuGL(const GrGLContext& ctx, GrContext* context);
@@ -105,6 +107,11 @@ public:
     }
     void notifyTextureDelete(GrGLTexture* texture);
     void notifyRenderTargetDelete(GrRenderTarget* renderTarget);
+
+    // These functions should be used to generate and delete GL path names. They have their own
+    // allocator that runs on the client side, so they are much faster than going through GenPaths.
+    GrGLuint createGLPathObject();
+    void deleteGLPathObject(GrGLuint);
 
 protected:
     virtual bool onCopySurface(GrSurface* dst,
@@ -464,6 +471,8 @@ private:
     // we record what stencil format worked last time to hopefully exit early
     // from our loop that tries stencil formats and calls check fb status.
     int fLastSuccessfulStencilFmtIdx;
+
+    SkAutoTDelete<GrGLNameAllocator> fPathNameAllocator;
 
     typedef GrGpu INHERITED;
 };
