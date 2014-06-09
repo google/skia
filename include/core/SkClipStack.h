@@ -48,7 +48,10 @@ public:
             kRRect_Type,
             //!< This element combines a path with the current clip using a set operation
             kPath_Type,
+
+            kLastType = kPath_Type
         };
+        static const int kTypeCnt = kLastType + 1;
 
         Element() {
             this->initCommon(0, SkRegion::kReplace_Op, false);
@@ -164,6 +167,14 @@ public:
         * Replay this clip into the visitor.
         */
         void replay(SkCanvasClipVisitor*) const;
+
+#ifdef SK_DEVELOPER
+        /**
+         * Dumps the element to SkDebugf. This is intended for Skia development debugging
+         * Don't rely on the existence of this function or the formatting of its output.
+         */
+        void dump() const;
+#endif
 
     private:
         friend class SkClipStack;
@@ -340,6 +351,14 @@ public:
     static const int32_t kWideOpenGenID = 2;    // all pixels writeable
 
     int32_t getTopmostGenID() const;
+
+#ifdef SK_DEVELOPER
+    /**
+     * Dumps the contents of the clip stack to SkDebugf. This is intended for Skia development
+     * debugging. Don't rely on the existence of this function or the formatting of its output.
+     */
+    void dump() const;
+#endif
 
 public:
     class Iter {

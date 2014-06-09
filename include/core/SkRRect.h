@@ -292,6 +292,14 @@ public:
      */
     bool transform(const SkMatrix& matrix, SkRRect* dst) const;
 
+#ifdef SK_DEVELOPER
+    /**
+     * Prints the rrect using SkDebugf. This is intended for Skia development debugging. Don't
+     * rely on the existence of this function or the formatting of its output.
+     */
+    void dump() const;
+#endif
+
 private:
     SkRect fRect;
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]

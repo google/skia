@@ -436,6 +436,18 @@ size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
     return kSizeInMemory;
 }
 
+#ifdef SK_DEVELOPER
+void SkRRect::dump() const {
+    SkDebugf("Rect: ");
+    fRect.dump();
+    SkDebugf(" Corners: { TL: (%f, %f), TR: (%f, %f), BR: (%f, %f), BL: (%f, %f) }",
+             fRadii[kUpperLeft_Corner].fX,  fRadii[kUpperLeft_Corner].fY,
+             fRadii[kUpperRight_Corner].fX, fRadii[kUpperRight_Corner].fY,
+             fRadii[kLowerRight_Corner].fX, fRadii[kLowerRight_Corner].fY,
+             fRadii[kLowerLeft_Corner].fX,  fRadii[kLowerLeft_Corner].fY);
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG

@@ -833,6 +833,17 @@ struct SK_API SkRect {
      *  cast-safe way to treat the rect as an array of (4) SkScalars.
      */
     const SkScalar* asScalars() const { return &fLeft; }
+
+#ifdef SK_DEVELOPER
+    /**
+     * Dumps the rect using SkDebugf. This is intended for Skia development debugging. Don't
+     * rely on the existence of this function or the formatting of its output.
+     */
+    void dump() const {
+        SkDebugf("{ l: %f, t: %f, r: %f, b: %f }", fLeft, fTop, fRight, fBottom);
+    }
+#endif
+
 };
 
 #endif
