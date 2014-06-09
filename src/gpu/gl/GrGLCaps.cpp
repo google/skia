@@ -24,6 +24,7 @@ void GrGLCaps::reset() {
     fMSFBOType = kNone_MSFBOType;
     fFBFetchType = kNone_FBFetchType;
     fInvalidateFBType = kNone_InvalidateFBType;
+    fLATCAlias = kLATC_LATCAlias;
     fMapBufferType = kNone_MapBufferType;
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
@@ -58,6 +59,7 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fVerifiedColorConfigs = caps.fVerifiedColorConfigs;
     fStencilFormats = caps.fStencilFormats;
     fStencilVerifiedColorConfigs = caps.fStencilVerifiedColorConfigs;
+    fLATCAlias = caps.fLATCAlias;
     fMaxFragmentUniformVectors = caps.fMaxFragmentUniformVectors;
     fMaxVertexAttributes = caps.fMaxVertexAttributes;
     fMaxFragmentTextureUnits = caps.fMaxFragmentTextureUnits;
