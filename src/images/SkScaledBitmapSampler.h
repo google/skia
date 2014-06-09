@@ -34,10 +34,23 @@ public:
         kRGB_565 // 2 bytes per pixel
     };
 
+    struct Options {
+        bool fDither;
+        bool fPremultiplyAlpha;
+        bool fSkipZeros;
+        explicit Options(const SkImageDecoder &dec)
+            : fDither(dec.getDitherImage())
+            , fPremultiplyAlpha(!dec.getRequireUnpremultipliedColors())
+            , fSkipZeros(dec.getSkipWritingZeroes())
+            { }
+    };
+
     // Given a dst bitmap (with pixels already allocated) and a src-config,
     // prepares iterator to process the src colors and write them into dst.
     // Returns false if the request cannot be fulfulled.
     bool begin(SkBitmap* dst, SrcConfig sc, const SkImageDecoder& decoder,
+               const SkPMColor* = NULL);
+    bool begin(SkBitmap* dst, SrcConfig sc, const Options& opts,
                const SkPMColor* = NULL);
     // call with row of src pixels, for y = 0...scaledHeight-1.
     // returns true if the row had non-opaque alpha in it
