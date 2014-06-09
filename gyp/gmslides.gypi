@@ -165,6 +165,7 @@
     '../gm/texteffects.cpp',
     '../gm/testimagefilters.cpp',
     '../gm/texdata.cpp',
+    '../gm/variedtext.cpp',
     '../gm/texturedomaineffect.cpp',
     '../gm/thinrects.cpp',
     '../gm/thinstrokedrects.cpp',
