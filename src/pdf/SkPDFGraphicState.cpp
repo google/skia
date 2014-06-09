@@ -82,24 +82,20 @@ size_t SkPDFGraphicState::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 }
 
 // static
-SkTDArray<SkPDFGraphicState::GSCanonicalEntry>&
-SkPDFGraphicState::CanonicalPaints() {
-    // This initialization is only thread safe with gcc.
+SkTDArray<SkPDFGraphicState::GSCanonicalEntry>& SkPDFGraphicState::CanonicalPaints() {
+    CanonicalPaintsMutex().assertHeld();
     static SkTDArray<SkPDFGraphicState::GSCanonicalEntry> gCanonicalPaints;
     return gCanonicalPaints;
 }
 
 // static
 SkBaseMutex& SkPDFGraphicState::CanonicalPaintsMutex() {
-    // This initialization is only thread safe with gcc or when
-    // POD-style mutex initialization is used.
     SK_DECLARE_STATIC_MUTEX(gCanonicalPaintsMutex);
     return gCanonicalPaintsMutex;
 }
 
 // static
-SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
-        const SkPaint& paint) {
+SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(const SkPaint& paint) {
     SkAutoMutexAcquire lock(CanonicalPaintsMutex());
     int index = Find(paint);
     if (index >= 0) {
@@ -114,6 +110,7 @@ SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
 // static
 SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
     // This assumes that canonicalPaintsMutex is held.
+    CanonicalPaintsMutex().assertHeld();
     static SkPDFStream* invertFunction = NULL;
     if (!invertFunction) {
         // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
@@ -185,6 +182,7 @@ SkPDFGraphicState* SkPDFGraphicState::GetNoSMaskGraphicState() {
 
 // static
 int SkPDFGraphicState::Find(const SkPaint& paint) {
+    CanonicalPaintsMutex().assertHeld();
     GSCanonicalEntry search(&paint);
     return CanonicalPaints().find(search);
 }

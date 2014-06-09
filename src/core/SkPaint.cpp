@@ -1737,6 +1737,7 @@ static SkScalar gDeviceGamma = SK_ScalarMin;
  * the returned SkMaskGamma pointer is refed or forgotten.
  */
 static const SkMaskGamma& cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma) {
+    gMaskGammaCacheMutex.assertHeld();
     if (0 == contrast && SK_Scalar1 == paintGamma && SK_Scalar1 == deviceGamma) {
         if (NULL == gLinearMaskGamma) {
             gLinearMaskGamma = SkNEW(SkMaskGamma);

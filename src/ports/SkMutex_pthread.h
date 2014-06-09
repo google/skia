@@ -10,16 +10,6 @@
 
 /** Posix pthread_mutex based mutex. */
 
-#ifdef SK_DEBUG_PTHREAD_MUTEX
-#include "SkTypes.h"
-#define SkDEBUGCODE_PTHREAD_MUTEX(code) code
-#else
-#define SkDEBUGCODE_PTHREAD_MUTEX(code)
-#ifndef SkDebugf
-    void SkDebugf(const char format[], ...);
-#endif
-#endif
-
 #include <errno.h>
 #include <pthread.h>
 
@@ -28,9 +18,21 @@
 // generation of a static initializer in the final machine code (and
 // a corresponding static finalizer).
 struct SkBaseMutex {
-    void acquire() { pthread_mutex_lock(&fMutex); }
-    void release() { pthread_mutex_unlock(&fMutex); }
+    void acquire() {
+        pthread_mutex_lock(&fMutex);
+        SkDEBUGCODE(fOwner = pthread_self();)
+    }
+    void release() {
+        this->assertHeld();
+        SkDEBUGCODE(fOwner = 0;)
+        pthread_mutex_unlock(&fMutex);
+    }
+    void assertHeld() {
+        SkASSERT(pthread_self() == fOwner);
+    }
+
     pthread_mutex_t fMutex;
+    SkDEBUGCODE(pthread_t fOwner;)
 };
 
 // A normal mutex that requires to be initialized through normal C++ construction,
@@ -38,8 +40,8 @@ struct SkBaseMutex {
 class SkMutex : public SkBaseMutex {
 public:
     SkMutex() {
-        SkDEBUGCODE_PTHREAD_MUTEX(int status = )pthread_mutex_init(&fMutex, NULL);
-        SkDEBUGCODE_PTHREAD_MUTEX(
+        SkDEBUGCODE(int status = )pthread_mutex_init(&fMutex, NULL);
+        SkDEBUGCODE(
             if (status != 0) {
                 print_pthread_error(status);
                 SkASSERT(0 == status);
@@ -48,8 +50,8 @@ public:
     }
 
     ~SkMutex() {
-        SkDEBUGCODE_PTHREAD_MUTEX(int status = )pthread_mutex_destroy(&fMutex);
-        SkDEBUGCODE_PTHREAD_MUTEX(
+        SkDEBUGCODE(int status = )pthread_mutex_destroy(&fMutex);
+        SkDEBUGCODE(
             if (status != 0) {
                 print_pthread_error(status);
                 SkASSERT(0 == status);
@@ -78,10 +80,12 @@ private:
     }
 };
 
+#define SK_BASE_MUTEX_INIT { PTHREAD_MUTEX_INITIALIZER, SkDEBUGCODE(0) }
+
 // Using POD-style initialization prevents the generation of a static initializer.
-#define SK_DECLARE_STATIC_MUTEX(name) static SkBaseMutex name = { PTHREAD_MUTEX_INITIALIZER }
+#define SK_DECLARE_STATIC_MUTEX(name) static SkBaseMutex name = SK_BASE_MUTEX_INIT
 
 // Special case used when the static mutex must be available globally.
-#define SK_DECLARE_GLOBAL_MUTEX(name) SkBaseMutex name = { PTHREAD_MUTEX_INITIALIZER }
+#define SK_DECLARE_GLOBAL_MUTEX(name) SkBaseMutex name = SK_BASE_MUTEX_INIT
 
 #endif

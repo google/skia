@@ -36,18 +36,27 @@ class SkMutex {
 public:
     SkMutex() {
         InitializeCriticalSection(&fStorage);
+        SkDEBUGCODE(fOwner = 0;)
     }
 
     ~SkMutex() {
+        SkASSERT(0 == fOwner);
         DeleteCriticalSection(&fStorage);
     }
 
     void acquire() {
         EnterCriticalSection(&fStorage);
+        SkDEBUGCODE(fOwner = GetCurrentThreadId();)
     }
 
     void release() {
+        this->assertHeld();
+        SkDEBUGCODE(fOwner = 0;)
         LeaveCriticalSection(&fStorage);
+    }
+
+    void assertHeld() {
+        SkASSERT(GetCurrentThreadId() == fOwner);
     }
 
 private:
@@ -55,6 +64,7 @@ private:
     SkMutex& operator=(const SkMutex&);
 
     CRITICAL_SECTION fStorage;
+    SkDEBUGCODE(DWORD fOwner;)
 };
 
 typedef SkMutex SkBaseMutex;

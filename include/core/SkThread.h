@@ -83,8 +83,9 @@ template <typename T> void sk_release_store(T*, T);
 
 class SkBaseMutex {
 public:
-    void acquire();
-    void release();
+    void acquire();     // Block until this thread owns the mutex.
+    void release();     // Assuming this thread owns the mutex, release it.
+    void assertHeld();  // If SK_DEBUG, assert this thread owns the mutex.
 };
 
 class SkMutex : SkBaseMutex {
@@ -126,6 +127,12 @@ public:
             fMutex->release();
             fMutex = NULL;
         }
+    }
+
+    /** Assert that we're holding the mutex. */
+    void assertHeld() {
+        SkASSERT(fMutex);
+        fMutex->assertHeld();
     }
 
 private:

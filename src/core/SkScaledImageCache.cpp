@@ -675,6 +675,7 @@ static void cleanup_gScaledImageCache() { SkDELETE(gScaledImageCache); }
 /** Must hold gMutex when calling. */
 static SkScaledImageCache* get_cache() {
     // gMutex is always held when this is called, so we don't need to be fancy in here.
+    gMutex.assertHeld();
     if (NULL == gScaledImageCache) {
 #ifdef SK_USE_DISCARDABLE_SCALEDIMAGECACHE
         gScaledImageCache = SkNEW_ARGS(SkScaledImageCache, (SkDiscardableMemory::Create));
