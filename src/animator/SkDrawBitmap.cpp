@@ -88,7 +88,8 @@ void SkDrawBitmap::onEndElement(SkAnimateMaker&) {
     SkASSERT(width != -1);
     SkASSERT(height != -1);
     SkASSERT(rowBytes >= 0);
-    fBitmap.setConfig((SkBitmap::Config) format, width, height, rowBytes);
+    SkColorType colorType = SkBitmapConfigToColorType((SkBitmap::Config)format);
+    fBitmap.setInfo(SkImageInfo::Make(width, height, colorType, kPremul_SkAlphaType), rowBytes);
     fBitmap.allocPixels();
     if (fColorSet)
         fBitmap.eraseColor(fColor);

@@ -9,8 +9,7 @@
 #include "SkRasterWidget.h"
 
 SkRasterWidget::SkRasterWidget(SkDebugger *debugger) : QWidget() {
-    fBitmap.setConfig(SkBitmap::kARGB_8888_Config, 800, 800);
-    fBitmap.allocPixels();
+    fBitmap.allocN32Pixels(800, 800);
     fBitmap.eraseColor(SK_ColorTRANSPARENT);
     fDevice = new SkBitmapDevice(fBitmap);
     fDebugger = debugger;
@@ -24,8 +23,7 @@ SkRasterWidget::~SkRasterWidget() {
 }
 
 void SkRasterWidget::resizeEvent(QResizeEvent* event) {
-    fBitmap.setConfig(SkBitmap::kARGB_8888_Config, event->size().width(), event->size().height());
-    fBitmap.allocPixels();
+    fBitmap.allocN32Pixels(event->size().width(), event->size().height());
     fBitmap.eraseColor(SK_ColorTRANSPARENT);
     SkSafeUnref(fCanvas);
     SkSafeUnref(fDevice);

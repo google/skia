@@ -12,13 +12,15 @@
 #include "SkImageEncoder.h"
 #include <stdio.h>
 
-void GrSurface::asImageInfo(SkImageInfo* info) const {
-    if (!GrPixelConfig2ColorType(this->config(), &info->fColorType)) {
+SkImageInfo GrSurface::info() const {
+    SkImageInfo info;
+    if (!GrPixelConfig2ColorType(this->config(), &info.fColorType)) {
         sk_throw();
     }
-    info->fWidth = this->width();
-    info->fHeight = this->height();
-    info->fAlphaType = kPremul_SkAlphaType;
+    info.fWidth = this->width();
+    info.fHeight = this->height();
+    info.fAlphaType = kPremul_SkAlphaType;
+    return info;
 }
 
 bool GrSurface::savePixels(const char* filename) {

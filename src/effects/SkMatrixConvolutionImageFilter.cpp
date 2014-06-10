@@ -282,9 +282,7 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    result->setConfig(src.config(), bounds.width(), bounds.height());
-    result->allocPixels();
-    if (!result->getPixels()) {
+    if (!result->allocPixels(src.info().makeWH(bounds.width(), bounds.height()))) {
         return false;
     }
 

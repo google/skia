@@ -842,17 +842,23 @@ protected:
 
 void test_row_proc_choice();
 void test_row_proc_choice() {
+    const SkColorType colorTypes[] = {
+        kAlpha_8_SkColorType, kIndex_8_SkColorType, kRGB_565_SkColorType, kARGB_4444_SkColorType,
+        kN32_SkColorType
+    };
+
     SkBitmap dummyBitmap;
     DummyDecoder dummyDecoder;
     size_t procCounter = 0;
     for (int sc = SkScaledBitmapSampler::kGray; sc <= SkScaledBitmapSampler::kRGB_565; ++sc) {
-        for (int c = SkBitmap::kA8_Config; c <= SkBitmap::kARGB_8888_Config; ++c) {
+        for (size_t c = 0; c < SK_ARRAY_COUNT(colorTypes); ++c) {
             for (int unpremul = 0; unpremul <= 1; ++unpremul) {
                 for (int dither = 0; dither <= 1; ++dither) {
                     // Arbitrary width/height/sampleSize to allow SkScaledBitmapSampler to
                     // be considered valid.
                     SkScaledBitmapSampler sampler(10, 10, 1);
-                    dummyBitmap.setConfig((SkBitmap::Config) c, 10, 10);
+                    dummyBitmap.setInfo(SkImageInfo::Make(10, 10,
+                                                          colorTypes[c], kPremul_SkAlphaType));
                     dummyDecoder.setDitherImage(SkToBool(dither));
                     dummyDecoder.setRequireUnpremultipliedColors(SkToBool(unpremul));
                     sampler.begin(&dummyBitmap, (SkScaledBitmapSampler::SrcConfig) sc,

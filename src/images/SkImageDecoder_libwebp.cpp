@@ -278,40 +278,33 @@ static bool webp_get_config_resize_crop(WebPDecoderConfig* config,
     return true;
 }
 
-bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap,
-                                         int width, int height) {
-    SkBitmap::Config config = this->getPrefConfig(k32Bit_SrcDepth, SkToBool(fHasAlpha));
+bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap, int width, int height) {
+    SkColorType colorType = this->getPrefColorType(k32Bit_SrcDepth, SkToBool(fHasAlpha));
 
     // YUV converter supports output in RGB565, RGBA4444 and RGBA8888 formats.
     if (fHasAlpha) {
-        if (config != SkBitmap::kARGB_4444_Config) {
-            config = SkBitmap::kARGB_8888_Config;
+        if (colorType != kARGB_4444_SkColorType) {
+            colorType = kN32_SkColorType;
         }
     } else {
-        if (config != SkBitmap::kRGB_565_Config &&
-            config != SkBitmap::kARGB_4444_Config) {
-            config = SkBitmap::kARGB_8888_Config;
+        if (colorType != kRGB_565_SkColorType && colorType != kARGB_4444_SkColorType) {
+            colorType = kN32_SkColorType;
         }
     }
 
-    if (!this->chooseFromOneChoice(config, width, height)) {
+    if (!this->chooseFromOneChoice(colorType, width, height)) {
         return false;
     }
 
-    SkImageInfo info;
-    info.fWidth = width;
-    info.fHeight = height;
-    info.fColorType = SkBitmapConfigToColorType(config);
+    SkAlphaType alphaType = kOpaque_SkAlphaType;
     if (SkToBool(fHasAlpha)) {
         if (this->getRequireUnpremultipliedColors()) {
-            info.fAlphaType = kUnpremul_SkAlphaType;
+            alphaType = kUnpremul_SkAlphaType;
         } else {
-            info.fAlphaType = kPremul_SkAlphaType;
+            alphaType = kPremul_SkAlphaType;
         }
-    } else {
-        info.fAlphaType = kOpaque_SkAlphaType;
     }
-    return decodedBitmap->setInfo(info);
+    return decodedBitmap->setInfo(SkImageInfo::Make(width, height, colorType, alphaType));
 }
 
 bool SkWEBPImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,
@@ -389,7 +382,7 @@ bool SkWEBPImageDecoder::onDecodeSubset(SkBitmap* decodedBitmap,
     } else {
         // This is also called in setDecodeConfig in above block.
         // i.e., when bitmap->isNull() is true.
-        if (!chooseFromOneChoice(bitmap->config(), width, height)) {
+        if (!chooseFromOneChoice(bitmap->colorType(), width, height)) {
             return false;
         }
     }

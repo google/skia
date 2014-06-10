@@ -59,7 +59,7 @@ public:
      */
     const GrTextureDesc& desc() const { return fDesc; }
 
-    void asImageInfo(SkImageInfo*) const;
+    SkImageInfo info() const;
 
     /**
      * @return the texture associated with the surface, may be NULL.

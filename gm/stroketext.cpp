@@ -11,7 +11,7 @@
 
 static void test_nulldev(SkCanvas* canvas) {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 30, 30);
+    bm.setInfo(SkImageInfo::MakeN32Premul(30, 30));
     // notice: no pixels mom! be sure we don't crash
     // https://code.google.com/p/chromium/issues/detail?id=352616
     SkCanvas c(bm);

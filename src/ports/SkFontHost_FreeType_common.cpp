@@ -295,11 +295,11 @@ static void packA8ToA1(const SkMask& mask, const uint8_t* src, size_t srcRB) {
     }
 }
 
-inline SkMask::Format SkMaskFormat_for_SkBitmapConfig(SkBitmap::Config config) {
-    switch (config) {
-        case SkBitmap::kA8_Config:
+inline SkMask::Format SkMaskFormat_for_SkColorType(SkColorType colorType) {
+    switch (colorType) {
+        case kAlpha_8_SkColorType:
             return SkMask::kA8_Format;
-        case SkBitmap::kARGB_8888_Config:
+        case kN32_SkColorType:
             return SkMask::kARGB32_Format;
         default:
             SkDEBUGFAIL("unsupported SkBitmap::Config");
@@ -307,30 +307,30 @@ inline SkMask::Format SkMaskFormat_for_SkBitmapConfig(SkBitmap::Config config) {
     }
 }
 
-inline SkBitmap::Config SkBitmapConfig_for_FTPixelMode(FT_Pixel_Mode pixel_mode) {
+inline SkColorType SkColorType_for_FTPixelMode(FT_Pixel_Mode pixel_mode) {
     switch (pixel_mode) {
         case FT_PIXEL_MODE_MONO:
         case FT_PIXEL_MODE_GRAY:
-            return SkBitmap::kA8_Config;
+            return kAlpha_8_SkColorType;
         case FT_PIXEL_MODE_BGRA:
-            return SkBitmap::kARGB_8888_Config;
+            return kN32_SkColorType;
         default:
             SkDEBUGFAIL("unsupported FT_PIXEL_MODE");
-            return SkBitmap::kA8_Config;
+            return kAlpha_8_SkColorType;
     }
 }
 
-inline SkBitmap::Config SkBitmapConfig_for_SkMaskFormat(SkMask::Format format) {
+inline SkColorType SkColorType_for_SkMaskFormat(SkMask::Format format) {
     switch (format) {
         case SkMask::kBW_Format:
         case SkMask::kA8_Format:
         case SkMask::kLCD16_Format:
-            return SkBitmap::kA8_Config;
+            return kAlpha_8_SkColorType;
         case SkMask::kARGB32_Format:
-            return SkBitmap::kARGB_8888_Config;
+            return kN32_SkColorType;
         default:
             SkDEBUGFAIL("unsupported destination SkBitmap::Config");
-            return SkBitmap::kA8_Config;
+            return kAlpha_8_SkColorType;
     }
 }
 
@@ -426,15 +426,16 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face, const SkGly
 
             // Copy the FT_Bitmap into an SkBitmap (either A8 or ARGB)
             SkBitmap unscaledBitmap;
-            unscaledBitmap.setConfig(SkBitmapConfig_for_FTPixelMode(pixel_mode),
-                                     face->glyph->bitmap.width, face->glyph->bitmap.rows);
-            unscaledBitmap.allocPixels();
+            unscaledBitmap.allocPixels(SkImageInfo::Make(face->glyph->bitmap.width,
+                                                         face->glyph->bitmap.rows,
+                                                         SkColorType_for_FTPixelMode(pixel_mode),
+                                                         kPremul_SkAlphaType));
 
             SkMask unscaledBitmapAlias;
             unscaledBitmapAlias.fImage = reinterpret_cast<uint8_t*>(unscaledBitmap.getPixels());
             unscaledBitmapAlias.fBounds.set(0, 0, unscaledBitmap.width(), unscaledBitmap.height());
             unscaledBitmapAlias.fRowBytes = unscaledBitmap.rowBytes();
-            unscaledBitmapAlias.fFormat = SkMaskFormat_for_SkBitmapConfig(unscaledBitmap.config());
+            unscaledBitmapAlias.fFormat = SkMaskFormat_for_SkColorType(unscaledBitmap.colorType());
             copyFTBitmap(face->glyph->bitmap, unscaledBitmapAlias);
 
             // Wrap the glyph's mask in a bitmap, unless the glyph's mask is BW or LCD.
@@ -446,8 +447,10 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face, const SkGly
                 bitmapRowBytes = glyph.rowBytes();
             }
             SkBitmap dstBitmap;
-            dstBitmap.setConfig(SkBitmapConfig_for_SkMaskFormat(maskFormat),
-                                glyph.fWidth, glyph.fHeight, bitmapRowBytes);
+            dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
+                                                SkColorType_for_SkMaskFormat(maskFormat),
+                                                kPremul_SkAlphaType),
+                              bitmapRowBytes);
             if (SkMask::kBW_Format == maskFormat || SkMask::kLCD16_Format == maskFormat) {
                 dstBitmap.allocPixels();
             } else {

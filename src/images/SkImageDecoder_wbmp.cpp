@@ -111,8 +111,8 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
     int width = head.fWidth;
     int height = head.fHeight;
 
-    decodedBitmap->setConfig(SkBitmap::kIndex8_Config, width, height, 0,
-                             kOpaque_SkAlphaType);
+    decodedBitmap->setInfo(SkImageInfo::Make(width, height,
+                                             kIndex_8_SkColorType, kOpaque_SkAlphaType));
 
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;

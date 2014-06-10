@@ -124,15 +124,16 @@ void SkImageDecoder::setSampleSize(int size) {
     fSampleSize = size;
 }
 
-bool SkImageDecoder::chooseFromOneChoice(SkBitmap::Config config, int width,
-                                         int height) const {
+// TODO: change Chooser virtual to take colorType, so we can stop calling SkColorTypeToBitmapConfig
+//
+bool SkImageDecoder::chooseFromOneChoice(SkColorType colorType, int width, int height) const {
     Chooser* chooser = fChooser;
-
+    
     if (NULL == chooser) {    // no chooser, we just say YES to decoding :)
         return true;
     }
     chooser->begin(1);
-    chooser->inspect(0, config, width, height);
+    chooser->inspect(0, SkColorTypeToBitmapConfig(colorType), width, height);
     return chooser->choose() == 0;
 }
 
@@ -148,8 +149,10 @@ void SkImageDecoder::setPrefConfigTable(const PrefConfigTable& prefTable) {
     fPrefTable = prefTable;
 }
 
-SkBitmap::Config SkImageDecoder::getPrefConfig(SrcDepth srcDepth,
-                                               bool srcHasAlpha) const {
+// TODO: use colortype in fPrefTable, fDefaultPref and GetDeviceConfig()
+//       so we can stop using SkBitmapConfigToColorType()
+//
+SkColorType SkImageDecoder::getPrefColorType(SrcDepth srcDepth, bool srcHasAlpha) const {
     SkBitmap::Config config = SkBitmap::kNo_Config;
 
     if (fUsePrefTable) {
@@ -173,7 +176,7 @@ SkBitmap::Config SkImageDecoder::getPrefConfig(SrcDepth srcDepth,
     if (SkBitmap::kNo_Config == config) {
         config = SkImageDecoder::GetDeviceConfig();
     }
-    return config;
+    return SkBitmapConfigToColorType(config);
 }
 
 bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
@@ -232,7 +235,7 @@ bool SkImageDecoder::cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
     }
     // if the destination has no pixels then we must allocate them.
     if (dst->isNull()) {
-        dst->setConfig(src->config(), w, h, 0, src->alphaType());
+        dst->setInfo(src->info().makeWH(w, h));
 
         if (!this->allocPixelRef(dst, NULL)) {
             SkDEBUGF(("failed to allocate pixels needed to crop the bitmap"));

@@ -63,7 +63,7 @@ bool SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     const unsigned short height = ktxFile.height();
 
     // should we allow the Chooser (if present) to pick a config for us???
-    if (!this->chooseFromOneChoice(SkBitmap::kARGB_8888_Config, width, height)) {
+    if (!this->chooseFromOneChoice(kN32_SkColorType, width, height)) {
         return false;
     }
 
@@ -71,10 +71,8 @@ bool SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     SkScaledBitmapSampler sampler(width, height, this->getSampleSize());
 
     // Set the config...
-    bm->setConfig(SkBitmap::kARGB_8888_Config,
-                  sampler.scaledWidth(), sampler.scaledHeight(),
-                  0,
-                  ktxFile.isRGBA8()? kPremul_SkAlphaType : kOpaque_SkAlphaType);
+    bm->setInfo(SkImageInfo::MakeN32(sampler.scaledWidth(), sampler.scaledHeight(),
+                                     ktxFile.isRGBA8()? kPremul_SkAlphaType : kOpaque_SkAlphaType));
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }

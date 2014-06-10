@@ -27,9 +27,7 @@ DEF_TEST(KtxReadWrite, reporter) {
     SkRandom rand(0x1005cbad);
 
     SkBitmap bm8888;
-    bm8888.setConfig(SkBitmap::kARGB_8888_Config, 128, 128);
-
-    bool pixelsAllocated = bm8888.allocPixels();
+    bool pixelsAllocated = bm8888.allocN32Pixels(128, 128);
     REPORTER_ASSERT(reporter, pixelsAllocated);
 
     uint8_t *pixels = reinterpret_cast<uint8_t*>(bm8888.getPixels());

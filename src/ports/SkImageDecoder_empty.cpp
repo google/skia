@@ -94,18 +94,13 @@ bool SkImageDecoder::cropBitmap(SkBitmap*, SkBitmap*, int, int, int, int, int,
     return false;
 }
 
-bool SkImageDecoder::chooseFromOneChoice(SkBitmap::Config, int, int) const {
+bool SkImageDecoder::chooseFromOneChoice(SkColorType, int, int) const {
     return false;
 }
 
 bool SkImageDecoder::allocPixelRef(SkBitmap*, SkColorTable*) const {
     return false;
 }
-
-SkBitmap::Config SkImageDecoder::getPrefConfig(SrcDepth, bool) const {
-    return SkBitmap::kNo_Config;
-}
-
 
 /////////////////////////////////////////////////////////////////////////
 

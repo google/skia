@@ -119,9 +119,8 @@ void SkGScalerContext::generateImage(const SkGlyph& glyph) {
         fProxy->getPath(glyph, &path);
 
         SkBitmap bm;
-        bm.setConfig(SkBitmap::kARGB_8888_Config, glyph.fWidth, glyph.fHeight,
-                     glyph.rowBytes());
-        bm.setPixels(glyph.fImage);
+        bm.installPixels(SkImageInfo::MakeN32Premul(glyph.fWidth, glyph.fHeight),
+                         glyph.fImage, glyph.rowBytes());
         bm.eraseColor(0);
 
         SkCanvas canvas(bm);

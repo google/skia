@@ -32,8 +32,7 @@ public:
         fPath.quadTo(500, 0, 500, 500);
         fPath.quadTo(250, 0, 0, 500);
 
-        fBitmap.setConfig(SkBitmap::kA8_Config, 500, 500);
-        fBitmap.allocPixels();
+        fBitmap.allocPixels(SkImageInfo::MakeA8(500, 500));
 
         fIdentity.setIdentity();
         fRC.setRect(fPath.getBounds().round());

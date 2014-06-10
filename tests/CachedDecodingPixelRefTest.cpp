@@ -23,10 +23,8 @@
  * Fill this bitmap with some color.
  */
 static void make_test_image(SkBitmap* bm) {
-    static const int W = 50, H = 50;
-    static const SkBitmap::Config config = SkBitmap::kARGB_8888_Config;
-    bm->setConfig(config, W, H);
-    bm->allocPixels();
+    const int W = 50, H = 50;
+    bm->allocN32Pixels(W, H);
     bm->eraseColor(SK_ColorBLACK);
     SkCanvas canvas(*bm);
     SkPaint paint;

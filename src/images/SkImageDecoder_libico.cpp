@@ -246,7 +246,7 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
     //if the andbitmap (mask) is all zeroes, then we can easily do an index bitmap
     //however, with small images with large colortables, maybe it's better to still do argb_8888
 
-    bm->setConfig(SkBitmap::kARGB_8888_Config, w, h, calculateRowBytesFor8888(w, bitCount));
+    bm->setInfo(SkImageInfo::MakeN32Premul(w, h), calculateRowBytesFor8888(w, bitCount));
 
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         delete[] colors;

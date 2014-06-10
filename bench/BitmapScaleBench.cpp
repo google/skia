@@ -57,14 +57,10 @@ protected:
     }
 
     virtual void onPreDraw() {
-        fInputBitmap.setConfig(SkBitmap::kARGB_8888_Config,
-                               fInputSize, fInputSize, 0, kOpaque_SkAlphaType);
-        fInputBitmap.allocPixels();
+        fInputBitmap.allocN32Pixels(fInputSize, fInputSize, true);
         fInputBitmap.eraseColor(SK_ColorWHITE);
 
-        fOutputBitmap.setConfig(SkBitmap::kARGB_8888_Config,
-                                fOutputSize, fOutputSize, 0, kOpaque_SkAlphaType);
-        fOutputBitmap.allocPixels();
+        fOutputBitmap.allocN32Pixels(fOutputSize, fOutputSize, true);
 
         fMatrix.setScale( scale(), scale() );
     }

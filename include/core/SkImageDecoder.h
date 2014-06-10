@@ -438,7 +438,7 @@ protected:
 
     // helper function for decoders to handle the (common) case where there is only
     // once choice available in the image file.
-    bool chooseFromOneChoice(SkBitmap::Config config, int width, int height) const;
+    bool chooseFromOneChoice(SkColorType, int width, int height) const;
 
     /*  Helper for subclasses. Call this to allocate the pixel memory given the bitmap's
         width/height/rowbytes/config. Returns true on success. This method handles checking
@@ -457,15 +457,15 @@ protected:
         // 8 bits per component. Used for 24 bit if there is no alpha.
         k32Bit_SrcDepth,
     };
-    /** The subclass, inside onDecode(), calls this to determine the config of
+    /** The subclass, inside onDecode(), calls this to determine the colorType of
         the returned bitmap. SrcDepth and hasAlpha reflect the raw data of the
         src image. This routine returns the caller's preference given
-        srcDepth and hasAlpha, or kNo_Config if there is no preference.
+        srcDepth and hasAlpha, or kUnknown_SkColorType if there is no preference.
 
         Note: this also takes into account GetDeviceConfig(), so the subclass
         need not call that.
      */
-    SkBitmap::Config getPrefConfig(SrcDepth, bool hasAlpha) const;
+    SkColorType getPrefColorType(SrcDepth, bool hasAlpha) const;
 
 private:
     Peeker*                 fPeeker;

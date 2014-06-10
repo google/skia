@@ -110,9 +110,7 @@ static bool make_output_filepath(SkString* path, const SkString& dir,
 }
 
 static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color) {
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-
-    bitmap->allocPixels();
+    bitmap->allocN32Pixels(width, height);
     bitmap->eraseColor(color);
 }
 

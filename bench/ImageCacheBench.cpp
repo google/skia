@@ -18,16 +18,14 @@ class ImageCacheBench : public SkBenchmark {
     };
 public:
     ImageCacheBench()  : fCache(CACHE_COUNT * 100) {
-        fBM.setConfig(SkBitmap::kARGB_8888_Config, DIM, DIM);
-        fBM.allocPixels();
+        fBM.allocN32Pixels(DIM, DIM);
     }
 
     void populateCache() {
         SkScalar scale = 1;
         for (int i = 0; i < CACHE_COUNT; ++i) {
             SkBitmap tmp;
-            tmp.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
-            tmp.allocPixels();
+            tmp.allocN32Pixels(1, 1);
             fCache.unlock(fCache.addAndLock(fBM, scale, scale, tmp));
             scale += 1;
         }

@@ -217,11 +217,13 @@ bool SkBitmap::setInfo(const SkImageInfo& origInfo, size_t rowBytes) {
     return true;
 }
 
+#ifdef SK_SUPPORT_LEGACY_SETCONFIG
 bool SkBitmap::setConfig(Config config, int width, int height, size_t rowBytes,
                          SkAlphaType alphaType) {
     SkColorType ct = SkBitmapConfigToColorType(config);
     return this->setInfo(SkImageInfo::Make(width, height, ct, alphaType), rowBytes);
 }
+#endif
 
 bool SkBitmap::setAlphaType(SkAlphaType alphaType) {
     if (!validate_alphaType(fInfo.fColorType, alphaType, &alphaType)) {

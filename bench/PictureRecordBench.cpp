@@ -85,8 +85,8 @@ protected:
 
             // create a simple bitmap
             SkBitmap bitmap;
-            bitmap.setConfig(SkBitmap::kRGB_565_Config, 10, 10);
-            bitmap.allocPixels();
+            bitmap.allocPixels(SkImageInfo::Make(10, 10,
+                                                 kRGB_565_SkColorType, kOpaque_SkAlphaType));
 
             // draw a single color into the bitmap
             SkCanvas bitmapCanvas(bitmap);

@@ -53,10 +53,8 @@ private:
     void make_checkerboard() {
         const int w = fIsSmall ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
         const int h = fIsSmall ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
-        fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-        fCheckerboard.allocPixels();
-        SkBitmapDevice device(fCheckerboard);
-        SkCanvas canvas(&device);
+        fCheckerboard.allocN32Pixels(w, h);
+        SkCanvas canvas(fCheckerboard);
         canvas.clear(0x00000000);
         SkPaint darkPaint;
         darkPaint.setColor(0xFF804020);

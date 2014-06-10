@@ -125,39 +125,13 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBitmap::Config grConfig2skConfig(GrPixelConfig config, bool* isOpaque) {
-    switch (config) {
-        case kAlpha_8_GrPixelConfig:
-            *isOpaque = false;
-            return SkBitmap::kA8_Config;
-        case kRGB_565_GrPixelConfig:
-            *isOpaque = true;
-            return SkBitmap::kRGB_565_Config;
-        case kRGBA_4444_GrPixelConfig:
-            *isOpaque = false;
-            return SkBitmap::kARGB_4444_Config;
-        case kSkia8888_GrPixelConfig:
-            // we don't currently have a way of knowing whether
-            // a 8888 is opaque based on the config.
-            *isOpaque = false;
-            return SkBitmap::kARGB_8888_Config;
-        default:
-            *isOpaque = false;
-            return SkBitmap::kNo_Config;
-    }
-}
-
 /*
  * GrRenderTarget does not know its opaqueness, only its config, so we have
  * to make conservative guesses when we return an "equivalent" bitmap.
  */
 static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
-    bool isOpaque;
-    SkBitmap::Config config = grConfig2skConfig(renderTarget->config(), &isOpaque);
-
     SkBitmap bitmap;
-    bitmap.setConfig(config, renderTarget->width(), renderTarget->height(), 0,
-                     isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+    bitmap.setInfo(renderTarget->info());
     return bitmap;
 }
 
@@ -212,9 +186,8 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
         surface = fRenderTarget;
     }
 
-    SkImageInfo info;
-    surface->asImageInfo(&info);
-    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, surface, SkToBool(flags & kCached_Flag)));
+    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef,
+                                (surface->info(), surface, SkToBool(flags & kCached_Flag)));
 
     this->setPixelRef(pr)->unref();
 }
@@ -728,12 +701,9 @@ bool create_mask_GPU(GrContext* context,
 }
 
 SkBitmap wrap_texture(GrTexture* texture) {
-    SkImageInfo info;
-    texture->asImageInfo(&info);
-
     SkBitmap result;
-    result.setInfo(info);
-    result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
+    result.setInfo(texture->info());
+    result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (result.info(), texture)))->unref();
     return result;
 }
 

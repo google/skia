@@ -310,14 +310,14 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
             }
 
             // FIXME: We could give the caller a choice of images or configs.
-            if (!this->chooseFromOneChoice(SkBitmap::kIndex8_Config, width, height)) {
+            if (!this->chooseFromOneChoice(kIndex_8_SkColorType, width, height)) {
                 return error_return(*bm, "chooseFromOneChoice");
             }
 
             SkScaledBitmapSampler sampler(width, height, this->getSampleSize());
 
-            bm->setConfig(SkBitmap::kIndex8_Config, sampler.scaledWidth(),
-                          sampler.scaledHeight());
+            bm->setInfo(SkImageInfo::Make(sampler.scaledWidth(), sampler.scaledHeight(),
+                                          kIndex_8_SkColorType, kPremul_SkAlphaType));
 
             if (SkImageDecoder::kDecodeBounds_Mode == mode) {
                 return true;

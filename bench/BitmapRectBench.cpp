@@ -55,7 +55,7 @@ public:
         fFilterLevel = filterLevel;
         fSlightMatrix = slightMatrix;
 
-        fBitmap.setConfig(SkBitmap::kARGB_8888_Config, kWidth, kHeight);
+        fBitmap.setInfo(SkImageInfo::MakeN32Premul(kWidth, kHeight));
     }
 
 protected:

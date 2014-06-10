@@ -15,6 +15,7 @@
     'skia_for_chromium_defines': [
       'SK_SUPPORT_LEGACY_GETTOPDEVICE',
       'SK_SUPPORT_LEGACY_N32_NAME',
+      'SK_SUPPORT_LEGACY_SETCONFIG',
       'SK_IGNORE_ETC1_SUPPORT',
       'SK_SUPPORT_LEGACY_RECORDING_FLAG',
     ],

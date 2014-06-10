@@ -248,9 +248,7 @@ private:
     void makeCheckerboard() {
         static int kCheckSize = 16;
 
-        fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config,
-                                kCheckerboardWidth, kCheckerboardHeight);
-        fCheckerboard.allocPixels();
+        fCheckerboard.allocN32Pixels(kCheckerboardWidth, kCheckerboardHeight);
         SkAutoLockPixels lock(fCheckerboard);
         for (int y = 0; y < kCheckerboardHeight; ++y) {
             int even = (y / kCheckSize) % 2;
@@ -283,8 +281,7 @@ private:
             }
         }
 
-        fAtlas.setConfig(SkBitmap::kARGB_8888_Config, kTotAtlasWidth, kTotAtlasHeight);
-        fAtlas.allocPixels();
+        fAtlas.allocN32Pixels(kTotAtlasWidth, kTotAtlasHeight);
         SkAutoLockPixels lock(fAtlas);
 
         for (int y = 0; y < kTotAtlasHeight; ++y) {

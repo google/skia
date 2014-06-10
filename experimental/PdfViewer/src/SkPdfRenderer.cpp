@@ -232,9 +232,7 @@ private:
 
 // Utilities
 static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color = SK_ColorWHITE) {
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-
-    bitmap->allocPixels();
+    bitmap->allocN32Pixels(width, height);
     bitmap->eraseColor(color);
 }
 
@@ -398,8 +396,8 @@ static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedSt
             uncompressedStream += bytesPerLine;
         }
 
-        bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-        bitmap->setPixels(uncompressedStreamArgb);
+        const SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+        bitmap->installPixels(info, uncompressedStreamArgb, info.minRowBytes());
     }
     else if ((colorSpace.equals("DeviceGray") || colorSpace.equals("Gray")) && bpc == 8) {
         unsigned char* uncompressedStreamA8 = (unsigned char*)malloc(width * height);
@@ -414,9 +412,10 @@ static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedSt
             uncompressedStream += bytesPerLine;
         }
 
-        bitmap->setConfig(transparencyMask ? SkBitmap::kA8_Config : SkBitmap::kIndex8_Config,
-                         width, height);
-        bitmap->setPixels(uncompressedStreamA8, transparencyMask ? NULL : getGrayColortable());
+        const SkColorType ct = transparencyMask ? kAlpha_8_SkColorType : kIndex_8_SkColorType;
+        const SkImageInfo info = SkImageInfo::Make(width, height, ct, kPremul_SkAlphaType);
+        bitmap->installPixels(info, uncompressedStreamA8, info.minRowBytes(),
+                              transparencyMask ? NULL : getGrayColortable(), NULL, NULL);
     }
 
     // TODO(edisonn): pass color space and context here?
@@ -519,9 +518,11 @@ static SkBitmap* getImageFromObjectCore(SkPdfContext* pdfContext,
     // TODO(edisonn): assumes RGB for now, since it is the only one implemented
     if (indexed) {
         SkBitmap* bitmap = new SkBitmap();
-        bitmap->setConfig(SkBitmap::kIndex8_Config, width, height);
-        SkColorTable* colorTable = new SkColorTable(colors, cnt);
-        bitmap->setPixels((void*)uncompressedStream, colorTable);
+        const SkImageInfo info = SkImageInfo::Make(width, height, kIndex_8_SkColorType,
+                                                   kPremul_SkAlphaType);
+        SkAutoTUnref<SkColorTable> colorTable(new SkColorTable(colors, cnt));
+        bitmap->installPixels(info, (void*)uncompressedStream, info.minRowBytes(), colorTable,
+                              NULL, NULL);
         return bitmap;
     }
 

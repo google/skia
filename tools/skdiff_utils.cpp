@@ -144,11 +144,9 @@ void create_and_write_diff_image(DiffRecord* drp,
     if (w != drp->fComparison.fBitmap.width() || h != drp->fComparison.fBitmap.height()) {
         drp->fResult = DiffRecord::kDifferentSizes_Result;
     } else {
-        drp->fDifference.fBitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-        drp->fDifference.fBitmap.allocPixels();
+        drp->fDifference.fBitmap.allocN32Pixels(w, h);
 
-        drp->fWhite.fBitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-        drp->fWhite.fBitmap.allocPixels();
+        drp->fWhite.fBitmap.allocN32Pixels(w, h);
 
         SkASSERT(DiffRecord::kUnknown_Result == drp->fResult);
         compute_diff(drp, dmp, colorThreshold);

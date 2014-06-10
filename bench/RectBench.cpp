@@ -263,8 +263,7 @@ protected:
         paint.setStrokeCap(SkPaint::kRound_Cap);
         if (_type == KMaskShader) {
             SkBitmap srcBM;
-            srcBM.setConfig(SkBitmap::kARGB_8888_Config, 10, 1);
-            srcBM.allocPixels();
+            srcBM.allocN32Pixels(10, 1);
             srcBM.eraseColor(0xFF00FF00);
 
             SkShader* s;

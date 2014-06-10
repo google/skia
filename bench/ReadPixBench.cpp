@@ -43,7 +43,7 @@ protected:
 
         SkBitmap bitmap;
 
-        bitmap.setConfig(SkBitmap::kARGB_8888_Config, kWindowSize, kWindowSize);
+        bitmap.setInfo(SkImageInfo::MakeN32Premul(kWindowSize, kWindowSize));
 
         for (int i = 0; i < loops; i++) {
             for (int x = 0; x < kNumStepsX; ++x) {
