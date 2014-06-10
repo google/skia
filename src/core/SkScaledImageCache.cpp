@@ -670,7 +670,15 @@ void SkScaledImageCache::dump() const {
 
 SK_DECLARE_STATIC_MUTEX(gMutex);
 static SkScaledImageCache* gScaledImageCache = NULL;
-static void cleanup_gScaledImageCache() { SkDELETE(gScaledImageCache); }
+static void cleanup_gScaledImageCache() {
+    // We'll clean this up in our own tests, but disable for clients.
+    // Chrome seems to have funky multi-process things going on in unit tests that
+    // makes this unsafe to delete when the main process atexit()s.
+    // SkLazyPtr does the same sort of thing.
+#if SK_DEVELOPER
+    SkDELETE(gScaledImageCache);
+#endif
+}
 
 /** Must hold gMutex when calling. */
 static SkScaledImageCache* get_cache() {
