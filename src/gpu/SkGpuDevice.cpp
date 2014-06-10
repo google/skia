@@ -357,9 +357,7 @@ SkBitmap::Config SkGpuDevice::config() const {
     if (NULL == fRenderTarget) {
         return SkBitmap::kNo_Config;
     }
-
-    bool isOpaque;
-    return grConfig2skConfig(fRenderTarget->config(), &isOpaque);
+    return SkColorTypeToBitmapConfig(fRenderTarget->info().colorType());
 }
 #endif
 
