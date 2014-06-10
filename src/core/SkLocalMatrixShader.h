@@ -32,15 +32,27 @@ public:
         return fProxyShader->asAGradient(info);
     }
 
-    virtual GrEffectRef* asNewEffect(GrContext* ctx, const SkPaint& paint,
-                                     const SkMatrix* localMatrix) const SK_OVERRIDE {
+#if SK_SUPPORT_GPU
+    
+    virtual bool asNewEffect(GrContext* context, const SkPaint& paint, const SkMatrix* localMatrix,
+                             GrColor* grColor, GrEffectRef** grEffect) const SK_OVERRIDE {
         SkMatrix tmp = fProxyLocalMatrix;
         if (localMatrix) {
             tmp.preConcat(*localMatrix);
         }
-        return fProxyShader->asNewEffect(ctx, paint, &tmp);
+        return fProxyShader->asNewEffect(context, paint, &tmp, grColor, grEffect);
     }
-
+    
+#else 
+    
+    virtual bool asNewEffect(GrContext* context, const SkPaint& paint, const SkMatrix* localMatrix,
+                             GrColor* grColor, GrEffectRef** grEffect) const SK_OVERRIDE {
+        SkDEBUGFAIL("Should not call in GPU-less build");
+        return false;
+    }
+    
+#endif
+    
     virtual SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const SK_OVERRIDE {
         if (localMatrix) {
             *localMatrix = fProxyLocalMatrix;

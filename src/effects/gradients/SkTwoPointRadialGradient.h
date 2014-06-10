@@ -21,8 +21,8 @@ public:
                                  SkMatrix* matrix,
                                  TileMode* xy) const SK_OVERRIDE;
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
-    virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint&,
-                                     const SkMatrix*) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrContext* context, const SkPaint&, const SkMatrix*, GrColor*,
+                             GrEffectRef**)  const SK_OVERRIDE;
 
     virtual size_t contextSize() const SK_OVERRIDE;
 

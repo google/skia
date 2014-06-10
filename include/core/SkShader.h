@@ -14,6 +14,7 @@
 #include "SkMask.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
+#include "../gpu/GrColor.h"
 
 class SkPath;
 class SkPicture;
@@ -373,14 +374,17 @@ public:
 
 
     /**
-     *  If the shader subclass has a GrEffect implementation, this resturns the effect to install.
+     *  Returns true if the shader subclass succeeds in setting the grEffect and the grColor output 
+     *  parameters to a value, returns false if it fails or if there is not an implementation of
+     *  this method in the shader subclass.
      *  The incoming color to the effect has r=g=b=a all extracted from the SkPaint's alpha.
      *  The output color should be the computed SkShader premul color modulated by the incoming
      *  color. The GrContext may be used by the effect to create textures. The GPU device does not
      *  call createContext. Instead we pass the SkPaint here in case the shader needs paint info.
      */
-    virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint& paint,
-                                     const SkMatrix* localMatrixOrNull) const;
+    virtual bool asNewEffect(GrContext* context, const SkPaint& paint,
+                             const SkMatrix* localMatrixOrNull, GrColor* grColor,
+                             GrEffectRef** grEffect) const;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     /**
@@ -463,7 +467,7 @@ protected:
 
 private:
     SkMatrix fLocalMatrix;
-
+    
     typedef SkFlattenable INHERITED;
 };
 

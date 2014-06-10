@@ -382,19 +382,20 @@ void SkBitmapProcShader::toString(SkString* str) const {
 #include "effects/GrSimpleTextureEffect.h"
 #include "SkGr.h"
 
-GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                             const SkMatrix* localMatrix) const {
+bool SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
+                                     const SkMatrix* localMatrix, GrColor* grColor,
+                                     GrEffectRef** grEffect) const {
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
 
     SkMatrix lmInverse;
     if (!this->getLocalMatrix().invert(&lmInverse)) {
-        return NULL;
+        return false;
     }
     if (localMatrix) {
         SkMatrix inv;
         if (!localMatrix->invert(&inv)) {
-            return NULL;
+            return false;
         }
         lmInverse.postConcat(inv);
     }
@@ -450,16 +451,29 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
     if (NULL == texture) {
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "Couldn't convert bitmap to texture.");
-        return NULL;
+        return false;
     }
+    
+    *grColor = (kAlpha_8_SkColorType == fRawBitmap.colorType()) ? SkColor2GrColor(paint.getColor())
+                                        : SkColor2GrColorJustAlpha(paint.getColor());
 
-    GrEffectRef* effect = NULL;
     if (useBicubic) {
-        effect = GrBicubicEffect::Create(texture, matrix, tm);
+        *grEffect = GrBicubicEffect::Create(texture, matrix, tm);
     } else {
-        effect = GrSimpleTextureEffect::Create(texture, matrix, params);
+        *grEffect = GrSimpleTextureEffect::Create(texture, matrix, params);
     }
     GrUnlockAndUnrefCachedBitmapTexture(texture);
-    return effect;
+
+    return true;
 }
+
+#else 
+
+bool SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
+                                     const SkMatrix* localMatrix, GrColor* grColor,
+                                     GrEffectRef** grEffect) const {
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return false;
+}
+
 #endif

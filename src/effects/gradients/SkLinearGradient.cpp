@@ -446,6 +446,7 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
 #if SK_SUPPORT_GPU
 
 #include "GrTBackendEffectFactory.h"
+#include "SkGr.h"
 
 /////////////////////////////////////////////////////////////////////
 
@@ -527,7 +528,10 @@ GrEffectRef* GrLinearGradient::TestCreate(SkRandom* random,
                                                                  colors, stops, colorCount,
                                                                  tm));
     SkPaint paint;
-    return shader->asNewEffect(context, paint, NULL);
+    GrColor grColor;
+    GrEffectRef* effect;
+    shader->asNewEffect(context, paint, NULL, &grColor, &effect);
+    return effect;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -547,29 +551,37 @@ void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-GrEffectRef* SkLinearGradient::asNewEffect(GrContext* context, const SkPaint&,
-                                           const SkMatrix* localMatrix) const {
+bool SkLinearGradient::asNewEffect(GrContext* context, const SkPaint& paint,
+                                   const SkMatrix* localMatrix, GrColor* grColor,
+                                   GrEffectRef** grEffect)  const {
     SkASSERT(NULL != context);
+    
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
-        return NULL;
+        return false;
     }
     if (localMatrix) {
         SkMatrix inv;
         if (!localMatrix->invert(&inv)) {
-            return NULL;
+            return false;
         }
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-    return GrLinearGradient::Create(context, *this, matrix, fTileMode);
+    
+    *grColor = SkColor2GrColorJustAlpha(paint.getColor());
+    *grEffect = GrLinearGradient::Create(context, *this, matrix, fTileMode);
+    
+    return true;
 }
 
 #else
 
-GrEffectRef* SkLinearGradient::asNewEffect(GrContext*, const SkPaint&, const SkMatrix*) const {
+bool SkLinearGradient::asNewEffect(GrContext* context, const SkPaint& paint,
+                                   const SkMatrix* localMatrix, GrColor* grColor,
+                                   GrEffectRef** grEffect)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return NULL;
+    return false;
 }
 
 #endif

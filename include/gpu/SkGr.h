@@ -67,6 +67,11 @@ static inline GrColor SkColor2GrColor(SkColor c) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
+static inline GrColor SkColor2GrColorJustAlpha(SkColor c) {
+    U8CPU a = SkColorGetA(c);
+    return GrColorPackRGBA(a, a, a, a);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrIsBitmapInCache(const GrContext*, const SkBitmap&, const GrTextureParams*);
@@ -78,12 +83,12 @@ void GrUnlockAndUnrefCachedBitmapTexture(GrTexture*);
 ////////////////////////////////////////////////////////////////////////////////
 
 // Converts a SkPaint to a GrPaint, ignoring the SkPaint's shader.
-// justAlpha indicates that the SkPaint's alpha should be used rather than the color.
+// Sets the color of GrPaint to the value of the parameter grColor
 // Callers may subsequently modify the GrPaint. Setting constantColor indicates
 // that the final paint will draw the same color at every pixel. This allows
 // an optimization where the the color filter can be applied to the SkPaint's
 // color once while converting to GrPaint and then ignored.
-void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, bool justAlpha,
+void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor grColor,
                              bool constantColor, GrPaint* grPaint);
 
 // This function is similar to skPaint2GrPaintNoShader but also converts

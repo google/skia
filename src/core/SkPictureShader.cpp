@@ -188,12 +188,20 @@ void SkPictureShader::toString(SkString* str) const {
 #endif
 
 #if SK_SUPPORT_GPU
-GrEffectRef* SkPictureShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                          const SkMatrix* localMatrix) const {
+bool SkPictureShader::asNewEffect(GrContext* context, const SkPaint& paint,
+                                  const SkMatrix* localMatrix, GrColor* grColor,
+                                  GrEffectRef** grEffect) const {
     SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(context->getMatrix(), localMatrix));
     if (!bitmapShader) {
-        return NULL;
+        return false;
     }
-    return bitmapShader->asNewEffect(context, paint, NULL);
+    return bitmapShader->asNewEffect(context, paint, NULL, grColor, grEffect);
+}
+#else
+bool SkPictureShader::asNewEffect(GrContext* context, const SkPaint& paint,
+                                  const SkMatrix* localMatrix, GrColor* grColor,
+                                  GrEffectRef** grEffect) const {
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return false;
 }
 #endif

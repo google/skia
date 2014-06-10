@@ -66,3 +66,7 @@ coloremoji
 # Added by robertphillips for https://codereview.chromium.org/316143003/
 # This CL actually fixes this GM's image
 distantclip
+
+# dandov: Fix for bitmap shader by taking into account if the bitmap is alpha only
+# https://codereview.chromium.org/318923005/
+bitmapshaders

@@ -416,7 +416,7 @@ bool GrPixelConfig2ColorType(GrPixelConfig config, SkColorType* ctOut) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, bool justAlpha,
+void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor grColor,
                              bool constantColor, GrPaint* grPaint) {
 
     grPaint->setDither(skPaint.isDither());
@@ -440,16 +440,9 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, bool ju
         dm = SkXfermode::kISA_Coeff;
     }
     grPaint->setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
-
-    if (justAlpha) {
-        uint8_t alpha = skPaint.getAlpha();
-        grPaint->setColor(GrColorPackRGBA(alpha, alpha, alpha, alpha));
-        // justAlpha is currently set to true only if there is a texture,
-        // so constantColor should not also be true.
-        SkASSERT(!constantColor);
-    } else {
-        grPaint->setColor(SkColor2GrColor(skPaint.getColor()));
-    }
+    
+    //set the color of the paint to the one of the parameter
+    grPaint->setColor(grColor);
 
     SkColorFilter* colorFilter = skPaint.getColorFilter();
     if (NULL != colorFilter) {
@@ -491,7 +484,8 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
                            bool constantColor, GrPaint* grPaint) {
     SkShader* shader = skPaint.getShader();
     if (NULL == shader) {
-        SkPaint2GrPaintNoShader(context, skPaint, false, constantColor, grPaint);
+        SkPaint2GrPaintNoShader(context, skPaint, SkColor2GrColor(skPaint.getColor()),
+                                constantColor, grPaint);
         return;
     }
 
@@ -503,28 +497,15 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
     AutoMatrix am(context);
 
     // setup the shader as the first color effect on the paint
-    SkAutoTUnref<GrEffectRef> effect(shader->asNewEffect(context, skPaint, NULL));
-    if (NULL != effect.get()) {
+    // the default grColor is the paint's color
+    GrColor grColor = SkColor2GrColor(skPaint.getColor());
+    GrEffectRef* grEffect = NULL;
+    if (shader->asNewEffect(context, skPaint, NULL, &grColor, &grEffect) && NULL != grEffect) {
+        SkAutoTUnref<GrEffectRef> effect(grEffect);
         grPaint->addColorEffect(effect);
-        // Now setup the rest of the paint.
-        SkPaint2GrPaintNoShader(context, skPaint, true, false, grPaint);
-    } else {
-        // We still don't have SkColorShader::asNewEffect() implemented.
-        SkShader::GradientInfo info;
-        SkColor                color;
-
-        info.fColors = &color;
-        info.fColorOffsets = NULL;
-        info.fColorCount = 1;
-        if (SkShader::kColor_GradientType == shader->asAGradient(&info)) {
-            SkPaint copy(skPaint);
-            copy.setShader(NULL);
-            // modulate the paint alpha by the shader's solid color alpha
-            U8CPU newA = SkMulDiv255Round(SkColorGetA(color), copy.getAlpha());
-            copy.setColor(SkColorSetA(color, newA));
-            SkPaint2GrPaintNoShader(context, copy, false, constantColor, grPaint);
-        } else {
-            SkPaint2GrPaintNoShader(context, skPaint, false, constantColor, grPaint);
-        }
+        constantColor = false;
     }
+    // The grcolor is automatically set when calling asneweffect.
+    // If the shader can be seen as an effect it returns true and adds its effect to the grpaint.
+    SkPaint2GrPaintNoShader(context, skPaint, grColor, constantColor, grPaint);
 }

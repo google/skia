@@ -726,7 +726,9 @@ GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
                                              stitchTiles ? &tileSize : NULL);
 
     SkPaint paint;
-    GrEffectRef* effect = shader->asNewEffect(context, paint, NULL);
+    GrColor grColor;
+    GrEffectRef* effect;
+    shader->asNewEffect(context, paint, NULL, &grColor, &effect);
 
     SkDELETE(shader);
 
@@ -1278,10 +1280,13 @@ void GrGLSimplexNoise::setData(const GrGLUniformManager& uman, const GrDrawEffec
 
 /////////////////////////////////////////////////////////////////////
 
-GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                              const SkMatrix* externalLocalMatrix) const {
+bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
+                                      const SkMatrix* externalLocalMatrix, GrColor* grColor,
+                                      GrEffectRef** grEffect) const {
     SkASSERT(NULL != context);
-
+    
+    *grColor = SkColor2GrColorJustAlpha(paint.getColor());
+    
     SkMatrix localMatrix = this->getLocalMatrix();
     if (externalLocalMatrix) {
         localMatrix.preConcat(*externalLocalMatrix);
@@ -1294,7 +1299,8 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
         }
         SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(
                                                 clearColor, SkXfermode::kSrc_Mode));
-        return cf->asNewEffect(context);
+        *grEffect = cf->asNewEffect(context);
+        return true;
     }
 
     // Either we don't stitch tiles, either we have a valid tile size
@@ -1303,7 +1309,7 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
 #ifdef SK_USE_SIMPLEX_NOISE
     // Simplex noise is currently disabled but can be enabled by defining SK_USE_SIMPLEX_NOISE
     sk_ignore_unused_variable(context);
-    GrEffectRef* effect =
+    *grEffect =
         GrSimplexNoiseEffect::Create(fType, fPaintingData->fBaseFrequency,
                                      fNumOctaves, fStitchTiles, fSeed,
                                      this->getLocalMatrix(), paint.getAlpha());
@@ -1313,7 +1319,7 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
     GrTexture* noiseTexture = GrLockAndRefCachedBitmapTexture(
         context, fPaintingData->getNoiseBitmap(), NULL);
 
-    GrEffectRef* effect = (NULL != permutationsTexture) && (NULL != noiseTexture) ?
+    *grEffect = (NULL != permutationsTexture) && (NULL != noiseTexture) ?
         GrPerlinNoiseEffect::Create(fType, fPaintingData->fBaseFrequency,
                                     fNumOctaves, fStitchTiles,
                                     fPaintingData->fStitchDataInit,
@@ -1332,14 +1338,16 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
     }
 #endif
 
-    return effect;
+    return true;
 }
 
 #else
 
-GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext*, const SkPaint&, const SkMatrix*) const {
+bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
+                                      const SkMatrix* externalLocalMatrix, GrColor* grColor,
+                                      GrEffectRef** grEffect) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return NULL;
+    return false;
 }
 
 #endif

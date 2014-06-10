@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
- #include "SkTwoPointRadialGradient.h"
+#include "SkTwoPointRadialGradient.h"
 
 /* Two-point radial gradients are specified by two circles, each with a center
    point and radius.  The gradient can be considered to be a series of
@@ -383,6 +383,7 @@ void SkTwoPointRadialGradient::init() {
 #if SK_SUPPORT_GPU
 
 #include "GrTBackendEffectFactory.h"
+#include "SkGr.h"
 
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
@@ -530,7 +531,10 @@ GrEffectRef* GrRadial2Gradient::TestCreate(SkRandom* random,
                                                                          colors, stops, colorCount,
                                                                          tm));
     SkPaint paint;
-    return shader->asNewEffect(context, paint, NULL);
+    GrEffectRef* effect;
+    GrColor grColor;
+    shader->asNewEffect(context, paint, NULL, &grColor, &effect);
+    return effect;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -670,18 +674,20 @@ GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrDrawEffect& drawEffect
 
 /////////////////////////////////////////////////////////////////////
 
-GrEffectRef* SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint&,
-                                                   const SkMatrix* localMatrix) const {
+bool SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
+                                           const SkMatrix* localMatrix, GrColor* grColor,
+                                           GrEffectRef** grEffect)  const {
     SkASSERT(NULL != context);
+    
     // invert the localM, translate to center1 (fPtsToUni), rotate so center2 is on x axis.
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
-        return NULL;
+        return false;
     }
     if (localMatrix) {
         SkMatrix inv;
         if (!localMatrix->invert(&inv)) {
-            return NULL;
+            return false;
         }
         matrix.postConcat(inv);
     }
@@ -696,15 +702,19 @@ GrEffectRef* SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkP
         matrix.postConcat(rot);
     }
 
-    return GrRadial2Gradient::Create(context, *this, matrix, fTileMode);
+    *grColor = SkColor2GrColorJustAlpha(paint.getColor());
+    *grEffect = GrRadial2Gradient::Create(context, *this, matrix, fTileMode);
+    
+    return true;
 }
 
 #else
 
-GrEffectRef* SkTwoPointRadialGradient::asNewEffect(GrContext*, const SkPaint&,
-                                                   const SkMatrix*) const {
+bool SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
+                                           const SkMatrix* localMatrix, GrColor* grColor,
+                                           GrEffectRef** grEffect)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return NULL;
+    return false;
 }
 
 #endif

@@ -65,7 +65,8 @@ public:
                                  SkMatrix* matrix,
                                  TileMode* xy) const;
     virtual SkShader::GradientType asAGradient(GradientInfo* info) const  SK_OVERRIDE;
-    virtual GrEffectRef* asNewEffect(GrContext*, const SkPaint&, const SkMatrix*) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrContext*, const SkPaint&, const SkMatrix*, GrColor* grColor,
+                             GrEffectRef**) const SK_OVERRIDE;
     virtual bool isOpaque() const SK_OVERRIDE;
 
     SkScalar getCenterX1() const { return SkPoint::Distance(fCenter1, fCenter2); }

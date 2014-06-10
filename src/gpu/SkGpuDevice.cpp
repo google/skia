@@ -1356,7 +1356,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     GrPaint grPaint;
     grPaint.addColorEffect(effect);
     bool alphaOnly = !(SkBitmap::kA8_Config == bitmap.config());
-    SkPaint2GrPaintNoShader(this->context(), paint, alphaOnly, false, &grPaint);
+    GrColor grColor = (alphaOnly) ? SkColor2GrColorJustAlpha(paint.getColor()) :
+                                    SkColor2GrColor(paint.getColor());
+    SkPaint2GrPaintNoShader(this->context(), paint, grColor, false, &grPaint);
 
     fContext->drawRectToRect(grPaint, dstRect, paintRect, NULL);
 }
@@ -1422,7 +1424,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     GrPaint grPaint;
     grPaint.addColorTextureEffect(texture, SkMatrix::I());
 
-    SkPaint2GrPaintNoShader(this->context(), paint, true, false, &grPaint);
+    SkPaint2GrPaintNoShader(this->context(), paint, SkColor2GrColorJustAlpha(paint.getColor()),
+                            false, &grPaint);
 
     fContext->drawRectToRect(grPaint,
                              SkRect::MakeXYWH(SkIntToScalar(left),
@@ -1530,7 +1533,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     GrPaint grPaint;
     grPaint.addColorTextureEffect(devTex, SkMatrix::I());
 
-    SkPaint2GrPaintNoShader(this->context(), paint, true, false, &grPaint);
+    SkPaint2GrPaintNoShader(this->context(), paint, SkColor2GrColorJustAlpha(paint.getColor()),
+                            false, &grPaint);
 
     SkRect dstRect = SkRect::MakeXYWH(SkIntToScalar(x),
                                       SkIntToScalar(y),
@@ -1616,7 +1620,8 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     GrPaint grPaint;
     // we ignore the shader if texs is null.
     if (NULL == texs) {
-        SkPaint2GrPaintNoShader(this->context(), paint, false, NULL == colors, &grPaint);
+        SkPaint2GrPaintNoShader(this->context(), paint, SkColor2GrColor(paint.getColor()),
+                                NULL == colors, &grPaint);
     } else {
         SkPaint2GrPaintShader(this->context(), paint, NULL == colors, &grPaint);
     }

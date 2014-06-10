@@ -30,9 +30,9 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
 
-#if SK_SUPPORT_GPU
-    GrEffectRef* asNewEffect(GrContext*, const SkPaint&, const SkMatrix*) const SK_OVERRIDE;
-#endif
+
+    bool asNewEffect(GrContext*, const SkPaint&, const SkMatrix*, GrColor*, GrEffectRef**)
+            const SK_OVERRIDE;
 
     class BitmapProcShaderContext : public SkShader::Context {
     public:

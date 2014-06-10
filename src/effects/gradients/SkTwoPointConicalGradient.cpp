@@ -6,7 +6,6 @@
  */
 
 #include "SkTwoPointConicalGradient.h"
-
 #include "SkTwoPointConicalGradient_gpu.h"
 
 struct TwoPtRadialContext {
@@ -380,20 +379,26 @@ void SkTwoPointConicalGradient::flatten(
 
 #if SK_SUPPORT_GPU
 
-GrEffectRef* SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPaint&,
-                                                    const SkMatrix* localMatrix) const {
+#include "SkGr.h"
+
+bool SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPaint& paint,
+                                             const SkMatrix* localMatrix, GrColor* grColor,
+                                             GrEffectRef** grEffect)  const {
     SkASSERT(NULL != context);
     SkASSERT(fPtsToUnit.isIdentity());
 
-    return Gr2PtConicalGradientEffect::Create(context, *this, fTileMode, localMatrix);
+    *grEffect = Gr2PtConicalGradientEffect::Create(context, *this, fTileMode, localMatrix);
+    *grColor = SkColor2GrColorJustAlpha(paint.getColor());
+    return true;
 }
 
 #else
 
-GrEffectRef* SkTwoPointConicalGradient::asNewEffect(GrContext*, const SkPaint&,
-                                                    const SkMatrix*) const {
+bool SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPaint& paint,
+                                            const SkMatrix* localMatrix, GrColor* grColor,
+                                            GrEffectRef** grEffect)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return NULL;
+    return false;
 }
 
 #endif
