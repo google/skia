@@ -77,7 +77,6 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
     SkASSERT(NULL != fCanvas);
 
     SkAutoTDelete<SkPicturePlayback> playback(SkPicture::FakeEndRecording(fPicture.get(),
-                                                                          *fCanvas,
-                                                                          false));
+                                                                          *fCanvas));
     playback->draw(*canvas, NULL);
 }

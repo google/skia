@@ -400,8 +400,7 @@ private:
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
     static SkPicturePlayback* FakeEndRecording(const SkPicture* resourceSrc,
-                                               const SkPictureRecord& record,
-                                               bool deepCopy);
+                                               const SkPictureRecord& record);
 
     friend class SkFlatPicture;
     friend class SkPicturePlayback;

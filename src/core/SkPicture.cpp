@@ -134,11 +134,10 @@ SkPicture::SkPicture()
 // Unfortunately, it does not include the restoreToCount of a real endRecording
 // call.
 SkPicturePlayback* SkPicture::FakeEndRecording(const SkPicture* resourceSrc,
-                                               const SkPictureRecord& record,
-                                               bool deepCopy) {
+                                               const SkPictureRecord& record) {
     SkPictInfo info;
     resourceSrc->createHeader(&info);
-    return SkNEW_ARGS(SkPicturePlayback, (resourceSrc, record, info, deepCopy));
+    return SkNEW_ARGS(SkPicturePlayback, (resourceSrc, record, info));
 }
 
 SkPicture::SkPicture(const SkPicture& src)

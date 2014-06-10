@@ -78,8 +78,7 @@ class SkPicturePlayback {
 public:
     SkPicturePlayback(const SkPicture* picture, const SkPicturePlayback& src,
                       SkPictCopyInfo* deepCopyInfo = NULL);
-    SkPicturePlayback(const SkPicture* picture, const SkPictureRecord& record, const SkPictInfo&,
-                      bool deepCopy = false);
+    SkPicturePlayback(const SkPicture* picture, const SkPictureRecord& record, const SkPictInfo&);
     static SkPicturePlayback* CreateFromStream(SkPicture* picture,
                                                SkStream*,
                                                const SkPictInfo&,

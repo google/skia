@@ -58,8 +58,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPictInfo&
 
 SkPicturePlayback::SkPicturePlayback(const SkPicture* picture,
                                      const SkPictureRecord& record,
-                                     const SkPictInfo& info,
-                                     bool deepCopy)
+                                     const SkPictInfo& info)
     : fPicture(picture)
     , fInfo(info) {
 #ifdef SK_DEBUG_SIZE
@@ -134,12 +133,8 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture,
     if (fPictureCount > 0) {
         fPictureRefs = SkNEW_ARRAY(const SkPicture*, fPictureCount);
         for (int i = 0; i < fPictureCount; i++) {
-            if (deepCopy) {
-                fPictureRefs[i] = pictures[i]->clone();
-            } else {
-                fPictureRefs[i] = pictures[i];
-                fPictureRefs[i]->ref();
-            }
+            fPictureRefs[i] = pictures[i];
+            fPictureRefs[i]->ref();
         }
     }
 
