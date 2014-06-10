@@ -986,12 +986,6 @@ public:
     */
     void drawPicture(const SkPicture* picture);
 
-#ifdef SK_SUPPORT_LEGACY_DRAWPICTURE_API
-    virtual void drawPicture(SkPicture& picture) {
-        this->drawPicture(&picture);
-    }
-#endif
-
     enum VertexMode {
         kTriangles_VertexMode,
         kTriangleStrip_VertexMode,
