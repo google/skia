@@ -55,7 +55,8 @@ SkPicture* SkPictureRecorder::endRecording() {
 
     SkPictInfo info;
     fPicture->createHeader(&info);
-    fPicture->fPlayback = SkNEW_ARGS(SkPicturePlayback, (fPicture, *fCanvas, info));
+    const bool deepCopyOps = false;
+    fPicture->fPlayback = SkNEW_ARGS(SkPicturePlayback, (fPicture, *fCanvas, info, deepCopyOps));
 
     SkSafeSetNull(fCanvas);
 

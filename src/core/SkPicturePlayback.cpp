@@ -58,7 +58,8 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPictInfo&
 
 SkPicturePlayback::SkPicturePlayback(const SkPicture* picture,
                                      const SkPictureRecord& record,
-                                     const SkPictInfo& info)
+                                     const SkPictInfo& info,
+                                     bool deepCopyOps)
     : fPicture(picture)
     , fInfo(info) {
 #ifdef SK_DEBUG_SIZE
@@ -106,7 +107,12 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture,
         fOpData = SkData::NewEmpty();
         return;
     }
-    fOpData = writer.snapshotAsData();
+    if (deepCopyOps) {
+        // Don't try to do anything clever w.r.t. copy on write
+        fOpData = SkData::NewWithCopy(writer.contiguousArray(), writer.bytesWritten());
+    } else {
+        fOpData = writer.snapshotAsData();
+    }
 
     fBoundingHierarchy = record.fBoundingHierarchy;
     fStateTree = record.fStateTree;

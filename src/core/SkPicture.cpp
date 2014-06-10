@@ -137,7 +137,13 @@ SkPicturePlayback* SkPicture::FakeEndRecording(const SkPicture* resourceSrc,
                                                const SkPictureRecord& record) {
     SkPictInfo info;
     resourceSrc->createHeader(&info);
-    return SkNEW_ARGS(SkPicturePlayback, (resourceSrc, record, info));
+
+    // FakeEndRecording is only called from partialReplay. For that use case
+    // we cannot be certain that the next call to SkWriter32::overwriteTAt
+    // will be preceded by an append (i.e., that the required copy on write
+    // will occur). In this case just force a deep copy of the operations.
+    const bool deepCopyOps = true;
+    return SkNEW_ARGS(SkPicturePlayback, (resourceSrc, record, info, deepCopyOps));
 }
 
 SkPicture::SkPicture(const SkPicture& src)

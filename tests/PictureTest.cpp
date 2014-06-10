@@ -986,6 +986,45 @@ public:
     }
 };
 
+static void create_imbalance(SkCanvas* canvas) {
+    SkRect clipRect = SkRect::MakeWH(2, 2);
+    SkRect drawRect = SkRect::MakeWH(10, 10);
+    canvas->save();
+        canvas->clipRect(clipRect, SkRegion::kReplace_Op);
+        canvas->translate(1.0f, 1.0f);
+        SkPaint p;
+        p.setColor(SK_ColorGREEN);
+        canvas->drawRect(drawRect, p);
+    // no restore
+}
+
+// This tests that replaying a potentially unbalanced picture into a canvas
+// doesn't affect the canvas' save count or matrix/clip state.
+static void check_balance(skiatest::Reporter* reporter, SkPicture* picture) {
+    SkBitmap bm;
+    bm.allocN32Pixels(4, 3);
+    SkCanvas canvas(bm);
+
+    int beforeSaveCount = canvas.getSaveCount();
+
+    SkMatrix beforeMatrix = canvas.getTotalMatrix();
+
+    SkRect beforeClip;
+
+    canvas.getClipBounds(&beforeClip);
+
+    canvas.drawPicture(picture);
+
+    REPORTER_ASSERT(reporter, beforeSaveCount == canvas.getSaveCount());
+    REPORTER_ASSERT(reporter, beforeMatrix == canvas.getTotalMatrix());
+
+    SkRect afterClip;
+
+    canvas.getClipBounds(&afterClip);
+
+    REPORTER_ASSERT(reporter, afterClip == beforeClip);
+}
+
 // Test out SkPictureRecorder::partialReplay
 DEF_TEST(PictureRecorder_replay, reporter) {
     // check save/saveLayer state
@@ -1039,6 +1078,25 @@ DEF_TEST(PictureRecorder_replay, reporter) {
 
         // The snapshot shouldn't pick up any operations added after it was made
         REPORTER_ASSERT(reporter, !copy->willPlayBackBitmaps());
+    }
+
+    // Recreate the Android partialReplay test case
+    {
+        SkPictureRecorder recorder;
+
+        SkCanvas* canvas = recorder.beginRecording(4, 3, NULL, 0);
+        create_imbalance(canvas);
+
+        int expectedSaveCount = canvas->getSaveCount();
+
+        SkAutoTUnref<SkPicture> copy(SkPictureRecorderReplayTester::Copy(&recorder));
+        check_balance(reporter, copy);
+
+        REPORTER_ASSERT(reporter, expectedSaveCount = canvas->getSaveCount());
+
+        // End the recording of source to test the picture finalization
+        // process isn't complicated by the partialReplay step
+        SkAutoTUnref<SkPicture> final(recorder.endRecording());
     }
 }
 
