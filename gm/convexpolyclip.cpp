@@ -88,7 +88,7 @@ protected:
         if (kBench_Mode != this->getMode()) {
             w *= 2;
         }
-        return make_isize(w, 540);
+        return SkISize::Make(w, 540);
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {

@@ -108,7 +108,7 @@ protected:
         return SkString("shadertext");
     }
 
-    SkISize onISize() { return make_isize(1450, 500); }
+    SkISize onISize() { return SkISize::Make(1450, 500); }
 
     virtual void onDraw(SkCanvas* canvas) {
         const char text[] = "Shaded Text";

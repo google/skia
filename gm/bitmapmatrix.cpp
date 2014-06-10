@@ -32,7 +32,7 @@ protected:
         return SkString("drawbitmapmatrix");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { return make_isize(1024, 256); }
+    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(1024, 256); }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkBitmap bm;

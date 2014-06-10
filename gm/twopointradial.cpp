@@ -64,7 +64,7 @@ protected:
         return SkString("twopointconical");
     }
 
-    SkISize onISize() { return skiagm::make_isize(480, 780); }
+    SkISize onISize() { return SkISize::Make(480, 780); }
 
     virtual void onDraw(SkCanvas* canvas) {
         if (false) {

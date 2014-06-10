@@ -46,7 +46,7 @@ protected:
         return SkString("dashing");
     }
 
-    SkISize onISize() { return skiagm::make_isize(640, 300); }
+    SkISize onISize() { return SkISize::Make(640, 300); }
 
     virtual void onDraw(SkCanvas* canvas) {
         static const struct {
@@ -132,7 +132,7 @@ protected:
         return SkString("dashing2");
     }
 
-    SkISize onISize() { return skiagm::make_isize(640, 480); }
+    SkISize onISize() { return SkISize::Make(640, 480); }
 
     virtual void onDraw(SkCanvas* canvas) {
         static const int gIntervals[] = {
@@ -194,7 +194,7 @@ protected:
         return SkString("dashing3");
     }
 
-    SkISize onISize() { return skiagm::make_isize(640, 480); }
+    SkISize onISize() { return SkISize::Make(640, 480); }
 
     // Draw a 100x100 block of dashed lines. The horizontal ones are BW
     // while the vertical ones are AA.
@@ -328,7 +328,7 @@ protected:
         return SkString("dashing4");
     }
 
-    SkISize onISize() { return skiagm::make_isize(640, 950); }
+    SkISize onISize() { return SkISize::Make(640, 950); }
 
     virtual void onDraw(SkCanvas* canvas) {
         static const struct {

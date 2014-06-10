@@ -25,7 +25,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(1450, 750);
+        return SkISize::Make(1450, 750);
     }
 
     static void rotate_about(SkCanvas* canvas,

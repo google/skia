@@ -141,7 +141,7 @@ namespace skiagm {
             return SkString("aarectmodes");
         }
 
-        virtual SkISize onISize() { return make_isize(640, 480); }
+        virtual SkISize onISize() { return SkISize::Make(640, 480); }
 
         virtual void onDraw(SkCanvas* canvas) {
             if (false) { // avoid bit rot, suppress warning

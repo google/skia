@@ -30,7 +30,7 @@ protected:
         return SkString("degeneratesegments");
     }
 
-    SkISize onISize() { return make_isize(896, 930); }
+    SkISize onISize() { return SkISize::Make(896, 930); }
 
     typedef SkPoint (*AddSegmentFunc)(SkPath&, SkPoint&);
 

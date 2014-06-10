@@ -60,7 +60,7 @@ protected:
         return SkString("shadertext3");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE{ return make_isize(800, 1000); }
+    virtual SkISize onISize() SK_OVERRIDE{ return SkISize::Make(800, 1000); }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
         makebm(&fBmp, kPointSize / 4, kPointSize / 4);

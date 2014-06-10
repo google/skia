@@ -24,7 +24,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(640, 490);
+        return SkISize::Make(640, 490);
     }
 
     static void fill_pts(SkPoint pts[], size_t n, SkLCGRandom* rand) {

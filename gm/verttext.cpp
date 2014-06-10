@@ -57,7 +57,7 @@ protected:
         return SkString("verttext");
     }
 
-    SkISize onISize() { return make_isize(640, 480); }
+    SkISize onISize() { return SkISize::Make(640, 480); }
 
     static void drawBaseline(SkCanvas* canvas, const SkPaint& paint,
                              SkScalar x, SkScalar y) {

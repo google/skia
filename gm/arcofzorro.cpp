@@ -29,7 +29,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(1000, 1000);
+        return SkISize::Make(1000, 1000);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {

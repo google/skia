@@ -24,7 +24,7 @@ protected:
         return SkString("distantclip");
     }
 
-    SkISize onISize() { return make_isize(100, 100); }
+    SkISize onISize() { return SkISize::Make(100, 100); }
 
     virtual void onDraw(SkCanvas* canvas) {
         int offset = 35000;

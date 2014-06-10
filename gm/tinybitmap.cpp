@@ -40,7 +40,7 @@ protected:
         return SkString("tinybitmap");
     }
 
-    virtual SkISize onISize() { return make_isize(100, 100); }
+    virtual SkISize onISize() { return SkISize::Make(100, 100); }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm = make_bitmap();

@@ -90,7 +90,7 @@ protected:
     }
 
     SkString onShortName() SK_OVERRIDE { return SkString("gradients_no_texture"); }
-    virtual SkISize onISize() SK_OVERRIDE { return make_isize(640, 615); }
+    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 615); }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         static const SkPoint kPts[2] = { { 0, 0 },

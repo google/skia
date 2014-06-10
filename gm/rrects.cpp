@@ -54,7 +54,7 @@ protected:
         return name;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { return make_isize(kImageWidth, kImageHeight); }
+    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(kImageWidth, kImageHeight); }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
         if (kEffect_Type == fType) {

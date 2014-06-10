@@ -115,7 +115,7 @@ protected:
         return SkString("patheffect");
     }
 
-    SkISize onISize() { return make_isize(800, 600); }
+    SkISize onISize() { return SkISize::Make(800, 600); }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;

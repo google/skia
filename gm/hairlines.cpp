@@ -22,7 +22,7 @@ protected:
         return SkString("hairlines");
     }
 
-    virtual SkISize onISize() { return make_isize(800, 600); }
+    virtual SkISize onISize() { return SkISize::Make(800, 600); }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
         {

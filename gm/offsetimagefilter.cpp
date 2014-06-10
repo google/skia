@@ -60,7 +60,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(WIDTH, HEIGHT);
+        return SkISize::Make(WIDTH, HEIGHT);
     }
 
     void drawClippedBitmap(SkCanvas* canvas, const SkBitmap& bitmap, const SkPaint& paint, SkScalar scale, const SkIRect& cropRect) {

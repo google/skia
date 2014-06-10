@@ -86,7 +86,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(128, 128);
+        return SkISize::Make(128, 128);
     }
 
     virtual SkString fileExtension() const = 0;
@@ -162,7 +162,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(124, 124);
+        return SkISize::Make(124, 124);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {

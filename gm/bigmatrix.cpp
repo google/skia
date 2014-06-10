@@ -28,7 +28,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(50, 50);
+        return SkISize::Make(50, 50);
     }
 
     virtual void onDraw(SkCanvas* canvas) {

@@ -25,12 +25,6 @@
 
 namespace skiagm {
 
-    static inline SkISize make_isize(int w, int h) {
-        SkISize sz;
-        sz.set(w, h);
-        return sz;
-    }
-
     class GM {
     public:
         GM();

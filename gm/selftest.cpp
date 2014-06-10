@@ -26,7 +26,7 @@ protected:
         return fName;
     }
 
-    SkISize onISize() { return skiagm::make_isize(kWidth, kHeight); }
+    SkISize onISize() { return SkISize::Make(kWidth, kHeight); }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;

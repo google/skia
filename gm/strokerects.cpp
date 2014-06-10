@@ -34,7 +34,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(W*2, H*2);
+        return SkISize::Make(W*2, H*2);
     }
 
     static void rnd_rect(SkRect* r, SkLCGRandom& rand) {

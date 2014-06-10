@@ -34,7 +34,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(420, 100);
+        return SkISize::Make(420, 100);
     }
 
     void make_checkerboard(SkBitmap* bitmap) {

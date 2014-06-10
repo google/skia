@@ -34,7 +34,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(kImageWidth, kImageHeight);
+        return SkISize::Make(kImageWidth, kImageHeight);
     }
 
     enum Shapes {

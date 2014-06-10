@@ -44,7 +44,7 @@ protected:
 
 
     virtual SkISize onISize() {
-        return make_isize(1200, 1100);
+        return SkISize::Make(1200, 1100);
     }
 
     void makePaths() {

@@ -86,7 +86,7 @@ protected:
         return SkString("drawbitmaprect");
     }
 
-    SkISize onISize() { return make_isize(gSize, gSize); }
+    SkISize onISize() { return SkISize::Make(gSize, gSize); }
 
     virtual void onDraw(SkCanvas* canvas) {
         static const int kBmpSize = 2048;

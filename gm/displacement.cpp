@@ -65,7 +65,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(500, 500);
+        return SkISize::Make(500, 500);
     }
 
     void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {

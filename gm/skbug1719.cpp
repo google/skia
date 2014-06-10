@@ -33,7 +33,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(300, 100);
+        return SkISize::Make(300, 100);
     }
 
     virtual void onDrawBackground(SkCanvas* canvas) SK_OVERRIDE {

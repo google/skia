@@ -42,7 +42,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() { return make_isize(970, 780); }
+    SkISize onISize() { return SkISize::Make(970, 780); }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPath path;

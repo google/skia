@@ -42,7 +42,7 @@ protected:
         return fName;
     }
 
-    virtual SkISize onISize() { return make_isize(320, 240); }
+    virtual SkISize onISize() { return SkISize::Make(320, 240); }
 
     virtual SkMatrix onGetInitialTransform() const SK_OVERRIDE {
         SkMatrix result;

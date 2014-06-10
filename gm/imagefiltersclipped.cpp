@@ -40,7 +40,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(860, 500);
+        return SkISize::Make(860, 500);
     }
 
     void make_checkerboard() {

@@ -31,7 +31,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(2*S, 2*S);
+        return SkISize::Make(2*S, 2*S);
     }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE { return kGPUOnly_Flag; }

@@ -122,7 +122,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(1024, HEIGHT);
+        return SkISize::Make(1024, HEIGHT);
     }
 
     static void drawGrad(SkCanvas* canvas) {

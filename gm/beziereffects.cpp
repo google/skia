@@ -50,7 +50,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(800, 800);
+        return SkISize::Make(800, 800);
     }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
@@ -208,7 +208,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(800, 800);
+        return SkISize::Make(800, 800);
     }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
@@ -399,7 +399,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(800, 800);
+        return SkISize::Make(800, 800);
     }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE {

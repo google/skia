@@ -131,8 +131,8 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(SkScalarRoundToInt(fTotalWidth),
-                          SkScalarRoundToInt(fTotalHeight));
+        return SkISize::Make(SkScalarRoundToInt(fTotalWidth),
+                             SkScalarRoundToInt(fTotalHeight));
     }
 
     virtual void onDraw(SkCanvas* canvas) {

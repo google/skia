@@ -27,7 +27,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(790, 640);
+        return SkISize::Make(790, 640);
     }
 
     void drawShape(SkCanvas* canvas,

@@ -46,7 +46,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(500, 300);
+        return SkISize::Make(500, 300);
     }
 
     void draw(SkCanvas* canvas, int x, int y, const SkIPoint& kernelOffset,

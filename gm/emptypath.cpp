@@ -21,7 +21,7 @@ protected:
         return SkString("emptypath");
     }
 
-    SkISize onISize() { return make_isize(600, 280); }
+    SkISize onISize() { return SkISize::Make(600, 280); }
 
     void drawEmpty(SkCanvas* canvas,
                     SkColor color,

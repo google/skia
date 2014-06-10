@@ -52,7 +52,7 @@ protected:
         return SkString("shadertext2");
     }
 
-    SkISize onISize() { return make_isize(1800, 900); }
+    SkISize onISize() { return SkISize::Make(1800, 900); }
 
     virtual void onDraw(SkCanvas* canvas) {
         static const char kText[] = "SKIA";

@@ -24,7 +24,7 @@ protected:
         return SkString("quadpath");
     }
 
-    SkISize onISize() { return make_isize(1240, 390); }
+    SkISize onISize() { return SkISize::Make(1240, 390); }
 
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
@@ -170,7 +170,7 @@ protected:
         return SkString("quadclosepath");
     }
 
-    SkISize onISize() { return make_isize(1240, 390); }
+    SkISize onISize() { return SkISize::Make(1240, 390); }
 
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
