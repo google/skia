@@ -167,8 +167,8 @@ public:
         fImage = pp::ImageData(this,
                                PP_IMAGEDATAFORMAT_BGRA_PREMUL,
                                pp::Size(fWidth, fHeight), false);
-        fBitmap.setConfig(SkBitmap::kARGB_8888_Config, fWidth, fHeight);
-        fBitmap.setPixels(fImage.data());
+        const SkImageInfo info = SkImageInfo::MakeN32Premul(fWidth, fHeight);
+        fBitmap.installPixels(info, fImage.data(), info.minRowBytes());
         if (fCanvas) {
             delete fCanvas;
         }
