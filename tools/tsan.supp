@@ -14,10 +14,9 @@ race:SkGLContextHelper
 
 # Threadsafe, should be ported to SkLazyPtr.
 race:SkFontHost_FreeType
+race:is_lcd_supported
 
 # Not threadsafe, should be fixed.
 race:RefFCI
 race:SkString
-
-# Not threadsafe, should be deleted.
 race:SkPDF
