@@ -502,36 +502,39 @@ void GrClipMaskManager::getTemp(int width, int height, GrAutoScratchTexture* tem
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Handles caching & allocation (if needed) of a clip alpha-mask texture for both the sw-upload
-// or gpu-rendered cases. Returns true if there is no more work to be done (i.e., we got a cache
-// hit)
-bool GrClipMaskManager::getMaskTexture(int32_t elementsGenID,
-                                       const SkIRect& clipSpaceIBounds,
-                                       GrTexture** result,
-                                       bool willUpload) {
+// Return the texture currently in the cache if it exists. Otherwise, return NULL
+GrTexture* GrClipMaskManager::getCachedMaskTexture(int32_t elementsGenID,
+                                                   const SkIRect& clipSpaceIBounds) {
     bool cached = fAACache.canReuse(elementsGenID, clipSpaceIBounds);
     if (!cached) {
-
-        // There isn't a suitable entry in the cache so we create a new texture to store the mask.
-        // Since we are setting up the cache we know the last lookup was a miss. Free up the
-        // currently cached mask so it can be reused.
-        fAACache.reset();
-
-        GrTextureDesc desc;
-        desc.fFlags = willUpload ? kNone_GrTextureFlags : kRenderTarget_GrTextureFlagBit;
-        desc.fWidth = clipSpaceIBounds.width();
-        desc.fHeight = clipSpaceIBounds.height();
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
-        if (willUpload || this->getContext()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
-            // We would always like A8 but it isn't supported on all platforms
-            desc.fConfig = kAlpha_8_GrPixelConfig;
-        }
-
-        fAACache.acquireMask(elementsGenID, desc, clipSpaceIBounds);
+        return NULL;
     }
 
-    *result = fAACache.getLastMask();
-    return cached;
+    return fAACache.getLastMask();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Allocate a texture in the texture cache. This function returns the texture
+// allocated (or NULL on error).
+GrTexture* GrClipMaskManager::allocMaskTexture(int32_t elementsGenID,
+                                               const SkIRect& clipSpaceIBounds,
+                                               bool willUpload) {
+    // Since we are setting up the cache we should free up the
+    // currently cached mask so it can be reused.
+    fAACache.reset();
+
+    GrTextureDesc desc;
+    desc.fFlags = willUpload ? kNone_GrTextureFlags : kRenderTarget_GrTextureFlagBit;
+    desc.fWidth = clipSpaceIBounds.width();
+    desc.fHeight = clipSpaceIBounds.height();
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    if (willUpload || this->getContext()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
+        // We would always like A8 but it isn't supported on all platforms
+        desc.fConfig = kAlpha_8_GrPixelConfig;
+    }
+
+    fAACache.acquireMask(elementsGenID, desc, clipSpaceIBounds);
+    return fAACache.getLastMask();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -542,12 +545,15 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                                   const SkIRect& clipSpaceIBounds) {
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
 
-    GrTexture* result;
-    if (this->getMaskTexture(elementsGenID, clipSpaceIBounds, &result, false)) {
+    // First, check for cached texture
+    GrTexture* result = this->getCachedMaskTexture(elementsGenID, clipSpaceIBounds);
+    if (NULL != result) {
         fCurrClipMaskType = kAlpha_ClipMaskType;
         return result;
     }
 
+    // There's no texture in the cache. Let's try to allocate it then.
+    result = this->allocMaskTexture(elementsGenID, clipSpaceIBounds, false);
     if (NULL == result) {
         fAACache.reset();
         return NULL;
@@ -1039,14 +1045,9 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t elementsGenID,
                                                      const SkIRect& clipSpaceIBounds) {
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
 
-    GrTexture* result;
-    if (this->getMaskTexture(elementsGenID, clipSpaceIBounds, &result, true)) {
+    GrTexture* result = this->getCachedMaskTexture(elementsGenID, clipSpaceIBounds);
+    if (NULL != result) {
         return result;
-    }
-
-    if (NULL == result) {
-        fAACache.reset();
-        return NULL;
     }
 
     // The mask texture may be larger than necessary. We round out the clip space bounds and pin
@@ -1099,6 +1100,12 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t elementsGenID,
         }
     }
 
+    // Allocate clip mask texture
+    result = this->allocMaskTexture(elementsGenID, clipSpaceIBounds, true);
+    if (NULL == result) {
+        fAACache.reset();
+        return NULL;
+    }
     helper.toTexture(result);
 
     fCurrClipMaskType = kAlpha_ClipMaskType;
