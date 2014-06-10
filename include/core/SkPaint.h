@@ -1081,7 +1081,8 @@ private:
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
 
-    SkGlyphCache* detachCache(const SkDeviceProperties* deviceProperties, const SkMatrix*) const;
+    SkGlyphCache* detachCache(const SkDeviceProperties* deviceProperties, const SkMatrix*,
+                              bool ignoreGamma) const;
 
     void descriptorProc(const SkDeviceProperties* deviceProperties, const SkMatrix* deviceMatrix,
                         void (*proc)(SkTypeface*, const SkDescriptor*, void*),
@@ -1131,6 +1132,7 @@ private:
     }
 
     friend class SkAutoGlyphCache;
+    friend class SkAutoGlyphCacheNoGamma;
     friend class SkCanvas;
     friend class SkDraw;
     friend class SkGraphics; // So Term() can be called.
