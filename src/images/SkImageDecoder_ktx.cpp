@@ -67,12 +67,30 @@ bool SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         return false;
     }
 
+    // Set a flag if our source is premultiplied alpha
+    const SkString premulKey("KTXPremultipliedAlpha");
+    const bool bSrcIsPremul = ktxFile.getValueForKey(premulKey) == SkString("True");
+
     // Setup the sampler...
     SkScaledBitmapSampler sampler(width, height, this->getSampleSize());
 
+    // Determine the alpha of the bitmap...
+    SkAlphaType alphaType = kOpaque_SkAlphaType;
+    if (ktxFile.isRGBA8()) {
+        if (this->getRequireUnpremultipliedColors()) {
+            alphaType = kUnpremul_SkAlphaType;
+            // If the client wants unpremul colors and we only have
+            // premul, then we cannot honor their wish.
+            if (bSrcIsPremul) {
+                return false;
+            }
+        } else {
+            alphaType = kPremul_SkAlphaType;
+        }
+    }
+
     // Set the config...
-    bm->setInfo(SkImageInfo::MakeN32(sampler.scaledWidth(), sampler.scaledHeight(),
-                                     ktxFile.isRGBA8()? kPremul_SkAlphaType : kOpaque_SkAlphaType));
+    bm->setInfo(SkImageInfo::MakeN32(sampler.scaledWidth(), sampler.scaledHeight(), alphaType));
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }
@@ -134,17 +152,19 @@ bool SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
     } else if (ktxFile.isRGBA8()) {
 
-        // If we know that the image contains premultiplied alpha, then
-        // don't premultiply it upon decoding.
-        bool setRequireUnpremul = false;
-        const SkString premulKey("KTXPremultipliedAlpha");
-        if (ktxFile.getValueForKey(premulKey) == SkString("True")) {
-            this->setRequireUnpremultipliedColors(true);
-            setRequireUnpremul = true;
-        }
-
         // Uncompressed RGBA data
-        if (!sampler.begin(bm, SkScaledBitmapSampler::kRGBA, *this)) {
+
+        // If we know that the image contains premultiplied alpha, then
+        // we need to turn off the premultiplier
+        SkScaledBitmapSampler::Options opts (*this);
+        if (bSrcIsPremul) {
+            SkASSERT(bm->alphaType() == kPremul_SkAlphaType);
+            SkASSERT(!this->getRequireUnpremultipliedColors());
+
+            opts.fPremultiplyAlpha = false;
+        } 
+
+        if (!sampler.begin(bm, SkScaledBitmapSampler::kRGBA, opts)) {
             return false;
         }
 
@@ -156,11 +176,6 @@ bool SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         for (int y = 0; y < dstHeight; ++y) {
             sampler.next(srcRow);
             srcRow += sampler.srcDY() * srcRowBytes;
-        }
-
-        // Reset this in case the decoder needs to be used again.
-        if (setRequireUnpremul) {
-            this->setRequireUnpremultipliedColors(false);
         }
 
         return true;
