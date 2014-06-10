@@ -170,11 +170,6 @@ bool SkBitmapProcState::possiblyScaleImage() {
             float dest_width  = fOrigBitmap.width() / invScaleX;
             float dest_height = fOrigBitmap.height() / invScaleY;
 
-#ifdef SK_IGNORE_CORRECT_HIGH_QUALITY_IMAGE_SCALE
-            dest_width = SkScalarCeilToScalar(dest_width);
-            dest_height = SkScalarCeilToScalar(dest_height);
-#endif
-
             // All the criteria are met; let's make a new bitmap.
 
             SkConvolutionProcs simd;
