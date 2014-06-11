@@ -191,8 +191,7 @@ static bool run_single_benchmark(const SkString& inputPath,
         return false;
     }
 
-    SkString filename;
-    sk_tools::get_basename(&filename, inputPath);
+    SkString filename = SkOSPath::SkBasename(inputPath.c_str());
 
     gWriter.bench(filename.c_str(), picture->width(), picture->height());
 

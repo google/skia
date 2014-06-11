@@ -14,14 +14,6 @@
 #include "SkStream.h"
 #include "SkString.h"
 
-static bool is_path_seperator(const char chr) {
-#if defined(SK_BUILD_FOR_WIN)
-    return chr == '\\' || chr == '/';
-#else
-    return chr == '/';
-#endif
-}
-
 namespace sk_tools {
     void force_all_opaque(const SkBitmap& bitmap) {
         SkASSERT(NULL == bitmap.getTexture());
@@ -56,39 +48,6 @@ namespace sk_tools {
             path->append("/");
         }
         path->append(name);
-    }
-
-    void get_basename(SkString* basename, const SkString& path) {
-        if (path.size() == 0) {
-            basename->reset();
-            return;
-        }
-
-        size_t end = path.size() - 1;
-
-        // Paths pointing to directories often have a trailing slash,
-        // we remove it so the name is not empty
-        if (is_path_seperator(path[end])) {
-            if (end == 0) {
-                basename->reset();
-                return;
-            }
-
-            end -= 1;
-        }
-
-        size_t i = end;
-        do {
-            --i;
-            if (is_path_seperator(path[i])) {
-                  const char* basenameStart = path.c_str() + i + 1;
-                  size_t basenameLength = end - i;
-                  basename->set(basenameStart, basenameLength);
-                  return;
-            }
-        } while (i > 0);
-
-        basename->set(path.c_str(), end + 1);
     }
 
     bool is_percentage(const char* const string) {

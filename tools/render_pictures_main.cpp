@@ -143,8 +143,7 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* w
                                     const SkString* mismatchPath,
                                     sk_tools::PictureRenderer& renderer,
                                     SkBitmap** out) {
-    SkString inputFilename;
-    sk_tools::get_basename(&inputFilename, inputPath);
+    SkString inputFilename = SkOSPath::SkBasename(inputPath.c_str());
     SkString writePathString;
     if (NULL != writePath && writePath->size() > 0 && !FLAGS_writeEncodedImages) {
         writePathString.set(*writePath);
@@ -353,8 +352,7 @@ static bool render_picture(const SkString& inputPath, const SkString* writePath,
     if (FLAGS_writeWholeImage) {
         sk_tools::force_all_opaque(*bitmap);
 
-        SkString inputFilename;
-        sk_tools::get_basename(&inputFilename, inputPath);
+        SkString inputFilename = SkOSPath::SkBasename(inputPath.c_str());
         SkString outputFilename(inputFilename);
         sk_tools::replace_char(&outputFilename, '.', '_');
         outputFilename.append(".png");

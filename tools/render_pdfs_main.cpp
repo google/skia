@@ -149,8 +149,7 @@ static SkWStream* open_stream(const SkString& outputDir,
  */
 static bool render_pdf(const SkString& inputPath, const SkString& outputDir,
                        sk_tools::PdfRenderer& renderer) {
-    SkString inputFilename;
-    sk_tools::get_basename(&inputFilename, inputPath);
+    SkString inputFilename = SkOSPath::SkBasename(inputPath.c_str());
 
     SkFILEStream inputStream;
     inputStream.setPath(inputPath.c_str());
