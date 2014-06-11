@@ -73,9 +73,11 @@ SkImageDecoder::Peeker* SkImageDecoder::setPeeker(Peeker*) {
     return NULL;
 }
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
 SkImageDecoder::Chooser* SkImageDecoder::setChooser(Chooser*) {
     return NULL;
 }
+#endif
 
 SkBitmap::Allocator* SkImageDecoder::setAllocator(SkBitmap::Allocator*) {
     return NULL;

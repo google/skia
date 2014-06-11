@@ -607,9 +607,11 @@ bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
         }
     }
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
     if (!this->chooseFromOneChoice(*colorTypep, origWidth, origHeight)) {
         return false;
     }
+#endif
 
     // If the image has alpha and the decoder wants unpremultiplied
     // colors, the only supported config is 8888.

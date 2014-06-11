@@ -309,10 +309,12 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                 imageTop = 0;
             }
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
             // FIXME: We could give the caller a choice of images or configs.
             if (!this->chooseFromOneChoice(kIndex_8_SkColorType, width, height)) {
                 return error_return(*bm, "chooseFromOneChoice");
             }
+#endif
 
             SkScaledBitmapSampler sampler(width, height, this->getSampleSize());
 

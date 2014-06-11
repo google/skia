@@ -30,7 +30,9 @@ void SkImageDecoder::SetDeviceConfig(SkBitmap::Config config)
 
 SkImageDecoder::SkImageDecoder()
     : fPeeker(NULL)
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
     , fChooser(NULL)
+#endif
     , fAllocator(NULL)
     , fSampleSize(1)
     , fDefaultPref(SkBitmap::kNo_Config)
@@ -43,7 +45,9 @@ SkImageDecoder::SkImageDecoder()
 
 SkImageDecoder::~SkImageDecoder() {
     SkSafeUnref(fPeeker);
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
     SkSafeUnref(fChooser);
+#endif
     SkSafeUnref(fAllocator);
 }
 
@@ -52,7 +56,9 @@ void SkImageDecoder::copyFieldsToOther(SkImageDecoder* other) {
         return;
     }
     other->setPeeker(fPeeker);
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
     other->setChooser(fChooser);
+#endif
     other->setAllocator(fAllocator);
     other->setSampleSize(fSampleSize);
     if (fUsePrefTable) {
@@ -107,10 +113,12 @@ SkImageDecoder::Peeker* SkImageDecoder::setPeeker(Peeker* peeker) {
     return peeker;
 }
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
 SkImageDecoder::Chooser* SkImageDecoder::setChooser(Chooser* chooser) {
     SkRefCnt_SafeAssign(fChooser, chooser);
     return chooser;
 }
+#endif
 
 SkBitmap::Allocator* SkImageDecoder::setAllocator(SkBitmap::Allocator* alloc) {
     SkRefCnt_SafeAssign(fAllocator, alloc);
@@ -124,6 +132,7 @@ void SkImageDecoder::setSampleSize(int size) {
     fSampleSize = size;
 }
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
 // TODO: change Chooser virtual to take colorType, so we can stop calling SkColorTypeToBitmapConfig
 //
 bool SkImageDecoder::chooseFromOneChoice(SkColorType colorType, int width, int height) const {
@@ -136,6 +145,7 @@ bool SkImageDecoder::chooseFromOneChoice(SkColorType colorType, int width, int h
     chooser->inspect(0, SkColorTypeToBitmapConfig(colorType), width, height);
     return chooser->choose() == 0;
 }
+#endif
 
 bool SkImageDecoder::allocPixelRef(SkBitmap* bitmap,
                                    SkColorTable* ctable) const {

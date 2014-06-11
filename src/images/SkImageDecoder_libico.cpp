@@ -94,6 +94,7 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
     if (length < (size_t)(6 + count*16))
         return false;
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
     int choice;
     Chooser* chooser = this->getChooser();
     //FIXME:if no chooser, consider providing the largest color image
@@ -138,6 +139,9 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
     //you never know what the chooser is going to supply
     if (choice >= count || choice < 0)
         return false;
+#else
+    const int choice = 0;   // TODO: fold this value into the expressions below
+#endif
 
     //skip ahead to the correct header
     //commented out lines are not used, but if i switch to other read method, need to know how many to skip

@@ -137,6 +137,7 @@ public:
     Peeker* getPeeker() const { return fPeeker; }
     Peeker* setPeeker(Peeker*);
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
     /** \class Chooser
 
         Base class for optional callbacks to choose an image from a format that
@@ -158,6 +159,7 @@ public:
 
     Chooser* getChooser() const { return fChooser; }
     Chooser* setChooser(Chooser*);
+#endif
 
     /**
      *  Optional table describing the caller's preferred config based on
@@ -436,9 +438,11 @@ public:
 protected:
     SkImageDecoder();
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
     // helper function for decoders to handle the (common) case where there is only
     // once choice available in the image file.
     bool chooseFromOneChoice(SkColorType, int width, int height) const;
+#endif
 
     /*  Helper for subclasses. Call this to allocate the pixel memory given the bitmap's
         width/height/rowbytes/config. Returns true on success. This method handles checking
@@ -469,7 +473,9 @@ protected:
 
 private:
     Peeker*                 fPeeker;
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
     Chooser*                fChooser;
+#endif
     SkBitmap::Allocator*    fAllocator;
     int                     fSampleSize;
     SkBitmap::Config        fDefaultPref;   // use if fUsePrefTable is false
