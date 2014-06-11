@@ -201,8 +201,7 @@ GrPixelConfig GrGpuGL::preferredWritePixelsConfig(GrPixelConfig writeConfig,
 }
 
 bool GrGpuGL::canWriteTexturePixels(const GrTexture* texture, GrPixelConfig srcConfig) const {
-    if (kIndex_8_GrPixelConfig == srcConfig || kIndex_8_GrPixelConfig == texture->config() ||
-        GrPixelConfigIsCompressed(srcConfig) || GrPixelConfigIsCompressed(texture->config())) {
+    if (kIndex_8_GrPixelConfig == srcConfig || kIndex_8_GrPixelConfig == texture->config()) {
         return false;
     }
     if (srcConfig != texture->config() && kGLES_GrGLStandard == this->glStandard()) {
@@ -478,14 +477,24 @@ bool GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     desc.fTextureID = glTex->textureID();
     desc.fOrigin = glTex->origin();
 
-    if (this->uploadTexData(desc, false,
-                            left, top, width, height,
-                            config, buffer, rowBytes)) {
+    bool success = false;
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        // We check that config == desc.fConfig in GrGpuGL::canWriteTexturePixels()
+        SkASSERT(config == desc.fConfig);
+        success = this->uploadCompressedTexData(desc, buffer, false,
+                                                left, top, width, height);
+    } else {
+        success = this->uploadTexData(desc, false,
+                                      left, top, width, height,
+                                      config, buffer, rowBytes);
+    }
+
+    if (success) {
         texture->impl()->dirtyMipMaps(true);
         return true;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 namespace {
@@ -703,16 +712,41 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     return succeeded;
 }
 
+// TODO: This function is using a lot of wonky semantics like, if width == -1
+// then set width = desc.fWdith ... blah. A better way to do it might be to 
+// create a CompressedTexData struct that takes a desc/ptr and figures out
+// the proper upload semantics. Then users can construct this function how they
+// see fit if they want to go against the "standard" way to do it.
 bool GrGpuGL::uploadCompressedTexData(const GrGLTexture::Desc& desc,
-                                      const void* data) {
-    SkASSERT(NULL != data);
+                                      const void* data,
+                                      bool isNewTexture,
+                                      int left, int top, int width, int height) {
+    SkASSERT(NULL != data || isNewTexture);
 
     // No support for software flip y, yet...
     SkASSERT(kBottomLeft_GrSurfaceOrigin != desc.fOrigin);
 
+    if (-1 == width) {
+        width = desc.fWidth;
+    }
+#ifdef SK_DEBUG
+    else {
+        SkASSERT(width <= desc.fWidth);
+    }
+#endif
+
+    if (-1 == height) {
+        height = desc.fHeight;
+    }
+#ifdef SK_DEBUG
+    else {
+        SkASSERT(height <= desc.fHeight);
+    }
+#endif
+
     // Make sure that the width and height that we pass to OpenGL
     // is a multiple of the block size.
-    int dataSize = GrCompressedFormatDataSize(desc.fConfig, desc.fWidth, desc.fHeight);
+    int dataSize = GrCompressedFormatDataSize(desc.fConfig, width, height);
 
     // We only need the internal format for compressed 2D textures.
     GrGLenum internalFormat = 0;
@@ -722,14 +756,26 @@ bool GrGpuGL::uploadCompressedTexData(const GrGLTexture::Desc& desc,
 
     bool succeeded = true;
     CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
-    GL_ALLOC_CALL(this->glInterface(),
-                  CompressedTexImage2D(GR_GL_TEXTURE_2D,
-                                       0, // level
-                                       internalFormat,
-                                       desc.fWidth, desc.fHeight,
-                                       0, // border
-                                       dataSize,
-                                       data));
+
+    if (isNewTexture) {
+        GL_ALLOC_CALL(this->glInterface(),
+                      CompressedTexImage2D(GR_GL_TEXTURE_2D,
+                                           0, // level
+                                           internalFormat,
+                                           width, height,
+                                           0, // border
+                                           dataSize,
+                                           data));
+    } else {
+        GL_ALLOC_CALL(this->glInterface(),
+                      CompressedTexSubImage2D(GR_GL_TEXTURE_2D,
+                                              0, // level
+                                              left, top,
+                                              width, height,
+                                              internalFormat,
+                                              dataSize,
+                                              data));
+    }
 
     GrGLenum error = check_alloc_error(desc, this->glInterface());
     if (error != GR_GL_NO_ERROR) {

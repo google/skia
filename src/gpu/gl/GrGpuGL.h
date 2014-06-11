@@ -274,9 +274,17 @@ private:
                        const void* data,
                        size_t rowBytes);
 
-    // helper for onCreateCompressedTexture
+    // helper for onCreateCompressedTexture. If width and height are
+    // set to -1, then this function will use desc.fWidth and desc.fHeight
+    // for the size of the data. The isNewTexture flag should be set to true
+    // whenever a new texture needs to be created. Otherwise, we assume that
+    // the texture is already in GPU memory and that it's going to be updated
+    // with new data.
     bool uploadCompressedTexData(const GrGLTexture::Desc& desc,
-                                 const void* data);
+                                 const void* data,
+                                 bool isNewTexture = true,
+                                 int left = 0, int top = 0,
+                                 int width = -1, int height = -1);
 
     bool createRenderTargetObjects(int width, int height,
                                    GrGLuint texID,
