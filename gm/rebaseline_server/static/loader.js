@@ -56,6 +56,65 @@ Loader.filter(
   }
 );
 
+/**
+ * Limit the input imagePairs to some max number, and merge identical rows
+ * (adjacent rows which have the same (imageA, imageB) pair).
+ *
+ * @param unfilteredImagePairs imagePairs to filter
+ * @param maxPairs maximum number of pairs to output, or <0 for no limit
+ * @param mergeIdenticalRows if true, merge identical rows by setting
+ *     ROWSPAN>1 on the first merged row, and ROWSPAN=0 for the rest
+ */
+Loader.filter(
+  'mergeAndLimit',
+  function(constants) {
+    return function(unfilteredImagePairs, maxPairs, mergeIdenticalRows) {
+      var numPairs = unfilteredImagePairs.length;
+      if ((maxPairs > 0) && (maxPairs < numPairs)) {
+        numPairs = maxPairs;
+      }
+      var filteredImagePairs = [];
+      if (!mergeIdenticalRows || (numPairs == 1)) {
+        // Take a shortcut if we're not merging identical rows.
+        // We still need to set ROWSPAN to 1 for each row, for the HTML viewer.
+        for (var i = numPairs-1; i >= 0; i--) {
+          var imagePair = unfilteredImagePairs[i];
+          imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN] = 1;
+          filteredImagePairs[i] = imagePair;
+        }
+      } else if (numPairs > 1) {
+        // General case--there are at least 2 rows, so we may need to merge some.
+        // Work from the bottom up, so we can keep a running total of how many
+        // rows should be merged, and set ROWSPAN of the top row accordingly.
+        var imagePair = unfilteredImagePairs[numPairs-1];
+        var nextRowImageAUrl = imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL];
+        var nextRowImageBUrl = imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL];
+        imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN] = 1;
+        filteredImagePairs[numPairs-1] = imagePair;
+        for (var i = numPairs-2; i >= 0; i--) {
+          imagePair = unfilteredImagePairs[i];
+          var thisRowImageAUrl = imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL];
+          var thisRowImageBUrl = imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL];
+          if ((thisRowImageAUrl == nextRowImageAUrl) &&
+              (thisRowImageBUrl == nextRowImageBUrl)) {
+            imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN] =
+                filteredImagePairs[i+1][constants.KEY__IMAGEPAIRS__ROWSPAN] + 1;
+            filteredImagePairs[i+1][constants.KEY__IMAGEPAIRS__ROWSPAN] = 0;
+          } else {
+            imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN] = 1;
+            nextRowImageAUrl = thisRowImageAUrl;
+            nextRowImageBUrl = thisRowImageBUrl;
+          }
+          filteredImagePairs[i] = imagePair;
+        }
+      } else {
+        // No results.
+      }
+      return filteredImagePairs;
+    };
+  }
+);
+
 
 Loader.controller(
   'Loader.Controller',
@@ -234,6 +293,21 @@ Loader.controller(
       }
     }
 
+    /**
+     * Toggle selection state of a subset of the currently showing tests.
+     *
+     * @param startIndex index within $scope.limitedImagePairs of the first
+     *     test to toggle selection state of
+     * @param num number of tests (in a contiguous block) to toggle
+     */
+    $scope.toggleSomeImagePairs = function(startIndex, num) {
+      var numImagePairsShowing = $scope.limitedImagePairs.length;
+      for (var i = startIndex; i < startIndex + num; i++) {
+        var index = $scope.limitedImagePairs[i].index;
+        $scope.toggleValueInArray(index, $scope.selectedImagePairs);
+      }
+    }
+
 
     //
     // Tab operations.
@@ -335,6 +409,7 @@ Loader.controller(
       'resultsToLoad':         $scope.queryParameters.copiers.simple,
       'displayLimitPending':   $scope.queryParameters.copiers.simple,
       'showThumbnailsPending': $scope.queryParameters.copiers.simple,
+      'mergeIdenticalRowsPending': $scope.queryParameters.copiers.simple,
       'imageSizePending':      $scope.queryParameters.copiers.simple,
       'sortColumnSubdict':     $scope.queryParameters.copiers.simple,
       'sortColumnKey':         $scope.queryParameters.copiers.simple,
@@ -400,6 +475,7 @@ Loader.controller(
       $scope.renderStartTime = window.performance.now();
       $log.debug("renderStartTime: " + $scope.renderStartTime);
       $scope.displayLimit = $scope.displayLimitPending;
+      $scope.mergeIdenticalRows = $scope.mergeIdenticalRowsPending;
       // TODO(epoger): Every time we apply a filter, AngularJS creates
       // another copy of the array.  Is there a way we can filter out
       // the imagePairs as they are displayed, rather than storing multiple
@@ -425,9 +501,10 @@ Loader.controller(
                     $scope.categoryValueMatch.test,
                     $scope.viewingTab
                 ),
-                $scope.getSortColumnValue, doReverse);
-        $scope.limitedImagePairs = $filter("limitTo")(
-            $scope.filteredImagePairs, $scope.displayLimit);
+                [$scope.getSortColumnValue, $scope.getSecondOrderSortValue],
+                doReverse);
+        $scope.limitedImagePairs = $filter("mergeAndLimit")(
+            $scope.filteredImagePairs, $scope.displayLimit, $scope.mergeIdenticalRows);
       } else {
         $scope.filteredImagePairs =
             $filter("orderBy")(
@@ -436,8 +513,9 @@ Loader.controller(
                     {tab: $scope.viewingTab},
                     true
                 ),
-                $scope.getSortColumnValue);
-        $scope.limitedImagePairs = $scope.filteredImagePairs;
+                [$scope.getSortColumnValue, $scope.getSecondOrderSortValue]);
+        $scope.limitedImagePairs = $filter("mergeAndLimit")(
+            $scope.filteredImagePairs, -1, $scope.mergeIdenticalRows);
       }
       $scope.showThumbnails = $scope.showThumbnailsPending;
       $scope.imageSize = $scope.imageSizePending;
@@ -458,7 +536,8 @@ Loader.controller(
      * Re-sort the displayed results.
      *
      * @param subdict (string): which KEY__IMAGEPAIRS__* subdictionary
-     *     the sort column key is within
+     *     the sort column key is within, or 'none' if the sort column
+     *     key is one of KEY__IMAGEPAIRS__*
      * @param key (string): sort by value associated with this key in subdict
      */
     $scope.sortResultsBy = function(subdict, key) {
@@ -477,9 +556,26 @@ Loader.controller(
     $scope.getSortColumnValue = function(imagePair) {
       if ($scope.sortColumnSubdict in imagePair) {
         return imagePair[$scope.sortColumnSubdict][$scope.sortColumnKey];
+      } else if ($scope.sortColumnKey in imagePair) {
+        return imagePair[$scope.sortColumnKey];
       } else {
         return undefined;
       }
+    }
+
+    /**
+     * For a particular ImagePair, return the value we use for the
+     * second-order sort (tiebreaker when multiple rows have
+     * the same getSortColumnValue()).
+     *
+     * We join the imageA and imageB urls for this value, so that we merge
+     * adjacent rows as much as possible.
+     *
+     * @param imagePair: imagePair to get a column value out of.
+     */
+    $scope.getSecondOrderSortValue = function(imagePair) {
+      return imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL] + "-vs-" +
+          imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL];
     }
 
     /**

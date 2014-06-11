@@ -126,6 +126,12 @@
           Show thumbnails
         </td></tr>
         <tr><td>
+          <input type="checkbox" ng-model="mergeIdenticalRowsPending"
+                 ng-init="mergeIdenticalRowsPending = true"
+                 ng-change="areUpdatesPending = true"/>
+          Merge identical rows
+        </td></tr>
+        <tr><td>
           Image width
           <input type="text" ng-model="imageSizePending"
                  ng-init="imageSizePending=100"
@@ -248,9 +254,19 @@
             bugs
           </th>
           <th width="{{imageSize}}">
+            <input type="radio"
+                   name="sortColumnRadio"
+                   value="imageA"
+                   ng-checked="(sortColumnKey == constants.KEY__IMAGEPAIRS__IMAGE_A_URL)"
+                   ng-click="sortResultsBy('none', constants.KEY__IMAGEPAIRS__IMAGE_A_URL)">
             {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
           </th>
           <th width="{{imageSize}}">
+            <input type="radio"
+                   name="sortColumnRadio"
+                   value="imageB"
+                   ng-checked="(sortColumnKey == constants.KEY__IMAGEPAIRS__IMAGE_B_URL)"
+                   ng-click="sortResultsBy('none', constants.KEY__IMAGEPAIRS__IMAGE_B_URL)">
             {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
           </th>
           <th width="{{imageSize}}">
@@ -280,7 +296,9 @@
           </th>
         </tr>
 
-        <tr ng-repeat="imagePair in limitedImagePairs" results-updated-callback-directive>
+        <tr ng-repeat="imagePair in limitedImagePairs" valign="top"
+            ng-class-odd="'results-odd'" ng-class-even="'results-even'"
+            results-updated-callback-directive>
           <td>
             {{imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__RESULT_TYPE]}}
             <br>
@@ -345,7 +363,7 @@
           </td>
 
           <!-- image A -->
-          <td valign="bottom" width="{{imageSize}}">
+          <td width="{{imageSize}}" ng-if="imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN] > 0" rowspan="{{imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN]}}">
             <div ng-if="imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL] != null">
               <a href="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL]}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
@@ -359,7 +377,7 @@
           </td>
 
           <!-- image B -->
-          <td valign="bottom" width="{{imageSize}}">
+          <td width="{{imageSize}}" ng-if="imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN] > 0" rowspan="{{imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN]}}">
             <div ng-if="imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL] != null">
               <a href="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL]}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
@@ -373,17 +391,17 @@
           </td>
 
           <!-- whitediffs: every differing pixel shown in white -->
-          <td valign="bottom" width="{{imageSize}}">
+          <td width="{{imageSize}}" ng-if="imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN] > 0" rowspan="{{imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN]}}">
             <div ng-if="imagePair[constants.KEY__IMAGEPAIRS__IS_DIFFERENT]"
                  title="{{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__NUM_DIFF_PIXELS] | number:0}} of {{(100 * imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__NUM_DIFF_PIXELS] / imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS]) | number:0}} pixels ({{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS].toFixed(4)}}%) differ from expectation.">
 
-              {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS].toFixed(4)}}%
-              ({{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__NUM_DIFF_PIXELS]}})
-              <br/>
               <a href="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
                    ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
+              <br/>
+              {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS].toFixed(4)}}%
+              ({{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__NUM_DIFF_PIXELS]}})
             </div>
             <div ng-show="!imagePair[constants.KEY__IMAGEPAIRS__IS_DIFFERENT]"
                  style="text-align:center">
@@ -392,18 +410,18 @@
           </td>
 
           <!-- diffs: per-channel RGB deltas -->
-          <td valign="bottom" width="{{imageSize}}">
+          <td width="{{imageSize}}" ng-if="imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN] > 0" rowspan="{{imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN]}}">
             <div ng-if="imagePair[constants.KEY__IMAGEPAIRS__IS_DIFFERENT]"
                  title="Perceptual difference measure is {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF].toFixed(4)}}%.  Maximum difference per channel: R={{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL][0]}}, G={{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL][1]}}, B={{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL][2]}}">
 
-              {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF].toFixed(4)}}%
-              {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL]}}
-              <br/>
               <a href="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    ng-style="{backgroundColor: pixelDiffBgColor}"
                    width="{{imageSize}}"
                    ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
+              <br/>
+              {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF].toFixed(4)}}%
+              {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL]}}
             </div>
             <div ng-show="!imagePair[constants.KEY__IMAGEPAIRS__IS_DIFFERENT]"
                  style="text-align:center">
@@ -411,12 +429,13 @@
             </div>
           </td>
 
-          <td>
+          <td ng-if="imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN] > 0" rowspan="{{imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN]}}">
+            <br/>
             <input type="checkbox"
                    name="rowSelect"
                    value="{{imagePair.index}}"
                    ng-checked="isValueInArray(imagePair.index, selectedImagePairs)"
-                   ng-click="toggleValueInArray(imagePair.index, selectedImagePairs)">
+                   ng-click="toggleSomeImagePairs($index, imagePair[constants.KEY__IMAGEPAIRS__ROWSPAN])">
         </tr>
       </table> <!-- imagePairs -->
     </td></tr></table> <!-- table holding results header + imagePairs table -->

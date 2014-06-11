@@ -50,6 +50,14 @@
     font-size: 30px;
 }
 
+/* Odd and even lines within results display. */
+.results-odd {
+    background-color: #ddffdd;
+}
+.results-even {
+    background-color: #ddddff;
+}
+
 .show-only-button {
     font-size: 8px;
 }
