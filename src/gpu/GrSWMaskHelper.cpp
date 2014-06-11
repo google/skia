@@ -6,16 +6,20 @@
  */
 
 #include "GrSWMaskHelper.h"
+
 #include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 
+#include "SkData.h"
 #include "SkStrokeRec.h"
+#include "SkTextureCompressor.h"
 
 // TODO: try to remove this #include
 #include "GrContext.h"
 
 namespace {
+
 /*
  * Convert a boolean operation into a transfer mode code
  */
@@ -127,6 +131,22 @@ bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
     return NULL != texture->texture();
 }
 
+GrTexture* GrSWMaskHelper::toLATCTexture(GrContext* ctx) {
+    // Encode the BM into LATC data:
+    SkAutoLockPixels alp(fBM);
+    SkTextureCompressor::Format format = SkTextureCompressor::kLATC_Format;
+    SkAutoDataUnref latcData(SkTextureCompressor::CompressBitmapToFormat(fBM, format));
+    if (NULL == latcData) {
+        return NULL;
+    }
+
+    GrTextureDesc desc;
+    desc.fWidth = fBM.width();
+    desc.fHeight = fBM.height();
+    desc.fConfig = kLATC_GrPixelConfig;
+    return ctx->getGpu()->createTexture(desc, latcData->bytes(), 0);
+}
+
 /**
  * Move the result of the software mask generation back to the gpu
  */
@@ -158,8 +178,6 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
                                                  const SkIRect& resultBounds,
                                                  bool antiAlias,
                                                  SkMatrix* matrix) {
-    GrAutoScratchTexture ast;
-
     GrSWMaskHelper helper(context);
 
     if (!helper.init(resultBounds, matrix)) {
@@ -168,6 +186,16 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
 
     helper.draw(path, stroke, SkRegion::kReplace_Op, antiAlias, 0xFF);
 
+#if GR_COMPRESS_ALPHA_MASK 
+    // Can we create an LATC texture?
+    GrTexture *latc = helper.toLATCTexture(context);
+    if (NULL != latc) {
+        return latc;
+    }
+#endif
+
+    // Looks like we have to send a full A8 texture. 
+    GrAutoScratchTexture ast;
     if (!helper.getTexture(&ast)) {
         return NULL;
     }
