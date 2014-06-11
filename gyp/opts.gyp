@@ -100,7 +100,29 @@
             }],
           ],
         }],
-        [ '(skia_arch_type == "mips") or (skia_arch_type == "arm" and arm_version < 7) \
+        [ 'skia_arch_type == "mips"', {
+          'sources': [
+            '../src/opts/SkBitmapProcState_opts_none.cpp',
+            '../src/opts/SkBlitMask_opts_none.cpp',
+            '../src/opts/SkBlurImage_opts_none.cpp',
+            '../src/opts/SkMorphology_opts_none.cpp',
+            '../src/opts/SkUtils_opts_none.cpp',
+            '../src/opts/SkXfermode_opts_none.cpp',
+          ],
+          'conditions': [
+            [ '(mips_arch_variant == "mips32r2") \
+                and (mips_dsp == 1 or mips_dsp == 2)', {
+              'sources': [
+                '../src/opts/SkBlitRow_opts_mips_dsp.cpp',
+              ],
+            }, {
+              'sources': [
+                '../src/opts/SkBlitRow_opts_none.cpp',
+              ],
+            }],
+          ],
+        }],
+        [ '(skia_arch_type == "arm" and arm_version < 7) \
             or (skia_os == "ios") \
             or (skia_os == "android" and skia_arch_type not in ["x86", "arm", "mips", "arm64"])', {
           'sources': [

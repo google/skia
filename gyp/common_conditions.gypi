@@ -263,6 +263,9 @@
                     'cflags': [
                       '-mdspr2',
                     ],
+                    'defines': [
+                      '__MIPS_HAVE_DSPR2',
+                    ],
                   }],
                 ],
               }],
