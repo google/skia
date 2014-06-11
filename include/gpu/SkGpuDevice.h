@@ -82,9 +82,6 @@ public:
         return NULL == fRenderTarget ? false
                                      : kRGB_565_GrPixelConfig == fRenderTarget->config();
     }
-#ifdef SK_SUPPORT_LEGACY_DEVICE_CONFIG
-    virtual SkBitmap::Config config() const SK_OVERRIDE;
-#endif
 
     virtual void clear(SkColor color) SK_OVERRIDE;
     virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;

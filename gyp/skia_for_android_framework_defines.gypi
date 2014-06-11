@@ -14,7 +14,6 @@
     #
     'skia_for_android_framework_defines': [
       'SK_SUPPORT_LEGACY_SETCONFIG_INFO',
-      'SK_SUPPORT_LEGACY_DEVICE_CONFIG',
       'SK_SUPPORT_LEGACY_SETCONFIG',
       # Needed until we fix skbug.com/2440.
       'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',

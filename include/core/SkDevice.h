@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2010 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkDevice_DEFINED
 #define SkDevice_DEFINED
@@ -76,17 +74,10 @@ public:
         bounds->setXYWH(origin.x(), origin.y(), this->width(), this->height());
     }
 
-
     /** Returns true if the device's bitmap's config treats every pixel as
         implicitly opaque.
     */
     virtual bool isOpaque() const = 0;
-
-#ifdef SK_SUPPORT_LEGACY_DEVICE_CONFIG
-    /** Return the bitmap config of the device's pixels
-     */
-    virtual SkBitmap::Config config() const = 0;
-#endif
 
     /** Return the bitmap associated with this device. Call this each time you need
         to access the bitmap, as it notifies the subclass to perform any flushing

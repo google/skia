@@ -38,11 +38,6 @@ public:
     virtual int width() const SK_OVERRIDE { return fSize.width(); }
     virtual int height() const SK_OVERRIDE { return fSize.height(); }
     virtual bool isOpaque() const SK_OVERRIDE { return false; }
-#ifdef SK_SUPPORT_LEGACY_DEVICE_CONFIG
-    virtual SkBitmap::Config config() const SK_OVERRIDE {
-        return SkBitmap::kNo_Config;
-    }
-#endif
     virtual SkImageInfo imageInfo() const SK_OVERRIDE {
         return fEmptyBitmap.info();
     }

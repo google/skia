@@ -61,11 +61,6 @@ public:
     virtual int width() const SK_OVERRIDE { return fSize.width(); }
     virtual int height() const SK_OVERRIDE { return fSize.height(); }
     virtual bool isOpaque() const SK_OVERRIDE { return false; }
-#ifdef SK_SUPPORT_LEGACY_DEVICE_CONFIG
-    virtual SkBitmap::Config config() const SK_OVERRIDE {
-        return SkBitmap::kNo_Config;
-    }
-#endif
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
     virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE {
         return false;

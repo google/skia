@@ -352,15 +352,6 @@ SK_COMPILE_ASSERT(SkShader::kLast_BitmapType == 6, shader_type_mismatch);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_DEVICE_CONFIG
-SkBitmap::Config SkGpuDevice::config() const {
-    if (NULL == fRenderTarget) {
-        return SkBitmap::kNo_Config;
-    }
-    return SkColorTypeToBitmapConfig(fRenderTarget->info().colorType());
-}
-#endif
-
 void SkGpuDevice::clear(SkColor color) {
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
     fContext->clear(&rect, SkColor2GrColor(color), true, fRenderTarget);
