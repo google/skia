@@ -692,8 +692,7 @@ private:
                                     testStep->assertMessage());
         }
         REPORTER_ASSERT_MESSAGE(reporter,
-            !referenceRecord->fPicture->fPathHeap ==
-            !testRecord->fPicture->fPathHeap,
+            !referenceRecord->fPathHeap == !testRecord->fPathHeap,
             testStep->assertMessage());
         // The following tests are commented out because they currently
         // fail. Issue: http://code.google.com/p/skia/issues/detail?id=507

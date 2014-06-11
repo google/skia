@@ -130,26 +130,24 @@ SkPicture::SkPicture()
     fWidth = fHeight = 0;
 }
 
-// This method makes a SkPicturePlayback object from an in-progress recording.
-// Unfortunately, it does not include the restoreToCount of a real endRecording
-// call.
-SkPicturePlayback* SkPicture::FakeEndRecording(const SkPicture* resourceSrc,
-                                               const SkPictureRecord& record) {
-    SkPictInfo info;
-    resourceSrc->createHeader(&info);
+SkPicture::SkPicture(int width, int height,
+                     SkPictureRecord& record,
+                     bool deepCopyOps)
+    : fWidth(width)
+    , fHeight(height)
+    , fAccelData(NULL) {
+    this->needsNewGenID();
 
-    // FakeEndRecording is only called from partialReplay. For that use case
-    // we cannot be certain that the next call to SkWriter32::overwriteTAt
-    // will be preceded by an append (i.e., that the required copy on write
-    // will occur). In this case just force a deep copy of the operations.
-    const bool deepCopyOps = true;
-    return SkNEW_ARGS(SkPicturePlayback, (resourceSrc, record, info, deepCopyOps));
+    fPathHeap.reset(SkSafeRef(record.pathHeap()));
+
+    SkPictInfo info;
+    this->createHeader(&info);
+    fPlayback = SkNEW_ARGS(SkPicturePlayback, (this, record, info, deepCopyOps));
 }
 
 SkPicture::SkPicture(const SkPicture& src)
     : INHERITED()
-    , fAccelData(NULL)
-    , fContentInfo(src.fContentInfo) {
+    , fAccelData(NULL) {
     this->needsNewGenID();
     fWidth = src.fWidth;
     fHeight = src.fHeight;
@@ -209,7 +207,6 @@ void SkPicture::swap(SkPicture& other) {
     SkTSwap(fWidth, other.fWidth);
     SkTSwap(fHeight, other.fHeight);
     fPathHeap.swap(&other.fPathHeap);
-    fContentInfo.swap(&other.fContentInfo);
 }
 
 SkPicture* SkPicture::clone() const {
@@ -228,7 +225,6 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
         clone->fWidth = fWidth;
         clone->fHeight = fHeight;
         SkDELETE(clone->fPlayback);
-        clone->fContentInfo.set(fContentInfo);
 
         /*  We want to copy the src's playback. However, if that hasn't been built
             yet, we need to fake a call to endRecording() without actually calling
@@ -524,23 +520,14 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
 
 #if SK_SUPPORT_GPU
 bool SkPicture::suitableForGpuRasterization(GrContext* context, const char **reason) const {
-    // TODO: the heuristic used here needs to be refined
-    static const int kNumPaintWithPathEffectUsesTol = 1;
-    static const int kNumAAConcavePaths = 5;
-
-    SkASSERT(this->numAAHairlineConcavePaths() <= this->numAAConcavePaths());
-
-    bool ret = this->numPaintWithPathEffectUses() < kNumPaintWithPathEffectUsesTol &&
-               (this->numAAConcavePaths()-this->numAAHairlineConcavePaths()) < kNumAAConcavePaths;
-    if (!ret && reason) {
-        if (this->numPaintWithPathEffectUses() >= kNumPaintWithPathEffectUsesTol)
-            *reason = "Too many path effects.";
-        else if ((this->numAAConcavePaths()-this->numAAHairlineConcavePaths()) >= kNumAAConcavePaths)
-            *reason = "Too many anti-aliased concave paths.";
-        else
-            *reason = "Unknown reason for GPU unsuitability.";
+    if (NULL == fPlayback) {
+        if (NULL != reason) {
+            *reason = "Missing playback object.";
+        }
+        return false;
     }
-    return ret;
+
+    return fPlayback->suitableForGpuRasterization(context, reason);
 }
 #endif
 

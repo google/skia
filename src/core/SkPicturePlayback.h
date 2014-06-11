@@ -62,6 +62,56 @@ struct SkPictInfo {
 // Always write this guy last (with no length field afterwards)
 #define SK_PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
 
+// SkPictureContentInfo is not serialized! It is intended solely for use
+// with suitableForGpuRasterization.
+class SkPictureContentInfo {
+public:
+    SkPictureContentInfo() { this->reset(); }
+
+    SkPictureContentInfo(const SkPictureContentInfo& src) { this->set(src); }
+
+    void set(const SkPictureContentInfo& src) {
+        fNumPaintWithPathEffectUses = src.fNumPaintWithPathEffectUses;
+        fNumAAConcavePaths = src.fNumAAConcavePaths;
+        fNumAAHairlineConcavePaths = src.fNumAAHairlineConcavePaths;
+    }
+
+    void reset() {
+        fNumPaintWithPathEffectUses = 0;
+        fNumAAConcavePaths = 0;
+        fNumAAHairlineConcavePaths = 0;
+    }
+
+    void swap(SkPictureContentInfo* other) {
+        SkTSwap(fNumPaintWithPathEffectUses, other->fNumPaintWithPathEffectUses);
+        SkTSwap(fNumAAConcavePaths, other->fNumAAConcavePaths);
+        SkTSwap(fNumAAHairlineConcavePaths, other->fNumAAHairlineConcavePaths);
+    }
+
+    void incPaintWithPathEffectUses() { ++fNumPaintWithPathEffectUses; }
+    int numPaintWithPathEffectUses() const { return fNumPaintWithPathEffectUses; }
+
+    void incAAConcavePaths() { ++fNumAAConcavePaths; }
+    int numAAConcavePaths() const { return fNumAAConcavePaths; }
+
+    void incAAHairlineConcavePaths() {
+        ++fNumAAHairlineConcavePaths;
+        SkASSERT(fNumAAHairlineConcavePaths <= fNumAAConcavePaths);
+    }
+    int numAAHairlineConcavePaths() const { return fNumAAHairlineConcavePaths; }
+
+private:
+    // This field is incremented every time a paint with a path effect is
+    // used (i.e., it is not a de-duplicated count)
+    int fNumPaintWithPathEffectUses;
+    // This field is incremented every time an anti-aliased drawPath call is
+    // issued with a concave path
+    int fNumAAConcavePaths;
+    // This field is incremented every time a drawPath call is
+    // issued for a hairline stroked concave path.
+    int fNumAAHairlineConcavePaths;
+};
+
 /**
  * Container for data that is needed to deep copy a SkPicture. The container
  * enables the data to be generated once and reused for subsequent copies.
@@ -78,8 +128,8 @@ class SkPicturePlayback {
 public:
     SkPicturePlayback(const SkPicture* picture, const SkPicturePlayback& src,
                       SkPictCopyInfo* deepCopyInfo = NULL);
-    SkPicturePlayback(const SkPicture* picture, const SkPictureRecord& record, const SkPictInfo&,
-                      bool deepCopyOps);
+    SkPicturePlayback(const SkPicture* picture, const SkPictureRecord& record, 
+                      const SkPictInfo&, bool deepCopyOps);
     static SkPicturePlayback* CreateFromStream(SkPicture* picture,
                                                SkStream*,
                                                const SkPictInfo&,
@@ -222,6 +272,10 @@ public:
     void dump() const;
 #endif
 
+#if SK_SUPPORT_GPU
+    bool suitableForGpuRasterization(GrContext* context, const char **reason) const;
+#endif
+
 private:    // these help us with reading/writing
     bool parseStreamTag(SkPicture* picture, SkStream*, uint32_t tag, uint32_t size,
                         SkPicture::InstallPixelRefProc);
@@ -251,6 +305,8 @@ private:
 
     SkBBoxHierarchy* fBoundingHierarchy;
     SkPictureStateTree* fStateTree;
+
+    SkPictureContentInfo fContentInfo;
 
     // Limit the opcode playback to be between the offsets 'start' and 'stop'.
     // The opcode at 'start' should be a saveLayer while the opcode at

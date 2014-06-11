@@ -19,8 +19,7 @@
 class SkBBoxHierarchyRecord : public SkBBoxRecord, public SkBBoxHierarchyClient {
 public:
     /** This will take a ref of h */
-    SkBBoxHierarchyRecord(SkPicture* picture, const SkISize& size,
-                          uint32_t recordFlags, SkBBoxHierarchy* h);
+    SkBBoxHierarchyRecord(const SkISize& size, uint32_t recordFlags, SkBBoxHierarchy* h);
 
     virtual void handleBBox(const SkRect& bounds) SK_OVERRIDE;
 

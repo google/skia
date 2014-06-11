@@ -99,26 +99,16 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture,
     record.dumpPaints();
 #endif
 
-    record.validate(record.writeStream().bytesWritten(), 0);
-    const SkWriter32& writer = record.writeStream();
     this->init();
-    SkASSERT(!fOpData);
-    if (writer.bytesWritten() == 0) {
-        fOpData = SkData::NewEmpty();
-        return;
-    }
-    if (deepCopyOps) {
-        // Don't try to do anything clever w.r.t. copy on write
-        fOpData = SkData::NewWithCopy(writer.contiguousArray(), writer.bytesWritten());
-    } else {
-        fOpData = writer.snapshotAsData();
-    }
+
+    fOpData = record.opData(deepCopyOps);
 
     fBoundingHierarchy = record.fBoundingHierarchy;
     fStateTree = record.fStateTree;
 
     SkSafeRef(fBoundingHierarchy);
     SkSafeRef(fStateTree);
+    fContentInfo.set(record.fContentInfo);
 
     if (NULL != fBoundingHierarchy) {
         fBoundingHierarchy->flushDeferredInserts();
@@ -166,7 +156,8 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture,
 #endif
 }
 
-SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPicturePlayback& src,
+SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, 
+                                     const SkPicturePlayback& src,
                                      SkPictCopyInfo* deepCopyInfo)
     : fPicture(picture)
     , fInfo(src.fInfo) {
@@ -178,6 +169,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPicturePl
 
     fBoundingHierarchy = src.fBoundingHierarchy;
     fStateTree = src.fStateTree;
+    fContentInfo.set(src.fContentInfo);
 
     SkSafeRef(fBoundingHierarchy);
     SkSafeRef(fStateTree);
@@ -1335,6 +1327,30 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
 //    this->dumpSize();
 }
 
+
+#if SK_SUPPORT_GPU
+bool SkPicturePlayback::suitableForGpuRasterization(GrContext* context, const char **reason) const {
+    // TODO: the heuristic used here needs to be refined
+    static const int kNumPaintWithPathEffectUsesTol = 1;
+    static const int kNumAAConcavePaths = 5;
+
+    SkASSERT(fContentInfo.numAAHairlineConcavePaths() <= fContentInfo.numAAConcavePaths());
+
+    bool ret = fContentInfo.numPaintWithPathEffectUses() < kNumPaintWithPathEffectUsesTol &&
+                    (fContentInfo.numAAConcavePaths() - fContentInfo.numAAHairlineConcavePaths()) 
+                    < kNumAAConcavePaths;
+    if (!ret && NULL != reason) {
+        if (fContentInfo.numPaintWithPathEffectUses() >= kNumPaintWithPathEffectUsesTol)
+            *reason = "Too many path effects.";
+        else if ((fContentInfo.numAAConcavePaths() - fContentInfo.numAAHairlineConcavePaths()) 
+                 >= kNumAAConcavePaths)
+            *reason = "Too many anti-aliased concave paths.";
+        else
+            *reason = "Unknown reason for GPU unsuitability.";
+    }
+    return ret;
+}
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG_SIZE

@@ -19,8 +19,8 @@
 class SkBBoxRecord : public SkPictureRecord {
 public:
 
-    SkBBoxRecord(SkPicture* picture, const SkISize& size, uint32_t recordFlags)
-        : INHERITED(picture, size, recordFlags) {
+    SkBBoxRecord(const SkISize& size, uint32_t recordFlags)
+        : INHERITED(size, recordFlags) {
     }
     virtual ~SkBBoxRecord() { }
 

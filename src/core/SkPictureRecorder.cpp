@@ -18,20 +18,19 @@ SkPictureRecorder::~SkPictureRecorder() {
 SkCanvas* SkPictureRecorder::beginRecording(int width, int height,
                                             SkBBHFactory* bbhFactory /* = NULL */,
                                             uint32_t recordFlags /* = 0 */) {
-    SkSafeSetNull(fCanvas);
-    fPicture.reset(SkNEW(SkPicture));
+    SkSafeSetNull(fCanvas); // terminate any prior recording(s)
 
-    fPicture->fWidth = width;
-    fPicture->fHeight = height;
+    fWidth = width;
+    fHeight = height;
 
     const SkISize size = SkISize::Make(width, height);
 
     if (NULL != bbhFactory) {
         SkAutoTUnref<SkBBoxHierarchy> tree((*bbhFactory)(width, height));
         SkASSERT(NULL != tree);
-        fCanvas = SkNEW_ARGS(SkBBoxHierarchyRecord, (fPicture, size, recordFlags, tree.get()));
+        fCanvas = SkNEW_ARGS(SkBBoxHierarchyRecord, (size, recordFlags, tree.get()));
     } else {
-        fCanvas = SkNEW_ARGS(SkPictureRecord, (fPicture, size, recordFlags));
+        fCanvas = SkNEW_ARGS(SkPictureRecord, (size, recordFlags));
     }
 
     fCanvas->beginRecording();
@@ -44,23 +43,18 @@ SkCanvas* SkPictureRecorder::getRecordingCanvas() {
 }
 
 SkPicture* SkPictureRecorder::endRecording() {
-    if (NULL == fPicture.get()) {
+    if (NULL == fCanvas) {
         return NULL;
     }
 
-    SkASSERT(NULL == fPicture->fPlayback);
-    SkASSERT(NULL != fCanvas);
-
     fCanvas->endRecording();
 
-    SkPictInfo info;
-    fPicture->createHeader(&info);
     const bool deepCopyOps = false;
-    fPicture->fPlayback = SkNEW_ARGS(SkPicturePlayback, (fPicture, *fCanvas, info, deepCopyOps));
-
+    SkAutoTUnref<SkPicture> picture(SkNEW_ARGS(SkPicture, (fWidth, fHeight, 
+                                                           *fCanvas, deepCopyOps)));
     SkSafeSetNull(fCanvas);
 
-    return fPicture.detach();
+    return picture.detach();
 }
 
 void SkPictureRecorder::internalOnly_EnableOpts(bool enableOpts) {
@@ -70,14 +64,13 @@ void SkPictureRecorder::internalOnly_EnableOpts(bool enableOpts) {
 }
 
 void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
-    if (NULL == fPicture.get() || NULL == canvas) {
+    if (NULL == fCanvas || NULL == canvas) {
         // Not recording or nothing to replay into
         return;
     }
 
-    SkASSERT(NULL != fCanvas);
-
-    SkAutoTDelete<SkPicturePlayback> playback(SkPicture::FakeEndRecording(fPicture.get(),
-                                                                          *fCanvas));
-    playback->draw(*canvas, NULL);
+    const bool deepCopyOps = true;
+    SkAutoTUnref<SkPicture> picture(SkNEW_ARGS(SkPicture, (fWidth, fHeight, 
+                                                           *fCanvas, deepCopyOps)));
+    picture->draw(canvas);
 }

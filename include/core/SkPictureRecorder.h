@@ -61,7 +61,8 @@ private:
     friend class SkPictureRecorderReplayTester; // for unit testing
     void partialReplay(SkCanvas* canvas) const;
 
-    SkAutoTUnref<SkPicture> fPicture;
+    int                     fWidth;
+    int                     fHeight;
     SkPictureRecord*        fCanvas;   // ref counted
 
     typedef SkNoncopyable INHERITED;

@@ -15,6 +15,7 @@
 #endif
 #include "SkPathHeap.h"
 #include "SkPicture.h"
+#include "SkPicturePlayback.h"
 #include "SkPictureFlat.h"
 #include "SkTemplates.h"
 #include "SkWriter32.h"
@@ -33,7 +34,7 @@ class SkPictureStateTree;
 
 class SkPictureRecord : public SkCanvas {
 public:
-    SkPictureRecord(SkPicture* picture, const SkISize& dimensions, uint32_t recordFlags);
+    SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
     virtual ~SkPictureRecord();
 
     virtual void clear(SkColor) SK_OVERRIDE;
@@ -71,6 +72,28 @@ public:
 
     const SkTDArray<const SkPicture* >& getPictureRefs() const {
         return fPictureRefs;
+    }
+
+    SkData* opData(bool deepCopy) const {
+        this->validate(fWriter.bytesWritten(), 0);
+
+        if (fWriter.bytesWritten() == 0) {
+            return SkData::NewEmpty();
+        }
+
+        if (deepCopy) {
+            return SkData::NewWithCopy(fWriter.contiguousArray(), fWriter.bytesWritten());
+        }
+
+        return fWriter.snapshotAsData();
+    }
+
+    SkPathHeap* pathHeap() {
+        return fPathHeap;
+    }
+
+    const SkPictureContentInfo& contentInfo() const {
+        return fContentInfo;
     }
 
     void setFlags(uint32_t recordFlags) {
@@ -283,11 +306,11 @@ protected:
     SkBitmapHeap* fBitmapHeap;
 
 private:
-    // The owning SkPicture
-    SkPicture* fPicture;
-
     friend class MatrixClipState; // for access to *Impl methods
     friend class SkMatrixClipStateMgr; // for access to *Impl methods
+
+    SkPictureContentInfo fContentInfo;
+    SkAutoTUnref<SkPathHeap> fPathHeap;
 
     SkChunkFlatController fFlattenableHeap;
 
