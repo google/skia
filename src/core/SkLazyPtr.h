@@ -12,23 +12,25 @@
  *
  *  Example usage:
  *
- *  Foo* CreateFoo() { return SkNEW(Foo); }
  *  Foo* GetSingletonFoo() {
- *      SK_DECLARE_STATIC_LAZY_PTR(Foo, singleton, CreateFoo);  // Clean up with SkDELETE.
+ *      SK_DECLARE_STATIC_LAZY_PTR(Foo, singleton);  // Created with SkNEW, destroyed with SkDELETE.
  *      return singleton.get();
  *  }
  *
- *  These macros take an optional void (*Destroy)(T*) at the end. If not given, we'll use SkDELETE.
- *  This option is most useful when T doesn't have a public destructor.
+ *  These macros take an optional T* (*Create)() and void (*Destroy)(T*) at the end.
+ *  If not given, we'll use SkNEW and SkDELETE.
+ *  These options are most useful when T doesn't have a public constructor or destructor.
+ *  Create comes first, so you may use a custom Create with a default Destroy, but not vice versa.
  *
- *  void CustomCleanup(Foo* ptr) { ... }
+ *  Foo* CustomCreate() { return ...; }
+ *  void CustomDestroy(Foo* ptr) { ... }
  *  Foo* GetSingletonFooWithCustomCleanup() {
- *      SK_DECLARE_STATIC_LAZY_PTR(Foo, singleton, CreateFoo, CustomCleanup);
+ *      SK_DECLARE_STATIC_LAZY_PTR(Foo, singleton, CustomCreate, CustomDestroy);
  *      return singleton.get();
  *  }
  *
  *  If you have a bunch of related static pointers of the same type, you can
- *  declare an array of lazy pointers together:
+ *  declare an array of lazy pointers together, and we'll pass the index to Create().
  *
  *  Foo* CreateFoo(int i) { return ...; }
  *  Foo* GetCachedFoo(Foo::Enum enumVal) {
@@ -48,11 +50,11 @@
  *  These macros must be used in a global or function scope, not as a class member.
  */
 
-#define SK_DECLARE_STATIC_LAZY_PTR(T, name, Create, ...) \
-    static Private::SkLazyPtr<T, Create, ##__VA_ARGS__> name
+#define SK_DECLARE_STATIC_LAZY_PTR(T, name, ...) \
+    static Private::SkLazyPtr<T, ##__VA_ARGS__> name
 
-#define SK_DECLARE_STATIC_LAZY_PTR_ARRAY(T, name, N, Create, ...) \
-    static Private::SkLazyPtrArray<T, N, Create, ##__VA_ARGS__> name
+#define SK_DECLARE_STATIC_LAZY_PTR_ARRAY(T, name, N, ...) \
+    static Private::SkLazyPtrArray<T, N, ##__VA_ARGS__> name
 
 
 
@@ -63,11 +65,9 @@
 #include "SkThreadPriv.h"
 
 // See FIXME below.
-class SkFontConfigInterface;
+class SkFontConfigInterfaceDirect;
 
 namespace Private {
-
-template <typename T> void sk_delete(T* ptr) { SkDELETE(ptr); }
 
 // Set *dst to ptr if *dst is NULL.  Returns value of *dst, destroying ptr if not swapped in.
 // Issues the same memory barriers as sk_atomic_cas: acquire on failure, release on success.
@@ -85,8 +85,11 @@ static P try_cas(void** dst, P ptr) {
     }
 }
 
+template <typename T> T* sk_new() { return SkNEW(T); }
+template <typename T> void sk_delete(T* ptr) { SkDELETE(ptr); }
+
 // This has no constructor and must be zero-initalized (the macro above does this).
-template <typename T, T* (*Create)(), void (*Destroy)(T*) = sk_delete<T> >
+template <typename T, T* (*Create)() = sk_new<T>, void (*Destroy)(T*) = sk_delete<T> >
 class SkLazyPtr {
 public:
     T* get() {
@@ -98,7 +101,7 @@ public:
 
 #ifdef SK_DEVELOPER
     // FIXME: We know we leak refs on some classes.  For now, let them leak.
-    void cleanup(SkFontConfigInterface*) {}
+    void cleanup(SkFontConfigInterfaceDirect*) {}
     template <typename U> void cleanup(U* ptr) { Destroy(ptr); }
 
     ~SkLazyPtr() {
@@ -111,8 +114,10 @@ private:
     void* fPtr;
 };
 
+template <typename T> T* sk_new_arg(int i) { return SkNEW_ARGS(T, (i)); }
+
 // This has no constructor and must be zero-initalized (the macro above does this).
-template <typename T, int N, T* (*Create)(int), void (*Destroy)(T*) = sk_delete<T> >
+template <typename T, int N, T* (*Create)(int) = sk_new_arg<T>, void (*Destroy)(T*) = sk_delete<T> >
 class SkLazyPtrArray {
 public:
     T* operator[](int i) {

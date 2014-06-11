@@ -124,12 +124,8 @@ private:
     SkMutex mutex_;
 };
 
-namespace {
-SkFontConfigInterface* create_direct() { return SkNEW(SkFontConfigInterfaceDirect); }
-} // namespace
-
 SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkFontConfigInterface, direct, create_direct);
+    SK_DECLARE_STATIC_LAZY_PTR(SkFontConfigInterfaceDirect, direct);
     return direct.get();
 }
 
