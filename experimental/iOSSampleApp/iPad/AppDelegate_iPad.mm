@@ -7,6 +7,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [window addSubview:[splitViewController view]];
     [window makeKeyAndVisible];
+
+    self.window.rootViewController = splitViewController;
+
     return YES;
 }
 

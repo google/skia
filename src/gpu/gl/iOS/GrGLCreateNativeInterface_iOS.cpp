@@ -139,7 +139,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 #endif
 
 #if GL_APPLE_framebuffer_multisample
-    functions->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleAPPLE;
+    functions->fRenderbufferStorageMultisampleES2APPLE = glRenderbufferStorageMultisampleAPPLE;
     functions->fResolveMultisampleFramebuffer = glResolveMultisampleFramebufferAPPLE;
 #endif
 

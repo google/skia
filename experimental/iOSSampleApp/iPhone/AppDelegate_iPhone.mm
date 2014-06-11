@@ -6,6 +6,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [window addSubview:fRoot.view];
     [window makeKeyAndVisible];
+
+    self.window.rootViewController = fRoot;
+
     return YES;
 }
 
