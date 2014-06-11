@@ -49,7 +49,7 @@ def compute_ranges(benches):
   avg = sum(benches) / len(benches)
   squared_avg = avg ** 2
   avg_sum_squared = sum([bench**2 for bench in benches])/len(benches)
-  std_dev = (abs(avg_sum_squared - squared_avg) + 0.05*abs(avg)) ** 0.5
+  std_dev = (abs(avg_sum_squared - squared_avg) + 0.0001*abs(avg**2)) ** 0.5
 
   # If the results are normally distributed, 2 standard deviations
   # captures something like ~95% of the possible range of results I think
