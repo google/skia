@@ -174,6 +174,7 @@
     '../tests/TLSTest.cpp',
     '../tests/TSetTest.cpp',
     '../tests/TestSize.cpp',
+    '../tests/TextureCompressionTest.cpp',
     '../tests/TileGridTest.cpp',
     '../tests/ToUnicodeTest.cpp',
     '../tests/TracingTest.cpp',

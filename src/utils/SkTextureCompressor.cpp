@@ -109,7 +109,7 @@ static uint64_t compress_latc_block(uint8_t block[16]) {
     //     bottom 48 (16*3) bits.
     uint32_t accumError[2] = { 0, 0 };
     uint64_t indices[2] = { 0, 0 };
-    for (int i = 15; i >= 0; ++i) {
+    for (int i = 15; i >= 0; --i) {
         // For each palette:
         // 1. Retreive the result of this pixel
         // 2. Store the error in accumError
@@ -118,7 +118,7 @@ static uint64_t compress_latc_block(uint8_t block[16]) {
             uint32_t result = compute_error(block[i], palettes[p]);
             accumError[p] += (result >> 8);
             indices[p] <<= 3;
-            indices[p] |= result & ~7;
+            indices[p] |= result & 7;
         }
     }
 
@@ -191,6 +191,8 @@ namespace SkTextureCompressor {
 typedef SkData *(*CompressBitmapProc)(const SkBitmap &bitmap);
 
 SkData *CompressBitmapToFormat(const SkBitmap &bitmap, Format format) {
+    SkAutoLockPixels alp(bitmap);
+
     CompressBitmapProc kProcMap[kLastEnum_SkColorType + 1][kFormatCnt];
     memset(kProcMap, 0, sizeof(kProcMap));
 
