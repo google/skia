@@ -65,6 +65,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(ColorMask);
     GET_PROC(CompileShader);
     GET_PROC(CompressedTexImage2D);
+    GET_PROC(CompressedTexSubImage2D);
     GET_PROC(CopyTexSubImage2D);
     GET_PROC(CreateProgram);
     GET_PROC(CreateShader);

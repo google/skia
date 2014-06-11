@@ -357,7 +357,8 @@ bool GrGLInterface::validate() const {
     if (kGL_GrGLStandard != fStandard ||
         (glVer >= GR_GL_VER(1,3)) ||
         fExtensions.has("GL_ARB_texture_compression")) {
-        if (NULL == fFunctions.fCompressedTexImage2D) {
+        if (NULL == fFunctions.fCompressedTexImage2D ||
+            NULL == fFunctions.fCompressedTexSubImage2D) {
             RETURN_FALSE_INTERFACE
         }
     }

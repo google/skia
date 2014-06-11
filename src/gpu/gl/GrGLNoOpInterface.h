@@ -55,6 +55,16 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLCompressedTexImage2D(GrGLenum target,
                                                         GrGLsizei imageSize,
                                                         const GrGLvoid* data);
 
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLCompressedTexSubImage2D(GrGLenum target,
+                                                           GrGLint level,
+                                                           GrGLint xoffset,
+                                                           GrGLint yoffset,
+                                                           GrGLsizei width,
+                                                           GrGLsizei height,
+                                                           GrGLenum format,
+                                                           GrGLsizei imageSize,
+                                                           const GrGLvoid* data);
+
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLCopyTexSubImage2D(GrGLenum target,
                                                      GrGLint level,
                                                      GrGLint xoffset,

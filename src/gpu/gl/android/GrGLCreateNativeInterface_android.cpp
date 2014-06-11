@@ -44,6 +44,7 @@ static GrGLInterface* create_es_interface(GrGLVersion version,
     functions->fColorMask = glColorMask;
     functions->fCompileShader = glCompileShader;
     functions->fCompressedTexImage2D = glCompressedTexImage2D;
+    functions->fCompressedTexSubImage2D = glCompressedTexSubImage2D;
     functions->fCopyTexSubImage2D = glCopyTexSubImage2D;
     functions->fCreateProgram = glCreateProgram;
     functions->fCreateShader = glCreateShader;
