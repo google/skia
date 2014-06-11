@@ -96,9 +96,11 @@ bool SkImageDecoder::cropBitmap(SkBitmap*, SkBitmap*, int, int, int, int, int,
     return false;
 }
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
 bool SkImageDecoder::chooseFromOneChoice(SkColorType, int, int) const {
     return false;
 }
+#endif
 
 bool SkImageDecoder::allocPixelRef(SkBitmap*, SkColorTable*) const {
     return false;
