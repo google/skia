@@ -65,7 +65,7 @@ public:
                       const SkRect& rect,
                       const SkMatrix& combinedMatrix,
                       const SkRect& devRect,
-                      const SkStrokeRec* stroke,
+                      const SkStrokeRec& stroke,
                       bool useVertexCoverage);
 
     // First rect is outer; second rect is inner

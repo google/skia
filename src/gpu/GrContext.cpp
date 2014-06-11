@@ -25,8 +25,10 @@
 #include "GrResourceCache.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrStencilBuffer.h"
+#include "GrStrokeInfo.h"
 #include "GrTextStrike.h"
 #include "GrTracing.h"
+#include "SkDashPathPriv.h"
 #include "SkGr.h"
 #include "SkRTConf.h"
 #include "SkRRect.h"
@@ -775,15 +777,22 @@ static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& po
 
 void GrContext::drawRect(const GrPaint& paint,
                          const SkRect& rect,
-                         const SkStrokeRec* stroke,
+                         const GrStrokeInfo* strokeInfo,
                          const SkMatrix* matrix) {
+    if (NULL != strokeInfo && strokeInfo->isDashed()) {
+        SkPath path;
+        path.addRect(rect);
+        this->drawPath(paint, path, *strokeInfo);
+        return;
+    }
+
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRect", target);
 
-    SkScalar width = stroke == NULL ? -1 : stroke->getWidth();
+    SkScalar width = NULL == strokeInfo ? -1 : strokeInfo->getStrokeRec().getWidth();
     SkMatrix combinedMatrix = target->drawState()->getViewMatrix();
     if (NULL != matrix) {
         combinedMatrix.preConcat(*matrix);
@@ -830,6 +839,9 @@ void GrContext::drawRect(const GrPaint& paint,
                   !target->getDrawState().getRenderTarget()->isMultisampled();
     bool doAA = needAA && apply_aa_to_rect(target, rect, width, combinedMatrix, &devBoundRect,
                                            &useVertexCoverage);
+
+    const SkStrokeRec& strokeRec = strokeInfo->getStrokeRec();
+
     if (doAA) {
         GrDrawState::AutoViewMatrixRestore avmr;
         if (!avmr.setIdentity(target->drawState())) {
@@ -838,7 +850,7 @@ void GrContext::drawRect(const GrPaint& paint,
         if (width >= 0) {
             fAARectRenderer->strokeAARect(this->getGpu(), target, rect,
                                           combinedMatrix, devBoundRect,
-                                          stroke, useVertexCoverage);
+                                          strokeRec, useVertexCoverage);
         } else {
             // filled AA rect
             fAARectRenderer->fillAARect(this->getGpu(), target,
@@ -1006,9 +1018,16 @@ void GrContext::drawVertices(const GrPaint& paint,
 
 void GrContext::drawRRect(const GrPaint& paint,
                           const SkRRect& rrect,
-                          const SkStrokeRec& stroke) {
+                          const GrStrokeInfo& strokeInfo) {
     if (rrect.isEmpty()) {
        return;
+    }
+
+    if (strokeInfo.isDashed()) {
+        SkPath path;
+        path.addRRect(rrect);
+        this->drawPath(paint, path, strokeInfo);
+        return;
     }
 
     AutoRestoreEffects are;
@@ -1017,10 +1036,12 @@ void GrContext::drawRRect(const GrPaint& paint,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRRect", target);
 
-    if (!fOvalRenderer->drawRRect(target, this, paint.isAntiAlias(), rrect, stroke)) {
+    const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
+
+    if (!fOvalRenderer->drawRRect(target, this, paint.isAntiAlias(), rrect, strokeRec)) {
         SkPath path;
         path.addRRect(rrect);
-        this->internalDrawPath(target, paint.isAntiAlias(), path, stroke);
+        this->internalDrawPath(target, paint.isAntiAlias(), path, strokeInfo);
     }
 }
 
@@ -1045,7 +1066,7 @@ void GrContext::drawDRRect(const GrPaint& paint,
         path.addRRect(outer);
         path.setFillType(SkPath::kEvenOdd_FillType);
 
-        SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
+        GrStrokeInfo fillRec(SkStrokeRec::kFill_InitStyle);
         this->internalDrawPath(target, paint.isAntiAlias(), path, fillRec);
     }
 }
@@ -1054,9 +1075,16 @@ void GrContext::drawDRRect(const GrPaint& paint,
 
 void GrContext::drawOval(const GrPaint& paint,
                          const SkRect& oval,
-                         const SkStrokeRec& stroke) {
+                         const GrStrokeInfo& strokeInfo) {
     if (oval.isEmpty()) {
        return;
+    }
+
+    if (strokeInfo.isDashed()) {
+        SkPath path;
+        path.addOval(oval);
+        this->drawPath(paint, path, strokeInfo);
+        return;
     }
 
     AutoRestoreEffects are;
@@ -1065,10 +1093,13 @@ void GrContext::drawOval(const GrPaint& paint,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawOval", target);
 
-    if (!fOvalRenderer->drawOval(target, this, paint.isAntiAlias(), oval, stroke)) {
+    const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
+
+
+    if (!fOvalRenderer->drawOval(target, this, paint.isAntiAlias(), oval, strokeRec)) {
         SkPath path;
         path.addOval(oval);
-        this->internalDrawPath(target, paint.isAntiAlias(), path, stroke);
+        this->internalDrawPath(target, paint.isAntiAlias(), path, strokeInfo);
     }
 }
 
@@ -1127,13 +1158,27 @@ static bool is_nested_rects(GrDrawTarget* target,
     return true;
 }
 
-void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrokeRec& stroke) {
+void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrokeInfo& strokeInfo) {
 
     if (path.isEmpty()) {
        if (path.isInverseFillType()) {
            this->drawPaint(paint);
        }
        return;
+    }
+
+    if (strokeInfo.isDashed()) {
+        const SkPathEffect::DashInfo& info = strokeInfo.getDashInfo();
+        SkTLazy<SkPath> effectPath;
+        GrStrokeInfo newStrokeInfo(strokeInfo, false);
+        SkStrokeRec* stroke = newStrokeInfo.getStrokeRecPtr();
+        if (SkDashPath::FilterDashPath(effectPath.init(), path, stroke, NULL, info)) {
+            this->drawPath(paint, *effectPath.get(), newStrokeInfo);
+            return;
+        }
+
+        this->drawPath(paint, path, newStrokeInfo);
+        return;
     }
 
     // Note that internalDrawPath may sw-rasterize the path into a scratch texture.
@@ -1148,14 +1193,16 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
 
     GR_CREATE_TRACE_MARKER("GrContext::drawPath", target);
 
+    const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
+
     bool useCoverageAA = paint.isAntiAlias() && !drawState->getRenderTarget()->isMultisampled();
 
-    if (useCoverageAA && stroke.getWidth() < 0 && !path.isConvex()) {
+    if (useCoverageAA && strokeRec.getWidth() < 0 && !path.isConvex()) {
         // Concave AA paths are expensive - try to avoid them for special cases
         bool useVertexCoverage;
         SkRect rects[2];
 
-        if (is_nested_rects(target, path, stroke, rects, &useVertexCoverage)) {
+        if (is_nested_rects(target, path, strokeRec, rects, &useVertexCoverage)) {
             SkMatrix origViewMatrix = drawState->getViewMatrix();
             GrDrawState::AutoViewMatrixRestore avmr;
             if (!avmr.setIdentity(target->drawState())) {
@@ -1174,13 +1221,13 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
     bool isOval = path.isOval(&ovalRect);
 
     if (!isOval || path.isInverseFillType()
-        || !fOvalRenderer->drawOval(target, this, paint.isAntiAlias(), ovalRect, stroke)) {
-        this->internalDrawPath(target, paint.isAntiAlias(), path, stroke);
+        || !fOvalRenderer->drawOval(target, this, paint.isAntiAlias(), ovalRect, strokeRec)) {
+        this->internalDrawPath(target, paint.isAntiAlias(), path, strokeInfo);
     }
 }
 
 void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath& path,
-                                 const SkStrokeRec& origStroke) {
+                                 const GrStrokeInfo& strokeInfo) {
     SkASSERT(!path.isEmpty());
 
     GR_CREATE_TRACE_MARKER("GrContext::internalDrawPath", target);
@@ -1201,7 +1248,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
 
     const SkPath* pathPtr = &path;
     SkTLazy<SkPath> tmpPath;
-    SkTCopyOnFirstWrite<SkStrokeRec> stroke(origStroke);
+    SkTCopyOnFirstWrite<SkStrokeRec> stroke(strokeInfo.getStrokeRec());
 
     // Try a 1st time without stroking the path and without allowing the SW renderer
     GrPathRenderer* pr = this->getPathRenderer(*pathPtr, *stroke, target, false, type);

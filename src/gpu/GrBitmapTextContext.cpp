@@ -10,6 +10,7 @@
 #include "GrDrawTarget.h"
 #include "GrFontScaler.h"
 #include "GrIndexBuffer.h"
+#include "GrStrokeInfo.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
 #include "SkColorPriv.h"
@@ -582,8 +583,8 @@ void GrBitmapTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
                                SkFixedToScalar(vy - SkIntToFixed(glyph->fBounds.fTop)));
         GrPaint tmpPaint(fPaint);
         am.setPreConcat(fContext, translate, &tmpPaint);
-        SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
-        fContext->drawPath(tmpPaint, *glyph->fPath, stroke);
+        GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
+        fContext->drawPath(tmpPaint, *glyph->fPath, strokeInfo);
         return;
     }
 

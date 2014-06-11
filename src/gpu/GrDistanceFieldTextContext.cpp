@@ -14,6 +14,7 @@
 #include "SkGlyphCache.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
+#include "GrStrokeInfo.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
 #include "SkDistanceFieldGen.h"
@@ -274,8 +275,8 @@ void GrDistanceFieldTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         ctm.postTranslate(sx, sy);
         GrPaint tmpPaint(fPaint);
         am.setPreConcat(fContext, ctm, &tmpPaint);
-        SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
-        fContext->drawPath(tmpPaint, *glyph->fPath, stroke);
+        GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
+        fContext->drawPath(tmpPaint, *glyph->fPath, strokeInfo);
         return;
     }
 

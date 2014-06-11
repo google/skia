@@ -39,6 +39,7 @@ class GrTestTarget;
 class GrTextureParams;
 class GrVertexBuffer;
 class GrVertexBufferAllocPool;
+class GrStrokeInfo;
 class GrSoftwarePathRenderer;
 class SkStrokeRec;
 
@@ -452,18 +453,20 @@ public:
     /**
      *  Draw the rect using a paint.
      *  @param paint        describes how to color pixels.
-     *  @param stroke       the stroke information (width, join, cap).
-     *                      If stroke == NULL, then the rect is filled.
+     *  @param strokeInfo   the stroke information (width, join, cap), and.
+     *                      the dash information (intervals, count, phase).
+     *                      If strokeInfo == NULL, then the rect is filled.
      *                      Otherwise, if stroke width == 0, then the stroke
      *                      is always a single pixel thick, else the rect is
      *                      mitered/beveled stroked based on stroke width.
+     *                      If the stroke is dashed the rect is sent to drawPath.
      *  @param matrix       Optional matrix applied to the rect. Applied before
      *                      context's matrix or the paint's matrix.
      *  The rects coords are used to access the paint (through texture matrix)
      */
     void drawRect(const GrPaint& paint,
                   const SkRect&,
-                  const SkStrokeRec* stroke = NULL,
+                  const GrStrokeInfo* strokeInfo = NULL,
                   const SkMatrix* matrix = NULL);
 
     /**
@@ -490,9 +493,10 @@ public:
      *
      *  @param paint        describes how to color pixels.
      *  @param rrect        the roundrect to draw
-     *  @param stroke       the stroke information (width, join, cap)
+     *  @param strokeInfo   the stroke information (width, join, cap) and
+     *                      the dash information (intervals, count, phase).
      */
-    void drawRRect(const GrPaint& paint, const SkRRect& rrect, const SkStrokeRec& stroke);
+    void drawRRect(const GrPaint& paint, const SkRRect& rrect, const GrStrokeInfo& strokeInfo);
 
     /**
      *  Shortcut for drawing an SkPath consisting of nested rrects using a paint.
@@ -511,9 +515,10 @@ public:
      *
      * @param paint         describes how to color pixels.
      * @param path          the path to draw
-     * @param stroke        the stroke information (width, join, cap)
+     * @param strokeInfo    the stroke information (width, join, cap) and
+     *                      the dash information (intervals, count, phase).
      */
-    void drawPath(const GrPaint& paint, const SkPath& path, const SkStrokeRec& stroke);
+    void drawPath(const GrPaint& paint, const SkPath& path, const GrStrokeInfo& strokeInfo);
 
     /**
      * Draws vertices with a paint.
@@ -545,11 +550,12 @@ public:
      *
      * @param paint         describes how to color pixels.
      * @param oval          the bounding rect of the oval.
-     * @param stroke        the stroke information (width, style)
+     * @param strokeInfo    the stroke information (width, join, cap) and
+     *                      the dash information (intervals, count, phase).
      */
     void drawOval(const GrPaint& paint,
                   const SkRect& oval,
-                  const SkStrokeRec& stroke);
+                  const GrStrokeInfo& strokeInfo);
 
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
@@ -995,7 +1001,7 @@ private:
     GrDrawTarget* prepareToDraw(const GrPaint*, BufferedDraw, AutoRestoreEffects*, AutoCheckFlush*);
 
     void internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath& path,
-                          const SkStrokeRec& stroke);
+                          const GrStrokeInfo& stroke);
 
     GrTexture* createResizedTexture(const GrTextureDesc& desc,
                                     const GrCacheID& cacheID,

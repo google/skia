@@ -726,10 +726,10 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
                                     const SkRect& rect,
                                     const SkMatrix& combinedMatrix,
                                     const SkRect& devRect,
-                                    const SkStrokeRec* stroke,
+                                    const SkStrokeRec& stroke,
                                     bool useVertexCoverage) {
     SkVector devStrokeSize;
-    SkScalar width = stroke->getWidth();
+    SkScalar width = stroke.getWidth();
     if (width > 0) {
         devStrokeSize.set(width, width);
         combinedMatrix.mapVectors(&devStrokeSize, 1);
@@ -763,7 +763,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
 
     bool miterStroke = true;
     // small miter limit means right angles show bevel...
-    if (stroke->getJoin() != SkPaint::kMiter_Join || stroke->getMiter() < SK_ScalarSqrt2) {
+    if (stroke.getJoin() != SkPaint::kMiter_Join || stroke.getMiter() < SK_ScalarSqrt2) {
         miterStroke = false;
     }
 
