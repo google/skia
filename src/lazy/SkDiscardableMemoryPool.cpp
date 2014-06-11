@@ -145,9 +145,9 @@ DiscardableMemoryPool::~DiscardableMemoryPool() {
 }
 
 void DiscardableMemoryPool::dumpDownTo(size_t budget) {
-    // assert((NULL = fMutex) || fMutex->isLocked());
-    // TODO(halcanary) implement bool fMutex::isLocked().
-    // WARNING: only call this function after aquiring lock.
+    if (fMutex != NULL) {
+        fMutex->assertHeld();
+    }
     if (fUsed <= budget) {
         return;
     }
