@@ -38,6 +38,16 @@
 # I will likely just delete the GM.
 canvas-layer-state
 
+# humper:
+# Needs rebaselining after faster GPU blur patch lands
+megalooper_0x0
+megalooper_1x4
+megalooper_4x1
+bleed
+blurquickreject
+blurrects
+bigblurs
+
 # These are part of picture-version 27 -- removal of SkUnitMapp
 # just need to be rebaselined
 scaled_tilemode_bitmap
