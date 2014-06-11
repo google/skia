@@ -56,6 +56,8 @@
         '<(skia_src_path)/utils/SkCanvasStateUtils.cpp',
         '<(skia_src_path)/utils/SkCubicInterval.cpp',
         '<(skia_src_path)/utils/SkCullPoints.cpp',
+        '<(skia_src_path)/utils/SkDashPath.cpp',
+        '<(skia_src_path)/utils/SkDashPathPriv.h',
         '<(skia_src_path)/utils/SkDeferredCanvas.cpp',
         '<(skia_src_path)/utils/SkDumpCanvas.cpp',
         '<(skia_src_path)/utils/SkEventTracer.cpp',
