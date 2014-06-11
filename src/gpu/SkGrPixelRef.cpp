@@ -51,9 +51,9 @@ bool SkROLockPixelsPixelRef::onLockPixelsAreWritable() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkBitmap::Config dstConfig,
+static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkColorType dstCT,
                                            const SkIRect* subset) {
-    if (NULL == texture) {
+    if (NULL == texture || kUnknown_SkColorType == dstCT) {
         return NULL;
     }
     GrContext* context = texture->getContext();
@@ -77,15 +77,7 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkBitmap::Config 
         topLeft = NULL;
     }
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
-    desc.fConfig = SkBitmapConfig2GrPixelConfig(dstConfig);
-
-    SkImageInfo info;
-    if (!GrPixelConfig2ColorType(desc.fConfig, &info.fColorType)) {
-        return NULL;
-    }
-    info.fWidth = desc.fWidth;
-    info.fHeight = desc.fHeight;
-    info.fAlphaType = kPremul_SkAlphaType;
+    desc.fConfig = SkImageInfo2GrPixelConfig(dstCT, kPremul_SkAlphaType);
 
     GrTexture* dst = context->createUncachedTexture(desc, NULL, 0);
     if (NULL == dst) {
@@ -104,6 +96,7 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkBitmap::Config 
     dst->releaseRenderTarget();
 #endif
 
+    SkImageInfo info = SkImageInfo::Make(desc.fWidth, desc.fHeight, dstCT, kPremul_SkAlphaType);
     SkGrPixelRef* pixelRef = SkNEW_ARGS(SkGrPixelRef, (info, dst));
     SkSafeUnref(dst);
     return pixelRef;
@@ -152,18 +145,18 @@ GrTexture* SkGrPixelRef::getTexture() {
     return NULL;
 }
 
-SkPixelRef* SkGrPixelRef::deepCopy(SkBitmap::Config dstConfig, const SkIRect* subset) {
+SkPixelRef* SkGrPixelRef::deepCopy(SkColorType dstCT, const SkIRect* subset) {
     if (NULL == fSurface) {
         return NULL;
     }
-
+    
     // Note that when copying a render-target-backed pixel ref, we
     // return a texture-backed pixel ref instead.  This is because
     // render-target pixel refs are usually created in conjunction with
     // a GrTexture owned elsewhere (e.g., SkGpuDevice), and cannot live
     // independently of that texture.  Texture-backed pixel refs, on the other
     // hand, own their GrTextures, and are thus self-contained.
-    return copyToTexturePixelRef(fSurface->asTexture(), dstConfig, subset);
+    return copyToTexturePixelRef(fSurface->asTexture(), dstCT, subset);
 }
 
 bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
