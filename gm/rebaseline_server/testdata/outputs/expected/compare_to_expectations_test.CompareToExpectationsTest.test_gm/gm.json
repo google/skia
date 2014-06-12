@@ -110,7 +110,7 @@
     }
   }, 
   "header": {
-    "dataHash": "-7988419419043310401", 
+    "dataHash": "-5343462047057549086", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 3, 
@@ -149,14 +149,14 @@
     {
       "differenceData": {
         "maxDiffPerChannel": [
-          222, 
-          223, 
-          222
+          255, 
+          255, 
+          255
         ], 
-        "numDifferingPixels": 77691, 
-        "percentDifferingPixels": 17.593070652173914, 
-        "perceptualDifference": 100, 
-        "weightedDiffMeasure": 3.661184599893761
+        "numDifferingPixels": 765891, 
+        "percentDifferingPixels": 97.38807678222656, 
+        "perceptualDifference": 25.25699999999999, 
+        "weightedDiffMeasure": 14.10677058693997
       }, 
       "expectations": {
         "bugs": [
@@ -171,21 +171,21 @@
         "resultType": "failure-ignored", 
         "test": "filterbitmap_checkerboard_192_192"
       }, 
-      "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/13270012198930365496.png", 
+      "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/9917960313903939620.png", 
       "imageBUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/4719210487426381700.png", 
       "isDifferent": true
     }, 
     {
       "differenceData": {
         "maxDiffPerChannel": [
-          221, 
-          221, 
-          221
+          255, 
+          255, 
+          255
         ], 
-        "numDifferingPixels": 82952, 
-        "percentDifferingPixels": 18.784420289855074, 
-        "perceptualDifference": 100, 
-        "weightedDiffMeasure": 3.6140912497422955
+        "numDifferingPixels": 422432, 
+        "percentDifferingPixels": 53.715006510416664, 
+        "perceptualDifference": 25.120500000000007, 
+        "weightedDiffMeasure": 14.005823726182287
       }, 
       "expectations": {
         "bugs": [
@@ -200,7 +200,7 @@
         "resultType": "failure-ignored", 
         "test": "filterbitmap_checkerboard_192_192"
       }, 
-      "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/14746826424040775628.png", 
+      "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/9917960313903939620.png", 
       "imageBUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/3154864687054945306.png", 
       "isDifferent": true
     }, 

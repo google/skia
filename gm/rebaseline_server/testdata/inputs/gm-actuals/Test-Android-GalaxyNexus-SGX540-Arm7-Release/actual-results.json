@@ -65,13 +65,13 @@
       },
       "filterbitmap_checkerboard_192_192_565.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 13270012198930365496 ]
+            [ "bitmap-64bitMD5", 9917960313903939620 ]
          ],
          "ignore-failure" : true
       },
       "filterbitmap_checkerboard_192_192_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 14746826424040775628 ]
+            [ "bitmap-64bitMD5", 9917960313903939620 ]
          ],
          "ignore-failure" : true
       },
