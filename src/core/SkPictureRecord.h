@@ -88,8 +88,8 @@ public:
         return fWriter.snapshotAsData();
     }
 
-    SkPathHeap* pathHeap() {
-        return fPathHeap;
+    const SkPathHeap* pathHeap() const {
+        return fPathHeap.get();
     }
 
     const SkPictureContentInfo& contentInfo() const {

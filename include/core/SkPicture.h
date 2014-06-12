@@ -23,7 +23,6 @@ class SkBBoxHierarchy;
 class SkCanvas;
 class SkDrawPictureCallback;
 class SkData;
-class SkPathHeap;
 class SkPicturePlayback;
 class SkPictureRecord;
 class SkStream;
@@ -286,22 +285,11 @@ protected:
     // playback is unchanged.
     SkPicture(SkPicturePlayback*, int width, int height);
 
-    SkPicture(int width, int height, SkPictureRecord& record, bool deepCopyOps);
+    SkPicture(int width, int height, const SkPictureRecord& record, bool deepCopyOps);
 
 private:
-    SkAutoTUnref<SkPathHeap> fPathHeap;  // reference counted
-
-    const SkPath& getPath(int index) const;
-    int addPathToHeap(const SkPath& path);
-
-    void flattenToBuffer(SkWriteBuffer& buffer) const;
-    bool parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t size);
-
     static void WriteTagSize(SkWriteBuffer& buffer, uint32_t tag, size_t size);
     static void WriteTagSize(SkWStream* stream, uint32_t tag, size_t size);
-
-    void initForPlayback() const;
-    void dumpSize() const;
 
     // An OperationList encapsulates a set of operation offsets into the picture byte
     // stream along with the CTMs needed for those operation.

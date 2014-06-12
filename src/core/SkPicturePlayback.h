@@ -9,29 +9,27 @@
 #ifndef SkPicturePlayback_DEFINED
 #define SkPicturePlayback_DEFINED
 
-#include "SkPicture.h"
-#include "SkReader32.h"
-
 #include "SkBitmap.h"
-#include "SkData.h"
-#include "SkMatrix.h"
-#include "SkReadBuffer.h"
-#include "SkPaint.h"
-#include "SkPath.h"
 #include "SkPathHeap.h"
-#include "SkRegion.h"
-#include "SkRRect.h"
+#include "SkPicture.h"
 #include "SkPictureFlat.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include "SkThread.h"
 #endif
 
+class SkData;
 class SkPictureRecord;
+class SkReader32;
 class SkStream;
 class SkWStream;
 class SkBBoxHierarchy;
+class SkMatrix;
+class SkPaint;
+class SkPath;
 class SkPictureStateTree;
+class SkReadBuffer;
+class SkRegion;
 
 struct SkPictInfo {
     enum Flags {
@@ -126,16 +124,13 @@ struct SkPictCopyInfo {
 
 class SkPicturePlayback {
 public:
-    SkPicturePlayback(const SkPicture* picture, const SkPicturePlayback& src,
+    SkPicturePlayback(const SkPicturePlayback& src,
                       SkPictCopyInfo* deepCopyInfo = NULL);
-    SkPicturePlayback(const SkPicture* picture, const SkPictureRecord& record, 
-                      const SkPictInfo&, bool deepCopyOps);
-    static SkPicturePlayback* CreateFromStream(SkPicture* picture,
-                                               SkStream*,
+    SkPicturePlayback(const SkPictureRecord& record, const SkPictInfo&, bool deepCopyOps);
+    static SkPicturePlayback* CreateFromStream(SkStream*,
                                                const SkPictInfo&,
                                                SkPicture::InstallPixelRefProc);
-    static SkPicturePlayback* CreateFromBuffer(SkPicture* picture,
-                                               SkReadBuffer&,
+    static SkPicturePlayback* CreateFromBuffer(SkReadBuffer&,
                                                const SkPictInfo&);
 
     virtual ~SkPicturePlayback();
@@ -163,10 +158,10 @@ public:
     void resetOpID() { fCurOffset = 0; }
 
 protected:
-    explicit SkPicturePlayback(const SkPicture* picture, const SkPictInfo& info);
+    explicit SkPicturePlayback(const SkPictInfo& info);
 
-    bool parseStream(SkPicture* picture, SkStream*, SkPicture::InstallPixelRefProc);
-    bool parseBuffer(SkPicture* picture, SkReadBuffer& buffer);
+    bool parseStream(SkStream*, SkPicture::InstallPixelRefProc);
+    bool parseBuffer(SkReadBuffer& buffer);
 #ifdef SK_DEVELOPER
     virtual bool preDraw(int opIndex, int type);
     virtual void postDraw(int opIndex);
@@ -197,7 +192,8 @@ private:
     }
 
     const SkPath& getPath(SkReader32& reader) {
-        return fPicture->getPath(reader.readInt() - 1);
+        int index = reader.readInt() - 1;
+        return (*fPathHeap.get())[index];
     }
 
     const SkPicture* getPicture(SkReader32& reader) {
@@ -277,17 +273,13 @@ public:
 #endif
 
 private:    // these help us with reading/writing
-    bool parseStreamTag(SkPicture* picture, SkStream*, uint32_t tag, uint32_t size,
-                        SkPicture::InstallPixelRefProc);
-    bool parseBufferTag(SkPicture* picture, SkReadBuffer&, uint32_t tag, uint32_t size);
+    bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size, SkPicture::InstallPixelRefProc);
+    bool parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
 
 private:
     friend class SkPicture;
     friend class SkGpuDevice;   // for access to setDrawLimits & setReplacements
-
-    // The picture that owns this SkPicturePlayback object
-    const SkPicture* fPicture;
 
     // Only used by getBitmap() if the passed in index is SkBitmapHeap::INVALID_SLOT. This empty
     // bitmap allows playback to draw nothing and move on.
@@ -299,6 +291,8 @@ private:
     SkTRefArray<SkPaint>* fPaints;
 
     SkData* fOpData;    // opcodes and parameters
+
+    SkAutoTUnref<const SkPathHeap> fPathHeap;  // reference counted
 
     const SkPicture** fPictureRefs;
     int fPictureCount;
@@ -402,6 +396,8 @@ private:
 
     static void WriteFactories(SkWStream* stream, const SkFactorySet& rec);
     static void WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec);
+
+    void initForPlayback() const;
 
 #ifdef SK_BUILD_FOR_ANDROID
     SkMutex fDrawMutex;
