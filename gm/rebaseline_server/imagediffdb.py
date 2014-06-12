@@ -49,7 +49,6 @@ KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL = 'maxDiffPerChannel'
 KEY__DIFFERENCES__NUM_DIFF_PIXELS = 'numDifferingPixels'
 KEY__DIFFERENCES__PERCENT_DIFF_PIXELS = 'percentDifferingPixels'
 KEY__DIFFERENCES__PERCEPTUAL_DIFF = 'perceptualDifference'
-KEY__DIFFERENCES__WEIGHTED_DIFF = 'weightedDiffMeasure'
 
 
 class DiffRecord(object):
@@ -117,8 +116,6 @@ class DiffRecord(object):
     diff_image = _generate_image_diff(actual_image, expected_image)
     diff_histogram = diff_image.histogram()
     (diff_width, diff_height) = diff_image.size
-    self._weighted_diff_measure = _calculate_weighted_diff_metric(
-        diff_histogram, diff_width * diff_height)
     self._max_diff_per_channel = _max_per_band(diff_histogram)
 
     # Generate the whitediff image (any differing pixels show as white).
@@ -189,14 +186,6 @@ class DiffRecord(object):
     """Returns the perceptual difference percentage."""
     return self._perceptual_difference
 
-  def get_weighted_diff_measure(self):
-    """Returns a weighted measure of image diffs, as a float between 0 and 100
-    (inclusive).
-
-    TODO(epoger): Delete this function, now that we have perceptual diff?
-    """
-    return self._weighted_diff_measure
-
   def get_max_diff_per_channel(self):
     """Returns the maximum difference between the expected and actual images
     for each R/G/B channel, as a list."""
@@ -209,7 +198,6 @@ class DiffRecord(object):
         KEY__DIFFERENCES__NUM_DIFF_PIXELS: self._num_pixels_differing,
         KEY__DIFFERENCES__PERCENT_DIFF_PIXELS:
             self.get_percent_pixels_differing(),
-        KEY__DIFFERENCES__WEIGHTED_DIFF: self.get_weighted_diff_measure(),
         KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL: self._max_diff_per_channel,
         KEY__DIFFERENCES__PERCEPTUAL_DIFF: self._perceptual_difference,
     }
@@ -289,31 +277,6 @@ class ImageDiffDB(object):
 
 
 # Utility functions
-
-def _calculate_weighted_diff_metric(histogram, num_pixels):
-  """Given the histogram of a diff image (per-channel diff at each
-  pixel between two images), calculate the weighted diff metric (a
-  stab at how different the two images really are).
-
-  TODO(epoger): Delete this function, now that we have perceptual diff?
-
-  Args:
-    histogram: PIL histogram of a per-channel diff between two images
-    num_pixels: integer; the total number of pixels in the diff image
-
-  Returns: a weighted diff metric, as a float between 0 and 100 (inclusive).
-  """
-  # TODO(epoger): As a wild guess at an appropriate metric, weight each
-  # different pixel by the square of its delta value.  (The more different
-  # a pixel is from its expectation, the more we care about it.)
-  assert(len(histogram) % VALUES_PER_BAND == 0)
-  num_bands = len(histogram) / VALUES_PER_BAND
-  max_diff = num_pixels * num_bands * (VALUES_PER_BAND - 1)**2
-  total_diff = 0
-  for index in xrange(len(histogram)):
-    total_diff += histogram[index] * (index % VALUES_PER_BAND)**2
-  return float(100 * total_diff) / max_diff
-
 
 def _max_per_band(histogram):
   """Given the histogram of an image, return the maximum value of each band

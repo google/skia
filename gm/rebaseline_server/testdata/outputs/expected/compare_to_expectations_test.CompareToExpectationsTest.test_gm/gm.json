@@ -110,7 +110,7 @@
     }
   }, 
   "header": {
-    "dataHash": "-5343462047057549086", 
+    "dataHash": "7849962375815855931", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 3, 
@@ -128,8 +128,7 @@
         ], 
         "numDifferingPixels": 120000, 
         "percentDifferingPixels": 75.0, 
-        "perceptualDifference": 50.122499999999995, 
-        "weightedDiffMeasure": 8.413046264257337
+        "perceptualDifference": 50.122499999999995
       }, 
       "expectations": {
         "bugs": null, 
@@ -155,8 +154,7 @@
         ], 
         "numDifferingPixels": 765891, 
         "percentDifferingPixels": 97.38807678222656, 
-        "perceptualDifference": 25.25699999999999, 
-        "weightedDiffMeasure": 14.10677058693997
+        "perceptualDifference": 25.25699999999999
       }, 
       "expectations": {
         "bugs": [
@@ -184,8 +182,7 @@
         ], 
         "numDifferingPixels": 422432, 
         "percentDifferingPixels": 53.715006510416664, 
-        "perceptualDifference": 25.120500000000007, 
-        "weightedDiffMeasure": 14.005823726182287
+        "perceptualDifference": 25.120500000000007
       }, 
       "expectations": {
         "bugs": [
@@ -213,8 +210,7 @@
         ], 
         "numDifferingPixels": 53150, 
         "percentDifferingPixels": 12.035778985507246, 
-        "perceptualDifference": 100, 
-        "weightedDiffMeasure": 3.713243437353155
+        "perceptualDifference": 100
       }, 
       "expectations": {
         "bugs": [
@@ -242,8 +238,7 @@
         ], 
         "numDifferingPixels": 53773, 
         "percentDifferingPixels": 12.17685688405797, 
-        "perceptualDifference": 100, 
-        "weightedDiffMeasure": 3.6723483686597684
+        "perceptualDifference": 100
       }, 
       "expectations": {
         "bugs": [

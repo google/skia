@@ -35,7 +35,6 @@ IMAGEPAIR_2_AS_DICT = {
         'maxDiffPerChannel': [1, 2, 3],
         'numDifferingPixels': 111,
         'percentDifferingPixels': 22.222,
-        'weightedDiffMeasure': 33.333,
     },
     imagepair.KEY__IMAGEPAIRS__EXTRACOLUMNS: {
         'builder': 'MyBuilder',
@@ -50,7 +49,6 @@ IMAGEPAIR_3_AS_DICT = {
         'maxDiffPerChannel': [4, 5, 6],
         'numDifferingPixels': 111,
         'percentDifferingPixels': 44.444,
-        'weightedDiffMeasure': 33.333,
     },
     imagepair.KEY__IMAGEPAIRS__EXPECTATIONS: {
         'bugs': [1001, 1002],

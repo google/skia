@@ -94,7 +94,7 @@
     }
   }, 
   "header": {
-    "dataHash": "-3232866296817265056", 
+    "dataHash": "5496105477154010366", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 3, 
@@ -189,8 +189,7 @@
         ], 
         "numDifferingPixels": 6081, 
         "percentDifferingPixels": 2.4324, 
-        "perceptualDifference": 1.917199999999994, 
-        "weightedDiffMeasure": 0.06644571780084584
+        "perceptualDifference": 1.917199999999994
       }, 
       "extraColumns": {
         "builder": "Test-Builder-We-Have-No-Expectations-File-For", 
@@ -211,8 +210,7 @@
         ], 
         "numDifferingPixels": 50097, 
         "percentDifferingPixels": 30.5767822265625, 
-        "perceptualDifference": 3.3917, 
-        "weightedDiffMeasure": 1.4826590790651433
+        "perceptualDifference": 3.3917
       }, 
       "extraColumns": {
         "builder": "Test-Builder-We-Have-No-Expectations-File-For", 
@@ -255,8 +253,7 @@
         ], 
         "numDifferingPixels": 6081, 
         "percentDifferingPixels": 2.4324, 
-        "perceptualDifference": 1.917199999999994, 
-        "weightedDiffMeasure": 0.06644571780084584
+        "perceptualDifference": 1.917199999999994
       }, 
       "extraColumns": {
         "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
@@ -277,8 +274,7 @@
         ], 
         "numDifferingPixels": 50097, 
         "percentDifferingPixels": 30.5767822265625, 
-        "perceptualDifference": 3.3917, 
-        "weightedDiffMeasure": 1.4826590790651433
+        "perceptualDifference": 3.3917
       }, 
       "extraColumns": {
         "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 

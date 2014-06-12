@@ -56,23 +56,22 @@ class ImageDiffDbTest(unittest.TestCase):
     # 2. actual image locator
     # 3. actual image URL
     # 4. expected percent_pixels_differing (as a string, to 4 decimal places)
-    # 5. expected weighted_diff_measure (as a string, to 4 decimal places)
-    # 6. expected perceptual difference (as a string, to 4 decimal places)
-    # 7. expected max_diff_per_channel
+    # 5. expected perceptual difference (as a string, to 4 decimal places)
+    # 6. expected max_diff_per_channel
     selftests = [
         [
             'arcofzorro/16206093933823793653',
             IMG_URL_BASE + 'arcofzorro/16206093933823793653.png',
             'arcofzorro/13786535001616823825',
             IMG_URL_BASE + 'arcofzorro/13786535001616823825.png',
-            '0.0662', '0.0113', '0.0662', [255, 255, 247],
+            '0.0662', '0.0662', [255, 255, 247],
         ],
         [
             'gradients_degenerate_2pt/10552995703607727960',
             IMG_URL_BASE + 'gradients_degenerate_2pt/10552995703607727960.png',
             'gradients_degenerate_2pt/11198253335583713230',
             IMG_URL_BASE + 'gradients_degenerate_2pt/11198253335583713230.png',
-            '100.0000', '66.6667', '100.0000', [255, 0, 255],
+            '100.0000', '100.0000', [255, 0, 255],
         ],
     ]
 
@@ -89,9 +88,8 @@ class ImageDiffDbTest(unittest.TestCase):
                                   actual_image_locator=selftest[2])
       self.assertEqual('%.4f' % record.get_percent_pixels_differing(),
                        selftest[4])
-      self.assertEqual('%.4f' % record.get_weighted_diff_measure(), selftest[5])
-      self.assertEqual('%.4f' % record.get_perceptual_difference(), selftest[6])
-      self.assertEqual(record.get_max_diff_per_channel(), selftest[7])
+      self.assertEqual('%.4f' % record.get_perceptual_difference(), selftest[5])
+      self.assertEqual(record.get_max_diff_per_channel(), selftest[6])
 
 
 def main():
