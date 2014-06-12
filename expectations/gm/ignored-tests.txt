@@ -72,3 +72,5 @@ bitmapshaders
 # Added by senorblanco for https://codereview.chromium.org/332523006/
 # Needs rebaseline for modified test cases
 perlinnoise
+imagefiltersclipped
+imagefiltersscaled
