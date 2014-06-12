@@ -39,9 +39,6 @@ inline int checkNoise(int noiseValue, int limitValue, int newValue) {
     if (noiseValue >= limitValue) {
         noiseValue -= newValue;
     }
-    if (noiseValue >= limitValue - 1) {
-        noiseValue -= newValue - 1;
-    }
     return noiseValue;
 }
 
@@ -320,12 +317,14 @@ SkScalar SkPerlinNoiseShader::PerlinNoiseShaderContext::noise2D(
         const StitchData& stitchData, const SkPoint& noiseVector) const {
     struct Noise {
         int noisePositionIntegerValue;
+        int nextNoisePositionIntegerValue;
         SkScalar noisePositionFractionValue;
         Noise(SkScalar component)
         {
             SkScalar position = component + kPerlinNoise;
             noisePositionIntegerValue = SkScalarFloorToInt(position);
             noisePositionFractionValue = position - SkIntToScalar(noisePositionIntegerValue);
+            nextNoisePositionIntegerValue = noisePositionIntegerValue + 1;
         }
     };
     Noise noiseX(noiseVector.x());
@@ -338,28 +337,36 @@ SkScalar SkPerlinNoiseShader::PerlinNoiseShaderContext::noise2D(
             checkNoise(noiseX.noisePositionIntegerValue, stitchData.fWrapX, stitchData.fWidth);
         noiseY.noisePositionIntegerValue =
             checkNoise(noiseY.noisePositionIntegerValue, stitchData.fWrapY, stitchData.fHeight);
+        noiseX.nextNoisePositionIntegerValue =
+            checkNoise(noiseX.nextNoisePositionIntegerValue, stitchData.fWrapX, stitchData.fWidth);
+        noiseY.nextNoisePositionIntegerValue =
+            checkNoise(noiseY.nextNoisePositionIntegerValue, stitchData.fWrapY, stitchData.fHeight);
     }
     noiseX.noisePositionIntegerValue &= kBlockMask;
     noiseY.noisePositionIntegerValue &= kBlockMask;
-    int latticeIndex =
-        paintingData.fLatticeSelector[noiseX.noisePositionIntegerValue] +
-        noiseY.noisePositionIntegerValue;
-    int nextLatticeIndex =
-        paintingData.fLatticeSelector[(noiseX.noisePositionIntegerValue + 1) & kBlockMask] +
-        noiseY.noisePositionIntegerValue;
+    noiseX.nextNoisePositionIntegerValue &= kBlockMask;
+    noiseY.nextNoisePositionIntegerValue &= kBlockMask;
+    int i =
+        paintingData.fLatticeSelector[noiseX.noisePositionIntegerValue];
+    int j =
+        paintingData.fLatticeSelector[noiseX.nextNoisePositionIntegerValue];
+    int b00 = (i + noiseY.noisePositionIntegerValue) & kBlockMask;
+    int b10 = (j + noiseY.noisePositionIntegerValue) & kBlockMask;
+    int b01 = (i + noiseY.nextNoisePositionIntegerValue) & kBlockMask;
+    int b11 = (j + noiseY.nextNoisePositionIntegerValue) & kBlockMask;
     SkScalar sx = smoothCurve(noiseX.noisePositionFractionValue);
     SkScalar sy = smoothCurve(noiseY.noisePositionFractionValue);
     // This is taken 1:1 from SVG spec: http://www.w3.org/TR/SVG11/filters.html#feTurbulenceElement
     SkPoint fractionValue = SkPoint::Make(noiseX.noisePositionFractionValue,
                                           noiseY.noisePositionFractionValue); // Offset (0,0)
-    u = paintingData.fGradient[channel][latticeIndex & kBlockMask].dot(fractionValue);
+    u = paintingData.fGradient[channel][b00].dot(fractionValue);
     fractionValue.fX -= SK_Scalar1; // Offset (-1,0)
-    v = paintingData.fGradient[channel][nextLatticeIndex & kBlockMask].dot(fractionValue);
+    v = paintingData.fGradient[channel][b10].dot(fractionValue);
     SkScalar a = SkScalarInterp(u, v, sx);
     fractionValue.fY -= SK_Scalar1; // Offset (-1,-1)
-    v = paintingData.fGradient[channel][(nextLatticeIndex + 1) & kBlockMask].dot(fractionValue);
+    v = paintingData.fGradient[channel][b11].dot(fractionValue);
     fractionValue.fX = noiseX.noisePositionFractionValue; // Offset (0,-1)
-    u = paintingData.fGradient[channel][(latticeIndex + 1) & kBlockMask].dot(fractionValue);
+    u = paintingData.fGradient[channel][b01].dot(fractionValue);
     SkScalar b = SkScalarInterp(u, v, sx);
     return SkScalarInterp(a, b, sy);
 }
@@ -989,13 +996,14 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     const char* chanCoord   = "chanCoord";
     const char* stitchData  = "stitchData";
     const char* ratio       = "ratio";
-    const char* noiseXY     = "noiseXY";
     const char* noiseVec    = "noiseVec";
     const char* noiseSmooth = "noiseSmooth";
+    const char* floorVal    = "floorVal";
     const char* fractVal    = "fractVal";
     const char* uv          = "uv";
     const char* ab          = "ab";
     const char* latticeIdx  = "latticeIdx";
+    const char* bcoords     = "bcoords";
     const char* lattice     = "lattice";
     const char* inc8bit     = "0.00390625";  // 1.0 / 256.0
     // This is the math to convert the two 16bit integer packed into rgba 8 bit input into a
@@ -1016,32 +1024,35 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
 
     SkString noiseCode;
 
-    noiseCode.appendf("\tvec4 %s = vec4(floor(%s), fract(%s));", noiseXY, noiseVec, noiseVec);
+    noiseCode.appendf("\tvec4 %s;\n", floorVal);
+    noiseCode.appendf("\t%s.xy = floor(%s);\n", floorVal, noiseVec);
+    noiseCode.appendf("\t%s.zw = %s.xy + vec2(1.0);\n", floorVal, floorVal);
+    noiseCode.appendf("\tvec2 %s = fract(%s);\n", fractVal, noiseVec);
 
     // smooth curve : t * t * (3 - 2 * t)
-    noiseCode.appendf("\n\tvec2 %s = %s.zw * %s.zw * (vec2(3.0) - vec2(2.0) * %s.zw);",
-        noiseSmooth, noiseXY, noiseXY, noiseXY);
+    noiseCode.appendf("\n\tvec2 %s = %s * %s * (vec2(3.0) - vec2(2.0) * %s);",
+        noiseSmooth, fractVal, fractVal, fractVal);
 
     // Adjust frequencies if we're stitching tiles
     if (fStitchTiles) {
         noiseCode.appendf("\n\tif(%s.x >= %s.x) { %s.x -= %s.x; }",
-            noiseXY, stitchData, noiseXY, stitchData);
-        noiseCode.appendf("\n\tif(%s.x >= (%s.x - 1.0)) { %s.x -= (%s.x - 1.0); }",
-            noiseXY, stitchData, noiseXY, stitchData);
+            floorVal, stitchData, floorVal, stitchData);
         noiseCode.appendf("\n\tif(%s.y >= %s.y) { %s.y -= %s.y; }",
-            noiseXY, stitchData, noiseXY, stitchData);
-        noiseCode.appendf("\n\tif(%s.y >= (%s.y - 1.0)) { %s.y -= (%s.y - 1.0); }",
-            noiseXY, stitchData, noiseXY, stitchData);
+            floorVal, stitchData, floorVal, stitchData);
+        noiseCode.appendf("\n\tif(%s.z >= %s.x) { %s.z -= %s.x; }",
+            floorVal, stitchData, floorVal, stitchData);
+        noiseCode.appendf("\n\tif(%s.w >= %s.y) { %s.w -= %s.y; }",
+            floorVal, stitchData, floorVal, stitchData);
     }
 
     // Get texture coordinates and normalize
-    noiseCode.appendf("\n\t%s.xy = fract(floor(mod(%s.xy, 256.0)) / vec2(256.0));\n",
-        noiseXY, noiseXY);
+    noiseCode.appendf("\n\t%s = fract(floor(mod(%s, 256.0)) / vec4(256.0));\n",
+        floorVal, floorVal);
 
     // Get permutation for x
     {
         SkString xCoords("");
-        xCoords.appendf("vec2(%s.x, 0.5)", noiseXY);
+        xCoords.appendf("vec2(%s.x, 0.5)", floorVal);
 
         noiseCode.appendf("\n\tvec2 %s;\n\t%s.x = ", latticeIdx, latticeIdx);
         builder->appendTextureLookup(&noiseCode, samplers[0], xCoords.c_str(), kVec2f_GrSLType);
@@ -1051,7 +1062,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     // Get permutation for x + 1
     {
         SkString xCoords("");
-        xCoords.appendf("vec2(fract(%s.x + %s), 0.5)", noiseXY, inc8bit);
+        xCoords.appendf("vec2(%s.z, 0.5)", floorVal);
 
         noiseCode.appendf("\n\t%s.y = ", latticeIdx);
         builder->appendTextureLookup(&noiseCode, samplers[0], xCoords.c_str(), kVec2f_GrSLType);
@@ -1070,15 +1081,13 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
 #endif
 
     // Get (x,y) coordinates with the permutated x
-    noiseCode.appendf("\n\t%s = fract(%s + %s.yy);", latticeIdx, latticeIdx, noiseXY);
-
-    noiseCode.appendf("\n\tvec2 %s = %s.zw;", fractVal, noiseXY);
+    noiseCode.appendf("\n\tvec4 %s = fract(%s.xyxy + %s.yyww);", bcoords, latticeIdx, floorVal);
 
     noiseCode.appendf("\n\n\tvec2 %s;", uv);
     // Compute u, at offset (0,0)
     {
         SkString latticeCoords("");
-        latticeCoords.appendf("vec2(%s.x, %s)", latticeIdx, chanCoord);
+        latticeCoords.appendf("vec2(%s.x, %s)", bcoords, chanCoord);
         noiseCode.appendf("\n\tvec4 %s = ", lattice);
         builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);
@@ -1090,7 +1099,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     // Compute v, at offset (-1,0)
     {
         SkString latticeCoords("");
-        latticeCoords.appendf("vec2(%s.y, %s)", latticeIdx, chanCoord);
+        latticeCoords.appendf("vec2(%s.y, %s)", bcoords, chanCoord);
         noiseCode.append("\n\tlattice = ");
         builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);
@@ -1106,7 +1115,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     // Compute v, at offset (-1,-1)
     {
         SkString latticeCoords("");
-        latticeCoords.appendf("vec2(fract(%s.y + %s), %s)", latticeIdx, inc8bit, chanCoord);
+        latticeCoords.appendf("vec2(%s.w, %s)", bcoords, chanCoord);
         noiseCode.append("\n\tlattice = ");
         builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);
@@ -1118,7 +1127,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     // Compute u, at offset (0,-1)
     {
         SkString latticeCoords("");
-        latticeCoords.appendf("vec2(fract(%s.x + %s), %s)", latticeIdx, inc8bit, chanCoord);
+        latticeCoords.appendf("vec2(%s.z, %s)", bcoords, chanCoord);
         noiseCode.append("\n\tlattice = ");
         builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);

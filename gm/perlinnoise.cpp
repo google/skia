@@ -24,13 +24,11 @@ protected:
         return SkISize::Make(200, 500);
     }
 
-    void drawClippedRect(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
+    void drawRect(SkCanvas* canvas, int x, int y, const SkPaint& paint, const SkISize& size) {
         canvas->save();
-        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
-                         SkIntToScalar(fSize.width()), SkIntToScalar(fSize.height())));
-        SkRect r = SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
-                                    SkIntToScalar(fSize.width()),
-                                    SkIntToScalar(fSize.height()));
+        canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+        SkRect r = SkRect::MakeWH(SkIntToScalar(size.width()),
+                                  SkIntToScalar(size.height()));
         canvas->drawRect(r, paint);
         canvas->restore();
     }
@@ -38,14 +36,25 @@ protected:
     void test(SkCanvas* canvas, int x, int y, SkPerlinNoiseShader::Type type,
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
               bool stitchTiles) {
+        SkISize tileSize = SkISize::Make(fSize.width() / 2, fSize.height() / 2);
         SkShader* shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
             SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                   seed, stitchTiles ? &fSize : NULL) :
+                                                   seed, stitchTiles ? &tileSize : NULL) :
             SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                seed, stitchTiles ? &fSize : NULL);
+                                                seed, stitchTiles ? &tileSize : NULL);
         SkPaint paint;
         paint.setShader(shader)->unref();
-        drawClippedRect(canvas, x, y, paint);
+        if (stitchTiles) {
+            drawRect(canvas, x, y, paint, tileSize);
+            x += tileSize.width();
+            drawRect(canvas, x, y, paint, tileSize);
+            y += tileSize.width();
+            drawRect(canvas, x, y, paint, tileSize);
+            x -= tileSize.width();
+            drawRect(canvas, x, y, paint, tileSize);
+        } else {
+            drawRect(canvas, x, y, paint, fSize);
+        }
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -58,10 +67,10 @@ protected:
         test(canvas,   0, 100, SkPerlinNoiseShader::kFractalNoise_Type,
              0.1f, 0.1f, 2, 0, false);
         test(canvas, 100, 100, SkPerlinNoiseShader::kFractalNoise_Type,
-             0.2f, 0.4f, 5, 0, true);
+             0.05f, 0.1f, 1, 0, true);
 
         test(canvas,   0, 200, SkPerlinNoiseShader::kTurbulence_Type,
-             0.1f, 0.1f, 2, 0, true);
+             0.1f, 0.1f, 1, 0, true);
         test(canvas, 100, 200, SkPerlinNoiseShader::kTurbulence_Type,
              0.2f, 0.4f, 5, 0, false);
 
@@ -75,7 +84,7 @@ protected:
         test(canvas,   0, 400, SkPerlinNoiseShader::kFractalNoise_Type,
              0.1f, 0.1f, 2, 0, false);
         test(canvas, 100, 400, SkPerlinNoiseShader::kFractalNoise_Type,
-             0.2f, 0.4f, 5, 0, true);
+             0.1f, 0.05f, 1, 0, true);
     }
 
 private:

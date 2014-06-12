@@ -78,3 +78,7 @@ dashcubics
 # dandov: Fix for bitmap shader by taking into account if the bitmap is alpha only
 # https://codereview.chromium.org/318923005/
 bitmapshaders
+
+# Added by senorblanco for https://codereview.chromium.org/332523006/
+# Needs rebaseline for modified test cases
+perlinnoise
