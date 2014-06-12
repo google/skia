@@ -132,7 +132,7 @@ int tool_main(int argc, char** argv) {
             SkString filename;
             SkOSFile::Iter iter(FLAGS_skpPath[i], "skp");
             while(iter.next(&filename)) {
-                sk_tools::make_filepath(&paths.push_back(), directory, filename);
+                paths.push_back() = SkOSPath::SkPathJoin(directory.c_str(), filename.c_str());
             }
         } else {
             // Add this as an .skp itself.

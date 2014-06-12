@@ -33,11 +33,6 @@ namespace sk_tools {
      */
     void replace_char(SkString* str, const char oldChar, const char newChar);
 
-    // Creates a posix style filepath by concatenating name onto dir with a
-    // forward slash into path.
-    // TODO(epoger): delete in favor of SkOSPath::SkPathJoin()?
-    void make_filepath(SkString* path, const SkString&, const SkString& name);
-
     // Returns true if the string ends with %
     bool is_percentage(const char* const string);
 

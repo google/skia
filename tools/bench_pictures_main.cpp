@@ -374,8 +374,7 @@ static int process_input(const char* input,
     int failures = 0;
     if (iter.next(&inputFilename)) {
         do {
-            SkString inputPath;
-            sk_tools::make_filepath(&inputPath, inputAsSkString, inputFilename);
+            SkString inputPath = SkOSPath::SkPathJoin(input, inputFilename.c_str());
             if (!run_single_benchmark(inputPath, benchmark)) {
                 ++failures;
             }
