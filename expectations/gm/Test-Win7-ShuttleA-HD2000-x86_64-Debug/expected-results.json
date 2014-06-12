@@ -4527,9 +4527,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          130107792326448839
+          4199059907564224666
         ]
       ], 
+      "bugs": [
+        2667
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "dashing_565.png": {
