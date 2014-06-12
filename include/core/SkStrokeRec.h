@@ -21,6 +21,7 @@ public:
     SkStrokeRec(InitStyle style);
 
     SkStrokeRec(const SkStrokeRec&);
+    SkStrokeRec(const SkPaint&, SkPaint::Style);
     explicit SkStrokeRec(const SkPaint&);
 
     enum Style {
@@ -90,6 +91,9 @@ public:
     }
 
 private:
+    void init(const SkPaint& paint, SkPaint::Style style);
+
+
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
     SkPaint::Cap    fCap;

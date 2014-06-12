@@ -9,8 +9,9 @@
 
 #include "GrContext.h"
 
-#include "effects/GrSingleTextureEffect.h"
 #include "effects/GrConfigConversionEffect.h"
+#include "effects/GrDashingEffect.h"
+#include "effects/GrSingleTextureEffect.h"
 
 #include "GrAARectRenderer.h"
 #include "GrBufferAllocPool.h"
@@ -971,10 +972,9 @@ void GrContext::drawVertices(const GrPaint& paint,
     GrDrawTarget::AutoReleaseGeometry geo; // must be inside AutoCheckFlush scope
 
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    GrDrawState* drawState = target->drawState();
 
     GR_CREATE_TRACE_MARKER("GrContext::drawVertices", target);
-
-    GrDrawState* drawState = target->drawState();
 
     int colorOffset = -1, texOffset = -1;
     set_vertex_attributes(drawState, texCoords, colors, &colorOffset, &texOffset);
@@ -1168,6 +1168,24 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
     }
 
     if (strokeInfo.isDashed()) {
+        SkPoint pts[2];
+        if (path.isLine(pts)) {
+            AutoRestoreEffects are;
+            AutoCheckFlush acf(this);
+            GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+            GrDrawState* drawState = target->drawState();
+
+            SkMatrix origViewMatrix = drawState->getViewMatrix();
+            GrDrawState::AutoViewMatrixRestore avmr;
+            if (avmr.setIdentity(target->drawState())) {
+                if (GrDashingEffect::DrawDashLine(pts, paint, strokeInfo, fGpu, target,
+                                                  origViewMatrix)) {
+                    return;
+                }
+            }
+        }
+
+        // Filter dashed path into new path with the dashing applied
         const SkPathEffect::DashInfo& info = strokeInfo.getDashInfo();
         SkTLazy<SkPath> effectPath;
         GrStrokeInfo newStrokeInfo(strokeInfo, false);

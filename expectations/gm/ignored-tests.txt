@@ -67,6 +67,14 @@ coloremoji
 # This CL actually fixes this GM's image
 distantclip
 
+# Added by egdaniel for https://codereview.chromium.org/326103002/
+# This CL may cause minor changes to gpu dashing
+dashing
+dashing2
+dashing3
+dashing4
+dashcubics
+
 # dandov: Fix for bitmap shader by taking into account if the bitmap is alpha only
 # https://codereview.chromium.org/318923005/
 bitmapshaders

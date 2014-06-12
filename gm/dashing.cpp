@@ -62,7 +62,6 @@ protected:
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         canvas->translate(0, SK_ScalarHalf);
-
         for (int width = 0; width <= 2; ++width) {
             for (size_t data = 0; data < SK_ARRAY_COUNT(gData); ++data) {
                 for (int aa = 0; aa <= 1; ++aa) {
@@ -234,7 +233,6 @@ protected:
 
             canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
         }
-
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -372,7 +370,6 @@ protected:
             paint.setAntiAlias(SkToBool(aa));
             paint.setStrokeWidth(8.f);
             paint.setStrokeCap(SkPaint::kSquare_Cap);
-
             // Single dash element that is cut off at start and end
             drawline(canvas, 32, 16, paint, 20.f, 0, 5.f);
             canvas->translate(0, SkIntToScalar(20));

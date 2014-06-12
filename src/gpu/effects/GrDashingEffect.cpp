@@ -7,17 +7,73 @@
 
 #include "GrDashingEffect.h"
 
+#include "../GrAARectRenderer.h"
+
+#include "effects/GrVertexEffect.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLVertexEffect.h"
 #include "gl/GrGLSL.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
+#include "GrDrawTarget.h"
 #include "GrDrawTargetCaps.h"
 #include "GrEffect.h"
+#include "GrGpu.h"
+#include "GrStrokeInfo.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkGr.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// Returns whether or not the gpu can fast path the dash line effect.
+static bool can_fast_path_dash(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
+                               const GrDrawTarget& target, const SkMatrix& viewMatrix) {
+    if (target.getDrawState().getRenderTarget()->isMultisampled()) {
+        return false;
+    }
+
+    // Pts must be either horizontal or vertical in src space
+    if (pts[0].fX != pts[1].fX && pts[0].fY != pts[1].fY) {
+        return false;
+    }
+
+    // May be able to relax this to include skew. As of now cannot do perspective
+    // because of the non uniform scaling of bloating a rect
+    if (!viewMatrix.preservesRightAngles()) {
+        return false;
+    }
+
+    if (!strokeInfo.isDashed() || 2 != strokeInfo.dashCount()) {
+        return false;
+    }
+
+    const SkPathEffect::DashInfo& info = strokeInfo.getDashInfo();
+    if (0 == info.fIntervals[0] && 0 == info.fIntervals[1]) {
+        return false;
+    }
+
+    SkPaint::Cap cap = strokeInfo.getStrokeRec().getCap();
+    // Current we do don't handle Round or Square cap dashes
+    if (SkPaint::kRound_Cap == cap) {
+        return false;
+    }
+
+    return true;
+}
+
+namespace {
+
+struct DashLineVertex {
+    SkPoint fPos;
+    SkPoint fDashPos;
+};
+
+extern const GrVertexAttrib gDashLineVertexAttribs[] = {
+    { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, sizeof(SkPoint),   kEffect_GrVertexAttribBinding },
+};
+
+};
 static void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
                             const SkMatrix& viewMatrix, const SkPoint pts[2]) {
     SkVector vecSrc = pts[1] - pts[0];
@@ -62,7 +118,8 @@ static SkScalar calc_start_adjustment(const SkPathEffect::DashInfo& info) {
     return 0;
 }
 
-static SkScalar calc_end_adjustment(const SkPathEffect::DashInfo& info, const SkPoint pts[2], SkScalar* endingInt) {
+static SkScalar calc_end_adjustment(const SkPathEffect::DashInfo& info, const SkPoint pts[2],
+                                    SkScalar phase, SkScalar* endingInt) {
     if (pts[1].fX <= pts[0].fX) {
         return 0;
     }
@@ -70,7 +127,7 @@ static SkScalar calc_end_adjustment(const SkPathEffect::DashInfo& info, const Sk
     SkScalar totalLen = pts[1].fX - pts[0].fX;
     SkScalar temp = SkScalarDiv(totalLen, srcIntervalLen);
     SkScalar numFullIntervals = SkScalarFloorToScalar(temp);
-    *endingInt = totalLen - numFullIntervals * srcIntervalLen + info.fPhase;
+    *endingInt = totalLen - numFullIntervals * srcIntervalLen + phase;
     temp = SkScalarDiv(*endingInt, srcIntervalLen);
     *endingInt = *endingInt - SkScalarFloorToScalar(temp) * srcIntervalLen;
     if (0 == *endingInt) {
@@ -85,188 +142,263 @@ static SkScalar calc_end_adjustment(const SkPathEffect::DashInfo& info, const Sk
     return 0;
 }
 
+static void setup_dashed_rect(const SkRect& rect, DashLineVertex* verts, int idx, const SkMatrix& matrix,
+                       SkScalar offset, SkScalar bloat, SkScalar len, SkScalar stroke) {
 
-bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const SkPaint& paint, GrContext* context) {
-    if (context->getRenderTarget()->isMultisampled()) {
+        SkScalar startDashX = offset - bloat;
+        SkScalar endDashX = offset + len + bloat;
+        SkScalar startDashY = -stroke - bloat;
+        SkScalar endDashY = stroke + bloat;
+        verts[idx].fDashPos = SkPoint::Make(startDashX , startDashY);
+        verts[idx + 1].fDashPos = SkPoint::Make(startDashX, endDashY);
+        verts[idx + 2].fDashPos = SkPoint::Make(endDashX, endDashY);
+        verts[idx + 3].fDashPos = SkPoint::Make(endDashX, startDashY);
+
+        verts[idx].fPos = SkPoint::Make(rect.fLeft, rect.fTop);
+        verts[idx + 1].fPos = SkPoint::Make(rect.fLeft, rect.fBottom);
+        verts[idx + 2].fPos = SkPoint::Make(rect.fRight, rect.fBottom);
+        verts[idx + 3].fPos = SkPoint::Make(rect.fRight, rect.fTop);
+
+        matrix.mapPointsWithStride(&verts[idx].fPos, sizeof(DashLineVertex), 4);
+}
+
+
+bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
+                                   const GrStrokeInfo& strokeInfo, GrGpu* gpu,
+                                   GrDrawTarget* target, const SkMatrix& vm) {
+
+    if (!can_fast_path_dash(pts, strokeInfo, *target, vm)) {
         return false;
     }
 
-    const SkMatrix& viewMatrix = context->getMatrix();
-    if (!viewMatrix.preservesRightAngles()) {
-        return false;
-    }
+    const SkPathEffect::DashInfo& info = strokeInfo.getDashInfo();
 
-    const SkPathEffect* pe = paint.getPathEffect();
-    SkPathEffect::DashInfo info;
-    SkPathEffect::DashType dashType = pe->asADash(&info);
-    // Must be a dash effect with 2 intervals (1 on and 1 off)
-    if (SkPathEffect::kDash_DashType != dashType || 2 != info.fCount) {
-        return false;
-    }
+    SkPaint::Cap cap = strokeInfo.getStrokeRec().getCap();
 
-    SkPaint::Cap cap = paint.getStrokeCap();
-    // Current we do don't handle Round or Square cap dashes
-    if (SkPaint::kRound_Cap == cap) {
-        return false;
-    }
-
-    SkScalar srcStrokeWidth = paint.getStrokeWidth();
-
-    // Get all info about the dash effect
-    SkAutoTArray<SkScalar> intervals(info.fCount);
-    info.fIntervals = intervals.get();
-    pe->asADash(&info);
+    SkScalar srcStrokeWidth = strokeInfo.getStrokeRec().getWidth();
 
     // the phase should be normalized to be [0, sum of all intervals)
     SkASSERT(info.fPhase >= 0 && info.fPhase < info.fIntervals[0] + info.fIntervals[1]);
 
-    SkMatrix coordTrans;
+    SkScalar srcPhase = info.fPhase;
 
     // Rotate the src pts so they are aligned horizontally with pts[0].fX < pts[1].fX
     SkMatrix srcRotInv;
     SkPoint ptsRot[2];
     if (pts[0].fY != pts[1].fY || pts[0].fX > pts[1].fX) {
-        align_to_x_axis(pts, &coordTrans, ptsRot);
-        if(!coordTrans.invert(&srcRotInv)) {
+        SkMatrix rotMatrix;
+        align_to_x_axis(pts, &rotMatrix, ptsRot);
+        if(!rotMatrix.invert(&srcRotInv)) {
+            GrPrintf("Failed to create invertible rotation matrix!\n");
             return false;
         }
     } else {
-        coordTrans.reset();
         srcRotInv.reset();
         memcpy(ptsRot, pts, 2 * sizeof(SkPoint));
     }
-
-    GrPaint grPaint;
-    SkPaint2GrPaintShader(context, paint, true, &grPaint);
 
     bool useAA = paint.isAntiAlias();
 
     // Scale corrections of intervals and stroke from view matrix
     SkScalar parallelScale;
     SkScalar perpScale;
-    calc_dash_scaling(&parallelScale, &perpScale, viewMatrix, ptsRot);
+    calc_dash_scaling(&parallelScale, &perpScale, vm, ptsRot);
 
     bool hasCap = SkPaint::kSquare_Cap == cap && 0 != srcStrokeWidth;
 
     // We always want to at least stroke out half a pixel on each side in device space
     // so 0.5f / perpScale gives us this min in src space
-    SkScalar halfStroke = SkMaxScalar(srcStrokeWidth * 0.5f, 0.5f / perpScale);
+    SkScalar halfSrcStroke = SkMaxScalar(srcStrokeWidth * 0.5f, 0.5f / perpScale);
 
-    SkScalar xStroke;
+    SkScalar strokeAdj;
     if (!hasCap) {
-        xStroke = 0.f;
+        strokeAdj = 0.f;
     } else {
-        xStroke = halfStroke;
+        strokeAdj = halfSrcStroke;
     }
 
+    SkScalar startAdj = 0;
+
+    SkMatrix combinedMatrix = srcRotInv;
+    combinedMatrix.postConcat(vm);
+
+    bool lineDone = false;
+    SkRect startRect;
+    bool hasStartRect = false;
     // If we are using AA, check to see if we are drawing a partial dash at the start. If so
     // draw it separately here and adjust our start point accordingly
     if (useAA) {
-        if (info.fPhase > 0 && info.fPhase < info.fIntervals[0]) {
+        if (srcPhase > 0 && srcPhase < info.fIntervals[0]) {
             SkPoint startPts[2];
             startPts[0] = ptsRot[0];
             startPts[1].fY = startPts[0].fY;
-            startPts[1].fX = SkMinScalar(startPts[0].fX + info.fIntervals[0] - info.fPhase,
+            startPts[1].fX = SkMinScalar(startPts[0].fX + info.fIntervals[0] - srcPhase,
                                          ptsRot[1].fX);
-            SkRect startRect;
             startRect.set(startPts, 2);
-            startRect.outset(xStroke, halfStroke);
-            context->drawRect(grPaint, startRect, NULL, &srcRotInv);
+            startRect.outset(strokeAdj, halfSrcStroke);
 
-            ptsRot[0].fX += info.fIntervals[0] + info.fIntervals[1] - info.fPhase;
-            info.fPhase = 0;
+            hasStartRect = true;
+            startAdj = info.fIntervals[0] + info.fIntervals[1] - srcPhase;
         }
     }
 
     // adjustments for start and end of bounding rect so we only draw dash intervals
     // contained in the original line segment.
-    SkScalar startAdj = calc_start_adjustment(info);
+    startAdj += calc_start_adjustment(info);
+    if (startAdj != 0) {
+        ptsRot[0].fX += startAdj;
+        srcPhase = 0;
+    }
     SkScalar endingInterval = 0;
-    SkScalar endAdj = calc_end_adjustment(info, ptsRot, &endingInterval);
-    if (ptsRot[0].fX + startAdj >= ptsRot[1].fX - endAdj) {
-        // Nothing left to draw so just return
-        return true;
+    SkScalar endAdj = calc_end_adjustment(info, ptsRot, srcPhase, &endingInterval);
+    ptsRot[1].fX -= endAdj;
+    if (ptsRot[0].fX >= ptsRot[1].fX) {
+        lineDone = true;
     }
 
+    SkRect endRect;
+    bool hasEndRect = false;
     // If we are using AA, check to see if we are drawing a partial dash at then end. If so
     // draw it separately here and adjust our end point accordingly
-    if (useAA) {
+    if (useAA && !lineDone) {
         // If we adjusted the end then we will not be drawing a partial dash at the end.
         // If we didn't adjust the end point then we just need to make sure the ending
         // dash isn't a full dash
         if (0 == endAdj && endingInterval != info.fIntervals[0]) {
-
             SkPoint endPts[2];
             endPts[1] = ptsRot[1];
             endPts[0].fY = endPts[1].fY;
             endPts[0].fX = endPts[1].fX - endingInterval;
 
-            SkRect endRect;
             endRect.set(endPts, 2);
-            endRect.outset(xStroke, halfStroke);
-            context->drawRect(grPaint, endRect, NULL, &srcRotInv);
+            endRect.outset(strokeAdj, halfSrcStroke);
 
-            ptsRot[1].fX -= endingInterval + info.fIntervals[1];
+            hasEndRect = true;
+            endAdj = endingInterval + info.fIntervals[1];
+
+            ptsRot[1].fX -= endAdj;
             if (ptsRot[0].fX >= ptsRot[1].fX) {
-                // Nothing left to draw so just return
-                return true;
+                lineDone = true;
             }
         }
     }
-    coordTrans.postConcat(viewMatrix);
 
-    SkPoint devicePts[2];
-    viewMatrix.mapPoints(devicePts, ptsRot, 2);
+    if (startAdj != 0) {
+        srcPhase = 0;
+    }
 
-    info.fIntervals[0] *= parallelScale;
-    info.fIntervals[1] *= parallelScale;
-    info.fPhase *= parallelScale;
+    // Change the dashing info from src space into device space
+    SkScalar devIntervals[2];
+    devIntervals[0] = info.fIntervals[0] * parallelScale;
+    devIntervals[1] = info.fIntervals[1] * parallelScale;
+    SkScalar devPhase = srcPhase * parallelScale;
     SkScalar strokeWidth = srcStrokeWidth * perpScale;
 
     if ((strokeWidth < 1.f && !useAA) || 0.f == strokeWidth) {
         strokeWidth = 1.f;
     }
 
-    // Set up coordTransform for device space transforms
-    // We rotate the dashed line such that it is horizontal with the start point at smaller x
-    // then we translate the start point to the origin
-    if (devicePts[0].fY != devicePts[1].fY || devicePts[0].fX > devicePts[1].fX) {
-        SkMatrix rot;
-        align_to_x_axis(devicePts, &rot);
-        coordTrans.postConcat(rot);
-    }
-    coordTrans.postTranslate(-devicePts[0].fX, -devicePts[0].fY);
-    coordTrans.postTranslate(info.fIntervals[1] * 0.5f + info.fPhase, 0);
+    SkScalar halfDevStroke = strokeWidth * 0.5f;
 
     if (SkPaint::kSquare_Cap == cap && 0 != srcStrokeWidth) {
         // add cap to on interveal and remove from off interval
-        info.fIntervals[0] += strokeWidth;
-        info.fIntervals[1] -= strokeWidth;
+        devIntervals[0] += strokeWidth;
+        devIntervals[1] -= strokeWidth;
     }
+    SkScalar startOffset = devIntervals[1] * 0.5f + devPhase;
 
-    if (info.fIntervals[1] > 0.f) {
+    SkScalar bloatX = useAA ? 0.5f / parallelScale : 0.f;
+    SkScalar bloatY = useAA ? 0.5f / perpScale : 0.f;
+
+    SkScalar devBloat = useAA ? 0.5f : 0.f;
+
+    GrDrawState* drawState = target->drawState();
+    if (devIntervals[1] <= 0.f && useAA) {
+        // Case when we end up drawing a solid AA rect
+        // Reset the start rect to draw this single solid rect
+        // but it requires to upload a new intervals uniform so we can mimic
+        // one giant dash
+        ptsRot[0].fX -= hasStartRect ? startAdj : 0;
+        ptsRot[1].fX += hasEndRect ? endAdj : 0;
+        startRect.set(ptsRot, 2);
+        startRect.outset(strokeAdj, halfSrcStroke);
+        hasStartRect = true;
+        hasEndRect = false;
+        lineDone = true;
+
+        SkPoint devicePts[2];
+        vm.mapPoints(devicePts, ptsRot, 2);
+        SkScalar lineLength = SkPoint::Distance(devicePts[0], devicePts[1]);
+        if (hasCap) {
+            lineLength += 2.f * halfDevStroke;
+        }
+        devIntervals[0] = lineLength;
+    }
+    if (devIntervals[1] > 0.f || useAA) {
+        SkPathEffect::DashInfo devInfo;
+        devInfo.fPhase = devPhase;
+        devInfo.fCount = 2;
+        devInfo.fIntervals = devIntervals;
         GrEffectEdgeType edgeType= useAA ? kFillAA_GrEffectEdgeType :
             kFillBW_GrEffectEdgeType;
-        grPaint.addCoverageEffect(
-            GrDashingEffect::Create(edgeType, info, coordTrans, strokeWidth))->unref();
-        grPaint.setAntiAlias(false);
+        drawState->addCoverageEffect(
+            GrDashingEffect::Create(edgeType, devInfo, strokeWidth), 1)->unref();
     }
 
-    SkRect rect;
-    bool bloat = useAA && info.fIntervals[1] > 0.f;
-    SkScalar bloatX = bloat ? 0.5f / parallelScale : 0.f;
-    SkScalar bloatY = bloat ? 0.5f / perpScale : 0.f;
-    ptsRot[0].fX += startAdj;
-    ptsRot[1].fX -= endAdj;
-    if (!hasCap) {
-        xStroke = 0.f;
-    } else {
-        xStroke = halfStroke;
-    }
-    rect.set(ptsRot, 2);
-    rect.outset(bloatX + xStroke, bloatY + halfStroke);
-    context->drawRect(grPaint, rect, NULL, &srcRotInv);
+    // Set up the vertex data for the line and start/end dashes
+    drawState->setVertexAttribs<gDashLineVertexAttribs>(SK_ARRAY_COUNT(gDashLineVertexAttribs));
 
+    int totalRectCnt = 0;
+
+    totalRectCnt += !lineDone ? 1 : 0;
+    totalRectCnt += hasStartRect ? 1 : 0;
+    totalRectCnt += hasEndRect ? 1 : 0;
+
+    GrDrawTarget::AutoReleaseGeometry geo(target, totalRectCnt * 4, 0);
+    if (!geo.succeeded()) {
+        GrPrintf("Failed to get space for vertices!\n");
+        return false;
+    }
+
+    DashLineVertex* verts = reinterpret_cast<DashLineVertex*>(geo.vertices());
+
+    int curVIdx = 0;
+
+    // Draw interior part of dashed line
+    if (!lineDone) {
+        SkPoint devicePts[2];
+        vm.mapPoints(devicePts, ptsRot, 2);
+        SkScalar lineLength = SkPoint::Distance(devicePts[0], devicePts[1]);
+        if (hasCap) {
+            lineLength += 2.f * halfDevStroke;
+        }
+
+        SkRect bounds;
+        bounds.set(ptsRot[0].fX, ptsRot[0].fY, ptsRot[1].fX, ptsRot[1].fY);
+        bounds.outset(bloatX + strokeAdj, bloatY + halfSrcStroke);
+        setup_dashed_rect(bounds, verts, curVIdx, combinedMatrix, startOffset, devBloat,
+                          lineLength, halfDevStroke);
+        curVIdx += 4;
+    }
+
+    if (hasStartRect) {
+        SkASSERT(useAA);  // so that we know bloatX and bloatY have been set
+        startRect.outset(bloatX, bloatY);
+        setup_dashed_rect(startRect, verts, curVIdx, combinedMatrix, startOffset, devBloat,
+                          devIntervals[0], halfDevStroke);
+        curVIdx += 4;
+    }
+
+    if (hasEndRect) {
+        SkASSERT(useAA);  // so that we know bloatX and bloatY have been set
+        endRect.outset(bloatX, bloatY);
+        setup_dashed_rect(endRect, verts, curVIdx, combinedMatrix, startOffset, devBloat,
+                          devIntervals[0], halfDevStroke);
+    }
+
+    target->setIndexSourceToBuffer(gpu->getContext()->getQuadIndexBuffer());
+    target->drawIndexedInstances(kTriangles_GrPrimitiveType, totalRectCnt, 4, 6);
+    target->resetIndexSource();
     return true;
 }
 
@@ -274,7 +406,7 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const SkPaint& paint, G
 
 class GLDashingLineEffect;
 
-class DashingLineEffect : public GrEffect {
+class DashingLineEffect : public GrVertexEffect {
 public:
     typedef SkPathEffect::DashInfo DashInfo;
 
@@ -286,7 +418,7 @@ public:
      * and half the off interval.
      */
     static GrEffectRef* Create(GrEffectEdgeType edgeType, const DashInfo& info,
-                               const SkMatrix& matrix, SkScalar strokeWidth);
+                               SkScalar strokeWidth);
 
     virtual ~DashingLineEffect();
 
@@ -305,13 +437,11 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    DashingLineEffect(GrEffectEdgeType edgeType, const DashInfo& info, const SkMatrix& matrix,
-                      SkScalar strokeWidth);
+    DashingLineEffect(GrEffectEdgeType edgeType, const DashInfo& info, SkScalar strokeWidth);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
     GrEffectEdgeType    fEdgeType;
-    GrCoordTransform    fCoordTransform;
     SkRect              fRect;
     SkScalar            fIntervalLength;
 
@@ -322,11 +452,11 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDashingLineEffect : public GrGLEffect {
+class GLDashingLineEffect : public GrGLVertexEffect {
 public:
     GLDashingLineEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLFullShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           EffectKey key,
                           const char* outputColor,
@@ -343,7 +473,7 @@ private:
     GrGLUniformManager::UniformHandle   fIntervalUniform;
     SkRect                              fPrevRect;
     SkScalar                            fPrevIntervalLength;
-    typedef GrGLEffect INHERITED;
+    typedef GrGLVertexEffect INHERITED;
 };
 
 GLDashingLineEffect::GLDashingLineEffect(const GrBackendEffectFactory& factory,
@@ -354,12 +484,12 @@ GLDashingLineEffect::GLDashingLineEffect(const GrBackendEffectFactory& factory,
 
 }
 
-void GLDashingLineEffect::emitCode(GrGLShaderBuilder* builder,
+void GLDashingLineEffect::emitCode(GrGLFullShaderBuilder* builder,
                                     const GrDrawEffect& drawEffect,
                                     EffectKey key,
                                     const char* outputColor,
                                     const char* inputColor,
-                                    const TransformedCoordsArray& coords,
+                                    const TransformedCoordsArray&,
                                     const TextureSamplerArray& samplers) {
     const DashingLineEffect& de = drawEffect.castEffect<DashingLineEffect>();
     const char *rectName;
@@ -375,10 +505,17 @@ void GLDashingLineEffect::emitCode(GrGLShaderBuilder* builder,
                                        kFloat_GrSLType,
                                        "interval",
                                        &intervalName);
+
+    const char *vsCoordName, *fsCoordName;
+    builder->addVarying(kVec2f_GrSLType, "Coord", &vsCoordName, &fsCoordName);
+    const SkString* attr0Name =
+        builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+    builder->vsCodeAppendf("\t%s = %s;\n", vsCoordName, attr0Name->c_str());
+
     // transforms all points so that we can compare them to our test rect
     builder->fsCodeAppendf("\t\tfloat xShifted = %s.x - floor(%s.x / %s) * %s;\n",
-                           coords[0].c_str(), coords[0].c_str(), intervalName, intervalName);
-    builder->fsCodeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", coords[0].c_str());
+                           fsCoordName, fsCoordName, intervalName, intervalName);
+    builder->fsCodeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", fsCoordName);
     if (GrEffectEdgeTypeIsAA(de.getEdgeType())) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
@@ -422,13 +559,13 @@ GrGLEffect::EffectKey GLDashingLineEffect::GenKey(const GrDrawEffect& drawEffect
 //////////////////////////////////////////////////////////////////////////////
 
 GrEffectRef* DashingLineEffect::Create(GrEffectEdgeType edgeType, const DashInfo& info,
-                                     const SkMatrix& matrix, SkScalar strokeWidth) {
+                                       SkScalar strokeWidth) {
     if (info.fCount != 2) {
         return NULL;
     }
 
     return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(DashingLineEffect,
-                                                      (edgeType, info, matrix, strokeWidth))));
+                                                      (edgeType, info, strokeWidth))));
 }
 
 DashingLineEffect::~DashingLineEffect() {}
@@ -442,9 +579,8 @@ const GrBackendEffectFactory& DashingLineEffect::getFactory() const {
 }
 
 DashingLineEffect::DashingLineEffect(GrEffectEdgeType edgeType, const DashInfo& info,
-                                 const SkMatrix& matrix, SkScalar strokeWidth)
-    : fEdgeType(edgeType)
-    , fCoordTransform(kLocal_GrCoordSet, matrix) {
+                                     SkScalar strokeWidth)
+    : fEdgeType(edgeType) {
     SkScalar onLen = info.fIntervals[0];
     SkScalar offLen = info.fIntervals[1];
     SkScalar halfOffLen = SkScalarHalf(offLen);
@@ -452,13 +588,12 @@ DashingLineEffect::DashingLineEffect(GrEffectEdgeType edgeType, const DashInfo& 
     fIntervalLength = onLen + offLen;
     fRect.set(halfOffLen, -halfStroke, halfOffLen + onLen, halfStroke);
 
-    addCoordTransform(&fCoordTransform);
+    this->addVertexAttrib(kVec2f_GrSLType);
 }
 
 bool DashingLineEffect::onIsEqual(const GrEffect& other) const {
     const DashingLineEffect& de = CastEffect<DashingLineEffect>(other);
     return (fEdgeType == de.fEdgeType &&
-            fCoordTransform == de.fCoordTransform &&
             fRect == de.fRect &&
             fIntervalLength == de.fIntervalLength);
 }
@@ -470,8 +605,6 @@ GrEffectRef* DashingLineEffect::TestCreate(SkRandom* random,
                                          const GrDrawTargetCaps& caps,
                                          GrTexture*[]) {
     GrEffectRef* effect;
-    SkMatrix m;
-    m.reset();
     GrEffectEdgeType edgeType = static_cast<GrEffectEdgeType>(random->nextULessThan(
             kGrEffectEdgeTypeCnt));
     SkScalar strokeWidth = random->nextRangeScalar(0, 100.f);
@@ -483,13 +616,13 @@ GrEffectRef* DashingLineEffect::TestCreate(SkRandom* random,
     info.fIntervals[1] = random->nextRangeScalar(0, 10.f);
     info.fPhase = random->nextRangeScalar(0, info.fIntervals[0] + info.fIntervals[1]);
 
-    effect = DashingLineEffect::Create(edgeType, info, m, strokeWidth);
+    effect = DashingLineEffect::Create(edgeType, info, strokeWidth);
     return effect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 GrEffectRef* GrDashingEffect::Create(GrEffectEdgeType edgeType, const SkPathEffect::DashInfo& info,
-                                     const SkMatrix& matrix, SkScalar strokeWidth) {
-    return DashingLineEffect::Create(edgeType, info, matrix, strokeWidth);
+                                     SkScalar strokeWidth) {
+    return DashingLineEffect::Create(edgeType, info, strokeWidth);
 }

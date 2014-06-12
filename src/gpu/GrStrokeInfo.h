@@ -33,10 +33,15 @@ public:
         }
     }
 
+    GrStrokeInfo(const SkPaint& paint, SkPaint::Style styleOverride) :
+        fStroke(paint, styleOverride), fDashType(SkPathEffect::kNone_DashType) {
+        this->init(paint);
+    }
+
+
     explicit GrStrokeInfo(const SkPaint& paint) :
         fStroke(paint), fDashType(SkPathEffect::kNone_DashType) {
-        const SkPathEffect* pe = paint.getPathEffect();
-        this->setDashInfo(pe);
+        this->init(paint);
     }
 
     const SkStrokeRec& getStrokeRec() const { return fStroke; }
@@ -79,6 +84,12 @@ public:
     const SkPathEffect::DashInfo& getDashInfo() const { return fDashInfo; }
 
 private:
+
+    void init(const SkPaint& paint) {
+        const SkPathEffect* pe = paint.getPathEffect();
+        this->setDashInfo(pe);
+    }
+
     SkStrokeRec            fStroke;
     SkPathEffect::DashType fDashType;
     SkPathEffect::DashInfo fDashInfo;

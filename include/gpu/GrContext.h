@@ -15,6 +15,7 @@
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
 #include "SkMatrix.h"
+#include "SkPathEffect.h"
 #include "SkTypes.h"
 
 class GrAARectRenderer;

@@ -24,7 +24,15 @@ SkStrokeRec::SkStrokeRec(const SkStrokeRec& src) {
 }
 
 SkStrokeRec::SkStrokeRec(const SkPaint& paint) {
-    switch (paint.getStyle()) {
+    this->init(paint, paint.getStyle());
+}
+
+SkStrokeRec::SkStrokeRec(const SkPaint& paint, SkPaint::Style styleOverride) {
+    this->init(paint, styleOverride);
+}
+
+void SkStrokeRec::init(const SkPaint& paint, SkPaint::Style style) {
+    switch (style) {
         case SkPaint::kFill_Style:
             fWidth = kStrokeRec_FillStyleWidth;
             fStrokeAndFill = false;
