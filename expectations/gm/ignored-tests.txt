@@ -38,15 +38,6 @@
 # I will likely just delete the GM.
 canvas-layer-state
 
-# These are part of picture-version 27 -- removal of SkUnitMapp
-# just need to be rebaselined
-scaled_tilemode_bitmap
-scaled_tilemodes_npot
-scaled_tilemodes
-tilemode_bitmap
-tilemodes_npot
-tilemodes
-
 # Added by kevin.petit@arm.com for https://codereview.chromium.org/317193003
 # Only S32A_D565_Blend is causing mismatches
 shadertext3

@@ -14607,13 +14607,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4622238695270760791
+          10403438720744094292
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "tilemode_bitmap_gpu.png": {
       "allowed-digests": [
@@ -14727,10 +14724,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2267899678806924219
+          2490573331458469013
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "tilemodes_gpu.png": {
       "allowed-digests": [
@@ -14772,13 +14770,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12105624345031540437
+          16682488125750110606
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "tilemodes_npot_gpu.png": {
       "allowed-digests": [
