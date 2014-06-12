@@ -362,20 +362,6 @@ public:
                             kDecodePixels_Mode, NULL);
     }
 
-    /** Return the default config for the running device.
-        Currently this used as a suggestion to image decoders that need to guess
-        what config they should decode into.
-        Default is kNo_Config, but this can be changed with SetDeviceConfig()
-    */
-    static SkBitmap::Config GetDeviceConfig();
-    /** Set the default config for the running device.
-        Currently this used as a suggestion to image decoders that need to guess
-        what config they should decode into.
-        Default is kNo_Config.
-        This can be queried with GetDeviceConfig()
-    */
-    static void SetDeviceConfig(SkBitmap::Config);
-
 protected:
     // must be overridden in subclasses. This guy is called by decode(...)
     virtual bool onDecode(SkStream*, SkBitmap* bitmap, Mode) = 0;
@@ -465,9 +451,6 @@ protected:
         the returned bitmap. SrcDepth and hasAlpha reflect the raw data of the
         src image. This routine returns the caller's preference given
         srcDepth and hasAlpha, or kUnknown_SkColorType if there is no preference.
-
-        Note: this also takes into account GetDeviceConfig(), so the subclass
-        need not call that.
      */
     SkColorType getPrefColorType(SrcDepth, bool hasAlpha) const;
 

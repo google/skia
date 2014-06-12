@@ -85,12 +85,6 @@ SkBitmap::Allocator* SkImageDecoder::setAllocator(SkBitmap::Allocator*) {
 
 void SkImageDecoder::setSampleSize(int) {}
 
-SkBitmap::Config SkImageDecoder::GetDeviceConfig() {
-    return SkBitmap::kNo_Config;
-}
-
-void SkImageDecoder::SetDeviceConfig(SkBitmap::Config) {}
-
 bool SkImageDecoder::cropBitmap(SkBitmap*, SkBitmap*, int, int, int, int, int,
                     int, int) {
     return false;

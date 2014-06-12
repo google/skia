@@ -14,20 +14,6 @@
 #include "SkTemplates.h"
 #include "SkCanvas.h"
 
-static SkBitmap::Config gDeviceConfig = SkBitmap::kNo_Config;
-
-SkBitmap::Config SkImageDecoder::GetDeviceConfig()
-{
-    return gDeviceConfig;
-}
-
-void SkImageDecoder::SetDeviceConfig(SkBitmap::Config config)
-{
-    gDeviceConfig = config;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 SkImageDecoder::SkImageDecoder()
     : fPeeker(NULL)
 #ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
@@ -159,8 +145,7 @@ void SkImageDecoder::setPrefConfigTable(const PrefConfigTable& prefTable) {
     fPrefTable = prefTable;
 }
 
-// TODO: use colortype in fPrefTable, fDefaultPref and GetDeviceConfig()
-//       so we can stop using SkBitmapConfigToColorType()
+// TODO: use colortype in fPrefTable, fDefaultPref so we can stop using SkBitmapConfigToColorType()
 //
 SkColorType SkImageDecoder::getPrefColorType(SrcDepth srcDepth, bool srcHasAlpha) const {
     SkBitmap::Config config = SkBitmap::kNo_Config;
@@ -183,9 +168,6 @@ SkColorType SkImageDecoder::getPrefColorType(SrcDepth srcDepth, bool srcHasAlpha
         config = fDefaultPref;
     }
 
-    if (SkBitmap::kNo_Config == config) {
-        config = SkImageDecoder::GetDeviceConfig();
-    }
     return SkBitmapConfigToColorType(config);
 }
 
