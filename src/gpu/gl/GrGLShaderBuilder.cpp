@@ -216,7 +216,7 @@ bool GrGLShaderBuilder::genProgram(const GrEffectStage* colorStages[],
         if (GrGLProgramDesc::kSecondaryCoverageISA_CoverageOutput == header.fCoverageOutput) {
             // Get (1-A) into coeff
             coeff = GrGLSLExpr4::VectorCast(GrGLSLExpr1(1) - inputColor.a());
-        } else if (GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput ==
+        } else if (GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput == 
                    header.fCoverageOutput){
             // Get (1-RGBA) into coeff
             coeff = GrGLSLExpr4(1) - inputColor;
