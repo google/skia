@@ -46,14 +46,12 @@ def compute_ranges(benches):
   Returns:
     a list of float [lower_bound, upper_bound].
   """
-  avg = sum(benches) / len(benches)
-  squared_avg = avg ** 2
-  avg_sum_squared = sum([bench**2 for bench in benches])/len(benches)
-  std_dev = (abs(avg_sum_squared - squared_avg) + 0.0001*abs(avg**2)) ** 0.5
+  avg = sum(benches)/len(benches)
+  minimum = min(benches)
+  maximum = max(benches)
 
-  # If the results are normally distributed, 2 standard deviations
-  # captures something like ~95% of the possible range of results I think
-  return [avg - 2*std_dev, avg + 2*std_dev]
+  return [minimum - diff*RANGE_RATIO_LOWER - avg*ERR_RATIO - ERR_LB,
+          maximum + diff*RANGE_RATIO_UPPER + avg*ERR_RATIO + ERR_UB]
 
 
 def create_expectations_dict(revision_data_points, builder):
