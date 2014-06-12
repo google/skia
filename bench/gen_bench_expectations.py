@@ -49,6 +49,7 @@ def compute_ranges(benches):
   avg = sum(benches)/len(benches)
   minimum = min(benches)
   maximum = max(benches)
+  diff = maximum - minimum
 
   return [minimum - diff*RANGE_RATIO_LOWER - avg*ERR_RATIO - ERR_LB,
           maximum + diff*RANGE_RATIO_UPPER + avg*ERR_RATIO + ERR_UB]
