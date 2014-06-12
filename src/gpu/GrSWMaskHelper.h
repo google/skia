@@ -65,8 +65,6 @@ public:
     // Move the mask generation results from the internal bitmap to the gpu.
     void toTexture(GrTexture* texture);
 
-    GrTexture* toLATCTexture(GrContext* ctx);
-
     // Reset the internal bitmap
     void clear(uint8_t alpha) {
         fBM.eraseColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
@@ -102,6 +100,11 @@ private:
     SkBitmap        fBM;
     SkDraw          fDraw;
     SkRasterClip    fRasterClip;
+
+    // Actually sends the texture data to the GPU. This is called from
+    // toTexture with the data filled in depending on the texture config.
+    void sendTextureData(GrTexture *texture, const GrTextureDesc& desc,
+                         const void *data, int rowbytes);
 
     typedef SkNoncopyable INHERITED;
 };

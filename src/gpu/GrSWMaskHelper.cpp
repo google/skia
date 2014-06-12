@@ -125,26 +125,35 @@ bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
     GrTextureDesc desc;
     desc.fWidth = fBM.width();
     desc.fHeight = fBM.height();
-    desc.fConfig = kAlpha_8_GrPixelConfig;
+
+#if GR_COMPRESS_ALPHA_MASK
+    static const int kLATCBlockSize = 4;
+    if (desc.fWidth % kLATCBlockSize == 0 && desc.fHeight % kLATCBlockSize == 0) {
+        desc.fConfig = kLATC_GrPixelConfig;
+    } else {
+#endif
+        desc.fConfig = kAlpha_8_GrPixelConfig;
+#if GR_COMPRESS_ALPHA_MASK
+    }
+#endif
 
     texture->set(fContext, desc);
     return NULL != texture->texture();
 }
 
-GrTexture* GrSWMaskHelper::toLATCTexture(GrContext* ctx) {
-    // Encode the BM into LATC data:
-    SkAutoLockPixels alp(fBM);
-    SkTextureCompressor::Format format = SkTextureCompressor::kLATC_Format;
-    SkAutoDataUnref latcData(SkTextureCompressor::CompressBitmapToFormat(fBM, format));
-    if (NULL == latcData) {
-        return NULL;
-    }
+void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrTextureDesc& desc,
+                                     const void *data, int rowbytes) {
+    // If we aren't reusing scratch textures we don't need to flush before
+    // writing since no one else will be using 'texture'
+    bool reuseScratch = fContext->getGpu()->caps()->reuseScratchTextures();
 
-    GrTextureDesc desc;
-    desc.fWidth = fBM.width();
-    desc.fHeight = fBM.height();
-    desc.fConfig = kLATC_GrPixelConfig;
-    return ctx->getGpu()->createTexture(desc, latcData->bytes(), 0);
+    // Since we're uploading to it, and it's compressed, 'texture' shouldn't
+    // have a render target.
+    SkASSERT(NULL == texture->asRenderTarget());
+
+    texture->writePixels(0, 0, desc.fWidth, desc.fHeight,
+                         desc.fConfig, data, rowbytes,
+                         reuseScratch ? 0 : GrContext::kDontFlush_PixelOpsFlag);
 }
 
 /**
@@ -153,17 +162,22 @@ GrTexture* GrSWMaskHelper::toLATCTexture(GrContext* ctx) {
 void GrSWMaskHelper::toTexture(GrTexture *texture) {
     SkAutoLockPixels alp(fBM);
 
-    // If we aren't reusing scratch textures we don't need to flush before
-    // writing since no one else will be using 'texture'
-    bool reuseScratch = fContext->getGpu()->caps()->reuseScratchTextures();
+    GrTextureDesc desc;
+    desc.fWidth = fBM.width();
+    desc.fHeight = fBM.height();
+    desc.fConfig = texture->config();
+        
+    // First see if we should compress this texture before uploading.
+    if (texture->config() == kLATC_GrPixelConfig) {
+        SkTextureCompressor::Format format = SkTextureCompressor::kLATC_Format;
+        SkAutoDataUnref latcData(SkTextureCompressor::CompressBitmapToFormat(fBM, format));
+        SkASSERT(NULL != latcData);
 
-    // Since we're uploading to it, 'texture' shouldn't have a render target.
-    SkASSERT(NULL == texture->asRenderTarget());
-
-    texture->writePixels(0, 0, fBM.width(), fBM.height(),
-                         kAlpha_8_GrPixelConfig,
-                         fBM.getPixels(), fBM.rowBytes(),
-                         reuseScratch ? 0 : GrContext::kDontFlush_PixelOpsFlag);
+        this->sendTextureData(texture, desc, latcData->data(), 0);
+    } else {
+        // Looks like we have to send a full A8 texture. 
+        this->sendTextureData(texture, desc, fBM.getPixels(), fBM.rowBytes());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -186,15 +200,6 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
 
     helper.draw(path, stroke, SkRegion::kReplace_Op, antiAlias, 0xFF);
 
-#if GR_COMPRESS_ALPHA_MASK 
-    // Can we create an LATC texture?
-    GrTexture *latc = helper.toLATCTexture(context);
-    if (NULL != latc) {
-        return latc;
-    }
-#endif
-
-    // Looks like we have to send a full A8 texture. 
     GrAutoScratchTexture ast;
     if (!helper.getTexture(&ast)) {
         return NULL;
