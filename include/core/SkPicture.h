@@ -131,23 +131,6 @@ public:
      */
     void clone(SkPicture* pictures, int count) const;
 
-#ifdef SK_SUPPORT_LEGACY_RECORDING_FLAG
-    // TODO: kUsePathBoundsForClip_RecordingFlag no longer belongs in
-    // SkPicture. It should be moved to SkPictureRecorder (or just made
-    // the default behavior).
-    enum RecordingFlags {
-        /*  This flag specifies that when clipPath() is called, the path will
-            be faithfully recorded, but the recording canvas' current clip will
-            only see the path's bounds. This speeds up the recording process
-            without compromising the fidelity of the playback. The only side-
-            effect for recording is that calling getTotalClip() or related
-            clip-query calls will reflect the path's bounds, not the actual
-            path.
-         */
-        kUsePathBoundsForClip_RecordingFlag = 0x01
-    };
-#endif
-
     /** Replays the drawing commands on the specified canvas.
         @param canvas the canvas receiving the drawing commands.
     */
