@@ -5663,6 +5663,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "dashing4_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13316683089533734782
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "dashing_565.png": {
       "allowed-digests": [
         [
