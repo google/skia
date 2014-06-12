@@ -7,9 +7,11 @@
 
 import argparse
 import bench_util
+import json
 import os
 import re
 import sys
+import urllib2
 
 # Parameters for calculating bench ranges.
 RANGE_RATIO_UPPER = 1.5  # Ratio of range for upper bounds.
@@ -36,12 +38,17 @@ CONFIGS_TO_INCLUDE = ['simple_viewport_1000x1000',
 ENTRIES_TO_EXCLUDE = [
                      ]
 
+_GS_CLOUD_FORMAT = 'http://storage.googleapis.com/chromium-skia-gm/perfdata/%s/%s'
 
-def compute_ranges(benches):
+def compute_ranges(benches, more_benches=None):
   """Given a list of bench numbers, calculate the alert range.
 
   Args:
     benches: a list of float bench values.
+    more_benches: a tuple of lists of additional bench values.
+      The first value of each tuple is the number of commits before the current
+      one that set of values is at, and the second value is a list of
+      bench results.
 
   Returns:
     a list of float [lower_bound, upper_bound].
@@ -55,7 +62,7 @@ def compute_ranges(benches):
           maximum + diff*RANGE_RATIO_UPPER + avg*ERR_RATIO + ERR_UB]
 
 
-def create_expectations_dict(revision_data_points, builder):
+def create_expectations_dict(revision_data_points, builder, extra_data=None):
   """Convert list of bench data points into a dictionary of expectations data.
 
   Args:
@@ -81,11 +88,57 @@ def create_expectations_dict(revision_data_points, builder):
     if to_skip:
       continue
     key = (point.config, point.bench)
+
+    extras = []
+    for idx, dataset in extra_data:
+      for data in dataset:
+        if (data.bench == point.bench and data.config == point.config and
+              data.time_type == point.time_type and data.per_iter_time):
+          extras.append((idx, data.per_iter_time))
+
     if key in bench_dict:
       raise Exception('Duplicate bench entry: ' + str(key))
-    bench_dict[key] = [point.time] + compute_ranges(point.per_iter_time)
+    bench_dict[key] = [point.time] + compute_ranges(point.per_iter_time, extras)
 
   return bench_dict
+
+
+def get_parent_commits(start_hash, num_back):
+  """Returns a list of commits that are the parent of the commit passed in."""
+  list_commits = urllib2.urlopen(
+      'https://skia.googlesource.com/skia/+log/%s?format=json&n=%d' %
+      (start_hash, num_back))
+  # NOTE: Very brittle. Removes the four extraneous characters
+  # so json can be read successfully
+  trunc_list = list_commits.read()[4:]
+  json_data = json.loads(trunc_list)
+  return [revision['commit'] for revision in json_data['log']]
+
+
+def get_file_suffixes(commit_hash, directory):
+  """Gets all the suffixes available in the directory"""
+  possible_files = os.listdir(directory)
+  prefix = 'bench_' + commit_hash + '_data_'
+  return [name[len(prefix):] for name in possible_files
+      if name.startswith(prefix)]
+
+
+def download_bench_data(builder, commit_hash, suffixes, directory):
+  """Downloads data, returns the number successfully downloaded"""
+  cur_files = os.listdir(directory)
+  count = 0
+  for suffix in suffixes:
+    file_name = 'bench_'+commit_hash+'_data_'+suffix
+    if file_name in cur_files:
+      continue
+    try:
+      src = urllib2.urlopen(_GS_CLOUD_FORMAT % (builder, file_name))
+      with open(os.path.join(directory, file_name), 'w') as dest:
+        dest.writelines(src)
+        count += 1
+    except urllib2.HTTPError:
+      pass
+  return count
 
 
 def main():
@@ -107,6 +160,13 @@ def main():
     parser.add_argument(
         '-r', '--git_revision', required=True,
         help='the git hash to indicate the revision of input data to use.')
+    parser.add_argument(
+        '-t', '--back_track', required=False, default=10,
+        help='the number of commit hashes backwards to look to include' +
+             'in the calculations.')
+    parser.add_argument(
+        '-m', '--max_commits', required=False, default=1,
+        help='the number of commit hashes to include in the calculations.')
     args = parser.parse_args()
 
     builder = args.builder
@@ -114,7 +174,31 @@ def main():
     data_points = bench_util.parse_skp_bench_data(
         args.input_dir, args.git_revision, args.representation_alg)
 
-    expectations_dict = create_expectations_dict(data_points, builder)
+    parent_commits = get_parent_commits(args.git_revision, args.back_track)
+    print "Using commits: {}".format(parent_commits)
+    suffixes = get_file_suffixes(args.git_revision, args.input_dir)
+    print "Using suffixes: {}".format(suffixes)
+
+    # TODO(kelvinly): Find a better approach to than directly copying from
+    # the GS server?
+    downloaded_commits = []
+    for idx, commit in enumerate(parent_commits):
+      num_downloaded = download_bench_data(
+          builder, commit, suffixes, args.input_dir)
+      if num_downloaded > 0:
+        downloaded_commits.append((num_downloaded, idx, commit))
+
+    if len(downloaded_commits) < args.max_commits:
+      print ('Less than desired number of commits found. Please increase'
+            '--back_track in later runs')
+    trunc_commits = sorted(downloaded_commits, reverse=True)[:args.max_commits]
+    extra_data = []
+    for _, idx, commit in trunc_commits:
+      extra_data.append((idx, bench_util.parse_skp_bench_data(
+          args.input_dir, commit, args.representation_alg)))
+
+    expectations_dict = create_expectations_dict(data_points, builder,
+                                                 extra_data)
 
     out_lines = []
     keys = expectations_dict.keys()
