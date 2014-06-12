@@ -70,7 +70,7 @@ def get_gs_filelist(p, h):
 
 def download_gs_files(p, h, gs_dir):
   print 'Downloading raw bench files from Google Storage...'
-  proc = subprocess.Popen(['gsutil', 'cp', '-q',
+  proc = subprocess.Popen(['gsutil', 'cp',
       '/'.join([GS_PREFIX, p, 'bench_' + h + '_data_skp_*']),
           '%s/%s' % (gs_dir, p)],
           stdout=subprocess.PIPE)
