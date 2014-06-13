@@ -21,7 +21,7 @@ SkImageDecoder::SkImageDecoder()
 #endif
     , fAllocator(NULL)
     , fSampleSize(1)
-    , fDefaultPref(SkBitmap::kNo_Config)
+    , fDefaultPref(kUnknown_SkColorType)
     , fDitherImage(true)
     , fUsePrefTable(false)
     , fSkipWritingZeroes(false)
@@ -148,9 +148,11 @@ void SkImageDecoder::setPrefConfigTable(const PrefConfigTable& prefTable) {
 // TODO: use colortype in fPrefTable, fDefaultPref so we can stop using SkBitmapConfigToColorType()
 //
 SkColorType SkImageDecoder::getPrefColorType(SrcDepth srcDepth, bool srcHasAlpha) const {
-    SkBitmap::Config config = SkBitmap::kNo_Config;
+    SkColorType ct = fDefaultPref;
 
     if (fUsePrefTable) {
+        // Until we kill or change the PrefTable, we have to go into Config land for a moment.
+        SkBitmap::Config config = SkBitmap::kNo_Config;
         switch (srcDepth) {
             case kIndex_SrcDepth:
                 config = srcHasAlpha ? fPrefTable.fPrefFor_8Index_YesAlpha_src
@@ -164,18 +166,16 @@ SkColorType SkImageDecoder::getPrefColorType(SrcDepth srcDepth, bool srcHasAlpha
                                      : fPrefTable.fPrefFor_8bpc_NoAlpha_src;
                 break;
         }
-    } else {
-        config = fDefaultPref;
+        // now return to SkColorType land
+        ct = SkBitmapConfigToColorType(config);
     }
-
-    return SkBitmapConfigToColorType(config);
+    return ct;
 }
 
-bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
-                            SkBitmap::Config pref, Mode mode) {
+bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm, SkColorType pref, Mode mode) {
     // we reset this to false before calling onDecode
     fShouldCancelDecode = false;
-    // assign this, for use by getPrefConfig(), in case fUsePrefTable is false
+    // assign this, for use by getPrefColorType(), in case fUsePrefTable is false
     fDefaultPref = pref;
 
     // pass a temporary bitmap, so that if we return false, we are assured of
@@ -188,18 +188,16 @@ bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
     return true;
 }
 
-bool SkImageDecoder::decodeSubset(SkBitmap* bm, const SkIRect& rect,
-                                  SkBitmap::Config pref) {
+bool SkImageDecoder::decodeSubset(SkBitmap* bm, const SkIRect& rect, SkColorType pref) {
     // we reset this to false before calling onDecodeSubset
     fShouldCancelDecode = false;
-    // assign this, for use by getPrefConfig(), in case fUsePrefTable is false
+    // assign this, for use by getPrefColorType(), in case fUsePrefTable is false
     fDefaultPref = pref;
 
     return this->onDecodeSubset(bm, rect);
 }
 
-bool SkImageDecoder::buildTileIndex(SkStreamRewindable* stream,
-                                    int *width, int *height) {
+bool SkImageDecoder::buildTileIndex(SkStreamRewindable* stream, int *width, int *height) {
     // we reset this to false before calling onBuildTileIndex
     fShouldCancelDecode = false;
 
@@ -255,8 +253,8 @@ bool SkImageDecoder::cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkImageDecoder::DecodeFile(const char file[], SkBitmap* bm,
-                            SkBitmap::Config pref,  Mode mode, Format* format) {
+bool SkImageDecoder::DecodeFile(const char file[], SkBitmap* bm, SkColorType pref,  Mode mode,
+                                Format* format) {
     SkASSERT(file);
     SkASSERT(bm);
 
@@ -270,8 +268,8 @@ bool SkImageDecoder::DecodeFile(const char file[], SkBitmap* bm,
     return false;
 }
 
-bool SkImageDecoder::DecodeMemory(const void* buffer, size_t size, SkBitmap* bm,
-                          SkBitmap::Config pref, Mode mode, Format* format) {
+bool SkImageDecoder::DecodeMemory(const void* buffer, size_t size, SkBitmap* bm, SkColorType pref,
+                                  Mode mode, Format* format) {
     if (0 == size) {
         return false;
     }
@@ -281,9 +279,8 @@ bool SkImageDecoder::DecodeMemory(const void* buffer, size_t size, SkBitmap* bm,
     return SkImageDecoder::DecodeStream(&stream, bm, pref, mode, format);
 }
 
-bool SkImageDecoder::DecodeStream(SkStreamRewindable* stream, SkBitmap* bm,
-                                  SkBitmap::Config pref, Mode mode,
-                                  Format* format) {
+bool SkImageDecoder::DecodeStream(SkStreamRewindable* stream, SkBitmap* bm, SkColorType pref,
+                                  Mode mode, Format* format) {
     SkASSERT(stream);
     SkASSERT(bm);
 

@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "gm.h"
 #include "SampleCode.h"
 #include "SkBlurMask.h"
@@ -182,8 +183,7 @@ private:
         if (!fPremul) {
             decoder->setRequireUnpremultipliedColors(true);
         }
-        fDecodeSucceeded = decoder->decode(&stream, &fBitmap,
-                                           SkBitmap::kARGB_8888_Config,
+        fDecodeSucceeded = decoder->decode(&stream, &fBitmap, kN32_SkColorType,
                                            SkImageDecoder::kDecodePixels_Mode);
         this->inval(NULL);
     }

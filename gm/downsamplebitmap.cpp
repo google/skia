@@ -183,8 +183,7 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
           }
           if (codec) {
               stream.rewind();
-              codec->decode(&stream, &fBM, SkBitmap::kARGB_8888_Config,
-                  SkImageDecoder::kDecodePixels_Mode);
+              codec->decode(&stream, &fBM, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
               SkDELETE(codec);
           } else {
               fBM.allocN32Pixels(1, 1);

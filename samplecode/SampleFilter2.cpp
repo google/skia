@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -35,14 +35,12 @@ public:
         fBitmaps = new SkBitmap[fBitmapCount];
 
         for (int i = 0; i < fBitmapCount/2; i++) {
-            SkImageDecoder::DecodeFile(gNames[i], &fBitmaps[i],
-                                       SkBitmap::kARGB_8888_Config,
-                                   SkImageDecoder::kDecodePixels_Mode, NULL);
+            SkImageDecoder::DecodeFile(gNames[i], &fBitmaps[i], kN32_SkColorType,
+                                       SkImageDecoder::kDecodePixels_Mode, NULL);
         }
         for (int i = fBitmapCount/2; i < fBitmapCount; i++) {
-            SkImageDecoder::DecodeFile(gNames[i-fBitmapCount/2], &fBitmaps[i],
-                                       SkBitmap::kRGB_565_Config,
-                                   SkImageDecoder::kDecodePixels_Mode, NULL);
+            SkImageDecoder::DecodeFile(gNames[i-fBitmapCount/2], &fBitmaps[i], kRGB_565_SkColorType,
+                                       SkImageDecoder::kDecodePixels_Mode, NULL);
         }
         fCurrIndex = 0;
 

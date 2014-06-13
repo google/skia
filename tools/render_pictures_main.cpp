@@ -130,7 +130,7 @@ static bool write_image_to_file(const void* buffer, size_t size, SkBitmap* bitma
         SkDebugf("Failed to write encoded data to \"%s\"\n", outPath.c_str());
     }
     // Put in a dummy bitmap.
-    return SkImageDecoder::DecodeStream(&memStream, bitmap, SkBitmap::kNo_Config,
+    return SkImageDecoder::DecodeStream(&memStream, bitmap, kUnknown_SkColorType,
                                         SkImageDecoder::kDecodeBounds_Mode);
 }
 

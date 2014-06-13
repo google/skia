@@ -11,22 +11,17 @@
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkString.h"
+#include "sk_tool_utils.h"
 
 DEFINE_string(decodeBenchFilename, "resources/CMYK.jpeg", "Path to image for DecodeBench.");
 
-static const char* gConfigName[] = {
-    "ERROR", "a1", "a8", "index8", "565", "4444", "8888"
-};
-
 class DecodeBench : public SkBenchmark {
-    SkBitmap::Config fPrefConfig;
-    SkString fName;
+    const SkColorType fPrefColorType;
+    SkString          fName;
 public:
-    DecodeBench(SkBitmap::Config c) {
-        fPrefConfig = c;
-
+    DecodeBench(SkColorType ct) : fPrefColorType(ct) {
         SkString fname = SkOSPath::SkBasename(FLAGS_decodeBenchFilename[0]);
-        fName.printf("decode_%s_%s", gConfigName[c], fname.c_str());
+        fName.printf("decode_%s_%s", sk_tool_utils::colortype_name(ct), fname.c_str());
     }
 
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
@@ -41,9 +36,7 @@ protected:
     virtual void onDraw(const int loops, SkCanvas*) {
         for (int i = 0; i < loops; i++) {
             SkBitmap bm;
-            SkImageDecoder::DecodeFile(FLAGS_decodeBenchFilename[0],
-                                       &bm,
-                                       fPrefConfig,
+            SkImageDecoder::DecodeFile(FLAGS_decodeBenchFilename[0], &bm, fPrefColorType,
                                        SkImageDecoder::kDecodePixels_Mode);
         }
     }
@@ -52,6 +45,6 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-DEF_BENCH( return new DecodeBench(SkBitmap::kARGB_8888_Config); )
-DEF_BENCH( return new DecodeBench(SkBitmap::kRGB_565_Config); )
-DEF_BENCH( return new DecodeBench(SkBitmap::kARGB_4444_Config); )
+DEF_BENCH( return new DecodeBench(kN32_SkColorType); )
+DEF_BENCH( return new DecodeBench(kRGB_565_SkColorType); )
+DEF_BENCH( return new DecodeBench(kARGB_4444_SkColorType); )

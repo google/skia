@@ -207,10 +207,8 @@ namespace skiagm {
         SkString path = SkOSPath::SkPathJoin(fRootDir.c_str(), testName);
         SkBitmap referenceBitmap;
         bool decodedReferenceBitmap =
-            SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap,
-                                       SkBitmap::kARGB_8888_Config,
-                                       SkImageDecoder::kDecodePixels_Mode,
-                                       NULL);
+            SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap, kN32_SkColorType,
+                                       SkImageDecoder::kDecodePixels_Mode, NULL);
         if (decodedReferenceBitmap) {
             return Expectations(referenceBitmap);
         } else {

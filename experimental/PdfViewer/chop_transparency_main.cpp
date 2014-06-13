@@ -108,8 +108,7 @@ static void decodeFileAndWrite(const char srcPath[]) {
 
     stream.rewind();
 
-    if (!codec->decode(&stream, &bitmap, SkBitmap::kARGB_8888_Config,
-                       SkImageDecoder::kDecodePixels_Mode)) {
+    if (!codec->decode(&stream, &bitmap, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode)) {
         return;
     }
 

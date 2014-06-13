@@ -33,10 +33,6 @@ SkBitmap::Config SkColorTypeToBitmapConfig(SkColorType colorType) {
     return SkBitmap::kNo_Config;
 }
 
-SkBitmap::Config SkImageInfoToBitmapConfig(const SkImageInfo& info) {
-    return SkColorTypeToBitmapConfig(info.fColorType);
-}
-
 SkColorType SkBitmapConfigToColorType(SkBitmap::Config config) {
     static const SkColorType gCT[] = {
         kUnknown_SkColorType,   // kNo_Config

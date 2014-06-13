@@ -45,7 +45,6 @@ static void draw_row(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, 
 
 class FilterIndiaBoxGM : public skiagm::GM {
     void onOnceBeforeDraw() {
-
         this->makeBitmap();
 
         SkScalar cx = SkScalarHalf(fBM.width());
@@ -63,14 +62,11 @@ public:
     SkMatrix    fMatrix[2];
     SkString    fName;
 
-    FilterIndiaBoxGM()
-    {
+    FilterIndiaBoxGM() {
         this->setBGColor(0xFFDDDDDD);
     }
 
-    FilterIndiaBoxGM(const char filename[])
-      : fFilename(filename)
-    {
+    FilterIndiaBoxGM(const char filename[]) : fFilename(filename) {
         fName.printf("filterindiabox");
     }
 
@@ -88,7 +84,6 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-
         canvas->translate(10, 10);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrix); ++i) {
             SkSize size = computeSize(fBM, fMatrix[i]);
@@ -120,8 +115,7 @@ protected:
           }
           if (codec) {
               stream.rewind();
-              codec->decode(&stream, &fBM, SkBitmap::kARGB_8888_Config,
-                  SkImageDecoder::kDecodePixels_Mode);
+              codec->decode(&stream, &fBM, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
               SkDELETE(codec);
           } else {
               fBM.allocN32Pixels(1, 1);

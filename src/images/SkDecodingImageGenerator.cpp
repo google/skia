@@ -173,9 +173,7 @@ bool DecodingImageGenerator::onGetPixels(const SkImageInfo& info,
     SkBitmap bitmap;
     TargetAllocator allocator(fInfo, pixels, rowBytes);
     decoder->setAllocator(&allocator);
-    // TODO: need to be able to pass colortype directly to decoder
-    SkBitmap::Config legacyConfig = SkColorTypeToBitmapConfig(info.colorType());
-    bool success = decoder->decode(fStream, &bitmap, legacyConfig,
+    bool success = decoder->decode(fStream, &bitmap, info.colorType(),
                                    SkImageDecoder::kDecodePixels_Mode);
     decoder->setAllocator(NULL);
     if (!success) {

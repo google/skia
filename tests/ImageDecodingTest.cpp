@@ -90,7 +90,7 @@ static void compare_unpremul(skiatest::Reporter* reporter, const SkString& filen
         return;
     }
 
-    bool success = decoder->decode(&stream, &bm8888, SkBitmap::kARGB_8888_Config,
+    bool success = decoder->decode(&stream, &bm8888, kN32_SkColorType,
                                    SkImageDecoder::kDecodePixels_Mode);
     if (!success) {
         return;
@@ -103,7 +103,7 @@ static void compare_unpremul(skiatest::Reporter* reporter, const SkString& filen
     }
 
     decoder->setRequireUnpremultipliedColors(true);
-    success = decoder->decode(&stream, &bm8888Unpremul, SkBitmap::kARGB_8888_Config,
+    success = decoder->decode(&stream, &bm8888Unpremul, kN32_SkColorType,
                               SkImageDecoder::kDecodePixels_Mode);
     if (!success) {
         return;
@@ -117,8 +117,7 @@ static void compare_unpremul(skiatest::Reporter* reporter, const SkString& filen
     }
 
     // Only do the comparison if the two bitmaps are both 8888.
-    if (bm8888.config() != SkBitmap::kARGB_8888_Config
-        || bm8888Unpremul.config() != SkBitmap::kARGB_8888_Config) {
+    if (bm8888.colorType() != kN32_SkColorType || bm8888Unpremul.colorType() != kN32_SkColorType) {
         return;
     }
 
@@ -182,7 +181,7 @@ static void test_alphaType(skiatest::Reporter* reporter, const SkString& filenam
     decoder->setRequireUnpremultipliedColors(requireUnpremul);
 
     // Decode just the bounds. This should always succeed.
-    bool success = decoder->decode(&stream, &bm, SkBitmap::kARGB_8888_Config,
+    bool success = decoder->decode(&stream, &bm, kN32_SkColorType,
                                    SkImageDecoder::kDecodeBounds_Mode);
     REPORTER_ASSERT(reporter, success);
     if (!success) {
@@ -202,8 +201,7 @@ static void test_alphaType(skiatest::Reporter* reporter, const SkString& filenam
         return;
     }
 
-    success = decoder->decode(&stream, &bm, SkBitmap::kARGB_8888_Config,
-                              SkImageDecoder::kDecodePixels_Mode);
+    success = decoder->decode(&stream, &bm, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
 
     if (!success) {
         // When the decoder is set to require unpremul, if it does not support
@@ -285,7 +283,7 @@ DEF_TEST(ImageDecoding_unpremul, reporter) {
 
         // Test unpremultiplied. We know what color this should result in.
         decoder->setRequireUnpremultipliedColors(true);
-        bool success = decoder->decode(&stream, &bm, SkBitmap::kARGB_8888_Config,
+        bool success = decoder->decode(&stream, &bm, kN32_SkColorType,
                                        SkImageDecoder::kDecodePixels_Mode);
         REPORTER_ASSERT(reporter, success);
         if (!success) {
@@ -307,7 +305,7 @@ DEF_TEST(ImageDecoding_unpremul, reporter) {
         // Test premultiplied. Once again, we know which color this should
         // result in.
         decoder->setRequireUnpremultipliedColors(false);
-        success = decoder->decode(&stream, &bm, SkBitmap::kARGB_8888_Config,
+        success = decoder->decode(&stream, &bm, kN32_SkColorType,
                                   SkImageDecoder::kDecodePixels_Mode);
         REPORTER_ASSERT(reporter, success);
         if (!success) {
@@ -381,8 +379,7 @@ static void test_stream_life() {
         // Now unref the stream to make sure it survives
         stream.reset(NULL);
         SkBitmap bm;
-        decoder->decodeSubset(&bm, SkIRect::MakeWH(width, height),
-                              SkBitmap::kARGB_8888_Config);
+        decoder->decodeSubset(&bm, SkIRect::MakeWH(width, height), kN32_SkColorType);
     }
 }
 
@@ -629,14 +626,13 @@ static void test_options(skiatest::Reporter* reporter,
         return;
     }
 
-    SkBitmap::Config requestedConfig
-        = SkColorTypeToBitmapConfig(opts.fRequestedColorType);
+    SkColorType requestedColorType = opts.fRequestedColorType;
     REPORTER_ASSERT(reporter,
                     (!opts.fUseRequestedColorType)
-                    || (bm.config() == requestedConfig));
+                    || (bm.colorType() == requestedColorType));
 
     // Condition under which we should check the decoding results:
-    if ((SkBitmap::kARGB_8888_Config == bm.config())
+    if ((kN32_SkColorType == bm.colorType())
         && (!path.endsWith(".jpg"))  // lossy
         && (opts.fSampleSize == 1)) {  // scaled
         const SkColor* correctPixels = kExpectedPixels;

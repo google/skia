@@ -24,7 +24,6 @@ protected:
 
         // parameters to the "decode" call
         bool dither = false;
-        SkBitmap::Config prefConfig = SkBitmap::kARGB_8888_Config;
 
         SkString filename(INHERITED::gResourcePath);
         if (!filename.endsWith("/") && !filename.endsWith("\\")) {
@@ -43,8 +42,7 @@ protected:
         if (codec) {
             stream.rewind();
             codec->setDitherImage(dither);
-            codec->decode(&stream, &fBitmap, prefConfig,
-                          SkImageDecoder::kDecodePixels_Mode);
+            codec->decode(&stream, &fBitmap, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
             SkDELETE(codec);
         }
     }

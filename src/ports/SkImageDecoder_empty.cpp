@@ -28,24 +28,19 @@ SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable*) {
 
 void SkImageDecoder::copyFieldsToOther(SkImageDecoder* ) {}
 
-bool SkImageDecoder::DecodeFile(const char[], SkBitmap*, SkBitmap::Config,
-                                SkImageDecoder::Mode, SkImageDecoder::Format*) {
+bool SkImageDecoder::DecodeFile(const char[], SkBitmap*, SkColorType, Mode, Format*) {
     return false;
 }
 
-bool SkImageDecoder::decode(SkStream*, SkBitmap*, SkBitmap::Config, Mode) {
+bool SkImageDecoder::decode(SkStream*, SkBitmap*, SkColorType, Mode) {
     return false;
 }
 
-bool SkImageDecoder::DecodeStream(SkStreamRewindable*, SkBitmap*, SkBitmap::Config,
-                                  SkImageDecoder::Mode,
-                                  SkImageDecoder::Format*) {
+bool SkImageDecoder::DecodeStream(SkStreamRewindable*, SkBitmap*, SkColorType, Mode, Format*) {
     return false;
 }
 
-bool SkImageDecoder::DecodeMemory(const void*, size_t, SkBitmap*,
-                                  SkBitmap::Config, SkImageDecoder::Mode,
-                                  SkImageDecoder::Format*) {
+bool SkImageDecoder::DecodeMemory(const void*, size_t, SkBitmap*, SkColorType, Mode, Format*) {
     return false;
 }
 
@@ -53,7 +48,7 @@ bool SkImageDecoder::buildTileIndex(SkStreamRewindable*, int *width, int *height
     return false;
 }
 
-bool SkImageDecoder::decodeSubset(SkBitmap*, const SkIRect&, SkBitmap::Config) {
+bool SkImageDecoder::decodeSubset(SkBitmap*, const SkIRect&, SkColorType) {
     return false;
 }
 

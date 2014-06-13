@@ -63,7 +63,7 @@ bool get_bitmap(SkData* fileBits, DiffResource& resource, SkImageDecoder::Mode m
     SkAutoTDelete<SkImageDecoder> ad(codec);
 
     stream.rewind();
-    if (!codec->decode(&stream, &resource.fBitmap, SkBitmap::kARGB_8888_Config, mode)) {
+    if (!codec->decode(&stream, &resource.fBitmap, kN32_SkColorType, mode)) {
         SkDebugf("ERROR: codec failed for basePath <%s>\n", resource.fFullPath.c_str());
         resource.fStatus = DiffResource::kCouldNotDecode_Status;
         return false;
