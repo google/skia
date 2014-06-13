@@ -185,6 +185,7 @@
         '<(skia_src_path)/core/SkStrokerPriv.cpp',
         '<(skia_src_path)/core/SkStrokerPriv.h',
         '<(skia_src_path)/core/SkTextFormatParams.h',
+        '<(skia_src_path)/core/SkTextMapStateProc.h',
         '<(skia_src_path)/core/SkTileGrid.cpp',
         '<(skia_src_path)/core/SkTileGrid.h',
         '<(skia_src_path)/core/SkTLList.h',

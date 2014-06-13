@@ -23,6 +23,7 @@
 #include "SkSmallAllocator.h"
 #include "SkString.h"
 #include "SkStroke.h"
+#include "SkTextMapStateProc.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
@@ -1638,119 +1639,6 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     }
 }
 
-// last parameter is interpreted as SkFixed [x, y]
-// return the fixed position, which may be rounded or not by the caller
-//   e.g. subpixel doesn't round
-typedef void (*AlignProc)(const SkPoint&, const SkGlyph&, SkIPoint*);
-
-static void leftAlignProc(const SkPoint& loc, const SkGlyph& glyph, SkIPoint* dst) {
-    dst->set(SkScalarToFixed(loc.fX), SkScalarToFixed(loc.fY));
-}
-
-static void centerAlignProc(const SkPoint& loc, const SkGlyph& glyph, SkIPoint* dst) {
-    dst->set(SkScalarToFixed(loc.fX) - (glyph.fAdvanceX >> 1),
-             SkScalarToFixed(loc.fY) - (glyph.fAdvanceY >> 1));
-}
-
-static void rightAlignProc(const SkPoint& loc, const SkGlyph& glyph, SkIPoint* dst) {
-    dst->set(SkScalarToFixed(loc.fX) - glyph.fAdvanceX,
-             SkScalarToFixed(loc.fY) - glyph.fAdvanceY);
-}
-
-static AlignProc pick_align_proc(SkPaint::Align align) {
-    static const AlignProc gProcs[] = {
-        leftAlignProc, centerAlignProc, rightAlignProc
-    };
-
-    SkASSERT((unsigned)align < SK_ARRAY_COUNT(gProcs));
-
-    return gProcs[align];
-}
-
-typedef void (*AlignProc_scalar)(const SkPoint&, const SkGlyph&, SkPoint*);
-
-static void leftAlignProc_scalar(const SkPoint& loc, const SkGlyph& glyph, SkPoint* dst) {
-    dst->set(loc.fX, loc.fY);
-}
-
-static void centerAlignProc_scalar(const SkPoint& loc, const SkGlyph& glyph, SkPoint* dst) {
-    dst->set(loc.fX - SkFixedToScalar(glyph.fAdvanceX >> 1),
-             loc.fY - SkFixedToScalar(glyph.fAdvanceY >> 1));
-}
-
-static void rightAlignProc_scalar(const SkPoint& loc, const SkGlyph& glyph, SkPoint* dst) {
-    dst->set(loc.fX - SkFixedToScalar(glyph.fAdvanceX),
-             loc.fY - SkFixedToScalar(glyph.fAdvanceY));
-}
-
-static AlignProc_scalar pick_align_proc_scalar(SkPaint::Align align) {
-    static const AlignProc_scalar gProcs[] = {
-        leftAlignProc_scalar, centerAlignProc_scalar, rightAlignProc_scalar
-    };
-
-    SkASSERT((unsigned)align < SK_ARRAY_COUNT(gProcs));
-
-    return gProcs[align];
-}
-
-class TextMapState {
-public:
-    mutable SkPoint fLoc;
-
-    TextMapState(const SkMatrix& matrix, SkScalar y)
-        : fMatrix(matrix), fProc(matrix.getMapXYProc()), fY(y) {}
-
-    typedef void (*Proc)(const TextMapState&, const SkScalar pos[]);
-
-    Proc pickProc(int scalarsPerPosition);
-
-private:
-    const SkMatrix&     fMatrix;
-    SkMatrix::MapXYProc fProc;
-    SkScalar            fY; // ignored by MapXYProc
-    // these are only used by Only... procs
-    SkScalar            fScaleX, fTransX, fTransformedY;
-
-    static void MapXProc(const TextMapState& state, const SkScalar pos[]) {
-        state.fProc(state.fMatrix, *pos, state.fY, &state.fLoc);
-    }
-
-    static void MapXYProc(const TextMapState& state, const SkScalar pos[]) {
-        state.fProc(state.fMatrix, pos[0], pos[1], &state.fLoc);
-    }
-
-    static void MapOnlyScaleXProc(const TextMapState& state,
-                                  const SkScalar pos[]) {
-        state.fLoc.set(SkScalarMul(state.fScaleX, *pos) + state.fTransX,
-                       state.fTransformedY);
-    }
-
-    static void MapOnlyTransXProc(const TextMapState& state,
-                                  const SkScalar pos[]) {
-        state.fLoc.set(*pos + state.fTransX, state.fTransformedY);
-    }
-};
-
-TextMapState::Proc TextMapState::pickProc(int scalarsPerPosition) {
-    SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
-
-    if (1 == scalarsPerPosition) {
-        unsigned mtype = fMatrix.getType();
-        if (mtype & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
-            return MapXProc;
-        } else {
-            fScaleX = fMatrix.getScaleX();
-            fTransX = fMatrix.getTranslateX();
-            fTransformedY = SkScalarMul(fY, fMatrix.getScaleY()) +
-                            fMatrix.getTranslateY();
-            return (mtype & SkMatrix::kScale_Mask) ?
-                        MapOnlyScaleXProc : MapOnlyTransXProc;
-        }
-    } else {
-        return MapXYProc;
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
@@ -1773,9 +1661,8 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
     SkGlyphCache*       cache = autoCache.getCache();
 
     const char*        stop = text + byteLength;
-    AlignProc_scalar   alignProc = pick_align_proc_scalar(paint.getTextAlign());
-    TextMapState       tms(SkMatrix::I(), constY);
-    TextMapState::Proc tmsProc = tms.pickProc(scalarsPerPosition);
+    SkTextAlignProcScalar alignProc(paint.getTextAlign());
+    SkTextMapStateProc tmsProc(SkMatrix::I(), constY, scalarsPerPosition);
 
     // Now restore the original settings, so we "draw" with whatever style/stroking.
     paint.setStyle(origPaint.getStyle());
@@ -1786,9 +1673,10 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
         if (glyph.fWidth) {
             const SkPath* path = cache->findPath(glyph);
             if (path) {
-                tmsProc(tms, pos);
+                SkPoint tmsLoc;
+                tmsProc(pos, &tmsLoc);
                 SkPoint loc;
-                alignProc(tms.fLoc, glyph, &loc);
+                alignProc(tmsLoc, glyph, &loc);
 
                 matrix[SkMatrix::kMTransX] = loc.fX;
                 matrix[SkMatrix::kMTransY] = loc.fY;
@@ -1839,11 +1727,10 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     }
 
     const char*        stop = text + byteLength;
-    AlignProc          alignProc = pick_align_proc(paint.getTextAlign());
+    SkTextAlignProc    alignProc(paint.getTextAlign());
     SkDraw1Glyph       d1g;
     SkDraw1Glyph::Proc proc = d1g.init(this, blitter, cache, paint);
-    TextMapState       tms(*fMatrix, constY);
-    TextMapState::Proc tmsProc = tms.pickProc(scalarsPerPosition);
+    SkTextMapStateProc tmsProc(*fMatrix, constY, scalarsPerPosition);
 
     if (cache->isSubpixel()) {
         // maybe we should skip the rounding if linearText is set
@@ -1865,9 +1752,10 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
 
         if (SkPaint::kLeft_Align == paint.getTextAlign()) {
             while (text < stop) {
-                tmsProc(tms, pos);
-                SkFixed fx = SkScalarToFixed(tms.fLoc.fX) + d1g.fHalfSampleX;
-                SkFixed fy = SkScalarToFixed(tms.fLoc.fY) + d1g.fHalfSampleY;
+                SkPoint tmsLoc;
+                tmsProc(pos, &tmsLoc);
+                SkFixed fx = SkScalarToFixed(tmsLoc.fX) + d1g.fHalfSampleX;
+                SkFixed fy = SkScalarToFixed(tmsLoc.fY) + d1g.fHalfSampleY;
 
                 const SkGlyph& glyph = glyphCacheProc(cache, &text,
                                                       fx & fxMask, fy & fyMask);
@@ -1885,10 +1773,10 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                 if (metricGlyph.fWidth) {
                     SkDEBUGCODE(SkFixed prevAdvX = metricGlyph.fAdvanceX;)
                     SkDEBUGCODE(SkFixed prevAdvY = metricGlyph.fAdvanceY;)
-
-                    tmsProc(tms, pos);
+                    SkPoint tmsLoc;
+                    tmsProc(pos, &tmsLoc);
                     SkIPoint fixedLoc;
-                    alignProc(tms.fLoc, metricGlyph, &fixedLoc);
+                    alignProc(tmsLoc, metricGlyph, &fixedLoc);
 
                     SkFixed fx = fixedLoc.fX + d1g.fHalfSampleX;
                     SkFixed fy = fixedLoc.fY + d1g.fHalfSampleY;
@@ -1913,11 +1801,12 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                 const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
 
                 if (glyph.fWidth) {
-                    tmsProc(tms, pos);
+                    SkPoint tmsLoc;
+                    tmsProc(pos, &tmsLoc);
 
                     proc(d1g,
-                         SkScalarToFixed(tms.fLoc.fX) + SK_FixedHalf, //d1g.fHalfSampleX,
-                         SkScalarToFixed(tms.fLoc.fY) + SK_FixedHalf, //d1g.fHalfSampleY,
+                         SkScalarToFixed(tmsLoc.fX) + SK_FixedHalf, //d1g.fHalfSampleX,
+                         SkScalarToFixed(tmsLoc.fY) + SK_FixedHalf, //d1g.fHalfSampleY,
                          glyph);
                 }
                 pos += scalarsPerPosition;
@@ -1928,10 +1817,11 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                 const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
 
                 if (glyph.fWidth) {
-                    tmsProc(tms, pos);
+                    SkPoint tmsLoc;
+                    tmsProc(pos, &tmsLoc);
 
                     SkIPoint fixedLoc;
-                    alignProc(tms.fLoc, glyph, &fixedLoc);
+                    alignProc(tmsLoc, glyph, &fixedLoc);
 
                     proc(d1g,
                          fixedLoc.fX + SK_FixedHalf, //d1g.fHalfSampleX,

@@ -21,9 +21,11 @@
 
 #include "SkAutoKern.h"
 #include "SkDraw.h"
+#include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
 #include "SkGpuDevice.h"
 #include "SkGr.h"
+#include "SkTextMapStateProc.h"
 
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
@@ -264,98 +266,6 @@ void GrBitmapTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint,
     this->finish();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Copied from SkDraw
-
-// last parameter is interpreted as SkFixed [x, y]
-// return the fixed position, which may be rounded or not by the caller
-//   e.g. subpixel doesn't round
-typedef void (*AlignProc)(const SkPoint&, const SkGlyph&, SkIPoint*);
-
-static void leftAlignProc(const SkPoint& loc, const SkGlyph& glyph, SkIPoint* dst) {
-    dst->set(SkScalarToFixed(loc.fX), SkScalarToFixed(loc.fY));
-}
-
-static void centerAlignProc(const SkPoint& loc, const SkGlyph& glyph, SkIPoint* dst) {
-    dst->set(SkScalarToFixed(loc.fX) - (glyph.fAdvanceX >> 1),
-             SkScalarToFixed(loc.fY) - (glyph.fAdvanceY >> 1));
-}
-
-static void rightAlignProc(const SkPoint& loc, const SkGlyph& glyph, SkIPoint* dst) {
-    dst->set(SkScalarToFixed(loc.fX) - glyph.fAdvanceX,
-             SkScalarToFixed(loc.fY) - glyph.fAdvanceY);
-}
-
-static AlignProc pick_align_proc(SkPaint::Align align) {
-    static const AlignProc gProcs[] = {
-        leftAlignProc, centerAlignProc, rightAlignProc
-    };
-
-    SkASSERT((unsigned)align < SK_ARRAY_COUNT(gProcs));
-
-    return gProcs[align];
-}
-
-class BitmapTextMapState {
-public:
-    mutable SkPoint fLoc;
-
-    BitmapTextMapState(const SkMatrix& matrix, SkScalar y)
-        : fMatrix(matrix), fProc(matrix.getMapXYProc()), fY(y) {}
-
-    typedef void (*Proc)(const BitmapTextMapState&, const SkScalar pos[]);
-
-    Proc pickProc(int scalarsPerPosition);
-
-private:
-    const SkMatrix&     fMatrix;
-    SkMatrix::MapXYProc fProc;
-    SkScalar            fY; // ignored by MapXYProc
-    // these are only used by Only... procs
-    SkScalar            fScaleX, fTransX, fTransformedY;
-
-    static void MapXProc(const BitmapTextMapState& state, const SkScalar pos[]) {
-        state.fProc(state.fMatrix, *pos, state.fY, &state.fLoc);
-    }
-
-    static void MapXYProc(const BitmapTextMapState& state, const SkScalar pos[]) {
-        state.fProc(state.fMatrix, pos[0], pos[1], &state.fLoc);
-    }
-
-    static void MapOnlyScaleXProc(const BitmapTextMapState& state,
-                                  const SkScalar pos[]) {
-        state.fLoc.set(SkScalarMul(state.fScaleX, *pos) + state.fTransX,
-                       state.fTransformedY);
-    }
-
-    static void MapOnlyTransXProc(const BitmapTextMapState& state,
-                                  const SkScalar pos[]) {
-        state.fLoc.set(*pos + state.fTransX, state.fTransformedY);
-    }
-};
-
-BitmapTextMapState::Proc BitmapTextMapState::pickProc(int scalarsPerPosition) {
-    SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
-
-    if (1 == scalarsPerPosition) {
-        unsigned mtype = fMatrix.getType();
-        if (mtype & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
-            return MapXProc;
-        } else {
-            fScaleX = fMatrix.getScaleX();
-            fTransX = fMatrix.getTranslateX();
-            fTransformedY = SkScalarMul(fY, fMatrix.getScaleY()) +
-                            fMatrix.getTranslateY();
-            return (mtype & SkMatrix::kScale_Mask) ?
-                        MapOnlyScaleXProc : MapOnlyTransXProc;
-        }
-    } else {
-        return MapXYProc;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint,
                                       const char text[], size_t byteLength,
                                       const SkScalar pos[], SkScalar constY,
@@ -382,9 +292,8 @@ void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPai
     autoMatrix.setIdentity(fContext, &fPaint);
 
     const char*        stop = text + byteLength;
-    AlignProc          alignProc = pick_align_proc(fSkPaint.getTextAlign());
-    BitmapTextMapState       tms(ctm, constY);
-    BitmapTextMapState::Proc tmsProc = tms.pickProc(scalarsPerPosition);
+    SkTextAlignProc    alignProc(fSkPaint.getTextAlign());
+    SkTextMapStateProc tmsProc(ctm, constY, scalarsPerPosition);
     SkFixed halfSampleX = 0, halfSampleY = 0;
 
     if (cache->isSubpixel()) {
@@ -407,9 +316,10 @@ void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPai
 
         if (SkPaint::kLeft_Align == fSkPaint.getTextAlign()) {
             while (text < stop) {
-                tmsProc(tms, pos);
-                SkFixed fx = SkScalarToFixed(tms.fLoc.fX) + halfSampleX;
-                SkFixed fy = SkScalarToFixed(tms.fLoc.fY) + halfSampleY;
+                SkPoint tmsLoc;
+                tmsProc(pos, &tmsLoc);
+                SkFixed fx = SkScalarToFixed(tmsLoc.fX) + halfSampleX;
+                SkFixed fy = SkScalarToFixed(tmsLoc.fY) + halfSampleY;
 
                 const SkGlyph& glyph = glyphCacheProc(cache, &text,
                                                       fx & fxMask, fy & fyMask);
@@ -432,10 +342,10 @@ void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPai
                 if (metricGlyph.fWidth) {
                     SkDEBUGCODE(SkFixed prevAdvX = metricGlyph.fAdvanceX;)
                     SkDEBUGCODE(SkFixed prevAdvY = metricGlyph.fAdvanceY;)
-
-                    tmsProc(tms, pos);
+                    SkPoint tmsLoc;
+                    tmsProc(pos, &tmsLoc);
                     SkIPoint fixedLoc;
-                    alignProc(tms.fLoc, metricGlyph, &fixedLoc);
+                    alignProc(tmsLoc, metricGlyph, &fixedLoc);
 
                     SkFixed fx = fixedLoc.fX + halfSampleX;
                     SkFixed fy = fixedLoc.fY + halfSampleY;
@@ -466,10 +376,11 @@ void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPai
                 const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
 
                 if (glyph.fWidth) {
-                    tmsProc(tms, pos);
+                    SkPoint tmsLoc;
+                    tmsProc(pos, &tmsLoc);
 
-                    SkFixed fx = SkScalarToFixed(tms.fLoc.fX) + SK_FixedHalf; //halfSampleX;
-                    SkFixed fy = SkScalarToFixed(tms.fLoc.fY) + SK_FixedHalf; //halfSampleY;
+                    SkFixed fx = SkScalarToFixed(tmsLoc.fX) + SK_FixedHalf; //halfSampleX;
+                    SkFixed fy = SkScalarToFixed(tmsLoc.fY) + SK_FixedHalf; //halfSampleY;
                     this->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                         glyph.getSubXFixed(),
                                                         glyph.getSubYFixed()),
@@ -485,10 +396,11 @@ void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPai
                 const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
 
                 if (glyph.fWidth) {
-                    tmsProc(tms, pos);
+                    SkPoint tmsLoc;
+                    tmsProc(pos, &tmsLoc);
 
                     SkIPoint fixedLoc;
-                    alignProc(tms.fLoc, glyph, &fixedLoc);
+                    alignProc(tmsLoc, glyph, &fixedLoc);
 
                     SkFixed fx = fixedLoc.fX + SK_FixedHalf; //halfSampleX;
                     SkFixed fy = fixedLoc.fY + SK_FixedHalf; //halfSampleY;

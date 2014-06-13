@@ -10,6 +10,7 @@
 
 #include "SkBlitter.h"
 #include "SkDraw.h"
+#include "SkGlyph.h"
 
 class SkAAClip;
 class SkBlitter;
@@ -85,5 +86,54 @@ inline bool SkDrawTreatAsHairline(const SkPaint& paint, const SkMatrix& matrix,
 
     return SkDrawTreatAAStrokeAsHairline(strokeWidth, matrix, coverage);
 }
+
+class SkTextAlignProc {
+public:
+    SkTextAlignProc(SkPaint::Align align)
+        : fAlign(align) {
+    }
+
+    // Returns the position of the glyph in fixed point, which may be rounded or not
+    //         by the caller e.g. subpixel doesn't round.
+    // @param point interpreted as SkFixed [x, y].
+    void operator()(const SkPoint& loc, const SkGlyph& glyph, SkIPoint* dst) {
+        if (SkPaint::kLeft_Align == fAlign) {
+            dst->set(SkScalarToFixed(loc.fX), SkScalarToFixed(loc.fY));
+        } else if (SkPaint::kCenter_Align == fAlign) {
+            dst->set(SkScalarToFixed(loc.fX) - (glyph.fAdvanceX >> 1),
+                     SkScalarToFixed(loc.fY) - (glyph.fAdvanceY >> 1));
+        } else {
+            SkASSERT(SkPaint::kRight_Align == fAlign);
+            dst->set(SkScalarToFixed(loc.fX) - glyph.fAdvanceX,
+                     SkScalarToFixed(loc.fY) - glyph.fAdvanceY);
+        }
+    }
+private:
+    const SkPaint::Align fAlign;
+};
+
+class SkTextAlignProcScalar {
+public:
+    SkTextAlignProcScalar(SkPaint::Align align)
+        : fAlign(align) {
+    }
+
+    // Returns the glyph position, which may be rounded or not by the caller
+    //   e.g. subpixel doesn't round.
+    void operator()(const SkPoint& loc, const SkGlyph& glyph, SkPoint* dst) {
+        if (SkPaint::kLeft_Align == fAlign) {
+            dst->set(loc.fX, loc.fY);
+        } else if (SkPaint::kCenter_Align == fAlign) {
+            dst->set(loc.fX - SkFixedToScalar(glyph.fAdvanceX >> 1),
+                     loc.fY - SkFixedToScalar(glyph.fAdvanceY >> 1));
+        } else {
+            SkASSERT(SkPaint::kRight_Align == fAlign);
+            dst->set(loc.fX - SkFixedToScalar(glyph.fAdvanceX),
+                     loc.fY - SkFixedToScalar(glyph.fAdvanceY));
+        }
+    }
+private:
+    const SkPaint::Align fAlign;
+};
 
 #endif
