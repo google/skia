@@ -176,6 +176,13 @@ struct SkImageInfo {
         return info;
     }
 
+    static SkImageInfo MakeUnknown() {
+        SkImageInfo info = {
+            0, 0, kUnknown_SkColorType, kIgnore_SkAlphaType
+        };
+        return info;
+    }
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     SkColorType colorType() const { return fColorType; }

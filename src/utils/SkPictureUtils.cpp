@@ -58,9 +58,9 @@ public:
         fPRSet = prset;
     }
 
-    virtual int width() const SK_OVERRIDE { return fSize.width(); }
-    virtual int height() const SK_OVERRIDE { return fSize.height(); }
-    virtual bool isOpaque() const SK_OVERRIDE { return false; }
+    virtual SkImageInfo imageInfo() const SK_OVERRIDE {
+        return SkImageInfo::MakeUnknown(fSize.width(), fSize.height());
+    }
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
     virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE {
         return false;

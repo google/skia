@@ -157,9 +157,6 @@ public:
     void setMaxRecordingStorage(size_t);
     void recordedDrawCommand();
 
-    virtual int width() const SK_OVERRIDE;
-    virtual int height() const SK_OVERRIDE;
-    virtual bool isOpaque() const SK_OVERRIDE;
     virtual SkImageInfo imageInfo() const SK_OVERRIDE;
 
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
@@ -424,18 +421,6 @@ SkCanvas* SkDeferredDevice::recordingCanvas() {
 SkImage* SkDeferredDevice::newImageSnapshot() {
     this->flush();
     return fSurface ? fSurface->newImageSnapshot() : NULL;
-}
-
-int SkDeferredDevice::width() const {
-    return immediateDevice()->width();
-}
-
-int SkDeferredDevice::height() const {
-    return immediateDevice()->height();
-}
-
-bool SkDeferredDevice::isOpaque() const {
-    return immediateDevice()->isOpaque();
 }
 
 SkImageInfo SkDeferredDevice::imageInfo() const {

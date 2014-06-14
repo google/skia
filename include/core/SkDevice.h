@@ -44,13 +44,6 @@ public:
 
     SkMetaData& getMetaData();
 
-    /** Return the width of the device (in pixels).
-    */
-    virtual int width() const = 0;
-    /** Return the height of the device (in pixels).
-    */
-    virtual int height() const = 0;
-
     /** Return the image properties of the device. */
     virtual const SkDeviceProperties& getDeviceProperties() const {
         //Currently, all the properties are leaky.
@@ -74,10 +67,27 @@ public:
         bounds->setXYWH(origin.x(), origin.y(), this->width(), this->height());
     }
 
-    /** Returns true if the device's bitmap's config treats every pixel as
-        implicitly opaque.
-    */
-    virtual bool isOpaque() const = 0;
+#ifdef SK_SUPPORT_LEGACY_DEVICE_VIRTUAL_ISOPAQUE
+    virtual int width() const {
+        return this->imageInfo().width();
+    }
+    virtual int height() const {
+        return this->imageInfo().height();
+    }
+    virtual bool isOpaque() const {
+        return this->imageInfo().isOpaque();
+    }
+#else
+    int width() const {
+        return this->imageInfo().width();
+    }
+    int height() const {
+        return this->imageInfo().height();
+    }
+    bool isOpaque() const {
+        return this->imageInfo().isOpaque();
+    }
+#endif
 
     /** Return the bitmap associated with this device. Call this each time you need
         to access the bitmap, as it notifies the subclass to perform any flushing

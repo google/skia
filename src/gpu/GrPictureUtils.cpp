@@ -48,9 +48,6 @@ public:
 
     virtual ~GrGatherDevice() { }
 
-    virtual int width() const SK_OVERRIDE { return fInfo.fSize.width(); }
-    virtual int height() const SK_OVERRIDE { return fInfo.fSize.height(); }
-    virtual bool isOpaque() const SK_OVERRIDE { return false; }
     virtual SkImageInfo imageInfo() const SK_OVERRIDE {
         return fEmptyBitmap.info();
     }
