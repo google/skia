@@ -526,8 +526,6 @@
       ],
       'sources': [
         '../tools/filtermain.cpp',
-        '../tools/path_utils.h',
-        '../tools/path_utils.cpp',
         '../src/utils/debugger/SkDrawCommand.h',
         '../src/utils/debugger/SkDrawCommand.cpp',
         '../src/utils/debugger/SkDebugCanvas.h',
