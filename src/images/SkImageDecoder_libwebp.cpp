@@ -169,9 +169,9 @@ static bool return_false(const SkBitmap& bm, const char msg[]) {
 
 static WEBP_CSP_MODE webp_decode_mode(const SkBitmap* decodedBitmap, bool premultiply) {
     WEBP_CSP_MODE mode = MODE_LAST;
-    SkBitmap::Config config = decodedBitmap->config();
+    const SkColorType ct = decodedBitmap->colorType();
 
-    if (config == SkBitmap::kARGB_8888_Config) {
+    if (ct == kN32_SkColorType) {
         #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
             mode = premultiply ? MODE_bgrA : MODE_BGRA;
         #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
@@ -179,9 +179,9 @@ static WEBP_CSP_MODE webp_decode_mode(const SkBitmap* decodedBitmap, bool premul
         #else
             #error "Skia uses BGRA or RGBA byte order"
         #endif
-    } else if (config == SkBitmap::kARGB_4444_Config) {
+    } else if (ct == kARGB_4444_SkColorType) {
         mode = premultiply ? MODE_rgbA_4444 : MODE_RGBA_4444;
-    } else if (config == SkBitmap::kRGB_565_Config) {
+    } else if (ct == kRGB_565_SkColorType) {
         mode = MODE_RGB_565;
     }
     SkASSERT(MODE_LAST != mode);
@@ -333,10 +333,8 @@ bool SkWEBPImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,
 }
 
 static bool is_config_compatible(const SkBitmap& bitmap) {
-    SkBitmap::Config config = bitmap.config();
-    return config == SkBitmap::kARGB_4444_Config ||
-           config == SkBitmap::kRGB_565_Config ||
-           config == SkBitmap::kARGB_8888_Config;
+    const SkColorType ct = bitmap.colorType();
+    return ct == kARGB_4444_SkColorType || ct == kRGB_565_SkColorType || ct == kN32_SkColorType;
 }
 
 bool SkWEBPImageDecoder::onDecodeSubset(SkBitmap* decodedBitmap,
@@ -556,11 +554,9 @@ static void Index8_To_RGB(const uint8_t* in, uint8_t* rgb, int width,
   }
 }
 
-static ScanlineImporter ChooseImporter(const SkBitmap::Config& config,
-                                       bool  hasAlpha,
-                                       int*  bpp) {
-    switch (config) {
-        case SkBitmap::kARGB_8888_Config:
+static ScanlineImporter ChooseImporter(SkColorType ct, bool  hasAlpha, int*  bpp) {
+    switch (ct) {
+        case kN32_SkColorType:
             if (hasAlpha) {
                 *bpp = 4;
                 return ARGB_8888_To_RGBA;
@@ -568,7 +564,7 @@ static ScanlineImporter ChooseImporter(const SkBitmap::Config& config,
                 *bpp = 3;
                 return ARGB_8888_To_RGB;
             }
-        case SkBitmap::kARGB_4444_Config:
+        case kARGB_4444_SkColorType:
             if (hasAlpha) {
                 *bpp = 4;
                 return ARGB_4444_To_RGBA;
@@ -576,10 +572,10 @@ static ScanlineImporter ChooseImporter(const SkBitmap::Config& config,
                 *bpp = 3;
                 return ARGB_4444_To_RGB;
             }
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             *bpp = 3;
             return RGB_565_To_RGB;
-        case SkBitmap::kIndex8_Config:
+        case kIndex_8_SkColorType:
             *bpp = 3;
             return Index8_To_RGB;
         default:
@@ -603,11 +599,9 @@ private:
 
 bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
                                   int quality) {
-    const SkBitmap::Config config = bm.config();
     const bool hasAlpha = !bm.isOpaque();
     int bpp = -1;
-    const ScanlineImporter scanline_import = ChooseImporter(config, hasAlpha,
-                                                            &bpp);
+    const ScanlineImporter scanline_import = ChooseImporter(bm.colorType(), hasAlpha, &bpp);
     if (NULL == scanline_import) {
         return false;
     }

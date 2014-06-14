@@ -197,7 +197,7 @@ SkData *CompressBitmapToFormat(const SkBitmap &bitmap, Format format) {
     memset(kProcMap, 0, sizeof(kProcMap));
 
     // Map available bitmap configs to compression functions
-    kProcMap[SkBitmap::kA8_Config][kLATC_Format] = compress_a8_to_latc;
+    kProcMap[kAlpha_8_SkColorType][kLATC_Format] = compress_a8_to_latc;
 
     CompressBitmapProc proc = kProcMap[bitmap.colorType()][format];
     if (NULL != proc) {

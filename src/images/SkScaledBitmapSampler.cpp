@@ -696,20 +696,20 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc,
             return false;
     }
 
-    switch (dst->config()) {
-        case SkBitmap::kARGB_8888_Config:
+    switch (dst->colorType()) {
+        case kN32_SkColorType:
             index += 0 * gProcDstConfigSpan;
             break;
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             index += 1 * gProcDstConfigSpan;
             break;
-        case SkBitmap::kARGB_4444_Config:
+        case kARGB_4444_SkColorType:
             index += 2 * gProcDstConfigSpan;
             break;
-        case SkBitmap::kIndex8_Config:
+        case kIndex_8_SkColorType:
             index += 3 * gProcDstConfigSpan;
             break;
-        case SkBitmap::kA8_Config:
+        case kAlpha_8_SkColorType:
             index += 4 * gProcDstConfigSpan;
             break;
         default:

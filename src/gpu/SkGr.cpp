@@ -32,7 +32,7 @@
  as the colortable.count says it is.
  */
 static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
-    SkASSERT(SkBitmap::kIndex8_Config == bitmap.config());
+    SkASSERT(kIndex_8_SkColorType == bitmap.colorType());
 
     SkAutoLockPixels alp(bitmap);
     if (!bitmap.readyToDraw()) {
@@ -203,7 +203,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
     GrTextureDesc desc;
     generate_bitmap_texture_desc(*bitmap, &desc);
 
-    if (SkBitmap::kIndex8_Config == bitmap->config()) {
+    if (kIndex_8_SkColorType == bitmap->colorType()) {
         // build_compressed_data doesn't do npot->pot expansion
         // and paletted textures can't be sub-updated
         if (ctx->supportsIndex8PixelConfig(params, bitmap->width(), bitmap->height())) {

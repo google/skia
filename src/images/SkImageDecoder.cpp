@@ -209,7 +209,7 @@ bool SkImageDecoder::cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
                                 int srcX, int srcY) {
     int w = width / sampleSize;
     int h = height / sampleSize;
-    if (src->config() == SkBitmap::kIndex8_Config) {
+    if (src->colorType() == kIndex_8_SkColorType) {
         // kIndex8 does not allow drawing via an SkCanvas, as is done below.
         // Instead, use extractSubset. Note that this shares the SkPixelRef and
         // SkColorTable.

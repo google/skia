@@ -192,7 +192,7 @@ static bool skip_src_rows(GifFileType* gif, uint8_t* dst, int width, int rowsToS
  *  fixes it.  This makes the output image consistantly deterministic.
  */
 static void sanitize_indexed_bitmap(SkBitmap* bm) {
-    if ((SkBitmap::kIndex8_Config == bm->config()) && !(bm->empty())) {
+    if ((kIndex_8_SkColorType == bm->colorType()) && !(bm->empty())) {
         SkAutoLockPixels alp(*bm);
         if (NULL != bm->getPixels()) {
             SkColorTable* ct = bm->getColorTable();  // Index8 must have it.

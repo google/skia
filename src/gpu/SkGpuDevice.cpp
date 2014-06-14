@@ -1376,7 +1376,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     // the rest from the SkPaint.
     GrPaint grPaint;
     grPaint.addColorEffect(effect);
-    bool alphaOnly = !(SkBitmap::kA8_Config == bitmap.config());
+    bool alphaOnly = !(kAlpha_8_SkColorType == bitmap.colorType());
     GrColor grColor = (alphaOnly) ? SkColor2GrColorJustAlpha(paint.getColor()) :
                                     SkColor2GrColor(paint.getColor());
     SkPaint2GrPaintNoShader(this->context(), paint, grColor, false, &grPaint);

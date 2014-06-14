@@ -115,7 +115,7 @@ DEF_TEST(KtxReadUnpremul, reporter) {
     bool imageDecodeSuccess = SkImageDecoder::DecodeStream(stream, &decodedBitmap);
     REPORTER_ASSERT(reporter, imageDecodeSuccess);
 
-    REPORTER_ASSERT(reporter, decodedBitmap.config() == SkBitmap::kARGB_8888_Config);
+    REPORTER_ASSERT(reporter, decodedBitmap.colorType() == kN32_SkColorType);
     REPORTER_ASSERT(reporter, decodedBitmap.alphaType() == kPremul_SkAlphaType);
     REPORTER_ASSERT(reporter, decodedBitmap.width() == 2);
     REPORTER_ASSERT(reporter, decodedBitmap.height() == 2);

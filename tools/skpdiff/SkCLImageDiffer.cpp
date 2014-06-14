@@ -87,16 +87,16 @@ bool SkCLImageDiffer::loadKernelSource(const char source[], const char name[], c
 bool SkCLImageDiffer::makeImage2D(SkBitmap* bitmap, cl_mem* image) const {
     cl_int imageErr;
     cl_image_format bitmapFormat;
-    switch (bitmap->config()) {
-        case SkBitmap::kA8_Config:
+    switch (bitmap->colorType()) {
+        case kAlpha_8_SkColorType:
             bitmapFormat.image_channel_order = CL_A;
             bitmapFormat.image_channel_data_type = CL_UNSIGNED_INT8;
             break;
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             bitmapFormat.image_channel_order = CL_RGB;
             bitmapFormat.image_channel_data_type = CL_UNORM_SHORT_565;
             break;
-        case SkBitmap::kARGB_8888_Config:
+        case kN32_SkColorType:
             bitmapFormat.image_channel_order = CL_RGBA;
             bitmapFormat.image_channel_data_type = CL_UNSIGNED_INT8;
             break;
