@@ -8,11 +8,7 @@
 #ifndef picture_utils_DEFINED
 #define picture_utils_DEFINED
 
-#include "SkTypes.h"
-
 class SkBitmap;
-class SkFILEStream;
-class SkPicture;
 class SkString;
 
 namespace sk_tools {
