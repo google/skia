@@ -38,12 +38,6 @@
 # I will likely just delete the GM.
 canvas-layer-state
 
-# Added by kevin.petit@arm.com for https://codereview.chromium.org/317193003
-# Only S32A_D565_Blend is causing mismatches
-shadertext3
-drawbitmaprect
-coloremoji
-
 # Added by robertphillips for https://codereview.chromium.org/316143003/
 # This CL actually fixes this GM's image
 distantclip
