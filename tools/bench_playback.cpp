@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "BenchTimer.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -16,19 +15,27 @@
 #include "SkStream.h"
 #include "SkString.h"
 
+#include "BenchTimer.h"
+#include "Stats.h"
+
+typedef WallTimer Timer;
+
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-DEFINE_string2(skps, r, "skps", "Directory containing SKPs to read and re-record.");
-DEFINE_int32(loops, 10, "Number of times to play back each SKP.");
+DEFINE_string2(skps, r, "skps", "Directory containing SKPs to playback.");
+DEFINE_int32(samples, 10, "Gather this many samples of each picture playback.");
 DEFINE_bool(skr, false, "Play via SkRecord instead of SkPicture.");
 DEFINE_int32(tile, 1000000000, "Simulated tile size.");
 DEFINE_string(match, "", "The usual filters on file names of SKPs to bench.");
 DEFINE_string(timescale, "ms", "Print times in ms, us, or ns");
+DEFINE_int32(verbose, 0, "0: print min sample; "
+                         "1: print min, mean, max and noise indication "
+                         "2: print all samples");
 
-static double scale_time(double ms) {
-    if (FLAGS_timescale.contains("us")) ms *= 1000;
-    if (FLAGS_timescale.contains("ns")) ms *= 1000000;
-    return ms;
+static double timescale() {
+    if (FLAGS_timescale.contains("us")) return 1000;
+    if (FLAGS_timescale.contains("ns")) return 1000000;
+    return 1;
 }
 
 static SkPicture* rerecord_with_tilegrid(SkPicture& src) {
@@ -49,6 +56,14 @@ static EXPERIMENTAL::SkPlayback* rerecord_with_skr(SkPicture& src) {
     return recording.releasePlayback();
 }
 
+static void draw(const EXPERIMENTAL::SkPlayback& skr, const SkPicture& skp, SkCanvas* canvas) {
+    if (FLAGS_skr) {
+        skr.draw(canvas);
+    } else {
+        skp.draw(canvas);
+    }
+}
+
 static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
     SkAutoTUnref<SkPicture> picture(rerecord_with_tilegrid(src));
     SkAutoTDelete<EXPERIMENTAL::SkPlayback> record(rerecord_with_skr(src));
@@ -59,19 +74,34 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
                                                                 src.width() * sizeof(SkPMColor)));
     canvas->clipRect(SkRect::MakeWH(SkIntToScalar(FLAGS_tile), SkIntToScalar(FLAGS_tile)));
 
-    BenchTimer timer;
-    timer.start();
-    for (int i = 0; i < FLAGS_loops; i++) {
-        if (FLAGS_skr) {
-            record->draw(canvas.get());
-        } else {
-            picture->draw(canvas.get());
-        }
-    }
-    timer.end();
+    // Draw once to warm any caches.  The first sample otherwise can be very noisy.
+    draw(*record, *picture, canvas.get());
 
-    const double msPerLoop = timer.fCpu / (double)FLAGS_loops;
-    printf("%f\t%s\n", scale_time(msPerLoop), name);
+    Timer timer;
+    SkAutoTMalloc<double> samples(FLAGS_samples);
+    for (int i = 0; i < FLAGS_samples; i++) {
+        // We assume timer overhead (typically, ~30ns) is insignificant
+        // compared to draw runtime (at least ~100us, usually several ms).
+        timer.start(timescale());
+        draw(*record, *picture, canvas.get());
+        timer.end();
+        samples[i] = timer.fWall;
+    }
+
+    Stats stats(samples.get(), FLAGS_samples);
+    if (FLAGS_verbose == 0) {
+        printf("%g\t%s\n", stats.min, name);
+    } else if (FLAGS_verbose == 1) {
+        // Get a rough idea of how noisy the measurements were.
+        const double noisePercent = 100 * sqrt(stats.var) / stats.mean;
+        printf("%g\t%g\t%g\t±%.0f%%\t%s\n", stats.min, stats.mean, stats.max, noisePercent, name);
+    } else if (FLAGS_verbose == 2) {
+        printf("%s", name);
+        for (int i = 0; i < FLAGS_samples; i++) {
+            printf("\t%g", samples[i]);
+        }
+        printf("\n");
+    }
 }
 
 int tool_main(int argc, char** argv);

@@ -39,12 +39,29 @@ public:
     double fGpu;
 
 private:
-    BenchSysTimer *fSysTimer;
-    BenchSysTimer *fTruncatedSysTimer;
+    BenchSysTimer* fSysTimer;
+    BenchSysTimer* fTruncatedSysTimer;
 #if SK_SUPPORT_GPU
-    BenchGpuTimer *fGpuTimer;
+    BenchGpuTimer* fGpuTimer;
 #endif
     double fDurationScale;  // for this start/end session
+};
+
+// Same as BenchTimer above, supporting only fWall but with much lower overhead.
+// (Typically, ~30ns instead of BenchTimer's ~1us.)
+class WallTimer {
+public:
+    WallTimer();
+    ~WallTimer();
+
+    void start(double durationScale = 1);
+    void end();
+
+    double fWall;
+
+private:
+    BenchSysTimer* fSysTimer;
+    double fDurationScale;
 };
 
 #endif

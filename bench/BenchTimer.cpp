@@ -76,3 +76,19 @@ void BenchTimer::truncatedEnd() {
     fTruncatedCpu = fTruncatedSysTimer->endCpu() * fDurationScale;
     fTruncatedWall = fTruncatedSysTimer->endWall() * fDurationScale;
 }
+
+WallTimer::WallTimer() : fWall(-1.0), fSysTimer(new BenchSysTimer) {}
+
+WallTimer::~WallTimer() {
+    delete fSysTimer;
+}
+
+void WallTimer::start(double durationScale) {
+    fDurationScale = durationScale;
+    fSysTimer->startWall();
+}
+
+void WallTimer::end() {
+    fWall = fSysTimer->endWall() * fDurationScale;
+}
+

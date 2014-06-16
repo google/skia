@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "BenchTimer.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -15,28 +14,32 @@
 #include "SkRecording.h"
 #include "SkStream.h"
 #include "SkString.h"
+
+#include "BenchTimer.h"
 #include "LazyDecodeBitmap.h"
+#include "Stats.h"
+
+typedef WallTimer Timer;
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-// Just reading all the SKPs takes about 2 seconds for me, which is the same as about 100 loops of
-// rerecording all the SKPs.  So we default to --loops=900, which makes ~90% of our time spent in
-// recording, and this should take ~20 seconds to run.
-
 DEFINE_string2(skps, r, "skps", "Directory containing SKPs to read and re-record.");
-DEFINE_int32(loops, 900, "Number of times to re-record each SKP.");
-DEFINE_bool(endRecording, true, "If false, don't time SkPicture::endRecording()");
-DEFINE_int32(nullSize, 1000, "Pretend dimension of null source picture.");
+DEFINE_int32(samples, 10, "Number of times to re-record each SKP.");
 DEFINE_int32(tileGridSize, 512, "Set the tile grid size. Has no effect if bbh is not set to tilegrid.");
 DEFINE_string(bbh, "", "Turn on the bbh and select the type, one of rtree, tilegrid, quadtree");
 DEFINE_bool(skr, false, "Record SKR instead of SKP.");
 DEFINE_string(match, "", "The usual filters on file names of SKPs to bench.");
 DEFINE_string(timescale, "us", "Print times in ms, us, or ns");
+DEFINE_double(overheadGoal, 0.0001,
+              "Try to make timer overhead at most this fraction of our sample measurements.");
+DEFINE_int32(verbose, 0, "0: print min sample; "
+                         "1: print min, mean, max and noise indication "
+                         "2: print all samples");
 
-static double scale_time(double ms) {
-    if (FLAGS_timescale.contains("us")) ms *= 1000;
-    if (FLAGS_timescale.contains("ns")) ms *= 1000000;
-    return ms;
+static double timescale() {
+    if (FLAGS_timescale.contains("us")) return 1000;
+    if (FLAGS_timescale.contains("ns")) return 1000000;
+    return 1;
 }
 
 static SkBBHFactory* parse_FLAGS_bbh() {
@@ -61,35 +64,62 @@ static SkBBHFactory* parse_FLAGS_bbh() {
     return NULL;
 }
 
-static void bench_record(SkPicture* src, const char* name, SkBBHFactory* bbhFactory) {
-    BenchTimer timer;
-    timer.start();
-    const int width  = src ? src->width()  : FLAGS_nullSize;
-    const int height = src ? src->height() : FLAGS_nullSize;
-
-    for (int i = 0; i < FLAGS_loops; i++) {
-        if (FLAGS_skr) {
-            EXPERIMENTAL::SkRecording recording(width, height);
-            if (NULL != src) {
-                src->draw(recording.canvas());
-            }
-            // Release and delete the SkPlayback so that recording optimizes its SkRecord.
-            SkDELETE(recording.releasePlayback());
-        } else {
-            SkPictureRecorder recorder;
-            SkCanvas* canvas = recorder.beginRecording(width, height, bbhFactory);
-            if (NULL != src) {
-                src->draw(canvas);
-            }
-            if (FLAGS_endRecording) {
-                SkAutoTUnref<SkPicture> dst(recorder.endRecording());
-            }
-        }
+static void rerecord(const SkPicture& src, SkBBHFactory* bbhFactory) {
+    if (FLAGS_skr) {
+        EXPERIMENTAL::SkRecording recording(src.width(), src.height());
+        src.draw(recording.canvas());
+        // Release and delete the SkPlayback so that recording optimizes its SkRecord.
+        SkDELETE(recording.releasePlayback());
+    } else {
+        SkPictureRecorder recorder;
+        src.draw(recorder.beginRecording(src.width(), src.height(), bbhFactory));
+        SkAutoTUnref<SkPicture> dst(recorder.endRecording());
     }
-    timer.end();
+}
 
-    const double msPerLoop = timer.fCpu / (double)FLAGS_loops;
-    printf("%f\t%s\n", scale_time(msPerLoop), name);
+static void bench_record(const SkPicture& src,
+                         const double timerOverhead,
+                         const char* name,
+                         SkBBHFactory* bbhFactory) {
+    // Rerecord once to warm up any caches.  Otherwise the first sample can be very noisy.
+    rerecord(src, bbhFactory);
+
+    // Rerecord once to see how many times we should loop to make timer overhead insignificant.
+    Timer timer;
+    do {
+        timer.start(timescale());
+        rerecord(src, bbhFactory);
+        timer.end();
+    } while (timer.fWall < timerOverhead);   // Loop just in case something bizarre happens.
+
+    // We want (timer overhead / measurement) to be less than FLAGS_overheadGoal.
+    // So in each sample, we'll loop enough times to have made that true for our first measurement.
+    const int loops = (int)ceil(timerOverhead / timer.fWall / FLAGS_overheadGoal);
+
+    SkAutoTMalloc<double> samples(FLAGS_samples);
+    for (int i = 0; i < FLAGS_samples; i++) {
+        timer.start(timescale());
+        for (int j = 0; j < loops; j++) {
+            rerecord(src, bbhFactory);
+        }
+        timer.end();
+        samples[i] = timer.fWall / loops;
+    }
+
+    Stats stats(samples.get(), FLAGS_samples);
+    if (FLAGS_verbose == 0) {
+        printf("%g\t%s\n", stats.min, name);
+    } else if (FLAGS_verbose == 1) {
+        // Get a rough idea of how noisy the measurements were.
+        const double noisePercent = 100 * sqrt(stats.var) / stats.mean;
+        printf("%g\t%g\t%g\t±%.0f%%\t%s\n", stats.min, stats.mean, stats.max, noisePercent, name);
+    } else if (FLAGS_verbose == 2) {
+        printf("%s", name);
+        for (int i = 0; i < FLAGS_samples; i++) {
+            printf("\t%g", samples[i]);
+        }
+        printf("\n");
+    }
 }
 
 int tool_main(int argc, char** argv);
@@ -103,10 +133,17 @@ int tool_main(int argc, char** argv) {
     }
 
     SkAutoTDelete<SkBBHFactory> bbhFactory(parse_FLAGS_bbh());
-    bench_record(NULL, "NULL", bbhFactory.get());
-    if (FLAGS_skps.isEmpty()) {
-        return 0;
+
+    // Each run will use this timer overhead estimate to guess how many times it should run.
+    static const int kOverheadLoops = 10000000;
+    Timer timer;
+    double overheadEstimate = 0.0;
+    for (int i = 0; i < kOverheadLoops; i++) {
+        timer.start(timescale());
+        timer.end();
+        overheadEstimate += timer.fWall;
     }
+    overheadEstimate /= kOverheadLoops;
 
     SkOSFile::Iter it(FLAGS_skps[0], ".skp");
     SkString filename;
@@ -131,7 +168,7 @@ int tool_main(int argc, char** argv) {
             failed = true;
             continue;
         }
-        bench_record(src, filename.c_str(), bbhFactory.get());
+        bench_record(*src, overheadEstimate, filename.c_str(), bbhFactory.get());
     }
     return failed ? 1 : 0;
 }
