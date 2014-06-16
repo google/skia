@@ -339,7 +339,6 @@
         'SK_MUTEX_PLATFORM_H "../../src/ports/SkMutex_pthread.h"',
         # Still need to switch Android to the new name for N32.
         'kNative_8888_SkColorType kN32_SkColorType',
-        'SK_SUPPORT_LEGACY_BLURMASKFILTER_STYLE',
         # Needed until we fix skbug.com/2440.
         'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
         # Transitional, for deprecated SkCanvas::SaveFlags methods.
