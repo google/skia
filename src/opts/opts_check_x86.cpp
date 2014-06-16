@@ -21,14 +21,6 @@
 #include "SkXfermode.h"
 #include "SkXfermode_proccoeff.h"
 
-// Temporarily disable everything but SSE2: crbug.com/372232.
-#if 1
-static inline bool supports_simd(int minLevel) {
-    SkASSERT(SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2);
-    return minLevel <= SK_CPU_SSE_LEVEL_SSE2;
-}
-#else
-
 #if defined(_MSC_VER) && defined(_WIN64)
 #include <intrin.h>
 #endif
@@ -123,8 +115,6 @@ static inline bool supports_simd(int minLevel) {
 #endif
     }
 }
-
-#endif  // Temporarily disable everything but SSE2: crbug.com/372232.
 
 ////////////////////////////////////////////////////////////////////////////////
 
