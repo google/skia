@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkImageDecoder_DEFINED
 #define SkImageDecoder_DEFINED
@@ -355,13 +353,13 @@ public:
     }
 
 #ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CONFIG
-    bool decode(SkStream*, SkBitmap* bitmap, SkBitmap::Config pref, Mode mode) {
+    bool decode(SkStream* stream, SkBitmap* bitmap, SkBitmap::Config pref, Mode mode) {
         return this->decode(stream, bitmap, SkBitmapConfigToColorType(pref), mode);
     }
     bool decodeSubset(SkBitmap* bm, const SkIRect& subset, SkBitmap::Config pref) {
         return this->decodeSubset(bm, subset, SkBitmapConfigToColorType(pref));
     }
-    static bool DecodeFile(const char file[], SkBitmap* bitmap, SkBitmapConfig pref, Mode mode,
+    static bool DecodeFile(const char file[], SkBitmap* bitmap, SkBitmap::Config pref, Mode mode,
                            Format* format = NULL) {
         return DecodeFile(file, bitmap, SkBitmapConfigToColorType(pref), mode, format);
     }
