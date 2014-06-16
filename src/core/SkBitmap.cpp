@@ -295,13 +295,11 @@ SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
     }
 
     if (fPixelRef != pr) {
-        if (fPixelRef != pr) {
-            this->freePixels();
-            SkASSERT(NULL == fPixelRef);
+        this->freePixels();
+        SkASSERT(NULL == fPixelRef);
 
-            SkSafeRef(pr);
-            fPixelRef = pr;
-        }
+        SkSafeRef(pr);
+        fPixelRef = pr;
         this->updatePixelsFromRef();
     }
 
