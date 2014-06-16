@@ -93,6 +93,16 @@ if __name__ == '__main__':
     os.environ[ENVVAR_GYP_GENERATORS] = default_gyp_generators
   print '%s is "%s"' % (ENVVAR_GYP_GENERATORS, os.getenv(ENVVAR_GYP_GENERATORS))
 
+  if os.getenv('CHROME_HEADLESS', '0') == '1':
+    if sys.platform.startswith('win') or sys.platform.startswith('cygwin'):
+      chrome_path = os.getenv('CHROME_PATH')
+      os.chdir(chrome_path)
+      sys.path.append(os.path.join(chrome_path, 'build'))
+      sys.path.append(os.path.join(chrome_path, 'tools'))
+      import vs_toolchain
+      vs_toolchain.Update()
+      vs_toolchain.GetToolchainDir()
+
   # Set CWD to the directory containing this script.
   # This allows us to launch it from other directories, in spite of gyp's
   # finickyness about the current working directory.

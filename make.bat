@@ -7,6 +7,9 @@
 rem Launches make.py on Windows, after setting Visual Studio environment variables.
 rem See http://code.google.com/p/skia/wiki/GettingStartedOnWindows
 
+rem Skip environment setup on bots.
+if "%CHROME_HEADLESS%"=="1" goto run_python
+
 if "%DevEnvDir%"=="" goto setup_env_vars
 
 :run_python

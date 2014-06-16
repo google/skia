@@ -92,8 +92,9 @@ def MakeWindows(targets):
     parameters:
         targets: build targets as a list of strings
     """
-    # TODO(epoger): I'm not sure if this is needed for ninja builds.
-    CheckWindowsEnvironment()
+    if os.environ.get('CHROME_HEADLESS', '0') != '1':
+        # TODO(epoger): I'm not sure if this is needed for ninja builds.
+        CheckWindowsEnvironment()
 
     # Run gyp_skia to prepare Visual Studio projects.
     cd(SCRIPT_DIR)
