@@ -41,6 +41,7 @@
         '../experimental/PdfViewer/pdfparser',
         '../experimental/PdfViewer/pdfparser/native',
         '../experimental/PdfViewer/pdfparser/native/pdfapi',
+        '../src/core',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
