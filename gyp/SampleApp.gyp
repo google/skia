@@ -19,6 +19,7 @@
         '../samplecode', # To pull SampleApp.h and SampleCode.h
         '../src/pipe/utils', # For TiledPipeController
         '../src/utils/debugger',
+        '../tools',
       ],
       'includes': [
         'gmslides.gypi',
@@ -134,6 +135,9 @@
         # Lua
         '../src/utils/SkLuaCanvas.cpp',
         '../src/utils/SkLua.cpp',
+        
+        # tools
+        '../tools/sk_tool_utils.cpp',
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile

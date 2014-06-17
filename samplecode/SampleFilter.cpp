@@ -20,6 +20,7 @@
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkDither.h"
+#include "sk_tool_utils.h"
 
 static void make_bm(SkBitmap* bm) {
     const SkPMColor colors[] = {
@@ -52,15 +53,6 @@ static SkScalar draw_set(SkCanvas* c, const SkBitmap& bm, SkScalar x, SkPaint* p
     return x + draw_bm(c, bm, x, 0, p);
 }
 
-static const char* gConfigNames[] = {
-    "unknown config",
-    "A8",
-    "Index8",
-    "565",
-    "4444",
-    "8888"
-};
-
 static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     SkAutoCanvasRestore acr(canvas, true);
 
@@ -69,7 +61,7 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     const int scale = 32;
 
     paint.setAntiAlias(true);
-    const char* name = gConfigNames[bm.config()];
+    const char* name = sk_tool_utils::colortype_name(bm.colorType());
     canvas->drawText(name, strlen(name), x, SkIntToScalar(bm.height())*scale*5/8,
                      paint);
     canvas->translate(SkIntToScalar(48), 0);

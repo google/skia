@@ -91,9 +91,11 @@ void SkBitmap::reset() {
     sk_bzero(this, sizeof(*this));
 }
 
+#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
 SkBitmap::Config SkBitmap::config() const {
     return SkColorTypeToBitmapConfig(fInfo.colorType());
 }
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_COMPUTE_CONFIG_SIZE
 int SkBitmap::ComputeBytesPerPixel(SkBitmap::Config config) {

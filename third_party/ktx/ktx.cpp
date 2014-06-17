@@ -358,7 +358,7 @@ bool SkKTXFile::WriteETC1ToKTX(SkWStream* stream, const uint8_t *etc1Data,
 }
 
 bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
-    const SkBitmap::Config config = bitmap.config();
+    const SkColorType ct = bitmap.colorType();
     SkAutoLockPixels alp(bitmap);
 
     const int width = bitmap.width();
@@ -379,17 +379,17 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
 
     // Next, write the header based on the bitmap's config.
     Header hdr;
-    switch (config) {
-        case SkBitmap::kIndex8_Config:
+    switch (ct) {
+        case kIndex_8_SkColorType:
             // There is a compressed format for this, but we don't support it yet.
             SkDebugf("Writing indexed bitmap to KTX unsupported.\n");
             // VVV fall through VVV
         default:
-        case SkBitmap::kNo_Config:
+        case kUnknown_SkColorType:
             // Bitmap hasn't been configured.
             return false;
 
-        case SkBitmap::kA8_Config:
+        case kAlpha_8_SkColorType:
             hdr.fGLType = GR_GL_UNSIGNED_BYTE;
             hdr.fGLTypeSize = 1;
             hdr.fGLFormat = GR_GL_RED;
@@ -397,7 +397,7 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
             hdr.fGLBaseInternalFormat = GR_GL_RED;
             break;
 
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             hdr.fGLType = GR_GL_UNSIGNED_SHORT_5_6_5;
             hdr.fGLTypeSize = 2;
             hdr.fGLFormat = GR_GL_RGB;
@@ -405,7 +405,7 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
             hdr.fGLBaseInternalFormat = GR_GL_RGB;
             break;
 
-        case SkBitmap::kARGB_4444_Config:
+        case kARGB_4444_SkColorType:
             hdr.fGLType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
             hdr.fGLTypeSize = 2;
             hdr.fGLFormat = GR_GL_RGBA;
@@ -414,7 +414,7 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
             kvPairs.push_back(CreateKeyValue("KTXPremultipliedAlpha", "True"));
             break;
 
-        case SkBitmap::kARGB_8888_Config:
+        case kN32_SkColorType:
             hdr.fGLType = GR_GL_UNSIGNED_BYTE;
             hdr.fGLTypeSize = 1;
             hdr.fGLFormat = GR_GL_RGBA;
@@ -470,7 +470,7 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
 
     // Write the pixel data...
     const uint8_t* rowPtr = src;
-    if (SkBitmap::kARGB_8888_Config == config) {
+    if (kN32_SkColorType == ct) {
         for (int j = 0; j < height; ++j) {
             const uint32_t* pixelsPtr = reinterpret_cast<const uint32_t*>(rowPtr);
             for (int i = 0; i < width; ++i) {

@@ -343,6 +343,7 @@ void GrUnlockAndUnrefCachedBitmapTexture(GrTexture* texture) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
 GrPixelConfig SkBitmapConfig2GrPixelConfig(SkBitmap::Config config) {
     switch (config) {
         case SkBitmap::kA8_Config:
@@ -360,6 +361,7 @@ GrPixelConfig SkBitmapConfig2GrPixelConfig(SkBitmap::Config config) {
             return kUnknown_GrPixelConfig;
     }
 }
+#endif
 
 // alphatype is ignore for now, but if GrPixelConfig is expanded to encompass
 // alpha info, that will be considered.

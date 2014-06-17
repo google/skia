@@ -44,6 +44,7 @@ class GrContext;
 #include "SamplePipeControllers.h"
 #include "OverView.h"
 #include "TransitionView.h"
+#include "sk_tool_utils.h"
 
 extern SampleView* CreateSamplePictFileView(const char filename[]);
 
@@ -2082,19 +2083,6 @@ void SampleWindow::loadView(SkView* view) {
     this->updateTitle();
 }
 
-static const char* gConfigNames[] = {
-    "unknown config",
-    "A8",
-    "Index8",
-    "565",
-    "4444",
-    "8888"
-};
-
-static const char* configToString(SkBitmap::Config c) {
-    return gConfigNames[c];
-}
-
 static const char* gDeviceTypePrefix[] = {
     "raster: ",
     "picture: ",
@@ -2130,7 +2118,7 @@ void SampleWindow::updateTitle() {
     title.prepend(gDeviceTypePrefix[fDeviceType]);
 
     title.prepend(" ");
-    title.prepend(configToString(this->getBitmap().config()));
+    title.prepend(sk_tool_utils::colortype_name(this->getBitmap().colorType()));
 
     if (fTilingMode != kNo_Tiling) {
         title.prependf("<T: %s> ", gTilingInfo[fTilingMode].label);

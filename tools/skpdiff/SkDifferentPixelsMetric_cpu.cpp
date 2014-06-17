@@ -21,7 +21,7 @@ bool SkDifferentPixelsMetric::diff(SkBitmap* baseline, SkBitmap* test, bool comp
     // Ensure the images are comparable
     if (baseline->width() != test->width() || baseline->height() != test->height() ||
         baseline->width() <= 0 || baseline->height() <= 0 ||
-        baseline->config() != test->config()) {
+        baseline->colorType() != test->colorType()) {
         return false;
     }
 

@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkPicture.h"
 
+#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
 SkBitmap::Config SkColorTypeToBitmapConfig(SkColorType colorType) {
     switch (colorType) {
         case kAlpha_8_SkColorType:
@@ -45,6 +46,7 @@ SkColorType SkBitmapConfigToColorType(SkBitmap::Config config) {
     SkASSERT((unsigned)config < SK_ARRAY_COUNT(gCT));
     return gCT[config];
 }
+#endif
 
 SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef) {
     const SkImageInfo info = bm.info();

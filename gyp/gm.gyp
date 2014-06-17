@@ -13,6 +13,7 @@
       'sources': [
         '../gm/gm_expectations.h',
         '../gm/gm_expectations.cpp',
+        '../tools/sk_tool_utils.cpp',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
@@ -33,6 +34,7 @@
         '../src/effects',
         '../src/pipe/utils/',
         '../src/utils/',
+        '../tools',
       ],
       'includes': [
         'gmslides.gypi',

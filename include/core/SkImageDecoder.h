@@ -159,6 +159,7 @@ public:
     Chooser* setChooser(Chooser*);
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
     /**
      *  Optional table describing the caller's preferred config based on
      *  information about the src data. Each field should be set to the
@@ -202,6 +203,7 @@ public:
      *  was previously set.
      */
     void resetPrefConfigTable() { fUsePrefTable = false; }
+#endif
 
     SkBitmap::Allocator* getAllocator() const { return fAllocator; }
     SkBitmap::Allocator* setAllocator(SkBitmap::Allocator*);
@@ -471,9 +473,11 @@ private:
     SkBitmap::Allocator*    fAllocator;
     int                     fSampleSize;
     SkColorType             fDefaultPref;   // use if fUsePrefTable is false
+#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
     PrefConfigTable         fPrefTable;     // use if fUsePrefTable is true
-    bool                    fDitherImage;
     bool                    fUsePrefTable;
+#endif
+    bool                    fDitherImage;
     bool                    fSkipWritingZeroes;
     mutable bool            fShouldCancelDecode;
     bool                    fPreferQualityOverSpeed;

@@ -62,7 +62,7 @@ DEF_TEST(KtxReadWrite, reporter) {
     bool imageDecodeSuccess = SkImageDecoder::DecodeStream(stream, &decodedBitmap);
     REPORTER_ASSERT(reporter, imageDecodeSuccess);
 
-    REPORTER_ASSERT(reporter, decodedBitmap.config() == bm8888.config());
+    REPORTER_ASSERT(reporter, decodedBitmap.colorType() == bm8888.colorType());
     REPORTER_ASSERT(reporter, decodedBitmap.alphaType() == bm8888.alphaType());
     REPORTER_ASSERT(reporter, decodedBitmap.width() == bm8888.width());
     REPORTER_ASSERT(reporter, decodedBitmap.height() == bm8888.height());

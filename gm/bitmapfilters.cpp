@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 namespace skiagm {
 
@@ -46,15 +47,6 @@ static SkScalar draw_set(SkCanvas* c, const SkBitmap& bm, SkScalar x,
     return x + draw_bm(c, bm, x, 0, p);
 }
 
-static const char* gConfigNames[] = {
-    "unknown config",
-    "A8",
-    "Index8",
-    "565",
-    "4444",
-    "8888"
-};
-
 static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     SkAutoCanvasRestore acr(canvas, true);
 
@@ -63,7 +55,7 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     const int scale = 32;
 
     paint.setAntiAlias(true);
-    const char* name = gConfigNames[bm.config()];
+    const char* name = sk_tool_utils::colortype_name(bm.colorType());
     canvas->drawText(name, strlen(name), x, SkIntToScalar(bm.height())*scale*5/8,
                      paint);
     canvas->translate(SkIntToScalar(48), 0);

@@ -45,11 +45,13 @@ GR_STATIC_ASSERT((int)kIDA_GrBlendCoeff  == (int)SkXfermode::kIDA_Coeff);
 
 #include "SkColorPriv.h"
 
+#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
 /**
  *  Convert the SkBitmap::Config to the corresponding PixelConfig, or
  *  kUnknown_PixelConfig if the conversion cannot be done.
  */
 GrPixelConfig SkBitmapConfig2GrPixelConfig(SkBitmap::Config);
+#endif
 GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType);
 
 static inline GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info) {
