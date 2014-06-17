@@ -589,9 +589,7 @@ int SkOpSegment::addT(SkOpSegment* other, const SkPoint& pt, double newT) {
         span = fTs.append();
     }
     span->fT = newT;
-#if SK_DEBUG
     span->fOtherT = -1;
-#endif
     span->fOther = other;
     span->fPt = pt;
 #if 0
@@ -3438,7 +3436,7 @@ SkOpSpan* SkOpSegment::markAndChaseWinding(int index, int endIndex, int winding,
     SkOpSegment* other = this;
     while ((other = other->nextChase(&index, &step, &min, &last))) {
         if (other->fTs[min].fWindSum != SK_MinS32) {
-#if SK_DEBUG
+#ifdef SK_DEBUG
             if (!other->fTs[min].fLoop) {
                 if (fOperand == other->fOperand) {
 // FIXME: this is probably a bug -- rects4 asserts here
