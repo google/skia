@@ -286,7 +286,6 @@
         '<(skia_include_path)/core/SkShader.h',
         '<(skia_include_path)/core/SkStream.h',
         '<(skia_include_path)/core/SkString.h',
-        '<(skia_include_path)/core/SkStringUtils.h',
         '<(skia_include_path)/core/SkStrokeRec.h',
         '<(skia_include_path)/core/SkSurface.h',
         '<(skia_include_path)/core/SkTArray.h',
