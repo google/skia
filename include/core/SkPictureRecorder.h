@@ -14,10 +14,12 @@
 
 class SkCanvas;
 class SkPictureRecord;
+class SkRecord;
+class SkRecorder;
 
 class SK_API SkPictureRecorder : SkNoncopyable {
 public:
-    SkPictureRecorder() : fCanvas(NULL) { }
+    SkPictureRecorder() : fPictureRecord(NULL), fRecorder(NULL), fRecord(NULL) { }
     ~SkPictureRecorder();
 
     /** Returns the canvas that records the drawing commands.
@@ -32,6 +34,10 @@ public:
     SkCanvas* beginRecording(int width, int height,
                              SkBBHFactory* bbhFactory = NULL,
                              uint32_t recordFlags = 0);
+
+    /** Same as beginRecording(), using a new faster backend. */
+    SkCanvas* EXPERIMENTAL_beginRecording(int width, int height,
+                                          SkBBHFactory* bbhFactory = NULL);
 
     /** Returns the recording canvas if one is active, or NULL if recording is
         not active. This does not alter the refcnt on the canvas (if present).
@@ -54,6 +60,8 @@ public:
     void internalOnly_EnableOpts(bool enableOpts);
 
 private:
+    void reset();
+
     /** Replay the current (partially recorded) operation stream into
         canvas. This call doesn't close the current recording.
     */
@@ -63,7 +71,13 @@ private:
 
     int                     fWidth;
     int                     fHeight;
-    SkPictureRecord*        fCanvas;   // ref counted
+
+    // Both ref counted.  One of these two will be non-null:
+    SkPictureRecord*        fPictureRecord;   // beginRecording()
+    SkRecorder*             fRecorder;        // EXPERIMENTAL_beginRecording()
+
+    // Not refcounted.  Used by EXPERIMENTAL_beginRecording().
+    SkRecord* fRecord;
 
     typedef SkNoncopyable INHERITED;
 };

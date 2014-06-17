@@ -11,9 +11,10 @@
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
-#include "SkRecording.h"
 #include "SkStream.h"
 #include "SkString.h"
+
+#include "../include/record/SkRecording.h"
 
 #include "BenchTimer.h"
 #include "Stats.h"

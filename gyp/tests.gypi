@@ -9,7 +9,6 @@
     '../src/pathops',
     '../src/pdf',
     '../src/pipe/utils',
-    '../src/record',
     '../src/utils',
     '../src/utils/debugger',
     '../tools/',
@@ -24,7 +23,6 @@
     'flags.gyp:flags',
     'pdf.gyp:pdf',
     'tools.gyp:picture_utils',
-    'record.gyp:record',
   ],
   'sources': [
     '../tests/Test.cpp',

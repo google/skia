@@ -11,7 +11,6 @@
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
-#include "SkRecording.h"
 #include "SkStream.h"
 #include "SkString.h"
 
@@ -65,16 +64,13 @@ static SkBBHFactory* parse_FLAGS_bbh() {
 }
 
 static void rerecord(const SkPicture& src, SkBBHFactory* bbhFactory) {
+    SkPictureRecorder recorder;
     if (FLAGS_skr) {
-        EXPERIMENTAL::SkRecording recording(src.width(), src.height());
-        src.draw(recording.canvas());
-        // Release and delete the SkPlayback so that recording optimizes its SkRecord.
-        SkDELETE(recording.releasePlayback());
+        src.draw(recorder.EXPERIMENTAL_beginRecording(src.width(), src.height(), bbhFactory));
     } else {
-        SkPictureRecorder recorder;
         src.draw(recorder.beginRecording(src.width(), src.height(), bbhFactory));
-        SkAutoTUnref<SkPicture> dst(recorder.endRecording());
     }
+    SkAutoTUnref<SkPicture> pic(recorder.endRecording());
 }
 
 static void bench_record(const SkPicture& src,

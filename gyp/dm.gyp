@@ -59,7 +59,6 @@
             'flags.gyp:flags',
             'jsoncpp.gyp:jsoncpp',
             'gputest.gyp:skgputest',
-            'record.gyp:*',
             'etc1.gyp:libetc1',
         ],
         'conditions': [

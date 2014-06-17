@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkRecording.h"
+#include "../../include/record/SkRecording.h"
 
 #include "SkRecord.h"
 #include "SkRecordOpts.h"

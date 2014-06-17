@@ -21,8 +21,9 @@
         '../include/utils',
         '../include/xml',
         '../src/core',
-        '../src/opts',
         '../src/image',
+        '../src/opts',
+        '../src/utils',
       ],
       'sources': [
         'core.gypi', # Makes the gypi appear in IDEs (but does not modify the build).

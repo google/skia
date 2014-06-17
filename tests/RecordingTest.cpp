@@ -7,7 +7,7 @@
 
 #include "Test.h"
 
-#include "SkRecording.h"
+#include "../include/record/SkRecording.h"
 
 // Minimally exercise the public SkRecording API.
 

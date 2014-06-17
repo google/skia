@@ -324,7 +324,6 @@
         'bench.gyp:bench_timer',
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
-        'record.gyp:*',
       ],
     },
     {
@@ -336,13 +335,11 @@
       'include_dirs': [
         '../src/core/',
         '../src/images',
-        '../src/record',
       ],
       'dependencies': [
         'bench.gyp:bench_timer',
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
-        'record.gyp:*',
       ],
     },
     {
@@ -357,12 +354,10 @@
         '../src/core/',
         '../src/images',
         '../src/lazy',
-        '../src/record',
       ],
       'dependencies': [
         'bench.gyp:bench_timer',
         'flags.gyp:flags',
-        'record.gyp:*',
         'skia_lib.gyp:skia_lib',
       ],
     },
