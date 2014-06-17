@@ -71,6 +71,6 @@ double BenchSysTimer::endWall() {
     } else {
         uint64_t elapsedNano = elapsed * sTimebaseInfo.numer
                                / sTimebaseInfo.denom;
-        return elapsedNano / 1000000;
+        return elapsedNano / 1000000.0;
     }
 }
