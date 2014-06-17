@@ -365,23 +365,18 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     info->fLastGlyphID = SkToU16(glyphCount - 1);
     info->fStyle = 0;
 
-
+    // SkAdvancedTypefaceMetrics::fFontName is in theory supposed to be
+    // the PostScript name of the font. However, due to the way it is currently
+    // used, it must actually be a family name.
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
-    SkTScopedComPtr<IDWriteLocalizedStrings> faceNames;
     hr = fDWriteFontFamily->GetFamilyNames(&familyNames);
-    hr = fDWriteFont->GetFaceNames(&faceNames);
 
     UINT32 familyNameLength;
     hr = familyNames->GetStringLength(0, &familyNameLength);
 
-    UINT32 faceNameLength;
-    hr = faceNames->GetStringLength(0, &faceNameLength);
-
-    UINT32 size = familyNameLength+1+faceNameLength+1;
+    UINT32 size = familyNameLength+1;
     SkSMallocWCHAR wFamilyName(size);
     hr = familyNames->GetString(0, wFamilyName.get(), size);
-    wFamilyName[familyNameLength] = L' ';
-    hr = faceNames->GetString(0, &wFamilyName[familyNameLength+1], size - faceNameLength + 1);
 
     hr = sk_wchar_to_skstring(wFamilyName.get(), &info->fFontName);
 
