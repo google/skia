@@ -422,7 +422,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     swapped.setMax(fMax);
     if (is_linear(q2, q1, &swapped)) {
         swapped.swapPts();
-        set(swapped);
+        *this = swapped;
         return fUsed;
     }
     SkIntersections copyI(*this);

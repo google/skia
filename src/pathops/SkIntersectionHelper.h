@@ -54,6 +54,11 @@ public:
         return ++fIndex < fLast;
     }
 
+    void alignTPt(SkIntersectionHelper& other, bool swap, int index,
+            SkIntersections* ts, SkPoint* point) {
+        fContour->alignTPt(fIndex, other.fContour, other.fIndex, swap, index, ts, point);
+    }
+
     SkScalar bottom() const {
         return bounds().fBottom;
     }

@@ -103,6 +103,7 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
     int remaining = fUsed - index;
     if (remaining > 0) {
         memmove(&fPt[index + 1], &fPt[index], sizeof(fPt[0]) * remaining);
+        memmove(&fPt2[index + 1], &fPt2[index], sizeof(fPt2[0]) * remaining);
         memmove(&fT[0][index + 1], &fT[0][index], sizeof(fT[0][0]) * remaining);
         memmove(&fT[1][index + 1], &fT[1][index], sizeof(fT[1][0]) * remaining);
         int clearMask = ~((1 << index) - 1);
@@ -114,6 +115,15 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
     fT[1][index] = two;
     ++fUsed;
     return index;
+}
+
+void SkIntersections::insertNear(double one, double two, const SkDPoint& pt1, const SkDPoint& pt2) {
+    SkASSERT(one == 0 || one == 1);
+    SkASSERT(two == 0 || two == 1);
+    SkASSERT(pt1 != pt2);
+    SkASSERT(fNearlySame[(int) one]);
+    (void) insert(one, two, pt1);
+    fPt2[one ? fUsed - 1 : 0] = pt2;
 }
 
 void SkIntersections::insertCoincident(double one, double two, const SkDPoint& pt) {
@@ -158,6 +168,7 @@ void SkIntersections::removeOne(int index) {
         return;
     }
     memmove(&fPt[index], &fPt[index + 1], sizeof(fPt[0]) * remaining);
+    memmove(&fPt2[index], &fPt2[index + 1], sizeof(fPt2[0]) * remaining);
     memmove(&fT[0][index], &fT[0][index + 1], sizeof(fT[0][0]) * remaining);
     memmove(&fT[1][index], &fT[1][index + 1], sizeof(fT[1][0]) * remaining);
     SkASSERT(fIsCoincident[0] == 0);

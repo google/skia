@@ -238,7 +238,7 @@ protected:
             if (fIntersections->hasT(quadT)) {
                 continue;
             }
-            double lineT = fLine.nearPoint(fQuad[qIndex]);
+            double lineT = fLine.nearPoint(fQuad[qIndex], NULL);
             if (lineT < 0) {
                 continue;
             }
@@ -324,10 +324,10 @@ protected:
             *pt = fQuad.ptAtT(qT);
         }
         SkPoint gridPt = pt->asSkPoint();
-        if (gridPt == fLine[0].asSkPoint()) {
+        if (SkDPoint::ApproximatelyEqual(gridPt, fLine[0].asSkPoint())) {
             *pt = fLine[0];
             *lineT = 0;
-        } else if (gridPt == fLine[1].asSkPoint()) {
+        } else if (SkDPoint::ApproximatelyEqual(gridPt, fLine[1].asSkPoint())) {
             *pt = fLine[1];
             *lineT = 1;
         }

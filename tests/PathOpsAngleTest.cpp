@@ -264,7 +264,7 @@ DEF_TEST(PathOpsAngleCircle, reporter) {
                 break;
         }
     }
-    PathOpsAngleTester::Orderable(segment[0].angle(0), segment[1].angle(0));
+    PathOpsAngleTester::Orderable(*segment[0].debugLastAngle(), *segment[1].debugLastAngle());
 }
 
 struct IntersectData {
@@ -438,9 +438,9 @@ DEF_TEST(PathOpsAngleAfter, reporter) {
                         } break;
                 }
             }
-            SkOpAngle& angle1 = const_cast<SkOpAngle&>(segment[0].angle(0));
-            SkOpAngle& angle2 = const_cast<SkOpAngle&>(segment[1].angle(0));
-            SkOpAngle& angle3 = const_cast<SkOpAngle&>(segment[2].angle(0));
+            SkOpAngle& angle1 = *const_cast<SkOpAngle*>(segment[0].debugLastAngle());
+            SkOpAngle& angle2 = *const_cast<SkOpAngle*>(segment[1].debugLastAngle());
+            SkOpAngle& angle3 = *const_cast<SkOpAngle*>(segment[2].debugLastAngle());
             PathOpsAngleTester::SetNext(angle1, angle3);
        // These data sets are seeded when the set itself fails, so likely the dataset does not
        // match the expected result. The tests above return 1 when first added, but

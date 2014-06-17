@@ -51,6 +51,7 @@
 #define DEBUG_CONCIDENT 0
 #define DEBUG_CROSS 0
 #define DEBUG_CUBIC_BINARY_SEARCH 0
+#define DEBUG_DUPLICATES 0
 #define DEBUG_FLAT_QUADS 0
 #define DEBUG_FLOW 0
 #define DEBUG_LIMIT_WIND_SUM 0
@@ -86,6 +87,7 @@
 #define DEBUG_CONCIDENT 1
 #define DEBUG_CROSS 01
 #define DEBUG_CUBIC_BINARY_SEARCH 1
+#define DEBUG_DUPLICATES 1
 #define DEBUG_FLAT_QUADS 0
 #define DEBUG_FLOW 1
 #define DEBUG_LIMIT_WIND_SUM 4
@@ -123,7 +125,7 @@
 #define CUBIC_DEBUG_DATA(c) c[0].fX, c[0].fY, c[1].fX, c[1].fY, c[2].fX, c[2].fY, c[3].fX, c[3].fY
 #define QUAD_DEBUG_DATA(q)  q[0].fX, q[0].fY, q[1].fX, q[1].fY, q[2].fX, q[2].fY
 #define LINE_DEBUG_DATA(l)  l[0].fX, l[0].fY, l[1].fX, l[1].fY
-#define PT_DEBUG_DATA(i, n) i.pt(n).fX, i.pt(n).fY
+#define PT_DEBUG_DATA(i, n) i.pt(n).asSkPoint().fX, i.pt(n).asSkPoint().fY
 
 #ifndef DEBUG_TEST
 #define DEBUG_TEST 0
@@ -168,14 +170,18 @@ public:
     static void BumpTestName(char* );
 #endif
     static void ShowPath(const SkPath& one, const SkPath& two, SkPathOp op, const char* name);
-    static void DumpAngles(const SkTArray<class SkOpAngle, true>& angles);
-    static void DumpAngles(const SkTArray<class SkOpAngle* , true>& angles);
+    static void DumpCoincidence(const SkTArray<class SkOpContour, true>& contours);
+    static void DumpCoincidence(const SkTArray<class SkOpContour* , true>& contours);
     static void DumpContours(const SkTArray<class SkOpContour, true>& contours);
     static void DumpContours(const SkTArray<class SkOpContour* , true>& contours);
     static void DumpContourAngles(const SkTArray<class SkOpContour, true>& contours);
     static void DumpContourAngles(const SkTArray<class SkOpContour* , true>& contours);
+    static void DumpContourPt(const SkTArray<class SkOpContour, true>& contours, int id);
+    static void DumpContourPt(const SkTArray<class SkOpContour* , true>& contours, int id);
     static void DumpContourPts(const SkTArray<class SkOpContour, true>& contours);
     static void DumpContourPts(const SkTArray<class SkOpContour* , true>& contours);
+    static void DumpContourSpan(const SkTArray<class SkOpContour, true>& contours, int id);
+    static void DumpContourSpan(const SkTArray<class SkOpContour* , true>& contours, int id);
     static void DumpContourSpans(const SkTArray<class SkOpContour, true>& contours);
     static void DumpContourSpans(const SkTArray<class SkOpContour* , true>& contours);
     static void DumpSpans(const SkTDArray<struct SkOpSpan *>& );
@@ -183,33 +189,43 @@ public:
 };
 
 // shorthand for calling from debugger
-void Dump(const SkTArray<class SkOpAngle, true>& angles);
-void Dump(const SkTArray<class SkOpAngle* , true>& angles);
-void Dump(const SkTArray<class SkOpAngle, true>* angles);
-void Dump(const SkTArray<class SkOpAngle* , true>* angles);
-
 void Dump(const SkTArray<class SkOpContour, true>& contours);
 void Dump(const SkTArray<class SkOpContour* , true>& contours);
 void Dump(const SkTArray<class SkOpContour, true>* contours);
 void Dump(const SkTArray<class SkOpContour* , true>* contours);
 
-void Dump(const SkTDArray<SkOpSpan *>& chaseArray);
-void Dump(const SkTDArray<SkOpSpan *>* chaseArray);
+void Dump(const SkTDArray<SkOpSpan* >& chase);
+void Dump(const SkTDArray<SkOpSpan* >* chase);
 
 void DumpAngles(const SkTArray<class SkOpContour, true>& contours);
 void DumpAngles(const SkTArray<class SkOpContour* , true>& contours);
 void DumpAngles(const SkTArray<class SkOpContour, true>* contours);
 void DumpAngles(const SkTArray<class SkOpContour* , true>* contours);
 
+void DumpCoin(const SkTArray<class SkOpContour, true>& contours);
+void DumpCoin(const SkTArray<class SkOpContour* , true>& contours);
+void DumpCoin(const SkTArray<class SkOpContour, true>* contours);
+void DumpCoin(const SkTArray<class SkOpContour* , true>* contours);
+
 void DumpPts(const SkTArray<class SkOpContour, true>& contours);
 void DumpPts(const SkTArray<class SkOpContour* , true>& contours);
 void DumpPts(const SkTArray<class SkOpContour, true>* contours);
 void DumpPts(const SkTArray<class SkOpContour* , true>* contours);
 
+void DumpPt(const SkTArray<class SkOpContour, true>& contours, int segmentID);
+void DumpPt(const SkTArray<class SkOpContour* , true>& contours, int segmentID);
+void DumpPt(const SkTArray<class SkOpContour, true>* contours, int segmentID);
+void DumpPt(const SkTArray<class SkOpContour* , true>* contours, int segmentID);
+
 void DumpSpans(const SkTArray<class SkOpContour, true>& contours);
 void DumpSpans(const SkTArray<class SkOpContour* , true>& contours);
 void DumpSpans(const SkTArray<class SkOpContour, true>* contours);
 void DumpSpans(const SkTArray<class SkOpContour* , true>* contours);
+
+void DumpSpan(const SkTArray<class SkOpContour, true>& contours, int segmentID);
+void DumpSpan(const SkTArray<class SkOpContour* , true>& contours, int segmentID);
+void DumpSpan(const SkTArray<class SkOpContour, true>* contours, int segmentID);
+void DumpSpan(const SkTArray<class SkOpContour* , true>* contours, int segmentID);
 
 // generates tools/path_sorter.htm and path_visualizer.htm compatible data
 void DumpQ(const struct SkDQuad& quad1, const struct SkDQuad& quad2, int testNo);

@@ -156,6 +156,11 @@ static void showPathData(const SkPath& path) {
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
+                if (firstPtSet && lastPtSet && firstPt != lastPt) {
+                    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", lastPt.fX, lastPt.fY,
+                            firstPt.fX, firstPt.fY);
+                    lastPtSet = false;
+                }
                 firstPt = pts[0];
                 firstPtSet = true;
                 continue;
@@ -189,6 +194,10 @@ static void showPathData(const SkPath& path) {
                 SkDEBUGFAIL("bad verb");
                 return;
         }
+    }
+    if (firstPtSet && lastPtSet && firstPt != lastPt) {
+        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", lastPt.fX, lastPt.fY,
+                firstPt.fX, firstPt.fY);
     }
 }
 #endif
@@ -410,7 +419,6 @@ static void showPathOpPath(const char* testName, const SkPath& one, const SkPath
     SkDebugf("static void %s(skiatest::Reporter* reporter, const char* filename) {\n", testName);
     *gTestOp.append() = shapeOp;
     ++gTestNo;
-    SkDebugf("\n*** this test fails ***\n");
     SkDebugf("    SkPath path, pathB;\n");
     showPath(a, "path", false);
     showPath(b, "pathB", false);
@@ -440,6 +448,7 @@ static int comparePaths(skiatest::Reporter* reporter, const char* testName, cons
     if (errors2x2 > MAX_ERRORS && gComparePathsAssert) {
         SK_DECLARE_STATIC_MUTEX(compareDebugOut3);
         SkAutoMutexAcquire autoM(compareDebugOut3);
+        SkDebugf("\n*** this test fails ***\n");
         showPathOpPath(testName, one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
         REPORTER_ASSERT(reporter, 0);
     } else if (gShowPath || errors2x2 == MAX_ERRORS || errors2x2 == MAX_ERRORS - 1) {

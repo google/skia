@@ -261,7 +261,7 @@ public:
             if (fIntersections->hasT(cubicT)) {
                 continue;
             }
-            double lineT = fLine.nearPoint(fCubic[cIndex]);
+            double lineT = fLine.nearPoint(fCubic[cIndex], NULL);
             if (lineT < 0) {
                 continue;
             }

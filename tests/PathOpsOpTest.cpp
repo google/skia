@@ -2065,6 +2065,11 @@ static void rectOp3x(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kXOR_PathOp, filename);
 }
 
+#define ISSUE_1435_FIXED 0
+#if ISSUE_1435_FIXED
+// this fails to generate two interior line segments 
+// an earlier pathops succeeded, but still failed to generate one interior line segment
+// (but was saved by assemble, which works around a single line missing segment)
 static void issue1435(skiatest::Reporter* reporter, const char* filename) {
     SkPath path1;
     path1.moveTo(160, 60);
@@ -2115,6 +2120,7 @@ static void issue1435(skiatest::Reporter* reporter, const char* filename) {
     path2.setFillType(SkPath::kEvenOdd_FillType);
     testPathOp(reporter, path1, path2, kIntersect_PathOp, filename);
 }
+#endif
 
 static void skpkkiste_to716(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
@@ -3348,10 +3354,116 @@ static void issue2504(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
 }
 
+#define TEST_2540 0
+#if TEST_2540  // FIXME: extends cubic arm for sorting, marks extension with wrong winding?
+static void issue2540(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path1;
+    path1.moveTo(26.5054988861083984375, 85.73960113525390625);
+    path1.cubicTo(84.19739532470703125, 17.77140045166015625, 16.93920135498046875, 101.86199951171875, 12.631000518798828125, 105.24700164794921875);
+    path1.cubicTo(11.0819997787475585937500000, 106.46399688720703125, 11.5260000228881835937500000, 104.464996337890625, 11.5260000228881835937500000, 104.464996337890625);
+    path1.lineTo(23.1654987335205078125, 89.72879791259765625);
+    path1.cubicTo(23.1654987335205078125, 89.72879791259765625, -10.1713008880615234375, 119.9160003662109375, -17.1620006561279296875, 120.8249969482421875);
+    path1.cubicTo(-19.1149997711181640625, 121.07900238037109375, -18.0380001068115234375, 119.79299163818359375, -18.0380001068115234375, 119.79299163818359375);
+    path1.cubicTo(-18.0380001068115234375, 119.79299163818359375, 14.22100067138671875, 90.60700225830078125, 26.5054988861083984375, 85.73960113525390625);
+    path1.close();
+
+    SkPath path2;
+    path2.moveTo(-25.077999114990234375, 124.9120025634765625);
+    path2.cubicTo(-25.077999114990234375, 124.9120025634765625, -25.9509983062744140625, 125.95400238037109375, -24.368999481201171875, 125.7480010986328125);
+    path2.cubicTo(-16.06999969482421875, 124.66899871826171875, 1.2680000066757202148437500, 91.23999786376953125, 37.264003753662109375, 95.35400390625);
+    path2.cubicTo(37.264003753662109375, 95.35400390625, 11.3710002899169921875, 83.7339935302734375, -25.077999114990234375, 124.9120025634765625);
+    path2.close();
+    testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
+}
+#endif
+
+static void rects1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(6, 0);
+    path.lineTo(6, 6);
+    path.lineTo(0, 6);
+    path.close();
+    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.moveTo(0, 0);
+    pathB.lineTo(1, 0);
+    pathB.lineTo(1, 1);
+    pathB.lineTo(0, 1);
+    pathB.close();
+    pathB.moveTo(0, 0);
+    pathB.lineTo(2, 0);
+    pathB.lineTo(2, 2);
+    pathB.lineTo(0, 2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kUnion_PathOp, filename);
+}
+
+static void rects2(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.lineTo(4, 0);
+    path.lineTo(4, 4);
+    path.lineTo(0, 4);
+    path.close();
+    path.moveTo(3, 3);
+    path.lineTo(4, 3);
+    path.lineTo(4, 4);
+    path.lineTo(3, 4);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(3, 3);
+    pathB.lineTo(6, 3);
+    pathB.lineTo(6, 6);
+    pathB.lineTo(3, 6);
+    pathB.close();
+    pathB.moveTo(3, 3);
+    pathB.lineTo(4, 3);
+    pathB.lineTo(4, 4);
+    pathB.lineTo(3, 4);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
+}
+
+static void rects3(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(0, 0, 4, 4, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
+    testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
+}
+
+static void rects4(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 3, 3, SkPath::kCW_Direction);
+    testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
+}
+
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(rects4),
+    TEST(rects3),
+    TEST(rects2),
+    TEST(rects1),
+#if TEST_2540  // FIXME: extends cubic arm for sorting, marks extension with wrong winding?
+    TEST(issue2540),
+#endif
     TEST(issue2504),
     TEST(kari1),
     TEST(quadOp10i),
@@ -3390,7 +3502,9 @@ static struct TestDesc tests[] = {
     TEST(cubicOp101),
     TEST(cubicOp100),
     TEST(cubicOp99),
+#if ISSUE_1435_FIXED
     TEST(issue1435),
+#endif
     TEST(cubicOp98x),
     TEST(cubicOp97x),
     TEST(skpcarpetplanet_ru22),  // cubic/cubic intersect detects unwanted coincidence

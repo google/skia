@@ -34,25 +34,69 @@ void SkPathOpsDebug::WindingPrintf(int wind) {
 #endif
 
 void SkOpAngle::dump() const {
-#if DEBUG_SORT
-    debugOne(false);
-#endif
+    dumpOne(true);
     SkDebugf("\n");
 }
 
-void SkOpAngle::dumpFromTo(const SkOpSegment* segment, int from, int to) const {
-#if DEBUG_SORT && DEBUG_ANGLE
+void SkOpAngle::dumpOne(bool functionHeader) const {
+//    fSegment->debugValidate();
+    const SkOpSpan& mSpan = fSegment->span(SkMin32(fStart, fEnd));
+    if (functionHeader) {
+        SkDebugf("%s ", __FUNCTION__);
+    }
+    SkDebugf("[%d", fSegment->debugID());
+    SkDebugf("/%d", debugID());
+    SkDebugf("] next=");
+    if (fNext) {
+        SkDebugf("%d", fNext->fSegment->debugID());
+        SkDebugf("/%d", fNext->debugID());
+    } else {
+        SkDebugf("?");
+    }
+    SkDebugf(" sect=%d/%d ", fSectorStart, fSectorEnd);
+    SkDebugf(" s=%1.9g [%d] e=%1.9g [%d]", fSegment->span(fStart).fT, fStart,
+            fSegment->span(fEnd).fT, fEnd);
+    SkDebugf(" sgn=%d windVal=%d", sign(), mSpan.fWindValue);
+
+    SkDebugf(" windSum=");
+    SkPathOpsDebug::WindingPrintf(mSpan.fWindSum);
+    if (mSpan.fOppValue != 0 || mSpan.fOppSum != SK_MinS32) {
+        SkDebugf(" oppVal=%d", mSpan.fOppValue);
+        SkDebugf(" oppSum=");
+        SkPathOpsDebug::WindingPrintf(mSpan.fOppSum);
+    }
+    if (mSpan.fDone) {
+        SkDebugf(" done");
+    }
+    if (unorderable()) {
+        SkDebugf(" unorderable");
+    }
+    if (small()) {
+        SkDebugf(" small");
+    }
+    if (mSpan.fTiny) {
+        SkDebugf(" tiny");
+    }
+    if (fSegment->operand()) {
+        SkDebugf(" operand");
+    }
+    if (fStop) {
+        SkDebugf(" stop");
+    }
+}
+
+void SkOpAngle::dumpTo(const SkOpSegment* segment, const SkOpAngle* to) const {
     const SkOpAngle* first = this;
     const SkOpAngle* next = this;
     const char* indent = "";
     do {
         SkDebugf("%s", indent);
-        next->debugOne(false);
+        next->dumpOne(false);
         if (segment == next->fSegment) {
-            if (fNext && from == fNext->debugID()) {
+            if (this == fNext) {
                 SkDebugf(" << from");
             }
-            if (fNext && to == fNext->debugID()) {
+            if (to == fNext) {
                 SkDebugf(" << to");
             }
         }
@@ -60,7 +104,6 @@ void SkOpAngle::dumpFromTo(const SkOpSegment* segment, int from, int to) const {
         indent = "           ";
         next = next->fNext;
     } while (next && next != first);
-#endif
 }
 
 void SkOpAngle::dumpLoop() const {
@@ -81,6 +124,14 @@ void SkOpAngle::dumpPartials() const {
     } while (next && next != first);
 }
 
+void SkOpAngleSet::dump() const {
+    // FIXME: unimplemented
+/* This requires access to the internal SkChunkAlloc data
+   Defer implementing this until it is needed for debugging
+*/
+    SkASSERT(0);
+}
+
 void SkOpContour::dump() const {
     int segmentCount = fSegments.count();
     SkDebugf("((SkOpContour*) 0x%p) [%d]\n", this, debugID());
@@ -99,12 +150,66 @@ void SkOpContour::dumpAngles() const {
     }
 }
 
+void SkOpContour::dumpCoincidence(const SkCoincidence& coin) const {
+    int thisIndex = coin.fSegments[0];
+    const SkOpSegment& s1 = fSegments[thisIndex];
+    int otherIndex = coin.fSegments[1];
+    const SkOpSegment& s2 = coin.fOther->fSegments[otherIndex];
+    SkDebugf("((SkOpSegment*) 0x%p) [%d]  ((SkOpSegment*) 0x%p) [%d]\n", &s1, s1.debugID(),
+            &s2, s2.debugID());
+    for (int index = 0; index < 2; ++index) {
+        SkDebugf("    {%1.9gf, %1.9gf}", coin.fPts[0][index].fX, coin.fPts[0][index].fY);
+        if (coin.fNearly[index]) {
+            SkDebugf("    {%1.9gf, %1.9gf}", coin.fPts[1][index].fX, coin.fPts[1][index].fY);
+        }
+        SkDebugf("  seg1t=%1.9g seg2t=%1.9g\n", coin.fTs[0][index], coin.fTs[1][index]);
+    }
+}
+
+void SkOpContour::dumpCoincidences() const {
+    int count = fCoincidences.count();
+    if (count > 0) {
+        SkDebugf("fCoincidences count=%d\n", count);
+        for (int test = 0; test < count; ++test) {
+            dumpCoincidence(fCoincidences[test]);
+        }
+    }
+    count = fPartialCoincidences.count();
+    if (count == 0) {
+        return;
+    }
+    SkDebugf("fPartialCoincidences count=%d\n", count);
+    for (int test = 0; test < count; ++test) {
+        dumpCoincidence(fPartialCoincidences[test]);
+    }
+}
+
+void SkOpContour::dumpPt(int index) const {
+    int segmentCount = fSegments.count();
+    for (int test = 0; test < segmentCount; ++test) {
+        const SkOpSegment& segment = fSegments[test];
+        if (segment.debugID() == index) {
+            fSegments[test].dumpPts();
+        }
+    }
+}
+
 void SkOpContour::dumpPts() const {
     int segmentCount = fSegments.count();
     SkDebugf("((SkOpContour*) 0x%p) [%d]\n", this, debugID());
     for (int test = 0; test < segmentCount; ++test) {
         SkDebugf("  [%d] ", test);
         fSegments[test].dumpPts();
+    }
+}
+
+void SkOpContour::dumpSpan(int index) const {
+    int segmentCount = fSegments.count();
+    for (int test = 0; test < segmentCount; ++test) {
+        const SkOpSegment& segment = fSegments[test];
+        if (segment.debugID() == index) {
+            fSegments[test].dumpSpans();
+        }
     }
 }
 
@@ -208,25 +313,24 @@ const SkTDArray<SkOpSpan>& SkOpSegment::debugSpans() const {
 
 void SkOpSegment::dumpAngles() const {
     SkDebugf("((SkOpSegment*) 0x%p) [%d]\n", this, debugID());
-    int fromIndex = -1, toIndex = -1;
+    const SkOpAngle* fromAngle = NULL;
+    const SkOpAngle* toAngle = NULL;
     for (int index = 0; index < count(); ++index) {
-        int fIndex = fTs[index].fFromAngleIndex;
-        int tIndex = fTs[index].fToAngleIndex;
-        if (fromIndex == fIndex && tIndex == toIndex) {
+        const SkOpAngle* fAngle = fTs[index].fFromAngle;
+        const SkOpAngle* tAngle = fTs[index].fToAngle;
+        if (fromAngle == fAngle && toAngle == tAngle) {
             continue;
         }
-        if (fIndex >= 0) {
-            SkDebugf("  [%d] from=%d ", index, fIndex);
-            const SkOpAngle& angle = this->angle(fIndex);
-            angle.dumpFromTo(this, fIndex, tIndex);
+        if (fAngle) {
+            SkDebugf("  [%d] from=%d ", index, fAngle->debugID());
+            fAngle->dumpTo(this, tAngle);
         }
-        if (tIndex >= 0) {
-            SkDebugf("  [%d] to=%d   ", index, tIndex);
-            const SkOpAngle& angle = this->angle(tIndex);
-            angle.dumpFromTo(this, fIndex, tIndex);
+        if (tAngle) {
+            SkDebugf("  [%d] to=%d   ", index, tAngle->debugID());
+            tAngle->dumpTo(this, fAngle);
         }
-        fromIndex = fIndex;
-        toIndex = tIndex;
+        fromAngle = fAngle;
+        toAngle = tAngle;
     }
 }
 
@@ -279,17 +383,17 @@ void SkOpSegment::dumpSpans() const {
     }
 }
 
-void SkPathOpsDebug::DumpAngles(const SkTArray<SkOpAngle, true>& angles) {
-    int count = angles.count();
+void SkPathOpsDebug::DumpCoincidence(const SkTArray<SkOpContour, true>& contours) {
+    int count = contours.count();
     for (int index = 0; index < count; ++index) {
-        angles[index].dump();
+        contours[index].dumpCoincidences();
     }
 }
 
-void SkPathOpsDebug::DumpAngles(const SkTArray<SkOpAngle* , true>& angles) {
-    int count = angles.count();
+void SkPathOpsDebug::DumpCoincidence(const SkTArray<SkOpContour* , true>& contours) {
+    int count = contours.count();
     for (int index = 0; index < count; ++index) {
-        angles[index]->dump();
+        contours[index]->dumpCoincidences();
     }
 }
 
@@ -335,6 +439,20 @@ void SkPathOpsDebug::DumpContourPts(const SkTArray<SkOpContour* , true>& contour
     }
 }
 
+void SkPathOpsDebug::DumpContourPt(const SkTArray<SkOpContour, true>& contours, int segmentID) {
+    int count = contours.count();
+    for (int index = 0; index < count; ++index) {
+        contours[index].dumpPt(segmentID);
+    }
+}
+
+void SkPathOpsDebug::DumpContourPt(const SkTArray<SkOpContour* , true>& contours, int segmentID) {
+    int count = contours.count();
+    for (int index = 0; index < count; ++index) {
+        contours[index]->dumpPt(segmentID);
+    }
+}
+
 void SkPathOpsDebug::DumpContourSpans(const SkTArray<SkOpContour, true>& contours) {
     int count = contours.count();
     for (int index = 0; index < count; ++index) {
@@ -346,6 +464,20 @@ void SkPathOpsDebug::DumpContourSpans(const SkTArray<SkOpContour* , true>& conto
     int count = contours.count();
     for (int index = 0; index < count; ++index) {
         contours[index]->dumpSpans();
+    }
+}
+
+void SkPathOpsDebug::DumpContourSpan(const SkTArray<SkOpContour, true>& contours, int segmentID) {
+    int count = contours.count();
+    for (int index = 0; index < count; ++index) {
+        contours[index].dumpSpan(segmentID);
+    }
+}
+
+void SkPathOpsDebug::DumpContourSpan(const SkTArray<SkOpContour* , true>& contours, int segmentID) {
+    int count = contours.count();
+    for (int index = 0; index < count; ++index) {
+        contours[index]->dumpSpan(segmentID);
     }
 }
 
@@ -400,33 +532,45 @@ void SkOpSpan::dumpOne() const {
     } else {
         SkDebugf(" other.fID=? [?] otherT=?");
     }
-#if DEBUG_WINDING
-    SkDebugf(" windSum=");
-    SkPathOpsDebug::WindingPrintf(fWindSum);
-#endif
-    if (SkPathOpsDebug::ValidWind(fOppSum) || fOppValue != 0) {
-#if DEBUG_WINDING
-        SkDebugf(" oppSum=");
-        SkPathOpsDebug::WindingPrintf(fOppSum);
-#endif
+    if (fWindSum != SK_MinS32) {
+        SkDebugf(" windSum=%d", fWindSum);
+    }
+    if (fOppSum != SK_MinS32 && (SkPathOpsDebug::ValidWind(fOppSum) || fOppValue != 0)) {
+        SkDebugf(" oppSum=%d", fOppSum);
     }
     SkDebugf(" windValue=%d", fWindValue);
     if (SkPathOpsDebug::ValidWind(fOppSum) || fOppValue != 0) {
         SkDebugf(" oppValue=%d", fOppValue);
     }
-    SkDebugf(" from=%d", fFromAngleIndex);
-    SkDebugf(" to=%d", fToAngleIndex);
+    if (fFromAngle && fFromAngle->debugID()) {
+        SkDebugf(" from=%d", fFromAngle->debugID());
+    }
+    if (fToAngle && fToAngle->debugID()) {
+        SkDebugf(" to=%d", fToAngle->debugID());
+    }
+    if (fChased) {
+        SkDebugf(" chased");
+    }
+    if (fCoincident) {
+        SkDebugf(" coincident");
+    }
     if (fDone) {
         SkDebugf(" done");
     }
-    if (fTiny) {
-        SkDebugf(" tiny");
+    if (fLoop) {
+        SkDebugf(" loop");
+    }
+    if (fMultiple) {
+        SkDebugf(" multiple");
+    }
+    if (fNear) {
+        SkDebugf(" near");
     }
     if (fSmall) {
         SkDebugf(" small");
     }
-    if (fLoop) {
-        SkDebugf(" loop");
+    if (fTiny) {
+        SkDebugf(" tiny");
     }
     SkDebugf("\n");
 }
@@ -442,22 +586,6 @@ void SkOpSpan::dump() const {
         SkDebugf("  [?] ");
     }
     dumpOne();
-}
-
-void Dump(const SkTArray<class SkOpAngle, true>& angles) {
-    SkPathOpsDebug::DumpAngles(angles);
-}
-
-void Dump(const SkTArray<class SkOpAngle* , true>& angles) {
-    SkPathOpsDebug::DumpAngles(angles);
-}
-
-void Dump(const SkTArray<class SkOpAngle, true>* angles) {
-    SkPathOpsDebug::DumpAngles(*angles);
-}
-
-void Dump(const SkTArray<class SkOpAngle* , true>* angles) {
-    SkPathOpsDebug::DumpAngles(*angles);
 }
 
 void Dump(const SkTArray<class SkOpContour, true>& contours) {
@@ -476,12 +604,12 @@ void Dump(const SkTArray<class SkOpContour* , true>* contours) {
     SkPathOpsDebug::DumpContours(*contours);
 }
 
-void Dump(const SkTDArray<SkOpSpan *>& chaseArray) {
-    SkPathOpsDebug::DumpSpans(chaseArray);
+void Dump(const SkTDArray<SkOpSpan *>& chase) {
+    SkPathOpsDebug::DumpSpans(chase);
 }
 
-void Dump(const SkTDArray<SkOpSpan *>* chaseArray) {
-    SkPathOpsDebug::DumpSpans(*chaseArray);
+void Dump(const SkTDArray<SkOpSpan *>* chase) {
+    SkPathOpsDebug::DumpSpans(*chase);
 }
 
 void DumpAngles(const SkTArray<class SkOpContour, true>& contours) {
@@ -500,6 +628,22 @@ void DumpAngles(const SkTArray<class SkOpContour* , true>* contours) {
     SkPathOpsDebug::DumpContourAngles(*contours);
 }
 
+void DumpCoin(const SkTArray<class SkOpContour, true>& contours) {
+    SkPathOpsDebug::DumpCoincidence(contours);
+}
+
+void DumpCoin(const SkTArray<class SkOpContour* , true>& contours) {
+    SkPathOpsDebug::DumpCoincidence(contours);
+}
+
+void DumpCoin(const SkTArray<class SkOpContour, true>* contours) {
+    SkPathOpsDebug::DumpCoincidence(*contours);
+}
+
+void DumpCoin(const SkTArray<class SkOpContour* , true>* contours) {
+    SkPathOpsDebug::DumpCoincidence(*contours);
+}
+
 void DumpSpans(const SkTArray<class SkOpContour, true>& contours) {
     SkPathOpsDebug::DumpContourSpans(contours);
 }
@@ -516,6 +660,22 @@ void DumpSpans(const SkTArray<class SkOpContour* , true>* contours) {
     SkPathOpsDebug::DumpContourSpans(*contours);
 }
 
+void DumpSpan(const SkTArray<class SkOpContour, true>& contours, int segmentID) {
+    SkPathOpsDebug::DumpContourSpan(contours, segmentID);
+}
+
+void DumpSpan(const SkTArray<class SkOpContour* , true>& contours, int segmentID) {
+    SkPathOpsDebug::DumpContourSpan(contours, segmentID);
+}
+
+void DumpSpan(const SkTArray<class SkOpContour, true>* contours, int segmentID) {
+    SkPathOpsDebug::DumpContourSpan(*contours, segmentID);
+}
+
+void DumpSpan(const SkTArray<class SkOpContour* , true>* contours, int segmentID) {
+    SkPathOpsDebug::DumpContourSpan(*contours, segmentID);
+}
+
 void DumpPts(const SkTArray<class SkOpContour, true>& contours) {
     SkPathOpsDebug::DumpContourPts(contours);
 }
@@ -530,6 +690,22 @@ void DumpPts(const SkTArray<class SkOpContour, true>* contours) {
 
 void DumpPts(const SkTArray<class SkOpContour* , true>* contours) {
     SkPathOpsDebug::DumpContourPts(*contours);
+}
+
+void DumpPt(const SkTArray<class SkOpContour, true>& contours, int segmentID) {
+    SkPathOpsDebug::DumpContourPt(contours, segmentID);
+}
+
+void DumpPt(const SkTArray<class SkOpContour* , true>& contours, int segmentID) {
+    SkPathOpsDebug::DumpContourPt(contours, segmentID);
+}
+
+void DumpPt(const SkTArray<class SkOpContour, true>* contours, int segmentID) {
+    SkPathOpsDebug::DumpContourPt(*contours, segmentID);
+}
+
+void DumpPt(const SkTArray<class SkOpContour* , true>* contours, int segmentID) {
+    SkPathOpsDebug::DumpContourPt(*contours, segmentID);
 }
 
 static void dumpTestCase(const SkDQuad& quad1, const SkDQuad& quad2, int testNo) {

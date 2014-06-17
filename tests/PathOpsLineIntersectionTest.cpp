@@ -50,7 +50,10 @@ static const SkDLine noIntersect[][2] = {
 static const size_t noIntersect_count = SK_ARRAY_COUNT(noIntersect);
 
 static const SkDLine coincidentTests[][2] = {
-   {{{{0,482.5}, {-4.4408921e-016,682.5}}},
+   {{{ { 10105, 2510 }, { 10123, 2509.98999f } }},
+    {{{10105, 2509.98999f}, { 10123, 2510 } }}},
+
+   {{ { { 0, 482.5 }, { -4.4408921e-016, 682.5 } } },
     {{{0,683}, {0,482}}}},
 
    {{{{1.77635684e-015,312}, {-1.24344979e-014,348}}},
@@ -76,9 +79,12 @@ static void check_results(skiatest::Reporter* reporter, const SkDLine& line1, co
     for (int i = 0; i < ts.used(); ++i) {
         SkDPoint result1 = line1.ptAtT(ts[0][i]);
         SkDPoint result2 = line2.ptAtT(ts[1][i]);
-        if (!result1.approximatelyEqual(result2)) {
+        if (!result1.approximatelyEqual(result2) && !ts.nearlySame(i)) {
             REPORTER_ASSERT(reporter, ts.used() != 1);
             result2 = line2.ptAtT(ts[1][i ^ 1]);
+            if (!result1.approximatelyEqual(result2)) {
+                SkDebugf(".");
+            }
             REPORTER_ASSERT(reporter, result1.approximatelyEqual(result2));
             REPORTER_ASSERT(reporter, result1.approximatelyEqual(ts.pt(i).asSkPoint()));
         }

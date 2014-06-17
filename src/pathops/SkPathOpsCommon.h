@@ -18,7 +18,7 @@ void Assemble(const SkPathWriter& path, SkPathWriter* simple);
 SkOpSegment* FindChase(SkTDArray<SkOpSpan*>* chase, int* tIndex, int* endIndex);
 SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& , SkOpAngle::IncludeType ,
                              bool* firstContour, int* index, int* endIndex, SkPoint* topLeft,
-                             bool* unsortable, bool* done, bool firstPass);
+                             bool* unsortable, bool* done, bool* onlyVertical, bool firstPass);
 SkOpSegment* FindUndone(SkTArray<SkOpContour*, true>& contourList, int* start, int* end);
 void MakeContourList(SkTArray<SkOpContour>& contours, SkTArray<SkOpContour*, true>& list,
                      bool evenOdd, bool oppEvenOdd);

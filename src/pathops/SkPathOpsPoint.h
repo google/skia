@@ -148,14 +148,12 @@ struct SkDPoint {
         return AlmostBequalUlps((double) largest, largest + dist); // is dist within ULPS tolerance?
     }
 
-#ifdef SK_DEBUG
     static bool RoughlyEqual(const SkPoint& a, const SkPoint& b) {
         if (approximately_equal(a.fX, b.fX) && approximately_equal(a.fY, b.fY)) {
             return true;
         }
         return RoughlyEqualUlps(a.fX, b.fX) && RoughlyEqualUlps(a.fY, b.fY);
     }
-#endif
 
     bool approximatelyPEqual(const SkDPoint& a) const {
         if (approximately_equal(fX, a.fX) && approximately_equal(fY, a.fY)) {

@@ -23,7 +23,7 @@ bool SkDTriangle::contains(const SkDPoint& pt) const {
     double dot12 = v1.dot(v2);
 
 // original code doesn't handle degenerate input; isn't symmetric with inclusion of corner pts;
-// introduces necessary error with divide; doesn't short circuit on early answer
+// introduces error with divide; doesn't short circuit on early answer
 #if 0
 // Compute barycentric coordinates
     double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);

@@ -4653,9 +4653,26 @@ static void testQuads61(skiatest::Reporter* reporter, const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = testQuadratic56;
+static void testQuadralateral10(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(1, 1);
+    path.lineTo(2, 2);
+    path.lineTo(1, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(testQuadralateral10),
     TEST(testQuads61),
     TEST(testQuads60),
     TEST(testQuads59),

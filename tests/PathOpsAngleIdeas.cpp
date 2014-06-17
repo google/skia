@@ -426,7 +426,8 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
     SkOpSegment seg[2];
     makeSegment(quad1, shortQuads[0], &seg[0]);
     makeSegment(quad2, shortQuads[1], &seg[1]);
-    int realOverlap = PathOpsAngleTester::ConvexHullOverlaps(seg[0].angle(0), seg[1].angle(0));
+    int realOverlap = PathOpsAngleTester::ConvexHullOverlaps(*seg[0].debugLastAngle(),
+            *seg[1].debugLastAngle());
     const SkDPoint& origin = quad1[0];
     REPORTER_ASSERT(reporter, origin == quad2[0]);
     double a1s = atan2(origin.fY - quad1[1].fY, quad1[1].fX - origin.fX);
@@ -544,7 +545,8 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
     }
     if (overlap < 0) {
         SkDEBUGCODE(int realEnds =)
-                PathOpsAngleTester::EndsIntersect(seg[0].angle(0), seg[1].angle(0));
+                PathOpsAngleTester::EndsIntersect(*seg[0].debugLastAngle(),
+                *seg[1].debugLastAngle());
         SkASSERT(realEnds == (firstInside ? 1 : 0));
     }
     bruteForce(reporter, quad1, quad2, firstInside);

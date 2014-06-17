@@ -289,7 +289,7 @@ bool SkOpAngle::computeSector() {
         // FIXME: logically, this should return !fUnorderable, but doing so breaks testQuadratic51
         // -- but in general, this code may not work so this may be the least of problems
         // adding the bang fixes testQuads46x in release, however
-        return fUnorderable;
+        return !fUnorderable;
     }
     SkASSERT(fSegment->verb() != SkPath::kLine_Verb && small());
     fComputedSector = true;
@@ -322,7 +322,7 @@ recomputeSector:
         return false;
     }
     int saveEnd = fEnd;
-    fEnd = checkEnd - step;
+    fComputedEnd = fEnd = checkEnd - step;
     setSpans();
     setSector();
     fEnd = saveEnd;
@@ -414,12 +414,12 @@ bool SkOpAngle::endsIntersect(const SkOpAngle& rh) const {
         SkIntersections i;
         (*CurveIntersectRay[index ? rPts : lPts])(segment.pts(), rays[index], &i);
 //      SkASSERT(i.used() >= 1);
-        if (i.used() <= 1) {
-            continue;
-        }
+//        if (i.used() <= 1) {
+//            continue;
+//        }
         double tStart = segment.t(index ? rh.fStart : fStart);
-        double tEnd = segment.t(index ? rh.fEnd : fEnd);
-        bool testAscends = index ? rh.fStart < rh.fEnd : fStart < fEnd;
+        double tEnd = segment.t(index ? rh.fComputedEnd : fComputedEnd);
+        bool testAscends = index ? rh.fStart < rh.fComputedEnd : fStart < fComputedEnd;
         double t = testAscends ? 0 : 1;
         for (int idx2 = 0; idx2 < i.used(); ++idx2) {
             double testT = i[0][idx2];
@@ -879,12 +879,9 @@ SkOpAngle* SkOpAngle::previous() const {
 }
 
 void SkOpAngle::set(const SkOpSegment* segment, int start, int end) {
-#if DEBUG_ANGLE
-    fID = 0;
-#endif
     fSegment = segment;
     fStart = start;
-    fEnd = end;
+    fComputedEnd = fEnd = end;
     fNext = NULL;
     fComputeSector = fComputedSector = false;
     fStop = false;
@@ -1096,4 +1093,34 @@ bool SkOpAngle::tangentsDiverge(const SkOpAngle& rh, double s0xt0) const {
     bool useS = fabs(sDist) < fabs(tDist);
     double mFactor = fabs(useS ? distEndRatio(sDist) : rh.distEndRatio(tDist));
     return mFactor < 5000;  // empirically found limit
+}
+
+SkOpAngleSet::SkOpAngleSet() 
+    : fAngles(NULL)
+#if DEBUG_ANGLE
+    , fCount(0)
+#endif
+{
+}
+
+SkOpAngleSet::~SkOpAngleSet() {
+    SkDELETE(fAngles);
+}
+
+SkOpAngle& SkOpAngleSet::push_back() {
+    if (!fAngles) {
+        fAngles = SkNEW_ARGS(SkChunkAlloc, (2));
+    }
+    void* ptr = fAngles->allocThrow(sizeof(SkOpAngle));
+    SkOpAngle* angle = (SkOpAngle*) ptr;
+#if DEBUG_ANGLE
+    angle->setID(++fCount);
+#endif
+    return *angle;
+}
+
+void SkOpAngleSet::reset() {
+    if (fAngles) {
+        fAngles->reset();
+    }
 }

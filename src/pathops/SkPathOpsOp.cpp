@@ -41,6 +41,9 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpan*>& chase, int* tIndex, int* e
         }
         // find first angle, initialize winding to computed fWindSum
         const SkOpAngle* angle = segment->spanToAngle(*tIndex, *endIndex);
+        if (!angle) {
+            continue;
+        }
         const SkOpAngle* firstAngle = angle;
         SkDEBUGCODE(bool loop = false);
         int winding;
@@ -70,6 +73,7 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpan*>& chase, int* tIndex, int* e
                     *tIndex = start;
                     *endIndex = end;
                 }
+                // OPTIMIZATION: should this also add to the chase?
                 (void) segment->markAngle(maxWinding, sumWinding, oppMaxWinding,
                     oppSumWinding, angle);
             }
@@ -125,9 +129,10 @@ static bool bridgeOp(SkTArray<SkOpContour*, true>& contourList, const SkPathOp o
     do {
         int index, endIndex;
         bool topDone;
+        bool onlyVertical = false;
         lastTopLeft = topLeft;
         SkOpSegment* current = FindSortableTop(contourList, SkOpAngle::kBinarySingle, &firstContour,
-                &index, &endIndex, &topLeft, &topUnsortable, &topDone, firstPass);
+                &index, &endIndex, &topLeft, &topUnsortable, &topDone, &onlyVertical, firstPass);
         if (!current) {
             if ((!topUnsortable || firstPass) && !topDone) {
                 SkASSERT(topLeft.fX != SK_ScalarMin && topLeft.fY != SK_ScalarMin);
@@ -142,29 +147,33 @@ static bool bridgeOp(SkTArray<SkOpContour*, true>& contourList, const SkPathOp o
                 continue;
             }
             break;
+        } else if (onlyVertical) {
+            break;
         }
         firstPass = !topUnsortable || lastTopLeft != topLeft;
-        SkTDArray<SkOpSpan*> chaseArray;
+        SkTDArray<SkOpSpan*> chase;
         do {
             if (current->activeOp(index, endIndex, xorMask, xorOpMask, op)) {
                 do {
                     if (!unsortable && current->done()) {
-                        if (simple->isEmpty()) {
-                            simple->init();
-                        }
                         break;
                     }
                     SkASSERT(unsortable || !current->done());
                     int nextStart = index;
                     int nextEnd = endIndex;
-                    SkOpSegment* next = current->findNextOp(&chaseArray, &nextStart, &nextEnd,
+                    SkOpSegment* next = current->findNextOp(&chase, &nextStart, &nextEnd,
                             &unsortable, op, xorMask, xorOpMask);
                     if (!next) {
                         if (!unsortable && simple->hasMove()
                                 && current->verb() != SkPath::kLine_Verb
                                 && !simple->isClosed()) {
                             current->addCurveTo(index, endIndex, simple, true);
-                            SkASSERT(simple->isClosed());
+                    #if DEBUG_ACTIVE_SPANS
+                            if (!simple->isClosed()) {
+                                DebugShowActiveSpans(contourList);
+                            }
+                    #endif
+//                            SkASSERT(simple->isClosed());
                         }
                         break;
                     }
@@ -195,11 +204,16 @@ static bool bridgeOp(SkTArray<SkOpContour*, true>& contourList, const SkPathOp o
                 SkOpSpan* last = current->markAndChaseDoneBinary(index, endIndex);
                 if (last && !last->fChased && !last->fLoop) {
                     last->fChased = true;
-                    SkASSERT(!SkPathOpsDebug::ChaseContains(chaseArray, last));
-                    *chaseArray.append() = last;
+                    SkASSERT(!SkPathOpsDebug::ChaseContains(chase, last));
+                    *chase.append() = last;
+#if DEBUG_WINDING
+                    SkDebugf("%s chase.append id=%d windSum=%d small=%d\n", __FUNCTION__,
+                            last->fOther->span(last->fOtherIndex).fOther->debugID(), last->fWindSum,
+                            last->fSmall);
+#endif
                 }
             }
-            current = findChaseOp(chaseArray, &index, &endIndex);
+            current = findChaseOp(chase, &index, &endIndex);
         #if DEBUG_ACTIVE_SPANS
             DebugShowActiveSpans(contourList);
         #endif

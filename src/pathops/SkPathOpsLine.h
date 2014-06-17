@@ -30,7 +30,7 @@ struct SkDLine {
     static double ExactPointH(const SkDPoint& xy, double left, double right, double y);
     static double ExactPointV(const SkDPoint& xy, double top, double bottom, double x);
     double isLeft(const SkDPoint& pt) const;
-    double nearPoint(const SkDPoint& xy) const;
+    double nearPoint(const SkDPoint& xy, bool* unequal) const;
     bool nearRay(const SkDPoint& xy) const;
     static double NearPointH(const SkDPoint& xy, double left, double right, double y);
     static double NearPointV(const SkDPoint& xy, double top, double bottom, double x);

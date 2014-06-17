@@ -7,6 +7,7 @@
 #ifndef SkOpAngle_DEFINED
 #define SkOpAngle_DEFINED
 
+#include "SkChunkAlloc.h"
 #include "SkLineParameters.h"
 
 class SkOpSegment;
@@ -81,13 +82,19 @@ public:
     void debugSameAs(const SkOpAngle* compare) const;
 #endif
     void dump() const;
-    void dumpFromTo(const SkOpSegment* fromSeg, int from, int to) const;
+    void dumpLoop() const;
+    void dumpTo(const SkOpSegment* fromSeg, const SkOpAngle* ) const;
 
 #if DEBUG_ANGLE
+    int debugID() const { return fID; }
+
     void setID(int id) {
         fID = id;
     }
+#else
+    int debugID() const { return 0; }
 #endif
+
 #if DEBUG_VALIDATE
     void debugValidateLoop() const;
 #endif
@@ -121,6 +128,7 @@ private:
     SkDVector fSweep[2];
     int fStart;
     int fEnd;
+    int fComputedEnd;
     int fSectorMask;
     int8_t fSectorStart;  // in 32nds of a circle
     int8_t fSectorEnd;
@@ -131,11 +139,7 @@ private:
     bool fComputeSector;
     bool fComputedSector;
 
-#if DEBUG_SORT
-    void debugOne(bool showFunc) const;  // available to testing only
-#endif
 #if DEBUG_ANGLE
-    int debugID() const { return fID; }
     int fID;
 #endif
 #if DEBUG_VALIDATE
@@ -143,9 +147,23 @@ private:
 #else
     void debugValidateNext() const {}
 #endif
-    void dumpLoop() const;  // utility to be called by user from debugger
+    void dumpOne(bool showFunc) const;  // available to testing only
     void dumpPartials() const;  // utility to be called by user from debugger
     friend class PathOpsAngleTester;
+};
+
+class SkOpAngleSet {
+public:
+    SkOpAngleSet();
+    ~SkOpAngleSet();
+    SkOpAngle& push_back();
+    void reset();
+private:
+    void dump() const;  // utility to be called by user from debugger
+#if DEBUG_ANGLE
+    int fCount;
+#endif
+    SkChunkAlloc* fAngles;
 };
 
 #endif

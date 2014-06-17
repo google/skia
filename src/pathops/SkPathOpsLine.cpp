@@ -63,7 +63,7 @@ double SkDLine::exactPoint(const SkDPoint& xy) const {
     return -1;
 }
 
-double SkDLine::nearPoint(const SkDPoint& xy) const {
+double SkDLine::nearPoint(const SkDPoint& xy, bool* unequal) const {
     if (!AlmostBetweenUlps(fPts[0].fX, xy.fX, fPts[1].fX)
             || !AlmostBetweenUlps(fPts[0].fY, xy.fY, fPts[1].fY)) {
         return -1;
@@ -85,6 +85,9 @@ double SkDLine::nearPoint(const SkDPoint& xy) const {
     largest = SkTMax(largest, -tiniest);
     if (!AlmostEqualUlps(largest, largest + dist)) { // is the dist within ULPS tolerance?
         return -1;
+    }
+    if (unequal) {
+        *unequal = (float) largest != (float) (largest + dist);
     }
     t = SkPinT(t);
     SkASSERT(between(0, t, 1));
