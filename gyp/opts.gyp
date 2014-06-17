@@ -46,6 +46,7 @@
           ],
           'dependencies': [
             'opts_ssse3',
+            'opts_sse4',
           ],
           'sources': [
             '../src/opts/opts_check_x86.cpp',
@@ -194,10 +195,45 @@
         }],
       ],
     },
+    # For the same lame reasons as what is done for skia_opts, we also have to
+    # create another target specifically for SSE4 code as we would not want
+    # to compile the SSE2 code with -msse4 which would potentially allow
+    # gcc to generate SSE4 code.
+    {
+      'target_name': 'opts_sse4',
+      'product_name': 'skia_opts_sse4',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'dependencies': [
+        'core.gyp:*',
+        'effects.gyp:*'
+      ],
+      'include_dirs': [
+        '../src/core',
+      ],
+      'conditions': [
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android", "mac"] \
+           and not skia_android_framework', {
+          'cflags': [
+            '-msse4',
+          ],
+        }],
+        [ 'skia_arch_width == 64 and skia_arch_type == "x86"', {
+          'sources': [
+            '../src/opts/SkBlitRow_opts_SSE4_x64_asm.S',
+          ],
+        }],
+        [ 'skia_arch_width == 32 and skia_arch_type == "x86"', {
+          'sources': [
+            '../src/opts/SkBlitRow_opts_SSE4_asm.S',
+          ],
+       }],
+      ],
+    },
     # NEON code must be compiled with -mfpu=neon which also affects scalar
     # code. To support dynamic NEON code paths, we need to build all
     # NEON-specific sources in a separate static library. The situation
-    # is very similar to the SSSE3 one.
+    # is very similar to the SSSE3 and SSE4 one.
     {
       'target_name': 'opts_neon',
       'product_name': 'skia_opts_neon',
