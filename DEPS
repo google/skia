@@ -5,8 +5,7 @@ use_relative_paths = True
 deps = {
   # DEPS using https://chromium.googlesource.com are pulled from chromium @ r205199
   # (see https://chromium.googlesource.com/chromium/chromium/+/c59bfa8ef877f45bfa859669053859857af1d279)
-  "third_party/externals/angle" : "https://chromium.googlesource.com/external/angleproject.git",
-  "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git@bdc9b2f0ed9e365bf5a4d19799d93a512f07dd32",
+  "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git",
   "third_party/externals/freetype" : "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
   "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@3917682a16d5c19ff3576a8be0ffdb3a332954b1",
   "third_party/externals/libjpeg" : "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@82ce8a6d4ebe12a177c0c3597192f2b4f09e81c3",
