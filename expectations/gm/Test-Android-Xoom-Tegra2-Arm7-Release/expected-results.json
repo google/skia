@@ -615,8 +615,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16703280953816628958
+          1059519367608591882
         ]
+      ], 
+      "bugs": [
+        2293
       ], 
       "ignore-failure": true, 
       "reviewed-by-human": true

@@ -1069,10 +1069,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5197903277365321489
+          4292341330653523437
         ]
       ], 
-      "reviewed-by-human": false
+      "bugs": [
+        2293
+      ], 
+      "reviewed-by-human": true
     }, 
     "bitmapshaders_pdf-mac.png": {
       "allowed-digests": [

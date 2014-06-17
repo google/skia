@@ -53,6 +53,3 @@ dashing3
 dashing4
 dashcubics
 
-# dandov: Fix for bitmap shader by taking into account if the bitmap is alpha only
-# https://codereview.chromium.org/318923005/
-bitmapshaders

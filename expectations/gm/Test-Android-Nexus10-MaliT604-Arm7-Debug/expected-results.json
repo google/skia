@@ -763,19 +763,25 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10650014026870683913
+          11942752365219497015
         ]
       ], 
-      "reviewed-by-human": false
+      "bugs": [
+        2293
+      ], 
+      "reviewed-by-human": true
     }, 
     "bitmapshaders_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12053054119914570655
+          8391486305693314097
         ]
       ], 
-      "reviewed-by-human": false
+      "bugs": [
+        2293
+      ], 
+      "reviewed-by-human": true
     }, 
     "bitmapsource_565.png": {
       "allowed-digests": [

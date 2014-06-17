@@ -900,10 +900,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1952697061591328574
+          14493644938506788674
         ]
       ], 
-      "reviewed-by-human": false
+      "bugs": [
+        2293
+      ], 
+      "reviewed-by-human": true
     }, 
     "bitmapshaders_pdf-poppler.png": {
       "allowed-digests": [

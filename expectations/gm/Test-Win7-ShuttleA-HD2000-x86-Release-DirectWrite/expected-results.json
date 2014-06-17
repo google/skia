@@ -882,8 +882,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13161284638930508953
+          787402053855503258
         ]
+      ], 
+      "bugs": [
+        2293
       ], 
       "reviewed-by-human": true
     }, 
@@ -891,8 +894,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4834709600562535379
+          13897226711214500859
         ]
+      ], 
+      "bugs": [
+        2293
       ], 
       "reviewed-by-human": true
     }, 
@@ -900,10 +906,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1952697061591328574
+          14493644938506788674
         ]
       ], 
-      "reviewed-by-human": false
+      "bugs": [
+        2293
+      ], 
+      "reviewed-by-human": true
     }, 
     "bitmapshaders_pdf-poppler.png": {
       "allowed-digests": [
