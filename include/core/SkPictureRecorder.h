@@ -12,6 +12,12 @@
 #include "SkPicture.h"
 #include "SkRefCnt.h"
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+namespace android {
+    class Picture;
+};
+#endif
+
 class SkCanvas;
 class SkPictureRecord;
 class SkRecord;
@@ -65,7 +71,10 @@ private:
     /** Replay the current (partially recorded) operation stream into
         canvas. This call doesn't close the current recording.
     */
-    friend class AndroidPicture;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    friend class AndroidPicture; // This is temporary until we remove this from the framework
+    friend class android::Picture;
+#endif
     friend class SkPictureRecorderReplayTester; // for unit testing
     void partialReplay(SkCanvas* canvas) const;
 
