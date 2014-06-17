@@ -175,6 +175,7 @@
         'cflags_cc': [
           '-fno-rtti',
           '-Wnon-virtual-dtor',
+          '-Wno-invalid-offsetof',  # GCC <4.6 is old-school strict about what is POD.
         ],
         'conditions': [
           [ 'skia_android_framework==0', {
