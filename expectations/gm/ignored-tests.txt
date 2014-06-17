@@ -33,6 +33,19 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
+# reed: bitmapfilters changed (labels) with hide_config CL, just need rebaselines
+bitmapfilters
+
+# humper:
+# Needs rebaselining after faster GPU blur patch lands
+megalooper_0x0
+megalooper_1x4
+megalooper_4x1
+bleed
+blurquickreject
+blurrects
+bigblurs
+
 # reed: https://codereview.chromium.org/190723004/
 # This change removes an API that this GM was testing. If/when it lands and sticks,
 # I will likely just delete the GM.
