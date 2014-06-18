@@ -6074,13 +6074,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1664818607071985057
+          11335639414083835017
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "imagefilterscropped_565.png": {
       "allowed-digests": [
