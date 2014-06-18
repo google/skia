@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "PathOpsExtendedTest.h"
+#include "PathOpsTestCommon.h"
 
 #define TEST(name) { name, #name }
 
@@ -1832,8 +1833,6 @@ static void skpkkiste_to98(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#define ISSUE_1417_WORKING_ON_LINUX_32 0  // fails only in release linux skia_arch_width=32
-#if ISSUE_1417_WORKING_ON_LINUX_32
 static void issue1417(skiatest::Reporter* reporter, const char* filename) {
     SkPath path1;
     path1.moveTo(122.58908843994140625f, 82.2836456298828125f);
@@ -1945,7 +1944,6 @@ static void issue1417(skiatest::Reporter* reporter, const char* filename) {
 
     testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
 }
-#endif
 
 static void issue1418(skiatest::Reporter* reporter, const char* filename) {
     SkPath path1;
@@ -2065,8 +2063,6 @@ static void rectOp3x(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kXOR_PathOp, filename);
 }
 
-#define ISSUE_1435_FIXED 0
-#if ISSUE_1435_FIXED
 // this fails to generate two interior line segments 
 // an earlier pathops succeeded, but still failed to generate one interior line segment
 // (but was saved by assemble, which works around a single line missing segment)
@@ -2120,7 +2116,6 @@ static void issue1435(skiatest::Reporter* reporter, const char* filename) {
     path2.setFillType(SkPath::kEvenOdd_FillType);
     testPathOp(reporter, path1, path2, kIntersect_PathOp, filename);
 }
-#endif
 
 static void skpkkiste_to716(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
@@ -2736,8 +2731,8 @@ static void skpcarpetplanet_ru22(skiatest::Reporter* reporter, const char* filen
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#define SKPS_WORKING 0
-#if SKPS_WORKING
+#define QUAD_CUBIC_FAILS_TO_FIND_INTERSECTION 0
+#if QUAD_CUBIC_FAILS_TO_FIND_INTERSECTION
 // this fails because cubic/quad misses an intersection (failure is isolated in c/q int test)
 static void skpcarrot_is24(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
@@ -3277,8 +3272,6 @@ static void cubicOp112(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
 }
 
-// triggers untested calcLoopSpanCount code path
-#if 0
 static void cubicOp113(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.moveTo(2,4);
@@ -3289,8 +3282,9 @@ static void cubicOp113(skiatest::Reporter* reporter, const char* filename) {
     pathB.close();
     testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
 }
-#endif
 
+#define CUBIC_OP_114 0
+#if CUBIC_OP_114
 static void cubicOp114(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -3302,6 +3296,23 @@ static void cubicOp114(skiatest::Reporter* reporter, const char* filename) {
     pathB.cubicTo(-1, 2, 3.5f, 1.33333337f, 0, 1);
     pathB.close();
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+#endif
+
+static void cubicOp114asQuad(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0, 1);
+    path.cubicTo(1, 3, -1, 2, 3.5f, 1.33333337f);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 3);
+    pathB.cubicTo(-1, 2, 3.5f, 1.33333337f, 0, 1);
+    pathB.close();
+    SkPath qPath, qPathB;
+    CubicPathToQuads(path, &qPath);
+    CubicPathToQuads(pathB, &qPathB);
+    testPathOp(reporter, qPath, qPathB, kIntersect_PathOp, filename);
 }
 
 static void quadOp10i(skiatest::Reporter* reporter, const char* filename) {
@@ -3354,8 +3365,6 @@ static void issue2504(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
 }
 
-#define TEST_2540 0
-#if TEST_2540  // FIXME: extends cubic arm for sorting, marks extension with wrong winding?
 static void issue2540(skiatest::Reporter* reporter, const char* filename) {
     SkPath path1;
     path1.moveTo(26.5054988861083984375, 85.73960113525390625);
@@ -3375,7 +3384,6 @@ static void issue2540(skiatest::Reporter* reporter, const char* filename) {
     path2.close();
     testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
 }
-#endif
 
 static void rects1(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
@@ -3457,30 +3465,25 @@ static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+#if CUBIC_OP_114  // FIXME: curve with inflection is ordered the wrong way
+    TEST(cubicOp114),
+#endif
+    TEST(cubicOp114asQuad),
     TEST(rects4),
     TEST(rects3),
     TEST(rects2),
     TEST(rects1),
-#if TEST_2540  // FIXME: extends cubic arm for sorting, marks extension with wrong winding?
     TEST(issue2540),
-#endif
     TEST(issue2504),
     TEST(kari1),
     TEST(quadOp10i),
-#if 0  // FIXME: serpentine curve is ordered the wrong way
-    TEST(cubicOp114),
-#endif
-#if 0  // FIXME: currently failing
     TEST(cubicOp113),
-#endif
-#if SKPS_WORKING
+#if QUAD_CUBIC_FAILS_TO_FIND_INTERSECTION
     // fails because a cubic/quadratic intersection is missed
     // the internal quad/quad is far enough away from the real cubic/quad that it is rejected
     TEST(skpcarrot_is24),
 #endif
-#if ISSUE_1417_WORKING_ON_LINUX_32
     TEST(issue1417),
-#endif
     TEST(cubicOp112),
     TEST(skpadspert_net23),
     TEST(skpadspert_de11),
@@ -3502,9 +3505,7 @@ static struct TestDesc tests[] = {
     TEST(cubicOp101),
     TEST(cubicOp100),
     TEST(cubicOp99),
-#if ISSUE_1435_FIXED
     TEST(issue1435),
-#endif
     TEST(cubicOp98x),
     TEST(cubicOp97x),
     TEST(skpcarpetplanet_ru22),  // cubic/cubic intersect detects unwanted coincidence
@@ -3682,7 +3683,6 @@ static struct TestDesc tests[] = {
 static const size_t testCount = SK_ARRAY_COUNT(tests);
 
 static struct TestDesc subTests[] = {
-    TEST(cubicOp114),
     TEST(cubicOp58d),
     TEST(cubicOp53d),
 };

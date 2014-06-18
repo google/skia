@@ -29,6 +29,94 @@ void CubicToQuads(const SkDCubic& cubic, double precision, SkTArray<SkDQuad, tru
     }
 }
 
+void CubicPathToQuads(const SkPath& cubicPath, SkPath* quadPath) {
+    quadPath->reset();
+    SkDCubic cubic;
+    SkTArray<SkDQuad, true> quads;
+    SkPath::RawIter iter(cubicPath);
+    uint8_t verb;
+    SkPoint pts[4];
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                quadPath->moveTo(pts[0].fX, pts[0].fY);
+                continue;
+            case SkPath::kLine_Verb:
+                quadPath->lineTo(pts[1].fX, pts[1].fY);
+                break;
+            case SkPath::kQuad_Verb:
+                quadPath->quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
+                break;
+            case SkPath::kCubic_Verb:
+                quads.reset();
+                cubic.set(pts);
+                CubicToQuads(cubic, cubic.calcPrecision(), quads);
+                for (int index = 0; index < quads.count(); ++index) {
+                    SkPoint qPts[2] = {
+                        quads[index][1].asSkPoint(),
+                        quads[index][2].asSkPoint()
+                    };
+                    quadPath->quadTo(qPts[0].fX, qPts[0].fY, qPts[1].fX, qPts[1].fY);
+                }
+                break;
+            case SkPath::kClose_Verb:
+                 quadPath->close();
+                break;
+            default:
+                SkDEBUGFAIL("bad verb");
+                return;
+        }
+    }
+}
+
+void CubicPathToSimple(const SkPath& cubicPath, SkPath* simplePath) {
+    simplePath->reset();
+    SkDCubic cubic;
+    SkPath::RawIter iter(cubicPath);
+    uint8_t verb;
+    SkPoint pts[4];
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                simplePath->moveTo(pts[0].fX, pts[0].fY);
+                continue;
+            case SkPath::kLine_Verb:
+                simplePath->lineTo(pts[1].fX, pts[1].fY);
+                break;
+            case SkPath::kQuad_Verb:
+                simplePath->quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
+                break;
+            case SkPath::kCubic_Verb: {
+                cubic.set(pts);
+                double tInflects[2];
+                int inflections = cubic.findInflections(tInflects);
+                if (inflections > 1 && tInflects[0] > tInflects[1]) {
+                    SkTSwap(tInflects[0], tInflects[1]);
+                }
+                double lo = 0;
+                for (int index = 0; index <= inflections; ++index) {
+                    double hi = index < inflections ? tInflects[index] : 1;
+                    SkDCubic part = cubic.subDivide(lo, hi);
+                    SkPoint cPts[3];
+                    cPts[0] = part[1].asSkPoint();
+                    cPts[1] = part[2].asSkPoint();
+                    cPts[2] = part[3].asSkPoint();
+                    simplePath->cubicTo(cPts[0].fX, cPts[0].fY, cPts[1].fX, cPts[1].fY,
+                            cPts[2].fX, cPts[2].fY);
+                    lo = hi;
+                }
+                break;
+            } 
+            case SkPath::kClose_Verb:
+                 simplePath->close();
+                break;
+            default:
+                SkDEBUGFAIL("bad verb");
+                return;
+        }
+    }
+}
+
 static bool SkDoubleIsNaN(double x) {
     return x != x;
 }

@@ -3090,7 +3090,8 @@ SkOpSegment* SkOpSegment::findTop(int* tIndexPtr, int* endIndexPtr, bool* unsort
         markAngle = addSingletonAngles(step);
     }
     markAngle->markStops();
-    const SkOpAngle* baseAngle = markAngle->findFirst();
+    const SkOpAngle* baseAngle = markAngle->next() == markAngle && !isVertical() ? markAngle
+            : markAngle->findFirst();
     if (!baseAngle) {
         return NULL;  // nothing to do
     }
@@ -3137,9 +3138,8 @@ SkOpSegment* SkOpSegment::findTop(int* tIndexPtr, int* endIndexPtr, bool* unsort
     if (leftSegment->verb() >= SkPath::kQuad_Verb) {
         const int tIndex = *tIndexPtr;
         const int endIndex = *endIndexPtr;
-        if (!leftSegment->clockwise(tIndex, endIndex)) {
-            bool swap = !leftSegment->monotonicInY(tIndex, endIndex)
-                    && !leftSegment->serpentine(tIndex, endIndex);
+        bool swap;
+        if (!leftSegment->clockwise(tIndex, endIndex, &swap)) {
     #if DEBUG_SWAP_TOP
             SkDebugf("%s swap=%d inflections=%d serpentine=%d controlledbyends=%d monotonic=%d\n",
                     __FUNCTION__,
@@ -3621,13 +3621,45 @@ SkOpSpan* SkOpSegment::markOneWinding(const char* funName, int tIndex, int windi
 }
 
 // from http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
-bool SkOpSegment::clockwise(int tStart, int tEnd) const {
+bool SkOpSegment::clockwise(int tStart, int tEnd, bool* swap) const {
     SkASSERT(fVerb != SkPath::kLine_Verb);
     SkPoint edge[4];
     subDivide(tStart, tEnd, edge);
     int points = SkPathOpsVerbToPoints(fVerb);
     double sum = (edge[0].fX - edge[points].fX) * (edge[0].fY + edge[points].fY);
+    bool sumSet = false;
     if (fVerb == SkPath::kCubic_Verb) {
+        SkDCubic cubic;
+        cubic.set(edge);
+        double inflectionTs[2];
+        int inflections = cubic.findInflections(inflectionTs);
+        // FIXME: this fixes cubicOp114 and breaks cubicOp58d
+        // the trouble is that cubics with inflections confuse whether the curve breaks towards
+        // or away, which in turn is used to determine if it is on the far right or left.
+        // Probably a totally different approach is in order. At one time I tried to project a
+        // horizontal ray to determine winding, but was confused by how to map the vertically
+        // oriented winding computation over. 
+        if (0 && inflections) {
+            double tLo = this->span(tStart).fT;
+            double tHi = this->span(tEnd).fT;
+            double tLoStart = tLo;
+            for (int index = 0; index < inflections; ++index) {
+                if (between(tLo, inflectionTs[index], tHi)) {
+                    tLo = inflectionTs[index];
+                }
+            }
+            if (tLo != tLoStart && tLo != tHi) {
+                SkDPoint sub[2];
+                sub[0] = cubic.ptAtT(tLo);
+                sub[1].set(edge[3]);
+                SkDPoint ctrl[2];
+                SkDCubic::SubDivide(fPts, sub[0], sub[1], tLo, tHi, ctrl);
+                edge[0] = sub[0].asSkPoint();
+                edge[1] = ctrl[0].asSkPoint();
+                edge[2] = ctrl[1].asSkPoint();
+                sum = (edge[0].fX - edge[3].fX) * (edge[0].fY + edge[3].fY);
+            }
+        }
         SkScalar lesser = SkTMin<SkScalar>(edge[0].fY, edge[3].fY);
         if (edge[1].fY < lesser && edge[2].fY < lesser) {
             SkDLine tangent1 = {{ {edge[0].fX, edge[0].fY}, {edge[1].fX, edge[1].fY} }};
@@ -3636,12 +3668,23 @@ bool SkOpSegment::clockwise(int tStart, int tEnd) const {
                 SkPoint topPt = cubic_top(fPts, fTs[tStart].fT, fTs[tEnd].fT);
                 sum += (topPt.fX - edge[0].fX) * (topPt.fY + edge[0].fY);
                 sum += (edge[3].fX - topPt.fX) * (edge[3].fY + topPt.fY);
-                return sum <= 0;
+                sumSet = true;
             }
         }
     }
-    for (int idx = 0; idx < points; ++idx){
-        sum += (edge[idx + 1].fX - edge[idx].fX) * (edge[idx + 1].fY + edge[idx].fY);
+    if (!sumSet) {
+        for (int idx = 0; idx < points; ++idx){
+            sum += (edge[idx + 1].fX - edge[idx].fX) * (edge[idx + 1].fY + edge[idx].fY);
+        }
+    }
+    if (fVerb == SkPath::kCubic_Verb) {
+        SkDCubic cubic;
+        cubic.set(edge);
+         *swap = sum > 0 && !cubic.monotonicInY() && !cubic.serpentine();
+    } else {
+        SkDQuad quad;
+        quad.set(edge);
+        *swap = sum > 0 && !quad.monotonicInY();
     }
     return sum <= 0;
 }

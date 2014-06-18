@@ -110,7 +110,8 @@ void SkOpAngle::dumpLoop() const {
     const SkOpAngle* first = this;
     const SkOpAngle* next = this;
     do {
-        next->dump();
+        next->dumpOne(false);
+        SkDebugf("\n");
         next = next->fNext;
     } while (next && next != first);
 }

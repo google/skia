@@ -8,8 +8,6 @@
 
 #define TEST(name) { name, #name }
 
-#define TRY_NEW_TESTS 0
-
 static void skpcheeseandburger_com225(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -1808,7 +1806,6 @@ static void skpwww_heartiste_wordpress_com_86(skiatest::Reporter* reporter, cons
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#if TRY_NEW_TESTS
 static void skpwww_argus_presse_fr_41(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -1827,7 +1824,6 @@ static void skpwww_argus_presse_fr_41(skiatest::Reporter* reporter, const char* 
     pathB.close();
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
-#endif
 
 // SkOpSegment::checkSmallCoincidence; line 1958 SkASSERT(span.fWindValue);
 static void skpwww_320kbps_net_2231(skiatest::Reporter* reporter, const char* filename) {
@@ -3557,9 +3553,7 @@ static struct TestDesc tests[] = {
     TEST(skpwww_wartepop_blogspot_com_br_6),
     TEST(skpwww_wartepop_blogspot_com_br_6a),
     TEST(skpwww_cooksnaps_com_32a),
-#if TRY_NEW_TESTS
     TEST(skpwww_argus_presse_fr_41),
-#endif
     TEST(skpwww_cooksnaps_com_17),
     TEST(skpwww_cooksnaps_com_32),
     TEST(skpwww_kitcheninspirations_wordpress_com_66),

@@ -423,7 +423,7 @@ private:
     int checkSetAngle(int tIndex) const;
     void checkSmallCoincidence(const SkOpSpan& span, SkTArray<MissingSpan, true>* );
     bool coincidentSmall(const SkPoint& pt, double t, const SkOpSegment* other) const;
-    bool clockwise(int tStart, int tEnd) const;
+    bool clockwise(int tStart, int tEnd, bool* swap) const;
     static void ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
                               SkOpAngle::IncludeType );
     static void ComputeOneSumReverse(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,

@@ -12,7 +12,7 @@
 #include "SkReduceOrder.h"
 #include "Test.h"
 
-static struct lineCubic {
+static struct quadCubic {
     SkDCubic cubic;
     SkDQuad quad;
     int answerCount;

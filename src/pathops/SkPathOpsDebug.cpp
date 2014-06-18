@@ -104,7 +104,12 @@ void SkPathOpsDebug::ShowPath(const SkPath& one, const SkPath& two, SkPathOp op,
 
 #if DEBUG_SORT
 void SkOpAngle::debugLoop() const {
-    dumpLoop();
+    const SkOpAngle* first = this;
+    const SkOpAngle* next = this;
+    do {
+        next->dumpOne(true);
+        next = next->fNext;
+    } while (next && next != first);
 }
 #endif
 

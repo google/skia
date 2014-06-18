@@ -681,11 +681,17 @@ int SkIntersections::intersect(const SkDCubic& c) {
     if (c.endsAreExtremaInXOrY()) {
         return false;
     }
+    // OPTIMIZATION: could quick reject if neither end point tangent ray intersected the line
+    // segment formed by the opposite end point to the control point
     (void) intersect(c, c);
     if (used() > 0) {
-        SkASSERT(used() == 1);
-        if (fT[0][0] > fT[1][0]) {
-            swapPts();
+        if (approximately_equal_double(fT[0][0], fT[1][0])) {
+            fUsed = 0;
+        } else {
+            SkASSERT(used() == 1);
+            if (fT[0][0] > fT[1][0]) {
+                swapPts();
+            }
         }
     }
     return used();
