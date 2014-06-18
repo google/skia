@@ -115,6 +115,11 @@ inline void operator delete(void* p) {
 
 #define SkFAIL(message)                 SK_ALWAYSBREAK(false && message)
 
+// We want to evaluate cond only once, and inside the SkASSERT somewhere so we see its string form.
+// So we use the comma operator to make an SkDebugf that always returns false: we'll evaluate cond,
+// and if it's true the assert passes; if it's false, we'll print the message and the assert fails.
+#define SkASSERTF(cond, fmt, ...)       SkASSERT((cond) || (SkDebugf(fmt"\n", __VA_ARGS__), false))
+
 #ifdef SK_DEVELOPER
     #define SkDEVCODE(code)             code
 #else

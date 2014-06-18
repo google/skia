@@ -37,7 +37,7 @@ public:
     */
     virtual ~SkRefCntBase() {
 #ifdef SK_DEBUG
-        SkASSERT(fRefCnt == 1);
+        SkASSERTF(fRefCnt == 1, "fRefCnt was %d", fRefCnt);
         fRefCnt = 0;    // illegal value, to catch us if we reuse after delete
 #endif
     }
