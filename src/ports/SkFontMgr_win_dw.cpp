@@ -259,11 +259,6 @@ public:
         memcpy(fLocaleName.get(), localeName, localeNameLength * sizeof(WCHAR));
     }
 
-    /** Creates a typeface using a typeface cache. */
-    SkTypeface* createTypefaceFromDWriteFont(IDWriteFontFace* fontFace,
-                                             IDWriteFont* font,
-                                             IDWriteFontFamily* fontFamily) const;
-
 protected:
     virtual int onCountFamilies() const SK_OVERRIDE;
     virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE;
@@ -283,16 +278,10 @@ private:
     HRESULT getByFamilyName(const WCHAR familyName[], IDWriteFontFamily** fontFamily) const;
     HRESULT getDefaultFontFamily(IDWriteFontFamily** fontFamily) const;
 
-    void Add(SkTypeface* face, SkTypeface::Style requestedStyle, bool strong) const {
-        SkAutoMutexAcquire ama(fTFCacheMutex);
-        fTFCache.add(face, requestedStyle, strong);
-    }
-
-    SkTypeface* FindByProcAndRef(SkTypefaceCache::FindProc proc, void* ctx) const {
-        SkAutoMutexAcquire ama(fTFCacheMutex);
-        SkTypeface* typeface = fTFCache.findByProcAndRef(proc, ctx);
-        return typeface;
-    }
+    /** Creates a typeface using a typeface cache. */
+    SkTypeface* createTypefaceFromDWriteFont(IDWriteFontFace* fontFace,
+                                             IDWriteFont* font,
+                                             IDWriteFontFamily* fontFamily) const;
 
     SkTScopedComPtr<IDWriteFactory> fFactory;
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
@@ -321,129 +310,128 @@ private:
     SkTScopedComPtr<IDWriteFontFamily> fFontFamily;
 };
 
-static bool are_same(IUnknown* a, IUnknown* b) {
+static HRESULT are_same(IUnknown* a, IUnknown* b, bool& same) {
     SkTScopedComPtr<IUnknown> iunkA;
-    if (FAILED(a->QueryInterface(&iunkA))) {
-        return false;
-    }
+    HRM(a->QueryInterface(&iunkA), "Failed to QI<IUnknown> for a.");
 
     SkTScopedComPtr<IUnknown> iunkB;
-    if (FAILED(b->QueryInterface(&iunkB))) {
-        return false;
-    }
+    HRM(b->QueryInterface(&iunkB), "Failed to QI<IUnknown> for b.");
 
-    return iunkA.get() == iunkB.get();
+    same = (iunkA.get() == iunkB.get());
+    return S_OK;
 }
 
-static bool FindByDWriteFont(SkTypeface* face, SkTypeface::Style, void* ctx) {
+struct ProtoDWriteTypeface {
+    IDWriteFontFace* fDWriteFontFace;
+    IDWriteFont* fDWriteFont;
+    IDWriteFontFamily* fDWriteFontFamily;
+};
+
+static bool FindByDWriteFont(SkTypeface* cached, SkTypeface::Style, void* ctx) {
+    DWriteFontTypeface* cshFace = reinterpret_cast<DWriteFontTypeface*>(cached);
+    ProtoDWriteTypeface* ctxFace = reinterpret_cast<ProtoDWriteTypeface*>(ctx);
+    bool same;
+
     //Check to see if the two fonts are identical.
-    DWriteFontTypeface* dwFace = reinterpret_cast<DWriteFontTypeface*>(face);
-    IDWriteFont* dwFont = reinterpret_cast<IDWriteFont*>(ctx);
-    if (are_same(dwFace->fDWriteFont.get(), dwFont)) {
+    HRB(are_same(cshFace->fDWriteFont.get(), ctxFace->fDWriteFont, same));
+    if (same) {
+        return true;
+    }
+
+    HRB(are_same(cshFace->fDWriteFontFace.get(), ctxFace->fDWriteFontFace, same));
+    if (same) {
         return true;
     }
 
     //Check if the two fonts share the same loader and have the same key.
-    SkTScopedComPtr<IDWriteFontFace> dwFaceFontFace;
-    SkTScopedComPtr<IDWriteFontFace> dwFontFace;
-    HRB(dwFace->fDWriteFont->CreateFontFace(&dwFaceFontFace));
-    HRB(dwFont->CreateFontFace(&dwFontFace));
-    if (are_same(dwFaceFontFace.get(), dwFontFace.get())) {
-        return true;
-    }
-
-    UINT32 dwFaceNumFiles;
-    UINT32 dwNumFiles;
-    HRB(dwFaceFontFace->GetFiles(&dwFaceNumFiles, NULL));
-    HRB(dwFontFace->GetFiles(&dwNumFiles, NULL));
-    if (dwFaceNumFiles != dwNumFiles) {
+    UINT32 cshNumFiles;
+    UINT32 ctxNumFiles;
+    HRB(cshFace->fDWriteFontFace->GetFiles(&cshNumFiles, NULL));
+    HRB(ctxFace->fDWriteFontFace->GetFiles(&ctxNumFiles, NULL));
+    if (cshNumFiles != ctxNumFiles) {
         return false;
     }
 
-    SkTScopedComPtr<IDWriteFontFile> dwFaceFontFile;
-    SkTScopedComPtr<IDWriteFontFile> dwFontFile;
-    HRB(dwFaceFontFace->GetFiles(&dwFaceNumFiles, &dwFaceFontFile));
-    HRB(dwFontFace->GetFiles(&dwNumFiles, &dwFontFile));
+    SkTScopedComPtr<IDWriteFontFile> cshFontFile;
+    SkTScopedComPtr<IDWriteFontFile> ctxFontFile;
+    HRB(cshFace->fDWriteFontFace->GetFiles(&cshNumFiles, &cshFontFile));
+    HRB(ctxFace->fDWriteFontFace->GetFiles(&ctxNumFiles, &ctxFontFile));
 
     //for (each file) { //we currently only admit fonts from one file.
-    SkTScopedComPtr<IDWriteFontFileLoader> dwFaceFontFileLoader;
-    SkTScopedComPtr<IDWriteFontFileLoader> dwFontFileLoader;
-    HRB(dwFaceFontFile->GetLoader(&dwFaceFontFileLoader));
-    HRB(dwFontFile->GetLoader(&dwFontFileLoader));
-    if (!are_same(dwFaceFontFileLoader.get(), dwFontFileLoader.get())) {
+    SkTScopedComPtr<IDWriteFontFileLoader> cshFontFileLoader;
+    SkTScopedComPtr<IDWriteFontFileLoader> ctxFontFileLoader;
+    HRB(cshFontFile->GetLoader(&cshFontFileLoader));
+    HRB(ctxFontFile->GetLoader(&ctxFontFileLoader));
+    HRB(are_same(cshFontFileLoader.get(), ctxFontFileLoader.get(), same));
+    if (!same) {
         return false;
     }
     //}
 
-    const void* dwFaceFontRefKey;
-    UINT32 dwFaceFontRefKeySize;
-    const void* dwFontRefKey;
-    UINT32 dwFontRefKeySize;
-    HRB(dwFaceFontFile->GetReferenceKey(&dwFaceFontRefKey, &dwFaceFontRefKeySize));
-    HRB(dwFontFile->GetReferenceKey(&dwFontRefKey, &dwFontRefKeySize));
-    if (dwFaceFontRefKeySize != dwFontRefKeySize) {
+    const void* cshRefKey;
+    UINT32 cshRefKeySize;
+    const void* ctxRefKey;
+    UINT32 ctxRefKeySize;
+    HRB(cshFontFile->GetReferenceKey(&cshRefKey, &cshRefKeySize));
+    HRB(ctxFontFile->GetReferenceKey(&ctxRefKey, &ctxRefKeySize));
+    if (cshRefKeySize != ctxRefKeySize) {
         return false;
     }
-    if (0 != memcmp(dwFaceFontRefKey, dwFontRefKey, dwFontRefKeySize)) {
+    if (0 != memcmp(cshRefKey, ctxRefKey, ctxRefKeySize)) {
         return false;
     }
 
     //TODO: better means than comparing name strings?
-    //NOTE: .tfc and fake bold/italic will end up here.
-    SkTScopedComPtr<IDWriteFontFamily> dwFaceFontFamily;
-    SkTScopedComPtr<IDWriteFontFamily> dwFontFamily;
-    HRB(dwFace->fDWriteFont->GetFontFamily(&dwFaceFontFamily));
-    HRB(dwFont->GetFontFamily(&dwFontFamily));
+    //NOTE: .ttc and fake bold/italic will end up here.
+    SkTScopedComPtr<IDWriteLocalizedStrings> cshFamilyNames;
+    SkTScopedComPtr<IDWriteLocalizedStrings> cshFaceNames;
+    HRB(cshFace->fDWriteFontFamily->GetFamilyNames(&cshFamilyNames));
+    HRB(cshFace->fDWriteFont->GetFaceNames(&cshFaceNames));
+    UINT32 cshFamilyNameLength;
+    UINT32 cshFaceNameLength;
+    HRB(cshFamilyNames->GetStringLength(0, &cshFamilyNameLength));
+    HRB(cshFaceNames->GetStringLength(0, &cshFaceNameLength));
 
-    SkTScopedComPtr<IDWriteLocalizedStrings> dwFaceFontFamilyNames;
-    SkTScopedComPtr<IDWriteLocalizedStrings> dwFaceFontNames;
-    HRB(dwFaceFontFamily->GetFamilyNames(&dwFaceFontFamilyNames));
-    HRB(dwFace->fDWriteFont->GetFaceNames(&dwFaceFontNames));
+    SkTScopedComPtr<IDWriteLocalizedStrings> ctxFamilyNames;
+    SkTScopedComPtr<IDWriteLocalizedStrings> ctxFaceNames;
+    HRB(ctxFace->fDWriteFontFamily->GetFamilyNames(&ctxFamilyNames));
+    HRB(ctxFace->fDWriteFont->GetFaceNames(&ctxFaceNames));
+    UINT32 ctxFamilyNameLength;
+    UINT32 ctxFaceNameLength;
+    HRB(ctxFamilyNames->GetStringLength(0, &ctxFamilyNameLength));
+    HRB(ctxFaceNames->GetStringLength(0, &ctxFaceNameLength));
 
-    SkTScopedComPtr<IDWriteLocalizedStrings> dwFontFamilyNames;
-    SkTScopedComPtr<IDWriteLocalizedStrings> dwFontNames;
-    HRB(dwFontFamily->GetFamilyNames(&dwFontFamilyNames));
-    HRB(dwFont->GetFaceNames(&dwFontNames));
-
-    UINT32 dwFaceFontFamilyNameLength;
-    UINT32 dwFaceFontNameLength;
-    HRB(dwFaceFontFamilyNames->GetStringLength(0, &dwFaceFontFamilyNameLength));
-    HRB(dwFaceFontNames->GetStringLength(0, &dwFaceFontNameLength));
-
-    UINT32 dwFontFamilyNameLength;
-    UINT32 dwFontNameLength;
-    HRB(dwFontFamilyNames->GetStringLength(0, &dwFontFamilyNameLength));
-    HRB(dwFontNames->GetStringLength(0, &dwFontNameLength));
-
-    if (dwFaceFontFamilyNameLength != dwFontFamilyNameLength ||
-        dwFaceFontNameLength != dwFontNameLength)
+    if (cshFamilyNameLength != ctxFamilyNameLength ||
+        cshFaceNameLength != ctxFaceNameLength)
     {
         return false;
     }
 
-    SkSMallocWCHAR dwFaceFontFamilyNameChar(dwFaceFontFamilyNameLength+1);
-    SkSMallocWCHAR dwFaceFontNameChar(dwFaceFontNameLength+1);
-    HRB(dwFaceFontFamilyNames->GetString(0, dwFaceFontFamilyNameChar.get(), dwFaceFontFamilyNameLength+1));
-    HRB(dwFaceFontNames->GetString(0, dwFaceFontNameChar.get(), dwFaceFontNameLength+1));
+    SkSMallocWCHAR cshFamilyName(cshFamilyNameLength+1);
+    SkSMallocWCHAR cshFaceName(cshFaceNameLength+1);
+    HRB(cshFamilyNames->GetString(0, cshFamilyName.get(), cshFamilyNameLength+1));
+    HRB(cshFaceNames->GetString(0, cshFaceName.get(), cshFaceNameLength+1));
 
-    SkSMallocWCHAR dwFontFamilyNameChar(dwFontFamilyNameLength+1);
-    SkSMallocWCHAR dwFontNameChar(dwFontNameLength+1);
-    HRB(dwFontFamilyNames->GetString(0, dwFontFamilyNameChar.get(), dwFontFamilyNameLength+1));
-    HRB(dwFontNames->GetString(0, dwFontNameChar.get(), dwFontNameLength+1));
+    SkSMallocWCHAR ctxFamilyName(ctxFamilyNameLength+1);
+    SkSMallocWCHAR ctxFaceName(ctxFaceNameLength+1);
+    HRB(ctxFamilyNames->GetString(0, ctxFamilyName.get(), ctxFamilyNameLength+1));
+    HRB(ctxFaceNames->GetString(0, ctxFaceName.get(), ctxFaceNameLength+1));
 
-    return wcscmp(dwFaceFontFamilyNameChar.get(), dwFontFamilyNameChar.get()) == 0 &&
-           wcscmp(dwFaceFontNameChar.get(), dwFontNameChar.get()) == 0;
+    return wcscmp(cshFamilyName.get(), ctxFamilyName.get()) == 0 &&
+           wcscmp(cshFaceName.get(), ctxFaceName.get()) == 0;
 }
 
 SkTypeface* SkFontMgr_DirectWrite::createTypefaceFromDWriteFont(
         IDWriteFontFace* fontFace,
         IDWriteFont* font,
         IDWriteFontFamily* fontFamily) const {
-    SkTypeface* face = FindByProcAndRef(FindByDWriteFont, font);
+    SkAutoMutexAcquire ama(fTFCacheMutex);
+    ProtoDWriteTypeface spec = { fontFace, font, fontFamily };
+    SkTypeface* face = fTFCache.findByProcAndRef(FindByDWriteFont, &spec);
     if (NULL == face) {
         face = DWriteFontTypeface::Create(fFactory.get(), fontFace, font, fontFamily);
         if (face) {
-            Add(face, get_style(font), true);
+            fTFCache.add(face, get_style(font), true);
         }
     }
     return face;
