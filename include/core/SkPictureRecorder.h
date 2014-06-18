@@ -72,7 +72,6 @@ private:
         canvas. This call doesn't close the current recording.
     */
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    friend class AndroidPicture; // This is temporary until we remove this from the framework
     friend class android::Picture;
 #endif
     friend class SkPictureRecorderReplayTester; // for unit testing
