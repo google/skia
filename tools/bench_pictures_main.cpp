@@ -39,9 +39,7 @@ DEFINE_string(filter, "",
         "Specific flags are listed above.");
 DEFINE_string(logFile, "", "Destination for writing log output, in addition to stdout.");
 DEFINE_bool(logPerIter, false, "Log each repeat timer instead of mean.");
-#ifdef SK_BUILD_JSON_WRITER
 DEFINE_string(jsonLog, "", "Destination for writing JSON data.");
-#endif
 DEFINE_bool(min, false, "Print the minimum times (instead of average).");
 DECLARE_int32(multi);
 DECLARE_string(readPath);
@@ -419,14 +417,12 @@ int tool_main(int argc, char** argv) {
         }
     }
 
-#ifdef SK_BUILD_JSON_WRITER
     SkAutoTDelete<PictureJSONResultsWriter> jsonWriter;
     if (FLAGS_jsonLog.count() == 1) {
         jsonWriter.reset(SkNEW(PictureJSONResultsWriter(FLAGS_jsonLog[0])));
         gWriter.add(jsonWriter.get());
     }
 
-#endif
     gWriter.add(&gLogWriter);
 
 

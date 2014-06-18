@@ -140,7 +140,6 @@ private:
     SkString currentLine;
 };
 
-#ifdef SK_BUILD_JSON_WRITER
 /**
  * This PictureResultsWriter collects data in a JSON node
  *
@@ -227,6 +226,5 @@ private:
     Json::Value *fCurrentTileSet;
     Json::Value *fCurrentTile;
 };
-#endif // SK_BUILD_JSON_WRITER
 
 #endif

@@ -31,7 +31,6 @@ const static char kJsonKey_Hashtype_Bitmap_64bitMD5[]  = "bitmap-64bitMD5";
 
 namespace skiagm {
 
-#ifdef SK_BUILD_JSON_WRITER
     Json::Value CreateJsonTree(Json::Value expectedResults,
                                Json::Value actualResultsFailed,
                                Json::Value actualResultsFailureIgnored,
@@ -47,7 +46,6 @@ namespace skiagm {
         root[kJsonKey_ExpectedResults] = expectedResults;
         return root;
     }
-#endif
 
     // GmResultDigest class...
 
@@ -55,7 +53,6 @@ namespace skiagm {
         fIsValid = SkBitmapHasher::ComputeDigest(bitmap, &fHashDigest);
     }
 
-#ifdef SK_BUILD_JSON_WRITER
     GmResultDigest::GmResultDigest(const Json::Value &jsonTypeValuePair) {
         fIsValid = false;
         if (!jsonTypeValuePair.isArray()) {
@@ -80,7 +77,6 @@ namespace skiagm {
             }
         }
     }
-#endif
 
     bool GmResultDigest::isValid() const {
         return fIsValid;
@@ -92,7 +88,6 @@ namespace skiagm {
         return (this->fIsValid && other.fIsValid && (this->fHashDigest == other.fHashDigest));
     }
 
-#ifdef SK_BUILD_JSON_WRITER
     Json::Value GmResultDigest::asJsonTypeValuePair() const {
         // TODO(epoger): The current implementation assumes that the
         // result digest is always of type kJsonKey_Hashtype_Bitmap_64bitMD5
@@ -105,7 +100,6 @@ namespace skiagm {
         }
         return jsonTypeValuePair;
     }
-#endif
 
     SkString GmResultDigest::getHashType() const {
         // TODO(epoger): The current implementation assumes that the
@@ -140,7 +134,6 @@ namespace skiagm {
         fAllowedResultDigests.push_back(bitmapAndDigest.fDigest);
     }
 
-#ifdef SK_BUILD_JSON_WRITER
     Expectations::Expectations(Json::Value jsonElement) {
         if (jsonElement.empty()) {
             fIgnoreFailure = kDefaultIgnoreFailure;
@@ -173,7 +166,6 @@ namespace skiagm {
             }
         }
     }
-#endif
 
     bool Expectations::match(GmResultDigest actualGmResultDigest) const {
         for (int i=0; i < this->fAllowedResultDigests.count(); i++) {
@@ -185,7 +177,6 @@ namespace skiagm {
         return false;
     }
 
-#ifdef SK_BUILD_JSON_WRITER
     Json::Value Expectations::asJsonValue() const {
         Json::Value allowedDigestArray;
         if (!this->fAllowedResultDigests.empty()) {
@@ -199,7 +190,6 @@ namespace skiagm {
         jsonExpectations[kJsonKey_ExpectedResults_IgnoreFailure]  = this->ignoreFailure();
         return jsonExpectations;
     }
-#endif
 
     // IndividualImageExpectationsSource class...
 
@@ -217,7 +207,6 @@ namespace skiagm {
     }
 
 
-#ifdef SK_BUILD_JSON_WRITER
     // JsonExpectationsSource class...
 
     JsonExpectationsSource::JsonExpectationsSource(const char *jsonPath) {
@@ -247,5 +236,4 @@ namespace skiagm {
         }
         return true;
     }
-#endif
 }

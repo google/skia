@@ -9,8 +9,6 @@
 
 #include "ResultsWriter.h"
 
-#ifdef SK_BUILD_JSON_WRITER
-
 Json::Value* SkFindNamedNode(Json::Value* root, const char name[]) {
     Json::Value* search_results = NULL;
     for(Json::Value::iterator iter = root->begin();
@@ -30,4 +28,3 @@ Json::Value* SkFindNamedNode(Json::Value* root, const char name[]) {
     }
 }
 
-#endif // SK_BUILD_JSON_WRITER

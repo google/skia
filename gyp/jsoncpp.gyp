@@ -18,9 +18,16 @@
   'targets': [
     {
       'target_name': 'jsoncpp',
-      'type': 'static_library',
       'conditions': [
-        ['skia_build_json_writer', {
+        ['skia_use_system_json', {
+          'type': 'none',
+          'direct_dependent_settings': {
+            'libraries': [
+              'jsoncpp.a',
+            ],
+          },
+        }, {
+          'type': 'static_library',
           'defines': [
             'JSON_USE_EXCEPTION=0',
           ],
