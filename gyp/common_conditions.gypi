@@ -674,9 +674,7 @@
 
     [ 'skia_moz2d', {
       'defines': [
-        'SK_SUPPORT_LEGACY_LAYERRASTERIZER_API=1',
-        'SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG=1',
-        'SK_SUPPORT_LEGACY_GETTOTALCLIP=1',
+        # add flags here (e.g. SK_SUPPORT_LEGACY_...) needed by moz2d
       ],
     }],
 
