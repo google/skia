@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #include "SkCanvas.h"
 #include "SkBitmapDevice.h"
 #include "SkDeviceImageFilterProxy.h"
@@ -1769,6 +1770,12 @@ SkCanvas::ClipType SkCanvas::getClipType() const {
         return kRect_ClipType;
     }
     return kComplex_ClipType;
+}
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_GETTOTALCLIP
+const SkRegion& SkCanvas::getTotalClip() const {
+    return fMCRec->fRasterClip->forceGetBW();
 }
 #endif
 

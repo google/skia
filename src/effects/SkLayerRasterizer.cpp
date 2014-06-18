@@ -1,9 +1,11 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 
 #include "SkLayerRasterizer.h"
 #include "SkDraw.h"
@@ -47,6 +49,17 @@ SkLayerRasterizer::~SkLayerRasterizer() {
     SkASSERT(fLayers);
     clean_up_layers(const_cast<SkDeque*>(fLayers));
 }
+
+#ifdef SK_SUPPORT_LEGACY_LAYERRASTERIZER_API
+void SkLayerRasterizer::addLayer(const SkPaint& paint, SkScalar dx,
+                                 SkScalar dy) {
+    SkASSERT(fLayers);
+    SkLayerRasterizer_Rec* rec = (SkLayerRasterizer_Rec*)fLayers->push_back();
+
+    SkNEW_PLACEMENT_ARGS(&rec->fPaint, SkPaint, (paint));
+    rec->fOffset.set(dx, dy);
+}
+#endif
 
 static bool compute_bounds(const SkDeque& layers, const SkPath& path,
                            const SkMatrix& matrix,
