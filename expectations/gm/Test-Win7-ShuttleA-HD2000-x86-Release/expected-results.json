@@ -4246,31 +4246,25 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13997927260713778151
+          8502388824097514202
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashcubics_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5519423629684956172
+          12041540375599706444
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashcubics_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17511727328631816108
+          1167555157988588129
         ]
       ], 
       "reviewed-by-human": true
@@ -4291,13 +4285,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          498443258957282233
+          2614670991631931607
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "dashing2_8888.png": {
       "allowed-digests": [

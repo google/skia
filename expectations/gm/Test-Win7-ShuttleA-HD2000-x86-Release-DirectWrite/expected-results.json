@@ -4402,25 +4402,27 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9879118162957551256
+          14579960821593575197
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "dashcubics_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8143201975227491309
+          17019125613404625792
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "dashcubics_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11934858713003058437
+          4279453433246478420
         ]
       ], 
       "reviewed-by-human": true
