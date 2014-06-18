@@ -290,7 +290,7 @@ func init() {
 	// Start reporting metrics.
 	// TODO(jcgregorio) We need a centrialized config server for storing things
 	// like the IP address of the Graphite monitor.
-	addr, _ := net.ResolveTCPAddr("tcp", "10.240.159.195:2003")
+	addr, _ := net.ResolveTCPAddr("tcp", "skia-monitoring-b:2003")
 	go metrics.Graphite(metrics.DefaultRegistry, 1*time.Minute, "webtry", addr)
 
 	writeOutAllSourceImages()
