@@ -339,10 +339,6 @@ protected:
         this->restartMakingPaths();
     }
 
-    virtual void onPostDraw() SK_OVERRIDE {
-        this->finishedMakingPaths();
-    }
-
 private:
     SkPath fPath;
 
@@ -372,10 +368,6 @@ protected:
             int idx = i & (kPathCnt - 1);
             fCopies[idx] = fPaths[idx];
         }
-    }
-    virtual void onPostDraw() SK_OVERRIDE {
-        fPaths.reset(0);
-        fCopies.reset(0);
     }
 
 private:
@@ -424,11 +416,6 @@ protected:
         }
     }
 
-    virtual void onPostDraw() SK_OVERRIDE {
-        fPaths.reset(0);
-        fTransformed.reset(0);
-    }
-
 private:
     enum {
         // must be a pow 2
@@ -468,11 +455,6 @@ protected:
             int idx = i & (kPathCnt - 1);
             fParity ^= (fPaths[idx] == fCopies[idx & ~0x1]);
         }
-    }
-
-    virtual void onPostDraw() SK_OVERRIDE {
-        fPaths.reset(0);
-        fCopies.reset(0);
     }
 
 private:
@@ -570,11 +552,6 @@ protected:
                 }
                 break;
         }
-    }
-
-    virtual void onPostDraw() SK_OVERRIDE {
-        fPaths0.reset(0);
-        fPaths1.reset(0);
     }
 
 private:
@@ -806,10 +783,6 @@ private:
 
             fQueryRects[i] = SkRect::MakeXYWH(xy.fX, xy.fY, size.fWidth, size.fHeight);
         }
-    }
-
-    virtual void onPostDraw() SK_OVERRIDE {
-        fQueryRects.setCount(0);
     }
 
     enum {

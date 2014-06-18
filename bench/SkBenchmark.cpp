@@ -38,10 +38,6 @@ void SkBenchmark::draw(const int loops, SkCanvas* canvas) {
     this->onDraw(loops, canvas);
 }
 
-void SkBenchmark::postDraw() {
-    this->onPostDraw();
-}
-
 void SkBenchmark::setupPaint(SkPaint* paint) {
     paint->setAlpha(fForceAlpha);
     paint->setAntiAlias(fForceAA);

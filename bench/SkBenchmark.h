@@ -72,11 +72,6 @@ public:
     // Bench framework can tune loops to be large enough for stable timing.
     void draw(const int loops, SkCanvas*);
 
-    // Call after draw, allows the benchmark to do cleanup work outside of the
-    // timer. When a benchmark is repeatedly drawn, this is only called once
-    // after the last draw.
-    void postDraw();
-
     void setForceAlpha(int alpha) {
         fForceAlpha = alpha;
     }
@@ -118,7 +113,6 @@ protected:
     // Each bench should do its main work in a loop like this:
     //   for (int i = 0; i < loops; i++) { <work here> }
     virtual void onDraw(const int loops, SkCanvas*) = 0;
-    virtual void onPostDraw() {}
 
     virtual SkIPoint onGetSize();
 

@@ -59,7 +59,6 @@ static void draw_raster(SkBenchmark* bench, SkColorType colorType) {
 
     bench->preDraw();
     bench->draw(1, &canvas);
-    bench->postDraw();
 }
 
 void NonRenderingBenchTask::draw() {
@@ -79,7 +78,6 @@ void GpuBenchTask::draw(GrContextFactory* grFactory) {
 
     fBench->preDraw();
     fBench->draw(1, surface->getCanvas());
-    fBench->postDraw();
 }
 
 }  // namespace DM

@@ -78,18 +78,6 @@ private:
     const skiagm::GMRegistry* fGMs;
 };
 
-class AutoPrePostDraw {
-public:
-    AutoPrePostDraw(SkBenchmark* bench) : fBench(bench) {
-        fBench->preDraw();
-    }
-    ~AutoPrePostDraw() {
-        fBench->postDraw();
-    }
-private:
-    SkBenchmark* fBench;
-};
-
 static void make_filename(const char name[], SkString* path) {
     path->set(name);
     for (int i = 0; name[i]; i++) {
@@ -462,7 +450,7 @@ int tool_main(int argc, char** argv) {
         bench->setForceAA(FLAGS_forceAA);
         bench->setForceFilter(FLAGS_forceFilter);
         bench->setDither(dither);
-        AutoPrePostDraw appd(bench);
+        bench->preDraw();
 
         bool loggedBenchName = false;
         for (int i = 0; i < configs.count(); ++i) {
