@@ -4303,13 +4303,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13339523762688652179
+          4756824858690317696
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing2_gpu.png": {
       "allowed-digests": [
@@ -4363,13 +4360,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2303436773132777217
+          11072572159491045148
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing3_pdf-poppler.png": {
       "allowed-digests": [

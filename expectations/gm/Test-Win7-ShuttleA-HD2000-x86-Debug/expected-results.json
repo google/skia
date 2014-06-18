@@ -4418,28 +4418,31 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6822848169144028482
+          2494610485041198535
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "dashing2_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4205905116629662751
+          5568370216546802477
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "dashing2_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8365055987252810014
+          491154211623518706
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "dashing2_pdf-poppler.png": {
       "allowed-digests": [
@@ -4466,16 +4469,17 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5129847220107176754
+          9992031980990536415
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "dashing3_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10179880524537471293
+          7532067396913714441
         ]
       ], 
       "ignore-failure": false, 
@@ -4515,7 +4519,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10326529307675497710
+          10873004693785991483
         ]
       ], 
       "reviewed-by-human": true
@@ -4524,7 +4528,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          130107792326448839
+          4199059907564224666
         ]
       ], 
       "reviewed-by-human": true
@@ -4545,13 +4549,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12975427358347733464
+          11645276935331048518
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing_gpu.png": {
       "allowed-digests": [

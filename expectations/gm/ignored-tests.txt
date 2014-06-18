@@ -50,11 +50,3 @@ bigblurs
 # This CL actually fixes this GM's image
 distantclip
 
-# Added by egdaniel for https://codereview.chromium.org/326103002/
-# This CL may cause minor changes to gpu dashing
-dashing
-dashing2
-dashing3
-dashing4
-dashcubics
-
