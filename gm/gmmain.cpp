@@ -17,6 +17,7 @@
 #include "gm_error.h"
 #include "gm_expectations.h"
 #include "system_preferences.h"
+#include "CrashHandler.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
@@ -2219,6 +2220,7 @@ static bool parse_flags_jpeg_quality() {
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    SetupCrashHandler();
 
     SkString usage;
     usage.printf("Run the golden master tests.\n");

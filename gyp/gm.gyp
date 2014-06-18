@@ -16,8 +16,9 @@
         '../tools/sk_tool_utils.cpp',
       ],
       'dependencies': [
-        'skia_lib.gyp:skia_lib',
+        'crash_handler.gyp:CrashHandler',
         'jsoncpp.gyp:jsoncpp',
+        'skia_lib.gyp:skia_lib',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

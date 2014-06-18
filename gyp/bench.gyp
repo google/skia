@@ -9,11 +9,12 @@
       'target_name': 'bench',
       'type': 'executable',
       'dependencies': [
-        'skia_lib.gyp:skia_lib',
         'bench_timer',
+        'crash_handler.gyp:CrashHandler',
+        'etc1.gyp:libetc1',
         'flags.gyp:flags',
         'jsoncpp.gyp:jsoncpp',
-        'etc1.gyp:libetc1',
+        'skia_lib.gyp:skia_lib',
       ],
       'sources': [
         '../bench/ResultsWriter.cpp',

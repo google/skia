@@ -300,11 +300,12 @@
       ],
       'dependencies': [
         'bench.gyp:bench_timer',
+        'crash_handler.gyp:CrashHandler',
         'flags.gyp:flags',
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_utils',
         'tools.gyp:picture_renderer',
+        'tools.gyp:picture_utils',
         'tools.gyp:timer_data',
       ],
     },

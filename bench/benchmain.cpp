@@ -6,6 +6,7 @@
  */
 
 #include "BenchTimer.h"
+#include "CrashHandler.h"
 #include "ResultsWriter.h"
 #include "SkBenchLogger.h"
 #include "SkBenchmark.h"
@@ -271,6 +272,7 @@ static bool HasConverged(double prevPerLoop, double currPerLoop, double currRaw)
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    SetupCrashHandler();
     SkCommandLineFlags::Parse(argc, argv);
 #if SK_ENABLE_INST_COUNT
     if (FLAGS_leaks) {

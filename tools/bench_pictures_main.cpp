@@ -6,6 +6,7 @@
  */
 
 #include "BenchTimer.h"
+#include "CrashHandler.h"
 #include "CopyTilesRenderer.h"
 #include "LazyDecodeBitmap.h"
 #include "PictureBenchmark.h"
@@ -391,6 +392,7 @@ static int process_input(const char* input,
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    SetupCrashHandler();
     SkString usage;
     usage.printf("Time drawing .skp files.\n"
                  "\tPossible arguments for --filter: [%s]\n\t\t[%s]",

@@ -55,11 +55,12 @@
             '../src/utils/debugger/SkObjectParser.cpp',
         ],
         'dependencies': [
-            'skia_lib.gyp:skia_lib',
-            'flags.gyp:flags',
-            'jsoncpp.gyp:jsoncpp',
-            'gputest.gyp:skgputest',
+            'crash_handler.gyp:CrashHandler',
             'etc1.gyp:libetc1',
+            'flags.gyp:flags',
+            'gputest.gyp:skgputest',
+            'jsoncpp.gyp:jsoncpp',
+            'skia_lib.gyp:skia_lib',
         ],
         'conditions': [
           ['skia_android_framework', {

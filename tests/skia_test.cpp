@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "CrashHandler.h"
 #include "OverwriteLine.h"
 #include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
@@ -132,6 +133,7 @@ static bool should_run(const char* testName, bool isGPUTest) {
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    SetupCrashHandler();
     SkCommandLineFlags::SetUsage("");
     SkCommandLineFlags::Parse(argc, argv);
     Test::SetResourcePath(FLAGS_resourcePath[0]);

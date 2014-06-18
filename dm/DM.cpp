@@ -9,6 +9,7 @@
 #include "SkString.h"
 #include "Test.h"
 #include "gm.h"
+#include "CrashHandler.h"
 
 #include "DMBenchTask.h"
 #include "DMCpuGMTask.h"
@@ -215,6 +216,7 @@ static void append_matching_factories(Registry* head, SkTDArray<typename Registr
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    SetupCrashHandler();
     SkAutoGraphics ag;
     SkCommandLineFlags::Parse(argc, argv);
 
