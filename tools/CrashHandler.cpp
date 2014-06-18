@@ -39,7 +39,7 @@ static void handler(int sig) {
     _Exit(sig);
 }
 
-#elif defined(SK_BUILD_FOR_UNIX)
+#elif defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_NACL)   // NACL doesn't have backtrace().
 
 // We'd use libunwind here too, but it's a pain to get installed for both 32 and 64 bit on bots.
 // Doesn't matter much: catchsegv is best anyway.
@@ -59,7 +59,7 @@ static void handler(int sig) {
 
 #endif
 
-#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_MAC)
+#if defined(SK_BUILD_FOR_MAC) || (defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_NACL))
 
 void SetupCrashHandler() {
     static const int kSignals[] = {
