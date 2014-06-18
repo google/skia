@@ -89,9 +89,6 @@ bool NeedsDeepCopy(const SkPaint& paint) {
 #ifdef SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX
            || paint.getShader()
 #endif
-#ifdef SK_SUPPORT_LEGACY_LAYERRASTERIZER_API
-           || paint.getRasterizer()
-#endif
            || paint.getImageFilter()
            ;
 }

@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkLayerRasterizer_DEFINED
 #define SkLayerRasterizer_DEFINED
@@ -64,24 +62,9 @@ public:
         SkDeque* fLayers;
     };
 
-#ifdef SK_SUPPORT_LEGACY_LAYERRASTERIZER_API
-    void addLayer(const SkPaint& paint) {
-        this->addLayer(paint, 0, 0);
-    }
-
-    /**    Add a new layer (above any previous layers) to the rasterizer.
-        The layer will extract those fields that affect the mask from
-        the specified paint, but will not retain a reference to the paint
-        object itself, so it may be reused without danger of side-effects.
-    */
-    void addLayer(const SkPaint& paint, SkScalar dx, SkScalar dy);
-#endif
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLayerRasterizer)
 
 protected:
-    SkLayerRasterizer(SkDeque* layers);
-    SkLayerRasterizer(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // override from SkRasterizer
@@ -89,17 +72,12 @@ protected:
                              const SkIRect* clipBounds,
                              SkMask* mask, SkMask::CreateMode mode) const;
 
-#ifdef SK_SUPPORT_LEGACY_LAYERRASTERIZER_API
-public:
-#endif
-    SkLayerRasterizer();
-
 private:
-#ifdef SK_SUPPORT_LEGACY_LAYERRASTERIZER_API
-    SkDeque* fLayers;
-#else
     const SkDeque* const fLayers;
-#endif
+
+    SkLayerRasterizer();
+    SkLayerRasterizer(SkDeque* layers);
+    SkLayerRasterizer(SkReadBuffer&);
 
     static SkDeque* ReadLayers(SkReadBuffer& buffer);
 
