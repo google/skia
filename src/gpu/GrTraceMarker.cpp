@@ -13,36 +13,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class GrTraceMarkerSet::Iter {
-public:
-    Iter() {};
-    Iter& operator=(const Iter& i) {
-        fCurrentIndex = i.fCurrentIndex;
-        fMarkers = i.fMarkers;
-        return *this;
-    }
-    bool operator==(const Iter& i) const {
-        return fCurrentIndex == i.fCurrentIndex && fMarkers == i.fMarkers;
-    }
-    bool operator!=(const Iter& i) const { return !(*this == i); }
-    const GrGpuTraceMarker& operator*() const { return fMarkers->fMarkerArray[fCurrentIndex]; }
-    Iter& operator++() {
-        SkASSERT(*this != fMarkers->end());
-        ++fCurrentIndex;
-        return *this;
-    }
-
-private:
-    friend class GrTraceMarkerSet;
-    Iter(const GrTraceMarkerSet* markers, int index)
-            : fMarkers(markers), fCurrentIndex(index) {
-        SkASSERT(markers);
-    }
-
-    const GrTraceMarkerSet* fMarkers;
-    int fCurrentIndex;
-};
-
 ////////////////////////////////////////////////////////////////////////////////
 
 GrTraceMarkerSet::GrTraceMarkerSet(const GrTraceMarkerSet& other) {
@@ -114,3 +84,4 @@ GrTraceMarkerSet::Iter GrTraceMarkerSet::begin() const {
 GrTraceMarkerSet::Iter GrTraceMarkerSet::end() const {
     return Iter(this, this->fMarkerArray.count());
 }
+

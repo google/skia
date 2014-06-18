@@ -448,8 +448,19 @@ public:
      * GR_CREATE_GPU_TRACE_MARKER(marker_str, target) will automatically call these at the start
      * and end of a code block respectively
      */
-    void addGpuTraceMarker(GrGpuTraceMarker* marker);
-    void removeGpuTraceMarker(GrGpuTraceMarker* marker);
+    void addGpuTraceMarker(const GrGpuTraceMarker* marker);
+    void removeGpuTraceMarker(const GrGpuTraceMarker* marker);
+
+    /**
+     * Takes the current active set of markers and stores them for later use. Any current marker
+     * in the active set is removed from the active set and the targets remove function is called.
+     * These functions do not work as a stack so you cannot call save a second time before calling
+     * restore. Also, it is assumed that when restore is called the current active set of markers
+     * is empty. When the stored markers are added back into the active set, the targets add marker
+     * is called.
+     */
+    void saveActiveTraceMarkers();
+    void restoreActiveTraceMarkers();
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -942,6 +953,7 @@ private:
     // To keep track that we always have at least as many debug marker adds as removes
     int                                                             fGpuTraceMarkerCount;
     GrTraceMarkerSet                                                fActiveTraceMarkers;
+    GrTraceMarkerSet                                                fStoredTraceMarkers;
 
     typedef SkRefCnt INHERITED;
 };

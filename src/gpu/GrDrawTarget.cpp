@@ -578,7 +578,30 @@ void GrDrawTarget::drawPaths(int pathCount, const GrPath** paths,
                       dstCopy.texture() ? &dstCopy : NULL);
 }
 
-void GrDrawTarget::addGpuTraceMarker(GrGpuTraceMarker* marker) {
+typedef GrTraceMarkerSet::Iter TMIter;
+void GrDrawTarget::saveActiveTraceMarkers() {
+    if (this->caps()->gpuTracingSupport()) {
+        SkASSERT(0 == fStoredTraceMarkers.count());
+        fStoredTraceMarkers.addSet(fActiveTraceMarkers);
+        for (TMIter iter = fStoredTraceMarkers.begin(); iter != fStoredTraceMarkers.end(); ++iter) {
+            this->removeGpuTraceMarker(&(*iter));
+        }
+    }
+}
+
+void GrDrawTarget::restoreActiveTraceMarkers() {
+    if (this->caps()->gpuTracingSupport()) {
+        SkASSERT(0 == fActiveTraceMarkers.count());
+        for (TMIter iter = fStoredTraceMarkers.begin(); iter != fStoredTraceMarkers.end(); ++iter) {
+            this->addGpuTraceMarker(&(*iter));
+        }
+        for (TMIter iter = fActiveTraceMarkers.begin(); iter != fActiveTraceMarkers.end(); ++iter) {
+            this->fStoredTraceMarkers.remove(*iter);
+        }
+    }
+}
+
+void GrDrawTarget::addGpuTraceMarker(const GrGpuTraceMarker* marker) {
     if (this->caps()->gpuTracingSupport()) {
         SkASSERT(fGpuTraceMarkerCount >= 0);
         this->fActiveTraceMarkers.add(*marker);
@@ -587,7 +610,7 @@ void GrDrawTarget::addGpuTraceMarker(GrGpuTraceMarker* marker) {
     }
 }
 
-void GrDrawTarget::removeGpuTraceMarker(GrGpuTraceMarker* marker) {
+void GrDrawTarget::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
     if (this->caps()->gpuTracingSupport()) {
         SkASSERT(fGpuTraceMarkerCount >= 1);
         this->fActiveTraceMarkers.remove(*marker);

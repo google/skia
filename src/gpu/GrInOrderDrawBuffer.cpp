@@ -591,6 +591,7 @@ void GrInOrderDrawBuffer::flush() {
     int currCopySurface = 0;
     int currCmdMarker   = 0;
 
+    fDstGpu->saveActiveTraceMarkers();
     for (int c = 0; c < numCmds; ++c) {
         GrGpuTraceMarker newMarker("", -1);
         if (cmd_has_trace_marker(fCmds[c])) {
@@ -666,6 +667,7 @@ void GrInOrderDrawBuffer::flush() {
             fDstGpu->removeGpuTraceMarker(&newMarker);
         }
     }
+    fDstGpu->restoreActiveTraceMarkers();
     // we should have consumed all the states, clips, etc.
     SkASSERT(fStates.count() == currState);
     SkASSERT(fClips.count() == currClip);
