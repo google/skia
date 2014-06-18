@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
@@ -148,7 +149,7 @@ static void compare_unpremul(skiatest::Reporter* reporter, const SkString& filen
 
 static void test_unpremul(skiatest::Reporter* reporter) {
     // This test cannot run if there is no resource path.
-    SkString resourcePath = skiatest::Test::GetResourcePath();
+    SkString resourcePath = GetResourcePath();
     if (resourcePath.isEmpty()) {
         SkDebugf("Could not run unpremul test because resourcePath not specified.");
         return;
@@ -230,7 +231,7 @@ static void test_alphaType(skiatest::Reporter* reporter, const SkString& filenam
 }
 
 DEF_TEST(ImageDecoding_alphaType, reporter) {
-    SkString resourcePath = skiatest::Test::GetResourcePath();
+    SkString resourcePath = GetResourcePath();
     if (resourcePath.isEmpty()) {
         SkDebugf("Could not run alphaType test because resourcePath not specified.");
         return;
@@ -253,7 +254,7 @@ DEF_TEST(ImageDecoding_alphaType, reporter) {
 
 // Using known images, test that decoding into unpremul and premul behave as expected.
 DEF_TEST(ImageDecoding_unpremul, reporter) {
-    SkString resourcePath = skiatest::Test::GetResourcePath();
+    SkString resourcePath = GetResourcePath();
     if (resourcePath.isEmpty()) {
         SkDebugf("Could not run unpremul test because resourcePath not specified.");
         return;
@@ -502,7 +503,7 @@ static SkPixelRef* install_pixel_ref(SkBitmap* bitmap,
  *  SkInstallDiscardablePixelRef functions.
  */
 DEF_TEST(ImprovedBitmapFactory, reporter) {
-    SkString resourcePath = skiatest::Test::GetResourcePath();
+    SkString resourcePath = GetResourcePath();
     SkString path = SkOSPath::SkPathJoin(
             resourcePath.c_str(), "randPixels.png");
     SkAutoTUnref<SkStreamRewindable> stream(
@@ -676,7 +677,7 @@ DEF_TEST(ImageDecoderOptions, reporter) {
         #endif
     };
 
-    SkString resourceDir = skiatest::Test::GetResourcePath();
+    SkString resourceDir = GetResourcePath();
     if (!sk_exists(resourceDir.c_str())) {
         return;
     }

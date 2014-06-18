@@ -18,6 +18,8 @@
 #include "gm_expectations.h"
 #include "system_preferences.h"
 #include "CrashHandler.h"
+#include "Resources.h"
+#include "SamplePipeControllers.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
@@ -43,7 +45,6 @@
 #include "SkSurface.h"
 #include "SkTArray.h"
 #include "SkTDict.h"
-#include "SamplePipeControllers.h"
 
 #ifdef SK_DEBUG
 static const bool kDebugOnly = true;
@@ -1458,7 +1459,6 @@ DEFINE_bool(replay, false, "Exercise the SkPicture replay test pass.");
 #if SK_SUPPORT_GPU
 DEFINE_bool(resetGpuContext, false, "Reset the GrContext prior to running each GM.");
 #endif
-DEFINE_string2(resourcePath, i, "resources", "Directory that stores image resources.");
 DEFINE_bool(rtree, false, "Exercise the R-Tree variant of SkPicture test pass.");
 DEFINE_bool(serialize, false, "Exercise the SkPicture serialization & deserialization test pass.");
 DEFINE_bool(simulatePipePlaybackFailure, false, "Simulate a rendering failure in pipe mode only.");
@@ -2203,13 +2203,6 @@ static bool parse_flags_gmmain_paths(GMMain* gmmain) {
     return true;
 }
 
-static bool parse_flags_resource_path() {
-    if (FLAGS_resourcePath.count() == 1) {
-        GM::SetResourcePath(FLAGS_resourcePath[0]);
-    }
-    return true;
-}
-
 static bool parse_flags_jpeg_quality() {
     if (FLAGS_pdfJpegQuality < -1 || FLAGS_pdfJpegQuality > 100) {
         SkDebugf("%s\n", "pdfJpegQuality must be in [-1 .. 100] range.");
@@ -2261,7 +2254,6 @@ int tool_main(int argc, char** argv) {
         !parse_flags_gpu_cache(&gGpuCacheSizeBytes, &gGpuCacheSizeCount) ||
 #endif
         !parse_flags_tile_grid_replay_scales(&tileGridReplayScales) ||
-        !parse_flags_resource_path() ||
         !parse_flags_jpeg_quality() ||
         !parse_flags_configs(&configs, grFactory) ||
         !parse_flags_pdf_rasterizers(configs, &pdfRasterizers) ||
@@ -2283,8 +2275,8 @@ int tool_main(int argc, char** argv) {
         if (FLAGS_writePicturePath.count() == 1) {
             SkDebugf("writing pictures to %s\n", FLAGS_writePicturePath[0]);
         }
-        if (FLAGS_resourcePath.count() == 1) {
-            SkDebugf("reading resources from %s\n", FLAGS_resourcePath[0]);
+        if (!GetResourcePath().isEmpty()) {
+            SkDebugf("reading resources from %s\n", GetResourcePath().c_str());
         }
     }
 

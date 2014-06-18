@@ -6,6 +6,8 @@
  */
 
 #include "gm.h"
+
+#include "Resources.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
@@ -27,8 +29,9 @@ public:
 
 protected:
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        SkString resourcePath = GetResourcePath();
         // Copyright-free file from http://openclipart.org/detail/29213/paper-plane-by-ddoo
-        SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath, "plane.png");
+        SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "plane.png");
         SkAutoDataUnref data(SkData::NewFromFileName(filename.c_str()));
         if (NULL != data.get()) {
             // Create a cache which will boot the pixels out anytime the

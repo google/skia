@@ -9,8 +9,6 @@
 
 using namespace skiagm;
 
-const char* GM::gResourcePath;
-
 GM::GM() {
     fMode = kGM_Mode;
     fBGColor = SK_ColorWHITE;
@@ -66,13 +64,5 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
     canvas->drawRect(r, paint);
 }
 
-void GM::SetResourcePath(const char* resourcePath) {
-    gResourcePath = resourcePath;
-}
-
-SkString GM::GetResourcePath() {
-    return SkString(gResourcePath);
-}
-
 // need to explicitly declare this, or we get some weird infinite loop llist
-template GMRegistry* SkTRegistry<GM*(*)(void*)>::gHead;
+template GMRegistry* GMRegistry::gHead;

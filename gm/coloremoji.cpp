@@ -6,6 +6,8 @@
  */
 
 #include "gm.h"
+
+#include "Resources.h"
 #include "SkCanvas.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -27,8 +29,7 @@ protected:
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
-
-        SkString filename(INHERITED::gResourcePath);
+        SkString filename = GetResourcePath();
         filename.append("/Funkster.ttf");
 
         SkAutoTUnref<SkFILEStream> stream(new SkFILEStream(filename.c_str()));

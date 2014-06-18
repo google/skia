@@ -6,6 +6,8 @@
  */
 
 #include "gm.h"
+
+#include "Resources.h"
 #include "SkCanvas.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
@@ -30,7 +32,8 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm, bm4444;
-        SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath, "mandrill_512.png");
+        SkString resourcePath = GetResourcePath();
+        SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "mandrill_512.png");
         if (!SkImageDecoder::DecodeFile(filename.c_str(), &bm, kN32_SkColorType,
                                         SkImageDecoder::kDecodePixels_Mode)) {
             SkDebugf("Could not decode the file. Did you forget to set the "

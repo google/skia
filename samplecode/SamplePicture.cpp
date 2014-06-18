@@ -5,12 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "gm.h"
+
+#include "Resources.h"
 #include "SampleCode.h"
+#include "SkCanvas.h"
+#include "SkColorFilter.h"
+#include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
 #include "SkDumpCanvas.h"
-#include "SkView.h"
-#include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -21,23 +25,20 @@
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkUtils.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
+#include "SkStream.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkXfermode.h"
-#include "SkStream.h"
+#include "SkUtils.h"
+#include "SkView.h"
 #include "SkXMLParser.h"
-
-#include "gm.h"
+#include "SkXfermode.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkBitmap load_bitmap() {
     SkBitmap bm;
-    SkString directory = skiagm::GM::GetResourcePath();
-    SkString path = SkOSPath::SkPathJoin(directory.c_str(), "mandrill_512.png");
+    SkString resourcePath = GetResourcePath();
+    SkString path = SkOSPath::SkPathJoin(resourcePath.c_str(), "mandrill_512.png");
     SkAutoDataUnref data(SkData::NewFromFileName(path.c_str()));
     if (data.get() != NULL) {
         SkInstallDiscardablePixelRef(SkDecodingImageGenerator::Create(

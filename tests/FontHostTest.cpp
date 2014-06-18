@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkEndian.h"
 #include "SkFontStream.h"
 #include "SkOSFile.h"
@@ -149,7 +150,7 @@ static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream) {
 
 static void test_fontstream(skiatest::Reporter* reporter) {
     // This test cannot run if there is no resource path.
-    SkString resourcePath = skiatest::Test::GetResourcePath();
+    SkString resourcePath = GetResourcePath();
     if (resourcePath.isEmpty()) {
         SkDebugf("Could not run fontstream test because resourcePath not specified.");
         return;

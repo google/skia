@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkBenchmark.h"
 #include "SkBitmap.h"
 #include "SkData.h"

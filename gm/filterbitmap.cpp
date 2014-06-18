@@ -6,11 +6,12 @@
  */
 
 #include "gm.h"
-#include "SkGradientShader.h"
 
-#include "SkTypeface.h"
+#include "Resources.h"
+#include "SkGradientShader.h"
 #include "SkImageDecoder.h"
 #include "SkStream.h"
+#include "SkTypeface.h"
 
 static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style style) {
     SkSafeUnref(paint->setTypeface(SkTypeface::CreateFromName(name, style)));
@@ -193,12 +194,12 @@ class FilterBitmapImageGM: public FilterBitmapGM {
       }
 
       void makeBitmap() SK_OVERRIDE {
-          SkString path(skiagm::GM::gResourcePath);
-          path.append("/");
-          path.append(fFilename);
+          SkString resourcePath = GetResourcePath();
+          resourcePath.append("/");
+          resourcePath.append(fFilename);
 
-          SkImageDecoder *codec = NULL;
-          SkFILEStream stream(path.c_str());
+          SkImageDecoder* codec = NULL;
+          SkFILEStream stream(resourcePath.c_str());
           if (stream.isValid()) {
               codec = SkImageDecoder::Factory(&stream);
           }

@@ -19,7 +19,6 @@
         '../samplecode', # To pull SampleApp.h and SampleCode.h
         '../src/pipe/utils', # For TiledPipeController
         '../src/utils/debugger',
-        '../tools',
       ],
       'includes': [
         'gmslides.gypi',
@@ -135,7 +134,7 @@
         # Lua
         '../src/utils/SkLuaCanvas.cpp',
         '../src/utils/SkLua.cpp',
-        
+
         # tools
         '../tools/sk_tool_utils.cpp',
       ],
@@ -145,15 +144,17 @@
         '../samplecode/SampleFontCache.cpp',
       ],
       'dependencies': [
+        'animator.gyp:animator',
+        'etc1.gyp:libetc1',
+        'experimental.gyp:experimental',
+        'flags.gyp:flags',
+        'lua.gyp:lua',
+        'pdf.gyp:pdf',
+        'resources.gyp:resources',
         'skia_lib.gyp:skia_lib',
         'views.gyp:views',
-        'animator.gyp:animator',
-        'xml.gyp:xml',
-        'experimental.gyp:experimental',
-        'pdf.gyp:pdf',
         'views_animated.gyp:views_animated',
-        'lua.gyp:lua',
-        'etc1.gyp:libetc1',
+        'xml.gyp:xml',
       ],
      'conditions' : [
        [ 'sample_pdf_file_viewer == 1', {

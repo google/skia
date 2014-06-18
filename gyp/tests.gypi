@@ -11,17 +11,17 @@
     '../src/pipe/utils',
     '../src/utils',
     '../src/utils/debugger',
-    '../tools/',
 
     # Needed for TDStackNesterTest.
     '../experimental/PdfViewer',
     '../experimental/PdfViewer/src',
   ],
   'dependencies': [
-    'skia_lib.gyp:skia_lib',
     'experimental.gyp:experimental',
     'flags.gyp:flags',
     'pdf.gyp:pdf',
+    'resources.gyp:resources',
+    'skia_lib.gyp:skia_lib',
     'tools.gyp:picture_utils',
   ],
   'sources': [

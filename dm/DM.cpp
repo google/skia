@@ -226,9 +226,6 @@ int tool_main(int argc, char** argv) {
 #if SK_ENABLE_INST_COUNT
     gPrintInstCount = FLAGS_leaks;
 #endif
-    GM::SetResourcePath(FLAGS_resources[0]);
-    SkBenchmark::SetResourcePath(FLAGS_resources[0]);
-    Test::SetResourcePath(FLAGS_resources[0]);
 
     SkTArray<SkString> configs;
     for (int i = 0; i < FLAGS_config.count(); i++) {

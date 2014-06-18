@@ -6,15 +6,15 @@
  */
 
 #include "gm.h"
-#include "SkGradientShader.h"
 
-#include "SkTypeface.h"
-#include "SkImageDecoder.h"
-#include "SkStream.h"
-
-#include "SkImageEncoder.h"
-#include "SkBitmapScaler.h"
+#include "Resources.h"
 #include "SkBitmapProcState.h"
+#include "SkBitmapScaler.h"
+#include "SkGradientShader.h"
+#include "SkImageDecoder.h"
+#include "SkImageEncoder.h"
+#include "SkStream.h"
+#include "SkTypeface.h"
 
 static SkSize computeSize(const SkBitmap& bm, const SkMatrix& mat) {
     SkRect bounds = SkRect::MakeWH(SkIntToScalar(bm.width()),
@@ -104,12 +104,12 @@ protected:
       }
 
       void makeBitmap() {
-          SkString path(skiagm::GM::gResourcePath);
-          path.append("/");
-          path.append(fFilename);
+          SkString resourcePath = GetResourcePath();
+          resourcePath.append("/");
+          resourcePath.append(fFilename);
 
-          SkImageDecoder *codec = NULL;
-          SkFILEStream stream(path.c_str());
+          SkImageDecoder* codec = NULL;
+          SkFILEStream stream(resourcePath.c_str());
           if (stream.isValid()) {
               codec = SkImageDecoder::Factory(&stream);
           }

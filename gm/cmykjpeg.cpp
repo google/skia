@@ -6,6 +6,8 @@
  */
 
 #include "gm.h"
+
+#include "Resources.h"
 #include "SkCanvas.h"
 #include "SkImageDecoder.h"
 #include "SkStream.h"
@@ -21,18 +23,17 @@ public:
 
 protected:
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
-
         // parameters to the "decode" call
         bool dither = false;
 
-        SkString filename(INHERITED::gResourcePath);
-        if (!filename.endsWith("/") && !filename.endsWith("\\")) {
-            filename.append("/");
+        SkString resourcePath = GetResourcePath();
+        if (!resourcePath.endsWith("/") && !resourcePath.endsWith("\\")) {
+            resourcePath.append("/");
         }
 
-        filename.append("CMYK.jpg");
+        resourcePath.append("CMYK.jpg");
 
-        SkFILEStream stream(filename.c_str());
+        SkFILEStream stream(resourcePath.c_str());
         if (!stream.isValid()) {
             SkDebugf("Could not find CMYK.jpg, please set --resourcePath correctly.\n");
             return;

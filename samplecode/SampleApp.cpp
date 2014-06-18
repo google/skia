@@ -7,12 +7,19 @@
 
 #include "SampleApp.h"
 
-#include "SkData.h"
+#include "OverView.h"
+#include "SampleCode.h"
+#include "SamplePipeControllers.h"
 #include "SkCanvas.h"
+#include "SkCommandLineFlags.h"
+#include "SkData.h"
 #include "SkDevice.h"
+#include "SkGPipe.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
+#include "SkOSFile.h"
+#include "SkPDFDevice.h"
+#include "SkPDFDocument.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -20,10 +27,10 @@
 #include "SkSurface.h"
 #include "SkTSort.h"
 #include "SkTime.h"
-#include "SkWindow.h"
-
-#include "SampleCode.h"
 #include "SkTypeface.h"
+#include "SkWindow.h"
+#include "TransitionView.h"
+#include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
 #include "gl/GrGLInterface.h"
@@ -34,17 +41,6 @@
 #else
 class GrContext;
 #endif
-
-#include "SkOSFile.h"
-#include "SkPDFDevice.h"
-#include "SkPDFDocument.h"
-#include "SkStream.h"
-
-#include "SkGPipe.h"
-#include "SamplePipeControllers.h"
-#include "OverView.h"
-#include "TransitionView.h"
-#include "sk_tool_utils.h"
 
 extern SampleView* CreateSamplePictFileView(const char filename[]);
 
@@ -783,18 +779,14 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         SkTQSort(fSamples.begin(), fSamples.end() ? fSamples.end() - 1 : NULL, compareSampleTitle);
     }
 
-    const char* resourcePath = "resources";  // same default as tests
     fMSAASampleCount = 0;
+
+    SkCommandLineFlags::Parse(argc, argv);
 
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
-        if (!strcmp(*argv, "-i") || !strcmp(*argv, "--resourcePath")) {
-            argv++;
-            if (argv < stop && **argv) {
-                resourcePath = *argv;
-            }
-        } else if (strcmp(*argv, "--slide") == 0) {
+        if (strcmp(*argv, "--slide") == 0) {
             argv++;
             if (argv < stop && **argv) {
                 fCurrIndex = findByTitle(*argv);
@@ -964,8 +956,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     this->setColorType(kN32_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
-
-    skiagm::GM::SetResourcePath(resourcePath);
 
     this->loadView((*fSamples[fCurrIndex])());
 

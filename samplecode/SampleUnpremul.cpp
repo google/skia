@@ -6,6 +6,8 @@
  */
 
 #include "gm.h"
+
+#include "Resources.h"
 #include "SampleCode.h"
 #include "SkBlurMask.h"
 #include "SkBlurDrawLooper.h"
@@ -199,6 +201,6 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 static SkView* MyFactory() {
-    return new UnpremulView(skiagm::GM::GetResourcePath());
+    return new UnpremulView(GetResourcePath());
 }
 static SkViewRegister reg(MyFactory);

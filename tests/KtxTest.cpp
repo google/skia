@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
@@ -140,7 +141,7 @@ DEF_TEST(KtxReadUnpremul, reporter) {
  * the PKM to the KTX should produce an identical KTX to the one we have on file)
  */
 DEF_TEST(KtxReexportPKM, reporter) {
-    SkString resourcePath = skiatest::Test::GetResourcePath();
+    SkString resourcePath = GetResourcePath();
     SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "mandrill_128.pkm");
 
     // Load PKM file into a bitmap

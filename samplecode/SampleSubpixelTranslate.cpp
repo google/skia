@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -7,10 +6,12 @@
  */
 
 #include "gm.h"
+
+#include "Resources.h"
 #include "SampleCode.h"
 #include "SkBlurMaskFilter.h"
-#include "SkColorPriv.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
 #include "SkImageDecoder.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -26,12 +27,12 @@ public:
       : fFilename(imageFilename),
         fHorizontalVelocity(horizontalVelocity),
         fVerticalVelocity(verticalVelocity) {
-      SkString path(skiagm::GM::GetResourcePath());
-      path.append("/");
-      path.append(fFilename);
+      SkString resourcePath = GetResourcePath();
+      resourcePath.append("/");
+      resourcePath.append(fFilename);
 
-      SkImageDecoder *codec = NULL;
-      SkFILEStream stream(path.c_str());
+      SkImageDecoder* codec = NULL;
+      SkFILEStream stream(resourcePath.c_str());
       if (stream.isValid()) {
           codec = SkImageDecoder::Factory(&stream);
       }

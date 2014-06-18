@@ -41,8 +41,6 @@ void Reporter::endTest(Test* test) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const char* Test::gResourcePath;
-
 Test::Test() : fReporter(NULL), fPassed(true) {}
 
 Test::~Test() {
@@ -121,12 +119,4 @@ void Test::run() {
 SkString Test::GetTmpDir() {
     const char* tmpDir = FLAGS_tmpDir.isEmpty() ? NULL : FLAGS_tmpDir[0];
     return SkString(tmpDir);
-}
-
-void Test::SetResourcePath(const char* resourcePath) {
-    gResourcePath = resourcePath;
-}
-
-SkString Test::GetResourcePath() {
-    return SkString(gResourcePath);
 }

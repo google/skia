@@ -6,6 +6,8 @@
  */
 
 #include "gm.h"
+
+#include "Resources.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
@@ -93,7 +95,8 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkBitmap bm;
-        SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath, "mandrill_128.");
+        SkString resourcePath = GetResourcePath();
+        SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "mandrill_128.");
         filename.append(this->fileExtension());
 
         SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(filename.c_str()));
@@ -166,9 +169,9 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-
         SkBitmap bm;
-        SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath, "mandrill_128.pkm");
+        SkString resourcePath = GetResourcePath();
+        SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "mandrill_128.pkm");
 
         SkAutoDataUnref fileData(SkData::NewFromFileName(filename.c_str()));
         if (NULL == fileData) {

@@ -62,9 +62,6 @@ namespace skiatest {
 
         static SkString GetTmpDir();
 
-        static void SetResourcePath(const char*);
-        static SkString GetResourcePath();
-
         virtual bool isGPUTest() const { return false; }
         virtual void setGrContextFactory(GrContextFactory* factory) {}
 
@@ -73,8 +70,6 @@ namespace skiatest {
         virtual void onRun(Reporter*) = 0;
 
     private:
-        static const char* gResourcePath;
-
         Reporter*   fReporter;
         SkString    fName;
         bool        fPassed;

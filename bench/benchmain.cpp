@@ -255,7 +255,6 @@ DEFINE_double(error, 0.01,
               "Ratio of subsequent bench measurements must drop within 1±error to converge.");
 DEFINE_string(timeFormat, "%9.2f", "Format to print results, in milliseconds per 1000 loops.");
 DEFINE_bool2(verbose, v, false, "Print more.");
-DEFINE_string2(resourcePath, i, "resources", "directory for test resources.");
 DEFINE_string(outResultsFile, "", "If given, the results will be written to the file in JSON format.");
 DEFINE_bool(dryRun, false, "Don't actually run the tests, just print what would have been done.");
 
@@ -346,10 +345,6 @@ int tool_main(int argc, char** argv) {
                 --i;
             }
         }
-    }
-    // Set the resource path.
-    if (!FLAGS_resourcePath.isEmpty()) {
-        SkBenchmark::SetResourcePath(FLAGS_resourcePath[0]);
     }
 
 #if SK_SUPPORT_GPU

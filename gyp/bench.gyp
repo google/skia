@@ -14,6 +14,7 @@
         'etc1.gyp:libetc1',
         'flags.gyp:flags',
         'jsoncpp.gyp:jsoncpp',
+        'resources.gyp:resources',
         'skia_lib.gyp:skia_lib',
       ],
       'sources': [

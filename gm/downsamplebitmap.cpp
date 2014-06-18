@@ -6,8 +6,9 @@
  */
 
 #include "gm.h"
-#include "SkGradientShader.h"
 
+#include "Resources.h"
+#include "SkGradientShader.h"
 #include "SkTypeface.h"
 #include "SkImageDecoder.h"
 #include "SkStream.h"
@@ -18,7 +19,6 @@ static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style sty
 }
 
 class DownsampleBitmapGM : public skiagm::GM {
-
 public:
     SkBitmap    fBM;
     SkString    fName;
@@ -172,12 +172,12 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
       int fSize;
 
       virtual void make_bitmap() SK_OVERRIDE {
-          SkString path(skiagm::GM::gResourcePath);
-          path.append("/");
-          path.append(fFilename);
+          SkString resourcePath = GetResourcePath();
+          resourcePath.append("/");
+          resourcePath.append(fFilename);
 
-          SkImageDecoder *codec = NULL;
-          SkFILEStream stream(path.c_str());
+          SkImageDecoder* codec = NULL;
+          SkFILEStream stream(resourcePath.c_str());
           if (stream.isValid()) {
               codec = SkImageDecoder::Factory(&stream);
           }

@@ -4,15 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkBenchmark.h"
+
 #include "SkPaint.h"
 #include "SkParse.h"
 
 const char* SkTriState::Name[] = { "default", "true", "false" };
 
 template BenchRegistry* BenchRegistry::gHead;
-
-const char* SkBenchmark::gResourcePath;
 
 SkBenchmark::SkBenchmark() {
     fForceAlpha = 0xFF;
@@ -50,16 +50,6 @@ void SkBenchmark::setupPaint(SkPaint* paint) {
         paint->setDither(SkTriState::kTrue == fDither);
     }
 }
-
-void SkBenchmark::SetResourcePath(const char* resourcePath) {
-    gResourcePath = resourcePath;
-}
-
-SkString SkBenchmark::GetResourcePath() {
-    return SkString(gResourcePath);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 SkIPoint SkBenchmark::onGetSize() {
     return SkIPoint::Make(640, 480);
