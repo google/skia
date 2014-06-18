@@ -46,11 +46,6 @@ blurquickreject
 blurrects
 bigblurs
 
-# reed: https://codereview.chromium.org/190723004/
-# This change removes an API that this GM was testing. If/when it lands and sticks,
-# I will likely just delete the GM.
-canvas-layer-state
-
 # Added by robertphillips for https://codereview.chromium.org/316143003/
 # This CL actually fixes this GM's image
 distantclip
