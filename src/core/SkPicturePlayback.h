@@ -70,24 +70,30 @@ public:
 
     void set(const SkPictureContentInfo& src) {
         fNumPaintWithPathEffectUses = src.fNumPaintWithPathEffectUses;
+        fNumFastPathDashEffects = src.fNumFastPathDashEffects;
         fNumAAConcavePaths = src.fNumAAConcavePaths;
         fNumAAHairlineConcavePaths = src.fNumAAHairlineConcavePaths;
     }
 
     void reset() {
         fNumPaintWithPathEffectUses = 0;
+        fNumFastPathDashEffects = 0;
         fNumAAConcavePaths = 0;
         fNumAAHairlineConcavePaths = 0;
     }
 
     void swap(SkPictureContentInfo* other) {
         SkTSwap(fNumPaintWithPathEffectUses, other->fNumPaintWithPathEffectUses);
+        SkTSwap(fNumFastPathDashEffects, other->fNumFastPathDashEffects);
         SkTSwap(fNumAAConcavePaths, other->fNumAAConcavePaths);
         SkTSwap(fNumAAHairlineConcavePaths, other->fNumAAHairlineConcavePaths);
     }
 
     void incPaintWithPathEffectUses() { ++fNumPaintWithPathEffectUses; }
     int numPaintWithPathEffectUses() const { return fNumPaintWithPathEffectUses; }
+
+    void incFastPathDashEffects() { ++fNumFastPathDashEffects; }
+    int numFastPathDashEffects() const { return fNumFastPathDashEffects; }
 
     void incAAConcavePaths() { ++fNumAAConcavePaths; }
     int numAAConcavePaths() const { return fNumAAConcavePaths; }
@@ -102,6 +108,9 @@ private:
     // This field is incremented every time a paint with a path effect is
     // used (i.e., it is not a de-duplicated count)
     int fNumPaintWithPathEffectUses;
+    // This field is incremented every time a paint with a path effect that is
+    // dashed, we are drawing a line, and we can use the gpu fast path
+    int fNumFastPathDashEffects;
     // This field is incremented every time an anti-aliased drawPath call is
     // issued with a concave path
     int fNumAAConcavePaths;
@@ -269,7 +278,19 @@ public:
 #endif
 
 #if SK_SUPPORT_GPU
-    bool suitableForGpuRasterization(GrContext* context, const char **reason) const;
+    /**
+     * sampleCount is the number of samples-per-pixel or zero if non-MSAA.
+     * It is defaulted to be zero.
+     */
+    bool suitableForGpuRasterization(GrContext* context, const char **reason,
+                                     int sampleCount = 0) const;
+
+    /**
+     * Calls getRecommendedSampleCount with GrPixelConfig and dpi to calculate sampleCount
+     * and then calls the above version of suitableForGpuRasterization
+     */
+    bool suitableForGpuRasterization(GrContext* context, const char **reason,
+                                     GrPixelConfig config, SkScalar dpi) const;
 #endif
 
 private:    // these help us with reading/writing

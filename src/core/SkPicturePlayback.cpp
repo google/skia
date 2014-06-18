@@ -14,6 +14,10 @@
 #include "SkTSort.h"
 #include "SkWriteBuffer.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#endif
+
 template <typename T> int SafeCount(const T* obj) {
     return obj ? obj->count() : 0;
 }
@@ -1335,27 +1339,51 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
 
 
 #if SK_SUPPORT_GPU
-bool SkPicturePlayback::suitableForGpuRasterization(GrContext* context, const char **reason) const {
+bool SkPicturePlayback::suitableForGpuRasterization(GrContext* context, const char **reason,
+                                                    int sampleCount) const {
     // TODO: the heuristic used here needs to be refined
     static const int kNumPaintWithPathEffectUsesTol = 1;
     static const int kNumAAConcavePaths = 5;
 
     SkASSERT(fContentInfo.numAAHairlineConcavePaths() <= fContentInfo.numAAConcavePaths());
 
-    bool ret = fContentInfo.numPaintWithPathEffectUses() < kNumPaintWithPathEffectUsesTol &&
+    int numNonDashedPathEffects = fContentInfo.numPaintWithPathEffectUses() -
+                                  fContentInfo.numFastPathDashEffects();
+
+    bool suitableForDash = (0 == fContentInfo.numPaintWithPathEffectUses()) ||
+                           (numNonDashedPathEffects < kNumPaintWithPathEffectUsesTol
+                            && 0 == sampleCount);
+
+    bool ret = suitableForDash &&
                     (fContentInfo.numAAConcavePaths() - fContentInfo.numAAHairlineConcavePaths()) 
                     < kNumAAConcavePaths;
     if (!ret && NULL != reason) {
-        if (fContentInfo.numPaintWithPathEffectUses() >= kNumPaintWithPathEffectUsesTol)
-            *reason = "Too many path effects.";
-        else if ((fContentInfo.numAAConcavePaths() - fContentInfo.numAAHairlineConcavePaths()) 
-                 >= kNumAAConcavePaths)
+        if (!suitableForDash) {
+            if (0 != sampleCount) {
+                *reason = "Can't use multisample on dash effect.";
+            } else {
+                *reason = "Too many non dashed path effects.";
+            }
+        } else if ((fContentInfo.numAAConcavePaths() - fContentInfo.numAAHairlineConcavePaths()) 
+                    >= kNumAAConcavePaths)
             *reason = "Too many anti-aliased concave paths.";
         else
             *reason = "Unknown reason for GPU unsuitability.";
     }
     return ret;
 }
+
+bool SkPicturePlayback::suitableForGpuRasterization(GrContext* context, const char **reason,
+                                                    GrPixelConfig config, SkScalar dpi) const {
+
+    if (context != NULL) {
+        return this->suitableForGpuRasterization(context, reason,
+                                                 context->getRecommendedSampleCount(config, dpi));
+    } else {
+        return this->suitableForGpuRasterization(NULL, reason);
+    }
+}
+
 #endif
 ///////////////////////////////////////////////////////////////////////////////
 

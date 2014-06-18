@@ -57,9 +57,11 @@ class GpuVeto(object):
     def __init__(self):
         self.bench_pictures = find_run_binary.find_path_to_program(
             'bench_pictures')
+        sys.stdout.write('Running: %s\n' % (self.bench_pictures))
         self.gpuveto = find_run_binary.find_path_to_program('gpuveto')
         assert os.path.isfile(self.bench_pictures)
         assert os.path.isfile(self.gpuveto)
+        self.indeterminate = 0
         self.truePositives = 0
         self.falsePositives = 0
         self.trueNegatives = 0
@@ -69,14 +71,16 @@ class GpuVeto(object):
         for skp in enumerate(dir_or_file):
             self.process_skp(skp[1])
 
-        sys.stdout.write('TP %d FP %d TN %d FN %d\n' % (self.truePositives,
-                                            self.falsePositives,
-                                            self.trueNegatives,
-                                            self.falseNegatives))
+        sys.stdout.write('TP %d FP %d TN %d FN %d IND %d\n' % (self.truePositives,
+                                                               self.falsePositives,
+                                                               self.trueNegatives,
+                                                               self.falseNegatives,
+                                                               self.indeterminate))
 
 
     def process_skp(self, skp_file):
         assert os.path.isfile(skp_file)
+        #print skp_file
 
         # run gpuveto on the skp
         args = [self.gpuveto, '-r', skp_file]
@@ -92,46 +96,63 @@ class GpuVeto(object):
 
         # run raster config
         args = [self.bench_pictures, '-r', skp_file, 
-                                     '--repeat', '20', 
+                                     '--repeat', '20',
+                                     '--timers', 'w',
                                      '--config', '8888']
         returncode, output = execute_program(args)
         if (returncode != 0):
             return
 
-        matches = re.findall('[\d.]+', output)
-        if len(matches) != 4:
+        matches = re.findall('[\d]+\.[\d]+', output)
+        if len(matches) != 1:
             return
 
-        rasterTime = float(matches[3])
+        rasterTime = float(matches[0])
 
         # run gpu config
         args2 = [self.bench_pictures, '-r', skp_file, 
-                                      '--repeat', '20', 
+                                      '--repeat', '20',
+                                      '--timers', 'w',
                                       '--config', 'gpu']
         returncode, output = execute_program(args2)
         if (returncode != 0):
             return
 
-        matches = re.findall('[\d.]+', output)
-        if len(matches) != 4:
+        matches = re.findall('[\d]+\.[\d]+', output)
+        if len(matches) != 1:
             return
 
-        gpuTime = float(matches[3])
+        gpuTime = float(matches[0])
 
-        sys.stdout.write('%s: gpuveto: %d raster %.2f gpu: %.2f\n' % (
-            skp_file, suitable, rasterTime, gpuTime))
+        # happens if page is too big it will not render
+        if 0 == gpuTime:
+            return
 
-        if suitable:
+        tolerance = 0.05
+        tol_range = tolerance * gpuTime
+
+
+        if rasterTime > gpuTime - tol_range and rasterTime < gpuTime + tol_range:
+            result = "NONE"
+            self.indeterminate += 1
+        elif suitable:
             if gpuTime < rasterTime:
                 self.truePositives += 1
+                result = "TP"
             else:
                 self.falsePositives += 1
+                result = "FP"
         else:
             if gpuTime < rasterTime:
                 self.falseNegatives += 1
+                result = "FN"
             else:
                 self.trueNegatives += 1
+                result = "TN"
+        
 
+        sys.stdout.write('%s: gpuveto: %d raster %.2f gpu: %.2f  Result: %s\n' % (
+            skp_file, suitable, rasterTime, gpuTime, result))
 
 def main(main_argv):
     parser = argparse.ArgumentParser()

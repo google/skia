@@ -988,6 +988,14 @@ void SkPictureRecord::drawPoints(PointMode mode, size_t count, const SkPoint pts
     size_t initialOffset = this->addDraw(DRAW_POINTS, &size);
     SkASSERT(initialOffset+getPaintOffset(DRAW_POINTS, size) == fWriter.bytesWritten());
     this->addPaint(paint);
+    if (paint.getPathEffect() != NULL) {
+        SkPathEffect::DashInfo info;
+        SkPathEffect::DashType dashType = paint.getPathEffect()->asADash(&info);
+        if (2 == count && SkPaint::kRound_Cap != paint.getStrokeCap() &&
+            SkPathEffect::kDash_DashType == dashType && 2 == info.fCount) {
+            fContentInfo.incFastPathDashEffects();
+        }
+    }
     this->addInt(mode);
     this->addInt(SkToInt(count));
     fWriter.writeMul4(pts, count * sizeof(SkPoint));
