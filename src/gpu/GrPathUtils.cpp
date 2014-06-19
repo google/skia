@@ -405,48 +405,55 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
         dc = p[1] - p[3];
     }
 
-    // When the ab and cd tangents are nearly parallel with vector from d to a the constraint that
-    // the quad point falls between the tangents becomes hard to enforce and we are likely to hit
-    // the max subdivision count. However, in this case the cubic is approaching a line and the
-    // accuracy of the quad point isn't so important. We check if the two middle cubic control
-    // points are very close to the baseline vector. If so then we just pick quadratic points on the
-    // control polygon.
+    // When the ab and cd tangents are degenerate or nearly parallel with vector from d to a the
+    // constraint that the quad point falls between the tangents becomes hard to enforce and we are
+    // likely to hit the max subdivision count. However, in this case the cubic is approaching a
+    // line and the accuracy of the quad point isn't so important. We check if the two middle cubic
+    // control points are very close to the baseline vector. If so then we just pick quadratic
+    // points on the control polygon.
 
     if (constrainWithinTangents) {
         SkVector da = p[0] - p[3];
-        SkScalar invDALengthSqd = da.lengthSqd();
-        if (invDALengthSqd > SK_ScalarNearlyZero) {
-            invDALengthSqd = SkScalarInvert(invDALengthSqd);
-            // cross(ab, da)^2/length(da)^2 == sqd distance from b to line from d to a.
-            // same goed for point c using vector cd.
-            SkScalar detABSqd = ab.cross(da);
-            detABSqd = SkScalarSquare(detABSqd);
-            SkScalar detDCSqd = dc.cross(da);
-            detDCSqd = SkScalarSquare(detDCSqd);
-            if (SkScalarMul(detABSqd, invDALengthSqd) < toleranceSqd &&
-                SkScalarMul(detDCSqd, invDALengthSqd) < toleranceSqd) {
-                SkPoint b = p[0] + ab;
-                SkPoint c = p[3] + dc;
-                SkPoint mid = b + c;
-                mid.scale(SK_ScalarHalf);
-                // Insert two quadratics to cover the case when ab points away from d and/or dc
-                // points away from a.
-                if (SkVector::DotProduct(da, dc) < 0 || SkVector::DotProduct(ab,da) > 0) {
-                    SkPoint* qpts = quads->push_back_n(6);
-                    qpts[0] = p[0];
-                    qpts[1] = b;
-                    qpts[2] = mid;
-                    qpts[3] = mid;
-                    qpts[4] = c;
-                    qpts[5] = p[3];
-                } else {
-                    SkPoint* qpts = quads->push_back_n(3);
-                    qpts[0] = p[0];
-                    qpts[1] = mid;
-                    qpts[2] = p[3];
+        bool doQuads = dc.lengthSqd() < SK_ScalarNearlyZero ||
+                       ab.lengthSqd() < SK_ScalarNearlyZero;
+        if (!doQuads) {
+            SkScalar invDALengthSqd = da.lengthSqd();
+            if (invDALengthSqd > SK_ScalarNearlyZero) {
+                invDALengthSqd = SkScalarInvert(invDALengthSqd);
+                // cross(ab, da)^2/length(da)^2 == sqd distance from b to line from d to a.
+                // same goes for point c using vector cd.
+                SkScalar detABSqd = ab.cross(da);
+                detABSqd = SkScalarSquare(detABSqd);
+                SkScalar detDCSqd = dc.cross(da);
+                detDCSqd = SkScalarSquare(detDCSqd);
+                if (SkScalarMul(detABSqd, invDALengthSqd) < toleranceSqd &&
+                    SkScalarMul(detDCSqd, invDALengthSqd) < toleranceSqd) {
+                    doQuads = true;
                 }
-                return;
             }
+        }
+        if (doQuads) {
+            SkPoint b = p[0] + ab;
+            SkPoint c = p[3] + dc;
+            SkPoint mid = b + c;
+            mid.scale(SK_ScalarHalf);
+            // Insert two quadratics to cover the case when ab points away from d and/or dc
+            // points away from a.
+            if (SkVector::DotProduct(da, dc) < 0 || SkVector::DotProduct(ab,da) > 0) {
+                SkPoint* qpts = quads->push_back_n(6);
+                qpts[0] = p[0];
+                qpts[1] = b;
+                qpts[2] = mid;
+                qpts[3] = mid;
+                qpts[4] = c;
+                qpts[5] = p[3];
+            } else {
+                SkPoint* qpts = quads->push_back_n(3);
+                qpts[0] = p[0];
+                qpts[1] = mid;
+                qpts[2] = p[3];
+            }
+            return;
         }
     }
 
