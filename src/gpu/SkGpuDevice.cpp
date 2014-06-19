@@ -18,6 +18,7 @@
 #include "GrLayerCache.h"
 #include "GrPictureUtils.h"
 #include "GrStrokeInfo.h"
+#include "GrTracing.h"
 
 #include "SkGrTexturePixelRef.h"
 
@@ -420,6 +421,8 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 
 void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
                            const SkPaint& paint) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawRect", fContext);
+
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
@@ -1711,6 +1714,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
                              size_t byteLength, const SkScalar pos[],
                              SkScalar constY, int scalarsPerPos,
                              const SkPaint& paint) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawPosText", fContext);
     CHECK_SHOULD_DRAW(draw, false);
 
     if (fMainTextContext->canDraw(paint)) {

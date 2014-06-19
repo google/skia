@@ -28,6 +28,7 @@
 #include "GrStencilBuffer.h"
 #include "GrStrokeInfo.h"
 #include "GrTextStrike.h"
+#include "GrTraceMarker.h"
 #include "GrTracing.h"
 #include "SkDashPathPriv.h"
 #include "SkGr.h"
@@ -1902,6 +1903,20 @@ GrCacheable* GrContext::findAndRefCachedResource(const GrResourceKey& resourceKe
     GrCacheable* resource = fResourceCache->find(resourceKey);
     SkSafeRef(resource);
     return resource;
+}
+
+void GrContext::addGpuTraceMarker(const GrGpuTraceMarker* marker) {
+    fGpu->addGpuTraceMarker(marker);
+    if (NULL != fDrawBuffer) {
+        fDrawBuffer->addGpuTraceMarker(marker);
+    }
+}
+
+void GrContext::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
+    fGpu->removeGpuTraceMarker(marker);
+    if (NULL != fDrawBuffer) {
+        fDrawBuffer->removeGpuTraceMarker(marker);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

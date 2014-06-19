@@ -26,6 +26,7 @@ class GrDrawTarget;
 class GrEffect;
 class GrFontCache;
 class GrGpu;
+class GrGpuTraceMarker;
 class GrIndexBuffer;
 class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer;
@@ -924,6 +925,9 @@ public:
     bool isGpuTracingEnabled() const { return fGpuTracingEnabled; }
     void enableGpuTracing() { fGpuTracingEnabled = true; }
     void disableGpuTracing() { fGpuTracingEnabled = false; }
+
+    void addGpuTraceMarker(const GrGpuTraceMarker* marker);
+    void removeGpuTraceMarker(const GrGpuTraceMarker* marker);
 
     /**
      * Stencil buffers add themselves to the cache using addStencilBuffer. findStencilBuffer is
