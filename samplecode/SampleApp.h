@@ -156,14 +156,6 @@ protected:
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y,
                                       unsigned modi) SK_OVERRIDE;
 
-    void registerPictFileSamples(char** argv, int argc);
-    void registerPictFileSample(char** argv, int argc);
-
-#ifdef SAMPLE_PDF_FILE_VIEWER
-    void registerPdfFileViewerSamples(char** argv, int argc);
-#endif  // SAMPLE_PDF_FILE_VIEWER
-
-
 private:
     class DefaultDeviceManager;
 

@@ -719,20 +719,6 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
     return gCT[ct];
 }
 
-static void usage(const char * argv0) {
-    SkDebugf("%s [--slide sampleName] [-i resourcePath] [--msaa sampleCount] [--pictureDir dirPath] [--picture path] [--sort]\n", argv0);
-#ifdef SAMPLE_PDF_FILE_VIEWER
-    SkDebugf("                [--pdfDir pdfPath]\n");
-    SkDebugf("    pdfPath: path to directory pdf files are read from\n");
-#endif  // SAMPLE_PDF_FILE_VIEWER
-    SkDebugf("    sampleName: sample at which to start.\n");
-    SkDebugf("    resourcePath: directory that stores image resources.\n");
-    SkDebugf("    msaa: request multisampling with the given sample count.\n");
-    SkDebugf("    dirPath: path to directory skia pictures are read from\n");
-    SkDebugf("    path: path to skia picture\n");
-    SkDebugf("    --sort: sort samples by title, this would help to compare pdf rendering (P:foo.pdf) with skp rendering (P:foo.pdf)\n");
-}
-
 static SkString getSampleTitle(const SkViewFactory* sampleFactory) {
     SkView* view = (*sampleFactory)();
     SkString title;
@@ -745,17 +731,47 @@ static bool compareSampleTitle(const SkViewFactory* first, const SkViewFactory* 
     return strcmp(getSampleTitle(first).c_str(), getSampleTitle(second).c_str()) < 0;
 }
 
+DEFINE_string(slide, "", "Start on this sample.");
+DEFINE_int32(msaa, 0, "Request multisampling with this count.");
+DEFINE_string(pictureDir, "", "Read pictures from here.");
+DEFINE_string(picture, "", "Path to single picture.");
+DEFINE_bool(sort, false, "Sort samples by title.");
+DEFINE_bool(list, false, "List samples?");
+#ifdef SAMPLE_PDF_FILE_VIEWER
+DEFINE_string(pdfPath, "", "Path to direcotry of pdf files.");
+#endif
+
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager)
     : INHERITED(hwnd)
     , fDevManager(NULL) {
 
+    SkCommandLineFlags::Parse(argc, argv);
+
     fCurrIndex = -1;
 
-    this->registerPictFileSamples(argv, argc);
-    this->registerPictFileSample(argv, argc);
+    if (!FLAGS_pictureDir.isEmpty()) {
+        SkOSFile::Iter iter(FLAGS_pictureDir[0], "skp");
+        SkString filename;
+        while (iter.next(&filename)) {
+            *fSamples.append() = new PictFileFactory(
+                    SkOSPath::SkPathJoin(FLAGS_pictureDir[0], filename.c_str()));
+        }
+    }
+    if (!FLAGS_picture.isEmpty()) {
+        SkString path(FLAGS_picture[0]);
+        fCurrIndex = fSamples.count();
+        *fSamples.append() = new PictFileFactory(path);
+    }
 #ifdef SAMPLE_PDF_FILE_VIEWER
-    this->registerPdfFileViewerSamples(argv, argc);
-#endif  // SAMPLE_PDF_FILE_VIEWER
+    if (!FLAGS_pdfPath.isEmpty()) {
+        SkOSFile::Iter iter(FLAGS_pdfPath[0], "pdf");
+        SkString filename;
+        while (iter.next(&filename)) {
+            *fSamples.append() = new PdfFileViewerFactory(
+                    SkOSPath::SkPathJoin(FLAGS_pictureDir[0], filename.c_str()));
+        }
+    }
+#endif
     SkGMRegistyToSampleRegistry();
     {
         const SkViewRegister* reg = SkViewRegister::Head();
@@ -765,51 +781,24 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         }
     }
 
-    bool sort = false;
-    for (int i = 0; i < argc; ++i) {
-        if (!strcmp(argv[i], "--sort")) {
-            sort = true;
-            break;
-        }
-    }
-
-    if (sort) {
+    if (FLAGS_sort) {
         // Sort samples, so foo.skp and foo.pdf are consecutive and we can quickly spot where
         // skp -> pdf -> png fails.
         SkTQSort(fSamples.begin(), fSamples.end() ? fSamples.end() - 1 : NULL, compareSampleTitle);
     }
 
-    fMSAASampleCount = 0;
-
-    SkCommandLineFlags::Parse(argc, argv);
-
-    const char* const commandName = argv[0];
-    char* const* stop = argv + argc;
-    for (++argv; argv < stop; ++argv) {
-        if (strcmp(*argv, "--slide") == 0) {
-            argv++;
-            if (argv < stop && **argv) {
-                fCurrIndex = findByTitle(*argv);
-                if (fCurrIndex < 0) {
-                    fprintf(stderr, "Unknown sample \"%s\"\n", *argv);
-                    listTitles();
-                }
-            }
-        } else if (strcmp(*argv, "--msaa") == 0) {
-            ++argv;
-            if (argv < stop && **argv) {
-                fMSAASampleCount = atoi(*argv);
-            }
-        } else if (strcmp(*argv, "--list") == 0) {
+    if (!FLAGS_slide.isEmpty()) {
+        fCurrIndex = findByTitle(FLAGS_slide[0]);
+        if (fCurrIndex < 0) {
+            fprintf(stderr, "Unknown sample \"%s\"\n", FLAGS_slide[0]);
             listTitles();
-        } else if (strcmp(*argv, "--pictureDir") == 0) {
-            ++argv;  // This case is dealt with in registerPictFileSamples().
-        } else if (strcmp(*argv, "--picture") == 0) {
-            ++argv;  // This case is dealt with in registerPictFileSample().
         }
-        else {
-            usage(commandName);
-        }
+    }
+
+    fMSAASampleCount = FLAGS_msaa;
+
+    if (FLAGS_list) {
+        listTitles();
     }
 
     if (fCurrIndex < 0) {
@@ -988,82 +977,6 @@ SampleWindow::~SampleWindow() {
 
     SkSafeUnref(fDevManager);
 }
-
-static void make_filepath(SkString* path, const char* dir, const SkString& name) {
-    size_t len = strlen(dir);
-    path->set(dir);
-    if (len > 0 && dir[len - 1] != '/') {
-        path->append("/");
-    }
-    path->append(name);
-}
-
-void SampleWindow::registerPictFileSample(char** argv, int argc) {
-    const char* pict = NULL;
-
-    for (int i = 0; i < argc; ++i) {
-        if (!strcmp(argv[i], "--picture")) {
-            i += 1;
-            if (i < argc) {
-                pict = argv[i];
-                break;
-            }
-        }
-    }
-    if (pict) {
-        SkString path(pict);
-        fCurrIndex = fSamples.count();
-        *fSamples.append() = new PictFileFactory(path);
-    }
-}
-
-void SampleWindow::registerPictFileSamples(char** argv, int argc) {
-    const char* pictDir = NULL;
-
-    for (int i = 0; i < argc; ++i) {
-        if (!strcmp(argv[i], "--pictureDir")) {
-            i += 1;
-            if (i < argc) {
-                pictDir = argv[i];
-                break;
-            }
-        }
-    }
-    if (pictDir) {
-        SkOSFile::Iter iter(pictDir, "skp");
-        SkString filename;
-        while (iter.next(&filename)) {
-            SkString path;
-            make_filepath(&path, pictDir, filename);
-            *fSamples.append() = new PictFileFactory(path);
-        }
-    }
-}
-
-#ifdef SAMPLE_PDF_FILE_VIEWER
-void SampleWindow::registerPdfFileViewerSamples(char** argv, int argc) {
-    const char* pdfDir = NULL;
-
-    for (int i = 0; i < argc; ++i) {
-        if (!strcmp(argv[i], "--pdfDir")) {
-            i += 1;
-            if (i < argc) {
-                pdfDir = argv[i];
-                break;
-            }
-        }
-    }
-    if (pdfDir) {
-        SkOSFile::Iter iter(pdfDir, "pdf");
-        SkString filename;
-        while (iter.next(&filename)) {
-            SkString path;
-            make_filepath(&path, pdfDir, filename);
-            *fSamples.append() = new PdfFileViewerFactory(path);
-        }
-    }
-}
-#endif  // SAMPLE_PDF_FILE_VIEWER
 
 
 int SampleWindow::findByTitle(const char title[]) {
