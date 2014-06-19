@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -6,30 +5,30 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkBenchLogger_DEFINED
-#define SkBenchLogger_DEFINED
+#ifndef BenchLogger_DEFINED
+#define BenchLogger_DEFINED
 
-#include "SkTypes.h"
-#include "SkString.h"
 #include <stdio.h>
+#include "SkString.h"
+#include "SkTypes.h"
 
 class SkFILEWStream;
 
 /**
  * Class that allows logging to a file while simultaneously logging to stdout/stderr.
  */
-class SkBenchLogger {
+class BenchLogger {
 public:
-    SkBenchLogger();
+    BenchLogger();
 
     /**
      * Not virtual, since this class is not intended to be subclassed.
      */
-    ~SkBenchLogger();
+    ~BenchLogger();
 
     /**
      * Specify a file to write progress logs to. Unless this is called with a valid file path,
-     * SkBenchLogger will only write to stdout/stderr.
+     * BenchLogger will only write to stdout/stderr.
      */
     bool SetLogFile(const char file[]);
 
@@ -74,4 +73,4 @@ private:
     SkFILEWStream* fFileStream;
 };
 
-#endif // SkBenchLogger_DEFINED
+#endif // BenchLogger_DEFINED

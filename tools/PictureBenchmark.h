@@ -8,15 +8,13 @@
 #ifndef PictureBenchmark_DEFINED
 #define PictureBenchmark_DEFINED
 
-#include "SkTypes.h"
 #include "PictureRenderer.h"
-#include "TimerData.h"
 #include "PictureResultsWriter.h"
+#include "SkTypes.h"
+#include "TimerData.h"
 
 class BenchTimer;
-class SkBenchLogger;
 class SkPicture;
-class SkString;
 
 namespace sk_tools {
 

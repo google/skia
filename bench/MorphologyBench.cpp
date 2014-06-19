@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
+#include "SkMorphologyImageFilter.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkString.h"
-#include "SkMorphologyImageFilter.h"
 
 #define SMALL   SkIntToScalar(2)
 #define REAL    1.5f
@@ -27,7 +27,7 @@ static const char* gStyleName[] = {
     "dilate"
 };
 
-class MorphologyBench : public SkBenchmark {
+class MorphologyBench : public Benchmark {
     SkScalar       fRadius;
     MorphologyType fStyle;
     SkString       fName;
@@ -81,7 +81,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return new MorphologyBench(SMALL, kErode_MT); )

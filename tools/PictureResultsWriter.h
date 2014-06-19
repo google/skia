@@ -6,15 +6,17 @@
  *
  * Classes for writing out bench results in various formats.
  */
+
 #ifndef SkPictureResultsWriter_DEFINED
 #define SkPictureResultsWriter_DEFINED
 
+#include "BenchLogger.h"
 #include "ResultsWriter.h"
-#include "SkBenchLogger.h"
 #include "SkJSONCPP.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
+#include "TimerData.h"
 
 /**
  * Base class for writing picture bench results.
@@ -93,7 +95,7 @@ private:
 };
 
 /**
- * Writes to SkBenchLogger to mimic original behavior
+ * Writes to BenchLogger to mimic original behavior
  */
 class PictureResultsLoggerWriter : public PictureResultsWriter {
 private:
@@ -103,7 +105,7 @@ private:
         }
     }
 public:
-    PictureResultsLoggerWriter(SkBenchLogger* log)
+    PictureResultsLoggerWriter(BenchLogger* log)
           : fLogger(log), currentLine() {}
     virtual void bench(const char name[], int32_t x, int32_t y) {
         SkString result;
@@ -136,7 +138,7 @@ public:
     }
     virtual void end() {}
 private:
-    SkBenchLogger* fLogger;
+    BenchLogger* fLogger;
     SkString currentLine;
 };
 

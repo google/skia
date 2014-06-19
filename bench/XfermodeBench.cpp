@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
@@ -14,7 +14,7 @@
 #include "SkXfermode.h"
 
 // Benchmark that draws non-AA rects with an SkXfermode::Mode
-class XfermodeBench : public SkBenchmark {
+class XfermodeBench : public Benchmark {
 public:
     XfermodeBench(SkXfermode::Mode mode) {
         fXfermode.reset(SkXfermode::Create(mode));
@@ -58,10 +58,10 @@ private:
     SkAutoTUnref<SkXfermode> fXfermode;
     SkString fName;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
-class XferCreateBench : public SkBenchmark {
+class XferCreateBench : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -80,7 +80,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

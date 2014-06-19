@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
+#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkLayerDrawLooper.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
-#include "SkBlurMaskFilter.h"
-#include "SkLayerDrawLooper.h"
 
 // This bench replicates a problematic use case of a draw looper used
 // to create an inner blurred rect
-class RectoriBench : public SkBenchmark {
+class RectoriBench : public Benchmark {
 public:
     RectoriBench() {}
 
@@ -98,7 +98,7 @@ private:
         return looperBuilder.detachLooper();
     }
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return SkNEW_ARGS(RectoriBench, ()); )

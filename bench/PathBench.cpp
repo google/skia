@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -25,7 +25,7 @@ enum Flags {
 #define FLAGS10  Flags(kBig_Flag)
 #define FLAGS11  Flags(kStroke_Flag | kBig_Flag)
 
-class PathBench : public SkBenchmark {
+class PathBench : public Benchmark {
     SkPaint     fPaint;
     SkString    fName;
     Flags       fFlags;
@@ -74,7 +74,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class TrianglePathBench : public PathBench {
@@ -214,7 +214,7 @@ private:
     typedef PathBench INHERITED;
 };
 
-class RandomPathBench : public SkBenchmark {
+class RandomPathBench : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -312,7 +312,7 @@ private:
     int                         fCurrVerb;
     int                         fCurrPoint;
     SkRandom                    fRandom;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class PathCreateBench : public RandomPathBench {
@@ -567,7 +567,7 @@ private:
 };
 
 
-class CirclesBench : public SkBenchmark {
+class CirclesBench : public Benchmark {
 protected:
     SkString            fName;
     Flags               fFlags;
@@ -619,7 +619,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 
@@ -628,7 +628,7 @@ private:
 // Note: PathTest::test_arb_round_rect_is_convex and
 // test_arb_zero_rad_round_rect_is_rect perform almost exactly
 // the same test (but with no drawing)
-class ArbRoundRectBench : public SkBenchmark {
+class ArbRoundRectBench : public Benchmark {
 protected:
     SkString            fName;
 
@@ -723,10 +723,10 @@ protected:
 private:
     bool fZeroRad;      // should 0 radius rounds rects be tested?
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
-class ConservativelyContainsBench : public SkBenchmark {
+class ConservativelyContainsBench : public Benchmark {
 public:
     enum Type {
         kRect_Type,
@@ -799,14 +799,14 @@ private:
     bool                fParity;
     SkTDArray<SkRect>   fQueryRects;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkGeometry.h"
 
-class ConicBench_Chop5 : public SkBenchmark {
+class ConicBench_Chop5 : public Benchmark {
     SkConic fRQ;
 public:
     ConicBench_Chop5()  {
@@ -828,10 +828,10 @@ private:
         }
     }
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
-class ConicBench_ChopHalf : public SkBenchmark {
+class ConicBench_ChopHalf : public Benchmark {
     SkConic fRQ;
 public:
     ConicBench_ChopHalf()  {
@@ -853,7 +853,7 @@ private:
         }
     }
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -869,7 +869,7 @@ static void rand_conic(SkConic* conic, SkRandom& rand) {
     }
 }
 
-class ConicBench : public SkBenchmark {
+class ConicBench : public Benchmark {
 public:
     ConicBench()  {
         SkRandom rand;
@@ -889,7 +889,7 @@ protected:
     SkConic fConics[CONICS];
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class ConicBench_ComputeError : public ConicBench {

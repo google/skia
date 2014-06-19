@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkRandom.h"
-#include "SkTSort.h"
 #include "SkString.h"
+#include "SkTSort.h"
 
 static const int N = 1000;
 
@@ -96,7 +96,7 @@ static const struct {
     { "qsort", qsort_sort },
 };
 
-class SortBench : public SkBenchmark {
+class SortBench : public Benchmark {
     SkString           fName;
     const Type         fType;
     const SortProc     fSortProc;
@@ -136,18 +136,18 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* NewSkQSort(Type t) {
+static Benchmark* NewSkQSort(Type t) {
     return new SortBench(t, kSKQSort);
 }
-static SkBenchmark* NewSkHeap(Type t) {
+static Benchmark* NewSkHeap(Type t) {
     return new SortBench(t, kSKHeap);
 }
-static SkBenchmark* NewQSort(Type t) {
+static Benchmark* NewQSort(Type t) {
     return new SortBench(t, kQSort);
 }
 

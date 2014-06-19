@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
+#include "SkBicubicImageFilter.h"
 #include "SkCanvas.h"
 #include "SkShader.h"
 #include "SkString.h"
-#include "SkBicubicImageFilter.h"
 
 // This bench exercises SkBicubicImageFilter, upsampling a 40x40 input to
 // 100x100, 400x100, 100x400, and 400x400.
 
-class BicubicBench : public SkBenchmark {
+class BicubicBench : public Benchmark {
     SkSize         fScale;
     SkString       fName;
 
@@ -49,7 +49,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return new BicubicBench(10.0f, 10.0f); )

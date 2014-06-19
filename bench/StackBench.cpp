@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkRandom.h"
 
 #include "SkChunkAlloc.h"
@@ -29,7 +29,7 @@
 // It wins every benchmark on every machine I tried (Desktop, Nexus S, Laptop).
 
 template <typename Impl>
-struct StackBench : public SkBenchmark {
+struct StackBench : public Benchmark {
     virtual bool isSuitableFor(Backend b) SK_OVERRIDE { return b == kNonRendering_Backend; }
     virtual const char* onGetName() SK_OVERRIDE { return Impl::kName; }
     virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE { Impl::bench(loops); }

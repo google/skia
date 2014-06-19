@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkCommandLineFlags.h"
 #include "SkImageDecoder.h"
@@ -15,7 +15,7 @@
 
 DEFINE_string(decodeBenchFilename, "resources/CMYK.jpeg", "Path to image for DecodeBench.");
 
-class DecodeBench : public SkBenchmark {
+class DecodeBench : public Benchmark {
     const SkColorType fPrefColorType;
     SkString          fName;
 public:
@@ -42,7 +42,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return new DecodeBench(kN32_SkColorType); )

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "Benchmark.h"
 #include "Resources.h"
-#include "SkBenchmark.h"
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkForceLinking.h"
@@ -19,7 +19,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 
 class SkCanvas;
 
-class SkipZeroesBench : public SkBenchmark {
+class SkipZeroesBench : public Benchmark {
 public:
     SkipZeroesBench(const char* filename, bool skipZeroes)
     : fName("SkipZeroes_")
@@ -110,7 +110,7 @@ private:
     bool                            fSkipZeroes;
     bool                            fValid;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // Enable the true version once the feature is checked in.

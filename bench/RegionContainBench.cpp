@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkString.h"
@@ -15,7 +15,7 @@ static bool sect_proc(SkRegion& a, SkRegion& b) {
     return result.op(a, b, SkRegion::kIntersect_Op);
 }
 
-class RegionContainBench : public SkBenchmark {
+class RegionContainBench : public Benchmark {
 public:
     typedef bool (*Proc)(SkRegion& a, SkRegion& b);
     SkRegion fA, fB;
@@ -61,7 +61,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return SkNEW_ARGS(RegionContainBench, (sect_proc, "sect")); )

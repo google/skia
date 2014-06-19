@@ -5,13 +5,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkMatrix.h"
 #include "SkMatrixUtils.h"
 #include "SkRandom.h"
 #include "SkString.h"
 
-class MatrixBench : public SkBenchmark {
+class MatrixBench : public Benchmark {
     SkString    fName;
 public:
     MatrixBench(const char name[])  {
@@ -38,7 +38,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 

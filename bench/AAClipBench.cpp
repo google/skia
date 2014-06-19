@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkAAClip.h"
+#include "SkCanvas.h"
 #include "SkPath.h"
+#include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkString.h"
-#include "SkCanvas.h"
-#include "SkRandom.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // This bench tests out AA/BW clipping via canvas' clipPath and clipRect calls
-class AAClipBench : public SkBenchmark {
+class AAClipBench : public Benchmark {
     SkString fName;
     SkPath   fClipPath;
     SkRect   fClipRect;
@@ -79,13 +79,13 @@ protected:
         }
     }
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // This bench tests out nested clip stacks. It is intended to simulate
 // how WebKit nests clips.
-class NestedAAClipBench : public SkBenchmark {
+class NestedAAClipBench : public Benchmark {
     SkString fName;
     bool     fDoAA;
     SkRect   fDrawRect;
@@ -167,11 +167,11 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class AAClipBuilderBench : public SkBenchmark {
+class AAClipBuilderBench : public Benchmark {
     SkString fName;
     SkPath   fPath;
     SkRect   fRect;
@@ -209,11 +209,11 @@ protected:
         }
     }
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class AAClipRegionBench : public SkBenchmark {
+class AAClipRegionBench : public Benchmark {
 public:
     AAClipRegionBench()  {
         SkPath path;
@@ -239,7 +239,7 @@ protected:
 
 private:
     SkRegion fRegion;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

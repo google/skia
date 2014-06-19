@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -6,24 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchLogger.h"
+#include "BenchLogger.h"
+
 #include "SkStream.h"
 
-SkBenchLogger::SkBenchLogger()
+BenchLogger::BenchLogger()
 : fFileStream(NULL) {}
 
-SkBenchLogger::~SkBenchLogger() {
+BenchLogger::~BenchLogger() {
     if (fFileStream) {
         SkDELETE(fFileStream);
     }
 }
 
-bool SkBenchLogger::SetLogFile(const char *file) {
+bool BenchLogger::SetLogFile(const char *file) {
     fFileStream = SkNEW_ARGS(SkFILEWStream, (file));
     return fFileStream->isValid();
 }
 
-void SkBenchLogger::fileWrite(const char msg[], size_t size) {
+void BenchLogger::fileWrite(const char msg[], size_t size) {
     if (fFileStream && fFileStream->isValid()) {
         fFileStream->write(msg, size);
     }

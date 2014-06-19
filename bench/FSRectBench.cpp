@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
@@ -15,7 +15,7 @@
  * Draws full screen opaque rectangles. It is designed to test any optimizations in the GPU backend
  * to turn such draws into clears.
  */
-class FSRectBench : public SkBenchmark {
+class FSRectBench : public Benchmark {
 public:
     FSRectBench() : fInit(false) { }
 
@@ -57,7 +57,7 @@ private:
     SkColor fColors[N];
     bool fInit;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return SkNEW_ARGS(FSRectBench, ()); )

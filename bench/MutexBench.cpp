@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkThread.h"
 
-class MutexBench : public SkBenchmark {
+class MutexBench : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -27,7 +27,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

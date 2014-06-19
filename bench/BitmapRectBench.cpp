@@ -5,11 +5,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
-#include "SkPaint.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
 
@@ -38,7 +38,7 @@ static void draw_into_bitmap(const SkBitmap& bm) {
     paint : filter-p
  */
 
-class BitmapRectBench : public SkBenchmark {
+class BitmapRectBench : public Benchmark {
     SkBitmap                fBitmap;
     bool                    fSlightMatrix;
     uint8_t                 fAlpha;
@@ -101,7 +101,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH(return new BitmapRectBench(0xFF, SkPaint::kNone_FilterLevel, false))

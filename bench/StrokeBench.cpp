@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRRect.h"
@@ -53,7 +53,7 @@ static const char* draw_oval(const RRectRec* rec, int count) {
 // Test drawing a small stroked version to see the effect of special-casing
 // our stroke code for these convex single-contour shapes.
 //
-class StrokeRRectBench : public SkBenchmark {
+class StrokeRRectBench : public Benchmark {
     SkString fName;
     SkPaint::Join fJoin;
     RRectRec fRec;
@@ -88,7 +88,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return new StrokeRRectBench(SkPaint::kRound_Join, draw_rect); )

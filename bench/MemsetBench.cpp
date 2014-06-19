@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
-#include "SkUtils.h"
 #include "SkString.h"
+#include "SkUtils.h"
 
-class MemsetBench : public SkBenchmark {
+class MemsetBench : public Benchmark {
     SkString    fName;
 
 protected:
@@ -54,7 +54,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class Memset32Bench : public MemsetBench {

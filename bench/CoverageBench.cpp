@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -14,7 +14,7 @@
 #include "SkPath.h"
 #include "SkRasterClip.h"
 
-class DrawPathBench : public SkBenchmark {
+class DrawPathBench : public Benchmark {
     SkPaint     fPaint;
     SkString    fName;
     SkPath      fPath;
@@ -61,7 +61,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

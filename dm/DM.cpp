@@ -1,7 +1,8 @@
 // Main binary for DM.
 // For a high-level overview, please see dm/README.
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
+#include "CrashHandler.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -9,7 +10,6 @@
 #include "SkString.h"
 #include "Test.h"
 #include "gm.h"
-#include "CrashHandler.h"
 
 #include "DMBenchTask.h"
 #include "DMCpuGMTask.h"
@@ -249,7 +249,7 @@ int tool_main(int argc, char** argv) {
 
     SkTDArray<BenchRegistry::Factory> benches;
     if (FLAGS_benches) {
-        append_matching_factories<SkBenchmark>(BenchRegistry::Head(), &benches);
+        append_matching_factories<Benchmark>(BenchRegistry::Head(), &benches);
     }
 
     SkTDArray<TestRegistry::Factory> tests;

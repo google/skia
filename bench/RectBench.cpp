@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkPaint.h"
@@ -15,7 +15,7 @@
 
 DEFINE_double(strokeWidth, -1.0, "If set, use this stroke width in RectBench.");
 
-class RectBench : public SkBenchmark {
+class RectBench : public Benchmark {
 public:
     int fShift, fStroke;
     enum {
@@ -78,7 +78,7 @@ protected:
         }
     }
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class SrcModeRectBench : public RectBench {
@@ -170,7 +170,7 @@ protected:
     virtual const char* onGetName() { return fName; }
 };
 
-class AARectBench : public SkBenchmark {
+class AARectBench : public Benchmark {
 public:
     enum {
         W = 640,
@@ -221,7 +221,7 @@ protected:
     }
 private:
     bool fRotate;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 /*******************************************************************************

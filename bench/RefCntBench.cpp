@@ -4,17 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include <memory>
+#include "Benchmark.h"
 #include "SkRefCnt.h"
 #include "SkThread.h"
 #include "SkWeakRefCnt.h"
-#include <memory>
 
 enum {
     M = 2
 };
 
-class RefCntBench_Stack : public SkBenchmark {
+class RefCntBench_Stack : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -36,7 +36,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class PlacedRefCnt : public SkRefCnt {
@@ -50,7 +50,7 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-class RefCntBench_Heap : public SkBenchmark {
+class RefCntBench_Heap : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -74,10 +74,10 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
-class RefCntBench_New : public SkBenchmark {
+class RefCntBench_New : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -100,12 +100,12 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class WeakRefCntBench_Stack : public SkBenchmark {
+class WeakRefCntBench_Stack : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -127,7 +127,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class PlacedWeakRefCnt : public SkWeakRefCnt {
@@ -136,7 +136,7 @@ public:
     void operator delete(void*) { }
 };
 
-class WeakRefCntBench_Heap : public SkBenchmark {
+class WeakRefCntBench_Heap : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -160,10 +160,10 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
-class WeakRefCntBench_New : public SkBenchmark {
+class WeakRefCntBench_New : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -186,7 +186,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

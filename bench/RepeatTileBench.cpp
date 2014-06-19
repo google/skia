@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -81,7 +81,7 @@ static void convert_to_index666(const SkBitmap& src, SkBitmap* dst) {
     }
 }
 
-class RepeatTileBench : public SkBenchmark {
+class RepeatTileBench : public Benchmark {
     const SkColorType   fColorType;
     const SkAlphaType   fAlphaType;
     SkPaint             fPaint;
@@ -137,7 +137,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH(return new RepeatTileBench(kN32_SkColorType, kOpaque_SkAlphaType))

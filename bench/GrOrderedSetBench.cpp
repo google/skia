@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkRandom.h"
 #include "SkString.h"
@@ -15,7 +15,7 @@
 static const int NUM_ELEMENTS = 1000;
 
 // Time how long it takes to build a set
-class GrOrderedSetBuildBench : public SkBenchmark {
+class GrOrderedSetBuildBench : public Benchmark {
 public:
     GrOrderedSetBuildBench() {
         fName.append("ordered_set_build");
@@ -52,11 +52,11 @@ protected:
 private:
     SkString fName;
     int fData[NUM_ELEMENTS];
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // Time how long it takes to find elements in a set
-class GrOrderedSetFindBench : public SkBenchmark {
+class GrOrderedSetFindBench : public Benchmark {
 public:
     GrOrderedSetFindBench() {
         fName.append("ordered_set_find");
@@ -93,11 +93,11 @@ private:
     SkString fName;
     int fData[NUM_ELEMENTS];
     GrOrderedSet<int> fSet;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // Time how long it takes to iterate over and remove all elements from set
-class GrOrderedSetRemoveBench : public SkBenchmark {
+class GrOrderedSetRemoveBench : public Benchmark {
 public:
     GrOrderedSetRemoveBench() {
         fName.append("ordered_set_remove");
@@ -137,7 +137,7 @@ protected:
 private:
     SkString fName;
     GrOrderedSet<int> fSet;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

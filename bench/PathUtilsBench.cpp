@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPathUtils.h"
 #include "SkRandom.h"
-#include "SkTime.h"
 #include "SkString.h"
+#include "SkTime.h"
 
 #define H 16
 #define W 16
@@ -34,7 +34,7 @@ static void region_proc(char* bits, SkPath* path) {
 }
 
 /// Emulates the mix of rects blitted by gmail during scrolling
-class PathUtilsBench : public SkBenchmark {
+class PathUtilsBench : public Benchmark {
     typedef void (*Proc)(char*, SkPath*);
 
     Proc fProc;
@@ -65,7 +65,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return SkNEW_ARGS(PathUtilsBench, (path_proc, "path")); )

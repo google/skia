@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 
 
@@ -15,7 +15,7 @@
  * and then reads small chunks from it repeatedly. This can cause trouble
  * for the GPU as readbacks are very expensive.
  */
-class ReadPixBench : public SkBenchmark {
+class ReadPixBench : public Benchmark {
 public:
     ReadPixBench() {}
 
@@ -59,7 +59,7 @@ private:
     static const int kNumStepsY = 30;
     static const int kWindowSize = 5;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

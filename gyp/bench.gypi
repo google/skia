@@ -9,8 +9,8 @@
     'skia_lib.gyp:skia_lib',
   ],
   'sources': [
-    '../bench/SkBenchmark.cpp',
-    '../bench/SkBenchmark.h',
+    '../bench/Benchmark.cpp',
+    '../bench/Benchmark.h',
 
     '../bench/AAClipBench.cpp',
     '../bench/BicubicBench.cpp',

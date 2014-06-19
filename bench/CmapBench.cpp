@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkTypeface.h"
@@ -62,7 +62,7 @@ static void charsToGlyphsNull_proc(int loops, const SkPaint& paint, const void* 
     }
 }
 
-class CMAPBench : public SkBenchmark {
+class CMAPBench : public Benchmark {
     TypefaceProc fProc;
     SkString     fName;
     char         fText[NGLYPHS];
@@ -91,7 +91,7 @@ protected:
 
 private:
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkMatrix44.h"
 #include "SkRandom.h"
 #include "SkString.h"
 
-class Matrix44Bench : public SkBenchmark {
+class Matrix44Bench : public Benchmark {
     SkString    fName;
 public:
     Matrix44Bench(const char name[]) {
@@ -37,7 +37,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class EqualsMatrix44Bench : public Matrix44Bench {

@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkPaint.h"
@@ -17,7 +17,7 @@
 // This is designed to emulate about 4 screens of textual content
 
 
-class PicturePlaybackBench : public SkBenchmark {
+class PicturePlaybackBench : public Benchmark {
 public:
     PicturePlaybackBench(const char name[])  {
         fName.printf("picture_playback_%s", name);
@@ -63,7 +63,7 @@ protected:
     SkScalar fPictureHeight;
     SkScalar fTextSize;
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
-#include "SkPaint.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
 #include "sk_tool_utils.h"
@@ -70,7 +70,7 @@ static void convertToIndex666(const SkBitmap& src, SkBitmap* dst, SkAlphaType aT
 
  */
 
-class BitmapBench : public SkBenchmark {
+class BitmapBench : public Benchmark {
     const SkColorType   fColorType;
     const SkAlphaType   fAlphaType;
     const bool          fForceUpdate; //bitmap marked as dirty before each draw. forces bitmap to be updated on device cache
@@ -168,7 +168,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 /** Explicitly invoke some filter types to improve coverage of acceleration

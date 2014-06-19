@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkChecksum.h"
 #include "SkMD5.h"
@@ -19,7 +19,7 @@ enum ChecksumType {
     kMurmur3_ChecksumType,
 };
 
-class ComputeChecksumBench : public SkBenchmark {
+class ComputeChecksumBench : public Benchmark {
     enum {
         U32COUNT  = 256,
         SIZE      = U32COUNT * 4,
@@ -86,7 +86,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

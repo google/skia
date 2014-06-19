@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "BenchLogger.h"
 #include "BenchTimer.h"
-#include "CrashHandler.h"
 #include "CopyTilesRenderer.h"
+#include "CrashHandler.h"
 #include "LazyDecodeBitmap.h"
 #include "PictureBenchmark.h"
 #include "PictureRenderingFlags.h"
-#include "SkBenchLogger.h"
+#include "PictureResultsWriter.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDiscardableMemoryPool.h"
@@ -22,9 +23,8 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "picture_utils.h"
-#include "PictureResultsWriter.h"
 
-SkBenchLogger gLogger;
+BenchLogger gLogger;
 PictureResultsLoggerWriter gLogWriter(&gLogger);
 PictureResultsMultiWriter gWriter;
 

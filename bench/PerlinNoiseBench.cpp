@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPerlinNoiseShader.h"
 
-class PerlinNoiseBench : public SkBenchmark {
+class PerlinNoiseBench : public Benchmark {
     SkISize fSize;
 
 public:
@@ -54,7 +54,7 @@ private:
         }
     }
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

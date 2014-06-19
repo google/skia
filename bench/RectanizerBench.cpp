@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkRandom.h"
 #include "SkSize.h"
 #include "SkTDArray.h"
@@ -25,7 +25,7 @@
  *      random power of two rects
  *      small constant sized power of 2 rects (e.g., glyph cache use case)
  */
-class RectanizerBench : public SkBenchmark {
+class RectanizerBench : public Benchmark {
 public:
     static const int kWidth = 1024;
     static const int kHeight = 1024;
@@ -117,7 +117,7 @@ private:
     RectType                    fRectType;
     SkAutoTDelete<GrRectanizer> fRectanizer;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

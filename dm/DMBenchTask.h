@@ -1,14 +1,14 @@
 #ifndef DMBenchTask_DEFINED
 #define DMBenchTask_DEFINED
 
+#include "Benchmark.h"
 #include "DMReporter.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"
-#include "SkBenchmark.h"
 #include "SkString.h"
 #include "SkTemplates.h"
 
-// Tasks that run an SkBenchmark once as a check that it doesn't crash.
+// Tasks that run an Benchmark once as a check that it doesn't crash.
 
 namespace DM {
 
@@ -21,7 +21,7 @@ public:
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
 private:
-    SkAutoTDelete<SkBenchmark> fBench;
+    SkAutoTDelete<Benchmark> fBench;
     const SkString fName;
 };
 
@@ -34,7 +34,7 @@ public:
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
 private:
-    SkAutoTDelete<SkBenchmark> fBench;
+    SkAutoTDelete<Benchmark> fBench;
     const SkString fName;
     const SkColorType fColorType;
 };
@@ -53,7 +53,7 @@ public:
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
 private:
-    SkAutoTDelete<SkBenchmark> fBench;
+    SkAutoTDelete<Benchmark> fBench;
     const SkString fName;
     const GrContextFactory::GLContextType fContextType;
     int fSampleCount;

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkRandom.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
 
 template <typename Memcpy32>
-class Memcpy32Bench : public SkBenchmark {
+class Memcpy32Bench : public Benchmark {
 public:
     explicit Memcpy32Bench(int count, Memcpy32 memcpy32, const char* name)
         : fCount(count)

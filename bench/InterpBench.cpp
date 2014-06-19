@@ -1,13 +1,13 @@
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkColorPriv.h"
 #include "SkMatrix.h"
+#include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
-#include "SkPaint.h"
 
 #define TILE(x, width)  (((x) & 0xFFFF) * width >> 16)
 
-class InterpBench : public SkBenchmark {
+class InterpBench : public Benchmark {
     enum {
         kBuffer = 128,
         kLoop   = 20000
@@ -43,7 +43,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class Fixed16D16Interp : public InterpBench {

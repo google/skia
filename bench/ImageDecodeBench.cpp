@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkForceLinking.h"
@@ -18,7 +18,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 
 class SkCanvas;
 
-class ImageDecodeBench : public SkBenchmark {
+class ImageDecodeBench : public Benchmark {
 public:
     ImageDecodeBench(void* p, const char* filename)
     : fName("image_decode_")
@@ -85,7 +85,7 @@ private:
     SkMemoryStream  fStream;
     bool            fValid;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // These are files which call decodePalette

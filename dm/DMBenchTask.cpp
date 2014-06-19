@@ -41,18 +41,18 @@ GpuBenchTask::GpuBenchTask(const char* config,
     , fSampleCount(sampleCount) {}
 
 bool NonRenderingBenchTask::shouldSkip() const {
-    return !fBench->isSuitableFor(SkBenchmark::kNonRendering_Backend);
+    return !fBench->isSuitableFor(Benchmark::kNonRendering_Backend);
 }
 
 bool CpuBenchTask::shouldSkip() const {
-    return !fBench->isSuitableFor(SkBenchmark::kRaster_Backend);
+    return !fBench->isSuitableFor(Benchmark::kRaster_Backend);
 }
 
 bool GpuBenchTask::shouldSkip() const {
-    return kGPUDisabled || !fBench->isSuitableFor(SkBenchmark::kGPU_Backend);
+    return kGPUDisabled || !fBench->isSuitableFor(Benchmark::kGPU_Backend);
 }
 
-static void draw_raster(SkBenchmark* bench, SkColorType colorType) {
+static void draw_raster(Benchmark* bench, SkColorType colorType) {
     SkBitmap bitmap;
     AllocatePixels(colorType, bench->getSize().x(), bench->getSize().y(), &bitmap);
     SkCanvas canvas(bitmap);

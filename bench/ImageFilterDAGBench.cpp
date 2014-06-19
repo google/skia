@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBlurImageFilter.h"
-#include "SkMergeImageFilter.h"
 #include "SkCanvas.h"
+#include "SkMergeImageFilter.h"
 
 enum { kNumInputs = 5 };
 
@@ -16,7 +16,7 @@ enum { kNumInputs = 5 };
 // This bench shows an improvement in performance once cacheing of re-used
 // nodes is implemented, since the DAG is no longer flattened to a tree.
 
-class ImageFilterDAGBench : public SkBenchmark {
+class ImageFilterDAGBench : public Benchmark {
 public:
     ImageFilterDAGBench() {
     }
@@ -40,7 +40,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH(return new ImageFilterDAGBench;)

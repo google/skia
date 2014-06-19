@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
@@ -13,8 +13,8 @@
 #include "SkString.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTest.h"
 #include "GrDrawTargetCaps.h"
+#include "GrTest.h"
 #endif
 
 enum Flags {
@@ -36,7 +36,7 @@ static const int points[] = {
 
 static const int kMaxPathSize = 10;
 
-class HairlinePathBench : public SkBenchmark {
+class HairlinePathBench : public Benchmark {
 public:
     HairlinePathBench(Flags flags) : fFlags(flags) {
         fPaint.setStyle(SkPaint::kStroke_Style);
@@ -78,7 +78,7 @@ private:
     SkPaint     fPaint;
     SkString    fName;
     Flags       fFlags;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class LinePathBench : public HairlinePathBench {

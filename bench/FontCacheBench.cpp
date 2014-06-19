@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkFontHost.h"
 #include "SkPaint.h"
@@ -23,7 +23,7 @@ static int count_glyphs(const uint16_t start[]) {
     return static_cast<int>(curr - start);
 }
 
-class FontCacheBench : public SkBenchmark {
+class FontCacheBench : public Benchmark {
 public:
     FontCacheBench()  {}
 
@@ -48,7 +48,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ static void dump_array(const uint16_t array[], int count) {
     SkDebugf("\n");
 }
 
-class FontCacheEfficiency : public SkBenchmark {
+class FontCacheEfficiency : public Benchmark {
 public:
     FontCacheEfficiency()  {
         if (false) dump_array(NULL, 0);
@@ -147,7 +147,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

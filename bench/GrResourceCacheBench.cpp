@@ -8,12 +8,12 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrContext.h"
+#include "Benchmark.h"
 #include "GrCacheable.h"
+#include "GrContext.h"
 #include "GrResourceCache.h"
 #include "GrStencilBuffer.h"
 #include "GrTexture.h"
-#include "SkBenchmark.h"
 #include "SkCanvas.h"
 
 enum {
@@ -164,7 +164,7 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
     }
 }
 
-class GrResourceCacheBenchAdd : public SkBenchmark {
+class GrResourceCacheBenchAdd : public Benchmark {
     enum {
         RESOURCE_COUNT = CACHE_SIZE_COUNT / 2,
         DUPLICATE_COUNT = CACHE_SIZE_COUNT / 4,
@@ -197,10 +197,10 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
-class GrResourceCacheBenchFind : public SkBenchmark {
+class GrResourceCacheBenchFind : public Benchmark {
     enum {
         RESOURCE_COUNT = (CACHE_SIZE_COUNT / 2) - 100,
         DUPLICATE_COUNT = 100
@@ -230,7 +230,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return new GrResourceCacheBenchAdd(); )

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkString.h"
 
-class WritePixelsBench : public SkBenchmark {
+class WritePixelsBench : public Benchmark {
 public:
     WritePixelsBench(SkColorType ct, SkAlphaType at)
         : fColorType(ct)
@@ -68,7 +68,7 @@ private:
     SkAlphaType fAlphaType;
     SkString    fName;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

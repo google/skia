@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkPaint.h"
@@ -15,7 +15,7 @@
 #include "SkRect.h"
 #include "SkString.h"
 
-class PictureRecordBench : public SkBenchmark {
+class PictureRecordBench : public Benchmark {
 public:
     PictureRecordBench(const char name[])  {
         fName.printf("picture_record_%s", name);
@@ -35,7 +35,7 @@ protected:
     }
 private:
     SkString fName;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 

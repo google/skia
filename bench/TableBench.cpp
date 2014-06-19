@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkRect.h"
 
@@ -23,7 +23,7 @@ static const SkScalar kCellHeight = SkIntToScalar(10);
 // 2&4 are then drawn grey. Areas 2&3 are thus double drawn while area 4 is
 // triple drawn.
 // This trio of drawRects is then repeat for the next cell.
-class TableBench : public SkBenchmark {
+class TableBench : public Benchmark {
 public:
     static const int kNumRows = 48;
     static const int kNumCols = 32;
@@ -66,7 +66,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return new TableBench(); )

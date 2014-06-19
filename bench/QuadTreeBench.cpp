@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkQuadTree.h"
 #include "SkRandom.h"
@@ -22,7 +22,7 @@ static const SkIRect QUAD_TREE_BOUNDS = SkIRect::MakeLTRB(
 typedef SkIRect (*MakeRectProc)(SkRandom&, int, int);
 
 // Time how long it takes to build an QuadTree
-class QuadTreeBuildBench : public SkBenchmark {
+class QuadTreeBuildBench : public Benchmark {
 public:
     QuadTreeBuildBench(const char* name, MakeRectProc proc, SkBBoxHierarchy* tree)
         : fTree(tree)
@@ -57,11 +57,11 @@ private:
     SkBBoxHierarchy* fTree;
     MakeRectProc fProc;
     SkString fName;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // Time how long it takes to perform queries on an QuadTree
-class QuadTreeQueryBench : public SkBenchmark {
+class QuadTreeQueryBench : public Benchmark {
 public:
     enum QueryType {
         kSmall_QueryType, // small queries
@@ -141,7 +141,7 @@ private:
     MakeRectProc fProc;
     SkString fName;
     QueryType fQuery;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 static inline SkIRect make_concentric_rects_increasing(SkRandom&, int index, int numRects) {

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
@@ -14,7 +14,7 @@
 
 // This bench simulates the calls Skia sees from various HTML5 canvas
 // game bench marks
-class GameBench : public SkBenchmark {
+class GameBench : public Benchmark {
 public:
     enum Type {
         kScale_Type,
@@ -304,7 +304,7 @@ private:
         }
     }
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // Partial clear

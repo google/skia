@@ -5,13 +5,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkFloatBits.h"
 #include "SkRandom.h"
 #include "SkRect.h"
 #include "SkString.h"
 
-class ScalarBench : public SkBenchmark {
+class ScalarBench : public Benchmark {
     SkString    fName;
 public:
     ScalarBench(const char name[])  {
@@ -38,7 +38,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // having unknown values in our arrays can throw off the timing a lot, perhaps
@@ -125,7 +125,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class RectBoundsBench : public SkBenchmark {
+class RectBoundsBench : public Benchmark {
     enum {
         PTS = 100,
     };
@@ -157,7 +157,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

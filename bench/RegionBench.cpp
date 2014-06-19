@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkString.h"
@@ -67,7 +67,7 @@ static bool containsxy_proc(SkRegion& a, SkRegion& b) {
     return true;
 }
 
-class RegionBench : public SkBenchmark {
+class RegionBench : public Benchmark {
 public:
     typedef bool (*Proc)(SkRegion& a, SkRegion& b);
 
@@ -114,10 +114,10 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
-class RectSectBench : public SkBenchmark {
+class RectSectBench : public Benchmark {
     enum {
         N = 1000
     };
@@ -167,7 +167,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

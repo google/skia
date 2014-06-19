@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -197,7 +197,7 @@ static const char* geomtypename(GeomType gt) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GradientBench : public SkBenchmark {
+class GradientBench : public Benchmark {
     SkString fName;
     SkShader* fShader;
     enum {
@@ -262,7 +262,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 
     GeomType fGeomType;
 };
@@ -306,7 +306,7 @@ DEF_BENCH( return new GradientBench(kConicalOutZero_GradType, gGradData[2]); )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Gradient2Bench : public SkBenchmark {
+class Gradient2Bench : public Benchmark {
     SkString fName;
     bool     fHasAlpha;
 
@@ -347,7 +347,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return new Gradient2Bench(false); )

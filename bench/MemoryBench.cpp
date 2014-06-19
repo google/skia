@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
+#include "SkChunkAlloc.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
-#include "SkChunkAlloc.h"
 #include "SkString.h"
 
-class ChunkAllocBench : public SkBenchmark {
+class ChunkAllocBench : public Benchmark {
     SkString    fName;
     size_t      fMinSize;
 public:
@@ -50,7 +50,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH( return new ChunkAllocBench(64); )
@@ -67,7 +67,7 @@ static int* malloc_bzero(size_t num) {
     return ints;
 }
 
-class ZerosBench : public SkBenchmark {
+class ZerosBench : public Benchmark {
     size_t   fNum;
     bool     fRead;
     bool     fWrite;

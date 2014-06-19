@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkConfig8888.h"
 #include "SkString.h"
 #include "sk_tool_utils.h"
 
-class PremulAndUnpremulAlphaOpsBench : public SkBenchmark {
+class PremulAndUnpremulAlphaOpsBench : public Benchmark {
     enum {
         W = 256,
         H = 256,
@@ -58,7 +58,7 @@ private:
     SkColorType fColorType;
     SkString fName;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 

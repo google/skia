@@ -8,8 +8,8 @@
 // This tests a Gr class
 #if SK_SUPPORT_GPU
 
+#include "Benchmark.h"
 #include "GrMemoryPool.h"
-#include "SkBenchmark.h"
 #include "SkRandom.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
@@ -30,7 +30,7 @@ GrMemoryPool A::gBenchPool(10 * (1 << 10), 10 * (1 << 10));
 /**
  * This benchmark creates and deletes objects in stack order
  */
-class GrMemoryPoolBenchStack : public SkBenchmark {
+class GrMemoryPoolBenchStack : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -76,7 +76,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 struct B {
@@ -92,7 +92,7 @@ GrMemoryPool B::gBenchPool(10 * (1 << 10), 10 * (1 << 10));
 /**
  * This benchmark creates objects and deletes them in random order
  */
-class GrMemoryPoolBenchRandom : public SkBenchmark {
+class GrMemoryPoolBenchRandom : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
@@ -121,7 +121,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 struct C {
@@ -137,7 +137,7 @@ GrMemoryPool C::gBenchPool(10 * (1 << 10), 10 * (1 << 10));
 /**
  * This benchmark creates objects and deletes them in queue order
  */
-class GrMemoryPoolBenchQueue : public SkBenchmark {
+class GrMemoryPoolBenchQueue : public Benchmark {
     enum {
         M = 4 * (1 << 10),
     };
@@ -166,7 +166,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

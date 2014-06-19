@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkGMBench.h"
+#include "GMBench.h"
 
-SkGMBench::SkGMBench(skiagm::GM* gm) : fGM(gm) {
+GMBench::GMBench(skiagm::GM* gm) : fGM(gm) {
     fName.printf("GM:%s", gm->getName());
 }
 
-SkGMBench::~SkGMBench() { delete fGM; }
+GMBench::~GMBench() { delete fGM; }
 
-const char* SkGMBench::onGetName() {
+const char* GMBench::onGetName() {
     return fName.c_str();
 }
 
-bool SkGMBench::isSuitableFor(Backend backend) {
+bool GMBench::isSuitableFor(Backend backend) {
     uint32_t flags = fGM->getFlags();
     switch (backend) {
         case kGPU_Backend:
@@ -36,7 +36,7 @@ bool SkGMBench::isSuitableFor(Backend backend) {
     }
 }
 
-void SkGMBench::onDraw(const int loops, SkCanvas* canvas) {
+void GMBench::onDraw(const int loops, SkCanvas* canvas) {
     // Do we care about timing the draw of the background (once)?
     // Does the GM ever rely on drawBackground to lazily compute something?
     fGM->drawBackground(canvas);
@@ -45,7 +45,7 @@ void SkGMBench::onDraw(const int loops, SkCanvas* canvas) {
     }
 }
 
-SkIPoint SkGMBench::onGetSize() {
+SkIPoint GMBench::onGetSize() {
     SkISize size = fGM->getISize();
     return SkIPoint::Make(size.fWidth, size.fHeight);
 }

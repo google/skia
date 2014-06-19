@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
-#include "gm.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
+#include "gm.h"
 
 /**
  * Runs a GM as a benchmark by repeatedly drawing the GM.
  */
-class SkGMBench : public SkBenchmark {
+class GMBench : public Benchmark {
 public:
     // Constructor takes ownership of the GM param.
-    SkGMBench(skiagm::GM* gm);
-    virtual ~SkGMBench();
+    GMBench(skiagm::GM* gm);
+    virtual ~GMBench();
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE;
@@ -27,5 +27,5 @@ protected:
 private:
     skiagm::GM* fGM;
     SkString    fName;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmapDevice.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
@@ -22,7 +22,7 @@
 #define BLUR_SIGMA_LARGE    10.0f
 #define BLUR_SIGMA_HUGE     80.0f
 
-class BlurImageFilterBench : public SkBenchmark {
+class BlurImageFilterBench : public Benchmark {
 public:
     BlurImageFilterBench(SkScalar sigmaX, SkScalar sigmaY,  bool small) :
         fIsSmall(small), fInitialized(false), fSigmaX(sigmaX), fSigmaY(sigmaY) {
@@ -80,7 +80,7 @@ private:
     bool fInitialized;
     SkBitmap fCheckerboard;
     SkScalar fSigmaX, fSigmaY;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_LARGE, 0, false);)

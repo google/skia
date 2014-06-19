@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkMagnifierImageFilter.h"
@@ -15,7 +15,7 @@
 #define FILTER_WIDTH_LARGE  256
 #define FILTER_HEIGHT_LARGE 256
 
-class MagnifierBench : public SkBenchmark {
+class MagnifierBench : public Benchmark {
 public:
     MagnifierBench(bool small) :
         fIsSmall(small), fInitialized(false) {
@@ -76,7 +76,7 @@ private:
     bool fIsSmall;
     bool fInitialized;
     SkBitmap fCheckerboard;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

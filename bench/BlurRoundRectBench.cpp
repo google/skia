@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
@@ -14,14 +14,14 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPoint.h"
-#include "SkRect.h"
 #include "SkRRect.h"
+#include "SkRect.h"
 #include "SkString.h"
 #include "SkXfermode.h"
 
 // Large blurred RR appear frequently on web pages. This benchmark measures our
 // performance in this case.
-class BlurRoundRectBench : public SkBenchmark {
+class BlurRoundRectBench : public Benchmark {
 public:
     BlurRoundRectBench(int width, int height, int cornerRadius)
         : fName("blurroundrect") {
@@ -81,7 +81,7 @@ private:
     SkString    fName;
     SkRRect     fRRect;
 
-    typedef     SkBenchmark INHERITED;
+    typedef     Benchmark INHERITED;
 };
 
 // Create one with dimensions/rounded corners based on the skp

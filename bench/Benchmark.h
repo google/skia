@@ -1,21 +1,21 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkBenchmark_DEFINED
-#define SkBenchmark_DEFINED
 
-#include "SkRefCnt.h"
+#ifndef Benchmark_DEFINED
+#define Benchmark_DEFINED
+
 #include "SkPoint.h"
+#include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkTRegistry.h"
 
 #define DEF_BENCH(code)                                                 \
 namespace {                                                             \
-static SkBenchmark* SK_MACRO_APPEND_LINE(factory)(void*) { code; }      \
+static Benchmark* SK_MACRO_APPEND_LINE(factory)(void*) { code; }      \
 BenchRegistry SK_MACRO_APPEND_LINE(g_R_)(SK_MACRO_APPEND_LINE(factory)); \
 }
 
@@ -42,11 +42,11 @@ public:
     static const char* Name[];
 };
 
-class SkBenchmark : public SkRefCnt {
+class Benchmark : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkBenchmark)
+    SK_DECLARE_INST_COUNT(Benchmark)
 
-    SkBenchmark();
+    Benchmark();
 
     const char* getName();
     SkIPoint getSize();
@@ -123,6 +123,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-typedef SkTRegistry<SkBenchmark*(*)(void*)> BenchRegistry;
+typedef SkTRegistry<Benchmark*(*)(void*)> BenchRegistry;
 
 #endif

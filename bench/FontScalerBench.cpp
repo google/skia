@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
 
-class FontScalerBench : public SkBenchmark {
+class FontScalerBench : public Benchmark {
     SkString fName;
     SkString fText;
     bool     fDoLCD;
@@ -43,7 +43,7 @@ protected:
         }
     }
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

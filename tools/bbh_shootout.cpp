@@ -6,16 +6,16 @@
  */
 
 #include "BenchTimer.h"
+#include "Benchmark.h"
 #include "LazyDecodeBitmap.h"
 #include "PictureBenchmark.h"
 #include "PictureRenderer.h"
-#include "SkBenchmark.h"
+#include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
-#include "SkCommandLineFlags.h"
 
 typedef sk_tools::PictureRenderer::BBoxHierarchyType BBoxType;
 static const int kBBoxTypeCount = sk_tools::PictureRenderer::kLast_BBoxHierarchyType + 1;

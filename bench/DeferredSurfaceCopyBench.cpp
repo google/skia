@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkImage.h"
@@ -15,7 +15,7 @@
 #include "GrRenderTarget.h"
 #endif
 
-class DeferredSurfaceCopyBench : public SkBenchmark {
+class DeferredSurfaceCopyBench : public Benchmark {
     enum {
         kSurfaceWidth = 1000,
         kSurfaceHeight = 1000,
@@ -73,7 +73,7 @@ protected:
 private:
     bool fDiscardableContents;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

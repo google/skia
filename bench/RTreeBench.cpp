@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkRTree.h"
 #include "SkRandom.h"
@@ -21,7 +21,7 @@ static const int GRID_WIDTH = 100;
 typedef SkIRect (*MakeRectProc)(SkRandom&, int, int);
 
 // Time how long it takes to build an R-Tree either bulk-loaded or not
-class RTreeBuildBench : public SkBenchmark {
+class RTreeBuildBench : public Benchmark {
 public:
     RTreeBuildBench(const char* name, MakeRectProc proc, bool bulkLoad,
                     SkBBoxHierarchy* tree)
@@ -63,11 +63,11 @@ private:
     MakeRectProc fProc;
     SkString fName;
     bool fBulkLoad;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // Time how long it takes to perform queries on an R-Tree, bulk-loaded or not
-class RTreeQueryBench : public SkBenchmark {
+class RTreeQueryBench : public Benchmark {
 public:
     enum QueryType {
         kSmall_QueryType, // small queries
@@ -152,7 +152,7 @@ private:
     SkString fName;
     bool fBulkLoad;
     QueryType fQuery;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 static inline SkIRect make_concentric_rects_increasing(SkRandom&, int index, int numRects) {

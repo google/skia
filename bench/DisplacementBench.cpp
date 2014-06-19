@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmapDevice.h"
 #include "SkBitmapSource.h"
 #include "SkCanvas.h"
@@ -15,7 +15,7 @@
 #define FILTER_WIDTH_LARGE  256
 #define FILTER_HEIGHT_LARGE 256
 
-class DisplacementBaseBench : public SkBenchmark {
+class DisplacementBaseBench : public Benchmark {
 public:
     DisplacementBaseBench(bool small) :
         fInitialized(false), fIsSmall(small) {
@@ -82,7 +82,7 @@ protected:
 private:
     bool fInitialized;
     bool fIsSmall;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class DisplacementZeroBench : public DisplacementBaseBench {

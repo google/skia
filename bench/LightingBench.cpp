@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmapSource.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
@@ -15,7 +15,7 @@
 #define FILTER_WIDTH_LARGE  SkIntToScalar(256)
 #define FILTER_HEIGHT_LARGE SkIntToScalar(256)
 
-class LightingBaseBench : public SkBenchmark {
+class LightingBaseBench : public Benchmark {
 public:
     LightingBaseBench(bool small) : fIsSmall(small) { }
 
@@ -92,7 +92,7 @@ protected:
     }
 
     bool fIsSmall;
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class LightingPointLitDiffuseBench : public LightingBaseBench {

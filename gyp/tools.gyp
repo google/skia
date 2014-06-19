@@ -286,11 +286,11 @@
       'target_name': 'bench_pictures',
       'type': 'executable',
       'sources': [
+        '../bench/BenchLogger.cpp',
+        '../bench/BenchLogger.h',
         '../bench/ResultsWriter.cpp',
         '../tools/PictureBenchmark.cpp',
         '../tools/PictureResultsWriter.h',
-        '../bench/SkBenchLogger.h',
-        '../bench/SkBenchLogger.cpp',
         '../tools/bench_pictures_main.cpp',
       ],
       'include_dirs': [

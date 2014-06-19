@@ -1,9 +1,9 @@
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkColorPriv.h"
 #include "SkMatrix.h"
+#include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
-#include "SkPaint.h"
 
 static float sk_fsel(float pred, float result_ge, float result_lt) {
     return pred >= 0 ? result_ge : result_lt;
@@ -15,7 +15,7 @@ static float fast_floor(float x) {
     return (x + big) - big;
 }
 
-class MathBench : public SkBenchmark {
+class MathBench : public Benchmark {
     enum {
         kBuffer = 100,
     };
@@ -54,7 +54,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class MathBenchU32 : public MathBench {
@@ -262,7 +262,7 @@ static bool isFinite(const SkRect& r) {
     return value == value;
 }
 
-class IsFiniteBench : public SkBenchmark {
+class IsFiniteBench : public Benchmark {
     enum {
         N = 1000,
     };
@@ -328,10 +328,10 @@ private:
     IsFiniteProc    fProc;
     const char*     fName;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
-class FloorBench : public SkBenchmark {
+class FloorBench : public Benchmark {
     enum {
         ARRAY = 1000,
     };
@@ -389,10 +389,10 @@ protected:
 private:
     const char*     fName;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
-class CLZBench : public SkBenchmark {
+class CLZBench : public Benchmark {
     enum {
         ARRAY = 1000,
     };
@@ -449,12 +449,12 @@ protected:
 private:
     const char* fName;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class NormalizeBench : public SkBenchmark {
+class NormalizeBench : public Benchmark {
     enum {
         ARRAY =1000,
     };
@@ -496,12 +496,12 @@ protected:
 private:
     const char* fName;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class FixedMathBench : public SkBenchmark {
+class FixedMathBench : public Benchmark {
     enum {
         N = 1000,
     };
@@ -540,13 +540,13 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-class DivModBench : public SkBenchmark {
+class DivModBench : public Benchmark {
     SkString fName;
 public:
     explicit DivModBench(const char* name) {

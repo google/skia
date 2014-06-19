@@ -6,16 +6,16 @@
  *
  * Classes for writing out bench results in various formats.
  */
+
 #ifndef SkResultsWriter_DEFINED
 #define SkResultsWriter_DEFINED
 
-#include "SkBenchLogger.h"
+#include "BenchLogger.h"
 #include "SkJSONCPP.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
-
 
 /**
  * Base class for writing out the bench results.
@@ -50,7 +50,7 @@ public:
  */
 class LoggerResultsWriter : public ResultsWriter {
 public:
-    explicit LoggerResultsWriter(SkBenchLogger& logger, const char* timeFormat)
+    explicit LoggerResultsWriter(BenchLogger& logger, const char* timeFormat)
         : fLogger(logger)
         , fTimeFormat(timeFormat) {
         fLogger.logProgress("skia bench:");
@@ -73,7 +73,7 @@ public:
         fLogger.logProgress("\n");
     }
 private:
-    SkBenchLogger& fLogger;
+    BenchLogger& fLogger;
     const char* fTimeFormat;
 };
 

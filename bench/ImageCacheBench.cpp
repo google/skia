@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkScaledImageCache.h"
 
-class ImageCacheBench : public SkBenchmark {
+class ImageCacheBench : public Benchmark {
     SkScaledImageCache  fCache;
     SkBitmap            fBM;
 
@@ -49,7 +49,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

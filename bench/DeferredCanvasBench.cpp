@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkString.h"
 
-class DeferredCanvasBench : public SkBenchmark {
+class DeferredCanvasBench : public Benchmark {
 public:
     DeferredCanvasBench(const char name[])  {
         fName.printf("deferred_canvas_%s", name);
@@ -46,7 +46,7 @@ protected:
     SkString fName;
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class SimpleNotificationClient : public SkDeferredCanvas::NotificationClient {

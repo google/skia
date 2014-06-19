@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
@@ -84,7 +84,7 @@ static void gen_paths(const SkTDArray<SkScalar>& topData,
 
 // A set of scrolling line plots with the area between each plot filled. Stresses out GPU path
 // filling
-class ChartBench : public SkBenchmark {
+class ChartBench : public Benchmark {
 public:
     ChartBench(bool aa) {
         fShift = 0;
@@ -183,7 +183,7 @@ private:
     SkTDArray<SkScalar> fData[kNumGraphs];
     bool                fAA;
 
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
-#include "SkString.h"
 #include "SkShader.h"
+#include "SkString.h"
 
 enum VertFlags {
     kColors_VertFlag,
     kTexture_VertFlag,
 };
 
-class VertBench : public SkBenchmark {
+class VertBench : public Benchmark {
     SkString fName;
     enum {
         W = 640,
@@ -87,7 +87,7 @@ protected:
         }
     }
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

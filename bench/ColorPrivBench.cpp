@@ -1,10 +1,10 @@
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkColorPriv.h"
 #include "SkRandom.h"
 #include "SkString.h"
 
 template <bool kFast, bool kScale>
-class FourByteInterpBench : public SkBenchmark {
+class FourByteInterpBench : public Benchmark {
 public:
     FourByteInterpBench() {
         fName.set("four_byte_interp");

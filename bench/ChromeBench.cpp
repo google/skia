@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkString.h"
@@ -449,7 +449,7 @@ int gmailScrollingRectSpec [431*3] = {
 };
 
 /// Emulates the mix of rects blitted by gmail during scrolling
-class ScrollGmailBench : public SkBenchmark {
+class ScrollGmailBench : public Benchmark {
     enum {
         W = 1254,
         H = 1160,
@@ -488,7 +488,7 @@ protected:
 
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // Disabled this benchmark: it takes 15x longer than any other benchmark

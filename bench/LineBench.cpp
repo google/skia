@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -16,7 +16,7 @@
 #include "SkTArray.h"
 
 
-class LineBench : public SkBenchmark {
+class LineBench : public Benchmark {
     SkScalar    fStrokeWidth;
     bool        fDoAA;
     SkString    fName;
@@ -56,7 +56,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 DEF_BENCH(return new LineBench(0,            false);)

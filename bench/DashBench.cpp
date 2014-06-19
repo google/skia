@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
@@ -29,7 +29,7 @@ static void path_hline(SkPath* path) {
     path->lineTo(SkIntToScalar(600), SkIntToScalar(10));
 }
 
-class DashBench : public SkBenchmark {
+class DashBench : public Benchmark {
 protected:
     SkString            fName;
     SkTDArray<SkScalar> fIntervals;
@@ -94,7 +94,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 class RectDashBench : public DashBench {
@@ -175,7 +175,7 @@ static void make_cubic(SkPath* path) {
                   x0 + 600 * SK_Scalar1, y0);
 }
 
-class MakeDashBench : public SkBenchmark {
+class MakeDashBench : public Benchmark {
     SkString fName;
     SkPath   fPath;
     SkAutoTUnref<SkPathEffect> fPE;
@@ -205,13 +205,13 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 /*
  *  We try to special case square dashes (intervals are equal to strokewidth).
  */
-class DashLineBench : public SkBenchmark {
+class DashLineBench : public Benchmark {
     SkString fName;
     SkScalar fStrokeWidth;
     bool     fIsRound;
@@ -245,10 +245,10 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
-class DrawPointsDashingBench : public SkBenchmark {
+class DrawPointsDashingBench : public Benchmark {
     SkString fName;
     int      fStrokeWidth;
     bool     fDoAA;
@@ -292,11 +292,11 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // Want to test how we handle dashing when 99% of the dash is clipped out
-class GiantDashBench : public SkBenchmark {
+class GiantDashBench : public Benchmark {
     SkString fName;
     SkScalar fStrokeWidth;
     SkPoint  fPts[2];
@@ -370,12 +370,12 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 // Want to test how we draw a dashed grid (like what is used in spreadsheets) of many
 // small dashed lines switching back and forth between horizontal and vertical
-class DashGridBench : public SkBenchmark {
+class DashGridBench : public Benchmark {
     SkString fName;
     int      fStrokeWidth;
     bool     fDoAA;
@@ -437,7 +437,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

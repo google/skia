@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBenchmark.h"
+#include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -25,7 +25,7 @@ static int rand_pts(SkRandom& rand, SkPoint pts[4]) {
     return n;
 }
 
-class PathIterBench : public SkBenchmark {
+class PathIterBench : public Benchmark {
     SkString    fName;
     SkPath      fPath;
     bool        fRaw;
@@ -86,7 +86,7 @@ protected:
     }
 
 private:
-    typedef SkBenchmark INHERITED;
+    typedef Benchmark INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
