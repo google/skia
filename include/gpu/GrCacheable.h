@@ -41,8 +41,17 @@ public:
     void setCacheEntry(GrResourceCacheEntry* cacheEntry) { fCacheEntry = cacheEntry; }
     GrResourceCacheEntry* getCacheEntry() { return fCacheEntry; }
 
+    /**
+     * Gets an id that is unique for this GrCacheable object. It is static in that it does
+     * not change when the content of the GrCacheable object changes. This will never return
+     * 0.
+     */
+    uint32_t getGenerationID() const;
+
 protected:
-    GrCacheable() : fCacheEntry(NULL) {}
+    GrCacheable()
+        : fCacheEntry(NULL)
+        , fGenID(0) {}
 
     bool isInCache() const { return NULL != fCacheEntry; }
 
@@ -55,7 +64,8 @@ protected:
     void didChangeGpuMemorySize() const;
 
 private:
-    GrResourceCacheEntry* fCacheEntry;  // NULL if not in cache
+    GrResourceCacheEntry*   fCacheEntry;  // NULL if not in cache
+    mutable uint32_t        fGenID;
 
     typedef SkRefCnt INHERITED;
 };

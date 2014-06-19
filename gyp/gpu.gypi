@@ -58,6 +58,7 @@
       '<(skia_src_path)/gpu/GrBlend.h',
       '<(skia_src_path)/gpu/GrBufferAllocPool.cpp',
       '<(skia_src_path)/gpu/GrBufferAllocPool.h',
+      '<(skia_src_path)/gpu/GrCacheable.cpp',
       '<(skia_src_path)/gpu/GrCacheID.cpp',
       '<(skia_src_path)/gpu/GrClipData.cpp',
       '<(skia_src_path)/gpu/GrContext.cpp',

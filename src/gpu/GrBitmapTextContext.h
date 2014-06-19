@@ -45,11 +45,13 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
-    void*                   fVertices;
-    int32_t                 fMaxVertices;
-    GrTexture*              fCurrTexture;
-    int                     fCurrVertex;
-    SkRect                  fVertexBounds;
+    void*                       fVertices;
+    int32_t                     fMaxVertices;
+    GrTexture*                  fCurrTexture;
+    SkAutoTUnref<GrEffectRef>   fCachedEffect;
+    uint32_t                    fEffectTextureGenID;
+    int                         fCurrVertex;
+    SkRect                      fVertexBounds;
 };
 
 #endif
