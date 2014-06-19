@@ -88,8 +88,6 @@ void GrBitmapTextContext::flushGlyphs() {
     drawState->setFromPaint(fPaint, SkMatrix::I(), fContext->getRenderTarget());
 
     if (fCurrVertex > 0) {
-        fContext->getFontCache()->updateTextures();
-
         // setup our sampler state for our text texture/atlas
         SkASSERT(SkIsAlign4(fCurrVertex));
         SkASSERT(fCurrTexture);

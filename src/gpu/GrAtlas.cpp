@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"
+#include "GrTracing.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -90,6 +91,7 @@ bool GrPlot::addSubImage(int width, int height, const void* image,
     } else {
         adjust_for_offset(loc, fOffset);
         GrContext* context = fTexture->getContext();
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrPlot::uploadToTexture");
         context->writeTexturePixels(fTexture,
                                     loc->fX, loc->fY, width, height,
                                     fTexture->config(), image, 0,
@@ -110,12 +112,13 @@ void GrPlot::uploadToTexture() {
     SkASSERT(fBatchUploads);
 
     if (fDirty) {
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrPlot::uploadToTexture");
         SkASSERT(NULL != fTexture);
         GrContext* context = fTexture->getContext();
         // We pass the flag that does not force a flush. We assume our caller is
         // smart and hasn't referenced the part of the texture we're about to update
         // since the last flush.
-        int rowBytes = fBytesPerPixel*fRects->width();
+        size_t rowBytes = fBytesPerPixel*fRects->width();
         const unsigned char* dataPtr = fPlotData;
         dataPtr += rowBytes*fDirtyRect.fTop;
         dataPtr += fBytesPerPixel*fDirtyRect.fLeft;

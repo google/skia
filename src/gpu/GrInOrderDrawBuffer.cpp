@@ -9,6 +9,7 @@
 
 #include "GrBufferAllocPool.h"
 #include "GrDrawTargetCaps.h"
+#include "GrTextStrike.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPath.h"
@@ -556,6 +557,8 @@ void GrInOrderDrawBuffer::flush() {
     if (fFlushing) {
         return;
     }
+
+    this->getContext()->getFontCache()->updateTextures();
 
     SkASSERT(kReserved_GeometrySrcType != this->getGeomSrc().fVertexSrc);
     SkASSERT(kReserved_GeometrySrcType != this->getGeomSrc().fIndexSrc);
