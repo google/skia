@@ -107,10 +107,14 @@
 #endif
 
 #ifndef SK_CRASH
-#  if 1   // set to 0 for infinite loop, which can help connecting gdb
-#    define SK_CRASH() do { SkNO_RETURN_HINT(); *(int *)(uintptr_t)0xbbadbeef = 0; } while (false)
+#  ifdef SK_BUILD_FOR_WIN
+#    define SK_CRASH() __debugbreak()
 #  else
-#    define SK_CRASH() do { SkNO_RETURN_HINT(); } while (true)
+#    if 1   // set to 0 for infinite loop, which can help connecting gdb
+#      define SK_CRASH() do { SkNO_RETURN_HINT(); *(int *)(uintptr_t)0xbbadbeef = 0; } while (false)
+#    else
+#      define SK_CRASH() do { SkNO_RETURN_HINT(); } while (true)
+#    endif
 #  endif
 #endif
 
@@ -154,10 +158,6 @@
 #    undef NOMINMAX
 #  endif
 #
-#  ifndef SK_ALWAYSBREAK
-#    define SK_ALWAYSBREAK(p) do { if (!(p)) { SkNO_RETURN_HINT(); __debugbreak(); }} while (false)
-#  endif
-#
 #  ifndef SK_A32_SHIFT
 #    define SK_A32_SHIFT 24
 #    define SK_R32_SHIFT 16
@@ -165,16 +165,18 @@
 #    define SK_B32_SHIFT 0
 #  endif
 #
-#else
-#  ifndef SK_ALWAYSBREAK
-#    ifdef SK_DEBUG
-#      include <stdio.h>
-#      define SK_ALWAYSBREAK(cond) do { if (cond) break; \
-                SkDebugf("%s:%d: failed assertion \"%s\"\n", \
-                __FILE__, __LINE__, #cond); SK_CRASH(); } while (false)
-#    else
-#      define SK_ALWAYSBREAK(cond) do { if (cond) break; SK_CRASH(); } while (false)
-#    endif
+#endif
+
+#ifndef SK_ALWAYSBREAK
+#  ifdef SK_DEBUG
+#    define SK_ALWAYSBREAK(cond) do { \
+              if (cond) break; \
+              SkNO_RETURN_HINT(); \
+              SkDebugf("%s:%d: failed assertion \"%s\"\n", __FILE__, __LINE__, #cond); \
+              SK_CRASH(); \
+        } while (false)
+#  else
+#    define SK_ALWAYSBREAK(cond) do { if (cond) break; SK_CRASH(); } while (false)
 #  endif
 #endif
 

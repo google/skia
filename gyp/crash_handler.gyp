@@ -7,5 +7,12 @@
           'direct_dependent_settings': {
               'include_dirs': [ '../tools' ],
           },
+          'all_dependent_settings': {
+              'msvs_settings': {
+                  'VCLinkerTool': {
+                      'AdditionalDependencies': [ 'Dbghelp.lib' ],
+                  }
+              },
+          }
   }]
 }
