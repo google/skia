@@ -21,6 +21,7 @@
         '../include/utils',
         '../include/xml',
         '../src/core',
+        '../src/sfnt',
         '../src/image',
         '../src/opts',
         '../src/utils',

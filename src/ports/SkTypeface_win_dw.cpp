@@ -361,9 +361,9 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
 
     info = new SkAdvancedTypefaceMetrics;
     info->fEmSize = dwfm.designUnitsPerEm;
-    info->fMultiMaster = false;
     info->fLastGlyphID = SkToU16(glyphCount - 1);
     info->fStyle = 0;
+    info->fFlags = SkAdvancedTypefaceMetrics::kEmpty_FontFlag;
 
     // SkAdvancedTypefaceMetrics::fFontName is in theory supposed to be
     // the PostScript name of the font. However, due to the way it is currently
@@ -467,12 +467,7 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     }
     */
 
-    // If Restricted, the font may not be embedded in a document.
-    // If not Restricted, the font can be embedded.
-    // If PreviewPrint, the embedding is read-only.
-    if (os2Table->version.v0.fsType.field.Restricted) {
-        info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
-    } else if (perGlyphInfo & SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
+    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
         if (fixedWidth) {
             appendRange(&info->fGlyphWidths, 0);
             int16_t advance;

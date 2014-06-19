@@ -1867,10 +1867,18 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
 
     info = new SkAdvancedTypefaceMetrics;
     info->fEmSize = otm.otmEMSquare;
-    info->fMultiMaster = false;
     info->fLastGlyphID = SkToU16(glyphCount - 1);
     info->fStyle = 0;
     tchar_to_skstring(lf.lfFaceName, &info->fFontName);
+    info->fFlags = SkAdvancedTypefaceMetrics::kEmpty_FontFlag;
+    // If bit 1 is set, the font may not be embedded in a document.
+    // If bit 1 is clear, the font can be embedded.
+    // If bit 2 is set, the embedding is read-only.
+    if (otm.otmfsType & 0x1) {
+        info->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
+                info->fFlags,
+                SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
+    }
 
     if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo) {
         populate_glyph_to_unicode(hdc, glyphCount, &(info->fGlyphToUnicode));
@@ -1931,13 +1939,7 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
         }
     }
 
-    // If bit 1 is set, the font may not be embedded in a document.
-    // If bit 1 is clear, the font can be embedded.
-    // If bit 2 is set, the embedding is read-only.
-    if (otm.otmfsType & 0x1) {
-        info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
-    } else if (perGlyphInfo &
-               SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
+    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
         if (info->fStyle & SkAdvancedTypefaceMetrics::kFixedPitch_Style) {
             appendRange(&info->fGlyphWidths, 0);
             info->fGlyphWidths->fAdvance.append(1, &min_width);

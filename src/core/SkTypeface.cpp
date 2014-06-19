@@ -6,9 +6,11 @@
  */
 
 #include "SkAdvancedTypefaceMetrics.h"
+#include "SkEndian.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
 #include "SkLazyPtr.h"
+#include "SkOTTable_OS_2.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -269,7 +271,28 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo info,
                                 const uint32_t* glyphIDs,
                                 uint32_t glyphIDsCount) const {
-    return this->onGetAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);
+    SkAdvancedTypefaceMetrics* result =
+            this->onGetAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);
+    if (result && result->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
+        struct SkOTTableOS2 os2table;
+        if (this->getTableData(SkTEndian_SwapBE32(SkOTTableOS2::TAG), 0,
+                               sizeof(os2table), &os2table) > 0) {
+            if (os2table.version.v2.fsType.field.Bitmap ||
+                (os2table.version.v2.fsType.field.Restricted &&
+                 !(os2table.version.v2.fsType.field.PreviewPrint ||
+                   os2table.version.v2.fsType.field.Editable))) {
+                result->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
+                        result->fFlags,
+                        SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
+            }
+            if (os2table.version.v2.fsType.field.NoSubsetting) {
+                result->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
+                        result->fFlags,
+                        SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag);
+            }
+        }
+    }
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

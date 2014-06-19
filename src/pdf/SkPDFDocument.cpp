@@ -258,11 +258,13 @@ bool SkPDFDocument::appendPage(SkPDFDevice* pdfDevice) {
     return true;
 }
 
+// Deprecated.
 void SkPDFDocument::getCountOfFontTypes(
-        int counts[SkAdvancedTypefaceMetrics::kNotEmbeddable_Font + 1]) const {
+        int counts[SkAdvancedTypefaceMetrics::kOther_Font + 2]) const {
     sk_bzero(counts, sizeof(int) *
-                     (SkAdvancedTypefaceMetrics::kNotEmbeddable_Font + 1));
+                     (SkAdvancedTypefaceMetrics::kOther_Font + 2));
     SkTDArray<SkFontID> seenFonts;
+    int notEmbeddable = 0;
 
     for (int pageNumber = 0; pageNumber < fPages.count(); pageNumber++) {
         const SkTDArray<SkPDFFont*>& fontResources =
@@ -272,8 +274,48 @@ void SkPDFDocument::getCountOfFontTypes(
             if (seenFonts.find(fontID) == -1) {
                 counts[fontResources[font]->getType()]++;
                 seenFonts.push(fontID);
+                if (!fontResources[font]->canEmbed()) {
+                    notEmbeddable++;
+                }
             }
         }
+    }
+    counts[SkAdvancedTypefaceMetrics::kOther_Font + 1] = notEmbeddable;
+}
+
+void SkPDFDocument::getCountOfFontTypes(
+        int counts[SkAdvancedTypefaceMetrics::kOther_Font + 1],
+        int* notSubsettableCount,
+        int* notEmbeddableCount) const {
+    sk_bzero(counts, sizeof(int) *
+                     (SkAdvancedTypefaceMetrics::kOther_Font + 1));
+    SkTDArray<SkFontID> seenFonts;
+    int notSubsettable = 0;
+    int notEmbeddable = 0;
+
+    for (int pageNumber = 0; pageNumber < fPages.count(); pageNumber++) {
+        const SkTDArray<SkPDFFont*>& fontResources =
+                fPages[pageNumber]->getFontResources();
+        for (int font = 0; font < fontResources.count(); font++) {
+            SkFontID fontID = fontResources[font]->typeface()->uniqueID();
+            if (seenFonts.find(fontID) == -1) {
+                counts[fontResources[font]->getType()]++;
+                seenFonts.push(fontID);
+                if (!fontResources[font]->canSubset()) {
+                    notSubsettable++;
+                }
+                if (!fontResources[font]->canEmbed()) {
+                    notEmbeddable++;
+                }
+            }
+        }
+    }
+    if (notSubsettableCount) {
+        *notSubsettableCount = notSubsettable;
+
+    }
+    if (notEmbeddableCount) {
+        *notEmbeddableCount = notEmbeddable;
     }
 }
 

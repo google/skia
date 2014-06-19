@@ -440,6 +440,20 @@ static bool canEmbed(FT_Face face) {
 #endif
 }
 
+static bool canSubset(FT_Face face) {
+#ifdef FT_FSTYPE_NO_SUBSETTING
+    FT_UShort fsType = FT_Get_FSType_Flags(face);
+    return (fsType & FT_FSTYPE_NO_SUBSETTING) == 0;
+#else
+    // No subset is 0x100.
+    TT_OS2* os2_table;
+    if ((os2_table = (TT_OS2*)FT_Get_Sfnt_Table(face, ft_sfnt_os2)) != NULL) {
+        return (os2_table->fsType & 0x100) == 0;
+    }
+    return false;  // We tried, fail safe.
+#endif
+}
+
 static bool GetLetterCBox(FT_Face face, char letter, FT_BBox* bbox) {
     const FT_UInt glyph_id = FT_Get_Char_Index(face, letter);
     if (!glyph_id)
@@ -525,7 +539,21 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
 
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     info->fFontName.set(FT_Get_Postscript_Name(face));
-    info->fMultiMaster = FT_HAS_MULTIPLE_MASTERS(face);
+    info->fFlags = SkAdvancedTypefaceMetrics::kEmpty_FontFlag;
+    if (FT_HAS_MULTIPLE_MASTERS(face)) {
+        info->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
+                info->fFlags, SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag);
+    }
+    if (!canEmbed(face)) {
+        info->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
+                info->fFlags,
+                SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
+    }
+    if (!canSubset(face)) {
+        info->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
+                info->fFlags,
+                SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag);
+    }
     info->fLastGlyphID = face->num_glyphs - 1;
     info->fEmSize = 1000;
 
@@ -623,8 +651,7 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
     info->fBBox = SkIRect::MakeLTRB(face->bbox.xMin, face->bbox.yMax,
                                     face->bbox.xMax, face->bbox.yMin);
 
-    if (!canEmbed(face) || !FT_IS_SCALABLE(face) ||
-            info->fType == SkAdvancedTypefaceMetrics::kOther_Font) {
+    if (!FT_IS_SCALABLE(face)) {
         perGlyphInfo = SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo;
     }
 
@@ -686,9 +713,6 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
            face->num_charmaps) {
         populate_glyph_to_unicode(face, &(info->fGlyphToUnicode));
     }
-
-    if (!canEmbed(face))
-        info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
 
     return info;
 #endif
