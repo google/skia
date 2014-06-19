@@ -46,6 +46,7 @@ public:
 
 private:
     StreamFontFileLoader(SkStream* stream) : fRefCount(1), fStream(SkRef(stream)) { }
+    virtual ~StreamFontFileLoader() { }
 
     ULONG fRefCount;
 };
@@ -107,6 +108,8 @@ public:
     }
 private:
     StreamFontFileEnumerator(IDWriteFactory* factory, IDWriteFontFileLoader* fontFileLoader);
+    virtual ~StreamFontFileEnumerator() { }
+
     ULONG fRefCount;
 
     SkTScopedComPtr<IDWriteFactory> fFactory;
@@ -205,6 +208,7 @@ private:
         : fRefCount(1)
         , fFontFileLoader(SkRefComPtr(fontFileLoader))
     { }
+    virtual ~StreamFontCollectionLoader() { }
 
     ULONG fRefCount;
     SkTScopedComPtr<IDWriteFontFileLoader> fFontFileLoader;

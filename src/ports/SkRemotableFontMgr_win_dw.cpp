@@ -290,6 +290,8 @@ public:
           fIdentity.fDataId = SkFontIdentity::kInvalidDataId;
         }
 
+        virtual ~FontFallbackRenderer() { }
+
         // IDWriteTextRenderer methods
         virtual HRESULT STDMETHODCALLTYPE DrawGlyphRun(
             void* clientDrawingContext,
