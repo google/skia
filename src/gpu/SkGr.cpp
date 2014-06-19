@@ -13,6 +13,7 @@
 #include "SkPixelRef.h"
 #include "GrResourceCache.h"
 #include "GrGpu.h"
+#include "effects/GrDitherEffect.h"
 #include "GrDrawTargetCaps.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
@@ -460,6 +461,29 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
             }
         }
     }
+
+#ifndef SK_IGNORE_GPU_DITHER
+    // If the dither flag is set, then we need to see if the underlying context
+    // supports it. If not, then install a dither effect.
+    if (skPaint.isDither() && grPaint->numColorStages() > 0) {
+        // What are we rendering into?
+        const GrRenderTarget *target = context->getRenderTarget();
+        SkASSERT(NULL != target);
+
+        // Suspect the dithering flag has no effect on these configs, otherwise
+        // fall back on setting the appropriate state.
+        if (target->config() == kRGBA_8888_GrPixelConfig ||
+            target->config() == kBGRA_8888_GrPixelConfig) {
+            // The dither flag is set and the target is likely
+            // not going to be dithered by the GPU.
+            SkAutoTUnref<GrEffectRef> effect(GrDitherEffect::Create());
+            if (NULL != effect.get()) {
+                grPaint->addColorEffect(effect);
+                grPaint->setDither(false);
+            }
+        }
+    }
+#endif
 }
 
 /**
@@ -494,19 +518,26 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
     // SkShader::asNewEffect() may do offscreen rendering. Save off the current RT, clip, and
     // matrix. We don't reset the matrix on the context because SkShader::asNewEffect may use
     // GrContext::getMatrix() to know the transformation from local coords to device space.
-    GrContext::AutoRenderTarget art(context, NULL);
-    GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
-    AutoMatrix am(context);
-
-    // setup the shader as the first color effect on the paint
-    // the default grColor is the paint's color
     GrColor grColor = SkColor2GrColor(skPaint.getColor());
-    GrEffectRef* grEffect = NULL;
-    if (shader->asNewEffect(context, skPaint, NULL, &grColor, &grEffect) && NULL != grEffect) {
-        SkAutoTUnref<GrEffectRef> effect(grEffect);
-        grPaint->addColorEffect(effect);
-        constantColor = false;
+
+    // Start a new block here in order to preserve our context state after calling
+    // asNewEffect(). Since these calls get passed back to the client, we don't really
+    // want them messing around with the context.
+    {
+        GrContext::AutoRenderTarget art(context, NULL);
+        GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
+        AutoMatrix am(context);
+
+        // setup the shader as the first color effect on the paint
+        // the default grColor is the paint's color
+        GrEffectRef* grEffect = NULL;
+        if (shader->asNewEffect(context, skPaint, NULL, &grColor, &grEffect) && NULL != grEffect) {
+            SkAutoTUnref<GrEffectRef> effect(grEffect);
+            grPaint->addColorEffect(effect);
+            constantColor = false;
+        }
     }
+
     // The grcolor is automatically set when calling asneweffect.
     // If the shader can be seen as an effect it returns true and adds its effect to the grpaint.
     SkPaint2GrPaintNoShader(context, skPaint, grColor, constantColor, grPaint);

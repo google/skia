@@ -50,3 +50,26 @@ bigblurs
 # This CL actually fixes this GM's image
 distantclip
 
+# krajcevski:
+# Added GPU-based dithering for all SkPaints that have that flag set
+# https://codereview.chromium.org/321253002/
+radial_gradient
+modecolorfilters
+scaled_tilemodes
+tilemodes
+scaled_tilemodes_npot
+lerpmode
+xfermodes2
+xfermodes
+drawbitmapmatrix
+complexclip_bw_layer
+complexclip_aa_layer
+hairmodes
+aarectmodes
+tilemodes_npot
+convex_poly_clip
+lumafilter
+shadertext
+bitmapfilters
+arithmode
+optimizations

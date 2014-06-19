@@ -34,12 +34,15 @@ static const SkColor gColors[] = {
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK, // 10 lines, 50 colors
 };
 
+static const SkColor gShallowColors[] = { 0xFF555555, 0xFF444444 };
+
 // We have several special-cases depending on the number (and spacing) of colors, so
 // try to exercise those here.
 static const GradData gGradData[] = {
     { 2, gColors, NULL, "" },
     { 50, gColors, NULL, "_hicolor" }, // many color gradient
     { 3, gColors, NULL, "_3color" },
+    { 2, gShallowColors, NULL, "_shallow" },
 };
 
 /// Ignores scale
@@ -200,12 +203,22 @@ static const char* geomtypename(GeomType gt) {
 class GradientBench : public Benchmark {
     SkString fName;
     SkShader* fShader;
+    bool fDither;
     enum {
         W   = 400,
         H   = 400,
         kRepeat = 15,
     };
 public:
+    SkShader* makeShader(GradType gradType, GradData data, SkShader::TileMode tm, float scale) {
+        const SkPoint pts[2] = {
+            { 0, 0 },
+            { SkIntToScalar(W), SkIntToScalar(H) }
+        };
+
+        return gGrads[gradType].fMaker(pts, data, tm, scale);
+    }
+
     GradientBench(GradType gradType,
                   GradData data = gGradData[0],
                   SkShader::TileMode tm = SkShader::kClamp_TileMode,
@@ -224,13 +237,23 @@ public:
 
         fName.append(data.fName);
 
-        const SkPoint pts[2] = {
-            { 0, 0 },
-            { SkIntToScalar(W), SkIntToScalar(H) }
-        };
-
-        fShader = gGrads[gradType].fMaker(pts, data, tm, scale);
+        fDither = false;
+        fShader = this->makeShader(gradType, data, tm, scale);
         fGeomType = geomType;
+    }
+
+    GradientBench(GradType gradType, GradData data, bool dither) {
+        const char *tmname = tilemodename(SkShader::kClamp_TileMode);
+        fName.printf("gradient_%s_%s", gGrads[gradType].fName, tmname);
+        fName.append(data.fName);
+
+        fDither = dither;
+        if (dither) {
+            fName.appendf("_dither");
+        }
+
+        fShader = this->makeShader(gradType, data, SkShader::kClamp_TileMode, 1.0f);
+        fGeomType = kRect_GeomType;
     }
 
     virtual ~GradientBench() {
@@ -247,6 +270,9 @@ protected:
         this->setupPaint(&paint);
 
         paint.setShader(fShader);
+        if (fDither) {
+            paint.setDither(true);
+        }
 
         SkRect r = { 0, 0, SkIntToScalar(W), SkIntToScalar(H) };
         for (int i = 0; i < loops * kRepeat; i++) {
@@ -303,6 +329,16 @@ DEF_BENCH( return new GradientBench(kConicalOut_GradType, gGradData[2]); )
 DEF_BENCH( return new GradientBench(kConicalOutZero_GradType); )
 DEF_BENCH( return new GradientBench(kConicalOutZero_GradType, gGradData[1]); )
 DEF_BENCH( return new GradientBench(kConicalOutZero_GradType, gGradData[2]); )
+
+// Dithering
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[3], true); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[3], false); )
+DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[3], true); )
+DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[3], false); )
+DEF_BENCH( return new GradientBench(kSweep_GradType, gGradData[3], true); )
+DEF_BENCH( return new GradientBench(kSweep_GradType, gGradData[3], false); )
+DEF_BENCH( return new GradientBench(kConical_GradType, gGradData[3], true); )
+DEF_BENCH( return new GradientBench(kConical_GradType, gGradData[3], false); )
 
 ///////////////////////////////////////////////////////////////////////////////
 
