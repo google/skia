@@ -122,16 +122,6 @@ bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
                                  SkIRect* dst) const {
     SkASSERT(&src);
     SkASSERT(dst);
-    if (SkImageFilter::GetExternalCache()) {
-        /*
-         *  When the external cache is active, do not intersect the saveLayer
-         *  bounds with the clip bounds. This is so that the cached result
-         *  is always the full size of the primitive's bounds,
-         *  regardless of the clip active on first draw.
-         */
-        *dst = SkIRect::MakeLargest();
-        return true;
-    }
     return this->onFilterBounds(src, ctm, dst);
 }
 
