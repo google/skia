@@ -104,7 +104,7 @@ void GLDitherEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\t\tfloat r = "
                            "fract(sin(dot(%s.xy ,vec2(12.9898,78.233))) * 43758.5453);\n",
                            builder->fragmentPosition());
-    builder->fsCodeAppendf("\t\t%s = (1.0f/255.0f) * vec4(r, r, r, r) + %s;\n",
+    builder->fsCodeAppendf("\t\t%s = (1.0/255.0) * vec4(r, r, r, r) + %s;\n",
                            outputColor, GrGLSLExpr4(inputColor).c_str());
 }
 
