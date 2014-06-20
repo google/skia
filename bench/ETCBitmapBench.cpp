@@ -210,8 +210,11 @@ protected:
     }
 
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        SkPixelRef* pr = fBitmap.pixelRef();
         for (int i = 0; i < loops; ++i) {
-            this->fBitmap.pixelRef()->notifyPixelsChanged();
+            if (pr) {
+                pr->notifyPixelsChanged();
+            }
             canvas->drawBitmap(this->fBitmap, 0, 0, NULL);
         }
     }
