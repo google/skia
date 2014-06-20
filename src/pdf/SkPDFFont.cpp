@@ -872,15 +872,13 @@ SkPDFFont* SkPDFFont::getFontSubset(const SkPDFGlyphSet*) {
 
 // static
 SkTDArray<SkPDFFont::FontRec>& SkPDFFont::CanonicalFonts() {
-    // This initialization is only thread safe with gcc.
+    SkPDFFont::CanonicalFontsMutex().assertHeld();
     static SkTDArray<FontRec> gCanonicalFonts;
     return gCanonicalFonts;
 }
 
 // static
 SkBaseMutex& SkPDFFont::CanonicalFontsMutex() {
-    // This initialization is only thread safe with gcc, or when
-    // POD-style mutex initialization is used.
     SK_DECLARE_STATIC_MUTEX(gCanonicalFontsMutex);
     return gCanonicalFontsMutex;
 }
