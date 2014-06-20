@@ -1,25 +1,17 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "BenchSysTimer_windows.h"
+#include "SysTimer_windows.h"
 
-//Time
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
-
-static ULONGLONG winCpuTime() {
+static ULONGLONG win_cpu_time() {
     FILETIME createTime;
     FILETIME exitTime;
     FILETIME usrTime;
     FILETIME sysTime;
-    if (0 == GetProcessTimes(GetCurrentProcess()
-                           , &createTime, &exitTime
-                           , &sysTime, &usrTime))
-    {
+    if (0 == GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &sysTime, &usrTime)) {
         return 0;
     }
     ULARGE_INTEGER start_cpu_sys;
@@ -31,27 +23,27 @@ static ULONGLONG winCpuTime() {
     return start_cpu_sys.QuadPart + start_cpu_usr.QuadPart;
 }
 
-void BenchSysTimer::startWall() {
-    if (0 == ::QueryPerformanceCounter(&this->fStartWall)) {
-        this->fStartWall.QuadPart = 0;
+void SysTimer::startWall() {
+    if (0 == ::QueryPerformanceCounter(&fStartWall)) {
+        fStartWall.QuadPart = 0;
     }
 }
-void BenchSysTimer::startCpu() {
-    this->fStartCpu = winCpuTime();
+void SysTimer::startCpu() {
+    fStartCpu = win_cpu_time();
 }
 
-double BenchSysTimer::endCpu() {
-    ULONGLONG end_cpu = winCpuTime();
-    return static_cast<double>((end_cpu - this->fStartCpu)) / 10000.0L;
+double SysTimer::endCpu() {
+    ULONGLONG end_cpu = win_cpu_time();
+    return static_cast<double>(end_cpu - fStartCpu) / 10000.0L;
 }
-double BenchSysTimer::endWall() {
+double SysTimer::endWall() {
     LARGE_INTEGER end_wall;
     if (0 == ::QueryPerformanceCounter(&end_wall)) {
         end_wall.QuadPart = 0;
     }
 
     LARGE_INTEGER ticks_elapsed;
-    ticks_elapsed.QuadPart = end_wall.QuadPart - this->fStartWall.QuadPart;
+    ticks_elapsed.QuadPart = end_wall.QuadPart - fStartWall.QuadPart;
 
     LARGE_INTEGER frequency;
     if (0 == ::QueryPerformanceFrequency(&frequency)) {

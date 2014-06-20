@@ -10,8 +10,8 @@
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
 
-#include "BenchTimer.h"
 #include "DumpRecord.h"
+#include "Timer.h"
 
 namespace {
 
@@ -33,7 +33,7 @@ public:
 
     template <typename T>
     void operator()(const T& command) {
-        BenchTimer timer;
+        Timer timer;
         timer.start();
             fDraw(command);
         timer.end();

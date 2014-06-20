@@ -96,8 +96,8 @@
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'bench.gyp:bench_timer',
         'tools.gyp:picture_renderer',
+        'tools.gyp:timer',
       ],
       'conditions': [
         [ 'skia_os == "nacl"', {

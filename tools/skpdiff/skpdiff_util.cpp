@@ -83,7 +83,7 @@ const char* cl_error_to_string(cl_int err) {
 }
 #endif
 
-// TODO refactor BenchTimer to be used here
+// TODO refactor Timer to be used here
 double get_seconds() {
 #if SK_BUILD_FOR_WIN32
     LARGE_INTEGER currentTime;

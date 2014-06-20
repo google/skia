@@ -6,7 +6,7 @@
  */
 
 #include "BenchLogger.h"
-#include "BenchTimer.h"
+#include "Timer.h"
 #include "CopyTilesRenderer.h"
 #include "CrashHandler.h"
 #include "LazyDecodeBitmap.h"

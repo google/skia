@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "BenchTimer.h"
+#include "Timer.h"
 #include "Benchmark.h"
 #include "LazyDecodeBitmap.h"
 #include "PictureBenchmark.h"
@@ -64,7 +64,7 @@ static void do_benchmark_work(sk_tools::PictureRenderer* renderer,
         BBoxType bBoxType,
         SkPicture* pic,
         const int numRepeats,
-        BenchTimer* timer) {
+        Timer* timer) {
     renderer->setBBoxHierarchyType(bBoxType);
     renderer->setGridSize(FLAGS_tilesize, FLAGS_tilesize);
     renderer->init(pic, NULL, NULL, NULL, false);
@@ -106,14 +106,14 @@ int tool_main(int argc, char** argv) {
             if (!includeBBoxType[bBoxType]) { continue; }
             if (FLAGS_playback > 0) {
                 sk_tools::TiledPictureRenderer playbackRenderer;
-                BenchTimer playbackTimer;
+                Timer playbackTimer;
                 do_benchmark_work(&playbackRenderer, (BBoxType)bBoxType,
                                   picture, FLAGS_playback, &playbackTimer);
                 measurement.fPlaybackAverage[bBoxType] = playbackTimer.fCpu;
             }
             if (FLAGS_record > 0) {
                 sk_tools::RecordPictureRenderer recordRenderer;
-                BenchTimer recordTimer;
+                Timer recordTimer;
                 do_benchmark_work(&recordRenderer, (BBoxType)bBoxType,
                                   picture, FLAGS_record, &recordTimer);
                 measurement.fRecordAverage[bBoxType] = recordTimer.fCpu;
