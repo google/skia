@@ -288,10 +288,6 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
                                        SkIntToScalar(gm.advanceWidth),
                                        SkIntToScalar(dwfm.designUnitsPerEm));
 
-    if (!this->isSubpixel()) {
-        advanceX = SkScalarRoundToScalar(advanceX);
-    }
-
     SkVector vecs[1] = { { advanceX, 0 } };
     if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||
         DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode)
