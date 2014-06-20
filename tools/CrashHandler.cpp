@@ -48,7 +48,7 @@ static void handler(int sig) {
     void* stack[kMax];
     const int count = backtrace(stack, kMax);
 
-    SkDebugf("\nSignal %d:\n", sig);
+    SkDebugf("\nSignal %d [%s]:\n", sig, strsignal(sig));
     backtrace_symbols_fd(stack, count, 2/*stderr*/);
 
     // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
