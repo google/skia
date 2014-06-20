@@ -5875,6 +5875,9 @@
           14104477372457343571
         ]
       ], 
+      "bugs": [
+        1759
+      ], 
       "reviewed-by-human": true
     }, 
     "lighting_565.png": {
@@ -6221,6 +6224,9 @@
           9537223841629940172
         ]
       ], 
+      "bugs": [
+        1759
+      ], 
       "reviewed-by-human": true
     }, 
     "morphology_565.png": {
@@ -6461,6 +6467,9 @@
           2379796454057556376
         ]
       ], 
+      "bugs": [
+        1759
+      ], 
       "reviewed-by-human": true
     }, 
     "ovals_565.png": {
@@ -6601,6 +6610,9 @@
           "bitmap-64bitMD5", 
           1682572932242995816
         ]
+      ], 
+      "bugs": [
+        1838
       ], 
       "ignore-failure": true, 
       "reviewed-by-human": true

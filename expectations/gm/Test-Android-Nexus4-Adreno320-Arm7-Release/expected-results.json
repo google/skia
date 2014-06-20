@@ -94,6 +94,9 @@
           14924833617831568790
         ]
       ], 
+      "bugs": [
+        2146
+      ], 
       "reviewed-by-human": true
     }, 
     "alphagradients_565.png": {
@@ -4004,6 +4007,9 @@
           11394238182817679571
         ]
       ], 
+      "bugs": [
+        2146
+      ], 
       "reviewed-by-human": true
     }, 
     "drawlooper_565.png": {
@@ -5828,6 +5834,9 @@
           3149531936733105848
         ]
       ], 
+      "bugs": [
+        2146
+      ], 
       "reviewed-by-human": true
     }, 
     "hittestpath_565.png": {
@@ -6324,6 +6333,9 @@
           7299750613004717214
         ]
       ], 
+      "bugs": [
+        2146
+      ], 
       "reviewed-by-human": true
     }, 
     "lighting_565.png": {
@@ -6473,6 +6485,9 @@
           "bitmap-64bitMD5", 
           4365688476363861269
         ]
+      ], 
+      "bugs": [
+        2146
       ], 
       "reviewed-by-human": true
     }, 
@@ -6697,6 +6712,9 @@
           3541136162909892607
         ]
       ], 
+      "bugs": [
+        2146
+      ], 
       "reviewed-by-human": true
     }, 
     "morphology_565.png": {
@@ -6912,6 +6930,9 @@
           "bitmap-64bitMD5", 
           13122389038790571647
         ]
+      ], 
+      "bugs": [
+        2146
       ], 
       "reviewed-by-human": true
     }, 
@@ -7521,6 +7542,9 @@
           "bitmap-64bitMD5", 
           13316036254358995554
         ]
+      ], 
+      "bugs": [
+        2146
       ], 
       "reviewed-by-human": true
     }, 

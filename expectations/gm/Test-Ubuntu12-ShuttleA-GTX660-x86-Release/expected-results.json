@@ -156,6 +156,9 @@
           5361673090383820149
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "ignore-failure": false, 
       "reviewed-by-human": true
     }, 
@@ -166,6 +169,9 @@
           3770567129781642033
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "aarectmodes_nvprmsaa4.png": {
@@ -174,6 +180,9 @@
           "bitmap-64bitMD5", 
           10856546368486015793
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -342,6 +351,9 @@
           8509476067209440798
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "ignore-failure": false, 
       "reviewed-by-human": true
     }, 
@@ -352,6 +364,9 @@
           6953582728625873818
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "arithmode_nvprmsaa4.png": {
@@ -360,6 +375,9 @@
           "bitmap-64bitMD5", 
           8509476067209440798
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -5989,6 +6007,9 @@
           5636715295931590100
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "complexclip_aa_layer_msaa16.png": {
@@ -5998,6 +6019,9 @@
           8706472232352852410
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "complexclip_aa_layer_nvprmsaa4.png": {
@@ -6006,6 +6030,9 @@
           "bitmap-64bitMD5", 
           16771289611974148181
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -6106,6 +6133,9 @@
           4244612641345070328
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "complexclip_bw_layer_msaa16.png": {
@@ -6115,6 +6145,9 @@
           16650901396356511397
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "complexclip_bw_layer_nvprmsaa4.png": {
@@ -6123,6 +6156,9 @@
           "bitmap-64bitMD5", 
           14572835733644404168
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -6310,6 +6346,9 @@
           10105561965848576090
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "convex_poly_clip_nvprmsaa4.png": {
@@ -6318,6 +6357,9 @@
           "bitmap-64bitMD5", 
           4496814067212314101
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -8046,6 +8088,9 @@
           7316445525652115151
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "ignore-failure": false, 
       "reviewed-by-human": true
     }, 
@@ -8056,6 +8101,9 @@
           5041644101832918027
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "drawbitmapmatrix_nvprmsaa4.png": {
@@ -8064,6 +8112,9 @@
           "bitmap-64bitMD5", 
           12878478093979926276
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -11784,6 +11835,9 @@
           7836212725887477706
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "ignore-failure": false, 
       "reviewed-by-human": true
     }, 
@@ -11794,6 +11848,9 @@
           15416135243961642681
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "hairmodes_nvprmsaa4.png": {
@@ -11802,6 +11859,9 @@
           "bitmap-64bitMD5", 
           17201093324020423129
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -12958,6 +13018,9 @@
           4337305683950474221
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "lerpmode_msaa16.png": {
@@ -12967,6 +13030,9 @@
           9267399652224228185
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "lerpmode_nvprmsaa4.png": {
@@ -12975,6 +13041,9 @@
           "bitmap-64bitMD5", 
           1428546987899351483
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -13274,6 +13343,9 @@
           8036070052794735085
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "lumafilter_msaa16.png": {
@@ -13283,6 +13355,9 @@
           2990680921703942550
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "lumafilter_nvprmsaa4.png": {
@@ -13291,6 +13366,9 @@
           "bitmap-64bitMD5", 
           7801632451302001684
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -13709,6 +13787,9 @@
           5194202950428804182
         ]
       ], 
+      "bugs": [
+        2354
+      ], 
       "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
@@ -13755,6 +13836,9 @@
           13540332316670655625
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "modecolorfilters_msaa16.png": {
@@ -13764,6 +13848,9 @@
           12218867104690768584
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "modecolorfilters_nvprmsaa4.png": {
@@ -13772,6 +13859,9 @@
           "bitmap-64bitMD5", 
           13540332316670655625
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -14227,6 +14317,9 @@
           9183725853792620789
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "optimizations_msaa16.png": {
@@ -14236,6 +14329,9 @@
           8127642505197276510
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "optimizations_nvprmsaa4.png": {
@@ -14244,6 +14340,9 @@
           "bitmap-64bitMD5", 
           9183725853792620789
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -15386,6 +15485,9 @@
           14941464582660867910
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "ignore-failure": false, 
       "reviewed-by-human": true
     }, 
@@ -15396,6 +15498,9 @@
           227457349309358061
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "radial_gradient_nvprmsaa4.png": {
@@ -15404,6 +15509,9 @@
           "bitmap-64bitMD5", 
           14941464582660867910
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -16597,6 +16705,9 @@
           2415805639447437786
         ]
       ], 
+      "bugs": [
+        2619
+      ], 
       "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
@@ -16606,6 +16717,9 @@
           "bitmap-64bitMD5", 
           13374125976246952627
         ]
+      ], 
+      "bugs": [
+        2619
       ], 
       "ignore-failure": true, 
       "reviewed-by-human": true
@@ -19409,6 +19523,9 @@
           99304012495268944
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "ignore-failure": false, 
       "reviewed-by-human": true
     }, 
@@ -19419,6 +19536,9 @@
           17976537055001151954
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "xfermodes2_nvprmsaa4.png": {
@@ -19427,6 +19547,9 @@
           "bitmap-64bitMD5", 
           99304012495268944
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 
@@ -19525,6 +19648,9 @@
           16935319345008694478
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "ignore-failure": false, 
       "reviewed-by-human": true
     }, 
@@ -19535,6 +19661,9 @@
           11975782723899906465
         ]
       ], 
+      "bugs": [
+        2325
+      ], 
       "reviewed-by-human": true
     }, 
     "xfermodes_nvprmsaa4.png": {
@@ -19543,6 +19672,9 @@
           "bitmap-64bitMD5", 
           16935319345008694478
         ]
+      ], 
+      "bugs": [
+        2325
       ], 
       "reviewed-by-human": true
     }, 

@@ -145,6 +145,9 @@
           732637529794329269
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "aarectmodes_pdf-mac.png": {
@@ -321,6 +324,9 @@
           "bitmap-64bitMD5", 
           6098879441101922023
         ]
+      ], 
+      "bugs": [
+        1578
       ], 
       "reviewed-by-human": true
     }, 
@@ -6985,6 +6991,9 @@
           1111702777882128269
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "drawbitmapmatrix_pdf-mac.png": {
@@ -10019,6 +10028,9 @@
           18258056184409556905
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "hittestpath_565.png": {
@@ -10862,6 +10874,9 @@
           4021252917133180712
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "lerpmode_pdf-mac.png": {
@@ -11524,6 +11539,9 @@
           6168032688602434941
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "modecolorfilters_pdf-mac.png": {
@@ -11883,6 +11901,9 @@
           "bitmap-64bitMD5", 
           14415361990696875204
         ]
+      ], 
+      "bugs": [
+        1578
       ], 
       "reviewed-by-human": true
     }, 
@@ -12870,6 +12891,9 @@
           "bitmap-64bitMD5", 
           16832628682857079624
         ]
+      ], 
+      "bugs": [
+        1578
       ], 
       "reviewed-by-human": true
     }, 
@@ -16227,6 +16251,9 @@
           10255557835044221556
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "xfermodes2_pdf-mac.png": {
@@ -16337,6 +16364,9 @@
           "bitmap-64bitMD5", 
           17423281849856450242
         ]
+      ], 
+      "bugs": [
+        1578
       ], 
       "reviewed-by-human": true
     }, 

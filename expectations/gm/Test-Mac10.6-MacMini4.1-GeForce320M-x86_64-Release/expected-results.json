@@ -9465,6 +9465,9 @@
           4021252917133180712
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "lerpmode_pdf-mac.png": {
@@ -10052,6 +10055,9 @@
           6168032688602434941
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "modecolorfilters_pdf-mac.png": {
@@ -10408,6 +10414,9 @@
           "bitmap-64bitMD5", 
           14415361990696875204
         ]
+      ], 
+      "bugs": [
+        1578
       ], 
       "reviewed-by-human": true
     }, 

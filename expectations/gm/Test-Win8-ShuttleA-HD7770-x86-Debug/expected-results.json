@@ -115,6 +115,9 @@
           15809448707538670203
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "aarectmodes_pdf-poppler.png": {
@@ -255,6 +258,9 @@
           "bitmap-64bitMD5", 
           437660430823418557
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -4288,6 +4294,9 @@
           17882491547416718552
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "complexclip_aa_layer_pdf-poppler.png": {
@@ -4380,6 +4389,9 @@
           "bitmap-64bitMD5", 
           3120967353050079154
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -5706,6 +5718,9 @@
           "bitmap-64bitMD5", 
           1174005698323125985
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -8299,6 +8314,9 @@
           18272123830337130792
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "hittestpath_565.png": {
@@ -9025,6 +9043,9 @@
           15784589612095101596
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "lerpmode_pdf-poppler.png": {
@@ -9249,6 +9270,9 @@
           "bitmap-64bitMD5", 
           10285899092093927343
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -9549,6 +9573,9 @@
           "bitmap-64bitMD5", 
           15011145842294672643
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -9882,6 +9909,9 @@
           "bitmap-64bitMD5", 
           8531414046974890102
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -10746,6 +10776,9 @@
           "bitmap-64bitMD5", 
           5074139331563224033
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -13542,6 +13575,9 @@
           10108148184849807676
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "xfermodes2_pdf-poppler.png": {
@@ -13634,6 +13670,9 @@
           "bitmap-64bitMD5", 
           5670758797006973372
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 

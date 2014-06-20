@@ -109,6 +109,9 @@
           4226546152156322054
         ]
       ], 
+      "bugs": [
+        2146
+      ], 
       "reviewed-by-human": true
     }, 
     "aarectmodes_pdf-poppler.png": {
@@ -240,6 +243,9 @@
           "bitmap-64bitMD5", 
           8941985046232639503
         ]
+      ], 
+      "bugs": [
+        2146
       ], 
       "reviewed-by-human": true
     }, 
@@ -3707,6 +3713,9 @@
           6438524046114913660
         ]
       ], 
+      "bugs": [
+        2332
+      ], 
       "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
@@ -3746,6 +3755,9 @@
           "bitmap-64bitMD5", 
           16545620039728547520
         ]
+      ], 
+      "bugs": [
+        2332
       ], 
       "ignore-failure": true, 
       "reviewed-by-human": true
@@ -4418,6 +4430,9 @@
           "bitmap-64bitMD5", 
           5315960437537659710
         ]
+      ], 
+      "bugs": [
+        2331
       ], 
       "ignore-failure": true, 
       "reviewed-by-human": true
@@ -5160,6 +5175,9 @@
           "bitmap-64bitMD5", 
           618412905295349879
         ]
+      ], 
+      "bugs": [
+        2146
       ], 
       "reviewed-by-human": true
     }, 
@@ -8427,6 +8445,9 @@
           4051325077334920598
         ]
       ], 
+      "bugs": [
+        2146
+      ], 
       "reviewed-by-human": true
     }, 
     "lerpmode_pdf-poppler.png": {
@@ -8875,6 +8896,9 @@
           5436516912516784614
         ]
       ], 
+      "bugs": [
+        2262
+      ], 
       "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
@@ -9211,6 +9235,9 @@
           "bitmap-64bitMD5", 
           3686981308882837527
         ]
+      ], 
+      "bugs": [
+        2146
       ], 
       "reviewed-by-human": true
     }, 

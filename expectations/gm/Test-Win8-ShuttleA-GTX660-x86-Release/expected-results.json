@@ -154,6 +154,9 @@
           5361673090383820149
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "aarectmodes_msaa16.png": {
@@ -162,6 +165,9 @@
           "bitmap-64bitMD5", 
           3770567129781642033
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -352,6 +358,9 @@
           608276889301743723
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "arithmode_msaa16.png": {
@@ -360,6 +369,9 @@
           "bitmap-64bitMD5", 
           1598082088145744323
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -6181,6 +6193,9 @@
           12943226058298543397
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "complexclip_aa_layer_msaa16.png": {
@@ -6189,6 +6204,9 @@
           "bitmap-64bitMD5", 
           16685830182959333029
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -6313,6 +6331,9 @@
           11064548892547087058
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "complexclip_bw_layer_msaa16.png": {
@@ -6321,6 +6342,9 @@
           "bitmap-64bitMD5", 
           16040510034477962847
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -8284,6 +8308,9 @@
           14145109580428845757
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "drawbitmapmatrix_msaa16.png": {
@@ -8292,6 +8319,9 @@
           "bitmap-64bitMD5", 
           17938573218167752738
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -12097,6 +12127,9 @@
           7836212725887477706
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "hairmodes_msaa16.png": {
@@ -12105,6 +12138,9 @@
           "bitmap-64bitMD5", 
           15416135243961642681
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -13166,6 +13202,9 @@
           4337305683950474221
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "lerpmode_msaa16.png": {
@@ -13174,6 +13213,9 @@
           "bitmap-64bitMD5", 
           9267399652224228185
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -13490,6 +13532,9 @@
           3951907476639075318
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "lumafilter_msaa16.png": {
@@ -13498,6 +13543,9 @@
           "bitmap-64bitMD5", 
           17482973176241626685
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -13919,6 +13967,9 @@
           13540332316670655625
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "modecolorfilters_msaa16.png": {
@@ -13927,6 +13978,9 @@
           "bitmap-64bitMD5", 
           12218867104690768584
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -14393,6 +14447,9 @@
           9183725853792620789
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "optimizations_msaa16.png": {
@@ -14401,6 +14458,9 @@
           "bitmap-64bitMD5", 
           8127642505197276510
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -15632,6 +15692,9 @@
           14941464582660867910
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "radial_gradient_msaa16.png": {
@@ -15640,6 +15703,9 @@
           "bitmap-64bitMD5", 
           227457349309358061
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -19731,6 +19797,9 @@
           5244833999761095753
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "xfermodes2_msaa16.png": {
@@ -19739,6 +19808,9 @@
           "bitmap-64bitMD5", 
           12102803749038823848
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 
@@ -19863,6 +19935,9 @@
           12643636240979715685
         ]
       ], 
+      "bugs": [
+        1935
+      ], 
       "reviewed-by-human": true
     }, 
     "xfermodes_msaa16.png": {
@@ -19871,6 +19946,9 @@
           "bitmap-64bitMD5", 
           5921456028806325444
         ]
+      ], 
+      "bugs": [
+        1935
       ], 
       "reviewed-by-human": true
     }, 

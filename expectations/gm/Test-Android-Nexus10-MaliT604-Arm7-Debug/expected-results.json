@@ -7219,7 +7219,10 @@
           4961378074335424403
         ]
       ], 
-      "ignore-failure": true, 
+      "bugs": [
+        1655
+      ], 
+      "ignore-failure": true,
       "reviewed-by-human": true
     }, 
     "hairmodes_msaa4.png": {
@@ -7229,7 +7232,10 @@
           14247877693672647204
         ]
       ], 
-      "ignore-failure": true, 
+      "bugs": [
+        1655
+      ], 
+      "ignore-failure": true,
       "reviewed-by-human": true
     }, 
     "hittestpath_565.png": {
@@ -7847,6 +7853,9 @@
           11941738304615278761
         ]
       ], 
+      "bugs": [
+        1578
+      ],
       "reviewed-by-human": true
     }, 
     "lerpmode_msaa4.png": {
@@ -7855,6 +7864,9 @@
           "bitmap-64bitMD5", 
           7255273740487203408
         ]
+      ], 
+      "bugs": [
+        1578
       ], 
       "reviewed-by-human": true
     }, 

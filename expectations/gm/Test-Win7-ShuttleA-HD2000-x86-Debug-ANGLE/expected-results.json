@@ -10287,6 +10287,9 @@
           9812993713815487791
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "lerpmode_gpu.png": {
@@ -10870,6 +10873,9 @@
           2992375879142624268
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "modecolorfilters_gpu.png": {
@@ -11210,6 +11216,9 @@
           "bitmap-64bitMD5", 
           17352743232213033167
         ]
+      ], 
+      "bugs": [
+        1578
       ], 
       "reviewed-by-human": true
     }, 

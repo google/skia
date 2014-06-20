@@ -8336,6 +8336,9 @@
           7150313580130655353
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "lerpmode_pdf-poppler.png": {
@@ -8842,6 +8845,9 @@
           4273377358399608835
         ]
       ], 
+      "bugs": [
+        1578
+      ], 
       "reviewed-by-human": true
     }, 
     "modecolorfilters_pdf-poppler.png": {
@@ -9156,6 +9162,9 @@
           "bitmap-64bitMD5", 
           12848328078440704869
         ]
+      ], 
+      "bugs": [
+        1578
       ], 
       "reviewed-by-human": true
     }, 
