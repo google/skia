@@ -5,6 +5,7 @@
 .gclient*
 .gm-actuals
 TAGS
+common
 gyp/build
 out
 platform_tools/chromeos/third_party/externals
