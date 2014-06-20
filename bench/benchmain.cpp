@@ -6,7 +6,6 @@
  */
 
 #include "BenchLogger.h"
-#include "BenchTimer.h"
 #include "Benchmark.h"
 #include "CrashHandler.h"
 #include "GMBench.h"
@@ -24,6 +23,7 @@
 #include "SkPictureRecorder.h"
 #include "SkString.h"
 #include "SkSurface.h"
+#include "Timer.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -530,9 +530,9 @@ int tool_main(int argc, char** argv) {
             if (Benchmark::kGPU_Backend == config.backend) {
                 contextHelper = gContextFactory.getGLContext(config.contextType);
             }
-            BenchTimer timer(contextHelper);
+            Timer timer(contextHelper);
 #else
-            BenchTimer timer;
+            Timer timer;
 #endif
 
             double previous = std::numeric_limits<double>::infinity();

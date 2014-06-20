@@ -20,9 +20,9 @@
     'experimental.gyp:experimental',
     'flags.gyp:flags',
     'pdf.gyp:pdf',
-    'resources.gyp:resources',
     'skia_lib.gyp:skia_lib',
     'tools.gyp:picture_utils',
+    'tools.gyp:resources',
   ],
   'sources': [
     '../tests/Test.cpp',

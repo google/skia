@@ -16,10 +16,8 @@
 
 #include "../include/record/SkRecording.h"
 
-#include "BenchTimer.h"
 #include "Stats.h"
-
-typedef WallTimer Timer;
+#include "Timer.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -78,15 +76,16 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
     // Draw once to warm any caches.  The first sample otherwise can be very noisy.
     draw(*record, *picture, canvas.get());
 
-    Timer timer;
+    WallTimer timer;
+    const double scale = timescale();
     SkAutoTMalloc<double> samples(FLAGS_samples);
     for (int i = 0; i < FLAGS_samples; i++) {
         // We assume timer overhead (typically, ~30ns) is insignificant
         // compared to draw runtime (at least ~100us, usually several ms).
-        timer.start(timescale());
+        timer.start();
         draw(*record, *picture, canvas.get());
         timer.end();
-        samples[i] = timer.fWall;
+        samples[i] = timer.fWall * scale;
     }
 
     Stats stats(samples.get(), FLAGS_samples);
