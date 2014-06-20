@@ -17,13 +17,13 @@
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 #if defined(SK_BUILD_FOR_WIN32)
-    #include "SysTimer_windows.h"
+    #include "BenchSysTimer_windows.h"
 #elif defined(SK_BUILD_FOR_MAC)
-    #include "SysTimer_mach.h"
+    #include "BenchSysTimer_mach.h"
 #elif defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
-    #include "SysTimer_posix.h"
+    #include "BenchSysTimer_posix.h"
 #else
-    #include "SysTimer_c.h"
+    #include "BenchSysTimer_c.h"
 #endif
 
 
@@ -202,7 +202,7 @@ public:
     double totTime() const { return fTot; }
 
 protected:
-    SysTimer fTimer;
+    BenchSysTimer fTimer;
     SkTDArray<bool> fSkipCommands; // has the command been deleted in the GUI?
     SkTDArray<double> fTimes;   // sum of time consumed for each command
     SkTDArray<double> fTypeTimes; // sum of time consumed for each type of command (e.g., drawPath)

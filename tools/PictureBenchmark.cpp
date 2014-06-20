@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Timer.h"
+#include "BenchTimer.h"
 #include "PictureBenchmark.h"
 #include "SkCanvas.h"
 #include "SkPicture.h"
@@ -42,13 +42,13 @@ void PictureBenchmark::setTimersToShow(bool wall,
     fTimerTypes |= gpu ? TimerData::kGpu_Flag : 0;
 }
 
-Timer* PictureBenchmark::setupTimer(bool useGLTimer) {
+BenchTimer* PictureBenchmark::setupTimer(bool useGLTimer) {
 #if SK_SUPPORT_GPU
     if (useGLTimer && fRenderer != NULL && fRenderer->isUsingGpuDevice()) {
-        return SkNEW_ARGS(Timer, (fRenderer->getGLContext()));
+        return SkNEW_ARGS(BenchTimer, (fRenderer->getGLContext()));
     }
 #endif
-    return SkNEW_ARGS(Timer, (NULL));
+    return SkNEW_ARGS(BenchTimer, (NULL));
 }
 
 PictureRenderer* PictureBenchmark::setRenderer(sk_tools::PictureRenderer* renderer) {
@@ -147,11 +147,11 @@ void PictureBenchmark::run(SkPicture* pict) {
             // seems to cause problems (i.e., INVALID_OPERATIONs) on several
             // platforms. To work around this, we disable the gpu timer on the
             // long running timer.
-            SkAutoTDelete<Timer> longRunningTimer(this->setupTimer());
+            SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer());
             TimerData longRunningTimerData(numOuterLoops);
 
             for (int outer = 0; outer < numOuterLoops; ++outer) {
-                SkAutoTDelete<Timer> perTileTimer(this->setupTimer(false));
+                SkAutoTDelete<BenchTimer> perTileTimer(this->setupTimer(false));
                 TimerData perTileTimerData(numInnerLoops);
 
                 longRunningTimer->start();
@@ -201,11 +201,11 @@ void PictureBenchmark::run(SkPicture* pict) {
                 numInnerLoops);
         }
     } else {
-        SkAutoTDelete<Timer> longRunningTimer(this->setupTimer());
+        SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer());
         TimerData longRunningTimerData(numOuterLoops);
 
         for (int outer = 0; outer < numOuterLoops; ++outer) {
-            SkAutoTDelete<Timer> perRunTimer(this->setupTimer(false));
+            SkAutoTDelete<BenchTimer> perRunTimer(this->setupTimer(false));
             TimerData perRunTimerData(numInnerLoops);
 
             longRunningTimer->start();

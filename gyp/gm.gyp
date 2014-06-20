@@ -5,6 +5,28 @@
   ],
   'targets': [
     {
+      'target_name': 'gm_expectations',
+      'type': 'static_library',
+      'include_dirs' : [
+        '../src/utils/',
+      ],
+      'sources': [
+        '../gm/gm_expectations.h',
+        '../gm/gm_expectations.cpp',
+        '../tools/sk_tool_utils.cpp',
+      ],
+      'dependencies': [
+        'crash_handler.gyp:CrashHandler',
+        'jsoncpp.gyp:jsoncpp',
+        'skia_lib.gyp:skia_lib',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../gm/',
+        ],
+      },
+    },
+    {
       'target_name': 'gm',
       'type': 'executable',
       'include_dirs' : [
@@ -27,12 +49,11 @@
       'dependencies': [
         'etc1.gyp:libetc1',
         'flags.gyp:flags',
+        'gm.gyp:gm_expectations',
         'jsoncpp.gyp:jsoncpp',
         'pdf.gyp:pdf',
+        'resources.gyp:resources',
         'skia_lib.gyp:skia_lib',
-        'tools.gyp:crash_handler',
-        'tools.gyp:gm_expectations',
-        'tools.gyp:resources',
       ],
       'conditions': [
         ['skia_android_framework', {

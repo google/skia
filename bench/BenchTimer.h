@@ -1,25 +1,18 @@
+
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef Timer_DEFINED
-#define Timer_DEFINED
+#ifndef SkBenchTimer_DEFINED
+#define SkBenchTimer_DEFINED
 
-#include "SkTypes.h"
+#include <SkTypes.h>
 
-#if defined(SK_BUILD_FOR_WIN32)
-    #include "SysTimer_windows.h"
-#elif defined(SK_BUILD_FOR_MAC)
-    #include "SysTimer_mach.h"
-#elif defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
-    #include "SysTimer_posix.h"
-#endif
 
-#if SK_SUPPORT_GPU
-    #include "GpuTimer.h"
-#endif
+class BenchSysTimer;
+class BenchGpuTimer;
 
 class SkGLContextHelper;
 
@@ -32,15 +25,13 @@ class SkGLContextHelper;
  * times and (for GPU configurations) can be used to roughly (very
  * roughly) gauge the GPU load/backlog.
  */
-class Timer {
+class BenchTimer {
 public:
-    explicit Timer(SkGLContextHelper* gl = NULL);
-
-    void start();
-    void truncatedEnd();
+    BenchTimer(SkGLContextHelper* gl = NULL);
+    ~BenchTimer();
+    void start(double durationScale = 1);
     void end();
-
-    // All times in milliseconds.
+    void truncatedEnd();
     double fCpu;
     double fWall;
     double fTruncatedCpu;
@@ -48,26 +39,29 @@ public:
     double fGpu;
 
 private:
-    SysTimer fSysTimer;
-    SysTimer fTruncatedSysTimer;
+    BenchSysTimer* fSysTimer;
+    BenchSysTimer* fTruncatedSysTimer;
 #if SK_SUPPORT_GPU
-    GpuTimer fGpuTimer;
+    BenchGpuTimer* fGpuTimer;
 #endif
+    double fDurationScale;  // for this start/end session
 };
 
-// Same as Timer above, supporting only fWall but with much lower overhead.
-// (Typically, ~30ns instead of Timer's ~1us.)
+// Same as BenchTimer above, supporting only fWall but with much lower overhead.
+// (Typically, ~30ns instead of BenchTimer's ~1us.)
 class WallTimer {
 public:
     WallTimer();
+    ~WallTimer();
 
-    void start();
+    void start(double durationScale = 1);
     void end();
 
-    double fWall;  // Milliseconds.
+    double fWall;
 
 private:
-    SysTimer fSysTimer;
+    BenchSysTimer* fSysTimer;
+    double fDurationScale;
 };
 
 #endif

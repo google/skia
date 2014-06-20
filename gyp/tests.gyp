@@ -11,7 +11,7 @@
         'pathops_unittest.gypi',
         'tests.gypi',
       ],
-      'dependencies': [ 'tools.gyp:crash_handler' ],
+      'dependencies': [ 'crash_handler.gyp:CrashHandler' ],
       'sources': [
         '../tests/skia_test.cpp',
       ],

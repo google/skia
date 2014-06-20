@@ -14,9 +14,11 @@
 #include "SkStream.h"
 #include "SkString.h"
 
+#include "BenchTimer.h"
 #include "LazyDecodeBitmap.h"
 #include "Stats.h"
-#include "Timer.h"
+
+typedef WallTimer Timer;
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -79,13 +81,12 @@ static void bench_record(const SkPicture& src,
     rerecord(src, bbhFactory);
 
     // Rerecord once to see how many times we should loop to make timer overhead insignificant.
-    WallTimer timer;
-    const double scale = timescale();
+    Timer timer;
     do {
-        timer.start();
+        timer.start(timescale());
         rerecord(src, bbhFactory);
         timer.end();
-    } while (timer.fWall * scale < timerOverhead);  // Loop just in case something bizarre happens.
+    } while (timer.fWall < timerOverhead);   // Loop just in case something bizarre happens.
 
     // We want (timer overhead / measurement) to be less than FLAGS_overheadGoal.
     // So in each sample, we'll loop enough times to have made that true for our first measurement.
@@ -93,12 +94,12 @@ static void bench_record(const SkPicture& src,
 
     SkAutoTMalloc<double> samples(FLAGS_samples);
     for (int i = 0; i < FLAGS_samples; i++) {
-        timer.start();
+        timer.start(timescale());
         for (int j = 0; j < loops; j++) {
             rerecord(src, bbhFactory);
         }
         timer.end();
-        samples[i] = timer.fWall * scale / loops;
+        samples[i] = timer.fWall / loops;
     }
 
     Stats stats(samples.get(), FLAGS_samples);
@@ -131,13 +132,12 @@ int tool_main(int argc, char** argv) {
 
     // Each run will use this timer overhead estimate to guess how many times it should run.
     static const int kOverheadLoops = 10000000;
-    WallTimer timer;
+    Timer timer;
     double overheadEstimate = 0.0;
-    const double scale = timescale();
     for (int i = 0; i < kOverheadLoops; i++) {
-        timer.start();
+        timer.start(timescale());
         timer.end();
-        overheadEstimate += timer.fWall * scale;
+        overheadEstimate += timer.fWall;
     }
     overheadEstimate /= kOverheadLoops;
 

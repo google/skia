@@ -5,11 +5,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "GpuTimer.h"
+#include "BenchGpuTimer_gl.h"
 #include "gl/SkGLContextHelper.h"
 #include "gl/GrGLUtil.h"
 
-GpuTimer::GpuTimer(const SkGLContextHelper* glctx) {
+BenchGpuTimer::BenchGpuTimer(const SkGLContextHelper* glctx) {
     fContext = glctx;
     glctx->ref();
     glctx->makeCurrent();
@@ -23,7 +23,7 @@ GpuTimer::GpuTimer(const SkGLContextHelper* glctx) {
     }
 }
 
-GpuTimer::~GpuTimer() {
+BenchGpuTimer::~BenchGpuTimer() {
     if (fSupported) {
         fContext->makeCurrent();
         SK_GL(*fContext, DeleteQueries(1, &fQuery));
@@ -31,7 +31,7 @@ GpuTimer::~GpuTimer() {
     fContext->unref();
 }
 
-void GpuTimer::start() {
+void BenchGpuTimer::startGpu() {
     if (fSupported) {
         fContext->makeCurrent();
         fStarted = true;
@@ -43,7 +43,7 @@ void GpuTimer::start() {
  * It is important to stop the cpu clocks first,
  * as this will cpu wait for the gpu to finish.
  */
-double GpuTimer::end() {
+double BenchGpuTimer::endGpu() {
     if (fSupported) {
         fStarted = false;
         fContext->makeCurrent();
@@ -52,8 +52,8 @@ double GpuTimer::end() {
         GrGLint available = 0;
         while (!available) {
             SK_GL_NOERRCHECK(*fContext, GetQueryObjectiv(fQuery,
-                                                         GR_GL_QUERY_RESULT_AVAILABLE,
-                                                         &available));
+                                             GR_GL_QUERY_RESULT_AVAILABLE,
+                                             &available));
             // If GetQueryObjectiv is erroring out we need some alternative
             // means of breaking out of this loop
             GrGLenum error;

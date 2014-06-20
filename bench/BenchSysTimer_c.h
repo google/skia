@@ -1,24 +1,26 @@
+
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SysTimer_DEFINED
-#define SysTimer_DEFINED
+#ifndef SkBenchSysTimer_DEFINED
+#define SkBenchSysTimer_DEFINED
 
-#include <mach/mach.h>
-#include <mach/mach_time.h>
+//Time
+#include <time.h>
 
-class SysTimer {
+// Beware: this timer uses standard (as opposed to high precision) clocks
+class BenchSysTimer {
 public:
     void startWall();
     void startCpu();
     double endCpu();
     double endWall();
 private:
-    time_value_t fStartCpu;
-    uint64_t fStartWall;
+    clock_t start_cpu;
+    time_t fStartWall;
 };
 
 #endif

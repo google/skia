@@ -1,20 +1,21 @@
+
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef GpuTimer_DEFINED
-#define GpuTimer_DEFINED
+#ifndef SkBenchGpuTimer_DEFINED
+#define SkBenchGpuTimer_DEFINED
 
 class SkGLContextHelper;
 
-class GpuTimer {
+class BenchGpuTimer {
 public:
-    GpuTimer(const SkGLContextHelper*);
-    ~GpuTimer();
-    void start();
-    double end();
+    BenchGpuTimer(const SkGLContextHelper* glctx);
+    ~BenchGpuTimer();
+    void startGpu();
+    double endGpu();
 private:
     unsigned fQuery;
     int fStarted;

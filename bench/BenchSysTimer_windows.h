@@ -1,17 +1,18 @@
+
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SysTimer_DEFINED
-#define SysTimer_DEFINED
+#ifndef SkBenchSysTimer_DEFINED
+#define SkBenchSysTimer_DEFINED
 
 //Time
 #define WIN32_LEAN_AND_MEAN 1
 #include <windows.h>
 
-class SysTimer {
+class BenchSysTimer {
 public:
     void startWall();
     void startCpu();

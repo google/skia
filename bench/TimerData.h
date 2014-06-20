@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2012 Google Inc.
  *
@@ -22,7 +23,7 @@
     #pragma warning(pop)
 #endif
 
-class Timer;
+class BenchTimer;
 
 class TimerData {
 public:
@@ -32,12 +33,12 @@ public:
     explicit TimerData(int maxNumTimings);
 
     /**
-     * Collect times from the Timer for an iteration. It will fail if called more often than
+     * Collect times from the BenchTimer for an iteration. It will fail if called more often than
      * indicated in the constructor.
      *
-     * @param Timer Must not be null.
+     * @param BenchTimer Must not be null.
      */
-    bool appendTimes(Timer*);
+    bool appendTimes(BenchTimer*);
 
     enum Result {
         kMin_Result,

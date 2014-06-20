@@ -1,17 +1,25 @@
+
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SysTimer_windows.h"
+#include "BenchSysTimer_windows.h"
 
-static ULONGLONG win_cpu_time() {
+//Time
+#define WIN32_LEAN_AND_MEAN 1
+#include <windows.h>
+
+static ULONGLONG winCpuTime() {
     FILETIME createTime;
     FILETIME exitTime;
     FILETIME usrTime;
     FILETIME sysTime;
-    if (0 == GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &sysTime, &usrTime)) {
+    if (0 == GetProcessTimes(GetCurrentProcess()
+                           , &createTime, &exitTime
+                           , &sysTime, &usrTime))
+    {
         return 0;
     }
     ULARGE_INTEGER start_cpu_sys;
@@ -23,27 +31,27 @@ static ULONGLONG win_cpu_time() {
     return start_cpu_sys.QuadPart + start_cpu_usr.QuadPart;
 }
 
-void SysTimer::startWall() {
-    if (0 == ::QueryPerformanceCounter(&fStartWall)) {
-        fStartWall.QuadPart = 0;
+void BenchSysTimer::startWall() {
+    if (0 == ::QueryPerformanceCounter(&this->fStartWall)) {
+        this->fStartWall.QuadPart = 0;
     }
 }
-void SysTimer::startCpu() {
-    fStartCpu = win_cpu_time();
+void BenchSysTimer::startCpu() {
+    this->fStartCpu = winCpuTime();
 }
 
-double SysTimer::endCpu() {
-    ULONGLONG end_cpu = win_cpu_time();
-    return static_cast<double>(end_cpu - fStartCpu) / 10000.0L;
+double BenchSysTimer::endCpu() {
+    ULONGLONG end_cpu = winCpuTime();
+    return static_cast<double>((end_cpu - this->fStartCpu)) / 10000.0L;
 }
-double SysTimer::endWall() {
+double BenchSysTimer::endWall() {
     LARGE_INTEGER end_wall;
     if (0 == ::QueryPerformanceCounter(&end_wall)) {
         end_wall.QuadPart = 0;
     }
 
     LARGE_INTEGER ticks_elapsed;
-    ticks_elapsed.QuadPart = end_wall.QuadPart - fStartWall.QuadPart;
+    ticks_elapsed.QuadPart = end_wall.QuadPart - this->fStartWall.QuadPart;
 
     LARGE_INTEGER frequency;
     if (0 == ::QueryPerformanceFrequency(&frequency)) {

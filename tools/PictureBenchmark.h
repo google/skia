@@ -13,8 +13,8 @@
 #include "SkTypes.h"
 #include "TimerData.h"
 
+class BenchTimer;
 class SkPicture;
-class Timer;
 
 namespace sk_tools {
 
@@ -67,7 +67,7 @@ private:
 
     PictureResultsWriter* fWriter;
 
-    Timer* setupTimer(bool useGLTimer = true);
+    BenchTimer* setupTimer(bool useGLTimer = true);
 };
 
 }

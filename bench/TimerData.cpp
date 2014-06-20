@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2012 Google Inc.
  *
@@ -6,19 +7,22 @@
  */
 #include "TimerData.h"
 
-#include "Timer.h"
+#include "BenchTimer.h"
 #include <limits>
 
-TimerData::TimerData(int maxNumTimings)
-    : fMaxNumTimings(maxNumTimings)
-    , fCurrTiming(0)
-    , fWallTimes(maxNumTimings)
-    , fTruncatedWallTimes(maxNumTimings)
-    , fCpuTimes(maxNumTimings)
-    , fTruncatedCpuTimes(maxNumTimings)
-    , fGpuTimes(maxNumTimings) {}
+using namespace std;
 
-bool TimerData::appendTimes(Timer* timer) {
+TimerData::TimerData(int maxNumTimings)
+: fMaxNumTimings(maxNumTimings)
+, fCurrTiming(0)
+, fWallTimes(maxNumTimings)
+, fTruncatedWallTimes(maxNumTimings)
+, fCpuTimes(maxNumTimings)
+, fTruncatedCpuTimes(maxNumTimings)
+, fGpuTimes(maxNumTimings){
+}
+
+bool TimerData::appendTimes(BenchTimer* timer) {
     SkASSERT(timer != NULL);
     if (fCurrTiming >= fMaxNumTimings) {
         return false;
