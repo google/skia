@@ -6,6 +6,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef GrReducedClip_DEFINED
+#define GrReducedClip_DEFINED
+
 #include "SkClipStack.h"
 #include "SkTLList.h"
 
@@ -41,3 +44,5 @@ SK_API void ReduceClipStack(const SkClipStack& stack,
                             bool* requiresAA = NULL);
 
 } // namespace GrReducedClip
+
+#endif
