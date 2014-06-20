@@ -4547,6 +4547,10 @@
           4199059907564224666
         ]
       ], 
+      "bugs": [
+        2667
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "dashing_565.png": {
