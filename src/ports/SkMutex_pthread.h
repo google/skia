@@ -19,6 +19,7 @@
 // a corresponding static finalizer).
 struct SkBaseMutex {
     void acquire() {
+        SkASSERT(fOwner != pthread_self());  // SkMutex is not re-entrant
         pthread_mutex_lock(&fMutex);
         SkDEBUGCODE(fOwner = pthread_self();)
     }
