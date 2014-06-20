@@ -1015,7 +1015,7 @@ void GrGLRRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
     // warp the fragment position to the appropriate part of the 9patch blur texture
 
     builder->fsCodeAppendf("\t\tvec2 rectCenter = (%s.xy + %s.zw)/2.0;\n", rectName, rectName);
-    builder->fsCodeAppendf("\t\tvec2 translatedFragPos = %s.xy - %s.xy;\n", fragmentPos, rectName);
+    builder->fsCodeAppendf("\t\tvec2 translatedFragPos = %s - %s.xy;\n", fragmentPos, rectName);
     builder->fsCodeAppendf("\t\tfloat threshold = %s + 2.0*%s;\n", cornerRadiusName, blurRadiusName );
     builder->fsCodeAppendf("\t\tvec2 middle = %s.zw - %s.xy - 2.0*threshold;\n", rectName, rectName );
 

@@ -499,7 +499,7 @@ const char* GrGLShaderBuilder::fragmentPosition() {
     // declaration varies in earlier GLSL specs. So it is simpler to omit it.
     if (fTopLeftFragPosRead) {
         fSetupFragPosition = true;
-        return "gl_FragCoord";
+        return "(gl_FragCoord.xy)";
     } else if (fGpu->glCaps().fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
             SkAssertResult(this->enablePrivateFeature(kFragCoordConventions_GLSLPrivateFeature));
@@ -510,7 +510,7 @@ const char* GrGLShaderBuilder::fragmentPosition() {
                                       GrGLShaderVar::kUpperLeft_Origin);
             fSetupFragPosition = true;
         }
-        return "gl_FragCoord";
+        return "(gl_FragCoord.xy)";
     } else {
         static const char* kCoordName = "fragCoordYDown";
         if (!fSetupFragPosition) {
@@ -523,7 +523,7 @@ const char* GrGLShaderBuilder::fragmentPosition() {
             fOutput.fUniformHandles.fRTHeightUni =
                 this->addUniform(kFragment_Visibility, kFloat_GrSLType, "RTHeight", &rtHeightName);
 
-            this->fFSCode.prependf("\tvec4 %s = vec4(gl_FragCoord.x, %s - gl_FragCoord.y, gl_FragCoord.zw);\n",
+            this->fFSCode.prependf("\tvec2 %s = vec2(gl_FragCoord.x, %s - gl_FragCoord.y);\n",
                                    kCoordName, rtHeightName);
             fSetupFragPosition = true;
         }
