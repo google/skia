@@ -112,10 +112,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10879622672299268205
+          12831307062174214826
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "aarectmodes_pdf-poppler.png": {
       "allowed-digests": [
@@ -244,10 +245,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1137110444666174739
+          17937962607023109860
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "arithmode_pdf-poppler.png": {
       "allowed-digests": [
@@ -673,7 +675,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12646107109970106955
+          13146980359454954128
         ]
       ], 
       "ignore-failure": false, 
@@ -4014,7 +4016,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8645462464069482295
+          12597718936238320255
         ]
       ], 
       "reviewed-by-human": true
@@ -4096,7 +4098,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7069319741280458117
+          13715653560297370490
         ]
       ], 
       "reviewed-by-human": true
@@ -4219,7 +4221,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5469030517403717728
+          11597881161191131072
         ]
       ], 
       "reviewed-by-human": true
@@ -5295,10 +5297,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10303810140172040904
+          11482296602351535562
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "drawbitmapmatrix_pdf-poppler.png": {
       "allowed-digests": [
@@ -7645,10 +7648,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13274748155400875756
+          17393768864600460161
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "hittestpath_565.png": {
       "allowed-digests": [
@@ -8329,13 +8333,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16271637167989743463
+          7150313580130655353
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "lerpmode_pdf-poppler.png": {
       "allowed-digests": [
@@ -8524,7 +8525,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17584525476237622529
+          18226744787129433112
         ]
       ], 
       "reviewed-by-human": true
@@ -8838,13 +8839,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11302360056092717723
+          4273377358399608835
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "modecolorfilters_pdf-poppler.png": {
       "allowed-digests": [
@@ -9156,13 +9154,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13857521313271479795
+          12848328078440704869
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "optimizations_pdf-poppler.png": {
       "allowed-digests": [
@@ -9904,10 +9899,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5440525180981761895
+          9571104979652806930
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "radial_gradient_pdf-poppler.png": {
       "allowed-digests": [
@@ -10434,7 +10430,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4295161658641647793
+          8506380848879115178
         ]
       ], 
       "reviewed-by-human": true
@@ -10461,7 +10457,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5535804529377953328
+          8392557442883645913
         ]
       ], 
       "reviewed-by-human": true
@@ -10717,7 +10713,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14127006905311928300
+          15204542703862982077
         ]
       ], 
       "ignore-failure": false, 
@@ -11953,7 +11949,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1613716011867819554
+          8065331411362302499
         ]
       ], 
       "ignore-failure": false, 
@@ -11981,7 +11977,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5902651983250387614
+          1239771344378188392
         ]
       ], 
       "reviewed-by-human": true
@@ -12480,10 +12476,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3987827829779115018
+          439797100980758552
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "xfermodes2_pdf-poppler.png": {
       "allowed-digests": [
@@ -12555,10 +12552,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14131904844964275075
+          5756664969030125332
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "xfermodes_pdf-poppler.png": {
       "allowed-digests": [
