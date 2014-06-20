@@ -29,26 +29,12 @@ template <typename T> inline T abs_diff(const T &a, const T &b) {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// Return the squared minimum error cost of approximating 'pixel' using the
-// provided palette. Return this in the middle 16 bits of the integer. Return
-// the best index in the palette for this pixel in the bottom 8 bits.
-static uint32_t compute_error(uint8_t pixel, uint8_t palette[8]) {
-    int minIndex = 0;
-    uint8_t error = abs_diff(palette[0], pixel);
-    for (int i = 1; i < 8; ++i) {
-        uint8_t diff = abs_diff(palette[i], pixel);
-        if (diff < error) {
-            minIndex = i;
-            error = diff;
-        }
-    }
-    uint16_t errSq = static_cast<uint16_t>(error) * static_cast<uint16_t>(error);
-    SkASSERT(minIndex >= 0 && minIndex < 8);
-    return (static_cast<uint32_t>(errSq) << 8) | static_cast<uint32_t>(minIndex);
-}
+// LATC compressed texels down into square 4x4 blocks
+static const int kPaletteSize = 8;
+static const int kLATCBlockSize = 4;
+static const int kPixelsPerBlock = kLATCBlockSize * kLATCBlockSize;
 
-// Compress LATC block. Each 4x4 block of pixels is decompressed by LATC from two
-// values LUM0 and LUM1, and an index into the generated palette. LATC constructs
+// Generates an LATC palette. LATC constructs
 // a palette of eight colors from LUM0 and LUM1 using the algorithm:
 //
 // LUM0,              if lum0 > lum1 and code(x,y) == 0
@@ -68,142 +54,281 @@ static uint32_t compute_error(uint8_t pixel, uint8_t palette[8]) {
 // (  LUM0+4*LUM1)/5, if lum0 <= lum1 and code(x,y) == 5
 // 0,                 if lum0 <= lum1 and code(x,y) == 6
 // 255,               if lum0 <= lum1 and code(x,y) == 7
-//
-// We compute the LATC palette using the following simple algorithm:
-// 1. Choose the minimum and maximum values in the block as LUM0 and LUM1
-// 2. Figure out which of the two possible palettes is better.
 
-static uint64_t compress_latc_block(uint8_t block[16]) {
-    // Just do a simple min/max but choose which of the
-    // two palettes is better
-    uint8_t maxVal = 0;
-    uint8_t minVal = 255;
-    for (int i = 0; i < 16; ++i) {
-        maxVal = SkMax32(maxVal, block[i]);
-        minVal = SkMin32(minVal, block[i]);
-    }
-
-    // Generate palettes
-    uint8_t palettes[2][8];
-
-    // Straight linear ramp
-    palettes[0][0] = maxVal;
-    palettes[0][1] = minVal;
-    for (int i = 1; i < 7; ++i) {
-        palettes[0][i+1] = ((7-i)*maxVal + i*minVal) / 7;
-    }
-
-    // Smaller linear ramp with min and max byte values at the end.
-    palettes[1][0] = minVal;
-    palettes[1][1] = maxVal;
-    for (int i = 1; i < 5; ++i) {
-        palettes[1][i+1] = ((5-i)*maxVal + i*minVal) / 5;
-    }
-    palettes[1][6] = 0;
-    palettes[1][7] = 255;
-
-    // Figure out which of the two is better:
-    //  -  accumError holds the accumulated error for each pixel from
-    //     the associated palette
-    //  -  indices holds the best indices for each palette in the
-    //     bottom 48 (16*3) bits.
-    uint32_t accumError[2] = { 0, 0 };
-    uint64_t indices[2] = { 0, 0 };
-    for (int i = 15; i >= 0; --i) {
-        // For each palette:
-        // 1. Retreive the result of this pixel
-        // 2. Store the error in accumError
-        // 3. Store the minimum palette index in indices.
-        for (int p = 0; p < 2; ++p) {
-            uint32_t result = compute_error(block[i], palettes[p]);
-            accumError[p] += (result >> 8);
-            indices[p] <<= 3;
-            indices[p] |= result & 7;
+static void generate_palette(uint8_t palette[], uint8_t lum0, uint8_t lum1) {
+    palette[0] = lum0;
+    palette[1] = lum1;
+    if (lum0 > lum1) {
+        for (int i = 1; i < 7; i++) {
+            palette[i+1] = ((7-i)*lum0 + i*lum1) / 7;
         }
+    } else {
+        for (int i = 1; i < 5; i++) {
+            palette[i+1] = ((5-i)*lum0 + i*lum1) / 5;
+        }
+        palette[6] = 0;
+        palette[7] = 255;
     }
-
-    SkASSERT(indices[0] < (static_cast<uint64_t>(1) << 48));
-    SkASSERT(indices[1] < (static_cast<uint64_t>(1) << 48));
-
-    uint8_t paletteIdx = (accumError[0] > accumError[1]) ? 0 : 1;
-
-    // Assemble the compressed block.
-    uint64_t result = 0;
-
-    // Jam the first two palette entries into the bottom 16 bits of
-    // a 64 bit integer. Based on the palette that we chose, one will
-    // be larger than the other and it will select the proper palette.
-    result |= static_cast<uint64_t>(palettes[paletteIdx][0]);
-    result |= static_cast<uint64_t>(palettes[paletteIdx][1]) << 8;
-
-    // Jam the indices into the top 48 bits.
-    result |= indices[paletteIdx] << 16;
-
-    // We assume everything is little endian, if it's not then make it so.
-    return SkEndian_SwapLE64(result);
 }
 
-static SkData *compress_a8_to_latc(const SkBitmap &bm) {
-    // LATC compressed texels down into square 4x4 blocks
-    static const int kLATCBlockSize = 4;
+static bool is_extremal(uint8_t pixel) {
+    return 0 == pixel || 255 == pixel;
+}
 
+// Compress a block by using the bounding box of the pixels. It is assumed that
+// there are no extremal pixels in this block otherwise we would have used
+// compressBlockBBIgnoreExtremal.
+static uint64_t compress_block_bb(const uint8_t pixels[]) {
+    uint8_t minVal = 255;
+    uint8_t maxVal = 0;
+    for (int i = 0; i < kPixelsPerBlock; ++i) {
+        minVal = SkTMin(pixels[i], minVal);
+        maxVal = SkTMax(pixels[i], maxVal);
+    }
+
+    SkASSERT(!is_extremal(minVal));
+    SkASSERT(!is_extremal(maxVal));
+
+    uint8_t palette[kPaletteSize];
+    generate_palette(palette, maxVal, minVal);
+
+    uint64_t indices = 0;
+    for (int i = kPixelsPerBlock - 1; i >= 0; --i) {
+
+        // Find the best palette index
+        uint8_t bestError = abs_diff(pixels[i], palette[0]);
+        uint8_t idx = 0;
+        for (int j = 1; j < kPaletteSize; ++j) {
+            uint8_t error = abs_diff(pixels[i], palette[j]);
+            if (error < bestError) {
+                bestError = error;
+                idx = j;
+            }
+        }
+
+        indices <<= 3;
+        indices |= idx;
+    }
+
+    return
+        SkEndian_SwapLE64(
+            static_cast<uint64_t>(maxVal) |
+            (static_cast<uint64_t>(minVal) << 8) |
+            (indices << 16));
+}
+
+// Compress a block by using the bounding box of the pixels without taking into
+// account the extremal values. The generated palette will contain extremal values
+// and fewer points along the line segment to interpolate.
+static uint64_t compress_block_bb_ignore_extremal(const uint8_t pixels[]) {
+    uint8_t minVal = 255;
+    uint8_t maxVal = 0;
+    for (int i = 0; i < kPixelsPerBlock; ++i) {
+        if (is_extremal(pixels[i])) {
+            continue;
+        }
+
+        minVal = SkTMin(pixels[i], minVal);
+        maxVal = SkTMax(pixels[i], maxVal);
+    }
+
+    SkASSERT(!is_extremal(minVal));
+    SkASSERT(!is_extremal(maxVal));
+
+    uint8_t palette[kPaletteSize];
+    generate_palette(palette, minVal, maxVal);
+
+    uint64_t indices = 0;
+    for (int i = kPixelsPerBlock - 1; i >= 0; --i) {
+
+        // Find the best palette index
+        uint8_t idx = 0;
+        if (is_extremal(pixels[i])) {
+            if (0xFF == pixels[i]) {
+                idx = 7;
+            } else if (0 == pixels[i]) {
+                idx = 6;
+            } else {
+                SkFAIL("Pixel is extremal but not really?!");
+            }
+        } else {
+            uint8_t bestError = abs_diff(pixels[i], palette[0]);
+            for (int j = 1; j < kPaletteSize - 2; ++j) {
+                uint8_t error = abs_diff(pixels[i], palette[j]);
+                if (error < bestError) {
+                    bestError = error;
+                    idx = j;
+                }
+            }
+        }
+
+        indices <<= 3;
+        indices |= idx;
+    }
+
+    return
+        SkEndian_SwapLE64(
+            static_cast<uint64_t>(minVal) |
+            (static_cast<uint64_t>(maxVal) << 8) |
+            (indices << 16));        
+}
+
+
+// Compress LATC block. Each 4x4 block of pixels is decompressed by LATC from two
+// values LUM0 and LUM1, and an index into the generated palette. Details of how
+// the palette is generated can be found in the comments of generatePalette above.
+//
+// We choose which palette type to use based on whether or not 'pixels' contains
+// any extremal values (0 or 255). If there are extremal values, then we use the
+// palette that has the extremal values built in. Otherwise, we use the full bounding
+// box.
+
+static uint64_t compress_block(const uint8_t pixels[]) {
+    // Collect unique pixels
+    int nUniquePixels = 0;
+    uint8_t uniquePixels[kPixelsPerBlock];
+    for (int i = 0; i < kPixelsPerBlock; ++i) {
+        bool foundPixel = false;
+        for (int j = 0; j < nUniquePixels; ++j) {
+            foundPixel = foundPixel || uniquePixels[j] == pixels[i];
+        }
+
+        if (!foundPixel) {
+            uniquePixels[nUniquePixels] = pixels[i];
+            ++nUniquePixels;
+        }
+    }
+
+    // If there's only one unique pixel, then our compression is easy.
+    if (1 == nUniquePixels) {
+        return SkEndian_SwapLE64(pixels[0] | (pixels[0] << 8));
+
+    // Similarly, if there are only two unique pixels, then our compression is
+    // easy again: place the pixels in the block header, and assign the indices
+    // with one or zero depending on which pixel they belong to.
+    } else if (2 == nUniquePixels) {
+        uint64_t outBlock = 0;
+        for (int i = kPixelsPerBlock - 1; i >= 0; --i) {
+            int idx = 0;
+            if (pixels[i] == uniquePixels[1]) {
+                idx = 1;
+            }
+
+            outBlock <<= 3;
+            outBlock |= idx;
+        }
+        outBlock <<= 16;
+        outBlock |= (uniquePixels[0] | (uniquePixels[1] << 8));
+        return SkEndian_SwapLE64(outBlock);
+    }
+
+    // Count non-maximal pixel values
+    int nonExtremalPixels = 0;
+    for (int i = 0; i < nUniquePixels; ++i) {
+        if (!is_extremal(uniquePixels[i])) {
+            ++nonExtremalPixels;
+        }
+    }
+
+    // If all the pixels are nonmaximal then compute the palette using
+    // the bounding box of all the pixels.
+    if (nonExtremalPixels == nUniquePixels) {
+        // This is really just for correctness, in all of my tests we
+        // never take this step. We don't lose too much perf here because
+        // most of the processing in this function is worth it for the 
+        // 1 == nUniquePixels optimization.
+        return compress_block_bb(pixels);
+    } else {
+        return compress_block_bb_ignore_extremal(pixels);
+    }
+}
+
+static bool compress_a8_to_latc(uint8_t* dst, const uint8_t* src,
+                                int width, int height, int rowBytes) {
     // Make sure that our data is well-formed enough to be
     // considered for LATC compression
-    if (bm.width() == 0 || bm.height() == 0 ||
-        (bm.width() % kLATCBlockSize) != 0 ||
-        (bm.height() % kLATCBlockSize) != 0 ||
-        (bm.colorType() != kAlpha_8_SkColorType)) {
-        return NULL;
+    if (0 == width || 0 == height ||
+        (width % kLATCBlockSize) != 0 || (height % kLATCBlockSize) != 0) {
+        return false;
     }
 
-    // The LATC format is 64 bits per 4x4 block.
-    static const int kLATCEncodedBlockSize = 8;
-
-    int blocksX = bm.width() / kLATCBlockSize;
-    int blocksY = bm.height() / kLATCBlockSize;
-
-    int compressedDataSize = blocksX * blocksY * kLATCEncodedBlockSize;
-    uint64_t* dst = reinterpret_cast<uint64_t*>(sk_malloc_throw(compressedDataSize));
+    int blocksX = width / kLATCBlockSize;
+    int blocksY = height / kLATCBlockSize;
 
     uint8_t block[16];
-    const uint8_t* row = reinterpret_cast<const uint8_t*>(bm.getPixels());
-    uint64_t* encPtr = dst;
+    uint64_t* encPtr = reinterpret_cast<uint64_t*>(dst);
     for (int y = 0; y < blocksY; ++y) {
         for (int x = 0; x < blocksX; ++x) {
-            memcpy(block, row + (kLATCBlockSize * x), 4);
-            memcpy(block + 4, row + bm.rowBytes() + (kLATCBlockSize * x), 4);
-            memcpy(block + 8, row + 2*bm.rowBytes() + (kLATCBlockSize * x), 4);
-            memcpy(block + 12, row + 3*bm.rowBytes() + (kLATCBlockSize * x), 4);
+            // Load block
+            static const int kBS = kLATCBlockSize;
+            for (int k = 0; k < kBS; ++k) {
+                memcpy(block + k*kBS, src + k*rowBytes + (kBS * x), kBS);
+            }
 
-            *encPtr = compress_latc_block(block);
+            // Compress it
+            *encPtr = compress_block(block);
             ++encPtr;
         }
-        row += kLATCBlockSize * bm.rowBytes();
+        src += kLATCBlockSize * rowBytes;
     }
 
-    return SkData::NewFromMalloc(dst, compressedDataSize);
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace SkTextureCompressor {
 
-typedef SkData *(*CompressBitmapProc)(const SkBitmap &bitmap);
+static size_t get_compressed_data_size(Format fmt, int width, int height) {
+    switch (fmt) {
+        case kLATC_Format:
+        {
+            // The LATC format is 64 bits per 4x4 block.
+            static const int kLATCEncodedBlockSize = 8;
+
+            int blocksX = width / kLATCBlockSize;
+            int blocksY = height / kLATCBlockSize;
+
+            return blocksX * blocksY * kLATCEncodedBlockSize;
+        }
+
+        default:
+            SkFAIL("Unknown compressed format!");
+            return 0;
+    }
+}
+
+typedef bool (*CompressBitmapProc)(uint8_t* dst, const uint8_t* src,
+                                   int width, int height, int rowBytes);
+
+bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcColorType,
+                            int width, int height, int rowBytes, Format format) {
+
+    CompressBitmapProc kProcMap[kFormatCnt][kLastEnum_SkColorType + 1];
+    memset(kProcMap, 0, sizeof(kProcMap));
+
+    kProcMap[kLATC_Format][kAlpha_8_SkColorType] = compress_a8_to_latc;
+    
+    CompressBitmapProc proc = kProcMap[format][srcColorType];
+    if (NULL != proc) {
+        return proc(dst, src, width, height, rowBytes);
+    }
+
+    return false;
+}
 
 SkData *CompressBitmapToFormat(const SkBitmap &bitmap, Format format) {
     SkAutoLockPixels alp(bitmap);
 
-    CompressBitmapProc kProcMap[kLastEnum_SkColorType + 1][kFormatCnt];
-    memset(kProcMap, 0, sizeof(kProcMap));
-
-    // Map available bitmap configs to compression functions
-    kProcMap[kAlpha_8_SkColorType][kLATC_Format] = compress_a8_to_latc;
-
-    CompressBitmapProc proc = kProcMap[bitmap.colorType()][format];
-    if (NULL != proc) {
-        return proc(bitmap);
+    int compressedDataSize = get_compressed_data_size(format, bitmap.width(), bitmap.height());
+    const uint8_t* src = reinterpret_cast<const uint8_t*>(bitmap.getPixels());
+    uint8_t* dst = reinterpret_cast<uint8_t*>(sk_malloc_throw(compressedDataSize));
+    if (CompressBufferToFormat(dst, src, bitmap.colorType(), bitmap.width(), bitmap.height(),
+                               bitmap.rowBytes(), format)) {
+        return SkData::NewFromMalloc(dst, compressedDataSize);
     }
 
+    sk_free(dst);
     return NULL;
 }
 
