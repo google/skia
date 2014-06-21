@@ -49,10 +49,10 @@
       'include_dirs' : [ '../src/utils/' ],
       'sources': [
         '../gm/gm_expectations.cpp',
-        '../tools/sk_tool_utils.cpp',
       ],
       'dependencies': [
         'jsoncpp.gyp:jsoncpp',
+        'sk_tool_utils',
         'skia_lib.gyp:skia_lib',
       ],
       'direct_dependent_settings': {
@@ -84,7 +84,18 @@
         'skia_lib.gyp:skia_lib',
       ],
       'direct_dependent_settings': {
-        'include_dirs': [ '../tools/', ],
+        'include_dirs': [ '../tools', ],
+      },
+    },
+    {
+      'target_name': 'sk_tool_utils',
+      'type': 'static_library',
+      'sources': [ '../tools/sk_tool_utils.cpp' ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [ '../tools', ],
       },
     },
     {

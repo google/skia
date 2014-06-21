@@ -8,8 +8,10 @@
 #ifndef sk_tool_utils_DEFINED
 #define sk_tool_utils_DEFINED
 
-#include "SkCanvas.h"
-#include "SkBitmap.h"
+#include "SkImageInfo.h"
+
+class SkBitmap;
+class SkCanvas;
 
 namespace sk_tool_utils {
 
@@ -20,6 +22,7 @@ namespace sk_tool_utils {
      *  the pixels are colorType + alphaType
      */
     void write_pixels(SkCanvas*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
-}
 
-#endif
+}  // namespace sk_tool_utils
+
+#endif  // sk_tool_utils_DEFINED

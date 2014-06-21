@@ -1,4 +1,14 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "sk_tool_utils.h"
+
+#include "SkBitmap.h"
+#include "SkCanvas.h"
 
 namespace sk_tool_utils {
 
@@ -29,4 +39,4 @@ void write_pixels(SkCanvas* canvas, const SkBitmap& bitmap, int x, int y,
     canvas->writePixels(info, tmp.getPixels(), tmp.rowBytes(), x, y);
 }
 
-}
+}  // namespace sk_tool_utils

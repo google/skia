@@ -23,6 +23,7 @@
     'skia_lib.gyp:skia_lib',
     'tools.gyp:picture_utils',
     'tools.gyp:resources',
+    'tools.gyp:sk_tool_utils',
   ],
   'sources': [
     '../tests/Test.cpp',
@@ -197,7 +198,5 @@
 
     '../tests/TDStackNesterTest.cpp',
     '../experimental/PdfViewer/src/SkTDStackNester.h',
-
-    '../tools/sk_tool_utils.cpp',
   ],
 }

@@ -15,6 +15,7 @@
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
         'tools.gyp:resources',
+        'tools.gyp:sk_tool_utils',
         'tools.gyp:timer',
       ],
       'sources': [
@@ -24,7 +25,6 @@
         '../bench/GMBench.h',
         '../bench/ResultsWriter.cpp',
         '../bench/benchmain.cpp',
-        '../tools/sk_tool_utils.cpp',
       ],
       'conditions': [
         ['skia_gpu == 1',
