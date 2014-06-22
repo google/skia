@@ -16,7 +16,6 @@
         '../src/pdf',
         '../src/pipe/utils',
         '../src/utils',
-        '../tools/',
       ],
       'includes': [
         'pathops_unittest.gypi',
@@ -28,12 +27,12 @@
         '../tests/PathOpsOpLoopThreadedTest.cpp',
         '../tests/PathOpsSkpClipTest.cpp',
         '../tests/Test.cpp',
-        '../tests/skia_test.cpp',
         '../tests/Test.h',
+        '../tests/skia_test.cpp',
       ],
       'dependencies': [
-        'skia_lib.gyp:skia_lib',
         'flags.gyp:flags',
+        'skia_lib.gyp:skia_lib',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {

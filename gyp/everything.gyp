@@ -24,7 +24,7 @@
             'pdfviewer.gyp:pdfviewer',
             #'v8.gyp:SkV8Example',
             #'webtry.gyp:webtry',
-            ],
+          ],
         }],
       ],
     },

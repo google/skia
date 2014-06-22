@@ -23,70 +23,57 @@
       'target_name': 'SkiaExamples',
       'type': 'executable',
       'mac_bundle' : 1,
-      'include_dirs' : [
-        '../tools/flags',
-        ],
-      'includes': [],
-       'sources': [
-         '../experimental/SkiaExamples/SkExample.h',
-         '../experimental/SkiaExamples/SkExample.cpp',
-         '../experimental/SkiaExamples/HelloSkiaExample.cpp',
-       ],
-       'dependencies': [
-         'skia_lib.gyp:skia_lib',
-         'views.gyp:views',
-         'xml.gyp:xml',
-         'flags.gyp:flags'
-       ],
-       'conditions' : [
-         [ 'skia_gpu == 1', {
-           'include_dirs' : [
-             '../src/gpu',  #gl/GrGLUtil.h
-             ]
-         }],
+      'sources': [
+        '../experimental/SkiaExamples/SkExample.h',
+        '../experimental/SkiaExamples/SkExample.cpp',
+        '../experimental/SkiaExamples/HelloSkiaExample.cpp',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'skia_lib.gyp:skia_lib',
+        'views.gyp:views',
+        'xml.gyp:xml',
+      ],
+      'conditions' : [
+        [ 'skia_gpu == 1', {
+          'include_dirs' : [
+            '../src/gpu',
+          ],
+        }],
         [ 'skia_os == "win"', {
-         'sources' : [
-           '../src/views/win/SkOSWindow_Win.cpp',
-           '../src/views/win/skia_win.cpp',
-           ],
-          },
-        ],
-
+          'sources' : [
+            '../src/views/win/SkOSWindow_Win.cpp',
+            '../src/views/win/skia_win.cpp',
+          ],
+        }],
         [ 'skia_os == "mac"', {
           'sources': [
-
-# SkiaExamples specific files
-          '../experimental/SkiaExamples/SkiaExamples-Info.plist',
-          '../experimental/SkiaExamples/SkExampleNSView.h',
-          '../experimental/SkiaExamples/SkExampleNSView.mm',
-
-# Mac files
-          '../src/views/mac/SampleAppDelegate.h',
-          '../src/views/mac/SampleAppDelegate.mm',
-          '../src/views/mac/SkEventNotifier.mm',
-          '../src/views/mac/skia_mac.mm',
-          '../src/views/mac/SkNSView.h',
-          '../src/views/mac/SkNSView.mm',
-          '../src/views/mac/SkOptionsTableView.h',
-          '../src/views/mac/SkOptionsTableView.mm',
-          '../src/views/mac/SkOSWindow_Mac.mm',
-          '../src/views/mac/SkTextFieldCell.h',
-          '../src/views/mac/SkTextFieldCell.m',
+            '../experimental/SkiaExamples/SkiaExamples-Info.plist',
+            '../experimental/SkiaExamples/SkExampleNSView.h',
+            '../experimental/SkiaExamples/SkExampleNSView.mm',
+            '../src/views/mac/SampleAppDelegate.h',
+            '../src/views/mac/SampleAppDelegate.mm',
+            '../src/views/mac/SkEventNotifier.mm',
+            '../src/views/mac/skia_mac.mm',
+            '../src/views/mac/SkNSView.h',
+            '../src/views/mac/SkNSView.mm',
+            '../src/views/mac/SkOptionsTableView.h',
+            '../src/views/mac/SkOptionsTableView.mm',
+            '../src/views/mac/SkOSWindow_Mac.mm',
+            '../src/views/mac/SkTextFieldCell.h',
+            '../src/views/mac/SkTextFieldCell.m',
           ],
-        'include_dirs' : [
-          '../src/views/mac/'
+          'include_dirs' : [
+            '../src/views/mac/'
           ],
-        'link_settings': {
-        },
-        'xcode_settings' : {
-          'INFOPLIST_FILE' : '../experimental/SkiaExamples/SkiaExamples-Info.plist',
-        },
-        'mac_bundle_resources' : [
-          '../experimental/SkiaExamples/SkiaExamples.xib'
+          'xcode_settings' : {
+            'INFOPLIST_FILE' : '../experimental/SkiaExamples/SkiaExamples-Info.plist',
+          },
+          'mac_bundle_resources' : [
+            '../experimental/SkiaExamples/SkiaExamples.xib'
           ],
-        }
+        }],
       ],
-     ],
     }
   ],
 }

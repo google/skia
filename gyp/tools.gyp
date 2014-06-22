@@ -159,13 +159,12 @@
         '../tools/skpdiff/SkImageDiffer.cpp',
         '../tools/skpdiff/SkPMetric.cpp',
         '../tools/skpdiff/skpdiff_util.cpp',
-        '../tools/flags/SkCommandLineFlags.cpp',
       ],
       'include_dirs': [
-        '../tools/flags',
         '../src/core/', # needed for SkTLList.h
       ],
       'dependencies': [
+        'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
       ],
       'cflags': [
@@ -282,7 +281,6 @@
         '../tools/skpinfo.cpp',
       ],
       'include_dirs': [
-        '../tools/flags',
         '../src/core/',
       ],
       'dependencies': [
@@ -301,7 +299,6 @@
         '../src/core/',
         '../src/images',
         '../src/lazy',
-        '../tools/flags',
       ],
       'dependencies': [
         'flags.gyp:flags',
