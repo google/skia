@@ -30,6 +30,8 @@ class SkWStream;
 
 struct SkPictInfo;
 
+class SkRecord;
+
 /** \class SkPicture
 
     The SkPicture class records the drawing commands made to a canvas, to
@@ -67,16 +69,10 @@ public:
     SkPicture(const SkPicture& src);
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
-    void EXPERIMENTAL_addAccelData(const AccelData* data) const {
-        SkRefCnt_SafeAssign(fAccelData, data);
-    }
+    void EXPERIMENTAL_addAccelData(const AccelData*) const;
+
     /**  PRIVATE / EXPERIMENTAL -- do not call */
-    const AccelData* EXPERIMENTAL_getAccelData(AccelData::Key key) const {
-        if (NULL != fAccelData && fAccelData->getKey() == key) {
-            return fAccelData;
-        }
-        return NULL;
-    }
+    const AccelData* EXPERIMENTAL_getAccelData(AccelData::Key) const;
 
     /**
      *  Function signature defining a function that sets up an SkBitmap from encoded data. On
@@ -255,12 +251,12 @@ protected:
 
     mutable uint32_t      fUniqueID;
 
-    // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
+    // fPlayback, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived
     // recorders and set the picture size
-    SkPicturePlayback*    fPlayback;
+    SkAutoTDelete<SkPicturePlayback> fPlayback;
     int                   fWidth, fHeight;
-    mutable const AccelData* fAccelData;
+    mutable SkAutoTUnref<const AccelData> fAccelData;
 
     void needsNewGenID() { fUniqueID = SK_InvalidGenID; }
 
@@ -318,6 +314,9 @@ private:
     friend class SkDebugCanvas;
 
     typedef SkRefCnt INHERITED;
+
+    SkPicture(int width, int height, SkRecord*);  // Takes ownership.
+    SkAutoTDelete<SkRecord> fRecord;
 };
 
 /**

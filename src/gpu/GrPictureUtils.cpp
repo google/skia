@@ -250,11 +250,11 @@ protected:
     virtual void onDrawPicture(const SkPicture* picture) SK_OVERRIDE {
         // BBH-based rendering doesn't re-issue many of the operations the gather
         // process cares about (e.g., saves and restores) so it must be disabled.
-        if (NULL != picture->fPlayback) {
+        if (NULL != picture->fPlayback.get()) {
             picture->fPlayback->setUseBBH(false);
         }
         picture->draw(this);
-        if (NULL != picture->fPlayback) {
+        if (NULL != picture->fPlayback.get()) {
             picture->fPlayback->setUseBBH(true);
         }
     }

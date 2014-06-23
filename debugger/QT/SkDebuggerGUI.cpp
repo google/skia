@@ -286,16 +286,16 @@ public:
         return NULL;
     }
 
-    void resetTimes() { ((SkTimedPicturePlayback*) fPlayback)->resetTimes(); }
+    void resetTimes() { ((SkTimedPicturePlayback*) fPlayback.get())->resetTimes(); }
 
-    int count() const { return ((SkTimedPicturePlayback*) fPlayback)->count(); }
+    int count() const { return ((SkTimedPicturePlayback*) fPlayback.get())->count(); }
 
     // return the fraction of the total time this command consumed
-    double time(int index) const { return ((SkTimedPicturePlayback*) fPlayback)->time(index); }
+    double time(int index) const { return ((SkTimedPicturePlayback*) fPlayback.get())->time(index); }
 
-    const SkTDArray<double>* typeTimes() const { return ((SkTimedPicturePlayback*) fPlayback)->typeTimes(); }
+    const SkTDArray<double>* typeTimes() const { return ((SkTimedPicturePlayback*) fPlayback.get())->typeTimes(); }
 
-    double totTime() const { return ((SkTimedPicturePlayback*) fPlayback)->totTime(); }
+    double totTime() const { return ((SkTimedPicturePlayback*) fPlayback.get())->totTime(); }
 
 private:
     // disallow default ctor b.c. we don't have a good way to setup the fPlayback ptr

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -13,8 +14,6 @@
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "SkString.h"
-
-#include "../include/record/SkRecording.h"
 
 #include "Stats.h"
 #include "Timer.h"
@@ -37,7 +36,7 @@ static double timescale() {
     return 1;
 }
 
-static SkPicture* rerecord_with_tilegrid(SkPicture& src) {
+static SkPicture* rerecord(const SkPicture& src, bool skr) {
     SkTileGridFactory::TileGridInfo info;
     info.fTileInterval.set(FLAGS_tile, FLAGS_tile);
     info.fMargin.setEmpty();
@@ -45,27 +44,13 @@ static SkPicture* rerecord_with_tilegrid(SkPicture& src) {
     SkTileGridFactory factory(info);
 
     SkPictureRecorder recorder;
-    src.draw(recorder.beginRecording(src.width(), src.height(), &factory));
+    src.draw(skr ? recorder.EXPERIMENTAL_beginRecording(src.width(), src.height(), &factory)
+                 : recorder.             beginRecording(src.width(), src.height(), &factory));
     return recorder.endRecording();
 }
 
-static EXPERIMENTAL::SkPlayback* rerecord_with_skr(SkPicture& src) {
-    EXPERIMENTAL::SkRecording recording(src.width(), src.height());
-    src.draw(recording.canvas());
-    return recording.releasePlayback();
-}
-
-static void draw(const EXPERIMENTAL::SkPlayback& skr, const SkPicture& skp, SkCanvas* canvas) {
-    if (FLAGS_skr) {
-        skr.draw(canvas);
-    } else {
-        skp.draw(canvas);
-    }
-}
-
-static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
-    SkAutoTUnref<SkPicture> picture(rerecord_with_tilegrid(src));
-    SkAutoTDelete<EXPERIMENTAL::SkPlayback> record(rerecord_with_skr(src));
+static void bench(SkPMColor* scratch, const SkPicture& src, const char* name) {
+    SkAutoTUnref<const SkPicture> picture(rerecord(src, FLAGS_skr));
 
     SkAutoTDelete<SkCanvas> canvas(SkCanvas::NewRasterDirectN32(src.width(),
                                                                 src.height(),
@@ -74,7 +59,7 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
     canvas->clipRect(SkRect::MakeWH(SkIntToScalar(FLAGS_tile), SkIntToScalar(FLAGS_tile)));
 
     // Draw once to warm any caches.  The first sample otherwise can be very noisy.
-    draw(*record, *picture, canvas.get());
+    picture->draw(canvas.get());
 
     WallTimer timer;
     const double scale = timescale();
@@ -83,7 +68,7 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
         // We assume timer overhead (typically, ~30ns) is insignificant
         // compared to draw runtime (at least ~100us, usually several ms).
         timer.start();
-        draw(*record, *picture, canvas.get());
+        picture->draw(canvas.get());
         timer.end();
         samples[i] = timer.fWall * scale;
     }
@@ -129,7 +114,7 @@ int tool_main(int argc, char** argv) {
             failed = true;
             continue;
         }
-        SkAutoTUnref<SkPicture> src(SkPicture::CreateFromStream(stream));
+        SkAutoTUnref<const SkPicture> src(SkPicture::CreateFromStream(stream));
         if (!src) {
             SkDebugf("Could not read %s as an SkPicture.\n", path.c_str());
             failed = true;

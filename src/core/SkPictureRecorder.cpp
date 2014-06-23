@@ -60,7 +60,7 @@ SkPicture* SkPictureRecorder::endRecording() {
     SkPicture* picture = NULL;
 
     if (NULL != fRecord.get()) {
-        // TODO: picture = SkNEW_ARGS(SkPicture, (fWidth, fHeight, fRecord.detach()));
+        picture = SkNEW_ARGS(SkPicture, (fWidth, fHeight, fRecord.detach()));
     }
 
     if (NULL != fPictureRecord.get()) {

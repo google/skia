@@ -474,7 +474,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
 
     GrPaint grPaint;
     SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
-  
+
     fContext->drawRect(grPaint, rect, &strokeInfo);
 }
 
@@ -487,7 +487,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
 
     GrPaint grPaint;
     SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
-    
+
     GrStrokeInfo strokeInfo(paint);
     if (paint.getMaskFilter()) {
         // try to hit the fast path for drawing filtered round rects
@@ -536,7 +536,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         this->drawPath(draw, path, paint, NULL, true);
         return;
     }
-    
+
     fContext->drawRRect(grPaint, rect, strokeInfo);
 }
 
@@ -1945,7 +1945,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
 
             const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-            if (NULL != picture->fPlayback) {
+            if (NULL != picture->fPlayback.get()) {
                 SkPicturePlayback::PlaybackReplacements::ReplacementInfo* layerInfo =
                                                                         replacements.push();
                 layerInfo->fStart = info.fSaveLayerOpID;
