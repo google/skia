@@ -11,7 +11,6 @@
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDeviceProperties.h"
-#include "SkDraw.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
 #include "SkGlyphCache.h"
@@ -507,6 +506,15 @@ bool SkPaint::TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM) {
     return tooBig(matrix, MaxCacheSize2());
 }
 
+bool SkPaint::tooBigToUseCache(const SkMatrix& ctm) const {
+    SkMatrix textM;
+    return TooBigToUseCache(ctm, *this->setTextMatrix(&textM));
+}
+
+bool SkPaint::tooBigToUseCache() const {
+    SkMatrix textM;
+    return tooBig(*this->setTextMatrix(&textM), MaxCacheSize2());
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -989,7 +997,7 @@ SkScalar SkPaint::setupForAsPaths() {
 class SkCanonicalizePaint {
 public:
     SkCanonicalizePaint(const SkPaint& paint) : fPaint(&paint), fScale(0) {
-        if (paint.isLinearText() || SkDraw::ShouldDrawTextAsPaths(paint, SkMatrix::I())) {
+        if (paint.isLinearText() || paint.tooBigToUseCache()) {
             SkPaint* p = fLazy.set(paint);
             fScale = p->setupForAsPaths();
             fPaint = p;
