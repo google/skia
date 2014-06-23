@@ -1,0 +1,102 @@
+{
+    "fields": [
+        {
+            "name": "buildNumber",
+            "type": "INTEGER"
+        },
+        {
+            "name": "gitNumber",
+            "type": "INTEGER"
+        },
+        {
+            "name": "gitHash",
+            "type": "STRING"
+        },
+        {
+            "name": "timestamp",
+            "type": "INTEGER"
+        },
+        {
+            "name": "value",
+            "type": "FLOAT"
+        },
+        {
+            "name": "key",
+            "type": "STRING"
+        },
+        {
+            "name": "isTrybot",
+            "type": "BOOLEAN"
+        },
+        {
+            "name": "params",
+            "type": "RECORD",
+            "fields": [
+                {
+                    "name": "builderName",
+                    "type": "STRING"
+                },
+                {
+                    "name": "config",
+                    "type": "STRING"
+                },
+                {
+                    "name": "arch",
+                    "type": "STRING"
+                },
+                {
+                    "name": "configuration",
+                    "type": "STRING"
+                },
+                {
+                    "name": "role",
+                    "type": "STRING"
+                },
+                {
+                    "name": "skpSize",
+                    "type": "STRING"
+                },
+                {
+                    "name": "mode",
+                    "type": "STRING"
+                },
+                {
+                    "name": "benchName",
+                    "type": "STRING"
+                },
+                {
+                    "name": "gpu",
+                    "type": "STRING"
+                },
+                {
+                    "name": "model",
+                    "type": "STRING"
+                },
+                {
+                    "name": "measurementType",
+                    "type": "STRING"
+                },
+                {
+                    "name": "os",
+                    "type": "STRING"
+                },
+                {
+                    "name": "viewport",
+                    "type": "STRING"
+                },
+                {
+                    "name": "scale",
+                    "type": "STRING"
+                },
+                {
+                    "name": "bbh",
+                    "type": "STRING"
+                },
+                {
+                    "name": "badParams",
+                    "type": "STRING"
+                }
+            ]
+        }
+    ]
+}

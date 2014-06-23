@@ -1,0 +1,122 @@
+{
+    "fields": [
+        {
+            "name": "buildNumber",
+            "type": "INTEGER"
+        },
+        {
+            "name": "gitNumber",
+            "type": "INTEGER"
+        },
+        {
+            "name": "gitHash",
+            "type": "STRING"
+        },
+        {
+            "name": "timestamp",
+            "type": "INTEGER"
+        },
+        {
+            "name": "value",
+            "type": "FLOAT"
+        },
+        {
+            "name": "key",
+            "type": "STRING"
+        },
+        {
+            "name": "isTrybot",
+            "type": "BOOLEAN"
+        },
+        {
+            "name": "params",
+            "type": "RECORD",
+            "fields": [
+                {
+                    "name": "builderName",
+                    "type": "STRING"
+                },
+                {
+                    "name": "configuration",
+                    "type": "STRING"
+                },
+                {
+                    "name": "rotate",
+                    "type": "STRING"
+                },
+                {
+                    "name": "system",
+                    "type": "STRING"
+                },
+                {
+                    "name": "clip",
+                    "type": "STRING"
+                },
+                {
+                    "name": "gpuConfig",
+                    "type": "STRING"
+                },
+                {
+                    "name": "os",
+                    "type": "STRING"
+                },
+                {
+                    "name": "role",
+                    "type": "STRING"
+                },
+                {
+                    "name": "testName",
+                    "type": "STRING"
+                },
+                {
+                    "name": "antialias",
+                    "type": "STRING"
+                },
+                {
+                    "name": "filter",
+                    "type": "STRING"
+                },
+                {
+                    "name": "scale",
+                    "type": "STRING"
+                },
+                {
+                    "name": "build",
+                    "type": "STRING"
+                },
+                {
+                    "name": "gpu",
+                    "type": "STRING"
+                },
+                {
+                    "name": "alpha",
+                    "type": "STRING"
+                },
+                {
+                    "name": "model",
+                    "type": "STRING"
+                },
+                {
+                    "name": "measurementType",
+                    "type": "STRING"
+                },
+                {
+                    "name": "arch",
+                    "type": "STRING"
+                },
+                {
+                    "name": "dither",
+                    "type": "STRING"
+                },
+                {
+                    "name": "mode",
+                    "type": "STRING"
+                },
+                {
+                    "name": "badParams",
+                    "type": "STRING"
+                }
+            ]
+        }
+    ]
+}
