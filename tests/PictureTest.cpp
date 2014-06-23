@@ -1561,16 +1561,6 @@ static void test_gen_id(skiatest::Reporter* reporter) {
     SkPicture emptyCopy(empty);
     REPORTER_ASSERT(reporter, empty.uniqueID() != emptyCopy.uniqueID());
 
-    // test out swap
-    {
-        SkPicture swapWithData;
-        uint32_t beforeID1 = swapWithData.uniqueID();
-        uint32_t beforeID2 = copyWithData.uniqueID();
-        swapWithData.swap(copyWithData);
-        REPORTER_ASSERT(reporter, copyWithData.uniqueID() == beforeID1);
-        REPORTER_ASSERT(reporter, swapWithData.uniqueID() == beforeID2);
-    }
-
     // test out clone
     {
         SkAutoTUnref<SkPicture> cloneWithData(hasData->clone());

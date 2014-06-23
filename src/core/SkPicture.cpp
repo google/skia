@@ -161,17 +161,6 @@ SkPicture::SkPicture(const SkPicture& src) : INHERITED() {
 // fRecord OK
 SkPicture::~SkPicture() {}
 
-// fRecord OK
-void SkPicture::swap(SkPicture& other) {
-    SkTSwap(fUniqueID, other.fUniqueID);
-    SkTSwap(fWidth, other.fWidth);
-    SkTSwap(fHeight, other.fHeight);
-
-    fAccelData.swap(&other.fAccelData);
-    fPlayback.swap(&other.fPlayback);
-    fRecord.swap(&other.fRecord);
-}
-
 // fRecord TODO
 SkPicture* SkPicture::clone() const {
     SkPicture* clonedPicture = SkNEW(SkPicture);
