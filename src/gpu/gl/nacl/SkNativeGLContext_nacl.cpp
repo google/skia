@@ -26,7 +26,7 @@ SkNativeGLContext::~SkNativeGLContext() {
 void SkNativeGLContext::destroyGLContext() {
 }
 
-const GrGLInterface* SkNativeGLContext::createGLContext() {
+const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     return NULL;
 }
 

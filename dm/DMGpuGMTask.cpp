@@ -15,12 +15,14 @@ GpuGMTask::GpuGMTask(const char* config,
                      skiagm::GMRegistry::Factory gmFactory,
                      const Expectations& expectations,
                      GrContextFactory::GLContextType contextType,
+                     GrGLStandard gpuAPI,
                      int sampleCount)
     : GpuTask(reporter, taskRunner)
     , fGM(gmFactory(NULL))
     , fName(UnderJoin(fGM->getName(), config))
     , fExpectations(expectations)
     , fContextType(contextType)
+    , fGpuAPI(gpuAPI)
     , fSampleCount(sampleCount)
     {}
 
@@ -29,7 +31,12 @@ void GpuGMTask::draw(GrContextFactory* grFactory) {
                                          SkScalarCeilToInt(fGM->height()),
                                          kN32_SkColorType,
                                          kPremul_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(NewGpuSurface(grFactory, fContextType, info, fSampleCount));
+    SkAutoTUnref<SkSurface> surface(NewGpuSurface(grFactory, fContextType, fGpuAPI, info,
+                                                  fSampleCount));
+    if (!surface) {
+        this->fail("Could not create context for the config and the api.");
+        return;
+    }
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->concat(fGM->getInitialTransform());

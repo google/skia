@@ -27,13 +27,14 @@ SkGLContextHelper::~SkGLContextHelper() {
     SkSafeUnref(fGL);
 }
 
-bool SkGLContextHelper::init(int width, int height) {
+bool SkGLContextHelper::init(GrGLStandard forcedGpuAPI, int width,
+                             int height) {
     if (fGL) {
         fGL->unref();
         this->destroyGLContext();
     }
 
-    fGL = this->createGLContext();
+    fGL = this->createGLContext(forcedGpuAPI);
     if (fGL) {
         const GrGLubyte* temp;
 

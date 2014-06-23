@@ -168,7 +168,8 @@ static bool render_page(const SkString& outputDir,
 #if SK_SUPPORT_GPU
         else if (strcmp(FLAGS_config[0], "gpu") == 0) {
             SkAutoTUnref<GrSurface> target;
-            GrContext* gr = gContextFactory.get(GrContextFactory::kNative_GLContextType);
+            GrContext* gr = gContextFactory.get(GrContextFactory::kNative_GLContextType,
+                                                kNone_GrGLStandard);
             if (gr) {
                 // create a render target to back the device
                 GrTextureDesc desc;

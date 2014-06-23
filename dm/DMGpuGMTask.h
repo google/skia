@@ -23,6 +23,7 @@ public:
               skiagm::GMRegistry::Factory,
               const Expectations&,
               GrContextFactory::GLContextType,
+              GrGLStandard gpuAPI,
               int sampleCount);
 
     virtual void draw(GrContextFactory*) SK_OVERRIDE;
@@ -34,6 +35,7 @@ private:
     const SkString fName;
     const Expectations& fExpectations;
     const GrContextFactory::GLContextType fContextType;
+    GrGLStandard fGpuAPI;
     const int fSampleCount;
 };
 

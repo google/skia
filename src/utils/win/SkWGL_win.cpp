@@ -245,7 +245,7 @@ SkWGLExtensions::SkWGLExtensions()
     wglMakeCurrent(prevDC, prevGLRC);
 }
 
-HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool preferCoreProfile) {
+HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, SkWGLContextRequest contextType) {
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(dc, "WGL_ARB_pixel_format")) {
         return NULL;
@@ -307,27 +307,44 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool preferCoreProfile) {
     }
 
     HGLRC glrc = NULL;
-    if (preferCoreProfile && extensions.hasExtension(dc, "WGL_ARB_create_context")) {
-        static const int kCoreGLVersions[] = {
-            4, 3,
-            4, 2,
-            4, 1,
-            4, 0,
-            3, 3,
-            3, 2,
-        };
-        int coreProfileAttribs[] = {
-            SK_WGL_CONTEXT_MAJOR_VERSION, -1,
-            SK_WGL_CONTEXT_MINOR_VERSION, -1,
-            SK_WGL_CONTEXT_PROFILE_MASK,  SK_WGL_CONTEXT_CORE_PROFILE_BIT,
+    if (kGLES_SkWGLContextRequest == contextType) {
+        if (!extensions.hasExtension(dc, "WGL_EXT_create_context_es2_profile")) {
+            return NULL;
+        }
+        static const int glesAttribs[] = {
+            SK_WGL_CONTEXT_MAJOR_VERSION, 3,
+            SK_WGL_CONTEXT_MINOR_VERSION, 0,
+            SK_WGL_CONTEXT_PROFILE_MASK,  SK_WGL_CONTEXT_ES2_PROFILE_BIT,
             0,
         };
-        for (int v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
-            coreProfileAttribs[1] = kCoreGLVersions[2 * v];
-            coreProfileAttribs[3] = kCoreGLVersions[2 * v + 1];
-            glrc = extensions.createContextAttribs(dc, NULL, coreProfileAttribs);
-            if (NULL != glrc) {
-                break;
+        glrc = extensions.createContextAttribs(dc, NULL, glesAttribs);
+        if (NULL == glrc) {
+            return NULL;
+        }
+    } else {
+        if (kGLPreferCoreProfile_SkWGLContextRequest == contextType &&
+            extensions.hasExtension(dc, "WGL_ARB_create_context")) {
+            static const int kCoreGLVersions[] = {
+                4, 3,
+                4, 2,
+                4, 1,
+                4, 0,
+                3, 3,
+                3, 2,
+            };
+            int coreProfileAttribs[] = {
+                SK_WGL_CONTEXT_MAJOR_VERSION, -1,
+                SK_WGL_CONTEXT_MINOR_VERSION, -1,
+                SK_WGL_CONTEXT_PROFILE_MASK,  SK_WGL_CONTEXT_CORE_PROFILE_BIT,
+                0,
+            };
+            for (int v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
+                coreProfileAttribs[1] = kCoreGLVersions[2 * v];
+                coreProfileAttribs[3] = kCoreGLVersions[2 * v + 1];
+                glrc = extensions.createContextAttribs(dc, NULL, coreProfileAttribs);
+                if (NULL != glrc) {
+                    break;
+                }
             }
         }
     }

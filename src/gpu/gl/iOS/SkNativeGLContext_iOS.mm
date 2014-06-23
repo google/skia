@@ -42,7 +42,11 @@ void SkNativeGLContext::destroyGLContext() {
     [EAGLCTX release];
 }
 
-const GrGLInterface* SkNativeGLContext::createGLContext() {
+const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
+    if (kGL_GrGLStandard == forcedGpuAPI) {
+        return NULL;
+    }
+
     fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     [EAGLContext setCurrentContext:EAGLCTX];
     

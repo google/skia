@@ -47,7 +47,7 @@ void SkNativeGLContext::destroyGLContext() {
     }
 }
 
-const GrGLInterface* SkNativeGLContext::createGLContext() {
+const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
 
     if (!gWC) {
@@ -85,9 +85,13 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
         this->destroyGLContext();
         return NULL;
     }
+    // Requesting a Core profile would bar us from using NVPR. So we request
+    // compatibility profile or GL ES.
+    SkWGLContextRequest contextType =
+        kGLES_GrGLStandard == forcedGpuAPI ?
+        kGLES_SkWGLContextRequest : kGLPreferCompatibilityProfile_SkWGLContextRequest;
 
-    // Requesting a Core profile would bar us from using NVPR. So we pass false.
-    if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0, false))) {
+    if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0, contextType))) {
         SkDebugf("Could not create rendering context.\n");
         this->destroyGLContext();
         return NULL;

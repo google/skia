@@ -88,8 +88,7 @@ public:
         }
     }
 
-    GrContextFactory() {
-    }
+    GrContextFactory() { }
 
     ~GrContextFactory() { this->destroyContexts(); }
 
@@ -105,9 +104,12 @@ public:
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(GLContextType type) {
-
+    GrContext* get(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard) {
         for (int i = 0; i < fContexts.count(); ++i) {
+            if (forcedGpuAPI != kNone_GrGLStandard &&
+                forcedGpuAPI != fContexts[i].fGLContext->gl()->fStandard)
+                continue;
+
             if (fContexts[i].fType == type) {
                 fContexts[i].fGLContext->makeCurrent();
                 return fContexts[i].fGrContext;
@@ -141,7 +143,7 @@ public:
         if (!glCtx.get()) {
             return NULL;
         }
-        if (!glCtx.get()->init(kBogusSize, kBogusSize)) {
+        if (!glCtx.get()->init(forcedGpuAPI, kBogusSize, kBogusSize)) {
             return NULL;
         }
 

@@ -53,7 +53,11 @@ void SkMesaGLContext::destroyGLContext() {
 
 static const GrGLint gBOGUS_SIZE = 16;
 
-const GrGLInterface* SkMesaGLContext::createGLContext() {
+const GrGLInterface* SkMesaGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
+    if (kGLES_GrGLStandard == forcedGpuAPI) {
+        return NULL;
+    }
+
     /* Create an RGBA-mode context */
 #if OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 305
     /* specify Z, stencil, accum sizes */
