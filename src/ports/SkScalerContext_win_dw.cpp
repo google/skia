@@ -17,6 +17,7 @@
 #include "SkMatrix22.h"
 #include "SkOTTable_EBLC.h"
 #include "SkOTTable_EBSC.h"
+#include "SkOTTable_gasp.h"
 #include "SkPath.h"
 #include "SkScalerContext.h"
 #include "SkScalerContext_win_dw.h"
@@ -30,7 +31,57 @@ static bool isLCD(const SkScalerContext::Rec& rec) {
            SkMask::kLCD32_Format == rec.fMaskFormat;
 }
 
-static bool hasBitmapStrike(DWriteFontTypeface* typeface, int size) {
+/** A PPEMRange is inclusive, [min, max]. */
+struct PPEMRange {
+    int min;
+    int max;
+};
+
+/** If the rendering mode for the specified 'size' is gridfit, then place
+ *  the gridfit range into 'range'. Otherwise, leave 'range' alone.
+ */
+static void expand_range_if_gridfit_only(DWriteFontTypeface* typeface, int size, PPEMRange* range) {
+    AutoTDWriteTable<SkOTTableGridAndScanProcedure> gasp(typeface->fDWriteFontFace.get());
+    if (!gasp.fExists) {
+        return;
+    }
+    if (gasp.fSize < sizeof(SkOTTableGridAndScanProcedure)) {
+        return;
+    }
+    if (gasp->version != SkOTTableGridAndScanProcedure::version0 &&
+        gasp->version != SkOTTableGridAndScanProcedure::version1)
+    {
+        return ;
+    }
+
+    uint16_t numRanges = SkEndianSwap16(gasp->numRanges);
+    if (numRanges > 1024 ||
+        gasp.fSize < sizeof(SkOTTableGridAndScanProcedure) +
+                     sizeof(SkOTTableGridAndScanProcedure::GaspRange) * numRanges)
+    {
+        return;
+    }
+
+    const SkOTTableGridAndScanProcedure::GaspRange* rangeTable =
+            SkTAfter<const SkOTTableGridAndScanProcedure::GaspRange>(gasp.get());
+    int minPPEM = -1;
+    for (uint16_t i = 0; i < numRanges; ++i, ++rangeTable) {
+        int maxPPEM = SkEndianSwap16(rangeTable->maxPPEM);
+        // Test that the size is in range and the range is gridfit only.
+        if (minPPEM < size && size <= maxPPEM &&
+            rangeTable->flags.raw.value == SkOTTableGridAndScanProcedure::GaspRange::behavior::Raw::GridfitMask)
+        {
+            range->min = minPPEM + 1;
+            range->max = maxPPEM;
+            return;
+        }
+        minPPEM = maxPPEM;
+    }
+
+    return;
+}
+
+static bool has_bitmap_strike(DWriteFontTypeface* typeface, PPEMRange range) {
     {
         AutoTDWriteTable<SkOTTableEmbeddedBitmapLocation> eblc(typeface->fDWriteFontFace.get());
         if (!eblc.fExists) {
@@ -44,7 +95,8 @@ static bool hasBitmapStrike(DWriteFontTypeface* typeface, int size) {
         }
 
         uint32_t numSizes = SkEndianSwap32(eblc->numSizes);
-        if (eblc.fSize < sizeof(SkOTTableEmbeddedBitmapLocation) +
+        if (numSizes > 1024 ||
+            eblc.fSize < sizeof(SkOTTableEmbeddedBitmapLocation) +
                          sizeof(SkOTTableEmbeddedBitmapLocation::BitmapSizeTable) * numSizes)
         {
             return false;
@@ -53,13 +105,15 @@ static bool hasBitmapStrike(DWriteFontTypeface* typeface, int size) {
         const SkOTTableEmbeddedBitmapLocation::BitmapSizeTable* sizeTable =
                 SkTAfter<const SkOTTableEmbeddedBitmapLocation::BitmapSizeTable>(eblc.get());
         for (uint32_t i = 0; i < numSizes; ++i, ++sizeTable) {
-            if (sizeTable->ppemX == size && sizeTable->ppemY == size) {
+            if (sizeTable->ppemX == sizeTable->ppemY &&
+                range.min <= sizeTable->ppemX && sizeTable->ppemX <= range.max)
+            {
                 // TODO: determine if we should dig through IndexSubTableArray/IndexSubTable
                 // to determine the actual number of glyphs with bitmaps.
 
                 // TODO: Ensure that the bitmaps actually cover a significant portion of the strike.
 
-                //TODO: Endure that the bitmaps are bi-level.
+                // TODO: Ensure that the bitmaps are bi-level?
                 if (sizeTable->endGlyphIndex >= sizeTable->startGlyphIndex + 3) {
                     return true;
                 }
@@ -80,7 +134,8 @@ static bool hasBitmapStrike(DWriteFontTypeface* typeface, int size) {
         }
 
         uint32_t numSizes = SkEndianSwap32(ebsc->numSizes);
-        if (ebsc.fSize < sizeof(SkOTTableEmbeddedBitmapScaling) +
+        if (numSizes > 1024 ||
+            ebsc.fSize < sizeof(SkOTTableEmbeddedBitmapScaling) +
                          sizeof(SkOTTableEmbeddedBitmapScaling::BitmapScaleTable) * numSizes)
         {
             return false;
@@ -89,7 +144,8 @@ static bool hasBitmapStrike(DWriteFontTypeface* typeface, int size) {
         const SkOTTableEmbeddedBitmapScaling::BitmapScaleTable* scaleTable =
                 SkTAfter<const SkOTTableEmbeddedBitmapScaling::BitmapScaleTable>(ebsc.get());
         for (uint32_t i = 0; i < numSizes; ++i, ++scaleTable) {
-            if (scaleTable->ppemX == size && scaleTable->ppemY == size) {
+            if (scaleTable->ppemX == scaleTable->ppemY &&
+                range.min <= scaleTable->ppemX && scaleTable->ppemX <= range.max) {
                 // EBSC tables are normally only found in bitmap only fonts.
                 return true;
             }
@@ -99,15 +155,15 @@ static bool hasBitmapStrike(DWriteFontTypeface* typeface, int size) {
     return false;
 }
 
-static bool bothZero(SkScalar a, SkScalar b) {
+static bool both_zero(SkScalar a, SkScalar b) {
     return 0 == a && 0 == b;
 }
 
 // returns false if there is any non-90-rotation or skew
-static bool isAxisAligned(const SkScalerContext::Rec& rec) {
+static bool is_axis_aligned(const SkScalerContext::Rec& rec) {
     return 0 == rec.fPreSkewX &&
-           (bothZero(rec.fPost2x2[0][1], rec.fPost2x2[1][0]) ||
-            bothZero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
+           (both_zero(rec.fPost2x2[0][1], rec.fPost2x2[1][0]) ||
+            both_zero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
 }
 
 SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
@@ -159,11 +215,19 @@ SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
     }
 
     bool bitmapRequested = SkToBool(fRec.fFlags & SkScalerContext::kEmbeddedBitmapText_Flag);
-    bool hasBitmap = false;
+    bool treatLikeBitmap = false;
     bool axisAlignedBitmap = false;
     if (bitmapRequested) {
-        hasBitmap = hasBitmapStrike(typeface, SkScalarTruncToInt(gdiTextSize));
-        axisAlignedBitmap = isAxisAligned(fRec);
+        // When embedded bitmaps are requested, treat the entire range like
+        // a bitmap strike if the range is gridfit only and contains a bitmap.
+        int bitmapPPEM = SkScalarTruncToInt(gdiTextSize);
+        PPEMRange range = { bitmapPPEM, bitmapPPEM };
+#ifndef SK_IGNORE_DWRITE_RENDERING_FIX
+        expand_range_if_gridfit_only(typeface, bitmapPPEM, &range);
+#endif
+        treatLikeBitmap = has_bitmap_strike(typeface, range);
+
+        axisAlignedBitmap = is_axis_aligned(fRec);
     }
 
     // If the user requested aliased, do so with aliased compatible metrics.
@@ -176,7 +240,7 @@ SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
 
     // If we can use a bitmap, use gdi classic rendering and measurement.
     // This will not always provide a bitmap, but matches expected behavior.
-    } else if (hasBitmap && axisAlignedBitmap) {
+    } else if (treatLikeBitmap && axisAlignedBitmap) {
         fTextSizeRender = gdiTextSize;
         fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_GDI_CLASSIC;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
@@ -185,7 +249,7 @@ SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
 
     // If rotated but the horizontal text could have used a bitmap,
     // render high quality rotated glyphs but measure using bitmap metrics.
-    } else if (hasBitmap) {
+    } else if (treatLikeBitmap) {
         fTextSizeRender = gdiTextSize;
         fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
