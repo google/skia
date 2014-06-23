@@ -37,6 +37,7 @@ protected:
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setColor(0xFF884422);
         paint.setTextSize(SkIntToScalar(96));
         const char* str = "g";

@@ -109,6 +109,7 @@ protected:
     void drawLabel(SkCanvas* canvas, const char *text, int startX, int startY,
                  int endX, int endY) {
         SkPaint paint;
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setColor(0xFF000000);
         SkPath path;
         path.moveTo(SkIntToScalar(startX), SkIntToScalar(startY));

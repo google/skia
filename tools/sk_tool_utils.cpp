@@ -6,11 +6,14 @@
  */
 
 #include "sk_tool_utils.h"
+#include "../src/fonts/SkTestScalerContext.h"
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 
 namespace sk_tool_utils {
+
+bool gEnablePortableTypeface = false;
 
 const char* colortype_name(SkColorType ct) {
     switch (ct) {
@@ -24,6 +27,14 @@ const char* colortype_name(SkColorType ct) {
         default:
             SkASSERT(false);
             return "unexpected colortype";
+    }
+}
+
+SkPaint::FontMetrics create_font(SkTDArray<SkPath*>& , SkTDArray<SkFixed>& );
+
+void set_portable_typeface(SkPaint* paint, SkTypeface::Style style) {
+    if (gEnablePortableTypeface) {
+        SkSafeUnref(paint->setTypeface(CreateTestTypeface(create_font, style)));
     }
 }
 

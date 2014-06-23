@@ -17,6 +17,7 @@
         'bench_pictures',
         'bench_record',
         'bench_playback',
+        'create_test_font',
         'dump_record',
         'filter',
         'gpuveto',
@@ -90,7 +91,10 @@
     {
       'target_name': 'sk_tool_utils',
       'type': 'static_library',
-      'sources': [ '../tools/sk_tool_utils.cpp' ],
+      'sources': [
+        '../tools/sk_tool_utils.cpp',
+        '../tools/sk_tool_utils_font.cpp',
+      ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
       ],
@@ -266,6 +270,7 @@
       'include_dirs': [
         # For SkBitmapHasher.h
         '../src/utils/',
+        '../tools/',
       ],
       'dependencies': [
         'gm_expectations',
@@ -618,6 +623,20 @@
       'dependencies': [
         'skia_lib.gyp:skia_lib',
         'tools.gyp:picture_utils',
+      ],
+    },
+    {
+      'target_name': 'create_test_font',
+      'type': 'executable',
+      'sources': [
+        '../tools/create_test_font.cpp',
+      ],
+      'include_dirs': [
+        '../src/core',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'skia_lib.gyp:skia_lib',
       ],
     },
     {

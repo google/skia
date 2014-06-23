@@ -54,6 +54,7 @@ static SkBitmap make_bmp(int w, int h) {
     }
 
     paint.setAntiAlias(true);
+    sk_tool_utils::set_portable_typeface(&paint);
     paint.setTextSize(wScalar / 2.2f);
     paint.setShader(0);
     paint.setColor(SK_ColorLTGRAY);

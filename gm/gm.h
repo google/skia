@@ -14,6 +14,7 @@
 #include "SkSize.h"
 #include "SkString.h"
 #include "SkTRegistry.h"
+#include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"

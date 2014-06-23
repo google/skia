@@ -1685,6 +1685,10 @@ static void cleanup_for_filename(SkString* name) {
 }
 #endif
 
+namespace sk_tool_utils {
+    extern bool gEnablePortableTypeface;
+};
+
 bool SampleWindow::onHandleChar(SkUnichar uni) {
     {
         SkView* view = curr_view(this);
@@ -1737,6 +1741,10 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case 'f':
             // only
             toggleFPS();
+            break;
+        case 'F':
+            sk_tool_utils::gEnablePortableTypeface ^= true;
+            this->inval(NULL);
             break;
         case 'g':
             fRequestGrabImage = true;

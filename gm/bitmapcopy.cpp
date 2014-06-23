@@ -77,6 +77,8 @@ protected:
 
         canvas->clear(0xFFDDDDDD);
         paint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&paint);
+        
         SkScalar width = SkIntToScalar(40);
         SkScalar height = SkIntToScalar(40);
         if (paint.getFontSpacing() > height) {

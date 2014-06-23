@@ -61,6 +61,7 @@
             'jsoncpp.gyp:jsoncpp',
             'skia_lib.gyp:skia_lib',
             'tools.gyp:crash_handler',
+            'tools.gyp:sk_tool_utils',
         ],
         'conditions': [
           ['skia_android_framework', {

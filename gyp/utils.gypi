@@ -121,5 +121,7 @@
         #testing
         '<(skia_src_path)/fonts/SkGScalerContext.cpp',
         '<(skia_src_path)/fonts/SkGScalerContext.h',
+        '<(skia_src_path)/fonts/SkTestScalerContext.cpp',
+        '<(skia_src_path)/fonts/SkTestScalerContext.h',
     ],
 }

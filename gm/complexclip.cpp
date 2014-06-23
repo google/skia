@@ -83,6 +83,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(SkIntToScalar(20));
 
         static const struct {

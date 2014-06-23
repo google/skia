@@ -55,6 +55,7 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     const int scale = 32;
 
     paint.setAntiAlias(true);
+    sk_tool_utils::set_portable_typeface(&paint);
     const char* name = sk_tool_utils::colortype_name(bm.colorType());
     canvas->drawText(name, strlen(name), x, SkIntToScalar(bm.height())*scale*5/8,
                      paint);
