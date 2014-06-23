@@ -45,7 +45,3 @@ bleed
 blurquickreject
 blurrects
 bigblurs
-
-# Added by robertphillips for https://codereview.chromium.org/316143003/
-# This CL actually fixes this GM's image
-distantclip
