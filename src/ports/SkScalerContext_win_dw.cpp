@@ -51,7 +51,7 @@ static void expand_range_if_gridfit_only(DWriteFontTypeface* typeface, int size,
     if (gasp->version != SkOTTableGridAndScanProcedure::version0 &&
         gasp->version != SkOTTableGridAndScanProcedure::version1)
     {
-        return ;
+        return;
     }
 
     uint16_t numRanges = SkEndianSwap16(gasp->numRanges);
@@ -77,8 +77,6 @@ static void expand_range_if_gridfit_only(DWriteFontTypeface* typeface, int size,
         }
         minPPEM = maxPPEM;
     }
-
-    return;
 }
 
 static bool has_bitmap_strike(DWriteFontTypeface* typeface, PPEMRange range) {
