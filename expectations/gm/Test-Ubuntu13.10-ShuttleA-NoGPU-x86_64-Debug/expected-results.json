@@ -9207,10 +9207,9 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5483462587049856153
+          8357956844212052272
         ]
       ], 
-      "ignore-failure": true,
       "reviewed-by-human": true
     }, 
     "shadertext3_565.png": {

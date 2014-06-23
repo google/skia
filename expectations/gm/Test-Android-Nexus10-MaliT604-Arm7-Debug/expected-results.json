@@ -7222,7 +7222,7 @@
       "bugs": [
         1655
       ], 
-      "ignore-failure": true,
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "hairmodes_msaa4.png": {
@@ -7235,7 +7235,7 @@
       "bugs": [
         1655
       ], 
-      "ignore-failure": true,
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "hittestpath_565.png": {
@@ -7855,7 +7855,7 @@
       ], 
       "bugs": [
         1578
-      ],
+      ], 
       "reviewed-by-human": true
     }, 
     "lerpmode_msaa4.png": {
