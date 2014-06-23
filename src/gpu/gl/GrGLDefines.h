@@ -827,19 +827,6 @@
 #define GR_GL_ARC_TO                                        0xFE
 #define GR_GL_RELATIVE_ARC_TO                               0xFF
 
-// path string formats
-#define GR_GL_PATH_FORMAT_SVG                               0x9070
-#define GR_GL_PATH_FORMAT_PS                                0x9071
-
-// font targets
-#define GR_GL_STANDARD_FONT_NAME                            0x9072
-#define GR_GL_SYSTEM_FONT_NAME                              0x9073
-#define GR_GL_FILE_NAME                                     0x9074
-
-// handle missing glyphs
-#define GR_GL_SKIP_MISSING_GLYPH                            0x90A9
-#define GR_GL_USE_MISSING_GLYPH                             0x90AA
-
 // path parameters
 #define GR_GL_PATH_STROKE_WIDTH                             0x9075
 #define GR_GL_PATH_INITIAL_END_CAP                          0x9077
@@ -870,10 +857,6 @@
 #define GR_GL_COUNT_DOWN                                    0x9089
 /*      GL_PATH_FILL_MODE_NV */
 
-// path color gen
-/*      GL_PRIMARY_COLOR */
-#define GR_GL_SECONDARY_COLOR                               0x852D
-
 // gen mode
 /*      GL_NONE */
 /*      GL_EYE_LINEAR */
@@ -897,11 +880,6 @@
 #define GR_GL_TRANSPOSE_AFFINE_2D                           0x9096
 #define GR_GL_TRANSPOSE_AFFINE_3D                           0x9098
 
-// path string types
-#define GR_GL_UTF8                                          0x909A
-#define GR_GL_UTF16                                         0x909B
-
-#define GR_GL_PATH_COMPUTED_LENGTH                          0x90A0
 
 // cap/dash values
 /*      GL_FLAT */
@@ -916,60 +894,9 @@
 #define GR_GL_MITER_REVERT                                  0x90A7
 #define GR_GL_MITER_TRUNCATE                                0x90A8
 
-// path dash reset values
-#define GR_GL_MOVE_TO_RESETS                                0x90B5
-#define GR_GL_MOVE_TO_CONTINUES                             0x90B6
-
-// font styles
-/*      GL_NONE */
-#define GR_GL_BOLD_BIT                                      0x01
-#define GR_GL_ITALIC_BIT                                    0x02
-
-// pnames for glGet
-#define GR_GL_PATH_ERROR_POSITION                           0x90AB
-#define GR_GL_PATH_FOG_GEN_MODE                             0x90AC
-#define GR_GL_PATH_STENCIL_FUNC                             0x90B7
-#define GR_GL_PATH_STENCIL_REF                              0x90B8
-#define GR_GL_PATH_STENCIL_VALUE_MASK                       0x90B9
-#define GR_GL_PATH_STENCIL_DEPTH_OFFSET_FACTOR              0x90BD
-#define GR_GL_PATH_STENCIL_DEPTH_OFFSET_UNITS               0x90BE
-#define GR_GL_PATH_COVER_DEPTH_FUNC                         0x90BF
-
-// per-glyph metrics bits in metric mask query
-#define GR_GL_GLYPH_WIDTH_BIT                               0x01
-#define GR_GL_GLYPH_HEIGHT_BIT                              0x02
-#define GR_GL_GLYPH_HORIZONTAL_BEARING_X_BIT                0x04
-#define GR_GL_GLYPH_HORIZONTAL_BEARING_Y_BIT                0x08
-#define GR_GL_GLYPH_HORIZONTAL_BEARING_ADVANCE_BIT          0x10
-#define GR_GL_GLYPH_VERTICAL_BEARING_X_BIT                  0x20
-#define GR_GL_GLYPH_VERTICAL_BEARING_Y_BIT                  0x40
-#define GR_GL_GLYPH_VERTICAL_BEARING_ADVANCE_BIT            0x80
-#define GR_GL_GLYPH_HAS_KERNING                             0x100
-
-// per-font face metrics in metric mask query
-#define GR_GL_FONT_X_MIN_BOUNDS                             0x00010000
-#define GR_GL_FONT_Y_MIN_BOUNDS                             0x00020000
-#define GR_GL_FONT_X_MAX_BOUNDS                             0x00040000
-#define GR_GL_FONT_Y_MAX_BOUNDS                             0x00080000
-#define GR_GL_FONT_UNITS_PER_EM                             0x00100000
-#define GR_GL_FONT_ASCENDER                                 0x00200000
-#define GR_GL_FONT_DESCENDER                                0x00400000
-#define GR_GL_FONT_HEIGHT                                   0x00800000
-#define GR_GL_FONT_MAX_ADVANCE_WIDTH                        0x01000000
-#define GR_GL_FONT_MAX_ADVANCE_HEIGHT                       0x02000000
-#define GR_GL_FONT_UNDERLINE_POSITION                       0x04000000
-#define GR_GL_FONT_UNDERLINE_THICKNESS                      0x08000000
-#define GR_GL_FONT_HAS_KERNING                              0x10000000
-
-// path list modes (glGetPathSpacing)
-#define GR_GL_ACCUM_ADJACENT_PAIRS                          0x90AD
-#define GR_GL_ADJACENT_PAIRS                                0x90AE
-#define GR_GL_FIRST_TO_REST                                 0x90AF
-
-//path gen modes
-#define GR_GL_PATH_GEN_MODE                                 0x90B0
-#define GR_GL_PATH_GEN_COEFF                                0x90B1
-#define GR_GL_PATH_GEN_COLOR_FORMAT                         0x90B2
-#define GR_GL_PATH_GEN_COMPONENTS                           0x90B3
+// NV_path_rendering extension to ARB_program_interface_query:
+// .. corresponds to the set of active input variables used by the fragment
+// shader stage of <program> (if a fragment stage exists).
+#define GR_GL_FRAGMENT_INPUT                                0x936D
 
 #endif

@@ -233,6 +233,38 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(InvalidateTexImage);
     GET_PROC(InvalidateTexSubImage);
 
+    if (extensions.has("GL_EXT_direct_state_access")) {
+        GET_PROC_SUFFIX(MatrixLoadf, EXT);
+        GET_PROC_SUFFIX(MatrixLoadIdentity, EXT);
+    }
+
+#if USE_LINKED && GL_ES_VERSION_3_1
+    GET_LINKED(GetProgramResourceLocation);
+#else
+    if (version >= GR_GL_VER(3,1)) {            
+        GET_PROC(GetProgramResourceLocation);
+    }
+#endif
+
+    if (extensions.has("GL_NV_path_rendering")) {
+        GET_PROC_SUFFIX(PathCommands, NV);
+        GET_PROC_SUFFIX(PathCoords, NV);
+        GET_PROC_SUFFIX(PathParameteri, NV);
+        GET_PROC_SUFFIX(PathParameterf, NV);
+        GET_PROC_SUFFIX(GenPaths, NV);
+        GET_PROC_SUFFIX(DeletePaths, NV);
+        GET_PROC_SUFFIX(PathStencilFunc, NV);
+        GET_PROC_SUFFIX(StencilFillPath, NV);
+        GET_PROC_SUFFIX(StencilStrokePath, NV);
+        GET_PROC_SUFFIX(StencilFillPathInstanced, NV);
+        GET_PROC_SUFFIX(StencilStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(CoverFillPath, NV);
+        GET_PROC_SUFFIX(CoverStrokePath, NV);
+        GET_PROC_SUFFIX(CoverFillPathInstanced, NV);
+        GET_PROC_SUFFIX(CoverStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(ProgramPathFragmentInputGen, NV);
+    }
+
     interface->fStandard = kGLES_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
