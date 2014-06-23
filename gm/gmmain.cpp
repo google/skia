@@ -67,7 +67,6 @@ class GrContextFactory;
 class GrContext;
 class GrSurface;
 typedef int GLContextType;
-typedef int GrGLStandard;
 #endif
 
 #define DEBUGFAIL_SEE_STDERR SkDEBUGFAIL("see stderr for message")
@@ -1336,10 +1335,6 @@ static const PDFRasterizerData kPDFRasterizers[] = {
 
 static const char kDefaultsConfigStr[] = "defaults";
 static const char kExcludeConfigChar = '~';
-#if SK_SUPPORT_GPU
-static const char kGpuAPINameGL[] = "gl";
-static const char kGpuAPINameGLES[] = "gles";
-#endif
 
 static SkString configUsage() {
     SkString result;
@@ -1429,10 +1424,6 @@ DEFINE_bool(dryRun, false, "Don't actually run the tests, just print what would 
 DEFINE_string(excludeConfig, "", "Space delimited list of configs to skip.");
 DEFINE_bool(forceBWtext, false, "Disable text anti-aliasing.");
 #if SK_SUPPORT_GPU
-DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
-              "forces OpenGL API. Using \"gles\" forces OpenGL ES API. "
-              "Defaults to empty string, which selects the API native to the "
-              "system.");
 DEFINE_string(gpuCacheSize, "", "<bytes> <count>: Limit the gpu cache to byte size or "
               "object count. " TOSTRING(DEFAULT_CACHE_VALUE) " for either value means "
               "use the default. 0 for either disables the cache.");
@@ -1710,14 +1701,12 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
                                       const SkTDArray<size_t> &configs,
                                       const SkTDArray<const PDFRasterizerData*> &pdfRasterizers,
                                       const SkTDArray<SkScalar> &tileGridReplayScales,
-                                      GrContextFactory *grFactory,
-                                      GrGLStandard gpuAPI);
+                                      GrContextFactory *grFactory);
 ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
                                       const SkTDArray<size_t> &configs,
                                       const SkTDArray<const PDFRasterizerData*> &pdfRasterizers,
                                       const SkTDArray<SkScalar> &tileGridReplayScales,
-                                      GrContextFactory *grFactory,
-                                      GrGLStandard gpuAPI) {
+                                      GrContextFactory *grFactory) {
     const char renderModeDescriptor[] = "";
     ErrorCombination errorsForAllConfigs;
     uint32_t gmFlags = gm->getFlags();
@@ -1767,7 +1756,7 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
             if (FLAGS_resetGpuContext) {
                 grFactory->destroyContexts();
             }
-            GrContext* gr = grFactory->get(config.fGLContextType, gpuAPI);
+            GrContext* gr = grFactory->get(config.fGLContextType);
             bool grSuccess = false;
             if (gr) {
                 // create a render target to back the device
@@ -1938,7 +1927,7 @@ static bool prepare_subdirectories(const char *root, bool useFileHierarchy,
 }
 
 static bool parse_flags_configs(SkTDArray<size_t>* outConfigs,
-                         GrContextFactory* grFactory, GrGLStandard gpuAPI) {
+                         GrContextFactory* grFactory) {
     SkTDArray<size_t> excludeConfigs;
 
     for (int i = 0; i < FLAGS_config.count(); i++) {
@@ -2005,7 +1994,7 @@ static bool parse_flags_configs(SkTDArray<size_t>* outConfigs,
     for (int i = 0; i < outConfigs->count(); ++i) {
         size_t index = (*outConfigs)[i];
         if (kGPU_Backend == gRec[index].fBackend) {
-            GrContext* ctx = grFactory->get(gRec[index].fGLContextType, gpuAPI);
+            GrContext* ctx = grFactory->get(gRec[index].fGLContextType);
             if (NULL == ctx) {
                 SkDebugf("GrContext could not be created for config %s. Config will be skipped.\n",
                          gRec[index].fName);
@@ -2159,25 +2148,6 @@ static bool parse_flags_gpu_cache(int* sizeBytes, int* sizeCount) {
     }
     return true;
 }
-
-static bool parse_flags_gl_standard(GrGLStandard* gpuAPI) {
-    if (0 == FLAGS_gpuAPI.count()) {
-        *gpuAPI = kNone_GrGLStandard;
-        return true;
-    }
-    if (1 == FLAGS_gpuAPI.count()) {
-        if (FLAGS_gpuAPI.contains(kGpuAPINameGL)) {
-            *gpuAPI = kGL_GrGLStandard;
-            return true;
-        }
-        if (FLAGS_gpuAPI.contains(kGpuAPINameGLES)) {
-            *gpuAPI = kGLES_GrGLStandard;
-            return true;
-        }
-    }
-    SkDebugf("--gpuAPI invalid api value");
-    return false;
-}
 #endif
 
 static bool parse_flags_tile_grid_replay_scales(SkTDArray<SkScalar>* outScales) {
@@ -2268,10 +2238,8 @@ int tool_main(int argc, char** argv) {
     SkTDArray<const PDFRasterizerData*> pdfRasterizers;
     SkTDArray<SkScalar> tileGridReplayScales;
 #if SK_SUPPORT_GPU
-    GrGLStandard gpuAPI = kNone_GrGLStandard;
     GrContextFactory* grFactory = new GrContextFactory;
 #else
-    GrGLStandard gpuAPI = 0;
     GrContextFactory* grFactory = NULL;
 #endif
 
@@ -2284,11 +2252,10 @@ int tool_main(int argc, char** argv) {
         !parse_flags_ignore_tests(gmmain.fIgnorableTestNames) ||
 #if SK_SUPPORT_GPU
         !parse_flags_gpu_cache(&gGpuCacheSizeBytes, &gGpuCacheSizeCount) ||
-        !parse_flags_gl_standard(&gpuAPI) ||
 #endif
         !parse_flags_tile_grid_replay_scales(&tileGridReplayScales) ||
         !parse_flags_jpeg_quality() ||
-        !parse_flags_configs(&configs, grFactory, gpuAPI) ||
+        !parse_flags_configs(&configs, grFactory) ||
         !parse_flags_pdf_rasterizers(configs, &pdfRasterizers) ||
         !parse_flags_gmmain_paths(&gmmain)) {
         return -1;
@@ -2370,8 +2337,7 @@ int tool_main(int argc, char** argv) {
         SkDebugf("%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
                  size.width(), size.height());
         if (!FLAGS_dryRun)
-            run_multiple_configs(gmmain, gm, configs, pdfRasterizers, tileGridReplayScales, 
-                                 grFactory, gpuAPI);
+            run_multiple_configs(gmmain, gm, configs, pdfRasterizers, tileGridReplayScales, grFactory);
     }
 
     if (FLAGS_dryRun)
@@ -2448,7 +2414,7 @@ int tool_main(int argc, char** argv) {
         ConfigData config = gRec[configs[i]];
 
         if (FLAGS_verbose && (kGPU_Backend == config.fBackend)) {
-            GrContext* gr = grFactory->get(config.fGLContextType, gpuAPI);
+            GrContext* gr = grFactory->get(config.fGLContextType);
 
             SkDebugf("config: %s %x\n", config.fName, gr);
             gr->printCacheStats();
@@ -2461,7 +2427,7 @@ int tool_main(int argc, char** argv) {
         ConfigData config = gRec[configs[i]];
 
         if (kGPU_Backend == config.fBackend) {
-            GrContext* gr = grFactory->get(config.fGLContextType, gpuAPI);
+            GrContext* gr = grFactory->get(config.fGLContextType);
 
            gr->dumpFontCache();
         }

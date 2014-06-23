@@ -37,15 +37,8 @@ using skiagm::GMRegistry;
 using skiatest::Test;
 using skiatest::TestRegistry;
 
-static const char kGpuAPINameGL[] = "gl";
-static const char kGpuAPINameGLES[] = "gles";
-
 DEFINE_int32(threads, -1, "Threads for CPU work. Default NUM_CPUS.");
 DEFINE_int32(gpuThreads, 1, "Threads for GPU work.");
-DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
-              "forces OpenGL API. Using \"gles\" forces OpenGL ES API. "
-              "Defaults to empty string, which selects the API native to the "
-              "system.");
 DEFINE_string2(expectations, r, "",
                "If a directory, compare generated images against images under this path. "
                "If a file, compare generated images against JSON expectations at this path."
@@ -102,7 +95,6 @@ native;
 
 static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
                          const SkTArray<SkString>& configs,
-                         GrGLStandard gpuAPI,
                          const DM::Expectations& expectations,
                          DM::Reporter* reporter,
                          DM::TaskRunner* tasks) {
@@ -112,18 +104,17 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
     }
     for (int i = 0; i < gms.count(); i++) {
         for (int j = 0; j < configs.count(); j++) {
-
             START("565",        CpuGMTask, expectations, kRGB_565_SkColorType);
             START("8888",       CpuGMTask, expectations, kN32_SkColorType);
-            START("gpu",        GpuGMTask, expectations, native, gpuAPI, 0);
-            START("msaa4",      GpuGMTask, expectations, native, gpuAPI, 4);
-            START("msaa16",     GpuGMTask, expectations, native, gpuAPI, 16);
-            START("nvprmsaa4",  GpuGMTask, expectations, nvpr,   gpuAPI, 4);
-            START("nvprmsaa16", GpuGMTask, expectations, nvpr,   gpuAPI, 16);
-            START("gpunull",    GpuGMTask, expectations, null,   gpuAPI, 0);
-            START("gpudebug",   GpuGMTask, expectations, debug,  gpuAPI, 0);
-            START("angle",      GpuGMTask, expectations, angle,  gpuAPI, 0);
-            START("mesa",       GpuGMTask, expectations, mesa,   gpuAPI, 0);
+            START("gpu",        GpuGMTask, expectations, native, 0);
+            START("msaa4",      GpuGMTask, expectations, native, 4);
+            START("msaa16",     GpuGMTask, expectations, native, 16);
+            START("nvprmsaa4",  GpuGMTask, expectations, nvpr,   4);
+            START("nvprmsaa16", GpuGMTask, expectations, nvpr,   16);
+            START("gpunull",    GpuGMTask, expectations, null,   0);
+            START("gpudebug",   GpuGMTask, expectations, debug,  0);
+            START("angle",      GpuGMTask, expectations, angle,  0);
+            START("mesa",       GpuGMTask, expectations, mesa,   0);
             START("pdf",        PDFTask,   RASTERIZE_PDF_PROC);
         }
     }
@@ -132,7 +123,6 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
 
 static void kick_off_benches(const SkTDArray<BenchRegistry::Factory>& benches,
                              const SkTArray<SkString>& configs,
-                             GrGLStandard gpuAPI,
                              DM::Reporter* reporter,
                              DM::TaskRunner* tasks) {
 #define START(name, type, ...)                                                                 \
@@ -144,15 +134,15 @@ static void kick_off_benches(const SkTDArray<BenchRegistry::Factory>& benches,
             START("nonrendering", NonRenderingBenchTask);
             START("565",          CpuBenchTask, kRGB_565_SkColorType);
             START("8888",         CpuBenchTask, kN32_SkColorType);
-            START("gpu",          GpuBenchTask, native, gpuAPI, 0);
-            START("msaa4",        GpuBenchTask, native, gpuAPI, 4);
-            START("msaa16",       GpuBenchTask, native, gpuAPI, 16);
-            START("nvprmsaa4",    GpuBenchTask, nvpr,   gpuAPI, 4);
-            START("nvprmsaa16",   GpuBenchTask, nvpr,   gpuAPI, 16);
-            START("gpunull",      GpuBenchTask, null,   gpuAPI, 0);
-            START("gpudebug",     GpuBenchTask, debug,  gpuAPI, 0);
-            START("angle",        GpuBenchTask, angle,  gpuAPI, 0);
-            START("mesa",         GpuBenchTask, mesa,   gpuAPI, 0);
+            START("gpu",          GpuBenchTask, native, 0);
+            START("msaa4",        GpuBenchTask, native, 4);
+            START("msaa16",       GpuBenchTask, native, 16);
+            START("nvprmsaa4",    GpuBenchTask, nvpr,   4);
+            START("nvprmsaa16",   GpuBenchTask, nvpr,   16);
+            START("gpunull",      GpuBenchTask, null,   0);
+            START("gpudebug",     GpuBenchTask, debug,  0);
+            START("angle",        GpuBenchTask, angle,  0);
+            START("mesa",         GpuBenchTask, mesa,   0);
         }
     }
 #undef START
@@ -214,16 +204,6 @@ static void report_failures(const SkTArray<SkString>& failures) {
     SkDebugf("%d failures.\n", failures.count());
 }
 
-static GrGLStandard get_gl_standard() {
-  if (FLAGS_gpuAPI.contains(kGpuAPINameGL)) {
-      return kGL_GrGLStandard;
-  }
-  if (FLAGS_gpuAPI.contains(kGpuAPINameGLES)) {
-      return kGLES_GrGLStandard;
-  }
-  return kNone_GrGLStandard;
-}
-
 template <typename T, typename Registry>
 static void append_matching_factories(Registry* head, SkTDArray<typename Registry::Factory>* out) {
     for (const Registry* reg = head; reg != NULL; reg = reg->next()) {
@@ -251,8 +231,6 @@ int tool_main(int argc, char** argv) {
     for (int i = 0; i < FLAGS_config.count(); i++) {
         SkStrSplit(FLAGS_config[i], ", ", &configs);
     }
-
-    GrGLStandard gpuAPI = get_gl_standard();
 
     SkTDArray<GMRegistry::Factory> gms;
     SkAutoTDelete<DM::Expectations> expectations(SkNEW(DM::NoExpectations));
@@ -283,8 +261,8 @@ int tool_main(int argc, char** argv) {
              gms.count(), benches.count(), configs.count(), tests.count());
     DM::Reporter reporter;
     DM::TaskRunner tasks(FLAGS_threads, FLAGS_gpuThreads);
-    kick_off_gms(gms, configs, gpuAPI, *expectations, &reporter, &tasks);
-    kick_off_benches(benches, configs, gpuAPI, &reporter, &tasks);
+    kick_off_gms(gms, configs, *expectations, &reporter, &tasks);
+    kick_off_benches(benches, configs, &reporter, &tasks);
     kick_off_tests(tests, &reporter, &tasks);
     kick_off_skps(&reporter, &tasks);
     tasks.wait();

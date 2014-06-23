@@ -165,11 +165,7 @@ public:
     /**
      * Set the backend type. Returns true on success and false on failure.
      */
-#if SK_SUPPORT_GPU
-    bool setDeviceType(SkDeviceTypes deviceType, GrGLStandard gpuAPI = kNone_GrGLStandard) {
-#else
     bool setDeviceType(SkDeviceTypes deviceType) {
-#endif
         fDeviceType = deviceType;
 #if SK_SUPPORT_GPU
         // In case this function is called more than once
@@ -204,7 +200,7 @@ public:
                 return false;
         }
 #if SK_SUPPORT_GPU
-        fGrContext = fGrContextFactory.get(glContextType, gpuAPI);
+        fGrContext = fGrContextFactory.get(glContextType);
         if (NULL == fGrContext) {
             return false;
         } else {

@@ -52,10 +52,7 @@ void SkANGLEGLContext::destroyGLContext() {
     }
 }
 
-const GrGLInterface* SkANGLEGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
-    if (kGL_GrGLStandard == forcedGpuAPI) {
-        return NULL;
-    }
+const GrGLInterface* SkANGLEGLContext::createGLContext() {
 
     fDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 

@@ -331,8 +331,7 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
 bool SkOSWindow::attachGL(int msaaSampleCount, AttachmentInfo* info) {
     HDC dc = GetDC((HWND)fHWND);
     if (NULL == fHGLRC) {
-        fHGLRC = SkCreateWGLContext(dc, msaaSampleCount,
-                kGLPreferCompatibilityProfile_SkWGLContextRequest);
+        fHGLRC = SkCreateWGLContext(dc, msaaSampleCount, false);
         if (NULL == fHGLRC) {
             return false;
         }

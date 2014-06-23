@@ -50,11 +50,6 @@ const char* BenchMode_Name[] = {
 
 static const char kDefaultsConfigStr[] = "defaults";
 
-#if SK_SUPPORT_GPU
-static const char kGpuAPINameGL[] = "gl";
-static const char kGpuAPINameGLES[] = "gles";
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 class Iter {
@@ -232,10 +227,6 @@ DEFINE_bool(forceFilter,    false,    "Force bitmap filtering?");
 DEFINE_string(forceDither, "default", "Force dithering: true, false, or default?");
 DEFINE_bool(forceBlend,     false,    "Force alpha blending?");
 
-DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
-              "forces OpenGL API. Using \"gles\" forces OpenGL ES API. "
-              "Defaults to empty string, which selects the API native to the "
-              "system.");
 DEFINE_int32(gpuCacheBytes, -1, "GPU cache size limit in bytes.  0 to disable cache.");
 DEFINE_int32(gpuCacheCount, -1, "GPU cache size limit in object count.  0 to disable cache.");
 
@@ -357,24 +348,11 @@ int tool_main(int argc, char** argv) {
     }
 
 #if SK_SUPPORT_GPU
-    GrGLStandard gpuAPI = kNone_GrGLStandard;
-    if (1 == FLAGS_gpuAPI.count()) {
-        if (FLAGS_gpuAPI.contains(kGpuAPINameGL)) {
-            gpuAPI = kGL_GrGLStandard;
-        } else if (FLAGS_gpuAPI.contains(kGpuAPINameGLES)) {
-            gpuAPI = kGLES_GrGLStandard;
-        } else {
-            SkDebugf("Selected gpu API could not be used. Using the default.\n");
-        }
-    } else if (FLAGS_gpuAPI.count() > 1)  {
-        SkDebugf("Selected gpu API could not be used. Using the default.\n");
-    }
-
     for (int i = 0; i < configs.count(); ++i) {
         const Config& config = gConfigs[configs[i]];
 
         if (Benchmark::kGPU_Backend == config.backend) {
-            GrContext* context = gContextFactory.get(config.contextType, gpuAPI);
+            GrContext* context = gContextFactory.get(config.contextType);
             if (NULL == context) {
                 SkDebugf("GrContext could not be created for config %s. Config will be skipped.\n",
                     config.name);
@@ -434,7 +412,7 @@ int tool_main(int argc, char** argv) {
         if (Benchmark::kGPU_Backend != config.backend) {
             continue;
         }
-        GrContext* context = gContextFactory.get(config.contextType, gpuAPI);
+        GrContext* context = gContextFactory.get(config.contextType);
         if (NULL == context) {
             continue;
         }
@@ -480,7 +458,7 @@ int tool_main(int argc, char** argv) {
 #if SK_SUPPORT_GPU
             SkGLContextHelper* glContext = NULL;
             if (Benchmark::kGPU_Backend == config.backend) {
-                context = gContextFactory.get(config.contextType, gpuAPI);
+                context = gContextFactory.get(config.contextType);
                 if (NULL == context) {
                     continue;
                 }

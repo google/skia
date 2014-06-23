@@ -33,13 +33,11 @@ GpuBenchTask::GpuBenchTask(const char* config,
                            TaskRunner* tasks,
                            BenchRegistry::Factory factory,
                            GrContextFactory::GLContextType contextType,
-                           GrGLStandard gpuAPI,
                            int sampleCount)
     : GpuTask(reporter, tasks)
     , fBench(factory(NULL))
     , fName(bench_name(fBench->getName(), config))
     , fContextType(contextType)
-    , fGpuAPI(gpuAPI)
     , fSampleCount(sampleCount) {}
 
 bool NonRenderingBenchTask::shouldSkip() const {
@@ -76,12 +74,8 @@ void GpuBenchTask::draw(GrContextFactory* grFactory) {
                                          fBench->getSize().y(),
                                          kN32_SkColorType,
                                          kPremul_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(NewGpuSurface(grFactory, fContextType, fGpuAPI, info,
-                                                  fSampleCount));
-    if (!surface) {
-        this->fail("Could not create context for the config and the api.");
-        return;
-    }
+    SkAutoTUnref<SkSurface> surface(NewGpuSurface(grFactory, fContextType, info, fSampleCount));
+
     fBench->preDraw();
     fBench->draw(1, surface->getCanvas());
 }

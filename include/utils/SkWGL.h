@@ -104,22 +104,12 @@ private:
     CreateContextAttribsProc fCreateContextAttribs;
 };
 
-enum SkWGLContextRequest {
-    /** Requests to create core profile context if possible, otherwise
-        compatibility profile. */
-    kGLPreferCoreProfile_SkWGLContextRequest,
-    /** Requests to create compatibility profile context if possible, otherwise
-        core profile. */
-    kGLPreferCompatibilityProfile_SkWGLContextRequest,
-    /** Requests to create GL ES profile context. */
-    kGLES_SkWGLContextRequest
-};
 /**
  * Helper to create an OpenGL context for a DC using WGL. Configs with a sample count >= to
  * msaaSampleCount are preferred but if none is available then a context with a lower sample count
  * (including non-MSAA) will be created. If preferCoreProfile is true but a core profile cannot be
  * created then a compatible profile context will be created.
  */
-HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, SkWGLContextRequest context);
+HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool preferCoreProfile);
 
 #endif

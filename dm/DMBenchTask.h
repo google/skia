@@ -46,7 +46,6 @@ public:
                  TaskRunner*,
                  BenchRegistry::Factory,
                  GrContextFactory::GLContextType,
-                 GrGLStandard gpuAPI,
                  int sampleCount);
 
     virtual void draw(GrContextFactory*) SK_OVERRIDE;
@@ -57,7 +56,6 @@ private:
     SkAutoTDelete<Benchmark> fBench;
     const SkString fName;
     const GrContextFactory::GLContextType fContextType;
-    const GrGLStandard fGpuAPI;
     int fSampleCount;
 };
 

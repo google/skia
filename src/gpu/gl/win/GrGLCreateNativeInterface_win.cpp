@@ -8,21 +8,8 @@
 
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
-#include "gl/GrGLUtil.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-
-#include <GL/gl.h>
-
-#define GET_PROC(F) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
-#define GET_PROC_SUFFIX(F, S) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F #S)
-#define GET_PROC_LOCAL(F) GrGL ## F ## Proc F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
-
-#define GET_LINKED GET_PROC
-#define GET_LINKED_SUFFIX GET_PROC_SUFFIX
-#define USE_LINKED 0
-
-#include "gl/GrGLAssembleGLESInterface.h"
 
 class AutoLibraryUnload {
 public:
@@ -83,13 +70,5 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         return NULL;
     }
 
-    const char* verStr = reinterpret_cast<const char*>(glGetString(GR_GL_VERSION));
-    GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
-
-    if (kGLES_GrGLStandard == standard) {
-        return GrGLAssembleGLESInterface(&getter, win_get_gl_proc);
-    } else if (kGL_GrGLStandard == standard) {
-        return GrGLAssembleGLInterface(&getter, win_get_gl_proc);
-    }
-    return NULL;
+    return GrGLAssembleGLInterface(&getter, win_get_gl_proc);
 }
