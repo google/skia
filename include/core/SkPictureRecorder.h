@@ -25,7 +25,7 @@ class SkRecorder;
 
 class SK_API SkPictureRecorder : SkNoncopyable {
 public:
-    SkPictureRecorder() : fPictureRecord(NULL), fRecorder(NULL), fRecord(NULL) { }
+    SkPictureRecorder();
     ~SkPictureRecorder();
 
     /** Returns the canvas that records the drawing commands.
@@ -77,15 +77,15 @@ private:
     friend class SkPictureRecorderReplayTester; // for unit testing
     void partialReplay(SkCanvas* canvas) const;
 
-    int                     fWidth;
-    int                     fHeight;
+    int fWidth;
+    int fHeight;
 
-    // Both ref counted.  One of these two will be non-null:
-    SkPictureRecord*        fPictureRecord;   // beginRecording()
-    SkRecorder*             fRecorder;        // EXPERIMENTAL_beginRecording()
+    // One of these two canvases will be non-NULL.
+    SkAutoTUnref<SkPictureRecord> fPictureRecord;  // beginRecording()
+    SkAutoTUnref<SkRecorder>      fRecorder;       // EXPERIMENTAL_beginRecording()
 
-    // Not refcounted.  Used by EXPERIMENTAL_beginRecording().
-    SkRecord* fRecord;
+    // Used by EXPERIMENTAL_beginRecording().
+    SkAutoTDelete<SkRecord> fRecord;
 
     typedef SkNoncopyable INHERITED;
 };
