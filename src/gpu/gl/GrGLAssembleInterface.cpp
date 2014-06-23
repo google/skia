@@ -224,21 +224,53 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     if (extensions.has("GL_NV_path_rendering")) {
         GET_PROC_SUFFIX(PathCommands, NV);
         GET_PROC_SUFFIX(PathCoords, NV);
+        GET_PROC_SUFFIX(PathSubCommands, NV);
+        GET_PROC_SUFFIX(PathSubCoords, NV);
+        GET_PROC_SUFFIX(PathString, NV);
+        GET_PROC_SUFFIX(PathGlyphs, NV);
+        GET_PROC_SUFFIX(PathGlyphRange, NV);
+        GET_PROC_SUFFIX(WeightPaths, NV);
+        GET_PROC_SUFFIX(CopyPath, NV);
+        GET_PROC_SUFFIX(InterpolatePaths, NV);
+        GET_PROC_SUFFIX(TransformPath, NV);
+        GET_PROC_SUFFIX(PathParameteriv, NV);
         GET_PROC_SUFFIX(PathParameteri, NV);
+        GET_PROC_SUFFIX(PathParameterfv, NV);
         GET_PROC_SUFFIX(PathParameterf, NV);
+        GET_PROC_SUFFIX(PathDashArray, NV);
         GET_PROC_SUFFIX(GenPaths, NV);
         GET_PROC_SUFFIX(DeletePaths, NV);
+        GET_PROC_SUFFIX(IsPath, NV);
         GET_PROC_SUFFIX(PathStencilFunc, NV);
+        GET_PROC_SUFFIX(PathStencilDepthOffset, NV);
         GET_PROC_SUFFIX(StencilFillPath, NV);
         GET_PROC_SUFFIX(StencilStrokePath, NV);
         GET_PROC_SUFFIX(StencilFillPathInstanced, NV);
         GET_PROC_SUFFIX(StencilStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(PathCoverDepthFunc, NV);
+        GET_PROC_SUFFIX(PathColorGen, NV);
         GET_PROC_SUFFIX(PathTexGen, NV);
+        GET_PROC_SUFFIX(PathFogGen, NV);
         GET_PROC_SUFFIX(CoverFillPath, NV);
         GET_PROC_SUFFIX(CoverStrokePath, NV);
         GET_PROC_SUFFIX(CoverFillPathInstanced, NV);
         GET_PROC_SUFFIX(CoverStrokePathInstanced, NV);
-        GET_PROC_SUFFIX(ProgramPathFragmentInputGen, NV);
+        GET_PROC_SUFFIX(GetPathParameteriv, NV);
+        GET_PROC_SUFFIX(GetPathParameterfv, NV);
+        GET_PROC_SUFFIX(GetPathCommands, NV);
+        GET_PROC_SUFFIX(GetPathCoords, NV);
+        GET_PROC_SUFFIX(GetPathDashArray, NV);
+        GET_PROC_SUFFIX(GetPathMetrics, NV);
+        GET_PROC_SUFFIX(GetPathMetricRange, NV);
+        GET_PROC_SUFFIX(GetPathSpacing, NV);
+        GET_PROC_SUFFIX(GetPathColorGeniv, NV);
+        GET_PROC_SUFFIX(GetPathColorGenfv, NV);
+        GET_PROC_SUFFIX(GetPathTexGeniv, NV);
+        GET_PROC_SUFFIX(GetPathTexGenfv, NV);
+        GET_PROC_SUFFIX(IsPointInFillPath, NV);
+        GET_PROC_SUFFIX(IsPointInStrokePath, NV);
+        GET_PROC_SUFFIX(GetPathLength, NV);
+        GET_PROC_SUFFIX(PointAlongPath, NV);
     }
 
     if (extensions.has("GL_EXT_debug_marker")) {
@@ -254,10 +286,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(InvalidateSubFramebuffer);
         GET_PROC(InvalidateTexImage);
         GET_PROC(InvalidateTexSubImage);
-    }
-
-    if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_ARB_program_interface_query")) {
-        GET_PROC(GetProgramResourceLocation);
     }
 
     interface->fStandard = kGL_GrGLStandard;

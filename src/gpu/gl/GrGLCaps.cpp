@@ -312,13 +312,7 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     fMaxRenderTargetSize = SkTMin(fMaxTextureSize, fMaxRenderTargetSize);
 
     fPathRenderingSupport = ctxInfo.hasExtension("GL_NV_path_rendering") &&
-        ctxInfo.hasExtension("GL_EXT_direct_state_access") &&
-        (kGL_GrGLStandard == standard &&      
-         (ctxInfo.version() >= GR_GL_VER(4,3) ||
-          ctxInfo.hasExtension("GL_ARB_program_interface_query")));
-    // Note: path rendering is not yet implemented for GLES.
-    // Once it is, this will contain also:
-    // || (kGLES_GrGLStandard == standard && ctxInfo.version() >= GR_GL_VER(3,1))
+        ctxInfo.hasExtension("GL_EXT_direct_state_access");
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
 
