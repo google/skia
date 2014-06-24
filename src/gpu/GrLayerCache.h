@@ -9,13 +9,12 @@
 #define GrLayerCache_DEFINED
 
 #include "GrAllocPool.h"
+#include "GrAtlas.h"
 #include "GrTHashTable.h"
 #include "GrPictureUtils.h"
 #include "GrRect.h"
 
-class GrAtlasMgr;
 class GrGpu;
-class GrPlot;
 class SkPicture;
 
 // GrAtlasLocation captures an atlased item's position in the atlas. This
@@ -97,24 +96,36 @@ private:
 // classes.
 class GrLayerCache {
 public:
-    GrLayerCache(GrGpu*);
+    GrLayerCache(GrContext*);
     ~GrLayerCache();
 
+    // As a cache, the GrLayerCache can be ordered to free up all its cached
+    // elements by the GrContext
     void freeAll();
 
-    GrCachedLayer* findLayerOrCreate(const SkPicture* picture, int id);
+    GrCachedLayer* findLayer(const SkPicture* picture, int layerID);
+    GrCachedLayer* findLayerOrCreate(const SkPicture* picture, int layerID);
+    
+    // Inform the cache that layer's cached image is now required. Return true
+    // if it was found in the ResourceCache and doesn't need to be regenerated.
+    // If false is returned the caller should (re)render the layer into the
+    // newly acquired texture.
+    bool lock(GrCachedLayer* layer, const GrTextureDesc& desc);
+
+    // Inform the cache that layer's cached image is not currently required
+    void unlock(GrCachedLayer* layer);
 
 private:
-    SkAutoTUnref<GrGpu>       fGpu;
+    GrContext*                fContext;  // pointer back to owning context
     SkAutoTDelete<GrAtlasMgr> fAtlasMgr; // TODO: could lazily allocate
+    GrAtlas                   fPlotUsage;
 
     class PictureLayerKey;
     GrTHashTable<GrCachedLayer, PictureLayerKey, 7> fLayerHash;
     GrTAllocPool<GrCachedLayer> fLayerPool;
 
     void init();
-    GrCachedLayer* createLayer(const SkPicture* picture, int id);
-
+    GrCachedLayer* createLayer(const SkPicture* picture, int layerID);
 };
 
 #endif

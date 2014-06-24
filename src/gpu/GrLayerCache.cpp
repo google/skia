@@ -41,8 +41,8 @@ private:
     int      fLayerID;
 };
 
-GrLayerCache::GrLayerCache(GrGpu* gpu)
-    : fGpu(SkRef(gpu))
+GrLayerCache::GrLayerCache(GrContext* context)
+    : fContext(context)
     , fLayerPool(16) {      // TODO: may need to increase this later
 }
 
@@ -57,7 +57,7 @@ void GrLayerCache::init() {
 
     // The layer cache only gets 1 plot
     SkISize textureSize = SkISize::Make(kAtlasTextureWidth, kAtlasTextureHeight);
-    fAtlasMgr.reset(SkNEW_ARGS(GrAtlasMgr, (fGpu, kSkia8888_GrPixelConfig,
+    fAtlasMgr.reset(SkNEW_ARGS(GrAtlasMgr, (fContext->getGpu(), kSkia8888_GrPixelConfig,
                                             textureSize, 1, 1, false)));
 }
 
@@ -75,6 +75,10 @@ GrCachedLayer* GrLayerCache::createLayer(const SkPicture* picture, int layerID) 
     return layer;
 }
 
+GrCachedLayer* GrLayerCache::findLayer(const SkPicture* picture, int layerID) {
+    SkASSERT(picture->uniqueID() != SK_InvalidGenID);
+    return fLayerHash.find(PictureLayerKey(picture->uniqueID(), layerID));
+}
 
 GrCachedLayer* GrLayerCache::findLayerOrCreate(const SkPicture* picture, int layerID) {
     SkASSERT(picture->uniqueID() != SK_InvalidGenID);
@@ -82,5 +86,24 @@ GrCachedLayer* GrLayerCache::findLayerOrCreate(const SkPicture* picture, int lay
     if (NULL == layer) {
         layer = this->createLayer(picture, layerID);
     }
+
     return layer;
+}
+
+bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc) {
+    SkASSERT(NULL == layer->getTexture());
+
+    // This just uses scratch textures and doesn't cache the texture.
+    // This can yield a lot of re-rendering
+    layer->setTexture(fContext->lockAndRefScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
+    return false;
+}
+
+void GrLayerCache::unlock(GrCachedLayer* layer) {
+    if (NULL == layer || NULL == layer->getTexture()) {
+        return;
+    }
+
+    fContext->unlockScratchTexture(layer->getTexture());
+    layer->setTexture(NULL);
 }

@@ -130,7 +130,7 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
 
     fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
 
-    fLayerCache.reset(SkNEW_ARGS(GrLayerCache, (fGpu)));
+    fLayerCache.reset(SkNEW_ARGS(GrLayerCache, (this)));
 
     fLastDrawWasBuffered = kNo_BufferedDraw;
 

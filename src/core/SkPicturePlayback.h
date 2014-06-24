@@ -345,7 +345,7 @@ private:
             size_t          fStart;
             size_t          fStop;
             SkIPoint        fPos;
-            SkBitmap*       fBM;
+            SkBitmap*       fBM;     // fBM is allocated so ReplacementInfo can remain POD
             const SkPaint*  fPaint;  // Note: this object doesn't own the paint
         };
 
