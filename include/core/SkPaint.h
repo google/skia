@@ -1136,6 +1136,7 @@ private:
     friend class SkPDFDevice;
     friend class GrBitmapTextContext;
     friend class GrDistanceFieldTextContext;
+    friend class GrStencilAndCoverTextContext;
     friend class SkTextToPathIter;
     friend class SkCanonicalizePaint;
 

@@ -38,6 +38,7 @@ class GrResourceEntry;
 class GrResourceCache;
 class GrStencilBuffer;
 class GrTestTarget;
+class GrTextContext;
 class GrTextureParams;
 class GrVertexBuffer;
 class GrVertexBufferAllocPool;
@@ -193,6 +194,16 @@ public:
      * caller must balance with a call to unref().
      */
     GrCacheable* findAndRefCachedResource(const GrResourceKey&);
+
+    /**
+     * Creates a new text rendering context that is optimal for the
+     * render target and the context. Caller assumes the ownership
+     * of the returned object. The returned object must be deleted
+     * before the context is destroyed.
+     */
+    GrTextContext* createTextContext(GrRenderTarget*,
+                                     const SkDeviceProperties&,
+                                     bool enableDistanceFieldFonts);
 
     ///////////////////////////////////////////////////////////////////////////
     // Textures
@@ -1018,6 +1029,7 @@ private:
     // addExistingTextureToCache
     friend class GrTexture;
     friend class GrStencilAndCoverPathRenderer;
+    friend class GrStencilAndCoverTextContext;
 
     // Add an existing texture to the texture cache. This is intended solely
     // for use with textures released from an GrAutoScratchTexture.

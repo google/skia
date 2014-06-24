@@ -1706,7 +1706,8 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
             LogFontTypeface::EnsureAccessible(this->getTypeface());
             total_size = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, 0, NULL, &fMat22);
             if (GDI_ERROR == total_size) {
-                SkASSERT(false);
+                // GetGlyphOutlineW is known to fail for some characters, such as spaces.
+                // In these cases, just return that the glyph does not have a shape.
                 return 0;
             }
         }

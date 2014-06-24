@@ -214,6 +214,7 @@ private:
     }
 
     friend class GrContext; // To access above two functions
+    friend class GrStencilAndCoverTextContext;  // To access above two functions
 
     SkSTArray<4, GrEffectStage> fColorStages;
     SkSTArray<2, GrEffectStage> fCoverageStages;

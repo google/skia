@@ -117,6 +117,8 @@
       '<(skia_src_path)/gpu/GrStencil.h',
       '<(skia_src_path)/gpu/GrStencilAndCoverPathRenderer.cpp',
       '<(skia_src_path)/gpu/GrStencilAndCoverPathRenderer.h',
+      '<(skia_src_path)/gpu/GrStencilAndCoverTextContext.cpp',
+      '<(skia_src_path)/gpu/GrStencilAndCoverTextContext.h',
       '<(skia_src_path)/gpu/GrStencilBuffer.cpp',
       '<(skia_src_path)/gpu/GrStencilBuffer.h',
       '<(skia_src_path)/gpu/GrStrokeInfo.h',
