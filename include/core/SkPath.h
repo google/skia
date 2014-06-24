@@ -21,6 +21,7 @@ class SkWriter32;
 class SkAutoPathBoundsUpdate;
 class SkString;
 class SkRRect;
+class SkWStream;
 
 /** \class SkPath
 
@@ -930,7 +931,7 @@ public:
      */
     bool contains(SkScalar x, SkScalar y) const;
 
-    void dump(bool forceClose, const char title[] = NULL) const;
+    void dump(SkWStream* , bool forceClose) const;
     void dump() const;
 
     /**

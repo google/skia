@@ -15,6 +15,7 @@
 #include "SkRandom.h"
 #include "SkReader32.h"
 #include "SkSize.h"
+#include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTypes.h"
 #include "SkWriter32.h"
@@ -3364,6 +3365,44 @@ static void test_operatorEqual(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a == b);
 }
 
+static void compare_dump(skiatest::Reporter* reporter, const SkPath& path, bool force,
+        const char* str) {
+    SkDynamicMemoryWStream wStream;
+    path.dump(&wStream, force);
+    SkAutoDataUnref data(wStream.copyToData());
+    REPORTER_ASSERT(reporter, data->size() == strlen(str));
+    REPORTER_ASSERT(reporter, !memcmp(data->data(), str, strlen(str)));
+}
+
+static void test_dump(skiatest::Reporter* reporter) {
+    SkPath p;
+    compare_dump(reporter, p, false, "");
+    compare_dump(reporter, p, true, "");
+    p.moveTo(1, 2);
+    p.lineTo(3, 4);
+    compare_dump(reporter, p, false, "path.moveTo(1, 2);\n"
+                                     "path.lineTo(3, 4);\n");
+    compare_dump(reporter, p, true,  "path.moveTo(1, 2);\n"
+                                     "path.lineTo(3, 4);\n"
+                                     "path.lineTo(1, 2);\n"
+                                     "path.close();\n");
+    p.reset();
+    p.moveTo(1, 2);
+    p.quadTo(3, 4, 5, 6);
+    compare_dump(reporter, p, false, "path.moveTo(1, 2);\n"
+                                     "path.quadTo(3, 4, 5, 6);\n");
+    p.reset();
+    p.moveTo(1, 2);
+    p.conicTo(3, 4, 5, 6, 0.5f);
+    compare_dump(reporter, p, false, "path.moveTo(1, 2);\n"
+                                     "path.conicTo(3, 4, 5, 6, 0.5f);\n");
+    p.reset();
+    p.moveTo(1, 2);
+    p.cubicTo(3, 4, 5, 6, 7, 8);
+    compare_dump(reporter, p, false, "path.moveTo(1, 2);\n"
+                                     "path.cubicTo(3, 4, 5, 6, 7, 8);\n");
+}
+
 class PathTest_Private {
 public:
     static void TestPathTo(skiatest::Reporter* reporter) {
@@ -3513,4 +3552,5 @@ DEF_TEST(Paths, reporter) {
     test_contains(reporter);
     PathTest_Private::TestPathTo(reporter);
     PathRefTest_Private::TestPathRef(reporter);
+    test_dump(reporter);
 }

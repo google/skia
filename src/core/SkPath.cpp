@@ -2111,6 +2111,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkString.h"
+#include "SkStream.h"
 
 static void append_scalar(SkString* str, SkScalar value) {
     SkString tmp;
@@ -2142,14 +2143,14 @@ static void append_params(SkString* str, const char label[], const SkPoint pts[]
     str->append(");\n");
 }
 
-void SkPath::dump(bool forceClose, const char title[]) const {
+void SkPath::dump(SkWStream* wStream, bool forceClose) const {
     Iter    iter(*this, forceClose);
     SkPoint pts[4];
     Verb    verb;
 
-    SkDebugf("path: forceClose=%s %s\n", forceClose ? "true" : "false",
-             title ? title : "");
-
+    if (!wStream) {
+        SkDebugf("path: forceClose=%s\n", forceClose ? "true" : "false");
+    }
     SkString builder;
 
     while ((verb = iter.next(pts, false)) != kDone_Verb) {
@@ -2170,7 +2171,7 @@ void SkPath::dump(bool forceClose, const char title[]) const {
                 append_params(&builder, "path.cubicTo", &pts[1], 3);
                 break;
             case kClose_Verb:
-                builder.append("path.close();");
+                builder.append("path.close();\n");
                 break;
             default:
                 SkDebugf("  path: UNKNOWN VERB %d, aborting dump...\n", verb);
@@ -2178,11 +2179,15 @@ void SkPath::dump(bool forceClose, const char title[]) const {
                 break;
         }
     }
-    SkDebugf("%s\n", builder.c_str());
+    if (wStream) {
+        wStream->writeText(builder.c_str());
+    } else {
+        SkDebugf("%s", builder.c_str());
+    }
 }
 
 void SkPath::dump() const {
-    this->dump(false);
+    this->dump(NULL, false);
 }
 
 #ifdef SK_DEBUG

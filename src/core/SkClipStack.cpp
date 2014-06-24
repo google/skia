@@ -891,7 +891,7 @@ void SkClipStack::Element::dump() const {
             SkDebugf("\n");
             break;
         case kPath_Type:
-            this->getPath().dump(true);
+            this->getPath().dump(NULL, true);
             break;
     }
 }
