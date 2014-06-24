@@ -147,10 +147,10 @@ void GLCircleEffect::emitCode(GrGLShaderBuilder* builder,
 
     SkASSERT(kHairlineAA_GrEffectEdgeType != ce.getEdgeType());
     if (GrEffectEdgeTypeIsInverseFill(ce.getEdgeType())) {
-        builder->fsCodeAppendf("\t\tfloat d = length(%s.xy - %s) - %s.z;\n",
+        builder->fsCodeAppendf("\t\tfloat d = length(%s.xy - %s.xy) - %s.z;\n",
                                 circleName, fragmentPos, circleName);
     } else {
-        builder->fsCodeAppendf("\t\tfloat d = %s.z - length(%s - %s.xy);\n",
+        builder->fsCodeAppendf("\t\tfloat d = %s.z - length(%s.xy - %s.xy);\n",
                                circleName, fragmentPos, circleName);
     }
     if (GrEffectEdgeTypeIsAA(ce.getEdgeType())) {
@@ -318,7 +318,7 @@ void GLEllipseEffect::emitCode(GrGLShaderBuilder* builder,
     const char* fragmentPos = builder->fragmentPosition();
 
     // d is the offset to the ellipse center
-    builder->fsCodeAppendf("\t\tvec2 d = %s - %s.xy;\n", fragmentPos, ellipseName);
+    builder->fsCodeAppendf("\t\tvec2 d = %s.xy - %s.xy;\n", fragmentPos, ellipseName);
     builder->fsCodeAppendf("\t\tvec2 Z = d * %s.zw;\n", ellipseName);
     // implicit is the evaluation of (x/rx)^2 + (y/ry)^2 - 1.
     builder->fsCodeAppend("\t\tfloat implicit = dot(Z, d) - 1.0;\n");

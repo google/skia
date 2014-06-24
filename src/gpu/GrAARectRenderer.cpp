@@ -200,7 +200,7 @@ public:
             builder->fsCodeAppend("\tfloat scaleH = min(1.0, 2.0*insetH/spanH);\n");
 
             // Compute the coverage for the rect's width
-            builder->fsCodeAppendf("\tvec2 offset = %s - %s.xy;\n",
+            builder->fsCodeAppendf("\tvec2 offset = %s.xy - %s.xy;\n",
                                    builder->fragmentPosition(), fsRectEdgeName);
             builder->fsCodeAppendf("\tfloat perpDot = abs(offset.x * %s.w - offset.y * %s.z);\n",
                                    fsRectEdgeName, fsRectEdgeName);

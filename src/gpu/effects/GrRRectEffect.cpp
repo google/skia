@@ -199,8 +199,8 @@ void GLCircularRRectEffect::emitCode(GrGLShaderBuilder* builder,
     // alphas together.
     switch (crre.getCircularCornerFlags()) {
         case CircularRRectEffect::kAll_CornerFlags:
-            builder->fsCodeAppendf("\t\tvec2 dxy0 = %s.xy - %s;\n", rectName, fragmentPos);
-            builder->fsCodeAppendf("\t\tvec2 dxy1 = %s - %s.zw;\n", fragmentPos, rectName);
+            builder->fsCodeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
+            builder->fsCodeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
             builder->fsCodeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
             builder->fsCodeAppendf("\t\tfloat alpha = clamp(%s - length(dxy), 0.0, 1.0);\n",
                                    radiusPlusHalfName);
@@ -537,8 +537,8 @@ void GLEllipticalRRectEffect::emitCode(GrGLShaderBuilder* builder,
     // The code below is a simplified version of the above that performs maxs on the vector
     // components before computing distances and alpha values so that only one distance computation
     // need be computed to determine the min alpha.
-    builder->fsCodeAppendf("\t\tvec2 dxy0 = %s.xy - %s;\n", rectName, fragmentPos);
-    builder->fsCodeAppendf("\t\tvec2 dxy1 = %s - %s.zw;\n", fragmentPos, rectName);
+    builder->fsCodeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
+    builder->fsCodeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
     switch (erre.getRRect().getType()) {
         case SkRRect::kSimple_Type: {
             const char *invRadiiXYSqdName;
