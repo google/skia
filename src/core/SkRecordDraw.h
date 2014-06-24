@@ -10,9 +10,10 @@
 
 #include "SkRecord.h"
 #include "SkCanvas.h"
+#include "SkDrawPictureCallback.h"
 
 // Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.
-void SkRecordDraw(const SkRecord&, SkCanvas*);
+void SkRecordDraw(const SkRecord&, SkCanvas*, SkDrawPictureCallback* = NULL);
 
 namespace SkRecords {
 

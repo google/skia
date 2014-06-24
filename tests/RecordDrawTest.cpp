@@ -9,6 +9,7 @@
 #include "RecordTestUtils.h"
 
 #include "SkDebugCanvas.h"
+#include "SkDrawPictureCallback.h"
 #include "SkRecord.h"
 #include "SkRecordOpts.h"
 #include "SkRecordDraw.h"
@@ -26,8 +27,51 @@ static void draw_pos_text_h(SkCanvas* canvas, const char* text, SkScalar y) {
     canvas->drawPosTextH(text, len, xpos, y, SkPaint());
 }
 
-// Rerecord into another SkRecord using full SkCanvas semantics,
-// tracking clips and allowing SkRecordDraw's quickReject() calls to work.
+class JustOneDraw : public SkDrawPictureCallback {
+public:
+    JustOneDraw() : fCalls(0) {}
+
+    virtual bool abortDrawing() SK_OVERRIDE { return fCalls++ > 0; }
+private:
+    int fCalls;
+};
+
+DEF_TEST(RecordDraw_Abort, r) {
+    // Record two commands.
+    SkRecord record;
+    SkRecorder recorder(&record, W, H);
+    recorder.drawRect(SkRect::MakeWH(200, 300), SkPaint());
+    recorder.clipRect(SkRect::MakeWH(100, 200));
+
+    SkRecord rerecord;
+    SkRecorder canvas(&rerecord, W, H);
+
+    JustOneDraw callback;
+    SkRecordDraw(record, &canvas, &callback);
+
+    REPORTER_ASSERT(r, 3 == rerecord.count());
+    assert_type<SkRecords::Save>    (r, rerecord, 0);
+    assert_type<SkRecords::DrawRect>(r, rerecord, 1);
+    assert_type<SkRecords::Restore> (r, rerecord, 2);
+}
+
+DEF_TEST(RecordDraw_Unbalanced, r) {
+    SkRecord record;
+    SkRecorder recorder(&record, W, H);
+    recorder.save();  // We won't balance this, but SkRecordDraw will for us.
+
+    SkRecord rerecord;
+    SkRecorder canvas(&rerecord, W, H);
+    SkRecordDraw(record, &canvas);
+
+    REPORTER_ASSERT(r, 4 == rerecord.count());
+    assert_type<SkRecords::Save>    (r, rerecord, 0);
+    assert_type<SkRecords::Save>    (r, rerecord, 1);
+    assert_type<SkRecords::Restore> (r, rerecord, 2);
+    assert_type<SkRecords::Restore> (r, rerecord, 3);
+}
+
+// Rerecord into another SkRecord with a clip.
 static void record_clipped(const SkRecord& record, SkRect clip, SkRecord* clipped) {
     SkRecorder recorder(clipped, W, H);
     recorder.clipRect(clip);
@@ -46,8 +90,11 @@ DEF_TEST(RecordDraw_PosTextHQuickReject, r) {
     SkRecord clipped;
     record_clipped(record, SkRect::MakeLTRB(20, 20, 200, 200), &clipped);
 
-    // clipRect and the first drawPosTextH.
-    REPORTER_ASSERT(r, 2 == clipped.count());
+    REPORTER_ASSERT(r, 4 == clipped.count());
+    assert_type<SkRecords::ClipRect>    (r, clipped, 0);
+    assert_type<SkRecords::Save>        (r, clipped, 1);
+    assert_type<SkRecords::DrawPosTextH>(r, clipped, 2);
+    assert_type<SkRecords::Restore>     (r, clipped, 3);
 }
 
 DEF_TEST(RecordDraw_Culling, r) {
@@ -70,9 +117,15 @@ DEF_TEST(RecordDraw_Culling, r) {
     SkRecord clipped;
     record_clipped(record, SkRect::MakeLTRB(20, 20, 200, 200), &clipped);
 
-    // We'll keep the clipRect call from above, and the outer two drawRects, and the push/pop pair.
-    // If culling weren't working, we'd see 8 commands recorded here.
-    REPORTER_ASSERT(r, 5 == clipped.count());
+    // If culling weren't working, we'd see 3 more commands recorded here.
+    REPORTER_ASSERT(r, 7 == clipped.count());
+    assert_type<SkRecords::ClipRect>(r, clipped, 0);
+    assert_type<SkRecords::Save>    (r, clipped, 1);
+    assert_type<SkRecords::PushCull>(r, clipped, 2);
+    assert_type<SkRecords::DrawRect>(r, clipped, 3);
+    assert_type<SkRecords::DrawRect>(r, clipped, 4);
+    assert_type<SkRecords::PopCull> (r, clipped, 5);
+    assert_type<SkRecords::Restore> (r, clipped, 6);
 }
 
 DEF_TEST(RecordDraw_SetMatrixClobber, r) {
@@ -91,6 +144,11 @@ DEF_TEST(RecordDraw_SetMatrixClobber, r) {
     translateCanvas.setMatrix(translate);
 
     SkRecordDraw(scaleRecord, &translateCanvas);
+    REPORTER_ASSERT(r, 4 == translateRecord.count());
+    assert_type<SkRecords::SetMatrix>(r, translateRecord, 0);
+    assert_type<SkRecords::Save>     (r, translateRecord, 1);
+    assert_type<SkRecords::SetMatrix>(r, translateRecord, 2);
+    assert_type<SkRecords::Restore>  (r, translateRecord, 3);
 
     // When we look at translateRecord now, it should have its first +20,+20 translate,
     // then a 2x,3x scale that's been concatted with that +20,+20 translate.
@@ -98,7 +156,7 @@ DEF_TEST(RecordDraw_SetMatrixClobber, r) {
     setMatrix = assert_type<SkRecords::SetMatrix>(r, translateRecord, 0);
     REPORTER_ASSERT(r, setMatrix->matrix == translate);
 
-    setMatrix = assert_type<SkRecords::SetMatrix>(r, translateRecord, 1);
+    setMatrix = assert_type<SkRecords::SetMatrix>(r, translateRecord, 2);
     SkMatrix expected = scale;
     expected.postConcat(translate);
     REPORTER_ASSERT(r, setMatrix->matrix == expected);

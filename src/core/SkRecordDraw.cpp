@@ -7,8 +7,12 @@
 
 #include "SkRecordDraw.h"
 
-void SkRecordDraw(const SkRecord& record, SkCanvas* canvas) {
+void SkRecordDraw(const SkRecord& record, SkCanvas* canvas, SkDrawPictureCallback* callback) {
+    SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
     for (SkRecords::Draw draw(canvas); draw.index() < record.count(); draw.next()) {
+        if (NULL != callback && callback->abortDrawing()) {
+            return;
+        }
         record.visit<void>(draw.index(), draw);
     }
 }

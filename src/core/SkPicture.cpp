@@ -15,6 +15,7 @@
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkChunkAlloc.h"
+#include "SkDrawPictureCallback.h"
 #include "SkPaintPriv.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
@@ -34,6 +35,7 @@
 
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
+#include "SkRecorder.h"
 
 template <typename T> int SafeCount(const T* obj) {
     return obj ? obj->count() : 0;
@@ -146,29 +148,42 @@ SkPicture::SkPicture(int width, int height,
     fPlayback.reset(SkNEW_ARGS(SkPicturePlayback, (record, info, deepCopyOps)));
 }
 
-// fRecord TODO
+// The simplest / safest way to copy an SkRecord is to replay it into a new one.
+static SkRecord* copy(const SkRecord& src, int width, int height) {
+    SkRecord* dst = SkNEW(SkRecord);
+    SkRecorder recorder(dst, width, height);
+    SkRecordDraw(src, &recorder);
+    return dst;
+}
+
+// fRecord OK
 SkPicture::SkPicture(const SkPicture& src) : INHERITED() {
     this->needsNewGenID();
     fWidth = src.fWidth;
     fHeight = src.fHeight;
 
-    if (src.fPlayback.get()) {
+    if (NULL != src.fPlayback.get()) {
         fPlayback.reset(SkNEW_ARGS(SkPicturePlayback, (*src.fPlayback)));
-        fUniqueID = src.uniqueID();     // need to call method to ensure != 0
+        fUniqueID = src.uniqueID();  // need to call method to ensure != 0
+    }
+
+    if (NULL != src.fRecord.get()) {
+        fRecord.reset(copy(*src.fRecord, fWidth, fHeight));
+        fUniqueID = src.uniqueID();  // need to call method to ensure != 0
     }
 }
 
 // fRecord OK
 SkPicture::~SkPicture() {}
 
-// fRecord TODO
+// fRecord TODO, fix by deleting this method
 SkPicture* SkPicture::clone() const {
     SkPicture* clonedPicture = SkNEW(SkPicture);
     this->clone(clonedPicture, 1);
     return clonedPicture;
 }
 
-// fRecord TODO
+// fRecord TODO, fix by deleting this method
 void SkPicture::clone(SkPicture* pictures, int count) const {
     SkPictCopyInfo copyInfo;
 
@@ -293,8 +308,7 @@ void SkPicture::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) const {
         fPlayback->draw(*canvas, callback);
     }
     if (NULL != fRecord.get()) {
-        // TODO: support SkDrawPictureCallback
-        SkRecordDraw(*fRecord, canvas);
+        SkRecordDraw(*fRecord, canvas, callback);
     }
 }
 
@@ -495,7 +509,7 @@ bool SkPicture::willPlayBackBitmaps() const {
 }
 
 #ifdef SK_BUILD_FOR_ANDROID
-// fRecord TODO
+// fRecord TODO, fix by switching Android to SkDrawPictureCallback, then deleting this method
 void SkPicture::abortPlayback() {
     if (NULL == fPlayback.get()) {
         return;

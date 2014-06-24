@@ -6,6 +6,7 @@
  */
 #include <new>
 #include "SkBBoxHierarchy.h"
+#include "SkDrawPictureCallback.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureStateTree.h"
@@ -1355,7 +1356,7 @@ bool SkPicturePlayback::suitableForGpuRasterization(GrContext* context, const ch
                             && 0 == sampleCount);
 
     bool ret = suitableForDash &&
-                    (fContentInfo.numAAConcavePaths() - fContentInfo.numAAHairlineConcavePaths()) 
+                    (fContentInfo.numAAConcavePaths() - fContentInfo.numAAHairlineConcavePaths())
                     < kNumAAConcavePaths;
     if (!ret && NULL != reason) {
         if (!suitableForDash) {
@@ -1364,7 +1365,7 @@ bool SkPicturePlayback::suitableForGpuRasterization(GrContext* context, const ch
             } else {
                 *reason = "Too many non dashed path effects.";
             }
-        } else if ((fContentInfo.numAAConcavePaths() - fContentInfo.numAAHairlineConcavePaths()) 
+        } else if ((fContentInfo.numAAConcavePaths() - fContentInfo.numAAHairlineConcavePaths())
                     >= kNumAAConcavePaths)
             *reason = "Too many anti-aliased concave paths.";
         else

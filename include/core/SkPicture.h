@@ -11,6 +11,7 @@
 #define SkPicture_DEFINED
 
 #include "SkBitmap.h"
+#include "SkDrawPictureCallback.h"
 #include "SkImageDecoder.h"
 #include "SkRefCnt.h"
 
@@ -21,7 +22,6 @@ class GrContext;
 class SkBBHFactory;
 class SkBBoxHierarchy;
 class SkCanvas;
-class SkDrawPictureCallback;
 class SkData;
 class SkPicturePlayback;
 class SkPictureRecord;
@@ -312,24 +312,6 @@ private:
 
     SkPicture(int width, int height, SkRecord*);  // Takes ownership.
     SkAutoTDelete<SkRecord> fRecord;
-};
-
-/**
- *  Subclasses of this can be passed to canvas.drawPicture. During the drawing
- *  of the picture, this callback will periodically be invoked. If its
- *  abortDrawing() returns true, then picture playback will be interrupted.
- *
- *  The resulting drawing is undefined, as there is no guarantee how often the
- *  callback will be invoked. If the abort happens inside some level of nested
- *  calls to save(), restore will automatically be called to return the state
- *  to the same level it was before the drawPicture call was made.
- */
-class SK_API SkDrawPictureCallback {
-public:
-    SkDrawPictureCallback() {}
-    virtual ~SkDrawPictureCallback() {}
-
-    virtual bool abortDrawing() = 0;
 };
 
 #endif
