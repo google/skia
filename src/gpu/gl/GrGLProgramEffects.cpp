@@ -22,10 +22,8 @@ typedef GrGLProgramEffects::TextureSamplerArray TextureSamplerArray;
  * We specialize the vertex code for each of these matrix types.
  */
 enum MatrixType {
-    kIdentity_MatrixType = 0,
-    kTrans_MatrixType    = 1,
-    kNoPersp_MatrixType  = 2,
-    kGeneral_MatrixType  = 3,
+    kNoPersp_MatrixType  = 0,
+    kGeneral_MatrixType  = 1,
 };
 
 /**
@@ -33,7 +31,7 @@ enum MatrixType {
  * indicates the source of the input coords.
  */
 enum {
-    kMatrixTypeKeyBits   = 2,
+    kMatrixTypeKeyBits   = 1,
     kMatrixTypeKeyMask   = (1 << kMatrixTypeKeyBits) - 1,
     kPositionCoords_Flag = (1 << kMatrixTypeKeyBits),
     kTransformKeyBits    = kMatrixTypeKeyBits + 1,
@@ -85,30 +83,6 @@ GrCoordSet get_source_coords(EffectKey transformKey, int transformIdx) {
     return (transformKey >> (kTransformKeyBits * transformIdx)) & kPositionCoords_Flag ?
                kPosition_GrCoordSet :
                kLocal_GrCoordSet;
-}
-
-/**
- * Retrieves the final translation that a transform needs to apply to its source coords (and
- * verifies that a translation is all it needs).
- */
-void get_transform_translation(const GrDrawEffect& drawEffect,
-                               int transformIdx,
-                               GrGLfloat* tx,
-                               GrGLfloat* ty) {
-    const GrCoordTransform& coordTransform = (*drawEffect.effect())->coordTransform(transformIdx);
-    SkASSERT(!coordTransform.reverseY());
-    const SkMatrix& matrix = coordTransform.getMatrix();
-    if (kLocal_GrCoordSet == coordTransform.sourceCoords() &&
-        !drawEffect.programHasExplicitLocalCoords()) {
-        const SkMatrix& coordChangeMatrix = drawEffect.getCoordChangeMatrix();
-        SkASSERT(SkMatrix::kTranslate_Mask == (matrix.getType() | coordChangeMatrix.getType()));
-        *tx = SkScalarToFloat(matrix[SkMatrix::kMTransX] + coordChangeMatrix[SkMatrix::kMTransX]);
-        *ty = SkScalarToFloat(matrix[SkMatrix::kMTransY] + coordChangeMatrix[SkMatrix::kMTransY]);
-    } else {
-        SkASSERT(SkMatrix::kTranslate_Mask == matrix.getType());
-        *tx = SkScalarToFloat(matrix[SkMatrix::kMTransX]);
-        *ty = SkScalarToFloat(matrix[SkMatrix::kMTransY]);
-    }
 }
 
 /**
@@ -175,16 +149,10 @@ EffectKey GrGLProgramEffects::GenTransformKey(const GrDrawEffect& drawEffect) {
 
         int combinedTypes = type0 | type1;
 
-        bool reverseY = coordTransform.reverseY();
-
         if (SkMatrix::kPerspective_Mask & combinedTypes) {
             key |= kGeneral_MatrixType;
-        } else if (((SkMatrix::kAffine_Mask | SkMatrix::kScale_Mask) & combinedTypes) || reverseY) {
-            key |= kNoPersp_MatrixType;
-        } else if (SkMatrix::kTranslate_Mask & combinedTypes) {
-            key |= kTrans_MatrixType;
         } else {
-            key |= kIdentity_MatrixType;
+            key |= kNoPersp_MatrixType;
         }
         key <<= kTransformKeyBits * t;
         SkASSERT(0 == (totalKey & key)); // keys for each transform ought not to overlap
@@ -320,23 +288,11 @@ void GrGLVertexProgramEffects::emitTransforms(GrGLFullShaderBuilder* builder,
         GrSLType varyingType = kVoid_GrSLType;
         const char* uniName;
         switch (get_matrix_type(totalKey, t)) {
-            case kIdentity_MatrixType:
-                transforms[t].fType = kVoid_GrSLType;
-                uniName = NULL;
-                varyingType = kVec2f_GrSLType;
-                break;
-            case kTrans_MatrixType:
-                transforms[t].fType = kVec2f_GrSLType;
-                uniName = "StageTranslate";
-                varyingType = kVec2f_GrSLType;
-                break;
             case kNoPersp_MatrixType:
-                transforms[t].fType = kMat33f_GrSLType;
                 uniName = "StageMatrix";
                 varyingType = kVec2f_GrSLType;
                 break;
             case kGeneral_MatrixType:
-                transforms[t].fType = kMat33f_GrSLType;
                 uniName = "StageMatrix";
                 varyingType = kVec3f_GrSLType;
                 break;
@@ -344,17 +300,15 @@ void GrGLVertexProgramEffects::emitTransforms(GrGLFullShaderBuilder* builder,
                 SkFAIL("Unexpected key.");
         }
         SkString suffixedUniName;
-        if (kVoid_GrSLType != transforms[t].fType) {
-            if (0 != t) {
-                suffixedUniName.append(uniName);
-                suffixedUniName.appendf("_%i", t);
-                uniName = suffixedUniName.c_str();
-            }
-            transforms[t].fHandle = builder->addUniform(GrGLShaderBuilder::kVertex_Visibility,
-                                                        transforms[t].fType,
-                                                        uniName,
-                                                        &uniName);
+        if (0 != t) {
+            suffixedUniName.append(uniName);
+            suffixedUniName.appendf("_%i", t);
+            uniName = suffixedUniName.c_str();
         }
+        transforms[t].fHandle = builder->addUniform(GrGLShaderBuilder::kVertex_Visibility,
+                                                    kMat33f_GrSLType,
+                                                    uniName,
+                                                    &uniName);
 
         const char* varyingName = "MatrixCoord";
         SkString suffixedVaryingName;
@@ -371,29 +325,13 @@ void GrGLVertexProgramEffects::emitTransforms(GrGLFullShaderBuilder* builder,
                                           builder->positionAttribute() :
                                           builder->localCoordsAttribute();
         // varying = matrix * coords (logically)
-        switch (transforms[t].fType) {
-            case kVoid_GrSLType:
-                SkASSERT(kVec2f_GrSLType == varyingType);
-                builder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, coords.c_str());
-                break;
-            case kVec2f_GrSLType:
-                SkASSERT(kVec2f_GrSLType == varyingType);
-                builder->vsCodeAppendf("\t%s = %s + %s;\n",
-                                       vsVaryingName, uniName, coords.c_str());
-                break;
-            case kMat33f_GrSLType: {
-                SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
-                if (kVec2f_GrSLType == varyingType) {
-                    builder->vsCodeAppendf("\t%s = (%s * vec3(%s, 1)).xy;\n",
-                                           vsVaryingName, uniName, coords.c_str());
-                } else {
-                    builder->vsCodeAppendf("\t%s = %s * vec3(%s, 1);\n",
-                                           vsVaryingName, uniName, coords.c_str());
-                }
-                break;
-            }
-            default:
-                SkFAIL("Unexpected uniform type.");
+        SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
+        if (kVec2f_GrSLType == varyingType) {
+            builder->vsCodeAppendf("\t%s = (%s * vec3(%s, 1)).xy;\n",
+                                   vsVaryingName, uniName, coords.c_str());
+        } else {
+            builder->vsCodeAppendf("\t%s = %s * vec3(%s, 1);\n",
+                                   vsVaryingName, uniName, coords.c_str());
         }
         SkNEW_APPEND_TO_TARRAY(outCoords, TransformedCoords,
                                (SkString(fsVaryingName), varyingType));
@@ -421,32 +359,11 @@ void GrGLVertexProgramEffects::setTransformData(const GrGLUniformManager& unifor
     int numTransforms = transforms.count();
     SkASSERT(numTransforms == (*drawEffect.effect())->numTransforms());
     for (int t = 0; t < numTransforms; ++t) {
-        SkASSERT(transforms[t].fHandle.isValid() != (kVoid_GrSLType == transforms[t].fType));
-        switch (transforms[t].fType) {
-            case kVoid_GrSLType:
-                SkASSERT(get_transform_matrix(drawEffect, t).isIdentity());
-                break;
-            case kVec2f_GrSLType: {
-                GrGLfloat tx, ty;
-                get_transform_translation(drawEffect, t, &tx, &ty);
-                if (transforms[t].fCurrentValue.get(SkMatrix::kMTransX) != tx ||
-                    transforms[t].fCurrentValue.get(SkMatrix::kMTransY) != ty) {
-                    uniformManager.set2f(transforms[t].fHandle, tx, ty);
-                    transforms[t].fCurrentValue.set(SkMatrix::kMTransX, tx);
-                    transforms[t].fCurrentValue.set(SkMatrix::kMTransY, ty);
-                }
-                break;
-            }
-            case kMat33f_GrSLType: {
-                const SkMatrix& matrix = get_transform_matrix(drawEffect, t);
-                if (!transforms[t].fCurrentValue.cheapEqualTo(matrix)) {
-                    uniformManager.setSkMatrix(transforms[t].fHandle, matrix);
-                    transforms[t].fCurrentValue = matrix;
-                }
-                break;
-            }
-            default:
-                SkFAIL("Unexpected uniform type.");
+        SkASSERT(transforms[t].fHandle.isValid());
+        const SkMatrix& matrix = get_transform_matrix(drawEffect, t);
+        if (!transforms[t].fCurrentValue.cheapEqualTo(matrix)) {
+            uniformManager.setSkMatrix(transforms[t].fHandle, matrix);
+            transforms[t].fCurrentValue = matrix;
         }
     }
 }
@@ -538,25 +455,6 @@ void GrGLPathTexGenProgramEffects::setPathTexGenState(GrGpuGL* gpu,
     int numTransforms = (*drawEffect.effect())->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
         switch (get_matrix_type(totalKey, t)) {
-            case kIdentity_MatrixType: {
-                SkASSERT(get_transform_matrix(drawEffect, t).isIdentity());
-                GrGLfloat identity[] = {1, 0, 0,
-                                        0, 1, 0};
-                gpu->enablePathTexGen(texCoordIndex++,
-                                      GrGpuGL::kST_PathTexGenComponents,
-                                      identity);
-                break;
-            }
-            case kTrans_MatrixType: {
-                GrGLfloat tx, ty;
-                get_transform_translation(drawEffect, t, &tx, &ty);
-                GrGLfloat translate[] = {1, 0, tx,
-                                         0, 1, ty};
-                gpu->enablePathTexGen(texCoordIndex++,
-                                      GrGpuGL::kST_PathTexGenComponents,
-                                      translate);
-                break;
-            }
             case kNoPersp_MatrixType: {
                 const SkMatrix& transform = get_transform_matrix(drawEffect, t);
                 gpu->enablePathTexGen(texCoordIndex++,

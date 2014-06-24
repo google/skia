@@ -200,7 +200,6 @@ private:
     struct Transform {
         Transform() { fCurrentValue = SkMatrix::InvalidMatrix(); }
         UniformHandle fHandle;
-        GrSLType      fType;
         SkMatrix      fCurrentValue;
     };
 
