@@ -1,5 +1,22 @@
+# Common gypi for pathops unit tests.
 {
+  'include_dirs': [
+    '../src/core',
+    '../src/effects',
+    '../src/lazy',
+    '../src/pathops',
+    '../src/pipe/utils',
+    '../src/utils',
+  ],
+  'dependencies': [
+    'flags.gyp:flags',
+    'skia_lib.gyp:skia_lib',
+    'tools.gyp:resources',
+  ],
   'sources': [
+    '../tests/Test.cpp',
+    '../tests/Test.h',
+
     '../tests/PathOpsAngleTest.cpp',
     '../tests/PathOpsBoundsTest.cpp',
     '../tests/PathOpsCubicIntersectionTest.cpp',
@@ -38,6 +55,7 @@
     '../tests/PathOpsSkpTest.cpp',
     '../tests/PathOpsTestCommon.cpp',
     '../tests/PathOpsThreadedCommon.cpp',
+    '../tests/PathOpsTightBoundsTest.cpp',
     '../tests/PathOpsCubicIntersectionTestData.h',
     '../tests/PathOpsExtendedTest.h',
     '../tests/PathOpsQuadIntersectionTestData.h',

@@ -340,6 +340,7 @@
         '<(skia_src_path)/pathops/SkPathOpsQuad.cpp',
         '<(skia_src_path)/pathops/SkPathOpsRect.cpp',
         '<(skia_src_path)/pathops/SkPathOpsSimplify.cpp',
+        '<(skia_src_path)/pathops/SkPathOpsTightBounds.cpp',
         '<(skia_src_path)/pathops/SkPathOpsTriangle.cpp',
         '<(skia_src_path)/pathops/SkPathOpsTypes.cpp',
         '<(skia_src_path)/pathops/SkPathWriter.cpp',

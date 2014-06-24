@@ -10,6 +10,7 @@
 #include "SkPreConfig.h"
 
 class SkPath;
+struct SkRect;
 
 // FIXME: move everything below into the SkPath class
 /**
@@ -53,5 +54,13 @@ bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     @return True if simplification succeeded.
   */
 bool SK_API Simplify(const SkPath& path, SkPath* result);
+
+/** Set the resulting rectangle to the tight bounds of the path.
+
+    @param path The path measured.
+    @param result The tight bounds of the path.
+    @return True if the bounds could be computed.
+  */
+bool SK_API TightBounds(const SkPath& path, SkRect* result);
 
 #endif
