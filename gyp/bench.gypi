@@ -30,7 +30,6 @@
     '../bench/CoverageBench.cpp',
     '../bench/DashBench.cpp',
     '../bench/DecodeBench.cpp',
-    '../bench/DeferredCanvasBench.cpp',
     '../bench/DeferredSurfaceCopyBench.cpp',
     '../bench/DisplacementBench.cpp',
     '../bench/ETCBitmapBench.cpp',
