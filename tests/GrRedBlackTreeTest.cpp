@@ -14,7 +14,7 @@
 
 typedef GrRedBlackTree<int> Tree;
 
-DEF_TEST(GrRedBlackTreeTest, reporter) {
+DEF_TEST(GrRedBlackTree, reporter) {
     Tree tree;
 
     SkRandom r;

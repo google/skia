@@ -10,7 +10,7 @@
 #include "GrContextFactory.h"
 #include "Test.h"
 
-DEF_GPUTEST(GrContextFactoryTest, reporter, factory) {
+DEF_GPUTEST(GrContextFactory, reporter, factory) {
     // Reset in case some other test has been using it first.
     factory->destroyContexts();
 

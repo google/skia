@@ -464,7 +464,7 @@ DEF_TEST(ImageFilterCropRect, reporter) {
     test_crop_rects(&device, reporter);
 }
 
-DEF_TEST(ImageFilterMatrixTest, reporter) {
+DEF_TEST(ImageFilterMatrix, reporter) {
     SkBitmap temp;
     temp.allocN32Pixels(100, 100);
     SkBitmapDevice device(temp);
@@ -494,8 +494,7 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
     canvas.drawPicture(picture);
 }
 
-DEF_TEST(ImageFilterPictureImageFilterTest, reporter) {
-
+DEF_TEST(ImageFilterPictureImageFilter, reporter) {
     SkRTreeFactory factory;
     SkPictureRecorder recorder;
     SkCanvas* recordingCanvas = recorder.beginRecording(1, 1, &factory, 0);
@@ -554,8 +553,7 @@ DEF_TEST(ImageFilterPictureImageFilterTest, reporter) {
     REPORTER_ASSERT(reporter, pixel != SK_ColorGREEN);
 }
 
-DEF_TEST(ImageFilterEmptySaveLayerTest, reporter) {
-
+DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
     // Even when there's an empty saveLayer()/restore(), ensure that an image
     // filter or color filter which affects transparent black still draws.
 

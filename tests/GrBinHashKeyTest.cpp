@@ -12,7 +12,7 @@
 
 #include "Test.h"
 
-DEF_TEST(GrBinHashKeyTest, reporter) {
+DEF_TEST(GrBinHashKey, reporter) {
     const char* testStringA_ = "abcdABCD";
     const char* testStringB_ = "abcdBBCD";
     const uint32_t* testStringA = reinterpret_cast<const uint32_t*>(testStringA_);

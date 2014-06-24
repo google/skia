@@ -14,7 +14,7 @@
 typedef GrOrderedSet<int> Set;
 typedef GrOrderedSet<const char*, GrStrLess> Set2;
 
-DEF_TEST(GrOrderedSetTest, reporter) {
+DEF_TEST(GrOrderedSet, reporter) {
     Set set;
 
     REPORTER_ASSERT(reporter, set.empty());

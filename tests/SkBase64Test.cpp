@@ -9,7 +9,7 @@
 
 #include "Test.h"
 
-DEF_TEST(SkBase64Test, reporter) {
+DEF_TEST(SkBase64, reporter) {
     char all[256];
     for (int index = 0; index < 256; ++index) {
         all[index] = (signed char) (index + 1);

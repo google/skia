@@ -14,7 +14,7 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-DEF_GPUTEST(GrSurfaceTest, reporter, factory) {
+DEF_GPUTEST(GrSurface, reporter, factory) {
     GrContext* context = factory->get(GrContextFactory::kNull_GLContextType);
     if (NULL != context) {
         GrTextureDesc desc;

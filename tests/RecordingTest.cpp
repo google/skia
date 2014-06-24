@@ -11,7 +11,7 @@
 
 // Minimally exercise the public SkRecording API.
 
-DEF_TEST(RecordingTest, r) {
+DEF_TEST(SkRecording, r) {
     EXPERIMENTAL::SkRecording recording(1920, 1080);
 
     // Some very exciting commands here.
