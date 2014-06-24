@@ -29,8 +29,7 @@ bool SkImageDecoder_iOS::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     
     const int width = uimage.size.width;
     const int height = uimage.size.height;
-    SkColorType ct = SkBitmapConfigToColorType(SkBitmap::kARGB_8888_Config);
-    bm->setInfo(SkImageInfo::Make(width, height, ct, kPremul_SkAlphaType), 0);
+    bm->setInfo(SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType), 0);
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }
