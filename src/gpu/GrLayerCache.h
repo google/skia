@@ -90,7 +90,7 @@ private:
 // The GrLayerCache caches pre-computed saveLayers for later rendering.
 // Non-atlased layers are stored in their own GrTexture while the atlased
 // layers share a single GrTexture.
-// Unlike the GrFontCache, the GrTexture atlas only has one GrAtlasMgr (for 8888)
+// Unlike the GrFontCache, the GrTexture atlas only has one GrAtlas (for 8888)
 // and one GrPlot (for the entire atlas). As such, the GrLayerCache
 // roughly combines the functionality of the GrFontCache and GrTextStrike
 // classes.
@@ -117,8 +117,8 @@ public:
 
 private:
     GrContext*                fContext;  // pointer back to owning context
-    SkAutoTDelete<GrAtlasMgr> fAtlasMgr; // TODO: could lazily allocate
-    GrAtlas                   fPlotUsage;
+    SkAutoTDelete<GrAtlas>    fAtlas;    // TODO: could lazily allocate
+    GrAtlas::ClientPlotUsage  fPlotUsage;
 
     class PictureLayerKey;
     GrTHashTable<GrCachedLayer, PictureLayerKey, 7> fLayerHash;

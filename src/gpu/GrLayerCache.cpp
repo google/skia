@@ -53,17 +53,17 @@ void GrLayerCache::init() {
     static const int kAtlasTextureWidth = 1024;
     static const int kAtlasTextureHeight = 1024;
 
-    SkASSERT(NULL == fAtlasMgr.get());
+    SkASSERT(NULL == fAtlas.get());
 
     // The layer cache only gets 1 plot
     SkISize textureSize = SkISize::Make(kAtlasTextureWidth, kAtlasTextureHeight);
-    fAtlasMgr.reset(SkNEW_ARGS(GrAtlasMgr, (fContext->getGpu(), kSkia8888_GrPixelConfig,
-                                            textureSize, 1, 1, false)));
+    fAtlas.reset(SkNEW_ARGS(GrAtlas, (fContext->getGpu(), kSkia8888_GrPixelConfig,
+                                      textureSize, 1, 1, false)));
 }
 
 void GrLayerCache::freeAll() {
     fLayerHash.deleteAll();
-    fAtlasMgr.free();
+    fAtlas.free();
 }
 
 GrCachedLayer* GrLayerCache::createLayer(const SkPicture* picture, int layerID) {

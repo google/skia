@@ -11,7 +11,6 @@
 #include "GrTextContext.h"
 
 class GrTextStrike;
-class GrAtlasMgr;
 
 /*
  * This class implements GrTextContext using standard bitmap fonts
