@@ -249,7 +249,7 @@ DEFINE_string(config, kDefaultsConfigStr,
               "Run configs given.  By default, runs the configs marked \"runByDefault\" in gConfigs.");
 DEFINE_string(logFile, "", "Also write stdout here.");
 DEFINE_int32(minMs, 20,  "Shortest time we'll allow a benchmark to run.");
-DEFINE_int32(maxMs, 4000, "Longest time we'll allow a benchmark to run.");
+DEFINE_int32(maxMs, 1000, "Longest time we'll allow a benchmark to run.");
 DEFINE_bool(runOnce, kIsDebug, "Run each bench exactly once and don't report timings.");
 DEFINE_double(error, 0.01,
               "Ratio of subsequent bench measurements must drop within 1±error to converge.");
