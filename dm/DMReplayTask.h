@@ -17,6 +17,7 @@ public:
     enum Mode {
         kNormal_Mode,
         kRTree_Mode,
+        kSkRecord_Mode,
     };
     ReplayTask(const Task& parent,  // ReplayTask must be a child task.  Pass its parent here.
                skiagm::GM*,         // GM to run through a picture.  Takes ownership.
@@ -28,7 +29,7 @@ public:
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
 private:
-    const bool fUseRTree;
+    const Mode fMode;
     const SkString fName;
     SkAutoTDelete<skiagm::GM> fGM;
     const SkBitmap fReference;

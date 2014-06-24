@@ -20,10 +20,13 @@ SkString FileToTaskName(SkString filename) {
     return filename;
 }
 
-SkPicture* RecordPicture(skiagm::GM* gm, uint32_t recordFlags, SkBBHFactory* factory) {
-    const SkISize size = gm->getISize();
+SkPicture* RecordPicture(skiagm::GM* gm, SkBBHFactory* factory, bool skr) {
+    const int w = gm->getISize().width(),
+              h = gm->getISize().height();
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(size.width(), size.height(), factory, recordFlags);
+
+    SkCanvas* canvas = skr ? recorder.EXPERIMENTAL_beginRecording(w, h, factory)
+                           : recorder.             beginRecording(w, h, factory);
     canvas->concat(gm->getInitialTransform());
     gm->draw(canvas);
     canvas->flush();
@@ -39,11 +42,10 @@ void AllocatePixels(const SkBitmap& reference, SkBitmap* bitmap) {
     AllocatePixels(reference.colorType(), reference.width(), reference.height(), bitmap);
 }
 
-void DrawPicture(SkPicture* picture, SkBitmap* bitmap) {
-    SkASSERT(picture != NULL);
+void DrawPicture(const SkPicture& picture, SkBitmap* bitmap) {
     SkASSERT(bitmap != NULL);
     SkCanvas canvas(*bitmap);
-    canvas.drawPicture(picture);
+    canvas.drawPicture(&picture);
     canvas.flush();
 }
 

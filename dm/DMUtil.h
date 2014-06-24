@@ -18,10 +18,10 @@ SkString UnderJoin(const char* a, const char* b);
 // "foo_bar.skp" -> "foo-bar_skp"
 SkString FileToTaskName(SkString);
 
-// Draw gm to picture.  Passes recordFlags to SkPictureRecorder::beginRecording().
+// Draw gm to picture.  If skr is true, uses EXPERIMENTAL_beginRecording().
 SkPicture* RecordPicture(skiagm::GM* gm,
-                         uint32_t recordFlags = 0,
-                         SkBBHFactory* factory = NULL);
+                         SkBBHFactory* factory = NULL,
+                         bool skr = false);
 
 // Allocate an empty bitmap with this size and depth.
 void AllocatePixels(SkColorType, int w, int h, SkBitmap* bitmap);
@@ -29,7 +29,7 @@ void AllocatePixels(SkColorType, int w, int h, SkBitmap* bitmap);
 void AllocatePixels(const SkBitmap& reference, SkBitmap* bitmap);
 
 // Draw picture to bitmap.
-void DrawPicture(SkPicture* picture, SkBitmap* bitmap);
+void DrawPicture(const SkPicture& picture, SkBitmap* bitmap);
 
 // What is the maximum component difference in these bitmaps?
 unsigned MaxComponentDifference(const SkBitmap& a, const SkBitmap& b);

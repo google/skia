@@ -14,15 +14,21 @@ namespace DM {
 class SerializeTask : public CpuTask {
 
 public:
+    enum Mode {
+        kNormal_Mode,
+        kSkRecord_Mode,
+    };
     SerializeTask(const Task& parent,
                   skiagm::GM*,
-                  SkBitmap reference);
+                  SkBitmap reference,
+                  Mode mode);
 
     virtual void draw() SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
 private:
+    const Mode fMode;
     const SkString fName;
     SkAutoTDelete<skiagm::GM> fGM;
     const SkBitmap fReference;

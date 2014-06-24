@@ -36,7 +36,6 @@
             '../dm/DMPDFTask.cpp',
             '../dm/DMPipeTask.cpp',
             '../dm/DMQuiltTask.cpp',
-            '../dm/DMRecordTask.cpp',
             '../dm/DMReplayTask.cpp',
             '../dm/DMReporter.cpp',
             '../dm/DMSKPTask.cpp',

@@ -10,6 +10,7 @@
 #include "SkPictureFlat.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
+#include "SkPictureRecorder.h"
 
 #include "SkBBHFactory.h"
 #include "SkBitmapDevice.h"
@@ -154,6 +155,14 @@ static SkRecord* copy(const SkRecord& src, int width, int height) {
     SkRecorder recorder(dst, width, height);
     SkRecordDraw(src, &recorder);
     return dst;
+}
+
+// Create an SkPicturePlayback-backed SkPicture from an SkRecord.
+// This for compatibility with serialization code only.  This is not cheap.
+static SkPicture* backport(const SkRecord& src, int width, int height) {
+    SkPictureRecorder recorder;
+    SkRecordDraw(src, recorder.beginRecording(width, height));
+    return recorder.endRecording();
 }
 
 // fRecord OK
@@ -436,15 +445,25 @@ void SkPicture::createHeader(SkPictInfo* info) const {
     }
 }
 
-// fRecord TODO
+// fRecord OK
 void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
+    const SkPicturePlayback* playback = fPlayback.get();
+
+    // If we're a new-format picture, backport to old format for serialization.
+    SkAutoTDelete<SkPicture> oldFormat;
+    if (NULL == playback && NULL != fRecord.get()) {
+        oldFormat.reset(backport(*fRecord, fWidth, fHeight));
+        playback = oldFormat->fPlayback.get();
+        SkASSERT(NULL != playback);
+    }
+
     SkPictInfo info;
     this->createHeader(&info);
     stream->write(&info, sizeof(info));
 
-    if (NULL != fPlayback.get()) {
+    if (NULL != playback) {
         stream->writeBool(true);
-        fPlayback->serialize(stream, encoder);
+        playback->serialize(stream, encoder);
     } else {
         stream->writeBool(false);
     }
@@ -462,15 +481,25 @@ void SkPicture::WriteTagSize(SkWStream* stream, uint32_t tag,  size_t size) {
     stream->write32(SkToU32(size));
 }
 
-// fRecord TODO
+// fRecord OK
 void SkPicture::flatten(SkWriteBuffer& buffer) const {
+    const SkPicturePlayback* playback = fPlayback.get();
+
+    // If we're a new-format picture, backport to old format for serialization.
+    SkAutoTDelete<SkPicture> oldFormat;
+    if (NULL == playback && NULL != fRecord.get()) {
+        oldFormat.reset(backport(*fRecord, fWidth, fHeight));
+        playback = oldFormat->fPlayback.get();
+        SkASSERT(NULL != playback);
+    }
+
     SkPictInfo info;
     this->createHeader(&info);
     buffer.writeByteArray(&info, sizeof(info));
 
-    if (NULL != fPlayback.get()) {
+    if (NULL != playback) {
         buffer.writeBool(true);
-        fPlayback->flatten(buffer);
+        playback->flatten(buffer);
     } else {
         buffer.writeBool(false);
     }
