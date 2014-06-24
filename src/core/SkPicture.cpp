@@ -438,18 +438,13 @@ void SkPicture::createHeader(SkPictInfo* info) const {
 
 // fRecord TODO
 void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
-    SkPicturePlayback* playback = fPlayback.get();
-
     SkPictInfo info;
     this->createHeader(&info);
     stream->write(&info, sizeof(info));
-    if (playback) {
+
+    if (NULL != fPlayback.get()) {
         stream->writeBool(true);
-        playback->serialize(stream, encoder);
-        // delete playback if it is a local version (i.e. cons'd up just now)
-        if (playback != fPlayback.get()) {
-            SkDELETE(playback);
-        }
+        fPlayback->serialize(stream, encoder);
     } else {
         stream->writeBool(false);
     }
@@ -469,18 +464,13 @@ void SkPicture::WriteTagSize(SkWStream* stream, uint32_t tag,  size_t size) {
 
 // fRecord TODO
 void SkPicture::flatten(SkWriteBuffer& buffer) const {
-    SkPicturePlayback* playback = fPlayback.get();
-
     SkPictInfo info;
     this->createHeader(&info);
     buffer.writeByteArray(&info, sizeof(info));
-    if (playback) {
+
+    if (NULL != fPlayback.get()) {
         buffer.writeBool(true);
-        playback->flatten(buffer);
-        // delete playback if it is a local version (i.e. cons'd up just now)
-        if (playback != fPlayback.get()) {
-            SkDELETE(playback);
-        }
+        fPlayback->flatten(buffer);
     } else {
         buffer.writeBool(false);
     }
