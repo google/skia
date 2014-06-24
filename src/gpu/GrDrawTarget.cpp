@@ -560,7 +560,8 @@ void GrDrawTarget::drawPaths(int pathCount, const GrPath** paths,
     const GrDrawState* drawState = &getDrawState();
 
     SkRect devBounds;
-    for (int i = 0; i < pathCount; ++i) {
+    transforms[0].mapRect(&devBounds, paths[0]->getBounds());
+    for (int i = 1; i < pathCount; ++i) {
         SkRect mappedPathBounds;
         transforms[i].mapRect(&mappedPathBounds, paths[i]->getBounds());
         devBounds.join(mappedPathBounds);
