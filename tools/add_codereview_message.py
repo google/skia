@@ -32,38 +32,38 @@ RIETVELD_URL = 'https://codereview.chromium.org'
 
 
 def add_codereview_message(issue, message):
-    """Add a message to a given codereview.
+  """Add a message to a given codereview.
 
-    Args:
-        codereview_url: (string) we will extract the issue number from
-            this url, or this could simply be the issue number.
-        message: (string) message to add.
-    """
-    # Passing None for the email and password will result in a prompt or
-    # reuse of existing cached credentials.
-    my_rietveld = rietveld.Rietveld(RIETVELD_URL, email=None, password=None)
-    
-    my_rietveld.add_comment(issue, message)
+  Args:
+      codereview_url: (string) we will extract the issue number from
+          this url, or this could simply be the issue number.
+      message: (string) message to add.
+  """
+  # Passing None for the email and password will result in a prompt or
+  # reuse of existing cached credentials.
+  my_rietveld = rietveld.Rietveld(RIETVELD_URL, email=None, password=None)
+  
+  my_rietveld.add_comment(issue, message)
 
 
 def main(argv):
-    """main function; see module-level docstring and GetOptionParser help.
+  """main function; see module-level docstring and GetOptionParser help.
 
-    Args:
-        argv: sys.argv[1:]-type argument list.
-    """
-    option_parser = optparse.OptionParser(usage=__doc__)
-    _, arguments = option_parser.parse_args(argv)
+  Args:
+      argv: sys.argv[1:]-type argument list.
+  """
+  option_parser = optparse.OptionParser(usage=__doc__)
+  _, arguments = option_parser.parse_args(argv)
 
-    if len(arguments) > 1:
-        option_parser.error('Extra arguments.')
-    if len(arguments) != 1:
-        option_parser.error('Missing issue number.')
+  if len(arguments) > 1:
+    option_parser.error('Extra arguments.')
+  if len(arguments) != 1:
+    option_parser.error('Missing issue number.')
 
-    message = sys.stdin.read()
-    add_codereview_message(int(arguments[0]), message)
+  message = sys.stdin.read()
+  add_codereview_message(int(arguments[0]), message)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+  main(sys.argv[1:])
 
