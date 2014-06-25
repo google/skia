@@ -7074,6 +7074,10 @@
           13762763215526500776
         ]
       ], 
+      "ignore-failure": true,
+      "bugs": [
+        2689
+      ],
       "reviewed-by-human": true
     }, 
     "degeneratesegments_pdf-poppler.png": {
