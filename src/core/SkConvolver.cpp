@@ -159,9 +159,9 @@ template<bool hasAlpha>
     }
 
     // There's a bug somewhere here with GCC autovectorization (-ftree-vectorize) on 32 bit builds.
-    // Dropping to -O2 disables -ftree-vectorize.  http://skbug.com/2575
+    // Dropping to -O2 disables -ftree-vectorize.  GCC 4.6 needs noinline.  http://skbug.com/2575
     #if defined(__i386) && SK_HAS_ATTRIBUTE(optimize) && defined(SK_RELEASE)
-        #define SK_MAYBE_DISABLE_VECTORIZATION __attribute__((optimize("O2")))
+        #define SK_MAYBE_DISABLE_VECTORIZATION __attribute__((optimize("O2"), noinline))
     #else
         #define SK_MAYBE_DISABLE_VECTORIZATION
     #endif
