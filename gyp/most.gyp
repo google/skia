@@ -15,7 +15,7 @@
         # The minimal set of static libraries for basic Skia functionality.
         'skia_lib.gyp:skia_lib',
 
-        'bench.gyp:bench',
+        'bench.gyp:*',
         'gm.gyp:gm',
         'SampleApp.gyp:SampleApp',
         'tests.gyp:tests',

@@ -9,13 +9,10 @@
       'target_name': 'bench',
       'type': 'executable',
       'dependencies': [
-        'etc1.gyp:libetc1',
         'flags.gyp:flags',
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
-        'tools.gyp:resources',
-        'tools.gyp:sk_tool_utils',
         'tools.gyp:timer',
       ],
       'sources': [
@@ -27,27 +24,26 @@
         '../bench/benchmain.cpp',
       ],
       'conditions': [
-        ['skia_gpu == 1',
-          {
-            'include_dirs' : [
-              '../src/gpu',
-            ],
-            'dependencies': [
-              'gputest.gyp:skgputest',
-            ],
-          },
-        ],
-        ['skia_android_framework == 1',
-          {
-            'libraries': [
-              '-lskia',
-            ],
-          },
-        ],
+        ['skia_android_framework == 1', {
+          'libraries': [ '-lskia' ],
+        }],
       ],
       'includes': [
         'bench.gypi',
         'gmslides.gypi',
+      ],
+    },
+    {
+      'target_name': 'nanobench',
+      'type': 'executable',
+      'sources': [
+        '../bench/nanobench.cpp',
+      ],
+      'includes': [ 'bench.gypi' ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'tools.gyp:crash_handler',
+        'tools.gyp:timer',
       ],
     },
   ],
