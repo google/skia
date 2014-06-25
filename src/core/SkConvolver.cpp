@@ -332,7 +332,8 @@ const SkConvolutionFilter1D::ConvolutionFixed* SkConvolutionFilter1D::GetSingleF
 
 // There's a bug somewhere in here with GCC autovectorization (-ftree-vectorize) on 32 bit builds.
 // Dropping to -O2 disables -ftree-vectorize.  http://skbug.com/2575
-#if defined(__i386) && SK_HAS_ATTRIBUTE(optimize)
+// Apparently this _crashes_ the NaCl toolchain compiler, so skip them.
+#if defined(__i386) && SK_HAS_ATTRIBUTE(optimize) && !defined(SK_BUILD_FOR_NACL)
     __attribute__((optimize("O2")))
 #endif
 void BGRAConvolve2D(const unsigned char* sourceData,
