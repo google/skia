@@ -31,11 +31,6 @@
       ],
       'msvs_disabled_warnings': [4244, 4267,4345, 4390, 4554, 4800],
       'conditions': [
-        [ 'skia_arch_type == "x86"', {
-          # GCC autovectorization makes some GMs flaky on 32-bit release builds.
-          # skbug.com/2575.   This bug is likely somewhere here in src/core.
-          'cflags': [ '-fno-tree-vectorize' ]
-        }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
           'link_settings': {
             'libraries': [

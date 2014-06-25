@@ -330,6 +330,11 @@ const SkConvolutionFilter1D::ConvolutionFixed* SkConvolutionFilter1D::GetSingleF
     return &fFilterValues[filter.fDataLocation];
 }
 
+// There's a bug somewhere in here with GCC autovectorization (-ftree-vectorize) on 32 bit builds.
+// Dropping to -O2 disables -ftree-vectorize.  http://skbug.com/2575
+#if defined(__i386) && SK_HAS_ATTRIBUTE(optimize)
+    __attribute__((optimize("O2")))
+#endif
 void BGRAConvolve2D(const unsigned char* sourceData,
                     int sourceByteRowStride,
                     bool sourceHasAlpha,
