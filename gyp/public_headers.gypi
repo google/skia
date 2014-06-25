@@ -76,7 +76,6 @@
       'effects/SkLumaColorFilter.h',
       'effects/SkRectShaderImageFilter.h',
       'effects/SkMagnifierImageFilter.h',
-      'effects/SkBicubicImageFilter.h',
       'effects/SkPorterDuff.h',
       'effects/SkBlurImageFilter.h',
       'effects/SkTableMaskFilter.h',

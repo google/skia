@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkBicubicImageFilter.h"
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"
 #include "SkBitmapSource.h"
@@ -183,22 +182,6 @@ DEF_TEST(ImageFilter, reporter) {
             SkRect r = SkRect::MakeWH(SkIntToScalar(kBitmapSize),
                                       SkIntToScalar(kBitmapSize));
             canvas.drawRect(r, paint);
-        }
-
-        {
-            // This tests for scale bringing width to 0
-            SkSize scale = SkSize::Make(-0.001f, SK_Scalar1);
-            SkAutoTUnref<SkImageFilter> bmSrc(SkBitmapSource::Create(bitmap));
-            SkAutoTUnref<SkBicubicImageFilter> bicubic(
-                SkBicubicImageFilter::CreateMitchell(scale, bmSrc));
-            SkBitmapDevice device(bitmap);
-            SkDeviceImageFilterProxy proxy(&device);
-            SkIPoint loc = SkIPoint::Make(0, 0);
-            // An empty input should early return and return false
-            SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(2));
-            SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeEmpty(), cache.get());
-            REPORTER_ASSERT(reporter,
-                            !bicubic->filterImage(&proxy, bitmap, ctx, &result, &loc));
         }
     }
 }

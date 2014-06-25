@@ -10,7 +10,6 @@
 #include "SkArithmeticMode.h"
 #include "SkAvoidXfermode.h"
 #include "SkBBHFactory.h"
-#include "SkBicubicImageFilter.h"
 #include "SkBitmapDevice.h"
 #include "SkBitmap.h"
 #include "SkBitmapSource.h"

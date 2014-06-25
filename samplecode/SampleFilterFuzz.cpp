@@ -6,7 +6,6 @@
  */
 #include "SampleCode.h"
 #include "SkAlphaThresholdFilter.h"
-#include "SkBicubicImageFilter.h"
 #include "SkBitmapDevice.h"
 #include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
@@ -235,7 +234,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     // Add a 1 in 3 chance to get a NULL input
     if (canBeNull && (R(3) == 1)) { return filter; }
 
-    enum { ALPHA_THRESHOLD, BICUBIC, MERGE, COLOR, BLUR, MAGNIFIER,
+    enum { ALPHA_THRESHOLD, MERGE, COLOR, BLUR, MAGNIFIER,
            DOWN_SAMPLE, XFERMODE, OFFSET, MATRIX, MATRIX_CONVOLUTION, COMPOSE,
            DISTANT_LIGHT, POINT_LIGHT, SPOT_LIGHT, NOISE, DROP_SHADOW,
            MORPHOLOGY, BITMAP, DISPLACE, TILE, PICTURE, NUM_FILTERS };
@@ -243,10 +242,6 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     switch (R(NUM_FILTERS)) {
     case ALPHA_THRESHOLD:
         filter = SkAlphaThresholdFilter::Create(make_region(), make_scalar(), make_scalar());
-        break;
-    case BICUBIC:
-        // Scale is set to 1 here so that it can fit in the DAG without resizing the output
-        filter = SkBicubicImageFilter::CreateMitchell(SkSize::Make(1, 1), make_image_filter());
         break;
     case MERGE:
         filter = SkMergeImageFilter::Create(make_image_filter(), make_image_filter(), make_xfermode());

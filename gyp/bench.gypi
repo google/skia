@@ -23,7 +23,6 @@
     '../bench/Benchmark.h',
 
     '../bench/AAClipBench.cpp',
-    '../bench/BicubicBench.cpp',
     '../bench/BitmapBench.cpp',
     '../bench/BitmapRectBench.cpp',
     '../bench/BitmapScaleBench.cpp',
