@@ -11,9 +11,6 @@ Args:
   An optional list of deps_os values.
 
 Environment Variables:
-  GIT_EXECUTABLE: path to "git" binary; if unset, will look for one of
-  ['git', 'git.exe', 'git.bat'] in your default path.
-
   GIT_SYNC_DEPS_PATH: file to get the dependency list from; if unset,
   will use the file ../DEPS relative to this script's directory.
 
@@ -35,7 +32,8 @@ import subprocess
 import sys
 import threading
 
-from git_utils import git_executable
+import fix_pythonpath
+from common.py.utils.git_utils import GIT
 
 
 DEFAULT_DEPS_PATH = os.path.normpath(
@@ -148,9 +146,6 @@ def git_sync_deps(deps_file_path, deps_os_list, verbose):
 
   Raises DepsError exception and git Exceptions.
   """
-  git = git_executable()
-  assert git
-
   deps_file_directory = os.path.dirname(deps_file_path)
   deps = parse_file_to_dict(deps_file_path)
   dependencies = deps['deps'].copy()
@@ -172,7 +167,7 @@ def git_sync_deps(deps_file_path, deps_os_list, verbose):
     relative_directory = os.path.join(deps_file_directory, directory)
 
     list_of_arg_lists.append(
-      (git, repo, checkoutable, relative_directory, verbose))
+      (GIT, repo, checkoutable, relative_directory, verbose))
 
   multithread(git_checkout_to_directory, list_of_arg_lists)
 
