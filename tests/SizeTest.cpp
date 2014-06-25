@@ -6,9 +6,10 @@
  */
 
 #include "SkSize.h"
+
 #include "Test.h"
 
-static void TestISize(skiatest::Reporter* reporter) {
+DEF_TEST(ISize, reporter) {
     SkISize  a, b;
 
     a.set(0, 0);
@@ -31,8 +32,6 @@ static void TestISize(skiatest::Reporter* reporter) {
 }
 
 DEF_TEST(Size, reporter) {
-    TestISize(reporter);
-
     SkSize a, b;
     int ix = 5;
     int iy = 3;
