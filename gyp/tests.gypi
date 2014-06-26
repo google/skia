@@ -102,6 +102,7 @@
     '../tests/ImageDecodingTest.cpp',
     '../tests/ImageFilterTest.cpp',
     '../tests/InfRectTest.cpp',
+    '../tests/InterpolatorTest.cpp',
     '../tests/JpegTest.cpp',
     '../tests/KtxTest.cpp',
     '../tests/LListTest.cpp',
