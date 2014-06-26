@@ -102,6 +102,8 @@ private:
  */
 
 Json::Value* SkFindNamedNode(Json::Value* root, const char name[]);
+Json::Value SkMakeBuilderJSON(const SkString &buildername);
+
 class JSONResultsWriter : public ResultsWriter {
 public:
     explicit JSONResultsWriter(const char filename[])

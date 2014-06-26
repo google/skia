@@ -173,7 +173,7 @@ void PictureBenchmark::run(SkPicture* pict) {
                 SkAssertResult(longRunningTimerData.appendTimes(longRunningTimer.get()));
             }
 
-            fWriter->tileConfig(tiledRenderer->getConfigName());
+            fWriter->logRenderer(tiledRenderer);
             fWriter->tileMeta(x, y, xTiles, yTiles);
 
             // TODO(borenet): Turn off per-iteration tile time reporting for now.
@@ -236,7 +236,7 @@ void PictureBenchmark::run(SkPicture* pict) {
             SkAssertResult(longRunningTimerData.appendTimes(longRunningTimer.get()));
         }
 
-        fWriter->tileConfig(fRenderer->getConfigName());
+        fWriter->logRenderer(fRenderer);
         if (fPurgeDecodedTex) {
             fWriter->addTileFlag(PictureResultsWriter::kPurging);
         }

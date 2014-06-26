@@ -57,6 +57,14 @@ DEFINE_bool(trackDeferredCaching, false, "Only meaningful with --deferImageDecod
 
 DEFINE_bool(preprocess, false, "If true, perform device specific preprocessing before timing.");
 
+// Buildbot-specific parameters
+DEFINE_string(builderName, "", "Name of the builder this is running on.");
+DEFINE_int32(buildNumber, -1, "Build number of the build this test is running on");
+DEFINE_int32(timestamp, 0, "Timestamp of the revision of Skia being tested.");
+DEFINE_string(gitHash, "", "Commit hash of the revision of Skia being run.");
+DEFINE_int32(gitNumber, -1, "Git number of the revision of Skia being run.");
+
+
 static char const * const gFilterTypes[] = {
     "paint",
     "point",
@@ -421,7 +429,14 @@ int tool_main(int argc, char** argv) {
 
     SkAutoTDelete<PictureJSONResultsWriter> jsonWriter;
     if (FLAGS_jsonLog.count() == 1) {
-        jsonWriter.reset(SkNEW(PictureJSONResultsWriter(FLAGS_jsonLog[0])));
+        SkASSERT(FLAGS_builderName.count() == 1 && FLAGS_gitHash.count() == 1);
+        jsonWriter.reset(SkNEW(PictureJSONResultsWriter(
+                        FLAGS_jsonLog[0],
+                        FLAGS_builderName[0],
+                        FLAGS_buildNumber,
+                        FLAGS_timestamp,
+                        FLAGS_gitHash[0],
+                        FLAGS_gitNumber)));
         gWriter.add(jsonWriter.get());
     }
 

@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkCountdown.h"
 #include "SkDrawFilter.h"
+#include "SkJSONCPP.h"
 #include "SkMath.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
@@ -294,6 +295,60 @@ public:
 #endif
         config.append(fDrawFiltersConfig.c_str());
         return config;
+    }
+
+    Json::Value getJSONConfig() {
+        Json::Value result;
+
+        result["mode"] = this->getConfigNameInternal().c_str();
+        result["scale"] = 1.0f;
+        if (SK_Scalar1 != fScaleFactor) {
+            result["scale"] = SkScalarToFloat(fScaleFactor);
+        }
+        if (kRTree_BBoxHierarchyType == fBBoxHierarchyType) {
+            result["bbh"] = "rtree";
+        } else if (kQuadTree_BBoxHierarchyType == fBBoxHierarchyType) {
+            result["bbh"] = "quadtree";
+        } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
+            SkString tmp("grid_");
+            tmp.appendS32(fGridInfo.fTileInterval.width());
+            tmp.append("x");
+            tmp.appendS32(fGridInfo.fTileInterval.height());
+            result["bbh"] = tmp.c_str();
+        }
+#if SK_SUPPORT_GPU
+        SkString tmp;
+        switch (fDeviceType) {
+            case kGPU_DeviceType:
+                if (0 != fSampleCount) {
+                    tmp = "msaa";
+                    tmp.appendS32(fSampleCount);
+                    result["config"] = tmp.c_str();
+                } else {
+                    result["config"] = "gpu";
+                }
+                break;
+            case kNVPR_DeviceType:
+                tmp = "nvprmsaa";
+                tmp.appendS32(fSampleCount);
+                result["config"] = tmp.c_str();
+                break;
+#if SK_ANGLE
+            case kAngle_DeviceType:
+                result["config"] = "angle";
+                break;
+#endif
+#if SK_MESA
+            case kMesa_DeviceType:
+                result["config"] = "mesa";
+                break;
+#endif
+            default:
+                // Assume that no extra info means bitmap.
+                break;
+        }
+#endif
+        return result;
     }
 
 #if SK_SUPPORT_GPU

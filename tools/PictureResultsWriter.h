@@ -10,6 +10,8 @@
 #ifndef SkPictureResultsWriter_DEFINED
 #define SkPictureResultsWriter_DEFINED
 
+
+#include "PictureRenderer.h"
 #include "BenchLogger.h"
 #include "ResultsWriter.h"
 #include "SkJSONCPP.h"
@@ -29,7 +31,7 @@ public:
     virtual ~PictureResultsWriter() {}
 
     virtual void bench(const char name[], int32_t x, int32_t y) = 0;
-    virtual void tileConfig(SkString configName) = 0;
+    virtual void logRenderer(sk_tools::PictureRenderer *pr) = 0;
     virtual void tileMeta(int x, int y, int tx, int ty) = 0;
     virtual void addTileFlag(PictureResultsWriter::TileFlags flag) = 0;
     virtual void tileData(
@@ -54,22 +56,22 @@ public:
         fWriters.push_back(newWriter);
     }
     virtual ~PictureResultsMultiWriter() {}
-    virtual void bench(const char name[], int32_t x, int32_t y) {
+    virtual void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->bench(name, x, y);
         }
     }
-    virtual void tileConfig(SkString configName) {
+    virtual void logRenderer(sk_tools::PictureRenderer *pr) SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
-            fWriters[i]->tileConfig(configName);
+            fWriters[i]->logRenderer(pr);
         }
     }
-    virtual void tileMeta(int x, int y, int tx, int ty) {
+    virtual void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->tileMeta(x, y, tx, ty);
         }
     }
-    virtual void addTileFlag(PictureResultsWriter::TileFlags flag) {
+    virtual void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->addTileFlag(flag);
         }
@@ -79,13 +81,13 @@ public:
             const char format[],
             const TimerData::Result result,
             uint32_t timerTypes,
-            int numInnerLoops = 1) {
+            int numInnerLoops = 1) SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->tileData(data, format, result, timerTypes,
                                  numInnerLoops);
         }
     }
-   virtual void end() {
+   virtual void end() SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->end();
         }
@@ -106,23 +108,23 @@ private:
     }
 public:
     PictureResultsLoggerWriter(BenchLogger* log)
-          : fLogger(log), currentLine() {}
-    virtual void bench(const char name[], int32_t x, int32_t y) {
+          : fLogger(log), fCurrentLine() {}
+    virtual void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
         SkString result;
         result.printf("running bench [%i %i] %s ", x, y, name);
         this->logProgress(result.c_str());
     }
-    virtual void tileConfig(SkString configName) {
-        currentLine = configName;
+    virtual void logRenderer(sk_tools::PictureRenderer* renderer) SK_OVERRIDE {
+        fCurrentLine = renderer->getConfigName();
     }
-    virtual void tileMeta(int x, int y, int tx, int ty) {
-        currentLine.appendf(": tile [%i,%i] out of [%i,%i]", x, y, tx, ty);
+    virtual void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {
+        fCurrentLine.appendf(": tile [%i,%i] out of [%i,%i]", x, y, tx, ty);
     }
-    virtual void addTileFlag(PictureResultsWriter::TileFlags flag) {
+    virtual void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {
         if(flag == PictureResultsWriter::kPurging) {
-            currentLine.append(" <withPurging>");
+            fCurrentLine.append(" <withPurging>");
         } else if(flag == PictureResultsWriter::kAvg) {
-            currentLine.append(" <averaged>");
+            fCurrentLine.append(" <averaged>");
         }
     }
     virtual void tileData(
@@ -130,16 +132,16 @@ public:
             const char format[],
             const TimerData::Result result,
             uint32_t timerTypes,
-            int numInnerLoops = 1) {
+            int numInnerLoops = 1) SK_OVERRIDE {
         SkString results = data->getResult(format, result,
-                currentLine.c_str(), timerTypes, numInnerLoops);
+                fCurrentLine.c_str(), timerTypes, numInnerLoops);
         results.append("\n");
         this->logProgress(results.c_str());
     }
     virtual void end() {}
 private:
     BenchLogger* fLogger;
-    SkString currentLine;
+    SkString fCurrentLine;
 };
 
 /**
@@ -172,61 +174,109 @@ private:
 
 class PictureJSONResultsWriter : public PictureResultsWriter {
 public:
-    PictureJSONResultsWriter(const char filename[])
-        : fFilename(filename),
-          fRoot(),
-          fCurrentBench(NULL),
-          fCurrentTileSet(NULL),
-          fCurrentTile(NULL) {}
+    PictureJSONResultsWriter(const char filename[], 
+                             const char builderName[],
+                             int buildNumber,
+                             int timestamp,
+                             const char gitHash[],
+                             int gitNumber)
+        : fStream(filename) {
+        fBuilderName = SkString(builderName);
+        fBuildNumber = buildNumber;
+        fTimestamp = timestamp;
+        fGitHash = SkString(gitHash);
+        fGitNumber = gitNumber;
+        fBuilderData = SkMakeBuilderJSON(fBuilderName);
+    }
 
-    virtual void bench(const char name[], int32_t x, int32_t y) {
-        SkString sk_name(name);
-        sk_name.append("_");
-        sk_name.appendS32(x);
-        sk_name.append("_");
-        sk_name.appendS32(y);
-        Json::Value* bench_node = SkFindNamedNode(&fRoot["benches"], sk_name.c_str());
-        fCurrentBench = &(*bench_node)["tileSets"];
+    virtual void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
+        fBenchName = SkString(name);
     }
-    virtual void tileConfig(SkString configName) {
-        SkASSERT(fCurrentBench != NULL);
-        fCurrentTileSet = SkFindNamedNode(fCurrentBench, configName.c_str());
-        fCurrentTile = &(*fCurrentTileSet)["tiles"][0];
+    virtual void logRenderer(sk_tools::PictureRenderer* pr) SK_OVERRIDE {
+        fParams = pr->getJSONConfig();
+        fConfigString = pr->getConfigName();
     }
-    virtual void tileMeta(int x, int y, int tx, int ty) {
-        SkASSERT(fCurrentTileSet != NULL);
-        (*fCurrentTileSet)["tx"] = tx;
-        (*fCurrentTileSet)["ty"] = ty;
-        fCurrentTile = &(*fCurrentTileSet)["tiles"][x+tx*y];
-    }
-    virtual void addTileFlag(PictureResultsWriter::TileFlags flag) {
-        SkASSERT(fCurrentTile != NULL);
-        if(flag == PictureResultsWriter::kPurging) {
-            (*fCurrentTile)["flags"]["purging"] = true;
-        } else if(flag == PictureResultsWriter::kAvg) {
-            (*fCurrentTile)["flags"]["averaged"] = true;
-        }
-    }
+    // Apparently tiles aren't used, so tileMeta is empty
+    virtual void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {}
+    // Flags aren't used, so addTileFlag is empty
+    virtual void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {}
     virtual void tileData(
             TimerData* data,
             const char format[],
             const TimerData::Result result,
             uint32_t timerTypes,
-            int numInnerLoops = 1) {
-        SkASSERT(fCurrentTile != NULL);
-        (*fCurrentTile)["data"] = data->getJSON(timerTypes, result, numInnerLoops);
+            int numInnerLoops = 1) SK_OVERRIDE {
+        Json::Value newData = data->getJSON(timerTypes, result, numInnerLoops);
+        Json::Value combinedParams(fBuilderData);
+        for(Json::ValueIterator iter = fParams.begin(); iter != fParams.end();
+                iter++) {
+            combinedParams[iter.key().asString()]= *iter;
+        }
+        // For each set of timer data
+        for(Json::ValueIterator iter = newData.begin(); iter != newData.end();
+                iter++) {
+            Json::Value data;
+            data["buildNumber"] = fBuildNumber;
+            data["timestamp"] = fTimestamp;
+            data["gitHash"] = fGitHash.c_str();
+            data["gitNumber"] = fGitNumber;
+            data["isTrybot"] = fBuilderName.endsWith("Trybot");
+
+            data["params"] = combinedParams;
+            data["params"]["benchName"] = fBenchName.c_str();
+
+            // Not including skpSize because that's deprecated?
+            data["key"] = this->makeKey(iter.key().asString().c_str()).c_str();
+            // Get the data
+            SkTArray<double> times;
+            Json::Value val = *iter;
+            for(Json::ValueIterator vals = val.begin(); vals != val.end();
+                    vals++) {
+                times.push_back((*vals).asDouble());
+            }
+            qsort(static_cast<void*>(times.begin()), times.count(), 
+                    sizeof(double), PictureJSONResultsWriter::CompareDoubles);
+            data["value"] = times[static_cast<int>(times.count() * 0.25f)];
+            data["params"]["measurementType"] = iter.key().asString();
+            fStream.writeText(Json::FastWriter().write(data).c_str());
+        }
     }
-    virtual void end() {
-       SkFILEWStream stream(fFilename.c_str());
-       stream.writeText(Json::FastWriter().write(fRoot).c_str());
-       stream.flush();
+    virtual void end() SK_OVERRIDE {
+       fStream.flush();
     }
 private:
-    SkString fFilename;
-    Json::Value fRoot;
-    Json::Value *fCurrentBench;
-    Json::Value *fCurrentTileSet;
-    Json::Value *fCurrentTile;
+    static int CompareDoubles(const void* p1, const void* p2) {
+        if(*static_cast<const double*>(p1) < *static_cast<const double*>(p2)) {
+            return -1;
+        } else if(*static_cast<const double*>(p1) == 
+                *static_cast<const double*>(p2)) {
+            return 0; 
+        } else {
+            return 1;
+        }
+    }
+    SkString makeKey(const char measurementType[]) const {
+        SkString tmp(fBuilderName);
+        tmp.append("_");
+        tmp.append(fBenchName);
+        tmp.append("_");
+        tmp.append(fConfigString);
+        tmp.append("_");
+        tmp.append(measurementType);
+        return tmp;
+    }
+
+    SkFILEWStream   fStream;
+    Json::Value     fBuilderData;
+    SkString        fBenchName;
+    Json::Value     fParams;
+
+    SkString        fConfigString;
+    SkString        fBuilderName;
+    int             fBuildNumber;
+    int             fTimestamp;
+    SkString        fGitHash;
+    int             fGitNumber;
 };
 
 #endif
