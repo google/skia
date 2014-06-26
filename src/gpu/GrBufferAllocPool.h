@@ -155,7 +155,7 @@ private:
 
     bool createBlock(size_t requestSize);
     void destroyBlock();
-    void flushCpuData(GrGeometryBuffer* buffer, size_t flushSize);
+    void flushCpuData(const BufferBlock& block, size_t flushSize);
 #ifdef SK_DEBUG
     void validate(bool unusedBlockAllowed = false) const;
 #endif

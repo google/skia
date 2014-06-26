@@ -14,6 +14,8 @@
 #include "GrTypes.h"
 #include "GrVertexBuffer.h"
 
+#include "SkTraceEvent.h"
+
 #ifdef SK_DEBUG
     #define VALIDATE validate
 #else
@@ -22,6 +24,16 @@
 
 // page size
 #define GrBufferAllocPool_MIN_BLOCK_SIZE ((size_t)1 << 12)
+
+#define UNMAP_BUFFER(block)                                                               \
+do {                                                                                      \
+    TRACE_EVENT_INSTANT1(TRACE_DISABLED_BY_DEFAULT("skia.gpu"),                           \
+                         "GrBufferAllocPool Unmapping Buffer",                            \
+                         TRACE_EVENT_SCOPE_THREAD,                                        \
+                         "percent_unwritten",                                             \
+                         (float)((block).fBytesFree) / (block).fBuffer->gpuMemorySize()); \
+    (block).fBuffer->unmap();                                                             \
+} while (false)
 
 GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
                                      BufferType bufferType,
@@ -57,7 +69,7 @@ GrBufferAllocPool::~GrBufferAllocPool() {
     if (fBlocks.count()) {
         GrGeometryBuffer* buffer = fBlocks.back().fBuffer;
         if (buffer->isMapped()) {
-            buffer->unmap();
+            UNMAP_BUFFER(fBlocks.back());
         }
     }
     while (!fBlocks.empty()) {
@@ -80,7 +92,7 @@ void GrBufferAllocPool::reset() {
     if (fBlocks.count()) {
         GrGeometryBuffer* buffer = fBlocks.back().fBuffer;
         if (buffer->isMapped()) {
-            buffer->unmap();
+            UNMAP_BUFFER(fBlocks.back());
         }
     }
     // fPreallocBuffersInUse will be decremented down to zero in the while loop
@@ -107,10 +119,10 @@ void GrBufferAllocPool::unmap() {
     if (NULL != fBufferPtr) {
         BufferBlock& block = fBlocks.back();
         if (block.fBuffer->isMapped()) {
-            block.fBuffer->unmap();
+            UNMAP_BUFFER(block);
         } else {
             size_t flushSize = block.fBuffer->gpuMemorySize() - block.fBytesFree;
-            this->flushCpuData(fBlocks.back().fBuffer, flushSize);
+            this->flushCpuData(fBlocks.back(), flushSize);
         }
         fBufferPtr = NULL;
     }
@@ -238,7 +250,7 @@ void GrBufferAllocPool::putBack(size_t bytes) {
             // if we locked a vb to satisfy the make space and we're releasing
             // beyond it, then unmap it.
             if (block.fBuffer->isMapped()) {
-                block.fBuffer->unmap();
+                UNMAP_BUFFER(block);
             }
             this->destroyBlock();
         } else {
@@ -287,10 +299,9 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
         SkASSERT(fBlocks.count() > 1);
         BufferBlock& prev = fBlocks.fromBack(1);
         if (prev.fBuffer->isMapped()) {
-            prev.fBuffer->unmap();
+            UNMAP_BUFFER(prev);
         } else {
-            flushCpuData(prev.fBuffer,
-                         prev.fBuffer->gpuMemorySize() - prev.fBytesFree);
+            this->flushCpuData(prev, prev.fBuffer->gpuMemorySize() - prev.fBytesFree);
         }
         fBufferPtr = NULL;
     }
@@ -343,8 +354,8 @@ void GrBufferAllocPool::destroyBlock() {
     fBufferPtr = NULL;
 }
 
-void GrBufferAllocPool::flushCpuData(GrGeometryBuffer* buffer,
-                                     size_t flushSize) {
+void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize) {
+    GrGeometryBuffer* buffer = block.fBuffer;
     SkASSERT(NULL != buffer);
     SkASSERT(!buffer->isMapped());
     SkASSERT(fCpuData.get() == fBufferPtr);
@@ -356,7 +367,7 @@ void GrBufferAllocPool::flushCpuData(GrGeometryBuffer* buffer,
         void* data = buffer->map();
         if (NULL != data) {
             memcpy(data, fBufferPtr, flushSize);
-            buffer->unmap();
+            UNMAP_BUFFER(block);
             return;
         }
     }
