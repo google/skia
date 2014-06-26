@@ -86,7 +86,6 @@
               'VCCLCompilerTool': {
                 'DebugInformationFormat': '3',      # programDatabase (/Zi)
                 'Optimization': '<(skia_release_optimization_level)',
-                'WholeProgramOptimization': 'true', #/GL
                # Changing the floating point model requires rebaseling gm images
                #'FloatingPointModel': '2',          # fast (/fp:fast)
                 'FavorSizeOrSpeed': '1',            # speed (/Ot)
@@ -97,10 +96,6 @@
               },
               'VCLinkerTool': {
                 'GenerateDebugInformation': 'true', # /DEBUG
-                'LinkTimeCodeGeneration': '1',      # useLinkTimeCodeGeneration /LTCG
-              },
-              'VCLibrarianTool': {
-                'LinkTimeCodeGeneration': 'true',   # useLinkTimeCodeGeneration /LTCG
               },
             },
           },
@@ -151,6 +146,23 @@
                 'AdditionalOptions': [
                   '/EHsc',
                 ],
+              },
+            },
+          }],
+          [ 'skia_win_ltcg', {
+            'configurations': {
+              'Release': {
+                'msvs_settings': {
+                  'VCCLCompilerTool': {
+                    'WholeProgramOptimization': 'true', #/GL
+                  },
+                  'VCLinkerTool': {
+                    'LinkTimeCodeGeneration': '1',      # useLinkTimeCodeGeneration /LTCG
+                  },
+                  'VCLibrarianTool': {
+                    'LinkTimeCodeGeneration': 'true',   # useLinkTimeCodeGeneration /LTCG
+                  },
+                },
               },
             },
           }],
