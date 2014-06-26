@@ -512,7 +512,7 @@ SkPDFImage::SkPDFImage(SkStream* stream,
     }
 
     if (stream != NULL) {
-        this->setData(stream);
+        setData(stream);
         fStreamValid = true;
     } else {
         fStreamValid = false;
@@ -598,11 +598,13 @@ bool SkPDFImage::populate(SkPDFCatalog* catalog) {
             SkAutoTUnref<SkData> data(fEncoder(&pixelRefOffset, subset));
             if (data.get() && data->size() < get_uncompressed_size(fBitmap,
                                                                    fSrcRect)) {
-                this->setData(data.get());
+                SkAutoTUnref<SkStream> stream(SkNEW_ARGS(SkMemoryStream,
+                                                         (data)));
+                setData(stream.get());
 
                 insertName("Filter", "DCTDecode");
                 insertInt("ColorTransform", kNoColorTransform);
-                insertInt("Length", this->dataSize());
+                insertInt("Length", getData()->getLength());
                 setState(kCompressed_State);
                 return true;
             }
@@ -611,7 +613,7 @@ bool SkPDFImage::populate(SkPDFCatalog* catalog) {
         if (!fStreamValid) {
             SkAutoTUnref<SkStream> stream(
                     extract_image_data(fBitmap, fSrcRect, fIsAlpha, NULL));
-            this->setData(stream);
+            setData(stream);
             fStreamValid = true;
         }
         return INHERITED::populate(catalog);

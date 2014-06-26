@@ -41,8 +41,7 @@ public:
     explicit SkPDFStream(const SkPDFStream& pdfStream);
     virtual ~SkPDFStream();
 
-    // The SkPDFObject interface.  These two methods use a mutex to
-    // allow multiple threads to call at the same time.
+    // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                             bool indirect);
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
@@ -68,22 +67,22 @@ protected:
         fSubstitute.reset(stream);
     }
 
-    SkPDFStream* getSubstitute() const {
+    SkPDFStream* getSubstitute() {
         return fSubstitute.get();
     }
 
     void setData(SkData* data);
     void setData(SkStream* stream);
 
-    size_t dataSize() const;
-
-    SkData* getData() const { return fData.get(); }
+    SkStream* getData() {
+        return fData.get();
+    }
 
     void setState(State state) {
         fState = state;
     }
 
-    State getState() const {
+    State getState() {
         return fState;
     }
 
@@ -91,10 +90,8 @@ private:
     // Indicates what form (or if) the stream has been requested.
     State fState;
 
-    // Mutex guards fState, fData, and fSubstitute in public interface.
-    SkMutex fMutex;
-
-    SkAutoTUnref<SkData> fData;
+    // TODO(vandebo): Use SkData (after removing deprecated constructor).
+    SkAutoTUnref<SkStream> fData;
     SkAutoTUnref<SkPDFStream> fSubstitute;
 
     typedef SkPDFDict INHERITED;

@@ -18,7 +18,6 @@
         '../src/core', # needed to get SkGlyphCache.h and SkTextFormatParams.h
         '../src/pdf',
         '../src/utils', # needed to get SkBitSet.h
-        '../src/images', # needed to get SkStreamHelpers.h
       ],
       'sources': [
         'pdf.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
