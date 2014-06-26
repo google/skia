@@ -86,7 +86,7 @@
                 },
                 {
                     "name": "scale",
-                    "type": "STRING"
+                    "type": "FLOAT"
                 },
                 {
                     "name": "bbh",
