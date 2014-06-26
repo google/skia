@@ -150,8 +150,8 @@ int8_t hexToBin(uint8_t c) {
     return -1;
 }
 
-SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
-                            size_t* dataLen, size_t* trailerLen) {
+static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
+                                   size_t* dataLen, size_t* trailerLen) {
     // srcStream may be backed by a file or a unseekable fd, so we may not be
     // able to use skip(), rewind(), or getMemoryBase().  read()ing through
     // the input only once is doable, but very ugly. Furthermore, it'd be nice
@@ -199,26 +199,43 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
     SkAutoDataUnref aud(data);
 
     if (parsePFB(src, srcLen, headerLen, dataLen, trailerLen)) {
-        SkMemoryStream* result =
-            new SkMemoryStream(*headerLen + *dataLen + *trailerLen);
-        memcpy((char*)result->getAtPos(), src + 6, *headerLen);
-        result->seek(*headerLen);
-        memcpy((char*)result->getAtPos(), src + 6 + *headerLen + 6, *dataLen);
-        result->seek(*headerLen + *dataLen);
-        memcpy((char*)result->getAtPos(), src + 6 + *headerLen + 6 + *dataLen,
-               *trailerLen);
-        result->rewind();
-        return result;
+        static const int kPFBSectionHeaderLength = 6;
+        const size_t length = *headerLen + *dataLen + *trailerLen;
+        SkASSERT(length > 0);
+        SkASSERT(length + (2 * kPFBSectionHeaderLength) <= srcLen);
+
+        SkAutoTMalloc<uint8_t> buffer(length);
+
+        const uint8_t* const srcHeader = src + kPFBSectionHeaderLength;
+        // There is a six-byte section header before header and data
+        // (but not trailer) that we're not going to copy.
+        const uint8_t* const srcData
+            = srcHeader + *headerLen + kPFBSectionHeaderLength;
+        const uint8_t* const srcTrailer = srcData + *headerLen;
+
+        uint8_t* const resultHeader = buffer.get();
+        uint8_t* const resultData = resultHeader + *headerLen;
+        uint8_t* const resultTrailer = resultData + *dataLen;
+
+        SkASSERT(resultTrailer + *trailerLen == resultHeader + length);
+
+        memcpy(resultHeader,  srcHeader,  *headerLen);
+        memcpy(resultData,    srcData,    *dataLen);
+        memcpy(resultTrailer, srcTrailer, *trailerLen);
+
+        return SkData::NewFromMalloc(buffer.detach(), length);
     }
 
     // A PFA has to be converted for PDF.
     size_t hexDataLen;
     if (parsePFA((const char*)src, srcLen, headerLen, &hexDataLen, dataLen,
                  trailerLen)) {
-        SkMemoryStream* result =
-            new SkMemoryStream(*headerLen + *dataLen + *trailerLen);
-        memcpy((char*)result->getAtPos(), src, *headerLen);
-        result->seek(*headerLen);
+        const size_t length = *headerLen + *dataLen + *trailerLen;
+        SkASSERT(length > 0);
+        SkAutoTMalloc<uint8_t> buffer(length);
+
+        memcpy(buffer.get(), src, *headerLen);
+        uint8_t* const resultData = &(buffer[*headerLen]);
 
         const uint8_t* hexData = src + *headerLen;
         const uint8_t* trailer = hexData + hexDataLen;
@@ -236,21 +253,19 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
             } else {
                 dataByte |= curNibble;
                 highNibble = true;
-                ((char *)result->getAtPos())[outputOffset++] = dataByte;
+                resultData[outputOffset++] = dataByte;
             }
         }
         if (!highNibble) {
-            ((char *)result->getAtPos())[outputOffset++] = dataByte;
+            resultData[outputOffset++] = dataByte;
         }
         SkASSERT(outputOffset == *dataLen);
-        result->seek(*headerLen + outputOffset);
 
-        memcpy((char *)result->getAtPos(), src + *headerLen + hexDataLen,
-               *trailerLen);
-        result->rewind();
-        return result;
+        uint8_t* const resultTrailer = &(buffer[*headerLen + outputOffset]);
+        memcpy(resultTrailer, src + *headerLen + hexDataLen, *trailerLen);
+
+        return SkData::NewFromMalloc(buffer.detach(), length);
     }
-
     return NULL;
 }
 
@@ -556,9 +571,8 @@ static SkPDFStream* generate_tounicode_cmap(
     append_cmap_sections(glyphToUnicode, subset, &cmap, multiByteGlyphs,
                          firstGlyphID, lastGlyphID);
     append_cmap_footer(&cmap);
-    SkAutoTUnref<SkMemoryStream> cmapStream(new SkMemoryStream());
-    cmapStream->setData(cmap.copyToData())->unref();
-    return new SkPDFStream(cmapStream.get());
+    SkAutoTUnref<SkData> cmapData(cmap.copyToData());
+    return new SkPDFStream(cmapData.get());
 }
 
 #if defined (SK_SFNTLY_SUBSETTER)
@@ -574,6 +588,7 @@ static size_t get_subset_font_stream(const char* fontName,
                                      SkPDFStream** fontStream) {
     int ttcIndex;
     SkAutoTUnref<SkStream> fontData(typeface->openStream(&ttcIndex));
+    SkASSERT(fontData.get());
 
     size_t fontSize = fontData->getLength();
 
@@ -1295,7 +1310,7 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     size_t data SK_INIT_TO_AVOID_WARNING;
     size_t trailer SK_INIT_TO_AVOID_WARNING;
     SkAutoTUnref<SkStream> rawFontData(typeface()->openStream(&ttcIndex));
-    SkStream* fontData = handleType1Stream(rawFontData.get(), &header, &data,
+    SkData* fontData = handle_type1_stream(rawFontData.get(), &header, &data,
                                            &trailer);
     if (fontData == NULL) {
         return false;
