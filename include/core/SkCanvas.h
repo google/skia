@@ -1111,15 +1111,6 @@ public:
     virtual ClipType getClipType() const;
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_GETTOTALCLIP
-    /** DEPRECATED -- need to move this guy to private/friend
-     *  Return the current device clip (concatenation of all clip calls).
-     *  This does not account for the translate in any of the devices.
-     *  @return the current device clip (concatenation of all clip calls).
-     */
-    const SkRegion& getTotalClip() const;
-#endif
-
     /** Return the clip stack. The clip stack stores all the individual
      *  clips organized by the save/restore frame in which they were
      *  added.

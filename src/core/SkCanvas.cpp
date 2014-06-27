@@ -1773,12 +1773,6 @@ SkCanvas::ClipType SkCanvas::getClipType() const {
 }
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_GETTOTALCLIP
-const SkRegion& SkCanvas::getTotalClip() const {
-    return fMCRec->fRasterClip->forceGetBW();
-}
-#endif
-
 const SkRegion& SkCanvas::internal_private_getTotalClip() const {
     return fMCRec->fRasterClip->forceGetBW();
 }
