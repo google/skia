@@ -7942,15 +7942,16 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16692102102419719437
+          9839920232832351176
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "imagefiltersclipped_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4326203569588991738
+          12599760549648907831
         ]
       ], 
       "reviewed-by-human": true
@@ -7959,9 +7960,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4333149094244176860
+          10460422425138382099
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "imagefiltersclipped_pdf-poppler.png": {
       "allowed-digests": [
