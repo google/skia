@@ -27,13 +27,14 @@ enum SurfaceType {
     kGpuScratch_SurfaceType,
 };
 
-static const int gSurfaceSize = 10;
-static SkPMColor gSurfaceStorage[gSurfaceSize * gSurfaceSize];
+static void release_storage(void* pixels, void* context) {
+    SkASSERT(pixels == context);
+    sk_free(pixels);
+}
 
 static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context,
                                 SkImageInfo* requestedInfo = NULL) {
-    static const SkImageInfo info = SkImageInfo::MakeN32Premul(gSurfaceSize,
-                                                               gSurfaceSize);
+    static const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
 
     if (requestedInfo) {
         *requestedInfo = info;
@@ -42,9 +43,12 @@ static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context,
     switch (surfaceType) {
         case kRaster_SurfaceType:
             return SkSurface::NewRaster(info);
-        case kRasterDirect_SurfaceType:
-            return SkSurface::NewRasterDirect(info, gSurfaceStorage,
-                                              info.minRowBytes());
+        case kRasterDirect_SurfaceType: {
+            const size_t rowBytes = info.minRowBytes();
+            void* storage = sk_malloc_throw(info.getSafeSize(rowBytes));
+            return SkSurface::NewRasterDirectReleaseProc(info, storage, rowBytes,
+                                                         release_storage, storage);
+        }
         case kGpu_SurfaceType:
 #if SK_SUPPORT_GPU
             return context ? SkSurface::NewRenderTarget(context, info) : NULL;

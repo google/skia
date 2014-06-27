@@ -38,6 +38,14 @@ public:
     static SkSurface* NewRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes);
 
     /**
+     *  The same as NewRasterDirect, but also accepts a call-back routine, which is invoked
+     *  when the surface is deleted, and is passed the pixel memory and the specified context.
+     */
+    static SkSurface* NewRasterDirectReleaseProc(const SkImageInfo&, void* pixels, size_t rowBytes,
+                                                 void (*releaseProc)(void* pixels, void* context),
+                                                 void* context);
+
+    /**
      *  Return a new surface, with the memory for the pixels automatically
      *  allocated.
      *
