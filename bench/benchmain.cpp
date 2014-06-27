@@ -10,7 +10,6 @@
 #include "CrashHandler.h"
 #include "GMBench.h"
 #include "ResultsWriter.h"
-#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
@@ -29,7 +28,6 @@
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrRenderTarget.h"
-#include "SkGpuDevice.h"
 #include "gl/GrGLDefines.h"
 #else
 class GrContext;

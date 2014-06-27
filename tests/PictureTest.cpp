@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapDevice.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -13,9 +12,6 @@
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
 #include "SkError.h"
-#if SK_SUPPORT_GPU
-#include "SkGpuDevice.h"
-#endif
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
 #include "SkPaint.h"

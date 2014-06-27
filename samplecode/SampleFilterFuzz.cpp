@@ -6,7 +6,6 @@
  */
 #include "SampleCode.h"
 #include "SkAlphaThresholdFilter.h"
-#include "SkBitmapDevice.h"
 #include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
