@@ -185,6 +185,7 @@ SkPicture::SkPicture(const SkPicture& src) : INHERITED() {
 // fRecord OK
 SkPicture::~SkPicture() {}
 
+#ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
 // fRecord TODO, fix by deleting this method
 SkPicture* SkPicture::clone() const {
     SkPicture* clonedPicture = SkNEW(SkPicture);
@@ -256,6 +257,7 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
         }
     }
 }
+#endif//SK_SUPPORT_LEGACY_PICTURE_CLONE
 
 // fRecord OK
 void SkPicture::EXPERIMENTAL_addAccelData(const SkPicture::AccelData* data) const {

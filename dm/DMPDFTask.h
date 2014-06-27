@@ -24,7 +24,7 @@ public:
 
     PDFTask(Reporter*,
             TaskRunner*,
-            SkPicture*,
+            const SkPicture*,
             SkString name,
             RasterizePdfProc);
 
@@ -37,7 +37,7 @@ public:
 private:
     // One of these two will be set.
     SkAutoTDelete<skiagm::GM> fGM;
-    SkAutoTUnref<SkPicture> fPicture;
+    SkAutoTUnref<const SkPicture> fPicture;
 
     const SkString fName;
     RasterizePdfProc fRasterize;

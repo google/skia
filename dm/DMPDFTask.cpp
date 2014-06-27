@@ -32,7 +32,7 @@ PDFTask::PDFTask(const char* config,
 
 PDFTask::PDFTask(Reporter* reporter,
                  TaskRunner* taskRunner,
-                 SkPicture* picture,
+                 const SkPicture* picture,
                  SkString filename,
                  RasterizePdfProc rasterizePdfProc)
     : CpuTask(reporter, taskRunner)

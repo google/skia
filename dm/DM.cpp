@@ -186,8 +186,8 @@ static void kick_off_skps(DM::Reporter* reporter, DM::TaskRunner* tasks) {
             exit(1);
         }
 
-        tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, pic->clone(), filename)));
-        tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic->clone(), filename,
+        tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, pic, filename)));
+        tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic, filename,
                                             RASTERIZE_PDF_PROC)));
     }
 }

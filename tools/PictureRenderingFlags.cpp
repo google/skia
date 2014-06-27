@@ -66,8 +66,6 @@ DEFINE_string(mode, "simple", "Run in the corresponding mode:\n"
               "\tSkPicturePlayback.\n"
               "rerecord: (Only in render_pictures) Record the picture as a new skp,\n"
               "\twith the bitmaps PNG encoded.\n");
-DEFINE_int32(multi, 1, "Set the number of threads for multi threaded drawing. "
-             "If > 1, requires tiled rendering.");
 DEFINE_bool(pipe, false, "Use SkGPipe rendering. Currently incompatible with \"mode\".");
 DEFINE_string2(readPath, r, "", "skp files or directories of skp files to process.");
 DEFINE_double(scale, 1, "Set the scale factor.");
@@ -77,11 +75,6 @@ DEFINE_string(viewport, "", "width height: Set the viewport.");
 
 sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
     error.reset();
-
-    if (FLAGS_multi <= 0) {
-        error.printf("--multi must be > 0, was %i", FLAGS_multi);
-        return NULL;
-    }
 
     bool useTiles = false;
     const char* widthString = NULL;
@@ -97,9 +90,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
         if (0 == strcmp(mode, "record")) {
             renderer.reset(SkNEW(sk_tools::RecordPictureRenderer));
             gridSupported = true;
-        // undocumented
-        } else if (0 == strcmp(mode, "clone")) {
-            renderer.reset(sk_tools::CreatePictureCloneRenderer());
         } else if (0 == strcmp(mode, "tile") || 0 == strcmp(mode, "pow2tile")
                    || 0 == strcmp(mode, "copyTile")) {
             useTiles = true;
@@ -170,9 +160,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
                 x = y = 4;
             }
             tiledRenderer.reset(SkNEW_ARGS(sk_tools::CopyTilesRenderer, (x, y)));
-        } else if (FLAGS_multi > 1) {
-            tiledRenderer.reset(SkNEW_ARGS(sk_tools::MultiCorePictureRenderer,
-                                           (FLAGS_multi)));
         } else {
             tiledRenderer.reset(SkNEW(sk_tools::TiledPictureRenderer));
         }
@@ -230,10 +217,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
         }
 
     } else { // useTiles
-        if (FLAGS_multi > 1) {
-            error.printf("Multithreaded drawing requires tiled rendering.\n");
-            return NULL;
-        }
         if (FLAGS_pipe) {
             if (renderer != NULL) {
                 error.printf("Pipe is incompatible with other modes.\n");
@@ -270,59 +253,31 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
 #if SK_SUPPORT_GPU
         else if (0 == strcmp(FLAGS_config[0], "gpu")) {
             deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
-            if (FLAGS_multi > 1) {
-                error.printf("GPU not compatible with multithreaded tiling.\n");
-                return NULL;
-            }
         }
         else if (0 == strcmp(FLAGS_config[0], "msaa4")) {
             deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
-            if (FLAGS_multi > 1) {
-                error.printf("GPU not compatible with multithreaded tiling.\n");
-                return NULL;
-            }
             sampleCount = 4;
         }
         else if (0 == strcmp(FLAGS_config[0], "msaa16")) {
             deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
-            if (FLAGS_multi > 1) {
-                error.printf("GPU not compatible with multithreaded tiling.\n");
-                return NULL;
-            }
             sampleCount = 16;
         }
         else if (0 == strcmp(FLAGS_config[0], "nvprmsaa4")) {
             deviceType = sk_tools::PictureRenderer::kNVPR_DeviceType;
-            if (FLAGS_multi > 1) {
-                error.printf("GPU not compatible with multithreaded tiling.\n");
-                return NULL;
-            }
             sampleCount = 4;
         }
         else if (0 == strcmp(FLAGS_config[0], "nvprmsaa16")) {
             deviceType = sk_tools::PictureRenderer::kNVPR_DeviceType;
-            if (FLAGS_multi > 1) {
-                error.printf("GPU not compatible with multithreaded tiling.\n");
-                return NULL;
-            }
             sampleCount = 16;
         }
 #if SK_ANGLE
         else if (0 == strcmp(FLAGS_config[0], "angle")) {
             deviceType = sk_tools::PictureRenderer::kAngle_DeviceType;
-            if (FLAGS_multi > 1) {
-                error.printf("Angle not compatible with multithreaded tiling.\n");
-                return NULL;
-            }
         }
 #endif
 #if SK_MESA
         else if (0 == strcmp(FLAGS_config[0], "mesa")) {
             deviceType = sk_tools::PictureRenderer::kMesa_DeviceType;
-            if (FLAGS_multi > 1) {
-                error.printf("Mesa not compatible with multithreaded tiling.\n");
-                return NULL;
-            }
         }
 #endif
 #endif

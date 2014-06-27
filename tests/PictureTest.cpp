@@ -1274,19 +1274,6 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     SkSetErrorCallback(NULL, NULL);
 }
 
-static void test_clone_empty(skiatest::Reporter* reporter) {
-    // This is a regression test for crbug.com/172062
-    // Before the fix, we used to crash accessing a null pointer when we
-    // had a picture with no paints. This test passes by not crashing.
-    {
-        SkPictureRecorder recorder;
-        recorder.beginRecording(1, 1);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-        SkAutoTUnref<SkPicture> destPicture(picture->clone());
-        REPORTER_ASSERT(reporter, NULL != destPicture);
-    }
-}
-
 static void test_draw_empty(skiatest::Reporter* reporter) {
     SkBitmap result;
     make_bm(&result, 2, 2, SK_ColorBLACK, false);
@@ -1556,15 +1543,6 @@ static void test_gen_id(skiatest::Reporter* reporter) {
 
     SkPicture emptyCopy(empty);
     REPORTER_ASSERT(reporter, empty.uniqueID() != emptyCopy.uniqueID());
-
-    // test out clone
-    {
-        SkAutoTUnref<SkPicture> cloneWithData(hasData->clone());
-        REPORTER_ASSERT(reporter, hasData->uniqueID() == cloneWithData->uniqueID());
-
-        SkAutoTUnref<SkPicture> emptyClone(empty.clone());
-        REPORTER_ASSERT(reporter, empty.uniqueID() != emptyClone->uniqueID());
-    }
 }
 
 DEF_TEST(Picture, reporter) {
@@ -1582,7 +1560,6 @@ DEF_TEST(Picture, reporter) {
     test_gatherpixelrefs(reporter);
     test_gatherpixelrefsandrects(reporter);
     test_bitmap_with_encoded_data(reporter);
-    test_clone_empty(reporter);
     test_draw_empty(reporter);
     test_clip_bound_opt(reporter);
     test_clip_expansion(reporter);

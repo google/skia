@@ -9,7 +9,6 @@
 #define PictureRenderer_DEFINED
 
 #include "SkCanvas.h"
-#include "SkCountdown.h"
 #include "SkDrawFilter.h"
 #include "SkJSONCPP.h"
 #include "SkMath.h"
@@ -18,10 +17,8 @@
 #include "SkPictureRecorder.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
-#include "SkRunnable.h"
 #include "SkString.h"
 #include "SkTDArray.h"
-#include "SkThreadPool.h"
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
@@ -543,7 +540,6 @@ public:
      * Renders to tiles, rather than a single canvas.
      * If fWritePath was provided, a separate file is
      * created for each tile, named "path0.png", "path1.png", etc.
-     * Multithreaded mode currently does not support writing to a file.
      */
     virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
@@ -653,39 +649,6 @@ private:
     typedef PictureRenderer INHERITED;
 };
 
-class CloneData;
-
-class MultiCorePictureRenderer : public TiledPictureRenderer {
-public:
-    explicit MultiCorePictureRenderer(int threadCount);
-
-    ~MultiCorePictureRenderer();
-
-    virtual void init(SkPicture* pict, const SkString* writePath, const SkString* mismatchPath,
-                      const SkString* inputFilename, bool useChecksumBasedFilenames) SK_OVERRIDE;
-
-    /**
-     * Behaves like TiledPictureRenderer::render(), only using multiple threads.
-     */
-    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
-
-    virtual void end() SK_OVERRIDE;
-
-    virtual bool supportsTimingIndividualTiles() SK_OVERRIDE { return false; }
-
-private:
-    virtual SkString getConfigNameInternal() SK_OVERRIDE;
-
-    const int            fNumThreads;
-    SkTDArray<SkCanvas*> fCanvasPool;
-    SkThreadPool         fThreadPool;
-    SkPicture*           fPictureClones;
-    CloneData**          fCloneData;
-    SkCountdown          fCountdown;
-
-    typedef TiledPictureRenderer INHERITED;
-};
-
 /**
  * This class does not do any rendering, but its render function executes turning an SkPictureRecord
  * into an SkPicturePlayback, which we want to time.
@@ -709,7 +672,6 @@ private:
 };
 
 extern PictureRenderer* CreateGatherPixelRefsRenderer();
-extern PictureRenderer* CreatePictureCloneRenderer();
 
 }
 

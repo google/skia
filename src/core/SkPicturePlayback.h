@@ -119,6 +119,7 @@ private:
     int fNumAAHairlineConcavePaths;
 };
 
+#ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
 /**
  * Container for data that is needed to deep copy a SkPicture. The container
  * enables the data to be generated once and reused for subsequent copies.
@@ -130,11 +131,16 @@ struct SkPictCopyInfo {
     SkChunkFlatController controller;
     SkTDArray<SkFlatData*> paintData;
 };
+#endif
 
 class SkPicturePlayback {
 public:
+#ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
     SkPicturePlayback(const SkPicturePlayback& src,
                       SkPictCopyInfo* deepCopyInfo = NULL);
+#else
+    SkPicturePlayback(const SkPicturePlayback& src);
+#endif
     SkPicturePlayback(const SkPictureRecord& record, const SkPictInfo&, bool deepCopyOps);
     static SkPicturePlayback* CreateFromStream(SkStream*,
                                                const SkPictInfo&,

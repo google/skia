@@ -26,7 +26,6 @@
 #include "picture_utils.h"
 
 // Flags used by this file, alphabetically:
-DEFINE_int32(clone, 0, "Clone the picture n times before rendering.");
 DECLARE_bool(deferImageDecoding);
 DEFINE_int32(maxComponentDiff, 256, "Maximum diff on a component, 0 - 256. Components that differ "
              "by more than this amount are considered errors, though all diffs are reported. "
@@ -184,12 +183,6 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* w
         SkPictureRecorder recorder;
         picture->draw(recorder.beginRecording(picture->width(), picture->height(), NULL, 0));
         SkAutoTUnref<SkPicture> other(recorder.endRecording());
-    }
-
-    for (int i = 0; i < FLAGS_clone; ++i) {
-        SkPicture* clone = picture->clone();
-        SkDELETE(picture);
-        picture = clone;
     }
 
     SkDebugf("drawing... [%i %i] %s\n", picture->width(), picture->height(),
@@ -421,11 +414,6 @@ int tool_main(int argc, char** argv) {
 
     if (FLAGS_maxComponentDiff != 256 && !FLAGS_validate) {
         SkDebugf("--maxComponentDiff requires --validate\n");
-        exit(-1);
-    }
-
-    if (FLAGS_clone < 0) {
-        SkDebugf("--clone must be >= 0. Was %i\n", FLAGS_clone);
         exit(-1);
     }
 

@@ -110,6 +110,7 @@ public:
 
     virtual ~SkPicture();
 
+#ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
     /**
      *  Creates a thread-safe clone of the picture that is ready for playback.
      */
@@ -121,6 +122,7 @@ public:
      * SkPictures.
      */
     void clone(SkPicture* pictures, int count) const;
+#endif
 
     /** Replays the drawing commands on the specified canvas.
         @param canvas the canvas receiving the drawing commands.

@@ -42,7 +42,6 @@ DEFINE_string(logFile, "", "Destination for writing log output, in addition to s
 DEFINE_bool(logPerIter, false, "Log each repeat timer instead of mean.");
 DEFINE_string(jsonLog, "", "Destination for writing JSON data.");
 DEFINE_bool(min, false, "Print the minimum times (instead of average).");
-DECLARE_int32(multi);
 DECLARE_string(readPath);
 DEFINE_int32(repeat, 1, "Set the number of times to repeat each test.");
 DEFINE_bool(timeIndividualTiles, false, "Report times for drawing individual tiles, rather than "
@@ -336,10 +335,6 @@ static void setup_benchmark(sk_tools::PictureBenchmark* benchmark) {
     }
 
     if (FLAGS_timeIndividualTiles) {
-        if (FLAGS_multi > 1) {
-            gLogger.logError("Cannot time individual tiles with more than one thread.\n");
-            exit(-1);
-        }
         sk_tools::TiledPictureRenderer* tiledRenderer = renderer->getTiledRenderer();
         if (NULL == tiledRenderer) {
             gLogger.logError("--timeIndividualTiles requires tiled rendering.\n");
