@@ -805,8 +805,7 @@ static void TestProxyCanvasStateConsistency(
 
     SkBitmap indirectStore;
     createBitmap(&indirectStore, 0xFFFFFFFF);
-    SkBitmapDevice indirectDevice(indirectStore);
-    SkCanvas indirectCanvas(&indirectDevice);
+    SkCanvas indirectCanvas(indirectStore);
     SkProxyCanvas proxyCanvas(&indirectCanvas);
     testStep->setAssertMessageFormat(kProxyDrawAssertMessageFormat);
     testStep->draw(&proxyCanvas, reporter);
@@ -828,13 +827,11 @@ static void TestNWayCanvasStateConsistency(
 
     SkBitmap indirectStore1;
     createBitmap(&indirectStore1, 0xFFFFFFFF);
-    SkBitmapDevice indirectDevice1(indirectStore1);
-    SkCanvas indirectCanvas1(&indirectDevice1);
+    SkCanvas indirectCanvas1(indirectStore1);
 
     SkBitmap indirectStore2;
     createBitmap(&indirectStore2, 0xFFFFFFFF);
-    SkBitmapDevice indirectDevice2(indirectStore2);
-    SkCanvas indirectCanvas2(&indirectDevice2);
+    SkCanvas indirectCanvas2(indirectStore2);
 
     SkISize canvasSize = referenceCanvas.getDeviceSize();
     SkNWayCanvas nWayCanvas(canvasSize.width(), canvasSize.height());
@@ -866,8 +863,7 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter,
                                          CanvasTestStep* testStep) {
     SkBitmap referenceStore;
     createBitmap(&referenceStore, 0xFFFFFFFF);
-    SkBitmapDevice referenceDevice(referenceStore);
-    SkCanvas referenceCanvas(&referenceDevice);
+    SkCanvas referenceCanvas(referenceStore);
     testStep->setAssertMessageFormat(kCanvasDrawAssertMessageFormat);
     testStep->draw(&referenceCanvas, reporter);
 
