@@ -35,10 +35,7 @@ public:
     explicit SkPDFStream(SkData* data);
     /** Deprecated constructor. */
     explicit SkPDFStream(SkStream* stream);
-    /** Create a PDF stream with the same content and dictionary entries
-     *  as the passed one.
-     */
-    explicit SkPDFStream(const SkPDFStream& pdfStream);
+
     virtual ~SkPDFStream();
 
     // The SkPDFObject interface.
@@ -53,6 +50,11 @@ protected:
                                //   uncompressed form.
         kCompressed_State,     //!< The stream's already been compressed.
     };
+
+    /** Create a PDF stream with the same content and dictionary entries
+     *  as the passed one.
+     */
+    explicit SkPDFStream(const SkPDFStream& pdfStream);
 
     /* Create a PDF stream with no data.  The setData method must be called to
      * set the data.

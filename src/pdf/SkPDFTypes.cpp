@@ -396,14 +396,26 @@ SkPDFDict::~SkPDFDict() {
     clear();
 }
 
+int SkPDFDict::size() const {
+    SkAutoMutexAcquire lock(fMutex);
+    return fValue.count();
+}
+
+
 void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                            bool indirect) {
     if (indirect) {
         return emitIndirectObject(stream, catalog);
     }
 
+    SkAutoMutexAcquire lock(fMutex); // If another thread triggers a
+                                     // resize while this thread is in
+                                     // the for-loop, we can be left
+                                     // with a bad fValue[i] reference.
     stream->writeText("<<");
     for (int i = 0; i < fValue.count(); i++) {
+        SkASSERT(fValue[i].key);
+        SkASSERT(fValue[i].value);
         fValue[i].key->emitObject(stream, catalog, false);
         stream->writeText(" ");
         fValue[i].value->emit(stream, catalog, false);
@@ -417,69 +429,84 @@ size_t SkPDFDict::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
         return getIndirectOutputSize(catalog);
     }
 
+    SkAutoMutexAcquire lock(fMutex); // If another thread triggers a
+                                     // resize while this thread is in
+                                     // the for-loop, we can be left
+                                     // with a bad fValue[i] reference.
     size_t result = strlen("<<>>") + (fValue.count() * 2);
     for (int i = 0; i < fValue.count(); i++) {
+        SkASSERT(fValue[i].key);
+        SkASSERT(fValue[i].value);
         result += fValue[i].key->getOutputSize(catalog, false);
         result += fValue[i].value->getOutputSize(catalog, false);
     }
     return result;
 }
 
-SkPDFObject* SkPDFDict::insert(SkPDFName* key, SkPDFObject* value) {
-    key->ref();
-    value->ref();
-    struct Rec* newEntry = fValue.append();
-    newEntry->key = key;
-    newEntry->value = value;
+SkPDFObject*  SkPDFDict::append(SkPDFName* key, SkPDFObject* value) {
+    SkASSERT(key);
+    SkASSERT(value);
+    SkAutoMutexAcquire lock(fMutex); // If the SkTDArray resizes while
+                                     // two threads access array, one
+                                     // is left with a bad pointer.
+    *(fValue.append()) = Rec(key, value);
     return value;
+}
+
+SkPDFObject* SkPDFDict::insert(SkPDFName* key, SkPDFObject* value) {
+    return this->append(SkRef(key), SkRef(value));
 }
 
 SkPDFObject* SkPDFDict::insert(const char key[], SkPDFObject* value) {
-    value->ref();
-    struct Rec* newEntry = fValue.append();
-    newEntry->key = new SkPDFName(key);
-    newEntry->value = value;
-    return value;
+    return this->append(new SkPDFName(key), SkRef(value));
 }
 
 void SkPDFDict::insertInt(const char key[], int32_t value) {
-    struct Rec* newEntry = fValue.append();
-    newEntry->key = new SkPDFName(key);
-    newEntry->value = new SkPDFInt(value);
+    (void)this->append(new SkPDFName(key), new SkPDFInt(value));
 }
 
 void SkPDFDict::insertScalar(const char key[], SkScalar value) {
-    struct Rec* newEntry = fValue.append();
-    newEntry->key = new SkPDFName(key);
-    newEntry->value = new SkPDFScalar(value);
+    (void)this->append(new SkPDFName(key), new SkPDFScalar(value));
 }
 
 void SkPDFDict::insertName(const char key[], const char name[]) {
-    struct Rec* newEntry = fValue.append();
-    newEntry->key = new SkPDFName(key);
-    newEntry->value = new SkPDFName(name);
+    (void)this->append(new SkPDFName(key), new SkPDFName(name));
 }
 
 void SkPDFDict::clear() {
+    SkAutoMutexAcquire lock(fMutex);
     for (int i = 0; i < fValue.count(); i++) {
+        SkASSERT(fValue[i].key);
+        SkASSERT(fValue[i].value);
         fValue[i].key->unref();
         fValue[i].value->unref();
     }
     fValue.reset();
 }
 
-SkPDFDict::Iter::Iter(const SkPDFDict& dict)
-    : fIter(dict.fValue.begin()),
-      fStop(dict.fValue.end()) {
+void SkPDFDict::remove(const char key[]) {
+    SkASSERT(key);
+    SkPDFName name(key);
+    SkAutoMutexAcquire lock(fMutex);
+    for (int i = 0; i < fValue.count(); i++) {
+        SkASSERT(fValue[i].key);
+        if (*(fValue[i].key) == name) {
+            fValue[i].key->unref();
+            SkASSERT(fValue[i].value);
+            fValue[i].value->unref();
+            fValue.removeShuffle(i);
+            return;
+        }
+    }
 }
 
-SkPDFName* SkPDFDict::Iter::next(SkPDFObject** value) {
-    if (fIter != fStop) {
-        const Rec* cur = fIter;
-        fIter++;
-        *value = cur->value;
-        return cur->key;
+void SkPDFDict::mergeFrom(const SkPDFDict& other) {
+    SkAutoMutexAcquire lockOther(other.fMutex);
+    SkTDArray<Rec> copy(other.fValue);
+    lockOther.release();  // Do not hold both mutexes at once.
+
+    SkAutoMutexAcquire lock(fMutex);
+    for (int i = 0; i < copy.count(); i++) {
+        *(fValue.append()) = Rec(SkRef(copy[i].key), SkRef(copy[i].value));
     }
-    *value = NULL;
-    return NULL;
 }

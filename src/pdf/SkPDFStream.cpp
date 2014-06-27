@@ -36,15 +36,9 @@ SkPDFStream::SkPDFStream(const SkPDFStream& pdfStream)
         fState = kCompressed_State;
         removeLength = false;
     }
-    SkPDFDict::Iter dict(pdfStream);
-    SkPDFName* key;
-    SkPDFObject* value;
-    SkPDFName lengthName("Length");
-    for (key = dict.next(&value); key != NULL; key = dict.next(&value)) {
-        if (removeLength && *key == lengthName) {
-            continue;
-        }
-        this->insert(key, value);
+    this->mergeFrom(pdfStream);
+    if (removeLength) {
+        this->remove("Length");
     }
 }
 
