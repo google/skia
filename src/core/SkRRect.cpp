@@ -342,6 +342,19 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     // At this point, this is guaranteed to succeed, so we can modify dst.
     dst->fRect = newRect;
 
+    // Since the only transforms that were allowed are scale and translate, the type
+    // remains unchanged.
+    dst->fType = fType;
+
+    if (kOval_Type == fType) {
+        for (int i = 0; i < 4; ++i) {
+            dst->fRadii[i].fX = SkScalarHalf(newRect.width());
+            dst->fRadii[i].fY = SkScalarHalf(newRect.height());
+        }
+        SkDEBUGCODE(dst->validate();)
+        return true;
+    }
+
     // Now scale each corner
     SkScalar xScale = matrix.getScaleX();
     const bool flipX = xScale < 0;
@@ -376,10 +389,6 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         SkTSwap(dst->fRadii[kUpperLeft_Corner], dst->fRadii[kLowerLeft_Corner]);
         SkTSwap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerRight_Corner]);
     }
-
-    // Since the only transforms that were allowed are scale and translate, the type
-    // remains unchanged.
-    dst->fType = fType;
 
     SkDEBUGCODE(dst->validate();)
 

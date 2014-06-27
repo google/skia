@@ -582,6 +582,35 @@ static void test_round_rect_transform(skiatest::Reporter* reporter) {
     }
 }
 
+// Test out the case where an oval already off in space is translated/scaled 
+// further off into space - yielding numerical issues when the rect & radii
+// are transformed separatly
+// BUG=skia:2696
+static void test_issue_2696(skiatest::Reporter* reporter) {
+    SkRRect rrect;
+    SkRect r = { 28443.8594f, 53.1428604f, 28446.7148f, 56.0000038f };
+    rrect.setOval(r);
+
+    SkMatrix xform;
+    xform.setAll(2.44f,  0.0f, 485411.7f,
+                 0.0f,  2.44f,   -438.7f,
+                 0.0f,   0.0f,      1.0f);
+    SkRRect dst;
+
+    bool success = rrect.transform(xform, &dst);
+    REPORTER_ASSERT(reporter, success);
+
+    SkScalar halfWidth = SkScalarHalf(dst.width());
+    SkScalar halfHeight = SkScalarHalf(dst.height());
+
+    for (int i = 0; i < 4; ++i) {
+        REPORTER_ASSERT(reporter, 
+                        SkScalarNearlyEqual(dst.radii((SkRRect::Corner)i).fX, halfWidth));
+        REPORTER_ASSERT(reporter, 
+                        SkScalarNearlyEqual(dst.radii((SkRRect::Corner)i).fY, halfHeight));
+    }
+}
+
 DEF_TEST(RoundRect, reporter) {
     test_round_rect_basic(reporter);
     test_round_rect_rects(reporter);
@@ -591,4 +620,5 @@ DEF_TEST(RoundRect, reporter) {
     test_inset(reporter);
     test_round_rect_contains_rect(reporter);
     test_round_rect_transform(reporter);
+    test_issue_2696(reporter);
 }
