@@ -33,7 +33,6 @@
 #endif
 
 class SkPaint;
-struct SkConvolutionProcs;
 
 struct SkBitmapProcState {
 
@@ -103,12 +102,6 @@ struct SkBitmapProcState {
         implementation can do nothing (see SkBitmapProcState_opts_none.cpp)
      */
     void platformProcs();
-
-    /** Platforms can also optionally overwrite the convolution functions
-        if we have SIMD versions of them.
-      */
-
-    void platformConvolutionProcs(SkConvolutionProcs*);
 
     /** Given the byte size of the index buffer to be passed to the matrix proc,
         return the maximum number of resulting pixels that can be computed

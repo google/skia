@@ -83,8 +83,13 @@ public:
                        const SkBitmap& source,
                        ResizeMethod method,
                        float dest_width, float dest_height,
-                       const SkConvolutionProcs&,
                        SkBitmap::Allocator* allocator = NULL);
+
+     /** Platforms can also optionally overwrite the convolution functions
+        if we have SIMD versions of them.
+      */
+
+    static void PlatformConvolutionProcs(SkConvolutionProcs*);
 };
 
 #endif

@@ -5,6 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "SkBitmapScaler.h"
 #include "SkBitmapProcState.h"
 
 /*  A platform may optionally overwrite any of these with accelerated
@@ -23,4 +25,4 @@
 void SkBitmapProcState::platformProcs() {}
 
 // empty implementation just uses default supplied function pointers
-void SkBitmapProcState::platformConvolutionProcs(SkConvolutionProcs*) {}
+void SkBitmapScaler::PlatformConvolutionProcs(SkConvolutionProcs*) {}

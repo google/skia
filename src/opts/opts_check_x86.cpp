@@ -8,6 +8,7 @@
 #include "SkBitmapFilter_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSSE3.h"
+#include "SkBitmapScaler.h"
 #include "SkBlitMask.h"
 #include "SkBlitRect_opts_SSE2.h"
 #include "SkBlitRow.h"
@@ -123,7 +124,7 @@ static inline bool supports_simd(int minLevel) {
 
 SK_CONF_DECLARE( bool, c_hqfilter_sse, "bitmap.filter.highQualitySSE", false, "Use SSE optimized version of high quality image filters");
 
-void SkBitmapProcState::platformConvolutionProcs(SkConvolutionProcs* procs) {
+void SkBitmapScaler::PlatformConvolutionProcs(SkConvolutionProcs* procs) {
     if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         procs->fExtraHorizontalReads = 3;
         procs->fConvolveVertically = &convolveVertically_SSE2;

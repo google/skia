@@ -6,6 +6,7 @@
  */
 
 
+#include "SkBitmapScaler.h"
 #include "SkBitmapProcState.h"
 #include "SkColorPriv.h"
 #include "SkPaint.h"
@@ -229,6 +230,6 @@ extern void platformConvolutionProcs_arm_neon(SkConvolutionProcs* procs);
 void platformConvolutionProcs_arm(SkConvolutionProcs* procs) {
 }
 
-void SkBitmapProcState::platformConvolutionProcs(SkConvolutionProcs* procs) {
+void SkBitmapScaler::PlatformConvolutionProcs(SkConvolutionProcs* procs) {
     SK_ARM_NEON_WRAP(platformConvolutionProcs_arm)(procs);
 }

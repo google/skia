@@ -246,8 +246,10 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
                             const SkBitmap& source,
                             ResizeMethod method,
                             float destWidth, float destHeight,
-                            const SkConvolutionProcs& convolveProcs,
                             SkBitmap::Allocator* allocator) {
+
+  SkConvolutionProcs convolveProcs= { 0, NULL, NULL, NULL, NULL };
+  PlatformConvolutionProcs(&convolveProcs);
 
   SkRect destSubset = { 0, 0, destWidth, destHeight };
 

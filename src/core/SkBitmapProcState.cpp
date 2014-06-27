@@ -172,16 +172,11 @@ bool SkBitmapProcState::possiblyScaleImage() {
 
             // All the criteria are met; let's make a new bitmap.
 
-            SkConvolutionProcs simd;
-            sk_bzero(&simd, sizeof(simd));
-            this->platformConvolutionProcs(&simd);
-
             if (!SkBitmapScaler::Resize(&fScaledBitmap,
                                         fOrigBitmap,
                                         SkBitmapScaler::RESIZE_BEST,
                                         dest_width,
                                         dest_height,
-                                        simd,
                                         SkScaledImageCache::GetAllocator())) {
                 // we failed to create fScaledBitmap, so just return and let
                 // the scanline proc handle it.
