@@ -555,7 +555,6 @@ class RenderPicturesTest(base_unittest.TestCase):
   def _run_render_pictures(self, args):
     binary = self.find_path_to_program('render_pictures')
     return self.run_command([binary,
-                             '--clone', '1',
                              '--config', '8888',
                              ] + args)
 

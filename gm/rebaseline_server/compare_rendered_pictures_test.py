@@ -78,7 +78,6 @@ class CompareRenderedPicturesTest(base_unittest.TestCase):
     binary = self.find_path_to_program('render_pictures')
     return subprocess.check_output([
         binary,
-        '--clone', '1',
         '--config', '8888',
         '-r', out_path,
         '--writeChecksumBasedFilenames',
