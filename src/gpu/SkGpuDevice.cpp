@@ -127,16 +127,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
- * GrRenderTarget does not know its opaqueness, only its config, so we have
- * to make conservative guesses when we return an "equivalent" bitmap.
- */
-static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
-    SkBitmap bitmap;
-    bitmap.setInfo(renderTarget->info());
-    return bitmap;
-}
-
 SkGpuDevice* SkGpuDevice::Create(GrSurface* surface, unsigned flags) {
     SkASSERT(NULL != surface);
     if (NULL == surface->asRenderTarget() || NULL == surface->getContext()) {
@@ -149,13 +139,11 @@ SkGpuDevice* SkGpuDevice::Create(GrSurface* surface, unsigned flags) {
     }
 }
 
-SkGpuDevice::SkGpuDevice(GrContext* context, GrTexture* texture, unsigned flags)
-    : SkBitmapDevice(make_bitmap(context, texture->asRenderTarget())) {
+SkGpuDevice::SkGpuDevice(GrContext* context, GrTexture* texture, unsigned flags) {
     this->initFromRenderTarget(context, texture->asRenderTarget(), flags);
 }
 
-SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget, unsigned flags)
-    : SkBitmapDevice(make_bitmap(context, renderTarget)) {
+SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget, unsigned flags) {
     this->initFromRenderTarget(context, renderTarget, flags);
 }
 
@@ -185,8 +173,8 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
 
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef,
                                 (surface->info(), surface, SkToBool(flags & kCached_Flag)));
-
-    this->setPixelRef(pr)->unref();
+    fLegacyBitmap.setInfo(surface->info());
+    fLegacyBitmap.setPixelRef(pr)->unref();
 
     bool useDFFonts = !!(flags & kDFFonts_Flag);
     fMainTextContext = fContext->createTextContext(fRenderTarget, fLeakyProperties, useDFFonts);
@@ -290,14 +278,14 @@ bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, siz
     fRenderTarget->writePixels(x, y, info.width(), info.height(), config, pixels, rowBytes, flags);
 
     // need to bump our genID for compatibility with clients that "know" we have a bitmap
-    this->onAccessBitmap().notifyPixelsChanged();
+    fLegacyBitmap.notifyPixelsChanged();
 
     return true;
 }
 
 const SkBitmap& SkGpuDevice::onAccessBitmap() {
     DO_DEFERRED_CLEAR();
-    return INHERITED::onAccessBitmap();
+    return fLegacyBitmap;
 }
 
 void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {

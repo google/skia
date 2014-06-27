@@ -35,20 +35,7 @@ public:
 
     virtual SkImageInfo imageInfo() const SK_OVERRIDE;
 
-    /**
-     * Return the device's associated gpu render target, or NULL.
-     */
-    virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
-
 protected:
-    /**
-     *  Device may filter the text flags for drawing text here. If it wants to
-     *  make a change to the specified values, it should write them into the
-     *  textflags parameter (output) and return true. If the paint is fine as
-     *  is, then ignore the textflags parameter and return false.
-     *
-     *  The baseclass SkDevice filters based on its depth and blitters.
-     */
     virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE;
 
     /** Clears the entire device to the specified color (including alpha).
@@ -149,33 +136,6 @@ protected:
     virtual void lockPixels() SK_OVERRIDE;
     virtual void unlockPixels() SK_OVERRIDE;
 
-    /**
-     *  Returns true if the device allows processing of this imagefilter. If
-     *  false is returned, then the filter is ignored. This may happen for
-     *  some subclasses that do not support pixel manipulations after drawing
-     *  has occurred (e.g. printing). The default implementation returns true.
-     */
-    virtual bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE;
-
-    /**
-     *  Override and return true for filters that the device can handle
-     *  intrinsically. Doing so means that SkCanvas will pass-through this
-     *  filter to drawSprite and drawDevice (and potentially filterImage).
-     *  Returning false means the SkCanvas will have apply the filter itself,
-     *  and just pass the resulting image to the device.
-     */
-    virtual bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE;
-
-    /**
-     *  Related (but not required) to canHandleImageFilter, this method returns
-     *  true if the device could apply the filter to the src bitmap and return
-     *  the result (and updates offset as needed).
-     *  If the device does not recognize or support this filter,
-     *  it just returns false and leaves result and offset unchanged.
-     */
-    virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkImageFilter::Context&,
-                             SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
-
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
@@ -192,10 +152,6 @@ private:
     virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE;
 
     virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
-
-    /** Causes any deferred drawing to the device to be completed.
-     */
-    virtual void flush() SK_OVERRIDE {}
 
     virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
     virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes) SK_OVERRIDE;

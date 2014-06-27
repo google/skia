@@ -39,12 +39,7 @@ public:
         return fEmptyBitmap.info();
     }
 
-    virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
-
 protected:
-    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE {
-        return false;
-    }
     virtual void clear(SkColor color) SK_OVERRIDE {
         NothingToDo();
     }
@@ -318,8 +313,6 @@ private:
         return SkNEW_ARGS(SkGatherPixelRefsAndRectsDevice,
                           (info.width(), info.height(), fPRCont));
     }
-
-    virtual void flush() SK_OVERRIDE {}
 
     static void NotSupported() {
         SkDEBUGFAIL("this method should never be called");

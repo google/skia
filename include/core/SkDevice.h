@@ -104,7 +104,7 @@ public:
     /**
      * Return the device's associated gpu render target, or NULL.
      */
-    virtual GrRenderTarget* accessRenderTarget() = 0;
+    virtual GrRenderTarget* accessRenderTarget() { return NULL; }
 
 
     /**
@@ -157,10 +157,8 @@ protected:
      *  make a change to the specified values, it should write them into the
      *  textflags parameter (output) and return true. If the paint is fine as
      *  is, then ignore the textflags parameter and return false.
-     *
-     *  The baseclass SkBaseDevice filters based on its depth and blitters.
      */
-    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) = 0;
+    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) { return false; }
 
     /**
      *
@@ -273,8 +271,8 @@ protected:
     /** Called when this device is installed into a Canvas. Balanced by a call
         to unlockPixels() when the device is removed from a Canvas.
     */
-    virtual void lockPixels() = 0;
-    virtual void unlockPixels() = 0;
+    virtual void lockPixels() {}
+    virtual void unlockPixels() {}
 
     /**
      *  Returns true if the device allows processing of this imagefilter. If
@@ -282,7 +280,7 @@ protected:
      *  some subclasses that do not support pixel manipulations after drawing
      *  has occurred (e.g. printing). The default implementation returns true.
      */
-    virtual bool allowImageFilter(const SkImageFilter*) = 0;
+    virtual bool allowImageFilter(const SkImageFilter*) { return true; }
 
     /**
      *  Override and return true for filters that the device can handle
@@ -291,7 +289,7 @@ protected:
      *  Returning false means the SkCanvas will have apply the filter itself,
      *  and just pass the resulting image to the device.
      */
-    virtual bool canHandleImageFilter(const SkImageFilter*) = 0;
+    virtual bool canHandleImageFilter(const SkImageFilter*) { return false; }
 
     /**
      *  Related (but not required) to canHandleImageFilter, this method returns
@@ -302,7 +300,9 @@ protected:
      */
     virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
                              const SkImageFilter::Context& ctx,
-                             SkBitmap* result, SkIPoint* offset) = 0;
+                             SkBitmap* result, SkIPoint* offset) {
+        return false;
+    }
 
 protected:
     // default impl returns NULL
@@ -380,7 +380,7 @@ private:
     // but cannot change the width/height, so there should be no change to
     // any clip information.
     // TODO: move to SkBitmapDevice
-    virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) = 0;
+    virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) {}
 
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }
@@ -393,7 +393,7 @@ private:
 
     /** Causes any deferred drawing to the device to be completed.
      */
-    virtual void flush() = 0;
+    virtual void flush() {}
 
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;

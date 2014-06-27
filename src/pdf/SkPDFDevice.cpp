@@ -29,6 +29,7 @@
 #include "SkRect.h"
 #include "SkRRect.h"
 #include "SkString.h"
+#include "SkSurface.h"
 #include "SkTextFormatParams.h"
 #include "SkTemplates.h"
 #include "SkTypefacePriv.h"
@@ -702,8 +703,8 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
-                                         const SkMatrix* initialTransform) {
+static inline SkImageInfo make_content_info(const SkISize& contentSize,
+                                            const SkMatrix* initialTransform) {
     SkImageInfo info;
     if (initialTransform) {
         // Compute the size of the drawing area.
@@ -723,24 +724,22 @@ static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
         info = SkImageInfo::MakeUnknown(abs(contentSize.fWidth),
                                         abs(contentSize.fHeight));
     }
-
-    SkBitmap bitmap;
-    bitmap.setInfo(info);
-    return bitmap;
+    return info;
 }
 
 // TODO(vandebo) change pageSize to SkSize.
-// TODO: inherit from SkBaseDevice instead of SkBitmapDevice
 SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
                          const SkMatrix& initialTransform)
-    : SkBitmapDevice(makeContentBitmap(contentSize, &initialTransform)),
-      fPageSize(pageSize),
-      fContentSize(contentSize),
-      fLastContentEntry(NULL),
-      fLastMarginContentEntry(NULL),
-      fClipStack(NULL),
-      fEncoder(NULL),
-      fRasterDpi(72.0f) {
+    : fPageSize(pageSize)
+    , fContentSize(contentSize)
+    , fLastContentEntry(NULL)
+    , fLastMarginContentEntry(NULL)
+    , fClipStack(NULL)
+    , fEncoder(NULL)
+    , fRasterDpi(72.0f)
+{
+    const SkImageInfo info = make_content_info(contentSize, &initialTransform);
+
     // Just report that PDF does not supports perspective in the
     // initial transform.
     NOT_IMPLEMENTED(initialTransform.hasPerspective(), true);
@@ -751,10 +750,10 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
     fInitialTransform.setTranslate(0, SkIntToScalar(pageSize.fHeight));
     fInitialTransform.preScale(SK_Scalar1, -SK_Scalar1);
     fInitialTransform.preConcat(initialTransform);
+    fLegacyBitmap.setInfo(info);
 
-    SkIRect existingClip = SkIRect::MakeWH(this->width(), this->height());
+    SkIRect existingClip = SkIRect::MakeWH(info.width(), info.height());
     fExistingClipRegion.setRect(existingClip);
-
     this->init();
 }
 
@@ -762,17 +761,19 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
 SkPDFDevice::SkPDFDevice(const SkISize& layerSize,
                          const SkClipStack& existingClipStack,
                          const SkRegion& existingClipRegion)
-    : SkBitmapDevice(makeContentBitmap(layerSize, NULL)),
-      fPageSize(layerSize),
-      fContentSize(layerSize),
-      fExistingClipStack(existingClipStack),
-      fExistingClipRegion(existingClipRegion),
-      fLastContentEntry(NULL),
-      fLastMarginContentEntry(NULL),
-      fClipStack(NULL),
-      fEncoder(NULL),
-      fRasterDpi(72.0f) {
+    : fPageSize(layerSize)
+    , fContentSize(layerSize)
+    , fExistingClipStack(existingClipStack)
+    , fExistingClipRegion(existingClipRegion)
+    , fLastContentEntry(NULL)
+    , fLastMarginContentEntry(NULL)
+    , fClipStack(NULL)
+    , fEncoder(NULL)
+    , fRasterDpi(72.0f)
+{
     fInitialTransform.reset();
+    fLegacyBitmap.setInfo(make_content_info(layerSize, NULL));
+
     this->init();
 }
 
@@ -961,10 +962,15 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& rect,
                           &content.entry()->fContent);
 }
 
-void SkPDFDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect,
-                            const SkPaint& paint) {
+void SkPDFDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPaint& paint) {
     SkPath  path;
     path.addRRect(rrect);
+    this->drawPath(draw, path, paint, NULL, true);
+}
+
+void SkPDFDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
+    SkPath  path;
+    path.addOval(oval);
     this->drawPath(draw, path, paint, NULL, true);
 }
 
@@ -1364,6 +1370,10 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
     fFontGlyphUsage->merge(pdfDevice->getFontGlyphUsage());
 }
 
+SkImageInfo SkPDFDevice::imageInfo() const {
+    return fLegacyBitmap.info();
+}
+
 void SkPDFDevice::onAttachToCanvas(SkCanvas* canvas) {
     INHERITED::onAttachToCanvas(canvas);
 
@@ -1375,6 +1385,10 @@ void SkPDFDevice::onDetachFromCanvas() {
     INHERITED::onDetachFromCanvas();
 
     fClipStack = NULL;
+}
+
+SkSurface* SkPDFDevice::newSurface(const SkImageInfo& info) {
+    return SkSurface::NewRaster(info);
 }
 
 ContentEntry* SkPDFDevice::getLastContentEntry() {
@@ -2237,8 +2251,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
         }
         perspectiveBitmap.eraseColor(SK_ColorTRANSPARENT);
 
-        SkBitmapDevice device(perspectiveBitmap);
-        SkCanvas canvas(&device);
+        SkCanvas canvas(perspectiveBitmap);
 
         SkScalar deltaX = bounds.left();
         SkScalar deltaY = bounds.top();
@@ -2305,6 +2318,3 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
                                 &content.entry()->fContent);
 }
 
-bool SkPDFDevice::allowImageFilter(const SkImageFilter*) {
-    return false;
-}

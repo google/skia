@@ -13,7 +13,7 @@
 
 #include "SkGr.h"
 #include "SkBitmap.h"
-#include "SkBitmapDevice.h"
+#include "SkDevice.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "GrContext.h"
@@ -24,10 +24,10 @@ struct GrSkDrawProcs;
 class GrTextContext;
 
 /**
- *  Subclass of SkBitmapDevice, which directs all drawing to the GrGpu owned by the
+ *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
  *  canvas.
  */
-class SK_API SkGpuDevice : public SkBitmapDevice {
+class SK_API SkGpuDevice : public SkBaseDevice {
 public:
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
@@ -161,6 +161,9 @@ private:
     GrRenderTarget*     fRenderTarget;
     bool                fNeedClear;
 
+    // remove when our clients don't rely on accessBitmap()
+    SkBitmap fLegacyBitmap;
+
     // called from rt and tex cons
     void initFromRenderTarget(GrContext*, GrRenderTarget*, unsigned flags);
 
@@ -214,7 +217,7 @@ private:
 
     static SkPicture::AccelData::Key ComputeAccelDataKey();
 
-    typedef SkBitmapDevice INHERITED;
+    typedef SkBaseDevice INHERITED;
 };
 
 #endif
