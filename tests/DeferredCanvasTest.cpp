@@ -487,6 +487,7 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
     SkBitmap sourceImage;
     // 100 by 100 image, takes 40,000 bytes in memory
     sourceImage.allocN32Pixels(100, 100);
+    sourceImage.eraseColor(SK_ColorGREEN);
 
     for (int i = 0; i < 5; i++) {
         sourceImage.notifyPixelsChanged(); // to force re-serialization
@@ -520,6 +521,7 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     SkBitmap sourceImages[imageCount];
     for (int i = 0; i < imageCount; i++) {
         sourceImages[i].allocN32Pixels(100, 100);
+        sourceImages[i].eraseColor(SK_ColorGREEN);
     }
 
     size_t bitmapSize = sourceImages[0].getSize();
@@ -619,6 +621,7 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
             SkPaint paint;
             SkBitmap paintPattern;
             paintPattern.allocN32Pixels(10, 10);
+            paintPattern.eraseColor(SK_ColorGREEN);
             paint.setShader(SkNEW_ARGS(SkBitmapProcShader,
                 (paintPattern, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode)))->unref();
             canvas->drawPaint(paint);
@@ -647,6 +650,7 @@ static void TestDeferredCanvasBitmapSizeThreshold(skiatest::Reporter* reporter) 
     SkBitmap sourceImage;
     // 100 by 100 image, takes 40,000 bytes in memory
     sourceImage.allocN32Pixels(100, 100);
+    sourceImage.eraseColor(SK_ColorGREEN);
 
     // 1 under : should not store the image
     {
