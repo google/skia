@@ -8,7 +8,7 @@
 #include "SkColorPriv.h"
 #include "SkImageDecoder.h"
 #include "SkStream.h"
-#include "SkStreamHelpers.h"
+#include "SkStreamPriv.h"
 #include "SkTypes.h"
 
 class SkICOImageDecoder : public SkImageDecoder {
@@ -75,7 +75,7 @@ static int calculateRowBytesFor8888(int w, int bitCount)
 bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
 {
     SkAutoMalloc autoMal;
-    const size_t length = CopyStreamToStorage(&autoMal, stream);
+    const size_t length = SkCopyStreamToStorage(&autoMal, stream);
     if (0 == length) {
         return false;
     }

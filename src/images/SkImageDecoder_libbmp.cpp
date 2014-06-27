@@ -12,7 +12,7 @@
 #include "SkImageDecoder.h"
 #include "SkScaledBitmapSampler.h"
 #include "SkStream.h"
-#include "SkStreamHelpers.h"
+#include "SkStreamPriv.h"
 #include "SkTDArray.h"
 
 class SkBMPImageDecoder : public SkImageDecoder {
@@ -99,7 +99,7 @@ bool SkBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     // Allocated space used to hold the data.
     SkAutoMalloc storage;
     // Byte length of all of the data.
-    const size_t length = CopyStreamToStorage(&storage, stream);
+    const size_t length = SkCopyStreamToStorage(&storage, stream);
     if (0 == length) {
         return 0;
     }

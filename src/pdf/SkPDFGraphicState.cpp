@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkData.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
 #include "SkPDFUtils.h"
-#include "SkStream.h"
 #include "SkTypes.h"
 
 static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
@@ -121,8 +121,9 @@ SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
         domainAndRange->appendInt(1);
 
         static const char psInvert[] = "{1 exch sub}";
-        SkAutoTUnref<SkMemoryStream> psInvertStream(
-            new SkMemoryStream(&psInvert, strlen(psInvert), true));
+        // Do not copy the trailing '\0' into the SkData.
+        SkAutoTUnref<SkData> psInvertStream(
+                SkData::NewWithCopy(psInvert, strlen(psInvert)));
 
         invertFunction = new SkPDFStream(psInvertStream.get());
         invertFunction->insertInt("FunctionType", 4);

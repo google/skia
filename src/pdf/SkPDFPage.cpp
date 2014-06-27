@@ -7,11 +7,11 @@
  */
 
 
+#include "SkData.h"
 #include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFPage.h"
 #include "SkPDFResourceDict.h"
-#include "SkStream.h"
 
 SkPDFPage::SkPDFPage(SkPDFDevice* content)
     : SkPDFDict("Page"),
@@ -36,7 +36,7 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
             }
         }
 
-        SkAutoTUnref<SkStream> content(fDevice->content());
+        SkAutoTUnref<SkData> content(fDevice->copyContentToData());
         fContentStream.reset(new SkPDFStream(content.get()));
         insert("Contents", new SkPDFObjRef(fContentStream.get()))->unref();
     }

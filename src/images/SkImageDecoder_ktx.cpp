@@ -10,7 +10,7 @@
 #include "SkPixelRef.h"
 #include "SkScaledBitmapSampler.h"
 #include "SkStream.h"
-#include "SkStreamHelpers.h"
+#include "SkStreamPriv.h"
 #include "SkTypes.h"
 
 #include "ktx.h"
@@ -49,7 +49,7 @@ private:
 
 bool SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     // TODO: Implement SkStream::copyToData() that's cheap for memory and file streams
-    SkAutoDataUnref data(CopyStreamToData(stream));
+    SkAutoDataUnref data(SkCopyStreamToData(stream));
     if (NULL == data) {
         return false;
     }

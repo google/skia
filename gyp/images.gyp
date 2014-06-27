@@ -28,8 +28,6 @@
         '../src/core/',
         # for access to SkImagePriv.h
         '../src/image/',
-        # So src/ports/SkImageDecoder_CG can access SkStreamHelpers.h
-        '../src/images/',
       ],
       'sources': [
         '../include/images/SkDecodingImageGenerator.h',
@@ -77,8 +75,6 @@
         '../src/images/SkPageFlipper.cpp',
         '../src/images/SkScaledBitmapSampler.cpp',
         '../src/images/SkScaledBitmapSampler.h',
-        '../src/images/SkStreamHelpers.cpp',
-        '../src/images/SkStreamHelpers.h',
 
         '../src/ports/SkImageDecoder_CG.cpp',
         '../src/ports/SkImageDecoder_WIC.cpp',

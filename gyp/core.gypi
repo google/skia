@@ -181,6 +181,7 @@
         '<(skia_src_path)/core/SkSpriteBlitter.h',
         '<(skia_src_path)/core/SkSpriteBlitterTemplate.h',
         '<(skia_src_path)/core/SkStream.cpp',
+        '<(skia_src_path)/core/SkStreamPriv.h',
         '<(skia_src_path)/core/SkString.cpp',
         '<(skia_src_path)/core/SkStringUtils.cpp',
         '<(skia_src_path)/core/SkStroke.h',

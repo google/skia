@@ -9,7 +9,7 @@
 #include "SkImageDecoder.h"
 #include "SkScaledBitmapSampler.h"
 #include "SkStream.h"
-#include "SkStreamHelpers.h"
+#include "SkStreamPriv.h"
 #include "SkTypes.h"
 
 #include "etc1.h"
@@ -33,7 +33,7 @@ private:
 
 bool SkPKMImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     SkAutoMalloc autoMal;
-    const size_t length = CopyStreamToStorage(&autoMal, stream);
+    const size_t length = SkCopyStreamToStorage(&autoMal, stream);
     if (0 == length) {
         return false;
     }
