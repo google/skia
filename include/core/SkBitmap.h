@@ -325,14 +325,6 @@ public:
     bool installPixels(const SkImageInfo&, void* pixels, size_t rowBytes, SkColorTable*,
                        void (*releaseProc)(void* addr, void* context), void* context);
 
-#ifdef SK_SUPPORT_LEGACY_INSTALLPIXELSPARAMS
-    bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                       void (*releaseProc)(void* addr, void* context),
-                       void* context) {
-        return this->installPixels(info, pixels, rowBytes, NULL, releaseProc, context);
-    }
-#endif
-
     /**
      *  Call installPixels with no ReleaseProc specified. This means that the
      *  caller must ensure that the specified pixels are valid for the lifetime
