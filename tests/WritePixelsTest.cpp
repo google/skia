@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
 #include "SkRegion.h"
+#include "SkSurface.h"
 #include "Test.h"
 #include "sk_tool_utils.h"
 
@@ -351,7 +352,24 @@ static bool setupBitmap(SkBitmap* bm, SkColorType ct, SkAlphaType at, int w, int
     return true;
 }
 
+static void call_writepixels(SkCanvas* canvas) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+    SkPMColor pixel = 0;
+    canvas->writePixels(info, &pixel, sizeof(SkPMColor), 0, 0);
+}
+
+static void test_surface_genid(skiatest::Reporter* reporter) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    uint32_t genID1 = surface->generationID();
+    call_writepixels(surface->getCanvas());
+    uint32_t genID2 = surface->generationID();
+    REPORTER_ASSERT(reporter, genID1 != genID2);
+}
+
 DEF_GPUTEST(WritePixels, reporter, factory) {
+    test_surface_genid(reporter);
+
     SkCanvas canvas;
 
     const SkIRect testRects[] = {

@@ -753,6 +753,9 @@ bool SkCanvas::writePixels(const SkImageInfo& origInfo, const void* pixels, size
     // here x,y are either 0 or negative
     pixels = ((const char*)pixels - y * rowBytes - x * info.bytesPerPixel());
 
+    // Tell our owning surface to bump its generation ID
+    this->predrawNotify();
+
     // The device can assert that the requested area is always contained in its bounds
     return device->writePixels(info, pixels, rowBytes, target.x(), target.y());
 }
