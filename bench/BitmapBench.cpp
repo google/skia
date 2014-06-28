@@ -107,12 +107,10 @@ protected:
         SkBitmap bm;
 
         if (kIndex_8_SkColorType == fColorType) {
-            bm.setInfo(SkImageInfo::MakeN32(W, H, fAlphaType));
+            bm.allocPixels(SkImageInfo::MakeN32(W, H, fAlphaType));
         } else {
-            bm.setInfo(SkImageInfo::Make(W, H, fColorType, fAlphaType));
+            bm.allocPixels(SkImageInfo::Make(W, H, fColorType, fAlphaType));
         }
-
-        bm.allocPixels();
         bm.eraseColor(kOpaque_SkAlphaType == fAlphaType ? SK_ColorBLACK : 0);
 
         onDrawIntoBitmap(bm);

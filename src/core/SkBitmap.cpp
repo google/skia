@@ -366,6 +366,36 @@ bool SkBitmap::allocPixels(Allocator* allocator, SkColorTable* ctable) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkBitmap::allocPixels(const SkImageInfo& requestedInfo, size_t rowBytes) {
+    if (kIndex_8_SkColorType == requestedInfo.colorType()) {
+        return reset_return_false(this);
+    }
+    if (!this->setInfo(requestedInfo)) {
+        return reset_return_false(this);
+    }
+    
+    // setInfo may have corrected info (e.g. 565 is always opaque).
+    const SkImageInfo& correctedInfo = this->info();
+    if (!correctedInfo.validRowBytes(rowBytes)) {
+        return reset_return_false(this);
+    }
+    
+    SkMallocPixelRef::PRFactory defaultFactory;
+    
+    SkPixelRef* pr = defaultFactory.create(correctedInfo, NULL);
+    if (NULL == pr) {
+        return reset_return_false(this);
+    }
+    this->setPixelRef(pr)->unref();
+    
+    // TODO: lockPixels could/should return bool or void*/NULL
+    this->lockPixels();
+    if (NULL == this->getPixels()) {
+        return reset_return_false(this);
+    }
+    return true;
+}
+
 bool SkBitmap::allocPixels(const SkImageInfo& requestedInfo, SkPixelRefFactory* factory,
                            SkColorTable* ctable) {
     if (kIndex_8_SkColorType == requestedInfo.fColorType && NULL == ctable) {

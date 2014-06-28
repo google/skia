@@ -54,7 +54,7 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
                                                      &bitmap);
     if (NULL == fScaledCacheId) {
         // Cache has been purged, must re-decode.
-        if ((!bitmap.setInfo(info, fRowBytes)) || !bitmap.allocPixels()) {
+        if (!bitmap.allocPixels(info, fRowBytes)) {
             fErrorInDecoding = true;
             return false;
         }

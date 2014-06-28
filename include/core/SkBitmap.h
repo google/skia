@@ -290,12 +290,22 @@ public:
 #endif
 
     /**
-     *  Allocate a pixelref to match the specified image info. If the Factory
+     *  Allocate the bitmap's pixels to match the requested image info. If the Factory
      *  is non-null, call it to allcoate the pixelref. If the ImageInfo requires
      *  a colortable, then ColorTable must be non-null, and will be ref'd.
      *  On failure, the bitmap will be set to empty and return false.
      */
     bool allocPixels(const SkImageInfo&, SkPixelRefFactory*, SkColorTable*);
+
+    /**
+     *  Allocate the bitmap's pixels to match the requested image info and
+     *  rowBytes. If the request cannot be met (e.g. the info is invalid or
+     *  the requested rowBytes are not compatible with the info
+     *  (e.g. rowBytes < info.minRowBytes() or rowBytes is not aligned with
+     *  the pixel size specified by info.colorType()) then false is returned
+     *  and the bitmap is set to empty.
+     */
+    bool allocPixels(const SkImageInfo& info, size_t rowBytes);
 
     /**
      *  Allocate a pixelref to match the specified image info, using the default
@@ -304,7 +314,7 @@ public:
      *  On failure, the bitmap will be set to empty and return false.
      */
     bool allocPixels(const SkImageInfo& info) {
-        return this->allocPixels(info, NULL, NULL);
+        return this->allocPixels(info, info.minRowBytes());
     }
 
     bool allocN32Pixels(int width, int height, bool isOpaque = false) {
