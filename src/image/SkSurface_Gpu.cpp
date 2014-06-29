@@ -14,7 +14,8 @@ class SkSurface_Gpu : public SkSurface_Base {
 public:
     SK_DECLARE_INST_COUNT(SkSurface_Gpu)
 
-    SkSurface_Gpu(GrRenderTarget*, bool cached, TextRenderMode trm);
+    SkSurface_Gpu(GrRenderTarget*, bool cached, TextRenderMode trm, 
+                  SkSurface::RenderTargetFlags flags);
     virtual ~SkSurface_Gpu();
 
     virtual SkCanvas* onNewCanvas() SK_OVERRIDE;
@@ -33,14 +34,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSurface_Gpu::SkSurface_Gpu(GrRenderTarget* renderTarget, bool cached, TextRenderMode trm)
+SkSurface_Gpu::SkSurface_Gpu(GrRenderTarget* renderTarget, bool cached, TextRenderMode trm,
+                             SkSurface::RenderTargetFlags flags)
         : INHERITED(renderTarget->width(), renderTarget->height()) {
-    int flags = 0;
-    flags |= cached ? SkGpuDevice::kCached_Flag : 0;
-    flags |= (kDistanceField_TextRenderMode == trm) ? SkGpuDevice::kDFFonts_Flag : 0;
-    fDevice = SkGpuDevice::Create(renderTarget, flags);
+    int deviceFlags = 0;
+    deviceFlags |= cached ? SkGpuDevice::kCached_Flag : 0;
+    deviceFlags |= (kDistanceField_TextRenderMode == trm) ? SkGpuDevice::kDFFonts_Flag : 0;
+    fDevice = SkGpuDevice::Create(renderTarget, deviceFlags);
 
-    if (kRGB_565_GrPixelConfig != renderTarget->config()) {
+    if (kRGB_565_GrPixelConfig != renderTarget->config() && 
+        !(flags & kDontClear_RenderTargetFlag)) {
         fDevice->clear(0x0);
     }
 }
@@ -101,15 +104,16 @@ void SkSurface_Gpu::onDiscard() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, TextRenderMode trm) {
+SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, TextRenderMode trm,
+                                            RenderTargetFlags flags) {
     if (NULL == target) {
         return NULL;
     }
-    return SkNEW_ARGS(SkSurface_Gpu, (target, false, trm));
+    return SkNEW_ARGS(SkSurface_Gpu, (target, false, trm, flags));
 }
 
 SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImageInfo& info, int sampleCount,
-                                      TextRenderMode trm) {
+                                      TextRenderMode trm, RenderTargetFlags flags) {
     if (NULL == ctx) {
         return NULL;
     }
@@ -126,11 +130,12 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImageInfo& info, i
         return NULL;
     }
 
-    return SkNEW_ARGS(SkSurface_Gpu, (tex->asRenderTarget(), false, trm));
+    return SkNEW_ARGS(SkSurface_Gpu, (tex->asRenderTarget(), false, trm, flags));
 }
 
 SkSurface* SkSurface::NewScratchRenderTarget(GrContext* ctx, const SkImageInfo& info,
-                                             int sampleCount, TextRenderMode trm) {
+                                             int sampleCount, TextRenderMode trm,
+                                             RenderTargetFlags flags) {
     if (NULL == ctx) {
         return NULL;
     }
@@ -148,5 +153,5 @@ SkSurface* SkSurface::NewScratchRenderTarget(GrContext* ctx, const SkImageInfo& 
         return NULL;
     }
 
-    return SkNEW_ARGS(SkSurface_Gpu, (tex->asRenderTarget(), true, trm));
+    return SkNEW_ARGS(SkSurface_Gpu, (tex->asRenderTarget(), true, trm, flags));
 }

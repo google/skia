@@ -20,12 +20,31 @@ struct GrIRect16 {
         return r;
     }
 
+    static GrIRect16 SK_WARN_UNUSED_RESULT MakeWH(int16_t w, int16_t h) {
+        GrIRect16 r;
+        r.set(0, 0, w, h);
+        return r;
+    }
+
+    static GrIRect16 SK_WARN_UNUSED_RESULT MakeXYWH(int16_t x, int16_t y, int16_t w, int16_t h) {
+        GrIRect16 r;
+        r.set(x, y, x + w, y + h);
+        return r;
+    }
+
     int width() const { return fRight - fLeft; }
     int height() const { return fBottom - fTop; }
     int area() const { return this->width() * this->height(); }
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
 
     void setEmpty() { memset(this, 0, sizeof(*this)); }
+
+    void set(int16_t left, int16_t top, int16_t right, int16_t bottom) {
+        fLeft = left;
+        fTop = top;
+        fRight = right;
+        fBottom = bottom;
+    }
 
     void set(const SkIRect& r) {
         fLeft   = SkToS16(r.fLeft);

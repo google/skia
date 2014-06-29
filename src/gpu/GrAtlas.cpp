@@ -54,8 +54,7 @@ static inline void adjust_for_offset(SkIPoint16* loc, const SkIPoint16& offset) 
     loc->fY += offset.fY;
 }
 
-bool GrPlot::addSubImage(int width, int height, const void* image,
-                         SkIPoint16* loc) {
+bool GrPlot::addSubImage(int width, int height, const void* image, SkIPoint16* loc) {
     float percentFull = fRects->percentFull();
     if (!fRects->addRect(width, height, loc)) {
         return false;
@@ -88,7 +87,7 @@ bool GrPlot::addSubImage(int width, int height, const void* image,
         adjust_for_offset(loc, fOffset);
         fDirty = true;
     // otherwise, just upload the image directly
-    } else {
+    } else if (NULL != image) {
         adjust_for_offset(loc, fOffset);
         GrContext* context = fTexture->getContext();
         TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrPlot::uploadToTexture");
@@ -96,6 +95,8 @@ bool GrPlot::addSubImage(int width, int height, const void* image,
                                     loc->fX, loc->fY, width, height,
                                     fTexture->config(), image, 0,
                                     GrContext::kDontFlush_PixelOpsFlag);
+    } else {
+        adjust_for_offset(loc, fOffset);
     }
 
 #if FONT_CACHE_STATS
@@ -146,11 +147,12 @@ void GrPlot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrAtlas::GrAtlas(GrGpu* gpu, GrPixelConfig config,
+GrAtlas::GrAtlas(GrGpu* gpu, GrPixelConfig config, GrTextureFlags flags,
                  const SkISize& backingTextureSize,
                  int numPlotsX, int numPlotsY, bool batchUploads) {
     fGpu = SkRef(gpu);
     fPixelConfig = config;
+    fFlags = flags;
     fBackingTextureSize = backingTextureSize;
     fNumPlotsX = numPlotsX;
     fNumPlotsY = numPlotsY;
@@ -221,7 +223,7 @@ GrPlot* GrAtlas::addToAtlas(ClientPlotUsage* usage,
     if (NULL == fTexture) {
         // TODO: Update this to use the cache rather than directly creating a texture.
         GrTextureDesc desc;
-        desc.fFlags = kDynamicUpdate_GrTextureFlagBit;
+        desc.fFlags = fFlags | kDynamicUpdate_GrTextureFlagBit;
         desc.fWidth = fBackingTextureSize.width();
         desc.fHeight = fBackingTextureSize.height();
         desc.fConfig = fPixelConfig;

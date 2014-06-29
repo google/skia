@@ -205,6 +205,12 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* w
         SkDebugf("Failed to render %s\n", inputFilename.c_str());
     }
 
+    if (FLAGS_preprocess) {
+        if (NULL != renderer.getCanvas()) {
+            renderer.getCanvas()->EXPERIMENTAL_purge(renderer.getPicture());
+        }
+    }
+
     renderer.end();
 
     SkDELETE(picture);
