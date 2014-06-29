@@ -119,7 +119,6 @@
       'utils/SkCamera.h',
       'utils/SkLua.h',
       'utils/SkParsePaint.h',
-      'utils/SkCountdown.h',
       'utils/SkRunnable.h',
       'utils/SkParse.h',
       'utils/SkThreadPool.h',
