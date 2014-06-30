@@ -748,8 +748,9 @@ SkNEONProcCoeffXfermode::SkNEONProcCoeffXfermode(SkReadBuffer& buffer)
     fProcSIMD = reinterpret_cast<void*>(gNEONXfermodeProcs[this->getMode()]);
 }
 
-void SkNEONProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
-                                     int count, const SkAlpha aa[]) const {
+void SkNEONProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
+                                     const SkPMColor* SK_RESTRICT src, int count,
+                                     const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     SkXfermodeProc proc = this->getProc();
@@ -758,13 +759,16 @@ void SkNEONProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
 
     if (NULL == aa) {
         // Unrolled NEON code
+        // We'd like to just do this (modulo a few casts):
+        // vst4_u8(dst, procSIMD(vld4_u8(src), vld4_u8(dst)));
+        // src += 8;
+        // dst += 8;
+        // but that tends to generate miserable code. Here are a bunch of faster
+        // workarounds for different architectures and compilers.
         while (count >= 8) {
-            uint8x8x4_t vsrc, vdst, vres;
 
-#ifdef SK_CPU_ARM64
-            vsrc = vld4_u8((uint8_t*)src);
-            vdst = vld4_u8((uint8_t*)dst);
-#else
+#ifdef SK_CPU_ARM32
+            uint8x8x4_t vsrc, vdst, vres;
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6))
             asm volatile (
                 "vld4.u8    %h[vsrc], [%[src]]!  \t\n"
@@ -797,17 +801,36 @@ void SkNEONProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
             vsrc.val[2] = d2; vdst.val[2] = d6;
             vsrc.val[3] = d3; vdst.val[3] = d7;
 #endif
-#endif // #ifdef SK_CPU_ARM64
 
             vres = procSIMD(vsrc, vdst);
 
             vst4_u8((uint8_t*)dst, vres);
 
-            count -= 8;
             dst += 8;
-#ifdef SK_CPU_ARM64
-            src += 8;
-#endif
+
+#else // #ifdef SK_CPU_ARM32
+
+            asm volatile (
+                "ld4    {v0.8b - v3.8b}, [%[src]], #32 \t\n"
+                "ld4    {v4.8b - v7.8b}, [%[dst]]      \t\n"
+                "blr    %[proc]                        \t\n"
+                "st4    {v0.8b - v3.8b}, [%[dst]], #32 \t\n"
+                : [src] "+&r" (src), [dst] "+&r" (dst)
+                : [proc] "r" (procSIMD)
+                : "cc", "memory",
+                  /* We don't know what proc is going to clobber so we must
+                   * add everything that is not callee-saved.
+                   */
+                  "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9",
+                  "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18",
+                  "v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v16", "v17",
+                  "v18", "v19", "v20", "v21", "v22", "v23", "v24", "v25", "v26",
+                  "v27", "v28", "v29", "v30", "v31"
+            );
+
+#endif // #ifdef SK_CPU_ARM32
+
+            count -= 8;
         }
         // Leftovers
         for (int i = 0; i < count; i++) {
