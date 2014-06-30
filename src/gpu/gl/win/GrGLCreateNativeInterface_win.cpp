@@ -82,7 +82,11 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         return NULL;
     }
 
-    const char* verStr = reinterpret_cast<const char*>(glGetString(GR_GL_VERSION));
+    GrGLGetStringProc getString = (GrGLGetStringProc)getter.getProc("glGetString");
+    if (NULL == getString) {
+        return NULL;
+    }
+    const char* verStr = reinterpret_cast<const char*>(getString(GR_GL_VERSION));
     GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
 
     if (kGLES_GrGLStandard == standard) {
