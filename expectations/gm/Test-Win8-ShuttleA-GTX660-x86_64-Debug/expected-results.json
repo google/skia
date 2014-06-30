@@ -17707,22 +17707,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2564656089209715121
+          17096263395741508590
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "srcmode_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3720605705123675736
+          17270187377959589435
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "srcmode_pdf-poppler.png": {
       "allowed-digests": [

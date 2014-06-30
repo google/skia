@@ -11821,19 +11821,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12686420221117081803
+          116975940199149975
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "srcmode_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12681809384054758075
+          11489252242825644312
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stringart_565.png": {
       "allowed-digests": [
