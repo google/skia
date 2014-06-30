@@ -67,6 +67,10 @@ static inline bool SkAlphaTypeIsValid(unsigned value) {
 
 /**
  *  Describes how to interpret the components of a pixel.
+ *
+ *  kN32_SkColorType is an alias for whichever 32bit ARGB format is the "native"
+ *  form for skia's blitters. Use this if you don't have a swizzle preference
+ *  for 32bit pixels.
  */
 enum SkColorType {
     kUnknown_SkColorType,
