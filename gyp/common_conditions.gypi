@@ -474,9 +474,16 @@
             ],
           }],
           [ 'skia_clang_build', {
+            'cflags_cc': [
+                # Build in C++11 mode to make sure we'll have an easy time switching.
+                '-std=c++11',
+                '-Wno-unknown-warning-option',  # Allows unknown warnings.
+                '-Wno-deprecated',              # From Qt, via debugger (older Clang).
+                '-Wno-deprecated-register',     # From Qt, via debugger (newer Clang).
+            ],
             'cflags': [
-              # Extra warnings we like but that only Clang knows about.
-              '-Wstring-conversion',
+                # Extra warnings we like but that only Clang knows about.
+                '-Wstring-conversion',
             ],
             'cflags!': [
                 '-mfpmath=sse',  # Clang doesn't need to be told this, and sometimes gets confused.

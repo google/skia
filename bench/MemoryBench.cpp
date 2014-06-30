@@ -87,7 +87,7 @@ public:
         } else if (write) {
             fName.appendf("_w");
         }
-        fName.appendf("_"SK_SIZE_T_SPECIFIER, num);
+        fName.appendf("_" SK_SIZE_T_SPECIFIER, num);
     }
 
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {

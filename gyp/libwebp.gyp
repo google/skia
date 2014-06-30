@@ -4,6 +4,7 @@
 
 {
   'variables': {
+    'skia_warnings_as_errors': 0,
     'conditions':[
       ['skia_android_framework == 1', {
         'use_system_libwebp': 1,
@@ -159,6 +160,9 @@
             'include_dirs': [
               '../third_party/externals/libwebp/src',
             ],
+            'cflags': [
+              '-Wno-unused-function',  # In C++11 mode, we get this warning when including decode.h.
+            ]
           },
           'conditions': [
             ['OS!="win"', {'product_name': 'webp'}],
