@@ -71,6 +71,7 @@ size_t GrTexture::gpuMemorySize() const {
         switch(fDesc.fConfig) {
             case kETC1_GrPixelConfig:
             case kLATC_GrPixelConfig:
+            case kR11_EAC_GrPixelConfig:
                 SkASSERT((fDesc.fWidth & 3) == 0);
                 SkASSERT((fDesc.fHeight & 3) == 0);
                 textureSize = (fDesc.fWidth >> 2) * (fDesc.fHeight >> 2) * 8;

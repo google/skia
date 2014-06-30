@@ -2694,6 +2694,9 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
                     break;
             }
             break;
+        case kR11_EAC_GrPixelConfig:
+            *internalFormat = GR_GL_COMPRESSED_R11;
+            break;
         default:
             return false;
     }

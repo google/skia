@@ -283,7 +283,13 @@ enum GrPixelConfig {
      */
     kLATC_GrPixelConfig,
 
-    kLast_GrPixelConfig = kLATC_GrPixelConfig
+    /**
+     * R11 EAC Compressed Data
+     * (Corresponds to section C.3.5 of the OpenGL 4.4 core profile spec)
+     */
+    kR11_EAC_GrPixelConfig,
+
+    kLast_GrPixelConfig = kR11_EAC_GrPixelConfig
 };
 static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 
@@ -305,6 +311,7 @@ static inline bool GrPixelConfigIsCompressed(GrPixelConfig config) {
     switch (config) {
         case kETC1_GrPixelConfig:
         case kLATC_GrPixelConfig:
+        case kR11_EAC_GrPixelConfig:
             return true;
         default:
             return false;
@@ -363,6 +370,7 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
 
 static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
     switch (config) {
+        case kR11_EAC_GrPixelConfig:
         case kLATC_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
             return true;
@@ -642,6 +650,7 @@ static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
     SkASSERT(GrPixelConfigIsCompressed(config));
 
     switch (config) {
+        case kR11_EAC_GrPixelConfig:
         case kLATC_GrPixelConfig:
         case kETC1_GrPixelConfig:
             SkASSERT((width & 3) == 0);
