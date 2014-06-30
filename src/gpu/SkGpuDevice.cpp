@@ -1825,7 +1825,7 @@ static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* re
 }
 
 void SkGpuDevice::EXPERIMENTAL_purge(const SkPicture* picture) {
-    fContext->getLayerCache()->purge(picture);
+
 }
 
 bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture) {
@@ -1951,68 +1951,28 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
             // TODO: need to deal with sample count
 
             bool needsRendering = !fContext->getLayerCache()->lock(layer, desc);
-            if (NULL == layer->texture()) {
+            if (NULL == layer->getTexture()) {
                 continue;
             }
 
             layerInfo->fBM = SkNEW(SkBitmap);  // fBM is allocated so ReplacementInfo can be POD
-            wrap_texture(layer->texture(), 
-                         layer->rect().isEmpty() ? desc.fWidth : layer->texture()->width(),
-                         layer->rect().isEmpty() ? desc.fHeight : layer->texture()->height(),
-                         layerInfo->fBM);
+            wrap_texture(layer->getTexture(), desc.fWidth, desc.fHeight, layerInfo->fBM);
 
             SkASSERT(info.fPaint);
             layerInfo->fPaint = info.fPaint;
 
-            if (layer->rect().isEmpty()) {
-                layerInfo->fSrcRect = SkIRect::MakeWH(desc.fWidth, desc.fHeight);
-            } else {
-                layerInfo->fSrcRect = SkIRect::MakeXYWH(layer->rect().fLeft,
-                                                        layer->rect().fTop,
-                                                        layer->rect().width(),
-                                                        layer->rect().height());
-            }
-
             if (needsRendering) {
                 SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
-                                                    layer->texture()->asRenderTarget(),
-                                                    SkSurface::kStandard_TextRenderMode,
-                                                    SkSurface::kDontClear_RenderTargetFlag));
+                                                    layer->getTexture()->asRenderTarget()));
 
                 SkCanvas* canvas = surface->getCanvas();
 
-                if (!layer->rect().isEmpty()) {
-                    // Add a rect clip to make sure the rendering doesn't
-                    // extend beyond the boundaries of the atlased sub-rect
-                    SkRect bound = SkRect::MakeXYWH(SkIntToScalar(layer->rect().fLeft),
-                                                    SkIntToScalar(layer->rect().fTop),
-                                                    SkIntToScalar(layer->rect().width()),
-                                                    SkIntToScalar(layer->rect().height()));
-                    canvas->clipRect(bound);
-                    // Since 'clear' doesn't respect the clip we need to draw a rect
-                    // TODO: ensure none of the atlased layers contain a clear call!
-                    SkPaint paint;
-                    paint.setColor(SK_ColorTRANSPARENT);
-                    canvas->drawRect(bound, paint);
-                } else {
-                    canvas->clear(SK_ColorTRANSPARENT);
-                }
-
                 canvas->setMatrix(info.fCTM);
-
-                if (!layer->rect().isEmpty()) {
-                    // info.fCTM maps the layer's top/left to the origin.
-                    // Since this layer is atlased the top/left corner needs
-                    // to be offset to some arbitrary location in the backing 
-                    // texture.
-                    canvas->translate(SkIntToScalar(layer->rect().fLeft),
-                                      SkIntToScalar(layer->rect().fTop));
-                } 
+                canvas->clear(SK_ColorTRANSPARENT);
 
                 picture->fPlayback->setDrawLimits(info.fSaveLayerOpID, info.fRestoreOpID);
                 picture->fPlayback->draw(*canvas, NULL);
                 picture->fPlayback->setDrawLimits(0, 0);
-
                 canvas->flush();
             }
         }

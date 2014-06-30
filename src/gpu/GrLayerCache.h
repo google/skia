@@ -8,8 +8,6 @@
 #ifndef GrLayerCache_DEFINED
 #define GrLayerCache_DEFINED
 
-#define USE_ATLAS 0
-
 #include "GrAllocPool.h"
 #include "GrAtlas.h"
 #include "GrTHashTable.h"
@@ -19,38 +17,61 @@
 class GrGpu;
 class SkPicture;
 
+// GrAtlasLocation captures an atlased item's position in the atlas. This
+// means the plot in which it resides and its bounds inside the plot.
+// TODO: Make GrGlyph use one of these?
+class GrAtlasLocation {
+public:
+    GrAtlasLocation() : fPlot(NULL) {}
+
+    void set(GrPlot* plot, const GrIRect16& bounds) {
+        fPlot = plot;
+        fBounds = bounds;
+    }
+
+    const GrPlot* plot() const {
+        return fPlot;
+    }
+
+    const GrIRect16& bounds() const {
+        return fBounds;
+    }
+
+private:
+    GrPlot*   fPlot;
+    GrIRect16 fBounds;  // only valid is fPlot != NULL
+};
+
 // GrCachedLayer encapsulates the caching information for a single saveLayer.
 //
-// Atlased layers get a ref to their atlas GrTexture and 'fRect' contains
-// their absolute location in the backing texture.
+// Atlased layers get a ref to their atlas GrTexture and their GrAtlasLocation
+// is filled in.
+// In this case GrCachedLayer is roughly equivalent to a GrGlyph in the font
+// caching system.
 //
-// Non-atlased layers get a ref to the GrTexture in which they reside. Their
-// 'fRect' will be empty.
-//
+// Non-atlased layers get a ref to the GrTexture in which they reside.
 // TODO: can we easily reuse the empty space in the non-atlased GrTexture's?
 struct GrCachedLayer {
 public:
-    GrCachedLayer(uint32_t pictureID, int layerID) {
-        fPictureID = pictureID;
-        fLayerID = layerID;
-        fTexture = NULL;
-        fRect = GrIRect16::MakeEmpty();
-    }
-
     uint32_t pictureID() const { return fPictureID; }
     int layerID() const { return fLayerID; }
 
+    void init(uint32_t pictureID, int layerID) {
+        fPictureID = pictureID;
+        fLayerID   = layerID;
+        fTexture   = NULL;
+        fLocation.set(NULL, GrIRect16::MakeEmpty());
+    }
+
     // This call takes over the caller's ref
-    void setTexture(GrTexture* texture, const GrIRect16& rect) {
+    void setTexture(GrTexture* texture) {
         if (NULL != fTexture) {
             fTexture->unref();
         }
 
         fTexture = texture; // just take over caller's ref
-        fRect = rect;
     }
-    GrTexture* texture() { return fTexture; }
-    const GrIRect16& rect() const { return fRect; }
+    GrTexture* getTexture() { return fTexture; }
 
 private:
     uint32_t        fPictureID;
@@ -63,9 +84,7 @@ private:
     // non-NULL, that means that the texture is locked in the texture cache.
     GrTexture*      fTexture;
 
-    // For non-atlased layers 'fRect' is empty otherwise it is the bound of
-    // the layer in the atlas.
-    GrIRect16       fRect;
+    GrAtlasLocation fLocation;       // only valid if the layer is atlased
 };
 
 // The GrLayerCache caches pre-computed saveLayers for later rendering.
@@ -96,9 +115,6 @@ public:
     // Inform the cache that layer's cached image is not currently required
     void unlock(GrCachedLayer* layer);
 
-    // Remove all the layers (and unlock any resources) associated with 'picture'
-    void purge(const SkPicture* picture);
-
 private:
     GrContext*                fContext;  // pointer back to owning context
     SkAutoTDelete<GrAtlas>    fAtlas;    // TODO: could lazily allocate
@@ -106,13 +122,10 @@ private:
 
     class PictureLayerKey;
     GrTHashTable<GrCachedLayer, PictureLayerKey, 7> fLayerHash;
+    GrTAllocPool<GrCachedLayer> fLayerPool;
 
-    void initAtlas();
+    void init();
     GrCachedLayer* createLayer(const SkPicture* picture, int layerID);
-
-    // for testing
-    friend class GetNumLayers;
-    int numLayers() const { return fLayerHash.count(); }
 };
 
 #endif

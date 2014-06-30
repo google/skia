@@ -929,11 +929,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 SkASSERT(NULL != temp->fPaint);
                 canvas.save();
                 canvas.setMatrix(initialMatrix);
-                SkRect src = SkRect::Make(temp->fSrcRect);
-                SkRect dst = SkRect::MakeXYWH(temp->fPos.fX, temp->fPos.fY,
-                                              temp->fSrcRect.width(),
-                                              temp->fSrcRect.height());
-                canvas.drawBitmapRectToRect(*temp->fBM, &src, dst, temp->fPaint);
+                canvas.drawBitmap(*temp->fBM, temp->fPos.fX, temp->fPos.fY, temp->fPaint);
                 canvas.restore();
 
                 if (it.isValid()) {

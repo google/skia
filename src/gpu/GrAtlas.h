@@ -81,17 +81,13 @@ public:
         friend class GrAtlas;
     };
 
-    GrAtlas(GrGpu*, GrPixelConfig, GrTextureFlags flags, 
-            const SkISize& backingTextureSize,
+    GrAtlas(GrGpu*, GrPixelConfig, const SkISize& backingTextureSize,
             int numPlotsX, int numPlotsY, bool batchUploads);
     ~GrAtlas();
 
-    // Adds a width x height subimage to the atlas. Upon success it returns 
-    // the containing GrPlot and absolute location in the backing texture. 
-    // NULL is returned if the subimage cannot fit in the atlas.
-    // If provided, the image data will either be immediately uploaded or
-    // written to the CPU-side backing bitmap.
-    GrPlot* addToAtlas(ClientPlotUsage*, int width, int height, const void* image, SkIPoint16* loc);
+    // add subimage of width, height dimensions to atlas
+    // returns the containing GrPlot and location relative to the backing texture
+    GrPlot* addToAtlas(ClientPlotUsage*, int width, int height, const void*, SkIPoint16*);
 
     // remove reference to this plot
     void removePlot(ClientPlotUsage* usage, const GrPlot* plot);
@@ -109,14 +105,13 @@ public:
 private:
     void makeMRU(GrPlot* plot);
 
-    GrGpu*         fGpu;
-    GrPixelConfig  fPixelConfig;
-    GrTextureFlags fFlags;
-    GrTexture*     fTexture;
-    SkISize        fBackingTextureSize;
-    int            fNumPlotsX;
-    int            fNumPlotsY;
-    bool           fBatchUploads;
+    GrGpu*        fGpu;
+    GrPixelConfig fPixelConfig;
+    GrTexture*    fTexture;
+    SkISize       fBackingTextureSize;
+    int           fNumPlotsX;
+    int           fNumPlotsY;
+    bool          fBatchUploads;
 
     // allocated array of GrPlots
     GrPlot*       fPlotArray;

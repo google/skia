@@ -87,7 +87,6 @@
     '../tests/GifTest.cpp',
     '../tests/GpuColorFilterTest.cpp',
     '../tests/GpuDrawPathTest.cpp',
-    '../tests/GpuLayerCacheTest.cpp',
     '../tests/GpuRectanizerTest.cpp',
     '../tests/GrBinHashKeyTest.cpp',
     '../tests/GrContextFactoryTest.cpp',
