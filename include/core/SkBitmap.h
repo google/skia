@@ -904,8 +904,8 @@ inline SkPMColor SkBitmap::getIndex8Color(int x, int y) const {
 //
 // Helpers until we can fully deprecate SkBitmap::Config
 //
-extern SkBitmap::Config SkColorTypeToBitmapConfig(SkColorType);
-extern SkColorType SkBitmapConfigToColorType(SkBitmap::Config);
+SK_API SkBitmap::Config SkColorTypeToBitmapConfig(SkColorType);
+SK_API SkColorType SkBitmapConfigToColorType(SkBitmap::Config);
 #endif
 
 #endif
