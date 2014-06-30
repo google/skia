@@ -82,7 +82,7 @@ GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
     if (NULL == fAtlases[atlasIndex]) {
         SkISize textureSize = SkISize::Make(GR_ATLAS_TEXTURE_WIDTH,
                                             GR_ATLAS_TEXTURE_HEIGHT);
-        fAtlases[atlasIndex] = SkNEW_ARGS(GrAtlas, (fGpu, config,
+        fAtlases[atlasIndex] = SkNEW_ARGS(GrAtlas, (fGpu, config, kNone_GrTextureFlags,
                                                     textureSize,
                                                     GR_NUM_PLOTS_X,
                                                     GR_NUM_PLOTS_Y,
