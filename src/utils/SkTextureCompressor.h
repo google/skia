@@ -16,10 +16,11 @@ class SkData;
 namespace SkTextureCompressor {
     // Various texture compression formats that we support.
     enum Format {
-        // Alpha only format.
+        // Alpha only formats.
         kLATC_Format,
+        kR11_EAC_Format,
 
-        kLast_Format = kLATC_Format
+        kLast_Format = kR11_EAC_Format
     };
     static const int kFormatCnt = kLast_Format + 1;
 
