@@ -124,13 +124,9 @@ private:
     SkMutex mutex_;
 };
 
-SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface(SkBaseMutex* mutex) {
-    SkAutoMutexAcquire ac(mutex);
-    static SkFontConfigInterfaceDirect* singleton = NULL;
-    if (singleton == NULL) {
-        singleton = SkNEW(SkFontConfigInterfaceDirect);
-    }
-    return singleton;
+SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
+    SK_DECLARE_STATIC_LAZY_PTR(SkFontConfigInterfaceDirect, direct);
+    return direct.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
