@@ -5,11 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkBitmapSource.h"
 #include "SkCanvas.h"
 #include "SkMallocPixelRef.h"
+#include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkTemplates.h"
+#include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 #include "SkValidatingReadBuffer.h"
 #include "SkXfermodeImageFilter.h"
@@ -258,6 +261,77 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
     }
 }
 
+static SkBitmap draw_picture(SkPicture& picture) {
+     SkBitmap bitmap;
+     bitmap.allocN32Pixels(picture.width(), picture.height());
+     SkCanvas canvas(bitmap);
+     picture.draw(&canvas);
+     return bitmap;
+}
+
+static void compare_bitmaps(skiatest::Reporter* reporter,
+                            const SkBitmap& b1, const SkBitmap& b2) {
+    REPORTER_ASSERT(reporter, b1.width() == b2.width());
+    REPORTER_ASSERT(reporter, b1.height() == b2.height());
+    SkAutoLockPixels autoLockPixels1(b1);
+    SkAutoLockPixels autoLockPixels2(b2);
+
+    if ((b1.width() != b2.width()) ||
+        (b1.height() != b2.height())) {
+        return;
+    }
+
+    int pixelErrors = 0;
+    for (int y = 0; y < b2.height(); ++y) {
+        for (int x = 0; x < b2.width(); ++x) {
+            if (b1.getColor(x, y) != b2.getColor(x, y))
+                ++pixelErrors;
+        }
+    }
+    REPORTER_ASSERT(reporter, 0 == pixelErrors);
+}
+
+static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
+    // Load typeface form file.
+    // This test cannot run if there is no resource path.
+    SkString resourcePath = GetResourcePath();
+    if (resourcePath.isEmpty()) {
+        SkDebugf("Could not run fontstream test because resourcePath not specified.");
+        return;
+    }
+    SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "test.ttc");
+    SkTypeface* typeface = SkTypeface::CreateFromFile(filename.c_str());
+    if (!typeface) {
+        SkDebugf("Could not run fontstream test because test.ttc not found.");
+        return;
+    }
+
+    // Create a paint with the typeface we loaded.
+    SkPaint paint;
+    paint.setColor(SK_ColorGRAY);
+    paint.setTextSize(SkIntToScalar(30));
+    SkSafeUnref(paint.setTypeface(typeface));
+
+    // Paint some text.
+    SkPictureRecorder recorder;
+    SkIRect canvasRect = SkIRect::MakeWH(kBitmapSize, kBitmapSize);
+    SkCanvas* canvas = recorder.beginRecording(canvasRect.width(), canvasRect.height(), NULL, 0);
+    canvas->drawColor(SK_ColorWHITE);
+    canvas->drawText("A", 1, 24, 32, paint);
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+
+    // Serlialize picture and create its clone from stream.
+    SkDynamicMemoryWStream stream;
+    picture->serialize(&stream);
+    SkAutoTUnref<SkStream> inputStream(stream.detachAsStream());
+    SkAutoTUnref<SkPicture> loadedPicture(SkPicture::CreateFromStream(inputStream.get()));
+
+    // Draw both original and clone picture and compare bitmaps -- they should be identical.
+    SkBitmap origBitmap = draw_picture(*picture);
+    SkBitmap destBitmap = draw_picture(*loadedPicture);
+    compare_bitmaps(reporter, origBitmap, destBitmap);
+}
+
 static bool setup_bitmap_for_canvas(SkBitmap* bitmap) {
     SkImageInfo info = SkImageInfo::Make(
         kBitmapSize, kBitmapSize, kN32_SkColorType, kPremul_SkAlphaType);
@@ -321,7 +395,7 @@ DEF_TEST(Serialization, reporter) {
     {
         SkMatrix matrix = SkMatrix::I();
         TestObjectSerialization(&matrix, reporter);
-     }
+    }
 
     // Test path serialization
     {
@@ -421,4 +495,6 @@ DEF_TEST(Serialization, reporter) {
             SkPicture::CreateFromBuffer(reader));
         REPORTER_ASSERT(reporter, NULL != readPict.get());
     }
+
+    TestPictureTypefaceSerialization(reporter);
 }

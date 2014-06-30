@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkFontDescriptor.h"
 #include "SkFontHost.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
@@ -98,6 +99,12 @@ DEF_TEST(FontHostStream, reporter) {
         int ttcIndex;
         SkAutoTUnref<SkStream> fontData(origTypeface->openStream(&ttcIndex));
         SkTypeface* streamTypeface = SkTypeface::CreateFromStream(fontData);
+
+        SkFontDescriptor desc;
+        bool isLocalStream = false;
+        streamTypeface->getFontDescriptor(&desc, &isLocalStream);
+        REPORTER_ASSERT(reporter, isLocalStream);
+
         SkSafeUnref(paint.setTypeface(streamTypeface));
         drawBG(&streamCanvas);
         streamCanvas.drawPosText("A", 1, &point, paint);

@@ -426,21 +426,23 @@ static SkTypeface::Style fontstyle2stylebits(const SkFontStyle& fs) {
 class SkTypeface_Mac : public SkTypeface {
 public:
     SkTypeface_Mac(SkTypeface::Style style, SkFontID fontID, bool isFixedPitch,
-                   CTFontRef fontRef, const char name[])
+                   CTFontRef fontRef, const char name[], bool isLocalStream)
         : SkTypeface(style, fontID, isFixedPitch)
         , fName(name)
         , fFontRef(fontRef) // caller has already called CFRetain for us
         , fFontStyle(stylebits2fontstyle(style))
+        , fIsLocalStream(isLocalStream)
     {
         SkASSERT(fontRef);
     }
 
     SkTypeface_Mac(const SkFontStyle& fs, SkFontID fontID, bool isFixedPitch,
-                   CTFontRef fontRef, const char name[])
+                   CTFontRef fontRef, const char name[], bool isLocalStream)
         : SkTypeface(fontstyle2stylebits(fs), fontID, isFixedPitch)
         , fName(name)
         , fFontRef(fontRef) // caller has already called CFRetain for us
         , fFontStyle(fs)
+        , fIsLocalStream(isLocalStream)
     {
         SkASSERT(fontRef);
     }
@@ -469,17 +471,18 @@ protected:
     virtual int onCountGlyphs() const SK_OVERRIDE;
 
 private:
+    bool fIsLocalStream;
 
     typedef SkTypeface INHERITED;
 };
 
-static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[]) {
+static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[], bool isLocalStream) {
     SkASSERT(fontRef);
     bool isFixedPitch;
     SkTypeface::Style style = computeStyleBits(fontRef, &isFixedPitch);
     SkFontID fontID = CTFontRef_to_SkFontID(fontRef);
 
-    return new SkTypeface_Mac(style, fontID, isFixedPitch, fontRef, name);
+    return new SkTypeface_Mac(style, fontID, isFixedPitch, fontRef, name, isLocalStream);
 }
 
 static SkTypeface* NewFromName(const char familyName[], SkTypeface::Style theStyle) {
@@ -524,7 +527,7 @@ static SkTypeface* NewFromName(const char familyName[], SkTypeface::Style theSty
         }
     }
 
-    return ctFont ? NewFromFontRef(ctFont, familyName) : NULL;
+    return ctFont ? NewFromFontRef(ctFont, familyName, false) : NULL;
 }
 
 static SkTypeface* GetDefaultFace() {
@@ -557,7 +560,7 @@ SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef) {
     if (face) {
         face->ref();
     } else {
-        face = NewFromFontRef(fontRef, NULL);
+        face = NewFromFontRef(fontRef, NULL, false);
         SkTypefaceCache::Add(face, face->style());
         // NewFromFontRef doesn't retain the parameter, but the typeface it
         // creates does release it in its destructor, so we balance that with
@@ -1438,7 +1441,7 @@ static SkTypeface* create_from_dataProvider(CGDataProviderRef provider) {
         return NULL;
     }
     CTFontRef ct = CTFontCreateWithGraphicsFont(cg, 0, NULL, NULL);
-    return cg ? SkCreateTypefaceFromCTFont(ct) : NULL;
+    return ct ? NewFromFontRef(ct, NULL, true) : NULL;
 }
 
 // Web fonts added to the the CTFont registry do not return their character set.
@@ -1908,8 +1911,7 @@ void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc,
     desc->setFamilyName(get_str(CTFontCopyFamilyName(fFontRef), &tmpStr));
     desc->setFullName(get_str(CTFontCopyFullName(fFontRef), &tmpStr));
     desc->setPostscriptName(get_str(CTFontCopyPostScriptName(fFontRef), &tmpStr));
-    // TODO: need to add support for local-streams (here and openStream)
-    *isLocalStream = false;
+    *isLocalStream = fIsLocalStream;
 }
 
 int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
@@ -2128,7 +2130,7 @@ static SkTypeface* createFromDesc(CFStringRef cfFamilyName,
     SkFontID fontID = CTFontRef_to_SkFontID(ctFont);
 
     face = SkNEW_ARGS(SkTypeface_Mac, (rec.fFontStyle, fontID, isFixedPitch,
-                                       ctFont, str.c_str()));
+                                       ctFont, str.c_str(), false));
     SkTypefaceCache::Add(face, face->style());
     return face;
 }
