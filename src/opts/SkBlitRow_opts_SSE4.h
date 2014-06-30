@@ -18,9 +18,7 @@ extern "C" void S32A_Opaque_BlitRow32_SSE4_asm(SkPMColor* SK_RESTRICT dst,
                                                const SkPMColor* SK_RESTRICT src,
                                                int count, U8CPU alpha);
 
-// Temporarily disabled.  Chrome canary bot fails to link chrome with error:
-//   lib/libskia.so: error: undefined reference to 'S32A_Opaque_BlitRow32_SSE4_asm'
-//#define SK_ATT_ASM_SUPPORTED
+#define SK_ATT_ASM_SUPPORTED
 #endif
 
 #endif
