@@ -51,7 +51,7 @@ void SkNativeGLContext::destroyGLContext() {
     }
 }
 
-const GrGLInterface* SkNativeGLContext::createGLContext() {
+const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     static const EGLint kEGLContextAttribsForOpenGL[] = {
         EGL_NONE
     };
@@ -81,9 +81,18 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
         },
     };
 
+    size_t apiLimit = SK_ARRAY_COUNT(kAPIs);
+    size_t api = 0;
+    if (forcedGpuAPI == kGL_GrGLStandard) {
+        apiLimit = 1;
+    } else if (forcedGpuAPI == kGLES_GrGLStandard) {
+        api = 1;
+    }
+    SkASSERT(forcedGpuAPI == kNone_GrGLStandard || kAPIs[api].fStandard == forcedGpuAPI);
+
     const GrGLInterface* interface = NULL;
 
-    for (size_t api = 0; NULL == interface && api < SK_ARRAY_COUNT(kAPIs); ++api) {
+    for (size_t i = 0; NULL == interface && i < apiLimit; ++api) {
         fDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
         EGLint majorVersion;

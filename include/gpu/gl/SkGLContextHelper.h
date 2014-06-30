@@ -25,7 +25,7 @@ public:
     /**
      * Initializes the context and makes it current.
      */
-    bool init(const int width, const int height);
+    bool init(GrGLStandard forcedGpuAPI, const int width, const int height);
 
     int getFBOID() const { return fFBO; }
 
@@ -57,7 +57,7 @@ protected:
      * format and size of backbuffers does not matter since an FBO will be
      * created.
      */
-    virtual const GrGLInterface* createGLContext() = 0;
+    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) = 0;
 
     /**
      * Subclass should destroy the underlying GL context.

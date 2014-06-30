@@ -20,7 +20,7 @@ public:
     virtual void swapBuffers() const SK_OVERRIDE {};
 
 protected:
-    virtual const GrGLInterface* createGLContext() SK_OVERRIDE;
+    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
 
     virtual void destroyGLContext() SK_OVERRIDE {};
 };

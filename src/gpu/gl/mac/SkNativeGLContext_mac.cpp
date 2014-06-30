@@ -32,8 +32,11 @@ void SkNativeGLContext::destroyGLContext() {
     }
 }
 
-const GrGLInterface* SkNativeGLContext::createGLContext() {
+const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     SkASSERT(NULL == fContext);
+    if (kGLES_GrGLStandard == forcedGpuAPI) {
+        return NULL;
+    }
 
     CGLPixelFormatAttribute attributes[] = {
 #if MAC_OS_X_VERSION_10_7

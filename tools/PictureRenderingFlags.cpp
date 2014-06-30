@@ -26,6 +26,8 @@ DEFINE_string(bbh, "none", "bbhType [width height]: Set the bounding box hierarc
 
 
 #if SK_SUPPORT_GPU
+static const char kGpuAPINameGL[] = "gl";
+static const char kGpuAPINameGLES[] = "gles";
 #define GPU_CONFIG_STRING "|gpu|msaa4|msaa16|nvprmsaa4|nvprmsaa16"
 #else
 #define GPU_CONFIG_STRING ""
@@ -72,6 +74,12 @@ DEFINE_double(scale, 1, "Set the scale factor.");
 DEFINE_string(tiles, "", "Used with --mode copyTile to specify number of tiles per larger tile "
               "in the x and y directions.");
 DEFINE_string(viewport, "", "width height: Set the viewport.");
+#if SK_SUPPORT_GPU
+DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
+              "forces OpenGL API. Using \"gles\" forces OpenGL ES API. "
+              "Defaults to empty string, which selects the API native to the "
+              "system.");
+#endif
 
 sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
     error.reset();
@@ -244,6 +252,21 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
     sk_tools::PictureRenderer::SkDeviceTypes deviceType =
         sk_tools::PictureRenderer::kBitmap_DeviceType;
 #if SK_SUPPORT_GPU
+    GrGLStandard gpuAPI = kNone_GrGLStandard;
+    if (1 == FLAGS_gpuAPI.count()) {
+        if (FLAGS_gpuAPI.contains(kGpuAPINameGL)) {
+            gpuAPI = kGL_GrGLStandard;
+        } else if (FLAGS_gpuAPI.contains(kGpuAPINameGLES)) {
+            gpuAPI = kGLES_GrGLStandard;
+        } else {
+            error.printf("--gpuAPI invalid api value.\n");
+            return NULL;
+        }
+    } else if (FLAGS_gpuAPI.count() > 1) {
+        error.printf("--gpuAPI invalid api value.\n");
+        return NULL;
+    }
+
     int sampleCount = 0;
 #endif
     if (FLAGS_config.count() > 0) {
@@ -285,7 +308,14 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
             error.printf("%s is not a valid mode for --config\n", FLAGS_config[0]);
             return NULL;
         }
-        renderer->setDeviceType(deviceType);
+#if SK_SUPPORT_GPU
+        if (!renderer->setDeviceType(deviceType, gpuAPI)) {
+#else
+        if (!renderer->setDeviceType(deviceType)) {
+#endif
+            error.printf("Could not create backend for --config %s\n", FLAGS_config[0]);
+            return NULL;
+        }
 #if SK_SUPPORT_GPU
         renderer->setSampleCount(sampleCount);
 #endif
