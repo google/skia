@@ -11,6 +11,10 @@ while (( "$#" )); do
   if [[ "$1" == "-d" ]]; then
     DEVICE_ID=$2
     shift
+  elif [[ "$1" == "-i" || "$1" == "--resourcePath" ]]; then
+    RESOURCE_PATH=$2
+    APP_ARGS=("${APP_ARGS[@]}" "${1}" "${2}")
+    shift
   elif [[ "$1" == "-s" ]]; then
     DEVICE_SERIAL="-s $2"
     shift
@@ -205,11 +209,12 @@ adb_push_if_needed() {
   source $SCRIPT_DIR/utils/setup_adb.sh
 
   # read input params
-  HOST_SRC="$1"
-  ANDROID_DST="$2"
+  local HOST_SRC="$1"
+  local ANDROID_DST="$2"
 
   ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld $ANDROID_DST`
-  if [ "${ANDROID_LS:0:1}" == "d" ];
+  HOST_LS=`ls -ld $HOST_SRC`
+  if [ "${ANDROID_LS:0:1}" == "d" -a "${HOST_LS:0:1}" == "-" ];
   then
     ANDROID_DST="${ANDROID_DST}/$(basename ${HOST_SRC})"
   fi
@@ -229,10 +234,20 @@ adb_push_if_needed() {
       echo -n "$ANDROID_DST "
       $ADB $DEVICE_SERIAL push $HOST_SRC $ANDROID_DST
     fi
+  elif [ "${ANDROID_LS:0:1}" == "d" ]; then
+    for FILE_ITEM in `ls $HOST_SRC`; do
+      adb_push_if_needed "${HOST_SRC}/${FILE_ITEM}" "${ANDROID_DST}/${FILE_ITEM}"
+    done
   else
-    echo -n "$ANDROID_DST "
-    $ADB $DEVICE_SERIAL shell mkdir -p "$(dirname "$ANDROID_DST")"
-    $ADB $DEVICE_SERIAL push $HOST_SRC $ANDROID_DST
+    HOST_LS=`ls -ld $HOST_SRC`
+    if [ "${HOST_LS:0:1}" == "d" ]; then
+      $ADB $DEVICE_SERIAL shell mkdir -p $ANDROID_DST
+      adb_push_if_needed $HOST_SRC $ANDROID_DST
+    else
+      echo -n "$ANDROID_DST "
+      $ADB $DEVICE_SERIAL shell mkdir -p "$(dirname "$ANDROID_DST")"
+      $ADB $DEVICE_SERIAL push $HOST_SRC $ANDROID_DST
+    fi
   fi
 }
 

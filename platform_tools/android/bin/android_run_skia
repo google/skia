@@ -19,6 +19,9 @@ if [ -f "${SKIA_OUT}/$BUILDTYPE/lib/libskia_android.so" ]; then
     adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/lib/libskia_android.so" /data/local/tmp
 fi
 adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/lib/lib${APP_ARGS[0]}.so" /data/local/tmp
+if [[ -n $RESOURCE_PATH ]]; then
+  adb_push_if_needed "${SKIA_SRC_DIR}/resources" $RESOURCE_PATH
+fi
 
 STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"
 $ADB ${DEVICE_SERIAL} shell \
