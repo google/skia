@@ -1307,7 +1307,12 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 canvas.rotate(reader.readScalar());
                 break;
             case SAVE:
-                canvas.save((SkCanvas::SaveFlags) reader.readInt());
+                // SKPs with version < 29 also store a SaveFlags param.
+                if (size > 4) {
+                    SkASSERT(8 == size);
+                    reader.readInt();
+                }
+                canvas.save();
                 break;
             case SAVE_LAYER: {
                 const SkRect* boundsPtr = this->getRectPtr(reader);

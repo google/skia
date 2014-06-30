@@ -57,13 +57,13 @@ private:
     SkCanvas* fCanvas;
 };
 
-void SkNWayCanvas::willSave(SaveFlags flags) {
+void SkNWayCanvas::willSave() {
     Iter iter(fList);
     while (iter.next()) {
-        iter->save(flags);
+        iter->save();
     }
 
-    this->INHERITED::willSave(flags);
+    this->INHERITED::willSave();
 }
 
 SkCanvas::SaveLayerStrategy SkNWayCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,

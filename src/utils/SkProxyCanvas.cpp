@@ -21,9 +21,9 @@ void SkProxyCanvas::setProxy(SkCanvas* proxy) {
 
 ///////////////////////////////// Overrides ///////////
 
-void SkProxyCanvas::willSave(SaveFlags flags) {
-    fProxy->save(flags);
-    this->INHERITED::willSave(flags);
+void SkProxyCanvas::willSave() {
+    fProxy->save();
+    this->INHERITED::willSave();
 }
 
 SkCanvas::SaveLayerStrategy SkProxyCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,

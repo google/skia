@@ -206,9 +206,9 @@ void SkRecorder::drawVertices(VertexMode vmode,
                          indexCount);
 }
 
-void SkRecorder::willSave(SkCanvas::SaveFlags flags) {
-    APPEND(Save, flags);
-    INHERITED(willSave, flags);
+void SkRecorder::willSave() {
+    APPEND(Save);
+    INHERITED(willSave);
 }
 
 SkCanvas::SaveLayerStrategy SkRecorder::willSaveLayer(const SkRect* bounds,

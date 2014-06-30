@@ -933,9 +933,9 @@ public:
         return this->INHERITED::willSaveLayer(bounds, paint, flags);
     }
 
-    virtual void willSave(SaveFlags flags) SK_OVERRIDE {
+    virtual void willSave() SK_OVERRIDE {
         ++fSaveCount;
-        this->INHERITED::willSave(flags);
+        this->INHERITED::willSave();
     }
 
     virtual void willRestore() SK_OVERRIDE {

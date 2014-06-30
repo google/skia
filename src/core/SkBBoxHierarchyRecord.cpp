@@ -26,9 +26,9 @@ void SkBBoxHierarchyRecord::handleBBox(const SkRect& bounds) {
     fBoundingHierarchy->insert(draw, r, true);
 }
 
-void SkBBoxHierarchyRecord::willSave(SaveFlags flags) {
+void SkBBoxHierarchyRecord::willSave() {
     fStateTree->appendSave();
-    this->INHERITED::willSave(flags);
+    this->INHERITED::willSave();
 }
 
 SkCanvas::SaveLayerStrategy SkBBoxHierarchyRecord::willSaveLayer(const SkRect* bounds,

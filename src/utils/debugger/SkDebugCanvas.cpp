@@ -590,9 +590,9 @@ void SkDebugCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-void SkDebugCanvas::willSave(SaveFlags flags) {
-    this->addDrawCommand(new SkSaveCommand(flags));
-    this->INHERITED::willSave(flags);
+void SkDebugCanvas::willSave() {
+    this->addDrawCommand(new SkSaveCommand());
+    this->INHERITED::willSave();
 }
 
 SkCanvas::SaveLayerStrategy SkDebugCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,

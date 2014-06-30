@@ -62,7 +62,7 @@ public:
                       int indexCount,
                       const SkPaint& paint) SK_OVERRIDE;
 
-    void willSave(SkCanvas::SaveFlags) SK_OVERRIDE;
+    void willSave() SK_OVERRIDE;
     SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SkCanvas::SaveFlags) SK_OVERRIDE;
     void willRestore() SK_OVERRIDE;
 

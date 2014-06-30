@@ -522,13 +522,11 @@ private:
 
 class SkSaveCommand : public SkDrawCommand {
 public:
-    SkSaveCommand(SkCanvas::SaveFlags flags);
+    SkSaveCommand();
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
     virtual void trackSaveState(int* state) SK_OVERRIDE;
     virtual Action action() const SK_OVERRIDE { return kPushLayer_Action; }
 private:
-    SkCanvas::SaveFlags fFlags;
-
     typedef SkDrawCommand INHERITED;
 };
 

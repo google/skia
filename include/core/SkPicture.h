@@ -238,13 +238,14 @@ protected:
     // V26: Removed boolean from SkColorShader for inheriting color from SkPaint.
     // V27: Remove SkUnitMapper from gradients (and skia).
     // V28: No longer call bitmap::flatten inside SkWriteBuffer::writeBitmap.
+    // V29: Removed SaveFlags parameter from save().
 
     // Note: If the picture version needs to be increased then please follow the
     // steps to generate new SKPs in (only accessible to Googlers): http://goo.gl/qATVcw
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t MIN_PICTURE_VERSION = 19;
-    static const uint32_t CURRENT_PICTURE_VERSION = 28;
+    static const uint32_t CURRENT_PICTURE_VERSION = 29;
 
     mutable uint32_t      fUniqueID;
 

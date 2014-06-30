@@ -840,14 +840,12 @@ void SkRotateCommand::execute(SkCanvas* canvas) {
     canvas->rotate(fDegrees);
 }
 
-SkSaveCommand::SkSaveCommand(SkCanvas::SaveFlags flags)
+SkSaveCommand::SkSaveCommand()
     : INHERITED(SAVE) {
-    fFlags = flags;
-    fInfo.push(SkObjectParser::SaveFlagsToString(flags));
 }
 
 void SkSaveCommand::execute(SkCanvas* canvas) {
-    canvas->save(fFlags);
+    canvas->save();
 }
 
 void SkSaveCommand::trackSaveState(int* state) {

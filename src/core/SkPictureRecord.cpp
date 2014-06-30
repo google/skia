@@ -32,7 +32,7 @@ enum {
 // A lot of basic types get stored as a uint32_t: bools, ints, paint indices, etc.
 static int const kUInt32Size = 4;
 
-static const uint32_t kSaveSize = 2 * kUInt32Size;
+static const uint32_t kSaveSize = kUInt32Size;
 static const uint32_t kSaveLayerNoBoundsSize = 4 * kUInt32Size;
 static const uint32_t kSaveLayerWithBoundsSize = 4 * kUInt32Size + sizeof(SkRect);
 
@@ -151,25 +151,24 @@ static inline size_t getPaintOffset(DrawType op, size_t opSize) {
     return gPaintOffsets[op] * sizeof(uint32_t) + overflow;
 }
 
-void SkPictureRecord::willSave(SaveFlags flags) {
+void SkPictureRecord::willSave() {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
-    fMCMgr.save(flags);
+    fMCMgr.save();
 #else
     // record the offset to us, making it non-positive to distinguish a save
     // from a clip entry.
     fRestoreOffsetStack.push(-(int32_t)fWriter.bytesWritten());
-    this->recordSave(flags);
+    this->recordSave();
 #endif
 
-    this->INHERITED::willSave(flags);
+    this->INHERITED::willSave();
 }
 
-void SkPictureRecord::recordSave(SaveFlags flags) {
-    // op + flags
+void SkPictureRecord::recordSave() {
+    // op only
     size_t size = kSaveSize;
     size_t initialOffset = this->addDraw(SAVE, &size);
-    this->addInt(flags);
 
     this->validate(initialOffset, size);
 }
@@ -516,15 +515,6 @@ static bool collapse_save_clip_restore(SkWriter32* writer, int32_t offset,
     }
     SkASSERT(SAVE == op);
     SkASSERT(kSaveSize == opSize);
-
-    // get the save flag (last 4-bytes of the space allocated for the opSize)
-    SkCanvas::SaveFlags saveFlags = (SkCanvas::SaveFlags) writer->readTAt<uint32_t>(offset + 4);
-    if (SkCanvas::kMatrixClip_SaveFlag != saveFlags) {
-        // This function's optimization is only correct for kMatrixClip style saves.
-        // TODO: set checkMatrix & checkClip booleans here and then check for the
-        // offending operations in the following loop.
-        return false;
-    }
 
     // Walk forward until we get back to either a draw-verb (abort) or we hit
     // our restore (success).

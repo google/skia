@@ -84,11 +84,6 @@ struct SaveNoDrawsRestoreNooper {
         Pattern;
 
     bool onMatch(SkRecord* record, Pattern* pattern, unsigned begin, unsigned end) {
-        // If restore doesn't revert both matrix and clip, this isn't safe to noop away.
-        if (pattern->first<Save>()->flags != SkCanvas::kMatrixClip_SaveFlag) {
-            return false;
-        }
-
         // The entire span between Save and Restore (inclusively) does nothing.
         for (unsigned i = begin; i < end; i++) {
             record->replace<NoOp>(i);

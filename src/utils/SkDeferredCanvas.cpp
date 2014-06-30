@@ -678,10 +678,10 @@ bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
         SkIntToScalar(canvasSize.fWidth), SkIntToScalar(canvasSize.fHeight)));
 }
 
-void SkDeferredCanvas::willSave(SaveFlags flags) {
-    this->drawingCanvas()->save(flags);
+void SkDeferredCanvas::willSave() {
+    this->drawingCanvas()->save();
     this->recordedDrawCommand();
-    this->INHERITED::willSave(flags);
+    this->INHERITED::willSave();
 }
 
 SkCanvas::SaveLayerStrategy SkDeferredCanvas::willSaveLayer(const SkRect* bounds,

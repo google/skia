@@ -233,7 +233,7 @@ protected:
         return NULL;
     }
 
-    virtual void willSave(SaveFlags) SK_OVERRIDE;
+    virtual void willSave() SK_OVERRIDE;
     virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
     virtual void willRestore() SK_OVERRIDE;
 
@@ -293,7 +293,7 @@ protected:
     size_t recordClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA);
     size_t recordClipPath(int pathID, SkRegion::Op op, bool doAA);
     size_t recordClipRegion(const SkRegion& region, SkRegion::Op op);
-    void recordSave(SaveFlags flags);
+    void recordSave();
     void recordSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
     void recordRestore(bool fillInSkips = true);
 

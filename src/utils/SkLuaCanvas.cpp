@@ -81,9 +81,9 @@ SkLuaCanvas::SkLuaCanvas(int width, int height, lua_State* L, const char func[])
 
 SkLuaCanvas::~SkLuaCanvas() {}
 
-void SkLuaCanvas::willSave(SaveFlags flags) {
+void SkLuaCanvas::willSave() {
     AUTO_LUA("save");
-    this->INHERITED::willSave(flags);
+    this->INHERITED::willSave();
 }
 
 SkCanvas::SaveLayerStrategy SkLuaCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,

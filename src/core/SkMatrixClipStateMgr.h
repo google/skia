@@ -181,7 +181,7 @@ public:
             typedef SkNoncopyable INHERITED;
         };
 
-        MatrixClipState(MatrixClipState* prev, int flags)
+        MatrixClipState(MatrixClipState* prev)
             : fPrev(prev)
         {
             fHasOpen = false;
@@ -202,19 +202,11 @@ public:
             else {
                 fLayerID = prev->fLayerID;
 
-                if (flags & SkCanvas::kMatrix_SaveFlag) {
-                    fMatrixInfoStorage = *prev->fMatrixInfo;
-                    fMatrixInfo = &fMatrixInfoStorage;
-                } else {
-                    fMatrixInfo = prev->fMatrixInfo;
-                }
+                fMatrixInfoStorage = *prev->fMatrixInfo;
+                fMatrixInfo = &fMatrixInfoStorage;
 
-                if (flags & SkCanvas::kClip_SaveFlag) {
-                    // We don't copy the ClipOps of the previous clip states
-                    fClipInfo = &fClipInfoStorage;
-                } else {
-                    fClipInfo = prev->fClipInfo;
-                }
+                // We don't copy the ClipOps of the previous clip states
+                fClipInfo = &fClipInfoStorage;
 
                 // Initially a new save/saveLayer represents the same MC state
                 // as its predecessor.
@@ -275,7 +267,7 @@ public:
     // this duplicates effort.
     int getSaveCount() const { return fMatrixClipStack.count(); }
 
-    int save(SkCanvas::SaveFlags flags);
+    int save();
 
     int saveLayer(const SkRect* bounds, const SkPaint* paint, SkCanvas::SaveFlags flags);
 
@@ -372,7 +364,7 @@ protected:
 
     SkDEBUGCODE(void validate();)
 
-    int MCStackPush(SkCanvas::SaveFlags flags);
+    int MCStackPush();
 
     void addClipOffset(size_t offset) {
         SkASSERT(NULL != fSkipOffsets);

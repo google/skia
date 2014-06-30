@@ -300,12 +300,6 @@ SkString* SkObjectParser::RegionToString(const SkRegion& region) {
 
 SkString* SkObjectParser::SaveFlagsToString(SkCanvas::SaveFlags flags) {
     SkString* mFlags = new SkString("SkCanvas::SaveFlags: ");
-    if (flags & SkCanvas::kMatrix_SaveFlag) {
-        mFlags->append("kMatrix_SaveFlag ");
-    }
-    if (flags & SkCanvas::kClip_SaveFlag) {
-        mFlags->append("kClip_SaveFlag ");
-    }
     if (flags & SkCanvas::kHasAlphaLayer_SaveFlag) {
         mFlags->append("kHasAlphaLayer_SaveFlag ");
     }

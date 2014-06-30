@@ -317,7 +317,7 @@ static void translate_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 static void save_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                     SkGPipeState* state) {
-    canvas->save((SkCanvas::SaveFlags)DrawOp_unpackData(op32));
+    canvas->save();
 }
 
 static void saveLayer_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,

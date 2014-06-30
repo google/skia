@@ -192,9 +192,9 @@ void SkDumpCanvas::dump(Verb verb, const SkPaint* paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkDumpCanvas::willSave(SaveFlags flags) {
-    this->dump(kSave_Verb, NULL, "save(0x%X)", flags);
-    this->INHERITED::willSave(flags);
+void SkDumpCanvas::willSave() {
+    this->dump(kSave_Verb, NULL, "save()");
+    this->INHERITED::willSave();
 }
 
 SkCanvas::SaveLayerStrategy SkDumpCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,

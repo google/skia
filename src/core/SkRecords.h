@@ -183,7 +183,7 @@ private:
 RECORD0(NoOp);
 
 RECORD0(Restore);
-RECORD1(Save, SkCanvas::SaveFlags, flags);
+RECORD0(Save);
 RECORD3(SaveLayer, Optional<SkRect>, bounds, Optional<SkPaint>, paint, SkCanvas::SaveFlags, flags);
 
 RECORD1(PushCull, SkRect, rect);

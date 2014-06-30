@@ -367,45 +367,11 @@ SIMPLE_TEST_STEP(EndGroup, endCommentGroup());
 ///////////////////////////////////////////////////////////////////////////////
 // Complex test steps
 
-// Save/restore calls cannot be in isolated simple test steps because the test
-// cases that use SkPicture require that save and restore calls be balanced.
-static void SaveMatrixStep(SkCanvas* canvas,
-                           skiatest::Reporter* reporter,
-                           CanvasTestStep* testStep) {
-    int saveCount = canvas->getSaveCount();
-    canvas->save(SkCanvas::kMatrix_SaveFlag);
-    canvas->clipRegion(kTestRegion);
-    canvas->translate(SkIntToScalar(1), SkIntToScalar(2));
-    canvas->restore();
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->getSaveCount() == saveCount,
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->getTotalMatrix().isIdentity(),
-        testStep->assertMessage());
-//    REPORTER_ASSERT_MESSAGE(reporter, canvas->getTotalClip() == kTestRegion, testStep->assertMessage());
-}
-TEST_STEP(SaveMatrix, SaveMatrixStep);
-
-static void SaveClipStep(SkCanvas* canvas,
-                         skiatest::Reporter* reporter,
-                         CanvasTestStep* testStep) {
-    int saveCount = canvas->getSaveCount();
-    canvas->save(SkCanvas::kClip_SaveFlag);
-    canvas->translate(SkIntToScalar(1), SkIntToScalar(2));
-    canvas->clipRegion(kTestRegion);
-    canvas->restore();
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->getSaveCount() == saveCount,
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, !canvas->getTotalMatrix().isIdentity(),
-        testStep->assertMessage());
-//    REPORTER_ASSERT_MESSAGE(reporter, canvas->getTotalClip() != kTestRegion, testStep->assertMessage());
-}
-TEST_STEP(SaveClip, SaveClipStep);
-
 static void SaveMatrixClipStep(SkCanvas* canvas,
                                skiatest::Reporter* reporter,
                                CanvasTestStep* testStep) {
     int saveCount = canvas->getSaveCount();
-    canvas->save(SkCanvas::kMatrixClip_SaveFlag);
+    canvas->save();
     canvas->translate(SkIntToScalar(1), SkIntToScalar(2));
     canvas->clipRegion(kTestRegion);
     canvas->restore();
