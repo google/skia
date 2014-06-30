@@ -131,6 +131,7 @@ public:
      * rendered using the deferred canvas.
      */
     void setBitmapSizeThreshold(size_t sizeThreshold);
+    size_t getBitmapSizeThreshold() const { return fBitmapSizeThreshold; }
 
     /**
      * Executes all pending commands without drawing
@@ -240,7 +241,9 @@ private:
     bool isFullFrame(const SkRect*, const SkPaint*) const;
     void validate() const;
     void init();
-    bool            fDeferredDrawing;
+
+    size_t fBitmapSizeThreshold;
+    bool   fDeferredDrawing;
 
     friend class SkDeferredCanvasTester; // for unit testing
     typedef SkCanvas INHERITED;

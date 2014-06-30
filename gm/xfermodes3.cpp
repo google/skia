@@ -123,13 +123,12 @@ private:
     SkCanvas* possiblyCreateTempCanvas(SkCanvas* baseCanvas, int w, int h) {
         SkCanvas* tempCanvas = NULL;
 #if SK_SUPPORT_GPU
-        GrRenderTarget* rt = baseCanvas->getDevice()->accessRenderTarget();
-        if (NULL != rt) {
-            GrContext* context = rt->getContext();
+        GrContext* context = baseCanvas->getGrContext();
+        if (NULL != context) {
             GrTextureDesc desc;
             desc.fWidth = w;
             desc.fHeight = h;
-            desc.fConfig = rt->config();
+            desc.fConfig = SkImageInfo2GrPixelConfig(baseCanvas->imageInfo());
             desc.fFlags = kRenderTarget_GrTextureFlagBit;
             SkAutoTUnref<GrSurface> surface(context->createUncachedTexture(desc, NULL, 0));
             SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(surface.get()));

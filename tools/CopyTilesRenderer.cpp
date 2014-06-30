@@ -57,7 +57,8 @@ namespace sk_tools {
                 // Draw the picture
                 fCanvas->drawPicture(fPicture);
                 // Now extract the picture into tiles
-                const SkBitmap& baseBitmap = fCanvas->getDevice()->accessBitmap(false);
+                SkBitmap baseBitmap;
+                fCanvas->readPixels(SkIRect::MakeSize(fCanvas->getBaseLayerSize()), &baseBitmap);
                 SkIRect subset;
                 for (int tileY = 0; tileY < fLargeTileHeight; tileY += this->getTileHeight()) {
                     for (int tileX = 0; tileX < fLargeTileWidth; tileX += this->getTileWidth()) {

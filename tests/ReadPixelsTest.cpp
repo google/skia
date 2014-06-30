@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
 #include "SkRegion.h"
+#include "SkSurface.h"
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
@@ -297,11 +298,11 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
             glCtxTypeCnt = GrContextFactory::kGLContextTypeCnt;
         }
 #endif
+        const SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
         for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
-            SkAutoTUnref<SkBaseDevice> device;
+            SkAutoTUnref<SkSurface> surface;
             if (0 == dtype) {
-                SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
-                device.reset(SkBitmapDevice::Create(info));
+                surface.reset(SkSurface::NewRaster(info));
             } else {
 #if SK_SUPPORT_GPU
                 GrContextFactory::GLContextType type =
@@ -318,16 +319,15 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
                 desc.fWidth = DEV_W;
                 desc.fHeight = DEV_H;
                 desc.fConfig = kSkia8888_GrPixelConfig;
-                desc.fOrigin = 1 == dtype ? kBottomLeft_GrSurfaceOrigin
-                                          : kTopLeft_GrSurfaceOrigin;
+                desc.fOrigin = 1 == dtype ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
                 GrAutoScratchTexture ast(context, desc, GrContext::kExact_ScratchTexMatch);
                 SkAutoTUnref<GrTexture> tex(ast.detach());
-                device.reset(new SkGpuDevice(context, tex));
+                surface.reset(SkSurface::NewRenderTargetDirect(tex->asRenderTarget()));
 #else
                 continue;
 #endif
             }
-            SkCanvas canvas(device);
+            SkCanvas& canvas = *surface->getCanvas();
             fillCanvas(&canvas);
 
             static const struct {
@@ -353,9 +353,9 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
                         if (startsWithPixels) {
                             fillBitmap(&bmp);
                         }
-                        uint32_t idBefore = canvas.getDevice()->accessBitmap(false).getGenerationID();
+                        uint32_t idBefore = surface->generationID();
                         bool success = canvas.readPixels(&bmp, srcRect.fLeft, srcRect.fTop);
-                        uint32_t idAfter = canvas.getDevice()->accessBitmap(false).getGenerationID();
+                        uint32_t idAfter = surface->generationID();
 
                         // we expect to succeed when the read isn't fully clipped
                         // out.

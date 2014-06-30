@@ -164,7 +164,11 @@ public:
      *  the bitmap of the pixels that the canvas draws into. The reference count
      *  of the returned device is not changed by this call.
      */
+#ifndef SK_SUPPORT_LEGACY_GETDEVICE
+protected:  // Can we make this private?
+#endif
     SkBaseDevice* getDevice() const;
+public:
 
     /**
      *  saveLayer() can create another device (which is later drawn onto
@@ -1270,6 +1274,7 @@ private:
     friend class SkLua;             // needs top layer size and offset
     friend class SkDebugCanvas;     // needs experimental fAllowSimplifyClip
     friend class SkDeferredDevice;  // needs getTopDevice()
+    friend class SkSurface_Raster;  // needs getDevice()
 
     SkBaseDevice* createLayerDevice(const SkImageInfo&);
 

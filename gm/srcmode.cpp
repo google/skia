@@ -115,18 +115,21 @@ protected:
         }
     }
 
-    static SkSurface* compat_surface(SkCanvas* canvas, const SkISize& size,
-                                     bool skipGPU) {
+    static SkSurface* compat_surface(SkCanvas* canvas, const SkISize& size, bool skipGPU) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
+
+        bool callNewSurface = true;
 #if SK_SUPPORT_GPU
-        SkBaseDevice* dev = canvas->getDevice();
-        if (!skipGPU && dev->accessRenderTarget()) {
-            SkGpuDevice* gd = (SkGpuDevice*)dev;
-            GrContext* ctx = gd->context();
-            return SkSurface::NewRenderTarget(ctx, info, 0);
+        if (canvas->getGrContext() && skipGPU) {
+            callNewSurface = false;
         }
 #endif
-        return SkSurface::NewRaster(info);
+        SkSurface* surface = callNewSurface ? canvas->newSurface(info) : NULL;
+        if (NULL == surface) {
+            // picture canvas will return null, so fall-back to raster
+            surface = SkSurface::NewRaster(info);
+        }
+        return surface;
     }
 
     virtual void onDraw(SkCanvas* canvas) {

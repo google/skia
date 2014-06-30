@@ -186,9 +186,9 @@ static bool checkPixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
            SkAbs32(aB - bB) <= 1;
 }
 
-static bool checkWrite(skiatest::Reporter* reporter, SkCanvas* canvas, const SkBitmap& bitmap,
+static bool check_write(skiatest::Reporter* reporter, SkCanvas* canvas, const SkBitmap& bitmap,
                        int writeX, int writeY) {
-    SkImageInfo canvasInfo;
+    const SkImageInfo canvasInfo = canvas->imageInfo();
     size_t canvasRowBytes;
     const uint32_t* canvasPixels;
 
@@ -196,15 +196,9 @@ static bool checkWrite(skiatest::Reporter* reporter, SkCanvas* canvas, const SkB
     // At some point this will be unsupported, as we won't allow accessBitmap() to magically call
     // readPixels for the client.
     SkBitmap secretDevBitmap;
-    {
-        SkBaseDevice* dev = canvas->getDevice();
-        if (!dev) {
-            return false;
-        }
-        secretDevBitmap = dev->accessBitmap(false);
-    }
+    canvas->readPixels(SkIRect::MakeWH(canvasInfo.width(), canvasInfo.height()), &secretDevBitmap);
+
     SkAutoLockPixels alp(secretDevBitmap);
-    canvasInfo = secretDevBitmap.info();
     canvasRowBytes = secretDevBitmap.rowBytes();
     canvasPixels = static_cast<const uint32_t*>(secretDevBitmap.getPixels());
 
@@ -299,25 +293,22 @@ static bool allocRowBytes(SkBitmap* bm, const SkImageInfo& info, size_t rowBytes
     return true;
 }
 
-static SkBaseDevice* createDevice(const CanvasConfig& c, GrContext* grCtx) {
+static void free_pixels(void* pixels, void* ctx) {
+    sk_free(pixels);
+}
+
+static SkSurface* create_surface(const CanvasConfig& c, GrContext* grCtx) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
     switch (c.fDevType) {
         case kRaster_DevType: {
-            SkBitmap bmp;
-            size_t rowBytes = c.fTightRowBytes ? 0 : 4 * DEV_W + 100;
-            SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
-            if (!allocRowBytes(&bmp, info, rowBytes)) {
-                sk_throw();
-                return NULL;
-            }
+            const size_t rowBytes = c.fTightRowBytes ? info.minRowBytes() : 4 * DEV_W + 100;
+            const size_t size = info.getSafeSize(rowBytes);
+            void* pixels = sk_malloc_throw(size);
             // if rowBytes isn't tight then set the padding to a known value
-            if (rowBytes) {
-                SkAutoLockPixels alp(bmp);
-                // We'd just use memset here but GCC 4.8.1 throws up a bogus warning when we do.
-                for (size_t i = 0; i < bmp.getSafeSize(); i++) {
-                    ((uint8_t*)bmp.getPixels())[i] = DEV_PAD;
-                }
+            if (!c.fTightRowBytes) {
+                memset(pixels, DEV_PAD, size);
             }
-            return new SkBitmapDevice(bmp);
+            return SkSurface::NewRasterDirectReleaseProc(info, pixels, rowBytes, free_pixels, NULL);
         }
 #if SK_SUPPORT_GPU
         case kGpu_BottomLeft_DevType:
@@ -331,13 +322,13 @@ static SkBaseDevice* createDevice(const CanvasConfig& c, GrContext* grCtx) {
                 kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
             GrAutoScratchTexture ast(grCtx, desc, GrContext::kExact_ScratchTexMatch);
             SkAutoTUnref<GrTexture> tex(ast.detach());
-            return new SkGpuDevice(grCtx, tex);
+            return SkSurface::NewRenderTargetDirect(tex->asRenderTarget());
 #endif
     }
     return NULL;
 }
 
-static bool setupBitmap(SkBitmap* bm, SkColorType ct, SkAlphaType at, int w, int h, int tightRB) {
+static bool setup_bitmap(SkBitmap* bm, SkColorType ct, SkAlphaType at, int w, int h, int tightRB) {
     size_t rowBytes = tightRB ? 0 : 4 * w + 60;
     SkImageInfo info = SkImageInfo::Make(w, h, ct, at);
     if (!allocRowBytes(bm, info, rowBytes)) {
@@ -444,8 +435,8 @@ DEF_GPUTEST(WritePixels, reporter, factory) {
             }
 #endif
 
-            SkAutoTUnref<SkBaseDevice> device(createDevice(gCanvasConfigs[i], context));
-            SkCanvas canvas(device);
+            SkAutoTUnref<SkSurface> surface(create_surface(gCanvasConfigs[i], context));
+            SkCanvas& canvas = *surface->getCanvas();
 
             static const struct {
                 SkColorType fColorType;
@@ -465,15 +456,16 @@ DEF_GPUTEST(WritePixels, reporter, factory) {
 
                         fillCanvas(&canvas);
                         SkBitmap bmp;
-                        REPORTER_ASSERT(reporter, setupBitmap(&bmp, ct, at, rect.width(),
-                                                              rect.height(), SkToBool(tightBmp)));
-                        uint32_t idBefore = canvas.getDevice()->accessBitmap(false).getGenerationID();
+                        REPORTER_ASSERT(reporter, setup_bitmap(&bmp, ct, at, rect.width(),
+                                                               rect.height(), SkToBool(tightBmp)));
+                        uint32_t idBefore = surface->generationID();
 
                        // sk_tool_utils::write_pixels(&canvas, bmp, rect.fLeft, rect.fTop, ct, at);
                         canvas.writePixels(bmp, rect.fLeft, rect.fTop);
 
-                        uint32_t idAfter = canvas.getDevice()->accessBitmap(false).getGenerationID();
-                        REPORTER_ASSERT(reporter, checkWrite(reporter, &canvas, bmp, rect.fLeft, rect.fTop));
+                        uint32_t idAfter = surface->generationID();
+                        REPORTER_ASSERT(reporter, check_write(reporter, &canvas, bmp,
+                                                              rect.fLeft, rect.fTop));
 
                         // we should change the genID iff pixels were actually written.
                         SkIRect canvasRect = SkIRect::MakeSize(canvas.getDeviceSize());

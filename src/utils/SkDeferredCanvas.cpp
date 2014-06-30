@@ -30,8 +30,8 @@ enum PlaybackMode {
     kSilent_PlaybackMode,
 };
 
-static bool shouldDrawImmediately(const SkBitmap* bitmap, const SkPaint* paint,
-                           size_t bitmapSizeThreshold) {
+static bool should_draw_immediately(const SkBitmap* bitmap, const SkPaint* paint,
+                                    size_t bitmapSizeThreshold) {
     if (bitmap && ((bitmap->getTexture() && !bitmap->isImmutable()) ||
         (bitmap->getSize() > bitmapSizeThreshold))) {
         return true;
@@ -150,8 +150,6 @@ public:
     bool hasPendingCommands();
     size_t storageAllocatedForRecording() const;
     size_t freeMemoryIfPossible(size_t bytesToFree);
-    size_t getBitmapSizeThreshold() const;
-    void setBitmapSizeThreshold(size_t sizeThreshold);
     void flushPendingCommands(PlaybackMode);
     void skipPendingCommands();
     void setMaxRecordingStorage(size_t);
@@ -263,7 +261,6 @@ private:
     bool fCanDiscardCanvasContents;
     size_t fMaxRecordingStorageBytes;
     size_t fPreviousStorageAllocated;
-    size_t fBitmapSizeThreshold;
 };
 
 SkDeferredDevice::SkDeferredDevice(SkSurface* surface) {
@@ -286,7 +283,6 @@ void SkDeferredDevice::init() {
     fFreshFrame = true;
     fCanDiscardCanvasContents = false;
     fPreviousStorageAllocated = 0;
-    fBitmapSizeThreshold = kDeferredCanvasBitmapSizeThreshold;
     fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
     fNotificationClient = NULL;
     this->beginRecording();
@@ -376,14 +372,6 @@ size_t SkDeferredDevice::freeMemoryIfPossible(size_t bytesToFree) {
     size_t val = fPipeWriter.freeMemoryIfPossible(bytesToFree);
     fPreviousStorageAllocated = storageAllocatedForRecording();
     return val;
-}
-
-size_t SkDeferredDevice::getBitmapSizeThreshold() const {
-    return fBitmapSizeThreshold;
-}
-
-void SkDeferredDevice::setBitmapSizeThreshold(size_t sizeThreshold) {
-    fBitmapSizeThreshold = sizeThreshold;
 }
 
 size_t SkDeferredDevice::storageAllocatedForRecording() const {
@@ -509,11 +497,9 @@ public:
         }
     }
 private:
-    void init(SkDeferredCanvas& canvas, const SkBitmap* bitmap, const SkPaint* paint)
-    {
-        SkDeferredDevice* device = static_cast<SkDeferredDevice*>(canvas.getDevice());
-        if (canvas.isDeferredDrawing() && (NULL != device) &&
-            shouldDrawImmediately(bitmap, paint, device->getBitmapSizeThreshold())) {
+    void init(SkDeferredCanvas& canvas, const SkBitmap* bitmap, const SkPaint* paint) {
+        if (canvas.isDeferredDrawing() &&
+            should_draw_immediately(bitmap, paint, canvas.getBitmapSizeThreshold())) {
             canvas.setDeferredDrawing(false);
             fCanvas = &canvas;
         } else {
@@ -534,6 +520,7 @@ SkDeferredCanvas::SkDeferredCanvas(SkDeferredDevice* device) : SkCanvas (device)
 }
 
 void SkDeferredCanvas::init() {
+    fBitmapSizeThreshold = kDeferredCanvasBitmapSizeThreshold;
     fDeferredDrawing = true; // On by default
 }
 
@@ -551,9 +538,7 @@ size_t SkDeferredCanvas::freeMemoryIfPossible(size_t bytesToFree) {
 }
 
 void SkDeferredCanvas::setBitmapSizeThreshold(size_t sizeThreshold) {
-    SkDeferredDevice* deferredDevice = this->getDeferredDevice();
-    SkASSERT(deferredDevice);
-    deferredDevice->setBitmapSizeThreshold(sizeThreshold);
+    fBitmapSizeThreshold = sizeThreshold;
 }
 
 void SkDeferredCanvas::recordedDrawCommand() {

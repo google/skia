@@ -857,12 +857,6 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
     return this->internalSaveLayer(bounds, paint, flags, false, strategy);
 }
 
-static SkBaseDevice* create_compatible_device(SkCanvas* canvas,
-                                              const SkImageInfo& info) {
-    SkBaseDevice* device = canvas->getDevice();
-    return device ? device->createCompatibleDevice(info) : NULL;
-}
-
 int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags,
                                 bool justForImageFilter, SaveLayerStrategy strategy) {
 #ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
@@ -906,7 +900,10 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
 
     SkBaseDevice* device;
     if (paint && paint->getImageFilter()) {
-        device = create_compatible_device(this, info);
+        device = this->getDevice();
+        if (device) {
+            device = device->createCompatibleDevice(info);
+        }
     } else {
         device = this->createLayerDevice(info);
     }
@@ -1382,13 +1379,8 @@ static void clip_path_helper(const SkCanvas* canvas, SkRasterClip* currClip,
             currClip->op(clip, op);
         }
     } else {
-        const SkBaseDevice* device = canvas->getDevice();
-        if (!device) {
-            currClip->setEmpty();
-            return;
-        }
-
-        base.setRect(0, 0, device->width(), device->height());
+        const SkISize size = canvas->getBaseLayerSize();
+        base.setRect(0, 0, size.width(), size.height());
 
         if (SkRegion::kReplace_Op == op) {
             currClip->setPath(devPath, base, doAA);

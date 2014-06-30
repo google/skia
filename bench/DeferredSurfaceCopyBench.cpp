@@ -34,26 +34,11 @@ protected:
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         // The canvas is not actually used for this test except to provide
         // configuration information: gpu, multisampling, size, etc?
-        SkImageInfo info;
-        info.fWidth = kSurfaceWidth;
-        info.fHeight = kSurfaceHeight;
-        info.fColorType = kN32_SkColorType;
-        info.fAlphaType = kPremul_SkAlphaType;
+        SkImageInfo info = SkImageInfo::MakeN32Premul(kSurfaceWidth, kSurfaceHeight);
         const SkRect fullCanvasRect = SkRect::MakeWH(
             SkIntToScalar(kSurfaceWidth), SkIntToScalar(kSurfaceHeight));
-        SkSurface* surface;
-#if SK_SUPPORT_GPU
-        GrRenderTarget* rt = reinterpret_cast<GrRenderTarget*>(
-            canvas->getDevice()->accessRenderTarget());
-        if (NULL != rt) {
-            surface = SkSurface::NewRenderTarget(rt->getContext(), info, rt->numSamples());
-        } else
-#endif
-        {
-            surface = SkSurface::NewRaster(info);
-        }
+        SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
         SkAutoTUnref<SkDeferredCanvas> drawingCanvas(SkDeferredCanvas::Create(surface));
-        surface->unref();
 
         for (int iteration = 0; iteration < loops; iteration++) {
             drawingCanvas->clear(0);
