@@ -7929,13 +7929,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16100319568123135454
+          10747453927131635514
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_factory_gpu.png": {
       "allowed-digests": [

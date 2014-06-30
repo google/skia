@@ -6308,37 +6308,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9634328461383126524
+          995416707008951829
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_factory_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6727685461018676373
+          11652816550378767096
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_factory_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15532577507744171028
+          15539733981083558362
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_gpu.png": {
       "allowed-digests": [
