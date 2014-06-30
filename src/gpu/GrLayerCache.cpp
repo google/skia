@@ -47,7 +47,6 @@ GrLayerCache::GrLayerCache(GrContext* context)
 }
 
 GrLayerCache::~GrLayerCache() {
-    this->freeAll();
 }
 
 void GrLayerCache::initAtlas() {
