@@ -1778,15 +1778,19 @@ void SkScalerContext::PostMakeRec(const SkPaint&, SkScalerContext::Rec* rec) {
         case SkMask::kA8_Format: {
             // filter down the luminance to a single component, since A8 can't
             // use per-component information
-
             SkColor color = rec->getLuminanceColor();
+#ifdef SK_IGNORE_FASTER_TEXT_FIX
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(rec->getPaintGamma(), color);
             //If we are asked to look like LCD, look like LCD.
             if (!(rec->fFlags & SkScalerContext::kGenA8FromLCD_Flag)) {
                 // HACK: Prevents green from being pre-blended as white.
                 lum -= ((255 - lum) * lum) / 255;
             }
-
+#else
+            U8CPU lum = SkComputeLuminance(SkColorGetR(color),
+                                           SkColorGetG(color),
+                                           SkColorGetB(color));
+#endif
             // reduce to our finite number of bits
             color = SkColorSetRGB(lum, lum, lum);
             rec->setLuminanceColor(SkMaskGamma::CanonicalColor(color));
