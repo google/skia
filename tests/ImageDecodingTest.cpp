@@ -503,12 +503,9 @@ static SkPixelRef* install_pixel_ref(SkBitmap* bitmap,
  *  SkInstallDiscardablePixelRef functions.
  */
 DEF_TEST(ImprovedBitmapFactory, reporter) {
-    SkString resourcePath = GetResourcePath();
-    SkString path = SkOSPath::SkPathJoin(
-            resourcePath.c_str(), "randPixels.png");
-    SkAutoTUnref<SkStreamRewindable> stream(
-        SkStream::NewFromFile(path.c_str()));
-    if (sk_exists(path.c_str())) {
+    SkString pngFilename = GetResourcePath("randPixels.png");
+    SkAutoTUnref<SkStreamRewindable> stream(SkStream::NewFromFile(pngFilename.c_str()));
+    if (sk_exists(pngFilename.c_str())) {
         SkBitmap bm;
         SkAssertResult(bm.setInfo(SkImageInfo::MakeN32Premul(1, 1)));
         REPORTER_ASSERT(reporter,

@@ -37,9 +37,8 @@
 
 static SkBitmap load_bitmap() {
     SkBitmap bm;
-    SkString resourcePath = GetResourcePath();
-    SkString path = SkOSPath::SkPathJoin(resourcePath.c_str(), "mandrill_512.png");
-    SkAutoDataUnref data(SkData::NewFromFileName(path.c_str()));
+    SkString pngFilename = GetResourcePath("mandrill_512.png");
+    SkAutoDataUnref data(SkData::NewFromFileName(pngFilename.c_str()));
     if (data.get() != NULL) {
         SkInstallDiscardablePixelRef(SkDecodingImageGenerator::Create(
             data, SkDecodingImageGenerator::Options()), &bm);

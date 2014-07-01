@@ -26,14 +26,8 @@ protected:
         // parameters to the "decode" call
         bool dither = false;
 
-        SkString resourcePath = GetResourcePath();
-        if (!resourcePath.endsWith("/") && !resourcePath.endsWith("\\")) {
-            resourcePath.append("/");
-        }
-
-        resourcePath.append("CMYK.jpg");
-
-        SkFILEStream stream(resourcePath.c_str());
+        SkString jpgFilename = GetResourcePath("CMYK.jpg");
+        SkFILEStream stream(jpgFilename.c_str());
         if (!stream.isValid()) {
             SkDebugf("Could not find CMYK.jpg, please set --resourcePath correctly.\n");
             return;

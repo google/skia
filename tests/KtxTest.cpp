@@ -141,12 +141,11 @@ DEF_TEST(KtxReadUnpremul, reporter) {
  * the PKM to the KTX should produce an identical KTX to the one we have on file)
  */
 DEF_TEST(KtxReexportPKM, reporter) {
-    SkString resourcePath = GetResourcePath();
-    SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "mandrill_128.pkm");
+    SkString pkmFilename = GetResourcePath("mandrill_128.pkm");
 
     // Load PKM file into a bitmap
     SkBitmap etcBitmap;
-    SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(filename.c_str()));
+    SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(pkmFilename.c_str()));
     REPORTER_ASSERT(reporter, NULL != fileData);
 
     bool installDiscardablePixelRefSuccess =
@@ -161,7 +160,7 @@ DEF_TEST(KtxReexportPKM, reporter) {
     REPORTER_ASSERT(reporter, NULL != ktxDataPtr);
 
     // See is this data is identical to data in existing ktx file.
-    SkString ktxFilename = SkOSPath::SkPathJoin(resourcePath.c_str(), "mandrill_128.ktx");
+    SkString ktxFilename = GetResourcePath("mandrill_128.ktx");
     SkAutoDataUnref oldKtxData(SkData::NewFromFileName(ktxFilename.c_str()));
     REPORTER_ASSERT(reporter, oldKtxData->equals(newKtxData));
 }

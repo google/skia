@@ -24,13 +24,9 @@ public:
     SubpixelTranslateView(const char imageFilename[],
                           float horizontalVelocity,
                           float verticalVelocity)
-      : fFilename(imageFilename),
-        fHorizontalVelocity(horizontalVelocity),
+      : fHorizontalVelocity(horizontalVelocity),
         fVerticalVelocity(verticalVelocity) {
-      SkString resourcePath = GetResourcePath();
-      resourcePath.append("/");
-      resourcePath.append(fFilename);
-
+      SkString resourcePath = GetResourcePath(imageFilename);
       SkImageDecoder* codec = NULL;
       SkFILEStream stream(resourcePath.c_str());
       if (stream.isValid()) {
@@ -50,7 +46,6 @@ public:
 
 protected:
     SkBitmap fBM;
-    SkString fFilename;
     SkScalar fSize;
     float fHorizontalVelocity, fVerticalVelocity;
 

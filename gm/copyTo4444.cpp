@@ -32,9 +32,8 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm, bm4444;
-        SkString resourcePath = GetResourcePath();
-        SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "mandrill_512.png");
-        if (!SkImageDecoder::DecodeFile(filename.c_str(), &bm, kN32_SkColorType,
+        SkString pngFilename = GetResourcePath("mandrill_512.png");
+        if (!SkImageDecoder::DecodeFile(pngFilename.c_str(), &bm, kN32_SkColorType,
                                         SkImageDecoder::kDecodePixels_Mode)) {
             SkDebugf("Could not decode the file. Did you forget to set the "
                      "resourcePath?\n");

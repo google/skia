@@ -29,9 +29,7 @@ protected:
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
-        SkString filename = GetResourcePath();
-        filename.append("/Funkster.ttf");
-
+        SkString filename = GetResourcePath("/Funkster.ttf");
         SkAutoTUnref<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
         if (!stream->isValid()) {
             SkDebugf("Could not find Funkster.ttf, please set --resourcePath correctly.\n");
