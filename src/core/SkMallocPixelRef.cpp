@@ -240,7 +240,7 @@ SkMallocPixelRef::SkMallocPixelRef(SkReadBuffer& buffer)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPixelRef* SkMallocPixelRef::PRFactory::create(const SkImageInfo& info,
+SkPixelRef* SkMallocPixelRef::PRFactory::create(const SkImageInfo& info, size_t rowBytes,
                                                 SkColorTable* ctable) {
-    return SkMallocPixelRef::NewAllocate(info, info.minRowBytes(), ctable);
+    return SkMallocPixelRef::NewAllocate(info, rowBytes, ctable);
 }

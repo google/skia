@@ -9,6 +9,42 @@
 
 #include "Test.h"
 
+static void test_allocpixels(skiatest::Reporter* reporter) {
+    const int width = 10;
+    const int height = 10;
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    const size_t explicitRowBytes = info.minRowBytes() + 24;
+
+    SkBitmap bm;
+    bm.setInfo(info);
+    REPORTER_ASSERT(reporter, info.minRowBytes() == bm.rowBytes());
+    bm.allocPixels();
+    REPORTER_ASSERT(reporter, info.minRowBytes() == bm.rowBytes());
+    bm.reset();
+    bm.allocPixels(info);
+    REPORTER_ASSERT(reporter, info.minRowBytes() == bm.rowBytes());
+
+    bm.setInfo(info, explicitRowBytes);
+    REPORTER_ASSERT(reporter, explicitRowBytes == bm.rowBytes());
+    bm.allocPixels();
+    REPORTER_ASSERT(reporter, explicitRowBytes == bm.rowBytes());
+    bm.reset();
+    bm.allocPixels(info, explicitRowBytes);
+    REPORTER_ASSERT(reporter, explicitRowBytes == bm.rowBytes());
+
+    bm.reset();
+    bm.setInfo(info, 0);
+    REPORTER_ASSERT(reporter, info.minRowBytes() == bm.rowBytes());
+    bm.reset();
+    bm.allocPixels(info, 0);
+    REPORTER_ASSERT(reporter, info.minRowBytes() == bm.rowBytes());
+
+    bm.reset();
+    bool success = bm.setInfo(info, info.minRowBytes() - 1);   // invalid for 32bit
+    REPORTER_ASSERT(reporter, !success);
+    REPORTER_ASSERT(reporter, bm.isNull());
+}
+
 static void test_bigwidth(skiatest::Reporter* reporter) {
     SkBitmap bm;
     int width = 1 << 29;    // *4 will be the high-bit of 32bit int
@@ -46,4 +82,5 @@ DEF_TEST(Bitmap, reporter) {
     }
 
     test_bigwidth(reporter);
+    test_allocpixels(reporter);
 }

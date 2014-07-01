@@ -78,6 +78,7 @@ public:
     class PRFactory : public SkPixelRefFactory {
     public:
         virtual SkPixelRef* create(const SkImageInfo&,
+                                   size_t rowBytes,
                                    SkColorTable*) SK_OVERRIDE;
     };
 

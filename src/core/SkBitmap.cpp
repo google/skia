@@ -177,7 +177,7 @@ bool SkBitmap::setInfo(const SkImageInfo& origInfo, size_t rowBytes) {
         rowBytes = 0;
     } else if (0 == rowBytes) {
         rowBytes = (size_t)mrb;
-    } else if (rowBytes < info.minRowBytes()) {
+    } else if (!info.validRowBytes(rowBytes)) {
         return reset_return_false(this);
     }
 
@@ -339,19 +339,18 @@ bool SkBitmap::allocPixels(const SkImageInfo& requestedInfo, size_t rowBytes) {
     if (kIndex_8_SkColorType == requestedInfo.colorType()) {
         return reset_return_false(this);
     }
-    if (!this->setInfo(requestedInfo)) {
+    if (!this->setInfo(requestedInfo, rowBytes)) {
         return reset_return_false(this);
     }
     
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
-    if (!correctedInfo.validRowBytes(rowBytes)) {
-        return reset_return_false(this);
-    }
-    
+    // setInfo may have computed a valid rowbytes if 0 were passed in
+    rowBytes = this->rowBytes();
+
     SkMallocPixelRef::PRFactory defaultFactory;
     
-    SkPixelRef* pr = defaultFactory.create(correctedInfo, NULL);
+    SkPixelRef* pr = defaultFactory.create(correctedInfo, rowBytes, NULL);
     if (NULL == pr) {
         return reset_return_false(this);
     }
@@ -382,7 +381,7 @@ bool SkBitmap::allocPixels(const SkImageInfo& requestedInfo, SkPixelRefFactory* 
         factory = &defaultFactory;
     }
 
-    SkPixelRef* pr = factory->create(correctedInfo, ctable);
+    SkPixelRef* pr = factory->create(correctedInfo, correctedInfo.minRowBytes(), ctable);
     if (NULL == pr) {
         return reset_return_false(this);
     }

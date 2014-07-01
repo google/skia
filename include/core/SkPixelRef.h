@@ -374,7 +374,7 @@ public:
      *  the pixelref will ref() the colortable.
      *  On failure return NULL.
      */
-    virtual SkPixelRef* create(const SkImageInfo&, SkColorTable*) = 0;
+    virtual SkPixelRef* create(const SkImageInfo&, size_t rowBytes, SkColorTable*) = 0;
 };
 
 #endif
