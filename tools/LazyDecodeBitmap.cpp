@@ -22,7 +22,7 @@ DEFINE_bool(useVolatileCache, false, "Use a volatile cache for deferred image de
             "implementation.");
 
 //  Fits SkPicture::InstallPixelRefProc call signature.
-//  Used in SkPicturePlayback::CreateFromStream
+//  Used in SkPictureData::CreateFromStream
 bool sk_tools::LazyDecodeBitmap(const void* src,
                                 size_t length,
                                 SkBitmap* dst) {

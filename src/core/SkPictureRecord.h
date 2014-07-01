@@ -15,7 +15,7 @@
 #endif
 #include "SkPathHeap.h"
 #include "SkPicture.h"
-#include "SkPicturePlayback.h"
+#include "SkPictureData.h"
 #include "SkPictureFlat.h"
 #include "SkTemplates.h"
 #include "SkWriter32.h"
@@ -325,7 +325,7 @@ private:
     bool     fOptsEnabled;
     int      fInitialSaveCount;
 
-    friend class SkPicturePlayback;
+    friend class SkPictureData;
     friend class SkPictureTester; // for unit testing
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE

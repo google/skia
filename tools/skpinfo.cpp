@@ -7,7 +7,7 @@
 
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
-#include "SkPicturePlayback.h"
+#include "SkPictureData.h"
 #include "SkStream.h"
 
 DEFINE_string2(input, i, "", "skp on which to report");

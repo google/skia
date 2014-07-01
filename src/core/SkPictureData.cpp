@@ -7,7 +7,7 @@
 #include <new>
 #include "SkBBoxHierarchy.h"
 #include "SkDrawPictureCallback.h"
-#include "SkPicturePlayback.h"
+#include "SkPictureData.h"
 #include "SkPictureRecord.h"
 #include "SkPictureStateTree.h"
 #include "SkReadBuffer.h"
@@ -28,13 +28,13 @@ template <typename T> int SafeCount(const T* obj) {
  */
 #define SPEW_CLIP_SKIPPINGx
 
-SkPicturePlayback::PlaybackReplacements::ReplacementInfo*
-SkPicturePlayback::PlaybackReplacements::push() {
+SkPictureData::PlaybackReplacements::ReplacementInfo*
+SkPictureData::PlaybackReplacements::push() {
     SkDEBUGCODE(this->validate());
     return fReplacements.push();
 }
 
-void SkPicturePlayback::PlaybackReplacements::freeAll() {
+void SkPictureData::PlaybackReplacements::freeAll() {
     for (int i = 0; i < fReplacements.count(); ++i) {
         SkDELETE(fReplacements[i].fBM);
     }
@@ -42,7 +42,7 @@ void SkPicturePlayback::PlaybackReplacements::freeAll() {
 }
 
 #ifdef SK_DEBUG
-void SkPicturePlayback::PlaybackReplacements::validate() const {
+void SkPictureData::PlaybackReplacements::validate() const {
     // Check that the ranges are monotonically increasing and non-overlapping
     if (fReplacements.count() > 0) {
         SkASSERT(fReplacements[0].fStart < fReplacements[0].fStop);
@@ -55,12 +55,12 @@ void SkPicturePlayback::PlaybackReplacements::validate() const {
 }
 #endif
 
-SkPicturePlayback::SkPicturePlayback(const SkPictInfo& info)
+SkPictureData::SkPictureData(const SkPictInfo& info)
     : fInfo(info) {
     this->init();
 }
 
-void SkPicturePlayback::initForPlayback() const {
+void SkPictureData::initForPlayback() const {
     // ensure that the paths bounds are pre-computed
     if (NULL != fPathHeap.get()) {
         for (int i = 0; i < fPathHeap->count(); i++) {
@@ -69,7 +69,7 @@ void SkPicturePlayback::initForPlayback() const {
     }
 }
 
-SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record,
+SkPictureData::SkPictureData(const SkPictureRecord& record,
                                      const SkPictInfo& info,
                                      bool deepCopyOps)
     : fInfo(info) {
@@ -169,7 +169,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record,
 }
 
 #ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
-SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInfo* deepCopyInfo)
+SkPictureData::SkPictureData(const SkPictureData& src, SkPictCopyInfo* deepCopyInfo)
     : fInfo(src.fInfo) {
     this->init();
 
@@ -225,7 +225,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInf
     }
 }
 #else
-SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) : fInfo(src.fInfo) {
+SkPictureData::SkPictureData(const SkPictureData& src) : fInfo(src.fInfo) {
     this->init();
 
     fBitmapHeap.reset(SkSafeRef(src.fBitmapHeap.get()));
@@ -251,7 +251,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) : fInfo(src.f
 }
 #endif//SK_SUPPORT_LEGACY_PICTURE_CLONE
 
-void SkPicturePlayback::init() {
+void SkPictureData::init() {
     fBitmaps = NULL;
     fPaints = NULL;
     fPictureRefs = NULL;
@@ -268,7 +268,7 @@ void SkPicturePlayback::init() {
     fReplacements = NULL;
 }
 
-SkPicturePlayback::~SkPicturePlayback() {
+SkPictureData::~SkPictureData() {
     SkSafeUnref(fOpData);
 
     SkSafeUnref(fBitmaps);
@@ -286,7 +286,7 @@ SkPicturePlayback::~SkPicturePlayback() {
     SkDELETE(fFactoryPlayback);
 }
 
-void SkPicturePlayback::dumpSize() const {
+void SkPictureData::dumpSize() const {
     SkDebugf("--- picture size: ops=%d bitmaps=%d [%d] paints=%d [%d]\n",
              fOpData->size(),
              SafeCount(fBitmaps), SafeCount(fBitmaps) * sizeof(SkBitmap),
@@ -295,7 +295,7 @@ void SkPicturePlayback::dumpSize() const {
              SafeCount(fPathHeap.get()));
 }
 
-bool SkPicturePlayback::containsBitmaps() const {
+bool SkPictureData::containsBitmaps() const {
     if (fBitmaps && fBitmaps->count() > 0) {
         return true;
     }
@@ -329,7 +329,7 @@ static size_t compute_chunk_size(SkFlattenable::Factory* array, int count) {
     return size;
 }
 
-void SkPicturePlayback::WriteFactories(SkWStream* stream, const SkFactorySet& rec) {
+void SkPictureData::WriteFactories(SkWStream* stream, const SkFactorySet& rec) {
     int count = rec.count();
 
     SkAutoSTMalloc<16, SkFlattenable::Factory> storage(count);
@@ -358,7 +358,7 @@ void SkPicturePlayback::WriteFactories(SkWStream* stream, const SkFactorySet& re
     SkASSERT(size == (stream->bytesWritten() - start));
 }
 
-void SkPicturePlayback::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
+void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
     int count = rec.count();
 
     SkPicture::WriteTagSize(stream, SK_PICT_TYPEFACE_TAG, count);
@@ -372,7 +372,7 @@ void SkPicturePlayback::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec
     }
 }
 
-void SkPicturePlayback::flattenToBuffer(SkWriteBuffer& buffer) const {
+void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
     int i, n;
 
     if ((n = SafeCount(fBitmaps)) > 0) {
@@ -395,7 +395,7 @@ void SkPicturePlayback::flattenToBuffer(SkWriteBuffer& buffer) const {
     }
 }
 
-void SkPicturePlayback::serialize(SkWStream* stream,
+void SkPictureData::serialize(SkWStream* stream,
                                   SkPicture::EncodeBitmap encoder) const {
     SkPicture::WriteTagSize(stream, SK_PICT_READER_TAG, fOpData->size());
     stream->write(fOpData->bytes(), fOpData->size());
@@ -433,7 +433,7 @@ void SkPicturePlayback::serialize(SkWStream* stream,
     stream->write32(SK_PICT_EOF_TAG);
 }
 
-void SkPicturePlayback::flatten(SkWriteBuffer& buffer) const {
+void SkPictureData::flatten(SkWriteBuffer& buffer) const {
     SkPicture::WriteTagSize(buffer, SK_PICT_READER_TAG, fOpData->size());
     buffer.writeByteArray(fOpData->bytes(), fOpData->size());
 
@@ -474,7 +474,7 @@ static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
     return rbMask;
 }
 
-bool SkPicturePlayback::parseStreamTag(SkStream* stream,
+bool SkPictureData::parseStreamTag(SkStream* stream,
                                        uint32_t tag,
                                        uint32_t size,
                                        SkPicture::InstallPixelRefProc proc) {
@@ -586,7 +586,7 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream,
     return true;    // success
 }
 
-bool SkPicturePlayback::parseBufferTag(SkReadBuffer& buffer,
+bool SkPictureData::parseBufferTag(SkReadBuffer& buffer,
                                        uint32_t tag, uint32_t size) {
     switch (tag) {
         case SK_PICT_BITMAP_BUFFER_TAG: {
@@ -652,30 +652,30 @@ bool SkPicturePlayback::parseBufferTag(SkReadBuffer& buffer,
     return true;    // success
 }
 
-SkPicturePlayback* SkPicturePlayback::CreateFromStream(SkStream* stream,
-                                                       const SkPictInfo& info,
-                                                       SkPicture::InstallPixelRefProc proc) {
-    SkAutoTDelete<SkPicturePlayback> playback(SkNEW_ARGS(SkPicturePlayback, (info)));
+SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
+                                               const SkPictInfo& info,
+                                               SkPicture::InstallPixelRefProc proc) {
+    SkAutoTDelete<SkPictureData> data(SkNEW_ARGS(SkPictureData, (info)));
 
-    if (!playback->parseStream(stream, proc)) {
+    if (!data->parseStream(stream, proc)) {
         return NULL;
     }
-    return playback.detach();
+    return data.detach();
 }
 
-SkPicturePlayback* SkPicturePlayback::CreateFromBuffer(SkReadBuffer& buffer,
-                                                       const SkPictInfo& info) {
-    SkAutoTDelete<SkPicturePlayback> playback(SkNEW_ARGS(SkPicturePlayback, (info)));
+SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
+                                               const SkPictInfo& info) {
+    SkAutoTDelete<SkPictureData> data(SkNEW_ARGS(SkPictureData, (info)));
     buffer.setVersion(info.fVersion);
 
-    if (!playback->parseBuffer(buffer)) {
+    if (!data->parseBuffer(buffer)) {
         return NULL;
     }
-    return playback.detach();
+    return data.detach();
 }
 
-bool SkPicturePlayback::parseStream(SkStream* stream,
-                                    SkPicture::InstallPixelRefProc proc) {
+bool SkPictureData::parseStream(SkStream* stream,
+                                SkPicture::InstallPixelRefProc proc) {
     for (;;) {
         uint32_t tag = stream->readU32();
         if (SK_PICT_EOF_TAG == tag) {
@@ -690,7 +690,7 @@ bool SkPicturePlayback::parseStream(SkStream* stream,
     return true;
 }
 
-bool SkPicturePlayback::parseBuffer(SkReadBuffer& buffer) {
+bool SkPictureData::parseBuffer(SkReadBuffer& buffer) {
     for (;;) {
         uint32_t tag = buffer.readUInt();
         if (SK_PICT_EOF_TAG == tag) {
@@ -726,11 +726,11 @@ struct SkipClipRec {
 #endif
 
 #ifdef SK_DEVELOPER
-bool SkPicturePlayback::preDraw(int opIndex, int type) {
+bool SkPictureData::preDraw(int opIndex, int type) {
     return false;
 }
 
-void SkPicturePlayback::postDraw(int opIndex) {
+void SkPictureData::postDraw(int opIndex) {
 }
 #endif
 
@@ -757,17 +757,17 @@ static DrawType read_op_and_size(SkReader32* reader, uint32_t* size) {
     return (DrawType) op;
 }
 
-uint32_t SkPicturePlayback::CachedOperationList::offset(int index) const {
+uint32_t SkPictureData::CachedOperationList::offset(int index) const {
     SkASSERT(index < fOps.count());
     return ((SkPictureStateTree::Draw*)fOps[index])->fOffset;
 }
 
-const SkMatrix& SkPicturePlayback::CachedOperationList::matrix(int index) const {
+const SkMatrix& SkPictureData::CachedOperationList::matrix(int index) const {
     SkASSERT(index < fOps.count());
     return *((SkPictureStateTree::Draw*)fOps[index])->fMatrix;
 }
 
-const SkPicture::OperationList& SkPicturePlayback::getActiveOps(const SkIRect& query) {
+const SkPicture::OperationList& SkPictureData::getActiveOps(const SkIRect& query) {
     if (NULL == fStateTree || NULL == fBoundingHierarchy) {
         return SkPicture::OperationList::InvalidList();
     }
@@ -795,20 +795,20 @@ const SkPicture::OperationList& SkPicturePlayback::getActiveOps(const SkIRect& q
 
 class SkAutoResetOpID {
 public:
-    SkAutoResetOpID(SkPicturePlayback* playback) : fPlayback(playback) { }
+    SkAutoResetOpID(SkPictureData* data) : fData(data) { }
     ~SkAutoResetOpID() {
-        if (NULL != fPlayback) {
-            fPlayback->resetOpID();
+        if (NULL != fData) {
+            fData->resetOpID();
         }
     }
 
 private:
-    SkPicturePlayback* fPlayback;
+    SkPictureData* fData;
 };
 
 // TODO: Replace with hash or pass in "lastLookedUp" hint
-SkPicturePlayback::PlaybackReplacements::ReplacementInfo*
-SkPicturePlayback::PlaybackReplacements::lookupByStart(size_t start) {
+SkPictureData::PlaybackReplacements::ReplacementInfo*
+SkPictureData::PlaybackReplacements::lookupByStart(size_t start) {
     SkDEBUGCODE(this->validate());
     for (int i = 0; i < fReplacements.count(); ++i) {
         if (start == fReplacements[i].fStart) {
@@ -821,7 +821,7 @@ SkPicturePlayback::PlaybackReplacements::lookupByStart(size_t start) {
     return NULL;
 }
 
-void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) {
+void SkPictureData::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) {
     SkAutoResetOpID aroi(this);
     SkASSERT(0 == fCurOffset);
 
@@ -922,7 +922,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
 
         if (NULL != fReplacements) {
             // Potentially replace a block of operations with a single drawBitmap call
-            SkPicturePlayback::PlaybackReplacements::ReplacementInfo* temp =
+            SkPictureData::PlaybackReplacements::ReplacementInfo* temp =
                                             fReplacements->lookupByStart(reader.offset());
             if (NULL != temp) {
                 SkASSERT(NULL != temp->fBM);
@@ -1376,7 +1376,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
 
 
 #if SK_SUPPORT_GPU
-bool SkPicturePlayback::suitableForGpuRasterization(GrContext* context, const char **reason,
+bool SkPictureData::suitableForGpuRasterization(GrContext* context, const char **reason,
                                                     int sampleCount) const {
     // TODO: the heuristic used here needs to be refined
     static const int kNumPaintWithPathEffectUsesTol = 1;
@@ -1410,8 +1410,8 @@ bool SkPicturePlayback::suitableForGpuRasterization(GrContext* context, const ch
     return ret;
 }
 
-bool SkPicturePlayback::suitableForGpuRasterization(GrContext* context, const char **reason,
-                                                    GrPixelConfig config, SkScalar dpi) const {
+bool SkPictureData::suitableForGpuRasterization(GrContext* context, const char **reason,
+                                                GrPixelConfig config, SkScalar dpi) const {
 
     if (context != NULL) {
         return this->suitableForGpuRasterization(context, reason,
@@ -1425,7 +1425,7 @@ bool SkPicturePlayback::suitableForGpuRasterization(GrContext* context, const ch
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG_SIZE
-int SkPicturePlayback::size(size_t* sizePtr) {
+int SkPictureData::size(size_t* sizePtr) {
     int objects = bitmaps(sizePtr);
     objects += paints(sizePtr);
     objects += paths(sizePtr);
@@ -1435,7 +1435,7 @@ int SkPicturePlayback::size(size_t* sizePtr) {
     return objects;
 }
 
-int SkPicturePlayback::bitmaps(size_t* size) {
+int SkPictureData::bitmaps(size_t* size) {
     size_t result = 0;
     for (int index = 0; index < fBitmapCount; index++) {
      //   const SkBitmap& bitmap = fBitmaps[index];
@@ -1445,7 +1445,7 @@ int SkPicturePlayback::bitmaps(size_t* size) {
     return fBitmapCount;
 }
 
-int SkPicturePlayback::paints(size_t* size) {
+int SkPictureData::paints(size_t* size) {
     size_t result = 0;
     for (int index = 0; index < fPaintCount; index++) {
     //    const SkPaint& paint = fPaints[index];
@@ -1455,7 +1455,7 @@ int SkPicturePlayback::paints(size_t* size) {
     return fPaintCount;
 }
 
-int SkPicturePlayback::paths(size_t* size) {
+int SkPictureData::paths(size_t* size) {
     size_t result = 0;
     for (int index = 0; index < fPathCount; index++) {
         const SkPath& path = fPaths[index];
@@ -1467,7 +1467,7 @@ int SkPicturePlayback::paths(size_t* size) {
 #endif
 
 #ifdef SK_DEBUG_DUMP
-void SkPicturePlayback::dumpBitmap(const SkBitmap& bitmap) const {
+void SkPictureData::dumpBitmap(const SkBitmap& bitmap) const {
     char pBuffer[DUMP_BUFFER_SIZE];
     char* bufferPtr = pBuffer;
     bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
@@ -1624,29 +1624,29 @@ void dumpPaint(const SkPaint& paint) const {
         &paint, &paint, &paint, &paint);
 }
 
-void SkPicturePlayback::dumpPath(const SkPath& path) const {
+void SkPictureData::dumpPath(const SkPath& path) const {
     SkDebugf("path dump unimplemented\n");
 }
 
-void SkPicturePlayback::dumpPicture(const SkPicture& picture) const {
+void SkPictureData::dumpPicture(const SkPicture& picture) const {
     SkDebugf("picture dump unimplemented\n");
 }
 
-void SkPicturePlayback::dumpRegion(const SkRegion& region) const {
+void SkPictureData::dumpRegion(const SkRegion& region) const {
     SkDebugf("region dump unimplemented\n");
 }
 
-int SkPicturePlayback::dumpDrawType(char* bufferPtr, char* buffer, DrawType drawType) {
+int SkPictureData::dumpDrawType(char* bufferPtr, char* buffer, DrawType drawType) {
     return snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - buffer),
         "k%s, ", DrawTypeToString(drawType));
 }
 
-int SkPicturePlayback::dumpInt(char* bufferPtr, char* buffer, char* name) {
+int SkPictureData::dumpInt(char* bufferPtr, char* buffer, char* name) {
     return snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - buffer),
         "%s:%d, ", name, getInt());
 }
 
-int SkPicturePlayback::dumpRect(char* bufferPtr, char* buffer, char* name) {
+int SkPictureData::dumpRect(char* bufferPtr, char* buffer, char* name) {
     const SkRect* rect = fReader.skipRect();
     return snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - buffer),
         "%s:{l:%g t:%g r:%g b:%g}, ", name, SkScalarToFloat(rect.fLeft),
@@ -1654,7 +1654,7 @@ int SkPicturePlayback::dumpRect(char* bufferPtr, char* buffer, char* name) {
         SkScalarToFloat(rect.fRight), SkScalarToFloat(rect.fBottom));
 }
 
-int SkPicturePlayback::dumpPoint(char* bufferPtr, char* buffer, char* name) {
+int SkPictureData::dumpPoint(char* bufferPtr, char* buffer, char* name) {
     SkPoint pt;
     getPoint(&pt);
     return snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - buffer),
@@ -1662,7 +1662,7 @@ int SkPicturePlayback::dumpPoint(char* bufferPtr, char* buffer, char* name) {
         SkScalarToFloat(pt.fY));
 }
 
-void SkPicturePlayback::dumpPointArray(char** bufferPtrPtr, char* buffer, int count) {
+void SkPictureData::dumpPointArray(char** bufferPtrPtr, char* buffer, int count) {
     char* bufferPtr = *bufferPtrPtr;
     const SkPoint* pts = (const SkPoint*)fReadStream.getAtPos();
     fReadStream.skip(sizeof(SkPoint) * count);
@@ -1677,12 +1677,12 @@ void SkPicturePlayback::dumpPointArray(char** bufferPtrPtr, char* buffer, int co
     *bufferPtrPtr = bufferPtr;
 }
 
-int SkPicturePlayback::dumpPtr(char* bufferPtr, char* buffer, char* name, void* ptr) {
+int SkPictureData::dumpPtr(char* bufferPtr, char* buffer, char* name, void* ptr) {
     return snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - buffer),
         "%s:%p, ", name, ptr);
 }
 
-int SkPicturePlayback::dumpRectPtr(char* bufferPtr, char* buffer, char* name) {
+int SkPictureData::dumpRectPtr(char* bufferPtr, char* buffer, char* name) {
     char result;
     fReadStream.read(&result, sizeof(result));
     if (result)
@@ -1692,12 +1692,12 @@ int SkPicturePlayback::dumpRectPtr(char* bufferPtr, char* buffer, char* name) {
             "%s:NULL, ", name);
 }
 
-int SkPicturePlayback::dumpScalar(char* bufferPtr, char* buffer, char* name) {
+int SkPictureData::dumpScalar(char* bufferPtr, char* buffer, char* name) {
     return snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - buffer),
         "%s:%d, ", name, getScalar());
 }
 
-void SkPicturePlayback::dumpText(char** bufferPtrPtr, char* buffer) {
+void SkPictureData::dumpText(char** bufferPtrPtr, char* buffer) {
     char* bufferPtr = *bufferPtrPtr;
     int length = getInt();
     bufferPtr += dumpDrawType(bufferPtr, buffer);
@@ -1747,7 +1747,7 @@ void SkPicturePlayback::dumpText(char** bufferPtrPtr, char* buffer) {
 #define DUMP_TEXT() \
     dumpText(&bufferPtr, buffer)
 
-void SkPicturePlayback::dumpStream() {
+void SkPictureData::dumpStream() {
     SkDebugf("RecordStream stream = {\n");
     DrawType drawType;
     TextContainer text;
@@ -1866,7 +1866,7 @@ void SkPicturePlayback::dumpStream() {
     }
 }
 
-void SkPicturePlayback::dump() const {
+void SkPictureData::dump() const {
     char pBuffer[DUMP_BUFFER_SIZE];
     char* bufferPtr = pBuffer;
     int index;
@@ -1929,7 +1929,7 @@ void SkPicturePlayback::dump() const {
     if (fPictureCount > 0)
         SkDebugf("%s0};\n", pBuffer);
 
-    const_cast<SkPicturePlayback*>(this)->dumpStream();
+    const_cast<SkPictureData*>(this)->dumpStream();
 }
 
 #endif

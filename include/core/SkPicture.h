@@ -23,7 +23,7 @@ class SkBBHFactory;
 class SkBBoxHierarchy;
 class SkCanvas;
 class SkData;
-class SkPicturePlayback;
+class SkPictureData;
 class SkPictureRecord;
 class SkStream;
 class SkWStream;
@@ -249,18 +249,16 @@ protected:
 
     mutable uint32_t      fUniqueID;
 
-    // fPlayback, fWidth & fHeight are protected to allow derived classes to
-    // install their own SkPicturePlayback-derived players,SkPictureRecord-derived
-    // recorders and set the picture size
-    SkAutoTDelete<SkPicturePlayback> fPlayback;
+    // TODO: make fData and fWidth/fHeight private
+    SkAutoTDelete<SkPictureData> fData;
     int                   fWidth, fHeight;
     mutable SkAutoTUnref<const AccelData> fAccelData;
 
     void needsNewGenID() { fUniqueID = SK_InvalidGenID; }
 
-    // Create a new SkPicture from an existing SkPicturePlayback. Ref count of
-    // playback is unchanged.
-    SkPicture(SkPicturePlayback*, int width, int height);
+    // Create a new SkPicture from an existing SkPictureData. Ref count of
+    // data is unchanged.
+    SkPicture(SkPictureData* data, int width, int height);
 
     SkPicture(int width, int height, const SkPictureRecord& record, bool deepCopyOps);
 
@@ -304,7 +302,7 @@ private:
     static bool IsValidPictInfo(const SkPictInfo& info);
 
     friend class SkFlatPicture;
-    friend class SkPicturePlayback;
+    friend class SkPictureData;
     friend class SkPictureRecorder; // just for SkPicture-based constructor
     friend class SkGpuDevice;
     friend class GrGatherCanvas;

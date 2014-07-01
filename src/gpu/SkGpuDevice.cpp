@@ -29,7 +29,7 @@
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
-#include "SkPicturePlayback.h"
+#include "SkPictureData.h"
 #include "SkRRect.h"
 #include "SkStroke.h"
 #include "SkSurface.h"
@@ -1830,7 +1830,7 @@ void SkGpuDevice::EXPERIMENTAL_purge(const SkPicture* picture) {
 
 bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture) {
 
-    if (NULL == picture->fPlayback.get()) {
+    if (NULL == picture->fData.get()) {
         return false;
     }
 
@@ -1928,7 +1928,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
         }
     }
 
-    SkPicturePlayback::PlaybackReplacements replacements;
+    SkPictureData::PlaybackReplacements replacements;
 
     // Generate the layer and/or ensure it is locked
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
@@ -1937,7 +1937,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
 
             const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-            SkPicturePlayback::PlaybackReplacements::ReplacementInfo* layerInfo =
+            SkPictureData::PlaybackReplacements::ReplacementInfo* layerInfo =
                                                                         replacements.push();
             layerInfo->fStart = info.fSaveLayerOpID;
             layerInfo->fStop = info.fRestoreOpID;
@@ -2009,9 +2009,9 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
                                       SkIntToScalar(layer->rect().fTop));
                 } 
 
-                picture->fPlayback->setDrawLimits(info.fSaveLayerOpID, info.fRestoreOpID);
-                picture->fPlayback->draw(*canvas, NULL);
-                picture->fPlayback->setDrawLimits(0, 0);
+                picture->fData->setDrawLimits(info.fSaveLayerOpID, info.fRestoreOpID);
+                picture->fData->draw(*canvas, NULL);
+                picture->fData->setDrawLimits(0, 0);
 
                 canvas->flush();
             }
@@ -2019,9 +2019,9 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
     }
 
     // Playback using new layers
-    picture->fPlayback->setReplacements(&replacements);
-    picture->fPlayback->draw(*canvas, NULL);
-    picture->fPlayback->setReplacements(NULL);
+    picture->fData->setReplacements(&replacements);
+    picture->fData->draw(*canvas, NULL);
+    picture->fData->setReplacements(NULL);
 
     // unlock the layers
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {

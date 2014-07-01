@@ -6,7 +6,6 @@
  */
 
 #include "SkBBoxHierarchyRecord.h"
-#include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
 #include "SkRecord.h"

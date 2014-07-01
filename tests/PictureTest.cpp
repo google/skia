@@ -662,15 +662,15 @@ static void test_gatherpixelrefsandrects(skiatest::Reporter* reporter) {
 }
 
 #ifdef SK_DEBUG
-// Ensure that deleting SkPicturePlayback does not assert. Asserts only fire in debug mode, so only
-// run in debug mode.
-static void test_deleting_empty_playback() {
+// Ensure that deleting an empty SkPicture does not assert. Asserts only fire 
+// in debug mode, so only run in debug mode.
+static void test_deleting_empty_picture() {
     SkPictureRecorder recorder;
     // Creates an SkPictureRecord
     recorder.beginRecording(0, 0);
-    // Turns that into an SkPicturePlayback
+    // Turns that into an SkPicture
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-    // Deletes the old SkPicturePlayback, and creates a new SkPictureRecord
+    // Ceates a new SkPictureRecord
     recorder.beginRecording(0, 0);
 }
 
@@ -1547,7 +1547,7 @@ static void test_gen_id(skiatest::Reporter* reporter) {
 
 DEF_TEST(Picture, reporter) {
 #ifdef SK_DEBUG
-    test_deleting_empty_playback();
+    test_deleting_empty_picture();
     test_serializing_empty_picture();
 #else
     test_bad_bitmap();

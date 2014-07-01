@@ -6,8 +6,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkPicturePlayback_DEFINED
-#define SkPicturePlayback_DEFINED
+#ifndef SkPictureData_DEFINED
+#define SkPictureData_DEFINED
 
 #include "SkBitmap.h"
 #include "SkPathHeap.h"
@@ -133,22 +133,22 @@ struct SkPictCopyInfo {
 };
 #endif
 
-class SkPicturePlayback {
+class SkPictureData {
 public:
 #ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
-    SkPicturePlayback(const SkPicturePlayback& src,
-                      SkPictCopyInfo* deepCopyInfo = NULL);
+    SkPictureData(const SkPictureData& src,
+                  SkPictCopyInfo* deepCopyInfo = NULL);
 #else
-    SkPicturePlayback(const SkPicturePlayback& src);
+    SkPictureData(const SkPictureData& src);
 #endif
-    SkPicturePlayback(const SkPictureRecord& record, const SkPictInfo&, bool deepCopyOps);
-    static SkPicturePlayback* CreateFromStream(SkStream*,
+    SkPictureData(const SkPictureRecord& record, const SkPictInfo&, bool deepCopyOps);
+    static SkPictureData* CreateFromStream(SkStream*,
                                                const SkPictInfo&,
                                                SkPicture::InstallPixelRefProc);
-    static SkPicturePlayback* CreateFromBuffer(SkReadBuffer&,
+    static SkPictureData* CreateFromBuffer(SkReadBuffer&,
                                                const SkPictInfo&);
 
-    virtual ~SkPicturePlayback();
+    virtual ~SkPictureData();
 
     const SkPicture::OperationList& getActiveOps(const SkIRect& queryRect);
 
@@ -173,7 +173,7 @@ public:
     void resetOpID() { fCurOffset = 0; }
 
 protected:
-    explicit SkPicturePlayback(const SkPictInfo& info);
+    explicit SkPictureData(const SkPictInfo& info);
 
     bool parseStream(SkStream*, SkPicture::InstallPixelRefProc);
     bool parseBuffer(SkReadBuffer& buffer);
@@ -365,7 +365,7 @@ private:
         ReplacementInfo* push();
 
     private:
-        friend class SkPicturePlayback; // for access to lookupByStart
+        friend class SkPictureData; // for access to lookupByStart
 
         // look up a replacement range by its start offset
         ReplacementInfo* lookupByStart(size_t start);

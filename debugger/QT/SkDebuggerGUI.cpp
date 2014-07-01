@@ -12,7 +12,7 @@
 #include <QListWidgetItem>
 #include "PictureRenderer.h"
 #include "SkPictureRecord.h"
-#include "SkPicturePlayback.h"
+#include "SkPictureData.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -155,15 +155,15 @@ void SkDebuggerGUI::showDeletes() {
     }
 }
 
-// The timed picture playback uses the SkPicturePlayback's profiling stubs
+// The timed picture playback uses the SkPictureData's profiling stubs
 // to time individual commands. The offsets are needed to map SkPicture
 // offsets to individual commands.
-class SkTimedPicturePlayback : public SkPicturePlayback {
+class SkTimedPicturePlayback : public SkPictureData {
 public:
     static SkTimedPicturePlayback* CreateFromStream(SkStream* stream, const SkPictInfo& info,
                                                     SkPicture::InstallPixelRefProc proc,
                                                     const SkTDArray<bool>& deletedCommands) {
-        // Mimics SkPicturePlayback::CreateFromStream
+        // Mimics SkPictureData::CreateFromStream
         SkAutoTDelete<SkTimedPicturePlayback> playback(SkNEW_ARGS(SkTimedPicturePlayback,
                                                                (deletedCommands, info)));
         if (!playback->parseStream(stream, proc)) {
@@ -256,7 +256,7 @@ protected:
 #endif
 
 private:
-    typedef SkPicturePlayback INHERITED;
+    typedef SkPictureData INHERITED;
 };
 
 // Wrap SkPicture to allow installation of an SkTimedPicturePlayback object
@@ -286,19 +286,19 @@ public:
         return NULL;
     }
 
-    void resetTimes() { ((SkTimedPicturePlayback*) fPlayback.get())->resetTimes(); }
+    void resetTimes() { ((SkTimedPicturePlayback*) fData.get())->resetTimes(); }
 
-    int count() const { return ((SkTimedPicturePlayback*) fPlayback.get())->count(); }
+    int count() const { return ((SkTimedPicturePlayback*) fData.get())->count(); }
 
     // return the fraction of the total time this command consumed
-    double time(int index) const { return ((SkTimedPicturePlayback*) fPlayback.get())->time(index); }
+    double time(int index) const { return ((SkTimedPicturePlayback*) fData.get())->time(index); }
 
-    const SkTDArray<double>* typeTimes() const { return ((SkTimedPicturePlayback*) fPlayback.get())->typeTimes(); }
+    const SkTDArray<double>* typeTimes() const { return ((SkTimedPicturePlayback*) fData.get())->typeTimes(); }
 
-    double totTime() const { return ((SkTimedPicturePlayback*) fPlayback.get())->totTime(); }
+    double totTime() const { return ((SkTimedPicturePlayback*) fData.get())->totTime(); }
 
 private:
-    // disallow default ctor b.c. we don't have a good way to setup the fPlayback ptr
+    // disallow default ctor b.c. we don't have a good way to setup the fData ptr
     SkTimedPicture();
     // Private ctor only used by CreateTimedPicture, which has created the playback.
     SkTimedPicture(SkTimedPicturePlayback* playback, int width, int height)
