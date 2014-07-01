@@ -155,8 +155,7 @@ static SkFontConfigInterfaceAndroid* getSingletonInterface() {
     return gFontConfigInterface;
 }
 
-SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface(SkBaseMutex*) {
-    // Doesn't need passed-in mutex because getSingletonInterface() uses one
+SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
     return getSingletonInterface();
 }
 
