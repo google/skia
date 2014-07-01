@@ -21,6 +21,7 @@
 #elif defined(SK_BUILD_FOR_WIN32)
     #include <windows.h>
     #include <GL/GL.h>
+    #include "SkWGL.h"
 #endif
 
 class SkNativeGLContext : public SkGLContextHelper {
@@ -78,6 +79,7 @@ private:
     HDC fDeviceContext;
     HGLRC fGlRenderContext;
     static ATOM gWC;
+    SkWGLPbufferContext* fPbufferContext;
 #elif defined(SK_BUILD_FOR_IOS)
     void* fEAGLContext;
 #endif
