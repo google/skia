@@ -112,7 +112,7 @@ static int gpu_bench(SkGLContextHelper* gl,
                      SkCanvas* canvas,
                      double* samples) {
     // Make sure we're done with whatever came before.
-    SK_GL(*gl, Finish);
+    SK_GL(*gl, Finish());
 
     // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
     int loops = 1;
@@ -131,7 +131,7 @@ static int gpu_bench(SkGLContextHelper* gl,
     loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
 
     // Might as well make sure we're not still timing our calibration.
-    SK_GL(*gl, Finish);
+    SK_GL(*gl, Finish());
 
     // Pretty much the same deal as the calibration: do some warmup to make
     // sure we're timing steady-state pipelined frames.
