@@ -45,6 +45,7 @@ def write_tool_android_mk(target_dir, var_dict, place_in_local_tmp):
 
 def generate_tool(gyp_dir, target_file, skia_trunk, dest_dir,
                   skia_lib_var_dict, local_module_name, local_module_tags,
+                  desired_targets,
                   place_in_local_tmp=False):
   """Common steps for building one of the skia tools.
 
@@ -62,6 +63,7 @@ def generate_tool(gyp_dir, target_file, skia_trunk, dest_dir,
       ensure we do not duplicate anything in this Android.mk.
     local_module_name: Name for this tool, to set as LOCAL_MODULE.
     local_module_tags: Tags to pass to LOCAL_MODULE_TAG.
+    desired_targets: List of targets to parse.
     place_in_local_tmp: If True, the executable will be synced to
       /data/local/tmp.
   """
@@ -75,7 +77,7 @@ def generate_tool(gyp_dir, target_file, skia_trunk, dest_dir,
   # Add known targets from skia_lib, so we do not reparse them.
   var_dict.KNOWN_TARGETS.set(skia_lib_var_dict.KNOWN_TARGETS)
 
-  gypd_parser.parse_gypd(var_dict, result_file, dest_dir)
+  gypd_parser.parse_gypd(var_dict, result_file, dest_dir, desired_targets)
 
   android_framework_gyp.clean_gypd_files(gyp_dir)
 

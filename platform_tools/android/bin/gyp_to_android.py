@@ -137,7 +137,8 @@ def main(target_dir=None, require_sk_user_config=False):
                                        dest_dir='tests',
                                        skia_lib_var_dict=common,
                                        local_module_name='skia_test',
-                                       local_module_tags=['tests'])
+                                       local_module_tags=['tests'],
+                                       desired_targets=['tests'])
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
                                        target_file='bench.gyp',
@@ -146,6 +147,7 @@ def main(target_dir=None, require_sk_user_config=False):
                                        skia_lib_var_dict=common,
                                        local_module_name='skia_bench',
                                        local_module_tags=['tests'],
+                                       desired_targets=['bench'],
                                        place_in_local_tmp=True)
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
@@ -154,7 +156,8 @@ def main(target_dir=None, require_sk_user_config=False):
                                        dest_dir='gm',
                                        skia_lib_var_dict=common,
                                        local_module_name='skia_gm',
-                                       local_module_tags=['tests'])
+                                       local_module_tags=['tests'],
+                                       desired_targets=['gm'])
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
                                        target_file='dm.gyp',
@@ -162,7 +165,8 @@ def main(target_dir=None, require_sk_user_config=False):
                                        dest_dir='dm',
                                        skia_lib_var_dict=common,
                                        local_module_name='skia_dm',
-                                       local_module_tags=['tests'])
+                                       local_module_tags=['tests'],
+                                       desired_targets=['dm'])
 
     # Now that the defines have been written to SkUserConfig and they've been
     # used to skip adding them to the tools makefiles, they are not needed in
