@@ -298,8 +298,10 @@ public:
     enum SaveFlags {
         /** save the matrix state, restoring it on restore() */
         // [deprecated] kMatrix_SaveFlag            = 0x01,
+        kMatrix_SaveFlag            = 0x01,
         /** save the clip state, restoring it on restore() */
         // [deprecated] kClip_SaveFlag              = 0x02,
+        kClip_SaveFlag              = 0x02,
         /** the layer needs to support per-pixel alpha */
         kHasAlphaLayer_SaveFlag     = 0x04,
         /** the layer needs to support 8-bits per color component */
@@ -313,6 +315,7 @@ public:
 
         // helper masks for common choices
         // [deprecated] kMatrixClip_SaveFlag        = 0x03,
+        kMatrixClip_SaveFlag        = 0x03,
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
         kARGB_NoClipLayer_SaveFlag  = 0x0F,
 #endif
