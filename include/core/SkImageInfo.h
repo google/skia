@@ -124,6 +124,15 @@ static inline bool SkColorTypeIsValid(unsigned value) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
+ *  Return true if alphaType is supported by colorType. If there is a canonical
+ *  alphaType for this colorType, return it in canonical.
+ */
+bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
+                                  SkAlphaType* canonical = NULL);
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
  *  Describe an image's dimensions and pixel type.
  */
 struct SkImageInfo {

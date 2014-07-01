@@ -246,6 +246,11 @@ SkImageGenerator* CreateDecodingImageGenerator(
     if (opts.fRequireUnpremul && info.fAlphaType != kOpaque_SkAlphaType) {
         info.fAlphaType = kUnpremul_SkAlphaType;
     }
+
+    if (!SkColorTypeValidateAlphaType(info.fColorType, info.fAlphaType, &info.fAlphaType)) {
+        return NULL;
+    }
+
     return SkNEW_ARGS(DecodingImageGenerator,
                       (data, autoStream.detach(), info,
                        opts.fSampleSize, opts.fDitherImage));

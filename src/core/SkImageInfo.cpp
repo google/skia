@@ -38,3 +38,34 @@ void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
     uint32_t packed = (fAlphaType << 8) | fColorType;
     buffer.write32(packed);
 }
+
+bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
+                                  SkAlphaType* canonical) {
+    switch (colorType) {
+        case kUnknown_SkColorType:
+            alphaType = kIgnore_SkAlphaType;
+            break;
+        case kAlpha_8_SkColorType:
+            if (kUnpremul_SkAlphaType == alphaType) {
+                alphaType = kPremul_SkAlphaType;
+            }
+            // fall-through
+        case kIndex_8_SkColorType:
+        case kARGB_4444_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            if (kIgnore_SkAlphaType == alphaType) {
+                return false;
+            }
+            break;
+        case kRGB_565_SkColorType:
+            alphaType = kOpaque_SkAlphaType;
+            break;
+        default:
+            return false;
+    }
+    if (canonical) {
+        *canonical = alphaType;
+    }
+    return true;
+}

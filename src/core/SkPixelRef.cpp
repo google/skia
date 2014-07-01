@@ -84,6 +84,9 @@ void SkPixelRef::setMutex(SkBaseMutex* mutex) {
 #define SKPIXELREF_PRELOCKED_LOCKCOUNT     123456789
 
 SkPixelRef::SkPixelRef(const SkImageInfo& info) : fInfo(info) {
+    SkAssertResult(SkColorTypeValidateAlphaType(fInfo.colorType(), fInfo.alphaType(),
+                                                const_cast<SkAlphaType*>(&fInfo.fAlphaType)));
+
     this->setMutex(NULL);
     fRec.zero();
     fLockCount = 0;
@@ -94,6 +97,9 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info) : fInfo(info) {
 
 
 SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex) : fInfo(info) {
+    SkAssertResult(SkColorTypeValidateAlphaType(fInfo.colorType(), fInfo.alphaType(),
+                                                const_cast<SkAlphaType*>(&fInfo.fAlphaType)));
+
     this->setMutex(mutex);
     fRec.zero();
     fLockCount = 0;
@@ -112,6 +118,10 @@ SkPixelRef::SkPixelRef(SkReadBuffer& buffer, SkBaseMutex* mutex)
         : INHERITED(buffer)
         , fInfo(read_info(buffer))
 {
+    SkDEBUGCODE(SkAlphaType alphaType;)
+    SkASSERT(SkColorTypeValidateAlphaType(fInfo.colorType(), fInfo.alphaType(), &alphaType));
+    SkASSERT(fInfo.fAlphaType == alphaType);
+
     this->setMutex(mutex);
     fRec.zero();
     fLockCount = 0;
