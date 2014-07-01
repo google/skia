@@ -60,11 +60,13 @@
     .type S32A_Opaque_BlitRow32_SSE4_asm, @function
 #endif
     .p2align 4
-#if defined(__clang__) && defined(SK_BUILD_FOR_MAC)
+#if defined(SK_BUILD_FOR_MAC)
     .global _S32A_Opaque_BlitRow32_SSE4_asm
+    .private_extern _S32A_Opaque_BlitRow32_SSE4_asm
 _S32A_Opaque_BlitRow32_SSE4_asm:
 #else
     .global S32A_Opaque_BlitRow32_SSE4_asm
+    .hidden S32A_Opaque_BlitRow32_SSE4_asm
 S32A_Opaque_BlitRow32_SSE4_asm:
 #endif
     .cfi_startproc
