@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <ctype.h>
+
 #include "Benchmark.h"
 #include "CrashHandler.h"
 #include "Stats.h"
@@ -17,6 +19,11 @@
 #include "SkString.h"
 #include "SkSurface.h"
 
+#if SK_SUPPORT_GPU
+    #include "GrContextFactory.h"
+    GrContextFactory gGrFactory;
+#endif
+
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
@@ -26,10 +33,11 @@ DEFINE_double(overheadGoal, 0.0001,
 DEFINE_string(match, "", "The usual filters on file names of benchmarks to measure.");
 DEFINE_bool2(quiet, q, false, "Print only bench name and minimum sample.");
 DEFINE_bool2(verbose, v, false, "Print all samples.");
-DEFINE_string(config, "8888 nonrendering",
-              "Configs to measure. Options: 565 8888 nonrendering");
+DEFINE_string(config, "nonrendering 8888 gpu", "Configs to measure. Options: "
+              "565 8888 gpu nonrendering debug nullgpu msaa4 msaa16 nvprmsaa4 nvprmsaa16 angle");
+DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
+DEFINE_int32(gpuFrameLag, 5, "Overestimate of maximum number of frames GPU allows to lag.");
 
-// TODO: GPU benches
 
 static SkString humanize(double ms) {
     if (ms > 1e+3) return SkStringPrintf("%.3gs",  ms/1e3);
@@ -38,86 +46,175 @@ static SkString humanize(double ms) {
     return SkStringPrintf("%.3gms", ms);
 }
 
+static double time(int loops, Benchmark* bench, SkCanvas* canvas, SkGLContextHelper* gl) {
+    WallTimer timer;
+    timer.start();
+    if (bench) {
+        bench->draw(loops, canvas);
+    }
+    if (canvas) {
+        canvas->flush();
+    }
+#if SK_SUPPORT_GPU
+    if (gl) {
+        SK_GL(*gl, Flush());
+        gl->swapBuffers();
+    }
+#endif
+    timer.end();
+    return timer.fWall;
+}
+
 static double estimate_timer_overhead() {
     double overhead = 0;
-    WallTimer timer;
     for (int i = 0; i < FLAGS_overheadLoops; i++) {
-        timer.start();
-        timer.end();
-        overhead += timer.fWall;
+        overhead += time(1, NULL, NULL, NULL);
     }
     return overhead / FLAGS_overheadLoops;
 }
 
-static void safe_flush(SkCanvas* canvas) {
-    if (canvas) {
-        canvas->flush();
-    }
-}
-
-static int guess_loops(double overhead, Benchmark* bench, SkCanvas* canvas) {
-    WallTimer timer;
-
-    // Measure timer overhead and bench time together.
+static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, double* samples) {
+    // First figure out approximately how many loops of bench it takes to make overhead negligible.
+    double bench_plus_overhead;
     do {
-        timer.start();
-        bench->draw(1, canvas);
-        safe_flush(canvas);
-        timer.end();
-    } while (timer.fWall < overhead);  // Shouldn't normally happen.
+        bench_plus_overhead = time(1, bench, canvas, NULL);
+    } while (bench_plus_overhead < overhead);  // Shouldn't normally happen.
 
-    // Later we'll just start and stop the timer once, but loop N times.
+    // Later we'll just start and stop the timer once but loop N times.
     // We'll pick N to make timer overhead negligible:
     //
-    //           Timer Overhead
-    //  -------------------------------  < FLAGS_overheadGoal
-    //  Timer Overhead + N * Bench Time
+    //          overhead
+    //  -------------------------  < FLAGS_overheadGoal
+    //  overhead + N * Bench Time
     //
-    // where timer.fWall ≈ Timer Overhead + Bench Time.
+    // where bench_plus_overhead ≈ overhead + Bench Time.
     //
     // Doing some math, we get:
     //
-    //  (Timer Overhead / FLAGS_overheadGoal) - Timer Overhead
-    //  -----------------------------------------------------  < N
-    //           (timer.fWall - Timer Overhead)
+    //  (overhead / FLAGS_overheadGoal) - overhead
+    //  ------------------------------------------  < N
+    //       bench_plus_overhead - overhead)
     //
     // Luckily, this also works well in practice. :)
     const double numer = overhead / FLAGS_overheadGoal - overhead;
-    const double denom = timer.fWall - overhead;
-    return (int)ceil(numer / denom);
+    const double denom = bench_plus_overhead - overhead;
+    const int loops = (int)ceil(numer / denom);
+
+    for (int i = 0; i < FLAGS_samples; i++) {
+        samples[i] = time(loops, bench, canvas, NULL) / loops;
+    }
+    return loops;
 }
 
-static bool push_config_if_enabled(const char* config, SkTDArray<const char*>* configs) {
-    if (FLAGS_config.contains(config)) {
-        configs->push(config);
-        return true;
+#if SK_SUPPORT_GPU
+static int gpu_bench(SkGLContextHelper* gl,
+                     Benchmark* bench,
+                     SkCanvas* canvas,
+                     double* samples) {
+    // Make sure we're done with whatever came before.
+    SK_GL(*gl, Finish);
+
+    // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
+    int loops = 1;
+    double elapsed = 0;
+    do {
+        loops *= 2;
+        // If the GPU lets frames lag at all, we need to make sure we're timing
+        // _this_ round, not still timing last round.  We force this by looping
+        // more times than any reasonable GPU will allow frames to lag.
+        for (int i = 0; i < FLAGS_gpuFrameLag; i++) {
+            elapsed = time(loops, bench, canvas, gl);
+        }
+    } while (elapsed < FLAGS_gpuMs);
+
+    // We've overshot at least a little.  Scale back linearly.
+    loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
+
+    // Might as well make sure we're not still timing our calibration.
+    SK_GL(*gl, Finish);
+
+    // Pretty much the same deal as the calibration: do some warmup to make
+    // sure we're timing steady-state pipelined frames.
+    for (int i = 0; i < FLAGS_gpuFrameLag; i++) {
+        time(loops, bench, canvas, gl);
     }
-    return false;
+
+    // Now, actually do the timing!
+    for (int i = 0; i < FLAGS_samples; i++) {
+        samples[i] = time(loops, bench, canvas, gl) / loops;
+    }
+    return loops;
+}
+#endif
+
+static SkString to_lower(const char* str) {
+    SkString lower(str);
+    for (size_t i = 0; i < lower.size(); i++) {
+        lower[i] = tolower(lower[i]);
+    }
+    return lower;
 }
 
-static void create_surfaces(Benchmark* bench,
-                            SkTDArray<SkSurface*>* surfaces,
-                            SkTDArray<const char*>* configs) {
+struct Target {
+    const char* config;
+    Benchmark::Backend backend;
+    SkAutoTDelete<SkSurface> surface;
+#if SK_SUPPORT_GPU
+    SkGLContextHelper* gl;
+#endif
+};
 
-    if (bench->isSuitableFor(Benchmark::kNonRendering_Backend)
-        && push_config_if_enabled("nonrendering", configs)) {
-        surfaces->push(NULL);
+// If bench is enabled for backend/config, returns a Target* for them, otherwise NULL.
+static Target* is_enabled(Benchmark* bench, Benchmark::Backend backend, const char* config) {
+    if (!bench->isSuitableFor(backend)) {
+        return NULL;
     }
 
-    if (bench->isSuitableFor(Benchmark::kRaster_Backend)) {
-        const int w = bench->getSize().fX,
-                  h = bench->getSize().fY;
-
-        if (push_config_if_enabled("8888", configs)) {
-            const SkImageInfo info = { w, h, kN32_SkColorType, kPremul_SkAlphaType };
-            surfaces->push(SkSurface::NewRaster(info));
-        }
-
-        if (push_config_if_enabled("565", configs)) {
-            const SkImageInfo info = { w, h, kRGB_565_SkColorType, kOpaque_SkAlphaType };
-            surfaces->push(SkSurface::NewRaster(info));
+    for (int i = 0; i < FLAGS_config.count(); i++) {
+        if (to_lower(FLAGS_config[i]).equals(config)) {
+            Target* target = new Target;
+            target->config  = config;
+            target->backend = backend;
+            return target;
         }
     }
+    return NULL;
+}
+
+// Append all targets that are suitable for bench.
+static void create_targets(Benchmark* bench, SkTDArray<Target*>* targets) {
+    const int w = bench->getSize().fX,
+              h = bench->getSize().fY;
+    const SkImageInfo _8888 = { w, h, kN32_SkColorType,     kPremul_SkAlphaType },
+                       _565 = { w, h, kRGB_565_SkColorType, kOpaque_SkAlphaType };
+
+    #define CPU_TARGET(config, backend, code)                              \
+        if (Target* t = is_enabled(bench, Benchmark::backend, #config)) {  \
+            t->surface.reset(code);                                        \
+            targets->push(t);                                              \
+        }
+    CPU_TARGET(nonrendering, kNonRendering_Backend, NULL)
+    CPU_TARGET(8888, kRaster_Backend, SkSurface::NewRaster(_8888))
+    CPU_TARGET(565,  kRaster_Backend, SkSurface::NewRaster(_565))
+
+#if SK_SUPPORT_GPU
+    #define GPU_TARGET(config, ctxType, info, samples)                                            \
+        if (Target* t = is_enabled(bench, Benchmark::kGPU_Backend, #config)) {                    \
+            t->surface.reset(SkSurface::NewRenderTarget(gGrFactory.get(ctxType), info, samples)); \
+            t->gl = gGrFactory.getGLContext(ctxType);                                             \
+            targets->push(t);                                                                     \
+        }
+    GPU_TARGET(gpu,      GrContextFactory::kNative_GLContextType, _8888, 0)
+    GPU_TARGET(msaa4,    GrContextFactory::kNative_GLContextType, _8888, 4)
+    GPU_TARGET(msaa16,   GrContextFactory::kNative_GLContextType, _8888, 16)
+    GPU_TARGET(nvprmsaa4,  GrContextFactory::kNVPR_GLContextType, _8888, 4)
+    GPU_TARGET(nvprmsaa16, GrContextFactory::kNVPR_GLContextType, _8888, 16)
+    GPU_TARGET(debug,     GrContextFactory::kDebug_GLContextType, _8888, 0)
+    GPU_TARGET(nullgpu,    GrContextFactory::kNull_GLContextType, _8888, 0)
+    #if SK_ANGLE
+        GPU_TARGET(angle, GrContextFactory::kANGLE_GLContextType, _8888, 0)
+    #endif
+#endif
 }
 
 int tool_main(int argc, char** argv);
@@ -127,13 +224,16 @@ int tool_main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     const double overhead = estimate_timer_overhead();
+    SkAutoTMalloc<double> samples(FLAGS_samples);
+
+    // TODO: display add median, use it in --quiet mode
 
     if (FLAGS_verbose) {
         // No header.
     } else if (FLAGS_quiet) {
         SkDebugf("min\tbench\tconfig\n");
     } else {
-        SkDebugf("loops\tmin\tmean\tmax\tstddev\tbench\tconfig\n");
+        SkDebugf("loops\tmin\tmean\tmax\tstddev\tconfig\tbench\n");
     }
 
     for (const BenchRegistry* r = BenchRegistry::Head(); r != NULL; r = r->next()) {
@@ -142,38 +242,31 @@ int tool_main(int argc, char** argv) {
             continue;
         }
 
-        SkTDArray<SkSurface*> surfaces;
-        SkTDArray<const char*> configs;
-        create_surfaces(bench.get(), &surfaces, &configs);
+        SkTDArray<Target*> targets;
+        create_targets(bench.get(), &targets);
 
         bench->preDraw();
-        for (int j = 0; j < surfaces.count(); j++) {
-            SkCanvas* canvas = surfaces[j] ? surfaces[j]->getCanvas() : NULL;
-            const char* config = configs[j];
+        for (int j = 0; j < targets.count(); j++) {
+            SkCanvas* canvas = targets[j]->surface.get() ? targets[j]->surface->getCanvas() : NULL;
 
-            bench->draw(1, canvas);  // Just paranoid warmup.
-            safe_flush(canvas);
-            const int loops = guess_loops(overhead, bench.get(), canvas);
-
-            SkAutoTMalloc<double> samples(FLAGS_samples);
-            WallTimer timer;
-            for (int i = 0; i < FLAGS_samples; i++) {
-                timer.start();
-                bench->draw(loops, canvas);
-                safe_flush(canvas);
-                timer.end();
-                samples[i] = timer.fWall / loops;
-            }
+            const int loops =
+#if SK_SUPPORT_GPU
+                Benchmark::kGPU_Backend == targets[j]->backend
+                ? gpu_bench(targets[j]->gl, bench.get(), canvas, samples.get())
+                :
+#endif
+                 cpu_bench(       overhead, bench.get(), canvas, samples.get());
 
             Stats stats(samples.get(), FLAGS_samples);
 
+            const char* config = targets[j]->config;
             if (FLAGS_verbose) {
                 for (int i = 0; i < FLAGS_samples; i++) {
                     SkDebugf("%s  ", humanize(samples[i]).c_str());
                 }
                 SkDebugf("%s\n", bench->getName());
             } else if (FLAGS_quiet) {
-                if (configs.count() == 1) {
+                if (targets.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
                 SkDebugf("%s\t%s\t%s\n", humanize(stats.min).c_str(), bench->getName(), config);
@@ -185,12 +278,12 @@ int tool_main(int argc, char** argv) {
                         , humanize(stats.mean).c_str()
                         , humanize(stats.max).c_str()
                         , stddev_percent
-                        , bench->getName()
                         , config
+                        , bench->getName()
                         );
             }
         }
-        surfaces.deleteAll();
+        targets.deleteAll();
     }
 
     return 0;

@@ -18,8 +18,7 @@ enum { kNumInputs = 5 };
 
 class ImageFilterDAGBench : public Benchmark {
 public:
-    ImageFilterDAGBench() {
-    }
+    ImageFilterDAGBench() {}
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
@@ -27,16 +26,18 @@ protected:
     }
 
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
-        SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(20.0f, 20.0f));
-        SkImageFilter* inputs[kNumInputs];
-        for (int i = 0; i < kNumInputs; ++i) {
-            inputs[i] = blur.get();
+        for (int j = 0; j < loops; j++) {
+            SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(20.0f, 20.0f));
+            SkImageFilter* inputs[kNumInputs];
+            for (int i = 0; i < kNumInputs; ++i) {
+                inputs[i] = blur.get();
+            }
+            SkAutoTUnref<SkImageFilter> merge(SkMergeImageFilter::Create(inputs, kNumInputs));
+            SkPaint paint;
+            paint.setImageFilter(merge);
+            SkRect rect = SkRect::Make(SkIRect::MakeWH(400, 400));
+            canvas->drawRect(rect, paint);
         }
-        SkAutoTUnref<SkImageFilter> merge(SkMergeImageFilter::Create(inputs, kNumInputs));
-        SkPaint paint;
-        paint.setImageFilter(merge);
-        SkRect rect = SkRect::Make(SkIRect::MakeWH(400, 400));
-        canvas->drawRect(rect, paint);
     }
 
 private:
