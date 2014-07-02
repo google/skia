@@ -139,3 +139,10 @@ poly2poly
 perlinnoise
 perlinnoise_localmatrix
 imagefiltersscaled
+
+# bsalomon:
+# Slight clip changes.
+complexclip2
+rrect_clip_bw
+circular-clips
+filltypespersp
