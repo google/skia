@@ -4,169 +4,178 @@
 
 #include <stdlib.h>
 
-#if defined(SK_BUILD_FOR_MAC)
-
-// We only use local unwinding, so we can define this to select a faster implementation.
-#define UNW_LOCAL_ONLY
-#include <libunwind.h>
-#include <cxxabi.h>
-
-static void handler(int sig) {
-    unw_context_t context;
-    unw_getcontext(&context);
-
-    unw_cursor_t cursor;
-    unw_init_local(&cursor, &context);
-
-    SkDebugf("\nSignal %d:\n", sig);
-    while (unw_step(&cursor) > 0) {
-        static const size_t kMax = 256;
-        char mangled[kMax], demangled[kMax];
-        unw_word_t offset;
-        unw_get_proc_name(&cursor, mangled, kMax, &offset);
-
-        int ok;
-        size_t len = kMax;
-        abi::__cxa_demangle(mangled, demangled, &len, &ok);
-
-        SkDebugf("%s (+0x%zx)\n", ok == 0 ? demangled : mangled, (size_t)offset);
-    }
-    SkDebugf("\n");
-
-    // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
-    _Exit(sig);
-}
-
-#elif defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_NACL)   // NACL doesn't have backtrace().
-
-// We'd use libunwind here too, but it's a pain to get installed for both 32 and 64 bit on bots.
-// Doesn't matter much: catchsegv is best anyway.
-#include <execinfo.h>
-
-static void handler(int sig) {
-    static const int kMax = 64;
-    void* stack[kMax];
-    const int count = backtrace(stack, kMax);
-
-    SkDebugf("\nSignal %d [%s]:\n", sig, strsignal(sig));
-    backtrace_symbols_fd(stack, count, 2/*stderr*/);
-
-    // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
-    _Exit(sig);
-}
-
-#endif
-
-#if defined(SK_BUILD_FOR_MAC) || (defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_NACL))
-#include <signal.h>
-
-void SetupCrashHandler() {
-    static const int kSignals[] = {
-        SIGABRT,
-        SIGBUS,
-        SIGFPE,
-        SIGILL,
-        SIGSEGV,
-    };
-
-    for (size_t i = 0; i < sizeof(kSignals) / sizeof(kSignals[0]); i++) {
-        // Register our signal handler unless something's already done so (e.g. catchsegv).
-        void (*prev)(int) = signal(kSignals[i], handler);
-        if (prev != SIG_DFL) {
-            signal(kSignals[i], prev);
-        }
-    }
-}
-
-#elif defined(SK_BUILD_FOR_WIN)
-
-#include <DbgHelp.h>
-
-static const struct {
-    const char* name;
-    int code;
-} kExceptions[] = {
-#define _(E) {#E, E}
-    _(EXCEPTION_ACCESS_VIOLATION),
-    _(EXCEPTION_BREAKPOINT),
-    _(EXCEPTION_INT_DIVIDE_BY_ZERO),
-    _(EXCEPTION_STACK_OVERFLOW),
-    // TODO: more?
-#undef _
-};
-
-static LONG WINAPI handler(EXCEPTION_POINTERS* e) {
-    const DWORD code = e->ExceptionRecord->ExceptionCode;
-    SkDebugf("\nCaught exception %u", code);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kExceptions); i++) {
-        if (kExceptions[i].code == code) {
-            SkDebugf(" %s", kExceptions[i].name);
-        }
-    }
-    SkDebugf("\n");
-
-    // We need to run SymInitialize before doing any of the stack walking below.
-    HANDLE hProcess = GetCurrentProcess();
-    SymInitialize(hProcess, 0, true);
-
-    STACKFRAME64 frame;
-    sk_bzero(&frame, sizeof(frame));
-    // Start frame off from the frame that triggered the exception.
-    CONTEXT* c = e->ContextRecord;
-    frame.AddrPC.Mode      = AddrModeFlat;
-    frame.AddrStack.Mode   = AddrModeFlat;
-    frame.AddrFrame.Mode   = AddrModeFlat;
-#if defined(_X86_)
-    frame.AddrPC.Offset    = c->Eip;
-    frame.AddrStack.Offset = c->Esp;
-    frame.AddrFrame.Offset = c->Ebp;
-    const DWORD machineType = IMAGE_FILE_MACHINE_I386;
-#elif defined(_AMD64_)
-    frame.AddrPC.Offset    = c->Rip;
-    frame.AddrStack.Offset = c->Rsp;
-    frame.AddrFrame.Offset = c->Rbp;
-    const DWORD machineType = IMAGE_FILE_MACHINE_AMD64;
-#endif
-
-    while (StackWalk64(machineType,
-                       GetCurrentProcess(),
-                       GetCurrentThread(),
-                       &frame,
-                       c,
-                       NULL,
-                       SymFunctionTableAccess64,
-                       SymGetModuleBase64,
-                       NULL)) {
-        // Buffer to store symbol name in.
-        static const int kMaxNameLength = 1024;
-        uint8_t buffer[sizeof(IMAGEHLP_SYMBOL64) + kMaxNameLength];
-        sk_bzero(buffer, sizeof(buffer));
-
-        // We have to place IMAGEHLP_SYMBOL64 at the front, and fill in how much space it can use.
-        IMAGEHLP_SYMBOL64* symbol = reinterpret_cast<IMAGEHLP_SYMBOL64*>(&buffer);
-        symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64);
-        symbol->MaxNameLength = kMaxNameLength - 1;
-
-        // Translate the current PC into a symbol and byte offset from the symbol.
-        DWORD64 offset;
-        SymGetSymFromAddr64(hProcess, frame.AddrPC.Offset, &offset, symbol);
-
-        SkDebugf("%s +%x\n", symbol->Name, offset);
-    }
-
-    // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
-    _exit(1);
-
-    // The compiler wants us to return something.  This is what we'd do if we didn't _exit().
-    return EXCEPTION_EXECUTE_HANDLER;
-}
-
-void SetupCrashHandler() {
-    SetUnhandledExceptionFilter(handler);
-}
+// Disable SetupCrashHandler() unless SK_CRASH_HANDLER is defined.
+#ifndef SK_CRASH_HANDLER
+    void SetupCrashHandler() { }
 
 #else
 
-void SetupCrashHandler() { }
+    #if defined(SK_BUILD_FOR_MAC)
 
-#endif
+        // We only use local unwinding, so we can define this to select a faster implementation.
+        #define UNW_LOCAL_ONLY
+        #include <libunwind.h>
+        #include <cxxabi.h>
+
+        static void handler(int sig) {
+            unw_context_t context;
+            unw_getcontext(&context);
+
+            unw_cursor_t cursor;
+            unw_init_local(&cursor, &context);
+
+            SkDebugf("\nSignal %d:\n", sig);
+            while (unw_step(&cursor) > 0) {
+                static const size_t kMax = 256;
+                char mangled[kMax], demangled[kMax];
+                unw_word_t offset;
+                unw_get_proc_name(&cursor, mangled, kMax, &offset);
+
+                int ok;
+                size_t len = kMax;
+                abi::__cxa_demangle(mangled, demangled, &len, &ok);
+
+                SkDebugf("%s (+0x%zx)\n", ok == 0 ? demangled : mangled, (size_t)offset);
+            }
+            SkDebugf("\n");
+
+            // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
+            _Exit(sig);
+        }
+
+    #elif defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_NACL)  // NACL doesn't have backtrace.
+
+        // We'd use libunwind here too, but it's a pain to get installed for
+        // both 32 and 64 bit on bots.  Doesn't matter much: catchsegv is best anyway.
+        #include <execinfo.h>
+
+        static void handler(int sig) {
+            static const int kMax = 64;
+            void* stack[kMax];
+            const int count = backtrace(stack, kMax);
+
+            SkDebugf("\nSignal %d [%s]:\n", sig, strsignal(sig));
+            backtrace_symbols_fd(stack, count, 2/*stderr*/);
+
+            // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
+            _Exit(sig);
+        }
+
+    #endif
+
+    #if (defined(SK_BUILD_FOR_MAC) || (defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_NACL)))
+        #include <signal.h>
+
+        void SetupCrashHandler() {
+            static const int kSignals[] = {
+                SIGABRT,
+                SIGBUS,
+                SIGFPE,
+                SIGILL,
+                SIGSEGV,
+            };
+
+            for (size_t i = 0; i < sizeof(kSignals) / sizeof(kSignals[0]); i++) {
+                // Register our signal handler unless something's already done so (e.g. catchsegv).
+                void (*prev)(int) = signal(kSignals[i], handler);
+                if (prev != SIG_DFL) {
+                    signal(kSignals[i], prev);
+                }
+            }
+        }
+
+    #elif defined(SK_CRASH_HANDLER) && defined(SK_BUILD_FOR_WIN)
+
+        #include <DbgHelp.h>
+
+        static const struct {
+            const char* name;
+            int code;
+        } kExceptions[] = {
+        #define _(E) {#E, E}
+            _(EXCEPTION_ACCESS_VIOLATION),
+            _(EXCEPTION_BREAKPOINT),
+            _(EXCEPTION_INT_DIVIDE_BY_ZERO),
+            _(EXCEPTION_STACK_OVERFLOW),
+            // TODO: more?
+        #undef _
+        };
+
+        static LONG WINAPI handler(EXCEPTION_POINTERS* e) {
+            const DWORD code = e->ExceptionRecord->ExceptionCode;
+            SkDebugf("\nCaught exception %u", code);
+            for (size_t i = 0; i < SK_ARRAY_COUNT(kExceptions); i++) {
+                if (kExceptions[i].code == code) {
+                    SkDebugf(" %s", kExceptions[i].name);
+                }
+            }
+            SkDebugf("\n");
+
+            // We need to run SymInitialize before doing any of the stack walking below.
+            HANDLE hProcess = GetCurrentProcess();
+            SymInitialize(hProcess, 0, true);
+
+            STACKFRAME64 frame;
+            sk_bzero(&frame, sizeof(frame));
+            // Start frame off from the frame that triggered the exception.
+            CONTEXT* c = e->ContextRecord;
+            frame.AddrPC.Mode      = AddrModeFlat;
+            frame.AddrStack.Mode   = AddrModeFlat;
+            frame.AddrFrame.Mode   = AddrModeFlat;
+        #if defined(_X86_)
+            frame.AddrPC.Offset    = c->Eip;
+            frame.AddrStack.Offset = c->Esp;
+            frame.AddrFrame.Offset = c->Ebp;
+            const DWORD machineType = IMAGE_FILE_MACHINE_I386;
+        #elif defined(_AMD64_)
+            frame.AddrPC.Offset    = c->Rip;
+            frame.AddrStack.Offset = c->Rsp;
+            frame.AddrFrame.Offset = c->Rbp;
+            const DWORD machineType = IMAGE_FILE_MACHINE_AMD64;
+        #endif
+
+            while (StackWalk64(machineType,
+                               GetCurrentProcess(),
+                               GetCurrentThread(),
+                               &frame,
+                               c,
+                               NULL,
+                               SymFunctionTableAccess64,
+                               SymGetModuleBase64,
+                               NULL)) {
+                // Buffer to store symbol name in.
+                static const int kMaxNameLength = 1024;
+                uint8_t buffer[sizeof(IMAGEHLP_SYMBOL64) + kMaxNameLength];
+                sk_bzero(buffer, sizeof(buffer));
+
+                // We have to place IMAGEHLP_SYMBOL64 at the front, and fill in
+                // how much space it can use.
+                IMAGEHLP_SYMBOL64* symbol = reinterpret_cast<IMAGEHLP_SYMBOL64*>(&buffer);
+                symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64);
+                symbol->MaxNameLength = kMaxNameLength - 1;
+
+                // Translate the current PC into a symbol and byte offset from the symbol.
+                DWORD64 offset;
+                SymGetSymFromAddr64(hProcess, frame.AddrPC.Offset, &offset, symbol);
+
+                SkDebugf("%s +%x\n", symbol->Name, offset);
+            }
+
+            // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
+            _exit(1);
+
+            // The compiler wants us to return something.  This is what we'd do
+            // if we didn't _exit().
+            return EXCEPTION_EXECUTE_HANDLER;
+        }
+
+        void SetupCrashHandler() {
+            SetUnhandledExceptionFilter(handler);
+        }
+
+    #else  // We asked for SK_CRASH_HANDLER, but it's not Mac, Linux, or Windows.  Sorry!
+
+        void SetupCrashHandler() { }
+
+    #endif
+#endif // SK_CRASH_HANDLER
