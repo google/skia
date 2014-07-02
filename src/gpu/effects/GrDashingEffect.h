@@ -24,6 +24,11 @@ namespace GrDashingEffect {
     bool DrawDashLine(const SkPoint pts[2], const GrPaint& paint, const GrStrokeInfo& strokeInfo,
                       GrGpu* gpu, GrDrawTarget* target, const SkMatrix& vm);
 
+    enum DashCap {
+        kRound_DashCap,
+        kNonRound_DashCap,
+    };
+
     /**
      * An effect that renders a dashed line. It is intended to be used as a coverage effect.
      * The effect is meant for dashed lines that only have a single on/off interval pair.
@@ -31,7 +36,7 @@ namespace GrDashingEffect {
      * position relative to the dashed line.
      */
     GrEffectRef* Create(GrEffectEdgeType edgeType, const SkPathEffect::DashInfo& info,
-                        SkScalar strokeWidth);
+                        SkScalar strokeWidth, DashCap cap);
 }
 
 #endif
