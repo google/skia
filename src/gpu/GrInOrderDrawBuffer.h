@@ -145,6 +145,11 @@ private:
         SkIPoint                fDstPoint;
     };
 
+    struct Clip : public ::SkNoncopyable {
+        SkClipStack fStack;
+        SkIPoint    fOrigin;
+    };
+
     // overrides from GrDrawTarget
     virtual void onDraw(const DrawInfo&) SK_OVERRIDE;
     virtual void onDrawRect(const SkRect& rect,
@@ -230,8 +235,7 @@ private:
     typedef GrTAllocator<GrDrawState::DeferredState>        StateAllocator;
     typedef GrTAllocator<Clear>                             ClearAllocator;
     typedef GrTAllocator<CopySurface>                       CopySurfaceAllocator;
-    typedef GrTAllocator<SkClipStack>                       ClipAllocator;
-    typedef GrTAllocator<SkIPoint>                          ClipOriginAllocator;
+    typedef GrTAllocator<Clip>                              ClipAllocator;
 
     GrSTAllocator<kDrawPreallocCnt, DrawRecord>                        fDraws;
     GrSTAllocator<kStencilPathPreallocCnt, StencilPath>                fStencilPaths;
@@ -240,8 +244,7 @@ private:
     GrSTAllocator<kStatePreallocCnt, GrDrawState::DeferredState>       fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>                            fClears;
     GrSTAllocator<kCopySurfacePreallocCnt, CopySurface>                fCopySurfaces;
-    GrSTAllocator<kClipPreallocCnt, SkClipStack>                       fClips;
-    GrSTAllocator<kClipPreallocCnt, SkIPoint>                          fClipOrigins;
+    GrSTAllocator<kClipPreallocCnt, Clip>                              fClips;
 
     SkTArray<GrTraceMarkerSet, false>                                  fGpuCmdMarkers;
 

@@ -548,7 +548,6 @@ void GrInOrderDrawBuffer::reset() {
     fVertexPool.reset();
     fIndexPool.reset();
     fClips.reset();
-    fClipOrigins.reset();
     fCopySurfaces.reset();
     fGpuCmdMarkers.reset();
     fClipSet = true;
@@ -587,7 +586,6 @@ void GrInOrderDrawBuffer::flush() {
 
     StateAllocator::Iter stateIter(&fStates);
     ClipAllocator::Iter clipIter(&fClips);
-    ClipOriginAllocator::Iter clipOriginIter(&fClipOrigins);
     ClearAllocator::Iter clearIter(&fClears);
     DrawAllocator::Iter drawIter(&fDraws);
     StencilPathAllocator::Iter stencilPathIter(&fStencilPaths);
@@ -644,9 +642,8 @@ void GrInOrderDrawBuffer::flush() {
                 break;
             case kSetClip_Cmd:
                 SkAssertResult(clipIter.next());
-                SkAssertResult(clipOriginIter.next());
-                clipData.fClipStack = clipIter.get();
-                clipData.fOrigin = *clipOriginIter;
+                clipData.fClipStack = &clipIter->fStack;
+                clipData.fOrigin = clipIter->fOrigin;
                 fDstGpu->setClip(&clipData);
                 break;
             case kClear_Cmd:
@@ -676,7 +673,6 @@ void GrInOrderDrawBuffer::flush() {
     // we should have consumed all the states, clips, etc.
     SkASSERT(!stateIter.next());
     SkASSERT(!clipIter.next());
-    SkASSERT(!clipOriginIter.next());
     SkASSERT(!clearIter.next());
     SkASSERT(!drawIter.next());
     SkASSERT(!copySurfaceIter.next());
@@ -928,12 +924,11 @@ bool GrInOrderDrawBuffer::needsNewState() const {
 }
 
 bool GrInOrderDrawBuffer::needsNewClip() const {
-    SkASSERT(fClips.count() == fClipOrigins.count());
     if (this->getDrawState().isClipState()) {
        if (fClipSet &&
            (fClips.empty() ||
-            fClips.back() != *this->getClip()->fClipStack ||
-            fClipOrigins.back() != this->getClip()->fOrigin)) {
+            fClips.back().fStack != *this->getClip()->fClipStack ||
+            fClips.back().fOrigin != this->getClip()->fOrigin)) {
            return true;
        }
     }
@@ -952,8 +947,8 @@ void GrInOrderDrawBuffer::addToCmdBuffer(uint8_t cmd) {
 }
 
 void GrInOrderDrawBuffer::recordClip() {
-    fClips.push_back(*this->getClip()->fClipStack);
-    fClipOrigins.push_back() = this->getClip()->fOrigin;
+    fClips.push_back().fStack = *this->getClip()->fClipStack;
+    fClips.back().fOrigin = this->getClip()->fOrigin;
     fClipSet = false;
     this->addToCmdBuffer(kSetClip_Cmd);
 }
@@ -992,7 +987,6 @@ GrInOrderDrawBuffer::CopySurface* GrInOrderDrawBuffer::recordCopySurface() {
     this->addToCmdBuffer(kCopySurface_Cmd);
     return &fCopySurfaces.push_back();
 }
-
 
 void GrInOrderDrawBuffer::clipWillBeSet(const GrClipData* newClipData) {
     INHERITED::clipWillBeSet(newClipData);
