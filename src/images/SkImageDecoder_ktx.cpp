@@ -209,6 +209,9 @@ private:
 };
 
 bool SkKTXImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap, int) {
+    if (!bitmap.pixelRef()) {
+        return false;
+    }
     SkAutoDataUnref data(bitmap.pixelRef()->refEncodedData());
 
     // Is this even encoded data?
