@@ -14,6 +14,8 @@
 #include "SkTArray.h"
 #include "SkTypeface.h"
 
+struct SkBaseMutex;
+
 /**
  *  \class SkFontConfigInterface
  *
@@ -95,8 +97,10 @@ public:
     /**
      *  Return a singleton instance of a direct subclass that calls into
      *  libfontconfig. This does not affect the refcnt of the returned instance.
+     *  The mutex may be used to guarantee the singleton is only constructed once.
      */
-    static SkFontConfigInterface* GetSingletonDirectInterface();
+    static SkFontConfigInterface* GetSingletonDirectInterface
+        (SkBaseMutex* mutex = NULL);
 
     // New APIS, which have default impls for now (which do nothing)
 
