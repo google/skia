@@ -426,6 +426,16 @@ Loader.controller(
     // any which are not found within the URL will keep their current value.
     $scope.queryParameters.load = function() {
       var nameValuePairs = $location.search();
+
+      var urlSchemaVersion = nameValuePairs[constants.URL_KEY__SCHEMA_VERSION];
+      if (!urlSchemaVersion) {
+        $scope.urlSchemaVersionLoaded = 0;
+      } else if (urlSchemaVersion == constants.URL_VALUE__SCHEMA_VERSION__ALWAYS_CURRENT) {
+        $scope.urlSchemaVersionLoaded = constants.URL_VALUE__SCHEMA_VERSION__CURRENT;
+      } else {
+        $scope.urlSchemaVersionLoaded = urlSchemaVersion;
+      }
+
       angular.forEach($scope.queryParameters.map,
                       function(copier, paramName) {
                         copier.load(nameValuePairs, paramName);
@@ -436,6 +446,7 @@ Loader.controller(
     // Saves all parameters from $scope into the URL query string.
     $scope.queryParameters.save = function() {
       var nameValuePairs = {};
+      nameValuePairs[constants.URL_KEY__SCHEMA_VERSION] = constants.URL_VALUE__SCHEMA_VERSION__CURRENT;
       angular.forEach($scope.queryParameters.map,
                       function(copier, paramName) {
                         copier.save(nameValuePairs, paramName);

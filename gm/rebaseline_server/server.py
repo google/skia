@@ -25,16 +25,22 @@ import threading
 import time
 import urlparse
 
+# Must fix up PYTHONPATH before importing from within Skia
+# pylint: disable=W0611
+import fix_pythonpath
+# pylint: enable=W0611
+
 # Imports from within Skia
-import fix_pythonpath  # must do this first
 from pyutils import gs_utils
 import gm_json
 
 # Imports from local dir
 #
+# pylint: disable=C0301
 # Note: we import results under a different name, to avoid confusion with the
 # Server.results() property. See discussion at
 # https://codereview.chromium.org/195943004/diff/1/gm/rebaseline_server/server.py#newcode44
+# pylint: enable=C0301
 import compare_configs
 import compare_to_expectations
 import download_actuals
@@ -59,6 +65,11 @@ MIME_TYPE_MAP = {'': 'application/octet-stream',
 KEY__EDITS__MODIFICATIONS = 'modifications'
 KEY__EDITS__OLD_RESULTS_HASH = 'oldResultsHash'
 KEY__EDITS__OLD_RESULTS_TYPE = 'oldResultsType'
+URL_KEY__SCHEMA_VERSION = 'urlSchemaVersion'
+URL_VALUE__SCHEMA_VERSION__CURRENT = 0
+# always interpret as then-current schema version;
+# used for toplevel links on index page
+URL_VALUE__SCHEMA_VERSION__ALWAYS_CURRENT = 'current'
 
 DEFAULT_ACTUALS_DIR = results_mod.DEFAULT_ACTUALS_DIR
 DEFAULT_GM_SUMMARIES_BUCKET = download_actuals.GM_SUMMARIES_BUCKET
@@ -157,11 +168,15 @@ def _create_index(file_path, config_pairs):
       file_handle.write('<li>Expectations vs Actuals</li><ul>')
       for summary_type in SUMMARY_TYPES:
         file_handle.write(
-            '<li>'
-            '<a href="/%s/view.html#/view.html?resultsToLoad=/%s/%s">'
-            '%s</a></li>' % (
-                STATIC_CONTENTS_SUBDIR, RESULTS_SUBDIR,
-                summary_type, summary_type))
+            '<li><a href="/{static_subdir}/view.html#/view.html?'
+            '{version_key}={version_value}&'
+            'resultsToLoad=/{results_subdir}/{summary_type}">'
+            '{summary_type}</a></li>'.format(
+                results_subdir=RESULTS_SUBDIR,
+                static_subdir=STATIC_CONTENTS_SUBDIR,
+                summary_type=summary_type,
+                version_key=URL_KEY__SCHEMA_VERSION,
+                version_value=URL_VALUE__SCHEMA_VERSION__ALWAYS_CURRENT))
       file_handle.write('</ul>')
     if config_pairs:
       file_handle.write('<li>Comparing configs within actual results</li><ul>')
@@ -346,7 +361,7 @@ class Server(object):
       json_dir = os.path.join(
           PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR, GENERATED_JSON_SUBDIR)
       if not os.path.isdir(json_dir):
-         os.makedirs(json_dir)
+        os.makedirs(json_dir)
 
       for config_pair in self._config_pairs:
         config_comparisons = compare_configs.ConfigComparisons(
@@ -395,6 +410,7 @@ class Server(object):
     else:
       host = '127.0.0.1'
       server_address = (host, self._port)
+    # pylint: disable=W0201
     http_server = BaseHTTPServer.HTTPServer(server_address, HTTPRequestHandler)
     self._url = 'http://%s:%d' % (host, http_server.server_port)
     logging.info('Listening for requests on %s' % self._url)

@@ -73,6 +73,11 @@ module.constant('constants', (function() {
     KEY__EDITS__MODIFICATIONS: 'modifications',
     KEY__EDITS__OLD_RESULTS_HASH: 'oldResultsHash',
     KEY__EDITS__OLD_RESULTS_TYPE: 'oldResultsType',
+    URL_KEY__SCHEMA_VERSION: 'urlSchemaVersion',
+    URL_VALUE__SCHEMA_VERSION__CURRENT: 0,
+    // always interpret as then-current schema version;
+    // used for toplevel links on index page
+    URL_VALUE__SCHEMA_VERSION__ALWAYS_CURRENT: 'current',
 
     // These are just used on the client side, no need to sync with server code.
     KEY__IMAGEPAIRS__ROWSPAN: 'rowspan',

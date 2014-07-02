@@ -26,6 +26,14 @@
   <div ng-show="extraColumnHeaders"><!-- everything: hide until data is loaded -->
 
     <div class="warning-div"
+         ng-show="urlSchemaVersionLoaded != constants.URL_VALUE__SCHEMA_VERSION__CURRENT">
+      WARNING!  The URL you loaded used schema version {{urlSchemaVersionLoaded}}, rather than
+      the most recent version {{constants.URL_VALUE__SCHEMA_VERSION__CURRENT}}.  It has been
+      converted to the most recent version on a best-effort basis; you may wish to double-check
+      which records are displayed.
+    </div>
+
+    <div class="warning-div"
          ng-show="header[constants.KEY__HEADER__IS_EDITABLE] && header[constants.KEY__HEADER__IS_EXPORTED]">
       WARNING!  These results are editable and exported, so any user
       who can connect to this server over the network can modify them.
