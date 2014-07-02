@@ -110,10 +110,7 @@ bool GrClipMaskManager::useSWOnlyPath(const ElementList& elements) {
 bool GrClipMaskManager::installClipEffects(const ElementList& elements,
                                            GrDrawState::AutoRestoreEffects* are,
                                            const SkVector& clipToRTOffset,
-                                           const SkRect* drawBounds,
-                                           SkIRect* scissorRect) {
-
-    SkASSERT(NULL != scissorRect);
+                                           const SkRect* drawBounds) {
 
     GrDrawState* drawState = fGpu->drawState();
     SkRect boundsInClipSpace;
@@ -124,11 +121,7 @@ bool GrClipMaskManager::installClipEffects(const ElementList& elements,
 
     are->set(drawState);
     GrRenderTarget* rt = drawState->getRenderTarget();
-    // We iterate from the top of the stack to the bottom. We do this because we select the first
-    // BW rectangle as the scissor. Clients performing hierarchical rendering tend to use smaller
-    // clips towards the top of the clip stack. Smaller scissor rects can help tiled architectures
-    // skip processing tiles for draws.
-    ElementList::Iter iter(elements, ElementList::Iter::kTail_IterStart);
+    ElementList::Iter iter(elements);
 
     bool setARE = false;
     bool failed = false;
@@ -164,7 +157,7 @@ bool GrClipMaskManager::installClipEffects(const ElementList& elements,
             GrEffectEdgeType edgeType;
             if (GR_AA_CLIP && iter.get()->isAA()) {
                 if (rt->isMultisampled()) {
-                    // Coverage based AA clips don't play nicely with MSAA.
+                    // Coverage based AA clips don't place nicely with MSAA.
                     failed = true;
                     break;
                 }
@@ -172,8 +165,6 @@ bool GrClipMaskManager::installClipEffects(const ElementList& elements,
             } else {
                 edgeType = invert ? kInverseFillBW_GrEffectEdgeType : kFillBW_GrEffectEdgeType;
             }
-            // We don't want to exit if we convert a BW rect clip to a scissor.
-            bool failIfNoEffect = true;
             SkAutoTUnref<GrEffectRef> effect;
             switch (iter.get()->getType()) {
                 case SkClipStack::Element::kPath_Type:
@@ -189,14 +180,7 @@ bool GrClipMaskManager::installClipEffects(const ElementList& elements,
                 case SkClipStack::Element::kRect_Type: {
                     SkRect rect = iter.get()->getRect();
                     rect.offset(clipToRTOffset.fX, clipToRTOffset.fY);
-                    if (kFillBW_GrEffectEdgeType == edgeType && scissorRect->isEmpty()) {
-                        // This is OK because we only allow clip operations that shrink the clip
-                        // to be implemented as effects.
-                        rect.roundOut(scissorRect);
-                        failIfNoEffect = false;
-                    } else {
-                        effect.reset(GrConvexPolyEffect::Create(edgeType, rect));
-                    }
+                    effect.reset(GrConvexPolyEffect::Create(edgeType, rect));
                     break;
                 }
                 default:
@@ -208,12 +192,12 @@ bool GrClipMaskManager::installClipEffects(const ElementList& elements,
                     setARE = true;
                 }
                 fGpu->drawState()->addCoverageEffect(effect);
-            } else if (failIfNoEffect) {
+            } else {
                 failed = true;
                 break;
             }
         }
-        iter.prev();
+        iter.next();
     }
 
     if (failed) {
@@ -221,12 +205,6 @@ bool GrClipMaskManager::installClipEffects(const ElementList& elements,
     }
 
     return !failed;
-}
-
-static inline bool rect_contains_irect(const SkIRect ir, const SkRect& r) {
-    SkASSERT(!ir.isEmpty());
-    return ir.fLeft <= r.fLeft && ir.fTop <= r.fTop &&
-           ir.fRight >= r.fRight && ir.fBottom >= r.fBottom;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -285,32 +263,17 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
     // configuration's relative costs of switching RTs to generate a mask vs
     // longer shaders.
     if (elements.count() <= 4) {
-        SkIRect scissorRect;
-        scissorRect.setEmpty();
         SkVector clipToRTOffset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
                                     SkIntToScalar(-clipDataIn->fOrigin.fY) };
         if (elements.isEmpty() ||
-            this->installClipEffects(elements, are, clipToRTOffset, devBounds, &scissorRect)) {
-            if (scissorRect.isEmpty()) {
-                // We may still want to use a scissor, especially on tiled architectures.
-                scissorRect = clipSpaceIBounds;
-                scissorRect.offset(-clipDataIn->fOrigin);
-                if (NULL == devBounds ||
-                    !rect_contains_irect(scissorRect, *devBounds)) {
-                    fGpu->enableScissor(scissorRect);
-                } else {
-                    // When the vertices that will be rendered fit fully inside the clip's bounds
-                    // then providing the scissor rect will not help the driver eliminate tiles
-                    // from consideration for the draw, but changing the scissor will cause
-                    // state changes between draws.
-                    fGpu->disableScissor();
-                }
+            (requiresAA && this->installClipEffects(elements, are, clipToRTOffset, devBounds))) {
+            SkIRect scissorSpaceIBounds(clipSpaceIBounds);
+            scissorSpaceIBounds.offset(-clipDataIn->fOrigin);
+            if (NULL == devBounds ||
+                !SkRect::Make(scissorSpaceIBounds).contains(*devBounds)) {
+                fGpu->enableScissor(scissorSpaceIBounds);
             } else {
-                scissorRect.fLeft = SkTMax(0, scissorRect.fLeft);
-                scissorRect.fTop = SkTMax(0, scissorRect.fTop);
-                scissorRect.fRight = SkTMin(rt->width(), scissorRect.fRight);
-                scissorRect.fBottom = SkTMin(rt->height(), scissorRect.fBottom);
-                fGpu->enableScissor(scissorRect);
+                fGpu->disableScissor();
             }
             this->setGpuStencil();
             return true;

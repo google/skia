@@ -106,14 +106,11 @@ private:
     GrClipMaskCache fAACache;       // cache for the AA path
 
     // Attempts to install a series of coverage effects to implement the clip. Return indicates
-    // whether the element list was successfully converted to effects. One of the elements may
-    // be selected to use the scissor. If so scissorRect will be updated to a valid rectangle
-    // that the caller should set as the scissor rect. If not, scissorRect won't be modified.
+    // whether the element list was successfully converted to effects.
     bool installClipEffects(const GrReducedClip::ElementList&,
                             GrDrawState::AutoRestoreEffects*,
                             const SkVector& clipOffset,
-                            const SkRect* devBounds,
-                            SkIRect* scissorRect);
+                            const SkRect* devBounds);
 
     // Draws the clip into the stencil buffer
     bool createStencilClipMask(int32_t elementsGenID,
