@@ -5211,7 +5211,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15604390028359869730
+          6788478602680063562
         ]
       ], 
       "reviewed-by-human": true
@@ -9596,10 +9596,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9856700641955552351
+          12466349073277257290
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "imageblur_gpu.png": {
       "allowed-digests": [
@@ -9635,7 +9636,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12958440671393733211
+          1925841352473316349
         ]
       ], 
       "reviewed-by-human": true
