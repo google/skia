@@ -242,9 +242,7 @@ SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
         // a bitmap strike if the range is gridfit only and contains a bitmap.
         int bitmapPPEM = SkScalarTruncToInt(gdiTextSize);
         PPEMRange range = { bitmapPPEM, bitmapPPEM };
-#ifndef SK_IGNORE_DWRITE_RENDERING_FIX
         expand_range_if_gridfit_only(typeface, bitmapPPEM, &range);
-#endif
         treatLikeBitmap = has_bitmap_strike(typeface, range);
 
         axisAlignedBitmap = is_axis_aligned(fRec);
