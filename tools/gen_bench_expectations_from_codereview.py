@@ -14,11 +14,9 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import urllib2
-
-import fix_pythonpath  # pylint: disable=W0611
-from common.py.utils import shell_utils
 
 
 BENCH_DATA_URL = 'gs://chromium-skia-gm/perfdata/%s/%s/bench_*_data_*'
@@ -98,7 +96,7 @@ def get_bench_data(builder, build_num, dest_dir):
       dest_dir: string; destination directory for the bench data.
   """
   url = BENCH_DATA_URL % (builder, build_num)
-  shell_utils.run(['gsutil', 'cp', '-R', url, dest_dir])
+  subprocess.check_call(['gsutil', 'cp', '-R', url, dest_dir])
 
 
 def find_revision_from_downloaded_data(dest_dir):
@@ -199,7 +197,7 @@ def gen_bench_expectations_from_codereview(codereview_url,
     os.makedirs(dest_dir)
     try:
       get_bench_data(try_builder, try_build.build_number, dest_dir)
-    except shell_utils.CommandFailedException:
+    except subprocess.CalledProcessError:
       failed_data_pull.append(try_builder)
       continue
 
@@ -215,12 +213,12 @@ def gen_bench_expectations_from_codereview(codereview_url,
     output_file = os.path.join(CHECKOUT_PATH, 'expectations', 'bench',
                                'bench_expectations_%s.txt' % builder)
     try:
-      shell_utils.run(['python',
-                       os.path.join(CHECKOUT_PATH, 'bench',
-                                    'gen_bench_expectations.py'),
-                       '-b', builder, '-o', output_file,
-                       '-d', dest_dir, '-r', revision])
-    except shell_utils.CommandFailedException:
+      subprocess.check_call(['python',
+                             os.path.join(CHECKOUT_PATH, 'bench',
+                                          'gen_bench_expectations.py'),
+                             '-b', builder, '-o', output_file,
+                             '-d', dest_dir, '-r', revision])
+    except subprocess.CalledProcessError:
       failed_gen_expectations.append(builder)
 
   failure = ''
