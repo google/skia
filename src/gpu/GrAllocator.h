@@ -142,7 +142,7 @@ public:
          * Gets the current iterator value. Call next() at least once before calling. Don't call
          * after next() returns false.
          */
-        const void* get() const {
+        void* get() const {
             SkASSERT(fItemIndex >= 0 && fItemIndex < fAllocator->fCount);
             return (char*) fAllocator->fBlocks[fBlockIndex] + fIndexInBlock * fAllocator->fItemSize;
         }
@@ -296,13 +296,13 @@ public:
          * Gets the current iterator value. Call next() at least once before calling. Don't call
          * after next() returns false.
          */
-        const T* get() const { return (const T*) fImpl.get(); }
+        T* get() const { return (T*) fImpl.get(); }
 
         /**
          * Convenience operators. Same rules for calling apply as get().
          */
-        const T& operator*() const { return *this->get(); }
-        const T* operator->() const { return this->get(); }
+        T& operator*() const { return *this->get(); }
+        T* operator->() const { return this->get(); }
 
     private:
         GrAllocator::Iter fImpl;
