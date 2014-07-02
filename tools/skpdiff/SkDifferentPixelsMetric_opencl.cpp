@@ -36,7 +36,8 @@ const char* SkDifferentPixelsMetric::getName() const {
     return "different_pixels";
 }
 
-bool SkDifferentPixelsMetric::diff(SkBitmap* baseline, SkBitmap* test, bool computeMask,
+bool SkDifferentPixelsMetric::diff(SkBitmap* baseline, SkBitmap* test, bool computeAlphaMask,
+                                   bool computeRgbDiff, bool computeWhiteDiff,
                                    Result* result) const {
     double startTime = get_seconds();
 

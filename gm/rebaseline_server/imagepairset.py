@@ -14,7 +14,7 @@ import posixpath
 
 # Local imports
 import column
-import imagepair
+import imagediffdb
 
 # Keys used within dictionary representation of ImagePairSet.
 # NOTE: Keep these in sync with static/constants.js
@@ -157,12 +157,12 @@ class ImagePairSet(object):
             KEY__IMAGESETS__SET__DIFFS: {
                 key_description: 'color difference per channel',
                 key_base_url: posixpath.join(
-                    self._diff_base_url, 'diffs'),
+                    self._diff_base_url, imagediffdb.RGBDIFFS_SUBDIR),
             },
             KEY__IMAGESETS__SET__WHITEDIFFS: {
                 key_description: 'differing pixels in white',
                 key_base_url: posixpath.join(
-                    self._diff_base_url, 'whitediffs'),
+                    self._diff_base_url, imagediffdb.WHITEDIFFS_SUBDIR),
             },
         },
     }

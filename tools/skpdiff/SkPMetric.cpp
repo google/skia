@@ -442,7 +442,8 @@ static double pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, int*
     return 1.0 - (double)(*poiCount) / (width * height);
 }
 
-bool SkPMetric::diff(SkBitmap* baseline, SkBitmap* test, bool computeMask, Result* result) const {
+bool SkPMetric::diff(SkBitmap* baseline, SkBitmap* test, const BitmapsToCreate& bitmapsToCreate,
+                     Result* result) const {
     double startTime = get_seconds();
 
     // Ensure the images are comparable

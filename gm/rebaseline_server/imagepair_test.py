@@ -19,7 +19,8 @@ import imagediffdb
 import imagepair
 
 
-IMG_URL_BASE = 'http://chromium-skia-gm.commondatastorage.googleapis.com/gm/bitmap-64bitMD5/'
+IMG_URL_BASE = ('http://chromium-skia-gm.commondatastorage.googleapis.com/'
+                'gm/bitmap-64bitMD5/')
 
 
 class ImagePairTest(unittest.TestCase):
@@ -87,7 +88,7 @@ class ImagePairTest(unittest.TestCase):
                     'maxDiffPerChannel': [255, 255, 247],
                     'numDifferingPixels': 662,
                     'percentDifferingPixels': 0.0662,
-                    'perceptualDifference': 0.06620000000000914,
+                    'perceptualDifference': 0.06620300000000157,
                 },
                 'imageAUrl': 'arcofzorro/16206093933823793653.png',
                 'imageBUrl': 'arcofzorro/13786535001616823825.png',

@@ -9,11 +9,13 @@
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkRunnable.h"
+#include "SkSize.h"
 #include "SkStream.h"
 #include "SkTDict.h"
 #include "SkThreadPool.h"
 
 #include "SkDiffContext.h"
+#include "SkImageDiffer.h"
 #include "skpdiff_util.h"
 
 SkDiffContext::SkDiffContext() {
@@ -28,9 +30,21 @@ SkDiffContext::~SkDiffContext() {
     }
 }
 
-void SkDiffContext::setDifferenceDir(const SkString& path) {
+void SkDiffContext::setAlphaMaskDir(const SkString& path) {
     if (!path.isEmpty() && sk_mkdir(path.c_str())) {
-        fDifferenceDir = path;
+        fAlphaMaskDir = path;
+    }
+}
+
+void SkDiffContext::setRgbDiffDir(const SkString& path) {
+    if (!path.isEmpty() && sk_mkdir(path.c_str())) {
+        fRgbDiffDir = path;
+    }
+}
+
+void SkDiffContext::setWhiteDiffDir(const SkString& path) {
+    if (!path.isEmpty() && sk_mkdir(path.c_str())) {
+        fWhiteDiffDir = path;
     }
 }
 
@@ -90,13 +104,13 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
 
     newRecord->fBaselinePath = baselinePath;
     newRecord->fTestPath = testPath;
+    newRecord->fSize = SkISize::Make(baselineBitmap.width(), baselineBitmap.height());
 
-    bool alphaMaskPending = false;
-
-    // only enable alpha masks if a difference dir has been provided
-    if (!fDifferenceDir.isEmpty()) {
-        alphaMaskPending = true;
-    }
+    // only generate diff images if we have a place to store them
+    SkImageDiffer::BitmapsToCreate bitmapsToCreate;
+    bitmapsToCreate.alphaMask = !fAlphaMaskDir.isEmpty();
+    bitmapsToCreate.rgbDiff = !fRgbDiffDir.isEmpty();
+    bitmapsToCreate.whiteDiff = !fWhiteDiffDir.isEmpty();
 
     // Perform each diff
     for (int differIndex = 0; differIndex < fDifferCount; differIndex++) {
@@ -106,30 +120,69 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
         DiffData& diffData = newRecord->fDiffs.push_back();
         diffData.fDiffName = differ->getName();
 
-        if (!differ->diff(&baselineBitmap, &testBitmap, alphaMaskPending, &diffData.fResult)) {
-            // if the diff failed record -1 as the result
+        if (!differ->diff(&baselineBitmap, &testBitmap, bitmapsToCreate, &diffData.fResult)) {
+            // if the diff failed, record -1 as the result
+            // TODO(djsollen): Record more detailed information about exactly what failed.
+            // (Image dimension mismatch? etc.)  See http://skbug.com/2710 ('make skpdiff
+            // report more detail when it fails to compare two images')
             diffData.fResult.result = -1;
             continue;
         }
 
-        if (alphaMaskPending
+        if (bitmapsToCreate.alphaMask
                 && SkImageDiffer::RESULT_CORRECT != diffData.fResult.result
                 && !diffData.fResult.poiAlphaMask.empty()
                 && !newRecord->fCommonName.isEmpty()) {
 
-            newRecord->fDifferencePath = SkOSPath::SkPathJoin(fDifferenceDir.c_str(),
-                                                              newRecord->fCommonName.c_str());
+            newRecord->fAlphaMaskPath = SkOSPath::SkPathJoin(fAlphaMaskDir.c_str(),
+                                                             newRecord->fCommonName.c_str());
 
             // compute the image diff and output it
             SkBitmap copy;
             diffData.fResult.poiAlphaMask.copyTo(&copy, kN32_SkColorType);
-            SkImageEncoder::EncodeFile(newRecord->fDifferencePath.c_str(), copy,
+            SkImageEncoder::EncodeFile(newRecord->fAlphaMaskPath.c_str(), copy,
                                        SkImageEncoder::kPNG_Type, 100);
 
             // cleanup the existing bitmap to free up resources;
             diffData.fResult.poiAlphaMask.reset();
 
-            alphaMaskPending = false;
+            bitmapsToCreate.alphaMask = false;
+        }
+
+        if (bitmapsToCreate.rgbDiff
+                && SkImageDiffer::RESULT_CORRECT != diffData.fResult.result
+                && !diffData.fResult.rgbDiffBitmap.empty()
+                && !newRecord->fCommonName.isEmpty()) {
+            // TODO(djsollen): Rather than taking the max r/g/b diffs that come back from
+            // a particular differ and storing them as toplevel fields within
+            // newRecord, we should extend outputRecords() to report optional
+            // fields for each differ (not just "result" and "pointsOfInterest").
+            // See http://skbug.com/2712 ('allow skpdiff to report different sets
+            // of result fields for different comparison algorithms')
+            newRecord->fMaxRedDiff = diffData.fResult.maxRedDiff;
+            newRecord->fMaxGreenDiff = diffData.fResult.maxGreenDiff;
+            newRecord->fMaxBlueDiff = diffData.fResult.maxBlueDiff;
+
+            newRecord->fRgbDiffPath = SkOSPath::SkPathJoin(fRgbDiffDir.c_str(),
+                                                           newRecord->fCommonName.c_str());
+            SkImageEncoder::EncodeFile(newRecord->fRgbDiffPath.c_str(),
+                                       diffData.fResult.rgbDiffBitmap,
+                                       SkImageEncoder::kPNG_Type, 100);
+            diffData.fResult.rgbDiffBitmap.reset();
+            bitmapsToCreate.rgbDiff = false;
+        }
+
+        if (bitmapsToCreate.whiteDiff
+                && SkImageDiffer::RESULT_CORRECT != diffData.fResult.result
+                && !diffData.fResult.whiteDiffBitmap.empty()
+                && !newRecord->fCommonName.isEmpty()) {
+            newRecord->fWhiteDiffPath = SkOSPath::SkPathJoin(fWhiteDiffDir.c_str(),
+                                                             newRecord->fCommonName.c_str());
+            SkImageEncoder::EncodeFile(newRecord->fWhiteDiffPath.c_str(),
+                                       diffData.fResult.whiteDiffBitmap,
+                                       SkImageEncoder::kPNG_Type, 100);
+            diffData.fResult.whiteDiffBitmap.reset();
+            bitmapsToCreate.whiteDiff = false;
         }
     }
 }
@@ -229,11 +282,15 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
     } else {
         stream.writeText("{\n");
     }
+
+    // TODO(djsollen): Would it be better to use the jsoncpp library to write out the JSON?
+    // This manual approach is probably more efficient, but it sure is ugly.
+    // See http://skbug.com/2713 ('make skpdiff use jsoncpp library to write out
+    // JSON output, instead of manual writeText() calls?')
     stream.writeText("    \"records\": [\n");
     while (NULL != currentRecord) {
         stream.writeText("        {\n");
 
-            SkString differenceAbsPath = get_absolute_path(currentRecord->fDifferencePath);
             SkString baselineAbsPath = get_absolute_path(currentRecord->fBaselinePath);
             SkString testAbsPath = get_absolute_path(currentRecord->fTestPath);
 
@@ -242,7 +299,15 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
             stream.writeText("\",\n");
 
             stream.writeText("            \"differencePath\": \"");
-            stream.writeText(differenceAbsPath.c_str());
+            stream.writeText(get_absolute_path(currentRecord->fAlphaMaskPath).c_str());
+            stream.writeText("\",\n");
+
+            stream.writeText("            \"rgbDiffPath\": \"");
+            stream.writeText(get_absolute_path(currentRecord->fRgbDiffPath).c_str());
+            stream.writeText("\",\n");
+
+            stream.writeText("            \"whiteDiffPath\": \"");
+            stream.writeText(get_absolute_path(currentRecord->fWhiteDiffPath).c_str());
             stream.writeText("\",\n");
 
             stream.writeText("            \"baselinePath\": \"");
@@ -252,6 +317,23 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
             stream.writeText("            \"testPath\": \"");
             stream.writeText(testAbsPath.c_str());
             stream.writeText("\",\n");
+
+            stream.writeText("            \"width\": ");
+            stream.writeDecAsText(currentRecord->fSize.width());
+            stream.writeText(",\n");
+            stream.writeText("            \"height\": ");
+            stream.writeDecAsText(currentRecord->fSize.height());
+            stream.writeText(",\n");
+
+            stream.writeText("            \"maxRedDiff\": ");
+            stream.writeDecAsText(currentRecord->fMaxRedDiff);
+            stream.writeText(",\n");
+            stream.writeText("            \"maxGreenDiff\": ");
+            stream.writeDecAsText(currentRecord->fMaxGreenDiff);
+            stream.writeText(",\n");
+            stream.writeText("            \"maxBlueDiff\": ");
+            stream.writeDecAsText(currentRecord->fMaxBlueDiff);
+            stream.writeText(",\n");
 
             stream.writeText("            \"diffs\": [\n");
             for (int diffIndex = 0; diffIndex < currentRecord->fDiffs.count(); diffIndex++) {
