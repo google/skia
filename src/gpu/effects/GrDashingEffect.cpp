@@ -526,7 +526,7 @@ void GLDashingCircleEffect::emitCode(GrGLFullShaderBuilder* builder,
     builder->fsCodeAppend("\t\tfloat dist = length(center - fragPosShifted);\n");
     if (GrEffectEdgeTypeIsAA(dce.getEdgeType())) {
         builder->fsCodeAppendf("\t\tfloat diff = dist - %s.x;\n", paramName);
-        builder->fsCodeAppend("\t\tdiff = 1 - diff;\n");
+        builder->fsCodeAppend("\t\tdiff = 1.0 - diff;\n");
         builder->fsCodeAppend("\t\tfloat alpha = clamp(diff, 0.0, 1.0);\n");
     } else {
         builder->fsCodeAppendf("\t\tfloat alpha = 1.0;\n");
