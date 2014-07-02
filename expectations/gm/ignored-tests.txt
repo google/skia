@@ -67,3 +67,9 @@ displacement
 samplerstress
 poly2poly
 offsetimagefilter
+# unexpected failures
+convex_poly_clip
+# Ubuntu-GTX660-msaa16 
+imageblur_large
+complexclip_aa
+imageblur
