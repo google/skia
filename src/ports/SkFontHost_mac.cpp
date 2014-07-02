@@ -1520,7 +1520,7 @@ static bool getWidthAdvance(CTFontRef ctFont, int gId, int16_t* data) {
     return true;
 }
 
-// we might move this into our CGUtils...
+/** Assumes src and dst are not NULL. */
 static void CFStringToSkString(CFStringRef src, SkString* dst) {
     // Reserve enough room for the worst-case string,
     // plus 1 byte for the trailing null.
@@ -1544,7 +1544,9 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
 
     {
         AutoCFRelease<CFStringRef> fontName(CTFontCopyPostScriptName(ctFont));
-        CFStringToSkString(fontName, &info->fFontName);
+        if (fontName.get()) {
+            CFStringToSkString(fontName, &info->fFontName);
+        }
     }
 
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont);
@@ -1899,6 +1901,9 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
 
 // we take ownership of the ref
 static const char* get_str(CFStringRef ref, SkString* str) {
+    if (NULL == ref) {
+        return NULL;
+    }
     CFStringToSkString(ref, str);
     CFSafeRelease(ref);
     return str->c_str();
