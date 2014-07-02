@@ -9127,37 +9127,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13902034132498275794
+          17985843342656464647
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "offsetimagefilter_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2405769766532653403
+          10287479790868331894
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "offsetimagefilter_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16874670417176350457
+          16071647471422690615
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "offsetimagefilter_pdf-poppler.png": {
       "allowed-digests": [
@@ -11941,7 +11932,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16842337686959212479
+          1821659801136527703
         ]
       ], 
       "reviewed-by-human": true
@@ -11950,7 +11941,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11092812822290904917
+          12339372754645536244
         ]
       ], 
       "reviewed-by-human": true
@@ -11959,13 +11950,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17697630042508304399
+          15643915269024207671
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "tileimagefilter_pdf-poppler.png": {
       "allowed-digests": [
@@ -12574,7 +12562,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13033437583454572808
+          6618944709763706611
         ]
       ], 
       "reviewed-by-human": true
@@ -12583,7 +12571,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15784559218199345382
+          17384912182484395327
         ]
       ], 
       "reviewed-by-human": true
@@ -12592,13 +12580,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17987163926472091210
+          4062176936088565391
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "xfermodeimagefilter_pdf-poppler.png": {
       "allowed-digests": [
