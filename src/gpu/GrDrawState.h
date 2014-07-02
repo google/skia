@@ -983,7 +983,7 @@ public:
             SkDEBUGCODE(fInitialized = true;)
         }
 
-        void restoreTo(GrDrawState* drawState) {
+        void restoreTo(GrDrawState* drawState) const {
             SkASSERT(fInitialized);
             drawState->fCommon = fCommon;
             drawState->setRenderTarget(fRenderTarget);

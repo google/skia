@@ -212,18 +212,27 @@ private:
     // TODO: Use a single allocator for commands and records
     enum {
         kCmdPreallocCnt          = 32,
-        kDrawPreallocCnt         = 8,
+        kDrawPreallocCnt         = 16,
         kStencilPathPreallocCnt  = 8,
         kDrawPathPreallocCnt     = 8,
         kDrawPathsPreallocCnt    = 8,
         kStatePreallocCnt        = 8,
         kClipPreallocCnt         = 8,
-        kClearPreallocCnt        = 4,
+        kClearPreallocCnt        = 8,
         kGeoPoolStatePreAllocCnt = 4,
         kCopySurfacePreallocCnt  = 4,
     };
 
-    SkSTArray<kCmdPreallocCnt, uint8_t, true>                          fCmds;
+    typedef GrTAllocator<DrawRecord>                        DrawAllocator;
+    typedef GrTAllocator<StencilPath>                       StencilPathAllocator;
+    typedef GrTAllocator<DrawPath>                          DrawPathAllocator;
+    typedef GrTAllocator<DrawPaths>                         DrawPathsAllocator;
+    typedef GrTAllocator<GrDrawState::DeferredState>        StateAllocator;
+    typedef GrTAllocator<Clear>                             ClearAllocator;
+    typedef GrTAllocator<CopySurface>                       CopySurfaceAllocator;
+    typedef GrTAllocator<SkClipStack>                       ClipAllocator;
+    typedef GrTAllocator<SkIPoint>                          ClipOriginAllocator;
+
     GrSTAllocator<kDrawPreallocCnt, DrawRecord>                        fDraws;
     GrSTAllocator<kStencilPathPreallocCnt, StencilPath>                fStencilPaths;
     GrSTAllocator<kDrawPathPreallocCnt, DrawPath>                      fDrawPath;
@@ -233,7 +242,10 @@ private:
     GrSTAllocator<kCopySurfacePreallocCnt, CopySurface>                fCopySurfaces;
     GrSTAllocator<kClipPreallocCnt, SkClipStack>                       fClips;
     GrSTAllocator<kClipPreallocCnt, SkIPoint>                          fClipOrigins;
+
     SkTArray<GrTraceMarkerSet, false>                                  fGpuCmdMarkers;
+
+    SkSTArray<kCmdPreallocCnt, uint8_t, true>                          fCmds;
 
     GrDrawTarget*                   fDstGpu;
 
