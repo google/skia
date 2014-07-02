@@ -12,8 +12,10 @@
 
 /* Check if we are able to build assembly code, GCC/AT&T syntax.
  * Had problems with LLVM-GCC 4.2.
+ * MemorySanitizer cannot handle assembly code.
  */
-#if defined(__clang__) || (defined(__GNUC__) && !defined(SK_BUILD_FOR_MAC))
+#if (defined(__clang__) || (defined(__GNUC__) && !defined(SK_BUILD_FOR_MAC))) \
+    && !defined(MEMORY_SANITIZER)
 extern "C" void S32A_Opaque_BlitRow32_SSE4_asm(SkPMColor* SK_RESTRICT dst,
                                                const SkPMColor* SK_RESTRICT src,
                                                int count, U8CPU alpha);
