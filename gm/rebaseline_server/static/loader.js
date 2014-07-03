@@ -427,14 +427,12 @@ Loader.controller(
     $scope.queryParameters.load = function() {
       var nameValuePairs = $location.search();
 
-      var urlSchemaVersion = nameValuePairs[constants.URL_KEY__SCHEMA_VERSION];
-      if (!urlSchemaVersion) {
-        $scope.urlSchemaVersionLoaded = 0;
-      } else if (urlSchemaVersion == constants.URL_VALUE__SCHEMA_VERSION__ALWAYS_CURRENT) {
-        $scope.urlSchemaVersionLoaded = constants.URL_VALUE__SCHEMA_VERSION__CURRENT;
-      } else {
-        $scope.urlSchemaVersionLoaded = urlSchemaVersion;
+      // If urlSchemaVersion is not specified, we assume the current version.
+      var urlSchemaVersion = constants.URL_VALUE__SCHEMA_VERSION__CURRENT;
+      if (constants.URL_KEY__SCHEMA_VERSION in nameValuePairs) {
+        urlSchemaVersion = nameValuePairs[constants.URL_KEY__SCHEMA_VERSION];
       }
+      $scope.urlSchemaVersionLoaded = urlSchemaVersion;
 
       angular.forEach($scope.queryParameters.map,
                       function(copier, paramName) {

@@ -65,11 +65,6 @@ MIME_TYPE_MAP = {'': 'application/octet-stream',
 KEY__EDITS__MODIFICATIONS = 'modifications'
 KEY__EDITS__OLD_RESULTS_HASH = 'oldResultsHash'
 KEY__EDITS__OLD_RESULTS_TYPE = 'oldResultsType'
-URL_KEY__SCHEMA_VERSION = 'urlSchemaVersion'
-URL_VALUE__SCHEMA_VERSION__CURRENT = 0
-# always interpret as then-current schema version;
-# used for toplevel links on index page
-URL_VALUE__SCHEMA_VERSION__ALWAYS_CURRENT = 'current'
 
 DEFAULT_ACTUALS_DIR = results_mod.DEFAULT_ACTUALS_DIR
 DEFAULT_GM_SUMMARIES_BUCKET = download_actuals.GM_SUMMARIES_BUCKET
@@ -169,14 +164,11 @@ def _create_index(file_path, config_pairs):
       for summary_type in SUMMARY_TYPES:
         file_handle.write(
             '<li><a href="/{static_subdir}/view.html#/view.html?'
-            '{version_key}={version_value}&'
             'resultsToLoad=/{results_subdir}/{summary_type}">'
             '{summary_type}</a></li>'.format(
                 results_subdir=RESULTS_SUBDIR,
                 static_subdir=STATIC_CONTENTS_SUBDIR,
-                summary_type=summary_type,
-                version_key=URL_KEY__SCHEMA_VERSION,
-                version_value=URL_VALUE__SCHEMA_VERSION__ALWAYS_CURRENT))
+                summary_type=summary_type))
       file_handle.write('</ul>')
     if config_pairs:
       file_handle.write('<li>Comparing configs within actual results</li><ul>')
