@@ -7,7 +7,6 @@
 
 #include "SkCanvas.h"
 #include "SkColorShader.h"
-#include "SkEmptyShader.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"
 #include "SkTemplates.h"
@@ -43,7 +42,7 @@ struct GradRec {
 
 
 static void none_gradproc(skiatest::Reporter* reporter, const GradRec&) {
-    SkAutoTUnref<SkShader> s(new SkEmptyShader);
+    SkAutoTUnref<SkShader> s(SkShader::CreateEmptyShader());
     REPORTER_ASSERT(reporter, SkShader::kNone_GradientType == s->asAGradient(NULL));
 }
 

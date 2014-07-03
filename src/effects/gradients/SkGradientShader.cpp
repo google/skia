@@ -698,8 +698,6 @@ void SkGradientShaderBase::toString(SkString* str) const {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkEmptyShader.h"
-
 // assumes colors is SkColor* and pos is SkScalar*
 #define EXPAND_1_COLOR(count)               \
     SkColor tmp[2];                         \
@@ -790,7 +788,7 @@ SkShader* SkGradientShader::CreateTwoPointConical(const SkPoint& start,
         return NULL;
     }
     if (start == end && startRadius == endRadius) {
-        return SkNEW(SkEmptyShader);
+        return SkShader::CreateEmptyShader();
     }
 
     EXPAND_1_COLOR(colorCount);

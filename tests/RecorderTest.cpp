@@ -10,8 +10,7 @@
 #include "SkRecord.h"
 #include "SkRecorder.h"
 #include "SkRecords.h"
-
-#include "SkEmptyShader.h"
+#include "SkShader.h"
 
 #define COUNT(T) + 1
 static const int kRecordTypes = SK_RECORD_TYPES(COUNT);
@@ -57,7 +56,7 @@ DEF_TEST(Recorder_RefLeaking, r) {
 
     SkRect bounds = SkRect::MakeWH(320, 240);
     SkPaint paint;
-    paint.setShader(SkNEW(SkEmptyShader))->unref();
+    paint.setShader(SkShader::CreateEmptyShader())->unref();
 
     REPORTER_ASSERT(r, paint.getShader()->unique());
     {
