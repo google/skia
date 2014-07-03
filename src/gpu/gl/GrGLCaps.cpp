@@ -504,7 +504,7 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     // First check version for support
     if (kGL_GrGLStandard == standard) {
         hasETC1 = hasCompressTex2D &&
-            (version >= GR_GL_VER(4, 3) ||
+            (version >= GR_GL_VER(4, 3) || 
              ctxInfo.hasExtension("GL_ARB_ES3_compatibility"));
     } else {
         hasETC1 = hasCompressTex2D &&
@@ -560,7 +560,7 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     }
 }
 
-bool GrGLCaps::doReadPixelsSupported(const GrGLInterface* intf,
+bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
                                    GrGLenum format,
                                    GrGLenum type) const {
     if (GR_GL_RGBA == format && GR_GL_UNSIGNED_BYTE == type) {
@@ -587,25 +587,6 @@ bool GrGLCaps::doReadPixelsSupported(const GrGLInterface* intf,
                       &otherType);
 
     return (GrGLenum)otherFormat == format && (GrGLenum)otherType == type;
-}
-
-bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
-                                   GrGLenum format,
-                                   GrGLenum type,
-                                   GrGLenum currFboFormat) const {
-
-    ReadPixelsSupportedFormatsKey key = {format, type, currFboFormat};
-
-    ReadPixelsSupportedFormats* cachedValue = fReadPixelsSupportedCache.find(key);
-
-    if (cachedValue == NULL) {
-        bool value = doReadPixelsSupported(intf, format, type);
-        cachedValue = new ReadPixelsSupportedFormats(key, value);
-
-        fReadPixelsSupportedCache.add(cachedValue);
-    }
-
-    return cachedValue->value();
 }
 
 void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
@@ -835,18 +816,4 @@ SkString GrGLCaps::dump() const {
     r.appendf("Full screen clear is free: %s\n", (fFullClearIsFree ? "YES" : "NO"));
     r.appendf("Drops tile on zero divide: %s\n", (fDropsTileOnZeroDivide ? "YES" : "NO"));
     return r;
-}
-
-//Computes a hash based on the three values in the key struct
-// bits 31------------15---------7---------------0
-//      fFormat(15:0) fType(7:0) fFboFormat(7:0)
-uint32_t GrGLCaps::ReadPixelsSupportedFormats::Hash(const ReadPixelsSupportedFormatsKey& key) {
-    // fFormat has different values like 0x190X or 0x8XXX: 16 bits are required
-    uint32_t hash = ((key.fFormat & 0xFFFF) << 16);
-    // fType is 0x14XX: 8 lower bits are enough
-    hash |= ((key.fType & 0xFF) << 8);
-    // fFboFormat is enum GrPixelConfig which has less than 15 values: 8 bits OK
-    hash |= (key.fFboFormat & 0xFF);
-
-    return hash;
 }
