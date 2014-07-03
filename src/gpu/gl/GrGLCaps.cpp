@@ -311,8 +311,27 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     // attachment, hence this min:
     fMaxRenderTargetSize = SkTMin(fMaxTextureSize, fMaxRenderTargetSize);
 
-    fPathRenderingSupport = ctxInfo.hasExtension("GL_NV_path_rendering") &&
-        ctxInfo.hasExtension("GL_EXT_direct_state_access");
+    fPathRenderingSupport = ctxInfo.hasExtension("GL_NV_path_rendering");
+
+    if (fPathRenderingSupport) {
+        if (kGL_GrGLStandard == standard) {
+            // We need one of the two possible texturing methods: using fixed function pipeline
+            // (PathTexGen, texcoords, ...)  or using the newer NVPR API additions that support
+            // setting individual fragment inputs with ProgramPathFragmentInputGen. The API
+            // additions are detected by checking the existence of the function. Eventually we may
+            // choose to remove the fixed function codepath.
+            // Set fMaxFixedFunctionTextureCoords = 0 here if you want to force
+            // ProgramPathFragmentInputGen usage on desktop.
+            fPathRenderingSupport = ctxInfo.hasExtension("GL_EXT_direct_state_access") &&
+                (fMaxFixedFunctionTextureCoords > 0 ||
+                 ((ctxInfo.version() >= GR_GL_VER(4,3) ||
+                   ctxInfo.hasExtension("GL_ARB_program_interface_query")) &&
+                  NULL != gli->fFunctions.fProgramPathFragmentInputGen));
+        } else {
+            // Note: path rendering is not yet implemented for GLES.
+            fPathRenderingSupport = ctxInfo.version() >= GR_GL_VER(3,1) && false;
+        }
+    }
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
 

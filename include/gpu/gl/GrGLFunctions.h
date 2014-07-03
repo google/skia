@@ -214,11 +214,14 @@ extern "C" {
     // Experimental: Functions for GL_NV_path_rendering. These will be
     // alphabetized with the above functions once this is fully supported
     // (and functions we are unlikely to use will possibly be omitted).
+    // EXT_direct_state_access
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMatrixLoadfProc)(GrGLenum matrixMode, const GrGLfloat* m);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMatrixLoadIdentityProc)(GrGLenum);
+    // ARB_program_interface_query
+    typedef GrGLint (GR_GL_FUNCTION_TYPE* GrGLGetProgramResourceLocationProc)(GrGLuint program, GrGLenum programInterface, const GrGLchar *name);
+    // NV_path_rendering
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathCommandsProc)(GrGLuint path, GrGLsizei numCommands, const GrGLubyte *commands, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathCoordsProc)(GrGLuint path, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathSubCommandsProc)(GrGLuint path, GrGLsizei commandStart, GrGLsizei commandsToDelete, GrGLsizei numCommands, const GrGLubyte *commands, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathSubCoordsProc)(GrGLuint path, GrGLsizei coordStart, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathStringProc)(GrGLuint path, GrGLenum format, GrGLsizei length, const GrGLvoid *pathString);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathGlyphsProc)(GrGLuint firstPathName, GrGLenum fontTarget, const GrGLvoid *fontName, GrGLbitfield fontStyle, GrGLsizei numGlyphs, GrGLenum type, const GrGLvoid *charcodes, GrGLenum handleMissingGlyphs, GrGLuint pathParameterTemplate, GrGLfloat emScale);
@@ -227,45 +230,22 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyPathProc)(GrGLuint resultPath, GrGLuint srcPath);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInterpolatePathsProc)(GrGLuint resultPath, GrGLuint pathA, GrGLuint pathB, GrGLfloat weight);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTransformPathProc)(GrGLuint resultPath, GrGLuint srcPath, GrGLenum transformType, const GrGLfloat *transformValues);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathParameterivProc)(GrGLuint path, GrGLenum pname, const GrGLint *value);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathParameteriProc)(GrGLuint path, GrGLenum pname, GrGLint value);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathParameterfvProc)(GrGLuint path, GrGLenum pname, const GrGLfloat *value);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathParameterfProc)(GrGLuint path, GrGLenum pname, GrGLfloat value);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathDashArrayProc)(GrGLuint path, GrGLsizei dashCount, const GrGLfloat *dashArray);
     typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLGenPathsProc)(GrGLsizei range);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeletePathsProc)(GrGLuint path, GrGLsizei range);
-    typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLIsPathProc)(GrGLuint path);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathStencilFuncProc)(GrGLenum func, GrGLint ref, GrGLuint mask);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathStencilDepthOffsetProc)(GrGLfloat factor, GrGLfloat units);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilFillPathProc)(GrGLuint path, GrGLenum fillMode, GrGLuint mask);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilStrokePathProc)(GrGLuint path, GrGLint reference, GrGLuint mask);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilFillPathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum fillMode, GrGLuint mask, GrGLenum transformType, const GrGLfloat *transformValues);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilStrokePathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum transformType, const GrGLfloat *transformValues);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathCoverDepthFuncProc)(GrGLenum zfunc);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathColorGenProc)(GrGLenum color, GrGLenum genMode, GrGLenum colorFormat, const GrGLfloat *coeffs);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathTexGenProc)(GrGLenum texCoordSet, GrGLenum genMode, GrGLint components, const GrGLfloat *coeffs);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathFogGenProc)(GrGLenum genMode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverFillPathProc)(GrGLuint path, GrGLenum coverMode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverStrokePathProc)(GrGLuint name, GrGLenum coverMode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverFillPathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat *transformValues);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverStrokePathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat* transformValues);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathParameterivProc)(GrGLuint name, GrGLenum param, GrGLint *value);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathParameterfvProc)(GrGLuint name, GrGLenum param, GrGLfloat *value);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathCommandsProc)(GrGLuint name, GrGLubyte *commands);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathCoordsProc)(GrGLuint name, GrGLfloat *coords);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathDashArrayProc)(GrGLuint name, GrGLfloat *dashArray);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathMetricsProc)(GrGLbitfield metricQueryMask, GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLsizei stride, GrGLfloat *metrics);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathMetricRangeProc)(GrGLbitfield metricQueryMask, GrGLuint fistPathName, GrGLsizei numPaths, GrGLsizei stride, GrGLfloat *metrics);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathSpacingProc)(GrGLenum pathListMode, GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLfloat advanceScale, GrGLfloat kerningScale, GrGLenum transformType, GrGLfloat *returnedSpacing);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathColorGenivProc)(GrGLenum color, GrGLenum pname, GrGLint *value);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathColorGenfvProc)(GrGLenum color, GrGLenum pname, GrGLfloat *value);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathTexGenivProc)(GrGLenum texCoordSet, GrGLenum pname, GrGLint *value);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetPathTexGenfvProc)(GrGLenum texCoordSet, GrGLenum pname, GrGLfloat *value);
-    typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLIsPointInFillPathProc)(GrGLuint path, GrGLuint mask, GrGLfloat x, GrGLfloat y);
-    typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLIsPointInStrokePathProc)(GrGLuint path, GrGLfloat x, GrGLfloat y);
-    typedef GrGLfloat (GR_GL_FUNCTION_TYPE* GrGLGetPathLengthProc)(GrGLuint path, GrGLsizei startSegment, GrGLsizei numSegments);
-    typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLPointAlongPathProc)(GrGLuint path, GrGLsizei startSegment, GrGLsizei numSegments, GrGLfloat distance, GrGLfloat *x, GrGLfloat *y, GrGLfloat *tangentX, GrGLfloat *tangentY);
 
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramPathFragmentInputGenProc)(GrGLuint program, GrGLint location, GrGLenum genMode, GrGLint components,const GrGLfloat *coeffs);
 }  // extern "C"
 
 #endif
