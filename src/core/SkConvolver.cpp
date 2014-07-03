@@ -434,7 +434,7 @@ void BGRAConvolve2D(const unsigned char* sourceData,
         }
 
         // Compute where in the output image this row of final data will go.
-        unsigned char* curOutputRow = &output[outY * outputByteRowStride];
+        unsigned char* curOutputRow = &output[(uint64_t)outY * outputByteRowStride];
 
         // Get the list of rows that the circular buffer has, in order.
         int firstRowInCircularBuffer;

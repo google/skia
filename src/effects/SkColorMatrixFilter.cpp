@@ -450,6 +450,8 @@ public:
     private:
         GrGLUniformManager::UniformHandle fMatrixHandle;
         GrGLUniformManager::UniformHandle fVectorHandle;
+
+        typedef GrGLEffect INHERITED;
     };
 
 private:
@@ -462,7 +464,7 @@ private:
 
     SkColorMatrix fMatrix;
 
-    typedef GrGLEffect INHERITED;
+    typedef GrEffect INHERITED;
 };
 
 GR_DEFINE_EFFECT_TEST(ColorMatrixEffect);
