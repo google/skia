@@ -266,7 +266,8 @@ private:
 bool SkScaledImageCacheDiscardableAllocator::allocPixelRef(SkBitmap* bitmap,
                                                        SkColorTable* ctable) {
     size_t size = bitmap->getSize();
-    if (0 == size) {
+    uint64_t size64 = bitmap->computeSize64();
+    if (0 == size || size64 > (uint64_t)size) {
         return false;
     }
 
