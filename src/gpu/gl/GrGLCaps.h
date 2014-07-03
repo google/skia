@@ -13,6 +13,7 @@
 #include "GrGLStencilBuffer.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
+#include "SkTDynamicHash.h"
 
 class GrGLContextInfo;
 
@@ -253,7 +254,8 @@ public:
     /// Does ReadPixels support the provided format/type combo?
     bool readPixelsSupported(const GrGLInterface* intf,
                              GrGLenum format,
-                             GrGLenum type) const;
+                             GrGLenum type,
+                             GrGLenum currFboFormat) const;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
@@ -324,6 +326,10 @@ private:
     void initConfigRenderableTable(const GrGLContextInfo&);
     void initConfigTexturableTable(const GrGLContextInfo&, const GrGLInterface*);
 
+    bool doReadPixelsSupported(const GrGLInterface* intf,
+                                   GrGLenum format,
+                                   GrGLenum type) const;
+
     // tracks configs that have been verified to pass the FBO completeness when
     // used as a color attachment
     VerifiedColorConfigs fVerifiedColorConfigs;
@@ -363,6 +369,38 @@ private:
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;
     bool fDropsTileOnZeroDivide : 1;
+
+    struct ReadPixelsSupportedFormatsKey {
+        GrGLenum fFormat;
+        GrGLenum fType;
+        GrGLenum fFboFormat;
+
+        bool operator==(const ReadPixelsSupportedFormatsKey& rhs) const {
+            return fFormat == rhs.fFormat
+                    && fType == rhs.fType
+                    && fFboFormat == rhs.fFboFormat;
+        }
+    };
+
+    class ReadPixelsSupportedFormats {
+    public:
+        ReadPixelsSupportedFormats(ReadPixelsSupportedFormatsKey key,
+                                   bool value)
+            :fKey(key), fValue(value) {
+        }
+
+        static const ReadPixelsSupportedFormatsKey& GetKey(const ReadPixelsSupportedFormats& element) {
+            return element.fKey;
+        }
+        static uint32_t Hash(const ReadPixelsSupportedFormatsKey&);
+
+        bool value() const { return fValue; }
+    private:
+        ReadPixelsSupportedFormatsKey fKey;
+        bool fValue;
+    };
+
+    mutable SkTDynamicHash<ReadPixelsSupportedFormats, ReadPixelsSupportedFormatsKey> fReadPixelsSupportedCache;
 
     typedef GrDrawTargetCaps INHERITED;
 };
