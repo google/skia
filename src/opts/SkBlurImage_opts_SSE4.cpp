@@ -1,15 +1,23 @@
 /*
- * Copyright 2013 The Android Open Source Project
+ * Copyright 2014 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#include <emmintrin.h>
 #include "SkBitmap.h"
-#include "SkBlurImage_opts_SSE2.h"
+#include "SkBlurImage_opts_SSE4.h"
 #include "SkColorPriv.h"
 #include "SkRect.h"
+
+/* With the exception of the Android framework we always build the SSE4 functions
+ * and enable the caller to determine SSE4 support.  However, for the Android framework,
+ * if the device does not support SSE4x then the compiler will not supply the required
+ * -msse4* option needed to build this file, so instead we provide a stub implementation.
+ */
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+
+#include <smmintrin.h>
 
 namespace {
 enum BlurDirection {
@@ -33,7 +41,7 @@ inline __m128i expand(int a) {
 }
 
 template<BlurDirection srcDirection, BlurDirection dstDirection>
-void SkBoxBlur_SSE2(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSize,
+void SkBoxBlur_SSE4(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSize,
                     int leftOffset, int rightOffset, int width, int height)
 {
     const int rightBorder = SkMin32(rightOffset + 1, width);
@@ -55,12 +63,7 @@ void SkBoxBlur_SSE2(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
         const SkPMColor* sptr = src;
         SkColor* dptr = dst;
         for (int x = 0; x < width; ++x) {
-            // SSE2 has no PMULLUD, so we must do AG and RB separately.
-            __m128i tmp1 = _mm_mul_epu32(sum, scale);
-            __m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(sum, 4),
-                                         _mm_srli_si128(scale, 4));
-            __m128i result = _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE(0,0,2,0)),
-                                                _mm_shuffle_epi32(tmp2, _MM_SHUFFLE(0,0,2,0)));
+            __m128i result = _mm_mullo_epi32(sum, scale);
 
             // sumA*scale+.5 sumB*scale+.5 sumG*scale+.5 sumB*scale+.5
             result = _mm_add_epi32(result, half);
@@ -96,13 +99,25 @@ void SkBoxBlur_SSE2(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
 
 } // namespace
 
-bool SkBoxBlurGetPlatformProcs_SSE2(SkBoxBlurProc* boxBlurX,
+bool SkBoxBlurGetPlatformProcs_SSE4(SkBoxBlurProc* boxBlurX,
                                     SkBoxBlurProc* boxBlurY,
                                     SkBoxBlurProc* boxBlurXY,
                                     SkBoxBlurProc* boxBlurYX) {
-    *boxBlurX = SkBoxBlur_SSE2<kX, kX>;
-    *boxBlurY = SkBoxBlur_SSE2<kY, kY>;
-    *boxBlurXY = SkBoxBlur_SSE2<kX, kY>;
-    *boxBlurYX = SkBoxBlur_SSE2<kY, kX>;
+    *boxBlurX = SkBoxBlur_SSE4<kX, kX>;
+    *boxBlurY = SkBoxBlur_SSE4<kY, kY>;
+    *boxBlurXY = SkBoxBlur_SSE4<kX, kY>;
+    *boxBlurYX = SkBoxBlur_SSE4<kY, kX>;
     return true;
 }
+
+#else // !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+
+bool SkBoxBlurGetPlatformProcs_SSE4(SkBoxBlurProc* boxBlurX,
+                                    SkBoxBlurProc* boxBlurY,
+                                    SkBoxBlurProc* boxBlurXY,
+                                    SkBoxBlurProc* boxBlurYX) {
+    sk_throw();
+}
+
+
+#endif
