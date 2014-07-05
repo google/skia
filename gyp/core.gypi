@@ -151,6 +151,8 @@
         '<(skia_src_path)/core/SkRasterClip.cpp',
         '<(skia_src_path)/core/SkRasterizer.cpp',
         '<(skia_src_path)/core/SkReadBuffer.cpp',
+        '<(skia_src_path)/core/SkRecordAnalysis.cpp',
+        '<(skia_src_path)/core/SkRecordAnalysis.h',
         '<(skia_src_path)/core/SkRecordDraw.cpp',
         '<(skia_src_path)/core/SkRecordOpts.cpp',
         '<(skia_src_path)/core/SkRecorder.cpp',

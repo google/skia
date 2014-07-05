@@ -313,6 +313,7 @@ private:
 
     SkPicture(int width, int height, SkRecord*);  // Takes ownership.
     SkAutoTDelete<SkRecord> fRecord;
+    bool fRecordWillPlayBackBitmaps; // TODO: const
 };
 
 #endif

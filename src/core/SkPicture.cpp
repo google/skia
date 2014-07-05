@@ -19,6 +19,7 @@
 #include "SkDrawPictureCallback.h"
 #include "SkPaintPriv.h"
 #include "SkPicture.h"
+#include "SkRecordAnalysis.h"
 #include "SkRegion.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
@@ -132,7 +133,8 @@ static void validateMatrix(const SkMatrix* matrix) {
 // fRecord OK
 SkPicture::SkPicture()
     : fWidth(0)
-    , fHeight(0) {
+    , fHeight(0)
+    , fRecordWillPlayBackBitmaps(false) {
     this->needsNewGenID();
 }
 
@@ -141,7 +143,8 @@ SkPicture::SkPicture(int width, int height,
                      const SkPictureRecord& record,
                      bool deepCopyOps)
     : fWidth(width)
-    , fHeight(height) {
+    , fHeight(height)
+    , fRecordWillPlayBackBitmaps(false) {
     this->needsNewGenID();
 
     SkPictInfo info;
@@ -170,6 +173,7 @@ SkPicture::SkPicture(const SkPicture& src) : INHERITED() {
     this->needsNewGenID();
     fWidth = src.fWidth;
     fHeight = src.fHeight;
+    fRecordWillPlayBackBitmaps = src.fRecordWillPlayBackBitmaps;
 
     if (NULL != src.fData.get()) {
         fData.reset(SkNEW_ARGS(SkPictureData, (*src.fData)));
@@ -204,6 +208,7 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
         clone->fWidth = fWidth;
         clone->fHeight = fHeight;
         clone->fData.reset(NULL);
+        clone->fRecordWillPlayBackBitmaps = fRecordWillPlayBackBitmaps;
 
         /*  We want to copy the src's playback. However, if that hasn't been built
             yet, we need to fake a call to endRecording() without actually calling
@@ -381,7 +386,8 @@ bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer& buffer, SkPictInfo* pInfo
 SkPicture::SkPicture(SkPictureData* data, int width, int height)
     : fData(data)
     , fWidth(width)
-    , fHeight(height) {
+    , fHeight(height)
+    , fRecordWillPlayBackBitmaps(false) {
     this->needsNewGenID();
 }
 
@@ -521,8 +527,11 @@ bool SkPicture::suitableForGpuRasterization(GrContext* context, const char **rea
 }
 #endif
 
-// fRecord TODO
+// fRecord OK
 bool SkPicture::willPlayBackBitmaps() const {
+    if (fRecord.get()) {
+        return fRecordWillPlayBackBitmaps;
+    }
     if (!fData.get()) {
         return false;
     }
@@ -563,6 +572,7 @@ uint32_t SkPicture::uniqueID() const {
 SkPicture::SkPicture(int width, int height, SkRecord* record)
     : fWidth(width)
     , fHeight(height)
-    , fRecord(record) {
+    , fRecord(record)
+    , fRecordWillPlayBackBitmaps(SkRecordWillPlaybackBitmaps(*record)) {
     this->needsNewGenID();
 }
