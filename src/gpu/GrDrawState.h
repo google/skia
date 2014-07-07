@@ -902,7 +902,7 @@ private:
         fCommon.fDrawFace = kBoth_DrawFace;
     }
 
-    /** Fields that are identical in GrDrawState and GrDrawState::DeferredState. */
+    /** This will be removed soon. The fields will become members of GrDrawState. */
     struct CommonState {
         // These fields are roughly sorted by decreasing likelihood of being different in op==
         GrColor               fColor;
@@ -940,101 +940,6 @@ private:
         }
         bool operator!= (const CommonState& other) const { return !(*this == other); }
     };
-
-    /** GrDrawState uses GrEffectStages to hold stage state which holds a ref on GrEffectRef.
-        DeferredState must directly reference GrEffects, however. */
-    struct SavedEffectStage {
-        SavedEffectStage() : fEffect(NULL) {}
-        const GrEffect*                    fEffect;
-        GrEffectStage::SavedCoordChange    fCoordChange;
-    };
-
-public:
-    /**
-     * DeferredState contains all of the data of a GrDrawState but does not hold refs on GrResource
-     * objects. Resources are allowed to hit zero ref count while in DeferredStates. Their internal
-     * dispose mechanism returns them to the cache. This allows recycling resources through the
-     * the cache while they are in a deferred draw queue.
-     */
-    class DeferredState {
-    public:
-        DeferredState() : fRenderTarget(NULL) {
-            SkDEBUGCODE(fInitialized = false;)
-        }
-        // TODO: Remove this when DeferredState no longer holds a ref to the RT
-        ~DeferredState() { SkSafeUnref(fRenderTarget); }
-
-        void saveFrom(const GrDrawState& drawState) {
-            fCommon = drawState.fCommon;
-            // TODO: Here we will copy the GrRenderTarget pointer without taking a ref.
-            fRenderTarget = drawState.fRenderTarget.get();
-            SkSafeRef(fRenderTarget);
-            // Here we ref the effects directly rather than the effect-refs. TODO: When the effect-
-            // ref gets fully unref'ed it will cause the underlying effect to unref its resources
-            // and recycle them to the cache (if no one else is holding a ref to the resources).
-            fStages.reset(drawState.fColorStages.count() + drawState.fCoverageStages.count());
-            fColorStageCnt = drawState.fColorStages.count();
-            for (int i = 0; i < fColorStageCnt; ++i) {
-                fStages[i].saveFrom(drawState.fColorStages[i]);
-            }
-            for (int i = 0; i < drawState.fCoverageStages.count(); ++i) {
-                fStages[i + fColorStageCnt].saveFrom(drawState.fCoverageStages[i]);
-            }
-            SkDEBUGCODE(fInitialized = true;)
-        }
-
-        void restoreTo(GrDrawState* drawState) const {
-            SkASSERT(fInitialized);
-            drawState->fCommon = fCommon;
-            drawState->setRenderTarget(fRenderTarget);
-            // reinflate color/cov stage arrays.
-            drawState->fColorStages.reset();
-            for (int i = 0; i < fColorStageCnt; ++i) {
-                SkNEW_APPEND_TO_TARRAY(&drawState->fColorStages, GrEffectStage, (fStages[i]));
-            }
-            int coverageStageCnt = fStages.count() - fColorStageCnt;
-            drawState->fCoverageStages.reset();
-            for (int i = 0; i < coverageStageCnt; ++i) {
-                SkNEW_APPEND_TO_TARRAY(&drawState->fCoverageStages,
-                                        GrEffectStage, (fStages[i + fColorStageCnt]));
-            }
-        }
-
-        bool isEqual(const GrDrawState& state) const {
-            int numCoverageStages = fStages.count() - fColorStageCnt;
-            if (fRenderTarget != state.fRenderTarget.get() ||
-                fColorStageCnt != state.fColorStages.count() ||
-                numCoverageStages != state.fCoverageStages.count() ||
-                fCommon != state.fCommon) {
-                return false;
-            }
-            bool explicitLocalCoords = state.hasLocalCoordAttribute();
-            for (int i = 0; i < fColorStageCnt; ++i) {
-                if (!fStages[i].isEqual(state.fColorStages[i], explicitLocalCoords)) {
-                    return false;
-                }
-            }
-            for (int i = 0; i < numCoverageStages; ++i) {
-                int s = fColorStageCnt + i;
-                if (!fStages[s].isEqual(state.fCoverageStages[i], explicitLocalCoords)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-    private:
-        typedef SkAutoSTArray<8, GrEffectStage::DeferredStage> DeferredStageArray;
-
-        GrRenderTarget*                       fRenderTarget;
-        CommonState                           fCommon;
-        int                                   fColorStageCnt;
-        DeferredStageArray                    fStages;
-
-        SkDEBUGCODE(bool fInitialized;)
-    };
-
-private:
 
     SkAutoTUnref<GrRenderTarget>        fRenderTarget;
     CommonState                         fCommon;

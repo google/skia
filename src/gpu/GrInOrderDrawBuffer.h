@@ -232,7 +232,7 @@ private:
     typedef GrTAllocator<StencilPath>                       StencilPathAllocator;
     typedef GrTAllocator<DrawPath>                          DrawPathAllocator;
     typedef GrTAllocator<DrawPaths>                         DrawPathsAllocator;
-    typedef GrTAllocator<GrDrawState::DeferredState>        StateAllocator;
+    typedef GrTAllocator<GrDrawState>                       StateAllocator;
     typedef GrTAllocator<Clear>                             ClearAllocator;
     typedef GrTAllocator<CopySurface>                       CopySurfaceAllocator;
     typedef GrTAllocator<Clip>                              ClipAllocator;
@@ -241,7 +241,7 @@ private:
     GrSTAllocator<kStencilPathPreallocCnt, StencilPath>                fStencilPaths;
     GrSTAllocator<kDrawPathPreallocCnt, DrawPath>                      fDrawPath;
     GrSTAllocator<kDrawPathsPreallocCnt, DrawPaths>                    fDrawPaths;
-    GrSTAllocator<kStatePreallocCnt, GrDrawState::DeferredState>       fStates;
+    GrSTAllocator<kStatePreallocCnt, GrDrawState>                      fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>                            fClears;
     GrSTAllocator<kCopySurfacePreallocCnt, CopySurface>                fCopySurfaces;
     GrSTAllocator<kClipPreallocCnt, Clip>                              fClips;

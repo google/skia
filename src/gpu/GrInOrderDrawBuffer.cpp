@@ -577,10 +577,7 @@ void GrInOrderDrawBuffer::flush() {
     GrDrawTarget::AutoClipRestore acr(fDstGpu);
     AutoGeometryAndStatePush agasp(fDstGpu, kPreserve_ASRInit);
 
-    GrDrawState playbackState;
-    GrDrawState* prevDrawState = fDstGpu->drawState();
-    prevDrawState->ref();
-    fDstGpu->setDrawState(&playbackState);
+    GrDrawState* prevDrawState = SkRef(fDstGpu->drawState());
 
     GrClipData clipData;
 
@@ -606,6 +603,7 @@ void GrInOrderDrawBuffer::flush() {
         }
         switch (strip_trace_bit(fCmds[c])) {
             case kDraw_Cmd: {
+                SkASSERT(fDstGpu->drawState() != prevDrawState);
                 SkAssertResult(drawIter.next());
                 fDstGpu->setVertexSourceToBuffer(drawIter->fVertexBuffer);
                 if (drawIter->isIndexed()) {
@@ -615,11 +613,13 @@ void GrInOrderDrawBuffer::flush() {
                 break;
             }
             case kStencilPath_Cmd: {
+                SkASSERT(fDstGpu->drawState() != prevDrawState);
                 SkAssertResult(stencilPathIter.next());
                 fDstGpu->stencilPath(stencilPathIter->fPath.get(), stencilPathIter->fFill);
                 break;
             }
             case kDrawPath_Cmd: {
+                SkASSERT(fDstGpu->drawState() != prevDrawState);
                 SkAssertResult(drawPathIter.next());
                 fDstGpu->executeDrawPath(drawPathIter->fPath.get(), drawPathIter->fFill,
                                          NULL != drawPathIter->fDstCopy.texture() ?
@@ -628,6 +628,7 @@ void GrInOrderDrawBuffer::flush() {
                 break;
             }
             case kDrawPaths_Cmd: {
+                SkASSERT(fDstGpu->drawState() != prevDrawState);
                 SkAssertResult(drawPathsIter.next());
                 const GrDeviceCoordTexture* dstCopy =
                     NULL !=drawPathsIter->fDstCopy.texture() ? &drawPathsIter->fDstCopy : NULL;
@@ -638,7 +639,7 @@ void GrInOrderDrawBuffer::flush() {
             }
             case kSetState_Cmd:
                 SkAssertResult(stateIter.next());
-                stateIter->restoreTo(&playbackState);
+                fDstGpu->setDrawState(stateIter.get());
                 break;
             case kSetClip_Cmd:
                 SkAssertResult(clipIter.next());
@@ -920,7 +921,7 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(
 }
 
 bool GrInOrderDrawBuffer::needsNewState() const {
-    return fStates.empty() || !fStates.back().isEqual(this->getDrawState());
+    return fStates.empty() || fStates.back() != this->getDrawState();
 }
 
 bool GrInOrderDrawBuffer::needsNewClip() const {
@@ -954,7 +955,7 @@ void GrInOrderDrawBuffer::recordClip() {
 }
 
 void GrInOrderDrawBuffer::recordState() {
-    fStates.push_back().saveFrom(this->getDrawState());
+    fStates.push_back() = this->getDrawState();
     this->addToCmdBuffer(kSetState_Cmd);
 }
 
