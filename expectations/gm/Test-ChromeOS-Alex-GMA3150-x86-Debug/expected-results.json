@@ -2347,13 +2347,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3270902242322559127
+          17607805564534773069
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "degeneratesegments_8888.png": {
       "allowed-digests": [
@@ -2389,25 +2386,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14315484682760036965
+          15939998926969705592
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "displacement_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10723174703710553903
+          8936909783553541695
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "distantclip_565.png": {
       "allowed-digests": [
@@ -2689,25 +2680,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4566318301688711976
+          16929342067451720663
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "drawlooper_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13845187347141053231
+          10521895959783131624
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dropshadowimagefilter_565.png": {
       "allowed-digests": [
@@ -4100,7 +4085,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18066506753999183497
+          7955099457759770546
         ]
       ], 
       "reviewed-by-human": true
@@ -4109,7 +4094,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11982781292527727120
+          6913141539607550299
         ]
       ], 
       "reviewed-by-human": true
@@ -4350,19 +4335,16 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17681274672761086257
+          5146555870960300305
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "matrixconvolution_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10222071295493882388
+          65884557519751415
         ]
       ], 
       "reviewed-by-human": true
@@ -4930,7 +4912,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          61607569459068318
+          6869421870530403934
         ]
       ], 
       "reviewed-by-human": true
@@ -4939,7 +4921,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3695817156238720886
+          922181716107376654
         ]
       ], 
       "reviewed-by-human": true
