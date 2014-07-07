@@ -55,13 +55,17 @@ void SkBoxBlur_SSE2(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
         const SkPMColor* sptr = src;
         SkColor* dptr = dst;
         for (int x = 0; x < width; ++x) {
-            // SSE2 has no PMULLUD, so we must do AG and RB separately.
+#if 0
+            // In SSE4.1, this would be
+            __m128i result = _mm_mullo_epi32(sum, scale);
+#else
+            // But SSE2 has no PMULLUD, so we must do AG and RB separately.
             __m128i tmp1 = _mm_mul_epu32(sum, scale);
             __m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(sum, 4),
                                          _mm_srli_si128(scale, 4));
             __m128i result = _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE(0,0,2,0)),
                                                 _mm_shuffle_epi32(tmp2, _MM_SHUFFLE(0,0,2,0)));
-
+#endif
             // sumA*scale+.5 sumB*scale+.5 sumG*scale+.5 sumB*scale+.5
             result = _mm_add_epi32(result, half);
 

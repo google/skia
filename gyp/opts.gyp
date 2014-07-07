@@ -212,39 +212,22 @@
         '../src/core',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"] \
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android", "mac"] \
            and not skia_android_framework', {
           'cflags': [
             '-msse4',
           ],
         }],
-        [ 'skia_os == "mac"', {
-          'xcode_settings': {
-            'OTHER_CPLUSPLUSFLAGS!': [
-              '-mssse3',
-            ],
-            'OTHER_CPLUSPLUSFLAGS': [
-              '-msse4',
-            ],
-          },
-        }],
-        [ 'skia_arch_type == "x86"', {
+        [ 'skia_arch_width == 64 and skia_arch_type == "x86"', {
           'sources': [
-            '../src/opts/SkBlurImage_opts_SSE4.cpp',
-          ],
-          'conditions': [
-            [ 'skia_arch_width == 64', {
-              'sources': [
-                '../src/opts/SkBlitRow_opts_SSE4_x64_asm.S',
-              ],
-            }],
-            [ 'skia_arch_width == 32', {
-              'sources': [
-                '../src/opts/SkBlitRow_opts_SSE4_asm.S',
-              ],
-            }],
+            '../src/opts/SkBlitRow_opts_SSE4_x64_asm.S',
           ],
         }],
+        [ 'skia_arch_width == 32 and skia_arch_type == "x86"', {
+          'sources': [
+            '../src/opts/SkBlitRow_opts_SSE4_asm.S',
+          ],
+       }],
       ],
     },
     # NEON code must be compiled with -mfpu=neon which also affects scalar
