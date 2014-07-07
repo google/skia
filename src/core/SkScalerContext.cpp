@@ -799,16 +799,7 @@ void SkScalerContext::getPath(const SkGlyph& glyph, SkPath* path) {
 }
 
 void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* fm) {
-    // All of this complexity should go away when we change generateFontMetrics
-    // to just take one parameter (since it knows if it is vertical or not)
-    SkPaint::FontMetrics* mx = NULL;
-    SkPaint::FontMetrics* my = NULL;
-    if (fRec.fFlags & kVertical_Flag) {
-        mx = fm;
-    } else {
-        my = fm;
-    }
-    this->generateFontMetrics(mx, my);
+    this->generateFontMetrics(fm);
 }
 
 SkUnichar SkScalerContext::generateGlyphToChar(uint16_t glyph) {
@@ -964,13 +955,9 @@ protected:
     }
     virtual void generateImage(const SkGlyph& glyph) SK_OVERRIDE {}
     virtual void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE {}
-    virtual void generateFontMetrics(SkPaint::FontMetrics* mx,
-                                     SkPaint::FontMetrics* my) SK_OVERRIDE {
-        if (mx) {
-            sk_bzero(mx, sizeof(*mx));
-        }
-        if (my) {
-            sk_bzero(my, sizeof(*my));
+    virtual void generateFontMetrics(SkPaint::FontMetrics* metrics) SK_OVERRIDE {
+        if (metrics) {
+            sk_bzero(metrics, sizeof(*metrics));
         }
     }
 };

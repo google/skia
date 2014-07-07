@@ -160,6 +160,10 @@ public:
         return SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
     }
 
+    bool isVertical() const {
+        return SkToBool(fRec.fFlags & kVertical_Flag);
+    }
+
     // remember our glyph offset/base
     void setBaseGlyphCount(unsigned baseGlyphCount) {
         fBaseGlyphCount = baseGlyphCount;
@@ -245,11 +249,8 @@ protected:
      */
     virtual void generatePath(const SkGlyph& glyph, SkPath* path) = 0;
 
-    /** Retrieves font metrics.
-     *  TODO: there is now a vertical bit, no need for two parameters.
-     */
-    virtual void generateFontMetrics(SkPaint::FontMetrics* mX,
-                                     SkPaint::FontMetrics* mY) = 0;
+    /** Retrieves font metrics. */
+    virtual void generateFontMetrics(SkPaint::FontMetrics*) = 0;
 
     /** Returns the number of glyphs in the font. */
     virtual unsigned generateGlyphCount() = 0;

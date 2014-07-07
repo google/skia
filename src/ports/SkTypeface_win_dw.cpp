@@ -242,7 +242,8 @@ void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
         rec->fMaskFormat = SkMask::kA8_Format;
     }
 
-    unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
+    unsigned flagsWeDontSupport = SkScalerContext::kVertical_Flag |
+                                  SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kForceAutohinting_Flag |
                                   SkScalerContext::kEmbolden_Flag |
                                   SkScalerContext::kLCD_BGROrder_Flag |

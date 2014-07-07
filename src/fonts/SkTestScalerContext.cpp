@@ -223,8 +223,7 @@ protected:
         path->transform(fMatrix);
     }
 
-    virtual void generateFontMetrics(SkPaint::FontMetrics* ,
-                                     SkPaint::FontMetrics* metrics) SK_OVERRIDE {
+    virtual void generateFontMetrics(SkPaint::FontMetrics* metrics) SK_OVERRIDE {
         fFace->getFontMetrics(metrics);
         if (metrics) {
             SkScalar scale = fMatrix.getScaleY();

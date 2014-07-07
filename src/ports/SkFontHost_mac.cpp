@@ -656,7 +656,7 @@ protected:
     void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
     void generateImage(const SkGlyph& glyph) SK_OVERRIDE;
     void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
-    void generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY) SK_OVERRIDE;
+    void generateFontMetrics(SkPaint::FontMetrics*) SK_OVERRIDE;
 
 private:
     static void CTPathElement(void *info, const CGPathElement *element);
@@ -1368,32 +1368,27 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
     }
 }
 
-void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx,
-                                              SkPaint::FontMetrics* my) {
+void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* metrics) {
+    if (NULL == metrics) {
+        return;
+    }
+
     CGRect theBounds = CTFontGetBoundingBox(fCTFont);
 
-    SkPaint::FontMetrics theMetrics;
-    theMetrics.fTop          = CGToScalar(-CGRectGetMaxY_inline(theBounds));
-    theMetrics.fAscent       = CGToScalar(-CTFontGetAscent(fCTFont));
-    theMetrics.fDescent      = CGToScalar( CTFontGetDescent(fCTFont));
-    theMetrics.fBottom       = CGToScalar(-CGRectGetMinY_inline(theBounds));
-    theMetrics.fLeading      = CGToScalar( CTFontGetLeading(fCTFont));
-    theMetrics.fAvgCharWidth = CGToScalar( CGRectGetWidth_inline(theBounds));
-    theMetrics.fXMin         = CGToScalar( CGRectGetMinX_inline(theBounds));
-    theMetrics.fXMax         = CGToScalar( CGRectGetMaxX_inline(theBounds));
-    theMetrics.fXHeight      = CGToScalar( CTFontGetXHeight(fCTFont));
-    theMetrics.fUnderlineThickness = CGToScalar( CTFontGetUnderlineThickness(fCTFont));
-    theMetrics.fUnderlinePosition = -CGToScalar( CTFontGetUnderlinePosition(fCTFont));
+    metrics->fTop          = CGToScalar(-CGRectGetMaxY_inline(theBounds));
+    metrics->fAscent       = CGToScalar(-CTFontGetAscent(fCTFont));
+    metrics->fDescent      = CGToScalar( CTFontGetDescent(fCTFont));
+    metrics->fBottom       = CGToScalar(-CGRectGetMinY_inline(theBounds));
+    metrics->fLeading      = CGToScalar( CTFontGetLeading(fCTFont));
+    metrics->fAvgCharWidth = CGToScalar( CGRectGetWidth_inline(theBounds));
+    metrics->fXMin         = CGToScalar( CGRectGetMinX_inline(theBounds));
+    metrics->fXMax         = CGToScalar( CGRectGetMaxX_inline(theBounds));
+    metrics->fXHeight      = CGToScalar( CTFontGetXHeight(fCTFont));
+    metrics->fUnderlineThickness = CGToScalar( CTFontGetUnderlineThickness(fCTFont));
+    metrics->fUnderlinePosition = -CGToScalar( CTFontGetUnderlinePosition(fCTFont));
 
-    theMetrics.fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
-    theMetrics.fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
-
-    if (mx != NULL) {
-        *mx = theMetrics;
-    }
-    if (my != NULL) {
-        *my = theMetrics;
-    }
+    metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+    metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
 }
 
 void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element) {
