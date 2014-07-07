@@ -18,12 +18,12 @@
     </a>
   </h2>
 
-  <em ng-show="!extraColumnHeaders"><!-- show until data is loaded -->
+  <em ng-show="!readyToDisplay">
     Loading results from <a href="{{resultsToLoad}}">{{resultsToLoad}}</a> ...
     {{loadingMessage}}
   </em>
 
-  <div ng-show="extraColumnHeaders"><!-- everything: hide until data is loaded -->
+  <div ng-show="readyToDisplay">
 
     <div class="warning-div"
          ng-show="urlSchemaVersionLoaded != constants.URL_VALUE__SCHEMA_VERSION__CURRENT">
@@ -80,17 +80,19 @@
           <input type="checkbox"
                  name="resultTypes"
                  value="{{valueAndCount[0]}}"
-                 ng-checked="!isValueInSet(valueAndCount[0], hiddenResultTypes)"
-                 ng-click="toggleValueInSet(valueAndCount[0], hiddenResultTypes); setUpdatesPending(true)">
+                 ng-checked="isValueInSet(valueAndCount[0], showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE])"
+                 ng-click="toggleValueInSet(valueAndCount[0], showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]); setUpdatesPending(true)">
           {{valueAndCount[0]}} ({{valueAndCount[1]}})<br>
         </label>
-        <button ng-click="hiddenResultTypes = {}; updateResults()">
+        <button ng-click="showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE] = {}; toggleValuesInSet(allColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE], showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]); updateResults()"
+                ng-disabled="!readyToDisplay || allColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE].length == setSize(showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE])">
           all
         </button>
-        <button ng-click="hiddenResultTypes = {}; toggleValuesInSet(allResultTypes, hiddenResultTypes); updateResults()">
+        <button ng-click="showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE] = {}; updateResults()"
+                ng-disabled="!readyToDisplay || 0 == setSize(showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE])">
           none
         </button>
-        <button ng-click="toggleValuesInSet(allResultTypes, hiddenResultTypes); updateResults()">
+        <button ng-click="toggleValuesInSet(allColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE], showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]); updateResults()">
           toggle
         </button>
       </td>
@@ -112,17 +114,19 @@
           <input type="checkbox"
                  name="configs"
                  value="{{valueAndCount[0]}}"
-                 ng-checked="!isValueInSet(valueAndCount[0], hiddenConfigs)"
-                 ng-click="toggleValueInSet(valueAndCount[0], hiddenConfigs); setUpdatesPending(true)">
+                 ng-checked="isValueInSet(valueAndCount[0], showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG])"
+                 ng-click="toggleValueInSet(valueAndCount[0], showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG]); setUpdatesPending(true)">
           {{valueAndCount[0]}} ({{valueAndCount[1]}})<br>
         </label>
-        <button ng-click="hiddenConfigs = {}; updateResults()">
+        <button ng-click="showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG] = {}; toggleValuesInSet(allColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG], showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG]); updateResults()"
+                ng-disabled="!readyToDisplay || allColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG].length == setSize(showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG])">
           all
         </button>
-        <button ng-click="hiddenConfigs = {}; toggleValuesInSet(allConfigs, hiddenConfigs); updateResults()">
+        <button ng-click="showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG] = {}; updateResults()"
+                ng-disabled="!readyToDisplay || 0 == setSize(showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG])">
           none
         </button>
-        <button ng-click="toggleValuesInSet(allConfigs, hiddenConfigs); updateResults()">
+        <button ng-click="toggleValuesInSet(allColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG], showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG]); updateResults()">
           toggle
         </button>
       </td>
@@ -312,15 +316,16 @@
             <br>
             <button class="show-only-button"
                     ng-show="viewingTab == defaultTab"
-                    ng-click="showOnlyResultType(imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__RESULT_TYPE])"
+                    ng-disabled="1 == setSize(showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE])"
+                    ng-click="showOnlyColumnValue(constants.KEY__EXTRACOLUMNS__RESULT_TYPE, imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__RESULT_TYPE])"
                     title="show only results of type {{imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__RESULT_TYPE]}}">
               show only
             </button>
             <br>
             <button class="show-all-button"
                     ng-show="viewingTab == defaultTab"
-                    ng-disabled="0 == setSize(hiddenResultTypes)"
-                    ng-click="showAllResultTypes()"
+                    ng-disabled="allColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE].length == setSize(showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE])"
+                    ng-click="showAllColumnValues(constants.KEY__EXTRACOLUMNS__RESULT_TYPE)"
                     title="show results of all types">
               show all
             </button>
@@ -349,15 +354,16 @@
             <br>
             <button class="show-only-button"
                     ng-show="viewingTab == defaultTab"
-                    ng-click="showOnlyConfig(imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__CONFIG])"
+                    ng-disabled="1 == setSize(showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG])"
+                    ng-click="showOnlyColumnValue(constants.KEY__EXTRACOLUMNS__CONFIG, imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__CONFIG])"
                     title="show only results of config {{imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__CONFIG]}}">
               show only
             </button>
             <br>
             <button class="show-all-button"
                     ng-show="viewingTab == defaultTab"
-                    ng-disabled="0 == setSize(hiddenConfigs)"
-                    ng-click="showAllConfigs()"
+                    ng-disabled="allColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG].length == setSize(showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG])"
+                    ng-click="showAllColumnValues(constants.KEY__EXTRACOLUMNS__CONFIG)"
                     title="show results of all configs">
               show all
             </button>
@@ -449,7 +455,7 @@
     </td></tr></table> <!-- table holding results header + imagePairs table -->
 
   </div><!-- main display area of selected tab -->
-  </div><!-- everything: hide until data is loaded -->
+  </div><!-- everything: hide until readyToDisplay -->
 
 </body>
 </html>

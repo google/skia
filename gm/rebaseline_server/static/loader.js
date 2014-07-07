@@ -30,7 +30,7 @@ Loader.directive(
 Loader.filter(
   'removeHiddenImagePairs',
   function(constants) {
-    return function(unfilteredImagePairs, hiddenResultTypes, hiddenConfigs,
+    return function(unfilteredImagePairs, showingColumnValues,
                     builderSubstring, testSubstring, viewingTab) {
       var filteredImagePairs = [];
       for (var i = 0; i < unfilteredImagePairs.length; i++) {
@@ -39,10 +39,10 @@ Loader.filter(
         // For performance, we examine the "set" objects directly rather
         // than calling $scope.isValueInSet().
         // Besides, I don't think we have access to $scope in here...
-        if (!(true == hiddenResultTypes[extraColumnValues[
-                  constants.KEY__EXTRACOLUMNS__RESULT_TYPE]]) &&
-            !(true == hiddenConfigs[extraColumnValues[
-                  constants.KEY__EXTRACOLUMNS__CONFIG]]) &&
+        if (showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]
+                               [extraColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]] &&
+            showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG]
+                               [extraColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG]] &&
             !(-1 == extraColumnValues[constants.KEY__EXTRACOLUMNS__BUILDER]
                     .indexOf(builderSubstring)) &&
             !(-1 == extraColumnValues[constants.KEY__EXTRACOLUMNS__TEST]
@@ -119,6 +119,7 @@ Loader.filter(
 Loader.controller(
   'Loader.Controller',
     function($scope, $http, $filter, $location, $log, $timeout, constants) {
+    $scope.readyToDisplay = false;
     $scope.constants = constants;
     $scope.windowTitle = "Loading GM Results...";
     $scope.resultsToLoad = $location.search().resultsToLoad;
@@ -199,28 +200,41 @@ Loader.controller(
           // Arrays within which the user can toggle individual elements.
           $scope.selectedImagePairs = [];
 
-          // Sets within which the user can toggle individual elements.
-          $scope.hiddenResultTypes = {};
-          $scope.hiddenResultTypes[
-              constants.KEY__RESULT_TYPE__FAILUREIGNORED] = true;
-          $scope.hiddenResultTypes[
-              constants.KEY__RESULT_TYPE__NOCOMPARISON] = true;
-          $scope.hiddenResultTypes[
-              constants.KEY__RESULT_TYPE__SUCCEEDED] = true;
-          $scope.allResultTypes = $scope.columnSliceOf2DArray(
-              $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]
-                                       [constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS],
-              0);
-          $scope.hiddenConfigs = {};
-          $scope.allConfigs = $scope.columnSliceOf2DArray(
-              $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMNS__CONFIG]
-                                       [constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS],
-              0);
+          // allColumnValues[columnName] is a list of all known values
+          // for this column.
+          // showingColumnValues[columnName] is a set indicating which values
+          // in this column would cause us to show a row, rather than hiding it.
+          $scope.allColumnValues = {};
+          $scope.showingColumnValues = {};
+
+          // set allColumnValues/showingColumnValues for RESULT_TYPE;
+          // by default, show only KEY__RESULT_TYPE__FAILED results
+          $scope.allColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE] =
+              $scope.columnSliceOf2DArray(
+                  $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]
+                                           [constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS],
+                  0);
+          $scope.showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE] = {};
+          $scope.showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE][
+              constants.KEY__RESULT_TYPE__FAILED] = true;
+
+          // set allColumnValues/showingColumnValues for CONFIG;
+          // by default, show results for all configs
+          $scope.allColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG] =
+              $scope.columnSliceOf2DArray(
+                  $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMNS__CONFIG]
+                                           [constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS],
+                  0);
+          $scope.showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG] = {};
+          $scope.toggleValuesInSet($scope.allColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG],
+                                   $scope.showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG]);
 
           // Associative array of partial string matches per category.
+          // TODO(epoger): Rename as columnValueMatch to be more consistent
+          // with allColumnValues/showingColumnValues ?
           $scope.categoryValueMatch = {};
-          $scope.categoryValueMatch.builder = "";
-          $scope.categoryValueMatch.test = "";
+          $scope.categoryValueMatch[constants.KEY__EXTRACOLUMNS__BUILDER] = "";
+          $scope.categoryValueMatch[constants.KEY__EXTRACOLUMNS__TEST] = "";
 
           // If any defaults were overridden in the URL, get them now.
           $scope.queryParameters.load();
@@ -239,6 +253,7 @@ Loader.controller(
             }
           );
 
+          $scope.readyToDisplay = true;
           $scope.updateResults();
           $scope.loadingMessage = "";
           $scope.windowTitle = "Current GM Results";
@@ -388,17 +403,17 @@ Loader.controller(
         }
       },
 
-      'set': {
+      'showingColumnValuesSet': {
         'load': function(nameValuePairs, name) {
           var value = nameValuePairs[name];
           if (value) {
             var valueArray = value.split(',');
-            $scope[name] = {};
-            $scope.toggleValuesInSet(valueArray, $scope[name]);
+            $scope.showingColumnValues[name] = {};
+            $scope.toggleValuesInSet(valueArray, $scope.showingColumnValues[name]);
           }
         },
         'save': function(nameValuePairs, name) {
-          nameValuePairs[name] = Object.keys($scope[name]).join(',');
+          nameValuePairs[name] = Object.keys($scope.showingColumnValues[name]).join(',');
         }
       },
 
@@ -413,14 +428,15 @@ Loader.controller(
       'imageSizePending':      $scope.queryParameters.copiers.simple,
       'sortColumnSubdict':     $scope.queryParameters.copiers.simple,
       'sortColumnKey':         $scope.queryParameters.copiers.simple,
-
-      'hiddenResultTypes': $scope.queryParameters.copiers.set,
-      'hiddenConfigs':     $scope.queryParameters.copiers.set,
     };
+    $scope.queryParameters.map[constants.KEY__EXTRACOLUMNS__RESULT_TYPE] =
+        $scope.queryParameters.copiers.showingColumnValuesSet;
     $scope.queryParameters.map[constants.KEY__EXTRACOLUMNS__BUILDER] =
         $scope.queryParameters.copiers.categoryValueMatch;
     $scope.queryParameters.map[constants.KEY__EXTRACOLUMNS__TEST] =
         $scope.queryParameters.copiers.categoryValueMatch;
+    $scope.queryParameters.map[constants.KEY__EXTRACOLUMNS__CONFIG] =
+        $scope.queryParameters.copiers.showingColumnValuesSet;
 
     // Loads all parameters into $scope from the URL query string;
     // any which are not found within the URL will keep their current value.
@@ -431,9 +447,19 @@ Loader.controller(
       var urlSchemaVersion = constants.URL_VALUE__SCHEMA_VERSION__CURRENT;
       if (constants.URL_KEY__SCHEMA_VERSION in nameValuePairs) {
         urlSchemaVersion = nameValuePairs[constants.URL_KEY__SCHEMA_VERSION];
+      } else if ('hiddenResultTypes' in nameValuePairs) {
+        // The combination of:
+        // - absence of an explicit urlSchemaVersion, and
+        // - presence of the old 'hiddenResultTypes' field
+        // tells us that the URL is from the original urlSchemaVersion.
+        // See https://codereview.chromium.org/367173002/
+        urlSchemaVersion = 0;
       }
       $scope.urlSchemaVersionLoaded = urlSchemaVersion;
 
+      if (urlSchemaVersion != constants.URL_VALUE__SCHEMA_VERSION__CURRENT) {
+        nameValuePairs = $scope.upconvertUrlNameValuePairs(nameValuePairs, urlSchemaVersion);
+      }
       angular.forEach($scope.queryParameters.map,
                       function(copier, paramName) {
                         copier.load(nameValuePairs, paramName);
@@ -452,6 +478,45 @@ Loader.controller(
                      );
       $location.search(nameValuePairs);
     };
+
+    /**
+     * Converts URL name/value pairs that were stored by a previous urlSchemaVersion
+     * to the currently needed format.
+     *
+     * @param oldNValuePairs name/value pairs found in the loaded URL
+     * @param oldUrlSchemaVersion which version of the schema was used to generate that URL
+     *
+     * @returns nameValuePairs as needed by the current URL parser
+     */
+    $scope.upconvertUrlNameValuePairs = function(oldNameValuePairs, oldUrlSchemaVersion) {
+      var newNameValuePairs = {};
+      angular.forEach(oldNameValuePairs,
+                      function(value, name) {
+                        if (oldUrlSchemaVersion < 1) {
+                          if ('hiddenConfigs' == name) {
+                            name = 'config';
+                            var valueSet = {};
+                            $scope.toggleValuesInSet(value.split(','), valueSet);
+                            $scope.toggleValuesInSet(
+                                $scope.allColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG],
+                                valueSet);
+                            value = Object.keys(valueSet).join(',');
+                          } else if ('hiddenResultTypes' == name) {
+                            name = 'resultType';
+                            var valueSet = {};
+                            $scope.toggleValuesInSet(value.split(','), valueSet);
+                            $scope.toggleValuesInSet(
+                                $scope.allColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE],
+                                valueSet);
+                            value = Object.keys(valueSet).join(',');
+                          }
+                        }
+
+                        newNameValuePairs[name] = value;
+                      }
+                     );
+      return newNameValuePairs;
+    }
 
 
     //
@@ -504,10 +569,9 @@ Loader.controller(
             $filter("orderBy")(
                 $filter("removeHiddenImagePairs")(
                     $scope.imagePairs,
-                    $scope.hiddenResultTypes,
-                    $scope.hiddenConfigs,
-                    $scope.categoryValueMatch.builder,
-                    $scope.categoryValueMatch.test,
+                    $scope.showingColumnValues,
+                    $scope.categoryValueMatch[constants.KEY__EXTRACOLUMNS__BUILDER],
+                    $scope.categoryValueMatch[constants.KEY__EXTRACOLUMNS__TEST],
                     $scope.viewingTab
                 ),
                 [$scope.getSortColumnValue, $scope.getSecondOrderSortValue],
@@ -599,49 +663,28 @@ Loader.controller(
     }
 
     /**
-     * Update $scope.hiddenResultTypes so that ONLY this resultType is showing,
-     * and update the visible results.
+     * Update $scope.showingColumnValues[columnName] so that ONLY entries with
+     * this columnValue are showing, and update the visible results.
      *
-     * @param resultType
+     * @param columnName
+     * @param columnValue
      */
-    $scope.showOnlyResultType = function(resultType) {
-      $scope.hiddenResultTypes = {};
-      // TODO(epoger): Maybe change $scope.allResultTypes to be a Set like
-      // $scope.hiddenResultTypes (rather than an array), so this operation is
-      // simpler (just assign or add allResultTypes to hiddenResultTypes).
-      $scope.toggleValuesInSet($scope.allResultTypes, $scope.hiddenResultTypes);
-      $scope.toggleValueInSet(resultType, $scope.hiddenResultTypes);
+    $scope.showOnlyColumnValue = function(columnName, columnValue) {
+      $scope.showingColumnValues[columnName] = {};
+      $scope.toggleValueInSet(columnValue, $scope.showingColumnValues[columnName]);
       $scope.updateResults();
     }
 
     /**
-     * Update $scope.hiddenResultTypes so that ALL resultTypes are showing,
-     * and update the visible results.
-     */
-    $scope.showAllResultTypes = function() {
-      $scope.hiddenResultTypes = {};
-      $scope.updateResults();
-    }
-
-    /**
-     * Update $scope.hiddenConfigs so that ONLY this config is showing,
-     * and update the visible results.
+     * Update $scope.showingColumnValues[columnName] so that ALL entries are
+     * showing, and update the visible results.
      *
-     * @param config
+     * @param columnName
      */
-    $scope.showOnlyConfig = function(config) {
-      $scope.hiddenConfigs = {};
-      $scope.toggleValuesInSet($scope.allConfigs, $scope.hiddenConfigs);
-      $scope.toggleValueInSet(config, $scope.hiddenConfigs);
-      $scope.updateResults();
-    }
-
-    /**
-     * Update $scope.hiddenConfigs so that ALL configs are showing,
-     * and update the visible results.
-     */
-    $scope.showAllConfigs = function() {
-      $scope.hiddenConfigs = {};
+    $scope.showAllColumnValues = function(columnName) {
+      $scope.showingColumnValues[columnName] = {};
+      $scope.toggleValuesInSet($scope.allColumnValues[columnName],
+                               $scope.showingColumnValues[columnName]);
       $scope.updateResults();
     }
 

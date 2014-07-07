@@ -77,6 +77,6 @@ module.constant('constants', (function() {
     // These are just used on the client side, no need to sync with server code.
     KEY__IMAGEPAIRS__ROWSPAN: 'rowspan',
     URL_KEY__SCHEMA_VERSION: 'urlSchemaVersion',
-    URL_VALUE__SCHEMA_VERSION__CURRENT: 0,
+    URL_VALUE__SCHEMA_VERSION__CURRENT: 1,
   }
 })())
