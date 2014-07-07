@@ -31,7 +31,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
 
 
-    bool asNewEffect(GrContext*, const SkPaint&, const SkMatrix*, GrColor*, GrEffect**)
+    bool asNewEffect(GrContext*, const SkPaint&, const SkMatrix*, GrColor*, GrEffectRef**)
             const SK_OVERRIDE;
 
     class BitmapProcShaderContext : public SkShader::Context {

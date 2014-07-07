@@ -43,7 +43,7 @@ public:
     virtual bool asComponentTable(SkBitmap* table) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual GrEffect* asNewEffect(GrContext* context) const SK_OVERRIDE;
+    virtual GrEffectRef* asNewEffect(GrContext* context) const SK_OVERRIDE;
 #endif
 
     virtual void filterSpan(const SkPMColor src[], int count,

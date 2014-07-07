@@ -87,7 +87,7 @@ public:
 #endif
 
 #if SK_SUPPORT_GPU
-    virtual GrEffect* asNewEffect(GrContext*) const SK_OVERRIDE;
+    virtual GrEffectRef* asNewEffect(GrContext*) const SK_OVERRIDE;
 #endif
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkModeColorFilter)
 
@@ -409,7 +409,7 @@ GrEffectRef* ModeColorFilterEffect::TestCreate(SkRandom* rand,
     return ModeColorFilterEffect::Create(color, mode);
 }
 
-GrEffect* SkModeColorFilter::asNewEffect(GrContext*) const {
+GrEffectRef* SkModeColorFilter::asNewEffect(GrContext*) const {
     if (SkXfermode::kDst_Mode != fMode) {
         return ModeColorFilterEffect::Create(SkColor2GrColor(fColor), fMode);
     }

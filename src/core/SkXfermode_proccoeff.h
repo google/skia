@@ -31,7 +31,7 @@ public:
     virtual bool asCoeff(Coeff* sc, Coeff* dc) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffect** effect,
+    virtual bool asNewEffect(GrEffectRef** effect,
                              GrTexture* background) const SK_OVERRIDE;
 #endif
 

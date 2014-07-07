@@ -97,7 +97,7 @@ public:
     };
 
     virtual bool asNewEffect(GrContext* context, const SkPaint&, const SkMatrix*, GrColor*,
-                             GrEffect**) const SK_OVERRIDE;
+                             GrEffectRef**) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPerlinNoiseShader)

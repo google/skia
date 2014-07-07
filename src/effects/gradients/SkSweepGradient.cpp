@@ -310,7 +310,7 @@ bool SkSweepGradient::asNewEffect(GrContext* context, const SkPaint& paint,
 
 bool SkSweepGradient::asNewEffect(GrContext* context, const SkPaint& paint,
                                   const SkMatrix* localMatrix, GrColor* grColor,
-                                  GrEffect** grEffect)  const {
+                                  GrEffectRef** grEffect)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

@@ -101,7 +101,7 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
         SkAutoTUnref<GrEffectRef> grEffect(cf->asNewEffect(grContext));
         GrColor color = test.inputColor;
         uint32_t components = test.inputComponents;
-        grEffect->getConstantColorComponents(&color, &components);
+        grEffect->get()->getConstantColorComponents(&color, &components);
 
         REPORTER_ASSERT(reporter, filterColor(color, components) == test.outputColor);
         REPORTER_ASSERT(reporter, test.outputComponents == components);

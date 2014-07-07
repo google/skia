@@ -20,7 +20,7 @@ class SkPath;
 class SkPicture;
 class SkXfermode;
 class GrContext;
-class GrEffect;
+class GrEffectRef;
 
 /** \class SkShader
  *
@@ -384,7 +384,7 @@ public:
      */
     virtual bool asNewEffect(GrContext* context, const SkPaint& paint,
                              const SkMatrix* localMatrixOrNull, GrColor* grColor,
-                             GrEffect** grEffect) const;
+                             GrEffectRef** grEffect) const;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     /**

@@ -23,6 +23,7 @@
     of GrGLEffect.
  */
 
+class GrEffectRef;
 class GrGLEffect;
 class GrGLCaps;
 class GrDrawEffect;

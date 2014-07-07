@@ -29,7 +29,7 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureShader)
 
-    bool asNewEffect(GrContext*, const SkPaint&, const SkMatrix*, GrColor*, GrEffect**)
+    bool asNewEffect(GrContext*, const SkPaint&, const SkMatrix*, GrColor*, GrEffectRef**)
         const SK_OVERRIDE;
 
 protected:

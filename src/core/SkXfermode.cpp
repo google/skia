@@ -676,12 +676,12 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-bool SkXfermode::asNewEffect(GrEffect** effect, GrTexture* background) const {
+bool SkXfermode::asNewEffect(GrEffectRef** effect, GrTexture* background) const {
     return false;
 }
 
 bool SkXfermode::AsNewEffectOrCoeff(SkXfermode* xfermode,
-                                    GrEffect** effect,
+                                    GrEffectRef** effect,
                                     Coeff* src,
                                     Coeff* dst,
                                     GrTexture* background) {
