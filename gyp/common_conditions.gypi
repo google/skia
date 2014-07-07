@@ -191,6 +191,26 @@
           '-Wno-invalid-offsetof',  # GCC <4.6 is old-school strict about what is POD.
         ],
         'conditions': [
+          [ 'skia_os != "chromeos"', {
+            'conditions': [
+              [ 'skia_arch_width == 64 and skia_arch_type == "x86"', {
+                'cflags': [
+                  '-m64',
+                ],
+                'ldflags': [
+                  '-m64',
+                ],
+              }],
+              [ 'skia_arch_width == 32 and skia_arch_type == "x86"', {
+                'cflags': [
+                  '-m32',
+                ],
+                'ldflags': [
+                  '-m32',
+                ],
+              }],
+            ],
+          }],
           [ 'skia_android_framework==0', {
             'cflags': [
               # This flag is not supported by Android build system.
@@ -421,26 +441,6 @@
                 '-lm',
               ],
             },
-          }],
-          [ 'skia_os != "chromeos"', {
-            'conditions': [
-              [ 'skia_arch_width == 64 and skia_arch_type == "x86"', {
-                'cflags': [
-                  '-m64',
-                ],
-                'ldflags': [
-                  '-m64',
-                ],
-              }],
-              [ 'skia_arch_width == 32 and skia_arch_type == "x86"', {
-                'cflags': [
-                  '-m32',
-                ],
-                'ldflags': [
-                  '-m32',
-                ],
-              }],
-            ],
           }],
           # Enable asan, tsan, etc.
           [ 'skia_sanitizer', {
