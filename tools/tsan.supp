@@ -30,3 +30,6 @@ race:SkPDF
 # Suppress while I look for a more focused way to silence this.
 race:SkPixelRef::callGenIDChangeListeners
 race:SkPixelRef::needsNewGenID
+
+# This calls SkRefCnt::getRefCnt(), which is not thread safe.  skia:2726
+race:SkImageFilter::filterImage
