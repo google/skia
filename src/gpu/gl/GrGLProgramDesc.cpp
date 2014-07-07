@@ -21,7 +21,7 @@ inline GrGLEffect::EffectKey get_key_and_update_stats(const GrEffectStage& stage
                                                       bool* setTrueIfReadsDst,
                                                       bool* setTrueIfReadsPos,
                                                       bool* setTrueIfHasVertexCode) {
-    const GrEffectRef& effect = *stage.getEffect();
+    const GrEffect* effect = stage.getEffect();
     const GrBackendEffectFactory& factory = effect->getFactory();
     GrDrawEffect drawEffect(stage, useExplicitLocalCoords);
     if (effect->willReadDstColor()) {
@@ -62,7 +62,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         firstEffectiveColorStage = drawState.numColorStages();
         while (firstEffectiveColorStage > 0 && inputColorIsUsed) {
             --firstEffectiveColorStage;
-            const GrEffect* effect = drawState.getColorStage(firstEffectiveColorStage).getEffect()->get();
+            const GrEffect* effect = drawState.getColorStage(firstEffectiveColorStage).getEffect();
             inputColorIsUsed = effect->willUseInputColor();
         }
     }
@@ -73,7 +73,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         firstEffectiveCoverageStage = drawState.numCoverageStages();
         while (firstEffectiveCoverageStage > 0 && inputCoverageIsUsed) {
             --firstEffectiveCoverageStage;
-            const GrEffect* effect = drawState.getCoverageStage(firstEffectiveCoverageStage).getEffect()->get();
+            const GrEffect* effect = drawState.getCoverageStage(firstEffectiveCoverageStage).getEffect();
             inputCoverageIsUsed = effect->willUseInputColor();
         }
     }

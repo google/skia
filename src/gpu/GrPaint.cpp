@@ -60,7 +60,7 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
     uint32_t coverageComps = kRGBA_GrColorComponentFlags;
     int count = fCoverageStages.count();
     for (int i = 0; i < count; ++i) {
-        (*fCoverageStages[i].getEffect())->getConstantColorComponents(&coverage, &coverageComps);
+        fCoverageStages[i].getEffect()->getConstantColorComponents(&coverage, &coverageComps);
     }
     if (kRGBA_GrColorComponentFlags != coverageComps || 0xffffffff != coverage) {
         return false;
@@ -70,7 +70,7 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
     uint32_t colorComps = kRGBA_GrColorComponentFlags;
     count = fColorStages.count();
     for (int i = 0; i < count; ++i) {
-        (*fColorStages[i].getEffect())->getConstantColorComponents(&color, &colorComps);
+        fColorStages[i].getEffect()->getConstantColorComponents(&color, &colorComps);
     }
 
     SkASSERT((NULL == solidColor) == (NULL == solidColorKnownComponents));

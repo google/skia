@@ -45,7 +45,7 @@ public:
         SkASSERT(NULL != fEffectRef.get());
         SkASSERT(NULL != other.fEffectRef.get());
 
-        if (!(*this->getEffect())->isEqual(*other.getEffect())) {
+        if (!this->getEffect()->isEqual(*other.getEffect())) {
             return false;
         }
 
@@ -126,7 +126,7 @@ public:
         }
     }
 
-    const GrEffectRef* getEffect() const { return fEffectRef.get(); }
+    const GrEffect* getEffect() const { return fEffectRef.get()->get(); }
 
     const int* getVertexAttribIndices() const { return fVertexAttribIndices; }
     int getVertexAttribIndexCount() const { return fEffectRef->get()->numVertexAttribs(); }

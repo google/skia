@@ -76,16 +76,16 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
     bool vertexCode = false;
     int numStages = numColorStages + numCoverageStages;
     for (int s = 0; s < numStages; ++s) {
-        const GrBackendEffectFactory& factory = (*stages[s]->getEffect())->getFactory();
+        const GrBackendEffectFactory& factory = stages[s]->getEffect()->getFactory();
         GrDrawEffect drawEffect(*stages[s], useLocalCoords);
         this->effectKeys()[s] = factory.glEffectKey(drawEffect, gpu->glCaps());
-        if ((*stages[s]->getEffect())->willReadDstColor()) {
+        if (stages[s]->getEffect()->willReadDstColor()) {
             dstRead = true;
         }
-        if ((*stages[s]->getEffect())->willReadFragmentPosition()) {
+        if (stages[s]->getEffect()->willReadFragmentPosition()) {
             fragPos = true;
         }
-        if ((*stages[s]->getEffect())->hasVertexCode()) {
+        if (stages[s]->getEffect()->hasVertexCode()) {
             vertexCode = true;
         }
     }

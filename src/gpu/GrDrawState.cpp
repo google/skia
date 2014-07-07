@@ -151,7 +151,7 @@ bool GrDrawState::validateVertexAttribs() const {
     for (int s = 0; s < totalStages; ++s) {
         int covIdx = s - fColorStages.count();
         const GrEffectStage& stage = covIdx < 0 ? fColorStages[s] : fCoverageStages[covIdx];
-        const GrEffectRef* effect = stage.getEffect();
+        const GrEffect* effect = stage.getEffect();
         SkASSERT(NULL != effect);
         // make sure that any attribute indices have the correct binding type, that the attrib
         // type and effect's shader lang type are compatible, and that attributes shared by
@@ -165,7 +165,7 @@ bool GrDrawState::validateVertexAttribs() const {
                 return false;
             }
 
-            GrSLType effectSLType = (*effect)->vertexAttribType(i);
+            GrSLType effectSLType = effect->vertexAttribType(i);
             GrVertexAttribType attribType = fVAPtr[attribIndex].fType;
             int slVecCount = GrSLTypeVectorCount(effectSLType);
             int attribVecCount = GrVertexAttribTypeVectorCount(attribType);
@@ -184,13 +184,13 @@ bool GrDrawState::validateVertexAttribs() const {
 bool GrDrawState::willEffectReadDstColor() const {
     if (!this->isColorWriteDisabled()) {
         for (int s = 0; s < fColorStages.count(); ++s) {
-            if ((*fColorStages[s].getEffect())->willReadDstColor()) {
+            if (fColorStages[s].getEffect()->willReadDstColor()) {
                 return true;
             }
         }
     }
     for (int s = 0; s < fCoverageStages.count(); ++s) {
-        if ((*fCoverageStages[s].getEffect())->willReadDstColor()) {
+        if (fCoverageStages[s].getEffect()->willReadDstColor()) {
             return true;
         }
     }
@@ -213,8 +213,8 @@ bool GrDrawState::srcAlphaWillBeOne() const {
 
     // Run through the color stages
     for (int s = 0; s < fColorStages.count(); ++s) {
-        const GrEffectRef* effect = fColorStages[s].getEffect();
-        (*effect)->getConstantColorComponents(&color, &validComponentFlags);
+        const GrEffect* effect = fColorStages[s].getEffect();
+        effect->getConstantColorComponents(&color, &validComponentFlags);
     }
 
     // Check whether coverage is treated as color. If so we run through the coverage computation.
@@ -230,8 +230,8 @@ bool GrDrawState::srcAlphaWillBeOne() const {
             }
         }
         for (int s = 0; s < fCoverageStages.count(); ++s) {
-            const GrEffectRef* effect = fCoverageStages[s].getEffect();
-            (*effect)->getConstantColorComponents(&color, &validComponentFlags);
+            const GrEffect* effect = fCoverageStages[s].getEffect();
+            effect->getConstantColorComponents(&color, &validComponentFlags);
         }
     }
     return (kA_GrColorComponentFlag & validComponentFlags) && 0xff == GrColorUnpackA(color);
@@ -255,8 +255,8 @@ bool GrDrawState::hasSolidCoverage() const {
 
     // Run through the coverage stages and see if the coverage will be all ones at the end.
     for (int s = 0; s < fCoverageStages.count(); ++s) {
-        const GrEffectRef* effect = fCoverageStages[s].getEffect();
-        (*effect)->getConstantColorComponents(&coverage, &validComponentFlags);
+        const GrEffect* effect = fCoverageStages[s].getEffect();
+        effect->getConstantColorComponents(&coverage, &validComponentFlags);
     }
     return (kRGBA_GrColorComponentFlags == validComponentFlags) && (0xffffffff == coverage);
 }

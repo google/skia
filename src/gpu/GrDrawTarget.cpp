@@ -389,7 +389,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     SkASSERT(NULL != drawState.getRenderTarget());
 
     for (int s = 0; s < drawState.numColorStages(); ++s) {
-        const GrEffectRef& effect = *drawState.getColorStage(s).getEffect();
+        const GrEffect* effect = drawState.getColorStage(s).getEffect();
         int numTextures = effect->numTextures();
         for (int t = 0; t < numTextures; ++t) {
             GrTexture* texture = effect->texture(t);
@@ -397,7 +397,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         }
     }
     for (int s = 0; s < drawState.numCoverageStages(); ++s) {
-        const GrEffectRef& effect = *drawState.getCoverageStage(s).getEffect();
+        const GrEffect* effect = drawState.getCoverageStage(s).getEffect();
         int numTextures = effect->numTextures();
         for (int t = 0; t < numTextures; ++t) {
             GrTexture* texture = effect->texture(t);

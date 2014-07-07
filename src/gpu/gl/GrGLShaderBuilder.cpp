@@ -337,7 +337,7 @@ void GrGLShaderBuilder::nameVariable(SkString* out, char prefix, const char* nam
 
 const char* GrGLShaderBuilder::dstColor() {
     if (fCodeStage.inStageCode()) {
-        const GrEffectRef& effect = *fCodeStage.effectStage()->getEffect();
+        const GrEffect* effect = fCodeStage.effectStage()->getEffect();
         if (!effect->willReadDstColor()) {
             SkDEBUGFAIL("GrGLEffect asked for dst color but its generating GrEffect "
                          "did not request access.");
@@ -487,7 +487,7 @@ SkString GrGLShaderBuilder::ensureFSCoords2D(const TransformedCoordsArray& coord
 
 const char* GrGLShaderBuilder::fragmentPosition() {
     if (fCodeStage.inStageCode()) {
-        const GrEffectRef& effect = *fCodeStage.effectStage()->getEffect();
+        const GrEffect* effect = fCodeStage.effectStage()->getEffect();
         if (!effect->willReadFragmentPosition()) {
             SkDEBUGFAIL("GrGLEffect asked for frag position but its generating GrEffect "
                          "did not request access.");

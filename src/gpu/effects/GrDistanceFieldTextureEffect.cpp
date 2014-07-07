@@ -128,7 +128,7 @@ public:
                          const GrDrawEffect& drawEffect) SK_OVERRIDE {
         SkASSERT(fTextureSizeUni.isValid());
 
-        GrTexture* texture = drawEffect.effect()->get()->texture(0);
+        GrTexture* texture = drawEffect.effect()->texture(0);
         if (texture->width() != fTextureSize.width() ||
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());
@@ -386,7 +386,7 @@ public:
 
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                                     drawEffect.castEffect<GrDistanceFieldLCDTextureEffect>();
-        GrTexture* texture = drawEffect.effect()->get()->texture(0);
+        GrTexture* texture = drawEffect.effect()->texture(0);
         if (texture->width() != fTextureSize.width() ||
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());

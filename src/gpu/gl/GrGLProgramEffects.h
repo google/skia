@@ -13,6 +13,7 @@
 #include "GrTextureAccess.h"
 #include "GrGLUniformManager.h"
 
+class GrEffect;
 class GrEffectStage;
 class GrGLVertexProgramEffectsBuilder;
 class GrGLShaderBuilder;
@@ -107,12 +108,12 @@ protected:
      * appends the necessary data to the TextureSamplerArray* object so effects can add texture
      * lookups to their code. This method is only meant to be called during the construction phase.
      */
-    void emitSamplers(GrGLShaderBuilder*, const GrEffectRef&, TextureSamplerArray*);
+    void emitSamplers(GrGLShaderBuilder*, const GrEffect*, TextureSamplerArray*);
 
     /**
      * Helper for setData(). Binds all the textures for an effect.
      */
-    void bindTextures(GrGpuGL*, const GrEffectRef&, int effectIdx);
+    void bindTextures(GrGpuGL*, const GrEffect*, int effectIdx);
 
     struct Sampler {
         SkDEBUGCODE(Sampler() : fTextureUnit(-1) {})
@@ -188,7 +189,7 @@ private:
      * TransformedCoordsArray* object, which is in turn passed to the effect's emitCode() function.
      */
     void emitTransforms(GrGLFullShaderBuilder*,
-                        const GrEffectRef&,
+                        const GrEffect*,
                         EffectKey,
                         TransformedCoordsArray*);
 
@@ -276,7 +277,7 @@ private:
      * effect's emitCode() function.
      */
     void setupPathTexGen(GrGLFragmentOnlyShaderBuilder*,
-                         const GrEffectRef&,
+                         const GrEffect*,
                          EffectKey,
                          TransformedCoordsArray*);
 

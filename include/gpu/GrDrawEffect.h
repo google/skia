@@ -24,10 +24,10 @@ public:
         SkASSERT(NULL != fEffectStage);
         SkASSERT(NULL != fEffectStage->getEffect());
     }
-    const GrEffectRef* effect() const { return fEffectStage->getEffect(); }
+    const GrEffect* effect() const { return fEffectStage->getEffect(); }
 
     template <typename T>
-    const T& castEffect() const { return *static_cast<const T*>(this->effect()->get()); }
+    const T& castEffect() const { return *static_cast<const T*>(this->effect()); }
 
     const SkMatrix& getCoordChangeMatrix() const {
         if (fExplicitLocalCoords) {
