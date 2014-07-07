@@ -354,27 +354,6 @@ public:
         return DecodeStream(stream, bitmap, kUnknown_SkColorType, kDecodePixels_Mode, NULL);
     }
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CONFIG
-    bool decode(SkStream* stream, SkBitmap* bitmap, SkBitmap::Config pref, Mode mode) {
-        return this->decode(stream, bitmap, SkBitmapConfigToColorType(pref), mode);
-    }
-    bool decodeSubset(SkBitmap* bm, const SkIRect& subset, SkBitmap::Config pref) {
-        return this->decodeSubset(bm, subset, SkBitmapConfigToColorType(pref));
-    }
-    static bool DecodeFile(const char file[], SkBitmap* bitmap, SkBitmap::Config pref, Mode mode,
-                           Format* format = NULL) {
-        return DecodeFile(file, bitmap, SkBitmapConfigToColorType(pref), mode, format);
-    }
-    static bool DecodeMemory(const void* buffer, size_t size, SkBitmap* bitmap,
-                             SkBitmap::Config pref, Mode mode, Format* format = NULL) {
-        return DecodeMemory(buffer, size, bitmap, SkBitmapConfigToColorType(pref), mode, format);
-    }
-    static bool DecodeStream(SkStreamRewindable* stream, SkBitmap* bitmap, SkBitmap::Config pref,
-                             Mode mode, Format* format = NULL) {
-        return DecodeStream(stream, bitmap, SkBitmapConfigToColorType(pref), mode, format);
-    }
-#endif
-
 protected:
     // must be overridden in subclasses. This guy is called by decode(...)
     virtual bool onDecode(SkStream*, SkBitmap* bitmap, Mode) = 0;
