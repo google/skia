@@ -1423,6 +1423,7 @@ static SkString pdfRasterizerUsage() {
 
 // Alphabetized ignoring "no" prefix ("readPath", "noreplay", "resourcePath").
 DEFINE_string(config, "", configUsage().c_str());
+DEFINE_bool(cpu, true, "Allows non-GPU configs to be run. Applied after --config.");
 DEFINE_string(pdfRasterizers, "default", pdfRasterizerUsage().c_str());
 DEFINE_bool(deferred, false, "Exercise the deferred rendering test pass.");
 DEFINE_bool(dryRun, false, "Don't actually run the tests, just print what would have been done.");
@@ -1436,6 +1437,7 @@ DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
 DEFINE_string(gpuCacheSize, "", "<bytes> <count>: Limit the gpu cache to byte size or "
               "object count. " TOSTRING(DEFAULT_CACHE_VALUE) " for either value means "
               "use the default. 0 for either disables the cache.");
+DEFINE_bool(gpu, true, "Allows GPU configs to be run. Applied after --config.");
 #endif
 DEFINE_bool(hierarchy, false, "Whether to use multilevel directory structure "
             "when reading/writing files.");
@@ -2000,10 +2002,23 @@ static bool parse_flags_configs(SkTDArray<size_t>* outConfigs,
         }
     }
 
-#if SK_SUPPORT_GPU
-    SkASSERT(grFactory != NULL);
     for (int i = 0; i < outConfigs->count(); ++i) {
         size_t index = (*outConfigs)[i];
+        if (kGPU_Backend == gRec[index].fBackend) {
+#if SK_SUPPORT_GPU
+            if (!FLAGS_gpu) {
+                outConfigs->remove(i);
+                --i;
+                continue;
+            }
+#endif
+        } else if (!FLAGS_cpu) {
+            outConfigs->remove(i);
+            --i;
+            continue;
+        }
+#if SK_SUPPORT_GPU
+        SkASSERT(grFactory != NULL);
         if (kGPU_Backend == gRec[index].fBackend) {
             GrContext* ctx = grFactory->get(gRec[index].fGLContextType, gpuAPI);
             if (NULL == ctx) {
@@ -2021,8 +2036,8 @@ static bool parse_flags_configs(SkTDArray<size_t>* outConfigs,
                 --i;
             }
         }
-    }
 #endif
+    }
 
     if (outConfigs->isEmpty()) {
         SkDebugf("No configs to run.");

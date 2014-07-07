@@ -237,6 +237,9 @@ DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
 DEFINE_int32(gpuCacheBytes, -1, "GPU cache size limit in bytes.  0 to disable cache.");
 DEFINE_int32(gpuCacheCount, -1, "GPU cache size limit in object count.  0 to disable cache.");
 
+DEFINE_bool(gpu, true, "Allows GPU configs to be run. Applied after --configs.");
+DEFINE_bool(cpu, true, "Allows non-GPU configs to be run. Applied after --config.");
+
 DEFINE_bool2(leaks, l, false, "show leaked ref cnt'd objects.");
 DEFINE_string(match, "",  "[~][^]substring[$] [...] of test name to run.\n"
                           "Multiple matches may be separated by spaces.\n"
@@ -351,6 +354,19 @@ int tool_main(int argc, char** argv) {
                 configs.remove(i, 1);
                 --i;
             }
+        }
+    }
+    // Apply the gpu/cpu only flags
+    for (int i = 0; i < configs.count(); ++i) {
+        const Config& config = gConfigs[configs[i]];
+        if (config.backend == Benchmark::kGPU_Backend) {
+            if (!FLAGS_gpu) {
+                configs.remove(i, 1);
+                --i;
+            }
+        } else if (!FLAGS_cpu) {
+            configs.remove(i, 1);
+            --i;
         }
     }
 
