@@ -53,12 +53,10 @@
         {
           'defines': [
             'SK_SCALAR_IS_FLOAT',
-            'SK_CAN_USE_FLOAT',
           ],
         }, { # else, skia_scalar != "float"
           'defines': [
             'SK_SCALAR_IS_FIXED',
-            'SK_CAN_USE_FLOAT',  # we can still use floats along the way
           ],
         }
       ],
