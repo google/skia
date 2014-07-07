@@ -14,9 +14,7 @@
 
 static uint32_t default_flags() {
     uint32_t flags = 0;
-#ifdef SK_SCALAR_IS_FLOAT
     flags |= SkReadBuffer::kScalarIsFloat_Flag;
-#endif
     if (8 == sizeof(void*)) {
         flags |= SkReadBuffer::kPtrIs64Bit_Flag;
     }
