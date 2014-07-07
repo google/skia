@@ -33,3 +33,9 @@ race:SkPixelRef::needsNewGenID
 
 # This calls SkRefCnt::getRefCnt(), which is not thread safe.  skia:2726
 race:SkImageFilter::filterImage
+
+# SkPathRef caches its bounding box the first time it's needed.
+# This will be fixed naturally once we create (from a single thread) a
+# bounding-box hierarchy for SkRecord-based SkPictures; all bounds will come pre-cached.
+# So just shut this up for now.
+race:SkPathRef::computeBounds
