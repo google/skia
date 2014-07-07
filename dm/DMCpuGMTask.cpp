@@ -39,7 +39,8 @@ void CpuGMTask::draw() {
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, PipeTask::kCrossProcess_Mode);
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, PipeTask::kSharedAddress_Mode);
 
-    SPAWN(QuiltTask, fGMFactory(NULL), bitmap);
+    SPAWN(QuiltTask, fGMFactory(NULL), bitmap, QuiltTask::kNormal_Mode);
+    SPAWN(QuiltTask, fGMFactory(NULL), bitmap, QuiltTask::kSkRecord_Mode);
 
     SPAWN(ReplayTask, fGMFactory(NULL), bitmap, ReplayTask::kNormal_Mode);
     SPAWN(ReplayTask, fGMFactory(NULL), bitmap, ReplayTask::kRTree_Mode);

@@ -295,10 +295,6 @@ public:
     ClampedGradientsGM() {}
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-
     SkString onShortName() { return SkString("clamped_gradients"); }
 
     virtual SkISize onISize() { return SkISize::Make(640, 510); }

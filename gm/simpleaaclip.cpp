@@ -124,10 +124,6 @@ protected:
         canvas->restore();
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return kPath_GeomType == fGeomType ? kSkipTiled_Flag : 0;
-    }
-
     virtual SkString onShortName() {
         SkString str;
         str.printf("simpleaaclip_%s",

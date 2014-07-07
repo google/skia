@@ -99,8 +99,8 @@ protected:
         show_bm(canvas, veryBig, small, colors);
     }
 
-    virtual uint32_t onGetFlags() const {
 #ifdef SK_BUILD_FOR_WIN32
+    virtual uint32_t onGetFlags() const {
         // The Windows bot runs out of memory in replay modes on this test in 32bit builds:
         // http://skbug.com/1756
         return kSkipPicture_Flag            |
@@ -108,10 +108,8 @@ protected:
                kSkipPipeCrossProcess_Flag   |
                kSkipTiled_Flag              |
                kSkipScaledReplay_Flag;
-#else
-        return kSkipTiled_Flag;
-#endif
     }
+#endif
 
 private:
     typedef skiagm::GM INHERITED;

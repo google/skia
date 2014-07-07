@@ -65,13 +65,6 @@ protected:
         kNPOTSize = 3,
     };
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        if (!fPowerOfTwoSize) {
-            return kSkipTiled_Flag;  // Only for 565.  8888 is fine.
-        }
-        return 0;
-    }
-
     SkString onShortName() {
         SkString name("scaled_tilemodes");
         if (!fPowerOfTwoSize) {

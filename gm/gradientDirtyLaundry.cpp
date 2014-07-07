@@ -70,10 +70,6 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-
     SkString onShortName() SK_OVERRIDE { return SkString("gradient_dirty_laundry"); }
     virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 615); }
 

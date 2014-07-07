@@ -24,10 +24,6 @@ public:
     SkBug1719GM() {}
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-
     virtual SkString onShortName() SK_OVERRIDE {
         return SkString("skbug1719");
     }

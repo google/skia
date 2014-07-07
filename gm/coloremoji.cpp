@@ -24,10 +24,6 @@ public:
         SkSafeUnref(fTypeface);
     }
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
         SkString filename = GetResourcePath("/Funkster.ttf");
         SkAutoTUnref<SkFILEStream> stream(new SkFILEStream(filename.c_str()));

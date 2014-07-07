@@ -50,10 +50,6 @@ protected:
         paint->setColor(color);
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;  // Only for 565.  8888 is fine.
-    }
-
     virtual SkString onShortName() SK_OVERRIDE {
         return SkString("pathopsinverse");
     }

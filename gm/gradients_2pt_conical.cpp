@@ -312,13 +312,6 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        if (fGradCaseType != kInside_GradCaseType) {
-            return kSkipTiled_Flag;
-        }
-        return 0;
-    }
-
     SkString onShortName() {
         return fName;
     }

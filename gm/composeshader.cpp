@@ -49,10 +49,6 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-
     virtual SkString onShortName() SK_OVERRIDE {
         return SkString("composeshader");
     }
@@ -89,11 +85,6 @@ protected:
 
     virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(220, 750);
-    }
-
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        // we're only off by 1 bit per-component
-        return kSkipTiled_Flag;
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {

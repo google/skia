@@ -54,47 +54,6 @@
     #define dec_canvas()
 #endif
 
-#ifdef SK_DEBUG
-#include "SkPixelRef.h"
-
-/*
- *  Some pixelref subclasses can support being "locked" from another thread
- *  during the lock-scope of skia calling them. In these instances, this balance
- *  check will fail, but may not be indicative of a problem, so we allow a build
- *  flag to disable this check.
- *
- *  Potentially another fix would be to have a (debug-only) virtual or flag on
- *  pixelref, which could tell us at runtime if this check is valid. That would
- *  eliminate the need for this heavy-handed build check.
- */
-#ifdef SK_DISABLE_PIXELREF_LOCKCOUNT_BALANCE_CHECK
-class AutoCheckLockCountBalance {
-public:
-    AutoCheckLockCountBalance(const SkBitmap&) { /* do nothing */ }
-};
-#else
-class AutoCheckLockCountBalance {
-public:
-    AutoCheckLockCountBalance(const SkBitmap& bm) : fPixelRef(bm.pixelRef()) {
-        fLockCount = fPixelRef ? fPixelRef->getLockCount() : 0;
-    }
-    ~AutoCheckLockCountBalance() {
-        const int count = fPixelRef ? fPixelRef->getLockCount() : 0;
-        SkASSERT(count == fLockCount);
-    }
-
-private:
-    const SkPixelRef* fPixelRef;
-    int               fLockCount;
-};
-#endif
-
-#define CHECK_LOCKCOUNT_BALANCE(bitmap)  AutoCheckLockCountBalance clcb(bitmap)
-
-#else
-    #define CHECK_LOCKCOUNT_BALANCE(bitmap)
-#endif
-
 typedef SkTLazy<SkPaint> SkLazyPaint;
 
 void SkCanvas::predrawNotify() {
@@ -1135,7 +1094,6 @@ void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap,
     }
 
     SkDEBUGCODE(bitmap.validate();)
-    CHECK_LOCKCOUNT_BALANCE(bitmap);
 
     SkRect storage;
     const SkRect* bounds = NULL;
@@ -1202,7 +1160,6 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
         return;
     }
     SkDEBUGCODE(bitmap.validate();)
-    CHECK_LOCKCOUNT_BALANCE(bitmap);
 
     SkPaint tmp;
     if (NULL == paint) {
@@ -2010,8 +1967,6 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
     if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
-
-    CHECK_LOCKCOUNT_BALANCE(bitmap);
 
     SkRect storage;
     const SkRect* bounds = &dst;
