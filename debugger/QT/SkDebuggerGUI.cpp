@@ -11,6 +11,7 @@
 #include "SkImageDecoder.h"
 #include <QListWidgetItem>
 #include "PictureRenderer.h"
+#include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureData.h"
 
@@ -158,23 +159,11 @@ void SkDebuggerGUI::showDeletes() {
 // The timed picture playback uses the SkPictureData's profiling stubs
 // to time individual commands. The offsets are needed to map SkPicture
 // offsets to individual commands.
-class SkTimedPicturePlayback : public SkPictureData {
+class SkTimedPicturePlayback : public SkPicturePlayback {
 public:
-    static SkTimedPicturePlayback* CreateFromStream(SkStream* stream, const SkPictInfo& info,
-                                                    SkPicture::InstallPixelRefProc proc,
-                                                    const SkTDArray<bool>& deletedCommands) {
-        // Mimics SkPictureData::CreateFromStream
-        SkAutoTDelete<SkTimedPicturePlayback> playback(SkNEW_ARGS(SkTimedPicturePlayback,
-                                                               (deletedCommands, info)));
-        if (!playback->parseStream(stream, proc)) {
-            return NULL; // we're invalid
-        }
-        return playback.detach();
-    }
 
-    SkTimedPicturePlayback(const SkTDArray<bool>& deletedCommands,
-                           const SkPictInfo& info)
-        : INHERITED(info)
+    SkTimedPicturePlayback(const SkPicture* picture, const SkTDArray<bool>& deletedCommands)
+        : INHERITED(picture)
         , fSkipCommands(deletedCommands)
         , fTot(0.0)
         , fCurCommand(0) {
@@ -256,9 +245,10 @@ protected:
 #endif
 
 private:
-    typedef SkPictureData INHERITED;
+    typedef SkPicturePlayback INHERITED;
 };
 
+#if 0
 // Wrap SkPicture to allow installation of an SkTimedPicturePlayback object
 class SkTimedPicture : public SkPicture {
 public:
@@ -308,10 +298,11 @@ private:
 
     typedef SkPicture INHERITED;
 };
+#endif
 
 // This is a simplification of PictureBenchmark's run with the addition of
 // clearing of the times after the first pass (in resetTimes)
-void SkDebuggerGUI::run(SkTimedPicture* pict,
+void SkDebuggerGUI::run(const SkPicture* pict,
                         sk_tools::PictureRenderer* renderer,
                         int repeats) {
     SkASSERT(pict);
@@ -330,8 +321,10 @@ void SkDebuggerGUI::run(SkTimedPicture* pict,
     renderer->render();
     renderer->resetState(true);    // flush, swapBuffers and Finish
 
+#if 0
     // We throw this away the first batch of times to remove first time effects (such as paging in this program)
     pict->resetTimes();
+#endif
 
     for (int i = 0; i < repeats; ++i) {
         renderer->setup();
@@ -360,11 +353,14 @@ void SkDebuggerGUI::actionProfile() {
         return;
     }
 
-    SkAutoTUnref<SkTimedPicture> picture(SkTimedPicture::CreateTimedPicture(&inputStream,
-                                         &SkImageDecoder::DecodeMemory, fSkipCommands));
+    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream,
+                                        &SkImageDecoder::DecodeMemory)); // , fSkipCommands));
     if (NULL == picture.get()) {
         return;
     }
+
+
+#if 0
 
     // For now this #if allows switching between tiled and simple rendering
     // modes. Eventually this will be accomplished via the GUI
@@ -414,6 +410,8 @@ void SkDebuggerGUI::actionProfile() {
 
     setupOverviewText(picture->typeTimes(), picture->totTime(), kNumRepeats);
     setupClipStackText();
+
+#endif
 }
 
 void SkDebuggerGUI::actionCancel() {

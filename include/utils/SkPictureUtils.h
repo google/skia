@@ -26,7 +26,7 @@ public:
      *  so the returned pointers are only valid while the picture is in scope
      *  and remains unchanged.
      */
-    static SkData* GatherPixelRefs(SkPicture* pict, const SkRect& area);
+    static SkData* GatherPixelRefs(const SkPicture* pict, const SkRect& area);
 
     /**
      * SkPixelRefContainer provides a base class for more elaborate pixel ref

@@ -48,8 +48,11 @@ enum {
     kDefaultTileHeight = 256
 };
 
-void PictureRenderer::init(SkPicture* pict, const SkString* writePath, const SkString* mismatchPath,
-                           const SkString* inputFilename, bool useChecksumBasedFilenames) {
+void PictureRenderer::init(const SkPicture* pict, 
+                           const SkString* writePath, 
+                           const SkString* mismatchPath,
+                           const SkString* inputFilename, 
+                           bool useChecksumBasedFilenames) {
     this->CopyString(&fWritePath, writePath);
     this->CopyString(&fMismatchPath, mismatchPath);
     this->CopyString(&fInputFilename, inputFilename);
@@ -406,7 +409,7 @@ SkString PipePictureRenderer::getConfigNameInternal() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-void SimplePictureRenderer::init(SkPicture* picture, const SkString* writePath,
+void SimplePictureRenderer::init(const SkPicture* picture, const SkString* writePath,
                                  const SkString* mismatchPath, const SkString* inputFilename,
                                  bool useChecksumBasedFilenames) {
     INHERITED::init(picture, writePath, mismatchPath, inputFilename, useChecksumBasedFilenames);
@@ -451,7 +454,7 @@ TiledPictureRenderer::TiledPictureRenderer()
     , fTilesX(0)
     , fTilesY(0) { }
 
-void TiledPictureRenderer::init(SkPicture* pict, const SkString* writePath,
+void TiledPictureRenderer::init(const SkPicture* pict, const SkString* writePath,
                                 const SkString* mismatchPath, const SkString* inputFilename,
                                 bool useChecksumBasedFilenames) {
     SkASSERT(NULL != pict);
@@ -579,7 +582,9 @@ void TiledPictureRenderer::setupPowerOf2Tiles() {
  * Saves and restores so that the initial clip and matrix return to their state before this function
  * is called.
  */
-static void draw_tile_to_canvas(SkCanvas* canvas, const SkRect& tileRect, SkPicture* picture) {
+static void draw_tile_to_canvas(SkCanvas* canvas, 
+                                const SkRect& tileRect, 
+                                const SkPicture* picture) {
     int saveCount = canvas->save();
     // Translate so that we draw the correct portion of the picture.
     // Perform a postTranslate so that the scaleFactor does not interfere with the positioning.

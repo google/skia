@@ -9,6 +9,7 @@
 
 #include "SkPictureFlat.h"
 #include "SkPictureData.h"
+#include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
 
@@ -292,27 +293,13 @@ SkPicture::AccelData::Domain SkPicture::AccelData::GenerateDomain() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// fRecord OK
-const SkPicture::OperationList& SkPicture::OperationList::InvalidList() {
-    static OperationList gInvalid;
-    return gInvalid;
-}
-
 // fRecord TODO
-const SkPicture::OperationList& SkPicture::EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) const {
+const SkPicture::OperationList* SkPicture::EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) const {
     SkASSERT(NULL != fData.get());
     if (NULL != fData.get()) {
         return fData->getActiveOps(queryRect);
     }
-    return OperationList::InvalidList();
-}
-
-// fRecord TODO
-size_t SkPicture::EXPERIMENTAL_curOpID() const {
-    if (NULL != fData.get()) {
-        return fData->curOpID();
-    }
-    return 0;
+    return NULL;
 }
 
 // fRecord OK
@@ -321,7 +308,8 @@ void SkPicture::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) const {
     SkASSERT(NULL != fData.get() || NULL != fRecord.get());
 
     if (NULL != fData.get()) {
-        fData->draw(*canvas, callback);
+        SkPicturePlayback playback(this);
+        playback.draw(canvas, callback);
     }
     if (NULL != fRecord.get()) {
         SkRecordDraw(*fRecord, canvas, callback);
@@ -537,16 +525,6 @@ bool SkPicture::willPlayBackBitmaps() const {
     }
     return fData->containsBitmaps();
 }
-
-#ifdef SK_BUILD_FOR_ANDROID
-// fRecord TODO, fix by switching Android to SkDrawPictureCallback, then deleting this method
-void SkPicture::abortPlayback() {
-    if (NULL == fData.get()) {
-        return;
-    }
-    fData->abort();
-}
-#endif
 
 // fRecord OK
 static int32_t next_picture_generation_id() {

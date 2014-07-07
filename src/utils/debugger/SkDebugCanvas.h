@@ -314,9 +314,11 @@ private:
     void applyUserTransform(SkCanvas* canvas);
 
     size_t getOpID() const {
+#if 0
         if (NULL != fPicture) {
             return fPicture->EXPERIMENTAL_curOpID();
         }
+#endif
         return 0;
     }
 

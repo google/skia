@@ -10,6 +10,7 @@
 #include "SkDraw.h"
 #include "SkPaintPriv.h"
 #include "SkPictureData.h"
+#include "SkPicturePlayback.h"
 
 SkPicture::AccelData::Key GPUAccelData::ComputeAccelDataKey() {
     static const SkPicture::AccelData::Key gGPUID = SkPicture::AccelData::GenerateDomain();
@@ -29,14 +30,14 @@ class GrGatherDevice : public SkBaseDevice {
 public:
     SK_DECLARE_INST_COUNT(GrGatherDevice)
 
-    GrGatherDevice(int width, int height, const SkPicture* picture, GPUAccelData* accelData,
+    GrGatherDevice(int width, int height, SkPicturePlayback* playback, GPUAccelData* accelData,
                    int saveLayerDepth) {
-        fPicture = picture;
+        fPlayback = playback;
         fSaveLayerDepth = saveLayerDepth;
         fInfo.fValid = true;
         fInfo.fSize.set(width, height);
         fInfo.fPaint = NULL;
-        fInfo.fSaveLayerOpID = fPicture->EXPERIMENTAL_curOpID();
+        fInfo.fSaveLayerOpID = fPlayback->curOpID();
         fInfo.fRestoreOpID = 0;
         fInfo.fHasNestedLayers = false;
         fInfo.fIsNested = (2 == fSaveLayerDepth);
@@ -123,7 +124,7 @@ protected:
             return;
         }
 
-        device->fInfo.fRestoreOpID = fPicture->EXPERIMENTAL_curOpID();
+        device->fInfo.fRestoreOpID = fPlayback->curOpID();
         device->fInfo.fCTM = *draw.fMatrix;
         device->fInfo.fCTM.postTranslate(SkIntToScalar(-device->getOrigin().fX),
                                          SkIntToScalar(-device->getOrigin().fY));
@@ -163,8 +164,8 @@ protected:
     }
 
 private:
-    // The picture being processed
-    const SkPicture *fPicture;
+    // The playback object driving this rendering
+    SkPicturePlayback *fPlayback;
 
     SkBitmap fEmptyBitmap; // legacy -- need to remove
 
@@ -190,7 +191,7 @@ private:
         SkASSERT(kSaveLayer_Usage == usage);
 
         fInfo.fHasNestedLayers = true;
-        return SkNEW_ARGS(GrGatherDevice, (info.width(), info.height(), fPicture,
+        return SkNEW_ARGS(GrGatherDevice, (info.width(), info.height(), fPlayback,
                                            fAccelData, fSaveLayerDepth+1));
     }
 
@@ -215,21 +216,7 @@ private:
 // which is all just to fill in 'accelData'
 class SK_API GrGatherCanvas : public SkCanvas {
 public:
-    GrGatherCanvas(GrGatherDevice* device, const SkPicture* pict)
-        : INHERITED(device)
-        , fPicture(pict) {
-    }
-
-    void gather() {
-        if (NULL == fPicture || 0 == fPicture->width() || 0 == fPicture->height()) {
-            return;
-        }
-
-        this->clipRect(SkRect::MakeWH(SkIntToScalar(fPicture->width()),
-                                      SkIntToScalar(fPicture->height())),
-                       SkRegion::kIntersect_Op, false);
-        this->drawPicture(fPicture);
-    }
+    GrGatherCanvas(GrGatherDevice* device) : INHERITED(device) {}
 
 protected:
     // disable aa for speed
@@ -248,32 +235,41 @@ protected:
     }
 
     virtual void onDrawPicture(const SkPicture* picture) SK_OVERRIDE {
-        // BBH-based rendering doesn't re-issue many of the operations the gather
-        // process cares about (e.g., saves and restores) so it must be disabled.
         if (NULL != picture->fData.get()) {
-            picture->fData->setUseBBH(false);
-        }
-        picture->draw(this);
-        if (NULL != picture->fData.get()) {
-            picture->fData->setUseBBH(true);
+            // Disable the BBH for the old path so all the draw calls
+            // will be seen. The stock SkPicture::draw method can't be
+            // invoked since it just uses a vanilla SkPicturePlayback.
+            SkPicturePlayback playback(picture);
+            playback.setUseBBH(false);
+            playback.draw(this, NULL);
+        } else {
+            // Since we know this is the SkRecord path we can just call
+            // SkPicture::draw.
+            picture->draw(this);
         }
     }
 
 private:
-    const SkPicture* fPicture;
-
     typedef SkCanvas INHERITED;
 };
 
 // GatherGPUInfo is only intended to be called within the context of SkGpuDevice's
 // EXPERIMENTAL_optimize method.
 void GatherGPUInfo(const SkPicture* pict, GPUAccelData* accelData) {
-    if (0 == pict->width() || 0 == pict->height()) {
+    if (NULL == pict || 0 == pict->width() || 0 == pict->height()) {
         return ;
     }
 
-    GrGatherDevice device(pict->width(), pict->height(), pict, accelData, 0);
-    GrGatherCanvas canvas(&device, pict);
+    // BBH-based rendering doesn't re-issue many of the operations the gather
+    // process cares about (e.g., saves and restores) so it must be disabled.
+    SkPicturePlayback playback(pict);
+    playback.setUseBBH(false);
 
-    canvas.gather();
+    GrGatherDevice device(pict->width(), pict->height(), &playback, accelData, 0);
+    GrGatherCanvas canvas(&device);
+
+    canvas.clipRect(SkRect::MakeWH(SkIntToScalar(pict->width()),
+                                   SkIntToScalar(pict->height())),
+                    SkRegion::kIntersect_Op, false);
+    playback.draw(&canvas, NULL);
 }

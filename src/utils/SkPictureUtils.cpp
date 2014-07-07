@@ -190,7 +190,7 @@ private:
     typedef SkBaseDevice INHERITED;
 };
 
-SkData* SkPictureUtils::GatherPixelRefs(SkPicture* pict, const SkRect& area) {
+SkData* SkPictureUtils::GatherPixelRefs(const SkPicture* pict, const SkRect& area) {
     if (NULL == pict) {
         return NULL;
     }

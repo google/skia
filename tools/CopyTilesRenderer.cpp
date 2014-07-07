@@ -20,7 +20,7 @@ namespace sk_tools {
     : fXTilesPerLargeTile(x)
     , fYTilesPerLargeTile(y) {
     }
-    void CopyTilesRenderer::init(SkPicture* pict, const SkString* writePath,
+    void CopyTilesRenderer::init(const SkPicture* pict, const SkString* writePath,
                                  const SkString* mismatchPath, const SkString* inputFilename,
                                  bool useChecksumBasedFilenames) {
         // Do not call INHERITED::init(), which would create a (potentially large) canvas which is

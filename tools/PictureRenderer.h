@@ -90,8 +90,11 @@ public:
      * @param useChecksumBasedFilenames Whether to use checksum-based filenames when writing
      *     bitmap images to disk.
      */
-    virtual void init(SkPicture* pict, const SkString* writePath, const SkString* mismatchPath,
-                      const SkString* inputFilename, bool useChecksumBasedFilenames);
+    virtual void init(const SkPicture* pict, 
+                      const SkString* writePath, 
+                      const SkString* mismatchPath,
+                      const SkString* inputFilename, 
+                      bool useChecksumBasedFilenames);
 
     /**
      * TODO(epoger): Temporary hack, while we work on http://skbug.com/2584 ('bench_pictures is
@@ -406,7 +409,7 @@ public:
         return fCanvas;
     }
 
-    SkPicture* getPicture() {
+    const SkPicture* getPicture() {
         return fPicture;
     }
 
@@ -436,7 +439,7 @@ public:
 
 protected:
     SkAutoTUnref<SkCanvas> fCanvas;
-    SkAutoTUnref<SkPicture> fPicture;
+    SkAutoTUnref<const SkPicture> fPicture;
     bool                   fUseChecksumBasedFilenames;
     ImageResultsAndExpectations*   fJsonSummaryPtr;
     SkDeviceTypes          fDeviceType;
@@ -522,8 +525,11 @@ private:
 
 class SimplePictureRenderer : public PictureRenderer {
 public:
-    virtual void init(SkPicture* pict, const SkString* writePath, const SkString* mismatchPath,
-                      const SkString* inputFilename, bool useChecksumBasedFilenames) SK_OVERRIDE;
+    virtual void init(const SkPicture* pict,
+                      const SkString* writePath, 
+                      const SkString* mismatchPath,
+                      const SkString* inputFilename, 
+                      bool useChecksumBasedFilenames) SK_OVERRIDE;
 
     virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
@@ -537,8 +543,11 @@ class TiledPictureRenderer : public PictureRenderer {
 public:
     TiledPictureRenderer();
 
-    virtual void init(SkPicture* pict, const SkString* writePath, const SkString* mismatchPath,
-                      const SkString* inputFilename, bool useChecksumBasedFilenames) SK_OVERRIDE;
+    virtual void init(const SkPicture* pict, 
+                      const SkString* writePath, 
+                      const SkString* mismatchPath,
+                      const SkString* inputFilename, 
+                      bool useChecksumBasedFilenames) SK_OVERRIDE;
 
     /**
      * Renders to tiles, rather than a single canvas.

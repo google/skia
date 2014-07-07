@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -13,10 +12,6 @@
 #include "SkPathHeap.h"
 #include "SkPicture.h"
 #include "SkPictureFlat.h"
-
-#ifdef SK_BUILD_FOR_ANDROID
-#include "SkThread.h"
-#endif
 
 class SkData;
 class SkPictureRecord;
@@ -136,25 +131,19 @@ struct SkPictCopyInfo {
 class SkPictureData {
 public:
 #ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
-    SkPictureData(const SkPictureData& src,
-                  SkPictCopyInfo* deepCopyInfo = NULL);
+    SkPictureData(const SkPictureData& src, SkPictCopyInfo* deepCopyInfo = NULL);
 #else
     SkPictureData(const SkPictureData& src);
 #endif
     SkPictureData(const SkPictureRecord& record, const SkPictInfo&, bool deepCopyOps);
     static SkPictureData* CreateFromStream(SkStream*,
-                                               const SkPictInfo&,
-                                               SkPicture::InstallPixelRefProc);
-    static SkPictureData* CreateFromBuffer(SkReadBuffer&,
-                                               const SkPictInfo&);
+                                           const SkPictInfo&,
+                                           SkPicture::InstallPixelRefProc);
+    static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
     virtual ~SkPictureData();
 
-    const SkPicture::OperationList& getActiveOps(const SkIRect& queryRect);
-
-    void setUseBBH(bool useBBH) { fUseBBH = useBBH; }
-
-    void draw(SkCanvas& canvas, SkDrawPictureCallback*);
+    const SkPicture::OperationList* getActiveOps(const SkIRect& queryRect) const;
 
     void serialize(SkWStream*, SkPicture::EncodeBitmap) const;
     void flatten(SkWriteBuffer&) const;
@@ -163,35 +152,15 @@ public:
 
     bool containsBitmaps() const;
 
-#ifdef SK_BUILD_FOR_ANDROID
-    // Can be called in the middle of playback (the draw() call). WIll abort the
-    // drawing and return from draw() after the "current" op code is done
-    void abort() { fAbortCurrentPlayback = true; }
-#endif
-
-    size_t curOpID() const { return fCurOffset; }
-    void resetOpID() { fCurOffset = 0; }
-
 protected:
     explicit SkPictureData(const SkPictInfo& info);
 
     bool parseStream(SkStream*, SkPicture::InstallPixelRefProc);
     bool parseBuffer(SkReadBuffer& buffer);
-#ifdef SK_DEVELOPER
-    virtual bool preDraw(int opIndex, int type);
-    virtual void postDraw(int opIndex);
-#endif
 
 private:
-    class TextContainer {
-    public:
-        size_t length() { return fByteLength; }
-        const void* text() { return (const void*) fText; }
-        size_t fByteLength;
-        const char* fText;
-    };
 
-    const SkBitmap& getBitmap(SkReader32& reader) {
+    const SkBitmap& getBitmap(SkReader32& reader) const {
         const int index = reader.readInt();
         if (SkBitmapHeap::INVALID_SLOT == index) {
 #ifdef SK_DEBUG
@@ -202,52 +171,23 @@ private:
         return (*fBitmaps)[index];
     }
 
-    void getMatrix(SkReader32& reader, SkMatrix* matrix) {
-        reader.readMatrix(matrix);
-    }
-
-    const SkPath& getPath(SkReader32& reader) {
+    const SkPath& getPath(SkReader32& reader) const {
         int index = reader.readInt() - 1;
         return (*fPathHeap.get())[index];
     }
 
-    const SkPicture* getPicture(SkReader32& reader) {
+    const SkPicture* getPicture(SkReader32& reader) const {
         int index = reader.readInt();
         SkASSERT(index > 0 && index <= fPictureCount);
         return fPictureRefs[index - 1];
     }
 
-    const SkPaint* getPaint(SkReader32& reader) {
+    const SkPaint* getPaint(SkReader32& reader) const {
         int index = reader.readInt();
         if (index == 0) {
             return NULL;
         }
         return &(*fPaints)[index - 1];
-    }
-
-    const SkRect* getRectPtr(SkReader32& reader) {
-        if (reader.readBool()) {
-            return &reader.skipT<SkRect>();
-        } else {
-            return NULL;
-        }
-    }
-
-    const SkIRect* getIRectPtr(SkReader32& reader) {
-        if (reader.readBool()) {
-            return &reader.skipT<SkIRect>();
-        } else {
-            return NULL;
-        }
-    }
-
-    void getRegion(SkReader32& reader, SkRegion* region) {
-        reader.readRegion(region);
-    }
-
-    void getText(SkReader32& reader, TextContainer* text) {
-        size_t length = text->fByteLength = reader.readInt();
-        text->fText = (const char*)reader.skip(length);
     }
 
     void init();
@@ -306,7 +246,7 @@ private:    // these help us with reading/writing
 
 private:
     friend class SkPicture;
-    friend class SkGpuDevice;   // for access to setDrawLimits & setReplacements
+    friend class SkPicturePlayback;
 
     // Only used by getBitmap() if the passed in index is SkBitmapHeap::INVALID_SLOT. This empty
     // bitmap allows playback to draw nothing and move on.
@@ -329,82 +269,12 @@ private:
 
     SkPictureContentInfo fContentInfo;
 
-    // Limit the opcode playback to be between the offsets 'start' and 'stop'.
-    // The opcode at 'start' should be a saveLayer while the opcode at
-    // 'stop' should be a restore. Neither of those commands will be issued.
-    // Set both start & stop to 0 to disable draw limiting
-    // Draw limiting cannot be enabled at the same time as draw replacing
-    void setDrawLimits(size_t start, size_t stop) {
-        SkASSERT(NULL == fReplacements);
-        fStart = start;
-        fStop = stop;
-    }
-
-    // PlaybackReplacements collects op ranges that can be replaced with
-    // a single drawBitmap call (using a precomputed bitmap).
-    class PlaybackReplacements {
+    class OperationList : public SkPicture::OperationList {
     public:
-        // All the operations between fStart and fStop (inclusive) will be replaced with
-        // a single drawBitmap call using fPos, fBM and fPaint.
-        // fPaint will be NULL if the picture's paint wasn't copyable
-        struct ReplacementInfo {
-            size_t          fStart;
-            size_t          fStop;
-            SkIPoint        fPos;
-            SkBitmap*       fBM;     // fBM is allocated so ReplacementInfo can remain POD
-            const SkPaint*  fPaint;  // Note: this object doesn't own the paint
-
-            SkIRect         fSrcRect;
-        };
-
-        ~PlaybackReplacements() { this->freeAll(); }
-
-        // Add a new replacement range. The replacement ranges should be
-        // sorted in increasing order and non-overlapping (esp. no nested
-        // saveLayers).
-        ReplacementInfo* push();
-
-    private:
-        friend class SkPictureData; // for access to lookupByStart
-
-        // look up a replacement range by its start offset
-        ReplacementInfo* lookupByStart(size_t start);
-
-        void freeAll();
-
-#ifdef SK_DEBUG
-        void validate() const;
-#endif
-
-        SkTDArray<ReplacementInfo> fReplacements;
-    };
-
-    // Replace all the draw ops in the replacement ranges in 'replacements' with
-    // the associated drawBitmap call
-    // Draw replacing cannot be enabled at the same time as draw limiting
-    void setReplacements(PlaybackReplacements* replacements) {
-        SkASSERT(fStart == 0 && fStop == 0);
-        fReplacements = replacements;
-    }
-
-    bool   fUseBBH;
-    size_t fStart;
-    size_t fStop;
-    PlaybackReplacements* fReplacements;
-
-    class CachedOperationList : public SkPicture::OperationList {
-    public:
-        CachedOperationList() {
-            fCacheQueryRect.setEmpty();
-        }
-
-        virtual bool valid() const { return true; }
+        OperationList() { }
         virtual int numOps() const SK_OVERRIDE { return fOps.count(); }
         virtual uint32_t offset(int index) const SK_OVERRIDE;
         virtual const SkMatrix& matrix(int index) const SK_OVERRIDE;
-
-        // The query rect for which the cached active ops are valid
-        SkIRect          fCacheQueryRect;
 
         // The operations which are active within 'fCachedQueryRect'
         SkTDArray<void*> fOps;
@@ -413,13 +283,8 @@ private:
         typedef SkPicture::OperationList INHERITED;
     };
 
-    CachedOperationList* fCachedActiveOps;
-
     SkTypefacePlayback fTFPlayback;
     SkFactoryPlayback* fFactoryPlayback;
-
-    // The offset of the current operation when within the draw method
-    size_t fCurOffset;
 
     const SkPictInfo fInfo;
 
@@ -427,11 +292,6 @@ private:
     static void WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec);
 
     void initForPlayback() const;
-
-#ifdef SK_BUILD_FOR_ANDROID
-    SkMutex fDrawMutex;
-    bool fAbortCurrentPlayback;
-#endif
 };
 
 #endif

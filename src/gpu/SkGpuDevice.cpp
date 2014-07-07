@@ -30,6 +30,7 @@
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
+#include "SkPicturePlayback.h"
 #include "SkRRect.h"
 #include "SkStroke.h"
 #include "SkSurface.h"
@@ -1859,7 +1860,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
     SkIRect query;
     clipBounds.roundOut(&query);
 
-    const SkPicture::OperationList& ops = picture->EXPERIMENTAL_getActiveOps(query);
+    SkAutoTDelete<const SkPicture::OperationList> ops(picture->EXPERIMENTAL_getActiveOps(query));
 
     // This code pre-renders the entire layer since it will be cached and potentially
     // reused with different clips (e.g., in different tiles). Because of this the
@@ -1867,12 +1868,12 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
     // is used to limit which clips are pre-rendered.
     static const int kSaveLayerMaxSize = 256;
 
-    if (ops.valid()) {
+    if (NULL != ops.get()) {
         // In this case the picture has been generated with a BBH so we use
         // the BBH to limit the pre-rendering to just the layers needed to cover
         // the region being drawn
-        for (int i = 0; i < ops.numOps(); ++i) {
-            uint32_t offset = ops.offset(i);
+        for (int i = 0; i < ops->numOps(); ++i) {
+            uint32_t offset = ops->offset(i);
 
             // For now we're saving all the layers in the GPUAccelData so they
             // can be nested. Additionally, the nested layers appear before
@@ -1928,7 +1929,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
         }
     }
 
-    SkPictureData::PlaybackReplacements replacements;
+    SkPicturePlayback::PlaybackReplacements replacements;
 
     // Generate the layer and/or ensure it is locked
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
@@ -1937,7 +1938,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
 
             const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-            SkPictureData::PlaybackReplacements::ReplacementInfo* layerInfo =
+            SkPicturePlayback::PlaybackReplacements::ReplacementInfo* layerInfo =
                                                                         replacements.push();
             layerInfo->fStart = info.fSaveLayerOpID;
             layerInfo->fStop = info.fRestoreOpID;
@@ -2009,9 +2010,9 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
                                       SkIntToScalar(layer->rect().fTop));
                 } 
 
-                picture->fData->setDrawLimits(info.fSaveLayerOpID, info.fRestoreOpID);
-                picture->fData->draw(*canvas, NULL);
-                picture->fData->setDrawLimits(0, 0);
+                SkPicturePlayback playback(picture);
+                playback.setDrawLimits(info.fSaveLayerOpID, info.fRestoreOpID);
+                playback.draw(canvas, NULL);
 
                 canvas->flush();
             }
@@ -2019,9 +2020,10 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
     }
 
     // Playback using new layers
-    picture->fData->setReplacements(&replacements);
-    picture->fData->draw(*canvas, NULL);
-    picture->fData->setReplacements(NULL);
+    SkPicturePlayback playback(picture);
+
+    playback.setReplacements(&replacements);
+    playback.draw(canvas, NULL);
 
     // unlock the layers
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {

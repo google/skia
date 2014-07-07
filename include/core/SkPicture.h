@@ -181,15 +181,6 @@ public:
      */
     bool willPlayBackBitmaps() const;
 
-#ifdef SK_BUILD_FOR_ANDROID
-    /** Signals that the caller is prematurely done replaying the drawing
-        commands. This can be called from a canvas virtual while the picture
-        is drawing. Has no effect if the picture is not drawing.
-        @deprecated preserving for legacy purposes
-    */
-    void abortPlayback();
-#endif
-
     /** Return true if the SkStream/Buffer represents a serialized picture, and
         fills out SkPictInfo. After this function returns, the data source is not
         rewound so it will have to be manually reset before passing to
@@ -272,10 +263,6 @@ private:
     public:
         virtual ~OperationList() {}
 
-        // If valid returns false then there is no optimization data
-        // present. All the draw operations need to be issued.
-        virtual bool valid() const { return false; }
-
         // The following three entry points should only be accessed if
         // 'valid' returns true.
         virtual int numOps() const { SkASSERT(false); return 0; };
@@ -283,20 +270,12 @@ private:
         virtual uint32_t offset(int index) const { SkASSERT(false); return 0; };
         // The CTM that must be installed for the operation to behave correctly
         virtual const SkMatrix& matrix(int index) const { SkASSERT(false); return SkMatrix::I(); }
-
-        static const OperationList& InvalidList();
     };
 
     /** PRIVATE / EXPERIMENTAL -- do not call
         Return the operations required to render the content inside 'queryRect'.
     */
-    const OperationList& EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) const;
-
-    /** PRIVATE / EXPERIMENTAL -- do not call
-        Return the ID of the operation currently being executed when playing
-        back. 0 indicates no call is active.
-    */
-    size_t EXPERIMENTAL_curOpID() const;
+    const OperationList* EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) const;
 
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
@@ -308,6 +287,7 @@ private:
     friend class GrGatherCanvas;
     friend class GrGatherDevice;
     friend class SkDebugCanvas;
+    friend class SkPicturePlayback; // to get fData
 
     typedef SkRefCnt INHERITED;
 

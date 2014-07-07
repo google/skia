@@ -23,7 +23,9 @@ namespace sk_tools {
 
     public:
         CopyTilesRenderer(int x, int y);
-        virtual void init(SkPicture* pict, const SkString* writePath, const SkString* mismatchPath,
+        virtual void init(const SkPicture* pict, 
+                          const SkString* writePath, 
+                          const SkString* mismatchPath,
                           const SkString* inputFilename,
                           bool useChecksumBasedFilenames) SK_OVERRIDE;
 

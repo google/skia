@@ -28,33 +28,6 @@ template <typename T> int SafeCount(const T* obj) {
  */
 #define SPEW_CLIP_SKIPPINGx
 
-SkPictureData::PlaybackReplacements::ReplacementInfo*
-SkPictureData::PlaybackReplacements::push() {
-    SkDEBUGCODE(this->validate());
-    return fReplacements.push();
-}
-
-void SkPictureData::PlaybackReplacements::freeAll() {
-    for (int i = 0; i < fReplacements.count(); ++i) {
-        SkDELETE(fReplacements[i].fBM);
-    }
-    fReplacements.reset();
-}
-
-#ifdef SK_DEBUG
-void SkPictureData::PlaybackReplacements::validate() const {
-    // Check that the ranges are monotonically increasing and non-overlapping
-    if (fReplacements.count() > 0) {
-        SkASSERT(fReplacements[0].fStart < fReplacements[0].fStop);
-
-        for (int i = 1; i < fReplacements.count(); ++i) {
-            SkASSERT(fReplacements[i].fStart < fReplacements[i].fStop);
-            SkASSERT(fReplacements[i-1].fStop < fReplacements[i].fStart);
-        }
-    }
-}
-#endif
-
 SkPictureData::SkPictureData(const SkPictInfo& info)
     : fInfo(info) {
     this->init();
@@ -260,12 +233,6 @@ void SkPictureData::init() {
     fFactoryPlayback = NULL;
     fBoundingHierarchy = NULL;
     fStateTree = NULL;
-    fCachedActiveOps = NULL;
-    fCurOffset = 0;
-    fUseBBH = true;
-    fStart = 0;
-    fStop = 0;
-    fReplacements = NULL;
 }
 
 SkPictureData::~SkPictureData() {
@@ -275,8 +242,6 @@ SkPictureData::~SkPictureData() {
     SkSafeUnref(fPaints);
     SkSafeUnref(fBoundingHierarchy);
     SkSafeUnref(fStateTree);
-
-    SkDELETE(fCachedActiveOps);
 
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
@@ -475,9 +440,9 @@ static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
 }
 
 bool SkPictureData::parseStreamTag(SkStream* stream,
-                                       uint32_t tag,
-                                       uint32_t size,
-                                       SkPicture::InstallPixelRefProc proc) {
+                                   uint32_t tag,
+                                   uint32_t size,
+                                   SkPicture::InstallPixelRefProc proc) {
     /*
      *  By the time we encounter BUFFER_SIZE_TAG, we need to have already seen
      *  its dependents: FACTORY_TAG and TYPEFACE_TAG. These two are not required
@@ -587,7 +552,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
 }
 
 bool SkPictureData::parseBufferTag(SkReadBuffer& buffer,
-                                       uint32_t tag, uint32_t size) {
+                                   uint32_t tag, uint32_t size) {
     switch (tag) {
         case SK_PICT_BITMAP_BUFFER_TAG: {
             const int count = SkToInt(size);
@@ -725,655 +690,32 @@ struct SkipClipRec {
 };
 #endif
 
-#ifdef SK_DEVELOPER
-bool SkPictureData::preDraw(int opIndex, int type) {
-    return false;
-}
-
-void SkPictureData::postDraw(int opIndex) {
-}
-#endif
-
-/*
- * Read the next op code and chunk size from 'reader'. The returned size
- * is the entire size of the chunk (including the opcode). Thus, the
- * offset just prior to calling read_op_and_size + 'size' is the offset
- * to the next chunk's op code. This also means that the size of a chunk
- * with no arguments (just an opcode) will be 4.
- */
-static DrawType read_op_and_size(SkReader32* reader, uint32_t* size) {
-    uint32_t temp = reader->readInt();
-    uint32_t op;
-    if (((uint8_t) temp) == temp) {
-        // old skp file - no size information
-        op = temp;
-        *size = 0;
-    } else {
-        UNPACK_8_24(temp, op, *size);
-        if (MASK_24 == *size) {
-            *size = reader->readInt();
-        }
-    }
-    return (DrawType) op;
-}
-
-uint32_t SkPictureData::CachedOperationList::offset(int index) const {
+uint32_t SkPictureData::OperationList::offset(int index) const {
     SkASSERT(index < fOps.count());
     return ((SkPictureStateTree::Draw*)fOps[index])->fOffset;
 }
 
-const SkMatrix& SkPictureData::CachedOperationList::matrix(int index) const {
+const SkMatrix& SkPictureData::OperationList::matrix(int index) const {
     SkASSERT(index < fOps.count());
     return *((SkPictureStateTree::Draw*)fOps[index])->fMatrix;
 }
 
-const SkPicture::OperationList& SkPictureData::getActiveOps(const SkIRect& query) {
+const SkPicture::OperationList* SkPictureData::getActiveOps(const SkIRect& query) const {
     if (NULL == fStateTree || NULL == fBoundingHierarchy) {
-        return SkPicture::OperationList::InvalidList();
+        return NULL;
     }
 
-    if (NULL == fCachedActiveOps) {
-        fCachedActiveOps = SkNEW(CachedOperationList);
-    }
+    OperationList* activeOps = SkNEW(OperationList);
 
-    if (query == fCachedActiveOps->fCacheQueryRect) {
-        return *fCachedActiveOps;
-    }
-
-    fCachedActiveOps->fOps.rewind();
-
-    fBoundingHierarchy->search(query, &(fCachedActiveOps->fOps));
-    if (0 != fCachedActiveOps->fOps.count()) {
+    fBoundingHierarchy->search(query, &(activeOps->fOps));
+    if (0 != activeOps->fOps.count()) {
         SkTQSort<SkPictureStateTree::Draw>(
-            reinterpret_cast<SkPictureStateTree::Draw**>(fCachedActiveOps->fOps.begin()),
-            reinterpret_cast<SkPictureStateTree::Draw**>(fCachedActiveOps->fOps.end()-1));
+            reinterpret_cast<SkPictureStateTree::Draw**>(activeOps->fOps.begin()),
+            reinterpret_cast<SkPictureStateTree::Draw**>(activeOps->fOps.end()-1));
     }
 
-    fCachedActiveOps->fCacheQueryRect = query;
-    return *fCachedActiveOps;
+    return activeOps;
 }
-
-class SkAutoResetOpID {
-public:
-    SkAutoResetOpID(SkPictureData* data) : fData(data) { }
-    ~SkAutoResetOpID() {
-        if (NULL != fData) {
-            fData->resetOpID();
-        }
-    }
-
-private:
-    SkPictureData* fData;
-};
-
-// TODO: Replace with hash or pass in "lastLookedUp" hint
-SkPictureData::PlaybackReplacements::ReplacementInfo*
-SkPictureData::PlaybackReplacements::lookupByStart(size_t start) {
-    SkDEBUGCODE(this->validate());
-    for (int i = 0; i < fReplacements.count(); ++i) {
-        if (start == fReplacements[i].fStart) {
-            return &fReplacements[i];
-        } else if (start < fReplacements[i].fStart) {
-            return NULL;  // the ranges are monotonically increasing and non-overlapping
-        }
-    }
-
-    return NULL;
-}
-
-void SkPictureData::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) {
-    SkAutoResetOpID aroi(this);
-    SkASSERT(0 == fCurOffset);
-
-#ifdef ENABLE_TIME_DRAW
-    SkAutoTime  at("SkPicture::draw", 50);
-#endif
-
-#ifdef SPEW_CLIP_SKIPPING
-    SkipClipRec skipRect, skipRRect, skipRegion, skipPath, skipCull;
-    int opCount = 0;
-#endif
-
-#ifdef SK_BUILD_FOR_ANDROID
-    SkAutoMutexAcquire autoMutex(fDrawMutex);
-#endif
-
-    // kDrawComplete will be the signal that we have reached the end of
-    // the command stream
-    static const uint32_t kDrawComplete = SK_MaxU32;
-
-    SkReader32 reader(fOpData->bytes(), fOpData->size());
-    TextContainer text;
-    const SkTDArray<void*>* activeOps = NULL;
-
-    // When draw limits are enabled (i.e., 0 != fStart || 0 != fStop) the state
-    // tree isn't used to pick and choose the draw operations
-    if (0 == fStart && 0 == fStop) {
-        if (fUseBBH && NULL != fStateTree && NULL != fBoundingHierarchy) {
-            SkRect clipBounds;
-            if (canvas.getClipBounds(&clipBounds)) {
-                SkIRect query;
-                clipBounds.roundOut(&query);
-
-                const SkPicture::OperationList& activeOpsList = this->getActiveOps(query);
-                if (activeOpsList.valid()) {
-                    if (0 == activeOpsList.numOps()) {
-                        return;     // nothing to draw
-                    }
-
-                    // Since the opList is valid we know it is our derived class
-                    activeOps = &((const CachedOperationList&)activeOpsList).fOps;
-                }
-            }
-        }
-    }
-
-    SkPictureStateTree::Iterator it = (NULL == activeOps) ?
-        SkPictureStateTree::Iterator() :
-        fStateTree->getIterator(*activeOps, &canvas);
-
-    if (0 != fStart || 0 != fStop) {
-        reader.setOffset(fStart);
-        uint32_t size;
-        SkDEBUGCODE(DrawType op =) read_op_and_size(&reader, &size);
-        SkASSERT(SAVE_LAYER == op);
-        reader.setOffset(fStart+size);
-    }
-
-    if (it.isValid()) {
-        uint32_t skipTo = it.nextDraw();
-        if (kDrawComplete == skipTo) {
-            return;
-        }
-        reader.setOffset(skipTo);
-    }
-
-    // Record this, so we can concat w/ it if we encounter a setMatrix()
-    SkMatrix initialMatrix = canvas.getTotalMatrix();
-
-    SkAutoCanvasRestore acr(&canvas, false);
-
-#ifdef SK_BUILD_FOR_ANDROID
-    fAbortCurrentPlayback = false;
-#endif
-
-#ifdef SK_DEVELOPER
-    int opIndex = -1;
-#endif
-
-    while (!reader.eof()) {
-        if (callback && callback->abortDrawing()) {
-            return;
-        }
-#ifdef SK_BUILD_FOR_ANDROID
-        if (fAbortCurrentPlayback) {
-            return;
-        }
-#endif
-        if (0 != fStart || 0 != fStop) {
-            size_t offset = reader.offset() ;
-            if (offset >= fStop) {
-                uint32_t size;
-                SkDEBUGCODE(DrawType op =) read_op_and_size(&reader, &size);
-                SkASSERT(RESTORE == op);
-                return;
-            }
-        }
-
-        if (NULL != fReplacements) {
-            // Potentially replace a block of operations with a single drawBitmap call
-            SkPictureData::PlaybackReplacements::ReplacementInfo* temp =
-                                            fReplacements->lookupByStart(reader.offset());
-            if (NULL != temp) {
-                SkASSERT(NULL != temp->fBM);
-                SkASSERT(NULL != temp->fPaint);
-                canvas.save();
-                canvas.setMatrix(initialMatrix);
-                SkRect src = SkRect::Make(temp->fSrcRect);
-                SkRect dst = SkRect::MakeXYWH(temp->fPos.fX, temp->fPos.fY,
-                                              temp->fSrcRect.width(),
-                                              temp->fSrcRect.height());
-                canvas.drawBitmapRectToRect(*temp->fBM, &src, dst, temp->fPaint);
-                canvas.restore();
-
-                if (it.isValid()) {
-                    // This save is needed since the BBH will automatically issue
-                    // a restore to balanced the saveLayer we're skipping
-                    canvas.save();
-
-                    // At this point we know that the PictureStateTree was aiming
-                    // for some draw op within temp's saveLayer (although potentially
-                    // in a separate saveLayer nested inside it).
-                    // We need to skip all the operations inside temp's range
-                    // along with all the associated state changes but update
-                    // the state tree to the first operation outside temp's range.
-
-                    uint32_t skipTo;
-                    do {
-                        skipTo = it.nextDraw();
-                        if (kDrawComplete == skipTo) {
-                            break;
-                        }
-
-                        if (skipTo <= temp->fStop) {
-                            reader.setOffset(skipTo);
-                            uint32_t size;
-                            DrawType op = read_op_and_size(&reader, &size);
-                            // Since we are relying on the normal SkPictureStateTree
-                            // playback we need to convert any nested saveLayer calls
-                            // it may issue into saves (so that all its internal
-                            // restores will be balanced).
-                            if (SAVE_LAYER == op) {
-                                canvas.save();
-                            }
-                        }
-                    } while (skipTo <= temp->fStop);
-
-                    if (kDrawComplete == skipTo) {
-                        break;
-                    }
-
-                    reader.setOffset(skipTo);
-                } else {
-                    reader.setOffset(temp->fStop);
-                    uint32_t size;
-                    SkDEBUGCODE(DrawType op =) read_op_and_size(&reader, &size);
-                    SkASSERT(RESTORE == op);
-                }
-                continue;
-            }
-        }
-
-#ifdef SPEW_CLIP_SKIPPING
-        opCount++;
-#endif
-
-        fCurOffset = reader.offset();
-        uint32_t size;
-        DrawType op = read_op_and_size(&reader, &size);
-        size_t skipTo = 0;
-        if (NOOP == op) {
-            // NOOPs are to be ignored - do not propagate them any further
-            skipTo = fCurOffset + size;
-#ifdef SK_DEVELOPER
-        } else {
-            opIndex++;
-            if (this->preDraw(opIndex, op)) {
-                skipTo = fCurOffset + size;
-            }
-#endif
-        }
-
-        if (0 != skipTo) {
-            if (it.isValid()) {
-                // If using a bounding box hierarchy, advance the state tree
-                // iterator until at or after skipTo
-                uint32_t adjustedSkipTo;
-                do {
-                    adjustedSkipTo = it.nextDraw();
-                } while (adjustedSkipTo < skipTo);
-                skipTo = adjustedSkipTo;
-            }
-            if (kDrawComplete == skipTo) {
-                break;
-            }
-            reader.setOffset(skipTo);
-            continue;
-        }
-
-        switch (op) {
-            case CLIP_PATH: {
-                const SkPath& path = getPath(reader);
-                uint32_t packed = reader.readInt();
-                SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
-                bool doAA = ClipParams_unpackDoAA(packed);
-                size_t offsetToRestore = reader.readInt();
-                SkASSERT(!offsetToRestore || \
-                    offsetToRestore >= reader.offset());
-                canvas.clipPath(path, regionOp, doAA);
-                if (canvas.isClipEmpty() && offsetToRestore) {
-#ifdef SPEW_CLIP_SKIPPING
-                    skipPath.recordSkip(offsetToRestore - reader.offset());
-#endif
-                    reader.setOffset(offsetToRestore);
-                }
-            } break;
-            case CLIP_REGION: {
-                SkRegion region;
-                this->getRegion(reader, &region);
-                uint32_t packed = reader.readInt();
-                SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
-                size_t offsetToRestore = reader.readInt();
-                SkASSERT(!offsetToRestore || \
-                    offsetToRestore >= reader.offset());
-                canvas.clipRegion(region, regionOp);
-                if (canvas.isClipEmpty() && offsetToRestore) {
-#ifdef SPEW_CLIP_SKIPPING
-                    skipRegion.recordSkip(offsetToRestore - reader.offset());
-#endif
-                    reader.setOffset(offsetToRestore);
-                }
-            } break;
-            case CLIP_RECT: {
-                const SkRect& rect = reader.skipT<SkRect>();
-                uint32_t packed = reader.readInt();
-                SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
-                bool doAA = ClipParams_unpackDoAA(packed);
-                size_t offsetToRestore = reader.readInt();
-                SkASSERT(!offsetToRestore || \
-                         offsetToRestore >= reader.offset());
-                canvas.clipRect(rect, regionOp, doAA);
-                if (canvas.isClipEmpty() && offsetToRestore) {
-#ifdef SPEW_CLIP_SKIPPING
-                    skipRect.recordSkip(offsetToRestore - reader.offset());
-#endif
-                    reader.setOffset(offsetToRestore);
-                }
-            } break;
-            case CLIP_RRECT: {
-                SkRRect rrect;
-                reader.readRRect(&rrect);
-                uint32_t packed = reader.readInt();
-                SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
-                bool doAA = ClipParams_unpackDoAA(packed);
-                size_t offsetToRestore = reader.readInt();
-                SkASSERT(!offsetToRestore || offsetToRestore >= reader.offset());
-                canvas.clipRRect(rrect, regionOp, doAA);
-                if (canvas.isClipEmpty() && offsetToRestore) {
-#ifdef SPEW_CLIP_SKIPPING
-                    skipRRect.recordSkip(offsetToRestore - reader.offset());
-#endif
-                    reader.setOffset(offsetToRestore);
-                }
-            } break;
-            case PUSH_CULL: {
-                const SkRect& cullRect = reader.skipT<SkRect>();
-                size_t offsetToRestore = reader.readInt();
-                if (offsetToRestore && canvas.quickReject(cullRect)) {
-#ifdef SPEW_CLIP_SKIPPING
-                    skipCull.recordSkip(offsetToRestore - reader.offset());
-#endif
-                    reader.setOffset(offsetToRestore);
-                } else {
-                    canvas.pushCull(cullRect);
-                }
-            } break;
-            case POP_CULL:
-                canvas.popCull();
-                break;
-            case CONCAT: {
-                SkMatrix matrix;
-                this->getMatrix(reader, &matrix);
-                canvas.concat(matrix);
-                break;
-            }
-            case DRAW_BITMAP: {
-                const SkPaint* paint = this->getPaint(reader);
-                const SkBitmap& bitmap = this->getBitmap(reader);
-                const SkPoint& loc = reader.skipT<SkPoint>();
-                canvas.drawBitmap(bitmap, loc.fX, loc.fY, paint);
-            } break;
-            case DRAW_BITMAP_RECT_TO_RECT: {
-                const SkPaint* paint = this->getPaint(reader);
-                const SkBitmap& bitmap = this->getBitmap(reader);
-                const SkRect* src = this->getRectPtr(reader);   // may be null
-                const SkRect& dst = reader.skipT<SkRect>();     // required
-                SkCanvas::DrawBitmapRectFlags flags;
-                flags = (SkCanvas::DrawBitmapRectFlags) reader.readInt();
-                canvas.drawBitmapRectToRect(bitmap, src, dst, paint, flags);
-            } break;
-            case DRAW_BITMAP_MATRIX: {
-                const SkPaint* paint = this->getPaint(reader);
-                const SkBitmap& bitmap = this->getBitmap(reader);
-                SkMatrix matrix;
-                this->getMatrix(reader, &matrix);
-                canvas.drawBitmapMatrix(bitmap, matrix, paint);
-            } break;
-            case DRAW_BITMAP_NINE: {
-                const SkPaint* paint = this->getPaint(reader);
-                const SkBitmap& bitmap = this->getBitmap(reader);
-                const SkIRect& src = reader.skipT<SkIRect>();
-                const SkRect& dst = reader.skipT<SkRect>();
-                canvas.drawBitmapNine(bitmap, src, dst, paint);
-            } break;
-            case DRAW_CLEAR:
-                canvas.clear(reader.readInt());
-                break;
-            case DRAW_DATA: {
-                size_t length = reader.readInt();
-                canvas.drawData(reader.skip(length), length);
-                // skip handles padding the read out to a multiple of 4
-            } break;
-            case DRAW_DRRECT: {
-                const SkPaint& paint = *this->getPaint(reader);
-                SkRRect outer, inner;
-                reader.readRRect(&outer);
-                reader.readRRect(&inner);
-                canvas.drawDRRect(outer, inner, paint);
-            } break;
-            case BEGIN_COMMENT_GROUP: {
-                const char* desc = reader.readString();
-                canvas.beginCommentGroup(desc);
-            } break;
-            case COMMENT: {
-                const char* kywd = reader.readString();
-                const char* value = reader.readString();
-                canvas.addComment(kywd, value);
-            } break;
-            case END_COMMENT_GROUP: {
-                canvas.endCommentGroup();
-            } break;
-            case DRAW_OVAL: {
-                const SkPaint& paint = *this->getPaint(reader);
-                canvas.drawOval(reader.skipT<SkRect>(), paint);
-            } break;
-            case DRAW_PAINT:
-                canvas.drawPaint(*this->getPaint(reader));
-                break;
-            case DRAW_PATH: {
-                const SkPaint& paint = *this->getPaint(reader);
-                canvas.drawPath(getPath(reader), paint);
-            } break;
-            case DRAW_PICTURE:
-                canvas.drawPicture(this->getPicture(reader));
-                break;
-            case DRAW_POINTS: {
-                const SkPaint& paint = *this->getPaint(reader);
-                SkCanvas::PointMode mode = (SkCanvas::PointMode)reader.readInt();
-                size_t count = reader.readInt();
-                const SkPoint* pts = (const SkPoint*)reader.skip(sizeof(SkPoint) * count);
-                canvas.drawPoints(mode, count, pts, paint);
-            } break;
-            case DRAW_POS_TEXT: {
-                const SkPaint& paint = *this->getPaint(reader);
-                getText(reader, &text);
-                size_t points = reader.readInt();
-                const SkPoint* pos = (const SkPoint*)reader.skip(points * sizeof(SkPoint));
-                canvas.drawPosText(text.text(), text.length(), pos, paint);
-            } break;
-            case DRAW_POS_TEXT_TOP_BOTTOM: {
-                const SkPaint& paint = *this->getPaint(reader);
-                getText(reader, &text);
-                size_t points = reader.readInt();
-                const SkPoint* pos = (const SkPoint*)reader.skip(points * sizeof(SkPoint));
-                const SkScalar top = reader.readScalar();
-                const SkScalar bottom = reader.readScalar();
-                if (!canvas.quickRejectY(top, bottom)) {
-                    canvas.drawPosText(text.text(), text.length(), pos, paint);
-                }
-            } break;
-            case DRAW_POS_TEXT_H: {
-                const SkPaint& paint = *this->getPaint(reader);
-                getText(reader, &text);
-                size_t xCount = reader.readInt();
-                const SkScalar constY = reader.readScalar();
-                const SkScalar* xpos = (const SkScalar*)reader.skip(xCount * sizeof(SkScalar));
-                canvas.drawPosTextH(text.text(), text.length(), xpos, constY,
-                                    paint);
-            } break;
-            case DRAW_POS_TEXT_H_TOP_BOTTOM: {
-                const SkPaint& paint = *this->getPaint(reader);
-                getText(reader, &text);
-                size_t xCount = reader.readInt();
-                const SkScalar* xpos = (const SkScalar*)reader.skip((3 + xCount) * sizeof(SkScalar));
-                const SkScalar top = *xpos++;
-                const SkScalar bottom = *xpos++;
-                const SkScalar constY = *xpos++;
-                if (!canvas.quickRejectY(top, bottom)) {
-                    canvas.drawPosTextH(text.text(), text.length(), xpos,
-                                        constY, paint);
-                }
-            } break;
-            case DRAW_RECT: {
-                const SkPaint& paint = *this->getPaint(reader);
-                canvas.drawRect(reader.skipT<SkRect>(), paint);
-            } break;
-            case DRAW_RRECT: {
-                const SkPaint& paint = *this->getPaint(reader);
-                SkRRect rrect;
-                reader.readRRect(&rrect);
-                canvas.drawRRect(rrect, paint);
-            } break;
-            case DRAW_SPRITE: {
-                const SkPaint* paint = this->getPaint(reader);
-                const SkBitmap& bitmap = this->getBitmap(reader);
-                int left = reader.readInt();
-                int top = reader.readInt();
-                canvas.drawSprite(bitmap, left, top, paint);
-            } break;
-            case DRAW_TEXT: {
-                const SkPaint& paint = *this->getPaint(reader);
-                this->getText(reader, &text);
-                SkScalar x = reader.readScalar();
-                SkScalar y = reader.readScalar();
-                canvas.drawText(text.text(), text.length(), x, y, paint);
-            } break;
-            case DRAW_TEXT_TOP_BOTTOM: {
-                const SkPaint& paint = *this->getPaint(reader);
-                this->getText(reader, &text);
-                const SkScalar* ptr = (const SkScalar*)reader.skip(4 * sizeof(SkScalar));
-                // ptr[0] == x
-                // ptr[1] == y
-                // ptr[2] == top
-                // ptr[3] == bottom
-                if (!canvas.quickRejectY(ptr[2], ptr[3])) {
-                    canvas.drawText(text.text(), text.length(), ptr[0], ptr[1],
-                                    paint);
-                }
-            } break;
-            case DRAW_TEXT_ON_PATH: {
-                const SkPaint& paint = *this->getPaint(reader);
-                getText(reader, &text);
-                const SkPath& path = this->getPath(reader);
-                SkMatrix matrix;
-                this->getMatrix(reader, &matrix);
-                canvas.drawTextOnPath(text.text(), text.length(), path, &matrix, paint);
-            } break;
-            case DRAW_VERTICES: {
-                SkAutoTUnref<SkXfermode> xfer;
-                const SkPaint& paint = *this->getPaint(reader);
-                DrawVertexFlags flags = (DrawVertexFlags)reader.readInt();
-                SkCanvas::VertexMode vmode = (SkCanvas::VertexMode)reader.readInt();
-                int vCount = reader.readInt();
-                const SkPoint* verts = (const SkPoint*)reader.skip(
-                                                    vCount * sizeof(SkPoint));
-                const SkPoint* texs = NULL;
-                const SkColor* colors = NULL;
-                const uint16_t* indices = NULL;
-                int iCount = 0;
-                if (flags & DRAW_VERTICES_HAS_TEXS) {
-                    texs = (const SkPoint*)reader.skip(
-                                                    vCount * sizeof(SkPoint));
-                }
-                if (flags & DRAW_VERTICES_HAS_COLORS) {
-                    colors = (const SkColor*)reader.skip(
-                                                    vCount * sizeof(SkColor));
-                }
-                if (flags & DRAW_VERTICES_HAS_INDICES) {
-                    iCount = reader.readInt();
-                    indices = (const uint16_t*)reader.skip(
-                                                    iCount * sizeof(uint16_t));
-                }
-                if (flags & DRAW_VERTICES_HAS_XFER) {
-                    int mode = reader.readInt();
-                    if (mode < 0 || mode > SkXfermode::kLastMode) {
-                        mode = SkXfermode::kModulate_Mode;
-                    }
-                    xfer.reset(SkXfermode::Create((SkXfermode::Mode)mode));
-                }
-                canvas.drawVertices(vmode, vCount, verts, texs, colors, xfer,
-                                    indices, iCount, paint);
-            } break;
-            case RESTORE:
-                canvas.restore();
-                break;
-            case ROTATE:
-                canvas.rotate(reader.readScalar());
-                break;
-            case SAVE:
-                // SKPs with version < 29 also store a SaveFlags param.
-                if (size > 4) {
-                    SkASSERT(8 == size);
-                    reader.readInt();
-                }
-                canvas.save();
-                break;
-            case SAVE_LAYER: {
-                const SkRect* boundsPtr = this->getRectPtr(reader);
-                const SkPaint* paint = this->getPaint(reader);
-                canvas.saveLayer(boundsPtr, paint, (SkCanvas::SaveFlags) reader.readInt());
-                } break;
-            case SCALE: {
-                SkScalar sx = reader.readScalar();
-                SkScalar sy = reader.readScalar();
-                canvas.scale(sx, sy);
-            } break;
-            case SET_MATRIX: {
-                SkMatrix matrix;
-                this->getMatrix(reader, &matrix);
-                matrix.postConcat(initialMatrix);
-                canvas.setMatrix(matrix);
-            } break;
-            case SKEW: {
-                SkScalar sx = reader.readScalar();
-                SkScalar sy = reader.readScalar();
-                canvas.skew(sx, sy);
-            } break;
-            case TRANSLATE: {
-                SkScalar dx = reader.readScalar();
-                SkScalar dy = reader.readScalar();
-                canvas.translate(dx, dy);
-            } break;
-            default:
-                SkASSERT(0);
-        }
-
-#ifdef SK_DEVELOPER
-        this->postDraw(opIndex);
-#endif
-
-        if (it.isValid()) {
-            uint32_t skipTo = it.nextDraw();
-            if (kDrawComplete == skipTo) {
-                break;
-            }
-            reader.setOffset(skipTo);
-        }
-    }
-
-#ifdef SPEW_CLIP_SKIPPING
-    {
-        size_t size =  skipRect.fSize + skipRRect.fSize + skipPath.fSize + skipRegion.fSize +
-                skipCull.fSize;
-        SkDebugf("--- Clip skips %d%% rect:%d rrect:%d path:%d rgn:%d cull:%d\n",
-             size * 100 / reader.offset(), skipRect.fCount, skipRRect.fCount,
-                 skipPath.fCount, skipRegion.fCount, skipCull.fCount);
-        SkDebugf("--- Total ops: %d\n", opCount);
-    }
-#endif
-//    this->dumpSize();
-}
-
 
 #if SK_SUPPORT_GPU
 bool SkPictureData::suitableForGpuRasterization(GrContext* context, const char **reason,
@@ -1750,7 +1092,6 @@ void SkPictureData::dumpText(char** bufferPtrPtr, char* buffer) {
 void SkPictureData::dumpStream() {
     SkDebugf("RecordStream stream = {\n");
     DrawType drawType;
-    TextContainer text;
     fReadStream.rewind();
     char buffer[DUMP_BUFFER_SIZE], * bufferPtr;
     while (fReadStream.read(&drawType, sizeof(drawType))) {

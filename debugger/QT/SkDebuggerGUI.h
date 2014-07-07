@@ -357,7 +357,7 @@ private:
         Render the supplied picture several times tracking the time consumed
         by each command.
      */
-    void run(SkTimedPicture* pict,
+    void run(const SkPicture* pict,
              sk_tools::PictureRenderer* renderer,
              int repeats);
 };
