@@ -21,66 +21,17 @@ class GrEffect;
 class GrVertexEffect;
 class SkString;
 
-/**
- * A Wrapper class for GrEffect. Its ref-count will track owners that may use effects to enqueue
- * new draw operations separately from ownership within a deferred drawing queue. When the
- * GrEffectRef ref count reaches zero the scratch GrResources owned by the effect can be recycled
- * in service of later draws. However, the deferred draw queue may still own direct references to
- * the underlying GrEffect.
- *
- * GrEffectRefs created by new are placed in a per-thread managed pool. The pool is destroyed when
- * the thread ends. Therefore, all dynamically allocated GrEffectRefs must be unreffed before thread
- * termination.
- */
-class GrEffectRef : public SkRefCnt {
-public:
-    SK_DECLARE_INST_COUNT(GrEffectRef);
-    virtual ~GrEffectRef();
-
-    GrEffect* get() { return fEffect; }
-    const GrEffect* get() const { return fEffect; }
-
-    const GrEffect* operator-> () { return fEffect; }
-    const GrEffect* operator-> () const { return fEffect; }
-
-    void* operator new(size_t size);
-    void operator delete(void* target);
-
-    void* operator new(size_t size, void* placement) {
-        return ::operator new(size, placement);
-    }
-    void operator delete(void* target, void* placement) {
-        ::operator delete(target, placement);
-    }
-
-private:
-    friend class GrEffect; // to construct these
-
-    explicit GrEffectRef(GrEffect* effect);
-
-    GrEffect* fEffect;
-
-    typedef SkRefCnt INHERITED;
-};
-
 /** Provides custom vertex shader, fragment shader, uniform data for a particular stage of the
     Ganesh shading pipeline.
     Subclasses must have a function that produces a human-readable name:
         static const char* Name();
     GrEffect objects *must* be immutable: after being constructed, their fields may not change.
 
-    GrEffect subclass objects should be created by factory functions that return GrEffectRef.
-    There is no public way to wrap a GrEffect in a GrEffectRef. Thus, a factory should be a static
-    member function of a GrEffect subclass.
-
-    Because almost no code should ever handle a GrEffect directly outside of a GrEffectRef, we
-    privately inherit from SkRefCnt to help prevent accidental direct ref'ing/unref'ing of effects.
-
-    Dynamically allocated GrEffects and their corresponding GrEffectRefs are managed by a per-thread
-    memory pool. The ref count of an effect must reach 0 before the thread terminates and the pool
-    is destroyed. To create a static effect use the macro GR_CREATE_STATIC_EFFECT declared below.
+    Dynamically allocated GrEffects are managed by a per-thread memory pool. The ref count of an
+    effect must reach 0 before the thread terminates and the pool is destroyed. To create a static
+    effect use the macro GR_CREATE_STATIC_EFFECT declared below.
   */
-class GrEffect : private SkRefCnt {
+class GrEffect : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrEffect)
 
@@ -124,8 +75,17 @@ public:
         computed by the GrBackendEffectFactory:
             effectA.getFactory().glEffectKey(effectA) == effectB.getFactory().glEffectKey(effectB).
      */
-    bool isEqual(const GrEffectRef& other) const {
-        return this->isEqual(*other.get());
+    bool isEqual(const GrEffect& other) const {
+        if (&this->getFactory() != &other.getFactory()) {
+            return false;
+        }
+        bool result = this->onIsEqual(other);
+#ifdef SK_DEBUG
+        if (result) {
+            this->assertEquality(other);
+        }
+#endif
+        return result;
     }
 
     /** Human-meaningful string to identify this effect; may be embedded
@@ -185,24 +145,6 @@ public:
         ::operator delete(target, placement);
     }
 
-    /** These functions are used when recording effects into a deferred drawing queue. The inc call
-        keeps the effect alive outside of GrEffectRef while allowing any resources owned by the
-        effect to be returned to the cache for reuse. The dec call must balance the inc call. */
-    void incDeferredRefCounts() const {
-        this->ref();
-        int count = fTextureAccesses.count();
-        for (int t = 0; t < count; ++t) {
-            fTextureAccesses[t]->getTexture()->incDeferredRefCount();
-        }
-    }
-    void decDeferredRefCounts() const {
-        int count = fTextureAccesses.count();
-        for (int t = 0; t < count; ++t) {
-            fTextureAccesses[t]->getTexture()->decDeferredRefCount();
-        }
-        this->unref();
-    }
-
 protected:
     /**
      * Subclasses call this from their constructor to register coordinate transformations. The
@@ -225,31 +167,17 @@ protected:
         : fWillReadDstColor(false)
         , fWillReadFragmentPosition(false)
         , fWillUseInputColor(true)
-        , fHasVertexCode(false)
-        , fEffectRef(NULL) {}
+        , fHasVertexCode(false) {}
 
     /** This should be called by GrEffect subclass factories. See the comment on AutoEffectUnref for
         an example factory function. */
-    static GrEffectRef* CreateEffectRef(GrEffect* effect) {
-        if (NULL == effect->fEffectRef) {
-            effect->fEffectRef = SkNEW_ARGS(GrEffectRef, (effect));
-        } else {
-            effect->fEffectRef->ref();
-        }
-        return effect->fEffectRef;
+    static GrEffect* CreateEffectRef(GrEffect* effect) {
+        return SkRef(effect);
     }
 
-    static const GrEffectRef* CreateEffectRef(const GrEffect* effect) {
+    static const GrEffect* CreateEffectRef(const GrEffect* effect) {
         return CreateEffectRef(const_cast<GrEffect*>(effect));
     }
-
-    /** Used by GR_CREATE_STATIC_EFFECT below */
-    static GrEffectRef* CreateStaticEffectRef(void* refStorage, GrEffect* effect) {
-        SkASSERT(NULL == effect->fEffectRef);
-        effect->fEffectRef = SkNEW_PLACEMENT_ARGS(refStorage, GrEffectRef, (effect));
-        return effect->fEffectRef;
-    }
-
 
     /** Helper used in subclass factory functions to unref the effect after it has been wrapped in a
         GrEffectRef. E.g.:
@@ -261,14 +189,7 @@ protected:
                 return CreateEffectRef(effect);
             }
      */
-    class AutoEffectUnref {
-    public:
-        AutoEffectUnref(GrEffect* effect) : fEffect(effect) { }
-        ~AutoEffectUnref() { fEffect->unref(); }
-        operator GrEffect*() { return fEffect; }
-    private:
-        GrEffect* fEffect;
-    };
+    typedef SkAutoTUnref<GrEffect> AutoEffectUnref;
 
     /** Helper for getting the GrEffect out of a GrEffectRef and down-casting to a GrEffect subclass
       */
@@ -299,19 +220,6 @@ protected:
     void setWillNotUseInputColor() { fWillUseInputColor = false; }
 
 private:
-    bool isEqual(const GrEffect& other) const {
-        if (&this->getFactory() != &other.getFactory()) {
-            return false;
-        }
-        bool result = this->onIsEqual(other);
-#ifdef SK_DEBUG
-        if (result) {
-            this->assertEquality(other);
-        }
-#endif
-        return result;
-    }
-
     SkDEBUGCODE(void assertEquality(const GrEffect& other) const;)
 
     /** Subclass implements this to support isEqual(). It will only be called if it is known that
@@ -319,12 +227,6 @@ private:
         getFactory()).*/
     virtual bool onIsEqual(const GrEffect& other) const = 0;
 
-    void EffectRefDestroyed() { fEffectRef = NULL; }
-
-    friend class GrEffectRef;    // to call EffectRefDestroyed()
-    friend class GrEffectStage;  // to rewrap GrEffect in GrEffectRef when restoring an effect-stage
-                                 // from deferred state, to call isEqual on naked GrEffects, and
-                                 // to inc/dec deferred ref counts.
     friend class GrVertexEffect; // to set fHasVertexCode and build fVertexAttribTypes.
 
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
@@ -334,32 +236,20 @@ private:
     bool                                         fWillReadFragmentPosition;
     bool                                         fWillUseInputColor;
     bool                                         fHasVertexCode;
-    GrEffectRef*                                 fEffectRef;
 
     typedef SkRefCnt INHERITED;
 };
 
-inline GrEffectRef::GrEffectRef(GrEffect* effect) {
-    SkASSERT(NULL != effect);
-    effect->ref();
-    fEffect = effect;
-}
+typedef GrEffect GrEffectRef;
 
 /**
  * This creates an effect outside of the effect memory pool. The effect's destructor will be called
- * at global destruction time. NAME will be the name of the created GrEffectRef.
+ * at global destruction time. NAME will be the name of the created GrEffect.
  */
 #define GR_CREATE_STATIC_EFFECT(NAME, EFFECT_CLASS, ARGS)                                         \
-enum {                                                                                            \
-    k_##NAME##_EffectRefOffset = GR_CT_ALIGN_UP(sizeof(EFFECT_CLASS), 8),                         \
-    k_##NAME##_StorageSize = k_##NAME##_EffectRefOffset + sizeof(GrEffectRef)                     \
-};                                                                                                \
-static SkAlignedSStorage<k_##NAME##_StorageSize> g_##NAME##_Storage;                              \
-static void* NAME##_RefLocation = (char*)g_##NAME##_Storage.get() + k_##NAME##_EffectRefOffset;   \
-static GrEffect* NAME##_Effect SkNEW_PLACEMENT_ARGS(g_##NAME##_Storage.get(), EFFECT_CLASS, ARGS);\
-static SkAutoTDestroy<GrEffect> NAME##_ad(NAME##_Effect);                                         \
-static GrEffectRef* NAME(GrEffect::CreateStaticEffectRef(NAME##_RefLocation, NAME##_Effect));     \
-static SkAutoTDestroy<GrEffectRef> NAME##_Ref_ad(NAME)
+static SkAlignedSStorage<sizeof(EFFECT_CLASS)> g_##NAME##_Storage;                                \
+static GrEffect* NAME SkNEW_PLACEMENT_ARGS(g_##NAME##_Storage.get(), EFFECT_CLASS, ARGS);         \
+static SkAutoTDestroy<GrEffect> NAME##_ad(NAME);
 
 
 #endif

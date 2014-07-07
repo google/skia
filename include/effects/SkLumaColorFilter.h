@@ -28,7 +28,7 @@ public:
     virtual void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual GrEffectRef* asNewEffect(GrContext*) const SK_OVERRIDE;
+    virtual GrEffect* asNewEffect(GrContext*) const SK_OVERRIDE;
 #endif
 
     SK_TO_STRING_OVERRIDE()

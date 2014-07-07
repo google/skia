@@ -15,7 +15,7 @@
 #include "SkXfermode.h"
 
 class SkBitmap;
-class GrEffectRef;
+class GrEffect;
 class GrContext;
 
 /**
@@ -126,7 +126,7 @@ public:
     /** A subclass may implement this factory function to work with the GPU backend. If the return
         is non-NULL then the caller owns a ref on the returned object.
      */
-    virtual GrEffectRef* asNewEffect(GrContext*) const;
+    virtual GrEffect* asNewEffect(GrContext*) const;
 
     SK_TO_STRING_PUREVIRT()
 

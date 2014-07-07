@@ -16,7 +16,7 @@ class SkBitmap;
 class SkColorFilter;
 class SkBaseDevice;
 struct SkIPoint;
-class GrEffectRef;
+class GrEffect;
 class GrTexture;
 
 /**
@@ -281,7 +281,7 @@ protected:
      *  will be called with (NULL, NULL, SkMatrix::I()) to query for support,
      *  so returning "true" indicates support for all possible matrices.
      */
-    virtual bool asNewEffect(GrEffectRef** effect,
+    virtual bool asNewEffect(GrEffect** effect,
                              GrTexture*,
                              const SkMatrix& matrix,
                              const SkIRect& bounds) const;

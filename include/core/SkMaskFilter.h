@@ -72,7 +72,7 @@ public:
      * If effect is non-NULL, a new GrEffect instance is stored in it. The caller assumes ownership
      * of the effect and must unref it.
      */
-    virtual bool asNewEffect(GrEffectRef** effect,
+    virtual bool asNewEffect(GrEffect** effect,
                              GrTexture*,
                              const SkMatrix& ctm) const;
 

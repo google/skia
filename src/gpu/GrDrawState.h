@@ -340,13 +340,13 @@ public:
     /// the color / coverage distinction.
     ////
 
-    const GrEffectRef* addColorEffect(const GrEffectRef* effect, int attr0 = -1, int attr1 = -1) {
+    const GrEffect* addColorEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(NULL != effect);
         SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect, attr0, attr1));
         return effect;
     }
 
-    const GrEffectRef* addCoverageEffect(const GrEffectRef* effect, int attr0 = -1, int attr1 = -1) {
+    const GrEffect* addCoverageEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(NULL != effect);
         SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect, attr0, attr1));
         return effect;
@@ -356,27 +356,23 @@ public:
      * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
      */
     void addColorTextureEffect(GrTexture* texture, const SkMatrix& matrix) {
-        GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix);
-        this->addColorEffect(effect)->unref();
+        this->addColorEffect(GrSimpleTextureEffect::Create(texture, matrix))->unref();
     }
 
     void addCoverageTextureEffect(GrTexture* texture, const SkMatrix& matrix) {
-        GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix);
-        this->addCoverageEffect(effect)->unref();
+        this->addCoverageEffect(GrSimpleTextureEffect::Create(texture, matrix))->unref();
     }
 
     void addColorTextureEffect(GrTexture* texture,
                                const SkMatrix& matrix,
                                const GrTextureParams& params) {
-        GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix, params);
-        this->addColorEffect(effect)->unref();
+        this->addColorEffect(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
     }
 
     void addCoverageTextureEffect(GrTexture* texture,
                                   const SkMatrix& matrix,
                                   const GrTextureParams& params) {
-        GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix, params);
-        this->addCoverageEffect(effect)->unref();
+        this->addCoverageEffect(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
     }
 
     /**

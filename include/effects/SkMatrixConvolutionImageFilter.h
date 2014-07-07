@@ -86,7 +86,7 @@ protected:
 
 
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffectRef** effect,
+    virtual bool asNewEffect(GrEffect** effect,
                              GrTexture*,
                              const SkMatrix& ctm,
                              const SkIRect& bounds) const SK_OVERRIDE;

@@ -35,7 +35,7 @@ public:
 #if SK_SUPPORT_GPU
     
     virtual bool asNewEffect(GrContext* context, const SkPaint& paint, const SkMatrix* localMatrix,
-                             GrColor* grColor, GrEffectRef** grEffect) const SK_OVERRIDE {
+                             GrColor* grColor, GrEffect** grEffect) const SK_OVERRIDE {
         SkMatrix tmp = fProxyLocalMatrix;
         if (localMatrix) {
             tmp.preConcat(*localMatrix);
@@ -46,7 +46,7 @@ public:
 #else 
     
     virtual bool asNewEffect(GrContext* context, const SkPaint& paint, const SkMatrix* localMatrix,
-                             GrColor* grColor, GrEffectRef** grEffect) const SK_OVERRIDE {
+                             GrColor* grColor, GrEffect** grEffect) const SK_OVERRIDE {
         SkDEBUGFAIL("Should not call in GPU-less build");
         return false;
     }

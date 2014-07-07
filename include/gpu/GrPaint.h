@@ -87,9 +87,9 @@ public:
     /**
      * Appends an additional color effect to the color computation.
      */
-    const GrEffectRef* addColorEffect(const GrEffectRef* effect, int attr0 = -1, int attr1 = -1) {
+    const GrEffect* addColorEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(NULL != effect);
-        if (!(*effect)->willUseInputColor()) {
+        if (!effect->willUseInputColor()) {
             fColorStages.reset();
         }
         SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect, attr0, attr1));
@@ -99,9 +99,9 @@ public:
     /**
      * Appends an additional coverage effect to the coverage computation.
      */
-    const GrEffectRef* addCoverageEffect(const GrEffectRef* effect, int attr0 = -1, int attr1 = -1) {
+    const GrEffect* addCoverageEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(NULL != effect);
-        if (!(*effect)->willUseInputColor()) {
+        if (!effect->willUseInputColor()) {
             fCoverageStages.reset();
         }
         SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect, attr0, attr1));

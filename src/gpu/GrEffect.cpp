@@ -59,25 +59,7 @@ int32_t GrBackendEffectFactory::fCurrEffectClassID = GrBackendEffectFactory::kIl
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef::~GrEffectRef() {
-    SkASSERT(this->unique());
-    fEffect->EffectRefDestroyed();
-    fEffect->unref();
-}
-
-void* GrEffectRef::operator new(size_t size) {
-    return GrEffect_Globals::GetTLS()->allocate(size);
-}
-
-void GrEffectRef::operator delete(void* target) {
-    GrEffect_Globals::GetTLS()->release(target);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-GrEffect::~GrEffect() {
-    SkASSERT(NULL == fEffectRef);
-}
+GrEffect::~GrEffect() {}
 
 const char* GrEffect::name() const {
     return this->getFactory().name();

@@ -121,7 +121,7 @@ private:
     }
 };
 
-GrEffectRef* SkLumaColorFilter::asNewEffect(GrContext*) const {
+GrEffect* SkLumaColorFilter::asNewEffect(GrContext*) const {
     return LumaColorFilterEffect::Create();
 }
 #endif

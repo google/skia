@@ -12,27 +12,23 @@
 #include "effects/GrSimpleTextureEffect.h"
 
 void GrPaint::addColorTextureEffect(GrTexture* texture, const SkMatrix& matrix) {
-    GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix);
-    this->addColorEffect(effect)->unref();
+    this->addColorEffect(GrSimpleTextureEffect::Create(texture, matrix))->unref();
 }
 
 void GrPaint::addCoverageTextureEffect(GrTexture* texture, const SkMatrix& matrix) {
-    GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix);
-    this->addCoverageEffect(effect)->unref();
+    this->addCoverageEffect(GrSimpleTextureEffect::Create(texture, matrix))->unref();
 }
 
 void GrPaint::addColorTextureEffect(GrTexture* texture,
                                     const SkMatrix& matrix,
                                     const GrTextureParams& params) {
-    GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix, params);
-    this->addColorEffect(effect)->unref();
+    this->addColorEffect(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
 }
 
 void GrPaint::addCoverageTextureEffect(GrTexture* texture,
                                        const SkMatrix& matrix,
                                        const GrTextureParams& params) {
-    GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix, params);
-    this->addCoverageEffect(effect)->unref();
+    this->addCoverageEffect(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
 }
 
 bool GrPaint::isOpaque() const {

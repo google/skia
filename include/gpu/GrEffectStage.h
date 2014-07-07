@@ -20,8 +20,8 @@
 
 class GrEffectStage {
 public:
-    explicit GrEffectStage(const GrEffectRef* effectRef, int attrIndex0 = -1, int attrIndex1 = -1)
-    : fEffectRef(SkRef(effectRef)) {
+    explicit GrEffectStage(const GrEffect* effect, int attrIndex0 = -1, int attrIndex1 = -1)
+    : fEffect(SkRef(effect)) {
         fCoordChangeMatrixSet = false;
         fVertexAttribIndices[0] = attrIndex0;
         fVertexAttribIndices[1] = attrIndex1;
@@ -36,14 +36,14 @@ public:
         if (other.fCoordChangeMatrixSet) {
             fCoordChangeMatrix = other.fCoordChangeMatrix;
         }
-        fEffectRef.reset(SkRef(other.fEffectRef.get()));
+        fEffect.reset(SkRef(other.fEffect.get()));
         memcpy(fVertexAttribIndices, other.fVertexAttribIndices, sizeof(fVertexAttribIndices));
         return *this;
     }
 
     bool operator== (const GrEffectStage& other) const {
-        SkASSERT(NULL != fEffectRef.get());
-        SkASSERT(NULL != other.fEffectRef.get());
+        SkASSERT(NULL != fEffect.get());
+        SkASSERT(NULL != other.fEffect.get());
 
         if (!this->getEffect()->isEqual(*other.getEffect())) {
             return false;
@@ -81,7 +81,7 @@ public:
     private:
         bool fCoordChangeMatrixSet;
         SkMatrix fCoordChangeMatrix;
-        SkDEBUGCODE(mutable SkAutoTUnref<const GrEffectRef> fEffectRef;)
+        SkDEBUGCODE(mutable SkAutoTUnref<const GrEffect> fEffect;)
 
         friend class GrEffectStage;
     };
@@ -97,9 +97,9 @@ public:
         if (fCoordChangeMatrixSet) {
             savedCoordChange->fCoordChangeMatrix = fCoordChangeMatrix;
         }
-        SkASSERT(NULL == savedCoordChange->fEffectRef.get());
-        SkDEBUGCODE(SkRef(fEffectRef.get());)
-        SkDEBUGCODE(savedCoordChange->fEffectRef.reset(fEffectRef.get());)
+        SkASSERT(NULL == savedCoordChange->fEffect.get());
+        SkDEBUGCODE(SkRef(fEffect.get());)
+        SkDEBUGCODE(savedCoordChange->fEffect.reset(fEffect.get());)
     }
 
     /**
@@ -110,8 +110,8 @@ public:
         if (fCoordChangeMatrixSet) {
             fCoordChangeMatrix = savedCoordChange.fCoordChangeMatrix;
         }
-        SkASSERT(savedCoordChange.fEffectRef.get() == fEffectRef);
-        SkDEBUGCODE(savedCoordChange.fEffectRef.reset(NULL);)
+        SkASSERT(savedCoordChange.fEffect.get() == fEffect);
+        SkDEBUGCODE(savedCoordChange.fEffect.reset(NULL);)
     }
 
     /**
@@ -126,15 +126,15 @@ public:
         }
     }
 
-    const GrEffect* getEffect() const { return fEffectRef.get()->get(); }
+    const GrEffect* getEffect() const { return fEffect.get(); }
 
     const int* getVertexAttribIndices() const { return fVertexAttribIndices; }
-    int getVertexAttribIndexCount() const { return fEffectRef->get()->numVertexAttribs(); }
+    int getVertexAttribIndexCount() const { return fEffect->numVertexAttribs(); }
 
 private:
     bool                                fCoordChangeMatrixSet;
     SkMatrix                            fCoordChangeMatrix;
-    SkAutoTUnref<const GrEffectRef>     fEffectRef;
+    SkAutoTUnref<const GrEffect>        fEffect;
     int                                 fVertexAttribIndices[2];
 };
 

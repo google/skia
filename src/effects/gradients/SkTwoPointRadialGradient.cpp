@@ -712,7 +712,7 @@ bool SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint& pa
 
 bool SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
                                            const SkMatrix* localMatrix, GrColor* grColor,
-                                           GrEffectRef** grEffect)  const {
+                                           GrEffect** grEffect)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }
