@@ -11,7 +11,7 @@
  * namespace. If workspaceName is the empty string then we know we aren't
  * running on a workspace page.
  *
- * If we are on a workspace page we also look for a 'history'
+ * If we are on a workspace page we also look for a 'history_'
  * variable in the global namespace which contains the list of tries
  * that are included in this workspace. That variable is used to
  * populate the history list.
@@ -286,9 +286,9 @@
       }
 
       // Add the images to the history if we are on a workspace page.
-      if (tryHistory && history) {
-        for (var i=0; i<history.length; i++) {
-          addToHistory(history[i].hash, '/i/'+history[i].hash+'.png');
+      if (tryHistory && history_) {
+        for (var i=0; i<history_.length; i++) {
+          addToHistory(history_[i].hash, '/i/'+history_[i].hash+'.png');
         }
       }
     }
@@ -297,7 +297,7 @@
     if (document.readyState != "loading") {
       onLoad();
     } else {
-      this.addEventListener('DOMContentLoaded', onLoad);
+      this.addEventListener('load', onLoad);
     }
 
 })();
