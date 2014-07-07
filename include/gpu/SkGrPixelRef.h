@@ -51,7 +51,9 @@ public:
     // override from SkPixelRef
     virtual GrTexture* getTexture() SK_OVERRIDE;
 
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
     SK_DECLARE_UNFLATTENABLE_OBJECT()
+#endif
 
 protected:
     // overrides from SkPixelRef

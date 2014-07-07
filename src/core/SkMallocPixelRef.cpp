@@ -200,21 +200,7 @@ size_t SkMallocPixelRef::getAllocatedSizeInBytes() const {
     return this->info().getSafeSize(fRB);
 }
 
-void SkMallocPixelRef::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-
-    buffer.write32(SkToU32(fRB));
-
-    // TODO: replace this bulk write with a chunky one that can trim off any
-    // trailing bytes on each scanline (in case rowbytes > width*size)
-    size_t size = this->info().getSafeSize(fRB);
-    buffer.writeByteArray(fStorage, size);
-    buffer.writeBool(fCTable != NULL);
-    if (fCTable) {
-        fCTable->writeToBuffer(buffer);
-    }
-}
-
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
 SkMallocPixelRef::SkMallocPixelRef(SkReadBuffer& buffer)
     : INHERITED(buffer, NULL)
     , fReleaseProc(sk_free_releaseproc)
@@ -237,6 +223,7 @@ SkMallocPixelRef::SkMallocPixelRef(SkReadBuffer& buffer)
 
     this->setPreLocked(fStorage, fRB, fCTable);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

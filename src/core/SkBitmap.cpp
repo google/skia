@@ -1292,6 +1292,7 @@ enum {
 };
 
 void SkBitmap::legacyUnflatten(SkReadBuffer& buffer) {
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
     this->reset();
 
     SkImageInfo info;
@@ -1317,7 +1318,7 @@ void SkBitmap::legacyUnflatten(SkReadBuffer& buffer) {
                 origin.fX = buffer.readInt();
                 origin.fY = buffer.readInt();
                 size_t offset = origin.fY * rowBytes + origin.fX * info.bytesPerPixel();
-                SkPixelRef* pr = buffer.readPixelRef();
+                SkPixelRef* pr = buffer.readFlattenable<SkPixelRef>();
                 if (!buffer.validate((NULL == pr) ||
                        (pr->getAllocatedSizeInBytes() >= (offset + this->getSafeSize())))) {
                     origin.setZero();
@@ -1332,6 +1333,9 @@ void SkBitmap::legacyUnflatten(SkReadBuffer& buffer) {
                 sk_throw();
         }
     }
+#else
+    sk_throw();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

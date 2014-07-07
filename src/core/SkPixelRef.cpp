@@ -108,6 +108,7 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex) : fInfo(info
     fPreLocked = false;
 }
 
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
 static SkImageInfo read_info(SkReadBuffer& buffer) {
     SkImageInfo info;
     info.unflatten(buffer);
@@ -130,6 +131,7 @@ SkPixelRef::SkPixelRef(SkReadBuffer& buffer, SkBaseMutex* mutex)
     fUniqueGenerationID = false;  // Conservatively assuming the original still exists.
     fPreLocked = false;
 }
+#endif
 
 SkPixelRef::~SkPixelRef() {
     this->callGenIDChangeListeners();
@@ -157,23 +159,6 @@ void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctabl
     fLockCount = SKPIXELREF_PRELOCKED_LOCKCOUNT;
     fPreLocked = true;
 #endif
-}
-
-void SkPixelRef::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    fInfo.flatten(buffer);
-    buffer.writeBool(fIsImmutable);
-    // We write the gen ID into the picture for within-process recording. This
-    // is safe since the same genID will never refer to two different sets of
-    // pixels (barring overflow). However, each process has its own "namespace"
-    // of genIDs. So for cross-process recording we write a zero which will
-    // trigger assignment of a new genID in playback.
-    if (buffer.isCrossProcess()) {
-        buffer.writeUInt(0);
-    } else {
-        buffer.writeUInt(fGenerationID);
-        fUniqueGenerationID = false;  // Conservative, a copy is probably about to exist.
-    }
 }
 
 bool SkPixelRef::lockPixels(LockRec* rec) {

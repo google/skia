@@ -31,6 +31,13 @@
 //    #define SK_IGNORE_PIXELREF_SETPRELOCKED
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
+    // we only support unflattening, not flattening
+    #define SK_PIXELREF_BASECLASS   SkFlattenable
+#else
+    #define SK_PIXELREF_BASECLASS   SkRefCnt
+#endif
+
 class SkColorTable;
 class SkData;
 struct SkIRect;
@@ -46,7 +53,7 @@ class GrTexture;
 
     This class can be shared/accessed between multiple threads.
 */
-class SK_API SkPixelRef : public SkFlattenable {
+class SK_API SkPixelRef : public SK_PIXELREF_BASECLASS {
 public:
     SK_DECLARE_INST_COUNT(SkPixelRef)
 
@@ -250,7 +257,9 @@ public:
     virtual void globalUnref();
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
     SK_DEFINE_FLATTENABLE_TYPE(SkPixelRef)
+#endif
 
     // Register a listener that may be called the next time our generation ID changes.
     //
@@ -324,7 +333,6 @@ protected:
 
     // serialization
     SkPixelRef(SkReadBuffer&, SkBaseMutex*);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // only call from constructor. Flags this to always be locked, removing
     // the need to grab the mutex and call onLockPixels/onUnlockPixels.
@@ -363,7 +371,11 @@ private:
     friend class SkBitmap;  // only for cloneGenID
     void cloneGenID(const SkPixelRef&);
 
-    typedef SkFlattenable INHERITED;
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE { sk_throw(); }
+#endif
+
+    typedef SK_PIXELREF_BASECLASS INHERITED;
 };
 
 class SkPixelRefFactory : public SkRefCnt {
