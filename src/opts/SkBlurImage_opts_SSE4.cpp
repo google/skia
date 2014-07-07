@@ -117,6 +117,7 @@ bool SkBoxBlurGetPlatformProcs_SSE4(SkBoxBlurProc* boxBlurX,
                                     SkBoxBlurProc* boxBlurXY,
                                     SkBoxBlurProc* boxBlurYX) {
     sk_throw();
+    return false;
 }
 
 
