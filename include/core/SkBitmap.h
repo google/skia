@@ -96,19 +96,6 @@ public:
     SkColorType colorType() const { return fInfo.fColorType; }
     SkAlphaType alphaType() const { return fInfo.fAlphaType; }
 
-#ifdef SK_SUPPORT_LEGACY_ASIMAGEINFO
-    bool asImageInfo(SkImageInfo* info) const {
-        // compatibility: return false for kUnknown
-        if (kUnknown_SkColorType == this->colorType()) {
-            return false;
-        }
-        if (info) {
-            *info = this->info();
-        }
-        return true;
-    }
-#endif
-
     /**
      *  Return the number of bytes per pixel based on the colortype. If the colortype is
      *  kUnknown_SkColorType, then 0 is returned.
@@ -229,28 +216,6 @@ public:
     */
     void reset();
 
-#ifdef SK_SUPPORT_LEGACY_COMPUTE_CONFIG_SIZE
-    /** Given a config and a width, this computes the optimal rowBytes value. This is called automatically
-        if you pass 0 for rowBytes to setConfig().
-    */
-    static size_t ComputeRowBytes(Config c, int width);
-
-    /** Return the bytes-per-pixel for the specified config. If the config is
-        not at least 1-byte per pixel, return 0, including for kNo_Config.
-    */
-    static int ComputeBytesPerPixel(Config c);
-
-    /** Return the shift-per-pixel for the specified config. If the config is
-     not at least 1-byte per pixel, return 0, including for kNo_Config.
-     */
-    static int ComputeShiftPerPixel(Config c) {
-        return ComputeBytesPerPixel(c) >> 1;
-    }
-
-    static int64_t ComputeSize64(Config, int width, int height);
-    static size_t ComputeSize(Config, int width, int height);
-#endif
-
     /**
      *  This will brute-force return true if all of the pixels in the bitmap
      *  are opaque. If it fails to read the pixels, or encounters an error,
@@ -268,26 +233,7 @@ public:
     void getBounds(SkRect* bounds) const;
     void getBounds(SkIRect* bounds) const;
 
-#ifdef SK_SUPPORT_LEGACY_SETCONFIG
-    /** Set the bitmap's config and dimensions. If rowBytes is 0, then
-        ComputeRowBytes() is called to compute the optimal value. This resets
-        any pixel/colortable ownership, just like reset().
-    */
-    bool setConfig(Config, int width, int height, size_t rowBytes, SkAlphaType);
-
-    bool setConfig(Config config, int width, int height, size_t rowBytes = 0) {
-        return this->setConfig(config, width, height, rowBytes,
-                               kPremul_SkAlphaType);
-    }
-#endif
-
     bool setInfo(const SkImageInfo&, size_t rowBytes = 0);
-
-#ifdef SK_SUPPORT_LEGACY_SETCONFIG_INFO
-    bool setConfig(const SkImageInfo& info, size_t rowBytes = 0) {
-        return this->setInfo(info, rowBytes);
-    }
-#endif
 
     /**
      *  Allocate the bitmap's pixels to match the requested image info. If the Factory
