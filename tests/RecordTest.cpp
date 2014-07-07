@@ -102,7 +102,7 @@ DEF_TEST(RecordAnalysis, r) {
     *(bitmap2.getAddr32(0, 0)) = SK_ColorGREEN;
     SkShader* shader = SkShader::CreateBitmapShader(bitmap2, SkShader::kClamp_TileMode,
                                                     SkShader::kClamp_TileMode);
-    paint2.setShader(shader);
+    paint2.setShader(shader)->unref();
     REPORTER_ASSERT(r, shader->asABitmap(NULL, NULL, NULL) == SkShader::kDefault_BitmapType);
 
     APPEND(record, SkRecords::DrawRect, paint2, rect);
