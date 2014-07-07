@@ -173,6 +173,8 @@
       '<(skia_src_path)/gpu/effects/GrTextureDomain.h',
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.cpp',
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.h',
+      '<(skia_src_path)/gpu/effects/GrYUVtoRGBEffect.cpp',
+      '<(skia_src_path)/gpu/effects/GrYUVtoRGBEffect.h',
 
       '<(skia_src_path)/gpu/gl/GrGLAssembleInterface.cpp',
       '<(skia_src_path)/gpu/gl/GrGLAssembleInterface.h',

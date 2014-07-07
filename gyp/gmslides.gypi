@@ -182,6 +182,7 @@
     '../gm/xfermodes.cpp',
     '../gm/xfermodes2.cpp',
     '../gm/xfermodes3.cpp',
+    '../gm/yuvtorgbeffect.cpp',
 
     # Files needed by particular GMs
     '../src/utils/debugger/SkDrawCommand.h',
