@@ -67,27 +67,17 @@ public:
         bounds->setXYWH(origin.x(), origin.y(), this->width(), this->height());
     }
 
-#ifdef SK_SUPPORT_LEGACY_DEVICE_VIRTUAL_ISOPAQUE
-    virtual int width() const {
-        return this->imageInfo().width();
-    }
-    virtual int height() const {
-        return this->imageInfo().height();
-    }
-    virtual bool isOpaque() const {
-        return this->imageInfo().isOpaque();
-    }
-#else
     int width() const {
         return this->imageInfo().width();
     }
+
     int height() const {
         return this->imageInfo().height();
     }
+
     bool isOpaque() const {
         return this->imageInfo().isOpaque();
     }
-#endif
 
     /** Return the bitmap associated with this device. Call this each time you need
         to access the bitmap, as it notifies the subclass to perform any flushing
