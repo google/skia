@@ -8,7 +8,7 @@
 
 DEFINE_bool(quilt, true, "If true, draw into a quilt of small tiles and compare.");
 DEFINE_int32(quiltTile, 256, "Dimension of (square) quilt tile.");
-DEFINE_bool(quiltThreaded, false, "If true, draw quilt tiles with multiple threads.");
+DEFINE_bool(quiltThreaded, true, "If true, draw quilt tiles with multiple threads.");
 
 static const char* kSuffixes[] = { "quilt", "quilt_skr" };
 
