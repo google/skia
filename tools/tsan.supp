@@ -25,3 +25,8 @@ race:is_lcd_supported
 race:RefFCI
 race:SkString
 race:SkPDF
+
+# These race benignly as used by DMQuiltTask: skia:2725.
+# Suppress while I look for a more focused way to silence this.
+race:SkPixelRef::callGenIDChangeListeners
+race:SkPixelRef::needsNewGenID
