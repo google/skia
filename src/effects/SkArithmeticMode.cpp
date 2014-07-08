@@ -34,7 +34,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
 
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture* background) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffect** effect, GrTexture* background) const SK_OVERRIDE;
 #endif
 
 private:
@@ -262,7 +262,7 @@ private:
 
 class GrArithmeticEffect : public GrEffect {
 public:
-    static GrEffectRef* Create(float k1, float k2, float k3, float k4, bool enforcePMColor,
+    static GrEffect* Create(float k1, float k2, float k3, float k4, bool enforcePMColor,
                                GrTexture* background) {
         return SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4, enforcePMColor, background));
     }
@@ -410,10 +410,10 @@ GrGLEffect::EffectKey GrGLArithmeticEffect::GenKey(const GrDrawEffect& drawEffec
     return key;
 }
 
-GrEffectRef* GrArithmeticEffect::TestCreate(SkRandom* rand,
-                                            GrContext*,
-                                            const GrDrawTargetCaps&,
-                                            GrTexture*[]) {
+GrEffect* GrArithmeticEffect::TestCreate(SkRandom* rand,
+                                         GrContext*,
+                                         const GrDrawTargetCaps&,
+                                         GrTexture*[]) {
     float k1 = rand->nextF();
     float k2 = rand->nextF();
     float k3 = rand->nextF();
@@ -425,7 +425,7 @@ GrEffectRef* GrArithmeticEffect::TestCreate(SkRandom* rand,
 
 GR_DEFINE_EFFECT_TEST(GrArithmeticEffect);
 
-bool SkArithmeticMode_scalar::asNewEffect(GrEffectRef** effect, GrTexture* background) const {
+bool SkArithmeticMode_scalar::asNewEffect(GrEffect** effect, GrTexture* background) const {
     if (effect) {
         *effect = GrArithmeticEffect::Create(SkScalarToFloat(fK[0]),
                                              SkScalarToFloat(fK[1]),

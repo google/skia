@@ -383,8 +383,8 @@ void SkBitmapProcShader::toString(SkString* str) const {
 #include "SkGr.h"
 
 bool SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                     const SkMatrix* localMatrix, GrColor* grColor,
-                                     GrEffectRef** grEffect) const {
+                                     const SkMatrix* localMatrix, GrColor* paintColor,
+                                     GrEffect** effect) const {
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
 
@@ -454,13 +454,14 @@ bool SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
         return false;
     }
     
-    *grColor = (kAlpha_8_SkColorType == fRawBitmap.colorType()) ? SkColor2GrColor(paint.getColor())
-                                        : SkColor2GrColorJustAlpha(paint.getColor());
+    *paintColor = (kAlpha_8_SkColorType == fRawBitmap.colorType()) ?
+                                                SkColor2GrColor(paint.getColor()) :
+                                                SkColor2GrColorJustAlpha(paint.getColor());
 
     if (useBicubic) {
-        *grEffect = GrBicubicEffect::Create(texture, matrix, tm);
+        *effect = GrBicubicEffect::Create(texture, matrix, tm);
     } else {
-        *grEffect = GrSimpleTextureEffect::Create(texture, matrix, params);
+        *effect = GrSimpleTextureEffect::Create(texture, matrix, params);
     }
     GrUnlockAndUnrefCachedBitmapTexture(texture);
 
@@ -470,8 +471,8 @@ bool SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
 #else 
 
 bool SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                     const SkMatrix* localMatrix, GrColor* grColor,
-                                     GrEffect** grEffect) const {
+                                     const SkMatrix* localMatrix, GrColor* paintColor,
+                                     GrEffect** effect) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

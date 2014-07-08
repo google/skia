@@ -57,7 +57,7 @@ class GrGLConicEffect;
 
 class GrConicEffect : public GrVertexEffect {
 public:
-    static GrEffectRef* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
+    static GrEffect* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
         GR_CREATE_STATIC_EFFECT(gConicFillAA, GrConicEffect, (kFillAA_GrEffectEdgeType));
         GR_CREATE_STATIC_EFFECT(gConicHairAA, GrConicEffect, (kHairlineAA_GrEffectEdgeType));
         GR_CREATE_STATIC_EFFECT(gConicFillBW, GrConicEffect, (kFillBW_GrEffectEdgeType));
@@ -124,7 +124,7 @@ class GrGLQuadEffect;
 
 class GrQuadEffect : public GrVertexEffect {
 public:
-    static GrEffectRef* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
+    static GrEffect* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
         GR_CREATE_STATIC_EFFECT(gQuadFillAA, GrQuadEffect, (kFillAA_GrEffectEdgeType));
         GR_CREATE_STATIC_EFFECT(gQuadHairAA, GrQuadEffect, (kHairlineAA_GrEffectEdgeType));
         GR_CREATE_STATIC_EFFECT(gQuadFillBW, GrQuadEffect, (kFillBW_GrEffectEdgeType));
@@ -193,7 +193,7 @@ class GrGLCubicEffect;
 
 class GrCubicEffect : public GrVertexEffect {
 public:
-    static GrEffectRef* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
+    static GrEffect* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
         GR_CREATE_STATIC_EFFECT(gCubicFillAA, GrCubicEffect, (kFillAA_GrEffectEdgeType));
         GR_CREATE_STATIC_EFFECT(gCubicHairAA, GrCubicEffect, (kHairlineAA_GrEffectEdgeType));
         GR_CREATE_STATIC_EFFECT(gCubicFillBW, GrCubicEffect, (kFillBW_GrEffectEdgeType));

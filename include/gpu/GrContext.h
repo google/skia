@@ -1040,12 +1040,12 @@ private:
      * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
      * return NULL.
      */
-    const GrEffectRef* createPMToUPMEffect(GrTexture* texture,
-                                           bool swapRAndB,
-                                           const SkMatrix& matrix);
-    const GrEffectRef* createUPMToPMEffect(GrTexture* texture,
-                                           bool swapRAndB,
-                                           const SkMatrix& matrix);
+    const GrEffect* createPMToUPMEffect(GrTexture* texture,
+                                        bool swapRAndB,
+                                        const SkMatrix& matrix);
+    const GrEffect* createUPMToPMEffect(GrTexture* texture,
+                                        bool swapRAndB,
+                                        const SkMatrix& matrix);
 
     /**
      *  This callback allows the resource cache to callback into the GrContext

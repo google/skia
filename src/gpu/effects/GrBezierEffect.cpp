@@ -143,11 +143,11 @@ bool GrConicEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(GrConicEffect);
 
-GrEffectRef* GrConicEffect::TestCreate(SkRandom* random,
-                                             GrContext*,
-                                             const GrDrawTargetCaps& caps,
-                                             GrTexture*[]) {
-    GrEffectRef* effect;
+GrEffect* GrConicEffect::TestCreate(SkRandom* random,
+                                    GrContext*,
+                                    const GrDrawTargetCaps& caps,
+                                    GrTexture*[]) {
+    GrEffect* effect;
     do {
         GrEffectEdgeType edgeType = static_cast<GrEffectEdgeType>(
                                                     random->nextULessThan(kGrEffectEdgeTypeCnt));
@@ -281,11 +281,11 @@ bool GrQuadEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(GrQuadEffect);
 
-GrEffectRef* GrQuadEffect::TestCreate(SkRandom* random,
-                                             GrContext*,
-                                             const GrDrawTargetCaps& caps,
-                                             GrTexture*[]) {
-    GrEffectRef* effect;
+GrEffect* GrQuadEffect::TestCreate(SkRandom* random,
+                                   GrContext*,
+                                   const GrDrawTargetCaps& caps,
+                                   GrTexture*[]) {
+    GrEffect* effect;
     do {
         GrEffectEdgeType edgeType = static_cast<GrEffectEdgeType>(
                                                     random->nextULessThan(kGrEffectEdgeTypeCnt));
@@ -429,11 +429,11 @@ bool GrCubicEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(GrCubicEffect);
 
-GrEffectRef* GrCubicEffect::TestCreate(SkRandom* random,
-                                             GrContext*,
-                                             const GrDrawTargetCaps& caps,
-                                             GrTexture*[]) {
-    GrEffectRef* effect;
+GrEffect* GrCubicEffect::TestCreate(SkRandom* random,
+                                    GrContext*,
+                                    const GrDrawTargetCaps& caps,
+                                    GrTexture*[]) {
+    GrEffect* effect;
     do {
         GrEffectEdgeType edgeType = static_cast<GrEffectEdgeType>(
                                                     random->nextULessThan(kGrEffectEdgeTypeCnt));

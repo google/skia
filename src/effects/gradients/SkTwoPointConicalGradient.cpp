@@ -382,21 +382,21 @@ void SkTwoPointConicalGradient::flatten(
 #include "SkGr.h"
 
 bool SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPaint& paint,
-                                             const SkMatrix* localMatrix, GrColor* grColor,
-                                             GrEffectRef** grEffect)  const {
+                                             const SkMatrix* localMatrix, GrColor* paintColor,
+                                             GrEffect** effect)  const {
     SkASSERT(NULL != context);
     SkASSERT(fPtsToUnit.isIdentity());
 
-    *grEffect = Gr2PtConicalGradientEffect::Create(context, *this, fTileMode, localMatrix);
-    *grColor = SkColor2GrColorJustAlpha(paint.getColor());
+    *effect = Gr2PtConicalGradientEffect::Create(context, *this, fTileMode, localMatrix);
+    *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
     return true;
 }
 
 #else
 
 bool SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPaint& paint,
-                                            const SkMatrix* localMatrix, GrColor* grColor,
-                                            GrEffect** grEffect)  const {
+                                            const SkMatrix* localMatrix, GrColor* paintColor,
+                                            GrEffect** effect)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

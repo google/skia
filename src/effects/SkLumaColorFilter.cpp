@@ -60,7 +60,7 @@ void SkLumaColorFilter::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 class LumaColorFilterEffect : public GrEffect {
 public:
-    static GrEffectRef* Create() {
+    static GrEffect* Create() {
         GR_CREATE_STATIC_EFFECT(gLumaEffect, LumaColorFilterEffect, ());
         return SkRef(gLumaEffect);
     }

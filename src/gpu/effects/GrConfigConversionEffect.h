@@ -35,10 +35,10 @@ public:
     };
 
     // Installs an effect in the GrEffectStage to perform a config conversion.
-    static const GrEffectRef* Create(GrTexture*,
-                                     bool swapRedAndBlue,
-                                     PMConversion pmConversion,
-                                     const SkMatrix& matrix);
+    static const GrEffect* Create(GrTexture*,
+                                  bool swapRedAndBlue,
+                                  PMConversion pmConversion,
+                                  const SkMatrix& matrix);
 
     static const char* Name() { return "Config Conversion"; }
     typedef GrGLConfigConversionEffect GLEffect;

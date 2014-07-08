@@ -165,7 +165,7 @@ bool GrClipMaskManager::installClipEffects(const ElementList& elements,
             } else {
                 edgeType = invert ? kInverseFillBW_GrEffectEdgeType : kFillBW_GrEffectEdgeType;
             }
-            SkAutoTUnref<GrEffectRef> effect;
+            SkAutoTUnref<GrEffect> effect;
             switch (iter.get()->getType()) {
                 case SkClipStack::Element::kPath_Type:
                     effect.reset(GrConvexPolyEffect::Create(edgeType, iter.get()->getPath(),

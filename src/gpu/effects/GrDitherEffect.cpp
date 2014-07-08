@@ -19,7 +19,7 @@ class GLDitherEffect;
 
 class DitherEffect : public GrEffect {
 public:
-    static GrEffectRef* Create() {
+    static GrEffect* Create() {
         GR_CREATE_STATIC_EFFECT(gDitherEffect, DitherEffect, ())
         return SkRef(gDitherEffect);
     }
@@ -56,10 +56,10 @@ void DitherEffect::getConstantColorComponents(GrColor* color, uint32_t* validFla
 
 GR_DEFINE_EFFECT_TEST(DitherEffect);
 
-GrEffectRef* DitherEffect::TestCreate(SkRandom*,
-                                      GrContext*,
-                                      const GrDrawTargetCaps&,
-                                      GrTexture*[]) {
+GrEffect* DitherEffect::TestCreate(SkRandom*,
+                                   GrContext*,
+                                   const GrDrawTargetCaps&,
+                                   GrTexture*[]) {
     return DitherEffect::Create();
 }
 
@@ -111,6 +111,4 @@ void GLDitherEffect::emitCode(GrGLShaderBuilder* builder,
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef* GrDitherEffect::Create() {
-    return DitherEffect::Create();
-}
+GrEffect* GrDitherEffect::Create() { return DitherEffect::Create(); }

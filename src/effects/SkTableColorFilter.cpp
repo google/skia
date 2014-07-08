@@ -236,7 +236,7 @@ class GLColorTableEffect;
 
 class ColorTableEffect : public GrEffect {
 public:
-    static GrEffectRef* Create(GrTexture* texture, unsigned flags) {
+    static GrEffect* Create(GrTexture* texture, unsigned flags) {
         return SkNEW_ARGS(ColorTableEffect, (texture, flags));
     }
 
@@ -377,18 +377,18 @@ void ColorTableEffect::getConstantColorComponents(GrColor* color, uint32_t* vali
 
 GR_DEFINE_EFFECT_TEST(ColorTableEffect);
 
-GrEffectRef* ColorTableEffect::TestCreate(SkRandom* random,
-                                          GrContext* context,
-                                          const GrDrawTargetCaps&,
-                                          GrTexture* textures[]) {
+GrEffect* ColorTableEffect::TestCreate(SkRandom* random,
+                                       GrContext* context,
+                                       const GrDrawTargetCaps&,
+                                       GrTexture* textures[]) {
     static unsigned kAllFlags = SkTable_ColorFilter::kR_Flag | SkTable_ColorFilter::kG_Flag |
                                 SkTable_ColorFilter::kB_Flag | SkTable_ColorFilter::kA_Flag;
     return ColorTableEffect::Create(textures[GrEffectUnitTest::kAlphaTextureIdx], kAllFlags);
 }
 
-GrEffectRef* SkTable_ColorFilter::asNewEffect(GrContext* context) const {
+GrEffect* SkTable_ColorFilter::asNewEffect(GrContext* context) const {
     SkBitmap bitmap;
-    GrEffectRef* effect = NULL;
+    GrEffect* effect = NULL;
     this->asComponentTable(&bitmap);
     // passing NULL because this effect does no tiling or filtering.
     GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, bitmap, NULL);

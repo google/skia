@@ -22,12 +22,12 @@ class GrConvolutionEffect : public Gr1DKernelEffect {
 public:
 
     /// Convolve with an arbitrary user-specified kernel
-    static GrEffectRef* Create(GrTexture* tex,
-                               Direction dir,
-                               int halfWidth,
-                               const float* kernel,
-                               bool useBounds,
-                               float bounds[2]) {
+    static GrEffect* Create(GrTexture* tex,
+                            Direction dir,
+                            int halfWidth,
+                            const float* kernel,
+                            bool useBounds,
+                            float bounds[2]) {
         return SkNEW_ARGS(GrConvolutionEffect, (tex,
                                                 dir,
                                                 halfWidth,
@@ -37,12 +37,12 @@ public:
     }
 
     /// Convolve with a Gaussian kernel
-    static GrEffectRef* CreateGaussian(GrTexture* tex,
-                                       Direction dir,
-                                       int halfWidth,
-                                       float gaussianSigma,
-                                       bool useBounds,
-                                       float bounds[2]) {
+    static GrEffect* CreateGaussian(GrTexture* tex,
+                                    Direction dir,
+                                    int halfWidth,
+                                    float gaussianSigma,
+                                    bool useBounds,
+                                    float bounds[2]) {
         return SkNEW_ARGS(GrConvolutionEffect, (tex,
                                                 dir,
                                                 halfWidth,

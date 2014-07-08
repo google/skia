@@ -209,10 +209,10 @@ const GrBackendEffectFactory& GrDistanceFieldTextureEffect::getFactory() const {
 
 GR_DEFINE_EFFECT_TEST(GrDistanceFieldTextureEffect);
 
-GrEffectRef* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
-                                                     GrContext*,
-                                                     const GrDrawTargetCaps&,
-                                                     GrTexture* textures[]) {
+GrEffect* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
+                                                   GrContext*,
+                                                   const GrDrawTargetCaps&,
+                                                   GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -468,10 +468,10 @@ const GrBackendEffectFactory& GrDistanceFieldLCDTextureEffect::getFactory() cons
 
 GR_DEFINE_EFFECT_TEST(GrDistanceFieldLCDTextureEffect);
 
-GrEffectRef* GrDistanceFieldLCDTextureEffect::TestCreate(SkRandom* random,
-                                                         GrContext*,
-                                                         const GrDrawTargetCaps&,
-                                                         GrTexture* textures[]) {
+GrEffect* GrDistanceFieldLCDTextureEffect::TestCreate(SkRandom* random,
+                                                      GrContext*,
+                                                      const GrDrawTargetCaps&,
+                                                      GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;
     int texIdx2 = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :

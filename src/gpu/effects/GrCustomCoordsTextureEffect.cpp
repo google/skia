@@ -84,10 +84,10 @@ const GrBackendEffectFactory& GrCustomCoordsTextureEffect::getFactory() const {
 
 GR_DEFINE_EFFECT_TEST(GrCustomCoordsTextureEffect);
 
-GrEffectRef* GrCustomCoordsTextureEffect::TestCreate(SkRandom* random,
-                                                     GrContext*,
-                                                     const GrDrawTargetCaps&,
-                                                     GrTexture* textures[]) {
+GrEffect* GrCustomCoordsTextureEffect::TestCreate(SkRandom* random,
+                                                  GrContext*,
+                                                  const GrDrawTargetCaps&,
+                                                  GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {

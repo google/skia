@@ -278,7 +278,7 @@ public:
         kDilate_MorphologyType,
     };
 
-    static GrEffectRef* Create(GrTexture* tex, Direction dir, int radius, MorphologyType type) {
+    static GrEffect* Create(GrTexture* tex, Direction dir, int radius, MorphologyType type) {
         return SkNEW_ARGS(GrMorphologyEffect, (tex, dir, radius, type));
     }
 
@@ -446,10 +446,10 @@ void GrMorphologyEffect::getConstantColorComponents(GrColor* color, uint32_t* va
 
 GR_DEFINE_EFFECT_TEST(GrMorphologyEffect);
 
-GrEffectRef* GrMorphologyEffect::TestCreate(SkRandom* random,
-                                            GrContext*,
-                                            const GrDrawTargetCaps&,
-                                            GrTexture* textures[]) {
+GrEffect* GrMorphologyEffect::TestCreate(SkRandom* random,
+                                         GrContext*,
+                                         const GrDrawTargetCaps&,
+                                         GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;
     Direction dir = random->nextBool() ? kX_Direction : kY_Direction;

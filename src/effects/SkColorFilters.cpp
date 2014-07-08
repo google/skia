@@ -187,7 +187,7 @@ static inline ColorExpr color_filter_expression(const SkXfermode::Mode& mode,
 
 class ModeColorFilterEffect : public GrEffect {
 public:
-    static GrEffectRef* Create(const GrColor& c, SkXfermode::Mode mode) {
+    static GrEffect* Create(const GrColor& c, SkXfermode::Mode mode) {
         // TODO: Make the effect take the coeffs rather than mode since we already do the
         // conversion here.
         SkXfermode::Coeff srcCoeff, dstCoeff;
@@ -396,10 +396,10 @@ void ModeColorFilterEffect::getConstantColorComponents(GrColor* color, uint32_t*
 }
 
 GR_DEFINE_EFFECT_TEST(ModeColorFilterEffect);
-GrEffectRef* ModeColorFilterEffect::TestCreate(SkRandom* rand,
-                                    GrContext*,
-                                    const GrDrawTargetCaps&,
-                                    GrTexture*[]) {
+GrEffect* ModeColorFilterEffect::TestCreate(SkRandom* rand,
+                                            GrContext*,
+                                            const GrDrawTargetCaps&,
+                                            GrTexture*[]) {
     SkXfermode::Mode mode = SkXfermode::kDst_Mode;
     while (SkXfermode::kDst_Mode == mode) {
         mode = static_cast<SkXfermode::Mode>(rand->nextRangeU(0, SkXfermode::kLastCoeffMode));

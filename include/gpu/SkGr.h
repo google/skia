@@ -85,12 +85,12 @@ void GrUnlockAndUnrefCachedBitmapTexture(GrTexture*);
 ////////////////////////////////////////////////////////////////////////////////
 
 // Converts a SkPaint to a GrPaint, ignoring the SkPaint's shader.
-// Sets the color of GrPaint to the value of the parameter grColor
+// Sets the color of GrPaint to the value of the parameter paintColor
 // Callers may subsequently modify the GrPaint. Setting constantColor indicates
 // that the final paint will draw the same color at every pixel. This allows
 // an optimization where the the color filter can be applied to the SkPaint's
 // color once while converting to GrPaint and then ignored.
-void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor grColor,
+void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor paintColor,
                              bool constantColor, GrPaint* grPaint);
 
 // This function is similar to skPaint2GrPaintNoShader but also converts

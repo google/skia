@@ -555,8 +555,7 @@ public:
     /**
      * Create a simple filter effect with custom bicubic coefficients.
      */
-    static GrEffectRef* Create(GrContext *context, const SkRect& rect,
-                               float sigma) {
+    static GrEffect* Create(GrContext *context, const SkRect& rect, float sigma) {
         GrTexture *blurProfileTexture = NULL;
         int doubleProfileSize = SkScalarCeilToInt(12*sigma);
 
@@ -759,10 +758,10 @@ void GrRectBlurEffect::getConstantColorComponents(GrColor* color, uint32_t* vali
 
 GR_DEFINE_EFFECT_TEST(GrRectBlurEffect);
 
-GrEffectRef* GrRectBlurEffect::TestCreate(SkRandom* random,
-                                         GrContext* context,
-                                         const GrDrawTargetCaps&,
-                                         GrTexture**) {
+GrEffect* GrRectBlurEffect::TestCreate(SkRandom* random,
+                                       GrContext* context,
+                                       const GrDrawTargetCaps&,
+                                       GrTexture**) {
     float sigma = random->nextRangeF(3,8);
     float width = random->nextRangeF(200,300);
     float height = random->nextRangeF(200,300);
@@ -793,8 +792,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     int pad=SkScalarCeilToInt(6*xformedSigma)/2;
     rect.outset(SkIntToScalar(pad), SkIntToScalar(pad));
 
-    SkAutoTUnref<GrEffectRef> effect(GrRectBlurEffect::Create(
-            context, rect, xformedSigma));
+    SkAutoTUnref<GrEffect> effect(GrRectBlurEffect::Create(context, rect, xformedSigma));
     if (!effect) {
         return false;
     }
@@ -815,7 +813,7 @@ class GrGLRRectBlurEffect;
 class GrRRectBlurEffect : public GrEffect {
 public:
 
-    static GrEffectRef* Create(GrContext* context, float sigma, const SkRRect&);
+    static GrEffect* Create(GrContext* context, float sigma, const SkRRect&);
 
     virtual ~GrRRectBlurEffect() {};
     static const char* Name() { return "GrRRectBlur"; }
@@ -844,7 +842,7 @@ private:
 };
 
 
-GrEffectRef* GrRRectBlurEffect::Create(GrContext* context, float sigma, const SkRRect& rrect) {
+GrEffect* GrRRectBlurEffect::Create(GrContext* context, float sigma, const SkRRect& rrect) {
     if (!rrect.isSimpleCircular()) {
         return NULL;
     }
@@ -941,10 +939,10 @@ bool GrRRectBlurEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(GrRRectBlurEffect);
 
-GrEffectRef* GrRRectBlurEffect::TestCreate(SkRandom* random,
-                                     GrContext* context,
-                                     const GrDrawTargetCaps& caps,
-                                     GrTexture*[]) {
+GrEffect* GrRRectBlurEffect::TestCreate(SkRandom* random,
+                                        GrContext* context,
+                                        const GrDrawTargetCaps& caps,
+                                        GrTexture*[]) {
     SkScalar w = random->nextRangeScalar(100.f, 1000.f);
     SkScalar h = random->nextRangeScalar(100.f, 1000.f);
     SkScalar r = random->nextRangeF(1.f, 9.f);
@@ -1074,7 +1072,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
     float extra=3.f*SkScalarCeilToScalar(xformedSigma-1/6.0f);
     proxy_rect.outset(extra, extra);
 
-    SkAutoTUnref<GrEffectRef> effect(GrRRectBlurEffect::Create(
+    SkAutoTUnref<GrEffect> effect(GrRRectBlurEffect::Create(
             context, xformedSigma, rrect));
     if (!effect) {
         return false;

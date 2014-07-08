@@ -135,7 +135,7 @@ protected:
                 path->transform(m, &p);
 
                 GrEffectEdgeType edgeType = (GrEffectEdgeType) et;
-                SkAutoTUnref<GrEffectRef> effect(GrConvexPolyEffect::Create(edgeType, p));
+                SkAutoTUnref<GrEffect> effect(GrConvexPolyEffect::Create(edgeType, p));
                 if (!effect) {
                     continue;
                 }
@@ -187,7 +187,7 @@ protected:
                 SkRect rect = *iter.get();
                 rect.offset(x, y);
                 GrEffectEdgeType edgeType = (GrEffectEdgeType) et;
-                SkAutoTUnref<GrEffectRef> effect(GrConvexPolyEffect::Create(edgeType, rect));
+                SkAutoTUnref<GrEffect> effect(GrConvexPolyEffect::Create(edgeType, rect));
                 if (!effect) {
                     continue;
                 }

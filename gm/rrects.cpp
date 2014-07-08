@@ -117,7 +117,7 @@ protected:
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrEffectEdgeType edgeType = (GrEffectEdgeType) et;
-                        SkAutoTUnref<GrEffectRef> effect(GrRRectEffect::Create(edgeType, rrect));
+                        SkAutoTUnref<GrEffect> effect(GrRRectEffect::Create(edgeType, rrect));
                         if (effect) {
                             drawState->addCoverageEffect(effect);
                             drawState->setIdentityViewMatrix();

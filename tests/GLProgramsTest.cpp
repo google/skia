@@ -166,7 +166,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         bool useFixedFunctionTexturing = this->shouldUseFixedFunctionTexturing();
 
         for (int s = 0; s < numStages;) {
-            SkAutoTUnref<const GrEffectRef> effect(GrEffectTestFactory::CreateStage(
+            SkAutoTUnref<const GrEffect> effect(GrEffectTestFactory::CreateStage(
                                                                             &random,
                                                                             this->getContext(),
                                                                             *this->caps(),

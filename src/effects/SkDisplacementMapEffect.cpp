@@ -299,11 +299,11 @@ private:
 
 class GrDisplacementMapEffect : public GrEffect {
 public:
-    static GrEffectRef* Create(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
-                               SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
-                               SkVector scale,
-                               GrTexture* displacement, const SkMatrix& offsetMatrix,
-                               GrTexture* color) {
+    static GrEffect* Create(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
+                            SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
+                            SkVector scale,
+                            GrTexture* displacement, const SkMatrix& offsetMatrix,
+                            GrTexture* color) {
         return SkNEW_ARGS(GrDisplacementMapEffect, (xChannelSelector,
                                                     yChannelSelector,
                                                     scale,
@@ -475,10 +475,10 @@ void GrDisplacementMapEffect::getConstantColorComponents(GrColor*,
 
 GR_DEFINE_EFFECT_TEST(GrDisplacementMapEffect);
 
-GrEffectRef* GrDisplacementMapEffect::TestCreate(SkRandom* random,
-                                                 GrContext*,
-                                                 const GrDrawTargetCaps&,
-                                                 GrTexture* textures[]) {
+GrEffect* GrDisplacementMapEffect::TestCreate(SkRandom* random,
+                                              GrContext*,
+                                              const GrDrawTargetCaps&,
+                                              GrTexture* textures[]) {
     int texIdxDispl = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                            GrEffectUnitTest::kAlphaTextureIdx;
     int texIdxColor = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :

@@ -196,7 +196,7 @@ GrGLEffect::EffectKey GrGLTextureDomainEffect::GenKey(const GrDrawEffect& drawEf
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef* GrTextureDomainEffect::Create(GrTexture* texture,
+GrEffect* GrTextureDomainEffect::Create(GrTexture* texture,
                                            const SkMatrix& matrix,
                                            const SkRect& domain,
                                            GrTextureDomain::Mode mode,
@@ -253,10 +253,10 @@ void GrTextureDomainEffect::getConstantColorComponents(GrColor* color, uint32_t*
 
 GR_DEFINE_EFFECT_TEST(GrTextureDomainEffect);
 
-GrEffectRef* GrTextureDomainEffect::TestCreate(SkRandom* random,
-                                               GrContext*,
-                                               const GrDrawTargetCaps&,
-                                               GrTexture* textures[]) {
+GrEffect* GrTextureDomainEffect::TestCreate(SkRandom* random,
+                                            GrContext*,
+                                            const GrDrawTargetCaps&,
+                                            GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;
     SkRect domain;

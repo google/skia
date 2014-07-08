@@ -100,8 +100,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef* GrYUVtoRGBEffect::Create(GrTexture* yTexture,
-                                      GrTexture* uTexture,
-                                      GrTexture* vTexture) {
+GrEffect* GrYUVtoRGBEffect::Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture) {
     return YUVtoRGBEffect::Create(yTexture, uTexture, vTexture);
 }

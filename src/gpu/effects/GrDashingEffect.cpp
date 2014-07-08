@@ -426,8 +426,7 @@ class DashingCircleEffect : public GrVertexEffect {
 public:
     typedef SkPathEffect::DashInfo DashInfo;
 
-    static GrEffectRef* Create(GrEffectEdgeType edgeType, const DashInfo& info,
-                               SkScalar radius);
+    static GrEffect* Create(GrEffectEdgeType edgeType, const DashInfo& info, SkScalar radius);
 
     virtual ~DashingCircleEffect();
 
@@ -557,8 +556,8 @@ GrGLEffect::EffectKey GLDashingCircleEffect::GenKey(const GrDrawEffect& drawEffe
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef* DashingCircleEffect::Create(GrEffectEdgeType edgeType, const DashInfo& info,
-                                         SkScalar radius) {
+GrEffect* DashingCircleEffect::Create(GrEffectEdgeType edgeType, const DashInfo& info,
+                                      SkScalar radius) {
     if (info.fCount != 2 || info.fIntervals[0] != 0) {
         return NULL;
     }
@@ -598,11 +597,11 @@ bool DashingCircleEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(DashingCircleEffect);
 
-GrEffectRef* DashingCircleEffect::TestCreate(SkRandom* random,
-                                             GrContext*,
-                                             const GrDrawTargetCaps& caps,
-                                             GrTexture*[]) {
-    GrEffectRef* effect;
+GrEffect* DashingCircleEffect::TestCreate(SkRandom* random,
+                                          GrContext*,
+                                          const GrDrawTargetCaps& caps,
+                                          GrTexture*[]) {
+    GrEffect* effect;
     GrEffectEdgeType edgeType = static_cast<GrEffectEdgeType>(random->nextULessThan(
             kGrEffectEdgeTypeCnt));
     SkScalar strokeWidth = random->nextRangeScalar(0, 100.f);
@@ -635,8 +634,7 @@ class DashingLineEffect : public GrVertexEffect {
 public:
     typedef SkPathEffect::DashInfo DashInfo;
 
-    static GrEffectRef* Create(GrEffectEdgeType edgeType, const DashInfo& info,
-                               SkScalar strokeWidth);
+    static GrEffect* Create(GrEffectEdgeType edgeType, const DashInfo& info, SkScalar strokeWidth);
 
     virtual ~DashingLineEffect();
 
@@ -775,8 +773,8 @@ GrGLEffect::EffectKey GLDashingLineEffect::GenKey(const GrDrawEffect& drawEffect
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef* DashingLineEffect::Create(GrEffectEdgeType edgeType, const DashInfo& info,
-                                       SkScalar strokeWidth) {
+GrEffect* DashingLineEffect::Create(GrEffectEdgeType edgeType, const DashInfo& info,
+                                    SkScalar strokeWidth) {
     if (info.fCount != 2) {
         return NULL;
     }
@@ -816,11 +814,11 @@ bool DashingLineEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(DashingLineEffect);
 
-GrEffectRef* DashingLineEffect::TestCreate(SkRandom* random,
-                                         GrContext*,
-                                         const GrDrawTargetCaps& caps,
-                                         GrTexture*[]) {
-    GrEffectRef* effect;
+GrEffect* DashingLineEffect::TestCreate(SkRandom* random,
+                                        GrContext*,
+                                        const GrDrawTargetCaps& caps,
+                                        GrTexture*[]) {
+    GrEffect* effect;
     GrEffectEdgeType edgeType = static_cast<GrEffectEdgeType>(random->nextULessThan(
             kGrEffectEdgeTypeCnt));
     SkScalar strokeWidth = random->nextRangeScalar(0, 100.f);
@@ -838,8 +836,8 @@ GrEffectRef* DashingLineEffect::TestCreate(SkRandom* random,
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef* GrDashingEffect::Create(GrEffectEdgeType edgeType, const SkPathEffect::DashInfo& info,
-                                     SkScalar strokeWidth, GrDashingEffect::DashCap cap) {
+GrEffect* GrDashingEffect::Create(GrEffectEdgeType edgeType, const SkPathEffect::DashInfo& info,
+                                  SkScalar strokeWidth, GrDashingEffect::DashCap cap) {
     switch (cap) {
         case GrDashingEffect::kRound_DashCap:
             return DashingCircleEffect::Create(edgeType, info, SkScalarHalf(strokeWidth));

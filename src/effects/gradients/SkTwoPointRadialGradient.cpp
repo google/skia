@@ -434,10 +434,10 @@ private:
 
 class GrRadial2Gradient : public GrGradientEffect {
 public:
-    static GrEffectRef* Create(GrContext* ctx,
-                               const SkTwoPointRadialGradient& shader,
-                               const SkMatrix& matrix,
-                               SkShader::TileMode tm) {
+    static GrEffect* Create(GrContext* ctx,
+                            const SkTwoPointRadialGradient& shader,
+                            const SkMatrix& matrix,
+                            SkShader::TileMode tm) {
         return SkNEW_ARGS(GrRadial2Gradient, (ctx, shader, matrix, tm));
     }
 
@@ -506,10 +506,10 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrRadial2Gradient);
 
-GrEffectRef* GrRadial2Gradient::TestCreate(SkRandom* random,
-                                           GrContext* context,
-                                           const GrDrawTargetCaps&,
-                                           GrTexture**) {
+GrEffect* GrRadial2Gradient::TestCreate(SkRandom* random,
+                                        GrContext* context,
+                                        const GrDrawTargetCaps&,
+                                        GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius1 = random->nextUScalar1();
     SkPoint center2;
@@ -530,9 +530,9 @@ GrEffectRef* GrRadial2Gradient::TestCreate(SkRandom* random,
                                                                          colors, stops, colorCount,
                                                                          tm));
     SkPaint paint;
-    GrEffectRef* effect;
-    GrColor grColor;
-    shader->asNewEffect(context, paint, NULL, &grColor, &effect);
+    GrEffect* effect;
+    GrColor paintColor;
+    SkAssertResult(shader->asNewEffect(context, paint, NULL, &paintColor, &effect));
     return effect;
 }
 
@@ -674,8 +674,8 @@ GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrDrawEffect& drawEffect
 /////////////////////////////////////////////////////////////////////
 
 bool SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
-                                           const SkMatrix* localMatrix, GrColor* grColor,
-                                           GrEffectRef** grEffect)  const {
+                                           const SkMatrix* localMatrix, GrColor* paintColor,
+                                           GrEffect** effect)  const {
     SkASSERT(NULL != context);
     
     // invert the localM, translate to center1 (fPtsToUni), rotate so center2 is on x axis.
@@ -701,8 +701,8 @@ bool SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint& pa
         matrix.postConcat(rot);
     }
 
-    *grColor = SkColor2GrColorJustAlpha(paint.getColor());
-    *grEffect = GrRadial2Gradient::Create(context, *this, matrix, fTileMode);
+    *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
+    *effect = GrRadial2Gradient::Create(context, *this, matrix, fTileMode);
     
     return true;
 }
@@ -710,8 +710,8 @@ bool SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint& pa
 #else
 
 bool SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
-                                           const SkMatrix* localMatrix, GrColor* grColor,
-                                           GrEffect** grEffect)  const {
+                                           const SkMatrix* localMatrix, GrColor* paintColor,
+                                           GrEffect** effect)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

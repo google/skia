@@ -997,8 +997,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                                             kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt));
 
         if (quadCnt > 0) {
-            GrEffectRef* hairQuadEffect = GrQuadEffect::Create(kHairlineAA_GrEffectEdgeType,
-                                                               *target->caps());
+            GrEffect* hairQuadEffect = GrQuadEffect::Create(kHairlineAA_GrEffectEdgeType,
+                                                            *target->caps());
             SkASSERT(NULL != hairQuadEffect);
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
@@ -1018,8 +1018,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
         if (conicCnt > 0) {
             GrDrawState::AutoRestoreEffects are(drawState);
-            GrEffectRef* hairConicEffect = GrConicEffect::Create(kHairlineAA_GrEffectEdgeType,
-                                                                 *target->caps());
+            GrEffect* hairConicEffect = GrConicEffect::Create(kHairlineAA_GrEffectEdgeType,
+                                                              *target->caps());
             SkASSERT(NULL != hairConicEffect);
             drawState->addCoverageEffect(hairConicEffect, 1, 2)->unref();
             int conics = 0;

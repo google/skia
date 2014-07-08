@@ -44,7 +44,7 @@ public:
 
     // The flags are used to indicate which corners are circluar (unflagged corners are assumed to
     // be square).
-    static GrEffectRef* Create(GrEffectEdgeType, uint32_t circularCornerFlags, const SkRRect&);
+    static GrEffect* Create(GrEffectEdgeType, uint32_t circularCornerFlags, const SkRRect&);
 
     virtual ~CircularRRectEffect() {};
     static const char* Name() { return "CircularRRect"; }
@@ -75,9 +75,9 @@ private:
     typedef GrEffect INHERITED;
 };
 
-GrEffectRef* CircularRRectEffect::Create(GrEffectEdgeType edgeType,
-                                 uint32_t circularCornerFlags,
-                                 const SkRRect& rrect) {
+GrEffect* CircularRRectEffect::Create(GrEffectEdgeType edgeType,
+                                      uint32_t circularCornerFlags,
+                                      const SkRRect& rrect) {
     if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillAA_GrEffectEdgeType != edgeType) {
         return NULL;
     }
@@ -110,16 +110,16 @@ bool CircularRRectEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(CircularRRectEffect);
 
-GrEffectRef* CircularRRectEffect::TestCreate(SkRandom* random,
-                                     GrContext*,
-                                     const GrDrawTargetCaps& caps,
-                                     GrTexture*[]) {
+GrEffect* CircularRRectEffect::TestCreate(SkRandom* random,
+                                          GrContext*,
+                                          const GrDrawTargetCaps& caps,
+                                          GrTexture*[]) {
     SkScalar w = random->nextRangeScalar(20.f, 1000.f);
     SkScalar h = random->nextRangeScalar(20.f, 1000.f);
     SkScalar r = random->nextRangeF(kRadiusMin, 9.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    GrEffectRef* effect;
+    GrEffect* effect;
     do {
         GrEffectEdgeType et = (GrEffectEdgeType)random->nextULessThan(kGrEffectEdgeTypeCnt);
         effect = GrRRectEffect::Create(et, rrect);
@@ -382,7 +382,7 @@ class GLEllipticalRRectEffect;
 
 class EllipticalRRectEffect : public GrEffect {
 public:
-    static GrEffectRef* Create(GrEffectEdgeType, const SkRRect&);
+    static GrEffect* Create(GrEffectEdgeType, const SkRRect&);
 
     virtual ~EllipticalRRectEffect() {};
     static const char* Name() { return "EllipticalRRect"; }
@@ -411,7 +411,7 @@ private:
     typedef GrEffect INHERITED;
 };
 
-GrEffectRef* EllipticalRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rrect) {
+GrEffect* EllipticalRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rrect) {
     if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillAA_GrEffectEdgeType != edgeType) {
         return NULL;
     }
@@ -441,10 +441,10 @@ bool EllipticalRRectEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(EllipticalRRectEffect);
 
-GrEffectRef* EllipticalRRectEffect::TestCreate(SkRandom* random,
-                                               GrContext*,
-                                               const GrDrawTargetCaps& caps,
-                                               GrTexture*[]) {
+GrEffect* EllipticalRRectEffect::TestCreate(SkRandom* random,
+                                            GrContext*,
+                                            const GrDrawTargetCaps& caps,
+                                            GrTexture*[]) {
     SkScalar w = random->nextRangeScalar(20.f, 1000.f);
     SkScalar h = random->nextRangeScalar(20.f, 1000.f);
     SkVector r[4];
@@ -471,7 +471,7 @@ GrEffectRef* EllipticalRRectEffect::TestCreate(SkRandom* random,
         rrect.setRectXY(SkRect::MakeWH(w, h), r[SkRRect::kUpperLeft_Corner].fX,
                                               r[SkRRect::kUpperLeft_Corner].fY);
     }
-    GrEffectRef* effect;
+    GrEffect* effect;
     do {
         GrEffectEdgeType et = (GrEffectEdgeType)random->nextULessThan(kGrEffectEdgeTypeCnt);
         effect = GrRRectEffect::Create(et, rrect);
@@ -631,7 +631,7 @@ void GLEllipticalRRectEffect::setData(const GrGLUniformManager& uman,
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rrect) {
+GrEffect* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rrect) {
     if (rrect.isRect()) {
         return GrConvexPolyEffect::Create(edgeType, rrect.getBounds());
     }

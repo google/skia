@@ -93,7 +93,7 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
             for(int edgeType = 0; edgeType < kGrEffectEdgeTypeCnt; ++edgeType) {
-                SkAutoTUnref<GrEffectRef> effect;
+                SkAutoTUnref<GrEffect> effect;
                 {   // scope to contain GrTestTarget
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
@@ -251,7 +251,7 @@ protected:
             };
             SkScalar weight = rand.nextRangeF(0.f, 2.f);
             for(int edgeType = 0; edgeType < kGrEffectEdgeTypeCnt; ++edgeType) {
-                SkAutoTUnref<GrEffectRef> effect;
+                SkAutoTUnref<GrEffect> effect;
                 {   // scope to contain GrTestTarget
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
@@ -440,7 +440,7 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
             for(int edgeType = 0; edgeType < kGrEffectEdgeTypeCnt; ++edgeType) {
-                SkAutoTUnref<GrEffectRef> effect;
+                SkAutoTUnref<GrEffect> effect;
                 {   // scope to contain GrTestTarget
                     GrTestTarget tt;
                     context->getTestTarget(&tt);

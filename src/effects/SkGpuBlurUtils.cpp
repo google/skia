@@ -54,7 +54,7 @@ static void convolve_gaussian_pass(GrContext* context,
                                    float bounds[2]) {
     GrPaint paint;
     paint.reset();
-    SkAutoTUnref<GrEffectRef> conv(GrConvolutionEffect::CreateGaussian(
+    SkAutoTUnref<GrEffect> conv(GrConvolutionEffect::CreateGaussian(
         texture, direction, radius, sigma, useBounds, bounds));
     paint.reset();
     paint.addColorEffect(conv);
@@ -174,7 +174,7 @@ GrTexture* GaussianBlur(GrContext* context,
             matrix.mapRect(&domain, rect);
             domain.inset(i < scaleFactorX ? SK_ScalarHalf / srcTexture->width() : 0.0f,
                          i < scaleFactorY ? SK_ScalarHalf / srcTexture->height() : 0.0f);
-            SkAutoTUnref<GrEffectRef> effect(GrTextureDomainEffect::Create(
+            SkAutoTUnref<GrEffect> effect(GrTextureDomainEffect::Create(
                 srcTexture,
                 matrix,
                 domain,

@@ -37,7 +37,7 @@ public:
      * have to modify the effect/shaderbuilder interface to make it possible (e.g. give access
      * to the view matrix or untransformed positions in the fragment shader).
      */
-    static GrEffectRef* Create(GrEffectEdgeType edgeType, int n, const SkScalar edges[]) {
+    static GrEffect* Create(GrEffectEdgeType edgeType, int n, const SkScalar edges[]) {
         if (n <= 0 || n > kMaxEdges || kHairlineAA_GrEffectEdgeType == edgeType) {
             return NULL;
         }
@@ -49,12 +49,12 @@ public:
      * inverse filled, or has too many edges, this will return NULL. If offset is non-NULL, then
      * the path is translated by the vector.
      */
-    static GrEffectRef* Create(GrEffectEdgeType, const SkPath&, const SkVector* offset = NULL);
+    static GrEffect* Create(GrEffectEdgeType, const SkPath&, const SkVector* offset = NULL);
 
     /**
      * Creates an effect that fills inside the rect with AA edges..
      */
-    static GrEffectRef* Create(GrEffectEdgeType, const SkRect&);
+    static GrEffect* Create(GrEffectEdgeType, const SkRect&);
 
     virtual ~GrConvexPolyEffect();
 

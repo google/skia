@@ -118,10 +118,10 @@ void GrConfigConversionEffect::getConstantColorComponents(GrColor* color,
 
 GR_DEFINE_EFFECT_TEST(GrConfigConversionEffect);
 
-GrEffectRef* GrConfigConversionEffect::TestCreate(SkRandom* random,
-                                                  GrContext*,
-                                                  const GrDrawTargetCaps&,
-                                                  GrTexture* textures[]) {
+GrEffect* GrConfigConversionEffect::TestCreate(SkRandom* random,
+                                               GrContext*,
+                                               const GrDrawTargetCaps&,
+                                               GrTexture* textures[]) {
     PMConversion pmConv = static_cast<PMConversion>(random->nextULessThan(kPMConversionCnt));
     bool swapRB;
     if (kNone_PMConversion == pmConv) {
@@ -247,10 +247,10 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     }
 }
 
-const GrEffectRef* GrConfigConversionEffect::Create(GrTexture* texture,
-                                                    bool swapRedAndBlue,
-                                                    PMConversion pmConversion,
-                                                    const SkMatrix& matrix) {
+const GrEffect* GrConfigConversionEffect::Create(GrTexture* texture,
+                                                 bool swapRedAndBlue,
+                                                 PMConversion pmConversion,
+                                                 const SkMatrix& matrix) {
     if (!swapRedAndBlue && kNone_PMConversion == pmConversion) {
         // If we returned a GrConfigConversionEffect that was equivalent to a GrSimpleTextureEffect
         // then we may pollute our texture cache with redundant shaders. So in the case that no

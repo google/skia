@@ -525,11 +525,11 @@ private:
 
 class GrPerlinNoiseEffect : public GrEffect {
 public:
-    static GrEffectRef* Create(SkPerlinNoiseShader::Type type,
-                               int numOctaves, bool stitchTiles,
-                               SkPerlinNoiseShader::PaintingData* paintingData,
-                               GrTexture* permutationsTexture, GrTexture* noiseTexture,
-                               const SkMatrix& matrix, uint8_t alpha) {
+    static GrEffect* Create(SkPerlinNoiseShader::Type type,
+                            int numOctaves, bool stitchTiles,
+                            SkPerlinNoiseShader::PaintingData* paintingData,
+                            GrTexture* permutationsTexture, GrTexture* noiseTexture,
+                            const SkMatrix& matrix, uint8_t alpha) {
         return SkNEW_ARGS(GrPerlinNoiseEffect, (type, numOctaves, stitchTiles, paintingData,
                                                 permutationsTexture, noiseTexture, matrix, alpha));
     }
@@ -608,10 +608,10 @@ private:
 /////////////////////////////////////////////////////////////////////
 GR_DEFINE_EFFECT_TEST(GrPerlinNoiseEffect);
 
-GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
-                                             GrContext* context,
-                                             const GrDrawTargetCaps&,
-                                             GrTexture**) {
+GrEffect* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
+                                          GrContext* context,
+                                          const GrDrawTargetCaps&,
+                                          GrTexture**) {
     int      numOctaves = random->nextRangeU(2, 10);
     bool     stitchTiles = random->nextBool();
     SkScalar seed = SkIntToScalar(random->nextU());
@@ -628,9 +628,9 @@ GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
                                              stitchTiles ? &tileSize : NULL);
 
     SkPaint paint;
-    GrColor grColor;
-    GrEffectRef* effect;
-    shader->asNewEffect(context, paint, NULL, &grColor, &effect);
+    GrColor paintColor;
+    GrEffect* effect;
+    SkAssertResult(shader->asNewEffect(context, paint, NULL, &paintColor, &effect));
 
     SkDELETE(shader);
 
@@ -944,11 +944,11 @@ void GrGLPerlinNoise::setData(const GrGLUniformManager& uman, const GrDrawEffect
 /////////////////////////////////////////////////////////////////////
 
 bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                      const SkMatrix* externalLocalMatrix, GrColor* grColor,
-                                      GrEffect** grEffect) const {
+                                      const SkMatrix* externalLocalMatrix, GrColor* paintColor,
+                                      GrEffect** effect) const {
     SkASSERT(NULL != context);
     
-    *grColor = SkColor2GrColorJustAlpha(paint.getColor());
+    *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
 
     SkMatrix localMatrix = this->getLocalMatrix();
     if (externalLocalMatrix) {
@@ -965,7 +965,7 @@ bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
         }
         SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(
                                                 clearColor, SkXfermode::kSrc_Mode));
-        *grEffect = cf->asNewEffect(context);
+        *effect = cf->asNewEffect(context);
         return true;
     }
 
@@ -982,7 +982,7 @@ bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
     m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);
     m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
     if ((NULL != permutationsTexture) && (NULL != noiseTexture)) {
-        *grEffect = GrPerlinNoiseEffect::Create(fType,
+        *effect = GrPerlinNoiseEffect::Create(fType,
                                                 fNumOctaves,
                                                 fStitchTiles,
                                                 paintingData,
@@ -990,7 +990,7 @@ bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
                                                 m, paint.getAlpha());
     } else {
         SkDELETE(paintingData);
-        *grEffect = NULL;
+        *effect = NULL;
     }
 
     // Unlock immediately, this is not great, but we don't have a way of
@@ -1009,8 +1009,8 @@ bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
 #else
 
 bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                      const SkMatrix* externalLocalMatrix, GrColor* grColor,
-                                      GrEffect** grEffect) const {
+                                      const SkMatrix* externalLocalMatrix, GrColor* paintColor,
+                                      GrEffect** effect) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

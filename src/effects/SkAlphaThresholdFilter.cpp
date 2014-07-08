@@ -58,10 +58,10 @@ class GrGLAlphaThresholdEffect;
 class AlphaThresholdEffect : public GrEffect {
 
 public:
-    static GrEffectRef* Create(GrTexture* texture,
-                               GrTexture* maskTexture,
-                               float innerThreshold,
-                               float outerThreshold) {
+    static GrEffect* Create(GrTexture* texture,
+                            GrTexture* maskTexture,
+                            float innerThreshold,
+                            float outerThreshold) {
         return SkNEW_ARGS(AlphaThresholdEffect, (texture,
                                                  maskTexture,
                                                  innerThreshold,
@@ -197,10 +197,10 @@ void GrGLAlphaThresholdEffect::setData(const GrGLUniformManager& uman,
 
 GR_DEFINE_EFFECT_TEST(AlphaThresholdEffect);
 
-GrEffectRef* AlphaThresholdEffect::TestCreate(SkRandom* random,
-                                              GrContext* context,
-                                              const GrDrawTargetCaps&,
-                                              GrTexture** textures) {
+GrEffect* AlphaThresholdEffect::TestCreate(SkRandom* random,
+                                           GrContext* context,
+                                           const GrDrawTargetCaps&,
+                                           GrTexture** textures) {
     GrTexture* bmpTex = textures[GrEffectUnitTest::kSkiaPMTextureIdx];
     GrTexture* maskTex = textures[GrEffectUnitTest::kAlphaTextureIdx];
     float inner_thresh = random->nextUScalar1();

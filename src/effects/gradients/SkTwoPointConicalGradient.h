@@ -65,7 +65,7 @@ public:
                                  SkMatrix* matrix,
                                  TileMode* xy) const;
     virtual SkShader::GradientType asAGradient(GradientInfo* info) const  SK_OVERRIDE;
-    virtual bool asNewEffect(GrContext*, const SkPaint&, const SkMatrix*, GrColor* grColor,
+    virtual bool asNewEffect(GrContext*, const SkPaint&, const SkMatrix*, GrColor* paintColor,
                              GrEffect**) const SK_OVERRIDE;
     virtual bool isOpaque() const SK_OVERRIDE;
 

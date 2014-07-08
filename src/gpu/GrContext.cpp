@@ -1482,7 +1482,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             textureMatrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
             textureMatrix.postIDiv(src->width(), src->height());
 
-            SkAutoTUnref<const GrEffectRef> effect;
+            SkAutoTUnref<const GrEffect> effect;
             if (unpremul) {
                 effect.reset(this->createPMToUPMEffect(src, swapRAndB, textureMatrix));
                 if (NULL != effect) {
@@ -1654,7 +1654,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
         return false;
     }
 
-    SkAutoTUnref<const GrEffectRef> effect;
+    SkAutoTUnref<const GrEffect> effect;
     SkMatrix textureMatrix;
     textureMatrix.setIDiv(texture->width(), texture->height());
 
@@ -1861,9 +1861,9 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 }
 }
 
-const GrEffectRef* GrContext::createPMToUPMEffect(GrTexture* texture,
-                                                  bool swapRAndB,
-                                                  const SkMatrix& matrix) {
+const GrEffect* GrContext::createPMToUPMEffect(GrTexture* texture,
+                                               bool swapRAndB,
+                                               const SkMatrix& matrix) {
     if (!fDidTestPMConversions) {
         test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
         fDidTestPMConversions = true;
@@ -1877,9 +1877,9 @@ const GrEffectRef* GrContext::createPMToUPMEffect(GrTexture* texture,
     }
 }
 
-const GrEffectRef* GrContext::createUPMToPMEffect(GrTexture* texture,
-                                                  bool swapRAndB,
-                                                  const SkMatrix& matrix) {
+const GrEffect* GrContext::createUPMToPMEffect(GrTexture* texture,
+                                               bool swapRAndB,
+                                               const SkMatrix& matrix) {
     if (!fDidTestPMConversions) {
         test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
         fDidTestPMConversions = true;

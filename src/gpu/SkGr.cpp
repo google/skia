@@ -419,7 +419,7 @@ bool GrPixelConfig2ColorType(GrPixelConfig config, SkColorType* ctOut) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor grColor,
+void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor paintColor,
                              bool constantColor, GrPaint* grPaint) {
 
     grPaint->setDither(skPaint.isDither());
@@ -429,7 +429,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
     SkXfermode::Coeff dm;
 
     SkXfermode* mode = skPaint.getXfermode();
-    GrEffectRef* xferEffect = NULL;
+    GrEffect* xferEffect = NULL;
     if (SkXfermode::AsNewEffectOrCoeff(mode, &xferEffect, &sm, &dm)) {
         if (NULL != xferEffect) {
             grPaint->addColorEffect(xferEffect)->unref();
@@ -445,7 +445,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
     grPaint->setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
     
     //set the color of the paint to the one of the parameter
-    grPaint->setColor(grColor);
+    grPaint->setColor(paintColor);
 
     SkColorFilter* colorFilter = skPaint.getColorFilter();
     if (NULL != colorFilter) {
@@ -455,7 +455,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
-            SkAutoTUnref<GrEffectRef> effect(colorFilter->asNewEffect(context));
+            SkAutoTUnref<GrEffect> effect(colorFilter->asNewEffect(context));
             if (NULL != effect.get()) {
                 grPaint->addColorEffect(effect);
             }
@@ -476,7 +476,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
             target->config() == kBGRA_8888_GrPixelConfig) {
             // The dither flag is set and the target is likely
             // not going to be dithered by the GPU.
-            SkAutoTUnref<GrEffectRef> effect(GrDitherEffect::Create());
+            SkAutoTUnref<GrEffect> effect(GrDitherEffect::Create());
             if (NULL != effect.get()) {
                 grPaint->addColorEffect(effect);
                 grPaint->setDither(false);
@@ -515,30 +515,29 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
         return;
     }
 
-    // SkShader::asNewEffect() may do offscreen rendering. Save off the current RT, clip, and
-    // matrix. We don't reset the matrix on the context because SkShader::asNewEffect may use
-    // GrContext::getMatrix() to know the transformation from local coords to device space.
-    GrColor grColor = SkColor2GrColor(skPaint.getColor());
+    GrColor paintColor = SkColor2GrColor(skPaint.getColor());
 
     // Start a new block here in order to preserve our context state after calling
     // asNewEffect(). Since these calls get passed back to the client, we don't really
     // want them messing around with the context.
     {
+        // SkShader::asNewEffect() may do offscreen rendering. Save off the current RT, clip, and
+        // matrix. We don't reset the matrix on the context because SkShader::asNewEffect may use
+        // GrContext::getMatrix() to know the transformation from local coords to device space.
         GrContext::AutoRenderTarget art(context, NULL);
         GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
         AutoMatrix am(context);
 
-        // setup the shader as the first color effect on the paint
-        // the default grColor is the paint's color
-        GrEffectRef* grEffect = NULL;
-        if (shader->asNewEffect(context, skPaint, NULL, &grColor, &grEffect) && NULL != grEffect) {
-            SkAutoTUnref<GrEffectRef> effect(grEffect);
-            grPaint->addColorEffect(effect);
+        // Allow the shader to modify paintColor and also create an effect to be installed as
+        // the first color effect on the GrPaint.
+        GrEffect* effect = NULL;
+        if (shader->asNewEffect(context, skPaint, NULL, &paintColor, &effect) && NULL != effect) {
+            grPaint->addColorEffect(effect)->unref();
             constantColor = false;
         }
     }
 
     // The grcolor is automatically set when calling asneweffect.
     // If the shader can be seen as an effect it returns true and adds its effect to the grpaint.
-    SkPaint2GrPaintNoShader(context, skPaint, grColor, constantColor, grPaint);
+    SkPaint2GrPaintNoShader(context, skPaint, paintColor, constantColor, grPaint);
 }

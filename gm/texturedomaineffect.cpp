@@ -122,7 +122,7 @@ protected:
                 SkScalar x = kDrawPad + kTestPad;
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
-                    SkAutoTUnref<GrEffectRef> effect(
+                    SkAutoTUnref<GrEffect> effect(
                         GrTextureDomainEffect::Create(texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
                                                                                 texelDomains[d]),

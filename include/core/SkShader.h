@@ -374,17 +374,24 @@ public:
 
 
     /**
-     *  Returns true if the shader subclass succeeds in setting the grEffect and the grColor output 
-     *  parameters to a value, returns false if it fails or if there is not an implementation of
-     *  this method in the shader subclass.
-     *  The incoming color to the effect has r=g=b=a all extracted from the SkPaint's alpha.
-     *  The output color should be the computed SkShader premul color modulated by the incoming
-     *  color. The GrContext may be used by the effect to create textures. The GPU device does not
+     *  Returns true if the shader subclass succeeds in creating an effect or if none is required.
+     *  False is returned if it fails or if there is not an implementation of this method in the
+     *  shader subclass.
+     *
+     *  On success an implementation of this method must inspect the SkPaint and set paintColor to
+     *  the color the effect expects as its input color. If the SkShader wishes to emit a solid
+     *  color then it should set paintColor to that color and not create an effect. Note that
+     *  GrColor is always premul. The common patterns are to convert paint's SkColor to GrColor or
+     *  to extract paint's alpha and replicate it to all channels in paintColor. Upon failure
+     *  paintColor should not be modified. It is not recommended to specialize the effect to
+     *  the paint's color as then many GPU shaders may be generated.
+     *
+     *  The GrContext may be used by the effect to create textures. The GPU device does not
      *  call createContext. Instead we pass the SkPaint here in case the shader needs paint info.
      */
     virtual bool asNewEffect(GrContext* context, const SkPaint& paint,
-                             const SkMatrix* localMatrixOrNull, GrColor* grColor,
-                             GrEffect** grEffect) const;
+                             const SkMatrix* localMatrixOrNull, GrColor* paintColor,
+                             GrEffect** effect) const;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     /**

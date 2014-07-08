@@ -37,8 +37,8 @@ public:
     /**
      * Create a simple filter effect with custom bicubic coefficients and optional domain.
      */
-    static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16],
-                               const SkRect* domain = NULL) {
+    static GrEffect* Create(GrTexture* tex, const SkScalar coefficients[16],
+                            const SkRect* domain = NULL) {
         if (NULL == domain) {
             static const SkShader::TileMode kTileModes[] = { SkShader::kClamp_TileMode,
                                                              SkShader::kClamp_TileMode };
@@ -52,8 +52,8 @@ public:
     /**
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
      */
-    static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix,
-                               SkShader::TileMode tileModes[2]) {
+    static GrEffect* Create(GrTexture* tex, const SkMatrix& matrix,
+                            SkShader::TileMode tileModes[2]) {
         return Create(tex, gMitchellCoefficients, matrix, tileModes);
     }
 
@@ -61,15 +61,15 @@ public:
      * Create a filter effect with custom bicubic coefficients, the texture matrix, and the x/y
      * tilemodes.
      */
-    static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16],
-                               const SkMatrix& matrix, const SkShader::TileMode tileModes[2]) {
+    static GrEffect* Create(GrTexture* tex, const SkScalar coefficients[16],
+                            const SkMatrix& matrix, const SkShader::TileMode tileModes[2]) {
         return SkNEW_ARGS(GrBicubicEffect, (tex, coefficients, matrix, tileModes));
     }
 
     /**
      * Create a Mitchell filter effect with a texture matrix and a domain.
      */
-    static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix, const SkRect& domain) {
+    static GrEffect* Create(GrTexture* tex, const SkMatrix& matrix, const SkRect& domain) {
         return SkNEW_ARGS(GrBicubicEffect, (tex, gMitchellCoefficients, matrix, domain));
     }
 

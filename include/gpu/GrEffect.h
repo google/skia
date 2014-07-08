@@ -218,8 +218,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-typedef GrEffect GrEffectRef;
-
 /**
  * This creates an effect outside of the effect memory pool. The effect's destructor will be called
  * at global destruction time. NAME will be the name of the created GrEffect.

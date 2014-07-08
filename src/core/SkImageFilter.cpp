@@ -179,7 +179,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     am.setIdentity(context);
     GrContext::AutoRenderTarget art(context, dst.texture()->asRenderTarget());
     GrContext::AutoClip acs(context, dstRect);
-    GrEffectRef* effect;
+    GrEffect* effect;
     offset->fX = bounds.left();
     offset->fY = bounds.top();
     bounds.offset(-srcOffset);

@@ -1328,7 +1328,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                       SkScalarMul(srcRect.fBottom, hInv));
 
     SkRect textureDomain = SkRect::MakeEmpty();
-    SkAutoTUnref<GrEffectRef> effect;
+    SkAutoTUnref<GrEffect> effect;
     if (needsTextureDomain && !(flags & SkCanvas::kBleed_DrawBitmapRectFlag)) {
         // Use a constrained texture domain to avoid color bleeding
         SkScalar left, top, right, bottom;
@@ -1369,9 +1369,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     GrPaint grPaint;
     grPaint.addColorEffect(effect);
     bool alphaOnly = !(kAlpha_8_SkColorType == bitmap.colorType());
-    GrColor grColor = (alphaOnly) ? SkColor2GrColorJustAlpha(paint.getColor()) :
-                                    SkColor2GrColor(paint.getColor());
-    SkPaint2GrPaintNoShader(this->context(), paint, grColor, false, &grPaint);
+    GrColor paintColor = (alphaOnly) ? SkColor2GrColorJustAlpha(paint.getColor()) :
+                                       SkColor2GrColor(paint.getColor());
+    SkPaint2GrPaintNoShader(this->context(), paint, paintColor, false, &grPaint);
 
     fContext->drawRectToRect(grPaint, dstRect, paintRect, NULL);
 }

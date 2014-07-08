@@ -98,10 +98,10 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
     for (size_t i = 0; i < SK_ARRAY_COUNT(filterTests); ++i) {
         const GetConstantComponentTestCase& test = filterTests[i];
         SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(test.filterColor, test.filterMode));
-        SkAutoTUnref<GrEffectRef> grEffect(cf->asNewEffect(grContext));
+        SkAutoTUnref<GrEffect> effect(cf->asNewEffect(grContext));
         GrColor color = test.inputColor;
         uint32_t components = test.inputComponents;
-        grEffect->getConstantColorComponents(&color, &components);
+        effect->getConstantColorComponents(&color, &components);
 
         REPORTER_ASSERT(reporter, filterColor(color, components) == test.outputColor);
         REPORTER_ASSERT(reporter, test.outputComponents == components);
