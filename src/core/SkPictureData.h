@@ -152,6 +152,8 @@ public:
 
     bool containsBitmaps() const;
 
+    const SkData* opData() const { return fOpData; }
+
 protected:
     explicit SkPictureData(const SkPictInfo& info);
 

@@ -56,28 +56,14 @@ SkPicturePlayback::PlaybackReplacements::lookupByStart(size_t start) {
     return NULL;
 }
 
-
-class SkAutoResetOpID {
-public:
-    SkAutoResetOpID(SkPicturePlayback* playback) : fPlayback(playback) { }
-    ~SkAutoResetOpID() {
-        if (NULL != fPlayback) {
-            fPlayback->resetOpID();
-        }
-    }
-
-private:
-    SkPicturePlayback* fPlayback;
-};
-
 /*
-* Read the next op code and chunk size from 'reader'. The returned size
-* is the entire size of the chunk (including the opcode). Thus, the
-* offset just prior to calling read_op_and_size + 'size' is the offset
-* to the next chunk's op code. This also means that the size of a chunk
-* with no arguments (just an opcode) will be 4.
-*/
-static DrawType read_op_and_size(SkReader32* reader, uint32_t* size) {
+ * Read the next op code and chunk size from 'reader'. The returned size
+ * is the entire size of the chunk (including the opcode). Thus, the
+ * offset just prior to calling ReadOpAndSize + 'size' is the offset
+ * to the next chunk's op code. This also means that the size of a chunk
+ * with no arguments (just an opcode) will be 4.
+ */
+DrawType SkPicturePlayback::ReadOpAndSize(SkReader32* reader, uint32_t* size) {
     uint32_t temp = reader->readInt();
     uint32_t op;
     if (((uint8_t)temp) == temp) {
@@ -121,7 +107,7 @@ static SkBitmap shallow_copy(const SkBitmap& bitmap) {
 }
 
 void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) {
-    SkAutoResetOpID aroi(this);
+    AutoResetOpID aroi(this);
     SkASSERT(0 == fCurOffset);
 
     // kDrawComplete will be the signal that we have reached the end of
@@ -132,24 +118,19 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
     SkAutoTDelete<const SkPicture::OperationList> activeOpsList;
     const SkTDArray<void*>* activeOps = NULL;
 
-    // When draw limits are enabled (i.e., 0 != fStart || 0 != fStop) the state
-    // tree isn't used to pick and choose the draw operations
-    if (0 == fStart && 0 == fStop) {
-        if (fUseBBH && NULL != fPictureData->fStateTree && NULL != fPictureData->fBoundingHierarchy) {
-            SkRect clipBounds;
-            if (canvas->getClipBounds(&clipBounds)) {
-                SkIRect query;
-                clipBounds.roundOut(&query);
+    if (fUseBBH && NULL != fPictureData->fStateTree && NULL != fPictureData->fBoundingHierarchy) {
+        SkRect clipBounds;
+        if (canvas->getClipBounds(&clipBounds)) {
+            SkIRect query;
+            clipBounds.roundOut(&query);
 
-                activeOpsList.reset(fPictureData->getActiveOps(query));
-                if (NULL != activeOpsList.get()) {
-                    if (0 == activeOpsList->numOps()) {
-                        return;     // nothing to draw
-                    }
-
-                    // Since the opList is valid we know it is our derived class
-                    activeOps = &(activeOpsList.get()->fOps);
+            activeOpsList.reset(fPictureData->getActiveOps(query));
+            if (NULL != activeOpsList.get()) {
+                if (0 == activeOpsList->numOps()) {
+                    return;     // nothing to draw
                 }
+
+                activeOps = &(activeOpsList.get()->fOps);
             }
         }
     }
@@ -157,14 +138,6 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
     SkPictureStateTree::Iterator it = (NULL == activeOps) ?
         SkPictureStateTree::Iterator() :
         fPictureData->fStateTree->getIterator(*activeOps, canvas);
-
-    if (0 != fStart || 0 != fStop) {
-        reader.setOffset(fStart);
-        uint32_t size;
-        SkDEBUGCODE(DrawType op = ) read_op_and_size(&reader, &size);
-        SkASSERT(SAVE_LAYER == op);
-        reader.setOffset(fStart + size);
-    }
 
     if (it.isValid()) {
         uint32_t skipTo = it.nextDraw();
@@ -186,16 +159,6 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
     while (!reader.eof()) {
         if (callback && callback->abortDrawing()) {
             return;
-        }
-
-        if (0 != fStart || 0 != fStop) {
-            size_t offset = reader.offset();
-            if (offset >= fStop) {
-                uint32_t size;
-                SkDEBUGCODE(DrawType op = ) read_op_and_size(&reader, &size);
-                SkASSERT(RESTORE == op);
-                return;
-            }
         }
 
         if (NULL != fReplacements) {
@@ -236,7 +199,7 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
                         if (skipTo <= temp->fStop) {
                             reader.setOffset(skipTo);
                             uint32_t size;
-                            DrawType op = read_op_and_size(&reader, &size);
+                            DrawType op = ReadOpAndSize(&reader, &size);
                             // Since we are relying on the normal SkPictureStateTree
                             // playback we need to convert any nested saveLayer calls
                             // it may issue into saves (so that all its internal
@@ -255,7 +218,7 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
                 } else {
                     reader.setOffset(temp->fStop);
                     uint32_t size;
-                    SkDEBUGCODE(DrawType op = ) read_op_and_size(&reader, &size);
+                    SkDEBUGCODE(DrawType op = ) ReadOpAndSize(&reader, &size);
                     SkASSERT(RESTORE == op);
                 }
                 continue;
@@ -264,7 +227,7 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
 
         fCurOffset = reader.offset();
         uint32_t size;
-        DrawType op = read_op_and_size(&reader, &size);
+        DrawType op = ReadOpAndSize(&reader, &size);
         size_t skipTo = 0;
         if (NOOP == op) {
             // NOOPs are to be ignored - do not propagate them any further

@@ -8,7 +8,7 @@
 #ifndef SkPicturePlayback_DEFINED
 #define SkPicturePlayback_DEFINED
 
-#include "SkTypes.h"
+#include "SkPictureFlat.h"  // for DrawType
 
 class SkBitmap;
 class SkCanvas;
@@ -22,13 +22,11 @@ public:
         : fPictureData(picture->fData.get())
         , fCurOffset(0)
         , fUseBBH(true)
-        , fStart(0)
-        , fStop(0)
         , fReplacements(NULL) {
     }
     virtual ~SkPicturePlayback() { }
 
-    void draw(SkCanvas* canvas, SkDrawPictureCallback*);
+    virtual void draw(SkCanvas* canvas, SkDrawPictureCallback*);
 
     // Return the ID of the operation currently being executed when playing
     // back. 0 indicates no call is active.
@@ -36,17 +34,6 @@ public:
     void resetOpID() { fCurOffset = 0; }
 
     void setUseBBH(bool useBBH) { fUseBBH = useBBH; }
-
-    // Limit the opcode playback to be between the offsets 'start' and 'stop'.
-    // The opcode at 'start' should be a saveLayer while the opcode at
-    // 'stop' should be a restore. Neither of those commands will be issued.
-    // Set both start & stop to 0 to disable draw limiting
-    // Draw limiting cannot be enabled at the same time as draw replacing
-    void setDrawLimits(size_t start, size_t stop) {
-        SkASSERT(NULL == fReplacements);
-        fStart = start;
-        fStop = stop;
-    }
 
     // PlaybackReplacements collects op ranges that can be replaced with
     // a single drawBitmap call (using a precomputed bitmap).
@@ -91,7 +78,6 @@ public:
     // the associated drawBitmap call
     // Draw replacing cannot be enabled at the same time as draw limiting
     void setReplacements(PlaybackReplacements* replacements) {
-        SkASSERT(fStart == 0 && fStop == 0);
         fReplacements = replacements;
     }
 
@@ -102,8 +88,6 @@ protected:
     size_t fCurOffset;
 
     bool   fUseBBH;
-    size_t fStart;
-    size_t fStop;
     PlaybackReplacements* fReplacements;
 
     void handleOp(SkReader32* reader, 
@@ -116,6 +100,21 @@ protected:
     virtual bool preDraw(int opIndex, int type) { return false; }
     virtual void postDraw(int opIndex) { }
 #endif
+
+    static DrawType ReadOpAndSize(SkReader32* reader, uint32_t* size);
+
+    class AutoResetOpID {
+    public:
+        AutoResetOpID(SkPicturePlayback* playback) : fPlayback(playback) { }
+        ~AutoResetOpID() {
+            if (NULL != fPlayback) {
+                fPlayback->resetOpID();
+            }
+        }
+
+    private:
+        SkPicturePlayback* fPlayback;
+    };
 
 private:
     typedef SkNoncopyable INHERITED;

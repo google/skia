@@ -31,6 +31,7 @@
 #include "SkPicture.h"
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
+#include "SkPictureRangePlayback.h"
 #include "SkRRect.h"
 #include "SkStroke.h"
 #include "SkSurface.h"
@@ -2010,9 +2011,10 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
                                       SkIntToScalar(layer->rect().fTop));
                 } 
 
-                SkPicturePlayback playback(picture);
-                playback.setDrawLimits(info.fSaveLayerOpID, info.fRestoreOpID);
-                playback.draw(canvas, NULL);
+                SkPictureRangePlayback rangePlayback(picture,
+                                                     info.fSaveLayerOpID, 
+                                                     info.fRestoreOpID);
+                rangePlayback.draw(canvas, NULL);
 
                 canvas->flush();
             }
