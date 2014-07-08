@@ -1201,6 +1201,11 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     SkImageInfo info;
     info.unflatten(*buffer);
 
+    // If there was an error reading "info", don't use it to compute minRowBytes()
+    if (!buffer->validate(true)) {
+        return false;
+    }
+
     const size_t ramRB = info.minRowBytes();
     const int height = info.height();
     const size_t snugSize = snugRB * height;
