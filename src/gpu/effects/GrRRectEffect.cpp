@@ -81,8 +81,7 @@ GrEffectRef* CircularRRectEffect::Create(GrEffectEdgeType edgeType,
     if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillAA_GrEffectEdgeType != edgeType) {
         return NULL;
     }
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(CircularRRectEffect,
-                                                      (edgeType, circularCornerFlags, rrect))));
+    return SkNEW_ARGS(CircularRRectEffect, (edgeType, circularCornerFlags, rrect));
 }
 
 void CircularRRectEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
@@ -416,7 +415,7 @@ GrEffectRef* EllipticalRRectEffect::Create(GrEffectEdgeType edgeType, const SkRR
     if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillAA_GrEffectEdgeType != edgeType) {
         return NULL;
     }
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipticalRRectEffect, (edgeType, rrect))));
+    return SkNEW_ARGS(EllipticalRRectEffect, (edgeType, rrect));
 }
 
 void EllipticalRRectEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {

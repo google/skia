@@ -60,11 +60,10 @@ public:
                                GrTexture* maskTexture,
                                float innerThreshold,
                                float outerThreshold) {
-        AutoEffectUnref effect(SkNEW_ARGS(AlphaThresholdEffect, (texture,
-                                                                 maskTexture,
-                                                                 innerThreshold,
-                                                                 outerThreshold)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(AlphaThresholdEffect, (texture,
+                                                 maskTexture,
+                                                 innerThreshold,
+                                                 outerThreshold));
     }
 
     virtual ~AlphaThresholdEffect() {};

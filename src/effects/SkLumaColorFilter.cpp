@@ -61,8 +61,8 @@ void SkLumaColorFilter::toString(SkString* str) const {
 class LumaColorFilterEffect : public GrEffect {
 public:
     static GrEffectRef* Create() {
-        AutoEffectUnref effect(SkNEW(LumaColorFilterEffect));
-        return CreateEffectRef(effect);
+        GR_CREATE_STATIC_EFFECT(gLumaEffect, LumaColorFilterEffect, ());
+        return SkRef(gLumaEffect);
     }
 
     static const char* Name() { return "Luminance-to-Alpha"; }

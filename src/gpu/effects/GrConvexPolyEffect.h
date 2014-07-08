@@ -41,8 +41,7 @@ public:
         if (n <= 0 || n > kMaxEdges || kHairlineAA_GrEffectEdgeType == edgeType) {
             return NULL;
         }
-        return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(GrConvexPolyEffect,
-                                                          (edgeType, n, edges))));
+        return SkNEW_ARGS(GrConvexPolyEffect, (edgeType, n, edges));
     }
 
     /**

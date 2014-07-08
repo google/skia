@@ -53,8 +53,7 @@ GrEffectRef* CircleEffect::Create(GrEffectEdgeType edgeType,
                                   const SkPoint& center,
                                   SkScalar radius) {
     SkASSERT(radius >= 0);
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(CircleEffect,
-                                                      (edgeType, center, radius))));
+    return SkNEW_ARGS(CircleEffect, (edgeType, center, radius));
 }
 
 void CircleEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
@@ -225,8 +224,7 @@ GrEffectRef* EllipseEffect::Create(GrEffectEdgeType edgeType,
                                    SkScalar rx,
                                    SkScalar ry) {
     SkASSERT(rx >= 0 && ry >= 0);
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipseEffect,
-                                                      (edgeType, center, rx, ry))));
+    return SkNEW_ARGS(EllipseEffect, (edgeType, center, rx, ry));
 }
 
 void EllipseEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {

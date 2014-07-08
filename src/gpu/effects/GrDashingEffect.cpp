@@ -563,8 +563,7 @@ GrEffectRef* DashingCircleEffect::Create(GrEffectEdgeType edgeType, const DashIn
         return NULL;
     }
 
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(DashingCircleEffect,
-                                                      (edgeType, info, radius))));
+    return SkNEW_ARGS(DashingCircleEffect, (edgeType, info, radius));
 }
 
 DashingCircleEffect::~DashingCircleEffect() {}
@@ -782,8 +781,7 @@ GrEffectRef* DashingLineEffect::Create(GrEffectEdgeType edgeType, const DashInfo
         return NULL;
     }
 
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(DashingLineEffect,
-                                                      (edgeType, info, strokeWidth))));
+    return SkNEW_ARGS(DashingLineEffect, (edgeType, info, strokeWidth));
 }
 
 DashingLineEffect::~DashingLineEffect() {}

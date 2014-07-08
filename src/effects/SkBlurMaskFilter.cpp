@@ -572,8 +572,7 @@ public:
         if (!createdBlurProfileTexture) {
            return NULL;
         }
-        AutoEffectUnref effect(SkNEW_ARGS(GrRectBlurEffect, (rect, sigma, blurProfileTexture)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrRectBlurEffect, (rect, sigma, blurProfileTexture));
     }
 
     const SkRect& getRect() const { return fRect; }
@@ -914,8 +913,7 @@ GrEffectRef* GrRRectBlurEffect::Create(GrContext* context, float sigma, const Sk
         return NULL;
     }
 
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(GrRRectBlurEffect,
-                                                      (sigma, rrect, blurNinePatchTexture))));
+    return SkNEW_ARGS(GrRRectBlurEffect, (sigma, rrect, blurNinePatchTexture));
 }
 
 void GrRRectBlurEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {

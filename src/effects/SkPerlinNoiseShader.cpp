@@ -530,9 +530,8 @@ public:
                                SkPerlinNoiseShader::PaintingData* paintingData,
                                GrTexture* permutationsTexture, GrTexture* noiseTexture,
                                const SkMatrix& matrix, uint8_t alpha) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrPerlinNoiseEffect, (type, numOctaves,
-            stitchTiles, paintingData, permutationsTexture, noiseTexture, matrix, alpha)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrPerlinNoiseEffect, (type, numOctaves, stitchTiles, paintingData,
+                                                permutationsTexture, noiseTexture, matrix, alpha));
     }
 
     virtual ~GrPerlinNoiseEffect() {

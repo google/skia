@@ -237,8 +237,7 @@ class GLColorTableEffect;
 class ColorTableEffect : public GrEffect {
 public:
     static GrEffectRef* Create(GrTexture* texture, unsigned flags) {
-        AutoEffectUnref effect(SkNEW_ARGS(ColorTableEffect, (texture, flags)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(ColorTableEffect, (texture, flags));
     }
 
     virtual ~ColorTableEffect();

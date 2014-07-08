@@ -44,10 +44,8 @@ public:
                                                              SkShader::kClamp_TileMode };
             return Create(tex, coefficients, MakeDivByTextureWHMatrix(tex), kTileModes);
         } else {
-            AutoEffectUnref effect(SkNEW_ARGS(GrBicubicEffect, (tex, coefficients,
-                                                                MakeDivByTextureWHMatrix(tex),
-                                                                *domain)));
-            return CreateEffectRef(effect);
+            return SkNEW_ARGS(GrBicubicEffect, (tex, coefficients,
+                                                MakeDivByTextureWHMatrix(tex), *domain));
         }
     }
 
@@ -65,17 +63,14 @@ public:
      */
     static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16],
                                const SkMatrix& matrix, const SkShader::TileMode tileModes[2]) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrBicubicEffect, (tex, coefficients, matrix, tileModes)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrBicubicEffect, (tex, coefficients, matrix, tileModes));
     }
 
     /**
      * Create a Mitchell filter effect with a texture matrix and a domain.
      */
     static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix, const SkRect& domain) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrBicubicEffect, (tex, gMitchellCoefficients, matrix,
-                                                            domain)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrBicubicEffect, (tex, gMitchellCoefficients, matrix, domain));
     }
 
     /**

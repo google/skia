@@ -208,8 +208,7 @@ public:
     static GrEffectRef* Create(GrContext* ctx,
                                const SkSweepGradient& shader,
                                const SkMatrix& matrix) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrSweepGradient, (ctx, shader, matrix)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrSweepGradient, (ctx, shader, matrix));
     }
     virtual ~GrSweepGradient() { }
 

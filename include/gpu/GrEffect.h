@@ -169,29 +169,7 @@ protected:
         , fWillUseInputColor(true)
         , fHasVertexCode(false) {}
 
-    /** This should be called by GrEffect subclass factories. See the comment on AutoEffectUnref for
-        an example factory function. */
-    static GrEffect* CreateEffectRef(GrEffect* effect) {
-        return SkRef(effect);
-    }
-
-    static const GrEffect* CreateEffectRef(const GrEffect* effect) {
-        return CreateEffectRef(const_cast<GrEffect*>(effect));
-    }
-
-    /** Helper used in subclass factory functions to unref the effect after it has been wrapped in a
-        GrEffectRef. E.g.:
-
-        class EffectSubclass : public GrEffect {
-        public:
-            GrEffectRef* Create(ParamType1 param1, ParamType2 param2, ...) {
-                AutoEffectUnref effect(SkNEW_ARGS(EffectSubclass, (param1, param2, ...)));
-                return CreateEffectRef(effect);
-            }
-     */
-    typedef SkAutoTUnref<GrEffect> AutoEffectUnref;
-
-    /** Helper for getting the GrEffect out of a GrEffectRef and down-casting to a GrEffect subclass
+    /** Helper for down-casting to a GrEffect subclass
       */
     template <typename T>
     static const T& CastEffect(const GrEffect& effectRef) {

@@ -484,8 +484,7 @@ public:
                                const SkLinearGradient& shader,
                                const SkMatrix& matrix,
                                SkShader::TileMode tm) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrLinearGradient, (ctx, shader, matrix, tm)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrLinearGradient, (ctx, shader, matrix, tm));
     }
 
     virtual ~GrLinearGradient() { }

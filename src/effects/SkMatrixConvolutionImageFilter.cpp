@@ -339,16 +339,15 @@ public:
                                const SkIPoint& kernelOffset,
                                TileMode tileMode,
                                bool convolveAlpha) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,
-                                                                      bounds,
-                                                                      kernelSize,
-                                                                      kernel,
-                                                                      gain,
-                                                                      bias,
-                                                                      kernelOffset,
-                                                                      tileMode,
-                                                                      convolveAlpha)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,
+                                                      bounds,
+                                                      kernelSize,
+                                                      kernel,
+                                                      gain,
+                                                      bias,
+                                                      kernelOffset,
+                                                      tileMode,
+                                                      convolveAlpha));
     }
     virtual ~GrMatrixConvolutionEffect();
 

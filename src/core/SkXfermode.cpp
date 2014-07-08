@@ -797,8 +797,7 @@ public:
         if (!IsSupportedMode(mode)) {
             return NULL;
         } else {
-            AutoEffectUnref effect(SkNEW_ARGS(XferEffect, (mode, background)));
-            return CreateEffectRef(effect);
+            return SkNEW_ARGS(XferEffect, (mode, background));
         }
     }
 
@@ -1230,8 +1229,7 @@ GrEffectRef* XferEffect::TestCreate(SkRandom* rand,
                                     GrTexture*[]) {
     int mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
 
-    AutoEffectUnref gEffect(SkNEW_ARGS(XferEffect, (static_cast<SkXfermode::Mode>(mode), NULL)));
-    return CreateEffectRef(gEffect);
+    return SkNEW_ARGS(XferEffect, (static_cast<SkXfermode::Mode>(mode), NULL));
 }
 
 #endif

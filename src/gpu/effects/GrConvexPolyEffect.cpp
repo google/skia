@@ -25,7 +25,7 @@ public:
     static const char* Name() { return "AARect"; }
 
     static GrEffectRef* Create(GrEffectEdgeType edgeType, const SkRect& rect) {
-        return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(AARectEffect, (edgeType, rect))));
+        return SkNEW_ARGS(AARectEffect, (edgeType, rect));
     }
 
     virtual void getConstantColorComponents(GrColor* color,

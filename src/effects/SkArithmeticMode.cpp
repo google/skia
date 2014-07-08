@@ -264,9 +264,7 @@ class GrArithmeticEffect : public GrEffect {
 public:
     static GrEffectRef* Create(float k1, float k2, float k3, float k4, bool enforcePMColor,
                                GrTexture* background) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4, enforcePMColor,
-                                                               background)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4, enforcePMColor, background));
     }
 
     virtual ~GrArithmeticEffect();
@@ -422,9 +420,7 @@ GrEffectRef* GrArithmeticEffect::TestCreate(SkRandom* rand,
     float k4 = rand->nextF();
     bool enforcePMColor = rand->nextBool();
 
-    AutoEffectUnref gEffect(SkNEW_ARGS(GrArithmeticEffect,
-                                       (k1, k2, k3, k4, enforcePMColor, NULL)));
-    return CreateEffectRef(gEffect);
+    return SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4, enforcePMColor, NULL));
 }
 
 GR_DEFINE_EFFECT_TEST(GrArithmeticEffect);

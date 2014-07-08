@@ -208,14 +208,12 @@ GrEffectRef* GrTextureDomainEffect::Create(GrTexture* texture,
         return GrSimpleTextureEffect::Create(texture, matrix, filterMode);
     } else {
 
-        AutoEffectUnref effect(SkNEW_ARGS(GrTextureDomainEffect, (texture,
-                                                                  matrix,
-                                                                  domain,
-                                                                  mode,
-                                                                  filterMode,
-                                                                  coordSet)));
-        return CreateEffectRef(effect);
-
+        return SkNEW_ARGS(GrTextureDomainEffect, (texture,
+                                                  matrix,
+                                                  domain,
+                                                  mode,
+                                                  filterMode,
+                                                  coordSet));
     }
 }
 

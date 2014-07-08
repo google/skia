@@ -28,13 +28,12 @@ public:
                                const float* kernel,
                                bool useBounds,
                                float bounds[2]) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrConvolutionEffect, (tex,
-                                                                dir,
-                                                                halfWidth,
-                                                                kernel,
-                                                                useBounds,
-                                                                bounds)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrConvolutionEffect, (tex,
+                                                dir,
+                                                halfWidth,
+                                                kernel,
+                                                useBounds,
+                                                bounds));
     }
 
     /// Convolve with a Gaussian kernel
@@ -44,13 +43,12 @@ public:
                                        float gaussianSigma,
                                        bool useBounds,
                                        float bounds[2]) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrConvolutionEffect, (tex,
-                                                                dir,
-                                                                halfWidth,
-                                                                gaussianSigma,
-                                                                useBounds,
-                                                                bounds)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrConvolutionEffect, (tex,
+                                                dir,
+                                                halfWidth,
+                                                gaussianSigma,
+                                                useBounds,
+                                                bounds));
     }
 
     virtual ~GrConvolutionEffect();

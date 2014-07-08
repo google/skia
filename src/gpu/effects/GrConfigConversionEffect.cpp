@@ -129,12 +129,11 @@ GrEffectRef* GrConfigConversionEffect::TestCreate(SkRandom* random,
     } else {
         swapRB = random->nextBool();
     }
-    AutoEffectUnref effect(SkNEW_ARGS(GrConfigConversionEffect,
+    return SkNEW_ARGS(GrConfigConversionEffect,
                                       (textures[GrEffectUnitTest::kSkiaPMTextureIdx],
                                        swapRB,
                                        pmConv,
-                                       GrEffectUnitTest::TestMatrix(random))));
-    return CreateEffectRef(effect);
+                                       GrEffectUnitTest::TestMatrix(random)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -200,38 +199,34 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         // from readTex to tempTex followed by a PM->UPM draw to readTex and finally read the data.
         // We then verify that two reads produced the same values.
 
-        AutoEffectUnref pmToUPM1(SkNEW_ARGS(GrConfigConversionEffect, (dataTex,
-                                                                       false,
-                                                                       *pmToUPMRule,
-                                                                       SkMatrix::I())));
-        AutoEffectUnref upmToPM(SkNEW_ARGS(GrConfigConversionEffect, (readTex,
-                                                                      false,
-                                                                      *upmToPMRule,
-                                                                      SkMatrix::I())));
-        AutoEffectUnref pmToUPM2(SkNEW_ARGS(GrConfigConversionEffect, (tempTex,
-                                                                       false,
-                                                                       *pmToUPMRule,
-                                                                       SkMatrix::I())));
-
-        SkAutoTUnref<GrEffectRef> pmToUPMEffect1(CreateEffectRef(pmToUPM1));
-        SkAutoTUnref<GrEffectRef> upmToPMEffect(CreateEffectRef(upmToPM));
-        SkAutoTUnref<GrEffectRef> pmToUPMEffect2(CreateEffectRef(pmToUPM2));
+        SkAutoTUnref<GrEffect> pmToUPM1(SkNEW_ARGS(GrConfigConversionEffect, (dataTex,
+                                                                              false,
+                                                                              *pmToUPMRule,
+                                                                              SkMatrix::I())));
+        SkAutoTUnref<GrEffect> upmToPM(SkNEW_ARGS(GrConfigConversionEffect, (readTex,
+                                                                             false,
+                                                                             *upmToPMRule,
+                                                                             SkMatrix::I())));
+        SkAutoTUnref<GrEffect> pmToUPM2(SkNEW_ARGS(GrConfigConversionEffect, (tempTex,
+                                                                              false,
+                                                                              *pmToUPMRule,
+                                                                              SkMatrix::I())));
 
         context->setRenderTarget(readTex->asRenderTarget());
         GrPaint paint1;
-        paint1.addColorEffect(pmToUPMEffect1);
+        paint1.addColorEffect(pmToUPM1);
         context->drawRectToRect(paint1, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
         context->setRenderTarget(tempTex->asRenderTarget());
         GrPaint paint2;
-        paint2.addColorEffect(upmToPMEffect);
+        paint2.addColorEffect(upmToPM);
         context->drawRectToRect(paint2, kDstRect, kSrcRect);
         context->setRenderTarget(readTex->asRenderTarget());
 
         GrPaint paint3;
-        paint3.addColorEffect(pmToUPMEffect2);
+        paint3.addColorEffect(pmToUPM2);
         context->drawRectToRect(paint3, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);
@@ -268,10 +263,9 @@ const GrEffectRef* GrConfigConversionEffect::Create(GrTexture* texture,
             // The PM conversions assume colors are 0..255
             return NULL;
         }
-        AutoEffectUnref effect(SkNEW_ARGS(GrConfigConversionEffect, (texture,
-                                                                     swapRedAndBlue,
-                                                                     pmConversion,
-                                                                     matrix)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrConfigConversionEffect, (texture,
+                                                     swapRedAndBlue,
+                                                     pmConversion,
+                                                     matrix));
     }
 }

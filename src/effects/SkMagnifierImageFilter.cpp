@@ -32,14 +32,13 @@ public:
                                float yInvZoom,
                                float xInvInset,
                                float yInvInset) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrMagnifierEffect, (texture,
-                                                              xOffset,
-                                                              yOffset,
-                                                              xInvZoom,
-                                                              yInvZoom,
-                                                              xInvInset,
-                                                              yInvInset)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrMagnifierEffect, (texture,
+                                              xOffset,
+                                              yOffset,
+                                              xInvZoom,
+                                              yInvZoom,
+                                              xInvInset,
+                                              yInvInset));
     }
 
     virtual ~GrMagnifierEffect() {};

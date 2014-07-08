@@ -339,12 +339,11 @@ public:
                                SkScalar surfaceScale,
                                const SkMatrix& matrix,
                                SkScalar kd) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrDiffuseLightingEffect, (texture,
-                                                                    light,
-                                                                    surfaceScale,
-                                                                    matrix,
-                                                                    kd)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrDiffuseLightingEffect, (texture,
+                                                    light,
+                                                    surfaceScale,
+                                                    matrix,
+                                                    kd));
     }
 
     static const char* Name() { return "DiffuseLighting"; }
@@ -376,13 +375,12 @@ public:
                                const SkMatrix& matrix,
                                SkScalar ks,
                                SkScalar shininess) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrSpecularLightingEffect, (texture,
-                                                                     light,
-                                                                     surfaceScale,
-                                                                     matrix,
-                                                                     ks,
-                                                                     shininess)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrSpecularLightingEffect, (texture,
+                                                     light,
+                                                     surfaceScale,
+                                                     matrix,
+                                                     ks,
+                                                     shininess));
     }
     static const char* Name() { return "SpecularLighting"; }
 

@@ -331,8 +331,7 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
 class ColorMatrixEffect : public GrEffect {
 public:
     static GrEffectRef* Create(const SkColorMatrix& matrix) {
-        AutoEffectUnref effect(SkNEW_ARGS(ColorMatrixEffect, (matrix)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(ColorMatrixEffect, (matrix));
     }
 
     static const char* Name() { return "Color Matrix"; }

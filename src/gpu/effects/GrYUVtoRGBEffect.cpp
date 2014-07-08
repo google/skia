@@ -17,8 +17,7 @@ namespace {
 class YUVtoRGBEffect : public GrEffect {
 public:
     static GrEffect* Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture) {
-        AutoEffectUnref effect(SkNEW_ARGS(YUVtoRGBEffect, (yTexture, uTexture, vTexture)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(YUVtoRGBEffect, (yTexture, uTexture, vTexture));
     }
 
     static const char* Name() { return "YUV to RGB"; }

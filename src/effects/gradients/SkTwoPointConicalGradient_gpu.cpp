@@ -63,8 +63,7 @@ public:
                                const SkTwoPointConicalGradient& shader,
                                const SkMatrix& matrix,
                                SkShader::TileMode tm) {
-        AutoEffectUnref effect(SkNEW_ARGS(Edge2PtConicalEffect, (ctx, shader, matrix, tm)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(Edge2PtConicalEffect, (ctx, shader, matrix, tm));
     }
 
     virtual ~Edge2PtConicalEffect() {}
@@ -371,8 +370,7 @@ public:
                                const SkMatrix& matrix,
                                SkShader::TileMode tm,
                                SkScalar focalX) {
-        AutoEffectUnref effect(SkNEW_ARGS(FocalOutside2PtConicalEffect, (ctx, shader, matrix, tm, focalX)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(FocalOutside2PtConicalEffect, (ctx, shader, matrix, tm, focalX));
     }
 
     virtual ~FocalOutside2PtConicalEffect() { }
@@ -586,8 +584,7 @@ public:
                                const SkMatrix& matrix,
                                SkShader::TileMode tm,
                                SkScalar focalX) {
-        AutoEffectUnref effect(SkNEW_ARGS(FocalInside2PtConicalEffect, (ctx, shader, matrix, tm, focalX)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(FocalInside2PtConicalEffect, (ctx, shader, matrix, tm, focalX));
     }
 
     virtual ~FocalInside2PtConicalEffect() {}
@@ -820,8 +817,7 @@ public:
                                const SkMatrix& matrix,
                                SkShader::TileMode tm,
                                const CircleConicalInfo& info) {
-        AutoEffectUnref effect(SkNEW_ARGS(CircleInside2PtConicalEffect, (ctx, shader, matrix, tm, info)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(CircleInside2PtConicalEffect, (ctx, shader, matrix, tm, info));
     }
 
     virtual ~CircleInside2PtConicalEffect() {}
@@ -1033,8 +1029,7 @@ public:
                                const SkMatrix& matrix,
                                SkShader::TileMode tm,
                                const CircleConicalInfo& info) {
-        AutoEffectUnref effect(SkNEW_ARGS(CircleOutside2PtConicalEffect, (ctx, shader, matrix, tm, info)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(CircleOutside2PtConicalEffect, (ctx, shader, matrix, tm, info));
     }
 
     virtual ~CircleOutside2PtConicalEffect() {}

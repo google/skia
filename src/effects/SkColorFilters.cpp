@@ -195,8 +195,7 @@ public:
             SkDebugf("Failing to create color filter for mode %d\n", mode);
             return NULL;
         }
-        AutoEffectUnref effect(SkNEW_ARGS(ModeColorFilterEffect, (c, mode)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(ModeColorFilterEffect, (c, mode));
     }
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;

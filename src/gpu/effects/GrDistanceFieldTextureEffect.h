@@ -26,17 +26,15 @@ public:
     static GrEffectRef* Create(GrTexture* tex, const GrTextureParams& params,
                                GrTexture* gamma, const GrTextureParams& gammaParams, float lum,
                                bool similarity) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrDistanceFieldTextureEffect, (tex, params,
-                                                                         gamma, gammaParams, lum,
-                                                                         similarity)));
+       return SkNEW_ARGS(GrDistanceFieldTextureEffect, (tex, params, gamma, gammaParams, lum,
+                                                        similarity));
+    }
 #else
     static GrEffectRef* Create(GrTexture* tex, const GrTextureParams& params,
                                bool similarity) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrDistanceFieldTextureEffect, (tex, params,
-                                                                         similarity)));
-#endif
-        return CreateEffectRef(effect);
+        return  SkNEW_ARGS(GrDistanceFieldTextureEffect, (tex, params, similarity));
     }
+#endif
 
     virtual ~GrDistanceFieldTextureEffect() {}
 
@@ -85,10 +83,8 @@ public:
                                GrTexture* gamma, const GrTextureParams& gammaParams, 
                                SkColor textColor,
                                bool uniformScale, bool useBGR) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrDistanceFieldLCDTextureEffect,
-                                          (tex, params, gamma, gammaParams, textColor, uniformScale,
-                                           useBGR)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrDistanceFieldLCDTextureEffect,
+                          (tex, params, gamma, gammaParams, textColor, uniformScale, useBGR));
     }
 
     virtual ~GrDistanceFieldLCDTextureEffect() {}

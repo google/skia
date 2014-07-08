@@ -305,13 +305,12 @@ public:
                                SkVector scale,
                                GrTexture* displacement, const SkMatrix& offsetMatrix,
                                GrTexture* color) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrDisplacementMapEffect, (xChannelSelector,
-                                                                    yChannelSelector,
-                                                                    scale,
-                                                                    displacement,
-                                                                    offsetMatrix,
-                                                                    color)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrDisplacementMapEffect, (xChannelSelector,
+                                                    yChannelSelector,
+                                                    scale,
+                                                    displacement,
+                                                    offsetMatrix,
+                                                    color));
     }
 
     virtual ~GrDisplacementMapEffect();

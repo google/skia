@@ -279,8 +279,7 @@ public:
     };
 
     static GrEffectRef* Create(GrTexture* tex, Direction dir, int radius, MorphologyType type) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrMorphologyEffect, (tex, dir, radius, type)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrMorphologyEffect, (tex, dir, radius, type));
     }
 
     virtual ~GrMorphologyEffect();

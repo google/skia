@@ -438,8 +438,7 @@ public:
                                const SkTwoPointRadialGradient& shader,
                                const SkMatrix& matrix,
                                SkShader::TileMode tm) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrRadial2Gradient, (ctx, shader, matrix, tm)));
-        return CreateEffectRef(effect);
+        return SkNEW_ARGS(GrRadial2Gradient, (ctx, shader, matrix, tm));
     }
 
     virtual ~GrRadial2Gradient() { }

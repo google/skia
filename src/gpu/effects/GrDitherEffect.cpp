@@ -20,7 +20,8 @@ class GLDitherEffect;
 class DitherEffect : public GrEffect {
 public:
     static GrEffectRef* Create() {
-        return CreateEffectRef(AutoEffectUnref(SkNEW(DitherEffect)));
+        GR_CREATE_STATIC_EFFECT(gDitherEffect, DitherEffect, ())
+        return SkRef(gDitherEffect);
     }
 
     virtual ~DitherEffect() {};
