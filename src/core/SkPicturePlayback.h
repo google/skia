@@ -96,11 +96,6 @@ protected:
                   SkCanvas* canvas,
                   const SkMatrix& initialMatrix);
 
-#ifdef SK_DEVELOPER
-    virtual bool preDraw(int opIndex, int type) { return false; }
-    virtual void postDraw(int opIndex) { }
-#endif
-
     static DrawType ReadOpAndSize(SkReader32* reader, uint32_t* size);
 
     class AutoResetOpID {

@@ -152,10 +152,6 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
 
     SkAutoCanvasRestore acr(canvas, false);
 
-#ifdef SK_DEVELOPER
-    int opIndex = -1;
-#endif
-
     while (!reader.eof()) {
         if (callback && callback->abortDrawing()) {
             return;
@@ -232,13 +228,6 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
         if (NOOP == op) {
             // NOOPs are to be ignored - do not propagate them any further
             skipTo = fCurOffset + size;
-#ifdef SK_DEVELOPER
-        } else {
-            opIndex++;
-            if (this->preDraw(opIndex, op)) {
-                skipTo = fCurOffset + size;
-            }
-#endif
         }
 
         if (0 != skipTo) {
@@ -259,10 +248,6 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
         }
 
         this->handleOp(&reader, op, size, canvas, initialMatrix);
-
-#ifdef SK_DEVELOPER
-        this->postDraw(opIndex);
-#endif
 
         if (it.isValid()) {
             uint32_t skipTo = it.nextDraw();

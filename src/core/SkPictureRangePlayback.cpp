@@ -29,7 +29,7 @@ void SkPictureRangePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callb
     SkAutoCanvasRestore acr(canvas, false);
 
     while (!reader.eof()) {
-        if (callback && callback->abortDrawing()) {
+        if (NULL != callback && callback->abortDrawing()) {
             return;
         }
 
