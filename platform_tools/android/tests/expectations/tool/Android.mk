@@ -38,4 +38,4 @@ LOCAL_MODULE := \
 	local_module
 
 include external/stlport/libstlport.mk
-include $(BUILD_EXECUTABLE)
+include $(BUILD_NATIVE_TEST)

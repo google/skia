@@ -147,8 +147,7 @@ def main(target_dir=None, require_sk_user_config=False):
                                        skia_lib_var_dict=common,
                                        local_module_name='skia_bench',
                                        local_module_tags=['tests'],
-                                       desired_targets=['bench'],
-                                       place_in_local_tmp=True)
+                                       desired_targets=['bench'])
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
                                        target_file='gm.gyp',
