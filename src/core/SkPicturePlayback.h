@@ -106,6 +106,12 @@ protected:
     size_t fStop;
     PlaybackReplacements* fReplacements;
 
+    void handleOp(SkReader32* reader, 
+                  DrawType op, 
+                  uint32_t size, 
+                  SkCanvas* canvas,
+                  const SkMatrix& initialMatrix);
+
 #ifdef SK_DEVELOPER
     virtual bool preDraw(int opIndex, int type) { return false; }
     virtual void postDraw(int opIndex) { }

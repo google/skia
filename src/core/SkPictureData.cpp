@@ -23,11 +23,6 @@ template <typename T> int SafeCount(const T* obj) {
     return obj ? obj->count() : 0;
 }
 
-/*  Define this to spew out a debug statement whenever we skip the remainder of
-    a save/restore block because a clip... command returned false (empty).
- */
-#define SPEW_CLIP_SKIPPINGx
-
 SkPictureData::SkPictureData(const SkPictInfo& info)
     : fInfo(info) {
     this->init();
@@ -673,39 +668,12 @@ bool SkPictureData::parseBuffer(SkReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SPEW_CLIP_SKIPPING
-struct SkipClipRec {
-    int     fCount;
-    size_t  fSize;
-
-    SkipClipRec() {
-        fCount = 0;
-        fSize = 0;
-    }
-
-    void recordSkip(size_t bytes) {
-        fCount += 1;
-        fSize += bytes;
-    }
-};
-#endif
-
-uint32_t SkPictureData::OperationList::offset(int index) const {
-    SkASSERT(index < fOps.count());
-    return ((SkPictureStateTree::Draw*)fOps[index])->fOffset;
-}
-
-const SkMatrix& SkPictureData::OperationList::matrix(int index) const {
-    SkASSERT(index < fOps.count());
-    return *((SkPictureStateTree::Draw*)fOps[index])->fMatrix;
-}
-
 const SkPicture::OperationList* SkPictureData::getActiveOps(const SkIRect& query) const {
     if (NULL == fStateTree || NULL == fBoundingHierarchy) {
         return NULL;
     }
 
-    OperationList* activeOps = SkNEW(OperationList);
+    SkPicture::OperationList* activeOps = SkNEW(SkPicture::OperationList);
 
     fBoundingHierarchy->search(query, &(activeOps->fOps));
     if (0 != activeOps->fOps.count()) {

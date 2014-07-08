@@ -14,6 +14,7 @@
 #include "SkDrawPictureCallback.h"
 #include "SkImageDecoder.h"
 #include "SkRefCnt.h"
+#include "SkTDArray.h"
 
 #if SK_SUPPORT_GPU
 class GrContext;
@@ -261,15 +262,15 @@ private:
     // stream along with the CTMs needed for those operation.
     class OperationList : ::SkNoncopyable {
     public:
-        virtual ~OperationList() {}
-
         // The following three entry points should only be accessed if
         // 'valid' returns true.
-        virtual int numOps() const { SkASSERT(false); return 0; };
+        int numOps() const { return fOps.count(); }
         // The offset in the picture of the operation to execute.
-        virtual uint32_t offset(int index) const { SkASSERT(false); return 0; };
+        uint32_t offset(int index) const;
         // The CTM that must be installed for the operation to behave correctly
-        virtual const SkMatrix& matrix(int index) const { SkASSERT(false); return SkMatrix::I(); }
+        const SkMatrix& matrix(int index) const;
+
+        SkTDArray<void*> fOps;
     };
 
     /** PRIVATE / EXPERIMENTAL -- do not call

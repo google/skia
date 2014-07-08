@@ -160,8 +160,8 @@ protected:
 
 private:
 
-    const SkBitmap& getBitmap(SkReader32& reader) const {
-        const int index = reader.readInt();
+    const SkBitmap& getBitmap(SkReader32* reader) const {
+        const int index = reader->readInt();
         if (SkBitmapHeap::INVALID_SLOT == index) {
 #ifdef SK_DEBUG
             SkDebugf("An invalid bitmap was recorded!\n");
@@ -171,19 +171,19 @@ private:
         return (*fBitmaps)[index];
     }
 
-    const SkPath& getPath(SkReader32& reader) const {
-        int index = reader.readInt() - 1;
+    const SkPath& getPath(SkReader32* reader) const {
+        int index = reader->readInt() - 1;
         return (*fPathHeap.get())[index];
     }
 
-    const SkPicture* getPicture(SkReader32& reader) const {
-        int index = reader.readInt();
+    const SkPicture* getPicture(SkReader32* reader) const {
+        int index = reader->readInt();
         SkASSERT(index > 0 && index <= fPictureCount);
         return fPictureRefs[index - 1];
     }
 
-    const SkPaint* getPaint(SkReader32& reader) const {
-        int index = reader.readInt();
+    const SkPaint* getPaint(SkReader32* reader) const {
+        int index = reader->readInt();
         if (index == 0) {
             return NULL;
         }
@@ -268,20 +268,6 @@ private:
     SkPictureStateTree* fStateTree;
 
     SkPictureContentInfo fContentInfo;
-
-    class OperationList : public SkPicture::OperationList {
-    public:
-        OperationList() { }
-        virtual int numOps() const SK_OVERRIDE { return fOps.count(); }
-        virtual uint32_t offset(int index) const SK_OVERRIDE;
-        virtual const SkMatrix& matrix(int index) const SK_OVERRIDE;
-
-        // The operations which are active within 'fCachedQueryRect'
-        SkTDArray<void*> fOps;
-
-    private:
-        typedef SkPicture::OperationList INHERITED;
-    };
 
     SkTypefacePlayback fTFPlayback;
     SkFactoryPlayback* fFactoryPlayback;

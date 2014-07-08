@@ -12,6 +12,7 @@
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
+#include "SkPictureStateTree.h"
 
 #include "SkBBHFactory.h"
 #include "SkBitmapDevice.h"
@@ -45,9 +46,6 @@ template <typename T> int SafeCount(const T* obj) {
 }
 
 #define DUMP_BUFFER_SIZE 65536
-
-//#define ENABLE_TIME_DRAW    // dumps milliseconds for each draw
-
 
 #ifdef SK_DEBUG
 // enable SK_DEBUG_TRACE to trace DrawType elements when
@@ -292,6 +290,16 @@ SkPicture::AccelData::Domain SkPicture::AccelData::GenerateDomain() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+uint32_t SkPicture::OperationList::offset(int index) const {
+    SkASSERT(index < fOps.count());
+    return ((SkPictureStateTree::Draw*)fOps[index])->fOffset;
+}
+
+const SkMatrix& SkPicture::OperationList::matrix(int index) const {
+    SkASSERT(index < fOps.count());
+    return *((SkPictureStateTree::Draw*)fOps[index])->fMatrix;
+}
 
 // fRecord TODO
 const SkPicture::OperationList* SkPicture::EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) const {
