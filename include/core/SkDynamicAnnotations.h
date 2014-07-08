@@ -20,7 +20,7 @@ extern "C" {
 void AnnotateIgnoreReadsBegin(const char* file, int line);
 void AnnotateIgnoreReadsEnd(const char* file, int line);
 void AnnotateBenignRaceSized(const char* file, int line,
-                             const void* addr, long size, const char* desc);
+                             const volatile void* addr, long size, const char* desc);
 }  // extern "C"
 
 // SK_ANNOTATE_UNPROTECTED_READ can wrap any variable read to tell TSAN to ignore that it appears to
