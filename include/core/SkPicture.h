@@ -241,7 +241,8 @@ private:
 
     mutable uint32_t      fUniqueID;
 
-    SkAutoTDelete<const SkPictureData> fData;
+    // TODO: make SkPictureData const when clone method goes away
+    SkAutoTDelete<SkPictureData> fData;
     int                   fWidth, fHeight;
     mutable SkAutoTUnref<const AccelData> fAccelData;
 
