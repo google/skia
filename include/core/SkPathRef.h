@@ -9,7 +9,6 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
-#include "SkDynamicAnnotations.h"
 #include "SkMatrix.h"
 #include "SkPoint.h"
 #include "SkRect.h"
@@ -293,7 +292,7 @@ private:
         SkDEBUGCODE(this->validate();)
         SkASSERT(fBoundsIsDirty);
 
-        fIsFinite = ComputePtBounds(fBounds.get(), *this);
+        fIsFinite = ComputePtBounds(&fBounds, *this);
         fBoundsIsDirty = false;
     }
 
@@ -301,7 +300,7 @@ private:
         SkASSERT(rect.fLeft <= rect.fRight && rect.fTop <= rect.fBottom);
         fBounds = rect;
         fBoundsIsDirty = false;
-        fIsFinite = fBounds->isFinite();
+        fIsFinite = fBounds.isFinite();
     }
 
     /** Makes additional room but does not change the counts or change the genID */
@@ -433,12 +432,11 @@ private:
         kMinSize = 256,
     };
 
-    mutable SkTRacy<SkRect>      fBounds;
-    mutable SkTRacy<uint8_t>     fBoundsIsDirty;
-    mutable SkTRacy<SkBool8>     fIsFinite;    // only meaningful if bounds are valid
-
-    SkBool8  fIsOval;
-    uint8_t  fSegmentMask;
+    mutable SkRect      fBounds;
+    uint8_t             fSegmentMask;
+    mutable uint8_t     fBoundsIsDirty;
+    mutable SkBool8     fIsFinite;    // only meaningful if bounds are valid
+    mutable SkBool8     fIsOval;
 
     SkPoint*            fPoints; // points to begining of the allocation
     uint8_t*            fVerbs; // points just past the end of the allocation (verbs grow backwards)

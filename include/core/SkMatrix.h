@@ -10,7 +10,6 @@
 #ifndef SkMatrix_DEFINED
 #define SkMatrix_DEFINED
 
-#include "SkDynamicAnnotations.h"
 #include "SkRect.h"
 
 class SkString;
@@ -644,7 +643,7 @@ private:
     };
 
     SkScalar         fMat[9];
-    mutable SkTRacy<uint32_t> fTypeMask;
+    mutable uint32_t fTypeMask;
 
     uint8_t computeTypeMask() const;
     uint8_t computePerspectiveTypeMask() const;
@@ -665,7 +664,7 @@ private:
     void clearTypeMask(int mask) {
         // only allow a valid mask
         SkASSERT((mask & kAllMasks) == mask);
-        fTypeMask = fTypeMask & ~mask;
+        fTypeMask &= ~mask;
     }
 
     TypeMask getPerspectiveTypeMaskOnly() const {
