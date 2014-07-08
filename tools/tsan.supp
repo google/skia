@@ -39,3 +39,8 @@ race:SkImageFilter::filterImage
 # bounding-box hierarchy for SkRecord-based SkPictures; all bounds will come pre-cached.
 # So just shut this up for now.
 race:SkPathRef::computeBounds
+
+# SkMatrix caches a type mask.  If we race on this, we'll just calculate the same thing a few times.
+race:SkMatrix::getPerspectiveTypeMaskOnly
+
+# TODO: some sort of SkRacy<T> to handle cases like SkMatrix, SkPathRef, SkPixelRef above?
