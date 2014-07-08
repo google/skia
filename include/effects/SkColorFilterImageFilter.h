@@ -33,7 +33,7 @@ protected:
 private:
     SkColorFilterImageFilter(SkColorFilter* cf,
                              SkImageFilter* input,
-                             const CropRect* cropRect = NULL);
+                             const CropRect* cropRect);
     SkColorFilter*  fColorFilter;
 
     typedef SkImageFilter INHERITED;

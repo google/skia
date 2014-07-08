@@ -40,7 +40,7 @@ public:
 protected:
     SkMatrixImageFilter(const SkMatrix& transform,
                         SkPaint::FilterLevel,
-                        SkImageFilter* input = NULL);
+                        SkImageFilter* input);
     SkMatrixImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 

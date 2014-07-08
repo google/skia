@@ -20,7 +20,8 @@ public:
      * The 0,0 point of the region corresponds to the upper left corner of the
      * source image.
      */
-    static SkImageFilter* Create(const SkRegion& region, SkScalar innerThreshold, SkScalar outerThreshold);
+    static SkImageFilter* Create(const SkRegion& region, SkScalar innerThreshold,
+                                 SkScalar outerThreshold, SkImageFilter* input = NULL);
 };
 
 #endif

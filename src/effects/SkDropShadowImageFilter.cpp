@@ -17,7 +17,7 @@
 
 SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigma,
                                                  SkColor color, SkImageFilter* input)
-    : INHERITED(input)
+    : INHERITED(1, &input)
     , fDx(dx)
     , fDy(dy)
     , fSigmaX(sigma)
@@ -29,7 +29,7 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkSca
 SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy,
                                                  SkScalar sigmaX, SkScalar sigmaY, SkColor color,
                                                  SkImageFilter* input, const CropRect* cropRect)
-    : INHERITED(input, cropRect)
+    : INHERITED(1, &input, cropRect)
     , fDx(dx)
     , fDy(dy)
     , fSigmaX(sigmaX)

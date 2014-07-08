@@ -14,14 +14,15 @@
 
 class SK_API SkMagnifierImageFilter : public SkImageFilter {
 public:
-    static SkMagnifierImageFilter* Create(const SkRect& srcRect, SkScalar inset) {
-        return SkNEW_ARGS(SkMagnifierImageFilter, (srcRect, inset));
+    static SkMagnifierImageFilter* Create(const SkRect& srcRect, SkScalar inset,
+                                          SkImageFilter* input = NULL) {
+        return SkNEW_ARGS(SkMagnifierImageFilter, (srcRect, inset, input));
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMagnifierImageFilter)
 
 protected:
-    SkMagnifierImageFilter(const SkRect& srcRect, SkScalar inset);
+    SkMagnifierImageFilter(const SkRect& srcRect, SkScalar inset, SkImageFilter* input);
     explicit SkMagnifierImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 

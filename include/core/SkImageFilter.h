@@ -201,12 +201,6 @@ public:
 protected:
     SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL);
 
-    // Convenience constructor for 1-input filters.
-    explicit SkImageFilter(SkImageFilter* input, const CropRect* cropRect = NULL);
-
-    // Convenience constructor for 2-input filters.
-    SkImageFilter(SkImageFilter* input1, SkImageFilter* input2, const CropRect* cropRect = NULL);
-
     virtual ~SkImageFilter();
 
     /**

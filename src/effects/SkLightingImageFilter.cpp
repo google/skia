@@ -827,8 +827,9 @@ void SkLight::flattenLight(SkWriteBuffer& buffer) const {
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-SkLightingImageFilter::SkLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkImageFilter* input, const CropRect* cropRect)
-  : INHERITED(input, cropRect),
+SkLightingImageFilter::SkLightingImageFilter(SkLight* light, SkScalar surfaceScale,
+                                             SkImageFilter* input, const CropRect* cropRect)
+  : INHERITED(1, &input, cropRect),
     fLight(light),
     fSurfaceScale(SkScalarDiv(surfaceScale, SkIntToScalar(255)))
 {

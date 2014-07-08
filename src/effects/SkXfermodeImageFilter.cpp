@@ -21,10 +21,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 SkXfermodeImageFilter::SkXfermodeImageFilter(SkXfermode* mode,
-                                             SkImageFilter* background,
-                                             SkImageFilter* foreground,
+                                             SkImageFilter* inputs[2],
                                              const CropRect* cropRect)
-  : INHERITED(background, foreground, cropRect), fMode(mode) {
+  : INHERITED(2, inputs, cropRect), fMode(mode) {
     SkSafeRef(fMode);
 }
 

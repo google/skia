@@ -37,7 +37,7 @@ SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX,
                                      SkScalar sigmaY,
                                      SkImageFilter* input,
                                      const CropRect* cropRect)
-    : INHERITED(input, cropRect), fSigma(SkSize::Make(sigmaX, sigmaY)) {
+    : INHERITED(1, &input, cropRect), fSigma(SkSize::Make(sigmaX, sigmaY)) {
     SkASSERT(sigmaX >= 0 && sigmaY >= 0);
 }
 

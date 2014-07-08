@@ -161,10 +161,9 @@ bool channel_selector_type_is_valid(SkDisplacementMapEffect::ChannelSelectorType
 SkDisplacementMapEffect::SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
                                                  ChannelSelectorType yChannelSelector,
                                                  SkScalar scale,
-                                                 SkImageFilter* displacement,
-                                                 SkImageFilter* color,
+                                                 SkImageFilter* inputs[2],
                                                  const CropRect* cropRect)
-  : INHERITED(displacement, color, cropRect)
+  : INHERITED(2, inputs, cropRect)
   , fXChannelSelector(xChannelSelector)
   , fYChannelSelector(yChannelSelector)
   , fScale(scale)

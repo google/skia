@@ -13,7 +13,8 @@
 
 class SK_API SkAlphaThresholdFilterImpl : public SkImageFilter {
 public:
-    SkAlphaThresholdFilterImpl(const SkRegion& region, SkScalar innerThreshold, SkScalar outerThreshold);
+    SkAlphaThresholdFilterImpl(const SkRegion& region, SkScalar innerThreshold,
+                               SkScalar outerThreshold, SkImageFilter* input);
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkAlphaThresholdFilterImpl)
 
@@ -37,8 +38,9 @@ private:
 
 SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
                                               SkScalar innerThreshold,
-                                              SkScalar outerThreshold) {
-    return SkNEW_ARGS(SkAlphaThresholdFilterImpl, (region, innerThreshold, outerThreshold));
+                                              SkScalar outerThreshold,
+                                              SkImageFilter* input) {
+    return SkNEW_ARGS(SkAlphaThresholdFilterImpl, (region, innerThreshold, outerThreshold, input));
 }
 
 #if SK_SUPPORT_GPU
@@ -239,8 +241,9 @@ SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(SkReadBuffer& buffer)
 
 SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
                                                        SkScalar innerThreshold,
-                                                       SkScalar outerThreshold)
-    : INHERITED(0)
+                                                       SkScalar outerThreshold,
+                                                       SkImageFilter* input)
+    : INHERITED(1, &input)
     , fRegion(region)
     , fInnerThreshold(innerThreshold)
     , fOuterThreshold(outerThreshold) {

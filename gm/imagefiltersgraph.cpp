@@ -71,7 +71,7 @@ protected:
 
 private:
     SimpleOffsetFilter(SkScalar dx, SkScalar dy, SkImageFilter* input)
-    : SkImageFilter(input), fDX(dx), fDY(dy) {}
+    : SkImageFilter(1, &input), fDX(dx), fDY(dy) {}
 
     SkScalar fDX, fDY;
 };

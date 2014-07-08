@@ -32,7 +32,7 @@ SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX,
                                                  int radiusY,
                                                  SkImageFilter* input,
                                                  const CropRect* cropRect)
-    : INHERITED(input, cropRect), fRadius(SkISize::Make(radiusX, radiusY)) {
+    : INHERITED(1, &input, cropRect), fRadius(SkISize::Make(radiusX, radiusY)) {
 }
 
 

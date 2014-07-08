@@ -78,7 +78,7 @@ SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
 
 SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
         SkImageFilter* input, const CropRect* cropRect)
-    : INHERITED(input, cropRect), fColorFilter(cf) {
+    : INHERITED(1, &input, cropRect), fColorFilter(cf) {
     SkASSERT(cf);
     SkSafeRef(cf);
 }

@@ -18,7 +18,7 @@
 SkMatrixImageFilter::SkMatrixImageFilter(const SkMatrix& transform,
                                          SkPaint::FilterLevel filterLevel,
                                          SkImageFilter* input)
-  : INHERITED(input),
+  : INHERITED(1, &input),
     fTransform(transform),
     fFilterLevel(filterLevel) {
 }

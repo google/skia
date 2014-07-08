@@ -32,23 +32,6 @@ SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropR
     }
 }
 
-SkImageFilter::SkImageFilter(SkImageFilter* input, const CropRect* cropRect)
-  : fInputCount(1),
-    fInputs(new SkImageFilter*[1]),
-    fCropRect(cropRect ? *cropRect : CropRect(SkRect(), 0x0)) {
-    fInputs[0] = input;
-    SkSafeRef(fInputs[0]);
-}
-
-SkImageFilter::SkImageFilter(SkImageFilter* input1, SkImageFilter* input2, const CropRect* cropRect)
-  : fInputCount(2), fInputs(new SkImageFilter*[2]),
-    fCropRect(cropRect ? *cropRect : CropRect(SkRect(), 0x0)) {
-    fInputs[0] = input1;
-    fInputs[1] = input2;
-    SkSafeRef(fInputs[0]);
-    SkSafeRef(fInputs[1]);
-}
-
 SkImageFilter::~SkImageFilter() {
     for (int i = 0; i < fInputCount; i++) {
         SkSafeUnref(fInputs[i]);

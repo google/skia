@@ -43,7 +43,7 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
     bool convolveAlpha,
     SkImageFilter* input,
     const CropRect* cropRect)
-  : INHERITED(input, cropRect),
+  : INHERITED(1, &input, cropRect),
     fKernelSize(kernelSize),
     fGain(gain),
     fBias(bias),

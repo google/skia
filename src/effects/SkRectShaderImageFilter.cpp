@@ -29,14 +29,14 @@ SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const Crop
 }
 
 SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const CropRect* cropRect)
-  : INHERITED(NULL, cropRect)
+  : INHERITED(0, NULL, cropRect)
   , fShader(s) {
     SkASSERT(s);
     s->ref();
 }
 
 SkRectShaderImageFilter::SkRectShaderImageFilter(SkReadBuffer& buffer)
-  : INHERITED(1, buffer) {
+  : INHERITED(0, buffer) {
     fShader = buffer.readShader();
 }
 

@@ -24,14 +24,14 @@ public:
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
 protected:
-    FailImageFilter() : INHERITED(0) {}
+    FailImageFilter() : INHERITED(0, NULL) {}
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
         return false;
     }
 
     FailImageFilter(SkReadBuffer& buffer)
-      : INHERITED(1, buffer) {}
+      : INHERITED(0, buffer) {}
 
 private:
     typedef SkImageFilter INHERITED;
@@ -44,13 +44,13 @@ static SkFlattenable::Registrar gFailImageFilterReg("FailImageFilter",
 
 class IdentityImageFilter : public SkImageFilter {
 public:
-    static IdentityImageFilter* Create() {
-        return SkNEW(IdentityImageFilter);
+    static IdentityImageFilter* Create(SkImageFilter* input = NULL) {
+        return SkNEW_ARGS(IdentityImageFilter, (input));
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(IdentityImageFilter)
 protected:
-    IdentityImageFilter() : INHERITED(0) {}
+    IdentityImageFilter(SkImageFilter* input) : INHERITED(1, &input) {}
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
         *result = src;

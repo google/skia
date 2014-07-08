@@ -44,7 +44,7 @@ namespace {
 class MatrixTestImageFilter : public SkImageFilter {
 public:
     MatrixTestImageFilter(skiatest::Reporter* reporter, const SkMatrix& expectedMatrix)
-      : SkImageFilter(0), fReporter(reporter), fExpectedMatrix(expectedMatrix) {
+      : SkImageFilter(0, NULL), fReporter(reporter), fExpectedMatrix(expectedMatrix) {
     }
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context& ctx,
@@ -56,7 +56,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
 
 protected:
-    explicit MatrixTestImageFilter(SkReadBuffer& buffer) : SkImageFilter(0) {
+    explicit MatrixTestImageFilter(SkReadBuffer& buffer) : SkImageFilter(0, NULL) {
         fReporter = static_cast<skiatest::Reporter*>(buffer.readFunctionPtr());
         buffer.readMatrix(&fExpectedMatrix);
     }

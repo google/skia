@@ -97,7 +97,8 @@ void SkOffsetImageFilter::flatten(SkWriteBuffer& buffer) const {
 }
 
 SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input,
-                                         const CropRect* cropRect) : INHERITED(input, cropRect) {
+                                         const CropRect* cropRect)
+  : INHERITED(1, &input, cropRect) {
     fOffset.set(dx, dy);
 }
 
