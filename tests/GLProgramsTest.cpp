@@ -172,7 +172,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                                                                             *this->caps(),
                                                                             dummyTextures));
             SkASSERT(effect);
-            int numAttribs = (*effect)->numVertexAttribs();
+            int numAttribs = effect->numVertexAttribs();
 
             // If adding this effect would exceed the max attrib count then generate a
             // new random effect.
@@ -183,15 +183,15 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
             // If adding this effect would exceed the max texture coord set count then generate a
             // new random effect.
-            if (useFixedFunctionTexturing && !(*effect)->hasVertexCode()) {
-                int numTransforms = (*effect)->numTransforms();
+            if (useFixedFunctionTexturing && !effect->hasVertexCode()) {
+                int numTransforms = effect->numTransforms();
                 if (currTextureCoordSet + numTransforms > this->glCaps().maxFixedFunctionTextureCoords()) {
                     continue;
                 }
                 currTextureCoordSet += numTransforms;
             }
 
-            useFixedFunctionTexturing = useFixedFunctionTexturing && !(*effect)->hasVertexCode();
+            useFixedFunctionTexturing = useFixedFunctionTexturing && !effect->hasVertexCode();
 
             for (int i = 0; i < numAttribs; ++i) {
                 attribIndices[i] = currAttribIndex++;

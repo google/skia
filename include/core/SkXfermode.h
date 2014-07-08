@@ -13,7 +13,7 @@
 #include "SkFlattenable.h"
 #include "SkColor.h"
 
-class GrEffectRef;
+class GrEffect;
 class GrTexture;
 class SkString;
 
@@ -198,7 +198,7 @@ public:
         fragment shader. If NULL, the effect should request access to destination color
         (setWillReadDstColor()), and use that in the fragment shader (builder->dstColor()).
      */
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture* background = NULL) const;
+    virtual bool asNewEffect(GrEffect** effect, GrTexture* background = NULL) const;
 
     /** Returns true if the xfermode can be expressed as coeffs (src, dst), or as an effect
         (effect). This helper calls the asCoeff() and asNewEffect() virtuals. If the xfermode is
@@ -206,7 +206,7 @@ public:
         simply test the return value.  effect, src, and dst must all be NULL or all non-NULL.
      */
     static bool AsNewEffectOrCoeff(SkXfermode*,
-                                   GrEffectRef** effect,
+                                   GrEffect** effect,
                                    Coeff* src,
                                    Coeff* dst,
                                    GrTexture* background = NULL);

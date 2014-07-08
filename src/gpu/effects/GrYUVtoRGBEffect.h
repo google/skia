@@ -8,14 +8,14 @@
 #ifndef GrYUVtoRGBEffect_DEFINED
 #define GrYUVtoRGBEffect_DEFINED
 
-class GrEffectRef;
+class GrEffect;
 class GrTexture;
 
 namespace GrYUVtoRGBEffect {
     /**
      * Creates an effect that performs color conversion from YUV to RGB
      */
-    GrEffectRef* Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture);
+    GrEffect* Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture);
 };
 
 #endif

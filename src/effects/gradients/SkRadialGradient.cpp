@@ -591,7 +591,7 @@ bool SkRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
 
 bool SkRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
                                    const SkMatrix* localMatrix, GrColor* grColor,
-                                   GrEffectRef** grEffect) const {
+                                   GrEffect** grEffect) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

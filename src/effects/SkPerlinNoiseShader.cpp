@@ -946,7 +946,7 @@ void GrGLPerlinNoise::setData(const GrGLUniformManager& uman, const GrDrawEffect
 
 bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
                                       const SkMatrix* externalLocalMatrix, GrColor* grColor,
-                                      GrEffectRef** grEffect) const {
+                                      GrEffect** grEffect) const {
     SkASSERT(NULL != context);
     
     *grColor = SkColor2GrColorJustAlpha(paint.getColor());
@@ -1011,7 +1011,7 @@ bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
 
 bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
                                       const SkMatrix* externalLocalMatrix, GrColor* grColor,
-                                      GrEffectRef** grEffect) const {
+                                      GrEffect** grEffect) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

@@ -58,7 +58,7 @@ public:
 
     virtual bool asNewEffect(GrContext* context, const SkPaint& paint,
                              const SkMatrix* localMatrix, GrColor* grColor,
-                             GrEffectRef** grEffect) const SK_OVERRIDE;
+                             GrEffect** grEffect) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorShader)
