@@ -200,7 +200,7 @@ public:
     bool suitableForGpuRasterization(GrContext*, const char ** = NULL) const;
 #endif
 
-protected:
+private:
     // V2 : adds SkPixelRef's generation ID.
     // V3 : PictInfo tag at beginning, and EOF tag at the end
     // V4 : move SkPictInfo to be the header
@@ -241,8 +241,7 @@ protected:
 
     mutable uint32_t      fUniqueID;
 
-    // TODO: make fData and fWidth/fHeight private
-    SkAutoTDelete<SkPictureData> fData;
+    SkAutoTDelete<const SkPictureData> fData;
     int                   fWidth, fHeight;
     mutable SkAutoTUnref<const AccelData> fAccelData;
 
@@ -254,7 +253,6 @@ protected:
 
     SkPicture(int width, int height, const SkPictureRecord& record, bool deepCopyOps);
 
-private:
     static void WriteTagSize(SkWriteBuffer& buffer, uint32_t tag, size_t size);
     static void WriteTagSize(SkWStream* stream, uint32_t tag, size_t size);
 
