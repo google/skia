@@ -53,7 +53,7 @@ for file in \
 done
 
 echo "Pushing gdbserver..."
-adb_push_if_needed $ANDROID_TOOLCHAIN/../gdbserver data/local/tmp
+adb_push_if_needed $ANDROID_TOOLCHAIN/../gdbserver /data/local/tmp
 
 echo "Setting up port forward"
 $ADB forward "tcp:5039" "tcp:5039"
