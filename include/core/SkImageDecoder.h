@@ -205,6 +205,20 @@ public:
     void resetPrefConfigTable() { fUsePrefTable = false; }
 #endif
 
+    /**
+     *  By default, the codec will try to comply with the "pref" colortype
+     *  that is passed to decode() or decodeSubset(). However, this can be called
+     *  to override that, causing the codec to try to match the src depth instead
+     *  (as shown below).
+     *
+     *      src_8Index  -> kIndex_8_SkColorType
+     *      src_8Gray   -> kN32_SkColorType
+     *      src_8bpc    -> kN32_SkColorType
+     */
+    void setPreserveSrcDepth(bool preserve) {
+        fPreserveSrcDepth = preserve;
+    }
+
     SkBitmap::Allocator* getAllocator() const { return fAllocator; }
     SkBitmap::Allocator* setAllocator(SkBitmap::Allocator*);
 
@@ -456,6 +470,7 @@ private:
     PrefConfigTable         fPrefTable;     // use if fUsePrefTable is true
     bool                    fUsePrefTable;
 #endif
+    bool                    fPreserveSrcDepth;
     bool                    fDitherImage;
     bool                    fSkipWritingZeroes;
     mutable bool            fShouldCancelDecode;

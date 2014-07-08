@@ -22,6 +22,7 @@ SkImageDecoder::SkImageDecoder()
     , fAllocator(NULL)
     , fSampleSize(1)
     , fDefaultPref(kUnknown_SkColorType)
+    , fPreserveSrcDepth(false)
     , fDitherImage(true)
 #ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
     , fUsePrefTable(false)
@@ -56,6 +57,7 @@ void SkImageDecoder::copyFieldsToOther(SkImageDecoder* other) {
         other->fDefaultPref = fDefaultPref;
     }
 #endif
+    other->setPreserveSrcDepth(fPreserveSrcDepth);
     other->setDitherImage(fDitherImage);
     other->setSkipWritingZeroes(fSkipWritingZeroes);
     other->setPreferQualityOverSpeed(fPreferQualityOverSpeed);
@@ -156,7 +158,6 @@ void SkImageDecoder::setPrefConfigTable(const PrefConfigTable& prefTable) {
 SkColorType SkImageDecoder::getPrefColorType(SrcDepth srcDepth, bool srcHasAlpha) const {
     SkColorType ct = fDefaultPref;
 #ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
-
     if (fUsePrefTable) {
         // Until we kill or change the PrefTable, we have to go into Config land for a moment.
         SkBitmap::Config config = SkBitmap::kNo_Config;
@@ -177,6 +178,19 @@ SkColorType SkImageDecoder::getPrefColorType(SrcDepth srcDepth, bool srcHasAlpha
         ct = SkBitmapConfigToColorType(config);
     }
 #endif
+    if (fPreserveSrcDepth) {
+        switch (srcDepth) {
+            case kIndex_SrcDepth:
+                ct = kIndex_8_SkColorType;
+                break;
+            case k8BitGray_SrcDepth:
+                ct = kN32_SkColorType;
+                break;
+            case k32Bit_SrcDepth:
+                ct = kN32_SkColorType;
+                break;
+        }
+    }
     return ct;
 }
 
