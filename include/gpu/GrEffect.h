@@ -169,11 +169,11 @@ protected:
         , fWillUseInputColor(true)
         , fHasVertexCode(false) {}
 
-    /** Helper for down-casting to a GrEffect subclass
+    /**
+      * Helper for down-casting to a GrEffect subclass
       */
-    template <typename T>
-    static const T& CastEffect(const GrEffect& effectRef) {
-        return *static_cast<const T*>(&effectRef);
+    template <typename T> static const T& CastEffect(const GrEffect& effect) {
+        return *static_cast<const T*>(&effect);
     }
 
     /**
