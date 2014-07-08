@@ -44,6 +44,17 @@
         ],
       ],
     },
+    {
+      'target_name': 'ref_cnt_is',
+      'type': 'static_library',
+      'sources': [ '../tools/RefCntIs.cpp' ],
+      'direct_dependent_settings': {
+        'include_dirs': [ '../tools' ],
+      },
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+      ],
+    },
     {  # This would go in gm.gyp, but it's also used by skimage below.
       'target_name': 'gm_expectations',
       'type': 'static_library',

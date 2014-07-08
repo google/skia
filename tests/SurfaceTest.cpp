@@ -11,6 +11,7 @@
 #include "SkRRect.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
+#include "RefCntIs.h"
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
@@ -77,11 +78,11 @@ static void test_image(skiatest::Reporter* reporter) {
     void* addr = sk_malloc_throw(size);
     SkData* data = SkData::NewFromMalloc(addr, size);
 
-    REPORTER_ASSERT(reporter, 1 == data->getRefCnt());
+    REPORTER_ASSERT(reporter, RefCntIs(*data, 1));
     SkImage* image = SkImage::NewRasterData(info, data, rowBytes);
-    REPORTER_ASSERT(reporter, 2 == data->getRefCnt());
+    REPORTER_ASSERT(reporter, RefCntIs(*data, 2));
     image->unref();
-    REPORTER_ASSERT(reporter, 1 == data->getRefCnt());
+    REPORTER_ASSERT(reporter, RefCntIs(*data, 1));
     data->unref();
 }
 

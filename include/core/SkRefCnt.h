@@ -42,8 +42,10 @@ public:
 #endif
     }
 
+#ifdef SK_DEBUG
     /** Return the reference count. Use only for debugging. */
     int32_t getRefCnt() const { return fRefCnt; }
+#endif
 
     /** May return true if the caller is the only owner.
      *  Ensures that all previous owner's actions are complete.
@@ -117,6 +119,9 @@ private:
     friend class SkWeakRefCnt;
 
     mutable int32_t fRefCnt;
+
+    // Used by tests.
+    friend bool RefCntIs(const SkRefCntBase&, int32_t);
 
     typedef SkNoncopyable INHERITED;
 };

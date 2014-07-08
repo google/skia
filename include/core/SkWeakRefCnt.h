@@ -60,20 +60,18 @@ public:
     */
     SkWeakRefCnt() : SkRefCnt(), fWeakCnt(1) {}
 
+#ifdef SK_DEBUG
     /** Destruct, asserting that the weak reference count is 1.
     */
     virtual ~SkWeakRefCnt() {
-#ifdef SK_DEBUG
         SkASSERT(fWeakCnt == 1);
         fWeakCnt = 0;
-#endif
     }
 
     /** Return the weak reference count.
     */
     int32_t getWeakCnt() const { return fWeakCnt; }
 
-#ifdef SK_DEBUG
     void validate() const {
         this->INHERITED::validate();
         SkASSERT(fWeakCnt > 0);
@@ -154,6 +152,9 @@ private:
 
     /* Invariant: fWeakCnt = #weak + (fRefCnt > 0 ? 1 : 0) */
     mutable int32_t fWeakCnt;
+
+    // Used by tests.
+    friend bool WeakRefCntIs(const SkWeakRefCnt&, int32_t);
 
     typedef SkRefCnt INHERITED;
 };

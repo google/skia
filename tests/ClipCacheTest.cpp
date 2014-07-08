@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "RefCntIs.h"
 // This is a GR test
 #if SK_SUPPORT_GPU
 #include "../../src/gpu/GrClipMaskManager.h"
@@ -164,14 +165,14 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     // check that the set took
     check_state(reporter, cache, clip1, texture1, bound1);
-    REPORTER_ASSERT(reporter, texture1->getRefCnt());
+    REPORTER_ASSERT(reporter, !RefCntIs(*texture1, 0));
 
     // push the state
     cache.push();
 
     // verify that the pushed state is initially empty
     check_empty_state(reporter, cache);
-    REPORTER_ASSERT(reporter, texture1->getRefCnt());
+    REPORTER_ASSERT(reporter, !RefCntIs(*texture1, 0));
 
     // modify the new state
     SkIRect bound2;
@@ -189,8 +190,8 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     // check that the changes took
     check_state(reporter, cache, clip2, texture2, bound2);
-    REPORTER_ASSERT(reporter, texture1->getRefCnt());
-    REPORTER_ASSERT(reporter, texture2->getRefCnt());
+    REPORTER_ASSERT(reporter, !RefCntIs(*texture1, 0));
+    REPORTER_ASSERT(reporter, !RefCntIs(*texture2, 0));
 
     // check to make sure canReuse works
     REPORTER_ASSERT(reporter, cache.canReuse(clip2.getTopmostGenID(), bound2));
@@ -201,7 +202,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     // verify that the old state is restored
     check_state(reporter, cache, clip1, texture1, bound1);
-    REPORTER_ASSERT(reporter, texture1->getRefCnt());
+    REPORTER_ASSERT(reporter, !RefCntIs(*texture1, 0));
 
     // manually clear the state
     cache.reset();

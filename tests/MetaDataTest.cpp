@@ -6,11 +6,12 @@
  */
 
 #include "SkMetaData.h"
+#include "RefCntIs.h"
 #include "Test.h"
 
 static void test_ptrs(skiatest::Reporter* reporter) {
     SkRefCnt ref;
-    REPORTER_ASSERT(reporter, 1 == ref.getRefCnt());
+    REPORTER_ASSERT(reporter, RefCntIs(ref, 1));
 
     {
         SkMetaData md0, md1;
@@ -19,19 +20,19 @@ static void test_ptrs(skiatest::Reporter* reporter) {
         md0.setRefCnt(name, &ref);
         REPORTER_ASSERT(reporter, md0.findRefCnt(name));
         REPORTER_ASSERT(reporter, md0.hasRefCnt(name, &ref));
-        REPORTER_ASSERT(reporter, 2 == ref.getRefCnt());
+        REPORTER_ASSERT(reporter, RefCntIs(ref, 2));
 
         md1 = md0;
         REPORTER_ASSERT(reporter, md1.findRefCnt(name));
         REPORTER_ASSERT(reporter, md1.hasRefCnt(name, &ref));
-        REPORTER_ASSERT(reporter, 3 == ref.getRefCnt());
+        REPORTER_ASSERT(reporter, RefCntIs(ref, 3));
 
         REPORTER_ASSERT(reporter, md0.removeRefCnt(name));
         REPORTER_ASSERT(reporter, !md0.findRefCnt(name));
         REPORTER_ASSERT(reporter, !md0.hasRefCnt(name, &ref));
-        REPORTER_ASSERT(reporter, 2 == ref.getRefCnt());
+        REPORTER_ASSERT(reporter, RefCntIs(ref, 2));
     }
-    REPORTER_ASSERT(reporter, 1 == ref.getRefCnt());
+    REPORTER_ASSERT(reporter, RefCntIs(ref, 1));
 }
 
 DEF_TEST(MetaData, reporter) {
