@@ -119,7 +119,7 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
     }
 
     const SkPMColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
-    SkColorTable* ct = SkNEW_ARGS(SkColorTable, (colors, 2));
+    SkColorTable* ct = SkNEW_ARGS(SkColorTable, (colors, 2, kOpaque_SkAlphaType));
     SkAutoUnref   aur(ct);
 
     if (!this->allocPixelRef(decodedBitmap, ct)) {
