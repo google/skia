@@ -41,6 +41,8 @@ race:SkImageFilter::filterImage
 race:SkPathRef::computeBounds
 
 # SkMatrix caches a type mask.  If we race on this, we'll just calculate the same thing a few times.
+race:SkMatrix::getType
+race:SkMatrix::rectStaysRect
 race:SkMatrix::getPerspectiveTypeMaskOnly
 
 # TODO: some sort of SkRacy<T> to handle cases like SkMatrix, SkPathRef, SkPixelRef above?
