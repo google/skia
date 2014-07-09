@@ -11,8 +11,11 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count,
-                                   SkScalar phase) {
+SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count, SkScalar phase)
+        : fPhase(0)
+        , fInitialDashLength(0)
+        , fInitialDashIndex(0)
+        , fIntervalLength(0) {
     SkASSERT(intervals);
     SkASSERT(count > 1 && SkAlign2(count) == count);
 
@@ -24,8 +27,8 @@ SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count,
     }
 
     // set the internal data members
-    SkDashPath::CalcDashParameters(phase, fIntervals, fCount, &fInitialDashLength,
-                                   &fInitialDashIndex, &fIntervalLength, &fPhase);
+    SkDashPath::CalcDashParameters(phase, fIntervals, fCount,
+            &fInitialDashLength, &fInitialDashIndex, &fIntervalLength, &fPhase);
 }
 
 SkDashPathEffect::~SkDashPathEffect() {
@@ -249,7 +252,12 @@ SkFlattenable* SkDashPathEffect::CreateProc(SkReadBuffer& buffer) {
     return SkNEW_ARGS(SkDashPathEffect, (buffer));
 }
 
-SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
+SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer)
+        : INHERITED(buffer)
+        , fPhase(0)
+        , fInitialDashLength(0)
+        , fInitialDashIndex(0)
+        , fIntervalLength(0) {
     bool useOldPic = buffer.isVersionLT(SkReadBuffer::kDashWritesPhaseIntervals_Version);
     if (useOldPic) {
         fInitialDashIndex = buffer.readInt();
@@ -280,7 +288,7 @@ SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
     } else {
         // set the internal data members, fPhase should have been between 0 and intervalLength
         // when written to buffer so no need to adjust it
-        SkDashPath::CalcDashParameters(fPhase, fIntervals, fCount, &fInitialDashLength,
-                                       &fInitialDashIndex, &fIntervalLength);
+        SkDashPath::CalcDashParameters(fPhase, fIntervals, fCount,
+                &fInitialDashLength, &fInitialDashIndex, &fIntervalLength);
     }
 }
