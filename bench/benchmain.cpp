@@ -225,8 +225,6 @@ DEFINE_bool(rotate, false,  "Rotate canvas before bench run?");
 DEFINE_bool(scale,  false,  "Scale canvas before bench run?");
 DEFINE_bool(clip,   false,  "Clip canvas before bench run?");
 
-DEFINE_bool(forceAA,        true,     "Force anti-aliasing?");
-DEFINE_bool(forceFilter,    false,    "Force bitmap filtering?");
 DEFINE_string(forceDither, "default", "Force dithering: true, false, or default?");
 DEFINE_bool(forceBlend,     false,    "Force alpha blending?");
 
@@ -415,8 +413,6 @@ int tool_main(int argc, char** argv) {
     }
     writer.option("mode", FLAGS_mode[0]);
     writer.option("alpha", SkStringPrintf("0x%02X", alpha).c_str());
-    writer.option("antialias", SkStringPrintf("%d", FLAGS_forceAA).c_str());
-    writer.option("filter", SkStringPrintf("%d", FLAGS_forceFilter).c_str());
     writer.option("dither",  SkTriState::Name[dither]);
 
     writer.option("rotate", SkStringPrintf("%d", FLAGS_rotate).c_str());
@@ -476,8 +472,6 @@ int tool_main(int argc, char** argv) {
         }
 
         bench->setForceAlpha(alpha);
-        bench->setForceAA(FLAGS_forceAA);
-        bench->setForceFilter(FLAGS_forceFilter);
         bench->setDither(dither);
         bench->preDraw();
 

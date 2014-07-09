@@ -76,14 +76,6 @@ public:
         fForceAlpha = alpha;
     }
 
-    void setForceAA(bool aa) {
-        fForceAA = aa;
-    }
-
-    void setForceFilter(bool filter) {
-        fForceFilter = filter;
-    }
-
     void setDither(SkTriState::State state) {
         fDither = state;
     }
@@ -115,8 +107,6 @@ protected:
 
 private:
     int     fForceAlpha;
-    bool    fForceAA;
-    bool    fForceFilter;
     SkTriState::State  fDither;
     uint32_t    fOrMask, fClearMask;
 

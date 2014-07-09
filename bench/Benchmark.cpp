@@ -16,8 +16,6 @@ template BenchRegistry* BenchRegistry::gHead;
 
 Benchmark::Benchmark() {
     fForceAlpha = 0xFF;
-    fForceAA = true;
-    fForceFilter = false;
     fDither = SkTriState::kDefault;
     fOrMask = fClearMask = 0;
 }
@@ -40,9 +38,8 @@ void Benchmark::draw(const int loops, SkCanvas* canvas) {
 
 void Benchmark::setupPaint(SkPaint* paint) {
     paint->setAlpha(fForceAlpha);
-    paint->setAntiAlias(fForceAA);
-    paint->setFilterLevel(fForceFilter ? SkPaint::kLow_FilterLevel
-                                       : SkPaint::kNone_FilterLevel);
+    paint->setAntiAlias(true);
+    paint->setFilterLevel(SkPaint::kNone_FilterLevel);
 
     paint->setFlags((paint->getFlags() & ~fClearMask) | fOrMask);
 
