@@ -10,7 +10,6 @@
 #include "SkThreadUtils.h"
 #include "SkTypes.h"
 #include "SkWeakRefCnt.h"
-#include "RefCntIs.h"
 #include "Test.h"
 
 class InstCounterClass {
@@ -34,7 +33,7 @@ static void test_refarray(skiatest::Reporter* reporter) {
     const int N = 10;
     SkTRefArray<InstCounterClass>* array = SkTRefArray<InstCounterClass>::Create(N);
 
-    REPORTER_ASSERT(reporter, RefCntIs(*array, 1));
+    REPORTER_ASSERT(reporter, 1 == array->getRefCnt());
     REPORTER_ASSERT(reporter, N == array->count());
 
     REPORTER_ASSERT(reporter, N == InstCounterClass::gInstCounter);
@@ -51,7 +50,7 @@ static void test_refarray(skiatest::Reporter* reporter) {
     }
 
     array = SkTRefArray<InstCounterClass>::Create(src, N);
-    REPORTER_ASSERT(reporter, RefCntIs(*array, 1));
+    REPORTER_ASSERT(reporter, 1 == array->getRefCnt());
     REPORTER_ASSERT(reporter, N == array->count());
 
     REPORTER_ASSERT(reporter, 2*N == InstCounterClass::gInstCounter);
@@ -92,7 +91,7 @@ static void test_refCnt(skiatest::Reporter* reporter) {
     thing1.join();
     thing2.join();
 
-    REPORTER_ASSERT(reporter, RefCntIs(*ref, 1));
+    REPORTER_ASSERT(reporter, ref->getRefCnt() == 1);
     ref->unref();
 }
 
@@ -136,8 +135,8 @@ static void test_weakRefCnt(skiatest::Reporter* reporter) {
     thing3.join();
     thing4.join();
 
-    REPORTER_ASSERT(reporter, RefCntIs(*ref, 1));
-    REPORTER_ASSERT(reporter, WeakRefCntIs(*ref, 1));
+    REPORTER_ASSERT(reporter, ref->getRefCnt() == 1);
+    REPORTER_ASSERT(reporter, ref->getWeakCnt() == 1);
     ref->unref();
 }
 

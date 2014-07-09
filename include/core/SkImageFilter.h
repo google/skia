@@ -51,7 +51,6 @@ public:
     class SK_API Cache : public SkRefCnt {
     public:
         // By default, we cache only image filters with 2 or more children.
-        // Values less than 2 mean always cache; values greater than 2 are not supported.
         static Cache* Create(int minChildren = 2);
         virtual ~Cache() {}
         virtual bool get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset) = 0;

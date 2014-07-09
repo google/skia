@@ -10,7 +10,6 @@
 #include "SkTSearch.h"
 #include "SkTSort.h"
 #include "SkUtils.h"
-#include "RefCntIs.h"
 #include "Test.h"
 
 class RefClass : public SkRefCnt {
@@ -28,30 +27,30 @@ private:
 
 static void test_autounref(skiatest::Reporter* reporter) {
     RefClass obj(0);
-    REPORTER_ASSERT(reporter, RefCntIs(obj, 1));
+    REPORTER_ASSERT(reporter, 1 == obj.getRefCnt());
 
     SkAutoTUnref<RefClass> tmp(&obj);
     REPORTER_ASSERT(reporter, &obj == tmp.get());
-    REPORTER_ASSERT(reporter, RefCntIs(obj, 1));
+    REPORTER_ASSERT(reporter, 1 == obj.getRefCnt());
 
     REPORTER_ASSERT(reporter, &obj == tmp.detach());
-    REPORTER_ASSERT(reporter, RefCntIs(obj, 1));
+    REPORTER_ASSERT(reporter, 1 == obj.getRefCnt());
     REPORTER_ASSERT(reporter, NULL == tmp.detach());
     REPORTER_ASSERT(reporter, NULL == tmp.get());
 
     obj.ref();
-    REPORTER_ASSERT(reporter, RefCntIs(obj, 2));
+    REPORTER_ASSERT(reporter, 2 == obj.getRefCnt());
     {
         SkAutoTUnref<RefClass> tmp2(&obj);
     }
-    REPORTER_ASSERT(reporter, RefCntIs(obj, 1));
+    REPORTER_ASSERT(reporter, 1 == obj.getRefCnt());
 }
 
 static void test_autostarray(skiatest::Reporter* reporter) {
     RefClass obj0(0);
     RefClass obj1(1);
-    REPORTER_ASSERT(reporter, RefCntIs(obj0, 1));
-    REPORTER_ASSERT(reporter, RefCntIs(obj1, 1));
+    REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+    REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
 
     {
         SkAutoSTArray<2, SkRefPtr<RefClass> > tmp;
@@ -62,14 +61,14 @@ static void test_autostarray(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 4 == tmp.count());
         tmp[0] = &obj0;
         tmp[1] = &obj1;
-        REPORTER_ASSERT(reporter, RefCntIs(obj0, 2));
-        REPORTER_ASSERT(reporter, RefCntIs(obj1, 2));
+        REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
 
         // test out reset with data in the array (and a new allocation)
         tmp.reset(0);
         REPORTER_ASSERT(reporter, 0 == tmp.count());
-        REPORTER_ASSERT(reporter, RefCntIs(obj0, 1));
-        REPORTER_ASSERT(reporter, RefCntIs(obj1, 1));
+        REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
 
         tmp.reset(2);   // this should use the preexisting allocation
         REPORTER_ASSERT(reporter, 2 == tmp.count());
@@ -78,8 +77,8 @@ static void test_autostarray(skiatest::Reporter* reporter) {
     }
 
     // test out destructor with data in the array (and using existing allocation)
-    REPORTER_ASSERT(reporter, RefCntIs(obj0, 1));
-    REPORTER_ASSERT(reporter, RefCntIs(obj1, 1));
+    REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+    REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
 
     {
         // test out allocating ctor (this should allocate new memory)
@@ -88,32 +87,32 @@ static void test_autostarray(skiatest::Reporter* reporter) {
 
         tmp[0] = &obj0;
         tmp[1] = &obj1;
-        REPORTER_ASSERT(reporter, RefCntIs(obj0, 2));
-        REPORTER_ASSERT(reporter, RefCntIs(obj1, 2));
+        REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
 
         // Test out resut with data in the array and malloced storage
         tmp.reset(0);
-        REPORTER_ASSERT(reporter, RefCntIs(obj0, 1));
-        REPORTER_ASSERT(reporter, RefCntIs(obj1, 1));
+        REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
 
         tmp.reset(2);   // this should use the preexisting storage
         tmp[0] = &obj0;
         tmp[1] = &obj1;
-        REPORTER_ASSERT(reporter, RefCntIs(obj0, 2));
-        REPORTER_ASSERT(reporter, RefCntIs(obj1, 2));
+        REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
 
         tmp.reset(4);   // this should force a new malloc
-        REPORTER_ASSERT(reporter, RefCntIs(obj0, 1));
-        REPORTER_ASSERT(reporter, RefCntIs(obj1, 1));
+        REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
 
         tmp[0] = &obj0;
         tmp[1] = &obj1;
-        REPORTER_ASSERT(reporter, RefCntIs(obj0, 2));
-        REPORTER_ASSERT(reporter, RefCntIs(obj1, 2));
+        REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
     }
 
-    REPORTER_ASSERT(reporter, RefCntIs(obj0, 1));
-    REPORTER_ASSERT(reporter, RefCntIs(obj1, 1));
+    REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+    REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
 }
 
 /////////////////////////////////////////////////////////////////////////////

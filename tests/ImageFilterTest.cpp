@@ -262,7 +262,7 @@ static void test_crop_rects(SkBaseDevice* device, skiatest::Reporter* reporter) 
         SkIPoint offset;
         SkString str;
         str.printf("filter %d", static_cast<int>(i));
-        SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create());
+        SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(2));
         SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), cache.get());
         REPORTER_ASSERT_MESSAGE(reporter, filter->filterImage(&proxy, bitmap, ctx,
                                 &result, &offset), str.c_str());

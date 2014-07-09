@@ -24,7 +24,6 @@
     'tools.gyp:picture_utils',
     'tools.gyp:resources',
     'tools.gyp:sk_tool_utils',
-    'tools.gyp:ref_cnt_is',
   ],
   'sources': [
     '../tests/Test.cpp',
