@@ -657,6 +657,7 @@ void GrContext::clear(const SkIRect* rect,
                       GrRenderTarget* target) {
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrContext::clear", this);
     this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf)->clear(rect, color,
                                                                 canIgnoreRect, target);
 }
@@ -671,6 +672,7 @@ void GrContext::drawPaint(const GrPaint& origPaint) {
     SkMatrix inverse;
     SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
     AutoMatrix am;
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrContext::drawPaint", this);
 
     // We attempt to map r by the inverse matrix and draw that. mapRect will
     // map the four corners and bound them with a new rect. This will not
@@ -808,7 +810,6 @@ void GrContext::drawRect(const GrPaint& paint,
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRect", target);
-
     SkScalar width = NULL == strokeInfo ? -1 : strokeInfo->getStrokeRec().getWidth();
     SkMatrix combinedMatrix = target->drawState()->getViewMatrix();
     if (NULL != matrix) {

@@ -39,6 +39,21 @@ int GrTraceMarkerSet::count() const {
     return this->fMarkerArray.count();
 }
 
+SkString GrTraceMarkerSet::toStringLast() const {
+    const int numMarkers = this->fMarkerArray.count();
+    SkString marker_string;
+    if (numMarkers > 0) {
+        GrGpuTraceMarker& lastMarker = this->fMarkerArray[numMarkers - 1];
+        marker_string.append(lastMarker.fMarker);
+        if (lastMarker.fID != -1) {
+            marker_string.append("(");
+            marker_string.appendS32(lastMarker.fID);
+            marker_string.append(")");
+        }
+    }
+    return marker_string;
+}
+
 SkString GrTraceMarkerSet::toString() const {
     SkTQSort<GrGpuTraceMarker>(this->fMarkerArray.begin(), this->fMarkerArray.end() - 1);
     SkString marker_string;
@@ -57,12 +72,14 @@ SkString GrTraceMarkerSet::toString() const {
         GrGpuTraceMarker& currMarker = this->fMarkerArray[i];
         const char* currCmd = currMarker.fMarker;
         if (currCmd != prevMarkerName) {
-            if (counter != 0) {
+            if (prevMarkerID != -1) {
                 marker_string.append(") ");
             }
             marker_string.append(currCmd);
-            marker_string.append("(");
-            marker_string.appendS32(currMarker.fID);
+            if (currMarker.fID != -1) {
+                marker_string.append("(");
+                marker_string.appendS32(currMarker.fID);
+            }
             prevMarkerName = currCmd;
         } else if (currMarker.fID != prevMarkerID) {
             marker_string.append(", ");
@@ -71,7 +88,7 @@ SkString GrTraceMarkerSet::toString() const {
         prevMarkerID = currMarker.fID;
         ++counter;
     }
-    if (counter > 0) {
+    if (counter > 0 && prevMarkerID != -1) {
         marker_string.append(")");
     }
     return marker_string;

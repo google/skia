@@ -344,6 +344,7 @@ SK_COMPILE_ASSERT(SkShader::kLast_BitmapType == 6, shader_type_mismatch);
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::clear(SkColor color) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::clear", fContext);
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
     fContext->clear(&rect, SkColor2GrColor(color), true, fRenderTarget);
     fNeedClear = false;
@@ -351,6 +352,7 @@ void SkGpuDevice::clear(SkColor color) {
 
 void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw, false);
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawPaint", fContext);
 
     GrPaint grPaint;
     SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
@@ -471,6 +473,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
 
 void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
                            const SkPaint& paint) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawRRect", fContext);
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
@@ -559,6 +562,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
 
 void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
                            const SkPaint& paint) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawOval", fContext);
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
@@ -724,6 +728,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                            bool pathIsMutable) {
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawPath", fContext);
 
     GrPaint grPaint;
     SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
@@ -1500,6 +1505,7 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
                              int x, int y, const SkPaint& paint) {
     // clear of the source device must occur before CHECK_SHOULD_DRAW
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawDevice", fContext);
     SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
     if (dev->fNeedClear) {
         // TODO: could check here whether we really need to draw at all
@@ -1605,6 +1611,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                               const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw, false);
 
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawVertices", fContext);
     // If both textures and vertex-colors are NULL, strokes hairlines with the paint's color.
     if ((NULL == texs || NULL == paint.getShader()) && NULL == colors) {
         texs = NULL;
@@ -1678,6 +1685,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
                           size_t byteLength, SkScalar x, SkScalar y,
                           const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw, false);
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawText", fContext);
 
     if (fMainTextContext->canDraw(paint)) {
         GrPaint grPaint;

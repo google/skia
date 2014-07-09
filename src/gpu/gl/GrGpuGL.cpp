@@ -2982,7 +2982,7 @@ bool GrGpuGL::onCanCopySurface(GrSurface* dst,
 void GrGpuGL::didAddGpuTraceMarker() {
     if (this->caps()->gpuTracingSupport()) {
         const GrTraceMarkerSet& markerArray = this->getActiveTraceMarkers();
-        SkString markerString = markerArray.toString();
+        SkString markerString = markerArray.toStringLast();
         GL_CALL(PushGroupMarker(0, markerString.c_str()));
     }
 }

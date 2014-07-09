@@ -595,8 +595,9 @@ void GrInOrderDrawBuffer::flush() {
     fDstGpu->saveActiveTraceMarkers();
     for (int c = 0; c < numCmds; ++c) {
         GrGpuTraceMarker newMarker("", -1);
+        SkString traceString;
         if (cmd_has_trace_marker(fCmds[c])) {
-            SkString traceString = fGpuCmdMarkers[currCmdMarker].toString();
+            traceString = fGpuCmdMarkers[currCmdMarker].toString();
             newMarker.fMarker = traceString.c_str();
             fDstGpu->addGpuTraceMarker(&newMarker);
             ++currCmdMarker;

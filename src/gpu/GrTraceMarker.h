@@ -55,6 +55,8 @@ public:
      */
     SkString toString() const;
 
+    SkString toStringLast() const;
+
     class Iter;
 
     Iter begin() const;
