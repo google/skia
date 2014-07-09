@@ -361,7 +361,10 @@ static uint32_t compute_hash(const uint32_t* data, int count) {
 
 class CacheImpl : public SkImageFilter::Cache {
 public:
-    explicit CacheImpl(int minChildren) : fMinChildren(minChildren) {}
+    explicit CacheImpl(int minChildren) : fMinChildren(minChildren) {
+        SkASSERT(fMinChildren <= 2);
+    }
+
     virtual ~CacheImpl();
     bool get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
     void set(const SkImageFilter* key, const SkBitmap& result, const SkIPoint& offset) SK_OVERRIDE;
@@ -404,7 +407,10 @@ void CacheImpl::remove(const SkImageFilter* key) {
 }
 
 void CacheImpl::set(const SkImageFilter* key, const SkBitmap& result, const SkIPoint& offset) {
-    if (key->getRefCnt() >= fMinChildren) {
+    if (fMinChildren < 2 || !key->unique()) {
+        // We take !key->unique() as a signal that there are probably at least 2 refs on the key,
+        // meaning this filter probably has at least two children and is worth caching when
+        // fMinChildren is 2.  If fMinChildren is less than two, we'll just always cache.
         fData.add(new Value(key, result, offset));
     }
 }

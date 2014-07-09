@@ -25,6 +25,3 @@ race:is_lcd_supported
 race:RefFCI
 race:SkString
 race:SkPDF
-
-# This calls SkRefCnt::getRefCnt(), which is not thread safe.  skia:2726
-race:SkImageFilter::filterImage
