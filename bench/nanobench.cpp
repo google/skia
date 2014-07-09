@@ -38,6 +38,9 @@ DEFINE_string(config, "nonrendering 8888 gpu", "Configs to measure. Options: "
 DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
 DEFINE_int32(gpuFrameLag, 5, "Overestimate of maximum number of frames GPU allows to lag.");
 
+DEFINE_bool(cpu, true, "Master switch for CPU-bound work.");
+DEFINE_bool(gpu, true, "Master switch for GPU-bound work.");
+
 
 static SkString humanize(double ms) {
     if (ms > 1e+3) return SkStringPrintf("%.3gs",  ms/1e3);
@@ -193,9 +196,11 @@ static void create_targets(Benchmark* bench, SkTDArray<Target*>* targets) {
             t->surface.reset(code);                                        \
             targets->push(t);                                              \
         }
-    CPU_TARGET(nonrendering, kNonRendering_Backend, NULL)
-    CPU_TARGET(8888, kRaster_Backend, SkSurface::NewRaster(_8888))
-    CPU_TARGET(565,  kRaster_Backend, SkSurface::NewRaster(_565))
+    if (FLAGS_cpu) {
+        CPU_TARGET(nonrendering, kNonRendering_Backend, NULL)
+        CPU_TARGET(8888, kRaster_Backend, SkSurface::NewRaster(_8888))
+        CPU_TARGET(565,  kRaster_Backend, SkSurface::NewRaster(_565))
+    }
 
 #if SK_SUPPORT_GPU
     #define GPU_TARGET(config, ctxType, info, samples)                                            \
@@ -204,16 +209,18 @@ static void create_targets(Benchmark* bench, SkTDArray<Target*>* targets) {
             t->gl = gGrFactory.getGLContext(ctxType);                                             \
             targets->push(t);                                                                     \
         }
-    GPU_TARGET(gpu,      GrContextFactory::kNative_GLContextType, _8888, 0)
-    GPU_TARGET(msaa4,    GrContextFactory::kNative_GLContextType, _8888, 4)
-    GPU_TARGET(msaa16,   GrContextFactory::kNative_GLContextType, _8888, 16)
-    GPU_TARGET(nvprmsaa4,  GrContextFactory::kNVPR_GLContextType, _8888, 4)
-    GPU_TARGET(nvprmsaa16, GrContextFactory::kNVPR_GLContextType, _8888, 16)
-    GPU_TARGET(debug,     GrContextFactory::kDebug_GLContextType, _8888, 0)
-    GPU_TARGET(nullgpu,    GrContextFactory::kNull_GLContextType, _8888, 0)
-    #if SK_ANGLE
-        GPU_TARGET(angle, GrContextFactory::kANGLE_GLContextType, _8888, 0)
-    #endif
+    if (FLAGS_gpu) {
+        GPU_TARGET(gpu,      GrContextFactory::kNative_GLContextType, _8888, 0)
+        GPU_TARGET(msaa4,    GrContextFactory::kNative_GLContextType, _8888, 4)
+        GPU_TARGET(msaa16,   GrContextFactory::kNative_GLContextType, _8888, 16)
+        GPU_TARGET(nvprmsaa4,  GrContextFactory::kNVPR_GLContextType, _8888, 4)
+        GPU_TARGET(nvprmsaa16, GrContextFactory::kNVPR_GLContextType, _8888, 16)
+        GPU_TARGET(debug,     GrContextFactory::kDebug_GLContextType, _8888, 0)
+        GPU_TARGET(nullgpu,    GrContextFactory::kNull_GLContextType, _8888, 0)
+        #if SK_ANGLE
+            GPU_TARGET(angle, GrContextFactory::kANGLE_GLContextType, _8888, 0)
+        #endif
+    }
 #endif
 }
 
@@ -226,14 +233,12 @@ int tool_main(int argc, char** argv) {
     const double overhead = estimate_timer_overhead();
     SkAutoTMalloc<double> samples(FLAGS_samples);
 
-    // TODO: display add median, use it in --quiet mode
-
     if (FLAGS_verbose) {
         // No header.
     } else if (FLAGS_quiet) {
-        SkDebugf("min\tbench\tconfig\n");
+        SkDebugf("median\tbench\tconfig\n");
     } else {
-        SkDebugf("loops\tmin\tmean\tmax\tstddev\tconfig\tbench\n");
+        SkDebugf("loops\tmin\tmedian\tmean\tmax\tstddev\tconfig\tbench\n");
     }
 
     for (const BenchRegistry* r = BenchRegistry::Head(); r != NULL; r = r->next()) {
@@ -269,12 +274,13 @@ int tool_main(int argc, char** argv) {
                 if (targets.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
-                SkDebugf("%s\t%s\t%s\n", humanize(stats.min).c_str(), bench->getName(), config);
+                SkDebugf("%s\t%s\t%s\n", humanize(stats.median).c_str(), bench->getName(), config);
             } else {
                 const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
-                SkDebugf("%d\t%s\t%s\t%s\t%.0f%%\t%s\t%s\n"
+                SkDebugf("%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\n"
                         , loops
                         , humanize(stats.min).c_str()
+                        , humanize(stats.median).c_str()
                         , humanize(stats.mean).c_str()
                         , humanize(stats.max).c_str()
                         , stddev_percent

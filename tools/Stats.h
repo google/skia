@@ -1,6 +1,8 @@
 #ifndef Stats_DEFINED
 #define Stats_DEFINED
 
+#include "SkTSort.h"
+
 struct Stats {
     Stats(const double samples[], int n) {
         min = samples[0];
@@ -21,12 +23,18 @@ struct Stats {
             err += (samples[i] - mean) * (samples[i] - mean);
         }
         var = err / (n-1);
+
+        SkAutoTMalloc<double> sorted(n);
+        memcpy(sorted.get(), samples, n * sizeof(double));
+        SkTQSort(sorted.get(), sorted.get() + n - 1);
+        median = sorted[n/2];
     }
 
     double min;
     double max;
     double mean;  // Estimate of population mean.
     double var;   // Estimate of population variance.
+    double median;
 };
 
 #endif//Stats_DEFINED
