@@ -4,6 +4,7 @@
       "headerText": "builder", 
       "isFilterable": true, 
       "isSortable": true, 
+      "useFreeformFilter": false, 
       "valuesAndCounts": [
         [
           "TODO", 
@@ -15,6 +16,7 @@
       "headerText": "config", 
       "isFilterable": true, 
       "isSortable": true, 
+      "useFreeformFilter": false, 
       "valuesAndCounts": [
         [
           "whole-image", 
@@ -26,6 +28,7 @@
       "headerText": "resultType", 
       "isFilterable": true, 
       "isSortable": true, 
+      "useFreeformFilter": false, 
       "valuesAndCounts": [
         [
           "failed", 
@@ -45,6 +48,7 @@
       "headerText": "test", 
       "isFilterable": true, 
       "isSortable": true, 
+      "useFreeformFilter": false, 
       "valuesAndCounts": [
         [
           "changed.skp", 
@@ -65,11 +69,17 @@
       ]
     }
   }, 
+  "extraColumnOrder": [
+    "builder", 
+    "config", 
+    "resultType", 
+    "test"
+  ], 
   "header": {
     "dataHash": "-595743736412687673", 
     "isEditable": false, 
     "isExported": true, 
-    "schemaVersion": 3, 
+    "schemaVersion": 4, 
     "timeNextUpdateAvailable": null, 
     "timeUpdated": 12345678, 
     "type": "all"

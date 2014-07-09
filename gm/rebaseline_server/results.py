@@ -14,14 +14,18 @@ import fnmatch
 import os
 import re
 
+# Must fix up PYTHONPATH before importing from within Skia
+# pylint: disable=W0611
+import fix_pythonpath
+# pylint: enable=W0611
+
 # Imports from within Skia
-import fix_pythonpath  # must do this first
 import gm_json
 import imagepairset
 
 # Keys used to link an image to a particular GM test.
 # NOTE: Keep these in sync with static/constants.js
-VALUE__HEADER__SCHEMA_VERSION = 3
+VALUE__HEADER__SCHEMA_VERSION = 4
 KEY__EXPECTATIONS__BUGS = gm_json.JSONKEY_EXPECTEDRESULTS_BUGS
 KEY__EXPECTATIONS__IGNOREFAILURE = gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE
 KEY__EXPECTATIONS__REVIEWED = gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED
@@ -201,7 +205,7 @@ class BaseComparisons(object):
     if not os.path.isdir(root):
       raise IOError('no directory found at path %s' % root)
     meta_dict = {}
-    for dirpath, dirnames, filenames in os.walk(root):
+    for dirpath, _, filenames in os.walk(root):
       for matching_filename in fnmatch.filter(filenames, pattern):
         builder = os.path.basename(dirpath)
         if self._ignore_builder(builder):
@@ -228,7 +232,7 @@ class BaseComparisons(object):
     if not os.path.isdir(root):
       raise IOError('no directory found at path %s' % root)
     meta_dict = {}
-    for abs_dirpath, dirnames, filenames in os.walk(root):
+    for abs_dirpath, _, filenames in os.walk(root):
       rel_dirpath = os.path.relpath(abs_dirpath, root)
       for matching_filename in fnmatch.filter(filenames, pattern):
         abs_path = os.path.join(abs_dirpath, matching_filename)
@@ -293,7 +297,7 @@ class BaseComparisons(object):
     If this would result in any repeated keys, it will raise an Exception.
     """
     output_dict = {}
-    for key, subdict in input_dict.iteritems():
+    for subdict in input_dict.values():
       for subdict_key, subdict_value in subdict.iteritems():
         if subdict_key in output_dict:
           raise Exception('duplicate key %s in combine_subdicts' % subdict_key)

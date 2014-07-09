@@ -13,6 +13,7 @@ module.constant('constants', (function() {
     KEY__EXTRACOLUMNHEADERS__HEADER_URL: 'headerUrl',
     KEY__EXTRACOLUMNHEADERS__IS_FILTERABLE: 'isFilterable',
     KEY__EXTRACOLUMNHEADERS__IS_SORTABLE: 'isSortable',
+    KEY__EXTRACOLUMNHEADERS__USE_FREEFORM_FILTER: 'useFreeformFilter',
     KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS: 'valuesAndCounts',
 
     // NOTE: Keep these in sync with ../imagediffdb.py
@@ -31,6 +32,7 @@ module.constant('constants', (function() {
 
     // NOTE: Keep these in sync with ../imagepairset.py
     KEY__ROOT__EXTRACOLUMNHEADERS: 'extraColumnHeaders',
+    KEY__ROOT__EXTRACOLUMNORDER: 'extraColumnOrder',
     KEY__ROOT__HEADER: 'header',
     KEY__ROOT__IMAGEPAIRS: 'imagePairs',
     KEY__ROOT__IMAGESETS: 'imageSets',
@@ -62,7 +64,7 @@ module.constant('constants', (function() {
     KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: 'timeNextUpdateAvailable',
     KEY__HEADER__TIME_UPDATED: 'timeUpdated',
     KEY__HEADER__TYPE: 'type',
-    VALUE__HEADER__SCHEMA_VERSION: 3,
+    VALUE__HEADER__SCHEMA_VERSION: 4,
     //
     KEY__RESULT_TYPE__FAILED: 'failed',
     KEY__RESULT_TYPE__FAILUREIGNORED: 'failure-ignored',

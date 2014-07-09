@@ -15,6 +15,7 @@ KEY__EXTRACOLUMNHEADERS__HEADER_TEXT = 'headerText'
 KEY__EXTRACOLUMNHEADERS__HEADER_URL = 'headerUrl'
 KEY__EXTRACOLUMNHEADERS__IS_FILTERABLE = 'isFilterable'
 KEY__EXTRACOLUMNHEADERS__IS_SORTABLE = 'isSortable'
+KEY__EXTRACOLUMNHEADERS__USE_FREEFORM_FILTER = 'useFreeformFilter'
 KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS = 'valuesAndCounts'
 
 
@@ -23,7 +24,7 @@ class ColumnHeaderFactory(object):
 
   def __init__(self, header_text, header_url=None,
                is_filterable=True, is_sortable=True,
-               include_values_and_counts=True):
+               use_freeform_filter=False):
     """
     Args:
       header_text: string; text the client should display within column header.
@@ -32,15 +33,16 @@ class ColumnHeaderFactory(object):
       is_filterable: boolean; whether client should allow filtering on this
           column.
       is_sortable: boolean; whether client should allow sorting on this column.
-      include_values_and_counts: boolean; whether the set of values found
-          within this column, and their counts, should be available for the
-          client to display.
+      use_freeform_filter: boolean; *recommendation* to the client indicating
+          whether to allow freeform text matching, as opposed to listing all
+          values alongside checkboxes.  If is_filterable==false, this is
+          meaningless.
     """
     self._header_text = header_text
     self._header_url = header_url
     self._is_filterable = is_filterable
     self._is_sortable = is_sortable
-    self._include_values_and_counts = include_values_and_counts
+    self._use_freeform_filter = use_freeform_filter
 
   def create_as_dict(self, values_and_counts_dict=None):
     """Creates the header for this column, in dictionary form.
@@ -58,10 +60,11 @@ class ColumnHeaderFactory(object):
         KEY__EXTRACOLUMNHEADERS__HEADER_TEXT: self._header_text,
         KEY__EXTRACOLUMNHEADERS__IS_FILTERABLE: self._is_filterable,
         KEY__EXTRACOLUMNHEADERS__IS_SORTABLE: self._is_sortable,
+        KEY__EXTRACOLUMNHEADERS__USE_FREEFORM_FILTER: self._use_freeform_filter,
     }
     if self._header_url:
       asdict[KEY__EXTRACOLUMNHEADERS__HEADER_URL] = self._header_url
-    if self._include_values_and_counts and values_and_counts_dict:
+    if values_and_counts_dict:
       asdict[KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS] = sorted(
           values_and_counts_dict.items())
     return asdict

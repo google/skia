@@ -30,24 +30,29 @@ Loader.directive(
 Loader.filter(
   'removeHiddenImagePairs',
   function(constants) {
-    return function(unfilteredImagePairs, showingColumnValues,
-                    builderSubstring, testSubstring, viewingTab) {
+    return function(unfilteredImagePairs, filterableColumnNames, showingColumnValues,
+                    viewingTab) {
       var filteredImagePairs = [];
       for (var i = 0; i < unfilteredImagePairs.length; i++) {
         var imagePair = unfilteredImagePairs[i];
         var extraColumnValues = imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS];
-        // For performance, we examine the "set" objects directly rather
-        // than calling $scope.isValueInSet().
-        // Besides, I don't think we have access to $scope in here...
-        if (showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]
-                               [extraColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]] &&
-            showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG]
-                               [extraColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG]] &&
-            !(-1 == extraColumnValues[constants.KEY__EXTRACOLUMNS__BUILDER]
-                    .indexOf(builderSubstring)) &&
-            !(-1 == extraColumnValues[constants.KEY__EXTRACOLUMNS__TEST]
-                    .indexOf(testSubstring)) &&
-            (viewingTab == imagePair.tab)) {
+        var allColumnValuesAreVisible = true;
+        // Loop over all columns, and if any of them contain values not found in
+        // showingColumnValues[columnName], don't include this imagePair.
+        //
+        // We use this same filtering mechanism regardless of whether each column
+        // has USE_FREEFORM_FILTER set or not; if that flag is set, then we will
+        // have already used the freeform text entry block to populate
+        // showingColumnValues[columnName].
+        for (var j = 0; j < filterableColumnNames.length; j++) {
+          var columnName = filterableColumnNames[j];
+          var columnValue = extraColumnValues[columnName];
+          if (!showingColumnValues[columnName][columnValue]) {
+            allColumnValuesAreVisible = false;
+            break;
+          }
+        }
+        if (allColumnValuesAreVisible && (viewingTab == imagePair.tab)) {
           filteredImagePairs.push(imagePair);
         }
       }
@@ -159,6 +164,7 @@ Loader.controller(
 
           $scope.header = dataHeader;
           $scope.extraColumnHeaders = data[constants.KEY__ROOT__EXTRACOLUMNHEADERS];
+          $scope.orderedColumnNames = data[constants.KEY__ROOT__EXTRACOLUMNORDER];
           $scope.imagePairs = data[constants.KEY__ROOT__IMAGEPAIRS];
           $scope.imageSets = data[constants.KEY__ROOT__IMAGESETS];
           $scope.sortColumnSubdict = constants.KEY__IMAGEPAIRS__DIFFERENCES;
@@ -200,41 +206,69 @@ Loader.controller(
           // Arrays within which the user can toggle individual elements.
           $scope.selectedImagePairs = [];
 
+          // Set up filters.
+          //
+          // filterableColumnNames is a list of all column names we can filter on.
           // allColumnValues[columnName] is a list of all known values
-          // for this column.
+          // for a given column.
           // showingColumnValues[columnName] is a set indicating which values
-          // in this column would cause us to show a row, rather than hiding it.
+          // in a given column would cause us to show a row, rather than hiding it.
+          //
+          // columnStringMatch[columnName] is a string used as a pattern to generate
+          // showingColumnValues[columnName] for columns we filter using free-form text.
+          // It is ignored for any columns with USE_FREEFORM_FILTER == false.
+          $scope.filterableColumnNames = [];
           $scope.allColumnValues = {};
           $scope.showingColumnValues = {};
+          $scope.columnStringMatch = {};
 
-          // set allColumnValues/showingColumnValues for RESULT_TYPE;
+          angular.forEach(
+            Object.keys($scope.extraColumnHeaders),
+            function(columnName) {
+              var columnHeader = $scope.extraColumnHeaders[columnName];
+              if (columnHeader[constants.KEY__EXTRACOLUMNHEADERS__IS_FILTERABLE]) {
+                $scope.filterableColumnNames.push(columnName);
+                $scope.allColumnValues[columnName] = $scope.columnSliceOf2DArray(
+                    columnHeader[constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS], 0);
+                $scope.showingColumnValues[columnName] = {};
+                $scope.toggleValuesInSet($scope.allColumnValues[columnName],
+                                         $scope.showingColumnValues[columnName]);
+                $scope.columnStringMatch[columnName] = "";
+              }
+            }
+          );
+
+          // TODO(epoger): Special handling for RESULT_TYPE column:
           // by default, show only KEY__RESULT_TYPE__FAILED results
-          $scope.allColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE] =
-              $scope.columnSliceOf2DArray(
-                  $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]
-                                           [constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS],
-                  0);
           $scope.showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE] = {};
           $scope.showingColumnValues[constants.KEY__EXTRACOLUMNS__RESULT_TYPE][
               constants.KEY__RESULT_TYPE__FAILED] = true;
 
-          // set allColumnValues/showingColumnValues for CONFIG;
-          // by default, show results for all configs
-          $scope.allColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG] =
-              $scope.columnSliceOf2DArray(
-                  $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMNS__CONFIG]
-                                           [constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS],
-                  0);
-          $scope.showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG] = {};
-          $scope.toggleValuesInSet($scope.allColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG],
-                                   $scope.showingColumnValues[constants.KEY__EXTRACOLUMNS__CONFIG]);
-
-          // Associative array of partial string matches per category.
-          // TODO(epoger): Rename as columnValueMatch to be more consistent
-          // with allColumnValues/showingColumnValues ?
-          $scope.categoryValueMatch = {};
-          $scope.categoryValueMatch[constants.KEY__EXTRACOLUMNS__BUILDER] = "";
-          $scope.categoryValueMatch[constants.KEY__EXTRACOLUMNS__TEST] = "";
+          // Set up mapping for URL parameters.
+          // parameter name -> copier object to load/save parameter value
+          $scope.queryParameters.map = {
+            'resultsToLoad':         $scope.queryParameters.copiers.simple,
+            'displayLimitPending':   $scope.queryParameters.copiers.simple,
+            'showThumbnailsPending': $scope.queryParameters.copiers.simple,
+            'mergeIdenticalRowsPending': $scope.queryParameters.copiers.simple,
+            'imageSizePending':      $scope.queryParameters.copiers.simple,
+            'sortColumnSubdict':     $scope.queryParameters.copiers.simple,
+            'sortColumnKey':         $scope.queryParameters.copiers.simple,
+          };
+          // Some parameters are handled differently based on whether they USE_FREEFORM_FILTER.
+          angular.forEach(
+            $scope.filterableColumnNames,
+            function(columnName) {
+              if ($scope.extraColumnHeaders[columnName]
+                  [constants.KEY__EXTRACOLUMNHEADERS__USE_FREEFORM_FILTER]) {
+                $scope.queryParameters.map[columnName] =
+                    $scope.queryParameters.copiers.columnStringMatch;
+              } else {
+                $scope.queryParameters.map[columnName] =
+                    $scope.queryParameters.copiers.showingColumnValuesSet;
+              }
+            }
+          );
 
           // If any defaults were overridden in the URL, get them now.
           $scope.queryParameters.load();
@@ -391,15 +425,15 @@ Loader.controller(
         }
       },
 
-      'categoryValueMatch': {
+      'columnStringMatch': {
         'load': function(nameValuePairs, name) {
           var value = nameValuePairs[name];
           if (value) {
-            $scope.categoryValueMatch[name] = value;
+            $scope.columnStringMatch[name] = value;
           }
         },
         'save': function(nameValuePairs, name) {
-          nameValuePairs[name] = $scope.categoryValueMatch[name];
+          nameValuePairs[name] = $scope.columnStringMatch[name];
         }
       },
 
@@ -418,25 +452,6 @@ Loader.controller(
       },
 
     };
-
-    // parameter name -> copier objects to load/save parameter value
-    $scope.queryParameters.map = {
-      'resultsToLoad':         $scope.queryParameters.copiers.simple,
-      'displayLimitPending':   $scope.queryParameters.copiers.simple,
-      'showThumbnailsPending': $scope.queryParameters.copiers.simple,
-      'mergeIdenticalRowsPending': $scope.queryParameters.copiers.simple,
-      'imageSizePending':      $scope.queryParameters.copiers.simple,
-      'sortColumnSubdict':     $scope.queryParameters.copiers.simple,
-      'sortColumnKey':         $scope.queryParameters.copiers.simple,
-    };
-    $scope.queryParameters.map[constants.KEY__EXTRACOLUMNS__RESULT_TYPE] =
-        $scope.queryParameters.copiers.showingColumnValuesSet;
-    $scope.queryParameters.map[constants.KEY__EXTRACOLUMNS__BUILDER] =
-        $scope.queryParameters.copiers.categoryValueMatch;
-    $scope.queryParameters.map[constants.KEY__EXTRACOLUMNS__TEST] =
-        $scope.queryParameters.copiers.categoryValueMatch;
-    $scope.queryParameters.map[constants.KEY__EXTRACOLUMNS__CONFIG] =
-        $scope.queryParameters.copiers.showingColumnValuesSet;
 
     // Loads all parameters into $scope from the URL query string;
     // any which are not found within the URL will keep their current value.
@@ -550,6 +565,30 @@ Loader.controller(
       $log.debug("renderStartTime: " + $scope.renderStartTime);
       $scope.displayLimit = $scope.displayLimitPending;
       $scope.mergeIdenticalRows = $scope.mergeIdenticalRowsPending;
+
+      // For each USE_FREEFORM_FILTER column, populate showingColumnValues.
+      // This is more efficient than applying the freeform filter within the
+      // tight loop in removeHiddenImagePairs.
+      angular.forEach(
+        $scope.filterableColumnNames,
+        function(columnName) {
+          var columnHeader = $scope.extraColumnHeaders[columnName];
+          if (columnHeader[constants.KEY__EXTRACOLUMNHEADERS__USE_FREEFORM_FILTER]) {
+            var columnStringMatch = $scope.columnStringMatch[columnName];
+            var showingColumnValues = {};
+            angular.forEach(
+              $scope.allColumnValues[columnName],
+              function(columnValue) {
+                if (-1 != columnValue.indexOf(columnStringMatch)) {
+                  showingColumnValues[columnValue] = true;
+                }
+              }
+            );
+            $scope.showingColumnValues[columnName] = showingColumnValues;
+          }
+        }
+      );
+
       // TODO(epoger): Every time we apply a filter, AngularJS creates
       // another copy of the array.  Is there a way we can filter out
       // the imagePairs as they are displayed, rather than storing multiple
@@ -569,9 +608,8 @@ Loader.controller(
             $filter("orderBy")(
                 $filter("removeHiddenImagePairs")(
                     $scope.imagePairs,
+                    $scope.filterableColumnNames,
                     $scope.showingColumnValues,
-                    $scope.categoryValueMatch[constants.KEY__EXTRACOLUMNS__BUILDER],
-                    $scope.categoryValueMatch[constants.KEY__EXTRACOLUMNS__TEST],
                     $scope.viewingTab
                 ),
                 [$scope.getSortColumnValue, $scope.getSecondOrderSortValue],
@@ -652,36 +690,40 @@ Loader.controller(
     }
 
     /**
-     * Set $scope.categoryValueMatch[name] = value, and update results.
+     * Set $scope.columnStringMatch[name] = value, and update results.
      *
      * @param name
      * @param value
      */
-    $scope.setCategoryValueMatch = function(name, value) {
-      $scope.categoryValueMatch[name] = value;
+    $scope.setColumnStringMatch = function(name, value) {
+      $scope.columnStringMatch[name] = value;
       $scope.updateResults();
     }
 
     /**
-     * Update $scope.showingColumnValues[columnName] so that ONLY entries with
-     * this columnValue are showing, and update the visible results.
+     * Update $scope.showingColumnValues[columnName] and $scope.columnStringMatch[columnName]
+     * so that ONLY entries with this columnValue are showing, and update the visible results.
+     * (We update both of those, so we cover both freeform and checkbox filtered columns.)
      *
      * @param columnName
      * @param columnValue
      */
     $scope.showOnlyColumnValue = function(columnName, columnValue) {
+      $scope.columnStringMatch[columnName] = columnValue;
       $scope.showingColumnValues[columnName] = {};
       $scope.toggleValueInSet(columnValue, $scope.showingColumnValues[columnName]);
       $scope.updateResults();
     }
 
     /**
-     * Update $scope.showingColumnValues[columnName] so that ALL entries are
-     * showing, and update the visible results.
+     * Update $scope.showingColumnValues[columnName] and $scope.columnStringMatch[columnName]
+     * so that ALL entries are showing, and update the visible results.
+     * (We update both of those, so we cover both freeform and checkbox filtered columns.)
      *
      * @param columnName
      */
     $scope.showAllColumnValues = function(columnName) {
+      $scope.columnStringMatch[columnName] = "";
       $scope.showingColumnValues[columnName] = {};
       $scope.toggleValuesInSet($scope.allColumnValues[columnName],
                                $scope.showingColumnValues[columnName]);

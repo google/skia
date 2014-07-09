@@ -19,6 +19,7 @@ import imagediffdb
 # Keys used within dictionary representation of ImagePairSet.
 # NOTE: Keep these in sync with static/constants.js
 KEY__ROOT__EXTRACOLUMNHEADERS = 'extraColumnHeaders'
+KEY__ROOT__EXTRACOLUMNORDER = 'extraColumnOrder'
 KEY__ROOT__HEADER = 'header'
 KEY__ROOT__IMAGEPAIRS = 'imagePairs'
 KEY__ROOT__IMAGESETS = 'imageSets'
@@ -135,15 +136,35 @@ class ImagePairSet(object):
           values_for_column)
     return asdict
 
-  def as_dict(self):
+  def as_dict(self, column_ids_in_order=None):
     """Returns a dictionary describing this package of ImagePairs.
 
     Uses the KEY__* constants as keys.
+
+    Params:
+      column_ids_in_order: A list of all extracolumn IDs in the desired display
+          order.  If unspecified, they will be displayed in alphabetical order.
+          If specified, this list must contain all the extracolumn IDs!
+          (It may contain extra column IDs; they will be ignored.)
     """
+    all_column_ids = set(self._extra_column_tallies.keys())
+    if column_ids_in_order == None:
+      column_ids_in_order = sorted(all_column_ids)
+    else:
+      # Make sure the caller listed all column IDs, and throw away any extras.
+      specified_column_ids = set(column_ids_in_order)
+      forgotten_column_ids = all_column_ids - specified_column_ids
+      assert not forgotten_column_ids, (
+          'column_ids_in_order %s missing these column_ids: %s' % (
+              column_ids_in_order, forgotten_column_ids))
+      column_ids_in_order = [c for c in column_ids_in_order
+                             if c in all_column_ids]
+
     key_description = KEY__IMAGESETS__FIELD__DESCRIPTION
     key_base_url = KEY__IMAGESETS__FIELD__BASE_URL
     return {
         KEY__ROOT__EXTRACOLUMNHEADERS: self._column_headers_as_dict(),
+        KEY__ROOT__EXTRACOLUMNORDER: column_ids_in_order,
         KEY__ROOT__IMAGEPAIRS: self._image_pair_dicts,
         KEY__ROOT__IMAGESETS: {
             KEY__IMAGESETS__SET__IMAGE_A: {

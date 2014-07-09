@@ -89,6 +89,7 @@ class ImagePairSetTest(unittest.TestCase):
                 'headerText': 'builder',
                 'isFilterable': True,
                 'isSortable': True,
+                'useFreeformFilter': False,
                 'valuesAndCounts': [('MyBuilder', 3)],
             },
             'test': {
@@ -96,8 +97,13 @@ class ImagePairSetTest(unittest.TestCase):
                 'headerUrl': 'http://learn/about/gm/tests',
                 'isFilterable': True,
                 'isSortable': False,
+                'useFreeformFilter': False,
+                'valuesAndCounts': [('test1', 1),
+                                    ('test2', 1),
+                                    ('test3', 1)],
             },
         },
+        'extraColumnOrder': ['builder', 'test'],
         'imagePairs': [
             IMAGEPAIR_1_AS_DICT,
             IMAGEPAIR_2_AS_DICT,
@@ -136,8 +142,7 @@ class ImagePairSetTest(unittest.TestCase):
             header_text='which GM test',
             header_url='http://learn/about/gm/tests',
             is_filterable=True,
-            is_sortable=False,
-            include_values_and_counts=False))
+            is_sortable=False))
     self.assertEqual(image_pair_set.as_dict(), expected_imageset_dict)
 
   def test_mismatched_base_url(self):
@@ -152,6 +157,23 @@ class ImagePairSetTest(unittest.TestCase):
       image_pair_set.add_image_pair(
           MockImagePair(base_url=BASE_URL_2,
                         dict_to_return=IMAGEPAIR_3_AS_DICT))
+
+  def test_missing_column_ids(self):
+    """Confirms that passing truncated column_ids_in_order to as_dict()
+    will cause an exception."""
+    image_pair_set = imagepairset.ImagePairSet(
+        diff_base_url=DIFF_BASE_URL)
+    image_pair_set.add_image_pair(
+        MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_1_AS_DICT))
+    image_pair_set.add_image_pair(
+        MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_2_AS_DICT))
+    # Call as_dict() with default or reasonable column_ids_in_order.
+    image_pair_set.as_dict()
+    image_pair_set.as_dict(column_ids_in_order=['test', 'builder'])
+    image_pair_set.as_dict(column_ids_in_order=['test', 'builder', 'extra'])
+    # Call as_dict() with not enough column_ids.
+    with self.assertRaises(Exception):
+      image_pair_set.as_dict(column_ids_in_order=['builder'])
 
 
 class MockImagePair(object):

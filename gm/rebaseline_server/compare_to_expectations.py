@@ -12,16 +12,18 @@ Repackage expected/actual GM results as needed by our HTML rebaseline viewer.
 # System-level imports
 import argparse
 import fnmatch
-import json
 import logging
 import os
-import re
-import sys
 import time
 
+# Must fix up PYTHONPATH before importing from within Skia
+# pylint: disable=W0611
+import fix_pythonpath
+# pylint: enable=W0611
+
 # Imports from within Skia
-import fix_pythonpath  # must do this first
 from pyutils import url_utils
+import column
 import gm_json
 import imagediffdb
 import imagepair
@@ -33,6 +35,17 @@ EXPECTATION_FIELDS_PASSED_THRU_VERBATIM = [
     results.KEY__EXPECTATIONS__IGNOREFAILURE,
     results.KEY__EXPECTATIONS__REVIEWED,
 ]
+FREEFORM_COLUMN_IDS = [
+    results.KEY__EXTRACOLUMNS__BUILDER,
+    results.KEY__EXTRACOLUMNS__TEST,
+]
+ORDERED_COLUMN_IDS = [
+    results.KEY__EXTRACOLUMNS__RESULT_TYPE,
+    results.KEY__EXTRACOLUMNS__BUILDER,
+    results.KEY__EXTRACOLUMNS__TEST,
+    results.KEY__EXTRACOLUMNS__CONFIG,
+]
+
 TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DEFAULT_EXPECTATIONS_DIR = os.path.join(TRUNK_DIRECTORY, 'expectations', 'gm')
 DEFAULT_IGNORE_FAILURES_FILE = 'ignored-tests.txt'
@@ -171,7 +184,7 @@ class ExpectationComparisons(results.BaseComparisons):
     if not os.path.isdir(root):
       raise IOError('no directory found at path %s' % root)
     actual_builders_written = []
-    for dirpath, dirnames, filenames in os.walk(root):
+    for dirpath, _, filenames in os.walk(root):
       for matching_filename in fnmatch.filter(filenames, pattern):
         builder = os.path.basename(dirpath)
         per_builder_dict = meta_dict.get(builder)
@@ -210,6 +223,15 @@ class ExpectationComparisons(results.BaseComparisons):
     failing_image_pairs = imagepairset.ImagePairSet(
         descriptions=IMAGEPAIR_SET_DESCRIPTIONS,
         diff_base_url=self._diff_base_url)
+
+    # Override settings for columns that should be filtered using freeform text.
+    for column_id in FREEFORM_COLUMN_IDS:
+      factory = column.ColumnHeaderFactory(
+          header_text=column_id, use_freeform_filter=True)
+      all_image_pairs.set_column_header_factory(
+          column_id=column_id, column_header_factory=factory)
+      failing_image_pairs.set_column_header_factory(
+          column_id=column_id, column_header_factory=factory)
 
     all_image_pairs.ensure_extra_column_values_in_summary(
         column_id=results.KEY__EXTRACOLUMNS__RESULT_TYPE, values=[
@@ -339,9 +361,12 @@ class ExpectationComparisons(results.BaseComparisons):
           except Exception:
             logging.exception('got exception while creating new ImagePair')
 
+    # pylint: disable=W0201
     self._results = {
-      results.KEY__HEADER__RESULTS_ALL: all_image_pairs.as_dict(),
-      results.KEY__HEADER__RESULTS_FAILURES: failing_image_pairs.as_dict(),
+      results.KEY__HEADER__RESULTS_ALL: all_image_pairs.as_dict(
+          column_ids_in_order=ORDERED_COLUMN_IDS),
+      results.KEY__HEADER__RESULTS_FAILURES: failing_image_pairs.as_dict(
+          column_ids_in_order=ORDERED_COLUMN_IDS),
     }
 
 

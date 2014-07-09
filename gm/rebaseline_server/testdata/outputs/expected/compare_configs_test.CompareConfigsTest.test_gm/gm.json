@@ -4,6 +4,7 @@
       "headerText": "builder", 
       "isFilterable": true, 
       "isSortable": true, 
+      "useFreeformFilter": false, 
       "valuesAndCounts": [
         [
           "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
@@ -23,6 +24,7 @@
       "headerText": "config", 
       "isFilterable": true, 
       "isSortable": true, 
+      "useFreeformFilter": false, 
       "valuesAndCounts": [
         [
           "TODO", 
@@ -34,6 +36,7 @@
       "headerText": "resultType", 
       "isFilterable": true, 
       "isSortable": true, 
+      "useFreeformFilter": false, 
       "valuesAndCounts": [
         [
           "failed", 
@@ -53,6 +56,7 @@
       "headerText": "test", 
       "isFilterable": true, 
       "isSortable": true, 
+      "useFreeformFilter": false, 
       "valuesAndCounts": [
         [
           "3x3bitmaprect", 
@@ -93,11 +97,17 @@
       ]
     }
   }, 
+  "extraColumnOrder": [
+    "builder", 
+    "config", 
+    "resultType", 
+    "test"
+  ], 
   "header": {
     "dataHash": "-5829724510169924592", 
     "isEditable": false, 
     "isExported": true, 
-    "schemaVersion": 3, 
+    "schemaVersion": 4, 
     "timeNextUpdateAvailable": null, 
     "timeUpdated": 12345678, 
     "type": "all"
