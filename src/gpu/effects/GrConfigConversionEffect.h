@@ -30,10 +30,6 @@ public:
         kMulByAlpha_RoundDown_PMConversion,
         kDivByAlpha_RoundUp_PMConversion,
         kDivByAlpha_RoundDown_PMConversion,
-        kMulByAlpha_RoundUp_HIGHP_PMConversion,
-        kMulByAlpha_RoundDown_HIGHP_PMConversion,
-        kDivByAlpha_RoundUp_HIGHP_PMConversion,
-        kDivByAlpha_RoundDown_HIGHP_PMConversion,
 
         kPMConversionCnt
     };

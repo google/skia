@@ -630,6 +630,7 @@ void GrGLShaderBuilder::createAndEmitEffects(GrGLProgramEffectsBuilder* programE
         this->fsCodeAppendf("\tvec4 %s;\n", outColorName.c_str());
         outColor = outColorName;
 
+
         programEffectsBuilder->emitEffect(stage,
                                           effectKeys[e],
                                           outColor.c_str(),

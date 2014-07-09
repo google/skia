@@ -37,7 +37,6 @@ public:
             builder->fsCodeAppendf("\t%s = %s.bgra;\n", outputColor, outputColor);
         } else {
             const char* swiz = fSwapRedAndBlue ? "bgr" : "rgb";
-            const char* outputColorH = "outputColorH";
             switch (fPMConversion) {
                 case GrConfigConversionEffect::kMulByAlpha_RoundUp_PMConversion:
                     builder->fsCodeAppendf(
@@ -60,36 +59,6 @@ public:
                 case GrConfigConversionEffect::kDivByAlpha_RoundDown_PMConversion:
                     builder->fsCodeAppendf("\t\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(%s.%s / %s.a * 255.0) / 255.0, %s.a);\n",
                         outputColor, outputColor, outputColor, swiz, outputColor, outputColor);
-                    break;
-                case GrConfigConversionEffect::kMulByAlpha_RoundUp_HIGHP_PMConversion:
-                    builder->fsCodeAppendf("\thighp vec4 %s;\n", outputColorH);
-                    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColorH, outputColor);
-                    builder->fsCodeAppendf(
-                        "\t\t%s = vec4(ceil(%s.%s * %s.a * 255.0) / 255.0, %s.a);\n",
-                        outputColorH, outputColorH, swiz, outputColorH, outputColorH);
-                    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor, outputColorH);
-                    break;
-                case GrConfigConversionEffect::kMulByAlpha_RoundDown_HIGHP_PMConversion:
-                    builder->fsCodeAppendf("\thighp vec4 %s;\n", outputColorH);
-                    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColorH, outputColor);
-                    builder->fsCodeAppendf(
-                        "\t\t%s = vec4(floor(%s.%s * %s.a * 255.0) / 255.0, %s.a);\n",
-                        outputColorH, outputColorH, swiz, outputColorH, outputColorH);
-                    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor, outputColorH);
-                    break;
-                case GrConfigConversionEffect::kDivByAlpha_RoundUp_HIGHP_PMConversion:
-                    builder->fsCodeAppendf("\thighp vec4 %s;\n", outputColorH);
-                    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColorH, outputColor);
-                    builder->fsCodeAppendf("\t\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(ceil(%s.%s / %s.a * 255.0) / 255.0, %s.a);\n",
-                        outputColorH, outputColorH, outputColorH, swiz, outputColorH, outputColorH);
-                    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor, outputColorH);
-                    break;
-                case GrConfigConversionEffect::kDivByAlpha_RoundDown_HIGHP_PMConversion:
-                    builder->fsCodeAppendf("\thighp vec4 %s;\n", outputColorH);
-                    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColorH, outputColor);
-                    builder->fsCodeAppendf("\t\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(%s.%s / %s.a * 255.0) / 255.0, %s.a);\n",
-                        outputColorH, outputColorH, outputColorH, swiz, outputColorH, outputColorH);
-                    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor, outputColorH);
                     break;
                 default:
                     SkFAIL("Unknown conversion op.");
@@ -214,8 +183,6 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     static const PMConversion kConversionRules[][2] = {
         {kDivByAlpha_RoundDown_PMConversion, kMulByAlpha_RoundUp_PMConversion},
         {kDivByAlpha_RoundUp_PMConversion, kMulByAlpha_RoundDown_PMConversion},
-        {kDivByAlpha_RoundDown_HIGHP_PMConversion, kMulByAlpha_RoundUp_HIGHP_PMConversion},
-        {kDivByAlpha_RoundUp_HIGHP_PMConversion, kMulByAlpha_RoundDown_HIGHP_PMConversion},
     };
 
     GrContext::AutoWideOpenIdentityDraw awoid(context, NULL);
