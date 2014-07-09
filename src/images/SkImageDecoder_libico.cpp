@@ -152,10 +152,11 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
     //int reservedToo = readByte(buf, 9 + choice*16);   //0
     //int planes = read2Bytes(buf, 10 + choice*16);       //1 - but often 0
     //int fakeBitCount = read2Bytes(buf, 12 + choice*16); //should be real - usually 0
-    int size = read4Bytes(buf, 14 + choice*16);           //matters?
-    int offset = read4Bytes(buf, 18 + choice*16);
-    if ((size_t)(offset + size) > length)
+    const size_t size = read4Bytes(buf, 14 + choice*16);           //matters?
+    const size_t offset = read4Bytes(buf, 18 + choice*16);
+    if ((offset + size) > length) {
         return false;
+    }
 
     // Check to see if this is a PNG image inside the ICO
     {
