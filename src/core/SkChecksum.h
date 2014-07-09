@@ -36,20 +36,6 @@ private:
     }
 
 public:
-    /**
-     * uint32_t -> uint32_t hash, useful for when you're about to trucate this hash but you
-     * suspect its low bits aren't well mixed.
-     *
-     * This is the Murmur3 finalizer.
-     */
-    static uint32_t Mix(uint32_t hash) {
-        hash ^= hash >> 16;
-        hash *= 0x85ebca6b;
-        hash ^= hash >> 13;
-        hash *= 0xc2b2ae35;
-        hash ^= hash >> 16;
-        return hash;
-    }
 
     /**
      * Calculate 32-bit Murmur hash (murmur3).
@@ -62,7 +48,7 @@ public:
      *  @return hash result
      */
     static uint32_t Murmur3(const uint32_t* data, size_t bytes, uint32_t seed=0) {
-        SkASSERTF(SkIsAlign4(bytes), "Expected 4-byte multiple, got %zu", bytes);
+        SkASSERT(SkIsAlign4(bytes));
         const size_t words = bytes/4;
 
         uint32_t hash = seed;
@@ -78,7 +64,12 @@ public:
             hash += 0xe6546b64;
         }
         hash ^= bytes;
-        return Mix(hash);
+        hash ^= hash >> 16;
+        hash *= 0x85ebca6b;
+        hash ^= hash >> 13;
+        hash *= 0xc2b2ae35;
+        hash ^= hash >> 16;
+        return hash;
     }
 
     /**

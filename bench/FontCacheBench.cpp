@@ -7,7 +7,6 @@
 
 #include "Benchmark.h"
 #include "SkCanvas.h"
-#include "SkChecksum.h"
 #include "SkFontHost.h"
 #include "SkPaint.h"
 #include "SkString.h"
@@ -65,12 +64,23 @@ static uint32_t hasher0(uint32_t value) {
     return value ^ (value >> 8);
 }
 
+static uint32_t hasher2(uint32_t h) {
+    h ^= h >> 16;
+    h *= 0x85ebca6b;
+    h ^= h >> 13;
+    h *= 0xc2b2ae35;
+    h ^= h >> 16;
+
+    h ^= (h >> 8);
+    return h;
+}
+
 static const struct {
     const char* fName;
     HasherProc  fHasher;
 } gRec[] = {
     { "hasher0",  hasher0 },
-    { "hasher2",  SkChecksum::Mix },
+    { "hasher2",  hasher2 },
 };
 
 #define kMaxHashBits   12

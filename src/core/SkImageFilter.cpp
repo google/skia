@@ -8,7 +8,6 @@
 #include "SkImageFilter.h"
 
 #include "SkBitmap.h"
-#include "SkChecksum.h"
 #include "SkDevice.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -335,6 +334,31 @@ bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
 }
 #endif
 
+static uint32_t compute_hash(const uint32_t* data, int count) {
+    uint32_t hash = 0;
+
+    for (int i = 0; i < count; ++i) {
+        uint32_t k = data[i];
+        k *= 0xcc9e2d51;
+        k = (k << 15) | (k >> 17);
+        k *= 0x1b873593;
+
+        hash ^= k;
+        hash = (hash << 13) | (hash >> 19);
+        hash *= 5;
+        hash += 0xe6546b64;
+    }
+
+    //    hash ^= size;
+    hash ^= hash >> 16;
+    hash *= 0x85ebca6b;
+    hash ^= hash >> 13;
+    hash *= 0xc2b2ae35;
+    hash ^= hash >> 16;
+
+    return hash;
+}
+
 class CacheImpl : public SkImageFilter::Cache {
 public:
     explicit CacheImpl(int minChildren) : fMinChildren(minChildren) {
@@ -357,7 +381,7 @@ private:
             return v.fKey;
         }
         static uint32_t Hash(Key key) {
-            return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
+            return compute_hash(reinterpret_cast<const uint32_t*>(&key), sizeof(Key) / sizeof(uint32_t));
         }
     };
     SkTDynamicHash<Value, Key> fData;
