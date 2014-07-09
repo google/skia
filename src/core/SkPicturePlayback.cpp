@@ -106,17 +106,7 @@ static SkBitmap shallow_copy(const SkBitmap& bitmap) {
     return bitmap;
 }
 
-void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) {
-    AutoResetOpID aroi(this);
-    SkASSERT(0 == fCurOffset);
-
-    // kDrawComplete will be the signal that we have reached the end of
-    // the command stream
-    static const uint32_t kDrawComplete = SK_MaxU32;
-
-    SkReader32 reader(fPictureData->fOpData->bytes(), fPictureData->fOpData->size());
-    SkAutoTDelete<const SkPicture::OperationList> activeOpsList;
-    const SkTDArray<void*>* activeOps = NULL;
+const SkPicture::OperationList* SkPicturePlayback::getActiveOps(const SkCanvas* canvas) {
 
     if (fUseBBH && NULL != fPictureData->fStateTree && NULL != fPictureData->fBoundingHierarchy) {
         SkRect clipBounds;
@@ -124,28 +114,151 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
             SkIRect query;
             clipBounds.roundOut(&query);
 
-            activeOpsList.reset(fPictureData->getActiveOps(query));
-            if (NULL != activeOpsList.get()) {
-                if (0 == activeOpsList->numOps()) {
-                    return;     // nothing to draw
+            return fPictureData->getActiveOps(query);
+        }
+    } 
+
+    return NULL;
+}
+
+// Initialize the state tree iterator. Return false if there is nothing left to draw.
+bool SkPicturePlayback::initIterator(SkPictureStateTree::Iterator* iter, 
+                                     SkCanvas* canvas,
+                                     const SkPicture::OperationList *activeOpsList) {
+
+    if (NULL != activeOpsList) {
+        if (0 == activeOpsList->numOps()) {
+            return false;  // nothing to draw
+        }
+
+        fPictureData->fStateTree->initIterator(iter, activeOpsList->fOps, canvas);
+    }
+
+    return true;
+}
+
+bool SkPicturePlayback::replaceOps(SkPictureStateTree::Iterator* iter, 
+                                   SkReader32* reader, 
+                                   SkCanvas* canvas,
+                                   const SkMatrix& initialMatrix) {
+    if (NULL != fReplacements) {
+        // Potentially replace a block of operations with a single drawBitmap call
+        SkPicturePlayback::PlaybackReplacements::ReplacementInfo* temp =
+                                            fReplacements->lookupByStart(reader->offset());
+        if (NULL != temp) {
+            SkASSERT(NULL != temp->fBM);
+            SkASSERT(NULL != temp->fPaint);
+            canvas->save();
+            canvas->setMatrix(initialMatrix);
+            SkRect src = SkRect::Make(temp->fSrcRect);
+            SkRect dst = SkRect::MakeXYWH(temp->fPos.fX, temp->fPos.fY,
+                                          temp->fSrcRect.width(),
+                                          temp->fSrcRect.height());
+            canvas->drawBitmapRectToRect(*temp->fBM, &src, dst, temp->fPaint);
+            canvas->restore();
+
+            if (iter->isValid()) {
+                // This save is needed since the BBH will automatically issue
+                // a restore to balanced the saveLayer we're skipping
+                canvas->save();
+
+                // At this point we know that the PictureStateTree was aiming
+                // for some draw op within temp's saveLayer (although potentially
+                // in a separate saveLayer nested inside it).
+                // We need to skip all the operations inside temp's range
+                // along with all the associated state changes but update
+                // the state tree to the first operation outside temp's range.
+
+                uint32_t skipTo;
+                do {
+                    skipTo = iter->nextDraw();
+                    if (SkPictureStateTree::Iterator::kDrawComplete == skipTo) {
+                        break;
+                    }
+
+                    if (skipTo <= temp->fStop) {
+                        reader->setOffset(skipTo);
+                        uint32_t size;
+                        DrawType op = ReadOpAndSize(reader, &size);
+                        // Since we are relying on the normal SkPictureStateTree
+                        // playback we need to convert any nested saveLayer calls
+                        // it may issue into saves (so that all its internal
+                        // restores will be balanced).
+                        if (SAVE_LAYER == op) {
+                            canvas->save();
+                        }
+                    }
+                } while (skipTo <= temp->fStop);
+
+                if (SkPictureStateTree::Iterator::kDrawComplete == skipTo) {
+                    reader->setOffset(reader->size());      // skip to end
+                    return true;
                 }
 
-                activeOps = &(activeOpsList.get()->fOps);
+                reader->setOffset(skipTo);
+            } else {
+                reader->setOffset(temp->fStop);
+                uint32_t size;
+                SkDEBUGCODE(DrawType op = ) ReadOpAndSize(reader, &size);
+                SkASSERT(RESTORE == op);
             }
+
+            return true;
         }
     }
 
-    SkPictureStateTree::Iterator it = (NULL == activeOps) ?
-        SkPictureStateTree::Iterator() :
-        fPictureData->fStateTree->getIterator(*activeOps, canvas);
+    return false;
+}
 
-    if (it.isValid()) {
-        uint32_t skipTo = it.nextDraw();
-        if (kDrawComplete == skipTo) {
-            return;
+// If 'iter' is valid use it to skip forward through the picture.
+void SkPicturePlayback::StepIterator(SkPictureStateTree::Iterator* iter, SkReader32* reader) {
+    if (iter->isValid()) {
+        uint32_t skipTo = iter->nextDraw();
+        if (SkPictureStateTree::Iterator::kDrawComplete == skipTo) {
+            reader->setOffset(reader->size());  // skip to end
+        } else {
+            reader->setOffset(skipTo);
         }
-        reader.setOffset(skipTo);
     }
+}
+
+// Update the iterator and state tree to catch up with the skipped ops.
+void SkPicturePlayback::SkipIterTo(SkPictureStateTree::Iterator* iter,
+                                   SkReader32* reader,
+                                   uint32_t skipTo) {
+    SkASSERT(skipTo <= reader->size());
+    SkASSERT(reader->offset() <= skipTo); // should only be skipping forward
+
+    if (iter->isValid()) {
+        // If using a bounding box hierarchy, advance the state tree
+        // iterator until at or after skipTo
+        uint32_t adjustedSkipTo;
+        do {
+            adjustedSkipTo = iter->nextDraw();
+        } while (adjustedSkipTo < skipTo);
+        skipTo = adjustedSkipTo;
+    }
+    if (SkPictureStateTree::Iterator::kDrawComplete == skipTo) {
+        reader->setOffset(reader->size());  // skip to end
+    } else {
+        reader->setOffset(skipTo);
+    }
+}
+
+void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) {
+    AutoResetOpID aroi(this);
+    SkASSERT(0 == fCurOffset);
+
+    SkAutoTDelete<const SkPicture::OperationList> activeOpsList(this->getActiveOps(canvas));
+    SkPictureStateTree::Iterator it;
+
+    if (!this->initIterator(&it, canvas, activeOpsList.get())) {
+        return;  // nothing to draw
+    }
+
+    SkReader32 reader(fPictureData->opData()->bytes(), fPictureData->opData()->size());
+
+    StepIterator(&it, &reader);
 
     // Record this, so we can concat w/ it if we encounter a setMatrix()
     SkMatrix initialMatrix = canvas->getTotalMatrix();
@@ -153,109 +266,26 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
     SkAutoCanvasRestore acr(canvas, false);
 
     while (!reader.eof()) {
-        if (callback && callback->abortDrawing()) {
+        if (NULL != callback && callback->abortDrawing()) {
             return;
         }
 
-        if (NULL != fReplacements) {
-            // Potentially replace a block of operations with a single drawBitmap call
-            SkPicturePlayback::PlaybackReplacements::ReplacementInfo* temp =
-                fReplacements->lookupByStart(reader.offset());
-            if (NULL != temp) {
-                SkASSERT(NULL != temp->fBM);
-                SkASSERT(NULL != temp->fPaint);
-                canvas->save();
-                canvas->setMatrix(initialMatrix);
-                SkRect src = SkRect::Make(temp->fSrcRect);
-                SkRect dst = SkRect::MakeXYWH(temp->fPos.fX, temp->fPos.fY,
-                                              temp->fSrcRect.width(),
-                                              temp->fSrcRect.height());
-                canvas->drawBitmapRectToRect(*temp->fBM, &src, dst, temp->fPaint);
-                canvas->restore();
-
-                if (it.isValid()) {
-                    // This save is needed since the BBH will automatically issue
-                    // a restore to balanced the saveLayer we're skipping
-                    canvas->save();
-
-                    // At this point we know that the PictureStateTree was aiming
-                    // for some draw op within temp's saveLayer (although potentially
-                    // in a separate saveLayer nested inside it).
-                    // We need to skip all the operations inside temp's range
-                    // along with all the associated state changes but update
-                    // the state tree to the first operation outside temp's range.
-
-                    uint32_t skipTo;
-                    do {
-                        skipTo = it.nextDraw();
-                        if (kDrawComplete == skipTo) {
-                            break;
-                        }
-
-                        if (skipTo <= temp->fStop) {
-                            reader.setOffset(skipTo);
-                            uint32_t size;
-                            DrawType op = ReadOpAndSize(&reader, &size);
-                            // Since we are relying on the normal SkPictureStateTree
-                            // playback we need to convert any nested saveLayer calls
-                            // it may issue into saves (so that all its internal
-                            // restores will be balanced).
-                            if (SAVE_LAYER == op) {
-                                canvas->save();
-                            }
-                        }
-                    } while (skipTo <= temp->fStop);
-
-                    if (kDrawComplete == skipTo) {
-                        break;
-                    }
-
-                    reader.setOffset(skipTo);
-                } else {
-                    reader.setOffset(temp->fStop);
-                    uint32_t size;
-                    SkDEBUGCODE(DrawType op = ) ReadOpAndSize(&reader, &size);
-                    SkASSERT(RESTORE == op);
-                }
-                continue;
-            }
+        if (this->replaceOps(&it, &reader, canvas, initialMatrix)) {
+            continue;
         }
 
         fCurOffset = reader.offset();
         uint32_t size;
         DrawType op = ReadOpAndSize(&reader, &size);
-        size_t skipTo = 0;
         if (NOOP == op) {
             // NOOPs are to be ignored - do not propagate them any further
-            skipTo = fCurOffset + size;
-        }
-
-        if (0 != skipTo) {
-            if (it.isValid()) {
-                // If using a bounding box hierarchy, advance the state tree
-                // iterator until at or after skipTo
-                uint32_t adjustedSkipTo;
-                do {
-                    adjustedSkipTo = it.nextDraw();
-                } while (adjustedSkipTo < skipTo);
-                skipTo = adjustedSkipTo;
-            }
-            if (kDrawComplete == skipTo) {
-                break;
-            }
-            reader.setOffset(skipTo);
+            SkipIterTo(&it, &reader, fCurOffset + size);
             continue;
         }
 
         this->handleOp(&reader, op, size, canvas, initialMatrix);
 
-        if (it.isValid()) {
-            uint32_t skipTo = it.nextDraw();
-            if (kDrawComplete == skipTo) {
-                break;
-            }
-            reader.setOffset(skipTo);
-        }
+        StepIterator(&it, &reader);
     }
 }
 

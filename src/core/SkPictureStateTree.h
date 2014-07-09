@@ -50,11 +50,13 @@ public:
     Draw* appendDraw(size_t offset);
 
     /**
-     * Given a list of draws, and a canvas, returns an iterator that produces the correct sequence
-     * of offsets into the command buffer to carry out those calls with correct matrix/clip state.
-     * This handles saves/restores, and does all necessary matrix setup.
+     * Given a list of draws, and a canvas, initialize an iterator that produces the correct 
+     * sequence of offsets into the command buffer to carry out those calls with correct 
+     * matrix/clip state. This handles saves/restores, and does all necessary matrix setup.
      */
-    Iterator getIterator(const SkTDArray<void*>& draws, SkCanvas* canvas);
+    void initIterator(SkPictureStateTree::Iterator* iter, 
+                      const SkTDArray<void*>& draws, 
+                      SkCanvas* canvas);
 
     void appendSave();
     void appendSaveLayer(size_t offset);
@@ -83,11 +85,11 @@ public:
         */
         uint32_t nextDraw();
         static const uint32_t kDrawComplete = SK_MaxU32;
-        Iterator() : fPlaybackMatrix(), fValid(false) { }
+        Iterator() : fValid(false) { }
         bool isValid() const { return fValid; }
 
     private:
-        Iterator(const SkTDArray<void*>& draws, SkCanvas* canvas, Node* root);
+        void init(const SkTDArray<void*>& draws, SkCanvas* canvas, Node* root);
 
         void setCurrentMatrix(const SkMatrix*);
 
@@ -104,7 +106,7 @@ public:
         SkTDArray<Node*> fNodes;
 
         // The matrix of the canvas we're playing back into
-        const SkMatrix fPlaybackMatrix;
+        SkMatrix fPlaybackMatrix;
 
         // Cache of current matrix, so we can avoid redundantly setting it
         const SkMatrix* fCurrentMatrix;

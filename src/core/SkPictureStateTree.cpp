@@ -73,9 +73,10 @@ void SkPictureStateTree::appendClip(size_t offset) {
     this->appendNode(offset);
 }
 
-SkPictureStateTree::Iterator SkPictureStateTree::getIterator(const SkTDArray<void*>& draws,
-                                                             SkCanvas* canvas) {
-    return Iterator(draws, canvas, &fRoot);
+void SkPictureStateTree::initIterator(SkPictureStateTree::Iterator* iter,
+                                      const SkTDArray<void*>& draws,
+                                      SkCanvas* canvas) {
+    iter->init(draws, canvas, &fRoot);
 }
 
 void SkPictureStateTree::appendNode(size_t offset) {
@@ -88,15 +89,16 @@ void SkPictureStateTree::appendNode(size_t offset) {
     fCurrentState.fNode = n;
 }
 
-SkPictureStateTree::Iterator::Iterator(const SkTDArray<void*>& draws, SkCanvas* canvas, Node* root)
-    : fDraws(&draws)
-    , fCanvas(canvas)
-    , fCurrentNode(root)
-    , fPlaybackMatrix(canvas->getTotalMatrix())
-    , fCurrentMatrix(NULL)
-    , fPlaybackIndex(0)
-    , fSave(false)
-    , fValid(true) {
+void SkPictureStateTree::Iterator::init(const SkTDArray<void*>& draws, SkCanvas* canvas, Node* root) {
+    SkASSERT(!fValid);
+    fDraws = &draws;
+    fCanvas = canvas;
+    fCurrentNode = root;
+    fPlaybackMatrix = canvas->getTotalMatrix();
+    fCurrentMatrix = NULL;
+    fPlaybackIndex = 0;
+    fSave = false;
+    fValid = true;
 }
 
 void SkPictureStateTree::Iterator::setCurrentMatrix(const SkMatrix* matrix) {

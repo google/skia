@@ -9,6 +9,7 @@
 #define SkPicturePlayback_DEFINED
 
 #include "SkPictureFlat.h"  // for DrawType
+#include "SkPictureStateTree.h"
 
 class SkBitmap;
 class SkCanvas;
@@ -95,6 +96,18 @@ protected:
                   uint32_t size, 
                   SkCanvas* canvas,
                   const SkMatrix& initialMatrix);
+
+    const SkPicture::OperationList* getActiveOps(const SkCanvas* canvas);
+    bool initIterator(SkPictureStateTree::Iterator* iter, 
+                      SkCanvas* canvas,
+                      const SkPicture::OperationList *activeOpsList);
+    static void StepIterator(SkPictureStateTree::Iterator* iter, SkReader32* reader);
+    static void SkipIterTo(SkPictureStateTree::Iterator* iter, 
+                           SkReader32* reader, uint32_t skipTo);
+    bool replaceOps(SkPictureStateTree::Iterator* iter, 
+                    SkReader32* reader, 
+                    SkCanvas* canvas,
+                    const SkMatrix& initialMatrix);
 
     static DrawType ReadOpAndSize(SkReader32* reader, uint32_t* size);
 
