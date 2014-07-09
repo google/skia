@@ -9,6 +9,7 @@
 #define SkPixelRef_DEFINED
 
 #include "SkBitmap.h"
+#include "SkDynamicAnnotations.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkFlattenable.h"
@@ -349,8 +350,8 @@ private:
     LockRec         fRec;
     int             fLockCount;
 
-    mutable uint32_t fGenerationID;
-    mutable bool     fUniqueGenerationID;
+    mutable SkTRacy<uint32_t> fGenerationID;
+    mutable SkTRacy<bool>     fUniqueGenerationID;
 
     SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are owned
 

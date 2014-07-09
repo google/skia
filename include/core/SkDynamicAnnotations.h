@@ -12,13 +12,14 @@
 // namely thread sanitizer.  This is a cut-down version of the full dynamic_annotations library with
 // only the features used by Skia.
 
-// We check the same define to know to enable the annotations, but prefix all our macros with SK_.
-#if DYNAMIC_ANNOTATIONS_ENABLED
+#if SK_DYNAMIC_ANNOTATIONS_ENABLED
 
 extern "C" {
 // TSAN provides these hooks.
 void AnnotateIgnoreReadsBegin(const char* file, int line);
 void AnnotateIgnoreReadsEnd(const char* file, int line);
+void AnnotateBenignRaceSized(const char* file, int line,
+                             const volatile void* addr, long size, const char* desc);
 }  // extern "C"
 
 // SK_ANNOTATE_UNPROTECTED_READ can wrap any variable read to tell TSAN to ignore that it appears to
@@ -37,10 +38,46 @@ inline T SK_ANNOTATE_UNPROTECTED_READ(const volatile T& x) {
     return read;
 }
 
-#else  // !DYNAMIC_ANNOTATIONS_ENABLED
+// Ignore racy reads and racy writes to this pointer, indefinitely.
+// If at all possible, use the more precise SK_ANNOTATE_UNPROTECTED_READ.
+template <typename T>
+void SK_ANNOTATE_BENIGN_RACE(T* ptr) {
+    AnnotateBenignRaceSized(__FILE__, __LINE__, ptr, sizeof(*ptr), "SK_ANNOTATE_BENIGN_RACE");
+}
+
+#else  // !SK_DYNAMIC_ANNOTATIONS_ENABLED
 
 #define SK_ANNOTATE_UNPROTECTED_READ(x) (x)
+#define SK_ANNOTATE_BENIGN_RACE(ptr)
 
 #endif
+
+// Can be used to wrap values that are intentionally racy, usually small mutable cached values, e.g.
+//   - SkMatrix type mask
+//   - SkPathRef bounds
+//   - SkPixelRef genIDs
+template <typename T>
+class SkTRacy {
+public:
+    SkTRacy() { SK_ANNOTATE_BENIGN_RACE(&fVal); }
+
+    operator const T&() const {
+        return fVal;
+    }
+
+    SkTRacy& operator=(const T& val) {
+        fVal = val;
+        return *this;
+    }
+
+    const T* get() const { return &fVal; }
+          T* get()       { return &fVal; }
+
+    const T* operator->() const { return &fVal; }
+          T* operator->()       { return &fVal; }
+
+private:
+    T fVal;
+};
 
 #endif//SkDynamicAnnotations_DEFINED

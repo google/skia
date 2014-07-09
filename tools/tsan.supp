@@ -25,21 +25,3 @@ race:is_lcd_supported
 race:RefFCI
 race:SkString
 race:SkPDF
-
-# These race benignly as used by DMQuiltTask: skia:2725.
-# Suppress while I look for a more focused way to silence this.
-race:SkPixelRef::callGenIDChangeListeners
-race:SkPixelRef::needsNewGenID
-
-# SkPathRef caches its bounding box the first time it's needed.
-# This will be fixed naturally once we create (from a single thread) a
-# bounding-box hierarchy for SkRecord-based SkPictures; all bounds will come pre-cached.
-# So just shut this up for now.
-race:SkPathRef::computeBounds
-
-# SkMatrix caches a type mask.  If we race on this, we'll just calculate the same thing a few times.
-race:SkMatrix::getType
-race:SkMatrix::rectStaysRect
-race:SkMatrix::getPerspectiveTypeMaskOnly
-
-# TODO: some sort of SkRacy<T> to handle cases like SkMatrix, SkPathRef, SkPixelRef above?
