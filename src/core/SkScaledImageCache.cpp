@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkChecksum.h"
 #include "SkScaledImageCache.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
@@ -29,32 +30,6 @@ static inline SkScaledImageCache::Rec* id_to_rec(SkScaledImageCache::ID* id) {
     return reinterpret_cast<SkScaledImageCache::Rec*>(id);
 }
 
- // Implemented from en.wikipedia.org/wiki/MurmurHash.
-static uint32_t compute_hash(const uint32_t data[], int count) {
-    uint32_t hash = 0;
-
-    for (int i = 0; i < count; ++i) {
-        uint32_t k = data[i];
-        k *= 0xcc9e2d51;
-        k = (k << 15) | (k >> 17);
-        k *= 0x1b873593;
-
-        hash ^= k;
-        hash = (hash << 13) | (hash >> 19);
-        hash *= 5;
-        hash += 0xe6546b64;
-    }
-
-    //    hash ^= size;
-    hash ^= hash >> 16;
-    hash *= 0x85ebca6b;
-    hash ^= hash >> 13;
-    hash *= 0xc2b2ae35;
-    hash ^= hash >> 16;
-
-    return hash;
-}
-
 struct SkScaledImageCache::Key {
     Key(uint32_t genID,
         SkScalar scaleX,
@@ -64,7 +39,7 @@ struct SkScaledImageCache::Key {
         , fScaleX(scaleX)
         , fScaleY(scaleY)
         , fBounds(bounds) {
-        fHash = compute_hash(&fGenID, 7);
+        fHash = SkChecksum::Murmur3(&fGenID, 28);
     }
 
     bool operator<(const Key& other) const {
