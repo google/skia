@@ -15,8 +15,11 @@ class QuiltTask : public CpuTask {
 
 public:
     enum Mode {
-        kNormal_Mode,
-        kSkRecord_Mode,
+        kNoBBH_Mode,
+        kRTree_Mode,
+        kQuadTree_Mode,
+        kTileGrid_Mode,
+        kSkRecord_Mode,  // Currently uses no BBH.
     };
 
     QuiltTask(const Task& parent,  // QuiltTask must be a child task.  Pass its parent here.

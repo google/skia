@@ -2,15 +2,15 @@
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 
+#include "SkBBHFactory.h"
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 #include "SkThreadPool.h"
 
-DEFINE_bool(quilt, true, "If true, draw into a quilt of small tiles and compare.");
+DEFINE_bool(quilt, true, "If true, draw GM via a picture into a quilt of small tiles and compare.");
 DEFINE_int32(quiltTile, 256, "Dimension of (square) quilt tile.");
-DEFINE_bool(quiltThreaded, true, "If true, draw quilt tiles with multiple threads.");
 
-static const char* kSuffixes[] = { "quilt", "quilt_skr" };
+static const char* kSuffixes[] = { "nobbh", "rtree", "quadtree", "tilegrid", "skr" };
 
 namespace DM {
 
@@ -53,26 +53,57 @@ private:
 };
 
 void QuiltTask::draw() {
-    SkAutoTUnref<SkPicture> recorded(
-            RecordPicture(fGM.get(), NULL/*bbh factory*/, kSkRecord_Mode == fMode));
+    SkAutoTDelete<SkBBHFactory> factory;
+    switch (fMode) {
+        case kRTree_Mode:
+            factory.reset(SkNEW(SkRTreeFactory));
+            break;
+        case kQuadTree_Mode:
+            factory.reset(SkNEW(SkQuadTreeFactory));
+            break;
+        case kTileGrid_Mode: {
+            const SkTileGridFactory::TileGridInfo tiles = {
+                { FLAGS_quiltTile, FLAGS_quiltTile },
+                /*overlap: */{0, 0},
+                /*offset:  */{0, 0},
+            };
+            factory.reset(SkNEW_ARGS(SkTileGridFactory, (tiles)));
+            break;
+        }
+
+        case kNoBBH_Mode:
+        case kSkRecord_Mode:
+            break;
+    }
+
+    // A couple GMs draw wrong when using a bounding box hierarchy.
+    // This almost certainly means we have a bug to fix, but for now
+    // just draw without a bounding box hierarchy.
+    if (fGM->getFlags() & skiagm::GM::kNoBBH_Flag) {
+        factory.reset(NULL);
+    }
+
+    SkAutoTUnref<const SkPicture> recorded(
+            RecordPicture(fGM.get(), factory.get(), kSkRecord_Mode == fMode));
 
     SkBitmap full;
     AllocatePixels(fReference, &full);
 
-    int threads = 0;
-    if (kSkRecord_Mode == fMode || FLAGS_quiltThreaded) {
-        threads = SkThreadPool::kThreadPerCore;
-    }
-    SkThreadPool pool(threads);
-
-    for (int y = 0; y < tiles_needed(full.height(), FLAGS_quiltTile); y++) {
-        for (int x = 0; x < tiles_needed(full.width(), FLAGS_quiltTile); x++) {
-            // Deletes itself when done.
-            pool.add(new Tile(x, y, *recorded, &full));
+    if (fGM->getFlags() & skiagm::GM::kSkipTiled_Flag) {
+        // Some GMs don't draw exactly the same when tiled.  Draw them in one go.
+        SkCanvas canvas(full);
+        recorded->draw(&canvas);
+        canvas.flush();
+    } else {
+        // Draw tiles in parallel into the same bitmap, simulating aggressive impl-side painting.
+        SkThreadPool pool(SkThreadPool::kThreadPerCore);
+        for (int y = 0; y < tiles_needed(full.height(), FLAGS_quiltTile); y++) {
+            for (int x = 0; x < tiles_needed(full.width(), FLAGS_quiltTile); x++) {
+                // Deletes itself when done.
+                pool.add(new Tile(x, y, *recorded, &full));
+            }
         }
     }
-
-    pool.wait();
 
     if (!BitmapsEqual(full, fReference)) {
         this->fail();
@@ -82,9 +113,6 @@ void QuiltTask::draw() {
 
 bool QuiltTask::shouldSkip() const {
     if (fGM->getFlags() & skiagm::GM::kSkipPicture_Flag) {
-        return true;
-    }
-    if (fGM->getFlags() & skiagm::GM::kSkipTiled_Flag) {
         return true;
     }
     return !FLAGS_quilt;

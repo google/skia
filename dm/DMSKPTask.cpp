@@ -5,7 +5,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkPictureRecorder.h"
 
-DECLARE_bool(skr);  // in DMReplayTask.cpp
+DEFINE_bool(skr, true, "Test that SKPs draw the same when re-recorded with SkRecord backend.");
 
 namespace DM {
 
