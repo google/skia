@@ -63,6 +63,7 @@ public:
     T* find(const Key& key) const {
         int index = this->firstIndex(key);
         for (int round = 0; round < fCapacity; round++) {
+            SkASSERT(index >= 0 && index < fCapacity);
             T* candidate = fArray[index];
             if (Empty() == candidate) {
                 return NULL;
@@ -100,6 +101,7 @@ protected:
     int countCollisions(const Key& key) const {
         int index = this->firstIndex(key);
         for (int round = 0; round < fCapacity; round++) {
+            SkASSERT(index >= 0 && index < fCapacity);
             const T* candidate = fArray[index];
             if (Empty() == candidate || Deleted() == candidate || GetKey(*candidate) == key) {
                 return round;
@@ -163,6 +165,7 @@ private:
         const Key& key = GetKey(*newEntry);
         int index = this->firstIndex(key);
         for (int round = 0; round < fCapacity; round++) {
+            SkASSERT(index >= 0 && index < fCapacity);
             const T* candidate = fArray[index];
             if (Empty() == candidate || Deleted() == candidate) {
                 if (Deleted() == candidate) {
@@ -181,6 +184,7 @@ private:
         const int firstIndex = this->firstIndex(key);
         int index = firstIndex;
         for (int round = 0; round < fCapacity; round++) {
+            SkASSERT(index >= 0 && index < fCapacity);
             const T* candidate = fArray[index];
             if (Deleted() != candidate && GetKey(*candidate) == key) {
                 fDeleted++;
