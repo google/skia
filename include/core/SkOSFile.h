@@ -118,19 +118,6 @@ public:
     };
 };
 
-class SkUTF16_Str {
-public:
-    SkUTF16_Str(const char src[]);
-    ~SkUTF16_Str()
-    {
-        sk_free(fStr);
-    }
-    const uint16_t* get() const { return fStr; }
-
-private:
-    uint16_t*   fStr;
-};
-
 /**
  *  Functions for modifying SkStrings which represent paths on the filesystem.
  */

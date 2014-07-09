@@ -54,17 +54,6 @@ static uint16_t* concat_to_16(const char src[], const char suffix[])
     return dst;
 }
 
-SkUTF16_Str::SkUTF16_Str(const char src[])
-{
-    size_t  len = strlen(src);
-
-    fStr = (uint16_t*)sk_malloc_throw((len + 1) * sizeof(uint16_t));
-    size_t i;
-    for (i = 0; i < len; i++)
-        fStr[i] = src[i];
-    fStr[i] = 0;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 
 SkOSFile::Iter::Iter() : fHandle(0), fPath16(NULL)
