@@ -8,10 +8,20 @@
 #ifndef SkCondVar_DEFINED
 #define SkCondVar_DEFINED
 
+/**
+ * Import any thread model setting from configuration files.
+ */
+#include "SkTypes.h"
+
 #ifdef SK_USE_POSIX_THREADS
 #include <pthread.h>
 #elif defined(SK_BUILD_FOR_WIN32)
 #include <windows.h>
+#else
+/**
+ * Warn if the implementation of this class is empty, i.e. thread safety is not working.
+ */
+#warning "Thread safety class SkCondVar has no implementation!"
 #endif
 
 /**
