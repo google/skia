@@ -368,8 +368,6 @@
         'SK_DEFAULT_FONT_CACHE_LIMIT   (768 * 1024)',
         'SK_ATOMICS_PLATFORM_H "../../src/ports/SkAtomics_sync.h"',
         'SK_MUTEX_PLATFORM_H "../../src/ports/SkMutex_pthread.h"',
-        # Needed until we fix skbug.com/2440.
-        'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
         # Transitional, for deprecated SkCanvas::SaveFlags methods.
         'SK_ATTR_DEPRECATED=SK_NOTHING_ARG1',
         'SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX',
@@ -669,6 +667,8 @@
             'defines': [
               'SKIA_DLL',
               'SKIA_IMPLEMENTATION=1',
+              # Needed until we fix skbug.com/2440.
+              'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
             ],
           }],
           [ 'skia_profile_enabled == 1', {

@@ -27,7 +27,6 @@ static void test_complex_layers(skiatest::Reporter* reporter) {
     const SkColorType colorTypes[] = {
         kRGB_565_SkColorType, kN32_SkColorType
     };
-    const int configCount = sizeof(colorTypes) / sizeof(SkBitmap::Config);
 
     const int layerAlpha[] = { 255, 255, 0 };
     const SkCanvas::SaveFlags flags[] = { SkCanvas::kARGB_NoClipLayer_SaveFlag,
@@ -37,7 +36,7 @@ static void test_complex_layers(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, sizeof(layerAlpha) == sizeof(flags));
     const int layerCombinations = sizeof(layerAlpha) / sizeof(int);
 
-    for (int i = 0; i < configCount; ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(colorTypes); ++i) {
         SkBitmap bitmaps[2];
         for (int j = 0; j < 2; ++j) {
             bitmaps[j].allocPixels(SkImageInfo::Make(WIDTH, HEIGHT,
