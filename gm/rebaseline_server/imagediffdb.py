@@ -175,6 +175,8 @@ class DiffRecord(object):
     finally:
       shutil.rmtree(skpdiff_output_dir)
 
+  # TODO(epoger): Use properties instead of getters throughout.
+  # See http://stackoverflow.com/a/6618176
   def get_num_pixels_differing(self):
     """Returns the absolute number of pixels that differ."""
     return self._num_pixels_differing
@@ -220,6 +222,10 @@ class ImageDiffDB(object):
     # Dictionary of DiffRecords, keyed by (expected_image_locator,
     # actual_image_locator) tuples.
     self._diff_dict = {}
+
+  @property
+  def storage_root(self):
+    return self._storage_root
 
   def add_image_pair(self,
                      expected_image_url, expected_image_locator,

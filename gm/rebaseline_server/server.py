@@ -44,6 +44,7 @@ import gm_json
 import compare_configs
 import compare_to_expectations
 import download_actuals
+import imagediffdb
 import imagepairset
 import results as results_mod
 
@@ -233,8 +234,10 @@ class Server(object):
     # 1. self._results
     # 2. the expected or actual results on local disk
     self.results_rlock = threading.RLock()
-    # self._results will be filled in by calls to update_results()
+
+    # These will be filled in by calls to update_results()
     self._results = None
+    self._image_diff_db = None
 
   @property
   def results(self):
@@ -341,11 +344,15 @@ class Server(object):
             compare_to_expectations.DEFAULT_EXPECTATIONS_DIR)
         _run_command(['gclient', 'sync'], TRUNK_DIRECTORY)
 
-      self._results = compare_to_expectations.ExpectationComparisons(
-          actuals_root=self._actuals_dir,
-          generated_images_root=os.path.join(
+      if not self._image_diff_db:
+        self._image_diff_db = imagediffdb.ImageDiffDB(
+            storage_root=os.path.join(
               PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR,
-              GENERATED_IMAGES_SUBDIR),
+              GENERATED_IMAGES_SUBDIR))
+
+      self._results = compare_to_expectations.ExpectationComparisons(
+          image_diff_db=self._image_diff_db,
+          actuals_root=self._actuals_dir,
           diff_base_url=posixpath.join(
               os.pardir, STATIC_CONTENTS_SUBDIR, GENERATED_IMAGES_SUBDIR),
           builder_regex_list=self._builder_regex_list)

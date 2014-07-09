@@ -19,11 +19,11 @@ within self._output_dir_expected, which wouldn't be good...
 """
 
 import os
-import sys
 
 # Imports from within Skia
 import base_unittest
 import compare_to_expectations
+import imagediffdb
 import results
 import gm_json  # must import results first, so that gm_json will be in sys.path
 
@@ -32,10 +32,11 @@ class CompareToExpectationsTest(base_unittest.TestCase):
 
   def test_gm(self):
     """Process results of a GM run with the ExpectationComparisons object."""
+    image_diff_db = imagediffdb.ImageDiffDB(storage_root=self._temp_dir)
     results_obj = compare_to_expectations.ExpectationComparisons(
+        image_diff_db=image_diff_db,
         actuals_root=os.path.join(self._input_dir, 'gm-actuals'),
         expected_root=os.path.join(self._input_dir, 'gm-expectations'),
-        generated_images_root=self._temp_dir,
         diff_base_url='/static/generated-images')
     results_obj.get_timestamp = mock_get_timestamp
     gm_json.WriteToFile(
