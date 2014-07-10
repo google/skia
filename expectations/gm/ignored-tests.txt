@@ -46,10 +46,6 @@ blurquickreject
 blurrects
 bigblurs
 
-# robertphillips:
-# 1 pixel 2,2,2 difference in gpu
-shadows
-
 # senorblanco: 
 # Needs rebaselining after improved perlin noise scaling
 perlinnoise
