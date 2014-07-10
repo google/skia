@@ -140,6 +140,8 @@
         '<(skia_src_path)/core/SkPictureRecord.cpp',
         '<(skia_src_path)/core/SkPictureRecord.h',
         '<(skia_src_path)/core/SkPictureRecorder.cpp',
+        '<(skia_src_path)/core/SkPictureReplacementPlayback.cpp',
+        '<(skia_src_path)/core/SkPictureReplacementPlayback.h',
         '<(skia_src_path)/core/SkPictureShader.cpp',
         '<(skia_src_path)/core/SkPictureShader.h',
         '<(skia_src_path)/core/SkPictureStateTree.cpp',

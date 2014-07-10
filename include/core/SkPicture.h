@@ -288,6 +288,7 @@ private:
     friend class GrGatherDevice;
     friend class SkDebugCanvas;
     friend class SkPicturePlayback; // to get fData
+    friend class SkPictureReplacementPlayback; // to access OperationList
 
     typedef SkRefCnt INHERITED;
 

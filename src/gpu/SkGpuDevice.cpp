@@ -30,8 +30,8 @@
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
-#include "SkPicturePlayback.h"
 #include "SkPictureRangePlayback.h"
+#include "SkPictureReplacementPlayback.h"
 #include "SkRRect.h"
 #include "SkStroke.h"
 #include "SkSurface.h"
@@ -1938,7 +1938,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
         }
     }
 
-    SkPicturePlayback::PlaybackReplacements replacements;
+    SkPictureReplacementPlayback::PlaybackReplacements replacements;
 
     // Generate the layer and/or ensure it is locked
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
@@ -1947,7 +1947,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
 
             const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-            SkPicturePlayback::PlaybackReplacements::ReplacementInfo* layerInfo =
+            SkPictureReplacementPlayback::PlaybackReplacements::ReplacementInfo* layerInfo =
                                                                         replacements.push();
             layerInfo->fStart = info.fSaveLayerOpID;
             layerInfo->fStop = info.fRestoreOpID;
@@ -2030,9 +2030,8 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
     }
 
     // Playback using new layers
-    SkPicturePlayback playback(picture);
+    SkPictureReplacementPlayback playback(picture, &replacements, ops.get());
 
-    playback.setReplacements(&replacements);
     playback.draw(canvas, NULL);
 
     // unlock the layers

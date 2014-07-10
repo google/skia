@@ -14,48 +14,6 @@
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
-SkPicturePlayback::PlaybackReplacements::ReplacementInfo*
-SkPicturePlayback::PlaybackReplacements::push() {
-    SkDEBUGCODE(this->validate());
-    return fReplacements.push();
-}
-
-void SkPicturePlayback::PlaybackReplacements::freeAll() {
-    for (int i = 0; i < fReplacements.count(); ++i) {
-        SkDELETE(fReplacements[i].fBM);
-    }
-    fReplacements.reset();
-}
-
-#ifdef SK_DEBUG
-void SkPicturePlayback::PlaybackReplacements::validate() const {
-    // Check that the ranges are monotonically increasing and non-overlapping
-    if (fReplacements.count() > 0) {
-        SkASSERT(fReplacements[0].fStart < fReplacements[0].fStop);
-
-        for (int i = 1; i < fReplacements.count(); ++i) {
-            SkASSERT(fReplacements[i].fStart < fReplacements[i].fStop);
-            SkASSERT(fReplacements[i - 1].fStop < fReplacements[i].fStart);
-        }
-    }
-}
-#endif
-
-// TODO: Replace with hash or pass in "lastLookedUp" hint
-SkPicturePlayback::PlaybackReplacements::ReplacementInfo*
-SkPicturePlayback::PlaybackReplacements::lookupByStart(size_t start) {
-    SkDEBUGCODE(this->validate());
-    for (int i = 0; i < fReplacements.count(); ++i) {
-        if (start == fReplacements[i].fStart) {
-            return &fReplacements[i];
-        } else if (start < fReplacements[i].fStart) {
-            return NULL;  // the ranges are monotonically increasing and non-overlapping
-        }
-    }
-
-    return NULL;
-}
-
 /*
  * Read the next op code and chunk size from 'reader'. The returned size
  * is the entire size of the chunk (including the opcode). Thus, the
@@ -137,79 +95,6 @@ bool SkPicturePlayback::initIterator(SkPictureStateTree::Iterator* iter,
     return true;
 }
 
-bool SkPicturePlayback::replaceOps(SkPictureStateTree::Iterator* iter, 
-                                   SkReader32* reader, 
-                                   SkCanvas* canvas,
-                                   const SkMatrix& initialMatrix) {
-    if (NULL != fReplacements) {
-        // Potentially replace a block of operations with a single drawBitmap call
-        SkPicturePlayback::PlaybackReplacements::ReplacementInfo* temp =
-                                            fReplacements->lookupByStart(reader->offset());
-        if (NULL != temp) {
-            SkASSERT(NULL != temp->fBM);
-            SkASSERT(NULL != temp->fPaint);
-            canvas->save();
-            canvas->setMatrix(initialMatrix);
-            SkRect src = SkRect::Make(temp->fSrcRect);
-            SkRect dst = SkRect::MakeXYWH(temp->fPos.fX, temp->fPos.fY,
-                                          temp->fSrcRect.width(),
-                                          temp->fSrcRect.height());
-            canvas->drawBitmapRectToRect(*temp->fBM, &src, dst, temp->fPaint);
-            canvas->restore();
-
-            if (iter->isValid()) {
-                // This save is needed since the BBH will automatically issue
-                // a restore to balanced the saveLayer we're skipping
-                canvas->save();
-
-                // At this point we know that the PictureStateTree was aiming
-                // for some draw op within temp's saveLayer (although potentially
-                // in a separate saveLayer nested inside it).
-                // We need to skip all the operations inside temp's range
-                // along with all the associated state changes but update
-                // the state tree to the first operation outside temp's range.
-
-                uint32_t skipTo;
-                do {
-                    skipTo = iter->nextDraw();
-                    if (SkPictureStateTree::Iterator::kDrawComplete == skipTo) {
-                        break;
-                    }
-
-                    if (skipTo <= temp->fStop) {
-                        reader->setOffset(skipTo);
-                        uint32_t size;
-                        DrawType op = ReadOpAndSize(reader, &size);
-                        // Since we are relying on the normal SkPictureStateTree
-                        // playback we need to convert any nested saveLayer calls
-                        // it may issue into saves (so that all its internal
-                        // restores will be balanced).
-                        if (SAVE_LAYER == op) {
-                            canvas->save();
-                        }
-                    }
-                } while (skipTo <= temp->fStop);
-
-                if (SkPictureStateTree::Iterator::kDrawComplete == skipTo) {
-                    reader->setOffset(reader->size());      // skip to end
-                    return true;
-                }
-
-                reader->setOffset(skipTo);
-            } else {
-                reader->setOffset(temp->fStop);
-                uint32_t size;
-                SkDEBUGCODE(DrawType op = ) ReadOpAndSize(reader, &size);
-                SkASSERT(RESTORE == op);
-            }
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
 // If 'iter' is valid use it to skip forward through the picture.
 void SkPicturePlayback::StepIterator(SkPictureStateTree::Iterator* iter, SkReader32* reader) {
     if (iter->isValid()) {
@@ -268,10 +153,6 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
     while (!reader.eof()) {
         if (NULL != callback && callback->abortDrawing()) {
             return;
-        }
-
-        if (this->replaceOps(&it, &reader, canvas, initialMatrix)) {
-            continue;
         }
 
         fCurOffset = reader.offset();
