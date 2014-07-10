@@ -325,7 +325,7 @@ private:
     bool     fOptsEnabled;
     int      fInitialSaveCount;
 
-    friend class SkPictureData;
+    friend class SkPictureData;   // for SkPictureData's SkPictureRecord-based constructor
     friend class SkPictureTester; // for unit testing
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE

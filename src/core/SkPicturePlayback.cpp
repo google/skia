@@ -66,7 +66,7 @@ static SkBitmap shallow_copy(const SkBitmap& bitmap) {
 
 const SkPicture::OperationList* SkPicturePlayback::getActiveOps(const SkCanvas* canvas) {
 
-    if (fUseBBH && NULL != fPictureData->fStateTree && NULL != fPictureData->fBoundingHierarchy) {
+    if (fUseBBH) {
         SkRect clipBounds;
         if (canvas->getClipBounds(&clipBounds)) {
             SkIRect query;
@@ -89,7 +89,7 @@ bool SkPicturePlayback::initIterator(SkPictureStateTree::Iterator* iter,
             return false;  // nothing to draw
         }
 
-        fPictureData->fStateTree->initIterator(iter, activeOpsList->fOps, canvas);
+        fPictureData->initIterator(iter, activeOpsList->fOps, canvas);
     }
 
     return true;

@@ -12,6 +12,7 @@
 #include "SkPathHeap.h"
 #include "SkPicture.h"
 #include "SkPictureFlat.h"
+#include "SkPictureStateTree.h"
 
 class SkData;
 class SkPictureRecord;
@@ -24,7 +25,6 @@ class SkPaint;
 class SkPath;
 class SkPictureStateTree;
 class SkReadBuffer;
-class SkRegion;
 
 struct SkPictInfo {
     enum Flags {
@@ -160,8 +160,7 @@ protected:
     bool parseStream(SkStream*, SkPicture::InstallPixelRefProc);
     bool parseBuffer(SkReadBuffer& buffer);
 
-private:
-
+public:
     const SkBitmap& getBitmap(SkReader32* reader) const {
         const int index = reader->readInt();
         if (SkBitmapHeap::INVALID_SLOT == index) {
@@ -192,10 +191,15 @@ private:
         return &(*fPaints)[index - 1];
     }
 
-    void init();
+    void initIterator(SkPictureStateTree::Iterator* iter, 
+                      const SkTDArray<void*>& draws,
+                      SkCanvas* canvas) const {
+        if (NULL != fStateTree) {
+            fStateTree->initIterator(iter, draws, canvas);
+        }
+    }
 
 #ifdef SK_DEBUG_SIZE
-public:
     int size(size_t* sizePtr);
     int bitmaps(size_t* size);
     int paints(size_t* size);
@@ -241,14 +245,13 @@ public:
                                      GrPixelConfig config, SkScalar dpi) const;
 #endif
 
-private:    // these help us with reading/writing
+private:
+    void init();
+
+    // these help us with reading/writing
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size, SkPicture::InstallPixelRefProc);
     bool parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
-
-private:
-    friend class SkPicture;
-    friend class SkPicturePlayback;
 
     // Only used by getBitmap() if the passed in index is SkBitmapHeap::INVALID_SLOT. This empty
     // bitmap allows playback to draw nothing and move on.

@@ -1840,10 +1840,6 @@ void SkGpuDevice::EXPERIMENTAL_purge(const SkPicture* picture) {
 
 bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture) {
 
-    if (NULL == picture->fData.get()) {
-        return false;
-    }
-
     SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();
 
     const SkPicture::AccelData* data = picture->EXPERIMENTAL_getAccelData(key);

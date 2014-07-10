@@ -9,7 +9,6 @@
 #include "SkDrawPictureCallback.h"
 #include "SkPictureData.h"
 #include "SkPictureRecord.h"
-#include "SkPictureStateTree.h"
 #include "SkReadBuffer.h"
 #include "SkTypeface.h"
 #include "SkTSort.h"
@@ -38,8 +37,8 @@ void SkPictureData::initForPlayback() const {
 }
 
 SkPictureData::SkPictureData(const SkPictureRecord& record,
-                                     const SkPictInfo& info,
-                                     bool deepCopyOps)
+                             const SkPictInfo& info,
+                             bool deepCopyOps)
     : fInfo(info) {
 #ifdef SK_DEBUG_SIZE
     size_t overallBytes, bitmapBytes, matricesBytes,
@@ -289,6 +288,16 @@ static size_t compute_chunk_size(SkFlattenable::Factory* array, int count) {
     return size;
 }
 
+static void write_tag_size(SkWriteBuffer& buffer, uint32_t tag, size_t size) {
+    buffer.writeUInt(tag);
+    buffer.writeUInt(SkToU32(size));
+}
+
+static void write_tag_size(SkWStream* stream, uint32_t tag, size_t size) {
+    stream->write32(tag);
+    stream->write32(SkToU32(size));
+}
+
 void SkPictureData::WriteFactories(SkWStream* stream, const SkFactorySet& rec) {
     int count = rec.count();
 
@@ -299,7 +308,7 @@ void SkPictureData::WriteFactories(SkWStream* stream, const SkFactorySet& rec) {
     size_t size = compute_chunk_size(array, count);
 
     // TODO: write_tag_size should really take a size_t
-    SkPicture::WriteTagSize(stream, SK_PICT_FACTORY_TAG, (uint32_t) size);
+    write_tag_size(stream, SK_PICT_FACTORY_TAG, (uint32_t) size);
     SkDEBUGCODE(size_t start = stream->bytesWritten());
     stream->write32(count);
 
@@ -321,7 +330,7 @@ void SkPictureData::WriteFactories(SkWStream* stream, const SkFactorySet& rec) {
 void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
     int count = rec.count();
 
-    SkPicture::WriteTagSize(stream, SK_PICT_TYPEFACE_TAG, count);
+    write_tag_size(stream, SK_PICT_TYPEFACE_TAG, count);
 
     SkAutoSTMalloc<16, SkTypeface*> storage(count);
     SkTypeface** array = (SkTypeface**)storage.get();
@@ -336,32 +345,32 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
     int i, n;
 
     if ((n = SafeCount(fBitmaps)) > 0) {
-        SkPicture::WriteTagSize(buffer, SK_PICT_BITMAP_BUFFER_TAG, n);
+        write_tag_size(buffer, SK_PICT_BITMAP_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
             buffer.writeBitmap((*fBitmaps)[i]);
         }
     }
 
     if ((n = SafeCount(fPaints)) > 0) {
-        SkPicture::WriteTagSize(buffer, SK_PICT_PAINT_BUFFER_TAG, n);
+        write_tag_size(buffer, SK_PICT_PAINT_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
             buffer.writePaint((*fPaints)[i]);
         }
     }
 
     if ((n = SafeCount(fPathHeap.get())) > 0) {
-        SkPicture::WriteTagSize(buffer, SK_PICT_PATH_BUFFER_TAG, n);
+        write_tag_size(buffer, SK_PICT_PATH_BUFFER_TAG, n);
         fPathHeap->flatten(buffer);
     }
 }
 
 void SkPictureData::serialize(SkWStream* stream,
                                   SkPicture::EncodeBitmap encoder) const {
-    SkPicture::WriteTagSize(stream, SK_PICT_READER_TAG, fOpData->size());
+    write_tag_size(stream, SK_PICT_READER_TAG, fOpData->size());
     stream->write(fOpData->bytes(), fOpData->size());
 
     if (fPictureCount > 0) {
-        SkPicture::WriteTagSize(stream, SK_PICT_PICTURE_TAG, fPictureCount);
+        write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictureCount);
         for (int i = 0; i < fPictureCount; i++) {
             fPictureRefs[i]->serialize(stream, encoder);
         }
@@ -386,7 +395,7 @@ void SkPictureData::serialize(SkWStream* stream,
         WriteFactories(stream, factSet);
         WriteTypefaces(stream, typefaceSet);
 
-        SkPicture::WriteTagSize(stream, SK_PICT_BUFFER_SIZE_TAG, buffer.bytesWritten());
+        write_tag_size(stream, SK_PICT_BUFFER_SIZE_TAG, buffer.bytesWritten());
         buffer.writeToStream(stream);
     }
 
@@ -394,11 +403,11 @@ void SkPictureData::serialize(SkWStream* stream,
 }
 
 void SkPictureData::flatten(SkWriteBuffer& buffer) const {
-    SkPicture::WriteTagSize(buffer, SK_PICT_READER_TAG, fOpData->size());
+    write_tag_size(buffer, SK_PICT_READER_TAG, fOpData->size());
     buffer.writeByteArray(fOpData->bytes(), fOpData->size());
 
     if (fPictureCount > 0) {
-        SkPicture::WriteTagSize(buffer, SK_PICT_PICTURE_TAG, fPictureCount);
+        write_tag_size(buffer, SK_PICT_PICTURE_TAG, fPictureCount);
         for (int i = 0; i < fPictureCount; i++) {
             fPictureRefs[i]->flatten(buffer);
         }

@@ -474,18 +474,6 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
 }
 
 // fRecord OK
-void SkPicture::WriteTagSize(SkWriteBuffer& buffer, uint32_t tag, size_t size) {
-    buffer.writeUInt(tag);
-    buffer.writeUInt(SkToU32(size));
-}
-
-// fRecord OK
-void SkPicture::WriteTagSize(SkWStream* stream, uint32_t tag,  size_t size) {
-    stream->write32(tag);
-    stream->write32(SkToU32(size));
-}
-
-// fRecord OK
 void SkPicture::flatten(SkWriteBuffer& buffer) const {
     const SkPictureData* data = fData.get();
 
