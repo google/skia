@@ -246,6 +246,8 @@ public:
 #endif
 
 private:
+    friend class SkPicture; // needed in SkPicture::clone (rm when it is removed)
+
     void init();
 
     // these help us with reading/writing
