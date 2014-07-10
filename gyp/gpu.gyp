@@ -215,6 +215,9 @@
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
             '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
           ],
+          'defines': [
+            'GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE=1',
+          ],
           'link_settings': {
             'libraries': [
               '-lGLESv2',

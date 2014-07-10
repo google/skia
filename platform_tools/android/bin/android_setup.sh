@@ -116,6 +116,10 @@ setup_device() {
       DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
       ANDROID_ARCH="x86"
       ;;
+    x86_64 | x64)
+      DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=64"
+      ANDROID_ARCH="x86_64"
+      ;;
     arm_v7)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=0"
       ANDROID_ARCH="arm"
@@ -132,10 +136,18 @@ setup_device() {
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=1"
       ANDROID_ARCH="arm"
       ;;
+    arm64)
+      DEFINES="${DEFINES} skia_arch_type=arm64 skia_arch_width=64"
+      ANDROID_ARCH="arm64"
+      ;;
     mips)
       DEFINES="${DEFINES} skia_arch_type=mips skia_arch_width=32"
       DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
       ANDROID_ARCH="mips"
+      ;;
+    mips64)
+      DEFINES="${DEFINES} skia_arch_type=mips skia_arch_width=64"
+      ANDROID_ARCH="mips64"
       ;;
     *)
       if [ -z "$ANDROID_IGNORE_UNKNOWN_DEVICE" ]; then

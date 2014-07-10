@@ -9,16 +9,26 @@
       ],
       'variables': {
         'conditions': [
-          [ 'skia_arch_type == "x86"', {
+          [ 'skia_arch_type == "arm" and arm_version != 7', {
+            'android_arch%': "armeabi",
+          }],
+          [ 'skia_arch_type == "arm" and arm_version == 7', {
+            'android_arch%': "armeabi-v7a",
+          }],
+          [ 'skia_arch_type == "arm64"', {
+            'android_arch%': "arm64-v8a",
+          }],
+          [ 'skia_arch_type == "x86" and skia_arch_width == 32', {
             'android_arch%': "x86",
-          }, {
-            'conditions': [
-              [ 'arm_version == 7', {
-                'android_arch%': "armeabi-v7a",
-              }, {
-               'android_arch%': "armeabi",
-              }],
-            ],
+          }],
+          [ 'skia_arch_type == "x86" and skia_arch_width == 64', {
+            'android_arch%': "x86_64",
+          }],
+          [ 'skia_arch_type == "mips" and skia_arch_width == 32', {
+            'android_arch%': "mips",
+          }],
+          [ 'skia_arch_type == "mips" and skia_arch_width == 64', {
+            'android_arch%': "mips64",
           }],
         ],
       },
