@@ -18,6 +18,16 @@ T sk_acquire_load(T* ptr) {
 }
 
 template <typename T>
+T sk_consume_load(T* ptr) {
+    T val = *ptr;
+    // Unlike acquire, consume loads (data-dependent loads) are guaranteed not to reorder on ARM.
+    // No memory barrier is needed, so we just use a compiler barrier.
+    // C.f. http://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/
+    sk_compiler_barrier();
+    return val;
+}
+
+template <typename T>
 void sk_release_store(T* ptr, T val) {
     __sync_synchronize();  // Issue a full barrier, which is an overkill release barrier.
     *ptr = val;

@@ -24,6 +24,12 @@ T sk_acquire_load(T* ptr) {
 }
 
 template <typename T>
+T sk_consume_load(T* ptr) {
+    // On x86, consume is the same as acquire, i.e. a normal load.
+    return sk_acquire_load(ptr);
+}
+
+template <typename T>
 void sk_release_store(T* ptr, T val) {
     // On x86, all stores are release stores, so we only need a compiler barrier.
     sk_compiler_barrier();

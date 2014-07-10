@@ -88,14 +88,26 @@ static P try_cas(void** dst, P ptr) {
 template <typename T> T* sk_new() { return SkNEW(T); }
 template <typename T> void sk_delete(T* ptr) { SkDELETE(ptr); }
 
+// We're basing these implementations here on this article:
+//   http://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/
+//
+// Because the users of SkLazyPtr and SkLazyPtrArray will read the pointers
+// _through_ our atomically set pointer, there is a data dependency between our
+// atomic and the guarded data, and so we only need writer-releases /
+// reader-consumes memory pairing rather than the more general write-releases /
+// reader-acquires convention.
+//
+// This is nice, because a sk_consume_load is free on all our platforms: x86,
+// ARM, MIPS.  In contrast, sk_acquire_load issues a memory barrier on non-x86.
+
 // This has no constructor and must be zero-initalized (the macro above does this).
 template <typename T, T* (*Create)() = sk_new<T>, void (*Destroy)(T*) = sk_delete<T> >
 class SkLazyPtr {
 public:
     T* get() {
-        // If fPtr has already been filled, we need an acquire barrier when loading it.
+        // If fPtr has already been filled, we need a consume barrier when loading it.
         // If not, we need a release barrier when setting it.  try_cas will do that.
-        T* ptr = (T*)sk_acquire_load(&fPtr);
+        T* ptr = (T*)sk_consume_load(&fPtr);
         return ptr ? ptr : try_cas<T*, Destroy>(&fPtr, Create());
     }
 
@@ -122,9 +134,9 @@ class SkLazyPtrArray {
 public:
     T* operator[](int i) {
         SkASSERT(i >= 0 && i < N);
-        // If fPtr has already been filled, we need an acquire barrier when loading it.
+        // If fPtr has already been filled, we need an consume barrier when loading it.
         // If not, we need a release barrier when setting it.  try_cas will do that.
-        T* ptr = (T*)sk_acquire_load(&fArray[i]);
+        T* ptr = (T*)sk_consume_load(&fArray[i]);
         return ptr ? ptr : try_cas<T*, Destroy>(&fArray[i], Create(i));
     }
 

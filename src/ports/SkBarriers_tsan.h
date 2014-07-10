@@ -17,6 +17,12 @@ T sk_acquire_load(T* ptr) {
 }
 
 template <typename T>
+T sk_consume_load(T* ptr) {
+    SkASSERT(__atomic_always_lock_free(sizeof(T), ptr));
+    return __atomic_load_n(ptr, __ATOMIC_CONSUME);
+}
+
+template <typename T>
 void sk_release_store(T* ptr, T val) {
     SkASSERT(__atomic_always_lock_free(sizeof(T), ptr));
     return __atomic_store_n(ptr, val, __ATOMIC_RELEASE);
