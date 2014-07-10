@@ -433,9 +433,9 @@ private:
         kMinSize = 256,
     };
 
-    mutable SkTRacy<SkRect>      fBounds;
-    mutable SkTRacy<uint8_t>     fBoundsIsDirty;
-    mutable SkTRacy<SkBool8>     fIsFinite;    // only meaningful if bounds are valid
+    mutable SkTRacyReffable<SkRect> fBounds;
+    mutable SkTRacy<uint8_t>        fBoundsIsDirty;
+    mutable SkTRacy<SkBool8>        fIsFinite;    // only meaningful if bounds are valid
 
     SkBool8  fIsOval;
     uint8_t  fSegmentMask;

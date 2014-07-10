@@ -18,6 +18,8 @@ extern "C" {
 // TSAN provides these hooks.
 void AnnotateIgnoreReadsBegin(const char* file, int line);
 void AnnotateIgnoreReadsEnd(const char* file, int line);
+void AnnotateIgnoreWritesBegin(const char* file, int line);
+void AnnotateIgnoreWritesEnd(const char* file, int line);
 void AnnotateBenignRaceSized(const char* file, int line,
                              const volatile void* addr, long size, const char* desc);
 }  // extern "C"
@@ -38,6 +40,14 @@ inline T SK_ANNOTATE_UNPROTECTED_READ(const volatile T& x) {
     return read;
 }
 
+// Like SK_ANNOTATE_UNPROTECTED_READ, but for writes.
+template <typename T>
+inline T SK_ANNOTATE_UNPROTECTED_WRITE(T* ptr, const volatile T& val) {
+    AnnotateIgnoreWritesBegin(__FILE__, __LINE__);
+    *ptr = val;
+    AnnotateIgnoreWritesEnd(__FILE__, __LINE__);
+}
+
 // Ignore racy reads and racy writes to this pointer, indefinitely.
 // If at all possible, use the more precise SK_ANNOTATE_UNPROTECTED_READ.
 template <typename T>
@@ -48,24 +58,44 @@ void SK_ANNOTATE_BENIGN_RACE(T* ptr) {
 #else  // !SK_DYNAMIC_ANNOTATIONS_ENABLED
 
 #define SK_ANNOTATE_UNPROTECTED_READ(x) (x)
+#define SK_ANNOTATE_UNPROTECTED_WRITE(ptr, val) *(ptr) = (val)
 #define SK_ANNOTATE_BENIGN_RACE(ptr)
 
 #endif
 
 // Can be used to wrap values that are intentionally racy, usually small mutable cached values, e.g.
 //   - SkMatrix type mask
-//   - SkPathRef bounds
 //   - SkPixelRef genIDs
 template <typename T>
 class SkTRacy {
 public:
-    SkTRacy() { SK_ANNOTATE_BENIGN_RACE(&fVal); }
+    operator const T() const {
+        return SK_ANNOTATE_UNPROTECTED_READ(fVal);
+    }
+
+    SkTRacy& operator=(const T& val) {
+        SK_ANNOTATE_UNPROTECTED_WRITE(&fVal, val);
+        return *this;
+    }
+
+private:
+    T fVal;
+};
+
+// This is like SkTRacy, but allows you to return the value by reference.
+// TSAN is better at suppressing SkTRacy than SkTRacyReffable, so use SkTRacy when possible.
+//
+// We use this for SkPathRef bounds, which is an SkRect we pass around by reference publically.
+template <typename T>
+class SkTRacyReffable {
+public:
+    SkTRacyReffable() { SK_ANNOTATE_BENIGN_RACE(&fVal); }
 
     operator const T&() const {
         return fVal;
     }
 
-    SkTRacy& operator=(const T& val) {
+    SkTRacyReffable& operator=(const T& val) {
         fVal = val;
         return *this;
     }
