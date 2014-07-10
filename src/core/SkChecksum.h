@@ -51,6 +51,10 @@ public:
         return hash;
     }
 
+    // Remind compiler that our users will be intentionally violating strict aliasing by casting
+    // their data to const uint32_t*, so don't apply any strict-aliasing-based optimizations.
+    typedef uint32_t SK_ATTRIBUTE(may_alias) FourByteAligned;
+
     /**
      * Calculate 32-bit Murmur hash (murmur3).
      * This should take 2-3x longer than SkChecksum::Compute, but is a considerably better hash.
@@ -61,7 +65,7 @@ public:
      *  @param seed Initial hash seed. (optional)
      *  @return hash result
      */
-    static uint32_t Murmur3(const uint32_t* data, size_t bytes, uint32_t seed=0) {
+    static uint32_t Murmur3(const FourByteAligned* data, size_t bytes, uint32_t seed=0) {
         SkASSERTF(SkIsAlign4(bytes), "Expected 4-byte multiple, got %zu", bytes);
         const size_t words = bytes/4;
 
@@ -94,7 +98,7 @@ public:
      *  @param size Size of the data block in bytes. Must be a multiple of 4.
      *  @return checksum result
      */
-    static uint32_t Compute(const uint32_t* data, size_t size) {
+    static uint32_t Compute(const FourByteAligned* data, size_t size) {
         SkASSERT(SkIsAlign4(size));
 
         /*
