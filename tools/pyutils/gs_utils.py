@@ -7,20 +7,36 @@ Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
 
 Utilities for accessing Google Cloud Storage.
-
-TODO(epoger): move this into tools/utils for broader use?
 """
 
 # System-level imports
 import os
 import posixpath
 import sys
+
+# Imports from third-party code
+TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+for import_subdir in ['google-api-python-client', 'httplib2', 'oauth2client',
+                      'uritemplate-py']:
+  import_dirpath = os.path.join(
+      TRUNK_DIRECTORY, 'third_party', 'externals', import_subdir)
+  if import_dirpath not in sys.path:
+    # We need to insert at the beginning of the path, to make sure that our
+    # imported versions are favored over others that might be in the path.
+    # Also, the google-api-python-client checkout contains an empty
+    # oauth2client directory, which will confuse things unless we insert
+    # our checked-out oauth2client in front of it in the path.
+    sys.path.insert(0, import_dirpath)
 try:
-  from apiclient.discovery import build as build_service
+  from googleapiclient.discovery import build as build_service
 except ImportError:
-  print ('Missing google-api-python-client.  Please install it; directions '
+  # TODO(epoger): We are moving toward not needing any dependencies to be
+  # installed at a system level, but in the meanwhile, if developers run into
+  # trouble they can install those system-level dependencies to get unblocked.
+  print ('Missing dependencies of google-api-python-client.  Please install '
+         'google-api-python-client to get those dependencies; directions '
          'can be found at https://developers.google.com/api-client-library/'
-         'python/start/installation')
+         'python/start/installation .  More details in http://skbug.com/2641 ')
   raise
 
 # Local imports

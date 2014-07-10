@@ -17,6 +17,14 @@ deps = {
   "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@3fe91635df8734b23f3c1b9d1f0c4fa8cfaf4e39",
   # "third_party/externals/v8" : "git://github.com/v8/v8.git@d15b0f0f2099dbd72867f3df70e9aaf5b8afbd2c",
   "third_party/externals/nanomsg": "git://github.com/nanomsg/nanomsg.git@0.4-beta",
+
+  # TODO(epoger): These dependencies are needed specifically for google-api-python-client (see http://skbug.com/2641 ).
+  # Once we get them working, we will want to move them all into the "common" repo
+  # (see http://skbug.com/2682 and https://codereview.chromium.org/377323002/ )
+  "third_party/externals/google-api-python-client" : "https://github.com/google/google-api-python-client.git@ecc64a0a2baa4a77f35dec83ad05c6c9ba2d2841",
+  "third_party/externals/httplib2" : "https://github.com/jcgregorio/httplib2.git@7d1b88a3cf34774242bf4c0578c09c0092bb05d8",
+  "third_party/externals/oauth2client" : "https://github.com/google/oauth2client.git@d02b317af0313dcf66755844f5421651af5eb356",
+  "third_party/externals/uritemplate-py" : "https://github.com/uri-templates/uritemplate-py.git@1e780a49412cdbb273e9421974cb91845c124f3f",
 }
 
 deps_os = {
