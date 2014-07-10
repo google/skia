@@ -692,6 +692,10 @@
       ],
     }],
 
+    [ 'skia_crash_handler', {
+      'defines': [ 'SK_CRASH_HANDLER' ],
+    }],
+
   ], # end 'conditions'
   # The Xcode SYMROOT must be at the root. See build/common.gypi in chromium for more details
   'xcode_settings': {

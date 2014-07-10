@@ -226,6 +226,8 @@
     'skia_run_pdfviewer_in_gm%': 0,
     'skia_disable_inlining%': 0,
     'skia_moz2d%': 0,
+    'skia_crash_handler%':
+        '<!(python -c "import os; print os.environ.get(\'CHROME_HEADLESS\', 0)")',
 
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
     #
