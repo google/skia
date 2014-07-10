@@ -159,7 +159,6 @@
       'device/xps/SkXPSDevice.h',
       'device/xps/SkConstexprMath.h',
       'ports/SkTypeface_win.h',
-      'ports/SkHarfBuzzFont.h',
       'ports/SkFontConfigInterface.h',
       'ports/SkTypeface_mac.h',
       'ports/SkTypeface_android.h',
