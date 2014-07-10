@@ -11,15 +11,13 @@
 
 
 // Murmur3 has an optional third seed argument, so we wrap it to fit a uniform type.
-static uint32_t murmur_noseed(const SkChecksum::FourByteAligned* d, size_t l) {
-    return SkChecksum::Murmur3(d, l);
-}
+static uint32_t murmur_noseed(const uint32_t* d, size_t l) { return SkChecksum::Murmur3(d, l); }
 
 #define ASSERT(x) REPORTER_ASSERT(r, x)
 
 DEF_TEST(Checksum, r) {
     // Algorithms to test.  They're currently all uint32_t(const uint32_t*, size_t).
-    typedef uint32_t(*algorithmProc)(const SkChecksum::FourByteAligned*, size_t);
+    typedef uint32_t(*algorithmProc)(const uint32_t*, size_t);
     const algorithmProc kAlgorithms[] = { &SkChecksum::Compute, &murmur_noseed };
 
     // Put 128 random bytes into two identical buffers.  Any multiple of 4 will do.
