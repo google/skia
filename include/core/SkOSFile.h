@@ -77,8 +77,10 @@ bool    sk_fidentical(SkFILE* a, SkFILE* b);
  */
 int     sk_fileno(SkFILE* f);
 
-// Returns true if something (file, directory, ???) exists at this path.
-bool    sk_exists(const char *path);
+/** Returns true if something (file, directory, ???) exists at this path,
+ *  and has the specified access flags.
+ */
+bool    sk_exists(const char *path, SkFILE_Flags = (SkFILE_Flags)0);
 
 // Returns true if a directory exists at this path.
 bool    sk_isdir(const char *path);

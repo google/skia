@@ -13,6 +13,18 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
+
+bool sk_exists(const char *path, SkFILE_Flags flags) {
+    int mode = F_OK;
+    if (flags & kRead_SkFILE_Flag) {
+        mode |= R_OK;
+    }
+    if (flags & kWrite_SkFILE_Flag) {
+        mode |= W_OK;
+    }
+    return (0 == access(path, mode));
+}
 
 typedef struct {
     dev_t dev;

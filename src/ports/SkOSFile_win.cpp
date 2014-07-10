@@ -13,6 +13,17 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+bool sk_exists(const char *path, SkFILE_Flags flags) {
+    int mode = 0; // existence
+    if (flags & kRead_SkFILE_Flag) {
+        mode |= 4; // read
+    }
+    if (flags & kWrite_SkFILE_Flag) {
+        mode |= 2; // write
+    }
+    return (0 == _access(path, mode));
+}
+
 typedef struct {
     ULONGLONG fVolume;
     ULONGLONG fLsbSize;

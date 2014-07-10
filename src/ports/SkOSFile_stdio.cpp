@@ -15,8 +15,6 @@
 #ifdef _WIN32
 #include <direct.h>
 #include <io.h>
-#else
-#include <unistd.h>
 #endif
 
 SkFILE* sk_fopen(const char path[], SkFILE_Flags flags) {
@@ -121,14 +119,6 @@ size_t sk_ftell(SkFILE* f) {
 void sk_fclose(SkFILE* f) {
     SkASSERT(f);
     ::fclose((FILE*)f);
-}
-
-bool sk_exists(const char *path) {
-#ifdef _WIN32
-    return (0 == _access(path, 0));
-#else
-    return (0 == access(path, 0));
-#endif
 }
 
 bool sk_isdir(const char *path) {

@@ -7,6 +7,10 @@
 
 #include "SkOSFile.h"
 
+bool sk_exists(const char *path, SkFILE_Flags flags) {
+    return false;
+}
+
 bool sk_fidentical(SkFILE* a, SkFILE* b) {
     return false;
 }
