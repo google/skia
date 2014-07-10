@@ -973,8 +973,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
 SampleWindow::~SampleWindow() {
     delete fPdfCanvas;
-    fTypeface->unref();
-
+    SkSafeUnref(fTypeface);
     SkSafeUnref(fDevManager);
 }
 
