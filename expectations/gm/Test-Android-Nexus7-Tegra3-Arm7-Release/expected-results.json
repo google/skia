@@ -5589,15 +5589,16 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16797253953584829082
+          5942637760001128743
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "imagefiltersscaled_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15332790159062618713
+          8663959489913767436
         ]
       ], 
       "reviewed-by-human": true
@@ -6666,7 +6667,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1098763191610264229
+          14413015027460366330
         ]
       ], 
       "reviewed-by-human": true
@@ -6675,7 +6676,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11853841295252803459
+          9624355400568283482
         ]
       ], 
       "ignore-failure": false, 
