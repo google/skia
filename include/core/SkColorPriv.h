@@ -79,7 +79,7 @@
     #error "SK_PMCOLOR_IS_BGRA does not match SK_*32_SHIFT values"
 #endif
 
-#if !defined(SK_PMCOLOR_IS_RGBA) && !defined(SK_PMCOLOR_IS_RGBA)
+#if !defined(SK_PMCOLOR_IS_RGBA) && !defined(SK_PMCOLOR_IS_BGRA)
     // deduce which to define from the _SHIFT defines
 
     #if LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA
