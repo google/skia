@@ -45,9 +45,3 @@ bleed
 blurquickreject
 blurrects
 bigblurs
-
-# senorblanco: 
-# Needs rebaselining after improved perlin noise scaling
-perlinnoise
-perlinnoise_localmatrix
-imagefiltersscaled
