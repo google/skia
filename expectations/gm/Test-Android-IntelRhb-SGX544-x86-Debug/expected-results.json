@@ -5950,9 +5950,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18437708945397499005
+          4353899728334541990
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "imagefiltersscaled_gpu.png": {
       "allowed-digests": [
@@ -7007,7 +7008,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1098763191610264229
+          14413015027460366330
         ]
       ], 
       "reviewed-by-human": true
