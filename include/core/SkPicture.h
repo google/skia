@@ -123,6 +123,7 @@ public:
      * SkPictures.
      */
     void clone(SkPicture* pictures, int count) const;
+    void clone(SkPicture* pictures[], int count) const;
 #endif
 
     /** Replays the drawing commands on the specified canvas.
