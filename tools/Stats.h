@@ -1,7 +1,12 @@
 #ifndef Stats_DEFINED
 #define Stats_DEFINED
 
+#include <math.h>
+
+#include "SkString.h"
 #include "SkTSort.h"
+
+static const char* kBars[] = { "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" };
 
 struct Stats {
     Stats(const double samples[], int n) {
@@ -28,13 +33,25 @@ struct Stats {
         memcpy(sorted.get(), samples, n * sizeof(double));
         SkTQSort(sorted.get(), sorted.get() + n - 1);
         median = sorted[n/2];
+
+        for (int i = 0; i < n; i++) {
+            double s = samples[i];
+            // Normalize samples to [min, max] in as many quanta as we have distinct bars to print.
+            s -= min;
+            s /= (max - min);
+            s *= (SK_ARRAY_COUNT(kBars) - 1);
+            const size_t bar = (size_t)round(s);
+            SK_ALWAYSBREAK(bar < SK_ARRAY_COUNT(kBars));
+            plot.append(kBars[bar]);
+        }
     }
 
     double min;
     double max;
-    double mean;  // Estimate of population mean.
-    double var;   // Estimate of population variance.
+    double mean;    // Estimate of population mean.
+    double var;     // Estimate of population variance.
     double median;
+    SkString plot;  // A single-line bar chart (_not_ histogram) of the samples.
 };
 
 #endif//Stats_DEFINED

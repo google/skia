@@ -238,7 +238,7 @@ int tool_main(int argc, char** argv) {
     } else if (FLAGS_quiet) {
         SkDebugf("median\tbench\tconfig\n");
     } else {
-        SkDebugf("loops\tmin\tmedian\tmean\tmax\tstddev\tconfig\tbench\n");
+        SkDebugf("loops\tmin\tmedian\tmean\tmax\tstddev\tsamples\tconfig\tbench\n");
     }
 
     for (const BenchRegistry* r = BenchRegistry::Head(); r != NULL; r = r->next()) {
@@ -277,13 +277,14 @@ int tool_main(int argc, char** argv) {
                 SkDebugf("%s\t%s\t%s\n", humanize(stats.median).c_str(), bench->getName(), config);
             } else {
                 const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
-                SkDebugf("%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\n"
+                SkDebugf("%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
                         , loops
                         , humanize(stats.min).c_str()
                         , humanize(stats.median).c_str()
                         , humanize(stats.mean).c_str()
                         , humanize(stats.max).c_str()
                         , stddev_percent
+                        , stats.plot.c_str()
                         , config
                         , bench->getName()
                         );
