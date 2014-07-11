@@ -821,13 +821,11 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 #include "SkPaint.h"
 
 bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
-    const SkColorType srcCT = this->colorType();
-
-    if (srcCT == kUnknown_SkColorType) {
+    if (this->colorType() == kUnknown_SkColorType) {
         return false;
     }
 
-    bool sameConfigs = (srcCT == dstColorType);
+    bool sameConfigs = (this->colorType() == dstColorType);
     switch (dstColorType) {
         case kAlpha_8_SkColorType:
         case kRGB_565_SkColorType:
@@ -840,66 +838,15 @@ bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
             }
             break;
         case kARGB_4444_SkColorType:
-            return sameConfigs || kN32_SkColorType == srcCT || kIndex_8_SkColorType == srcCT;
+            return sameConfigs || kN32_SkColorType == this->colorType();
         default:
             return false;
     }
     return true;
 }
 
-#include "SkConfig8888.h"
-
-bool SkBitmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
-                          int x, int y) const {
-    if (kUnknown_SkColorType == requestedDstInfo.colorType()) {
-        return false;
-    }
-    if (NULL == dstPixels || dstRB < requestedDstInfo.minRowBytes()) {
-        return false;
-    }
-    if (0 == requestedDstInfo.width() || 0 == requestedDstInfo.height()) {
-        return false;
-    }
-    
-    SkIRect srcR = SkIRect::MakeXYWH(x, y, requestedDstInfo.width(), requestedDstInfo.height());
-    if (!srcR.intersect(0, 0, this->width(), this->height())) {
-        return false;
-    }
-    
-    SkImageInfo dstInfo = requestedDstInfo;
-    // the intersect may have shrunk info's logical size
-    dstInfo.fWidth = srcR.width();
-    dstInfo.fHeight = srcR.height();
-    
-    // if x or y are negative, then we have to adjust pixels
-    if (x > 0) {
-        x = 0;
-    }
-    if (y > 0) {
-        y = 0;
-    }
-    // here x,y are either 0 or negative
-    dstPixels = ((char*)dstPixels - y * dstRB - x * dstInfo.bytesPerPixel());
-
-    //////////////
-    
-    SkAutoLockPixels alp(*this);
-    
-    // since we don't stop creating un-pixeled devices yet, check for no pixels here
-    if (NULL == this->getPixels()) {
-        return false;
-    }
-    
-    SkImageInfo srcInfo = this->info();
-    srcInfo.fWidth = dstInfo.width();
-    srcInfo.fHeight = dstInfo.height();
-    
-    const void* srcPixels = this->getAddr(srcR.x(), srcR.y());
-    return SkPixelInfo::CopyPixels(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, this->rowBytes(),
-                                   this->getColorTable());
-}
-
-bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc) const {
+bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType,
+                      Allocator* alloc) const {
     if (!this->canCopyTo(dstColorType)) {
         return false;
     }
@@ -972,21 +919,59 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     // returned false.
     SkASSERT(tmpDst.pixelRef() != NULL);
 
-    if (!src->readPixels(tmpDst.info(), tmpDst.getPixels(), tmpDst.rowBytes(), 0, 0)) {
-        return false;
-    }
+    /* do memcpy for the same configs cases, else use drawing
+    */
+    if (src->colorType() == dstColorType) {
+        if (tmpDst.getSize() == src->getSize()) {
+            memcpy(tmpDst.getPixels(), src->getPixels(), src->getSafeSize());
 
-    //  (for BitmapHeap) Clone the pixelref genID even though we have a new pixelref.
-    //  The old copyTo impl did this, so we continue it for now.
-    //
-    //  TODO: should we ignore rowbytes (i.e. getSize)? Then it could just be
-    //      if (src_pixelref->info == dst_pixelref->info)
-    //
-    if (src->colorType() == dstColorType && tmpDst.getSize() == src->getSize()) {
-        SkPixelRef* dstPixelRef = tmpDst.pixelRef();
-        if (dstPixelRef->info() == fPixelRef->info()) {
-            dstPixelRef->cloneGenID(*fPixelRef);
+            SkPixelRef* dstPixelRef = tmpDst.pixelRef();
+            if (dstPixelRef->info() == fPixelRef->info()) {
+                dstPixelRef->cloneGenID(*fPixelRef);
+            }
+        } else {
+            const char* srcP = reinterpret_cast<const char*>(src->getPixels());
+            char* dstP = reinterpret_cast<char*>(tmpDst.getPixels());
+            // to be sure we don't read too much, only copy our logical pixels
+            size_t bytesToCopy = tmpDst.width() * tmpDst.bytesPerPixel();
+            for (int y = 0; y < tmpDst.height(); y++) {
+                memcpy(dstP, srcP, bytesToCopy);
+                srcP += src->rowBytes();
+                dstP += tmpDst.rowBytes();
+            }
         }
+    } else if (kARGB_4444_SkColorType == dstColorType
+               && kN32_SkColorType == src->colorType()) {
+        if (src->alphaType() == kUnpremul_SkAlphaType) {
+            // Our method for converting to 4444 assumes premultiplied.
+            return false;
+        }
+        SkASSERT(src->height() == tmpDst.height());
+        SkASSERT(src->width() == tmpDst.width());
+        for (int y = 0; y < src->height(); ++y) {
+            SkPMColor16* SK_RESTRICT dstRow = (SkPMColor16*) tmpDst.getAddr16(0, y);
+            SkPMColor* SK_RESTRICT srcRow = (SkPMColor*) src->getAddr32(0, y);
+            DITHER_4444_SCAN(y);
+            for (int x = 0; x < src->width(); ++x) {
+                dstRow[x] = SkDitherARGB32To4444(srcRow[x],
+                                                 DITHER_VALUE(x));
+            }
+        }
+    } else {
+        if (tmpDst.alphaType() == kUnpremul_SkAlphaType) {
+            // We do not support drawing to unpremultiplied bitmaps.
+            return false;
+        }
+
+        // Always clear the dest in case one of the blitters accesses it
+        // TODO: switch the allocation of tmpDst to call sk_calloc_throw
+        tmpDst.eraseColor(SK_ColorTRANSPARENT);
+
+        SkCanvas canvas(tmpDst);
+        SkPaint  paint;
+
+        paint.setDither(true);
+        canvas.drawBitmap(*src, 0, 0, &paint);
     }
 
     dst->swap(tmpDst);

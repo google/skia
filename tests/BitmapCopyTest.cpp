@@ -185,7 +185,7 @@ static void writeCoordPixels(SkBitmap& bm, const Coordinates& coords) {
 static const Pair gPairs[] = {
     { kUnknown_SkColorType,     "000000"  },
     { kAlpha_8_SkColorType,     "010101"  },
-    { kIndex_8_SkColorType,     "011111"  },
+    { kIndex_8_SkColorType,     "011101"  },
     { kRGB_565_SkColorType,     "010101"  },
     { kARGB_4444_SkColorType,   "010111"  },
     { kN32_SkColorType,         "010111"  },
@@ -542,96 +542,3 @@ DEF_TEST(BitmapCopy, reporter) {
         } // for (size_t copyCase ...
     }
 }
-
-#include "SkColorPriv.h"
-#include "SkUtils.h"
-
-/**
- *  Construct 4x4 pixels where we can look at a color and determine where it should be in the grid.
- *  alpha = 0xFF, blue = 0x80, red = x, green = y
- */
-static void fill_4x4_pixels(SkPMColor colors[16]) {
-    for (int y = 0; y < 4; ++y) {
-        for (int x = 0; x < 4; ++x) {
-            colors[y*4+x] = SkPackARGB32(0xFF, x, y, 0x80);
-        }
-    }
-}
-
-static bool check_4x4_pixel(SkPMColor color, unsigned x, unsigned y) {
-    SkASSERT(x < 4 && y < 4);
-    return  0xFF == SkGetPackedA32(color) &&
-            x    == SkGetPackedR32(color) &&
-            y    == SkGetPackedG32(color) &&
-            0x80 == SkGetPackedB32(color);
-}
-
-/**
- *  Fill with all zeros, which will never match any value from fill_4x4_pixels
- */
-static void clear_4x4_pixels(SkPMColor colors[16]) {
-    sk_memset32(colors, 0, 16);
-}
-
-// Much of readPixels is exercised by copyTo testing, since readPixels is the backend for that
-// method. Here we explicitly test subset copies.
-//
-DEF_TEST(BitmapReadPixels, reporter) {
-    const int W = 4;
-    const int H = 4;
-    const size_t rowBytes = W * sizeof(SkPMColor);
-    const SkImageInfo srcInfo = SkImageInfo::MakeN32Premul(W, H);
-    SkPMColor srcPixels[16];
-    fill_4x4_pixels(srcPixels);
-    SkBitmap srcBM;
-    srcBM.installPixels(srcInfo, srcPixels, rowBytes);
-
-    SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(W, H);
-    SkPMColor dstPixels[16];
-
-    const struct {
-        bool     fExpectedSuccess;
-        SkIPoint fRequestedSrcLoc;
-        SkISize  fRequestedDstSize;
-        // If fExpectedSuccess, check these, otherwise ignore
-        SkIPoint fExpectedDstLoc;
-        SkIRect  fExpectedSrcR;
-    } gRec[] = {
-        { true,  { 0, 0 }, { 4, 4 }, { 0, 0 }, { 0, 0, 4, 4 } },
-        { true,  { 1, 1 }, { 2, 2 }, { 0, 0 }, { 1, 1, 3, 3 } },
-        { true,  { 2, 2 }, { 4, 4 }, { 0, 0 }, { 2, 2, 4, 4 } },
-        { true,  {-1,-1 }, { 2, 2 }, { 1, 1 }, { 0, 0, 1, 1 } },
-        { false, {-1,-1 }, { 1, 1 }, { 0, 0 }, { 0, 0, 0, 0 } },
-    };
-
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
-        clear_4x4_pixels(dstPixels);
-
-        dstInfo.fWidth = gRec[i].fRequestedDstSize.width();
-        dstInfo.fHeight = gRec[i].fRequestedDstSize.height();
-        bool success = srcBM.readPixels(dstInfo, dstPixels, rowBytes,
-                                        gRec[i].fRequestedSrcLoc.x(), gRec[i].fRequestedSrcLoc.y());
-        
-        REPORTER_ASSERT(reporter, gRec[i].fExpectedSuccess == success);
-        if (success) {
-            const SkIRect srcR = gRec[i].fExpectedSrcR;
-            const int dstX = gRec[i].fExpectedDstLoc.x();
-            const int dstY = gRec[i].fExpectedDstLoc.y();
-            // Walk the dst pixels, and check if we got what we expected
-            for (int y = 0; y < H; ++y) {
-                for (int x = 0; x < W; ++x) {
-                    SkPMColor dstC = dstPixels[y*4+x];
-                    // get into src coordinates
-                    int sx = x - dstX + srcR.x();
-                    int sy = y - dstY + srcR.y();
-                    if (srcR.contains(sx, sy)) {
-                        REPORTER_ASSERT(reporter, check_4x4_pixel(dstC, sx, sy));
-                    } else {
-                        REPORTER_ASSERT(reporter, 0 == dstC);
-                    }
-                }
-            }
-        }
-    }
-}
-
