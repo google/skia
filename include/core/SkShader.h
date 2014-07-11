@@ -41,11 +41,17 @@ public:
 
     /**
      *  Returns the local matrix.
+     *
+     *  FIXME: This can be incorrect for a Shader with its own local matrix
+     *  that is also wrapped via CreateLocalMatrixShader.
      */
     const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
 
     /**
      *  Returns true if the local matrix is not an identity matrix.
+     *
+     *  FIXME: This can be incorrect for a Shader with its own local matrix
+     *  that is also wrapped via CreateLocalMatrixShader.
      */
     bool hasLocalMatrix() const { return !fLocalMatrix.isIdentity(); }
 
@@ -474,7 +480,10 @@ protected:
 
 private:
     SkMatrix fLocalMatrix;
-    
+
+    // So the SkLocalMatrixShader can whack fLocalMatrix in its SkReadBuffer constructor.
+    friend class SkLocalMatrixShader;
+
     typedef SkFlattenable INHERITED;
 };
 

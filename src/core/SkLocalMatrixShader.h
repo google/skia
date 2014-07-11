@@ -15,8 +15,8 @@
 class SkLocalMatrixShader : public SkShader {
 public:
     SkLocalMatrixShader(SkShader* proxy, const SkMatrix& localMatrix)
-    : fProxyShader(SkRef(proxy))
-    , fProxyLocalMatrix(localMatrix)
+    : INHERITED(&localMatrix)
+    , fProxyShader(SkRef(proxy))
     {}
 
     virtual size_t contextSize() const SK_OVERRIDE {
@@ -36,7 +36,7 @@ public:
     
     virtual bool asNewEffect(GrContext* context, const SkPaint& paint, const SkMatrix* localMatrix,
                              GrColor* grColor, GrEffect** grEffect) const SK_OVERRIDE {
-        SkMatrix tmp = fProxyLocalMatrix;
+        SkMatrix tmp = this->getLocalMatrix();
         if (localMatrix) {
             tmp.preConcat(*localMatrix);
         }
@@ -55,7 +55,7 @@ public:
     
     virtual SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const SK_OVERRIDE {
         if (localMatrix) {
-            *localMatrix = fProxyLocalMatrix;
+            *localMatrix = this->getLocalMatrix();
         }
         return SkRef(fProxyShader.get());
     }
@@ -70,7 +70,6 @@ protected:
 
 private:
     SkAutoTUnref<SkShader> fProxyShader;
-    SkMatrix  fProxyLocalMatrix;
 
     typedef SkShader INHERITED;
 };

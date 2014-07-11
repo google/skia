@@ -45,6 +45,7 @@ public:
         kColorShaderNoBool_Version         = 26,
         kNoUnitMappers_Version             = 27,
         kNoMoreBitmapFlatten_Version       = 28,
+        kSimplifyLocalMatrix_Version       = 30,
     };
 
     /**

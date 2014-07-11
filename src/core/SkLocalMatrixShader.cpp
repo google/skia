@@ -8,7 +8,9 @@
 #include "SkLocalMatrixShader.h"
 
 SkLocalMatrixShader::SkLocalMatrixShader(SkReadBuffer& buffer) : INHERITED(buffer) {
-    buffer.readMatrix(&fProxyLocalMatrix);
+    if (buffer.isVersionLT(SkReadBuffer::kSimplifyLocalMatrix_Version)) {
+        buffer.readMatrix(&(INHERITED::fLocalMatrix));
+    }
     fProxyShader.reset(buffer.readShader());
     if (NULL == fProxyShader.get()) {
         sk_throw();
@@ -17,7 +19,6 @@ SkLocalMatrixShader::SkLocalMatrixShader(SkReadBuffer& buffer) : INHERITED(buffe
 
 void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeMatrix(fProxyLocalMatrix);
     buffer.writeFlattenable(fProxyShader.get());
 }
 
@@ -26,10 +27,10 @@ SkShader::Context* SkLocalMatrixShader::onCreateContext(const ContextRec& rec,
     ContextRec newRec(rec);
     SkMatrix tmp;
     if (rec.fLocalMatrix) {
-        tmp.setConcat(fProxyLocalMatrix, *rec.fLocalMatrix);
+        tmp.setConcat(this->getLocalMatrix(), *rec.fLocalMatrix);
         newRec.fLocalMatrix = &tmp;
     } else {
-        newRec.fLocalMatrix = &fProxyLocalMatrix;
+        newRec.fLocalMatrix = &this->getLocalMatrix();
     }
     return fProxyShader->createContext(newRec, storage);
 }
