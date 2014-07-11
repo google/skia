@@ -11,8 +11,6 @@
 #include "SkData.h"
 #include "SkEndian.h"
 
-#include "SkTextureCompression_opts.h"
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Utility Functions
@@ -588,14 +586,15 @@ static inline uint64_t interleave6(uint64_t topRows, uint64_t bottomRows) {
 
     // x: b f 00 00 00 a e c g i m 00 00 00 d h j n 00 k o 00 l p
 
-    x = (x | ((x << 52) & (0x3FULL << 52)) | ((x << 20) & (0x3FULL << 28))) >> 16;
+    x |= ((x << 52) & (0x3FULL << 52));
+    x = (x | ((x << 20) & (0x3FULL << 28))) >> 16;
 
+#if defined (SK_CPU_BENDIAN)
     // x: 00 00 00 00 00 00 00 00 b f l p a e c g i m k o d h j n
 
     t = (x ^ (x >> 6)) & 0xFC0000ULL;
     x = x ^ t ^ (t << 6);
 
-#if defined (SK_CPU_BENDIAN)
     // x: 00 00 00 00 00 00 00 00 b f l p a e i m c g k o d h j n
 
     t = (x ^ (x >> 36)) & 0x3FULL;
@@ -611,6 +610,11 @@ static inline uint64_t interleave6(uint64_t topRows, uint64_t bottomRows) {
 #else
     // If our CPU is little endian, then the above logic will
     // produce the following indices:
+    // x: 00 00 00 00 00 00 00 00 c g i m d h b f l p j n a e k o
+
+    t = (x ^ (x >> 6)) & 0xFC0000ULL;
+    x = x ^ t ^ (t << 6);
+
     // x: 00 00 00 00 00 00 00 00 c g i m d h l p b f j n a e k o
 
     t = (x ^ (x >> 36)) & 0xFC0ULL;
@@ -766,37 +770,19 @@ static inline size_t get_compressed_data_size(Format fmt, int width, int height)
     }
 }
 
+typedef bool (*CompressBitmapProc)(uint8_t* dst, const uint8_t* src,
+                                   int width, int height, int rowBytes);
+
 bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcColorType,
-                            int width, int height, int rowBytes, Format format, bool opt) {
-    CompressionProc proc = NULL;
-    if (opt) {
-        proc = SkTextureCompressorGetPlatformProc(srcColorType, format);
-    }
+                            int width, int height, int rowBytes, Format format) {
 
-    if (NULL == proc) {
-        switch (srcColorType) {
-            case kAlpha_8_SkColorType:
-            {
-                switch (format) {
-                    case kLATC_Format:
-                        proc = compress_a8_to_latc;
-                        break;
-                    case kR11_EAC_Format:
-                        proc = compress_a8_to_r11eac;
-                        break;
-                    default:
-                        // Do nothing...
-                        break;
-                }
-            }
-            break;
+    CompressBitmapProc kProcMap[kFormatCnt][kLastEnum_SkColorType + 1];
+    memset(kProcMap, 0, sizeof(kProcMap));
 
-            default:
-                // Do nothing...
-                break;
-        }
-    }
+    kProcMap[kLATC_Format][kAlpha_8_SkColorType] = compress_a8_to_latc;
+    kProcMap[kR11_EAC_Format][kAlpha_8_SkColorType] = compress_a8_to_r11eac;
 
+    CompressBitmapProc proc = kProcMap[format][srcColorType];
     if (NULL != proc) {
         return proc(dst, src, width, height, rowBytes);
     }

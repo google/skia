@@ -23,7 +23,6 @@
         '../include/utils/win',
         '../include/xml',
         '../src/core',
-        '../src/opts',
         '../src/utils',
       ],
       'sources': [

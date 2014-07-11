@@ -31,7 +31,6 @@
       'include_dirs': [
         '../src/core',
         '../src/opts',
-        '../src/utils',
       ],
       'conditions': [
         [ 'skia_arch_type == "x86" and skia_os != "ios"', {
@@ -57,7 +56,6 @@
             '../src/opts/SkBlitRect_opts_SSE2.cpp',
             '../src/opts/SkBlurImage_opts_SSE2.cpp',
             '../src/opts/SkMorphology_opts_SSE2.cpp',
-            '../src/opts/SkTextureCompression_opts_none.cpp',
             '../src/opts/SkUtils_opts_SSE2.cpp',
             '../src/opts/SkXfermode_opts_SSE2.cpp',
           ],
@@ -109,7 +107,6 @@
             '../src/opts/SkBlurImage_opts_none.cpp',
             '../src/opts/SkMorphology_opts_none.cpp',
             '../src/opts/SkUtils_opts_none.cpp',
-            '../src/opts/SkTextureCompression_opts_none.cpp',
             '../src/opts/SkXfermode_opts_none.cpp',
           ],
           'conditions': [
@@ -137,7 +134,6 @@
             '../src/opts/SkBlurImage_opts_none.cpp',
             '../src/opts/SkMorphology_opts_none.cpp',
             '../src/opts/SkUtils_opts_none.cpp',
-            '../src/opts/SkTextureCompression_opts_none.cpp',
             '../src/opts/SkXfermode_opts_none.cpp',
           ],
         }],
@@ -162,7 +158,6 @@
             '../src/opts/SkBlurImage_opts_neon.cpp',
             '../src/opts/SkMorphology_opts_arm.cpp',
             '../src/opts/SkMorphology_opts_neon.cpp',
-            '../src/opts/SkTextureCompression_opts_none.cpp',
             '../src/opts/SkUtils_opts_none.cpp',
             '../src/opts/SkXfermode_opts_arm.cpp',
             '../src/opts/SkXfermode_opts_arm_neon.cpp',
@@ -185,7 +180,6 @@
       ],
       'include_dirs': [
         '../src/core',
-        '../src/utils',
       ],
       'conditions': [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"] \
@@ -217,7 +211,6 @@
       ],
       'include_dirs': [
         '../src/core',
-        '../src/utils',
       ],
       'conditions': [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"] \
@@ -271,7 +264,6 @@
       'include_dirs': [
         '../src/core',
         '../src/opts',
-        '../src/utils',
       ],
       'cflags!': [
         '-fno-omit-frame-pointer',
@@ -301,7 +293,6 @@
         '../src/opts/SkBlitRow_opts_arm_neon.cpp',
         '../src/opts/SkBlurImage_opts_neon.cpp',
         '../src/opts/SkMorphology_opts_neon.cpp',
-        '../src/opts/SkTextureCompression_opts_neon.cpp',
         '../src/opts/SkXfermode_opts_arm_neon.cpp',
       ],
     },

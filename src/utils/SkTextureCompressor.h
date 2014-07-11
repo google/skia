@@ -34,14 +34,7 @@ namespace SkTextureCompressor {
     // large enough to hold width*height pixels. The dst data is expected to
     // be large enough to hold the compressed data according to the format.
     bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcColorType,
-                                int width, int height, int rowBytes, Format format,
-                                bool opt = true /* Use optimization if available */);
-
-    // This typedef defines what the nominal aspects of a compression function
-    // are. The typedef is not meant to be used by clients of the API, but rather
-    // allows SIMD optimized compression functions to be implemented.
-    typedef bool (*CompressionProc)(uint8_t* dst, const uint8_t* src,
-                                    int width, int height, int rowBytes);
+                                int width, int height, int rowBytes, Format format);
 }
 
 #endif
