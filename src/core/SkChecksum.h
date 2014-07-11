@@ -62,12 +62,18 @@ public:
      *  @return hash result
      */
     static uint32_t Murmur3(const uint32_t* data, size_t bytes, uint32_t seed=0) {
+        // Use may_alias to remind the compiler we're intentionally violating strict aliasing,
+        // and so not to apply strict-aliasing-based optimizations.
+        typedef uint32_t SK_ATTRIBUTE(may_alias) aliased_uint32_t;
+        const aliased_uint32_t* safe_data = (const aliased_uint32_t*)data;
+
         SkASSERTF(SkIsAlign4(bytes), "Expected 4-byte multiple, got %zu", bytes);
         const size_t words = bytes/4;
 
+
         uint32_t hash = seed;
         for (size_t i = 0; i < words; i++) {
-            uint32_t k = data[i];
+            uint32_t k = safe_data[i];
             k *= 0xcc9e2d51;
             k = (k << 15) | (k >> 17);
             k *= 0x1b873593;
@@ -95,6 +101,11 @@ public:
      *  @return checksum result
      */
     static uint32_t Compute(const uint32_t* data, size_t size) {
+        // Use may_alias to remind the compiler we're intentionally violating strict aliasing,
+        // and so not to apply strict-aliasing-based optimizations.
+        typedef uint32_t SK_ATTRIBUTE(may_alias) aliased_uint32_t;
+        const aliased_uint32_t* safe_data = (const aliased_uint32_t*)data;
+
         SkASSERT(SkIsAlign4(size));
 
         /*
@@ -104,7 +115,7 @@ public:
          *  sizeof()).
          */
         uintptr_t result = 0;
-        const uintptr_t* ptr = reinterpret_cast<const uintptr_t*>(data);
+        const uintptr_t* ptr = reinterpret_cast<const uintptr_t*>(safe_data);
 
         /*
          *  count the number of quad element chunks. This takes into account
@@ -120,10 +131,10 @@ public:
         }
         size &= ((sizeof(uintptr_t) << 2) - 1);
 
-        data = reinterpret_cast<const uint32_t*>(ptr);
-        const uint32_t* stop = data + (size >> 2);
-        while (data < stop) {
-            result = Mash(result, *data++);
+        safe_data = reinterpret_cast<const aliased_uint32_t*>(ptr);
+        const aliased_uint32_t* stop = safe_data + (size >> 2);
+        while (safe_data < stop) {
+            result = Mash(result, *safe_data++);
         }
 
         /*
