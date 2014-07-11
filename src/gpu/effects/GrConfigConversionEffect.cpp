@@ -10,6 +10,7 @@
 #include "GrTBackendEffectFactory.h"
 #include "GrSimpleTextureEffect.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "SkMatrix.h"
 
 class GrGLConfigConversionEffect : public GrGLEffect {

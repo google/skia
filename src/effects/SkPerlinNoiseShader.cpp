@@ -18,6 +18,7 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkGr.h"
 #endif

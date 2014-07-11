@@ -230,6 +230,7 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
 #include "GrEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "SkGr.h"
 
 class GLColorTableEffect;

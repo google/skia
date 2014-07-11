@@ -22,6 +22,7 @@
 #include "GrTexture.h"
 #include "GrEffect.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkGrPixelRef.h"

@@ -17,6 +17,7 @@
 #if SK_SUPPORT_GPU
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "GrEffect.h"
 #include "GrTBackendEffectFactory.h"
 

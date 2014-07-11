@@ -189,8 +189,7 @@ private:
      * TransformedCoordsArray* object, which is in turn passed to the effect's emitCode() function.
      */
     void emitTransforms(GrGLFullShaderBuilder*,
-                        const GrEffect*,
-                        EffectKey,
+                        const GrDrawEffect&,
                         TransformedCoordsArray*);
 
     /**
@@ -277,8 +276,7 @@ private:
      * effect's emitCode() function.
      */
     void setupPathTexGen(GrGLFragmentOnlyShaderBuilder*,
-                         const GrEffect*,
-                         EffectKey,
+                         const GrDrawEffect&,
                          TransformedCoordsArray*);
 
     /**

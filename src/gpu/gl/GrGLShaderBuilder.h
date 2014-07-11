@@ -13,6 +13,7 @@
 #include "GrColor.h"
 #include "GrEffect.h"
 #include "SkTypes.h"
+#include "gl/GrGLProgramDesc.h"
 #include "gl/GrGLProgramEffects.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLUniformManager.h"
@@ -253,8 +254,8 @@ protected:
     // Helper for emitEffects().
     void createAndEmitEffects(GrGLProgramEffectsBuilder*,
                               const GrEffectStage* effectStages[],
-                              const EffectKey effectKeys[],
                               int effectCnt,
+                              const GrGLProgramDesc::EffectKeyProvider&,
                               GrGLSLExpr4* inOutFSColor);
 
     // Generates a name for a variable. The generated string will be name prefixed by the prefix
@@ -338,15 +339,15 @@ private:
 
     /**
     * Adds code for effects and returns a GrGLProgramEffects* object. The caller is responsible for
-    * deleting it when finished. effectStages contains the effects to add. effectKeys[i] is the key
-    * generated from effectStages[i]. inOutFSColor specifies the input color to the first stage and
-    * is updated to be the output color of the last stage.
-    * The handles to texture samplers for effectStage[i] are added to
+    * deleting it when finished. effectStages contains the effects to add. The effect key provider 
+    * is used to communicate the key each effect created in its GenKey function. inOutFSColor
+    * specifies the input color to the first stage and is updated to be the output color of the
+    * last stage. The handles to texture samplers for effectStage[i] are added to
     * effectSamplerHandles[i].
     */
     virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
-                                                     const EffectKey effectKeys[],
                                                      int effectCnt,
+                                                     const GrGLProgramDesc::EffectKeyProvider&,
                                                      GrGLSLExpr4* inOutFSColor) = 0;
 
     /**
@@ -465,8 +466,8 @@ private:
     virtual void emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLExpr4* coverage) SK_OVERRIDE;
 
     virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
-                                                     const EffectKey effectKeys[],
                                                      int effectCnt,
+                                                     const GrGLProgramDesc::EffectKeyProvider&,
                                                      GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
 
     virtual void emitCodeAfterEffects() SK_OVERRIDE;
@@ -510,8 +511,8 @@ private:
     virtual void emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLExpr4* coverage) SK_OVERRIDE {}
 
     virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
-                                                     const EffectKey effectKeys[],
                                                      int effectCnt,
+                                                     const GrGLProgramDesc::EffectKeyProvider&,
                                                      GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
 
     virtual void emitCodeAfterEffects() SK_OVERRIDE {}

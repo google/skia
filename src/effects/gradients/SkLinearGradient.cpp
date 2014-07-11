@@ -446,6 +446,7 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
 #if SK_SUPPORT_GPU
 
 #include "GrTBackendEffectFactory.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "SkGr.h"
 
 /////////////////////////////////////////////////////////////////////

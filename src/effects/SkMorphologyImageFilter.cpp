@@ -17,6 +17,7 @@
 #include "GrTexture.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "effects/Gr1DKernelEffect.h"
 #endif
 

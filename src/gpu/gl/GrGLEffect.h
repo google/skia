@@ -10,9 +10,10 @@
 
 #include "GrBackendEffectFactory.h"
 #include "GrGLProgramEffects.h"
-#include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
+
+class GrGLShaderBuilder;
 
 /** @file
     This file contains specializations for OpenGL of the shader stages declared in
@@ -42,12 +43,6 @@ public:
     typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
     typedef GrGLProgramEffects::TextureSampler TextureSampler;
     typedef GrGLProgramEffects::TextureSamplerArray TextureSamplerArray;
-
-    enum {
-        kNoEffectKey = GrBackendEffectFactory::kNoEffectKey,
-        // the number of bits in EffectKey available to GenKey
-        kEffectKeyBits = GrBackendEffectFactory::kEffectKeyBits,
-    };
 
     GrGLEffect(const GrBackendEffectFactory& factory)
         : fFactory(factory)

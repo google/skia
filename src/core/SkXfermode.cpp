@@ -783,6 +783,7 @@ void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 #include "GrEffectUnitTest.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 
 /**
  * GrEffect that implements the all the separable xfer modes that cannot be expressed as Coeffs.

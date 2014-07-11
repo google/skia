@@ -22,7 +22,7 @@
 #include "SkRandom.h"
 #include "Test.h"
 
-void GrGLProgramDesc::setRandom(SkRandom* random,
+bool GrGLProgramDesc::setRandom(SkRandom* random,
                                 const GrGpuGL* gpu,
                                 const GrRenderTarget* dstRenderTarget,
                                 const GrTexture* dstCopyTexture,
@@ -30,13 +30,51 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
                                 int numColorStages,
                                 int numCoverageStages,
                                 int currAttribIndex) {
-    int numEffects = numColorStages + numCoverageStages;
-    size_t keyLength = KeyLength(numEffects);
-    fKey.reset(keyLength);
-    *this->atOffset<uint32_t, kLengthOffset>() = static_cast<uint32_t>(keyLength);
-    memset(this->header(), 0, kHeaderSize);
+    bool useLocalCoords = random->nextBool() && currAttribIndex < GrDrawState::kMaxVertexAttribCnt;
+
+    int numStages = numColorStages + numCoverageStages;
+    fKey.reset();
+
+    GR_STATIC_ASSERT(0 == kEffectKeyLengthsOffset % sizeof(uint32_t));
+
+    // Make room for everything up to and including the array of offsets to effect keys.
+    fKey.push_back_n(kEffectKeyLengthsOffset + sizeof(uint32_t) * numStages);
+
+    size_t offset = fKey.count();
+    int offsetIndex = 0;
+
+    bool dstRead = false;
+    bool fragPos = false;
+    bool vertexCode = false;
+    for (int s = 0; s < numStages; ++s) {
+        uint32_t* offsetLocation = reinterpret_cast<uint32_t*>(fKey.begin() +
+                                                               kEffectKeyLengthsOffset +
+                                                               offsetIndex * sizeof(uint32_t));
+        *offsetLocation = offset;
+        ++offsetIndex;
+
+        const GrBackendEffectFactory& factory = stages[s]->getEffect()->getFactory();
+        GrDrawEffect drawEffect(*stages[s], useLocalCoords);
+        GrEffectKeyBuilder b(&fKey);
+        if (!factory.getGLEffectKey(drawEffect, gpu->glCaps(), &b)) {
+            fKey.reset();
+            return false;
+        }
+        if (stages[s]->getEffect()->willReadDstColor()) {
+            dstRead = true;
+        }
+        if (stages[s]->getEffect()->willReadFragmentPosition()) {
+            fragPos = true;
+        }
+        if (stages[s]->getEffect()->hasVertexCode()) {
+            vertexCode = true;
+        }
+
+        offset += b.size();
+    }
 
     KeyHeader* header = this->header();
+    memset(header, 0, kHeaderSize);
     header->fEmitsPointSize = random->nextBool();
 
     header->fPositionAttributeIndex = 0;
@@ -48,6 +86,7 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
                                   random->nextULessThan(kColorInputCnt));
     } while (GrDrawState::kMaxVertexAttribCnt <= currAttribIndex &&
              kAttribute_ColorInput == header->fColorInput);
+
     header->fColorAttributeIndex = (header->fColorInput == kAttribute_ColorInput) ?
                                         currAttribIndex++ :
                                         -1;
@@ -65,39 +104,20 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
     header->fExperimentalGS = gpu->caps()->geometryShaderSupport() && random->nextBool();
 #endif
 
-    bool useLocalCoords = random->nextBool() && currAttribIndex < GrDrawState::kMaxVertexAttribCnt;
     header->fLocalCoordAttributeIndex = useLocalCoords ? currAttribIndex++ : -1;
 
     header->fColorEffectCnt = numColorStages;
     header->fCoverageEffectCnt = numCoverageStages;
 
-    bool dstRead = false;
-    bool fragPos = false;
-    bool vertexCode = false;
-    int numStages = numColorStages + numCoverageStages;
-    for (int s = 0; s < numStages; ++s) {
-        const GrBackendEffectFactory& factory = stages[s]->getEffect()->getFactory();
-        GrDrawEffect drawEffect(*stages[s], useLocalCoords);
-        this->effectKeys()[s] = factory.glEffectKey(drawEffect, gpu->glCaps());
-        if (stages[s]->getEffect()->willReadDstColor()) {
-            dstRead = true;
-        }
-        if (stages[s]->getEffect()->willReadFragmentPosition()) {
-            fragPos = true;
-        }
-        if (stages[s]->getEffect()->hasVertexCode()) {
-            vertexCode = true;
-        }
-    }
-
     if (dstRead) {
-        header->fDstReadKey = GrGLShaderBuilder::KeyForDstRead(dstCopyTexture, gpu->glCaps());
+        header->fDstReadKey = SkToU8(GrGLShaderBuilder::KeyForDstRead(dstCopyTexture,
+                                                                      gpu->glCaps()));
     } else {
         header->fDstReadKey = 0;
     }
     if (fragPos) {
-        header->fFragPosKey = GrGLShaderBuilder::KeyForFragmentPosition(dstRenderTarget,
-                                                                         gpu->glCaps());
+        header->fFragPosKey = SkToU8(GrGLShaderBuilder::KeyForFragmentPosition(dstRenderTarget,
+                                                                               gpu->glCaps()));
     } else {
         header->fFragPosKey = 0;
     }
@@ -118,9 +138,8 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
 
     header->fCoverageOutput = coverageOutput;
 
-    *this->checksum() = 0;
-    *this->checksum() = SkChecksum::Compute(reinterpret_cast<uint32_t*>(fKey.get()), keyLength);
-    fInitialized = true;
+    this->finalize();
+    return true;
 }
 
 bool GrGpuGL::programUnitTest(int maxStages) {
@@ -202,14 +221,16 @@ bool GrGpuGL::programUnitTest(int maxStages) {
             ++s;
         }
         const GrTexture* dstTexture = random.nextBool() ? dummyTextures[0] : dummyTextures[1];
-        pdesc.setRandom(&random,
-                        this,
-                        dummyTextures[0]->asRenderTarget(),
-                        dstTexture,
-                        stages.get(),
-                        numColorStages,
-                        numCoverageStages,
-                        currAttribIndex);
+        if (!pdesc.setRandom(&random,
+                             this,
+                             dummyTextures[0]->asRenderTarget(),
+                             dstTexture,
+                             stages.get(),
+                             numColorStages,
+                             numCoverageStages,
+                             currAttribIndex)) {
+            return false;
+        }
 
         SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this,
                                                               pdesc,

@@ -194,15 +194,19 @@ bool GrGLShaderBuilder::genProgram(const GrEffectStage* colorStages[],
     ///////////////////////////////////////////////////////////////////////////
     // emit the per-effect code for both color and coverage effects
 
+    GrGLProgramDesc::EffectKeyProvider colorKeyProvider(
+        &this->desc(), GrGLProgramDesc::EffectKeyProvider::kColor_EffectType);
     fOutput.fColorEffects.reset(this->createAndEmitEffects(colorStages,
-                                                           this->desc().getEffectKeys(),
                                                            this->desc().numColorEffects(),
+                                                           colorKeyProvider,
                                                            &inputColor));
 
+    GrGLProgramDesc::EffectKeyProvider coverageKeyProvider(
+        &this->desc(), GrGLProgramDesc::EffectKeyProvider::kCoverage_EffectType);
     fOutput.fCoverageEffects.reset(this->createAndEmitEffects(coverageStages,
-                                    this->desc().getEffectKeys() + this->desc().numColorEffects(),
-                                    this->desc().numCoverageEffects(),
-                                    &inputCoverage));
+                                   this->desc().numCoverageEffects(),
+                                   coverageKeyProvider,
+                                   &inputCoverage));
 
     this->emitCodeAfterEffects();
 
@@ -601,8 +605,8 @@ void GrGLShaderBuilder::appendUniformDecls(ShaderVisibility visibility,
 
 void GrGLShaderBuilder::createAndEmitEffects(GrGLProgramEffectsBuilder* programEffectsBuilder,
                                              const GrEffectStage* effectStages[],
-                                             const EffectKey effectKeys[],
                                              int effectCnt,
+                                             const GrGLProgramDesc::EffectKeyProvider& keyProvider,
                                              GrGLSLExpr4* fsInOutColor) {
     bool effectEmitted = false;
 
@@ -632,7 +636,7 @@ void GrGLShaderBuilder::createAndEmitEffects(GrGLProgramEffectsBuilder* programE
 
 
         programEffectsBuilder->emitEffect(stage,
-                                          effectKeys[e],
+                                          keyProvider.get(e),
                                           outColor.c_str(),
                                           inColor.isOnes() ? NULL : inColor.c_str(),
                                           fCodeStage.stageIndex());
@@ -976,15 +980,15 @@ const SkString* GrGLFullShaderBuilder::getEffectAttributeName(int attributeIndex
 
 GrGLProgramEffects* GrGLFullShaderBuilder::createAndEmitEffects(
         const GrEffectStage* effectStages[],
-        const EffectKey effectKeys[],
         int effectCnt,
+        const GrGLProgramDesc::EffectKeyProvider& keyProvider,
         GrGLSLExpr4* inOutFSColor) {
 
     GrGLVertexProgramEffectsBuilder programEffectsBuilder(this, effectCnt);
     this->INHERITED::createAndEmitEffects(&programEffectsBuilder,
                                           effectStages,
-                                          effectKeys,
                                           effectCnt,
+                                          keyProvider,
                                           inOutFSColor);
     return programEffectsBuilder.finish();
 }
@@ -1093,16 +1097,16 @@ int GrGLFragmentOnlyShaderBuilder::addTexCoordSets(int count) {
 
 GrGLProgramEffects* GrGLFragmentOnlyShaderBuilder::createAndEmitEffects(
         const GrEffectStage* effectStages[],
-        const EffectKey effectKeys[],
         int effectCnt,
+        const GrGLProgramDesc::EffectKeyProvider& keyProvider,
         GrGLSLExpr4* inOutFSColor) {
 
     GrGLPathTexGenProgramEffectsBuilder pathTexGenEffectsBuilder(this,
                                                                  effectCnt);
     this->INHERITED::createAndEmitEffects(&pathTexGenEffectsBuilder,
                                           effectStages,
-                                          effectKeys,
                                           effectCnt,
+                                          keyProvider,
                                           inOutFSColor);
     return pathTexGenEffectsBuilder.finish();
 }

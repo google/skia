@@ -48,6 +48,7 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 #include "GrCoordTransform.h"
 #include "GrEffect.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "GrTBackendEffectFactory.h"
 #include "GrTextureAccess.h"
 

@@ -239,7 +239,7 @@ void GrGLVertexProgramEffects::emitEffect(GrGLFullShaderBuilder* builder,
     SkSTArray<4, TextureSampler> samplers(effect->numTextures());
 
     this->emitAttributes(builder, stage);
-    this->emitTransforms(builder, effect, key, &coords);
+    this->emitTransforms(builder, drawEffect, &coords);
     this->emitSamplers(builder, effect, &samplers);
 
     GrGLEffect* glEffect = effect->getFactory().createGLInstance(drawEffect);
@@ -277,12 +277,11 @@ void GrGLVertexProgramEffects::emitAttributes(GrGLFullShaderBuilder* builder,
 }
 
 void GrGLVertexProgramEffects::emitTransforms(GrGLFullShaderBuilder* builder,
-                                              const GrEffect* effect,
-                                              EffectKey effectKey,
+                                              const GrDrawEffect& drawEffect,
                                               TransformedCoordsArray* outCoords) {
     SkTArray<Transform, true>& transforms = fTransforms.push_back();
-    EffectKey totalKey = GrBackendEffectFactory::GetTransformKey(effectKey);
-    int numTransforms = effect->numTransforms();
+    EffectKey totalKey = GenTransformKey(drawEffect);
+    int numTransforms = drawEffect.effect()->numTransforms();
     transforms.push_back_n(numTransforms);
     for (int t = 0; t < numTransforms; t++) {
         GrSLType varyingType = kVoid_GrSLType;
@@ -398,7 +397,7 @@ void GrGLPathTexGenProgramEffects::emitEffect(GrGLFragmentOnlyShaderBuilder* bui
     SkSTArray<4, TextureSampler> samplers(effect->numTextures());
 
     SkASSERT(0 == stage.getVertexAttribIndexCount());
-    this->setupPathTexGen(builder, effect, key, &coords);
+    this->setupPathTexGen(builder, drawEffect, &coords);
     this->emitSamplers(builder, effect, &samplers);
 
     GrGLEffect* glEffect = effect->getFactory().createGLInstance(drawEffect);
@@ -416,11 +415,10 @@ void GrGLPathTexGenProgramEffects::emitEffect(GrGLFragmentOnlyShaderBuilder* bui
 }
 
 void GrGLPathTexGenProgramEffects::setupPathTexGen(GrGLFragmentOnlyShaderBuilder* builder,
-                                           const GrEffect* effect,
-                                           EffectKey effectKey,
+                                           const GrDrawEffect& drawEffect,
                                            TransformedCoordsArray* outCoords) {
-    int numTransforms = effect->numTransforms();
-    EffectKey totalKey = GrBackendEffectFactory::GetTransformKey(effectKey);
+    int numTransforms = drawEffect.effect()->numTransforms();
+    EffectKey totalKey = GenTransformKey(drawEffect);
     int texCoordIndex = builder->addTexCoordSets(numTransforms);
     SkNEW_APPEND_TO_TARRAY(&fTransforms, Transforms, (totalKey, texCoordIndex));
     SkString name;

@@ -12,6 +12,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrTBackendEffectFactory.h"
+#include "gl/GrGLShaderBuilder.h"
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 

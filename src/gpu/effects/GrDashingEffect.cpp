@@ -12,6 +12,7 @@
 #include "effects/GrVertexEffect.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLVertexEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLSL.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"

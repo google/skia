@@ -9,6 +9,7 @@
 #include "GrSimpleTextureEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "SkFloatingPoint.h"
 
 

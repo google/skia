@@ -7,6 +7,7 @@
 
 #include "GrDistanceFieldTextureEffect.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "gl/GrGLVertexEffect.h"

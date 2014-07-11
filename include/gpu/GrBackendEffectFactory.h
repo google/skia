@@ -12,6 +12,7 @@
 #include "SkTemplates.h"
 #include "SkThread.h"
 #include "SkTypes.h"
+#include "SkTArray.h"
 
 /** Given a GrEffect of a particular type, creates the corresponding graphics-backend-specific
     effect object. Also tracks equivalence of shaders generated via a key. Each factory instance
@@ -27,23 +28,32 @@ class GrGLEffect;
 class GrGLCaps;
 class GrDrawEffect;
 
+/**
+ * Used by effects to build their keys. It incorpates each per-effect key into a larger shader key.
+ */
+class GrEffectKeyBuilder {
+public:
+    GrEffectKeyBuilder(SkTArray<unsigned char, true>* data) : fData(data), fCount(0) {
+        SkASSERT(0 == fData->count() % sizeof(uint32_t));
+    }
+
+    void add32(uint32_t v) {
+        ++fCount;
+        fData->push_back_n(4, reinterpret_cast<uint8_t*>(&v));
+    }
+
+    size_t size() const { return sizeof(uint32_t) * fCount; }
+
+private:
+    SkTArray<uint8_t, true>* fData; // unowned ptr to the larger key.
+    int fCount;                     // number of uint32_ts added to fData by the effect.
+};
+
 class GrBackendEffectFactory : SkNoncopyable {
 public:
     typedef uint32_t EffectKey;
-    enum {
-        kNoEffectKey = 0,
-        kEffectKeyBits = 10,
-        /**
-         * The framework automatically includes coord transforms and texture accesses in their
-         * effect's EffectKey, so effects don't need to account for them in GenKey().
-         */
-        kTextureKeyBits = 4,
-        kTransformKeyBits = 6,
-        kAttribKeyBits = 6,
-        kClassIDBits = 6
-    };
 
-    virtual EffectKey glEffectKey(const GrDrawEffect&, const GrGLCaps&) const = 0;
+    virtual bool getGLEffectKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) const = 0;
     virtual GrGLEffect* createGLInstance(const GrDrawEffect&) const = 0;
 
     bool operator ==(const GrBackendEffectFactory& b) const {
@@ -55,10 +65,6 @@ public:
 
     virtual const char* name() const = 0;
 
-    static EffectKey GetTransformKey(EffectKey key) {
-        return key >> (kEffectKeyBits + kTextureKeyBits) & ((1U << kTransformKeyBits) - 1);
-    }
-
 protected:
     enum {
         kIllegalEffectClassID = 0,
@@ -69,18 +75,15 @@ protected:
     }
     virtual ~GrBackendEffectFactory() {}
 
-    static EffectKey GenID() {
-        SkDEBUGCODE(static const int32_t kClassIDBits = 8 * sizeof(EffectKey) -
-                           kTextureKeyBits - kEffectKeyBits - kAttribKeyBits);
+    static int32_t GenID() {
         // fCurrEffectClassID has been initialized to kIllegalEffectClassID. The
         // atomic inc returns the old value not the incremented value. So we add
         // 1 to the returned value.
         int32_t id = sk_atomic_inc(&fCurrEffectClassID) + 1;
-        SkASSERT(id < (1 << kClassIDBits));
-        return static_cast<EffectKey>(id);
+        return id;
     }
 
-    EffectKey fEffectClassID;
+    int32_t fEffectClassID;
 
 private:
     static int32_t fCurrEffectClassID;

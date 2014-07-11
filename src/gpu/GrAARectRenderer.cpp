@@ -8,6 +8,7 @@
 #include "GrAARectRenderer.h"
 #include "GrGpu.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLVertexEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkColorPriv.h"

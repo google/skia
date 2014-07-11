@@ -327,6 +327,7 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
 #include "GrEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 
 class ColorMatrixEffect : public GrEffect {
 public:

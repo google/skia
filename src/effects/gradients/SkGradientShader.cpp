@@ -852,6 +852,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #include "effects/GrTextureStripAtlas.h"
 #include "GrTBackendEffectFactory.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "SkGr.h"
 
 GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)

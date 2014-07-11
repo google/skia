@@ -12,6 +12,7 @@
 
 #if SK_SUPPORT_GPU
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLShaderBuilder.h"
 #include "GrContext.h"
 #include "GrTBackendEffectFactory.h"
 #endif
