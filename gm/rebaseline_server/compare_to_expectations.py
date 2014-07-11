@@ -17,12 +17,10 @@ import os
 import time
 
 # Must fix up PYTHONPATH before importing from within Skia
-# pylint: disable=W0611
-import fix_pythonpath
-# pylint: enable=W0611
+import fix_pythonpath  # pylint: disable=W0611
 
 # Imports from within Skia
-from pyutils import url_utils
+from py.utils import url_utils
 import column
 import gm_json
 import imagediffdb

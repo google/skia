@@ -26,12 +26,10 @@ import time
 import urlparse
 
 # Must fix up PYTHONPATH before importing from within Skia
-# pylint: disable=W0611
-import fix_pythonpath
-# pylint: enable=W0611
+import fix_pythonpath  # pylint: disable=W0611
 
 # Imports from within Skia
-from pyutils import gs_utils
+from py.utils import gs_utils
 import gm_json
 
 # Imports from local dir

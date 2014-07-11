@@ -20,13 +20,12 @@ within self._output_dir_expected, which wouldn't be good...
 
 # System-level imports
 import os
-import shutil
-import tempfile
-import urllib
+
+# Must fix up PYTHONPATH before importing from within Skia
+import fix_pythonpath  # pylint: disable=W0611
 
 # Imports from within Skia
-import fix_pythonpath  # must do this first
-from pyutils import url_utils
+from py.utils import url_utils
 import base_unittest
 import download_actuals
 

@@ -12,12 +12,13 @@ Compare results of two render_pictures runs.
 # System-level imports
 import logging
 import os
-import re
 import time
 
+# Must fix up PYTHONPATH before importing from within Skia
+import fix_pythonpath  # pylint: disable=W0611
+
 # Imports from within Skia
-import fix_pythonpath  # must do this first
-from pyutils import url_utils
+from py.utils import url_utils
 import gm_json
 import imagediffdb
 import imagepair
@@ -25,9 +26,14 @@ import imagepairset
 import results
 
 # URL under which all render_pictures images can be found in Google Storage.
+#
+# pylint: disable=C0301
 # TODO(epoger): Move this default value into
 # https://skia.googlesource.com/buildbot/+/master/site_config/global_variables.json
-DEFAULT_IMAGE_BASE_URL = 'http://chromium-skia-gm.commondatastorage.googleapis.com/render_pictures/images'
+# pylint: enable=C0301
+DEFAULT_IMAGE_BASE_URL = (
+    'http://chromium-skia-gm.commondatastorage.googleapis.com/'
+    'render_pictures/images')
 
 
 class RenderedPicturesComparisons(results.BaseComparisons):
@@ -145,14 +151,15 @@ class RenderedPicturesComparisons(results.BaseComparisons):
                 image_dict_A=tiled_images_A[tile_num],
                 image_dict_B=tiled_images_B[tile_num]))
 
-        for imagepair in imagepairs_for_this_skp:
-          if imagepair:
-            all_image_pairs.add_image_pair(imagepair)
-            result_type = imagepair.extra_columns_dict\
+        for one_imagepair in imagepairs_for_this_skp:
+          if one_imagepair:
+            all_image_pairs.add_image_pair(one_imagepair)
+            result_type = one_imagepair.extra_columns_dict\
                 [results.KEY__EXTRACOLUMNS__RESULT_TYPE]
             if result_type != results.KEY__RESULT_TYPE__SUCCEEDED:
-              failing_image_pairs.add_image_pair(imagepair)
+              failing_image_pairs.add_image_pair(one_imagepair)
 
+    # pylint: disable=W0201
     self._results = {
       results.KEY__HEADER__RESULTS_ALL: all_image_pairs.as_dict(),
       results.KEY__HEADER__RESULTS_FAILURES: failing_image_pairs.as_dict(),

@@ -15,9 +15,7 @@ import os
 import re
 
 # Must fix up PYTHONPATH before importing from within Skia
-# pylint: disable=W0611
-import fix_pythonpath
-# pylint: enable=W0611
+import fix_pythonpath  # pylint: disable=W0611
 
 # Imports from within Skia
 import gm_json
