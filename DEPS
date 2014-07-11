@@ -7,7 +7,7 @@ deps = {
 
   # DEPS using https://chromium.googlesource.com are pulled from chromium @ r205199
   # (see https://chromium.googlesource.com/chromium/chromium/+/c59bfa8ef877f45bfa859669053859857af1d279)
-  "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git@b071b0f098e6efb9066252e751dfddf4f35f06e2",
+  "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git@23a8a433529d9db23882c702a29d5e594841563d",
   "third_party/externals/freetype" : "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
   "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@3917682a16d5c19ff3576a8be0ffdb3a332954b1",
   "third_party/externals/libjpeg" : "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@82ce8a6d4ebe12a177c0c3597192f2b4f09e81c3",
