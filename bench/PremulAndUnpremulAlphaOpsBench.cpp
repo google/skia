@@ -30,7 +30,7 @@ protected:
     }
 
     virtual void onPreDraw() {
-        SkImageInfo info = SkImageInfo::Make(W, H, fColorType, kPremul_SkAlphaType);
+        SkImageInfo info = SkImageInfo::Make(W, H, fColorType, kUnpremul_SkAlphaType);
         fBmp1.allocPixels(info);   // used in writePixels
 
         for (int h = 0; h < H; ++h) {
