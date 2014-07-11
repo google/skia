@@ -26,7 +26,6 @@
     #define SkASSERT_CONTINUE(pred)
 #endif
 
-
 class SkScalerContext_FreeType_Base : public SkScalerContext {
 protected:
     // See http://freetype.sourceforge.net/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
@@ -45,6 +44,13 @@ private:
 };
 
 class SkTypeface_FreeType : public SkTypeface {
+public:
+    /** For SkFontMgrs to make use of our ability to extract
+     *  name and style from a stream, using FreeType's API.
+     */
+    static bool ScanFont(SkStream* stream, int ttcIndex,
+                         SkString* name, SkTypeface::Style* style, bool* isFixedPitch);
+
 protected:
     SkTypeface_FreeType(Style style, SkFontID uniqueID, bool isFixedPitch)
         : INHERITED(style, uniqueID, isFixedPitch)

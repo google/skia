@@ -11,6 +11,7 @@
 
 #include "SkFontConfigParser_android.h"
 #include "SkFontConfigTypeface.h"
+#include "SkFontHost_FreeType_common.h"
 #include "SkFontMgr.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
@@ -196,10 +197,6 @@ static void insert_into_name_dict(SkTDict<FamilyRecID>& familyNameDict,
     }
 }
 
-// Defined in SkFontHost_FreeType.cpp
-bool find_name_and_attributes(SkStream* stream, SkString* name,
-                              SkTypeface::Style* style, bool* isFixedWidth);
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*>& fontFamilies) :
@@ -241,8 +238,9 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
             if (stream.get() != NULL) {
                 bool isFixedWidth;
                 SkString name;
-                fontRec.fIsValid = find_name_and_attributes(stream.get(), &name,
-                                                            &fontRec.fStyle, &isFixedWidth);
+                fontRec.fIsValid = SkTypeface_FreeType::ScanFont(stream.get(), 0,
+                                                                 &name, &fontRec.fStyle,
+                                                                 &isFixedWidth);
             } else {
                 if (!family->fIsFallbackFont) {
                     SkDebugf("---- failed to open <%s> as a font\n", filename.c_str());

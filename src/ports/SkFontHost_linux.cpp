@@ -25,15 +25,12 @@
 #    define SK_FONT_FILE_PREFIX "/usr/share/fonts/truetype/"
 #endif
 
-bool find_name_and_attributes(SkStream* stream, SkString* name,
-                              SkTypeface::Style* style, bool* isFixedPitch);
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /** The base SkTypeface implementation for the custom font manager. */
 class SkTypeface_Custom : public SkTypeface_FreeType {
 public:
-    SkTypeface_Custom(Style style, bool sysFont, bool isFixedPitch, const SkString familyName)
+    SkTypeface_Custom(Style style, bool isFixedPitch, bool sysFont, const SkString familyName)
         : INHERITED(style, SkTypefaceCache::NewFontID(), isFixedPitch)
         , fIsSysFont(sysFont), fFamilyName(familyName)
     { }
@@ -61,7 +58,7 @@ private:
  */
 class SkTypeface_Empty : public SkTypeface_Custom {
 public:
-    SkTypeface_Empty() : INHERITED(SkTypeface::kNormal, true, false, SkString()) {}
+    SkTypeface_Empty() : INHERITED(SkTypeface::kNormal, false, true, SkString()) {}
 
     virtual const char* getUniqueString() const SK_OVERRIDE { return NULL; }
 
@@ -75,10 +72,10 @@ private:
 /** The stream SkTypeface implementation for the custom font manager. */
 class SkTypeface_Stream : public SkTypeface_Custom {
 public:
-    SkTypeface_Stream(Style style, bool sysFont, SkStream* stream,
-                      bool isFixedPitch, const SkString familyName)
-        : INHERITED(style, sysFont, isFixedPitch, familyName)
-        , fStream(SkRef(stream))
+    SkTypeface_Stream(Style style, bool isFixedPitch, bool sysFont, const SkString familyName,
+                      SkStream* stream, int ttcIndex)
+        : INHERITED(style, isFixedPitch, sysFont, familyName)
+        , fStream(SkRef(stream)), fTtcIndex(ttcIndex)
     { }
 
     virtual const char* getUniqueString() const SK_OVERRIDE { return NULL; }
@@ -91,6 +88,7 @@ protected:
 
 private:
     SkAutoTUnref<SkStream> fStream;
+    int fTtcIndex;
 
     typedef SkTypeface_Custom INHERITED;
 };
@@ -98,9 +96,9 @@ private:
 /** The file SkTypeface implementation for the custom font manager. */
 class SkTypeface_File : public SkTypeface_Custom {
 public:
-    SkTypeface_File(Style style, bool sysFont, const char path[],
-                    bool isFixedPitch, const SkString familyName)
-        : INHERITED(style, sysFont, isFixedPitch, familyName)
+    SkTypeface_File(Style style, bool isFixedPitch, bool sysFont, const SkString familyName,
+                    const char path[])
+        : INHERITED(style, isFixedPitch, sysFont, familyName)
         , fPath(path)
     { }
 
@@ -269,8 +267,9 @@ protected:
         bool isFixedPitch;
         SkTypeface::Style style;
         SkString name;
-        if (find_name_and_attributes(stream, &name, &style, &isFixedPitch)) {
-            return SkNEW_ARGS(SkTypeface_Stream, (style, false, stream, isFixedPitch, name));
+        if (SkTypeface_FreeType::ScanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
+            return SkNEW_ARGS(SkTypeface_Stream, (style, isFixedPitch, false, name,
+                                                  stream, ttcIndex));
         } else {
             return NULL;
         }
@@ -311,7 +310,7 @@ private:
                                    SkTypeface::Style* style, bool* isFixedPitch) {
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
         if (stream.get()) {
-            return find_name_and_attributes(stream, name, style, isFixedPitch);
+            return SkTypeface_FreeType::ScanFont(stream, 0, name, style, isFixedPitch);
         } else {
             SkDebugf("---- failed to open <%s> as a font\n", path);
             return false;
@@ -337,10 +336,10 @@ private:
 
             SkTypeface_Custom* tf = SkNEW_ARGS(SkTypeface_File, (
                                                 style,
-                                                true,  // system-font (cannot delete)
-                                                filename.c_str(),
                                                 isFixedPitch,
-                                                realname));
+                                                true,  // system-font (cannot delete)
+                                                realname,
+                                                filename.c_str()));
 
             SkFontStyleSet_Custom* addTo = this->onMatchFamily(realname.c_str());
             if (NULL == addTo) {

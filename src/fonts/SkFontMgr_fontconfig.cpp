@@ -50,11 +50,6 @@ private:
 
 } // namespace
 
-
-// Defined in SkFontHost_FreeType.cpp
-bool find_name_and_attributes(SkStream* stream, SkString* name,
-                              SkTypeface::Style* style, bool* isFixedWidth);
-
 // borrow this global from SkFontHost_fontconfig. eventually that file should
 // go away, and be replaced with this one.
 extern SkFontConfigInterface* SkFontHost_fontconfig_ref_global();
@@ -307,7 +302,7 @@ protected:
         // TODO should the caller give us the style or should we get it from freetype?
         SkTypeface::Style style = SkTypeface::kNormal;
         bool isFixedWidth = false;
-        if (!find_name_and_attributes(stream, NULL, &style, &isFixedWidth)) {
+        if (!SkTypeface_FreeType::ScanFont(stream, 0, NULL, &style, &isFixedWidth)) {
             return NULL;
         }
 

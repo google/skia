@@ -1670,11 +1670,9 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-/*  Export this so that other parts of our FonttHost port can make use of our
-    ability to extract the name+style from a stream, using FreeType's api.
-*/
-bool find_name_and_attributes(SkStream* stream, SkString* name,
-                              SkTypeface::Style* style, bool* isFixedPitch) {
+/*static*/ bool SkTypeface_FreeType::ScanFont(
+    SkStream* stream, int ttcIndex, SkString* name, SkTypeface::Style* style, bool* isFixedPitch)
+{
     FT_Library  library;
     if (FT_Init_FreeType(&library)) {
         return false;
@@ -1702,7 +1700,7 @@ bool find_name_and_attributes(SkStream* stream, SkString* name,
     }
 
     FT_Face face;
-    if (FT_Open_Face(library, &args, 0, &face)) {
+    if (FT_Open_Face(library, &args, ttcIndex, &face)) {
         FT_Done_FreeType(library);
         return false;
     }
