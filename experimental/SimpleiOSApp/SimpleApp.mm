@@ -5,7 +5,7 @@
 #include "SkCGUtils.h"
 
 extern void tool_main(int argc, char *argv[]);
-void save_args(int argc, char *argv[]);
+extern bool set_cmd_line_args(int argc, char *argv[], const char* dir);
 
 class SkSampleView : public SkView {
 public:
@@ -41,9 +41,10 @@ void application_term() {
 int saved_argc;
 char** saved_argv;
 
-void save_args(int argc, char *argv[]) {
+bool set_cmd_line_args(int argc, char *argv[], const char* ) {
     saved_argc = argc;
     saved_argv = argv;
+    return true;
 }
 
 class FillLayout : public SkView::Layout {
