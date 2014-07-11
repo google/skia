@@ -14,6 +14,54 @@ enum {
     M = 2
 };
 
+class AtomicInc32 : public Benchmark {
+public:
+    AtomicInc32() : fX(0) {}
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
+    }
+
+protected:
+    virtual const char* onGetName() {
+        return "atomic_inc_32";
+    }
+
+    virtual void onDraw(const int loops, SkCanvas*) {
+        for (int i = 0; i < loops; ++i) {
+            sk_atomic_inc(&fX);
+        }
+    }
+
+private:
+    int32_t fX;
+    typedef Benchmark INHERITED;
+};
+
+class AtomicInc64 : public Benchmark {
+public:
+    AtomicInc64() : fX(0) {}
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
+    }
+
+protected:
+    virtual const char* onGetName() {
+        return "atomic_inc_64";
+    }
+
+    virtual void onDraw(const int loops, SkCanvas*) {
+        for (int i = 0; i < loops; ++i) {
+            sk_atomic_inc(&fX);
+        }
+    }
+
+private:
+    int64_t fX;
+    typedef Benchmark INHERITED;
+};
+
 class RefCntBench_Stack : public Benchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
@@ -190,6 +238,9 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+DEF_BENCH( return new AtomicInc32(); )
+DEF_BENCH( return new AtomicInc64(); )
 
 DEF_BENCH( return new RefCntBench_Stack(); )
 DEF_BENCH( return new RefCntBench_Heap(); )

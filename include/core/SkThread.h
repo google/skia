@@ -16,22 +16,26 @@
  *  No additional memory barrier is required; this must act as a compiler barrier.
  */
 static int32_t sk_atomic_inc(int32_t* addr);
+static int64_t sk_atomic_inc(int64_t* addr);
 
 /** Atomically adds inc to the int referenced by addr and returns the previous value.
  *  No additional memory barrier is required; this must act as a compiler barrier.
  */
 static int32_t sk_atomic_add(int32_t* addr, int32_t inc);
+static int64_t sk_atomic_add(int64_t* addr, int64_t inc);
 
 /** Atomically subtracts one from the int referenced by addr and returns the previous value.
  *  This must act as a release (SL/S) memory barrier and as a compiler barrier.
  */
 static int32_t sk_atomic_dec(int32_t* addr);
+static int64_t sk_atomic_dec(int64_t* addr);
 
 /** Atomic compare and set.
  *  If *addr == before, set *addr to after and return true, otherwise return false.
  *  This must act as a release (SL/S) memory barrier and as a compiler barrier.
  */
 static bool sk_atomic_cas(int32_t* addr, int32_t before, int32_t after);
+static bool sk_atomic_cas(int64_t* addr, int64_t before, int64_t after);
 
 /** If sk_atomic_dec does not act as an acquire (L/SL) barrier,
  *  this must act as an acquire (L/SL) memory barrier and as a compiler barrier.
@@ -49,8 +53,8 @@ static void sk_membar_acquire__after_atomic_conditional_inc();
  *  and returns the previous value.
  *  No additional memory barrier is required; this must act as a compiler barrier.
  */
-static inline int32_t sk_atomic_conditional_inc(int32_t* addr) {
-    int32_t prev;
+template<typename INT_TYPE> static inline INT_TYPE sk_atomic_conditional_inc(INT_TYPE* addr) {
+    INT_TYPE prev;
     do {
         prev = *addr;
         if (0 == prev) {
