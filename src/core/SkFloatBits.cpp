@@ -85,7 +85,16 @@ int32_t SkFloatBits_toIntFloor(int32_t packed) {
         value = SkApplySign(value, SkExtractSign(packed));
         exp = -exp;
         if (exp > 25) {   // underflow
+#ifdef SK_DISCARD_DENORMALIZED_FOR_SPEED
+        // The iOS ARM processor discards small denormalized numbers to go faster.
+        // The comparision below empirically causes the result to agree with the
+        // tests in MathTest test_float_floor
+            if (exp > 149) {
+                return 0;
+            }
+#else
             exp = 25;
+#endif
         }
         // int add = 0;
         return value >> exp;
@@ -145,7 +154,17 @@ int32_t SkFloatBits_toIntCeil(int32_t packed) {
         value = SkApplySign(value, SkExtractSign(packed));
         exp = -exp;
         if (exp > 25) {   // underflow
+#ifdef SK_DISCARD_DENORMALIZED_FOR_SPEED
+        // The iOS ARM processor discards small denormalized numbers to go faster.
+        // The comparision below empirically causes the result to agree with the
+        // tests in MathTest test_float_ceil
+            if (exp > 149) {
+                return 0;
+            }
+            return 0 < value;
+#else
             exp = 25;
+#endif
         }
         int add = (1 << exp) - 1;
         return (value + add) >> exp;

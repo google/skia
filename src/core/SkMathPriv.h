@@ -10,6 +10,12 @@
 
 #include "SkMath.h"
 
+#ifdef SK_BUILD_FOR_IOS
+// The iOS ARM processor discards small denormalized numbers to go faster.
+// Algorithms that rely on denormalized numbers need alternative implementations.
+#define SK_DISCARD_DENORMALIZED_FOR_SPEED
+#endif
+
 /** Returns -1 if n < 0, else returns 0
  */
 #define SkExtractSign(n)    ((int32_t)(n) >> 31)

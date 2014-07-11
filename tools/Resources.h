@@ -11,5 +11,6 @@
 #include "SkString.h"
 
 SkString GetResourcePath(const char* resource = "");
+void SetResourcePath(const char* );
 
 #endif  // Resources_DEFINED

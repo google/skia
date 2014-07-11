@@ -437,8 +437,13 @@ DEF_TEST(Jpeg, reporter) {
     REPORTER_ASSERT(reporter, bm8888.getColor(27, 34) == 0xffffffff);
     REPORTER_ASSERT(reporter, bm8888.getColor(71, 18) == 0xff000000);
 
+#ifdef SK_BUILD_FOR_IOS  // the iOS jpeg decoder fills to gray
+    REPORTER_ASSERT(reporter, bm8888.getColor(127, 127) == 0xff808080
+            || bm8888.getColor(127, 127) == SK_ColorWHITE);
+#else
     // This is the fill color
     REPORTER_ASSERT(reporter, bm8888.getColor(127, 127) == SK_ColorWHITE);
+#endif
 
     #if JPEG_TEST_WRITE_TO_FILE_FOR_DEBUGGING
     // Check to see that the resulting bitmap is nice

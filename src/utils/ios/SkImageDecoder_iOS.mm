@@ -62,7 +62,4 @@ SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
     return NULL;
 }
 
-SkImageEncoder* SkImageEncoder::Create(Type t) {
-    return NULL;
-}
 

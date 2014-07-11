@@ -300,6 +300,17 @@ static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
 
 static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_cg_factory);
 
+#ifdef SK_BUILD_FOR_IOS
+class SkPNGImageEncoder_IOS : public SkImageEncoder_CG {
+public:
+    SkPNGImageEncoder_IOS()
+        : SkImageEncoder_CG(kPNG_Type) {
+    }
+};
+
+DEFINE_ENCODER_CREATOR(PNGImageEncoder_IOS);
+#endif
+
 struct FormatConversion {
     CFStringRef             fUTType;
     SkImageDecoder::Format  fFormat;

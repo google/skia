@@ -5,6 +5,8 @@
 static const char* kSkOverwriteLine =
 #ifdef SK_BUILD_FOR_WIN32
 "\r                                                                               \r"
+#elif defined(SK_BUILD_FOR_IOS)
+"\r"
 #else
 "\r\033[K"
 #endif

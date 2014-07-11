@@ -15,3 +15,7 @@ DEFINE_string2(resourcePath, i, "resources", "Directory with test resources: ima
 SkString GetResourcePath(const char* resource) {
     return SkOSPath::SkPathJoin(FLAGS_resourcePath[0], resource);
 }
+
+void SetResourcePath(const char* resource) {
+    FLAGS_resourcePath.set(0, resource);
+}

@@ -100,6 +100,10 @@ DECLARE_ENCODER_CREATOR(PNGImageEncoder);
 DECLARE_ENCODER_CREATOR(KTXImageEncoder);
 DECLARE_ENCODER_CREATOR(WEBPImageEncoder);
 
+#ifdef SK_BUILD_FOR_IOS
+DECLARE_ENCODER_CREATOR(PNGImageEncoder_IOS);
+#endif
+
 // Typedef to make registering encoder callback easier
 // This has to be defined outside SkImageEncoder. :(
 typedef SkTRegistry<SkImageEncoder*(*)(SkImageEncoder::Type)> SkImageEncoder_EncodeReg;

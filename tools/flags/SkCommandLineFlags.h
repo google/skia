@@ -137,6 +137,10 @@ public:
             return false;
         }
 
+        void set(int i, const char* str) {
+            fStrings[i].set(str);
+        }
+
     private:
         void reset() { fStrings.reset(); }
 
