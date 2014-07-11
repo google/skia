@@ -191,8 +191,8 @@ SkPicture::~SkPicture() {}
 #ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
 // fRecord TODO, fix by deleting this method
 SkPicture* SkPicture::clone() const {
-    SkPicture* clonedPicture;
-    this->clone(&clonedPicture, 1);
+    SkPicture* clonedPicture = SkNEW(SkPicture);
+    this->clone(clonedPicture, 1);
     return clonedPicture;
 }
 
@@ -202,72 +202,6 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
 
     for (int i = 0; i < count; i++) {
         SkPicture* clone = &pictures[i];
-
-        clone->needsNewGenID();
-        clone->fWidth = fWidth;
-        clone->fHeight = fHeight;
-        clone->fData.reset(NULL);
-        clone->fRecordWillPlayBackBitmaps = fRecordWillPlayBackBitmaps;
-
-        /*  We want to copy the src's playback. However, if that hasn't been built
-            yet, we need to fake a call to endRecording() without actually calling
-            it (since it is destructive, and we don't want to change src).
-         */
-        if (fData.get()) {
-            if (!copyInfo.initialized) {
-                int paintCount = SafeCount(fData->fPaints);
-
-                /* The alternative to doing this is to have a clone method on the paint and have it
-                 * make the deep copy of its internal structures as needed. The holdup to doing
-                 * that is at this point we would need to pass the SkBitmapHeap so that we don't
-                 * unnecessarily flatten the pixels in a bitmap shader.
-                 */
-                copyInfo.paintData.setCount(paintCount);
-
-                /* Use an SkBitmapHeap to avoid flattening bitmaps in shaders. If there already is
-                 * one, use it. If this SkPictureData was created from a stream, fBitmapHeap
-                 * will be NULL, so create a new one.
-                 */
-                if (fData->fBitmapHeap.get() == NULL) {
-                    // FIXME: Put this on the stack inside SkPicture::clone.
-                    SkBitmapHeap* heap = SkNEW(SkBitmapHeap);
-                    copyInfo.controller.setBitmapStorage(heap);
-                    heap->unref();
-                } else {
-                    copyInfo.controller.setBitmapStorage(fData->fBitmapHeap);
-                }
-
-                SkDEBUGCODE(int heapSize = SafeCount(fData->fBitmapHeap.get());)
-                for (int i = 0; i < paintCount; i++) {
-                    if (NeedsDeepCopy(fData->fPaints->at(i))) {
-                        copyInfo.paintData[i] =
-                            SkFlatData::Create<SkPaint::FlatteningTraits>(&copyInfo.controller,
-                                                              fData->fPaints->at(i), 0);
-
-                    } else {
-                        // this is our sentinel, which we use in the unflatten loop
-                        copyInfo.paintData[i] = NULL;
-                    }
-                }
-                SkASSERT(SafeCount(fData->fBitmapHeap.get()) == heapSize);
-
-                // needed to create typeface playback
-                copyInfo.controller.setupPlaybacks();
-                copyInfo.initialized = true;
-            }
-
-            clone->fData.reset(SkNEW_ARGS(SkPictureData, (*fData, &copyInfo)));
-            clone->fUniqueID = this->uniqueID(); // need to call method to ensure != 0
-        }
-    }
-}
-
-// fRecord TODO, fix by deleting this method
-void SkPicture::clone(SkPicture* pictures[], int count) const {
-    SkPictCopyInfo copyInfo;
-
-    for (int i = 0; i < count; i++) {
-        SkPicture* clone = pictures[i] = SkNEW(SkPicture);
 
         clone->needsNewGenID();
         clone->fWidth = fWidth;
