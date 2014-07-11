@@ -89,11 +89,6 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     bool requiresLocalCoordAttrib = !(skipCoverage  && skipColor) &&
                                     drawState.hasLocalCoordAttribute();
 
-    bool colorIsTransBlack = SkToBool(blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag);
-    bool colorIsSolidWhite = (blendOpts & GrDrawState::kEmitCoverage_BlendOptFlag) ||
-                             (!requiresColorAttrib && 0xffffffff == drawState.getColor()) ||
-                             (!inputColorIsUsed);
-
     int numEffects = (skipColor ? 0 : (drawState.numColorStages() - firstEffectiveColorStage)) +
                      (skipCoverage ? 0 : (drawState.numCoverageStages() - firstEffectiveCoverageStage));
 
@@ -148,11 +143,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
 #endif
     bool defaultToUniformInputs = GR_GL_NO_CONSTANT_ATTRIBUTES || gpu->caps()->pathRenderingSupport();
 
-    if (colorIsTransBlack) {
-        header->fColorInput = kTransBlack_ColorInput;
-    } else if (colorIsSolidWhite) {
-        header->fColorInput = kSolidWhite_ColorInput;
-    } else if (defaultToUniformInputs && !requiresColorAttrib) {
+    if (defaultToUniformInputs && !requiresColorAttrib) {
         header->fColorInput = kUniform_ColorInput;
     } else {
         header->fColorInput = kAttribute_ColorInput;
@@ -161,9 +152,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     bool covIsSolidWhite = !requiresCoverageAttrib && 0xffffffff == drawState.getCoverageColor();
 
-    if (skipCoverage) {
-        header->fCoverageInput = kTransBlack_ColorInput;
-    } else if (covIsSolidWhite || !inputCoverageIsUsed) {
+    if (covIsSolidWhite || !inputCoverageIsUsed) {
         header->fCoverageInput = kSolidWhite_ColorInput;
     } else if (defaultToUniformInputs && !requiresCoverageAttrib) {
         header->fCoverageInput = kUniform_ColorInput;
