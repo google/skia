@@ -48,7 +48,6 @@ private:
     mutable SkMutex                 fCachedBitmapShaderMutex;
     mutable SkAutoTUnref<SkShader>  fCachedBitmapShader;
     mutable SkSize                  fCachedTileScale;
-    mutable SkMatrix                fCachedLocalMatrix;
 
     class PictureShaderContext : public SkShader::Context {
     public:

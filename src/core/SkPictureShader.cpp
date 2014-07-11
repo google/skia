@@ -81,9 +81,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
 
     SkAutoMutexAcquire ama(fCachedBitmapShaderMutex);
 
-    // TODO(fmalita): remove fCachedLocalMatrix from this key after getLocalMatrix is removed.
-    if (!fCachedBitmapShader || tileScale != fCachedTileScale ||
-        this->getLocalMatrix() != fCachedLocalMatrix) {
+    if (!fCachedBitmapShader || tileScale != fCachedTileScale) {
         SkBitmap bm;
         if (!bm.allocN32Pixels(tileSize.width(), tileSize.height())) {
             return NULL;
@@ -95,7 +93,6 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
         canvas.drawPicture(fPicture);
 
         fCachedTileScale = tileScale;
-        fCachedLocalMatrix = this->getLocalMatrix();
 
         SkMatrix shaderMatrix = this->getLocalMatrix();
         shaderMatrix.preScale(1 / tileScale.width(), 1 / tileScale.height());
