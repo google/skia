@@ -10,7 +10,7 @@
 
 #include "SkAutoKern.h"
 #include "SkGlyphCache.h"
-#include "SkGr.h"
+#include "GrFontScaler.h"
 
 GrTextContext::GrTextContext(GrContext* context, const SkDeviceProperties& properties) :
                             fContext(context), fDeviceProperties(properties), fDrawTarget(NULL) {
@@ -69,7 +69,7 @@ GrFontScaler* GrTextContext::GetGrFontScaler(SkGlyphCache* cache) {
         scaler = (GrFontScaler*)auxData;
     }
     if (NULL == scaler) {
-        scaler = SkNEW_ARGS(SkGrFontScaler, (cache));
+        scaler = SkNEW_ARGS(GrFontScaler, (cache));
         cache->setAuxProc(GlyphCacheAuxProc, scaler);
     }
 

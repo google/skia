@@ -16,7 +16,6 @@
 // Gr headers
 #include "GrTypes.h"
 #include "GrContext.h"
-#include "GrFontScaler.h"
 
 // skia headers
 #include "SkBitmap.h"
@@ -103,28 +102,6 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
 // Classes
 
 class SkGlyphCache;
-
-class SkGrFontScaler : public GrFontScaler {
-public:
-    explicit SkGrFontScaler(SkGlyphCache* strike);
-    virtual ~SkGrFontScaler();
-
-    // overrides
-    virtual const GrKey* getKey();
-    virtual GrMaskFormat getMaskFormat();
-    virtual bool getPackedGlyphBounds(GrGlyph::PackedID, SkIRect* bounds) SK_OVERRIDE;
-    virtual bool getPackedGlyphImage(GrGlyph::PackedID, int width, int height,
-                                     int rowBytes, void* image) SK_OVERRIDE;
-    virtual bool getPackedGlyphDFBounds(GrGlyph::PackedID, SkIRect* bounds) SK_OVERRIDE;
-    virtual bool getPackedGlyphDFImage(GrGlyph::PackedID, int width, int height,
-                                       void* image) SK_OVERRIDE;
-    virtual bool getGlyphPath(uint16_t glyphID, SkPath*);
-
-private:
-    SkGlyphCache* fStrike;
-    GrKey*  fKey;
-//    DECLARE_INSTANCE_COUNTER(SkGrFontScaler);
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 

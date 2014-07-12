@@ -28,10 +28,10 @@ class GrFontPurgeListener;
  */
 class GrTextStrike {
 public:
-    GrTextStrike(GrFontCache*, const GrKey* fontScalerKey, GrMaskFormat, GrAtlas*);
+    GrTextStrike(GrFontCache*, const GrFontDescKey* fontScalerKey, GrMaskFormat, GrAtlas*);
     ~GrTextStrike();
 
-    const GrKey* getFontScalerKey() const { return fFontScalerKey; }
+    const GrFontDescKey* getFontScalerKey() const { return fFontScalerKey; }
     GrFontCache* getFontCache() const { return fFontCache; }
     GrMaskFormat getMaskFormat() const { return fMaskFormat; }
 
@@ -55,7 +55,7 @@ public:
 private:
     class Key;
     GrTHashTable<GrGlyph, Key, 7> fCache;
-    const GrKey* fFontScalerKey;
+    const GrFontDescKey* fFontScalerKey;
     GrTAllocPool<GrGlyph> fPool;
 
     GrFontCache*    fFontCache;

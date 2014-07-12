@@ -13,7 +13,7 @@
 
 class GrFontCache::Key {
 public:
-    explicit Key(const GrKey* fontScalarKey) {
+    explicit Key(const GrFontDescKey* fontScalarKey) {
         fFontScalerKey = fontScalarKey;
     }
 
@@ -27,7 +27,7 @@ public:
     }
 
 private:
-    const GrKey* fFontScalerKey;
+    const GrFontDescKey* fFontScalerKey;
 };
 
 void GrFontCache::detachStrikeFromList(GrTextStrike* strike) {

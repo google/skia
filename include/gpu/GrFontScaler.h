@@ -9,35 +9,76 @@
 #define GrFontScaler_DEFINED
 
 #include "GrGlyph.h"
-#include "GrKey.h"
+#include "GrTypes.h"
+
+#include "SkDescriptor.h"
 
 class SkPath;
 
-/**
- *  This is a virtual base class which Gr's interface to the host platform's
- *  font scaler.
+/*
+ *  Wrapper class to turn a font cache descriptor into a key 
+ *  for GrFontScaler-related lookups
+ */
+class GrFontDescKey : public SkRefCnt {
+public:
+    SK_DECLARE_INST_COUNT(SkGrDescKey)
+    
+    typedef uint32_t Hash;
+    
+    explicit GrFontDescKey(const SkDescriptor& desc);
+    virtual ~GrFontDescKey();
+    
+    Hash getHash() const { return fHash; }
+    
+    bool operator<(const GrFontDescKey& rh) const {
+        return fHash < rh.fHash || (fHash == rh.fHash && this->lt(rh));
+    }
+    bool operator==(const GrFontDescKey& rh) const {
+        return fHash == rh.fHash && this->eq(rh);
+    }
+    
+private:
+    // helper functions for comparisons
+    bool lt(const GrFontDescKey& rh) const;
+    bool eq(const GrFontDescKey& rh) const;
+    
+    SkDescriptor* fDesc;
+    enum {
+        kMaxStorageInts = 16
+    };
+    uint32_t fStorage[kMaxStorageInts];
+    const Hash fHash;
+    
+    typedef SkRefCnt INHERITED;
+};
+
+/*
+ *  This is Gr's interface to the host platform's font scaler.
  *
- *  The client is responsible for subclassing, and instantiating this. The
- *  instance is created for a specific font+size+matrix.
+ *  The client is responsible for instantiating this. The instance is created 
+ *  for a specific font+size+matrix.
  */
 class GrFontScaler : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrFontScaler)
 
-    virtual const GrKey* getKey() = 0;
-    virtual GrMaskFormat getMaskFormat() = 0;
-    virtual bool getPackedGlyphBounds(GrGlyph::PackedID, SkIRect* bounds) = 0;
-    virtual bool getPackedGlyphImage(GrGlyph::PackedID, int width, int height,
-                                     int rowBytes, void* image) = 0;
-    // get bounds for distance field associated with packed ID
-    virtual bool getPackedGlyphDFBounds(GrGlyph::PackedID, SkIRect* bounds) = 0;
-    // copies distance field bytes into pre-allocated dfImage
-    // (should be width*height bytes in size)
-    virtual bool getPackedGlyphDFImage(GrGlyph::PackedID, int width, int height,
-                                       void* dfImage) = 0;
-    virtual bool getGlyphPath(uint16_t glyphID, SkPath*) = 0;
-
+    explicit GrFontScaler(SkGlyphCache* strike);
+    virtual ~GrFontScaler();
+    
+    const GrFontDescKey* getKey();
+    GrMaskFormat getMaskFormat();
+    bool getPackedGlyphBounds(GrGlyph::PackedID, SkIRect* bounds);
+    bool getPackedGlyphImage(GrGlyph::PackedID, int width, int height,
+                                     int rowBytes, void* image);
+    bool getPackedGlyphDFBounds(GrGlyph::PackedID, SkIRect* bounds);
+    bool getPackedGlyphDFImage(GrGlyph::PackedID, int width, int height,
+                                       void* image);
+    bool getGlyphPath(uint16_t glyphID, SkPath*);
+    
 private:
+    SkGlyphCache*  fStrike;
+    GrFontDescKey* fKey;
+    
     typedef SkRefCnt INHERITED;
 };
 

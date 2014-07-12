@@ -8,32 +8,14 @@
 
 
 #include "GrTemplates.h"
-#include "SkGr.h"
+#include "GrFontScaler.h"
 #include "SkDescriptor.h"
 #include "SkDistanceFieldGen.h"
 #include "SkGlyphCache.h"
 
-class SkGrDescKey : public GrKey {
-public:
-    explicit SkGrDescKey(const SkDescriptor& desc);
-    virtual ~SkGrDescKey();
-
-protected:
-    // overrides
-    virtual bool lt(const GrKey& rh) const;
-    virtual bool eq(const GrKey& rh) const;
-
-private:
-    SkDescriptor* fDesc;
-    enum {
-        kMaxStorageInts = 16
-    };
-    uint32_t fStorage[kMaxStorageInts];
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGrDescKey::SkGrDescKey(const SkDescriptor& desc) : GrKey(desc.getChecksum()) {
+GrFontDescKey::GrFontDescKey(const SkDescriptor& desc) : fHash(desc.getChecksum()) {
     size_t size = desc.getLength();
     if (size <= sizeof(fStorage)) {
         fDesc = GrTCast<SkDescriptor*>(fStorage);
@@ -43,14 +25,14 @@ SkGrDescKey::SkGrDescKey(const SkDescriptor& desc) : GrKey(desc.getChecksum()) {
     memcpy(fDesc, &desc, size);
 }
 
-SkGrDescKey::~SkGrDescKey() {
+GrFontDescKey::~GrFontDescKey() {
     if (fDesc != GrTCast<SkDescriptor*>(fStorage)) {
         SkDescriptor::Free(fDesc);
     }
 }
 
-bool SkGrDescKey::lt(const GrKey& rh) const {
-    const SkDescriptor* srcDesc = ((const SkGrDescKey*)&rh)->fDesc;
+bool GrFontDescKey::lt(const GrFontDescKey& rh) const {
+    const SkDescriptor* srcDesc = (&rh)->fDesc;
     size_t lenLH = fDesc->getLength();
     size_t lenRH = srcDesc->getLength();
     int cmp = memcmp(fDesc, srcDesc, SkTMin<size_t>(lenLH, lenRH));
@@ -61,23 +43,23 @@ bool SkGrDescKey::lt(const GrKey& rh) const {
     }
 }
 
-bool SkGrDescKey::eq(const GrKey& rh) const {
-    const SkDescriptor* srcDesc = ((const SkGrDescKey*)&rh)->fDesc;
+bool GrFontDescKey::eq(const GrFontDescKey& rh) const {
+    const SkDescriptor* srcDesc = (&rh)->fDesc;
     return fDesc->equals(*srcDesc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGrFontScaler::SkGrFontScaler(SkGlyphCache* strike) {
+GrFontScaler::GrFontScaler(SkGlyphCache* strike) {
     fStrike = strike;
     fKey = NULL;
 }
 
-SkGrFontScaler::~SkGrFontScaler() {
+GrFontScaler::~GrFontScaler() {
     SkSafeUnref(fKey);
 }
 
-GrMaskFormat SkGrFontScaler::getMaskFormat() {
+GrMaskFormat GrFontScaler::getMaskFormat() {
     SkMask::Format format = fStrike->getMaskFormat();
     switch (format) {
         case SkMask::kBW_Format:
@@ -96,14 +78,14 @@ GrMaskFormat SkGrFontScaler::getMaskFormat() {
     }
 }
 
-const GrKey* SkGrFontScaler::getKey() {
+const GrFontDescKey* GrFontScaler::getKey() {
     if (NULL == fKey) {
-        fKey = SkNEW_ARGS(SkGrDescKey, (fStrike->getDescriptor()));
+        fKey = SkNEW_ARGS(GrFontDescKey, (fStrike->getDescriptor()));
     }
     return fKey;
 }
 
-bool SkGrFontScaler::getPackedGlyphBounds(GrGlyph::PackedID packed, SkIRect* bounds) {
+bool GrFontScaler::getPackedGlyphBounds(GrGlyph::PackedID packed, SkIRect* bounds) {
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
                                                       GrGlyph::UnpackFixedX(packed),
                                                       GrGlyph::UnpackFixedY(packed));
@@ -112,7 +94,7 @@ bool SkGrFontScaler::getPackedGlyphBounds(GrGlyph::PackedID packed, SkIRect* bou
     return true;
 }
 
-bool SkGrFontScaler::getPackedGlyphDFBounds(GrGlyph::PackedID packed, SkIRect* bounds) {
+bool GrFontScaler::getPackedGlyphDFBounds(GrGlyph::PackedID packed, SkIRect* bounds) {
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
                                                       GrGlyph::UnpackFixedX(packed),
                                                       GrGlyph::UnpackFixedY(packed));
@@ -148,7 +130,7 @@ void expand_bits(INT_TYPE* dst,
 }
 }
 
-bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
+bool GrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
                                          int width, int height,
                                          int dstRB, void* dst) {
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
@@ -200,7 +182,7 @@ bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
     return true;
 }
 
-bool SkGrFontScaler::getPackedGlyphDFImage(GrGlyph::PackedID packed,
+bool GrFontScaler::getPackedGlyphDFImage(GrGlyph::PackedID packed,
                                            int width, int height,
                                            void* dst) {
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
@@ -219,7 +201,7 @@ bool SkGrFontScaler::getPackedGlyphDFImage(GrGlyph::PackedID packed,
 }
 
 // we should just return const SkPath* (NULL means false)
-bool SkGrFontScaler::getGlyphPath(uint16_t glyphID, SkPath* path) {
+bool GrFontScaler::getGlyphPath(uint16_t glyphID, SkPath* path) {
 
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(glyphID);
     const SkPath* skPath = fStrike->findPath(glyph);

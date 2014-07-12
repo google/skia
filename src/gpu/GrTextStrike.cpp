@@ -220,7 +220,7 @@ void GrFontCache::dump() const {
     atlas and a position within that texture.
  */
 
-GrTextStrike::GrTextStrike(GrFontCache* cache, const GrKey* key,
+GrTextStrike::GrTextStrike(GrFontCache* cache, const GrFontDescKey* key,
                            GrMaskFormat format,
                            GrAtlas* atlas) : fPool(64) {
     fFontScalerKey = key;
