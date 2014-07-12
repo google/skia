@@ -234,31 +234,30 @@ public:
     /**
      *  Copy the pixels from the base-layer into the specified buffer (pixels + rowBytes),
      *  converting them into the requested format (SkImageInfo). The base-layer pixels are read
-     *  starting at the specified (srcX,srcY) location in the coordinate system of the base-layer.
+     *  starting at the specified (x,y) location in the coordinate system of the base-layer.
      *
-     *  The specified ImageInfo and (srcX,srcY) offset specifies a source rectangle
+     *  The specified ImageInfo and (x,y) offset specifies a source rectangle
      *
-     *      srcR.setXYWH(srcX, srcY, dstInfo.width(), dstInfo.height());
+     *      srcR(x, y, info.width(), info.height());
      *
-     *  srcR is intersected with the bounds of the base-layer. If this intersection is not empty,
-     *  then we have two sets of pixels (of equal size). Replace the dst pixels with the
-     *  corresponding src pixels, performing any colortype/alphatype transformations needed
-     *  (in the case where the src and dst have different colortypes or alphatypes).
+     *  SrcR is intersected with the bounds of the base-layer. If this intersection is not empty,
+     *  then we have two sets of pixels (of equal size), the "src" specified by base-layer at (x,y)
+     *  and the "dst" by info+pixels+rowBytes. Replace the dst pixels with the corresponding src
+     *  pixels, performing any colortype/alphatype transformations needed (in the case where the
+     *  src and dst have different colortypes or alphatypes).
      *
      *  This call can fail, returning false, for several reasons:
-     *  - If srcR does not intersect the base-layer bounds.
      *  - If the requested colortype/alphatype cannot be converted from the base-layer's types.
      *  - If this canvas is not backed by pixels (e.g. picture or PDF)
      */
-    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY);
+    bool readPixels(const SkImageInfo&, void* pixels, size_t rowBytes, int x, int y);
 
     /**
      *  Helper for calling readPixels(info, ...). This call will check if bitmap has been allocated.
      *  If not, it will attempt to call allocPixels(). If this fails, it will return false. If not,
      *  it calls through to readPixels(info, ...) and returns its result.
      */
-    bool readPixels(SkBitmap* bitmap, int srcX, int srcY);
+    bool readPixels(SkBitmap* bitmap, int x, int y);
 
     /**
      *  Helper for allocating pixels and then calling readPixels(info, ...). The bitmap is resized
