@@ -831,7 +831,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
         return CanonicalFonts()[relatedFontIndex].fFont;
     }
 
-    SkAutoTUnref<SkAdvancedTypefaceMetrics> fontMetrics;
+    SkAutoTUnref<const SkAdvancedTypefaceMetrics> fontMetrics;
     SkPDFDict* relatedFontDescriptor = NULL;
     if (relatedFontIndex >= 0) {
         SkPDFFont* relatedFont = CanonicalFonts()[relatedFontIndex].fFont;
@@ -911,7 +911,8 @@ bool SkPDFFont::Find(uint32_t fontID, uint16_t glyphID, int* index) {
     return false;
 }
 
-SkPDFFont::SkPDFFont(SkAdvancedTypefaceMetrics* info, SkTypeface* typeface,
+SkPDFFont::SkPDFFont(const SkAdvancedTypefaceMetrics* info,
+                     SkTypeface* typeface,
                      SkPDFDict* relatedFontDescriptor)
         : SkPDFDict("Font"),
           fTypeface(ref_or_default(typeface)),
@@ -928,7 +929,7 @@ SkPDFFont::SkPDFFont(SkAdvancedTypefaceMetrics* info, SkTypeface* typeface,
 }
 
 // static
-SkPDFFont* SkPDFFont::Create(SkAdvancedTypefaceMetrics* info,
+SkPDFFont* SkPDFFont::Create(const SkAdvancedTypefaceMetrics* info,
                              SkTypeface* typeface, uint16_t glyphID,
                              SkPDFDict* relatedFontDescriptor) {
     SkAdvancedTypefaceMetrics::FontType type =
@@ -959,11 +960,11 @@ SkPDFFont* SkPDFFont::Create(SkAdvancedTypefaceMetrics* info,
     return new SkPDFType3Font(info, typeface, glyphID);
 }
 
-SkAdvancedTypefaceMetrics* SkPDFFont::fontInfo() {
+const SkAdvancedTypefaceMetrics* SkPDFFont::fontInfo() {
     return fFontInfo.get();
 }
 
-void SkPDFFont::setFontInfo(SkAdvancedTypefaceMetrics* info) {
+void SkPDFFont::setFontInfo(const SkAdvancedTypefaceMetrics* info) {
     if (info == NULL || info == fFontInfo.get()) {
         return;
     }
@@ -1013,6 +1014,7 @@ bool SkPDFFont::addCommonFontDescriptorEntries(int16_t defaultWidth) {
             scaleFromFontUnits(fFontInfo->fDescent, emSize));
     fDescriptor->insertScalar("StemV",
             scaleFromFontUnits(fFontInfo->fStemV, emSize));
+
     fDescriptor->insertScalar("CapHeight",
             scaleFromFontUnits(fFontInfo->fCapHeight, emSize));
     fDescriptor->insertInt("ItalicAngle", fFontInfo->fItalicAngle);
@@ -1078,7 +1080,7 @@ void SkPDFFont::populateToUnicodeTable(const SkPDFGlyphSet* subset) {
 // class SkPDFType0Font
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPDFType0Font::SkPDFType0Font(SkAdvancedTypefaceMetrics* info,
+SkPDFType0Font::SkPDFType0Font(const SkAdvancedTypefaceMetrics* info,
                                SkTypeface* typeface)
         : SkPDFFont(info, typeface, NULL) {
     SkDEBUGCODE(fPopulated = false);
@@ -1128,7 +1130,7 @@ bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
 // class SkPDFCIDFont
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPDFCIDFont::SkPDFCIDFont(SkAdvancedTypefaceMetrics* info,
+SkPDFCIDFont::SkPDFCIDFont(const SkAdvancedTypefaceMetrics* info,
                            SkTypeface* typeface, const SkPDFGlyphSet* subset)
         : SkPDFFont(info, typeface, NULL) {
     populate(subset);
@@ -1218,7 +1220,7 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
                   info, SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo);
         uint32_t* glyphs = (glyphIDs.count() == 0) ? NULL : glyphIDs.begin();
         uint32_t glyphsCount = glyphs ? glyphIDs.count() : 0;
-        SkAutoTUnref<SkAdvancedTypefaceMetrics> fontMetrics(
+        SkAutoTUnref<const SkAdvancedTypefaceMetrics> fontMetrics(
             typeface()->getAdvancedTypefaceMetrics(info, glyphs, glyphsCount));
         setFontInfo(fontMetrics.get());
         addFontDescriptor(0, &glyphIDs);
@@ -1284,7 +1286,7 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
 // class SkPDFType1Font
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPDFType1Font::SkPDFType1Font(SkAdvancedTypefaceMetrics* info,
+SkPDFType1Font::SkPDFType1Font(const SkAdvancedTypefaceMetrics* info,
                                SkTypeface* typeface,
                                uint16_t glyphID,
                                SkPDFDict* relatedFontDescriptor)
@@ -1414,7 +1416,7 @@ void SkPDFType1Font::addWidthInfoFromRange(
 // class SkPDFType3Font
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPDFType3Font::SkPDFType3Font(SkAdvancedTypefaceMetrics* info,
+SkPDFType3Font::SkPDFType3Font(const SkAdvancedTypefaceMetrics* info,
                                SkTypeface* typeface,
                                uint16_t glyphID)
         : SkPDFFont(info, typeface, NULL) {

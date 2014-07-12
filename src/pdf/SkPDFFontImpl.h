@@ -29,7 +29,7 @@ private:
     typedef SkPDFDict INHERITED;
 #endif
 
-    SkPDFType0Font(SkAdvancedTypefaceMetrics* info, SkTypeface* typeface);
+    SkPDFType0Font(const SkAdvancedTypefaceMetrics* info, SkTypeface* typeface);
 
     bool populate(const SkPDFGlyphSet* subset);
 };
@@ -42,7 +42,7 @@ public:
 private:
     friend class SkPDFType0Font;  // to access the constructor
 
-    SkPDFCIDFont(SkAdvancedTypefaceMetrics* info, SkTypeface* typeface,
+    SkPDFCIDFont(const SkAdvancedTypefaceMetrics* info, SkTypeface* typeface,
                  const SkPDFGlyphSet* subset);
 
     bool populate(const SkPDFGlyphSet* subset);
@@ -58,7 +58,7 @@ public:
 private:
     friend class SkPDFFont;  // to access the constructor
 
-    SkPDFType1Font(SkAdvancedTypefaceMetrics* info, SkTypeface* typeface,
+    SkPDFType1Font(const SkAdvancedTypefaceMetrics* info, SkTypeface* typeface,
                    uint16_t glyphID, SkPDFDict* relatedFontDescriptor);
 
     bool populate(int16_t glyphID);
@@ -75,7 +75,8 @@ public:
 private:
     friend class SkPDFFont;  // to access the constructor
 
-    SkPDFType3Font(SkAdvancedTypefaceMetrics* info, SkTypeface* typeface, uint16_t glyphID);
+    SkPDFType3Font(const SkAdvancedTypefaceMetrics* info,
+                   SkTypeface* typeface, uint16_t glyphID);
 
     bool populate(int16_t glyphID);
 };

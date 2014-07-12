@@ -141,12 +141,12 @@ public:
 
 protected:
     // Common constructor to handle common members.
-    SkPDFFont(SkAdvancedTypefaceMetrics* fontInfo, SkTypeface* typeface,
+    SkPDFFont(const SkAdvancedTypefaceMetrics* fontInfo, SkTypeface* typeface,
               SkPDFDict* relatedFontDescriptor);
 
     // Accessors for subclass.
-    SkAdvancedTypefaceMetrics* fontInfo();
-    void setFontInfo(SkAdvancedTypefaceMetrics* info);
+    const SkAdvancedTypefaceMetrics* fontInfo();
+    void setFontInfo(const SkAdvancedTypefaceMetrics* info);
     uint16_t firstGlyphID() const;
     uint16_t lastGlyphID() const;
     void setLastGlyphID(uint16_t glyphID);
@@ -171,7 +171,7 @@ protected:
     void populateToUnicodeTable(const SkPDFGlyphSet* subset);
 
     // Create instances of derived types based on fontInfo.
-    static SkPDFFont* Create(SkAdvancedTypefaceMetrics* fontInfo,
+    static SkPDFFont* Create(const SkAdvancedTypefaceMetrics* fontInfo,
                              SkTypeface* typeface, uint16_t glyphID,
                              SkPDFDict* relatedFontDescriptor);
 
@@ -195,7 +195,7 @@ private:
     // this will be a subset if the font has more than 255 glyphs.
     uint16_t fFirstGlyphID;
     uint16_t fLastGlyphID;
-    SkAutoTUnref<SkAdvancedTypefaceMetrics> fFontInfo;
+    SkAutoTUnref<const SkAdvancedTypefaceMetrics> fFontInfo;
     SkTDArray<SkPDFObject*> fResources;
     SkAutoTUnref<SkPDFDict> fDescriptor;
 
