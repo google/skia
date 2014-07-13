@@ -481,6 +481,8 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
 
     ///////////////////////////////////////////////////////////////////////
 
+    const SkAlphaType at = fBitmap->alphaType();
+
     // No need to do this if we're doing HQ sampling; if filter quality is
     // still set to HQ by the time we get here, then we must have installed
     // the shader procs above and can skip all this.
@@ -500,15 +502,24 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         // bits 3,4,5 encoding the source bitmap format
         switch (fBitmap->colorType()) {
             case kN32_SkColorType:
+                if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
+                    return false;
+                }
                 index |= 0;
                 break;
             case kRGB_565_SkColorType:
                 index |= 8;
                 break;
             case kIndex_8_SkColorType:
+                if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
+                    return false;
+                }
                 index |= 16;
                 break;
             case kARGB_4444_SkColorType:
+                if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
+                    return false;
+                }
                 index |= 24;
                 break;
             case kAlpha_8_SkColorType:
