@@ -153,8 +153,6 @@ SkPictureData::SkPictureData(const SkPictureData& src, SkPictCopyInfo* deepCopyI
     SkSafeRef(fStateTree);
 
     if (deepCopyInfo) {
-        SkASSERT(deepCopyInfo->initialized);
-
         int paintCount = SafeCount(src.fPaints);
 
         if (src.fBitmaps) {

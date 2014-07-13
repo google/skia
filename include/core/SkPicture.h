@@ -63,7 +63,9 @@ public:
         typedef SkRefCnt INHERITED;
     };
 
+#ifdef SK_SUPPORT_LEGACY_DEFAULT_PICTURE_CTOR
     SkPicture();
+#endif
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
     void EXPERIMENTAL_addAccelData(const AccelData*) const;
@@ -112,13 +114,6 @@ public:
      *  Creates a thread-safe clone of the picture that is ready for playback.
      */
     SkPicture* clone() const;
-
-    /**
-     * Creates multiple thread-safe clones of this picture that are ready for
-     * playback. The resulting clones are stored in the provided array of
-     * SkPictures.
-     */
-    void clone(SkPicture* pictures, int count) const;
 #endif
 
     /** Replays the drawing commands on the specified canvas.
@@ -244,8 +239,8 @@ private:
 
     void needsNewGenID() { fUniqueID = SK_InvalidGenID; }
 
-    // Create a new SkPicture from an existing SkPictureData. Ref count of
-    // data is unchanged.
+    // Create a new SkPicture from an existing SkPictureData. The new picture
+    // takes ownership of 'data'.
     SkPicture(SkPictureData* data, int width, int height);
 
     SkPicture(int width, int height, const SkPictureRecord& record, bool deepCopyOps);

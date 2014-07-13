@@ -120,9 +120,8 @@ private:
  * enables the data to be generated once and reused for subsequent copies.
  */
 struct SkPictCopyInfo {
-    SkPictCopyInfo() : initialized(false), controller(1024) {}
+    SkPictCopyInfo() : controller(1024) {}
 
-    bool initialized;
     SkChunkFlatController controller;
     SkTDArray<SkFlatData*> paintData;
 };

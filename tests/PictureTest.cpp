@@ -1521,12 +1521,12 @@ static void test_hierarchical(skiatest::Reporter* reporter) {
 
 static void test_gen_id(skiatest::Reporter* reporter) {
 
-    SkPicture empty;
+    SkPictureRecorder recorder;
+    recorder.beginRecording(0, 0);
+    SkAutoTUnref<SkPicture> empty(recorder.endRecording());
 
     // Empty pictures should still have a valid ID
-    REPORTER_ASSERT(reporter, empty.uniqueID() != SK_InvalidGenID);
-
-    SkPictureRecorder recorder;
+    REPORTER_ASSERT(reporter, empty->uniqueID() != SK_InvalidGenID);
 
     SkCanvas* canvas = recorder.beginRecording(1, 1);
     canvas->drawARGB(255, 255, 255, 255);
@@ -1535,7 +1535,7 @@ static void test_gen_id(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, hasData->uniqueID() != SK_InvalidGenID);
 
     // both pictures should have different ids
-    REPORTER_ASSERT(reporter, hasData->uniqueID() != empty.uniqueID());
+    REPORTER_ASSERT(reporter, hasData->uniqueID() != empty->uniqueID());
 }
 
 DEF_TEST(Picture, reporter) {

@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrLayerCache.h"
+#include "SkPictureRecorder.h"
 #include "Test.h"
 
 static const int kNumLayers = 5;
@@ -54,11 +55,13 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         return;
     }
 
-    SkPicture picture;
+    SkPictureRecorder recorder;
+    recorder.beginRecording(1, 1);
+    SkAutoTUnref<const SkPicture> picture(recorder.endRecording());
 
     GrLayerCache cache(context);
 
-    create_layers(reporter, &cache, picture);
+    create_layers(reporter, &cache, *picture);
 
     // Lock the layers making them all 512x512
     GrTextureDesc desc;
@@ -67,7 +70,7 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
     desc.fConfig = kSkia8888_GrPixelConfig;
 
     for (int i = 0; i < kNumLayers; ++i) {
-        GrCachedLayer* layer = cache.findLayer(&picture, i);
+        GrCachedLayer* layer = cache.findLayer(picture, i);
         REPORTER_ASSERT(reporter, NULL != layer);
 
         bool foundInCache = cache.lock(layer, desc);
@@ -91,14 +94,14 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
 
     // Unlock the textures
     for (int i = 0; i < kNumLayers; ++i) {
-        GrCachedLayer* layer = cache.findLayer(&picture, i);
+        GrCachedLayer* layer = cache.findLayer(picture, i);
         REPORTER_ASSERT(reporter, NULL != layer);
 
         cache.unlock(layer);
     }
 
     for (int i = 0; i < kNumLayers; ++i) {
-        GrCachedLayer* layer = cache.findLayer(&picture, i);
+        GrCachedLayer* layer = cache.findLayer(picture, i);
         REPORTER_ASSERT(reporter, NULL != layer);
 
 #if USE_ATLAS
@@ -118,7 +121,7 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
 
     // Free them all SkGpuDevice-style. This will not free up the
     // atlas' texture but will eliminate all the layers.
-    cache.purge(&picture);
+    cache.purge(picture);
 
     REPORTER_ASSERT(reporter, GetNumLayers::NumLayers(&cache) == 0);
     // TODO: add VRAM/resource cache check here
