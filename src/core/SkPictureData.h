@@ -132,8 +132,6 @@ class SkPictureData {
 public:
 #ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
     SkPictureData(const SkPictureData& src, SkPictCopyInfo* deepCopyInfo = NULL);
-#else
-    SkPictureData(const SkPictureData& src);
 #endif
     SkPictureData(const SkPictureRecord& record, const SkPictInfo&, bool deepCopyOps);
     static SkPictureData* CreateFromStream(SkStream*,

@@ -1359,13 +1359,11 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     }
 
     if (kPicture_DeviceType == fDeviceType) {
-        SkAutoTUnref<SkPicture> picture(fRecorder.endRecording());
+        SkAutoTUnref<const SkPicture> picture(fRecorder.endRecording());
 
         if (true) {
-            SkPicture* pict = new SkPicture(*picture);
             this->installDrawFilter(orig);
-            orig->drawPicture(pict);
-            pict->unref();
+            orig->drawPicture(picture);
         } else if (true) {
             SkDynamicMemoryWStream ostream;
             picture->serialize(&ostream);

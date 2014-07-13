@@ -64,10 +64,6 @@ public:
     };
 
     SkPicture();
-    /** Make a copy of the contents of src. If src records more drawing after
-        this call, those elements will not appear in this picture.
-    */
-    SkPicture(const SkPicture& src);
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
     void EXPERIMENTAL_addAccelData(const AccelData*) const;
@@ -178,7 +174,6 @@ public:
     /**
      * Returns true if any bitmaps may be produced when this SkPicture
      * is replayed.
-     * Returns false if called while still recording.
      */
     bool willPlayBackBitmaps() const;
 
@@ -254,9 +249,6 @@ private:
     SkPicture(SkPictureData* data, int width, int height);
 
     SkPicture(int width, int height, const SkPictureRecord& record, bool deepCopyOps);
-
-    static void WriteTagSize(SkWriteBuffer& buffer, uint32_t tag, size_t size);
-    static void WriteTagSize(SkWStream* stream, uint32_t tag, size_t size);
 
     // An OperationList encapsulates a set of operation offsets into the picture byte
     // stream along with the CTMs needed for those operation.

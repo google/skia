@@ -1536,13 +1536,6 @@ static void test_gen_id(skiatest::Reporter* reporter) {
 
     // both pictures should have different ids
     REPORTER_ASSERT(reporter, hasData->uniqueID() != empty.uniqueID());
-
-    // test out copy constructor
-    SkPicture copyWithData(*hasData);
-    REPORTER_ASSERT(reporter, hasData->uniqueID() == copyWithData.uniqueID());
-
-    SkPicture emptyCopy(empty);
-    REPORTER_ASSERT(reporter, empty.uniqueID() != emptyCopy.uniqueID());
 }
 
 DEF_TEST(Picture, reporter) {

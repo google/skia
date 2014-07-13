@@ -109,24 +109,6 @@ const char* DrawTypeToString(DrawType drawType) {
 }
 #endif
 
-#ifdef SK_DEBUG_VALIDATE
-static void validateMatrix(const SkMatrix* matrix) {
-    SkScalar scaleX = matrix->getScaleX();
-    SkScalar scaleY = matrix->getScaleY();
-    SkScalar skewX = matrix->getSkewX();
-    SkScalar skewY = matrix->getSkewY();
-    SkScalar perspX = matrix->getPerspX();
-    SkScalar perspY = matrix->getPerspY();
-    if (scaleX != 0 && skewX != 0)
-        SkDebugf("scaleX != 0 && skewX != 0\n");
-    SkASSERT(scaleX == 0 || skewX == 0);
-    SkASSERT(scaleY == 0 || skewY == 0);
-    SkASSERT(perspX == 0);
-    SkASSERT(perspY == 0);
-}
-#endif
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // fRecord OK
@@ -151,38 +133,12 @@ SkPicture::SkPicture(int width, int height,
     fData.reset(SkNEW_ARGS(SkPictureData, (record, info, deepCopyOps)));
 }
 
-// The simplest / safest way to copy an SkRecord is to replay it into a new one.
-static SkRecord* copy(const SkRecord& src, int width, int height) {
-    SkRecord* dst = SkNEW(SkRecord);
-    SkRecorder recorder(dst, width, height);
-    SkRecordDraw(src, &recorder);
-    return dst;
-}
-
 // Create an SkPictureData-backed SkPicture from an SkRecord.
 // This for compatibility with serialization code only.  This is not cheap.
 static SkPicture* backport(const SkRecord& src, int width, int height) {
     SkPictureRecorder recorder;
     SkRecordDraw(src, recorder.beginRecording(width, height));
     return recorder.endRecording();
-}
-
-// fRecord OK
-SkPicture::SkPicture(const SkPicture& src) : INHERITED() {
-    this->needsNewGenID();
-    fWidth = src.fWidth;
-    fHeight = src.fHeight;
-    fRecordWillPlayBackBitmaps = src.fRecordWillPlayBackBitmaps;
-
-    if (NULL != src.fData.get()) {
-        fData.reset(SkNEW_ARGS(SkPictureData, (*src.fData)));
-        fUniqueID = src.uniqueID();  // need to call method to ensure != 0
-    }
-
-    if (NULL != src.fRecord.get()) {
-        fRecord.reset(copy(*src.fRecord, fWidth, fHeight));
-        fUniqueID = src.uniqueID();  // need to call method to ensure != 0
-    }
 }
 
 // fRecord OK

@@ -191,31 +191,6 @@ SkPictureData::SkPictureData(const SkPictureData& src, SkPictCopyInfo* deepCopyI
         }
     }
 }
-#else
-SkPictureData::SkPictureData(const SkPictureData& src) : fInfo(src.fInfo) {
-    this->init();
-
-    fBitmapHeap.reset(SkSafeRef(src.fBitmapHeap.get()));
-    fPathHeap.reset(SkSafeRef(src.fPathHeap.get()));
-
-    fOpData = SkSafeRef(src.fOpData);
-
-    fBoundingHierarchy = src.fBoundingHierarchy;
-    fStateTree = src.fStateTree;
-    fContentInfo.set(src.fContentInfo);
-
-    SkSafeRef(fBoundingHierarchy);
-    SkSafeRef(fStateTree);
-
-    fBitmaps = SkSafeRef(src.fBitmaps);
-    fPaints = SkSafeRef(src.fPaints);
-
-    fPictureCount = src.fPictureCount;
-    fPictureRefs = SkNEW_ARRAY(const SkPicture*, fPictureCount);
-    for (int i = 0; i < fPictureCount; i++) {
-        fPictureRefs[i] = SkRef(src.fPictureRefs[i]);
-    }
-}
 #endif//SK_SUPPORT_LEGACY_PICTURE_CLONE
 
 void SkPictureData::init() {
