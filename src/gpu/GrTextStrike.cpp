@@ -278,7 +278,7 @@ void GrTextStrike::removePlot(const GrPlot* plot) {
         }
     }
 
-    fAtlas->removePlot(&fPlotUsage, plot);
+    GrAtlas::RemovePlot(&fPlotUsage, plot);
 }
 
 

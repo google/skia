@@ -255,7 +255,7 @@ GrPlot* GrAtlas::addToAtlas(ClientPlotUsage* usage,
     return NULL;
 }
 
-void GrAtlas::removePlot(ClientPlotUsage* usage, const GrPlot* plot) {
+void GrAtlas::RemovePlot(ClientPlotUsage* usage, const GrPlot* plot) {
     int index = usage->fPlots.find(const_cast<GrPlot*>(plot));
     if (index >= 0) {
         usage->fPlots.remove(index);

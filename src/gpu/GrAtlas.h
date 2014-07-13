@@ -94,7 +94,7 @@ public:
     GrPlot* addToAtlas(ClientPlotUsage*, int width, int height, const void* image, SkIPoint16* loc);
 
     // remove reference to this plot
-    void removePlot(ClientPlotUsage* usage, const GrPlot* plot);
+    static void RemovePlot(ClientPlotUsage* usage, const GrPlot* plot);
 
     // get a plot that's not being used by the current draw
     // this allows us to overwrite this plot without flushing
