@@ -320,9 +320,6 @@ protected:
     */
     SkBaseMutex* mutex() const { return fMutex; }
 
-    // serialization
-    SkPixelRef(SkReadBuffer&, SkBaseMutex*);
-
     // only call from constructor. Flags this to always be locked, removing
     // the need to grab the mutex and call onLockPixels/onUnlockPixels.
     // Performance tweak to avoid those calls (esp. in multi-thread use case).
