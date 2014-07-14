@@ -10,7 +10,6 @@
 #define SkBBoxRecord_DEFINED
 
 #include "SkPictureRecord.h"
-#include "SkTDStack.h"
 
 /**
   * This is an abstract SkPictureRecord subclass that intercepts draw calls and computes an
@@ -23,7 +22,7 @@ public:
     SkBBoxRecord(const SkISize& size, uint32_t recordFlags)
         : INHERITED(size, recordFlags) {
     }
-    virtual ~SkBBoxRecord();
+    virtual ~SkBBoxRecord() { }
 
     /**
      * This is called each time we get a bounding box, it will be axis-aligned,
@@ -67,9 +66,6 @@ protected:
     virtual void onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                                   const SkMatrix* matrix, const SkPaint&) SK_OVERRIDE;
     virtual void onDrawPicture(const SkPicture* picture) SK_OVERRIDE;
-    virtual void willSave() SK_OVERRIDE;
-    virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
-    virtual void willRestore() SK_OVERRIDE;
 
 private:
     /**
@@ -78,12 +74,6 @@ private:
      * returns false if the draw is completely clipped out, and may safely be ignored.
      **/
     bool transformBounds(const SkRect& bounds, const SkPaint* paint);
-
-    /**
-     * Paints from currently-active saveLayers that need to be applied to bounding boxes of all
-     * primitives drawn inside them. We own these pointers.
-     **/
-    SkTDStack<const SkPaint*> fSaveStack;
 
     typedef SkPictureRecord INHERITED;
 };
