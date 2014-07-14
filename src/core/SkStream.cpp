@@ -907,3 +907,35 @@ SkData* SkCopyStreamToData(SkStream* stream) {
     } while (!stream->isAtEnd());
     return tempStream.copyToData();
 }
+
+SkStreamRewindable* SkStreamRewindableFromSkStream(SkStream* stream) {
+    if (!stream) {
+        return NULL;
+    }
+    SkAutoTUnref<SkStreamRewindable> dupStream(stream->duplicate());
+    if (dupStream) {
+        return dupStream.detach();
+    }
+    stream->rewind();
+    if (stream->hasLength()) {
+        size_t length = stream->getLength();
+        if (stream->hasPosition()) {  // If stream has length, but can't rewind.
+            length -= stream->getPosition();
+        }
+        SkAutoMalloc allocMemory(length);
+        SkDEBUGCODE(size_t read =) stream->read(allocMemory.get(), length);
+        SkASSERT(length == read);
+        SkAutoTUnref<SkData> data(
+                SkData::NewFromMalloc(allocMemory.detach(), length));
+        return SkNEW_ARGS(SkMemoryStream, (data.get()));
+    }
+    SkDynamicMemoryWStream tempStream;
+    const size_t bufferSize = 4096;
+    char buffer[bufferSize];
+    do {
+        size_t bytesRead = stream->read(buffer, bufferSize);
+        tempStream.write(buffer, bytesRead);
+    } while (!stream->isAtEnd());
+    return tempStream.detachAsStream();  // returns a SkBlockMemoryStream,
+                                         // cheaper than copying to SkData
+}

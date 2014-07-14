@@ -10,6 +10,7 @@
 
 class SkAutoMalloc;
 class SkStream;
+class SkStreamRewindable;
 class SkData;
 
 /**
@@ -33,5 +34,13 @@ size_t SkCopyStreamToStorage(SkAutoMalloc* storage, SkStream* stream);
  *      caller. Returns NULL on failure.
  */
 SkData *SkCopyStreamToData(SkStream* stream);
+
+/**
+ *  Attempt to convert this stream to a StreamRewindable in the
+ *  cheapest possible manner (calling duplicate() if possible, and
+ *  otherwise allocating memory for a copy).  The position of the
+ *  input stream is left in an indeterminate state.
+ */
+SkStreamRewindable* SkStreamRewindableFromSkStream(SkStream* stream);
 
 #endif  // SkStreamPriv_DEFINED

@@ -30,7 +30,7 @@ SkPDFStream::SkPDFStream(SkData* data) : fState(kUnused_State) {
 SkPDFStream::SkPDFStream(const SkPDFStream& pdfStream)
         : SkPDFDict(),
           fState(kUnused_State) {
-    this->setData(pdfStream.fData.get());
+    this->setData(pdfStream.fDataStream.get());
     bool removeLength = true;
     // Don't uncompress an already compressed stream, but we could.
     if (pdfStream.fState == kCompressed_State) {
@@ -57,9 +57,8 @@ void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
 
     this->INHERITED::emitObject(stream, catalog, false);
     stream->writeText(" stream\n");
-    if (fData.get()) {
-        stream->write(fData->data(), fData->size());
-    }
+    stream->writeStream(fDataStream.get(), fDataStream->getLength());
+    SkAssertResult(fDataStream->rewind());
     stream->writeText("\nendstream");
 }
 
@@ -79,22 +78,31 @@ size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 SkPDFStream::SkPDFStream() : fState(kUnused_State) {}
 
 void SkPDFStream::setData(SkData* data) {
-    fData.reset(SkSafeRef(data));
+    fMemoryStream.setData(data);
+    if (&fMemoryStream != fDataStream.get()) {
+        fDataStream.reset(SkRef(&fMemoryStream));
+    }
 }
 
 void SkPDFStream::setData(SkStream* stream) {
     // Code assumes that the stream starts at the beginning and is rewindable.
+    if (&fMemoryStream == fDataStream.get()) {
+        SkASSERT(&fMemoryStream != stream);
+        fMemoryStream.setData(NULL);
+    }
+    SkASSERT(0 == fMemoryStream.getLength());
     if (stream) {
-        SkASSERT(stream->getPosition() == 0);
-        fData.reset(SkCopyStreamToData(stream));
-        SkAssertResult(stream->rewind());
+        // SkStreamRewindableFromSkStream will try stream->duplicate().
+        fDataStream.reset(SkStreamRewindableFromSkStream(stream));
+        SkASSERT(fDataStream.get());
     } else {
-        fData.reset(NULL);
+        fDataStream.reset(SkRef(&fMemoryStream));
     }
 }
 
 size_t SkPDFStream::dataSize() const {
-    return fData.get() ? fData->size() : 0;
+    SkASSERT(fDataStream->hasLength());
+    return fDataStream->getLength();
 }
 
 bool SkPDFStream::populate(SkPDFCatalog* catalog) {
@@ -102,9 +110,11 @@ bool SkPDFStream::populate(SkPDFCatalog* catalog) {
         if (!skip_compression(catalog) && SkFlate::HaveFlate()) {
             SkDynamicMemoryWStream compressedData;
 
-            SkAssertResult(SkFlate::Deflate(fData.get(), &compressedData));
+            SkAssertResult(
+                    SkFlate::Deflate(fDataStream.get(), &compressedData));
+            SkAssertResult(fDataStream->rewind());
             if (compressedData.getOffset() < this->dataSize()) {
-                fData.reset(compressedData.copyToData());
+                this->setData(compressedData.detachAsStream());
                 insertName("Filter", "FlateDecode");
             }
             fState = kCompressed_State;

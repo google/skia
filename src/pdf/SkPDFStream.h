@@ -21,19 +21,20 @@ class SkPDFCatalog;
 
     A stream object in a PDF.  Note, all streams must be indirect objects (via
     SkObjRef).
-    TODO(vandebo): SkStream should be replaced by SkStreamRewindable when that
-    is feasible.
 */
 class SkPDFStream : public SkPDFDict {
     SK_DECLARE_INST_COUNT(SkPDFStream)
 public:
     /** Create a PDF stream. A Length entry is automatically added to the
-     *  stream dictionary. The stream may be retained (stream->ref() may be
-     *  called) so its contents must not be changed after calling this.
-     *  @param data  The data part of the stream.
+     *  stream dictionary.
+     *  @param data   The data part of the stream.  Will be ref()ed.
      */
     explicit SkPDFStream(SkData* data);
-    /** Deprecated constructor. */
+
+    /** Create a PDF stream. A Length entry is automatically added to the
+     *  stream dictionary.
+     *  @param stream The data part of the stream.  Will be duplicate()d.
+     */
     explicit SkPDFStream(SkStream* stream);
 
     virtual ~SkPDFStream();
@@ -79,8 +80,6 @@ protected:
 
     size_t dataSize() const;
 
-    SkData* getData() const { return fData.get(); }
-
     void setState(State state) {
         fState = state;
     }
@@ -93,10 +92,13 @@ private:
     // Indicates what form (or if) the stream has been requested.
     State fState;
 
-    // Mutex guards fState, fData, and fSubstitute in public interface.
+    // Mutex guards fState, fDataStream, and fSubstitute in public interface.
     SkMutex fMutex;
 
-    SkAutoTUnref<SkData> fData;
+    SkMemoryStream fMemoryStream;  // Used by fDataStream when
+                                   // fDataStream needs to be backed
+                                   // by SkData.
+    SkAutoTUnref<SkStreamRewindable> fDataStream;
     SkAutoTUnref<SkPDFStream> fSubstitute;
 
     typedef SkPDFDict INHERITED;
