@@ -8,6 +8,10 @@
 
 #include "SkBBoxRecord.h"
 
+SkBBoxRecord::~SkBBoxRecord() {
+    fSaveStack.deleteAll();
+}
+
 void SkBBoxRecord::drawOval(const SkRect& rect, const SkPaint& paint) {
     if (this->transformBounds(rect, &paint)) {
         INHERITED::drawOval(rect, paint);
@@ -287,6 +291,26 @@ void SkBBoxRecord::onDrawPicture(const SkPicture* picture) {
     }
 }
 
+void SkBBoxRecord::willSave() {
+    fSaveStack.push(NULL);
+    this->INHERITED::willSave();
+}
+
+SkCanvas::SaveLayerStrategy SkBBoxRecord::willSaveLayer(const SkRect* bounds,
+                                                        const SkPaint* paint,
+                                                        SaveFlags flags) {
+    // Image filters can affect the effective bounds of primitives drawn inside saveLayer().
+    // Copy the paint so we can compute the modified bounds in transformBounds().
+    fSaveStack.push(paint && paint->getImageFilter() ? new SkPaint(*paint) : NULL);
+    return this->INHERITED::willSaveLayer(bounds, paint, flags);
+}
+
+void SkBBoxRecord::willRestore() {
+    delete fSaveStack.top();
+    fSaveStack.pop();
+    this->INHERITED::willRestore();
+}
+
 bool SkBBoxRecord::transformBounds(const SkRect& bounds, const SkPaint* paint) {
     SkRect outBounds = bounds;
     outBounds.sort();
@@ -302,6 +326,14 @@ bool SkBBoxRecord::transformBounds(const SkRect& bounds, const SkPaint* paint) {
                 // current clip is empty
                 return false;
             }
+        }
+    }
+
+    for (int i = fSaveStack.count() - 1; i >= 0; --i) {
+        const SkPaint* paint = fSaveStack.getAt(i);
+        if (paint && paint->canComputeFastBounds()) {
+            SkRect temp;
+            outBounds = paint->computeFastBounds(outBounds, &temp);
         }
     }
 
