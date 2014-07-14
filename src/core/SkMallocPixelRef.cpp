@@ -200,31 +200,6 @@ size_t SkMallocPixelRef::getAllocatedSizeInBytes() const {
     return this->info().getSafeSize(fRB);
 }
 
-#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
-SkMallocPixelRef::SkMallocPixelRef(SkReadBuffer& buffer)
-    : INHERITED(buffer, NULL)
-    , fReleaseProc(sk_free_releaseproc)
-    , fReleaseProcContext(NULL)
-{
-    fRB = buffer.read32();
-    size_t size = buffer.isValid() ? this->info().getSafeSize(fRB) : 0;
-    if (buffer.validateAvailable(size)) {
-        fStorage = sk_malloc_throw(size);
-        buffer.readByteArray(fStorage, size);
-    } else {
-        fStorage = NULL;
-    }
-
-    if (buffer.readBool()) {
-        fCTable = SkNEW_ARGS(SkColorTable, (buffer));
-    } else {
-        fCTable = NULL;
-    }
-
-    this->setPreLocked(fStorage, fRB, fCTable);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPixelRef* SkMallocPixelRef::PRFactory::create(const SkImageInfo& info, size_t rowBytes,

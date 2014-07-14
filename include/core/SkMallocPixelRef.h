@@ -82,17 +82,10 @@ public:
                                    SkColorTable*) SK_OVERRIDE;
     };
 
-#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMallocPixelRef)
-#endif
-
 protected:
     // The ownPixels version of this constructor is deprecated.
     SkMallocPixelRef(const SkImageInfo&, void* addr, size_t rb, SkColorTable*,
                      bool ownPixels);
-#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
-    SkMallocPixelRef(SkReadBuffer& buffer);
-#endif
     virtual ~SkMallocPixelRef();
 
     virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;

@@ -158,10 +158,6 @@ public:
     SkOneShotDiscardablePixelRef(const SkImageInfo&, SkDiscardableMemory*, size_t rowBytes);
     ~SkOneShotDiscardablePixelRef();
 
-#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
-    SK_DECLARE_UNFLATTENABLE_OBJECT()
-#endif
-
 protected:
     virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
     virtual void onUnlockPixels() SK_OVERRIDE;

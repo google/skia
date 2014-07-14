@@ -12,7 +12,6 @@
 #include "SkDynamicAnnotations.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
-#include "SkFlattenable.h"
 #include "SkImageInfo.h"
 #include "SkTDArray.h"
 
@@ -32,13 +31,6 @@
 //    #define SK_IGNORE_PIXELREF_SETPRELOCKED
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
-    // we only support unflattening, not flattening
-    #define SK_PIXELREF_BASECLASS   SkFlattenable
-#else
-    #define SK_PIXELREF_BASECLASS   SkRefCnt
-#endif
-
 class SkColorTable;
 class SkData;
 struct SkIRect;
@@ -54,7 +46,7 @@ class GrTexture;
 
     This class can be shared/accessed between multiple threads.
 */
-class SK_API SkPixelRef : public SK_PIXELREF_BASECLASS {
+class SK_API SkPixelRef : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkPixelRef)
 
@@ -258,10 +250,6 @@ public:
     virtual void globalUnref();
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
-    SK_DEFINE_FLATTENABLE_TYPE(SkPixelRef)
-#endif
-
     // Register a listener that may be called the next time our generation ID changes.
     //
     // We'll only call the listener if we're confident that we are the only SkPixelRef with this
@@ -372,11 +360,7 @@ private:
     friend class SkBitmap;  // only for cloneGenID
     void cloneGenID(const SkPixelRef&);
 
-#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE { sk_throw(); }
-#endif
-
-    typedef SK_PIXELREF_BASECLASS INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 class SkPixelRefFactory : public SkRefCnt {

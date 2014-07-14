@@ -106,9 +106,6 @@ static void InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMergeImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDownSampleImageFilter)
-#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMallocPixelRef)
-#endif
 
     SkArithmeticMode::InitializeFlattenables();
     SkBlurMaskFilter::InitializeFlattenables();
