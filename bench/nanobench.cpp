@@ -27,6 +27,12 @@
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
+#if SK_DEBUG
+    DEFINE_bool(runOnce, true, "Run each benchmark just once?");
+#else
+    DEFINE_bool(runOnce, false, "Run each benchmark just once?");
+#endif
+
 DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
 DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");
 DEFINE_double(overheadGoal, 0.0001,
@@ -104,7 +110,7 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
     // Luckily, this also works well in practice. :)
     const double numer = overhead / FLAGS_overheadGoal - overhead;
     const double denom = bench_plus_overhead - overhead;
-    const int loops = (int)ceil(numer / denom);
+    const int loops = FLAGS_runOnce ? 1 : (int)ceil(numer / denom);
 
     for (int i = 0; i < FLAGS_samples; i++) {
         samples[i] = time(loops, bench, canvas, NULL) / loops;
@@ -122,22 +128,24 @@ static int gpu_bench(SkGLContextHelper* gl,
 
     // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
     int loops = 1;
-    double elapsed = 0;
-    do {
-        loops *= 2;
-        // If the GPU lets frames lag at all, we need to make sure we're timing
-        // _this_ round, not still timing last round.  We force this by looping
-        // more times than any reasonable GPU will allow frames to lag.
-        for (int i = 0; i < FLAGS_gpuFrameLag; i++) {
-            elapsed = time(loops, bench, canvas, gl);
-        }
-    } while (elapsed < FLAGS_gpuMs);
+    if (!FLAGS_runOnce) {
+        double elapsed = 0;
+        do {
+            loops *= 2;
+            // If the GPU lets frames lag at all, we need to make sure we're timing
+            // _this_ round, not still timing last round.  We force this by looping
+            // more times than any reasonable GPU will allow frames to lag.
+            for (int i = 0; i < FLAGS_gpuFrameLag; i++) {
+                elapsed = time(loops, bench, canvas, gl);
+            }
+        } while (elapsed < FLAGS_gpuMs);
 
-    // We've overshot at least a little.  Scale back linearly.
-    loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
+        // We've overshot at least a little.  Scale back linearly.
+        loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
 
-    // Might as well make sure we're not still timing our calibration.
-    SK_GL(*gl, Finish());
+        // Might as well make sure we're not still timing our calibration.
+        SK_GL(*gl, Finish());
+    }
 
     // Pretty much the same deal as the calibration: do some warmup to make
     // sure we're timing steady-state pipelined frames.
@@ -252,6 +260,11 @@ int tool_main(int argc, char** argv) {
     SkAutoGraphics ag;
     SkCommandLineFlags::Parse(argc, argv);
 
+    if (FLAGS_runOnce) {
+        FLAGS_samples     = 1;
+        FLAGS_gpuFrameLag = 0;
+    }
+
     MultiResultsWriter log;
     SkAutoTDelete<JSONResultsWriter> json;
     if (!FLAGS_outResultsFile.isEmpty()) {
@@ -264,7 +277,9 @@ int tool_main(int argc, char** argv) {
     const double overhead = estimate_timer_overhead();
     SkAutoTMalloc<double> samples(FLAGS_samples);
 
-    if (FLAGS_verbose) {
+    if (FLAGS_runOnce) {
+        SkDebugf("--runOnce is true; times would only be misleading so we won't print them.\n");
+    } else if (FLAGS_verbose) {
         // No header.
     } else if (FLAGS_quiet) {
         SkDebugf("median\tbench\tconfig\n");
@@ -305,7 +320,12 @@ int tool_main(int argc, char** argv) {
             log.timer("max_ms",    stats.max);
             log.timer("stddev_ms", sqrt(stats.var));
 
-            if (FLAGS_verbose) {
+            if (FLAGS_runOnce) {
+                if (targets.count() == 1) {
+                    config = ""; // Only print the config if we run the same bench on more than one.
+                }
+                SkDebugf("%s\t%s\n", bench->getName(), config);
+            } else if (FLAGS_verbose) {
                 for (int i = 0; i < FLAGS_samples; i++) {
                     SkDebugf("%s  ", humanize(samples[i]).c_str());
                 }

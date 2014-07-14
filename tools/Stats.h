@@ -34,9 +34,15 @@ struct Stats {
         SkTQSort(sorted.get(), sorted.get() + n - 1);
         median = sorted[n/2];
 
+        // Normalize samples to [min, max] in as many quanta as we have distinct bars to print.
         for (int i = 0; i < n; i++) {
+            if (min == max) {
+                // All samples are the same value.  Don't divide by zero.
+                plot.append(kBars[0]);
+                continue;
+            }
+
             double s = samples[i];
-            // Normalize samples to [min, max] in as many quanta as we have distinct bars to print.
             s -= min;
             s /= (max - min);
             s *= (SK_ARRAY_COUNT(kBars) - 1);
