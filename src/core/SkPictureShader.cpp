@@ -18,7 +18,7 @@
 #include "GrContext.h"
 #endif
 
-SkPictureShader::SkPictureShader(SkPicture* picture, TileMode tmx, TileMode tmy,
+SkPictureShader::SkPictureShader(const SkPicture* picture, TileMode tmx, TileMode tmy,
                                  const SkMatrix* localMatrix)
     : INHERITED(localMatrix)
     , fPicture(SkRef(picture))
@@ -36,7 +36,7 @@ SkPictureShader::~SkPictureShader() {
     fPicture->unref();
 }
 
-SkPictureShader* SkPictureShader::Create(SkPicture* picture, TileMode tmx, TileMode tmy,
+SkPictureShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx, TileMode tmy,
                                          const SkMatrix* localMatrix) {
     if (!picture || 0 == picture->width() || 0 == picture->height()) {
         return NULL;

@@ -12,7 +12,7 @@
 #include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
-SkPictureImageFilter::SkPictureImageFilter(SkPicture* picture)
+SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture)
   : INHERITED(0, 0),
     fPicture(picture),
     fCropRect(SkRect::MakeWH(picture ? SkIntToScalar(picture->width()) : 0,
@@ -20,7 +20,7 @@ SkPictureImageFilter::SkPictureImageFilter(SkPicture* picture)
     SkSafeRef(fPicture);
 }
 
-SkPictureImageFilter::SkPictureImageFilter(SkPicture* picture, const SkRect& cropRect)
+SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, const SkRect& cropRect)
   : INHERITED(0, 0),
     fPicture(picture),
     fCropRect(cropRect) {
