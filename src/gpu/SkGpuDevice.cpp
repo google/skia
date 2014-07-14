@@ -1612,59 +1612,37 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     CHECK_SHOULD_DRAW(draw, false);
 
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawVertices", fContext);
-    
-    const uint16_t* outIndices;
-    SkAutoTDeleteArray<uint16_t> outAlloc(NULL);
-    GrPrimitiveType primType;
-    GrPaint grPaint;
-    
     // If both textures and vertex-colors are NULL, strokes hairlines with the paint's color.
     if ((NULL == texs || NULL == paint.getShader()) && NULL == colors) {
-        
         texs = NULL;
-        
         SkPaint copy(paint);
         copy.setStyle(SkPaint::kStroke_Style);
         copy.setStrokeWidth(0);
-        
-        // we ignore the shader if texs is null.
-        SkPaint2GrPaintNoShader(this->context(), copy, SkColor2GrColor(copy.getColor()),
-                                NULL == colors, &grPaint);
 
-        primType = kLines_GrPrimitiveType;
-        int triangleCount = 0;
-        switch (vmode) {
-            case SkCanvas::kTriangles_VertexMode:
-                triangleCount = indexCount / 3;
-                break;
-            case SkCanvas::kTriangleStrip_VertexMode:
-            case SkCanvas::kTriangleFan_VertexMode:
-                triangleCount = indexCount - 2;
-                break;
-        }
-        
         VertState       state(vertexCount, indices, indexCount);
         VertState::Proc vertProc = state.chooseProc(vmode);
-        
-        //number of indices for lines per triangle with kLines
-        indexCount = triangleCount * 6;
-        
-        outAlloc.reset(SkNEW_ARRAY(uint16_t, indexCount));
-        outIndices = outAlloc.get();
-        uint16_t* auxIndices = outAlloc.get();
+
+        SkPoint* pts = new SkPoint[vertexCount * 6];
         int i = 0;
         while (vertProc(&state)) {
-            auxIndices[i]     = state.f0;
-            auxIndices[i + 1] = state.f1;
-            auxIndices[i + 2] = state.f1;
-            auxIndices[i + 3] = state.f2;
-            auxIndices[i + 4] = state.f2;
-            auxIndices[i + 5] = state.f0;
+            pts[i] = vertices[state.f0];
+            pts[i + 1] = vertices[state.f1];
+            pts[i + 2] = vertices[state.f1];
+            pts[i + 3] = vertices[state.f2];
+            pts[i + 4] = vertices[state.f2];
+            pts[i + 5] = vertices[state.f0];
             i += 6;
         }
+        draw.drawPoints(SkCanvas::kLines_PointMode, i, pts, copy, true);
+        return;
+    }
+
+    GrPaint grPaint;
+    // we ignore the shader if texs is null.
+    if (NULL == texs) {
+        SkPaint2GrPaintNoShader(this->context(), paint, SkColor2GrColor(paint.getColor()),
+                                NULL == colors, &grPaint);
     } else {
-        outIndices = indices;
-        primType = gVertexMode2PrimitiveType[vmode];
         SkPaint2GrPaintShader(this->context(), paint, NULL == colors, &grPaint);
     }
 
@@ -1692,12 +1670,12 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         colors = convertedColors.get();
     }
     fContext->drawVertices(grPaint,
-                           primType,
+                           gVertexMode2PrimitiveType[vmode],
                            vertexCount,
                            vertices,
                            texs,
                            colors,
-                           outIndices,
+                           indices,
                            indexCount);
 }
 
