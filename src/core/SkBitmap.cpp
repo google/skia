@@ -1332,7 +1332,7 @@ void SkBitmap::validate() const {
     }
 
     SkASSERT(fInfo.validRowBytes(fRowBytes));
-    uint8_t allFlags = kImageIsOpaque_Flag | kImageIsVolatile_Flag | kImageIsImmutable_Flag;
+    uint8_t allFlags = kImageIsVolatile_Flag | kImageIsImmutable_Flag;
 #ifdef SK_BUILD_FOR_ANDROID
     allFlags |= kHasHardwareMipMap_Flag;
 #endif

@@ -725,7 +725,6 @@ private:
     SkIPoint    fPixelRefOrigin;
 
     enum Flags {
-        kImageIsOpaque_Flag     = 0x01,
         kImageIsVolatile_Flag   = 0x02,
         kImageIsImmutable_Flag  = 0x04,
 #ifdef SK_BUILD_FOR_ANDROID
