@@ -34,7 +34,7 @@ static void S32_D565_Blend_mips_dsp(uint16_t* SK_RESTRICT dst,
             "and             %[t1],    %[s0],    %[s5]     \n\t"
             "shra.ph         %[t0],    %[s0],    5         \n\t"
             "and             %[t2],    %[t0],    %[s6]     \n\t"
-#ifdef __MIPS_HAVE_DSPR2
+#ifdef SK_MIPS_HAS_DSPR2
             "shrl.ph         %[t3],    %[s0],    11        \n\t"
 #else
             "shra.ph         %[t0],    %[s0],    11        \n\t"
@@ -46,7 +46,7 @@ static void S32_D565_Blend_mips_dsp(uint16_t* SK_RESTRICT dst,
             "ins             %[s2],    %[s1],    16, 16    \n\t"
             "preceu.ph.qbra  %[t0],    %[s2]               \n\t"
             "shrl.qb         %[t6],    %[t0],    3         \n\t"
-#ifdef __MIPS_HAVE_DSPR2
+#ifdef SK_MIPS_HAS_DSPR2
             "shrl.ph         %[t5],    %[s2],    10        \n\t"
 #else
             "shra.ph         %[t0],    %[s2],    10        \n\t"
@@ -303,7 +303,7 @@ static void S32_D565_Opaque_Dither_mips_dsp(uint16_t* __restrict__ dst,
         "lw              %[t2],    4(%[src])           \n\t"
         "precrq.ph.w     %[t3],    %[t0],    %[t2]     \n\t"
         "preceu.ph.qbra  %[t9],    %[t3]               \n\t"
-#ifdef __MIPS_HAVE_DSPR2
+#ifdef SK_MIPS_HAS_DSPR2
         "append          %[t0],    %[t2],    16        \n\t"
         "preceu.ph.qbra  %[t4],    %[t0]               \n\t"
         "preceu.ph.qbla  %[t5],    %[t0]               \n\t"
@@ -328,7 +328,7 @@ static void S32_D565_Opaque_Dither_mips_dsp(uint16_t* __restrict__ dst,
         "subu.qb         %[t4],    %[t3],    %[t2]     \n\t"
         "shra.ph         %[t8],    %[t4],    2         \n\t"
         "precrq.ph.w     %[t0],    %[t6],    %[t7]     \n\t"
-#ifdef __MIPS_HAVE_DSPR2
+#ifdef SK_MIPS_HAS_DSPR2
         "append          %[t6],    %[t7],    16        \n\t"
 #else
         "sll             %[t6],    %[t6],    16        \n\t"
@@ -425,7 +425,7 @@ static void S32_D565_Blend_Dither_mips_dsp(uint16_t* dst,
     "5:                                                    \n\t"
         "sll             %[t3],     %[t0],     7           \n\t"
         "sll             %[t4],     %[t1],     7           \n\t"
-#ifdef __MIPS_HAVE_DSPR2
+#ifdef SK_MIPS_HAS_DSPR2
         "append          %[t0],     %[t1],     16          \n\t"
 #else
         "sll             %[t0],     %[t0],     8           \n\t"
@@ -442,7 +442,7 @@ static void S32_D565_Blend_Dither_mips_dsp(uint16_t* dst,
         "preceu.ph.qbra  %[t6],     %[t6]                  \n\t"
         "lh              %[t2],     0(%[dst])              \n\t"
         "lh              %[s1],     2(%[dst])              \n\t"
-#ifdef __MIPS_HAVE_DSPR2
+#ifdef SK_MIPS_HAS_DSPR2
         "append          %[t2],     %[s1],     16          \n\t"
 #else
         "sll             %[s1],     %[s1],     16          \n\t"
@@ -575,7 +575,7 @@ static void S32A_D565_Opaque_mips_dsp(uint16_t* __restrict__ dst,
         "lw             %[t1],    4(%[src])             \n\t"
         "precrq.ph.w    %[t2],    %[t0],    %[t1]       \n\t"
         "preceu.ph.qbra %[t8],    %[t2]                 \n\t"
-#ifdef __MIPS_HAVE_DSPR2
+#ifdef SK_MIPS_HAS_DSPR2
         "append         %[t0],    %[t1],    16          \n\t"
 #else
         "sll            %[t0],    %[t0],    16          \n\t"
@@ -592,7 +592,7 @@ static void S32A_D565_Opaque_mips_dsp(uint16_t* __restrict__ dst,
         "lh             %[t0],    0(%[dst])             \n\t"
         "lh             %[t1],    2(%[dst])             \n\t"
         "and            %[t1],    %[t1],    0xffff      \n\t"
-#ifdef __MIPS_HAVE_DSPR2
+#ifdef SK_MIPS_HAS_DSPR2
         "append         %[t0],    %[t1],    16          \n\t"
 #else
         "sll            %[t5],    %[t0],    16          \n\t"
@@ -805,6 +805,117 @@ static void S32_Blend_BlitRow32_mips_dsp(SkPMColor* SK_RESTRICT dst,
           [t4]"=&r"(t4), [t5]"=&r"(t5), [t6]"=&r"(t6), [t7]"=&r"(t7)
         : [alpha]"r"(alpha)
         : "memory", "hi", "lo"
+    );
+}
+
+void blitmask_d565_opaque_mips(int width, int height, uint16_t* device,
+                               unsigned deviceRB, const uint8_t* alpha,
+                               uint32_t expanded32, unsigned maskRB) {
+    register uint32_t s0, s1, s2, s3;
+
+    __asm__ volatile (
+        ".set            push                                    \n\t"
+        ".set            noreorder                               \n\t"
+        ".set            noat                                    \n\t"
+        "li              $t9,       0x7E0F81F                    \n\t"
+    "1:                                                          \n\t"
+        "move            $t8,       %[width]                     \n\t"
+        "addiu           %[height], %[height],     -1            \n\t"
+    "2:                                                          \n\t"
+        "beqz            $t8,       4f                           \n\t"
+        " addiu          $t0,       $t8,           -4            \n\t"
+        "bltz            $t0,       3f                           \n\t"
+        " nop                                                    \n\t"
+        "addiu           $t8,       $t8,           -4            \n\t"
+        "lhu             $t0,       0(%[device])                 \n\t"
+        "lhu             $t1,       2(%[device])                 \n\t"
+        "lhu             $t2,       4(%[device])                 \n\t"
+        "lhu             $t3,       6(%[device])                 \n\t"
+        "lbu             $t4,       0(%[alpha])                  \n\t"
+        "lbu             $t5,       1(%[alpha])                  \n\t"
+        "lbu             $t6,       2(%[alpha])                  \n\t"
+        "lbu             $t7,       3(%[alpha])                  \n\t"
+        "replv.ph        $t0,       $t0                          \n\t"
+        "replv.ph        $t1,       $t1                          \n\t"
+        "replv.ph        $t2,       $t2                          \n\t"
+        "replv.ph        $t3,       $t3                          \n\t"
+        "addiu           %[s0],     $t4,           1             \n\t"
+        "addiu           %[s1],     $t5,           1             \n\t"
+        "addiu           %[s2],     $t6,           1             \n\t"
+        "addiu           %[s3],     $t7,           1             \n\t"
+        "srl             %[s0],     %[s0],         3             \n\t"
+        "srl             %[s1],     %[s1],         3             \n\t"
+        "srl             %[s2],     %[s2],         3             \n\t"
+        "srl             %[s3],     %[s3],         3             \n\t"
+        "and             $t0,       $t0,           $t9           \n\t"
+        "and             $t1,       $t1,           $t9           \n\t"
+        "and             $t2,       $t2,           $t9           \n\t"
+        "and             $t3,       $t3,           $t9           \n\t"
+        "subu            $t4,       %[expanded32], $t0           \n\t"
+        "subu            $t5,       %[expanded32], $t1           \n\t"
+        "subu            $t6,       %[expanded32], $t2           \n\t"
+        "subu            $t7,       %[expanded32], $t3           \n\t"
+        "mul             $t4,       $t4,           %[s0]         \n\t"
+        "mul             $t5,       $t5,           %[s1]         \n\t"
+        "mul             $t6,       $t6,           %[s2]         \n\t"
+        "mul             $t7,       $t7,           %[s3]         \n\t"
+        "addiu           %[alpha],  %[alpha],      4             \n\t"
+        "srl             $t4,       $t4,           5             \n\t"
+        "srl             $t5,       $t5,           5             \n\t"
+        "srl             $t6,       $t6,           5             \n\t"
+        "srl             $t7,       $t7,           5             \n\t"
+        "addu            $t4,       $t0,           $t4           \n\t"
+        "addu            $t5,       $t1,           $t5           \n\t"
+        "addu            $t6,       $t2,           $t6           \n\t"
+        "addu            $t7,       $t3,           $t7           \n\t"
+        "and             $t4,       $t4,           $t9           \n\t"
+        "and             $t5,       $t5,           $t9           \n\t"
+        "and             $t6,       $t6,           $t9           \n\t"
+        "and             $t7,       $t7,           $t9           \n\t"
+        "srl             $t0,       $t4,           16            \n\t"
+        "srl             $t1,       $t5,           16            \n\t"
+        "srl             $t2,       $t6,           16            \n\t"
+        "srl             $t3,       $t7,           16            \n\t"
+        "or              %[s0],     $t0,           $t4           \n\t"
+        "or              %[s1],     $t1,           $t5           \n\t"
+        "or              %[s2],     $t2,           $t6           \n\t"
+        "or              %[s3],     $t3,           $t7           \n\t"
+        "sh              %[s0],     0(%[device])                 \n\t"
+        "sh              %[s1],     2(%[device])                 \n\t"
+        "sh              %[s2],     4(%[device])                 \n\t"
+        "sh              %[s3],     6(%[device])                 \n\t"
+        "b               2b                                      \n\t"
+        " addiu          %[device], %[device],     8             \n\t"
+    "3:                                                          \n\t"
+        "lhu             $t0,       0(%[device])                 \n\t"
+        "lbu             $t1,       0(%[alpha])                  \n\t"
+        "addiu           $t8,       $t8,           -1            \n\t"
+        "replv.ph        $t2,       $t0                          \n\t"
+        "and             $t2,       $t2,           $t9           \n\t"
+        "addiu           $t0,       $t1,           1             \n\t"
+        "srl             $t0,       $t0,           3             \n\t"
+        "subu            $t3,       %[expanded32], $t2           \n\t"
+        "mul             $t3,       $t3,           $t0           \n\t"
+        "addiu           %[alpha],  %[alpha],      1             \n\t"
+        "srl             $t3,       $t3,           5             \n\t"
+        "addu            $t3,       $t2,           $t3           \n\t"
+        "and             $t3,       $t3,           $t9           \n\t"
+        "srl             $t4,       $t3,           16            \n\t"
+        "or              %[s0],     $t4,           $t3           \n\t"
+        "sh              %[s0],     0(%[device])                 \n\t"
+        "bnez            $t8,       3b                           \n\t"
+         "addiu          %[device], %[device],     2             \n\t"
+    "4:                                                          \n\t"
+        "addu            %[device], %[device],     %[deviceRB]   \n\t"
+        "bgtz            %[height], 1b                           \n\t"
+        " addu           %[alpha],  %[alpha],      %[maskRB]     \n\t"
+        ".set            pop                                     \n\t"
+        : [height]"+r"(height), [alpha]"+r"(alpha), [device]"+r"(device),
+          [deviceRB]"+r"(deviceRB), [maskRB]"+r"(maskRB), [s0]"=&r"(s0),
+          [s1]"=&r"(s1), [s2]"=&r"(s2), [s3]"=&r"(s3)
+        : [expanded32] "r" (expanded32), [width] "r" (width)
+        : "memory", "hi", "lo", "t0", "t1", "t2", "t3",
+          "t4", "t5", "t6", "t7", "t8", "t9"
     );
 }
 

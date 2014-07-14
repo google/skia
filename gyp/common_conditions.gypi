@@ -292,13 +292,17 @@
                     'cflags': [
                       '-mdsp',
                     ],
+                    'defines': [
+                      'SK_MIPS_HAS_DSP',
+                    ],
                   }],
                   [ 'mips_dsp == 2', {
                     'cflags': [
                       '-mdspr2',
                     ],
                     'defines': [
-                      '__MIPS_HAVE_DSPR2',
+                      'SK_MIPS_HAS_DSP',
+                      'SK_MIPS_HAS_DSPR2',
                     ],
                   }],
                 ],

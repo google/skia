@@ -16,6 +16,12 @@
 #include "SkUtilsArm.h"
 #include "SkXfermode.h"
 
+#if SK_MIPS_HAS_DSP
+extern void blitmask_d565_opaque_mips(int width, int height, uint16_t* device,
+                                      unsigned deviceRB, const uint8_t* alpha,
+                                      uint32_t expanded32, unsigned maskRB);
+#endif
+
 #if SK_ARM_NEON_IS_ALWAYS && defined(SK_CPU_LENDIAN)
     #include <arm_neon.h>
 #else
@@ -368,9 +374,11 @@ void SkRGB16_Opaque_Blitter::blitAntiH(int x, int y,
 #define SK_BLITBWMASK_DEVTYPE               uint16_t
 #include "SkBlitBWMaskTemplate.h"
 
+#if !defined(SK_MIPS_HAS_DSP)
 static U16CPU blend_compact(uint32_t src32, uint32_t dst32, unsigned scale5) {
     return SkCompact_rgb_16(dst32 + ((src32 - dst32) * scale5 >> 5));
 }
+#endif
 
 void SkRGB16_Opaque_Blitter::blitMask(const SkMask& mask,
                                       const SkIRect& clip) {
@@ -457,6 +465,8 @@ void SkRGB16_Opaque_Blitter::blitMask(const SkMask& mask,
         alpha += maskRB;
     } while (--height != 0);
 #undef    UNROLL
+#elif SK_MIPS_HAS_DSP
+    blitmask_d565_opaque_mips(width, height, device, deviceRB, alpha, expanded32, maskRB);
 #else   // non-neon code
     do {
         int w = width;
