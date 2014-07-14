@@ -159,6 +159,33 @@ DEF_TEST(ImageFilter, reporter) {
     }
 
     {
+        // Check that two non-commutative matrices are concatenated in
+        // the correct order.
+        SkScalar blueToRedMatrix[20] = { 0 };
+        blueToRedMatrix[2] = blueToRedMatrix[18] = SK_Scalar1;
+        SkScalar redToGreenMatrix[20] = { 0 };
+        redToGreenMatrix[5] = redToGreenMatrix[18] = SK_Scalar1;
+        SkAutoTUnref<SkColorFilter> blueToRed(SkColorMatrixFilter::Create(blueToRedMatrix));
+        SkAutoTUnref<SkImageFilter> filter1(SkColorFilterImageFilter::Create(blueToRed.get()));
+        SkAutoTUnref<SkColorFilter> redToGreen(SkColorMatrixFilter::Create(redToGreenMatrix));
+        SkAutoTUnref<SkImageFilter> filter2(SkColorFilterImageFilter::Create(redToGreen.get(), filter1.get()));
+
+        SkBitmap result;
+        result.allocN32Pixels(kBitmapSize, kBitmapSize);
+
+        SkPaint paint;
+        paint.setColor(SK_ColorBLUE);
+        paint.setImageFilter(filter2.get());
+        SkCanvas canvas(result);
+        canvas.clear(0x0);
+        SkRect rect = SkRect::Make(SkIRect::MakeWH(kBitmapSize, kBitmapSize));
+        canvas.drawRect(rect, paint);
+        uint32_t pixel = *result.getAddr32(0, 0);
+        // The result here should be green, since we have effectively shifted blue to green.
+        REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+    }
+
+    {
         // Tests pass by not asserting
         SkBitmap bitmap, result;
         make_small_bitmap(bitmap);
