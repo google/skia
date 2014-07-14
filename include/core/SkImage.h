@@ -12,16 +12,13 @@
 #include "SkImageEncoder.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
+#include "SkShader.h"
 
 class SkData;
 class SkCanvas;
 class SkPaint;
-class SkShader;
 class GrContext;
 class GrTexture;
-
-// need for TileMode
-#include "SkShader.h"
 
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
@@ -61,8 +58,7 @@ public:
      */
     GrTexture* getTexture();
 
-    SkShader*   newShaderClamp() const;
-    SkShader*   newShader(SkShader::TileMode, SkShader::TileMode) const;
+    virtual SkShader* newShader(SkShader::TileMode, SkShader::TileMode) const;
 
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
 

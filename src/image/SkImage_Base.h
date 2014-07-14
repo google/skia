@@ -31,6 +31,7 @@ public:
     // but only inspect them (or encode them).
     virtual bool getROPixels(SkBitmap*) const { return false; }
 
+    virtual SkShader* onNewShader(SkShader::TileMode, SkShader::TileMode) const { return NULL; };
 private:
     typedef SkImage INHERITED;
 };

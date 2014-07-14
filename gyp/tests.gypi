@@ -102,6 +102,7 @@
     '../tests/ImageCacheTest.cpp',
     '../tests/ImageDecodingTest.cpp',
     '../tests/ImageFilterTest.cpp',
+    '../tests/ImageNewShaderTest.cpp',
     '../tests/InfRectTest.cpp',
     '../tests/InterpolatorTest.cpp',
     '../tests/JpegTest.cpp',
