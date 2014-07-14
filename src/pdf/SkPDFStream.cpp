@@ -114,7 +114,9 @@ bool SkPDFStream::populate(SkPDFCatalog* catalog) {
                     SkFlate::Deflate(fDataStream.get(), &compressedData));
             SkAssertResult(fDataStream->rewind());
             if (compressedData.getOffset() < this->dataSize()) {
-                this->setData(compressedData.detachAsStream());
+                SkAutoTUnref<SkStream> compressed(
+                        compressedData.detachAsStream());
+                this->setData(compressed.get());
                 insertName("Filter", "FlateDecode");
             }
             fState = kCompressed_State;
