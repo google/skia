@@ -129,7 +129,7 @@ def main(target_dir=None, require_sk_user_config=False):
     generate_user_config.generate_user_config(
         original_sk_user_config=user_config,
         require_sk_user_config=require_sk_user_config, target_dir=dst_dir,
-        ordered_set=common.DEFINES)
+        defines=common.DEFINES)
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
                                        target_file='tests.gyp',

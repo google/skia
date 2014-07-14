@@ -41,7 +41,7 @@ def generate_dummy_user_config(original_sk_user_config,
               'bar' ]
   gen_config(original_sk_user_config=original_sk_user_config,
              require_sk_user_config=require_sk_user_config,
-             target_dir=target_dir, ordered_set=defines)
+             target_dir=target_dir, defines=defines)
 
 
 class GenUserConfigTest(unittest.TestCase):
@@ -55,10 +55,10 @@ class GenUserConfigTest(unittest.TestCase):
     # With require_sk_user_config set to True, an AssertionError will be
     # thrown when original_sk_user_config is missing.
     with self.assertRaises(AssertionError):
-      ordered_set = [ 'define' ]
+      defines = [ 'define' ]
       gen_config(original_sk_user_config=original,
                  require_sk_user_config=True,
-                 target_dir=tmp, ordered_set=ordered_set)
+                 target_dir=tmp, defines=defines)
 
     # With require_sk_user_config set to False, it is okay for
     # original_sk_user_config to be missing.

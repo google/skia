@@ -29,7 +29,7 @@ BUILD_GUARD = 'SkUserConfig_Android_DEFINED'
 
 
 def generate_user_config(original_sk_user_config, require_sk_user_config,
-                         target_dir, ordered_set):
+                         target_dir, defines):
   """Generate the SkUserConfig file specific to the Android framework.
 
   Android needs its #defines in its skia/include/core directory, so that other
@@ -48,8 +48,7 @@ def generate_user_config(original_sk_user_config, require_sk_user_config,
           written. Its name will be the same basename as
           original_sk_user_config. If None, the new file will be written to the
           working directory.
-      ordered_set: A vars_dict_lib.OrderedSet, containing a list of defines to
-          be appended to SkUserConfig.
+      defines: Iterable of defines to be appended to SkUserConfig.
 
   Raises:
       AssertionError: If original_sk_user_config does not exist.
@@ -95,7 +94,7 @@ def generate_user_config(original_sk_user_config, require_sk_user_config,
     dst.write('#endif\n\n')
 
     # Now add the defines from the gyp files.
-    for item in ordered_set:
+    for item in sorted(defines):
       # Although our defines may have '=' in them, when written to the header
       # there should be a space between the macro and what it replaces.
       dst.write('#define ' + item.replace('=', ' ') + '\n')
