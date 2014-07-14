@@ -9,6 +9,7 @@
 
 #include "Benchmark.h"
 #include "CrashHandler.h"
+#include "ResultsWriter.h"
 #include "Stats.h"
 #include "Timer.h"
 
@@ -40,6 +41,8 @@ DEFINE_int32(gpuFrameLag, 5, "Overestimate of maximum number of frames GPU allow
 
 DEFINE_bool(cpu, true, "Master switch for CPU-bound work.");
 DEFINE_bool(gpu, true, "Master switch for GPU-bound work.");
+
+DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
 
 
 static SkString humanize(double ms) {
@@ -224,11 +227,39 @@ static void create_targets(Benchmark* bench, SkTDArray<Target*>* targets) {
 #endif
 }
 
+static void fill_static_options(ResultsWriter* log) {
+#if defined(SK_BUILD_FOR_WIN32)
+    log->option("system", "WIN32");
+#elif defined(SK_BUILD_FOR_MAC)
+    log->option("system", "MAC");
+#elif defined(SK_BUILD_FOR_ANDROID)
+    log->option("system", "ANDROID");
+#elif defined(SK_BUILD_FOR_UNIX)
+    log->option("system", "UNIX");
+#else
+    log->option("system", "other");
+#endif
+#if defined(SK_DEBUG)
+    log->option("build", "DEBUG");
+#else
+    log->option("build", "RELEASE");
+#endif
+}
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
     SetupCrashHandler();
     SkAutoGraphics ag;
     SkCommandLineFlags::Parse(argc, argv);
+
+    MultiResultsWriter log;
+    SkAutoTDelete<JSONResultsWriter> json;
+    if (!FLAGS_outResultsFile.isEmpty()) {
+        json.reset(SkNEW(JSONResultsWriter(FLAGS_outResultsFile[0])));
+        log.add(json.get());
+    }
+    CallEnd<MultiResultsWriter> ender(log);
+    fill_static_options(&log);
 
     const double overhead = estimate_timer_overhead();
     SkAutoTMalloc<double> samples(FLAGS_samples);
@@ -246,6 +277,7 @@ int tool_main(int argc, char** argv) {
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getName())) {
             continue;
         }
+        log.bench(bench->getName(), bench->getSize().fX, bench->getSize().fY);
 
         SkTDArray<Target*> targets;
         create_targets(bench.get(), &targets);
@@ -265,6 +297,14 @@ int tool_main(int argc, char** argv) {
             Stats stats(samples.get(), FLAGS_samples);
 
             const char* config = targets[j]->config;
+
+            log.config(config);
+            log.timer("min_ms",    stats.min);
+            log.timer("median_ms", stats.median);
+            log.timer("mean_ms",   stats.mean);
+            log.timer("max_ms",    stats.max);
+            log.timer("stddev_ms", sqrt(stats.var));
+
             if (FLAGS_verbose) {
                 for (int i = 0; i < FLAGS_samples; i++) {
                     SkDebugf("%s  ", humanize(samples[i]).c_str());

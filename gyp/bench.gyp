@@ -38,10 +38,13 @@
       'type': 'executable',
       'sources': [
         '../bench/nanobench.cpp',
+        '../bench/ResultsWriter.cpp',
       ],
       'includes': [ 'bench.gypi' ],
       'dependencies': [
         'flags.gyp:flags',
+        'jsoncpp.gyp:jsoncpp',
+        'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
         'tools.gyp:timer',
       ],
