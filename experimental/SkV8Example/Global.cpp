@@ -41,7 +41,7 @@ void Global::reportException(TryCatch* tryCatch) {
         fprintf(stderr, "%s\n", exceptionString);
     } else {
         // Print (filename):(line number): (message).
-        String::Utf8Value filename(message->GetScriptResourceName());
+        String::Utf8Value filename(message->GetScriptOrigin().ResourceName());
         const char* filenameString = to_cstring(filename);
         int linenum = message->GetLineNumber();
         fprintf(stderr,
