@@ -6,6 +6,8 @@
  */
 #include "SysTimer_windows.h"
 
+#include <intrin.h>
+
 static ULONGLONG win_cpu_time() {
     FILETIME createTime;
     FILETIME exitTime;
@@ -23,11 +25,6 @@ static ULONGLONG win_cpu_time() {
     return start_cpu_sys.QuadPart + start_cpu_usr.QuadPart;
 }
 
-void SysTimer::startWall() {
-    if (0 == ::QueryPerformanceCounter(&fStartWall)) {
-        fStartWall.QuadPart = 0;
-    }
-}
 void SysTimer::startCpu() {
     fStartCpu = win_cpu_time();
 }
@@ -36,11 +33,22 @@ double SysTimer::endCpu() {
     ULONGLONG end_cpu = win_cpu_time();
     return static_cast<double>(end_cpu - fStartCpu) / 10000.0L;
 }
+
+static void wall_timestamp(LARGE_INTEGER* now) {
+    _ReadWriteBarrier();
+    if (0 == ::QueryPerformanceCounter(now)) {
+        now->QuadPart = 0;
+    }
+    _ReadWriteBarrier();
+}
+
+void SysTimer::startWall() {
+    wall_timestamp(&fStartWall);
+}
+
 double SysTimer::endWall() {
     LARGE_INTEGER end_wall;
-    if (0 == ::QueryPerformanceCounter(&end_wall)) {
-        end_wall.QuadPart = 0;
-    }
+    wall_timestamp(&end_wall);
 
     LARGE_INTEGER ticks_elapsed;
     ticks_elapsed.QuadPart = end_wall.QuadPart - fStartWall.QuadPart;
