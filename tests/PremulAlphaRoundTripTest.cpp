@@ -67,7 +67,6 @@ static void fillCanvas(SkCanvas* canvas, SkColorType colorType, PackUnpremulProc
 DEF_GPUTEST(PremulAlphaRoundTrip, reporter, factory) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
 
-    SkAutoTUnref<SkBaseDevice> device;
     for (int dtype = 0; dtype < 2; ++dtype) {
 
         int glCtxTypeCnt = 1;
@@ -77,6 +76,7 @@ DEF_GPUTEST(PremulAlphaRoundTrip, reporter, factory) {
         }
 #endif
         for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
+            SkAutoTUnref<SkBaseDevice> device;
             if (0 == dtype) {
                 device.reset(SkBitmapDevice::Create(info));
             } else {
