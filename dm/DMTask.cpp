@@ -71,12 +71,12 @@ GpuTask::GpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, ta
 
 void GpuTask::run(GrContextFactory& factory) {
     if (FLAGS_gpu && !this->shouldSkip()) {
-        if (FLAGS_resetGpuContext) {
-            factory.destroyContexts();
-        }
         this->start();
         if (!FLAGS_dryRun) this->draw(&factory);
         this->finish();
+        if (FLAGS_resetGpuContext) {
+            factory.destroyContexts();
+        }
     }
     SkDELETE(this);
 }
