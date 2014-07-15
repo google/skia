@@ -248,15 +248,6 @@ public:
 };
 #define SkAutoUnref(...) SK_REQUIRE_LOCAL_VAR(SkAutoUnref)
 
-class SkAutoRef : SkNoncopyable {
-public:
-    SkAutoRef(SkRefCnt* obj) : fObj(obj) { SkSafeRef(obj); }
-    ~SkAutoRef() { SkSafeUnref(fObj); }
-private:
-    SkRefCnt* fObj;
-};
-#define SkAutoRef(...) SK_REQUIRE_LOCAL_VAR(SkAutoRef)
-
 /** Wrapper class for SkRefCnt pointers. This manages ref/unref of a pointer to
     a SkRefCnt (or subclass) object.
  */

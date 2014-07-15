@@ -293,7 +293,7 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     SkASSERT(fCache.contains(glyph));
     SkASSERT(NULL == glyph->fPlot);
 
-    SkAutoRef ar(scaler);
+    SkAutoUnref ar(SkSafeRef(scaler));
 
     int bytesPerPixel = GrMaskFormatBytesPerPixel(fMaskFormat);
 
