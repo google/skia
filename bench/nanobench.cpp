@@ -49,6 +49,7 @@ DEFINE_bool(cpu, true, "Master switch for CPU-bound work.");
 DEFINE_bool(gpu, true, "Master switch for GPU-bound work.");
 
 DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
+DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each bench.");
 
 
 static SkString humanize(double ms) {
@@ -214,6 +215,10 @@ static void create_targets(Benchmark* bench, SkTDArray<Target*>* targets) {
     }
 
 #if SK_SUPPORT_GPU
+    if (FLAGS_resetGpuContext) {
+        gGrFactory.destroyContexts();
+    }
+
     #define GPU_TARGET(config, ctxType, info, samples)                                            \
         if (Target* t = is_enabled(bench, Benchmark::kGPU_Backend, #config)) {                    \
             t->surface.reset(SkSurface::NewRenderTarget(gGrFactory.get(ctxType), info, samples)); \

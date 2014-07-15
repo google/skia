@@ -47,6 +47,7 @@ public:
                                kNVPR_GLContextType   = 0,
                                kNative_GLContextType = 0,
                                kNull_GLContextType   = 0;
+    void destroyContexts() {}
 };
 
 namespace DM {
