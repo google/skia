@@ -219,9 +219,6 @@ static void create_targets(Benchmark* bench, SkTDArray<Target*>* targets) {
     }
 
 #if SK_SUPPORT_GPU
-    if (FLAGS_resetGpuContext) {
-        gGrFactory.destroyContexts();
-    }
 
     #define GPU_TARGET(config, ctxType, info, samples)                                            \
         if (Target* t = is_enabled(bench, Benchmark::kGPU_Backend, #config)) {                    \
@@ -360,6 +357,12 @@ int tool_main(int argc, char** argv) {
             }
         }
         targets.deleteAll();
+
+    #if SK_SUPPORT_GPU
+        if (FLAGS_resetGpuContext) {
+            gGrFactory.destroyContexts();
+        }
+    #endif
     }
 
     return 0;
