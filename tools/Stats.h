@@ -6,7 +6,11 @@
 #include "SkString.h"
 #include "SkTSort.h"
 
-static const char* kBars[] = { "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" };
+#ifdef SK_BUILD_FOR_WIN
+    static const char* kBars[] = { ".", "o", "O" };
+#else
+    static const char* kBars[] = { "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" };
+#endif
 
 struct Stats {
     Stats(const double samples[], int n) {
