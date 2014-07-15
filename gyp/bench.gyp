@@ -48,6 +48,9 @@
         'tools.gyp:crash_handler',
         'tools.gyp:timer',
       ],
+
+      # Experiment to see if LTCG is the key difference leading to Windows infinite loops.
+      'msvs_settings': { 'VCLinkerTool': { 'LinkTimeCodeGeneration': '0' } },
     },
   ],
 }
