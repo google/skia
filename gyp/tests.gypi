@@ -75,6 +75,7 @@
     '../tests/FitsInTest.cpp',
     '../tests/FlatDataTest.cpp',
     '../tests/FlateTest.cpp',
+    '../tests/FloatingPointTextureTest.cpp',
     '../tests/FontHostStreamTest.cpp',
     '../tests/FontHostTest.cpp',
     '../tests/FontMgrTest.cpp',

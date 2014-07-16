@@ -135,6 +135,7 @@ static inline uint32_t GrPixelConfigComponentMask(GrPixelConfig config) {
         kRGB_GrColorComponentFlags,     // kETC1_GrPixelConfig
         kA_GrColorComponentFlag,        // kLATC_GrPixelConfig
         kA_GrColorComponentFlag,        // kR11_EAC_GrPixelConfig
+        kRGBA_GrColorComponentFlags,    // kRGBA_float_GrPixelConfig
     };
     return kFlags[config];
 
@@ -148,6 +149,7 @@ static inline uint32_t GrPixelConfigComponentMask(GrPixelConfig config) {
     GR_STATIC_ASSERT(7 == kETC1_GrPixelConfig);
     GR_STATIC_ASSERT(8 == kLATC_GrPixelConfig);
     GR_STATIC_ASSERT(9 == kR11_EAC_GrPixelConfig);
+    GR_STATIC_ASSERT(10 == kRGBA_float_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFlags) == kGrPixelConfigCnt);
 }
 

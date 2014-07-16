@@ -444,6 +444,10 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
         }
     }
 
+    if (this->isConfigTexturable(kRGBA_float_GrPixelConfig)) {
+        fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = true;
+    }
+
     // If we don't support MSAA then undo any places above where we set a config as renderable with
     // msaa.
     if (kNone_MSFBOType == fMSFBOType) {
@@ -504,7 +508,7 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     // First check version for support
     if (kGL_GrGLStandard == standard) {
         hasETC1 = hasCompressTex2D &&
-            (version >= GR_GL_VER(4, 3) || 
+            (version >= GR_GL_VER(4, 3) ||
              ctxInfo.hasExtension("GL_ARB_ES3_compatibility"));
     } else {
         hasETC1 = hasCompressTex2D &&
@@ -558,6 +562,19 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     } else {
         fConfigTextureSupport[kR11_EAC_GrPixelConfig] = version >= GR_GL_VER(3, 0);
     }
+
+    // Check for floating point texture support
+    // NOTE: We disallow floating point textures on ES devices if linear
+    // filtering modes are not supported.  This is for simplicity, but a more
+    // granular approach is possible.  Coincidentally, floating point textures became part of
+    // the standard in ES3.1 / OGL 3.1, hence the shorthand
+    bool hasFPTextures = version >= GR_GL_VER(3, 1);
+    if (!hasFPTextures) {
+        hasFPTextures = ctxInfo.hasExtension("GL_ARB_texture_float") ||
+                        (ctxInfo.hasExtension("OES_texture_float_linear") &&
+                         ctxInfo.hasExtension("GL_OES_texture_float"));
+    }
+    fConfigTextureSupport[kRGBA_float_GrPixelConfig] = hasFPTextures;
 }
 
 bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,

@@ -68,7 +68,7 @@ size_t GrRenderTarget::gpuMemorySize() const {
     if (kUnknown_GrPixelConfig == fDesc.fConfig) {
         colorBits = 32; // don't know, make a guess
     } else {
-        colorBits = GrBytesPerPixel(fDesc.fConfig);
+        colorBits = GrBytesPerPixel(fDesc.fConfig) * 8;
     }
     uint64_t size = fDesc.fWidth;
     size *= fDesc.fHeight;

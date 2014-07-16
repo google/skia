@@ -274,7 +274,7 @@ enum GrPixelConfig {
      * Premultiplied. Byte order is b,g,r,a.
      */
     kBGRA_8888_GrPixelConfig,
-    /** 
+    /**
      * ETC1 Compressed Data
      */
     kETC1_GrPixelConfig,
@@ -282,14 +282,16 @@ enum GrPixelConfig {
      * LATC/RGTC/3Dc/BC4 Compressed Data
      */
     kLATC_GrPixelConfig,
-
     /**
      * R11 EAC Compressed Data
      * (Corresponds to section C.3.5 of the OpenGL 4.4 core profile spec)
      */
     kR11_EAC_GrPixelConfig,
-
-    kLast_GrPixelConfig = kR11_EAC_GrPixelConfig
+    /**
+     * Byte order is r, g, b, a.  This color format is 32 bits per channel
+     */
+    kRGBA_float_GrPixelConfig,
+    kLast_GrPixelConfig = kRGBA_float_GrPixelConfig
 };
 static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 
@@ -352,6 +354,25 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
             return 2;
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
+            return 4;
+        case kRGBA_float_GrPixelConfig:
+            return 16;
+        default:
+            return 0;
+    }
+}
+
+static inline size_t GrUnpackAlignment(GrPixelConfig config) {
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+        case kIndex_8_GrPixelConfig:
+            return 1;
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+            return 2;
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
             return 4;
         default:
             return 0;
@@ -644,7 +665,7 @@ enum GrGLBackendState {
 
 /**
  * Returns the data size for the given compressed pixel config
- */ 
+ */
 static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
                                                 int width, int height) {
     SkASSERT(GrPixelConfigIsCompressed(config));

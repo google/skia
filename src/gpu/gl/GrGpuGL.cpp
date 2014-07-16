@@ -639,7 +639,8 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
         if (glFlipY) {
             GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
         }
-        GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT,
+              static_cast<GrGLint>(GrUnpackAlignment(dataConfig))));
     }
     bool succeeded = true;
     if (isNewTexture &&
@@ -2696,6 +2697,11 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
             break;
         case kR11_EAC_GrPixelConfig:
             *internalFormat = GR_GL_COMPRESSED_R11;
+            break;
+        case kRGBA_float_GrPixelConfig:
+            *internalFormat = GR_GL_RGBA32F;
+            *externalFormat = GR_GL_RGBA;
+            *externalType = GR_GL_FLOAT;
             break;
         default:
             return false;
