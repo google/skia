@@ -726,7 +726,6 @@ private:
 
     enum Flags {
         kImageIsVolatile_Flag   = 0x02,
-        kImageIsImmutable_Flag  = 0x04,
 #ifdef SK_BUILD_FOR_ANDROID
         /* A hint for the renderer responsible for drawing this bitmap
          * indicating that it should attempt to use mipmaps when this bitmap

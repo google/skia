@@ -486,15 +486,12 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmap::isImmutable() const {
-    return fPixelRef ? fPixelRef->isImmutable() :
-        fFlags & kImageIsImmutable_Flag;
+    return fPixelRef ? fPixelRef->isImmutable() : false;
 }
 
 void SkBitmap::setImmutable() {
     if (fPixelRef) {
         fPixelRef->setImmutable();
-    } else {
-        fFlags |= kImageIsImmutable_Flag;
     }
 }
 
@@ -1332,11 +1329,11 @@ void SkBitmap::validate() const {
     }
 
     SkASSERT(fInfo.validRowBytes(fRowBytes));
-    uint8_t allFlags = kImageIsVolatile_Flag | kImageIsImmutable_Flag;
+    uint8_t allFlags = kImageIsVolatile_Flag;
 #ifdef SK_BUILD_FOR_ANDROID
     allFlags |= kHasHardwareMipMap_Flag;
 #endif
-    SkASSERT(fFlags <= allFlags);
+    SkASSERT((~allFlags & fFlags) == 0);
     SkASSERT(fPixelLockCount >= 0);
 
     if (fPixels) {
