@@ -213,6 +213,7 @@
     'skia_arch_type%': '<(skia_arch_type)',
     'skia_chrome_utils%': '<(skia_chrome_utils)',
     'skia_directwrite%': '<(skia_directwrite)',
+    'skia_gdi%': '<(skia_gdi)',
     'skia_gpu%': '<(skia_gpu)',
     'skia_win_exceptions%': 0,
     'skia_win_ltcg%': 1,
