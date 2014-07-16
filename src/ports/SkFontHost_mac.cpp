@@ -82,9 +82,10 @@ public:
     ~AutoCFRelease() { CFSafeRelease(fCFRef); }
 
     void reset(CFRef that = NULL) {
-        CFSafeRetain(that);
-        CFSafeRelease(fCFRef);
-        fCFRef = that;
+        if (that != fCFRef) {
+            CFSafeRelease(fCFRef);
+            fCFRef = that;
+        }
     }
 
     AutoCFRelease& operator =(CFRef that) {
