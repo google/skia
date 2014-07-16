@@ -48,8 +48,6 @@ void GrGLCaps::reset() {
     fIsCoreProfile = false;
     fFullClearIsFree = false;
     fDropsTileOnZeroDivide = false;
-
-    fReadPixelsSupportedCache.reset();
 }
 
 GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrDrawTargetCaps() {
@@ -506,7 +504,7 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     // First check version for support
     if (kGL_GrGLStandard == standard) {
         hasETC1 = hasCompressTex2D &&
-            (version >= GR_GL_VER(4, 3) ||
+            (version >= GR_GL_VER(4, 3) || 
              ctxInfo.hasExtension("GL_ARB_ES3_compatibility"));
     } else {
         hasETC1 = hasCompressTex2D &&
@@ -562,9 +560,9 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     }
 }
 
-bool GrGLCaps::doReadPixelsSupported(const GrGLInterface* intf,
-                                     GrGLenum format,
-                                     GrGLenum type) const {
+bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
+                                   GrGLenum format,
+                                   GrGLenum type) const {
     if (GR_GL_RGBA == format && GR_GL_UNSIGNED_BYTE == type) {
         // ES 2 guarantees this format is supported
         return true;
@@ -589,26 +587,6 @@ bool GrGLCaps::doReadPixelsSupported(const GrGLInterface* intf,
                       &otherType);
 
     return (GrGLenum)otherFormat == format && (GrGLenum)otherType == type;
-}
-
-bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
-                                   GrGLenum format,
-                                   GrGLenum type,
-                                   GrGLenum currFboFormat) const {
-
-    ReadPixelsSupportedFormats::Key key = {format, type, currFboFormat};
-
-    ReadPixelsSupportedFormats* cachedValue = fReadPixelsSupportedCache.find(key);
-
-    if (NULL == cachedValue) {
-        bool value = doReadPixelsSupported(intf, format, type);
-        ReadPixelsSupportedFormats newValue(key, value);
-        fReadPixelsSupportedCache.add(newValue);
-
-        return newValue.value();
-    }
-
-    return cachedValue->value();
 }
 
 void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {

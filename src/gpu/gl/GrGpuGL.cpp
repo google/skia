@@ -170,6 +170,8 @@ GrGpuGL::~GrGpuGL() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+
 GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig readConfig,
                                                  GrPixelConfig surfaceConfig) const {
     if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == readConfig) {
@@ -180,13 +182,9 @@ GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig readConfig,
         // Mesa 3D takes a slow path on when reading back  BGRA from an RGBA surface and vice-versa.
         // Perhaps this should be guarded by some compiletime or runtime check.
         return surfaceConfig;
-    } else if (readConfig == kBGRA_8888_GrPixelConfig
-            && this->glCaps().readPixelsSupported(
-                this->glInterface(),
-                GR_GL_BGRA,
-                GR_GL_UNSIGNED_BYTE,
-                surfaceConfig
-            )) {
+    } else if (readConfig == kBGRA_8888_GrPixelConfig &&
+               !this->glCaps().readPixelsSupported(this->glInterface(),
+                                                   GR_GL_BGRA, GR_GL_UNSIGNED_BYTE)) {
         return kRGBA_8888_GrPixelConfig;
     } else {
         return readConfig;
@@ -715,7 +713,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
 }
 
 // TODO: This function is using a lot of wonky semantics like, if width == -1
-// then set width = desc.fWdith ... blah. A better way to do it might be to
+// then set width = desc.fWdith ... blah. A better way to do it might be to 
 // create a CompressedTexData struct that takes a desc/ptr and figures out
 // the proper upload semantics. Then users can construct this function how they
 // see fit if they want to go against the "standard" way to do it.

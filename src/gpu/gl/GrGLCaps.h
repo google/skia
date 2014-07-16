@@ -11,9 +11,8 @@
 
 #include "GrDrawTargetCaps.h"
 #include "GrGLStencilBuffer.h"
-#include "SkChecksum.h"
-#include "SkTHashCache.h"
 #include "SkTArray.h"
+#include "SkTDArray.h"
 
 class GrGLContextInfo;
 
@@ -254,8 +253,7 @@ public:
     /// Does ReadPixels support the provided format/type combo?
     bool readPixelsSupported(const GrGLInterface* intf,
                              GrGLenum format,
-                             GrGLenum type,
-                             GrGLenum currFboFormat) const;
+                             GrGLenum type) const;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
@@ -326,10 +324,6 @@ private:
     void initConfigRenderableTable(const GrGLContextInfo&);
     void initConfigTexturableTable(const GrGLContextInfo&, const GrGLInterface*);
 
-    bool doReadPixelsSupported(const GrGLInterface* intf,
-                                   GrGLenum format,
-                                   GrGLenum type) const;
-
     // tracks configs that have been verified to pass the FBO completeness when
     // used as a color attachment
     VerifiedColorConfigs fVerifiedColorConfigs;
@@ -369,46 +363,6 @@ private:
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;
     bool fDropsTileOnZeroDivide : 1;
-
-    class ReadPixelsSupportedFormats {
-    public:
-        struct Key {
-            GrGLenum fFormat;
-            GrGLenum fType;
-            GrGLenum fFboFormat;
-
-            bool operator==(const Key& rhs) const {
-                return fFormat == rhs.fFormat
-                        && fType == rhs.fType
-                        && fFboFormat == rhs.fFboFormat;
-            }
-
-            uint32_t getHash() const {
-                return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(this), sizeof(*this));
-            }
-        };
-
-        ReadPixelsSupportedFormats(Key key, bool value) : fKey(key), fValue(value) {
-        }
-
-        static const Key& GetKey(const ReadPixelsSupportedFormats& element) {
-            return element.fKey;
-        }
-
-        static uint32_t Hash(const Key& key) {
-            return key.getHash();
-        }
-
-        bool value() const {
-            return fValue;
-        }
-    private:
-        Key fKey;
-        bool fValue;
-    };
-
-    mutable SkTHashCache<ReadPixelsSupportedFormats,
-                         ReadPixelsSupportedFormats::Key> fReadPixelsSupportedCache;
 
     typedef GrDrawTargetCaps INHERITED;
 };
