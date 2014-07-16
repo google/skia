@@ -139,7 +139,7 @@
       'skia_resource_cache_mb_limit%': 0,
       'skia_resource_cache_count_limit%': 0,
       'skia_angle%': 0,
-      'skia_directwrite%': 0,
+      'skia_gdi%': 0,
       'skia_gpu%': 1,
       'skia_osx_deployment_target%': '',
       'skia_profile_enabled%': 0,
