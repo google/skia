@@ -17,7 +17,15 @@ static inline __attribute__((always_inline)) int32_t sk_atomic_inc(int32_t* addr
 }
 
 static inline __attribute__((always_inline)) int64_t sk_atomic_inc(int64_t* addr) {
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(__mips__) && !defined(__LP64__)
+    /** The 32-bit MIPS toolchain for the android framework is missing support
+     *  for __sync* functions that operate on 64-bit values. The workaround is
+     *  to use __atomic* functions until we can move everything to <stdatomic.h>.
+     */
+    return __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+#else
     return __sync_fetch_and_add(addr, 1);
+#endif
 }
 
 static inline __attribute__((always_inline)) int32_t sk_atomic_add(int32_t* addr, int32_t inc) {
