@@ -32,6 +32,10 @@ class GrPlot {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrPlot);
 
+    // This returns a plot ID unique to each plot in a given GrAtlas. They are
+    // consecutive and start at 0.
+    int id() const { return fID; }
+
     GrTexture* texture() const { return fTexture; }
 
     bool addSubImage(int width, int height, const void*, SkIPoint16*);
@@ -46,12 +50,13 @@ public:
 private:
     GrPlot();
     ~GrPlot(); // does not try to delete the fNext field
-    void init(GrAtlas* atlas, int offX, int offY, int width, int height, size_t bpp,
+    void init(GrAtlas* atlas, int id, int offX, int offY, int width, int height, size_t bpp,
               bool batchUploads);
 
     // for recycling
     GrDrawTarget::DrawToken fDrawToken;
 
+    int                     fID;
     unsigned char*          fPlotData;
     GrTexture*              fTexture;
     GrRectanizer*           fRects;

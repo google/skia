@@ -20,13 +20,15 @@
 static int g_UploadCount = 0;
 #endif
 
-GrPlot::GrPlot() : fDrawToken(NULL, 0)
-                 , fTexture(NULL)
-                 , fRects(NULL)
-                 , fAtlas(NULL)
-                 , fBytesPerPixel(1)
-                 , fDirty(false)
-                 , fBatchUploads(false)
+GrPlot::GrPlot() 
+    : fDrawToken(NULL, 0)
+    , fID(-1)
+    , fTexture(NULL)
+    , fRects(NULL)
+    , fAtlas(NULL)
+    , fBytesPerPixel(1)
+    , fDirty(false)
+    , fBatchUploads(false)
 {
     fOffset.set(0, 0);
 }
@@ -37,8 +39,9 @@ GrPlot::~GrPlot() {
     delete fRects;
 }
 
-void GrPlot::init(GrAtlas* atlas, int offX, int offY, int width, int height, size_t bpp,
+void GrPlot::init(GrAtlas* atlas, int id, int offX, int offY, int width, int height, size_t bpp,
                   bool batchUploads) {
+    fID = id;
     fRects = GrRectanizer::Factory(width, height);
     fAtlas = atlas;
     fOffset.set(offX * width, offY * height);
@@ -178,7 +181,7 @@ GrAtlas::GrAtlas(GrGpu* gpu, GrPixelConfig config, GrTextureFlags flags,
     GrPlot* currPlot = fPlotArray;
     for (int y = numPlotsY-1; y >= 0; --y) {
         for (int x = numPlotsX-1; x >= 0; --x) {
-            currPlot->init(this, x, y, plotWidth, plotHeight, bpp, batchUploads);
+            currPlot->init(this, y*numPlotsX+x, x, y, plotWidth, plotHeight, bpp, batchUploads);
 
             // build LRU list
             fPlotList.addToHead(currPlot);
