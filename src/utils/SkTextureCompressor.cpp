@@ -312,6 +312,8 @@ static inline bool compress_a8_to_latc(uint8_t* dst, const uint8_t* src,
 // If mul is zero, then we set mul = 1/8, so that the formula becomes
 // clamp[0, 2047](base_cw * 8 + 4 + mod_val)
 
+#if COMPRESS_R11_EAC_SLOW
+
 static const int kNumR11EACPalettes = 16;
 static const int kR11EACPaletteSize = 8;
 static const int kR11EACModifierPalettes[kNumR11EACPalettes][kR11EACPaletteSize] = {
@@ -333,7 +335,6 @@ static const int kR11EACModifierPalettes[kNumR11EACPalettes][kR11EACPaletteSize]
     {-3, -5, -7, -9, 2, 4, 6, 8}
 };
 
-#if COMPRESS_R11_EAC_SLOW
 // Pack the base codeword, palette, and multiplier into the 64 bits necessary
 // to decode it.
 static uint64_t pack_r11eac_block(uint16_t base_cw, uint16_t palette, uint16_t multiplier,
