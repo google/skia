@@ -33,6 +33,7 @@ public:
     /// zero-terminated run-length encoding of spans of constant alpha values.
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
                            const int16_t runs[]);
+
     /// Blit a vertical run of pixels with a constant alpha value.
     virtual void blitV(int x, int y, int height, SkAlpha alpha);
     /// Blit a solid rectangle one or more pixels wide.
@@ -66,6 +67,14 @@ public:
      */
     virtual bool resetShaderContext(const SkShader::ContextRec&);
     virtual SkShader::Context* getShaderContext() const;
+
+    /**
+     * Special methods for blitters that can blit more than one row at a time.
+     * This function returns the number of rows that this blitter could optimally
+     * process at a time. It is still required to support blitting one scanline
+     * at a time.
+     */
+    virtual int requestRowsPreserved() const { return 1; }
 
     ///@name non-virtual helpers
     void blitMaskRegion(const SkMask& mask, const SkRegion& clip);
