@@ -264,8 +264,8 @@ for CASE in $FAILING_CASES; do
   assert_fails "python gm/display_json_results.py $GM_OUTPUTS/$CASE/$OUTPUT_EXPECTED_SUBDIR/json-summary.txt"
 done
 
-# Exercise all rebaseline_server unittests.
-assert_passes "python gm/rebaseline_server/test_all.py"
+# Exercise all Python unittests.
+assert_passes "python gm/test_all.py"
 
 echo
 if [ $ENCOUNTERED_ANY_ERRORS == 0 ]; then

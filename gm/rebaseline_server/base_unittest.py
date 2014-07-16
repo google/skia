@@ -26,9 +26,14 @@ OUTPUT_DIR_EXPECTED = os.path.join(TESTDATA_DIR, 'outputs', 'expected')
 class TestCase(unittest.TestCase):
 
   def setUp(self):
+    # Get the name of this test, in such a way that it will be consistent
+    # regardless of the directory it is run from (throw away package names,
+    # if any).
+    test_name = '.'.join(self.id().split('.')[-3:])
+
     self._input_dir = os.path.join(TESTDATA_DIR, 'inputs')
-    self._output_dir_actual   = os.path.join(OUTPUT_DIR_ACTUAL, self.id())
-    self._output_dir_expected = os.path.join(OUTPUT_DIR_EXPECTED, self.id())
+    self._output_dir_actual   = os.path.join(OUTPUT_DIR_ACTUAL, test_name)
+    self._output_dir_expected = os.path.join(OUTPUT_DIR_EXPECTED, test_name)
     create_empty_dir(self._output_dir_actual)
     self._temp_dir = tempfile.mkdtemp()
 
@@ -125,4 +130,4 @@ def find_different_files(dir1, dir2, ignore_subtree_names=None):
 def main(test_case_class):
   """Run the unit tests within the given class."""
   suite = unittest.TestLoader().loadTestsFromTestCase(test_case_class)
-  results = unittest.TextTestRunner(verbosity=2).run(suite)
+  unittest.TextTestRunner(verbosity=2).run(suite)
