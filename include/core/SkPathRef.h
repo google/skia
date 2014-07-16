@@ -291,7 +291,9 @@ private:
     // called, if dirty, by getBounds()
     void computeBounds() const {
         SkDEBUGCODE(this->validate();)
-        SkASSERT(fBoundsIsDirty);
+        // TODO(mtklein): remove fBoundsIsDirty and fIsFinite,
+        // using an inverted rect instead of fBoundsIsDirty and always recalculating fIsFinite.
+        //SkASSERT(fBoundsIsDirty);
 
         fIsFinite = ComputePtBounds(fBounds.get(), *this);
         fBoundsIsDirty = false;
