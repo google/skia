@@ -14,14 +14,13 @@
 
 #include "SkChecksum.h"
 
-bool GrGLProgramDesc::GetEffectKeyAndUpdateStats(const GrEffectStage& stage,
-                                                 const GrGLCaps& caps,
-                                                 bool useExplicitLocalCoords,
-                                                 GrEffectKeyBuilder* b,
-                                                 uint16_t* effectKeySize,
-                                                 bool* setTrueIfReadsDst,
-                                                 bool* setTrueIfReadsPos,
-                                                 bool* setTrueIfHasVertexCode) {
+static inline bool get_key_and_update_stats(const GrEffectStage& stage,
+                                            const GrGLCaps& caps,
+                                            bool useExplicitLocalCoords,
+                                            GrEffectKeyBuilder* b, 
+                                            bool* setTrueIfReadsDst,
+                                            bool* setTrueIfReadsPos,
+                                            bool* setTrueIfHasVertexCode) {
     const GrBackendEffectFactory& factory = stage.getEffect()->getFactory();
     GrDrawEffect drawEffect(stage, useExplicitLocalCoords);
     if (stage.getEffect()->willReadDstColor()) {
@@ -33,17 +32,7 @@ bool GrGLProgramDesc::GetEffectKeyAndUpdateStats(const GrEffectStage& stage,
     if (stage.getEffect()->hasVertexCode()) {
         *setTrueIfHasVertexCode = true;
     }
-    factory.getGLEffectKey(drawEffect, caps, b);
-    size_t size = b->size();
-    if (size > SK_MaxU16) {
-        *effectKeySize = 0; // suppresses a warning.
-        return false;
-    }
-    *effectKeySize = SkToU16(size);
-    if (!GrGLProgramEffects::GenEffectMetaKey(drawEffect, caps, b)) {
-        return false;
-    }
-    return true;
+    return factory.getGLEffectKey(drawEffect, caps, b);
 }
 
 bool GrGLProgramDesc::Build(const GrDrawState& drawState,
@@ -116,54 +105,43 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     if (!skipCoverage) {
         numStages += drawState.numCoverageStages() - firstEffectiveCoverageStage;
     }
-    GR_STATIC_ASSERT(0 == kEffectKeyOffsetsAndLengthOffset % sizeof(uint32_t));
+    GR_STATIC_ASSERT(0 == kEffectKeyLengthsOffset % sizeof(uint32_t));
     // Make room for everything up to and including the array of offsets to effect keys.
     desc->fKey.reset();
-    desc->fKey.push_back_n(kEffectKeyOffsetsAndLengthOffset + 2 * sizeof(uint32_t) * numStages);
+    desc->fKey.push_back_n(kEffectKeyLengthsOffset + sizeof(uint32_t) * numStages);
 
-    int offsetAndSizeIndex = 0;
+    size_t offset = desc->fKey.count();
+    int offsetIndex = 0;
 
     bool effectKeySuccess = true;
     if (!skipColor) {
         for (int s = firstEffectiveColorStage; s < drawState.numColorStages(); ++s) {
-            uint16_t* offsetAndSize =
-                reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
-                                            offsetAndSizeIndex * 2 * sizeof(uint16_t));
+            uint32_t* offsetLocation = reinterpret_cast<uint32_t*>(desc->fKey.begin() +
+                                                                   kEffectKeyLengthsOffset +
+                                                                   offsetIndex * sizeof(uint32_t));
+            *offsetLocation = offset;
+            ++offsetIndex;
 
             GrEffectKeyBuilder b(&desc->fKey);
-            uint16_t effectKeySize;
-            uint32_t effectOffset = desc->fKey.count();
-            effectKeySuccess |= GetEffectKeyAndUpdateStats(
-                                    drawState.getColorStage(s), gpu->glCaps(),
-                                    requiresLocalCoordAttrib, &b,
-                                    &effectKeySize, &readsDst,
-                                    &readFragPosition, &hasVertexCode);
-            effectKeySuccess |= (effectOffset <= SK_MaxU16);
-
-            offsetAndSize[0] = SkToU16(effectOffset);
-            offsetAndSize[1] = effectKeySize;
-            ++offsetAndSizeIndex;
+            effectKeySuccess |= get_key_and_update_stats(drawState.getColorStage(s), gpu->glCaps(),
+                                                         requiresLocalCoordAttrib, &b, &readsDst,
+                                                         &readFragPosition, &hasVertexCode);
+            offset += b.size();
         }
     }
     if (!skipCoverage) {
         for (int s = firstEffectiveCoverageStage; s < drawState.numCoverageStages(); ++s) {
-            uint16_t* offsetAndSize =
-                reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
-                                            offsetAndSizeIndex * 2 * sizeof(uint16_t));
-
+            uint32_t* offsetLocation = reinterpret_cast<uint32_t*>(desc->fKey.begin() +
+                                                                   kEffectKeyLengthsOffset +
+                                                                   offsetIndex * sizeof(uint32_t));
+            *offsetLocation = offset;
+            ++offsetIndex;
             GrEffectKeyBuilder b(&desc->fKey);
-            uint16_t effectKeySize;
-            uint32_t effectOffset = desc->fKey.count();
-            effectKeySuccess |= GetEffectKeyAndUpdateStats(
-                                    drawState.getCoverageStage(s), gpu->glCaps(),
-                                    requiresLocalCoordAttrib, &b,
-                                    &effectKeySize, &readsDst,
-                                    &readFragPosition, &hasVertexCode);
-            effectKeySuccess |= (effectOffset <= SK_MaxU16);
-
-            offsetAndSize[0] = SkToU16(effectOffset);
-            offsetAndSize[1] = effectKeySize;
-            ++offsetAndSizeIndex;
+            effectKeySuccess |= get_key_and_update_stats(drawState.getCoverageStage(s),
+                                                         gpu->glCaps(), requiresLocalCoordAttrib,
+                                                         &b, &readsDst, &readFragPosition,
+                                                         &hasVertexCode);
+            offset += b.size();
         }
     }
     if (!effectKeySuccess) {

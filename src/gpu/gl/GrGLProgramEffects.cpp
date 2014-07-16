@@ -114,27 +114,6 @@ SkMatrix get_transform_matrix(const GrDrawEffect& drawEffect, int transformIdx) 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGLProgramEffects::GenEffectMetaKey(const GrDrawEffect& drawEffect, const GrGLCaps& caps,
-                                          GrEffectKeyBuilder* b) {
-
-    EffectKey textureKey = GrGLProgramEffects::GenTextureKey(drawEffect, caps);
-    EffectKey transformKey = GrGLProgramEffects::GenTransformKey(drawEffect);
-    EffectKey attribKey = GrGLProgramEffects::GenAttribKey(drawEffect);
-    uint32_t classID = drawEffect.effect()->getFactory().effectClassID();
-
-    // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
-    // don't fit.
-    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t) SK_MaxU16);
-    if ((textureKey | transformKey | attribKey | classID) & kMetaKeyInvalidMask) {
-        return false;
-    }
-
-    uint32_t* key = b->add32n(2);
-    key[0] = (textureKey << 16 | transformKey);
-    key[1] = (classID << 16 | attribKey);
-    return true;
-}
-
 EffectKey GrGLProgramEffects::GenAttribKey(const GrDrawEffect& drawEffect) {
     EffectKey key = 0;
     int numAttributes = drawEffect.getVertexAttribIndexCount();

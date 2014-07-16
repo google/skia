@@ -9,9 +9,9 @@
 #define GrGLProgramEffects_DEFINED
 
 #include "GrBackendEffectFactory.h"
-#include "GrGLUniformManager.h"
 #include "GrTexture.h"
 #include "GrTextureAccess.h"
+#include "GrGLUniformManager.h"
 
 class GrEffect;
 class GrEffectStage;
@@ -31,14 +31,11 @@ public:
     typedef GrGLUniformManager::UniformHandle UniformHandle;
 
     /**
-     * This class emits some of the code inserted into the shaders for an effect. The code it
-     * creates may be dependent on properties of the effect that the effect itself doesn't use
-     * in its key (e.g. the pixel format of textures used). So this class inserts a meta-key for
-     * every effect using this function. It is also responsible for inserting the effect's class ID
-     * which must be different for every GrEffect subclass. It can fail if an effect uses too many
-     * textures, attributes, etc for the space allotted in the meta-key.
+     * These methods generate different portions of an effect's final key.
      */
-    static bool GenEffectMetaKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
+    static EffectKey GenAttribKey(const GrDrawEffect&);
+    static EffectKey GenTransformKey(const GrDrawEffect&);
+    static EffectKey GenTextureKey(const GrDrawEffect&, const GrGLCaps&);
 
     virtual ~GrGLProgramEffects();
 
@@ -101,13 +98,6 @@ public:
     typedef SkTArray<TextureSampler> TextureSamplerArray;
 
 protected:
-    /**
-     * Helpers for GenEffectMetaKey.
-     */
-    static EffectKey GenAttribKey(const GrDrawEffect&);
-    static EffectKey GenTransformKey(const GrDrawEffect&);
-    static EffectKey GenTextureKey(const GrDrawEffect&, const GrGLCaps&);
-
     GrGLProgramEffects(int reserveCount)
         : fGLEffects(reserveCount)
         , fSamplers(reserveCount) {
