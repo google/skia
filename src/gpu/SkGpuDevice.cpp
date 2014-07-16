@@ -1991,21 +1991,18 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
 
             layerInfo->fBM = SkNEW(SkBitmap);  // fBM is allocated so ReplacementInfo can be POD
             wrap_texture(layer->texture(), 
-                         layer->rect().isEmpty() ? desc.fWidth : layer->texture()->width(),
-                         layer->rect().isEmpty() ? desc.fHeight : layer->texture()->height(),
+                         !layer->isAtlased() ? desc.fWidth : layer->texture()->width(),
+                         !layer->isAtlased() ? desc.fHeight : layer->texture()->height(),
                          layerInfo->fBM);
 
             SkASSERT(info.fPaint);
             layerInfo->fPaint = info.fPaint;
 
-            if (layer->rect().isEmpty()) {
-                layerInfo->fSrcRect = SkIRect::MakeWH(desc.fWidth, desc.fHeight);
-            } else {
-                layerInfo->fSrcRect = SkIRect::MakeXYWH(layer->rect().fLeft,
-                                                        layer->rect().fTop,
-                                                        layer->rect().width(),
-                                                        layer->rect().height());
-            }
+            layerInfo->fSrcRect = SkIRect::MakeXYWH(layer->rect().fLeft,
+                                                    layer->rect().fTop,
+                                                    layer->rect().width(),
+                                                    layer->rect().height());
+
 
             if (needsRendering) {
                 SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
@@ -2015,14 +2012,12 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
 
                 SkCanvas* canvas = surface->getCanvas();
 
-                if (!layer->rect().isEmpty()) {
-                    // Add a rect clip to make sure the rendering doesn't
-                    // extend beyond the boundaries of the atlased sub-rect
-                    SkRect bound = SkRect::MakeXYWH(SkIntToScalar(layer->rect().fLeft),
-                                                    SkIntToScalar(layer->rect().fTop),
-                                                    SkIntToScalar(layer->rect().width()),
-                                                    SkIntToScalar(layer->rect().height()));
-                    canvas->clipRect(bound);
+                // Add a rect clip to make sure the rendering doesn't
+                // extend beyond the boundaries of the atlased sub-rect
+                SkRect bound = SkRect::Make(layerInfo->fSrcRect);
+                canvas->clipRect(bound);
+
+                if (layer->isAtlased()) {
                     // Since 'clear' doesn't respect the clip we need to draw a rect
                     // TODO: ensure none of the atlased layers contain a clear call!
                     SkPaint paint;
@@ -2032,16 +2027,12 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
                     canvas->clear(SK_ColorTRANSPARENT);
                 }
 
-                canvas->setMatrix(info.fCTM);
-
-                if (!layer->rect().isEmpty()) {
-                    // info.fCTM maps the layer's top/left to the origin.
-                    // Since this layer is atlased the top/left corner needs
-                    // to be offset to some arbitrary location in the backing 
-                    // texture.
-                    canvas->translate(SkIntToScalar(layer->rect().fLeft),
-                                      SkIntToScalar(layer->rect().fTop));
-                } 
+                // info.fCTM maps the layer's top/left to the origin.
+                // If this layer is atlased the top/left corner needs
+                // to be offset to some arbitrary location in the backing 
+                // texture.
+                canvas->translate(bound.fLeft, bound.fTop);
+                canvas->concat(info.fCTM);
 
                 SkPictureRangePlayback rangePlayback(picture,
                                                      info.fSaveLayerOpID, 

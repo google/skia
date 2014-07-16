@@ -21,16 +21,15 @@ class SkPicture;
 
 // GrCachedLayer encapsulates the caching information for a single saveLayer.
 //
-// Atlased layers get a ref to their atlas GrTexture and 'fRect' contains
-// their absolute location in the backing texture.
-//
-// Non-atlased layers get a ref to the GrTexture in which they reside. Their
-// 'fRect' will be empty.
+// Atlased layers get a ref to the backing GrTexture while non-atlased layers
+// get a ref to the GrTexture in which they reside. In both cases 'fRect' 
+// contains the layer's extent in its texture.
 //
 // TODO: can we easily reuse the empty space in the non-atlased GrTexture's?
 struct GrCachedLayer {
 public:
-    GrCachedLayer(uint32_t pictureID, int layerID) {
+    GrCachedLayer(uint32_t pictureID, int layerID) 
+        : fAtlased(false) {
         fPictureID = pictureID;
         fLayerID = layerID;
         fTexture = NULL;
@@ -52,8 +51,15 @@ public:
     GrTexture* texture() { return fTexture; }
     const GrIRect16& rect() const { return fRect; }
 
+    void setAtlased(bool atlased) { fAtlased = atlased; }
+    bool isAtlased() const { return fAtlased; }
+
+    SkDEBUGCODE(void validate(GrTexture* backingTexture) const;)
+
 private:
+    // ID of the picture of which this layer is a part
     uint32_t        fPictureID;
+
     // fLayerID is only valid when fPicture != kInvalidGenID in which case it
     // is the index of this layer in the picture (one of 0 .. #layers).
     int             fLayerID;
@@ -63,8 +69,12 @@ private:
     // non-NULL, that means that the texture is locked in the texture cache.
     GrTexture*      fTexture;
 
-    // For non-atlased layers 'fRect' is empty otherwise it is the bound of
-    // the layer in the atlas.
+    // True if this layer is in an atlas; false otherwise.
+    bool            fAtlased;
+
+    // For both atlased and non-atlased layers 'fRect' contains the  bound of
+    // the layer in whichever texture it resides. It is empty when 'fTexture'
+    // is NULL.
     GrIRect16       fRect;
 };
 
@@ -98,6 +108,8 @@ public:
 
     // Remove all the layers (and unlock any resources) associated with 'picture'
     void purge(const SkPicture* picture);
+
+    SkDEBUGCODE(void validate() const;)
 
 private:
     GrContext*                fContext;  // pointer back to owning context

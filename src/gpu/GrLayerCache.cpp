@@ -10,7 +10,7 @@
 #include "GrLayerCache.h"
 
 /**
- *  PictureLayerKey just wraps a saveLayer's id in the picture for GrTHashTable.
+ *  PictureLayerKey just wraps a saveLayer's id in a picture for GrTHashTable.
  */
 class GrLayerCache::PictureLayerKey {
 public:
@@ -40,6 +40,44 @@ private:
     uint32_t fPictureID;
     int      fLayerID;
 };
+
+#ifdef SK_DEBUG
+void GrCachedLayer::validate(GrTexture* backingTexture) const {
+    SkASSERT(SK_InvalidGenID != fPictureID);
+    SkASSERT(-1 != fLayerID);
+
+    if (NULL != fTexture) {
+        // If the layer is in some texture then it must occupy some rectangle
+        SkASSERT(!fRect.isEmpty());
+        if (!this->isAtlased()) {
+            // If it isn't atlased then the rectangle should start at the origin
+            SkASSERT(0.0f == fRect.fLeft && 0.0f == fRect.fTop);
+        }
+    } else {
+        SkASSERT(fRect.isEmpty());
+    }
+}
+
+class GrAutoValidateLayer : ::SkNoncopyable {
+public:
+    GrAutoValidateLayer(GrTexture* backingTexture, const GrCachedLayer* layer) 
+        : fBackingTexture(backingTexture)
+        , fLayer(layer) {
+        if (NULL != fLayer) {
+            fLayer->validate(backingTexture);
+        }
+    }
+    ~GrAutoValidateLayer() {
+        if (NULL != fLayer) {
+            fLayer->validate(fBackingTexture);
+        }
+    }
+
+private:
+    GrTexture* fBackingTexture;
+    const GrCachedLayer* fLayer;
+};
+#endif
 
 GrLayerCache::GrLayerCache(GrContext* context)
     : fContext(context) {
@@ -112,11 +150,12 @@ GrCachedLayer* GrLayerCache::findLayerOrCreate(const SkPicture* picture, int lay
 }
 
 bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc) {
+    SkDEBUGCODE(GrAutoValidateLayer avl(fAtlas->getTexture(), layer);)
 
     if (NULL != layer->texture()) {
         // This layer is already locked
 #ifdef SK_DEBUG
-        if (!layer->rect().isEmpty()) {
+        if (layer->isAtlased()) {
             // It claims to be atlased
             SkASSERT(layer->rect().width() == desc.fWidth);
             SkASSERT(layer->rect().height() == desc.fHeight);
@@ -132,32 +171,61 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc) {
         GrIRect16 bounds = GrIRect16::MakeXYWH(loc.fX, loc.fY, 
                                                SkToS16(desc.fWidth), SkToS16(desc.fHeight));
         layer->setTexture(fAtlas->getTexture(), bounds);
+        layer->setAtlased(true);
         return false;
     }
 #endif
 
+    // The texture wouldn't fit in the cache - give it it's own texture.
     // This path always uses a new scratch texture and (thus) doesn't cache anything.
     // This can yield a lot of re-rendering
     layer->setTexture(fContext->lockAndRefScratchTexture(desc, GrContext::kApprox_ScratchTexMatch),
-                      GrIRect16::MakeEmpty());
+                      GrIRect16::MakeWH(SkToS16(desc.fWidth), SkToS16(desc.fHeight)));
     return false;
 }
 
 void GrLayerCache::unlock(GrCachedLayer* layer) {
+    SkDEBUGCODE(GrAutoValidateLayer avl(fAtlas->getTexture(), layer);)
+
     if (NULL == layer || NULL == layer->texture()) {
         return;
     }
 
-    // The atlas doesn't currently use a scratch texture (and we would have
-    // to free up space differently anyways)
-    // TODO: unlock atlas space when a recycling rectanizer is available
-    if (layer->texture() != fAtlas->getTexture()) {
+    if (layer->isAtlased()) {
+        // The atlas doesn't currently use a scratch texture (and we would have
+        // to free up space differently anyways)
+        // TODO: unlock atlas space when a recycling rectanizer is available
+    } else {
         fContext->unlockScratchTexture(layer->texture());
         layer->setTexture(NULL, GrIRect16::MakeEmpty());
     }
 }
 
+#ifdef SK_DEBUG
+void GrLayerCache::validate() const {
+    const SkTDArray<GrCachedLayer*>& layerArray = fLayerHash.getArray();
+    for (int i = 0; i < fLayerHash.count(); ++i) {
+        layerArray[i]->validate(fAtlas->getTexture());
+    }
+}
+
+class GrAutoValidateCache : ::SkNoncopyable {
+public:
+    explicit GrAutoValidateCache(GrLayerCache* cache)
+        : fCache(cache) {
+        fCache->validate();
+    }
+    ~GrAutoValidateCache() {
+        fCache->validate();
+    }
+private:
+    GrLayerCache* fCache;
+};
+#endif
+
 void GrLayerCache::purge(const SkPicture* picture) {
+    SkDEBUGCODE(GrAutoValidateCache avc(this);)
+
     // This is somewhat of an abuse of GrTHashTable. We need to find all the
     // layers associated with 'picture' but the usual hash calls only look for
     // exact key matches. This code peeks into the hash table's innards to

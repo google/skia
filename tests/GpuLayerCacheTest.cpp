@@ -39,7 +39,7 @@ static void create_layers(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, picture.uniqueID() == layers[i]->pictureID());
         REPORTER_ASSERT(reporter, layers[i]->layerID() == i);
         REPORTER_ASSERT(reporter, NULL == layers[i]->texture());
-        REPORTER_ASSERT(reporter, layers[i]->rect().isEmpty());
+        REPORTER_ASSERT(reporter, !layers[i]->isAtlased());
     }
 
 }
@@ -83,10 +83,10 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         // The first 4 layers should be in the atlas (and thus have non-empty
         // rects)
         if (i < 4) {
-            REPORTER_ASSERT(reporter, !layer->rect().isEmpty());
+            REPORTER_ASSERT(reporter, layer->isAtlased());
         } else {
 #endif
-            REPORTER_ASSERT(reporter, layer->rect().isEmpty());
+            REPORTER_ASSERT(reporter, !layer->isAtlased());
 #if USE_ATLAS
         }
 #endif
@@ -109,11 +109,11 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         // currently unlock). The final layer should be unlocked.
         if (i < 4) {
             REPORTER_ASSERT(reporter, NULL != layer->texture());
-            REPORTER_ASSERT(reporter, !layer->rect().isEmpty());
+            REPORTER_ASSERT(reporter, layer->isAtlased());
         } else {
 #endif
             REPORTER_ASSERT(reporter, NULL == layer->texture());
-            REPORTER_ASSERT(reporter, layer->rect().isEmpty());
+            REPORTER_ASSERT(reporter, !layer->isAtlased());
 #if USE_ATLAS
         }
 #endif
