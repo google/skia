@@ -222,6 +222,7 @@ class Server(object):
     self._reload_seconds = reload_seconds
     self._config_pairs = config_pairs or []
     self._builder_regex_list = builder_regex_list
+    self._gs = gs_utils.GSUtils()
     _create_index(
         file_path=os.path.join(
             PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR, GENERATED_HTML_SUBDIR,
@@ -304,7 +305,7 @@ class Server(object):
         # TODO(epoger): When this is a large number of builders, we would be
         # better off downloading them in parallel!
         for builder in matching_builders:
-          gs_utils.download_file(
+          self._gs.download_file(
               source_bucket=self._gm_summaries_bucket,
               source_path=posixpath.join(builder, self._json_filename),
               dest_path=os.path.join(self._actuals_dir, builder,

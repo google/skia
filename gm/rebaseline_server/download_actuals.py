@@ -93,7 +93,7 @@ def get_builders_list(summaries_bucket=GM_SUMMARIES_BUCKET):
     summaries_bucket: Google Cloud Storage bucket containing the summary
         JSON files
   """
-  dirs, _ = gs_utils.list_bucket_contents(bucket=GM_SUMMARIES_BUCKET)
+  dirs, _ = gs_utils.GSUtils().list_bucket_contents(bucket=GM_SUMMARIES_BUCKET)
   return dirs
 
 
