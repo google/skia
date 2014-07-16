@@ -563,6 +563,12 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
         fConfigTextureSupport[kR11_EAC_GrPixelConfig] = version >= GR_GL_VER(3, 0);
     }
 
+    // Check for ASTC
+    fConfigTextureSupport[kASTC_12x12_GrPixelConfig] = 
+        ctxInfo.hasExtension("GL_KHR_texture_compression_astc_hdr") ||
+        ctxInfo.hasExtension("GL_KHR_texture_compression_astc_ldr") ||
+        ctxInfo.hasExtension("GL_OES_texture_compression_astc");
+
     // Check for floating point texture support
     // NOTE: We disallow floating point textures on ES devices if linear
     // filtering modes are not supported.  This is for simplicity, but a more

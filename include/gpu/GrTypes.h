@@ -287,6 +287,19 @@ enum GrPixelConfig {
      * (Corresponds to section C.3.5 of the OpenGL 4.4 core profile spec)
      */
     kR11_EAC_GrPixelConfig,
+
+    /**
+     * 12x12 ASTC Compressed Data
+     * ASTC stands for Adaptive Scalable Texture Compression. It is a technique
+     * that allows for a lot of customization in the compressed representataion
+     * of a block. The only thing fixed in the representation is the block size,
+     * which means that a texture that contains ASTC data must be treated as
+     * having RGBA values. However, there are single-channel encodings which set
+     * the alpha to opaque and all three RGB channels equal effectively making the
+     * compression format a single channel such as R11 EAC and LATC.
+     */
+    kASTC_12x12_GrPixelConfig,
+
     /**
      * Byte order is r, g, b, a.  This color format is 32 bits per channel
      */
@@ -314,6 +327,7 @@ static inline bool GrPixelConfigIsCompressed(GrPixelConfig config) {
         case kETC1_GrPixelConfig:
         case kLATC_GrPixelConfig:
         case kR11_EAC_GrPixelConfig:
+        case kASTC_12x12_GrPixelConfig:
             return true;
         default:
             return false;
@@ -677,6 +691,11 @@ static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
             SkASSERT((width & 3) == 0);
             SkASSERT((height & 3) == 0);
             return (width >> 2) * (height >> 2) * 8;
+
+        case kASTC_12x12_GrPixelConfig:
+            SkASSERT((width % 12) == 0);
+            SkASSERT((height % 12) == 0);
+            return (width / 12) * (height / 12) * 16;
 
         default:
             SkFAIL("Unknown compressed pixel config");

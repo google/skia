@@ -2698,11 +2698,17 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
         case kR11_EAC_GrPixelConfig:
             *internalFormat = GR_GL_COMPRESSED_R11;
             break;
+
+        case kASTC_12x12_GrPixelConfig:
+            *internalFormat = GR_GL_COMPRESSED_RGBA_ASTC_12x12;
+            break;
+
         case kRGBA_float_GrPixelConfig:
             *internalFormat = GR_GL_RGBA32F;
             *externalFormat = GR_GL_RGBA;
             *externalType = GR_GL_FLOAT;
             break;
+
         default:
             return false;
     }
