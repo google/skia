@@ -183,6 +183,7 @@
           '-Winit-self',
           '-Wpointer-arith',
 
+          '-Wno-c++11-extensions',
           '-Wno-unused-parameter',
         ],
         'cflags_cc': [
@@ -209,12 +210,6 @@
                   '-m32',
                 ],
               }],
-            ],
-          }],
-          [ 'skia_android_framework==0', {
-            'cflags': [
-              # This flag is not supported by Android build system.
-              '-Wno-c++11-extensions',
             ],
           }],
           [ 'skia_warnings_as_errors', {
@@ -341,8 +336,6 @@
         '-mthumb',
         '-mfpu=neon',
         '-mfloat-abi=softfp',
-        # This flag is not supported by Android build system.
-        '-Wno-c++11-extensions',
         '-fno-exceptions',
         '-fstrict-aliasing',
         # Remove flags to turn on warnings, since most people building Android
