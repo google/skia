@@ -22,7 +22,11 @@ GDB_TMP_DIR=$(pwd)/android_gdb_tmp
 mkdir -p $GDB_TMP_DIR
 
 echo "Copying symbol files"
-SYSTEM_LIBRARY_PATH=/system/lib
+if [[ $ANDROID_ARCH == *64* ]]; then
+  SYSTEM_LIBRARY_PATH=/system/lib64
+else
+  SYSTEM_LIBRARY_PATH=/system/lib
+fi
 for library_file in \
     libc.so \
     libstdc++.so \
@@ -65,4 +69,4 @@ $ADB shell ps | grep ${APP_NAME} | awk '{print $2}' | xargs $ADB shell kill
 
 # Starting up gdbserver in android shell
 echo "Starting gdbserver with command: ${APP_ARGS[@]}"
-$ADB shell /data/local/tmp/gdbserver :5039 /data/local/tmp/skia_launcher ${APP_ARGS[@]} &
+$ADB shell LD_LIBRARY_PATH=/data/local/tmp:\$LD_LIBRARY_PATH /data/local/tmp/gdbserver :5039 /data/local/tmp/skia_launcher ${APP_ARGS[@]} &
