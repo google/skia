@@ -106,6 +106,10 @@ private:
     void sendTextureData(GrTexture *texture, const GrTextureDesc& desc,
                          const void *data, int rowbytes);
 
+    // Compresses the bitmap stored in fBM and sends the compressed data
+    // to the GPU to be stored in 'texture' using sendTextureData.
+    void compressTextureData(GrTexture *texture, const GrTextureDesc& desc);
+
     typedef SkNoncopyable INHERITED;
 };
 
