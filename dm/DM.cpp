@@ -1,7 +1,6 @@
 // Main binary for DM.
 // For a high-level overview, please see dm/README.
 
-#include "Benchmark.h"
 #include "CrashHandler.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
@@ -11,7 +10,6 @@
 #include "Test.h"
 #include "gm.h"
 
-#include "DMBenchTask.h"
 #include "DMCpuGMTask.h"
 #include "DMGpuGMTask.h"
 #include "DMGpuSupport.h"
@@ -68,7 +66,6 @@ DEFINE_bool(leaks, false, "Print leaked instance-counted objects at exit?");
 DEFINE_string(skps, "", "Directory to read skps from.");
 
 DEFINE_bool(gms, true, "Run GMs?");
-DEFINE_bool(benches, true, "Run benches?  Does not run GMs-as-benches.");
 DEFINE_bool(tests, true, "Run tests?");
 
 DECLARE_bool(verbose);
@@ -125,34 +122,6 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
             START("angle",      GpuGMTask, expectations, angle,  gpuAPI, 0);
             START("mesa",       GpuGMTask, expectations, mesa,   gpuAPI, 0);
             START("pdf",        PDFTask,   RASTERIZE_PDF_PROC);
-        }
-    }
-#undef START
-}
-
-static void kick_off_benches(const SkTDArray<BenchRegistry::Factory>& benches,
-                             const SkTArray<SkString>& configs,
-                             GrGLStandard gpuAPI,
-                             DM::Reporter* reporter,
-                             DM::TaskRunner* tasks) {
-#define START(name, type, ...)                                                                 \
-    if (lowercase(configs[j]).equals(name)) {                                                  \
-        tasks->add(SkNEW_ARGS(DM::type, (name, reporter, tasks, benches[i], ## __VA_ARGS__))); \
-    }
-    for (int i = 0; i < benches.count(); i++) {
-        for (int j = 0; j < configs.count(); j++) {
-            START("nonrendering", NonRenderingBenchTask);
-            START("565",          CpuBenchTask, kRGB_565_SkColorType);
-            START("8888",         CpuBenchTask, kN32_SkColorType);
-            START("gpu",          GpuBenchTask, native, gpuAPI, 0);
-            START("msaa4",        GpuBenchTask, native, gpuAPI, 4);
-            START("msaa16",       GpuBenchTask, native, gpuAPI, 16);
-            START("nvprmsaa4",    GpuBenchTask, nvpr,   gpuAPI, 4);
-            START("nvprmsaa16",   GpuBenchTask, nvpr,   gpuAPI, 16);
-            START("gpunull",      GpuBenchTask, null,   gpuAPI, 0);
-            START("gpudebug",     GpuBenchTask, debug,  gpuAPI, 0);
-            START("angle",        GpuBenchTask, angle,  gpuAPI, 0);
-            START("mesa",         GpuBenchTask, mesa,   gpuAPI, 0);
         }
     }
 #undef START
@@ -269,22 +238,16 @@ int tool_main(int argc, char** argv) {
         }
     }
 
-    SkTDArray<BenchRegistry::Factory> benches;
-    if (FLAGS_benches) {
-        append_matching_factories<Benchmark>(BenchRegistry::Head(), &benches);
-    }
-
     SkTDArray<TestRegistry::Factory> tests;
     if (FLAGS_tests) {
         append_matching_factories<Test>(TestRegistry::Head(), &tests);
     }
 
-    SkDebugf("(%d GMs, %d benches) x %d configs, %d tests\n",
-             gms.count(), benches.count(), configs.count(), tests.count());
+    SkDebugf("%d GMs x %d configs, %d tests\n",
+             gms.count(), configs.count(), tests.count());
     DM::Reporter reporter;
     DM::TaskRunner tasks(FLAGS_threads, FLAGS_gpuThreads);
     kick_off_gms(gms, configs, gpuAPI, *expectations, &reporter, &tasks);
-    kick_off_benches(benches, configs, gpuAPI, &reporter, &tasks);
     kick_off_tests(tests, &reporter, &tasks);
     kick_off_skps(&reporter, &tasks);
     tasks.wait();

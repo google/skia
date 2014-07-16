@@ -7,7 +7,6 @@
         'target_name': 'dm',
         'type': 'executable',
         'include_dirs': [
-            '../bench',
             '../dm',
             '../gm',
             '../tests',
@@ -21,14 +20,12 @@
             '../tools',
         ],
         'includes': [
-            'bench.gypi',
             'gmslides.gypi',
             'pathops_unittest.gypi',
             'tests.gypi',
         ],
         'sources': [
             '../dm/DM.cpp',
-            '../dm/DMBenchTask.cpp',
             '../dm/DMCpuGMTask.cpp',
             '../dm/DMExpectationsTask.cpp',
             '../dm/DMGpuGMTask.cpp',

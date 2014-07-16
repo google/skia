@@ -1,7 +1,6 @@
 #ifndef DMUtil_DEFINED
 #define DMUtil_DEFINED
 
-#include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkString.h"
 #include "gm_expectations.h"
