@@ -88,11 +88,6 @@ public:
         }
     }
 
-    AutoCFRelease& operator =(CFRef that) {
-        reset(that);
-        return *this;
-    }
-
     operator CFRef() const { return fCFRef; }
     CFRef get() const { return fCFRef; }
 
@@ -750,16 +745,16 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
             AutoCFRelease<CFNumberRef> cfVertical(CFNumberCreate(
                     kCFAllocatorDefault, kCFNumberSInt32Type, &ctOrientation));
             CFDictionaryAddValue(cfAttributes, kCTFontOrientationAttribute, cfVertical);
-            ctFontDesc = CTFontDescriptorCreateWithAttributes(cfAttributes);
+            ctFontDesc.reset(CTFontDescriptorCreateWithAttributes(cfAttributes));
         }
     }
     // Since our matrix includes everything, we pass 1 for size.
-    fCTFont = CTFontCreateCopyWithAttributes(ctFont, 1, &transform, ctFontDesc);
-    fCGFont = CTFontCopyGraphicsFont(fCTFont, NULL);
+    fCTFont.reset(CTFontCreateCopyWithAttributes(ctFont, 1, &transform, ctFontDesc));
+    fCGFont.reset(CTFontCopyGraphicsFont(fCTFont, NULL));
     if (fVertical) {
         CGAffineTransform rotateLeft = CGAffineTransformMake(0, -1, 1, 0, 0, 0);
         transform = CGAffineTransformConcat(rotateLeft, transform);
-        fCTVerticalFont = CTFontCreateCopyWithAttributes(ctFont, 1, &transform, NULL);
+        fCTVerticalFont.reset(CTFontCreateCopyWithAttributes(ctFont, 1, &transform, NULL));
     }
 
     SkScalar emPerFUnit = SkScalarInvert(SkIntToScalar(CGFontGetUnitsPerEm(fCGFont)));
@@ -773,7 +768,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         //It doesn't appear to matter what color space is specified.
         //Regular blends and antialiased text are always (s*a + d*(1-a))
         //and smoothed text is always g=2.0.
-        fRGBSpace = CGColorSpaceCreateDeviceRGB();
+        fRGBSpace.reset(CGColorSpaceCreateDeviceRGB());
     }
 
     // default to kBW_Format
@@ -802,8 +797,8 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
 
         rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
         void* image = fImageStorage.reset(rowBytes * fSize.fHeight);
-        fCG = CGBitmapContextCreate(image, fSize.fWidth, fSize.fHeight, 8,
-                                    rowBytes, fRGBSpace, BITMAP_INFO_RGB);
+        fCG.reset(CGBitmapContextCreate(image, fSize.fWidth, fSize.fHeight, 8,
+                                        rowBytes, fRGBSpace, BITMAP_INFO_RGB));
 
         // skia handles quantization itself, so we disable this for cg to get
         // full fractional data from them.
