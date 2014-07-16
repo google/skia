@@ -19,7 +19,7 @@ public:
     double endWall();
 private:
     ULONGLONG fStartCpu;
-    LARGE_INTEGER fStartWall;
+    unsigned __int64 fStartWall;
 };
 
 #endif

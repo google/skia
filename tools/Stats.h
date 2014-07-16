@@ -1,8 +1,6 @@
 #ifndef Stats_DEFINED
 #define Stats_DEFINED
 
-#include <math.h>
-
 #include "SkString.h"
 #include "SkTSort.h"
 
@@ -50,7 +48,7 @@ struct Stats {
             s -= min;
             s /= (max - min);
             s *= (SK_ARRAY_COUNT(kBars) - 1);
-            const size_t bar = (size_t)round(s);
+            const size_t bar = (size_t)(s + 0.5);
             SK_ALWAYSBREAK(bar < SK_ARRAY_COUNT(kBars));
             plot.append(kBars[bar]);
         }

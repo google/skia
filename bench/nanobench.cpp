@@ -50,8 +50,6 @@ DEFINE_bool(gpu, true, "Master switch for GPU-bound work.");
 
 DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
 DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each bench.");
-DEFINE_int32(maxCalibrationAttempts, 3,
-             "Try up to this many times to guess loops for a bench, or skip the bench.");
 
 
 static SkString humanize(double ms) {
@@ -95,13 +93,8 @@ static double estimate_timer_overhead() {
 static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, double* samples) {
     // First figure out approximately how many loops of bench it takes to make overhead negligible.
     double bench_plus_overhead;
-    int round = 0;
     do {
         bench_plus_overhead = time(1, bench, canvas, NULL);
-        if (++round == FLAGS_maxCalibrationAttempts) {
-            // At some point we have to just give up.
-            return 0;
-        }
     } while (bench_plus_overhead < overhead);
 
     // Later we'll just start and stop the timer once but loop N times.
@@ -288,6 +281,8 @@ int tool_main(int argc, char** argv) {
     fill_static_options(&log);
 
     const double overhead = estimate_timer_overhead();
+    SkDebugf("Timer overhead: %s\n", humanize(overhead).c_str());
+
     SkAutoTMalloc<double> samples(FLAGS_samples);
 
     if (FLAGS_runOnce) {

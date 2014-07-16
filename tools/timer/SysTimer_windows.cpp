@@ -6,6 +6,8 @@
  */
 #include "SysTimer_windows.h"
 
+#include <intrin.h>
+
 static ULONGLONG win_cpu_time() {
     FILETIME createTime;
     FILETIME exitTime;
@@ -23,11 +25,6 @@ static ULONGLONG win_cpu_time() {
     return start_cpu_sys.QuadPart + start_cpu_usr.QuadPart;
 }
 
-void SysTimer::startWall() {
-    if (0 == ::QueryPerformanceCounter(&fStartWall)) {
-        fStartWall.QuadPart = 0;
-    }
-}
 void SysTimer::startCpu() {
     fStartCpu = win_cpu_time();
 }
@@ -36,21 +33,21 @@ double SysTimer::endCpu() {
     ULONGLONG end_cpu = win_cpu_time();
     return static_cast<double>(end_cpu - fStartCpu) / 10000.0L;
 }
+
+// On recent Intel chips (roughly, "has Core or Atom in its name") __rdtsc will always tick
+// at the CPU's maximum rate, even while power management clocks the CPU up and down.
+// That's great, because it makes measuring wall time super simple.
+
+void SysTimer::startWall() {
+    fStartWall = __rdtsc();
+}
+
 double SysTimer::endWall() {
-    LARGE_INTEGER end_wall;
-    if (0 == ::QueryPerformanceCounter(&end_wall)) {
-        end_wall.QuadPart = 0;
-    }
+    unsigned __int64 end = __rdtsc();
 
-    LARGE_INTEGER ticks_elapsed;
-    ticks_elapsed.QuadPart = end_wall.QuadPart - fStartWall.QuadPart;
+    // This seems to, weirdly, give the CPU frequency in kHz.  That's exactly what we want!
+    LARGE_INTEGER freq_khz;
+    QueryPerformanceFrequency(&freq_khz);
 
-    LARGE_INTEGER frequency;
-    if (0 == ::QueryPerformanceFrequency(&frequency)) {
-        return 0.0L;
-    } else {
-        return static_cast<double>(ticks_elapsed.QuadPart)
-             / static_cast<double>(frequency.QuadPart)
-             * 1000.0L;
-    }
+    return static_cast<double>(end - fStartWall) / static_cast<double>(freq_khz.QuadPart);
 }
