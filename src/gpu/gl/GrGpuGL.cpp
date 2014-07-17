@@ -120,7 +120,7 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
     SkASSERT(ctx.isInitialized());
     fCaps.reset(SkRef(ctx.caps()));
 
-    fHWBoundTextures.reset(this->glCaps().maxFragmentTextureUnits());
+    fHWBoundTextureInstanceIDs.reset(this->glCaps().maxFragmentTextureUnits());
     fHWPathTexGenSettings.reset(this->glCaps().maxFixedFunctionTextureCoords());
 
     GrGLClearErr(fGLContext.interface());
@@ -273,8 +273,8 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
     fHWActiveTextureUnitIdx = -1; // invalid
 
     if (resetBits & kTextureBinding_GrGLBackendState) {
-        for (int s = 0; s < fHWBoundTextures.count(); ++s) {
-            fHWBoundTextures[s] = NULL;
+        for (int s = 0; s < fHWBoundTextureInstanceIDs.count(); ++s) {
+            fHWBoundTextureInstanceIDs[s] = 0;
         }
     }
 
@@ -298,7 +298,7 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
     }
 
     if (resetBits & kRenderTarget_GrGLBackendState) {
-        fHWBoundRenderTarget = NULL;
+        fHWBoundRenderTargetInstanceID = 0;
     }
 
     if (resetBits & kPathRendering_GrGLBackendState) {
@@ -867,7 +867,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
     }
 
     // below here we may bind the FBO
-    fHWBoundRenderTarget = NULL;
+    fHWBoundRenderTargetInstanceID = 0;
     if (desc->fRTFBOID != desc->fTexFBOID) {
         SkASSERT(desc->fSampleCnt > 0);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER,
@@ -1252,7 +1252,7 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
         GrGLStencilBuffer* glsb = static_cast<GrGLStencilBuffer*>(sb);
         GrGLuint rb = glsb->renderbufferID();
 
-        fHWBoundRenderTarget = NULL;
+        fHWBoundRenderTargetInstanceID = 0;
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fbo));
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                         GR_GL_STENCIL_ATTACHMENT,
@@ -1458,8 +1458,8 @@ void GrGpuGL::discard(GrRenderTarget* renderTarget) {
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
-    if (renderTarget != fHWBoundRenderTarget) {
-        fHWBoundRenderTarget = NULL;
+    if (renderTarget->getInstanceID() != fHWBoundRenderTargetInstanceID) {
+        fHWBoundRenderTargetInstanceID = 0;
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, glRT->renderFBOID()));
     }
     switch (this->glCaps().invalidateFBType()) {
@@ -1722,7 +1722,8 @@ void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
         static_cast<GrGLRenderTarget*>(this->drawState()->getRenderTarget());
     SkASSERT(NULL != rt);
 
-    if (fHWBoundRenderTarget != rt) {
+    uint64_t rtID = rt->getInstanceID();
+    if (fHWBoundRenderTargetInstanceID != rtID) {
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, rt->renderFBOID()));
 #ifdef SK_DEBUG
         // don't do this check in Chromium -- this is causing
@@ -1737,7 +1738,7 @@ void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
             }
         }
 #endif
-        fHWBoundRenderTarget = rt;
+        fHWBoundRenderTargetInstanceID = rtID;
         const GrGLIRect& vp = rt->getViewport();
         if (fHWViewport != vp) {
             vp.pushToGLViewport(this->glInterface());
@@ -2004,7 +2005,7 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
             GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID()));
             // make sure we go through flushRenderTarget() since we've modified
             // the bound DRAW FBO ID.
-            fHWBoundRenderTarget = NULL;
+            fHWBoundRenderTargetInstanceID = 0;
             const GrGLIRect& vp = rt->getViewport();
             const SkIRect dirtyRect = rt->getResolveRect();
             GrGLIRect r;
@@ -2298,10 +2299,11 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
         this->onResolveRenderTarget(texRT);
     }
 
-    if (fHWBoundTextures[unitIdx] != texture) {
+    uint64_t textureID = texture->getInstanceID();
+    if (fHWBoundTextureInstanceIDs[unitIdx] != textureID) {
         this->setTextureUnit(unitIdx);
         GL_CALL(BindTexture(GR_GL_TEXTURE_2D, texture->textureID()));
-        fHWBoundTextures[unitIdx] = texture;
+        fHWBoundTextureInstanceIDs[unitIdx] = textureID;
     }
 
     ResetTimestamp timestamp;
@@ -2529,23 +2531,6 @@ void GrGpuGL::flushMiscFixedFunctionState() {
     }
 }
 
-void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
-    SkASSERT(NULL != renderTarget);
-    if (fHWBoundRenderTarget == renderTarget) {
-        fHWBoundRenderTarget = NULL;
-    }
-}
-
-void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
-    for (int s = 0; s < fHWBoundTextures.count(); ++s) {
-        if (fHWBoundTextures[s] == texture) {
-            // deleting bound texture does implied bind to 0
-            fHWBoundTextures[s] = NULL;
-       }
-    }
-}
-
-
 GrGLuint GrGpuGL::createGLPathObject() {
     if (NULL == fPathNameAllocator.get()) {
         static const int range = 65536;
@@ -2716,7 +2701,7 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
 }
 
 void GrGpuGL::setTextureUnit(int unit) {
-    SkASSERT(unit >= 0 && unit < fHWBoundTextures.count());
+    SkASSERT(unit >= 0 && unit < fHWBoundTextureInstanceIDs.count());
     if (unit != fHWActiveTextureUnitIdx) {
         GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + unit));
         fHWActiveTextureUnitIdx = unit;
@@ -2725,14 +2710,14 @@ void GrGpuGL::setTextureUnit(int unit) {
 
 void GrGpuGL::setScratchTextureUnit() {
     // Bind the last texture unit since it is the least likely to be used by GrGLProgram.
-    int lastUnitIdx = fHWBoundTextures.count() - 1;
+    int lastUnitIdx = fHWBoundTextureInstanceIDs.count() - 1;
     if (lastUnitIdx != fHWActiveTextureUnitIdx) {
         GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + lastUnitIdx));
         fHWActiveTextureUnitIdx = lastUnitIdx;
     }
     // clear out the this field so that if a program does use this unit it will rebind the correct
     // texture.
-    fHWBoundTextures[lastUnitIdx] = NULL;
+    fHWBoundTextureInstanceIDs[lastUnitIdx] = 0;
 }
 
 namespace {
@@ -2869,7 +2854,7 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
         GrGLTexture* dstTex = static_cast<GrGLTexture*>(dst->asTexture());
         SkASSERT(NULL != dstTex);
         // We modified the bound FBO
-        fHWBoundRenderTarget = NULL;
+        fHWBoundRenderTargetInstanceID = 0;
         GrGLIRect srcGLRect;
         srcGLRect.setRelativeTo(srcVP,
                                 srcRect.fLeft,
@@ -2911,7 +2896,7 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
             dstFBO = bind_surface_as_fbo(this->glInterface(), dst, GR_GL_DRAW_FRAMEBUFFER, &dstVP);
             srcFBO = bind_surface_as_fbo(this->glInterface(), src, GR_GL_READ_FRAMEBUFFER, &srcVP);
             // We modified the bound FBO
-            fHWBoundRenderTarget = NULL;
+            fHWBoundRenderTargetInstanceID = 0;
             GrGLIRect srcGLRect;
             GrGLIRect dstGLRect;
             srcGLRect.setRelativeTo(srcVP,

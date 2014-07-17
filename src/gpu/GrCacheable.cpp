@@ -8,10 +8,11 @@
 
 #include "GrCacheable.h"
 
-uint32_t GrCacheable::getGenerationID() const {
-    static int32_t gPathRefGenerationID;
-    while (!fGenID) {
-        fGenID = static_cast<uint32_t>(sk_atomic_inc(&gPathRefGenerationID) + 1);
-    }
-    return fGenID;
+uint64_t GrCacheable::CreateInstanceID() {
+    static int64_t gCacheableID;
+    uint64_t id;
+    do {
+        id = static_cast<uint64_t>(sk_atomic_inc(&gCacheableID) + 1);
+    } while (!id);
+    return id;
 }

@@ -56,7 +56,7 @@ GrBitmapTextContext::GrBitmapTextContext(GrContext* context,
 
     fCurrTexture = NULL;
     fCurrVertex = 0;
-    fEffectTextureGenID = 0;
+    fEffectTextureInstanceID = 0;
 
     fVertices = NULL;
     fMaxVertices = 0;
@@ -94,11 +94,11 @@ void GrBitmapTextContext::flushGlyphs() {
         SkASSERT(fCurrTexture);
         GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
 
-        uint32_t textureGenID = fCurrTexture->getGenerationID();
+        uint64_t textureInstanceID = fCurrTexture->getInstanceID();
         
-        if (textureGenID != fEffectTextureGenID) {
+        if (textureInstanceID != fEffectTextureInstanceID) {
             fCachedEffect.reset(GrCustomCoordsTextureEffect::Create(fCurrTexture, params));
-            fEffectTextureGenID = textureGenID;
+            fEffectTextureInstanceID = textureInstanceID;
         }
 
         // This effect could be stored with one of the cache objects (atlas?)

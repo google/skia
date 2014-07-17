@@ -105,8 +105,6 @@ public:
     void notifyIndexBufferDelete(GrGLuint id) {
         fHWGeometryState.notifyIndexBufferDelete(id);
     }
-    void notifyTextureDelete(GrGLTexture* texture);
-    void notifyRenderTargetDelete(GrRenderTarget* renderTarget);
 
     // These functions should be used to generate and delete GL path names. They have their own
     // allocator that runs on the client side, so they are much faster than going through GenPaths.
@@ -464,8 +462,8 @@ private:
     GrDrawState::DrawFace       fHWDrawFace;
     TriState                    fHWWriteToColor;
     TriState                    fHWDitherEnabled;
-    GrRenderTarget*             fHWBoundRenderTarget;
-    SkTArray<GrTexture*, true>  fHWBoundTextures;
+    uint64_t                    fHWBoundRenderTargetInstanceID;
+    SkTArray<uint64_t, true>    fHWBoundTextureInstanceIDs;
 
     struct PathTexGenData {
         GrGLenum  fMode;

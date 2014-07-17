@@ -48,7 +48,7 @@ private:
     int32_t                     fMaxVertices;
     GrTexture*                  fCurrTexture;
     SkAutoTUnref<GrEffect>      fCachedEffect;
-    uint32_t                    fEffectTextureGenID;
+    uint64_t                    fEffectTextureInstanceID;
     int                         fCurrVertex;
     SkRect                      fVertexBounds;
 };
