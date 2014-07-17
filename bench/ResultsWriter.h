@@ -26,6 +26,10 @@ class ResultsWriter : SkNoncopyable {
 public:
     virtual ~ResultsWriter() {};
 
+    // Records one key value pair that makes up a unique identifier for this run.
+    // All keys must be set before calling bench().
+    virtual void key(const char name[], const char value[]) = 0;
+
     // Records one option set for this run. All options must be set before
     // calling bench().
     virtual void option(const char name[], const char value[]) = 0;
@@ -36,6 +40,9 @@ public:
 
     // Records the specific configuration a bench is run under, such as "8888".
     virtual void config(const char name[]) = 0;
+
+    // Records the options for a configuration, such as "GL_RENDERER".
+    virtual void configOption(const char name[], const char* value) = 0;
 
     // Records a single test metric.
     virtual void timer(const char name[], double ms) = 0;
@@ -55,6 +62,9 @@ public:
         , fTimeFormat(timeFormat) {
         fLogger.logProgress("skia bench:");
     }
+    virtual void key(const char name[], const char value[]) {
+        // Don't log keys to keep microbench output unchanged.
+    }
     virtual void option(const char name[], const char value[]) {
         fLogger.logProgress(SkStringPrintf(" %s=%s", name, value));
     }
@@ -64,6 +74,9 @@ public:
     }
     virtual void config(const char name[]) {
         fLogger.logProgress(SkStringPrintf("   %s:", name));
+    }
+    virtual void configOption(const char name[], const char* value) {
+        // Don't log configOptions to keep microbench output unchanged.
     }
     virtual void timer(const char name[], double ms) {
         fLogger.logProgress(SkStringPrintf("  %s = ", name));
@@ -113,6 +126,8 @@ public:
         , fBench(NULL)
         , fConfig(NULL) {
     }
+    virtual void key(const char name[], const char value[]) {
+    }
     virtual void option(const char name[], const char value[]) {
         fRoot["options"][name] = value;
     }
@@ -128,6 +143,8 @@ public:
     virtual void config(const char name[]) {
         SkASSERT(NULL != fBench);
         fConfig = SkFindNamedNode(fBench, name);
+    }
+    virtual void configOption(const char name[], const char* value) {
     }
     virtual void timer(const char name[], double ms) {
         SkASSERT(NULL != fConfig);
@@ -148,6 +165,82 @@ private:
 };
 
 /**
+ NanoJSONResultsWriter writes the test results out in the following
+ format:
+
+ {
+    "key": {
+      "arch": "Arm7",
+      "gpu": "SGX540",
+      "os": "Android",
+      "model": "GalaxyNexus",
+    }
+    "options": {
+       "GL_Version": "3.1",
+       ...
+    },
+    "gitHash": "d1830323662ae8ae06908b97f15180fd25808894",
+    "results" : {
+        "Xfermode_Luminosity_640_480" : {
+           "8888" : {
+                 "median_ms" : 143.188128906250,
+                 "min_ms" : 143.835957031250,
+                 ...
+              },
+          ...
+*/
+class NanoJSONResultsWriter : public ResultsWriter {
+public:
+    explicit NanoJSONResultsWriter(const char filename[], const char gitHash[])
+        : fFilename(filename)
+        , fRoot()
+        , fResults(fRoot["results"])
+        , fBench(NULL)
+        , fConfig(NULL) {
+        fRoot["gitHash"] = gitHash;
+    }
+    virtual void key(const char name[], const char value[]) {
+        fRoot["key"][name] = value;
+    }
+    virtual void option(const char name[], const char value[]) {
+        fRoot["options"][name] = value;
+    }
+    virtual void bench(const char name[], int32_t x, int32_t y) {
+        SkString id = SkStringPrintf( "%s_%d_%d", name, x, y);
+        fResults[id.c_str()] = Json::Value(Json::objectValue);
+        fBench = &fResults[id.c_str()];
+    }
+    virtual void config(const char name[]) {
+        SkASSERT(NULL != fBench);
+        fConfig = &(*fBench)[name];
+    }
+    virtual void configOption(const char name[], const char* value) {
+        (*fConfig)["options"][name] = value;
+    }
+    virtual void timer(const char name[], double ms) {
+        // Don't record if nan, or -nan.
+        if (sk_double_isnan(ms)) {
+            return;
+        }
+        SkASSERT(NULL != fConfig);
+        (*fConfig)[name] = ms;
+    }
+    virtual void end() {
+        SkFILEWStream stream(fFilename.c_str());
+        stream.writeText(Json::FastWriter().write(fRoot).c_str());
+        stream.flush();
+    }
+private:
+
+    SkString fFilename;
+    Json::Value fRoot;
+    Json::Value& fResults;
+    Json::Value* fBench;
+    Json::Value* fConfig;
+};
+
+
+/**
  * This ResultsWriter writes out to multiple ResultsWriters.
  */
 class MultiResultsWriter : public ResultsWriter {
@@ -156,6 +249,11 @@ public:
     };
     void add(ResultsWriter* writer) {
       writers.push_back(writer);
+    }
+    virtual void key(const char name[], const char value[]) {
+        for (int i = 0; i < writers.count(); ++i) {
+            writers[i]->key(name, value);
+        }
     }
     virtual void option(const char name[], const char value[]) {
         for (int i = 0; i < writers.count(); ++i) {
@@ -170,6 +268,11 @@ public:
     virtual void config(const char name[]) {
         for (int i = 0; i < writers.count(); ++i) {
             writers[i]->config(name);
+        }
+    }
+    virtual void configOption(const char name[], const char* value) {
+        for (int i = 0; i < writers.count(); ++i) {
+            writers[i]->configOption(name, value);
         }
     }
     virtual void timer(const char name[], double ms) {

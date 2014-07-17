@@ -21,6 +21,7 @@
 #include "SkSurface.h"
 
 #if SK_SUPPORT_GPU
+    #include "gl/GrGLDefines.h"
     #include "GrContextFactory.h"
     GrContextFactory gGrFactory;
 #endif
@@ -53,6 +54,8 @@ DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each benc
 DEFINE_int32(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
 DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
+DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON.");
+DEFINE_string(gitHash, "", "Git hash to add to JSON.");
 
 
 static SkString humanize(double ms) {
@@ -276,12 +279,24 @@ static void fill_static_options(ResultsWriter* log) {
 #else
     log->option("system", "other");
 #endif
-#if defined(SK_DEBUG)
-    log->option("build", "DEBUG");
-#else
-    log->option("build", "RELEASE");
-#endif
 }
+
+#if SK_SUPPORT_GPU
+static void fill_gpu_options(ResultsWriter* log, SkGLContextHelper* ctx) {
+    const GLubyte* version;
+    SK_GL_RET(*ctx, version, GetString(GR_GL_VERSION));
+    log->configOption("GL_VERSION", (const char*)(version));
+
+    SK_GL_RET(*ctx, version, GetString(GR_GL_RENDERER));
+    log->configOption("GL_RENDERER", (const char*) version);
+
+    SK_GL_RET(*ctx, version, GetString(GR_GL_VENDOR));
+    log->configOption("GL_VENDOR", (const char*) version);
+
+    SK_GL_RET(*ctx, version, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
+    log->configOption("GL_SHADING_LANGUAGE_VERSION", (const char*) version);
+}
+#endif
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
@@ -295,12 +310,21 @@ int tool_main(int argc, char** argv) {
     }
 
     MultiResultsWriter log;
-    SkAutoTDelete<JSONResultsWriter> json;
+    SkAutoTDelete<NanoJSONResultsWriter> json;
     if (!FLAGS_outResultsFile.isEmpty()) {
-        json.reset(SkNEW(JSONResultsWriter(FLAGS_outResultsFile[0])));
+        const char* gitHash = FLAGS_gitHash.isEmpty() ? "unknown-revision" : FLAGS_gitHash[0];
+        json.reset(SkNEW(NanoJSONResultsWriter(FLAGS_outResultsFile[0], gitHash)));
         log.add(json.get());
     }
     CallEnd<MultiResultsWriter> ender(log);
+
+    if (1 == FLAGS_key.count() % 2) {
+        SkDebugf("ERROR: --key must be passed with an even number of arguments.\n");
+        return 1;
+    }
+    for (int i = 1; i < FLAGS_key.count(); i += 2) {
+        log.key(FLAGS_key[i-1], FLAGS_key[i]);
+    }
     fill_static_options(&log);
 
     const double overhead = estimate_timer_overhead();
@@ -323,12 +347,14 @@ int tool_main(int argc, char** argv) {
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getName())) {
             continue;
         }
-        log.bench(bench->getName(), bench->getSize().fX, bench->getSize().fY);
 
         SkTDArray<Target*> targets;
         create_targets(bench.get(), &targets);
 
-        bench->preDraw();
+        if (!targets.isEmpty()) {
+            log.bench(bench->getName(), bench->getSize().fX, bench->getSize().fY);
+            bench->preDraw();
+        }
         for (int j = 0; j < targets.count(); j++) {
             SkCanvas* canvas = targets[j]->surface.get() ? targets[j]->surface->getCanvas() : NULL;
             const char* config = targets[j]->config;
@@ -349,6 +375,11 @@ int tool_main(int argc, char** argv) {
 
             Stats stats(samples.get(), FLAGS_samples);
             log.config(config);
+#if SK_SUPPORT_GPU
+            if (Benchmark::kGPU_Backend == targets[j]->backend) {
+                fill_gpu_options(&log, targets[j]->gl);
+            }
+#endif
             log.timer("min_ms",    stats.min);
             log.timer("median_ms", stats.median);
             log.timer("mean_ms",   stats.mean);
