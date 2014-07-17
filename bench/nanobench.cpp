@@ -50,6 +50,9 @@ DEFINE_bool(gpu, true, "Master switch for GPU-bound work.");
 
 DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
 DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each bench.");
+DEFINE_int32(maxCalibrationAttempts, 3,
+             "Try up to this many times to guess loops for a bench, or skip the bench.");
+DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 
 
 static SkString humanize(double ms) {
@@ -62,6 +65,7 @@ static SkString humanize(double ms) {
 #endif
     return SkStringPrintf("%.3gms", ms);
 }
+#define HUMANIZE(ms) humanize(ms).c_str()
 
 static double time(int loops, Benchmark* bench, SkCanvas* canvas, SkGLContextHelper* gl) {
     WallTimer timer;
@@ -90,11 +94,29 @@ static double estimate_timer_overhead() {
     return overhead / FLAGS_overheadLoops;
 }
 
+static int clamp_loops(int loops) {
+    if (loops < 1) {
+        SkDebugf("ERROR: clamping loops from %d to 1.\n", loops);
+        return 1;
+    }
+    if (loops > FLAGS_maxLoops) {
+        SkDebugf("WARNING: clamping loops from %d to FLAGS_maxLoops, %d.\n", loops, FLAGS_maxLoops);
+        return FLAGS_maxLoops;
+    }
+    return loops;
+}
+
 static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, double* samples) {
     // First figure out approximately how many loops of bench it takes to make overhead negligible.
     double bench_plus_overhead;
+    int round = 0;
     do {
         bench_plus_overhead = time(1, bench, canvas, NULL);
+        if (++round == FLAGS_maxCalibrationAttempts) {
+            SkDebugf("WARNING: Can't estimate loops for %s (%s vs. %s); skipping.\n",
+                     bench->getName(), HUMANIZE(bench_plus_overhead), HUMANIZE(overhead));
+            return 0;
+        }
     } while (bench_plus_overhead < overhead);
 
     // Later we'll just start and stop the timer once but loop N times.
@@ -115,7 +137,7 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
     // Luckily, this also works well in practice. :)
     const double numer = overhead / FLAGS_overheadGoal - overhead;
     const double denom = bench_plus_overhead - overhead;
-    const int loops = FLAGS_runOnce ? 1 : (int)ceil(numer / denom);
+    const int loops = clamp_loops(FLAGS_runOnce ? 1 : (int)ceil(numer / denom));
 
     for (int i = 0; i < FLAGS_samples; i++) {
         samples[i] = time(loops, bench, canvas, NULL) / loops;
@@ -151,6 +173,7 @@ static int gpu_bench(SkGLContextHelper* gl,
         // Might as well make sure we're not still timing our calibration.
         SK_GL(*gl, Finish());
     }
+    loops = clamp_loops(loops);
 
     // Pretty much the same deal as the calibration: do some warmup to make
     // sure we're timing steady-state pipelined frames.
@@ -281,7 +304,7 @@ int tool_main(int argc, char** argv) {
     fill_static_options(&log);
 
     const double overhead = estimate_timer_overhead();
-    SkDebugf("Timer overhead: %s\n", humanize(overhead).c_str());
+    SkDebugf("Timer overhead: %s\n", HUMANIZE(overhead));
 
     SkAutoTMalloc<double> samples(FLAGS_samples);
 
@@ -320,7 +343,7 @@ int tool_main(int argc, char** argv) {
 
             if (loops == 0) {
                 SkDebugf("Unable to time %s\t%s (overhead %s)\n",
-                         bench->getName(), config, humanize(overhead).c_str());
+                         bench->getName(), config, HUMANIZE(overhead));
                 continue;
             }
 
@@ -339,22 +362,22 @@ int tool_main(int argc, char** argv) {
                 SkDebugf("%s\t%s\n", bench->getName(), config);
             } else if (FLAGS_verbose) {
                 for (int i = 0; i < FLAGS_samples; i++) {
-                    SkDebugf("%s  ", humanize(samples[i]).c_str());
+                    SkDebugf("%s  ", HUMANIZE(samples[i]));
                 }
                 SkDebugf("%s\n", bench->getName());
             } else if (FLAGS_quiet) {
                 if (targets.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
-                SkDebugf("%s\t%s\t%s\n", humanize(stats.median).c_str(), bench->getName(), config);
+                SkDebugf("%s\t%s\t%s\n", HUMANIZE(stats.median), bench->getName(), config);
             } else {
                 const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
                 SkDebugf("%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
                         , loops
-                        , humanize(stats.min).c_str()
-                        , humanize(stats.median).c_str()
-                        , humanize(stats.mean).c_str()
-                        , humanize(stats.max).c_str()
+                        , HUMANIZE(stats.min)
+                        , HUMANIZE(stats.median)
+                        , HUMANIZE(stats.mean)
+                        , HUMANIZE(stats.max)
                         , stddev_percent
                         , stats.plot.c_str()
                         , config
