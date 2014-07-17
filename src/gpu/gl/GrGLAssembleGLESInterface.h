@@ -266,6 +266,7 @@ static const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get
         GET_PROC_SUFFIX(PathParameterf, NV);
         GET_PROC_SUFFIX(GenPaths, NV);
         GET_PROC_SUFFIX(DeletePaths, NV);
+        GET_PROC_SUFFIX(IsPath, NV);
         GET_PROC_SUFFIX(PathStencilFunc, NV);
         GET_PROC_SUFFIX(StencilFillPath, NV);
         GET_PROC_SUFFIX(StencilStrokePath, NV);

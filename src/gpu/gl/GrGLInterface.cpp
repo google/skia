@@ -45,6 +45,7 @@ const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
     newInterface->fFunctions.fPathParameterf = NULL;
     newInterface->fFunctions.fGenPaths = NULL;
     newInterface->fFunctions.fDeletePaths = NULL;
+    newInterface->fFunctions.fIsPath = NULL;
     newInterface->fFunctions.fPathStencilFunc = NULL;
     newInterface->fFunctions.fStencilFillPath = NULL;
     newInterface->fFunctions.fStencilStrokePath = NULL;
@@ -457,6 +458,7 @@ bool GrGLInterface::validate() const {
             NULL == fFunctions.fPathParameterf ||
             NULL == fFunctions.fGenPaths ||
             NULL == fFunctions.fDeletePaths ||
+            NULL == fFunctions.fIsPath ||
             NULL == fFunctions.fPathStencilFunc ||
             NULL == fFunctions.fStencilFillPath ||
             NULL == fFunctions.fStencilStrokePath ||

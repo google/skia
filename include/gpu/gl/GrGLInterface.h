@@ -324,6 +324,7 @@ public:
         GLPtr<GrGLPathParameterfProc> fPathParameterf;
         GLPtr<GrGLGenPathsProc> fGenPaths;
         GLPtr<GrGLDeletePathsProc> fDeletePaths;
+        GLPtr<GrGLIsPathProc> fIsPath;
         GLPtr<GrGLPathStencilFuncProc> fPathStencilFunc;
         GLPtr<GrGLStencilFillPathProc> fStencilFillPath;
         GLPtr<GrGLStencilStrokePathProc> fStencilStrokePath;
