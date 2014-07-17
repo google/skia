@@ -172,14 +172,20 @@ private:
     // 1. uint32_t for total key length.
     // 2. uint32_t for a checksum.
     // 3. Header struct defined above.
-    // 4. uint32_t offsets to beginning of every effects' key (see 5).
+    // 4. An array of offsets to effect keys and their sizes (see 5). uint16_t for each
+    //    offset and size.
     // 5. per-effect keys. Each effect's key is a variable length array of uint32_t.
     enum {
+        // Part 1.
         kLengthOffset = 0,
+        // Part 2.
         kChecksumOffset = kLengthOffset + sizeof(uint32_t),
+        // Part 3.
         kHeaderOffset = kChecksumOffset + sizeof(uint32_t),
         kHeaderSize = SkAlign4(sizeof(KeyHeader)),
-        kEffectKeyLengthsOffset = kHeaderOffset + kHeaderSize,
+        // Part 4.
+        // This is the offset in the overall key to the array of per-effect offset,length pairs.
+        kEffectKeyOffsetsAndLengthOffset = kHeaderOffset + kHeaderSize,
     };
 
     template<typename T, size_t OFFSET> T* atOffset() {
@@ -193,6 +199,16 @@ private:
     typedef GrBackendEffectFactory::EffectKey EffectKey;
 
     KeyHeader* header() { return this->atOffset<KeyHeader, kHeaderOffset>(); }
+
+    // Shared code between setRandom() and Build().
+    static bool GetEffectKeyAndUpdateStats(const GrEffectStage& stage,
+                                           const GrGLCaps& caps,
+                                           bool useExplicitLocalCoords,
+                                           GrEffectKeyBuilder* b,
+                                           uint16_t* effectKeySize,
+                                           bool* setTrueIfReadsDst,
+                                           bool* setTrueIfReadsPos,
+                                           bool* setTrueIfHasVertexCode);
 
     void finalize();
 
@@ -212,9 +228,11 @@ private:
         }
 
         EffectKey get(int index) const {
-            const uint32_t* offsets = reinterpret_cast<const uint32_t*>(fDesc->fKey.begin() +
-                                                                        kEffectKeyLengthsOffset);
-            uint32_t offset = offsets[fBaseIndex + index];
+            const uint16_t* offsets = reinterpret_cast<const uint16_t*>(
+                fDesc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset);
+            // We store two uint16_ts per effect, one for the offset to the effect's key and one for
+            // its length. Here we just need the offset.
+            uint16_t offset = offsets[2 * (fBaseIndex + index)];
             return *reinterpret_cast<const EffectKey*>(fDesc->fKey.begin() + offset);
         }
     private:
@@ -225,7 +243,7 @@ private:
     enum {
         kMaxPreallocEffects = 8,
         kIntsPerEffect      = 4,    // This is an overestimate of the average effect key size.
-        kPreAllocSize = kEffectKeyLengthsOffset +
+        kPreAllocSize = kEffectKeyOffsetsAndLengthOffset +
                         kMaxPreallocEffects * sizeof(uint32_t) * kIntsPerEffect,
     };
 

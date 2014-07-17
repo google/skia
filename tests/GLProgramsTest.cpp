@@ -35,42 +35,33 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
     int numStages = numColorStages + numCoverageStages;
     fKey.reset();
 
-    GR_STATIC_ASSERT(0 == kEffectKeyLengthsOffset % sizeof(uint32_t));
+    GR_STATIC_ASSERT(0 == kEffectKeyOffsetsAndLengthOffset % sizeof(uint32_t));
 
     // Make room for everything up to and including the array of offsets to effect keys.
-    fKey.push_back_n(kEffectKeyLengthsOffset + sizeof(uint32_t) * numStages);
-
-    size_t offset = fKey.count();
-    int offsetIndex = 0;
+    fKey.push_back_n(kEffectKeyOffsetsAndLengthOffset + 2 * sizeof(uint16_t) * numStages);
 
     bool dstRead = false;
     bool fragPos = false;
     bool vertexCode = false;
     for (int s = 0; s < numStages; ++s) {
-        uint32_t* offsetLocation = reinterpret_cast<uint32_t*>(fKey.begin() +
-                                                               kEffectKeyLengthsOffset +
-                                                               offsetIndex * sizeof(uint32_t));
-        *offsetLocation = offset;
-        ++offsetIndex;
-
-        const GrBackendEffectFactory& factory = stages[s]->getEffect()->getFactory();
-        GrDrawEffect drawEffect(*stages[s], useLocalCoords);
-        GrEffectKeyBuilder b(&fKey);
-        if (!factory.getGLEffectKey(drawEffect, gpu->glCaps(), &b)) {
+        uint16_t* offsetAndSize = reinterpret_cast<uint16_t*>(fKey.begin() +
+                                                              kEffectKeyOffsetsAndLengthOffset +
+                                                              s * 2 * sizeof(uint16_t));
+        uint32_t effectKeyOffset = fKey.count();
+        if (effectKeyOffset > SK_MaxU16) {
             fKey.reset();
             return false;
         }
-        if (stages[s]->getEffect()->willReadDstColor()) {
-            dstRead = true;
+        GrDrawEffect drawEffect(*stages[s], useLocalCoords);
+        GrEffectKeyBuilder b(&fKey);
+        uint16_t effectKeySize;
+        if (!GetEffectKeyAndUpdateStats(*stages[s], gpu->glCaps(), useLocalCoords, &b,
+                                        &effectKeySize, &dstRead, &fragPos, &vertexCode)) {
+            fKey.reset();
+            return false;
         }
-        if (stages[s]->getEffect()->willReadFragmentPosition()) {
-            fragPos = true;
-        }
-        if (stages[s]->getEffect()->hasVertexCode()) {
-            vertexCode = true;
-        }
-
-        offset += b.size();
+        offsetAndSize[0] = effectKeyOffset;
+        offsetAndSize[1] = effectKeySize;
     }
 
     KeyHeader* header = this->header();
