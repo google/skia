@@ -16,8 +16,12 @@ import os
 import shutil
 import tempfile
 
+# Must fix up PYTHONPATH before importing from within Skia
+import fix_pythonpath  # pylint: disable=W0611
+
 # Imports from within Skia
 import base_unittest
+import find_run_binary
 
 # Maximum length of text diffs to show when tests fail
 MAX_DIFF_LENGTH = 30000
@@ -292,7 +296,7 @@ class RenderPicturesTest(base_unittest.TestCase):
   def test_untiled_empty_expectations_file(self):
     """Same as test_untiled, but with an empty expectations file."""
     expectations_path = os.path.join(self._expectations_dir, 'empty')
-    with open(expectations_path, 'w') as fh:
+    with open(expectations_path, 'w'):
       pass
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
@@ -329,7 +333,8 @@ class RenderPicturesTest(base_unittest.TestCase):
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 11092453015575919668,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "red_skp/bitmap-64bitMD5_11092453015575919668.png",
+                    "filepath" :
+                        "red_skp/bitmap-64bitMD5_11092453015575919668.png",
                 },
             },
             "green.skp": {
@@ -338,7 +343,8 @@ class RenderPicturesTest(base_unittest.TestCase):
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 8891695120562235492,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "green_skp/bitmap-64bitMD5_8891695120562235492.png",
+                    "filepath" :
+                        "green_skp/bitmap-64bitMD5_8891695120562235492.png",
                 },
             }
         }
@@ -467,32 +473,38 @@ class RenderPicturesTest(base_unittest.TestCase):
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 5815827069051002745,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "red_skp/bitmap-64bitMD5_5815827069051002745.png",
+                    "filepath" :
+                        "red_skp/bitmap-64bitMD5_5815827069051002745.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 9323613075234140270,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "red_skp/bitmap-64bitMD5_9323613075234140270.png",
+                    "filepath" :
+                        "red_skp/bitmap-64bitMD5_9323613075234140270.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 16670399404877552232,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "red_skp/bitmap-64bitMD5_16670399404877552232.png",
+                    "filepath" :
+                        "red_skp/bitmap-64bitMD5_16670399404877552232.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 2507897274083364964,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "red_skp/bitmap-64bitMD5_2507897274083364964.png",
+                    "filepath" :
+                        "red_skp/bitmap-64bitMD5_2507897274083364964.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 7325267995523877959,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "red_skp/bitmap-64bitMD5_7325267995523877959.png",
+                    "filepath" :
+                        "red_skp/bitmap-64bitMD5_7325267995523877959.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 2181381724594493116,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "red_skp/bitmap-64bitMD5_2181381724594493116.png",
+                    "filepath" :
+                        "red_skp/bitmap-64bitMD5_2181381724594493116.png",
                 }],
             },
             "green.skp": {
@@ -503,32 +515,38 @@ class RenderPicturesTest(base_unittest.TestCase):
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 12587324416545178013,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "green_skp/bitmap-64bitMD5_12587324416545178013.png",
+                    "filepath" :
+                        "green_skp/bitmap-64bitMD5_12587324416545178013.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 7624374914829746293,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "green_skp/bitmap-64bitMD5_7624374914829746293.png",
+                    "filepath" :
+                        "green_skp/bitmap-64bitMD5_7624374914829746293.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 5686489729535631913,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "green_skp/bitmap-64bitMD5_5686489729535631913.png",
+                    "filepath" :
+                        "green_skp/bitmap-64bitMD5_5686489729535631913.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 7980646035555096146,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "green_skp/bitmap-64bitMD5_7980646035555096146.png",
+                    "filepath" :
+                        "green_skp/bitmap-64bitMD5_7980646035555096146.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 17817086664365875131,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "green_skp/bitmap-64bitMD5_17817086664365875131.png",
+                    "filepath" :
+                        "green_skp/bitmap-64bitMD5_17817086664365875131.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
                     "checksumValue" : 10673669813016809363,
                     "comparisonResult" : "no-comparison",
-                    "filepath" : "green_skp/bitmap-64bitMD5_10673669813016809363.png",
+                    "filepath" :
+                        "green_skp/bitmap-64bitMD5_10673669813016809363.png",
                 }],
             }
         }
@@ -553,10 +571,9 @@ class RenderPicturesTest(base_unittest.TestCase):
          'bitmap-64bitMD5_10673669813016809363.png'])
 
   def _run_render_pictures(self, args):
-    binary = self.find_path_to_program('render_pictures')
-    return self.run_command([binary,
-                             '--config', '8888',
-                             ] + args)
+    binary = find_run_binary.find_path_to_program('render_pictures')
+    return find_run_binary.run_command(
+        [binary, '--config', '8888'] + args)
 
   def _create_expectations(self, missing_some_images=False,
                            rel_path='expectations.json'):
@@ -614,15 +631,16 @@ class RenderPicturesTest(base_unittest.TestCase):
       width: Width of canvas to create.
       height: Height of canvas to create.
     """
-    binary = self.find_path_to_program('skpmaker')
-    return self.run_command([binary,
-                             '--red', str(red),
-                             '--green', str(green),
-                             '--blue', str(blue),
-                             '--width', str(width),
-                             '--height', str(height),
-                             '--writePath', str(output_path),
-                             ])
+    binary = find_run_binary.find_path_to_program('skpmaker')
+    return find_run_binary.run_command([
+        binary,
+        '--red', str(red),
+        '--green', str(green),
+        '--blue', str(blue),
+        '--width', str(width),
+        '--height', str(height),
+        '--writePath', str(output_path),
+    ])
 
   def _assert_directory_contents(self, dir_path, expected_filenames):
     """Asserts that files found in a dir are identical to expected_filenames.

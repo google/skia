@@ -9,21 +9,20 @@ found in the LICENSE file.
 Calulate differences between image pairs, and store them in a database.
 """
 
+# System-level imports
 import contextlib
 import json
 import logging
 import os
 import re
 import shutil
-import sys
 import tempfile
 import urllib
 
-# Set the PYTHONPATH to include the tools directory.
-sys.path.append(
-    os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), os.pardir, os.pardir,
-                        'tools'))
+# Must fix up PYTHONPATH before importing from within Skia
+import fix_pythonpath  # pylint: disable=W0611
+
+# Imports from within Skia
 import find_run_binary
 
 SKPDIFF_BINARY = find_run_binary.find_path_to_program('skpdiff')

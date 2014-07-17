@@ -10,7 +10,6 @@ Test imagediffdb.py
 """
 
 # System-level imports
-import logging
 import shutil
 import tempfile
 import unittest
@@ -26,11 +25,11 @@ IMG_URL_BASE = ('http://chromium-skia-gm.commondatastorage.googleapis.com/gm/'
 class ImageDiffDbTest(unittest.TestCase):
 
   def setUp(self):
-    self._temp_dir = tempfile.mkdtemp()
+    self.temp_dir = tempfile.mkdtemp()
     self.maxDiff = None
 
   def tearDown(self):
-    shutil.rmtree(self._temp_dir)
+    shutil.rmtree(self.temp_dir)
 
   def shortDescription(self):
     """Tell unittest framework to not print docstrings for test cases."""
@@ -38,6 +37,7 @@ class ImageDiffDbTest(unittest.TestCase):
 
   def test_sanitize_locator(self):
     """Test _sanitize_locator()."""
+    # pylint: disable=W0212
     self.assertEqual(imagediffdb._sanitize_locator('simple'), 'simple')
     self.assertEqual(imagediffdb._sanitize_locator(1234), '1234')
     self.assertEqual(imagediffdb._sanitize_locator('one/two'),  'one_two')
@@ -76,9 +76,9 @@ class ImageDiffDbTest(unittest.TestCase):
     ]
 
     # Add all image pairs to the database
-    db = imagediffdb.ImageDiffDB(self._temp_dir)
+    db = imagediffdb.ImageDiffDB(self.temp_dir)
     for selftest in selftests:
-      retval = db.add_image_pair(
+      db.add_image_pair(
           expected_image_locator=selftest[0], expected_image_url=selftest[1],
           actual_image_locator=selftest[2],   actual_image_url=selftest[3])
 
