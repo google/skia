@@ -21,6 +21,55 @@
 #include "SkGr.h"
 #endif
 
+SkImageFilter::Common::~Common() {
+    for (int i = 0; i < fInputs.count(); ++i) {
+        SkSafeUnref(fInputs[i]);
+    }
+}
+
+void SkImageFilter::Common::allocInputs(int count) {
+    const size_t size = count * sizeof(SkImageFilter*);
+    fInputs.reset(count);
+    sk_bzero(fInputs.get(), size);
+}
+
+void SkImageFilter::Common::detachInputs(SkImageFilter** inputs) {
+    const size_t size = fInputs.count() * sizeof(SkImageFilter*);
+    memcpy(inputs, fInputs.get(), size);
+    sk_bzero(fInputs.get(), size);
+}
+
+bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
+    int count = buffer.readInt();
+    if (expectedCount < 0) {    // means the caller doesn't care how many
+        expectedCount = count;
+    }
+    if (!buffer.validate(count == expectedCount)) {
+        return false;
+    }
+
+    this->allocInputs(count);
+    for (int i = 0; i < count; i++) {
+        if (buffer.readBool()) {
+            fInputs[i] = buffer.readImageFilter();
+        }
+        if (!buffer.isValid()) {
+            return false;
+        }
+    }
+    SkRect rect;
+    buffer.readRect(&rect);
+    if (!buffer.isValid() || !buffer.validate(SkIsValidRect(rect))) {
+        return false;
+    }
+    
+    uint32_t flags = buffer.readUInt();
+    fCropRect = CropRect(rect, flags);
+    return buffer.isValid();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 SkImageFilter::Cache* gExternalCache;
 
 SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect)
@@ -41,26 +90,12 @@ SkImageFilter::~SkImageFilter() {
 }
 
 SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer) {
-    fInputCount = buffer.readInt();
-    if (buffer.validate((fInputCount >= 0) && ((inputCount < 0) || (fInputCount == inputCount)))) {
-        fInputs = new SkImageFilter*[fInputCount];
-        for (int i = 0; i < fInputCount; i++) {
-            if (buffer.readBool()) {
-                fInputs[i] = buffer.readImageFilter();
-            } else {
-                fInputs[i] = NULL;
-            }
-            if (!buffer.isValid()) {
-                fInputCount = i; // Do not use fInputs past that point in the destructor
-                break;
-            }
-        }
-        SkRect rect;
-        buffer.readRect(&rect);
-        if (buffer.isValid() && buffer.validate(SkIsValidRect(rect))) {
-            uint32_t flags = buffer.readUInt();
-            fCropRect = CropRect(rect, flags);
-        }
+    Common common;
+    if (common.unflatten(buffer, inputCount)) {
+        fCropRect = common.cropRect();
+        fInputCount = common.inputCount();
+        fInputs = SkNEW_ARRAY(SkImageFilter*, fInputCount);
+        common.detachInputs(fInputs);
     } else {
         fInputCount = 0;
         fInputs = NULL;

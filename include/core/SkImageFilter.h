@@ -11,6 +11,7 @@
 #include "SkFlattenable.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
+#include "SkTemplates.h"
 
 class SkBitmap;
 class SkColorFilter;
@@ -199,6 +200,31 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
 
 protected:
+    class Common {
+    public:
+        Common() {}
+        ~Common();
+
+        bool unflatten(SkReadBuffer&, int expectedInputs = -1);
+
+        CropRect        cropRect() const { return fCropRect; }
+        int             inputCount() const { return fInputs.count(); }
+        SkImageFilter** inputs() const { return fInputs.get(); }
+
+        // If the caller wants a copy of the inputs, call this and it will transfer ownership
+        // of the unflattened input filters to the caller. This is just a short-cut for copying
+        // the inputs, calling ref() on each, and then waiting for Common's destructor to call
+        // unref() on each.
+        void detachInputs(SkImageFilter** inputs);
+
+    private:
+        CropRect fCropRect;
+        // most filters accept at most 2 input-filters
+        SkAutoSTArray<2, SkImageFilter*> fInputs;
+
+        void allocInputs(int count);
+    };
+
     SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL);
 
     virtual ~SkImageFilter();
