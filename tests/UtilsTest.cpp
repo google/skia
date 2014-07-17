@@ -53,14 +53,14 @@ static void test_autostarray(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
 
     {
-        SkAutoSTArray<2, SkRefPtr<RefClass> > tmp;
+        SkAutoSTArray<2, SkAutoTUnref<RefClass> > tmp;
         REPORTER_ASSERT(reporter, 0 == tmp.count());
 
         tmp.reset(0);   // test out reset(0) when already at 0
         tmp.reset(4);   // this should force a new allocation
         REPORTER_ASSERT(reporter, 4 == tmp.count());
-        tmp[0] = &obj0;
-        tmp[1] = &obj1;
+        tmp[0].reset(SkRef(&obj0));
+        tmp[1].reset(SkRef(&obj1));
         REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
         REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
 
@@ -72,8 +72,8 @@ static void test_autostarray(skiatest::Reporter* reporter) {
 
         tmp.reset(2);   // this should use the preexisting allocation
         REPORTER_ASSERT(reporter, 2 == tmp.count());
-        tmp[0] = &obj0;
-        tmp[1] = &obj1;
+        tmp[0].reset(SkRef(&obj0));
+        tmp[1].reset(SkRef(&obj1));
     }
 
     // test out destructor with data in the array (and using existing allocation)
@@ -82,11 +82,11 @@ static void test_autostarray(skiatest::Reporter* reporter) {
 
     {
         // test out allocating ctor (this should allocate new memory)
-        SkAutoSTArray<2, SkRefPtr<RefClass> > tmp(4);
+        SkAutoSTArray<2, SkAutoTUnref<RefClass> > tmp(4);
         REPORTER_ASSERT(reporter, 4 == tmp.count());
 
-        tmp[0] = &obj0;
-        tmp[1] = &obj1;
+        tmp[0].reset(SkRef(&obj0));
+        tmp[1].reset(SkRef(&obj1));
         REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
         REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
 
@@ -96,8 +96,8 @@ static void test_autostarray(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
 
         tmp.reset(2);   // this should use the preexisting storage
-        tmp[0] = &obj0;
-        tmp[1] = &obj1;
+        tmp[0].reset(SkRef(&obj0));
+        tmp[1].reset(SkRef(&obj1));
         REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
         REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
 
@@ -105,8 +105,8 @@ static void test_autostarray(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
         REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
 
-        tmp[0] = &obj0;
-        tmp[1] = &obj1;
+        tmp[0].reset(SkRef(&obj0));
+        tmp[1].reset(SkRef(&obj1));
         REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
         REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
     }

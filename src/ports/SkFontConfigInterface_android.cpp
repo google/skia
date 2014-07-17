@@ -53,7 +53,7 @@ typedef int32_t FamilyRecID;
 
 // used to record our notion of the pre-existing fonts
 struct FontRec {
-    SkRefPtr<SkTypeface> fTypeface;
+    SkAutoTUnref<SkTypeface> fTypeface;
     SkString fFileName;
     SkTypeface::Style fStyle;
     bool fIsValid;
@@ -115,8 +115,8 @@ private:
     FallbackFontList* getCurrentLocaleFallbackFontList();
     FallbackFontList* findFallbackFontList(const SkLanguage& lang, bool isOriginal = true);
 
-    SkTArray<FontRec> fFonts;
-    SkTArray<FamilyRec> fFontFamilies;
+    SkTArray<FontRec, true> fFonts;
+    SkTArray<FamilyRec, true> fFontFamilies;
     SkTDict<FamilyRecID> fFamilyNameDict;
     FamilyRecID fDefaultFamilyRecID;
 
@@ -163,7 +163,7 @@ SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface(SkBase
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool has_font(const SkTArray<FontRec>& array, const SkString& filename) {
+static bool has_font(const SkTArray<FontRec, true>& array, const SkString& filename) {
     for (int i = 0; i < array.count(); i++) {
         if (array[i].fFileName == filename) {
             return true;
@@ -503,7 +503,7 @@ SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForFontRec(FontRecID fontRe
         }
 
         // store the result for subsequent lookups
-        fontRec.fTypeface = face;
+        fontRec.fTypeface.reset(face);
     }
     SkASSERT(face);
     return face;
