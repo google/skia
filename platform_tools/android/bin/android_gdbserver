@@ -34,17 +34,28 @@ for library_file in \
     liblog.so \
     libz.so \
     libgccdemangle.so \
-    libcorkscrew.so \
+    libsigchain.so \
+    libcutils.so \
+    libunwind.so \
+    libunwind-ptrace.so \
+    libbacktrace.so \
     libutils.so \
     libstlport.so \
     libGLES_trace.so \
     libEGL.so \
     libGLESv2.so \
     ; do
-    adb_pull_if_needed "${SYSTEM_LIBRARY_PATH}/${library_file}" $GDB_TMP_DIR
+    ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld ${SYSTEM_LIBRARY_PATH}/${library_file}`
+    if [ "${ANDROID_LS:0:1}" == "-" ]; then
+      adb_pull_if_needed "${SYSTEM_LIBRARY_PATH}/${library_file}" $GDB_TMP_DIR
+    fi
 done
 
-adb_pull_if_needed /system/bin/linker $GDB_TMP_DIR
+if [[ $ANDROID_ARCH == *64* ]]; then
+  adb_pull_if_needed /system/bin/linker64 $GDB_TMP_DIR
+else
+  adb_pull_if_needed /system/bin/linker $GDB_TMP_DIR
+fi
 
 echo "Pushing app..."
 for file in \
