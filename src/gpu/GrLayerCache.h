@@ -16,20 +16,29 @@
 #include "GrPictureUtils.h"
 #include "GrRect.h"
 
-class GrGpu;
 class SkPicture;
+
+// GrPictureInfo stores the atlas plots used by a single picture. A single 
+// plot may be used to store layers from multiple pictures.
+struct GrPictureInfo {
+public:
+    GrPictureInfo(uint32_t pictureID) : fPictureID(pictureID) { }
+
+    uint32_t fPictureID;
+
+    GrAtlas::ClientPlotUsage  fPlotUsage;
+};
 
 // GrCachedLayer encapsulates the caching information for a single saveLayer.
 //
 // Atlased layers get a ref to the backing GrTexture while non-atlased layers
 // get a ref to the GrTexture in which they reside. In both cases 'fRect' 
 // contains the layer's extent in its texture.
-//
-// TODO: can we easily reuse the empty space in the non-atlased GrTexture's?
+// Atlased layers also get a pointer to the plot in which they reside.
 struct GrCachedLayer {
 public:
     GrCachedLayer(uint32_t pictureID, int layerID) 
-        : fAtlased(false) {
+        : fPlot(NULL) {
         fPictureID = pictureID;
         fLayerID = layerID;
         fTexture = NULL;
@@ -51,10 +60,15 @@ public:
     GrTexture* texture() { return fTexture; }
     const GrIRect16& rect() const { return fRect; }
 
-    void setAtlased(bool atlased) { fAtlased = atlased; }
-    bool isAtlased() const { return fAtlased; }
+    void setPlot(GrPlot* plot) {
+        SkASSERT(NULL == fPlot);
+        fPlot = plot;
+    }
+    GrPlot* plot() { return fPlot; }
 
-    SkDEBUGCODE(void validate(GrTexture* backingTexture) const;)
+    bool isAtlased() const { return NULL != fPlot; }
+
+    SkDEBUGCODE(void validate(const GrTexture* backingTexture) const;)
 
 private:
     // ID of the picture of which this layer is a part
@@ -69,13 +83,14 @@ private:
     // non-NULL, that means that the texture is locked in the texture cache.
     GrTexture*      fTexture;
 
-    // True if this layer is in an atlas; false otherwise.
-    bool            fAtlased;
-
     // For both atlased and non-atlased layers 'fRect' contains the  bound of
     // the layer in whichever texture it resides. It is empty when 'fTexture'
     // is NULL.
     GrIRect16       fRect;
+
+    // For atlased layers, fPlot stores the atlas plot in which the layer rests.
+    // It is always NULL for non-atlased layers.
+    GrPlot*         fPlot;
 };
 
 // The GrLayerCache caches pre-computed saveLayers for later rendering.
@@ -112,9 +127,19 @@ public:
     SkDEBUGCODE(void validate() const;)
 
 private:
+    static const int kNumPlotsX = 2;
+    static const int kNumPlotsY = 2;
+
     GrContext*                fContext;  // pointer back to owning context
     SkAutoTDelete<GrAtlas>    fAtlas;    // TODO: could lazily allocate
-    GrAtlas::ClientPlotUsage  fPlotUsage;
+
+    // We cache this information here (rather then, say, on the owning picture)
+    // because we want to be able to clean it up as needed (e.g., if a picture
+    // is leaked and never cleans itself up we still want to be able to 
+    // remove the GrPictureInfo once its layers are purged from all the atlas
+    // plots).
+    class PictureKey;
+    GrTHashTable<GrPictureInfo, PictureKey, 7> fPictureHash;
 
     class PictureLayerKey;
     GrTHashTable<GrCachedLayer, PictureLayerKey, 7> fLayerHash;

@@ -41,8 +41,33 @@ private:
     int      fLayerID;
 };
 
+/**
+ *  PictureKey just wraps a picture's unique ID for GrTHashTable. It is used to
+ *  look up a picture's GrPictureInfo (i.e., its GrPlot usage).
+ */
+class GrLayerCache::PictureKey {
+public:
+    PictureKey(uint32_t pictureID) : fPictureID(pictureID) { }
+
+    uint32_t pictureID() const { return fPictureID; }
+
+    uint32_t getHash() const { return fPictureID; }
+
+    static bool LessThan(const GrPictureInfo& pictInfo, const PictureKey& key) {
+        return pictInfo.fPictureID < key.pictureID();
+    }
+
+    static bool Equals(const GrPictureInfo& pictInfo, const PictureKey& key) {
+        return pictInfo.fPictureID == key.pictureID();
+
+    }
+
+private:
+    uint32_t fPictureID;
+};
+
 #ifdef SK_DEBUG
-void GrCachedLayer::validate(GrTexture* backingTexture) const {
+void GrCachedLayer::validate(const GrTexture* backingTexture) const {
     SkASSERT(SK_InvalidGenID != fPictureID);
     SkASSERT(-1 != fLayerID);
 
@@ -55,6 +80,14 @@ void GrCachedLayer::validate(GrTexture* backingTexture) const {
         }
     } else {
         SkASSERT(fRect.isEmpty());
+        SkASSERT(NULL == fPlot);
+    }
+
+    if (NULL != fPlot) {
+        // If a layer has a plot (i.e., is atlased) then it must point to
+        // the backing texture. Additionally, its rect should be non-empty.
+        SkASSERT(NULL != fTexture && backingTexture == fTexture);
+        SkASSERT(!fRect.isEmpty());
     }
 }
 
@@ -72,9 +105,13 @@ public:
             fLayer->validate(fBackingTexture);
         }
     }
+    void setBackingTexture(GrTexture* backingTexture) {
+        SkASSERT(NULL == fBackingTexture || fBackingTexture == backingTexture);
+        fBackingTexture = backingTexture;
+    }
 
 private:
-    GrTexture* fBackingTexture;
+    const GrTexture* fBackingTexture;
     const GrCachedLayer* fLayer;
 };
 #endif
@@ -106,7 +143,7 @@ void GrLayerCache::initAtlas() {
     SkISize textureSize = SkISize::Make(kAtlasTextureWidth, kAtlasTextureHeight);
     fAtlas.reset(SkNEW_ARGS(GrAtlas, (fContext->getGpu(), kSkia8888_GrPixelConfig,
                                       kRenderTarget_GrTextureFlagBit,
-                                      textureSize, 1, 1, false)));
+                                      textureSize, kNumPlotsX, kNumPlotsY, false)));
 }
 
 void GrLayerCache::freeAll() {
@@ -165,14 +202,26 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc) {
     }
 
 #if USE_ATLAS
-    SkIPoint16 loc;
-    GrPlot* plot = fAtlas->addToAtlas(&fPlotUsage, desc.fWidth, desc.fHeight, NULL, &loc);
-    if (NULL != plot) {
-        GrIRect16 bounds = GrIRect16::MakeXYWH(loc.fX, loc.fY, 
-                                               SkToS16(desc.fWidth), SkToS16(desc.fHeight));
-        layer->setTexture(fAtlas->getTexture(), bounds);
-        layer->setAtlased(true);
-        return false;
+    {
+        GrPictureInfo* pictInfo = fPictureHash.find(PictureKey(layer->pictureID()));
+        if (NULL == pictInfo) {
+            pictInfo = SkNEW_ARGS(GrPictureInfo, (layer->pictureID()));
+            fPictureHash.insert(PictureKey(layer->pictureID()), pictInfo);
+        }
+
+        SkIPoint16 loc;
+        GrPlot* plot = fAtlas->addToAtlas(&pictInfo->fPlotUsage, 
+                                          desc.fWidth, desc.fHeight, 
+                                          NULL, &loc);
+        // addToAtlas can allocate the backing texture
+        SkDEBUGCODE(avl.setBackingTexture(fAtlas->getTexture()));
+        if (NULL != plot) {
+            GrIRect16 bounds = GrIRect16::MakeXYWH(loc.fX, loc.fY,
+                                                   SkToS16(desc.fWidth), SkToS16(desc.fHeight));
+            layer->setTexture(fAtlas->getTexture(), bounds);
+            layer->setPlot(plot);
+            return false;
+        }
     }
 #endif
 
@@ -192,9 +241,13 @@ void GrLayerCache::unlock(GrCachedLayer* layer) {
     }
 
     if (layer->isAtlased()) {
-        // The atlas doesn't currently use a scratch texture (and we would have
-        // to free up space differently anyways)
-        // TODO: unlock atlas space when a recycling rectanizer is available
+        SkASSERT(layer->texture() == fAtlas->getTexture());
+
+        GrPictureInfo* pictInfo = fPictureHash.find(PictureKey(layer->pictureID()));
+        SkASSERT(NULL != pictInfo);
+        pictInfo->fPlotUsage.isEmpty(); // just to silence compiler warnings for the time being
+
+        // TODO: purging from atlas goes here
     } else {
         fContext->unlockScratchTexture(layer->texture());
         layer->setTexture(NULL, GrIRect16::MakeEmpty());
@@ -246,5 +299,11 @@ void GrLayerCache::purge(const SkPicture* picture) {
         PictureLayerKey key(picture->uniqueID(), toBeRemoved[i]->layerID());
         fLayerHash.remove(key, toBeRemoved[i]);
         SkDELETE(toBeRemoved[i]);
+    }
+
+    GrPictureInfo* pictInfo = fPictureHash.find(PictureKey(picture->uniqueID()));
+    if (NULL != pictInfo) {
+        fPictureHash.remove(PictureKey(picture->uniqueID()), pictInfo);
+        SkDELETE(pictInfo);
     }
 }
