@@ -400,6 +400,11 @@
         'tools.gyp:picture_renderer',
         'tools.gyp:picture_utils',
       ],
+      'conditions': [
+        ['skia_android_framework == 1', {
+          'libraries': [ '-lskia' ],
+        }],
+      ],
     },
     {
       'target_name': 'bench_record',
