@@ -17,6 +17,7 @@ static size_t test_scaled_image_cache_useage() {
             SkCanvas::NewRasterN32(kCanvasSize, kCanvasSize));
     SkBitmap bitmap;
     SkAssertResult(bitmap.allocN32Pixels(kBitmapSize, kBitmapSize));
+    bitmap.eraseColor(0xFFFFFFFF);
     SkScalar scaledSize = SkIntToScalar(kScale * kBitmapSize);
     canvas->clipRect(SkRect::MakeLTRB(0, 0, scaledSize, scaledSize));
     SkPaint paint;
