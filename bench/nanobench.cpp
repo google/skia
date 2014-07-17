@@ -54,6 +54,7 @@ DEFINE_int32(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
 DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 
+DEFINE_bool2(veryVerbose, V, false, "Print lots for debugging bots.");
 
 static SkString humanize(double ms) {
     if (ms > 1e+3) return SkStringPrintf("%.3gs",  ms/1e3);
@@ -71,6 +72,7 @@ static double time(int loops, Benchmark* bench, SkCanvas* canvas, SkGLContextHel
     WallTimer timer;
     timer.start();
     if (bench) {
+        if (FLAGS_veryVerbose) { SkDebugf("Timing %s for %d loops.\n", bench->getName(), loops); }
         bench->draw(loops, canvas);
     }
     if (canvas) {
@@ -141,6 +143,7 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
 
     for (int i = 0; i < FLAGS_samples; i++) {
         samples[i] = time(loops, bench, canvas, NULL) / loops;
+        if (FLAGS_veryVerbose) { SkDebugf("  %s\n", HUMANIZE(samples[i])); }
     }
     return loops;
 }
@@ -170,6 +173,8 @@ static int gpu_bench(SkGLContextHelper* gl,
         // We've overshot at least a little.  Scale back linearly.
         loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
 
+        if (FLAGS_veryVerbose) { SkDebugf("elapsed %s, loops %d\n", HUMANIZE(elapsed), loops); }
+
         // Might as well make sure we're not still timing our calibration.
         SK_GL(*gl, Finish());
     }
@@ -184,6 +189,7 @@ static int gpu_bench(SkGLContextHelper* gl,
     // Now, actually do the timing!
     for (int i = 0; i < FLAGS_samples; i++) {
         samples[i] = time(loops, bench, canvas, gl) / loops;
+        if (FLAGS_veryVerbose) { SkDebugf("  %s\n", HUMANIZE(samples[i])); }
     }
     return loops;
 }
@@ -342,8 +348,6 @@ int tool_main(int argc, char** argv) {
                  cpu_bench(       overhead, bench.get(), canvas, samples.get());
 
             if (loops == 0) {
-                SkDebugf("Unable to time %s\t%s (overhead %s)\n",
-                         bench->getName(), config, HUMANIZE(overhead));
                 continue;
             }
 
