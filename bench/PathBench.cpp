@@ -1012,8 +1012,11 @@ DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::k
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kRoundRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kOval_Type); )
 
+// These seem to be optimized away, which is troublesome for timing.
+/*
 DEF_BENCH( return new ConicBench_Chop5() )
 DEF_BENCH( return new ConicBench_ChopHalf() )
 DEF_BENCH( return new ConicBench_ComputeError() )
 DEF_BENCH( return new ConicBench_asQuadTol() )
 DEF_BENCH( return new ConicBench_quadPow2() )
+*/
