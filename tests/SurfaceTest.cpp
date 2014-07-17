@@ -170,37 +170,53 @@ static void test_canvaspeek(skiatest::Reporter* reporter,
     const SkColor color = SK_ColorRED;
     const SkPMColor pmcolor = SkPreMultiplyColor(color);
 
-    GrContext* context = NULL;
+    int cnt;
 #if SK_SUPPORT_GPU
-    context = factory->get(GrContextFactory::kNative_GLContextType);
+    cnt = GrContextFactory::kGLContextTypeCnt;
+#else
+    cnt = 1;
 #endif
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
-        SkImageInfo info, requestInfo;
-        size_t rowBytes;
+    for (int i= 0; i < cnt; ++i) {
+        GrContext* context = NULL;
+#if SK_SUPPORT_GPU
+        GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
+        if (!GrContextFactory::IsRenderingGLContext(glCtxType)) {
+            continue;
+        }
+        context = factory->get(glCtxType);
 
-        SkAutoTUnref<SkSurface> surface(createSurface(gRec[i].fType, context,
-                                                      &requestInfo));
-        surface->getCanvas()->clear(color);
+        if (NULL == context) {
+            continue;
+        }
+#endif
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+            SkImageInfo info, requestInfo;
+            size_t rowBytes;
 
-        const void* addr = surface->getCanvas()->peekPixels(&info, &rowBytes);
-        bool success = (NULL != addr);
-        REPORTER_ASSERT(reporter, gRec[i].fPeekShouldSucceed == success);
+            SkAutoTUnref<SkSurface> surface(createSurface(gRec[i].fType, context,
+                                                          &requestInfo));
+            surface->getCanvas()->clear(color);
 
-        SkImageInfo info2;
-        size_t rb2;
-        const void* addr2 = surface->peekPixels(&info2, &rb2);
+            const void* addr = surface->getCanvas()->peekPixels(&info, &rowBytes);
+            bool success = (NULL != addr);
+            REPORTER_ASSERT(reporter, gRec[i].fPeekShouldSucceed == success);
 
-        if (success) {
-            REPORTER_ASSERT(reporter, requestInfo == info);
-            REPORTER_ASSERT(reporter, requestInfo.minRowBytes() <= rowBytes);
-            REPORTER_ASSERT(reporter, pmcolor == *(const SkPMColor*)addr);
+            SkImageInfo info2;
+            size_t rb2;
+            const void* addr2 = surface->peekPixels(&info2, &rb2);
 
-            REPORTER_ASSERT(reporter, addr2 == addr);
-            REPORTER_ASSERT(reporter, info2 == info);
-            REPORTER_ASSERT(reporter, rb2 == rowBytes);
-        } else {
-            REPORTER_ASSERT(reporter, NULL == addr2);
+            if (success) {
+                REPORTER_ASSERT(reporter, requestInfo == info);
+                REPORTER_ASSERT(reporter, requestInfo.minRowBytes() <= rowBytes);
+                REPORTER_ASSERT(reporter, pmcolor == *(const SkPMColor*)addr);
+
+                REPORTER_ASSERT(reporter, addr2 == addr);
+                REPORTER_ASSERT(reporter, info2 == info);
+                REPORTER_ASSERT(reporter, rb2 == rowBytes);
+            } else {
+                REPORTER_ASSERT(reporter, NULL == addr2);
+            }
         }
     }
 }
@@ -429,22 +445,28 @@ DEF_GPUTEST(Surface, reporter, factory) {
 #if SK_SUPPORT_GPU
     TestGetTexture(reporter, kRaster_SurfaceType, NULL);
     if (NULL != factory) {
-        GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
-        if (NULL != context) {
-            TestSurfaceInCache(reporter, kGpu_SurfaceType, context);
-            TestSurfaceInCache(reporter, kGpuScratch_SurfaceType, context);
-            Test_crbug263329(reporter, kGpu_SurfaceType, context);
-            Test_crbug263329(reporter, kGpuScratch_SurfaceType, context);
-            TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
-            TestSurfaceCopyOnWrite(reporter, kGpuScratch_SurfaceType, context);
-            TestSurfaceWritableAfterSnapshotRelease(reporter, kGpu_SurfaceType, context);
-            TestSurfaceWritableAfterSnapshotRelease(reporter, kGpuScratch_SurfaceType, context);
-            TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
-            TestSurfaceNoCanvas(reporter, kGpuScratch_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
-            TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
-            TestSurfaceNoCanvas(reporter, kGpuScratch_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
-            TestGetTexture(reporter, kGpu_SurfaceType, context);
-            TestGetTexture(reporter, kGpuScratch_SurfaceType, context);
+        for (int i= 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
+            GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
+            if (!GrContextFactory::IsRenderingGLContext(glCtxType)) {
+                continue;
+            }
+            GrContext* context = factory->get(glCtxType);
+            if (NULL != context) {
+                TestSurfaceInCache(reporter, kGpu_SurfaceType, context);
+                TestSurfaceInCache(reporter, kGpuScratch_SurfaceType, context);
+                Test_crbug263329(reporter, kGpu_SurfaceType, context);
+                Test_crbug263329(reporter, kGpuScratch_SurfaceType, context);
+                TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
+                TestSurfaceCopyOnWrite(reporter, kGpuScratch_SurfaceType, context);
+                TestSurfaceWritableAfterSnapshotRelease(reporter, kGpu_SurfaceType, context);
+                TestSurfaceWritableAfterSnapshotRelease(reporter, kGpuScratch_SurfaceType, context);
+                TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
+                TestSurfaceNoCanvas(reporter, kGpuScratch_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
+                TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
+                TestSurfaceNoCanvas(reporter, kGpuScratch_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
+                TestGetTexture(reporter, kGpu_SurfaceType, context);
+                TestGetTexture(reporter, kGpuScratch_SurfaceType, context);
+            }
         }
     }
 #endif

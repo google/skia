@@ -137,9 +137,7 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
         GrPrintf("------ RENDERER %s\n", renderer);
         GrPrintf("------ VERSION %s\n",  version);
         GrPrintf("------ EXTENSIONS\n");
-#if 0  // TODO: Reenable this after GrGLInterface's extensions can be accessed safely.
-       ctx.extensions().print();
-#endif
+        ctx.extensions().print();
         GrPrintf("\n");
         GrPrintf(this->glCaps().dump().c_str());
     }
@@ -574,13 +572,21 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     }
 
     GrGLenum internalFormat;
-    GrGLenum externalFormat;
-    GrGLenum externalType;
+    GrGLenum externalFormat = 0x0; // suprress warning
+    GrGLenum externalType = 0x0;// suprress warning
+
     // glTexStorage requires sized internal formats on both desktop and ES. ES2 requires an unsized
     // format for glTexImage, unlike ES3 and desktop. However, we allow the driver to decide the
     // size of the internal format whenever possible and so only use a sized internal format when
     // using texture storage.
-    if (!this->configToGLFormats(dataConfig, useTexStorage, &internalFormat,
+    bool useSizedFormat = useTexStorage;
+    // At least some versions of the desktop ES3 drivers for NVIDIA won't accept GL_RED in
+    // glTexImage2D for the internal format but will accept GL_R8.
+    if (!useSizedFormat && kNVIDIA_GrGLVendor == this->glContext().vendor() &&
+        kGLES_GrGLStandard == this->glStandard() && this->glVersion() >= GR_GL_VER(3, 0)) {
+        useSizedFormat = true;
+    }
+    if (!this->configToGLFormats(dataConfig, useSizedFormat, &internalFormat,
                                  &externalFormat, &externalType)) {
         return false;
     }

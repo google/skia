@@ -65,6 +65,8 @@ public:
         return fInterface->hasExtension(ext);
     }
 
+    const GrGLExtensions& extensions() const { return fInterface->fExtensions; }
+
     /**
      * Reset the information
      */

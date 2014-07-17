@@ -780,129 +780,140 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
 
 static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
                                           GrContextFactory* factory) {
+    for (int i= 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
+        GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
 
-    GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
+        if (!GrContextFactory::IsRenderingGLContext(glCtxType)) {
+            continue;
+        }
 
-    static const int kWidth = 100;
-    static const int kHeight = 100;
+        GrContext* context = factory->get(glCtxType);
 
-    SkAutoTUnref<SkPicture> pict;
+        if (NULL == context) {
+            continue;
+        }
 
-    // create a picture with the structure:
-    // 1)
-    //      SaveLayer
-    //      Restore
-    // 2)
-    //      SaveLayer
-    //          Translate
-    //          SaveLayer w/ bound
-    //          Restore
-    //      Restore
-    // 3)
-    //      SaveLayer w/ copyable paint
-    //      Restore
-    // 4)
-    //      SaveLayer w/ non-copyable paint
-    //      Restore
-    {
-        SkPictureRecorder recorder;
+        static const int kWidth = 100;
+        static const int kHeight = 100;
 
-        SkCanvas* c = recorder.beginRecording(kWidth, kHeight);
+        SkAutoTUnref<SkPicture> pict;
+
+        // create a picture with the structure:
         // 1)
-        c->saveLayer(NULL, NULL);
-        c->restore();
-
+        //      SaveLayer
+        //      Restore
         // 2)
-        c->saveLayer(NULL, NULL);
-            c->translate(kWidth/2, kHeight/2);
-            SkRect r = SkRect::MakeXYWH(0, 0, kWidth/2, kHeight/2);
-            c->saveLayer(&r, NULL);
-            c->restore();
-        c->restore();
-
+        //      SaveLayer
+        //          Translate
+        //          SaveLayer w/ bound
+        //          Restore
+        //      Restore
         // 3)
-        {
-            SkPaint p;
-            p.setColor(SK_ColorRED);
-            c->saveLayer(NULL, &p);
-            c->restore();
-        }
+        //      SaveLayer w/ copyable paint
+        //      Restore
         // 4)
-        // TODO: this case will need to be removed once the paint's are immutable
+        //      SaveLayer w/ non-copyable paint
+        //      Restore
         {
-            SkPaint p;
-            SkAutoTUnref<SkColorFilter> cf(SkLumaColorFilter::Create());
-            p.setImageFilter(SkColorFilterImageFilter::Create(cf.get()))->unref();
-            c->saveLayer(NULL, &p);
+            SkPictureRecorder recorder;
+
+            SkCanvas* c = recorder.beginRecording(kWidth, kHeight);
+            // 1)
+            c->saveLayer(NULL, NULL);
             c->restore();
+
+            // 2)
+            c->saveLayer(NULL, NULL);
+                c->translate(kWidth/2, kHeight/2);
+                SkRect r = SkRect::MakeXYWH(0, 0, kWidth/2, kHeight/2);
+                c->saveLayer(&r, NULL);
+                c->restore();
+            c->restore();
+
+            // 3)
+            {
+                SkPaint p;
+                p.setColor(SK_ColorRED);
+                c->saveLayer(NULL, &p);
+                c->restore();
+            }
+            // 4)
+            // TODO: this case will need to be removed once the paint's are immutable
+            {
+                SkPaint p;
+                SkAutoTUnref<SkColorFilter> cf(SkLumaColorFilter::Create());
+                p.setImageFilter(SkColorFilterImageFilter::Create(cf.get()))->unref();
+                c->saveLayer(NULL, &p);
+                c->restore();
+            }
+
+            pict.reset(recorder.endRecording());
         }
 
-        pict.reset(recorder.endRecording());
-    }
+        // Now test out the SaveLayer extraction
+        {
+            SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
 
-    // Now test out the SaveLayer extraction
-    {
-        SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+            SkAutoTUnref<SkSurface> surface(SkSurface::NewScratchRenderTarget(context, info));
 
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewScratchRenderTarget(context, info));
+            SkCanvas* canvas = surface->getCanvas();
 
-        SkCanvas* canvas = surface->getCanvas();
+            canvas->EXPERIMENTAL_optimize(pict);
 
-        canvas->EXPERIMENTAL_optimize(pict);
+            SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();
 
-        SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();
+            const SkPicture::AccelData* data = pict->EXPERIMENTAL_getAccelData(key);
+            REPORTER_ASSERT(reporter, NULL != data);
 
-        const SkPicture::AccelData* data = pict->EXPERIMENTAL_getAccelData(key);
-        REPORTER_ASSERT(reporter, NULL != data);
+            const GPUAccelData *gpuData = static_cast<const GPUAccelData*>(data);
+            REPORTER_ASSERT(reporter, 5 == gpuData->numSaveLayers());
 
-        const GPUAccelData *gpuData = static_cast<const GPUAccelData*>(data);
-        REPORTER_ASSERT(reporter, 5 == gpuData->numSaveLayers());
-
-        const GPUAccelData::SaveLayerInfo& info0 = gpuData->saveLayerInfo(0);
-        // The parent/child layer appear in reverse order
-        const GPUAccelData::SaveLayerInfo& info1 = gpuData->saveLayerInfo(2);
-        const GPUAccelData::SaveLayerInfo& info2 = gpuData->saveLayerInfo(1);
-        const GPUAccelData::SaveLayerInfo& info3 = gpuData->saveLayerInfo(3);
+            const GPUAccelData::SaveLayerInfo& info0 = gpuData->saveLayerInfo(0);
+            // The parent/child layer appear in reverse order
+            const GPUAccelData::SaveLayerInfo& info1 = gpuData->saveLayerInfo(2);
+            const GPUAccelData::SaveLayerInfo& info2 = gpuData->saveLayerInfo(1);
+            const GPUAccelData::SaveLayerInfo& info3 = gpuData->saveLayerInfo(3);
 //        const GPUAccelData::SaveLayerInfo& info4 = gpuData->saveLayerInfo(4);
 
-        REPORTER_ASSERT(reporter, info0.fValid);
-        REPORTER_ASSERT(reporter, kWidth == info0.fSize.fWidth && kHeight == info0.fSize.fHeight);
-        REPORTER_ASSERT(reporter, info0.fCTM.isIdentity());
-        REPORTER_ASSERT(reporter, 0 == info0.fOffset.fX && 0 == info0.fOffset.fY);
-        REPORTER_ASSERT(reporter, NULL != info0.fPaint);
-        REPORTER_ASSERT(reporter, !info0.fIsNested && !info0.fHasNestedLayers);
+            REPORTER_ASSERT(reporter, info0.fValid);
+            REPORTER_ASSERT(reporter, kWidth == info0.fSize.fWidth && kHeight == info0.fSize.fHeight);
+            REPORTER_ASSERT(reporter, info0.fCTM.isIdentity());
+            REPORTER_ASSERT(reporter, 0 == info0.fOffset.fX && 0 == info0.fOffset.fY);
+            REPORTER_ASSERT(reporter, NULL != info0.fPaint);
+            REPORTER_ASSERT(reporter, !info0.fIsNested && !info0.fHasNestedLayers);
 
-        REPORTER_ASSERT(reporter, info1.fValid);
-        REPORTER_ASSERT(reporter, kWidth == info1.fSize.fWidth && kHeight == info1.fSize.fHeight);
-        REPORTER_ASSERT(reporter, info1.fCTM.isIdentity());
-        REPORTER_ASSERT(reporter, 0 == info1.fOffset.fX && 0 == info1.fOffset.fY);
-        REPORTER_ASSERT(reporter, NULL != info1.fPaint);
-        REPORTER_ASSERT(reporter, !info1.fIsNested && info1.fHasNestedLayers); // has a nested SL
+            REPORTER_ASSERT(reporter, info1.fValid);
+            REPORTER_ASSERT(reporter, kWidth == info1.fSize.fWidth && kHeight == info1.fSize.fHeight);
+            REPORTER_ASSERT(reporter, info1.fCTM.isIdentity());
+            REPORTER_ASSERT(reporter, 0 == info1.fOffset.fX && 0 == info1.fOffset.fY);
+            REPORTER_ASSERT(reporter, NULL != info1.fPaint);
+            REPORTER_ASSERT(reporter, !info1.fIsNested && info1.fHasNestedLayers); // has a nested SL
 
-        REPORTER_ASSERT(reporter, info2.fValid);
-        REPORTER_ASSERT(reporter, kWidth/2 == info2.fSize.fWidth &&
-                                  kHeight/2 == info2.fSize.fHeight); // bound reduces size
-        REPORTER_ASSERT(reporter, info2.fCTM.isIdentity());         // translated
-        REPORTER_ASSERT(reporter, kWidth/2 == info2.fOffset.fX &&
-                                  kHeight/2 == info2.fOffset.fY);
-        REPORTER_ASSERT(reporter, NULL != info1.fPaint);
-        REPORTER_ASSERT(reporter, info2.fIsNested && !info2.fHasNestedLayers); // is nested
+            REPORTER_ASSERT(reporter, info2.fValid);
+            REPORTER_ASSERT(reporter, kWidth/2 == info2.fSize.fWidth &&
+                                      kHeight/2 == info2.fSize.fHeight); // bound reduces size
+            REPORTER_ASSERT(reporter, info2.fCTM.isIdentity());         // translated
+            REPORTER_ASSERT(reporter, kWidth/2 == info2.fOffset.fX &&
+                                      kHeight/2 == info2.fOffset.fY);
+            REPORTER_ASSERT(reporter, NULL != info1.fPaint);
+            REPORTER_ASSERT(reporter, info2.fIsNested && !info2.fHasNestedLayers); // is nested
 
-        REPORTER_ASSERT(reporter, info3.fValid);
-        REPORTER_ASSERT(reporter, kWidth == info3.fSize.fWidth && kHeight == info3.fSize.fHeight);
-        REPORTER_ASSERT(reporter, info3.fCTM.isIdentity());
-        REPORTER_ASSERT(reporter, 0 == info3.fOffset.fX && 0 == info3.fOffset.fY);
-        REPORTER_ASSERT(reporter, NULL != info3.fPaint);
-        REPORTER_ASSERT(reporter, !info3.fIsNested && !info3.fHasNestedLayers);
+            REPORTER_ASSERT(reporter, info3.fValid);
+            REPORTER_ASSERT(reporter, kWidth == info3.fSize.fWidth && kHeight == info3.fSize.fHeight);
+            REPORTER_ASSERT(reporter, info3.fCTM.isIdentity());
+            REPORTER_ASSERT(reporter, 0 == info3.fOffset.fX && 0 == info3.fOffset.fY);
+            REPORTER_ASSERT(reporter, NULL != info3.fPaint);
+            REPORTER_ASSERT(reporter, !info3.fIsNested && !info3.fHasNestedLayers);
 
-#if 0 // needs more though for GrGatherCanvas
-        REPORTER_ASSERT(reporter, !info4.fValid);                 // paint is/was uncopyable
-        REPORTER_ASSERT(reporter, kWidth == info4.fSize.fWidth && kHeight == info4.fSize.fHeight);
-        REPORTER_ASSERT(reporter, 0 == info4.fOffset.fX && 0 == info4.fOffset.fY);
-        REPORTER_ASSERT(reporter, info4.fCTM.isIdentity());
-        REPORTER_ASSERT(reporter, NULL == info4.fPaint);     // paint is/was uncopyable
-        REPORTER_ASSERT(reporter, !info4.fIsNested && !info4.fHasNestedLayers);
-#endif
+    #if 0 // needs more though for GrGatherCanvas
+            REPORTER_ASSERT(reporter, !info4.fValid);                 // paint is/was uncopyable
+            REPORTER_ASSERT(reporter, kWidth == info4.fSize.fWidth && kHeight == info4.fSize.fHeight);
+            REPORTER_ASSERT(reporter, 0 == info4.fOffset.fX && 0 == info4.fOffset.fY);
+            REPORTER_ASSERT(reporter, info4.fCTM.isIdentity());
+            REPORTER_ASSERT(reporter, NULL == info4.fPaint);     // paint is/was uncopyable
+            REPORTER_ASSERT(reporter, !info4.fIsNested && !info4.fHasNestedLayers);
+    #endif
+        }
     }
 }
 

@@ -16,17 +16,17 @@ DEF_GPUTEST(GrContextFactory, reporter, factory) {
 
     // Before we ask for a context, we expect the GL context to not be there.
     REPORTER_ASSERT(reporter,
-                    NULL == factory->getGLContext(GrContextFactory::kNative_GLContextType));
+                    NULL == factory->getGLContext(GrContextFactory::kNull_GLContextType));
 
     // After we ask for a context, we expect that the GL context to be there.
-    factory->get(GrContextFactory::kNative_GLContextType);
+    factory->get(GrContextFactory::kNull_GLContextType);
     REPORTER_ASSERT(reporter,
-                    factory->getGLContext(GrContextFactory::kNative_GLContextType) != NULL);
+                    factory->getGLContext(GrContextFactory::kNull_GLContextType) != NULL);
 
     // If we did not ask for a context with the particular GL context, we would
     // expect the particular GL context to not be there.
     REPORTER_ASSERT(reporter,
-                    NULL == factory->getGLContext(GrContextFactory::kNull_GLContextType));
+                    NULL == factory->getGLContext(GrContextFactory::kDebug_GLContextType));
 }
 
 #endif

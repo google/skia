@@ -49,92 +49,100 @@ static void create_layers(skiatest::Reporter* reporter,
 // locking & unlocking textures).
 // TODO: need to add checks on VRAM usage!
 DEF_GPUTEST(GpuLayerCache, reporter, factory) {
+    for (int i= 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
+        GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
 
-    GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
-    if (NULL == context) {
-        return;
-    }
-
-    SkPictureRecorder recorder;
-    recorder.beginRecording(1, 1);
-    SkAutoTUnref<const SkPicture> picture(recorder.endRecording());
-
-    GrLayerCache cache(context);
-
-    create_layers(reporter, &cache, *picture);
-
-    // Lock the layers making them all 512x512
-    GrTextureDesc desc;
-    desc.fWidth = 512;
-    desc.fHeight = 512;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-
-    for (int i = 0; i < kNumLayers; ++i) {
-        GrCachedLayer* layer = cache.findLayer(picture, i);
-        REPORTER_ASSERT(reporter, NULL != layer);
-
-        bool foundInCache = cache.lock(layer, desc);
-        REPORTER_ASSERT(reporter, !foundInCache);
-        foundInCache = cache.lock(layer, desc);
-        REPORTER_ASSERT(reporter, foundInCache);
-
-        REPORTER_ASSERT(reporter, NULL != layer->texture());
-#if USE_ATLAS
-        // The first 4 layers should be in the atlas (and thus have non-empty
-        // rects)
-        if (i < 4) {
-            REPORTER_ASSERT(reporter, layer->isAtlased());
-        } else {
-#endif
-            REPORTER_ASSERT(reporter, !layer->isAtlased());
-#if USE_ATLAS
+        if (!GrContextFactory::IsRenderingGLContext(glCtxType)) {
+            continue;
         }
-#endif
-    }
 
-    // Unlock the textures
-    for (int i = 0; i < kNumLayers; ++i) {
-        GrCachedLayer* layer = cache.findLayer(picture, i);
-        REPORTER_ASSERT(reporter, NULL != layer);
+        GrContext* context = factory->get(glCtxType);
 
-        cache.unlock(layer);
-    }
+        if (NULL == context) {
+            continue;
+        }
 
-    for (int i = 0; i < kNumLayers; ++i) {
-        GrCachedLayer* layer = cache.findLayer(picture, i);
-        REPORTER_ASSERT(reporter, NULL != layer);
+        SkPictureRecorder recorder;
+        recorder.beginRecording(1, 1);
+        SkAutoTUnref<const SkPicture> picture(recorder.endRecording());
 
-#if USE_ATLAS
-        // The first 4 layers should be in the atlas (and thus do not 
-        // currently unlock). The final layer should be unlocked.
-        if (i < 4) {
+        GrLayerCache cache(context);
+
+        create_layers(reporter, &cache, *picture);
+
+        // Lock the layers making them all 512x512
+        GrTextureDesc desc;
+        desc.fWidth = 512;
+        desc.fHeight = 512;
+        desc.fConfig = kSkia8888_GrPixelConfig;
+
+        for (int i = 0; i < kNumLayers; ++i) {
+            GrCachedLayer* layer = cache.findLayer(picture, i);
+            REPORTER_ASSERT(reporter, NULL != layer);
+
+            bool foundInCache = cache.lock(layer, desc);
+            REPORTER_ASSERT(reporter, !foundInCache);
+            foundInCache = cache.lock(layer, desc);
+            REPORTER_ASSERT(reporter, foundInCache);
+
             REPORTER_ASSERT(reporter, NULL != layer->texture());
-            REPORTER_ASSERT(reporter, layer->isAtlased());
-        } else {
+#if USE_ATLAS
+            // The first 4 layers should be in the atlas (and thus have non-empty
+            // rects)
+            if (i < 4) {
+                REPORTER_ASSERT(reporter, layer->isAtlased());
+            } else {
 #endif
-            REPORTER_ASSERT(reporter, NULL == layer->texture());
             REPORTER_ASSERT(reporter, !layer->isAtlased());
 #if USE_ATLAS
+            }
+#endif
         }
+
+        // Unlock the textures
+        for (int i = 0; i < kNumLayers; ++i) {
+            GrCachedLayer* layer = cache.findLayer(picture, i);
+            REPORTER_ASSERT(reporter, NULL != layer);
+
+            cache.unlock(layer);
+        }
+
+        for (int i = 0; i < kNumLayers; ++i) {
+            GrCachedLayer* layer = cache.findLayer(picture, i);
+            REPORTER_ASSERT(reporter, NULL != layer);
+
+#if USE_ATLAS
+            // The first 4 layers should be in the atlas (and thus do not 
+            // currently unlock). The final layer should be unlocked.
+            if (i < 4) {
+                REPORTER_ASSERT(reporter, NULL != layer->texture());
+                REPORTER_ASSERT(reporter, layer->isAtlased());
+            } else {
+#endif
+                REPORTER_ASSERT(reporter, NULL == layer->texture());
+                REPORTER_ASSERT(reporter, !layer->isAtlased());
+#if USE_ATLAS
+            }
+#endif
+        }
+
+        // Free them all SkGpuDevice-style. This will not free up the
+        // atlas' texture but will eliminate all the layers.
+        cache.purge(picture);
+
+        REPORTER_ASSERT(reporter, GetNumLayers::NumLayers(&cache) == 0);
+        // TODO: add VRAM/resource cache check here
+#if 0
+        // Re-create the layers
+        create_layers(reporter, &cache, picture);
+
+        // Free them again GrContext-style. This should free up everything.
+        cache.freeAll();
+
+        REPORTER_ASSERT(reporter, GetNumLayers::NumLayers(&cache) == 0);
+        // TODO: add VRAM/resource cache check here
 #endif
     }
-
-    // Free them all SkGpuDevice-style. This will not free up the
-    // atlas' texture but will eliminate all the layers.
-    cache.purge(picture);
-
-    REPORTER_ASSERT(reporter, GetNumLayers::NumLayers(&cache) == 0);
-    // TODO: add VRAM/resource cache check here
-#if 0
-    // Re-create the layers
-    create_layers(reporter, &cache, picture);
-
-    // Free them again GrContext-style. This should free up everything.
-    cache.freeAll();
-
-    REPORTER_ASSERT(reporter, GetNumLayers::NumLayers(&cache) == 0);
-    // TODO: add VRAM/resource cache check here
-#endif
 }
 
 #endif

@@ -92,17 +92,29 @@ void rasterToGpu(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 DEF_GPUTEST(ImageNewShader_GPU, reporter, factory) {
-    GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
+    for (int i= 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
+        GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
 
-    // GPU -> GPU
-    gpuToGpu(reporter, context);
+        if (!GrContextFactory::IsRenderingGLContext(glCtxType)) {
+            continue;
+        }
 
-    // GPU -> RASTER
-    gpuToRaster(reporter, context);
+        GrContext* context = factory->get(glCtxType);
+
+        if (NULL == context) {
+            continue;
+        }
+
+        // GPU -> GPU
+        gpuToGpu(reporter, context);
+
+        // GPU -> RASTER
+        gpuToRaster(reporter, context);
 
 
-    // RASTER -> GPU
-    rasterToGpu(reporter, context);
+        // RASTER -> GPU
+        rasterToGpu(reporter, context);
+    }
 }
 
 #endif

@@ -147,6 +147,10 @@ bool GrGpuGL::programUnitTest(int maxStages) {
     dummyDesc.fHeight = 22;
     SkAutoTUnref<GrTexture> dummyTexture2(this->createTexture(dummyDesc, NULL, 0));
 
+    if (!dummyTexture1 || ! dummyTexture2) {
+        return false;
+    }
+
     static const int NUM_TESTS = 512;
 
     SkRandom random;
