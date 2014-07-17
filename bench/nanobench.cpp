@@ -283,7 +283,7 @@ static void fill_static_options(ResultsWriter* log) {
 
 #if SK_SUPPORT_GPU
 static void fill_gpu_options(ResultsWriter* log, SkGLContextHelper* ctx) {
-    const GLubyte* version;
+    const GrGLubyte* version;
     SK_GL_RET(*ctx, version, GetString(GR_GL_VERSION));
     log->configOption("GL_VERSION", (const char*)(version));
 
