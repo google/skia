@@ -74,7 +74,7 @@ static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
         }
     }
 
-    cache.setByteLimit(0);
+    cache.setTotalByteLimit(0);
 }
 
 #include "SkDiscardableMemoryPool.h"
