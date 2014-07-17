@@ -39,7 +39,7 @@ function default_toolchain() {
   TOOLCHAIN_DIR=${SCRIPT_DIR}/../toolchains
   if [ $(uname) == "Darwin" ]; then
     verbose "Using Mac toolchain."
-    TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-mac_v$API_LEVEL
+    TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-darwin_v$API_LEVEL
   else
     verbose "Using Linux toolchain."
     TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
@@ -98,4 +98,5 @@ exportVar STRIP "$ANDROID_TOOLCHAIN_PREFIX-strip"
 # This is required to build using ninja on a Mac.
 ln -sf $ANDROID_TOOLCHAIN_PREFIX-nm $ANDROID_TOOLCHAIN/nm
 ln -sf $ANDROID_TOOLCHAIN_PREFIX-readelf $ANDROID_TOOLCHAIN/readelf
+ln -sf $ANDROID_TOOLCHAIN_PREFIX-as $ANDROID_TOOLCHAIN/as
 exportVar PATH $ANDROID_TOOLCHAIN:$PATH
