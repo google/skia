@@ -5,57 +5,73 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
-#include "SkGraphics.h"
 #include "SkCanvas.h"
+#include "SkGraphics.h"
+#include "SkScaledImageCache.h"
 
 static const int kCanvasSize = 1;
 static const int kBitmapSize = 16;
 static const int kScale = 8;
 
-static size_t test_scaled_image_cache_useage() {
+static bool is_in_scaled_image_cache(const SkBitmap& orig,
+                                     SkScalar xScale,
+                                     SkScalar yScale) {
+    SkBitmap scaled;
+    SkScaledImageCache::ID* id = SkScaledImageCache::FindAndLock(
+            orig, SkScalarInvert(xScale), SkScalarInvert(yScale), &scaled);
+    if (id) {
+        SkScaledImageCache::Unlock(id);
+    }
+    return id != NULL;
+}
+
+// Draw a scaled bitmap, then return true iff it has been cached.
+static bool test_scaled_image_cache_useage() {
     SkAutoTUnref<SkCanvas> canvas(
             SkCanvas::NewRasterN32(kCanvasSize, kCanvasSize));
     SkBitmap bitmap;
     SkAssertResult(bitmap.allocN32Pixels(kBitmapSize, kBitmapSize));
     bitmap.eraseColor(0xFFFFFFFF);
-    SkScalar scaledSize = SkIntToScalar(kScale * kBitmapSize);
+    SkScalar scale = SkIntToScalar(kScale);
+    SkScalar scaledSize = SkIntToScalar(kBitmapSize) * scale;
     canvas->clipRect(SkRect::MakeLTRB(0, 0, scaledSize, scaledSize));
     SkPaint paint;
     paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
-    size_t bytesUsed = SkGraphics::GetImageCacheBytesUsed();
+
     canvas->drawBitmapRect(bitmap,
                            SkRect::MakeLTRB(0, 0, scaledSize, scaledSize),
                            &paint);
-    return SkGraphics::GetImageCacheBytesUsed() - bytesUsed;
+
+    return is_in_scaled_image_cache(bitmap, scale, scale);
 }
 
 // http://crbug.com/389439
 DEF_TEST(ScaledImageCache_SingleAllocationByteLimit, reporter) {
-    size_t originalByteLimit = SkGraphics::GetImageCacheByteLimit();
+    size_t originalByteLimit = SkGraphics::GetImageCacheTotalByteLimit();
     size_t originalAllocationLimit =
         SkGraphics::GetImageCacheSingleAllocationByteLimit();
 
     size_t size = kBitmapSize * kScale * kBitmapSize * kScale
         * SkColorTypeBytesPerPixel(kN32_SkColorType);
 
-    SkGraphics::SetImageCacheByteLimit(0); // clear cache
-    SkGraphics::SetImageCacheByteLimit(2 * size);
-    SkGraphics::SetImageCacheSingleAllocationByteLimit(0);
+    SkGraphics::SetImageCacheTotalByteLimit(0);  // clear cache
+    SkGraphics::SetImageCacheTotalByteLimit(2 * size);
+    SkGraphics::SetImageCacheSingleAllocationByteLimit(0);  // No limit
 
-    REPORTER_ASSERT(reporter, size == test_scaled_image_cache_useage());
+    REPORTER_ASSERT(reporter, test_scaled_image_cache_useage());
 
-    SkGraphics::SetImageCacheByteLimit(0); // clear cache
-    SkGraphics::SetImageCacheByteLimit(2 * size);
-    SkGraphics::SetImageCacheSingleAllocationByteLimit(size * 2);
+    SkGraphics::SetImageCacheTotalByteLimit(0);  // clear cache
+    SkGraphics::SetImageCacheTotalByteLimit(2 * size);
+    SkGraphics::SetImageCacheSingleAllocationByteLimit(size * 2);  // big enough
 
-    REPORTER_ASSERT(reporter, size == test_scaled_image_cache_useage());
+    REPORTER_ASSERT(reporter, test_scaled_image_cache_useage());
 
-    SkGraphics::SetImageCacheByteLimit(0); // clear cache
-    SkGraphics::SetImageCacheByteLimit(2 * size);
-    SkGraphics::SetImageCacheSingleAllocationByteLimit(size / 2);
+    SkGraphics::SetImageCacheTotalByteLimit(0);  // clear cache
+    SkGraphics::SetImageCacheTotalByteLimit(2 * size);
+    SkGraphics::SetImageCacheSingleAllocationByteLimit(size / 2);  // too small
 
-    REPORTER_ASSERT(reporter, 0 == test_scaled_image_cache_useage());
+    REPORTER_ASSERT(reporter, !test_scaled_image_cache_useage());
 
     SkGraphics::SetImageCacheSingleAllocationByteLimit(originalAllocationLimit);
-    SkGraphics::SetImageCacheByteLimit(originalByteLimit);
+    SkGraphics::SetImageCacheTotalByteLimit(originalByteLimit);
 }
