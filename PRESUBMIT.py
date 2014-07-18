@@ -25,6 +25,8 @@ PUBLIC_API_OWNERS = (
     'reed@google.com',
     'bsalomon@chromium.org',
     'bsalomon@google.com',
+    'djsollen@chromium.org',
+    'djsollen@google.com',
 )
 
 AUTHORS_FILE_NAME = 'AUTHORS'
@@ -140,7 +142,7 @@ def _CheckOwnerIsInAuthorsFile(input_api, output_api):
   results = []
   issue = input_api.change.issue
   if issue and input_api.rietveld:
-    issue_properties = input_api.rietveld.get_issue_properties( 
+    issue_properties = input_api.rietveld.get_issue_properties(
         issue=int(issue), messages=False)
     owner_email = issue_properties['owner_email']
 
@@ -169,7 +171,7 @@ def _CheckOwnerIsInAuthorsFile(input_api, output_api):
             '(individual) or '
             'https://developers.google.com/open-source/cla/corporate '
             '(corporate).'
-            % owner_email)) 
+            % owner_email))
     except IOError:
       # Do not fail if authors file cannot be found.
       traceback.print_exc()
