@@ -16,7 +16,6 @@
         '../tests/PathOpsCubicLineIntersectionIdeas.cpp',
         '../tests/PathOpsDebug.cpp',
         '../tests/PathOpsOpLoopThreadedTest.cpp',
-        '../tests/PathOpsSkpClipTest.cpp',
         '../tests/skia_test.cpp',
       ],
       'conditions': [

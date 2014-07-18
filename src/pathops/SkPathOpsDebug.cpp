@@ -108,6 +108,7 @@ void SkOpAngle::debugLoop() const {
     const SkOpAngle* next = this;
     do {
         next->dumpOne(true);
+        SkDebugf("\n");
         next = next->fNext;
     } while (next && next != first);
 }

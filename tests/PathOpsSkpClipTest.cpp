@@ -1,9 +1,13 @@
-
+#include "CrashHandler.h"
+// #include "OverwriteLine.h"
+#include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkCommandLineFlags.h"
 #include "SkDevice.h"
+#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -16,209 +20,133 @@
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
+#include "SkTemplates.h"
 #include "SkThreadPool.h"
 #include "SkTime.h"
-#include "Test.h"
 
-#ifdef SK_BUILD_FOR_WIN
-    #define PATH_SLASH "\\"
-    #define IN_DIR "D:\\skp\\slave"
-    #define OUT_DIR "D:\\skpOut\\1\\"
-#else
-    #define PATH_SLASH "/"
-    #define IN_DIR "/skp/2311328-7fc2228/slave"
-    #define OUT_DIR "/skpOut/4/"
-#endif
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
-const struct {
+/* add local exceptions here */
+/* TODO : add command flag interface */
+const struct SkipOverTest {
     int directory;
     const char* filename;
-} skipOverSept[] = {
-    { 3, "http___www_americascup_com_.skp"},  // !simple->closed()
-    {18, "http___www_argus_presse_fr_.skp"},  // can't find winding of remaining vertical edge
-    {31, "http___www_narayana_verlag_de_.skp"},  // !simple->closed()
-    {36, "http___www_educationalcraft_com_.skp"},  // cubic / cubic near end / assert in SkIntersections::insert
-    {44, "http___www_cooksnaps_com_.skp"},  // !simple->isClosed()
-    {48, "http___www_narayana_publishers_com_.skp"},  // !simple->isClosed()
-    {51, "http___www_freedominthe50states_org_.skp"},  // corrupt dash data
-    {52, "http___www_aceinfographics_com_.skp"},  // right angle winding assert
-    {53, "http___www_lojaanabotafogo_com_br_.skp"},  // rrect validate assert
-    {57, "http___www_vantageproduction_com_.skp"},  // !isClosed()
-    {64, "http___www_etiqadd_com_.skp"},  // !simple->closed()
-    {84, "http___www_swapspacesystems_com_.skp"},  // !simple->closed()
-    {90, "http___www_tcmevents_org_.skp"},  // !simple->closed()
-    {96, "http___www_paseoitaigara_com_br_.skp"},  // !simple->closed()
-    {98, "http___www_mortgagemarketguide_com_.skp"},  // !simple->closed()
-    {99, "http___www_kitcheninspirations_wordpress_com_.skp"},  // checkSmall / bumpSpan
+    bool blamePathOps;
+} skipOver[] = {
+    { 2, "http___www_groupon_sg_.skp", false},  // SkAAClip::Builder::addRun SkASSERT(fBounds.contains(x, y));
+    { 6, "http___www_googleventures_com_.skp", true},  // addTCoincident SkASSERT(test->fT < 1);
+    { 7, "http___www_foxsports_nl_.skp", true},  // (no repro on mac) addT SkASSERT(this != other || fVerb == SkPath::kCubic_Verb)
+    {13, "http___www_modernqigong_com_.skp", false},  // SkAAClip::Builder::addRun SkASSERT(fBounds.contains(x, y));
+    {14, "http___www_devbridge_com_.skp", true},  // checkSmallCoincidence SkASSERT(!next->fSmall || checkMultiple);
+    {16, "http___www_1023world_net_.skp", true},  // bitmap decode assert (corrupt skp?)
+    {19, "http___www_alamdi_com_.skp", true},  // cubic/quad intersection
+    {26, "http___www_liveencounters_net_.skp", true},  // (no repro on mac) checkSmall addT:549 (line, expects cubic)
+    {28, "http___www_encros_fr_.skp", false},  // SkAAClip::Builder::addRun SkASSERT(fBounds.contains(x, y));
+    {37, "http___www_familysurvivalprotocol_wordpress_com_.skp", true},  // bumpSpan SkASSERT(span->fOppValue >= 0);
+    {39, "http___sufeinet_com_.skp", false}, // bitmap decode assert (corrupt skp?)
+    {41, "http___www_rano360_com_.skp", true}, // checkSmallCoincidence SkASSERT(!next->fSmall || checkMultiple);
+    {44, "http___www_firstunitedbank_com_.skp", true},  // addTCancel SkASSERT(oIndex > 0);
+    {46, "http___www_shinydemos_com_.skp", true},  // addSimpleAngle SkASSERT(index == count() - 2);
+    {48, "http___www_familysurvivalprotocol_com_.skp", true},  // bumpSpan SkASSERT "span->fOppValue >= 0"
+    {57, "http___www_lptemp_com_.skp", true}, // addTCoincident oPeek = &other->fTs[++oPeekIndex];
+    {71, "http___www_1milyonkahraman_org_.skp", true},  // addTCoincident SkASSERT(test->fT < 1);
+    {88, "http___www_apuntesdelechuza_wordpress_com_.skp", true},  // bumpSpan SkASSERT "span->fOppValue >= 0"
+    {89, "http___www_mobilizedconsulting_com_.skp", true}, // addTCancel SkASSERT(oIndex > 0);
+    {93, "http___www_simple_living_in_suffolk_co_uk_.skp", true},  // bumpSpan SkASSERT "span->fOppValue >= 0"
 };
 
-/* stats
-97 http___www_brandyandvinca_com_.skp pixelError=3
-95 http___www_into_asia_com_.skp pixelError=12
-93 http___www_lunarplanner_com_.skp pixelError=14
-98 http___www_lovelyitalia_com_.skp pixelError=17
-90 http___www_inter_partner_blogspot_com_.skp pixelError=18
-99 http___www_maxarea_com_.skp pixelError=26
-98 http___www_maroonsnet_org_.skp pixelError=33
-92 http___www_belinaart_ru_.skp pixelError=50
-100 http___www_chroot_ro_.skp pixelError=62
-99 http___www_hsbrands_com_.skp pixelError=98
-95 http___www_tournamentindicator_com_.skp pixelError=122
-93 http___www_businesses_com_au_.skp pixelError=162
-90 http___www_regenesys_net_.skp pixelError=182
-88 http___www_1863544208148625103_c18eac63985503fa85b06358959c1ba27fc36f82_blogspot_com_.skp pixelError=186
-97 http___www_pregacoesevangelica_com_br_.skp pixelError=240
-77 http___www_zhenggang_org_.skp pixelError=284
-96 http___slidesharemailer_com_.skp pixelError=522
-94 http___www_gensteel_com_.skp pixelError=555
-68 http___www_jf_eti_br_.skp pixelError=610
-83 http___www_swishiat_com_.skp pixelError=706
-96 http___www_matusikmissive_com_au_.skp pixelError=2580
-95 http___www_momentumnation_com_.skp pixelError=3938
-92 http___www_rssowl_com_.skp pixelError=5113
-96 http___www_sexxygirl_tv_.skp pixelError=7605
-99 http___www_georgevalah_wordpress_com_.skp pixelError=8386
-78 http___www_furbo_org_.skp pixelError=8656
-78 http___www_djxhemary_wordpress_com_.skp pixelError=8976
-100 http___www_mindcontrolblackassassins_com_.skp pixelError=31950
-98 http___bababillgates_free_fr_.skp pixelError=40237
-98 http___hepatite_ro_.skp pixelError=44370
-86 http___www_somethingwagging_com_.skp pixelError=47794
-84 http___www_beverageuniverse_com_.skp pixelError=65450
-50 http___www_aveksa_com_.skp pixelError=68194
-10 http___www_publiker_pl_.skp pixelError=89997
-61 http___www_dominos_co_id_.skp pixelError=476868
-87 http___www_du_edu_om_.skp time=46
-87 http___www_bigload_de_.skp time=46
-100 http___www_home_forum_com_.skp time=48
-97 http___www_hotamateurchat_com_.skp time=48
-97 http___www_myrsky_com_cn_.skp time=48
-98 http___www_techiegeex_com_.skp time=49
-82 http___www_fashionoutletsofchicago_com_.skp time=50
-77 http___www_dynamischbureau_nl_.skp time=50
-82 http___www_mayihelpu_co_in_.skp time=50
-84 http___www_vbox7_com_user_history_viewers_.skp time=50
-85 http___www_ktokogda_com_.skp time=50
-85 http___www_propertyturkeysale_com_.skp time=50
-85 http___www_51play_com_.skp time=50
-86 http___www_bayalarm_com_.skp time=50
-87 http___www_eaglepictures_com_.skp time=50
-88 http___www_atlasakvaryum_com_.skp time=50
-91 http___www_pioneerchryslerjeep_com_.skp time=50
-94 http___www_thepulsemag_com_.skp time=50
-95 http___www_dcshoes_com_ph_.skp time=50
-96 http___www_montrealmassage_ca_.skp time=50
-96 http___www_jkshahclasses_com_.skp time=50
-96 http___www_webcamconsult_com_.skp time=51
-100 http___www_bsoscblog_com_.skp time=52
-95 http___www_flaktwoods_com_.skp time=53
-91 http___www_qivivo_com_.skp time=54
-90 http___www_unitender_com_.skp time=56
-97 http___www_casinogaming_com_.skp time=56
-97 http___www_rootdownload_com_.skp time=56
-94 http___www_aspa_ev_de_.skp time=57
-98 http___www_tenpieknyswiat_pl_.skp time=57
-93 http___www_transocean_de_.skp time=58
-94 http___www_vdo2_blogspot_com_.skp time=58
-94 http___www_asmaissexy_com_br_.skp time=58
-100 http___www_prefeiturasjm_com_br_.skp time=60
-100 http___www_eduinsuranceclick_blogspot_com_.skp time=60
-96 http___www_bobdunsire_com_.skp time=61
-96 http___www_omgkettlecorn_com_.skp time=61
-85 http___www_fbbsessions_com_.skp time=62
-86 http___www_hector_ru_.skp time=62
-87 http___www_wereldsupporter_nl_.skp time=62
-90 http___www_arello_com_.skp time=62
-93 http___www_bayerplastics_com_.skp time=62
-93 http___www_superandolamovida_com_ar_.skp time=62
-96 http___www_med_rbf_ru_.skp time=62
-81 http___www_carnegiescience_edu_.skp time=65
-87 http___www_asanewengland_com_.skp time=65
-92 http___www_turkce_karakter_appspot_com_.skp time=65
-94 http___www_k3a_org_.skp time=65
-96 http___www_powermaccenter_com_.skp time=65
-98 http___www_avto49_ru_.skp time=67
-100 http___www_hetoldeambaecht_nl_.skp time=68
-95 http___www_marine_ie_.skp time=69
-96 http___www_quebecvapeboutique_com_.skp time=69
-95 http___www_brays_ingles_com_.skp time=70
-100 http___www_lacondesa_com_.skp time=72
-95 http___www_timbarrathai_com_au_.skp time=76
-95 http___www_cuissedegrenouille_com_.skp time=76
-95 http___www_iwama51_ru_.skp time=76
-99 http___www_fotoantologia_it_.skp time=76
-92 http___www_indian_architects_com_.skp time=78
-92 http___www_totalwomanspa_com_.skp time=78
-100 http___www_fachverband_spielhallen_de_.skp time=83
-93 http___www_golshanemehr_ir_.skp time=84
-95 http___www_maryesses_com_.skp time=84
-99 http___www_ddcorp_ca_.skp time=89
-90 http___www_brontops_com_.skp time=89
-94 http___www_robgolding_com_.skp time=89
-91 http___www_tecban_com_br_.skp time=91
-98 http___www_costamesakarate_com_.skp time=100
-95 http___www_monsexyblog_com_.skp time=103
-97 http___www_stornowaygazette_co_uk_.skp time=103
-93 http___www_fitforaframe_com_.skp time=104
-98 http___www_intentionoftheday_com_.skp time=113
-100 http___www_tailgateclothing_com_.skp time=117
-95 http___www_senbros_com_.skp time=118
-93 http___www_lettoblog_com_.skp time=121
-94 http___www_maxineschallenge_com_au_.skp time=125
-95 http___www_savvycard_net_.skp time=127
-95 http___www_open_ac_mu_.skp time=129
-96 http___www_avgindia_in_.skp time=135
-97 http___www_stocktonseaview_com_.skp time=135
-96 http___www_distroller_com_.skp time=142
-94 http___www_travoggalop_dk_.skp time=144
-100 http___www_history_im_.skp time=144
-94 http___www_playradio_sk_.skp time=145
-92 http___www_linglongglass_com_.skp time=151
-97 http___www_bizzna_com_.skp time=151
-96 http___www_spiros_ws_.skp time=154
-91 http___www_rosen_meents_co_il_.skp time=156
-81 http___www_hoteldeluxeportland_com_.skp time=158
-92 http___www_freetennis_org_.skp time=161
-93 http___www_aircharternetwork_com_au_.skp time=161
-94 http___www_austinparks_org_.skp time=165
-89 http___www_bevvy_co_.skp time=168
-91 http___www_sosyalhile_net_.skp time=168
-98 http___www_minvih_gob_ve_.skp time=171
-89 http___www_streetfoodmtl_com_.skp time=172
-92 http___www_loveslatinas_tumblr_com_.skp time=178
-93 http___www_madbites_co_in_.skp time=180
-94 http___www_rocktarah_ir_.skp time=185
-97 http___www_penthouselife_com_.skp time=185
-96 http___www_appymonkey_com_.skp time=196
-92 http___www_pasargadhotels_com_.skp time=203
-99 http___www_marina_mil_pe_.skp time=203
-89 http___www_kays_co_uk_.skp time=205
-77 http___www_334588_com_.skp time=211
-83 http___www_trendbad24_de_.skp time=211
-81 http___www_cdnetworks_co_kr_.skp time=216
-94 http___www_schellgames_com_.skp time=223
-95 http___www_juliaweddingnews_cn_.skp time=230
-92 http___www_xcrafters_pl_.skp time=253
-93 http___www_pondoo_com_.skp time=253
-96 http___www_helsinkicapitalpartners_fi_.skp time=255
-88 http___www_nadtexican_com_.skp time=259
-85 http___www_canstockphoto_hu_.skp time=266
-78 http___www_ecovacs_com_cn_.skp time=271
-93 http___www_brookfieldplaceny_com_.skp time=334
-93 http___www_fmastrengthtraining_com_.skp time=337
-94 http___www_turtleonthebeach_com_.skp time=394
-90 http___www_temptationthemovie_com_.skp time=413
-95 http___www_patongsawaddi_com_.skp time=491
-91 http___www_online_radio_appspot_com_.skp time=511
-68 http___www_richardmiller_co_uk_.skp time=528
-63 http___www_eschrade_com_.skp time=543
-55 http___www_interaction_inf_br_.skp time=625
-38 http___www_huskyliners_com_.skp time=632
-86 http___granda_net_.skp time=1067
-24 http___www_cocacolafm_com_br_.skp time=1081
-*/
+size_t skipOverCount = sizeof(skipOver) / sizeof(skipOver[0]);
 
-size_t skipOverSeptCount = sizeof(skipOverSept) / sizeof(skipOverSept[0]);
+
+/* customize file in/out here */
+/* TODO : add command flag interface */
+#define CHROME_VERSION "1e5dfa4-4a995df"
+#define SUMMARY_RUN 1
+
+#ifdef SK_BUILD_FOR_WIN
+    #define DRIVE_SPEC "D:"
+    #define PATH_SLASH "\\"
+#else
+    #define DRIVE_SPEC ""
+    #define PATH_SLASH "/"
+#endif
+
+#define IN_DIR_PRE  DRIVE_SPEC PATH_SLASH "skps"   PATH_SLASH "slave"
+#define OUT_DIR_PRE DRIVE_SPEC PATH_SLASH "skpOut" PATH_SLASH "slave"
+#define OUT_DIR_SUM DRIVE_SPEC PATH_SLASH "skpOut" PATH_SLASH "summary"
+#define DIR_POST               PATH_SLASH "All"    PATH_SLASH CHROME_VERSION
+
+static const char outOpDir[]     = "opClip";
+static const char outOldDir[]    = "oldClip";
+static const char outStatusDir[] = "statusTest";
+
+static SkString get_in_path(int dirNo, const char* filename) {
+    SkString path;
+    SkASSERT(dirNo);
+    path.appendf("%s%d%s", IN_DIR_PRE, dirNo, DIR_POST);
+    if (!sk_exists(path.c_str())) {
+        SkDebugf("could not read %s\n", path.c_str());
+        return SkString();
+    }
+    if (filename) {
+        path.appendf("%s%s", PATH_SLASH, filename);
+        if (!sk_exists(path.c_str())) {        
+            SkDebugf("could not read %s\n", path.c_str());
+            return SkString();
+        }
+    }
+    return path;
+}
+    
+static void make_recursive_dir(const SkString& path) {
+    if (sk_exists(path.c_str())) {
+        return;
+    }
+    const char* pathStr = path.c_str();
+    int last = (int) path.size();
+    do {
+        while (last > 0 && pathStr[--last] != PATH_SLASH[0])
+            ;
+        SkASSERT(last > 0);
+        SkString shorter(pathStr, last);
+        if (sk_mkdir(shorter.c_str())) {
+            break;
+        }
+    } while (true);
+    do {
+        while (last < (int) path.size() && pathStr[++last] != PATH_SLASH[0])
+            ;
+        SkString shorter(pathStr, last);
+        SkAssertResult(sk_mkdir(shorter.c_str()));
+    } while (last < (int) path.size());
+}
+
+static SkString get_out_path(int dirNo, const char* dirName) {
+    SkString path;
+    SkASSERT(dirNo);
+    SkASSERT(dirName);
+    path.appendf("%s%d%s%s%s", OUT_DIR_PRE, dirNo, DIR_POST, PATH_SLASH, dirName);
+    make_recursive_dir(path);
+    return path;
+}
+  
+static SkString get_sum_path(const char* dirName) {
+    SkString path;
+    SkASSERT(dirName);
+    path.appendf("%s%d%s%s", OUT_DIR_SUM, SUMMARY_RUN, PATH_SLASH, dirName);
+    SkDebugf("%s\n", path.c_str());
+    make_recursive_dir(path);
+    return path;
+}
+
+static SkString make_png_name(const char* filename) {
+    SkString pngName = SkString(filename);
+    pngName.remove(pngName.size() - 3, 3);
+    pngName.append("png");
+    return pngName;
+}
+
+////////////////////////////////////////////////////////
 
 enum TestStep {
     kCompareBits,
@@ -237,6 +165,13 @@ struct TestResult {
         sk_bzero(fFilename, sizeof(fFilename));
         fTestStep = kCompareBits;
         fScale = 1;
+    }
+    
+    void init(int dirNo, const SkString& filename) {
+        fDirNo = dirNo;
+        strcpy(fFilename, filename.c_str());
+        fTestStep = kCompareBits;
+        fScale = 1;       
     }
 
     SkString status() {
@@ -262,14 +197,6 @@ struct TestResult {
 
     }
 
-    static void Test(int dirNo, const char* filename, TestStep testStep) {
-        TestResult test;
-        test.init(dirNo);
-        test.fTestStep = testStep;
-        strcpy(test.fFilename, filename);
-        test.testOne();
-    }
-
     void test(int dirNo, const SkString& filename) {
         init(dirNo);
         strcpy(fFilename, filename.c_str());
@@ -277,7 +204,7 @@ struct TestResult {
     }
 
     void testOne();
-
+    
     char fFilename[kMaxLength];
     TestStep fTestStep;
     int fDirNo;
@@ -308,28 +235,24 @@ public:
 };
 
 struct TestState {
-    void init(int dirNo, skiatest::Reporter* reporter) {
-        fReporter = reporter;
+    void init(int dirNo) {
         fResult.init(dirNo);
     }
 
     SkTDArray<SortByPixel> fPixelWorst;
     SkTDArray<SortByTime> fSlowest;
-    skiatest::Reporter* fReporter;
     TestResult fResult;
 };
 
 struct TestRunner {
-    TestRunner(skiatest::Reporter* reporter, int threadCount)
-        : fNumThreads(threadCount)
-        , fReporter(reporter) {
+    TestRunner(int threadCount)
+        : fNumThreads(threadCount) {
     }
 
     ~TestRunner();
     void render();
     int fNumThreads;
     SkTDArray<class TestRunnable*> fRunnables;
-    skiatest::Reporter* fReporter;
 };
 
 class TestRunnable : public SkRunnable {
@@ -347,7 +270,7 @@ public:
 class TestRunnableDir : public TestRunnable {
 public:
     TestRunnableDir(void (*testFun)(TestState*), int dirNo, TestRunner* runner) {
-        fState.init(dirNo, runner->fReporter);
+        fState.init(dirNo);
         fTestFun = testFun;
     }
 
@@ -356,7 +279,7 @@ public:
 class TestRunnableFile : public TestRunnable {
 public:
     TestRunnableFile(void (*testFun)(TestState*), int dirNo, const char* name, TestRunner* runner) {
-        fState.init(dirNo, runner->fReporter);
+        fState.init(dirNo);
         strcpy(fState.fResult.fFilename, name);
         fTestFun = testFun;
     }
@@ -385,74 +308,6 @@ void TestRunner::render() {
 
 ////////////////////////////////////////////////
 
-static const char outOpDir[] = OUT_DIR "opClip";
-static const char outOldDir[] = OUT_DIR "oldClip";
-static const char outSkpDir[] = OUT_DIR "skpTest";
-static const char outDiffDir[] = OUT_DIR "outTest";
-static const char outStatusDir[] = OUT_DIR "statusTest";
-
-static SkString make_filepath(int dirNo, const char* dir, const char* name) {
-    SkString path(dir);
-    if (dirNo) {
-        path.appendf("%d", dirNo);
-    }
-    path.append(PATH_SLASH);
-    path.append(name);
-    return path;
-}
-
-static SkString make_in_dir_name(int dirNo) {
-    SkString dirName(IN_DIR);
-    dirName.appendf("%d", dirNo);
-    if (!sk_exists(dirName.c_str())) {
-        SkDebugf("could not read dir %s\n", dirName.c_str());
-        return SkString();
-    }
-    return dirName;
-}
-
-static SkString make_stat_dir_name(int dirNo) {
-    SkString dirName(outStatusDir);
-    dirName.appendf("%d", dirNo);
-    if (!sk_exists(dirName.c_str())) {
-        SkDebugf("could not read dir %s\n", dirName.c_str());
-        return SkString();
-    }
-    return dirName;
-}
-
-static bool make_one_out_dir(const char* outDirStr) {
-    SkString outDir = make_filepath(0, outDirStr, "");
-    if (!sk_exists(outDir.c_str())) {
-        if (!sk_mkdir(outDir.c_str())) {
-            SkDebugf("could not create dir %s\n", outDir.c_str());
-            return false;
-        }
-    }
-    return true;
-}
-
-static bool make_out_dirs() {
-    SkString outDir = make_filepath(0, OUT_DIR, "");
-    if (!sk_exists(outDir.c_str())) {
-        if (!sk_mkdir(outDir.c_str())) {
-            SkDebugf("could not create dir %s\n", outDir.c_str());
-            return false;
-        }
-    }
-    return make_one_out_dir(outOldDir)
-            && make_one_out_dir(outOpDir)
-            && make_one_out_dir(outSkpDir)
-            && make_one_out_dir(outDiffDir)
-            && make_one_out_dir(outStatusDir);
-}
-
-static SkString make_png_name(const char* filename) {
-    SkString pngName = SkString(filename);
-    pngName.remove(pngName.size() - 3, 3);
-    pngName.append("png");
-    return pngName;
-}
 
 static int similarBits(const SkBitmap& gr, const SkBitmap& sk) {
     const int kRowCount = 3;
@@ -574,9 +429,9 @@ static void drawPict(SkPicture* pic, SkCanvas* canvas, int scale) {
 }
 
 static void writePict(const SkBitmap& bitmap, const char* outDir, const char* pngName) {
-    SkString outFile = make_filepath(0, outDir, pngName);
-    if (!SkImageEncoder::EncodeFile(outFile.c_str(), bitmap,
-            SkImageEncoder::kPNG_Type, 100)) {
+    SkString outFile = get_sum_path(outDir);
+    outFile.appendf("%s%s", PATH_SLASH, pngName);
+    if (!SkImageEncoder::EncodeFile(outFile.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100)) {
         SkDebugf("unable to encode gr %s (width=%d height=%d)\n", pngName,
                     bitmap.width(), bitmap.height());
     }
@@ -607,7 +462,7 @@ void TestResult::testOne() {
             strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
         }
     #endif
-        SkString path = make_filepath(fDirNo, IN_DIR, fFilename);
+        SkString path = get_in_path(fDirNo, fFilename);
         SkFILEStream stream(path.c_str());
         if (!stream.isValid()) {
             SkDebugf("invalid stream %s\n", path.c_str());
@@ -665,189 +520,255 @@ finish:
     }
 }
 
-static SkString makeStatusString(int dirNo) {
-    SkString statName;
-    statName.printf("stats%d.txt", dirNo);
-    SkString statusFile = make_filepath(0, outStatusDir, statName.c_str());
-    return statusFile;
+DEFINE_string2(match, m, "PathOpsSkpClipThreaded",
+        "[~][^]substring[$] [...] of test name to run.\n"
+        "Multiple matches may be separated by spaces.\n"
+        "~ causes a matching test to always be skipped\n"
+        "^ requires the start of the test to match\n"
+        "$ requires the end of the test to match\n"
+        "^ and $ requires an exact match\n"
+        "If a test does not match any list entry,\n"
+        "it is skipped unless some list entry starts with ~");
+DEFINE_string2(dir, d, NULL, "range of directories (e.g., 1-100)");
+DEFINE_string2(skp, s, NULL, "skp to test");
+DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
+DEFINE_int32(testIndex, 0, "override local test index (PathOpsSkpClipOneOff only).");
+DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
+        "Run threadsafe tests on a threadpool with this many threads.");
+DEFINE_bool2(verbose, v, false, "enable verbose output.");
+
+static bool verbose() {
+    return FLAGS_verbose;
 }
 
-class PreParser {
+static int getThreadCount() {
+    return FLAGS_single ? 1 : FLAGS_threads;
+}
+
+class Dirs {
 public:
-    PreParser(int dirNo, bool threaded)
-        : fDirNo(dirNo)
-        , fIndex(0)
-        , fThreaded(threaded) {
-        SkString statusPath = makeStatusString(dirNo);
-        if (!sk_exists(statusPath.c_str())) {
-            return;
+    Dirs() {
+        reset();
+        sk_bzero(fRun, sizeof(fRun));
+        fSet = false;
+    }
+
+    int first() const {
+        int index = 0;
+        while (++index < kMaxDir) {
+            if (fRun[index]) {
+                return index;
+            }
         }
-        SkFILEStream reader;
-        reader.setPath(statusPath.c_str());
-        while (fetch(reader, &fResults.push_back()))
+        SkASSERT(0);
+        return -1;
+    }
+
+    int last() const {
+        int index = kMaxDir;
+        while (--index > 0 && !fRun[index])
             ;
-        fResults.pop_back();
+        return index;
     }
 
-    bool fetch(SkFILEStream& reader, TestResult* result) {
-        char c;
-        int i = 0;
-        result->init(fDirNo);
-        result->fPixelError = 0;
-        result->fTime = 0;
-        do {
-            bool readOne = reader.read(&c, 1) != 0;
-            if (!readOne) {
-//                SkASSERT(i == 0);   // the current text may be incomplete -- if so, ignore it
-                return false;
+    int next() {
+        while (++fIndex < kMaxDir) {
+            if (fRun[fIndex]) {
+                return fIndex;
             }
-            if (c == ' ') {
-                result->fFilename[i++] = '\0';
-                break;
-            }
-            result->fFilename[i++] = c;
-            SkASSERT(i < kMaxLength);
-        } while (true);
-        do {
-            if (!reader.read(&c, 1)) {
-                return false;
-            }
-            if (c == ' ') {
-                break;
-            }
-            SkASSERT(c >= '0' && c <= '9');
-            result->fPixelError = result->fPixelError * 10 + (c - '0');
-        } while (true);
-        bool minus = false;
-        do {
-            if (!reader.read(&c, 1)) {
-                return false;
-            }
-            if (c == '\n') {
-                break;
-            }
-            if (c == '-') {
-                minus = true;
-                continue;
-            }
-            SkASSERT(c >= '0' && c <= '9');
-            result->fTime = result->fTime * 10 + (c - '0');
-        } while (true);
-        if (minus) {
-            result->fTime = -result->fTime;
         }
-        return true;
+        return -1;
     }
 
-    bool match(const SkString& filename, SkFILEWStream* stream, TestResult* result) {
-        if (fThreaded) {
-            for (int index = 0; index < fResults.count(); ++index) {
-                const TestResult& test = fResults[index];
-                if (filename.equals(test.fFilename)) {
-                    *result = test;
-                    SkString outStr(result->status());
-                    stream->write(outStr.c_str(), outStr.size());
-                    return true;
-                }
-            }
-        } else if (fIndex < fResults.count()) {
-            *result = fResults[fIndex++];
-            SkASSERT(filename.equals(result->fFilename));
-            SkString outStr(result->status());
-            stream->write(outStr.c_str(), outStr.size());
-            return true;
+    void reset() {
+        fIndex = -1;
+    }
+
+    void set(int start, int end) {
+        while (start < end) {
+            fRun[start++] = 1;
         }
-        return false;
+        fSet = true;
+    }
+
+    void setDefault() {
+        if (!fSet) {
+            set(1, 100);
+        }
     }
 
 private:
-    int fDirNo;
+    enum {
+         kMaxDir = 101
+    };
+    char fRun[kMaxDir];
     int fIndex;
-    SkTArray<TestResult, true> fResults;
-    bool fThreaded;
-};
+    bool fSet;
+} gDirs;
 
-static bool doOneDir(TestState* state, bool threaded) {
-    int dirNo = state->fResult.fDirNo;
-    skiatest::Reporter* reporter = state->fReporter;
-    SkString dirName = make_in_dir_name(dirNo);
+class Filenames {
+public:
+    Filenames()
+        : fIndex(-1) {
+    }
+
+    const char* next() {
+        while (fNames && ++fIndex < fNames->count()) {
+            return (*fNames)[fIndex];
+        }
+        return NULL;
+    }
+    
+    void set(const SkCommandLineFlags::StringArray& names) {
+        fNames = &names;
+    }
+
+private:
+    int fIndex;
+    const SkCommandLineFlags::StringArray* fNames;
+} gNames;
+
+static bool buildTestDir(int dirNo, int firstDirNo, 
+        SkTDArray<TestResult>* tests, SkTDArray<SortByName*>* sorted) {
+    SkString dirName = get_out_path(dirNo, outStatusDir);
     if (!dirName.size()) {
         return false;
     }
     SkOSFile::Iter iter(dirName.c_str(), "skp");
     SkString filename;
-    int testCount = 0;
-    PreParser preParser(dirNo, threaded);
-    SkFILEWStream statusStream(makeStatusString(dirNo).c_str());
     while (iter.next(&filename)) {
-        for (size_t index = 0; index < skipOverSeptCount; ++index) {
-            if (skipOverSept[index].directory == dirNo
-                    && strcmp(filename.c_str(), skipOverSept[index].filename) == 0) {
-                goto checkEarlyExit;
+        TestResult test;
+        test.init(dirNo);
+        SkString spaceFile(filename);
+        char* spaces = spaceFile.writable_str();
+        int spaceSize = (int) spaceFile.size();
+        for (int index = 0; index < spaceSize; ++index) {
+            if (spaces[index] == '.') {
+                spaces[index] = ' ';
             }
         }
-        if (preParser.match(filename, &statusStream, &state->fResult)) {
-            (void) addError(state, state->fResult);
-            ++testCount;
-            goto checkEarlyExit;
+        int success = sscanf(spaces, "%s %d %d skp", test.fFilename,
+                &test.fPixelError, &test.fTime);
+        if (success < 3) {
+            SkDebugf("failed to scan %s matched=%d\n", filename.c_str(), success);
+            return false;
         }
-        {
-            TestResult& result = state->fResult;
-            result.test(dirNo, filename);
-            SkString outStr(result.status());
-            statusStream.write(outStr.c_str(), outStr.size());
-            statusStream.flush();
-            if (addError(state, result)) {
-                SkDebugf("%s", result.progress().c_str());
-            }
-        }
-        ++testCount;
-        if (reporter->verbose()) {
-            SkDebugf(".");
-            if (++testCount % 100 == 0) {
-                SkDebugf("%d\n", testCount);
-            }
-        }
-checkEarlyExit:
-        if (0 && testCount >= 1) {
-            return true;
+        *tests[dirNo - firstDirNo].append() = test;
+    }
+    if (!sorted) {
+        return true;
+    }
+    SkTDArray<TestResult>& testSet = tests[dirNo - firstDirNo];
+    int count = testSet.count();
+    for (int index = 0; index < count; ++index) {
+        *sorted[dirNo - firstDirNo].append() = (SortByName*) &testSet[index];
+    }
+    if (sorted[dirNo - firstDirNo].count()) {
+        SkTQSort<SortByName>(sorted[dirNo - firstDirNo].begin(),
+                sorted[dirNo - firstDirNo].end() - 1);
+        if (verbose()) {
+            SkDebugf("+");
         }
     }
     return true;
 }
 
-static bool initTest() {
+static void testSkpClip(TestState* data) {
+    data->fResult.testOne();
+    SkString statName(data->fResult.fFilename);
+    SkASSERT(statName.endsWith(".skp"));
+    statName.remove(statName.size() - 4, 4);
+    statName.appendf(".%d.%d.skp", data->fResult.fPixelError, data->fResult.fTime);
+    SkString statusFile = get_out_path(data->fResult.fDirNo, outStatusDir);
+    if (!statusFile.size()) {
+        SkDebugf("failed to create %s", statusFile.c_str());
+        return;
+    }
+    statusFile.appendf("%s%s", PATH_SLASH, statName.c_str());
+    SkFILE* file = sk_fopen(statusFile.c_str(), kWrite_SkFILE_Flag);
+    if (!file) {
+            SkDebugf("failed to create %s", statusFile.c_str());
+            return;
+    }
+    sk_fclose(file);
+    if (verbose()) {
+        if (data->fResult.fPixelError || data->fResult.fTime) {
+            SkDebugf("%s", data->fResult.progress().c_str());
+        } else {
+            SkDebugf(".");
+        }
+    }
+}
+
+bool Less(const SortByName& a, const SortByName& b);
+bool Less(const SortByName& a, const SortByName& b) {
+    return a < b;
+}
+
+static bool doOneDir(TestState* state, bool threaded) {
+    int dirNo = state->fResult.fDirNo;
+    SkString dirName = get_in_path(dirNo, NULL);
+    if (!dirName.size()) {
+        return false;
+    }
+    SkTDArray<TestResult> tests[1];
+    SkTDArray<SortByName*> sorted[1];
+    if (!buildTestDir(dirNo, dirNo, tests, sorted)) {
+        return false;
+    }
+    SkOSFile::Iter iter(dirName.c_str(), "skp");
+    SkString filename;
+    while (iter.next(&filename)) {
+        for (size_t index = 0; index < skipOverCount; ++index) {
+            if (skipOver[index].directory == dirNo
+                    && strcmp(filename.c_str(), skipOver[index].filename) == 0) {
+                goto checkEarlyExit;
+            }
+        }
+        {
+            SortByName name;
+            name.init(dirNo);
+            strncpy(name.fFilename, filename.c_str(), filename.size() - 4);  // drop .skp
+            int count = sorted[0].count();
+            int idx = SkTSearch<SortByName, Less>(sorted[0].begin(), count, &name, sizeof(&name));
+            if (idx >= 0) {
+                SortByName* found = sorted[0][idx];
+                (void) addError(state, *found);
+                continue;
+            }
+            TestResult test;
+            test.init(dirNo, filename);
+            state->fResult = test;
+            testSkpClip(state);
+#if 0 // artificially limit to a few while debugging code
+            static int debugLimit = 0;
+            if (++debugLimit == 5) {
+                return true;
+            }
+#endif
+        }
+checkEarlyExit:
+        ;
+    }
+    return true;
+}
+
+static void initTest() {
 #if !defined SK_BUILD_FOR_WIN && !defined SK_BUILD_FOR_MAC
     SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true);
     SK_CONF_SET("images.png.suppressDecoderWarnings", true);
 #endif
-    return make_out_dirs();
 }
-
-static bool initUberTest(int firstDirNo, int lastDirNo) {
-    if (!initTest()) {
-        return false;
-    }
-    for (int index = firstDirNo; index <= lastDirNo; ++index) {
-        SkString statusDir(outStatusDir);
-        statusDir.appendf("%d", index);
-        if (!make_one_out_dir(statusDir.c_str())) {
-            return false;
-        }
-    }
-    return true;
-}
-
 
 static void testSkpClipEncode(TestState* data) {
     data->fResult.testOne();
-    if (data->fReporter->verbose()) {
-       SkDebugf("+");
+    if (verbose()) {
+        SkDebugf("+");
     }
 }
 
-static void encodeFound(skiatest::Reporter* reporter, TestState& state) {
-    if (reporter->verbose()) {
+static void encodeFound(TestState& state) {
+    if (verbose()) {
         if (state.fPixelWorst.count()) {
             SkTDArray<SortByPixel*> worst;
             for (int index = 0; index < state.fPixelWorst.count(); ++index) {
@@ -873,9 +794,8 @@ static void encodeFound(skiatest::Reporter* reporter, TestState& state) {
             }
         }
     }
-
-    int threadCount = reporter->allowThreaded() ? SkThreadPool::kThreadPerCore : 1;
-    TestRunner testRunner(reporter, threadCount);
+    int threadCount = getThreadCount();
+    TestRunner testRunner(threadCount);
     for (int index = 0; index < state.fPixelWorst.count(); ++index) {
         const TestResult& result = state.fPixelWorst[index];
         SkString filename(result.fFilename);
@@ -886,28 +806,50 @@ static void encodeFound(skiatest::Reporter* reporter, TestState& state) {
                 (&testSkpClipEncode, result.fDirNo, filename.c_str(), &testRunner));
     }
     testRunner.render();
-#if 0
-    for (int index = 0; index < state.fPixelWorst.count(); ++index) {
-        const TestResult& result = state.fPixelWorst[index];
-        SkString filename(result.fFilename);
-        if (!filename.endsWith(".skp")) {
-            filename.append(".skp");
-        }
-        TestResult::Test(result.fDirNo, filename.c_str(), kEncodeFiles);
-        if (reporter->verbose()) SkDebugf("+");
-    }
-#endif
 }
 
-DEF_TEST(PathOpsSkpClip, reporter) {
-    if (!initTest()) {
-        return;
-    }
+class Test {
+public:
+    Test() {}
+    virtual ~Test() {}
+
+    const char* getName() { onGetName(&fName); return fName.c_str(); }
+    void run() { onRun(); }
+
+protected:
+    virtual void onGetName(SkString*) = 0;
+    virtual void onRun() = 0;
+
+private:
+    SkString    fName;
+};
+
+typedef SkTRegistry<Test*(*)(void*)> TestRegistry;
+
+#define DEF_TEST(name)                                        \
+    static void test_##name();                       \
+    class name##Class : public Test {                                   \
+    public:                                                             \
+        static Test* Factory(void*) { return SkNEW(name##Class); }      \
+    protected:                                                          \
+        virtual void onGetName(SkString* name) SK_OVERRIDE {            \
+            name->set(#name);                                           \
+        }                                                               \
+        virtual void onRun() SK_OVERRIDE { test_##name(); } \
+    };                                                                  \
+    static TestRegistry gReg_##name##Class(name##Class::Factory);       \
+    static void test_##name()
+
+DEF_TEST(PathOpsSkpClip) {
+    gDirs.setDefault();
+    initTest();
     SkTArray<TestResult, true> errors;
     TestState state;
-    state.init(0, reporter);
-    for (int dirNo = 1; dirNo <= 100; ++dirNo) {
-        if (reporter->verbose()) {
+    state.init(0);
+    int dirNo;
+    gDirs.reset();
+    while ((dirNo = gDirs.next()) > 0) {
+        if (verbose()) {
             SkDebugf("dirNo=%d\n", dirNo);
         }
         state.fResult.fDirNo = dirNo;
@@ -915,28 +857,29 @@ DEF_TEST(PathOpsSkpClip, reporter) {
             break;
         }
     }
-    encodeFound(reporter, state);
+    encodeFound(state);
 }
 
 static void testSkpClipMain(TestState* data) {
         (void) doOneDir(data, true);
 }
 
-DEF_TEST(PathOpsSkpClipThreaded, reporter) {
-    if (!initTest()) {
-        return;
-    }
-    int threadCount = reporter->allowThreaded() ? SkThreadPool::kThreadPerCore : 1;
-    TestRunner testRunner(reporter, threadCount);
-    const int firstDirNo = 1;
-    for (int dirNo = firstDirNo; dirNo <= 100; ++dirNo) {
+DEF_TEST(PathOpsSkpClipThreaded) {
+    gDirs.setDefault();
+    initTest();
+    int threadCount = getThreadCount();
+    TestRunner testRunner(threadCount);
+    int dirNo;
+    gDirs.reset();
+    while ((dirNo = gDirs.next()) > 0) {
         *testRunner.fRunnables.append() = SkNEW_ARGS(TestRunnableDir,
                 (&testSkpClipMain, dirNo, &testRunner));
     }
     testRunner.render();
     TestState state;
-    state.init(0, reporter);
-    for (int dirNo = firstDirNo; dirNo <= 100; ++dirNo) {
+    state.init(0);
+    gDirs.reset();
+    while ((dirNo = gDirs.next()) > 0) {
         TestState& testState = testRunner.fRunnables[dirNo - 1]->fState;
         SkASSERT(testState.fResult.fDirNo == dirNo);
         for (int inner = 0; inner < testState.fPixelWorst.count(); ++inner) {
@@ -946,124 +889,59 @@ DEF_TEST(PathOpsSkpClipThreaded, reporter) {
             addError(&state, testState.fSlowest[inner]);
         }
     }
-    encodeFound(reporter, state);
+    encodeFound(state);
 }
-
-static void testSkpClipUber(TestState* data) {
-    data->fResult.testOne();
-    SkString dirName = make_stat_dir_name(data->fResult.fDirNo);
-    if (!dirName.size()) {
-        return;
-    }
-    SkString statName(data->fResult.fFilename);
-    SkASSERT(statName.endsWith(".skp"));
-    statName.remove(statName.size() - 4, 4);
-    statName.appendf(".%d.%d.skp", data->fResult.fPixelError, data->fResult.fTime);
-    SkString statusFile = make_filepath(data->fResult.fDirNo, outStatusDir, statName.c_str());
-    SkFILE* file = sk_fopen(statusFile.c_str(), kWrite_SkFILE_Flag);
-    if (!file) {
-            SkDebugf("failed to create %s", statusFile.c_str());
-            return;
-    }
-    sk_fclose(file);
-    if (data->fReporter->verbose()) {
-        if (data->fResult.fPixelError || data->fResult.fTime) {
-            SkDebugf("%s", data->fResult.progress().c_str());
-        } else {
-            SkDebugf(".");
-        }
-    }
-}
-
-static bool buildTests(skiatest::Reporter* reporter, int firstDirNo, int lastDirNo, SkTDArray<TestResult>* tests,
-        SkTDArray<SortByName*>* sorted) {
-    for (int dirNo = firstDirNo; dirNo <= lastDirNo; ++dirNo) {
-        SkString dirName = make_stat_dir_name(dirNo);
-        if (!dirName.size()) {
+ 
+static bool buildTests(SkTDArray<TestResult>* tests, SkTDArray<SortByName*>* sorted) {
+    int firstDirNo = gDirs.first();
+    int dirNo;
+    while ((dirNo = gDirs.next()) > 0) {
+        if (!buildTestDir(dirNo, firstDirNo, tests, sorted)) {
             return false;
         }
-        SkOSFile::Iter iter(dirName.c_str(), "skp");
-        SkString filename;
-        while (iter.next(&filename)) {
-            TestResult test;
-            test.init(dirNo);
-            SkString spaceFile(filename);
-            char* spaces = spaceFile.writable_str();
-            int spaceSize = (int) spaceFile.size();
-            for (int index = 0; index < spaceSize; ++index) {
-                if (spaces[index] == '.') {
-                    spaces[index] = ' ';
-                }
-            }
-            int success = sscanf(spaces, "%s %d %d skp", test.fFilename,
-                    &test.fPixelError, &test.fTime);
-            if (success < 3) {
-                SkDebugf("failed to scan %s matched=%d\n", filename.c_str(), success);
-                return false;
-            }
-            *tests[dirNo - firstDirNo].append() = test;
-        }
-        if (!sorted) {
-            continue;
-        }
-        SkTDArray<TestResult>& testSet = tests[dirNo - firstDirNo];
-        int count = testSet.count();
-        for (int index = 0; index < count; ++index) {
-            *sorted[dirNo - firstDirNo].append() = (SortByName*) &testSet[index];
-        }
-        if (sorted[dirNo - firstDirNo].count()) {
-            SkTQSort<SortByName>(sorted[dirNo - firstDirNo].begin(),
-                    sorted[dirNo - firstDirNo].end() - 1);
-            if (reporter->verbose()) {
-                SkDebugf("+");
-            }
-       }
     }
     return true;
 }
 
-bool Less(const SortByName& a, const SortByName& b);
-bool Less(const SortByName& a, const SortByName& b) {
-    return a < b;
-}
-
-DEF_TEST(PathOpsSkpClipUberThreaded, reporter) {
-    const int firstDirNo = 1;
-    const int lastDirNo = 100;
-    if (!initUberTest(firstDirNo, lastDirNo)) {
+DEF_TEST(PathOpsSkpClipUberThreaded) {
+    gDirs.setDefault();
+    const int firstDirNo = gDirs.next();
+    const int lastDirNo = gDirs.last();
+    initTest();
+    int dirCount = lastDirNo - firstDirNo + 1;
+    SkAutoTDeleteArray<SkTDArray<TestResult> > tests(new SkTDArray<TestResult>[dirCount]);
+    SkAutoTDeleteArray<SkTDArray<SortByName*> > sorted(new SkTDArray<SortByName*>[dirCount]);
+    if (!buildTests(tests.get(), sorted.get())) {
         return;
     }
-    const int dirCount = lastDirNo - firstDirNo + 1;
-    SkTDArray<TestResult> tests[dirCount];
-    SkTDArray<SortByName*> sorted[dirCount];
-    if (!buildTests(reporter, firstDirNo, lastDirNo, tests, sorted)) {
-        return;
-    }
-    int threadCount = reporter->allowThreaded() ? SkThreadPool::kThreadPerCore : 1;
-    TestRunner testRunner(reporter, threadCount);
-    for (int dirNo = firstDirNo; dirNo <= lastDirNo; ++dirNo) {
-        SkString dirName = make_in_dir_name(dirNo);
+    int threadCount = getThreadCount();
+    TestRunner testRunner(threadCount);
+    int dirNo;
+    gDirs.reset();
+    while ((dirNo = gDirs.next()) > 0) {
+        SkString dirName = get_in_path(dirNo, NULL);
         if (!dirName.size()) {
             continue;
         }
         SkOSFile::Iter iter(dirName.c_str(), "skp");
         SkString filename;
         while (iter.next(&filename)) {
-            int count;
-            SortByName name;
-            for (size_t index = 0; index < skipOverSeptCount; ++index) {
-                if (skipOverSept[index].directory == dirNo
-                        && strcmp(filename.c_str(), skipOverSept[index].filename) == 0) {
+            for (size_t index = 0; index < skipOverCount; ++index) {
+                if (skipOver[index].directory == dirNo
+                        && strcmp(filename.c_str(), skipOver[index].filename) == 0) {
                     goto checkEarlyExit;
                 }
             }
-            name.init(dirNo);
-            strncpy(name.fFilename, filename.c_str(), filename.size() - 4);  // drop .skp
-            count = sorted[dirNo - firstDirNo].count();
-            if (SkTSearch<SortByName, Less>(sorted[dirNo - firstDirNo].begin(),
-                    count, &name, sizeof(&name)) < 0) {
-                *testRunner.fRunnables.append() = SkNEW_ARGS(TestRunnableFile,
-                        (&testSkpClipUber, dirNo, filename.c_str(), &testRunner));
+            {
+                SortByName name;
+                name.init(dirNo);
+                strncpy(name.fFilename, filename.c_str(), filename.size() - 4);  // drop .skp
+                int count = sorted.get()[dirNo - firstDirNo].count();
+                if (SkTSearch<SortByName, Less>(sorted.get()[dirNo - firstDirNo].begin(),
+                        count, &name, sizeof(&name)) < 0) {
+                    *testRunner.fRunnables.append() = SkNEW_ARGS(TestRunnableFile,
+                            (&testSkpClip, dirNo, filename.c_str(), &testRunner));
+                }
             }
     checkEarlyExit:
             ;
@@ -1071,13 +949,13 @@ DEF_TEST(PathOpsSkpClipUberThreaded, reporter) {
 
     }
     testRunner.render();
-    SkTDArray<TestResult> results[dirCount];
-    if (!buildTests(reporter, firstDirNo, lastDirNo, results, NULL)) {
+    SkAutoTDeleteArray<SkTDArray<TestResult> > results(new SkTDArray<TestResult>[dirCount]);
+    if (!buildTests(results.get(), NULL)) {
         return;
     }
     SkTDArray<TestResult> allResults;
     for (int dirNo = firstDirNo; dirNo <= lastDirNo; ++dirNo) {
-        SkTDArray<TestResult>& array = results[dirNo - firstDirNo];
+        SkTDArray<TestResult>& array = results.get()[dirNo - firstDirNo];
         allResults.append(array.count(), array.begin());
     }
     int allCount = allResults.count();
@@ -1100,22 +978,144 @@ DEF_TEST(PathOpsSkpClipUberThreaded, reporter) {
             *state.fSlowest.append() = *times[allCount - inner - 1];
         }
     }
-    encodeFound(reporter, state);
+    encodeFound(state);
 }
 
-DEF_TEST(PathOpsSkpClipOneOff, reporter) {
-    if (!initTest()) {
-        return;
+DEF_TEST(PathOpsSkpClipOneOff) {
+    const int testIndex = FLAGS_testIndex;
+    int dirNo = gDirs.next();
+    if (dirNo < 0) {
+        dirNo = skipOver[testIndex].directory;
     }
-    const int testIndex = 43 - 37;
-    int dirNo = skipOverSept[testIndex].directory;
-    SkAssertResult(make_in_dir_name(dirNo).size());
-    SkString filename(skipOverSept[testIndex].filename);
+    const char* skp = gNames.next();
+    if (!skp) {
+        skp = skipOver[testIndex].filename;
+    }
+    initTest();
+    SkAssertResult(get_in_path(dirNo, skp).size());
+    SkString filename(skp);
     TestResult state;
     state.test(dirNo, filename);
-    if (reporter->verbose()) {
+    if (verbose()) {
         SkDebugf("%s", state.status().c_str());
     }
     state.fTestStep = kEncodeFiles;
     state.testOne();
 }
+
+DEF_TEST(PathOpsTestSkipped) {
+    for (size_t index = 0; index < skipOverCount; ++index) {
+        const SkipOverTest& skip = skipOver[index];
+        if (!skip.blamePathOps) {
+            continue;
+        }
+        int dirNo = skip.directory;
+        const char* skp = skip.filename;
+        initTest();
+        SkAssertResult(get_in_path(dirNo, skp).size());
+        SkString filename(skp);
+        TestResult state;
+        state.test(dirNo, filename);
+        if (verbose()) {
+            SkDebugf("%s", state.status().c_str());
+        }
+        state.fTestStep = kEncodeFiles;
+        state.testOne();
+    }
+}
+
+DEF_TEST(PathOpsCopyFails) {
+    FLAGS_verbose = true;
+    for (size_t index = 0; index < skipOverCount; ++index) {
+        int dirNo = skipOver[index].directory;
+        SkDebugf("mkdir -p " IN_DIR_PRE "%d" DIR_POST "\n", dirNo);
+    }
+    for (size_t index = 0; index < skipOverCount; ++index) {
+        int dirNo = skipOver[index].directory;
+        const char* filename = skipOver[index].filename;
+        SkDebugf("rsync -av cary-linux.cnc:/tera" PATH_SLASH "skps" PATH_SLASH "slave"
+            "%d" DIR_POST "/%s " IN_DIR_PRE "%d" DIR_POST "\n", dirNo, filename, dirNo);
+    }
+}
+
+template TestRegistry* TestRegistry::gHead;
+
+class Iter {
+public:
+    Iter() { this->reset(); }
+    void reset() { fReg = TestRegistry::Head(); }
+
+    Test* next() {
+        if (fReg) {
+            TestRegistry::Factory fact = fReg->factory();
+            fReg = fReg->next();
+            Test* test = fact(NULL);
+            return test;
+        }
+        return NULL;
+    }
+
+private:
+    const TestRegistry* fReg;
+};
+
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
+    SetupCrashHandler();
+    SkCommandLineFlags::SetUsage("");
+    SkCommandLineFlags::Parse(argc, argv);
+    SkGraphics::Init();
+    SkString header("PathOps SkpClip:");
+    if (!FLAGS_match.isEmpty()) {
+        header.appendf(" --match");
+        for (int index = 0; index < FLAGS_match.count(); ++index) {
+            header.appendf(" %s", FLAGS_match[index]);
+        }
+    }
+    if (!FLAGS_dir.isEmpty()) {
+        int count = FLAGS_dir.count();
+        for (int i = 0; i < count; ++i) {
+            const char* range = FLAGS_dir[i];
+            const char* dash = strchr(range, '-');
+            if (!dash) {
+                dash = strchr(range, ',');
+            }
+            int first = atoi(range);
+            int last = dash ? atoi(dash + 1) : first;
+            if (!first || !last) {
+                SkDebugf("couldn't parse --dir %s\n", range);
+                return 1;
+            }
+            gDirs.set(first, last);
+        }
+    }
+    if (!FLAGS_skp.isEmpty()) {
+        gNames.set(FLAGS_skp);
+    }
+#ifdef SK_DEBUG
+    header.append(" SK_DEBUG");
+#else
+    header.append(" SK_RELEASE");
+#endif
+    header.appendf(" skia_arch_width=%d", (int)sizeof(void*) * 8);
+    if (FLAGS_verbose) {
+        header.appendf("\n");
+    }
+    SkDebugf(header.c_str());
+    Iter iter;
+    Test* test;
+    while ((test = iter.next()) != NULL) {
+        SkAutoTDelete<Test> owned(test);
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, test->getName())) {
+            test->run();
+        }
+    }
+    SkGraphics::Term();
+    return 0;
+}
+
+#if !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_NACL)
+int main(int argc, char * const argv[]) {
+    return tool_main(argc, (char**) argv);
+}
+#endif

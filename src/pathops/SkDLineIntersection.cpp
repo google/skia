@@ -173,21 +173,24 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
             nearCount += t >= 0;
         }
         if (nearCount > 0) {
-            for (int iA = 0; iA < 2; ++iA) {
-                if (!aNotB[iA]) {
-                    continue;
+            // Skip if each segment contributes to one end point.
+            if (nearCount != 2 || aNotB[0] == aNotB[1]) {
+                for (int iA = 0; iA < 2; ++iA) {
+                    if (!aNotB[iA]) {
+                        continue;
+                    }
+                    int nearer = aNearB[iA] > 0.5;
+                    if (!bNotA[nearer]) {
+                        continue;
+                    }
+                    SkASSERT(a[iA] != b[nearer]);
+                    SkASSERT(iA == (bNearA[nearer] > 0.5));
+                    fNearlySame[iA] = true;
+                    insertNear(iA, nearer, a[iA], b[nearer]);
+                    aNearB[iA] = -1;
+                    bNearA[nearer] = -1;
+                    nearCount -= 2;
                 }
-                int nearer = aNearB[iA] > 0.5;
-                if (!bNotA[nearer]) {
-                    continue;
-                }
-                SkASSERT(a[iA] != b[nearer]);
-                SkASSERT(iA == (bNearA[nearer] > 0.5));
-                fNearlySame[iA] = true;
-                insertNear(iA, nearer, a[iA], b[nearer]);
-                aNearB[iA] = -1;
-                bNearA[nearer] = -1;
-                nearCount -= 2;
             }
             if (nearCount > 0) {
                 for (int iA = 0; iA < 2; ++iA) {

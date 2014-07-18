@@ -4669,9 +4669,20 @@ static void testQuadralateral10(skiatest::Reporter* reporter, const char* filena
     testSimplify(reporter, path, filename);
 }
 
+static void testRect3(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 0, 60, 60, SkPath::kCCW_Direction);
+    path.addRect(10, 30, 40, 30, SkPath::kCCW_Direction);
+    path.addRect(24, 6, 36, 36, SkPath::kCCW_Direction);
+    path.addRect(32, 6, 36, 41, SkPath::kCCW_Direction);
+    testSimplify(reporter, path, filename);
+}
+
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(testRect3),
     TEST(testQuadralateral10),
     TEST(testQuads61),
     TEST(testQuads60),

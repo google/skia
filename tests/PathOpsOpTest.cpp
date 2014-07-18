@@ -3461,10 +3461,36 @@ static void rects4(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
 }
 
+#define TEST_ISSUE_2753 0
+#if TEST_ISSUE_2753
+static void issue2753(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path1;
+    path1.moveTo(142.701f, 110.568f);
+    path1.lineTo(142.957f, 100);
+    path1.lineTo(153.835f, 100);
+    path1.lineTo(154.592f, 108.188f);
+    path1.cubicTo(154.592f, 108.188f, 153.173f, 108.483f, 152.83f, 109.412f);
+    path1.cubicTo(152.83f, 109.412f, 142.701f, 110.568f, 142.701f, 110.568f);
+    path1.close();
+
+    SkPath path2;
+    path2.moveTo(39, 124.001f);
+    path2.cubicTo(39, 124.001f, 50.6f, 117.001f, 50.6f, 117.001f);
+    path2.cubicTo(50.6f, 117.001f, 164.601f, 85.2f, 188.201f, 117.601f);
+    path2.cubicTo(188.201f, 117.601f, 174.801f, 93, 39, 124.001f);
+    path2.close();
+
+    testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
+}
+#endif
+
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+#if TEST_ISSUE_2753  // FIXME: pair of cubics miss intersection
+    TEST(issue2753),
+#endif
 #if CUBIC_OP_114  // FIXME: curve with inflection is ordered the wrong way
     TEST(cubicOp114),
 #endif

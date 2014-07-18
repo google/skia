@@ -1,6 +1,7 @@
 #include "SkOpContour.h"
 #include "SkIntersectionHelper.h"
 #include "SkOpSegment.h"
+#include "SkString.h"
 
 inline void DebugDumpDouble(double x) {
     if (x == floor(x)) {
@@ -17,6 +18,137 @@ inline void DebugDumpFloat(float x) {
         SkDebugf("%1.9gf", x);
     }
 }
+
+
+#if DEBUG_SHOW_TEST_NAME
+
+static void output_scalar(SkScalar num) {
+    if (num == (int) num) {
+        SkDebugf("%d", (int) num);
+    } else {
+        SkString str;
+        str.printf("%1.9g", num);
+        int width = (int) str.size();
+        const char* cStr = str.c_str();
+        while (cStr[width - 1] == '0') {
+            --width;
+        }
+        str.resize(width);
+        SkDebugf("%sf", str.c_str());
+    }
+}
+
+static void output_points(const SkPoint* pts, int count) {
+    for (int index = 0; index < count; ++index) {
+        output_scalar(pts[index].fX);
+        SkDebugf(", ");
+        output_scalar(pts[index].fY);
+        if (index + 1 < count) {
+            SkDebugf(", ");
+        }
+    }
+    SkDebugf(");\n");
+}
+
+static void showPathContours(SkPath::RawIter& iter, const char* pathName) {
+    uint8_t verb;
+    SkPoint pts[4];
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                SkDebugf("    %s.moveTo(", pathName);
+                output_points(&pts[0], 1);
+                continue;
+            case SkPath::kLine_Verb:
+                SkDebugf("    %s.lineTo(", pathName);
+                output_points(&pts[1], 1);
+                break;
+            case SkPath::kQuad_Verb:
+                SkDebugf("    %s.quadTo(", pathName);
+                output_points(&pts[1], 2);
+                break;
+            case SkPath::kCubic_Verb:
+                SkDebugf("    %s.cubicTo(", pathName);
+                output_points(&pts[1], 3);
+                break;
+            case SkPath::kClose_Verb:
+                SkDebugf("    %s.close();\n", pathName);
+                break;
+            default:
+                SkDEBUGFAIL("bad verb");
+                return;
+        }
+    }
+}
+
+static const char* gFillTypeStr[] = {
+    "kWinding_FillType",
+    "kEvenOdd_FillType",
+    "kInverseWinding_FillType",
+    "kInverseEvenOdd_FillType"
+};
+
+void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool includeDeclaration) {
+    SkPath::RawIter iter(path);
+#define SUPPORT_RECT_CONTOUR_DETECTION 0
+#if SUPPORT_RECT_CONTOUR_DETECTION
+    int rectCount = path.isRectContours() ? path.rectContours(NULL, NULL) : 0;
+    if (rectCount > 0) {
+        SkTDArray<SkRect> rects;
+        SkTDArray<SkPath::Direction> directions;
+        rects.setCount(rectCount);
+        directions.setCount(rectCount);
+        path.rectContours(rects.begin(), directions.begin());
+        for (int contour = 0; contour < rectCount; ++contour) {
+            const SkRect& rect = rects[contour];
+            SkDebugf("path.addRect(%1.9g, %1.9g, %1.9g, %1.9g, %s);\n", rect.fLeft, rect.fTop,
+                    rect.fRight, rect.fBottom, directions[contour] == SkPath::kCCW_Direction
+                    ? "SkPath::kCCW_Direction" : "SkPath::kCW_Direction");
+        }
+        return;
+    }
+#endif
+    SkPath::FillType fillType = path.getFillType();
+    SkASSERT(fillType >= SkPath::kWinding_FillType && fillType <= SkPath::kInverseEvenOdd_FillType);
+    if (includeDeclaration) {
+        SkDebugf("    SkPath %s;\n", name);
+    }
+    SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[fillType]);
+    iter.setPath(path);
+    showPathContours(iter, name);
+}
+
+static void show_function_header(const char* functionName) {
+    SkDebugf("\nstatic void %s(skiatest::Reporter* reporter, const char* filename) {\n", functionName);
+    if (strcmp("skphealth_com76", functionName) == 0) {
+        SkDebugf("found it\n");
+    }
+}
+
+static const char* gOpStrs[] = {
+    "kDifference_PathOp",
+    "kIntersect_PathOp",
+    "kUnion_PathOp",
+    "kXor_PathOp",
+    "kReverseDifference_PathOp",
+};
+
+static void show_op(SkPathOp op, const char* pathOne, const char* pathTwo) {
+    SkDebugf("    testPathOp(reporter, %s, %s, %s, filename);\n", pathOne, pathTwo, gOpStrs[op]);
+    SkDebugf("}\n");
+}
+
+SK_DECLARE_STATIC_MUTEX(gTestMutex);
+
+void SkPathOpsDebug::ShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp,
+        const char* testName) {
+    SkAutoMutexAcquire ac(gTestMutex);
+    show_function_header(testName);
+    ShowOnePath(a, "path", true);
+    ShowOnePath(b, "pathB", true);
+    show_op(shapeOp, "path", "pathB");
+}
+#endif
 
 // if not defined by PathOpsDebug.cpp ...
 #if !defined SK_DEBUG && FORCE_RELEASE

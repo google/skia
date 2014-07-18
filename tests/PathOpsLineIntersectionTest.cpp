@@ -11,6 +11,10 @@
 
 // FIXME: add tests for intersecting, non-intersecting, degenerate, coincident
 static const SkDLine tests[][2] = {
+#if 0
+    // these do intersect at a pair of points, but not close enough for check results liking
+    {{{{365.848175,5081.15186}, {368,5103}}}, {{{367.967712,5102.61084}, {368.278717,5105.71045}}}},
+#endif
     {{{{30,20}, {30,50}}}, {{{24,30}, {36,30}}}},
     {{{{323,193}, {-317,193}}}, {{{0,994}, {0,0}}}},
     {{{{90,230}, {160,60}}}, {{{60,120}, {260,120}}}},

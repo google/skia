@@ -169,6 +169,7 @@ public:
         SkPathOpsDebug::DeleteNameStr)))
     static void BumpTestName(char* );
 #endif
+    static void ShowOnePath(const SkPath& path, const char* name, bool includeDeclaration);
     static void ShowPath(const SkPath& one, const SkPath& two, SkPathOp op, const char* name);
     static void DumpCoincidence(const SkTArray<class SkOpContour, true>& contours);
     static void DumpCoincidence(const SkTArray<class SkOpContour* , true>& contours);

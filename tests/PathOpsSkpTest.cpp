@@ -8,6 +8,8 @@
 
 #define TEST(name) { name, #name }
 
+#define TEST_NEW_FAILURES 0
+
 static void skpcheeseandburger_com225(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -3547,9 +3549,233 @@ static void skpwww_mortgagemarketguide_com_109(skiatest::Reporter* reporter, con
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
+static void skpwww_9to5mac_com_64(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(365, 5101);
+    path.lineTo(365, 5082);
+    path.lineTo(366, 5083);
+    path.lineTo(367, 5092.96631f);
+    path.lineTo(367, 5100);
+    path.quadTo(367, 5101.50537f, 367.967712f, 5102.61084f);
+    path.lineTo(368.278717f, 5105.71045f);
+    path.quadTo(367.277618f, 5105.34863f, 366.464478f, 5104.53564f);
+    path.quadTo(365, 5103.07129f, 365, 5101);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(365, 5082);
+    pathB.lineTo(365.848175f, 5081.15186f);
+    pathB.lineTo(368, 5103);
+    pathB.lineTo(365, 5106);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+#if TEST_NEW_FAILURES
+// addTCoincident SkASSERT(test->fT < 1);
+static void skpwww_googleventures_com_32(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(725.911682f, 898.767456f);
+    path.lineTo(741.232544f, 885.911682f);
+    path.lineTo(754.088318f, 901.232544f);
+    path.lineTo(738.767456f, 914.088318f);
+    path.lineTo(725.911682f, 898.767456f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(728.37677f, 870.59082f);
+    pathB.lineTo(754.088257f, 901.232605f);
+    pathB.lineTo(738.767395f, 914.088379f);
+    pathB.lineTo(713.055908f, 883.446594f);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+// checkSmallCoincidence failed assertion "!next->fSmall || checkMultiple"
+static void skpwww_devbridge_com_22(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(4915, 1523);
+    path.quadTo(4887.24756f, 1523, 4867.62402f, 1542.6239f);
+    path.quadTo(4848, 1562.24768f, 4848, 1590);
+    path.quadTo(4848, 1617.75232f, 4867.62402f, 1637.3761f);
+    path.quadTo(4887.24756f, 1657, 4915, 1657);
+    path.quadTo(4942.75244f, 1657, 4962.37598f, 1637.3761f);
+    path.quadTo(4982, 1617.75232f, 4982, 1590);
+    path.quadTo(4982, 1562.24768f, 4962.37598f, 1542.6239f);
+    path.quadTo(4942.75244f, 1523, 4915, 1523);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(4981.99902f, 1590);
+    pathB.quadTo(4981.99902f, 1617.75232f, 4962.375f, 1637.3761f);
+    pathB.quadTo(4942.75146f, 1657, 4914.99902f, 1657);
+    pathB.quadTo(4887.24658f, 1657, 4867.62305f, 1637.3761f);
+    pathB.quadTo(4847.99902f, 1617.75232f, 4847.99902f, 1590);
+    pathB.quadTo(4847.99902f, 1562.24768f, 4867.62305f, 1542.6239f);
+    pathB.quadTo(4887.24658f, 1523, 4914.99902f, 1523);
+    pathB.quadTo(4942.75146f, 1523, 4962.375f, 1542.6239f);
+    pathB.quadTo(4981.99902f, 1562.24768f, 4981.99902f, 1590);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+// cubic/quad intersection
+static void skpwww_alamdi_com_3(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(10210.8789f, 5315.87891f);
+    path.quadTo(10211.7578f, 5315, 10213, 5315);
+    path.lineTo(10230, 5315);
+    path.quadTo(10231.2422f, 5315, 10232.1211f, 5315.87891f);
+    path.quadTo(10233, 5316.75732f, 10233, 5318);
+    path.lineTo(10233, 5338);
+    path.quadTo(10233, 5339.24268f, 10232.1211f, 5340.12109f);
+    path.quadTo(10231.2422f, 5341, 10230, 5341);
+    path.lineTo(10213, 5341);
+    path.quadTo(10211.7578f, 5341, 10210.8789f, 5340.12109f);
+    path.quadTo(10210, 5339.24268f, 10210, 5338);
+    path.lineTo(10210, 5318);
+    path.quadTo(10210, 5316.75732f, 10210.8789f, 5315.87891f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.moveTo(10213, 5315);
+    pathB.lineTo(10230, 5315);
+    pathB.cubicTo(10231.6572f, 5315, 10233, 5316.34326f, 10233, 5318);
+    pathB.lineTo(10233, 5338);
+    pathB.cubicTo(10233, 5339.10449f, 10231.6572f, 5340, 10230, 5340);
+    pathB.lineTo(10213, 5340);
+    pathB.cubicTo(10211.3428f, 5340, 10210, 5339.10449f, 10210, 5338);
+    pathB.lineTo(10210, 5318);
+    pathB.cubicTo(10210, 5316.34326f, 10211.3428f, 5315, 10213, 5315);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+// bumpSpan failed assertion "span->fOppValue >= 0"
+static void skpwww_familysurvivalprotocol_wordpress_com_61(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(143, 14557);
+    path.lineTo(165, 14557);
+    path.lineTo(165, 14555.9902f);
+    path.lineTo(143, 14556);
+    path.lineTo(143, 14557);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(143, 14557);
+    pathB.lineTo(143, 14555.9902f);
+    pathB.lineTo(165, 14556);
+    pathB.lineTo(165, 14557);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+// addTCancel: failed assertion "oIndex > 0"
+static void skpwww_firstunitedbank_com_19(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(808.585815f, 11673.5859f);
+    path.quadTo(809.17157f, 11673, 810, 11673);
+    path.lineTo(1032, 11673);
+    path.quadTo(1038.21326f, 11673, 1042.60657f, 11677.3936f);
+    path.quadTo(1047, 11681.7871f, 1047, 11688);
+    path.quadTo(1047, 11682.2012f, 1042.60657f, 11678.1006f);
+    path.quadTo(1038.21326f, 11674, 1032, 11674);
+    path.lineTo(810, 11674);
+    path.quadTo(809.585815f, 11674, 809.292908f, 11674.293f);
+    path.quadTo(809, 11674.5859f, 809, 11675);
+    path.lineTo(809, 11701);
+    path.quadTo(809, 11701.4141f, 809.292908f, 11701.707f);
+    path.quadTo(809.585815f, 11702, 810, 11702);
+    path.lineTo(1032, 11702);
+    path.quadTo(1038.21326f, 11702, 1042.60657f, 11697.8994f);
+    path.quadTo(1047, 11693.7988f, 1047, 11688);
+    path.quadTo(1047, 11694.2129f, 1042.60657f, 11698.6064f);
+    path.quadTo(1038.21326f, 11703, 1032, 11703);
+    path.lineTo(810, 11703);
+    path.quadTo(809.17157f, 11703, 808.585815f, 11702.4141f);
+    path.quadTo(808, 11701.8281f, 808, 11701);
+    path.lineTo(808, 11675);
+    path.quadTo(808, 11674.1719f, 808.585815f, 11673.5859f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(808, 11703);
+    pathB.lineTo(809.5f, 11701.5f);
+    pathB.lineTo(1062.91907f, 11687.0811f);
+    pathB.lineTo(1047, 11703);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+#endif
+
+// addSimpleAngle: failed assertion "index == count() - 2"
+static void skpwww_shinydemos_com_5(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(205.884888f, 648.203857f);
+    path.lineTo(771.570374f, 82.5183716f);
+    path.lineTo(1110.98169f, 421.929626f);
+    path.lineTo(545.296143f, 987.615112f);
+    path.lineTo(205.884888f, 648.203857f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(771.570374f, 82.5183716f);
+    pathB.lineTo(1110.98169f, 421.929626f);
+    pathB.lineTo(545.296204f, 987.615051f);
+    pathB.lineTo(205.884949f, 648.203796f);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+// addTCoincident oPeek = &other->fTs[++oPeekIndex];
+static void skpwww_lptemp_com_3(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(78.6429825f, 1394.30969f);
+    path.quadTo(79.6192932f, 1393.33337f, 81.0000076f, 1393.33337f);
+    path.lineTo(341, 1393.33337f);
+    path.quadTo(342.380707f, 1393.33337f, 343.357025f, 1394.30969f);
+    path.quadTo(344.333344f, 1395.28601f, 344.333344f, 1396.66675f);
+    path.lineTo(344.333344f, 1465.66663f);
+    path.quadTo(344.333344f, 1467.04736f, 343.357025f, 1468.02368f);
+    path.quadTo(342.380707f, 1469, 341, 1469);
+    path.lineTo(81.0000076f, 1469);
+    path.quadTo(79.6192932f, 1469, 78.6429825f, 1468.02368f);
+    path.quadTo(77.6666718f, 1467.04736f, 77.6666718f, 1465.66663f);
+    path.lineTo(77.6666718f, 1396.66675f);
+    path.quadTo(77.6666718f, 1395.28601f, 78.6429825f, 1394.30969f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.moveTo(81, 1393.33337f);
+    pathB.lineTo(341, 1393.33337f);
+    pathB.cubicTo(342.840942f, 1393.33337f, 344.333344f, 1394.82568f, 344.333344f, 1396.66675f);
+    pathB.lineTo(344.333344f, 1465.66675f);
+    pathB.cubicTo(344.333344f, 1467.32361f, 342.840942f, 1468.66675f, 341, 1468.66675f);
+    pathB.lineTo(81, 1468.66675f);
+    pathB.cubicTo(79.15905f, 1468.66675f, 77.6666718f, 1467.32361f, 77.6666718f, 1465.66675f);
+    pathB.lineTo(77.6666718f, 1396.66675f);
+    pathB.cubicTo(77.6666718f, 1394.82568f, 79.15905f, 1393.33337f, 81, 1393.33337f);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(skpwww_lptemp_com_3),
+    TEST(skpwww_shinydemos_com_5),
+#if TEST_NEW_FAILURES
+    TEST(skpwww_familysurvivalprotocol_wordpress_com_61),
+    TEST(skpwww_alamdi_com_3),
+    TEST(skpwww_devbridge_com_22),
+    TEST(skpwww_googleventures_com_32),
+#endif
+    TEST(skpwww_9to5mac_com_64),
     TEST(skpwww_wartepop_blogspot_com_br_6),
     TEST(skpwww_wartepop_blogspot_com_br_6a),
     TEST(skpwww_cooksnaps_com_32a),
