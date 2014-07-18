@@ -59,6 +59,7 @@ public:
             for (int i = 0; i < fCoverageStages.count(); ++i) {
                 fCoverageStages[i].localCoordChange(preConcatMatrix);
             }
+            this->invalidateBlendOptFlags();
         }
     }
 
@@ -249,7 +250,10 @@ public:
      *
      *  @param color    the color to set.
      */
-    void setColor(GrColor color) { fColor = color; }
+    void setColor(GrColor color) {
+        fColor = color;
+        this->invalidateBlendOptFlags();
+    }
 
     GrColor getColor() const { return fColor; }
 
@@ -308,6 +312,7 @@ public:
      */
     void setCoverage(uint8_t coverage) {
         fCoverage = GrColorPackRGBA(coverage, coverage, coverage, coverage);
+        this->invalidateBlendOptFlags();
     }
 
     uint8_t getCoverage() const {
@@ -343,12 +348,14 @@ public:
     const GrEffect* addColorEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(NULL != effect);
         SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect, attr0, attr1));
+        this->invalidateBlendOptFlags();
         return effect;
     }
 
     const GrEffect* addCoverageEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(NULL != effect);
         SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect, attr0, attr1));
+        this->invalidateBlendOptFlags();
         return effect;
     }
 
@@ -391,12 +398,16 @@ public:
 
         void set(GrDrawState* ds) {
             if (NULL != fDrawState) {
-                int n = fDrawState->fColorStages.count() - fColorEffectCnt;
-                SkASSERT(n >= 0);
-                fDrawState->fColorStages.pop_back_n(n);
-                n = fDrawState->fCoverageStages.count() - fCoverageEffectCnt;
+                int m = fDrawState->fColorStages.count() - fColorEffectCnt;
+                SkASSERT(m >= 0);
+                fDrawState->fColorStages.pop_back_n(m);
+
+                int n = fDrawState->fCoverageStages.count() - fCoverageEffectCnt;
                 SkASSERT(n >= 0);
                 fDrawState->fCoverageStages.pop_back_n(n);
+                if (m + n > 0) {
+                    fDrawState->invalidateBlendOptFlags();
+                }
                 SkDEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
             }
             fDrawState = ds;
@@ -449,6 +460,7 @@ public:
     void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
         fSrcBlend = srcCoeff;
         fDstBlend = dstCoeff;
+        this->invalidateBlendOptFlags();
     #ifdef SK_DEBUG
         if (GrBlendCoeffRefsDst(dstCoeff)) {
             GrPrintf("Unexpected dst blend coeff. Won't work correctly with coverage stages.\n");
@@ -478,7 +490,10 @@ public:
      *
      * @param constant the constant to set
      */
-    void setBlendConstant(GrColor constant) { fBlendConstant = constant; }
+    void setBlendConstant(GrColor constant) {
+        fBlendConstant = constant;
+        this->invalidateBlendOptFlags();
+    }
 
     /**
      * Retrieves the last value set by setBlendConstant()
@@ -523,8 +538,17 @@ public:
          * Emit transparent black instead of the src color, no need to compute coverage.
          */
         kEmitTransBlack_BlendOptFlag    = 0x10,
+        /**
+         * Flag used to invalidate the cached BlendOptFlags, OptSrcCoeff, and OptDstCoeff cached by
+         * the get BlendOpts function. 
+         */
+        kInvalid_BlendOptFlag        = 0x20,
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
+
+    void invalidateBlendOptFlags() {
+        fBlendOptFlags = kInvalid_BlendOptFlag;
+    }
 
     /**
      * Determines what optimizations can be applied based on the blend. The coefficients may have
@@ -535,6 +559,9 @@ public:
      *
      * Subclasses of GrDrawTarget that actually draw (as opposed to those that just buffer for
      * playback) must call this function and respect the flags that replace the output color.
+     *
+     * If the cached BlendOptFlags does not have the invalidate bit set, then getBlendOpts will
+     * simply returned the cached flags and coefficients. Otherwise it will calculate the values. 
      */
     BlendOptFlags getBlendOpts(bool forceCoverage = false,
                                GrBlendCoeff* srcCoeff = NULL,
@@ -689,6 +716,7 @@ public:
      */
     void setStencil(const GrStencilSettings& settings) {
         fStencilSettings = settings;
+        this->invalidateBlendOptFlags();
     }
 
     /**
@@ -696,6 +724,7 @@ public:
      */
     void disableStencil() {
         fStencilSettings.setDisabled();
+        this->invalidateBlendOptFlags();
     }
 
     const GrStencilSettings& getStencil() const { return fStencilSettings; }
@@ -750,6 +779,7 @@ public:
 
     void resetStateFlags() {
         fFlagBits = 0;
+        this->invalidateBlendOptFlags();
     }
 
     /**
@@ -759,6 +789,7 @@ public:
      */
     void enableState(uint32_t stateBits) {
         fFlagBits |= stateBits;
+        this->invalidateBlendOptFlags();
     }
 
     /**
@@ -768,6 +799,7 @@ public:
      */
     void disableState(uint32_t stateBits) {
         fFlagBits &= ~(stateBits);
+        this->invalidateBlendOptFlags();
     }
 
     /**
@@ -892,6 +924,9 @@ public:
         fDrawFace = that.fDrawFace;
         fColorStages = that.fColorStages;
         fCoverageStages = that.fCoverageStages;
+        fOptSrcBlend = that.fOptSrcBlend;
+        fOptDstBlend = that.fOptDstBlend;
+        fBlendOptFlags = that.fBlendOptFlags;
 
         memcpy(fFixedFunctionVertexAttribIndices,
                that.fFixedFunctionVertexAttribIndices,
@@ -923,8 +958,13 @@ private:
         fStencilSettings.setDisabled();
         fCoverage = 0xffffffff;
         fDrawFace = kBoth_DrawFace;
+
+        this->invalidateBlendOptFlags();
     }
 
+    BlendOptFlags calcBlendOpts(bool forceCoverage = false,
+                               GrBlendCoeff* srcCoeff = NULL,
+                               GrBlendCoeff* dstCoeff = NULL) const;
 
     // These fields are roughly sorted by decreasing likelihood of being different in op==
     SkAutoTUnref<GrRenderTarget>        fRenderTarget;
@@ -943,6 +983,10 @@ private:
     typedef SkSTArray<4, GrEffectStage> EffectStageArray;
     EffectStageArray                    fColorStages;
     EffectStageArray                    fCoverageStages;
+    
+    mutable GrBlendCoeff                        fOptSrcBlend;
+    mutable GrBlendCoeff                        fOptDstBlend;
+    mutable BlendOptFlags                       fBlendOptFlags;
 
     // This is simply a different representation of info in fVertexAttribs and thus does
     // not need to be compared in op==.

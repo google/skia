@@ -59,6 +59,7 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
 
     this->setBlendFunc(paint.getSrcBlendCoeff(), paint.getDstBlendCoeff());
     this->setCoverage(paint.getCoverage());
+    this->invalidateBlendOptFlags();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,6 +120,7 @@ void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
         overlapCheck |= (mask << offsetShift);
 #endif
     }
+    this->invalidateBlendOptFlags();
     // Positions must be specified.
     SkASSERT(-1 != fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding]);
 }
@@ -137,6 +139,7 @@ void GrDrawState::setDefaultVertexAttribs() {
            0xff,
            sizeof(fFixedFunctionVertexAttribIndices));
     fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding] = 0;
+    this->invalidateBlendOptFlags();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -286,16 +289,35 @@ bool GrDrawState::canTweakAlphaForCoverage() const {
 GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
                                                      GrBlendCoeff* srcCoeff,
                                                      GrBlendCoeff* dstCoeff) const {
-
     GrBlendCoeff bogusSrcCoeff, bogusDstCoeff;
     if (NULL == srcCoeff) {
         srcCoeff = &bogusSrcCoeff;
     }
-    *srcCoeff = this->getSrcBlendCoeff();
-
     if (NULL == dstCoeff) {
         dstCoeff = &bogusDstCoeff;
     }
+
+    if (forceCoverage) {
+        return this->calcBlendOpts(true, srcCoeff, dstCoeff);
+    }
+
+    if (0 == (fBlendOptFlags & kInvalid_BlendOptFlag)) {
+        *srcCoeff = fOptSrcBlend;
+        *dstCoeff = fOptDstBlend;
+        return fBlendOptFlags;
+    }
+
+    fBlendOptFlags = this->calcBlendOpts(forceCoverage, srcCoeff, dstCoeff);
+    fOptSrcBlend = *srcCoeff;
+    fOptDstBlend = *dstCoeff;
+
+    return fBlendOptFlags;
+}
+
+GrDrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
+                                                      GrBlendCoeff* srcCoeff,
+                                                      GrBlendCoeff* dstCoeff) const {
+    *srcCoeff = this->getSrcBlendCoeff();
     *dstCoeff = this->getDstBlendCoeff();
 
     if (this->isColorWriteDisabled()) {
