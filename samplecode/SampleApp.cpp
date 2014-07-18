@@ -8,6 +8,7 @@
 #include "SampleApp.h"
 
 #include "OverView.h"
+#include "Resources.h"
 #include "SampleCode.h"
 #include "SamplePipeControllers.h"
 #include "SkCanvas.h"
@@ -2385,7 +2386,9 @@ void get_preferred_size(int* x, int* y, int* width, int* height) {
 }
 
 #ifdef SK_BUILD_FOR_IOS
-void save_args(int argc, char *argv[]) {
+bool set_cmd_line_args(int , char *[], const char* resourceDir) {
+    SetResourcePath(resourceDir);
+    return false;
 }
 #endif
 

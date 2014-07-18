@@ -211,6 +211,7 @@
           # TODO: This doesn't build properly yet, but it's getting there.
           'sources!': [
             '../samplecode/SampleDecode.cpp',
+            '../experimental/SimpleiOSApp/SimpleApp.mm',
           ],
           'sources': [
             '../src/views/mac/SkEventNotifier.mm',
@@ -237,7 +238,6 @@
             '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
 
             '../src/views/ios/SkOSWindow_iOS.mm',
-            '../src/utils/ios/SkImageDecoder_iOS.mm',
             '../src/utils/ios/SkStream_NSData.mm',
             # Not fully implemented yet
             # '../src/utils/ios/SkOSFile_iOS.mm',
