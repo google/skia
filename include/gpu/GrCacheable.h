@@ -46,12 +46,12 @@ public:
      * not change when the content of the GrCacheable object changes. This will never return
      * 0.
      */
-    uint64_t getInstanceID() const { return fInstanceID; }
+    uint32_t getGenerationID() const;
 
 protected:
     GrCacheable()
         : fCacheEntry(NULL)
-        , fInstanceID(CreateInstanceID()) {}
+        , fGenID(0) {}
 
     bool isInCache() const { return NULL != fCacheEntry; }
 
@@ -64,10 +64,8 @@ protected:
     void didChangeGpuMemorySize() const;
 
 private:
-    static uint64_t CreateInstanceID();
-
     GrResourceCacheEntry*   fCacheEntry;  // NULL if not in cache
-    mutable uint64_t        fInstanceID;
+    mutable uint32_t        fGenID;
 
     typedef SkRefCnt INHERITED;
 };

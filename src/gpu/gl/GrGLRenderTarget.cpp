@@ -79,6 +79,7 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
 }
 
 void GrGLRenderTarget::onRelease() {
+    GPUGL->notifyRenderTargetDelete(this);
     if (!this->isWrapped()) {
         if (fTexFBOID) {
             GL_CALL(DeleteFramebuffers(1, &fTexFBOID));
