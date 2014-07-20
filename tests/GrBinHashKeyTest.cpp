@@ -12,19 +12,16 @@
 
 #include "Test.h"
 
-DEF_TEST(GrBinHashKey, reporter) {
+template<typename KeyType> static void TestHash(skiatest::Reporter* reporter) {
     const char* testStringA_ = "abcdABCD";
     const char* testStringB_ = "abcdBBCD";
     const uint32_t* testStringA = reinterpret_cast<const uint32_t*>(testStringA_);
     const uint32_t* testStringB = reinterpret_cast<const uint32_t*>(testStringB_);
-    enum {
-        kDataLenUsedForKey = 8
-    };
 
-    GrBinHashKey<kDataLenUsedForKey> keyA;
+    KeyType keyA;
     keyA.setKeyData(testStringA);
     // test copy constructor and comparison
-    GrBinHashKey<kDataLenUsedForKey> keyA2(keyA);
+    KeyType keyA2(keyA);
     REPORTER_ASSERT(reporter, keyA == keyA2);
     REPORTER_ASSERT(reporter, keyA.getHash() == keyA2.getHash());
     // test re-init
@@ -32,10 +29,19 @@ DEF_TEST(GrBinHashKey, reporter) {
     REPORTER_ASSERT(reporter, keyA == keyA2);
     REPORTER_ASSERT(reporter, keyA.getHash() == keyA2.getHash());
     // test sorting
-    GrBinHashKey<kDataLenUsedForKey> keyB;
+    KeyType keyB;
     keyB.setKeyData(testStringB);
-    REPORTER_ASSERT(reporter, keyA < keyB);
     REPORTER_ASSERT(reporter, keyA.getHash() != keyB.getHash());
+}
+
+
+DEF_TEST(GrBinHashKey, reporter) {
+    enum {
+        kDataLenUsedForKey = 8
+    };
+
+    TestHash<GrBinHashKey<kDataLenUsedForKey> >(reporter);
+    TestHash<GrMurmur3HashKey<kDataLenUsedForKey> >(reporter);
 }
 
 #endif

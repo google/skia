@@ -19,7 +19,6 @@
 #include "GrGLVertexArray.h"
 #include "GrGLVertexBuffer.h"
 #include "GrGpu.h"
-#include "GrTHashTable.h"
 #include "SkTypes.h"
 
 #ifdef SK_DEVELOPER

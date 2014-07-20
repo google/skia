@@ -12,9 +12,10 @@
 
 #include "GrAllocPool.h"
 #include "GrAtlas.h"
-#include "GrTHashTable.h"
 #include "GrPictureUtils.h"
 #include "GrRect.h"
+#include "SkChecksum.h"
+#include "SkTDynamicHash.h"
 
 class SkPicture;
 
@@ -22,9 +23,14 @@ class SkPicture;
 // plot may be used to store layers from multiple pictures.
 struct GrPictureInfo {
 public:
+    // for SkTDynamicHash - just use the pictureID as the hash key
+    static const uint32_t& GetKey(const GrPictureInfo& pictInfo) { return pictInfo.fPictureID; }
+    static uint32_t Hash(const uint32_t& key) { return SkChecksum::Mix(key); }
+
+    // GrPictureInfo proper
     GrPictureInfo(uint32_t pictureID) : fPictureID(pictureID) { }
 
-    uint32_t fPictureID;
+    const uint32_t fPictureID;
 
     GrAtlas::ClientPlotUsage  fPlotUsage;
 };
@@ -37,16 +43,40 @@ public:
 // Atlased layers also get a pointer to the plot in which they reside.
 struct GrCachedLayer {
 public:
-    GrCachedLayer(uint32_t pictureID, int layerID) 
-        : fPlot(NULL) {
-        fPictureID = pictureID;
-        fLayerID = layerID;
-        fTexture = NULL;
-        fRect = GrIRect16::MakeEmpty();
+    // For SkTDynamicHash
+    struct Key {
+        Key(uint32_t pictureID, int layerID) : fPictureID(pictureID) , fLayerID(layerID) {}
+
+        bool operator==(const Key& other) const {
+            return fPictureID == other.fPictureID && fLayerID == other.fLayerID;
+        }
+
+        uint32_t getPictureID() const { return fPictureID; }
+        int      getLayerID() const { return fLayerID; }
+
+    private:
+        // ID of the picture of which this layer is a part
+        const uint32_t fPictureID;
+        // fLayerID is the index of this layer in the picture (one of 0 .. #layers).
+        const int      fLayerID;
+    };
+
+    static const Key& GetKey(const GrCachedLayer& layer) { return layer.fKey; }
+    static uint32_t Hash(const Key& key) { 
+        return SkChecksum::Mix((key.getPictureID() << 16) | key.getLayerID());
     }
 
-    uint32_t pictureID() const { return fPictureID; }
-    int layerID() const { return fLayerID; }
+    // GrCachedLayer proper
+    GrCachedLayer(uint32_t pictureID, int layerID) 
+        : fKey(pictureID, layerID)
+        , fTexture(NULL)
+        , fRect(GrIRect16::MakeEmpty())
+        , fPlot(NULL) {
+        SkASSERT(SK_InvalidGenID != pictureID && layerID >= 0);
+    }
+
+    uint32_t pictureID() const { return fKey.getPictureID(); }
+    int layerID() const { return fKey.getLayerID(); }
 
     // This call takes over the caller's ref
     void setTexture(GrTexture* texture, const GrIRect16& rect) {
@@ -71,12 +101,7 @@ public:
     SkDEBUGCODE(void validate(const GrTexture* backingTexture) const;)
 
 private:
-    // ID of the picture of which this layer is a part
-    uint32_t        fPictureID;
-
-    // fLayerID is only valid when fPicture != kInvalidGenID in which case it
-    // is the index of this layer in the picture (one of 0 .. #layers).
-    int             fLayerID;
+    const Key       fKey;
 
     // fTexture is a ref on the atlasing texture for atlased layers and a
     // ref on a GrTexture for non-atlased textures. In both cases, if this is
@@ -138,11 +163,9 @@ private:
     // is leaked and never cleans itself up we still want to be able to 
     // remove the GrPictureInfo once its layers are purged from all the atlas
     // plots).
-    class PictureKey;
-    GrTHashTable<GrPictureInfo, PictureKey, 7> fPictureHash;
+    SkTDynamicHash<GrPictureInfo, uint32_t> fPictureHash;
 
-    class PictureLayerKey;
-    GrTHashTable<GrCachedLayer, PictureLayerKey, 7> fLayerHash;
+    SkTDynamicHash<GrCachedLayer, GrCachedLayer::Key> fLayerHash;
 
     void initAtlas();
     GrCachedLayer* createLayer(const SkPicture* picture, int layerID);

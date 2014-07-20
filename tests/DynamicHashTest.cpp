@@ -136,12 +136,12 @@ DEF_TEST(DynamicHash_remove, reporter) {
     ASSERT(hash.find(5)->value == 3.0);
 }
 
-DEF_TEST(DynamicHash_iterator, reporter) {
+template<typename T> static void TestIter(skiatest::Reporter* reporter) {
     Hash hash;
 
     int count = 0;
     // this should fall out of loop immediately
-    for (Hash::Iter iter(&hash); !iter.done(); ++iter) {
+    for (T iter(&hash); !iter.done(); ++iter) {
         ++count;
     }
     ASSERT(0 == count);
@@ -158,7 +158,7 @@ DEF_TEST(DynamicHash_iterator, reporter) {
     // should see all 3 unique keys when iterating over hash
     count = 0;
     int keys[3] = {0, 0, 0};
-    for (Hash::Iter iter(&hash); !iter.done(); ++iter) {
+    for (T iter(&hash); !iter.done(); ++iter) {
         int key = (*iter).key;
         keys[count] = key;
         ASSERT(hash.find(key) != NULL);
@@ -172,8 +172,8 @@ DEF_TEST(DynamicHash_iterator, reporter) {
     // should see 2 unique keys when iterating over hash that aren't 1
     hash.remove(1);
     count = 0;
-    memset(keys,0,sizeof(keys));
-    for (Hash::Iter iter(&hash); !iter.done(); ++iter) {
+    memset(keys, 0, sizeof(keys));
+    for (T iter(&hash); !iter.done(); ++iter) {
         int key = (*iter).key;
         keys[count] = key;
         ASSERT(key != 1);
@@ -182,4 +182,47 @@ DEF_TEST(DynamicHash_iterator, reporter) {
     }
     ASSERT(2 == count);
     ASSERT(keys[0] != keys[1]);
+}
+
+DEF_TEST(DynamicHash_iterator, reporter) {
+    TestIter<Hash::Iter>(reporter);
+    TestIter<Hash::ConstIter>(reporter);
+}
+
+static void TestResetOrRewind(skiatest::Reporter* reporter, bool testReset) {
+    Hash hash;
+    Entry a = { 1, 2.0 };
+    Entry b = { 2, 3.0 };
+
+    ASSERT(hash.capacity() == 0);
+    hash.add(&a);
+    hash.add(&b);
+    ASSERT(hash.count() == 2);
+    ASSERT(hash.capacity() == 4);
+
+    if (testReset) {
+        hash.reset();
+        ASSERT(hash.capacity() == 0);
+    } else {
+        hash.rewind();
+        ASSERT(hash.capacity() == 4);
+    }
+    ASSERT(hash.count() == 0);
+
+    // make sure things still work
+    hash.add(&a);
+    hash.add(&b);
+    ASSERT(hash.count() == 2);
+    ASSERT(hash.capacity() == 4);
+
+    ASSERT(hash.find(1) != NULL);
+    ASSERT(hash.find(2) != NULL);
+}
+
+DEF_TEST(DynamicHash_reset, reporter) {
+    TestResetOrRewind(reporter, true);
+}
+
+DEF_TEST(DynamicHash_rewind, reporter) {
+    TestResetOrRewind(reporter, false);
 }

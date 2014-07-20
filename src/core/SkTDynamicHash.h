@@ -57,6 +57,33 @@ public:
         int fCurrentIndex;
     };
 
+    class ConstIter {
+    public:
+        explicit ConstIter(const SkTDynamicHash* hash) : fHash(hash), fCurrentIndex(-1) {
+            SkASSERT(hash);
+            ++(*this);
+        }
+        bool done() const {
+            SkASSERT(fCurrentIndex <= fHash->fCapacity);
+            return fCurrentIndex == fHash->fCapacity;
+        }
+        const T& operator*() const {
+            SkASSERT(!this->done());
+            return *this->current();
+        }
+        void operator++() {
+            do {
+                fCurrentIndex++;
+            } while (!this->done() && (this->current() == Empty() || this->current() == Deleted()));
+        }
+
+    private:
+        const T* current() const { return fHash->fArray[fCurrentIndex]; }
+
+        const SkTDynamicHash* fHash;
+        int fCurrentIndex;
+    };
+
     int count() const { return fCount; }
 
     // Return the entry with this key if we have it, otherwise NULL.
@@ -85,11 +112,27 @@ public:
         SkASSERT(this->validate());
     }
 
-    // Remove the entry with this key.  We reqire that an entry with this key is present.
+    // Remove the entry with this key.  We require that an entry with this key is present.
     void remove(const Key& key) {
         SkASSERT(NULL != this->find(key));
         this->innerRemove(key);
         SkASSERT(this->validate());
+    }
+
+    void rewind() {
+        if (NULL != fArray) {
+            sk_bzero(fArray, sizeof(T*)* fCapacity);
+        }
+        fCount = 0;
+        fDeleted = 0;
+    }
+
+    void reset() { 
+        fCount = 0; 
+        fDeleted = 0; 
+        fCapacity = 0; 
+        sk_free(fArray); 
+        fArray = NULL; 
     }
 
 protected:
