@@ -732,6 +732,69 @@ static bool compress_a8_to_r11eac_fast(uint8_t* dst, const uint8_t* src,
 }
 #endif // COMPRESS_R11_EAC_FASTEST
 
+// The R11 EAC format expects that indices are given in column-major order. Since
+// we receive alpha values in raster order, this usually means that we have to use
+// pack6 above to properly pack our indices. However, if our indices come from the
+// blitter, then each integer will be a column of indices, and hence can be efficiently
+// packed. This function takes the bottom three bits of each byte and places them in
+// the least significant 12 bits of the resulting integer.
+static inline uint32_t pack_indices_vertical(uint32_t x) {
+#if defined (SK_CPU_BENDIAN)
+    return 
+        (x & 7) |
+        ((x >> 5) & (7 << 3)) |
+        ((x >> 10) & (7 << 6)) |
+        ((x >> 15) & (7 << 9));
+#else
+    return 
+        ((x >> 24) & 7) |
+        ((x >> 13) & (7 << 3)) |
+        ((x >> 2) & (7 << 6)) |
+        ((x << 9) & (7 << 9));
+#endif
+}
+
+// This function returns the compressed format of a block given as four columns of
+// alpha values. Each column is assumed to be loaded from top to bottom, and hence
+// must first be converted to indices and then packed into the resulting 64-bit
+// integer.
+static inline uint64_t compress_block_vertical(const uint32_t alphaColumn0,
+                                               const uint32_t alphaColumn1,
+                                               const uint32_t alphaColumn2,
+                                               const uint32_t alphaColumn3) {
+
+    if (alphaColumn0 == alphaColumn1 &&
+        alphaColumn2 == alphaColumn3 &&
+        alphaColumn0 == alphaColumn2) {
+
+        if (0 == alphaColumn0) {
+            // Transparent
+            return 0x0020000000002000ULL;
+        }
+        else if (0xFFFFFFFF == alphaColumn0) {
+            // Opaque
+            return 0xFFFFFFFFFFFFFFFFULL;
+        }
+    }
+
+    const uint32_t indexColumn0 = convert_indices(alphaColumn0);
+    const uint32_t indexColumn1 = convert_indices(alphaColumn1);
+    const uint32_t indexColumn2 = convert_indices(alphaColumn2);
+    const uint32_t indexColumn3 = convert_indices(alphaColumn3);
+
+    const uint32_t packedIndexColumn0 = pack_indices_vertical(indexColumn0);
+    const uint32_t packedIndexColumn1 = pack_indices_vertical(indexColumn1);
+    const uint32_t packedIndexColumn2 = pack_indices_vertical(indexColumn2);
+    const uint32_t packedIndexColumn3 = pack_indices_vertical(indexColumn3);
+
+    return SkEndian_SwapBE64(0x8490000000000000ULL |
+                             (static_cast<uint64_t>(packedIndexColumn0) << 36) |
+                             (static_cast<uint64_t>(packedIndexColumn1) << 24) |
+                             static_cast<uint64_t>(packedIndexColumn2 << 12) |
+                             static_cast<uint64_t>(packedIndexColumn3));
+        
+}
+
 static inline bool compress_a8_to_r11eac(uint8_t* dst, const uint8_t* src,
                                          int width, int height, int rowBytes) {
 #if (COMPRESS_R11_EAC_SLOW) || (COMPRESS_R11_EAC_FAST)
@@ -741,6 +804,35 @@ static inline bool compress_a8_to_r11eac(uint8_t* dst, const uint8_t* src,
 #else
 #error "Must choose R11 EAC algorithm"
 #endif
+}
+
+// Updates the block whose columns are stored in blockColN. curAlphai is expected
+// to store, as an integer, the four alpha values that will be placed within each
+// of the columns in the range [col, col+colsLeft).
+static inline void update_block_columns(
+    uint32_t* blockCol1, uint32_t* blockCol2, uint32_t* blockCol3, uint32_t* blockCol4,
+    const int col, const int colsLeft, const uint32_t curAlphai) {
+    SkASSERT(NULL != blockCol1);
+    SkASSERT(NULL != blockCol2);
+    SkASSERT(NULL != blockCol3);
+    SkASSERT(NULL != blockCol4);
+    SkASSERT(col + colsLeft <= 4);
+    for (int i = col; i < (col + colsLeft); ++i) {
+        switch(i) {
+        case 0:
+            *blockCol1 = curAlphai;
+            break;
+        case 1:
+            *blockCol2 = curAlphai;
+            break;
+        case 2:
+            *blockCol3 = curAlphai;
+            break;
+        case 3:
+            *blockCol4 = curAlphai;
+            break;
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -818,6 +910,223 @@ SkData *CompressBitmapToFormat(const SkBitmap &bitmap, Format format) {
 
     sk_free(dst);
     return NULL;
+}
+
+R11_EACBlitter::R11_EACBlitter(int width, int height, void *latcBuffer)
+    // 0x7FFE is one minus the largest positive 16-bit int. We use it for
+    // debugging to make sure that we're properly setting the nextX distance
+    // in flushRuns(). 
+    : kLongestRun(0x7FFE), kZeroAlpha(0)
+    , fNextRun(0)
+    , fWidth(width)
+    , fHeight(height)
+    , fBuffer(reinterpret_cast<uint64_t*const>(latcBuffer))
+{
+    SkASSERT((width % kR11_EACBlockSz) == 0);
+    SkASSERT((height % kR11_EACBlockSz) == 0);
+}
+
+void R11_EACBlitter::blitAntiH(int x, int y,
+                               const SkAlpha* antialias,
+                               const int16_t* runs) {
+    // Make sure that the new row to blit is either the first
+    // row that we're blitting, or it's exactly the next scan row
+    // since the last row that we blit. This is to ensure that when
+    // we go to flush the runs, that they are all the same four
+    // runs.
+    if (fNextRun > 0 &&
+        ((x != fBufferedRuns[fNextRun-1].fX) ||
+         (y-1 != fBufferedRuns[fNextRun-1].fY))) {
+        this->flushRuns();
+    }
+
+    // Align the rows to a block boundary. If we receive rows that
+    // are not on a block boundary, then fill in the preceding runs
+    // with zeros. We do this by producing a single RLE that says
+    // that we have 0x7FFE pixels of zero (0x7FFE = 32766).
+    const int row = y & ~3;
+    while ((row + fNextRun) < y) {
+        fBufferedRuns[fNextRun].fAlphas = &kZeroAlpha;
+        fBufferedRuns[fNextRun].fRuns = &kLongestRun;
+        fBufferedRuns[fNextRun].fX = 0;
+        fBufferedRuns[fNextRun].fY = row + fNextRun;
+        ++fNextRun;
+    }
+
+    // Make sure that our assumptions aren't violated...
+    SkASSERT(fNextRun == (y & 3));
+    SkASSERT(fNextRun == 0 || fBufferedRuns[fNextRun - 1].fY < y);
+
+    // Set the values of the next run
+    fBufferedRuns[fNextRun].fAlphas = antialias;
+    fBufferedRuns[fNextRun].fRuns = runs;
+    fBufferedRuns[fNextRun].fX = x;
+    fBufferedRuns[fNextRun].fY = y;
+
+    // If we've output four scanlines in a row that don't violate our
+    // assumptions, then it's time to flush them...
+    if (4 == ++fNextRun) {
+        this->flushRuns();
+    }
+}
+
+void R11_EACBlitter::flushRuns() {
+
+    // If we don't have any runs, then just return.
+    if (0 == fNextRun) {
+        return;
+    }
+
+#ifndef NDEBUG
+    // Make sure that if we have any runs, they all match
+    for (int i = 1; i < fNextRun; ++i) {
+        SkASSERT(fBufferedRuns[i].fY == fBufferedRuns[i-1].fY + 1);
+        SkASSERT(fBufferedRuns[i].fX == fBufferedRuns[i-1].fX);
+    }
+#endif
+
+    // If we dont have as many runs as we have rows, fill in the remaining
+    // runs with constant zeros.
+    for (int i = fNextRun; i < kR11_EACBlockSz; ++i) {
+        fBufferedRuns[i].fY = fBufferedRuns[0].fY + i;
+        fBufferedRuns[i].fX = fBufferedRuns[0].fX;
+        fBufferedRuns[i].fAlphas = &kZeroAlpha;
+        fBufferedRuns[i].fRuns = &kLongestRun;
+    }
+
+    // Make sure that our assumptions aren't violated.
+    SkASSERT(fNextRun > 0 && fNextRun <= 4);
+    SkASSERT((fBufferedRuns[0].fY & 3) == 0);
+
+    // The following logic walks four rows at a time and outputs compressed
+    // blocks to the buffer passed into the constructor.
+    // We do the following:
+    //
+    //      c1 c2 c3 c4
+    // -----------------------------------------------------------------------
+    // ... |  |  |  |  |  ----> fBufferedRuns[0]
+    // -----------------------------------------------------------------------
+    // ... |  |  |  |  |  ----> fBufferedRuns[1]
+    // -----------------------------------------------------------------------
+    // ... |  |  |  |  |  ----> fBufferedRuns[2]
+    // -----------------------------------------------------------------------
+    // ... |  |  |  |  |  ----> fBufferedRuns[3]
+    // -----------------------------------------------------------------------
+    // 
+    // curX -- the macro X value that we've gotten to.
+    // c1, c2, c3, c4 -- the integers that represent the columns of the current block
+    //                   that we're operating on
+    // curAlphaColumn -- integer containing the column of alpha values from fBufferedRuns.
+    // nextX -- for each run, the next point at which we need to update curAlphaColumn
+    //          after the value of curX.
+    // finalX -- the minimum of all the nextX values.
+    //
+    // curX advances to finalX outputting any blocks that it passes along
+    // the way. Since finalX will not change when we reach the end of a
+    // run, the termination criteria will be whenever curX == finalX at the
+    // end of a loop.
+
+    // Setup:
+    uint32_t c1 = 0;
+    uint32_t c2 = 0;
+    uint32_t c3 = 0;
+    uint32_t c4 = 0;
+
+    uint32_t curAlphaColumn = 0;
+    SkAlpha *curAlpha = reinterpret_cast<SkAlpha*>(&curAlphaColumn);
+
+    int nextX[kR11_EACBlockSz];
+    for (int i = 0; i < kR11_EACBlockSz; ++i) {
+        nextX[i] = 0x7FFFFF;
+    }
+
+    uint64_t* outPtr = this->getBlock(fBufferedRuns[0].fX, fBufferedRuns[0].fY);
+
+    // Populate the first set of runs and figure out how far we need to
+    // advance on the first step
+    int curX = 0;
+    int finalX = 0xFFFFF;
+    for (int i = 0; i < kR11_EACBlockSz; ++i) {
+        nextX[i] = *(fBufferedRuns[i].fRuns);
+        curAlpha[i] = *(fBufferedRuns[i].fAlphas);
+
+        finalX = SkMin32(nextX[i], finalX);
+    }
+
+    // Make sure that we have a valid right-bound X value
+    SkASSERT(finalX < 0xFFFFF);
+
+    // Run the blitter...
+    while (curX != finalX) {
+        SkASSERT(finalX >= curX);
+
+        // Do we need to populate the rest of the block?
+        if ((finalX - (curX & ~3)) >= kR11_EACBlockSz) {
+            const int col = curX & 3;
+            const int colsLeft = 4 - col;
+            SkASSERT(curX + colsLeft <= finalX);
+
+            update_block_columns(&c1, &c2, &c3, &c4, col, colsLeft, curAlphaColumn);
+
+            // Write this block
+            *outPtr = compress_block_vertical(c1, c2, c3, c4);
+            ++outPtr;
+            curX += colsLeft;
+        }
+
+        // If we can advance even further, then just keep memsetting the block
+        if ((finalX - curX) >= kR11_EACBlockSz) {
+            SkASSERT((curX & 3) == 0);
+
+            const int col = 0;
+            const int colsLeft = kR11_EACBlockSz;
+
+            update_block_columns(&c1, &c2, &c3, &c4, col, colsLeft, curAlphaColumn);
+
+            // While we can keep advancing, just keep writing the block.
+            uint64_t lastBlock = compress_block_vertical(c1, c2, c3, c4);
+            while((finalX - curX) >= kR11_EACBlockSz) {
+                *outPtr = lastBlock;
+                ++outPtr;
+                curX += kR11_EACBlockSz;
+            }
+        }
+
+        // If we haven't advanced within the block then do so.
+        if (curX < finalX) {
+            const int col = curX & 3;
+            const int colsLeft = finalX - curX;
+
+            update_block_columns(&c1, &c2, &c3, &c4, col, colsLeft, curAlphaColumn);
+
+            curX += colsLeft;
+        }
+
+        SkASSERT(curX == finalX);
+
+        // Figure out what the next advancement is...
+        for (int i = 0; i < kR11_EACBlockSz; ++i) {
+            if (nextX[i] == finalX) {
+                const int16_t run = *(fBufferedRuns[i].fRuns);
+                fBufferedRuns[i].fRuns += run;
+                fBufferedRuns[i].fAlphas += run;
+                curAlpha[i] = *(fBufferedRuns[i].fAlphas);
+                nextX[i] += *(fBufferedRuns[i].fRuns);
+            }
+        }
+
+        finalX = 0xFFFFF;
+        for (int i = 0; i < kR11_EACBlockSz; ++i) {
+            finalX = SkMin32(nextX[i], finalX);
+        }
+    }
+
+    // If we didn't land on a block boundary, output the block...
+    if ((curX & 3) > 1) {
+        *outPtr = compress_block_vertical(c1, c2, c3, c4);
+    }
+
+    fNextRun = 0;
 }
 
 }  // namespace SkTextureCompressor
