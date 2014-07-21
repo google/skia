@@ -108,7 +108,6 @@ public:
 
     virtual ~SuperBlitter() {
         this->flush();
-        sk_free(fRunsBuffer);
     }
 
     /// Once fRuns contains a complete supersampled row, flush() blits
@@ -154,7 +153,7 @@ SuperBlitter::SuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
                            const SkRegion& clip)
         : BaseSuperBlitter(realBlitter, ir, clip) {
     fRunsToBuffer = realBlitter->requestRowsPreserved();
-    fRunsBuffer = sk_malloc_throw(fRunsToBuffer * this->getRunsSz());
+    fRunsBuffer = realBlitter->allocBlitMemory(fRunsToBuffer * this->getRunsSz());
     fCurrentRun = -1;
 
     this->advanceRuns();

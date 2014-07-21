@@ -76,6 +76,16 @@ public:
      */
     virtual int requestRowsPreserved() const { return 1; }
 
+    /**
+     * This function allocates memory for the blitter that the blitter then owns.
+     * The memory can be used by the calling function at will, but it will be
+     * released when the blitter's destructor is called. This function returns
+     * NULL if no persistent memory is needed by the blitter.
+     */
+    virtual void* allocBlitMemory(size_t sz) {
+        return fBlitMemory.reset(sz, SkAutoMalloc::kReuse_OnShrink);
+    }
+
     ///@name non-virtual helpers
     void blitMaskRegion(const SkMask& mask, const SkRegion& clip);
     void blitRectRegion(const SkIRect& rect, const SkRegion& clip);
@@ -98,6 +108,10 @@ public:
                                    SkTBlitterAllocator*);
     ///@}
 
+protected:
+
+    SkAutoMalloc fBlitMemory;
+    
 private:
 };
 
@@ -137,6 +151,10 @@ public:
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE;
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE;
 
+    virtual void* allocBlitMemory(size_t sz) SK_OVERRIDE {
+        return fBlitter->allocBlitMemory(sz);
+    }
+
 private:
     SkBlitter*  fBlitter;
     SkIRect     fClipRect;
@@ -163,6 +181,10 @@ public:
                      SkAlpha leftAlpha, SkAlpha rightAlpha) SK_OVERRIDE;
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE;
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE;
+
+    virtual void* allocBlitMemory(size_t sz) SK_OVERRIDE {
+        return fBlitter->allocBlitMemory(sz);
+    }
 
 private:
     SkBlitter*      fBlitter;
