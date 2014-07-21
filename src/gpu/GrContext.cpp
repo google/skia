@@ -1226,7 +1226,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
     GrDrawState* drawState = target->drawState();
 
-    GR_CREATE_TRACE_MARKER("GrContext::drawPath", target);
+    GR_CREATE_TRACE_MARKER1("GrContext::drawPath", target, "Is Convex", path.isConvex());
 
     const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
 
