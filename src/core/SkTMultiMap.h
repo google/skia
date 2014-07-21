@@ -6,8 +6,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTMultiMap_DEFINED
-#define GrTMultiMap_DEFINED
+#ifndef SkTMultiMap_DEFINED
+#define SkTMultiMap_DEFINED
 
 #include "GrTypes.h"
 #include "SkTDynamicHash.h"
@@ -18,7 +18,7 @@
 template <typename T,
           typename Key,
           typename HashTraits=T>
-class GrTMultiMap {
+class SkTMultiMap {
     struct ValueList {
         explicit ValueList(T* value) : fValue(value), fNext(NULL) {}
 
@@ -28,9 +28,9 @@ class GrTMultiMap {
         ValueList* fNext;
     };
 public:
-    GrTMultiMap() : fCount(0) {}
+    SkTMultiMap() : fCount(0) {}
 
-    ~GrTMultiMap() {
+    ~SkTMultiMap() {
         SkASSERT(fCount == 0);
         SkASSERT(fHash.count() == 0);
     }

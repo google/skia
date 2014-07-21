@@ -13,7 +13,7 @@
 
 #include "GrConfig.h"
 #include "GrTypes.h"
-#include "GrTMultiMap.h"
+#include "SkTMultiMap.h"
 #include "GrBinHashKey.h"
 #include "SkMessageBus.h"
 #include "SkTInternalLList.h"
@@ -334,7 +334,7 @@ private:
 
     void removeInvalidResource(GrResourceCacheEntry* entry);
 
-    GrTMultiMap<GrResourceCacheEntry, GrResourceKey> fCache;
+    SkTMultiMap<GrResourceCacheEntry, GrResourceKey> fCache;
 
     // We're an internal doubly linked list
     typedef SkTInternalLList<GrResourceCacheEntry> EntryList;
