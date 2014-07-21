@@ -13,6 +13,7 @@
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkImageInfo.h"
+#include "SkSize.h"
 #include "SkTDArray.h"
 
 //#define xed
@@ -219,6 +220,18 @@ public:
      */
     virtual GrTexture* getTexture() { return NULL; }
 
+    /**
+     *  If any planes or rowBytes is NULL, this should output the sizes and return true
+     *  if it can efficiently return YUV planar data. If it cannot, it should return false.
+     *
+     *  If all planes and rowBytes are not NULL, then it should copy the associated Y,U,V data
+     *  into those planes of memory supplied by the caller. It should validate that the sizes
+     *  match what it expected. If the sizes do not match, it should return false.
+     */
+    bool getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]) {
+        return this->onGetYUV8Planes(sizes, planes, rowBytes);
+    }
+
     bool readPixels(SkBitmap* dst, const SkIRect* subset = NULL);
 
     /**
@@ -304,6 +317,9 @@ protected:
 
     // default impl returns NULL.
     virtual SkData* onRefEncodedData();
+
+    // default impl returns false.
+    virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]);
 
     /**
      *  Returns the size (in bytes) of the internally allocated memory.

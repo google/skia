@@ -57,6 +57,45 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
 }
 #endif
 
+bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]) {
+#ifdef SK_DEBUG
+    // In all cases, we need the sizes array
+    SkASSERT(NULL != sizes);
+
+    bool isValidWithPlanes = (NULL != planes) && (NULL != rowBytes) &&
+        ((NULL != planes[0]) && (NULL != planes[1]) && (NULL != planes[2]) &&
+         (0  != rowBytes[0]) && (0  != rowBytes[1]) && (0  != rowBytes[2]));
+    bool isValidWithoutPlanes =
+        ((NULL == planes) ||
+         ((NULL == planes[0]) && (NULL == planes[1]) && (NULL == planes[2]))) &&
+        ((NULL == rowBytes) ||
+         ((0 == rowBytes[0]) && (0 == rowBytes[1]) && (0 == rowBytes[2])));
+
+    // Either we have all planes and rowBytes information or we have none of it
+    // Having only partial information is not supported
+    SkASSERT(isValidWithPlanes || isValidWithoutPlanes);
+
+    // If we do have planes information, make sure all sizes are non 0
+    // and all rowBytes are valid
+    SkASSERT(!isValidWithPlanes ||
+             ((sizes[0].fWidth  >= 0) &&
+              (sizes[0].fHeight >= 0) &&
+              (sizes[1].fWidth  >= 0) &&
+              (sizes[1].fHeight >= 0) &&
+              (sizes[2].fWidth  >= 0) &&
+              (sizes[2].fHeight >= 0) &&
+              (rowBytes[0] >= (size_t)sizes[0].fWidth) &&
+              (rowBytes[1] >= (size_t)sizes[1].fWidth) &&
+              (rowBytes[2] >= (size_t)sizes[2].fWidth)));
+#endif
+
+    return this->onGetYUV8Planes(sizes, planes, rowBytes);
+}
+
+bool SkImageGenerator::onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]) {
+    return false;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 SkData* SkImageGenerator::onRefEncodedData() {

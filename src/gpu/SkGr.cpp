@@ -15,6 +15,7 @@
 #include "GrGpu.h"
 #include "effects/GrDitherEffect.h"
 #include "GrDrawTargetCaps.h"
+#include "effects/GrYUVtoRGBEffect.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
 #  include "ktx.h"
@@ -193,6 +194,81 @@ static GrTexture *load_etc1_texture(GrContext* ctx,
 }
 #endif   // SK_IGNORE_ETC1_SUPPORT
 
+static GrTexture *load_yuv_texture(GrContext* ctx, const GrTextureParams* params,
+                                   const SkBitmap& bm, const GrTextureDesc& desc) {
+    GrTexture* result = NULL;
+    
+    SkPixelRef* pixelRef = bm.pixelRef();
+    SkISize yuvSizes[3];
+    if ((NULL == pixelRef) || !pixelRef->getYUV8Planes(yuvSizes, NULL, NULL)) {
+        return NULL;
+    }
+
+    // Allocate the memory for YUV
+    size_t totalSize(0);
+    size_t sizes[3], rowBytes[3];
+    for (int i = 0; i < 3; ++i) {
+        rowBytes[i] = yuvSizes[i].fWidth;
+        totalSize  += sizes[i] = rowBytes[i] * yuvSizes[i].fHeight;
+    }
+    SkAutoMalloc storage(totalSize);
+    void* planes[3];
+    planes[0] = storage.get();
+    planes[1] = (uint8_t*)planes[0] + sizes[0];
+    planes[2] = (uint8_t*)planes[1] + sizes[1];
+
+    // Get the YUV planes
+    if (!pixelRef->getYUV8Planes(yuvSizes, planes, rowBytes)) {
+        return NULL;
+    }
+
+    GrTextureDesc yuvDesc;
+    yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
+    GrAutoScratchTexture yuvTextures[3];
+    for (int i = 0; i < 3; ++i) {
+        yuvDesc.fWidth  = yuvSizes[i].fWidth;
+        yuvDesc.fHeight = yuvSizes[i].fHeight;
+        yuvTextures[i].set(ctx, yuvDesc);
+        if ((NULL == yuvTextures[i].texture()) ||
+            !ctx->writeTexturePixels(yuvTextures[i].texture(),
+                0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
+                yuvDesc.fConfig, planes[i], rowBytes[i])) {
+            return NULL;
+        }
+    }
+
+    GrTextureDesc rtDesc = desc;
+    rtDesc.fFlags = rtDesc.fFlags |
+                    kRenderTarget_GrTextureFlagBit |
+                    kNoStencil_GrTextureFlagBit;
+
+    // This texture is likely to be used again so leave it in the cache
+    GrCacheID cacheID;
+    generate_bitmap_cache_id(bm, &cacheID);
+
+    GrResourceKey key;
+    result = ctx->createTexture(params, rtDesc, cacheID, NULL, 0, &key);
+    GrRenderTarget* renderTarget = result ? result->asRenderTarget() : NULL;
+    if (NULL != renderTarget) {
+        add_genID_listener(key, bm.pixelRef());
+        SkAutoTUnref<GrEffect> yuvToRgbEffect(GrYUVtoRGBEffect::Create(
+            yuvTextures[0].texture(), yuvTextures[1].texture(), yuvTextures[2].texture()));
+        GrPaint paint;
+        paint.addColorEffect(yuvToRgbEffect);
+        SkRect r = SkRect::MakeWH(SkIntToScalar(yuvSizes[0].fWidth),
+                                  SkIntToScalar(yuvSizes[0].fHeight));
+        GrContext::AutoRenderTarget autoRT(ctx, renderTarget);
+        GrContext::AutoMatrix am;
+        am.setIdentity(ctx);
+        GrContext::AutoClip ac(ctx, GrContext::AutoClip::kWideOpen_InitialClip);
+        ctx->drawRect(paint, r);
+    } else {
+        SkSafeSetNull(result);
+    }
+
+    return result;
+}
+
 static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
                                               bool cache,
                                               const GrTextureParams* params,
@@ -264,6 +340,12 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
     }
 #endif   // SK_IGNORE_ETC1_SUPPORT
 
+    else {
+        GrTexture *texture = load_yuv_texture(ctx, params, *bitmap, desc);
+        if (NULL != texture) {
+            return texture;
+        }
+    }
     SkAutoLockPixels alp(*bitmap);
     if (!bitmap->readyToDraw()) {
         return NULL;
