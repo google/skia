@@ -391,7 +391,7 @@ public:
     class GLEffect : public GrGLEffect {
     public:
         // this class always generates the same code.
-        static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&) { return 0; }
+        static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
 
         GLEffect(const GrBackendEffectFactory& factory,
                  const GrDrawEffect&)
@@ -400,7 +400,7 @@ public:
 
         virtual void emitCode(GrGLShaderBuilder* builder,
                               const GrDrawEffect&,
-                              EffectKey,
+                              const GrEffectKey&,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,

@@ -147,7 +147,7 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -155,7 +155,7 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
 private:
     GrTextureDomain::GLDomain         fGLDomain;
@@ -169,7 +169,7 @@ GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& f
 
 void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
                                        const GrDrawEffect& drawEffect,
-                                       EffectKey key,
+                                       const GrEffectKey& key,
                                        const char* outputColor,
                                        const char* inputColor,
                                        const TransformedCoordsArray& coords,
@@ -188,10 +188,10 @@ void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman,
     fGLDomain.setData(uman, domain, effect.texture(0)->origin());
 }
 
-GrGLEffect::EffectKey GrGLTextureDomainEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                      const GrGLCaps&) {
+void GrGLTextureDomainEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                                     GrEffectKeyBuilder* b) {
     const GrTextureDomain& domain = drawEffect.castEffect<GrTextureDomainEffect>().textureDomain();
-    return GrTextureDomain::GLDomain::DomainKey(domain);
+    b->add32(GrTextureDomain::GLDomain::DomainKey(domain));
 }
 
 

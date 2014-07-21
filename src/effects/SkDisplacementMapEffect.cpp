@@ -278,13 +278,13 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
@@ -513,7 +513,7 @@ GrGLDisplacementMapEffect::~GrGLDisplacementMapEffect() {
 
 void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
                                          const GrDrawEffect&,
-                                         EffectKey key,
+                                         const GrEffectKey& key,
                                          const char* outputColor,
                                          const char* inputColor,
                                          const TransformedCoordsArray& coords,
@@ -600,14 +600,14 @@ void GrGLDisplacementMapEffect::setData(const GrGLUniformManager& uman,
                SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
 }
 
-GrGLEffect::EffectKey GrGLDisplacementMapEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                        const GrGLCaps&) {
+void GrGLDisplacementMapEffect::GenKey(const GrDrawEffect& drawEffect,
+                                       const GrGLCaps&, GrEffectKeyBuilder* b) {
     const GrDisplacementMapEffect& displacementMap =
         drawEffect.castEffect<GrDisplacementMapEffect>();
 
-    EffectKey xKey = displacementMap.xChannelSelector();
-    EffectKey yKey = displacementMap.yChannelSelector() << kChannelSelectorKeyBits;
+    uint32_t xKey = displacementMap.xChannelSelector();
+    uint32_t yKey = displacementMap.yChannelSelector() << kChannelSelectorKeyBits;
 
-    return xKey | yKey;
+    b->add32(xKey | yKey);
 }
 #endif

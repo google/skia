@@ -470,13 +470,13 @@ public:
 
     virtual void emitCode(GrGLFullShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
-                          EffectKey key,
+                          const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
@@ -498,7 +498,7 @@ GLDashingCircleEffect::GLDashingCircleEffect(const GrBackendEffectFactory& facto
 
 void GLDashingCircleEffect::emitCode(GrGLFullShaderBuilder* builder,
                                     const GrDrawEffect& drawEffect,
-                                    EffectKey key,
+                                    const GrEffectKey& key,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TransformedCoordsArray&,
@@ -549,10 +549,10 @@ void GLDashingCircleEffect::setData(const GrGLUniformManager& uman, const GrDraw
     }
 }
 
-GrGLEffect::EffectKey GLDashingCircleEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                const GrGLCaps&) {
+void GLDashingCircleEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                                   GrEffectKeyBuilder* b) {
     const DashingCircleEffect& dce = drawEffect.castEffect<DashingCircleEffect>();
-    return dce.getEdgeType();
+    b->add32(dce.getEdgeType());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -675,13 +675,13 @@ public:
 
     virtual void emitCode(GrGLFullShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
-                          EffectKey key,
+                          const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
@@ -702,7 +702,7 @@ GLDashingLineEffect::GLDashingLineEffect(const GrBackendEffectFactory& factory,
 
 void GLDashingLineEffect::emitCode(GrGLFullShaderBuilder* builder,
                                     const GrDrawEffect& drawEffect,
-                                    EffectKey key,
+                                    const GrEffectKey& key,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TransformedCoordsArray&,
@@ -766,10 +766,10 @@ void GLDashingLineEffect::setData(const GrGLUniformManager& uman, const GrDrawEf
     }
 }
 
-GrGLEffect::EffectKey GLDashingLineEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                const GrGLCaps&) {
+void GLDashingLineEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                                 GrEffectKeyBuilder* b) {
     const DashingLineEffect& de = drawEffect.castEffect<DashingLineEffect>();
-    return de.getEdgeType();
+    b->add32(de.getEdgeType());
 }
 
 //////////////////////////////////////////////////////////////////////////////

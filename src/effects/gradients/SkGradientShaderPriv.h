@@ -379,6 +379,29 @@ public:
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 protected:
+    /**
+     * Subclasses must call this. It will return a key for the part of the shader code controlled
+     * by the base class. The subclasses must stick it in their key and then pass it to the below
+     * emit* functions from their emitCode function.
+     */
+    static uint32_t GenBaseGradientKey(const GrDrawEffect&);
+
+    // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
+    // should call this method from their emitCode().
+    void emitUniforms(GrGLShaderBuilder* builder, uint32_t baseKey);
+
+
+    // emit code that gets a fragment's color from an expression for t; Has branches for 3 separate
+    // control flows inside -- 2 color gradients, 3 color symmetric gradients (both using
+    // native GLSL mix), and 4+ color gradients that use the traditional texture lookup.
+    void emitColor(GrGLShaderBuilder* builder,
+                   const char* gradientTValue,
+                   uint32_t baseKey,
+                   const char* outputColor,
+                   const char* inputColor,
+                   const TextureSamplerArray& samplers);
+
+private:
     enum {
         kPremulTypeKeyBitCnt = 1,
         kPremulTypeMask = 1,
@@ -393,45 +416,24 @@ protected:
         // and combine with the result of GenBaseGradientKey.
         kBaseKeyBitCnt = (kPremulTypeKeyBitCnt + kColorKeyBitCnt)
     };
+    GR_STATIC_ASSERT(kBaseKeyBitCnt <= 32);
 
-    static SkGradientShaderBase::GpuColorType ColorTypeFromKey(EffectKey key){
-        if (kTwoColorKey == (key & kColorKeyMask)) {
+    static SkGradientShaderBase::GpuColorType ColorTypeFromKey(uint32_t baseKey){
+        if (kTwoColorKey == (baseKey & kColorKeyMask)) {
             return SkGradientShaderBase::kTwo_GpuColorType;
-        } else if (kThreeColorKey == (key & kColorKeyMask)) {
+        } else if (kThreeColorKey == (baseKey & kColorKeyMask)) {
             return SkGradientShaderBase::kThree_GpuColorType;
         } else {return SkGradientShaderBase::kTexture_GpuColorType;}
     }
 
-    static GrGradientEffect::PremulType PremulTypeFromKey(EffectKey key){
-        if (kPremulBeforeInterpKey == (key & kPremulTypeMask)) {
+    static GrGradientEffect::PremulType PremulTypeFromKey(uint32_t baseKey){
+        if (kPremulBeforeInterpKey == (baseKey & kPremulTypeMask)) {
             return GrGradientEffect::kBeforeInterp_PremulType;
         } else {
             return GrGradientEffect::kAfterInterp_PremulType;
         }
     }
 
-    /**
-     * Subclasses must call this. It will return a value restricted to the lower kBaseKeyBitCnt
-     * bits.
-     */
-    static EffectKey GenBaseGradientKey(const GrDrawEffect&);
-
-    // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
-    // should call this method from their emitCode().
-    void emitUniforms(GrGLShaderBuilder* builder, EffectKey key);
-
-
-    // emit code that gets a fragment's color from an expression for t; Has branches for 3 separate
-    // control flows inside -- 2 color gradients, 3 color symmetric gradients (both using
-    // native GLSL mix), and 4+ color gradients that use the traditional texture lookup.
-    void emitColor(GrGLShaderBuilder* builder,
-                   const char* gradientTValue,
-                   EffectKey key,
-                   const char* outputColor,
-                   const char* inputColor,
-                   const TextureSamplerArray& samplers);
-
-private:
     SkScalar fCachedYCoord;
     GrGLUniformManager::UniformHandle fFSYUni;
     GrGLUniformManager::UniformHandle fColorStartUni;

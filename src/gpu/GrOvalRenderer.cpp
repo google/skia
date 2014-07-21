@@ -97,7 +97,7 @@ public:
 
         virtual void emitCode(GrGLFullShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
-                              EffectKey key,
+                              const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -121,10 +121,10 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
-        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+        static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                           GrEffectKeyBuilder* b) {
             const CircleEdgeEffect& circleEffect = drawEffect.castEffect<CircleEdgeEffect>();
-
-            return circleEffect.isStroked() ? 0x1 : 0x0;
+            b->add32(circleEffect.isStroked());
         }
 
         virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
@@ -208,7 +208,7 @@ public:
 
         virtual void emitCode(GrGLFullShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
-                              EffectKey key,
+                              const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -251,10 +251,10 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
-        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+        static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                           GrEffectKeyBuilder* b) {
             const EllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<EllipseEdgeEffect>();
-
-            return ellipseEffect.isStroked() ? 0x1 : 0x0;
+            b->add32(ellipseEffect.isStroked());
         }
 
         virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {
@@ -346,7 +346,7 @@ public:
 
         virtual void emitCode(GrGLFullShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
-                              EffectKey key,
+                              const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -407,10 +407,12 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
-        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-            const DIEllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<DIEllipseEdgeEffect>();
+        static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                           GrEffectKeyBuilder* b) {
+            const DIEllipseEdgeEffect& ellipseEffect =
+                drawEffect.castEffect<DIEllipseEdgeEffect>();
 
-            return ellipseEffect.getMode();
+            b->add32(ellipseEffect.getMode());
         }
 
         virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {

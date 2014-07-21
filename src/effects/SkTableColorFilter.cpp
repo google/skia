@@ -270,7 +270,7 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -278,7 +278,7 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
-    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
 
 private:
 
@@ -291,7 +291,7 @@ GLColorTableEffect::GLColorTableEffect(const GrBackendEffectFactory& factory, co
 
 void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,
                                   const GrDrawEffect&,
-                                  EffectKey,
+                                  const GrEffectKey&,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TransformedCoordsArray&,
@@ -331,10 +331,6 @@ void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend(";\n");
 
     builder->fsCodeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
-}
-
-GrGLEffect::EffectKey GLColorTableEffect::GenKey(const GrDrawEffect&, const GrGLCaps&) {
-    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

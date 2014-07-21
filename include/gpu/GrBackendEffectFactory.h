@@ -48,6 +48,31 @@ private:
 };
 
 /**
+ * This class is used to pass the key that was created for a GrGLEffect back to it
+ * when it emits code. It may allow the emit step to skip calculations that were
+ * performed when computing the key.
+ */
+class GrEffectKey {
+public:
+    GrEffectKey(const uint32_t* key, int count) : fKey(key), fCount(count) {
+        SkASSERT(0 == reinterpret_cast<intptr_t>(key) % sizeof(uint32_t));
+    }
+
+    /** Gets the uint32_t values that the effect inserted into the key. */
+    uint32_t get32(int index) const {
+        SkASSERT(index >=0 && index < fCount);
+        return fKey[index];
+    }
+
+    /** Gets the number of uint32_t values that the effect inserted into the key. */
+    int count32() const { return fCount; }
+
+private:
+    const uint32_t* fKey;           // unowned ptr into the larger key.
+    int             fCount;         // number of uint32_ts inserted by the effect into its key.
+};
+
+/**
  * Given a GrEffect of a particular type, creates the corresponding graphics-backend-specific
  * effect object. It also tracks equivalence of shaders generated via a key. The factory for an
  * effect is accessed via GrEffect::getFactory(). Each factory instance is assigned an ID at
@@ -66,8 +91,6 @@ private:
  */
 class GrBackendEffectFactory : SkNoncopyable {
 public:
-    typedef uint32_t EffectKey;
-
     /** 
      * Generates an effect's key. The key is based on the aspects of the GrEffect object's
      * configuration that affect GLSL code generation. Two GrEffect instances that would cause

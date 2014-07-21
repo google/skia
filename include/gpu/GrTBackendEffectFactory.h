@@ -49,8 +49,7 @@ public:
     virtual void getGLEffectKey(const GrDrawEffect& drawEffect,
                                 const GrGLCaps& caps,
                                 GrEffectKeyBuilder* b) const SK_OVERRIDE {
-        EffectKey effectKey = GLEffect::GenKey(drawEffect, caps);
-        b->add32(effectKey);
+        GLEffect::GenKey(drawEffect, caps, b);
     }
 
     /** Returns a new instance of the appropriate *GL* implementation class

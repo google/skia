@@ -71,9 +71,8 @@ public:
         from getFactory()).
 
         A return value of true from isEqual() should not be used to test whether the effects would
-        generate the same shader code. To test for identical code generation use the EffectKey
-        computed by the GrBackendEffectFactory:
-            effectA.getFactory().glEffectKey(effectA) == effectB.getFactory().glEffectKey(effectB).
+        generate the same shader code. To test for identical code generation use the effects' keys
+        computed by the GrBackendEffectFactory.
      */
     bool isEqual(const GrEffect& other) const {
         if (&this->getFactory() != &other.getFactory()) {

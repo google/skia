@@ -108,7 +108,7 @@ public:
          * GrGLEffect::GenKey() must call this and include the returned value in it's computed key.
          * The returned will be limited to the lower kDomainKeyBits bits.
          */
-        static GrGLEffect::EffectKey DomainKey(const GrTextureDomain& domain) {
+        static uint32_t DomainKey(const GrTextureDomain& domain) {
             GR_STATIC_ASSERT(kModeCount <= 4);
             return domain.mode();
         }

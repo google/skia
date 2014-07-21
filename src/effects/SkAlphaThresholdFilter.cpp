@@ -118,7 +118,7 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -140,7 +140,7 @@ GrGLAlphaThresholdEffect::GrGLAlphaThresholdEffect(const GrBackendEffectFactory&
 
 void GrGLAlphaThresholdEffect::emitCode(GrGLShaderBuilder* builder,
                                         const GrDrawEffect&,
-                                        EffectKey key,
+                                        const GrEffectKey& key,
                                         const char* outputColor,
                                         const char* inputColor,
                                         const TransformedCoordsArray& coords,

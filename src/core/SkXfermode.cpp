@@ -823,7 +823,7 @@ public:
         }
         virtual void emitCode(GrGLShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
-                              EffectKey key,
+                              const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray& coords,
@@ -969,11 +969,13 @@ public:
             }
         }
 
-        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+        static inline void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                                  GrEffectKeyBuilder* b) {
             // The background may come from the dst or from a texture.
-            int numTextures = drawEffect.effect()->numTextures();
-            SkASSERT(numTextures <= 1);
-            return (drawEffect.castEffect<XferEffect>().mode() << 1) | numTextures;
+            uint32_t key = drawEffect.effect()->numTextures();
+            SkASSERT(key <= 1);
+            key |= drawEffect.castEffect<XferEffect>().mode() << 1;
+            b->add32(key);
         }
 
     private:

@@ -24,9 +24,7 @@ class GrGpuGL;
 
 
 /** This class describes a program to generate. It also serves as a program cache key. Very little
-    of this is GL-specific. There is the generation of GrGLEffect::EffectKeys and the dst-read part
-    of the key set by GrGLShaderBuilder. If the interfaces that set those portions were abstracted
-    to be API-neutral then so could this class. */
+    of this is GL-specific. The GL-specific parts could be factored out into a subclass. */
 class GrGLProgramDesc {
 public:
     GrGLProgramDesc() {}
@@ -196,8 +194,6 @@ private:
         return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
     }
 
-    typedef GrBackendEffectFactory::EffectKey EffectKey;
-
     KeyHeader* header() { return this->atOffset<KeyHeader, kHeaderOffset>(); }
 
     // Shared code between setRandom() and Build().
@@ -227,13 +223,17 @@ private:
             fBaseIndex = kColor_EffectType == type ? 0 : desc->numColorEffects();
         }
 
-        EffectKey get(int index) const {
-            const uint16_t* offsets = reinterpret_cast<const uint16_t*>(
+        GrEffectKey get(int index) const {
+            const uint16_t* offsetsAndLengths = reinterpret_cast<const uint16_t*>(
                 fDesc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset);
             // We store two uint16_ts per effect, one for the offset to the effect's key and one for
             // its length. Here we just need the offset.
-            uint16_t offset = offsets[2 * (fBaseIndex + index)];
-            return *reinterpret_cast<const EffectKey*>(fDesc->fKey.begin() + offset);
+            uint16_t offset = offsetsAndLengths[2 * (fBaseIndex + index) + 0];
+            uint16_t length = offsetsAndLengths[2 * (fBaseIndex + index) + 1];
+            // Currently effects must add to the key in units of uint32_t.
+            SkASSERT(0 == (length % sizeof(uint32_t)));
+            return GrEffectKey(reinterpret_cast<const uint32_t*>(fDesc->fKey.begin() + offset),
+                               length / sizeof(uint32_t));
         }
     private:
         const GrGLProgramDesc*  fDesc;

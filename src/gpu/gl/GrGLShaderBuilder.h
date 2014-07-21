@@ -31,7 +31,6 @@ class GrGLProgramDesc;
 class GrGLShaderBuilder {
 public:
     typedef GrTAllocator<GrGLShaderVar> VarArray;
-    typedef GrBackendEffectFactory::EffectKey EffectKey;
     typedef GrGLProgramEffects::TextureSampler TextureSampler;
     typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
     typedef GrGLUniformManager::BuilderUniform BuilderUniform;

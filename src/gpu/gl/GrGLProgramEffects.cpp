@@ -12,7 +12,6 @@
 #include "gl/GrGLVertexEffect.h"
 #include "gl/GrGpuGL.h"
 
-typedef GrGLProgramEffects::EffectKey EffectKey;
 typedef GrGLProgramEffects::TransformedCoords TransformedCoords;
 typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
 typedef GrGLProgramEffects::TextureSampler TextureSampler;
@@ -69,7 +68,7 @@ inline bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
 /**
  * Retrieves the matrix type from transformKey for the transform at transformIdx.
  */
-MatrixType get_matrix_type(EffectKey transformKey, int transformIdx) {
+MatrixType get_matrix_type(uint32_t transformKey, int transformIdx) {
     return static_cast<MatrixType>(
                (transformKey >> (kTransformKeyBits * transformIdx)) & kMatrixTypeKeyMask);
 }
@@ -79,7 +78,7 @@ MatrixType get_matrix_type(EffectKey transformKey, int transformIdx) {
  * the same coordinate set as the original GrCoordTransform if the position and local coords are
  * identical for this program.
  */
-GrCoordSet get_source_coords(EffectKey transformKey, int transformIdx) {
+GrCoordSet get_source_coords(uint32_t transformKey, int transformIdx) {
     return (transformKey >> (kTransformKeyBits * transformIdx)) & kPositionCoords_Flag ?
                kPosition_GrCoordSet :
                kLocal_GrCoordSet;
@@ -117,9 +116,9 @@ SkMatrix get_transform_matrix(const GrDrawEffect& drawEffect, int transformIdx) 
 bool GrGLProgramEffects::GenEffectMetaKey(const GrDrawEffect& drawEffect, const GrGLCaps& caps,
                                           GrEffectKeyBuilder* b) {
 
-    EffectKey textureKey = GrGLProgramEffects::GenTextureKey(drawEffect, caps);
-    EffectKey transformKey = GrGLProgramEffects::GenTransformKey(drawEffect);
-    EffectKey attribKey = GrGLProgramEffects::GenAttribKey(drawEffect);
+    uint32_t textureKey = GrGLProgramEffects::GenTextureKey(drawEffect, caps);
+    uint32_t transformKey = GrGLProgramEffects::GenTransformKey(drawEffect);
+    uint32_t attribKey = GrGLProgramEffects::GenAttribKey(drawEffect);
     uint32_t classID = drawEffect.effect()->getFactory().effectClassID();
 
     // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
@@ -135,24 +134,24 @@ bool GrGLProgramEffects::GenEffectMetaKey(const GrDrawEffect& drawEffect, const 
     return true;
 }
 
-EffectKey GrGLProgramEffects::GenAttribKey(const GrDrawEffect& drawEffect) {
-    EffectKey key = 0;
+uint32_t GrGLProgramEffects::GenAttribKey(const GrDrawEffect& drawEffect) {
+    uint32_t key = 0;
     int numAttributes = drawEffect.getVertexAttribIndexCount();
     SkASSERT(numAttributes <= 2);
     const int* attributeIndices = drawEffect.getVertexAttribIndices();
     for (int a = 0; a < numAttributes; ++a) {
-        EffectKey value = attributeIndices[a] << 3 * a;
+        uint32_t value = attributeIndices[a] << 3 * a;
         SkASSERT(0 == (value & key)); // keys for each attribute ought not to overlap
         key |= value;
     }
     return key;
 }
 
-EffectKey GrGLProgramEffects::GenTransformKey(const GrDrawEffect& drawEffect) {
-    EffectKey totalKey = 0;
+uint32_t GrGLProgramEffects::GenTransformKey(const GrDrawEffect& drawEffect) {
+    uint32_t totalKey = 0;
     int numTransforms = drawEffect.effect()->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
-        EffectKey key = 0;
+        uint32_t key = 0;
         const GrCoordTransform& coordTransform = drawEffect.effect()->coordTransform(t);
         SkMatrix::TypeMask type0 = coordTransform.getMatrix().getType();
         SkMatrix::TypeMask type1;
@@ -182,8 +181,8 @@ EffectKey GrGLProgramEffects::GenTransformKey(const GrDrawEffect& drawEffect) {
     return totalKey;
 }
 
-EffectKey GrGLProgramEffects::GenTextureKey(const GrDrawEffect& drawEffect, const GrGLCaps& caps) {
-    EffectKey key = 0;
+uint32_t GrGLProgramEffects::GenTextureKey(const GrDrawEffect& drawEffect, const GrGLCaps& caps) {
+    uint32_t key = 0;
     int numTextures = drawEffect.effect()->numTextures();
     for (int t = 0; t < numTextures; ++t) {
         const GrTextureAccess& access = drawEffect.effect()->textureAccess(t);
@@ -250,7 +249,7 @@ void GrGLProgramEffects::bindTextures(GrGpuGL* gpu, const GrEffect* effect, int 
 
 void GrGLVertexProgramEffects::emitEffect(GrGLFullShaderBuilder* builder,
                                           const GrEffectStage& stage,
-                                          EffectKey key,
+                                          const GrEffectKey& key,
                                           const char* outColor,
                                           const char* inColor,
                                           int stageIndex) {
@@ -301,7 +300,7 @@ void GrGLVertexProgramEffects::emitTransforms(GrGLFullShaderBuilder* builder,
                                               const GrDrawEffect& drawEffect,
                                               TransformedCoordsArray* outCoords) {
     SkTArray<Transform, true>& transforms = fTransforms.push_back();
-    EffectKey totalKey = GenTransformKey(drawEffect);
+    uint32_t totalKey = GenTransformKey(drawEffect);
     int numTransforms = drawEffect.effect()->numTransforms();
     transforms.push_back_n(numTransforms);
     for (int t = 0; t < numTransforms; t++) {
@@ -396,7 +395,7 @@ GrGLVertexProgramEffectsBuilder::GrGLVertexProgramEffectsBuilder(GrGLFullShaderB
 }
 
 void GrGLVertexProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
-                                                 GrGLProgramEffects::EffectKey key,
+                                                 const GrEffectKey& key,
                                                  const char* outColor,
                                                  const char* inColor,
                                                  int stageIndex) {
@@ -408,7 +407,7 @@ void GrGLVertexProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
 
 void GrGLPathTexGenProgramEffects::emitEffect(GrGLFragmentOnlyShaderBuilder* builder,
                                           const GrEffectStage& stage,
-                                          EffectKey key,
+                                          const GrEffectKey& key,
                                           const char* outColor,
                                           const char* inColor,
                                           int stageIndex) {
@@ -439,7 +438,7 @@ void GrGLPathTexGenProgramEffects::setupPathTexGen(GrGLFragmentOnlyShaderBuilder
                                            const GrDrawEffect& drawEffect,
                                            TransformedCoordsArray* outCoords) {
     int numTransforms = drawEffect.effect()->numTransforms();
-    EffectKey totalKey = GenTransformKey(drawEffect);
+    uint32_t totalKey = GenTransformKey(drawEffect);
     int texCoordIndex = builder->addTexCoordSets(numTransforms);
     SkNEW_APPEND_TO_TARRAY(&fTransforms, Transforms, (totalKey, texCoordIndex));
     SkString name;
@@ -469,7 +468,7 @@ void GrGLPathTexGenProgramEffects::setData(GrGpuGL* gpu,
 void GrGLPathTexGenProgramEffects::setPathTexGenState(GrGpuGL* gpu,
                                               const GrDrawEffect& drawEffect,
                                               int effectIdx) {
-    EffectKey totalKey = fTransforms[effectIdx].fTransformKey;
+    uint32_t totalKey = fTransforms[effectIdx].fTransformKey;
     int texCoordIndex = fTransforms[effectIdx].fTexCoordIndex;
     int numTransforms = drawEffect.effect()->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
@@ -502,7 +501,7 @@ GrGLPathTexGenProgramEffectsBuilder::GrGLPathTexGenProgramEffectsBuilder(
 }
 
 void GrGLPathTexGenProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
-                                                     GrGLProgramEffects::EffectKey key,
+                                                     const GrEffectKey& key,
                                                      const char* outColor,
                                                      const char* inColor,
                                                      int stageIndex) {

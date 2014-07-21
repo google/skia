@@ -533,7 +533,7 @@ public:
 
         virtual void emitCode(GrGLFullShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
-                              EffectKey key,
+                              const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -570,9 +570,7 @@ public:
             builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
         }
 
-        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-            return 0x0;
-        }
+        static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
 
         virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
 

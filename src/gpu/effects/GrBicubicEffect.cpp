@@ -26,7 +26,7 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -34,9 +34,10 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+    static inline void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                              GrEffectKeyBuilder* b) {
         const GrTextureDomain& domain = drawEffect.castEffect<GrBicubicEffect>().domain();
-        return GrTextureDomain::GLDomain::DomainKey(domain);
+        b->add32(GrTextureDomain::GLDomain::DomainKey(domain));
     }
 
 private:
@@ -55,7 +56,7 @@ GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendEffectFactory& factory, cons
 
 void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
                                  const GrDrawEffect& drawEffect,
-                                 EffectKey key,
+                                 const GrEffectKey& key,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const TransformedCoordsArray& coords,

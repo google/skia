@@ -97,7 +97,7 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -119,7 +119,7 @@ GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory, 
 
 void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
                                    const GrDrawEffect&,
-                                   EffectKey key,
+                                   const GrEffectKey& key,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TransformedCoordsArray& coords,

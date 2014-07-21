@@ -499,7 +499,7 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -507,7 +507,7 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
 
 private:
 
@@ -647,7 +647,7 @@ GrGLPerlinNoise::GrGLPerlinNoise(const GrBackendEffectFactory& factory, const Gr
 
 void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
                                const GrDrawEffect&,
-                               EffectKey key,
+                               const GrEffectKey& key,
                                const char* outputColor,
                                const char* inputColor,
                                const TransformedCoordsArray& coords,
@@ -900,10 +900,10 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
                   outputColor, outputColor, outputColor, outputColor);
 }
 
-GrGLEffect::EffectKey GrGLPerlinNoise::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+void GrGLPerlinNoise::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&, GrEffectKeyBuilder* b) {
     const GrPerlinNoiseEffect& turbulence = drawEffect.castEffect<GrPerlinNoiseEffect>();
 
-    EffectKey key = turbulence.numOctaves();
+    uint32_t key = turbulence.numOctaves();
 
     key = key << 3; // Make room for next 3 bits
 
@@ -923,7 +923,7 @@ GrGLEffect::EffectKey GrGLPerlinNoise::GenKey(const GrDrawEffect& drawEffect, co
         key |= 0x4; // Flip the 3rd bit if tile stitching is on
     }
 
-    return key;
+    b->add32(key);
 }
 
 void GrGLPerlinNoise::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {

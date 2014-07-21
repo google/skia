@@ -21,7 +21,7 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -29,7 +29,7 @@ public:
 
     virtual void setData(const GrGLUniformManager& uman, const GrDrawEffect&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
 private:
     int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
@@ -57,7 +57,7 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& facto
 
 void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
                                      const GrDrawEffect&,
-                                     EffectKey key,
+                                     const GrEffectKey& key,
                                      const char* outputColor,
                                      const char* inputColor,
                                      const TransformedCoordsArray& coords,
@@ -134,16 +134,16 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
     uman.set1fv(fKernelUni, this->width(), conv.kernel());
 }
 
-GrGLEffect::EffectKey GrGLConvolutionEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                    const GrGLCaps&) {
+void GrGLConvolutionEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                                   GrEffectKeyBuilder* b) {
     const GrConvolutionEffect& conv = drawEffect.castEffect<GrConvolutionEffect>();
-    EffectKey key = conv.radius();
+    uint32_t key = conv.radius();
     key <<= 2;
     if (conv.useBounds()) {
         key |= 0x2;
         key |= GrConvolutionEffect::kY_Direction == conv.direction() ? 0x1 : 0x0;
     }
-    return key;
+    b->add32(key);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -139,14 +139,14 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps& caps);
+    static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
 protected:
     UniformHandle fParamUni;
@@ -219,12 +219,13 @@ GLEdge2PtConicalEffect::GLEdge2PtConicalEffect(const GrBackendEffectFactory& fac
 
 void GLEdge2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
                                       const GrDrawEffect&,
-                                      EffectKey key,
+                                      const GrEffectKey& key,
                                       const char* outputColor,
                                       const char* inputColor,
                                       const TransformedCoordsArray& coords,
                                       const TextureSamplerArray& samplers) {
-    this->emitUniforms(builder, key);
+    uint32_t baseKey = key.get32(0);
+    this->emitUniforms(builder, baseKey);
     fParamUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_Visibility,
                                          kFloat_GrSLType, "Conical2FSParams", 3);
 
@@ -268,7 +269,7 @@ void GLEdge2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                            p2.c_str(), p0.c_str());
     builder->fsCodeAppend("\t");
-    this->emitColor(builder, tName.c_str(), key, outputColor, inputColor, samplers);
+    this->emitColor(builder, tName.c_str(), baseKey, outputColor, inputColor, samplers);
     builder->fsCodeAppend("\t}\n");
 }
 
@@ -294,9 +295,9 @@ void GLEdge2PtConicalEffect::setData(const GrGLUniformManager& uman,
     }
 }
 
-GrGLEffect::EffectKey GLEdge2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                     const GrGLCaps&) {
-    return GenBaseGradientKey(drawEffect);
+void GLEdge2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
+                                    const GrGLCaps&, GrEffectKeyBuilder* b) {
+    b->add32(GenBaseGradientKey(drawEffect));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -414,14 +415,14 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps& caps);
+    static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
 protected:
     UniformHandle fParamUni;
@@ -494,12 +495,13 @@ GLFocalOutside2PtConicalEffect::GLFocalOutside2PtConicalEffect(const GrBackendEf
 
 void GLFocalOutside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
                                               const GrDrawEffect&,
-                                              EffectKey key,
+                                              const GrEffectKey& key,
                                               const char* outputColor,
                                               const char* inputColor,
                                               const TransformedCoordsArray& coords,
                                               const TextureSamplerArray& samplers) {
-    this->emitUniforms(builder, key);
+    uint32_t baseKey = key.get32(0);
+    this->emitUniforms(builder, baseKey);
     fParamUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_Visibility,
                                          kFloat_GrSLType, "Conical2FSParams", 2);
     SkString tName("t");
@@ -535,7 +537,7 @@ void GLFocalOutside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
 
     builder->fsCodeAppendf("\tif (%s >= 0.0 && d >= 0.0) {\n", tName.c_str());
     builder->fsCodeAppend("\t\t");
-    this->emitColor(builder, tName.c_str(), key, outputColor, inputColor, samplers);
+    this->emitColor(builder, tName.c_str(), baseKey, outputColor, inputColor, samplers);
     builder->fsCodeAppend("\t}\n");
 }
 
@@ -559,18 +561,11 @@ void GLFocalOutside2PtConicalEffect::setData(const GrGLUniformManager& uman,
     }
 }
 
-GrGLEffect::EffectKey GLFocalOutside2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                             const GrGLCaps&) {
-    enum {
-        kIsFlipped = 1 << kBaseKeyBitCnt,
-    };
-
-    EffectKey key = GenBaseGradientKey(drawEffect);
-
-    if (drawEffect.castEffect<FocalOutside2PtConicalEffect>().isFlipped()) {
-        key |= kIsFlipped;
-    }
-    return key;
+void GLFocalOutside2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
+                                            const GrGLCaps&, GrEffectKeyBuilder* b) {
+    uint32_t* key = b->add32n(2);
+    key[0] = GenBaseGradientKey(drawEffect);
+    key[1] = drawEffect.castEffect<FocalOutside2PtConicalEffect>().isFlipped();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -625,14 +620,14 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps& caps);
+    static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
 protected:
     UniformHandle fFocalUni;
@@ -702,12 +697,13 @@ GLFocalInside2PtConicalEffect::GLFocalInside2PtConicalEffect(const GrBackendEffe
 
 void GLFocalInside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
                                              const GrDrawEffect&,
-                                             EffectKey key,
+                                             const GrEffectKey& key,
                                              const char* outputColor,
                                              const char* inputColor,
                                              const TransformedCoordsArray& coords,
                                              const TextureSamplerArray& samplers) {
-    this->emitUniforms(builder, key);
+    uint32_t baseKey = key.get32(0);
+    this->emitUniforms(builder, baseKey);
     fFocalUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                     kFloat_GrSLType, "Conical2FSParams");
     SkString tName("t");
@@ -724,7 +720,7 @@ void GLFocalInside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\tfloat %s = %s.x * %s  + length(%s);\n", tName.c_str(),
                            coords2D, focal.c_str(), coords2D);
 
-    this->emitColor(builder, tName.c_str(), key, outputColor, inputColor, samplers);
+    this->emitColor(builder, tName.c_str(), baseKey, outputColor, inputColor, samplers);
 }
 
 void GLFocalInside2PtConicalEffect::setData(const GrGLUniformManager& uman,
@@ -739,9 +735,9 @@ void GLFocalInside2PtConicalEffect::setData(const GrGLUniformManager& uman,
     }
 }
 
-GrGLEffect::EffectKey GLFocalInside2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                            const GrGLCaps&) {
-    return GenBaseGradientKey(drawEffect);
+void GLFocalInside2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
+                                           const GrGLCaps&, GrEffectKeyBuilder* b) {
+    b->add32(GenBaseGradientKey(drawEffect));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -865,14 +861,14 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps& caps);
+    static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
 protected:
     UniformHandle fCenterUni;
@@ -950,12 +946,13 @@ GLCircleInside2PtConicalEffect::GLCircleInside2PtConicalEffect(const GrBackendEf
 
 void GLCircleInside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
                                               const GrDrawEffect&,
-                                              EffectKey key,
+                                              const GrEffectKey& key,
                                               const char* outputColor,
                                               const char* inputColor,
                                               const TransformedCoordsArray& coords,
                                               const TextureSamplerArray& samplers) {
-    this->emitUniforms(builder, key);
+    uint32_t baseKey = key.get32(0);
+    this->emitUniforms(builder, baseKey);
     fCenterUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                      kVec2f_GrSLType, "Conical2FSCenter");
     fParamUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
@@ -985,7 +982,7 @@ void GLCircleInside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\tfloat %s = d + sqrt(d * d - %s.x * pDotp + %s.z);\n",
                            tName.c_str(), params.c_str(), params.c_str());
 
-    this->emitColor(builder, tName.c_str(), key, outputColor, inputColor, samplers);
+    this->emitColor(builder, tName.c_str(), baseKey, outputColor, inputColor, samplers);
 }
 
 void GLCircleInside2PtConicalEffect::setData(const GrGLUniformManager& uman,
@@ -1012,10 +1009,9 @@ void GLCircleInside2PtConicalEffect::setData(const GrGLUniformManager& uman,
     }
 }
 
-GrGLEffect::EffectKey GLCircleInside2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                             const GrGLCaps&) {
-    EffectKey key = GenBaseGradientKey(drawEffect);
-    return key;
+void GLCircleInside2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
+                                            const GrGLCaps&, GrEffectKeyBuilder* b) {
+    b->add32(GenBaseGradientKey(drawEffect));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1091,14 +1087,14 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps& caps);
+    static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
 protected:
     UniformHandle fCenterUni;
@@ -1184,12 +1180,13 @@ GLCircleOutside2PtConicalEffect::GLCircleOutside2PtConicalEffect(const GrBackend
 
 void GLCircleOutside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
                                                const GrDrawEffect&,
-                                               EffectKey key,
+                                               const GrEffectKey& key,
                                                const char* outputColor,
                                                const char* inputColor,
                                                const TransformedCoordsArray& coords,
                                                const TextureSamplerArray& samplers) {
-    this->emitUniforms(builder, key);
+    uint32_t baseKey = key.get32(0);
+    this->emitUniforms(builder, baseKey);
     fCenterUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                      kVec2f_GrSLType, "Conical2FSCenter");
     fParamUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
@@ -1233,7 +1230,7 @@ void GLCircleOutside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
 
     builder->fsCodeAppendf("\tif (%s >= %s.w && deter >= 0.0) {\n", tName.c_str(), params.c_str());
     builder->fsCodeAppend("\t\t");
-    this->emitColor(builder, tName.c_str(), key, outputColor, inputColor, samplers);
+    this->emitColor(builder, tName.c_str(), baseKey, outputColor, inputColor, samplers);
     builder->fsCodeAppend("\t}\n");
 }
 
@@ -1265,18 +1262,11 @@ void GLCircleOutside2PtConicalEffect::setData(const GrGLUniformManager& uman,
     }
 }
 
-GrGLEffect::EffectKey GLCircleOutside2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                              const GrGLCaps&) {
-    enum {
-        kIsFlipped = 1 << kBaseKeyBitCnt,
-    };
-
-    EffectKey key = GenBaseGradientKey(drawEffect);
-
-    if (drawEffect.castEffect<CircleOutside2PtConicalEffect>().isFlipped()) {
-        key |= kIsFlipped;
-    }
-    return key;
+void GLCircleOutside2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
+                                             const GrGLCaps&, GrEffectKeyBuilder* b) {
+    uint32_t* key = b->add32n(2);
+    key[0] = GenBaseGradientKey(drawEffect);
+    key[1] = drawEffect.castEffect<CircleOutside2PtConicalEffect>().isFlipped();
 }
 
 //////////////////////////////////////////////////////////////////////////////

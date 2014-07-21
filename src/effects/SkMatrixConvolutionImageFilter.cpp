@@ -405,13 +405,13 @@ public:
                                 const GrDrawEffect& effect);
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
@@ -465,7 +465,7 @@ static void appendTextureLookup(GrGLShaderBuilder* builder,
 
 void GrGLMatrixConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
                                            const GrDrawEffect&,
-                                           EffectKey key,
+                                           const GrEffectKey& key,
                                            const char* outputColor,
                                            const char* inputColor,
                                            const TransformedCoordsArray& coords,
@@ -537,13 +537,13 @@ int encodeXY(int x, int y) {
 
 };
 
-GrGLEffect::EffectKey GrGLMatrixConvolutionEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                          const GrGLCaps&) {
+void GrGLMatrixConvolutionEffect::GenKey(const GrDrawEffect& drawEffect,
+                                         const GrGLCaps&, GrEffectKeyBuilder* b) {
     const GrMatrixConvolutionEffect& m = drawEffect.castEffect<GrMatrixConvolutionEffect>();
-    EffectKey key = encodeXY(m.kernelSize().width(), m.kernelSize().height());
+    uint32_t key = encodeXY(m.kernelSize().width(), m.kernelSize().height());
     key |= m.tileMode() << 7;
     key |= m.convolveAlpha() ? 1 << 9 : 0;
-    return key;
+    b->add32(key);
 }
 
 void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,

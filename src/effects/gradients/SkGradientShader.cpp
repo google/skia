@@ -862,15 +862,15 @@ GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
 
 GrGLGradientEffect::~GrGLGradientEffect() { }
 
-void GrGLGradientEffect::emitUniforms(GrGLShaderBuilder* builder, EffectKey key) {
+void GrGLGradientEffect::emitUniforms(GrGLShaderBuilder* builder, uint32_t baseKey) {
 
-    if (SkGradientShaderBase::kTwo_GpuColorType == ColorTypeFromKey(key)) { // 2 Color case
+    if (SkGradientShaderBase::kTwo_GpuColorType == ColorTypeFromKey(baseKey)) { // 2 Color case
         fColorStartUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                              kVec4f_GrSLType, "GradientStartColor");
         fColorEndUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                            kVec4f_GrSLType, "GradientEndColor");
 
-    } else if (SkGradientShaderBase::kThree_GpuColorType == ColorTypeFromKey(key)){ // 3 Color Case
+    } else if (SkGradientShaderBase::kThree_GpuColorType == ColorTypeFromKey(baseKey)){ // 3 Color Case
         fColorStartUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                              kVec4f_GrSLType, "GradientStartColor");
         fColorMidUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
@@ -944,10 +944,10 @@ void GrGLGradientEffect::setData(const GrGLUniformManager& uman,
 }
 
 
-GrGLEffect::EffectKey GrGLGradientEffect::GenBaseGradientKey(const GrDrawEffect& drawEffect) {
+uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrDrawEffect& drawEffect) {
     const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
 
-    EffectKey key = 0;
+    uint32_t key = 0;
 
     if (SkGradientShaderBase::kTwo_GpuColorType == e.getColorType()) {
         key |= kTwoColorKey;
@@ -964,11 +964,11 @@ GrGLEffect::EffectKey GrGLGradientEffect::GenBaseGradientKey(const GrDrawEffect&
 
 void GrGLGradientEffect::emitColor(GrGLShaderBuilder* builder,
                                    const char* gradientTValue,
-                                   EffectKey key,
+                                   uint32_t baseKey,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
-    if (SkGradientShaderBase::kTwo_GpuColorType == ColorTypeFromKey(key)){
+    if (SkGradientShaderBase::kTwo_GpuColorType == ColorTypeFromKey(baseKey)){
         builder->fsCodeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
                                builder->getUniformVariable(fColorStartUni).c_str(),
                                builder->getUniformVariable(fColorEndUni).c_str(),
@@ -978,13 +978,13 @@ void GrGLGradientEffect::emitColor(GrGLShaderBuilder* builder,
         // The gradient SkShader reporting opaque is more restrictive than necessary in the two pt
         // case. Make sure the key reflects this optimization (and note that it can use the same
         // shader as thekBeforeIterp case). This same optimization applies to the 3 color case below.
-        if (GrGradientEffect::kAfterInterp_PremulType == PremulTypeFromKey(key)) {
+        if (GrGradientEffect::kAfterInterp_PremulType == PremulTypeFromKey(baseKey)) {
             builder->fsCodeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
         }
 
         builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
                                (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
-    } else if (SkGradientShaderBase::kThree_GpuColorType == ColorTypeFromKey(key)){
+    } else if (SkGradientShaderBase::kThree_GpuColorType == ColorTypeFromKey(baseKey)){
         builder->fsCodeAppendf("\tfloat oneMinus2t = 1.0 - (2.0 * (%s));\n",
                                gradientTValue);
         builder->fsCodeAppendf("\tvec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s;\n",
@@ -1002,7 +1002,7 @@ void GrGLGradientEffect::emitColor(GrGLShaderBuilder* builder,
         }
         builder->fsCodeAppendf("\tcolorTemp += clamp(-oneMinus2t, 0.0, 1.0) * %s;\n",
                                builder->getUniformVariable(fColorEndUni).c_str());
-        if (GrGradientEffect::kAfterInterp_PremulType == PremulTypeFromKey(key)) {
+        if (GrGradientEffect::kAfterInterp_PremulType == PremulTypeFromKey(baseKey)) {
             builder->fsCodeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
         }
 

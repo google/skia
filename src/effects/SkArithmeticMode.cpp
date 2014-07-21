@@ -242,7 +242,7 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -250,7 +250,7 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps& caps);
+    static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
 private:
     GrGLUniformManager::UniformHandle fKUni;
@@ -349,7 +349,7 @@ GrGLArithmeticEffect::~GrGLArithmeticEffect() {
 
 void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
                                     const GrDrawEffect& drawEffect,
-                                    EffectKey key,
+                                    const GrEffectKey& key,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TransformedCoordsArray& coords,
@@ -401,14 +401,14 @@ void GrGLArithmeticEffect::setData(const GrGLUniformManager& uman, const GrDrawE
     fEnforcePMColor = arith.enforcePMColor();
 }
 
-GrGLEffect::EffectKey GrGLArithmeticEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                   const GrGLCaps&) {
+void GrGLArithmeticEffect::GenKey(const GrDrawEffect& drawEffect,
+                                  const GrGLCaps&, GrEffectKeyBuilder* b) {
     const GrArithmeticEffect& arith = drawEffect.castEffect<GrArithmeticEffect>();
-    EffectKey key = arith.enforcePMColor() ? 1 : 0;
+    uint32_t key = arith.enforcePMColor() ? 1 : 0;
     if (arith.backgroundTexture()) {
         key |= 2;
     }
-    return key;
+    b->add32(key);
 }
 
 GrEffect* GrArithmeticEffect::TestCreate(SkRandom* rand,

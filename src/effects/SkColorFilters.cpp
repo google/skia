@@ -228,7 +228,7 @@ public:
 
         virtual void emitCode(GrGLShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
-                              EffectKey key,
+                              const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray& coords,
@@ -249,12 +249,12 @@ public:
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor, filter.c_str());
         }
 
-        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+        static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                           GrEffectKeyBuilder* b) {
             const ModeColorFilterEffect& colorModeFilter = drawEffect.castEffect<ModeColorFilterEffect>();
             // The SL code does not depend on filter color at the moment, so no need to represent it
             // in the key.
-            EffectKey modeKey = colorModeFilter.mode();
-            return modeKey;
+            b->add32(colorModeFilter.mode());
         }
 
         virtual void setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) SK_OVERRIDE {

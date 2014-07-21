@@ -20,7 +20,7 @@ class GrGLShaderBuilder;
     include/gpu/GrEffect.h. Objects of type GrGLEffect are responsible for emitting the
     GLSL code that implements a GrEffect and for uploading uniforms at draw time. If they don't
     always emit the same GLSL code, they must have a function:
-        static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&)
+        static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*)
     that is used to implement a program cache. When two GrEffects produce the same key this means
     that their GrGLEffects would emit the same GLSL code.
 
@@ -39,7 +39,6 @@ class GrGLVertexEffect;
 class GrGLEffect {
 
 public:
-    typedef GrBackendEffectFactory::EffectKey EffectKey;
     typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
     typedef GrGLProgramEffects::TextureSampler TextureSampler;
     typedef GrGLProgramEffects::TextureSamplerArray TextureSamplerArray;
@@ -58,8 +57,6 @@ public:
         @param builder      Interface used to emit code in the shaders.
         @param drawEffect   A wrapper on the effect that generated this program stage.
         @param key          The key that was computed by GenKey() from the generating GrEffect.
-                            Only the bits indicated by GrBackendEffectFactory::kEffectKeyBits are
-                            guaranteed to match the value produced by GenKey();
         @param outputColor  A predefined vec4 in the FS in which the stage should place its output
                             color (or coverage).
         @param inputColor   A vec4 that holds the input color to the stage in the FS. This may be
@@ -73,24 +70,24 @@ public:
         */
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
-                          EffectKey key,
+                          const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray& coords,
                           const TextureSamplerArray& samplers) = 0;
 
     /** A GrGLEffect instance can be reused with any GrEffect that produces the same stage
-        key; this function reads data from a stage and uploads any uniform variables required
-        by the shaders created in emitCode(). The GrEffect installed in the GrEffectStage is
+        key; this function reads data from a GrEffect and uploads any uniform variables required
+        by the shaders created in emitCode(). The GrEffect installed in the GrDrawEffect is
         guaranteed to be of the same type that created this GrGLEffect and to have an identical
-        EffectKey as the one that created this GrGLEffect. Effects that use local coords have
+        effect key as the one that created this GrGLEffect. Effects that use local coords have
         to consider whether the GrEffectStage's coord change matrix should be used. When explicit
         local coordinates are used it can be ignored. */
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) {}
 
     const char* name() const { return fFactory.name(); }
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&) { return 0; }
+    static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
 
     /** Used by the system when generating shader code, to see if this effect can be downcasted to
         the internal GrGLVertexEffect type */

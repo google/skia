@@ -86,14 +86,11 @@ public:
         : INHERITED(factory) {
         }
 
-        static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&) {
-            // this class always generates the same code.
-            return 0;
-        }
+        static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
 
         virtual void emitCode(GrGLShaderBuilder* builder,
                               const GrDrawEffect&,
-                              EffectKey,
+                              const GrEffectKey&,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,

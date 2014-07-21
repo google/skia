@@ -398,14 +398,14 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps& caps);
+    static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
 protected:
 
@@ -554,13 +554,13 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(const GrBackendEffectFactory& factory,
 
 void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
                                    const GrDrawEffect& drawEffect,
-                                   EffectKey key,
+                                   const GrEffectKey& key,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TransformedCoordsArray& coords,
                                    const TextureSamplerArray& samplers) {
-
-    this->emitUniforms(builder, key);
+    uint32_t baseKey = key.get32(0);
+    this->emitUniforms(builder, baseKey);
     fParamUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_Visibility,
                                          kFloat_GrSLType, "Radial2FSParams", 6);
 
@@ -622,7 +622,7 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
         t.printf("-%s / %s", cName.c_str(), bVar.c_str());
     }
 
-    this->emitColor(builder, t.c_str(), key, outputColor, inputColor, samplers);
+    this->emitColor(builder, t.c_str(), baseKey, outputColor, inputColor, samplers);
 }
 
 void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
@@ -659,17 +659,11 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
     }
 }
 
-GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrDrawEffect& drawEffect,
-                                                  const GrGLCaps&) {
-    enum {
-        kIsDegenerate = 1 << kBaseKeyBitCnt,
-    };
-
-    EffectKey key = GenBaseGradientKey(drawEffect);
-    if (drawEffect.castEffect<GrRadial2Gradient>().isDegenerate()) {
-        key |= kIsDegenerate;
-    }
-    return key;
+void GrGLRadial2Gradient::GenKey(const GrDrawEffect& drawEffect,
+                                 const GrGLCaps&, GrEffectKeyBuilder* b) {
+    uint32_t* key = b->add32n(2);
+    key[0] = GenBaseGradientKey(drawEffect);
+    key[1] = drawEffect.castEffect<GrRadial2Gradient>().isDegenerate();
 }
 
 /////////////////////////////////////////////////////////////////////

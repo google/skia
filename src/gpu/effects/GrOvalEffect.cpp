@@ -102,13 +102,13 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
-                          EffectKey key,
+                          const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
@@ -128,7 +128,7 @@ GLCircleEffect::GLCircleEffect(const GrBackendEffectFactory& factory,
 
 void GLCircleEffect::emitCode(GrGLShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
-                              EffectKey key,
+                              const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -161,10 +161,10 @@ void GLCircleEffect::emitCode(GrGLShaderBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("d")).c_str());
 }
 
-GrGLEffect::EffectKey GLCircleEffect::GenKey(const GrDrawEffect& drawEffect,
-                                             const GrGLCaps&) {
+void GLCircleEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                            GrEffectKeyBuilder* b) {
     const CircleEffect& ce = drawEffect.castEffect<CircleEffect>();
-    return ce.getEdgeType();
+    b->add32(ce.getEdgeType());
 }
 
 void GLCircleEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
@@ -274,13 +274,13 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
-                          EffectKey key,
+                          const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
@@ -300,7 +300,7 @@ GLEllipseEffect::GLEllipseEffect(const GrBackendEffectFactory& factory,
 
 void GLEllipseEffect::emitCode(GrGLShaderBuilder* builder,
                                const GrDrawEffect& drawEffect,
-                               EffectKey key,
+                               const GrEffectKey& key,
                                const char* outputColor,
                                const char* inputColor,
                                const TransformedCoordsArray&,
@@ -346,10 +346,10 @@ void GLEllipseEffect::emitCode(GrGLShaderBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-GrGLEffect::EffectKey GLEllipseEffect::GenKey(const GrDrawEffect& drawEffect,
-                                              const GrGLCaps&) {
+void GLEllipseEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                             GrEffectKeyBuilder* b) {
     const EllipseEffect& ee = drawEffect.castEffect<EllipseEffect>();
-    return ee.getEdgeType();
+    b->add32(ee.getEdgeType());
 }
 
 void GLEllipseEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {

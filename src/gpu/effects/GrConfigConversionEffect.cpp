@@ -25,7 +25,7 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrDrawEffect&,
-                          EffectKey key,
+                          const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray& coords,
@@ -71,9 +71,11 @@ public:
         builder->fsCodeAppend(modulate.c_str());
     }
 
-    static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+    static inline void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                              GrEffectKeyBuilder* b) {
         const GrConfigConversionEffect& conv = drawEffect.castEffect<GrConfigConversionEffect>();
-        return static_cast<EffectKey>(conv.swapsRedAndBlue()) | (conv.pmConversion() << 1);
+        uint32_t key = (conv.swapsRedAndBlue() ? 0 : 1) | (conv.pmConversion() << 1);
+        b->add32(key);
     }
 
 private:

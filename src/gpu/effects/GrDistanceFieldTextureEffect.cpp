@@ -38,7 +38,7 @@ public:
 
     virtual void emitCode(GrGLFullShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
-                          EffectKey key,
+                          const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -148,11 +148,12 @@ public:
 #endif
     }
 
-    static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+    static inline void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                              GrEffectKeyBuilder* b) {
         const GrDistanceFieldTextureEffect& dfTexEffect =
                                               drawEffect.castEffect<GrDistanceFieldTextureEffect>();
 
-        return dfTexEffect.isSimilarity() ? 0x1 : 0x0;
+        b->add32(dfTexEffect.isSimilarity());
     }
 
 private:
@@ -255,7 +256,7 @@ public:
 
     virtual void emitCode(GrGLFullShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
-                          EffectKey key,
+                          const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -412,11 +413,12 @@ public:
         }
     }
 
-    static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+    static inline void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+                              GrEffectKeyBuilder* b) {
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                                            drawEffect.castEffect<GrDistanceFieldLCDTextureEffect>();
 
-        return dfTexEffect.isUniformScale() ? 0x01 : 0x00;;
+        b->add32(dfTexEffect.isUniformScale());
     }
 
 private:

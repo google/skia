@@ -1131,13 +1131,13 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
-                          EffectKey,
+                          const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
 
     /**
      * Subclasses of GrGLLightingEffect must call INHERITED::setData();
@@ -1266,7 +1266,7 @@ GrGLLightingEffect::~GrGLLightingEffect() {
 
 void GrGLLightingEffect::emitCode(GrGLShaderBuilder* builder,
                                   const GrDrawEffect&,
-                                  EffectKey key,
+                                  const GrEffectKey& key,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TransformedCoordsArray& coords,
@@ -1360,9 +1360,9 @@ void GrGLLightingEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend(modulate.c_str());
 }
 
-GrGLEffect::EffectKey GrGLLightingEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                 const GrGLCaps& caps) {
-    return drawEffect.castEffect<GrLightingEffect>().light()->type();
+void GrGLLightingEffect::GenKey(const GrDrawEffect& drawEffect,
+                                const GrGLCaps& caps, GrEffectKeyBuilder* b) {
+    b->add32(drawEffect.castEffect<GrLightingEffect>().light()->type());
 }
 
 void GrGLLightingEffect::setData(const GrGLUniformManager& uman,
