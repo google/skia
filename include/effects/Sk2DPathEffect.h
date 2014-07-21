@@ -14,14 +14,9 @@
 
 class SK_API Sk2DPathEffect : public SkPathEffect {
 public:
-    static Sk2DPathEffect* Create(const SkMatrix& mat) {
-        return SkNEW_ARGS(Sk2DPathEffect, (mat));
-    }
+    virtual bool filterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
-    virtual bool filterPath(SkPath*, const SkPath&,
-                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk2DPathEffect)
+    SK_DECLARE_UNFLATTENABLE_OBJECT()
 
 protected:
     /** New virtual, to be overridden by subclasses.
