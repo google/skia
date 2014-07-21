@@ -551,6 +551,12 @@ public:
     }
 
     /**
+     * We don't use suplied vertex color attributes if our blend mode is EmitCoverage or
+     * EmitTransBlack
+     */
+    bool canIgnoreColorAttribute() const;
+
+    /**
      * Determines what optimizations can be applied based on the blend. The coefficients may have
      * to be tweaked in order for the optimization to work. srcCoeff and dstCoeff are optional
      * params that receive the tweaked coefficients. Normally the function looks at the current

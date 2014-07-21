@@ -409,6 +409,15 @@ GrDrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
     return kNone_BlendOpt;
 }
 
+bool GrDrawState::canIgnoreColorAttribute() const {
+    if (fBlendOptFlags & kInvalid_BlendOptFlag) {
+        this->getBlendOpts();
+    }
+    return SkToBool(fBlendOptFlags & (GrDrawState::kEmitTransBlack_BlendOptFlag |
+                                      GrDrawState::kEmitCoverage_BlendOptFlag));
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawState::AutoViewMatrixRestore::restore() {

@@ -73,8 +73,9 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
     // if the effects have used up all off the available attributes,
     // don't try to use color or coverage attributes as input
     do {
-        header->fColorInput = static_cast<GrGLProgramDesc::ColorInput>(
-                                  random->nextULessThan(kColorInputCnt));
+        uint32_t colorRand = random->nextULessThan(2);
+        header->fColorInput = (0 == colorRand) ? GrGLProgramDesc::kAttribute_ColorInput :
+                                                 GrGLProgramDesc::kUniform_ColorInput;
     } while (GrDrawState::kMaxVertexAttribCnt <= currAttribIndex &&
              kAttribute_ColorInput == header->fColorInput);
 

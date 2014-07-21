@@ -66,6 +66,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     bool skipColor = SkToBool(blendOpts & (GrDrawState::kEmitTransBlack_BlendOptFlag |
                                            GrDrawState::kEmitCoverage_BlendOptFlag));
+
     int firstEffectiveColorStage = 0;
     bool inputColorIsUsed = true;
     if (!skipColor) {
@@ -98,11 +99,6 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     // we only need the local coords if we're actually going to generate effect code
     bool requiresLocalCoordAttrib = !(skipCoverage  && skipColor) &&
                                     drawState.hasLocalCoordAttribute();
-
-    bool colorIsTransBlack = SkToBool(blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag);
-    bool colorIsSolidWhite = (blendOpts & GrDrawState::kEmitCoverage_BlendOptFlag) ||
-                             (!requiresColorAttrib && 0xffffffff == drawState.getColor()) ||
-                             (!inputColorIsUsed);
 
     bool readsDst = false;
     bool readFragPosition = false;
@@ -192,11 +188,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
 #endif
     bool defaultToUniformInputs = GR_GL_NO_CONSTANT_ATTRIBUTES || gpu->caps()->pathRenderingSupport();
 
-    if (colorIsTransBlack) {
-        header->fColorInput = kTransBlack_ColorInput;
-    } else if (colorIsSolidWhite) {
-        header->fColorInput = kSolidWhite_ColorInput;
-    } else if (defaultToUniformInputs && !requiresColorAttrib) {
+    if (defaultToUniformInputs && !requiresColorAttrib && inputColorIsUsed) {
         header->fColorInput = kUniform_ColorInput;
     } else {
         header->fColorInput = kAttribute_ColorInput;
@@ -205,11 +197,9 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     bool covIsSolidWhite = !requiresCoverageAttrib && 0xffffffff == drawState.getCoverageColor();
 
-    if (skipCoverage) {
-        header->fCoverageInput = kTransBlack_ColorInput;
-    } else if (covIsSolidWhite || !inputCoverageIsUsed) {
+    if ((covIsSolidWhite || !inputCoverageIsUsed) && !skipCoverage) {
         header->fCoverageInput = kSolidWhite_ColorInput;
-    } else if (defaultToUniformInputs && !requiresCoverageAttrib) {
+    } else if (defaultToUniformInputs && !requiresCoverageAttrib && inputCoverageIsUsed) {
         header->fCoverageInput = kUniform_ColorInput;
     } else {
         header->fCoverageInput = kAttribute_ColorInput;

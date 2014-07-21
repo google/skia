@@ -353,9 +353,12 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
         uint32_t usedAttribArraysMask = 0;
         const GrVertexAttrib* vertexAttrib = this->getDrawState().getVertexAttribs();
 
+        bool canIgnoreColorAttrib = this->getDrawState().canIgnoreColorAttribute();
+
         for (int vertexAttribIndex = 0; vertexAttribIndex < vertexAttribCount;
              ++vertexAttribIndex, ++vertexAttrib) {
 
+            if (kColor_GrVertexAttribBinding != vertexAttrib->fBinding || !canIgnoreColorAttrib) {
             usedAttribArraysMask |= (1 << vertexAttribIndex);
             GrVertexAttribType attribType = vertexAttrib->fType;
             attribState->set(this,
@@ -367,6 +370,7 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
                              stride,
                              reinterpret_cast<GrGLvoid*>(
                                  vertexOffsetInBytes + vertexAttrib->fOffset));
+            }
         }
         attribState->disableUnusedArrays(this, usedAttribArraysMask);
     }

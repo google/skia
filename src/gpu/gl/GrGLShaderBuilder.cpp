@@ -164,10 +164,6 @@ bool GrGLShaderBuilder::genProgram(const GrEffectStage* colorStages[],
             this->addUniform(GrGLShaderBuilder::kFragment_Visibility, kVec4f_GrSLType, "Color",
                              &name);
         inputColor = GrGLSLExpr4(name);
-    } else if (GrGLProgramDesc::kSolidWhite_ColorInput == header.fColorInput) {
-        inputColor = GrGLSLExpr4(1);
-    } else if (GrGLProgramDesc::kTransBlack_ColorInput == header.fColorInput) {
-        inputColor = GrGLSLExpr4(0);
     }
 
     if (GrGLProgramDesc::kUniform_ColorInput == header.fCoverageInput) {
@@ -178,8 +174,6 @@ bool GrGLShaderBuilder::genProgram(const GrEffectStage* colorStages[],
         inputCoverage = GrGLSLExpr4(name);
     } else if (GrGLProgramDesc::kSolidWhite_ColorInput == header.fCoverageInput) {
         inputCoverage = GrGLSLExpr4(1);
-    } else if (GrGLProgramDesc::kTransBlack_ColorInput == header.fCoverageInput) {
-        inputCoverage = GrGLSLExpr4(0);
     }
 
     if (k110_GrGLSLGeneration != fGpu->glslGeneration()) {
