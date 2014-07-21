@@ -30,6 +30,9 @@ public:
         kStroke_Style,
         kStrokeAndFill_Style
     };
+    enum {
+        kStyleCount = kStrokeAndFill_Style + 1
+    };
 
     Style getStyle() const;
     SkScalar getWidth() const { return fWidth; }

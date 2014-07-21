@@ -218,6 +218,12 @@ GrPath* GrGpu::createPath(const SkPath& path, const SkStrokeRec& stroke) {
     return this->onCreatePath(path, stroke);
 }
 
+GrPathRange* GrGpu::createPathRange(size_t size, const SkStrokeRec& stroke) {
+    SkASSERT(this->caps()->pathRenderingSupport());
+    this->handleDirtyContext();
+    return this->onCreatePathRange(size, stroke);
+}
+
 void GrGpu::clear(const SkIRect* rect,
                   GrColor color,
                   bool canIgnoreRect,
@@ -419,10 +425,10 @@ void GrGpu::onDrawPath(const GrPath* path, SkPath::FillType fill,
     this->onGpuDrawPath(path, fill);
 }
 
-void GrGpu::onDrawPaths(int pathCount, const GrPath** paths,
-                        const SkMatrix* transforms, SkPath::FillType fill,
-                        SkStrokeRec::Style style,
-                        const GrDeviceCoordTexture* dstCopy) {
+void GrGpu::onDrawPaths(const GrPathRange* pathRange,
+                        const uint32_t indices[], int count,
+                        const float transforms[], PathTransformType transformsType,
+                        SkPath::FillType fill, const GrDeviceCoordTexture* dstCopy) {
     this->handleDirtyContext();
 
     drawState()->setDefaultVertexAttribs();
@@ -432,7 +438,7 @@ void GrGpu::onDrawPaths(int pathCount, const GrPath** paths,
         return;
     }
 
-    this->onGpuDrawPaths(pathCount, paths, transforms, fill, style);
+    this->onGpuDrawPaths(pathRange, indices, count, transforms, transformsType, fill);
 }
 
 void GrGpu::finalizeReservedVertices() {

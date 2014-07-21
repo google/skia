@@ -26,6 +26,7 @@
 class GrClipData;
 class GrDrawTargetCaps;
 class GrPath;
+class GrPathRange;
 class GrVertexBuffer;
 
 class GrDrawTarget : public SkRefCnt {
@@ -349,14 +350,45 @@ public:
      * Draws many paths. It will respect the HW
      * antialias flag on the draw state (if possible in the 3D API).
      *
-     * @param transforms array of 2d affine transformations, one for each path.
-     * @param fill the fill type for drawing all the paths. Fill must not be a
-     *             hairline.
-     * @param stroke the stroke for drawing all the paths.
+     * @param pathRange       Source of paths to draw from
+     * @param indices         Array of indices into the the pathRange
+     * @param count           Number of paths to draw (length of indices array)
+     * @param transforms      Array of individual transforms, one for each path
+     * @param transformsType  Type of transformations in the array. Array contains
+                              PathTransformSize(transformsType) × count elements
+     * @param fill            Fill type for drawing all the paths
      */
-    void drawPaths(int pathCount, const GrPath** paths,
-                   const SkMatrix* transforms, SkPath::FillType fill,
-                   SkStrokeRec::Style stroke);
+    enum PathTransformType {
+        kNone_PathTransformType,        //!< []
+        kTranslateX_PathTransformType,  //!< [kMTransX]
+        kTranslateY_PathTransformType,  //!< [kMTransY]
+        kTranslate_PathTransformType,   //!< [kMTransX, kMTransY]
+        kAffine_PathTransformType,      //!< [kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY]
+
+        kLast_PathTransformType = kAffine_PathTransformType
+    };
+    void drawPaths(const GrPathRange* pathRange,
+                   const uint32_t indices[], int count,
+                   const float transforms[], PathTransformType transformsType,
+                   SkPath::FillType fill);
+
+    static inline int PathTransformSize(PathTransformType type) {
+        switch (type) {
+            case kNone_PathTransformType:
+                return 0;
+            case kTranslateX_PathTransformType:
+            case kTranslateY_PathTransformType:
+                return 1;
+            case kTranslate_PathTransformType:
+                return 2;
+            case kAffine_PathTransformType:
+                return 6;
+
+            default:
+                SkFAIL("Unknown path transform type");
+                return 0;
+        }
+    }
 
     /**
      * Helper function for drawing rects. It performs a geometry src push and pop
@@ -516,11 +548,12 @@ public:
     /**
      * For subclass internal use to invoke a call to onDrawPaths().
      */
-    void executeDrawPaths(int pathCount, const GrPath** paths,
-                          const SkMatrix* transforms, SkPath::FillType fill,
-                          SkStrokeRec::Style stroke,
+    void executeDrawPaths(const GrPathRange* pathRange,
+                          const uint32_t indices[], int count,
+                          const float transforms[], PathTransformType transformsType,
+                          SkPath::FillType fill,
                           const GrDeviceCoordTexture* dstCopy) {
-        this->onDrawPaths(pathCount, paths, transforms, fill, stroke, dstCopy);
+        this->onDrawPaths(pathRange, indices, count, transforms, transformsType, fill, dstCopy);
     }
 
     inline bool isGpuTracingEnabled() const {
@@ -909,9 +942,10 @@ private:
     virtual void onStencilPath(const GrPath*, SkPath::FillType) = 0;
     virtual void onDrawPath(const GrPath*, SkPath::FillType,
                             const GrDeviceCoordTexture* dstCopy) = 0;
-    virtual void onDrawPaths(int, const GrPath**, const SkMatrix*,
-                             SkPath::FillType, SkStrokeRec::Style,
-                             const GrDeviceCoordTexture* dstCopy) = 0;
+    virtual void onDrawPaths(const GrPathRange*,
+                             const uint32_t indices[], int count,
+                             const float transforms[], PathTransformType,
+                             SkPath::FillType, const GrDeviceCoordTexture*) = 0;
 
     virtual void didAddGpuTraceMarker() = 0;
     virtual void didRemoveGpuTraceMarker() = 0;

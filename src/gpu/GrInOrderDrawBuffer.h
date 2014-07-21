@@ -19,6 +19,7 @@
 
 class GrGpu;
 class GrIndexBufferAllocPool;
+class GrPathRange;
 class GrVertexBufferAllocPool;
 
 /**
@@ -119,11 +120,12 @@ private:
         DrawPaths();
         ~DrawPaths();
 
-        int fPathCount;
-        const GrPath** fPaths;
-        SkMatrix* fTransforms;
+        SkAutoTUnref<const GrPathRange> fPathRange;
+        uint32_t* fIndices;
+        size_t fCount;
+        float* fTransforms;
+        PathTransformType fTransformsType;
         SkPath::FillType fFill;
-        SkStrokeRec::Style fStroke;
         GrDeviceCoordTexture fDstCopy;
     };
 
@@ -160,9 +162,10 @@ private:
     virtual void onStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
     virtual void onDrawPath(const GrPath*, SkPath::FillType,
                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
-    virtual void onDrawPaths(int, const GrPath**, const SkMatrix*,
-                             SkPath::FillType, SkStrokeRec::Style,
-                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+    virtual void onDrawPaths(const GrPathRange*,
+                             const uint32_t indices[], int count,
+                             const float transforms[], PathTransformType,
+                             SkPath::FillType, const GrDeviceCoordTexture*) SK_OVERRIDE;
 
     virtual bool onReserveVertexSpace(size_t vertexSize,
                                       int vertexCount,

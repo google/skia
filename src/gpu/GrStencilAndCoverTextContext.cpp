@@ -7,11 +7,9 @@
 
 #include "GrStencilAndCoverTextContext.h"
 #include "GrDrawTarget.h"
-#include "GrFontScaler.h"
 #include "GrGpu.h"
 #include "GrPath.h"
-#include "GrTextStrike.h"
-#include "GrTextStrike_impl.h"
+#include "GrPathRange.h"
 #include "SkAutoKern.h"
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
@@ -20,12 +18,95 @@
 #include "SkPath.h"
 #include "SkTextMapStateProc.h"
 
-static const int kMaxReservedGlyphs = 64;
+class GrStencilAndCoverTextContext::GlyphPathRange : public GrCacheable {
+    static const int kMaxGlyphCount = 1 << 16; // Glyph IDs are uint16_t's
+    static const int kGlyphGroupSize = 16; // Glyphs get tracked in groups of 16
+
+public:
+    static GlyphPathRange* Create(GrContext* context,
+                                  SkGlyphCache* cache,
+                                  const SkStrokeRec& stroke) {
+        static const GrCacheID::Domain gGlyphPathRangeDomain = GrCacheID::GenerateDomain();
+
+        GrCacheID::Key key;
+        key.fData32[0] = cache->getDescriptor().getChecksum();
+        key.fData32[1] = cache->getScalerContext()->getTypeface()->uniqueID();
+        key.fData64[1] = GrPath::ComputeStrokeKey(stroke);
+
+        GrResourceKey resourceKey(GrCacheID(gGlyphPathRangeDomain, key),
+                                  GrPathRange::resourceType(), 0);
+        SkAutoTUnref<GlyphPathRange> glyphs(
+            static_cast<GlyphPathRange*>(context->findAndRefCachedResource(resourceKey)));
+
+        if (NULL == glyphs ||
+            !glyphs->fDesc->equals(cache->getDescriptor() /*checksum collision*/)) {
+            glyphs.reset(SkNEW_ARGS(GlyphPathRange, (context, cache->getDescriptor(), stroke)));
+            context->addResourceToCache(resourceKey, glyphs);
+        }
+
+        return glyphs.detach();
+    }
+
+    const GrPathRange* pathRange() const { return fPathRange.get(); }
+
+    void preloadGlyph(uint16_t glyphID, SkGlyphCache* cache) {
+        const uint16_t groupIndex = glyphID / kGlyphGroupSize;
+        const uint16_t groupByte = groupIndex >> 3;
+        const uint8_t groupBit = 1 << (groupIndex & 7);
+
+        const bool hasGlyph = 0 != (fLoadedGlyphs[groupByte] & groupBit);
+        if (hasGlyph) {
+            return;
+        }
+
+        // We track which glyphs are loaded in groups of kGlyphGroupSize. To
+        // mark a glyph loaded we need to load the entire group.
+        const uint16_t groupFirstID = groupIndex * kGlyphGroupSize;
+        const uint16_t groupLastID = groupFirstID + kGlyphGroupSize - 1;
+        SkPath skPath;
+        for (int id = groupFirstID; id <= groupLastID; ++id) {
+            const SkGlyph& skGlyph = cache->getGlyphIDMetrics(id);
+            if (const SkPath* skPath = cache->findPath(skGlyph)) {
+                fPathRange->initAt(id, *skPath);
+            } // GrGpu::drawPaths will silently ignore undefined paths.
+        }
+
+        fLoadedGlyphs[groupByte] |= groupBit;
+        this->didChangeGpuMemorySize();
+    }
+
+    // GrCacheable overrides
+    virtual size_t gpuMemorySize() const SK_OVERRIDE { return fPathRange->gpuMemorySize(); }
+    virtual bool isValidOnGpu() const SK_OVERRIDE { return fPathRange->isValidOnGpu(); }
+
+private:
+    GlyphPathRange(GrContext* context, const SkDescriptor& desc, const SkStrokeRec& stroke)
+        : fDesc(desc.copy())
+        // We reserve a range of kMaxGlyphCount paths because of fallbacks fonts. We
+        // can't know exactly how many glyphs we might need without preloading every
+        // fallback, which we don't want to do at this point.
+        , fPathRange(context->getGpu()->createPathRange(kMaxGlyphCount, stroke)) {
+        memset(fLoadedGlyphs, 0, sizeof(fLoadedGlyphs));
+    }
+
+    ~GlyphPathRange() {
+        SkDescriptor::Free(fDesc);
+    }
+
+    static const int kMaxGroupCount = (kMaxGlyphCount + (kGlyphGroupSize - 1)) / kGlyphGroupSize;
+    SkDescriptor* const fDesc;
+    uint8_t fLoadedGlyphs[(kMaxGroupCount + 7) >> 3]; // One bit per glyph group
+    SkAutoTUnref<GrPathRange> fPathRange;
+
+    typedef GrCacheable INHERITED;
+};
+
 
 GrStencilAndCoverTextContext::GrStencilAndCoverTextContext(
     GrContext* context, const SkDeviceProperties& properties)
     : GrTextContext(context, properties)
-    , fStroke(SkStrokeRec::kFill_InitStyle) {
+    , fStroke(SkStrokeRec::kFill_InitStyle)
+    , fPendingGlyphCount(0) {
 }
 
 GrStencilAndCoverTextContext::~GrStencilAndCoverTextContext() {
@@ -73,10 +154,8 @@ void GrStencilAndCoverTextContext::drawText(const GrPaint& paint,
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
     SkAutoGlyphCache autoCache(fSkPaint, &fDeviceProperties, glyphCacheTransform);
-    SkGlyphCache* cache = autoCache.getCache();
-    GrFontScaler* scaler = GetGrFontScaler(cache);
-    GrTextStrike* strike =
-        fContext->getFontCache()->getStrike(scaler, true);
+    fGlyphCache = autoCache.getCache();
+    fGlyphs = GlyphPathRange::Create(fContext, fGlyphCache, fStroke);
 
     const char* stop = text + byteLength;
 
@@ -89,7 +168,7 @@ void GrStencilAndCoverTextContext::drawText(const GrPaint& paint,
         while (textPtr < stop) {
             // We don't need x, y here, since all subpixel variants will have the
             // same advance.
-            const SkGlyph& glyph = glyphCacheProc(cache, &textPtr, 0, 0);
+            const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &textPtr, 0, 0);
 
             stopX += glyph.fAdvanceX;
             stopY += glyph.fAdvanceY;
@@ -115,17 +194,10 @@ void GrStencilAndCoverTextContext::drawText(const GrPaint& paint,
     SkFixed fx = SkScalarToFixed(x);
     SkFixed fy = SkScalarToFixed(y);
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
+        const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
         fx += SkFixedMul_portable(autokern.adjust(glyph), fixedSizeRatio);
         if (glyph.fWidth) {
-            this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
-                                            glyph.getSubXFixed(),
-                                            glyph.getSubYFixed()),
-                              SkPoint::Make(
-                                  SkFixedToScalar(fx),
-                                  SkFixedToScalar(fy)),
-                              strike,
-                              scaler);
+            this->appendGlyph(glyph.getGlyphID(), SkFixedToScalar(fx), SkFixedToScalar(fy));
         }
 
         fx += SkFixedMul_portable(glyph.fAdvanceX, fixedSizeRatio);
@@ -164,10 +236,8 @@ void GrStencilAndCoverTextContext::drawPosText(const GrPaint& paint,
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
     SkAutoGlyphCache autoCache(fSkPaint, &fDeviceProperties, NULL);
-    SkGlyphCache* cache = autoCache.getCache();
-    GrFontScaler* scaler = GetGrFontScaler(cache);
-    GrTextStrike* strike =
-        fContext->getFontCache()->getStrike(scaler, true);
+    fGlyphCache = autoCache.getCache();
+    fGlyphs = GlyphPathRange::Create(fContext, fGlyphCache, fStroke);
 
     const char* stop = text + byteLength;
     SkTextAlignProcScalar alignProc(fSkPaint.getTextAlign());
@@ -177,33 +247,22 @@ void GrStencilAndCoverTextContext::drawPosText(const GrPaint& paint,
         while (text < stop) {
             SkPoint loc;
             tmsProc(pos, &loc);
-            const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
+            const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
             if (glyph.fWidth) {
-                this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
-                                                glyph.getSubXFixed(),
-                                                glyph.getSubYFixed()),
-                                  loc,
-                                  strike,
-                                  scaler);
+                this->appendGlyph(glyph.getGlyphID(), loc.x(), loc.y());
             }
             pos += scalarsPerPosition;
         }
     } else {
         while (text < stop) {
-            const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
+            const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
             if (glyph.fWidth) {
                 SkPoint tmsLoc;
                 tmsProc(pos, &tmsLoc);
                 SkPoint loc;
                 alignProc(tmsLoc, glyph, &loc);
 
-                this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
-                                                glyph.getSubXFixed(),
-                                                glyph.getSubYFixed()),
-                                  loc,
-                                  strike,
-                                  scaler);
-
+                this->appendGlyph(glyph.getGlyphID(), loc.x(), loc.y());
             }
             pos += scalarsPerPosition;
         }
@@ -305,62 +364,45 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
 
     *fDrawTarget->drawState()->stencil() = kStencilPass;
 
-    size_t reserveAmount;
-    switch (skPaint.getTextEncoding()) {
-        default:
-            SkASSERT(false);
-        case SkPaint::kUTF8_TextEncoding:
-            reserveAmount = textByteLength;
-            break;
-        case SkPaint::kUTF16_TextEncoding:
-            reserveAmount = textByteLength / 2;
-            break;
-        case SkPaint::kUTF32_TextEncoding:
-        case SkPaint::kGlyphID_TextEncoding:
-            reserveAmount = textByteLength / 4;
-            break;
-    }
-    fPaths.setReserve(reserveAmount);
-    fTransforms.setReserve(reserveAmount);
+    SkASSERT(0 == fPendingGlyphCount);
 }
 
-inline void GrStencilAndCoverTextContext::appendGlyph(GrGlyph::PackedID glyphID,
-                                                      const SkPoint& pos,
-                                                      GrTextStrike* strike,
-                                                      GrFontScaler* scaler) {
-    GrGlyph* glyph = strike->getGlyph(glyphID, scaler);
-    if (NULL == glyph || glyph->fBounds.isEmpty()) {
+inline void GrStencilAndCoverTextContext::appendGlyph(uint16_t glyphID, float x, float y) {
+    if (fPendingGlyphCount >= kGlyphBufferSize) {
+        this->flush();
+    }
+
+    fGlyphs->preloadGlyph(glyphID, fGlyphCache);
+
+    fIndexBuffer[fPendingGlyphCount] = glyphID;
+    fTransformBuffer[6 * fPendingGlyphCount + 0] = fTextRatio;
+    fTransformBuffer[6 * fPendingGlyphCount + 1] = 0;
+    fTransformBuffer[6 * fPendingGlyphCount + 2] = x;
+    fTransformBuffer[6 * fPendingGlyphCount + 3] = 0;
+    fTransformBuffer[6 * fPendingGlyphCount + 4] = fTextRatio;
+    fTransformBuffer[6 * fPendingGlyphCount + 5] = y;
+
+    ++fPendingGlyphCount;
+}
+
+void GrStencilAndCoverTextContext::flush() {
+    if (0 == fPendingGlyphCount) {
         return;
     }
 
-    if (scaler->getGlyphPath(glyph->glyphID(), &fTmpPath)) {
-        if (!fTmpPath.isEmpty()) {
-            *fPaths.append() = fContext->createPath(fTmpPath, fStroke);
-            SkMatrix* t = fTransforms.append();
-            t->setTranslate(pos.fX, pos.fY);
-            t->preScale(fTextRatio, fTextRatio);
-        }
-    }
+    fDrawTarget->drawPaths(fGlyphs->pathRange(), fIndexBuffer, fPendingGlyphCount,
+                           fTransformBuffer, GrDrawTarget::kAffine_PathTransformType,
+                           SkPath::kWinding_FillType);
+
+    fPendingGlyphCount = 0;
 }
 
 void GrStencilAndCoverTextContext::finish() {
-    if (fPaths.count() > 0) {
-        fDrawTarget->drawPaths(static_cast<size_t>(fPaths.count()),
-                               fPaths.begin(), fTransforms.begin(),
-                               SkPath::kWinding_FillType, fStroke.getStyle());
+    this->flush();
 
-        for (int i = 0; i < fPaths.count(); ++i) {
-            fPaths[i]->unref();
-        }
-        if (fPaths.count() > kMaxReservedGlyphs) {
-            fPaths.reset();
-            fTransforms.reset();
-        } else {
-            fPaths.rewind();
-            fTransforms.rewind();
-        }
-    }
-    fTmpPath.reset();
+    SkSafeUnref(fGlyphs);
+    fGlyphs = NULL;
+    fGlyphCache = NULL;
 
     fDrawTarget->drawState()->stencil()->setDisabled();
     fStateRestore.set(NULL);

@@ -10,6 +10,7 @@
 #include "GrGLNameAllocator.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLPath.h"
+#include "GrGLPathRange.h"
 #include "GrGLShaderBuilder.h"
 #include "GrTemplates.h"
 #include "GrTypes.h"
@@ -33,6 +34,21 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static const GrGLenum gXformType2GLType[] = {
+    GR_GL_NONE,
+    GR_GL_TRANSLATE_X,
+    GR_GL_TRANSLATE_Y,
+    GR_GL_TRANSLATE_2D,
+    GR_GL_TRANSPOSE_AFFINE_2D
+};
+
+GR_STATIC_ASSERT(0 == GrDrawTarget::kNone_PathTransformType);
+GR_STATIC_ASSERT(1 == GrDrawTarget::kTranslateX_PathTransformType);
+GR_STATIC_ASSERT(2 == GrDrawTarget::kTranslateY_PathTransformType);
+GR_STATIC_ASSERT(3 == GrDrawTarget::kTranslate_PathTransformType);
+GR_STATIC_ASSERT(4 == GrDrawTarget::kAffine_PathTransformType);
+GR_STATIC_ASSERT(GrDrawTarget::kAffine_PathTransformType == GrDrawTarget::kLast_PathTransformType);
 
 static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ZERO,
@@ -1369,6 +1385,11 @@ GrPath* GrGpuGL::onCreatePath(const SkPath& inPath, const SkStrokeRec& stroke) {
     return SkNEW_ARGS(GrGLPath, (this, inPath, stroke));
 }
 
+GrPathRange* GrGpuGL::onCreatePathRange(size_t size, const SkStrokeRec& stroke) {
+    SkASSERT(this->caps()->pathRenderingSupport());
+    return SkNEW_ARGS(GrGLPathRange, (this, size, stroke));
+}
+
 void GrGpuGL::flushScissor() {
     if (fScissorState.fEnabled) {
         // Only access the RT if scissoring is being enabled. We can call this before performing
@@ -1907,35 +1928,19 @@ void GrGpuGL::onGpuDrawPath(const GrPath* path, SkPath::FillType fill) {
     }
 }
 
-void GrGpuGL::onGpuDrawPaths(int pathCount, const GrPath** paths,
-                             const SkMatrix* transforms,
-                             SkPath::FillType fill,
-                             SkStrokeRec::Style stroke) {
+void GrGpuGL::onGpuDrawPaths(const GrPathRange* pathRange,
+                             const uint32_t indices[], int count,
+                             const float transforms[], PathTransformType transformsType,
+                             SkPath::FillType fill) {
     SkASSERT(this->caps()->pathRenderingSupport());
     SkASSERT(NULL != this->drawState()->getRenderTarget());
     SkASSERT(NULL != this->drawState()->getRenderTarget()->getStencilBuffer());
     SkASSERT(!fCurrentProgram->hasVertexShader());
-    SkASSERT(stroke != SkStrokeRec::kHairline_Style);
 
-    SkAutoMalloc pathData(pathCount * sizeof(GrGLuint));
-    SkAutoMalloc transformData(pathCount * sizeof(GrGLfloat) * 6);
-    GrGLfloat* transformValues =
-        reinterpret_cast<GrGLfloat*>(transformData.get());
-    GrGLuint* pathIDs = reinterpret_cast<GrGLuint*>(pathData.get());
-
-    for (int i = 0; i < pathCount; ++i) {
-        SkASSERT(transforms[i].asAffine(NULL));
-        const SkMatrix& m = transforms[i];
-        transformValues[i * 6] = m.getScaleX();
-        transformValues[i * 6 + 1] = m.getSkewY();
-        transformValues[i * 6 + 2] = m.getSkewX();
-        transformValues[i * 6 + 3] = m.getScaleY();
-        transformValues[i * 6 + 4] = m.getTranslateX();
-        transformValues[i * 6 + 5] = m.getTranslateY();
-        pathIDs[i] = static_cast<const GrGLPath*>(paths[i])->pathID();
-    }
+    GrGLuint baseID = static_cast<const GrGLPathRange*>(pathRange)->basePathID();
 
     flushPathStencilSettings(fill);
+    const SkStrokeRec& stroke = pathRange->getStroke();
 
     SkPath::FillType nonInvertedFill =
         SkPath::ConvertToNonInverseFillType(fill);
@@ -1947,36 +1952,28 @@ void GrGpuGL::onGpuDrawPaths(int pathCount, const GrPath** paths,
     GrGLint writeMask =
         fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
 
-    bool doFill = stroke == SkStrokeRec::kFill_Style
-        || stroke == SkStrokeRec::kStrokeAndFill_Style;
-    bool doStroke = stroke == SkStrokeRec::kStroke_Style
-        || stroke == SkStrokeRec::kStrokeAndFill_Style;
-
-    if (doFill) {
-        GL_CALL(StencilFillPathInstanced(pathCount, GR_GL_UNSIGNED_INT,
-                                         pathIDs, 0,
-                                         fillMode, writeMask,
-                                         GR_GL_AFFINE_2D, transformValues));
+    if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
+        GL_CALL(StencilFillPathInstanced(count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
+                                         writeMask, gXformType2GLType[transformsType],
+                                         transforms));
     }
-    if (doStroke) {
-        GL_CALL(StencilStrokePathInstanced(pathCount, GR_GL_UNSIGNED_INT,
-                                           pathIDs, 0,
-                                           0xffff, writeMask,
-                                           GR_GL_AFFINE_2D, transformValues));
+    if (stroke.needToApply()) {
+        GL_CALL(StencilStrokePathInstanced(count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff,
+                                           writeMask, gXformType2GLType[transformsType],
+                                           transforms));
     }
 
     if (nonInvertedFill == fill) {
-        if (doStroke) {
+        if (stroke.needToApply()) {
             GL_CALL(CoverStrokePathInstanced(
-                        pathCount, GR_GL_UNSIGNED_INT, pathIDs, 0,
+                        count, GR_GL_UNSIGNED_INT, indices, baseID,
                         GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                        GR_GL_AFFINE_2D, transformValues));
+                        gXformType2GLType[transformsType], transforms));
         } else {
             GL_CALL(CoverFillPathInstanced(
-                        pathCount, GR_GL_UNSIGNED_INT, pathIDs, 0,
+                        count, GR_GL_UNSIGNED_INT, indices, baseID,
                         GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                        GR_GL_AFFINE_2D, transformValues));
-
+                        gXformType2GLType[transformsType], transforms));
         }
     } else {
         GrDrawState* drawState = this->drawState();

@@ -16,6 +16,7 @@ class GrContext;
 class GrGpuObject;
 class GrIndexBufferAllocPool;
 class GrPath;
+class GrPathRange;
 class GrPathRenderer;
 class GrPathRendererChain;
 class GrStencilBuffer;
@@ -136,6 +137,13 @@ public:
      * only legal to call this if the caps report support for path stenciling.
      */
     GrPath* createPath(const SkPath& path, const SkStrokeRec& stroke);
+
+    /**
+     * Creates a path range object that can be used to draw multiple paths via
+     * drawPaths(). It is only legal to call this if the caps report support for
+     * path rendering.
+     */
+    GrPathRange* createPathRange(size_t size, const SkStrokeRec&);
 
     /**
      * Returns an index buffer that can be used to render quads.
@@ -432,6 +440,7 @@ private:
     virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) = 0;
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) = 0;
     virtual GrPath* onCreatePath(const SkPath& path, const SkStrokeRec&) = 0;
+    virtual GrPathRange* onCreatePathRange(size_t size, const SkStrokeRec&) = 0;
 
     // overridden by backend-specific derived class to perform the clear and
     // clearRect. NULL rect means clear whole target. If canIgnoreRect is
@@ -444,8 +453,10 @@ private:
     // overridden by backend-specific derived class to perform the path stenciling.
     virtual void onGpuStencilPath(const GrPath*, SkPath::FillType) = 0;
     virtual void onGpuDrawPath(const GrPath*, SkPath::FillType) = 0;
-    virtual void onGpuDrawPaths(int, const GrPath**, const SkMatrix*,
-                                SkPath::FillType, SkStrokeRec::Style) = 0;
+    virtual void onGpuDrawPaths(const GrPathRange*,
+                                const uint32_t indices[], int count,
+                                const float transforms[], PathTransformType,
+                                SkPath::FillType) = 0;
 
     // overridden by backend-specific derived class to perform the read pixels.
     virtual bool onReadPixels(GrRenderTarget* target,
@@ -488,9 +499,10 @@ private:
     virtual void onStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
     virtual void onDrawPath(const GrPath*, SkPath::FillType,
                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
-    virtual void onDrawPaths(int, const GrPath**, const SkMatrix*,
-                             SkPath::FillType, SkStrokeRec::Style,
-                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+    virtual void onDrawPaths(const GrPathRange*,
+                             const uint32_t indices[], int count,
+                             const float transforms[], PathTransformType,
+                             SkPath::FillType, const GrDeviceCoordTexture*) SK_OVERRIDE;
 
     // readies the pools to provide vertex/index data.
     void prepareVertexPool();

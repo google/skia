@@ -13,6 +13,7 @@
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPath.h"
+#include "GrPathRange.h"
 #include "GrRenderTarget.h"
 #include "GrTemplates.h"
 #include "GrTexture.h"
@@ -419,10 +420,9 @@ GrInOrderDrawBuffer::DrawPaths::~DrawPaths() {
     if (fTransforms) {
         SkDELETE_ARRAY(fTransforms);
     }
-    for (int i = 0; i < fPathCount; ++i) {
-        fPaths[i]->unref();
+    if (fIndices) {
+        SkDELETE_ARRAY(fIndices);
     }
-    SkDELETE_ARRAY(fPaths);
 }
 
 void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, SkPath::FillType fill) {
@@ -457,12 +457,13 @@ void GrInOrderDrawBuffer::onDrawPath(const GrPath* path,
     }
 }
 
-void GrInOrderDrawBuffer::onDrawPaths(int pathCount, const GrPath** paths,
-                                      const SkMatrix* transforms,
-                                      SkPath::FillType fill,
-                                      SkStrokeRec::Style stroke,
-                                      const GrDeviceCoordTexture* dstCopy) {
-    SkASSERT(pathCount);
+void GrInOrderDrawBuffer::onDrawPaths(const GrPathRange* pathRange,
+                                      const uint32_t indices[], int count,
+                                      const float transforms[], PathTransformType transformsType,
+                                      SkPath::FillType fill, const GrDeviceCoordTexture* dstCopy) {
+    SkASSERT(NULL != pathRange);
+    SkASSERT(NULL != indices);
+    SkASSERT(NULL != transforms);
 
     if (this->needsNewClip()) {
         this->recordClip();
@@ -471,18 +472,17 @@ void GrInOrderDrawBuffer::onDrawPaths(int pathCount, const GrPath** paths,
         this->recordState();
     }
     DrawPaths* dp = this->recordDrawPaths();
-    dp->fPathCount = pathCount;
-    dp->fPaths = SkNEW_ARRAY(const GrPath*, pathCount);
-    memcpy(dp->fPaths, paths, sizeof(GrPath*) * pathCount);
-    for (int i = 0; i < pathCount; ++i) {
-        dp->fPaths[i]->ref();
-    }
+    dp->fPathRange.reset(SkRef(pathRange));
+    dp->fIndices = SkNEW_ARRAY(uint32_t, count); // TODO: Accomplish this without a malloc
+    memcpy(dp->fIndices, indices, sizeof(uint32_t) * count);
+    dp->fCount = count;
 
-    dp->fTransforms = SkNEW_ARRAY(SkMatrix, pathCount);
-    memcpy(dp->fTransforms, transforms, sizeof(SkMatrix) * pathCount);
+    const int transformsLength = PathTransformSize(transformsType) * count;
+    dp->fTransforms = SkNEW_ARRAY(float, transformsLength);
+    memcpy(dp->fTransforms, transforms, sizeof(float) * transformsLength);
+    dp->fTransformsType = transformsType;
 
     dp->fFill = fill;
-    dp->fStroke = stroke;
 
     if (NULL != dstCopy) {
         dp->fDstCopy = *dstCopy;
@@ -633,9 +633,13 @@ void GrInOrderDrawBuffer::flush() {
                 SkAssertResult(drawPathsIter.next());
                 const GrDeviceCoordTexture* dstCopy =
                     NULL !=drawPathsIter->fDstCopy.texture() ? &drawPathsIter->fDstCopy : NULL;
-                fDstGpu->executeDrawPaths(drawPathsIter->fPathCount, drawPathsIter->fPaths,
-                                          drawPathsIter->fTransforms, drawPathsIter->fFill,
-                                          drawPathsIter->fStroke, dstCopy);
+                fDstGpu->executeDrawPaths(drawPathsIter->fPathRange.get(),
+                                          drawPathsIter->fIndices,
+                                          drawPathsIter->fCount,
+                                          drawPathsIter->fTransforms,
+                                          drawPathsIter->fTransformsType,
+                                          drawPathsIter->fFill,
+                                          dstCopy);
                 break;
             }
             case kSetState_Cmd:

@@ -548,34 +548,25 @@ void GrDrawTarget::drawPath(const GrPath* path, SkPath::FillType fill) {
     this->onDrawPath(path, fill, dstCopy.texture() ? &dstCopy : NULL);
 }
 
-void GrDrawTarget::drawPaths(int pathCount, const GrPath** paths,
-                             const SkMatrix* transforms,
-                             SkPath::FillType fill, SkStrokeRec::Style stroke) {
-    SkASSERT(pathCount > 0);
-    SkASSERT(NULL != paths);
-    SkASSERT(NULL != paths[0]);
+void GrDrawTarget::drawPaths(const GrPathRange* pathRange,
+                             const uint32_t indices[], int count,
+                             const float transforms[], PathTransformType transformsType,
+                             SkPath::FillType fill) {
     SkASSERT(this->caps()->pathRenderingSupport());
-    SkASSERT(!SkPath::IsInverseFillType(fill));
+    SkASSERT(NULL != pathRange);
+    SkASSERT(NULL != indices);
+    SkASSERT(NULL != transforms);
 
-    const GrDrawState* drawState = &getDrawState();
-
-    SkRect devBounds;
-    transforms[0].mapRect(&devBounds, paths[0]->getBounds());
-    for (int i = 1; i < pathCount; ++i) {
-        SkRect mappedPathBounds;
-        transforms[i].mapRect(&mappedPathBounds, paths[i]->getBounds());
-        devBounds.join(mappedPathBounds);
-    }
-
-    SkMatrix viewM = drawState->getViewMatrix();
-    viewM.mapRect(&devBounds);
-
+    // Don't compute a bounding box for setupDstReadIfNecessary(), we'll opt
+    // instead for it to just copy the entire dst. Realistically this is a moot
+    // point, because any context that supports NV_path_rendering will also
+    // support NV_blend_equation_advanced.
     GrDeviceCoordTexture dstCopy;
-    if (!this->setupDstReadIfNecessary(&dstCopy, &devBounds)) {
+    if (!this->setupDstReadIfNecessary(&dstCopy, NULL)) {
         return;
     }
 
-    this->onDrawPaths(pathCount, paths, transforms, fill, stroke,
+    this->onDrawPaths(pathRange, indices, count, transforms, transformsType, fill,
                       dstCopy.texture() ? &dstCopy : NULL);
 }
 
