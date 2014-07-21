@@ -89,7 +89,6 @@ public:
 #ifdef SK_DEBUG
     void validate() const {
         this->INHERITED::validate();
-
         this->validateDesc();
     }
 #endif

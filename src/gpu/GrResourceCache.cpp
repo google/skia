@@ -373,7 +373,7 @@ void GrResourceCache::purgeInvalidated() {
 }
 
 void GrResourceCache::deleteResource(GrResourceCacheEntry* entry) {
-    SkASSERT(1 == entry->fResource->getRefCnt());
+    SkASSERT(entry->fResource->unique());
 
     // remove from our cache
     fCache.remove(entry->key(), entry);

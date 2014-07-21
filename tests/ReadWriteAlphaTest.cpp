@@ -45,7 +45,7 @@ DEF_GPUTEST(ReadWriteAlpha, reporter, factory) {
             return;
         }
 
-        SkAutoUnref au(texture);
+        SkAutoTUnref<GrTexture> au(texture);
 
         // create a distinctive texture
         for (int y = 0; y < Y_SIZE; ++y) {

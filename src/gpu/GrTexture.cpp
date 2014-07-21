@@ -29,7 +29,7 @@ void GrTexture::internal_dispose() const {
     if (this->impl()->isSetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit) &&
         NULL != this->INHERITED::getContext()) {
         GrTexture* nonConstThis = const_cast<GrTexture *>(this);
-        this->fRefCnt = 1;      // restore ref count to initial setting
+        this->ref(); // restore ref count to initial setting
 
         nonConstThis->impl()->resetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit);
         nonConstThis->INHERITED::getContext()->addExistingTextureToCache(nonConstThis);
@@ -39,7 +39,6 @@ void GrTexture::internal_dispose() const {
         return;
     }
 
-    SkASSERT(0 == this->getDeferredRefCount());
     this->INHERITED::internal_dispose();
 }
 

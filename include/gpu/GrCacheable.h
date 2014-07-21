@@ -15,9 +15,25 @@ class GrResourceCacheEntry;
 /**
  * Base class for objects that can be kept in the GrResourceCache.
  */
-class GrCacheable : public SkRefCnt {
+class GrCacheable : public SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT(GrCacheable)
+    SK_DECLARE_INST_COUNT_ROOT(GrCacheable)
+
+    // These method signatures are written to mirror SkRefCnt. However, we don't require
+    // thread safety as GrCacheable objects are not intended to cross thread boundaries.
+    // internal_dispose() exists because of GrTexture's reliance on it. It will be removed
+    // soon.
+    void ref() const { ++fRefCnt; }
+    void unref() const { --fRefCnt; if (0 == fRefCnt) { this->internal_dispose(); } }
+    virtual void internal_dispose() const { SkDELETE(this); }
+    bool unique() const { return 1 == fRefCnt; }
+#ifdef SK_DEBUG
+    void validate() const {
+        SkASSERT(fRefCnt > 0);
+    }
+#endif
+
+    virtual ~GrCacheable() { SkASSERT(0 == fRefCnt); }
 
     /**
      * Retrieves the amount of GPU memory used by this resource in bytes. It is
@@ -50,7 +66,8 @@ public:
 
 protected:
     GrCacheable()
-        : fCacheEntry(NULL)
+        : fRefCnt(1)
+        , fCacheEntry(NULL)
         , fGenID(0) {}
 
     bool isInCache() const { return NULL != fCacheEntry; }
@@ -64,10 +81,11 @@ protected:
     void didChangeGpuMemorySize() const;
 
 private:
+    mutable int32_t         fRefCnt;
     GrResourceCacheEntry*   fCacheEntry;  // NULL if not in cache
     mutable uint32_t        fGenID;
 
-    typedef SkRefCnt INHERITED;
+    typedef SkNoncopyable INHERITED;
 };
 
 #endif

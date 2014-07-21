@@ -113,7 +113,6 @@ private:
 
     // The following friends are those which override internal_dispose()
     // and conditionally call SkRefCnt::internal_dispose().
-    friend class GrTexture;
     friend class SkWeakRefCnt;
 
     mutable int32_t fRefCnt;

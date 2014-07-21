@@ -57,7 +57,7 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
         return;
     }
 
-    SkAutoUnref au(texture);
+    SkAutoTUnref<GrTexture> au(texture);
 
     SkIRect intScreen = SkIRect::MakeWH(kXSize, kYSize);
     SkRect screen;
@@ -164,14 +164,12 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     // check that the set took
     check_state(reporter, cache, clip1, texture1, bound1);
-    REPORTER_ASSERT(reporter, texture1->getRefCnt());
 
     // push the state
     cache.push();
 
     // verify that the pushed state is initially empty
     check_empty_state(reporter, cache);
-    REPORTER_ASSERT(reporter, texture1->getRefCnt());
 
     // modify the new state
     SkIRect bound2;
@@ -189,8 +187,6 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     // check that the changes took
     check_state(reporter, cache, clip2, texture2, bound2);
-    REPORTER_ASSERT(reporter, texture1->getRefCnt());
-    REPORTER_ASSERT(reporter, texture2->getRefCnt());
 
     // check to make sure canReuse works
     REPORTER_ASSERT(reporter, cache.canReuse(clip2.getTopmostGenID(), bound2));
@@ -201,7 +197,6 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     // verify that the old state is restored
     check_state(reporter, cache, clip1, texture1, bound1);
-    REPORTER_ASSERT(reporter, texture1->getRefCnt());
 
     // manually clear the state
     cache.reset();

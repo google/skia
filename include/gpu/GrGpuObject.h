@@ -54,24 +54,6 @@ public:
     const GrContext* getContext() const;
     GrContext* getContext();
 
-    void incDeferredRefCount() const {
-        SkASSERT(fDeferredRefCount >= 0);
-        ++fDeferredRefCount;
-    }
-
-    void decDeferredRefCount() const {
-        SkASSERT(fDeferredRefCount > 0);
-        --fDeferredRefCount;
-        if (0 == fDeferredRefCount && this->needsDeferredUnref()) {
-            SkASSERT(this->getRefCnt() > 1);
-            this->unref();
-        }
-    }
-
-    int getDeferredRefCount() const { return fDeferredRefCount; }
-
-    void setNeedsDeferredUnref() { fFlags |= kDeferredUnref_FlagBit; }
-
     virtual bool isValidOnGpu() const SK_OVERRIDE { return !this->wasDestroyed(); }
 
 protected:

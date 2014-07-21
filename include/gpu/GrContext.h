@@ -1119,7 +1119,7 @@ public:
         // The cache also has a ref which we are lending to the caller of detach(). When the caller
         // lets go of the ref and the ref count goes to 0 internal_dispose will see this flag is
         // set and re-ref the texture, thereby restoring the cache's ref.
-        SkASSERT(texture->getRefCnt() > 1);
+        SkASSERT(!texture->unique());
         texture->impl()->setFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit);
         texture->unref();
         SkASSERT(NULL != texture->getCacheEntry());

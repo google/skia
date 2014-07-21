@@ -528,20 +528,13 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
         // still be in the exclusive pile. Recycle it.
         fResourceCache->makeNonExclusive(texture->getCacheEntry());
         this->purgeCache();
-    } else if (texture->getDeferredRefCount() <= 0) {
+    } else {
         // When we aren't reusing textures we know this scratch texture
         // will never be reused and would be just wasting time in the cache
         fResourceCache->makeNonExclusive(texture->getCacheEntry());
         fResourceCache->deleteResource(texture->getCacheEntry());
-    } else {
-        // In this case (fDeferredRefCount > 0) but the cache is the only
-        // one holding a real ref. Mark the object so when the deferred
-        // ref count goes to 0 the texture will be deleted (remember
-        // in this code path scratch textures aren't getting reused).
-        texture->setNeedsDeferredUnref();
     }
 }
-
 
 void GrContext::unlockScratchTexture(GrTexture* texture) {
     ASSERT_OWNED_RESOURCE(texture);
@@ -554,14 +547,14 @@ void GrContext::unlockScratchTexture(GrTexture* texture) {
         if (fGpu->caps()->reuseScratchTextures() || NULL != texture->asRenderTarget()) {
             fResourceCache->makeNonExclusive(texture->getCacheEntry());
             this->purgeCache();
-        } else if (texture->unique() && texture->getDeferredRefCount() <= 0) {
+        } else if (texture->unique()) {
             // Only the cache now knows about this texture. Since we're never
             // reusing scratch textures (in this code path) it would just be
             // wasting time sitting in the cache.
             fResourceCache->makeNonExclusive(texture->getCacheEntry());
             fResourceCache->deleteResource(texture->getCacheEntry());
         } else {
-            // In this case (fRefCnt > 1 || defRefCnt > 0) but we don't really
+            // In this case (there is still a non-cache ref) but we don't really
             // want to readd it to the cache (since it will never be reused).
             // Instead, give up the cache's ref and leave the decision up to
             // addExistingTextureToCache once its ref count reaches 0. For
