@@ -58,7 +58,9 @@ public:
      */
     GrTexture* getTexture();
 
-    virtual SkShader* newShader(SkShader::TileMode, SkShader::TileMode) const;
+    virtual SkShader* newShader(SkShader::TileMode,
+                                SkShader::TileMode,
+                                const SkMatrix* localMatrix = NULL) const;
 
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
 

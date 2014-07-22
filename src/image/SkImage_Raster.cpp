@@ -64,7 +64,9 @@ public:
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
-    virtual SkShader* onNewShader(SkShader::TileMode, SkShader::TileMode) const SK_OVERRIDE;
+    virtual SkShader* onNewShader(SkShader::TileMode,
+                                  SkShader::TileMode,
+                                  const SkMatrix* localMatrix) const SK_OVERRIDE;
 
 private:
     SkImage_Raster() : INHERITED(0, 0) {}
@@ -113,8 +115,11 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes
 
 SkImage_Raster::~SkImage_Raster() {}
 
-SkShader* SkImage_Raster::onNewShader(SkShader::TileMode tileX, SkShader::TileMode tileY) const {
-    return SkShader::CreateBitmapShader(fBitmap, tileX, tileY, NULL);
+SkShader* SkImage_Raster::onNewShader(SkShader::TileMode tileX,
+                                      SkShader::TileMode tileY,
+                                      const SkMatrix* localMatrix) const
+{
+    return SkShader::CreateBitmapShader(fBitmap, tileX, tileY, localMatrix);
 }
 
 void SkImage_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
