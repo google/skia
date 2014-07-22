@@ -25,6 +25,13 @@
     'tools.gyp:resources',
     'tools.gyp:sk_tool_utils',
   ],
+  'conditions': [
+    [ 'skia_android_framework == 1', {
+      'libraries': [
+        '-ldl',
+      ],
+    }],
+  ],
   'sources': [
     '../tests/Test.cpp',
     '../tests/Test.h',
