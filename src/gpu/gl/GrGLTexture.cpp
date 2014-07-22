@@ -49,7 +49,6 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
 }
 
 void GrGLTexture::onRelease() {
-    GPUGL->notifyTextureDelete(this);
     fTexIDObj.reset(NULL);
     INHERITED::onRelease();
 }

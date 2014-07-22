@@ -325,6 +325,9 @@ typedef uint32_t SkMSec;
 /** The generation IDs in Skia reserve 0 has an invalid marker.
  */
 #define SK_InvalidGenID     0
+/** The unique IDs in Skia reserve 0 has an invalid marker.
+ */
+#define SK_InvalidUniqueID  0
 
 /****************************************************************************
     The rest of these only build with C++
