@@ -8,6 +8,24 @@
     'SK_FORCE_DISTANCEFIELD_FONTS=<(skia_force_distancefield_fonts)',
   ],
   'conditions' : [
+    ['skia_pic', {
+     'cflags': [
+       '-fPIC',
+     ],
+     'conditions' : [
+      # FIXME: The reason we don't do this on Android is due to the way
+      # we build the executables/skia_launcher on Android. See
+      # https://codereview.chromium.org/406613003/diff/1/gyp/common_conditions.gypi#newcode455
+      ['skia_os != "android"', {
+       'target_conditions': [
+         [ '_type == "executable"', {
+           'cflags': [ '-fPIE' ],
+           'ldflags': [ '-pie' ],
+         }],
+       ],
+      }],
+     ],
+    }],
     [ 'skia_arch_type == "arm64"', {
       'cflags': [
         '-ffp-contract=off',
@@ -394,9 +412,6 @@
         },
         'conditions' : [
           [ 'skia_shared_lib', {
-            'cflags': [
-              '-fPIC',
-            ],
             'defines': [
               'SKIA_DLL',
               'SKIA_IMPLEMENTATION=1',
@@ -440,23 +455,9 @@
             'conditions' : [
               [ 'skia_sanitizer == "thread"', {
                 'defines': [ 'SK_DYNAMIC_ANNOTATIONS_ENABLED=1' ],
-                'cflags': [ '-fPIC' ],
-                'target_conditions': [
-                  [ '_type == "executable"', {
-                    'cflags': [ '-fPIE' ],
-                    'ldflags': [ '-pie' ],
-                  }],
-                ],
               }],
               [ 'skia_sanitizer == "undefined"', {
-                'cflags': [ '-fPIC' ],
                 'cflags_cc!': ['-fno-rtti'],
-                'target_conditions': [
-                  [ '_type == "executable"', {
-                    'cflags': [ '-fPIE' ],
-                    'ldflags': [ '-pie' ],
-                  }],
-                ],
               }],
             ],
           }],
@@ -660,9 +661,6 @@
             ],
           }],
           [ 'skia_shared_lib', {
-            'cflags': [
-              '-fPIC',
-            ],
             'defines': [
               'SKIA_DLL',
               'SKIA_IMPLEMENTATION=1',

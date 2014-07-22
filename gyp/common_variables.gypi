@@ -181,6 +181,12 @@
         'skia_clang_build%': 0,
         'skia_keep_frame_pointer%': 0,
       }],
+      [ 'skia_shared_lib or skia_sanitizer or skia_os == "android"', {
+          'skia_pic%' : 1,
+        }, {
+          'skia_pic%' : 0,
+        }
+      ],
     ],
 
     # Re-define all variables defined within the level-2 'variables' dict,
