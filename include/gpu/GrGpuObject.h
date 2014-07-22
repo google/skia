@@ -73,7 +73,6 @@ protected:
     virtual void onAbandon() {};
 
     bool isWrapped() const { return kWrapped_FlagBit & fFlags; }
-    bool needsDeferredUnref() const { return SkToBool(kDeferredUnref_FlagBit & fFlags); }
 
 private:
 #ifdef SK_DEBUG
@@ -86,8 +85,6 @@ private:
     GrGpu*              fGpu;               // not reffed. The GrGpu can be deleted while there
                                             // are still live GrGpuObjects. It will call
                                             // release() on all such objects in its destructor.
-    mutable int         fDeferredRefCount;  // How many references in deferred drawing buffers.
-
     enum Flags {
         /**
          * This object wraps a GPU object given to us by the user.
@@ -95,14 +92,6 @@ private:
          * free it).
          */
         kWrapped_FlagBit         = 0x1,
-
-        /**
-         * This texture should be de-refed when the deferred ref count goes
-         * to zero. An object gets into this state when the resource cache
-         * is holding a ref-of-obligation (i.e., someone needs to own it but
-         * no one else wants to) but doesn't really want to keep it around.
-         */
-        kDeferredUnref_FlagBit  = 0x2,
     };
     uint32_t         fFlags;
 

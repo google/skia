@@ -12,7 +12,6 @@
 
 GrGpuObject::GrGpuObject(GrGpu* gpu, bool isWrapped) {
     fGpu              = gpu;
-    fDeferredRefCount = 0;
     if (isWrapped) {
         fFlags = kWrapped_FlagBit;
     } else {
@@ -23,7 +22,6 @@ GrGpuObject::GrGpuObject(GrGpu* gpu, bool isWrapped) {
 
 GrGpuObject::~GrGpuObject() {
     // subclass should have released this.
-    SkASSERT(0 == fDeferredRefCount);
     SkASSERT(this->wasDestroyed());
 }
 
