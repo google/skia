@@ -46,6 +46,3 @@ blurquickreject
 blurrects
 bigblurs
 
-#bungeman: there's now a fontmgr on android
-fontmgr_match
-fontmgr_iter
