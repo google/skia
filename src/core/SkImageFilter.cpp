@@ -44,7 +44,7 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
     if (expectedCount < 0) {    // means the caller doesn't care how many
         expectedCount = count;
     }
-    if (!buffer.validate(count == expectedCount)) {
+    if (!buffer.validate((count == expectedCount) && (count >= 0))) {
         return false;
     }
 
