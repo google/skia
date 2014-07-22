@@ -341,7 +341,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         break;
     case DROP_SHADOW:
         filter = SkDropShadowImageFilter::Create(make_scalar(), make_scalar(),
-                     make_scalar(true), make_color(), make_image_filter());
+                     make_scalar(true), make_scalar(true), make_color(), make_image_filter());
         break;
     case MORPHOLOGY:
         if (R(2) == 1) {

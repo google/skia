@@ -198,7 +198,7 @@ protected:
             FailImageFilter::Create(),
             SkColorFilterImageFilter::Create(cf),
             SkBlurImageFilter::Create(12.0f, 0.0f),
-            SkDropShadowImageFilter::Create(10.0f, 5.0f, 3.0f, SK_ColorBLUE),
+            SkDropShadowImageFilter::Create(10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE),
         };
         cf->unref();
 
