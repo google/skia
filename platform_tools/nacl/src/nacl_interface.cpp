@@ -24,7 +24,7 @@ class SkiaInstance;
 SkiaInstance* gPluginInstance;
 
 // Main entry point for the app we're linked into
-extern int test_main(int, char**);
+extern int test_main();
 
 // Tokenize a command line and store it in argc and argv.
 void SkStringToProgramArgs(const SkString commandLine, int* argc, char*** argv) {
@@ -68,7 +68,7 @@ void RunProgram(const SkString& commandLine) {
     int argc;
     char** argv;
     SkStringToProgramArgs(commandLine, &argc, &argv);
-    test_main(argc, argv);
+    test_main();
 }
 
 
