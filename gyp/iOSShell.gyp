@@ -8,15 +8,18 @@
           'type': 'executable',
           'mac_bundle' : 1,
           'includes': [
-            'tests.gypi',
-	        'pathops_unittest.gypi',
+            'bench.gypi',
+            'dm.gypi',
           ],
           'dependencies': [
             'tools.gyp:crash_handler',
+            'tools.gyp:timer',
             'views.gyp:views',
             'xml.gyp:xml',
           ],
           'sources': [
+            '../bench/nanobench.cpp',
+            '../bench/ResultsWriter.cpp',
             '../tests/skia_test.cpp',
             '../tools/iOSShell.cpp',
             '../src/views/mac/SkEventNotifier.mm',

@@ -2,7 +2,7 @@
 
 #include "DMUtil.h"
 #include "SkColorPriv.h"
-#include "SkCommandLineFlags.h"
+#include "SkCommonFlags.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
 #include "SkStream.h"
@@ -129,6 +129,11 @@ bool save_data_to_file(const SkData* data, const char* path) {
 
 void WriteTask::draw() {
     SkString dir(FLAGS_writePath[0]);
+#if SK_BUILD_FOR_IOS
+    if (dir.equals("@")) {
+        dir.set(FLAGS_resourcePath[0]);
+    }
+#endif
     this->makeDirOrFail(dir);
     for (int i = 0; i < fSuffixes.count(); i++) {
         dir = SkOSPath::SkPathJoin(dir.c_str(), fSuffixes[i].c_str());

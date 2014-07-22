@@ -1,11 +1,8 @@
 #include "DMReporter.h"
 
 #include "SkDynamicAnnotations.h"
-#include "SkCommandLineFlags.h"
+#include "SkCommonFlags.h"
 #include "OverwriteLine.h"
-
-DEFINE_bool2(quiet, q, false, "If true, don't print status updates.");
-DEFINE_bool2(verbose, v, false, "If true, print status updates one-per-line.");
 
 namespace DM {
 

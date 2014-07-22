@@ -18,7 +18,7 @@
   ],
   'dependencies': [
     'experimental.gyp:experimental',
-    'flags.gyp:flags',
+    'flags.gyp:flags_common',
     'pdf.gyp:pdf',
     'skia_lib.gyp:skia_lib',
     'tools.gyp:picture_utils',

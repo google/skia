@@ -14,7 +14,7 @@
 #include "Timer.h"
 
 #include "SkCanvas.h"
-#include "SkCommandLineFlags.h"
+#include "SkCommonFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkString.h"
@@ -38,25 +38,15 @@ DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
 DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");
 DEFINE_double(overheadGoal, 0.0001,
               "Loop until timer overhead is at most this fraction of our measurments.");
-DEFINE_string(match, "", "The usual filters on file names of benchmarks to measure.");
-DEFINE_bool2(quiet, q, false, "Print only bench name and minimum sample.");
-DEFINE_bool2(verbose, v, false, "Print all samples.");
-DEFINE_string(config, "nonrendering 8888 gpu", "Configs to measure. Options: "
-              "565 8888 gpu nonrendering debug nullgpu msaa4 msaa16 nvprmsaa4 nvprmsaa16 angle");
 DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
 DEFINE_int32(gpuFrameLag, 5, "Overestimate of maximum number of frames GPU allows to lag.");
 
-DEFINE_bool(cpu, true, "Master switch for CPU-bound work.");
-DEFINE_bool(gpu, true, "Master switch for GPU-bound work.");
-
 DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
-DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each bench.");
 DEFINE_int32(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
 DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON.");
 DEFINE_string(gitHash, "", "Git hash to add to JSON.");
-
 
 static SkString humanize(double ms) {
     if (ms > 1e+3) return SkStringPrintf("%.3gs",  ms/1e3);
@@ -298,11 +288,10 @@ static void fill_gpu_options(ResultsWriter* log, SkGLContextHelper* ctx) {
 }
 #endif
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
+int nanobench_main();
+int nanobench_main() {
     SetupCrashHandler();
     SkAutoGraphics ag;
-    SkCommandLineFlags::Parse(argc, argv);
 
     if (FLAGS_runOnce) {
         FLAGS_samples     = 1;
@@ -429,7 +418,8 @@ int tool_main(int argc, char** argv) {
 }
 
 #if !defined SK_BUILD_FOR_IOS
-int main(int argc, char * const argv[]) {
-    return tool_main(argc, (char**) argv);
+int main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
+    return nanobench_main();
 }
 #endif

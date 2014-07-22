@@ -8,9 +8,11 @@
 #include "iOSShell.h"
 
 #include "Resources.h"
+#include "SkApplication.h"
 #include "SkCanvas.h"
-#include "SkCommandLineFlags.h"
+#include "SkCommonFlags.h"
 #include "SkGraphics.h"
+#include "SkThreadPool.h"
 #include "SkWindow.h"
 #include "sk_tool_utils.h"
 
@@ -52,17 +54,22 @@ void ShellWindow::onSizeChange() {
     view->setSize(this->width(), this->height());
 }
 
-void tool_main(int argc, char *argv[]);
+DEFINE_bool(dm, false, "run dm");
+DEFINE_bool(nanobench, false, "run nanobench");
 
-bool set_cmd_line_args(int argc, char *argv[], const char* resourceDir) {
-    for (int index = 0; index < argc; ++index) {
-        if (!strcmp("--test", argv[index])) {
-            SetResourcePath(resourceDir);
-            tool_main(argc - 1, argv);
-            return true;
-        }
+int nanobench_main();
+int dm_main();
+
+IOS_launch_type set_cmd_line_args(int argc, char *argv[], const char* resourceDir) {
+    SkCommandLineFlags::Parse(argc, argv);
+    SetResourcePath(resourceDir);
+    if (FLAGS_nanobench) {
+        return nanobench_main() ? kError_iOSLaunchType : kTool_iOSLaunchType;
     }
-    return false;
+    if (FLAGS_dm) {
+        return dm_main() ? kError_iOSLaunchType : kTool_iOSLaunchType;
+    }
+    return kError_iOSLaunchType;
 }
 
 // FIXME: this should be in a header

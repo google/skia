@@ -1,12 +1,6 @@
 #include "DMTask.h"
 #include "DMTaskRunner.h"
-#include "SkCommandLineFlags.h"
-
-DEFINE_bool(cpu, true, "Master switch for running CPU-bound work.");
-DEFINE_bool(gpu, true, "Master switch for running GPU-bound work.");
-DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each task.");
-
-DECLARE_bool(dryRun);
+#include "SkCommonFlags.h"
 
 namespace DM {
 

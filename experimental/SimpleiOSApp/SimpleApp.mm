@@ -1,11 +1,12 @@
+#include "SkApplication.h"
 #import "SkCanvas.h"
 #import "SkPaint.h"
 #import "SkWindow.h"
 #include "SkGraphics.h"
 #include "SkCGUtils.h"
 
-extern void tool_main(int argc, char *argv[]);
-extern bool set_cmd_line_args(int argc, char *argv[], const char* dir);
+void dummy_main(int , char *[]) {
+}
 
 class SkSampleView : public SkView {
 public:
@@ -41,10 +42,10 @@ void application_term() {
 int saved_argc;
 char** saved_argv;
 
-bool set_cmd_line_args(int argc, char *argv[], const char* ) {
+IOS_launch_type set_cmd_line_args(int argc, char *argv[], const char* ) {
     saved_argc = argc;
     saved_argv = argv;
-    return true;
+    return kTool_iOSLaunchType;
 }
 
 class FillLayout : public SkView::Layout {
@@ -59,7 +60,7 @@ protected:
 @implementation SimpleApp
 
 - (id)initWithDefaults {
-    (void) tool_main(saved_argc, saved_argv);
+    dummy_main(saved_argc, saved_argv);
     if (self = [super initWithDefaults]) {
         fWind = new SkOSWindow(self);
         fWind->setLayout(new FillLayout, false);

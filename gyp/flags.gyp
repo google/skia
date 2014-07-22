@@ -18,5 +18,22 @@
         ],
       }
     },
+    {
+      'target_name': 'flags_common',
+      'type': 'static_library',
+      'sources': [
+        '../tools/flags/SkCommonFlags.cpp',
+        '../tools/flags/SkCommonFlags.h',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'flags.gyp:flags',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../tools/flags',
+        ],
+      }
+    },
   ],
 }

@@ -42,7 +42,7 @@
       ],
       'includes': [ 'bench.gypi' ],
       'dependencies': [
-        'flags.gyp:flags',
+        'flags.gyp:flags_common',
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',

@@ -2386,14 +2386,12 @@ void get_preferred_size(int* x, int* y, int* width, int* height) {
 }
 
 #ifdef SK_BUILD_FOR_IOS
-bool set_cmd_line_args(int , char *[], const char* resourceDir) {
+IOS_launch_type set_cmd_line_args(int , char *[], const char* resourceDir) {
     SetResourcePath(resourceDir);
-    return false;
+    return kApplication__iOSLaunchType;
 }
 #endif
 
-// FIXME: this should be in a header
-void application_init();
 void application_init() {
 //    setenv("ANDROID_ROOT", "../../../data", 0);
 #ifdef SK_BUILD_FOR_MAC
@@ -2403,8 +2401,6 @@ void application_init() {
     SkEvent::Init();
 }
 
-// FIXME: this should be in a header
-void application_term();
 void application_term() {
     SkEvent::Term();
     SkGraphics::Term();

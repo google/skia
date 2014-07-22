@@ -8,7 +8,7 @@
 #include "CrashHandler.h"
 #include "OverwriteLine.h"
 #include "Resources.h"
-#include "SkCommandLineFlags.h"
+#include "SkCommonFlags.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
 #include "SkTArray.h"
@@ -24,23 +24,7 @@
 
 using namespace skiatest;
 
-DEFINE_string2(match, m, NULL, "[~][^]substring[$] [...] of test name to run.\n" \
-                               "Multiple matches may be separated by spaces.\n" \
-                               "~ causes a matching test to always be skipped\n" \
-                               "^ requires the start of the test to match\n" \
-                               "$ requires the end of the test to match\n" \
-                               "^ and $ requires an exact match\n" \
-                               "If a test does not match any list entry,\n" \
-                               "it is skipped unless some list entry starts with ~");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
-DEFINE_bool2(leaks, l, false, "show leaked ref cnt'd objects.");
-DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
-DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
-DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
-DEFINE_bool(cpu, true, "whether or not to run CPU tests.");
-DEFINE_bool(gpu, true, "whether or not to run GPU tests.");
-DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
-             "Run threadsafe tests on a threadpool with this many threads.");
 
 // need to explicitly declare this, or we get some weird infinite loop llist
 template TestRegistry* TestRegistry::gHead;
@@ -131,11 +115,9 @@ static bool should_run(const char* testName, bool isGPUTest) {
     return true;
 }
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
+int test_main();
+int test_main() {
     SetupCrashHandler();
-    SkCommandLineFlags::SetUsage("");
-    SkCommandLineFlags::Parse(argc, argv);
 
 #if SK_ENABLE_INST_COUNT
     if (FLAGS_leaks) {
@@ -235,7 +217,8 @@ int tool_main(int argc, char** argv) {
 }
 
 #if !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_NACL)
-int main(int argc, char * const argv[]) {
-    return tool_main(argc, (char**) argv);
+int main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
+    return test_main();
 }
 #endif
