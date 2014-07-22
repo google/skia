@@ -9,6 +9,8 @@
 #include "GrGpu.h"
 #include "GrLayerCache.h"
 
+DECLARE_SKMESSAGEBUS_MESSAGE(GrPictureDeletedMessage);
+
 #ifdef SK_DEBUG
 void GrCachedLayer::validate(const GrTexture* backingTexture) const {
     SkASSERT(SK_InvalidGenID != fKey.getPictureID());
@@ -223,7 +225,8 @@ private:
 };
 #endif
 
-void GrLayerCache::purge(const SkPicture* picture) {
+void GrLayerCache::purge(uint32_t pictureID) {
+
     SkDEBUGCODE(GrAutoValidateCache avc(this);)
 
     // We need to find all the layers associated with 'picture' and remove them.
@@ -231,7 +234,7 @@ void GrLayerCache::purge(const SkPicture* picture) {
 
     SkTDynamicHash<GrCachedLayer, GrCachedLayer::Key>::Iter iter(&fLayerHash);
     for (; !iter.done(); ++iter) {
-        if (picture->uniqueID() == (*iter).pictureID()) {
+        if (pictureID == (*iter).pictureID()) {
             *toBeRemoved.append() = &(*iter);
         }
     }
@@ -242,9 +245,34 @@ void GrLayerCache::purge(const SkPicture* picture) {
         SkDELETE(toBeRemoved[i]);
     }
 
-    GrPictureInfo* pictInfo = fPictureHash.find(picture->uniqueID());
+    GrPictureInfo* pictInfo = fPictureHash.find(pictureID);
     if (NULL != pictInfo) {
-        fPictureHash.remove(picture->uniqueID());
+        fPictureHash.remove(pictureID);
         SkDELETE(pictInfo);
     }
 }
+
+class GrPictureDeletionListener : public SkPicture::DeletionListener {
+    virtual void onDeletion(uint32_t pictureID) SK_OVERRIDE{
+        const GrPictureDeletedMessage message = { pictureID };
+        SkMessageBus<GrPictureDeletedMessage>::Post(message);
+    }
+};
+
+void GrLayerCache::trackPicture(const SkPicture* picture) {
+    if (NULL == fDeletionListener) {
+        fDeletionListener.reset(SkNEW(GrPictureDeletionListener));
+    }
+
+    picture->addDeletionListener(fDeletionListener);
+}
+
+void GrLayerCache::processDeletedPictures() {
+    SkTDArray<GrPictureDeletedMessage> deletedPictures;
+    fPictDeletionInbox.poll(&deletedPictures);
+
+    for (int i = 0; i < deletedPictures.count(); i++) {
+        this->purge(deletedPictures[i].pictureID);
+    }
+}
+

@@ -190,6 +190,14 @@ public:
     bool suitableForGpuRasterization(GrContext*, const char ** = NULL) const;
 #endif
 
+    class DeletionListener : public SkRefCnt {
+    public:
+        virtual void onDeletion(uint32_t pictureID) = 0;
+    };
+
+    // Takes ref on listener.
+    void addDeletionListener(DeletionListener* listener) const;
+
 private:
     // V2 : adds SkPixelRef's generation ID.
     // V3 : PictInfo tag at beginning, and EOF tag at the end
@@ -237,7 +245,10 @@ private:
     int                   fWidth, fHeight;
     mutable SkAutoTUnref<const AccelData> fAccelData;
 
+    mutable SkTDArray<DeletionListener*> fDeletionListeners;  // pointers are refed
+
     void needsNewGenID() { fUniqueID = SK_InvalidGenID; }
+    void callDeletionListeners();
 
     // Create a new SkPicture from an existing SkPictureData. The new picture
     // takes ownership of 'data'.

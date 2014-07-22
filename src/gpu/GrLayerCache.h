@@ -16,8 +16,14 @@
 #include "GrRect.h"
 #include "SkChecksum.h"
 #include "SkTDynamicHash.h"
+#include "SkMessageBus.h"
 
 class SkPicture;
+
+// The layer cache listens for these messages to purge picture-related resources.
+struct GrPictureDeletedMessage {
+    uint32_t pictureID;
+};
 
 // GrPictureInfo stores the atlas plots used by a single picture. A single 
 // plot may be used to store layers from multiple pictures.
@@ -146,8 +152,11 @@ public:
     // Inform the cache that layer's cached image is not currently required
     void unlock(GrCachedLayer* layer);
 
-    // Remove all the layers (and unlock any resources) associated with 'picture'
-    void purge(const SkPicture* picture);
+    // Setup to be notified when 'picture' is deleted
+    void trackPicture(const SkPicture* picture);
+
+    // Cleanup after any SkPicture deletions
+    void processDeletedPictures();
 
     SkDEBUGCODE(void validate() const;)
 
@@ -167,11 +176,18 @@ private:
 
     SkTDynamicHash<GrCachedLayer, GrCachedLayer::Key> fLayerHash;
 
+    SkMessageBus<GrPictureDeletedMessage>::Inbox fPictDeletionInbox;
+
+    SkAutoTUnref<SkPicture::DeletionListener> fDeletionListener;
+
     void initAtlas();
     GrCachedLayer* createLayer(const SkPicture* picture, int layerID);
 
+    // Remove all the layers (and unlock any resources) associated with 'pictureID'
+    void purge(uint32_t pictureID);
+
     // for testing
-    friend class GetNumLayers;
+    friend class TestingAccess;
     int numLayers() const { return fLayerHash.count(); }
 };
 

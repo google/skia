@@ -2386,13 +2386,6 @@ void SkCanvas::EXPERIMENTAL_optimize(const SkPicture* picture) {
     }
 }
 
-void SkCanvas::EXPERIMENTAL_purge(const SkPicture* picture) {
-    SkBaseDevice* device = this->getTopDevice();
-    if (NULL != device) {
-        device->EXPERIMENTAL_purge(picture);
-    }
-}
-
 void SkCanvas::drawPicture(const SkPicture* picture) {
     if (NULL != picture) {
         this->onDrawPicture(picture);

@@ -134,10 +134,6 @@ void SkBaseDevice::EXPERIMENTAL_optimize(const SkPicture* picture) {
     // The base class doesn't perform any analysis but derived classes may
 }
 
-void SkBaseDevice::EXPERIMENTAL_purge(const SkPicture* picture) {
-    // Derived-classes may have data to purge but not the base class
-}
-
 bool SkBaseDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture) {
     // The base class doesn't perform any accelerated picture rendering
     return false;

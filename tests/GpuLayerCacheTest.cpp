@@ -15,10 +15,13 @@
 
 static const int kNumLayers = 5;
 
-class GetNumLayers {
+class TestingAccess {
 public:
     static int NumLayers(GrLayerCache* cache) {
         return cache->numLayers();
+    }
+    static void Purge(GrLayerCache* cache, uint32_t pictureID) {
+        cache->purge(pictureID);
     }
 };
 
@@ -34,7 +37,7 @@ static void create_layers(skiatest::Reporter* reporter,
         GrCachedLayer* layer = cache->findLayer(&picture, i);
         REPORTER_ASSERT(reporter, layer == layers[i]);
 
-        REPORTER_ASSERT(reporter, GetNumLayers::NumLayers(cache) == i+1);
+        REPORTER_ASSERT(reporter, TestingAccess::NumLayers(cache) == i + 1);
 
         REPORTER_ASSERT(reporter, picture.uniqueID() == layers[i]->pictureID());
         REPORTER_ASSERT(reporter, layers[i]->layerID() == i);
@@ -42,6 +45,7 @@ static void create_layers(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, !layers[i]->isAtlased());
     }
 
+    cache->trackPicture(&picture);
 }
 
 // This test case exercises the public API of the GrLayerCache class.
@@ -126,22 +130,36 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
 #endif
         }
 
+        //--------------------------------------------------------------------
         // Free them all SkGpuDevice-style. This will not free up the
         // atlas' texture but will eliminate all the layers.
-        cache.purge(picture);
+        TestingAccess::Purge(&cache, picture->uniqueID());
 
-        REPORTER_ASSERT(reporter, GetNumLayers::NumLayers(&cache) == 0);
+        REPORTER_ASSERT(reporter, TestingAccess::NumLayers(&cache) == 0);
         // TODO: add VRAM/resource cache check here
-#if 0
+
+        //--------------------------------------------------------------------
+        // Test out the GrContext-style purge. This should remove all the layers
+        // and the atlas.
         // Re-create the layers
-        create_layers(reporter, &cache, picture);
+        create_layers(reporter, &cache, *picture);
 
         // Free them again GrContext-style. This should free up everything.
         cache.freeAll();
 
-        REPORTER_ASSERT(reporter, GetNumLayers::NumLayers(&cache) == 0);
+        REPORTER_ASSERT(reporter, TestingAccess::NumLayers(&cache) == 0);
         // TODO: add VRAM/resource cache check here
-#endif
+
+        //--------------------------------------------------------------------
+        // Test out the MessageBus-style purge. This will not free the atlas
+        // but should eliminate the free-floating layers.
+        create_layers(reporter, &cache, *picture);
+
+        picture.reset(NULL);
+        cache.processDeletedPictures();
+
+        REPORTER_ASSERT(reporter, TestingAccess::NumLayers(&cache) == 0);
+        // TODO: add VRAM/resource cache check here
     }
 }
 
