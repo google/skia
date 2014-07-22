@@ -15,7 +15,10 @@
 #include "SkTDArray.h"
 
 struct FontFileInfo {
+    FontFileInfo() : fIndex(0) { }
+
     SkString              fFileName;
+    int                   fIndex;
     SkPaintOptionsAndroid fPaintOptions;
 };
 
