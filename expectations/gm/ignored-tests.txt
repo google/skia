@@ -33,18 +33,6 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
-# egdaniel: removing a gpu shader optimization causes some single pixel changes in gm
-# cl: https://codereview.chromium.org/375823005/#ps210001
-coloremoji
-complexclip2
-complexclip2_path_bw
-complexclip2_rrect_bw
-gradients_view_perspective
-imagefiltersbase
-inverse_paths
-xfermodes3
-verylargebitmap
-
 # reed: bitmapfilters changed (labels) with hide_config CL, just need rebaselines
 bitmapfilters
 

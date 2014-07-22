@@ -9302,17 +9302,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1214323161004682693
+          2345997695698587496
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "radial_gradient2_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          517817170355194916
+          13265214489338924633
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "radial_gradient_565.png": {
       "allowed-digests": [
