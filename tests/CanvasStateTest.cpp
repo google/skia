@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "CanvasStateHelpers.h"
 #include "SkCanvas.h"
 #include "SkCanvasStateUtils.h"
+#include "SkCommandLineFlags.h"
 #include "SkDrawFilter.h"
 #include "SkError.h"
 #include "SkPaint.h"
@@ -14,8 +16,48 @@
 #include "SkRect.h"
 #include "Test.h"
 
-static void test_complex_layers(skiatest::Reporter* reporter) {
+// dlopen and the library flag are only used for tests which require this flag.
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+#include <dlfcn.h>
+
+DEFINE_string(library, "", "Support library to use for CanvasState test. If empty (the default), "
+                           "the test will be run without crossing a library boundary. Otherwise, "
+                           "it is expected to be a full path to a shared library file, which will"
+                           " be dynamically loaded. Functions from the library will be called to "
+                           "test SkCanvasState. Instructions for generating the library are in "
+                           "gyp/canvas_state_lib.gyp");
+
+
+// This class calls dlopen on the library passed in to the command line flag library, and handles
+// calling dlclose when it goes out of scope.
+class OpenLibResult {
+public:
+    // If the flag library was passed to this run of the test, attempt to open it using dlopen and
+    // report whether it succeeded.
+    OpenLibResult(skiatest::Reporter* reporter) {
+        if (FLAGS_library.count() == 1) {
+            fHandle = dlopen(FLAGS_library[0], RTLD_LAZY | RTLD_LOCAL);
+            REPORTER_ASSERT_MESSAGE(reporter, fHandle != NULL, "Failed to open library!");
+        } else {
+            fHandle = NULL;
+        }
+    }
+
+    // Automatically call dlclose when going out of scope.
+    ~OpenLibResult() {
+        if (fHandle) {
+            dlclose(fHandle);
+        }
+    }
+
+    // Pointer to the shared library object.
+    void* handle() { return fHandle; }
+
+private:
+    void* fHandle;
+};
+
+DEF_TEST(CanvasState_test_complex_layers, reporter) {
     const int WIDTH = 400;
     const int HEIGHT = 400;
     const int SPACER = 10;
@@ -34,7 +76,22 @@ static void test_complex_layers(skiatest::Reporter* reporter) {
                                           SkCanvas::kARGB_NoClipLayer_SaveFlag
     };
     REPORTER_ASSERT(reporter, sizeof(layerAlpha) == sizeof(flags));
-    const int layerCombinations = sizeof(layerAlpha) / sizeof(int);
+
+    bool (*drawFn)(SkCanvasState* state, float l, float t,
+                   float r, float b, int32_t s);
+
+    OpenLibResult openLibResult(reporter);
+    if (openLibResult.handle() != NULL) {
+        *(void**) (&drawFn) = dlsym(openLibResult.handle(),
+                                    "complex_layers_draw_from_canvas_state");
+    } else {
+        drawFn = complex_layers_draw_from_canvas_state;
+    }
+
+    REPORTER_ASSERT(reporter, drawFn);
+    if (!drawFn) {
+        return;
+    }
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(colorTypes); ++i) {
         SkBitmap bitmaps[2];
@@ -47,31 +104,27 @@ static void test_complex_layers(skiatest::Reporter* reporter) {
 
             canvas.drawColor(SK_ColorRED);
 
-            for (int k = 0; k < layerCombinations; ++k) {
+            for (size_t k = 0; k < SK_ARRAY_COUNT(layerAlpha); ++k) {
                 // draw a rect within the layer's bounds and again outside the layer's bounds
                 canvas.saveLayerAlpha(&rect, layerAlpha[k], flags[k]);
 
-                SkCanvasState* state = NULL;
-                SkCanvas* tmpCanvas = NULL;
                 if (j) {
-                    state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
+                    // Capture from the first Skia.
+                    SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
                     REPORTER_ASSERT(reporter, state);
-                    tmpCanvas = SkCanvasStateUtils::CreateFromCanvasState(state);
-                    REPORTER_ASSERT(reporter, tmpCanvas);
+
+                    // And draw to it in the second Skia.
+                    bool success = complex_layers_draw_from_canvas_state(state,
+                            rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, SPACER);
+                    REPORTER_ASSERT(reporter, success);
+
+                    // And release it in the *first* Skia.
+                    SkCanvasStateUtils::ReleaseCanvasState(state);
                 } else {
-                    tmpCanvas = SkRef(&canvas);
+                    // Draw in the first Skia.
+                    complex_layers_draw(&canvas, rect.fLeft, rect.fTop,
+                                        rect.fRight, rect.fBottom, SPACER);
                 }
-
-                SkPaint bluePaint;
-                bluePaint.setColor(SK_ColorBLUE);
-                bluePaint.setStyle(SkPaint::kFill_Style);
-
-                tmpCanvas->drawRect(rect, bluePaint);
-                tmpCanvas->translate(0, rect.height() + SPACER);
-                tmpCanvas->drawRect(rect, bluePaint);
-
-                tmpCanvas->unref();
-                SkCanvasStateUtils::ReleaseCanvasState(state);
 
                 canvas.restore();
 
@@ -86,13 +139,13 @@ static void test_complex_layers(skiatest::Reporter* reporter) {
                                           bitmaps[1].getPixels(),
                                           bitmaps[0].getSize()));
     }
-#endif
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void test_complex_clips(skiatest::Reporter* reporter) {
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+DEF_TEST(CanvasState_test_complex_clips, reporter) {
     const int WIDTH = 400;
     const int HEIGHT = 400;
     const int SPACER = 10;
@@ -124,7 +177,23 @@ static void test_complex_clips(skiatest::Reporter* reporter) {
                                           SkCanvas::kARGB_NoClipLayer_SaveFlag,
     };
     REPORTER_ASSERT(reporter, sizeof(clipOps) == sizeof(flags));
-    const int layerCombinations = sizeof(flags) / sizeof(SkCanvas::SaveFlags);
+
+    bool (*drawFn)(SkCanvasState* state, int32_t l, int32_t t,
+                   int32_t r, int32_t b, int32_t clipOp,
+                   int32_t regionRects, int32_t* rectCoords);
+
+    OpenLibResult openLibResult(reporter);
+    if (openLibResult.handle() != NULL) {
+        *(void**) (&drawFn) = dlsym(openLibResult.handle(),
+                                    "complex_clips_draw_from_canvas_state");
+    } else {
+        drawFn = complex_clips_draw_from_canvas_state;
+    }
+
+    REPORTER_ASSERT(reporter, drawFn);
+    if (!drawFn) {
+        return;
+    }
 
     SkBitmap bitmaps[2];
     for (int i = 0; i < 2; ++i) {
@@ -136,31 +205,34 @@ static void test_complex_clips(skiatest::Reporter* reporter) {
 
         SkRegion localRegion = clipRegion;
 
-        for (int j = 0; j < layerCombinations; ++j) {
+        for (size_t j = 0; j < SK_ARRAY_COUNT(flags); ++j) {
             SkRect layerBounds = SkRect::Make(layerRect);
             canvas.saveLayerAlpha(&layerBounds, 128, flags[j]);
 
-            SkCanvasState* state = NULL;
-            SkCanvas* tmpCanvas = NULL;
             if (i) {
-                state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
+                SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
                 REPORTER_ASSERT(reporter, state);
-                tmpCanvas = SkCanvasStateUtils::CreateFromCanvasState(state);
-                REPORTER_ASSERT(reporter, tmpCanvas);
+
+                SkRegion::Iterator iter(localRegion);
+                SkTDArray<int32_t> rectCoords;
+                for (; !iter.done(); iter.next()) {
+                    const SkIRect& rect = iter.rect();
+                    *rectCoords.append() = rect.fLeft;
+                    *rectCoords.append() = rect.fTop;
+                    *rectCoords.append() = rect.fRight;
+                    *rectCoords.append() = rect.fBottom;
+                }
+                bool success = drawFn(state, clipRect.fLeft, clipRect.fTop,
+                                      clipRect.fRight, clipRect.fBottom, clipOps[j],
+                                      rectCoords.count() / 4, rectCoords.begin());
+                REPORTER_ASSERT(reporter, success);
+
+                SkCanvasStateUtils::ReleaseCanvasState(state);
             } else {
-                tmpCanvas = SkRef(&canvas);
+                complex_clips_draw(&canvas, clipRect.fLeft, clipRect.fTop,
+                                   clipRect.fRight, clipRect.fBottom, clipOps[j],
+                                   localRegion);
             }
-
-            tmpCanvas->save();
-            tmpCanvas->clipRect(SkRect::Make(clipRect), clipOps[j]);
-            tmpCanvas->drawColor(SK_ColorBLUE);
-            tmpCanvas->restore();
-
-            tmpCanvas->clipRegion(localRegion, clipOps[j]);
-            tmpCanvas->drawColor(SK_ColorBLUE);
-
-            tmpCanvas->unref();
-            SkCanvasStateUtils::ReleaseCanvasState(state);
 
             canvas.restore();
 
@@ -175,8 +247,8 @@ static void test_complex_clips(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !memcmp(bitmaps[0].getPixels(),
                                       bitmaps[1].getPixels(),
                                       bitmaps[0].getSize()));
-#endif
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -185,7 +257,7 @@ public:
     virtual bool filter(SkPaint*, Type) SK_OVERRIDE { return true; }
 };
 
-static void test_draw_filters(skiatest::Reporter* reporter) {
+DEF_TEST(CanvasState_test_draw_filters, reporter) {
     TestDrawFilter drawFilter;
     SkBitmap bitmap;
     bitmap.allocN32Pixels(10, 10);
@@ -210,7 +282,7 @@ static void test_draw_filters(skiatest::Reporter* reporter) {
 // we need this function to prevent SkError from printing to stdout
 static void error_callback(SkError code, void* ctx) {}
 
-static void test_soft_clips(skiatest::Reporter* reporter) {
+DEF_TEST(CanvasState_test_soft_clips, reporter) {
     SkBitmap bitmap;
     bitmap.allocN32Pixels(10, 10);
     SkCanvas canvas(bitmap);
@@ -229,8 +301,8 @@ static void test_soft_clips(skiatest::Reporter* reporter) {
     SkClearLastError();
 }
 
-static void test_saveLayer_clip(skiatest::Reporter* reporter) {
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
     const int WIDTH = 100;
     const int HEIGHT = 100;
     const int LAYER_WIDTH = 50;
@@ -261,13 +333,5 @@ static void test_saveLayer_clip(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, clipStackBounds.height() == LAYER_HEIGHT);
 
     canvas.restore();
+}
 #endif
-}
-
-DEF_TEST(CanvasState, reporter) {
-    test_complex_layers(reporter);
-    test_complex_clips(reporter);
-    test_draw_filters(reporter);
-    test_soft_clips(reporter);
-    test_saveLayer_clip(reporter);
-}

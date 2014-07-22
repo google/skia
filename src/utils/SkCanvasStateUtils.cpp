@@ -20,6 +20,11 @@
  * ANY CHANGES TO THE STRUCTS BELOW THAT IMPACT THE ABI SHOULD RESULT IN A NEW
  * NEW SUBCLASS OF SkCanvasState. SUCH CHANGES SHOULD ONLY BE MADE IF ABSOLUTELY
  * NECESSARY!
+ *
+ * In order to test changes, run the CanvasState tests. gyp/canvas_state_lib.gyp
+ * describes how to create a library to pass to the CanvasState tests. The tests
+ * should succeed when building the library with your changes and passing that to
+ * the tests running in the unchanged Skia.
  */
 enum RasterConfigs {
   kUnknown_RasterConfig   = 0,
