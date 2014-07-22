@@ -5960,77 +5960,85 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4967868256822808424
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "fontmgr_iter_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18058984729452750366
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "fontmgr_iter_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7072812895837463931
+          2211593642825930916
         ]
       ], 
-      "ignore-failure": false, 
-      "reviewed-by-human": true
+      "ignore-failure": false
     }, 
     "fontmgr_iter_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7072812895837463931
+          2211593642825930916
         ]
       ], 
-      "ignore-failure": false, 
-      "reviewed-by-human": true
+      "ignore-failure": false
     }, 
     "fontmgr_match_565.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4335659971728708662
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "fontmgr_match_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5297915207580543309
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "fontmgr_match_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5297915207580543309
+          2211593642825930916
         ]
       ], 
-      "ignore-failure": false, 
-      "reviewed-by-human": true
+      "ignore-failure": false
     }, 
     "fontmgr_match_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5297915207580543309
+          2211593642825930916
         ]
       ], 
-      "ignore-failure": false, 
-      "reviewed-by-human": true
+      "ignore-failure": false
     }, 
     "fontscaler_565.png": {
       "allowed-digests": [

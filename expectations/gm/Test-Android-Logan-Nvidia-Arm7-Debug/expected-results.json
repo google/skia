@@ -6601,91 +6601,91 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9749233168320406104
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontmgr_iter_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18058984729452750366
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontmgr_iter_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7072812895837463931
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontmgr_iter_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7072812895837463931
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontmgr_iter_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6555005488032990867
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontmgr_match_565.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15819102890789133004
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontmgr_match_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5297915207580543309
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontmgr_match_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5297915207580543309
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontmgr_match_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5297915207580543309
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontmgr_match_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10694755477090262742
+          2211593642825930916
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontscaler_565.png": {
       "allowed-digests": [
