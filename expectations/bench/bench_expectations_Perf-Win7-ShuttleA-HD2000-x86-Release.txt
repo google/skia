@@ -163,7 +163,7 @@ desk_youtubetvvideo.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Win7-Shu
 mobi_wikipedia.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.61,-0.10944,2.82944
 tabl_androidpolice.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.46,15.02808,21.39192
 tabl_cnet.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,15.21,12.16024,17.77476
-tabl_culturalsolutions.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,83.71,74.77064,92.01936
+tabl_culturalsolutions.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,83.71,74.77064,95.01936
 tabl_cuteoverload.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,21.82,17.99088,25.11412
 tabl_deviantart.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,13.74,10.0572,16.7428
 tabl_digg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.47,-0.2284,2.6884
@@ -217,7 +217,7 @@ desk_rectangletransition.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf
 desk_samoasvg.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,80.07,67.31416,93.14584
 desk_sfgate.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.95,-2.18664,10.04664
 desk_tigersvg.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,45.26,35.06752,55.08748
-desk_twitter.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,30.25,23.83984,36.48516
+desk_twitter.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,30.25,23.83984,39.48516
 desk_weather.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,11.62,-3.43176,29.17176
 desk_wowwiki.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,16.75,13.1464,19.9986
 desk_yahooanswers.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.7,1.66256,5.20744

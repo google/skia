@@ -128,7 +128,7 @@ desk_amazon.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-
 desk_baidu.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,9.49,7.10976,11.40024
 desk_blogger.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,10.83,8.39344,12.76156
 desk_booking.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,21.08,17.66256,23.94244
-desk_carsvg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,365.94,332.53136,399.05364
+desk_carsvg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,365.94,322.53136,399.05364
 desk_chalkboard.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,169.46,154.22192,184.19808
 desk_css3gradients.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,19.83,16.63264,22.53236
 desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,19.43,16.08256,22.28244
