@@ -39,7 +39,11 @@ GrFontCache::GrFontCache(GrGpu* gpu) : fGpu(gpu) {
 }
 
 GrFontCache::~GrFontCache() {
-    fCache.deleteAll();
+    SkTDynamicHash<GrTextStrike, GrFontDescKey>::Iter iter(&fCache);
+    while (!iter.done()) {
+        SkDELETE(&(*iter));
+        ++iter;
+    }
     for (int i = 0; i < kAtlasCount; ++i) {
         delete fAtlases[i];
     }
@@ -74,8 +78,7 @@ static int mask_format_to_atlas_index(GrMaskFormat format) {
     return sAtlasIndices[format];
 }
 
-GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
-                                          const Key& key) {
+GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler) {
     GrMaskFormat format = scaler->getMaskFormat();
     GrPixelConfig config = mask_format_to_pixel_config(format);
     int atlasIndex = mask_format_to_atlas_index(format);
@@ -90,7 +93,7 @@ GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
     }
     GrTextStrike* strike = SkNEW_ARGS(GrTextStrike,
                                       (this, scaler->getKey(), format, fAtlases[atlasIndex]));
-    fCache.insert(key, strike);
+    fCache.add(strike);
 
     if (fHead) {
         fHead->fPrev = strike;
@@ -106,7 +109,12 @@ GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
 }
 
 void GrFontCache::freeAll() {
-    fCache.deleteAll();
+    SkTDynamicHash<GrTextStrike, GrFontDescKey>::Iter iter(&fCache);
+    while (!iter.done()) {
+        SkDELETE(&(*iter));
+        ++iter;
+    }
+    fCache.rewind();
     for (int i = 0; i < kAtlasCount; ++i) {
         delete fAtlases[i];
         fAtlases[i] = NULL;
@@ -116,8 +124,7 @@ void GrFontCache::freeAll() {
 }
 
 void GrFontCache::purgeStrike(GrTextStrike* strike) {
-    const GrFontCache::Key key(strike->fFontScalerKey);
-    fCache.remove(key, strike);
+    fCache.remove(*(strike->fFontScalerKey));
     this->detachStrikeFromList(strike);
     delete strike;
 }
@@ -237,13 +244,13 @@ GrTextStrike::GrTextStrike(GrFontCache* cache, const GrFontDescKey* key,
 #endif
 }
 
-// this signature is needed because it's used with
-// SkTDArray::visitAll() (see destructor)
-static void free_glyph(GrGlyph*& glyph) { glyph->free(); }
-
 GrTextStrike::~GrTextStrike() {
     fFontScalerKey->unref();
-    fCache.getArray().visitAll(free_glyph);
+    SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
+    while (!iter.done()) {
+        (*iter).free();
+        ++iter;
+    }
 
 #ifdef SK_DEBUG
     gCounter -= 1;
@@ -266,16 +273,17 @@ GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
 
     GrGlyph* glyph = fPool.alloc();
     glyph->init(packed, bounds);
-    fCache.insert(packed, glyph);
+    fCache.add(glyph);
     return glyph;
 }
 
 void GrTextStrike::removePlot(const GrPlot* plot) {
-    SkTDArray<GrGlyph*>& glyphArray = fCache.getArray();
-    for (int i = 0; i < glyphArray.count(); ++i) {
-        if (plot == glyphArray[i]->fPlot) {
-            glyphArray[i]->fPlot = NULL;
+    SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
+    while (!iter.done()) {
+        if (plot == (*iter).fPlot) {
+            (*iter).fPlot = NULL;
         }
+        ++iter;
     }
 
     GrAtlas::RemovePlot(&fPlotUsage, plot);
@@ -290,7 +298,7 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
 
     SkASSERT(glyph);
     SkASSERT(scaler);
-    SkASSERT(fCache.contains(glyph));
+    SkASSERT(fCache.find(glyph->fPackedID));
     SkASSERT(NULL == glyph->fPlot);
 
     SkAutoUnref ar(SkSafeRef(scaler));

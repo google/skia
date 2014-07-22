@@ -10,6 +10,7 @@
 
 #include "GrRect.h"
 #include "SkPath.h"
+#include "SkChecksum.h"
 
 class GrPlot;
 
@@ -72,7 +73,14 @@ struct GrGlyph {
     static inline uint16_t UnpackID(PackedID packed) {
         return (uint16_t)packed;
     }
-};
 
+    static inline const GrGlyph::PackedID& GetKey(const GrGlyph& glyph) {
+        return glyph.fPackedID;
+    }
+
+    static inline uint32_t Hash(GrGlyph::PackedID key) {
+        return SkChecksum::Murmur3(&key, sizeof(key));
+    }
+};
 
 #endif

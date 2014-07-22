@@ -11,25 +11,6 @@
 #ifndef GrTextStrike_impl_DEFINED
 #define GrTextStrike_impl_DEFINED
 
-class GrFontCache::Key {
-public:
-    explicit Key(const GrFontDescKey* fontScalarKey) {
-        fFontScalerKey = fontScalarKey;
-    }
-
-    intptr_t getHash() const { return fFontScalerKey->getHash(); }
-
-    static bool LessThan(const GrTextStrike& strike, const Key& key) {
-        return *strike.getFontScalerKey() < *key.fFontScalerKey;
-    }
-    static bool Equals(const GrTextStrike& strike, const Key& key) {
-        return *strike.getFontScalerKey() == *key.fFontScalerKey;
-    }
-
-private:
-    const GrFontDescKey* fFontScalerKey;
-};
-
 void GrFontCache::detachStrikeFromList(GrTextStrike* strike) {
     if (strike->fPrev) {
         SkASSERT(fHead != strike);
@@ -51,10 +32,9 @@ void GrFontCache::detachStrikeFromList(GrTextStrike* strike) {
 GrTextStrike* GrFontCache::getStrike(GrFontScaler* scaler, bool useDistanceField) {
     this->validate();
 
-    const Key key(scaler->getKey());
-    GrTextStrike* strike = fCache.find(key);
+    GrTextStrike* strike = fCache.find(*(scaler->getKey()));
     if (NULL == strike) {
-        strike = this->generateStrike(scaler, key);
+        strike = this->generateStrike(scaler);
     } else if (strike->fPrev) {
         // Need to put the strike at the head of its dllist, since that is how
         // we age the strikes for purging (we purge from the back of the list)
@@ -71,27 +51,6 @@ GrTextStrike* GrFontCache::getStrike(GrFontScaler* scaler, bool useDistanceField
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-/**
- *  This Key just wraps a glyphID, and matches the protocol need for
- *  GrTHashTable
- */
-class GrTextStrike::Key {
-public:
-    Key(GrGlyph::PackedID id) : fPackedID(id) {}
-
-    uint32_t getHash() const { return fPackedID; }
-
-    static bool LessThan(const GrGlyph& glyph, const Key& key) {
-        return glyph.fPackedID < key.fPackedID;
-    }
-    static bool Equals(const GrGlyph& glyph, const Key& key) {
-        return glyph.fPackedID == key.fPackedID;
-    }
-
-private:
-    GrGlyph::PackedID fPackedID;
-};
 
 GrGlyph* GrTextStrike::getGlyph(GrGlyph::PackedID packed,
                                 GrFontScaler* scaler) {

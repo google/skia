@@ -13,7 +13,7 @@
 
 #include "GrAllocPool.h"
 #include "GrFontScaler.h"
-#include "GrTHashTable.h"
+#include "SkTDynamicHash.h"
 #include "GrGlyph.h"
 #include "GrDrawTarget.h"
 #include "GrAtlas.h"
@@ -39,13 +39,17 @@ public:
     bool addGlyphToAtlas(GrGlyph*, GrFontScaler*);
 
     // testing
-    int countGlyphs() const { return fCache.getArray().count(); }
-    const GrGlyph* glyphAt(int index) const {
-        return fCache.getArray()[index];
-    }
+    int countGlyphs() const { return fCache.count(); }
 
     // remove any references to this plot
     void removePlot(const GrPlot* plot);
+
+    static const GrFontDescKey& GetKey(const GrTextStrike& ts) {
+        return *(ts.fFontScalerKey);
+    }
+    static uint32_t Hash(const GrFontDescKey& key) {
+        return key.getHash();
+    }
 
 public:
     // for easy removal from list
@@ -53,8 +57,7 @@ public:
     GrTextStrike*   fNext;
 
 private:
-    class Key;
-    GrTHashTable<GrGlyph, Key, 7> fCache;
+    SkTDynamicHash<GrGlyph, GrGlyph::PackedID> fCache;
     const GrFontDescKey* fFontScalerKey;
     GrTAllocPool<GrGlyph> fPool;
 
@@ -83,10 +86,7 @@ public:
     bool freeUnusedPlot(GrTextStrike* preserveStrike);
 
     // testing
-    int countStrikes() const { return fCache.getArray().count(); }
-    const GrTextStrike* strikeAt(int index) const {
-        return fCache.getArray()[index];
-    }
+    int countStrikes() const { return fCache.count(); }
     GrTextStrike* getHeadStrike() const { return fHead; }
 
     void updateTextures() {
@@ -117,8 +117,7 @@ public:
 private:
     friend class GrFontPurgeListener;
 
-    class Key;
-    GrTHashTable<GrTextStrike, Key, 8> fCache;
+    SkTDynamicHash<GrTextStrike, GrFontDescKey> fCache;
     // for LRU
     GrTextStrike* fHead;
     GrTextStrike* fTail;
@@ -126,7 +125,7 @@ private:
     GrGpu*      fGpu;
     GrAtlas*    fAtlases[kAtlasCount];
 
-    GrTextStrike* generateStrike(GrFontScaler*, const Key&);
+    GrTextStrike* generateStrike(GrFontScaler*);
     inline void detachStrikeFromList(GrTextStrike*);
     void purgeStrike(GrTextStrike* strike);
 };
