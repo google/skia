@@ -26,6 +26,7 @@
 #include "SkTypeface_win_dw.h"
 
 #include <dwrite.h>
+#include <dwrite_1.h>
 
 static bool isLCD(const SkScalerContext::Rec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat ||
@@ -493,10 +494,8 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* mx,
     }
 
     if (my) {
-        my->fTop = -fTextSizeRender * SkIntToScalar(dwfm.ascent) / upem;
-        my->fAscent = my->fTop;
+        my->fAscent = -fTextSizeRender * SkIntToScalar(dwfm.ascent) / upem;
         my->fDescent = fTextSizeRender * SkIntToScalar(dwfm.descent) / upem;
-        my->fBottom = my->fDescent;
         my->fLeading = fTextSizeRender * SkIntToScalar(dwfm.lineGap) / upem;
         my->fXHeight = fTextSizeRender * SkIntToScalar(dwfm.xHeight) / upem;
         my->fUnderlineThickness = fTextSizeRender * SkIntToScalar(dwfm.underlineThickness) / upem;
@@ -504,6 +503,33 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* mx,
 
         my->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
         my->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+
+        if (NULL != fTypeface->fDWriteFontFace1.get()) {
+            DWRITE_FONT_METRICS1 dwfm1;
+            fTypeface->fDWriteFontFace1->GetMetrics(&dwfm1);
+            my->fTop = -fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxTop) / upem;
+            my->fBottom = -fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxBottom) / upem;
+            my->fXMin = fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxLeft) / upem;
+            my->fXMax = fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxRight) / upem;
+
+            my->fMaxCharWidth = my->fXMax - my->fXMin;
+        } else {
+            AutoTDWriteTable<SkOTTableHead> head(fTypeface->fDWriteFontFace.get());
+            if (head.fExists &&
+                head.fSize >= sizeof(SkOTTableHead) &&
+                head->version == SkOTTableHead::version1)
+            {
+                my->fTop = -fTextSizeRender * (int16_t)SkEndian_SwapBE16(head->yMax) / upem;
+                my->fBottom = -fTextSizeRender * (int16_t)SkEndian_SwapBE16(head->yMin) / upem;
+                my->fXMin = fTextSizeRender * (int16_t)SkEndian_SwapBE16(head->xMin) / upem;
+                my->fXMax = fTextSizeRender * (int16_t)SkEndian_SwapBE16(head->xMax) / upem;
+
+                my->fMaxCharWidth = my->fXMax - my->fXMin;
+            } else {
+                my->fTop = my->fAscent;
+                my->fBottom = my->fDescent;
+            }
+        }
     }
 }
 
