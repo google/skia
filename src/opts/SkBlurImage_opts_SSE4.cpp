@@ -10,11 +10,12 @@
 #include "SkColorPriv.h"
 #include "SkRect.h"
 
-/* With the exception of the compilers that don't support it, we always build the
- * SSE4 functions and enable the caller to determine SSE4 support.  However for
- * compilers that do not support SSE4x we provide a stub implementation.
+/* With the exception of the Android framework we always build the SSE4 functions
+ * and enable the caller to determine SSE4 support.  However, for the Android framework,
+ * if the device does not support SSE4x then the compiler will not supply the required
+ * -msse4* option needed to build this file, so instead we provide a stub implementation.
  */
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
 
 #include <smmintrin.h>
 
@@ -109,7 +110,7 @@ bool SkBoxBlurGetPlatformProcs_SSE4(SkBoxBlurProc* boxBlurX,
     return true;
 }
 
-#else // SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+#else // !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
 
 bool SkBoxBlurGetPlatformProcs_SSE4(SkBoxBlurProc* boxBlurX,
                                     SkBoxBlurProc* boxBlurY,
