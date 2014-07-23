@@ -97,7 +97,7 @@ desk_wowwiki.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-
 desk_yahooanswers.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,16.14,12.50984,18.94016
 desk_youtube.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,18.73,15.35016,21.52484
 desk_youtubetvvideo.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,170.28,154.756,185.224
-mobi_wikipedia.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,26.21,17.26656,32.03344
+mobi_wikipedia.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,26.21,15.26656,32.03344
 tabl_androidpolice.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,29.16,25.16656,32.64844
 tabl_cnet.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,100.49,89.93328,110.64172
 tabl_culturalsolutions.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,89.92,80.90216,98.47284

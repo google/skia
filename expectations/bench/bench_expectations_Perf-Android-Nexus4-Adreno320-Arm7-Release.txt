@@ -128,7 +128,7 @@ desk_amazon.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-A
 desk_baidu.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,8.84,6.56,10.61
 desk_blogger.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,8.80,6.51,10.59
 desk_booking.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,20.02,15.74,23.82
-desk_carsvg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,366.01,312.15,419.45
+desk_carsvg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,366.01,300.15,419.45
 desk_chalkboard.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,140.76,127.47,153.56
 desk_css3gradients.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,16.14,11.97,19.80
 desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,14.43,11.73,16.62
