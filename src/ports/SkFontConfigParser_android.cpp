@@ -7,11 +7,14 @@
 
 #include "SkFontConfigParser_android.h"
 #include "SkTDArray.h"
+#include "SkTSearch.h"
 #include "SkTypeface.h"
 
 #include <expat.h>
 #include <stdio.h>
 #include <sys/system_properties.h>
+
+#include <limits>
 
 #define SYSTEM_FONTS_FILE "/system/etc/system_fonts.xml"
 #define FALLBACK_FONTS_FILE "/system/etc/fallback_fonts.xml"
@@ -48,13 +51,14 @@ struct FamilyData {
  * or file tag. The resulting strings are put into the fNames or FontFileInfo arrays.
  */
 static void textHandler(void *data, const char *s, int len) {
+    SkAutoAsciiToLC tolc(s);
     FamilyData *familyData = (FamilyData*) data;
     // Make sure we're in the right state to store this name information
     if (familyData->currentFamily &&
             (familyData->currentTag == NAMESET_TAG || familyData->currentTag == FILESET_TAG)) {
         switch (familyData->currentTag) {
         case NAMESET_TAG:
-            familyData->currentFamily->fNames.push_back().set(s, len);
+            familyData->currentFamily->fNames.push_back().set(tolc.lc(), len);
             break;
         case FILESET_TAG:
             if (familyData->currentFontInfo) {
@@ -66,6 +70,28 @@ static void textHandler(void *data, const char *s, int len) {
             break;
         }
     }
+}
+
+/** http://www.w3.org/TR/html-markup/datatypes.html#common.data.integer.non-negative-def */
+template <typename T> static bool parseNonNegativeInteger(const char* s, T* value) {
+    SK_COMPILE_ASSERT(std::numeric_limits<T>::is_integer, T_must_be_integer);
+    const T nMax = std::numeric_limits<T>::max() / 10;
+    const T dMax = std::numeric_limits<T>::max() - (nMax * 10);
+    T n = 0;
+    for (; *s; ++s) {
+        // Check if digit
+        if (*s < '0' || '9' < *s) {
+            return false;
+        }
+        int d = *s - '0';
+        // Check for overflow
+        if (n > nMax || (n == nMax && d > dMax)) {
+            return false;
+        }
+        n = (n * 10) + d;
+    }
+    *value = n;
+    return true;
 }
 
 /**
@@ -90,6 +116,13 @@ static void fontFileElementHandler(FamilyData *familyData, const char **attribut
                 }
             } else if (strncmp(attributeName, "lang", nameLength) == 0) {
                 newFileInfo.fPaintOptions.setLanguage(attributeValue);
+            } else if (strncmp(attributeName, "index", nameLength) == 0) {
+                int value;
+                if (parseNonNegativeInteger(attributeValue, &value)) {
+                    newFileInfo.fIndex = value;
+                } else {
+                    SkDebugf("---- SystemFonts index=%s (INVALID)", attributeValue);
+                }
             }
             //each element is a pair of attributeName/attributeValue string pairs
             currentAttributeIndex += 2;
