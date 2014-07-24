@@ -3,7 +3,7 @@ use_relative_paths = True
 # Dependencies on outside packages.
 #
 deps = {
-  "common": "https://skia.googlesource.com/common.git@2e2cd80631489a47b24ac0747922b837fc0c81ef",
+  "common": "https://skia.googlesource.com/common.git@6d096df9431e61c163796c43adbf31a0c911a843",
 
   # DEPS using https://chromium.googlesource.com are pulled from chromium @ r205199
   # (see https://chromium.googlesource.com/chromium/chromium/+/c59bfa8ef877f45bfa859669053859857af1d279)
