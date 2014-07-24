@@ -14994,6 +14994,42 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "varied_text_clipped_lcd_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3150156316299090359
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "varied_text_clipped_no_lcd_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9681310633081179342
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "varied_text_ignorable_clip_lcd_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1349309672055368776
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "varied_text_ignorable_clip_no_lcd_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7788637017468019330
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "vertices_80_angle.png": {
       "allowed-digests": [
         [
