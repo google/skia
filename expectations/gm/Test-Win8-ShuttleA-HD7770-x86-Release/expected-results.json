@@ -12793,18 +12793,26 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10262256877703773151
+          6183456328083498663
         ]
       ], 
+      "bugs": [
+        2775
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "verylargebitmap_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11880098846453637456
+          10492157671811011535
         ]
       ], 
+      "bugs": [
+        2775
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "verylargebitmap_gpu.png": {
