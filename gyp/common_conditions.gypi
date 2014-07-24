@@ -646,6 +646,11 @@
           '-fuse-ld=gold',
         ],
         'conditions': [
+          [ 'skia_arch_type == "x86"', {
+            'cflags': [
+              '-mssse3',
+            ],
+          }],
           [ 'skia_android_framework', {
             'libraries!': [
               '-lstdc++',

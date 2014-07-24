@@ -188,17 +188,18 @@
         '../src/core',
         '../src/utils',
       ],
+      'sources': [
+        '../src/opts/SkBitmapProcState_opts_SSSE3.cpp',
+      ],
       'conditions': [
+        [ 'skia_os == "win"', {
+            'defines' : [ 'SK_CPU_SSE_LEVEL=31' ],
+        }],
+        # (Mac has -mssse3 globally.)
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"] \
            and not skia_android_framework', {
           'cflags': [
             '-mssse3',
-          ],
-        }],
-        # (Mac has -mssse3 globally.)
-        [ 'skia_arch_type == "x86"', {
-          'sources': [
-            '../src/opts/SkBitmapProcState_opts_SSSE3.cpp',
           ],
         }],
       ],
@@ -220,11 +221,27 @@
         '../src/core',
         '../src/utils',
       ],
+      'sources': [
+        '../src/opts/SkBlurImage_opts_SSE4.cpp',
+      ],
       'conditions': [
+        [ 'skia_arch_width == 64', {
+          'sources': [
+            '../src/opts/SkBlitRow_opts_SSE4_x64_asm.S',
+          ],
+        }],
+        [ 'skia_arch_width == 32', {
+          'sources': [
+            '../src/opts/SkBlitRow_opts_SSE4_asm.S',
+          ],
+        }],
+        [ 'skia_os == "win"', {
+            'defines' : [ 'SK_CPU_SSE_LEVEL=41' ],
+        }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"] \
            and not skia_android_framework', {
           'cflags': [
-            '-msse4',
+            '-msse4.1',
           ],
         }],
         [ 'skia_os == "mac"', {
@@ -233,26 +250,9 @@
               '-mssse3',
             ],
             'OTHER_CPLUSPLUSFLAGS': [
-              '-msse4',
+              '-msse4.1',
             ],
           },
-        }],
-        [ 'skia_arch_type == "x86"', {
-          'sources': [
-            '../src/opts/SkBlurImage_opts_SSE4.cpp',
-          ],
-          'conditions': [
-            [ 'skia_arch_width == 64', {
-              'sources': [
-                '../src/opts/SkBlitRow_opts_SSE4_x64_asm.S',
-              ],
-            }],
-            [ 'skia_arch_width == 32', {
-              'sources': [
-                '../src/opts/SkBlitRow_opts_SSE4_asm.S',
-              ],
-            }],
-          ],
         }],
       ],
     },
