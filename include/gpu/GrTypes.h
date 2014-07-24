@@ -407,6 +407,7 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
     switch (config) {
         case kR11_EAC_GrPixelConfig:
         case kLATC_GrPixelConfig:
+        case kASTC_12x12_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
             return true;
         default:
