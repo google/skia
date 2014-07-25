@@ -513,7 +513,7 @@ bool GrDefaultPathRenderer::canDrawPath(const SkPath& path,
                                         bool antiAlias) const {
     // this class can draw any path with any fill but doesn't do any anti-aliasing.
 
-    return !antiAlias &&
+    return !antiAlias && !(SkPath::kConic_SegmentMask & path.getSegmentMasks()) &&
         (stroke.isFillStyle() ||
          IsStrokeHairlineOrEquivalent(stroke, target->getDrawState().getViewMatrix(), NULL));
 }

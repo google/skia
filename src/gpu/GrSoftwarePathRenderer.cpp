@@ -15,13 +15,7 @@ bool GrSoftwarePathRenderer::canDrawPath(const SkPath&,
                                          const SkStrokeRec&,
                                          const GrDrawTarget*,
                                          bool antiAlias) const {
-    if (!antiAlias || NULL == fContext) {
-        // TODO: We could allow the SW path to also handle non-AA paths but
-        // this would mean that GrDefaultPathRenderer would never be called
-        // (since it appears after the SW renderer in the path renderer
-        // chain). Some testing would need to be done r.e. performance
-        // and consistency of the resulting images before removing
-        // the "!antiAlias" clause from the above test
+    if (NULL == fContext) {
         return false;
     }
 
