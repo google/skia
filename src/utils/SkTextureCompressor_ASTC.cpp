@@ -37,7 +37,7 @@
 // If the associated index does not contribute to 20 different texels (e.g. it's in
 // a corner), then the extra texels are stored with -1's in the table.
 
-static const int k6x5To12x12Table[30][60] = {
+static const int8_t k6x5To12x12Table[30][60] = {
 { 16, 0, 0, 9, 1, 0, 1, 2, 0, 10, 0, 1, 6, 1, 1, 1, 2, 1, 4, 0, 2, 2,
   1, 2, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0,
   0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0}, // n = 20
@@ -132,7 +132,7 @@ static const int k6x5To12x12Table[30][60] = {
 
 // Returns the alpha value of a texel at position (x, y) from src.
 // (x, y) are assumed to be in the range [0, 12).
-uint8_t get_alpha(const uint8_t *src, int rowBytes, int x, int y) {
+static inline uint8_t get_alpha(const uint8_t *src, int rowBytes, int x, int y) {
     SkASSERT(x >= 0 && x < 12);
     SkASSERT(y >= 0 && y < 12);
     SkASSERT(rowBytes >= 12);
@@ -180,18 +180,22 @@ static void compress_a8_astc_block(uint8_t** dst, const uint8_t* src, int rowByt
     for (int idx = 0; idx < 30; ++idx) {
         int weightTot = 0;
         int alphaTot = 0;
-
         for (int w = 0; w < 20; ++w) {
-            const int weight = k6x5To12x12Table[idx][w*3];
+            const int8_t weight = k6x5To12x12Table[idx][w*3];
             if (weight > 0) {
                 const int x = k6x5To12x12Table[idx][w*3 + 1];
                 const int y = k6x5To12x12Table[idx][w*3 + 2];
                 weightTot += weight;
                 alphaTot += weight * get_alpha(src, rowBytes, x, y);
+            } else {
+                // In our table, not every entry has 20 weights, and all
+                // of them are nonzero. Once we hit a negative weight, we
+                // know that all of the other weights are not valid either.
+                break;
             }
         }
 
-        indices[idx] = (alphaTot + (weightTot/2)) / weightTot;
+        indices[idx] = (alphaTot / weightTot) >> 5;
     }
 
     // Pack indices... The ASTC block layout is fairly complicated. An extensive
@@ -218,19 +222,19 @@ static void compress_a8_astc_block(uint8_t** dst, const uint8_t* src, int rowByt
     uint64_t bottom = 0;
 
     for (int idx = 0; idx <= 20; ++idx) {
-        const uint8_t index = (indices[idx] & 0xE0) >> 5;
+        const uint8_t index = indices[idx];
         bottom |= static_cast<uint64_t>(index) << (61-(idx*3));
     }
 
     // index 21 straddles top and bottom
     {
-        const uint8_t index = (indices[21] & 0xE0) >> 5;
+        const uint8_t index = indices[21];
         bottom |= index & 1;
         top |= static_cast<uint64_t>((index >> 2) | (index & 2)) << 62;
     }
 
     for (int idx = 22; idx < 30; ++idx) {
-        const uint8_t index = (indices[idx] & 0xE0) >> 5;
+        const uint8_t index = indices[idx];
         top |= static_cast<uint64_t>(index) << (59-(idx-22)*3);
     }
 
