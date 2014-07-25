@@ -19,7 +19,7 @@ protected:
     }
 
     virtual void onDraw(const int loops, SkCanvas*) {
-        SK_DECLARE_STATIC_MUTEX(mu);
+        SkMutex mu;
         for (int i = 0; i < loops; i++) {
             mu.acquire();
             mu.release();

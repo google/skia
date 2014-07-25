@@ -892,9 +892,9 @@ SkTDArray<SkPDFFont::FontRec>& SkPDFFont::CanonicalFonts() {
     return gCanonicalFonts;
 }
 
+SK_DECLARE_STATIC_MUTEX(gCanonicalFontsMutex);
 // static
 SkBaseMutex& SkPDFFont::CanonicalFontsMutex() {
-    SK_DECLARE_STATIC_MUTEX(gCanonicalFontsMutex);
     return gCanonicalFontsMutex;
 }
 

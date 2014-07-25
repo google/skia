@@ -96,7 +96,6 @@ public:
 };
 
 #define SK_DECLARE_STATIC_MUTEX(name) static SkBaseMutex name = ...
-#define SK_DECLARE_GLOBAL_MUTEX(name) SkBaseMutex name = ...
 */
 
 #include SK_MUTEX_PLATFORM_H

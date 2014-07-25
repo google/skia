@@ -526,9 +526,9 @@ static SkTypeface* NewFromName(const char familyName[], SkTypeface::Style theSty
     return ctFont ? NewFromFontRef(ctFont, familyName, false) : NULL;
 }
 
+SK_DECLARE_STATIC_MUTEX(gGetDefaultFaceMutex);
 static SkTypeface* GetDefaultFace() {
-    SK_DECLARE_STATIC_MUTEX(gMutex);
-    SkAutoMutexAcquire ma(gMutex);
+    SkAutoMutexAcquire ma(gGetDefaultFaceMutex);
 
     static SkTypeface* gDefaultFace;
 

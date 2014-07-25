@@ -73,9 +73,14 @@ extern bool gPrintInstCount;
             return gChildren;                                               \
         }                                                                   \
                                                                             \
+        static void create_mutex(SkMutex** mutex) {                         \
+            *mutex = SkNEW(SkMutex);                                        \
+        }                                                                   \
         static SkBaseMutex& GetChildrenMutex() {                            \
-            SK_DECLARE_STATIC_MUTEX(childrenMutex);                         \
-            return childrenMutex;                                           \
+            static SkMutex* childrenMutex;                                  \
+            SK_DECLARE_STATIC_ONCE(once);                                   \
+            SkOnce(&once, className::SkInstanceCountHelper::create_mutex, &childrenMutex);\
+            return *childrenMutex;                                          \
         }                                                                   \
                                                                             \
     } fInstanceCountHelper;                                                 \

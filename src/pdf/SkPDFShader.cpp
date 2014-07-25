@@ -664,9 +664,9 @@ SkTDArray<SkPDFShader::ShaderCanonicalEntry>& SkPDFShader::CanonicalShaders() {
     return gCanonicalShaders;
 }
 
+SK_DECLARE_STATIC_MUTEX(gCanonicalShadersMutex);
 // static
 SkBaseMutex& SkPDFShader::CanonicalShadersMutex() {
-    SK_DECLARE_STATIC_MUTEX(gCanonicalShadersMutex);
     return gCanonicalShadersMutex;
 }
 

@@ -76,13 +76,13 @@ protected:
     }
 };
 
+SK_DECLARE_STATIC_MUTEX(gCreateDefaultMutex);
 SkTypeface* SkTypeface::CreateDefault(int style) {
     // If backed by fontconfig, it's not safe to call SkFontHost::CreateTypeface concurrently.
     // To be safe, we serialize here with a mutex so only one call to
     // CreateTypeface is happening at any given time.
     // TODO(bungeman, mtklein): This is sad.  Make our fontconfig code safe?
-    SK_DECLARE_STATIC_MUTEX(mutex);
-    SkAutoMutexAcquire lock(&mutex);
+    SkAutoMutexAcquire lock(&gCreateDefaultMutex);
 
     SkTypeface* t = SkFontHost::CreateTypeface(NULL, NULL, (Style)style);
     return t ? t : SkEmptyTypeface::Create();

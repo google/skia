@@ -132,11 +132,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SK_DECLARE_STATIC_MUTEX(gGetSingletonInterfaceMutex);
 static SkFontConfigInterfaceAndroid* getSingletonInterface() {
-    SK_DECLARE_STATIC_MUTEX(gMutex);
     static SkFontConfigInterfaceAndroid* gFontConfigInterface;
 
-    SkAutoMutexAcquire ac(gMutex);
+    SkAutoMutexAcquire ac(gGetSingletonInterfaceMutex);
     if (NULL == gFontConfigInterface) {
         // load info from a configuration file that we can use to populate the
         // system/fallback font structures

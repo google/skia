@@ -316,6 +316,8 @@ void ShowTestArray() {
     }
 }
 
+SK_DECLARE_STATIC_MUTEX(compareDebugOut3);
+SK_DECLARE_STATIC_MUTEX(compareDebugOut4);
 static int comparePaths(skiatest::Reporter* reporter, const char* testName, const SkPath& one,
         const SkPath& scaledOne, const SkPath& two, const SkPath& scaledTwo, SkBitmap& bitmap,
         const SkPath& a, const SkPath& b, const SkPathOp shapeOp, const SkMatrix& scale) {
@@ -329,13 +331,11 @@ static int comparePaths(skiatest::Reporter* reporter, const char* testName, cons
     }
     const int MAX_ERRORS = 8;
     if (errors2x2 > MAX_ERRORS && gComparePathsAssert) {
-        SK_DECLARE_STATIC_MUTEX(compareDebugOut3);
         SkAutoMutexAcquire autoM(compareDebugOut3);
         SkDebugf("\n*** this test fails ***\n");
         showPathOpPath(testName, one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
         REPORTER_ASSERT(reporter, 0);
     } else if (gShowPath || errors2x2 == MAX_ERRORS || errors2x2 == MAX_ERRORS - 1) {
-        SK_DECLARE_STATIC_MUTEX(compareDebugOut4);
         SkAutoMutexAcquire autoM(compareDebugOut4);
         showPathOpPath(testName, one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
     }
@@ -402,6 +402,7 @@ static void outputToStream(const char* pathStr, const char* pathPrefix, const ch
     outFile.flush();
 }
 
+SK_DECLARE_STATIC_MUTEX(simplifyDebugOut);
 bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                   const char* pathStr) {
     SkPath::FillType fillType = useXor ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType;
@@ -421,7 +422,6 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
     }
     int result = comparePaths(state.fReporter, NULL, path, out, *state.fBitmap);
     if (result && gPathStrAssert) {
-        SK_DECLARE_STATIC_MUTEX(simplifyDebugOut);
         SkAutoMutexAcquire autoM(simplifyDebugOut);
         char temp[8192];
         sk_bzero(temp, sizeof(temp));

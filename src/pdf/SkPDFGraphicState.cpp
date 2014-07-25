@@ -88,9 +88,9 @@ SkTDArray<SkPDFGraphicState::GSCanonicalEntry>& SkPDFGraphicState::CanonicalPain
     return gCanonicalPaints;
 }
 
+SK_DECLARE_STATIC_MUTEX(gCanonicalPaintsMutex);
 // static
 SkBaseMutex& SkPDFGraphicState::CanonicalPaintsMutex() {
-    SK_DECLARE_STATIC_MUTEX(gCanonicalPaintsMutex);
     return gCanonicalPaintsMutex;
 }
 

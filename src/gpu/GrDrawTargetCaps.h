@@ -17,7 +17,7 @@
  */
 class GrDrawTargetCaps : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(Caps)
+    SK_DECLARE_INST_COUNT(GrDrawTargetCaps)
 
     GrDrawTargetCaps() { this->reset(); }
     GrDrawTargetCaps(const GrDrawTargetCaps& other) : INHERITED() { *this = other; }

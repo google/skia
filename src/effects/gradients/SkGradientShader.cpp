@@ -570,6 +570,7 @@ SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::refCache(U8CPU 
     return fCache;
 }
 
+SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
 /*
  *  Because our caller might rebuild the same (logically the same) gradient
  *  over and over, we'd like to return exactly the same "bitmap" if possible,
@@ -605,11 +606,10 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap) const {
 
     ///////////////////////////////////
 
-    SK_DECLARE_STATIC_MUTEX(gMutex);
     static SkBitmapCache* gCache;
     // each cache cost 1K of RAM, since each bitmap will be 1x256 at 32bpp
     static const int MAX_NUM_CACHED_GRADIENT_BITMAPS = 32;
-    SkAutoMutexAcquire ama(gMutex);
+    SkAutoMutexAcquire ama(gGradientCacheMutex);
 
     if (NULL == gCache) {
         gCache = SkNEW_ARGS(SkBitmapCache, (MAX_NUM_CACHED_GRADIENT_BITMAPS));
