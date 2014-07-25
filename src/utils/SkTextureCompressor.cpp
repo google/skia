@@ -6,8 +6,9 @@
  */
 
 #include "SkTextureCompressor.h"
-#include "SkTextureCompressor_R11EAC.h"
+#include "SkTextureCompressor_ASTC.h"
 #include "SkTextureCompressor_LATC.h"
+#include "SkTextureCompressor_R11EAC.h"
 
 #include "SkBitmap.h"
 #include "SkData.h"
@@ -20,29 +21,36 @@
 namespace SkTextureCompressor {
 
 int GetCompressedDataSize(Format fmt, int width, int height) {
+    int blockDimension = 0;
+    int encodedBlockSize = 0;
+            
     switch (fmt) {
         // These formats are 64 bits per 4x4 block.
         case kR11_EAC_Format:
         case kLATC_Format:
-        {
-            static const int kBlockDimension = 4;
-            static const int kEncodedBlockSize = 8;
+            blockDimension = 4;
+            encodedBlockSize = 8;
+            break;
 
-            if(((width % kBlockDimension) == 0) && ((height % kBlockDimension) == 0)) {
-
-                const int blocksX = width / kBlockDimension;
-                const int blocksY = height / kBlockDimension;
-
-                return blocksX * blocksY * kEncodedBlockSize;
-            }
-
-            return -1;
-        }
+        // This format is 12x12 blocks to 128 bits.
+        case kASTC_12x12_Format:
+            blockDimension = 12;
+            encodedBlockSize = 16;
+            break;
 
         default:
             SkFAIL("Unknown compressed format!");
             return -1;
     }
+
+    if(((width % blockDimension) == 0) && ((height % blockDimension) == 0)) {
+        const int blocksX = width / blockDimension;
+        const int blocksY = height / blockDimension;
+
+        return blocksX * blocksY * encodedBlockSize;
+    }
+
+    return -1;
 }
 
 bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcColorType,
@@ -62,6 +70,9 @@ bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcCol
                         break;
                     case kR11_EAC_Format:
                         proc = CompressA8ToR11EAC;
+                        break;
+                    case kASTC_12x12_Format:
+                        proc = CompressA8To12x12ASTC;
                         break;
                     default:
                         // Do nothing...

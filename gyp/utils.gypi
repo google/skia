@@ -85,6 +85,8 @@
         '<(skia_src_path)/utils/SkRTConf.cpp',
         '<(skia_src_path)/utils/SkTextureCompressor.cpp',
         '<(skia_src_path)/utils/SkTextureCompressor.h',
+        '<(skia_src_path)/utils/SkTextureCompressor_ASTC.cpp',
+        '<(skia_src_path)/utils/SkTextureCompressor_ASTC.h',
         '<(skia_src_path)/utils/SkTextureCompressor_R11EAC.cpp',
         '<(skia_src_path)/utils/SkTextureCompressor_R11EAC.h',
         '<(skia_src_path)/utils/SkTextureCompressor_LATC.cpp',

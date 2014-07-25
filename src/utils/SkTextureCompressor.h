@@ -18,10 +18,11 @@ namespace SkTextureCompressor {
     // Various texture compression formats that we support.
     enum Format {
         // Alpha only formats.
-        kLATC_Format,    // 4x4 blocks, compresses A8
-        kR11_EAC_Format, // 4x4 blocks, compresses A8
+        kLATC_Format,       // 4x4 blocks, compresses A8
+        kR11_EAC_Format,    // 4x4 blocks, compresses A8
+        kASTC_12x12_Format, // 12x12 blocks, compresses A8
 
-        kLast_Format = kR11_EAC_Format
+        kLast_Format = kASTC_12x12_Format
     };
     static const int kFormatCnt = kLast_Format + 1;
 
