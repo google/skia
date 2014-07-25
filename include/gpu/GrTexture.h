@@ -10,8 +10,9 @@
 #define GrTexture_DEFINED
 
 #include "GrSurface.h"
-#include "SkPoint.h"
 #include "GrRenderTarget.h"
+#include "SkPoint.h"
+#include "SkRefCnt.h"
 
 class GrResourceKey;
 class GrTextureParams;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2014 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -8,18 +8,33 @@
 #ifndef GrGpuObject_DEFINED
 #define GrGpuObject_DEFINED
 
-#include "GrCacheable.h"
+#include "SkInstCnt.h"
 #include "SkTInternalLList.h"
 
+class GrResourceCacheEntry;
 class GrGpu;
 class GrContext;
 
 /**
- * Base class for the GPU objects created by a GrContext.
+ * Base class for objects that can be kept in the GrResourceCache.
  */
-class GrGpuObject : public GrCacheable {
+class GrGpuObject : public SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT(GrGpuObject)
+    SK_DECLARE_INST_COUNT_ROOT(GrGpuObject)
+
+    // These method signatures are written to mirror SkRefCnt. However, we don't require
+    // thread safety as GrCacheable objects are not intended to cross thread boundaries.
+    // internal_dispose() exists because of GrTexture's reliance on it. It will be removed
+    // soon.
+    void ref() const { ++fRefCnt; }
+    void unref() const { --fRefCnt; if (0 == fRefCnt) { this->internal_dispose(); } }
+    virtual void internal_dispose() const { SkDELETE(this); }
+    bool unique() const { return 1 == fRefCnt; }
+#ifdef SK_DEBUG
+    void validate() const {
+        SkASSERT(fRefCnt > 0);
+    }
+#endif
 
     /**
      * Frees the object in the underlying 3D API. It must be safe to call this
@@ -54,16 +69,30 @@ public:
     const GrContext* getContext() const;
     GrContext* getContext();
 
-    virtual bool isValidOnGpu() const SK_OVERRIDE { return !this->wasDestroyed(); }
+    /**
+     * Retrieves the amount of GPU memory used by this resource in bytes. It is
+     * approximate since we aren't aware of additional padding or copies made
+     * by the driver.
+     *
+     * @return the amount of GPU memory used in bytes
+     */
+    virtual size_t gpuMemorySize() const = 0;
+
+    void setCacheEntry(GrResourceCacheEntry* cacheEntry) { fCacheEntry = cacheEntry; }
+    GrResourceCacheEntry* getCacheEntry() { return fCacheEntry; }
+
+    /**
+     * Gets an id that is unique for this GrCacheable object. It is static in that it does
+     * not change when the content of the GrCacheable object changes. This will never return
+     * 0.
+     */
+    uint32_t getUniqueID() const { return fUniqueID; }
 
 protected:
-    /**
-     * isWrapped indicates we have wrapped a client-created backend object in a GrGpuObject. If it
-     * is true then the client is responsible for the lifetime of the underlying backend object.
-     * Otherwise, our onRelease() should free the object.
-     */
-    GrGpuObject(GrGpu* gpu, bool isWrapped);
+    GrGpuObject(GrGpu*, bool isWrapped);
     virtual ~GrGpuObject();
+
+    bool isInCache() const { return NULL != fCacheEntry; }
 
     GrGpu* getGpu() const { return fGpu; }
 
@@ -74,10 +103,20 @@ protected:
 
     bool isWrapped() const { return kWrapped_FlagBit & fFlags; }
 
+    /**
+     * This entry point should be called whenever gpuMemorySize() begins
+     * reporting a different size. If the object is in the cache, it will call
+     * gpuMemorySize() immediately and pass the new size on to the resource
+     * cache.
+     */
+    void didChangeGpuMemorySize() const;
+
 private:
 #ifdef SK_DEBUG
     friend class GrGpu; // for assert in GrGpu to access getGpu
 #endif
+
+    static uint32_t CreateUniqueID();
 
     // We're in an internal doubly linked list
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrGpuObject);
@@ -93,9 +132,14 @@ private:
          */
         kWrapped_FlagBit         = 0x1,
     };
-    uint32_t         fFlags;
 
-    typedef GrCacheable INHERITED;
+    uint32_t                fFlags;
+
+    mutable int32_t         fRefCnt;
+    GrResourceCacheEntry*   fCacheEntry;  // NULL if not in cache
+    const uint32_t          fUniqueID;
+
+    typedef SkNoncopyable INHERITED;
 };
 
 #endif

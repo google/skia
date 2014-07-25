@@ -20,7 +20,6 @@
 
 class GrAARectRenderer;
 class GrAutoScratchTexture;
-class GrCacheable;
 class GrDrawState;
 class GrDrawTarget;
 class GrEffect;
@@ -186,14 +185,14 @@ public:
     /**
      * Stores a custom resource in the cache, based on the specified key.
      */
-    void addResourceToCache(const GrResourceKey&, GrCacheable*);
+    void addResourceToCache(const GrResourceKey&, GrGpuObject*);
 
     /**
      * Finds a resource in the cache, based on the specified key. This is intended for use in
      * conjunction with addResourceToCache(). The return value will be NULL if not found. The
      * caller must balance with a call to unref().
      */
-    GrCacheable* findAndRefCachedResource(const GrResourceKey&);
+    GrGpuObject* findAndRefCachedResource(const GrResourceKey&);
 
     /**
      * Creates a new text rendering context that is optimal for the

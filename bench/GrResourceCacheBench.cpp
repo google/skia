@@ -9,7 +9,7 @@
 #if SK_SUPPORT_GPU
 
 #include "Benchmark.h"
-#include "GrCacheable.h"
+#include "GrGpuObject.h"
 #include "GrContext.h"
 #include "GrResourceCache.h"
 #include "GrStencilBuffer.h"
@@ -21,19 +21,18 @@ enum {
     CACHE_SIZE_BYTES = 2 * 1024 * 1024,
 };
 
-class StencilResource : public GrCacheable {
+class StencilResource : public GrGpuObject {
 public:
     SK_DECLARE_INST_COUNT(StencilResource);
-    StencilResource(int id)
-        : fID(id) {
+    StencilResource(GrGpu* gpu, int id)
+        : INHERITED(gpu, false)
+        , fID(id) {
     }
+
+    virtual ~StencilResource() { this->release(); }
 
     virtual size_t gpuMemorySize() const SK_OVERRIDE {
         return 100 + ((fID % 1 == 0) ? -5 : 6);
-    }
-
-    virtual bool isValidOnGpu() const SK_OVERRIDE {
-        return true;
     }
 
     static GrResourceKey ComputeKey(int width, int height, int sampleCnt) {
@@ -43,22 +42,21 @@ public:
     int fID;
 
 private:
-    typedef GrCacheable INHERITED;
+    typedef GrGpuObject INHERITED;
 };
 
-class TextureResource : public GrCacheable {
+class TextureResource : public GrGpuObject {
 public:
     SK_DECLARE_INST_COUNT(TextureResource);
-    TextureResource(int id)
-        : fID(id) {
+    TextureResource(GrGpu* gpu, int id)
+        : INHERITED(gpu, false)
+        , fID(id) {
     }
+
+    virtual ~TextureResource() { this->release(); }
 
     virtual size_t gpuMemorySize() const SK_OVERRIDE {
         return 100 + ((fID % 1 == 0) ? -40 : 33);
-    }
-
-    virtual bool isValidOnGpu() const SK_OVERRIDE {
-        return true;
     }
 
     static GrResourceKey ComputeKey(const GrTextureDesc& desc) {
@@ -68,7 +66,7 @@ public:
     int fID;
 
 private:
-    typedef GrCacheable INHERITED;
+    typedef GrGpuObject INHERITED;
 };
 
 static void get_stencil(int i, int* w, int* h, int* s) {
@@ -91,7 +89,7 @@ static void populate_cache(GrResourceCache* cache, GrGpu* gpu, int resourceCount
         int w, h, s;
         get_stencil(i, &w, &h, &s);
         GrResourceKey key = GrStencilBuffer::ComputeKey(w, h, s);
-        GrCacheable* resource = SkNEW_ARGS(StencilResource, (i));
+        GrGpuObject* resource = SkNEW_ARGS(StencilResource, (gpu, i));
         cache->purgeAsNeeded(1, resource->gpuMemorySize());
         cache->addResource(key, resource);
         resource->unref();
@@ -101,7 +99,7 @@ static void populate_cache(GrResourceCache* cache, GrGpu* gpu, int resourceCount
         GrTextureDesc desc;
         get_texture_desc(i, &desc);
         GrResourceKey key =  TextureResource::ComputeKey(desc);
-        GrCacheable* resource = SkNEW_ARGS(TextureResource, (i));
+        GrGpuObject* resource = SkNEW_ARGS(TextureResource, (gpu, i));
         cache->purgeAsNeeded(1, resource->gpuMemorySize());
         cache->addResource(key, resource);
         resource->unref();
@@ -114,7 +112,7 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         GrTextureDesc desc;
         get_texture_desc(k, &desc);
         GrResourceKey key = TextureResource::ComputeKey(desc);
-        GrCacheable* item = cache->find(key);
+        GrGpuObject* item = cache->find(key);
         if (NULL == item) {
             SkFAIL("cache add does not work as expected");
             return;
@@ -128,7 +126,7 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         int w, h, s;
         get_stencil(k, &w, &h, &s);
         GrResourceKey key = StencilResource::ComputeKey(w, h, s);
-        GrCacheable* item = cache->find(key);
+        GrGpuObject* item = cache->find(key);
         if (NULL == item) {
             SkFAIL("cache add does not work as expected");
             return;
@@ -145,7 +143,7 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         get_texture_desc(k, &desc);
         desc.fHeight |= 1;
         GrResourceKey key = TextureResource::ComputeKey(desc);
-        GrCacheable* item = cache->find(key);
+        GrGpuObject* item = cache->find(key);
         if (NULL != item) {
             SkFAIL("cache add does not work as expected");
             return;
@@ -156,7 +154,7 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         get_stencil(k, &w, &h, &s);
         h |= 1;
         GrResourceKey key = StencilResource::ComputeKey(w, h, s);
-        GrCacheable* item = cache->find(key);
+        GrGpuObject* item = cache->find(key);
         if (NULL != item) {
             SkFAIL("cache add does not work as expected");
             return;

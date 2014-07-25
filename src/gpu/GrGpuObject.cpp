@@ -10,7 +10,10 @@
 #include "GrGpuObject.h"
 #include "GrGpu.h"
 
-GrGpuObject::GrGpuObject(GrGpu* gpu, bool isWrapped) {
+GrGpuObject::GrGpuObject(GrGpu* gpu, bool isWrapped)
+    : fRefCnt(1)
+    , fCacheEntry(NULL)
+    , fUniqueID(CreateUniqueID()) {
     fGpu              = gpu;
     if (isWrapped) {
         fFlags = kWrapped_FlagBit;
@@ -21,6 +24,7 @@ GrGpuObject::GrGpuObject(GrGpu* gpu, bool isWrapped) {
 }
 
 GrGpuObject::~GrGpuObject() {
+    SkASSERT(0 == fRefCnt);
     // subclass should have released this.
     SkASSERT(this->wasDestroyed());
 }
@@ -55,4 +59,13 @@ GrContext* GrGpuObject::getContext() {
     } else {
         return NULL;
     }
+}
+
+uint32_t GrGpuObject::CreateUniqueID() {
+    static int32_t gUniqueID = SK_InvalidUniqueID;
+    uint32_t id;
+    do {
+        id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+    } while (id == SK_InvalidUniqueID);
+    return id;
 }

@@ -18,7 +18,7 @@
 #include "SkMessageBus.h"
 #include "SkTInternalLList.h"
 
-class GrCacheable;
+class GrGpuObject;
 class GrResourceCache;
 class GrResourceCacheEntry;
 
@@ -29,11 +29,11 @@ public:
         return gDomain;
     }
 
-    /** Uniquely identifies the GrCacheable subclass in the key to avoid collisions
+    /** Uniquely identifies the GrGpuObject subclass in the key to avoid collisions
         across resource types. */
     typedef uint8_t ResourceType;
 
-    /** Flags set by the GrCacheable subclass. */
+    /** Flags set by the GrGpuObject subclass. */
     typedef uint8_t ResourceFlags;
 
     /** Generate a unique ResourceType */
@@ -118,7 +118,7 @@ struct GrResourceInvalidatedMessage {
 
 class GrResourceCacheEntry {
 public:
-    GrCacheable* resource() const { return fResource; }
+    GrGpuObject* resource() const { return fResource; }
     const GrResourceKey& key() const { return fKey; }
 
     static const GrResourceKey& GetKey(const GrResourceCacheEntry& e) { return e.key(); }
@@ -131,7 +131,7 @@ public:
 
     /**
      *  Update the cached size for this entry and inform the resource cache that
-     *  it has changed. Usually invoked from GrCacheable::didChangeGpuMemorySize,
+     *  it has changed. Usually invoked from GrGpuObject::didChangeGpuMemorySize,
      *  not directly from here.
      */
     void didChangeResourceSize();
@@ -139,12 +139,12 @@ public:
 private:
     GrResourceCacheEntry(GrResourceCache* resourceCache,
                          const GrResourceKey& key,
-                         GrCacheable* resource);
+                         GrGpuObject* resource);
     ~GrResourceCacheEntry();
 
     GrResourceCache* fResourceCache;
     GrResourceKey    fKey;
-    GrCacheable*     fResource;
+    GrGpuObject*     fResource;
     size_t           fCachedSize;
     bool             fIsExclusive;
 
@@ -157,7 +157,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- *  Cache of GrCacheable objects.
+ *  Cache of GrGpuObject objects.
  *
  *  These have a corresponding GrResourceKey, built from 128bits identifying the
  *  resource. Multiple resources can map to same GrResourceKey.
@@ -246,7 +246,7 @@ public:
      *  For a resource to be completely exclusive to a caller both kNoOtherOwners
      *  and kHide must be specified.
      */
-    GrCacheable* find(const GrResourceKey& key,
+    GrGpuObject* find(const GrResourceKey& key,
                       uint32_t ownershipFlags = 0);
 
     /**
@@ -261,7 +261,7 @@ public:
      *  is called.
      */
     void addResource(const GrResourceKey& key,
-                     GrCacheable* resource,
+                     GrGpuObject* resource,
                      uint32_t ownershipFlags = 0);
 
     /**

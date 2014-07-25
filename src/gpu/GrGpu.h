@@ -13,7 +13,6 @@
 #include "SkPath.h"
 
 class GrContext;
-class GrGpuObject;
 class GrIndexBufferAllocPool;
 class GrPath;
 class GrPathRange;

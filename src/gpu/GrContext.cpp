@@ -257,7 +257,7 @@ GrTexture* GrContext::findAndRefTexture(const GrTextureDesc& desc,
                                         const GrCacheID& cacheID,
                                         const GrTextureParams* params) {
     GrResourceKey resourceKey = GrTextureImpl::ComputeKey(fGpu, params, desc, cacheID);
-    GrCacheable* resource = fResourceCache->find(resourceKey);
+    GrGpuObject* resource = fResourceCache->find(resourceKey);
     SkSafeRef(resource);
     return static_cast<GrTexture*>(resource);
 }
@@ -283,7 +283,7 @@ GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
     GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(width,
                                                             height,
                                                             sampleCnt);
-    GrCacheable* resource = fResourceCache->find(resourceKey);
+    GrGpuObject* resource = fResourceCache->find(resourceKey);
     return static_cast<GrStencilBuffer*>(resource);
 }
 
@@ -471,7 +471,7 @@ GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, Scra
         desc.fHeight = SkTMax(MIN_SIZE, GrNextPow2(desc.fHeight));
     }
 
-    GrCacheable* resource = NULL;
+    GrGpuObject* resource = NULL;
     int origWidth = desc.fWidth;
     int origHeight = desc.fHeight;
 
@@ -1903,13 +1903,13 @@ GrPath* GrContext::createPath(const SkPath& inPath, const SkStrokeRec& stroke) {
     return path;
 }
 
-void GrContext::addResourceToCache(const GrResourceKey& resourceKey, GrCacheable* resource) {
+void GrContext::addResourceToCache(const GrResourceKey& resourceKey, GrGpuObject* resource) {
     fResourceCache->purgeAsNeeded(1, resource->gpuMemorySize());
     fResourceCache->addResource(resourceKey, resource);
 }
 
-GrCacheable* GrContext::findAndRefCachedResource(const GrResourceKey& resourceKey) {
-    GrCacheable* resource = fResourceCache->find(resourceKey);
+GrGpuObject* GrContext::findAndRefCachedResource(const GrResourceKey& resourceKey) {
+    GrGpuObject* resource = fResourceCache->find(resourceKey);
     SkSafeRef(resource);
     return resource;
 }

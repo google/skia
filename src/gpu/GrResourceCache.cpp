@@ -9,13 +9,13 @@
 
 
 #include "GrResourceCache.h"
-#include "GrCacheable.h"
+#include "GrGpuObject.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrCacheable::didChangeGpuMemorySize() const {
+void GrGpuObject::didChangeGpuMemorySize() const {
     if (this->isInCache()) {
         fCacheEntry->didChangeResourceSize();
     }
@@ -38,7 +38,7 @@ GrResourceKey::ResourceType GrResourceKey::GenerateResourceType() {
 
 GrResourceCacheEntry::GrResourceCacheEntry(GrResourceCache* resourceCache,
                                            const GrResourceKey& key,
-                                           GrCacheable* resource)
+                                           GrGpuObject* resource)
         : fResourceCache(resourceCache),
           fKey(key),
           fResource(resource),
@@ -197,7 +197,7 @@ public:
     }
 };
 
-GrCacheable* GrResourceCache::find(const GrResourceKey& key, uint32_t ownershipFlags) {
+GrGpuObject* GrResourceCache::find(const GrResourceKey& key, uint32_t ownershipFlags) {
     GrAutoResourceCacheValidate atcv(this);
 
     GrResourceCacheEntry* entry = NULL;
@@ -226,7 +226,7 @@ GrCacheable* GrResourceCache::find(const GrResourceKey& key, uint32_t ownershipF
 }
 
 void GrResourceCache::addResource(const GrResourceKey& key,
-                                  GrCacheable* resource,
+                                  GrGpuObject* resource,
                                   uint32_t ownershipFlags) {
     SkASSERT(NULL == resource->getCacheEntry());
     // we don't expect to create new resources during a purge. In theory
@@ -285,7 +285,7 @@ void GrResourceCache::makeNonExclusive(GrResourceCacheEntry* entry) {
     fExclusiveList.remove(entry);
 #endif
 
-    if (entry->resource()->isValidOnGpu()) {
+    if (!entry->resource()->wasDestroyed()) {
         // Since scratch textures still count against the cache budget even
         // when they have been removed from the cache, re-adding them doesn't
         // alter the budget information.

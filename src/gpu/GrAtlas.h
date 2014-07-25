@@ -10,9 +10,10 @@
 #define GrAtlas_DEFINED
 
 
-#include "SkPoint.h"
 #include "GrTexture.h"
 #include "GrDrawTarget.h"
+#include "SkPoint.h"
+#include "SkTInternalLList.h"
 
 class GrGpu;
 class GrRectanizer;

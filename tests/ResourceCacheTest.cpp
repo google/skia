@@ -58,13 +58,14 @@ static void test_cache(skiatest::Reporter* reporter,
     context->setResourceCacheLimits(oldMaxNum, oldMaxBytes);
 }
 
-class TestResource : public GrCacheable {
+class TestResource : public GrGpuObject {
     static const size_t kDefaultSize = 100;
 
 public:
     SK_DECLARE_INST_COUNT(TestResource);
-    TestResource(size_t size = kDefaultSize)
-        : fCache(NULL)
+    TestResource(GrGpu* gpu, size_t size = kDefaultSize)
+        : INHERITED(gpu, false)
+        , fCache(NULL)
         , fToDelete(NULL)
         , fSize(size) {
         ++fAlive;
@@ -77,6 +78,7 @@ public:
             fToDelete->setDeleteWhenDestroyed(NULL, NULL);
             fCache->deleteResource(fToDelete->getCacheEntry());
         }
+        this->release();
     }
 
     void setSize(size_t size) {
@@ -85,8 +87,6 @@ public:
     }
 
     size_t gpuMemorySize() const SK_OVERRIDE { return fSize; }
-
-    bool isValidOnGpu() const SK_OVERRIDE { return true; }
 
     static int alive() { return fAlive; }
 
@@ -101,7 +101,7 @@ private:
     size_t fSize;
     static int fAlive;
 
-    typedef GrCacheable INHERITED;
+    typedef GrGpuObject INHERITED;
 };
 int TestResource::fAlive = 0;
 
@@ -116,8 +116,8 @@ static void test_purge_invalidated(skiatest::Reporter* reporter, GrContext* cont
     GrResourceCache cache(5, 30000);
 
     // Add two resources with the same key that delete each other from the cache when destroyed.
-    TestResource* a = new TestResource();
-    TestResource* b = new TestResource();
+    TestResource* a = new TestResource(context->getGpu());
+    TestResource* b = new TestResource(context->getGpu());
     cache.addResource(key, a);
     cache.addResource(key, b);
     // Circle back.
@@ -127,7 +127,7 @@ static void test_purge_invalidated(skiatest::Reporter* reporter, GrContext* cont
     b->unref();
 
     // Add a third independent resource also with the same key.
-    GrCacheable* r = new TestResource();
+    GrGpuObject* r = new TestResource(context->getGpu());
     cache.addResource(key, r);
     r->unref();
 
@@ -152,8 +152,8 @@ static void test_cache_delete_on_destruction(skiatest::Reporter* reporter,
     {
         {
             GrResourceCache cache(3, 30000);
-            TestResource* a = new TestResource();
-            TestResource* b = new TestResource();
+            TestResource* a = new TestResource(context->getGpu());
+            TestResource* b = new TestResource(context->getGpu());
             cache.addResource(key, a);
             cache.addResource(key, b);
 
@@ -168,8 +168,8 @@ static void test_cache_delete_on_destruction(skiatest::Reporter* reporter,
     }
     {
         GrResourceCache cache(3, 30000);
-        TestResource* a = new TestResource();
-        TestResource* b = new TestResource();
+        TestResource* a = new TestResource(context->getGpu());
+        TestResource* b = new TestResource(context->getGpu());
         cache.addResource(key, a);
         cache.addResource(key, b);
 
@@ -204,12 +204,12 @@ static void test_resource_size_changed(skiatest::Reporter* reporter,
     {
         GrResourceCache cache(2, 300);
 
-        TestResource* a = new TestResource(0);
+        TestResource* a = new TestResource(context->getGpu());
         a->setSize(100); // Test didChangeGpuMemorySize() when not in the cache.
         cache.addResource(key1, a);
         a->unref();
 
-        TestResource* b = new TestResource(0);
+        TestResource* b = new TestResource(context->getGpu());
         b->setSize(100);
         cache.addResource(key2, b);
         b->unref();
@@ -228,11 +228,11 @@ static void test_resource_size_changed(skiatest::Reporter* reporter,
     {
         GrResourceCache cache(2, 300);
 
-        TestResource* a = new TestResource(100);
+        TestResource* a = new TestResource(context->getGpu(), 100);
         cache.addResource(key1, a);
         a->unref();
 
-        TestResource* b = new TestResource(100);
+        TestResource* b = new TestResource(context->getGpu(), 100);
         cache.addResource(key2, b);
         b->unref();
 
@@ -250,11 +250,11 @@ static void test_resource_size_changed(skiatest::Reporter* reporter,
     {
         GrResourceCache cache(2, 300);
 
-        TestResource* a = new TestResource(100);
+        TestResource* a = new TestResource(context->getGpu(), 100);
         cache.addResource(key1, a);
         cache.makeExclusive(a->getCacheEntry());
 
-        TestResource* b = new TestResource(100);
+        TestResource* b = new TestResource(context->getGpu(), 100);
         cache.addResource(key2, b);
         b->unref();
 

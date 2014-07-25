@@ -18,7 +18,7 @@
 #include "SkPath.h"
 #include "SkTextMapStateProc.h"
 
-class GrStencilAndCoverTextContext::GlyphPathRange : public GrCacheable {
+class GrStencilAndCoverTextContext::GlyphPathRange : public GrGpuObject {
     static const int kMaxGlyphCount = 1 << 16; // Glyph IDs are uint16_t's
     static const int kGlyphGroupSize = 16; // Glyphs get tracked in groups of 16
 
@@ -75,13 +75,13 @@ public:
         this->didChangeGpuMemorySize();
     }
 
-    // GrCacheable overrides
+    // GrGpuObject overrides
     virtual size_t gpuMemorySize() const SK_OVERRIDE { return fPathRange->gpuMemorySize(); }
-    virtual bool isValidOnGpu() const SK_OVERRIDE { return fPathRange->isValidOnGpu(); }
 
 private:
     GlyphPathRange(GrContext* context, const SkDescriptor& desc, const SkStrokeRec& stroke)
-        : fDesc(desc.copy())
+        : INHERITED(context->getGpu(), false)
+        , fDesc(desc.copy())
         // We reserve a range of kMaxGlyphCount paths because of fallbacks fonts. We
         // can't know exactly how many glyphs we might need without preloading every
         // fallback, which we don't want to do at this point.
@@ -90,15 +90,28 @@ private:
     }
 
     ~GlyphPathRange() {
+        this->release();
         SkDescriptor::Free(fDesc);
     }
+
+    virtual void onRelease() SK_OVERRIDE {
+        INHERITED::onRelease();
+        fPathRange.reset(NULL);
+    }
+
+    virtual void onAbandon() SK_OVERRIDE {
+        INHERITED::onAbandon();
+        fPathRange->abandon();
+        fPathRange.reset(NULL);
+    }
+
 
     static const int kMaxGroupCount = (kMaxGlyphCount + (kGlyphGroupSize - 1)) / kGlyphGroupSize;
     SkDescriptor* const fDesc;
     uint8_t fLoadedGlyphs[(kMaxGroupCount + 7) >> 3]; // One bit per glyph group
     SkAutoTUnref<GrPathRange> fPathRange;
 
-    typedef GrCacheable INHERITED;
+    typedef GrGpuObject INHERITED;
 };
 
 
