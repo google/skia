@@ -34,6 +34,7 @@ public:
     const GrFontDescKey* getFontScalerKey() const { return fFontScalerKey; }
     GrFontCache* getFontCache() const { return fFontCache; }
     GrMaskFormat getMaskFormat() const { return fMaskFormat; }
+    GrTexture*   getTexture() const { return fAtlas->getTexture(); }
 
     inline GrGlyph* getGlyph(GrGlyph::PackedID, GrFontScaler*);
     bool addGlyphToAtlas(GrGlyph*, GrFontScaler*);
