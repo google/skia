@@ -15,7 +15,7 @@ class SkrComparisonTask : public CpuTask {
 public:
     SkrComparisonTask(const Task& parent, const SkPicture* picture, SkBitmap reference)
         : CpuTask(parent)
-        , fPicture(picture)
+        , fPicture(SkRef(picture))
         , fReference(reference)
         , fName(UnderJoin(parent.name().c_str(), "skr")) {}
 
