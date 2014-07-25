@@ -148,7 +148,7 @@ desk_linkedin.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4
 desk_mapsvg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,155.83,139.25144,172.46856
 desk_mobilenews.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,14.25,10.98688,17.12312
 desk_oldinboxapp.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,1.02,-0.6424,2.2024
-desk_pinterest.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,33.64,28.63424,38.28076
+desk_pinterest.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,33.64,28.63424,45.28076
 desk_pokemonwiki.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,23.99,19.90816,27.64684
 desk_rectangletransition.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,0.89,-0.76184,2.06184
 desk_samoasvg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,43.13,38.14976,47.59524
