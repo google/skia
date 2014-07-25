@@ -74,8 +74,6 @@ class SkMutex : public SkBaseMutex { };
 
 // Windows currently provides no documented means of POD initializing a CRITICAL_SECTION.
 // As a result, it is illegal to SK_DECLARE_STATIC_MUTEX in a function.
-#define SK_DECLARE_STATIC_MUTEX(name) \
-    static inline void SK_MACRO_APPEND_LINE(name)(){} \
-    static SkBaseMutex name
+#define SK_DECLARE_STATIC_MUTEX(name) namespace{} static SkBaseMutex name
 
 #endif
