@@ -911,8 +911,7 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
             for (int i = 0; i < number_passes; i++) {
                 png_configure_decoder(png_ptr, &actualTop, i);
                 for (int j = 0; j < rect.fTop - actualTop; j++) {
-                    uint8_t* bmRow = (uint8_t*)decodedBitmap.getPixels();
-                    png_read_rows(png_ptr, &bmRow, png_bytepp_NULL, 1);
+                    png_read_rows(png_ptr, &base, png_bytepp_NULL, 1);
                 }
                 uint8_t* row = base;
                 for (int32_t y = 0; y < rect.height(); y++) {
@@ -935,8 +934,7 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
             skip_src_rows(png_ptr, srcRow, sampler.srcY0());
 
             for (int i = 0; i < rect.fTop - actualTop; i++) {
-                uint8_t* bmRow = (uint8_t*)decodedBitmap.getPixels();
-                png_read_rows(png_ptr, &bmRow, png_bytepp_NULL, 1);
+                png_read_rows(png_ptr, &srcRow, png_bytepp_NULL, 1);
             }
             for (int y = 0; y < height; y++) {
                 uint8_t* tmp = srcRow;
