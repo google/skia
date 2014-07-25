@@ -10,6 +10,7 @@
 
 #include "GrTextContext.h"
 #include "GrDrawState.h"
+#include "GrDrawTarget.h"
 #include "SkStrokeRec.h"
 
 class GrTextStrike;
@@ -39,21 +40,29 @@ private:
     class GlyphPathRange;
     static const int kGlyphBufferSize = 1024;
 
-    void init(const GrPaint&, const SkPaint&, size_t textByteLength);
+    enum DeviceSpaceGlyphsBehavior {
+        kUseIfNeeded_DeviceSpaceGlyphsBehavior,
+        kDoNotUse_DeviceSpaceGlyphsBehavior,
+    };
+    void init(const GrPaint&, const SkPaint&, size_t textByteLength,
+              DeviceSpaceGlyphsBehavior, SkScalar textTranslateY = 0);
     void initGlyphs(SkGlyphCache* cache);
+    void appendGlyph(uint16_t glyphID, float x);
     void appendGlyph(uint16_t glyphID, float x, float y);
     void flush();
     void finish();
 
     GrDrawState::AutoRestoreEffects fStateRestore;
     SkScalar fTextRatio;
+    float fTextInverseRatio;
     SkStrokeRec fStroke;
     SkGlyphCache* fGlyphCache;
     GlyphPathRange* fGlyphs;
     uint32_t fIndexBuffer[kGlyphBufferSize];
-    float fTransformBuffer[6 * kGlyphBufferSize];
+    float fTransformBuffer[2 * kGlyphBufferSize];
+    GrDrawTarget::PathTransformType fTransformType;
     int fPendingGlyphCount;
-    SkMatrix fGlyphTransform;
+    SkMatrix fContextInitialMatrix;
     bool fNeedsDeviceSpaceGlyphs;
 };
 

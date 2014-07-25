@@ -82,6 +82,7 @@
     '../gm/getpostextpath.cpp',
     '../gm/giantbitmap.cpp',
     '../gm/glyph_pos.cpp',
+    '../gm/glyph_pos_align.cpp',
     '../gm/gradients.cpp',
     '../gm/gradients_2pt_conical.cpp',
     '../gm/gradients_no_texture.cpp',
