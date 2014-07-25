@@ -249,28 +249,28 @@ public:
                             size_t rowBytes);
 
     /**
-     * Called to tell GrGpu that all GrGpuObjects have been lost and should
+     * Called to tell GrGpu that all GrGpuResources have been lost and should
      * be abandoned. Overrides must call INHERITED::abandonResources().
      */
     virtual void abandonResources();
 
     /**
-     * Called to tell GrGpu to release all GrGpuObjects. Overrides must call
+     * Called to tell GrGpu to release all GrGpuResources. Overrides must call
      * INHERITED::releaseResources().
      */
     void releaseResources();
 
     /**
-     * Add object to list of objects. Should only be called by GrGpuObject.
+     * Add object to list of objects. Should only be called by GrGpuResource.
      * @param resource  the resource to add.
      */
-    void insertObject(GrGpuObject* object);
+    void insertObject(GrGpuResource* object);
 
     /**
-     * Remove object from list of objects. Should only be called by GrGpuObject.
+     * Remove object from list of objects. Should only be called by GrGpuResource.
      * @param resource  the resource to remove.
      */
-    void removeObject(GrGpuObject* object);
+    void removeObject(GrGpuResource* object);
 
     // GrDrawTarget overrides
     virtual void clear(const SkIRect* rect,
@@ -526,7 +526,7 @@ private:
     enum {
         kPreallocGeomPoolStateStackCnt = 4,
     };
-    typedef SkTInternalLList<GrGpuObject> ObjectList;
+    typedef SkTInternalLList<GrGpuResource> ObjectList;
     SkSTArray<kPreallocGeomPoolStateStackCnt, GeometryPoolState, true>  fGeomPoolStateStack;
     ResetTimestamp                                                      fResetTimestamp;
     uint32_t                                                            fResetBits;

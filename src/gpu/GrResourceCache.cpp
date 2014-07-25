@@ -9,13 +9,13 @@
 
 
 #include "GrResourceCache.h"
-#include "GrGpuObject.h"
+#include "GrGpuResource.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGpuObject::didChangeGpuMemorySize() const {
+void GrGpuResource::didChangeGpuMemorySize() const {
     if (this->isInCache()) {
         fCacheEntry->didChangeResourceSize();
     }
@@ -38,7 +38,7 @@ GrResourceKey::ResourceType GrResourceKey::GenerateResourceType() {
 
 GrResourceCacheEntry::GrResourceCacheEntry(GrResourceCache* resourceCache,
                                            const GrResourceKey& key,
-                                           GrGpuObject* resource)
+                                           GrGpuResource* resource)
         : fResourceCache(resourceCache),
           fKey(key),
           fResource(resource),
@@ -197,7 +197,7 @@ public:
     }
 };
 
-GrGpuObject* GrResourceCache::find(const GrResourceKey& key, uint32_t ownershipFlags) {
+GrGpuResource* GrResourceCache::find(const GrResourceKey& key, uint32_t ownershipFlags) {
     GrAutoResourceCacheValidate atcv(this);
 
     GrResourceCacheEntry* entry = NULL;
@@ -226,7 +226,7 @@ GrGpuObject* GrResourceCache::find(const GrResourceKey& key, uint32_t ownershipF
 }
 
 void GrResourceCache::addResource(const GrResourceKey& key,
-                                  GrGpuObject* resource,
+                                  GrGpuResource* resource,
                                   uint32_t ownershipFlags) {
     SkASSERT(NULL == resource->getCacheEntry());
     // we don't expect to create new resources during a purge. In theory

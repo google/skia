@@ -90,9 +90,9 @@ public:
      * buffer, etc. references/IDs are now invalid. Should be called even when
      * GrContext is no longer going to be used for two reasons:
      *  1) ~GrContext will not try to free the objects in the 3D API.
-     *  2) If you've created GrGpuObjects that outlive the GrContext they will
-     *     be marked as invalid (GrGpuObjects::isValid()) and won't attempt to
-     *     free their underlying resource in the 3D API.
+     *  2) If you've created GrGpuResources that outlive the GrContext they
+     *     will be marked as invalid (GrGpuResource::isValid()) and won't
+     *     attempt to free their underlying resource in the 3D API.
      * Content drawn since the last GrContext::flush() may be lost.
      */
     void contextLost();
@@ -185,14 +185,14 @@ public:
     /**
      * Stores a custom resource in the cache, based on the specified key.
      */
-    void addResourceToCache(const GrResourceKey&, GrGpuObject*);
+    void addResourceToCache(const GrResourceKey&, GrGpuResource*);
 
     /**
      * Finds a resource in the cache, based on the specified key. This is intended for use in
      * conjunction with addResourceToCache(). The return value will be NULL if not found. The
      * caller must balance with a call to unref().
      */
-    GrGpuObject* findAndRefCachedResource(const GrResourceKey&);
+    GrGpuResource* findAndRefCachedResource(const GrResourceKey&);
 
     /**
      * Creates a new text rendering context that is optimal for the

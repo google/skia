@@ -8,7 +8,7 @@
 #ifndef GrPathRange_DEFINED
 #define GrPathRange_DEFINED
 
-#include "GrGpuObject.h"
+#include "GrGpuResource.h"
 #include "GrResourceCache.h"
 #include "SkStrokeRec.h"
 
@@ -20,7 +20,7 @@ class SkPath;
  * initialized lazily. Unititialized paths are silently ignored by drawing
  * functions.
  */
-class GrPathRange : public GrGpuObject {
+class GrPathRange : public GrGpuResource {
 public:
     SK_DECLARE_INST_COUNT(GrPathRange);
 
@@ -54,7 +54,7 @@ protected:
     SkStrokeRec fStroke;
 
 private:
-    typedef GrGpuObject INHERITED;
+    typedef GrGpuResource INHERITED;
 };
 
 #endif

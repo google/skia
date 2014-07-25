@@ -18,7 +18,7 @@
 #include "SkMessageBus.h"
 #include "SkTInternalLList.h"
 
-class GrGpuObject;
+class GrGpuResource;
 class GrResourceCache;
 class GrResourceCacheEntry;
 
@@ -29,11 +29,11 @@ public:
         return gDomain;
     }
 
-    /** Uniquely identifies the GrGpuObject subclass in the key to avoid collisions
+    /** Uniquely identifies the GrGpuResource subclass in the key to avoid collisions
         across resource types. */
     typedef uint8_t ResourceType;
 
-    /** Flags set by the GrGpuObject subclass. */
+    /** Flags set by the GrGpuResource subclass. */
     typedef uint8_t ResourceFlags;
 
     /** Generate a unique ResourceType */
@@ -118,7 +118,7 @@ struct GrResourceInvalidatedMessage {
 
 class GrResourceCacheEntry {
 public:
-    GrGpuObject* resource() const { return fResource; }
+    GrGpuResource* resource() const { return fResource; }
     const GrResourceKey& key() const { return fKey; }
 
     static const GrResourceKey& GetKey(const GrResourceCacheEntry& e) { return e.key(); }
@@ -131,7 +131,7 @@ public:
 
     /**
      *  Update the cached size for this entry and inform the resource cache that
-     *  it has changed. Usually invoked from GrGpuObject::didChangeGpuMemorySize,
+     *  it has changed. Usually invoked from GrGpuResource::didChangeGpuMemorySize,
      *  not directly from here.
      */
     void didChangeResourceSize();
@@ -139,12 +139,12 @@ public:
 private:
     GrResourceCacheEntry(GrResourceCache* resourceCache,
                          const GrResourceKey& key,
-                         GrGpuObject* resource);
+                         GrGpuResource* resource);
     ~GrResourceCacheEntry();
 
     GrResourceCache* fResourceCache;
     GrResourceKey    fKey;
-    GrGpuObject*     fResource;
+    GrGpuResource*   fResource;
     size_t           fCachedSize;
     bool             fIsExclusive;
 
@@ -157,7 +157,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- *  Cache of GrGpuObject objects.
+ *  Cache of GrGpuResource objects.
  *
  *  These have a corresponding GrResourceKey, built from 128bits identifying the
  *  resource. Multiple resources can map to same GrResourceKey.
@@ -170,7 +170,7 @@ private:
  *  For fast searches, we maintain a hash map based on the GrResourceKey.
  *
  *  It is a goal to make the GrResourceCache the central repository and bookkeeper
- *  of all resources. It should replace the linked list of GrGpuObjects that
+ *  of all resources. It should replace the linked list of GrGpuResources that
  *  GrGpu uses to call abandon/release.
  */
 class GrResourceCache {
@@ -246,8 +246,8 @@ public:
      *  For a resource to be completely exclusive to a caller both kNoOtherOwners
      *  and kHide must be specified.
      */
-    GrGpuObject* find(const GrResourceKey& key,
-                      uint32_t ownershipFlags = 0);
+    GrGpuResource* find(const GrResourceKey& key,
+                        uint32_t ownershipFlags = 0);
 
     /**
      *  Add the new resource to the cache (by creating a new cache entry based
@@ -261,7 +261,7 @@ public:
      *  is called.
      */
     void addResource(const GrResourceKey& key,
-                     GrGpuObject* resource,
+                     GrGpuResource* resource,
                      uint32_t ownershipFlags = 0);
 
     /**

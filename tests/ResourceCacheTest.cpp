@@ -58,7 +58,7 @@ static void test_cache(skiatest::Reporter* reporter,
     context->setResourceCacheLimits(oldMaxNum, oldMaxBytes);
 }
 
-class TestResource : public GrGpuObject {
+class TestResource : public GrGpuResource {
     static const size_t kDefaultSize = 100;
 
 public:
@@ -101,7 +101,7 @@ private:
     size_t fSize;
     static int fAlive;
 
-    typedef GrGpuObject INHERITED;
+    typedef GrGpuResource INHERITED;
 };
 int TestResource::fAlive = 0;
 
@@ -127,7 +127,7 @@ static void test_purge_invalidated(skiatest::Reporter* reporter, GrContext* cont
     b->unref();
 
     // Add a third independent resource also with the same key.
-    GrGpuObject* r = new TestResource(context->getGpu());
+    GrGpuResource* r = new TestResource(context->getGpu());
     cache.addResource(key, r);
     r->unref();
 

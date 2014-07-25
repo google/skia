@@ -18,7 +18,7 @@
 #include "SkPath.h"
 #include "SkTextMapStateProc.h"
 
-class GrStencilAndCoverTextContext::GlyphPathRange : public GrGpuObject {
+class GrStencilAndCoverTextContext::GlyphPathRange : public GrGpuResource {
     static const int kMaxGlyphCount = 1 << 16; // Glyph IDs are uint16_t's
     static const int kGlyphGroupSize = 16; // Glyphs get tracked in groups of 16
 
@@ -75,7 +75,7 @@ public:
         this->didChangeGpuMemorySize();
     }
 
-    // GrGpuObject overrides
+    // GrGpuResource overrides
     virtual size_t gpuMemorySize() const SK_OVERRIDE { return fPathRange->gpuMemorySize(); }
 
 private:
@@ -111,7 +111,7 @@ private:
     uint8_t fLoadedGlyphs[(kMaxGroupCount + 7) >> 3]; // One bit per glyph group
     SkAutoTUnref<GrPathRange> fPathRange;
 
-    typedef GrGpuObject INHERITED;
+    typedef GrGpuResource INHERITED;
 };
 
 

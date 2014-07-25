@@ -85,14 +85,14 @@ void GrGpu::releaseResources() {
     fIndexPool = NULL;
 }
 
-void GrGpu::insertObject(GrGpuObject* object) {
+void GrGpu::insertObject(GrGpuResource* object) {
     SkASSERT(NULL != object);
     SkASSERT(this == object->getGpu());
 
     fObjectList.addToHead(object);
 }
 
-void GrGpu::removeObject(GrGpuObject* object) {
+void GrGpu::removeObject(GrGpuResource* object) {
     SkASSERT(NULL != object);
     SkASSERT(this == object->getGpu());
 

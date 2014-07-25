@@ -8,13 +8,13 @@
 #ifndef GrPath_DEFINED
 #define GrPath_DEFINED
 
-#include "GrGpuObject.h"
+#include "GrGpuResource.h"
 #include "GrResourceCache.h"
 #include "SkPath.h"
 #include "SkRect.h"
 #include "SkStrokeRec.h"
 
-class GrPath : public GrGpuObject {
+class GrPath : public GrGpuResource {
 public:
     SK_DECLARE_INST_COUNT(GrPath);
 
@@ -45,7 +45,7 @@ protected:
     SkRect fBounds;
 
 private:
-    typedef GrGpuObject INHERITED;
+    typedef GrGpuResource INHERITED;
 };
 
 #endif

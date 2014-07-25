@@ -7,10 +7,10 @@
  */
 
 
-#include "GrGpuObject.h"
+#include "GrGpuResource.h"
 #include "GrGpu.h"
 
-GrGpuObject::GrGpuObject(GrGpu* gpu, bool isWrapped)
+GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
     : fRefCnt(1)
     , fCacheEntry(NULL)
     , fUniqueID(CreateUniqueID()) {
@@ -23,13 +23,13 @@ GrGpuObject::GrGpuObject(GrGpu* gpu, bool isWrapped)
     fGpu->insertObject(this);
 }
 
-GrGpuObject::~GrGpuObject() {
+GrGpuResource::~GrGpuResource() {
     SkASSERT(0 == fRefCnt);
     // subclass should have released this.
     SkASSERT(this->wasDestroyed());
 }
 
-void GrGpuObject::release() {
+void GrGpuResource::release() {
     if (NULL != fGpu) {
         this->onRelease();
         fGpu->removeObject(this);
@@ -37,7 +37,7 @@ void GrGpuObject::release() {
     }
 }
 
-void GrGpuObject::abandon() {
+void GrGpuResource::abandon() {
     if (NULL != fGpu) {
         this->onAbandon();
         fGpu->removeObject(this);
@@ -45,7 +45,7 @@ void GrGpuObject::abandon() {
     }
 }
 
-const GrContext* GrGpuObject::getContext() const {
+const GrContext* GrGpuResource::getContext() const {
     if (NULL != fGpu) {
         return fGpu->getContext();
     } else {
@@ -53,7 +53,7 @@ const GrContext* GrGpuObject::getContext() const {
     }
 }
 
-GrContext* GrGpuObject::getContext() {
+GrContext* GrGpuResource::getContext() {
     if (NULL != fGpu) {
         return fGpu->getContext();
     } else {
@@ -61,7 +61,7 @@ GrContext* GrGpuObject::getContext() {
     }
 }
 
-uint32_t GrGpuObject::CreateUniqueID() {
+uint32_t GrGpuResource::CreateUniqueID() {
     static int32_t gUniqueID = SK_InvalidUniqueID;
     uint32_t id;
     do {

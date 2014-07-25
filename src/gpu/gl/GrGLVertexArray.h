@@ -8,7 +8,7 @@
 #ifndef GrGLVertexArray_DEFINED
 #define GrGLVertexArray_DEFINED
 
-#include "GrGpuObject.h"
+#include "GrGpuResource.h"
 #include "GrTypesPriv.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLFunctions.h"
@@ -130,7 +130,7 @@ private:
  * This class represents an OpenGL vertex array object. It manages the lifetime of the vertex array
  * and is used to track the state of the vertex array to avoid redundant GL calls.
  */
-class GrGLVertexArray : public GrGpuObject {
+class GrGLVertexArray : public GrGpuResource {
 public:
     GrGLVertexArray(GrGpuGL* gpu, GrGLint id, int attribCount);
 
@@ -170,7 +170,7 @@ private:
     GrGLuint                fIndexBufferID;
     bool                    fIndexBufferIDIsValid;
 
-    typedef GrGpuObject INHERITED;
+    typedef GrGpuResource INHERITED;
 };
 
 #endif

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGpuObject_DEFINED
-#define GrGpuObject_DEFINED
+#ifndef GrGpuResource_DEFINED
+#define GrGpuResource_DEFINED
 
 #include "SkInstCnt.h"
 #include "SkTInternalLList.h"
@@ -18,9 +18,9 @@ class GrContext;
 /**
  * Base class for objects that can be kept in the GrResourceCache.
  */
-class GrGpuObject : public SkNoncopyable {
+class GrGpuResource : public SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(GrGpuObject)
+    SK_DECLARE_INST_COUNT_ROOT(GrGpuResource)
 
     // These method signatures are written to mirror SkRefCnt. However, we don't require
     // thread safety as GrCacheable objects are not intended to cross thread boundaries.
@@ -89,8 +89,8 @@ public:
     uint32_t getUniqueID() const { return fUniqueID; }
 
 protected:
-    GrGpuObject(GrGpu*, bool isWrapped);
-    virtual ~GrGpuObject();
+    GrGpuResource(GrGpu*, bool isWrapped);
+    virtual ~GrGpuResource();
 
     bool isInCache() const { return NULL != fCacheEntry; }
 
@@ -119,10 +119,10 @@ private:
     static uint32_t CreateUniqueID();
 
     // We're in an internal doubly linked list
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrGpuObject);
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrGpuResource);
 
     GrGpu*              fGpu;               // not reffed. The GrGpu can be deleted while there
-                                            // are still live GrGpuObjects. It will call
+                                            // are still live GrGpuResources. It will call
                                             // release() on all such objects in its destructor.
     enum Flags {
         /**
