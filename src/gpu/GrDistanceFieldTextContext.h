@@ -48,8 +48,7 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
-    SkPoint*                fVertices;
-    int32_t                 fMaxVertices;
+    void*                   fVertices;
     GrTexture*              fCurrTexture;
     int                     fCurrVertex;
 };
