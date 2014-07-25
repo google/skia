@@ -587,7 +587,8 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
         // Build the tile index for decoding subsets. If the image is 1x1, skip subset
         // decoding since there are no smaller subsets.
         if (codec->buildTileIndex(&stream, &width, &height) && width > 1 && height > 1) {
-            SkASSERT(bitmap.width() == width && bitmap.height() == height);
+            SkASSERT((bitmap.width() == width && bitmap.height() == height)
+                     || FLAGS_sampleSize != 1);
             // Call decodeSubset multiple times:
             SkRandom rand(0);
             for (int i = 0; i < 5; i++) {
