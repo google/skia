@@ -738,11 +738,6 @@ SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForGlyphID(uint16_t glyphID
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkGetFallbackFamilyNameForChar(SkUnichar uni, SkString* name) {
-    SkFontConfigInterfaceAndroid* fontConfig = getSingletonInterface();
-    return fontConfig->getFallbackFamilyNameForChar(uni, NULL, name);
-}
-
 bool SkGetFallbackFamilyNameForChar(SkUnichar uni, const char* lang, SkString* name) {
     SkFontConfigInterfaceAndroid* fontConfig = getSingletonInterface();
     return fontConfig->getFallbackFamilyNameForChar(uni, lang, name);
