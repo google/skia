@@ -51,15 +51,16 @@ struct FamilyData {
  * or file tag. The resulting strings are put into the fNames or FontFileInfo arrays.
  */
 static void textHandler(void *data, const char *s, int len) {
-    SkAutoAsciiToLC tolc(s);
     FamilyData *familyData = (FamilyData*) data;
     // Make sure we're in the right state to store this name information
     if (familyData->currentFamily &&
             (familyData->currentTag == NAMESET_TAG || familyData->currentTag == FILESET_TAG)) {
         switch (familyData->currentTag) {
-        case NAMESET_TAG:
+        case NAMESET_TAG: {
+            SkAutoAsciiToLC tolc(s, len);
             familyData->currentFamily->fNames.push_back().set(tolc.lc(), len);
             break;
+        }
         case FILESET_TAG:
             if (familyData->currentFontInfo) {
                 familyData->currentFontInfo->fFileName.set(s, len);
