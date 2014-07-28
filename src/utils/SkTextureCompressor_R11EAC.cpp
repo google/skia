@@ -6,6 +6,7 @@
  */
 
 #include "SkTextureCompressor.h"
+#include "SkTextureCompressor_Blitter.h"
 
 #include "SkEndian.h"
 
@@ -302,6 +303,45 @@ static bool compress_4x4_a8_to_64bit(uint8_t* dst, const uint8_t* src,
 }
 #endif  // (COMPRESS_R11_EAC_SLOW) || (COMPRESS_R11_EAC_FAST)
 
+// This function converts an integer containing four bytes of alpha
+// values into an integer containing four bytes of indices into R11 EAC.
+// Note, there needs to be a mapping of indices:
+// 0 1 2 3 4 5 6 7
+// 3 2 1 0 4 5 6 7
+//
+// To compute this, we first negate each byte, and then add three, which
+// gives the mapping
+// 3 2 1 0 -1 -2 -3 -4
+//
+// Then we mask out the negative values, take their absolute value, and
+// add three.
+//
+// Most of the voodoo in this function comes from Hacker's Delight, section 2-18
+static inline uint32_t convert_indices(uint32_t x) {
+    // Take the top three bits...
+    x = (x & 0xE0E0E0E0) >> 5;
+
+    // Negate...
+    x = ~((0x80808080 - x) ^ 0x7F7F7F7F);
+
+    // Add three
+    const uint32_t s = (x & 0x7F7F7F7F) + 0x03030303;
+    x = ((x ^ 0x03030303) & 0x80808080) ^ s;
+
+    // Absolute value
+    const uint32_t a = x & 0x80808080;
+    const uint32_t b = a >> 7;
+
+    // Aside: mask negatives (m is three if the byte was negative)
+    const uint32_t m = (a >> 6) | b;
+
+    // .. continue absolute value
+    x = (x ^ ((a - b) | a)) + b;
+
+    // Add three
+    return x + m;
+}
+
 #if COMPRESS_R11_EAC_FASTEST
 template<unsigned shift>
 static inline uint64_t swap_shift(uint64_t x, uint64_t mask) {
@@ -374,45 +414,6 @@ static inline uint64_t interleave6(uint64_t topRows, uint64_t bottomRows) {
 
     // x: 00 00 00 00 00 00 00 00 a e i m b f j n c g k o d h l p
     return x;
-}
-
-// This function converts an integer containing four bytes of alpha
-// values into an integer containing four bytes of indices into R11 EAC.
-// Note, there needs to be a mapping of indices:
-// 0 1 2 3 4 5 6 7
-// 3 2 1 0 4 5 6 7
-//
-// To compute this, we first negate each byte, and then add three, which
-// gives the mapping
-// 3 2 1 0 -1 -2 -3 -4
-//
-// Then we mask out the negative values, take their absolute value, and
-// add three.
-//
-// Most of the voodoo in this function comes from Hacker's Delight, section 2-18
-static inline uint32_t convert_indices(uint32_t x) {
-    // Take the top three bits...
-    x = (x & 0xE0E0E0E0) >> 5;
-
-    // Negate...
-    x = ~((0x80808080 - x) ^ 0x7F7F7F7F);
-
-    // Add three
-    const uint32_t s = (x & 0x7F7F7F7F) + 0x03030303;
-    x = ((x ^ 0x03030303) & 0x80808080) ^ s;
-
-    // Absolute value
-    const uint32_t a = x & 0x80808080;
-    const uint32_t b = a >> 7;
-
-    // Aside: mask negatives (m is three if the byte was negative)
-    const uint32_t m = (a >> 6) | b;
-
-    // .. continue absolute value
-    x = (x ^ ((a - b) | a)) + b;
-
-    // Add three
-    return x + m;
 }
 
 // This function follows the same basic procedure as compress_heterogeneous_r11eac_block
@@ -513,10 +514,15 @@ static inline uint32_t pack_indices_vertical(uint32_t x) {
 // alpha values. Each column is assumed to be loaded from top to bottom, and hence
 // must first be converted to indices and then packed into the resulting 64-bit
 // integer.
-static inline uint64_t compress_block_vertical(const uint32_t alphaColumn0,
-                                               const uint32_t alphaColumn1,
-                                               const uint32_t alphaColumn2,
-                                               const uint32_t alphaColumn3) {
+inline void compress_block_vertical(uint8_t* dstPtr, const uint8_t *block) {
+
+    const uint32_t* src = reinterpret_cast<const uint32_t*>(block);
+    uint64_t* dst = reinterpret_cast<uint64_t*>(dstPtr);
+
+    const uint32_t alphaColumn0 = src[0];
+    const uint32_t alphaColumn1 = src[1];
+    const uint32_t alphaColumn2 = src[2];
+    const uint32_t alphaColumn3 = src[3];
 
     if (alphaColumn0 == alphaColumn1 &&
         alphaColumn2 == alphaColumn3 &&
@@ -524,11 +530,13 @@ static inline uint64_t compress_block_vertical(const uint32_t alphaColumn0,
 
         if (0 == alphaColumn0) {
             // Transparent
-            return 0x0020000000002000ULL;
+            *dst = 0x0020000000002000ULL;
+            return;
         }
         else if (0xFFFFFFFF == alphaColumn0) {
             // Opaque
-            return 0xFFFFFFFFFFFFFFFFULL;
+            *dst = 0xFFFFFFFFFFFFFFFFULL;
+            return;
         }
     }
 
@@ -542,25 +550,11 @@ static inline uint64_t compress_block_vertical(const uint32_t alphaColumn0,
     const uint32_t packedIndexColumn2 = pack_indices_vertical(indexColumn2);
     const uint32_t packedIndexColumn3 = pack_indices_vertical(indexColumn3);
 
-    return SkEndian_SwapBE64(0x8490000000000000ULL |
+    *dst = SkEndian_SwapBE64(0x8490000000000000ULL |
                              (static_cast<uint64_t>(packedIndexColumn0) << 36) |
                              (static_cast<uint64_t>(packedIndexColumn1) << 24) |
                              static_cast<uint64_t>(packedIndexColumn2 << 12) |
                              static_cast<uint64_t>(packedIndexColumn3));
-        
-}
-
-// Updates the block whose columns are stored in blockColN. curAlphai is expected
-// to store, as an integer, the four alpha values that will be placed within each
-// of the columns in the range [col, col+colsLeft).
-static inline void update_block_columns(uint32_t* block, const int col,
-                                        const int colsLeft, const uint32_t curAlphai) {
-    SkASSERT(NULL != block);
-    SkASSERT(col + colsLeft <= 4);
-
-    for (int i = col; i < (col + colsLeft); ++i) {
-        block[i] = curAlphai;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -582,383 +576,10 @@ bool CompressA8ToR11EAC(uint8_t* dst, const uint8_t* src, int width, int height,
 #endif
 }
 
-// This class implements a blitter that blits directly into a buffer that will
-// be used as an R11 EAC compressed texture. We compute this buffer by
-// buffering four scan lines and then outputting them all at once. This blitter
-// is only expected to be used with alpha masks, i.e. kAlpha8_SkColorType.
-class R11_EACBlitter : public SkBlitter {
-public:
-    R11_EACBlitter(int width, int height, void *compressedBuffer);
-    virtual ~R11_EACBlitter() { this->flushRuns(); }
-
-    // Blit a horizontal run of one or more pixels.
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE {
-        // This function is intended to be called from any standard RGB
-        // buffer, so we should never encounter it. However, if some code
-        // path does end up here, then this needs to be investigated.
-        SkFAIL("Not implemented!");
-    }
-    
-    // Blit a horizontal run of antialiased pixels; runs[] is a *sparse*
-    // zero-terminated run-length encoding of spans of constant alpha values.
-    virtual void blitAntiH(int x, int y,
-                           const SkAlpha antialias[],
-                           const int16_t runs[]) SK_OVERRIDE;
-    
-    // Blit a vertical run of pixels with a constant alpha value.
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
-        // This function is currently not implemented. It is not explicitly
-        // required by the contract, but if at some time a code path runs into
-        // this function (which is entirely possible), it needs to be implemented.
-        //
-        // TODO (krajcevski):
-        // This function will be most easily implemented in one of two ways:
-        // 1. Buffer each vertical column value and then construct a list
-        //    of alpha values and output all of the blocks at once. This only
-        //    requires a write to the compressed buffer
-        // 2. Replace the indices of each block with the proper indices based
-        //    on the alpha value. This requires a read and write of the compressed
-        //    buffer, but much less overhead.
-        SkFAIL("Not implemented!");
-    }
-
-    // Blit a solid rectangle one or more pixels wide.
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
-        // Analogous to blitRow, this function is intended for RGB targets
-        // and should never be called by this blitter. Any calls to this function
-        // are probably a bug and should be investigated.
-        SkFAIL("Not implemented!");
-    }
-
-    // Blit a rectangle with one alpha-blended column on the left,
-    // width (zero or more) opaque pixels, and one alpha-blended column
-    // on the right. The result will always be at least two pixels wide.
-    virtual void blitAntiRect(int x, int y, int width, int height,
-                              SkAlpha leftAlpha, SkAlpha rightAlpha) SK_OVERRIDE {
-        // This function is currently not implemented. It is not explicitly
-        // required by the contract, but if at some time a code path runs into
-        // this function (which is entirely possible), it needs to be implemented.
-        //
-        // TODO (krajcevski):
-        // This function will be most easily implemented as follows:
-        // 1. If width/height are smaller than a block, then update the
-        //    indices of the affected blocks.
-        // 2. If width/height are larger than a block, then construct a 9-patch
-        //    of block encodings that represent the rectangle, and write them
-        //    to the compressed buffer as necessary. Whether or not the blocks
-        //    are overwritten by zeros or just their indices are updated is up
-        //    to debate.
-        SkFAIL("Not implemented!");
-    }
-
-    // Blit a pattern of pixels defined by a rectangle-clipped mask;
-    // typically used for text.
-    virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE {
-        // This function is currently not implemented. It is not explicitly
-        // required by the contract, but if at some time a code path runs into
-        // this function (which is entirely possible), it needs to be implemented.
-        //
-        // TODO (krajcevski):
-        // This function will be most easily implemented in the same way as
-        // blitAntiRect above.
-        SkFAIL("Not implemented!");
-    }
-
-    // If the blitter just sets a single value for each pixel, return the
-    // bitmap it draws into, and assign value. If not, return NULL and ignore
-    // the value parameter.
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE {
-        return NULL;
-    }
-
-    /**
-     * Compressed texture blitters only really work correctly if they get
-     * four blocks at a time. That being said, this blitter tries it's best
-     * to preserve semantics if blitAntiH doesn't get called in too many
-     * weird ways...
-     */
-    virtual int requestRowsPreserved() const { return kR11_EACBlockSz; }
-
-protected:
-    virtual void onNotifyFinished() { this->flushRuns(); }
-
-private:
-    static const int kR11_EACBlockSz = 4;
-    static const int kPixelsPerBlock = kR11_EACBlockSz * kR11_EACBlockSz;
-
-    // The longest possible run of pixels that this blitter will receive.
-    // This is initialized in the constructor to 0x7FFE, which is one less
-    // than the largest positive 16-bit integer. We make sure that it's one
-    // less for debugging purposes. We also don't make this variable static
-    // in order to make sure that we can construct a valid pointer to it.
-    const int16_t kLongestRun;
-
-    // Usually used in conjunction with kLongestRun. This is initialized to
-    // zero.
-    const SkAlpha kZeroAlpha;
-
-    // This is the information that we buffer whenever we're asked to blit
-    // a row with this blitter.
-    struct BufferedRun {
-        const SkAlpha* fAlphas;
-        const int16_t* fRuns;
-        int fX, fY;
-    } fBufferedRuns[kR11_EACBlockSz];
-
-    // The next row (0-3) that we need to blit. This value should never exceed
-    // the number of rows that we have (kR11_EACBlockSz)
-    int fNextRun;
-
-    // The width and height of the image that we're blitting
-    const int fWidth;
-    const int fHeight;
-
-    // The R11 EAC buffer that we're blitting into. It is assumed that the buffer
-    // is large enough to store a compressed image of size fWidth*fHeight.
-    uint64_t* const fBuffer;
-
-    // Various utility functions
-    int blocksWide() const { return fWidth / kR11_EACBlockSz; }
-    int blocksTall() const { return fHeight / kR11_EACBlockSz; }
-    int totalBlocks() const { return (fWidth * fHeight) / kPixelsPerBlock; }
-
-    // Returns the block index for the block containing pixel (x, y). Block
-    // indices start at zero and proceed in raster order.
-    int getBlockOffset(int x, int y) const {
-        SkASSERT(x < fWidth);
-        SkASSERT(y < fHeight);
-        const int blockCol = x / kR11_EACBlockSz;
-        const int blockRow = y / kR11_EACBlockSz;
-        return blockRow * this->blocksWide() + blockCol;
-    }
-
-    // Returns a pointer to the block containing pixel (x, y)
-    uint64_t *getBlock(int x, int y) const {
-        return fBuffer + this->getBlockOffset(x, y);
-    }
-
-    // The following function writes the buffered runs to compressed blocks.
-    // If fNextRun < 4, then we fill the runs that we haven't buffered with
-    // the constant zero buffer.
-    void flushRuns();
-};
-
-
-R11_EACBlitter::R11_EACBlitter(int width, int height, void *latcBuffer)
-    // 0x7FFE is one minus the largest positive 16-bit int. We use it for
-    // debugging to make sure that we're properly setting the nextX distance
-    // in flushRuns(). 
-    : kLongestRun(0x7FFE), kZeroAlpha(0)
-    , fNextRun(0)
-    , fWidth(width)
-    , fHeight(height)
-    , fBuffer(reinterpret_cast<uint64_t*const>(latcBuffer))
-{
-    SkASSERT((width % kR11_EACBlockSz) == 0);
-    SkASSERT((height % kR11_EACBlockSz) == 0);
-}
-
-void R11_EACBlitter::blitAntiH(int x, int y,
-                               const SkAlpha* antialias,
-                               const int16_t* runs) {
-    // Make sure that the new row to blit is either the first
-    // row that we're blitting, or it's exactly the next scan row
-    // since the last row that we blit. This is to ensure that when
-    // we go to flush the runs, that they are all the same four
-    // runs.
-    if (fNextRun > 0 &&
-        ((x != fBufferedRuns[fNextRun-1].fX) ||
-         (y-1 != fBufferedRuns[fNextRun-1].fY))) {
-        this->flushRuns();
-    }
-
-    // Align the rows to a block boundary. If we receive rows that
-    // are not on a block boundary, then fill in the preceding runs
-    // with zeros. We do this by producing a single RLE that says
-    // that we have 0x7FFE pixels of zero (0x7FFE = 32766).
-    const int row = y & ~3;
-    while ((row + fNextRun) < y) {
-        fBufferedRuns[fNextRun].fAlphas = &kZeroAlpha;
-        fBufferedRuns[fNextRun].fRuns = &kLongestRun;
-        fBufferedRuns[fNextRun].fX = 0;
-        fBufferedRuns[fNextRun].fY = row + fNextRun;
-        ++fNextRun;
-    }
-
-    // Make sure that our assumptions aren't violated...
-    SkASSERT(fNextRun == (y & 3));
-    SkASSERT(fNextRun == 0 || fBufferedRuns[fNextRun - 1].fY < y);
-
-    // Set the values of the next run
-    fBufferedRuns[fNextRun].fAlphas = antialias;
-    fBufferedRuns[fNextRun].fRuns = runs;
-    fBufferedRuns[fNextRun].fX = x;
-    fBufferedRuns[fNextRun].fY = y;
-
-    // If we've output four scanlines in a row that don't violate our
-    // assumptions, then it's time to flush them...
-    if (4 == ++fNextRun) {
-        this->flushRuns();
-    }
-}
-
-void R11_EACBlitter::flushRuns() {
-
-    // If we don't have any runs, then just return.
-    if (0 == fNextRun) {
-        return;
-    }
-
-#ifndef NDEBUG
-    // Make sure that if we have any runs, they all match
-    for (int i = 1; i < fNextRun; ++i) {
-        SkASSERT(fBufferedRuns[i].fY == fBufferedRuns[i-1].fY + 1);
-        SkASSERT(fBufferedRuns[i].fX == fBufferedRuns[i-1].fX);
-    }
-#endif
-
-    // If we dont have as many runs as we have rows, fill in the remaining
-    // runs with constant zeros.
-    for (int i = fNextRun; i < kR11_EACBlockSz; ++i) {
-        fBufferedRuns[i].fY = fBufferedRuns[0].fY + i;
-        fBufferedRuns[i].fX = fBufferedRuns[0].fX;
-        fBufferedRuns[i].fAlphas = &kZeroAlpha;
-        fBufferedRuns[i].fRuns = &kLongestRun;
-    }
-
-    // Make sure that our assumptions aren't violated.
-    SkASSERT(fNextRun > 0 && fNextRun <= 4);
-    SkASSERT((fBufferedRuns[0].fY & 3) == 0);
-
-    // The following logic walks four rows at a time and outputs compressed
-    // blocks to the buffer passed into the constructor.
-    // We do the following:
-    //
-    //      c1 c2 c3 c4
-    // -----------------------------------------------------------------------
-    // ... |  |  |  |  |  ----> fBufferedRuns[0]
-    // -----------------------------------------------------------------------
-    // ... |  |  |  |  |  ----> fBufferedRuns[1]
-    // -----------------------------------------------------------------------
-    // ... |  |  |  |  |  ----> fBufferedRuns[2]
-    // -----------------------------------------------------------------------
-    // ... |  |  |  |  |  ----> fBufferedRuns[3]
-    // -----------------------------------------------------------------------
-    // 
-    // curX -- the macro X value that we've gotten to.
-    // c1, c2, c3, c4 -- the integers that represent the columns of the current block
-    //                   that we're operating on
-    // curAlphaColumn -- integer containing the column of alpha values from fBufferedRuns.
-    // nextX -- for each run, the next point at which we need to update curAlphaColumn
-    //          after the value of curX.
-    // finalX -- the minimum of all the nextX values.
-    //
-    // curX advances to finalX outputting any blocks that it passes along
-    // the way. Since finalX will not change when we reach the end of a
-    // run, the termination criteria will be whenever curX == finalX at the
-    // end of a loop.
-
-    // Setup:
-    uint32_t c[4] = { 0, 0, 0, 0 };
-    uint32_t curAlphaColumn = 0;
-    SkAlpha *curAlpha = reinterpret_cast<SkAlpha*>(&curAlphaColumn);
-
-    int nextX[kR11_EACBlockSz];
-    for (int i = 0; i < kR11_EACBlockSz; ++i) {
-        nextX[i] = 0x7FFFFF;
-    }
-
-    uint64_t* outPtr = this->getBlock(fBufferedRuns[0].fX, fBufferedRuns[0].fY);
-
-    // Populate the first set of runs and figure out how far we need to
-    // advance on the first step
-    int curX = 0;
-    int finalX = 0xFFFFF;
-    for (int i = 0; i < kR11_EACBlockSz; ++i) {
-        nextX[i] = *(fBufferedRuns[i].fRuns);
-        curAlpha[i] = *(fBufferedRuns[i].fAlphas);
-
-        finalX = SkMin32(nextX[i], finalX);
-    }
-
-    // Make sure that we have a valid right-bound X value
-    SkASSERT(finalX < 0xFFFFF);
-
-    // Run the blitter...
-    while (curX != finalX) {
-        SkASSERT(finalX >= curX);
-
-        // Do we need to populate the rest of the block?
-        if ((finalX - (curX & ~3)) >= kR11_EACBlockSz) {
-            const int col = curX & 3;
-            const int colsLeft = 4 - col;
-            SkASSERT(curX + colsLeft <= finalX);
-
-            update_block_columns(c, col, colsLeft, curAlphaColumn);
-
-            // Write this block
-            *outPtr = compress_block_vertical(c[0], c[1], c[2], c[3]);
-            ++outPtr;
-            curX += colsLeft;
-        }
-
-        // If we can advance even further, then just keep memsetting the block
-        if ((finalX - curX) >= kR11_EACBlockSz) {
-            SkASSERT((curX & 3) == 0);
-
-            const int col = 0;
-            const int colsLeft = kR11_EACBlockSz;
-
-            update_block_columns(c, col, colsLeft, curAlphaColumn);
-
-            // While we can keep advancing, just keep writing the block.
-            uint64_t lastBlock = compress_block_vertical(c[0], c[1], c[2], c[3]);
-            while((finalX - curX) >= kR11_EACBlockSz) {
-                *outPtr = lastBlock;
-                ++outPtr;
-                curX += kR11_EACBlockSz;
-            }
-        }
-
-        // If we haven't advanced within the block then do so.
-        if (curX < finalX) {
-            const int col = curX & 3;
-            const int colsLeft = finalX - curX;
-
-            update_block_columns(c, col, colsLeft, curAlphaColumn);
-
-            curX += colsLeft;
-        }
-
-        SkASSERT(curX == finalX);
-
-        // Figure out what the next advancement is...
-        for (int i = 0; i < kR11_EACBlockSz; ++i) {
-            if (nextX[i] == finalX) {
-                const int16_t run = *(fBufferedRuns[i].fRuns);
-                fBufferedRuns[i].fRuns += run;
-                fBufferedRuns[i].fAlphas += run;
-                curAlpha[i] = *(fBufferedRuns[i].fAlphas);
-                nextX[i] += *(fBufferedRuns[i].fRuns);
-            }
-        }
-
-        finalX = 0xFFFFF;
-        for (int i = 0; i < kR11_EACBlockSz; ++i) {
-            finalX = SkMin32(nextX[i], finalX);
-        }
-    }
-
-    // If we didn't land on a block boundary, output the block...
-    if ((curX & 3) > 1) {
-        *outPtr = compress_block_vertical(c[0], c[1], c[2], c[3]);
-    }
-
-    fNextRun = 0;
-}
-
 SkBlitter* CreateR11EACBlitter(int width, int height, void* outputBuffer) {
-    return new R11_EACBlitter(width, height, outputBuffer);
+    return new
+        SkTCompressedAlphaBlitter<4, 8, compress_block_vertical>
+        (width, height, outputBuffer);
 }
 
 }  // namespace SkTextureCompressor
