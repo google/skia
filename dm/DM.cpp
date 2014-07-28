@@ -119,7 +119,7 @@ static void kick_off_tests(const SkTDArray<TestRegistry::Factory>& tests,
     }
 }
 
-static void kick_off_skps(DM::Reporter* reporter, DM::TaskRunner* tasks) {
+static void find_skps(SkTArray<SkString>* skps) {
     if (FLAGS_skps.isEmpty()) {
         return;
     }
@@ -127,23 +127,28 @@ static void kick_off_skps(DM::Reporter* reporter, DM::TaskRunner* tasks) {
     SkOSFile::Iter it(FLAGS_skps[0], ".skp");
     SkString filename;
     while (it.next(&filename)) {
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, filename.c_str())) {
-            continue;
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, filename.c_str())) {
+            skps->push_back(
+                    SkOSPath::SkPathJoin(FLAGS_skps[0], filename.c_str()));
         }
+    }
+}
 
-        const SkString path = SkOSPath::SkPathJoin(FLAGS_skps[0], filename.c_str());
-
-        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path.c_str()));
+static void kick_off_skps(const SkTArray<SkString>& skps,
+                          DM::Reporter* reporter, DM::TaskRunner* tasks) {
+    for (int i = 0; i < skps.count(); ++i) {
+        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(skps[i].c_str()));
         if (stream.get() == NULL) {
-            SkDebugf("Could not read %s.\n", path.c_str());
+            SkDebugf("Could not read %s.\n", skps[i].c_str());
             exit(1);
         }
         SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(stream.get()));
         if (pic.get() == NULL) {
-            SkDebugf("Could not read %s as an SkPicture.\n", path.c_str());
+            SkDebugf("Could not read %s as an SkPicture.\n", skps[i].c_str());
             exit(1);
         }
 
+        SkString filename = SkOSPath::SkBasename(skps[i].c_str());
         tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, pic, filename)));
         tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic, filename,
                                             RASTERIZE_PDF_PROC)));
@@ -221,13 +226,16 @@ int dm_main() {
         append_matching_factories<Test>(TestRegistry::Head(), &tests);
     }
 
-    SkDebugf("%d GMs x %d configs, %d tests\n",
-             gms.count(), configs.count(), tests.count());
+    SkTArray<SkString> skps;
+    find_skps(&skps);
+
+    SkDebugf("%d GMs x %d configs, %d tests, %d pictures\n",
+             gms.count(), configs.count(), tests.count(), skps.count());
     DM::Reporter reporter;
     DM::TaskRunner tasks(FLAGS_threads, FLAGS_gpuThreads);
     kick_off_gms(gms, configs, gpuAPI, *expectations, &reporter, &tasks);
     kick_off_tests(tests, &reporter, &tasks);
-    kick_off_skps(&reporter, &tasks);
+    kick_off_skps(skps, &reporter, &tasks);
     tasks.wait();
 
     SkDebugf("\n");
