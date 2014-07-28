@@ -87,22 +87,4 @@ SkTypeface* SkGetTypefaceForGlyphID(uint16_t glyphID, const SkTypeface* origType
                                     int* lowerBounds = NULL, int* upperBounds = NULL);
 
 #endif // #ifdef SK_BUILD_FOR_ANDROID
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-
-#include "SkPaintOptionsAndroid.h"
-#include "../harfbuzz_ng/src/hb.h"
-
-/**
- *  Return a new typeface for a fallback script. If the script is
- *  not valid, or can not map to a font, returns null.
- *  @param  script   The harfbuzz script id.
- *  @param  style    The font style, for example bold
- *  @param  elegant  true if we want the web friendly elegant version of the font
- *  @return          reference to the matching typeface. Caller must call
- *                   unref() when they are done.
- */
-SK_API SkTypeface* SkCreateTypefaceForScript(hb_script_t script, SkTypeface::Style style,
-        SkPaintOptionsAndroid::FontVariant fontVariant = SkPaintOptionsAndroid::kDefault_Variant);
-
-#endif // #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 #endif // #ifndef SkTypeface_android_DEFINED
