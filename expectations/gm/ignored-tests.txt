@@ -49,14 +49,3 @@ bigblurs
 #bungeman: there's now a fontmgr on android
 fontmgr_match
 fontmgr_iter
-
-# cdalton:
-# Needs rebaselining after nvpr text translate patch
-shadertext3
-shadertext2
-glyph_pos_n_f
-glyph_pos_h_f
-glyph_pos_n_s
-glyph_pos_h_s
-glyph_pos_n_b
-glyph_pos_h_b
