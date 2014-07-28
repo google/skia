@@ -738,6 +738,9 @@ DEF_TEST(DiscardablePixelRef_SecondLockColorTableCheck, r) {
         ERRORF(r, "SkInstallDiscardablePixelRef [randPixels.gif] failed.");
         return;
     }
+    if (kIndex_8_SkColorType != bitmap.colorType()) {
+        return;
+    }
     {
         SkAutoLockPixels alp(bitmap);
         REPORTER_ASSERT(r, bitmap.getColorTable() && "first pass");
