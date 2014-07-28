@@ -40,7 +40,7 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     if (fDiscardableMemory != NULL) {
         if (fDiscardableMemory->lock()) {
             rec->fPixels = fDiscardableMemory->data();
-            rec->fColorTable = NULL;
+            rec->fColorTable = fCTable.get();
             rec->fRowBytes = fRowBytes;
             return true;
         }
