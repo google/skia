@@ -68,7 +68,10 @@ void GpuTask::run(GrContextFactory& factory) {
         this->start();
         if (!FLAGS_dryRun) this->draw(&factory);
         this->finish();
-        if (FLAGS_resetGpuContext) {
+        if (FLAGS_abandonGpuContext) {
+            factory.abandonContexts();
+        }
+        if (FLAGS_resetGpuContext || FLAGS_abandonGpuContext) {
             factory.destroyContexts();
         }
     }

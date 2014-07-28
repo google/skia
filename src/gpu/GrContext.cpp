@@ -175,12 +175,7 @@ GrContext::~GrContext() {
     fDrawState->unref();
 }
 
-void GrContext::contextLost() {
-    this->contextDestroyed();
-    this->setupDrawBuffer();
-}
-
-void GrContext::contextDestroyed() {
+void GrContext::abandonContext() {
     // abandon first to so destructors
     // don't try to free the resources in the API.
     fGpu->abandonResources();

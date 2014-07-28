@@ -477,7 +477,10 @@ int nanobench_main() {
         targets.deleteAll();
 
     #if SK_SUPPORT_GPU
-        if (FLAGS_resetGpuContext) {
+        if (FLAGS_abandonGpuContext) {
+            gGrFactory.abandonContexts();
+        }
+        if (FLAGS_resetGpuContext || FLAGS_abandonGpuContext) {
             gGrFactory.destroyContexts();
         }
     #endif

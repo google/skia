@@ -85,24 +85,21 @@ public:
     }
 
     /**
-     * Abandons all GPU resources, assumes 3D API state is unknown. Call this
-     * if you have lost the associated GPU context, and thus internal texture,
-     * buffer, etc. references/IDs are now invalid. Should be called even when
-     * GrContext is no longer going to be used for two reasons:
+     * Abandons all GPU resources and assumes the underlying backend 3D API 
+     * context is not longer usable. Call this if you have lost the associated
+     * GPU context, and thus internal texture, buffer, etc. references/IDs are
+     * now invalid. Should be called even when GrContext is no longer going to
+     * be used for two reasons:
      *  1) ~GrContext will not try to free the objects in the 3D API.
-     *  2) If you've created GrGpuResources that outlive the GrContext they
-     *     will be marked as invalid (GrGpuResource::isValid()) and won't
-     *     attempt to free their underlying resource in the 3D API.
-     * Content drawn since the last GrContext::flush() may be lost.
+     *  2) Any GrGpuResources created by this GrContext that outlive
+     *     will be marked as invalid (GrGpuResource::wasDestroyed()) and
+     *     when they're destroyed no 3D API calls will be made.
+     * Content drawn since the last GrContext::flush() may be lost. After this
+     * function is called the only valid action on the GrContext or
+     * GrGpuResources it created is to destroy them.
      */
-    void contextLost();
-
-    /**
-     * Similar to contextLost, but makes no attempt to reset state.
-     * Use this method when GrContext destruction is pending, but
-     * the graphics context is destroyed first.
-     */
-    void contextDestroyed();
+    void abandonContext();
+    void contextDestroyed() { this->abandonContext(); }  //  legacy alias
 
     ///////////////////////////////////////////////////////////////////////////
     // Resource Cache
