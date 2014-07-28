@@ -14,7 +14,7 @@
 #include "SkMask.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
-#include "GrColor.h"
+#include "../gpu/GrColor.h"
 
 class SkPath;
 class SkPicture;

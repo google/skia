@@ -15,7 +15,6 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
-        '../include/gpu',
         '../include/pathops',
         '../include/pipe',
         '../include/ports',
@@ -92,7 +91,8 @@
         }],
         ['skia_gpu == 1', {
           'include_dirs': [
-            '../src/gpu',
+              '../include/gpu',
+              '../src/gpu',
           ],
         }],
       ],
@@ -100,7 +100,6 @@
         'include_dirs': [
           '../include/config',
           '../include/core',
-          '../include/gpu',
           '../include/pathops',
           '../include/pipe',
         ],
