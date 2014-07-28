@@ -735,7 +735,9 @@ DEF_TEST(DiscardablePixelRef_SecondLockColorTableCheck, r) {
     if (!SkInstallDiscardablePixelRef(
             SkDecodingImageGenerator::Create(
                     encoded, SkDecodingImageGenerator::Options()), &bitmap)) {
+        #ifndef SK_BUILD_FOR_WIN
         ERRORF(r, "SkInstallDiscardablePixelRef [randPixels.gif] failed.");
+        #endif
         return;
     }
     if (kIndex_8_SkColorType != bitmap.colorType()) {
