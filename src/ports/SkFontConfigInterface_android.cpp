@@ -101,8 +101,6 @@ public:
     /**
      *
      */
-    SkTypeface* getTypefaceForChar(SkUnichar uni, SkTypeface::Style style,
-                                   SkPaintOptionsAndroid::FontVariant fontVariant);
     SkTypeface* nextLogicalTypeface(SkFontID currFontID, SkFontID origFontID,
                                     const SkPaintOptionsAndroid& options);
     SkTypeface* getTypefaceForGlyphID(uint16_t glyphID, const SkTypeface* origTypeface,
@@ -545,32 +543,6 @@ bool SkFontConfigInterfaceAndroid::getFallbackFamilyNameForChar(SkUnichar uni,
         }
     }
     return false;
-}
-
-SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForChar(SkUnichar uni,
-                                                             SkTypeface::Style style,
-                                                             SkPaintOptionsAndroid::FontVariant fontVariant) {
-    FontRecID fontRecID = find_best_style(fFontFamilies[fDefaultFamilyRecID], style);
-    SkTypeface* face = this->getTypefaceForFontRec(fontRecID);
-
-    SkPaintOptionsAndroid paintOptions;
-    paintOptions.setFontVariant(fontVariant);
-    paintOptions.setUseFontFallbacks(true);
-
-    SkPaint paint;
-    paint.setTypeface(face);
-    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
-    paint.setPaintOptionsAndroid(paintOptions);
-
-    SkAutoGlyphCache autoCache(paint, NULL, NULL);
-    SkGlyphCache*    cache = autoCache.getCache();
-
-    SkScalerContext* ctx = cache->getScalerContext();
-    if (ctx) {
-        SkFontID fontID = ctx->findTypefaceIdForChar(uni);
-        return SkTypefaceCache::FindByID(fontID);
-    }
-    return NULL;
 }
 
 FallbackFontList* SkFontConfigInterfaceAndroid::getCurrentLocaleFallbackFontList() {
