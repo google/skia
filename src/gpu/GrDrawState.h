@@ -521,24 +521,28 @@ public:
          */
         kSkipDraw_BlendOptFlag          = 0x1,
         /**
+         * Emit the src color, disable HW blending (replace dst with src)
+         */
+        kDisableBlend_BlendOptFlag      = 0x2,
+        /**
          * The coverage value does not have to be computed separately from alpha, the the output
          * color can be the modulation of the two.
          */
-        kCoverageAsAlpha_BlendOptFlag   = 0x2,
+        kCoverageAsAlpha_BlendOptFlag   = 0x4,
         /**
          * Instead of emitting a src color, emit coverage in the alpha channel and r,g,b are
          * "don't cares".
          */
-        kEmitCoverage_BlendOptFlag      = 0x4,
+        kEmitCoverage_BlendOptFlag      = 0x8,
         /**
          * Emit transparent black instead of the src color, no need to compute coverage.
          */
-        kEmitTransBlack_BlendOptFlag    = 0x8,
+        kEmitTransBlack_BlendOptFlag    = 0x10,
         /**
          * Flag used to invalidate the cached BlendOptFlags, OptSrcCoeff, and OptDstCoeff cached by
          * the get BlendOpts function. 
          */
-        kInvalid_BlendOptFlag           = 0x10,
+        kInvalid_BlendOptFlag        = 0x20,
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
 
