@@ -13,7 +13,6 @@
 
 #include "SkData.h"
 #include "SkStrokeRec.h"
-#include "SkTextureCompressor.h"
 
 // TODO: try to remove this #include
 #include "GrContext.h"
@@ -35,6 +34,20 @@ SkXfermode::Mode op_to_mode(SkRegion::Op op) {
     };
 
     return modeMap[op];
+}
+
+static inline GrPixelConfig fmt_to_config(SkTextureCompressor::Format fmt) {
+    static const GrPixelConfig configMap[] = {
+        kLATC_GrPixelConfig,       // kLATC_Format,
+        kR11_EAC_GrPixelConfig,    // kR11_EAC_Format,
+        kASTC_12x12_GrPixelConfig  // kASTC_12x12_Format,
+    };
+    GR_STATIC_ASSERT(0 == SkTextureCompressor::kLATC_Format);
+    GR_STATIC_ASSERT(1 == SkTextureCompressor::kR11_EAC_Format);
+    GR_STATIC_ASSERT(2 == SkTextureCompressor::kASTC_12x12_Format);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(configMap) == SkTextureCompressor::kFormatCnt);
+
+    return configMap[fmt];
 }
 
 }
@@ -102,11 +115,16 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
                           -resultBounds.fTop * SK_Scalar1);
     SkIRect bounds = SkIRect::MakeWH(resultBounds.width(),
                                      resultBounds.height());
+
 #if GR_COMPRESS_ALPHA_MASK
+    fCompressedFormat = SkTextureCompressor::kR11_EAC_Format;
+
     // Make sure that the width is a multiple of 16 so that we can use
     // specialized SIMD instructions that compress 4 blocks at a time.
-    const int cmpWidth = (bounds.fRight + 15) & ~15;
-    const int cmpHeight = (bounds.fBottom + 3) & ~3;
+    int dimX, dimY;
+    SkTextureCompressor::GetBlockDimensions(fCompressedFormat, &dimX, &dimY);
+    const int cmpWidth = dimX * ((bounds.fRight + (dimX - 1)) / dimX);
+    const int cmpHeight = dimY * ((bounds.fRight + (dimY - 1)) / dimY);
 #else
     const int cmpWidth = bounds.fRight;
     const int cmpHeight = bounds.fBottom;
@@ -135,21 +153,24 @@ bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
     GrTextureDesc desc;
     desc.fWidth = fBM.width();
     desc.fHeight = fBM.height();
-    desc.fConfig = kAlpha_8_GrPixelConfig;
 
 #if GR_COMPRESS_ALPHA_MASK
-    static const int kCompressedBlockSize = 4;
-    static const GrPixelConfig kCompressedConfig = kR11_EAC_GrPixelConfig;
 
-    if (desc.fWidth % kCompressedBlockSize == 0 &&
-        desc.fHeight % kCompressedBlockSize == 0) {
-        desc.fConfig = kCompressedConfig;
-    }
+#ifdef SK_DEBUG
+    int dimX, dimY;
+    SkTextureCompressor::GetBlockDimensions(fCompressedFormat, &dimX, &dimY);
+    SkASSERT((desc.fWidth % dimX) == 0);
+    SkASSERT((desc.fHeight % dimY) == 0);
+#endif
+
+    desc.fConfig = fmt_to_config(fCompressedFormat);
 
     // If this config isn't supported then we should fall back to A8
     if (!(fContext->getGpu()->caps()->isConfigTexturable(desc.fConfig))) {
         desc.fConfig = kAlpha_8_GrPixelConfig;
     }
+#else
+    desc.fConfig = kAlpha_8_GrPixelConfig;
 #endif
 
     texture->set(fContext, desc);

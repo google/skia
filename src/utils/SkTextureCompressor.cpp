@@ -20,21 +20,48 @@
 
 namespace SkTextureCompressor {
 
+void GetBlockDimensions(Format format, int* dimX, int* dimY) {
+    if (NULL == dimX || NULL == dimY) {
+        return;
+    }
+
+    if (SkTextureCompressorGetPlatformDims(format, dimX, dimY)) {
+        return;
+    }
+
+    switch(format) {
+        // These formats are 64 bits per 4x4 block.
+        default:
+            SkDEBUGFAIL("Unknown compression format!");
+            // fall through
+        case kR11_EAC_Format:
+        case kLATC_Format:
+            *dimX = 4;
+            *dimY = 4;
+            break;
+
+        // This format is 12x12 blocks to 128 bits.
+        case kASTC_12x12_Format:
+            *dimX = 12;
+            *dimY = 12;
+            break;        
+    }
+}
+
 int GetCompressedDataSize(Format fmt, int width, int height) {
-    int blockDimension = 0;
+    int dimX, dimY;
+    GetBlockDimensions(fmt, &dimX, &dimY);
     int encodedBlockSize = 0;
             
     switch (fmt) {
         // These formats are 64 bits per 4x4 block.
         case kR11_EAC_Format:
         case kLATC_Format:
-            blockDimension = 4;
             encodedBlockSize = 8;
             break;
 
         // This format is 12x12 blocks to 128 bits.
         case kASTC_12x12_Format:
-            blockDimension = 12;
             encodedBlockSize = 16;
             break;
 
@@ -43,9 +70,9 @@ int GetCompressedDataSize(Format fmt, int width, int height) {
             return -1;
     }
 
-    if(((width % blockDimension) == 0) && ((height % blockDimension) == 0)) {
-        const int blocksX = width / blockDimension;
-        const int blocksY = height / blockDimension;
+    if(((width % dimX) == 0) && ((height % dimY) == 0)) {
+        const int blocksX = width / dimX;
+        const int blocksY = height / dimY;
 
         return blocksX * blocksY * encodedBlockSize;
     }

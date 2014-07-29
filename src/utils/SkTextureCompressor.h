@@ -55,6 +55,12 @@ namespace SkTextureCompressor {
     // RGB source data into an R11 EAC texture, you're gonna have a bad time.
     SkBlitter* CreateBlitterForFormat(int width, int height, void* compressedBuffer,
                                       Format format);
+
+    // Returns the desired dimensions of the block size for the given format. These dimensions
+    // don't necessarily correspond to the hardware-specified dimensions, since there may
+    // be specialized algorithms that operate on multiple blocks at once. These dimensions
+    // reflect that optimization and return the appropriate operable dimensions.
+    void GetBlockDimensions(Format format, int* dimX, int* dimY);
 }
 
 #endif

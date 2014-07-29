@@ -11,3 +11,7 @@ SkTextureCompressor::CompressionProc
 SkTextureCompressorGetPlatformProc(SkColorType colorType, SkTextureCompressor::Format fmt) {
     return NULL;
 }
+
+bool SkTextureCompressorGetPlatformDims(SkTextureCompressor::Format fmt, int* dimX, int* dimY) {
+    return false;
+}

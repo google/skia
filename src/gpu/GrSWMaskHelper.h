@@ -15,6 +15,7 @@
 #include "SkMatrix.h"
 #include "SkRasterClip.h"
 #include "SkRegion.h"
+#include "SkTextureCompressor.h"
 #include "SkTypes.h"
 
 class GrAutoScratchTexture;
@@ -100,6 +101,10 @@ private:
     SkBitmap        fBM;
     SkDraw          fDraw;
     SkRasterClip    fRasterClip;
+
+#if GR_COMPRESS_ALPHA_MASK
+    SkTextureCompressor::Format fCompressedFormat;
+#endif
 
     // Actually sends the texture data to the GPU. This is called from
     // toTexture with the data filled in depending on the texture config.
