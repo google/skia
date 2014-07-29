@@ -958,11 +958,25 @@ op intersect
 {{{367.967712,5102.61084}, {368.278717,5105.71045}}}},
 </div>
 
+<div id="issue2753">
+{{50.6,117.001}, {50.6,117.001}, {164.601,85.2}, {188.201,117.601}},
+{{188.201,117.601}, {188.201,117.601}, {174.801,93}, {39,124.001}},
+computed quadratics set
+{{50.6,117.001}, {52.4926111,116.112083}, {81.0298889,109.956333}},
+{{81.0298889,109.956333}, {109.567167,103.800583}, {142.037778,103.045}},
+{{142.037778,103.045}, {174.508389,102.289417}, {188.201,117.601}},
+computed quadratics set
+{{188.201,117.601}, {189.210269,116.85838}, {179.697259,112.371148}},
+{{179.697259,112.371148}, {170.18425,107.883917}, {138.037741,108.563519}},
+{{138.037741,108.563519}, {105.891231,109.24312}, {39,124.001}},
+</div>
+
 </div>
 
 <script type="text/javascript">
 
     var testDivs = [
+        issue2753,
         skpwww_9to5mac_com_64,
         skpcarrot_is24x,
         skpwww_wartepop_blogspot_com_br_6,
@@ -1152,6 +1166,7 @@ op intersect
 
     var draw_t = false;
     var draw_closest_t = false;
+    var draw_cubic_red = false;
     var draw_derivative = false;
     var draw_endpoints = true;
     var draw_midpoint = 0;
@@ -1713,7 +1728,7 @@ function dxy_at_t(curve, t) {
             }
             ctx.lineWidth = 1;
             if (draw_tangents != 0) {
-                if (firstInside == curves) {
+                if (draw_cubic_red ? curve.length == 8 : firstInside == curves) {
                     ctx.strokeStyle = "rgba(255,0,0, 0.3)";
                 } else {
                     ctx.strokeStyle = "rgba(0,0,255, 0.3)";
@@ -1742,7 +1757,7 @@ function dxy_at_t(curve, t) {
                     (curve[4] - srcLeft) * scale, (curve[5] - srcTop) * scale,
                     (curve[6] - srcLeft) * scale, (curve[7] - srcTop) * scale);
             }
-            if (firstInside == curves) {
+            if (draw_cubic_red ? curve.length == 8 : firstInside == curves) {
                 ctx.strokeStyle = "rgba(255,0,0, 1)";
             } else {
                 ctx.strokeStyle = "rgba(0,0,255, 1)";
@@ -1824,7 +1839,7 @@ function dxy_at_t(curve, t) {
                 ctx.closePath();
                 ctx.fillStyle = "white";
                 ctx.fill();
-                if (firstInside == curves) {
+                if (draw_cubic_red ? curve.length == 8 : firstInside == curves) {
                     ctx.strokeStyle = "rgba(255,0,0, 1)";
                     ctx.fillStyle = "rgba(255,0,0, 1)";
                 } else {
@@ -1938,6 +1953,10 @@ function dxy_at_t(curve, t) {
             case '+':
                 scale *= 2;
                 calcLeftTop();
+                redraw();
+                break;
+            case 'b':
+                draw_cubic_red ^= true;
                 redraw();
                 break;
             case 'c':
