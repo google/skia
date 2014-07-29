@@ -613,24 +613,16 @@ void GrDrawTarget::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrDrawTarget::willUseHWAALines() const {
-    // There is a conflict between using smooth lines and our use of premultiplied alpha. Smooth
-    // lines tweak the incoming alpha value but not in a premul-alpha way. So we only use them when
-    // our alpha is 0xff and tweaking the color for partial coverage is OK
-    if (!this->caps()->hwAALineSupport() ||
-        !this->getDrawState().isHWAntialiasState()) {
-        return false;
-    }
-    GrDrawState::BlendOptFlags opts = this->getDrawState().getBlendOpts();
-    return (GrDrawState::kDisableBlend_BlendOptFlag & opts) &&
-           (GrDrawState::kCoverageAsAlpha_BlendOptFlag & opts);
-}
-
 bool GrDrawTarget::canApplyCoverage() const {
     // we can correctly apply coverage if a) we have dual source blending
-    // or b) one of our blend optimizations applies.
+    // or b) one of our blend optimizations applies 
+    // or c) the src/dst coefficients are 1, 0 respectively.
+    GrBlendCoeff srcCoeff; 
+    GrBlendCoeff dstCoeff; 
     return this->caps()->dualSourceBlendingSupport() ||
-           GrDrawState::kNone_BlendOpt != this->getDrawState().getBlendOpts(true);
+           GrDrawState::kNone_BlendOpt != this->getDrawState().getBlendOpts(true, &srcCoeff,
+                                                                            &dstCoeff) ||
+           (kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

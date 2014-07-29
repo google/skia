@@ -339,8 +339,7 @@ GrDrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
     // (0,1). The same applies when coverage is known to be 0.
     if ((kZero_GrBlendCoeff == *srcCoeff && dstCoeffIsOne) || covIsZero) {
         if (this->getStencil().doesWrite()) {
-            return kDisableBlend_BlendOptFlag |
-                   kEmitCoverage_BlendOptFlag;
+            return kEmitCoverage_BlendOptFlag;
         } else {
             return kSkipDraw_BlendOptFlag;
         }
@@ -359,13 +358,14 @@ GrDrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
             if (kOne_GrBlendCoeff == *srcCoeff) {
                 // if there is no coverage and coeffs are (1,0) then we
                 // won't need to read the dst at all, it gets replaced by src
-                return kDisableBlend_BlendOptFlag;
+                *dstCoeff = kZero_GrBlendCoeff;
+                return kNone_BlendOpt;
             } else if (kZero_GrBlendCoeff == *srcCoeff) {
                 // if the op is "clear" then we don't need to emit a color
                 // or blend, just write transparent black into the dst.
                 *srcCoeff = kOne_GrBlendCoeff;
                 *dstCoeff = kZero_GrBlendCoeff;
-                return kDisableBlend_BlendOptFlag | kEmitTransBlack_BlendOptFlag;
+                return kEmitTransBlack_BlendOptFlag;
             }
         }
     } else if (this->isCoverageDrawing()) {
@@ -399,13 +399,7 @@ GrDrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
             return  kCoverageAsAlpha_BlendOptFlag;
         }
     }
-    if (kOne_GrBlendCoeff == *srcCoeff &&
-        kZero_GrBlendCoeff == *dstCoeff &&
-        this->willEffectReadDstColor()) {
-        // In this case the shader will fully resolve the color, coverage, and dst and we don't
-        // need blending.
-        return kDisableBlend_BlendOptFlag;
-    }
+
     return kNone_BlendOpt;
 }
 
