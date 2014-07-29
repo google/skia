@@ -124,7 +124,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
     int dimX, dimY;
     SkTextureCompressor::GetBlockDimensions(fCompressedFormat, &dimX, &dimY);
     const int cmpWidth = dimX * ((bounds.fRight + (dimX - 1)) / dimX);
-    const int cmpHeight = dimY * ((bounds.fRight + (dimY - 1)) / dimY);
+    const int cmpHeight = dimY * ((bounds.fBottom + (dimY - 1)) / dimY);
 #else
     const int cmpWidth = bounds.fRight;
     const int cmpHeight = bounds.fBottom;
