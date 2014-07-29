@@ -20,7 +20,6 @@
 #include "SkString.h"
 #include "SkXfermode.h"
 
-class GrBinHashKeyBuilder;
 class GrGLEffect;
 class GrGLProgramEffects;
 class GrGLShaderBuilder;

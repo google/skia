@@ -8,7 +8,6 @@
 #ifndef GrGpuGL_DEFINED
 #define GrGpuGL_DEFINED
 
-#include "GrBinHashKey.h"
 #include "GrDrawState.h"
 #include "GrGLContext.h"
 #include "GrGLIRect.h"
