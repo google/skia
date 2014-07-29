@@ -759,8 +759,10 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     devOutside.outset(rx, ry);
 
     bool miterStroke = true;
+    // For hairlines, make bevel and round joins appear the same as mitered ones.
     // small miter limit means right angles show bevel...
-    if (stroke.getJoin() != SkPaint::kMiter_Join || stroke.getMiter() < SK_ScalarSqrt2) {
+    if ((width > 0) && (stroke.getJoin() != SkPaint::kMiter_Join ||
+                        stroke.getMiter() < SK_ScalarSqrt2)) {
         miterStroke = false;
     }
 
