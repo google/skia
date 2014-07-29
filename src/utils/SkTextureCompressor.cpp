@@ -122,6 +122,9 @@ SkBlitter* CreateBlitterForFormat(int width, int height, void* compressedBuffer,
         case kR11_EAC_Format:
             return CreateR11EACBlitter(width, height, compressedBuffer);
 
+        case kASTC_12x12_Format:
+            return CreateASTCBlitter(width, height, compressedBuffer);
+
         default:
             return NULL;
     }

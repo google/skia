@@ -231,7 +231,7 @@ private:
     inline void updateBlockColumns(Block block, const int col,
                                    const int colsLeft, const Column curAlphai) {
         SkASSERT(NULL != block);
-        SkASSERT(col + colsLeft <= 4);
+        SkASSERT(col + colsLeft <= BlockDim);
 
         for (int i = col; i < (col + colsLeft); ++i) {
             memcpy(block[i], curAlphai, sizeof(Column));

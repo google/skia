@@ -6,6 +6,7 @@
  */
 
 #include "SkTextureCompressor_ASTC.h"
+#include "SkTextureCompressor_Blitter.h"
 
 #include "SkBlitter.h"
 #include "SkEndian.h"
@@ -132,11 +133,15 @@ static const int8_t k6x5To12x12Table[30][60] = {
 
 // Returns the alpha value of a texel at position (x, y) from src.
 // (x, y) are assumed to be in the range [0, 12).
-static inline uint8_t get_alpha(const uint8_t *src, int rowBytes, int x, int y) {
+inline uint8_t GetAlpha(const uint8_t *src, int rowBytes, int x, int y) {
     SkASSERT(x >= 0 && x < 12);
     SkASSERT(y >= 0 && y < 12);
     SkASSERT(rowBytes >= 12);
     return *(src + y*rowBytes + x);
+}
+
+inline uint8_t GetAlphaTranspose(const uint8_t *src, int rowBytes, int x, int y) {
+    return GetAlpha(src, rowBytes, y, x);
 }
 
 // Output the 16 bytes stored in top and bottom and advance the pointer. The bytes
@@ -151,6 +156,9 @@ static inline void send_packing(uint8_t** dst, const uint64_t top, const uint64_
 
 // Compresses an ASTC block, by looking up the proper contributions from
 // k6x5To12x12Table and computing an index from the associated values.
+typedef uint8_t (*GetAlphaProc)(const uint8_t* src, int rowBytes, int x, int y);
+
+template<GetAlphaProc getAlphaProc>
 static void compress_a8_astc_block(uint8_t** dst, const uint8_t* src, int rowBytes) {
     // Check for single color
     bool constant = true;
@@ -186,7 +194,7 @@ static void compress_a8_astc_block(uint8_t** dst, const uint8_t* src, int rowByt
                 const int x = k6x5To12x12Table[idx][w*3 + 1];
                 const int y = k6x5To12x12Table[idx][w*3 + 2];
                 weightTot += weight;
-                alphaTot += weight * get_alpha(src, rowBytes, x, y);
+                alphaTot += weight * getAlphaProc(src, rowBytes, x, y);
             } else {
                 // In our table, not every entry has 20 weights, and all
                 // of them are nonzero. Once we hit a negative weight, we
@@ -248,6 +256,10 @@ static void compress_a8_astc_block(uint8_t** dst, const uint8_t* src, int rowByt
     send_packing(dst, SkEndian_SwapLE64(top), SkEndian_SwapLE64(bottom));
 }
 
+inline void compress_a8_astc_block_vertical(uint8_t* dst, const uint8_t* src) {
+    compress_a8_astc_block<GetAlphaTranspose>(&dst, src, 12);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace SkTextureCompressor {
@@ -260,7 +272,7 @@ bool CompressA8To12x12ASTC(uint8_t* dst, const uint8_t* src, int width, int heig
     uint8_t** dstPtr = &dst;
     for (int y = 0; y < height; y+=12) {
         for (int x = 0; x < width; x+=12) {
-            compress_a8_astc_block(dstPtr, src + y*rowBytes + x, rowBytes);
+            compress_a8_astc_block<GetAlpha>(dstPtr, src + y*rowBytes + x, rowBytes);
         }
     }
 
@@ -268,8 +280,9 @@ bool CompressA8To12x12ASTC(uint8_t* dst, const uint8_t* src, int width, int heig
 }
 
 SkBlitter* CreateASTCBlitter(int width, int height, void* outputBuffer) {
-    // TODO (krajcevski)
-    return NULL;
+    return new
+        SkTCompressedAlphaBlitter<12, 16, compress_a8_astc_block_vertical>
+        (width, height, outputBuffer);
 }
 
 }  // SkTextureCompressor
