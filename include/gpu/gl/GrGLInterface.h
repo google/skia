@@ -335,6 +335,10 @@ public:
         GLPtr<GrGLCoverStrokePathProc> fCoverStrokePath;
         GLPtr<GrGLCoverFillPathInstancedProc> fCoverFillPathInstanced;
         GLPtr<GrGLCoverStrokePathInstancedProc> fCoverStrokePathInstanced;
+        GLPtr<GrGLStencilThenCoverFillPathProc> fStencilThenCoverFillPath;
+        GLPtr<GrGLStencilThenCoverStrokePathProc> fStencilThenCoverStrokePath;
+        GLPtr<GrGLStencilThenCoverFillPathInstancedProc> fStencilThenCoverFillPathInstanced;
+        GLPtr<GrGLStencilThenCoverStrokePathInstancedProc> fStencilThenCoverStrokePathInstanced;
         GLPtr<GrGLProgramPathFragmentInputGenProc> fProgramPathFragmentInputGen;
     } fFunctions;
 

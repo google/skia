@@ -467,7 +467,11 @@ bool GrGLInterface::validate() const {
             NULL == fFunctions.fCoverFillPath ||
             NULL == fFunctions.fCoverStrokePath ||
             NULL == fFunctions.fCoverFillPathInstanced ||
-            NULL == fFunctions.fCoverStrokePathInstanced) {
+            NULL == fFunctions.fCoverStrokePathInstanced ||
+            NULL == fFunctions.fStencilThenCoverFillPath ||
+            NULL == fFunctions.fStencilThenCoverStrokePath ||
+            NULL == fFunctions.fStencilThenCoverFillPathInstanced ||
+            NULL == fFunctions.fStencilThenCoverStrokePathInstanced) {
             RETURN_FALSE_INTERFACE
         }
         // Currently ProgramPathFragmentInputGen is not used on

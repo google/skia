@@ -276,6 +276,10 @@ static const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get
         GET_PROC_SUFFIX(CoverStrokePath, NV);
         GET_PROC_SUFFIX(CoverFillPathInstanced, NV);
         GET_PROC_SUFFIX(CoverStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(StencilThenCoverFillPath, NV);
+        GET_PROC_SUFFIX(StencilThenCoverStrokePath, NV);
+        GET_PROC_SUFFIX(StencilThenCoverFillPathInstanced, NV);
+        GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, NV);
         GET_PROC_SUFFIX(ProgramPathFragmentInputGen, NV);
     }
 

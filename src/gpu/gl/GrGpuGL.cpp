@@ -1894,20 +1894,23 @@ void GrGpuGL::onGpuDrawPath(const GrPath* path, SkPath::FillType fill) {
         gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.passOp(GrStencilSettings::kFront_Face));
     GrGLint writeMask = fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
 
-    if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
-        GL_CALL(StencilFillPath(id, fillMode, writeMask));
-    }
-    if (stroke.needToApply()) {
-        GL_CALL(StencilStrokePath(id, 0xffff, writeMask));
-    }
-
     if (nonInvertedFill == fill) {
         if (stroke.needToApply()) {
-            GL_CALL(CoverStrokePath(id, GR_GL_BOUNDING_BOX));
+            if (SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
+                GL_CALL(StencilFillPath(id, fillMode, writeMask));
+            }
+            GL_CALL(StencilThenCoverStrokePath(id, 0xffff, writeMask, GR_GL_BOUNDING_BOX));
         } else {
-            GL_CALL(CoverFillPath(id, GR_GL_BOUNDING_BOX));
+            GL_CALL(StencilThenCoverFillPath(id, fillMode, writeMask, GR_GL_BOUNDING_BOX));
         }
     } else {
+        if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
+            GL_CALL(StencilFillPath(id, fillMode, writeMask));
+        }
+        if (stroke.needToApply()) {
+            GL_CALL(StencilStrokePath(id, 0xffff, writeMask));
+        }
+
         GrDrawState* drawState = this->drawState();
         GrDrawState::AutoViewMatrixRestore avmr;
         SkRect bounds = SkRect::MakeLTRB(0, 0,
@@ -1953,30 +1956,38 @@ void GrGpuGL::onGpuDrawPaths(const GrPathRange* pathRange,
     GrGLint writeMask =
         fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
 
-    if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
-        GL_CALL(StencilFillPathInstanced(count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
-                                         writeMask, gXformType2GLType[transformsType],
-                                         transforms));
-    }
-    if (stroke.needToApply()) {
-        GL_CALL(StencilStrokePathInstanced(count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff,
-                                           writeMask, gXformType2GLType[transformsType],
-                                           transforms));
-    }
-
     if (nonInvertedFill == fill) {
         if (stroke.needToApply()) {
-            GL_CALL(CoverStrokePathInstanced(
-                        count, GR_GL_UNSIGNED_INT, indices, baseID,
+            if (SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
+                GL_CALL(StencilFillPathInstanced(
+                            count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
+                            writeMask, gXformType2GLType[transformsType],
+                            transforms));
+            }
+            GL_CALL(StencilThenCoverStrokePathInstanced(
+                        count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff, writeMask,
                         GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
                         gXformType2GLType[transformsType], transforms));
         } else {
-            GL_CALL(CoverFillPathInstanced(
-                        count, GR_GL_UNSIGNED_INT, indices, baseID,
+            GL_CALL(StencilThenCoverFillPathInstanced(
+                        count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode, writeMask,
                         GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
                         gXformType2GLType[transformsType], transforms));
         }
     } else {
+        if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
+            GL_CALL(StencilFillPathInstanced(
+                        count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
+                        writeMask, gXformType2GLType[transformsType],
+                        transforms));
+        }
+        if (stroke.needToApply()) {
+            GL_CALL(StencilStrokePathInstanced(
+                        count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff,
+                        writeMask, gXformType2GLType[transformsType],
+                        transforms));
+        }
+
         GrDrawState* drawState = this->drawState();
         GrDrawState::AutoViewMatrixRestore avmr;
         SkRect bounds = SkRect::MakeLTRB(0, 0,

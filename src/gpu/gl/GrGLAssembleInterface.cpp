@@ -14,6 +14,12 @@
 #define GET_PROC_SUFFIX(F, S) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F #S)
 #define GET_PROC_LOCAL(F) GrGL ## F ## Proc F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
 
+// The glStencilThenCover* methods are a new addition to NV_path_rendering. They
+// aren't available on all drivers. In the event that they are not present, this
+// function can be used to add methods to the given GrGLInterface that emulate
+// them using the existing glStencil*/glCover* methods.
+static void emulate_nvpr_stencil_then_cover(GrGLInterface*);
+
 const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
     GET_PROC_LOCAL(GetStringi);
@@ -239,7 +245,18 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(CoverStrokePath, NV);
         GET_PROC_SUFFIX(CoverFillPathInstanced, NV);
         GET_PROC_SUFFIX(CoverStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(StencilThenCoverFillPath, NV);
+        GET_PROC_SUFFIX(StencilThenCoverStrokePath, NV);
+        GET_PROC_SUFFIX(StencilThenCoverFillPathInstanced, NV);
+        GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, NV);
         GET_PROC_SUFFIX(ProgramPathFragmentInputGen, NV);
+
+        if (NULL == interface->fFunctions.fStencilThenCoverFillPath ||
+            NULL == interface->fFunctions.fStencilThenCoverStrokePath ||
+            NULL == interface->fFunctions.fStencilThenCoverFillPathInstanced ||
+            NULL == interface->fFunctions.fStencilThenCoverFillPathInstanced) {
+            emulate_nvpr_stencil_then_cover(interface);
+        }
     }
 
     if (extensions.has("GL_EXT_debug_marker")) {
@@ -265,4 +282,102 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     interface->fExtensions.swap(&extensions);
 
     return interface;
+}
+
+static GrGLStencilFillPathProc gStencilFillPath;
+static GrGLCoverFillPathProc gCoverFillPath;
+static GrGLvoid GR_GL_FUNCTION_TYPE stencil_then_cover_fill_path(
+                                        GrGLuint path, GrGLenum fillMode,
+                                        GrGLuint mask, GrGLenum coverMode) {
+    gStencilFillPath(path, fillMode, mask);
+    gCoverFillPath(path, coverMode);
+}
+
+
+static GrGLStencilStrokePathProc gStencilStrokePath;
+static GrGLCoverStrokePathProc gCoverStrokePath;
+static GrGLvoid GR_GL_FUNCTION_TYPE stencil_then_cover_stroke_path(
+                                        GrGLuint path, GrGLint reference,
+                                        GrGLuint mask, GrGLenum coverMode) {
+    gStencilStrokePath(path, reference, mask);
+    gCoverStrokePath(path, coverMode);
+}
+
+static GrGLStencilFillPathInstancedProc gStencilFillPathInstanced;
+static GrGLCoverFillPathInstancedProc gCoverFillPathInstanced;
+static GrGLvoid GR_GL_FUNCTION_TYPE stencil_then_cover_fill_path_instanced(
+                                        GrGLsizei numPaths, GrGLenum pathNameType,
+                                        const GrGLvoid *paths, GrGLuint pathBase,
+                                        GrGLenum fillMode, GrGLuint mask,
+                                        GrGLenum coverMode, GrGLenum transformType,
+                                        const GrGLfloat *transformValues) {
+    gStencilFillPathInstanced(numPaths, pathNameType, paths, pathBase,
+                              fillMode, mask, transformType, transformValues);
+    gCoverFillPathInstanced(numPaths, pathNameType, paths, pathBase,
+                            coverMode, transformType, transformValues);
+}
+
+static GrGLStencilStrokePathInstancedProc gStencilStrokePathInstanced;
+static GrGLCoverStrokePathInstancedProc gCoverStrokePathInstanced;
+static GrGLvoid GR_GL_FUNCTION_TYPE stencil_then_cover_stroke_path_instanced(
+                                        GrGLsizei numPaths, GrGLenum pathNameType,
+                                        const GrGLvoid *paths, GrGLuint pathBase,
+                                        GrGLint reference, GrGLuint mask,
+                                        GrGLenum coverMode, GrGLenum transformType,
+                                        const GrGLfloat *transformValues) {
+    gStencilStrokePathInstanced(numPaths, pathNameType, paths, pathBase,
+                                reference, mask, transformType, transformValues);
+    gCoverStrokePathInstanced(numPaths, pathNameType, paths, pathBase,
+                              coverMode, transformType, transformValues);
+}
+
+static void emulate_nvpr_stencil_then_cover(GrGLInterface* interface) {
+    if (NULL == gStencilFillPath) {
+        gStencilFillPath = (GrGLStencilFillPathProc)interface->fFunctions.fStencilFillPath;
+    }
+    if (NULL == gCoverFillPath) {
+        gCoverFillPath = (GrGLCoverFillPathProc)interface->fFunctions.fCoverFillPath;
+    }
+    if (NULL == gStencilStrokePath) {
+        gStencilStrokePath = (GrGLStencilStrokePathProc)interface->fFunctions.fStencilStrokePath;
+    }
+    if (NULL == gCoverStrokePath) {
+        gCoverStrokePath = (GrGLCoverStrokePathProc)interface->fFunctions.fCoverStrokePath;
+    }
+    if (NULL == gStencilFillPathInstanced) {
+        gStencilFillPathInstanced = (GrGLStencilFillPathInstancedProc)
+            interface->fFunctions.fStencilFillPathInstanced;
+    }
+    if (NULL == gCoverFillPathInstanced) {
+        gCoverFillPathInstanced = (GrGLCoverFillPathInstancedProc)
+            interface->fFunctions.fCoverFillPathInstanced;
+    }
+    if (NULL == gStencilStrokePathInstanced) {
+        gStencilStrokePathInstanced = (GrGLStencilStrokePathInstancedProc)
+            interface->fFunctions.fStencilStrokePathInstanced;
+    }
+    if (NULL == gCoverStrokePathInstanced) {
+        gCoverStrokePathInstanced = (GrGLCoverStrokePathInstancedProc)
+            interface->fFunctions.fCoverStrokePathInstanced;
+    }
+
+    if (interface->fFunctions.fStencilFillPath != gStencilFillPath ||
+        interface->fFunctions.fCoverFillPath != gCoverFillPath ||
+        interface->fFunctions.fStencilStrokePath != gStencilStrokePath ||
+        interface->fFunctions.fCoverStrokePath != gCoverStrokePath ||
+        interface->fFunctions.fStencilFillPathInstanced != gStencilFillPathInstanced ||
+        interface->fFunctions.fCoverFillPathInstanced != gCoverFillPathInstanced ||
+        interface->fFunctions.fStencilStrokePathInstanced != gStencilStrokePathInstanced ||
+        interface->fFunctions.fCoverStrokePathInstanced != gCoverStrokePathInstanced) {
+        // While not every windowing system requires GetProcAddress to return
+        // the same addresses in different contexts, it is guaranteed to do so
+        // in any context that supports NV_path_rendering.
+        SkFAIL("GetProcAddress returned different addresses for the same nvpr functions");
+        return;
+    }
+
+    interface->fFunctions.fStencilThenCoverFillPath = &stencil_then_cover_fill_path;
+    interface->fFunctions.fStencilThenCoverStrokePath = &stencil_then_cover_stroke_path;
+    interface->fFunctions.fStencilThenCoverFillPathInstanced = &stencil_then_cover_fill_path_instanced;
+    interface->fFunctions.fStencilThenCoverStrokePathInstanced = &stencil_then_cover_stroke_path_instanced;
 }
