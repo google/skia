@@ -102,12 +102,27 @@ void GrTexture::writePixels(int left, int top, int width, int height,
                                 pixelOpsFlags);
 }
 
+void GrTexture::abandonReleaseCommon() {
+    // In debug builds the resource cache tracks removed/exclusive textures and has an unref'ed ptr.
+    // After abandon() or release() the resource cache will be unreachable (getContext() == NULL).
+    // So we readd the texture to the cache here so that it is removed from the exclusive list and
+    // there is no longer an unref'ed ptr to the texture in the cache.
+    if (this->impl()->isSetFlag((GrTextureFlags)GrTextureImpl::kReturnToCache_FlagBit)) {
+        SkASSERT(!this->wasDestroyed());
+        this->ref();  // restores the ref the resource cache gave up when it marked this exclusive.
+        this->impl()->resetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit);
+        this->getContext()->addExistingTextureToCache(this);
+    }
+}
+
 void GrTexture::onRelease() {
+    this->abandonReleaseCommon();
     SkASSERT(!this->impl()->isSetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit));
     INHERITED::onRelease();
 }
 
 void GrTexture::onAbandon() {
+    this->abandonReleaseCommon();
     if (NULL != fRenderTarget.get()) {
         fRenderTarget->abandon();
     }

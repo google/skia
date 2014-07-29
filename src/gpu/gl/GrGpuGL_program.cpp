@@ -79,7 +79,7 @@ void GrGpuGL::ProgramCache::abandon() {
     for (int i = 0; i < fCount; ++i) {
         SkASSERT(NULL != fEntries[i]->fProgram.get());
         fEntries[i]->fProgram->abandon();
-        fEntries[i]->fProgram.reset(NULL);
+        SkDELETE(fEntries[i]);
     }
     fCount = 0;
 }

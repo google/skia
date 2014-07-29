@@ -14,4 +14,4 @@ const GrGLInterface* SkDebugGLContext::createGLContext(GrGLStandard forcedGpuAPI
     }
 
     return GrGLCreateDebugInterface();
-};
+}

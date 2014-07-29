@@ -114,6 +114,11 @@ public:
         }
     }
 
+    static void abandon() {
+        SkASSERT(gStaticRefCount > 0);
+        gObj->fAbandoned = true;
+    }
+
 protected:
 
 private:
@@ -131,6 +136,8 @@ private:
     GrTextureObj* fTexture;
     GrTextureUnitObj *fTextureUnits[kDefaultMaxTextureUnits];
     GrVertexArrayObj *fVertexArray;
+
+    bool fAbandoned;
 
     typedef GrFakeRefObj *(*Create)();
 

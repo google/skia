@@ -50,6 +50,14 @@ public:
         return fGL->hasExtension(extensionName);
     }
 
+    /**
+     * This notifies the context that we are deliberately testing abandoning
+     * the context. It is useful for debugging contexts that would otherwise
+     * test that GPU resources are properly deleted. It also allows a debugging
+     * context to test that further GL calls are not made by Skia GPU code.
+     */
+    void testAbandon();
+
 protected:
     /**
      * Subclass implements this to make a GL context. The returned GrGLInterface

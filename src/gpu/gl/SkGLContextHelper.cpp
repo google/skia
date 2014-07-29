@@ -134,3 +134,9 @@ bool SkGLContextHelper::init(GrGLStandard forcedGpuAPI, int width,
     }
     return false;
 }
+
+void SkGLContextHelper::testAbandon() {
+    if (NULL != fGL) {
+        fGL->abandon();
+    }
+}

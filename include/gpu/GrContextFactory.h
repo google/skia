@@ -107,7 +107,10 @@ public:
 
     void abandonContexts() {
         for (int i = 0; i < fContexts.count(); ++i) {
-            SkSafeSetNull(fContexts[i].fGLContext);
+            if (NULL != fContexts[i].fGLContext) {
+                fContexts[i].fGLContext->testAbandon();
+                SkSafeSetNull(fContexts[i].fGLContext);
+            }
             fContexts[i].fGrContext->abandonContext();
         }
     }

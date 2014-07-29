@@ -119,6 +119,7 @@ protected:
     void validateDesc() const;
 
 private:
+    void abandonReleaseCommon();
     virtual void internal_dispose() const SK_OVERRIDE;
 
     // these two shift a fixed-point value into normalized coordinates

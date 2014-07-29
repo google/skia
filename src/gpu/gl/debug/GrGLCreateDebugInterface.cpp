@@ -796,6 +796,10 @@ public:
         fWrapped.reset(interface);
     }
 
+    virtual void abandon() const SK_OVERRIDE {
+        GrDebugGL::abandon();
+    }
+
     // TODO: there are some issues w/ wrapping another GL interface inside the
     // debug interface:
     //      Since none of the "gl" methods are member functions they don't get

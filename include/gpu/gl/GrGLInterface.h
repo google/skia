@@ -343,6 +343,9 @@ public:
     GrGLInterfaceCallbackProc fCallback;
     GrGLInterfaceCallbackData fCallbackData;
 #endif
+
+    // This exists for internal testing.
+    virtual void abandon() const {}
 };
 
 #endif
