@@ -151,6 +151,10 @@ public:
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE;
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE;
 
+    virtual int requestRowsPreserved() const SK_OVERRIDE {
+        return fBlitter->requestRowsPreserved();
+    }
+
     virtual void* allocBlitMemory(size_t sz) SK_OVERRIDE {
         return fBlitter->allocBlitMemory(sz);
     }
@@ -181,6 +185,10 @@ public:
                      SkAlpha leftAlpha, SkAlpha rightAlpha) SK_OVERRIDE;
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE;
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE;
+
+    virtual int requestRowsPreserved() const SK_OVERRIDE {
+        return fBlitter->requestRowsPreserved();
+    }
 
     virtual void* allocBlitMemory(size_t sz) SK_OVERRIDE {
         return fBlitter->allocBlitMemory(sz);
