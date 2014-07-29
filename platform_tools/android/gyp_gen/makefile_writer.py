@@ -198,6 +198,7 @@ def write_android_mk(target_dir, common, deviations_from_common):
     f.write(DEBUGGING_HELP)
 
     write_clear_vars(f)
+    f.write('LOCAL_FDO_SUPPORT := true\n')
     f.write('LOCAL_ARM_MODE := thumb\n')
 
     # need a flag to tell the C side when we're on devices with large memory
