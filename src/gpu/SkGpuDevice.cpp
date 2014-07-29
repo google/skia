@@ -38,6 +38,7 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
+#include "SkXfermode.h"
 #include "SkErrorInternals.h"
 
 #define CACHE_COMPATIBLE_DEVICE_TEXTURES 1
@@ -2023,6 +2024,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
                     // TODO: ensure none of the atlased layers contain a clear call!
                     SkPaint paint;
                     paint.setColor(SK_ColorTRANSPARENT);
+                    paint.setXfermode(SkXfermode::Create(SkXfermode::kSrc_Mode))->unref();
                     canvas->drawRect(bound, paint);
                 } else {
                     canvas->clear(SK_ColorTRANSPARENT);

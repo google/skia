@@ -10,7 +10,6 @@
 
 #define USE_ATLAS 0
 
-#include "GrAllocPool.h"
 #include "GrAtlas.h"
 #include "GrPictureUtils.h"
 #include "GrRect.h"
@@ -47,6 +46,9 @@ public:
 // get a ref to the GrTexture in which they reside. In both cases 'fRect' 
 // contains the layer's extent in its texture.
 // Atlased layers also get a pointer to the plot in which they reside.
+// For non-atlased layers the lock field just corresponds to locking in
+// the resource cache. For atlased layers it implements an additional level
+// of locking to allow atlased layers to be reused multiple times.
 struct GrCachedLayer {
 public:
     // For SkTDynamicHash
@@ -77,7 +79,8 @@ public:
         : fKey(pictureID, layerID)
         , fTexture(NULL)
         , fRect(GrIRect16::MakeEmpty())
-        , fPlot(NULL) {
+        , fPlot(NULL)
+        , fLocked(false) {
         SkASSERT(SK_InvalidGenID != pictureID && layerID >= 0);
     }
 
@@ -104,14 +107,17 @@ public:
 
     bool isAtlased() const { return NULL != fPlot; }
 
+    void setLocked(bool locked) { fLocked = locked; }
+    bool locked() const { return fLocked; }
+
+    SkDEBUGCODE(const GrPlot* plot() const { return fPlot; })
     SkDEBUGCODE(void validate(const GrTexture* backingTexture) const;)
 
 private:
     const Key       fKey;
 
     // fTexture is a ref on the atlasing texture for atlased layers and a
-    // ref on a GrTexture for non-atlased textures. In both cases, if this is
-    // non-NULL, that means that the texture is locked in the texture cache.
+    // ref on a GrTexture for non-atlased textures.
     GrTexture*      fTexture;
 
     // For both atlased and non-atlased layers 'fRect' contains the  bound of
@@ -122,6 +128,14 @@ private:
     // For atlased layers, fPlot stores the atlas plot in which the layer rests.
     // It is always NULL for non-atlased layers.
     GrPlot*         fPlot;
+
+    // For non-atlased layers 'fLocked' should always match "NULL != fTexture".
+    // (i.e., if there is a texture it is locked).
+    // For atlased layers, 'fLocked' is true if the layer is in a plot and
+    // actively required for rendering. If the layer is in a plot but not
+    // actively required for rendering, then 'fLocked' is false. If the
+    // layer isn't in a plot then is can never be locked.
+    bool            fLocked;
 };
 
 // The GrLayerCache caches pre-computed saveLayers for later rendering.
@@ -161,8 +175,14 @@ public:
     SkDEBUGCODE(void validate() const;)
 
 private:
+    static const int kAtlasTextureWidth = 1024;
+    static const int kAtlasTextureHeight = 1024;
+
     static const int kNumPlotsX = 2;
     static const int kNumPlotsY = 2;
+
+    static const int kPlotWidth = kAtlasTextureWidth / kNumPlotsX;
+    static const int kPlotHeight = kAtlasTextureHeight / kNumPlotsY;
 
     GrContext*                fContext;  // pointer back to owning context
     SkAutoTDelete<GrAtlas>    fAtlas;    // TODO: could lazily allocate
@@ -180,11 +200,27 @@ private:
 
     SkAutoTUnref<SkPicture::DeletionListener> fDeletionListener;
 
+    // This implements a plot-centric locking mechanism (since the atlas
+    // backing texture is always locked). Each layer that is locked (i.e.,
+    // needed for the current rendering) in a plot increments the plot lock
+    // count for that plot. Similarly, once a rendering is complete all the
+    // layers used in it decrement the lock count for the used plots.
+    // Plots with a 0 lock count are open for recycling/purging.
+    int fPlotLocks[kNumPlotsX * kNumPlotsY];
+
     void initAtlas();
     GrCachedLayer* createLayer(const SkPicture* picture, int layerID);
 
     // Remove all the layers (and unlock any resources) associated with 'pictureID'
     void purge(uint32_t pictureID);
+
+    static bool PlausiblyAtlasable(int width, int height) {
+        return width <= kPlotWidth && height <= kPlotHeight;
+    }
+
+    // Try to find a purgeable plot and clear it out. Return true if a plot
+    // was purged; false otherwise.
+    bool purgePlot();
 
     // for testing
     friend class TestingAccess;
