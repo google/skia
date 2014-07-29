@@ -280,8 +280,8 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
         GL_CALL(LineWidth(1));
     }
 
-    if (resetBits & kAA_GrGLBackendState) {
-        fHWAAState.invalidate();
+    if (resetBits & kMSAAEnable_GrGLBackendState) {
+        fMSAAEnabled = kUnknown_TriState;
     }
 
     fHWActiveTextureUnitIdx = -1; // invalid
@@ -2164,45 +2164,20 @@ void GrGpuGL::flushAAState(DrawType type) {
 
     const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
     if (kGL_GrGLStandard == this->glStandard()) {
-        // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
-        // smooth lines.
-        // we prefer smooth lines over multisampled lines
-        bool smoothLines = false;
-
-        if (kDrawLines_DrawType == type) {
-            smoothLines = this->willUseHWAALines();
-            if (smoothLines) {
-                if (kYes_TriState != fHWAAState.fSmoothLineEnabled) {
-                    GL_CALL(Enable(GR_GL_LINE_SMOOTH));
-                    fHWAAState.fSmoothLineEnabled = kYes_TriState;
-                    // must disable msaa to use line smoothing
-                    if (RT_HAS_MSAA &&
-                        kNo_TriState != fHWAAState.fMSAAEnabled) {
-                        GL_CALL(Disable(GR_GL_MULTISAMPLE));
-                        fHWAAState.fMSAAEnabled = kNo_TriState;
-                    }
-                }
-            } else {
-                if (kNo_TriState != fHWAAState.fSmoothLineEnabled) {
-                    GL_CALL(Disable(GR_GL_LINE_SMOOTH));
-                    fHWAAState.fSmoothLineEnabled = kNo_TriState;
-                }
-            }
-        }
-        if (!smoothLines && RT_HAS_MSAA) {
+        if (RT_HAS_MSAA) {
             // FIXME: GL_NV_pr doesn't seem to like MSAA disabled. The paths
             // convex hulls of each segment appear to get filled.
             bool enableMSAA = kStencilPath_DrawType == type ||
                               this->getDrawState().isHWAntialiasState();
             if (enableMSAA) {
-                if (kYes_TriState != fHWAAState.fMSAAEnabled) {
+                if (kYes_TriState != fMSAAEnabled) {
                     GL_CALL(Enable(GR_GL_MULTISAMPLE));
-                    fHWAAState.fMSAAEnabled = kYes_TriState;
+                    fMSAAEnabled = kYes_TriState;
                 }
             } else {
-                if (kNo_TriState != fHWAAState.fMSAAEnabled) {
+                if (kNo_TriState != fMSAAEnabled) {
                     GL_CALL(Disable(GR_GL_MULTISAMPLE));
-                    fHWAAState.fMSAAEnabled = kNo_TriState;
+                    fMSAAEnabled = kNo_TriState;
                 }
             }
         }
@@ -2228,52 +2203,36 @@ void GrGpuGL::flushPathStencilSettings(SkPath::FillType fill) {
 void GrGpuGL::flushBlend(bool isLines,
                          GrBlendCoeff srcCoeff,
                          GrBlendCoeff dstCoeff) {
-    if (isLines && this->willUseHWAALines()) {
+    // Any optimization to disable blending should have already been applied and
+    // tweaked the coeffs to (1, 0).
+    bool blendOff = kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
+    if (blendOff) {
+        if (kNo_TriState != fHWBlendState.fEnabled) {
+            GL_CALL(Disable(GR_GL_BLEND));
+            fHWBlendState.fEnabled = kNo_TriState;
+        }
+    } else {
         if (kYes_TriState != fHWBlendState.fEnabled) {
             GL_CALL(Enable(GR_GL_BLEND));
             fHWBlendState.fEnabled = kYes_TriState;
         }
-        if (kSA_GrBlendCoeff != fHWBlendState.fSrcCoeff ||
-            kISA_GrBlendCoeff != fHWBlendState.fDstCoeff) {
-            GL_CALL(BlendFunc(gXfermodeCoeff2Blend[kSA_GrBlendCoeff],
-                              gXfermodeCoeff2Blend[kISA_GrBlendCoeff]));
-            fHWBlendState.fSrcCoeff = kSA_GrBlendCoeff;
-            fHWBlendState.fDstCoeff = kISA_GrBlendCoeff;
+        if (fHWBlendState.fSrcCoeff != srcCoeff ||
+            fHWBlendState.fDstCoeff != dstCoeff) {
+            GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
+                              gXfermodeCoeff2Blend[dstCoeff]));
+            fHWBlendState.fSrcCoeff = srcCoeff;
+            fHWBlendState.fDstCoeff = dstCoeff;
         }
-    } else {
-        // any optimization to disable blending should
-        // have already been applied and tweaked the coeffs
-        // to (1, 0).
-        bool blendOff = kOne_GrBlendCoeff == srcCoeff &&
-                        kZero_GrBlendCoeff == dstCoeff;
-        if (blendOff) {
-            if (kNo_TriState != fHWBlendState.fEnabled) {
-                GL_CALL(Disable(GR_GL_BLEND));
-                fHWBlendState.fEnabled = kNo_TriState;
-            }
-        } else {
-            if (kYes_TriState != fHWBlendState.fEnabled) {
-                GL_CALL(Enable(GR_GL_BLEND));
-                fHWBlendState.fEnabled = kYes_TriState;
-            }
-            if (fHWBlendState.fSrcCoeff != srcCoeff ||
-                fHWBlendState.fDstCoeff != dstCoeff) {
-                GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
-                                  gXfermodeCoeff2Blend[dstCoeff]));
-                fHWBlendState.fSrcCoeff = srcCoeff;
-                fHWBlendState.fDstCoeff = dstCoeff;
-            }
-            GrColor blendConst = this->getDrawState().getBlendConstant();
-            if ((BlendCoeffReferencesConstant(srcCoeff) ||
-                 BlendCoeffReferencesConstant(dstCoeff)) &&
-                (!fHWBlendState.fConstColorValid ||
-                 fHWBlendState.fConstColor != blendConst)) {
-                GrGLfloat c[4];
-                GrColorToRGBAFloat(blendConst, c);
-                GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
-                fHWBlendState.fConstColor = blendConst;
-                fHWBlendState.fConstColorValid = true;
-            }
+        GrColor blendConst = this->getDrawState().getBlendConstant();
+        if ((BlendCoeffReferencesConstant(srcCoeff) ||
+             BlendCoeffReferencesConstant(dstCoeff)) &&
+            (!fHWBlendState.fConstColorValid ||
+             fHWBlendState.fConstColor != blendConst)) {
+            GrGLfloat c[4];
+            GrColorToRGBAFloat(blendConst, c);
+            GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
+            fHWBlendState.fConstColor = blendConst;
+            fHWBlendState.fConstColorValid = true;
         }
     }
 }

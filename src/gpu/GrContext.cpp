@@ -751,10 +751,6 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
         return false;
     }
 
-    if (0 == strokeWidth && target->willUseHWAALines()) {
-        return false;
-    }
-
 #if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
     if (strokeWidth >= 0) {
 #endif

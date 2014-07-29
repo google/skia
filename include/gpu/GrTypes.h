@@ -667,7 +667,7 @@ enum GrGLBackendState {
     // View state stands for scissor and viewport
     kView_GrGLBackendState             = 1 << 2,
     kBlend_GrGLBackendState            = 1 << 3,
-    kAA_GrGLBackendState               = 1 << 4,
+    kMSAAEnable_GrGLBackendState       = 1 << 4,
     kVertex_GrGLBackendState           = 1 << 5,
     kStencil_GrGLBackendState          = 1 << 6,
     kPixelStore_GrGLBackendState       = 1 << 7,

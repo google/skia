@@ -113,12 +113,6 @@ public:
     }
 
     /**
-     * Given the current draw state and hw support, will HW AA lines be used (if
-     * a line primitive type is drawn)?
-     */
-    bool willUseHWAALines() const;
-
-    /**
      * There are three types of "sources" of geometry (vertices and indices) for
      * draw calls made on the target. When performing an indexed draw, the
      * indices and vertices can use different source types. Once a source is

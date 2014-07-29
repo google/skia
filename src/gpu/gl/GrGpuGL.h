@@ -443,15 +443,7 @@ private:
         }
     } fHWBlendState;
 
-    struct {
-        TriState fMSAAEnabled;
-        TriState fSmoothLineEnabled;
-        void invalidate() {
-            fMSAAEnabled = kUnknown_TriState;
-            fSmoothLineEnabled = kUnknown_TriState;
-        }
-    } fHWAAState;
-
+    TriState fMSAAEnabled;
 
     GrGLProgram::MatrixState    fHWProjectionMatrixState;
 
