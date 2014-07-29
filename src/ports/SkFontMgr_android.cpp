@@ -41,8 +41,7 @@ public:
                        const SkString familyName)
         : INHERITED(style, SkTypefaceCache::NewFontID(), isFixedPitch)
         , fIndex(index)
-        , fFamilyName(familyName)
-    { }
+        , fFamilyName(familyName) { }
 
     const SkString& name() const { return fFamilyName; }
 
@@ -62,12 +61,10 @@ public:
                              bool isFixedPitch,
                              const SkString familyName)
         : INHERITED(index, style, isFixedPitch, familyName)
-        , fPathName(pathName)
-    { }
+        , fPathName(pathName) { }
 
     virtual void onGetFontDescriptor(SkFontDescriptor* desc,
-                                     bool* serialize) const SK_OVERRIDE
-    {
+                                     bool* serialize) const SK_OVERRIDE {
         SkASSERT(desc);
         SkASSERT(serialize);
         desc->setFamilyName(fFamilyName.c_str());
@@ -93,8 +90,7 @@ public:
                              bool isFixedPitch,
                              const SkString familyName)
         : INHERITED(index, style, isFixedPitch, familyName)
-        , fStream(stream)
-    { }
+        , fStream(stream) { }
 
     virtual void onGetFontDescriptor(SkFontDescriptor* desc,
                                      bool* serialize) const SK_OVERRIDE {
@@ -134,7 +130,7 @@ public:
 
             SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(pathName.c_str()));
             if (!stream.get()) {
-                DEBUG_FONT(("---- SystemFonts[%d] file=%s (NOT EXIST)", i, filename.c_str()));
+                DEBUG_FONT(("---- SystemFonts[%d] file=%s (NOT EXIST)", i, fileName.c_str()));
                 continue;
             }
 
@@ -142,9 +138,8 @@ public:
             SkTypeface::Style style;
             bool isFixedWidth;
             if (!SkTypeface_FreeType::ScanFont(stream.get(), family->fFontFiles[i].fIndex,
-                                               &fontName, &style, &isFixedWidth))
-            {
-                DEBUG_FONT(("---- SystemFonts[%d] file=%s (INVALID)", i, filename.c_str()));
+                                               &fontName, &style, &isFixedWidth)) {
+                DEBUG_FONT(("---- SystemFonts[%d] file=%s (INVALID)", i, fileName.c_str()));
                 continue;
             }
 
