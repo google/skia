@@ -172,7 +172,7 @@ public:
     // Default impl returns union of all input bounds.
     virtual void computeFastBounds(const SkRect&, SkRect*) const;
 
-#ifdef SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
     /**
      * Wrap the given texture in a texture-backed SkBitmap.
      */
