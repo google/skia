@@ -158,7 +158,7 @@ static void test_unpremul(skiatest::Reporter* reporter) {
     SkString basename;
     if (iter.next(&basename)) {
         do {
-            SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), basename.c_str());
+            SkString filename = SkOSPath::Join(resourcePath.c_str(), basename.c_str());
             // SkDebugf("about to decode \"%s\"\n", filename.c_str());
             compare_unpremul(reporter, filename);
         } while (iter.next(&basename));
@@ -241,7 +241,7 @@ DEF_TEST(ImageDecoding_alphaType, reporter) {
     SkString basename;
     if (iter.next(&basename)) {
         do {
-            SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), basename.c_str());
+            SkString filename = SkOSPath::Join(resourcePath.c_str(), basename.c_str());
             for (int truth = 0; truth <= 1; ++truth) {
                 test_alphaType(reporter, filename, SkToBool(truth));
             }
@@ -264,7 +264,7 @@ DEF_TEST(ImageDecoding_unpremul, reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(suffixes); ++i) {
         SkString basename = SkStringPrintf("%s%s", root, suffixes[i]);
-        SkString fullName = SkOSPath::SkPathJoin(resourcePath.c_str(), basename.c_str());
+        SkString fullName = SkOSPath::Join(resourcePath.c_str(), basename.c_str());
 
         SkBitmap bm;
         SkFILEStream stream(fullName.c_str());
@@ -692,7 +692,7 @@ DEF_TEST(ImageDecoderOptions, reporter) {
     const bool useDataList[] = {true, false};
 
     for (size_t fidx = 0; fidx < SK_ARRAY_COUNT(files); ++fidx) {
-        SkString path = SkOSPath::SkPathJoin(resourceDir.c_str(), files[fidx]);
+        SkString path = SkOSPath::Join(resourceDir.c_str(), files[fidx]);
         if (!sk_exists(path.c_str())) {
             continue;
         }
@@ -726,7 +726,7 @@ DEF_TEST(ImageDecoderOptions, reporter) {
 
 DEF_TEST(DiscardablePixelRef_SecondLockColorTableCheck, r) {
     SkString resourceDir = GetResourcePath();
-    SkString path = SkOSPath::SkPathJoin(resourceDir.c_str(), "randPixels.gif");
+    SkString path = SkOSPath::Join(resourceDir.c_str(), "randPixels.gif");
     if (!sk_exists(path.c_str())) {
         return;
     }

@@ -52,8 +52,7 @@ protected:
             return;
         }
 
-        SkString fullPath = SkOSPath::SkPathJoin(resourcePath.c_str(),
-                                                 fFilename.c_str());
+        SkString fullPath = SkOSPath::Join(resourcePath.c_str(), fFilename.c_str());
         SkFILEStream fileStream(fullPath.c_str());
         fValid = fileStream.isValid() && fileStream.getLength() > 0;
         if (fValid) {

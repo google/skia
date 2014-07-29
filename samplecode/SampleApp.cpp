@@ -755,7 +755,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         SkString filename;
         while (iter.next(&filename)) {
             *fSamples.append() = new PictFileFactory(
-                    SkOSPath::SkPathJoin(FLAGS_pictureDir[0], filename.c_str()));
+                SkOSPath::Join(FLAGS_pictureDir[0], filename.c_str()));
         }
     }
     if (!FLAGS_picture.isEmpty()) {
@@ -769,7 +769,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         SkString filename;
         while (iter.next(&filename)) {
             *fSamples.append() = new PdfFileViewerFactory(
-                    SkOSPath::SkPathJoin(FLAGS_pictureDir[0], filename.c_str()));
+                SkOSPath::Join(FLAGS_pictureDir[0], filename.c_str()));
         }
     }
 #endif

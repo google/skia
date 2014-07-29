@@ -37,7 +37,7 @@ static void test_loop_stream(skiatest::Reporter* reporter, SkStream* stream,
 }
 
 static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
-    SkString path = SkOSPath::SkPathJoin(tmpDir, "wstream_test");
+    SkString path = SkOSPath::Join(tmpDir, "wstream_test");
 
     const char s[] = "abcdefghijklmnopqrstuvwxyz";
 

@@ -108,7 +108,7 @@ static void saveFile(const char name[], const char config[], const char dir[],
     SkString filename;
     make_filename(name, &filename);
     filename.appendf("_%s.png", config);
-    SkString path = SkOSPath::SkPathJoin(dir, filename.c_str());
+    SkString path = SkOSPath::Join(dir, filename.c_str());
     ::remove(path.c_str());
 
     SkFILEWStream   stream(path.c_str());

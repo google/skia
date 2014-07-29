@@ -98,8 +98,8 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
     fRecordMutex.release();
 
     // compute the common name
-    SkString baseName = SkOSPath::SkBasename(baselinePath);
-    SkString testName = SkOSPath::SkBasename(testPath);
+    SkString baseName = SkOSPath::Basename(baselinePath);
+    SkString testName = SkOSPath::Basename(testPath);
     newRecord->fCommonName = get_common_prefix(baseName, testName);
 
     newRecord->fBaselinePath = baselinePath;
@@ -134,8 +134,8 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
                 && !diffData.fResult.poiAlphaMask.empty()
                 && !newRecord->fCommonName.isEmpty()) {
 
-            newRecord->fAlphaMaskPath = SkOSPath::SkPathJoin(fAlphaMaskDir.c_str(),
-                                                             newRecord->fCommonName.c_str());
+            newRecord->fAlphaMaskPath = SkOSPath::Join(fAlphaMaskDir.c_str(),
+                                                       newRecord->fCommonName.c_str());
 
             // compute the image diff and output it
             SkBitmap copy;
@@ -163,8 +163,8 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
             newRecord->fMaxGreenDiff = diffData.fResult.maxGreenDiff;
             newRecord->fMaxBlueDiff = diffData.fResult.maxBlueDiff;
 
-            newRecord->fRgbDiffPath = SkOSPath::SkPathJoin(fRgbDiffDir.c_str(),
-                                                           newRecord->fCommonName.c_str());
+            newRecord->fRgbDiffPath = SkOSPath::Join(fRgbDiffDir.c_str(),
+                                                     newRecord->fCommonName.c_str());
             SkImageEncoder::EncodeFile(newRecord->fRgbDiffPath.c_str(),
                                        diffData.fResult.rgbDiffBitmap,
                                        SkImageEncoder::kPNG_Type, 100);
@@ -176,8 +176,8 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
                 && SkImageDiffer::RESULT_CORRECT != diffData.fResult.result
                 && !diffData.fResult.whiteDiffBitmap.empty()
                 && !newRecord->fCommonName.isEmpty()) {
-            newRecord->fWhiteDiffPath = SkOSPath::SkPathJoin(fWhiteDiffDir.c_str(),
-                                                             newRecord->fCommonName.c_str());
+            newRecord->fWhiteDiffPath = SkOSPath::Join(fWhiteDiffDir.c_str(),
+                                                       newRecord->fCommonName.c_str());
             SkImageEncoder::EncodeFile(newRecord->fWhiteDiffPath.c_str(),
                                        diffData.fResult.whiteDiffBitmap,
                                        SkImageEncoder::kPNG_Type, 100);
@@ -223,8 +223,8 @@ void SkDiffContext::diffDirectories(const char baselinePath[], const char testPa
         const char* baseFilename = baselineEntries[x].c_str();
 
         // Find the real location of each file to compare
-        SkString baselineFile = SkOSPath::SkPathJoin(baselinePath, baseFilename);
-        SkString testFile = SkOSPath::SkPathJoin(testPath, baseFilename);
+        SkString baselineFile = SkOSPath::Join(baselinePath, baseFilename);
+        SkString testFile = SkOSPath::Join(testPath, baseFilename);
 
         // Check that the test file exists and is a file
         if (sk_exists(testFile.c_str()) && !sk_isdir(testFile.c_str())) {

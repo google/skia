@@ -299,7 +299,7 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
         SkDebugf("Could not run fontstream test because resourcePath not specified.");
         return;
     }
-    SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "test.ttc");
+    SkString filename = SkOSPath::Join(resourcePath.c_str(), "test.ttc");
     SkTypeface* typeface = SkTypeface::CreateFromFile(filename.c_str());
     if (!typeface) {
         SkDebugf("Could not run fontstream test because test.ttc not found.");

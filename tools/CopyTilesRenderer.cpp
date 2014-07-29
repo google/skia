@@ -72,8 +72,8 @@ namespace sk_tools {
                             // a bitmap directly.
                             // TODO: Share more common code with write() to do this, to properly
                             // write out the JSON summary, etc.
-                            SkString pathWithNumber = SkOSPath::SkPathJoin(fWritePath.c_str(),
-                                                                           fInputFilename.c_str());
+                            SkString pathWithNumber = SkOSPath::Join(fWritePath.c_str(),
+                                                                     fInputFilename.c_str());
                             pathWithNumber.remove(pathWithNumber.size() - 4, 4);
                             pathWithNumber.appendf("%i.png", i++);
                             SkBitmap copy;

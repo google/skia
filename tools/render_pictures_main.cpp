@@ -123,7 +123,7 @@ static bool write_image_to_file(const void* buffer, size_t size, SkBitmap* bitma
     SkString name = SkStringPrintf("%s_%d%s", gInputFileName.c_str(), gImageNo++,
                                    get_suffix_from_format(format));
     SkString dir(FLAGS_writePath[0]);
-    outPath = SkOSPath::SkPathJoin(dir.c_str(), name.c_str());
+    outPath = SkOSPath::Join(dir.c_str(), name.c_str());
     SkFILEWStream fileStream(outPath.c_str());
     if (!(fileStream.isValid() && fileStream.write(buffer, size))) {
         SkDebugf("Failed to write encoded data to \"%s\"\n", outPath.c_str());
@@ -142,7 +142,7 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* w
                                     const SkString* mismatchPath,
                                     sk_tools::PictureRenderer& renderer,
                                     SkBitmap** out) {
-    SkString inputFilename = SkOSPath::SkBasename(inputPath.c_str());
+    SkString inputFilename = SkOSPath::Basename(inputPath.c_str());
     SkString writePathString;
     if (NULL != writePath && writePath->size() > 0 && !FLAGS_writeEncodedImages) {
         writePathString.set(*writePath);
@@ -345,7 +345,7 @@ static bool render_picture(const SkString& inputPath, const SkString* writePath,
     if (FLAGS_writeWholeImage) {
         sk_tools::force_all_opaque(*bitmap);
 
-        SkString inputFilename = SkOSPath::SkBasename(inputPath.c_str());
+        SkString inputFilename = SkOSPath::Basename(inputPath.c_str());
         SkString outputFilename(inputFilename);
         sk_tools::replace_char(&outputFilename, '.', '_');
         outputFilename.append(".png");
@@ -379,7 +379,7 @@ static int process_input(const char* input, const SkString* writePath,
     SkDebugf("process_input, %s\n", input);
     if (iter.next(&inputFilename)) {
         do {
-            SkString inputPath = SkOSPath::SkPathJoin(input, inputFilename.c_str());
+            SkString inputPath = SkOSPath::Join(input, inputFilename.c_str());
             if (!render_picture(inputPath, writePath, mismatchPath, renderer, jsonSummaryPtr)) {
                 ++failures;
             }

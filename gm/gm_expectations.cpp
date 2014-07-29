@@ -194,7 +194,7 @@ namespace skiagm {
     // IndividualImageExpectationsSource class...
 
     Expectations IndividualImageExpectationsSource::get(const char *testName) const {
-        SkString path = SkOSPath::SkPathJoin(fRootDir.c_str(), testName);
+        SkString path = SkOSPath::Join(fRootDir.c_str(), testName);
         SkBitmap referenceBitmap;
         bool decodedReferenceBitmap =
             SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap, kN32_SkColorType,

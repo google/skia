@@ -55,12 +55,12 @@ namespace sk_tools {
                               const char *subdirOrNull, const SkString& baseName) {
         SkString partialPath;
         if (subdirOrNull) {
-            partialPath = SkOSPath::SkPathJoin(dirPath.c_str(), subdirOrNull);
+            partialPath = SkOSPath::Join(dirPath.c_str(), subdirOrNull);
             sk_mkdir(partialPath.c_str());
         } else {
             partialPath.set(dirPath);
         }
-        SkString fullPath = SkOSPath::SkPathJoin(partialPath.c_str(), baseName.c_str());
+        SkString fullPath = SkOSPath::Join(partialPath.c_str(), baseName.c_str());
         if (SkImageEncoder::EncodeFile(fullPath.c_str(), bm, SkImageEncoder::kPNG_Type, 100)) {
             return true;
         } else {

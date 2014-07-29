@@ -103,7 +103,7 @@ static bool add_page_and_replace_filename_extension(SkString* path, int page,
 static bool make_output_filepath(SkString* path, const SkString& dir,
                                  const SkString& name,
                                  int page) {
-    *path = SkOSPath::SkPathJoin(dir.c_str(), name.c_str());
+    *path = SkOSPath::Join(dir.c_str(), name.c_str());
     return add_page_and_replace_filename_extension(path, page,
                                                    PDF_FILE_EXTENSION,
                                                    PNG_FILE_EXTENSION);
@@ -221,7 +221,7 @@ static bool render_page(const SkString& outputDir,
 static bool process_pdf(const SkString& inputPath, const SkString& outputDir) {
     SkDebugf("Loading PDF:  %s\n", inputPath.c_str());
 
-    SkString inputFilename = SkOSPath::SkBasename(inputPath.c_str());
+    SkString inputFilename = SkOSPath::Basename(inputPath.c_str());
 
     SkAutoTDelete<SkPdfRenderer> renderer(SkPdfRenderer::CreateFromFile(inputPath.c_str()));
     if (NULL == renderer.get()) {
@@ -299,7 +299,7 @@ static int process_input(const char* input, const SkString& outputDir) {
         SkOSFile::Iter iter(input, PDF_FILE_EXTENSION);
         SkString inputFilename;
         while (iter.next(&inputFilename)) {
-            SkString inputPath = SkOSPath::SkPathJoin(input, inputFilename.c_str());
+            SkString inputPath = SkOSPath::Join(input, inputFilename.c_str());
             if (!process_pdf(inputPath, outputDir)) {
                 ++failures;
             }

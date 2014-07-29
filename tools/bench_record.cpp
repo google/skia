@@ -149,7 +149,7 @@ int tool_main(int argc, char** argv) {
             continue;
         }
 
-        const SkString path = SkOSPath::SkPathJoin(FLAGS_skps[0], filename.c_str());
+        const SkString path = SkOSPath::Join(FLAGS_skps[0], filename.c_str());
 
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path.c_str()));
         if (!stream) {

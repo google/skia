@@ -80,8 +80,8 @@ static SkImageDecoder::Format guess_format_from_suffix(const char suffix[]) {
 
 static void make_outname(SkString* dst, const char outDir[], const char src[],
                          const char suffix[]) {
-    SkString basename = SkOSPath::SkBasename(src);
-    dst->set(SkOSPath::SkPathJoin(outDir, basename.c_str()));
+    SkString basename = SkOSPath::Basename(src);
+    dst->set(SkOSPath::Join(outDir, basename.c_str()));
     dst->append(suffix);
 }
 
@@ -138,14 +138,14 @@ static bool write_bitmap(const char outDir[], const char src[],
     if (FLAGS_writeChecksumBasedFilenames) {
         // First create the directory for the hashtype.
         const SkString hashType = bitmapAndDigest.fDigest.getHashType();
-        const SkString hashDir = SkOSPath::SkPathJoin(outDir, hashType.c_str());
+        const SkString hashDir = SkOSPath::Join(outDir, hashType.c_str());
         if (!sk_mkdir(hashDir.c_str())) {
             return false;
         }
 
         // Now create the name of the folder specific to this image.
-        SkString basename = SkOSPath::SkBasename(src);
-        const SkString imageDir = SkOSPath::SkPathJoin(hashDir.c_str(), basename.c_str());
+        SkString basename = SkOSPath::Basename(src);
+        const SkString imageDir = SkOSPath::Join(hashDir.c_str(), basename.c_str());
         if (!sk_mkdir(imageDir.c_str())) {
             return false;
         }
@@ -154,7 +154,7 @@ static bool write_bitmap(const char outDir[], const char src[],
         SkString checksumBasedName = bitmapAndDigest.fDigest.getDigestValue();
         checksumBasedName.append(".png");
 
-        filename = SkOSPath::SkPathJoin(imageDir.c_str(), checksumBasedName.c_str());
+        filename = SkOSPath::Join(imageDir.c_str(), checksumBasedName.c_str());
     } else {
         make_outname(&filename, outDir, src, ".png");
     }
@@ -358,7 +358,7 @@ static bool write_subset(const char* writePath, const SkString& subsetName,
         subsetPath.set(writePath);
     } else {
         // Create a subdirectory to hold the results of decodeSubset.
-        subsetPath = SkOSPath::SkPathJoin(writePath, "subsets");
+        subsetPath = SkOSPath::Join(writePath, "subsets");
         if (!sk_mkdir(subsetPath.c_str())) {
             gFailedSubsetDecodes.push_back().printf("Successfully decoded subset %s, but "
                                                     "failed to create a directory to write to.",
@@ -385,7 +385,7 @@ static bool write_subset(const char* writePath, const SkString& subsetName,
             return false;
         }
 
-        SkString dirExtracted = SkOSPath::SkPathJoin(writePath, "extracted");
+        SkString dirExtracted = SkOSPath::Join(writePath, "extracted");
         if (!sk_mkdir(dirExtracted.c_str())) {
             gFailedSubsetDecodes.push_back().printf("Successfully decoded subset%s, but failed "
                                                     "to create a directory for extractSubset "
@@ -502,7 +502,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
     stream.rewind();
 
     // Create a string representing just the filename itself, for use in json expectations.
-    SkString basename = SkOSPath::SkBasename(srcPath);
+    SkString basename = SkOSPath::Basename(srcPath);
     // Replace '_' with '-', so that the names can fit gm_json.py's IMAGE_FILENAME_PATTERN
     replace_char(&basename, '_', '-');
     // Replace '.' with '-', so the output filename can still retain the original file extension,
@@ -796,7 +796,7 @@ int tool_main(int argc, char** argv) {
                 if (!is_image_file(filename.c_str())) {
                     continue;
                 }
-                SkString fullname = SkOSPath::SkPathJoin(dir, filename.c_str());
+                SkString fullname = SkOSPath::Join(dir, filename.c_str());
                 decodeFileAndWrite(fullname.c_str(), outDirPtr);
             }
         } else if (sk_exists(readPath) && is_image_file(readPath)) {

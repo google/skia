@@ -133,7 +133,7 @@ public:
      *
      * Uses SkPATH_SEPARATOR, to work on all platforms.
      */
-    static SkString SkPathJoin(const char *rootPath, const char *relativePath);
+    static SkString Join(const char* rootPath, const char* relativePath);
 
     /**
      *  Return the name of the file, ignoring the directory structure.
@@ -143,6 +143,7 @@ public:
      *  @return SkString The basename of the file - anything beyond the
      *      final slash, or the full name if there is no slash.
      */
-    static SkString SkBasename(const char* fullPath);
+    static SkString Basename(const char* fullPath);
 };
+
 #endif

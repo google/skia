@@ -363,7 +363,7 @@ bool RecordPictureRenderer::render(SkBitmap** out) {
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
     if (!fWritePath.isEmpty()) {
         // Record the new picture as a new SKP with PNG encoded bitmaps.
-        SkString skpPath = SkOSPath::SkPathJoin(fWritePath.c_str(), fInputFilename.c_str());
+        SkString skpPath = SkOSPath::Join(fWritePath.c_str(), fInputFilename.c_str());
         SkFILEWStream stream(skpPath.c_str());
         picture->serialize(&stream, &encode_bitmap_to_data);
         return true;

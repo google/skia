@@ -179,7 +179,7 @@ static void test_files(skiatest::Reporter* reporter) {
         return;
     }
 
-    SkString path = SkOSPath::SkPathJoin(tmpDir.c_str(), "data_test");
+    SkString path = SkOSPath::Join(tmpDir.c_str(), "data_test");
 
     const char s[] = "abcdefghijklmnopqrstuvwxyz";
     {

@@ -106,7 +106,7 @@ protected:
         }
 
         // Name, size of the file, and whether or not it is premultiplied.
-        SkString header(SkOSPath::SkBasename(fCurrFile.c_str()));
+        SkString header(SkOSPath::Basename(fCurrFile.c_str()));
         header.appendf("     [%dx%d]     %s", fBitmap.width(), fBitmap.height(),
                        (fPremul ? "premultiplied" : "unpremultiplied"));
         canvas->drawText(header.c_str(), header.size(), 0, height, paint);
@@ -167,7 +167,7 @@ private:
                 return;
             }
         }
-        fCurrFile = SkOSPath::SkPathJoin(fResPath.c_str(), basename.c_str());
+        fCurrFile = SkOSPath::Join(fResPath.c_str(), basename.c_str());
         this->decodeCurrFile();
     }
 

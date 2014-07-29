@@ -20,7 +20,7 @@ class DecodeBench : public Benchmark {
     SkString          fName;
 public:
     DecodeBench(SkColorType ct) : fPrefColorType(ct) {
-        SkString fname = SkOSPath::SkBasename(FLAGS_decodeBenchFilename[0]);
+        SkString fname = SkOSPath::Basename(FLAGS_decodeBenchFilename[0]);
         fName.printf("decode_%s_%s", sk_tool_utils::colortype_name(ct), fname.c_str());
     }
 

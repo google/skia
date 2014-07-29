@@ -237,7 +237,7 @@ public:
         filename.append(renderModeDescriptor);
         filename.appendUnichar('.');
         filename.append(suffix);
-        return SkOSPath::SkPathJoin(path, filename.c_str());
+        return SkOSPath::Join(path, filename.c_str());
     }
 
     /**
@@ -257,7 +257,7 @@ public:
             filename.append(bitmapDigest.getDigestValue());
             filename.appendUnichar('.');
             filename.append(kPNG_FileExtension);
-            return SkOSPath::SkPathJoin(path, filename.c_str());
+            return SkOSPath::Join(path, filename.c_str());
         } else {
             return make_filename(path, shortName, configName, renderModeDescriptor,
                                  kPNG_FileExtension);

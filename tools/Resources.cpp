@@ -13,7 +13,7 @@
 DEFINE_string2(resourcePath, i, "resources", "Directory with test resources: images, fonts, etc.");
 
 SkString GetResourcePath(const char* resource) {
-    return SkOSPath::SkPathJoin(FLAGS_resourcePath[0], resource);
+    return SkOSPath::Join(FLAGS_resourcePath[0], resource);
 }
 
 void SetResourcePath(const char* resource) {

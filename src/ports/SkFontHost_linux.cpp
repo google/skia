@@ -323,7 +323,7 @@ private:
 
         while (iter.next(&name, false)) {
             SkString filename(
-                SkOSPath::SkPathJoin(directory.c_str(), name.c_str()));
+                SkOSPath::Join(directory.c_str(), name.c_str()));
 
             bool isFixedPitch;
             SkString realname;
@@ -354,8 +354,7 @@ private:
             if (name.startsWith(".")) {
                 continue;
             }
-            SkString dirname(
-                SkOSPath::SkPathJoin(directory.c_str(), name.c_str()));
+            SkString dirname(SkOSPath::Join(directory.c_str(), name.c_str()));
             load_directory_fonts(dirname);
         }
     }

@@ -136,11 +136,11 @@ void WriteTask::draw() {
 #endif
     this->makeDirOrFail(dir);
     for (int i = 0; i < fSuffixes.count(); i++) {
-        dir = SkOSPath::SkPathJoin(dir.c_str(), fSuffixes[i].c_str());
+        dir = SkOSPath::Join(dir.c_str(), fSuffixes[i].c_str());
         this->makeDirOrFail(dir);
     }
 
-    SkString path = SkOSPath::SkPathJoin(dir.c_str(), fGmName.c_str());
+    SkString path = SkOSPath::Join(dir.c_str(), fGmName.c_str());
     path.append(fExtension);
 
     const bool ok = fData.get() ? save_data_to_file(fData,   path.c_str())
@@ -173,13 +173,13 @@ static SkString path_to_expected_image(const char* root, const Task& task) {
     SkASSERT(1 == suffixes.count());
 
     // We'll look in root/suffix for images.
-    const SkString dir = SkOSPath::SkPathJoin(root, suffixes[0].c_str());
+    const SkString dir = SkOSPath::Join(root, suffixes[0].c_str());
 
     // Remove the suffix and tack on a .png.
     filename.remove(filename.size() - suffixLength, suffixLength);
     filename.append(".png");
 
-    return SkOSPath::SkPathJoin(dir.c_str(), filename.c_str());
+    return SkOSPath::Join(dir.c_str(), filename.c_str());
 }
 
 bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {

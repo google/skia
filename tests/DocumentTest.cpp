@@ -37,7 +37,7 @@ static void test_abortWithFile(skiatest::Reporter* reporter) {
                  // allways, then all these tests will be disabled.
     }
 
-    SkString path = SkOSPath::SkPathJoin(tmpDir.c_str(), "aborted.pdf");
+    SkString path = SkOSPath::Join(tmpDir.c_str(), "aborted.pdf");
 
     // Make sure doc's destructor is called to flush.
     {
@@ -65,7 +65,7 @@ static void test_file(skiatest::Reporter* reporter) {
                  // allways, then all these tests will be disabled.
     }
 
-    SkString path = SkOSPath::SkPathJoin(tmpDir.c_str(), "file.pdf");
+    SkString path = SkOSPath::Join(tmpDir.c_str(), "file.pdf");
 
     SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(path.c_str()));
 

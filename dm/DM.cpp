@@ -128,8 +128,7 @@ static void find_skps(SkTArray<SkString>* skps) {
     SkString filename;
     while (it.next(&filename)) {
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, filename.c_str())) {
-            skps->push_back(
-                    SkOSPath::SkPathJoin(FLAGS_skps[0], filename.c_str()));
+            skps->push_back(SkOSPath::Join(FLAGS_skps[0], filename.c_str()));
         }
     }
 }
@@ -148,7 +147,7 @@ static void kick_off_skps(const SkTArray<SkString>& skps,
             exit(1);
         }
 
-        SkString filename = SkOSPath::SkBasename(skps[i].c_str());
+        SkString filename = SkOSPath::Basename(skps[i].c_str());
         tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, pic, filename)));
         tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic, filename,
                                             RASTERIZE_PDF_PROC)));

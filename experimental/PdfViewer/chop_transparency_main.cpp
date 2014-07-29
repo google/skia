@@ -157,7 +157,7 @@ int tool_main(int argc, char** argv) {
                 if (!is_image_file(filename.c_str())) {
                     continue;
                 }
-                SkString fullname = SkOSPath::SkPathJoin(dir, filename.c_str());
+                SkString fullname = SkOSPath::Join(dir, filename.c_str());
                 decodeFileAndWrite(fullname.c_str());
             }
         } else if (sk_exists(readPath) && is_image_file(readPath)) {

@@ -155,7 +155,7 @@ static void test_fontstream(skiatest::Reporter* reporter) {
         SkDebugf("Could not run fontstream test because resourcePath not specified.");
         return;
     }
-    SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "test.ttc");
+    SkString filename = SkOSPath::Join(resourcePath.c_str(), "test.ttc");
 
     SkFILEStream stream(filename.c_str());
     if (stream.isValid()) {

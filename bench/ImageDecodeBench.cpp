@@ -25,7 +25,7 @@ public:
     , fFilename(filename)
     , fStream()
     , fValid(false) {
-        fName.append(SkOSPath::SkBasename(filename));
+        fName.append(SkOSPath::Basename(filename));
     }
 
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {

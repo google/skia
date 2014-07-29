@@ -6,7 +6,7 @@
  */
 #include "SkOSFile.h"
 
-SkString SkOSPath::SkPathJoin(const char *rootPath, const char *relativePath) {
+SkString SkOSPath::Join(const char *rootPath, const char *relativePath) {
     SkString result(rootPath);
     if (!result.endsWith(SkPATH_SEPARATOR)) {
         result.appendUnichar(SkPATH_SEPARATOR);
@@ -15,7 +15,7 @@ SkString SkOSPath::SkPathJoin(const char *rootPath, const char *relativePath) {
     return result;
 }
 
-SkString SkOSPath::SkBasename(const char* fullPath) {
+SkString SkOSPath::Basename(const char* fullPath) {
     if (!fullPath) {
         return SkString();
     }
