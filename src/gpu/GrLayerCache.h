@@ -8,8 +8,6 @@
 #ifndef GrLayerCache_DEFINED
 #define GrLayerCache_DEFINED
 
-#define USE_ATLAS 0
-
 #include "GrAtlas.h"
 #include "GrPictureUtils.h"
 #include "GrRect.h"

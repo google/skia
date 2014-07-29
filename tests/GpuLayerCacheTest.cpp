@@ -100,18 +100,14 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
 
             lock_layer(reporter, &cache, layer);
 
-#if USE_ATLAS
             // The first 4 layers should be in the atlas (and thus have non-empty
             // rects)
             if (i < 4) {
                 REPORTER_ASSERT(reporter, layer->isAtlased());
             } else {
-#endif
                 // The 5th layer couldn't fit in the atlas
                 REPORTER_ASSERT(reporter, !layer->isAtlased());
-#if USE_ATLAS
             }
-#endif
         }
 
         // Unlock the textures
@@ -127,19 +123,15 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
             REPORTER_ASSERT(reporter, NULL != layer);
 
             REPORTER_ASSERT(reporter, !layer->locked());
-#if USE_ATLAS
             // The first 4 layers should still be in the atlas.
             if (i < 4) {
                 REPORTER_ASSERT(reporter, NULL != layer->texture());
                 REPORTER_ASSERT(reporter, layer->isAtlased());
             } else {
-#endif
                 // The final layer should be unlocked.
                 REPORTER_ASSERT(reporter, NULL == layer->texture());
                 REPORTER_ASSERT(reporter, !layer->isAtlased());
-#if USE_ATLAS
             }
-#endif
         }
 
         {
@@ -155,7 +147,6 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
 
         for (int i = 0; i < kInitialNumLayers+1; ++i) {
             GrCachedLayer* layer = cache.findLayer(picture, i);
-#if USE_ATLAS
             // 3 old layers plus the new one should be in the atlas.
             if (1 == i || 2 == i || 3 == i || 5 == i) {
                 REPORTER_ASSERT(reporter, NULL != layer);
@@ -163,18 +154,15 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
                 REPORTER_ASSERT(reporter, NULL != layer->texture());
                 REPORTER_ASSERT(reporter, layer->isAtlased());
             } else if (4 == i) {
-#endif
                 // The one that was never atlased should still be around
                 REPORTER_ASSERT(reporter, NULL != layer);
 
                 REPORTER_ASSERT(reporter, NULL == layer->texture());
                 REPORTER_ASSERT(reporter, !layer->isAtlased());
-#if USE_ATLAS
             } else {
                 // The one bumped out of the atlas (i.e., 0) should be gone
                 REPORTER_ASSERT(reporter, NULL == layer);
             }
-#endif
         }
 
         //--------------------------------------------------------------------

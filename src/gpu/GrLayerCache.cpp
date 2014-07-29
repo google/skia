@@ -155,7 +155,6 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc) {
         return true;
     }
 
-#if USE_ATLAS
     if (layer->isAtlased()) {
         // Hooray it is still in the atlas - make sure it stays there
         layer->setLocked(true);
@@ -195,7 +194,6 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc) {
             }
         }
     }
-#endif
 
     // The texture wouldn't fit in the cache - give it it's own texture.
     // This path always uses a new scratch texture and (thus) doesn't cache anything.
