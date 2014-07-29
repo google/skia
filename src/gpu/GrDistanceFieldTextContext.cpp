@@ -66,10 +66,7 @@ GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
     fGammaTexture = NULL;
 
     fCurrVertex = 0;
-    fEffectTextureUniqueID = SK_InvalidUniqueID;
-    fEffectColor = GrColor_ILLEGAL;
-    fEffectFlags = 0;
-                                                        
+
     fVertices = NULL;
 }
 
@@ -114,58 +111,6 @@ static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
     return GrColorPackRGBA(r, g, b, 0xff);
 }
 
-void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColor) {
-    GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
-    GrTextureParams gammaParams(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
-    
-    GrTexture* currTexture = fStrike->getTexture();
-    SkASSERT(currTexture);
-    uint32_t textureUniqueID = currTexture->getUniqueID();
-    
-    // set up any flags
-    uint32_t flags = 0;
-    flags |= fContext->getMatrix().isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
-    flags |= fUseLCDText ? kUseLCD_DistanceFieldEffectFlag : 0;
-    flags |= fUseLCDText && fContext->getMatrix().rectStaysRect() ?
-    kRectToRect_DistanceFieldEffectFlag : 0;
-    bool useBGR = SkDeviceProperties::Geometry::kBGR_Layout ==
-    fDeviceProperties.fGeometry.getLayout();
-    flags |= fUseLCDText && useBGR ? kBGR_DistanceFieldEffectFlag : 0;
-    
-    // see if we need to create a new effect
-    if (textureUniqueID != fEffectTextureUniqueID ||
-        filteredColor != fEffectColor ||
-        flags != fEffectFlags) {
-        if (fUseLCDText) {
-            GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
-            fCachedEffect.reset(GrDistanceFieldLCDTextureEffect::Create(currTexture,
-                                                                        params,
-                                                                        fGammaTexture,
-                                                                        gammaParams,
-                                                                        colorNoPreMul,
-                                                                        flags));
-        } else {
-#ifdef SK_GAMMA_APPLY_TO_A8
-            U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.fGamma,
-                                                                filteredColor);
-            fCachedEffect.reset(GrDistanceFieldTextureEffect::Create(currTexture,
-                                                                     params,
-                                                                     fGammaTexture,
-                                                                     gammaParams,
-                                                                     lum/255.f,
-                                                                     flags));
-#else
-            fCachedEffect.reset(GrDistanceFieldTextureEffect::Create(currTexture,
-                                                                     params, flags));
-#endif
-        }
-        fEffectTextureUniqueID = textureUniqueID;
-        fEffectColor = filteredColor;
-        fEffectFlags = flags;
-    }
-    
-}
-
 void GrDistanceFieldTextContext::flushGlyphs() {
     if (NULL == fDrawTarget) {
         return;
@@ -178,8 +123,14 @@ void GrDistanceFieldTextContext::flushGlyphs() {
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
         SkASSERT(SkIsAlign4(fCurrVertex));
+        GrTexture* currTexture = fStrike->getTexture();
+        SkASSERT(currTexture);
+        GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
+        GrTextureParams gammaParams(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
 
-        // get our current color
+        // Effects could be stored with one of the cache objects (atlas?)
+        int coordsIdx = drawState->hasColorVertexAttribute() ? kGlyphCoordsWithColorAttributeIndex :
+                                                               kGlyphCoordsNoColorAttributeIndex;
         SkColor filteredColor;
         SkColorFilter* colorFilter = fSkPaint.getColorFilter();
         if (NULL != colorFilter) {
@@ -187,16 +138,21 @@ void GrDistanceFieldTextContext::flushGlyphs() {
         } else {
             filteredColor = fSkPaint.getColor();
         }
-        this->setupCoverageEffect(filteredColor);
-       
-        // Effects could be stored with one of the cache objects (atlas?)
-        int coordsIdx = drawState->hasColorVertexAttribute() ? kGlyphCoordsWithColorAttributeIndex :
-                                                               kGlyphCoordsNoColorAttributeIndex;
-        drawState->addCoverageEffect(fCachedEffect.get(), coordsIdx);
-        
-        // Set draw state
         if (fUseLCDText) {
             GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
+            bool useBGR = SkDeviceProperties::Geometry::kBGR_Layout ==
+                                                            fDeviceProperties.fGeometry.getLayout();
+            drawState->addCoverageEffect(GrDistanceFieldLCDTextureEffect::Create(
+                                                            currTexture,
+                                                            params,
+                                                            fGammaTexture,
+                                                            gammaParams,
+                                                            colorNoPreMul,
+                                                            fContext->getMatrix().rectStaysRect() &&
+                                                            fContext->getMatrix().isSimilarity(),
+                                                            useBGR),
+                                         coordsIdx)->unref();
+
             if (kOne_GrBlendCoeff != fPaint.getSrcBlendCoeff() ||
                 kISA_GrBlendCoeff != fPaint.getDstBlendCoeff() ||
                 fPaint.numColorStages()) {
@@ -214,6 +170,21 @@ void GrDistanceFieldTextContext::flushGlyphs() {
             drawState->setBlendConstant(colorNoPreMul);
             drawState->setBlendFunc(kConstC_GrBlendCoeff, kISC_GrBlendCoeff);
         } else {
+#ifdef SK_GAMMA_APPLY_TO_A8
+            U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.fGamma,
+                                                                filteredColor);
+            drawState->addCoverageEffect(GrDistanceFieldTextureEffect::Create(
+                                                              currTexture, params,
+                                                              fGammaTexture, gammaParams,
+                                                              lum/255.f,
+                                                              fContext->getMatrix().isSimilarity()),
+                                         coordsIdx)->unref();
+#else
+            drawState->addCoverageEffect(GrDistanceFieldTextureEffect::Create(
+                                                              currTexture, params,
+                                                              fContext->getMatrix().isSimilarity()),
+                                         coordsIdx)->unref();
+#endif
             // set back to normal in case we took LCD path previously.
             drawState->setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
             //drawState->setColor(fPaint.getColor());

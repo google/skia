@@ -14,24 +14,6 @@
 class GrGLDistanceFieldTextureEffect;
 class GrGLDistanceFieldLCDTextureEffect;
 
-enum GrDistanceFieldEffectFlags {
-    kSimilarity_DistanceFieldEffectFlag = 0x01,   // ctm is similarity matrix
-    kRectToRect_DistanceFieldEffectFlag = 0x02,   // ctm maps rects to rects
-    kUseLCD_DistanceFieldEffectFlag     = 0x04,   // use lcd text
-    kBGR_DistanceFieldEffectFlag        = 0x08,   // lcd display has bgr order
-    kPortrait_DistanceFieldEffectFlag   = 0x10,   // lcd display is in portrait mode (not used yet)
-    
-    kUniformScale_DistanceFieldEffectMask = kSimilarity_DistanceFieldEffectFlag |
-                                            kRectToRect_DistanceFieldEffectFlag,
-    // The subset of the flags relevant to GrDistanceFieldTextureEffect
-    kNonLCD_DistanceFieldEffectMask       = kSimilarity_DistanceFieldEffectFlag,
-    // The subset of the flags relevant to GrDistanceFieldLCDTextureEffect
-    kLCD_DistanceFieldEffectMask          = kSimilarity_DistanceFieldEffectFlag |
-                                            kRectToRect_DistanceFieldEffectFlag |
-                                            kUseLCD_DistanceFieldEffectFlag |
-                                            kBGR_DistanceFieldEffectFlag,
-};
-
 /**
  * The output color of this effect is a modulation of the input color and a sample from a
  * distance field texture (using a smoothed step function near 0.5).
@@ -43,14 +25,14 @@ public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     static GrEffect* Create(GrTexture* tex, const GrTextureParams& params,
                             GrTexture* gamma, const GrTextureParams& gammaParams, float lum,
-                            uint32_t flags) {
+                            bool similarity) {
        return SkNEW_ARGS(GrDistanceFieldTextureEffect, (tex, params, gamma, gammaParams, lum,
-                                                        flags));
+                                                        similarity));
     }
 #else
     static GrEffect* Create(GrTexture* tex, const GrTextureParams& params,
-                            uint32_t flags) {
-        return  SkNEW_ARGS(GrDistanceFieldTextureEffect, (tex, params, flags));
+                            bool similarity) {
+        return  SkNEW_ARGS(GrDistanceFieldTextureEffect, (tex, params, similarity));
     }
 #endif
 
@@ -62,7 +44,7 @@ public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     float getLuminance() const { return fLuminance; }
 #endif
-    uint32_t getFlags() const { return fFlags; }
+    bool isSimilarity() const { return fIsSimilarity; }
 
     typedef GrGLDistanceFieldTextureEffect GLEffect;
 
@@ -73,7 +55,7 @@ private:
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  GrTexture* gamma, const GrTextureParams& gammaParams, float lum,
 #endif
-                                 uint32_t flags);
+                                 bool uniformScale);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
@@ -82,7 +64,7 @@ private:
     GrTextureAccess fGammaTextureAccess;
     float           fLuminance;
 #endif
-    uint32_t        fFlags;
+    bool            fIsSimilarity;
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -99,9 +81,9 @@ class GrDistanceFieldLCDTextureEffect : public GrVertexEffect {
 public:
     static GrEffect* Create(GrTexture* tex, const GrTextureParams& params,
                             GrTexture* gamma, const GrTextureParams& gammaParams, 
-                            SkColor textColor, uint32_t flags) {
+                            SkColor textColor, bool uniformScale, bool useBGR) {
         return SkNEW_ARGS(GrDistanceFieldLCDTextureEffect,
-                          (tex, params, gamma, gammaParams, textColor, flags));
+                          (tex, params, gamma, gammaParams, textColor, uniformScale, useBGR));
     }
 
     virtual ~GrDistanceFieldLCDTextureEffect() {}
@@ -110,7 +92,8 @@ public:
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
     GrColor getTextColor() const { return fTextColor; }
-    uint32_t getFlags() const { return fFlags; }
+    bool isUniformScale() const { return fUniformScale; }
+    bool useBGR() const { return fUseBGR; }
 
     typedef GrGLDistanceFieldLCDTextureEffect GLEffect;
 
@@ -120,14 +103,15 @@ private:
     GrDistanceFieldLCDTextureEffect(GrTexture* texture, const GrTextureParams& params,
                                     GrTexture* gamma, const GrTextureParams& gammaParams,
                                     SkColor textColor,
-                                    uint32_t flags);
+                                    bool uniformScale, bool useBGR);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
     GrTextureAccess fTextureAccess;
     GrTextureAccess fGammaTextureAccess;
     GrColor         fTextColor;
-    uint32_t        fFlags;
+    bool            fUniformScale;
+    bool            fUseBGR;
 
     GR_DECLARE_EFFECT_TEST;
 

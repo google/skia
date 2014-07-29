@@ -79,7 +79,7 @@ public:
         builder->fsCodeAppendf("\tvec2 uv = %s;\n", fsCoordName.c_str());
         builder->fsCodeAppendf("\tvec2 st = uv*%s;\n", textureSizeUniName);
         builder->fsCodeAppend("\tfloat afwidth;\n");
-        if (dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag) {
+        if (dfTexEffect.isSimilarity()) {
             // this gives us a smooth step across approximately one fragment
             builder->fsCodeAppend("\tafwidth = " SK_DistanceFieldAAFactor "*dFdx(st.x);\n");
         } else {
@@ -153,7 +153,7 @@ public:
         const GrDistanceFieldTextureEffect& dfTexEffect =
                                               drawEffect.castEffect<GrDistanceFieldTextureEffect>();
 
-        b->add32(dfTexEffect.getFlags());
+        b->add32(dfTexEffect.isSimilarity());
     }
 
 private:
@@ -174,14 +174,13 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrTexture* texture,
                                                            const GrTextureParams& gammaParams,
                                                            float luminance,
 #endif
-                                                           uint32_t flags)
+                                                           bool similarity)
     : fTextureAccess(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fGammaTextureAccess(gamma, gammaParams)
     , fLuminance(luminance)
 #endif
-    , fFlags(flags & kNonLCD_DistanceFieldEffectMask) {
-    SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
+    , fIsSimilarity(similarity) {
     this->addTextureAccess(&fTextureAccess);
 #ifdef SK_GAMMA_APPLY_TO_A8
     this->addTextureAccess(&fGammaTextureAccess);
@@ -191,10 +190,7 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrTexture* texture,
 
 bool GrDistanceFieldTextureEffect::onIsEqual(const GrEffect& other) const {
     const GrDistanceFieldTextureEffect& cte = CastEffect<GrDistanceFieldTextureEffect>(other);
-    return fTextureAccess == cte.fTextureAccess &&
-           fGammaTextureAccess == cte.fGammaTextureAccess &&
-           fLuminance == cte.fLuminance &&
-           fFlags == cte.fFlags;
+    return fTextureAccess == cte.fTextureAccess;
 }
 
 void GrDistanceFieldTextureEffect::getConstantColorComponents(GrColor* color,
@@ -246,8 +242,7 @@ GrEffect* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
                                                 textures[texIdx2], params2,
                                                 random->nextF(),
 #endif
-                                                random->nextBool() ?
-                                                    kSimilarity_DistanceFieldEffectFlag : 0);
+                                                random->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -291,8 +286,7 @@ public:
         // create LCD offset adjusted by inverse of transform
         builder->fsCodeAppendf("\tvec2 uv = %s;\n", fsCoordName.c_str());
         builder->fsCodeAppendf("\tvec2 st = uv*%s.xy;\n", textureSizeUniName);
-        bool isUniformScale = !!(dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask);
-        if (isUniformScale) {
+        if (dfTexEffect.isUniformScale()) {
             builder->fsCodeAppend("\tfloat dx = dFdx(st.x);\n");
             builder->fsCodeAppendf("\tvec2 offset = vec2(dx*%s.z, 0.0);\n", textureSizeUniName);
         } else {
@@ -333,7 +327,7 @@ public:
         // transformations, and even then using a single factor seems like a reasonable
         // trade-off between quality and speed.
         builder->fsCodeAppend("\tfloat afwidth;\n");
-        if (isUniformScale) {
+        if (dfTexEffect.isUniformScale()) {
             // this gives us a smooth step across approximately one fragment
             builder->fsCodeAppend("\tafwidth = " SK_DistanceFieldAAFactor "*dx;\n");
         } else {
@@ -399,7 +393,7 @@ public:
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());
             float delta = 1.0f/(3.0f*texture->width());
-            if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {
+            if (dfTexEffect.useBGR()) {
                 delta = -delta;
             }
             uman.set3f(fTextureSizeUni,
@@ -424,7 +418,7 @@ public:
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                                            drawEffect.castEffect<GrDistanceFieldLCDTextureEffect>();
 
-        b->add32(dfTexEffect.getFlags());
+        b->add32(dfTexEffect.isUniformScale());
     }
 
 private:
@@ -442,13 +436,12 @@ GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
                                                   GrTexture* texture, const GrTextureParams& params,
                                                   GrTexture* gamma, const GrTextureParams& gParams,
                                                   SkColor textColor,
-                                                  uint32_t flags)
+                                                  bool uniformScale, bool useBGR)
     : fTextureAccess(texture, params)
     , fGammaTextureAccess(gamma, gParams)
     , fTextColor(textColor)
-    , fFlags(flags & kLCD_DistanceFieldEffectMask) {
-    SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
-        
+    , fUniformScale(uniformScale)
+    , fUseBGR(useBGR) {
     this->addTextureAccess(&fTextureAccess);
     this->addTextureAccess(&fGammaTextureAccess);
     this->addVertexAttrib(kVec2f_GrSLType);
@@ -457,10 +450,7 @@ GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
 bool GrDistanceFieldLCDTextureEffect::onIsEqual(const GrEffect& other) const {
     const GrDistanceFieldLCDTextureEffect& cte = 
                                             CastEffect<GrDistanceFieldLCDTextureEffect>(other);
-    return (fTextureAccess == cte.fTextureAccess &&
-            fGammaTextureAccess == cte.fGammaTextureAccess &&
-            fTextColor == cte.fTextColor &&
-            fFlags == cte.fFlags);
+    return (fTextureAccess == cte.fTextureAccess && fGammaTextureAccess == cte.fGammaTextureAccess);
 }
 
 void GrDistanceFieldLCDTextureEffect::getConstantColorComponents(GrColor* color,
@@ -506,11 +496,8 @@ GrEffect* GrDistanceFieldLCDTextureEffect::TestCreate(SkRandom* random,
                                         random->nextULessThan(256),
                                         random->nextULessThan(256),
                                         random->nextULessThan(256));
-    uint32_t flags = kUseLCD_DistanceFieldEffectFlag;
-    flags |= random->nextBool() ? kUniformScale_DistanceFieldEffectMask : 0;
-    flags |= random->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
     return GrDistanceFieldLCDTextureEffect::Create(textures[texIdx], params,
                                                    textures[texIdx2], params2,
                                                    textColor,
-                                                   flags);
+                                                   random->nextBool(), random->nextBool());
 }
