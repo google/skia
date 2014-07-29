@@ -319,24 +319,25 @@ bool SkMatrixConvolutionImageFilter::onFilterBounds(const SkIRect& src, const Sk
 
 #if SK_SUPPORT_GPU
 
-static GrMatrixConvolutionEffect::TileMode convert_tilemodes(
+static GrTextureDomain::Mode convert_tilemodes(
         SkMatrixConvolutionImageFilter::TileMode tileMode) {
-    GR_STATIC_ASSERT(static_cast<int>(SkMatrixConvolutionImageFilter::kClamp_TileMode) ==
-                     static_cast<int>(GrMatrixConvolutionEffect::kClamp_TileMode));
-    GR_STATIC_ASSERT(static_cast<int>(SkMatrixConvolutionImageFilter::kRepeat_TileMode) ==
-                     static_cast<int>(GrMatrixConvolutionEffect::kRepeat_TileMode));
-    GR_STATIC_ASSERT(static_cast<int>(SkMatrixConvolutionImageFilter::kClampToBlack_TileMode) ==
-                     static_cast<int>(GrMatrixConvolutionEffect::kClampToBlack_TileMode));
-    GR_STATIC_ASSERT(static_cast<int>(SkMatrixConvolutionImageFilter::kMax_TileMode) ==
-                     static_cast<int>(GrMatrixConvolutionEffect::kMax_TileMode));
-    return static_cast<GrMatrixConvolutionEffect::TileMode>(tileMode);
+    switch (tileMode) {
+        case SkMatrixConvolutionImageFilter::kClamp_TileMode:
+            return GrTextureDomain::kClamp_Mode;
+        case SkMatrixConvolutionImageFilter::kRepeat_TileMode:
+            return GrTextureDomain::kRepeat_Mode;
+        case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode:
+            return GrTextureDomain::kDecal_Mode;
+        default:
+            SkASSERT(false);
+    }
+    return GrTextureDomain::kIgnore_Mode;
 }
 
 bool SkMatrixConvolutionImageFilter::asNewEffect(GrEffect** effect,
                                                  GrTexture* texture,
                                                  const SkMatrix&,
-                                                 const SkIRect& bounds
-                                                 ) const {
+                                                 const SkIRect& bounds) const {
     if (!effect) {
         return fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE;
     }

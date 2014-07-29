@@ -9,6 +9,7 @@
 #define GrMatrixConvolutionEffect_DEFINED
 
 #include "GrSingleTextureEffect.h"
+#include "GrTextureDomain.h"
 
 // A little bit less than the minimum # uniforms required by DX9SM2 (32).
 // Allows for a 5x5 kernel (or 25x1, for that matter).
@@ -18,15 +19,6 @@ class GrGLMatrixConvolutionEffect;
 
 class GrMatrixConvolutionEffect : public GrSingleTextureEffect {
 public:
-    /*! \enum TileMode */
-    enum TileMode {
-        kClamp_TileMode = 0,         /*!< Clamp to the image's edge pixels. */
-        kRepeat_TileMode,        /*!< Wrap around to the image's opposite edge. */
-        kClampToBlack_TileMode,  /*!< Fill with transparent black. */
-        kMax_TileMode = kClampToBlack_TileMode
-    };
-
-    typedef GrMatrixConvolutionEffect::TileMode TileMode;
     static GrEffect* Create(GrTexture* texture,
                             const SkIRect& bounds,
                             const SkISize& kernelSize,
@@ -34,7 +26,7 @@ public:
                             SkScalar gain,
                             SkScalar bias,
                             const SkIPoint& kernelOffset,
-                            TileMode tileMode,
+                            GrTextureDomain::Mode tileMode,
                             bool convolveAlpha) {
         return SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,
                                                       bounds,
@@ -61,8 +53,8 @@ public:
     const float* kernel() const { return fKernel; }
     float gain() const { return fGain; }
     float bias() const { return fBias; }
-    TileMode tileMode() const { return fTileMode; }
     bool convolveAlpha() const { return fConvolveAlpha; }
+    const GrTextureDomain& domain() const { return fDomain; }
 
     typedef GrGLMatrixConvolutionEffect GLEffect;
 
@@ -76,19 +68,19 @@ private:
                               SkScalar gain,
                               SkScalar bias,
                               const SkIPoint& kernelOffset,
-                              TileMode tileMode,
+                              GrTextureDomain::Mode tileMode,
                               bool convolveAlpha);
 
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
-    SkIRect  fBounds;
-    SkISize  fKernelSize;
-    float   *fKernel;
-    float    fGain;
-    float    fBias;
-    float    fKernelOffset[2];
-    TileMode fTileMode;
-    bool     fConvolveAlpha;
+    SkIRect         fBounds;
+    SkISize         fKernelSize;
+    float*          fKernel;
+    float           fGain;
+    float           fBias;
+    float           fKernelOffset[2];
+    bool            fConvolveAlpha;
+    GrTextureDomain fDomain;
 
     GR_DECLARE_EFFECT_TEST;
 

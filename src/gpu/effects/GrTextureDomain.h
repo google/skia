@@ -23,11 +23,18 @@ struct SkRect;
 class GrTextureDomain {
 public:
     enum Mode {
-        kIgnore_Mode,  // Ignore the texture domain rectangle.
-        kClamp_Mode,   // Clamp texture coords to the domain rectangle.
-        kDecal_Mode,   // Treat the area outside the domain rectangle as fully transparent.
+        // Ignore the texture domain rectangle.
+        kIgnore_Mode,
+        // Clamp texture coords to the domain rectangle.
+        kClamp_Mode,
+        // Treat the area outside the domain rectangle as fully transparent.
+        kDecal_Mode,
+        // Wrap texture coordinates.  NOTE: filtering may not work as expected because Bilerp will
+        // read texels outside of the domain.  We could perform additional texture reads and filter
+        // in the shader, but are not currently doing this for performance reasons
+        kRepeat_Mode,
 
-        kLastMode = kDecal_Mode
+        kLastMode = kRepeat_Mode
     };
     static const int kModeCount = kLastMode + 1;
 

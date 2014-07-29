@@ -35,7 +35,10 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(400, 800);
+        const SkScalar canvasWidth = kDrawPad +
+                (kTargetWidth + 2 * kDrawPad) * GrTextureDomain::kModeCount +
+                kTestPad * GrTextureDomain::kModeCount;
+        return SkISize::Make(SkScalarCeilToInt(canvasWidth), 800);
     }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
@@ -44,7 +47,7 @@ protected:
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
-        fBmp.allocN32Pixels(100, 100);
+        fBmp.allocN32Pixels(kTargetWidth, kTargetHeight);
         SkCanvas canvas(fBmp);
         canvas.clear(0x00000000);
         SkPaint paint;
@@ -93,9 +96,6 @@ protected:
         if (NULL == texture) {
             return;
         }
-
-        static const SkScalar kDrawPad = 10.f;
-        static const SkScalar kTestPad = 10.f;
 
         SkTArray<SkMatrix> textureMatrices;
         textureMatrices.push_back().setIDiv(texture->width(), texture->height());
@@ -148,10 +148,18 @@ protected:
     }
 
 private:
+    static const SkScalar kDrawPad;
+    static const SkScalar kTestPad;
+    static const int      kTargetWidth = 100;
+    static const int      kTargetHeight = 100;
     SkBitmap fBmp;
 
     typedef GM INHERITED;
 };
+
+// Windows builds did not like SkScalar initialization in class :(
+const SkScalar TextureDomainEffect::kDrawPad = 10.f;
+const SkScalar TextureDomainEffect::kTestPad = 10.f;
 
 DEF_GM( return SkNEW(TextureDomainEffect); )
 }

@@ -29,17 +29,16 @@ public:
 
 private:
     typedef GrGLUniformManager::UniformHandle        UniformHandle;
-    typedef GrMatrixConvolutionEffect::TileMode TileMode;
-    SkISize             fKernelSize;
-    TileMode            fTileMode;
-    bool                fConvolveAlpha;
+    SkISize                     fKernelSize;
+    bool                        fConvolveAlpha;
 
-    UniformHandle       fBoundsUni;
-    UniformHandle       fKernelUni;
-    UniformHandle       fImageIncrementUni;
-    UniformHandle       fKernelOffsetUni;
-    UniformHandle       fGainUni;
-    UniformHandle       fBiasUni;
+    UniformHandle               fBoundsUni;
+    UniformHandle               fKernelUni;
+    UniformHandle               fImageIncrementUni;
+    UniformHandle               fKernelOffsetUni;
+    UniformHandle               fGainUni;
+    UniformHandle               fBiasUni;
+    GrTextureDomain::GLDomain   fDomain;
 
     typedef GrGLEffect INHERITED;
 };
@@ -49,57 +48,34 @@ GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendEffectFa
     : INHERITED(factory) {
     const GrMatrixConvolutionEffect& m = drawEffect.castEffect<GrMatrixConvolutionEffect>();
     fKernelSize = m.kernelSize();
-    fTileMode = m.tileMode();
     fConvolveAlpha = m.convolveAlpha();
 }
 
-static void appendTextureLookup(GrGLShaderBuilder* builder,
-                                const GrGLShaderBuilder::TextureSampler& sampler,
-                                const char* coord,
-                                const char* bounds,
-                                GrMatrixConvolutionEffect::TileMode tileMode) {
-    SkString clampedCoord;
-    switch (tileMode) {
-        case GrMatrixConvolutionEffect::kClamp_TileMode:
-            clampedCoord.printf("clamp(%s, %s.xy, %s.zw)", coord, bounds, bounds);
-            coord = clampedCoord.c_str();
-            break;
-        case GrMatrixConvolutionEffect::kRepeat_TileMode:
-            clampedCoord.printf("mod(%s - %s.xy, %s.zw - %s.xy) + %s.xy", coord, bounds, bounds, bounds, bounds);
-            coord = clampedCoord.c_str();
-            break;
-        case GrMatrixConvolutionEffect::kClampToBlack_TileMode:
-            builder->fsCodeAppendf("clamp(%s, %s.xy, %s.zw) != %s ? vec4(0, 0, 0, 0) : ", coord, bounds, bounds, coord);
-            break;
-    }
-    builder->fsAppendTextureLookup(sampler, coord);
-}
-
 void GrGLMatrixConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
-                                           const GrDrawEffect&,
+                                           const GrDrawEffect& drawEffect,
                                            const GrEffectKey& key,
                                            const char* outputColor,
                                            const char* inputColor,
                                            const TransformedCoordsArray& coords,
                                            const TextureSamplerArray& samplers) {
     sk_ignore_unused_variable(inputColor);
+    const GrTextureDomain& domain = drawEffect.castEffect<GrMatrixConvolutionEffect>().domain();
     SkString coords2D = builder->ensureFSCoords2D(coords, 0);
     fBoundsUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                      kVec4f_GrSLType, "Bounds");
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, "ImageIncrement");
     fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_Visibility,
-                                             kFloat_GrSLType,
-                                             "Kernel",
-                                             fKernelSize.width() * fKernelSize.height());
+                                          kFloat_GrSLType,
+                                          "Kernel",
+                                          fKernelSize.width() * fKernelSize.height());
     fKernelOffsetUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
-                                             kVec2f_GrSLType, "KernelOffset");
+                                           kVec2f_GrSLType, "KernelOffset");
     fGainUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                    kFloat_GrSLType, "Gain");
     fBiasUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                    kFloat_GrSLType, "Bias");
 
-    const char* bounds = builder->getUniformCStr(fBoundsUni);
     const char* kernelOffset = builder->getUniformCStr(fKernelOffsetUni);
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
     const char* kernel = builder->getUniformCStr(fKernelUni);
@@ -109,53 +85,43 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
     int kHeight = fKernelSize.height();
 
     builder->fsCodeAppend("\t\tvec4 sum = vec4(0, 0, 0, 0);\n");
-    builder->fsCodeAppendf("\t\tvec2 coord = %s - %s * %s;\n", coords2D.c_str(), kernelOffset, imgInc);
-    builder->fsCodeAppendf("\t\tfor (int y = 0; y < %d; y++) {\n", kHeight);
-    builder->fsCodeAppendf("\t\t\tfor (int x = 0; x < %d; x++) {\n", kWidth);
-    builder->fsCodeAppendf("\t\t\t\tfloat k = %s[y * %d + x];\n", kernel, kWidth);
-    builder->fsCodeAppendf("\t\t\t\tvec2 coord2 = coord + vec2(x, y) * %s;\n", imgInc);
-    builder->fsCodeAppend("\t\t\t\tvec4 c = ");
-    appendTextureLookup(builder, samplers[0], "coord2", bounds, fTileMode);
-    builder->fsCodeAppend(";\n");
-    if (!fConvolveAlpha) {
-        builder->fsCodeAppend("\t\t\t\tc.rgb /= c.a;\n");
+    builder->fsCodeAppendf("\t\tvec2 coord = %s - %s * %s;\n", coords2D.c_str(), kernelOffset,
+                           imgInc);
+    builder->fsCodeAppend("\t\tvec4 c;\n");
+
+    for (int y = 0; y < kHeight; y++) {
+        for (int x = 0; x < kWidth; x++) {
+            GrGLShaderBuilder::FSBlock block(builder);
+            builder->fsCodeAppendf("\t\tfloat k = %s[%d * %d + %d];\n", kernel, y, kWidth, x);
+            SkString coord;
+            coord.printf("coord + vec2(%d, %d) * %s", x, y, imgInc);
+            fDomain.sampleTexture(builder, domain, "c", coord, samplers[0]);
+            if (!fConvolveAlpha) {
+                builder->fsCodeAppend("\t\tc.rgb /= c.a;\n");
+            }
+            builder->fsCodeAppend("\t\tsum += c * k;\n");
+        }
     }
-    builder->fsCodeAppend("\t\t\t\tsum += c * k;\n");
-    builder->fsCodeAppend("\t\t\t}\n");
-    builder->fsCodeAppend("\t\t}\n");
     if (fConvolveAlpha) {
         builder->fsCodeAppendf("\t\t%s = sum * %s + %s;\n", outputColor, gain, bias);
         builder->fsCodeAppendf("\t\t%s.rgb = clamp(%s.rgb, 0.0, %s.a);\n",
-            outputColor, outputColor, outputColor);
+                               outputColor, outputColor, outputColor);
     } else {
-        builder->fsCodeAppend("\t\tvec4 c = ");
-        appendTextureLookup(builder, samplers[0], coords2D.c_str(), bounds, fTileMode);
-        builder->fsCodeAppend(";\n");
+        fDomain.sampleTexture(builder, domain, "c", coords2D, samplers[0]);
         builder->fsCodeAppendf("\t\t%s.a = c.a;\n", outputColor);
         builder->fsCodeAppendf("\t\t%s.rgb = sum.rgb * %s + %s;\n", outputColor, gain, bias);
         builder->fsCodeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
     }
 }
 
-namespace {
-
-int encodeXY(int x, int y) {
-    SkASSERT(x >= 1 && y >= 1 && x * y <= 32);
-    if (y < x)
-        return 0x40 | encodeXY(y, x);
-    else
-        return (0x40 >> x) | (y - x);
-}
-
-};
-
 void GrGLMatrixConvolutionEffect::GenKey(const GrDrawEffect& drawEffect,
                                          const GrGLCaps&, GrEffectKeyBuilder* b) {
     const GrMatrixConvolutionEffect& m = drawEffect.castEffect<GrMatrixConvolutionEffect>();
-    uint32_t key = encodeXY(m.kernelSize().width(), m.kernelSize().height());
-    key |= m.tileMode() << 7;
-    key |= m.convolveAlpha() ? 1 << 9 : 0;
+    SkASSERT(m.kernelSize().width() <= 0x7FFF && m.kernelSize().height() <= 0xFFFF);
+    uint32_t key = m.kernelSize().width() << 16 | m.kernelSize().height();
+    key |= m.convolveAlpha() ? 1 << 31 : 0;
     b->add32(key);
+    b->add32(GrTextureDomain::GLDomain::DomainKey(m.domain()));
 }
 
 void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
@@ -164,7 +130,6 @@ void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
     GrTexture& texture = *conv.texture(0);
     // the code we generated was for a specific kernel size
     SkASSERT(conv.kernelSize() == fKernelSize);
-    SkASSERT(conv.tileMode() == fTileMode);
     float imageIncrement[2];
     float ySign = texture.origin() == kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
     imageIncrement[0] = 1.0f / texture.width();
@@ -174,16 +139,7 @@ void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
     uman.set1fv(fKernelUni, fKernelSize.width() * fKernelSize.height(), conv.kernel());
     uman.set1f(fGainUni, conv.gain());
     uman.set1f(fBiasUni, conv.bias());
-    const SkIRect& bounds = conv.bounds();
-    float left = (float) bounds.left() / texture.width();
-    float top = (float) bounds.top() / texture.height();
-    float right = (float) bounds.right() / texture.width();
-    float bottom = (float) bounds.bottom() / texture.height();
-    if (texture.origin() == kBottomLeft_GrSurfaceOrigin) {
-        uman.set4f(fBoundsUni, left, 1.0f - bottom, right, 1.0f - top);
-    } else {
-        uman.set4f(fBoundsUni, left, top, right, bottom);
-    }
+    fDomain.setData(uman, conv.domain(), texture.origin());
 }
 
 GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
@@ -193,15 +149,14 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
                                                      SkScalar gain,
                                                      SkScalar bias,
                                                      const SkIPoint& kernelOffset,
-                                                     TileMode tileMode,
+                                                     GrTextureDomain::Mode tileMode,
                                                      bool convolveAlpha)
   : INHERITED(texture, MakeDivByTextureWHMatrix(texture)),
-    fBounds(bounds),
     fKernelSize(kernelSize),
     fGain(SkScalarToFloat(gain)),
     fBias(SkScalarToFloat(bias) / 255.0f),
-    fTileMode(tileMode),
-    fConvolveAlpha(convolveAlpha) {
+    fConvolveAlpha(convolveAlpha),
+    fDomain(GrTextureDomain::MakeTexelDomain(texture, bounds), tileMode) {
     fKernel = new float[kernelSize.width() * kernelSize.height()];
     for (int i = 0; i < kernelSize.width() * kernelSize.height(); i++) {
         fKernel[i] = SkScalarToFloat(kernel[i]);
@@ -228,8 +183,8 @@ bool GrMatrixConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
            fGain == s.gain() &&
            fBias == s.bias() &&
            fKernelOffset == s.kernelOffset() &&
-           fTileMode == s.tileMode() &&
-           fConvolveAlpha == s.convolveAlpha();
+           fConvolveAlpha == s.convolveAlpha() &&
+           fDomain == s.domain();
 }
 
 GR_DEFINE_EFFECT_TEST(GrMatrixConvolutionEffect);
@@ -255,7 +210,7 @@ GrEffect* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
                                        random->nextRangeU(0, textures[texIdx]->height()),
                                        random->nextRangeU(0, textures[texIdx]->width()),
                                        random->nextRangeU(0, textures[texIdx]->height()));
-    TileMode tileMode = static_cast<TileMode>(random->nextRangeU(0, 2));
+    GrTextureDomain::Mode tileMode = static_cast<GrTextureDomain::Mode>(random->nextRangeU(0, 2));
     bool convolveAlpha = random->nextBool();
     return GrMatrixConvolutionEffect::Create(textures[texIdx],
                                              bounds,

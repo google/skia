@@ -49,3 +49,6 @@ bigblurs
 #bungeman: there's now a fontmgr on android
 fontmgr_match
 fontmgr_iter
+
+# joshualitt added on Jul 29th, 2014
+texture_domain_effect
