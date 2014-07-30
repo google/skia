@@ -611,10 +611,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5267344739982858700
+          5114692605203855359
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        2762
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurcircles_565.png": {
       "allowed-digests": [

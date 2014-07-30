@@ -33,11 +33,6 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
-# humper:
-# Needs rebaselining after faster GPU blur patch lands
-bleed
-blurrects
-
 #bungeman: there's now a fontmgr on android
 fontmgr_match
 fontmgr_iter

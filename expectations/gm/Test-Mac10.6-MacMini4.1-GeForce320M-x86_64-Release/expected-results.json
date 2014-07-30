@@ -1017,10 +1017,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4934543716979966986
+          1545238008550730369
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        2762
+      ], 
+      "reviewed-by-human": false
     }, 
     "bleed_pdf-mac.png": {
       "allowed-digests": [
