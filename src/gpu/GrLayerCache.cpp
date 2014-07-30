@@ -198,8 +198,10 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc) {
     // The texture wouldn't fit in the cache - give it it's own texture.
     // This path always uses a new scratch texture and (thus) doesn't cache anything.
     // This can yield a lot of re-rendering
-    layer->setTexture(fContext->lockAndRefScratchTexture(desc, GrContext::kApprox_ScratchTexMatch),
-                      GrIRect16::MakeWH(SkToS16(desc.fWidth), SkToS16(desc.fHeight)));
+    SkAutoTUnref<GrTexture> tex(fContext->lockAndRefScratchTexture(desc,
+                                                        GrContext::kApprox_ScratchTexMatch));
+
+    layer->setTexture(tex, GrIRect16::MakeWH(SkToS16(desc.fWidth), SkToS16(desc.fHeight)));
     layer->setLocked(true);
     return false;
 }

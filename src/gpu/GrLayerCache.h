@@ -82,16 +82,15 @@ public:
         SkASSERT(SK_InvalidGenID != pictureID && layerID >= 0);
     }
 
+    ~GrCachedLayer() {
+        SkSafeUnref(fTexture);
+    }
+
     uint32_t pictureID() const { return fKey.getPictureID(); }
     int layerID() const { return fKey.getLayerID(); }
 
-    // This call takes over the caller's ref
     void setTexture(GrTexture* texture, const GrIRect16& rect) {
-        if (NULL != fTexture) {
-            fTexture->unref();
-        }
-
-        fTexture = texture; // just take over caller's ref
+        SkRefCnt_SafeAssign(fTexture, texture);
         fRect = rect;
     }
     GrTexture* texture() { return fTexture; }
