@@ -558,11 +558,10 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     fConfigTextureSupport[kLATC_GrPixelConfig] = hasLATC;
     fLATCAlias = alias;
 
-    // Check for R11_EAC
-    if (kGL_GrGLStandard == standard) {
-        fConfigTextureSupport[kR11_EAC_GrPixelConfig] =
-            version >= GR_GL_VER(4, 3) || ctxInfo.hasExtension("GL_ARB_ES3_compatibility");
-    } else {
+    // Check for R11_EAC ... We don't support R11_EAC on desktop, as most
+    // cards default to decompressing the textures in the driver, and is
+    // generally slower.
+    if (kGL_GrGLStandard != standard) {
         fConfigTextureSupport[kR11_EAC_GrPixelConfig] = version >= GR_GL_VER(3, 0);
     }
 
