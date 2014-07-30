@@ -50,41 +50,6 @@ void GrGLCheckErr(const GrGLInterface* gl,
     }
 }
 
-namespace {
-// Mesa uses a non-standard version string of format: 1.4 Mesa <mesa_major>.<mesa_minor>.
-// The mapping of from mesa version to GL version came from here: http://www.mesa3d.org/intro.html
-bool get_gl_version_for_mesa(int mesaMajorVersion, int* major, int* minor) {
-    switch (mesaMajorVersion) {
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-            *major = 1;
-            *minor = mesaMajorVersion - 1;
-            return true;
-        case 7:
-            *major = 2;
-            *minor = 1;
-            return true;
-        case 8:
-            *major = 3;
-            *minor = 0;
-            return true;
-        case 9:
-            *major = 3;
-            *minor = 1;
-            return true;
-        case 10:
-            *major = 3;
-            *minor = 3;
-            return true;
-        default:
-            return false;
-    }
-}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #if GR_GL_LOG_CALLS
@@ -149,11 +114,7 @@ GrGLVersion GrGLGetVersionFromString(const char* versionString) {
     int mesaMajor, mesaMinor;
     int n = sscanf(versionString, "%d.%d Mesa %d.%d", &major, &minor, &mesaMajor, &mesaMinor);
     if (4 == n) {
-        if (get_gl_version_for_mesa(mesaMajor, &major, &minor)) {
-            return GR_GL_VER(major, minor);
-        } else {
-            return GR_GL_INVALID_VER;
-        }
+        return GR_GL_VER(major, minor);
     }
 
     n = sscanf(versionString, "%d.%d", &major, &minor);
