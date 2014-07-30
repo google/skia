@@ -40,6 +40,7 @@ public:
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
+    bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
 
     /**
      * Indicates whether GPU->CPU memory mapping for GPU resources such as vertex buffers and
@@ -90,6 +91,7 @@ protected:
     bool fDiscardRenderTargetSupport: 1;
     bool fReuseScratchTextures      : 1;
     bool fGpuTracingSupport         : 1;
+    bool fCompressedTexSubImageSupport : 1;
 
     uint32_t fMapBufferFlags;
 

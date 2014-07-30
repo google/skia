@@ -502,6 +502,9 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     // however, it is only available on standard OpenGL after version 1.3
     bool hasCompressTex2D = (kGL_GrGLStandard != standard || version >= GR_GL_VER(1, 3));
 
+    fCompressedTexSubImageSupport =
+        hasCompressTex2D && (NULL != gli->fFunctions.fCompressedTexSubImage2D);
+
     // Check for ETC1
     bool hasETC1 = false;
 

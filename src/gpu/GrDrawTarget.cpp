@@ -1022,6 +1022,7 @@ void GrDrawTargetCaps::reset() {
     fDiscardRenderTargetSupport = false;
     fReuseScratchTextures = true;
     fGpuTracingSupport = false;
+    fCompressedTexSubImageSupport = false;
 
     fMapBufferFlags = kNone_MapFlags;
 
@@ -1047,6 +1048,7 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fDiscardRenderTargetSupport = other.fDiscardRenderTargetSupport;
     fReuseScratchTextures = other.fReuseScratchTextures;
     fGpuTracingSupport = other.fGpuTracingSupport;
+    fCompressedTexSubImageSupport = other.fCompressedTexSubImageSupport;
 
     fMapBufferFlags = other.fMapBufferFlags;
 
@@ -1096,6 +1098,7 @@ SkString GrDrawTargetCaps::dump() const {
     r.appendf("Discard Render Target Support: %s\n", gNY[fDiscardRenderTargetSupport]);
     r.appendf("Reuse Scratch Textures       : %s\n", gNY[fReuseScratchTextures]);
     r.appendf("Gpu Tracing Support          : %s\n", gNY[fGpuTracingSupport]);
+    r.appendf("Compressed Update Support    : %s\n", gNY[fCompressedTexSubImageSupport]);
     r.appendf("Max Texture Size             : %d\n", fMaxTextureSize);
     r.appendf("Max Render Target Size       : %d\n", fMaxRenderTargetSize);
     r.appendf("Max Sample Count             : %d\n", fMaxSampleCount);
