@@ -56,6 +56,7 @@ private:
 
     void*                   fVertices;
     int                     fCurrVertex;
+    SkRect                  fVertexBounds;
 };
 
 #endif

@@ -69,8 +69,10 @@ GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
     fEffectTextureUniqueID = SK_InvalidUniqueID;
     fEffectColor = GrColor_ILLEGAL;
     fEffectFlags = 0;
-                                                        
+
     fVertices = NULL;
+
+    fVertexBounds.setLargestInverted();
 }
 
 GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
@@ -225,9 +227,11 @@ void GrDistanceFieldTextContext::flushGlyphs() {
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
         fDrawTarget->drawIndexedInstances(kTriangles_GrPrimitiveType,
                                           nGlyphs,
-                                          4, 6);
+                                          4, 6, &fVertexBounds);
         fCurrVertex = 0;
+        fVertexBounds.setLargestInverted();
     }
+
     fDrawTarget->resetVertexSource();
     fVertices = NULL;
 }
@@ -329,21 +333,29 @@ HAS_ATLAS:
     sy += dy;
     width *= scale;
     height *= scale;
-
+    
     SkFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX + SK_DistanceFieldInset);
     SkFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY + SK_DistanceFieldInset);
     SkFixed tw = SkIntToFixed(glyph->fBounds.width() - 2*SK_DistanceFieldInset);
     SkFixed th = SkIntToFixed(glyph->fBounds.height() - 2*SK_DistanceFieldInset);
 
+    SkRect r;
+    r.fLeft = SkFixedToFloat(sx);
+    r.fTop = SkFixedToFloat(sy);
+    r.fRight = SkFixedToFloat(sx + width);
+    r.fBottom = SkFixedToFloat(sy + height);
+
+    fVertexBounds.growToInclude(r);
+
     size_t vertSize = fUseLCDText ? (2 * sizeof(SkPoint))
                                   : (2 * sizeof(SkPoint) + sizeof(GrColor));
-    
+
     SkASSERT(vertSize == fDrawTarget->getDrawState().getVertexSize());
-    
+
     SkPoint* positions = reinterpret_cast<SkPoint*>(
         reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex);
-    positions->setRectFan(sx, sy, sx + width, sy + height, vertSize);
-    
+    positions->setRectFan(r.fLeft, r.fTop, r.fRight, r.fBottom, vertSize);
+
     // The texture coords are last in both the with and without color vertex layouts.
     SkPoint* textureCoords = reinterpret_cast<SkPoint*>(
             reinterpret_cast<intptr_t>(positions) + vertSize  - sizeof(SkPoint));
@@ -360,7 +372,7 @@ HAS_ATLAS:
             colors = reinterpret_cast<GrColor*>(reinterpret_cast<intptr_t>(colors) + vertSize);
         }
     }
-    
+
     fCurrVertex += 4;
 }
 
