@@ -319,7 +319,6 @@ static bool match(SkWriter32* writer, uint32_t offset,
         return false;
     }
 
-    curOffset += curSize;
     if (curOffset < writer->bytesWritten()) {
         // Something else between the last command and the end of the stream
         return false;

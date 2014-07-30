@@ -1610,3 +1610,51 @@ DEF_TEST(Canvas_EmptyBitmap, r) {
 
     test_draw_bitmaps(&canvas);
 }
+
+DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
+    // This test is from crbug.com/344987.
+    // The commands are:
+    //   saveLayer with paint that modifies alpha
+    //     drawBitmapRectToRect
+    //     drawBitmapRectToRect
+    //   restore
+    // The bug was that this structure was modified so that:
+    //  - The saveLayer and restore were eliminated
+    //  - The alpha was only applied to the first drawBitmapRectToRect
+
+    // This test draws blue and red squares inside a 50% transparent
+    // layer.  Both colours should show up muted.
+    // When the bug is present, the red square (the second bitmap)
+    // shows upwith full opacity.
+
+    SkBitmap blueBM;
+    make_bm(&blueBM, 100, 100, SkColorSetARGB(255, 0, 0, 255), true);
+    SkBitmap redBM;
+    make_bm(&redBM, 100, 100, SkColorSetARGB(255, 255, 0, 0), true);
+    SkPaint semiTransparent;
+    semiTransparent.setAlpha(0x80);
+
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(100, 100);
+    canvas->drawARGB(0, 0, 0, 0);
+
+    canvas->saveLayer(0, &semiTransparent);
+    canvas->drawBitmap(blueBM, 25, 25);
+    canvas->drawBitmap(redBM, 50, 50);
+    canvas->restore();
+
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+
+    // Now replay the picture back on another canvas
+    // and check a couple of its pixels.
+    SkBitmap replayBM;
+    make_bm(&replayBM, 100, 100, SK_ColorBLACK, false);
+    SkCanvas replayCanvas(replayBM);
+    picture->draw(&replayCanvas);
+    replayCanvas.flush();
+
+    // With the bug present, at (55, 55) we would get a fully opaque red
+    // intead of a dark red.
+    REPORTER_ASSERT(reporter, replayBM.getColor(30, 30) == 0xff000080);
+    REPORTER_ASSERT(reporter, replayBM.getColor(55, 55) == 0xff800000);
+}
