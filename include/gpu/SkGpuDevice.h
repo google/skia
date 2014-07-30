@@ -169,6 +169,8 @@ private:
 
     virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
 
+    virtual SkImageFilter::UniqueIDCache* getImageFilterCache() SK_OVERRIDE;
+
     // sets the render target, clip, and matrix on GrContext. Use forceIdenity to override
     // SkDraw's matrix and draw in device coords.
     void prepareDraw(const SkDraw&, bool forceIdentity);

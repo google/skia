@@ -61,18 +61,30 @@ public:
         virtual void remove(const SkImageFilter* key) = 0;
     };
 
+    // This cache maps from (filter's unique ID + CTM + clipBounds + src bitmap generation ID) to
+    // (result, offset).
+    class UniqueIDCache : public SkRefCnt {
+    public:
+        struct Key;
+        virtual ~UniqueIDCache() {}
+        static UniqueIDCache* Create(size_t maxBytes);
+        static UniqueIDCache* Get();
+        virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const = 0;
+        virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) = 0;
+    };
+
     class Context {
     public:
-        Context(const SkMatrix& ctm, const SkIRect& clipBounds, Cache* cache) :
+        Context(const SkMatrix& ctm, const SkIRect& clipBounds, UniqueIDCache* cache) :
             fCTM(ctm), fClipBounds(clipBounds), fCache(cache) {
         }
         const SkMatrix& ctm() const { return fCTM; }
         const SkIRect& clipBounds() const { return fClipBounds; }
-        Cache* cache() const { return fCache; }
+        UniqueIDCache* cache() const { return fCache; }
     private:
         SkMatrix fCTM;
         SkIRect  fClipBounds;
-        Cache*   fCache;
+        UniqueIDCache* fCache;
     };
 
     class Proxy {
@@ -210,6 +222,7 @@ protected:
         CropRect        cropRect() const { return fCropRect; }
         int             inputCount() const { return fInputs.count(); }
         SkImageFilter** inputs() const { return fInputs.get(); }
+        uint32_t        uniqueID() const { return fUniqueID; }
 
         // If the caller wants a copy of the inputs, call this and it will transfer ownership
         // of the unflattened input filters to the caller. This is just a short-cut for copying
@@ -221,6 +234,7 @@ protected:
         CropRect fCropRect;
         // most filters accept at most 2 input-filters
         SkAutoSTArray<2, SkImageFilter*> fInputs;
+        uint32_t fUniqueID;
 
         void allocInputs(int count);
     };
@@ -308,10 +322,14 @@ protected:
                              const SkIRect& bounds) const;
 
 private:
+    bool usesSrcInput() const { return fUsesSrcInput; }
+
     typedef SkFlattenable INHERITED;
     int fInputCount;
     SkImageFilter** fInputs;
+    bool fUsesSrcInput;
     CropRect fCropRect;
+    uint32_t fUniqueID; // Globally unique
 };
 
 #endif

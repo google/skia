@@ -10,16 +10,51 @@
 #include "SkBitmap.h"
 #include "SkChecksum.h"
 #include "SkDevice.h"
+#include "SkLazyPtr.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkRect.h"
 #include "SkTDynamicHash.h"
+#include "SkTInternalLList.h"
 #include "SkValidationUtils.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "SkGrPixelRef.h"
 #include "SkGr.h"
 #endif
+
+enum { kDefaultCacheSize = 128 * 1024 * 1024 };
+
+static int32_t next_image_filter_unique_id() {
+    static int32_t gImageFilterUniqueID;
+
+    // Never return 0.
+    int32_t id;
+    do {
+        id = sk_atomic_inc(&gImageFilterUniqueID) + 1;
+    } while (0 == id);
+    return id;
+}
+
+struct SkImageFilter::UniqueIDCache::Key {
+    Key(const uint32_t uniqueID, const SkMatrix& matrix, const SkIRect& clipBounds, uint32_t srcGenID)
+      : fUniqueID(uniqueID), fMatrix(matrix), fClipBounds(clipBounds), fSrcGenID(srcGenID) {
+        // Assert that Key is tightly-packed, since it is hashed.
+        SK_COMPILE_ASSERT(sizeof(Key) == sizeof(uint32_t) + sizeof(SkMatrix) + sizeof(SkIRect) +
+                                         sizeof(uint32_t), image_filter_key_tight_packing);
+        fMatrix.getType();  // force initialization of type, so hashes match
+    }
+    uint32_t fUniqueID;
+    SkMatrix fMatrix;
+    SkIRect fClipBounds;
+    uint32_t fSrcGenID;
+    bool operator==(const Key& other) const {
+        return fUniqueID == other.fUniqueID
+            && fMatrix == other.fMatrix
+            && fClipBounds == other.fClipBounds
+            && fSrcGenID == other.fSrcGenID;
+    }
+};
 
 SkImageFilter::Common::~Common() {
     for (int i = 0; i < fInputs.count(); ++i) {
@@ -65,6 +100,11 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
     
     uint32_t flags = buffer.readUInt();
     fCropRect = CropRect(rect, flags);
+    if (buffer.isVersionLT(SkReadBuffer::kImageFilterUniqueID_Version)) {
+        fUniqueID = next_image_filter_unique_id();
+    } else {
+        fUniqueID = buffer.readUInt();
+    }
     return buffer.isValid();
 }
 
@@ -75,8 +115,13 @@ SkImageFilter::Cache* gExternalCache;
 SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect)
   : fInputCount(inputCount),
     fInputs(new SkImageFilter*[inputCount]),
-    fCropRect(cropRect ? *cropRect : CropRect(SkRect(), 0x0)) {
+    fUsesSrcInput(false),
+    fCropRect(cropRect ? *cropRect : CropRect(SkRect(), 0x0)),
+    fUniqueID(next_image_filter_unique_id()) {
     for (int i = 0; i < inputCount; ++i) {
+        if (NULL == inputs[i] || inputs[i]->usesSrcInput()) {
+            fUsesSrcInput = true;
+        }
         fInputs[i] = inputs[i];
         SkSafeRef(fInputs[i]);
     }
@@ -89,13 +134,20 @@ SkImageFilter::~SkImageFilter() {
     delete[] fInputs;
 }
 
-SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer) {
+SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer)
+  : fUsesSrcInput(false) {
     Common common;
     if (common.unflatten(buffer, inputCount)) {
         fCropRect = common.cropRect();
         fInputCount = common.inputCount();
         fInputs = SkNEW_ARRAY(SkImageFilter*, fInputCount);
         common.detachInputs(fInputs);
+        for (int i = 0; i < fInputCount; ++i) {
+            if (NULL == fInputs[i] || fInputs[i]->usesSrcInput()) {
+                fUsesSrcInput = true;
+            }
+        }
+        fUniqueID = buffer.isCrossProcess() ? next_image_filter_unique_id() : common.uniqueID();
     } else {
         fInputCount = 0;
         fInputs = NULL;
@@ -113,17 +165,25 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
     }
     buffer.writeRect(fCropRect.rect());
     buffer.writeUInt(fCropRect.flags());
+    buffer.writeUInt(fUniqueID);
 }
 
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
                                 const Context& context,
                                 SkBitmap* result, SkIPoint* offset) const {
-    Cache* cache = context.cache();
     SkASSERT(result);
     SkASSERT(offset);
-    SkASSERT(cache);
-    if (cache->get(this, result, offset)) {
-        return true;
+    uint32_t srcGenID = fUsesSrcInput ? src.getGenerationID() : 0;
+    Cache* externalCache = GetExternalCache();
+    UniqueIDCache::Key key(fUniqueID, context.ctm(), context.clipBounds(), srcGenID);
+    if (NULL != externalCache) {
+        if (externalCache->get(this, result, offset)) {
+            return true;
+        }
+    } else if (context.cache()) {
+        if (context.cache()->get(key, result, offset)) {
+            return true;
+        }
     }
     /*
      *  Give the proxy first shot at the filter. If it returns false, ask
@@ -131,7 +191,11 @@ bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
      */
     if ((proxy && proxy->filterImage(this, src, context, result, offset)) ||
         this->onFilterImage(proxy, src, context, result, offset)) {
-        cache->set(this, *result, *offset);
+        if (externalCache) {
+            externalCache->set(this, *result, *offset);
+        } else if (context.cache()) {
+            context.cache()->set(key, *result, *offset);
+        }
         return true;
     }
     return false;
@@ -438,4 +502,94 @@ CacheImpl::~CacheImpl() {
         ++iter;
         delete v;
     }
+}
+
+namespace {
+
+class UniqueIDCacheImpl : public SkImageFilter::UniqueIDCache {
+public:
+    UniqueIDCacheImpl(size_t maxBytes) : fMaxBytes(maxBytes), fCurrentBytes(0) {
+    }
+    virtual ~UniqueIDCacheImpl() {
+        SkTDynamicHash<Value, Key>::Iter iter(&fLookup);
+
+        while (!iter.done()) {
+            Value* v = &*iter;
+            ++iter;
+            delete v;
+        }
+    }
+    struct Value {
+        Value(const Key& key, const SkBitmap& bitmap, const SkIPoint& offset)
+            : fKey(key), fBitmap(bitmap), fOffset(offset) {}
+        Key fKey;
+        SkBitmap fBitmap;
+        SkIPoint fOffset;
+        static const Key& GetKey(const Value& v) {
+            return v.fKey;
+        }
+        static uint32_t Hash(const Key& key) {
+            return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
+        }
+        SK_DECLARE_INTERNAL_LLIST_INTERFACE(Value);
+    };
+    virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const {
+        SkAutoMutexAcquire mutex(fMutex);
+        if (Value* v = fLookup.find(key)) {
+            *result = v->fBitmap;
+            *offset = v->fOffset;
+            if (v != fLRU.head()) {
+                fLRU.remove(v);
+                fLRU.addToHead(v);
+            }
+            return true;
+        }
+        return false;
+    }
+    virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) {
+        SkAutoMutexAcquire mutex(fMutex);
+        if (Value* v = fLookup.find(key)) {
+            removeInternal(v);
+        }
+        Value* v = new Value(key, result, offset);
+        fLookup.add(v);
+        fLRU.addToHead(v);
+        fCurrentBytes += result.getSize();
+        while (fCurrentBytes > fMaxBytes) {
+            Value* tail = fLRU.tail();
+            SkASSERT(tail);
+            if (tail == v) {
+                break;
+            }
+            removeInternal(tail);
+        }
+    }
+private:
+    void removeInternal(Value* v) {
+        fCurrentBytes -= v->fBitmap.getSize();
+        fLRU.remove(v);
+        fLookup.remove(v->fKey);
+        delete v;
+    }
+private:
+    SkTDynamicHash<Value, Key>         fLookup;
+    mutable SkTInternalLList<Value>    fLRU;
+    size_t                             fMaxBytes;
+    size_t                             fCurrentBytes;
+    mutable SkMutex                    fMutex;
+};
+
+SkImageFilter::UniqueIDCache* CreateCache() {
+    return SkImageFilter::UniqueIDCache::Create(kDefaultCacheSize);
+}
+
+} // namespace
+
+SkImageFilter::UniqueIDCache* SkImageFilter::UniqueIDCache::Create(size_t maxBytes) {
+    return SkNEW_ARGS(UniqueIDCacheImpl, (maxBytes));
+}
+
+SkImageFilter::UniqueIDCache* SkImageFilter::UniqueIDCache::Get() {
+    SK_DECLARE_STATIC_LAZY_PTR(SkImageFilter::UniqueIDCache, cache, CreateCache);
+    return cache.get();
 }

@@ -367,6 +367,12 @@ const void* SkBitmapDevice::peekPixels(SkImageInfo* info, size_t* rowBytes) {
     return NULL;
 }
 
+SkImageFilter::UniqueIDCache* SkBitmapDevice::getImageFilterCache() {
+    SkImageFilter::UniqueIDCache* cache = SkImageFilter::UniqueIDCache::Get();
+    cache->ref();
+    return cache;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmapDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {

@@ -378,6 +378,8 @@ private:
      */
     virtual void flush() {}
 
+    virtual SkImageFilter::UniqueIDCache* getImageFilterCache() { return NULL; }
+
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;
 
