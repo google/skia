@@ -120,7 +120,7 @@ void get_path_for_sys_fonts(SkString* full, const SkString& name) {
 
 class SkFontStyleSet_Android : public SkFontStyleSet {
 public:
-    explicit SkFontStyleSet_Android(FontFamily* family) : fFontFamily(family) {
+    explicit SkFontStyleSet_Android(FontFamily* family) {
         // TODO? make this lazy
         for (int i = 0; i < family->fFontFiles.count(); ++i) {
             const SkString& fileName = family->fFontFiles[i].fFileName;
@@ -134,17 +134,18 @@ public:
                 continue;
             }
 
+            const int ttcIndex = family->fFontFiles[i].fIndex;
             SkString fontName;
             SkTypeface::Style style;
             bool isFixedWidth;
-            if (!SkTypeface_FreeType::ScanFont(stream.get(), family->fFontFiles[i].fIndex,
+            if (!SkTypeface_FreeType::ScanFont(stream.get(), ttcIndex,
                                                &fontName, &style, &isFixedWidth)) {
                 DEBUG_FONT(("---- SystemFonts[%d] file=%s (INVALID)", i, fileName.c_str()));
                 continue;
             }
 
             fStyles.push_back().reset(SkNEW_ARGS(SkTypeface_AndroidSystem,
-                                                 (pathName, 0,
+                                                 (pathName, ttcIndex,
                                                   style, isFixedWidth, fontName)));
         }
     }
@@ -212,8 +213,6 @@ private:
         return score;
     }
 
-
-    FontFamily* fFontFamily;
     SkTArray<SkAutoTUnref<SkTypeface>, true> fStyles;
 
     friend struct NameToFamily;
@@ -329,20 +328,15 @@ protected:
                                         oldStyle & SkTypeface::kItalic
                                                  ? SkFontStyle::kItalic_Slant
                                                  : SkFontStyle::kUpright_Slant);
-        SkTypeface* tf = NULL;
 
         if (NULL != familyName) {
             // On Android, we must return NULL when we can't find the requested
             // named typeface so that the system/app can provide their own recovery
             // mechanism. On other platforms we'd provide a typeface from the
             // default family instead.
-            tf = this->onMatchFamilyStyle(familyName, style);
-        } else {
-            tf = fDefaultFamily->matchStyle(style);
+            return this->onMatchFamilyStyle(familyName, style);
         }
-
-        // TODO: double ref? qv matchStyle()
-        return SkSafeRef(tf);
+        return fDefaultFamily->matchStyle(style);
     }
 
 
