@@ -86,6 +86,7 @@
     '../bench/RegionBench.cpp',
     '../bench/RegionContainBench.cpp',
     '../bench/RepeatTileBench.cpp',
+    '../bench/RotatedRectBench.cpp',
     '../bench/ScalarBench.cpp',
     '../bench/ShaderMaskBench.cpp',
     '../bench/SkipZeroesBench.cpp',
