@@ -6,8 +6,18 @@
  */
 
 #include "SkTextureCompressor_LATC.h"
+#include "SkTextureCompressor_Blitter.h"
 
 #include "SkEndian.h"
+
+// Compression options. In general, the slow version is much more accurate, but
+// much slower. The fast option is much faster, but much less accurate. YMMV.
+#define COMPRESS_LATC_SLOW 0
+#define COMPRESS_LATC_FAST 1
+
+////////////////////////////////////////////////////////////////////////////////
+
+#if COMPRESS_LATC_SLOW
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -278,17 +288,134 @@ static uint64_t compress_latc_block(const uint8_t pixels[]) {
     }
 }
 
+#endif  // COMPRESS_LATC_SLOW
+
+////////////////////////////////////////////////////////////////////////////////
+
+#if COMPRESS_LATC_FAST
+
+// Take the top three indices of each int and pack them into the low 12
+// bits of the integer.
+static inline uint32_t convert_index(uint32_t x) {
+    // Since the palette is 
+    // 255, 0, 219, 182, 146, 109, 73, 36
+    // we need to map the high three bits of each byte in the integer
+    // from
+    // 0 1 2 3 4 5 6 7
+    // to
+    // 1 7 6 5 4 3 2 0
+    //
+    // This first operation takes the mapping from
+    // 0 1 2 3 4 5 6 7  -->  7 6 5 4 3 2 1 0
+    x = 0x07070707 - ((x >> 5) & 0x07070707);
+
+    // mask is 1 if index is non-zero
+    const uint32_t mask = (x | (x >> 1) | (x >> 2)) & 0x01010101;
+
+    // add mask:
+    // 7 6 5 4 3 2 1 0 --> 8 7 6 5 4 3 2 0
+    x = (x + mask);
+
+    // Handle overflow:
+    // 8 7 6 5 4 3 2 0 --> 9 7 6 5 4 3 2 0
+    x |= (x >> 3) & 0x01010101;
+
+    // Mask out high bits:
+    // 9 7 6 5 4 3 2 0 --> 1 7 6 5 4 3 2 0
+    x &= 0x07070707;
+
+    // Pack it in...
+#if defined (SK_CPU_BENDIAN)
+    return
+        (x >> 24) |
+        ((x >> 13) & 0x38) |
+        ((x >> 2) & 0x1C0) |
+        ((x << 9) & 0xE00);
+#else
+    return
+        (x & 0x7) |
+        ((x >> 5) & 0x38) |
+        ((x >> 10) & 0x1C0) |
+        ((x >> 15) & 0xE00);
+#endif
+}
+
+typedef uint64_t (*PackIndicesProc)(const uint8_t* alpha, int rowBytes);
+template<PackIndicesProc packIndicesProc>
+static void compress_a8_latc_block(uint8_t** dstPtr, const uint8_t* src, int rowBytes) {
+    *(reinterpret_cast<uint64_t*>(*dstPtr)) =
+        SkEndian_SwapLE64(0xFF | (packIndicesProc(src, rowBytes) << 16));
+    *dstPtr += 8;
+}
+
+inline uint64_t PackRowMajor(const uint8_t *indices, int rowBytes) {
+    uint64_t result = 0;
+    for (int i = 0; i < 4; ++i) {
+        const uint32_t idx = *(reinterpret_cast<const uint32_t*>(indices + i*rowBytes));
+        result |= static_cast<uint64_t>(convert_index(idx)) << 12*i;
+    }
+    return result;
+}
+
+inline uint64_t PackColumnMajor(const uint8_t *indices, int rowBytes) {
+    // !SPEED! Blarg, this is kind of annoying. SSE4 can make this
+    // a LOT faster.
+    uint8_t transposed[16];
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            transposed[j*4+i] = indices[i*rowBytes + j];
+        }
+    }
+
+    return PackRowMajor(transposed, 4);
+}
+
+static bool compress_4x4_a8_latc(uint8_t* dst, const uint8_t* src,
+                                 int width, int height, int rowBytes) {
+
+    if (width < 0 || ((width % 4) != 0) || height < 0 || ((height % 4) != 0)) {
+        return false;
+    }
+
+    uint8_t** dstPtr = &dst;
+    for (int y = 0; y < height; y += 4) {
+        for (int x = 0; x < width; x += 4) {
+            compress_a8_latc_block<PackRowMajor>(dstPtr, src + y*rowBytes + x, rowBytes);
+        }
+    }
+
+    return true;
+}
+
+void CompressA8LATCBlockVertical(uint8_t* dst, const uint8_t block[]) {
+    compress_a8_latc_block<PackColumnMajor>(&dst, block, 4);
+}
+
+#endif  // COMPRESS_LATC_FAST
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace SkTextureCompressor {
 
 bool CompressA8ToLATC(uint8_t* dst, const uint8_t* src, int width, int height, int rowBytes) {
+#if COMPRESS_LATC_FAST
+    return compress_4x4_a8_latc(dst, src, width, height, rowBytes);
+#elif COMPRESS_LATC_SLOW
     return compress_4x4_a8_to_64bit(dst, src, width, height, rowBytes, compress_latc_block);
+#else
+#error "Must choose either fast or slow LATC compression"
+#endif
 }
 
 SkBlitter* CreateLATCBlitter(int width, int height, void* outputBuffer) {
+#if COMPRESS_LATC_FAST
+    return new
+        SkTCompressedAlphaBlitter<4, 8, CompressA8LATCBlockVertical>
+        (width, height, outputBuffer);
+#elif COMPRESS_LATC_SLOW
     // TODO (krajcevski)
     return NULL;
+#endif
 }
 
 }  // SkTextureCompressor

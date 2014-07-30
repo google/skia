@@ -256,7 +256,7 @@ static void compress_a8_astc_block(uint8_t** dst, const uint8_t* src, int rowByt
     send_packing(dst, SkEndian_SwapLE64(top), SkEndian_SwapLE64(bottom));
 }
 
-inline void compress_a8_astc_block_vertical(uint8_t* dst, const uint8_t* src) {
+inline void CompressA8ASTCBlockVertical(uint8_t* dst, const uint8_t* src) {
     compress_a8_astc_block<GetAlphaTranspose>(&dst, src, 12);
 }
 
@@ -270,8 +270,8 @@ bool CompressA8To12x12ASTC(uint8_t* dst, const uint8_t* src, int width, int heig
     }
 
     uint8_t** dstPtr = &dst;
-    for (int y = 0; y < height; y+=12) {
-        for (int x = 0; x < width; x+=12) {
+    for (int y = 0; y < height; y += 12) {
+        for (int x = 0; x < width; x += 12) {
             compress_a8_astc_block<GetAlpha>(dstPtr, src + y*rowBytes + x, rowBytes);
         }
     }
@@ -281,7 +281,7 @@ bool CompressA8To12x12ASTC(uint8_t* dst, const uint8_t* src, int width, int heig
 
 SkBlitter* CreateASTCBlitter(int width, int height, void* outputBuffer) {
     return new
-        SkTCompressedAlphaBlitter<12, 16, compress_a8_astc_block_vertical>
+        SkTCompressedAlphaBlitter<12, 16, CompressA8ASTCBlockVertical>
         (width, height, outputBuffer);
 }
 
