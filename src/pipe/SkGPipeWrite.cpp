@@ -475,12 +475,14 @@ bool SkGPipeCanvas::needOpBytes(size_t needed) {
     }
 
     needed += 4;  // size of DrawOp atom
-    needed = SkTMax<size_t>(MIN_BLOCK_SIZE, needed);
     needed = SkAlign4(needed);
     if (fWriter.bytesWritten() + needed > fBlockSize) {
-        // Before we wipe out any data that has already been written, read it
-        // out.
+        // Before we wipe out any data that has already been written, read it out.
         this->doNotify();
+
+        // If we're going to allocate a new block, allocate enough to make it worthwhile.
+        needed = SkTMax<size_t>(MIN_BLOCK_SIZE, needed);
+
         void* block = fController->requestBlock(needed, &fBlockSize);
         if (NULL == block) {
             // Do not notify the readers, which would call this function again.
