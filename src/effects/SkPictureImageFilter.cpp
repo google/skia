@@ -69,6 +69,9 @@ bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Co
     SkIRect bounds;
     ctx.ctm().mapRect(&floatBounds, fCropRect);
     floatBounds.roundOut(&bounds);
+    if (!bounds.intersect(ctx.clipBounds())) {
+        return false;
+    }
 
     if (bounds.isEmpty()) {
         offset->fX = offset->fY = 0;
