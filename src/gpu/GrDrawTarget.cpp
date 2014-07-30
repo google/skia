@@ -615,9 +615,15 @@ void GrDrawTarget::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
 
 bool GrDrawTarget::canApplyCoverage() const {
     // we can correctly apply coverage if a) we have dual source blending
-    // or b) one of our blend optimizations applies.
+    // or b) one of our blend optimizations applies
+    // or c) the src, dst blend coeffs are 1,0 and we will read Dst Color
+    GrBlendCoeff srcCoeff;
+    GrBlendCoeff dstCoeff;
+    GrDrawState::BlendOptFlags flag = this->getDrawState().getBlendOpts(true, &srcCoeff, &dstCoeff);
     return this->caps()->dualSourceBlendingSupport() ||
-           GrDrawState::kNone_BlendOpt != this->getDrawState().getBlendOpts(true);
+           GrDrawState::kNone_BlendOpt != flag ||
+           (this->getDrawState().willEffectReadDstColor() &&
+            kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
