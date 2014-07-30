@@ -11501,10 +11501,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16570721013563827642
+          16893666949631983554
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "thinrects_565.png": {
       "allowed-digests": [

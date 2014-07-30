@@ -8226,10 +8226,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16780536364041129122
+          758934049590219880
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "thinrects_565.png": {
       "allowed-digests": [

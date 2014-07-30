@@ -11022,19 +11022,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3355189550605099479
+          1542449700616506808
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "texture_domain_effect_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3355189550605099479
+          1542449700616506808
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "thinrects_565.png": {
       "allowed-digests": [
