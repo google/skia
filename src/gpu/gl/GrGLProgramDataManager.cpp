@@ -15,12 +15,12 @@
          SkASSERT(arrayCount <= uni.fArrayCount || \
                   (1 == arrayCount && GrGLShaderVar::kNonArray == uni.fArrayCount))
 
-GrGLUniformManager::GrGLUniformManager(GrGpuGL* gpu) : fGpu(gpu) {
+GrGLProgramDataManager::GrGLProgramDataManager(GrGpuGL* gpu) : fGpu(gpu) {
     // skbug.com/2056
     fUsingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != NULL;
 }
 
-GrGLUniformManager::UniformHandle GrGLUniformManager::appendUniform(GrSLType type, int arrayCount) {
+GrGLProgramDataManager::UniformHandle GrGLProgramDataManager::appendUniform(GrSLType type, int arrayCount) {
     int idx = fUniforms.count();
     Uniform& uni = fUniforms.push_back();
     SkASSERT(GrGLShaderVar::kNonArray == arrayCount || arrayCount > 0);
@@ -28,10 +28,10 @@ GrGLUniformManager::UniformHandle GrGLUniformManager::appendUniform(GrSLType typ
     uni.fType = type;
     uni.fVSLocation = kUnusedUniform;
     uni.fFSLocation = kUnusedUniform;
-    return GrGLUniformManager::UniformHandle::CreateFromUniformIndex(idx);
+    return GrGLProgramDataManager::UniformHandle::CreateFromUniformIndex(idx);
 }
 
-void GrGLUniformManager::setSampler(UniformHandle u, GrGLint texUnit) const {
+void GrGLProgramDataManager::setSampler(UniformHandle u, GrGLint texUnit) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kSampler2D_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
@@ -47,7 +47,7 @@ void GrGLUniformManager::setSampler(UniformHandle u, GrGLint texUnit) const {
     }
 }
 
-void GrGLUniformManager::set1f(UniformHandle u, GrGLfloat v0) const {
+void GrGLProgramDataManager::set1f(UniformHandle u, GrGLfloat v0) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
@@ -60,9 +60,9 @@ void GrGLUniformManager::set1f(UniformHandle u, GrGLfloat v0) const {
     }
 }
 
-void GrGLUniformManager::set1fv(UniformHandle u,
-                                int arrayCount,
-                                const GrGLfloat v[]) const {
+void GrGLProgramDataManager::set1fv(UniformHandle u,
+                                    int arrayCount,
+                                    const GrGLfloat v[]) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);
     SkASSERT(arrayCount > 0);
@@ -79,7 +79,7 @@ void GrGLUniformManager::set1fv(UniformHandle u,
     }
 }
 
-void GrGLUniformManager::set2f(UniformHandle u, GrGLfloat v0, GrGLfloat v1) const {
+void GrGLProgramDataManager::set2f(UniformHandle u, GrGLfloat v0, GrGLfloat v1) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kVec2f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
@@ -92,9 +92,9 @@ void GrGLUniformManager::set2f(UniformHandle u, GrGLfloat v0, GrGLfloat v1) cons
     }
 }
 
-void GrGLUniformManager::set2fv(UniformHandle u,
-                                int arrayCount,
-                                const GrGLfloat v[]) const {
+void GrGLProgramDataManager::set2fv(UniformHandle u,
+                                    int arrayCount,
+                                    const GrGLfloat v[]) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kVec2f_GrSLType);
     SkASSERT(arrayCount > 0);
@@ -108,7 +108,7 @@ void GrGLUniformManager::set2fv(UniformHandle u,
     }
 }
 
-void GrGLUniformManager::set3f(UniformHandle u, GrGLfloat v0, GrGLfloat v1, GrGLfloat v2) const {
+void GrGLProgramDataManager::set3f(UniformHandle u, GrGLfloat v0, GrGLfloat v1, GrGLfloat v2) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kVec3f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
@@ -121,9 +121,9 @@ void GrGLUniformManager::set3f(UniformHandle u, GrGLfloat v0, GrGLfloat v1, GrGL
     }
 }
 
-void GrGLUniformManager::set3fv(UniformHandle u,
-                                int arrayCount,
-                                const GrGLfloat v[]) const {
+void GrGLProgramDataManager::set3fv(UniformHandle u,
+                                    int arrayCount,
+                                    const GrGLfloat v[]) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kVec3f_GrSLType);
     SkASSERT(arrayCount > 0);
@@ -137,11 +137,11 @@ void GrGLUniformManager::set3fv(UniformHandle u,
     }
 }
 
-void GrGLUniformManager::set4f(UniformHandle u,
-                               GrGLfloat v0,
-                               GrGLfloat v1,
-                               GrGLfloat v2,
-                               GrGLfloat v3) const {
+void GrGLProgramDataManager::set4f(UniformHandle u,
+                                   GrGLfloat v0,
+                                   GrGLfloat v1,
+                                   GrGLfloat v2,
+                                   GrGLfloat v3) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kVec4f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
@@ -154,9 +154,9 @@ void GrGLUniformManager::set4f(UniformHandle u,
     }
 }
 
-void GrGLUniformManager::set4fv(UniformHandle u,
-                                int arrayCount,
-                                const GrGLfloat v[]) const {
+void GrGLProgramDataManager::set4fv(UniformHandle u,
+                                    int arrayCount,
+                                    const GrGLfloat v[]) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kVec4f_GrSLType);
     SkASSERT(arrayCount > 0);
@@ -170,7 +170,7 @@ void GrGLUniformManager::set4fv(UniformHandle u,
     }
 }
 
-void GrGLUniformManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix[]) const {
+void GrGLProgramDataManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix[]) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kMat33f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
@@ -184,7 +184,7 @@ void GrGLUniformManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix[]) 
     }
 }
 
-void GrGLUniformManager::setMatrix4f(UniformHandle u, const GrGLfloat matrix[]) const {
+void GrGLProgramDataManager::setMatrix4f(UniformHandle u, const GrGLfloat matrix[]) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kMat44f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
@@ -197,9 +197,9 @@ void GrGLUniformManager::setMatrix4f(UniformHandle u, const GrGLfloat matrix[]) 
     }
 }
 
-void GrGLUniformManager::setMatrix3fv(UniformHandle u,
-                                      int arrayCount,
-                                      const GrGLfloat matrices[]) const {
+void GrGLProgramDataManager::setMatrix3fv(UniformHandle u,
+                                          int arrayCount,
+                                          const GrGLfloat matrices[]) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kMat33f_GrSLType);
     SkASSERT(arrayCount > 0);
@@ -215,9 +215,9 @@ void GrGLUniformManager::setMatrix3fv(UniformHandle u,
     }
 }
 
-void GrGLUniformManager::setMatrix4fv(UniformHandle u,
-                                      int arrayCount,
-                                      const GrGLfloat matrices[]) const {
+void GrGLProgramDataManager::setMatrix4fv(UniformHandle u,
+                                          int arrayCount,
+                                          const GrGLfloat matrices[]) const {
     const Uniform& uni = fUniforms[u.toUniformIndex()];
     SkASSERT(uni.fType == kMat44f_GrSLType);
     SkASSERT(arrayCount > 0);
@@ -233,7 +233,7 @@ void GrGLUniformManager::setMatrix4fv(UniformHandle u,
     }
 }
 
-void GrGLUniformManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
+void GrGLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
     GrGLfloat mt[] = {
         matrix.get(SkMatrix::kMScaleX),
         matrix.get(SkMatrix::kMSkewY),
@@ -249,7 +249,7 @@ void GrGLUniformManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) co
 }
 
 
-void GrGLUniformManager::getUniformLocations(GrGLuint programID, const BuilderUniformArray& uniforms) {
+void GrGLProgramDataManager::getUniformLocations(GrGLuint programID, const BuilderUniformArray& uniforms) {
     SkASSERT(uniforms.count() == fUniforms.count());
     int count = fUniforms.count();
     for (int i = 0; i < count; ++i) {
@@ -274,7 +274,7 @@ void GrGLUniformManager::getUniformLocations(GrGLuint programID, const BuilderUn
     }
 }
 
-const GrGLUniformManager::BuilderUniform&
-GrGLUniformManager::getBuilderUniform(const BuilderUniformArray& array, UniformHandle handle) const {
+const GrGLProgramDataManager::BuilderUniform&
+GrGLProgramDataManager::getBuilderUniform(const BuilderUniformArray& array, UniformHandle handle) const {
     return array[handle.toUniformIndex()];
 }

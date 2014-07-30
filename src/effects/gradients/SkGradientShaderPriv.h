@@ -376,7 +376,7 @@ public:
     GrGLGradientEffect(const GrBackendEffectFactory& factory);
     virtual ~GrGLGradientEffect();
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 protected:
     /**
@@ -435,10 +435,10 @@ private:
     }
 
     SkScalar fCachedYCoord;
-    GrGLUniformManager::UniformHandle fFSYUni;
-    GrGLUniformManager::UniformHandle fColorStartUni;
-    GrGLUniformManager::UniformHandle fColorMidUni;
-    GrGLUniformManager::UniformHandle fColorEndUni;
+    GrGLProgramDataManager::UniformHandle fFSYUni;
+    GrGLProgramDataManager::UniformHandle fColorStartUni;
+    GrGLProgramDataManager::UniformHandle fColorMidUni;
+    GrGLProgramDataManager::UniformHandle fColorEndUni;
 
     typedef GrGLEffect INHERITED;
 };

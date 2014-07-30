@@ -15,7 +15,7 @@
 #include "GrGLShaderBuilder.h"
 #include "GrGLSL.h"
 #include "GrGLTexture.h"
-#include "GrGLUniformManager.h"
+#include "GrGLProgramDataManager.h"
 
 #include "SkString.h"
 #include "SkXfermode.h"
@@ -161,11 +161,11 @@ public:
                  SharedGLState*);
 
 private:
-    typedef GrGLUniformManager::UniformHandle UniformHandle;
+    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
     GrGLProgram(GrGpuGL*,
                 const GrGLProgramDesc&,
-                GrGLUniformManager*,
+                GrGLProgramDataManager*,
                 const GrGLShaderBuilder::GenProgramOutput&);
 
     // Sets the texture units for samplers.
@@ -193,7 +193,7 @@ private:
     GrGLProgramDesc                     fDesc;
     GrGpuGL*                            fGpu;
 
-    SkAutoTUnref<GrGLUniformManager>    fUniformManager;
+    SkAutoTUnref<GrGLProgramDataManager> fProgramDataManager;
 
     typedef SkRefCnt INHERITED;
 };

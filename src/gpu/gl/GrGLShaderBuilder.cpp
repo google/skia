@@ -27,7 +27,7 @@ static const int kMaxFSOutputs = 2;
 // ES2 FS only guarantees mediump and lowp support
 static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar::kMedium_Precision;
 
-typedef GrGLUniformManager::UniformHandle UniformHandle;
+typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false,
                 "Print the source code for all shaders generated.");
@@ -90,16 +90,16 @@ static const char kDstCopyColorName[] = "_dstColor";
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrGLShaderBuilder::GenProgram(GrGpuGL* gpu,
-                                   GrGLUniformManager* uman,
+                                   GrGLProgramDataManager* pdman,
                                    const GrGLProgramDesc& desc,
                                    const GrEffectStage* inColorStages[],
                                    const GrEffectStage* inCoverageStages[],
                                    GenProgramOutput* output) {
     SkAutoTDelete<GrGLShaderBuilder> builder;
     if (desc.getHeader().fHasVertexCode ||!gpu->shouldUseFixedFunctionTexturing()) {
-        builder.reset(SkNEW_ARGS(GrGLFullShaderBuilder, (gpu, uman, desc)));
+        builder.reset(SkNEW_ARGS(GrGLFullShaderBuilder, (gpu, pdman, desc)));
     } else {
-        builder.reset(SkNEW_ARGS(GrGLFragmentOnlyShaderBuilder, (gpu, uman, desc)));
+        builder.reset(SkNEW_ARGS(GrGLFragmentOnlyShaderBuilder, (gpu, pdman, desc)));
     }
     if (builder->genProgram(inColorStages, inCoverageStages)) {
         *output = builder->getOutput();
@@ -248,11 +248,11 @@ bool GrGLShaderBuilder::genProgram(const GrEffectStage* colorStages[],
 //////////////////////////////////////////////////////////////////////////////
 
 GrGLShaderBuilder::GrGLShaderBuilder(GrGpuGL* gpu,
-                                     GrGLUniformManager* uniformManager,
+                                     GrGLProgramDataManager* programResourceManager,
                                      const GrGLProgramDesc& desc)
     : fDesc(desc)
     , fGpu(gpu)
-    , fUniformManager(SkRef(uniformManager))
+    , fProgramDataManager(SkRef(programResourceManager))
     , fFSFeaturesAddedMask(0)
     , fFSInputs(kVarsPerBlock)
     , fFSOutputs(kMaxFSOutputs)
@@ -430,20 +430,20 @@ const GrGLenum* GrGLShaderBuilder::GetTexParamSwizzle(GrPixelConfig config, cons
     }
 }
 
-GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t visibility,
-                                                                     GrSLType type,
-                                                                     const char* name,
-                                                                     int count,
-                                                                     const char** outName) {
+GrGLProgramDataManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t visibility,
+                                                                         GrSLType type,
+                                                                         const char* name,
+                                                                         int count,
+                                                                         const char** outName) {
     SkASSERT(name && strlen(name));
     SkDEBUGCODE(static const uint32_t kVisibilityMask = kVertex_Visibility | kFragment_Visibility);
     SkASSERT(0 == (~kVisibilityMask & visibility));
     SkASSERT(0 != visibility);
 
     BuilderUniform& uni = fUniforms.push_back();
-    UniformHandle h = GrGLUniformManager::UniformHandle::CreateFromUniformIndex(fUniforms.count() - 1);
+    UniformHandle h = GrGLProgramDataManager::UniformHandle::CreateFromUniformIndex(fUniforms.count() - 1);
     SkDEBUGCODE(UniformHandle h2 =)
-    fUniformManager->appendUniform(type, count);
+    fProgramDataManager->appendUniform(type, count);
     // We expect the uniform manager to initially have no uniforms and that all uniforms are added
     // by this function. Therefore, the handles should match.
     SkASSERT(h2 == h);
@@ -673,8 +673,8 @@ bool GrGLShaderBuilder::finish() {
     }
 
     this->bindProgramLocations(fOutput.fProgramID);
-    if (fUniformManager->isUsingBindUniform()) {
-        fUniformManager->getUniformLocations(fOutput.fProgramID, fUniforms);
+    if (fProgramDataManager->isUsingBindUniform()) {
+        fProgramDataManager->getUniformLocations(fOutput.fProgramID, fUniforms);
     }
 
     GL_CALL(LinkProgram(fOutput.fProgramID));
@@ -708,8 +708,8 @@ bool GrGLShaderBuilder::finish() {
         }
     }
 
-    if (!fUniformManager->isUsingBindUniform()) {
-        fUniformManager->getUniformLocations(fOutput.fProgramID, fUniforms);
+    if (!fProgramDataManager->isUsingBindUniform()) {
+        fProgramDataManager->getUniformLocations(fOutput.fProgramID, fUniforms);
     }
 
     for (int i = 0; i < shadersToDelete.count(); ++i) {
@@ -824,9 +824,9 @@ const GrGLContextInfo& GrGLShaderBuilder::ctxInfo() const {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrGLFullShaderBuilder::GrGLFullShaderBuilder(GrGpuGL* gpu,
-                                             GrGLUniformManager* uniformManager,
+                                             GrGLProgramDataManager* programResourceManager,
                                              const GrGLProgramDesc& desc)
-    : INHERITED(gpu, uniformManager, desc)
+    : INHERITED(gpu, programResourceManager, desc)
     , fVSAttrs(kVarsPerBlock)
     , fVSOutputs(kVarsPerBlock)
     , fGSInputs(kVarsPerBlock)
@@ -1073,9 +1073,9 @@ void GrGLFullShaderBuilder::bindProgramLocations(GrGLuint programId) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrGLFragmentOnlyShaderBuilder::GrGLFragmentOnlyShaderBuilder(GrGpuGL* gpu,
-                                                             GrGLUniformManager* uniformManager,
+                                                             GrGLProgramDataManager* programResourceManager,
                                                              const GrGLProgramDesc& desc)
-    : INHERITED(gpu, uniformManager, desc) {
+    : INHERITED(gpu, programResourceManager, desc) {
     SkASSERT(!desc.getHeader().fHasVertexCode);
     SkASSERT(gpu->glCaps().pathRenderingSupport());
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fColorInput);

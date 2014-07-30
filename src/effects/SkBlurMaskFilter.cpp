@@ -606,10 +606,10 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
-    typedef GrGLUniformManager::UniformHandle        UniformHandle;
+    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
     UniformHandle       fProxyRectUniform;
     UniformHandle       fProfileSizeUniform;
@@ -682,13 +682,13 @@ void GrGLRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\t%s = src * vec4(final);\n", outputColor );
 }
 
-void GrGLRectBlurEffect::setData(const GrGLUniformManager& uman,
+void GrGLRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
                                  const GrDrawEffect& drawEffect) {
     const GrRectBlurEffect& rbe = drawEffect.castEffect<GrRectBlurEffect>();
     SkRect rect = rbe.getRect();
 
-    uman.set4f(fProxyRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
-    uman.set1f(fProfileSizeUniform, SkScalarCeilToScalar(6*rbe.getSigma()));
+    pdman.set4f(fProxyRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+    pdman.set1f(fProfileSizeUniform, SkScalarCeilToScalar(6*rbe.getSigma()));
 }
 
 bool GrRectBlurEffect::CreateBlurProfileTexture(GrContext *context, float sigma,
@@ -967,12 +967,12 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
-    GrGLUniformManager::UniformHandle   fProxyRectUniform;
-    GrGLUniformManager::UniformHandle   fCornerRadiusUniform;
-    GrGLUniformManager::UniformHandle   fBlurRadiusUniform;
+    GrGLProgramDataManager::UniformHandle fProxyRectUniform;
+    GrGLProgramDataManager::UniformHandle fCornerRadiusUniform;
+    GrGLProgramDataManager::UniformHandle fBlurRadiusUniform;
     typedef GrGLEffect INHERITED;
 };
 
@@ -1036,22 +1036,22 @@ void GrGLRRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend(";\n");
 }
 
-void GrGLRRectBlurEffect::setData(const GrGLUniformManager& uman,
+void GrGLRRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
                                     const GrDrawEffect& drawEffect) {
     const GrRRectBlurEffect& brre = drawEffect.castEffect<GrRRectBlurEffect>();
     SkRRect rrect = brre.getRRect();
 
     float blurRadius = 3.f*SkScalarCeilToScalar(brre.getSigma()-1/6.0f);
-    uman.set1f(fBlurRadiusUniform, blurRadius);
+    pdman.set1f(fBlurRadiusUniform, blurRadius);
 
     SkRect rect = rrect.getBounds();
     rect.outset(blurRadius, blurRadius);
-    uman.set4f(fProxyRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+    pdman.set4f(fProxyRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
 
     SkScalar radius = 0;
     SkASSERT(rrect.isSimpleCircular() || rrect.isRect());
     radius = rrect.getSimpleRadii().fX;
-    uman.set1f(fCornerRadiusUniform, radius);
+    pdman.set1f(fCornerRadiusUniform, radius);
 }
 
 

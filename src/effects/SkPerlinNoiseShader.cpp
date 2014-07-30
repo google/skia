@@ -505,18 +505,18 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
     static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
 
 private:
 
-    GrGLUniformManager::UniformHandle   fStitchDataUni;
-    SkPerlinNoiseShader::Type           fType;
-    bool                                fStitchTiles;
-    int                                 fNumOctaves;
-    GrGLUniformManager::UniformHandle   fBaseFrequencyUni;
-    GrGLUniformManager::UniformHandle   fAlphaUni;
+    GrGLProgramDataManager::UniformHandle fStitchDataUni;
+    SkPerlinNoiseShader::Type             fType;
+    bool                                  fStitchTiles;
+    int                                   fNumOctaves;
+    GrGLProgramDataManager::UniformHandle fBaseFrequencyUni;
+    GrGLProgramDataManager::UniformHandle fAlphaUni;
 
 private:
     typedef GrGLEffect INHERITED;
@@ -926,18 +926,18 @@ void GrGLPerlinNoise::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&, Gr
     b->add32(key);
 }
 
-void GrGLPerlinNoise::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
-    INHERITED::setData(uman, drawEffect);
+void GrGLPerlinNoise::setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) {
+    INHERITED::setData(pdman, drawEffect);
 
     const GrPerlinNoiseEffect& turbulence = drawEffect.castEffect<GrPerlinNoiseEffect>();
 
     const SkVector& baseFrequency = turbulence.baseFrequency();
-    uman.set2f(fBaseFrequencyUni, baseFrequency.fX, baseFrequency.fY);
-    uman.set1f(fAlphaUni, SkScalarDiv(SkIntToScalar(turbulence.alpha()), SkIntToScalar(255)));
+    pdman.set2f(fBaseFrequencyUni, baseFrequency.fX, baseFrequency.fY);
+    pdman.set1f(fAlphaUni, SkScalarDiv(SkIntToScalar(turbulence.alpha()), SkIntToScalar(255)));
 
     if (turbulence.stitchTiles()) {
         const SkPerlinNoiseShader::StitchData& stitchData = turbulence.stitchData();
-        uman.set2f(fStitchDataUni, SkIntToScalar(stitchData.fWidth),
+        pdman.set2f(fStitchDataUni, SkIntToScalar(stitchData.fWidth),
                                    SkIntToScalar(stitchData.fHeight));
     }
 }

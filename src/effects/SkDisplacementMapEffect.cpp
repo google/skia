@@ -286,12 +286,12 @@ public:
 
     static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
     SkDisplacementMapEffect::ChannelSelectorType fXChannelSelector;
     SkDisplacementMapEffect::ChannelSelectorType fYChannelSelector;
-    GrGLUniformManager::UniformHandle fScaleUni;
+    GrGLProgramDataManager::UniformHandle fScaleUni;
 
     typedef GrGLEffect INHERITED;
 };
@@ -588,16 +588,16 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend(";\n");
 }
 
-void GrGLDisplacementMapEffect::setData(const GrGLUniformManager& uman,
+void GrGLDisplacementMapEffect::setData(const GrGLProgramDataManager& pdman,
                                         const GrDrawEffect& drawEffect) {
     const GrDisplacementMapEffect& displacementMap =
         drawEffect.castEffect<GrDisplacementMapEffect>();
     GrTexture* colorTex = displacementMap.texture(1);
     SkScalar scaleX = SkScalarDiv(displacementMap.scale().fX, SkIntToScalar(colorTex->width()));
     SkScalar scaleY = SkScalarDiv(displacementMap.scale().fY, SkIntToScalar(colorTex->height()));
-    uman.set2f(fScaleUni, SkScalarToFloat(scaleX),
-               colorTex->origin() == kTopLeft_GrSurfaceOrigin ?
-               SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
+    pdman.set2f(fScaleUni, SkScalarToFloat(scaleX),
+                colorTex->origin() == kTopLeft_GrSurfaceOrigin ?
+                SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
 }
 
 void GrGLDisplacementMapEffect::GenKey(const GrDrawEffect& drawEffect,

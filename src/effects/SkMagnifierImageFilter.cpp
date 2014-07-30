@@ -89,7 +89,7 @@ private:
 };
 
 // For brevity
-typedef GrGLUniformManager::UniformHandle UniformHandle;
+typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 class GrGLMagnifierEffect : public GrGLEffect {
 public:
@@ -103,7 +103,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
     UniformHandle       fOffsetVar;
@@ -170,12 +170,12 @@ void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend(modulate.c_str());
 }
 
-void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
+void GrGLMagnifierEffect::setData(const GrGLProgramDataManager& pdman,
                                   const GrDrawEffect& drawEffect) {
     const GrMagnifierEffect& zoom = drawEffect.castEffect<GrMagnifierEffect>();
-    uman.set2f(fOffsetVar, zoom.x_offset(), zoom.y_offset());
-    uman.set2f(fInvZoomVar, zoom.x_inv_zoom(), zoom.y_inv_zoom());
-    uman.set2f(fInvInsetVar, zoom.x_inv_inset(), zoom.y_inv_inset());
+    pdman.set2f(fOffsetVar, zoom.x_offset(), zoom.y_offset());
+    pdman.set2f(fInvZoomVar, zoom.x_inv_zoom(), zoom.y_inv_zoom());
+    pdman.set2f(fInvInsetVar, zoom.x_inv_inset(), zoom.y_inv_inset());
 }
 
 /////////////////////////////////////////////////////////////////////

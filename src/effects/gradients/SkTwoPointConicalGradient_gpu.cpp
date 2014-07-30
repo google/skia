@@ -14,7 +14,7 @@
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLShaderBuilder.h"
 // For brevity
-typedef GrGLUniformManager::UniformHandle UniformHandle;
+typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 static const SkScalar kErrorTol = 0.00001f;
 static const SkScalar kEdgeErrorTol = 5.f * kErrorTol;
@@ -144,7 +144,7 @@ public:
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
     static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
@@ -273,9 +273,9 @@ void GLEdge2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend("\t}\n");
 }
 
-void GLEdge2PtConicalEffect::setData(const GrGLUniformManager& uman,
+void GLEdge2PtConicalEffect::setData(const GrGLProgramDataManager& pdman,
                                      const GrDrawEffect& drawEffect) {
-    INHERITED::setData(uman, drawEffect);
+    INHERITED::setData(pdman, drawEffect);
     const Edge2PtConicalEffect& data = drawEffect.castEffect<Edge2PtConicalEffect>();
     SkScalar radius0 = data.radius();
     SkScalar diffRadius = data.diffRadius();
@@ -289,7 +289,7 @@ void GLEdge2PtConicalEffect::setData(const GrGLUniformManager& uman,
             SkScalarToFloat(diffRadius)
         };
 
-        uman.set1fv(fParamUni, 3, values);
+        pdman.set1fv(fParamUni, 3, values);
         fCachedRadius = radius0;
         fCachedDiffRadius = diffRadius;
     }
@@ -420,7 +420,7 @@ public:
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
     static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
@@ -541,9 +541,9 @@ void GLFocalOutside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend("\t}\n");
 }
 
-void GLFocalOutside2PtConicalEffect::setData(const GrGLUniformManager& uman,
+void GLFocalOutside2PtConicalEffect::setData(const GrGLProgramDataManager& pdman,
                                              const GrDrawEffect& drawEffect) {
-    INHERITED::setData(uman, drawEffect);
+    INHERITED::setData(pdman, drawEffect);
     const FocalOutside2PtConicalEffect& data = drawEffect.castEffect<FocalOutside2PtConicalEffect>();
     SkASSERT(data.isFlipped() == fIsFlipped);
     SkScalar focal = data.focal();
@@ -556,7 +556,7 @@ void GLFocalOutside2PtConicalEffect::setData(const GrGLUniformManager& uman,
             SkScalarToFloat(oneMinus2F),
         };
 
-        uman.set1fv(fParamUni, 2, values);
+        pdman.set1fv(fParamUni, 2, values);
         fCachedFocal = focal;
     }
 }
@@ -625,7 +625,7 @@ public:
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
     static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
@@ -723,14 +723,14 @@ void GLFocalInside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     this->emitColor(builder, tName.c_str(), baseKey, outputColor, inputColor, samplers);
 }
 
-void GLFocalInside2PtConicalEffect::setData(const GrGLUniformManager& uman,
+void GLFocalInside2PtConicalEffect::setData(const GrGLProgramDataManager& pdman,
                                             const GrDrawEffect& drawEffect) {
-    INHERITED::setData(uman, drawEffect);
+    INHERITED::setData(pdman, drawEffect);
     const FocalInside2PtConicalEffect& data = drawEffect.castEffect<FocalInside2PtConicalEffect>();
     SkScalar focal = data.focal();
 
     if (fCachedFocal != focal) {
-        uman.set1f(fFocalUni, SkScalarToFloat(focal));
+        pdman.set1f(fFocalUni, SkScalarToFloat(focal));
         fCachedFocal = focal;
     }
 }
@@ -866,7 +866,7 @@ public:
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
     static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
@@ -985,9 +985,9 @@ void GLCircleInside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     this->emitColor(builder, tName.c_str(), baseKey, outputColor, inputColor, samplers);
 }
 
-void GLCircleInside2PtConicalEffect::setData(const GrGLUniformManager& uman,
+void GLCircleInside2PtConicalEffect::setData(const GrGLProgramDataManager& pdman,
                                              const GrDrawEffect& drawEffect) {
-    INHERITED::setData(uman, drawEffect);
+    INHERITED::setData(pdman, drawEffect);
     const CircleInside2PtConicalEffect& data = drawEffect.castEffect<CircleInside2PtConicalEffect>();
     SkScalar centerX = data.centerX();
     SkScalar centerY = data.centerY();
@@ -998,8 +998,8 @@ void GLCircleInside2PtConicalEffect::setData(const GrGLUniformManager& uman,
     if (fCachedCenterX != centerX || fCachedCenterY != centerY ||
         fCachedA != A || fCachedB != B || fCachedC != C) {
 
-        uman.set2f(fCenterUni, SkScalarToFloat(centerX), SkScalarToFloat(centerY));
-        uman.set3f(fParamUni, SkScalarToFloat(A), SkScalarToFloat(B), SkScalarToFloat(C));
+        pdman.set2f(fCenterUni, SkScalarToFloat(centerX), SkScalarToFloat(centerY));
+        pdman.set3f(fParamUni, SkScalarToFloat(A), SkScalarToFloat(B), SkScalarToFloat(C));
 
         fCachedCenterX = centerX;
         fCachedCenterY = centerY;
@@ -1092,7 +1092,7 @@ public:
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
     static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
@@ -1234,9 +1234,9 @@ void GLCircleOutside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend("\t}\n");
 }
 
-void GLCircleOutside2PtConicalEffect::setData(const GrGLUniformManager& uman,
+void GLCircleOutside2PtConicalEffect::setData(const GrGLProgramDataManager& pdman,
                                               const GrDrawEffect& drawEffect) {
-    INHERITED::setData(uman, drawEffect);
+    INHERITED::setData(pdman, drawEffect);
     const CircleOutside2PtConicalEffect& data = drawEffect.castEffect<CircleOutside2PtConicalEffect>();
     SkASSERT(data.isFlipped() == fIsFlipped);
     SkScalar centerX = data.centerX();
@@ -1249,8 +1249,8 @@ void GLCircleOutside2PtConicalEffect::setData(const GrGLUniformManager& uman,
     if (fCachedCenterX != centerX || fCachedCenterY != centerY ||
         fCachedA != A || fCachedB != B || fCachedC != C || fCachedTLimit != tLimit) {
 
-        uman.set2f(fCenterUni, SkScalarToFloat(centerX), SkScalarToFloat(centerY));
-        uman.set4f(fParamUni, SkScalarToFloat(A), SkScalarToFloat(B), SkScalarToFloat(C),
+        pdman.set2f(fCenterUni, SkScalarToFloat(centerX), SkScalarToFloat(centerY));
+        pdman.set4f(fParamUni, SkScalarToFloat(A), SkScalarToFloat(B), SkScalarToFloat(C),
                    SkScalarToFloat(tLimit));
 
         fCachedCenterX = centerX;

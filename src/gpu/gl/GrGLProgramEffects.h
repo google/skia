@@ -9,7 +9,7 @@
 #define GrGLProgramEffects_DEFINED
 
 #include "GrBackendEffectFactory.h"
-#include "GrGLUniformManager.h"
+#include "GrGLProgramDataManager.h"
 #include "GrTexture.h"
 #include "GrTextureAccess.h"
 
@@ -27,7 +27,7 @@ class GrGLFragmentOnlyShaderBuilder;
  */
 class GrGLProgramEffects : public SkRefCnt {
 public:
-    typedef GrGLUniformManager::UniformHandle UniformHandle;
+    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
     /**
      * This class emits some of the code inserted into the shaders for an effect. The code it
@@ -45,13 +45,13 @@ public:
      * Assigns a texture unit to each sampler. It starts on *texUnitIdx and writes the next
      * available unit to *texUnitIdx when it returns.
      */
-    void initSamplers(const GrGLUniformManager&, int* texUnitIdx);
+    void initSamplers(const GrGLProgramDataManager&, int* texUnitIdx);
 
     /**
      * Calls setData() on each effect, and sets their transformation matrices and texture bindings.
      */
     virtual void setData(GrGpuGL*,
-                         const GrGLUniformManager&,
+                         const GrGLProgramDataManager&,
                          const GrEffectStage* effectStages[]) = 0;
 
     /**
@@ -162,7 +162,7 @@ public:
 class GrGLVertexProgramEffects : public GrGLProgramEffects {
 public:
     virtual void setData(GrGpuGL*,
-                         const GrGLUniformManager&,
+                         const GrGLProgramDataManager&,
                          const GrEffectStage* effectStages[]) SK_OVERRIDE;
 
 private:
@@ -204,7 +204,7 @@ private:
     /**
      * Helper for setData(). Sets all the transform matrices for an effect.
      */
-    void setTransformData(const GrGLUniformManager&, const GrDrawEffect&, int effectIdx);
+    void setTransformData(const GrGLProgramDataManager&, const GrDrawEffect&, int effectIdx);
 
     struct Transform {
         Transform() { fCurrentValue = SkMatrix::InvalidMatrix(); }
@@ -254,7 +254,7 @@ private:
 class GrGLPathTexGenProgramEffects : public GrGLProgramEffects {
 public:
     virtual void setData(GrGpuGL*,
-                         const GrGLUniformManager&,
+                         const GrGLProgramDataManager&,
                          const GrEffectStage* effectStages[]) SK_OVERRIDE;
 
 private:

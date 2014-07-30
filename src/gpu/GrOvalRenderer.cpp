@@ -127,7 +127,7 @@ public:
             b->add32(circleEffect.isStroked());
         }
 
-        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
     private:
         typedef GrGLVertexEffect INHERITED;
@@ -257,7 +257,7 @@ public:
             b->add32(ellipseEffect.isStroked());
         }
 
-        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {
+        virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {
         }
 
     private:
@@ -415,7 +415,7 @@ public:
             b->add32(ellipseEffect.getMode());
         }
 
-        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {
+        virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {
         }
 
     private:

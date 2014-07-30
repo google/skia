@@ -248,12 +248,12 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
     static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
 private:
-    GrGLUniformManager::UniformHandle fKUni;
+    GrGLProgramDataManager::UniformHandle fKUni;
     bool fEnforcePMColor;
 
     typedef GrGLEffect INHERITED;
@@ -395,9 +395,9 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
     }
 }
 
-void GrGLArithmeticEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
+void GrGLArithmeticEffect::setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) {
     const GrArithmeticEffect& arith = drawEffect.castEffect<GrArithmeticEffect>();
-    uman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
+    pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
     fEnforcePMColor = arith.enforcePMColor();
 }
 

@@ -125,7 +125,7 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("val")).c_str());
     }
 
-    virtual void setData(const GrGLUniformManager& uman,
+    virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrDrawEffect& drawEffect) SK_OVERRIDE {
         SkASSERT(fTextureSizeUni.isValid());
 
@@ -133,16 +133,16 @@ public:
         if (texture->width() != fTextureSize.width() ||
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());
-            uman.set2f(fTextureSizeUni,
-                       SkIntToScalar(fTextureSize.width()),
-                       SkIntToScalar(fTextureSize.height()));
+            pdman.set2f(fTextureSizeUni,
+                        SkIntToScalar(fTextureSize.width()),
+                        SkIntToScalar(fTextureSize.height()));
         }
 #ifdef SK_GAMMA_APPLY_TO_A8
         const GrDistanceFieldTextureEffect& dfTexEffect =
                                               drawEffect.castEffect<GrDistanceFieldTextureEffect>();
         float luminance = dfTexEffect.getLuminance();
         if (luminance != fLuminance) {
-            uman.set1f(fLuminanceUni, luminance);
+            pdman.set1f(fLuminanceUni, luminance);
             fLuminance = luminance;
         }
 #endif
@@ -157,10 +157,10 @@ public:
     }
 
 private:
-    GrGLUniformManager::UniformHandle fTextureSizeUni;
-    SkISize                           fTextureSize;
-    GrGLUniformManager::UniformHandle fLuminanceUni;
-    float                             fLuminance;
+    GrGLProgramDataManager::UniformHandle fTextureSizeUni;
+    SkISize                               fTextureSize;
+    GrGLProgramDataManager::UniformHandle fLuminanceUni;
+    float                                 fLuminance;
 
     typedef GrGLVertexEffect INHERITED;
 };
@@ -381,7 +381,7 @@ public:
                                (GrGLSLExpr4(inputColor) * GrGLSLExpr4("val")).c_str());
     }
 
-    virtual void setData(const GrGLUniformManager& uman,
+    virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrDrawEffect& drawEffect) SK_OVERRIDE {
         SkASSERT(fTextureSizeUni.isValid());
         SkASSERT(fTextColorUni.isValid());
@@ -396,19 +396,19 @@ public:
             if (dfTexEffect.useBGR()) {
                 delta = -delta;
             }
-            uman.set3f(fTextureSizeUni,
-                       SkIntToScalar(fTextureSize.width()),
-                       SkIntToScalar(fTextureSize.height()),
-                       delta);
+            pdman.set3f(fTextureSizeUni,
+                        SkIntToScalar(fTextureSize.width()),
+                        SkIntToScalar(fTextureSize.height()),
+                        delta);
         }
 
         GrColor textColor = dfTexEffect.getTextColor();
         if (textColor != fTextColor) {
             static const float ONE_OVER_255 = 1.f / 255.f;
-            uman.set3f(fTextColorUni,
-                       GrColorUnpackR(textColor) * ONE_OVER_255,
-                       GrColorUnpackG(textColor) * ONE_OVER_255,
-                       GrColorUnpackB(textColor) * ONE_OVER_255);
+            pdman.set3f(fTextColorUni,
+                        GrColorUnpackR(textColor) * ONE_OVER_255,
+                        GrColorUnpackG(textColor) * ONE_OVER_255,
+                        GrColorUnpackB(textColor) * ONE_OVER_255);
             fTextColor = textColor;
         }
     }
@@ -422,10 +422,10 @@ public:
     }
 
 private:
-    GrGLUniformManager::UniformHandle fTextureSizeUni;
-    SkISize                           fTextureSize;
-    GrGLUniformManager::UniformHandle fTextColorUni;
-    SkColor                           fTextColor;
+    GrGLProgramDataManager::UniformHandle fTextureSizeUni;
+    SkISize                               fTextureSize;
+    GrGLProgramDataManager::UniformHandle fTextColorUni;
+    SkColor                               fTextColor;
 
     typedef GrGLVertexEffect INHERITED;
 };

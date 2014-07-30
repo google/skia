@@ -13,7 +13,7 @@
 #include "GrTBackendEffectFactory.h"
 
 // For brevity
-typedef GrGLUniformManager::UniformHandle UniformHandle;
+typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 class GrGLConvolutionEffect : public GrGLEffect {
 public:
@@ -27,7 +27,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager& uman, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager& pdman, const GrDrawEffect&) SK_OVERRIDE;
 
     static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
@@ -103,7 +103,7 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend(modulate.c_str());
 }
 
-void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
+void GrGLConvolutionEffect::setData(const GrGLProgramDataManager& pdman,
                                     const GrDrawEffect& drawEffect) {
     const GrConvolutionEffect& conv = drawEffect.castEffect<GrConvolutionEffect>();
     GrTexture& texture = *conv.texture(0);
@@ -121,17 +121,17 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
         default:
             SkFAIL("Unknown filter direction.");
     }
-    uman.set2fv(fImageIncrementUni, 1, imageIncrement);
+    pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
     if (conv.useBounds()) {
         const float* bounds = conv.bounds();
         if (Gr1DKernelEffect::kY_Direction == conv.direction() &&
             texture.origin() != kTopLeft_GrSurfaceOrigin) {
-            uman.set2f(fBoundsUni, 1.0f - bounds[1], 1.0f - bounds[0]);
+            pdman.set2f(fBoundsUni, 1.0f - bounds[1], 1.0f - bounds[0]);
         } else {
-            uman.set2f(fBoundsUni, bounds[0], bounds[1]);
+            pdman.set2f(fBoundsUni, bounds[0], bounds[1]);
         }
     }
-    uman.set1fv(fKernelUni, this->width(), conv.kernel());
+    pdman.set1fv(fKernelUni, this->width(), conv.kernel());
 }
 
 void GrGLConvolutionEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,

@@ -257,18 +257,18 @@ public:
             b->add32(colorModeFilter.mode());
         }
 
-        virtual void setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) SK_OVERRIDE {
+        virtual void setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) SK_OVERRIDE {
             if (fFilterColorUni.isValid()) {
                 const ModeColorFilterEffect& colorModeFilter = drawEffect.castEffect<ModeColorFilterEffect>();
                 GrGLfloat c[4];
                 GrColorToRGBAFloat(colorModeFilter.color(), c);
-                uman.set4fv(fFilterColorUni, 1, c);
+                pdman.set4fv(fFilterColorUni, 1, c);
             }
         }
 
     private:
 
-        GrGLUniformManager::UniformHandle fFilterColorUni;
+        GrGLProgramDataManager::UniformHandle fFilterColorUni;
         typedef GrGLEffect INHERITED;
     };
 

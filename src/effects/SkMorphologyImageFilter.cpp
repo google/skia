@@ -324,14 +324,14 @@ public:
 
     static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
     int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }
 
-    int                                 fRadius;
-    GrMorphologyEffect::MorphologyType  fType;
-    GrGLUniformManager::UniformHandle   fImageIncrementUni;
+    int                                   fRadius;
+    GrMorphologyEffect::MorphologyType    fType;
+    GrGLProgramDataManager::UniformHandle fImageIncrementUni;
 
     typedef GrGLEffect INHERITED;
 };
@@ -392,7 +392,7 @@ void GrGLMorphologyEffect::GenKey(const GrDrawEffect& drawEffect,
     b->add32(key);
 }
 
-void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman,
+void GrGLMorphologyEffect::setData(const GrGLProgramDataManager& pdman,
                                    const GrDrawEffect& drawEffect) {
     const Gr1DKernelEffect& kern = drawEffect.castEffect<Gr1DKernelEffect>();
     GrTexture& texture = *kern.texture(0);
@@ -409,7 +409,7 @@ void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman,
         default:
             SkFAIL("Unknown filter direction.");
     }
-    uman.set2fv(fImageIncrementUni, 1, imageIncrement);
+    pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

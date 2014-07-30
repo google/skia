@@ -387,7 +387,7 @@ void SkTwoPointRadialGradient::init() {
 #include "SkGr.h"
 
 // For brevity
-typedef GrGLUniformManager::UniformHandle UniformHandle;
+typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 class GrGLRadial2Gradient : public GrGLGradientEffect {
 
@@ -403,7 +403,7 @@ public:
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
     static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
@@ -625,9 +625,9 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
     this->emitColor(builder, t.c_str(), baseKey, outputColor, inputColor, samplers);
 }
 
-void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
+void GrGLRadial2Gradient::setData(const GrGLProgramDataManager& pdman,
                                   const GrDrawEffect& drawEffect) {
-    INHERITED::setData(uman, drawEffect);
+    INHERITED::setData(pdman, drawEffect);
     const GrRadial2Gradient& data = drawEffect.castEffect<GrRadial2Gradient>();
     SkASSERT(data.isDegenerate() == fIsDegenerate);
     SkScalar centerX1 = data.center();
@@ -652,7 +652,7 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
             data.isPosRoot() ? 1.f : -1.f
         };
 
-        uman.set1fv(fParamUni, 6, values);
+        pdman.set1fv(fParamUni, 6, values);
         fCachedCenter = centerX1;
         fCachedRadius = radius0;
         fCachedPosRoot = data.isPosRoot();

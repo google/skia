@@ -16,7 +16,7 @@
 #include "gl/GrGLProgramDesc.h"
 #include "gl/GrGLProgramEffects.h"
 #include "gl/GrGLSL.h"
-#include "gl/GrGLUniformManager.h"
+#include "gl/GrGLProgramDataManager.h"
 
 #include <stdarg.h>
 
@@ -33,7 +33,7 @@ public:
     typedef GrTAllocator<GrGLShaderVar> VarArray;
     typedef GrGLProgramEffects::TextureSampler TextureSampler;
     typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
-    typedef GrGLUniformManager::BuilderUniform BuilderUniform;
+    typedef GrGLProgramDataManager::BuilderUniform BuilderUniform;
 
     enum ShaderVisibility {
         kVertex_Visibility   = 0x1,
@@ -41,7 +41,7 @@ public:
         kFragment_Visibility = 0x4,
     };
 
-    typedef GrGLUniformManager::UniformHandle UniformHandle;
+    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
     // Handles for program uniforms (other than per-effect uniforms)
     struct UniformHandles {
@@ -91,7 +91,7 @@ public:
     };
 
     static bool GenProgram(GrGpuGL* gpu,
-                           GrGLUniformManager* uman,
+                           GrGLProgramDataManager* pdman,
                            const GrGLProgramDesc& desc,
                            const GrEffectStage* inColorStages[],
                            const GrEffectStage* inCoverageStages[],
@@ -181,26 +181,26 @@ public:
         supported at this time. The actual uniform name will be mangled. If outName is not NULL then
         it will refer to the final uniform name after return. Use the addUniformArray variant to add
         an array of uniforms. */
-    GrGLUniformManager::UniformHandle addUniform(uint32_t visibility,
-                                                 GrSLType type,
-                                                 const char* name,
-                                                 const char** outName = NULL) {
+    GrGLProgramDataManager::UniformHandle addUniform(uint32_t visibility,
+                                                     GrSLType type,
+                                                     const char* name,
+                                                     const char** outName = NULL) {
         return this->addUniformArray(visibility, type, name, GrGLShaderVar::kNonArray, outName);
     }
-    GrGLUniformManager::UniformHandle addUniformArray(uint32_t visibility,
-                                                      GrSLType type,
-                                                      const char* name,
-                                                      int arrayCount,
-                                                      const char** outName = NULL);
+    GrGLProgramDataManager::UniformHandle addUniformArray(uint32_t visibility,
+                                                          GrSLType type,
+                                                          const char* name,
+                                                          int arrayCount,
+                                                          const char** outName = NULL);
 
-    const GrGLShaderVar& getUniformVariable(GrGLUniformManager::UniformHandle u) const {
-        return fUniformManager->getBuilderUniform(fUniforms, u).fVariable;
+    const GrGLShaderVar& getUniformVariable(GrGLProgramDataManager::UniformHandle u) const {
+        return fProgramDataManager->getBuilderUniform(fUniforms, u).fVariable;
     }
 
     /**
      * Shortcut for getUniformVariable(u).c_str()
      */
-    const char* getUniformCStr(GrGLUniformManager::UniformHandle u) const {
+    const char* getUniformCStr(GrGLProgramDataManager::UniformHandle u) const {
         return this->getUniformVariable(u).c_str();
     }
 
@@ -241,7 +241,7 @@ public:
     };
 
 protected:
-    GrGLShaderBuilder(GrGpuGL*, GrGLUniformManager*, const GrGLProgramDesc&);
+    GrGLShaderBuilder(GrGpuGL*, GrGLProgramDataManager*, const GrGLProgramDesc&);
 
     GrGpuGL* gpu() const { return fGpu; }
 
@@ -396,13 +396,13 @@ private:
 
     const GrGLProgramDesc&                  fDesc;
     GrGpuGL*                                fGpu;
-    SkAutoTUnref<GrGLUniformManager>        fUniformManager;
+    SkAutoTUnref<GrGLProgramDataManager>    fProgramDataManager;
     uint32_t                                fFSFeaturesAddedMask;
     SkString                                fFSFunctions;
     SkString                                fFSExtensions;
     VarArray                                fFSInputs;
     VarArray                                fFSOutputs;
-    GrGLUniformManager::BuilderUniformArray fUniforms;
+    GrGLProgramDataManager::BuilderUniformArray fUniforms;
 
     SkString                                fFSCode;
 
@@ -417,7 +417,7 @@ private:
 
 class GrGLFullShaderBuilder : public GrGLShaderBuilder {
 public:
-    GrGLFullShaderBuilder(GrGpuGL*, GrGLUniformManager*, const GrGLProgramDesc&);
+    GrGLFullShaderBuilder(GrGpuGL*, GrGLProgramDataManager*, const GrGLProgramDesc&);
 
     /**
      * Called by GrGLEffects to add code to one of the shaders.
@@ -502,7 +502,7 @@ private:
 
 class GrGLFragmentOnlyShaderBuilder : public GrGLShaderBuilder {
 public:
-    GrGLFragmentOnlyShaderBuilder(GrGpuGL*, GrGLUniformManager*, const GrGLProgramDesc&);
+    GrGLFragmentOnlyShaderBuilder(GrGpuGL*, GrGLProgramDataManager*, const GrGLProgramDesc&);
 
     int addTexCoordSets(int count);
 

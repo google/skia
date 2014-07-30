@@ -83,7 +83,7 @@ public:
         effect key as the one that created this GrGLEffect. Effects that use local coords have
         to consider whether the GrEffectStage's coord change matrix should be used. When explicit
         local coordinates are used it can be ignored. */
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) {}
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) {}
 
     const char* name() const { return fFactory.name(); }
 

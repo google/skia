@@ -428,7 +428,7 @@ public:
             builder->fsCodeAppendf("\t%s.rgb *= %s.a;\n", outputColor, outputColor);
         }
 
-        virtual void setData(const GrGLUniformManager& uniManager,
+        virtual void setData(const GrGLProgramDataManager& uniManager,
                              const GrDrawEffect& drawEffect) SK_OVERRIDE {
             const ColorMatrixEffect& cme = drawEffect.castEffect<ColorMatrixEffect>();
             const float* m = cme.fMatrix.fMat;
@@ -448,8 +448,8 @@ public:
         }
 
     private:
-        GrGLUniformManager::UniformHandle fMatrixHandle;
-        GrGLUniformManager::UniformHandle fVectorHandle;
+        GrGLProgramDataManager::UniformHandle fMatrixHandle;
+        GrGLProgramDataManager::UniformHandle fVectorHandle;
 
         typedef GrGLEffect INHERITED;
     };

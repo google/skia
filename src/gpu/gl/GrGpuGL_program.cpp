@@ -18,7 +18,7 @@ SK_CONF_DECLARE(bool, c_DisplayCache, "gpu.displayCache", false,
                 "Display program cache usage.");
 #endif
 
-typedef GrGLUniformManager::UniformHandle UniformHandle;
+typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 struct GrGpuGL::ProgramCache::Entry {
     SK_DECLARE_INST_COUNT_ROOT(Entry);

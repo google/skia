@@ -32,7 +32,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
     static inline void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                               GrEffectKeyBuilder* b) {
@@ -41,7 +41,7 @@ public:
     }
 
 private:
-    typedef GrGLUniformManager::UniformHandle        UniformHandle;
+    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
     UniformHandle               fCoefficientsUni;
     UniformHandle               fImageIncrementUni;
@@ -114,16 +114,16 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\t%s = %s;\n", outputColor, (GrGLSLExpr4(bicubicColor.c_str()) * GrGLSLExpr4(inputColor)).c_str());
 }
 
-void GrGLBicubicEffect::setData(const GrGLUniformManager& uman,
+void GrGLBicubicEffect::setData(const GrGLProgramDataManager& pdman,
                                 const GrDrawEffect& drawEffect) {
     const GrBicubicEffect& effect = drawEffect.castEffect<GrBicubicEffect>();
     const GrTexture& texture = *effect.texture(0);
     float imageIncrement[2];
     imageIncrement[0] = 1.0f / texture.width();
     imageIncrement[1] = 1.0f / texture.height();
-    uman.set2fv(fImageIncrementUni, 1, imageIncrement);
-    uman.setMatrix4f(fCoefficientsUni, effect.coefficients());
-    fDomain.setData(uman, effect.domain(), texture.origin());
+    pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
+    pdman.setMatrix4f(fCoefficientsUni, effect.coefficients());
+    fDomain.setData(pdman, effect.domain(), texture.origin());
 }
 
 static inline void convert_row_major_scalar_coeffs_to_column_major_floats(float dst[16],

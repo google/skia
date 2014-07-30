@@ -104,7 +104,7 @@ public:
          * Call this from GrGLEffect::setData() to upload uniforms necessary for the texture domain.
          * The rectangle is automatically adjusted to account for the texture's origin.
          */
-        void setData(const GrGLUniformManager& uman, const GrTextureDomain& textureDomain,
+        void setData(const GrGLProgramDataManager& pdman, const GrTextureDomain& textureDomain,
                      GrSurfaceOrigin textureOrigin);
 
         enum {
@@ -121,10 +121,10 @@ public:
         }
 
     private:
-        SkDEBUGCODE(Mode                  fMode;)
-        GrGLUniformManager::UniformHandle fDomainUni;
-        SkString                          fDomainName;
-        GrGLfloat                         fPrevDomain[4];
+        SkDEBUGCODE(Mode                      fMode;)
+        GrGLProgramDataManager::UniformHandle fDomainUni;
+        SkString                              fDomainName;
+        GrGLfloat                             fPrevDomain[4];
     };
 
 protected:

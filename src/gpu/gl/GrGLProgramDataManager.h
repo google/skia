@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLUniformManager_DEFINED
-#define GrGLUniformManager_DEFINED
+#ifndef GrGLProgramDataManager_DEFINED
+#define GrGLProgramDataManager_DEFINED
 
 #include "gl/GrGLShaderVar.h"
 #include "gl/GrGLSL.h"
@@ -17,9 +17,11 @@
 class GrGpuGL;
 class SkMatrix;
 
-/** Manages a program's uniforms.
-*/
-class GrGLUniformManager : public SkRefCnt {
+/** Manages the resources used by a shader program.
+ * The resources are objects the program uses to communicate with the
+ * application code.
+ */
+class GrGLProgramDataManager : public SkRefCnt {
 public:
     // Opaque handle to a uniform
     class UniformHandle {
@@ -43,10 +45,10 @@ public:
         int toUniformIndex() const { SkASSERT(isValid()); return ~fValue; }
 
         int fValue;
-        friend class GrGLUniformManager; // For accessing toUniformIndex().
+        friend class GrGLProgramDataManager; // For accessing toUniformIndex().
     };
 
-    GrGLUniformManager(GrGpuGL* gpu);
+    GrGLProgramDataManager(GrGpuGL* gpu);
 
     UniformHandle appendUniform(GrSLType type, int arrayCount = GrGLShaderVar::kNonArray);
 
@@ -96,7 +98,7 @@ public:
     /**
      * Called by the GrGLShaderBuilder to access the array by the handle (index).
      */
-    const BuilderUniform& getBuilderUniform(const BuilderUniformArray&, GrGLUniformManager::UniformHandle) const;
+    const BuilderUniform& getBuilderUniform(const BuilderUniformArray&, GrGLProgramDataManager::UniformHandle) const;
 
 private:
     enum {

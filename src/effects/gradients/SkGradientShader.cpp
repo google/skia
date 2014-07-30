@@ -884,29 +884,29 @@ void GrGLGradientEffect::emitUniforms(GrGLShaderBuilder* builder, uint32_t baseK
     }
 }
 
-static inline void set_color_uni(const GrGLUniformManager& uman,
-                                 const GrGLUniformManager::UniformHandle uni,
+static inline void set_color_uni(const GrGLProgramDataManager& pdman,
+                                 const GrGLProgramDataManager::UniformHandle uni,
                                  const SkColor* color) {
-       uman.set4f(uni,
-                  SkColorGetR(*color) / 255.f,
-                  SkColorGetG(*color) / 255.f,
-                  SkColorGetB(*color) / 255.f,
-                  SkColorGetA(*color) / 255.f);
+       pdman.set4f(uni,
+                   SkColorGetR(*color) / 255.f,
+                   SkColorGetG(*color) / 255.f,
+                   SkColorGetB(*color) / 255.f,
+                   SkColorGetA(*color) / 255.f);
 }
 
-static inline void set_mul_color_uni(const GrGLUniformManager& uman,
-                                     const GrGLUniformManager::UniformHandle uni,
+static inline void set_mul_color_uni(const GrGLProgramDataManager& pdman,
+                                     const GrGLProgramDataManager::UniformHandle uni,
                                      const SkColor* color){
        float a = SkColorGetA(*color) / 255.f;
        float aDiv255 = a / 255.f;
-       uman.set4f(uni,
-                  SkColorGetR(*color) * aDiv255,
-                  SkColorGetG(*color) * aDiv255,
-                  SkColorGetB(*color) * aDiv255,
-                  a);
+       pdman.set4f(uni,
+                   SkColorGetR(*color) * aDiv255,
+                   SkColorGetG(*color) * aDiv255,
+                   SkColorGetB(*color) * aDiv255,
+                   a);
 }
 
-void GrGLGradientEffect::setData(const GrGLUniformManager& uman,
+void GrGLGradientEffect::setData(const GrGLProgramDataManager& pdman,
                                  const GrDrawEffect& drawEffect) {
 
     const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
@@ -915,29 +915,29 @@ void GrGLGradientEffect::setData(const GrGLUniformManager& uman,
     if (SkGradientShaderBase::kTwo_GpuColorType == e.getColorType()){
 
         if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
-            set_mul_color_uni(uman, fColorStartUni, e.getColors(0));
-            set_mul_color_uni(uman, fColorEndUni,   e.getColors(1));
+            set_mul_color_uni(pdman, fColorStartUni, e.getColors(0));
+            set_mul_color_uni(pdman, fColorEndUni,   e.getColors(1));
         } else {
-            set_color_uni(uman, fColorStartUni, e.getColors(0));
-            set_color_uni(uman, fColorEndUni,   e.getColors(1));
+            set_color_uni(pdman, fColorStartUni, e.getColors(0));
+            set_color_uni(pdman, fColorEndUni,   e.getColors(1));
         }
 
     } else if (SkGradientShaderBase::kThree_GpuColorType == e.getColorType()){
 
         if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
-            set_mul_color_uni(uman, fColorStartUni, e.getColors(0));
-            set_mul_color_uni(uman, fColorMidUni,   e.getColors(1));
-            set_mul_color_uni(uman, fColorEndUni,   e.getColors(2));
+            set_mul_color_uni(pdman, fColorStartUni, e.getColors(0));
+            set_mul_color_uni(pdman, fColorMidUni,   e.getColors(1));
+            set_mul_color_uni(pdman, fColorEndUni,   e.getColors(2));
         } else {
-            set_color_uni(uman, fColorStartUni, e.getColors(0));
-            set_color_uni(uman, fColorMidUni,   e.getColors(1));
-            set_color_uni(uman, fColorEndUni,   e.getColors(2));
+            set_color_uni(pdman, fColorStartUni, e.getColors(0));
+            set_color_uni(pdman, fColorMidUni,   e.getColors(1));
+            set_color_uni(pdman, fColorEndUni,   e.getColors(2));
         }
     } else {
 
         SkScalar yCoord = e.getYCoord();
         if (yCoord != fCachedYCoord) {
-            uman.set1f(fFSYUni, yCoord);
+            pdman.set1f(fFSYUni, yCoord);
             fCachedYCoord = yCoord;
         }
     }

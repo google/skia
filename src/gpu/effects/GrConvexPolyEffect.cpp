@@ -99,11 +99,11 @@ public:
 
     static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
-    GrGLUniformManager::UniformHandle   fRectUniform;
-    SkRect                              fPrevRect;
+    GrGLProgramDataManager::UniformHandle fRectUniform;
+    SkRect                                fPrevRect;
     typedef GrGLEffect INHERITED;
 };
 
@@ -155,11 +155,11 @@ void GLAARectEffect::emitCode(GrGLShaderBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLAARectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
+void GLAARectEffect::setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) {
     const AARectEffect& aare = drawEffect.castEffect<AARectEffect>();
     const SkRect& rect = aare.getRect();
     if (rect != fPrevRect) {
-        uman.set4f(fRectUniform, rect.fLeft + 0.5f, rect.fTop + 0.5f,
+        pdman.set4f(fRectUniform, rect.fLeft + 0.5f, rect.fTop + 0.5f,
                    rect.fRight - 0.5f, rect.fBottom - 0.5f);
         fPrevRect = rect;
     }
@@ -191,11 +191,11 @@ public:
 
     static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
-    GrGLUniformManager::UniformHandle   fEdgeUniform;
-    SkScalar                            fPrevEdges[3 * GrConvexPolyEffect::kMaxEdges];
+    GrGLProgramDataManager::UniformHandle fEdgeUniform;
+    SkScalar                              fPrevEdges[3 * GrConvexPolyEffect::kMaxEdges];
     typedef GrGLEffect INHERITED;
 };
 
@@ -246,11 +246,11 @@ void GrGLConvexPolyEffect::emitCode(GrGLShaderBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GrGLConvexPolyEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
+void GrGLConvexPolyEffect::setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) {
     const GrConvexPolyEffect& cpe = drawEffect.castEffect<GrConvexPolyEffect>();
     size_t byteSize = 3 * cpe.getEdgeCount() * sizeof(SkScalar);
     if (0 != memcmp(fPrevEdges, cpe.getEdges(), byteSize)) {
-        uman.set3fv(fEdgeUniform, cpe.getEdgeCount(), cpe.getEdges());
+        pdman.set3fv(fEdgeUniform, cpe.getEdgeCount(), cpe.getEdges());
         memcpy(fPrevEdges, cpe.getEdges(), byteSize);
     }
 }

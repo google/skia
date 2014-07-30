@@ -124,12 +124,12 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
 
-    GrGLUniformManager::UniformHandle       fInnerThresholdVar;
-    GrGLUniformManager::UniformHandle       fOuterThresholdVar;
+    GrGLProgramDataManager::UniformHandle fInnerThresholdVar;
+    GrGLProgramDataManager::UniformHandle fOuterThresholdVar;
 
     typedef GrGLEffect INHERITED;
 };
@@ -186,12 +186,12 @@ void GrGLAlphaThresholdEffect::emitCode(GrGLShaderBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr4("color")).c_str());
 }
 
-void GrGLAlphaThresholdEffect::setData(const GrGLUniformManager& uman,
+void GrGLAlphaThresholdEffect::setData(const GrGLProgramDataManager& pdman,
                                   const GrDrawEffect& drawEffect) {
     const AlphaThresholdEffect& alpha_threshold =
         drawEffect.castEffect<AlphaThresholdEffect>();
-    uman.set1f(fInnerThresholdVar, alpha_threshold.innerThreshold());
-    uman.set1f(fOuterThresholdVar, alpha_threshold.outerThreshold());
+    pdman.set1f(fInnerThresholdVar, alpha_threshold.innerThreshold());
+    pdman.set1f(fOuterThresholdVar, alpha_threshold.outerThreshold());
 }
 
 /////////////////////////////////////////////////////////////////////

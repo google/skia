@@ -132,7 +132,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
     }
 }
 
-void GrTextureDomain::GLDomain::setData(const GrGLUniformManager& uman,
+void GrTextureDomain::GLDomain::setData(const GrGLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
                                         GrSurfaceOrigin textureOrigin) {
     SkASSERT(textureDomain.mode() == fMode);
@@ -152,7 +152,7 @@ void GrTextureDomain::GLDomain::setData(const GrGLUniformManager& uman,
             SkTSwap(values[1], values[3]);
         }
         if (0 != memcmp(values, fPrevDomain, 4 * sizeof(GrGLfloat))) {
-            uman.set4fv(fDomainUni, 1, values);
+            pdman.set4fv(fDomainUni, 1, values);
             memcpy(fPrevDomain, values, 4 * sizeof(GrGLfloat));
         }
     }
@@ -173,7 +173,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
     static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
@@ -201,11 +201,11 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
     fGLDomain.sampleTexture(builder, domain, outputColor, coords2D, samplers[0], inputColor);
 }
 
-void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman,
+void GrGLTextureDomainEffect::setData(const GrGLProgramDataManager& pdman,
                                       const GrDrawEffect& drawEffect) {
     const GrTextureDomainEffect& effect = drawEffect.castEffect<GrTextureDomainEffect>();
     const GrTextureDomain& domain = effect.textureDomain();
-    fGLDomain.setData(uman, domain, effect.texture(0)->origin());
+    fGLDomain.setData(pdman, domain, effect.texture(0)->origin());
 }
 
 void GrGLTextureDomainEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,

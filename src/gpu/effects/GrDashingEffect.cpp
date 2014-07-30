@@ -478,13 +478,13 @@ public:
 
     static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
-    GrGLUniformManager::UniformHandle   fParamUniform;
-    SkScalar                            fPrevRadius;
-    SkScalar                            fPrevCenterX;
-    SkScalar                            fPrevIntervalLength;
+    GrGLProgramDataManager::UniformHandle fParamUniform;
+    SkScalar                              fPrevRadius;
+    SkScalar                              fPrevCenterX;
+    SkScalar                              fPrevIntervalLength;
     typedef GrGLVertexEffect INHERITED;
 };
 
@@ -536,13 +536,13 @@ void GLDashingCircleEffect::emitCode(GrGLFullShaderBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLDashingCircleEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
+void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) {
     const DashingCircleEffect& dce = drawEffect.castEffect<DashingCircleEffect>();
     SkScalar radius = dce.getRadius();
     SkScalar centerX = dce.getCenterX();
     SkScalar intervalLength = dce.getIntervalLength();
     if (radius != fPrevRadius || centerX != fPrevCenterX || intervalLength != fPrevIntervalLength) {
-        uman.set3f(fParamUniform, radius - 0.5f, centerX, intervalLength);
+        pdman.set3f(fParamUniform, radius - 0.5f, centerX, intervalLength);
         fPrevRadius = radius;
         fPrevCenterX = centerX;
         fPrevIntervalLength = intervalLength;
@@ -683,13 +683,13 @@ public:
 
     static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
-    GrGLUniformManager::UniformHandle   fRectUniform;
-    GrGLUniformManager::UniformHandle   fIntervalUniform;
-    SkRect                              fPrevRect;
-    SkScalar                            fPrevIntervalLength;
+    GrGLProgramDataManager::UniformHandle fRectUniform;
+    GrGLProgramDataManager::UniformHandle fIntervalUniform;
+    SkRect                                fPrevRect;
+    SkScalar                              fPrevIntervalLength;
     typedef GrGLVertexEffect INHERITED;
 };
 
@@ -753,14 +753,14 @@ void GLDashingLineEffect::emitCode(GrGLFullShaderBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLDashingLineEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
+void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) {
     const DashingLineEffect& de = drawEffect.castEffect<DashingLineEffect>();
     const SkRect& rect = de.getRect();
     SkScalar intervalLength = de.getIntervalLength();
     if (rect != fPrevRect || intervalLength != fPrevIntervalLength) {
-        uman.set4f(fRectUniform, rect.fLeft + 0.5f, rect.fTop + 0.5f,
-                   rect.fRight - 0.5f, rect.fBottom - 0.5f);
-        uman.set1f(fIntervalUniform, intervalLength);
+        pdman.set4f(fRectUniform, rect.fLeft + 0.5f, rect.fTop + 0.5f,
+                    rect.fRight - 0.5f, rect.fBottom - 0.5f);
+        pdman.set1f(fIntervalUniform, intervalLength);
         fPrevRect = rect;
         fPrevIntervalLength = intervalLength;
     }

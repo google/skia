@@ -25,10 +25,10 @@ public:
 
     static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
-    typedef GrGLUniformManager::UniformHandle        UniformHandle;
+    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
     SkISize                     fKernelSize;
     bool                        fConvolveAlpha;
 
@@ -124,7 +124,7 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrDrawEffect& drawEffect,
     b->add32(GrTextureDomain::GLDomain::DomainKey(m.domain()));
 }
 
-void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
+void GrGLMatrixConvolutionEffect::setData(const GrGLProgramDataManager& pdman,
                                           const GrDrawEffect& drawEffect) {
     const GrMatrixConvolutionEffect& conv = drawEffect.castEffect<GrMatrixConvolutionEffect>();
     GrTexture& texture = *conv.texture(0);
@@ -134,12 +134,12 @@ void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
     float ySign = texture.origin() == kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
     imageIncrement[0] = 1.0f / texture.width();
     imageIncrement[1] = ySign / texture.height();
-    uman.set2fv(fImageIncrementUni, 1, imageIncrement);
-    uman.set2fv(fKernelOffsetUni, 1, conv.kernelOffset());
-    uman.set1fv(fKernelUni, fKernelSize.width() * fKernelSize.height(), conv.kernel());
-    uman.set1f(fGainUni, conv.gain());
-    uman.set1f(fBiasUni, conv.bias());
-    fDomain.setData(uman, conv.domain(), texture.origin());
+    pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
+    pdman.set2fv(fKernelOffsetUni, 1, conv.kernelOffset());
+    pdman.set1fv(fKernelUni, fKernelSize.width() * fKernelSize.height(), conv.kernel());
+    pdman.set1f(fGainUni, conv.gain());
+    pdman.set1f(fBiasUni, conv.bias());
+    fDomain.setData(pdman, conv.domain(), texture.origin());
 }
 
 GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
