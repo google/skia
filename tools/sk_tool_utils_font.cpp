@@ -22,7 +22,7 @@ static void release_portable_typefaces() {
     // makes this unsafe to delete when the main process atexit()s.
     // SkLazyPtr does the same sort of thing.
 #if SK_DEVELOPER
-    for (unsigned index = 0; index < gTestFontsCount; ++index) {
+    for (int index = 0; index < gTestFontsCount; ++index) {
         SkTestFontData& fontData = gTestFonts[index];
         SkSafeUnref(fontData.fFontCache);
     }
@@ -35,7 +35,7 @@ SkTypeface* create_font(const char* name, SkTypeface::Style style) {
     SkTestFontData* fontData = NULL;
     const SubFont* sub;
     if (name) {
-        for (unsigned index = 0; index < gSubFontsCount; ++index) {
+        for (int index = 0; index < gSubFontsCount; ++index) {
             sub = &gSubFonts[index];
             if (!strcmp(name, sub->fName) && sub->fStyle == style) {
                 fontData = &sub->fFont;
@@ -70,7 +70,7 @@ SkTypeface* create_font(const char* name, SkTypeface::Style style) {
 SkTypeface* resource_font(const char* name, SkTypeface::Style style) {
     const char* file = NULL;
     if (name) {
-        for (unsigned index = 0; index < gSubFontsCount; ++index) {
+        for (int index = 0; index < gSubFontsCount; ++index) {
             const SubFont& sub = gSubFonts[index];
             if (!strcmp(name, sub.fName) && sub.fStyle == style) {
                 file = sub.fFile;
