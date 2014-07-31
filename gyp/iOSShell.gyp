@@ -18,8 +18,9 @@
             'xml.gyp:xml',
           ],
           'sources': [
-            '../bench/nanobench.cpp',
+            '../bench/GMBench.cpp',
             '../bench/ResultsWriter.cpp',
+            '../bench/nanobench.cpp',
             '../tests/skia_test.cpp',
             '../tools/iOSShell.cpp',
             '../src/views/mac/SkEventNotifier.mm',
