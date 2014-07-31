@@ -75,6 +75,101 @@ DEF_TEST(CompressAlphaFailColorType, reporter) {
 }
 
 /**
+ * Make sure that if you compress a texture with alternating black/white pixels, and
+ * then decompress it, you get what you started with.
+ */
+DEF_TEST(CompressCheckerboard, reporter) {
+    SkBitmap bitmap;
+    static const int kWidth = 48;  // We need the number to be divisible by both
+    static const int kHeight = 48; // 12 (ASTC) and 16 (ARM NEON R11 EAC).
+    SkImageInfo info = SkImageInfo::MakeA8(kWidth, kHeight);
+
+    // ASTC is at most 12x12, and any dimension divisible by 12 is also divisible
+    // by 4, which is the dimensions of R11_EAC and LATC. In the future, we might
+    // support additional variants of ASTC, such as 5x6 and 8x8, in which case this would
+    // need to be updated. Additionally, ARM NEON and SSE code paths support up to
+    // four blocks of R11 EAC at once, so they operate on 16-wide blocks. Hence, the
+    // valid width and height is going to be the LCM of 12 and 16 which is 4*4*3 = 48
+    REPORTER_ASSERT(reporter, kWidth % 48 == 0);
+    REPORTER_ASSERT(reporter, kHeight % 48 == 0);
+
+    bool setInfoSuccess = bitmap.setInfo(info);
+    REPORTER_ASSERT(reporter, setInfoSuccess);
+
+    bool allocPixelsSuccess = bitmap.allocPixels(info);
+    REPORTER_ASSERT(reporter, allocPixelsSuccess);
+    bitmap.unlockPixels();
+
+    // Populate bitmap
+    {
+        SkAutoLockPixels alp(bitmap);
+
+        uint8_t* pixels = reinterpret_cast<uint8_t*>(bitmap.getPixels());
+        REPORTER_ASSERT(reporter, NULL != pixels);
+        if (NULL == pixels) {
+            return;
+        }
+
+        for (int y = 0; y < kHeight; ++y) {
+            for (int x = 0; x < kWidth; ++x) {
+                if ((x ^ y) & 1) {
+                    pixels[x] = 0xFF;
+                } else {
+                    pixels[x] = 0;
+                }
+            }
+            pixels += bitmap.rowBytes();
+        }
+    }
+
+    SkAutoMalloc decompMemory(kWidth*kHeight);
+    uint8_t* decompBuffer = reinterpret_cast<uint8_t*>(decompMemory.get());
+    REPORTER_ASSERT(reporter, NULL != decompBuffer);
+    if (NULL == decompBuffer) {
+        return;
+    }
+
+    for (int i = 0; i < SkTextureCompressor::kFormatCnt; ++i) {
+        const SkTextureCompressor::Format fmt = static_cast<SkTextureCompressor::Format>(i);
+
+        // ASTC is for RGBA data, and the decompressed buffer
+        // won't match the size and contents of the original.
+        // TODO: Create separate tests for RGB and RGBA data once
+        // ASTC decompression is implemented.
+        if (SkTextureCompressor::kASTC_12x12_Format == fmt) {
+            continue;
+        }
+
+        SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(bitmap, fmt));
+        REPORTER_ASSERT(reporter, NULL != data);
+        if (NULL == data) {
+            continue;
+        }
+
+        bool decompResult =
+            SkTextureCompressor::DecompressBufferFromFormat(
+                decompBuffer, kWidth,
+                data->bytes(),
+                kWidth, kHeight, fmt);
+        REPORTER_ASSERT(reporter, decompResult);
+
+        SkAutoLockPixels alp(bitmap);
+        uint8_t* pixels = reinterpret_cast<uint8_t*>(bitmap.getPixels());
+        REPORTER_ASSERT(reporter, NULL != pixels);
+        if (NULL == pixels) {
+            continue;
+        }
+
+        for (int y = 0; y < kHeight; ++y) {
+            for (int x = 0; x < kWidth; ++x) {
+                bool ok = pixels[y*bitmap.rowBytes() + x] == decompBuffer[y*kWidth + x];
+                REPORTER_ASSERT(reporter, ok);
+            }
+        }
+    }
+}
+
+/**
  * Make sure that if we pass in a solid color bitmap that we get the appropriate results
  */
 DEF_TEST(CompressLATC, reporter) {
@@ -108,6 +203,10 @@ DEF_TEST(CompressLATC, reporter) {
         bitmap.lockPixels();
         uint8_t* pixels = reinterpret_cast<uint8_t*>(bitmap.getPixels());
         REPORTER_ASSERT(reporter, NULL != pixels);
+        if (NULL == pixels) {
+            bitmap.unlockPixels();
+            continue;
+        }
 
         for (int i = 0; i < kWidth*kHeight; ++i) {
             pixels[i] = lum;
@@ -117,6 +216,10 @@ DEF_TEST(CompressLATC, reporter) {
         SkAutoDataUnref latcData(
             SkTextureCompressor::CompressBitmapToFormat(bitmap, kLATCFormat));
         REPORTER_ASSERT(reporter, NULL != latcData);
+        if (NULL == latcData) {
+            continue;
+        }
+
         REPORTER_ASSERT(reporter, kSizeToBe == latcData->size());
 
         // Make sure that it all matches a given block encoding. Since we have
