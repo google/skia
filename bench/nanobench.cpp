@@ -9,6 +9,7 @@
 
 #include "Benchmark.h"
 #include "CrashHandler.h"
+#include "GMBench.h"
 #include "ResultsWriter.h"
 #include "Stats.h"
 #include "Timer.h"
@@ -239,7 +240,7 @@ static bool is_gpu_config_allowed(const char* name, GrContextFactory::GLContextT
 #define kBogusGLContextType GrContextFactory::kNative_GLContextType
 #else
 #define kBogusGLContextType 0
-#endif 
+#endif
 
 // Append all configs that are enabled and supported.
 static void create_configs(SkTDArray<Config>* configs) {
@@ -248,7 +249,7 @@ static void create_configs(SkTDArray<Config>* configs) {
             Config config = { #name, Benchmark::backend, color, alpha, 0, kBogusGLContextType };  \
             configs->push(config);                                                                \
         }
-         
+
     if (FLAGS_cpu) {
         CPU_CONFIG(nonrendering, kNonRendering_Backend, kUnknown_SkColorType, kUnpremul_SkAlphaType)
         CPU_CONFIG(8888, kRaster_Backend, kN32_SkColorType, kPremul_SkAlphaType)
@@ -267,7 +268,7 @@ static void create_configs(SkTDArray<Config>* configs) {
                 GrContextFactory::ctxType };                                     \
             configs->push(config);                                               \
         }
-         
+
     if (FLAGS_gpu) {
         GPU_CONFIG(gpu, kNative_GLContextType, 0)
         GPU_CONFIG(msaa4, kNative_GLContextType, 4)
@@ -319,7 +320,7 @@ static void create_targets(SkTDArray<Target*>* targets, Benchmark* b,
         if (Target* t = is_enabled(b, configs[i])) {
             targets->push(t);
         }
-        
+
     }
 }
 
@@ -353,6 +354,32 @@ static void fill_gpu_options(ResultsWriter* log, SkGLContextHelper* ctx) {
     log->configOption("GL_SHADING_LANGUAGE_VERSION", (const char*) version);
 }
 #endif
+
+class BenchmarkStream {
+public:
+    BenchmarkStream() : fBenches(BenchRegistry::Head()) , fGMs(skiagm::GMRegistry::Head()) {}
+
+    Benchmark* next(const char** sourceType) {
+        if (fBenches) {
+            Benchmark* bench = fBenches->factory()(NULL);
+            fBenches = fBenches->next();
+            *sourceType = "bench";
+            return bench;
+        }
+        while (fGMs) {
+            SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(NULL));
+            fGMs = fGMs->next();
+            if (gm->getFlags() & skiagm::GM::kAsBench_Flag) {
+                *sourceType = "gm";
+                return SkNEW_ARGS(GMBench, (gm.detach()));
+            }
+        }
+        return NULL;
+    }
+private:
+    const BenchRegistry* fBenches;
+    const skiagm::GMRegistry* fGMs;
+};
 
 int nanobench_main();
 int nanobench_main() {
@@ -400,8 +427,10 @@ int nanobench_main() {
     SkTDArray<Config> configs;
     create_configs(&configs);
 
-    for (const BenchRegistry* r = BenchRegistry::Head(); r != NULL; r = r->next()) {
-        SkAutoTDelete<Benchmark> bench(r->factory()(NULL));
+    BenchmarkStream benches;
+    const char* sourceType;
+    while (Benchmark* b = benches.next(&sourceType)) {
+        SkAutoTDelete<Benchmark> bench(b);
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getName())) {
             continue;
         }
@@ -433,6 +462,7 @@ int nanobench_main() {
 
             Stats stats(samples.get(), FLAGS_samples);
             log.config(config);
+            log.configOption("source_type", sourceType);
 #if SK_SUPPORT_GPU
             if (Benchmark::kGPU_Backend == targets[j]->config.backend) {
                 fill_gpu_options(&log, targets[j]->gl);

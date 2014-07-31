@@ -37,10 +37,14 @@
       'target_name': 'nanobench',
       'type': 'executable',
       'sources': [
-        '../bench/nanobench.cpp',
+        '../bench/GMBench.cpp',
         '../bench/ResultsWriter.cpp',
+        '../bench/nanobench.cpp',
       ],
-      'includes': [ 'bench.gypi' ],
+      'includes': [
+        'bench.gypi',
+        'gmslides.gypi',
+      ],
       'dependencies': [
         'flags.gyp:flags_common',
         'jsoncpp.gyp:jsoncpp',
