@@ -44,50 +44,70 @@ public:
 // get a ref to the GrTexture in which they reside. In both cases 'fRect' 
 // contains the layer's extent in its texture.
 // Atlased layers also get a pointer to the plot in which they reside.
-// For non-atlased layers the lock field just corresponds to locking in
-// the resource cache. For atlased layers it implements an additional level
+// For non-atlased layers, the lock field just corresponds to locking in
+// the resource cache. For atlased layers, it implements an additional level
 // of locking to allow atlased layers to be reused multiple times.
 struct GrCachedLayer {
 public:
     // For SkTDynamicHash
     struct Key {
-        Key(uint32_t pictureID, int layerID) : fPictureID(pictureID) , fLayerID(layerID) {}
+        Key(uint32_t pictureID, int start, int stop, const SkMatrix& ctm) 
+        : fPictureID(pictureID)
+        , fStart(start)
+        , fStop(stop)
+        , fCTM(ctm) {
+            fCTM.getType(); // force initialization of type so hashes match
 
-        bool operator==(const Key& other) const {
-            return fPictureID == other.fPictureID && fLayerID == other.fLayerID;
+            // Key needs to be tightly packed.
+            GR_STATIC_ASSERT(sizeof(Key) == sizeof(uint32_t) + 2 * sizeof(int) + 
+                                            9 * sizeof(SkScalar) + sizeof(uint32_t));
         }
 
-        uint32_t getPictureID() const { return fPictureID; }
-        int      getLayerID() const { return fLayerID; }
+        bool operator==(const Key& other) const {
+            return fPictureID == other.fPictureID &&
+                   fStart == other.fStart &&
+                   fStop == other.fStop &&
+                   fCTM.cheapEqualTo(other.fCTM);
+        }
+
+        uint32_t pictureID() const { return fPictureID; }
+        int start() const { return fStart; }
+        int stop() const { return fStop; }
+        const SkMatrix& ctm() const { return fCTM; }
 
     private:
         // ID of the picture of which this layer is a part
         const uint32_t fPictureID;
-        // fLayerID is the index of this layer in the picture (one of 0 .. #layers).
-        const int      fLayerID;
+        // The range of commands in the picture this layer represents
+        const int      fStart;
+        const int      fStop;
+        // The CTM applied to this layer in the picture
+        SkMatrix       fCTM;
     };
 
     static const Key& GetKey(const GrCachedLayer& layer) { return layer.fKey; }
     static uint32_t Hash(const Key& key) { 
-        return SkChecksum::Mix((key.getPictureID() << 16) | key.getLayerID());
+        return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
     }
 
     // GrCachedLayer proper
-    GrCachedLayer(uint32_t pictureID, int layerID) 
-        : fKey(pictureID, layerID)
+    GrCachedLayer(uint32_t pictureID, int start, int stop, const SkMatrix& ctm) 
+        : fKey(pictureID, start, stop, ctm)
         , fTexture(NULL)
         , fRect(GrIRect16::MakeEmpty())
         , fPlot(NULL)
         , fLocked(false) {
-        SkASSERT(SK_InvalidGenID != pictureID && layerID >= 0);
+        SkASSERT(SK_InvalidGenID != pictureID && start >= 0 && stop >= 0);
     }
 
     ~GrCachedLayer() {
         SkSafeUnref(fTexture);
     }
 
-    uint32_t pictureID() const { return fKey.getPictureID(); }
-    int layerID() const { return fKey.getLayerID(); }
+    uint32_t pictureID() const { return fKey.pictureID(); }
+    int start() const { return fKey.start(); }
+    int stop() const { return fKey.stop(); }
+    const SkMatrix& ctm() const { return fKey.ctm(); }
 
     void setTexture(GrTexture* texture, const GrIRect16& rect) {
         SkRefCnt_SafeAssign(fTexture, texture);
@@ -151,8 +171,10 @@ public:
     // elements by the GrContext
     void freeAll();
 
-    GrCachedLayer* findLayer(const SkPicture* picture, int layerID);
-    GrCachedLayer* findLayerOrCreate(const SkPicture* picture, int layerID);
+    GrCachedLayer* findLayer(const SkPicture* picture, int start, int stop, const SkMatrix& ctm);
+    GrCachedLayer* findLayerOrCreate(const SkPicture* picture, 
+                                     int start, int stop, 
+                                     const SkMatrix& ctm);
     
     // Inform the cache that layer's cached image is now required. Return true
     // if it was found in the ResourceCache and doesn't need to be regenerated.
@@ -206,7 +228,7 @@ private:
     int fPlotLocks[kNumPlotsX * kNumPlotsY];
 
     void initAtlas();
-    GrCachedLayer* createLayer(const SkPicture* picture, int layerID);
+    GrCachedLayer* createLayer(const SkPicture* picture, int start, int stop, const SkMatrix& ctm);
 
     // Remove all the layers (and unlock any resources) associated with 'pictureID'
     void purge(uint32_t pictureID);

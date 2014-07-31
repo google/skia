@@ -31,15 +31,19 @@ static void create_layers(skiatest::Reporter* reporter,
                           int idOffset) {
 
     for (int i = 0; i < numToAdd; ++i) {
-        GrCachedLayer* layer = cache->findLayerOrCreate(&picture, idOffset+i);
+        GrCachedLayer* layer = cache->findLayerOrCreate(&picture, 
+                                                        idOffset+i+1, idOffset+i+2, 
+                                                        SkMatrix::I());
         REPORTER_ASSERT(reporter, NULL != layer);
-        GrCachedLayer* temp = cache->findLayer(&picture, idOffset+i);
+        GrCachedLayer* temp = cache->findLayer(&picture, idOffset+i+1, idOffset+i+2, SkMatrix::I());
         REPORTER_ASSERT(reporter, temp == layer);
 
         REPORTER_ASSERT(reporter, TestingAccess::NumLayers(cache) == idOffset + i + 1);
 
         REPORTER_ASSERT(reporter, picture.uniqueID() == layer->pictureID());
-        REPORTER_ASSERT(reporter, layer->layerID() == idOffset + i);
+        REPORTER_ASSERT(reporter, layer->start() == idOffset + i + 1);
+        REPORTER_ASSERT(reporter, layer->stop() == idOffset + i + 2);
+        REPORTER_ASSERT(reporter, layer->ctm() == SkMatrix::I());
         REPORTER_ASSERT(reporter, NULL == layer->texture());
         REPORTER_ASSERT(reporter, !layer->isAtlased());
     }
@@ -95,7 +99,7 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         create_layers(reporter, &cache, *picture, kInitialNumLayers, 0);
 
         for (int i = 0; i < kInitialNumLayers; ++i) {
-            GrCachedLayer* layer = cache.findLayer(picture, i);
+            GrCachedLayer* layer = cache.findLayer(picture, i+1, i+2, SkMatrix::I());
             REPORTER_ASSERT(reporter, NULL != layer);
 
             lock_layer(reporter, &cache, layer);
@@ -112,14 +116,14 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
 
         // Unlock the textures
         for (int i = 0; i < kInitialNumLayers; ++i) {
-            GrCachedLayer* layer = cache.findLayer(picture, i);
+            GrCachedLayer* layer = cache.findLayer(picture, i+1, i+2, SkMatrix::I());
             REPORTER_ASSERT(reporter, NULL != layer);
 
             cache.unlock(layer);
         }
 
         for (int i = 0; i < kInitialNumLayers; ++i) {
-            GrCachedLayer* layer = cache.findLayer(picture, i);
+            GrCachedLayer* layer = cache.findLayer(picture, i+1, i+2, SkMatrix::I());
             REPORTER_ASSERT(reporter, NULL != layer);
 
             REPORTER_ASSERT(reporter, !layer->locked());
@@ -138,7 +142,9 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
             // Add an additional layer. Since all the layers are unlocked this 
             // will force out the first atlased layer
             create_layers(reporter, &cache, *picture, 1, kInitialNumLayers);
-            GrCachedLayer* layer = cache.findLayer(picture, kInitialNumLayers);
+            GrCachedLayer* layer = cache.findLayer(picture, 
+                                                   kInitialNumLayers+1, kInitialNumLayers+2, 
+                                                   SkMatrix::I());
             REPORTER_ASSERT(reporter, NULL != layer);
 
             lock_layer(reporter, &cache, layer);
@@ -146,7 +152,7 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         }
 
         for (int i = 0; i < kInitialNumLayers+1; ++i) {
-            GrCachedLayer* layer = cache.findLayer(picture, i);
+            GrCachedLayer* layer = cache.findLayer(picture, i+1, i+2, SkMatrix::I());
             // 3 old layers plus the new one should be in the atlas.
             if (1 == i || 2 == i || 3 == i || 5 == i) {
                 REPORTER_ASSERT(reporter, NULL != layer);

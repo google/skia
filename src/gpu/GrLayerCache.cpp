@@ -13,8 +13,8 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrPictureDeletedMessage);
 
 #ifdef SK_DEBUG
 void GrCachedLayer::validate(const GrTexture* backingTexture) const {
-    SkASSERT(SK_InvalidGenID != fKey.getPictureID());
-    SkASSERT(-1 != fKey.getLayerID());
+    SkASSERT(SK_InvalidGenID != fKey.pictureID());
+    SkASSERT(fKey.start() > 0 && fKey.stop() > 0);
 
 
     if (NULL != fTexture) {
@@ -117,24 +117,31 @@ void GrLayerCache::freeAll() {
     this->initAtlas();
 }
 
-GrCachedLayer* GrLayerCache::createLayer(const SkPicture* picture, int layerID) {
-    SkASSERT(picture->uniqueID() != SK_InvalidGenID && layerID >= 0);
+GrCachedLayer* GrLayerCache::createLayer(const SkPicture* picture, 
+                                         int start, int stop, 
+                                         const SkMatrix& ctm) {
+    SkASSERT(picture->uniqueID() != SK_InvalidGenID && start > 0 && stop > 0);
 
-    GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (picture->uniqueID(), layerID));
+    GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (picture->uniqueID(), start, stop, ctm));
     fLayerHash.add(layer);
     return layer;
 }
 
-GrCachedLayer* GrLayerCache::findLayer(const SkPicture* picture, int layerID) {
-    SkASSERT(picture->uniqueID() != SK_InvalidGenID && layerID >= 0);
-    return fLayerHash.find(GrCachedLayer::Key(picture->uniqueID(), layerID));
+GrCachedLayer* GrLayerCache::findLayer(const SkPicture* picture, 
+                                       int start, int stop, 
+                                       const SkMatrix& ctm) {
+    SkASSERT(picture->uniqueID() != SK_InvalidGenID && start > 0 && stop > 0);
+    return fLayerHash.find(GrCachedLayer::Key(picture->uniqueID(), start, stop, ctm));
 }
 
-GrCachedLayer* GrLayerCache::findLayerOrCreate(const SkPicture* picture, int layerID) {
-    SkASSERT(picture->uniqueID() != SK_InvalidGenID && layerID >= 0);
-    GrCachedLayer* layer = fLayerHash.find(GrCachedLayer::Key(picture->uniqueID(), layerID));
+GrCachedLayer* GrLayerCache::findLayerOrCreate(const SkPicture* picture, 
+                                               int start, int stop,
+                                               const SkMatrix& ctm) {
+    SkASSERT(picture->uniqueID() != SK_InvalidGenID && start > 0 && stop > 0);
+    GrCachedLayer* layer = fLayerHash.find(GrCachedLayer::Key(picture->uniqueID(), 
+                                                              start, stop, ctm));
     if (NULL == layer) {
-        layer = this->createLayer(picture, layerID);
+        layer = this->createLayer(picture, start, stop, ctm);
     }
 
     return layer;
@@ -221,6 +228,19 @@ void GrLayerCache::unlock(GrCachedLayer* layer) {
         fPlotLocks[plotID]--;
         // At this point we could aggressively clear out un-locked plots but
         // by delaying we may be able to reuse some of the atlased layers later.
+#if 0
+        // This testing code aggressively removes the atlased layers. This
+        // can be used to separate the performance contribution of less
+        // render target pingponging from that due to the re-use of cached layers
+        GrPictureInfo* pictInfo = fPictureHash.find(layer->pictureID());
+        SkASSERT(NULL != pictInfo);
+        
+        GrAtlas::RemovePlot(&pictInfo->fPlotUsage, layer->plot());
+        
+        layer->setPlot(NULL);
+        layer->setTexture(NULL, GrIRect16::MakeEmpty());
+#endif
+
     } else {
         fContext->unlockScratchTexture(layer->texture());
         layer->setTexture(NULL, GrIRect16::MakeEmpty());

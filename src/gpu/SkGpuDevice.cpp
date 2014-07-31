@@ -1871,7 +1871,7 @@ static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* re
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
 }
 
-bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture) {
+bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* picture) {
     fContext->getLayerCache()->processDeletedPictures();
 
     SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();
@@ -1893,7 +1893,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
     }
 
     SkRect clipBounds;
-    if (!canvas->getClipBounds(&clipBounds)) {
+    if (!mainCanvas->getClipBounds(&clipBounds)) {
         return true;
     }
     SkIRect query;
@@ -1970,12 +1970,18 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
 
     SkPictureReplacementPlayback::PlaybackReplacements replacements;
 
+    SkTDArray<GrCachedLayer*> atlased, nonAtlased;
+    atlased.setReserve(gpuData->numSaveLayers());
+
     // Generate the layer and/or ensure it is locked
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
         if (pullForward[i]) {
-            GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture, i);
-
             const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
+
+            GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture, 
+                                                                                info.fSaveLayerOpID, 
+                                                                                info.fRestoreOpID, 
+                                                                                info.fCTM);
 
             SkPictureReplacementPlayback::PlaybackReplacements::ReplacementInfo* layerInfo =
                                                                         replacements.push();
@@ -2009,56 +2015,110 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* pi
                                                     layer->rect().width(),
                                                     layer->rect().height());
 
-
             if (needsRendering) {
-                SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
-                                                    layer->texture()->asRenderTarget(),
-                                                    SkSurface::kStandard_TextRenderMode,
-                                                    SkSurface::kDontClear_RenderTargetFlag));
-
-                SkCanvas* canvas = surface->getCanvas();
-
-                // Add a rect clip to make sure the rendering doesn't
-                // extend beyond the boundaries of the atlased sub-rect
-                SkRect bound = SkRect::Make(layerInfo->fSrcRect);
-                canvas->clipRect(bound);
-
                 if (layer->isAtlased()) {
-                    // Since 'clear' doesn't respect the clip we need to draw a rect
-                    // TODO: ensure none of the atlased layers contain a clear call!
-                    SkPaint paint;
-                    paint.setColor(SK_ColorTRANSPARENT);
-                    paint.setXfermode(SkXfermode::Create(SkXfermode::kSrc_Mode))->unref();
-                    canvas->drawRect(bound, paint);
+                    *atlased.append() = layer;
                 } else {
-                    canvas->clear(SK_ColorTRANSPARENT);
+                    *nonAtlased.append() = layer;
                 }
-
-                // info.fCTM maps the layer's top/left to the origin.
-                // If this layer is atlased the top/left corner needs
-                // to be offset to some arbitrary location in the backing 
-                // texture.
-                canvas->translate(bound.fLeft, bound.fTop);
-                canvas->concat(info.fCTM);
-
-                SkPictureRangePlayback rangePlayback(picture,
-                                                     info.fSaveLayerOpID, 
-                                                     info.fRestoreOpID);
-                rangePlayback.draw(canvas, NULL);
-
-                canvas->flush();
             }
         }
     }
 
-    // Playback using new layers
+    // Render the atlased layers that require it
+    if (atlased.count() > 0) {
+        // All the atlased layers are rendered into the same GrTexture
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
+                                        atlased[0]->texture()->asRenderTarget(),
+                                        SkSurface::kStandard_TextRenderMode,
+                                        SkSurface::kDontClear_RenderTargetFlag));
+
+        SkCanvas* atlasCanvas = surface->getCanvas();
+
+        SkPaint paint;
+        paint.setColor(SK_ColorTRANSPARENT);
+        paint.setXfermode(SkXfermode::Create(SkXfermode::kSrc_Mode))->unref();
+
+        for (int i = 0; i < atlased.count(); ++i) {
+            GrCachedLayer* layer = atlased[i];
+
+            atlasCanvas->save();
+
+            // Add a rect clip to make sure the rendering doesn't
+            // extend beyond the boundaries of the atlased sub-rect
+            SkRect bound = SkRect::MakeXYWH(SkIntToScalar(layer->rect().fLeft),
+                                            SkIntToScalar(layer->rect().fTop),
+                                            SkIntToScalar(layer->rect().width()),
+                                            SkIntToScalar(layer->rect().height()));
+            atlasCanvas->clipRect(bound);
+
+            // Since 'clear' doesn't respect the clip we need to draw a rect
+            // TODO: ensure none of the atlased layers contain a clear call!
+            atlasCanvas->drawRect(bound, paint);
+
+            // info.fCTM maps the layer's top/left to the origin.
+            // Since this layer is atlased, the top/left corner needs
+            // to be offset to the correct location in the backing texture.
+            atlasCanvas->translate(bound.fLeft, bound.fTop);
+            atlasCanvas->concat(layer->ctm());
+
+            SkPictureRangePlayback rangePlayback(picture,
+                                                 layer->start(),
+                                                 layer->stop());
+            rangePlayback.draw(atlasCanvas, NULL);
+
+            atlasCanvas->restore();
+        }
+
+        atlasCanvas->flush();
+    }
+
+    // Render the non-atlased layers that require it
+    for (int i = 0; i < nonAtlased.count(); ++i) {
+        GrCachedLayer* layer = nonAtlased[i];
+
+        // Each non-atlased layer has its own GrTexture
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
+                                        layer->texture()->asRenderTarget(),
+                                        SkSurface::kStandard_TextRenderMode,
+                                        SkSurface::kDontClear_RenderTargetFlag));
+
+        SkCanvas* layerCanvas = surface->getCanvas();
+
+        // Add a rect clip to make sure the rendering doesn't
+        // extend beyond the boundaries of the atlased sub-rect
+        SkRect bound = SkRect::MakeXYWH(SkIntToScalar(layer->rect().fLeft),
+                                        SkIntToScalar(layer->rect().fTop),
+                                        SkIntToScalar(layer->rect().width()),
+                                        SkIntToScalar(layer->rect().height()));
+
+        layerCanvas->clipRect(bound); // TODO: still useful?
+
+        layerCanvas->clear(SK_ColorTRANSPARENT);
+
+        layerCanvas->concat(layer->ctm());
+
+        SkPictureRangePlayback rangePlayback(picture,
+                                             layer->start(),
+                                             layer->stop());
+        rangePlayback.draw(layerCanvas, NULL);
+
+        layerCanvas->flush();
+    }
+
+    // Render the entire picture using new layers
     SkPictureReplacementPlayback playback(picture, &replacements, ops.get());
 
-    playback.draw(canvas, NULL);
+    playback.draw(mainCanvas, NULL);
 
     // unlock the layers
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
-        GrCachedLayer* layer = fContext->getLayerCache()->findLayer(picture, i);
+        const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
+
+        GrCachedLayer* layer = fContext->getLayerCache()->findLayer(picture, 
+                                                                    info.fSaveLayerOpID,
+                                                                    info.fRestoreOpID,
+                                                                    info.fCTM);
         fContext->getLayerCache()->unlock(layer);
     }
 
