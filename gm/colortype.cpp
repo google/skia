@@ -26,8 +26,8 @@ public:
         paint.setAntiAlias(true);
         paint.setShader(s)->unref();
 
-        SkTypeface* orig = SkTypeface::CreateFromName("Times",
-                                                      SkTypeface::kBold);
+        SkTypeface* orig = sk_tool_utils::create_portable_typeface("Times",
+                                                            SkTypeface::kBold);
         if (NULL == orig) {
             orig = SkTypeface::RefDefault();
         }

@@ -55,7 +55,7 @@ protected:
         //With freetype the default (normal hinting) can be really ugly.
         //Most distros now set slight (vertical hinting only) in any event.
         paint.setHinting(SkPaint::kSlight_Hinting);
-        SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromName("Times Roman", SkTypeface::kNormal)));
+        sk_tool_utils::set_portable_typeface(&paint, "Times Roman", SkTypeface::kNormal);
 
         const char* text = "Hamburgefons ooo mmm";
         const size_t textLen = strlen(text);

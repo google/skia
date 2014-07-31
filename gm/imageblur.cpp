@@ -44,6 +44,7 @@ protected:
         SkRandom rand;
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&textPaint);
         for (int i = 0; i < 25; ++i) {
             int x = rand.nextULessThan(WIDTH);
             int y = rand.nextULessThan(HEIGHT);

@@ -44,6 +44,7 @@ protected:
                 100))->unref();
         canvas->saveLayer(NULL, &paint);
         paint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&paint);
         const char* str = "The quick brown fox jumped over the lazy dog.";
         SkRandom rand;
         for (int i = 0; i < 25; ++i) {

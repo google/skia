@@ -34,6 +34,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(1500);
 
         SkRect r;

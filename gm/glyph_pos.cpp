@@ -52,7 +52,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         if (!fProp) {
-            fProp.reset(SkTypeface::CreateFromName("Helvetica", SkTypeface::kNormal));
+            fProp.reset(sk_tool_utils::create_portable_typeface("Helvetica", SkTypeface::kNormal));
         }
 
         // There's a black pixel at 40, 40 for reference.

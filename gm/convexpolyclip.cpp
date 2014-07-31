@@ -150,6 +150,7 @@ protected:
         SkPaint txtPaint;
         txtPaint.setTextSize(23.f);
         txtPaint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&txtPaint);
         txtPaint.setColor(SK_ColorDKGRAY);
         SkScalar textW = txtPaint.measureText(kTxt, SK_ARRAY_COUNT(kTxt)-1);
 

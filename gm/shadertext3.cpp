@@ -76,6 +76,7 @@ protected:
 
         SkPaint outlinePaint;
         outlinePaint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&outlinePaint);
         outlinePaint.setTextSize(SkIntToScalar(kPointSize));
         outlinePaint.setStyle(SkPaint::kStroke_Style);
         outlinePaint.setStrokeWidth(0.f);
@@ -109,6 +110,7 @@ protected:
 
                 SkPaint fillPaint;
                 fillPaint.setAntiAlias(true);
+                sk_tool_utils::set_portable_typeface(&fillPaint);
                 fillPaint.setTextSize(SkIntToScalar(kPointSize));
                 fillPaint.setFilterLevel(SkPaint::kLow_FilterLevel);
                 fillPaint.setShader(shader);

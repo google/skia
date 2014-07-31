@@ -225,6 +225,7 @@ protected:
 
         SkPaint labelP;
         labelP.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&labelP);
         labelP.setTextAlign(SkPaint::kCenter_Align);
 
         const int W = 5;

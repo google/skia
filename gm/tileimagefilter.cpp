@@ -34,6 +34,7 @@ protected:
         canvas.clear(0xFF000000);
         SkPaint paint;
         paint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setColor(0xD000D000);
         paint.setTextSize(SkIntToScalar(50));
         const char* str = "e";

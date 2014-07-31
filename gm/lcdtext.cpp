@@ -49,6 +49,7 @@ protected:
         paint.setColor(SK_ColorBLACK);
         paint.setDither(true);
         paint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setSubpixelText(subpixelTextEnabled);
         paint.setLCDRenderText(lcdRenderTextEnabled);
         paint.setTextSize(textHeight);

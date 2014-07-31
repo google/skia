@@ -86,6 +86,7 @@ protected:
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&titlePaint);
         titlePaint.setLCDRenderText(true);
         titlePaint.setTextSize(15 * SK_Scalar1);
         const char title[] = "Quad Drawn Into Rectangle Clips With "
@@ -130,6 +131,7 @@ protected:
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
                     labelPaint.setAntiAlias(true);
+                    sk_tool_utils::set_portable_typeface(&labelPaint);
                     labelPaint.setLCDRenderText(true);
                     labelPaint.setTextSize(10 * SK_Scalar1);
                     canvas->drawText(gStyles[style].fName,
@@ -233,6 +235,7 @@ protected:
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&titlePaint);
         titlePaint.setLCDRenderText(true);
         titlePaint.setTextSize(15 * SK_Scalar1);
         const char title[] = "Quad Closed Drawn Into Rectangle Clips With "
@@ -277,6 +280,7 @@ protected:
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
                     labelPaint.setAntiAlias(true);
+                    sk_tool_utils::set_portable_typeface(&labelPaint);
                     labelPaint.setLCDRenderText(true);
                     labelPaint.setTextSize(10 * SK_Scalar1);
                     canvas->drawText(gStyles[style].fName,

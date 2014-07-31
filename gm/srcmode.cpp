@@ -80,6 +80,7 @@ protected:
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
         SkPaint paint;
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setColor(0x80FF0000);
 
         const Proc procs[] = {

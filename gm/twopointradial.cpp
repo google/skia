@@ -30,6 +30,7 @@ static void drawGrad(SkCanvas* canvas, const SkScalar d0[], const SkScalar d1[])
     SkColor colors[] = { SK_ColorGREEN, SK_ColorRED };
     SkPaint paint;
     paint.setAntiAlias(true);
+    sk_tool_utils::set_portable_typeface(&paint);
 
     SkString str;
     str.printf("%g,%g,%g  %g,%g,%g",

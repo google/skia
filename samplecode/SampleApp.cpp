@@ -1661,9 +1661,7 @@ static void cleanup_for_filename(SkString* name) {
 }
 #endif
 
-namespace sk_tool_utils {
-    extern bool gEnablePortableTypeface;
-};
+DECLARE_bool(portableFonts);
 
 bool SampleWindow::onHandleChar(SkUnichar uni) {
     {
@@ -1719,7 +1717,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             toggleFPS();
             break;
         case 'F':
-            sk_tool_utils::gEnablePortableTypeface ^= true;
+            FLAGS_portableFonts ^= true;
             this->inval(NULL);
             break;
         case 'g':

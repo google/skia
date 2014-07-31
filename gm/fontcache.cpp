@@ -59,8 +59,8 @@ protected:
         int typefaceCount = 0;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gFamilyNames); ++i) {
             for (size_t j = 0; j < SK_ARRAY_COUNT(gStyles); ++j) {
-                fTypefaces[typefaceCount++] = SkTypeface::CreateFromName(gFamilyNames[i],
-                                                                          gStyles[j]);
+                fTypefaces[typefaceCount++] = sk_tool_utils::create_portable_typeface(gFamilyNames[i],
+                                                                               gStyles[j]);
             }
         }
     }

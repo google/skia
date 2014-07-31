@@ -48,12 +48,10 @@ protected:
         paint.setTextSize(SkIntToScalar(100));
         paint.setStrokeWidth(SkIntToScalar(5));
 
-        SkTypeface* face = SkTypeface::CreateFromName("Papyrus", SkTypeface::kNormal);
-        SkSafeUnref(paint.setTypeface(face));
+        sk_tool_utils::set_portable_typeface(&paint, "Papyrus");
         show_bold(canvas, "Hello", 5, x, y, paint);
 
-        face = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro", SkTypeface::kNormal);
-        SkSafeUnref(paint.setTypeface(face));
+        sk_tool_utils::set_portable_typeface(&paint, "Hiragino Maru Gothic Pro");
         const unsigned char hyphen[] = { 0xE3, 0x83, 0xBC };
         show_bold(canvas, hyphen, SK_ARRAY_COUNT(hyphen), x + SkIntToScalar(300), y, paint);
 

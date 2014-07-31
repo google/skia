@@ -37,6 +37,7 @@ private:
 
 SkJSCanvas::SkJSCanvas(SkCanvas* target) : fTarget(target) {
     fFillPaint.setAntiAlias(true);
+    sk_tool_utils::set_portable_typeface(&fFillPaint);
     fStrokePaint.setAntiAlias(true);
     fStrokePaint.setStyle(SkPaint::kStroke_Style);
     fStrokePaint.setStrokeWidth(SK_Scalar1);
@@ -229,6 +230,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setStrokeWidth(SkIntToScalar(4));
         paint.setTextSize(SkIntToScalar(40));
         paint.setTextAlign(SkPaint::kCenter_Align);

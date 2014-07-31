@@ -17,7 +17,6 @@
         'bench_pictures',
         'bench_record',
         'bench_playback',
-        'create_test_font',
         'dump_record',
         'filter',
         'gpuveto',
@@ -95,7 +94,11 @@
         '../tools/sk_tool_utils.cpp',
         '../tools/sk_tool_utils_font.cpp',
       ],
+      'include_dirs': [
+        '../src/fonts',
+      ],
       'dependencies': [
+        'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
       ],
       'direct_dependent_settings': {
@@ -631,20 +634,6 @@
       ],
     },
     {
-      'target_name': 'create_test_font',
-      'type': 'executable',
-      'sources': [
-        '../tools/create_test_font.cpp',
-      ],
-      'include_dirs': [
-        '../src/core',
-      ],
-      'dependencies': [
-        'flags.gyp:flags',
-        'skia_lib.gyp:skia_lib',
-      ],
-    },
-    {
       'target_name': 'test_image_decoder',
       'type': 'executable',
       'sources': [
@@ -718,6 +707,27 @@
             'type': 'executable',
             'sources': [
               '../tools/win_lcid.cpp',
+            ],
+          },
+        ],
+      },
+    ],
+    ['skia_os == "mac"',
+      {
+        'targets': [
+          {
+            'target_name': 'create_test_font',
+            'type': 'executable',
+            'sources': [
+              '../tools/create_test_font.cpp',
+            ],
+            'include_dirs': [
+              '../src/core',
+            ],
+            'dependencies': [
+              'flags.gyp:flags',
+              'skia_lib.gyp:skia_lib',
+              'resources',
             ],
           },
         ],

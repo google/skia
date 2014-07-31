@@ -9,6 +9,8 @@
 #include "SkString.h"
 #include "Test.h"
 #include "gm.h"
+#include "sk_tool_utils.h"
+#include "sk_tool_utils_flags.h"
 
 #include "DMCpuGMTask.h"
 #include "DMGpuGMTask.h"
@@ -48,6 +50,8 @@ DEFINE_string(skps, "", "Directory to read skps from.");
 
 DEFINE_bool(gms, true, "Run GMs?");
 DEFINE_bool(tests, true, "Run tests?");
+DEFINE_bool(reportUsedChars, false, "Output test font construction data to be pasted into"
+                                    " create_test_font.cpp.");
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -238,7 +242,12 @@ int dm_main() {
     tasks.wait();
 
     SkDebugf("\n");
-
+#ifdef SK_DEBUG
+    if (FLAGS_portableFonts && FLAGS_reportUsedChars) {
+        sk_tool_utils::report_used_chars();
+    }
+#endif
+    
     SkTArray<SkString> failures;
     reporter.getFailures(&failures);
     report_failures(failures);

@@ -46,6 +46,7 @@ protected:
 
         SkPaint labelP;
         labelP.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&labelP);
 
         static const SkColor kSolidColors[] = {
             SK_ColorTRANSPARENT,

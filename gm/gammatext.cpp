@@ -26,7 +26,7 @@ static SkShader* make_heatGradient(const SkPoint pts[2]) {
 }
 
 static bool setFont(SkPaint* paint, const char name[]) {
-    SkTypeface* tf = SkTypeface::CreateFromName(name, SkTypeface::kNormal);
+    SkTypeface* tf = sk_tool_utils::create_portable_typeface(name, SkTypeface::kNormal);
     if (tf) {
         paint->setTypeface(tf)->unref();
         return true;

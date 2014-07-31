@@ -158,6 +158,7 @@ protected:
 
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&textPaint);
         textPaint.setTextSize(8);
 
         canvas->drawText(kLabel1, strlen(kLabel1), 10,  60, textPaint);

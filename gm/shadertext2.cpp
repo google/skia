@@ -90,11 +90,13 @@ protected:
 
         SkPaint fillPaint;
         fillPaint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&fillPaint);
         fillPaint.setTextSize(SkIntToScalar(kPointSize));
         fillPaint.setFilterLevel(SkPaint::kLow_FilterLevel);
 
         SkPaint outlinePaint;
         outlinePaint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&outlinePaint);
         outlinePaint.setTextSize(SkIntToScalar(kPointSize));
         outlinePaint.setStyle(SkPaint::kStroke_Style);
         outlinePaint.setStrokeWidth(0.f);
@@ -110,6 +112,7 @@ protected:
         SkPaint labelPaint;
         labelPaint.setColor(0xff000000);
         labelPaint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&labelPaint);
         labelPaint.setTextSize(12.f);
 
         canvas->translate(15.f, 15.f);

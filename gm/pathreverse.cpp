@@ -52,8 +52,7 @@ static void test_rev(SkCanvas* canvas) {
 
     SkPaint paint;
     paint.setTextSize(SkIntToScalar(100));
-    SkTypeface* hira = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro", SkTypeface::kNormal);
-    SkSafeUnref(paint.setTypeface(hira));
+    sk_tool_utils::set_portable_typeface(&paint, "Hiragino Maru Gothic Pro");
     path.reset();
     paint.getTextPath("e", 1, 50, 50, &path);
     canvas->translate(0, 100);
@@ -103,8 +102,7 @@ protected:
 
         SkPaint paint;
         paint.setTextSize(SkIntToScalar(100));
-        SkTypeface* hira = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro", SkTypeface::kNormal);
-        SkSafeUnref(paint.setTypeface(hira));
+        sk_tool_utils::set_portable_typeface(&paint, "Hiragino Maru Gothic Pro");
         path.reset();
         paint.getTextPath("e", 1, 50, 50, &path);
         canvas->translate(0, 100);

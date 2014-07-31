@@ -87,6 +87,7 @@ protected:
         if (true) { test_nulldev(canvas); }
         SkPaint paint;
         paint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&paint);
 
         paint.setTextSize(kBelowThreshold_TextSize);
         draw_text_set(canvas, paint);

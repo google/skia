@@ -21,8 +21,8 @@ public:
     VertText2GM() {
         const int pointSize = 24;
         textHeight = SkIntToScalar(pointSize);
-        fProp = SkTypeface::CreateFromName("Helvetica", SkTypeface::kNormal);
-        fMono = SkTypeface::CreateFromName("Courier New", SkTypeface::kNormal);
+        fProp = sk_tool_utils::create_portable_typeface("Helvetica", SkTypeface::kNormal);
+        fMono = sk_tool_utils::create_portable_typeface("Courier New", SkTypeface::kNormal);
     }
 
     virtual ~VertText2GM() {

@@ -24,7 +24,7 @@ public:
     TypefaceGM() {
         fFaces = new SkTypeface*[SK_ARRAY_COUNT(gFaces)];
         for (size_t i = 0; i < SK_ARRAY_COUNT(gFaces); i++) {
-            fFaces[i] = SkTypeface::CreateFromName(gFaces[i], SkTypeface::kNormal);
+            fFaces[i] = sk_tool_utils::create_portable_typeface(gFaces[i], SkTypeface::kNormal);
         }
     }
 
@@ -159,8 +159,8 @@ class TypefaceStylesGM : public skiagm::GM {
 public:
     TypefaceStylesGM(bool applyKerning) : fApplyKerning(applyKerning) {
         for (int i = 0; i < gFaceStylesCount; i++) {
-            fFaces[i] = SkTypeface::CreateFromName(gFaceStyles[i].fName,
-                                                   gFaceStyles[i].fStyle);
+            fFaces[i] = sk_tool_utils::create_portable_typeface(gFaceStyles[i].fName,
+                                                         gFaceStyles[i].fStyle);
         }
     }
 
