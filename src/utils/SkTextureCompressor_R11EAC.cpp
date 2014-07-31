@@ -29,6 +29,8 @@
 // If mul is zero, then we set mul = 1/8, so that the formula becomes
 // clamp[0, 2047](base_cw * 8 + 4 + mod_val)
 
+#if COMPRESS_R11_EAC_SLOW
+
 static const int kNumR11EACPalettes = 16;
 static const int kR11EACPaletteSize = 8;
 static const int kR11EACModifierPalettes[kNumR11EACPalettes][kR11EACPaletteSize] = {
@@ -49,8 +51,6 @@ static const int kR11EACModifierPalettes[kNumR11EACPalettes][kR11EACPaletteSize]
     {-4, -6, -8, -9, 3, 5, 7, 8},
     {-3, -5, -7, -9, 2, 4, 6, 8}
 };
-
-#if COMPRESS_R11_EAC_SLOW
 
 // Pack the base codeword, palette, and multiplier into the 64 bits necessary
 // to decode it.
@@ -557,38 +557,6 @@ inline void compress_block_vertical(uint8_t* dstPtr, const uint8_t *block) {
                              static_cast<uint64_t>(packedIndexColumn3));
 }
 
-static inline int get_r11_eac_index(uint64_t block, int x, int y) {
-    SkASSERT(x >= 0 && x < 4);
-    SkASSERT(y >= 0 && y < 4);
-    const int idx = x*4 + y;
-    return (block >> ((15-idx)*3)) & 0x7;
-}
-
-static void decompress_r11_eac_block(uint8_t* dst, int dstRowBytes, const uint8_t* src) {
-    const uint64_t block = SkEndian_SwapBE64(*(reinterpret_cast<const uint64_t *>(src)));
-
-    const int base_cw = (block >> 56) & 0xFF;
-    const int mod = (block >> 52) & 0xF;
-    const int palette_idx = (block >> 48) & 0xF;
-
-    const int* palette = kR11EACModifierPalettes[palette_idx];
-
-    for (int j = 0; j < 4; ++j) {
-        for (int i = 0; i < 4; ++i) {
-            const int idx = get_r11_eac_index(block, i, j);
-            const int val = base_cw*8 + 4 + palette[idx]*mod*8;
-            if (val < 0) {
-                dst[i] = 0;
-            } else if (val > 2047) {
-                dst[i] = 0xFF;
-            } else {
-                dst[i] = (val >> 3) & 0xFF;
-            }
-        }
-        dst += dstRowBytes;
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace SkTextureCompressor {
@@ -612,16 +580,6 @@ SkBlitter* CreateR11EACBlitter(int width, int height, void* outputBuffer) {
     return new
         SkTCompressedAlphaBlitter<4, 8, compress_block_vertical>
         (width, height, outputBuffer);
-}
-
-void DecompressR11EAC(uint8_t* dst, int dstRowBytes, const uint8_t* src, int width, int height) {
-    for (int j = 0; j < height; j += 4) {
-        for (int i = 0; i < width; i += 4) {
-            decompress_r11_eac_block(dst + i, dstRowBytes, src);
-            src += 8;
-        }
-        dst += 4 * dstRowBytes;
-    }    
 }
 
 }  // namespace SkTextureCompressor

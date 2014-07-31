@@ -16,8 +16,6 @@ namespace SkTextureCompressor {
                           int width, int height, int rowBytes);
 
     SkBlitter* CreateLATCBlitter(int width, int height, void* outputBuffer);
-
-    void DecompressLATC(uint8_t* dst, int dstRowBytes, const uint8_t* src, int width, int height);
 }
 
 #endif  // SkTextureCompressor_LATC_DEFINED

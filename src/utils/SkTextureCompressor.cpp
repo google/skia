@@ -20,16 +20,15 @@
 
 namespace SkTextureCompressor {
 
-void GetBlockDimensions(Format format, int* dimX, int* dimY, bool matchSpec) {
+void GetBlockDimensions(Format format, int* dimX, int* dimY) {
     if (NULL == dimX || NULL == dimY) {
         return;
     }
 
-    if (!matchSpec && SkTextureCompressorGetPlatformDims(format, dimX, dimY)) {
+    if (SkTextureCompressorGetPlatformDims(format, dimX, dimY)) {
         return;
     }
 
-    // No specialized arguments, return the dimensions as they are in the spec.
     switch(format) {
         // These formats are 64 bits per 4x4 block.
         default:
@@ -158,32 +157,6 @@ SkBlitter* CreateBlitterForFormat(int width, int height, void* compressedBuffer,
     }
 
     return NULL;
-}
-
-bool DecompressBufferFromFormat(uint8_t* dst, int dstRowBytes, const uint8_t* src,
-                                int width, int height, Format format) {
-    int dimX, dimY;
-    GetBlockDimensions(format, &dimX, &dimY, true);
-
-    if (width < 0 || ((width % dimX) != 0) || height < 0 || ((height % dimY) != 0)) {
-        return false;
-    }
-
-    switch(format) {
-        case kLATC_Format:
-            DecompressLATC(dst, dstRowBytes, src, width, height);
-            return true;
-
-        case kR11_EAC_Format:
-            DecompressR11EAC(dst, dstRowBytes, src, width, height);
-            return true;
-
-        case kASTC_12x12_Format:
-            // TODO(krajcevski) .. right now just fall through and return false.
-            return false;
-    }
-
-    return false;
 }
 
 }  // namespace SkTextureCompressor

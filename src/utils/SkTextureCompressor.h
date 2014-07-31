@@ -44,24 +44,6 @@ namespace SkTextureCompressor {
                                 int width, int height, int rowBytes, Format format,
                                 bool opt = true /* Use optimization if available */);
 
-    // Decompresses the given src data from the format specified into the
-    // destination buffer. The width and height of the data passed corresponds
-    // to the width and height of the uncompressed image. The destination buffer (dst)
-    // is assumed to be large enough to hold the entire decompressed image. The
-    // decompressed image colors are determined based on the passed format:
-    //
-    // LATC -> Alpha 8
-    // R11_EAC -> Alpha 8
-    // ASTC -> RGBA
-    //
-    // Note, CompressBufferToFormat compresses A8 data into ASTC. However,
-    // general ASTC data encodes RGBA data, so that is what the decompressor
-    // operates on.
-    //
-    // Returns true if successfully decompresses the src data.
-    bool DecompressBufferFromFormat(uint8_t* dst, int dstRowBytes, const uint8_t* src,
-                                    int width, int height, Format format);
-
     // This typedef defines what the nominal aspects of a compression function
     // are. The typedef is not meant to be used by clients of the API, but rather
     // allows SIMD optimized compression functions to be implemented.
@@ -75,12 +57,10 @@ namespace SkTextureCompressor {
                                       Format format);
 
     // Returns the desired dimensions of the block size for the given format. These dimensions
-    // don't necessarily correspond to the specification's dimensions, since there may
-    // be specialized algorithms that operate on multiple blocks at once. If the
-    // flag 'matchSpec' is true, then the actual dimensions from the specification are
-    // returned. If the flag is false, then these dimensions reflect the appropriate operable
-    // dimensions of the compression functions.
-    void GetBlockDimensions(Format format, int* dimX, int* dimY, bool matchSpec = false);
+    // don't necessarily correspond to the hardware-specified dimensions, since there may
+    // be specialized algorithms that operate on multiple blocks at once. These dimensions
+    // reflect that optimization and return the appropriate operable dimensions.
+    void GetBlockDimensions(Format format, int* dimX, int* dimY);
 }
 
 #endif

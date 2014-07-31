@@ -17,46 +17,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Generates an LATC palette. LATC constructs
-// a palette of eight colors from LUM0 and LUM1 using the algorithm:
-//
-// LUM0,              if lum0 > lum1 and code(x,y) == 0
-// LUM1,              if lum0 > lum1 and code(x,y) == 1
-// (6*LUM0+  LUM1)/7, if lum0 > lum1 and code(x,y) == 2
-// (5*LUM0+2*LUM1)/7, if lum0 > lum1 and code(x,y) == 3
-// (4*LUM0+3*LUM1)/7, if lum0 > lum1 and code(x,y) == 4
-// (3*LUM0+4*LUM1)/7, if lum0 > lum1 and code(x,y) == 5
-// (2*LUM0+5*LUM1)/7, if lum0 > lum1 and code(x,y) == 6
-// (  LUM0+6*LUM1)/7, if lum0 > lum1 and code(x,y) == 7
-//
-// LUM0,              if lum0 <= lum1 and code(x,y) == 0
-// LUM1,              if lum0 <= lum1 and code(x,y) == 1
-// (4*LUM0+  LUM1)/5, if lum0 <= lum1 and code(x,y) == 2
-// (3*LUM0+2*LUM1)/5, if lum0 <= lum1 and code(x,y) == 3
-// (2*LUM0+3*LUM1)/5, if lum0 <= lum1 and code(x,y) == 4
-// (  LUM0+4*LUM1)/5, if lum0 <= lum1 and code(x,y) == 5
-// 0,                 if lum0 <= lum1 and code(x,y) == 6
-// 255,               if lum0 <= lum1 and code(x,y) == 7
-
-static const int kLATCPaletteSize = 8;
-static void generate_latc_palette(uint8_t palette[], uint8_t lum0, uint8_t lum1) {
-    palette[0] = lum0;
-    palette[1] = lum1;
-    if (lum0 > lum1) {
-        for (int i = 1; i < 7; i++) {
-            palette[i+1] = ((7-i)*lum0 + i*lum1) / 7;
-        }
-    } else {
-        for (int i = 1; i < 5; i++) {
-            palette[i+1] = ((5-i)*lum0 + i*lum1) / 5;
-        }
-        palette[6] = 0;
-        palette[7] = 255;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 #if COMPRESS_LATC_SLOW
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,8 +79,46 @@ static bool compress_4x4_a8_to_64bit(uint8_t* dst, const uint8_t* src,
 ////////////////////////////////////////////////////////////////////////////////
 
 // LATC compressed texels down into square 4x4 blocks
+static const int kLATCPaletteSize = 8;
 static const int kLATCBlockSize = 4;
 static const int kLATCPixelsPerBlock = kLATCBlockSize * kLATCBlockSize;
+
+// Generates an LATC palette. LATC constructs
+// a palette of eight colors from LUM0 and LUM1 using the algorithm:
+//
+// LUM0,              if lum0 > lum1 and code(x,y) == 0
+// LUM1,              if lum0 > lum1 and code(x,y) == 1
+// (6*LUM0+  LUM1)/7, if lum0 > lum1 and code(x,y) == 2
+// (5*LUM0+2*LUM1)/7, if lum0 > lum1 and code(x,y) == 3
+// (4*LUM0+3*LUM1)/7, if lum0 > lum1 and code(x,y) == 4
+// (3*LUM0+4*LUM1)/7, if lum0 > lum1 and code(x,y) == 5
+// (2*LUM0+5*LUM1)/7, if lum0 > lum1 and code(x,y) == 6
+// (  LUM0+6*LUM1)/7, if lum0 > lum1 and code(x,y) == 7
+//
+// LUM0,              if lum0 <= lum1 and code(x,y) == 0
+// LUM1,              if lum0 <= lum1 and code(x,y) == 1
+// (4*LUM0+  LUM1)/5, if lum0 <= lum1 and code(x,y) == 2
+// (3*LUM0+2*LUM1)/5, if lum0 <= lum1 and code(x,y) == 3
+// (2*LUM0+3*LUM1)/5, if lum0 <= lum1 and code(x,y) == 4
+// (  LUM0+4*LUM1)/5, if lum0 <= lum1 and code(x,y) == 5
+// 0,                 if lum0 <= lum1 and code(x,y) == 6
+// 255,               if lum0 <= lum1 and code(x,y) == 7
+
+static void generate_latc_palette(uint8_t palette[], uint8_t lum0, uint8_t lum1) {
+    palette[0] = lum0;
+    palette[1] = lum1;
+    if (lum0 > lum1) {
+        for (int i = 1; i < 7; i++) {
+            palette[i+1] = ((7-i)*lum0 + i*lum1) / 7;
+        }
+    } else {
+        for (int i = 1; i < 5; i++) {
+            palette[i+1] = ((5-i)*lum0 + i*lum1) / 5;
+        }
+        palette[6] = 0;
+        palette[7] = 255;
+    }
+}
 
 // Compress a block by using the bounding box of the pixels. It is assumed that
 // there are no extremal pixels in this block otherwise we would have used
@@ -395,24 +393,6 @@ void CompressA8LATCBlockVertical(uint8_t* dst, const uint8_t block[]) {
 
 #endif  // COMPRESS_LATC_FAST
 
-void decompress_latc_block(uint8_t* dst, int dstRowBytes, const uint8_t* src) {
-    uint64_t block = SkEndian_SwapLE64(*(reinterpret_cast<const uint64_t *>(src)));
-    uint8_t lum0 = block & 0xFF;
-    uint8_t lum1 = (block >> 8) & 0xFF;
-
-    uint8_t palette[kLATCPaletteSize];
-    generate_latc_palette(palette, lum0, lum1);
-
-    block >>= 16;
-    for (int j = 0; j < 4; ++j) {
-        for (int i = 0; i < 4; ++i) {
-            dst[i] = palette[block & 0x7];
-            block >>= 3;
-        }
-        dst += dstRowBytes;
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace SkTextureCompressor {
@@ -436,16 +416,6 @@ SkBlitter* CreateLATCBlitter(int width, int height, void* outputBuffer) {
     // TODO (krajcevski)
     return NULL;
 #endif
-}
-
-void DecompressLATC(uint8_t* dst, int dstRowBytes, const uint8_t* src, int width, int height) {
-    for (int j = 0; j < height; j += 4) {
-        for (int i = 0; i < width; i += 4) {
-            decompress_latc_block(dst + i, dstRowBytes, src);
-            src += 8;
-        }
-        dst += 4 * dstRowBytes;
-    }
 }
 
 }  // SkTextureCompressor
