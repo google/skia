@@ -96,11 +96,13 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
                 builder->fsAppendTextureLookupAndModulate(inModulateColor, sampler,
                                                           inCoords.c_str());
                 builder->fsCodeAppend(";\n");
+                builder->fsCodeAppendf("\tfloat x = (%s).x;\n", inCoords.c_str());
+                builder->fsCodeAppendf("\tfloat y = (%s).y;\n", inCoords.c_str());
 
-                builder->fsCodeAppendf("\tfloat x = abs(2.0*(%s.x - %s.x)/(%s.z - %s.x) - 1.0);\n",
-                                        inCoords.c_str(), domain, domain, domain);
-                builder->fsCodeAppendf("\tfloat y = abs(2.0*(%s.y - %s.y)/(%s.w - %s.y) - 1.0);\n",
-                                        inCoords.c_str(), domain, domain, domain);
+                builder->fsCodeAppendf("\tx = abs(2.0*(x - %s.x)/(%s.z - %s.x) - 1.0);\n",
+                                       domain, domain, domain);
+                builder->fsCodeAppendf("\ty = abs(2.0*(y - %s.y)/(%s.w - %s.y) - 1.0);\n",
+                                       domain, domain, domain);
                 builder->fsCodeAppend("\tfloat blend = step(1.0, max(x, y));\n");
                 builder->fsCodeAppendf("\t%s = mix(inside, outside, blend);\n", outColor);
             } else {
