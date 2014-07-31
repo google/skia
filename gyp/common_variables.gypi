@@ -139,7 +139,6 @@
       'skia_resource_cache_mb_limit%': 0,
       'skia_resource_cache_count_limit%': 0,
       'skia_angle%': 0,
-      'skia_directwrite%': 0,  # Ignored.  TODO(mtklein): clean up
       'skia_gdi%': 0,
       'skia_gpu%': 1,
       'skia_osx_deployment_target%': '',
@@ -218,7 +217,6 @@
     'skia_arch_width%': '<(skia_arch_width)',
     'skia_arch_type%': '<(skia_arch_type)',
     'skia_chrome_utils%': '<(skia_chrome_utils)',
-    'skia_directwrite%': '<(skia_directwrite)',
     'skia_gdi%': '<(skia_gdi)',
     'skia_gpu%': '<(skia_gpu)',
     'skia_win_exceptions%': 0,
