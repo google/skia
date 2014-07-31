@@ -16,7 +16,6 @@
   'dependencies': [
     'etc1.gyp:libetc1',
     'flags.gyp:flags',
-    'gputest.gyp:skgputest',
     'jsoncpp.gyp:jsoncpp',
     'skia_lib.gyp:skia_lib',
     'tools.gyp:crash_handler',
@@ -51,5 +50,10 @@
     '../src/utils/debugger/SkDebugCanvas.cpp',
     '../src/utils/debugger/SkDrawCommand.cpp',
     '../src/utils/debugger/SkObjectParser.cpp',
+  ],
+  'conditions': [
+    [ 'skia_gpu == 1', {
+      'dependencies': [ 'gputest.gyp:skgputest' ],
+    }],
   ],
 }
