@@ -98,6 +98,7 @@
         '../src/fonts',
       ],
       'dependencies': [
+        'resources',
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
       ],
