@@ -532,12 +532,8 @@ int nanobench_main() {
 
 #if SK_DEBUG
             // skia:2797  Some SKPs SkASSERT in debug mode.  Skip them for now.
-            if (0 == strcmp("565", config)
-                    && (  SkStrStartsWith(bench->getName(), "desk_carsvg.skp")
-                       || SkStrStartsWith(bench->getName(), "desk_forecastio.skp")
-                       || SkStrStartsWith(bench->getName(), "tabl_cnet.skp")
-                       || SkStrStartsWith(bench->getName(), "tabl_googlecalendar.skp"))) {
-                SkDebugf("Skipping 565 %s.  It'd assert.\n", bench->getName());
+            if (0 == strcmp("565", config) && SkStrContains(bench->getName(), ".skp")) {
+                SkDebugf("Skipping 565 %s.  See skia:2797\n", bench->getName());
                 continue;
             }
 #endif
