@@ -65,12 +65,14 @@ GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
     fStrike = NULL;
     fGammaTexture = NULL;
 
+    fCurrTexture = NULL;
     fCurrVertex = 0;
     fEffectTextureUniqueID = SK_InvalidUniqueID;
     fEffectColor = GrColor_ILLEGAL;
     fEffectFlags = 0;
 
     fVertices = NULL;
+    fMaxVertices = 0;
 
     fVertexBounds.setLargestInverted();
 }
@@ -120,9 +122,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
     GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
     GrTextureParams gammaParams(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
     
-    GrTexture* currTexture = fStrike->getTexture();
-    SkASSERT(currTexture);
-    uint32_t textureUniqueID = currTexture->getUniqueID();
+    uint32_t textureUniqueID = fCurrTexture->getUniqueID();
     
     // set up any flags
     uint32_t flags = 0;
@@ -140,7 +140,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
         flags != fEffectFlags) {
         if (fUseLCDText) {
             GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
-            fCachedEffect.reset(GrDistanceFieldLCDTextureEffect::Create(currTexture,
+            fCachedEffect.reset(GrDistanceFieldLCDTextureEffect::Create(fCurrTexture,
                                                                         params,
                                                                         fGammaTexture,
                                                                         gammaParams,
@@ -150,7 +150,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
 #ifdef SK_GAMMA_APPLY_TO_A8
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.fGamma,
                                                                 filteredColor);
-            fCachedEffect.reset(GrDistanceFieldTextureEffect::Create(currTexture,
+            fCachedEffect.reset(GrDistanceFieldTextureEffect::Create(fCurrTexture,
                                                                      params,
                                                                      fGammaTexture,
                                                                      gammaParams,
@@ -228,17 +228,26 @@ void GrDistanceFieldTextContext::flushGlyphs() {
         fDrawTarget->drawIndexedInstances(kTriangles_GrPrimitiveType,
                                           nGlyphs,
                                           4, 6, &fVertexBounds);
+        fDrawTarget->resetVertexSource();
+        fVertices = NULL;
+        fMaxVertices = 0;
         fCurrVertex = 0;
+        SkSafeSetNull(fCurrTexture);
         fVertexBounds.setLargestInverted();
     }
-
-    fDrawTarget->resetVertexSource();
-    fVertices = NULL;
 }
 
 void GrDistanceFieldTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
                                                  SkFixed vx, SkFixed vy,
                                                  GrFontScaler* scaler) {
+    if (NULL == fDrawTarget) {
+        return;
+    }
+    
+    if (NULL == fStrike) {
+        fStrike = fContext->getFontCache()->getStrike(scaler, true);
+    }
+    
     GrGlyph* glyph = fStrike->getGlyph(packed, scaler);
     if (NULL == glyph || glyph->fBounds.isEmpty()) {
         return;
@@ -321,6 +330,55 @@ HAS_ATLAS:
     GrTexture* texture = glyph->fPlot->texture();
     SkASSERT(texture);
 
+    if (fCurrTexture != texture || fCurrVertex + 4 > fMaxVertices) {
+        this->flushGlyphs();
+        fCurrTexture = texture;
+        fCurrTexture->ref();
+    }
+
+    bool useColorVerts = !fUseLCDText;
+    
+    if (NULL == fVertices) {
+        // If we need to reserve vertices allow the draw target to suggest
+        // a number of verts to reserve and whether to perform a flush.
+        fMaxVertices = kMinRequestedVerts;
+        if (useColorVerts) {
+            fDrawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
+                                                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs));
+        } else {
+            fDrawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
+                                                    SK_ARRAY_COUNT(gTextVertexAttribs));
+        }
+        bool flush = fDrawTarget->geometryHints(&fMaxVertices, NULL);
+        if (flush) {
+            this->flushGlyphs();
+            fContext->flush();
+            if (useColorVerts) {
+                fDrawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
+                                                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs));
+            } else {
+                fDrawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
+                                                    SK_ARRAY_COUNT(gTextVertexAttribs));
+            }
+        }
+        fMaxVertices = kDefaultRequestedVerts;
+        // ignore return, no point in flushing again.
+        fDrawTarget->geometryHints(&fMaxVertices, NULL);
+        
+        int maxQuadVertices = 4 * fContext->getQuadIndexBuffer()->maxQuads();
+        if (fMaxVertices < kMinRequestedVerts) {
+            fMaxVertices = kDefaultRequestedVerts;
+        } else if (fMaxVertices > maxQuadVertices) {
+            // don't exceed the limit of the index buffer
+            fMaxVertices = maxQuadVertices;
+        }
+        bool success = fDrawTarget->reserveVertexAndIndexSpace(fMaxVertices,
+                                                               0,
+                                                               &fVertices,
+                                                               NULL);
+        GrAlwaysAssert(success);
+    }
+    
     SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft + SK_DistanceFieldInset);
     SkScalar dy = SkIntToScalar(glyph->fBounds.fTop + SK_DistanceFieldInset);
     SkScalar width = SkIntToScalar(glyph->fBounds.width() - 2*SK_DistanceFieldInset);
@@ -340,10 +398,10 @@ HAS_ATLAS:
     SkFixed th = SkIntToFixed(glyph->fBounds.height() - 2*SK_DistanceFieldInset);
 
     SkRect r;
-    r.fLeft = SkFixedToFloat(sx);
-    r.fTop = SkFixedToFloat(sy);
-    r.fRight = SkFixedToFloat(sx + width);
-    r.fBottom = SkFixedToFloat(sy + height);
+    r.fLeft = sx;
+    r.fTop = sy;
+    r.fRight = sx + width;
+    r.fBottom = sy + height;
 
     fVertexBounds.growToInclude(r);
 
@@ -364,7 +422,7 @@ HAS_ATLAS:
                               SkFixedToFloat(texture->normalizeFixedX(tx + tw)),
                               SkFixedToFloat(texture->normalizeFixedY(ty + th)),
                               vertSize);
-    if (!fUseLCDText) {
+    if (useColorVerts) {
         // color comes after position.
         GrColor* colors = reinterpret_cast<GrColor*>(positions + 1);
         for (int i = 0; i < 4; ++i) {
@@ -464,10 +522,6 @@ void GrDistanceFieldTextContext::drawText(const GrPaint& paint, const SkPaint& s
 
     this->init(paint, skPaint);
 
-    if (NULL == fDrawTarget) {
-        return;
-    }
-
     SkScalar sizeRatio = fTextRatio;
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
@@ -475,27 +529,8 @@ void GrDistanceFieldTextContext::drawText(const GrPaint& paint, const SkPaint& s
     SkAutoGlyphCacheNoGamma    autoCache(fSkPaint, &fDeviceProperties, NULL);
     SkGlyphCache*              cache = autoCache.getCache();
     GrFontScaler*              fontScaler = GetGrFontScaler(cache);
-    if (NULL == fStrike) {
-        fStrike = fContext->getFontCache()->getStrike(fontScaler, true);
-    }
 
     setup_gamma_texture(fContext, cache, fDeviceProperties, &fGammaTexture);
-
-    // allocate vertices
-    SkASSERT(NULL == fVertices);
-    if (!fUseLCDText) {
-        fDrawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
-                                                       SK_ARRAY_COUNT(gTextVertexWithColorAttribs));
-    } else {
-        fDrawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
-                                                       SK_ARRAY_COUNT(gTextVertexAttribs));
-    }
-    int numGlyphs = fSkPaint.textToGlyphs(text, byteLength, NULL);
-    bool success = fDrawTarget->reserveVertexAndIndexSpace(4*numGlyphs,
-                                                           0,
-                                                           &fVertices,
-                                                           NULL);
-    GrAlwaysAssert(success);
 
     // need to measure first
     // TODO - generate positions and pre-load cache as well?
@@ -564,34 +599,11 @@ void GrDistanceFieldTextContext::drawPosText(const GrPaint& paint, const SkPaint
 
     this->init(paint, skPaint);
 
-    if (NULL == fDrawTarget) {
-        return;
-    }
-
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
     SkAutoGlyphCacheNoGamma    autoCache(fSkPaint, &fDeviceProperties, NULL);
     SkGlyphCache*              cache = autoCache.getCache();
     GrFontScaler*              fontScaler = GetGrFontScaler(cache);
-    if (NULL == fStrike) {
-        fStrike = fContext->getFontCache()->getStrike(fontScaler, true);
-    }
-
-    // allocate vertices
-    SkASSERT(NULL == fVertices);
-    if (!fUseLCDText) {
-        fDrawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
-                                                       SK_ARRAY_COUNT(gTextVertexWithColorAttribs));
-    } else {
-        fDrawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
-                                                       SK_ARRAY_COUNT(gTextVertexAttribs));
-    }
-    int numGlyphs = fSkPaint.textToGlyphs(text, byteLength, NULL);
-    bool success = fDrawTarget->reserveVertexAndIndexSpace(4*numGlyphs,
-                                                           0,
-                                                           &fVertices,
-                                                           NULL);
-    GrAlwaysAssert(success);
 
     setup_gamma_texture(fContext, cache, fDeviceProperties, &fGammaTexture);
 

@@ -55,6 +55,8 @@ private:
     };
 
     void*                   fVertices;
+    int32_t                 fMaxVertices;
+    GrTexture*              fCurrTexture;
     int                     fCurrVertex;
     SkRect                  fVertexBounds;
 };
