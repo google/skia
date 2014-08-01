@@ -62,7 +62,14 @@ public:
 SkDiscardableMemoryPool* SkGetGlobalDiscardableMemoryPool();
 
 #if !defined(SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE)
-#define SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE (128 * 1024 * 1024)
+    #if defined(SK_DEFAULT_RESOURCE_CACHE_MB_LIMIT) && \
+            SK_DEFAULT_RESOURCE_CACHE_MB_LIMIT > 0
+        #define SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE \
+                (SK_DEFAULT_RESOURCE_CACHE_MB_LIMIT * 1024 * 1024)
+    #else
+        #define SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE \
+                (128 * 1024 * 1024)
+    #endif
 #endif
 
 #endif  // SkDiscardableMemoryPool_DEFINED

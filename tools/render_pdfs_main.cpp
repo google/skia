@@ -17,6 +17,7 @@
 #include "SkTArray.h"
 #include "PdfRenderer.h"
 #include "picture_utils.h"
+#include "LazyDecodeBitmap.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -158,7 +159,9 @@ static bool render_pdf(const SkString& inputPath, const SkString& outputDir,
         return false;
     }
 
-    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream));
+    SkAutoTUnref<SkPicture> picture(
+            SkPicture::CreateFromStream(
+                    &inputStream, &sk_tools::LazyDecodeBitmap));
 
     if (NULL == picture.get()) {
         SkDebugf("Could not read an SkPicture from %s\n", inputPath.c_str());

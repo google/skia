@@ -517,12 +517,17 @@
       'type': 'executable',
       'sources': [
         '../tools/render_pdfs_main.cpp',
+        '../tools/flags/SkCommandLineFlags.cpp',
+        '../tools/LazyDecodeBitmap.cpp',
         '../tools/PdfRenderer.cpp',
         '../tools/PdfRenderer.h',
       ],
       'include_dirs': [
+        '../src/core',
+        '../src/lazy',
         '../src/pipe/utils/',
         '../src/utils/',
+        '../tools/flags',
       ],
       'dependencies': [
         'pdf.gyp:pdf',
