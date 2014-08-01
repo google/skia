@@ -900,4 +900,8 @@
 // shader stage of <program> (if a fragment stage exists).
 #define GR_GL_FRAGMENT_INPUT                                0x936D
 
+/*  ARM specific define for MSAA support on framebuffer fetch */
+#define GR_GL_FETCH_PER_SAMPLE_ARM                          0x8F65
+
+
 #endif

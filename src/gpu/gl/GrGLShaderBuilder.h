@@ -371,8 +371,7 @@ private:
      */
     enum GLSLPrivateFeature {
         kFragCoordConventions_GLSLPrivateFeature = kLastGLSLFeature + 1,
-        kEXTShaderFramebufferFetch_GLSLPrivateFeature,
-        kNVShaderFramebufferFetch_GLSLPrivateFeature,
+        kLastGLSLPrivateFeature = kFragCoordConventions_GLSLPrivateFeature
     };
     bool enablePrivateFeature(GLSLPrivateFeature);
 

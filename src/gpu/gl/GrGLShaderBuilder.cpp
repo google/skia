@@ -114,8 +114,7 @@ bool GrGLShaderBuilder::genProgram(const GrEffectStage* colorStages[],
 
     ///////////////////////////////////////////////////////////////////////////
     // emit code to read the dst copy texture, if necessary
-    if (kNoDstRead_DstReadKey != header.fDstReadKey &&
-        GrGLCaps::kNone_FBFetchType == fGpu->glCaps().fbFetchType()) {
+    if (kNoDstRead_DstReadKey != header.fDstReadKey && !fGpu->glCaps().fbFetchSupport()) {
         bool topDown = SkToBool(kTopLeftOrigin_DstReadKeyBit & header.fDstReadKey);
         const char* dstCopyTopLeftName;
         const char* dstCopyCoordScaleName;
@@ -280,37 +279,6 @@ bool GrGLShaderBuilder::enableFeature(GLSLFeature feature) {
     }
 }
 
-bool GrGLShaderBuilder::enablePrivateFeature(GLSLPrivateFeature feature) {
-    switch (feature) {
-        case kFragCoordConventions_GLSLPrivateFeature:
-            if (!fGpu->glCaps().fragCoordConventionsSupport()) {
-                return false;
-            }
-            if (fGpu->glslGeneration() < k150_GrGLSLGeneration) {
-                this->addFSFeature(1 << kFragCoordConventions_GLSLPrivateFeature,
-                                   "GL_ARB_fragment_coord_conventions");
-            }
-            return true;
-        case kEXTShaderFramebufferFetch_GLSLPrivateFeature:
-            if (GrGLCaps::kEXT_FBFetchType != fGpu->glCaps().fbFetchType()) {
-                return false;
-            }
-            this->addFSFeature(1 << kEXTShaderFramebufferFetch_GLSLPrivateFeature,
-                               "GL_EXT_shader_framebuffer_fetch");
-            return true;
-        case kNVShaderFramebufferFetch_GLSLPrivateFeature:
-            if (GrGLCaps::kNV_FBFetchType != fGpu->glCaps().fbFetchType()) {
-                return false;
-            }
-            this->addFSFeature(1 << kNVShaderFramebufferFetch_GLSLPrivateFeature,
-                               "GL_NV_shader_framebuffer_fetch");
-            return true;
-        default:
-            SkFAIL("Unexpected GLSLPrivateFeature requested.");
-            return false;
-    }
-}
-
 void GrGLShaderBuilder::addFSFeature(uint32_t featureBit, const char* extensionName) {
     if (!(featureBit & fFSFeaturesAddedMask)) {
         fFSExtensions.appendf("#extension %s: require\n", extensionName);
@@ -342,14 +310,11 @@ const char* GrGLShaderBuilder::dstColor() {
             return "";
         }
     }
-    static const char kFBFetchColorName[] = "gl_LastFragData[0]";
-    GrGLCaps::FBFetchType fetchType = fGpu->glCaps().fbFetchType();
-    if (GrGLCaps::kEXT_FBFetchType == fetchType) {
-        SkAssertResult(this->enablePrivateFeature(kEXTShaderFramebufferFetch_GLSLPrivateFeature));
-        return kFBFetchColorName;
-    } else if (GrGLCaps::kNV_FBFetchType == fetchType) {
-        SkAssertResult(this->enablePrivateFeature(kNVShaderFramebufferFetch_GLSLPrivateFeature));
-        return kFBFetchColorName;
+
+    if (fGpu->glCaps().fbFetchSupport()) {
+        this->addFSFeature(1 << (kLastGLSLPrivateFeature + 1),
+                           fGpu->glCaps().fbFetchExtensionString());
+        return fGpu->glCaps().fbFetchColorName();
     } else if (fOutput.fUniformHandles.fDstCopySamplerUni.isValid()) {
         return kDstCopyColorName;
     } else {
@@ -389,7 +354,7 @@ void GrGLShaderBuilder::fsAppendTextureLookupAndModulate(
 GrGLShaderBuilder::DstReadKey GrGLShaderBuilder::KeyForDstRead(const GrTexture* dstCopy,
                                                                const GrGLCaps& caps) {
     uint32_t key = kYesDstRead_DstReadKeyBit;
-    if (GrGLCaps::kNone_FBFetchType != caps.fbFetchType()) {
+    if (caps.fbFetchSupport()) {
         return key;
     }
     SkASSERT(NULL != dstCopy);
@@ -500,7 +465,10 @@ const char* GrGLShaderBuilder::fragmentPosition() {
         return "gl_FragCoord";
     } else if (fGpu->glCaps().fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
-            SkAssertResult(this->enablePrivateFeature(kFragCoordConventions_GLSLPrivateFeature));
+            if (fGpu->glslGeneration() < k150_GrGLSLGeneration) {
+                this->addFSFeature(1 << kFragCoordConventions_GLSLPrivateFeature,
+                                   "GL_ARB_fragment_coord_conventions");
+            }
             fFSInputs.push_back().set(kVec4f_GrSLType,
                                       GrGLShaderVar::kIn_TypeModifier,
                                       "gl_FragCoord",

@@ -68,16 +68,6 @@ public:
         kLast_MSFBOType = kES_EXT_MsToTexture_MSFBOType
     };
 
-    enum FBFetchType {
-        kNone_FBFetchType,
-        /** GL_EXT_shader_framebuffer_fetch */
-        kEXT_FBFetchType,
-        /** GL_NV_shader_framebuffer_fetch */
-        kNV_FBFetchType,
-
-        kLast_FBFetchType = kNV_FBFetchType
-    };
-
     enum InvalidateFBType {
         kNone_InvalidateFBType,
         kDiscard_InvalidateFBType,       //<! glDiscardFramebuffer()
@@ -174,7 +164,16 @@ public:
                kES_EXT_MsToTexture_MSFBOType == fMSFBOType;
     }
 
-    FBFetchType fbFetchType() const { return fFBFetchType; }
+    /**
+     * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
+     *
+     * TODO On desktop opengl 4.2+ we can achieve something similar to this effect
+     */
+    bool fbFetchSupport() const { return fFBFetchSupport; }
+
+    const char* fbFetchColorName() const { return fFBFetchColorName; }
+
+    const char* fbFetchExtensionString() const { return fFBFetchExtensionString; }
 
     InvalidateFBType invalidateFBType() const { return fInvalidateFBType; }
 
@@ -340,7 +339,6 @@ private:
     int fMaxFixedFunctionTextureCoords;
 
     MSFBOType           fMSFBOType;
-    FBFetchType         fFBFetchType;
     InvalidateFBType    fInvalidateFBType;
     MapBufferType       fMapBufferType;
     LATCAlias           fLATCAlias;
@@ -363,6 +361,10 @@ private:
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;
     bool fDropsTileOnZeroDivide : 1;
+    bool fFBFetchSupport : 1;
+
+    const char* fFBFetchColorName;
+    const char* fFBFetchExtensionString;
 
     typedef GrDrawTargetCaps INHERITED;
 };

@@ -275,6 +275,13 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
             // currently part of our gl interface. There are probably others as
             // well.
         }
+
+        if (kGLES_GrGLStandard == this->glStandard() &&
+                fGLContext.hasExtension("GL_ARM_shader_framebuffer_fetch")) {
+            // The arm extension requires specifically enabling MSAA fetching per sample.
+            // On some devices this may have a perf hit.  Also multiple render targets are disabled
+            GL_CALL(Enable(GR_GL_FETCH_PER_SAMPLE_ARM));
+        }
         fHWWriteToColor = kUnknown_TriState;
         // we only ever use lines in hairline mode
         GL_CALL(LineWidth(1));
@@ -1490,7 +1497,7 @@ void GrGpuGL::discard(GrRenderTarget* renderTarget) {
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, glRT->renderFBOID()));
     }
     switch (this->glCaps().invalidateFBType()) {
-        case GrGLCaps::kNone_FBFetchType:
+        case GrGLCaps::kNone_InvalidateFBType:
             SkFAIL("Should never get here.");
             break;
         case GrGLCaps::kInvalidate_InvalidateFBType:
