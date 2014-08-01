@@ -752,3 +752,67 @@ DEF_TEST(DiscardablePixelRef_SecondLockColorTableCheck, r) {
         REPORTER_ASSERT(r, bitmap.getColorTable() && "second pass");
     }
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+namespace {
+class SingleAllocator : public SkBitmap::Allocator {
+public:
+    SingleAllocator(void* p, size_t s) : fPixels(p), fSize(s) { }
+    ~SingleAllocator() {}
+    // If the pixels in fPixels are big enough, use them.
+    virtual bool allocPixelRef(SkBitmap* bm, SkColorTable* ct) SK_OVERRIDE {
+        SkASSERT(bm);
+        if (bm->info().getSafeSize(bm->rowBytes()) <= fSize) {
+            bm->setPixels(fPixels, ct);
+            fPixels = NULL;
+            fSize = 0;
+            return true;
+        }
+        return bm->allocPixels(NULL, ct);
+    }
+    bool ready() { return fPixels != NULL; }
+private:
+    void* fPixels;
+    size_t fSize;
+};
+}  // namespace
+
+/*  This tests for a bug in libjpeg where INT32 is typedefed to long
+    and memory can be written to outside of the array. */
+DEF_TEST(ImageDecoding_JpegOverwrite, r) {
+    SkString resourceDir = GetResourcePath();
+    SkString path = SkOSPath::Join(resourceDir.c_str(), "randPixels.jpg");
+    SkAutoTUnref<SkStreamAsset> stream(
+            SkStream::NewFromFile(path.c_str()));
+    if (!stream.get()) {
+        SkDebugf("\nPath '%s' missing.\n", path.c_str());
+        return;
+    }
+    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
+    if (NULL == decoder.get()) {
+        ERRORF(r, "\nSkImageDecoder::Factory failed.\n");
+        return;
+    }
+    SkAssertResult(stream->rewind());
+
+    static const uint16_t sentinal = 0xBEEF;
+    static const int pixelCount = 16;
+    SkAutoTMalloc<uint16_t> pixels(pixelCount + 1);
+    // pixels.get() should be 4-byte aligned.
+    // This is necessary to reproduce the bug.
+
+    pixels[pixelCount] = sentinal;  // This value should not be changed.
+
+    SkAutoTUnref<SingleAllocator> allocator(
+            SkNEW_ARGS(SingleAllocator,
+                       ((void*)pixels.get(), sizeof(uint16_t) * pixelCount)));
+    decoder->setAllocator(allocator);
+    decoder->setSampleSize(2);
+    SkBitmap bitmap;
+    bool success = decoder->decode(stream, &bitmap, kRGB_565_SkColorType,
+                                   SkImageDecoder::kDecodePixels_Mode);
+    REPORTER_ASSERT(r, success);
+    REPORTER_ASSERT(r, !allocator->ready());  // Decoder used correct memory
+    REPORTER_ASSERT(r, sentinal == pixels[pixelCount]);
+}
