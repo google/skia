@@ -197,10 +197,6 @@
     #define SK_CPU_ARM64
 #endif
 
-#if !defined(SK_ARM_HAS_NEON) && defined(__ARM_NEON__)
-    #define SK_ARM_HAS_NEON
-#endif
-
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(SKIA_IMPLEMENTATION)
