@@ -89,7 +89,7 @@ inline void operator delete(void* p) {
 #define SK_INIT_TO_AVOID_WARNING    = 0
 
 #ifndef SkDebugf
-    void SkDebugf(const char format[], ...);
+    SK_API void SkDebugf(const char format[], ...);
 #endif
 
 #ifdef SK_DEBUG
