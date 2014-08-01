@@ -6,7 +6,6 @@
     'SK_SUPPORT_GPU=<(skia_gpu)',
     'SK_SUPPORT_OPENCL=<(skia_opencl)',
     'SK_FORCE_DISTANCEFIELD_FONTS=<(skia_force_distancefield_fonts)',
-    'SK_DEFAULT_RESOURCE_CACHE_MB_LIMIT=<(skia_resource_cache_mb_limit)',
   ],
   'conditions' : [
     ['skia_pic', {
