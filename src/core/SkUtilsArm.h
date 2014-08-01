@@ -21,9 +21,9 @@
 #define SK_ARM_NEON_MODE_ALWAYS   1
 #define SK_ARM_NEON_MODE_DYNAMIC  2
 
-#if defined(SK_CPU_ARM32) && defined(__ARM_HAVE_OPTIONAL_NEON_SUPPORT)
+#if defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_OPTIONAL_NEON)
 #  define SK_ARM_NEON_MODE  SK_ARM_NEON_MODE_DYNAMIC
-#elif defined(SK_CPU_ARM32) && defined(__ARM_HAVE_NEON) || defined(SK_CPU_ARM64)
+#elif defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON) || defined(SK_CPU_ARM64)
 #  define SK_ARM_NEON_MODE  SK_ARM_NEON_MODE_ALWAYS
 #else
 #  define SK_ARM_NEON_MODE  SK_ARM_NEON_MODE_NONE

@@ -120,7 +120,7 @@ extern const uint32_t gIEEENegativeInfinity;
 
 #if defined(__SSE__)
 #include <xmmintrin.h>
-#elif defined(__ARM_NEON__)
+#elif defined(SK_ARM_HAS_NEON)
 #include <arm_neon.h>
 #endif
 
@@ -136,7 +136,7 @@ static inline float sk_float_rsqrt(const float x) {
     float result;
     _mm_store_ss(&result, _mm_rsqrt_ss(_mm_set_ss(x)));
     return result;
-#elif defined(__ARM_NEON__)
+#elif defined(SK_ARM_HAS_NEON)
     // Get initial estimate.
     const float32x2_t xx = vdup_n_f32(x);  // Clever readers will note we're doing everything 2x.
     float32x2_t estimate = vrsqrte_f32(xx);

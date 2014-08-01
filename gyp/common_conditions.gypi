@@ -273,7 +273,7 @@
             'conditions': [
               [ 'arm_neon == 1', {
                 'defines': [
-                  '__ARM_HAVE_NEON',
+                  'SK_ARM_HAS_NEON',
                 ],
                 'cflags': [
                   '-mfpu=neon',
@@ -281,7 +281,7 @@
               }],
               [ 'arm_neon_optional == 1', {
                 'defines': [
-                  '__ARM_HAVE_OPTIONAL_NEON_SUPPORT',
+                  'SK_ARM_HAS_OPTIONAL_NEON',
                 ],
               }],
               [ 'skia_os != "chromeos"', {
