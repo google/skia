@@ -46,8 +46,6 @@ DEFINE_string2(expectations, r, "",
                "If a file, compare generated images against JSON expectations at this path."
 );
 
-DEFINE_string(skps, "", "Directory to read skps from.");
-
 DEFINE_bool(gms, true, "Run GMs?");
 DEFINE_bool(tests, true, "Run tests?");
 DEFINE_bool(reportUsedChars, false, "Output test font construction data to be pasted into"
@@ -247,7 +245,7 @@ int dm_main() {
         sk_tool_utils::report_used_chars();
     }
 #endif
-    
+
     SkTArray<SkString> failures;
     reporter.getFailures(&failures);
     report_failures(failures);

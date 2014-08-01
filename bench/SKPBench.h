@@ -4,21 +4,20 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef GMBench_DEFINED
-#define GMBench_DEFINED
+
+#ifndef SKPBench_DEFINED
+#define SKPBench_DEFINED
 
 #include "Benchmark.h"
 #include "SkCanvas.h"
-#include "gm.h"
+#include "SkPicture.h"
 
 /**
- * Runs a GM as a benchmark by repeatedly drawing the GM.
+ * Runs an SkPicture as a benchmark by repeatedly drawing it scaled inside a device clip.
  */
-class GMBench : public Benchmark {
+class SKPBench : public Benchmark {
 public:
-    // Constructor takes ownership of the GM param.
-    GMBench(skiagm::GM* gm);
-    virtual ~GMBench();
+    SKPBench(const char* name, const SkPicture*, const SkIRect& devClip, SkScalar scale);
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE;
@@ -27,8 +26,11 @@ protected:
     virtual SkIPoint onGetSize() SK_OVERRIDE;
 
 private:
-    skiagm::GM* fGM;
-    SkString    fName;
+    SkAutoTUnref<const SkPicture> fPic;
+    const SkIRect fClip;
+    const SkScalar fScale;
+    SkString fName;
+
     typedef Benchmark INHERITED;
 };
 

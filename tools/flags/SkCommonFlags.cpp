@@ -44,6 +44,8 @@ DEFINE_bool(abandonGpuContext, false, "Abandon the GrContext after running each 
 
 DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
 
+DEFINE_string(skps, "", "Directory to read skps from.");
+
 DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
              "run threadsafe tests on a threadpool with this many threads.");
 
