@@ -7903,11 +7903,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3080700020968668861
+          10005787191304110747
         ]
       ], 
       "ignore-failure": true, 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "fontmgr_iter_factory_565.png": {
       "allowed-digests": [

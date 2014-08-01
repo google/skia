@@ -6002,11 +6002,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          4967868256822808424
         ]
-      ], 
-      "bugs": [
-        1578
       ], 
       "reviewed-by-human": false
     }, 
@@ -6014,11 +6011,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          18058984729452750366
         ]
-      ], 
-      "bugs": [
-        1578
       ], 
       "reviewed-by-human": false
     }, 
@@ -6026,29 +6020,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          7072812895837463931
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": false
     }, 
     "fontmgr_iter_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          7072812895837463931
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": false
     }, 
     "fontmgr_match_565.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          4335659971728708662
         ]
-      ], 
-      "bugs": [
-        1578
       ], 
       "reviewed-by-human": false
     }, 
@@ -6056,11 +6049,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          5297915207580543309
         ]
-      ], 
-      "bugs": [
-        1578
       ], 
       "reviewed-by-human": false
     }, 
@@ -6068,19 +6058,21 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          5297915207580543309
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": false
     }, 
     "fontmgr_match_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          5297915207580543309
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": false
     }, 
     "fontscaler_565.png": {
       "allowed-digests": [

@@ -33,6 +33,3 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
-#bungeman: there's now a fontmgr on android
-fontmgr_match
-fontmgr_iter

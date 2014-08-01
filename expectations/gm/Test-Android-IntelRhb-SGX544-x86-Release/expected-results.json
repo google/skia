@@ -4668,11 +4668,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          13272089956123727727
         ]
-      ], 
-      "bugs": [
-        1578
       ], 
       "reviewed-by-human": false
     }, 
@@ -4680,11 +4677,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          16081946019267530864
         ]
-      ], 
-      "bugs": [
-        1578
       ], 
       "reviewed-by-human": false
     }, 
@@ -4704,11 +4698,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          6708763127627046893
         ]
-      ], 
-      "bugs": [
-        1578
       ], 
       "reviewed-by-human": false
     }, 
@@ -4716,11 +4707,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          13271159159658735588
         ]
-      ], 
-      "bugs": [
-        1578
       ], 
       "reviewed-by-human": false
     }, 
