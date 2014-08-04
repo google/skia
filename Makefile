@@ -7,12 +7,12 @@
 #   make clean
 #
 #   # Build and run tests (in Debug mode)
-#   make tests
-#   out/Debug/tests
+#   make dm
+#   out/Debug/dm
 #
 #   # Build and run tests (in Release mode)
-#   make tests BUILDTYPE=Release
-#   out/Release/tests
+#   make dm BUILDTYPE=Release
+#   out/Release/dm
 #
 #   # Build bench and SampleApp (both in Release mode), and then run them
 #   make SampleApp bench BUILDTYPE=Release
@@ -53,7 +53,6 @@ VALID_TARGETS := \
                  skhello \
                  skia_lib \
                  skpskgr_test \
-                 tests \
                  tools \
                  skpdiff
 

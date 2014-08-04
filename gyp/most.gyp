@@ -18,7 +18,6 @@
         'bench.gyp:*',
         'gm.gyp:gm',
         'SampleApp.gyp:SampleApp',
-        'tests.gyp:tests',
         'tools.gyp:tools',
         'pathops_unittest.gyp:*',
         'pathops_skpclip.gyp:*',
