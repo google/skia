@@ -8,7 +8,6 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'etc1.gyp:libetc1',
       ],
       'includes': [
         'utils.gypi',

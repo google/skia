@@ -18,18 +18,9 @@ namespace SkTextureCompressor {
     // Various texture compression formats that we support.
     enum Format {
         // Alpha only formats.
-        kLATC_Format,       // 4x4 blocks, (de)compresses A8
-        kR11_EAC_Format,    // 4x4 blocks, (de)compresses A8
-
-        // RGB only formats
-        kETC1_Format,       // 4x4 blocks, compresses RGB 565, decompresses 8-bit RGB
-                            //    NOTE: ETC1 supports 8-bit RGB compression, but we
-                            //    currently don't have any RGB8 SkColorTypes. We could
-                            //    support 8-bit RGBA but we would have to preprocess the
-                            //    bitmap to insert alphas.
-
-        // Multi-purpose formats
-        kASTC_12x12_Format, // 12x12 blocks, compresses A8, decompresses RGBA
+        kLATC_Format,       // 4x4 blocks, compresses A8
+        kR11_EAC_Format,    // 4x4 blocks, compresses A8
+        kASTC_12x12_Format, // 12x12 blocks, compresses A8
 
         kLast_Format = kASTC_12x12_Format
     };
@@ -57,7 +48,11 @@ namespace SkTextureCompressor {
     // destination buffer. The width and height of the data passed corresponds
     // to the width and height of the uncompressed image. The destination buffer (dst)
     // is assumed to be large enough to hold the entire decompressed image. The
-    // decompressed image colors are determined based on the passed format.
+    // decompressed image colors are determined based on the passed format:
+    //
+    // LATC -> Alpha 8
+    // R11_EAC -> Alpha 8
+    // ASTC -> RGBA
     //
     // Note, CompressBufferToFormat compresses A8 data into ASTC. However,
     // general ASTC data encodes RGBA data, so that is what the decompressor

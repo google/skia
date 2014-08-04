@@ -10,7 +10,6 @@
 #include "SkScaledBitmapSampler.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
-#include "SkTextureCompressor.h"
 #include "SkTypes.h"
 
 #include "etc1.h"
@@ -81,11 +80,10 @@ bool SkPKMImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     // ETC1 Data is encoded as RGB pixels, so we should extract it as such
     int nPixels = width * height;
     SkAutoMalloc outRGBData(nPixels * 3);
-    uint8_t *outRGBDataPtr = reinterpret_cast<uint8_t *>(outRGBData.get());
+    etc1_byte *outRGBDataPtr = reinterpret_cast<etc1_byte *>(outRGBData.get());
 
     // Decode ETC1
-    if (!SkTextureCompressor::DecompressBufferFromFormat(
-            outRGBDataPtr, width*3, buf, width, height, SkTextureCompressor::kETC1_Format)) {
+    if (etc1_decode_image(buf, outRGBDataPtr, width, height, 3, width*3)) {
         return false;
     }
 
