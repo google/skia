@@ -37,6 +37,8 @@ class GrGLProgram : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrGLProgram)
 
+    typedef GrGLShaderBuilder::BuiltinUniformHandles BuiltinUniformHandles;
+
     static GrGLProgram* Create(GrGpuGL* gpu,
                                const GrGLProgramDesc& desc,
                                const GrEffectStage* colorStages[],
@@ -59,9 +61,9 @@ public:
     /**
      * Gets the GL program ID for this program.
      */
-    GrGLuint programID() const { return fBuilderOutput.fProgramID; }
+    GrGLuint programID() const { return fProgramID; }
 
-    bool hasVertexShader() const { return fBuilderOutput.fHasVertexShader; }
+    bool hasVertexShader() const { return fHasVertexShader; }
 
     /**
      * Some GL state that is relevant to programs is not stored per-program. In particular color
@@ -165,8 +167,7 @@ private:
 
     GrGLProgram(GrGpuGL*,
                 const GrGLProgramDesc&,
-                GrGLProgramDataManager*,
-                const GrGLShaderBuilder::GenProgramOutput&);
+                const GrGLShaderBuilder&);
 
     // Sets the texture units for samplers.
     void initSamplerUniforms();
@@ -188,12 +189,17 @@ private:
     GrColor                             fCoverage;
     int                                 fDstCopyTexUnit;
 
-    GrGLShaderBuilder::GenProgramOutput fBuilderOutput;
+    BuiltinUniformHandles               fBuiltinUniformHandles;
+    SkAutoTUnref<GrGLProgramEffects>    fColorEffects;
+    SkAutoTUnref<GrGLProgramEffects>    fCoverageEffects;
+    GrGLuint                            fProgramID;
+    bool                                fHasVertexShader;
+    int                                 fTexCoordSetCnt;
 
     GrGLProgramDesc                     fDesc;
     GrGpuGL*                            fGpu;
 
-    SkAutoTUnref<GrGLProgramDataManager> fProgramDataManager;
+    GrGLProgramDataManager              fProgramDataManager;
 
     typedef SkRefCnt INHERITED;
 };

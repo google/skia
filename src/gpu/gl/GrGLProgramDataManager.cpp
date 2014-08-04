@@ -15,24 +15,38 @@
          SkASSERT(arrayCount <= uni.fArrayCount || \
                   (1 == arrayCount && GrGLShaderVar::kNonArray == uni.fArrayCount))
 
-GrGLProgramDataManager::GrGLProgramDataManager(GrGpuGL* gpu) : fGpu(gpu) {
-    // skbug.com/2056
-    fUsingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != NULL;
-}
+GrGLProgramDataManager::GrGLProgramDataManager(GrGpuGL* gpu,
+                                               GrGLProgram*,
+                                               const GrGLShaderBuilder& builder)
+    : fGpu(gpu) {
+    int count = builder.getUniformInfos().count();
+    fUniforms.push_back_n(count);
+    for (int i = 0; i < count; i++) {
+        Uniform& uniform = fUniforms[i];
+        const GrGLShaderBuilder::UniformInfo& builderUniform = builder.getUniformInfos()[i];
+        SkASSERT(GrGLShaderVar::kNonArray == builderUniform.fVariable.getArrayCount() ||
+                 builderUniform.fVariable.getArrayCount() > 0);
+        SkDEBUGCODE(
+            uniform.fArrayCount = builderUniform.fVariable.getArrayCount();
+            uniform.fType = builderUniform.fVariable.getType();
+        );
+        // TODO: Move the Xoom uniform array in both FS and VS bug workaround here.
 
-GrGLProgramDataManager::UniformHandle GrGLProgramDataManager::appendUniform(GrSLType type, int arrayCount) {
-    int idx = fUniforms.count();
-    Uniform& uni = fUniforms.push_back();
-    SkASSERT(GrGLShaderVar::kNonArray == arrayCount || arrayCount > 0);
-    uni.fArrayCount = arrayCount;
-    uni.fType = type;
-    uni.fVSLocation = kUnusedUniform;
-    uni.fFSLocation = kUnusedUniform;
-    return GrGLProgramDataManager::UniformHandle::CreateFromUniformIndex(idx);
+        if (GrGLShaderBuilder::kVertex_Visibility & builderUniform.fVisibility) {
+            uniform.fVSLocation = builderUniform.fLocation;
+        } else {
+            uniform.fVSLocation = kUnusedUniform;
+            }
+        if (GrGLShaderBuilder::kFragment_Visibility & builderUniform.fVisibility) {
+            uniform.fFSLocation = builderUniform.fLocation;
+        } else {
+            uniform.fFSLocation = kUnusedUniform;
+        }
+    }
 }
 
 void GrGLProgramDataManager::setSampler(UniformHandle u, GrGLint texUnit) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kSampler2D_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     // FIXME: We still insert a single sampler uniform for every stage. If the shader does not
@@ -48,7 +62,7 @@ void GrGLProgramDataManager::setSampler(UniformHandle u, GrGLint texUnit) const 
 }
 
 void GrGLProgramDataManager::set1f(UniformHandle u, GrGLfloat v0) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -63,7 +77,7 @@ void GrGLProgramDataManager::set1f(UniformHandle u, GrGLfloat v0) const {
 void GrGLProgramDataManager::set1fv(UniformHandle u,
                                     int arrayCount,
                                     const GrGLfloat v[]) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
@@ -80,7 +94,7 @@ void GrGLProgramDataManager::set1fv(UniformHandle u,
 }
 
 void GrGLProgramDataManager::set2f(UniformHandle u, GrGLfloat v0, GrGLfloat v1) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kVec2f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -95,7 +109,7 @@ void GrGLProgramDataManager::set2f(UniformHandle u, GrGLfloat v0, GrGLfloat v1) 
 void GrGLProgramDataManager::set2fv(UniformHandle u,
                                     int arrayCount,
                                     const GrGLfloat v[]) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kVec2f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
@@ -109,7 +123,7 @@ void GrGLProgramDataManager::set2fv(UniformHandle u,
 }
 
 void GrGLProgramDataManager::set3f(UniformHandle u, GrGLfloat v0, GrGLfloat v1, GrGLfloat v2) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kVec3f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -124,7 +138,7 @@ void GrGLProgramDataManager::set3f(UniformHandle u, GrGLfloat v0, GrGLfloat v1, 
 void GrGLProgramDataManager::set3fv(UniformHandle u,
                                     int arrayCount,
                                     const GrGLfloat v[]) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kVec3f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
@@ -142,7 +156,7 @@ void GrGLProgramDataManager::set4f(UniformHandle u,
                                    GrGLfloat v1,
                                    GrGLfloat v2,
                                    GrGLfloat v3) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kVec4f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -157,7 +171,7 @@ void GrGLProgramDataManager::set4f(UniformHandle u,
 void GrGLProgramDataManager::set4fv(UniformHandle u,
                                     int arrayCount,
                                     const GrGLfloat v[]) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kVec4f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
@@ -171,7 +185,7 @@ void GrGLProgramDataManager::set4fv(UniformHandle u,
 }
 
 void GrGLProgramDataManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix[]) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kMat33f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     // TODO: Re-enable this assert once texture matrices aren't forced on all effects
@@ -185,7 +199,7 @@ void GrGLProgramDataManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix
 }
 
 void GrGLProgramDataManager::setMatrix4f(UniformHandle u, const GrGLfloat matrix[]) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kMat44f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -200,7 +214,7 @@ void GrGLProgramDataManager::setMatrix4f(UniformHandle u, const GrGLfloat matrix
 void GrGLProgramDataManager::setMatrix3fv(UniformHandle u,
                                           int arrayCount,
                                           const GrGLfloat matrices[]) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kMat33f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
@@ -218,7 +232,7 @@ void GrGLProgramDataManager::setMatrix3fv(UniformHandle u,
 void GrGLProgramDataManager::setMatrix4fv(UniformHandle u,
                                           int arrayCount,
                                           const GrGLfloat matrices[]) const {
-    const Uniform& uni = fUniforms[u.toUniformIndex()];
+    const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kMat44f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
@@ -246,35 +260,4 @@ void GrGLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix
         matrix.get(SkMatrix::kMPersp2),
     };
     this->setMatrix3f(u, mt);
-}
-
-
-void GrGLProgramDataManager::getUniformLocations(GrGLuint programID, const BuilderUniformArray& uniforms) {
-    SkASSERT(uniforms.count() == fUniforms.count());
-    int count = fUniforms.count();
-    for (int i = 0; i < count; ++i) {
-        SkASSERT(uniforms[i].fVariable.getType() == fUniforms[i].fType);
-        SkASSERT(uniforms[i].fVariable.getArrayCount() == fUniforms[i].fArrayCount);
-        GrGLint location;
-        // TODO: Move the Xoom uniform array in both FS and VS bug workaround here.
-        if (fUsingBindUniform) {
-            location = i;
-            GR_GL_CALL(fGpu->glInterface(),
-                       BindUniformLocation(programID, location, uniforms[i].fVariable.c_str()));
-        } else {
-            GR_GL_CALL_RET(fGpu->glInterface(), location,
-                       GetUniformLocation(programID, uniforms[i].fVariable.c_str()));
-        }
-        if (GrGLShaderBuilder::kVertex_Visibility & uniforms[i].fVisibility) {
-            fUniforms[i].fVSLocation = location;
-        }
-        if (GrGLShaderBuilder::kFragment_Visibility & uniforms[i].fVisibility) {
-            fUniforms[i].fFSLocation = location;
-        }
-    }
-}
-
-const GrGLProgramDataManager::BuilderUniform&
-GrGLProgramDataManager::getBuilderUniform(const BuilderUniformArray& array, UniformHandle handle) const {
-    return array[handle.toUniformIndex()];
 }

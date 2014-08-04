@@ -16,6 +16,8 @@
 
 class GrGpuGL;
 class SkMatrix;
+class GrGLProgram;
+class GrGLShaderBuilder;
 
 /** Manages the resources used by a shader program.
  * The resources are objects the program uses to communicate with the
@@ -26,31 +28,33 @@ public:
     // Opaque handle to a uniform
     class UniformHandle {
     public:
+        /** Creates a reference to an unifrom of a GrGLShaderBuilder.
+         * The ref can be used to set the uniform with corresponding the GrGLProgramDataManager.*/
         static UniformHandle CreateFromUniformIndex(int i);
 
-        bool isValid() const { return 0 != fValue; }
+        bool isValid() const { return -1 != fValue; }
 
         bool operator==(const UniformHandle& other) const { return other.fValue == fValue; }
 
         UniformHandle()
-            : fValue(0) {
+            : fValue(-1) {
         }
 
     private:
         UniformHandle(int value)
-            : fValue(~value) {
+            : fValue(value) {
             SkASSERT(isValid());
         }
 
-        int toUniformIndex() const { SkASSERT(isValid()); return ~fValue; }
+        int toProgramDataIndex() const { SkASSERT(isValid()); return fValue; }
+        int toShaderBuilderIndex() const { return toProgramDataIndex(); }
 
         int fValue;
-        friend class GrGLProgramDataManager; // For accessing toUniformIndex().
+        friend class GrGLProgramDataManager; // For accessing toProgramDataIndex().
+        friend class GrGLShaderBuilder; // For accessing toShaderBuilderIndex().
     };
 
-    GrGLProgramDataManager(GrGpuGL* gpu);
-
-    UniformHandle appendUniform(GrSLType type, int arrayCount = GrGLShaderVar::kNonArray);
+    GrGLProgramDataManager(GrGpuGL*, GrGLProgram*, const GrGLShaderBuilder&);
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
      *  array of uniforms. arrayCount must be <= the array count of the uniform.
@@ -74,32 +78,6 @@ public:
     // convenience method for uploading a SkMatrix to a 3x3 matrix uniform
     void setSkMatrix(UniformHandle, const SkMatrix&) const;
 
-    struct BuilderUniform {
-        GrGLShaderVar fVariable;
-        uint32_t      fVisibility;
-    };
-    // This uses an allocator rather than array so that the GrGLShaderVars don't move in memory
-    // after they are inserted. Users of GrGLShaderBuilder get refs to the vars and ptrs to their
-    // name strings. Otherwise, we'd have to hand out copies.
-    typedef GrTAllocator<BuilderUniform> BuilderUniformArray;
-
-    /**
-     * Called by the GrGLShaderBuilder to know if the manager is using
-     * BindUniformLocation. In that case getUniformLocations must be called
-     * before the program is linked.
-     */
-    bool isUsingBindUniform() const { return fUsingBindUniform; }
-
-    /**
-     * Called by the GrGLShaderBuilder to get GL locations for all uniforms.
-     */
-    void getUniformLocations(GrGLuint programID, const BuilderUniformArray& uniforms);
-
-    /**
-     * Called by the GrGLShaderBuilder to access the array by the handle (index).
-     */
-    const BuilderUniform& getBuilderUniform(const BuilderUniformArray&, GrGLProgramDataManager::UniformHandle) const;
-
 private:
     enum {
         kUnusedUniform = -1,
@@ -108,11 +86,12 @@ private:
     struct Uniform {
         GrGLint     fVSLocation;
         GrGLint     fFSLocation;
-        GrSLType    fType;
-        int         fArrayCount;
+        SkDEBUGCODE(
+            GrSLType    fType;
+            int         fArrayCount;
+        );
     };
 
-    bool fUsingBindUniform;
     SkTArray<Uniform, true> fUniforms;
     GrGpuGL* fGpu;
 
