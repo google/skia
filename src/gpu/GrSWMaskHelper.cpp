@@ -40,11 +40,13 @@ static inline GrPixelConfig fmt_to_config(SkTextureCompressor::Format fmt) {
     static const GrPixelConfig configMap[] = {
         kLATC_GrPixelConfig,       // kLATC_Format,
         kR11_EAC_GrPixelConfig,    // kR11_EAC_Format,
+        kETC1_GrPixelConfig,       // kETC1_Format,
         kASTC_12x12_GrPixelConfig  // kASTC_12x12_Format,
     };
     GR_STATIC_ASSERT(0 == SkTextureCompressor::kLATC_Format);
     GR_STATIC_ASSERT(1 == SkTextureCompressor::kR11_EAC_Format);
-    GR_STATIC_ASSERT(2 == SkTextureCompressor::kASTC_12x12_Format);
+    GR_STATIC_ASSERT(2 == SkTextureCompressor::kETC1_Format);
+    GR_STATIC_ASSERT(3 == SkTextureCompressor::kASTC_12x12_Format);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(configMap) == SkTextureCompressor::kFormatCnt);
 
     return configMap[fmt];

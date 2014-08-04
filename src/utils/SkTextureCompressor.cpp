@@ -16,6 +16,20 @@
 
 #include "SkTextureCompression_opts.h"
 
+#ifndef SK_IGNORE_ETC1_SUPPORT
+#  include "etc1.h"
+#endif
+
+// Convert ETC1 functions to our function signatures
+static bool compress_etc1_565(uint8_t* dst, const uint8_t* src,
+                              int width, int height, int rowBytes) {
+#ifndef SK_IGNORE_ETC1_SUPPORT
+    return 0 == etc1_encode_image(src, width, height, 2, rowBytes, dst);
+#else
+    return false;
+#endif
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace SkTextureCompressor {
@@ -35,8 +49,9 @@ void GetBlockDimensions(Format format, int* dimX, int* dimY, bool matchSpec) {
         default:
             SkDEBUGFAIL("Unknown compression format!");
             // fall through
-        case kR11_EAC_Format:
         case kLATC_Format:
+        case kR11_EAC_Format:
+        case kETC1_Format: 
             *dimX = 4;
             *dimY = 4;
             break;
@@ -57,8 +72,9 @@ int GetCompressedDataSize(Format fmt, int width, int height) {
             
     switch (fmt) {
         // These formats are 64 bits per 4x4 block.
-        case kR11_EAC_Format:
         case kLATC_Format:
+        case kR11_EAC_Format:
+        case kETC1_Format:
             encodedBlockSize = 8;
             break;
 
@@ -102,6 +118,19 @@ bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcCol
                         break;
                     case kASTC_12x12_Format:
                         proc = CompressA8To12x12ASTC;
+                        break;
+                    default:
+                        // Do nothing...
+                        break;
+                }
+            }
+            break;
+
+            case kRGB_565_SkColorType:
+            {
+                switch (format) {
+                    case kETC1_Format:
+                        proc = compress_etc1_565;
                         break;
                     default:
                         // Do nothing...
@@ -179,6 +208,10 @@ bool DecompressBufferFromFormat(uint8_t* dst, int dstRowBytes, const uint8_t* sr
             DecompressR11EAC(dst, dstRowBytes, src, width, height);
             return true;
 
+#ifndef SK_IGNORE_ETC1_SUPPORT
+        case kETC1_Format:
+            return 0 == etc1_decode_image(src, dst, width, height, 3, dstRowBytes);
+#endif
         case kASTC_12x12_Format:
             // TODO(krajcevski) .. right now just fall through and return false.
             return false;

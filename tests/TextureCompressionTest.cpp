@@ -132,11 +132,12 @@ DEF_TEST(CompressCheckerboard, reporter) {
     for (int i = 0; i < SkTextureCompressor::kFormatCnt; ++i) {
         const SkTextureCompressor::Format fmt = static_cast<SkTextureCompressor::Format>(i);
 
-        // ASTC is for RGBA data, and the decompressed buffer
+        // Ignore formats for RGBA data, since the decompressed buffer
         // won't match the size and contents of the original.
         // TODO: Create separate tests for RGB and RGBA data once
-        // ASTC decompression is implemented.
-        if (SkTextureCompressor::kASTC_12x12_Format == fmt) {
+        // ASTC and ETC1 decompression is implemented.
+        if (SkTextureCompressor::kASTC_12x12_Format == fmt ||
+            SkTextureCompressor::kETC1_Format == fmt) {
             continue;
         }
 
