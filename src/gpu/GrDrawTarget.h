@@ -547,11 +547,6 @@ public:
                           const GrDeviceCoordTexture* dstCopy) {
         this->onDrawPaths(pathRange, indices, count, transforms, transformsType, fill, dstCopy);
     }
-
-    inline bool isGpuTracingEnabled() const {
-        return this->getContext()->isGpuTracingEnabled();
-    }
-
     ////////////////////////////////////////////////////////////////////////////
 
     /**

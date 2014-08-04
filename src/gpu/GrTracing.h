@@ -85,12 +85,14 @@ private:
     INTERNAL_TRACE_EVENT_ADD_SCOPED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"),name,   \
                        "id", name_counter, ##__VA_ARGS__);                        
 
-#define GR_CREATE_GPU_TRACE_MARKER(name, name_counter, target)                    \
-    GrGpuTraceMarkerGenerator SK_MACRO_APPEND_LINE(TMG)(target);                  \
-    if (target->isGpuTracingEnabled()) {                                          \
-        SK_MACRO_APPEND_LINE(TMG).initialize(name, &name_counter);                \
+#define GR_CREATE_GPU_TRACE_MARKER(name, name_counter, target)                     \
+    GrGpuTraceMarkerGenerator SK_MACRO_APPEND_LINE(TMG)(target);                   \
+    bool SK_MACRO_APPEND_LINE(gpuTracingEnabled);                                  \
+    TRACE_EVENT_CATEGORY_GROUP_ENABLED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"),      \
+                                        &SK_MACRO_APPEND_LINE(gpuTracingEnabled)); \
+    if (SK_MACRO_APPEND_LINE(gpuTracingEnabled)) {                                 \
+        SK_MACRO_APPEND_LINE(TMG).initialize(name, &name_counter);                 \
     }                                                                             
-
 
 
 #define GR_CREATE_TRACE_MARKER_CONTEXT(name, context)                             \
@@ -112,10 +114,13 @@ private:
     INTERNAL_TRACE_EVENT_ADD_SCOPED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"),name,   \
                                     "id", name_counter, ##__VA_ARGS__);                        
 
-#define GR_CREATE_GPU_TRACE_MARKER_C(name, name_counter, context)                 \
-    GrGpuTraceMarkerGeneratorContext SK_MACRO_APPEND_LINE(TMG)(context);          \
-    if (context->isGpuTracingEnabled()) {                                         \
-        SK_MACRO_APPEND_LINE(TMG).initialize(name, &name_counter);                \
+#define GR_CREATE_GPU_TRACE_MARKER_C(name, name_counter, context)                  \
+    GrGpuTraceMarkerGeneratorContext SK_MACRO_APPEND_LINE(TMG)(context);           \
+    bool SK_MACRO_APPEND_LINE(gpuTracingEnabled);                                  \
+    TRACE_EVENT_CATEGORY_GROUP_ENABLED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"),      \
+                                        &SK_MACRO_APPEND_LINE(gpuTracingEnabled)); \
+    if (SK_MACRO_APPEND_LINE(gpuTracingEnabled)) {                                 \
+        SK_MACRO_APPEND_LINE(TMG).initialize(name, &name_counter);                 \
     }                                                                             
 
 #endif
