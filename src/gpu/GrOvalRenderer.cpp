@@ -939,7 +939,7 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target, GrContext* context, bool u
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawRect(bounds, NULL, NULL, NULL);
+    target->drawRect(bounds, NULL, NULL);
     return true;
 }
 

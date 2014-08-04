@@ -786,8 +786,7 @@ static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& po
 
 void GrContext::drawRect(const GrPaint& paint,
                          const SkRect& rect,
-                         const GrStrokeInfo* strokeInfo,
-                         const SkMatrix* matrix) {
+                         const GrStrokeInfo* strokeInfo) {
     if (NULL != strokeInfo && strokeInfo->isDashed()) {
         SkPath path;
         path.addRect(rect);
@@ -804,10 +803,7 @@ void GrContext::drawRect(const GrPaint& paint,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRect", target);
     SkScalar width = NULL == strokeInfo ? -1 : strokeInfo->getStrokeRec().getWidth();
-    SkMatrix combinedMatrix = target->drawState()->getViewMatrix();
-    if (NULL != matrix) {
-        combinedMatrix.preConcat(*matrix);
-    }
+    SkMatrix matrix = target->drawState()->getViewMatrix();
 
     // Check if this is a full RT draw and can be replaced with a clear. We don't bother checking
     // cases where the RT is fully inside a stroke.
@@ -824,7 +820,7 @@ void GrContext::drawRect(const GrPaint& paint,
         // Does the clip contain the entire RT?
         if (!checkClip || target->getClip()->fClipStack->quickContains(clipSpaceRTRect)) {
             SkMatrix invM;
-            if (!combinedMatrix.invert(&invM)) {
+            if (!matrix.invert(&invM)) {
                 return;
             }
             // Does the rect bound the RT?
@@ -848,7 +844,7 @@ void GrContext::drawRect(const GrPaint& paint,
     bool useVertexCoverage;
     bool needAA = paint.isAntiAlias() &&
                   !target->getDrawState().getRenderTarget()->isMultisampled();
-    bool doAA = needAA && apply_aa_to_rect(target, rect, width, combinedMatrix, &devBoundRect,
+    bool doAA = needAA && apply_aa_to_rect(target, rect, width, matrix, &devBoundRect,
                                            &useVertexCoverage);
 
     const SkStrokeRec& strokeRec = strokeInfo->getStrokeRec();
@@ -860,12 +856,12 @@ void GrContext::drawRect(const GrPaint& paint,
         }
         if (width >= 0) {
             fAARectRenderer->strokeAARect(this->getGpu(), target, rect,
-                                          combinedMatrix, devBoundRect,
+                                          matrix, devBoundRect,
                                           strokeRec, useVertexCoverage);
         } else {
             // filled AA rect
             fAARectRenderer->fillAARect(this->getGpu(), target,
-                                        rect, combinedMatrix, devBoundRect,
+                                        rect, matrix, devBoundRect,
                                         useVertexCoverage);
         }
         return;
@@ -904,23 +900,16 @@ void GrContext::drawRect(const GrPaint& paint,
             vertex[4].set(rect.fLeft, rect.fTop);
         }
 
-        GrDrawState::AutoViewMatrixRestore avmr;
-        if (NULL != matrix) {
-            GrDrawState* drawState = target->drawState();
-            avmr.set(drawState, *matrix);
-        }
-
         target->drawNonIndexed(primType, 0, vertCount);
     } else {
         // filled BW rect
-        target->drawSimpleRect(rect, matrix);
+        target->drawSimpleRect(rect);
     }
 }
 
 void GrContext::drawRectToRect(const GrPaint& paint,
                                const SkRect& dstRect,
                                const SkRect& localRect,
-                               const SkMatrix* dstMatrix,
                                const SkMatrix* localMatrix) {
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
@@ -931,7 +920,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRectToRect", target);
 
-    target->drawRect(dstRect, dstMatrix, &localRect, localMatrix);
+    target->drawRect(dstRect, &localRect, localMatrix);
 }
 
 namespace {
@@ -1523,7 +1512,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
 
                 drawState->setRenderTarget(texture->asRenderTarget());
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-                fGpu->drawSimpleRect(rect, NULL);
+                fGpu->drawSimpleRect(rect);
                 // we want to read back from the scratch's origin
                 left = 0;
                 top = 0;
@@ -1609,7 +1598,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint*
     sampleM.preTranslate(SkIntToScalar(srcRect.fLeft), SkIntToScalar(srcRect.fTop));
     drawState->addColorTextureEffect(src, sampleM);
     SkRect dstR = SkRect::MakeWH(SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
-    fGpu->drawSimpleRect(dstR, NULL);
+    fGpu->drawSimpleRect(dstR);
 }
 
 bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
@@ -1736,7 +1725,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
 
     drawState->setRenderTarget(target);
 
-    fGpu->drawSimpleRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), NULL);
+    fGpu->drawSimpleRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)));
     return true;
 }
 ////////////////////////////////////////////////////////////////////////////////

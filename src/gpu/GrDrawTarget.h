@@ -389,7 +389,6 @@ public:
      * and thus will finalize any reserved geometry.
      *
      * @param rect        the rect to draw
-     * @param matrix      optional matrix applied to rect (before viewMatrix)
      * @param localRect   optional rect that specifies local coords to map onto
      *                    rect. If NULL then rect serves as the local coords.
      * @param localMatrix optional matrix applied to localRect. If
@@ -398,22 +397,21 @@ public:
      *                    srcMatrix can be NULL when no srcMatrix is desired.
      */
     void drawRect(const SkRect& rect,
-                  const SkMatrix* matrix,
                   const SkRect* localRect,
                   const SkMatrix* localMatrix) {
         AutoGeometryPush agp(this);
-        this->onDrawRect(rect, matrix, localRect, localMatrix);
+        this->onDrawRect(rect, localRect, localMatrix);
     }
 
     /**
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
-    void drawSimpleRect(const SkRect& rect, const SkMatrix* matrix = NULL) {
-        this->drawRect(rect, matrix, NULL, NULL);
+    void drawSimpleRect(const SkRect& rect) {
+        this->drawRect(rect, NULL, NULL);
     }
-    void drawSimpleRect(const SkIRect& irect, const SkMatrix* matrix = NULL) {
+    void drawSimpleRect(const SkIRect& irect) {
         SkRect rect = SkRect::Make(irect);
-        this->drawRect(rect, matrix, NULL, NULL);
+        this->drawRect(rect, NULL, NULL);
     }
 
     /**
@@ -929,7 +927,6 @@ private:
     // drawIndexedInstances, ...). The base class draws a two triangle fan using
     // drawNonIndexed from reserved vertex space.
     virtual void onDrawRect(const SkRect& rect,
-                            const SkMatrix* matrix,
                             const SkRect* localRect,
                             const SkMatrix* localMatrix);
 

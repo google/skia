@@ -468,33 +468,26 @@ public:
      *                      Otherwise, if stroke width == 0, then the stroke
      *                      is always a single pixel thick, else the rect is
      *                      mitered/beveled stroked based on stroke width.
-     *                      If the stroke is dashed the rect is sent to drawPath.
-     *  @param matrix       Optional matrix applied to the rect. Applied before
-     *                      context's matrix or the paint's matrix.
      *  The rects coords are used to access the paint (through texture matrix)
      */
     void drawRect(const GrPaint& paint,
                   const SkRect&,
-                  const GrStrokeInfo* strokeInfo = NULL,
-                  const SkMatrix* matrix = NULL);
+                  const GrStrokeInfo* strokeInfo = NULL);
 
     /**
      * Maps a rect of local coordinates onto the a rect of destination
-     * coordinates. Each rect can optionally be transformed. The localRect
-     * is stretched over the dstRect. The dstRect is transformed by the
-     * context's matrix. Additional optional matrices for both rects can be
-     * provided by parameters.
+     * coordinates. The localRect is stretched over the dstRect. The dstRect is
+     * transformed by the context's matrix. An additional optional matrix can be
+     *  provided to transform the local rect.
      *
      * @param paint         describes how to color pixels.
      * @param dstRect       the destination rect to draw.
      * @param localRect     rect of local coordinates to be mapped onto dstRect
-     * @param dstMatrix     Optional matrix to transform dstRect. Applied before context's matrix.
      * @param localMatrix   Optional matrix to transform localRect.
      */
     void drawRectToRect(const GrPaint& paint,
                         const SkRect& dstRect,
                         const SkRect& localRect,
-                        const SkMatrix* dstMatrix = NULL,
                         const SkMatrix* localMatrix = NULL);
 
     /**

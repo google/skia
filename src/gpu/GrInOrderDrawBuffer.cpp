@@ -137,7 +137,6 @@ static bool cmd_has_trace_marker(uint8_t cmd) {
 }
 
 void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
-                                     const SkMatrix* matrix,
                                      const SkRect* localRect,
                                      const SkMatrix* localMatrix) {
     GrDrawState::AutoColorRestore acr;
@@ -167,13 +166,8 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
     }
 
     // Go to device coords to allow batching across matrix changes
-    SkMatrix combinedMatrix;
-    if (NULL != matrix) {
-        combinedMatrix = *matrix;
-    } else {
-        combinedMatrix.reset();
-    }
-    combinedMatrix.postConcat(drawState->getViewMatrix());
+    SkMatrix matrix = drawState->getViewMatrix();
+
     // When the caller has provided an explicit source rect for a stage then we don't want to
     // modify that stage's matrix. Otherwise if the effect is generating its source rect from
     // the vertex positions then we have to account for the view matrix change.
@@ -185,7 +179,7 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
     size_t vsize = drawState->getVertexSize();
 
     geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
-    combinedMatrix.mapPointsWithStride(geo.positions(), vsize, 4);
+    matrix.mapPointsWithStride(geo.positions(), vsize, 4);
 
     SkRect devBounds;
     // since we already computed the dev verts, set the bounds hint. This will help us avoid

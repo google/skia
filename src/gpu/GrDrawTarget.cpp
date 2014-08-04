@@ -696,14 +696,8 @@ void set_vertex_attributes(GrDrawState* drawState, bool hasUVs) {
 };
 
 void GrDrawTarget::onDrawRect(const SkRect& rect,
-                              const SkMatrix* matrix,
                               const SkRect* localRect,
                               const SkMatrix* localMatrix) {
-
-    GrDrawState::AutoViewMatrixRestore avmr;
-    if (NULL != matrix) {
-        avmr.set(this->drawState(), *matrix);
-    }
 
     set_vertex_attributes(this->drawState(), NULL != localRect);
 

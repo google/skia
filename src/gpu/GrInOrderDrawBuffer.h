@@ -155,7 +155,6 @@ private:
     // overrides from GrDrawTarget
     virtual void onDraw(const DrawInfo&) SK_OVERRIDE;
     virtual void onDrawRect(const SkRect& rect,
-                            const SkMatrix* matrix,
                             const SkRect* localRect,
                             const SkMatrix* localMatrix) SK_OVERRIDE;
 

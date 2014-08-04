@@ -1381,7 +1381,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                        SkColor2GrColor(paint.getColor());
     SkPaint2GrPaintNoShader(this->context(), paint, paintColor, false, &grPaint);
 
-    fContext->drawRectToRect(grPaint, dstRect, paintRect, NULL);
+    fContext->drawRectToRect(grPaint, dstRect, paintRect);
 }
 
 static bool filter_texture(SkBaseDevice* device, GrContext* context,

@@ -1935,7 +1935,7 @@ void GrGpuGL::onGpuDrawPath(const GrPath* path, SkPath::FillType fill) {
             avmr.setIdentity(drawState);
         }
 
-        this->drawSimpleRect(bounds, NULL);
+        this->drawSimpleRect(bounds);
     }
 }
 
@@ -2012,7 +2012,7 @@ void GrGpuGL::onGpuDrawPaths(const GrPathRange* pathRange,
             avmr.setIdentity(drawState);
         }
 
-        this->drawSimpleRect(bounds, NULL);
+        this->drawSimpleRect(bounds);
     }
 }
 

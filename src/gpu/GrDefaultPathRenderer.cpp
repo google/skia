@@ -491,7 +491,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                 bounds = path.getBounds();
             }
             GrDrawTarget::AutoGeometryAndStatePush agasp(target, GrDrawTarget::kPreserve_ASRInit);
-            target->drawSimpleRect(bounds, NULL);
+            target->drawSimpleRect(bounds);
         } else {
             if (passCount > 1) {
                 drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
