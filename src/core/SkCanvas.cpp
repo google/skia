@@ -2253,6 +2253,25 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,
     LOOPER_END
 }
 
+void SkCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+    
+    // Since a patch is always within the convex hull of the control points, we discard it when its
+    // bounding rectangle is completely outside the current clip.
+    SkRect bounds;
+    bounds.set(patch.getControlPoints(), 12);
+    if (this->quickReject(bounds)) {
+        return;
+    }
+    
+    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, NULL)
+    
+    while (iter.next()) {
+        iter.fDevice->drawPatch(iter, patch, paint);
+    }
+    
+    LOOPER_END
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // These methods are NOT virtual, and therefore must call back into virtual
 // methods, rather than actually drawing themselves.

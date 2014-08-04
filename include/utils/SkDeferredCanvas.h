@@ -168,6 +168,7 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawPatch(const SkPatch& patch, const SkPaint& paint) SK_OVERRIDE;
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE;
 
 protected:

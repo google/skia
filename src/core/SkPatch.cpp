@@ -53,6 +53,21 @@ public:
         this->restart(1);
     }
     
+    explicit FwDCubicEvaluator(SkPoint points[4]) {
+        for (int i = 0; i< 4; i++) {
+            fPoints[i] = points[i];
+        }
+        
+        SkScalar cx[4], cy[4];
+        SkGetCubicCoeff(fPoints, cx, cy);
+        fCoefs[0].set(cx[0], cy[0]);
+        fCoefs[1].set(cx[1], cy[1]);
+        fCoefs[2].set(cx[2], cy[2]);
+        fCoefs[3].set(cx[3], cy[3]);
+        
+        this->restart(1);
+    }
+    
     /**
      * Restarts the forward differences evaluator to the first value of t = 0.
      */
@@ -104,14 +119,13 @@ private:
 
 SkPatch::SkPatch(SkPoint points[12], SkColor colors[4]) {
         
-    for (int i = 0; i<12; i++) {
+    for (int i = 0; i < 12; i++) {
         fCtrlPoints[i] = points[i];
     }
+    for (int i = 0; i < 4; i++) {
+        fCornerColors[i] = colors[i];
+    }
     
-    fCornerColors[0] = SkPreMultiplyColor(colors[0]);
-    fCornerColors[1] = SkPreMultiplyColor(colors[1]);
-    fCornerColors[2] = SkPreMultiplyColor(colors[2]);
-    fCornerColors[3] = SkPreMultiplyColor(colors[3]);
 }
 
 uint8_t bilinear(SkScalar tx, SkScalar ty, SkScalar c00, SkScalar c10, SkScalar c01, SkScalar c11) {
@@ -120,51 +134,51 @@ uint8_t bilinear(SkScalar tx, SkScalar ty, SkScalar c00, SkScalar c10, SkScalar 
     return uint8_t(a * (1.f - ty) + b * ty);
 }
 
-bool SkPatch::getVertexData(SkPatch::VertexData* data, int divisions) {
+bool SkPatch::getVertexData(SkPatch::VertexData* data, int lodX, int lodY) const {
     
-    if (divisions < 1) {
+    if (lodX < 1 || lodY < 1) {
         return false;
     }
     
-    int divX = divisions, divY = divisions;
+    // premultiply colors to avoid color bleeding. 
+    SkPMColor colors[4];
+    for (int i = 0; i < 4; i++) {
+        colors[i] = SkPreMultiplyColor(fCornerColors[i]);
+    }
     
-    data->fVertexCount = (divX + 1) * (divY + 1);
-    data->fIndexCount = divX * divY * 6;
+    // number of indices is limited by size of uint16_t, so we clamp it to avoid overflow
+    data->fVertexCount = SkMin32((lodX + 1) * (lodY + 1), 65536);
+    lodX  = SkMin32(lodX, 255);
+    lodY  = SkMin32(lodY, 255);
+    data->fIndexCount = lodX * lodY * 6;
 
     data->fPoints = SkNEW_ARRAY(SkPoint, data->fVertexCount);
     data->fColors = SkNEW_ARRAY(uint32_t, data->fVertexCount);
     data->fTexCoords = SkNEW_ARRAY(SkPoint, data->fVertexCount);
     data->fIndices = SkNEW_ARRAY(uint16_t, data->fIndexCount);
     
-    FwDCubicEvaluator fBottom(fCtrlPoints[kBottomP0_CubicCtrlPts],
-                              fCtrlPoints[kBottomP1_CubicCtrlPts],
-                              fCtrlPoints[kBottomP2_CubicCtrlPts],
-                              fCtrlPoints[kBottomP3_CubicCtrlPts]),
-                        fTop(fCtrlPoints[kTopP0_CubicCtrlPts],
-                             fCtrlPoints[kTopP1_CubicCtrlPts],
-                             fCtrlPoints[kTopP2_CubicCtrlPts],
-                             fCtrlPoints[kTopP2_CubicCtrlPts]),
-                        fLeft(fCtrlPoints[kLeftP0_CubicCtrlPts],
-                              fCtrlPoints[kLeftP1_CubicCtrlPts],
-                              fCtrlPoints[kLeftP2_CubicCtrlPts],
-                              fCtrlPoints[kLeftP3_CubicCtrlPts]),
-                        fRight(fCtrlPoints[kRightP0_CubicCtrlPts],
-                               fCtrlPoints[kRightP1_CubicCtrlPts],
-                               fCtrlPoints[kRightP2_CubicCtrlPts],
-                               fCtrlPoints[kRightP3_CubicCtrlPts]);
+    SkPoint pts[4];
+    this->getBottomPoints(pts);
+    FwDCubicEvaluator fBottom(pts);
+    this->getTopPoints(pts);
+    FwDCubicEvaluator fTop(pts);
+    this->getLeftPoints(pts);
+    FwDCubicEvaluator fLeft(pts);
+    this->getRightPoints(pts);
+    FwDCubicEvaluator fRight(pts);
 
-    fBottom.restart(divX);
-    fTop.restart(divX);
+    fBottom.restart(lodX);
+    fTop.restart(lodX);
 
     SkScalar u = 0.0f;
-    int stride = divY + 1;
-    for (int x = 0; x <= divX; x++) {
+    int stride = lodY + 1;
+    for (int x = 0; x <= lodX; x++) {
         SkPoint bottom = fBottom.next(), top = fTop.next();
-        fLeft.restart(divY);
-        fRight.restart(divY);
+        fLeft.restart(lodY);
+        fRight.restart(lodY);
         SkScalar v = 0.f;
-        for (int y = 0; y <= divY; y++) {
-            int dataIndex = x * (divX + 1) + y;
+        for (int y = 0; y <= lodY; y++) {
+            int dataIndex = x * (lodY + 1) + y;
 
             SkPoint left = fLeft.next(), right = fRight.next();
 
@@ -184,31 +198,31 @@ bool SkPatch::getVertexData(SkPatch::VertexData* data, int divisions) {
             data->fPoints[dataIndex] = s0 + s1 - s2;
 
             uint8_t a = bilinear(u, v, 
-                            SkScalar(SkColorGetA(fCornerColors[0])), 
-                            SkScalar(SkColorGetA(fCornerColors[1])), 
-                            SkScalar(SkColorGetA(fCornerColors[2])), 
-                            SkScalar(SkColorGetA(fCornerColors[3])));
+                            SkScalar(SkColorGetA(colors[kTopLeft_CornerColors])),
+                            SkScalar(SkColorGetA(colors[kTopRight_CornerColors])),
+                            SkScalar(SkColorGetA(colors[kBottomLeft_CornerColors])),
+                            SkScalar(SkColorGetA(colors[kBottomRight_CornerColors])));
             uint8_t r = bilinear(u, v, 
-                            SkScalar(SkColorGetR(fCornerColors[0])), 
-                            SkScalar(SkColorGetR(fCornerColors[1])), 
-                            SkScalar(SkColorGetR(fCornerColors[2])), 
-                            SkScalar(SkColorGetR(fCornerColors[3])));
+                            SkScalar(SkColorGetR(colors[kTopLeft_CornerColors])),
+                            SkScalar(SkColorGetR(colors[kTopRight_CornerColors])),
+                            SkScalar(SkColorGetR(colors[kBottomLeft_CornerColors])),
+                            SkScalar(SkColorGetR(colors[kBottomRight_CornerColors])));
             uint8_t g = bilinear(u, v, 
-                            SkScalar(SkColorGetG(fCornerColors[0])), 
-                            SkScalar(SkColorGetG(fCornerColors[1])), 
-                            SkScalar(SkColorGetG(fCornerColors[2])), 
-                            SkScalar(SkColorGetG(fCornerColors[3])));
+                            SkScalar(SkColorGetG(colors[kTopLeft_CornerColors])),
+                            SkScalar(SkColorGetG(colors[kTopRight_CornerColors])),
+                            SkScalar(SkColorGetG(colors[kBottomLeft_CornerColors])),
+                            SkScalar(SkColorGetG(colors[kBottomRight_CornerColors])));
             uint8_t b = bilinear(u, v, 
-                            SkScalar(SkColorGetB(fCornerColors[0])), 
-                            SkScalar(SkColorGetB(fCornerColors[1])), 
-                            SkScalar(SkColorGetB(fCornerColors[2])), 
-                            SkScalar(SkColorGetB(fCornerColors[3])));
+                            SkScalar(SkColorGetB(colors[kTopLeft_CornerColors])),
+                            SkScalar(SkColorGetB(colors[kTopRight_CornerColors])),
+                            SkScalar(SkColorGetB(colors[kBottomLeft_CornerColors])),
+                            SkScalar(SkColorGetB(colors[kBottomRight_CornerColors])));
             data->fColors[dataIndex] = SkPackARGB32(a,r,g,b);
             
             data->fTexCoords[dataIndex] = SkPoint::Make(u, v);
 
-            if(x < divX && y < divY) {
-                int i = 6 * (x * divY + y);
+            if(x < lodX && y < lodY) {
+                int i = 6 * (x * lodY + y);
                 data->fIndices[i] = x * stride + y;
                 data->fIndices[i + 1] = x * stride + 1 + y;
                 data->fIndices[i + 2] = (x + 1) * stride + 1 + y;
@@ -216,9 +230,9 @@ bool SkPatch::getVertexData(SkPatch::VertexData* data, int divisions) {
                 data->fIndices[i + 4] = data->fIndices[i + 2];
                 data->fIndices[i + 5] = (x + 1) * stride + y;
             }
-            v += 1.f / divY;
+            v = SkScalarClampMax(v + 1.f / lodY, 1);
         }
-        u += 1.f / divX;
+        u = SkScalarClampMax(u + 1.f / lodX, 1);
     }
     return true;
 }

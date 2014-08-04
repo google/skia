@@ -46,6 +46,7 @@ public:
         }
     };
     
+    // Enums for control points based on the order specified in the constructor (clockwise).
     enum CubicCtrlPts {
         kTopP0_CubicCtrlPts = 0,
         kTopP1_CubicCtrlPts = 1,
@@ -68,6 +69,14 @@ public:
         kLeftP3_CubicCtrlPts = 9,
     };
     
+    // Enum for corner colors also clockwise.
+    enum CornerColors {
+        kTopLeft_CornerColors = 0,
+        kTopRight_CornerColors,
+        kBottomRight_CornerColors,
+        kBottomLeft_CornerColors
+    };
+    
     /**
      * Points are in the following order:
      *              (top curve)
@@ -76,49 +85,62 @@ public:
      *               10     5
      *                9 8 7 6
      *              (bottom curve)
-     * Used pointer to an array to guarantee that this method receives an array of 4 SkColors
      */
     SkPatch(SkPoint points[12], SkColor colors[4]);
 
     /**
      * Function that evaluates the coons patch interpolation.
      * data refers to the pointer of the PatchData struct in which the tessellation data is set.
-     * divisions defines the number of steps in which the SkPatch is going to be subdivided per
-     * axis.
+     * lod refers the level of detail for each axis.
      */
-    bool getVertexData(SkPatch::VertexData* data, int divisions);
+    bool getVertexData(SkPatch::VertexData* data, int lodX, int lodY) const;
 
-    void getTopPoints(SkPoint points[4]) {
+    void getTopPoints(SkPoint points[4]) const {
         points[0] = fCtrlPoints[kTopP0_CubicCtrlPts];
         points[1] = fCtrlPoints[kTopP1_CubicCtrlPts];
         points[2] = fCtrlPoints[kTopP2_CubicCtrlPts];
         points[3] = fCtrlPoints[kTopP3_CubicCtrlPts];
     }
     
-    void getBottomPoints(SkPoint points[4]) {
+    void getBottomPoints(SkPoint points[4]) const {
         points[0] = fCtrlPoints[kBottomP0_CubicCtrlPts];
         points[1] = fCtrlPoints[kBottomP1_CubicCtrlPts];
         points[2] = fCtrlPoints[kBottomP2_CubicCtrlPts];
         points[3] = fCtrlPoints[kBottomP3_CubicCtrlPts];
     }
 
-    void getLeftPoints(SkPoint points[4]) {
+    void getLeftPoints(SkPoint points[4]) const {
         points[0] = fCtrlPoints[kLeftP0_CubicCtrlPts];
         points[1] = fCtrlPoints[kLeftP1_CubicCtrlPts];
         points[2] = fCtrlPoints[kLeftP2_CubicCtrlPts];
         points[3] = fCtrlPoints[kLeftP3_CubicCtrlPts];
     }
 
-    void getRightPoints(SkPoint points[4]) {
+    void getRightPoints(SkPoint points[4]) const {
         points[0] = fCtrlPoints[kRightP0_CubicCtrlPts];
         points[1] = fCtrlPoints[kRightP1_CubicCtrlPts];
         points[2] = fCtrlPoints[kRightP2_CubicCtrlPts];
         points[3] = fCtrlPoints[kRightP3_CubicCtrlPts];
     }
     
+    void getCornerPoints(SkPoint points[4]) const {
+        points[0] = fCtrlPoints[kTopP0_CubicCtrlPts];
+        points[1] = fCtrlPoints[kTopP3_CubicCtrlPts];
+        points[2] = fCtrlPoints[kBottomP3_CubicCtrlPts];
+        points[3] = fCtrlPoints[kBottomP0_CubicCtrlPts];
+    }
+    
+    const SkPoint* getControlPoints() const {
+        return fCtrlPoints;
+    }
+    
+    const SkColor* getColors() const {
+        return fCornerColors;
+    }
+    
 private:
     SkPoint fCtrlPoints[12];
-    SkPMColor fCornerColors[4];
+    SkColor fCornerColors[4];
 };
 
 #endif

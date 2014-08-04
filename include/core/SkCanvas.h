@@ -14,6 +14,7 @@
 #include "SkClipStack.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
+#include "SkPatch.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkXfermode.h"
@@ -1006,6 +1007,8 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint);
+    
+    virtual void drawPatch(const SkPatch& patch, const SkPaint& paint);
 
     /** Send a blob of data to the canvas.
         For canvases that draw, this call is effectively a no-op, as the data

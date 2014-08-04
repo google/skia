@@ -6,7 +6,9 @@
  */
 
 #include "SkDevice.h"
+#include "SkDraw.h"
 #include "SkMetaData.h"
+#include "SkPatchUtils.h"
 
 SkBaseDevice::SkBaseDevice()
     : fLeakyProperties(SkDeviceProperties::MakeDefault())
@@ -75,6 +77,17 @@ void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     const SkMatrix* preMatrix = NULL;
     const bool pathIsMutable = true;
     this->drawPath(draw, path, paint, preMatrix, pathIsMutable);
+}
+
+void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPatch& patch, const SkPaint& paint) {
+    SkPatch::VertexData data;
+    
+    SkISize lod = SkPatchUtils::GetLevelOfDetail(patch, draw.fMatrix);
+
+    // It automatically adjusts lodX and lodY in case it exceeds the number of indices.
+    patch.getVertexData(&data, lod.width(), lod.height());
+    this->drawVertices(draw, SkCanvas::kTriangles_VertexMode, data.fVertexCount, data.fPoints,
+                       data.fTexCoords, data.fColors, NULL, data.fIndices, data.fIndexCount, paint);
 }
 
 bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowBytes, int x, int y) {
