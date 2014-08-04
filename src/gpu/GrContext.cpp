@@ -644,12 +644,16 @@ bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
 void GrContext::clear(const SkIRect* rect,
                       const GrColor color,
                       bool canIgnoreRect,
-                      GrRenderTarget* target) {
+                      GrRenderTarget* renderTarget) {
+    ASSERT_OWNED_RESOURCE(renderTarget);
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContext::clear", this);
-    this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf)->clear(rect, color,
-                                                                canIgnoreRect, target);
+    GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf);
+    if (NULL == target) {
+        return;
+    }
+    target->clear(rect, color, canIgnoreRect, renderTarget);
 }
 
 void GrContext::drawPaint(const GrPaint& origPaint) {
@@ -794,6 +798,9 @@ void GrContext::drawRect(const GrPaint& paint,
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    if (NULL == target) {
+        return;
+    }
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRect", target);
     SkScalar width = NULL == strokeInfo ? -1 : strokeInfo->getStrokeRec().getWidth();
@@ -918,6 +925,9 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    if (NULL == target) {
+        return;
+    }
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRectToRect", target);
 
@@ -975,6 +985,9 @@ void GrContext::drawVertices(const GrPaint& paint,
     GrDrawTarget::AutoReleaseGeometry geo; // must be inside AutoCheckFlush scope
 
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    if (NULL == target) {
+        return;
+    }
     GrDrawState* drawState = target->drawState();
 
     GR_CREATE_TRACE_MARKER("GrContext::drawVertices", target);
@@ -1036,6 +1049,9 @@ void GrContext::drawRRect(const GrPaint& paint,
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    if (NULL == target) {
+        return;
+    }
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRRect", target);
 
@@ -1093,6 +1109,9 @@ void GrContext::drawOval(const GrPaint& paint,
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    if (NULL == target) {
+        return;
+    }
 
     GR_CREATE_TRACE_MARKER("GrContext::drawOval", target);
 
@@ -1176,6 +1195,9 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
             AutoRestoreEffects are;
             AutoCheckFlush acf(this);
             GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+            if (NULL == target) {
+                return;
+            }
             GrDrawState* drawState = target->drawState();
 
             SkMatrix origViewMatrix = drawState->getViewMatrix();
@@ -1210,6 +1232,9 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    if (NULL == target) {
+        return;
+    }
     GrDrawState* drawState = target->drawState();
 
     GR_CREATE_TRACE_MARKER1("GrContext::drawPath", target, "Is Convex", path.isConvex());
@@ -1539,15 +1564,21 @@ void GrContext::resolveRenderTarget(GrRenderTarget* target) {
     // target. We don't today so we always perform a flush. We don't promise
     // this to our clients, though.
     this->flush();
-    fGpu->resolveRenderTarget(target);
+    if (NULL != fGpu) {
+        fGpu->resolveRenderTarget(target);
+    }
 }
 
-void GrContext::discardRenderTarget(GrRenderTarget* target) {
-    SkASSERT(target);
-    ASSERT_OWNED_RESOURCE(target);
+void GrContext::discardRenderTarget(GrRenderTarget* renderTarget) {
+    SkASSERT(renderTarget);
+    ASSERT_OWNED_RESOURCE(renderTarget);
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
-    this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf)->discard(target);
+    GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf);
+    if (NULL == target) {
+        return;
+    }
+    target->discard(renderTarget);
 }
 
 void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint* topLeft) {
@@ -1718,6 +1749,10 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
     // Otherwise effects that own resources may keep those resources alive indefinitely.
     SkASSERT(0 == fDrawState->numColorStages() && 0 == fDrawState->numCoverageStages());
 
+    if (NULL == fGpu) {
+        return NULL;
+    }
+
     if (kNo_BufferedDraw == buffered && kYes_BufferedDraw == fLastDrawWasBuffered) {
         fDrawBuffer->flush();
         fLastDrawWasBuffered = kNo_BufferedDraw;
@@ -1734,6 +1769,10 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
             GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
         }
 #endif
+        if (fDrawState->getBlendOpts() & GrDrawState::kSkipDraw_BlendOptFlag) {
+            are->set(NULL);
+            return NULL;
+        }
     } else {
         fDrawState->reset(fViewMatrix);
         fDrawState->setRenderTarget(fRenderTarget.get());
