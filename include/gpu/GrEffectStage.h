@@ -40,27 +40,32 @@ public:
         memcpy(fVertexAttribIndices, other.fVertexAttribIndices, sizeof(fVertexAttribIndices));
         return *this;
     }
+    
+    static bool AreCompatible(const GrEffectStage& a, const GrEffectStage& b,
+                              bool usingExplicitLocalCoords) {
+        SkASSERT(NULL != a.fEffect.get());
+        SkASSERT(NULL != b.fEffect.get());
 
-    bool operator== (const GrEffectStage& other) const {
-        SkASSERT(NULL != fEffect.get());
-        SkASSERT(NULL != other.fEffect.get());
-
-        if (!this->getEffect()->isEqual(*other.getEffect())) {
+        if (!a.getEffect()->isEqual(*b.getEffect())) {
             return false;
         }
 
-        if (fCoordChangeMatrixSet != other.fCoordChangeMatrixSet) {
-            return false;
-        }
-
-        if (!fCoordChangeMatrixSet) {
+        // We always track the coord change matrix, but it has no effect when explicit local coords
+        // are used.
+        if (usingExplicitLocalCoords) {
             return true;
         }
 
-        return fCoordChangeMatrix == other.fCoordChangeMatrix;
-    }
+        if (a.fCoordChangeMatrixSet != b.fCoordChangeMatrixSet) {
+            return false;
+        }
 
-    bool operator!= (const GrEffectStage& s) const { return !(*this == s); }
+        if (!a.fCoordChangeMatrixSet) {
+            return true;
+        }
+
+        return a.fCoordChangeMatrix == b.fCoordChangeMatrix;
+    }
 
     /**
      * This is called when the coordinate system in which the geometry is specified will change.

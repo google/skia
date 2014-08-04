@@ -33,3 +33,7 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
+#bsalomon: Slight AA changes to a rect in GPU configs after change that increases
+#batching
+bleed
+

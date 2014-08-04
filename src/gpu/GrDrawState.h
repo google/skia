@@ -893,13 +893,17 @@ public:
             fDrawFace != that.fDrawFace) {
             return false;
         }
+
+        bool explicitLocalCoords = this->hasLocalCoordAttribute();
         for (int i = 0; i < fColorStages.count(); i++) {
-            if (fColorStages[i] != that.fColorStages[i]) {
+            if (!GrEffectStage::AreCompatible(fColorStages[i], that.fColorStages[i],
+                explicitLocalCoords)) {
                 return false;
             }
         }
         for (int i = 0; i < fCoverageStages.count(); i++) {
-            if (fCoverageStages[i] != that.fCoverageStages[i]) {
+            if (!GrEffectStage::AreCompatible(fCoverageStages[i], that.fCoverageStages[i],
+                explicitLocalCoords)) {
                 return false;
             }
         }

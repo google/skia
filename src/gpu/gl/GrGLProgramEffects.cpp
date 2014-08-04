@@ -90,8 +90,11 @@ GrCoordSet get_source_coords(uint32_t transformKey, int transformIdx) {
 SkMatrix get_transform_matrix(const GrDrawEffect& drawEffect, int transformIdx) {
     const GrCoordTransform& coordTransform = drawEffect.effect()->coordTransform(transformIdx);
     SkMatrix combined;
-    if (kLocal_GrCoordSet == coordTransform.sourceCoords() &&
-        !drawEffect.programHasExplicitLocalCoords()) {
+
+    if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
+        // If we have explicit local coords then we shouldn't need a coord change.
+        SkASSERT(!drawEffect.programHasExplicitLocalCoords() ||
+                 drawEffect.getCoordChangeMatrix().isIdentity());
         combined.setConcat(coordTransform.getMatrix(), drawEffect.getCoordChangeMatrix());
     } else {
         combined = coordTransform.getMatrix();
