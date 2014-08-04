@@ -115,9 +115,12 @@
     'conditions': [
       ['skia_os == "linux"', {
         'cflags': [ '-Wno-missing-field-initializers' ],
-        'libraries': [ '-lanl' ],       # Provides getaddrinfo_a and co.
+        'libraries': [
+            '-lpthread',
+            '-lanl',  # Provides getaddrinfo_a and co.
+        ],
         'direct_dependent_settings': {
-            'libraries': [ '-lanl' ],
+            'libraries': [ '-lpthread', '-lanl' ],
         },
         'defines=': [             # equals sign throws away most Skia defines (just noise)
           'HAVE_ACCEPT4',
