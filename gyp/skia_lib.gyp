@@ -33,6 +33,7 @@
   'targets': [
     {
       'target_name': 'skia_lib',
+      'sources': [ '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp', ],
       'conditions': [
         [ 'skia_shared_lib', {
           'conditions': [
