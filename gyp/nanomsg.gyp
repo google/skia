@@ -114,7 +114,7 @@
     # To refresh: cd third_party/externals/nanomsg; ./autogen.sh; ./configure; copy from Makefile.
     'conditions': [
       ['skia_os == "linux"', {
-        'cflags': [ '-Wno-missing-field-initializers' ],
+        'cflags': [ '-w' ],
         'libraries': [
             '-lpthread',
             '-lanl',  # Provides getaddrinfo_a and co.
