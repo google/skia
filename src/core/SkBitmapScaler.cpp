@@ -264,6 +264,7 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
         SkErrorInternals::SetError( kInvalidArgument_SkError,
                                     "Sorry, the destination bitmap scale subset "
                                     "falls outside the full destination bitmap." );
+        return false;
     }
 
     // If the size of source or destination is 0, i.e. 0x0, 0xN or Nx0, just
