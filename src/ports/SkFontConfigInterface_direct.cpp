@@ -7,7 +7,6 @@
 
 /* migrated from chrome/src/skia/ext/SkFontHost_fontconfig_direct.cpp */
 
-#include <string>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -17,6 +16,7 @@
 #include "SkFontConfigInterface.h"
 #include "SkLazyPtr.h"
 #include "SkStream.h"
+#include "SkString.h"
 
 size_t SkFontConfigInterface::FontIdentity::writeToMemory(void* addr) const {
     size_t size = sizeof(fID) + sizeof(fTTCIndex);
@@ -318,9 +318,9 @@ bool IsMetricCompatibleReplacement(const char* font_a, const char* font_b)
 // cases, the request either doesn't specify a font or is one of the
 // basic font names like "Sans", "Serif" or "Monospace". This function
 // tells you whether a given request is for such a fallback.
-bool IsFallbackFontAllowed(const std::string& family) {
+bool IsFallbackFontAllowed(const SkString& family) {
   const char* family_cstr = family.c_str();
-  return family.empty() ||
+  return family.isEmpty() ||
          strcasecmp(family_cstr, "sans") == 0 ||
          strcasecmp(family_cstr, "serif") == 0 ||
          strcasecmp(family_cstr, "monospace") == 0;
@@ -349,7 +349,7 @@ static bool valid_pattern(FcPattern* pattern) {
 // Find matching font from |font_set| for the given font family.
 FcPattern* MatchFont(FcFontSet* font_set,
                      const char* post_config_family,
-                     const std::string& family) {
+                     const SkString& family) {
   // Older versions of fontconfig have a bug where they cannot select
   // only scalable fonts so we have to manually filter the results.
   FcPattern* match = NULL;
@@ -441,8 +441,8 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
                                                   FontIdentity* outIdentity,
                                                   SkString* outFamilyName,
                                                   SkTypeface::Style* outStyle) {
-    std::string familyStr(familyName ? familyName : "");
-    if (familyStr.length() > kMaxFontFamilyLength) {
+    SkString familyStr(familyName ? familyName : "");
+    if (familyStr.size() > kMaxFontFamilyLength) {
         return false;
     }
 
@@ -608,8 +608,8 @@ bool SkFontConfigInterfaceDirect::matchFamilySet(const char inFamilyName[],
     SkAutoMutexAcquire ac(mutex_);
 
 #if 0
-    std::string familyStr(familyName ? familyName : "");
-    if (familyStr.length() > kMaxFontFamilyLength) {
+    SkString familyStr(familyName ? familyName : "");
+    if (familyStr.size() > kMaxFontFamilyLength) {
         return false;
     }
 
