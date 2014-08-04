@@ -107,16 +107,16 @@ static int clamp_loops(int loops) {
 
 static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, double* samples) {
     // First figure out approximately how many loops of bench it takes to make overhead negligible.
-    double bench_plus_overhead;
+    double bench_plus_overhead = 0.0;
     int round = 0;
-    do {
-        bench_plus_overhead = time(1, bench, canvas, NULL);
-        if (++round == FLAGS_maxCalibrationAttempts) {
+    while (bench_plus_overhead < overhead) {
+        if (round++ == FLAGS_maxCalibrationAttempts) {
             SkDebugf("WARNING: Can't estimate loops for %s (%s vs. %s); skipping.\n",
                      bench->getName(), HUMANIZE(bench_plus_overhead), HUMANIZE(overhead));
             return 0;
         }
-    } while (bench_plus_overhead < overhead);
+        bench_plus_overhead = time(1, bench, canvas, NULL);
+    }
 
     // Later we'll just start and stop the timer once but loop N times.
     // We'll pick N to make timer overhead negligible:
@@ -547,8 +547,7 @@ int nanobench_main() {
                  cpu_bench(       overhead, bench.get(), canvas, samples.get());
 
             if (loops == 0) {
-                SkDebugf("Unable to time %s\t%s (overhead %s)\n",
-                         bench->getName(), config, HUMANIZE(overhead));
+                // Can't be timed.  A warning note has already been printed.
                 continue;
             }
 
