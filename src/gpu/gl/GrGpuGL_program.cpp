@@ -10,7 +10,7 @@
 #include "GrEffect.h"
 #include "GrGLEffect.h"
 #include "SkRTConf.h"
-#include "GrGLNameAllocator.h"
+#include "GrGLPathRendering.h"
 #include "SkTSearch.h"
 
 #ifdef PROGRAM_CACHE_STATS
@@ -203,7 +203,7 @@ void GrGpuGL::abandonResources(){
     INHERITED::abandonResources();
     fProgramCache->abandon();
     fHWProgramID = 0;
-    fPathNameAllocator.reset(NULL);
+    fPathRendering->abandonGpuResources();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

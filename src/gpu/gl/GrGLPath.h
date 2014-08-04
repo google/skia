@@ -13,7 +13,6 @@
 #include "gl/GrGLFunctions.h"
 
 class GrGpuGL;
-struct GrGLInterface;
 
 /**
  * Currently this represents a path built using GL_NV_path_rendering. If we
@@ -23,7 +22,7 @@ struct GrGLInterface;
 
 class GrGLPath : public GrPath {
 public:
-    static void InitPathObject(const GrGLInterface*,
+    static void InitPathObject(GrGpuGL*,
                                GrGLuint pathID,
                                const SkPath&,
                                const SkStrokeRec&);
