@@ -436,13 +436,6 @@
                 '-L<(nacl_sdk_root)/ports/lib/newlib_x86_<(skia_arch_width)/Release',
               ],
             },
-          }, { # skia_os != "nacl"
-            'link_settings': {
-              'ldflags': [
-                '-lstdc++',
-                '-lm',
-              ],
-            },
           }],
           # Enable asan, tsan, etc.
           [ 'skia_sanitizer', {
@@ -638,8 +631,6 @@
           },
         },
         'libraries': [
-          '-lstdc++',
-          '-lm',
           '-llog',
         ],
         'cflags': [
@@ -652,10 +643,6 @@
             ],
           }],
           [ 'skia_android_framework', {
-            'libraries!': [
-              '-lstdc++',
-              '-lm',
-            ],
             'cflags!': [
               '-fuse-ld=gold',
             ],
