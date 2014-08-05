@@ -21,6 +21,10 @@ KEY__IMAGEPAIRS__IMAGE_A_URL = 'imageAUrl'
 KEY__IMAGEPAIRS__IMAGE_B_URL = 'imageBUrl'
 KEY__IMAGEPAIRS__IS_DIFFERENT = 'isDifferent'
 
+# If self._diff_record is set to this, we haven't asked ImageDiffDB for the
+# image diff details yet.
+_DIFF_RECORD_STILL_LOADING = 'still_loading'
+
 
 class ImagePair(object):
   """Describes a pair of images, pixel difference info, and optional metadata.
@@ -42,6 +46,7 @@ class ImagePair(object):
       extra_columns: optional dictionary containing more metadata (test name,
           builder name, etc.)
     """
+    self._image_diff_db = image_diff_db
     self.base_url = base_url
     self.imageA_relative_url = imageA_relative_url
     self.imageB_relative_url = imageB_relative_url
@@ -49,27 +54,20 @@ class ImagePair(object):
     self.extra_columns_dict = extra_columns
     if not imageA_relative_url or not imageB_relative_url:
       self._is_different = True
-      self.diff_record = None
+      self._diff_record = None
     elif imageA_relative_url == imageB_relative_url:
       self._is_different = False
-      self.diff_record = None
+      self._diff_record = None
     else:
-      # TODO(epoger): Rather than blocking until image_diff_db can read in
-      # the image pair and generate diffs, it would be better to do it
-      # asynchronously: tell image_diff_db to download a bunch of file pairs,
-      # and only block later if we're still waiting for diff_records to come
-      # back.
+      # Tell image_diff_db to add an entry for this diff asynchronously.
+      # Later on, we will call image_diff_db.get_diff_record() to find it.
       self._is_different = True
+      self._diff_record = _DIFF_RECORD_STILL_LOADING
       image_diff_db.add_image_pair(
           expected_image_locator=imageA_relative_url,
           expected_image_url=posixpath.join(base_url, imageA_relative_url),
           actual_image_locator=imageB_relative_url,
           actual_image_url=posixpath.join(base_url, imageB_relative_url))
-      self.diff_record = image_diff_db.get_diff_record(
-          expected_image_locator=imageA_relative_url,
-          actual_image_locator=imageB_relative_url)
-      if self.diff_record and self.diff_record.get_num_pixels_differing() == 0:
-        self._is_different = False
 
   def as_dict(self):
     """Returns a dictionary describing this ImagePair.
@@ -85,6 +83,17 @@ class ImagePair(object):
       asdict[KEY__IMAGEPAIRS__EXPECTATIONS] = self.expectations_dict
     if self.extra_columns_dict:
       asdict[KEY__IMAGEPAIRS__EXTRACOLUMNS] = self.extra_columns_dict
-    if self.diff_record and (self.diff_record.get_num_pixels_differing() > 0):
-      asdict[KEY__IMAGEPAIRS__DIFFERENCES] = self.diff_record.as_dict()
+    if self._diff_record is _DIFF_RECORD_STILL_LOADING:
+      # We have waited as long as we can to ask ImageDiffDB for details of
+      # this image diff.  Now we must block until ImageDiffDB can provide
+      # those details.
+      #
+      # TODO(epoger): Is it wasteful for every imagepair to have its own
+      # reference to image_diff_db?  If so, we could pass an image_diff_db
+      # reference into this method call instead...
+      self._diff_record = self._image_diff_db.get_diff_record(
+          expected_image_locator=self.imageA_relative_url,
+          actual_image_locator=self.imageB_relative_url)
+    if self._diff_record != None:
+      asdict[KEY__IMAGEPAIRS__DIFFERENCES] = self._diff_record.as_dict()
     return asdict

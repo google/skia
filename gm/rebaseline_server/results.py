@@ -303,11 +303,22 @@ class BaseComparisons(object):
     return output_dict
 
   @staticmethod
-  def get_multilevel(input_dict, *keys):
-    """ Returns input_dict[key1][key2][...], or None if any key is not found.
+  def get_default(input_dict, default_value, *keys):
+    """Returns input_dict[key1][key2][...], or default_value.
+
+    If input_dict is None, or any key is missing along the way, this returns
+    default_value.
+
+    Args:
+      input_dict: dictionary to look within
+      key: key indicating which value to return from input_dict
+      default_value: value to return if input_dict is None or any key cannot
+          be found along the way
     """
+    if input_dict == None:
+      return default_value
     for key in keys:
-      if input_dict == None:
-        return None
       input_dict = input_dict.get(key, None)
+      if input_dict == None:
+        return default_value
     return input_dict

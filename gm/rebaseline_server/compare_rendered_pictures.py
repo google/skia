@@ -7,18 +7,26 @@ Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
 
 Compare results of two render_pictures runs.
+
+TODO(epoger): Start using this module to compare ALL images (whether they
+were generated from GMs or SKPs), and rename it accordingly.
 """
 
 # System-level imports
 import logging
 import os
+import shutil
+import tempfile
 import time
 
 # Must fix up PYTHONPATH before importing from within Skia
 import fix_pythonpath  # pylint: disable=W0611
 
 # Imports from within Skia
+from py.utils import gs_utils
 from py.utils import url_utils
+import buildbot_globals
+import column
 import gm_json
 import imagediffdb
 import imagepair
@@ -27,118 +35,179 @@ import results
 
 # URL under which all render_pictures images can be found in Google Storage.
 #
-# pylint: disable=C0301
-# TODO(epoger): Move this default value into
-# https://skia.googlesource.com/buildbot/+/master/site_config/global_variables.json
-# pylint: enable=C0301
-DEFAULT_IMAGE_BASE_URL = (
-    'http://chromium-skia-gm.commondatastorage.googleapis.com/'
-    'render_pictures/images')
+# TODO(epoger): In order to allow live-view of GMs and other images, read this
+# from the input summary files, or allow the caller to set it within the
+# GET_live_results call.
+DEFAULT_IMAGE_BASE_GS_URL = 'gs://' + buildbot_globals.Get('skp_images_bucket')
+
+# Column descriptors, and display preferences for them.
+COLUMN__RESULT_TYPE = results.KEY__EXTRACOLUMNS__RESULT_TYPE
+COLUMN__SOURCE_SKP = 'sourceSkpFile'
+COLUMN__TILED_OR_WHOLE = 'tiledOrWhole'
+COLUMN__TILENUM = 'tilenum'
+FREEFORM_COLUMN_IDS = [
+    COLUMN__TILENUM,
+]
+ORDERED_COLUMN_IDS = [
+    COLUMN__RESULT_TYPE,
+    COLUMN__SOURCE_SKP,
+    COLUMN__TILED_OR_WHOLE,
+    COLUMN__TILENUM,
+]
 
 
 class RenderedPicturesComparisons(results.BaseComparisons):
-  """Loads results from two different render_pictures runs into an ImagePairSet.
+  """Loads results from multiple render_pictures runs into an ImagePairSet.
   """
 
-  def __init__(self, subdirs, actuals_root,
-               generated_images_root=results.DEFAULT_GENERATED_IMAGES_ROOT,
-               image_base_url=DEFAULT_IMAGE_BASE_URL,
-               diff_base_url=None):
+  def __init__(self, setA_dirs, setB_dirs, image_diff_db,
+               image_base_gs_url=DEFAULT_IMAGE_BASE_GS_URL,
+               diff_base_url=None, setA_label='setA',
+               setB_label='setB', gs=None,
+               truncate_results=False):
     """
     Args:
-      actuals_root: root directory containing all render_pictures-generated
-          JSON files
-      subdirs: (string, string) tuple; pair of subdirectories within
-          actuals_root to compare
-      generated_images_root: directory within which to create all pixel diffs;
-          if this directory does not yet exist, it will be created
-      image_base_url: URL under which all render_pictures result images can
+      setA_dirs: list of root directories to copy all JSON summaries from,
+          and to use as setA within the comparisons
+      setB_dirs: list of root directories to copy all JSON summaries from,
+          and to use as setB within the comparisons
+      image_diff_db: ImageDiffDB instance
+      image_base_gs_url: "gs://" URL pointing at the Google Storage bucket/dir
+          under which all render_pictures result images can
           be found; this will be used to read images for comparison within
-          this code, and included in the ImagePairSet so its consumers know
-          where to download the images from
+          this code, and included in the ImagePairSet (as an HTTP URL) so its
+          consumers know where to download the images from
       diff_base_url: base URL within which the client should look for diff
           images; if not specified, defaults to a "file:///" URL representation
-          of generated_images_root
+          of image_diff_db's storage_root
+      setA_label: description to use for results in setA
+      setB_label: description to use for results in setB
+      gs: instance of GSUtils object we can use to download summary files
+      truncate_results: FOR MANUAL TESTING: if True, truncate the set of images
+          we process, to speed up testing.
     """
-    time_start = int(time.time())
-    self._image_diff_db = imagediffdb.ImageDiffDB(generated_images_root)
-    self._image_base_url = image_base_url
+    super(RenderedPicturesComparisons, self).__init__()
+    self._image_diff_db = image_diff_db
+    self._image_base_gs_url = image_base_gs_url
     self._diff_base_url = (
         diff_base_url or
-        url_utils.create_filepath_url(generated_images_root))
-    self._load_result_pairs(actuals_root, subdirs)
-    self._timestamp = int(time.time())
-    logging.info('Results complete; took %d seconds.' %
-                 (self._timestamp - time_start))
+        url_utils.create_filepath_url(image_diff_db.storage_root))
+    self._setA_label = setA_label
+    self._setB_label = setB_label
+    self._gs = gs
+    self.truncate_results = truncate_results
 
-  def _load_result_pairs(self, actuals_root, subdirs):
-    """Loads all JSON files found within two subdirs in actuals_root,
-    compares across those two subdirs, and stores the summary in self._results.
+    tempdir = tempfile.mkdtemp()
+    try:
+      setA_root = os.path.join(tempdir, 'setA')
+      setB_root = os.path.join(tempdir, 'setB')
+      for source_dir in setA_dirs:
+        self._copy_dir_contents(source_dir=source_dir, dest_dir=setA_root)
+      for source_dir in setB_dirs:
+        self._copy_dir_contents(source_dir=source_dir, dest_dir=setB_root)
+
+      time_start = int(time.time())
+      # TODO(epoger): For now, this assumes that we are always comparing two
+      # sets of actual results, not actuals vs expectations.  Allow the user
+      # to control this.
+      self._results = self._load_result_pairs(
+          setA_root=setA_root, setA_section=gm_json.JSONKEY_ACTUALRESULTS,
+          setB_root=setB_root, setB_section=gm_json.JSONKEY_ACTUALRESULTS)
+      self._timestamp = int(time.time())
+      logging.info('Number of download file collisions: %s' %
+                   imagediffdb.global_file_collisions)
+      logging.info('Results complete; took %d seconds.' %
+                   (self._timestamp - time_start))
+    finally:
+      shutil.rmtree(tempdir)
+
+  def _load_result_pairs(self, setA_root, setA_section, setB_root,
+                         setB_section):
+    """Loads all JSON image summaries from 2 directory trees and compares them.
 
     Args:
-      actuals_root: root directory containing all render_pictures-generated
-          JSON files
-      subdirs: (string, string) tuple; pair of subdirectories within
-          actuals_root to compare
+      setA_root: root directory containing JSON summaries of rendering results
+      setA_section: which section (gm_json.JSONKEY_ACTUALRESULTS or
+          gm_json.JSONKEY_EXPECTEDRESULTS) to load from the summaries in setA
+      setB_root: root directory containing JSON summaries of rendering results
+      setB_section: which section (gm_json.JSONKEY_ACTUALRESULTS or
+          gm_json.JSONKEY_EXPECTEDRESULTS) to load from the summaries in setB
+
+    Returns the summary of all image diff results.
     """
-    logging.info(
-        'Reading actual-results JSON files from %s subdirs within %s...' % (
-            subdirs, actuals_root))
-    subdirA, subdirB = subdirs
-    subdirA_dicts = self._read_dicts_from_root(
-        os.path.join(actuals_root, subdirA))
-    subdirB_dicts = self._read_dicts_from_root(
-        os.path.join(actuals_root, subdirB))
-    logging.info('Comparing subdirs %s and %s...' % (subdirA, subdirB))
+    logging.info('Reading JSON image summaries from dirs %s and %s...' % (
+        setA_root, setB_root))
+    setA_dicts = self._read_dicts_from_root(setA_root)
+    setB_dicts = self._read_dicts_from_root(setB_root)
+    logging.info('Comparing summary dicts...')
 
     all_image_pairs = imagepairset.ImagePairSet(
-        descriptions=subdirs,
+        descriptions=(self._setA_label, self._setB_label),
         diff_base_url=self._diff_base_url)
     failing_image_pairs = imagepairset.ImagePairSet(
-        descriptions=subdirs,
+        descriptions=(self._setA_label, self._setB_label),
         diff_base_url=self._diff_base_url)
 
+    # Override settings for columns that should be filtered using freeform text.
+    for column_id in FREEFORM_COLUMN_IDS:
+      factory = column.ColumnHeaderFactory(
+          header_text=column_id, use_freeform_filter=True)
+      all_image_pairs.set_column_header_factory(
+          column_id=column_id, column_header_factory=factory)
+      failing_image_pairs.set_column_header_factory(
+          column_id=column_id, column_header_factory=factory)
+
     all_image_pairs.ensure_extra_column_values_in_summary(
-        column_id=results.KEY__EXTRACOLUMNS__RESULT_TYPE, values=[
+        column_id=COLUMN__RESULT_TYPE, values=[
             results.KEY__RESULT_TYPE__FAILED,
             results.KEY__RESULT_TYPE__NOCOMPARISON,
             results.KEY__RESULT_TYPE__SUCCEEDED,
         ])
     failing_image_pairs.ensure_extra_column_values_in_summary(
-        column_id=results.KEY__EXTRACOLUMNS__RESULT_TYPE, values=[
+        column_id=COLUMN__RESULT_TYPE, values=[
             results.KEY__RESULT_TYPE__FAILED,
             results.KEY__RESULT_TYPE__NOCOMPARISON,
         ])
 
-    common_dict_paths = sorted(set(subdirA_dicts.keys() + subdirB_dicts.keys()))
-    num_common_dict_paths = len(common_dict_paths)
+    union_dict_paths = sorted(set(setA_dicts.keys() + setB_dicts.keys()))
+    num_union_dict_paths = len(union_dict_paths)
     dict_num = 0
-    for dict_path in common_dict_paths:
+    for dict_path in union_dict_paths:
       dict_num += 1
       logging.info('Generating pixel diffs for dict #%d of %d, "%s"...' %
-                   (dict_num, num_common_dict_paths, dict_path))
-      dictA = subdirA_dicts[dict_path]
-      dictB = subdirB_dicts[dict_path]
+                   (dict_num, num_union_dict_paths, dict_path))
+
+      dictA = self.get_default(setA_dicts, None, dict_path)
       self._validate_dict_version(dictA)
+      dictA_results = self.get_default(dictA, {}, setA_section)
+
+      dictB = self.get_default(setB_dicts, None, dict_path)
       self._validate_dict_version(dictB)
-      dictA_results = dictA[gm_json.JSONKEY_ACTUALRESULTS]
-      dictB_results = dictB[gm_json.JSONKEY_ACTUALRESULTS]
+      dictB_results = self.get_default(dictB, {}, setB_section)
+
       skp_names = sorted(set(dictA_results.keys() + dictB_results.keys()))
+      # Just for manual testing... truncate to an arbitrary subset.
+      if self.truncate_results:
+        skp_names = skp_names[1:3]
       for skp_name in skp_names:
         imagepairs_for_this_skp = []
 
-        whole_image_A = RenderedPicturesComparisons.get_multilevel(
-            dictA_results, skp_name, gm_json.JSONKEY_SOURCE_WHOLEIMAGE)
-        whole_image_B = RenderedPicturesComparisons.get_multilevel(
-            dictB_results, skp_name, gm_json.JSONKEY_SOURCE_WHOLEIMAGE)
+        whole_image_A = self.get_default(
+            dictA_results, None,
+            skp_name, gm_json.JSONKEY_SOURCE_WHOLEIMAGE)
+        whole_image_B = self.get_default(
+            dictB_results, None,
+            skp_name, gm_json.JSONKEY_SOURCE_WHOLEIMAGE)
         imagepairs_for_this_skp.append(self._create_image_pair(
-            test=skp_name, config=gm_json.JSONKEY_SOURCE_WHOLEIMAGE,
-            image_dict_A=whole_image_A, image_dict_B=whole_image_B))
+            image_dict_A=whole_image_A, image_dict_B=whole_image_B,
+            source_skp_name=skp_name, tilenum=None))
 
-        tiled_images_A = RenderedPicturesComparisons.get_multilevel(
-            dictA_results, skp_name, gm_json.JSONKEY_SOURCE_TILEDIMAGES)
-        tiled_images_B = RenderedPicturesComparisons.get_multilevel(
-            dictB_results, skp_name, gm_json.JSONKEY_SOURCE_TILEDIMAGES)
+        tiled_images_A = self.get_default(
+            dictA_results, None,
+            skp_name, gm_json.JSONKEY_SOURCE_TILEDIMAGES)
+        tiled_images_B = self.get_default(
+            dictB_results, None,
+            skp_name, gm_json.JSONKEY_SOURCE_TILEDIMAGES)
         # TODO(epoger): Report an error if we find tiles for A but not B?
         if tiled_images_A and tiled_images_B:
           # TODO(epoger): Report an error if we find a different number of tiles
@@ -146,34 +215,37 @@ class RenderedPicturesComparisons(results.BaseComparisons):
           num_tiles = len(tiled_images_A)
           for tile_num in range(num_tiles):
             imagepairs_for_this_skp.append(self._create_image_pair(
-                test=skp_name,
-                config='%s-%d' % (gm_json.JSONKEY_SOURCE_TILEDIMAGES, tile_num),
                 image_dict_A=tiled_images_A[tile_num],
-                image_dict_B=tiled_images_B[tile_num]))
+                image_dict_B=tiled_images_B[tile_num],
+                source_skp_name=skp_name, tilenum=tile_num))
 
         for one_imagepair in imagepairs_for_this_skp:
           if one_imagepair:
             all_image_pairs.add_image_pair(one_imagepair)
             result_type = one_imagepair.extra_columns_dict\
-                [results.KEY__EXTRACOLUMNS__RESULT_TYPE]
+                [COLUMN__RESULT_TYPE]
             if result_type != results.KEY__RESULT_TYPE__SUCCEEDED:
               failing_image_pairs.add_image_pair(one_imagepair)
 
-    # pylint: disable=W0201
-    self._results = {
-      results.KEY__HEADER__RESULTS_ALL: all_image_pairs.as_dict(),
-      results.KEY__HEADER__RESULTS_FAILURES: failing_image_pairs.as_dict(),
+    return {
+      results.KEY__HEADER__RESULTS_ALL: all_image_pairs.as_dict(
+          column_ids_in_order=ORDERED_COLUMN_IDS),
+      results.KEY__HEADER__RESULTS_FAILURES: failing_image_pairs.as_dict(
+          column_ids_in_order=ORDERED_COLUMN_IDS),
     }
 
   def _validate_dict_version(self, result_dict):
     """Raises Exception if the dict is not the type/version we know how to read.
 
     Args:
-      result_dict: dictionary holding output of render_pictures
+      result_dict: dictionary holding output of render_pictures; if None,
+          this method will return without raising an Exception
     """
     expected_header_type = 'ChecksummedImages'
     expected_header_revision = 1
 
+    if result_dict == None:
+      return
     header = result_dict[gm_json.JSONKEY_HEADER]
     header_type = header[gm_json.JSONKEY_HEADER_TYPE]
     if header_type != expected_header_type:
@@ -184,14 +256,15 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       raise Exception('expected header_revision %d, but got %d' % (
           expected_header_revision, header_revision))
 
-  def _create_image_pair(self, test, config, image_dict_A, image_dict_B):
+  def _create_image_pair(self, image_dict_A, image_dict_B, source_skp_name,
+                         tilenum):
     """Creates an ImagePair object for this pair of images.
 
     Args:
-      test: string; name of the test
-      config: string; name of the config
       image_dict_A: dict with JSONKEY_IMAGE_* keys, or None if no image
       image_dict_B: dict with JSONKEY_IMAGE_* keys, or None if no image
+      source_skp_name: string; name of the source SKP file
+      tilenum: which tile, or None if a wholeimage
 
     Returns:
       An ImagePair object, or None if both image_dict_A and image_dict_B are
@@ -223,28 +296,45 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       result_type = results.KEY__RESULT_TYPE__FAILED
 
     extra_columns_dict = {
-        results.KEY__EXTRACOLUMNS__CONFIG: config,
-        results.KEY__EXTRACOLUMNS__RESULT_TYPE: result_type,
-        results.KEY__EXTRACOLUMNS__TEST: test,
-        # TODO(epoger): Right now, the client UI crashes if it receives
-        # results that do not include this column.
-        # Until we fix that, keep the client happy.
-        results.KEY__EXTRACOLUMNS__BUILDER: 'TODO',
+        COLUMN__RESULT_TYPE: result_type,
+        COLUMN__SOURCE_SKP: source_skp_name,
     }
+    if tilenum == None:
+      extra_columns_dict[COLUMN__TILED_OR_WHOLE] = 'whole'
+      extra_columns_dict[COLUMN__TILENUM] = 'N/A'
+    else:
+      extra_columns_dict[COLUMN__TILED_OR_WHOLE] = 'tiled'
+      extra_columns_dict[COLUMN__TILENUM] = str(tilenum)
 
     try:
       return imagepair.ImagePair(
           image_diff_db=self._image_diff_db,
-          base_url=self._image_base_url,
+          base_url=self._image_base_gs_url,
           imageA_relative_url=imageA_relative_url,
           imageB_relative_url=imageB_relative_url,
           extra_columns=extra_columns_dict)
     except (KeyError, TypeError):
       logging.exception(
           'got exception while creating ImagePair for'
-          ' test="%s", config="%s", urlPair=("%s","%s")' % (
-              test, config, imageA_relative_url, imageB_relative_url))
+          ' urlPair=("%s","%s"), source_skp_name="%s", tilenum="%s"' % (
+              imageA_relative_url, imageB_relative_url, source_skp_name,
+              tilenum))
       return None
 
+  def _copy_dir_contents(self, source_dir, dest_dir):
+    """Copy all contents of source_dir into dest_dir, recursing into subdirs.
 
-# TODO(epoger): Add main() so this can be called by vm_run_skia_try.sh
+    Args:
+      source_dir: path to source dir (GS URL or local filepath)
+      dest_dir: path to destination dir (local filepath)
+
+    The copy operates as a "merge with overwrite": any files in source_dir will
+    be "overlaid" on top of the existing content in dest_dir.  Existing files
+    with the same names will be overwritten.
+    """
+    if gs_utils.GSUtils.is_gs_url(source_dir):
+      (bucket, path) = gs_utils.GSUtils.split_gs_url(source_dir)
+      self._gs.download_dir_contents(source_bucket=bucket, source_dir=path,
+                                     dest_dir=dest_dir)
+    else:
+      shutil.copytree(source_dir, dest_dir)

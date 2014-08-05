@@ -12,9 +12,13 @@ ImagePairSet class; see its docstring below.
 # System-level imports
 import posixpath
 
-# Local imports
+# Must fix up PYTHONPATH before importing from within Skia
+import fix_pythonpath  # pylint: disable=W0611
+
+# Imports from within Skia
 import column
 import imagediffdb
+from py.utils import gs_utils
 
 # Keys used within dictionary representation of ImagePairSet.
 # NOTE: Keep these in sync with static/constants.js
@@ -53,20 +57,25 @@ class ImagePairSet(object):
     self._descriptions = descriptions or DEFAULT_DESCRIPTIONS
     self._extra_column_tallies = {}  # maps column_id -> values
                                      #                -> instances_per_value
-    self._image_pair_dicts = []
     self._image_base_url = None
     self._diff_base_url = diff_base_url
+
+    # We build self._image_pair_objects incrementally as calls come into
+    # add_image_pair(); self._image_pair_dicts is filled in lazily (so that
+    # we put off asking ImageDiffDB for results as long as possible).
+    self._image_pair_objects = []
+    self._image_pair_dicts = None
 
   def add_image_pair(self, image_pair):
     """Adds an ImagePair; this may be repeated any number of times."""
     # Special handling when we add the first ImagePair...
-    if not self._image_pair_dicts:
+    if not self._image_pair_objects:
       self._image_base_url = image_pair.base_url
 
     if image_pair.base_url != self._image_base_url:
       raise Exception('added ImagePair with base_url "%s" instead of "%s"' % (
           image_pair.base_url, self._image_base_url))
-    self._image_pair_dicts.append(image_pair.as_dict())
+    self._image_pair_objects.append(image_pair)
     extra_columns_dict = image_pair.extra_columns_dict
     if extra_columns_dict:
       for column_id, value in extra_columns_dict.iteritems():
@@ -141,7 +150,7 @@ class ImagePairSet(object):
 
     Uses the KEY__* constants as keys.
 
-    Params:
+    Args:
       column_ids_in_order: A list of all extracolumn IDs in the desired display
           order.  If unspecified, they will be displayed in alphabetical order.
           If specified, this list must contain all the extracolumn IDs!
@@ -162,6 +171,16 @@ class ImagePairSet(object):
 
     key_description = KEY__IMAGESETS__FIELD__DESCRIPTION
     key_base_url = KEY__IMAGESETS__FIELD__BASE_URL
+    if gs_utils.GSUtils.is_gs_url(self._image_base_url):
+      value_base_url = self._convert_gs_url_to_http_url(self._image_base_url)
+    else:
+      value_base_url = self._image_base_url
+
+    # We've waited as long as we can to ask ImageDiffDB for details of the
+    # image diffs, so that it has time to compute them.
+    if self._image_pair_dicts == None:
+      self._image_pair_dicts = [ip.as_dict() for ip in self._image_pair_objects]
+
     return {
         KEY__ROOT__EXTRACOLUMNHEADERS: self._column_headers_as_dict(),
         KEY__ROOT__EXTRACOLUMNORDER: column_ids_in_order,
@@ -169,11 +188,11 @@ class ImagePairSet(object):
         KEY__ROOT__IMAGESETS: {
             KEY__IMAGESETS__SET__IMAGE_A: {
                 key_description: self._descriptions[0],
-                key_base_url: self._image_base_url,
+                key_base_url: value_base_url,
             },
             KEY__IMAGESETS__SET__IMAGE_B: {
                 key_description: self._descriptions[1],
-                key_base_url: self._image_base_url,
+                key_base_url: value_base_url,
             },
             KEY__IMAGESETS__SET__DIFFS: {
                 key_description: 'color difference per channel',
@@ -187,3 +206,20 @@ class ImagePairSet(object):
             },
         },
     }
+
+  @staticmethod
+  def _convert_gs_url_to_http_url(gs_url):
+    """Returns HTTP URL that can be used to download this Google Storage file.
+
+    TODO(epoger): Create functionality like this within gs_utils.py instead of
+    here?  See https://codereview.chromium.org/428493005/ ('create
+    anyfile_utils.py for copying files between HTTP/GS/local filesystem')
+
+    Args:
+      gs_url: "gs://bucket/path" format URL
+    """
+    bucket, path = gs_utils.GSUtils.split_gs_url(gs_url)
+    http_url = 'http://storage.cloud.google.com/' + bucket
+    if path:
+      http_url += '/' + path
+    return http_url

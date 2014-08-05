@@ -18,9 +18,14 @@ PARENT_DIR = os.path.abspath(os.path.dirname(__file__))
 TRUNK_DIR = os.path.abspath(os.path.join(PARENT_DIR, os.pardir, os.pardir))
 
 # Import the superclass base_unittest module from the tools dir.
+#
+# TODO(epoger): If I don't put this at the beginning of sys.path, the import of
+# tests.base_unittest fails.  That's bad.  I need to come up with a cleaner way
+# of doing this... I think this will involve changing how we import the "boto"
+# library in gs_utils.py, within the common repo.
 TOOLS_DIR = os.path.join(TRUNK_DIR, 'tools')
-if TOOLS_DIR not in sys.path:
-  sys.path.append(TOOLS_DIR)
+if TOOLS_DIR != sys.path[0]:
+  sys.path.insert(0, TOOLS_DIR)
 import tests.base_unittest as superclass_module
 
 

@@ -30,6 +30,7 @@ import base_unittest
 import compare_rendered_pictures
 import find_run_binary
 import gm_json
+import imagediffdb
 import results
 
 
@@ -38,24 +39,28 @@ class CompareRenderedPicturesTest(base_unittest.TestCase):
   def test_endToEnd(self):
     """Generate two sets of SKPs, run render_pictures over both, and compare
     the results."""
+    setA_label = 'before_patch'
+    setB_label = 'after_patch'
     self._generate_skps_and_run_render_pictures(
-        subdir='before_patch', skpdict={
+        subdir=setA_label, skpdict={
             'changed.skp': 200,
             'unchanged.skp': 100,
             'only-in-before.skp': 128,
         })
     self._generate_skps_and_run_render_pictures(
-        subdir='after_patch', skpdict={
+        subdir=setB_label, skpdict={
             'changed.skp': 201,
             'unchanged.skp': 100,
             'only-in-after.skp': 128,
         })
 
     results_obj = compare_rendered_pictures.RenderedPicturesComparisons(
-        actuals_root=self.temp_dir,
-        subdirs=('before_patch', 'after_patch'),
-        generated_images_root=self.temp_dir,
-        diff_base_url='/static/generated-images')
+        setA_dirs=[os.path.join(self.temp_dir, setA_label)],
+        setB_dirs=[os.path.join(self.temp_dir, setB_label)],
+        image_diff_db=imagediffdb.ImageDiffDB(self.temp_dir),
+        image_base_gs_url='gs://fakebucket/fake/path',
+        diff_base_url='/static/generated-images',
+        setA_label=setA_label, setB_label=setB_label)
     results_obj.get_timestamp = mock_get_timestamp
 
     gm_json.WriteToFile(

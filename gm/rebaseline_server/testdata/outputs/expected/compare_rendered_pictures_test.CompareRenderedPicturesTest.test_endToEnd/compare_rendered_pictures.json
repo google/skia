@@ -1,29 +1,5 @@
 {
   "extraColumnHeaders": {
-    "builder": {
-      "headerText": "builder", 
-      "isFilterable": true, 
-      "isSortable": true, 
-      "useFreeformFilter": false, 
-      "valuesAndCounts": [
-        [
-          "TODO", 
-          4
-        ]
-      ]
-    }, 
-    "config": {
-      "headerText": "config", 
-      "isFilterable": true, 
-      "isSortable": true, 
-      "useFreeformFilter": false, 
-      "valuesAndCounts": [
-        [
-          "whole-image", 
-          4
-        ]
-      ]
-    }, 
     "resultType": {
       "headerText": "resultType", 
       "isFilterable": true, 
@@ -44,8 +20,8 @@
         ]
       ]
     }, 
-    "test": {
-      "headerText": "test", 
+    "sourceSkpFile": {
+      "headerText": "sourceSkpFile", 
       "isFilterable": true, 
       "isSortable": true, 
       "useFreeformFilter": false, 
@@ -67,16 +43,40 @@
           1
         ]
       ]
+    }, 
+    "tiledOrWhole": {
+      "headerText": "tiledOrWhole", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "useFreeformFilter": false, 
+      "valuesAndCounts": [
+        [
+          "whole", 
+          4
+        ]
+      ]
+    }, 
+    "tilenum": {
+      "headerText": "tilenum", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "useFreeformFilter": true, 
+      "valuesAndCounts": [
+        [
+          "N/A", 
+          4
+        ]
+      ]
     }
   }, 
   "extraColumnOrder": [
-    "builder", 
-    "config", 
     "resultType", 
-    "test"
+    "sourceSkpFile", 
+    "tiledOrWhole", 
+    "tilenum"
   ], 
   "header": {
-    "dataHash": "-595743736412687673", 
+    "dataHash": "-4754972663365911725", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 4, 
@@ -87,10 +87,10 @@
   "imagePairs": [
     {
       "extraColumns": {
-        "builder": "TODO", 
-        "config": "whole-image", 
         "resultType": "failed", 
-        "test": "changed.skp"
+        "sourceSkpFile": "changed.skp", 
+        "tiledOrWhole": "whole", 
+        "tilenum": "N/A"
       }, 
       "imageAUrl": "changed_skp/bitmap-64bitMD5_3101044995537104462.png", 
       "imageBUrl": "changed_skp/bitmap-64bitMD5_13623922271964399662.png", 
@@ -98,10 +98,10 @@
     }, 
     {
       "extraColumns": {
-        "builder": "TODO", 
-        "config": "whole-image", 
         "resultType": "no-comparison", 
-        "test": "only-in-after.skp"
+        "sourceSkpFile": "only-in-after.skp", 
+        "tiledOrWhole": "whole", 
+        "tilenum": "N/A"
       }, 
       "imageAUrl": null, 
       "imageBUrl": "only-in-after_skp/bitmap-64bitMD5_2320185040577047131.png", 
@@ -109,10 +109,10 @@
     }, 
     {
       "extraColumns": {
-        "builder": "TODO", 
-        "config": "whole-image", 
         "resultType": "no-comparison", 
-        "test": "only-in-before.skp"
+        "sourceSkpFile": "only-in-before.skp", 
+        "tiledOrWhole": "whole", 
+        "tilenum": "N/A"
       }, 
       "imageAUrl": "only-in-before_skp/bitmap-64bitMD5_2320185040577047131.png", 
       "imageBUrl": null, 
@@ -120,10 +120,10 @@
     }, 
     {
       "extraColumns": {
-        "builder": "TODO", 
-        "config": "whole-image", 
         "resultType": "succeeded", 
-        "test": "unchanged.skp"
+        "sourceSkpFile": "unchanged.skp", 
+        "tiledOrWhole": "whole", 
+        "tilenum": "N/A"
       }, 
       "imageAUrl": "unchanged_skp/bitmap-64bitMD5_3322248763049618493.png", 
       "imageBUrl": "unchanged_skp/bitmap-64bitMD5_3322248763049618493.png", 
@@ -136,11 +136,11 @@
       "description": "color difference per channel"
     }, 
     "imageA": {
-      "baseUrl": "http://chromium-skia-gm.commondatastorage.googleapis.com/render_pictures/images", 
+      "baseUrl": "http://storage.cloud.google.com/fakebucket/fake/path", 
       "description": "before_patch"
     }, 
     "imageB": {
-      "baseUrl": "http://chromium-skia-gm.commondatastorage.googleapis.com/render_pictures/images", 
+      "baseUrl": "http://storage.cloud.google.com/fakebucket/fake/path", 
       "description": "after_patch"
     }, 
     "whiteDiffs": {
