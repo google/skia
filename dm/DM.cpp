@@ -234,8 +234,8 @@ int dm_main() {
              gms.count(), configs.count(), tests.count(), skps.count());
     DM::Reporter reporter;
     DM::TaskRunner tasks(FLAGS_threads, FLAGS_gpuThreads);
-    kick_off_gms(gms, configs, gpuAPI, *expectations, &reporter, &tasks);
     kick_off_tests(tests, &reporter, &tasks);
+    kick_off_gms(gms, configs, gpuAPI, *expectations, &reporter, &tasks);
     kick_off_skps(skps, &reporter, &tasks);
     tasks.wait();
 
