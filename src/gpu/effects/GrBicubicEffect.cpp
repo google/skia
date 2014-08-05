@@ -164,7 +164,8 @@ const GrBackendEffectFactory& GrBicubicEffect::getFactory() const {
 bool GrBicubicEffect::onIsEqual(const GrEffect& sBase) const {
     const GrBicubicEffect& s = CastEffect<GrBicubicEffect>(sBase);
     return this->textureAccess(0) == s.textureAccess(0) &&
-           !memcmp(fCoefficients, s.coefficients(), 16);
+           !memcmp(fCoefficients, s.coefficients(), 16) &&
+           fDomain == s.fDomain;
 }
 
 void GrBicubicEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {

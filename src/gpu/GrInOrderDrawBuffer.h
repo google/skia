@@ -201,9 +201,9 @@ private:
     // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
     int concatInstancedDraw(const DrawInfo& info);
 
-    // we lazily record state and clip changes in order to skip clips and states that have no
-    // effect.
-    bool needsNewState() const;
+    // Determines whether the current draw operation requieres a new drawstate and if so records it.
+    void recordStateIfNecessary();
+    // We lazily record clip changes in order to skip clips that have no effect.
     bool needsNewClip() const;
 
     // these functions record a command

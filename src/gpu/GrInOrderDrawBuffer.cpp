@@ -350,9 +350,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
     if (this->needsNewClip()) {
        this->recordClip();
     }
-    if (this->needsNewState()) {
-        this->recordState();
-    }
+    this->recordStateIfNecessary();
 
     DrawRecord* draw;
     if (info.isInstanced()) {
@@ -424,9 +422,7 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, SkPath::FillType fil
         this->recordClip();
     }
     // Only compare the subset of GrDrawState relevant to path stenciling?
-    if (this->needsNewState()) {
-        this->recordState();
-    }
+    this->recordStateIfNecessary();
     StencilPath* sp = this->recordStencilPath();
     sp->fPath.reset(path);
     path->ref();
@@ -439,9 +435,7 @@ void GrInOrderDrawBuffer::onDrawPath(const GrPath* path,
         this->recordClip();
     }
     // TODO: Only compare the subset of GrDrawState relevant to path covering?
-    if (this->needsNewState()) {
-        this->recordState();
-    }
+    this->recordStateIfNecessary();
     DrawPath* cp = this->recordDrawPath();
     cp->fPath.reset(path);
     path->ref();
@@ -462,9 +456,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathRange* pathRange,
     if (this->needsNewClip()) {
         this->recordClip();
     }
-    if (this->needsNewState()) {
-        this->recordState();
-    }
+    this->recordStateIfNecessary();
     DrawPaths* dp = this->recordDrawPaths();
     dp->fPathRange.reset(SkRef(pathRange));
     dp->fIndices = SkNEW_ARRAY(uint32_t, count); // TODO: Accomplish this without a malloc
@@ -919,8 +911,26 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(
     }
 }
 
-bool GrInOrderDrawBuffer::needsNewState() const {
-    return fStates.empty() || fStates.back() != this->getDrawState();
+void GrInOrderDrawBuffer::recordStateIfNecessary() {
+    if (fStates.empty()) {
+        fStates.push_back() = this->getDrawState();
+        this->addToCmdBuffer(kSetState_Cmd);
+        return;
+    }
+    const GrDrawState& curr = this->getDrawState();
+    GrDrawState& prev = fStates.back();
+    switch (GrDrawState::CombineIfPossible(prev, curr)) {
+        case GrDrawState::kIncompatible_CombinedState:
+            fStates.push_back() = this->getDrawState();
+            this->addToCmdBuffer(kSetState_Cmd);
+            break;
+        case GrDrawState::kA_CombinedState:
+        case GrDrawState::kAOrB_CombinedState: // Treat the same as kA.
+            break;
+        case GrDrawState::kB_CombinedState:
+            prev = curr;
+            break;
+    }
 }
 
 bool GrInOrderDrawBuffer::needsNewClip() const {
@@ -951,11 +961,6 @@ void GrInOrderDrawBuffer::recordClip() {
     fClips.back().fOrigin = this->getClip()->fOrigin;
     fClipSet = false;
     this->addToCmdBuffer(kSetClip_Cmd);
-}
-
-void GrInOrderDrawBuffer::recordState() {
-    fStates.push_back() = this->getDrawState();
-    this->addToCmdBuffer(kSetState_Cmd);
 }
 
 GrInOrderDrawBuffer::DrawRecord* GrInOrderDrawBuffer::recordDraw(const DrawInfo& info) {

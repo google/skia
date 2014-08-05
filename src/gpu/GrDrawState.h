@@ -876,43 +876,58 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    bool operator ==(const GrDrawState& that) const {
-        if (fRenderTarget.get() != that.fRenderTarget.get() ||
-            fColorStages.count() != that.fColorStages.count() ||
-            fCoverageStages.count() != that.fCoverageStages.count() ||
-            fColor != that.fColor ||
-            !fViewMatrix.cheapEqualTo(that.fViewMatrix) ||
-            fSrcBlend != that.fSrcBlend ||
-            fDstBlend != that.fDstBlend ||
-            fBlendConstant != that.fBlendConstant ||
-            fFlagBits != that.fFlagBits ||
-            fVACount != that.fVACount ||
-            memcmp(fVAPtr, that.fVAPtr, fVACount * sizeof(GrVertexAttrib)) ||
-            fStencilSettings != that.fStencilSettings ||
-            fCoverage != that.fCoverage ||
-            fDrawFace != that.fDrawFace) {
-            return false;
+    /** Return type for CombineIfPossible. */
+    enum CombinedState {
+        /** The GrDrawStates cannot be combined. */
+        kIncompatible_CombinedState,
+        /** Either draw state can be used in place of the other. */
+        kAOrB_CombinedState,
+        /** Use the first draw state. */
+        kA_CombinedState,
+        /** Use the second draw state. */
+        kB_CombinedState,
+    };
+
+    /** This function determines whether the GrDrawStates used for two draws can be combined into
+        a single GrDrawState. This is used to avoid storing redundant GrDrawStates and to determine
+        if draws can be batched. The return value indicates whether combining is possible and, if
+        so, which of the two inputs should be used. */
+    static CombinedState CombineIfPossible(const GrDrawState& a, const GrDrawState& b) {
+        if (a.fRenderTarget.get() != b.fRenderTarget.get() ||
+            a.fColorStages.count() != b.fColorStages.count() ||
+            a.fCoverageStages.count() != b.fCoverageStages.count() ||
+            a.fColor != b.fColor ||
+            !a.fViewMatrix.cheapEqualTo(b.fViewMatrix) ||
+            a.fSrcBlend != b.fSrcBlend ||
+            a.fDstBlend != b.fDstBlend ||
+            a.fBlendConstant != b.fBlendConstant ||
+            a.fFlagBits != b.fFlagBits ||
+            a.fVACount != b.fVACount ||
+            memcmp(a.fVAPtr, b.fVAPtr, a.fVACount * sizeof(GrVertexAttrib)) ||
+            a.fStencilSettings != b.fStencilSettings ||
+            a.fCoverage != b.fCoverage ||
+            a.fDrawFace != b.fDrawFace) {
+            return kIncompatible_CombinedState;
         }
 
-        bool explicitLocalCoords = this->hasLocalCoordAttribute();
-        for (int i = 0; i < fColorStages.count(); i++) {
-            if (!GrEffectStage::AreCompatible(fColorStages[i], that.fColorStages[i],
+        bool explicitLocalCoords = a.hasLocalCoordAttribute();
+        for (int i = 0; i < a.fColorStages.count(); i++) {
+            if (!GrEffectStage::AreCompatible(a.fColorStages[i], b.fColorStages[i],
                 explicitLocalCoords)) {
-                return false;
+                return kIncompatible_CombinedState;
             }
         }
-        for (int i = 0; i < fCoverageStages.count(); i++) {
-            if (!GrEffectStage::AreCompatible(fCoverageStages[i], that.fCoverageStages[i],
+        for (int i = 0; i < a.fCoverageStages.count(); i++) {
+            if (!GrEffectStage::AreCompatible(a.fCoverageStages[i], b.fCoverageStages[i],
                 explicitLocalCoords)) {
-                return false;
+                return kIncompatible_CombinedState;
             }
         }
-        SkASSERT(0 == memcmp(fFixedFunctionVertexAttribIndices,
-                             that.fFixedFunctionVertexAttribIndices,
-                             sizeof(fFixedFunctionVertexAttribIndices)));
-        return true;
+        SkASSERT(0 == memcmp(a.fFixedFunctionVertexAttribIndices,
+                             b.fFixedFunctionVertexAttribIndices,
+                             sizeof(a.fFixedFunctionVertexAttribIndices)));
+        return kAOrB_CombinedState;
     }
-    bool operator !=(const GrDrawState& s) const { return !(*this == s); }
 
     GrDrawState& operator= (const GrDrawState& that) {
         SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numTotalStages());
