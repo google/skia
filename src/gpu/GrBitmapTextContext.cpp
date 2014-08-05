@@ -138,10 +138,8 @@ void GrBitmapTextContext::flushGlyphs() {
             case kA8_GrMaskFormat:
                 // set back to normal in case we took LCD path previously.
                 drawState->setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
-                //drawState->setColor(fPaint.getColor());
                 // We're using per-vertex color.
                 SkASSERT(drawState->hasColorVertexAttribute());
-                drawState->setColor(0xFFFFFFFF);
                 break;
             default:
                 SkFAIL("Unexepected mask format.");

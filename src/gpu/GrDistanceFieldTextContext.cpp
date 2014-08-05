@@ -218,10 +218,8 @@ void GrDistanceFieldTextContext::flushGlyphs() {
         } else {
             // set back to normal in case we took LCD path previously.
             drawState->setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
-            //drawState->setColor(fPaint.getColor());
             // We're using per-vertex color.
             SkASSERT(drawState->hasColorVertexAttribute());
-            drawState->setColor(0xFFFFFFFF);
         }
         int nGlyphs = fCurrVertex / 4;
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());

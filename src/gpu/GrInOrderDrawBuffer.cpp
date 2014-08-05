@@ -139,8 +139,6 @@ static bool cmd_has_trace_marker(uint8_t cmd) {
 void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
                                      const SkRect* localRect,
                                      const SkMatrix* localMatrix) {
-    GrDrawState::AutoColorRestore acr;
-
     GrDrawState* drawState = this->drawState();
 
     GrColor color = drawState->getColor();
@@ -150,14 +148,6 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
                    this->caps()->dualSourceBlendingSupport() || drawState->hasSolidCoverage(),
                    NULL != localRect,
                    &colorOffset, &localOffset);
-    if (colorOffset >= 0) {
-        // We set the draw state's color to white here. This is done so that any batching performed
-        // in our subclass's onDraw() won't get a false from GrDrawState::op== due to a color
-        // mismatch. TODO: Once vertex layout is owned by GrDrawState it should skip comparing the
-        // constant color in its op== when the kColor layout bit is set and then we can remove
-        // this.
-        acr.set(drawState, 0xFFFFFFFF);
-    }
 
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {

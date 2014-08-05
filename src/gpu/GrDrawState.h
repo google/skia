@@ -267,38 +267,6 @@ public:
         this->setColor((a << 24) | (a << 16) | (a << 8) | a);
     }
 
-    /**
-     * Constructor sets the color to be 'color' which is undone by the destructor.
-     */
-    class AutoColorRestore : public ::SkNoncopyable {
-    public:
-        AutoColorRestore() : fDrawState(NULL), fOldColor(0) {}
-
-        AutoColorRestore(GrDrawState* drawState, GrColor color) {
-            fDrawState = NULL;
-            this->set(drawState, color);
-        }
-
-        void reset() {
-            if (NULL != fDrawState) {
-                fDrawState->setColor(fOldColor);
-                fDrawState = NULL;
-            }
-        }
-
-        void set(GrDrawState* drawState, GrColor color) {
-            this->reset();
-            fDrawState = drawState;
-            fOldColor = fDrawState->getColor();
-            fDrawState->setColor(color);
-        }
-
-        ~AutoColorRestore() { this->reset(); }
-    private:
-        GrDrawState*    fDrawState;
-        GrColor         fOldColor;
-    };
-
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -893,10 +861,14 @@ public:
         if draws can be batched. The return value indicates whether combining is possible and, if
         so, which of the two inputs should be used. */
     static CombinedState CombineIfPossible(const GrDrawState& a, const GrDrawState& b) {
+        bool usingVertexColors = a.hasColorVertexAttribute();
+        if (!usingVertexColors && a.fColor != b.fColor) {
+            return kIncompatible_CombinedState;
+        }
+
         if (a.fRenderTarget.get() != b.fRenderTarget.get() ||
             a.fColorStages.count() != b.fColorStages.count() ||
             a.fCoverageStages.count() != b.fCoverageStages.count() ||
-            a.fColor != b.fColor ||
             !a.fViewMatrix.cheapEqualTo(b.fViewMatrix) ||
             a.fSrcBlend != b.fSrcBlend ||
             a.fDstBlend != b.fDstBlend ||
@@ -905,8 +877,12 @@ public:
             a.fVACount != b.fVACount ||
             memcmp(a.fVAPtr, b.fVAPtr, a.fVACount * sizeof(GrVertexAttrib)) ||
             a.fStencilSettings != b.fStencilSettings ||
-            a.fCoverage != b.fCoverage ||
             a.fDrawFace != b.fDrawFace) {
+            return kIncompatible_CombinedState;
+        }
+
+        bool usingVertexCoverage = a.hasCoverageVertexAttribute();
+        if (!usingVertexCoverage && a.fCoverage != b.fCoverage) {
             return kIncompatible_CombinedState;
         }
 
