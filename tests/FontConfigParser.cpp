@@ -24,8 +24,25 @@ void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies) {
 #if SK_DEBUG_FONTS
     for (int i = 0; i < fontFamilies.count(); ++i) {
         SkDebugf("Family %d:\n", i);
+        switch(fontFamilies[i]->fVariant) {
+            case SkPaintOptionsAndroid::kElegant_Variant: SkDebugf("  elegant"); break;
+            case SkPaintOptionsAndroid::kCompact_Variant: SkDebugf("  compact"); break;
+            default: break;
+        }
+        if (!fontFamilies[i]->fLanguage.getTag().isEmpty()) {
+            SkDebugf("  language: %s", fontFamilies[i]->fLanguage.getTag().c_str());
+        }
         for (int j = 0; j < fontFamilies[i]->fNames.count(); ++j) {
             SkDebugf("  name %s\n", fontFamilies[i]->fNames[j].c_str());
+        }
+        for (int j = 0; j < fontFamilies[i]->fFontFiles.count(); ++j) {
+            const FontFileInfo& ffi = fontFamilies[i]->fFontFiles[j];
+            SkDebugf("  file (%d %s %d) %s\n",
+                     ffi.fWeight,
+                     ffi.fPaintOptions.getLanguage().getTag().isEmpty() ? "" :
+                         ffi.fPaintOptions.getLanguage().getTag().c_str(),
+                     ffi.fPaintOptions.getFontVariant(),
+                     ffi.fFileName.c_str());
         }
     }
 #endif // SK_DEBUG_FONTS
@@ -43,27 +60,26 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
     DumpLoadedFonts(preV17FontFamilies);
     ValidateLoadedFonts(preV17FontFamilies, reporter);
 
+
     SkTDArray<FontFamily*> v17FontFamilies;
     SkFontConfigParser::GetTestFontFamilies(v17FontFamilies,
         GetResourcePath("android_fonts/v17/system_fonts.xml").c_str(),
         GetResourcePath("android_fonts/v17/fallback_fonts.xml").c_str());
-
 
     REPORTER_ASSERT(reporter, v17FontFamilies.count() == 41);
 
     DumpLoadedFonts(v17FontFamilies);
     ValidateLoadedFonts(v17FontFamilies, reporter);
 
+
     SkTDArray<FontFamily*> v22FontFamilies;
     SkFontConfigParser::GetTestFontFamilies(v22FontFamilies,
         GetResourcePath("android_fonts/v22/fonts.xml").c_str(),
         NULL);
 
-    //REPORTER_ASSERT(reporter, v22FontFamilies.count() > 0);
-    if (v22FontFamilies.count() > 0) {
-        REPORTER_ASSERT(reporter, v22FontFamilies[0]->fNames.count() > 0);
-    }
+    REPORTER_ASSERT(reporter, v22FontFamilies.count() == 53);
 
-    //ValidateLoadedFonts(v22FontFamilies, reporter);
+    DumpLoadedFonts(v22FontFamilies);
+    ValidateLoadedFonts(v22FontFamilies, reporter);
 }
 

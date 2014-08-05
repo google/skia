@@ -15,11 +15,12 @@
 #include "SkTDArray.h"
 
 struct FontFileInfo {
-    FontFileInfo() : fIndex(0) { }
+    FontFileInfo() : fIndex(0), fWeight(0) { }
 
     SkString              fFileName;
     int                   fIndex;
     SkPaintOptionsAndroid fPaintOptions;
+    int                   fWeight;
 };
 
 /**
@@ -31,12 +32,17 @@ struct FontFileInfo {
  * they are read from the configuration files.
  */
 struct FontFamily {
-    FontFamily() : fIsFallbackFont(false), order(-1) {}
+    FontFamily()
+        : fVariant(SkPaintOptionsAndroid::kDefault_Variant)
+        , order(-1)
+        , fIsFallbackFont(false) { }
 
-    SkTArray<SkString> fNames;
-    SkTArray<FontFileInfo> fFontFiles;
-    bool fIsFallbackFont;
-    int order; // only used internally by SkFontConfigParser
+    SkTArray<SkString>                 fNames;
+    SkTArray<FontFileInfo>             fFontFiles;
+    SkLanguage                         fLanguage;
+    SkPaintOptionsAndroid::FontVariant fVariant;
+    int                                order; // only used internally by SkFontConfigParser
+    bool                               fIsFallbackFont;
 };
 
 namespace SkFontConfigParser {

@@ -77,15 +77,190 @@ template <typename T> static bool parseNonNegativeInteger(const char* s, T* valu
 
 namespace lmpParser {
 
+void familyElementHandler(FontFamily* family, const char** attributes) {
+    // A non-fallback <family> tag must have a canonical name attribute.
+    // A (fallback) <family> tag may have lang and variant attributes.
+    for (int i = 0; attributes[i] != NULL; i += 2) {
+        const char* name = attributes[i];
+        const char* value = attributes[i+1];
+        int nameLen = strlen(name);
+        int valueLen = strlen(value);
+        if (nameLen == 4 && !strncmp("name", name, nameLen)) {
+            family->fNames.push_back().set(value);
+        } else if (nameLen == 4 && !strncmp("lang", name, nameLen)) {
+            family->fLanguage = SkLanguage (value);
+        } else if (nameLen == 7 && !strncmp("variant", name, nameLen)) {
+            // Value should be either elegant or compact.
+            if (valueLen == 7 && !strncmp("elegant", value, valueLen)) {
+                family->fVariant = SkPaintOptionsAndroid::kElegant_Variant;
+            } else if (valueLen == 7 && !strncmp("compact", value, valueLen)) {
+                family->fVariant = SkPaintOptionsAndroid::kCompact_Variant;
+            }
+        }
+    }
+}
+
+void fontFileNameHandler(void *data, const char *s, int len) {
+    FamilyData *familyData = (FamilyData*) data;
+    familyData->currentFontInfo->fFileName.set(s, len);
+}
+
+void familyElementEndHandler(FontFamily* family) {
+    for (int i = 0; i < family->fFontFiles.count(); i++) {
+        family->fFontFiles[i].fPaintOptions.setLanguage(family->fLanguage);
+        family->fFontFiles[i].fPaintOptions.setFontVariant(family->fVariant);
+    }
+}
+
+void fontElementHandler(XML_Parser* parser, FontFileInfo* file, const char** attributes) {
+    // A <font> should have weight (integer) and style (normal, italic) attributes.
+    // NOTE: we ignore the style.
+    // The element should contain a filename.
+    for (int i = 0; attributes[i] != NULL; i += 2) {
+        const char* name = attributes[i];
+        const char* value = attributes[i+1];
+        int nameLen = strlen(name);
+        if (nameLen == 6 && !strncmp("weight", name, nameLen)) {
+            parseNonNegativeInteger(value, &file->fWeight);
+        }
+    }
+    XML_SetCharacterDataHandler(*parser, fontFileNameHandler);
+}
+
+FontFamily* findFamily(FamilyData* familyData, const char* familyName) {
+    unsigned int nameLen = strlen(familyName);
+    for (int i = 0; i < familyData->families.count(); i++) {
+        FontFamily* candidate = familyData->families[i];
+        for (int j = 0; j < candidate->fNames.count(); j++) {
+            if (!strncmp(candidate->fNames[j].c_str(), familyName, nameLen) &&
+                nameLen == strlen(candidate->fNames[j].c_str())) {
+                return candidate;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+void aliasElementHandler(FamilyData* familyData, const char** attributes) {
+    // An <alias> must have name and to attributes.
+    //   It may have weight (integer).
+    // If it *does not* have a weight, it is a variant name for a <family>.
+    // If it *does* have a weight, it names the <font>(s) of a specific weight
+    //   from a <family>.
+
+    SkString aliasName;
+    SkString to;
+    int weight = 0;
+    for (int i = 0; attributes[i] != NULL; i += 2) {
+        const char* name = attributes[i];
+        const char* value = attributes[i+1];
+        int nameLen = strlen(name);
+        if (nameLen == 4 && !strncmp("name", name, nameLen)) {
+            aliasName.set(value);
+        } else if (nameLen == 2 && !strncmp("to", name, nameLen)) {
+            to.set(value);
+        } else if (nameLen == 6 && !strncmp("weight", name, nameLen)) {
+            parseNonNegativeInteger(value, &weight);
+        }
+    }
+
+    // Assumes that the named family is already declared
+    FontFamily* targetFamily = findFamily(familyData, to.c_str());
+    if (!targetFamily) {
+        SkDebugf("---- Font alias target %s (NOT FOUND)", to.c_str());
+        return;
+    }
+
+    if (weight) {
+        FontFamily* family = new FontFamily();
+        family->fNames.push_back().set(aliasName);
+
+        for (int i = 0; i < targetFamily->fFontFiles.count(); i++) {
+            if (targetFamily->fFontFiles[i].fWeight == weight) {
+                family->fFontFiles.push_back(targetFamily->fFontFiles[i]);
+            }
+        }
+        *familyData->families.append() = family;
+    } else {
+        targetFamily->fNames.push_back().set(aliasName);
+    }
+}
+
+bool findWeight400(FontFamily* family) {
+    for (int i = 0; i < family->fFontFiles.count(); i++) {
+        if (family->fFontFiles[i].fWeight == 400) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool desiredWeight(int weight) {
+    return (weight == 400 || weight == 700);
+}
+
+int countDesiredWeight(FontFamily* family) {
+    int count = 0;
+    for (int i = 0; i < family->fFontFiles.count(); i++) {
+        if (desiredWeight(family->fFontFiles[i].fWeight)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+// To meet Skia's expectations, any family that contains weight=400
+// fonts should *only* contain {400,700}
+void purgeUndesiredWeights(FontFamily* family) {
+    int count = countDesiredWeight(family);
+    for (int i = 1, j = 0; i < family->fFontFiles.count(); i++) {
+        if (desiredWeight(family->fFontFiles[j].fWeight)) {
+            j++;
+        }
+        if ((i != j) && desiredWeight(family->fFontFiles[i].fWeight)) {
+            family->fFontFiles[j] = family->fFontFiles[i];
+        }
+    }
+    family->fFontFiles.resize_back(count);
+}
+
+void familysetElementEndHandler(FamilyData* familyData) {
+    for (int i = 0; i < familyData->families.count(); i++) {
+        if (findWeight400(familyData->families[i])) {
+            purgeUndesiredWeights(familyData->families[i]);
+        }
+    }
+}
+
 void startElementHandler(void* data, const char* tag,
-                                   const char** attributes) {
-    //SkDebugf("lmp started %s", tag);
+                         const char** attributes) {
+    FamilyData* familyData = (FamilyData*) data;
+    int len = strlen(tag);
+    if (len == 6 && !strncmp(tag, "family", len)) {
+        familyData->currentFamily = new FontFamily();
+        familyElementHandler(familyData->currentFamily, attributes);
+    } else if (len == 4 && !strncmp(tag, "font", len)) {
+        FontFileInfo* file = &familyData->currentFamily->fFontFiles.push_back();
+        familyData->currentFontInfo = file;
+        fontElementHandler(familyData->parser, file, attributes);
+    } else if (len == 5 && !strncmp(tag, "alias", len)) {
+        aliasElementHandler(familyData, attributes);
+    }
 }
 
 void endElementHandler(void* data, const char* tag) {
-
-    //SkDebugf("lmp ended %s", tag);
-
+    FamilyData *familyData = (FamilyData*) data;
+    int len = strlen(tag);
+    if (len == 9 && strncmp(tag, "familyset", len) == 0) {
+        familysetElementEndHandler(familyData);
+    } else if (len == 6 && strncmp(tag, "family", len) == 0) {
+        familyElementEndHandler(familyData->currentFamily);
+        *familyData->families.append() = familyData->currentFamily;
+        familyData->currentFamily = NULL;
+    } else if (len == 4 && !strncmp(tag, "font", len)) {
+        XML_SetCharacterDataHandler(*familyData->parser, NULL);
+    }
 }
 
 } // lmpParser
