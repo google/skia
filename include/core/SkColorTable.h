@@ -19,7 +19,7 @@
     SkColorTable holds an array SkPMColors (premultiplied 32-bit colors) used by
     8-bit bitmaps, where the bitmap bytes are interpreted as indices into the colortable.
 */
-class SkColorTable : public SkRefCnt {
+class SK_API SkColorTable : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkColorTable)
 
