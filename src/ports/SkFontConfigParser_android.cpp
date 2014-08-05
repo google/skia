@@ -20,6 +20,13 @@
 #define FALLBACK_FONTS_FILE "/system/etc/fallback_fonts.xml"
 #define VENDOR_FONTS_FILE "/vendor/etc/fallback_fonts.xml"
 
+/**
+ * This file contains TWO parsers: one for JB and earlier (system_fonts.xml /
+ * fallback_fonts.xml), one for LMP and later (fonts.xml).
+ * We start with the JB parser, and if we detect a <familyset> tag with
+ * version 21 or higher we switch to the LMP parser.
+ */
+
 // These defines are used to determine the kind of tag that we're currently
 // populating with data. We only care about the sibling tags nameset and fileset
 // for now.
@@ -45,6 +52,45 @@ struct FamilyData {
     FontFileInfo *currentFontInfo;     // The current fontInfo being created
     int currentTag;                    // A flag to indicate whether we're in nameset/fileset tags
 };
+
+/** http://www.w3.org/TR/html-markup/datatypes.html#common.data.integer.non-negative-def */
+template <typename T> static bool parseNonNegativeInteger(const char* s, T* value) {
+    SK_COMPILE_ASSERT(std::numeric_limits<T>::is_integer, T_must_be_integer);
+    const T nMax = std::numeric_limits<T>::max() / 10;
+    const T dMax = std::numeric_limits<T>::max() - (nMax * 10);
+    T n = 0;
+    for (; *s; ++s) {
+        // Check if digit
+        if (*s < '0' || '9' < *s) {
+            return false;
+        }
+        int d = *s - '0';
+        // Check for overflow
+        if (n > nMax || (n == nMax && d > dMax)) {
+            return false;
+        }
+        n = (n * 10) + d;
+    }
+    *value = n;
+    return true;
+}
+
+namespace lmpParser {
+
+void startElementHandler(void* data, const char* tag,
+                                   const char** attributes) {
+    //SkDebugf("lmp started %s", tag);
+}
+
+void endElementHandler(void* data, const char* tag) {
+
+    //SkDebugf("lmp ended %s", tag);
+
+}
+
+} // lmpParser
+
+namespace jbParser {
 
 /**
  * Handler for arbitrary text. This is used to parse the text inside each name
@@ -73,34 +119,11 @@ static void textHandler(void *data, const char *s, int len) {
     }
 }
 
-/** http://www.w3.org/TR/html-markup/datatypes.html#common.data.integer.non-negative-def */
-template <typename T> static bool parseNonNegativeInteger(const char* s, T* value) {
-    SK_COMPILE_ASSERT(std::numeric_limits<T>::is_integer, T_must_be_integer);
-    const T nMax = std::numeric_limits<T>::max() / 10;
-    const T dMax = std::numeric_limits<T>::max() - (nMax * 10);
-    T n = 0;
-    for (; *s; ++s) {
-        // Check if digit
-        if (*s < '0' || '9' < *s) {
-            return false;
-        }
-        int d = *s - '0';
-        // Check for overflow
-        if (n > nMax || (n == nMax && d > dMax)) {
-            return false;
-        }
-        n = (n * 10) + d;
-    }
-    *value = n;
-    return true;
-}
-
 /**
  * Handler for font files. This processes the attributes for language and
  * variants then lets textHandler handle the actual file name
  */
 static void fontFileElementHandler(FamilyData *familyData, const char **attributes) {
-
     FontFileInfo& newFileInfo = familyData->currentFamily->fFontFiles.push_back();
     if (attributes) {
         int currentAttributeIndex = 0;
@@ -109,15 +132,16 @@ static void fontFileElementHandler(FamilyData *familyData, const char **attribut
             const char* attributeValue = attributes[currentAttributeIndex+1];
             int nameLength = strlen(attributeName);
             int valueLength = strlen(attributeValue);
-            if (strncmp(attributeName, "variant", nameLength) == 0) {
-                if (strncmp(attributeValue, "elegant", valueLength) == 0) {
+            if (nameLength == 7 && strncmp(attributeName, "variant", nameLength) == 0) {
+                if (valueLength == 7 && strncmp(attributeValue, "elegant", valueLength) == 0) {
                     newFileInfo.fPaintOptions.setFontVariant(SkPaintOptionsAndroid::kElegant_Variant);
-                } else if (strncmp(attributeValue, "compact", valueLength) == 0) {
+                } else if (valueLength == 7 &&
+                           strncmp(attributeValue, "compact", valueLength) == 0) {
                     newFileInfo.fPaintOptions.setFontVariant(SkPaintOptionsAndroid::kCompact_Variant);
                 }
-            } else if (strncmp(attributeName, "lang", nameLength) == 0) {
+            } else if (nameLength == 4 && strncmp(attributeName, "lang", nameLength) == 0) {
                 newFileInfo.fPaintOptions.setLanguage(attributeValue);
-            } else if (strncmp(attributeName, "index", nameLength) == 0) {
+            } else if (nameLength == 5 && strncmp(attributeName, "index", nameLength) == 0) {
                 int value;
                 if (parseNonNegativeInteger(attributeValue, &value)) {
                     newFileInfo.fIndex = value;
@@ -134,13 +158,26 @@ static void fontFileElementHandler(FamilyData *familyData, const char **attribut
 }
 
 /**
- * Handler for the start of a tag. The only tags we expect are family, nameset,
- * fileset, name, and file.
+ * Handler for the start of a tag. The only tags we expect are familyset, family,
+ * nameset, fileset, name, and file.
  */
 static void startElementHandler(void *data, const char *tag, const char **atts) {
     FamilyData *familyData = (FamilyData*) data;
     int len = strlen(tag);
-    if (strncmp(tag, "family", len)== 0) {
+    if (len == 9 && strncmp(tag, "familyset", len) == 0) {
+        // The familyset tag has an optional "version" attribute with an integer value >= 0
+        for (int i = 0; atts[i] != NULL; i += 2) {
+            int nameLen = strlen(atts[i]);
+            if (nameLen == 7 && strncmp(atts[i], "version", nameLen)) continue;
+            const char* valueString = atts[i+1];
+            int version;
+            if (parseNonNegativeInteger(valueString, &version) && (version >= 21)) {
+                XML_SetElementHandler(*familyData->parser,
+                                      lmpParser::startElementHandler,
+                                      lmpParser::endElementHandler);
+            }
+        }
+    } else if (len == 6 && strncmp(tag, "family", len) == 0) {
         familyData->currentFamily = new FontFamily();
         familyData->currentFamily->order = -1;
         // The Family tag has an optional "order" attribute with an integer value >= 0
@@ -148,8 +185,7 @@ static void startElementHandler(void *data, const char *tag, const char **atts) 
         for (int i = 0; atts[i] != NULL; i += 2) {
             const char* valueString = atts[i+1];
             int value;
-            int len = sscanf(valueString, "%d", &value);
-            if (len > 0) {
+            if (parseNonNegativeInteger(valueString, &value)) {
                 familyData->currentFamily->order = value;
             }
         }
@@ -157,10 +193,10 @@ static void startElementHandler(void *data, const char *tag, const char **atts) 
         familyData->currentTag = NAMESET_TAG;
     } else if (len == 7 && strncmp(tag, "fileset", len) == 0) {
         familyData->currentTag = FILESET_TAG;
-    } else if (strncmp(tag, "name", len) == 0 && familyData->currentTag == NAMESET_TAG) {
+    } else if (len == 4 && strncmp(tag, "name", len) == 0 && familyData->currentTag == NAMESET_TAG) {
         // If it's a Name, parse the text inside
         XML_SetCharacterDataHandler(*familyData->parser, textHandler);
-    } else if (strncmp(tag, "file", len) == 0 && familyData->currentTag == FILESET_TAG) {
+    } else if (len == 4 && strncmp(tag, "file", len) == 0 && familyData->currentTag == FILESET_TAG) {
         // If it's a file, parse the attributes, then parse the text inside
         fontFileElementHandler(familyData, atts);
     }
@@ -173,7 +209,7 @@ static void startElementHandler(void *data, const char *tag, const char **atts) 
 static void endElementHandler(void *data, const char *tag) {
     FamilyData *familyData = (FamilyData*) data;
     int len = strlen(tag);
-    if (strncmp(tag, "family", len)== 0) {
+    if (len == 6 && strncmp(tag, "family", len)== 0) {
         // Done parsing a Family - store the created currentFamily in the families array
         *familyData->families.append() = familyData->currentFamily;
         familyData->currentFamily = NULL;
@@ -181,12 +217,18 @@ static void endElementHandler(void *data, const char *tag) {
         familyData->currentTag = NO_TAG;
     } else if (len == 7 && strncmp(tag, "fileset", len) == 0) {
         familyData->currentTag = NO_TAG;
-    } else if ((strncmp(tag, "name", len) == 0 && familyData->currentTag == NAMESET_TAG) ||
-            (strncmp(tag, "file", len) == 0 && familyData->currentTag == FILESET_TAG)) {
+    } else if ((len == 4 &&
+                strncmp(tag, "name", len) == 0 &&
+                familyData->currentTag == NAMESET_TAG) ||
+               (len == 4 &&
+                strncmp(tag, "file", len) == 0 &&
+                familyData->currentTag == FILESET_TAG)) {
         // Disable the arbitrary text handler installed to load Name data
         XML_SetCharacterDataHandler(*familyData->parser, NULL);
     }
 }
+
+} // namespace jbParser
 
 /**
  * This function parses the given filename and stores the results in the given
@@ -237,7 +279,8 @@ static void parseConfigFile(const char *filename, SkTDArray<FontFamily*> &famili
     XML_Parser parser = XML_ParserCreate(NULL);
     FamilyData *familyData = new FamilyData(&parser, families);
     XML_SetUserData(parser, familyData);
-    XML_SetElementHandler(parser, startElementHandler, endElementHandler);
+    // Start parsing oldschool; switch these in flight if we detect a newer version of the file.
+    XML_SetElementHandler(parser, jbParser::startElementHandler, jbParser::endElementHandler);
 
     char buffer[512];
     bool done = false;
@@ -309,7 +352,9 @@ void SkFontConfigParser::GetTestFontFamilies(SkTDArray<FontFamily*> &fontFamilie
     parseConfigFile(testMainConfigFile, fontFamilies);
 
     SkTDArray<FontFamily*> fallbackFonts;
-    parseConfigFile(testFallbackConfigFile, fallbackFonts);
+    if (NULL != testFallbackConfigFile) {
+        parseConfigFile(testFallbackConfigFile, fallbackFonts);
+    }
 
     // Append all fallback fonts to system fonts
     for (int i = 0; i < fallbackFonts.count(); ++i) {

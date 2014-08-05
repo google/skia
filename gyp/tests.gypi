@@ -26,6 +26,17 @@
     'tools.gyp:sk_tool_utils',
   ],
   'conditions': [
+    [ 'skia_os == "android"', {
+      'dependencies': [
+        'ports.gyp:ports',
+      ],
+      'include_dirs': [
+        '../src/ports',
+      ],
+      'sources': [
+        '../tests/FontConfigParser.cpp',
+      ],
+    }],
     [ 'skia_android_framework == 1', {
       'libraries': [
         '-ldl',
