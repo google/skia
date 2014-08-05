@@ -65,7 +65,7 @@ desk_amazon.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-A
 desk_baidu.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
 desk_blogger.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
 desk_booking.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
-desk_carsvg.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,1529.69,1308.40624,1744.41876
+desk_carsvg.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,1673.83,1452.55,1888.56
 desk_chalkboard.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
 desk_css3gradients.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.4816,1.0216
 desk_ebay.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.4816,1.0216
@@ -83,7 +83,7 @@ desk_jsfiddlebigcar.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-
 desk_jsfiddlehumperclip.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
 desk_linkedin.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
 desk_mapsvg.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
-desk_mobilenews.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,87.03,77.93248,95.71752
+desk_mobilenews.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,82.09,72.99,90.78
 desk_oldinboxapp.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
 desk_pinterest.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,3.76,-18.20712,30.08212
 desk_pokemonwiki.skp_simple_viewport_1000x1000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,91.78,70.27712,110.17788
@@ -191,7 +191,7 @@ desk_amazon.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Gala
 desk_baidu.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
 desk_blogger.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
 desk_booking.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
-desk_carsvg.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,1641.38,1425.63256,1875.42744
+desk_carsvg.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,1855.85,1640.10,2089.90
 desk_chalkboard.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50176,1.04676
 desk_css3gradients.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
 desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-GalaxyNexus-SGX540-Arm7-Release-25th,0.02,-1.50168,1.04668
