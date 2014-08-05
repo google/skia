@@ -27,9 +27,6 @@
   ],
   'conditions': [
     [ 'skia_os == "android"', {
-      'dependencies': [
-        'ports.gyp:ports',
-      ],
       'include_dirs': [
         '../src/ports',
       ],
