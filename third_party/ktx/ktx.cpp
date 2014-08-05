@@ -12,8 +12,26 @@
 #include "SkEndian.h"
 
 #include "gl/GrGLDefines.h"
+#include "GrConfig.h"
 
 #include "etc1.h"
+
+static inline uint32_t compressed_fmt_to_gl_define(SkTextureCompressor::Format fmt) {
+    static const uint32_t kGLDefineMap[SkTextureCompressor::kFormatCnt] = {
+        GR_GL_COMPRESSED_LUMINANCE_LATC1,  // kLATC_Format
+        GR_GL_COMPRESSED_R11,  // kR11_EAC_Format
+        GR_GL_COMPRESSED_RGB8_ETC1,  // kETC1_Format
+        GR_GL_COMPRESSED_RGBA_ASTC_12x12,  // kASTC_12x12_Format
+    };
+
+    GR_STATIC_ASSERT(0 == SkTextureCompressor::kLATC_Format);
+    GR_STATIC_ASSERT(1 == SkTextureCompressor::kR11_EAC_Format);
+    GR_STATIC_ASSERT(2 == SkTextureCompressor::kETC1_Format);
+    GR_STATIC_ASSERT(3 == SkTextureCompressor::kASTC_12x12_Format);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kGLDefineMap) == SkTextureCompressor::kFormatCnt);
+
+    return kGLDefineMap[fmt];
+}
 
 #define KTX_FILE_IDENTIFIER_SIZE 12
 static const uint8_t KTX_FILE_IDENTIFIER[KTX_FILE_IDENTIFIER_SIZE] = {
@@ -123,8 +141,19 @@ SkString SkKTXFile::getValueForKey(const SkString& key) const {
     return SkString();
 }
 
-bool SkKTXFile::isETC1() const {
-    return this->valid() && GR_GL_COMPRESSED_RGB8_ETC1 == fHeader.fGLInternalFormat;
+bool SkKTXFile::isCompressedFormat(SkTextureCompressor::Format fmt) const {
+    if (!this->valid()) {
+        return false;
+    }
+
+    // This has many aliases
+    bool isFmt = false;
+    if (fmt == SkTextureCompressor::kLATC_Format) {
+        isFmt = GR_GL_COMPRESSED_RED_RGTC1 == fHeader.fGLInternalFormat ||
+                GR_GL_COMPRESSED_3DC_X == fHeader.fGLInternalFormat;
+    }
+
+    return isFmt || compressed_fmt_to_gl_define(fmt) == fHeader.fGLInternalFormat;
 }
 
 bool SkKTXFile::isRGBA8() const {

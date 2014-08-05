@@ -11,6 +11,7 @@
 #define SkKTXFile_DEFINED
 
 #include "SkData.h"
+#include "SkTextureCompressor.h"
 #include "SkTypes.h"
 #include "SkTDArray.h"
 #include "SkString.h"
@@ -58,7 +59,7 @@ public:
 
     int numMipmaps() const { return static_cast<int>(fHeader.fNumberOfMipmapLevels); }
 
-    bool isETC1() const;
+    bool isCompressedFormat(SkTextureCompressor::Format fmt) const;
     bool isRGBA8() const;
     bool isRGB8() const;
 

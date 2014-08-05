@@ -105,7 +105,7 @@ bool SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     // Lock the pixels, since we're about to write to them...
     SkAutoLockPixels alp(*bm);
 
-    if (ktxFile.isETC1()) {
+    if (ktxFile.isCompressedFormat(SkTextureCompressor::kETC1_Format)) {
         if (!sampler.begin(bm, SkScaledBitmapSampler::kRGB, *this)) {
             return false;
         }
@@ -113,11 +113,12 @@ bool SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         // ETC1 Data is encoded as RGB pixels, so we should extract it as such
         int nPixels = width * height;
         SkAutoMalloc outRGBData(nPixels * 3);
-        etc1_byte *outRGBDataPtr = reinterpret_cast<etc1_byte *>(outRGBData.get());
+        uint8_t *outRGBDataPtr = reinterpret_cast<uint8_t *>(outRGBData.get());
 
         // Decode ETC1
-        const etc1_byte *buf = reinterpret_cast<const etc1_byte *>(ktxFile.pixelData());
-        if (etc1_decode_image(buf, outRGBDataPtr, width, height, 3, width*3)) {
+        const uint8_t *buf = reinterpret_cast<const uint8_t *>(ktxFile.pixelData());
+        if (!SkTextureCompressor::DecompressBufferFromFormat(
+                outRGBDataPtr, width*3, buf, width, height, SkTextureCompressor::kETC1_Format)) {
             return false;
         }
 

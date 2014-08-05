@@ -9,9 +9,9 @@
 #define SkTextureCompressor_DEFINED
 
 #include "SkImageInfo.h"
-#include "SkBlitter.h"
 
 class SkBitmap;
+class SkBlitter;
 class SkData;
 
 namespace SkTextureCompressor {

@@ -11,6 +11,7 @@
 #include "SkData.h"
 #include "SkMessageBus.h"
 #include "SkPixelRef.h"
+#include "SkTextureCompressor.h"
 #include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "effects/GrDitherEffect.h"
@@ -165,7 +166,7 @@ static GrTexture *load_etc1_texture(GrContext* ctx,
         SkKTXFile ktx(data);
 
         // Is it actually an ETC1 texture?
-        if (!ktx.isETC1()) {
+        if (!ktx.isCompressedFormat(SkTextureCompressor::kETC1_Format)) {
             return NULL;
         }
 
