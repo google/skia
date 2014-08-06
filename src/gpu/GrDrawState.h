@@ -215,6 +215,40 @@ public:
 
     /// @}
 
+    /**
+     * This struct is here so that the GrDrawState can have multiple instances of state information.
+     * The use of this will come in a future revision when we want to keep track of the original
+     * draw state as well as an optimized version of it.
+     */
+    struct State {
+        State() {
+            this->reset();
+        }
+
+        State(const GrEffectStage* colorArray, int colorCount,
+                      const GrEffectStage* coverageArray, int coverageCount)
+            : fColorStages(colorArray, colorCount), fCoverageStages(coverageArray, coverageCount) {
+                fSrcBlend = kOne_GrBlendCoeff;
+                fDstBlend = kZero_GrBlendCoeff;
+        }
+
+        static bool HaveCompatibleState(const State& a, const State& b, bool explicitLocalCoords);
+
+        void reset() {
+            fSrcBlend = kOne_GrBlendCoeff;
+            fDstBlend = kZero_GrBlendCoeff;
+            fColorStages.reset();
+            fCoverageStages.reset();
+        }
+
+        GrBlendCoeff                        fSrcBlend;
+        GrBlendCoeff                        fDstBlend;
+
+        typedef SkSTArray<4, GrEffectStage> EffectStageArray;
+        EffectStageArray                    fColorStages;
+        EffectStageArray                    fCoverageStages;
+    };
+
     ///////////////////////////////////////////////////////////////////////////
     /// @name Effect Stages
     /// Each stage hosts a GrEffect. The effect produces an output color or coverage in the fragment
@@ -237,14 +271,14 @@ public:
 
     const GrEffect* addColorEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(NULL != effect);
-        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect, attr0, attr1));
+        SkNEW_APPEND_TO_TARRAY(&fState.fColorStages, GrEffectStage, (effect, attr0, attr1));
         this->invalidateBlendOptFlags();
         return effect;
     }
 
     const GrEffect* addCoverageEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(NULL != effect);
-        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect, attr0, attr1));
+        SkNEW_APPEND_TO_TARRAY(&fState.fCoverageStages, GrEffectStage, (effect, attr0, attr1));
         this->invalidateBlendOptFlags();
         return effect;
     }
@@ -296,12 +330,12 @@ public:
         int fCoverageEffectCnt;
     };
 
-    int numColorStages() const { return fColorStages.count(); }
-    int numCoverageStages() const { return fCoverageStages.count(); }
+    int numColorStages() const { return fState.fColorStages.count(); }
+    int numCoverageStages() const { return fState.fCoverageStages.count(); }
     int numTotalStages() const { return this->numColorStages() + this->numCoverageStages(); }
 
-    const GrEffectStage& getColorStage(int stageIdx) const { return fColorStages[stageIdx]; }
-    const GrEffectStage& getCoverageStage(int stageIdx) const { return fCoverageStages[stageIdx]; }
+    const GrEffectStage& getColorStage(int stageIdx) const { return fState.fColorStages[stageIdx]; }
+    const GrEffectStage& getCoverageStage(int stageIdx) const { return fState.fCoverageStages[stageIdx]; }
 
     /**
      * Checks whether any of the effects will read the dst pixel color.
@@ -328,8 +362,8 @@ public:
      * @param dstCoef coefficient applied to the dst color.
      */
     void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
-        fSrcBlend = srcCoeff;
-        fDstBlend = dstCoeff;
+        fState.fSrcBlend = srcCoeff;
+        fState.fDstBlend = dstCoeff;
         this->invalidateBlendOptFlags();
     #ifdef SK_DEBUG
         if (GrBlendCoeffRefsDst(dstCoeff)) {
@@ -341,13 +375,13 @@ public:
     #endif
     }
 
-    GrBlendCoeff getSrcBlendCoeff() const { return fSrcBlend; }
-    GrBlendCoeff getDstBlendCoeff() const { return fDstBlend; }
+    GrBlendCoeff getSrcBlendCoeff() const { return fState.fSrcBlend; }
+    GrBlendCoeff getDstBlendCoeff() const { return fState.fDstBlend; }
 
     void getDstBlendCoeff(GrBlendCoeff* srcBlendCoeff,
                           GrBlendCoeff* dstBlendCoeff) const {
-        *srcBlendCoeff = fSrcBlend;
-        *dstBlendCoeff = fDstBlend;
+        *srcBlendCoeff = fState.fSrcBlend;
+        *dstBlendCoeff = fState.fDstBlend;
     }
 
     /**
@@ -767,7 +801,6 @@ public:
     GrDrawState& operator= (const GrDrawState& that);
 
 private:
-
     void onReset(const SkMatrix* initialViewMatrix);
 
     BlendOptFlags calcBlendOpts(bool forceCoverage = false,
@@ -778,8 +811,6 @@ private:
     SkAutoTUnref<GrRenderTarget>        fRenderTarget;
     GrColor                             fColor;
     SkMatrix                            fViewMatrix;
-    GrBlendCoeff                        fSrcBlend;
-    GrBlendCoeff                        fDstBlend;
     GrColor                             fBlendConstant;
     uint32_t                            fFlagBits;
     const GrVertexAttrib*               fVAPtr;
@@ -788,9 +819,7 @@ private:
     GrColor                             fCoverage;
     DrawFace                            fDrawFace;
 
-    typedef SkSTArray<4, GrEffectStage> EffectStageArray;
-    EffectStageArray                    fColorStages;
-    EffectStageArray                    fCoverageStages;
+    State                               fState;
     
     mutable GrBlendCoeff                        fOptSrcBlend;
     mutable GrBlendCoeff                        fOptDstBlend;
