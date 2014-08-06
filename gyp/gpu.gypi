@@ -202,8 +202,6 @@
       '<(skia_src_path)/gpu/gl/GrGLPath.h',
       '<(skia_src_path)/gpu/gl/GrGLPathRange.cpp',
       '<(skia_src_path)/gpu/gl/GrGLPathRange.h',
-      '<(skia_src_path)/gpu/gl/GrGLPathRendering.cpp',
-      '<(skia_src_path)/gpu/gl/GrGLPathRendering.h',
       '<(skia_src_path)/gpu/gl/GrGLProgram.cpp',
       '<(skia_src_path)/gpu/gl/GrGLProgram.h',
       '<(skia_src_path)/gpu/gl/GrGLProgramDesc.cpp',

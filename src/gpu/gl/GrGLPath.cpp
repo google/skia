@@ -7,8 +7,12 @@
  */
 
 #include "GrGLPath.h"
-#include "GrGLPathRendering.h"
 #include "GrGpuGL.h"
+
+#define GPUGL static_cast<GrGpuGL*>(this->getGpu())
+
+#define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
+#define GL_CALL_RET(R, X) GR_GL_CALL_RET(GPUGL->glInterface(), R, X)
 
 namespace {
 inline GrGLubyte verb_to_gl_path_cmd(SkPath::Verb verb) {
@@ -81,11 +85,10 @@ inline GrGLenum cap_to_gl_cap(SkPaint::Cap cap) {
 
 static const bool kIsWrapped = false; // The constructor creates the GL path object.
 
-void GrGLPath::InitPathObject(GrGpuGL* gpu,
+void GrGLPath::InitPathObject(const GrGLInterface* gl,
                               GrGLuint pathID,
                               const SkPath& skPath,
                               const SkStrokeRec& stroke) {
-    GrGLPathRendering* pr = gpu->pathRendering();
     SkSTArray<16, GrGLubyte, true> pathCommands;
     SkSTArray<16, SkPoint, true> pathPoints;
 
@@ -106,25 +109,30 @@ void GrGLPath::InitPathObject(GrGpuGL* gpu,
     }
     SkASSERT(pathPoints.count() == numPts);
 
-    pr->pathCommands(pathID, verbCnt, &pathCommands[0], 2 * pointCnt, GR_GL_FLOAT, &pathPoints[0]);
+    GR_GL_CALL(gl, PathCommands(pathID,
+                                verbCnt, &pathCommands[0],
+                                2 * pointCnt, GR_GL_FLOAT, &pathPoints[0]));
+
     if (stroke.needToApply()) {
         SkASSERT(!stroke.isHairlineStyle());
-        pr->pathParameterf(pathID, GR_GL_PATH_STROKE_WIDTH, SkScalarToFloat(stroke.getWidth()));
-        pr->pathParameterf(pathID, GR_GL_PATH_MITER_LIMIT, SkScalarToFloat(stroke.getMiter()));
+        GR_GL_CALL(gl, PathParameterf(pathID, GR_GL_PATH_STROKE_WIDTH, SkScalarToFloat(stroke.getWidth())));
+        GR_GL_CALL(gl, PathParameterf(pathID, GR_GL_PATH_MITER_LIMIT, SkScalarToFloat(stroke.getMiter())));
         GrGLenum join = join_to_gl_join(stroke.getJoin());
-        pr->pathParameteri(pathID, GR_GL_PATH_JOIN_STYLE, join);
+        GR_GL_CALL(gl, PathParameteri(pathID, GR_GL_PATH_JOIN_STYLE, join));
         GrGLenum cap = cap_to_gl_cap(stroke.getCap());
-        pr->pathParameteri(pathID, GR_GL_PATH_INITIAL_END_CAP, cap);
-        pr->pathParameteri(pathID, GR_GL_PATH_TERMINAL_END_CAP, cap);
+        GR_GL_CALL(gl, PathParameteri(pathID, GR_GL_PATH_INITIAL_END_CAP, cap));
+        GR_GL_CALL(gl, PathParameteri(pathID, GR_GL_PATH_TERMINAL_END_CAP, cap));
     }
 }
 
 GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
-    : INHERITED(gpu, kIsWrapped, path, stroke),
-      fPathID(gpu->pathRendering()->genPaths(1)) {
+    : INHERITED(gpu, kIsWrapped, path, stroke) {
     SkASSERT(!path.isEmpty());
 
-    InitPathObject(gpu, fPathID, fSkPath, stroke);
+    fPathID = gpu->createGLPathObject();
+
+    InitPathObject(static_cast<GrGpuGL*>(this->getGpu())->glInterface(),
+                   fPathID, fSkPath, stroke);
 
     if (stroke.needToApply()) {
         // FIXME: try to account for stroking, without rasterizing the stroke.
@@ -138,7 +146,7 @@ GrGLPath::~GrGLPath() {
 
 void GrGLPath::onRelease() {
     if (0 != fPathID && !this->isWrapped()) {
-        static_cast<GrGpuGL*>(this->getGpu())->pathRendering()->deletePaths(fPathID, 1);
+        static_cast<GrGpuGL*>(this->getGpu())->deleteGLPathObject(fPathID);
         fPathID = 0;
     }
 

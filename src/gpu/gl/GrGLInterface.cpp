@@ -56,10 +56,6 @@ const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
     newInterface->fFunctions.fCoverStrokePath = NULL;
     newInterface->fFunctions.fCoverFillPathInstanced = NULL;
     newInterface->fFunctions.fCoverStrokePathInstanced = NULL;
-    newInterface->fFunctions.fStencilThenCoverFillPath = NULL;
-    newInterface->fFunctions.fStencilThenCoverStrokePath = NULL;
-    newInterface->fFunctions.fStencilThenCoverFillPathInstanced = NULL;
-    newInterface->fFunctions.fStencilThenCoverStrokePathInstanced = NULL;
     newInterface->fFunctions.fProgramPathFragmentInputGen = NULL;
     return newInterface;
 }
@@ -471,23 +467,18 @@ bool GrGLInterface::validate() const {
             NULL == fFunctions.fCoverFillPath ||
             NULL == fFunctions.fCoverStrokePath ||
             NULL == fFunctions.fCoverFillPathInstanced ||
-            NULL == fFunctions.fCoverStrokePathInstanced) {
+            NULL == fFunctions.fCoverStrokePathInstanced ||
+            NULL == fFunctions.fStencilThenCoverFillPath ||
+            NULL == fFunctions.fStencilThenCoverStrokePath ||
+            NULL == fFunctions.fStencilThenCoverFillPathInstanced ||
+            NULL == fFunctions.fStencilThenCoverStrokePathInstanced) {
             RETURN_FALSE_INTERFACE
         }
-        if (kGL_GrGLStandard == fStandard) {
-            // Some methods only exist on desktop
-            if (NULL == fFunctions.fPathTexGen) {
-                RETURN_FALSE_INTERFACE
-            }
-        } else {
-            // All additions through v1.3 exist on GLES
-            if (NULL == fFunctions.fStencilThenCoverFillPath ||
-                NULL == fFunctions.fStencilThenCoverStrokePath ||
-                NULL == fFunctions.fStencilThenCoverFillPathInstanced ||
-                NULL == fFunctions.fStencilThenCoverStrokePathInstanced ||
-                NULL == fFunctions.fProgramPathFragmentInputGen) {
-                RETURN_FALSE_INTERFACE
-            }
+        // Currently ProgramPathFragmentInputGen is not used on
+        // OpenGL, rather PathTexGen is.
+        if ((kGL_GrGLStandard == fStandard && NULL == fFunctions.fPathTexGen) ||
+            (kGLES_GrGLStandard == fStandard && NULL == fFunctions.fProgramPathFragmentInputGen)) {
+            RETURN_FALSE_INTERFACE
         }
     }
 

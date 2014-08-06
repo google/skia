@@ -7,10 +7,10 @@
 
 
 #include "GrGpuGL.h"
+#include "GrGLNameAllocator.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLPath.h"
 #include "GrGLPathRange.h"
-#include "GrGLPathRendering.h"
 #include "GrGLShaderBuilder.h"
 #include "GrTemplates.h"
 #include "GrTypes.h"
@@ -164,10 +164,6 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
 
     fLastSuccessfulStencilFmtIdx = 0;
     fHWProgramID = 0;
-
-    if (this->glCaps().pathRenderingSupport()) {
-        fPathRendering.reset(GrGLPathRendering::Create(glInterface()));
-    }
 }
 
 GrGpuGL::~GrGpuGL() {
@@ -333,7 +329,7 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
             GL_CALL(MatrixLoadIdentity(GR_GL_MODELVIEW));
 
             for (int i = 0; i < this->glCaps().maxFixedFunctionTextureCoords(); ++i) {
-                fPathRendering->pathTexGen(GR_GL_TEXTURE0 + i, GR_GL_NONE, 0, NULL);
+                GL_CALL(PathTexGen(GR_GL_TEXTURE0 + i, GR_GL_NONE, 0, NULL));
                 fHWPathTexGenSettings[i].fMode = GR_GL_NONE;
                 fHWPathTexGenSettings[i].fNumComponents = 0;
             }
@@ -1885,7 +1881,7 @@ void GrGpuGL::onGpuStencilPath(const GrPath* path, SkPath::FillType fill) {
     GrGLenum fillMode =
         gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.passOp(GrStencilSettings::kFront_Face));
     GrGLint writeMask = fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
-    fPathRendering->stencilFillPath(id, fillMode, writeMask);
+    GL_CALL(StencilFillPath(id, fillMode, writeMask));
 }
 
 void GrGpuGL::onGpuDrawPath(const GrPath* path, SkPath::FillType fill) {
@@ -1908,18 +1904,18 @@ void GrGpuGL::onGpuDrawPath(const GrPath* path, SkPath::FillType fill) {
     if (nonInvertedFill == fill) {
         if (stroke.needToApply()) {
             if (SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
-                fPathRendering->stencilFillPath(id, fillMode, writeMask);
+                GL_CALL(StencilFillPath(id, fillMode, writeMask));
             }
-            fPathRendering->stencilThenCoverStrokePath(id, 0xffff, writeMask, GR_GL_BOUNDING_BOX);
+            GL_CALL(StencilThenCoverStrokePath(id, 0xffff, writeMask, GR_GL_BOUNDING_BOX));
         } else {
-            fPathRendering->stencilThenCoverFillPath(id, fillMode, writeMask, GR_GL_BOUNDING_BOX);
+            GL_CALL(StencilThenCoverFillPath(id, fillMode, writeMask, GR_GL_BOUNDING_BOX));
         }
     } else {
         if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
-            fPathRendering->stencilFillPath(id, fillMode, writeMask);
+            GL_CALL(StencilFillPath(id, fillMode, writeMask));
         }
         if (stroke.needToApply()) {
-            fPathRendering->stencilStrokePath(id, 0xffff, writeMask);
+            GL_CALL(StencilStrokePath(id, 0xffff, writeMask));
         }
 
         GrDrawState* drawState = this->drawState();
@@ -1970,33 +1966,33 @@ void GrGpuGL::onGpuDrawPaths(const GrPathRange* pathRange,
     if (nonInvertedFill == fill) {
         if (stroke.needToApply()) {
             if (SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
-                fPathRendering->stencilFillPathInstanced(
-                                    count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
-                                    writeMask, gXformType2GLType[transformsType],
-                                    transforms);
+                GL_CALL(StencilFillPathInstanced(
+                            count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
+                            writeMask, gXformType2GLType[transformsType],
+                            transforms));
             }
-            fPathRendering->stencilThenCoverStrokePathInstanced(
-                                count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff, writeMask,
-                                GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                                gXformType2GLType[transformsType], transforms);
+            GL_CALL(StencilThenCoverStrokePathInstanced(
+                        count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff, writeMask,
+                        GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
+                        gXformType2GLType[transformsType], transforms));
         } else {
-            fPathRendering->stencilThenCoverFillPathInstanced(
-                                count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode, writeMask,
-                                GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                                gXformType2GLType[transformsType], transforms);
+            GL_CALL(StencilThenCoverFillPathInstanced(
+                        count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode, writeMask,
+                        GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
+                        gXformType2GLType[transformsType], transforms));
         }
     } else {
         if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
-            fPathRendering->stencilFillPathInstanced(
-                                count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
-                                writeMask, gXformType2GLType[transformsType],
-                                transforms);
+            GL_CALL(StencilFillPathInstanced(
+                        count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
+                        writeMask, gXformType2GLType[transformsType],
+                        transforms));
         }
         if (stroke.needToApply()) {
-            fPathRendering->stencilStrokePathInstanced(
-                                count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff,
-                                writeMask, gXformType2GLType[transformsType],
-                                transforms);
+            GL_CALL(StencilStrokePathInstanced(
+                        count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff,
+                        writeMask, gXformType2GLType[transformsType],
+                        transforms));
         }
 
         GrDrawState* drawState = this->drawState();
@@ -2214,9 +2210,9 @@ void GrGpuGL::flushPathStencilSettings(SkPath::FillType fill) {
         // that draws the path to the SB (glStencilFillPath)
         GrGLenum func =
             gr_to_gl_stencil_func(pathStencilSettings.func(GrStencilSettings::kFront_Face));
-        fPathRendering->pathStencilFunc(
-                            func, pathStencilSettings.funcRef(GrStencilSettings::kFront_Face),
-                            pathStencilSettings.funcMask(GrStencilSettings::kFront_Face));
+        GL_CALL(PathStencilFunc(func,
+                                pathStencilSettings.funcRef(GrStencilSettings::kFront_Face),
+                                pathStencilSettings.funcMask(GrStencilSettings::kFront_Face)));
 
         fHWPathStencilSettings = pathStencilSettings;
     }
@@ -2407,10 +2403,10 @@ void GrGpuGL::enablePathTexGen(int unitIdx,
     this->setTextureUnit(unitIdx);
 
     fHWPathTexGenSettings[unitIdx].fNumComponents = components;
-    fPathRendering->pathTexGen(GR_GL_TEXTURE0 + unitIdx,
-                               GR_GL_OBJECT_LINEAR,
-                               components,
-                               coefficients);
+    GL_CALL(PathTexGen(GR_GL_TEXTURE0 + unitIdx,
+                       GR_GL_OBJECT_LINEAR,
+                       components,
+                       coefficients));
 
     memcpy(fHWPathTexGenSettings[unitIdx].fCoefficients, coefficients,
            3 * components * sizeof(GrGLfloat));
@@ -2459,7 +2455,7 @@ void GrGpuGL::flushPathTexGenSettings(int numUsedTexCoordSets) {
         SkASSERT(0 != fHWPathTexGenSettings[i].fNumComponents);
 
         this->setTextureUnit(i);
-        fPathRendering->pathTexGen(GR_GL_TEXTURE0 + i, GR_GL_NONE, 0, NULL);
+        GL_CALL(PathTexGen(GR_GL_TEXTURE0 + i, GR_GL_NONE, 0, NULL));
         fHWPathTexGenSettings[i].fNumComponents = 0;
     }
 
@@ -2513,6 +2509,38 @@ void GrGpuGL::flushMiscFixedFunctionState() {
         }
         fHWDrawFace = drawState.getDrawFace();
     }
+}
+
+GrGLuint GrGpuGL::createGLPathObject() {
+    if (NULL == fPathNameAllocator.get()) {
+        static const int range = 65536;
+        GrGLuint firstName;
+        GL_CALL_RET(firstName, GenPaths(range));
+        fPathNameAllocator.reset(SkNEW_ARGS(GrGLNameAllocator, (firstName, firstName + range)));
+    }
+
+    GrGLuint name = fPathNameAllocator->allocateName();
+    if (0 == name) {
+        // Our reserved path names are all in use. Fall back on GenPaths.
+        GL_CALL_RET(name, GenPaths(1));
+    }
+
+    return name;
+}
+
+void GrGpuGL::deleteGLPathObject(GrGLuint name) {
+    if (NULL == fPathNameAllocator.get() ||
+        name < fPathNameAllocator->firstName() ||
+        name >= fPathNameAllocator->endName()) {
+        // If we aren't inside fPathNameAllocator's range then this name was
+        // generated by the GenPaths fallback (or else the name is unallocated).
+        GL_CALL(DeletePaths(name, 1));
+        return;
+    }
+
+    // Make the path empty to save memory, but don't free the name in the driver.
+    GL_CALL(PathCommands(name, 0, NULL, 0, GR_GL_FLOAT, NULL));
+    fPathNameAllocator->free(name);
 }
 
 bool GrGpuGL::configToGLFormats(GrPixelConfig config,

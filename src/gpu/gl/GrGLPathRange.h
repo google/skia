@@ -22,7 +22,7 @@ class GrGpuGL;
 
 class GrGLPathRange : public GrPathRange {
 public:
-    GrGLPathRange(GrGpuGL*, size_t size, const SkStrokeRec&);
+    GrGLPathRange(GrGpu*, size_t size, const SkStrokeRec&);
     virtual ~GrGLPathRange();
 
     GrGLuint basePathID() const { return fBasePathID; }

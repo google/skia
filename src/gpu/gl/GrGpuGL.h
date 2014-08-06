@@ -24,7 +24,7 @@
 #define PROGRAM_CACHE_STATS
 #endif
 
-class GrGLPathRendering;
+class GrGLNameAllocator;
 
 class GrGpuGL : public GrGpu {
 public:
@@ -39,11 +39,6 @@ public:
     GrGLVersion glVersion() const { return fGLContext.version(); }
     GrGLSLGeneration glslGeneration() const { return fGLContext.glslGeneration(); }
     const GrGLCaps& glCaps() const { return *fGLContext.caps(); }
-
-    GrGLPathRendering* pathRendering() const {
-        SkASSERT(glCaps().pathRenderingSupport());
-        return fPathRendering.get();
-    }
 
     virtual void discard(GrRenderTarget*) SK_OVERRIDE;
 
@@ -108,6 +103,11 @@ public:
     void notifyIndexBufferDelete(GrGLuint id) {
         fHWGeometryState.notifyIndexBufferDelete(id);
     }
+
+    // These functions should be used to generate and delete GL path names. They have their own
+    // allocator that runs on the client side, so they are much faster than going through GenPaths.
+    GrGLuint createGLPathObject();
+    void deleteGLPathObject(GrGLuint);
 
 protected:
     virtual bool onCopySurface(GrSurface* dst,
@@ -470,7 +470,7 @@ private:
     // from our loop that tries stencil formats and calls check fb status.
     int fLastSuccessfulStencilFmtIdx;
 
-    SkAutoTDelete<GrGLPathRendering> fPathRendering;
+    SkAutoTDelete<GrGLNameAllocator> fPathNameAllocator;
 
     typedef GrGpu INHERITED;
 };
