@@ -70,8 +70,15 @@ class RenderedPicturesComparisons(results.BaseComparisons):
                image_base_gs_url=DEFAULT_IMAGE_BASE_GS_URL,
                diff_base_url=None, setA_label='setA',
                setB_label='setB', gs=None,
-               truncate_results=False):
-    """
+               truncate_results=False, prefetch_only=False,
+               download_all_images=False):
+    """Constructor: downloads images and generates diffs.
+
+    Once the object has been created (which may take a while), you can call its
+    get_packaged_results_of_type() method to quickly retrieve the results...
+    unless you have set prefetch_only to True, in which case we will
+    asynchronously warm up the ImageDiffDB cache but not fill in self._results.
+
     Args:
       setA_dirs: list of root directories to copy all JSON summaries from,
           and to use as setA within the comparisons. These directories may be
@@ -93,6 +100,14 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       gs: instance of GSUtils object we can use to download summary files
       truncate_results: FOR MANUAL TESTING: if True, truncate the set of images
           we process, to speed up testing.
+      prefetch_only: if True, return the new object as quickly as possible
+          with empty self._results (just queue up all the files to process,
+          don't wait around for them to be processed and recorded); otherwise,
+          block until the results have been assembled and recorded in
+          self._results.
+      download_all_images: if True, download all images, even if we don't
+          need them to generate diffs.  This will take much longer to complete,
+          but is useful for warming up the bitmap cache on local disk.
     """
     super(RenderedPicturesComparisons, self).__init__()
     self._image_diff_db = image_diff_db
@@ -104,6 +119,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     self._setB_label = setB_label
     self._gs = gs
     self.truncate_results = truncate_results
+    self._prefetch_only = prefetch_only
+    self._download_all_images = download_all_images
 
     tempdir = tempfile.mkdtemp()
     try:
@@ -121,11 +138,12 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       self._results = self._load_result_pairs(
           setA_root=setA_root, setA_section=gm_json.JSONKEY_ACTUALRESULTS,
           setB_root=setB_root, setB_section=gm_json.JSONKEY_ACTUALRESULTS)
-      self._timestamp = int(time.time())
-      logging.info('Number of download file collisions: %s' %
-                   imagediffdb.global_file_collisions)
-      logging.info('Results complete; took %d seconds.' %
-                   (self._timestamp - time_start))
+      if self._results:
+        self._timestamp = int(time.time())
+        logging.info('Number of download file collisions: %s' %
+                     imagediffdb.global_file_collisions)
+        logging.info('Results complete; took %d seconds.' %
+                     (self._timestamp - time_start))
     finally:
       shutil.rmtree(tempdir)
 
@@ -141,7 +159,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       setB_section: which section (gm_json.JSONKEY_ACTUALRESULTS or
           gm_json.JSONKEY_EXPECTEDRESULTS) to load from the summaries in setB
 
-    Returns the summary of all image diff results.
+    Returns the summary of all image diff results (or None, depending on
+    self._prefetch_only).
     """
     logging.info('Reading JSON image summaries from dirs %s and %s...' % (
         setA_root, setB_root))
@@ -182,8 +201,9 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     dict_num = 0
     for dict_path in union_dict_paths:
       dict_num += 1
-      logging.info('Generating pixel diffs for dict #%d of %d, "%s"...' %
-                   (dict_num, num_union_dict_paths, dict_path))
+      logging.info(
+          'Asynchronously requesting pixel diffs for dict #%d of %d, "%s"...' %
+          (dict_num, num_union_dict_paths, dict_path))
 
       dictA = self.get_default(setA_dicts, None, dict_path)
       self._validate_dict_version(dictA)
@@ -235,12 +255,15 @@ class RenderedPicturesComparisons(results.BaseComparisons):
             if result_type != results.KEY__RESULT_TYPE__SUCCEEDED:
               failing_image_pairs.add_image_pair(one_imagepair)
 
-    return {
-      results.KEY__HEADER__RESULTS_ALL: all_image_pairs.as_dict(
-          column_ids_in_order=ORDERED_COLUMN_IDS),
-      results.KEY__HEADER__RESULTS_FAILURES: failing_image_pairs.as_dict(
-          column_ids_in_order=ORDERED_COLUMN_IDS),
-    }
+    if self._prefetch_only:
+      return None
+    else:
+      return {
+          results.KEY__HEADER__RESULTS_ALL: all_image_pairs.as_dict(
+              column_ids_in_order=ORDERED_COLUMN_IDS),
+          results.KEY__HEADER__RESULTS_FAILURES: failing_image_pairs.as_dict(
+              column_ids_in_order=ORDERED_COLUMN_IDS),
+      }
 
   def _validate_dict_version(self, result_dict):
     """Raises Exception if the dict is not the type/version we know how to read.
@@ -320,7 +343,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
           base_url=self._image_base_gs_url,
           imageA_relative_url=imageA_relative_url,
           imageB_relative_url=imageB_relative_url,
-          extra_columns=extra_columns_dict)
+          extra_columns=extra_columns_dict,
+          download_all_images=self._download_all_images)
     except (KeyError, TypeError):
       logging.exception(
           'got exception while creating ImagePair for'

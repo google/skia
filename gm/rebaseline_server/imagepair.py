@@ -32,7 +32,8 @@ class ImagePair(object):
 
   def __init__(self, image_diff_db,
                base_url, imageA_relative_url, imageB_relative_url,
-               expectations=None, extra_columns=None):
+               expectations=None, extra_columns=None,
+               download_all_images=False):
     """
     Args:
       image_diff_db: ImageDiffDB instance we use to generate/store image diffs
@@ -45,6 +46,9 @@ class ImagePair(object):
           metadata (ignore-failure, bug numbers, etc.)
       extra_columns: optional dictionary containing more metadata (test name,
           builder name, etc.)
+      download_all_images: if True, download any images associated with this
+          image pair, even if we don't need them to generate diffs
+          (imageA == imageB, or one of them is missing)
     """
     self._image_diff_db = image_diff_db
     self.base_url = base_url
@@ -63,11 +67,13 @@ class ImagePair(object):
       # Later on, we will call image_diff_db.get_diff_record() to find it.
       self._is_different = True
       self._diff_record = _DIFF_RECORD_STILL_LOADING
+
+    if self._diff_record != None or download_all_images:
       image_diff_db.add_image_pair(
           expected_image_locator=imageA_relative_url,
-          expected_image_url=posixpath.join(base_url, imageA_relative_url),
+          expected_image_url=self.posixpath_join(base_url, imageA_relative_url),
           actual_image_locator=imageB_relative_url,
-          actual_image_url=posixpath.join(base_url, imageB_relative_url))
+          actual_image_url=self.posixpath_join(base_url, imageB_relative_url))
 
   def as_dict(self):
     """Returns a dictionary describing this ImagePair.
@@ -97,3 +103,14 @@ class ImagePair(object):
     if self._diff_record != None:
       asdict[KEY__IMAGEPAIRS__DIFFERENCES] = self._diff_record.as_dict()
     return asdict
+
+  @staticmethod
+  def posixpath_join(*args):
+    """Wrapper around posixpath.join().
+
+    Returns posixpath.join(*args), or None if any arg is None.
+    """
+    for arg in args:
+      if arg == None:
+        return None
+    return posixpath.join(*args)

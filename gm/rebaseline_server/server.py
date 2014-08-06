@@ -73,12 +73,7 @@ DEFAULT_PORT = 8888
 
 PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(PARENT_DIRECTORY))
-# Directory, relative to PARENT_DIRECTORY, within which the server will serve
-# out image diff data from within the precomputed _SERVER.results .
-PRECOMPUTED_RESULTS_SUBDIR = 'results'
-# Directory, relative to PARENT_DIRECTORY, within which the server will serve
-# out live-generated image diff data.
-LIVE_RESULTS_SUBDIR = 'live-results'
+
 # Directory, relative to PARENT_DIRECTORY, within which the server will serve
 # out static files.
 STATIC_CONTENTS_SUBDIR = 'static'
@@ -87,9 +82,18 @@ GENERATED_HTML_SUBDIR = 'generated-html'
 GENERATED_IMAGES_SUBDIR = 'generated-images'
 GENERATED_JSON_SUBDIR = 'generated-json'
 
+# Directives associated with various HTTP GET requests.
+GET__LIVE_RESULTS = 'live-results'
+GET__PRECOMPUTED_RESULTS = 'results'
+GET__PREFETCH_RESULTS = 'prefetch'
+GET__STATIC_CONTENTS = 'static'
+
 # Parameters we use within do_GET_live_results()
 LIVE_PARAM__SET_A_DIR = 'setADir'
 LIVE_PARAM__SET_B_DIR = 'setBDir'
+
+# Parameters we use within do_GET_prefetch_results()
+PREFETCH_PARAM__DOWNLOAD_ONLY_DIFFERING = 'downloadOnlyDifferingImages'
 
 # How often (in seconds) clients should reload while waiting for initial
 # results to load.
@@ -170,11 +174,11 @@ def _create_index(file_path, config_pairs):
       file_handle.write('<li>Expectations vs Actuals</li><ul>')
       for summary_type in SUMMARY_TYPES:
         file_handle.write(
-            '<li><a href="/{static_subdir}/view.html#/view.html?'
-            'resultsToLoad=/{results_subdir}/{summary_type}">'
+            '<li><a href="/{static_directive}/view.html#/view.html?'
+            'resultsToLoad=/{results_directive}/{summary_type}">'
             '{summary_type}</a></li>'.format(
-                results_subdir=PRECOMPUTED_RESULTS_SUBDIR,
-                static_subdir=STATIC_CONTENTS_SUBDIR,
+                results_directive=GET__PRECOMPUTED_RESULTS,
+                static_directive=GET__STATIC_CONTENTS,
                 summary_type=summary_type))
       file_handle.write('</ul>')
     if config_pairs:
@@ -185,7 +189,7 @@ def _create_index(file_path, config_pairs):
           file_handle.write(
               ' <a href="/%s/view.html#/view.html?'
               'resultsToLoad=/%s/%s/%s-vs-%s_%s.json">%s</a>' % (
-                  STATIC_CONTENTS_SUBDIR, STATIC_CONTENTS_SUBDIR,
+                  GET__STATIC_CONTENTS, GET__STATIC_CONTENTS,
                   GENERATED_JSON_SUBDIR, config_pair[0], config_pair[1],
                   summary_type, summary_type))
         file_handle.write('</li>')
@@ -461,10 +465,10 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       logging.debug('do_GET: path="%s"' % self.path)
       if self.path == '' or self.path == '/' or self.path == '/index.html' :
         self.redirect_to('/%s/%s/index.html' % (
-            STATIC_CONTENTS_SUBDIR, GENERATED_HTML_SUBDIR))
+            GET__STATIC_CONTENTS, GENERATED_HTML_SUBDIR))
         return
       if self.path == '/favicon.ico' :
-        self.redirect_to('/%s/favicon.ico' % STATIC_CONTENTS_SUBDIR)
+        self.redirect_to('/%s/favicon.ico' % GET__STATIC_CONTENTS)
         return
 
       # All requests must be of this form:
@@ -474,9 +478,10 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       normpath = posixpath.normpath(self.path)
       (dispatcher_name, remainder) = PATHSPLIT_RE.match(normpath).groups()
       dispatchers = {
-          PRECOMPUTED_RESULTS_SUBDIR: self.do_GET_precomputed_results,
-          LIVE_RESULTS_SUBDIR: self.do_GET_live_results,
-          STATIC_CONTENTS_SUBDIR: self.do_GET_static,
+          GET__LIVE_RESULTS: self.do_GET_live_results,
+          GET__PRECOMPUTED_RESULTS: self.do_GET_precomputed_results,
+          GET__PREFETCH_RESULTS: self.do_GET_prefetch_results,
+          GET__STATIC_CONTENTS: self.do_GET_static,
       }
       dispatcher = dispatchers[dispatcher_name]
       dispatcher(remainder)
@@ -536,6 +541,26 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         gs=_SERVER.gs, truncate_results=_SERVER.truncate_results)
     self.send_json_dict(results_obj.get_packaged_results_of_type(
         results_mod.KEY__HEADER__RESULTS_ALL))
+
+  def do_GET_prefetch_results(self, url_remainder):
+    """ Prefetch image diff data for a future do_GET_live_results() call.
+
+    Args:
+      url_remainder: string indicating which image diffs to generate
+    """
+    logging.debug('do_GET_prefetch_results: url_remainder="%s"' % url_remainder)
+    param_dict = urlparse.parse_qs(url_remainder)
+    download_all_images = (
+        param_dict.get(PREFETCH_PARAM__DOWNLOAD_ONLY_DIFFERING, [''])[0].lower()
+        not in ['1', 'true'])
+    compare_rendered_pictures.RenderedPicturesComparisons(
+        setA_dirs=param_dict[LIVE_PARAM__SET_A_DIR],
+        setB_dirs=param_dict[LIVE_PARAM__SET_B_DIR],
+        image_diff_db=_SERVER.image_diff_db,
+        diff_base_url='/static/generated-images',
+        gs=_SERVER.gs, truncate_results=_SERVER.truncate_results,
+        prefetch_only=True, download_all_images=download_all_images)
+    self.send_response(200)
 
   def do_GET_static(self, path):
     """ Handle a GET request for a file under STATIC_CONTENTS_SUBDIR .

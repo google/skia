@@ -161,6 +161,23 @@ class ImagePairTest(unittest.TestCase):
                 'isDifferent': True,
             },
         ],
+
+        # One of the two images is missing, but download_all_images=True so we
+        # should download it anyway.
+        [
+            # inputs:
+            None,
+            'arcofzorro/13786535001616823825.png',
+            None,
+            None,
+            # expected output:
+            {
+                'imageAUrl': None,
+                'imageBUrl': 'arcofzorro/13786535001616823825.png',
+                'isDifferent': True,
+            },
+        ],
+
     ]
 
     db = imagediffdb.ImageDiffDB(self.temp_dir)
@@ -171,7 +188,8 @@ class ImagePairTest(unittest.TestCase):
           imageA_relative_url=selftest[0],
           imageB_relative_url=selftest[1],
           expectations=selftest[2],
-          extra_columns=selftest[3])
+          extra_columns=selftest[3],
+          download_all_images=True)
       self.assertEqual(image_pair.as_dict(), selftest[4])
 
 

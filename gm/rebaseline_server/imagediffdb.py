@@ -101,30 +101,29 @@ class DiffRecord(object):
     actual_image_file = os.path.join(
         storage_root, actual_images_subdir,
         str(actual_image_locator) + image_suffix)
-    try:
-      _download_file(gs, expected_image_file, expected_image_url)
-    except Exception:
-      logging.exception('unable to download expected_image_url %s to file %s' %
-                        (expected_image_url, expected_image_file))
-      raise
-    try:
-      _download_file(gs, actual_image_file, actual_image_url)
-    except Exception:
-      logging.exception('unable to download actual_image_url %s to file %s' %
-                        (actual_image_url, actual_image_file))
-      raise
+    for image_file, image_url in [
+        (expected_image_file, expected_image_url),
+        (actual_image_file, actual_image_url)]:
+      if image_file and image_url:
+        try:
+          _download_file(gs, image_file, image_url)
+        except Exception:
+          logging.exception('unable to download image_url %s to file %s' %
+                            (image_url, image_file))
+          raise
 
-    # Get all diff images and values from skpdiff binary.
+    # Return early if we do not need to generate diffs.
+    if (expected_image_url == actual_image_url or
+        not expected_image_url or not actual_image_url):
+      return
+
+    # Get all diff images and values using the skpdiff binary.
     skpdiff_output_dir = tempfile.mkdtemp()
     try:
       skpdiff_summary_file = os.path.join(skpdiff_output_dir,
                                           'skpdiff-output.json')
       skpdiff_rgbdiff_dir = os.path.join(skpdiff_output_dir, 'rgbDiff')
       skpdiff_whitediff_dir = os.path.join(skpdiff_output_dir, 'whiteDiff')
-      expected_img = os.path.join(storage_root, expected_images_subdir,
-                                  str(expected_image_locator) + image_suffix)
-      actual_img = os.path.join(storage_root, actual_images_subdir,
-                                str(actual_image_locator) + image_suffix)
 
       # TODO(epoger): Consider calling skpdiff ONCE for all image pairs,
       # instead of calling it separately for each image pair.
@@ -133,7 +132,7 @@ class DiffRecord(object):
       # Con: we would have to wait until all image pairs were loaded before
       # generating any of the diffs?
       find_run_binary.run_command(
-          [SKPDIFF_BINARY, '-p', expected_img, actual_img,
+          [SKPDIFF_BINARY, '-p', expected_image_file, actual_image_file,
            '--jsonp', 'false',
            '--output', skpdiff_summary_file,
            '--differs', 'perceptual', 'different_pixels',
@@ -261,7 +260,9 @@ class ImageDiffDB(object):
 
     # Set up the queue for asynchronously loading DiffRecords, and start the
     # worker threads reading from it.
-    self._tasks_queue = Queue.Queue(maxsize=2*num_worker_threads)
+    # The queue maxsize must be 0 (infinite size queue), so that asynchronous
+    # calls can return as soon as possible.
+    self._tasks_queue = Queue.Queue(maxsize=0)
     self._workers = []
     for i in range(num_worker_threads):
       worker = threading.Thread(target=self.worker, args=(i,))
@@ -309,6 +310,9 @@ class ImageDiffDB(object):
 
     If we already have a DiffRecord for this particular image pair, no work
     will be done.
+
+    If expected_image_url (or its locator) is None, just download actual_image.
+    If actual_image_url (or its locator) is None, just download expected_image.
 
     Args:
       expected_image_url: file, GS, or HTTP url from which we will download the
@@ -435,10 +439,14 @@ def _sanitize_locator(locator):
   characters will have special meaning in filenames).
 
   Args:
-    locator: string, or something that can be represented as a string
+    locator: string, or something that can be represented as a string.
+        If None or '', it is returned without modification, because empty
+        locators have a particular meaning ("there is no image for this")
   """
-  return DISALLOWED_FILEPATH_CHAR_REGEX.sub('_', str(locator))
-
+  if locator:
+    return DISALLOWED_FILEPATH_CHAR_REGEX.sub('_', str(locator))
+  else:
+    return locator
 
 def _get_difference_locator(expected_image_locator, actual_image_locator):
   """Returns the locator string used to look up the diffs between expected_image
