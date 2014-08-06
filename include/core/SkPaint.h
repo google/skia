@@ -15,6 +15,9 @@
 #include "SkDrawLooper.h"
 #include "SkMatrix.h"
 #include "SkXfermode.h"
+#ifdef SK_BUILD_FOR_ANDROID
+#include "SkPaintOptionsAndroid.h"
+#endif
 
 class SkAnnotation;
 class SkAutoGlyphCache;
@@ -938,6 +941,11 @@ public:
 #ifdef SK_BUILD_FOR_ANDROID
     uint32_t getGenerationID() const;
     void setGenerationID(uint32_t generationID);
+
+    const SkPaintOptionsAndroid& getPaintOptionsAndroid() const {
+        return fPaintOptionsAndroid;
+    }
+    void setPaintOptionsAndroid(const SkPaintOptionsAndroid& options);
 #endif
 
     // returns true if the paint's settings (e.g. xfermode + alpha) resolve to
@@ -1130,6 +1138,8 @@ private:
     friend class SkCanonicalizePaint;
 
 #ifdef SK_BUILD_FOR_ANDROID
+    SkPaintOptionsAndroid fPaintOptionsAndroid;
+
     // In order for the == operator to work properly this must be the last field
     // in the struct so that we can do a memcmp to this field's offset.
     uint32_t        fGenerationID;

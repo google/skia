@@ -14,6 +14,10 @@
 #include "SkPaint.h"
 #include "SkTypeface.h"
 
+#ifdef SK_BUILD_FOR_ANDROID
+    #include "SkPaintOptionsAndroid.h"
+#endif
+
 struct SkGlyph;
 class SkDescriptor;
 class SkMaskFilter;
@@ -258,6 +262,10 @@ private:
     // never null
     SkAutoTUnref<SkTypeface> fTypeface;
 
+#ifdef SK_BUILD_FOR_ANDROID
+    SkPaintOptionsAndroid fPaintOptionsAndroid;
+#endif
+
     // optional object, which may be null
     SkPathEffect*   fPathEffect;
     SkMaskFilter*   fMaskFilter;
@@ -289,6 +297,9 @@ private:
 #define kPathEffect_SkDescriptorTag     SkSetFourByteTag('p', 't', 'h', 'e')
 #define kMaskFilter_SkDescriptorTag     SkSetFourByteTag('m', 's', 'k', 'f')
 #define kRasterizer_SkDescriptorTag     SkSetFourByteTag('r', 'a', 's', 't')
+#ifdef SK_BUILD_FOR_ANDROID
+#define kAndroidOpts_SkDescriptorTag    SkSetFourByteTag('a', 'n', 'd', 'r')
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

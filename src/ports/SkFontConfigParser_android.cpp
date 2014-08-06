@@ -97,9 +97,9 @@ void familyElementHandler(FontFamily* family, const char** attributes) {
         } else if (nameLen == 7 && !strncmp("variant", name, nameLen)) {
             // Value should be either elegant or compact.
             if (valueLen == 7 && !strncmp("elegant", value, valueLen)) {
-                family->fVariant = kElegant_FontVariant;
+                family->fVariant = SkPaintOptionsAndroid::kElegant_Variant;
             } else if (valueLen == 7 && !strncmp("compact", value, valueLen)) {
-                family->fVariant = kCompact_FontVariant;
+                family->fVariant = SkPaintOptionsAndroid::kCompact_Variant;
             }
         }
     }
@@ -108,6 +108,13 @@ void familyElementHandler(FontFamily* family, const char** attributes) {
 void fontFileNameHandler(void *data, const char *s, int len) {
     FamilyData *familyData = (FamilyData*) data;
     familyData->currentFontInfo->fFileName.set(s, len);
+}
+
+void familyElementEndHandler(FontFamily* family) {
+    for (int i = 0; i < family->fFontFiles.count(); i++) {
+        family->fFontFiles[i].fPaintOptions.setLanguage(family->fLanguage);
+        family->fFontFiles[i].fPaintOptions.setFontVariant(family->fVariant);
+    }
 }
 
 void fontElementHandler(XML_Parser* parser, FontFileInfo* file, const char** attributes) {
@@ -253,6 +260,7 @@ void endElementHandler(void* data, const char* tag) {
     if (len == 9 && strncmp(tag, "familyset", len) == 0) {
         familysetElementEndHandler(familyData);
     } else if (len == 6 && strncmp(tag, "family", len) == 0) {
+        familyElementEndHandler(familyData->currentFamily);
         *familyData->families.append() = familyData->currentFamily;
         familyData->currentFamily = NULL;
     } else if (len == 4 && !strncmp(tag, "font", len)) {
@@ -305,27 +313,14 @@ static void fontFileElementHandler(FamilyData *familyData, const char **attribut
             int nameLength = strlen(attributeName);
             int valueLength = strlen(attributeValue);
             if (nameLength == 7 && strncmp(attributeName, "variant", nameLength) == 0) {
-                const FontVariant prevVariant = familyData->currentFamily->fVariant;
                 if (valueLength == 7 && strncmp(attributeValue, "elegant", valueLength) == 0) {
-                    familyData->currentFamily->fVariant = kElegant_FontVariant;
+                    newFileInfo.fPaintOptions.setFontVariant(SkPaintOptionsAndroid::kElegant_Variant);
                 } else if (valueLength == 7 &&
                            strncmp(attributeValue, "compact", valueLength) == 0) {
-                    familyData->currentFamily->fVariant = kCompact_FontVariant;
+                    newFileInfo.fPaintOptions.setFontVariant(SkPaintOptionsAndroid::kCompact_Variant);
                 }
-                if (familyData->currentFamily->fFontFiles.count() > 1 &&
-                        familyData->currentFamily->fVariant != prevVariant) {
-                    SkDebugf("Every font file within a family must have identical variants");
-                    sk_throw();
-                }
-
             } else if (nameLength == 4 && strncmp(attributeName, "lang", nameLength) == 0) {
-                SkLanguage prevLang = familyData->currentFamily->fLanguage;
-                familyData->currentFamily->fLanguage = SkLanguage(attributeValue);
-                if (familyData->currentFamily->fFontFiles.count() > 1 &&
-                        familyData->currentFamily->fLanguage != prevLang) {
-                    SkDebugf("Every font file within a family must have identical languages");
-                    sk_throw();
-                }
+                newFileInfo.fPaintOptions.setLanguage(attributeValue);
             } else if (nameLength == 5 && strncmp(attributeName, "index", nameLength) == 0) {
                 int value;
                 if (parseNonNegativeInteger(attributeValue, &value)) {
@@ -494,7 +489,9 @@ static void getFallbackFontFamiliesForLocale(SkTDArray<FontFamily*> &fallbackFon
 
                 for (int i = 0; i < langSpecificFonts.count(); ++i) {
                     FontFamily* family = langSpecificFonts[i];
-                    family->fLanguage = SkLanguage(locale);
+                    for (int j = 0; j < family->fFontFiles.count(); ++j) {
+                        family->fFontFiles[j].fPaintOptions.setLanguage(locale);
+                    }
                     *fallbackFonts.append() = family;
                 }
             }
@@ -571,17 +568,4 @@ void SkFontConfigParser::GetTestFontFamilies(SkTDArray<FontFamily*> &fontFamilie
         fallbackFonts[i]->fIsFallbackFont = true;
         *fontFamilies.append() = fallbackFonts[i];
     }
-}
-
-SkLanguage SkLanguage::getParent() const {
-    SkASSERT(!fTag.isEmpty());
-    const char* tag = fTag.c_str();
-
-    // strip off the rightmost "-.*"
-    const char* parentTagEnd = strrchr(tag, '-');
-    if (parentTagEnd == NULL) {
-        return SkLanguage();
-    }
-    size_t parentTagLen = parentTagEnd - tag;
-    return SkLanguage(tag, parentTagLen);
 }

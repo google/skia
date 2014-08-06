@@ -69,8 +69,7 @@ struct FamilyRec {
     FontRecID fFontRecID[FONT_STYLE_COUNT];
     bool fIsFallbackFont;
     SkString fFallbackName;
-    SkLanguage fLanguage;
-    FontVariant fVariant;
+    SkPaintOptionsAndroid fPaintOptions;
 };
 
 
@@ -253,8 +252,12 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
                 fontRec.fFamilyRecID = familyRecID;
 
                 familyRec->fIsFallbackFont = family->fIsFallbackFont;
-                familyRec->fLanguage = family->fLanguage;
-                familyRec->fVariant = family->fVariant;
+                familyRec->fPaintOptions = family->fFontFiles[j].fPaintOptions;
+
+            } else if (familyRec->fPaintOptions != family->fFontFiles[j].fPaintOptions) {
+                SkDebugf("Every font file within a family must have identical"
+                         "language and variant attributes");
+                sk_throw();
             }
 
             // add this font to the current familyRec
@@ -302,7 +305,7 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
     while(fallbackLang != NULL) {
         for (int i = 0; i < fDefaultFallbackList.count(); i++) {
             FamilyRecID familyRecID = fDefaultFallbackList[i];
-            const SkString& fontLang = fFontFamilies[familyRecID].fLanguage.getTag();
+            const SkString& fontLang = fFontFamilies[familyRecID].fPaintOptions.getLanguage().getTag();
             if (strcmp(fallbackLang, fontLang.c_str()) != 0) {
                 fallbackList->push(familyRecID);
             }
@@ -337,7 +340,7 @@ void SkFontConfigInterfaceAndroid::addFallbackFamily(FamilyRecID familyRecID) {
     fDefaultFallbackList.push(familyRecID);
 
     // stop here if it is the default language tag
-    const SkString& languageTag = familyRec.fLanguage.getTag();
+    const SkString& languageTag = familyRec.fPaintOptions.getLanguage().getTag();
     if (languageTag.isEmpty()) {
         return;
     }
@@ -508,9 +511,9 @@ bool SkFontConfigInterfaceAndroid::getFallbackFamilyNameForChar(SkUnichar uni,
         FamilyRecID familyRecID = fallbackFontList->getAt(i);
 
         // if it is not one of the accepted variants then move to the next family
-        int32_t acceptedVariants = kDefault_FontVariant |
-                                   kElegant_FontVariant;
-        if (!(fFontFamilies[familyRecID].fVariant & acceptedVariants)) {
+        int32_t acceptedVariants = SkPaintOptionsAndroid::kDefault_Variant |
+                                   SkPaintOptionsAndroid::kElegant_Variant;
+        if (!(fFontFamilies[familyRecID].fPaintOptions.getFontVariant() & acceptedVariants)) {
             continue;
         }
 
