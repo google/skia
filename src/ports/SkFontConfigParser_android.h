@@ -61,8 +61,6 @@ void GetTestFontFamilies(SkTDArray<FontFamily*> &fontFamilies,
                          const char* testMainConfigFile,
                          const char* testFallbackConfigFile);
 
-SkString GetLocale();
-
 } // SkFontConfigParser namespace
 
 #endif /* SKFONTCONFIGPARSER_ANDROID_H_ */

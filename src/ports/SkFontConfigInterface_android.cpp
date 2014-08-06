@@ -102,7 +102,6 @@ public:
 private:
     void addFallbackFamily(FamilyRecID fontRecID);
     SkTypeface* getTypefaceForFontRec(FontRecID fontRecID);
-    FallbackFontList* getCurrentLocaleFallbackFontList();
     FallbackFontList* findFallbackFontList(const SkLanguage& lang, bool isOriginal = true);
 
     SkTArray<FontRec, true> fFonts;
@@ -211,9 +210,8 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
             get_path_for_sys_fonts(&filename, family->fFontFiles[j].fFileName);
 
             if (has_font(fFonts, filename)) {
-                SkDebugf("---- system font and fallback font files specify a duplicate "
-                        "font %s, skipping the second occurrence", filename.c_str());
-                continue;
+                DEBUG_FONT(("---- system font and fallback font files specify a duplicate "
+                        "font %s, skipping the second occurrence", filename.c_str()));
             }
 
             FontRec& fontRec = fFonts.push_back();
@@ -502,13 +500,12 @@ SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForFontRec(FontRecID fontRe
 bool SkFontConfigInterfaceAndroid::getFallbackFamilyNameForChar(SkUnichar uni,
                                                                 const char* lang,
                                                                 SkString* name) {
-    FallbackFontList* fallbackFontList = NULL;
-    const SkString langTag(lang);
-    if (langTag.isEmpty()) {
-        fallbackFontList = this->getCurrentLocaleFallbackFontList();
-    } else {
-        fallbackFontList = this->findFallbackFontList(langTag);
+    const SkString locale(lang);
+    if (NULL == fLocaleFallbackFontList || locale != fCachedLocale) {
+        fCachedLocale = locale;
+        fLocaleFallbackFontList = this->findFallbackFontList(locale);
     }
+    FallbackFontList* fallbackFontList = fLocaleFallbackFontList;
 
     for (int i = 0; i < fallbackFontList->count(); i++) {
         FamilyRecID familyRecID = fallbackFontList->getAt(i);
@@ -535,15 +532,6 @@ bool SkFontConfigInterfaceAndroid::getFallbackFamilyNameForChar(SkUnichar uni,
         }
     }
     return false;
-}
-
-FallbackFontList* SkFontConfigInterfaceAndroid::getCurrentLocaleFallbackFontList() {
-    SkString locale = SkFontConfigParser::GetLocale();
-    if (NULL == fLocaleFallbackFontList || locale != fCachedLocale) {
-        fCachedLocale = locale;
-        fLocaleFallbackFontList = this->findFallbackFontList(locale);
-    }
-    return fLocaleFallbackFontList;
 }
 
 FallbackFontList* SkFontConfigInterfaceAndroid::findFallbackFontList(const SkLanguage& lang,

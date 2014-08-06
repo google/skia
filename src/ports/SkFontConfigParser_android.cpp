@@ -11,14 +11,19 @@
 #include "SkTypeface.h"
 
 #include <expat.h>
+#include <dirent.h>
 #include <stdio.h>
-#include <sys/system_properties.h>
 
 #include <limits>
 
 #define SYSTEM_FONTS_FILE "/system/etc/system_fonts.xml"
 #define FALLBACK_FONTS_FILE "/system/etc/fallback_fonts.xml"
 #define VENDOR_FONTS_FILE "/vendor/etc/fallback_fonts.xml"
+
+#define LOCALE_FALLBACK_FONTS_SYSTEM_DIR "/system/etc"
+#define LOCALE_FALLBACK_FONTS_VENDOR_DIR "/vendor/etc"
+#define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts-"
+#define LOCALE_FALLBACK_FONTS_SUFFIX ".xml"
 
 /**
  * This file contains TWO parsers: one for JB and earlier (system_fonts.xml /
@@ -411,39 +416,7 @@ static void endElementHandler(void *data, const char *tag) {
  */
 static void parseConfigFile(const char *filename, SkTDArray<FontFamily*> &families) {
 
-    FILE* file = NULL;
-
-#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    // if we are using a version of Android prior to Android 4.2 (JellyBean MR1
-    // at API Level 17) then we need to look for files with a different suffix.
-    char sdkVersion[PROP_VALUE_MAX];
-    __system_property_get("ro.build.version.sdk", sdkVersion);
-    const int sdkVersionInt = atoi(sdkVersion);
-
-    if (0 != *sdkVersion && sdkVersionInt < 17) {
-        SkString basename;
-        SkString updatedFilename;
-        SkString locale = SkFontConfigParser::GetLocale();
-
-        basename.set(filename);
-        // Remove the .xml suffix. We'll add it back in a moment.
-        if (basename.endsWith(".xml")) {
-            basename.resize(basename.size()-4);
-        }
-        // Try first with language and region
-        updatedFilename.printf("%s-%s.xml", basename.c_str(), locale.c_str());
-        file = fopen(updatedFilename.c_str(), "r");
-        if (!file) {
-            // If not found, try next with just language
-            updatedFilename.printf("%s-%.2s.xml", basename.c_str(), locale.c_str());
-            file = fopen(updatedFilename.c_str(), "r");
-        }
-    }
-#endif
-
-    if (NULL == file) {
-        file = fopen(filename, "r");
-    }
+    FILE* file = fopen(filename, "r");
 
     // Some of the files we attempt to parse (in particular, /vendor/etc/fallback_fonts.xml)
     // are optional - failure here is okay because one of these optional files may not exist.
@@ -475,10 +448,69 @@ static void getSystemFontFamilies(SkTDArray<FontFamily*> &fontFamilies) {
     parseConfigFile(SYSTEM_FONTS_FILE, fontFamilies);
 }
 
+/**
+ * In some versions of Android prior to Android 4.2 (JellyBean MR1 at API
+ * Level 17) the fallback fonts for certain locales were encoded in their own
+ * XML files with a suffix that identified the locale.  We search the provided
+ * directory for those files,add all of their entries to the fallback chain, and
+ * include the locale as part of each entry.
+ */
+static void getFallbackFontFamiliesForLocale(SkTDArray<FontFamily*> &fallbackFonts, const char* dir) {
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+    // The framework is beyond Android 4.2 and can therefore skip this function
+    return;
+#endif
+
+    DIR* fontDirectory = opendir(dir);
+    if (fontDirectory != NULL){
+        struct dirent* dirEntry = readdir(fontDirectory);
+        while (dirEntry) {
+
+            // The size of both the prefix, suffix, and a minimum valid language code
+            static const int minSize = strlen(LOCALE_FALLBACK_FONTS_PREFIX) +
+                                       strlen(LOCALE_FALLBACK_FONTS_SUFFIX) + 2;
+
+            SkString fileName(dirEntry->d_name);
+            if (fileName.size() >= minSize &&
+                    fileName.startsWith(LOCALE_FALLBACK_FONTS_PREFIX) &&
+                    fileName.endsWith(LOCALE_FALLBACK_FONTS_SUFFIX)) {
+
+                static const int fixedLen = strlen(LOCALE_FALLBACK_FONTS_PREFIX) -
+                                            strlen(LOCALE_FALLBACK_FONTS_SUFFIX);
+
+                SkString locale(fileName.c_str() - strlen(LOCALE_FALLBACK_FONTS_PREFIX),
+                                fileName.size() - fixedLen);
+
+                SkString absoluteFilename;
+                absoluteFilename.printf("%s/%s", dir, fileName.c_str());
+
+                SkTDArray<FontFamily*> langSpecificFonts;
+                parseConfigFile(absoluteFilename.c_str(), langSpecificFonts);
+
+                for (int i = 0; i < langSpecificFonts.count(); ++i) {
+                    FontFamily* family = langSpecificFonts[i];
+                    for (int j = 0; j < family->fFontFiles.count(); ++j) {
+                        family->fFontFiles[j].fPaintOptions.setLanguage(locale);
+                    }
+                    *fallbackFonts.append() = family;
+                }
+            }
+
+            // proceed to the next entry in the directory
+            dirEntry = readdir(fontDirectory);
+        }
+        // cleanup the directory reference
+        closedir(fontDirectory);
+    }
+}
+
 static void getFallbackFontFamilies(SkTDArray<FontFamily*> &fallbackFonts) {
     SkTDArray<FontFamily*> vendorFonts;
     parseConfigFile(FALLBACK_FONTS_FILE, fallbackFonts);
     parseConfigFile(VENDOR_FONTS_FILE, vendorFonts);
+
+    getFallbackFontFamiliesForLocale(fallbackFonts, LOCALE_FALLBACK_FONTS_SYSTEM_DIR);
+    getFallbackFontFamiliesForLocale(vendorFonts, LOCALE_FALLBACK_FONTS_VENDOR_DIR);
 
     // This loop inserts the vendor fallback fonts in the correct order in the
     // overall fallbacks list.
@@ -536,34 +568,4 @@ void SkFontConfigParser::GetTestFontFamilies(SkTDArray<FontFamily*> &fontFamilie
         fallbackFonts[i]->fIsFallbackFont = true;
         *fontFamilies.append() = fallbackFonts[i];
     }
-}
-
-/**
- * Read the persistent locale.
- */
-SkString SkFontConfigParser::GetLocale()
-{
-    char propLang[PROP_VALUE_MAX], propRegn[PROP_VALUE_MAX];
-    __system_property_get("persist.sys.language", propLang);
-    __system_property_get("persist.sys.country", propRegn);
-
-    if (*propLang == 0 && *propRegn == 0) {
-        /* Set to ro properties, default is en_US */
-        __system_property_get("ro.product.locale.language", propLang);
-        __system_property_get("ro.product.locale.region", propRegn);
-        if (*propLang == 0 && *propRegn == 0) {
-            strcpy(propLang, "en");
-            strcpy(propRegn, "US");
-        }
-    }
-
-    SkString locale(6);
-    char* localeCStr = locale.writable_str();
-
-    strncpy(localeCStr, propLang, 2);
-    localeCStr[2] = '-';
-    strncpy(&localeCStr[3], propRegn, 2);
-    localeCStr[5] = '\0';
-
-    return locale;
 }
