@@ -132,15 +132,6 @@ def main(target_dir=None, require_sk_user_config=False):
         defines=common.DEFINES)
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
-                                       target_file='bench.gyp',
-                                       skia_trunk=target_dir,
-                                       dest_dir='bench',
-                                       skia_lib_var_dict=common,
-                                       local_module_name='skia_bench',
-                                       local_module_tags=['tests'],
-                                       desired_targets=['bench'])
-
-    tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
                                        target_file='tools.gyp',
                                        skia_trunk=target_dir,
                                        dest_dir='tools',
