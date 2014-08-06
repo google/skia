@@ -54,9 +54,10 @@ public:
     SkBlitter*  get() const { return fBlitter; }
 
     void choose(const SkBitmap& device, const SkMatrix& matrix,
-                const SkPaint& paint) {
+                const SkPaint& paint, bool drawCoverage = false) {
         SkASSERT(!fBlitter);
-        fBlitter = SkBlitter::Choose(device, matrix, paint, &fAllocator);
+        fBlitter = SkBlitter::Choose(device, matrix, paint, &fAllocator,
+                                     drawCoverage);
     }
 
 private:
@@ -992,7 +993,7 @@ DRAW_PATH:
 
 void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable,
-                      bool drawCoverage) const {
+                      bool drawCoverage, SkBlitter* customBlitter) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
@@ -1078,12 +1079,19 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     // transform the path into device space
     pathPtr->transform(*matrix, devPathPtr);
 
-    SkAutoBlitterChoose blitter(*fBitmap, *fMatrix, *paint, drawCoverage);
+    SkBlitter* blitter = NULL;
+    SkAutoBlitterChoose blitterStorage;
+    if (NULL == customBlitter) {
+        blitterStorage.choose(*fBitmap, *fMatrix, *paint, drawCoverage);
+        blitter = blitterStorage.get();
+    } else {
+        blitter = customBlitter;
+    }
 
     if (paint->getMaskFilter()) {
         SkPaint::Style style = doFill ? SkPaint::kFill_Style :
             SkPaint::kStroke_Style;
-        if (paint->getMaskFilter()->filterPath(*devPathPtr, *fMatrix, *fRC, blitter.get(), style)) {
+        if (paint->getMaskFilter()->filterPath(*devPathPtr, *fMatrix, *fRC, blitter, style)) {
             return; // filterPath() called the blitter, so we're done
         }
     }
@@ -1102,7 +1110,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
             proc = SkScan::HairPath;
         }
     }
-    proc(*devPathPtr, *fRC, blitter.get());
+    proc(*devPathPtr, *fRC, blitter);
 }
 
 /** For the purposes of drawing bitmaps, if a matrix is "almost" translate
