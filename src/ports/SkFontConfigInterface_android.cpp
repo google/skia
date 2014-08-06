@@ -98,14 +98,6 @@ public:
      *  contains the specified chararacter. if no font is found, returns false.
      */
     bool getFallbackFamilyNameForChar(SkUnichar uni, const char* lang, SkString* name);
-    /**
-     *
-     */
-    SkTypeface* nextLogicalTypeface(SkFontID currFontID, SkFontID origFontID,
-                                    const SkPaintOptionsAndroid& options);
-    SkTypeface* getTypefaceForGlyphID(uint16_t glyphID, const SkTypeface* origTypeface,
-                                      const SkPaintOptionsAndroid& options,
-                                      int* lowerBounds, int* upperBounds);
 
 private:
     void addFallbackFamily(FamilyRecID fontRecID);
@@ -579,135 +571,6 @@ FallbackFontList* SkFontConfigInterfaceAndroid::findFallbackFontList(const SkLan
     return fallbackFontList;
 }
 
-SkTypeface* SkFontConfigInterfaceAndroid::nextLogicalTypeface(SkFontID currFontID,
-                                                              SkFontID origFontID,
-                                                              const SkPaintOptionsAndroid& opts) {
-    // Skia does not support font fallback by default. This enables clients such
-    // as WebKit to customize their font selection. In any case, clients can use
-    // GetFallbackFamilyNameForChar() to get the fallback font for individual
-    // characters.
-    if (!opts.isUsingFontFallbacks()) {
-        return NULL;
-    }
-
-    FallbackFontList* currentFallbackList = findFallbackFontList(opts.getLanguage());
-    SkASSERT(currentFallbackList);
-
-    SkTypeface::Style origStyle = SkTypeface::kNormal;
-    const SkTypeface* origTypeface = SkTypefaceCache::FindByID(origFontID);
-    if (NULL != origTypeface) {
-        origStyle = origTypeface->style();
-    }
-
-    // we must convert currTypeface into a FontRecID
-    FontRecID currFontRecID = INVALID_FONT_REC_ID;
-    const SkTypeface* currTypeface = SkTypefaceCache::FindByID(currFontID);
-    // non-system fonts are not in the font cache so if we are asked to fallback
-    // for a non-system font we will start at the front of the chain.
-    if (NULL != currTypeface) {
-        currFontRecID = ((FontConfigTypeface*)currTypeface)->getIdentity().fID;
-        SkASSERT(INVALID_FONT_REC_ID != currFontRecID);
-    }
-
-    FamilyRecID currFamilyRecID = INVALID_FAMILY_REC_ID;
-    if (INVALID_FONT_REC_ID != currFontRecID) {
-        currFamilyRecID = fFonts[currFontRecID].fFamilyRecID;
-    }
-
-    // lookup the index next font in the chain
-    int currFallbackFontIndex = currentFallbackList->find(currFamilyRecID);
-    // We add 1 to the returned index for 2 reasons: (1) if find succeeds it moves
-    // our index to the next entry in the list; (2) if find() fails it returns
-    // -1 and incrementing it will set our starting index to 0 (the head of the list)
-    int nextFallbackFontIndex = currFallbackFontIndex + 1;
-
-    if(nextFallbackFontIndex >= currentFallbackList->count()) {
-        return NULL;
-    }
-
-    // If a rec object is set to prefer "kDefault_Variant" it means they have no preference
-    // In this case, we set the value to "kCompact_Variant"
-    SkPaintOptionsAndroid::FontVariant variant = opts.getFontVariant();
-    if (variant == SkPaintOptionsAndroid::kDefault_Variant) {
-        variant = SkPaintOptionsAndroid::kCompact_Variant;
-    }
-
-    int32_t acceptedVariants = SkPaintOptionsAndroid::kDefault_Variant | variant;
-
-    SkTypeface* nextLogicalTypeface = 0;
-    while (nextFallbackFontIndex < currentFallbackList->count()) {
-        FamilyRecID familyRecID = currentFallbackList->getAt(nextFallbackFontIndex);
-        if ((fFontFamilies[familyRecID].fPaintOptions.getFontVariant() & acceptedVariants) != 0) {
-            FontRecID matchedFont = find_best_style(fFontFamilies[familyRecID], origStyle);
-            nextLogicalTypeface = this->getTypefaceForFontRec(matchedFont);
-            break;
-        }
-        nextFallbackFontIndex++;
-    }
-
-    DEBUG_FONT(("---- nextLogicalFont: currFontID=%d, origFontID=%d, currRecID=%d, "
-                "lang=%s, variant=%d, nextFallbackIndex[%d,%d] => nextLogicalTypeface=%d",
-                currFontID, origFontID, currFontRecID, opts.getLanguage().getTag().c_str(),
-                variant, nextFallbackFontIndex, currentFallbackList->getAt(nextFallbackFontIndex),
-                (nextLogicalTypeface) ? nextLogicalTypeface->uniqueID() : 0));
-    return SkSafeRef(nextLogicalTypeface);
-}
-
-SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForGlyphID(uint16_t glyphID,
-                                                                const SkTypeface* origTypeface,
-                                                                const SkPaintOptionsAndroid& opts,
-                                                                int* lBounds, int* uBounds) {
-    // If we aren't using fallbacks then we shouldn't be calling this
-    SkASSERT(opts.isUsingFontFallbacks());
-    SkASSERT(origTypeface);
-
-    SkTypeface* currentTypeface = NULL;
-    int lowerBounds = 0; //inclusive
-    int upperBounds = origTypeface->countGlyphs(); //exclusive
-
-    // check to see if the glyph is in the bounds of the origTypeface
-    if (glyphID < upperBounds) {
-        currentTypeface = const_cast<SkTypeface*>(origTypeface);
-    } else {
-        FallbackFontList* currentFallbackList = findFallbackFontList(opts.getLanguage());
-        SkASSERT(currentFallbackList);
-
-        // If an object is set to prefer "kDefault_Variant" it means they have no preference
-        // In this case, we set the value to "kCompact_Variant"
-        SkPaintOptionsAndroid::FontVariant variant = opts.getFontVariant();
-        if (variant == SkPaintOptionsAndroid::kDefault_Variant) {
-            variant = SkPaintOptionsAndroid::kCompact_Variant;
-        }
-
-        int32_t acceptedVariants = SkPaintOptionsAndroid::kDefault_Variant | variant;
-        SkTypeface::Style origStyle = origTypeface->style();
-
-        for (int x = 0; x < currentFallbackList->count(); ++x) {
-            const FamilyRecID familyRecID = currentFallbackList->getAt(x);
-            const SkPaintOptionsAndroid& familyOptions = fFontFamilies[familyRecID].fPaintOptions;
-            if ((familyOptions.getFontVariant() & acceptedVariants) != 0) {
-                FontRecID matchedFont = find_best_style(fFontFamilies[familyRecID], origStyle);
-                currentTypeface = this->getTypefaceForFontRec(matchedFont);
-                lowerBounds = upperBounds;
-                upperBounds += currentTypeface->countGlyphs();
-                if (glyphID < upperBounds) {
-                    break;
-                }
-            }
-        }
-    }
-
-    if (NULL != currentTypeface) {
-        if (lBounds) {
-            *lBounds = lowerBounds;
-        }
-        if (uBounds) {
-            *uBounds = upperBounds;
-        }
-    }
-    return currentTypeface;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGetFallbackFamilyNameForChar(SkUnichar uni, const char* lang, SkString* name) {
@@ -725,19 +588,4 @@ void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackconf,
     SkASSERT(gTestFontFilePrefix);
     SkDEBUGF(("Use Test Config File Main %s, Fallback %s, Font Dir %s",
               gTestMainConfigFile, gTestFallbackConfigFile, gTestFontFilePrefix));
-}
-
-SkTypeface* SkAndroidNextLogicalTypeface(SkFontID currFontID, SkFontID origFontID,
-                                         const SkPaintOptionsAndroid& options) {
-    SkFontConfigInterfaceAndroid* fontConfig = getSingletonInterface();
-    return fontConfig->nextLogicalTypeface(currFontID, origFontID, options);
-
-}
-
-SkTypeface* SkGetTypefaceForGlyphID(uint16_t glyphID, const SkTypeface* origTypeface,
-                                    const SkPaintOptionsAndroid& options,
-                                    int* lowerBounds, int* upperBounds) {
-    SkFontConfigInterfaceAndroid* fontConfig = getSingletonInterface();
-    return fontConfig->getTypefaceForGlyphID(glyphID, origTypeface, options,
-                                             lowerBounds, upperBounds);
 }

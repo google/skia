@@ -76,12 +76,6 @@ struct SkGlyph {
         return ID2Code(fID);
     }
 
-    unsigned getGlyphID(unsigned baseGlyphCount) const {
-        unsigned code = ID2Code(fID);
-        SkASSERT(code >= baseGlyphCount);
-        return code - baseGlyphCount;
-    }
-
     unsigned getSubX() const {
         return ID2SubX(fID);
     }

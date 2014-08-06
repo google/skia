@@ -242,12 +242,6 @@ void SkPaint::setGenerationID(uint32_t generationID) {
     fGenerationID = generationID;
 }
 
-unsigned SkPaint::getBaseGlyphCount(SkUnichar text) const {
-    SkAutoGlyphCache autoCache(*this, NULL, NULL);
-    SkGlyphCache* cache = autoCache.getCache();
-    return cache->getBaseGlyphCount(text);
-}
-
 void SkPaint::setPaintOptionsAndroid(const SkPaintOptionsAndroid& options) {
     if (options != fPaintOptionsAndroid) {
         fPaintOptionsAndroid = options;

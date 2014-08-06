@@ -942,10 +942,6 @@ public:
     uint32_t getGenerationID() const;
     void setGenerationID(uint32_t generationID);
 
-    /** Returns the base glyph count for the strike associated with this paint
-    */
-    unsigned getBaseGlyphCount(SkUnichar text) const;
-
     const SkPaintOptionsAndroid& getPaintOptionsAndroid() const {
         return fPaintOptionsAndroid;
     }

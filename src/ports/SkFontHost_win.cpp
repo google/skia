@@ -873,7 +873,7 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
 
     if (fType == SkScalerContext_GDI::kBitmap_Type || fType == SkScalerContext_GDI::kLine_Type) {
         SIZE size;
-        WORD glyphs = glyph->getGlyphID(0);
+        WORD glyphs = glyph->getGlyphID();
         if (0 == GetTextExtentPointI(fDDC, &glyphs, 1, &size)) {
             glyph->fWidth = SkToS16(fTM.tmMaxCharWidth);
         } else {
@@ -911,7 +911,7 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
         return;
     }
 
-    UINT glyphId = glyph->getGlyphID(0);
+    UINT glyphId = glyph->getGlyphID();
 
     GLYPHMETRICS gm;
     sk_bzero(&gm, sizeof(gm));

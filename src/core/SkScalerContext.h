@@ -164,22 +164,21 @@ public:
         return SkToBool(fRec.fFlags & kVertical_Flag);
     }
 
-    // remember our glyph offset/base
-    void setBaseGlyphCount(unsigned baseGlyphCount) {
-        fBaseGlyphCount = baseGlyphCount;
-    }
-
     /** Return the corresponding glyph for the specified unichar. Since contexts
         may be chained (under the hood), the glyphID that is returned may in
         fact correspond to a different font/context. In that case, we use the
         base-glyph-count to know how to translate back into local glyph space.
      */
-    uint16_t charToGlyphID(SkUnichar uni);
+    uint16_t charToGlyphID(SkUnichar uni) {
+        return generateCharToGlyph(uni);
+    }
 
     /** Map the glyphID to its glyph index, and then to its char code. Unmapped
         glyphs return zero.
     */
-    SkUnichar glyphIDToChar(uint16_t glyphID);
+    SkUnichar glyphIDToChar(uint16_t glyphID) {
+        return (glyphID < getGlyphCount()) ? generateGlyphToChar(glyphID) : 0;
+    }
 
     unsigned    getGlyphCount() { return this->generateGlyphCount(); }
     void        getAdvance(SkGlyph*);
@@ -199,14 +198,6 @@ public:
     static void   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
                                   void* data);
 
-#ifdef SK_BUILD_FOR_ANDROID
-    unsigned getBaseGlyphCount(SkUnichar charCode);
-
-    // This function must be public for SkTypeface_android.h, but should not be
-    // called by other callers
-    SkFontID findTypefaceIdForChar(SkUnichar uni);
-#endif
-
     static void MakeRec(const SkPaint&, const SkDeviceProperties* deviceProperties,
                         const SkMatrix*, Rec* rec);
     static inline void PostMakeRec(const SkPaint&, Rec*);
@@ -215,7 +206,6 @@ public:
 
 protected:
     Rec         fRec;
-    unsigned    fBaseGlyphCount;
 
     /** Generates the contents of glyph.fAdvanceX and glyph.fAdvanceY.
      *  May call getMetrics if that would be just as fast.
@@ -288,24 +278,10 @@ private:
     void internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
                          SkPath* devPath, SkMatrix* fillToDevMatrix);
 
-    // Return the context associated with the next logical typeface, or NULL if
-    // there are no more entries in the fallback chain.
-    SkScalerContext* allocNextContext() const;
-
-    // return the next context, treating fNextContext as a cache of the answer
-    SkScalerContext* getNextContext();
-
-    // returns the right context from our link-list for this glyph. If no match
-    // is found, just returns the original context (this)
-    SkScalerContext* getGlyphContext(const SkGlyph& glyph);
-
     // returns the right context from our link-list for this char. If no match
     // is found it returns NULL. If a match is found then the glyphID param is
     // set to the glyphID that maps to the provided char.
     SkScalerContext* getContextFromChar(SkUnichar uni, uint16_t* glyphID);
-
-    // link-list of context, to handle missing chars. null-terminated.
-    SkScalerContext* fNextContext;
 
     // SkMaskGamma::PreBlend converts linear masks to gamma correcting masks.
 protected:

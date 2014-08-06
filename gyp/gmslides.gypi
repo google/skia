@@ -228,10 +228,6 @@
         # fulfilling. See http://skbug.com/1978
         '../gm/verylargebitmap.cpp',
       ],
-
-      'sources': [
-        '../gm/androidfallback.cpp',
-      ],
     }],
   ],
 }

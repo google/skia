@@ -83,7 +83,6 @@ static SkFlattenable* load_flattenable(const SkDescriptor* desc, uint32_t tag,
 SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
     : fRec(*static_cast<const Rec*>(desc->findEntry(kRec_SkDescriptorTag, NULL)))
 
-    , fBaseGlyphCount(0)
     , fTypeface(SkRef(typeface))
     , fPathEffect(static_cast<SkPathEffect*>(load_flattenable(desc, kPathEffect_SkDescriptorTag,
                                              SkFlattenable::kSkPathEffect_Type)))
@@ -93,8 +92,6 @@ SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
                                              SkFlattenable::kSkRasterizer_Type)))
       // Initialize based on our settings. Subclasses can also force this.
     , fGenerateImageFromPath(fRec.fFrameWidth > 0 || fPathEffect != NULL || fRasterizer != NULL)
-
-    , fNextContext(NULL)
 
     , fPreBlend(fMaskFilter ? SkMaskGamma::PreBlend() : SkScalerContext::GetMaskPreBlend(fRec))
     , fPreBlendForFilter(fMaskFilter ? SkScalerContext::GetMaskPreBlend(fRec)
@@ -126,167 +123,9 @@ SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
 }
 
 SkScalerContext::~SkScalerContext() {
-    SkDELETE(fNextContext);
-
     SkSafeUnref(fPathEffect);
     SkSafeUnref(fMaskFilter);
     SkSafeUnref(fRasterizer);
-}
-
-// Return the context associated with the next logical typeface, or NULL if
-// there are no more entries in the fallback chain.
-SkScalerContext* SkScalerContext::allocNextContext() const {
-#ifdef SK_BUILD_FOR_ANDROID
-    SkTypeface* newFace = SkAndroidNextLogicalTypeface(fRec.fFontID,
-                                                       fRec.fOrigFontID,
-                                                       fPaintOptionsAndroid);
-    if (0 == newFace) {
-        return NULL;
-    }
-
-    SkAutoTUnref<SkTypeface> aur(newFace);
-    uint32_t newFontID = newFace->uniqueID();
-
-    SkWriteBuffer androidBuffer;
-    fPaintOptionsAndroid.flatten(androidBuffer);
-
-    SkAutoDescriptor    ad(sizeof(fRec) + androidBuffer.bytesWritten()
-                           + SkDescriptor::ComputeOverhead(2));
-    SkDescriptor*       desc = ad.getDesc();
-
-    desc->init();
-    SkScalerContext::Rec* newRec =
-    (SkScalerContext::Rec*)desc->addEntry(kRec_SkDescriptorTag,
-                                          sizeof(fRec), &fRec);
-    androidBuffer.writeToMemory(desc->addEntry(kAndroidOpts_SkDescriptorTag,
-                                               androidBuffer.bytesWritten(), NULL));
-
-    newRec->fFontID = newFontID;
-    desc->computeChecksum();
-
-    return newFace->createScalerContext(desc);
-#else
-    return NULL;
-#endif
-}
-
-/*  Return the next context, creating it if its not already created, but return
-    NULL if the fonthost says there are no more fonts to fallback to.
- */
-SkScalerContext* SkScalerContext::getNextContext() {
-    SkScalerContext* next = fNextContext;
-    // if next is null, then either it isn't cached yet, or we're at the
-    // end of our possible chain
-    if (NULL == next) {
-        next = this->allocNextContext();
-        if (NULL == next) {
-            return NULL;
-        }
-        // next's base is our base + our local count
-        next->setBaseGlyphCount(fBaseGlyphCount + this->getGlyphCount());
-        // cache the answer
-        fNextContext = next;
-    }
-    return next;
-}
-
-SkScalerContext* SkScalerContext::getGlyphContext(const SkGlyph& glyph) {
-    unsigned glyphID = glyph.getGlyphID();
-    SkScalerContext* ctx = this;
-    for (;;) {
-        unsigned count = ctx->getGlyphCount();
-        if (glyphID < count) {
-            break;
-        }
-        glyphID -= count;
-        ctx = ctx->getNextContext();
-        if (NULL == ctx) {
-//            SkDebugf("--- no context for glyph %x\n", glyph.getGlyphID());
-            // just return the original context (this)
-            return this;
-        }
-    }
-    return ctx;
-}
-
-SkScalerContext* SkScalerContext::getContextFromChar(SkUnichar uni,
-                                                     uint16_t* glyphID) {
-    SkScalerContext* ctx = this;
-    for (;;) {
-        const uint16_t glyph = ctx->generateCharToGlyph(uni);
-        if (glyph) {
-            if (NULL != glyphID) {
-                *glyphID = glyph;
-            }
-            break;  // found it
-        }
-        ctx = ctx->getNextContext();
-        if (NULL == ctx) {
-            return NULL;
-        }
-    }
-    return ctx;
-}
-
-#ifdef SK_BUILD_FOR_ANDROID
-SkFontID SkScalerContext::findTypefaceIdForChar(SkUnichar uni) {
-    SkScalerContext* ctx = this->getContextFromChar(uni, NULL);
-    if (NULL != ctx) {
-        return ctx->fRec.fFontID;
-    } else {
-        return 0;
-    }
-}
-
-/*  This loops through all available fallback contexts (if needed) until it
-    finds some context that can handle the unichar and return it.
-
-    As this is somewhat expensive operation, it should only be done on the first
-    char of a run.
- */
-unsigned SkScalerContext::getBaseGlyphCount(SkUnichar uni) {
-    SkScalerContext* ctx = this->getContextFromChar(uni, NULL);
-    if (NULL != ctx) {
-        return ctx->fBaseGlyphCount;
-    } else {
-        SkDEBUGF(("--- no context for char %x\n", uni));
-        return this->fBaseGlyphCount;
-    }
-}
-#endif
-
-/*  This loops through all available fallback contexts (if needed) until it
-    finds some context that can handle the unichar. If all fail, returns 0
- */
-uint16_t SkScalerContext::charToGlyphID(SkUnichar uni) {
-
-    uint16_t tempID;
-    SkScalerContext* ctx = this->getContextFromChar(uni, &tempID);
-    if (NULL == ctx) {
-        return 0; // no more contexts, return missing glyph
-    }
-    // add the ctx's base, making glyphID unique for chain of contexts
-    unsigned glyphID = tempID + ctx->fBaseGlyphCount;
-    // check for overflow of 16bits, since our glyphID cannot exceed that
-    if (glyphID > 0xFFFF) {
-        glyphID = 0;
-    }
-    return SkToU16(glyphID);
-}
-
-SkUnichar SkScalerContext::glyphIDToChar(uint16_t glyphID) {
-    SkScalerContext* ctx = this;
-    unsigned rangeEnd = 0;
-    do {
-        unsigned rangeStart = rangeEnd;
-
-        rangeEnd += ctx->getGlyphCount();
-        if (rangeStart <= glyphID && glyphID < rangeEnd) {
-            return ctx->generateGlyphToChar(glyphID - rangeStart);
-        }
-        ctx = ctx->getNextContext();
-    } while (NULL != ctx);
-    return 0;
 }
 
 void SkScalerContext::getAdvance(SkGlyph* glyph) {
@@ -295,11 +134,11 @@ void SkScalerContext::getAdvance(SkGlyph* glyph) {
     // we mark the format before making the call, in case the impl
     // internally ends up calling its generateMetrics, which is OK
     // albeit slower than strictly necessary
-    this->getGlyphContext(*glyph)->generateAdvance(glyph);
+    generateAdvance(glyph);
 }
 
 void SkScalerContext::getMetrics(SkGlyph* glyph) {
-    this->getGlyphContext(*glyph)->generateMetrics(glyph);
+    generateMetrics(glyph);
 
     // for now we have separate cache entries for devkerning on and off
     // in the future we might share caches, but make our measure/draw
@@ -737,7 +576,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             generateMask(mask, devPath, fPreBlend);
         }
     } else {
-        this->getGlyphContext(*glyph)->generateImage(*glyph);
+        generateImage(*glyph);
     }
 
     if (fMaskFilter) {
@@ -811,8 +650,7 @@ SkUnichar SkScalerContext::generateGlyphToChar(uint16_t glyph) {
 void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
                                   SkPath* devPath, SkMatrix* fillToDevMatrix) {
     SkPath  path;
-
-    this->getGlyphContext(glyph)->generatePath(glyph, &path);
+    generatePath(glyph, &path);
 
     if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
         SkFixed dx = glyph.getSubXFixed();

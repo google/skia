@@ -27,7 +27,6 @@ DEF_TEST(AndroidOptionsSerialization, reporter) {
     SkPaintOptionsAndroid options;
     options.setLanguage("ja-JP");
     options.setFontVariant(SkPaintOptionsAndroid::kElegant_Variant);
-    options.setUseFontFallbacks(true);
 
     SkPaint paint;
     paint.setPaintOptionsAndroid(options);
@@ -46,7 +45,6 @@ DEF_TEST(AndroidOptionsSerializationReverse, reporter) {
     SkPaintOptionsAndroid options;
     options.setLanguage("ja-JP");
     options.setFontVariant(SkPaintOptionsAndroid::kElegant_Variant);
-    options.setUseFontFallbacks(true);
     SkPaint nonDefaultOptions;
     nonDefaultOptions.setPaintOptionsAndroid(options);
 
@@ -64,7 +62,7 @@ DEF_TEST(AndroidOptionsSize, reporter) {
     SkPaint defaultOptions;
 
     SkPaintOptionsAndroid options;
-    options.setUseFontFallbacks(true);
+    options.setLanguage("ja-JP");
     SkPaint nonDefaultOptions;
     nonDefaultOptions.setPaintOptionsAndroid(options);
 

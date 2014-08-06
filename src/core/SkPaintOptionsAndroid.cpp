@@ -29,7 +29,8 @@ SkLanguage SkLanguage::getParent() const {
 void SkPaintOptionsAndroid::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fFontVariant);
     buffer.writeString(fLanguage.getTag().c_str());
-    buffer.writeBool(fUseFontFallbacks);
+    // to maintain picture compatibility for the old fUseFontFallbacks variable
+    buffer.writeBool(false);
 }
 
 void SkPaintOptionsAndroid::unflatten(SkReadBuffer& buffer) {
@@ -37,5 +38,6 @@ void SkPaintOptionsAndroid::unflatten(SkReadBuffer& buffer) {
     SkString tag;
     buffer.readString(&tag);
     fLanguage = SkLanguage(tag);
-    fUseFontFallbacks = buffer.readBool();
+    // to maintain picture compatibility for the old fUseFontFallbacks variable
+    buffer.readBool();
 }
