@@ -14,7 +14,7 @@
 GrGLPathRange::GrGLPathRange(GrGpuGL* gpu, size_t size, const SkStrokeRec& stroke)
     : INHERITED(gpu, size, stroke),
       fBasePathID(gpu->pathRendering()->genPaths(fSize)),
-      fGpuMemorySize(0) {
+      fNumDefinedPaths(0) {
 }
 
 GrGLPathRange::~GrGLPathRange() {
@@ -30,7 +30,8 @@ void GrGLPathRange::initAt(size_t index, const SkPath& skPath) {
     // Make sure the path at this index hasn't been initted already.
     SkASSERT(GR_GL_FALSE == gpu->pathRendering()->isPath(fBasePathID + index));
 
-    fGpuMemorySize += GrGLPath::InitPathObject(gpu, fBasePathID + index, skPath, fStroke);
+    GrGLPath::InitPathObject(gpu, fBasePathID + index, skPath, fStroke);
+    ++fNumDefinedPaths;
     this->didChangeGpuMemorySize();
 }
 

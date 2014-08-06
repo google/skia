@@ -26,8 +26,13 @@ public:
     virtual ~GrGLPathRange();
 
     GrGLuint basePathID() const { return fBasePathID; }
+
     virtual void initAt(size_t index, const SkPath&);
-    virtual size_t gpuMemorySize() const SK_OVERRIDE { return fGpuMemorySize; }
+
+    // TODO: Use a better approximation for the individual path sizes.
+    virtual size_t gpuMemorySize() const SK_OVERRIDE {
+        return 100 * fNumDefinedPaths;
+    }
 
 protected:
     virtual void onRelease() SK_OVERRIDE;
@@ -35,7 +40,7 @@ protected:
 
 private:
     GrGLuint fBasePathID;
-    size_t fGpuMemorySize;
+    size_t fNumDefinedPaths;
 
     typedef GrPathRange INHERITED;
 };

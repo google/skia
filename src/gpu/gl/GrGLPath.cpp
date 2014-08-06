@@ -81,10 +81,10 @@ inline GrGLenum cap_to_gl_cap(SkPaint::Cap cap) {
 
 static const bool kIsWrapped = false; // The constructor creates the GL path object.
 
-size_t GrGLPath::InitPathObject(GrGpuGL* gpu,
-                                GrGLuint pathID,
-                                const SkPath& skPath,
-                                const SkStrokeRec& stroke) {
+void GrGLPath::InitPathObject(GrGpuGL* gpu,
+                              GrGLuint pathID,
+                              const SkPath& skPath,
+                              const SkStrokeRec& stroke) {
     GrGLPathRendering* pr = gpu->pathRendering();
     SkSTArray<16, GrGLubyte, true> pathCommands;
     SkSTArray<16, SkPoint, true> pathPoints;
@@ -117,13 +117,6 @@ size_t GrGLPath::InitPathObject(GrGpuGL* gpu,
         pr->pathParameteri(pathID, GR_GL_PATH_INITIAL_END_CAP, cap);
         pr->pathParameteri(pathID, GR_GL_PATH_TERMINAL_END_CAP, cap);
     }
-
-    size_t approximateSize = 5 * (verbCnt + pointCnt);
-    if (SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
-        // It will take approxoimately twice the memory if it has both fill *and* stroke.
-        approximateSize *= 2;
-    }
-    return approximateSize;
 }
 
 GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
@@ -131,7 +124,7 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
       fPathID(gpu->pathRendering()->genPaths(1)) {
     SkASSERT(!path.isEmpty());
 
-    fGpuMemorySize = InitPathObject(gpu, fPathID, fSkPath, stroke);
+    InitPathObject(gpu, fPathID, fSkPath, stroke);
 
     if (stroke.needToApply()) {
         // FIXME: try to account for stroking, without rasterizing the stroke.

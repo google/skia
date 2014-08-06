@@ -22,20 +22,17 @@ class GrGpuGL;
 
 class GrGLPath : public GrPath {
 public:
-    /**
-     * Initialize a GL path object with a given path and stroke.
-     *
-     * @return the approximate GPU memory size of the path object in bytes.
-     */
-    static size_t InitPathObject(GrGpuGL*,
-                                 GrGLuint pathID,
-                                 const SkPath&,
-                                 const SkStrokeRec&);
+    static void InitPathObject(GrGpuGL*,
+                               GrGLuint pathID,
+                               const SkPath&,
+                               const SkStrokeRec&);
 
     GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke);
     virtual ~GrGLPath();
     GrGLuint pathID() const { return fPathID; }
-    virtual size_t gpuMemorySize() const SK_OVERRIDE { return fGpuMemorySize; }
+    // TODO: Figure out how to get an approximate size of the path in Gpu
+    // memory.
+    virtual size_t gpuMemorySize() const SK_OVERRIDE { return 100; }
 
 protected:
     virtual void onRelease() SK_OVERRIDE;
@@ -43,7 +40,6 @@ protected:
 
 private:
     GrGLuint fPathID;
-    size_t fGpuMemorySize;
 
     typedef GrPath INHERITED;
 };
