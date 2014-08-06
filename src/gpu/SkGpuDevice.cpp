@@ -1622,7 +1622,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     SkAutoTDeleteArray<uint16_t> outAlloc(NULL);
     GrPrimitiveType primType;
     GrPaint grPaint;
-    
+
     // If both textures and vertex-colors are NULL, strokes hairlines with the paint's color.
     if ((NULL == texs || NULL == paint.getShader()) && NULL == colors) {
         
@@ -1638,13 +1638,14 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 
         primType = kLines_GrPrimitiveType;
         int triangleCount = 0;
+        int n = (NULL == indices) ? vertexCount : indexCount;
         switch (vmode) {
             case SkCanvas::kTriangles_VertexMode:
-                triangleCount = indexCount / 3;
+                triangleCount = n / 3;
                 break;
             case SkCanvas::kTriangleStrip_VertexMode:
             case SkCanvas::kTriangleFan_VertexMode:
-                triangleCount = indexCount - 2;
+                triangleCount = n - 2;
                 break;
         }
         
