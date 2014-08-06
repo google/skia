@@ -68,6 +68,24 @@ class CompareRenderedPicturesTest(base_unittest.TestCase):
             results.KEY__HEADER__RESULTS_ALL),
         os.path.join(self.output_dir_actual, 'compare_rendered_pictures.json'))
 
+  def test_repo_url(self):
+    """Use repo: URL to specify summary files."""
+    results_obj = compare_rendered_pictures.RenderedPicturesComparisons(
+        setA_dirs=[
+            'repo:gm/rebaseline_server/testdata/inputs/skp-actuals/setA'],
+        setB_dirs=[
+            'repo:gm/rebaseline_server/testdata/inputs/skp-actuals/setB'],
+        image_diff_db=imagediffdb.ImageDiffDB(self.temp_dir),
+        image_base_gs_url='gs://fakebucket/fake/path',
+        diff_base_url='/static/generated-images',
+        setA_label='setA', setB_label='setB')
+    results_obj.get_timestamp = mock_get_timestamp
+
+    gm_json.WriteToFile(
+        results_obj.get_packaged_results_of_type(
+            results.KEY__HEADER__RESULTS_ALL),
+        os.path.join(self.output_dir_actual, 'compare_rendered_pictures.json'))
+
   def _generate_skps_and_run_render_pictures(self, subdir, skpdict):
     """Generate SKPs and run render_pictures on them.
 

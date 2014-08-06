@@ -55,6 +55,12 @@ ORDERED_COLUMN_IDS = [
     COLUMN__TILENUM,
 ]
 
+# A special "repo:" URL type that we use to refer to Skia repo contents.
+# (Useful for comparing against expectations files we store in our repo.)
+REPO_URL_PREFIX = 'repo:'
+REPO_BASEPATH = os.path.abspath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir))
+
 
 class RenderedPicturesComparisons(results.BaseComparisons):
   """Loads results from multiple render_pictures runs into an ImagePairSet.
@@ -68,9 +74,11 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     """
     Args:
       setA_dirs: list of root directories to copy all JSON summaries from,
-          and to use as setA within the comparisons
+          and to use as setA within the comparisons. These directories may be
+          gs:// URLs, special "repo:" URLs, or local filepaths.
       setB_dirs: list of root directories to copy all JSON summaries from,
-          and to use as setB within the comparisons
+          and to use as setB within the comparisons. These directories may be
+          gs:// URLs, special "repo:" URLs, or local filepaths.
       image_diff_db: ImageDiffDB instance
       image_base_gs_url: "gs://" URL pointing at the Google Storage bucket/dir
           under which all render_pictures result images can
@@ -325,7 +333,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     """Copy all contents of source_dir into dest_dir, recursing into subdirs.
 
     Args:
-      source_dir: path to source dir (GS URL or local filepath)
+      source_dir: path to source dir (GS URL, local filepath, or a special
+          "repo:" URL type that points at a file within our Skia checkout)
       dest_dir: path to destination dir (local filepath)
 
     The copy operates as a "merge with overwrite": any files in source_dir will
@@ -336,5 +345,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       (bucket, path) = gs_utils.GSUtils.split_gs_url(source_dir)
       self._gs.download_dir_contents(source_bucket=bucket, source_dir=path,
                                      dest_dir=dest_dir)
+    elif source_dir.lower().startswith(REPO_URL_PREFIX):
+      repo_dir = os.path.join(REPO_BASEPATH, source_dir[len(REPO_URL_PREFIX):])
+      shutil.copytree(repo_dir, dest_dir)
     else:
       shutil.copytree(source_dir, dest_dir)
