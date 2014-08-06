@@ -27,7 +27,7 @@ SkShader::Context* SkLocalMatrixShader::onCreateContext(const ContextRec& rec,
     ContextRec newRec(rec);
     SkMatrix tmp;
     if (rec.fLocalMatrix) {
-        tmp.setConcat(this->getLocalMatrix(), *rec.fLocalMatrix);
+        tmp.setConcat(*rec.fLocalMatrix, this->getLocalMatrix());
         newRec.fLocalMatrix = &tmp;
     } else {
         newRec.fLocalMatrix = &this->getLocalMatrix();
