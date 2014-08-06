@@ -206,16 +206,15 @@ void Patch::draw(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
 
 static void drawpatches(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
                         Patch* patch) {
-
     SkAutoCanvasRestore ar(canvas, true);
 
-    patch->draw(canvas, paint, 10, 10, false, false);
+    patch->draw(canvas, paint, nu, nv, false, false);
     canvas->translate(SkIntToScalar(180), 0);
-    patch->draw(canvas, paint, 10, 10, true, false);
+    patch->draw(canvas, paint, nu, nv, true, false);
     canvas->translate(SkIntToScalar(180), 0);
-    patch->draw(canvas, paint, 10, 10, false, true);
+    patch->draw(canvas, paint, nu, nv, false, true);
     canvas->translate(SkIntToScalar(180), 0);
-    patch->draw(canvas, paint, 10, 10, true, true);
+    patch->draw(canvas, paint, nu, nv, true, true);
 }
 
 const SkScalar DX = 20;
@@ -270,6 +269,9 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
+        const int nu = 10;
+        const int nv = 10;
+
         SkPaint paint;
         paint.setDither(true);
         paint.setFilterLevel(SkPaint::kLow_FilterLevel);
@@ -288,7 +290,7 @@ protected:
         patch.setBounds(fSize0.fX, fSize0.fY);
 
         patch.setPatch(fPts);
-        drawpatches(canvas, paint, 10, 10, &patch);
+        drawpatches(canvas, paint, nu, nv, &patch);
 
         paint.setShader(NULL);
         paint.setAntiAlias(true);
@@ -299,13 +301,13 @@ protected:
 
         paint.setAntiAlias(false);
         paint.setShader(fShader1);
-        {
+        if (true) {
             SkMatrix m;
             m.setSkew(1, 0);
             SkShader* s = SkShader::CreateLocalMatrixShader(paint.getShader(), m);
             paint.setShader(s)->unref();
         }
-        {
+        if (true) {
             static int gAngle;
             SkMatrix m;
             m.setRotate(SkIntToScalar(gAngle++));
@@ -313,7 +315,7 @@ protected:
             paint.setShader(s)->unref();
         }
         patch.setBounds(fSize1.fX, fSize1.fY);
-        drawpatches(canvas, paint, 10, 10, &patch);
+        drawpatches(canvas, paint, nu, nv, &patch);
 
         this->inval(NULL);
     }
