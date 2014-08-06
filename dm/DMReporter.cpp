@@ -4,12 +4,16 @@
 #include "SkCommonFlags.h"
 #include "OverwriteLine.h"
 
-#ifdef SK_BUILD_FOR_UNIX
+#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_ANDROID)
     #include <sys/resource.h>
     static long get_max_rss_kb() {
         struct rusage ru;
         getrusage(RUSAGE_SELF, &ru);
-        return ru.ru_maxrss;
+    #if defined(SK_BUILD_FOR_MAC)
+        return ru.ru_maxrss / 1024;  // Darwin reports bytes.
+    #else
+        return ru.ru_maxrss;         // Linux reports kilobytes.
+    #endif
     }
 #else
     static long get_max_rss_kb() { return 0; }
