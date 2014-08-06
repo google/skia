@@ -151,7 +151,9 @@ SkPicture::~SkPicture() {
 #ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
 // fRecord TODO, fix by deleting this method
 SkPicture* SkPicture::clone() const {
-
+#ifdef SK_PICTURE_CLONE_NOOP
+    return SkRef(const_cast<SkPicture*>(this));
+#else
     SkAutoTDelete<SkPictureData> newData;
 
     if (fData.get()) {
@@ -204,6 +206,7 @@ SkPicture* SkPicture::clone() const {
     clone->fUniqueID = this->uniqueID(); // need to call method to ensure != 0
 
     return clone;
+#endif
 }
 #endif//SK_SUPPORT_LEGACY_PICTURE_CLONE
 
@@ -496,7 +499,7 @@ SkPicture::SkPicture(int width, int height, SkRecord* record)
 }
 
 // Note that we are assuming that this entry point will only be called from
-// one thread. Currently the only client of this method is 
+// one thread. Currently the only client of this method is
 // SkGpuDevice::EXPERIMENTAL_optimize which should be only called from a single
 // thread.
 void SkPicture::addDeletionListener(DeletionListener* listener) const {
