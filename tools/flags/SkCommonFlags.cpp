@@ -8,7 +8,7 @@
 #include "SkCommonFlags.h"
 #include "SkThreadPool.h"
 
-DEFINE_string(config, "565 8888 pdf gpu nonrendering",
+DEFINE_string(config, "565 8888 pdf gpu nonrendering angle",
               "Options: 565 8888 pdf gpu nonrendering msaa4 msaa16 nvprmsaa4 nvprmsaa16 "
               "gpunull gpudebug angle mesa");
 

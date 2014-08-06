@@ -282,6 +282,9 @@ static void create_configs(SkTDArray<Config>* configs) {
         GPU_CONFIG(nvprmsaa16, kNVPR_GLContextType, 16)
         GPU_CONFIG(debug, kDebug_GLContextType, 0)
         GPU_CONFIG(nullgpu, kNull_GLContextType, 0)
+#ifdef SK_ANGLE
+        GPU_CONFIG(angle, kANGLE_GLContextType, 0)
+#endif
     }
 #endif
 }
