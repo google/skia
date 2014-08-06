@@ -95,7 +95,7 @@ public:
                              bool isFixedPitch,
                              const SkString familyName)
         : INHERITED(index, style, isFixedPitch, familyName)
-        , fStream(stream) { }
+        , fStream(SkRef(stream)) { }
 
     virtual void onGetFontDescriptor(SkFontDescriptor* desc,
                                      bool* serialize) const SK_OVERRIDE {
@@ -382,16 +382,14 @@ protected:
         return stream.get() ? this->createFromStream(stream, ttcIndex) : NULL;
     }
 
-    virtual SkTypeface* onCreateFromStream(SkStream* s, int ttcIndex) const SK_OVERRIDE {
-        SkAutoTUnref<SkStream> stream(s);
-
+    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
         bool isFixedPitch;
         SkTypeface::Style style;
         SkString name;
         if (!SkTypeface_FreeType::ScanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
             return NULL;
         }
-        return SkNEW_ARGS(SkTypeface_AndroidStream, (stream.detach(), ttcIndex,
+        return SkNEW_ARGS(SkTypeface_AndroidStream, (stream, ttcIndex,
                                                      style, isFixedPitch, name));
     }
 
