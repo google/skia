@@ -228,8 +228,8 @@ SkShader* SkShader::CreateBitmapShader(const SkBitmap& src, TileMode tmx, TileMo
 }
 
 SkShader* SkShader::CreatePictureShader(SkPicture* src, TileMode tmx, TileMode tmy,
-                                       const SkMatrix* localMatrix) {
-    return SkPictureShader::Create(src, tmx, tmy, localMatrix);
+                                        const SkMatrix* localMatrix, const SkRect* tile) {
+    return SkPictureShader::Create(src, tmx, tmy, localMatrix, tile);
 }
 
 #ifndef SK_IGNORE_TO_STRING

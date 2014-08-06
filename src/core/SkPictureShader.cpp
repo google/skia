@@ -19,16 +19,20 @@
 #endif
 
 SkPictureShader::SkPictureShader(const SkPicture* picture, TileMode tmx, TileMode tmy,
-                                 const SkMatrix* localMatrix)
+                                 const SkMatrix* localMatrix, const SkRect* tile)
     : INHERITED(localMatrix)
     , fPicture(SkRef(picture))
     , fTmx(tmx)
-    , fTmy(tmy) { }
+    , fTmy(tmy) {
+    fTile = tile ? *tile : SkRect::MakeWH(SkIntToScalar(picture->width()),
+                                          SkIntToScalar(picture->height()));
+}
 
 SkPictureShader::SkPictureShader(SkReadBuffer& buffer)
         : INHERITED(buffer) {
     fTmx = static_cast<SkShader::TileMode>(buffer.read32());
     fTmy = static_cast<SkShader::TileMode>(buffer.read32());
+    buffer.readRect(&fTile);
     fPicture = SkPicture::CreateFromBuffer(buffer);
 }
 
@@ -37,11 +41,12 @@ SkPictureShader::~SkPictureShader() {
 }
 
 SkPictureShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx, TileMode tmy,
-                                         const SkMatrix* localMatrix) {
-    if (!picture || 0 == picture->width() || 0 == picture->height()) {
+                                         const SkMatrix* localMatrix, const SkRect* tile) {
+    if (!picture || 0 == picture->width() || 0 == picture->height()
+        || (NULL != tile && tile->isEmpty())) {
         return NULL;
     }
-    return SkNEW_ARGS(SkPictureShader, (picture, tmx, tmy, localMatrix));
+    return SkNEW_ARGS(SkPictureShader, (picture, tmx, tmy, localMatrix, tile));
 }
 
 void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
@@ -49,6 +54,7 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
 
     buffer.write32(fTmx);
     buffer.write32(fTmy);
+    buffer.writeRect(fTile);
     fPicture->flatten(buffer);
 }
 
@@ -68,7 +74,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
         scale.set(SkScalarSqrt(m.getScaleX() * m.getScaleX() + m.getSkewX() * m.getSkewX()),
                   SkScalarSqrt(m.getScaleY() * m.getScaleY() + m.getSkewY() * m.getSkewY()));
     }
-    SkSize scaledSize = SkSize::Make(scale.x() * fPicture->width(), scale.y() * fPicture->height());
+    SkSize scaledSize = SkSize::Make(scale.x() * fTile.width(), scale.y() * fTile.height());
 
     SkISize tileSize = scaledSize.toRound();
     if (tileSize.isEmpty()) {
@@ -76,8 +82,8 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
     }
 
     // The actual scale, compensating for rounding.
-    SkSize tileScale = SkSize::Make(SkIntToScalar(tileSize.width()) / fPicture->width(),
-                                    SkIntToScalar(tileSize.height()) / fPicture->height());
+    SkSize tileScale = SkSize::Make(SkIntToScalar(tileSize.width()) / fTile.width(),
+                                    SkIntToScalar(tileSize.height()) / fTile.height());
 
     SkAutoMutexAcquire ama(fCachedBitmapShaderMutex);
 
@@ -90,6 +96,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
 
         SkCanvas canvas(bm);
         canvas.scale(tileScale.width(), tileScale.height());
+        canvas.translate(fTile.x(), fTile.y());
         canvas.drawPicture(fPicture);
 
         fCachedTileScale = tileScale;

@@ -21,7 +21,8 @@ class SkPicture;
  */
 class SkPictureShader : public SkShader {
 public:
-    static SkPictureShader* Create(const SkPicture*, TileMode, TileMode, const SkMatrix* = NULL);
+    static SkPictureShader* Create(const SkPicture*, TileMode, TileMode, const SkMatrix*,
+                                   const SkRect*);
     virtual ~SkPictureShader();
 
     virtual size_t contextSize() const SK_OVERRIDE;
@@ -38,11 +39,12 @@ protected:
     virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
 private:
-    SkPictureShader(const SkPicture*, TileMode, TileMode, const SkMatrix* = NULL);
+    SkPictureShader(const SkPicture*, TileMode, TileMode, const SkMatrix*, const SkRect*);
 
     SkShader* refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix) const;
 
     const SkPicture*  fPicture;
+    SkRect            fTile;
     TileMode          fTmx, fTmy;
 
     mutable SkMutex                 fCachedBitmapShaderMutex;

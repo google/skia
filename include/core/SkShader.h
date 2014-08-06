@@ -428,10 +428,17 @@ public:
      *              FIXME: src cannot be const due to SkCanvas::drawPicture
      *  @param tmx  The tiling mode to use when sampling the bitmap in the x-direction.
      *  @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
+     *  @param tile The tile rectangle in picture coordinates: this represents the subset
+     *              (or superset) of the picture used when building a tile. It is not
+     *              affected by localMatrix and does not imply scaling (only translation
+     *              and cropping). If null, the tile rect is considered equal to the picture
+     *              bounds.
      *  @return     Returns a new shader object. Note: this function never returns null.
     */
-    static SkShader* CreatePictureShader(SkPicture* src, TileMode tmx, TileMode tmy,
-                                         const SkMatrix* localMatrix = NULL);
+    static SkShader* CreatePictureShader(SkPicture* src,
+                                         TileMode tmx, TileMode tmy,
+                                         const SkMatrix* localMatrix,
+                                         const SkRect* tile);
 
     /**
      *  Return a shader that will apply the specified localMatrix to the proxy shader.

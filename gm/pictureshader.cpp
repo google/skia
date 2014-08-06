@@ -135,7 +135,8 @@ private:
                     fPicture,
                     kTileConfigs[tileMode].tmx,
                     kTileConfigs[tileMode].tmy,
-                    &localMatrix));
+                    &localMatrix,
+                    NULL));
         paint.setShader(pictureShader.get());
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
 
