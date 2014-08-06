@@ -18,6 +18,7 @@
         'gmslides.gypi',
       ],
       'sources': [
+        '../gm/gm.cpp',
         '../gm/gmmain.cpp',
         '../gm/system_preferences_default.cpp',
 

@@ -9,6 +9,7 @@
       'target_name': 'nanobench',
       'type': 'executable',
       'sources': [
+        '../gm/gm.cpp',
         '../bench/GMBench.cpp',
         '../bench/SKPBench.cpp',
         '../bench/ResultsWriter.cpp',

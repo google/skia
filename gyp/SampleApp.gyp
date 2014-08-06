@@ -24,6 +24,7 @@
         'gmslides.gypi',
       ],
       'sources': [
+        '../gm/gm.cpp',
         '../samplecode/GMSampleView.h',
         '../samplecode/ClockFaceView.cpp',
         '../samplecode/OverView.cpp',

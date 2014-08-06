@@ -676,7 +676,7 @@
       ],
     }],
 
-    [ 'skia_crash_handler', {
+    [ 'skia_is_bot', {
       'defines': [ 'SK_CRASH_HANDLER' ],
     }],
 
