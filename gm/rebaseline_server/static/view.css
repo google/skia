@@ -68,3 +68,23 @@
 .image-link {
     text-decoration: none;
 }
+
+.results-header {
+    overflow: hidden;
+    padding: 10px;
+    background-color: #ccccff;
+}
+
+.results-header-actions {
+    float: right;
+}
+
+.sticky {
+    position: fixed;
+    top: 2px;
+    box-shadow: -2px 2px 5px 0 rgba(0,0,0,.45);
+    background: white;
+    right: 2px;
+    padding: 10px;
+    border: 2px solid #222;
+}

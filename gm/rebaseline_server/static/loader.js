@@ -291,6 +291,10 @@ Loader.controller(
           $scope.updateResults();
           $scope.loadingMessage = "";
           $scope.windowTitle = "Current GM Results";
+
+          $timeout( function() {
+            make_results_header_sticky();
+          });
         }
       }
     ).error(
