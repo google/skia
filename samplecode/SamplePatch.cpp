@@ -218,6 +218,9 @@ static void drawpatches(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
     patch->draw(canvas, paint, 10, 10, true, true);
 }
 
+const SkScalar DX = 20;
+const SkScalar DY = 0;
+
 class PatchView : public SampleView {
     SkShader*   fShader0;
     SkShader*   fShader1;
@@ -271,7 +274,7 @@ protected:
         paint.setDither(true);
         paint.setFilterLevel(SkPaint::kLow_FilterLevel);
 
-        canvas->translate(SkIntToScalar(20), 0);
+        canvas->translate(DX, DY);
 
         Patch   patch;
 
@@ -327,6 +330,8 @@ protected:
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
                                               unsigned modi) SK_OVERRIDE {
+        x -= DX;
+        y -= DY;
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
             if (hittest(fPts[i], x, y)) {
                 return new PtClick(this, (int)i);
@@ -336,7 +341,7 @@ protected:
     }
 
     virtual bool onClick(Click* click) {
-        fPts[((PtClick*)click)->fIndex].set(click->fCurr.fX, click->fCurr.fY);
+        fPts[((PtClick*)click)->fIndex].set(click->fCurr.fX - DX, click->fCurr.fY - DY);
         this->inval(NULL);
         return true;
     }
