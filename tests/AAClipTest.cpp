@@ -318,30 +318,6 @@ static void test_path_with_hole(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_really_a_rect(skiatest::Reporter* reporter) {
-    SkRRect rrect;
-    rrect.setRectXY(SkRect::MakeWH(100, 100), 5, 5);
-
-    SkPath path;
-    path.addRRect(rrect);
-
-    SkAAClip clip;
-    clip.setPath(path);
-
-    REPORTER_ASSERT(reporter, clip.getBounds() == SkIRect::MakeWH(100, 100));
-    REPORTER_ASSERT(reporter, !clip.isRect());
-
-    // This rect should intersect the clip, but slice-out all of the "soft" parts,
-    // leaving just a rect.
-    const SkIRect ir = SkIRect::MakeLTRB(10, -10, 50, 90);
-    
-    clip.op(ir, SkRegion::kIntersect_Op);
-
-    REPORTER_ASSERT(reporter, clip.getBounds() == SkIRect::MakeLTRB(10, 0, 50, 90));
-    // the clip recognized that that it is just a rect!
-    REPORTER_ASSERT(reporter, clip.isRect());
-}
-
 #include "SkRasterClip.h"
 
 static void copyToMask(const SkRasterClip& rc, SkMask* mask) {
@@ -428,5 +404,4 @@ DEF_TEST(AAClip, reporter) {
     test_path_with_hole(reporter);
     test_regressions();
     test_nearly_integral(reporter);
-    test_really_a_rect(reporter);
 }

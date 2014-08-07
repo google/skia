@@ -29,10 +29,6 @@ public:
     bool isEmpty() const { return NULL == fRunHead; }
     const SkIRect& getBounds() const { return fBounds; }
 
-    // Returns true iff the clip is not empty, and is just a hard-edged rect (no partial alpha).
-    // If true, getBounds() can be used in place of this clip.
-    bool isRect() const;
-
     bool setEmpty();
     bool setRect(const SkIRect&);
     bool setRect(const SkRect&, bool doAA = true);

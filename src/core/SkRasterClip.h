@@ -89,19 +89,11 @@ private:
     }
 
     bool computeIsRect() const {
-        return fIsBW ? fBW.isRect() : fAA.isRect();
+        return fIsBW ? fBW.isRect() : false;
     }
 
-    bool updateCacheAndReturnNonEmpty(bool detectAARect = true) {
+    bool updateCacheAndReturnNonEmpty() {
         fIsEmpty = this->computeIsEmpty();
-
-        // detect that our computed AA is really just a (hard-edged) rect
-        if (detectAARect && !fIsEmpty && !fIsBW && fAA.isRect()) {
-            fBW.setRect(fAA.getBounds());
-            fAA.setEmpty(); // don't need this guy anymore
-            fIsBW = true;
-        }
-
         fIsRect = this->computeIsRect();
         return !fIsEmpty;
     }

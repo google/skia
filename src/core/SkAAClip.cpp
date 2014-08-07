@@ -684,35 +684,6 @@ bool SkAAClip::setRect(const SkIRect& bounds) {
 #endif
 }
 
-bool SkAAClip::isRect() const {
-    if (this->isEmpty()) {
-        return false;
-    }
-
-    const RunHead* head = fRunHead;
-    if (head->fRowCount != 1) {
-        return false;
-    }
-    const YOffset* yoff = head->yoffsets();
-    if (yoff->fY != fBounds.fBottom - 1) {
-        return false;
-    }
-    SkASSERT(0 == yoff->fOffset);
-
-    const uint8_t* row = head->data();
-    int width = fBounds.width();
-    do {
-        if (row[1] != 0xFF) {
-            return false;
-        }
-        int n = row[0];
-        SkASSERT(n <= width);
-        width -= n;
-        row += 2;
-    } while (width > 0);
-    return true;
-}
-
 bool SkAAClip::setRect(const SkRect& r, bool doAA) {
     if (r.isEmpty()) {
         return this->setEmpty();
