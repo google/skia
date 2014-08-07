@@ -50,6 +50,7 @@
     '../src/utils/debugger/SkDebugCanvas.cpp',
     '../src/utils/debugger/SkDrawCommand.cpp',
     '../src/utils/debugger/SkObjectParser.cpp',
+    '../tools/LazyDecodeBitmap.cpp',
   ],
   'conditions': [
     [ 'skia_gpu == 1', {

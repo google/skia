@@ -2,6 +2,7 @@
 // For a high-level overview, please see dm/README.
 
 #include "CrashHandler.h"
+#include "LazyDecodeBitmap.h"
 #include "SkCommonFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -143,7 +144,8 @@ static void kick_off_skps(const SkTArray<SkString>& skps,
             SkDebugf("Could not read %s.\n", skps[i].c_str());
             exit(1);
         }
-        SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(stream.get()));
+        SkAutoTUnref<SkPicture> pic(
+                SkPicture::CreateFromStream(stream.get(), &sk_tools::LazyDecodeBitmap));
         if (pic.get() == NULL) {
             SkDebugf("Could not read %s as an SkPicture.\n", skps[i].c_str());
             exit(1);

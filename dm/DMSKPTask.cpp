@@ -6,6 +6,8 @@
 #include "SkPictureRecorder.h"
 
 DEFINE_bool(skr, true, "Test that SKPs draw the same when re-recorded with SkRecord backend.");
+DEFINE_int32(skpMaxWidth,  1000, "Max SKPTask viewport width.");
+DEFINE_int32(skpMaxHeight, 1000, "Max SKPTask viewport height.");
 
 namespace DM {
 
@@ -28,7 +30,7 @@ public:
         SkAutoTDelete<const SkPicture> skrPicture(recorder.endRecording());
 
         SkBitmap bitmap;
-        AllocatePixels(kN32_SkColorType, fPicture->width(), fPicture->height(), &bitmap);
+        AllocatePixels(kN32_SkColorType, fReference.width(), fReference.height(), &bitmap);
         DrawPicture(*skrPicture, &bitmap);
 
         if (!BitmapsEqual(fReference, bitmap)) {
@@ -48,8 +50,10 @@ SKPTask::SKPTask(Reporter* r, TaskRunner* tr, const SkPicture* pic, SkString fil
     : CpuTask(r, tr), fPicture(SkRef(pic)), fName(FileToTaskName(filename)) {}
 
 void SKPTask::draw() {
+    const int width  = SkTMin(fPicture->width(),  FLAGS_skpMaxWidth),
+              height = SkTMin(fPicture->height(), FLAGS_skpMaxHeight);
     SkBitmap bitmap;
-    AllocatePixels(kN32_SkColorType, fPicture->width(), fPicture->height(), &bitmap);
+    AllocatePixels(kN32_SkColorType, width, height, &bitmap);
     DrawPicture(*fPicture, &bitmap);
 
     this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
