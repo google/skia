@@ -15,6 +15,7 @@
 #include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkScalar.h"
+#include "SkPatch.h"
 
 class SkString;
 
@@ -105,21 +106,25 @@ public:
     uint16_t readU16() { return (uint16_t)this->readInt(); }
     int32_t readS32() { return this->readInt(); }
     uint32_t readU32() { return this->readInt(); }
+    
+    bool readPatch(SkPatch* patch) {
+        return this->readObjectFromMemory(patch);
+    }
 
     bool readPath(SkPath* path) {
-        return readObjectFromMemory(path);
+        return this->readObjectFromMemory(path);
     }
 
     bool readMatrix(SkMatrix* matrix) {
-        return readObjectFromMemory(matrix);
+        return this->readObjectFromMemory(matrix);
     }
 
     bool readRRect(SkRRect* rrect) {
-        return readObjectFromMemory(rrect);
+        return this->readObjectFromMemory(rrect);
     }
 
     bool readRegion(SkRegion* rgn) {
-        return readObjectFromMemory(rgn);
+        return this->readObjectFromMemory(rgn);
     }
 
     /**

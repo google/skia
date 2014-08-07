@@ -122,6 +122,7 @@ static inline size_t getPaintOffset(DrawType op, size_t opSize) {
         1,  // DRAWDRRECT - right after op code
         0,  // PUSH_CULL - no paint
         0,  // POP_CULL - no paint
+        1,  // DRAW_PATCH - right after op code
     };
 
     SK_COMPILE_ASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1,
@@ -1480,6 +1481,21 @@ void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+#ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
+    fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
+#endif
+    
+    // op + paint index + patch 12 control points + patch 4 colors
+    size_t size = 2 * kUInt32Size + SkPatch::kNumCtrlPts * sizeof(SkPoint) +
+                    SkPatch::kNumColors * sizeof(SkColor);
+    size_t initialOffset = this->addDraw(DRAW_PATCH, &size);
+    SkASSERT(initialOffset+getPaintOffset(DRAW_PATCH, size) == fWriter.bytesWritten());
+    this->addPaint(paint);
+    this->addPatch(patch);
+    this->validate(initialOffset, size);
+}
+
 void SkPictureRecord::drawData(const void* data, size_t length) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
@@ -1611,6 +1627,10 @@ int SkPictureRecord::addPathToHeap(const SkPath& path) {
 
 void SkPictureRecord::addPath(const SkPath& path) {
     this->addInt(this->addPathToHeap(path));
+}
+
+void SkPictureRecord::addPatch(const SkPatch& patch) {
+    fWriter.writePatch(patch);
 }
 
 void SkPictureRecord::addPicture(const SkPicture* picture) {

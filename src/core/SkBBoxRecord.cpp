@@ -284,6 +284,15 @@ void SkBBoxRecord::drawVertices(VertexMode mode, int vertexCount,
     }
 }
 
+void SkBBoxRecord::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+    const SkPoint* points = patch.getControlPoints();
+    SkRect bbox;
+    bbox.set(points, SkPatch::kNumCtrlPts);
+    if (this->transformBounds(bbox, &paint)) {
+        INHERITED::drawPatch(patch, paint);
+    }
+}
+
 void SkBBoxRecord::onDrawPicture(const SkPicture* picture) {
     if (picture->width() > 0 && picture->height() > 0 &&
         this->transformBounds(SkRect::MakeWH(picture->width(), picture->height()), NULL)) {

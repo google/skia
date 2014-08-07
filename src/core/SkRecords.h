@@ -45,6 +45,7 @@ namespace SkRecords {
     M(DrawOval)                                                     \
     M(DrawPaint)                                                    \
     M(DrawPath)                                                     \
+    M(DrawPatch)                                                    \
     M(DrawPoints)                                                   \
     M(DrawPosText)                                                  \
     M(DrawPosTextH)                                                 \
@@ -217,6 +218,7 @@ RECORD3(DrawDRRect, SkPaint, paint, SkRRect, outer, SkRRect, inner);
 RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
 RECORD1(DrawPaint, SkPaint, paint);
 RECORD2(DrawPath, SkPaint, paint, SkPath, path);
+RECORD2(DrawPatch, SkPaint, paint, SkPatch, patch);
 RECORD4(DrawPoints, SkPaint, paint, SkCanvas::PointMode, mode, size_t, count, SkPoint*, pts);
 RECORD4(DrawPosText, SkPaint, paint,
                      PODArray<char>, text,

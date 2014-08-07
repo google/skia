@@ -404,6 +404,15 @@ static void drawDRRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     }
 }
 
+static void drawPatch_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
+                         SkGPipeState* state) {
+    SkPatch patch;
+    reader->readPatch(&patch);
+    if (state->shouldDraw()) {
+        canvas->drawPatch(patch, state->paint());
+    }
+}
+
 static void drawPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
     SkPath path;
@@ -775,6 +784,7 @@ static const ReadProc gReadTable[] = {
     drawDRRect_rp,
     drawOval_rp,
     drawPaint_rp,
+    drawPatch_rp,
     drawPath_rp,
     drawPicture_rp,
     drawPoints_rp,

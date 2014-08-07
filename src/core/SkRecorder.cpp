@@ -206,6 +206,10 @@ void SkRecorder::drawVertices(VertexMode vmode,
                          indexCount);
 }
 
+void SkRecorder::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+    APPEND(DrawPatch, delay_copy(paint), delay_copy(patch));
+}
+
 void SkRecorder::willSave() {
     APPEND(Save);
     INHERITED(willSave);

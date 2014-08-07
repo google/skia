@@ -917,7 +917,9 @@ void SkDeferredCanvas::drawVertices(VertexMode vmode, int vertexCount,
 }
 
 void SkDeferredCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
-    //TODO
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
+    this->drawingCanvas()->drawPatch(patch, paint);
+    this->recordedDrawCommand();
 }
 
 SkDrawFilter* SkDeferredCanvas::setDrawFilter(SkDrawFilter* filter) {

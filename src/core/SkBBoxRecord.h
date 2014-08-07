@@ -55,6 +55,7 @@ public:
                               const SkColor colors[], SkXfermode* xfer,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawPatch(const SkPatch& patch, const SkPaint& paint) SK_OVERRIDE;
 
 protected:
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;

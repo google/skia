@@ -46,6 +46,7 @@ public:
     virtual void readIRect(SkIRect* rect) SK_OVERRIDE;
     virtual void readRect(SkRect* rect) SK_OVERRIDE;
     virtual void readRegion(SkRegion* region) SK_OVERRIDE;
+    virtual void readPatch(SkPatch* patch) SK_OVERRIDE;
     virtual void readPath(SkPath* path) SK_OVERRIDE;
 
     // binary data and arrays

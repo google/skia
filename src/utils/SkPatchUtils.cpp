@@ -7,10 +7,8 @@
 
 #include "SkPatchUtils.h"
 
-#include "SkGeometry.h"
-
 // size in pixels of each partition per axis, adjust this knob
-static const int kPartitionSize = 30;
+static const int kPartitionSize = 15;
 
 /**
  * Calculate the approximate arc length given a bezier curve's control points.

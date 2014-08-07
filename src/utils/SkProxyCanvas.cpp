@@ -149,6 +149,10 @@ void SkProxyCanvas::drawVertices(VertexMode vmode, int vertexCount,
                                      xmode, indices, indexCount, paint);
 }
 
+void SkProxyCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+    fProxy->drawPatch(patch, paint);
+}
+
 void SkProxyCanvas::drawData(const void* data, size_t length) {
     fProxy->drawData(data, length);
 }

@@ -108,6 +108,7 @@ public:
     virtual void readIRect(SkIRect* rect);
     virtual void readRect(SkRect* rect);
     virtual void readRegion(SkRegion* region);
+    virtual void readPatch(SkPatch* patch);
     virtual void readPath(SkPath* path);
     void readPaint(SkPaint* paint) { paint->unflatten(*this); }
 

@@ -284,6 +284,13 @@ void SkNWayCanvas::drawVertices(VertexMode vmode, int vertexCount,
     }
 }
 
+void SkNWayCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawPatch(patch, paint);
+    }
+}
+
 void SkNWayCanvas::drawData(const void* data, size_t length) {
     Iter iter(fList);
     while (iter.next()) {

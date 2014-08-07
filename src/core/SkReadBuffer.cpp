@@ -148,6 +148,10 @@ void SkReadBuffer::readRegion(SkRegion* region) {
     fReader.readRegion(region);
 }
 
+void SkReadBuffer::readPatch(SkPatch* patch) {
+    fReader.readPatch(patch);
+}
+
 void SkReadBuffer::readPath(SkPath* path) {
     fReader.readPath(path);
 }

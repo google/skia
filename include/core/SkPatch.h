@@ -77,6 +77,12 @@ public:
         kBottomLeft_CornerColors
     };
     
+    enum {
+        kNumCtrlPts = 12,
+        kNumColors = 4,
+        kNumPtsCubic = 4
+    };
+    
     /**
      * Points are in the following order:
      *              (top curve)
@@ -86,7 +92,8 @@ public:
      *                9 8 7 6
      *              (bottom curve)
      */
-    SkPatch(SkPoint points[12], SkColor colors[4]);
+    SkPatch() { }
+    SkPatch(const SkPoint points[12], const SkColor colors[4]);
 
     /**
      * Function that evaluates the coons patch interpolation.
@@ -138,9 +145,38 @@ public:
         return fCornerColors;
     }
     
+    void setPoints(const SkPoint points[12]) {
+        memcpy(fCtrlPoints, points, kNumCtrlPts * sizeof(SkPoint));
+    }
+    
+    void setColors(const SkColor colors[4]) {
+        memcpy(fCornerColors, colors, kNumColors * sizeof(SkColor));
+    }
+
+    void reset(const SkPoint points[12], const SkColor colors[4]) {
+        this->setPoints(points);
+        this->setColors(colors);
+    }
+
+    /**
+     *  Write the patch to the buffer, and return the number of bytes written.
+     *  If buffer is NULL, it still returns the number of bytes.
+     */
+    size_t writeToMemory(void* buffer) const;
+    
+    /**
+     * Initializes the patch from the buffer
+     *
+     * buffer Memory to read from
+     * length Amount of memory available in the buffer
+     * returns the number of bytes read (must be a multiple of 4) or
+     *         0 if there was not enough memory available
+     */
+    size_t readFromMemory(const void* buffer, size_t length);
+    
 private:
-    SkPoint fCtrlPoints[12];
-    SkColor fCornerColors[4];
+    SkPoint fCtrlPoints[kNumCtrlPts];
+    SkColor fCornerColors[kNumColors];
 };
 
 #endif

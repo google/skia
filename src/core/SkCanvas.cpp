@@ -2258,7 +2258,7 @@ void SkCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
     // Since a patch is always within the convex hull of the control points, we discard it when its
     // bounding rectangle is completely outside the current clip.
     SkRect bounds;
-    bounds.set(patch.getControlPoints(), 12);
+    bounds.set(patch.getControlPoints(), SkPatch::kNumCtrlPts);
     if (this->quickReject(bounds)) {
         return;
     }

@@ -47,6 +47,7 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawPatch(const SkPatch& patch, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawData(const void* data, size_t length) SK_OVERRIDE;
 
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE;

@@ -61,6 +61,7 @@ public:
                       const uint16_t indices[],
                       int indexCount,
                       const SkPaint& paint) SK_OVERRIDE;
+    void drawPatch(const SkPatch& patch, const SkPaint& paint) SK_OVERRIDE;
 
     void willSave() SK_OVERRIDE;
     SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SkCanvas::SaveFlags) SK_OVERRIDE;

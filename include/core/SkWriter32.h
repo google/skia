@@ -12,6 +12,7 @@
 
 #include "SkData.h"
 #include "SkMatrix.h"
+#include "SkPatch.h"
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkRRect.h"
@@ -136,6 +137,12 @@ public:
 
     void writeRRect(const SkRRect& rrect) {
         rrect.writeToMemory(this->reserve(SkRRect::kSizeInMemory));
+    }
+    
+    void writePatch(const SkPatch& patch) {
+        size_t size = patch.writeToMemory(NULL);
+        SkASSERT(SkAlign4(size) == size);
+        patch.writeToMemory(this->reserve(size));
     }
 
     void writePath(const SkPath& path) {

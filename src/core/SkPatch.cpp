@@ -9,6 +9,7 @@
 
 #include "SkGeometry.h"
 #include "SkColorPriv.h"
+#include "SkBuffer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -117,18 +118,12 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPatch::SkPatch(SkPoint points[12], SkColor colors[4]) {
-        
-    for (int i = 0; i < 12; i++) {
-        fCtrlPoints[i] = points[i];
-    }
-    for (int i = 0; i < 4; i++) {
-        fCornerColors[i] = colors[i];
-    }
-    
+SkPatch::SkPatch(const SkPoint points[12], const SkColor colors[4]) {
+    this->reset(points, colors);
 }
 
-uint8_t bilinear(SkScalar tx, SkScalar ty, SkScalar c00, SkScalar c10, SkScalar c01, SkScalar c11) {
+static uint8_t bilerp(SkScalar tx, SkScalar ty, SkScalar c00, SkScalar c10, SkScalar c01,
+                      SkScalar c11) {
     SkScalar a = c00 * (1.f - tx) + c10 * tx;
     SkScalar b = c01 * (1.f - tx) + c11 * tx;
     return uint8_t(a * (1.f - ty) + b * ty);
@@ -141,8 +136,8 @@ bool SkPatch::getVertexData(SkPatch::VertexData* data, int lodX, int lodY) const
     }
     
     // premultiply colors to avoid color bleeding. 
-    SkPMColor colors[4];
-    for (int i = 0; i < 4; i++) {
+    SkPMColor colors[SkPatch::kNumColors];
+    for (int i = 0; i < SkPatch::kNumColors; i++) {
         colors[i] = SkPreMultiplyColor(fCornerColors[i]);
     }
     
@@ -157,7 +152,7 @@ bool SkPatch::getVertexData(SkPatch::VertexData* data, int lodX, int lodY) const
     data->fTexCoords = SkNEW_ARRAY(SkPoint, data->fVertexCount);
     data->fIndices = SkNEW_ARRAY(uint16_t, data->fIndexCount);
     
-    SkPoint pts[4];
+    SkPoint pts[SkPatch::kNumPtsCubic];
     this->getBottomPoints(pts);
     FwDCubicEvaluator fBottom(pts);
     this->getTopPoints(pts);
@@ -197,22 +192,22 @@ bool SkPatch::getVertexData(SkPatch::VertexData* data, int lodX, int lodY) const
                                         + u * fBottom.getCtrlPoints()[3].y()));
             data->fPoints[dataIndex] = s0 + s1 - s2;
 
-            uint8_t a = bilinear(u, v, 
+            uint8_t a = bilerp(u, v,
                             SkScalar(SkColorGetA(colors[kTopLeft_CornerColors])),
                             SkScalar(SkColorGetA(colors[kTopRight_CornerColors])),
                             SkScalar(SkColorGetA(colors[kBottomLeft_CornerColors])),
                             SkScalar(SkColorGetA(colors[kBottomRight_CornerColors])));
-            uint8_t r = bilinear(u, v, 
+            uint8_t r = bilerp(u, v,
                             SkScalar(SkColorGetR(colors[kTopLeft_CornerColors])),
                             SkScalar(SkColorGetR(colors[kTopRight_CornerColors])),
                             SkScalar(SkColorGetR(colors[kBottomLeft_CornerColors])),
                             SkScalar(SkColorGetR(colors[kBottomRight_CornerColors])));
-            uint8_t g = bilinear(u, v, 
+            uint8_t g = bilerp(u, v,
                             SkScalar(SkColorGetG(colors[kTopLeft_CornerColors])),
                             SkScalar(SkColorGetG(colors[kTopRight_CornerColors])),
                             SkScalar(SkColorGetG(colors[kBottomLeft_CornerColors])),
                             SkScalar(SkColorGetG(colors[kBottomRight_CornerColors])));
-            uint8_t b = bilinear(u, v, 
+            uint8_t b = bilerp(u, v, 
                             SkScalar(SkColorGetB(colors[kTopLeft_CornerColors])),
                             SkScalar(SkColorGetB(colors[kTopRight_CornerColors])),
                             SkScalar(SkColorGetB(colors[kBottomLeft_CornerColors])),
@@ -235,4 +230,33 @@ bool SkPatch::getVertexData(SkPatch::VertexData* data, int lodX, int lodY) const
         u = SkScalarClampMax(u + 1.f / lodX, 1);
     }
     return true;
+}
+
+size_t SkPatch::writeToMemory(void* storage) const {
+    int byteCount =  kNumCtrlPts * sizeof(SkPoint) + kNumColors * sizeof(SkColor);
+    
+    if (NULL == storage) {
+        return SkAlign4(byteCount);
+    }
+    
+    SkWBuffer buffer(storage);
+    
+    buffer.write(fCtrlPoints, kNumCtrlPts * sizeof(SkPoint));
+    buffer.write(fCornerColors, kNumColors * sizeof(SkColor));
+    
+    buffer.padToAlign4();
+    return buffer.pos();
+}
+
+size_t SkPatch::readFromMemory(const void* storage, size_t length) {
+    SkRBufferWithSizeCheck buffer(storage, length);
+    
+    if (!buffer.read(fCtrlPoints, kNumCtrlPts * sizeof(SkPoint))) {
+        return 0;
+    }
+    
+    if (!buffer.read(fCornerColors, kNumColors * sizeof(SkColor))) {
+        return 0;
+    }
+    return kNumCtrlPts * sizeof(SkPoint) + kNumColors * sizeof(SkColor);
 }

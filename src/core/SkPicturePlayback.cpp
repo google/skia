@@ -306,6 +306,12 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
         case DRAW_PAINT:
             canvas->drawPaint(*fPictureData->getPaint(reader));
             break;
+        case DRAW_PATCH: {
+            const SkPaint& paint = *fPictureData->getPaint(reader);
+            SkPatch patch;
+            reader->readPatch(&patch);
+            canvas->drawPatch(patch, paint);
+        } break;
         case DRAW_PATH: {
             const SkPaint& paint = *fPictureData->getPaint(reader);
             canvas->drawPath(fPictureData->getPath(reader), paint);

@@ -16,61 +16,47 @@
 #include "GrTest.h"
 #include "SkPatch.h"
 
-static void draw_control_points(SkCanvas* canvas, SkPatch& patch, SkPaint& paint) {
+static void draw_control_points(SkCanvas* canvas, const SkPatch& patch) {
     //draw control points
-    SkPaint copy(paint);
-    SkPoint bottom[4];
+    SkPaint paint;
+    SkPoint bottom[SkPatch::kNumPtsCubic];
     patch.getBottomPoints(bottom);
-    SkPoint top[4];
+    SkPoint top[SkPatch::kNumPtsCubic];
     patch.getTopPoints(top);
-    SkPoint left[4];
+    SkPoint left[SkPatch::kNumPtsCubic];
     patch.getLeftPoints(left);
-    SkPoint right[4];
+    SkPoint right[SkPatch::kNumPtsCubic];
     patch.getRightPoints(right);
 
-    copy.setColor(SK_ColorBLACK);
-    copy.setStrokeWidth(0.5);
+    paint.setColor(SK_ColorBLACK);
+    paint.setStrokeWidth(0.5);
     SkPoint corners[4] = { bottom[0], bottom[3], top[0], top[3] };
-    canvas->drawPoints(SkCanvas::kLines_PointMode, 4, bottom, copy);
-    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, bottom+1, copy);
-    canvas->drawPoints(SkCanvas::kLines_PointMode, 4, top, copy);
-    canvas->drawPoints(SkCanvas::kLines_PointMode, 4, left, copy);
-    canvas->drawPoints(SkCanvas::kLines_PointMode, 4, right, copy);
+    canvas->drawPoints(SkCanvas::kLines_PointMode, 4, bottom, paint);
+    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, bottom+1, paint);
+    canvas->drawPoints(SkCanvas::kLines_PointMode, 4, top, paint);
+    canvas->drawPoints(SkCanvas::kLines_PointMode, 4, left, paint);
+    canvas->drawPoints(SkCanvas::kLines_PointMode, 4, right, paint);
 
-    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, top+1, copy);
-    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, left+1, copy);
-    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, right+1, copy);
+    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, top+1, paint);
+    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, left+1, paint);
+    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, right+1, paint);
 
-    copy.setStrokeWidth(2);
+    paint.setStrokeWidth(2);
 
-    copy.setColor(SK_ColorRED);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, corners, copy);
+    paint.setColor(SK_ColorRED);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, corners, paint);
 
-    copy.setColor(SK_ColorBLUE);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, bottom+1, copy);
+    paint.setColor(SK_ColorBLUE);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, bottom+1, paint);
 
-    copy.setColor(SK_ColorCYAN);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, top+1, copy);
+    paint.setColor(SK_ColorCYAN);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, top+1, paint);
 
-    copy.setColor(SK_ColorYELLOW);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, left+1, copy);
+    paint.setColor(SK_ColorYELLOW);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, left+1, paint);
 
-    copy.setColor(SK_ColorGREEN);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, right+1, copy);
-}
-
-static void draw_random_patch(SkPoint points[12], SkColor colors[4], SkCanvas* canvas,
-                              SkPaint& paint, SkRandom* rnd) {
-    SkPoint ptsCpy[12];
-    memcpy(ptsCpy, points, 12 * sizeof(SkPoint));
-    for (int i = 0; i < 5; i++) {
-        int index = rnd->nextRangeU(0, 11);
-        SkScalar dx = rnd->nextRangeScalar(-50, 50), dy = rnd->nextRangeScalar(-50, 50);
-        ptsCpy[index].offset(dx, dy);
-    }
-    SkPatch patch(ptsCpy, colors);
-    canvas->drawPatch(patch, paint);
-    draw_control_points(canvas, patch, paint);
+    paint.setColor(SK_ColorGREEN);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, right+1, paint);
 }
 
 namespace skiagm {
@@ -94,40 +80,51 @@ protected:
     }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag | kSkipPipe_Flag | kSkipPicture_Flag;
+        return kSkipTiled_Flag;
     }
     
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         
         SkPaint paint;
-        SkColor colors[4] = {
+        
+        // The order of the colors and points is clockwise starting at upper-left corner.
+        SkColor colors[SkPatch::kNumColors] = {
             SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN
         };
-        SkPoint points[12] = {
+        SkPoint points[SkPatch::kNumCtrlPts] = {
+            //top points
             {50,50},{75,20},{125,80}, {150,50},
-            {120,75},{180,125},{150,150},
-            {125,120},{75,180},{50,150},
+            //right points
+            {120,75},{180,125},
+            //bottom points
+            {150,150},{125,120},{75,180},{50,150},
+            //left points
             {20,125},{80,75}
         };
         
-        SkRandom rnd;
-        SkScalar scale = 0.5f;
+        SkPatch patch(points, colors);
+        static const SkScalar kScale = 0.5f;
+        canvas->translate(100, 100);
         canvas->save();
         for (SkScalar x = 0; x < 4; x++) {
             canvas->save();
-            canvas->scale(scale * (x + 1), scale * (x + 1));
+            canvas->scale(kScale * (x + 1), kScale * (x + 1));
             canvas->translate(x * 100, 0);
-            draw_random_patch(points, colors, canvas, paint, &rnd);
+            canvas->drawPatch(patch, paint);
+            draw_control_points(canvas, patch);
             canvas->restore();
         }
+        
         canvas->translate(0, 270);
-        SkScalar skew = 0.1f;
+        
+        static const SkScalar kSkew = 0.2f;
         for (SkScalar x = 0; x < 4; x++) {
             canvas->save();
-            canvas->scale(scale * (x + 1), scale * (x + 1));
-            canvas->skew(skew * (x + 1), skew * (x + 1));
+            canvas->scale(kScale * (x + 1), kScale * (x + 1));
             canvas->translate(x * 100, 0);
-            draw_random_patch(points, colors, canvas, paint, &rnd);
+            canvas->skew(kSkew * (x + 1), kSkew * (x + 1));
+            canvas->drawPatch(patch, paint);
+            draw_control_points(canvas, patch);
             canvas->restore();
         }
         canvas->restore();

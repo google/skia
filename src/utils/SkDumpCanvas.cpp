@@ -442,6 +442,19 @@ void SkDumpCanvas::drawVertices(VertexMode vmode, int vertexCount,
                SkScalarToFloat(vertices[0].fY));
 }
 
+void SkDumpCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+    const SkPoint* points = patch.getControlPoints();
+    const SkColor* color = patch.getColors();
+    //dumps corner points and colors in clockwise order starting on upper-left corner
+    this->dump(kDrawPatch_Verb, &paint, "drawPatch(Vertices{[%f, %f], [%f, %f], [%f, %f], [%f, %f]}\
+              | Colors{[0x%x], [0x%x], [0x%x], [0x%x]})",
+              points[SkPatch::kTopP0_CubicCtrlPts].fX, points[SkPatch::kTopP0_CubicCtrlPts].fY,
+              points[SkPatch::kTopP3_CubicCtrlPts].fX, points[SkPatch::kTopP3_CubicCtrlPts].fY,
+              points[SkPatch::kBottomP3_CubicCtrlPts].fX,points[SkPatch::kBottomP3_CubicCtrlPts].fY,
+              points[SkPatch::kBottomP0_CubicCtrlPts].fX,points[SkPatch::kBottomP0_CubicCtrlPts].fY,
+              color[0], color[1], color[2], color[3]);
+}
+
 void SkDumpCanvas::drawData(const void* data, size_t length) {
 //    this->dump(kDrawData_Verb, NULL, "drawData(%d)", length);
     this->dump(kDrawData_Verb, NULL, "drawData(%d) %.*s", length,

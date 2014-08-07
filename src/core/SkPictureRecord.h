@@ -61,6 +61,7 @@ public:
                           const SkColor colors[], SkXfermode*,
                           const uint16_t indices[], int indexCount,
                               const SkPaint&) SK_OVERRIDE;
+    virtual void drawPatch(const SkPatch& patch, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
@@ -177,6 +178,7 @@ private:
     const SkFlatData* addPaint(const SkPaint& paint) { return this->addPaintPtr(&paint); }
     const SkFlatData* addPaintPtr(const SkPaint* paint);
     void addFlatPaint(const SkFlatData* flatPaint);
+    void addPatch(const SkPatch& patch);
     void addPath(const SkPath& path);
     void addPicture(const SkPicture* picture);
     void addPoint(const SkPoint& point);

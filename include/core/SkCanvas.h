@@ -1008,6 +1008,13 @@ public:
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint);
     
+    /** 
+     
+     Draw a SkPatch
+     
+     @param patch specifies the 4 bounding cubic bezier curves of a patch.
+     @param paint Specifies the shader/texture if present.
+     */
     virtual void drawPatch(const SkPatch& patch, const SkPaint& paint);
 
     /** Send a blob of data to the canvas.
