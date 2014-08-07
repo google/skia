@@ -24,7 +24,7 @@
       "headerText": "sourceSkpFile", 
       "isFilterable": true, 
       "isSortable": true, 
-      "useFreeformFilter": false, 
+      "useFreeformFilter": true, 
       "valuesAndCounts": [
         [
           "changed.skp", 
