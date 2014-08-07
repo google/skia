@@ -18,6 +18,7 @@
 #include "SkTArray.h"
 #include "SkTSort.h"
 #include "PdfRenderer.h"
+#include "ProcStats.h"
 #include "picture_utils.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
@@ -219,7 +220,9 @@ static int process_input(
             }
         }
     }
-    SkTQSort<SkString>(files.begin(), files.end() - 1);
+    if (files.count() > 0) {
+        SkTQSort<SkString>(files.begin(), files.end() - 1);
+    }
     int failures = 0;
     for (int i = 0; i < files.count(); i ++) {
         if (!render_pdf(files[i], outputDir, renderer)) {
@@ -245,6 +248,11 @@ int tool_main_core(int argc, char** argv) {
     }
 
     int failures = process_input(FLAGS_inputPaths, outputDir, *renderer);
+
+    int max_rss_kb = sk_tools::getMaxResidentSetSizeKB();
+    if (max_rss_kb >= 0) {
+        SkDebugf("%4dM peak ResidentSetSize\n", max_rss_kb / 1024);
+    }
 
     if (failures != 0) {
         SkDebugf("Failed to render %i PDFs.\n", failures);
