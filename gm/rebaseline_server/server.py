@@ -475,8 +475,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       #   /dispatcher/remainder
       # where 'dispatcher' indicates which do_GET_* dispatcher to run
       # and 'remainder' is the remaining path sent to that dispatcher.
-      normpath = posixpath.normpath(self.path)
-      (dispatcher_name, remainder) = PATHSPLIT_RE.match(normpath).groups()
+      (dispatcher_name, remainder) = PATHSPLIT_RE.match(self.path).groups()
       dispatchers = {
           GET__LIVE_RESULTS: self.do_GET_live_results,
           GET__PRECOMPUTED_RESULTS: self.do_GET_precomputed_results,
