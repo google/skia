@@ -91,12 +91,39 @@ bool SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         }
     }
 
-    // Set the config...
-    bm->setInfo(SkImageInfo::MakeN32(sampler.scaledWidth(), sampler.scaledHeight(), alphaType));
+    // Search through the compressed formats to see if the KTX file is holding
+    // compressed data
+    bool ktxIsCompressed = false;
+    SkTextureCompressor::Format ktxCompressedFormat;
+    for (int i = 0; i < SkTextureCompressor::kFormatCnt; ++i) {
+        SkTextureCompressor::Format fmt = static_cast<SkTextureCompressor::Format>(i);
+        if (ktxFile.isCompressedFormat(fmt)) {
+            ktxIsCompressed = true;
+            ktxCompressedFormat = fmt;
+            break;
+        }
+    }
+
+    // If the compressed format is a grayscale image, then setup the bitmap properly...
+    bool isCompressedAlpha = ktxIsCompressed &&
+        ((SkTextureCompressor::kLATC_Format == ktxCompressedFormat) ||
+         (SkTextureCompressor::kR11_EAC_Format == ktxCompressedFormat));
+
+    // Set the image dimensions and underlying pixel type.
+    if (isCompressedAlpha) {
+        const int w = sampler.scaledWidth();
+        const int h = sampler.scaledHeight();
+        bm->setInfo(SkImageInfo::MakeA8(w, h));
+    } else {
+        const int w = sampler.scaledWidth();
+        const int h = sampler.scaledHeight();
+        bm->setInfo(SkImageInfo::MakeN32(w, h, alphaType));
+    }
+    
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }
-    
+
     // If we've made it this far, then we know how to grok the data.
     if (!this->allocPixelRef(bm, NULL)) {
         return false;
@@ -105,7 +132,36 @@ bool SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     // Lock the pixels, since we're about to write to them...
     SkAutoLockPixels alp(*bm);
 
-    if (ktxFile.isCompressedFormat(SkTextureCompressor::kETC1_Format)) {
+    if (isCompressedAlpha) {
+        if (!sampler.begin(bm, SkScaledBitmapSampler::kGray, *this)) {
+            return false;
+        }
+
+        // Alpha data is only a single byte per pixel.
+        int nPixels = width * height;
+        SkAutoMalloc outRGBData(nPixels);
+        uint8_t *outRGBDataPtr = reinterpret_cast<uint8_t *>(outRGBData.get());
+
+        // Decode the compressed format
+        const uint8_t *buf = reinterpret_cast<const uint8_t *>(ktxFile.pixelData());
+        if (!SkTextureCompressor::DecompressBufferFromFormat(
+                outRGBDataPtr, width, buf, width, height, ktxCompressedFormat)) {
+            return false;
+        }
+
+        // Set each of the pixels...
+        const int srcRowBytes = width;
+        const int dstHeight = sampler.scaledHeight();
+        const uint8_t *srcRow = reinterpret_cast<uint8_t *>(outRGBDataPtr);
+        srcRow += sampler.srcY0() * srcRowBytes;
+        for (int y = 0; y < dstHeight; ++y) {
+            sampler.next(srcRow);
+            srcRow += sampler.srcDY() * srcRowBytes;
+        }
+
+        return true;
+
+    } else if (ktxFile.isCompressedFormat(SkTextureCompressor::kETC1_Format)) {
         if (!sampler.begin(bm, SkScaledBitmapSampler::kRGB, *this)) {
             return false;
         }
