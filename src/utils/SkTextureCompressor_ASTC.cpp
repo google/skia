@@ -793,7 +793,11 @@ static bool decode_integer_sequence(
                 endBlockBit = endBit;
             }
 
-            decode_trit_block(dst, nBits, read_astc_bits(src, startBit, endBlockBit));
+            // Trit blocks are three values large.
+            int trits[5];
+            decode_trit_block(trits, nBits, read_astc_bits(src, startBit, endBlockBit));
+            memcpy(dst, trits, SkMin32(nVals, 5)*sizeof(int));
+
             dst += 5;
             nVals -= 5;
             startBit = endBlockBit;
@@ -806,7 +810,11 @@ static bool decode_integer_sequence(
                 endBlockBit = endBit;
             }
 
-            decode_quint_block(dst, nBits, read_astc_bits(src, startBit, endBlockBit));
+            // Quint blocks are three values large
+            int quints[3];
+            decode_quint_block(quints, nBits, read_astc_bits(src, startBit, endBlockBit));
+            memcpy(dst, quints, SkMin32(nVals, 3)*sizeof(int));
+
             dst += 3;
             nVals -= 3;
             startBit = endBlockBit;
@@ -1708,7 +1716,8 @@ struct ASTCDecompressionData {
         // The rest of the CEM config will be between the dual plane bit selector
         // and the texel weight grid.
         const int lowCEM = static_cast<int>(read_astc_bits(fBlock, 23, 29));
-        SkASSERT(lastWeight - dualPlaneBitLoc > 31);
+        SkASSERT(lastWeight >= dualPlaneBitLoc);
+        SkASSERT(lastWeight - dualPlaneBitLoc < 31);
         int fullCEM = static_cast<int>(read_astc_bits(fBlock, dualPlaneBitLoc, lastWeight));
 
         // Attach the config at the end of the weight grid to the CEM values

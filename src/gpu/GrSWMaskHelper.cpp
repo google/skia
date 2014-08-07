@@ -37,19 +37,33 @@ SkXfermode::Mode op_to_mode(SkRegion::Op op) {
 }
 
 static inline GrPixelConfig fmt_to_config(SkTextureCompressor::Format fmt) {
-    static const GrPixelConfig configMap[] = {
-        kLATC_GrPixelConfig,       // kLATC_Format,
-        kR11_EAC_GrPixelConfig,    // kR11_EAC_Format,
-        kETC1_GrPixelConfig,       // kETC1_Format,
-        kASTC_12x12_GrPixelConfig  // kASTC_12x12_Format,
-    };
-    GR_STATIC_ASSERT(0 == SkTextureCompressor::kLATC_Format);
-    GR_STATIC_ASSERT(1 == SkTextureCompressor::kR11_EAC_Format);
-    GR_STATIC_ASSERT(2 == SkTextureCompressor::kETC1_Format);
-    GR_STATIC_ASSERT(3 == SkTextureCompressor::kASTC_12x12_Format);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(configMap) == SkTextureCompressor::kFormatCnt);
 
-    return configMap[fmt];
+    GrPixelConfig config;
+    switch (fmt) {
+        case SkTextureCompressor::kLATC_Format:
+            config = kLATC_GrPixelConfig;
+            break;
+
+        case SkTextureCompressor::kR11_EAC_Format:
+            config = kR11_EAC_GrPixelConfig;
+            break;
+
+        case SkTextureCompressor::kASTC_12x12_Format:
+            config = kASTC_12x12_GrPixelConfig;
+            break;
+
+        case SkTextureCompressor::kETC1_Format:
+            config = kETC1_GrPixelConfig;
+            break;
+
+        default:
+            SkDEBUGFAIL("No GrPixelConfig for compression format!");
+            // Best guess
+            config = kAlpha_8_GrPixelConfig;
+            break;
+    }
+
+    return config;
 }
 
 #if GR_COMPRESS_ALPHA_MASK

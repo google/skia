@@ -55,9 +55,10 @@ static bool skip_image_format(SkImageDecoder::Format format) {
         // decoders do not, so skip them as well.
         case SkImageDecoder::kICO_Format:
         case SkImageDecoder::kBMP_Format:
-        // KTX is a Texture format so it's not particularly clear how to 
-        // decode the alpha from it.
+        // KTX and ASTC are texture formats so it's not particularly clear how to 
+        // decode the alpha from them.
         case SkImageDecoder::kKTX_Format:
+        case SkImageDecoder::kASTC_Format:
         // The rest of these are opaque.
         case SkImageDecoder::kPKM_Format:
         case SkImageDecoder::kWBMP_Format:
