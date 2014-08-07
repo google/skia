@@ -8,6 +8,7 @@
 #ifndef SkTextureCompressor_DEFINED
 #define SkTextureCompressor_DEFINED
 
+#include "SkBitmapProcShader.h"
 #include "SkImageInfo.h"
 
 class SkBitmap;
@@ -73,11 +74,24 @@ namespace SkTextureCompressor {
     typedef bool (*CompressionProc)(uint8_t* dst, const uint8_t* src,
                                     int width, int height, int rowBytes);
 
+    // Returns true if there exists a blitter for the specified format.
+    inline bool ExistsBlitterForFormat(Format format) {
+        switch (format) {
+            case kLATC_Format:
+            case kR11_EAC_Format:
+            case kASTC_12x12_Format:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
     // Returns the blitter for the given compression format. Note, the blitter
     // is intended to be used with the proper input. I.e. if you try to blit
     // RGB source data into an R11 EAC texture, you're gonna have a bad time.
     SkBlitter* CreateBlitterForFormat(int width, int height, void* compressedBuffer,
-                                      Format format);
+                                      SkTBlitterAllocator *allocator, Format format);
 
     // Returns the desired dimensions of the block size for the given format. These dimensions
     // don't necessarily correspond to the specification's dimensions, since there may

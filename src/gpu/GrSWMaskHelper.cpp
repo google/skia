@@ -125,13 +125,21 @@ void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegio
     }
     paint.setAntiAlias(antiAlias);
 
+    SkTBlitterAllocator allocator;
+    SkBlitter* blitter = NULL;
+    if (kBlitter_CompressionMode == fCompressionMode) {
+        SkASSERT(NULL != fCompressedBuffer.get());
+        blitter = SkTextureCompressor::CreateBlitterForFormat(
+            fBM.width(), fBM.height(), fCompressedBuffer.get(), &allocator, fCompressedFormat);
+    }
+
     if (SkRegion::kReplace_Op == op && 0xFF == alpha) {
         SkASSERT(0xFF == paint.getAlpha());
-        fDraw.drawPathCoverage(path, paint);
+        fDraw.drawPathCoverage(path, paint, blitter);
     } else {
         paint.setXfermodeMode(op_to_mode(op));
         paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
-        fDraw.drawPath(path, paint);
+        fDraw.drawPath(path, paint, blitter);
     }
 }
 
@@ -150,31 +158,50 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
                                      resultBounds.height());
 
 #if GR_COMPRESS_ALPHA_MASK
-    fCompressMask = choose_compressed_fmt(fContext->getGpu()->caps(), &fCompressedFormat);
-#else
-    fCompressMask = false;
+    if (choose_compressed_fmt(fContext->getGpu()->caps(), &fCompressedFormat)) {
+        fCompressionMode = kCompress_CompressionMode;
+    }
 #endif
 
-    // Make sure that the width is a multiple of 16 so that we can use
-    // specialized SIMD instructions that compress 4 blocks at a time.
-    int cmpWidth, cmpHeight;
-    if (fCompressMask) {
+    // Make sure that the width is a multiple of the desired block dimensions
+    // to allow for specialized SIMD instructions that compress multiple blocks at a time.
+    int cmpWidth = bounds.fRight;
+    int cmpHeight = bounds.fBottom;
+    if (kCompress_CompressionMode == fCompressionMode) {
         int dimX, dimY;
         SkTextureCompressor::GetBlockDimensions(fCompressedFormat, &dimX, &dimY);
-        cmpWidth = dimX * ((bounds.fRight + (dimX - 1)) / dimX);
-        cmpHeight = dimY * ((bounds.fBottom + (dimY - 1)) / dimY);
+        cmpWidth = dimX * ((cmpWidth + (dimX - 1)) / dimX);
+        cmpHeight = dimY * ((cmpHeight + (dimY - 1)) / dimY);
+
+        // Can we create a blitter?
+        if (SkTextureCompressor::ExistsBlitterForFormat(fCompressedFormat)) {
+            int cmpSz = SkTextureCompressor::GetCompressedDataSize(
+                fCompressedFormat, cmpWidth, cmpHeight);
+
+            SkASSERT(cmpSz > 0);
+            SkASSERT(NULL == fCompressedBuffer.get());
+            fCompressedBuffer.reset(cmpSz);
+            fCompressionMode = kBlitter_CompressionMode;
+        }
+    } 
+
+    // If we don't have a custom blitter, then we either need a bitmap to compress
+    // from or a bitmap that we're going to use as a texture. In any case, we should
+    // allocate the pixels for a bitmap
+    const SkImageInfo bmImageInfo = SkImageInfo::MakeA8(cmpWidth, cmpHeight);
+    if (kBlitter_CompressionMode != fCompressionMode) {
+        if (!fBM.allocPixels(bmImageInfo)) {
+            return false;
+        }
+
+        sk_bzero(fBM.getPixels(), fBM.getSafeSize());
     } else {
-        cmpWidth = bounds.fRight;
-        cmpHeight = bounds.fBottom;
+        // Otherwise, we just need to remember how big the buffer is...
+        fBM.setInfo(bmImageInfo);
     }
-
-    if (!fBM.allocPixels(SkImageInfo::MakeA8(cmpWidth, cmpHeight))) {
-        return false;
-    }
-
-    sk_bzero(fBM.getPixels(), fBM.getSafeSize());
 
     sk_bzero(&fDraw, sizeof(fDraw));
+
     fRasterClip.setRect(bounds);
     fDraw.fRC    = &fRasterClip;
     fDraw.fClip  = &fRasterClip.bwRgn();
@@ -193,7 +220,7 @@ bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
     desc.fHeight = fBM.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    if (fCompressMask) {
+    if (kNone_CompressionMode != fCompressionMode) {
 
 #ifdef SK_DEBUG
         int dimX, dimY;
@@ -203,12 +230,7 @@ bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
 #endif
 
         desc.fConfig = fmt_to_config(fCompressedFormat);
-
-        // If this config isn't supported then we should fall back to A8
-        if (!(fContext->getGpu()->caps()->isConfigTexturable(desc.fConfig))) {
-            SkDEBUGFAIL("Determining compression should be set from choose_compressed_fmt");
-            desc.fConfig = kAlpha_8_GrPixelConfig;
-        }
+        SkASSERT(fContext->getGpu()->caps()->isConfigTexturable(desc.fConfig));
     }
 
     texture->set(fContext, desc);
@@ -253,11 +275,19 @@ void GrSWMaskHelper::toTexture(GrTexture *texture) {
     desc.fConfig = texture->config();
         
     // First see if we should compress this texture before uploading.
-    if (fCompressMask) {
-        this->compressTextureData(texture, desc);
-    } else {
-        // Looks like we have to send a full A8 texture. 
-        this->sendTextureData(texture, desc, fBM.getPixels(), fBM.rowBytes());
+    switch (fCompressionMode) {
+        case kNone_CompressionMode:
+            this->sendTextureData(texture, desc, fBM.getPixels(), fBM.rowBytes());
+            break;
+
+        case kCompress_CompressionMode:
+            this->compressTextureData(texture, desc);
+            break;
+
+        case kBlitter_CompressionMode:
+            SkASSERT(NULL != fCompressedBuffer.get());
+            this->sendTextureData(texture, desc, fCompressedBuffer.get(), 0);
+            break;
     }
 }
 

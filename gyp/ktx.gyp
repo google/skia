@@ -9,6 +9,7 @@
     'include_dirs' : [
       '../third_party/ktx',
       '../include/gpu',
+      '../src/core',
       '../src/gpu',
       '../src/utils',
     ],

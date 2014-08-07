@@ -11,6 +11,7 @@
 #include "SkTextureCompressor_R11EAC.h"
 
 #include "SkBitmap.h"
+#include "SkBitmapProcShader.h"
 #include "SkData.h"
 #include "SkEndian.h"
 
@@ -172,16 +173,17 @@ SkData *CompressBitmapToFormat(const SkBitmap &bitmap, Format format) {
     return NULL;
 }
 
-SkBlitter* CreateBlitterForFormat(int width, int height, void* compressedBuffer, Format format) {
+SkBlitter* CreateBlitterForFormat(int width, int height, void* compressedBuffer,
+                                  SkTBlitterAllocator *allocator, Format format) {
     switch(format) {
         case kLATC_Format:
-            return CreateLATCBlitter(width, height, compressedBuffer);
+            return CreateLATCBlitter(width, height, compressedBuffer, allocator);
 
         case kR11_EAC_Format:
-            return CreateR11EACBlitter(width, height, compressedBuffer);
+            return CreateR11EACBlitter(width, height, compressedBuffer, allocator);
 
         case kASTC_12x12_Format:
-            return CreateASTCBlitter(width, height, compressedBuffer);
+            return CreateASTCBlitter(width, height, compressedBuffer, allocator);
 
         default:
             return NULL;

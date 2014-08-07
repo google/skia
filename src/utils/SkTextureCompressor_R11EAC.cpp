@@ -8,6 +8,7 @@
 #include "SkTextureCompressor.h"
 #include "SkTextureCompressor_Blitter.h"
 
+#include "SkBlitter.h"
 #include "SkEndian.h"
 
 // #define COMPRESS_R11_EAC_SLOW 1
@@ -608,9 +609,26 @@ bool CompressA8ToR11EAC(uint8_t* dst, const uint8_t* src, int width, int height,
 #endif
 }
 
-SkBlitter* CreateR11EACBlitter(int width, int height, void* outputBuffer) {
-    return new
-        SkTCompressedAlphaBlitter<4, 8, compress_block_vertical>
+SkBlitter* CreateR11EACBlitter(int width, int height, void* outputBuffer,
+                               SkTBlitterAllocator* allocator) {
+
+    if ((width % 4) != 0 || (height % 4) != 0) {
+        return NULL;
+    }
+
+    // Memset the output buffer to an encoding that decodes to zero. We must do this
+    // in order to avoid having uninitialized values in the buffer if the blitter
+    // decides not to write certain scanlines (and skip entire rows of blocks).
+    // In the case of R11, we use the encoding from recognizing all zero pixels from above.
+    const int nBlocks = (width * height / 16);  // 4x4 pixel blocks.
+    uint64_t *dst = reinterpret_cast<uint64_t *>(outputBuffer);
+    for (int i = 0; i < nBlocks; ++i) {
+        *dst = 0x0020000000002000ULL;
+        ++dst;
+    }
+
+    return allocator->createT<
+        SkTCompressedAlphaBlitter<4, 8, compress_block_vertical>, int, int, void*>
         (width, height, outputBuffer);
 }
 

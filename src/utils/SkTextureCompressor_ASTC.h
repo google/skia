@@ -8,9 +8,8 @@
 #ifndef SkTextureCompressor_ASTC_DEFINED
 #define SkTextureCompressor_ASTC_DEFINED
 
-#include <stdint.h>
+#include "SkBitmapProcShader.h"
 
-// Forward declare
 class SkBlitter;
 
 namespace SkTextureCompressor {
@@ -18,7 +17,8 @@ namespace SkTextureCompressor {
     bool CompressA8To12x12ASTC(uint8_t* dst, const uint8_t* src,
                                int width, int height, int rowBytes);
 
-    SkBlitter* CreateASTCBlitter(int width, int height, void* outputBuffer);
+    SkBlitter* CreateASTCBlitter(int width, int height, void* outputBuffer,
+                                 SkTBlitterAllocator *allocator);
 
     void DecompressASTC(uint8_t* dst, int dstRowBytes, const uint8_t* src,
                         int width, int height, int blockDimX, int blockDimY);

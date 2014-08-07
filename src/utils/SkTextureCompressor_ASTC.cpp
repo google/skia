@@ -2011,9 +2011,26 @@ bool CompressA8To12x12ASTC(uint8_t* dst, const uint8_t* src,
     return true;
 }
 
-SkBlitter* CreateASTCBlitter(int width, int height, void* outputBuffer) {
-    return new
-        SkTCompressedAlphaBlitter<12, 16, CompressA8ASTCBlockVertical>
+SkBlitter* CreateASTCBlitter(int width, int height, void* outputBuffer,
+                             SkTBlitterAllocator* allocator) {
+    if ((width % 12) != 0 || (height % 12) != 0) {
+        return NULL;
+    }
+
+    // Memset the output buffer to an encoding that decodes to zero. We must do this
+    // in order to avoid having uninitialized values in the buffer if the blitter
+    // decides not to write certain scanlines (and skip entire rows of blocks).
+    // In the case of ASTC, if everything index is zero, then the interpolated value
+    // will decode to zero provided we have the right header. We use the encoding
+    // from recognizing all zero blocks from above.
+    const int nBlocks = (width * height / 144);
+    uint8_t *dst = reinterpret_cast<uint8_t *>(outputBuffer);
+    for (int i = 0; i < nBlocks; ++i) {
+        send_packing(&dst, SkTEndian_SwapLE64(0x0000000001FE000173ULL), 0);
+    }
+
+    return allocator->createT<
+        SkTCompressedAlphaBlitter<12, 16, CompressA8ASTCBlockVertical>, int, int, void* >
         (width, height, outputBuffer);
 }
 

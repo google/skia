@@ -8,14 +8,17 @@
 #ifndef SkTextureCompressor_R11EAC_DEFINED
 #define SkTextureCompressor_R11EAC_DEFINED
 
-#include "SkBlitter.h"
+#include "SkBitmapProcShader.h"
+
+class SkBlitter;
 
 namespace SkTextureCompressor {
 
     bool CompressA8ToR11EAC(uint8_t* dst, const uint8_t* src,
                             int width, int height, int rowBytes);
 
-    SkBlitter* CreateR11EACBlitter(int width, int height, void* outputBuffer);
+    SkBlitter* CreateR11EACBlitter(int width, int height, void* outputBuffer,
+                                   SkTBlitterAllocator* allocator);
 
     void DecompressR11EAC(uint8_t* dst, int dstRB, const uint8_t* src, int width, int height);
 }
