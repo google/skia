@@ -10,7 +10,7 @@
 #include "Test.h"
 
 /**
- *  Test SkOSPath::Join and SkOSPath::Basename.
+ *  Test SkOSPath::Join, SkOSPath::Basename, and SkOSPath::Dirname.
  *  Will use SkOSPath::Join to append filename to dir, test that it works correctly,
  *  and tests using SkOSPath::Basename on the result.
  *  @param reporter Reporter for test conditions.
@@ -32,15 +32,27 @@ static void test_dir_with_file(skiatest::Reporter* reporter, SkString dir,
     // fullName should be the combined size of dir and file, plus one if
     // dir did not include the final path separator.
     size_t expectedSize = dir.size() + filename.size();
-    if (!dir.endsWith(SkPATH_SEPARATOR)) {
+    if (!dir.endsWith(SkPATH_SEPARATOR) && !dir.isEmpty()) {
         expectedSize++;
     }
     REPORTER_ASSERT(reporter, fullName.size() == expectedSize);
 
     SkString basename = SkOSPath::Basename(fullName.c_str());
+    SkString dirname = SkOSPath::Dirname(fullName.c_str());
 
     // basename should be the same as filename
     REPORTER_ASSERT(reporter, basename.equals(filename));
+
+    // dirname should be the same as dir with any trailing seperators removed.
+    // Except when the the string is just "/".
+    SkString strippedDir = dir;
+    while (strippedDir.size() > 2 && strippedDir[strippedDir.size() - 1] == SkPATH_SEPARATOR) {
+        strippedDir.remove(strippedDir.size() - 1, 1);
+    }
+    if (!dirname.equals(strippedDir)) {
+        SkDebugf("OOUCH %s %s %s\n", dir.c_str(), strippedDir.c_str(), dirname.c_str());
+    }
+    REPORTER_ASSERT(reporter, dirname.equals(strippedDir));
 
     // basename will not contain a path separator
     REPORTER_ASSERT(reporter, !basename.contains(SkPATH_SEPARATOR));
@@ -78,8 +90,16 @@ DEF_TEST(OSPath, reporter) {
     SkString empty = SkOSPath::Basename(NULL);
     REPORTER_ASSERT(reporter, empty.size() == 0);
 
+    // File in root dir
+    dir.printf("%c", SkPATH_SEPARATOR);
+    filename.set("file");
+    test_dir_with_file(reporter, dir, filename);
+
+    // Just the root dir
+    filename.reset();
+    test_dir_with_file(reporter, dir, filename);
+
     // Test that NULL can be used for the directory and filename.
     SkString emptyPath = SkOSPath::Join(NULL, NULL);
-    REPORTER_ASSERT(reporter, emptyPath.size() == 1);
-    REPORTER_ASSERT(reporter, emptyPath.contains(SkPATH_SEPARATOR));
+    REPORTER_ASSERT(reporter, emptyPath.isEmpty());
 }

@@ -31,11 +31,26 @@
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-#if SK_DEBUG
-    DEFINE_bool(runOnce, true, "Run each benchmark just once?");
+static const int kAutoTuneLoops = -1;
+
+static const int kDefaultLoops = 
+#ifdef SK_DEBUG
+    1;
 #else
-    DEFINE_bool(runOnce, false, "Run each benchmark just once?");
+    kAutoTuneLoops;
 #endif
+
+static SkString loops_help_txt() {
+    SkString help;
+    help.printf("Number of times to run each bench. Set this to %d to auto-"
+                "tune for each bench. Timings are only reported when auto-tuning.",
+                kAutoTuneLoops);
+    return help;
+}
+
+DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
+
+DEFINE_string2(writePath, w, "", "If set, write benches here as .pngs.");
 
 DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
 DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");
@@ -67,6 +82,9 @@ static SkString humanize(double ms) {
 #define HUMANIZE(ms) humanize(ms).c_str()
 
 static double time(int loops, Benchmark* bench, SkCanvas* canvas, SkGLContextHelper* gl) {
+    if (canvas) {
+        canvas->clear(SK_ColorWHITE);
+    }
     WallTimer timer;
     timer.start();
     if (bench) {
@@ -105,17 +123,50 @@ static int clamp_loops(int loops) {
     return loops;
 }
 
+static bool write_canvas_png(SkCanvas* canvas, const SkString& filename) {
+    if (filename.isEmpty()) {
+        return false;
+    }
+    if (kUnknown_SkColorType == canvas->imageInfo().fColorType) {
+        return false;
+    }
+    SkBitmap bmp;
+    bmp.setInfo(canvas->imageInfo());
+    if (!canvas->readPixels(&bmp, 0, 0)) {
+        SkDebugf("Can't read canvas pixels.\n");
+        return false;
+    }
+    SkString dir = SkOSPath::Dirname(filename.c_str());
+    if (!sk_mkdir(dir.c_str())) {
+        SkDebugf("Can't make dir %s.\n", dir.c_str());
+        return false;
+    }
+    SkFILEWStream stream(filename.c_str());
+    if (!stream.isValid()) {
+        SkDebugf("Can't write %s.\n", filename.c_str());
+        return false;
+    }
+    if (!SkImageEncoder::EncodeStream(&stream, bmp, SkImageEncoder::kPNG_Type, 100)) {
+        SkDebugf("Can't encode a PNG.\n");
+        return false;
+    }
+    return true;
+}
+
+static int kFailedLoops = -2;
 static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, double* samples) {
     // First figure out approximately how many loops of bench it takes to make overhead negligible.
     double bench_plus_overhead = 0.0;
     int round = 0;
-    while (bench_plus_overhead < overhead) {
-        if (round++ == FLAGS_maxCalibrationAttempts) {
-            SkDebugf("WARNING: Can't estimate loops for %s (%s vs. %s); skipping.\n",
-                     bench->getName(), HUMANIZE(bench_plus_overhead), HUMANIZE(overhead));
-            return 0;
+    if (kAutoTuneLoops == FLAGS_loops) {
+        while (bench_plus_overhead < overhead) {
+            if (round++ == FLAGS_maxCalibrationAttempts) {
+                SkDebugf("WARNING: Can't estimate loops for %s (%s vs. %s); skipping.\n",
+                         bench->getName(), HUMANIZE(bench_plus_overhead), HUMANIZE(overhead));
+                return kFailedLoops;
+            }
+            bench_plus_overhead = time(1, bench, canvas, NULL);
         }
-        bench_plus_overhead = time(1, bench, canvas, NULL);
     }
 
     // Later we'll just start and stop the timer once but loop N times.
@@ -134,9 +185,13 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
     //       bench_plus_overhead - overhead)
     //
     // Luckily, this also works well in practice. :)
-    const double numer = overhead / FLAGS_overheadGoal - overhead;
-    const double denom = bench_plus_overhead - overhead;
-    const int loops = clamp_loops(FLAGS_runOnce ? 1 : (int)ceil(numer / denom));
+    int loops = FLAGS_loops;
+    if (kAutoTuneLoops == loops) {
+        const double numer = overhead / FLAGS_overheadGoal - overhead;
+        const double denom = bench_plus_overhead - overhead;
+        loops = (int)ceil(numer / denom);
+    }
+    loops = clamp_loops(loops);
 
     for (int i = 0; i < FLAGS_samples; i++) {
         samples[i] = time(loops, bench, canvas, NULL) / loops;
@@ -154,8 +209,9 @@ static int gpu_bench(SkGLContextHelper* gl,
     SK_GL(*gl, Finish());
 
     // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
-    int loops = 1;
-    if (!FLAGS_runOnce) {
+    int loops = FLAGS_loops;
+    if (kAutoTuneLoops == loops) {
+        loops = 1;
         double elapsed = 0;
         do {
             loops *= 2;
@@ -474,9 +530,17 @@ int nanobench_main() {
     SetupCrashHandler();
     SkAutoGraphics ag;
 
-    if (FLAGS_runOnce) {
+    if (kAutoTuneLoops != FLAGS_loops) {
         FLAGS_samples     = 1;
         FLAGS_gpuFrameLag = 0;
+    }
+
+    if (!FLAGS_writePath.isEmpty()) {
+        SkDebugf("Writing files to %s.\n", FLAGS_writePath[0]);
+        if (!sk_mkdir(FLAGS_writePath[0])) {
+            SkDebugf("Could not create %s. Files won't be written.\n", FLAGS_writePath[0]);
+            FLAGS_writePath.set(0, NULL);
+        }
     }
 
     MultiResultsWriter log;
@@ -502,8 +566,8 @@ int nanobench_main() {
 
     SkAutoTMalloc<double> samples(FLAGS_samples);
 
-    if (FLAGS_runOnce) {
-        SkDebugf("--runOnce is true; times would only be misleading so we won't print them.\n");
+    if (kAutoTuneLoops != FLAGS_loops) {
+        SkDebugf("Fixed number of loops; times would only be misleading so we won't print them.\n");
     } else if (FLAGS_verbose) {
         // No header.
     } else if (FLAGS_quiet) {
@@ -549,7 +613,14 @@ int nanobench_main() {
 #endif
                  cpu_bench(       overhead, bench.get(), canvas, samples.get());
 
-            if (loops == 0) {
+            if (canvas && !FLAGS_writePath.isEmpty() && NULL != FLAGS_writePath[0]) {
+                SkString pngFilename = SkOSPath::Join(FLAGS_writePath[0], config);
+                pngFilename = SkOSPath::Join(pngFilename.c_str(), bench->getName());
+                pngFilename.append(".png");
+                write_canvas_png(canvas, pngFilename);
+            }
+
+            if (kFailedLoops == loops) {
                 // Can't be timed.  A warning note has already been printed.
                 continue;
             }
@@ -568,7 +639,7 @@ int nanobench_main() {
             log.timer("max_ms",    stats.max);
             log.timer("stddev_ms", sqrt(stats.var));
 
-            if (FLAGS_runOnce) {
+            if (kAutoTuneLoops != FLAGS_loops) {
                 if (targets.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
