@@ -521,10 +521,12 @@
         '../tools/PdfRenderer.h',
       ],
       'include_dirs': [
+        '../src/core',
         '../src/pipe/utils/',
         '../src/utils/',
       ],
       'dependencies': [
+        'flags.gyp:flags',
         'pdf.gyp:pdf',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:picture_utils',

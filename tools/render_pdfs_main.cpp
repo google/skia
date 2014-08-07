@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkCommandLineFlags.h"
 #include "SkDevice.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -15,6 +16,7 @@
 #include "SkPixelRef.h"
 #include "SkStream.h"
 #include "SkTArray.h"
+#include "SkTSort.h"
 #include "PdfRenderer.h"
 #include "picture_utils.h"
 
@@ -38,26 +40,28 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 static const char PDF_FILE_EXTENSION[] = "pdf";
 static const char SKP_FILE_EXTENSION[] = "skp";
 
-static void usage(const char* argv0) {
-    SkDebugf("SKP to PDF rendering tool\n");
-    SkDebugf("\n"
-"Usage: \n"
-"     %s <input>... [-w <outputDir>] [--jpegQuality N] \n"
-, argv0);
-    SkDebugf("\n\n");
-    SkDebugf(
-"     input:     A list of directories and files to use as input. Files are\n"
-"                expected to have the .skp extension.\n\n");
-    SkDebugf(
-"     outputDir: directory to write the rendered pdfs.\n\n");
-    SkDebugf("\n");
-        SkDebugf(
-"     jpegQuality N: encodes images in JPEG at quality level N, which can\n"
-"                    be in range 0-100).\n"
-"                    N = -1 will disable JPEG compression.\n"
-"                    Default is N = 100, maximum quality.\n\n");
-    SkDebugf("\n");
-}
+
+DEFINE_string2(inputPaths, r, "",
+              "A list of directories and files to use as input. "
+              "Files are expected to have the .skp extension.");
+
+DEFINE_string2(outputDir, w, "",
+               "Directory to write the rendered pdfs.");
+
+DEFINE_string2(match, m, "",
+               "[~][^]substring[$] [...] of filenames to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching file to always be skipped\n"
+               "^ requires the start of the file to match\n"
+               "$ requires the end of the file to match\n"
+               "^ and $ requires an exact match\n"
+               "If a file does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
+
+DEFINE_int32(jpegQuality, 100,
+             "Encodes images in JPEG at quality level N, which can be in "
+             "range 0-100).   N = -1 will disable JPEG compression. "
+             "Default is N = 100, maximum quality.");
 
 /** Replaces the extension of a file.
  * @param path File name whose extension will be changed.
@@ -81,10 +85,9 @@ static bool replace_filename_extension(SkString* path,
     return false;
 }
 
-int gJpegQuality = 100;
 // the size_t* parameter is deprecated, so we ignore it
 static SkData* encode_to_dct_data(size_t*, const SkBitmap& bitmap) {
-    if (gJpegQuality == -1) {
+    if (FLAGS_jpegQuality == -1) {
         return NULL;
     }
 
@@ -97,9 +100,8 @@ static SkData* encode_to_dct_data(size_t*, const SkBitmap& bitmap) {
     bm = copy;
 #endif
 
-    return SkImageEncoder::EncodeData(bm,
-                                      SkImageEncoder::kJPEG_Type,
-                                      gJpegQuality);
+    return SkImageEncoder::EncodeData(
+            bm, SkImageEncoder::kJPEG_Type, FLAGS_jpegQuality);
 }
 
 /** Builds the output filename. path = dir/name, and it replaces expected
@@ -165,8 +167,8 @@ static bool render_pdf(const SkString& inputPath, const SkString& outputDir,
         return false;
     }
 
-    SkDebugf("exporting... [%i %i] %s\n", picture->width(), picture->height(),
-             inputPath.c_str());
+    SkDebugf("exporting... [%-4i %6i] %s\n",
+             picture->width(), picture->height(), inputPath.c_str());
 
     SkWStream* stream(open_stream(outputDir, inputFilename));
 
@@ -184,91 +186,65 @@ static bool render_pdf(const SkString& inputPath, const SkString& outputDir,
     return success;
 }
 
+static bool operator<(const SkString& a, const SkString& b) {
+    return strcmp(a.c_str(), b.c_str()) < 0;
+}
+
 /** For each file in the directory or for the file passed in input, call
  * render_pdf.
  * @param input A directory or an skp file.
  * @param outputDir Output dir.
  * @param renderer The object responsible to render the skp object into pdf.
  */
-static int process_input(const SkString& input, const SkString& outputDir,
-                         sk_tools::PdfRenderer& renderer) {
-    int failures = 0;
-    if (sk_isdir(input.c_str())) {
-        SkOSFile::Iter iter(input.c_str(), SKP_FILE_EXTENSION);
-        SkString inputFilename;
-        while (iter.next(&inputFilename)) {
-            SkString inputPath = SkOSPath::Join(input.c_str(), inputFilename.c_str());
-            if (!render_pdf(inputPath, outputDir, renderer)) {
-                ++failures;
+static int process_input(
+        const SkCommandLineFlags::StringArray& inputs,
+        const SkString& outputDir,
+        sk_tools::PdfRenderer& renderer) {
+    SkTArray<SkString> files;
+    for (int i = 0; i < inputs.count(); i ++) {
+        const char* input = inputs[i];
+        if (sk_isdir(input)) {
+            SkOSFile::Iter iter(input, SKP_FILE_EXTENSION);
+            SkString inputFilename;
+            while (iter.next(&inputFilename)) {
+                if (!SkCommandLineFlags::ShouldSkip(
+                            FLAGS_match, inputFilename.c_str())) {
+                    files.push_back(
+                            SkOSPath::Join(input, inputFilename.c_str()));
+                }
+            }
+        } else {
+            if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, input)) {
+                files.push_back(SkString(input));
             }
         }
-    } else {
-        SkString inputPath(input);
-        if (!render_pdf(inputPath, outputDir, renderer)) {
+    }
+    SkTQSort<SkString>(files.begin(), files.end() - 1);
+    int failures = 0;
+    for (int i = 0; i < files.count(); i ++) {
+        if (!render_pdf(files[i], outputDir, renderer)) {
             ++failures;
         }
     }
     return failures;
 }
 
-static void parse_commandline(int argc, char* const argv[],
-                              SkTArray<SkString>* inputs,
-                              SkString* outputDir) {
-    const char* argv0 = argv[0];
-    char* const* stop = argv + argc;
-
-    for (++argv; argv < stop; ++argv) {
-        if ((0 == strcmp(*argv, "-h")) || (0 == strcmp(*argv, "--help"))) {
-            usage(argv0);
-            exit(-1);
-        } else if (0 == strcmp(*argv, "-w")) {
-            ++argv;
-            if (argv >= stop) {
-                SkDebugf("Missing outputDir for -w\n");
-                usage(argv0);
-                exit(-1);
-            }
-            *outputDir = SkString(*argv);
-        } else if (0 == strcmp(*argv, "--jpegQuality")) {
-            ++argv;
-            if (argv >= stop) {
-                SkDebugf("Missing argument for --jpegQuality\n");
-                usage(argv0);
-                exit(-1);
-            }
-            gJpegQuality = atoi(*argv);
-            if (gJpegQuality < -1 || gJpegQuality > 100) {
-                SkDebugf("Invalid argument for --jpegQuality\n");
-                usage(argv0);
-                exit(-1);
-            }
-        } else {
-            inputs->push_back(SkString(*argv));
-        }
-    }
-
-    if (inputs->count() < 1) {
-        usage(argv0);
-        exit(-1);
-    }
-}
-
 int tool_main_core(int argc, char** argv);
 int tool_main_core(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
+
     SkAutoGraphics ag;
-    SkTArray<SkString> inputs;
 
     SkAutoTUnref<sk_tools::PdfRenderer>
         renderer(SkNEW_ARGS(sk_tools::SimplePdfRenderer, (encode_to_dct_data)));
     SkASSERT(renderer.get());
 
     SkString outputDir;
-    parse_commandline(argc, argv, &inputs, &outputDir);
-
-    int failures = 0;
-    for (int i = 0; i < inputs.count(); i ++) {
-        failures += process_input(inputs[i], outputDir, *renderer);
+    if (FLAGS_outputDir.count() > 0) {
+        outputDir = FLAGS_outputDir[0];
     }
+
+    int failures = process_input(FLAGS_inputPaths, outputDir, *renderer);
 
     if (failures != 0) {
         SkDebugf("Failed to render %i PDFs.\n", failures);
