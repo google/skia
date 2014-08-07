@@ -222,7 +222,10 @@ void SkRasterClip::convertToAA() {
     SkASSERT(fIsBW);
     fAA.setRegion(fBW);
     fIsBW = false;
-    (void)this->updateCacheAndReturnNonEmpty();
+    
+    // since we are being explicitly asked to convert-to-aa, we pass false so we don't "optimize"
+    // ourselves back to BW.
+    (void)this->updateCacheAndReturnNonEmpty(false);
 }
 
 #ifdef SK_DEBUG
