@@ -374,11 +374,12 @@ static uint16_t get_argb4444_neighbor_avg_color(const SkBitmap& bitmap,
 static SkBitmap unpremultiply_bitmap(const SkBitmap& bitmap,
                                      const SkIRect& srcRect) {
     SkBitmap outBitmap;
-    outBitmap.allocPixels(bitmap.info().makeWH(srcRect.width(), srcRect.height()));
+    SkAssertResult(outBitmap.allocPixels(
+            bitmap.info().makeWH(srcRect.width(), srcRect.height())));
     int dstRow = 0;
 
-    outBitmap.lockPixels();
-    bitmap.lockPixels();
+    SkAutoLockPixels outBitmapPixelLock(outBitmap);
+    SkAutoLockPixels bitmapPixelLock(bitmap);
     switch (bitmap.colorType()) {
         case kARGB_4444_SkColorType: {
             for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
@@ -428,8 +429,6 @@ static SkBitmap unpremultiply_bitmap(const SkBitmap& bitmap,
         default:
             SkASSERT(false);
     }
-    bitmap.unlockPixels();
-    outBitmap.unlockPixels();
 
     outBitmap.setImmutable();
 
