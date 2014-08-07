@@ -10,6 +10,29 @@
 
 #include "SkGLContextHelper.h"
 
+/* This struct is taken from a mesa demo.  Please update as required */
+static const struct { int major, minor; } gl_versions[] = {
+   {1, 0},
+   {1, 1},
+   {1, 2},
+   {1, 3},
+   {1, 4},
+   {1, 5},
+   {2, 0},
+   {2, 1},
+   {3, 0},
+   {3, 1},
+   {3, 2},
+   {3, 3},
+   {4, 0},
+   {4, 1},
+   {4, 2},
+   {4, 3},
+   {4, 4},
+   {0, 0} /* end of list */
+};
+#define NUM_GL_VERSIONS SK_ARRAY_COUNT(gl_versions)
+
 #if defined(SK_BUILD_FOR_MAC)
     #include <OpenGL/OpenGL.h>
 #elif defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_NACL)
