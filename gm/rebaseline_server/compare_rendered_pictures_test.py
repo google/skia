@@ -20,6 +20,7 @@ within self._output_dir_expected, which wouldn't be good...
 
 # System-level imports
 import os
+import posixpath
 import subprocess
 
 # Must fix up PYTHONPATH before importing from within Skia
@@ -57,6 +58,8 @@ class CompareRenderedPicturesTest(base_unittest.TestCase):
     results_obj = compare_rendered_pictures.RenderedPicturesComparisons(
         setA_dirs=[os.path.join(self.temp_dir, setA_label)],
         setB_dirs=[os.path.join(self.temp_dir, setB_label)],
+        setA_section=gm_json.JSONKEY_ACTUALRESULTS,
+        setB_section=gm_json.JSONKEY_ACTUALRESULTS,
         image_diff_db=imagediffdb.ImageDiffDB(self.temp_dir),
         image_base_gs_url='gs://fakebucket/fake/path',
         diff_base_url='/static/generated-images',
@@ -70,11 +73,12 @@ class CompareRenderedPicturesTest(base_unittest.TestCase):
 
   def test_repo_url(self):
     """Use repo: URL to specify summary files."""
+    base_repo_url = 'repo:gm/rebaseline_server/testdata/inputs/skp-summaries'
     results_obj = compare_rendered_pictures.RenderedPicturesComparisons(
-        setA_dirs=[
-            'repo:gm/rebaseline_server/testdata/inputs/skp-actuals/setA'],
-        setB_dirs=[
-            'repo:gm/rebaseline_server/testdata/inputs/skp-actuals/setB'],
+        setA_dirs=[posixpath.join(base_repo_url, 'expectations')],
+        setB_dirs=[posixpath.join(base_repo_url, 'actuals')],
+        setA_section=gm_json.JSONKEY_EXPECTEDRESULTS,
+        setB_section=gm_json.JSONKEY_ACTUALRESULTS,
         image_diff_db=imagediffdb.ImageDiffDB(self.temp_dir),
         image_base_gs_url='gs://fakebucket/fake/path',
         diff_base_url='/static/generated-images',

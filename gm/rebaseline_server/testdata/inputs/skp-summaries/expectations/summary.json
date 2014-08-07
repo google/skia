@@ -1,5 +1,5 @@
 {
-   "actual-results" : {
+   "expected-results" : {
       "changed.skp" : {
          "whole-image" : {
             "checksumAlgorithm" : "bitmap-64bitMD5",

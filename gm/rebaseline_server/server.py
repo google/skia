@@ -88,12 +88,12 @@ GET__PRECOMPUTED_RESULTS = 'results'
 GET__PREFETCH_RESULTS = 'prefetch'
 GET__STATIC_CONTENTS = 'static'
 
-# Parameters we use within do_GET_live_results()
+# Parameters we use within do_GET_live_results() and do_GET_prefetch_results()
+LIVE_PARAM__DOWNLOAD_ONLY_DIFFERING = 'downloadOnlyDifferingImages'
 LIVE_PARAM__SET_A_DIR = 'setADir'
+LIVE_PARAM__SET_A_SECTION = 'setASection'
 LIVE_PARAM__SET_B_DIR = 'setBDir'
-
-# Parameters we use within do_GET_prefetch_results()
-PREFETCH_PARAM__DOWNLOAD_ONLY_DIFFERING = 'downloadOnlyDifferingImages'
+LIVE_PARAM__SET_B_SECTION = 'setBSection'
 
 # How often (in seconds) clients should reload while waiting for initial
 # results to load.
@@ -533,12 +533,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """
     logging.debug('do_GET_live_results: url_remainder="%s"' % url_remainder)
     param_dict = urlparse.parse_qs(url_remainder)
-    results_obj = compare_rendered_pictures.RenderedPicturesComparisons(
-        setA_dirs=param_dict[LIVE_PARAM__SET_A_DIR],
-        setB_dirs=param_dict[LIVE_PARAM__SET_B_DIR],
-        image_diff_db=_SERVER.image_diff_db,
-        diff_base_url='/static/generated-images',
-        gs=_SERVER.gs, truncate_results=_SERVER.truncate_results)
+    results_obj = self._call_compare_rendered_pictures(
+        param_dict=param_dict, prefetch_only=False)
     self.send_json_dict(results_obj.get_packaged_results_of_type(
         results_mod.KEY__HEADER__RESULTS_ALL))
 
@@ -550,16 +546,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """
     logging.debug('do_GET_prefetch_results: url_remainder="%s"' % url_remainder)
     param_dict = urlparse.parse_qs(url_remainder)
-    download_all_images = (
-        param_dict.get(PREFETCH_PARAM__DOWNLOAD_ONLY_DIFFERING, [''])[0].lower()
-        not in ['1', 'true'])
-    compare_rendered_pictures.RenderedPicturesComparisons(
-        setA_dirs=param_dict[LIVE_PARAM__SET_A_DIR],
-        setB_dirs=param_dict[LIVE_PARAM__SET_B_DIR],
-        image_diff_db=_SERVER.image_diff_db,
-        diff_base_url='/static/generated-images',
-        gs=_SERVER.gs, truncate_results=_SERVER.truncate_results,
-        prefetch_only=True, download_all_images=download_all_images)
+    self._call_compare_rendered_pictures(
+        param_dict=param_dict, prefetch_only=True)
     self.send_response(200)
 
   def do_GET_static(self, path):
@@ -706,6 +694,47 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.send_header('Content-type', 'application/json')
     self.end_headers()
     json.dump(json_dict, self.wfile)
+
+  def _call_compare_rendered_pictures(self, param_dict, prefetch_only):
+    """Instantiates RenderedPicturesComparisons object to serve a GET request.
+
+    Args:
+      param_dict: dictionary of URL parameters
+      prefetch_only: parameter to pass into RenderedPicturesComparisons
+          constructor
+
+    Returns: a reference to the new RenderedPicturesComparisons object.
+    """
+    download_all_images = (
+        param_dict.get(LIVE_PARAM__DOWNLOAD_ONLY_DIFFERING, [''])[0].lower()
+        not in ['1', 'true'])
+    setA_section = self._validate_summary_section(
+        param_dict.get(LIVE_PARAM__SET_A_SECTION, [None])[0])
+    setB_section = self._validate_summary_section(
+        param_dict.get(LIVE_PARAM__SET_B_SECTION, [None])[0])
+    return compare_rendered_pictures.RenderedPicturesComparisons(
+        setA_dirs=param_dict[LIVE_PARAM__SET_A_DIR],
+        setB_dirs=param_dict[LIVE_PARAM__SET_B_DIR],
+        setA_section=setA_section, setB_section=setB_section,
+        image_diff_db=_SERVER.image_diff_db,
+        diff_base_url='/static/generated-images',
+        gs=_SERVER.gs, truncate_results=_SERVER.truncate_results,
+        prefetch_only=prefetch_only, download_all_images=download_all_images)
+
+  def _validate_summary_section(self, section_name):
+    """Validates the section we have been requested to read within JSON summary.
+
+    Args:
+      section_name: which section of the JSON summary file has been requested
+
+    Returns: the validated section name
+
+    Raises: Exception if an invalid section_name was requested.
+    """
+    if section_name not in compare_rendered_pictures.ALLOWED_SECTION_NAMES:
+      raise Exception('requested section name "%s" not in allowed list %s' % (
+          section_name, compare_rendered_pictures.ALLOWED_SECTION_NAMES))
+    return section_name
 
 
 def main():

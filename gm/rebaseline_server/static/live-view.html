@@ -24,8 +24,8 @@
   <em ng-show="!readyToDisplay">
     Loading results of query:
     <ul>
-      <li>setA: {{setADir}}</li>
-      <li>setB: {{setBDir}}</li>
+      <li>setA: "{{setASection}}" within {{setADir}}</li>
+      <li>setB: "{{setBSection}}" within {{setBDir}}</li>
     </ul>
     <br>
     {{loadingMessage}}
@@ -48,8 +48,8 @@
     </div>
 
     <div ng-show="header[constants.KEY__HEADER__TIME_UPDATED]">
-      setA: {{setADir}}<br>
-      setB: {{setBDir}}<br>
+      setA: "{{setASection}}" within {{setADir}}<br>
+      setB: "{{setBSection}}" within {{setBDir}}<br>
       These results current as of
       {{localTimeString(header[constants.KEY__HEADER__TIME_UPDATED])}}
     </div>

@@ -128,7 +128,9 @@ Loader.controller(
     $scope.constants = constants;
     $scope.windowTitle = "Loading GM Results...";
     $scope.setADir = $location.search().setADir;
+    $scope.setASection = $location.search().setASection;
     $scope.setBDir = $location.search().setBDir;
+    $scope.setBSection = $location.search().setBSection;
     $scope.loadingMessage = "please wait...";
 
     /**
@@ -138,7 +140,9 @@ Loader.controller(
      */
     var liveQueryUrl =
        "/live-results/setADir=" + encodeURIComponent($scope.setADir) +
-       "&setBDir=" + encodeURIComponent($scope.setBDir);
+       "&setASection=" + encodeURIComponent($scope.setASection) +
+       "&setBDir=" + encodeURIComponent($scope.setBDir) +
+       "&setBSection=" + encodeURIComponent($scope.setBSection);
     $http.get(liveQueryUrl).success(
       function(data, status, header, config) {
         var dataHeader = data[constants.KEY__ROOT__HEADER];
@@ -252,7 +256,9 @@ Loader.controller(
           // parameter name -> copier object to load/save parameter value
           $scope.queryParameters.map = {
             'setADir':               $scope.queryParameters.copiers.simple,
+            'setASection':           $scope.queryParameters.copiers.simple,
             'setBDir':               $scope.queryParameters.copiers.simple,
+            'setBSection':           $scope.queryParameters.copiers.simple,
             'displayLimitPending':   $scope.queryParameters.copiers.simple,
             'showThumbnailsPending': $scope.queryParameters.copiers.simple,
             'mergeIdenticalRowsPending': $scope.queryParameters.copiers.simple,

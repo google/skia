@@ -61,16 +61,24 @@ REPO_URL_PREFIX = 'repo:'
 REPO_BASEPATH = os.path.abspath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir))
 
+# Which sections within a JSON summary file can contain results.
+ALLOWED_SECTION_NAMES = [
+    gm_json.JSONKEY_ACTUALRESULTS,
+    gm_json.JSONKEY_EXPECTEDRESULTS,
+]
+
 
 class RenderedPicturesComparisons(results.BaseComparisons):
   """Loads results from multiple render_pictures runs into an ImagePairSet.
   """
 
-  def __init__(self, setA_dirs, setB_dirs, image_diff_db,
-               image_base_gs_url=DEFAULT_IMAGE_BASE_GS_URL,
-               diff_base_url=None, setA_label='setA',
-               setB_label='setB', gs=None,
-               truncate_results=False, prefetch_only=False,
+  def __init__(self,
+               setA_dirs, setB_dirs,
+               setA_section, setB_section,
+               image_diff_db,
+               image_base_gs_url=DEFAULT_IMAGE_BASE_GS_URL, diff_base_url=None,
+               setA_label='setA', setB_label='setB',
+               gs=None, truncate_results=False, prefetch_only=False,
                download_all_images=False):
     """Constructor: downloads images and generates diffs.
 
@@ -86,6 +94,10 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       setB_dirs: list of root directories to copy all JSON summaries from,
           and to use as setB within the comparisons. These directories may be
           gs:// URLs, special "repo:" URLs, or local filepaths.
+      setA_section: which section within setA to examine; must be one of
+          ALLOWED_SECTION_NAMES
+      setB_section: which section within setB to examine; must be one of
+          ALLOWED_SECTION_NAMES
       image_diff_db: ImageDiffDB instance
       image_base_gs_url: "gs://" URL pointing at the Google Storage bucket/dir
           under which all render_pictures result images can
@@ -132,12 +144,9 @@ class RenderedPicturesComparisons(results.BaseComparisons):
         self._copy_dir_contents(source_dir=source_dir, dest_dir=setB_root)
 
       time_start = int(time.time())
-      # TODO(epoger): For now, this assumes that we are always comparing two
-      # sets of actual results, not actuals vs expectations.  Allow the user
-      # to control this.
       self._results = self._load_result_pairs(
-          setA_root=setA_root, setA_section=gm_json.JSONKEY_ACTUALRESULTS,
-          setB_root=setB_root, setB_section=gm_json.JSONKEY_ACTUALRESULTS)
+          setA_root=setA_root, setA_section=setA_section,
+          setB_root=setB_root, setB_section=setB_section)
       if self._results:
         self._timestamp = int(time.time())
         logging.info('Number of download file collisions: %s' %
@@ -231,20 +240,21 @@ class RenderedPicturesComparisons(results.BaseComparisons):
             source_skp_name=skp_name, tilenum=None))
 
         tiled_images_A = self.get_default(
-            dictA_results, None,
+            dictA_results, [],
             skp_name, gm_json.JSONKEY_SOURCE_TILEDIMAGES)
         tiled_images_B = self.get_default(
-            dictB_results, None,
+            dictB_results, [],
             skp_name, gm_json.JSONKEY_SOURCE_TILEDIMAGES)
-        # TODO(epoger): Report an error if we find tiles for A but not B?
-        if tiled_images_A and tiled_images_B:
-          # TODO(epoger): Report an error if we find a different number of tiles
-          # for A and B?
-          num_tiles = len(tiled_images_A)
+        if tiled_images_A or tiled_images_B:
+          num_tiles_A = len(tiled_images_A)
+          num_tiles_B = len(tiled_images_B)
+          num_tiles = max(num_tiles_A, num_tiles_B)
           for tile_num in range(num_tiles):
             imagepairs_for_this_skp.append(self._create_image_pair(
-                image_dict_A=tiled_images_A[tile_num],
-                image_dict_B=tiled_images_B[tile_num],
+                image_dict_A=(tiled_images_A[tile_num]
+                              if tile_num < num_tiles_A else None),
+                image_dict_B=(tiled_images_B[tile_num]
+                              if tile_num < num_tiles_B else None),
                 source_skp_name=skp_name, tilenum=tile_num))
 
         for one_imagepair in imagepairs_for_this_skp:
