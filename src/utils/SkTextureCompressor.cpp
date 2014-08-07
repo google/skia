@@ -45,31 +45,24 @@ void GetBlockDimensions(Format format, int* dimX, int* dimY, bool matchSpec) {
     }
 
     // No specialized arguments, return the dimensions as they are in the spec.
-    static const struct FormatDimensions {
-        const int fBlockSizeX;
-        const int fBlockSizeY;
-    } kFormatDimensions[kFormatCnt] = {
-        { 4, 4 }, // kLATC_Format
-        { 4, 4 }, // kR11_EAC_Format
-        { 4, 4 }, // kETC1_Format
-        { 4, 4 }, // kASTC_4x4_Format
-        { 5, 4 }, // kASTC_5x4_Format
-        { 5, 5 }, // kASTC_5x5_Format
-        { 6, 5 }, // kASTC_6x5_Format
-        { 6, 6 }, // kASTC_6x6_Format
-        { 8, 5 }, // kASTC_8x5_Format
-        { 8, 6 }, // kASTC_8x6_Format
-        { 8, 8 }, // kASTC_8x8_Format
-        { 10, 5 }, // kASTC_10x5_Format
-        { 10, 6 }, // kASTC_10x6_Format
-        { 10, 8 }, // kASTC_10x8_Format
-        { 10, 10 }, // kASTC_10x10_Format
-        { 12, 10 }, // kASTC_12x10_Format
-        { 12, 12 }, // kASTC_12x12_Format
-    };
+    switch(format) {
+        // These formats are 64 bits per 4x4 block.
+        default:
+            SkDEBUGFAIL("Unknown compression format!");
+            // fall through
+        case kLATC_Format:
+        case kR11_EAC_Format:
+        case kETC1_Format: 
+            *dimX = 4;
+            *dimY = 4;
+            break;
 
-    *dimX = kFormatDimensions[format].fBlockSizeX;
-    *dimY = kFormatDimensions[format].fBlockSizeY;
+        // This format is 12x12 blocks to 128 bits.
+        case kASTC_12x12_Format:
+            *dimX = 12;
+            *dimY = 12;
+            break;        
+    }
 }
 
 int GetCompressedDataSize(Format fmt, int width, int height) {
@@ -86,20 +79,7 @@ int GetCompressedDataSize(Format fmt, int width, int height) {
             encodedBlockSize = 8;
             break;
 
-        // This format is 128 bits.
-        case kASTC_4x4_Format:
-        case kASTC_5x4_Format:
-        case kASTC_5x5_Format:
-        case kASTC_6x5_Format:
-        case kASTC_6x6_Format:
-        case kASTC_8x5_Format:
-        case kASTC_8x6_Format:
-        case kASTC_8x8_Format:
-        case kASTC_10x5_Format:
-        case kASTC_10x6_Format:
-        case kASTC_10x8_Format:
-        case kASTC_10x10_Format:
-        case kASTC_12x10_Format:
+        // This format is 12x12 blocks to 128 bits.
         case kASTC_12x12_Format:
             encodedBlockSize = 16;
             break;
@@ -234,23 +214,9 @@ bool DecompressBufferFromFormat(uint8_t* dst, int dstRowBytes, const uint8_t* sr
         case kETC1_Format:
             return 0 == etc1_decode_image(src, dst, width, height, 3, dstRowBytes);
 #endif
-
-        case kASTC_4x4_Format:
-        case kASTC_5x4_Format:
-        case kASTC_5x5_Format:
-        case kASTC_6x5_Format:
-        case kASTC_6x6_Format:
-        case kASTC_8x5_Format:
-        case kASTC_8x6_Format:
-        case kASTC_8x8_Format:
-        case kASTC_10x5_Format:
-        case kASTC_10x6_Format:
-        case kASTC_10x8_Format:
-        case kASTC_10x10_Format:
-        case kASTC_12x10_Format:
         case kASTC_12x12_Format:
-            DecompressASTC(dst, dstRowBytes, src, width, height, dimX, dimY);
-            return true;
+            // TODO(krajcevski) .. right now just fall through and return false.
+            return false;
 
         default:
             // Do nothing...

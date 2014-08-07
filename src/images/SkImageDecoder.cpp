@@ -86,8 +86,6 @@ const char* SkImageDecoder::GetFormatName(Format format) {
             return "PKM";
         case kKTX_Format:
             return "KTX";
-        case kASTC_Format:
-            return "ASTC";
         case kJPEG_Format:
             return "JPEG";
         case kPNG_Format:

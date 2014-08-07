@@ -12,32 +12,6 @@
 #include "SkTextureCompressor.h"
 #include "Test.h"
 
-// TODO: Create separate tests for RGB and RGBA data once
-// ASTC and ETC1 decompression is implemented.
-
-static bool decompresses_a8(SkTextureCompressor::Format fmt) {
-    switch (fmt) {
-        case SkTextureCompressor::kLATC_Format:
-        case SkTextureCompressor::kR11_EAC_Format:
-            return true;
-
-        default:
-            return false;
-    }
-}
-
-static bool compresses_a8(SkTextureCompressor::Format fmt) {
-    switch (fmt) {
-        case SkTextureCompressor::kLATC_Format:
-        case SkTextureCompressor::kR11_EAC_Format:
-        case SkTextureCompressor::kASTC_12x12_Format:
-            return true;
-
-        default:
-            return false;
-    }
-}
-
 /**
  * Make sure that we properly fail when we don't have multiple of four image dimensions.
  */
@@ -64,9 +38,6 @@ DEF_TEST(CompressAlphaFailDimensions, reporter) {
     
     for (int i = 0; i < SkTextureCompressor::kFormatCnt; ++i) {
         const SkTextureCompressor::Format fmt = static_cast<SkTextureCompressor::Format>(i);
-        if (!compresses_a8(fmt)) {
-            continue;
-        }
         SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(bitmap, fmt));
         REPORTER_ASSERT(reporter, NULL == data);
     }
@@ -98,9 +69,6 @@ DEF_TEST(CompressAlphaFailColorType, reporter) {
 
     for (int i = 0; i < SkTextureCompressor::kFormatCnt; ++i) {
         const SkTextureCompressor::Format fmt = static_cast<SkTextureCompressor::Format>(i);
-        if (!compresses_a8(fmt)) {
-            continue;
-        }
         SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(bitmap, fmt));
         REPORTER_ASSERT(reporter, NULL == data);
     }
@@ -166,7 +134,10 @@ DEF_TEST(CompressCheckerboard, reporter) {
 
         // Ignore formats for RGBA data, since the decompressed buffer
         // won't match the size and contents of the original.
-        if (!decompresses_a8(fmt) || !compresses_a8(fmt)) {
+        // TODO: Create separate tests for RGB and RGBA data once
+        // ASTC and ETC1 decompression is implemented.
+        if (SkTextureCompressor::kASTC_12x12_Format == fmt ||
+            SkTextureCompressor::kETC1_Format == fmt) {
             continue;
         }
 

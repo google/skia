@@ -37,7 +37,6 @@ public:
         kWEBP_Format,
         kPKM_Format,
         kKTX_Format,
-        kASTC_Format,
 
         kLastKnownFormat = kKTX_Format,
     };
@@ -526,7 +525,6 @@ DECLARE_DECODER_CREATOR(WBMPImageDecoder);
 DECLARE_DECODER_CREATOR(WEBPImageDecoder);
 DECLARE_DECODER_CREATOR(PKMImageDecoder);
 DECLARE_DECODER_CREATOR(KTXImageDecoder);
-DECLARE_DECODER_CREATOR(ASTCImageDecoder);
 
 // Typedefs to make registering decoder and formatter callbacks easier.
 // These have to be defined outside SkImageDecoder. :(
