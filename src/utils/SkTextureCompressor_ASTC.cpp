@@ -1708,7 +1708,8 @@ struct ASTCDecompressionData {
         // The rest of the CEM config will be between the dual plane bit selector
         // and the texel weight grid.
         const int lowCEM = static_cast<int>(read_astc_bits(fBlock, 23, 29));
-        SkASSERT(lastWeight - dualPlaneBitLoc > 31);
+        SkASSERT(lastWeight >= dualPlaneBitLoc);
+        SkASSERT(lastWeight - dualPlaneBitLoc < 31);
         int fullCEM = static_cast<int>(read_astc_bits(fBlock, dualPlaneBitLoc, lastWeight));
 
         // Attach the config at the end of the weight grid to the CEM values
