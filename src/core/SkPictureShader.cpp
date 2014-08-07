@@ -76,12 +76,21 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
     }
     SkSize scaledSize = SkSize::Make(scale.x() * fTile.width(), scale.y() * fTile.height());
 
+    // Clamp the tile size to about 16M pixels
+    static const SkScalar kMaxTileArea = 4096 * 4096;
+    SkScalar tileArea = SkScalarMul(scaledSize.width(), scaledSize.height());
+    if (tileArea > kMaxTileArea) {
+        SkScalar clampScale = SkScalarSqrt(SkScalarDiv(kMaxTileArea, tileArea));
+        scaledSize.set(SkScalarMul(scaledSize.width(), clampScale),
+                       SkScalarMul(scaledSize.height(), clampScale));
+    }
+
     SkISize tileSize = scaledSize.toRound();
     if (tileSize.isEmpty()) {
         return NULL;
     }
 
-    // The actual scale, compensating for rounding.
+    // The actual scale, compensating for rounding & clamping.
     SkSize tileScale = SkSize::Make(SkIntToScalar(tileSize.width()) / fTile.width(),
                                     SkIntToScalar(tileSize.height()) / fTile.height());
 
