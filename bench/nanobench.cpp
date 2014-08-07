@@ -33,7 +33,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 
 static const int kAutoTuneLoops = -1;
 
-static const int kDefaultLoops = 
+static const int kDefaultLoops =
 #ifdef SK_DEBUG
     1;
 #else
@@ -49,8 +49,6 @@ static SkString loops_help_txt() {
 }
 
 DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
-
-DEFINE_string2(writePath, w, "", "If set, write benches here as .pngs.");
 
 DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
 DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");

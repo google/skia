@@ -52,3 +52,5 @@ DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 
 DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
+
+DEFINE_string2(writePath, w, "", "If set, write bitmaps here as .pngs.");

@@ -8,7 +8,6 @@
 #include "SkStream.h"
 #include "SkString.h"
 
-DEFINE_string2(writePath, w, "", "If set, write GMs here as .pngs.");
 DEFINE_bool(writePngOnly, false, "If true, don't encode raw bitmap after .png data.  "
                                  "This means -r won't work, but skdiff will still work fine.");
 

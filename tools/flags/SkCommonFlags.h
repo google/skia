@@ -26,5 +26,6 @@ DECLARE_int32(threads);
 DECLARE_string(resourcePath);
 DECLARE_bool(verbose);
 DECLARE_bool(veryVerbose);
+DECLARE_string(writePath);
 
 #endif
