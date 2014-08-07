@@ -1991,6 +1991,23 @@ static void decompress_astc_block(uint8_t* dst, int dstRowBytes,
     }
 }
 
+// This is the type passed as the CompressorType argument of the compressed
+// blitter for the ASTC format. The static functions required to be in this
+// struct are documented in SkTextureCompressor_Blitter.h
+struct CompressorASTC {
+    static inline void CompressA8Vertical(uint8_t* dst, const uint8_t* src) {
+        compress_a8_astc_block<GetAlphaTranspose>(&dst, src, 12);
+    }
+
+    static inline void CompressA8Horizontal(uint8_t* dst, const uint8_t* src,
+                                            int srcRowBytes) {
+        compress_a8_astc_block<GetAlpha>(&dst, src, srcRowBytes);
+    }
+
+    static inline void UpdateBlock(uint8_t* dst, const uint8_t* src) {
+    }
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace SkTextureCompressor {
@@ -2030,7 +2047,7 @@ SkBlitter* CreateASTCBlitter(int width, int height, void* outputBuffer,
     }
 
     return allocator->createT<
-        SkTCompressedAlphaBlitter<12, 16, CompressA8ASTCBlockVertical>, int, int, void* >
+        SkTCompressedAlphaBlitter<12, 16, CompressorASTC>, int, int, void* >
         (width, height, outputBuffer);
 }
 

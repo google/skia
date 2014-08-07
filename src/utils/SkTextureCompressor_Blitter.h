@@ -13,16 +13,30 @@
 
 namespace SkTextureCompressor {
 
-// The function used to compress an A8 block. This function is expected to be
-// used as a template argument to SkCompressedAlphaBlitter. The layout of the
-// block is also expected to be in column-major order.
-typedef void (*CompressA8Proc)(uint8_t* dst, const uint8_t block[]);
-
 // This class implements a blitter that blits directly into a buffer that will
 // be used as an compressed alpha texture. We compute this buffer by
 // buffering scan lines and then outputting them all at once. The number of
 // scan lines buffered is controlled by kBlockSize
-template<int BlockDim, int EncodedBlockSize, CompressA8Proc CompressionProc>
+//
+// The CompressorType is a struct with a bunch of static methods that provides
+// the specialized compression functionality of the blitter. A complete CompressorType
+// will implement the following static functions;
+//
+// struct CompressorType {
+//     // The function used to compress an A8 block. The layout of the
+//     // block is also expected to be in column-major order.
+//     static void CompressA8Vertical(uint8_t* dst, const uint8_t block[]);
+//
+//     // The function used to compress an A8 block. The layout of the
+//     // block is also expected to be in row-major order.
+//     static void CompressA8Horizontal(uint8_t* dst, const uint8_t block[]);
+//
+//     // The function used to update an already compressed block. This will
+//     // most likely be implementation dependent.
+//     static void UpdateBlock(uint8_t* dst, const uint8_t* src);
+// };
+//
+template<int BlockDim, int EncodedBlockSize, typename CompressorType>
 class SkTCompressedAlphaBlitter : public SkBlitter {
 public:
     SkTCompressedAlphaBlitter(int width, int height, void *compressedBuffer)
@@ -339,7 +353,7 @@ private:
                 this->updateBlockColumns(block, col, colsLeft, curAlphaColumn);
 
                 // Write this block
-                CompressionProc(outPtr, reinterpret_cast<uint8_t*>(block));
+                CompressorType::CompressA8Vertical(outPtr, reinterpret_cast<uint8_t*>(block));
                 outPtr += EncodedBlockSize;
                 curX += colsLeft;
             }
@@ -355,7 +369,7 @@ private:
 
                 // While we can keep advancing, just keep writing the block.
                 uint8_t lastBlock[EncodedBlockSize];
-                CompressionProc(lastBlock, reinterpret_cast<uint8_t*>(block));
+                CompressorType::CompressA8Vertical(lastBlock, reinterpret_cast<uint8_t*>(block));
                 while((finalX - curX) >= BlockDim) {
                     memcpy(outPtr, lastBlock, EncodedBlockSize);
                     outPtr += EncodedBlockSize;
@@ -393,7 +407,7 @@ private:
 
         // If we didn't land on a block boundary, output the block...
         if ((curX % BlockDim) > 1) {
-            CompressionProc(outPtr, reinterpret_cast<uint8_t*>(block));
+            CompressorType::CompressA8Vertical(outPtr, reinterpret_cast<uint8_t*>(block));
         }
 
         fNextRun = 0;

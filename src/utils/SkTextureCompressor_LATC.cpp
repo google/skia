@@ -414,6 +414,23 @@ void decompress_latc_block(uint8_t* dst, int dstRowBytes, const uint8_t* src) {
     }
 }
 
+// This is the type passed as the CompressorType argument of the compressed
+// blitter for the LATC format. The static functions required to be in this
+// struct are documented in SkTextureCompressor_Blitter.h
+struct CompressorLATC {
+    static inline void CompressA8Vertical(uint8_t* dst, const uint8_t block[]) {
+        compress_a8_latc_block<PackColumnMajor>(&dst, block, 4);
+    }
+
+    static inline void CompressA8Horizontal(uint8_t* dst, const uint8_t* src,
+                                            int srcRowBytes) {
+        compress_a8_latc_block<PackRowMajor>(&dst, src, srcRowBytes);
+    }
+
+    static inline void UpdateBlock(uint8_t* dst, const uint8_t* src) {
+    }
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace SkTextureCompressor {
@@ -444,7 +461,7 @@ SkBlitter* CreateLATCBlitter(int width, int height, void* outputBuffer,
     sk_bzero(outputBuffer, width * height / 2);
 
     return allocator->createT<
-        SkTCompressedAlphaBlitter<4, 8, CompressA8LATCBlockVertical>, int, int, void* >
+        SkTCompressedAlphaBlitter<4, 8, CompressorLATC>, int, int, void* >
         (width, height, outputBuffer);
 #elif COMPRESS_LATC_SLOW
     // TODO (krajcevski)

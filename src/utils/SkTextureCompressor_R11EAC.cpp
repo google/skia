@@ -590,6 +590,23 @@ static void decompress_r11_eac_block(uint8_t* dst, int dstRowBytes, const uint8_
     }
 }
 
+// This is the type passed as the CompressorType argument of the compressed
+// blitter for the R11 EAC format. The static functions required to be in this
+// struct are documented in SkTextureCompressor_Blitter.h
+struct CompressorR11EAC {
+    static inline void CompressA8Vertical(uint8_t* dst, const uint8_t* src) {
+        compress_block_vertical(dst, src);
+    }
+
+    static inline void CompressA8Horizontal(uint8_t* dst, const uint8_t* src,
+                                            int srcRowBytes) {
+        *(reinterpret_cast<uint64_t*>(dst)) = compress_r11eac_block_fast(src, srcRowBytes);
+    }
+
+    static inline void UpdateBlock(uint8_t* dst, const uint8_t* src) {
+    }
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace SkTextureCompressor {
@@ -628,7 +645,7 @@ SkBlitter* CreateR11EACBlitter(int width, int height, void* outputBuffer,
     }
 
     return allocator->createT<
-        SkTCompressedAlphaBlitter<4, 8, compress_block_vertical>, int, int, void*>
+        SkTCompressedAlphaBlitter<4, 8, CompressorR11EAC>, int, int, void*>
         (width, height, outputBuffer);
 }
 
