@@ -64,6 +64,7 @@ DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
 DRAW(DrawPatch, drawPatch(r.patch, r.paint));
+DRAW(DrawPicture, drawPicture(r.picture));
 DRAW(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint));
 DRAW(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
 DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));

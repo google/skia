@@ -9,6 +9,24 @@
 #define SkRecords_DEFINED
 
 #include "SkCanvas.h"
+#include "SkPicture.h"
+
+class SkPictureBox {
+public:
+    SkPictureBox(const SkPicture* obj) : fObj(SkRef(obj)) {}
+    SkPictureBox(const SkPictureBox& src) : fObj(SkRef(src.fObj)) {}
+    ~SkPictureBox() { fObj->unref(); }
+
+    SkPictureBox& operator=(const SkPictureBox& src) {
+        SkRefCnt_SafeAssign(fObj, src.fObj);
+        return *this;
+    }
+
+    operator const SkPicture*() const { return fObj; }
+
+private:
+    const SkPicture* fObj;
+};
 
 namespace SkRecords {
 
@@ -46,6 +64,7 @@ namespace SkRecords {
     M(DrawPaint)                                                    \
     M(DrawPath)                                                     \
     M(DrawPatch)                                                    \
+    M(DrawPicture)                                                  \
     M(DrawPoints)                                                   \
     M(DrawPosText)                                                  \
     M(DrawPosTextH)                                                 \
@@ -219,6 +238,7 @@ RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
 RECORD1(DrawPaint, SkPaint, paint);
 RECORD2(DrawPath, SkPaint, paint, SkPath, path);
 RECORD2(DrawPatch, SkPaint, paint, SkPatch, patch);
+RECORD1(DrawPicture, SkPictureBox, picture);
 RECORD4(DrawPoints, SkPaint, paint, SkCanvas::PointMode, mode, size_t, count, SkPoint*, pts);
 RECORD4(DrawPosText, SkPaint, paint,
                      PODArray<char>, text,

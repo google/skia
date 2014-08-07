@@ -105,7 +105,7 @@ private:
     T* copy(const T*);
 
     template <typename T>
-    T* copy(const T[], unsigned count);
+    T* copy(const T[], size_t count);
 
     SkRecord* fRecord;
 };

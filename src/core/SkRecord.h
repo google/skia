@@ -64,7 +64,7 @@ public:
     // Allocate contiguous space for count Ts, to be freed when the SkRecord is destroyed.
     // Here T can be any class, not just those from SkRecords.  Throws on failure.
     template <typename T>
-    T* alloc(unsigned count = 1) {
+    T* alloc(size_t count = 1) {
         return (T*)fAlloc.allocThrow(sizeof(T) * count);
     }
 

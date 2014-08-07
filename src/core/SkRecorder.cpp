@@ -57,12 +57,12 @@ T* SkRecorder::copy(const T* src) {
 // This copy() is for arrays.
 // It will work with POD or non-POD, though currently we only use it for POD.
 template <typename T>
-T* SkRecorder::copy(const T src[], unsigned count) {
+T* SkRecorder::copy(const T src[], size_t count) {
     if (NULL == src) {
         return NULL;
     }
     T* dst = fRecord->alloc<T>(count);
-    for (unsigned i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
         SkNEW_PLACEMENT_ARGS(dst + i, T, (src[i]));
     }
     return dst;
@@ -72,7 +72,7 @@ T* SkRecorder::copy(const T src[], unsigned count) {
 // This measured around 2x faster for copying code points,
 // but I found no corresponding speedup for other arrays.
 template <>
-char* SkRecorder::copy(const char src[], unsigned count) {
+char* SkRecorder::copy(const char src[], size_t count) {
     if (NULL == src) {
         return NULL;
     }
@@ -187,7 +187,7 @@ void SkRecorder::onDrawTextOnPath(const void* text, size_t byteLength, const SkP
 }
 
 void SkRecorder::onDrawPicture(const SkPicture* picture) {
-    picture->draw(this);
+    APPEND(DrawPicture, picture);
 }
 
 void SkRecorder::drawVertices(VertexMode vmode,
