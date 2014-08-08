@@ -43,7 +43,12 @@ public:
         // 0x7FFE is one minus the largest positive 16-bit int. We use it for
         // debugging to make sure that we're properly setting the nextX distance
         // in flushRuns(). 
-        : kLongestRun(0x7FFE), kZeroAlpha(0)
+#ifdef SK_DEBUG
+        : fBlitMaskCalled(false),
+#else
+        :
+#endif
+        kLongestRun(0x7FFE), kZeroAlpha(0)
         , fNextRun(0)
         , fWidth(width)
         , fHeight(height)
@@ -155,17 +160,72 @@ public:
         SkFAIL("Not implemented!");
     }
 
-    // Blit a pattern of pixels defined by a rectangle-clipped mask;
-    // typically used for text.
-    virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE {
-        // This function is currently not implemented. It is not explicitly
-        // required by the contract, but if at some time a code path runs into
-        // this function (which is entirely possible), it needs to be implemented.
-        //
-        // TODO (krajcevski):
-        // This function will be most easily implemented in the same way as
-        // blitAntiRect above.
-        SkFAIL("Not implemented!");
+    // Blit a pattern of pixels defined by a rectangle-clipped mask; We make an
+    // assumption here that if this function gets called, then it will replace all
+    // of the compressed texture blocks that it touches. Hence, two separate calls
+    // to blitMask that have clips next to one another will cause artifacts. Most
+    // of the time, however, this function gets called because constructing the mask
+    // was faster than constructing the RLE for blitAntiH, and this function will
+    // only be called once.
+#ifdef SK_DEBUG
+    bool fBlitMaskCalled;
+#endif
+    virtual void blitMask(const SkMask& mask, const SkIRect& clip) SK_OVERRIDE {
+
+        // Assumptions:
+        SkASSERT(!fBlitMaskCalled && (fBlitMaskCalled = true));
+        SkASSERT(SkMask::kA8_Format == mask.fFormat);
+        SkASSERT(mask.fBounds.contains(clip));
+
+        // Start from largest block boundary less than the clip boundaries.
+        const int startI = BlockDim * (clip.left() / BlockDim);
+        const int startJ = BlockDim * (clip.top() / BlockDim);
+
+        for (int j = startJ; j < clip.bottom(); j += BlockDim) {
+
+            // Get the destination for this block row
+            uint8_t* dst = this->getBlock(startI, j);
+            for (int i = startI; i < clip.right(); i += BlockDim) {
+
+                // At this point, the block should intersect the clip.
+                SkASSERT(SkIRect::IntersectsNoEmptyCheck(
+                             SkIRect::MakeXYWH(i, j, BlockDim, BlockDim), clip));
+
+                // Do we need to pad it?
+                if (i < clip.left() || j < clip.top() ||
+                    i + BlockDim > clip.right() || j + BlockDim > clip.bottom()) {
+
+                    uint8_t block[BlockDim*BlockDim];
+                    memset(block, 0, sizeof(block));
+
+                    const int startX = SkMax32(i, clip.left());
+                    const int startY = SkMax32(j, clip.top());
+
+                    const int endX = SkMin32(i + BlockDim, clip.right());
+                    const int endY = SkMin32(j + BlockDim, clip.bottom());
+
+                    for (int y = startY; y < endY; ++y) {
+                        const int col = startX - i;
+                        const int row = y - j;
+                        const int valsWide = endX - startX;
+                        SkASSERT(valsWide <= BlockDim);
+                        SkASSERT(0 <= col && col < BlockDim);
+                        SkASSERT(0 <= row && row < BlockDim);
+                        memcpy(block + row*BlockDim + col,
+                               mask.getAddr8(startX, j + row), valsWide);
+                    }
+
+                    CompressorType::CompressA8Horizontal(dst, block, BlockDim);
+                } else {
+                    // Otherwise, just compress it.
+                    uint8_t*const src = mask.getAddr8(i, j);
+                    const uint32_t rb = mask.fRowBytes;
+                    CompressorType::CompressA8Horizontal(dst, src, rb);
+                }
+
+                dst += EncodedBlockSize;
+            }
+        }
     }
 
     // If the blitter just sets a single value for each pixel, return the
