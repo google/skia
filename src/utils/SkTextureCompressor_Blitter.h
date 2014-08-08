@@ -406,7 +406,18 @@ private:
         }
 
         // If we didn't land on a block boundary, output the block...
-        if ((curX % BlockDim) > 1) {
+        if ((curX % BlockDim) > 0) {
+#ifdef SK_DEBUG
+            for (int i = 0; i < BlockDim; ++i) {
+                SkASSERT(nextX[i] == kLongestRun || nextX[i] == curX);
+            }
+#endif
+            const int col = curX % BlockDim;
+            const int colsLeft = BlockDim - col;
+
+            memset(curAlphaColumn, 0, sizeof(curAlphaColumn));
+            this->updateBlockColumns(block, col, colsLeft, curAlphaColumn);
+
             CompressorType::CompressA8Vertical(outPtr, reinterpret_cast<uint8_t*>(block));
         }
 
