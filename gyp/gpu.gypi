@@ -36,6 +36,7 @@
       '<(skia_include_path)/gpu/gl/GrGLExtensions.h',
       '<(skia_include_path)/gpu/gl/GrGLFunctions.h',
       '<(skia_include_path)/gpu/gl/GrGLInterface.h',
+      '<(skia_include_path)/gpu/gl/GrGLSLPrettyPrint.h',
 
       '<(skia_src_path)/gpu/GrAAHairLinePathRenderer.cpp',
       '<(skia_src_path)/gpu/GrAAHairLinePathRenderer.h',
@@ -202,6 +203,7 @@
       '<(skia_src_path)/gpu/gl/GrGLPath.h',
       '<(skia_src_path)/gpu/gl/GrGLPathRange.cpp',
       '<(skia_src_path)/gpu/gl/GrGLPathRange.h',
+      '<(skia_src_path)/gpu/gl/GrGLSLPrettyPrint.cpp',
       '<(skia_src_path)/gpu/gl/GrGLProgram.cpp',
       '<(skia_src_path)/gpu/gl/GrGLProgram.h',
       '<(skia_src_path)/gpu/gl/GrGLProgramDesc.cpp',

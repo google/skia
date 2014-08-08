@@ -7,6 +7,7 @@
 
 #include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLProgram.h"
+#include "gl/GrGLSLPrettyPrint.h"
 #include "gl/GrGLUniformHandle.h"
 #include "GrCoordTransform.h"
 #include "GrDrawEffect.h"
@@ -671,8 +672,14 @@ static GrGLuint attach_shader(const GrGLContext& glCtx,
         return 0;
     }
 
-    const GrGLchar* sourceStr = shaderSrc.c_str();
+#ifdef SK_DEBUG
+    SkString prettySource = GrGLSLPrettyPrint::PrettyPrintGLSL(shaderSrc, false);
+    const GrGLchar* sourceStr = prettySource.c_str();
+    GrGLint sourceLength = static_cast<GrGLint>(prettySource.size());
+#else
     GrGLint sourceLength = static_cast<GrGLint>(shaderSrc.size());
+    const GrGLchar* sourceStr = shaderSrc.c_str();
+#endif
     GR_GL_CALL(gli, ShaderSource(shaderId, 1, &sourceStr, &sourceLength));
     GR_GL_CALL(gli, CompileShader(shaderId));
 
@@ -695,7 +702,7 @@ static GrGLuint attach_shader(const GrGLContext& glCtx,
                 GrGLsizei length = GR_GL_INIT_ZERO;
                 GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1,
                                                  &length, (char*)log.get()));
-                GrPrintf(shaderSrc.c_str());
+                GrPrintf(GrGLSLPrettyPrint::PrettyPrintGLSL(shaderSrc, true).c_str());
                 GrPrintf("\n%s", log.get());
             }
             SkDEBUGFAIL("Shader compilation failed!");
@@ -707,7 +714,7 @@ static GrGLuint attach_shader(const GrGLContext& glCtx,
     TRACE_EVENT_INSTANT1(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "skia_gpu::GLShader",
                          TRACE_EVENT_SCOPE_THREAD, "shader", TRACE_STR_COPY(shaderSrc.c_str()));
     if (c_PrintShaders) {
-        GrPrintf(shaderSrc.c_str());
+        GrPrintf(GrGLSLPrettyPrint::PrettyPrintGLSL(shaderSrc, true).c_str());
         GrPrintf("\n");
     }
 
