@@ -5,7 +5,7 @@
 <head>
   <title ng-bind="windowTitle"></title>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.20/angular.js"></script>
   <script src="constants.js"></script>
   <script src="live-loader.js"></script>
   <script src="utils.js"></script>
@@ -246,53 +246,54 @@
         <tr>
           <!-- Most column headers are displayed in a common fashion... -->
           <th ng-repeat="columnName in orderedColumnNames">
-            <input type="radio"
-                   name="sortColumnRadio"
-                   value="{{columnName}}"
-                   ng-checked="(sortColumnKey == columnName)"
-                   ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__EXTRACOLUMNS, columnName)">
-            {{extraColumnHeaders[columnName][constants.KEY__EXTRACOLUMNHEADERS__HEADER_TEXT]}}
+              <a ng-class="'sort-' + sortedByColumnsCls(columnName)"
+                 ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__EXTRACOLUMNS, columnName)"
+                 href=""
+                 class="sortable-header">
+               {{extraColumnHeaders[columnName][constants.KEY__EXTRACOLUMNHEADERS__HEADER_TEXT]}}
+             </a>
           </th>
           <!-- ... but there are a few columns where we display things differently. -->
           <th>
-            <input type="radio"
-                   name="sortColumnRadio"
-                   value="bugs"
-                   ng-checked="(sortColumnKey == constants.KEY__EXPECTATIONS__BUGS)"
-                   ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__EXPECTATIONS, constants.KEY__EXPECTATIONS__BUGS)">
+            <a ng-class="'sort-' + sortedByColumnsCls(constants.KEY__EXPECTATIONS__BUGS)"
+               ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__EXPECTATIONS, constants.KEY__EXPECTATIONS__BUGS)"
+               href=""
+               class="sortable-header">
+                  bugs
+            </a>
             bugs
           </th>
           <th width="{{imageSize}}">
-            <input type="radio"
-                   name="sortColumnRadio"
-                   value="imageA"
-                   ng-checked="(sortColumnKey == constants.KEY__IMAGEPAIRS__IMAGE_A_URL)"
-                   ng-click="sortResultsBy('none', constants.KEY__IMAGEPAIRS__IMAGE_A_URL)">
-            {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
+            <a ng-class="'sort-' + sortedByColumnsCls(constants.KEY__IMAGEPAIRS__IMAGE_A_URL)"
+               ng-click="sortResultsBy('none', constants.KEY__IMAGEPAIRS__IMAGE_A_URL)"
+               href=""
+               class="sortable-header">
+                   {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
+            </a>
           </th>
           <th width="{{imageSize}}">
-            <input type="radio"
-                   name="sortColumnRadio"
-                   value="imageB"
-                   ng-checked="(sortColumnKey == constants.KEY__IMAGEPAIRS__IMAGE_B_URL)"
-                   ng-click="sortResultsBy('none', constants.KEY__IMAGEPAIRS__IMAGE_B_URL)">
-            {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
+            <a ng-class="'sort-' + sortedByColumnsCls(constants.KEY__IMAGEPAIRS__IMAGE_B_URL)"
+               ng-click="sortResultsBy('none', constants.KEY__IMAGEPAIRS__IMAGE_B_URL)"
+               href=""
+               class="sortable-header">
+                  {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
+            </a>
           </th>
           <th width="{{imageSize}}">
-            <input type="radio"
-                   name="sortColumnRadio"
-                   value="percentDifferingPixels"
-                   ng-checked="(sortColumnKey == constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS)"
-                   ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__DIFFERENCES, constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS)">
-            differing pixels in white
+            <a ng-class="'sort-' + sortedByColumnsCls(constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS)"
+               ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__DIFFERENCES, constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS)"
+               href=""
+               class="sortable-header">
+                  differing pixels in white
+            </a>
           </th>
           <th width="{{imageSize}}">
-            <input type="radio"
-                   name="sortColumnRadio"
-                   value="perceptualDiff"
-                   ng-checked="(sortColumnKey == constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF)"
-                   ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__DIFFERENCES, constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF)">
-            perceptual difference
+            <a ng-class="'sort-' + sortedByColumnsCls(constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF)"
+               ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__DIFFERENCES, constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF)"
+               href=""
+               class="sortable-header">
+               perceptual difference
+            </a>
             <br>
             <input type="range" ng-model="pixelDiffBgColorBrightness"
                    ng-init="pixelDiffBgColorBrightness=64; pixelDiffBgColor=brightnessStringToHexColor(pixelDiffBgColorBrightness)"

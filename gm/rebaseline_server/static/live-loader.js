@@ -133,6 +133,9 @@ Loader.controller(
     $scope.setBSection = $location.search().setBSection;
     $scope.loadingMessage = "please wait...";
 
+    var currSortAsc = true; 
+
+
     /**
      * On initial page load, load a full dictionary of results.
      * Once the dictionary is loaded, unhide the page elements so they can
@@ -175,8 +178,11 @@ Loader.controller(
           $scope.orderedColumnNames = data[constants.KEY__ROOT__EXTRACOLUMNORDER];
           $scope.imagePairs = data[constants.KEY__ROOT__IMAGEPAIRS];
           $scope.imageSets = data[constants.KEY__ROOT__IMAGESETS];
+
+          // set the default sort column and make it ascending.
           $scope.sortColumnSubdict = constants.KEY__IMAGEPAIRS__DIFFERENCES;
           $scope.sortColumnKey = constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF;
+          currSortAsc = true;
 
           $scope.showSubmitAdvancedSettings = false;
           $scope.submitAdvancedSettings = {};
@@ -610,14 +616,7 @@ Loader.controller(
       // array copies?  (For better performance.)
 
       if ($scope.viewingTab == $scope.defaultTab) {
-
-        // TODO(epoger): Until we allow the user to reverse sort order,
-        // there are certain columns we want to sort in a different order.
-        var doReverse = (
-            ($scope.sortColumnKey ==
-             constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS) ||
-            ($scope.sortColumnKey ==
-             constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF));
+        var doReverse = !currSortAsc;
 
         $scope.filteredImagePairs =
             $filter("orderBy")(

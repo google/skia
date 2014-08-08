@@ -80,5 +80,9 @@ module.constant('constants', (function() {
     KEY__IMAGEPAIRS__ROWSPAN: 'rowspan',
     URL_KEY__SCHEMA_VERSION: 'urlSchemaVersion',
     URL_VALUE__SCHEMA_VERSION__CURRENT: 1,
+
+    // Utility constants only used on the client side. 
+    ASC: 'asc',
+    DESC: 'desc',
   }
 })())
