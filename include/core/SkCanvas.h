@@ -1224,6 +1224,8 @@ protected:
     virtual void onDiscard();
 
     virtual void onDrawPicture(const SkPicture* picture);
+    // temporary, until we can migrate existing overrides in chrome
+    virtual void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) {}
 
     // Returns the canvas to be used by DrawIter. Default implementation
     // returns this. Subclasses that encapsulate an indirect canvas may
