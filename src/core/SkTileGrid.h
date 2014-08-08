@@ -33,7 +33,9 @@ public:
         kStackAllocationTileCount = 1024
     };
 
-    typedef void* (*SkTileGridNextDatumFunctionPtr)(SkTDArray<void*>** tileData, SkAutoSTArray<kStackAllocationTileCount, int>& tileIndices);
+    typedef void* (*SkTileGridNextDatumFunctionPtr)(
+            const SkTDArray<void*>** tileData,
+            SkAutoSTArray<kStackAllocationTileCount, int>& tileIndices);
 
     SkTileGrid(int xTileCount, int yTileCount, const SkTileGridFactory::TileGridInfo& info,
         SkTileGridNextDatumFunctionPtr nextDatumFunction);
@@ -54,7 +56,7 @@ public:
      * Populate 'results' with data pointers corresponding to bounding boxes that intersect 'query'
      * The query argument is expected to be an exact match to a tile of the grid
      */
-    virtual void search(const SkIRect& query, SkTDArray<void*>* results) SK_OVERRIDE;
+    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const SK_OVERRIDE;
 
     virtual void clear() SK_OVERRIDE;
 
@@ -75,6 +77,7 @@ public:
     int tileCount(int x, int y);  // For testing only.
 
 private:
+    const SkTDArray<void*>& tile(int x, int y) const;
     SkTDArray<void*>& tile(int x, int y);
 
     int fXTileCount, fYTileCount, fTileCount;
@@ -103,7 +106,8 @@ private:
  *     such that 'a < b' is true if 'a' was inserted into the tile grid before 'b'.
  */
 template <typename T>
-void* SkTileGridNextDatum(SkTDArray<void*>** tileData, SkAutoSTArray<SkTileGrid::kStackAllocationTileCount, int>& tileIndices) {
+void* SkTileGridNextDatum(const SkTDArray<void*>** tileData,
+                          SkAutoSTArray<SkTileGrid::kStackAllocationTileCount, int>& tileIndices) {
     T* minVal = NULL;
     int tileCount = tileIndices.count();
     int minIndex = tileCount;

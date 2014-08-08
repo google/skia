@@ -77,7 +77,7 @@ public:
     /**
      * Given a query rectangle, populates the passed-in array with the elements it intersects
      */
-    virtual void search(const SkIRect& query, SkTDArray<void*>* results) SK_OVERRIDE;
+    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const SK_OVERRIDE;
 
     virtual void clear() SK_OVERRIDE;
     bool isEmpty() const { return 0 == fCount; }
@@ -177,8 +177,8 @@ private:
      */
     Branch bulkLoad(SkTDArray<Branch>* branches, int level = 0);
 
-    void validate();
-    int validateSubtree(Node* root, SkIRect bounds, bool isRoot = false);
+    void validate() const;
+    int validateSubtree(Node* root, SkIRect bounds, bool isRoot = false) const;
 
     const int fMinChildren;
     const int fMaxChildren;

@@ -54,7 +54,7 @@ public:
     /**
      * Given a query rectangle, populates the passed-in array with the elements it intersects
      */
-    virtual void search(const SkIRect& query, SkTDArray<void*>* results) SK_OVERRIDE;
+    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const SK_OVERRIDE;
 
     virtual void clear() SK_OVERRIDE;
 

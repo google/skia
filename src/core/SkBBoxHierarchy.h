@@ -59,7 +59,7 @@ public:
     /**
      * Populate 'results' with data pointers corresponding to bounding boxes that intersect 'query'
      */
-    virtual void search(const SkIRect& query, SkTDArray<void*>* results) = 0;
+    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const = 0;
 
     virtual void clear() = 0;
 

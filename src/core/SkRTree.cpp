@@ -102,11 +102,9 @@ void SkRTree::flushDeferredInserts() {
     this->validate();
 }
 
-void SkRTree::search(const SkIRect& query, SkTDArray<void*>* results) {
+void SkRTree::search(const SkIRect& query, SkTDArray<void*>* results) const {
     this->validate();
-    if (0 != fDeferredInserts.count()) {
-        this->flushDeferredInserts();
-    }
+    SkASSERT(0 == fDeferredInserts.count());  // If this fails, you should have flushed.
     if (!this->isEmpty() && SkIRect::IntersectsNoEmptyCheck(fRoot.fBounds, query)) {
         this->search(fRoot.fChild.subtree, query, results);
     }
@@ -399,7 +397,7 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
     }
 }
 
-void SkRTree::validate() {
+void SkRTree::validate() const {
 #ifdef SK_DEBUG
     if (this->isEmpty()) {
         return;
@@ -408,7 +406,7 @@ void SkRTree::validate() {
 #endif
 }
 
-int SkRTree::validateSubtree(Node* root, SkIRect bounds, bool isRoot) {
+int SkRTree::validateSubtree(Node* root, SkIRect bounds, bool isRoot) const {
     // make sure the pointer is pointing to a valid place
     SkASSERT(fNodes.contains(static_cast<void*>(root)));
 

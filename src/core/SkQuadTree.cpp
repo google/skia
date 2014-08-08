@@ -168,7 +168,7 @@ void SkQuadTree::insert(void* data, const SkIRect& bounds, bool) {
     }
 }
 
-void SkQuadTree::search(const SkIRect& query, SkTDArray<void*>* results) {
+void SkQuadTree::search(const SkIRect& query, SkTDArray<void*>* results) const {
     SkASSERT(NULL != fRoot);
     SkASSERT(NULL != results);
     if (SkIRect::Intersects(fRootBounds, query)) {

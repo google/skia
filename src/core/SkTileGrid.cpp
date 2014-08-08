@@ -33,6 +33,10 @@ int SkTileGrid::tileCount(int x, int y) {
     return this->tile(x, y).count();
 }
 
+const SkTDArray<void *>& SkTileGrid::tile(int x, int y) const {
+    return fTileData[y * fXTileCount + x];
+}
+
 SkTDArray<void *>& SkTileGrid::tile(int x, int y) {
     return fTileData[y * fXTileCount + x];
 }
@@ -65,7 +69,7 @@ void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
     fInsertionCount++;
 }
 
-void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) {
+void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) const {
     SkIRect adjustedQuery = query;
     // The inset is to counteract the outset that was applied in 'insert'
     // The outset/inset is to optimize for lookups of size
@@ -96,7 +100,7 @@ void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) {
         results->reset();
         SkAutoSTArray<kStackAllocationTileCount, int> curPositions(queryTileCount);
         SkAutoSTArray<kStackAllocationTileCount, SkTDArray<void *>*> storage(queryTileCount);
-        SkTDArray<void *>** tileRange = storage.get();
+        const SkTDArray<void *>** tileRange = const_cast<const SkTDArray<void*>**>(storage.get());
         int tile = 0;
         for (int x = tileStartX; x < tileEndX; ++x) {
             for (int y = tileStartY; y < tileEndY; ++y) {
