@@ -49,42 +49,30 @@ public:
         uint32_t fFlags;
     };
 
-    class SK_API Cache : public SkRefCnt {
-    public:
-        // By default, we cache only image filters with 2 or more children.
-        // Values less than 2 mean always cache; values greater than 2 are not supported.
-        static Cache* Create(int minChildren = 2);
-        virtual ~Cache() {}
-        virtual bool get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset) = 0;
-        virtual void set(const SkImageFilter* key,
-                         const SkBitmap& result, const SkIPoint& offset) = 0;
-        virtual void remove(const SkImageFilter* key) = 0;
-    };
-
     // This cache maps from (filter's unique ID + CTM + clipBounds + src bitmap generation ID) to
     // (result, offset).
-    class UniqueIDCache : public SkRefCnt {
+    class Cache : public SkRefCnt {
     public:
         struct Key;
-        virtual ~UniqueIDCache() {}
-        static UniqueIDCache* Create(size_t maxBytes);
-        static UniqueIDCache* Get();
+        virtual ~Cache() {}
+        static Cache* Create(size_t maxBytes);
+        static Cache* Get();
         virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const = 0;
         virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) = 0;
     };
 
     class Context {
     public:
-        Context(const SkMatrix& ctm, const SkIRect& clipBounds, UniqueIDCache* cache) :
+        Context(const SkMatrix& ctm, const SkIRect& clipBounds, Cache* cache) :
             fCTM(ctm), fClipBounds(clipBounds), fCache(cache) {
         }
         const SkMatrix& ctm() const { return fCTM; }
         const SkIRect& clipBounds() const { return fClipBounds; }
-        UniqueIDCache* cache() const { return fCache; }
+        Cache* cache() const { return fCache; }
     private:
         SkMatrix fCTM;
         SkIRect  fClipBounds;
-        UniqueIDCache* fCache;
+        Cache* fCache;
     };
 
     class Proxy {

@@ -156,7 +156,7 @@ private:
     virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
     virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes) SK_OVERRIDE;
 
-    virtual SkImageFilter::UniqueIDCache* getImageFilterCache() SK_OVERRIDE;
+    virtual SkImageFilter::Cache* getImageFilterCache() SK_OVERRIDE;
 
     SkBitmap    fBitmap;
 

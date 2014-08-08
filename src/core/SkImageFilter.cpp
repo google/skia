@@ -36,7 +36,7 @@ static int32_t next_image_filter_unique_id() {
     return id;
 }
 
-struct SkImageFilter::UniqueIDCache::Key {
+struct SkImageFilter::Cache::Key {
     Key(const uint32_t uniqueID, const SkMatrix& matrix, const SkIRect& clipBounds, uint32_t srcGenID)
       : fUniqueID(uniqueID), fMatrix(matrix), fClipBounds(clipBounds), fSrcGenID(srcGenID) {
         // Assert that Key is tightly-packed, since it is hashed.
@@ -110,8 +110,6 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkImageFilter::Cache* gExternalCache;
-
 SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect)
   : fInputCount(inputCount),
     fInputs(new SkImageFilter*[inputCount]),
@@ -174,13 +172,8 @@ bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
     SkASSERT(result);
     SkASSERT(offset);
     uint32_t srcGenID = fUsesSrcInput ? src.getGenerationID() : 0;
-    Cache* externalCache = GetExternalCache();
-    UniqueIDCache::Key key(fUniqueID, context.ctm(), context.clipBounds(), srcGenID);
-    if (NULL != externalCache) {
-        if (externalCache->get(this, result, offset)) {
-            return true;
-        }
-    } else if (context.cache()) {
+    Cache::Key key(fUniqueID, context.ctm(), context.clipBounds(), srcGenID);
+    if (context.cache()) {
         if (context.cache()->get(key, result, offset)) {
             return true;
         }
@@ -191,9 +184,7 @@ bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
      */
     if ((proxy && proxy->filterImage(this, src, context, result, offset)) ||
         this->onFilterImage(proxy, src, context, result, offset)) {
-        if (externalCache) {
-            externalCache->set(this, *result, *offset);
-        } else if (context.cache()) {
+        if (context.cache()) {
             context.cache()->set(key, *result, *offset);
         }
         return true;
@@ -205,16 +196,6 @@ bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
                                  SkIRect* dst) const {
     SkASSERT(&src);
     SkASSERT(dst);
-    if (SkImageFilter::GetExternalCache()) {
-        /*
-         *  When the external cache is active, do not intersect the saveLayer
-         *  bounds with the clip bounds. This is so that the cached result
-         *  is always the full size of the primitive's bounds,
-         *  regardless of the clip active on first draw.
-         */
-        *dst = SkIRect::MakeLargest();
-        return true;
-    }
     return this->onFilterBounds(src, ctm, dst);
 }
 
@@ -389,14 +370,6 @@ bool SkImageFilter::asColorFilter(SkColorFilter**) const {
     return false;
 }
 
-void SkImageFilter::SetExternalCache(Cache* cache) {
-    SkRefCnt_SafeAssign(gExternalCache, cache);
-}
-
-SkImageFilter::Cache* SkImageFilter::GetExternalCache() {
-    return gExternalCache;
-}
-
 #if SK_SUPPORT_GPU
 
 void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result) {
@@ -434,83 +407,13 @@ bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
 }
 #endif
 
-class CacheImpl : public SkImageFilter::Cache {
-public:
-    explicit CacheImpl(int minChildren) : fMinChildren(minChildren) {
-        SkASSERT(fMinChildren <= 2);
-    }
-
-    virtual ~CacheImpl();
-    bool get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
-    void set(const SkImageFilter* key, const SkBitmap& result, const SkIPoint& offset) SK_OVERRIDE;
-    void remove(const SkImageFilter* key) SK_OVERRIDE;
-private:
-    typedef const SkImageFilter* Key;
-    struct Value {
-        Value(Key key, const SkBitmap& bitmap, const SkIPoint& offset)
-            : fKey(key), fBitmap(bitmap), fOffset(offset) {}
-        Key fKey;
-        SkBitmap fBitmap;
-        SkIPoint fOffset;
-        static const Key& GetKey(const Value& v) {
-            return v.fKey;
-        }
-        static uint32_t Hash(Key key) {
-            return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
-        }
-    };
-    SkTDynamicHash<Value, Key> fData;
-    int fMinChildren;
-};
-
-bool CacheImpl::get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset) {
-    Value* v = fData.find(key);
-    if (v) {
-        *result = v->fBitmap;
-        *offset = v->fOffset;
-        return true;
-    }
-    return false;
-}
-
-void CacheImpl::remove(const SkImageFilter* key) {
-    Value* v = fData.find(key);
-    if (v) {
-        fData.remove(key);
-        delete v;
-    }
-}
-
-void CacheImpl::set(const SkImageFilter* key, const SkBitmap& result, const SkIPoint& offset) {
-    if (fMinChildren < 2 || !key->unique()) {
-        // We take !key->unique() as a signal that there are probably at least 2 refs on the key,
-        // meaning this filter probably has at least two children and is worth caching when
-        // fMinChildren is 2.  If fMinChildren is less than two, we'll just always cache.
-        fData.add(new Value(key, result, offset));
-    }
-}
-
-SkImageFilter::Cache* SkImageFilter::Cache::Create(int minChildren) {
-    return new CacheImpl(minChildren);
-}
-
-CacheImpl::~CacheImpl() {
-    SkTDynamicHash<Value, Key>::Iter iter(&fData);
-
-    while (!iter.done()) {
-        Value* v = &*iter;
-        ++iter;
-        delete v;
-    }
-}
-
 namespace {
 
-class UniqueIDCacheImpl : public SkImageFilter::UniqueIDCache {
+class CacheImpl : public SkImageFilter::Cache {
 public:
-    UniqueIDCacheImpl(size_t maxBytes) : fMaxBytes(maxBytes), fCurrentBytes(0) {
+    CacheImpl(size_t maxBytes) : fMaxBytes(maxBytes), fCurrentBytes(0) {
     }
-    virtual ~UniqueIDCacheImpl() {
+    virtual ~CacheImpl() {
         SkTDynamicHash<Value, Key>::Iter iter(&fLookup);
 
         while (!iter.done()) {
@@ -579,17 +482,17 @@ private:
     mutable SkMutex                    fMutex;
 };
 
-SkImageFilter::UniqueIDCache* CreateCache() {
-    return SkImageFilter::UniqueIDCache::Create(kDefaultCacheSize);
+SkImageFilter::Cache* CreateCache() {
+    return SkImageFilter::Cache::Create(kDefaultCacheSize);
 }
 
 } // namespace
 
-SkImageFilter::UniqueIDCache* SkImageFilter::UniqueIDCache::Create(size_t maxBytes) {
-    return SkNEW_ARGS(UniqueIDCacheImpl, (maxBytes));
+SkImageFilter::Cache* SkImageFilter::Cache::Create(size_t maxBytes) {
+    return SkNEW_ARGS(CacheImpl, (maxBytes));
 }
 
-SkImageFilter::UniqueIDCache* SkImageFilter::UniqueIDCache::Get() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkImageFilter::UniqueIDCache, cache, CreateCache);
+SkImageFilter::Cache* SkImageFilter::Cache::Get() {
+    SK_DECLARE_STATIC_LAZY_PTR(SkImageFilter::Cache, cache, CreateCache);
     return cache.get();
 }

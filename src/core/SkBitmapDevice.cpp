@@ -367,8 +367,8 @@ const void* SkBitmapDevice::peekPixels(SkImageInfo* info, size_t* rowBytes) {
     return NULL;
 }
 
-SkImageFilter::UniqueIDCache* SkBitmapDevice::getImageFilterCache() {
-    SkImageFilter::UniqueIDCache* cache = SkImageFilter::UniqueIDCache::Get();
+SkImageFilter::Cache* SkBitmapDevice::getImageFilterCache() {
+    SkImageFilter::Cache* cache = SkImageFilter::Cache::Get();
     cache->ref();
     return cache;
 }

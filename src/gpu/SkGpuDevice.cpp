@@ -1427,7 +1427,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         SkMatrix matrix(*draw.fMatrix);
         matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
         SkIRect clipBounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
-        SkAutoTUnref<SkImageFilter::UniqueIDCache> cache(getImageFilterCache());
+        SkAutoTUnref<SkImageFilter::Cache> cache(getImageFilterCache());
         // This cache is transient, and is freed (along with all its contained
         // textures) when it goes out of scope.
         SkImageFilter::Context ctx(matrix, clipBounds, cache);
@@ -1540,7 +1540,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
         SkIRect clipBounds = SkIRect::MakeWH(devTex->width(), devTex->height());
         // This cache is transient, and is freed (along with all its contained
         // textures) when it goes out of scope.
-        SkAutoTUnref<SkImageFilter::UniqueIDCache> cache(getImageFilterCache());
+        SkAutoTUnref<SkImageFilter::Cache> cache(getImageFilterCache());
         SkImageFilter::Context ctx(matrix, clipBounds, cache);
         if (filter_texture(this, fContext, devTex, filter, w, h, ctx, &filteredBitmap,
                            &offset)) {
@@ -2126,8 +2126,8 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     return true;
 }
 
-SkImageFilter::UniqueIDCache* SkGpuDevice::getImageFilterCache() {
+SkImageFilter::Cache* SkGpuDevice::getImageFilterCache() {
     // We always return a transient cache, so it is freed after each
     // filter traversal.
-    return SkImageFilter::UniqueIDCache::Create(kDefaultImageFilterCacheSize);
+    return SkImageFilter::Cache::Create(kDefaultImageFilterCacheSize);
 }
