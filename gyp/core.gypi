@@ -130,6 +130,8 @@
         '<(skia_src_path)/core/SkPathMeasure.cpp',
         '<(skia_src_path)/core/SkPathRef.cpp',
         '<(skia_src_path)/core/SkPicture.cpp',
+        '<(skia_src_path)/core/SkPictureContentInfo.cpp',
+        '<(skia_src_path)/core/SkPictureContentInfo.h',
         '<(skia_src_path)/core/SkPictureData.cpp',
         '<(skia_src_path)/core/SkPictureData.h',
         '<(skia_src_path)/core/SkPictureFlat.cpp',

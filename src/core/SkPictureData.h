@@ -11,6 +11,7 @@
 #include "SkBitmap.h"
 #include "SkPathHeap.h"
 #include "SkPicture.h"
+#include "SkPictureContentInfo.h"
 #include "SkPictureFlat.h"
 #include "SkPictureStateTree.h"
 
@@ -54,65 +55,6 @@ struct SkPictInfo {
 
 // Always write this guy last (with no length field afterwards)
 #define SK_PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
-
-// SkPictureContentInfo is not serialized! It is intended solely for use
-// with suitableForGpuRasterization.
-class SkPictureContentInfo {
-public:
-    SkPictureContentInfo() { this->reset(); }
-
-    SkPictureContentInfo(const SkPictureContentInfo& src) { this->set(src); }
-
-    void set(const SkPictureContentInfo& src) {
-        fNumPaintWithPathEffectUses = src.fNumPaintWithPathEffectUses;
-        fNumFastPathDashEffects = src.fNumFastPathDashEffects;
-        fNumAAConcavePaths = src.fNumAAConcavePaths;
-        fNumAAHairlineConcavePaths = src.fNumAAHairlineConcavePaths;
-    }
-
-    void reset() {
-        fNumPaintWithPathEffectUses = 0;
-        fNumFastPathDashEffects = 0;
-        fNumAAConcavePaths = 0;
-        fNumAAHairlineConcavePaths = 0;
-    }
-
-    void swap(SkPictureContentInfo* other) {
-        SkTSwap(fNumPaintWithPathEffectUses, other->fNumPaintWithPathEffectUses);
-        SkTSwap(fNumFastPathDashEffects, other->fNumFastPathDashEffects);
-        SkTSwap(fNumAAConcavePaths, other->fNumAAConcavePaths);
-        SkTSwap(fNumAAHairlineConcavePaths, other->fNumAAHairlineConcavePaths);
-    }
-
-    void incPaintWithPathEffectUses() { ++fNumPaintWithPathEffectUses; }
-    int numPaintWithPathEffectUses() const { return fNumPaintWithPathEffectUses; }
-
-    void incFastPathDashEffects() { ++fNumFastPathDashEffects; }
-    int numFastPathDashEffects() const { return fNumFastPathDashEffects; }
-
-    void incAAConcavePaths() { ++fNumAAConcavePaths; }
-    int numAAConcavePaths() const { return fNumAAConcavePaths; }
-
-    void incAAHairlineConcavePaths() {
-        ++fNumAAHairlineConcavePaths;
-        SkASSERT(fNumAAHairlineConcavePaths <= fNumAAConcavePaths);
-    }
-    int numAAHairlineConcavePaths() const { return fNumAAHairlineConcavePaths; }
-
-private:
-    // This field is incremented every time a paint with a path effect is
-    // used (i.e., it is not a de-duplicated count)
-    int fNumPaintWithPathEffectUses;
-    // This field is incremented every time a paint with a path effect that is
-    // dashed, we are drawing a line, and we can use the gpu fast path
-    int fNumFastPathDashEffects;
-    // This field is incremented every time an anti-aliased drawPath call is
-    // issued with a concave path
-    int fNumAAConcavePaths;
-    // This field is incremented every time a drawPath call is
-    // issued for a hairline stroked concave path.
-    int fNumAAHairlineConcavePaths;
-};
 
 #ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
 /**

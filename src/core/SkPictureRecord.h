@@ -146,6 +146,7 @@ private:
         size_t offset = fWriter.bytesWritten();
 
         this->predrawNotify();
+        fContentInfo.addOperation();
 
     #ifdef SK_DEBUG_TRACE
         SkDebugf("add %s\n", DrawTypeToString(drawType));

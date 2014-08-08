@@ -972,20 +972,14 @@ void SkPictureRecord::drawPoints(PointMode mode, size_t count, const SkPoint pts
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
 #endif
+    fContentInfo.onDrawPoints(count, paint);
 
     // op + paint index + mode + count + point data
     size_t size = 4 * kUInt32Size + count * sizeof(SkPoint);
     size_t initialOffset = this->addDraw(DRAW_POINTS, &size);
     SkASSERT(initialOffset+getPaintOffset(DRAW_POINTS, size) == fWriter.bytesWritten());
     this->addPaint(paint);
-    if (paint.getPathEffect() != NULL) {
-        SkPathEffect::DashInfo info;
-        SkPathEffect::DashType dashType = paint.getPathEffect()->asADash(&info);
-        if (2 == count && SkPaint::kRound_Cap != paint.getStrokeCap() &&
-            SkPathEffect::kDash_DashType == dashType && 2 == info.fCount) {
-            fContentInfo.incFastPathDashEffects();
-        }
-    }
+
     this->addInt(mode);
     this->addInt(SkToInt(count));
     fWriter.writeMul4(pts, count * sizeof(SkPoint));
@@ -1062,14 +1056,7 @@ void SkPictureRecord::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
 
 void SkPictureRecord::drawPath(const SkPath& path, const SkPaint& paint) {
 
-    if (paint.isAntiAlias() && !path.isConvex()) {
-        fContentInfo.incAAConcavePaths();
-
-        if (SkPaint::kStroke_Style == paint.getStyle() &&
-            0 == paint.getStrokeWidth()) {
-            fContentInfo.incAAHairlineConcavePaths();
-        }
-    }
+    fContentInfo.onDrawPath(path, paint);
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
@@ -1600,9 +1587,7 @@ const SkFlatData* SkPictureRecord::getFlatPaintData(const SkPaint& paint) {
 }
 
 const SkFlatData* SkPictureRecord::addPaintPtr(const SkPaint* paint) {
-    if (NULL != paint && NULL != paint->getPathEffect()) {
-        fContentInfo.incPaintWithPathEffectUses();
-    }
+    fContentInfo.onAddPaintPtr(paint);
 
     const SkFlatData* data = paint ? getFlatPaintData(*paint) : NULL;
     this->addFlatPaint(data);
@@ -1704,6 +1689,7 @@ void SkPictureRecord::addRegion(const SkRegion& region) {
 }
 
 void SkPictureRecord::addText(const void* text, size_t byteLength) {
+    fContentInfo.onDrawText();
 #ifdef SK_DEBUG_SIZE
     size_t start = fWriter.bytesWritten();
 #endif
