@@ -9,13 +9,68 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 
+#include <ctype.h>
+
 /** This benchmark tests rendering rotated rectangles. It can optionally apply AA and/or change the
-    paint color between each rect. */
+    paint color between each rect in different ways using the ColorType enum. The xfermode used can
+    be specified as well. 
+  */
+
+enum ColorType {
+    kConstantOpaque_ColorType,
+    kConstantTransparent_ColorType,
+    kChangingOpaque_ColorType,
+    kChangingTransparent_ColorType,
+    kAlternatingOpaqueAndTransparent_ColorType,
+};
+
+static inline SkColor start_color(ColorType ct) {
+    switch (ct) {
+        case kConstantOpaque_ColorType:
+        case kChangingOpaque_ColorType:
+        case kAlternatingOpaqueAndTransparent_ColorType:
+            return 0xFFA07040;
+        case kConstantTransparent_ColorType:
+        case kChangingTransparent_ColorType:
+            return 0x80A07040;
+    }
+    SkFAIL("Shouldn't reach here.");
+    return 0;
+}
+
+static inline SkColor advance_color(SkColor old, ColorType ct, int step) {
+    if (kAlternatingOpaqueAndTransparent_ColorType == ct) {
+        ct = (step & 0x1) ? kChangingOpaque_ColorType : kChangingTransparent_ColorType ;
+    }
+    switch (ct) {
+        case kConstantOpaque_ColorType:
+        case kConstantTransparent_ColorType:
+            return old;
+        case kChangingOpaque_ColorType:
+            return 0xFF000000 | (old + 0x00010307);
+        case kChangingTransparent_ColorType:
+            return (0x00FFFFFF & (old + 0x00010307)) | 0x80000000;
+        case kAlternatingOpaqueAndTransparent_ColorType:
+            SkFAIL("Can't get here");
+    }
+    SkFAIL("Shouldn't reach here.");
+    return 0;
+}
+
+static SkString to_lower(const char* str) {
+    SkString lower(str);
+    for (size_t i = 0; i < lower.size(); i++) {
+        lower[i] = tolower(lower[i]);
+    }
+    return lower;
+}
+
 class RotRectBench: public Benchmark {
 public:
-    RotRectBench(bool aa, bool changeColor)
+    RotRectBench(bool aa, ColorType ct, SkXfermode::Mode mode)
         : fAA(aa)
-        , fChangeColor(changeColor) {
+        , fColorType(ct)
+        , fMode(mode) {
         this->makeName();
     }
 
@@ -25,7 +80,8 @@ protected:
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setAntiAlias(fAA);
-        SkColor color = 0xFF000000;
+        paint.setXfermodeMode(fMode);
+        SkColor color = start_color(fColorType);
 
         int w = canvas->getBaseLayerSize().width();
         int h = canvas->getBaseLayerSize().height();
@@ -45,10 +101,8 @@ protected:
             canvas->translate(tx, ty);
             canvas->concat(m);
             paint.setColor(color);
-            if (fChangeColor) {
-                color += 0x010203;
-                color |= 0xFF000000;
-            }
+            color = advance_color(color, fColorType, i);
+
             canvas->drawRect(SkRect::MakeWH(kRectW, kRectH), paint);
             canvas->restore();
 
@@ -73,21 +127,68 @@ private:
         } else {
             fName.append("_bw");
         }
-        if (fChangeColor) {
-            fName.append("_change_color");
-        } else {
-            fName.append("_same_color");
+        switch (fColorType) {
+            case kConstantOpaque_ColorType:
+                fName.append("_same_opaque");
+                break;
+            case kConstantTransparent_ColorType:
+                fName.append("_same_transparent");
+                break;
+            case kChangingOpaque_ColorType:
+                fName.append("_changing_opaque");
+                break;
+            case kChangingTransparent_ColorType:
+                fName.append("_changing_transparent");
+                break;
+            case kAlternatingOpaqueAndTransparent_ColorType:
+                fName.append("_alternating_transparent_and_opaque");
+                break;
         }
+        fName.appendf("_%s", to_lower(SkXfermode::ModeName(fMode)).c_str());
     }
 
-    bool     fAA;
-    bool     fChangeColor;
-    SkString fName;
+    bool             fAA;
+    ColorType        fColorType;
+    SkXfermode::Mode fMode;
+    SkString         fName;
 
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH(return new RotRectBench(true, true);)
-DEF_BENCH(return new RotRectBench(true, false);)
-DEF_BENCH(return new RotRectBench(false, true);)
-DEF_BENCH(return new RotRectBench(false, false);)
+// Choose kSrcOver because it always allows coverage and alpha to be conflated. kSrc only allows
+// conflation when opaque, and kDarken because it isn't possilbe with standard GL blending.
+DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kSrcOver_Mode);)
+
+DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kSrcOver_Mode);)
+
+DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kSrc_Mode);)
+
+DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kSrc_Mode);)
+
+DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kDarken_Mode);)
+
+DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kDarken_Mode);)
