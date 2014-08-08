@@ -75,8 +75,10 @@ public:
 
 #ifdef SK_DEBUG
     void validate() const;
+    void debug(bool compress_y=false) const;
 #else
     void validate() const {}
+    void debug(bool compress_y=false) const {}
 #endif
 
 private:
