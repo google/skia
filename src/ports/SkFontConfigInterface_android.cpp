@@ -577,3 +577,10 @@ void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackconf,
     SkDEBUGF(("Use Test Config File Main %s, Fallback %s, Font Dir %s",
               gTestMainConfigFile, gTestFallbackConfigFile, gTestFontFilePrefix));
 }
+
+void SkGetTestFontConfiguration(const char** mainconf, const char** fallbackconf,
+                                const char** fontsdir) {
+    *mainconf = gTestMainConfigFile;
+    *fallbackconf = gTestFallbackConfigFile;
+    *fontsdir = gTestFontFilePrefix;
+}

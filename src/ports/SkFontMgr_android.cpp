@@ -14,6 +14,7 @@
 #include "SkTDArray.h"
 #include "SkTSearch.h"
 #include "SkTypeface.h"
+#include "SkTypeface_android.h"
 #include "SkTypefaceCache.h"
 
 #include <limits>
@@ -117,15 +118,19 @@ private:
     typedef SkTypeface_Android INHERITED;
 };
 
-void get_path_for_sys_fonts(SkString* full, const SkString& name) {
-    full->set(getenv("ANDROID_ROOT"));
-    full->append(SK_FONT_FILE_PREFIX);
+void get_path_for_sys_fonts(const char* basePath, const SkString& name, SkString* full) {
+    if (basePath) {
+        full->set(basePath);
+    } else {
+        full->set(getenv("ANDROID_ROOT"));
+        full->append(SK_FONT_FILE_PREFIX);
+    }
     full->append(name);
 }
 
 class SkFontStyleSet_Android : public SkFontStyleSet {
 public:
-    explicit SkFontStyleSet_Android(const FontFamily& family) {
+    explicit SkFontStyleSet_Android(const FontFamily& family, const char* basePath) {
         const SkString* cannonicalFamilyName = NULL;
         if (family.fNames.count() > 0) {
             cannonicalFamilyName = &family.fNames[0];
@@ -135,7 +140,7 @@ public:
             const FontFileInfo& fontFile = family.fFontFiles[i];
 
             SkString pathName;
-            get_path_for_sys_fonts(&pathName, fontFile.fFileName);
+            get_path_for_sys_fonts(basePath, fontFile.fFileName, &pathName);
 
             SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(pathName.c_str()));
             if (!stream.get()) {
@@ -260,7 +265,15 @@ public:
     SkFontMgr_Android() {
         SkTDArray<FontFamily*> fontFamilies;
         SkFontConfigParser::GetFontFamilies(fontFamilies);
-        this->buildNameToFamilyMap(fontFamilies);
+        this->buildNameToFamilyMap(fontFamilies, NULL);
+        this->findDefaultFont();
+    }
+    SkFontMgr_Android(const char* mainConfigFile, const char* fallbackConfigFile,
+                      const char* basePath)
+    {
+        SkTDArray<FontFamily*> fontFamilies;
+        SkFontConfigParser::GetTestFontFamilies(fontFamilies, mainConfigFile, fallbackConfigFile);
+        this->buildNameToFamilyMap(fontFamilies, basePath);
         this->findDefaultFont();
     }
 
@@ -425,7 +438,7 @@ private:
     SkTDArray<NameToFamily> fNameToFamilyMap;
     SkTDArray<NameToFamily> fFallbackNameToFamilyMap;
 
-    void buildNameToFamilyMap(SkTDArray<FontFamily*> families) {
+    void buildNameToFamilyMap(SkTDArray<FontFamily*> families, const char* basePath) {
         for (int i = 0; i < families.count(); i++) {
             FontFamily& family = *families[i];
 
@@ -439,7 +452,7 @@ private:
                 }
             }
 
-            SkFontStyleSet_Android* newSet = SkNEW_ARGS(SkFontStyleSet_Android, (family));
+            SkFontStyleSet_Android* newSet = SkNEW_ARGS(SkFontStyleSet_Android, (family, basePath));
             if (0 == newSet->count()) {
                 SkDELETE(newSet);
                 continue;
@@ -485,5 +498,16 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFontMgr* SkFontMgr::Factory() {
+    // The call to SkGetTestFontConfiguration is so that Chromium can override the environment.
+    // TODO: these globals need to be removed, in favor of a constructor / separate Factory
+    // which can be used instead.
+    const char* mainConfigFile;
+    const char* fallbackConfigFile;
+    const char* basePath;
+    SkGetTestFontConfiguration(&mainConfigFile, &fallbackConfigFile, &basePath);
+    if (mainConfigFile) {
+        SkNEW_ARGS(SkFontMgr_Android, (mainConfigFile, fallbackConfigFile, basePath));
+    }
+
     return SkNEW(SkFontMgr_Android);
 }
