@@ -7,6 +7,7 @@
 
 #include "GrDrawState.h"
 #include "GrPaint.h"
+#include "GrDrawTargetCaps.h"
 
 //////////////////////////////////////////////////////////////////////////////s
 
@@ -34,7 +35,7 @@ bool GrDrawState::State::HaveCompatibleState(const State& a, const State& b,
 }
 //////////////////////////////////////////////////////////////////////////////s
 GrDrawState::CombinedState GrDrawState::CombineIfPossible(
-    const GrDrawState& a, const GrDrawState& b) {
+    const GrDrawState& a, const GrDrawState& b, const GrDrawTargetCaps& caps) {
 
     bool usingVertexColors = a.hasColorVertexAttribute();
     if (!usingVertexColors && a.fColor != b.fColor) {
@@ -65,9 +66,34 @@ GrDrawState::CombinedState GrDrawState::CombineIfPossible(
     if (!State::HaveCompatibleState(a.fState, b.fState, explicitLocalCoords)) {
         return kIncompatible_CombinedState;
     }
+
+    if (usingVertexColors) {
+        // If one is opaque and the other is not then the combined state is not opaque. Moreover,
+        // if the opaqueness affects the ability to get color/coverage blending correct then we
+        // don't combine the draw states.
+        bool aIsOpaque = (kVertexColorsAreOpaque_Hint & a.fHints);
+        bool bIsOpaque = (kVertexColorsAreOpaque_Hint & b.fHints);
+        if (aIsOpaque != bIsOpaque) {
+            const GrDrawState* opaque;
+            const GrDrawState* nonOpaque;
+            if (aIsOpaque) {
+                opaque = &a;
+                nonOpaque = &b;
+            } else {
+                opaque = &b;
+                nonOpaque = &a;
+            }
+            if (!opaque->hasSolidCoverage() && opaque->couldApplyCoverage(caps)) {
+                SkASSERT(!nonOpaque->hasSolidCoverage());
+                if (!nonOpaque->couldApplyCoverage(caps)) {
+                    return kIncompatible_CombinedState;
+                }
+            }
+            return aIsOpaque ? kB_CombinedState : kA_CombinedState;
+        }
+    }
     return kAOrB_CombinedState;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////s
 
@@ -102,6 +128,7 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fBlendOptFlags = that.fBlendOptFlags;
 
     fState = that.fState;
+    fHints = that.fHints;
 
     memcpy(fFixedFunctionVertexAttribIndices,
             that.fFixedFunctionVertexAttribIndices,
@@ -128,6 +155,8 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     fStencilSettings.setDisabled();
     fCoverage = 0xffffffff;
     fDrawFace = kBoth_DrawFace;
+
+    fHints = 0;
 
     this->invalidateBlendOptFlags();
 }
@@ -172,6 +201,7 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
     fDrawFace = kBoth_DrawFace;
     fStencilSettings.setDisabled();
     this->resetStateFlags();
+    fHints = 0;
 
     // Enable the clip bit
     this->enableState(GrDrawState::kClip_StateBit);
@@ -326,13 +356,33 @@ bool GrDrawState::willEffectReadDstColor() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool GrDrawState::couldApplyCoverage(const GrDrawTargetCaps& caps) const {
+    if (caps.dualSourceBlendingSupport()) {
+        return true;
+    }
+    // we can correctly apply coverage if a) we have dual source blending
+    // or b) one of our blend optimizations applies
+    // or c) the src, dst blend coeffs are 1,0 and we will read Dst Color
+    GrBlendCoeff srcCoeff;
+    GrBlendCoeff dstCoeff;
+    GrDrawState::BlendOptFlags flag = this->getBlendOpts(true, &srcCoeff, &dstCoeff);
+    return GrDrawState::kNone_BlendOpt != flag ||
+           (this->willEffectReadDstColor() &&
+            kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff);
+}
+
 bool GrDrawState::srcAlphaWillBeOne() const {
     uint32_t validComponentFlags;
     GrColor color;
     // Check if per-vertex or constant color may have partial alpha
     if (this->hasColorVertexAttribute()) {
-        validComponentFlags = 0;
-        color = 0; // not strictly necessary but we get false alarms from tools about uninit.
+        if (fHints & kVertexColorsAreOpaque_Hint) {
+            validComponentFlags = kA_GrColorComponentFlag;
+            color = 0xFF << GrColor_SHIFT_A;            
+        } else {
+            validComponentFlags = 0;
+            color = 0; // not strictly necessary but we get false alarms from tools about uninit.
+        }
     } else {
         validComponentFlags = kRGBA_GrColorComponentFlags;
         color = this->getColor();
@@ -455,13 +505,10 @@ GrDrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
     bool dstCoeffIsZero = kZero_GrBlendCoeff == *dstCoeff ||
                          (kISA_GrBlendCoeff == *dstCoeff && srcAIsOne);
 
-    bool covIsZero = !this->isCoverageDrawing() &&
-                     !this->hasCoverageVertexAttribute() &&
-                     0 == this->getCoverageColor();
     // When coeffs are (0,1) there is no reason to draw at all, unless
     // stenciling is enabled. Having color writes disabled is effectively
-    // (0,1). The same applies when coverage is known to be 0.
-    if ((kZero_GrBlendCoeff == *srcCoeff && dstCoeffIsOne) || covIsZero) {
+    // (0,1).
+    if ((kZero_GrBlendCoeff == *srcCoeff && dstCoeffIsOne)) {
         if (this->getStencil().doesWrite()) {
             return kEmitCoverage_BlendOptFlag;
         } else {
@@ -469,11 +516,7 @@ GrDrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
         }
     }
 
-    // check for coverage due to constant coverage, per-vertex coverage, or coverage stage
-    bool hasCoverage = forceCoverage ||
-                       0xffffffff != this->getCoverageColor() ||
-                       this->hasCoverageVertexAttribute() ||
-                       this->numCoverageStages() > 0;
+    bool hasCoverage = forceCoverage || !this->hasSolidCoverage();
 
     // if we don't have coverage we can check whether the dst
     // has to read at all. If not, we'll disable blending.

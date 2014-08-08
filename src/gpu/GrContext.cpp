@@ -1753,7 +1753,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
         fDrawState->setFromPaint(*paint, fViewMatrix, fRenderTarget.get());
 #if GR_DEBUG_PARTIAL_COVERAGE_CHECK
         if ((paint->hasMask() || 0xff != paint->fCoverage) &&
-            !fGpu->canApplyCoverage()) {
+            !fDrawState->couldApplyCoverage(fGpu->caps())) {
             GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
         }
 #endif

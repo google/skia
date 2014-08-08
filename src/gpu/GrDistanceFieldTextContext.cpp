@@ -421,6 +421,9 @@ HAS_ATLAS:
                               SkFixedToFloat(texture->normalizeFixedY(ty + th)),
                               vertSize);
     if (useColorVerts) {
+        if (0xFF == GrColorUnpackA(fPaint.getColor())) {
+            fDrawTarget->drawState()->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
+        }
         // color comes after position.
         GrColor* colors = reinterpret_cast<GrColor*>(positions + 1);
         for (int i = 0; i < 4; ++i) {

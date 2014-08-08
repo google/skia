@@ -78,63 +78,44 @@ void get_vertex_bounds(const void* vertices,
 
 namespace {
 
-extern const GrVertexAttrib kRectPosColorUVAttribs[] = {
-    {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(SkPoint), kColor_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType,  sizeof(SkPoint)+sizeof(GrColor),
-                                                  kLocalCoord_GrVertexAttribBinding},
+extern const GrVertexAttrib kRectAttribs[] = {
+    {kVec2f_GrVertexAttribType,  0,                               kPosition_GrVertexAttribBinding},
+    {kVec4ub_GrVertexAttribType, sizeof(SkPoint),                 kColor_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType,  sizeof(SkPoint)+sizeof(GrColor), kLocalCoord_GrVertexAttribBinding},
 };
-
-extern const GrVertexAttrib kRectPosUVAttribs[] = {
-    {kVec2f_GrVertexAttribType,  0,              kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(SkPoint), kLocalCoord_GrVertexAttribBinding},
-};
-
-static void set_vertex_attributes(GrDrawState* drawState,
-                                  bool hasColor, bool hasUVs,
-                                  int* colorOffset, int* localOffset) {
-    *colorOffset = -1;
-    *localOffset = -1;
-
-    // Using per-vertex colors allows batching across colors. (A lot of rects in a row differing
-    // only in color is a common occurrence in tables). However, having per-vertex colors disables
-    // blending optimizations because we don't know if the color will be solid or not. These
-    // optimizations help determine whether coverage and color can be blended correctly when
-    // dual-source blending isn't available. This comes into play when there is coverage. If colors
-    // were a stage it could take a hint that every vertex's color will be opaque.
-    if (hasColor && hasUVs) {
-        *colorOffset = sizeof(SkPoint);
-        *localOffset = sizeof(SkPoint) + sizeof(GrColor);
-        drawState->setVertexAttribs<kRectPosColorUVAttribs>(3);
-    } else if (hasColor) {
-        *colorOffset = sizeof(SkPoint);
-        drawState->setVertexAttribs<kRectPosColorUVAttribs>(2);
-    } else if (hasUVs) {
-        *localOffset = sizeof(SkPoint);
-        drawState->setVertexAttribs<kRectPosUVAttribs>(2);
-    } else {
-        drawState->setVertexAttribs<kRectPosUVAttribs>(1);
-    }
 }
 
-};
+/** We always use per-vertex colors so that rects can be batched across color changes. Sometimes we
+    have explicit local coords and sometimes not. We *could* always provide explicit local coords
+    and just duplicate the positions when the caller hasn't provided a local coord rect, but we
+    haven't seen a use case which frequently switches between local rect and no local rect draws.
+
+    The color param is used to determine whether the opaque hint can be set on the draw state.
+    The caller must populate the vertex colors itself.
+
+    The vertex attrib order is always pos, color, [local coords].
+ */
+static void set_vertex_attributes(GrDrawState* drawState, bool hasLocalCoords, GrColor color) {
+    if (hasLocalCoords) {
+        drawState->setVertexAttribs<kRectAttribs>(3);
+    } else {
+        drawState->setVertexAttribs<kRectAttribs>(2);
+    }
+    if (0xFF == GrColorUnpackA(color)) {
+        drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
+    }
+}
 
 enum {
     kTraceCmdBit = 0x80,
     kCmdMask = 0x7f,
 };
 
-static uint8_t add_trace_bit(uint8_t cmd) {
-    return cmd | kTraceCmdBit;
-}
+static inline uint8_t add_trace_bit(uint8_t cmd) { return cmd | kTraceCmdBit; }
 
-static uint8_t strip_trace_bit(uint8_t cmd) {
-    return cmd & kCmdMask;
-}
+static inline uint8_t strip_trace_bit(uint8_t cmd) { return cmd & kCmdMask; }
 
-static bool cmd_has_trace_marker(uint8_t cmd) {
-    return SkToBool(cmd & kTraceCmdBit);
-}
+static inline bool cmd_has_trace_marker(uint8_t cmd) { return SkToBool(cmd & kTraceCmdBit); }
 
 void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
                                      const SkRect* localRect,
@@ -143,11 +124,7 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
 
     GrColor color = drawState->getColor();
 
-    int colorOffset, localOffset;
-    set_vertex_attributes(drawState,
-                   this->caps()->dualSourceBlendingSupport() || drawState->hasSolidCoverage(),
-                   NULL != localRect,
-                   &colorOffset, &localOffset);
+    set_vertex_attributes(drawState, NULL != localRect,  color);
 
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
@@ -176,22 +153,22 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
     // unnecessary clipping in our onDraw().
     get_vertex_bounds(geo.vertices(), vsize, 4, &devBounds);
 
-    if (localOffset >= 0) {
-        SkPoint* coords = GrTCast<SkPoint*>(GrTCast<intptr_t>(geo.vertices()) + localOffset);
+    if (NULL != localRect) {
+        static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
+        SkPoint* coords = GrTCast<SkPoint*>(GrTCast<intptr_t>(geo.vertices()) + kLocalOffset);
         coords->setRectFan(localRect->fLeft, localRect->fTop,
                            localRect->fRight, localRect->fBottom,
-                            vsize);
+                           vsize);
         if (NULL != localMatrix) {
             localMatrix->mapPointsWithStride(coords, vsize, 4);
         }
     }
 
-    if (colorOffset >= 0) {
-        GrColor* vertColor = GrTCast<GrColor*>(GrTCast<intptr_t>(geo.vertices()) + colorOffset);
-        for (int i = 0; i < 4; ++i) {
-            *vertColor = color;
-            vertColor = (GrColor*) ((intptr_t) vertColor + vsize);
-        }
+    static const int kColorOffset = sizeof(SkPoint);
+    GrColor* vertColor = GrTCast<GrColor*>(GrTCast<intptr_t>(geo.vertices()) + kColorOffset);
+    for (int i = 0; i < 4; ++i) {
+        *vertColor = color;
+        vertColor = (GrColor*) ((intptr_t) vertColor + vsize);
     }
 
     this->setIndexSourceToBuffer(this->getContext()->getQuadIndexBuffer());
@@ -909,7 +886,7 @@ void GrInOrderDrawBuffer::recordStateIfNecessary() {
     }
     const GrDrawState& curr = this->getDrawState();
     GrDrawState& prev = fStates.back();
-    switch (GrDrawState::CombineIfPossible(prev, curr)) {
+    switch (GrDrawState::CombineIfPossible(prev, curr, *this->caps())) {
         case GrDrawState::kIncompatible_CombinedState:
             fStates.push_back() = this->getDrawState();
             this->addToCmdBuffer(kSetState_Cmd);
