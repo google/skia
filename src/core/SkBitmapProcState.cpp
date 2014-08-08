@@ -167,6 +167,22 @@ bool SkBitmapProcState::possiblyScaleImage() {
         SkScalar invScaleX = fInvMatrix.getScaleX();
         SkScalar invScaleY = fInvMatrix.getScaleY();
 
+        if (SkScalarNearlyEqual(invScaleX,1.0f) &&
+            SkScalarNearlyEqual(invScaleY,1.0f)) {
+            // short-circuit identity scaling; the output is supposed to
+            // be the same as the input, so we might as well go fast.
+
+            // Note(humper): We could also probably do this if the scales
+            // are close to -1 as well, since the flip doesn't require
+            // any fancy re-sampling...
+
+            // Set our filter level to low -- the only post-filtering this
+            // image might require is some interpolation if the translation
+            // is fractional.
+            fFilterLevel = SkPaint::kLow_FilterLevel;
+            return false;
+        }
+
         fScaledCacheID = SkScaledImageCache::FindAndLock(fOrigBitmap,
                                                          invScaleX, invScaleY,
                                                          &fScaledBitmap);
@@ -218,8 +234,10 @@ bool SkBitmapProcState::possiblyScaleImage() {
         fInvMatrix.setTranslate(fInvMatrix.getTranslateX() / fInvMatrix.getScaleX(),
                                 fInvMatrix.getTranslateY() / fInvMatrix.getScaleY());
 
-        // no need for any further filtering; we just did it!
-        fFilterLevel = SkPaint::kNone_FilterLevel;
+        // Set our filter level to low -- the only post-filtering this
+        // image might require is some interpolation if the translation
+        // is fractional.
+        fFilterLevel = SkPaint::kLow_FilterLevel;
         unlocker.release();
         return true;
     }
