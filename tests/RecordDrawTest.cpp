@@ -18,15 +18,6 @@
 
 static const int W = 1920, H = 1080;
 
-static void draw_pos_text_h(SkCanvas* canvas, const char* text, SkScalar y) {
-    const size_t len = strlen(text);
-    SkAutoTMalloc<SkScalar> xpos(len);
-    for (size_t i = 0; i < len; i++) {
-        xpos[i] = (SkScalar)i;
-    }
-    canvas->drawPosTextH(text, len, xpos, y, SkPaint());
-}
-
 class JustOneDraw : public SkDrawPictureCallback {
 public:
     JustOneDraw() : fCalls(0) {}
@@ -69,63 +60,6 @@ DEF_TEST(RecordDraw_Unbalanced, r) {
     assert_type<SkRecords::Save>    (r, rerecord, 1);
     assert_type<SkRecords::Restore> (r, rerecord, 2);
     assert_type<SkRecords::Restore> (r, rerecord, 3);
-}
-
-// Rerecord into another SkRecord with a clip.
-static void record_clipped(const SkRecord& record, SkRect clip, SkRecord* clipped) {
-    SkRecorder recorder(clipped, W, H);
-    recorder.clipRect(clip);
-    SkRecordDraw(record, &recorder);
-}
-
-DEF_TEST(RecordDraw_PosTextHQuickReject, r) {
-    SkRecord record;
-    SkRecorder recorder(&record, W, H);
-
-    draw_pos_text_h(&recorder, "This will draw.", 20);
-    draw_pos_text_h(&recorder, "This won't.", 5000);
-
-    SkRecordBoundDrawPosTextH(&record);
-
-    SkRecord clipped;
-    record_clipped(record, SkRect::MakeLTRB(20, 20, 200, 200), &clipped);
-
-    REPORTER_ASSERT(r, 4 == clipped.count());
-    assert_type<SkRecords::ClipRect>    (r, clipped, 0);
-    assert_type<SkRecords::Save>        (r, clipped, 1);
-    assert_type<SkRecords::DrawPosTextH>(r, clipped, 2);
-    assert_type<SkRecords::Restore>     (r, clipped, 3);
-}
-
-DEF_TEST(RecordDraw_Culling, r) {
-    // Record these 7 drawing commands verbatim.
-    SkRecord record;
-    SkRecorder recorder(&record, W, H);
-
-    recorder.pushCull(SkRect::MakeWH(100, 100));
-        recorder.drawRect(SkRect::MakeWH(10, 10), SkPaint());
-        recorder.drawRect(SkRect::MakeWH(30, 30), SkPaint());
-        recorder.pushCull(SkRect::MakeWH(5, 5));
-            recorder.drawRect(SkRect::MakeWH(1, 1), SkPaint());
-        recorder.popCull();
-    recorder.popCull();
-
-    // Take a pass over to match up pushCulls and popCulls.
-    SkRecordAnnotateCullingPairs(&record);
-
-    // This clip intersects the outer cull, but allows us to quick reject the inner one.
-    SkRecord clipped;
-    record_clipped(record, SkRect::MakeLTRB(20, 20, 200, 200), &clipped);
-
-    // If culling weren't working, we'd see 3 more commands recorded here.
-    REPORTER_ASSERT(r, 7 == clipped.count());
-    assert_type<SkRecords::ClipRect>(r, clipped, 0);
-    assert_type<SkRecords::Save>    (r, clipped, 1);
-    assert_type<SkRecords::PushCull>(r, clipped, 2);
-    assert_type<SkRecords::DrawRect>(r, clipped, 3);
-    assert_type<SkRecords::DrawRect>(r, clipped, 4);
-    assert_type<SkRecords::PopCull> (r, clipped, 5);
-    assert_type<SkRecords::Restore> (r, clipped, 6);
 }
 
 DEF_TEST(RecordDraw_SetMatrixClobber, r) {

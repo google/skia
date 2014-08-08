@@ -16,55 +16,6 @@
 
 static const int W = 1920, H = 1080;
 
-DEF_TEST(RecordOpts_Culling, r) {
-    SkRecord record;
-    SkRecorder recorder(&record, W, H);
-
-    recorder.drawRect(SkRect::MakeWH(1000, 10000), SkPaint());
-
-    recorder.pushCull(SkRect::MakeWH(100, 100));
-        recorder.drawRect(SkRect::MakeWH(10, 10), SkPaint());
-        recorder.drawRect(SkRect::MakeWH(30, 30), SkPaint());
-        recorder.pushCull(SkRect::MakeWH(5, 5));
-            recorder.drawRect(SkRect::MakeWH(1, 1), SkPaint());
-        recorder.popCull();
-    recorder.popCull();
-
-    SkRecordAnnotateCullingPairs(&record);
-
-    REPORTER_ASSERT(r, 6 == assert_type<SkRecords::PairedPushCull>(r, record, 1)->skip);
-    REPORTER_ASSERT(r, 2 == assert_type<SkRecords::PairedPushCull>(r, record, 4)->skip);
-}
-
-DEF_TEST(RecordOpts_NoopCulls, r) {
-    SkRecord record;
-    SkRecorder recorder(&record, W, H);
-
-    // All should be nooped.
-    recorder.pushCull(SkRect::MakeWH(200, 200));
-        recorder.pushCull(SkRect::MakeWH(100, 100));
-        recorder.popCull();
-    recorder.popCull();
-
-    // Kept for now.  We could peel off a layer of culling.
-    recorder.pushCull(SkRect::MakeWH(5, 5));
-        recorder.pushCull(SkRect::MakeWH(5, 5));
-            recorder.drawRect(SkRect::MakeWH(1, 1), SkPaint());
-        recorder.popCull();
-    recorder.popCull();
-
-    SkRecordNoopCulls(&record);
-
-    for (unsigned i = 0; i < 4; i++) {
-        assert_type<SkRecords::NoOp>(r, record, i);
-    }
-    assert_type<SkRecords::PushCull>(r, record, 4);
-    assert_type<SkRecords::PushCull>(r, record, 5);
-    assert_type<SkRecords::DrawRect>(r, record, 6);
-    assert_type<SkRecords::PopCull>(r, record, 7);
-    assert_type<SkRecords::PopCull>(r, record, 8);
-}
-
 static void draw_pos_text(SkCanvas* canvas, const char* text, bool constantY) {
     const size_t len = strlen(text);
     SkAutoTMalloc<SkPoint> pos(len);
@@ -87,29 +38,6 @@ DEF_TEST(RecordOpts_StrengthReduction, r) {
 
     assert_type<SkRecords::DrawPosTextH>(r, record, 0);
     assert_type<SkRecords::DrawPosText>(r, record, 1);
-}
-
-DEF_TEST(RecordOpts_TextBounding, r) {
-    SkRecord record;
-    SkRecorder recorder(&record, W, H);
-
-    // First, get a drawPosTextH.  Here's a handy way.  Its text size will be the default (12).
-    draw_pos_text(&recorder, "This will be reduced to drawPosTextH.", true);
-    SkRecordReduceDrawPosTextStrength(&record);
-
-    const SkRecords::DrawPosTextH* original =
-        assert_type<SkRecords::DrawPosTextH>(r, record, 0);
-
-    // This should wrap the original DrawPosTextH with minY and maxY.
-    SkRecordBoundDrawPosTextH(&record);
-
-    const SkRecords::BoundedDrawPosTextH* bounded =
-        assert_type<SkRecords::BoundedDrawPosTextH>(r, record, 0);
-
-    const SkPaint defaults;
-    REPORTER_ASSERT(r, bounded->base == original);
-    REPORTER_ASSERT(r, bounded->minY <= SK_Scalar1 - defaults.getTextSize());
-    REPORTER_ASSERT(r, bounded->maxY >= SK_Scalar1 + defaults.getTextSize());
 }
 
 DEF_TEST(RecordOpts_NoopDrawSaveRestore, r) {

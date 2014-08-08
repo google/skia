@@ -15,14 +15,11 @@ using namespace SkRecords;
 
 void SkRecordOptimize(SkRecord* record) {
     // TODO(mtklein): fuse independent optimizations to reduce number of passes?
-    SkRecordNoopCulls(record);
     SkRecordNoopSaveRestores(record);
     // TODO(mtklein): figure out why we draw differently and reenable
     //SkRecordNoopSaveLayerDrawRestores(record);
 
-    SkRecordAnnotateCullingPairs(record);
     SkRecordReduceDrawPosTextStrength(record);  // Helpful to run this before BoundDrawPosTextH.
-    SkRecordBoundDrawPosTextH(record);
 }
 
 // Most of the optimizations in this file are pattern-based.  These are all defined as structs with:
@@ -43,21 +40,6 @@ static bool apply(Pass* pass, SkRecord* record) {
         changed |= pass->onMatch(record, &pattern, begin, end);
     }
     return changed;
-}
-
-struct CullNooper {
-    typedef Pattern3<Is<PushCull>, Star<Is<NoOp> >, Is<PopCull> > Pattern;
-
-    bool onMatch(SkRecord* record, Pattern* pattern, unsigned begin, unsigned end) {
-        record->replace<NoOp>(begin);  // PushCull
-        record->replace<NoOp>(end-1);  // PopCull
-        return true;
-    }
-};
-
-void SkRecordNoopCulls(SkRecord* record) {
-    CullNooper pass;
-    while (apply(&pass, record));
 }
 
 // Turns the logical NoOp Save and Restore in Save-Draw*-Restore patterns into actual NoOps.
@@ -210,89 +192,3 @@ void SkRecordReduceDrawPosTextStrength(SkRecord* record) {
     apply(&pass, record);
 }
 
-// Tries to replace DrawPosTextH with BoundedDrawPosTextH, which knows conservative upper and lower
-// bounds to use with SkCanvas::quickRejectY.
-struct TextBounder {
-    typedef Pattern1<Is<DrawPosTextH> > Pattern;
-
-    bool onMatch(SkRecord* record, Pattern* pattern, unsigned begin, unsigned end) {
-        SkASSERT(end == begin + 1);
-        DrawPosTextH* draw = pattern->first<DrawPosTextH>();
-
-        // If we're drawing vertical text, none of the checks we're about to do make any sense.
-        // We'll need to call SkPaint::computeFastBounds() later, so bail if that's not possible.
-        if (draw->paint.isVerticalText() || !draw->paint.canComputeFastBounds()) {
-            return false;
-        }
-
-        // Rather than checking the top and bottom font metrics, we guess.  Actually looking up the
-        // top and bottom metrics is slow, and this overapproximation should be good enough.
-        const SkScalar buffer = draw->paint.getTextSize() * 1.5f;
-        SkDEBUGCODE(SkPaint::FontMetrics metrics;)
-        SkDEBUGCODE(draw->paint.getFontMetrics(&metrics);)
-        SkASSERT(-buffer <= metrics.fTop);
-        SkASSERT(+buffer >= metrics.fBottom);
-
-        // Let the paint adjust the text bounds.  We don't care about left and right here, so we use
-        // 0 and 1 respectively just so the bounds rectangle isn't empty.
-        SkRect bounds;
-        bounds.set(0, draw->y - buffer, SK_Scalar1, draw->y + buffer);
-        SkRect adjusted = draw->paint.computeFastBounds(bounds, &bounds);
-
-        Adopted<DrawPosTextH> adopted(draw);
-        SkNEW_PLACEMENT_ARGS(record->replace<BoundedDrawPosTextH>(begin, adopted),
-                             BoundedDrawPosTextH,
-                             (&adopted, adjusted.fTop, adjusted.fBottom));
-        return true;
-    }
-};
-void SkRecordBoundDrawPosTextH(SkRecord* record) {
-    TextBounder pass;
-    apply(&pass, record);
-}
-
-// Replaces PushCull with PairedPushCull, which lets us skip to the paired PopCull when the canvas
-// can quickReject the cull rect.
-// There's no efficient way (yet?) to express this one as a pattern, so we write a custom pass.
-class CullAnnotator {
-public:
-    // Do nothing to most ops.
-    template <typename T> void operator()(T*) {}
-
-    void operator()(PushCull* push) {
-        Pair pair = { fIndex, push };
-        fPushStack.push(pair);
-    }
-
-    void operator()(PopCull* pop) {
-        Pair push = fPushStack.top();
-        fPushStack.pop();
-
-        SkASSERT(fIndex > push.index);
-        unsigned skip = fIndex - push.index;
-
-        Adopted<PushCull> adopted(push.command);
-        SkNEW_PLACEMENT_ARGS(fRecord->replace<PairedPushCull>(push.index, adopted),
-                             PairedPushCull, (&adopted, skip));
-    }
-
-    void apply(SkRecord* record) {
-        for (fRecord = record, fIndex = 0; fIndex < record->count(); fIndex++) {
-            fRecord->mutate<void>(fIndex, *this);
-        }
-    }
-
-private:
-    struct Pair {
-        unsigned index;
-        PushCull* command;
-    };
-
-    SkTDArray<Pair> fPushStack;
-    SkRecord* fRecord;
-    unsigned fIndex;
-};
-void SkRecordAnnotateCullingPairs(SkRecord* record) {
-    CullAnnotator pass;
-    pass.apply(record);
-}

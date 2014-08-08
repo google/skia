@@ -47,7 +47,6 @@ namespace SkRecords {
     M(SaveLayer)                                                    \
     M(PushCull)                                                     \
     M(PopCull)                                                      \
-    M(PairedPushCull)         /*From SkRecordAnnotateCullingPairs*/ \
     M(Concat)                                                       \
     M(SetMatrix)                                                    \
     M(ClipPath)                                                     \
@@ -73,8 +72,7 @@ namespace SkRecords {
     M(DrawSprite)                                                   \
     M(DrawText)                                                     \
     M(DrawTextOnPath)                                               \
-    M(DrawVertices)                                                 \
-    M(BoundedDrawPosTextH)    /*From SkRecordBoundDrawPosTextH*/
+    M(DrawVertices)
 
 // Defines SkRecords::Type, an enum of all record types.
 #define ENUM(T) T##_Type,
@@ -296,10 +294,6 @@ struct DrawVertices {
     PODArray<uint16_t> indices;
     int indexCount;
 };
-
-// Records added by optimizations.
-RECORD2(PairedPushCull, Adopted<PushCull>, base, unsigned, skip);
-RECORD3(BoundedDrawPosTextH, Adopted<DrawPosTextH>, base, SkScalar, minY, SkScalar, maxY);
 
 #undef RECORD0
 #undef RECORD1

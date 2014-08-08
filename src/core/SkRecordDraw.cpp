@@ -19,18 +19,6 @@ void SkRecordDraw(const SkRecord& record, SkCanvas* canvas, SkDrawPictureCallbac
 
 namespace SkRecords {
 
-bool Draw::skip(const PairedPushCull& r) {
-    if (fCanvas->quickReject(r.base->rect)) {
-        fIndex += r.skip;
-        return true;
-    }
-    return false;
-}
-
-bool Draw::skip(const BoundedDrawPosTextH& r) {
-    return fCanvas->quickRejectY(r.minY, r.maxY);
-}
-
 // FIXME: SkBitmaps are stateful, so we need to copy them to play back in multiple threads.
 static SkBitmap shallow_copy(const SkBitmap& bitmap) {
     return bitmap;
@@ -76,8 +64,5 @@ DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, r.matrix, r.pa
 DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
                                 r.xmode.get(), r.indices, r.indexCount, r.paint));
 #undef DRAW
-
-template <> void Draw::draw(const PairedPushCull& r) { this->draw(*r.base); }
-template <> void Draw::draw(const BoundedDrawPosTextH& r) { this->draw(*r.base); }
 
 }  // namespace SkRecords
