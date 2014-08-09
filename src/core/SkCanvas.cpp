@@ -7,6 +7,7 @@
 
 
 #include "SkCanvas.h"
+#include "SkCanvasPriv.h"
 #include "SkBitmapDevice.h"
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDraw.h"
@@ -2397,21 +2398,31 @@ void SkCanvas::EXPERIMENTAL_optimize(const SkPicture* picture) {
 
 void SkCanvas::drawPicture(const SkPicture* picture) {
     if (NULL != picture) {
-        this->onDrawPicture(picture);
+        this->onDrawPicture(picture, NULL, NULL);
     }
 }
 
-void SkCanvas::onDrawPicture(const SkPicture* picture) {
-    SkASSERT(NULL != picture);
+void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
+    if (NULL != picture) {
+        if (matrix && matrix->isIdentity()) {
+            matrix = NULL;
+        }
+        this->onDrawPicture(picture, matrix, paint);
+    }
+}
 
+void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
+                             const SkPaint* paint) {
     SkBaseDevice* device = this->getTopDevice();
     if (NULL != device) {
         // Canvas has to first give the device the opportunity to render
         // the picture itself.
-        if (device->EXPERIMENTAL_drawPicture(this, picture)) {
+        if (device->EXPERIMENTAL_drawPicture(this, picture, matrix, paint)) {
             return; // the device has rendered the entire picture
         }
     }
+
+    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->width(), picture->height());
 
     picture->draw(this);
 }
@@ -2510,4 +2521,30 @@ SkCanvas* SkCanvas::NewRasterDirect(const SkImageInfo& info, void* pixels, size_
         return NULL;
     }
     return SkNEW_ARGS(SkCanvas, (bitmap));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatrix* matrix,
+                                                 const SkPaint* paint, int width, int height)
+    : fCanvas(canvas)
+    , fSaveCount(canvas->getSaveCount())
+{
+    if (NULL != paint) {
+        SkRect bounds = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
+        if (matrix) {
+            matrix->mapRect(&bounds);
+        }
+        canvas->saveLayer(&bounds, paint);
+    } else if (NULL != matrix) {
+        canvas->save();
+    }
+    
+    if (NULL != matrix) {
+        canvas->concat(*matrix);
+    }
+}
+
+SkAutoCanvasMatrixPaint::~SkAutoCanvasMatrixPaint() {
+    fCanvas->restoreToCount(fSaveCount);
 }

@@ -1387,7 +1387,8 @@ void SkPictureRecord::onDrawTextOnPath(const void* text, size_t byteLength, cons
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawPicture(const SkPicture* picture) {
+void SkPictureRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
+                                    const SkPaint* paint) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
@@ -1395,8 +1396,19 @@ void SkPictureRecord::onDrawPicture(const SkPicture* picture) {
 
     // op + picture index
     size_t size = 2 * kUInt32Size;
-    size_t initialOffset = this->addDraw(DRAW_PICTURE, &size);
-    this->addPicture(picture);
+    size_t initialOffset;
+
+    if (NULL == matrix && NULL == paint) {
+        initialOffset = this->addDraw(DRAW_PICTURE, &size);
+        this->addPicture(picture);
+    } else {
+        const SkMatrix& m = matrix ? *matrix : SkMatrix::I();
+        size += m.writeToMemory(NULL) + kUInt32Size;    // matrix + paint
+        initialOffset = this->addDraw(DRAW_PICTURE_MATRIX_PAINT, &size);
+        this->addPicture(picture);
+        this->addMatrix(m);
+        this->addPaintPtr(paint);
+    }
     this->validate(initialOffset, size);
 }
 

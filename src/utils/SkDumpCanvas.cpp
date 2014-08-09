@@ -422,11 +422,12 @@ void SkDumpCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const S
                str.c_str(), byteLength);
 }
 
-void SkDumpCanvas::onDrawPicture(const SkPicture* picture) {
+void SkDumpCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
+                                 const SkPaint* paint) {
     this->dump(kDrawPicture_Verb, NULL, "drawPicture(%p) %d:%d", picture,
                picture->width(), picture->height());
     fNestLevel += 1;
-    this->INHERITED::onDrawPicture(picture);
+    this->INHERITED::onDrawPicture(picture, matrix, paint);
     fNestLevel -= 1;
     this->dump(kDrawPicture_Verb, NULL, "endPicture(%p) %d:%d", &picture,
                picture->width(), picture->height());

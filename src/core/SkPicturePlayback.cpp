@@ -319,6 +319,13 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
         case DRAW_PICTURE:
             canvas->drawPicture(fPictureData->getPicture(reader));
             break;
+        case DRAW_PICTURE_MATRIX_PAINT: {
+            const SkPicture* pic = fPictureData->getPicture(reader);
+            SkMatrix matrix;
+            reader->readMatrix(&matrix);
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            canvas->drawPicture(pic, &matrix, paint);
+        } break;
         case DRAW_POINTS: {
             const SkPaint& paint = *fPictureData->getPaint(reader);
             SkCanvas::PointMode mode = (SkCanvas::PointMode)reader->readInt();

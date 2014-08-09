@@ -1872,7 +1872,13 @@ static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* re
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
 }
 
-bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* picture) {
+bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* picture,
+                                           const SkMatrix* matrix, const SkPaint* paint) {
+    // todo: should handle these natively
+    if (matrix || paint) {
+        return false;
+    }
+
     fContext->getLayerCache()->processDeletedPictures();
 
     SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();

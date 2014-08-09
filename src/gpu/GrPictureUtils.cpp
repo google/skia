@@ -6,6 +6,7 @@
  */
 
 #include "GrPictureUtils.h"
+#include "SkCanvasPriv.h"
 #include "SkDevice.h"
 #include "SkDraw.h"
 #include "SkPaintPriv.h"
@@ -234,7 +235,10 @@ protected:
         this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);
     }
 
-    virtual void onDrawPicture(const SkPicture* picture) SK_OVERRIDE {
+    virtual void onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
+                               const SkPaint* paint) SK_OVERRIDE {
+        SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->width(), picture->height());
+
         if (NULL != picture->fData.get()) {
             // Disable the BBH for the old path so all the draw calls
             // will be seen. The stock SkPicture::draw method can't be

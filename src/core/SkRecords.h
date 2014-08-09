@@ -14,17 +14,14 @@
 class SkPictureBox {
 public:
     SkPictureBox(const SkPicture* obj) : fObj(SkRef(obj)) {}
-    SkPictureBox(const SkPictureBox& src) : fObj(SkRef(src.fObj)) {}
     ~SkPictureBox() { fObj->unref(); }
-
-    SkPictureBox& operator=(const SkPictureBox& src) {
-        SkRefCnt_SafeAssign(fObj, src.fObj);
-        return *this;
-    }
 
     operator const SkPicture*() const { return fObj; }
 
 private:
+    SkPictureBox(const SkPictureBox&);
+    SkPictureBox& operator=(const SkPictureBox&);
+
     const SkPicture* fObj;
 };
 
@@ -236,7 +233,7 @@ RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
 RECORD1(DrawPaint, SkPaint, paint);
 RECORD2(DrawPath, SkPaint, paint, SkPath, path);
 RECORD2(DrawPatch, SkPaint, paint, SkPatch, patch);
-RECORD1(DrawPicture, SkPictureBox, picture);
+RECORD3(DrawPicture, Optional<SkPaint>, paint, SkPictureBox, picture, Optional<SkMatrix>, matrix);
 RECORD4(DrawPoints, SkPaint, paint, SkCanvas::PointMode, mode, size_t, count, SkPoint*, pts);
 RECORD4(DrawPosText, SkPaint, paint,
                      PODArray<char>, text,

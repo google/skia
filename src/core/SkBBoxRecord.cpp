@@ -293,10 +293,17 @@ void SkBBoxRecord::drawPatch(const SkPatch& patch, const SkPaint& paint) {
     }
 }
 
-void SkBBoxRecord::onDrawPicture(const SkPicture* picture) {
-    if (picture->width() > 0 && picture->height() > 0 &&
-        this->transformBounds(SkRect::MakeWH(picture->width(), picture->height()), NULL)) {
-        this->INHERITED::onDrawPicture(picture);
+void SkBBoxRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
+                                 const SkPaint* paint) {
+    SkRect bounds = SkRect::MakeWH(SkIntToScalar(picture->width()),
+                                   SkIntToScalar(picture->height()));
+    // todo: wonder if we should allow passing an optional matrix to transformBounds so we don't
+    // end up transforming the rect twice.
+    if (matrix) {
+        matrix->mapRect(&bounds);
+    }
+    if (this->transformBounds(bounds, paint)) {
+        this->INHERITED::onDrawPicture(picture, matrix, paint);
     }
 }
 

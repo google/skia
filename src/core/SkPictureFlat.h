@@ -69,8 +69,9 @@ enum DrawType {
     POP_CULL,
     
     DRAW_PATCH, // could not add in aphabetical order
+    DRAW_PICTURE_MATRIX_PAINT,
 
-    LAST_DRAWTYPE_ENUM = DRAW_PATCH
+    LAST_DRAWTYPE_ENUM = DRAW_PICTURE_MATRIX_PAINT
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

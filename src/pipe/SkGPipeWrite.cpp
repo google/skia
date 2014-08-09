@@ -289,7 +289,7 @@ protected:
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
 
-    virtual void onDrawPicture(const SkPicture* picture) SK_OVERRIDE;
+    virtual void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE;
 
 private:
     void recordTranslate(const SkMatrix&);
@@ -933,9 +933,14 @@ void SkGPipeCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const 
     }
 }
 
-void SkGPipeCanvas::onDrawPicture(const SkPicture* picture) {
+void SkGPipeCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
+                                  const SkPaint* paint) {
     // we want to playback the picture into individual draw calls
-    this->INHERITED::onDrawPicture(picture);
+    //
+    // todo: do we always have to unroll? If the pipe is not cross-process, seems like
+    // we could just ref the picture and move on...? <reed, scroggo>
+    //
+    this->INHERITED::onDrawPicture(picture, matrix, paint);
 }
 
 void SkGPipeCanvas::drawVertices(VertexMode vmode, int vertexCount,

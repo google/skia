@@ -95,7 +95,7 @@ public:
     void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;
     void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) SK_OVERRIDE;
 
-    void onDrawPicture(const SkPicture* picture) SK_OVERRIDE;
+    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE;
 
     void onPushCull(const SkRect& cullRect) SK_OVERRIDE;
     void onPopCull() SK_OVERRIDE;

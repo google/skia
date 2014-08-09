@@ -265,10 +265,11 @@ void SkNWayCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const S
     }
 }
 
-void SkNWayCanvas::onDrawPicture(const SkPicture* picture) {
+void SkNWayCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
+                                 const SkPaint* paint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawPicture(picture);
+        iter->drawPicture(picture, matrix, paint);
     }
 }
 
