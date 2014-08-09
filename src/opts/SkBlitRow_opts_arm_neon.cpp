@@ -423,8 +423,15 @@ void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
             "ushr    v5.8h, v22.8h, #5              \t\n"
             "addhn2  v6.16b, v22.8h, v5.8h          \t\n"
             "uqadd   v7.16b, v1.16b, v7.16b         \t\n"
+#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
             "uqadd   v20.16b, v2.16b, v20.16b       \t\n"
             "uqadd   v6.16b, v0.16b, v6.16b         \t\n"
+#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
+            "uqadd   v20.16b, v0.16b, v20.16b       \t\n"
+            "uqadd   v6.16b, v2.16b, v6.16b         \t\n"
+#else
+#error "This function only supports BGRA and RGBA."
+#endif
             "shll    v22.8h, v20.8b, #8             \t\n"
             "shll    v5.8h, v7.8b, #8               \t\n"
             "sri     v22.8h, v5.8h, #5              \t\n"
@@ -1643,11 +1650,7 @@ const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm_neon[] = {
     // no dither
     S32_D565_Opaque_neon,
     S32_D565_Blend_neon,
-#ifdef SK_CPU_ARM32
     S32A_D565_Opaque_neon,
-#else
-    NULL,
-#endif
     S32A_D565_Blend_neon,
 
     // dither
