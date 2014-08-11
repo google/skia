@@ -20,7 +20,6 @@
 class GrContext;
 #endif
 
-class SkBBHFactory;
 class SkBBoxHierarchy;
 class SkCanvas;
 class SkData;
@@ -289,8 +288,11 @@ private:
 
     typedef SkRefCnt INHERITED;
 
-    SkPicture(int width, int height, SkRecord*);  // Takes ownership.
-    SkAutoTDelete<SkRecord> fRecord;
+    // Takes ownership of the SkRecord, refs the (optional) BBH.
+    SkPicture(int width, int height, SkRecord*, SkBBoxHierarchy*);
+
+    SkAutoTDelete<SkRecord>       fRecord;
+    SkAutoTUnref<SkBBoxHierarchy> fBBH;
     bool fRecordWillPlayBackBitmaps; // TODO: const
 };
 

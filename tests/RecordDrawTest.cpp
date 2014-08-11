@@ -38,7 +38,7 @@ DEF_TEST(RecordDraw_Abort, r) {
     SkRecorder canvas(&rerecord, W, H);
 
     JustOneDraw callback;
-    SkRecordDraw(record, &canvas, &callback);
+    SkRecordDraw(record, &canvas, NULL/*bbh*/, &callback);
 
     REPORTER_ASSERT(r, 3 == rerecord.count());
     assert_type<SkRecords::Save>    (r, rerecord, 0);
@@ -53,7 +53,7 @@ DEF_TEST(RecordDraw_Unbalanced, r) {
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, W, H);
-    SkRecordDraw(record, &canvas);
+    SkRecordDraw(record, &canvas, NULL/*bbh*/, NULL/*callback*/);
 
     REPORTER_ASSERT(r, 4 == rerecord.count());
     assert_type<SkRecords::Save>    (r, rerecord, 0);
@@ -77,7 +77,7 @@ DEF_TEST(RecordDraw_SetMatrixClobber, r) {
     translate.setTranslate(20, 20);
     translateCanvas.setMatrix(translate);
 
-    SkRecordDraw(scaleRecord, &translateCanvas);
+    SkRecordDraw(scaleRecord, &translateCanvas, NULL/*bbh*/, NULL/*callback*/);
     REPORTER_ASSERT(r, 4 == translateRecord.count());
     assert_type<SkRecords::SetMatrix>(r, translateRecord, 0);
     assert_type<SkRecords::Save>     (r, translateRecord, 1);

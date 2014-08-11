@@ -8,12 +8,16 @@
 #ifndef SkRecordDraw_DEFINED
 #define SkRecordDraw_DEFINED
 
-#include "SkRecord.h"
+#include "SkBBoxHierarchy.h"
 #include "SkCanvas.h"
 #include "SkDrawPictureCallback.h"
+#include "SkRecord.h"
+
+// Fill a BBH to be used by SkRecordDraw to accelerate playback.
+void SkRecordFillBounds(const SkRecord&, SkBBoxHierarchy*);
 
 // Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.
-void SkRecordDraw(const SkRecord&, SkCanvas*, SkDrawPictureCallback* = NULL);
+void SkRecordDraw(const SkRecord&, SkCanvas*, const SkBBoxHierarchy*, SkDrawPictureCallback*);
 
 namespace SkRecords {
 

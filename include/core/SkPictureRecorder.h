@@ -80,6 +80,8 @@ private:
     int fWidth;
     int fHeight;
 
+    SkAutoTUnref<SkBBoxHierarchy> fBBH;
+
     // One of these two canvases will be non-NULL.
     SkAutoTUnref<SkPictureRecord> fPictureRecord;  // beginRecording()
     SkAutoTUnref<SkRecorder>      fRecorder;       // EXPERIMENTAL_beginRecording()

@@ -26,9 +26,11 @@ SkCanvas* SkPictureRecorder::beginRecording(int width, int height,
     const SkISize size = SkISize::Make(width, height);
 
     if (NULL != bbhFactory) {
-        SkAutoTUnref<SkBBoxHierarchy> tree((*bbhFactory)(width, height));
-        SkASSERT(NULL != tree);
-        fPictureRecord.reset(SkNEW_ARGS(SkBBoxHierarchyRecord, (size, recordFlags, tree.get())));
+        // We don't need to hold a ref on the BBH ourselves, but might as well for
+        // consistency with EXPERIMENTAL_beginRecording(), which does need to.
+        fBBH.reset((*bbhFactory)(width, height));
+        SkASSERT(NULL != fBBH.get());
+        fPictureRecord.reset(SkNEW_ARGS(SkBBoxHierarchyRecord, (size, recordFlags, fBBH.get())));
     } else {
         fPictureRecord.reset(SkNEW_ARGS(SkPictureRecord, (size, recordFlags)));
     }
@@ -42,7 +44,11 @@ SkCanvas* SkPictureRecorder::EXPERIMENTAL_beginRecording(int width, int height,
     fWidth = width;
     fHeight = height;
 
-    // TODO: plumb bbhFactory through
+    if (NULL != bbhFactory) {
+        fBBH.reset((*bbhFactory)(width, height));
+        SkASSERT(NULL != fBBH.get());
+    }
+
     fRecord.reset(SkNEW(SkRecord));
     fRecorder.reset(SkNEW_ARGS(SkRecorder, (fRecord.get(), width, height)));
     return this->getRecordingCanvas();
@@ -59,7 +65,7 @@ SkPicture* SkPictureRecorder::endRecording() {
     SkPicture* picture = NULL;
 
     if (NULL != fRecord.get()) {
-        picture = SkNEW_ARGS(SkPicture, (fWidth, fHeight, fRecord.detach()));
+        picture = SkNEW_ARGS(SkPicture, (fWidth, fHeight, fRecord.detach(), fBBH.get()));
     }
 
     if (NULL != fPictureRecord.get()) {
@@ -83,7 +89,7 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
     }
 
     if (NULL != fRecord.get()) {
-        SkRecordDraw(*fRecord, canvas);
+        SkRecordDraw(*fRecord, canvas, NULL/*bbh*/, NULL/*callback*/);
     }
 
     if (NULL != fPictureRecord.get()) {

@@ -10,14 +10,20 @@
 DEFINE_bool(quilt, true, "If true, draw GM via a picture into a quilt of small tiles and compare.");
 DEFINE_int32(quiltTile, 256, "Dimension of (square) quilt tile.");
 
-static const char* kSuffixes[] = { "nobbh", "rtree", "quadtree", "tilegrid", "skr" };
-
 namespace DM {
 
-QuiltTask::QuiltTask(const Task& parent, skiagm::GM* gm, SkBitmap reference, QuiltTask::Mode mode)
+static SkString suffix(QuiltTask::Backend backend, QuiltTask::BBH bbh) {
+    static const char* kBackends[] = { "default", "skrecord" };
+    static const char* kBBHs[]     = { "nobbh", "rtree", "quadtree", "tilegrid" };
+    return SkStringPrintf("%s-%s", kBackends[backend], kBBHs[bbh]);
+}
+
+QuiltTask::QuiltTask(const Task& parent, skiagm::GM* gm, SkBitmap reference,
+                     QuiltTask::BBH bbh, QuiltTask::Backend backend)
     : CpuTask(parent)
-    , fMode(mode)
-    , fName(UnderJoin(parent.name().c_str(), kSuffixes[mode]))
+    , fBBH(bbh)
+    , fBackend(backend)
+    , fName(UnderJoin(parent.name().c_str(), suffix(backend, bbh).c_str()))
     , fGM(gm)
     , fReference(reference)
     {}
@@ -54,14 +60,15 @@ private:
 
 void QuiltTask::draw() {
     SkAutoTDelete<SkBBHFactory> factory;
-    switch (fMode) {
-        case kRTree_Mode:
+    switch (fBBH) {
+        case kNone_BBH: break;
+        case kRTree_BBH:
             factory.reset(SkNEW(SkRTreeFactory));
             break;
-        case kQuadTree_Mode:
+        case kQuadTree_BBH:
             factory.reset(SkNEW(SkQuadTreeFactory));
             break;
-        case kTileGrid_Mode: {
+        case kTileGrid_BBH: {
             const SkTileGridFactory::TileGridInfo tiles = {
                 { FLAGS_quiltTile, FLAGS_quiltTile },
                 /*overlap: */{0, 0},
@@ -70,10 +77,6 @@ void QuiltTask::draw() {
             factory.reset(SkNEW_ARGS(SkTileGridFactory, (tiles)));
             break;
         }
-
-        case kNoBBH_Mode:
-        case kSkRecord_Mode:
-            break;
     }
 
     // A couple GMs draw wrong when using a bounding box hierarchy.
@@ -84,7 +87,7 @@ void QuiltTask::draw() {
     }
 
     SkAutoTUnref<const SkPicture> recorded(
-            RecordPicture(fGM.get(), factory.get(), kSkRecord_Mode == fMode));
+            RecordPicture(fGM.get(), factory.get(), kSkRecord_Backend == fBackend));
 
     SkBitmap full;
     AllocatePixels(fReference, &full);

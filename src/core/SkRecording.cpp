@@ -20,7 +20,7 @@ SkPlayback::~SkPlayback() {}
 
 void SkPlayback::draw(SkCanvas* canvas) const {
     SkASSERT(fRecord.get() != NULL);
-    SkRecordDraw(*fRecord, canvas);
+    SkRecordDraw(*fRecord, canvas, NULL/*bbh*/, NULL/*callback*/);
 }
 
 SkRecording::SkRecording(int width, int height)

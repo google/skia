@@ -6,14 +6,46 @@
  */
 
 #include "SkRecordDraw.h"
+#include "SkTSort.h"
 
-void SkRecordDraw(const SkRecord& record, SkCanvas* canvas, SkDrawPictureCallback* callback) {
+void SkRecordDraw(const SkRecord& record,
+                  SkCanvas* canvas,
+                  const SkBBoxHierarchy* bbh,
+                  SkDrawPictureCallback* callback) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
-    for (SkRecords::Draw draw(canvas); draw.index() < record.count(); draw.next()) {
-        if (NULL != callback && callback->abortDrawing()) {
-            return;
+
+    if (NULL != bbh) {
+        SkASSERT(bbh->getCount() == SkToInt(record.count()));
+
+        // Draw only ops that affect pixels in the canvas's current clip.
+        SkIRect devBounds;
+        canvas->getClipDeviceBounds(&devBounds);
+        SkTDArray<void*> ops;
+        bbh->search(devBounds, &ops);
+
+        // Until we start filling in real bounds, we should get every op back.
+        SkASSERT(ops.count() == SkToInt(record.count()));
+
+        // FIXME: QuadTree doesn't send these back in the order we inserted them.  :(
+        if (ops.count() > 0) {
+            SkTQSort(ops.begin(), ops.end() - 1, SkTCompareLT<void*>());
         }
-        record.visit<void>(draw.index(), draw);
+
+        SkRecords::Draw draw(canvas);
+        for (int i = 0; i < ops.count(); i++) {
+            if (NULL != callback && callback->abortDrawing()) {
+                return;
+            }
+            record.visit<void>((uintptr_t)ops[i], draw);  // See FillBounds below.
+        }
+    } else {
+        // Draw all ops.
+        for (SkRecords::Draw draw(canvas); draw.index() < record.count(); draw.next()) {
+            if (NULL != callback && callback->abortDrawing()) {
+                return;
+            }
+            record.visit<void>(draw.index(), draw);
+        }
     }
 }
 
@@ -65,4 +97,35 @@ DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.co
                                 r.xmode.get(), r.indices, r.indexCount, r.paint));
 #undef DRAW
 
+
+// This is an SkRecord visitor that fills an SkBBoxHierarchy.
+class FillBounds : SkNoncopyable {
+public:
+    explicit FillBounds(SkBBoxHierarchy* bbh) : fBBH(bbh), fIndex(0) {}
+    ~FillBounds() { fBBH->flushDeferredInserts(); }
+
+    uintptr_t index() const { return fIndex; }
+    void next() { ++fIndex; }
+
+    template <typename T> void operator()(const T& r) {
+        // MakeLargest() is a trivially safe default for ops that haven't been bounded yet.
+        this->insert(this->index(), SkIRect::MakeLargest());
+    }
+
+private:
+    void insert(uintptr_t opIndex, const SkIRect& bounds) {
+        fBBH->insert((void*)opIndex, bounds, true/*ok to defer*/);
+    }
+
+    SkBBoxHierarchy* fBBH;  // Unowned. The BBH is guaranteed to be ref'd for our lifetime.
+    uintptr_t fIndex;
+};
+
 }  // namespace SkRecords
+
+void SkRecordFillBounds(const SkRecord& record, SkBBoxHierarchy* bbh) {
+    SkASSERT(NULL != bbh);
+    for(SkRecords::FillBounds fb(bbh); fb.index() < record.count(); fb.next()) {
+        record.visit<void>(fb.index(), fb);
+    }
+}

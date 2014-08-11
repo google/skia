@@ -14,7 +14,6 @@
 #include "SkPictureRecorder.h"
 #include "SkPictureStateTree.h"
 
-#include "SkBBHFactory.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkChunkAlloc.h"
@@ -139,7 +138,7 @@ SkPicture::SkPicture(int width, int height,
 // This for compatibility with serialization code only.  This is not cheap.
 static SkPicture* backport(const SkRecord& src, int width, int height) {
     SkPictureRecorder recorder;
-    SkRecordDraw(src, recorder.beginRecording(width, height));
+    SkRecordDraw(src, recorder.beginRecording(width, height), NULL/*bbh*/, NULL/*callback*/);
     return recorder.endRecording();
 }
 
@@ -267,7 +266,7 @@ void SkPicture::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) const {
         playback.draw(canvas, callback);
     }
     if (NULL != fRecord.get()) {
-        SkRecordDraw(*fRecord, canvas, callback);
+        SkRecordDraw(*fRecord, canvas, fBBH.get(), callback);
     }
 }
 
@@ -490,11 +489,16 @@ uint32_t SkPicture::uniqueID() const {
 }
 
 // fRecord OK
-SkPicture::SkPicture(int width, int height, SkRecord* record)
+SkPicture::SkPicture(int width, int height, SkRecord* record, SkBBoxHierarchy* bbh)
     : fWidth(width)
     , fHeight(height)
     , fRecord(record)
+    , fBBH(SkSafeRef(bbh))
     , fRecordWillPlayBackBitmaps(SkRecordWillPlaybackBitmaps(*record)) {
+    // TODO: delay as much of this work until just before first playback?
+    if (fBBH.get()) {
+        SkRecordFillBounds(*record, fBBH.get());
+    }
     this->needsNewGenID();
 }
 
