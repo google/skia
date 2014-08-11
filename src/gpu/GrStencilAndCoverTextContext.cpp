@@ -94,18 +94,6 @@ private:
         SkDescriptor::Free(fDesc);
     }
 
-    virtual void onRelease() SK_OVERRIDE {
-        INHERITED::onRelease();
-        fPathRange.reset(NULL);
-    }
-
-    virtual void onAbandon() SK_OVERRIDE {
-        INHERITED::onAbandon();
-        fPathRange->abandon();
-        fPathRange.reset(NULL);
-    }
-
-
     static const int kMaxGroupCount = (kMaxGlyphCount + (kGlyphGroupSize - 1)) / kGlyphGroupSize;
     SkDescriptor* const fDesc;
     uint8_t fLoadedGlyphs[(kMaxGroupCount + 7) >> 3]; // One bit per glyph group
