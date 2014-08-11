@@ -84,34 +84,38 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
     int kWidth = fKernelSize.width();
     int kHeight = fKernelSize.height();
 
-    builder->fsCodeAppend("\t\tvec4 sum = vec4(0, 0, 0, 0);\n");
-    builder->fsCodeAppendf("\t\tvec2 coord = %s - %s * %s;\n", coords2D.c_str(), kernelOffset,
+    builder->fsCodeAppend("vec4 sum = vec4(0, 0, 0, 0);");
+    builder->fsCodeAppendf("vec2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset,
                            imgInc);
-    builder->fsCodeAppend("\t\tvec4 c;\n");
+    builder->fsCodeAppend("vec4 c;");
 
     for (int y = 0; y < kHeight; y++) {
         for (int x = 0; x < kWidth; x++) {
             GrGLShaderBuilder::FSBlock block(builder);
-            builder->fsCodeAppendf("\t\tfloat k = %s[%d * %d + %d];\n", kernel, y, kWidth, x);
+            builder->fsCodeAppendf("float k = %s[%d * %d + %d];", kernel, y, kWidth, x);
             SkString coord;
             coord.printf("coord + vec2(%d, %d) * %s", x, y, imgInc);
             fDomain.sampleTexture(builder, domain, "c", coord, samplers[0]);
             if (!fConvolveAlpha) {
-                builder->fsCodeAppend("\t\tc.rgb /= c.a;\n");
+                builder->fsCodeAppend("c.rgb /= c.a;");
             }
-            builder->fsCodeAppend("\t\tsum += c * k;\n");
+            builder->fsCodeAppend("sum += c * k;");
         }
     }
     if (fConvolveAlpha) {
-        builder->fsCodeAppendf("\t\t%s = sum * %s + %s;\n", outputColor, gain, bias);
-        builder->fsCodeAppendf("\t\t%s.rgb = clamp(%s.rgb, 0.0, %s.a);\n",
+        builder->fsCodeAppendf("%s = sum * %s + %s;", outputColor, gain, bias);
+        builder->fsCodeAppendf("%s.rgb = clamp(%s.rgb, 0.0, %s.a);",
                                outputColor, outputColor, outputColor);
     } else {
         fDomain.sampleTexture(builder, domain, "c", coords2D, samplers[0]);
-        builder->fsCodeAppendf("\t\t%s.a = c.a;\n", outputColor);
-        builder->fsCodeAppendf("\t\t%s.rgb = sum.rgb * %s + %s;\n", outputColor, gain, bias);
-        builder->fsCodeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
+        builder->fsCodeAppendf("%s.a = c.a;", outputColor);
+        builder->fsCodeAppendf("%s.rgb = sum.rgb * %s + %s;", outputColor, gain, bias);
+        builder->fsCodeAppendf("%s.rgb *= %s.a;", outputColor, outputColor);
     }
+
+    SkString modulate;
+    GrGLSLMulVarBy4f(&modulate, 2, outputColor, inputColor);
+    builder->fsCodeAppend(modulate.c_str());
 }
 
 void GrGLMatrixConvolutionEffect::GenKey(const GrDrawEffect& drawEffect,
@@ -157,17 +161,14 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
     fBias(SkScalarToFloat(bias) / 255.0f),
     fConvolveAlpha(convolveAlpha),
     fDomain(GrTextureDomain::MakeTexelDomain(texture, bounds), tileMode) {
-    fKernel = new float[kernelSize.width() * kernelSize.height()];
     for (int i = 0; i < kernelSize.width() * kernelSize.height(); i++) {
         fKernel[i] = SkScalarToFloat(kernel[i]);
     }
     fKernelOffset[0] = static_cast<float>(kernelOffset.x());
     fKernelOffset[1] = static_cast<float>(kernelOffset.y());
-    this->setWillNotUseInputColor();
 }
 
 GrMatrixConvolutionEffect::~GrMatrixConvolutionEffect() {
-    delete[] fKernel;
 }
 
 const GrBackendEffectFactory& GrMatrixConvolutionEffect::getFactory() const {
@@ -185,6 +186,54 @@ bool GrMatrixConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
            fKernelOffset == s.kernelOffset() &&
            fConvolveAlpha == s.convolveAlpha() &&
            fDomain == s.domain();
+}
+
+// Static function to create a 2D convolution
+GrEffect* GrMatrixConvolutionEffect::CreateGaussian(GrTexture* texture,
+                                                    const SkIRect& bounds,
+                                                    const SkISize& kernelSize,
+                                                    SkScalar gain,
+                                                    SkScalar bias,
+                                                    const SkIPoint& kernelOffset,
+                                                    GrTextureDomain::Mode tileMode,
+                                                    bool convolveAlpha,
+                                                    SkScalar sigmaX,
+                                                    SkScalar sigmaY) {
+    float kernel[MAX_KERNEL_SIZE];
+    int width = kernelSize.width();
+    int height = kernelSize.height();
+    SkASSERT(width * height <= MAX_KERNEL_SIZE);
+    float sum = 0.0f;
+    float sigmaXDenom = 1.0f / (2.0f * SkScalarToFloat(SkScalarSquare(sigmaX)));
+    float sigmaYDenom = 1.0f / (2.0f * SkScalarToFloat(SkScalarSquare(sigmaY)));
+    int xRadius = width / 2;
+    int yRadius = height / 2;
+    for (int x = 0; x < width; x++) {
+      float xTerm = static_cast<float>(x - xRadius);
+      xTerm = xTerm * xTerm * sigmaXDenom;
+      for (int y = 0; y < height; y++) {
+        float yTerm = static_cast<float>(y - yRadius);
+        float xyTerm = sk_float_exp(-(xTerm + yTerm * yTerm * sigmaYDenom));
+        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
+       // is dropped here, since we renormalize the kernel below.
+        kernel[y * width + x] = xyTerm;
+        sum += xyTerm;
+      }
+    }
+    // Normalize the kernel
+    float scale = 1.0f / sum;
+    for (int i = 0; i < width * height; ++i) {
+        kernel[i] *= scale;
+    }
+    return SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,
+                                                  bounds,
+                                                  kernelSize,
+                                                  kernel,
+                                                  gain,
+                                                  bias,
+                                                  kernelOffset,
+                                                  tileMode,
+                                                  convolveAlpha));
 }
 
 GR_DEFINE_EFFECT_TEST(GrMatrixConvolutionEffect);

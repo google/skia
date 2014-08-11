@@ -96,6 +96,7 @@
         '../gm/hittestpath.cpp',
         '../gm/imagealphathreshold.cpp',
         '../gm/imageblur.cpp',
+        '../gm/imageblur2.cpp',
         '../gm/imageblurtiled.cpp',
         '../gm/imagemagnifier.cpp',
         '../gm/imageresizetiled.cpp',

@@ -14,6 +14,7 @@
 #include "SkShader.h"
 #include "SkString.h"
 
+#define MINI   0.01f
 #define SMALL   SkIntToScalar(2)
 #define REAL    1.5f
 #define BIG     SkIntToScalar(10)
@@ -78,6 +79,11 @@ private:
     typedef Benchmark INHERITED;
 };
 
+DEF_BENCH(return new BlurBench(MINI, kNormal_SkBlurStyle);)
+DEF_BENCH(return new BlurBench(MINI, kSolid_SkBlurStyle);)
+DEF_BENCH(return new BlurBench(MINI, kOuter_SkBlurStyle);)
+DEF_BENCH(return new BlurBench(MINI, kInner_SkBlurStyle);)
+
 DEF_BENCH(return new BlurBench(SMALL, kNormal_SkBlurStyle);)
 DEF_BENCH(return new BlurBench(SMALL, kSolid_SkBlurStyle);)
 DEF_BENCH(return new BlurBench(SMALL, kOuter_SkBlurStyle);)
@@ -97,6 +103,8 @@ DEF_BENCH(return new BlurBench(REAL, kNormal_SkBlurStyle);)
 DEF_BENCH(return new BlurBench(REAL, kSolid_SkBlurStyle);)
 DEF_BENCH(return new BlurBench(REAL, kOuter_SkBlurStyle);)
 DEF_BENCH(return new BlurBench(REAL, kInner_SkBlurStyle);)
+
+DEF_BENCH(return new BlurBench(MINI, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
 
 DEF_BENCH(return new BlurBench(SMALL, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
 

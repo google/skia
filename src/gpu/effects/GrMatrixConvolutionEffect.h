@@ -38,6 +38,18 @@ public:
                                                       tileMode,
                                                       convolveAlpha));
     }
+
+    static GrEffect* CreateGaussian(GrTexture* texture,
+                                    const SkIRect& bounds,
+                                    const SkISize& kernelSize,
+                                    SkScalar gain,
+                                    SkScalar bias,
+                                    const SkIPoint& kernelOffset,
+                                    GrTextureDomain::Mode tileMode,
+                                    bool convolveAlpha,
+                                    SkScalar sigmaX,
+                                    SkScalar sigmaY);
+
     virtual ~GrMatrixConvolutionEffect();
 
     virtual void getConstantColorComponents(GrColor* color,
@@ -75,7 +87,7 @@ private:
 
     SkIRect         fBounds;
     SkISize         fKernelSize;
-    float*          fKernel;
+    float           fKernel[MAX_KERNEL_SIZE];
     float           fGain;
     float           fBias;
     float           fKernelOffset[2];
