@@ -2000,6 +2000,12 @@ static void decompress_astc_block(uint8_t* dst, int dstRowBytes,
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// ASTC Comrpession Struct
+//
+////////////////////////////////////////////////////////////////////////////////
+
 // This is the type passed as the CompressorType argument of the compressed
 // blitter for the ASTC format. The static functions required to be in this
 // struct are documented in SkTextureCompressor_Blitter.h
@@ -2013,8 +2019,19 @@ struct CompressorASTC {
         compress_a8_astc_block<GetAlpha>(&dst, src, srcRowBytes);
     }
 
-    static inline void UpdateBlock(uint8_t* dst, const uint8_t* src) {
+#if PEDANTIC_BLIT_RECT
+    static inline void UpdateBlock(uint8_t* dst, const uint8_t* src, int srcRowBytes,
+                                   const uint8_t* mask) {
+        // TODO: krajcevski
+        // This is kind of difficult for ASTC because the weight values are calculated
+        // as an average of the actual weights. The best we can do is decompress the
+        // weights and recalculate them based on the new texel values. This should
+        // be "not too bad" since we know that anytime we hit this function, we're
+        // compressing 12x12 block dimension alpha-only, and we know the layout
+        // of the block
+        SkFAIL("Implement me!");
     }
+#endif
 };
 
 ////////////////////////////////////////////////////////////////////////////////

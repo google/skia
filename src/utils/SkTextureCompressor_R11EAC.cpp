@@ -603,8 +603,15 @@ struct CompressorR11EAC {
         *(reinterpret_cast<uint64_t*>(dst)) = compress_r11eac_block_fast(src, srcRowBytes);
     }
 
-    static inline void UpdateBlock(uint8_t* dst, const uint8_t* src) {
+#if PEDANTIC_BLIT_RECT
+    static inline void UpdateBlock(uint8_t* dst, const uint8_t* src, int srcRowBytes,
+                                   const uint8_t* mask) {
+        // TODO: krajcevski
+        // The implementation of this function should be similar to that of LATC, since
+        // the R11EAC indices directly correspond to pixel values.
+        SkFAIL("Implement me!");
     }
+#endif
 };
 
 ////////////////////////////////////////////////////////////////////////////////
