@@ -517,8 +517,6 @@
       'type': 'executable',
       'sources': [
         '../tools/render_pdfs_main.cpp',
-        '../tools/PdfRenderer.cpp',
-        '../tools/PdfRenderer.h',
       ],
       'include_dirs': [
         '../src/core',

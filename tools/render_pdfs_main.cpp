@@ -7,19 +7,16 @@
 
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
-#include "SkDevice.h"
+#include "SkDocument.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
-#include "SkPixelRef.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 #include "SkTSort.h"
-#include "PdfRenderer.h"
 #include "ProcStats.h"
-#include "picture_utils.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -120,6 +117,20 @@ static bool make_output_filepath(SkString* path, const SkString& dir,
                                       PDF_FILE_EXTENSION);
 }
 
+namespace {
+// This is a write-only stream.
+class NullWStream : public SkWStream {
+public:
+    NullWStream() : fBytesWritten(0) { }
+    virtual bool write(const void*, size_t size) SK_OVERRIDE {
+        fBytesWritten += size;
+        return true;
+    }
+    virtual size_t bytesWritten() const SK_OVERRIDE { return fBytesWritten; }
+    size_t fBytesWritten;
+};
+}  // namespace
+
 /** Write the output of pdf renderer to a file.
  * @param outputDir Output dir.
  * @param inputFilename The skp file that was read.
@@ -128,7 +139,7 @@ static bool make_output_filepath(SkString* path, const SkString& dir,
 static SkWStream* open_stream(const SkString& outputDir,
                               const SkString& inputFilename) {
     if (outputDir.isEmpty()) {
-        return SkNEW(SkDynamicMemoryWStream);
+        return SkNEW(NullWStream);
     }
 
     SkString outputPath;
@@ -136,72 +147,44 @@ static SkWStream* open_stream(const SkString& outputDir,
         return NULL;
     }
 
-    SkFILEWStream* stream = SkNEW_ARGS(SkFILEWStream, (outputPath.c_str()));
-    if (!stream->isValid()) {
+    SkAutoTDelete<SkFILEWStream> stream(
+            SkNEW_ARGS(SkFILEWStream, (outputPath.c_str())));
+    if (!stream.get() ||  !stream->isValid()) {
         SkDebugf("Could not write to file %s\n", outputPath.c_str());
         return NULL;
     }
 
-    return stream;
+    return stream.detach();
 }
 
-/** Reads an skp file, renders it to pdf and writes the output to a pdf file
- * @param inputPath The skp file to be read.
- * @param outputDir Output dir.
- * @param renderer The object responsible to render the skp object into pdf.
+/**
+ *  Given a SkPicture, write a one-page PDF document to the given
+ *  output, using the provided encoder.
  */
-static bool render_pdf(const SkString& inputPath, const SkString& outputDir,
-                       sk_tools::PdfRenderer& renderer) {
-    SkString inputFilename = SkOSPath::Basename(inputPath.c_str());
-
-    SkFILEStream inputStream;
-    inputStream.setPath(inputPath.c_str());
-    if (!inputStream.isValid()) {
-        SkDebugf("Could not open file %s\n", inputPath.c_str());
-        return false;
-    }
-
-    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream));
-
-    if (NULL == picture.get()) {
-        SkDebugf("Could not read an SkPicture from %s\n", inputPath.c_str());
-        return false;
-    }
-
-    SkDebugf("exporting... [%-4i %6i] %s\n",
-             picture->width(), picture->height(), inputPath.c_str());
-
-    SkWStream* stream(open_stream(outputDir, inputFilename));
-
-    if (!stream) {
-        return false;
-    }
-
-    renderer.init(picture, stream);
-
-    bool success = renderer.render();
-    SkDELETE(stream);
-
-    renderer.end();
-
-    return success;
+static bool pdf_to_stream(SkPicture* picture,
+                          SkWStream* output,
+                          SkPicture::EncodeBitmap encoder) {
+    SkAutoTUnref<SkDocument> pdfDocument(
+            SkDocument::CreatePDF(output, NULL, encoder));
+    SkCanvas* canvas = pdfDocument->beginPage(
+            SkIntToScalar(picture->width()),
+            SkIntToScalar(picture->height()));
+    canvas->drawPicture(picture);
+    canvas->flush();
+    return pdfDocument->close();
 }
 
 static bool operator<(const SkString& a, const SkString& b) {
     return strcmp(a.c_str(), b.c_str()) < 0;
 }
 
-/** For each file in the directory or for the file passed in input, call
- * render_pdf.
- * @param input A directory or an skp file.
- * @param outputDir Output dir.
- * @param renderer The object responsible to render the skp object into pdf.
+/**
+ * @param A list of directories or a skp files.
+ * @returns an alphabetical list of skp files.
  */
-static int process_input(
+static void process_input_files(
         const SkCommandLineFlags::StringArray& inputs,
-        const SkString& outputDir,
-        sk_tools::PdfRenderer& renderer) {
-    SkTArray<SkString> files;
+        SkTArray<SkString>* files) {
     for (int i = 0; i < inputs.count(); i ++) {
         const char* input = inputs[i];
         if (sk_isdir(input)) {
@@ -210,52 +193,90 @@ static int process_input(
             while (iter.next(&inputFilename)) {
                 if (!SkCommandLineFlags::ShouldSkip(
                             FLAGS_match, inputFilename.c_str())) {
-                    files.push_back(
+                    files->push_back(
                             SkOSPath::Join(input, inputFilename.c_str()));
                 }
             }
         } else {
             if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, input)) {
-                files.push_back(SkString(input));
+                files->push_back(SkString(input));
             }
         }
     }
-    if (files.count() > 0) {
-        SkTQSort<SkString>(files.begin(), files.end() - 1);
+    if (files->count() > 0) {
+        SkTQSort<SkString>(files->begin(), files->end() - 1);
     }
-    int failures = 0;
-    for (int i = 0; i < files.count(); i ++) {
-        if (!render_pdf(files[i], outputDir, renderer)) {
-            ++failures;
-        }
-    }
-    return failures;
 }
 
+/** For each input skp file, read it, render it to pdf and write. the
+ *  output to a pdf file
+ */
 int tool_main_core(int argc, char** argv);
 int tool_main_core(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     SkAutoGraphics ag;
 
-    SkAutoTUnref<sk_tools::PdfRenderer>
-        renderer(SkNEW_ARGS(sk_tools::SimplePdfRenderer, (encode_to_dct_data)));
-    SkASSERT(renderer.get());
-
     SkString outputDir;
     if (FLAGS_outputDir.count() > 0) {
         outputDir = FLAGS_outputDir[0];
+        if (!sk_mkdir(outputDir.c_str())) {
+            SkDebugf("Unable to mkdir '%s'\n", outputDir.c_str());
+            return 1;
+        }
     }
 
-    int failures = process_input(FLAGS_inputPaths, outputDir, *renderer);
+    SkTArray<SkString> files;
+    process_input_files(FLAGS_inputPaths, &files);
 
-    int max_rss_kb = sk_tools::getMaxResidentSetSizeKB();
-    if (max_rss_kb >= 0) {
-        SkDebugf("%4dM peak ResidentSetSize\n", max_rss_kb / 1024);
+    size_t maximumPathLength = 0;
+    for (int i = 0; i < files.count(); i ++) {
+        SkString basename = SkOSPath::Basename(files[i].c_str());
+        maximumPathLength = SkTMax(maximumPathLength, basename.size());
     }
 
+    int failures = 0;
+    for (int i = 0; i < files.count(); i ++) {
+        SkString basename = SkOSPath::Basename(files[i].c_str());
+
+        SkFILEStream inputStream;
+        inputStream.setPath(files[i].c_str());
+        if (!inputStream.isValid()) {
+            SkDebugf("Could not open file %s\n", files[i].c_str());
+            ++failures;
+            continue;
+        }
+
+        SkAutoTUnref<SkPicture> picture(
+                SkPicture::CreateFromStream(&inputStream));
+        if (NULL == picture.get()) {
+            SkDebugf("Could not read an SkPicture from %s\n",
+                     files[i].c_str());
+            ++failures;
+            continue;
+        }
+        SkDebugf("[%-4i %6i] %-*s", picture->width(), picture->height(),
+                 maximumPathLength, basename.c_str());
+
+        SkAutoTDelete<SkWStream> stream(open_stream(outputDir, files[i]));
+        if (!stream.get()) {
+            ++failures;
+            continue;
+        }
+        if (!pdf_to_stream(picture, stream.get(), encode_to_dct_data)) {
+            SkDebugf("Error in PDF Serialization.");
+            ++failures;
+        }
+
+        int max_rss_kb = sk_tools::getMaxResidentSetSizeKB();
+        if (max_rss_kb >= 0) {
+            SkDebugf(" %4dM peak rss", max_rss_kb / 1024);
+        }
+
+        SkDebugf("\n");
+    }
     if (failures != 0) {
-        SkDebugf("Failed to render %i PDFs.\n", failures);
+        SkDebugf("Failed to render %i of %i PDFs.\n", failures, files.count());
         return 1;
     }
 
@@ -278,7 +299,6 @@ int tool_main(int argc, char** argv) {
 #endif
     return 0;
 }
-
 #if !defined SK_BUILD_FOR_IOS
 int main(int argc, char * const argv[]) {
     return tool_main(argc, (char**) argv);
