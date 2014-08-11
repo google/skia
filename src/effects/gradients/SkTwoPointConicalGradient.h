@@ -44,8 +44,7 @@ class SkTwoPointConicalGradient : public SkGradientShaderBase {
 public:
     SkTwoPointConicalGradient(const SkPoint& start, SkScalar startRadius,
                               const SkPoint& end, SkScalar endRadius,
-                              bool flippedGrad, const Descriptor&,
-                              const SkMatrix* localMatrix);
+                              bool flippedGrad, const Descriptor&);
 
 
     virtual size_t contextSize() const SK_OVERRIDE;

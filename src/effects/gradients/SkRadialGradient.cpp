@@ -145,11 +145,10 @@ void shadeSpan16_radial_repeat(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar d
 
 /////////////////////////////////////////////////////////////////////
 
-SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius,
-                                   const Descriptor& desc, const SkMatrix* localMatrix)
-    : SkGradientShaderBase(desc, localMatrix),
-      fCenter(center),
-      fRadius(radius)
+SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor& desc)
+    : SkGradientShaderBase(desc)
+    , fCenter(center)
+    , fRadius(radius)
 {
     // make sure our table is insync with our current #define for kSQRT_TABLE_SIZE
     SkASSERT(sizeof(gSqrt8Table) == kSQRT_TABLE_SIZE);

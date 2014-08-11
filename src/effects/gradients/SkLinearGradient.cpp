@@ -52,11 +52,11 @@ static void pts_to_unit_matrix(const SkPoint pts[2], SkMatrix* matrix) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc,
-                                   const SkMatrix* localMatrix)
-    : SkGradientShaderBase(desc, localMatrix)
+SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc)
+    : SkGradientShaderBase(desc)
     , fStart(pts[0])
-    , fEnd(pts[1]) {
+    , fEnd(pts[1])
+{
     pts_to_unit_matrix(pts, &fPtsToUnit);
 }
 

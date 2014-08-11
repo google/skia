@@ -13,8 +13,7 @@
 
 class SkSweepGradient : public SkGradientShaderBase {
 public:
-    SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&,
-                    const SkMatrix* localMatrix);
+    SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&);
 
     virtual size_t contextSize() const SK_OVERRIDE;
 

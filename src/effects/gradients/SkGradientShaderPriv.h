@@ -89,6 +89,7 @@ public:
             fTileMode = SkShader::kClamp_TileMode;
         }
 
+        const SkMatrix*     fLocalMatrix;
         const SkColor*      fColors;
         const SkScalar*     fPos;
         int                 fCount;
@@ -97,7 +98,7 @@ public:
     };
 
 public:
-    SkGradientShaderBase(const Descriptor& desc, const SkMatrix* localMatrix);
+    SkGradientShaderBase(const Descriptor& desc);
     virtual ~SkGradientShaderBase();
 
     // The cache is initialized on-demand when getCache16/32 is called.

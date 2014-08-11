@@ -167,15 +167,15 @@ void shadeSpan_twopoint_repeat(SkScalar fx, SkScalar dx,
 
 /////////////////////////////////////////////////////////////////////
 
-SkTwoPointRadialGradient::SkTwoPointRadialGradient(
-    const SkPoint& start, SkScalar startRadius,
-    const SkPoint& end, SkScalar endRadius,
-    const Descriptor& desc, const SkMatrix* localMatrix)
-    : SkGradientShaderBase(desc, localMatrix),
-      fCenter1(start),
-      fCenter2(end),
-      fRadius1(startRadius),
-      fRadius2(endRadius) {
+SkTwoPointRadialGradient::SkTwoPointRadialGradient(const SkPoint& start, SkScalar startRadius,
+                                                   const SkPoint& end, SkScalar endRadius,
+                                                   const Descriptor& desc)
+    : SkGradientShaderBase(desc)
+    , fCenter1(start)
+    , fCenter2(end)
+    , fRadius1(startRadius)
+    , fRadius2(endRadius)
+{
     init();
 }
 

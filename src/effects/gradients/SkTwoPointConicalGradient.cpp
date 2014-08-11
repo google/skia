@@ -196,14 +196,14 @@ void SkTwoPointConicalGradient::init() {
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
         const SkPoint& start, SkScalar startRadius,
         const SkPoint& end, SkScalar endRadius,
-        bool flippedGrad, const Descriptor& desc,
-        const SkMatrix* localMatrix)
-    : SkGradientShaderBase(desc, localMatrix),
-    fCenter1(start),
-    fCenter2(end),
-    fRadius1(startRadius),
-    fRadius2(endRadius),
-    fFlippedGrad(flippedGrad) {
+        bool flippedGrad, const Descriptor& desc)
+    : SkGradientShaderBase(desc)
+    , fCenter1(start)
+    , fCenter2(end)
+    , fRadius1(startRadius)
+    , fRadius2(endRadius)
+    , fFlippedGrad(flippedGrad)
+{
     // this is degenerate, and should be caught by our caller
     SkASSERT(fCenter1 != fCenter2 || fRadius1 != fRadius2);
     this->init();

@@ -13,8 +13,7 @@
 
 class SkRadialGradient : public SkGradientShaderBase {
 public:
-    SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&,
-                     const SkMatrix* localMatrix);
+    SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
 
     virtual size_t contextSize() const SK_OVERRIDE;
 
