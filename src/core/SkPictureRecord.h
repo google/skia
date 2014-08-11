@@ -10,9 +10,6 @@
 
 #include "SkCanvas.h"
 #include "SkFlattenable.h"
-#ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
-#include "SkMatrixClipStateMgr.h"
-#endif
 #include "SkPathHeap.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
@@ -120,13 +117,11 @@ private:
     size_t recordRestoreOffsetPlaceholder(SkRegion::Op);
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t restoreOffset);
 
-#ifndef SK_COLLAPSE_MATRIX_CLIP_STATE
     SkTDArray<int32_t> fRestoreOffsetStack;
     int fFirstSavedLayerIndex;
     enum {
         kNoSavedLayerIndex = -1
     };
-#endif
 
     SkTDArray<uint32_t> fCullOffsetStack;
 
@@ -310,7 +305,6 @@ protected:
 
 private:
     friend class MatrixClipState; // for access to *Impl methods
-    friend class SkMatrixClipStateMgr; // for access to *Impl methods
 
     SkPictureContentInfo fContentInfo;
     SkAutoTUnref<SkPathHeap> fPathHeap;
@@ -330,10 +324,6 @@ private:
 
     friend class SkPictureData;   // for SkPictureData's SkPictureRecord-based constructor
     friend class SkPictureTester; // for unit testing
-
-#ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
-    SkMatrixClipStateMgr fMCMgr;
-#endif
 
     typedef SkCanvas INHERITED;
 };
