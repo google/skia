@@ -506,7 +506,7 @@ SkFontMgr* SkFontMgr::Factory() {
     const char* basePath;
     SkGetTestFontConfiguration(&mainConfigFile, &fallbackConfigFile, &basePath);
     if (mainConfigFile) {
-        SkNEW_ARGS(SkFontMgr_Android, (mainConfigFile, fallbackConfigFile, basePath));
+        return SkNEW_ARGS(SkFontMgr_Android, (mainConfigFile, fallbackConfigFile, basePath));
     }
 
     return SkNEW(SkFontMgr_Android);
