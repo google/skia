@@ -299,7 +299,7 @@ void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
 
                       "11:                                        \n\t"
                       // unzips achieve the same as a vld4 operation
-                      "vuzpq.u16  q0, q1                      \n\t"
+                      "vuzp.u16   q0, q1                      \n\t"
                       "vuzp.u8    d0, d1                      \n\t"
                       "vuzp.u8    d2, d3                      \n\t"
                       // expand 0565 q12 to 8888 {d4-d7}

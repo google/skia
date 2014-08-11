@@ -21,7 +21,6 @@
         .fpu neon
         .align 4
         .globl memset16_neon
-        .func
 
 memset16_neon:
         cmp             r2, #0
@@ -141,5 +140,4 @@ memset_end:
         pop             {r0}
         bx              lr
 
-        .endfunc
         .end
