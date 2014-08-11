@@ -24,24 +24,23 @@ struct FontFileInfo {
 };
 
 /**
- * The FontFamily data structure is created during parsing and handed back to
- * Skia to fold into its representation of font families. fNames is the list of
- * font names that alias to a font family. fontFileArray is the list of information
- * about each file.  Order is the priority order for the font. This is
- * used internally to determine the order in which to place fallback fonts as
- * they are read from the configuration files.
+ * A font family provides one or more names for a collection of fonts, each of
+ * which has a different style (normal, italic) or weight (thin, light, bold,
+ * etc).
+ * Some fonts may occur in compact variants for use in the user interface.
+ * Android distinguishes "fallback" fonts to support non-ASCII character sets.
  */
 struct FontFamily {
     FontFamily()
         : fVariant(SkPaintOptionsAndroid::kDefault_Variant)
-        , order(-1)
+        , fOrder(-1)
         , fIsFallbackFont(false) { }
 
     SkTArray<SkString>                 fNames;
-    SkTArray<FontFileInfo>             fFontFiles;
+    SkTArray<FontFileInfo>             fFonts;
     SkLanguage                         fLanguage;
     SkPaintOptionsAndroid::FontVariant fVariant;
-    int                                order; // only used internally by SkFontConfigParser
+    int                                fOrder; // internal to SkFontConfigParser
     bool                               fIsFallbackFont;
 };
 

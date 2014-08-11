@@ -44,17 +44,17 @@
  * can read these variables that are relevant to the current parsing.
  */
 struct FamilyData {
-    FamilyData(XML_Parser *parserRef, SkTDArray<FontFamily*> &familiesRef) :
+    FamilyData(XML_Parser* parserRef, SkTDArray<FontFamily*> &familiesRef) :
         parser(parserRef),
         families(familiesRef),
         currentFamily(NULL),
         currentFontInfo(NULL),
         currentTag(NO_TAG) {};
 
-    XML_Parser *parser;                // The expat parser doing the work
+    XML_Parser* parser;                // The expat parser doing the work
     SkTDArray<FontFamily*> &families;  // The array that each family is put into as it is parsed
-    FontFamily *currentFamily;         // The current family being created
-    FontFileInfo *currentFontInfo;     // The current fontInfo being created
+    FontFamily* currentFamily;         // The current family being created
+    FontFileInfo* currentFontInfo;     // The current fontInfo being created
     int currentTag;                    // A flag to indicate whether we're in nameset/fileset tags
 };
 
@@ -85,11 +85,12 @@ namespace lmpParser {
 void familyElementHandler(FontFamily* family, const char** attributes) {
     // A non-fallback <family> tag must have a canonical name attribute.
     // A (fallback) <family> tag may have lang and variant attributes.
-    for (int i = 0; attributes[i] != NULL; i += 2) {
+    for (size_t i = 0; attributes[i] != NULL &&
+                       attributes[i+1] != NULL; i += 2) {
         const char* name = attributes[i];
         const char* value = attributes[i+1];
-        int nameLen = strlen(name);
-        int valueLen = strlen(value);
+        size_t nameLen = strlen(name);
+        size_t valueLen = strlen(value);
         if (nameLen == 4 && !strncmp("name", name, nameLen)) {
             family->fNames.push_back().set(value);
         } else if (nameLen == 4 && !strncmp("lang", name, nameLen)) {
@@ -105,15 +106,15 @@ void familyElementHandler(FontFamily* family, const char** attributes) {
     }
 }
 
-void fontFileNameHandler(void *data, const char *s, int len) {
-    FamilyData *familyData = (FamilyData*) data;
+void fontFileNameHandler(void* data, const char* s, int len) {
+    FamilyData* familyData = (FamilyData*) data;
     familyData->currentFontInfo->fFileName.set(s, len);
 }
 
 void familyElementEndHandler(FontFamily* family) {
-    for (int i = 0; i < family->fFontFiles.count(); i++) {
-        family->fFontFiles[i].fPaintOptions.setLanguage(family->fLanguage);
-        family->fFontFiles[i].fPaintOptions.setFontVariant(family->fVariant);
+    for (int i = 0; i < family->fFonts.count(); i++) {
+        family->fFonts[i].fPaintOptions.setLanguage(family->fLanguage);
+        family->fFonts[i].fPaintOptions.setFontVariant(family->fVariant);
     }
 }
 
@@ -121,19 +122,23 @@ void fontElementHandler(XML_Parser* parser, FontFileInfo* file, const char** att
     // A <font> should have weight (integer) and style (normal, italic) attributes.
     // NOTE: we ignore the style.
     // The element should contain a filename.
-    for (int i = 0; attributes[i] != NULL; i += 2) {
+    for (size_t i = 0; attributes[i] != NULL &&
+                       attributes[i+1] != NULL; i += 2) {
         const char* name = attributes[i];
         const char* value = attributes[i+1];
-        int nameLen = strlen(name);
+        size_t nameLen = strlen(name);
         if (nameLen == 6 && !strncmp("weight", name, nameLen)) {
-            parseNonNegativeInteger(value, &file->fWeight);
+            if (!parseNonNegativeInteger(value, &file->fWeight)) {
+                SkDebugf("---- Font weight %s (INVALID)", value);
+                file->fWeight = 0;
+            }
         }
     }
     XML_SetCharacterDataHandler(*parser, fontFileNameHandler);
 }
 
 FontFamily* findFamily(FamilyData* familyData, const char* familyName) {
-    unsigned int nameLen = strlen(familyName);
+    size_t nameLen = strlen(familyName);
     for (int i = 0; i < familyData->families.count(); i++) {
         FontFamily* candidate = familyData->families[i];
         for (int j = 0; j < candidate->fNames.count(); j++) {
@@ -157,10 +162,11 @@ void aliasElementHandler(FamilyData* familyData, const char** attributes) {
     SkString aliasName;
     SkString to;
     int weight = 0;
-    for (int i = 0; attributes[i] != NULL; i += 2) {
+    for (size_t i = 0; attributes[i] != NULL &&
+                       attributes[i+1] != NULL; i += 2) {
         const char* name = attributes[i];
         const char* value = attributes[i+1];
-        int nameLen = strlen(name);
+        size_t nameLen = strlen(name);
         if (nameLen == 4 && !strncmp("name", name, nameLen)) {
             aliasName.set(value);
         } else if (nameLen == 2 && !strncmp("to", name, nameLen)) {
@@ -181,9 +187,9 @@ void aliasElementHandler(FamilyData* familyData, const char** attributes) {
         FontFamily* family = new FontFamily();
         family->fNames.push_back().set(aliasName);
 
-        for (int i = 0; i < targetFamily->fFontFiles.count(); i++) {
-            if (targetFamily->fFontFiles[i].fWeight == weight) {
-                family->fFontFiles.push_back(targetFamily->fFontFiles[i]);
+        for (int i = 0; i < targetFamily->fFonts.count(); i++) {
+            if (targetFamily->fFonts[i].fWeight == weight) {
+                family->fFonts.push_back(targetFamily->fFonts[i]);
             }
         }
         *familyData->families.append() = family;
@@ -193,8 +199,8 @@ void aliasElementHandler(FamilyData* familyData, const char** attributes) {
 }
 
 bool findWeight400(FontFamily* family) {
-    for (int i = 0; i < family->fFontFiles.count(); i++) {
-        if (family->fFontFiles[i].fWeight == 400) {
+    for (int i = 0; i < family->fFonts.count(); i++) {
+        if (family->fFonts[i].fWeight == 400) {
             return true;
         }
     }
@@ -207,8 +213,8 @@ bool desiredWeight(int weight) {
 
 int countDesiredWeight(FontFamily* family) {
     int count = 0;
-    for (int i = 0; i < family->fFontFiles.count(); i++) {
-        if (desiredWeight(family->fFontFiles[i].fWeight)) {
+    for (int i = 0; i < family->fFonts.count(); i++) {
+        if (desiredWeight(family->fFonts[i].fWeight)) {
             count++;
         }
     }
@@ -219,15 +225,15 @@ int countDesiredWeight(FontFamily* family) {
 // fonts should *only* contain {400,700}
 void purgeUndesiredWeights(FontFamily* family) {
     int count = countDesiredWeight(family);
-    for (int i = 1, j = 0; i < family->fFontFiles.count(); i++) {
-        if (desiredWeight(family->fFontFiles[j].fWeight)) {
+    for (int i = 1, j = 0; i < family->fFonts.count(); i++) {
+        if (desiredWeight(family->fFonts[j].fWeight)) {
             j++;
         }
-        if ((i != j) && desiredWeight(family->fFontFiles[i].fWeight)) {
-            family->fFontFiles[j] = family->fFontFiles[i];
+        if ((i != j) && desiredWeight(family->fFonts[i].fWeight)) {
+            family->fFonts[j] = family->fFonts[i];
         }
     }
-    family->fFontFiles.resize_back(count);
+    family->fFonts.resize_back(count);
 }
 
 void familysetElementEndHandler(FamilyData* familyData) {
@@ -241,12 +247,12 @@ void familysetElementEndHandler(FamilyData* familyData) {
 void startElementHandler(void* data, const char* tag,
                          const char** attributes) {
     FamilyData* familyData = (FamilyData*) data;
-    int len = strlen(tag);
+    size_t len = strlen(tag);
     if (len == 6 && !strncmp(tag, "family", len)) {
         familyData->currentFamily = new FontFamily();
         familyElementHandler(familyData->currentFamily, attributes);
     } else if (len == 4 && !strncmp(tag, "font", len)) {
-        FontFileInfo* file = &familyData->currentFamily->fFontFiles.push_back();
+        FontFileInfo* file = &familyData->currentFamily->fFonts.push_back();
         familyData->currentFontInfo = file;
         fontElementHandler(familyData->parser, file, attributes);
     } else if (len == 5 && !strncmp(tag, "alias", len)) {
@@ -255,8 +261,8 @@ void startElementHandler(void* data, const char* tag,
 }
 
 void endElementHandler(void* data, const char* tag) {
-    FamilyData *familyData = (FamilyData*) data;
-    int len = strlen(tag);
+    FamilyData* familyData = (FamilyData*) data;
+    size_t len = strlen(tag);
     if (len == 9 && strncmp(tag, "familyset", len) == 0) {
         familysetElementEndHandler(familyData);
     } else if (len == 6 && strncmp(tag, "family", len) == 0) {
@@ -276,8 +282,8 @@ namespace jbParser {
  * Handler for arbitrary text. This is used to parse the text inside each name
  * or file tag. The resulting strings are put into the fNames or FontFileInfo arrays.
  */
-static void textHandler(void *data, const char *s, int len) {
-    FamilyData *familyData = (FamilyData*) data;
+static void textHandler(void* data, const char* s, int len) {
+    FamilyData* familyData = (FamilyData*) data;
     // Make sure we're in the right state to store this name information
     if (familyData->currentFamily &&
             (familyData->currentTag == NAMESET_TAG || familyData->currentTag == FILESET_TAG)) {
@@ -303,15 +309,16 @@ static void textHandler(void *data, const char *s, int len) {
  * Handler for font files. This processes the attributes for language and
  * variants then lets textHandler handle the actual file name
  */
-static void fontFileElementHandler(FamilyData *familyData, const char **attributes) {
-    FontFileInfo& newFileInfo = familyData->currentFamily->fFontFiles.push_back();
+static void fontFileElementHandler(FamilyData* familyData, const char** attributes) {
+    FontFileInfo& newFileInfo = familyData->currentFamily->fFonts.push_back();
     if (attributes) {
-        int currentAttributeIndex = 0;
-        while (attributes[currentAttributeIndex]) {
+        size_t currentAttributeIndex = 0;
+        while (attributes[currentAttributeIndex] &&
+               attributes[currentAttributeIndex + 1]) {
             const char* attributeName = attributes[currentAttributeIndex];
             const char* attributeValue = attributes[currentAttributeIndex+1];
-            int nameLength = strlen(attributeName);
-            int valueLength = strlen(attributeValue);
+            size_t nameLength = strlen(attributeName);
+            size_t valueLength = strlen(attributeValue);
             if (nameLength == 7 && strncmp(attributeName, "variant", nameLength) == 0) {
                 if (valueLength == 7 && strncmp(attributeValue, "elegant", valueLength) == 0) {
                     newFileInfo.fPaintOptions.setFontVariant(SkPaintOptionsAndroid::kElegant_Variant);
@@ -341,13 +348,14 @@ static void fontFileElementHandler(FamilyData *familyData, const char **attribut
  * Handler for the start of a tag. The only tags we expect are familyset, family,
  * nameset, fileset, name, and file.
  */
-static void startElementHandler(void *data, const char *tag, const char **atts) {
-    FamilyData *familyData = (FamilyData*) data;
-    int len = strlen(tag);
+static void startElementHandler(void* data, const char* tag, const char** atts) {
+    FamilyData* familyData = (FamilyData*) data;
+    size_t len = strlen(tag);
     if (len == 9 && strncmp(tag, "familyset", len) == 0) {
         // The familyset tag has an optional "version" attribute with an integer value >= 0
-        for (int i = 0; atts[i] != NULL; i += 2) {
-            int nameLen = strlen(atts[i]);
+        for (size_t i = 0; atts[i] != NULL &&
+                           atts[i+1] != NULL; i += 2) {
+            size_t nameLen = strlen(atts[i]);
             if (nameLen == 7 && strncmp(atts[i], "version", nameLen)) continue;
             const char* valueString = atts[i+1];
             int version;
@@ -359,14 +367,14 @@ static void startElementHandler(void *data, const char *tag, const char **atts) 
         }
     } else if (len == 6 && strncmp(tag, "family", len) == 0) {
         familyData->currentFamily = new FontFamily();
-        familyData->currentFamily->order = -1;
         // The Family tag has an optional "order" attribute with an integer value >= 0
         // If this attribute does not exist, the default value is -1
-        for (int i = 0; atts[i] != NULL; i += 2) {
+        for (size_t i = 0; atts[i] != NULL &&
+                           atts[i+1] != NULL; i += 2) {
             const char* valueString = atts[i+1];
             int value;
             if (parseNonNegativeInteger(valueString, &value)) {
-                familyData->currentFamily->order = value;
+                familyData->currentFamily->fOrder = value;
             }
         }
     } else if (len == 7 && strncmp(tag, "nameset", len) == 0) {
@@ -386,9 +394,9 @@ static void startElementHandler(void *data, const char *tag, const char **atts) 
  * Handler for the end of tags. We only care about family, nameset, fileset,
  * name, and file.
  */
-static void endElementHandler(void *data, const char *tag) {
-    FamilyData *familyData = (FamilyData*) data;
-    int len = strlen(tag);
+static void endElementHandler(void* data, const char* tag) {
+    FamilyData* familyData = (FamilyData*) data;
+    size_t len = strlen(tag);
     if (len == 6 && strncmp(tag, "family", len)== 0) {
         // Done parsing a Family - store the created currentFamily in the families array
         *familyData->families.append() = familyData->currentFamily;
@@ -414,7 +422,7 @@ static void endElementHandler(void *data, const char *tag) {
  * This function parses the given filename and stores the results in the given
  * families array.
  */
-static void parseConfigFile(const char *filename, SkTDArray<FontFamily*> &families) {
+static void parseConfigFile(const char* filename, SkTDArray<FontFamily*> &families) {
 
     FILE* file = fopen(filename, "r");
 
@@ -425,7 +433,7 @@ static void parseConfigFile(const char *filename, SkTDArray<FontFamily*> &famili
     }
 
     XML_Parser parser = XML_ParserCreate(NULL);
-    FamilyData *familyData = new FamilyData(&parser, families);
+    FamilyData* familyData = new FamilyData(&parser, families);
     XML_SetUserData(parser, familyData);
     // Start parsing oldschool; switch these in flight if we detect a newer version of the file.
     XML_SetElementHandler(parser, jbParser::startElementHandler, jbParser::endElementHandler);
@@ -434,7 +442,7 @@ static void parseConfigFile(const char *filename, SkTDArray<FontFamily*> &famili
     bool done = false;
     while (!done) {
         fgets(buffer, sizeof(buffer), file);
-        int len = strlen(buffer);
+        size_t len = strlen(buffer);
         if (feof(file) != 0) {
             done = true;
         }
@@ -467,16 +475,16 @@ static void getFallbackFontFamiliesForLocale(SkTDArray<FontFamily*> &fallbackFon
         while (dirEntry) {
 
             // The size of both the prefix, suffix, and a minimum valid language code
-            static const int minSize = strlen(LOCALE_FALLBACK_FONTS_PREFIX) +
-                                       strlen(LOCALE_FALLBACK_FONTS_SUFFIX) + 2;
+            static const size_t minSize = strlen(LOCALE_FALLBACK_FONTS_PREFIX) +
+                                          strlen(LOCALE_FALLBACK_FONTS_SUFFIX) + 2;
 
             SkString fileName(dirEntry->d_name);
             if (fileName.size() >= minSize &&
                     fileName.startsWith(LOCALE_FALLBACK_FONTS_PREFIX) &&
                     fileName.endsWith(LOCALE_FALLBACK_FONTS_SUFFIX)) {
 
-                static const int fixedLen = strlen(LOCALE_FALLBACK_FONTS_PREFIX) -
-                                            strlen(LOCALE_FALLBACK_FONTS_SUFFIX);
+                static const size_t fixedLen = strlen(LOCALE_FALLBACK_FONTS_PREFIX) -
+                                               strlen(LOCALE_FALLBACK_FONTS_SUFFIX);
 
                 SkString locale(fileName.c_str() - strlen(LOCALE_FALLBACK_FONTS_PREFIX),
                                 fileName.size() - fixedLen);
@@ -489,8 +497,8 @@ static void getFallbackFontFamiliesForLocale(SkTDArray<FontFamily*> &fallbackFon
 
                 for (int i = 0; i < langSpecificFonts.count(); ++i) {
                     FontFamily* family = langSpecificFonts[i];
-                    for (int j = 0; j < family->fFontFiles.count(); ++j) {
-                        family->fFontFiles[j].fPaintOptions.setLanguage(locale);
+                    for (int j = 0; j < family->fFonts.count(); ++j) {
+                        family->fFonts[j].fPaintOptions.setLanguage(locale);
                     }
                     *fallbackFonts.append() = family;
                 }
@@ -517,7 +525,7 @@ static void getFallbackFontFamilies(SkTDArray<FontFamily*> &fallbackFonts) {
     int currentOrder = -1;
     for (int i = 0; i < vendorFonts.count(); ++i) {
         FontFamily* family = vendorFonts[i];
-        int order = family->order;
+        int order = family->fOrder;
         if (order < 0) {
             if (currentOrder < 0) {
                 // Default case - just add it to the end of the fallback list

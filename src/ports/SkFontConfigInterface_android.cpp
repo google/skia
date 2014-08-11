@@ -205,9 +205,9 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
         FamilyRec* familyRec = NULL;
         FamilyRecID familyRecID = INVALID_FAMILY_REC_ID;
 
-        for (int j = 0; j < family->fFontFiles.count(); ++j) {
+        for (int j = 0; j < family->fFonts.count(); ++j) {
             SkString filename;
-            get_path_for_sys_fonts(&filename, family->fFontFiles[j].fFileName);
+            get_path_for_sys_fonts(&filename, family->fFonts[j].fFileName);
 
             if (has_font(fFonts, filename)) {
                 DEBUG_FONT(("---- system font and fallback font files specify a duplicate "
@@ -252,9 +252,9 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
                 fontRec.fFamilyRecID = familyRecID;
 
                 familyRec->fIsFallbackFont = family->fIsFallbackFont;
-                familyRec->fPaintOptions = family->fFontFiles[j].fPaintOptions;
+                familyRec->fPaintOptions = family->fFonts[j].fPaintOptions;
 
-            } else if (familyRec->fPaintOptions != family->fFontFiles[j].fPaintOptions) {
+            } else if (familyRec->fPaintOptions != family->fFonts[j].fPaintOptions) {
                 SkDebugf("Every font file within a family must have identical"
                          "language and variant attributes");
                 sk_throw();

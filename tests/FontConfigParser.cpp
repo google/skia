@@ -14,7 +14,7 @@ void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies,
     REPORTER_ASSERT(reporter, fontFamilies[0]->fNames.count() == 5);
     REPORTER_ASSERT(reporter, !strcmp(fontFamilies[0]->fNames[0].c_str(), "sans-serif"));
     REPORTER_ASSERT(reporter,
-                    !strcmp(fontFamilies[0]->fFontFiles[0].fFileName.c_str(),
+                    !strcmp(fontFamilies[0]->fFonts[0].fFileName.c_str(),
                             "Roboto-Regular.ttf"));
     REPORTER_ASSERT(reporter, !fontFamilies[0]->fIsFallbackFont);
 
@@ -35,8 +35,8 @@ void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies) {
         for (int j = 0; j < fontFamilies[i]->fNames.count(); ++j) {
             SkDebugf("  name %s\n", fontFamilies[i]->fNames[j].c_str());
         }
-        for (int j = 0; j < fontFamilies[i]->fFontFiles.count(); ++j) {
-            const FontFileInfo& ffi = fontFamilies[i]->fFontFiles[j];
+        for (int j = 0; j < fontFamilies[i]->fFonts.count(); ++j) {
+            const FontFileInfo& ffi = fontFamilies[i]->fFonts[j];
             SkDebugf("  file (%d %s %d) %s\n",
                      ffi.fWeight,
                      ffi.fPaintOptions.getLanguage().getTag().isEmpty() ? "" :
