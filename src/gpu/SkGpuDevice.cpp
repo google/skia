@@ -1850,10 +1850,6 @@ SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info) {
 void SkGpuDevice::EXPERIMENTAL_optimize(const SkPicture* picture) {
     fContext->getLayerCache()->processDeletedPictures();
 
-    if (NULL != picture->fData.get() && picture->fData->suitableForLayerOptimization()) {
-        return;
-    }
-
     SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();
 
     const SkPicture::AccelData* existing = picture->EXPERIMENTAL_getAccelData(key);

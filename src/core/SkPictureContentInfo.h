@@ -17,11 +17,6 @@ public:
 
     int numOperations() const { return fNumOperations; }
     bool hasText() const { return fNumTexts > 0; }
-
-    int numLayers() const { return fNumLayers; }
-    int numInteriorLayers() const { return fNumInteriorLayers; }
-    int numLeafLayers() const { return fNumLeafLayers; }
-
     bool suitableForGpuRasterization(GrContext* context, const char **reason,
                                      int sampleCount) const;
 
@@ -31,12 +26,6 @@ public:
     void onDrawPath(const SkPath& path, const SkPaint& paint);
     void onAddPaintPtr(const SkPaint* paint);
     void onDrawText() { ++fNumTexts; }
-
-    void onSaveLayer();
-    void onSave();
-    void onRestore();
-    void rescindLastSave();
-    void rescindLastSaveLayer();
 
     void set(const SkPictureContentInfo& src);
     void reset();
@@ -60,25 +49,6 @@ private:
     // This field is incremented every time a drawPath call is
     // issued for a hairline stroked concave path.
     int fNumAAHairlineConcavePaths;
-    // These fields track the different layer flavors. fNumLayers is just
-    // a count of all saveLayers, fNumInteriorLayers is the number of layers
-    // with a layer inside them, fNumLeafLayers is the number of layers with
-    // no layer inside them.
-    int fNumLayers;
-    int fNumInteriorLayers;
-    int fNumLeafLayers;
-
-    enum Flags {
-        kSave_Flag      = 0x1,
-        kSaveLayer_Flag = 0x2,
-
-        // Did the current save or saveLayer contain another saveLayer.
-        // Percolated back down the save stack.
-        kContainedSaveLayer_Flag = 0x4
-    };
-
-    // Stack of save vs saveLayer information to track nesting
-    SkTDArray<uint32_t> fSaveStack;
 };
 
 #endif

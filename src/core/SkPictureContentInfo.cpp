@@ -71,62 +71,6 @@ void SkPictureContentInfo::onAddPaintPtr(const SkPaint* paint) {
     }
 }
 
-void SkPictureContentInfo::onSaveLayer() {
-    *fSaveStack.append() = kSaveLayer_Flag;
-}
-
-void SkPictureContentInfo::onSave() {
-    *fSaveStack.append() = kSave_Flag;
-}
-
-void SkPictureContentInfo::onRestore() {
-    SkASSERT(fSaveStack.count() > 0);
-
-    bool containedSaveLayer = fSaveStack.top() & kContainedSaveLayer_Flag;
-
-    if (fSaveStack.top() & kSaveLayer_Flag) {
-        ++fNumLayers;
-        if (containedSaveLayer) {
-            ++fNumInteriorLayers;
-        } else {
-            ++fNumLeafLayers;
-        }
-        containedSaveLayer = true;
-    }
-
-    fSaveStack.pop();
-
-    if (containedSaveLayer && fSaveStack.count() > 0) {
-        fSaveStack.top() |= kContainedSaveLayer_Flag;
-    }
-}
-
-void SkPictureContentInfo::rescindLastSave() {
-    SkASSERT(fSaveStack.count() > 0);
-    SkASSERT(fSaveStack.top() & kSave_Flag);
-
-    bool containedSaveLayer = fSaveStack.top() & kContainedSaveLayer_Flag;
-
-    fSaveStack.pop();
-
-    if (containedSaveLayer && fSaveStack.count() > 0) {
-        fSaveStack.top() |= kContainedSaveLayer_Flag;
-    }
-}
-
-void SkPictureContentInfo::rescindLastSaveLayer() {
-    SkASSERT(fSaveStack.count() > 0);
-    SkASSERT(fSaveStack.top() & kSaveLayer_Flag);
-
-    bool containedSaveLayer = fSaveStack.top() & kContainedSaveLayer_Flag;
-
-    fSaveStack.pop();
-
-    if (containedSaveLayer && fSaveStack.count() > 0) {
-        fSaveStack.top() |= kContainedSaveLayer_Flag;
-    }
-}
-
 void SkPictureContentInfo::set(const SkPictureContentInfo& src) {
     fNumOperations = src.fNumOperations;
     fNumTexts = src.fNumTexts;
@@ -134,10 +78,6 @@ void SkPictureContentInfo::set(const SkPictureContentInfo& src) {
     fNumFastPathDashEffects = src.fNumFastPathDashEffects;
     fNumAAConcavePaths = src.fNumAAConcavePaths;
     fNumAAHairlineConcavePaths = src.fNumAAHairlineConcavePaths;
-    fNumLayers = src.fNumLayers;
-    fNumInteriorLayers = src.fNumInteriorLayers;
-    fNumLeafLayers = src.fNumLeafLayers;
-    fSaveStack = src.fSaveStack;
 }
 
 void SkPictureContentInfo::reset() {
@@ -147,10 +87,6 @@ void SkPictureContentInfo::reset() {
     fNumFastPathDashEffects = 0;
     fNumAAConcavePaths = 0;
     fNumAAHairlineConcavePaths = 0;
-    fNumLayers = 0;
-    fNumInteriorLayers = 0;
-    fNumLeafLayers = 0;
-    fSaveStack.rewind();
 }
 
 void SkPictureContentInfo::swap(SkPictureContentInfo* other) {
@@ -160,8 +96,4 @@ void SkPictureContentInfo::swap(SkPictureContentInfo* other) {
     SkTSwap(fNumFastPathDashEffects, other->fNumFastPathDashEffects);
     SkTSwap(fNumAAConcavePaths, other->fNumAAConcavePaths);
     SkTSwap(fNumAAHairlineConcavePaths, other->fNumAAHairlineConcavePaths);
-    SkTSwap(fNumLayers, other->fNumLayers);
-    SkTSwap(fNumInteriorLayers, other->fNumInteriorLayers);
-    SkTSwap(fNumLeafLayers, other->fNumLeafLayers);
-    fSaveStack.swap(other->fSaveStack);
 }
