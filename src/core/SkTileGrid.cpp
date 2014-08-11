@@ -68,85 +68,94 @@ void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
     fInsertionCount++;
 }
 
-static void* next_datum(const SkTDArray<void*>** tileData,
-                        SkAutoSTArray<SkTileGrid::kStackAllocationTileCount, int>& tileIndices) {
-    SkPictureStateTree::Draw* minVal = NULL;
-    int tileCount = tileIndices.count();
-    int minIndex = tileCount;
-    int maxIndex = 0;
-    // Find the next Datum; track where it's found so we reduce the size of the second loop.
-    for (int tile = 0; tile < tileCount; ++tile) {
-        int pos = tileIndices[tile];
-        if (pos != SkTileGrid::kTileFinished) {
-            SkPictureStateTree::Draw* candidate = (SkPictureStateTree::Draw*)(*tileData[tile])[pos];
-            if (NULL == minVal || (*candidate) < (*minVal)) {
-                minVal = candidate;
-                minIndex = tile;
-                maxIndex = tile;
-            } else if (!((*minVal) < (*candidate))) {
-                // We don't require operator==; if !(candidate<minVal) && !(minVal<candidate),
-                // candidate==minVal and we have to add this tile to the range searched.
-                maxIndex = tile;
-            }
-        }
-    }
-    // Increment indices past the next datum
-    if (minVal != NULL) {
-        for (int tile = minIndex; tile <= maxIndex; ++tile) {
-            int pos = tileIndices[tile];
-            if (pos != SkTileGrid::kTileFinished && (*tileData[tile])[pos] == minVal) {
-                if (++(tileIndices[tile]) >= tileData[tile]->count()) {
-                    tileIndices[tile] = SkTileGrid::kTileFinished;
-                }
-            }
-        }
-        return minVal;
-    }
-    return NULL;
+static int divide_ceil(int x, int y) {
+    return (x + y - 1) / y;
 }
 
+// Number of tiles for which data is allocated on the stack in
+// SkTileGrid::search. If malloc becomes a bottleneck, we may consider
+// increasing this number. Typical large web page, say 2k x 16k, would
+// require 512 tiles of size 256 x 256 pixels.
+static const int kStackAllocationTileCount = 1024;
+
 void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) const {
-    SkIRect adjustedQuery = query;
+    SkIRect adjusted = query;
+
     // The inset is to counteract the outset that was applied in 'insert'
     // The outset/inset is to optimize for lookups of size
     // 'tileInterval + 2 * margin' that are aligned with the tile grid.
-    adjustedQuery.inset(fInfo.fMargin.width(), fInfo.fMargin.height());
-    adjustedQuery.offset(fInfo.fOffset);
-    adjustedQuery.sort();  // in case the inset inverted the rectangle
+    adjusted.inset(fInfo.fMargin.width(), fInfo.fMargin.height());
+    adjusted.offset(fInfo.fOffset);
+    adjusted.sort();  // in case the inset inverted the rectangle
+
     // Convert the query rectangle from device coordinates to tile coordinates
     // by rounding outwards to the nearest tile boundary so that the resulting tile
-    // region includes the query rectangle. (using truncating division to "floor")
-    int tileStartX = adjustedQuery.left() / fInfo.fTileInterval.width();
-    int tileEndX = (adjustedQuery.right() + fInfo.fTileInterval.width() - 1) /
-        fInfo.fTileInterval.width();
-    int tileStartY = adjustedQuery.top() / fInfo.fTileInterval.height();
-    int tileEndY = (adjustedQuery.bottom() + fInfo.fTileInterval.height() - 1) /
-        fInfo.fTileInterval.height();
+    // region includes the query rectangle.
+    int startX = adjusted.left() / fInfo.fTileInterval.width(),
+        startY = adjusted.top()  / fInfo.fTileInterval.height();
+    int endX = divide_ceil(adjusted.right(),  fInfo.fTileInterval.width()),
+        endY = divide_ceil(adjusted.bottom(), fInfo.fTileInterval.height());
 
-    tileStartX = SkPin32(tileStartX, 0, fXTileCount - 1);
-    tileEndX = SkPin32(tileEndX, tileStartX+1, fXTileCount);
-    tileStartY = SkPin32(tileStartY, 0, fYTileCount - 1);
-    tileEndY = SkPin32(tileEndY, tileStartY+1, fYTileCount);
+    // Logically, we could pin endX to [startX, fXTileCount], but we force it
+    // up to (startX, fXTileCount] to make sure we hit at least one tile.
+    // This snaps just-out-of-bounds queries to the neighboring border tile.
+    // I don't know if this is an important feature outside of unit tests.
+    startX = SkPin32(startX, 0, fXTileCount - 1);
+    startY = SkPin32(startY, 0, fYTileCount - 1);
+    endX   = SkPin32(endX, startX + 1, fXTileCount);
+    endY   = SkPin32(endY, startY + 1, fYTileCount);
 
-    int queryTileCount = (tileEndX - tileStartX) * (tileEndY - tileStartY);
-    SkASSERT(queryTileCount);
-    if (queryTileCount == 1) {
-        *results = this->tile(tileStartX, tileStartY);
-    } else {
-        results->reset();
-        SkAutoSTArray<kStackAllocationTileCount, int> curPositions(queryTileCount);
-        SkAutoSTArray<kStackAllocationTileCount, SkTDArray<void *>*> storage(queryTileCount);
-        const SkTDArray<void *>** tileRange = const_cast<const SkTDArray<void*>**>(storage.get());
-        int tile = 0;
-        for (int x = tileStartX; x < tileEndX; ++x) {
-            for (int y = tileStartY; y < tileEndY; ++y) {
-                tileRange[tile] = &this->tile(x, y);
-                curPositions[tile] = tileRange[tile]->count() ? 0 : kTileFinished;
-                ++tile;
+    const int tilesHit = (endX - startX) * (endY - startY);
+    SkASSERT(tilesHit > 0);
+
+    if (tilesHit == 1) {
+        // A performance shortcut.  The merging code below would work fine here too.
+        *results = this->tile(startX, startY);
+        return;
+    }
+
+    // We've got to merge the data in many tiles into a single sorted and deduplicated stream.
+    // Each tile itself is already sorted (TODO: assert this while building) so we just need to do
+    // a simple k-way merge.
+
+    // Gather pointers to the starts and ends of the tiles to merge.
+    SkAutoSTArray<kStackAllocationTileCount, void**> tiles(tilesHit), ends(tilesHit);
+    int i = 0;
+    for (int x = startX; x < endX; x++) {
+        for (int y = startY; y < endY; y++) {
+            tiles[i] = fTileData[y * fXTileCount + x].begin();
+            ends[i]  = fTileData[y * fXTileCount + x].end();
+            i++;
+        }
+    }
+
+    // Merge tiles into results until they're fully consumed.
+    results->reset();
+    while (true) {
+        // The tiles themselves are already sorted, so the smallest datum is the front of some tile.
+        // It may be at the front of several, even all, tiles.
+        SkPictureStateTree::Draw* smallest = NULL;
+        for (int i = 0; i < tiles.count(); i++) {
+            if (tiles[i] < ends[i]) {
+                SkPictureStateTree::Draw* candidate =
+                    static_cast<SkPictureStateTree::Draw*>(*tiles[i]);
+                if (NULL == smallest || (*candidate) < (*smallest)) {
+                    smallest = candidate;
+                }
             }
         }
-        while(void* nextElement = next_datum(tileRange, curPositions)) {
-            results->push(nextElement);
+
+        // If we didn't find a smallest datum, there's nothing left to merge.
+        if (NULL == smallest) {
+            return;
+        }
+
+        // We did find a smallest datum. Output it, and step forward in every tile that contains it.
+        results->push(smallest);
+        for (int i = 0; i < tiles.count(); i++) {
+            if (tiles[i] < ends[i] && *tiles[i] == smallest) {
+                tiles[i]++;
+            }
         }
     }
 }

@@ -25,31 +25,23 @@
  */
 class SkTileGrid : public SkBBoxHierarchy {
 public:
-    enum {
-        // Number of tiles for which data is allocated on the stack in
-        // SkTileGrid::search. If malloc becomes a bottleneck, we may consider
-        // increasing this number. Typical large web page, say 2k x 16k, would
-        // require 512 tiles of size 256 x 256 pixels.
-        kStackAllocationTileCount = 1024
-    };
-
     SkTileGrid(int xTileCount, int yTileCount, const SkTileGridFactory::TileGridInfo& info);
 
     virtual ~SkTileGrid();
 
     /**
      * Insert a data pointer and corresponding bounding box
-     * @param data The data pointer, may be NULL
-     * @param bounds The bounding box, should not be empty
-     * @param defer Ignored, TileArray does not defer insertions
+     * @param data   The data pointer, may _NOT_ be NULL.
+     * @param bounds The bounding box, should not be empty.
+     * @param defer  Ignored; SkTileGrid does not defer insertions.
      */
     virtual void insert(void* data, const SkIRect& bounds, bool) SK_OVERRIDE;
 
     virtual void flushDeferredInserts() SK_OVERRIDE {};
 
     /**
-     * Populate 'results' with data pointers corresponding to bounding boxes that intersect 'query'
-     * The query argument is expected to be an exact match to a tile of the grid
+     * Populate 'results' with data pointers corresponding to bounding boxes that intersect 'query'.
+     * This will be fastest if the query is an exact match to a single grid tile.
      */
     virtual void search(const SkIRect& query, SkTDArray<void*>* results) const SK_OVERRIDE;
 
@@ -63,11 +55,6 @@ public:
     virtual int getDepth() const SK_OVERRIDE { return -1; }
 
     virtual void rewindInserts() SK_OVERRIDE;
-
-    // Used by search() and in SkTileGridHelper implementations
-    enum {
-        kTileFinished = -1,
-    };
 
     int tileCount(int x, int y);  // For testing only.
 
