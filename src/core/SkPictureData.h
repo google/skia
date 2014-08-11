@@ -150,6 +150,8 @@ public:
      */
     bool suitableForGpuRasterization(GrContext* context, const char **reason,
                                      GrPixelConfig config, SkScalar dpi) const;
+
+    bool suitableForLayerOptimization() const;
 #endif
 
 private:

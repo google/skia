@@ -151,6 +151,8 @@ void SkPictureRecord::willSave() {
 }
 
 void SkPictureRecord::recordSave() {
+    fContentInfo.onSave();
+
     // op only
     size_t size = kSaveSize;
     size_t initialOffset = this->addDraw(SAVE, &size);
@@ -179,6 +181,8 @@ SkCanvas::SaveLayerStrategy SkPictureRecord::willSaveLayer(const SkRect* bounds,
 
 void SkPictureRecord::recordSaveLayer(const SkRect* bounds, const SkPaint* paint,
                                       SaveFlags flags) {
+    fContentInfo.onSaveLayer();
+
     // op + bool for 'bounds'
     size_t size = 2 * kUInt32Size;
     if (NULL != bounds) {
@@ -508,8 +512,10 @@ enum PictureRecordOptType {
 };
 
 enum PictureRecordOptFlags {
-    kSkipIfBBoxHierarchy_Flag = 0x1,  // Optimization should be skipped if the
-                                      // SkPicture has a bounding box hierarchy.
+    kSkipIfBBoxHierarchy_Flag  = 0x1,  // Optimization should be skipped if the
+                                       // SkPicture has a bounding box hierarchy.
+    kRescindLastSave_Flag      = 0x2,
+    kRescindLastSaveLayer_Flag = 0x4,
 };
 
 struct PictureRecordOpt {
@@ -528,9 +534,10 @@ static const PictureRecordOpt gPictureRecordOpts[] = {
     // SkPictureStateTree, and applying the optimization introduces significant
     // record time overhead because it requires rewinding contents that were
     // recorded into the BBoxHierarchy.
-    { collapse_save_clip_restore, kRewind_OptType, kSkipIfBBoxHierarchy_Flag },
-    { remove_save_layer1,         kCollapseSaveLayer_OptType, 0 },
-    { remove_save_layer2,         kCollapseSaveLayer_OptType, 0 }
+    { collapse_save_clip_restore, kRewind_OptType, 
+                                                kSkipIfBBoxHierarchy_Flag|kRescindLastSave_Flag },
+    { remove_save_layer1,         kCollapseSaveLayer_OptType, kRescindLastSaveLayer_Flag },
+    { remove_save_layer2,         kCollapseSaveLayer_OptType, kRescindLastSaveLayer_Flag }
 };
 
 // This is called after an optimization has been applied to the command stream
@@ -585,6 +592,11 @@ void SkPictureRecord::willRestore() {
                 // Some optimization fired so don't add the RESTORE
                 apply_optimization_to_bbh(gPictureRecordOpts[opt].fType,
                                           fStateTree, fBoundingHierarchy);
+                if (gPictureRecordOpts[opt].fFlags & kRescindLastSave_Flag) {
+                    fContentInfo.rescindLastSave();
+                } else if (gPictureRecordOpts[opt].fFlags & kRescindLastSaveLayer_Flag) {
+                    fContentInfo.rescindLastSaveLayer();
+                } 
                 break;
             }
         }
@@ -601,6 +613,8 @@ void SkPictureRecord::willRestore() {
 }
 
 void SkPictureRecord::recordRestore(bool fillInSkips) {
+    fContentInfo.onRestore();
+
     if (fillInSkips) {
         this->fillRestoreOffsetPlaceholdersForCurrentStackLevel((uint32_t)fWriter.bytesWritten());
     }

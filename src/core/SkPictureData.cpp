@@ -617,6 +617,9 @@ bool SkPictureData::suitableForGpuRasterization(GrContext* context, const char *
     }
 }
 
+bool SkPictureData::suitableForLayerOptimization() const {
+    return fContentInfo.numLayers() > 0;
+}
 #endif
 ///////////////////////////////////////////////////////////////////////////////
 
