@@ -58,12 +58,12 @@ void GrTextureImpl::dirtyMipMaps(bool mipMapsDirty) {
 }
 
 size_t GrTexture::gpuMemorySize() const {
-    size_t textureSize =  (size_t) fDesc.fWidth *
-                                   fDesc.fHeight *
-                                   GrBytesPerPixel(fDesc.fConfig);
+    size_t textureSize;
 
     if (GrPixelConfigIsCompressed(fDesc.fConfig)) {
         textureSize = GrCompressedFormatDataSize(fDesc.fConfig, fDesc.fWidth, fDesc.fHeight);
+    } else {
+        textureSize = (size_t) fDesc.fWidth * fDesc.fHeight * GrBytesPerPixel(fDesc.fConfig);
     }
 
     if (this->impl()->hasMipMaps()) {

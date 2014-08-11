@@ -580,14 +580,12 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     // in case we need a temporary, trimmed copy of the src pixels
     SkAutoSMalloc<128 * 128> tempStorage;
 
-    // paletted textures cannot be partially updated
     // We currently lazily create MIPMAPs when the we see a draw with
     // GrTextureParams::kMipMap_FilterMode. Using texture storage requires that the
     // MIP levels are all created when the texture is created. So for now we don't use
     // texture storage.
     bool useTexStorage = false &&
                          isNewTexture &&
-                         kIndex_8_GrPixelConfig != desc.fConfig &&
                          this->glCaps().texStorageSupport();
 
     if (useTexStorage && kGL_GrGLStandard == this->glStandard()) {
@@ -615,11 +613,6 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     }
     if (!this->configToGLFormats(dataConfig, useSizedFormat, &internalFormat,
                                  &externalFormat, &externalType)) {
-        return false;
-    }
-
-    if (!isNewTexture && GR_GL_PALETTE8_RGBA8 == internalFormat) {
-        // paletted textures cannot be updated
         return false;
     }
 
@@ -688,27 +681,14 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
                                        internalFormat,
                                        desc.fWidth, desc.fHeight));
         } else {
-            if (GR_GL_PALETTE8_RGBA8 == internalFormat) {
-                GrGLsizei imageSize = desc.fWidth * desc.fHeight +
-                                      kGrColorTableSize;
-                GL_ALLOC_CALL(this->glInterface(),
-                              CompressedTexImage2D(GR_GL_TEXTURE_2D,
-                                                   0, // level
-                                                   internalFormat,
-                                                   desc.fWidth, desc.fHeight,
-                                                   0, // border
-                                                   imageSize,
-                                                   data));
-            } else {
-                GL_ALLOC_CALL(this->glInterface(),
-                              TexImage2D(GR_GL_TEXTURE_2D,
-                                         0, // level
-                                         internalFormat,
-                                         desc.fWidth, desc.fHeight,
-                                         0, // border
-                                         externalFormat, externalType,
-                                         data));
-            }
+            GL_ALLOC_CALL(this->glInterface(),
+                          TexImage2D(GR_GL_TEXTURE_2D,
+                                     0, // level
+                                     internalFormat,
+                                     desc.fWidth, desc.fHeight,
+                                     0, // border
+                                     externalFormat, externalType,
+                                     data));
         }
         GrGLenum error = check_alloc_error(desc, this->glInterface());
         if (error != GR_GL_NO_ERROR) {
@@ -788,10 +768,8 @@ bool GrGpuGL::uploadCompressedTexData(const GrGLTexture::Desc& desc,
         return false;
     }
 
-    bool succeeded = true;
-    CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
-
     if (isNewTexture) {
+        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         GL_ALLOC_CALL(this->glInterface(),
                       CompressedTexImage2D(GR_GL_TEXTURE_2D,
                                            0, // level
@@ -800,22 +778,25 @@ bool GrGpuGL::uploadCompressedTexData(const GrGLTexture::Desc& desc,
                                            0, // border
                                            dataSize,
                                            data));
+        GrGLenum error = check_alloc_error(desc, this->glInterface());
+        if (error != GR_GL_NO_ERROR) {
+            return false;
+        }
     } else {
-        GL_ALLOC_CALL(this->glInterface(),
-                      CompressedTexSubImage2D(GR_GL_TEXTURE_2D,
-                                              0, // level
-                                              left, top,
-                                              width, height,
-                                              internalFormat,
-                                              dataSize,
-                                              data));
+        // Paletted textures can't be updated.
+        if (GR_GL_PALETTE8_RGBA8 == internalFormat) {
+            return false;
+        }
+        GL_CALL(CompressedTexSubImage2D(GR_GL_TEXTURE_2D,
+                                        0, // level
+                                        left, top,
+                                        width, height,
+                                        internalFormat,
+                                        dataSize,
+                                        data));
     }
 
-    GrGLenum error = check_alloc_error(desc, this->glInterface());
-    if (error != GR_GL_NO_ERROR) {
-        succeeded = false;
-    }
-    return succeeded;
+    return true;
 }
 
 static bool renderbuffer_storage_msaa(GrGLContext& ctx,
@@ -2588,12 +2569,8 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
             *externalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
             break;
         case kIndex_8_GrPixelConfig:
-            // glCompressedTexImage doesn't take external params
-            *externalFormat = GR_GL_PALETTE8_RGBA8;
             // no sized/unsized internal format distinction here
             *internalFormat = GR_GL_PALETTE8_RGBA8;
-            // unused with CompressedTexImage
-            *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         case kAlpha_8_GrPixelConfig:
             if (this->glCaps().textureRedSupport()) {
@@ -2722,7 +2699,6 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
     if (gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
         NULL != dst->asTexture() &&
         dst->origin() == src->origin() &&
-        kIndex_8_GrPixelConfig != src->config() &&
         !GrPixelConfigIsCompressed(src->config())) {
         if (NULL != wouldNeedTempFBO) {
             *wouldNeedTempFBO = NULL == src->asRenderTarget();

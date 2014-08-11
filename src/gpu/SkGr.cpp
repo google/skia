@@ -65,7 +65,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
     ctable->unlockColors();
 
     // always skip a full 256 number of entries, even if we memcpy'd fewer
-    dst += kGrColorTableSize;
+    dst += 256 * sizeof(GrColor);
 
     if ((unsigned)bitmap.width() == bitmap.rowBytes()) {
         memcpy(dst, bitmap.getPixels(), bitmap.getSize());
@@ -285,8 +285,9 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
         // build_compressed_data doesn't do npot->pot expansion
         // and paletted textures can't be sub-updated
         if (ctx->supportsIndex8PixelConfig(params, bitmap->width(), bitmap->height())) {
-            size_t imagesize = bitmap->width() * bitmap->height() + kGrColorTableSize;
-            SkAutoMalloc storage(imagesize);
+            size_t imageSize = GrCompressedFormatDataSize(kIndex_8_GrPixelConfig,
+                                                          bitmap->width(), bitmap->height());
+            SkAutoMalloc storage(imageSize);
 
             build_compressed_data(storage.get(), origBitmap);
 

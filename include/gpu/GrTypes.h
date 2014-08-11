@@ -324,6 +324,7 @@ static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 // representation.
 static inline bool GrPixelConfigIsCompressed(GrPixelConfig config) {
     switch (config) {
+        case kIndex_8_GrPixelConfig:
         case kETC1_GrPixelConfig:
         case kLATC_GrPixelConfig:
         case kR11_EAC_GrPixelConfig:
@@ -359,9 +360,9 @@ static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
 }
 
 static inline size_t GrBytesPerPixel(GrPixelConfig config) {
+    SkASSERT(!GrPixelConfigIsCompressed(config));
     switch (config) {
         case kAlpha_8_GrPixelConfig:
-        case kIndex_8_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -377,9 +378,9 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
 }
 
 static inline size_t GrUnpackAlignment(GrPixelConfig config) {
+    SkASSERT(!GrPixelConfigIsCompressed(config));
     switch (config) {
         case kAlpha_8_GrPixelConfig:
-        case kIndex_8_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -447,13 +448,6 @@ enum GrTextureFlags {
 };
 
 GR_MAKE_BITFIELD_OPS(GrTextureFlags)
-
-enum {
-   /**
-    *  For Index8 pixel config, the colortable must be 256 entries
-    */
-    kGrColorTableSize = 256 * 4 //sizeof(GrColor)
-};
 
 /**
  * Some textures will be stored such that the upper and left edges of the content meet at the
@@ -684,8 +678,11 @@ enum GrGLBackendState {
 static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
                                                 int width, int height) {
     SkASSERT(GrPixelConfigIsCompressed(config));
+    static const int kGrIndex8TableSize = 256 * 4; // 4 == sizeof(GrColor)
 
     switch (config) {
+        case kIndex_8_GrPixelConfig:
+            return width * height + kGrIndex8TableSize;
         case kR11_EAC_GrPixelConfig:
         case kLATC_GrPixelConfig:
         case kETC1_GrPixelConfig:
