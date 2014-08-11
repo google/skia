@@ -53,8 +53,9 @@ public:
     SkImage_Raster(const SkImageInfo&, SkData*, size_t rb);
     virtual ~SkImage_Raster();
 
-    virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) SK_OVERRIDE;
-    virtual void onDrawRectToRect(SkCanvas*, const SkRect*, const SkRect&, const SkPaint*) SK_OVERRIDE;
+    virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) const SK_OVERRIDE;
+    virtual void onDrawRectToRect(SkCanvas*, const SkRect*, const SkRect&,
+                                  const SkPaint*) const SK_OVERRIDE;
     virtual bool onReadPixels(SkBitmap*, const SkIRect&) const SK_OVERRIDE;
     virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const SK_OVERRIDE;
     virtual bool getROPixels(SkBitmap*) const SK_OVERRIDE;
@@ -115,19 +116,17 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes
 
 SkImage_Raster::~SkImage_Raster() {}
 
-SkShader* SkImage_Raster::onNewShader(SkShader::TileMode tileX,
-                                      SkShader::TileMode tileY,
-                                      const SkMatrix* localMatrix) const
-{
+SkShader* SkImage_Raster::onNewShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
+                                      const SkMatrix* localMatrix) const {
     return SkShader::CreateBitmapShader(fBitmap, tileX, tileY, localMatrix);
 }
 
-void SkImage_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
+void SkImage_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-void SkImage_Raster::onDrawRectToRect(SkCanvas* canvas, const SkRect* src,
-                                      const SkRect& dst, const SkPaint* paint) {
+void SkImage_Raster::onDrawRectToRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
+                                      const SkPaint* paint) const {
     canvas->drawBitmapRectToRect(fBitmap, src, dst, paint);
 }
 
@@ -143,8 +142,7 @@ bool SkImage_Raster::onReadPixels(SkBitmap* dst, const SkIRect& subset) const {
     }
 }
 
-const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr,
-                                         size_t* rowBytesPtr) const {
+const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesPtr) const {
     const SkImageInfo info = fBitmap.info();
     if ((kUnknown_SkColorType == info.colorType()) || !fBitmap.getPixels()) {
         return NULL;

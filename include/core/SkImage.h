@@ -62,7 +62,7 @@ public:
                                 SkShader::TileMode,
                                 const SkMatrix* localMatrix = NULL) const;
 
-    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
+    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
 
     /**
      *  Draw the image, cropped to the src rect, to the dst rect of a canvas.
@@ -71,7 +71,7 @@ public:
      *
      *  See SkCanvas::drawBitmapRectToRect for similar behavior.
      */
-    void draw(SkCanvas*, const SkRect* src, const SkRect& dst, const SkPaint*);
+    void draw(SkCanvas*, const SkRect* src, const SkRect& dst, const SkPaint*) const;
 
     /**
      *  If the image has direct access to its pixels (i.e. they are in local

@@ -14,9 +14,9 @@ class SkImage_Base : public SkImage {
 public:
     SkImage_Base(int width, int height) : INHERITED(width, height) {}
 
-    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) = 0;
+    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const = 0;
     virtual void onDrawRectToRect(SkCanvas*, const SkRect* src,
-                                  const SkRect& dst, const SkPaint*) = 0;
+                                  const SkRect& dst, const SkPaint*) const = 0;
 
     // Default impl calls onDraw
     virtual bool onReadPixels(SkBitmap*, const SkIRect& subset) const;
@@ -25,7 +25,7 @@ public:
         return NULL;
     }
 
-    virtual GrTexture* onGetTexture() { return NULL; }
+    virtual GrTexture* onGetTexture() const { return NULL; }
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).

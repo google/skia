@@ -29,13 +29,12 @@ uint32_t SkImage::NextUniqueID() {
     return id;
 }
 
-void SkImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
-                   const SkPaint* paint) {
+void SkImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
     as_IB(this)->onDraw(canvas, x, y, paint);
 }
 
 void SkImage::draw(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
-                   const SkPaint* paint) {
+                   const SkPaint* paint) const {
     as_IB(this)->onDrawRectToRect(canvas, src, dst, paint);
 }
 
