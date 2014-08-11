@@ -6355,6 +6355,10 @@
           8627394447232319577
         ]
       ], 
+      "bugs": [
+        2824
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "convex_poly_clip_nvprmsaa4.png": {

@@ -6352,9 +6352,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8627394447232319577
+          17868394612177611310
         ]
       ], 
+      "bugs": [
+        2824
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "convex_poly_clip_nvprmsaa4.png": {

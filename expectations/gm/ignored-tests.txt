@@ -49,3 +49,13 @@ gradients
 gradients_2pt_conical_edge
 gradients_2pt_conical_outside
 gradients_no_texture
+srcmode
+aaclip
+clamped_gradients
+shadows
+bigmatrix
+bigblurs
+circles
+simpleaaclip_rect
+complexclip2_rect_aa
+
