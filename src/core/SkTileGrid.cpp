@@ -7,9 +7,9 @@
  */
 
 #include "SkTileGrid.h"
+#include "SkPictureStateTree.h"
 
-SkTileGrid::SkTileGrid(int xTileCount, int yTileCount, const SkTileGridFactory::TileGridInfo& info,
-                       SkTileGridNextDatumFunctionPtr nextDatumFunction) {
+SkTileGrid::SkTileGrid(int xTileCount, int yTileCount, const SkTileGridFactory::TileGridInfo& info) {
     fXTileCount = xTileCount;
     fYTileCount = yTileCount;
     fInfo = info;
@@ -21,7 +21,6 @@ SkTileGrid::SkTileGrid(int xTileCount, int yTileCount, const SkTileGridFactory::
     fInsertionCount = 0;
     fGridBounds = SkIRect::MakeXYWH(0, 0, fInfo.fTileInterval.width() * fXTileCount,
         fInfo.fTileInterval.height() * fYTileCount);
-    fNextDatumFunction = nextDatumFunction;
     fTileData = SkNEW_ARRAY(SkTDArray<void *>, fTileCount);
 }
 
@@ -69,6 +68,43 @@ void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
     fInsertionCount++;
 }
 
+static void* next_datum(const SkTDArray<void*>** tileData,
+                        SkAutoSTArray<SkTileGrid::kStackAllocationTileCount, int>& tileIndices) {
+    SkPictureStateTree::Draw* minVal = NULL;
+    int tileCount = tileIndices.count();
+    int minIndex = tileCount;
+    int maxIndex = 0;
+    // Find the next Datum; track where it's found so we reduce the size of the second loop.
+    for (int tile = 0; tile < tileCount; ++tile) {
+        int pos = tileIndices[tile];
+        if (pos != SkTileGrid::kTileFinished) {
+            SkPictureStateTree::Draw* candidate = (SkPictureStateTree::Draw*)(*tileData[tile])[pos];
+            if (NULL == minVal || (*candidate) < (*minVal)) {
+                minVal = candidate;
+                minIndex = tile;
+                maxIndex = tile;
+            } else if (!((*minVal) < (*candidate))) {
+                // We don't require operator==; if !(candidate<minVal) && !(minVal<candidate),
+                // candidate==minVal and we have to add this tile to the range searched.
+                maxIndex = tile;
+            }
+        }
+    }
+    // Increment indices past the next datum
+    if (minVal != NULL) {
+        for (int tile = minIndex; tile <= maxIndex; ++tile) {
+            int pos = tileIndices[tile];
+            if (pos != SkTileGrid::kTileFinished && (*tileData[tile])[pos] == minVal) {
+                if (++(tileIndices[tile]) >= tileData[tile]->count()) {
+                    tileIndices[tile] = SkTileGrid::kTileFinished;
+                }
+            }
+        }
+        return minVal;
+    }
+    return NULL;
+}
+
 void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) const {
     SkIRect adjustedQuery = query;
     // The inset is to counteract the outset that was applied in 'insert'
@@ -109,8 +145,7 @@ void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) const {
                 ++tile;
             }
         }
-        void *nextElement;
-        while(NULL != (nextElement = fNextDatumFunction(tileRange, curPositions))) {
+        while(void* nextElement = next_datum(tileRange, curPositions)) {
             results->push(nextElement);
         }
     }

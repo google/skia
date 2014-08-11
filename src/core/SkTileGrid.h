@@ -33,12 +33,7 @@ public:
         kStackAllocationTileCount = 1024
     };
 
-    typedef void* (*SkTileGridNextDatumFunctionPtr)(
-            const SkTDArray<void*>** tileData,
-            SkAutoSTArray<kStackAllocationTileCount, int>& tileIndices);
-
-    SkTileGrid(int xTileCount, int yTileCount, const SkTileGridFactory::TileGridInfo& info,
-        SkTileGridNextDatumFunctionPtr nextDatumFunction);
+    SkTileGrid(int xTileCount, int yTileCount, const SkTileGridFactory::TileGridInfo& info);
 
     virtual ~SkTileGrid();
 
@@ -85,62 +80,8 @@ private:
     SkTDArray<void*>* fTileData;
     int fInsertionCount;
     SkIRect fGridBounds;
-    SkTileGridNextDatumFunctionPtr fNextDatumFunction;
 
     typedef SkBBoxHierarchy INHERITED;
 };
-
-/**
- * Generic implementation for SkTileGridNextDatumFunctionPtr. user code may instantiate
- * this template to get a valid SkTileGridNextDatumFunction implementation
- *
- * Returns the next element of tileData[i][tileIndices[i]] for all i and advances
- * tileIndices[] past them. The order in which data are returned by successive
- * calls to this method must reflect the order in which the were originally
- * recorded into the tile grid.
- *
- * \param tileData array of pointers to arrays of tile data
- * \param tileIndices per-tile data indices, indices are incremented for tiles that contain
- *     the next datum.
- * \tparam T a type to which it is safe to cast a datum and that has an operator <
- *     such that 'a < b' is true if 'a' was inserted into the tile grid before 'b'.
- */
-template <typename T>
-void* SkTileGridNextDatum(const SkTDArray<void*>** tileData,
-                          SkAutoSTArray<SkTileGrid::kStackAllocationTileCount, int>& tileIndices) {
-    T* minVal = NULL;
-    int tileCount = tileIndices.count();
-    int minIndex = tileCount;
-    int maxIndex = 0;
-    // Find the next Datum; track where it's found so we reduce the size of the second loop.
-    for (int tile = 0; tile < tileCount; ++tile) {
-        int pos = tileIndices[tile];
-        if (pos != SkTileGrid::kTileFinished) {
-            T* candidate = (T*)(*tileData[tile])[pos];
-            if (NULL == minVal || (*candidate) < (*minVal)) {
-                minVal = candidate;
-                minIndex = tile;
-                maxIndex = tile;
-            } else if (!((*minVal) < (*candidate))) {
-                // We don't require operator==; if !(candidate<minVal) && !(minVal<candidate),
-                // candidate==minVal and we have to add this tile to the range searched.
-                maxIndex = tile;
-            }
-        }
-    }
-    // Increment indices past the next datum
-    if (minVal != NULL) {
-        for (int tile = minIndex; tile <= maxIndex; ++tile) {
-            int pos = tileIndices[tile];
-            if (pos != SkTileGrid::kTileFinished && (*tileData[tile])[pos] == minVal) {
-                if (++(tileIndices[tile]) >= tileData[tile]->count()) {
-                    tileIndices[tile] = SkTileGrid::kTileFinished;
-                }
-            }
-        }
-        return minVal;
-    }
-    return NULL;
-}
 
 #endif

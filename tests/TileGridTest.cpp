@@ -37,7 +37,7 @@ static void verifyTileHits(skiatest::Reporter* reporter, SkIRect rect,
     info.fMargin.set(borderPixels, borderPixels);
     info.fOffset.setZero();
     info.fTileInterval.set(10 - 2 * borderPixels, 10 - 2 * borderPixels);
-    SkTileGrid grid(2, 2, info, NULL);
+    SkTileGrid grid(2, 2, info);
     grid.insert(NULL, rect, false);
     REPORTER_ASSERT(reporter, grid.tileCount(0, 0) ==
                     ((tileMask & kTopLeft_Tile)? 1 : 0));
