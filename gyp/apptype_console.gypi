@@ -27,23 +27,31 @@
         'target_conditions': [
           ['_type == "executable"', {
             'mac_bundle' : 1,
+            'sources': [
+              '../src/views/ios/SkOSWindow_iOS.mm',
+              '../src/views/mac/SkEventNotifier.mm',
+              '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.mm',
+              '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.mm',
+              '../experimental/iOSSampleApp/Shared/SkUIView.mm',
+              '../experimental/iOSSampleApp/Shared/skia_ios.mm',
+              '../experimental/SimpleiOSApp/SimpleApp.mm',
+            ],
+            'include_dirs' : [
+              '../experimental/iOSSampleApp/Shared',
+              '../include/views',
+              '../include/xml',
+              '../include/utils/mac',
+              '../src/views/mac',
+            ],
+            'xcode_config_file': '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
+            'mac_bundle_resources' : [
+              '../experimental/SimpleiOSApp/iPad/MainWindow_iPad.xib',
+              '../experimental/SimpleiOSApp/iPhone/MainWindow_iPhone.xib',
+            ],
+            'xcode_settings' : {
+              'INFOPLIST_FILE' : '../experimental/SimpleiOSApp/tool-Info.plist',
+            },
           }],
-        ],
-        'include_dirs' : [
-          '../experimental/iOSSampleApp/Shared',
-          '../include/views',
-          '../include/xml',
-          '../include/utils/mac',
-          '../src/views/mac',
-        ],
-        'sources': [
-          '../src/views/ios/SkOSWindow_iOS.mm',
-          '../src/views/mac/SkEventNotifier.mm',
-          '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.mm',
-          '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.mm',
-          '../experimental/iOSSampleApp/Shared/SkUIView.mm',
-          '../experimental/iOSSampleApp/Shared/skia_ios.mm',
-          '../experimental/SimpleiOSApp/SimpleApp.mm',
         ],
         'dependencies': [
           'views.gyp:views',
@@ -58,14 +66,6 @@
             '$(SDKROOT)/System/Library/Frameworks/MobileCoreServices.framework',
             '$(SDKROOT)/System/Library/Frameworks/UIKit.framework',
           ],
-        },
-        'xcode_config_file': '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
-        'mac_bundle_resources' : [
-          '../experimental/SimpleiOSApp/iPad/MainWindow_iPad.xib',
-          '../experimental/SimpleiOSApp/iPhone/MainWindow_iPhone.xib',
-        ],
-        'xcode_settings' : {
-          'INFOPLIST_FILE' : '../experimental/SimpleiOSApp/tool-Info.plist',
         },
       }],
     ],
