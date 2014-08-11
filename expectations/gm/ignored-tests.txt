@@ -32,8 +32,3 @@
 ## http://skbug.com/123456 : ignoring failures on gradtext GM test
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
-
-#bsalomon: Slight AA changes to a rect in GPU configs after change that increases
-#batching
-bleed
-
