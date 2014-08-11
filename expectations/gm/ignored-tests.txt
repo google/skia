@@ -32,3 +32,20 @@
 ## http://skbug.com/123456 : ignoring failures on gradtext GM test
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
+
+#bsalomon: https://codereview.chromium.org/435743002
+thinstrokedrects
+thinrects
+drawlooper
+aarectmodes
+mixed_xfermodes
+convex_poly_effect
+rects
+twopointconical
+gradients_2pt_conical_inside
+gradients_local_perspective
+gradient_dirty_laundry
+gradients
+gradients_2pt_conical_edge
+gradients_2pt_conical_outside
+gradients_no_texture

@@ -43,8 +43,7 @@ public:
                     GrDrawTarget* target,
                     const SkRect& rect,
                     const SkMatrix& combinedMatrix,
-                    const SkRect& devRect,
-                    bool useVertexCoverage) {
+                    const SkRect& devRect) {
 #ifdef SHADER_AA_FILL_RECT
         if (combinedMatrix.rectStaysRect()) {
             this->shaderFillAlignedAARect(gpu, target,
@@ -54,9 +53,7 @@ public:
                                    rect, combinedMatrix);
         }
 #else
-        this->geometryFillAARect(gpu, target,
-                                 rect, combinedMatrix,
-                                 devRect, useVertexCoverage);
+        this->geometryFillAARect(gpu, target, rect, combinedMatrix, devRect);
 #endif
     }
 
@@ -65,15 +62,13 @@ public:
                       const SkRect& rect,
                       const SkMatrix& combinedMatrix,
                       const SkRect& devRect,
-                      const SkStrokeRec& stroke,
-                      bool useVertexCoverage);
+                      const SkStrokeRec& stroke);
 
     // First rect is outer; second rect is inner
     void fillAANestedRects(GrGpu* gpu,
                            GrDrawTarget* target,
                            const SkRect rects[2],
-                           const SkMatrix& combinedMatrix,
-                           bool useVertexCoverage);
+                           const SkMatrix& combinedMatrix);
 
 private:
     GrIndexBuffer*              fAAFillRectIndexBuffer;
@@ -85,14 +80,11 @@ private:
     static int aaStrokeRectIndexCount(bool miterStroke);
     GrIndexBuffer* aaStrokeRectIndexBuffer(GrGpu* gpu, bool miterStroke);
 
-    // TODO: Remove the useVertexCoverage boolean. Just use it all the time
-    // since we now have a coverage vertex attribute
     void geometryFillAARect(GrGpu* gpu,
                             GrDrawTarget* target,
                             const SkRect& rect,
                             const SkMatrix& combinedMatrix,
-                            const SkRect& devRect,
-                            bool useVertexCoverage);
+                            const SkRect& devRect);
 
     void shaderFillAARect(GrGpu* gpu,
                           GrDrawTarget* target,
@@ -109,7 +101,6 @@ private:
                               const SkRect& devOutside,
                               const SkRect& devOutsideAssist,
                               const SkRect& devInside,
-                              bool useVertexCoverage,
                               bool miterStroke);
 
     typedef SkRefCnt INHERITED;

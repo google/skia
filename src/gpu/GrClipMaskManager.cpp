@@ -404,8 +404,7 @@ bool GrClipMaskManager::drawElement(GrTexture* target,
                                                               fGpu,
                                                               element->getRect(),
                                                               SkMatrix::I(),
-                                                              element->getRect(),
-                                                              false);
+                                                              element->getRect());
             } else {
                 fGpu->drawSimpleRect(element->getRect());
             }

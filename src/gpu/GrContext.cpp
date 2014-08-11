@@ -719,35 +719,17 @@ static void setStrokeRectStrip(SkPoint verts[10], SkRect rect,
     verts[9] = verts[1];
 }
 
-static bool isIRect(const SkRect& r) {
-    return SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&
-           SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);
-}
-
 static bool apply_aa_to_rect(GrDrawTarget* target,
                              const SkRect& rect,
                              SkScalar strokeWidth,
                              const SkMatrix& combinedMatrix,
-                             SkRect* devBoundRect,
-                             bool* useVertexCoverage) {
-    // we use a simple coverage ramp to do aa on axis-aligned rects
-    // we check if the rect will be axis-aligned, and the rect won't land on
-    // integer coords.
-
-    // we are keeping around the "tweak the alpha" trick because
-    // it is our only hope for the fixed-pipe implementation.
-    // In a shader implementation we can give a separate coverage input
-    // TODO: remove this ugliness when we drop the fixed-pipe impl
-    *useVertexCoverage = false;
-    if (!target->getDrawState().canTweakAlphaForCoverage()) {
-        if (target->shouldDisableCoverageAAForBlend()) {
+                             SkRect* devBoundRect) {
+    if (!target->getDrawState().canTweakAlphaForCoverage() &&
+        target->shouldDisableCoverageAAForBlend()) {
 #ifdef SK_DEBUG
-            //GrPrintf("Turning off AA to correctly apply blend.\n");
+        //GrPrintf("Turning off AA to correctly apply blend.\n");
 #endif
-            return false;
-        } else {
-            *useVertexCoverage = true;
-        }
+        return false;
     }
     const GrDrawState& drawState = target->getDrawState();
     if (drawState.getRenderTarget()->isMultisampled()) {
@@ -771,11 +753,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
 
     combinedMatrix.mapRect(devBoundRect, rect);
 
-    if (strokeWidth < 0) {
-        return !isIRect(*devBoundRect);
-    } else {
-        return true;
-    }
+    return true;
 }
 
 static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& point) {
@@ -840,11 +818,9 @@ void GrContext::drawRect(const GrPaint& paint,
     }
 
     SkRect devBoundRect;
-    bool useVertexCoverage;
     bool needAA = paint.isAntiAlias() &&
                   !target->getDrawState().getRenderTarget()->isMultisampled();
-    bool doAA = needAA && apply_aa_to_rect(target, rect, width, matrix, &devBoundRect,
-                                           &useVertexCoverage);
+    bool doAA = needAA && apply_aa_to_rect(target, rect, width, matrix, &devBoundRect);
 
     const SkStrokeRec& strokeRec = strokeInfo->getStrokeRec();
 
@@ -856,12 +832,11 @@ void GrContext::drawRect(const GrPaint& paint,
         if (width >= 0) {
             fAARectRenderer->strokeAARect(this->getGpu(), target, rect,
                                           matrix, devBoundRect,
-                                          strokeRec, useVertexCoverage);
+                                          strokeRec);
         } else {
             // filled AA rect
             fAARectRenderer->fillAARect(this->getGpu(), target,
-                                        rect, matrix, devBoundRect,
-                                        useVertexCoverage);
+                                        rect, matrix, devBoundRect);
         }
         return;
     }
@@ -1117,8 +1092,7 @@ void GrContext::drawOval(const GrPaint& paint,
 static bool is_nested_rects(GrDrawTarget* target,
                             const SkPath& path,
                             const SkStrokeRec& stroke,
-                            SkRect rects[2],
-                            bool* useVertexCoverage) {
+                            SkRect rects[2]) {
     SkASSERT(stroke.isFillStyle());
 
     if (path.isInverseFillType()) {
@@ -1133,13 +1107,9 @@ static bool is_nested_rects(GrDrawTarget* target,
         return false;
     }
 
-    *useVertexCoverage = false;
-    if (!target->getDrawState().canTweakAlphaForCoverage()) {
-        if (target->shouldDisableCoverageAAForBlend()) {
-            return false;
-        } else {
-            *useVertexCoverage = true;
-        }
+    if (!target->getDrawState().canTweakAlphaForCoverage() &&
+        target->shouldDisableCoverageAAForBlend()) {
+        return false;
     }
 
     SkPath::Direction dirs[2];
@@ -1233,20 +1203,16 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
 
     if (useCoverageAA && strokeRec.getWidth() < 0 && !path.isConvex()) {
         // Concave AA paths are expensive - try to avoid them for special cases
-        bool useVertexCoverage;
         SkRect rects[2];
 
-        if (is_nested_rects(target, path, strokeRec, rects, &useVertexCoverage)) {
+        if (is_nested_rects(target, path, strokeRec, rects)) {
             SkMatrix origViewMatrix = drawState->getViewMatrix();
             GrDrawState::AutoViewMatrixRestore avmr;
             if (!avmr.setIdentity(target->drawState())) {
                 return;
             }
 
-            fAARectRenderer->fillAANestedRects(this->getGpu(), target,
-                                               rects,
-                                               origViewMatrix,
-                                               useVertexCoverage);
+            fAARectRenderer->fillAANestedRects(this->getGpu(), target, rects, origViewMatrix);
             return;
         }
     }
@@ -1761,6 +1727,9 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
             are->set(NULL);
             return NULL;
         }
+        // Clear any vertex attributes configured for the previous use of the
+        // GrDrawState which can effect which blend optimizations are in effect.
+        fDrawState->setDefaultVertexAttribs();
     } else {
         fDrawState->reset(fViewMatrix);
         fDrawState->setRenderTarget(fRenderTarget.get());

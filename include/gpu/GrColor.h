@@ -88,6 +88,11 @@ static inline void GrColorToRGBAFloat(GrColor color, float rgba[4]) {
     rgba[3] = GrColorUnpackA(color) * ONE_OVER_255;
 }
 
+/** Determines whether the color is opaque or not. */
+static inline bool GrColorIsOpaque(GrColor color) {
+    return (color & (0xFFU << GrColor_SHIFT_A)) == (0xFFU << GrColor_SHIFT_A);
+}
+
 /**
  * Flags used for bitfields of color components. They are defined so that the bit order reflects the
  * GrColor shift order.

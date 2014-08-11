@@ -60,7 +60,8 @@ public:
     /**
      * Initializes the GrDrawState based on a GrPaint, view matrix and render target. Note that
      * GrDrawState encompasses more than GrPaint. Aspects of GrDrawState that have no GrPaint
-     * equivalents are set to default values. Clipping will be enabled.
+     * equivalents are set to default values with the exception of vertex attribute state which
+     * is unmodified by this function and clipping which will be enabled.
      */
     void setFromPaint(const GrPaint& , const SkMatrix& viewMatrix, GrRenderTarget*);
 
