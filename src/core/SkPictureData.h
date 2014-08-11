@@ -87,8 +87,6 @@ public:
     void serialize(SkWStream*, SkPicture::EncodeBitmap) const;
     void flatten(SkWriteBuffer&) const;
 
-    void dumpSize() const;
-
     bool containsBitmaps() const;
 
     const SkData* opData() const { return fOpData; }
@@ -137,36 +135,6 @@ public:
             fStateTree->initIterator(iter, draws, canvas);
         }
     }
-
-#ifdef SK_DEBUG_SIZE
-    int size(size_t* sizePtr);
-    int bitmaps(size_t* size);
-    int paints(size_t* size);
-    int paths(size_t* size);
-#endif
-
-#ifdef SK_DEBUG_DUMP
-private:
-    void dumpBitmap(const SkBitmap& bitmap) const;
-    void dumpMatrix(const SkMatrix& matrix) const;
-    void dumpPaint(const SkPaint& paint) const;
-    void dumpPath(const SkPath& path) const;
-    void dumpPicture(const SkPicture& picture) const;
-    void dumpRegion(const SkRegion& region) const;
-    int dumpDrawType(char* bufferPtr, char* buffer, DrawType drawType);
-    int dumpInt(char* bufferPtr, char* buffer, char* name);
-    int dumpRect(char* bufferPtr, char* buffer, char* name);
-    int dumpPoint(char* bufferPtr, char* buffer, char* name);
-    void dumpPointArray(char** bufferPtrPtr, char* buffer, int count);
-    int dumpPtr(char* bufferPtr, char* buffer, char* name, void* ptr);
-    int dumpRectPtr(char* bufferPtr, char* buffer, char* name);
-    int dumpScalar(char* bufferPtr, char* buffer, char* name);
-    void dumpText(char** bufferPtrPtr, char* buffer);
-    void dumpStream();
-
-public:
-    void dump() const;
-#endif
 
 #if SK_SUPPORT_GPU
     /**

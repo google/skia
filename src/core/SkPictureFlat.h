@@ -8,7 +8,6 @@
 #ifndef SkPictureFlat_DEFINED
 #define SkPictureFlat_DEFINED
 
-//#define SK_DEBUG_SIZE
 
 #include "SkBitmapHeap.h"
 #include "SkChecksum.h"

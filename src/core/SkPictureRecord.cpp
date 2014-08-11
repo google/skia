@@ -44,10 +44,6 @@ SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
     , fPaints(&fFlattenableHeap)
     , fRecordFlags(flags)
     , fOptsEnabled(kBeClever) {
-#ifdef SK_DEBUG_SIZE
-    fPointBytes = fRectBytes = fTextBytes = 0;
-    fPointWrites = fRectWrites = fTextWrites = 0;
-#endif
 
     fBitmapHeap = SkNEW(SkBitmapHeap);
     fFlattenableHeap.setBitmapStorage(fBitmapHeap);
@@ -229,10 +225,6 @@ static DrawType peek_op_and_size(SkWriter32* writer, size_t offset, uint32_t* si
     }
     return (DrawType) op;
 }
-
-#ifdef TRACK_COLLAPSE_STATS
-    static int gCollapseCount, gCollapseCalls;
-#endif
 
 // Is the supplied paint simply a color?
 static bool is_simple(const SkPaint& p) {
@@ -472,10 +464,6 @@ static bool is_drawing_op(DrawType op) {
  */
 static bool collapse_save_clip_restore(SkWriter32* writer, int32_t offset,
                                        SkPaintDictionary* paintDict) {
-#ifdef TRACK_COLLAPSE_STATS
-    gCollapseCalls += 1;
-#endif
-
     int32_t restoreOffset = (int32_t)writer->bytesWritten();
 
     // back up to the save block
@@ -507,12 +495,6 @@ static bool collapse_save_clip_restore(SkWriter32* writer, int32_t offset,
         }
         offset += opSize;
     }
-
-#ifdef TRACK_COLLAPSE_STATS
-    gCollapseCount += 1;
-    SkDebugf("Collapse [%d out of %d] %g%spn", gCollapseCount, gCollapseCalls,
-             (double)gCollapseCount / gCollapseCalls, "%");
-#endif
 
     writer->rewindToOffset(saveOffset);
     return true;
@@ -1134,9 +1116,6 @@ void SkPictureRecord::onDrawPosText(const void* text, size_t byteLength, const S
     this->addText(text, byteLength);
     this->addInt(points);
 
-#ifdef SK_DEBUG_SIZE
-    size_t start = fWriter.bytesWritten();
-#endif
     if (canUseDrawH) {
         if (fast) {
             this->addFontMetricsTopBottom(paint, *flatPaintData, pos[0].fY, pos[0].fY);
@@ -1151,10 +1130,6 @@ void SkPictureRecord::onDrawPosText(const void* text, size_t byteLength, const S
             this->addFontMetricsTopBottom(paint, *flatPaintData, minY, maxY);
         }
     }
-#ifdef SK_DEBUG_SIZE
-    fPointBytes += fWriter.bytesWritten() - start;
-    fPointWrites += points;
-#endif
     this->validate(initialOffset, size);
 }
 
@@ -1189,18 +1164,11 @@ void SkPictureRecord::drawPosTextHImpl(const void* text, size_t byteLength,
     this->addText(text, byteLength);
     this->addInt(points);
 
-#ifdef SK_DEBUG_SIZE
-    size_t start = fWriter.bytesWritten();
-#endif
     if (fast) {
         this->addFontMetricsTopBottom(paint, *flatPaintData, constY, constY);
     }
     this->addScalar(constY);
     fWriter.writeMul4(xpos, points * sizeof(SkScalar));
-#ifdef SK_DEBUG_SIZE
-    fPointBytes += fWriter.bytesWritten() - start;
-    fPointWrites += points;
-#endif
     this->validate(initialOffset, size);
 }
 
@@ -1454,22 +1422,11 @@ void SkPictureRecord::addPicture(const SkPicture* picture) {
 }
 
 void SkPictureRecord::addPoint(const SkPoint& point) {
-#ifdef SK_DEBUG_SIZE
-    size_t start = fWriter.bytesWritten();
-#endif
     fWriter.writePoint(point);
-#ifdef SK_DEBUG_SIZE
-    fPointBytes += fWriter.bytesWritten() - start;
-    fPointWrites++;
-#endif
 }
 
 void SkPictureRecord::addPoints(const SkPoint pts[], int count) {
     fWriter.writeMul4(pts, count * sizeof(SkPoint));
-#ifdef SK_DEBUG_SIZE
-    fPointBytes += count * sizeof(SkPoint);
-    fPointWrites++;
-#endif
 }
 
 void SkPictureRecord::addNoOp() {
@@ -1478,14 +1435,7 @@ void SkPictureRecord::addNoOp() {
 }
 
 void SkPictureRecord::addRect(const SkRect& rect) {
-#ifdef SK_DEBUG_SIZE
-    size_t start = fWriter.bytesWritten();
-#endif
     fWriter.writeRect(rect);
-#ifdef SK_DEBUG_SIZE
-    fRectBytes += fWriter.bytesWritten() - start;
-    fRectWrites++;
-#endif
 }
 
 void SkPictureRecord::addRectPtr(const SkRect* rect) {
@@ -1514,147 +1464,9 @@ void SkPictureRecord::addRegion(const SkRegion& region) {
 
 void SkPictureRecord::addText(const void* text, size_t byteLength) {
     fContentInfo.onDrawText();
-#ifdef SK_DEBUG_SIZE
-    size_t start = fWriter.bytesWritten();
-#endif
     addInt(SkToInt(byteLength));
     fWriter.writePad(text, byteLength);
-#ifdef SK_DEBUG_SIZE
-    fTextBytes += fWriter.bytesWritten() - start;
-    fTextWrites++;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_DEBUG_SIZE
-size_t SkPictureRecord::size() const {
-    size_t result = 0;
-    size_t sizeData;
-    bitmaps(&sizeData);
-    result += sizeData;
-    matrices(&sizeData);
-    result += sizeData;
-    paints(&sizeData);
-    result += sizeData;
-    paths(&sizeData);
-    result += sizeData;
-    pictures(&sizeData);
-    result += sizeData;
-    regions(&sizeData);
-    result += sizeData;
-    result += streamlen();
-    return result;
-}
-
-int SkPictureRecord::bitmaps(size_t* size) const {
-    size_t result = 0;
-    int count = fBitmaps.count();
-    for (int index = 0; index < count; index++)
-        result += sizeof(fBitmaps[index]) + fBitmaps[index]->size();
-    *size = result;
-    return count;
-}
-
-int SkPictureRecord::matrices(size_t* size) const {
-    int count = fMatrices.count();
-    *size = sizeof(fMatrices[0]) * count;
-    return count;
-}
-
-int SkPictureRecord::paints(size_t* size) const {
-    size_t result = 0;
-    int count = fPaints.count();
-    for (int index = 0; index < count; index++)
-        result += sizeof(fPaints[index]) + fPaints[index]->size();
-    *size = result;
-    return count;
-}
-
-int SkPictureRecord::paths(size_t* size) const {
-    size_t result = 0;
-    int count = fPaths.count();
-    for (int index = 0; index < count; index++)
-        result += sizeof(fPaths[index]) + fPaths[index]->size();
-    *size = result;
-    return count;
-}
-
-int SkPictureRecord::regions(size_t* size) const {
-    size_t result = 0;
-    int count = fRegions.count();
-    for (int index = 0; index < count; index++)
-        result += sizeof(fRegions[index]) + fRegions[index]->size();
-    *size = result;
-    return count;
-}
-
-size_t SkPictureRecord::streamlen() const {
-    return fWriter.size();
-}
-#endif
-
-#ifdef SK_DEBUG_VALIDATE
-void SkPictureRecord::validate(uint32_t initialOffset, uint32_t size) const {
-    SkASSERT(fWriter.size() == initialOffset + size);
-
-    validateBitmaps();
-    validateMatrices();
-    validatePaints();
-    validatePaths();
-    validateRegions();
-}
-
-void SkPictureRecord::validateBitmaps() const {
-    int count = fBitmapHeap->count();
-    SkASSERT((unsigned) count < 0x1000);
-    for (int index = 0; index < count; index++) {
-        const SkBitmap* bitPtr = fBitmapHeap->getBitmap(index);
-        SkASSERT(bitPtr);
-        bitPtr->validate();
-    }
-}
-
-void SkPictureRecord::validateMatrices() const {
-    int count = fMatrices.count();
-    SkASSERT((unsigned) count < 0x1000);
-    for (int index = 0; index < count; index++) {
-        const SkFlatData* matrix = fMatrices[index];
-        SkASSERT(matrix);
-//        matrix->validate();
-    }
-}
-
-void SkPictureRecord::validatePaints() const {
-    int count = fPaints.count();
-    SkASSERT((unsigned) count < 0x1000);
-    for (int index = 0; index < count; index++) {
-        const SkFlatData* paint = fPaints[index];
-        SkASSERT(paint);
-//            paint->validate();
-    }
-}
-
-void SkPictureRecord::validatePaths() const {
-    if (NULL == fPathHeap) {
-        return;
-    }
-
-    int count = fPathHeap->count();
-    SkASSERT((unsigned) count < 0x1000);
-    for (int index = 0; index < count; index++) {
-        const SkPath& path = (*fPathHeap)[index];
-        path.validate();
-    }
-}
-
-void SkPictureRecord::validateRegions() const {
-    int count = fRegions.count();
-    SkASSERT((unsigned) count < 0x1000);
-    for (int index = 0; index < count; index++) {
-        const SkFlatData* region = fRegions[index];
-        SkASSERT(region);
-//        region->validate();
-    }
-}
-#endif

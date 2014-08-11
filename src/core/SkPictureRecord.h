@@ -143,10 +143,6 @@ private:
         this->predrawNotify();
         fContentInfo.addOperation();
 
-    #ifdef SK_DEBUG_TRACE
-        SkDebugf("add %s\n", DrawTypeToString(drawType));
-    #endif
-
         SkASSERT(0 != *size);
         SkASSERT(((uint8_t) drawType) == drawType);
 
@@ -189,43 +185,11 @@ private:
 
     int find(const SkBitmap& bitmap);
 
-#ifdef SK_DEBUG_DUMP
-public:
-    void dumpMatrices();
-    void dumpPaints();
-#endif
-
-#ifdef SK_DEBUG_SIZE
-public:
-    size_t size() const;
-    int bitmaps(size_t* size) const;
-    int matrices(size_t* size) const;
-    int paints(size_t* size) const;
-    int paths(size_t* size) const;
-    int regions(size_t* size) const;
-    size_t streamlen() const;
-
-    size_t fPointBytes, fRectBytes, fTextBytes;
-    int fPointWrites, fRectWrites, fTextWrites;
-#endif
-
-#ifdef SK_DEBUG_VALIDATE
-public:
-    void validate(size_t initialOffset, uint32_t size) const;
-private:
-    void validateBitmaps() const;
-    void validateMatrices() const;
-    void validatePaints() const;
-    void validatePaths() const;
-    void validateRegions() const;
-#else
-public:
+protected:
     void validate(size_t initialOffset, size_t size) const {
         SkASSERT(fWriter.bytesWritten() == initialOffset + size);
     }
-#endif
 
-protected:
     virtual SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE;
     const void* onPeekPixels(SkImageInfo*, size_t*) SK_OVERRIDE {
         return NULL;
@@ -304,8 +268,6 @@ protected:
     SkBitmapHeap* fBitmapHeap;
 
 private:
-    friend class MatrixClipState; // for access to *Impl methods
-
     SkPictureContentInfo fContentInfo;
     SkAutoTUnref<SkPathHeap> fPathHeap;
 
