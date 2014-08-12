@@ -78,7 +78,7 @@ class RenderedPicturesComparisons(results.BaseComparisons):
                setA_section, setB_section,
                image_diff_db,
                image_base_gs_url=DEFAULT_IMAGE_BASE_GS_URL, diff_base_url=None,
-               setA_label='setA', setB_label='setB',
+               setA_label=None, setB_label=None,
                gs=None, truncate_results=False, prefetch_only=False,
                download_all_images=False):
     """Constructor: downloads images and generates diffs.
@@ -108,8 +108,10 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       diff_base_url: base URL within which the client should look for diff
           images; if not specified, defaults to a "file:///" URL representation
           of image_diff_db's storage_root
-      setA_label: description to use for results in setA
-      setB_label: description to use for results in setB
+      setA_label: description to use for results in setA; if None, will be
+          set to a reasonable default
+      setB_label: description to use for results in setB; if None, will be
+          set to a reasonable default
       gs: instance of GSUtils object we can use to download summary files
       truncate_results: FOR MANUAL TESTING: if True, truncate the set of images
           we process, to speed up testing.
@@ -128,12 +130,19 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     self._diff_base_url = (
         diff_base_url or
         url_utils.create_filepath_url(image_diff_db.storage_root))
-    self._setA_label = setA_label
-    self._setB_label = setB_label
     self._gs = gs
     self.truncate_results = truncate_results
     self._prefetch_only = prefetch_only
     self._download_all_images = download_all_images
+
+    # If we are comparing two different section types, we can use those
+    # as the default labels for setA and setB.
+    if setA_section != setB_section:
+      self._setA_label = setA_label or setA_section
+      self._setB_label = setB_label or setB_section
+    else:
+      self._setA_label = setA_label or 'setA'
+      self._setB_label = setB_label or 'setB'
 
     tempdir = tempfile.mkdtemp()
     try:

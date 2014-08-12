@@ -137,11 +137,11 @@
     }, 
     "imageA": {
       "baseUrl": "http://storage.cloud.google.com/fakebucket/fake/path", 
-      "description": "setA"
+      "description": "expected-results"
     }, 
     "imageB": {
       "baseUrl": "http://storage.cloud.google.com/fakebucket/fake/path", 
-      "description": "setB"
+      "description": "actual-results"
     }, 
     "whiteDiffs": {
       "baseUrl": "/static/generated-images/whitediffs", 
