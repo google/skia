@@ -5230,7 +5230,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5111956725384429587
+          17971732283946402290
         ]
       ], 
       "reviewed-by-human": true
@@ -6763,7 +6763,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14666226782194455577
+          1054363680195113581
         ]
       ], 
       "ignore-failure": false, 
@@ -8906,13 +8906,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12213884113784735929
+          10982212448773914258
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradient_dirty_laundry_gpu.png": {
       "allowed-digests": [
@@ -9002,7 +8999,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          871619327129850391
+          16308733181606967441
         ]
       ], 
       "reviewed-by-human": true
@@ -9011,7 +9008,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15361695066602809881
+          8781092620598512892
         ]
       ], 
       "reviewed-by-human": true
@@ -9020,7 +9017,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16855420853188990089
+          8407517396538022372
         ]
       ], 
       "reviewed-by-human": true
@@ -9053,7 +9050,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4727432964479035639
+          14532010197030240093
         ]
       ], 
       "ignore-failure": false, 
@@ -9150,7 +9147,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11818401104891926260
+          565052971038319693
         ]
       ], 
       "ignore-failure": false, 
@@ -10775,7 +10772,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12761674399065406539
+          3719160171581050213
         ]
       ], 
       "reviewed-by-human": true
@@ -12117,7 +12114,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12700756179336298366
+          5229612822547266001
         ]
       ], 
       "reviewed-by-human": true
@@ -14408,10 +14405,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10999541404612369092
+          14232670735838439042
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "thinrects_gpu.png": {
       "allowed-digests": [
@@ -14465,10 +14463,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6717965895519090324
+          13588458332499928117
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "thinstrokedrects_gpu.png": {
       "allowed-digests": [
