@@ -6923,10 +6923,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          215278920234240161
+          4757316088197438923
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        2826
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "degeneratesegments_pdf-poppler.png": {
       "allowed-digests": [
