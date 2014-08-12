@@ -66,7 +66,6 @@ static inline GrPixelConfig fmt_to_config(SkTextureCompressor::Format fmt) {
     return config;
 }
 
-#if GR_COMPRESS_ALPHA_MASK
 static bool choose_compressed_fmt(const GrDrawTargetCaps* caps,
                                   SkTextureCompressor::Format *fmt) {
     if (NULL == fmt) {
@@ -95,7 +94,6 @@ static bool choose_compressed_fmt(const GrDrawTargetCaps* caps,
 
     return false;
 }
-#endif
 
 }
 
@@ -171,11 +169,10 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
     SkIRect bounds = SkIRect::MakeWH(resultBounds.width(),
                                      resultBounds.height());
 
-#if GR_COMPRESS_ALPHA_MASK
-    if (choose_compressed_fmt(fContext->getGpu()->caps(), &fCompressedFormat)) {
+    if (fContext->getOptions().fDrawPathToCompressedTexture &&
+        choose_compressed_fmt(fContext->getGpu()->caps(), &fCompressedFormat)) {
         fCompressionMode = kCompress_CompressionMode;
     }
-#endif
 
     // Make sure that the width is a multiple of the desired block dimensions
     // to allow for specialized SIMD instructions that compress multiple blocks at a time.

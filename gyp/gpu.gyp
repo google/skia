@@ -74,9 +74,6 @@
         '../include/gpu',
       ],
     },
-    'defines': [
-      'GR_COMPRESS_ALPHA_MASK=0',
-    ],
   },
   'targets': [
     {

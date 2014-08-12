@@ -49,10 +49,19 @@ class SK_API GrContext : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrContext)
 
+    struct Options {
+        Options() : fDrawPathToCompressedTexture(false) { }
+
+        // EXPERIMENTAL
+        // May be removed in the future, or may become standard depending
+        // on the outcomes of a variety of internal tests.
+        bool fDrawPathToCompressedTexture;
+    };
+
     /**
      * Creates a GrContext for a backend context.
      */
-    static GrContext* Create(GrBackend, GrBackendContext);
+    static GrContext* Create(GrBackend, GrBackendContext, const Options* opts = NULL);
 
     virtual ~GrContext();
 
@@ -939,6 +948,12 @@ public:
                     GrPathRendererChain::DrawType drawType = GrPathRendererChain::kColor_DrawType,
                     GrPathRendererChain::StencilSupport* stencilSupport = NULL);
 
+    /**
+     *  This returns a copy of the the GrContext::Options that was passed to the
+     *  constructor of this class.
+     */
+    const Options& getOptions() const { return fOptions; }
+
 #if GR_CACHE_STATS
     void printCacheStats() const;
 #endif
@@ -987,7 +1002,9 @@ private:
 
     int                             fMaxTextureSizeOverride;
 
-    GrContext(); // init must be called after the constructor.
+    const Options                   fOptions;
+
+    GrContext(const Options&); // init must be called after the constructor.
     bool init(GrBackend, GrBackendContext);
 
     void setupDrawBuffer();

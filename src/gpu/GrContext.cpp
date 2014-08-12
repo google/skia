@@ -84,8 +84,15 @@ private:
     GrContext* fContext;
 };
 
-GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext) {
-    GrContext* context = SkNEW(GrContext);
+GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
+                             const Options* opts) {
+    GrContext* context;
+    if (NULL == opts) {
+        context = SkNEW_ARGS(GrContext, (Options()));
+    } else {
+        context = SkNEW_ARGS(GrContext, (*opts));
+    }
+
     if (context->init(backend, backendContext)) {
         return context;
     } else {
@@ -94,7 +101,7 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext)
     }
 }
 
-GrContext::GrContext() {
+GrContext::GrContext(const Options& opts) : fOptions(opts) {
     fDrawState = NULL;
     fGpu = NULL;
     fClip = NULL;
