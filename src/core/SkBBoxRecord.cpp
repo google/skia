@@ -7,6 +7,7 @@
  */
 
 #include "SkBBoxRecord.h"
+#include "SkPatchUtils.h"
 
 SkBBoxRecord::~SkBBoxRecord() {
     fSaveStack.deleteAll();
@@ -284,12 +285,13 @@ void SkBBoxRecord::drawVertices(VertexMode mode, int vertexCount,
     }
 }
 
-void SkBBoxRecord::drawPatch(const SkPatch& patch, const SkPaint& paint) {
-    const SkPoint* points = patch.getControlPoints();
+void SkBBoxRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                               const SkPoint texCoords[4], SkXfermode* xmode,
+                               const SkPaint& paint) {
     SkRect bbox;
-    bbox.set(points, SkPatch::kNumCtrlPts);
+    bbox.set(cubics, SkPatchUtils::kNumCtrlPts);
     if (this->transformBounds(bbox, &paint)) {
-        INHERITED::drawPatch(patch, paint);
+        INHERITED::onDrawPatch(cubics, colors, texCoords, xmode, paint);
     }
 }
 

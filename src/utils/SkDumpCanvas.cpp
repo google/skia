@@ -9,6 +9,7 @@
 #include "SkDumpCanvas.h"
 
 #ifdef SK_DEVELOPER
+#include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
@@ -443,17 +444,24 @@ void SkDumpCanvas::drawVertices(VertexMode vmode, int vertexCount,
                SkScalarToFloat(vertices[0].fY));
 }
 
-void SkDumpCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
-    const SkPoint* points = patch.getControlPoints();
-    const SkColor* color = patch.getColors();
+void SkDumpCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                               const SkPoint texCoords[4], SkXfermode* xmode,
+                               const SkPaint& paint) {
     //dumps corner points and colors in clockwise order starting on upper-left corner
     this->dump(kDrawPatch_Verb, &paint, "drawPatch(Vertices{[%f, %f], [%f, %f], [%f, %f], [%f, %f]}\
-              | Colors{[0x%x], [0x%x], [0x%x], [0x%x]})",
-              points[SkPatch::kTopP0_CubicCtrlPts].fX, points[SkPatch::kTopP0_CubicCtrlPts].fY,
-              points[SkPatch::kTopP3_CubicCtrlPts].fX, points[SkPatch::kTopP3_CubicCtrlPts].fY,
-              points[SkPatch::kBottomP3_CubicCtrlPts].fX,points[SkPatch::kBottomP3_CubicCtrlPts].fY,
-              points[SkPatch::kBottomP0_CubicCtrlPts].fX,points[SkPatch::kBottomP0_CubicCtrlPts].fY,
-              color[0], color[1], color[2], color[3]);
+              | Colors{[0x%x], [0x%x], [0x%x], [0x%x]} | TexCoords{[%f,%f], [%f,%f], [%f,%f], \
+               [%f,%f]})",
+              cubics[SkPatchUtils::kTopP0_CubicCtrlPts].fX,
+              cubics[SkPatchUtils::kTopP0_CubicCtrlPts].fY,
+              cubics[SkPatchUtils::kTopP3_CubicCtrlPts].fX,
+              cubics[SkPatchUtils::kTopP3_CubicCtrlPts].fY,
+              cubics[SkPatchUtils::kBottomP3_CubicCtrlPts].fX,
+              cubics[SkPatchUtils::kBottomP3_CubicCtrlPts].fY,
+              cubics[SkPatchUtils::kBottomP0_CubicCtrlPts].fX,
+              cubics[SkPatchUtils::kBottomP0_CubicCtrlPts].fY,
+              colors[0], colors[1], colors[2], colors[3],
+              texCoords[0].x(), texCoords[0].y(), texCoords[1].x(), texCoords[1].y(),
+              texCoords[2].x(), texCoords[2].y(), texCoords[3].x(), texCoords[3].y());
 }
 
 void SkDumpCanvas::drawData(const void* data, size_t length) {

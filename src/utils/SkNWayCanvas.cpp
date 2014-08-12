@@ -285,10 +285,12 @@ void SkNWayCanvas::drawVertices(VertexMode vmode, int vertexCount,
     }
 }
 
-void SkNWayCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+void SkNWayCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                               const SkPoint texCoords[4], SkXfermode* xmode,
+                               const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawPatch(patch, paint);
+        iter->drawPatch(cubics, colors, texCoords, xmode, paint);
     }
 }
 

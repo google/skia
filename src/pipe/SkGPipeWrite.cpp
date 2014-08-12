@@ -19,6 +19,7 @@
 #include "SkMaskFilter.h"
 #include "SkWriteBuffer.h"
 #include "SkPaint.h"
+#include "SkPatchUtils.h"
 #include "SkPathEffect.h"
 #include "SkPictureFlat.h"
 #include "SkRasterizer.h"
@@ -254,7 +255,6 @@ public:
                           const SkColor colors[], SkXfermode*,
                           const uint16_t indices[], int indexCount,
                               const SkPaint&) SK_OVERRIDE;
-    virtual void drawPatch(const SkPatch& patch, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
@@ -283,7 +283,9 @@ protected:
                                 SkScalar constY, const SkPaint&) SK_OVERRIDE;
     virtual void onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                                   const SkMatrix* matrix, const SkPaint&) SK_OVERRIDE;
-
+    virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                             const SkPoint texCoords[4], SkXfermode* xmode,
+                             const SkPaint& paint) SK_OVERRIDE;
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
@@ -1003,12 +1005,48 @@ void SkGPipeCanvas::drawVertices(VertexMode vmode, int vertexCount,
     }
 }
 
-void SkGPipeCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+void SkGPipeCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                                const SkPoint texCoords[4], SkXfermode* xmode,
+                                const SkPaint& paint) {
     NOTIFY_SETUP(this);
+    
+    size_t size = SkPatchUtils::kNumCtrlPts * sizeof(SkPoint);
+    unsigned flags = 0;
+    if (NULL != colors) {
+        flags |= kDrawVertices_HasColors_DrawOpFlag;
+        size += SkPatchUtils::kNumCorners * sizeof(SkColor);
+    }
+    if (NULL != texCoords) {
+        flags |= kDrawVertices_HasTexs_DrawOpFlag;
+        size += SkPatchUtils::kNumCorners * sizeof(SkPoint);
+    }
+    if (NULL != xmode) {
+        SkXfermode::Mode mode;
+        if (xmode->asMode(&mode) && SkXfermode::kModulate_Mode != mode) {
+            flags |= kDrawVertices_HasXfermode_DrawOpFlag;
+            size += sizeof(int32_t);
+        }
+    }
+    
     this->writePaint(paint);
-    if (this->needOpBytes(patch.writeToMemory(NULL))) {
-        this->writeOp(kDrawPatch_DrawOp);
-        fWriter.writePatch(patch);
+    if (this->needOpBytes(size)) {
+        this->writeOp(kDrawPatch_DrawOp, flags, 0);
+        
+        fWriter.write(cubics, SkPatchUtils::kNumCtrlPts * sizeof(SkPoint));
+        
+        if (NULL != colors) {
+            fWriter.write(colors, SkPatchUtils::kNumCorners * sizeof(SkColor));
+        }
+        
+        if (NULL != texCoords) {
+            fWriter.write(texCoords, SkPatchUtils::kNumCorners * sizeof(SkPoint));
+        }
+        
+        if (flags & kDrawVertices_HasXfermode_DrawOpFlag) {
+            SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
+            SkAssertResult(xmode->asMode(&mode));
+            fWriter.write32(mode);
+        }
     }
 }
 

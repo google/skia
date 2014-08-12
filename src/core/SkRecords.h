@@ -232,7 +232,7 @@ RECORD3(DrawDRRect, SkPaint, paint, SkRRect, outer, SkRRect, inner);
 RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
 RECORD1(DrawPaint, SkPaint, paint);
 RECORD2(DrawPath, SkPaint, paint, SkPath, path);
-RECORD2(DrawPatch, SkPaint, paint, SkPatch, patch);
+//RECORD2(DrawPatch, SkPaint, paint, SkPatch, patch);
 RECORD3(DrawPicture, Optional<SkPaint>, paint, SkPictureBox, picture, Optional<SkMatrix>, matrix);
 RECORD4(DrawPoints, SkPaint, paint, SkCanvas::PointMode, mode, size_t, count, SkPoint*, pts);
 RECORD4(DrawPosText, SkPaint, paint,
@@ -290,6 +290,24 @@ struct DrawVertices {
     SkAutoTUnref<SkXfermode> xmode;
     PODArray<uint16_t> indices;
     int indexCount;
+};
+    
+struct DrawPatch {
+    static const Type kType = DrawPatch_Type;
+    
+    DrawPatch(const SkPaint& paint, SkPoint cubics[12], SkColor colors[4],
+              SkPoint texCoords[4], SkXfermode* xmode)
+    : paint(paint)
+    , cubics(cubics)
+    , colors(colors)
+    , texCoords(texCoords)
+    , xmode(SkSafeRef(xmode)) { }
+    
+    SkPaint paint;
+    PODArray<SkPoint> cubics;
+    PODArray<SkColor> colors;
+    PODArray<SkPoint> texCoords;
+    SkAutoTUnref<SkXfermode> xmode;
 };
 
 #undef RECORD0

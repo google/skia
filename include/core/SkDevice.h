@@ -243,7 +243,8 @@ protected:
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) = 0;
     // default implementation calls drawVertices
-    virtual void drawPatch(const SkDraw&, const SkPatch& patch, const SkPaint& paint);
+    virtual void drawPatch(const SkDraw&, const SkPoint cubics[12], const SkColor colors[4],
+                           const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
     /** The SkDevice passed will be an SkDevice which was returned by a call to
         onCreateDevice on this device with kSaveLayer_Usage.
      */

@@ -79,15 +79,17 @@ void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     this->drawPath(draw, path, paint, preMatrix, pathIsMutable);
 }
 
-void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPatch& patch, const SkPaint& paint) {
-    SkPatch::VertexData data;
+void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPoint cubics[12], const SkColor colors[4],
+                             const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
+    SkPatchUtils::VertexData data;
     
-    SkISize lod = SkPatchUtils::GetLevelOfDetail(patch, draw.fMatrix);
+    SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, draw.fMatrix);
 
     // It automatically adjusts lodX and lodY in case it exceeds the number of indices.
-    patch.getVertexData(&data, lod.width(), lod.height());
+    SkPatchUtils::getVertexData(&data, cubics, colors, texCoords, lod.width(), lod.height());
     this->drawVertices(draw, SkCanvas::kTriangles_VertexMode, data.fVertexCount, data.fPoints,
-                       data.fTexCoords, data.fColors, NULL, data.fIndices, data.fIndexCount, paint);
+                       data.fTexCoords, data.fColors, xmode, data.fIndices, data.fIndexCount,
+                       paint);
 }
 
 bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowBytes, int x, int y) {

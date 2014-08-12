@@ -6,12 +6,13 @@
  */
 
 #include "SkPictureRecord.h"
-#include "SkTSearch.h"
-#include "SkPixelRef.h"
-#include "SkRRect.h"
 #include "SkBBoxHierarchy.h"
 #include "SkDevice.h"
+#include "SkPatchUtils.h"
 #include "SkPictureStateTree.h"
+#include "SkPixelRef.h"
+#include "SkRRect.h"
+#include "SkTSearch.h"
 
 #define HEAP_BLOCK_SIZE 4096
 
@@ -1283,14 +1284,46 @@ void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawPatch(const SkPatch& patch, const SkPaint& paint) {
-    // op + paint index + patch 12 control points + patch 4 colors
-    size_t size = 2 * kUInt32Size + SkPatch::kNumCtrlPts * sizeof(SkPoint) +
-                    SkPatch::kNumColors * sizeof(SkColor);
+void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                                  const SkPoint texCoords[4], SkXfermode* xmode,
+                                  const SkPaint& paint) {
+    // op + paint index + patch 12 control points + flag + patch 4 colors + 4 texture coordinates
+    size_t size = 2 * kUInt32Size + SkPatchUtils::kNumCtrlPts * sizeof(SkPoint) + kUInt32Size;
+    uint32_t flag = 0;
+    if (NULL != colors) {
+        flag |= DRAW_VERTICES_HAS_COLORS;
+        size += SkPatchUtils::kNumCorners * sizeof(SkColor);
+    }
+    if (NULL != texCoords) {
+        flag |= DRAW_VERTICES_HAS_TEXS;
+        size += SkPatchUtils::kNumCorners * sizeof(SkPoint);
+    }
+    if (NULL != xmode) {
+        SkXfermode::Mode mode;
+        if (xmode->asMode(&mode) && SkXfermode::kModulate_Mode != mode) {
+            flag |= DRAW_VERTICES_HAS_XFER;
+            size += kUInt32Size;
+        }
+    }
+    
     size_t initialOffset = this->addDraw(DRAW_PATCH, &size);
     SkASSERT(initialOffset+getPaintOffset(DRAW_PATCH, size) == fWriter.bytesWritten());
     this->addPaint(paint);
-    this->addPatch(patch);
+    this->addPatch(cubics);
+    this->addInt(flag);
+    
+    // write optional parameters
+    if (NULL != colors) {
+        fWriter.write(colors, SkPatchUtils::kNumCorners * sizeof(SkColor));
+    }
+    if (NULL != texCoords) {
+        fWriter.write(texCoords, SkPatchUtils::kNumCorners * sizeof(SkPoint));
+    }
+    if (flag & DRAW_VERTICES_HAS_XFER) {
+        SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
+        xmode->asMode(&mode);
+        this->addInt(mode);
+    }
     this->validate(initialOffset, size);
 }
 
@@ -1420,8 +1453,8 @@ void SkPictureRecord::addPath(const SkPath& path) {
     this->addInt(this->addPathToHeap(path));
 }
 
-void SkPictureRecord::addPatch(const SkPatch& patch) {
-    fWriter.writePatch(patch);
+void SkPictureRecord::addPatch(const SkPoint cubics[12]) {
+    fWriter.write(cubics, SkPatchUtils::kNumCtrlPts * sizeof(SkPoint));
 }
 
 void SkPictureRecord::addPicture(const SkPicture* picture) {

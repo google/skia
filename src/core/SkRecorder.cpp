@@ -6,6 +6,7 @@
  */
 
 #include "SkRecorder.h"
+#include "SkPatchUtils.h"
 #include "SkPicture.h"
 
 // SkCanvas will fail in mysterious ways if it doesn't know the real width and height.
@@ -206,8 +207,13 @@ void SkRecorder::drawVertices(VertexMode vmode,
                          indexCount);
 }
 
-void SkRecorder::drawPatch(const SkPatch& patch, const SkPaint& paint) {
-    APPEND(DrawPatch, delay_copy(paint), delay_copy(patch));
+void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                             const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
+    APPEND(DrawPatch, delay_copy(paint),
+           cubics ? this->copy(cubics, SkPatchUtils::kNumCtrlPts) : NULL,
+           colors ? this->copy(colors, SkPatchUtils::kNumCorners) : NULL,
+           texCoords ? this->copy(texCoords, SkPatchUtils::kNumCorners) : NULL,
+           xmode);
 }
 
 void SkRecorder::willSave() {

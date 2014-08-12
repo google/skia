@@ -15,6 +15,7 @@
 #include "SkDrawLooper.h"
 #include "SkMetaData.h"
 #include "SkPathOps.h"
+#include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkRasterClip.h"
 #include "SkRRect.h"
@@ -2254,20 +2255,30 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,
     LOOPER_END
 }
 
-void SkCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                         const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
+    if (NULL == cubics) {
+        return;
+    }
     
     // Since a patch is always within the convex hull of the control points, we discard it when its
     // bounding rectangle is completely outside the current clip.
     SkRect bounds;
-    bounds.set(patch.getControlPoints(), SkPatch::kNumCtrlPts);
+    bounds.set(cubics, SkPatchUtils::kNumCtrlPts);
     if (this->quickReject(bounds)) {
         return;
     }
     
+    this->onDrawPatch(cubics, colors, texCoords, xmode, paint);
+}
+
+void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                           const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
+
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, NULL)
     
     while (iter.next()) {
-        iter.fDevice->drawPatch(iter, patch, paint);
+        iter.fDevice->drawPatch(iter, cubics, colors, texCoords, xmode, paint);
     }
     
     LOOPER_END

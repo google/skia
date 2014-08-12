@@ -69,6 +69,7 @@
     '../bench/MergeBench.cpp',
     '../bench/MorphologyBench.cpp',
     '../bench/MutexBench.cpp',
+    '../bench/PatchBench.cpp',
     '../bench/PathBench.cpp',
     '../bench/PathIterBench.cpp',
     '../bench/PathUtilsBench.cpp',

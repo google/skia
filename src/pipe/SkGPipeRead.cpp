@@ -21,6 +21,7 @@
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkReadBuffer.h"
+#include "SkPatchUtils.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
 #include "SkRRect.h"
@@ -406,10 +407,29 @@ static void drawDRRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 static void drawPatch_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                          SkGPipeState* state) {
-    SkPatch patch;
-    reader->readPatch(&patch);
+    
+    unsigned flags = DrawOp_unpackFlags(op32);
+    
+    const SkPoint* cubics = skip<SkPoint>(reader, SkPatchUtils::kNumCtrlPts);
+    
+    const SkColor* colors = NULL;
+    if (flags & kDrawVertices_HasColors_DrawOpFlag) {
+        colors = skip<SkColor>(reader, SkPatchUtils::kNumCorners);
+    }
+    const SkPoint* texCoords = NULL;
+    if (flags & kDrawVertices_HasTexs_DrawOpFlag) {
+        texCoords = skip<SkPoint>(reader, SkPatchUtils::kNumCorners);
+    }
+    SkAutoTUnref<SkXfermode> xfer;
+    if (flags & kDrawVertices_HasXfermode_DrawOpFlag) {
+        int mode = reader->readInt();
+        if (mode < 0 || mode > SkXfermode::kLastMode) {
+            mode = SkXfermode::kModulate_Mode;
+        }
+        xfer.reset(SkXfermode::Create((SkXfermode::Mode)mode));
+    }
     if (state->shouldDraw()) {
-        canvas->drawPatch(patch, state->paint());
+        canvas->drawPatch(cubics, colors, texCoords, xfer, state->paint());
     }
 }
 

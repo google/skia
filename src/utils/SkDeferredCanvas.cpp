@@ -224,7 +224,9 @@ protected:
                                 SkXfermode* xmode, const uint16_t indices[],
                                 int indexCount, const SkPaint& paint) SK_OVERRIDE
         {SkASSERT(0);}
-    virtual void drawPatch(const SkDraw&, const SkPatch& patch, const SkPaint& paint) SK_OVERRIDE
+    virtual void drawPatch(const SkDraw&, const SkPoint cubics[12], const SkColor colors[4],
+                           const SkPoint texCoords[4], SkXfermode* xmode,
+                           const SkPaint& paint) SK_OVERRIDE
         {SkASSERT(0);}
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) SK_OVERRIDE
@@ -917,9 +919,11 @@ void SkDeferredCanvas::drawVertices(VertexMode vmode, int vertexCount,
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::drawPatch(const SkPatch& patch, const SkPaint& paint) {
+void SkDeferredCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                                   const SkPoint texCoords[4], SkXfermode* xmode,
+                                   const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
-    this->drawingCanvas()->drawPatch(patch, paint);
+    this->drawingCanvas()->drawPatch(cubics, colors, texCoords, xmode, paint);
     this->recordedDrawCommand();
 }
 

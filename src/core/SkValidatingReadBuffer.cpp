@@ -171,17 +171,6 @@ void SkValidatingReadBuffer::readPath(SkPath* path) {
     }
 }
 
-void SkValidatingReadBuffer::readPatch(SkPatch* patch) {
-    size_t size = 0;
-    if (!fError) {
-        size = patch->readFromMemory(fReader.peek(), fReader.available());
-        this->validate((SkAlign4(size) == size) && (0 != size));
-    }
-    if (!fError) {
-        (void)this->skip(size);
-    }
-}
-
 bool SkValidatingReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
     const uint32_t count = this->getArrayCount();
     this->validate(size == count);

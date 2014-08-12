@@ -14,7 +14,6 @@
 #include "SkClipStack.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
-#include "SkPatch.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkXfermode.h"
@@ -1022,14 +1021,21 @@ public:
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint);
     
-    /** 
+    /**
+     Draw a cubic coons patch
      
-     Draw a SkPatch
-     
-     @param patch specifies the 4 bounding cubic bezier curves of a patch.
+     @param cubic specifies the 4 bounding cubic bezier curves of a patch with clockwise order
+                    starting at the top left corner.
+     @param colors specifies the colors for the corners which will be bilerp across the patch,
+                    their order is clockwise starting at the top left corner.
+     @param texCoords specifies the texture coordinates that will be bilerp across the patch, 
+                    their order is the same as the colors.
+     @param xmode specifies how are the colors and the textures combined if both of them are 
+                    present.
      @param paint Specifies the shader/texture if present.
      */
-    virtual void drawPatch(const SkPatch& patch, const SkPaint& paint);
+    void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                   const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
 
     /** Send a blob of data to the canvas.
         For canvases that draw, this call is effectively a no-op, as the data
@@ -1224,6 +1230,9 @@ protected:
     virtual void onDrawTextOnPath(const void* text, size_t byteLength,
                                   const SkPath& path, const SkMatrix* matrix,
                                   const SkPaint& paint);
+    
+    virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                           const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,
