@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkDecodingImageGenerator.h"
 #include "SkMallocPixelRef.h"
 
 class SkImage_Raster : public SkImage_Base {
@@ -68,6 +69,10 @@ public:
     virtual SkShader* onNewShader(SkShader::TileMode,
                                   SkShader::TileMode,
                                   const SkMatrix* localMatrix) const SK_OVERRIDE;
+
+    SkImage_Raster(const SkBitmap& bitmap)
+        :INHERITED(bitmap.width(), bitmap.height())
+        , fBitmap(bitmap) { }
 
 private:
     SkImage_Raster() : INHERITED(0, 0) {}
@@ -205,4 +210,18 @@ SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
 
 SkPixelRef* SkBitmapImageGetPixelRef(SkImage* image) {
     return ((SkImage_Raster*)image)->getPixelRef();
+}
+
+SkImage* SkImage::NewEncodedData(SkData* data) {
+    if (NULL == data) {
+        return NULL;
+    }
+    SkBitmap bitmap;
+    if (!SkInstallDiscardablePixelRef(
+                SkDecodingImageGenerator::Create(
+                        data, SkDecodingImageGenerator::Options()),
+                &bitmap)) {
+        return NULL;
+    }
+    return SkNEW_ARGS(SkImage_Raster, (bitmap));
 }

@@ -20,6 +20,7 @@
         '../include/ports',
         '../include/utils',
         '../include/xml',
+        '../include/images',
         '../src/core',
         '../src/sfnt',
         '../src/image',
