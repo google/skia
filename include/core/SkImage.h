@@ -16,7 +16,6 @@
 
 class SkData;
 class SkCanvas;
-class SkImageGenerator;
 class SkPaint;
 class GrContext;
 class GrTexture;
@@ -47,13 +46,6 @@ public:
      * SkBitmap instead. This will be changed in the future. skbug.com/1449
      */
     static SkImage* NewTexture(const SkBitmap&);
-
-    /**
-     *  Construct a new SkImage based on the given ImageGenerator.
-     *  This function will always take ownership of the passed
-     *  ImageGenerator.  Returns NULL on error.
-     */
-    static SkImage* NewFromGenerator(SkImageGenerator*);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
