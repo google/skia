@@ -92,7 +92,8 @@ void familyElementHandler(FontFamily* family, const char** attributes) {
         size_t nameLen = strlen(name);
         size_t valueLen = strlen(value);
         if (nameLen == 4 && !strncmp("name", name, nameLen)) {
-            family->fNames.push_back().set(value);
+            SkAutoAsciiToLC tolc(value);
+            family->fNames.push_back().set(tolc.lc());
         } else if (nameLen == 4 && !strncmp("lang", name, nameLen)) {
             family->fLanguage = SkLanguage (value);
         } else if (nameLen == 7 && !strncmp("variant", name, nameLen)) {
@@ -168,7 +169,8 @@ void aliasElementHandler(FamilyData* familyData, const char** attributes) {
         const char* value = attributes[i+1];
         size_t nameLen = strlen(name);
         if (nameLen == 4 && !strncmp("name", name, nameLen)) {
-            aliasName.set(value);
+            SkAutoAsciiToLC tolc(value);
+            aliasName.set(tolc.lc());
         } else if (nameLen == 2 && !strncmp("to", name, nameLen)) {
             to.set(value);
         } else if (nameLen == 6 && !strncmp("weight", name, nameLen)) {
