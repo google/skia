@@ -27,7 +27,10 @@ namespace SkTextureCompressor {
 // the standard blitAntiH. As a result, we can just call  blitAntiH with a faux RLE
 // of full alpha values, and then check in our flush() call that we don't run off the
 // edge of the buffer. This is why we do not need this flag to be turned on.
-#define PEDANTIC_BLIT_RECT 1
+//
+// NOTE: This code is unfinished, but is inteded as a starting point if an when
+// bugs are introduced from the existing code.
+#define PEDANTIC_BLIT_RECT 0
 
 // This class implements a blitter that blits directly into a buffer that will
 // be used as an compressed alpha texture. We compute this buffer by
