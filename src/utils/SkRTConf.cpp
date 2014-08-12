@@ -321,30 +321,3 @@ SkRTConfRegistry &skRTConfRegistry() {
     static SkRTConfRegistry r;
     return r;
 }
-
-
-#ifdef SK_SUPPORT_UNITTEST
-
-#ifdef SK_BUILD_FOR_WIN32
-static void sk_setenv(const char* key, const char* value) {
-    _putenv_s(key, value);
-}
-#else
-static void sk_setenv(const char* key, const char* value) {
-    setenv(key, value, 1);
-}
-#endif
-
-void SkRTConfRegistry::UnitTest() {
-    SkRTConfRegistry registryWithoutContents(true);
-
-    sk_setenv("skia_nonexistent_item", "132");
-    int result = 0;
-    registryWithoutContents.parse("nonexistent.item", &result);
-    SkASSERT(result == 132);
-}
-
-SkRTConfRegistry::SkRTConfRegistry(bool)
-    : fConfs(100) {
-}
-#endif

@@ -84,21 +84,20 @@ public:
     template <typename T> void set(const char *confname,
                                    T value,
                                    bool warnIfNotFound = true);
-#ifdef SK_SUPPORT_UNITTEST
-    static void UnitTest();
-#endif
+
 private:
     template<typename T> friend class SkRTConf;
 
     void registerConf(SkRTConfBase *conf);
+
     template <typename T> bool parse(const char *name, T* value);
 
     SkTDArray<SkString *> fConfigFileKeys, fConfigFileValues;
     typedef SkTDict< SkTDArray<SkRTConfBase *> * > ConfMap;
     ConfMap fConfs;
-#ifdef SK_SUPPORT_UNITTEST
-    SkRTConfRegistry(bool);
-#endif
+
+    template <typename T>
+    friend bool test_rt_conf_parse(SkRTConfRegistry*, const char* name, T* value);
 };
 
 // our singleton registry
