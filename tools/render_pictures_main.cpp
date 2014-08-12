@@ -172,11 +172,19 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* w
 
     SkDebugf("deserializing... %s\n", inputPath.c_str());
 
-    SkPicture* picture = SkPicture::CreateFromStream(&inputStream, proc);
+    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream, proc));
 
     if (NULL == picture) {
         SkDebugf("Could not read an SkPicture from %s\n", inputPath.c_str());
         return false;
+    }
+
+    if (FLAGS_preprocess) {
+        // Because the GPU preprocessing step relies on the in-memory picture
+        // statistics we need to rerecord the picture here
+        SkPictureRecorder recorder;
+        picture->draw(recorder.beginRecording(picture->width(), picture->height(), NULL, 0));
+        picture.reset(recorder.endRecording());
     }
 
     while (FLAGS_bench_record) {
@@ -207,7 +215,6 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* w
 
     renderer.end();
 
-    SkDELETE(picture);
     return success;
 }
 

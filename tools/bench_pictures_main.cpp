@@ -197,6 +197,14 @@ static bool run_single_benchmark(const SkString& inputPath,
         return false;
     }
 
+    if (FLAGS_preprocess) {
+        // Because the GPU preprocessing step relies on the in-memory picture
+        // statistics we need to rerecord the picture here
+        SkPictureRecorder recorder;
+        picture->draw(recorder.beginRecording(picture->width(), picture->height(), NULL, 0));
+        picture.reset(recorder.endRecording());
+    }
+
     SkString filename = SkOSPath::Basename(inputPath.c_str());
 
     gWriter.bench(filename.c_str(), picture->width(), picture->height());
