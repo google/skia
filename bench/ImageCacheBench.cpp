@@ -37,7 +37,7 @@ protected:
     }
 
     virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
-        if (fCache.getBytesUsed() == 0) {
+        if (fCache.getTotalBytesUsed() == 0) {
             this->populateCache();
         }
 

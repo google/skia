@@ -127,6 +127,21 @@ private:
 };
 #define AutoScaledCacheUnlocker(...) SK_REQUIRE_LOCAL_VAR(AutoScaledCacheUnlocker)
 
+// Check to see that the size of the bitmap that would be produced by
+// scaling by the given inverted matrix is less than the maximum allowed.
+static inline bool cache_size_okay(const SkBitmap& bm, const SkMatrix& invMat) {
+    size_t maximumAllocation
+        = SkScaledImageCache::GetSingleAllocationByteLimit();
+    if (0 == maximumAllocation) {
+        return true;
+    }
+    // float matrixScaleFactor = 1.0 / (invMat.scaleX * invMat.scaleY);
+    // return ((origBitmapSize * matrixScaleFactor) < maximumAllocationSize);
+    // Skip the division step:
+    return bm.info().getSafeSize(bm.info().minRowBytes())
+        < (maximumAllocation * invMat.getScaleX() * invMat.getScaleY());
+}
+
 // TODO -- we may want to pass the clip into this function so we only scale
 // the portion of the image that we're going to need.  This will complicate
 // the interface to the cache, but might be well worth it.
@@ -140,14 +155,14 @@ bool SkBitmapProcState::possiblyScaleImage() {
     if (fFilterLevel <= SkPaint::kLow_FilterLevel) {
         return false;
     }
-
     // Check to see if the transformation matrix is simple, and if we're
     // doing high quality scaling.  If so, do the bitmap scale here and
     // remove the scaling component from the matrix.
 
     if (SkPaint::kHigh_FilterLevel == fFilterLevel &&
         fInvMatrix.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask) &&
-        kN32_SkColorType == fOrigBitmap.colorType()) {
+        kN32_SkColorType == fOrigBitmap.colorType() &&
+        cache_size_okay(fOrigBitmap, fInvMatrix)) {
 
         SkScalar invScaleX = fInvMatrix.getScaleX();
         SkScalar invScaleY = fInvMatrix.getScaleY();
