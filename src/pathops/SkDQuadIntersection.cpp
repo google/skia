@@ -486,8 +486,8 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         if (r1Count == 1 && used() == 0) {
             if (pts1[0].approximatelyEqual(pts2[0])) {
                 insert(roots1Copy[0], roots2Copy[0], pts1[0]);
-            } else if (pts1[0].moreRoughlyEqual(pts2[0])) {
-                // experiment: try to find intersection by chasing t
+            } else {
+                // find intersection by chasing t
                 if (binary_search(q1, q2, roots1Copy, roots2Copy, pts1)) {
                     insert(roots1Copy[0], roots2Copy[0], pts1[0]);
                 }

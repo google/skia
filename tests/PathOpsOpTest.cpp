@@ -3484,6 +3484,34 @@ static void issue2753(skiatest::Reporter* reporter, const char* filename) {
 }
 #endif
 
+static void issue2808(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path1, path2;
+
+	path1.moveTo(509.20300293f, 385.601989746f);
+	path1.quadTo(509.20300293f, 415.68838501f, 487.928710938f, 436.96270752f);
+	path1.quadTo(466.654388428f, 458.236999512f, 436.567993164f, 458.236999512f);
+	path1.quadTo(406.4815979f, 458.236999512f, 385.207275391f, 436.96270752f);
+	path1.quadTo(363.932983398f, 415.68838501f, 363.932983398f, 385.601989746f);
+	path1.quadTo(363.932983398f, 355.515594482f, 385.207275391f, 334.241271973f);
+	path1.quadTo(406.4815979f, 312.96697998f, 436.567993164f, 312.96697998f);
+	path1.quadTo(466.654388428f, 312.96697998f, 487.928710938f, 334.241271973f);
+	path1.quadTo(509.20300293f, 355.515594482f, 509.20300293f, 385.601989746f);
+	path1.close();
+
+	path2.moveTo(449.033996582f, 290.87298584f);
+	path2.quadTo(449.033996582f, 301.028259277f, 441.853149414f, 308.209106445f);
+	path2.quadTo(434.672271729f, 315.389984131f, 424.516998291f, 315.389984131f);
+	path2.quadTo(414.361724854f, 315.389984131f, 407.180847168f, 308.209106445f);
+	path2.quadTo(400, 301.028259277f, 400, 290.87298584f);
+	path2.quadTo(400, 280.717712402f, 407.180847168f, 273.536865234f);
+	path2.quadTo(414.361724854f, 266.355987549f, 424.516998291f, 266.355987549f);
+	path2.quadTo(434.672271729f, 266.355987549f, 441.853149414f, 273.536865234f);
+	path2.quadTo(449.033996582f, 280.717712402f, 449.033996582f, 290.87298584f);
+	path2.close();
+
+    testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
+}
+
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
@@ -3494,6 +3522,7 @@ static struct TestDesc tests[] = {
 #if CUBIC_OP_114  // FIXME: curve with inflection is ordered the wrong way
     TEST(cubicOp114),
 #endif
+    TEST(issue2808),
     TEST(cubicOp114asQuad),
     TEST(rects4),
     TEST(rects3),
