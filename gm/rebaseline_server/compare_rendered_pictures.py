@@ -215,6 +215,9 @@ class RenderedPicturesComparisons(results.BaseComparisons):
             results.KEY__RESULT_TYPE__NOCOMPARISON,
         ])
 
+    logging.info('Starting to add imagepairs to queue.')
+    self._image_diff_db.log_queue_size_if_changed(limit_verbosity=False)
+
     union_dict_paths = sorted(set(setA_dicts.keys() + setB_dicts.keys()))
     num_union_dict_paths = len(union_dict_paths)
     dict_num = 0
@@ -274,6 +277,9 @@ class RenderedPicturesComparisons(results.BaseComparisons):
                 [COLUMN__RESULT_TYPE]
             if result_type != results.KEY__RESULT_TYPE__SUCCEEDED:
               failing_image_pairs.add_image_pair(one_imagepair)
+
+    logging.info('Finished adding imagepairs to queue.')
+    self._image_diff_db.log_queue_size_if_changed(limit_verbosity=False)
 
     if self._prefetch_only:
       return None
