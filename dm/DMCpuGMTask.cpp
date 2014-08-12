@@ -46,9 +46,7 @@ void CpuGMTask::draw() {
     SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kNone_BBH,     QuiltTask::kSkRecord_Backend);
     SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kRTree_BBH,    QuiltTask::kSkRecord_Backend);
     SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kQuadTree_BBH, QuiltTask::kSkRecord_Backend);
-    /*  TODO: Failing, not sure why.  Enable these when passing.
     SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kTileGrid_BBH, QuiltTask::kSkRecord_Backend);
-    */
 
     SPAWN(SerializeTask, fGMFactory(NULL), bm, SerializeTask::kNormal_Mode);
     SPAWN(SerializeTask, fGMFactory(NULL), bm, SerializeTask::kSkRecord_Mode);

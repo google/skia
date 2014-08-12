@@ -27,6 +27,7 @@ void SkRecordDraw(const SkRecord& record,
         SkASSERT(ops.count() == SkToInt(record.count()));
 
         // FIXME: QuadTree doesn't send these back in the order we inserted them.  :(
+        // Also remove the sort in SkPictureData::getActiveOps()?
         if (ops.count() > 0) {
             SkTQSort(ops.begin(), ops.end() - 1, SkTCompareLT<void*>());
         }
