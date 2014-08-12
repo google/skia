@@ -330,7 +330,7 @@ public:
      * @param count           Number of paths to draw (length of indices array)
      * @param transforms      Array of individual transforms, one for each path
      * @param transformsType  Type of transformations in the array. Array contains
-                              PathTransformSize(transformsType) × count elements
+                              PathTransformSize(transformsType) * count elements
      * @param fill            Fill type for drawing all the paths
      */
     enum PathTransformType {
