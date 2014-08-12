@@ -340,10 +340,10 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             canvas->drawPicture(fPictureData->getPicture(reader));
             break;
         case DRAW_PICTURE_MATRIX_PAINT: {
-            const SkPicture* pic = fPictureData->getPicture(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
             SkMatrix matrix;
             reader->readMatrix(&matrix);
-            const SkPaint* paint = fPictureData->getPaint(reader);
+            const SkPicture* pic = fPictureData->getPicture(reader);
             canvas->drawPicture(pic, &matrix, paint);
         } break;
         case DRAW_POINTS: {

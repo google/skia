@@ -68,7 +68,7 @@ SkPictureRecord::~SkPictureRecord() {
 // this method)
 static inline size_t getPaintOffset(DrawType op, size_t opSize) {
     // These offsets are where the paint would be if the op size doesn't overflow
-    static const uint8_t gPaintOffsets[LAST_DRAWTYPE_ENUM + 1] = {
+    static const uint8_t gPaintOffsets[] = {
         0,  // UNUSED - no paint
         0,  // CLIP_PATH - no paint
         0,  // CLIP_REGION - no paint
@@ -113,6 +113,7 @@ static inline size_t getPaintOffset(DrawType op, size_t opSize) {
         0,  // PUSH_CULL - no paint
         0,  // POP_CULL - no paint
         1,  // DRAW_PATCH - right after op code
+        1,  // DRAW_PICTURE_MATRIX_PAINT - right after op code
     };
 
     SK_COMPILE_ASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1,
@@ -1214,9 +1215,11 @@ void SkPictureRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* ma
         const SkMatrix& m = matrix ? *matrix : SkMatrix::I();
         size += m.writeToMemory(NULL) + kUInt32Size;    // matrix + paint
         initialOffset = this->addDraw(DRAW_PICTURE_MATRIX_PAINT, &size);
-        this->addPicture(picture);
-        this->addMatrix(m);
+        SkASSERT(initialOffset + getPaintOffset(DRAW_PICTURE_MATRIX_PAINT, size)
+                 == fWriter.bytesWritten());
         this->addPaintPtr(paint);
+        this->addMatrix(m);
+        this->addPicture(picture);
     }
     this->validate(initialOffset, size);
 }
