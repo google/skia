@@ -123,7 +123,6 @@
 #include "SkScalar.h"
 #include "SkShader.h"
 #include "SkSize.h"
-#include "SkStippleMaskFilter.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkStringUtils.h"

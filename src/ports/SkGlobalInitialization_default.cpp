@@ -53,7 +53,6 @@
 #include "SkPictureShader.h"
 #include "SkPixelXorXfermode.h"
 #include "SkRectShaderImageFilter.h"
-#include "SkStippleMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTestImageFilters.h"
 #include "SkTileImageFilter.h"
@@ -92,7 +91,6 @@ static void InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPictureShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPixelXorXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkRectShaderImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkStippleMaskFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSumPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTileImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixImageFilter)

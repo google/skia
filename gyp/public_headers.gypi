@@ -141,7 +141,6 @@
       'effects/SkPixelXorXfermode.h',
       'effects/SkPorterDuff.h',
       'effects/SkRectShaderImageFilter.h',
-      'effects/SkStippleMaskFilter.h',
       'effects/SkTableColorFilter.h',
       'effects/SkTableMaskFilter.h',
       'effects/SkTestImageFilters.h',
