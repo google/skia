@@ -2294,9 +2294,10 @@ void SkOpSegment::checkSmall() {
         }
         const SkOpSpan& firstSpan = this->firstSpan(*thisSpan);
         const SkOpSpan& lastSpan = this->lastSpan(*thisSpan);
+        const SkOpSpan* nextSpan = &firstSpan + 1;
         ptrdiff_t smallCount = &lastSpan - &firstSpan + 1;
         SkASSERT(1 <= smallCount && smallCount < count());
-        if (smallCount <= 1) {
+        if (smallCount <= 1 && !nextSpan->fSmall) {
             SkASSERT(1 == smallCount);
             checkSmallCoincidence(firstSpan, NULL);
             continue;
@@ -3067,6 +3068,13 @@ int SkOpSegment::findOtherT(double t, const SkOpSegment* match) const {
 
 int SkOpSegment::findT(double t, const SkPoint& pt, const SkOpSegment* match) const {
     int count = this->count();
+    // prefer exact matches over approximate matches
+    for (int index = 0; index < count; ++index) {
+        const SkOpSpan& span = fTs[index];
+        if (span.fT == t && span.fOther == match) {
+            return index;
+        }
+    }
     for (int index = 0; index < count; ++index) {
         const SkOpSpan& span = fTs[index];
         if (approximately_equal_orderable(span.fT, t) && span.fOther == match) {
@@ -3984,6 +3992,24 @@ void SkOpSegment::pinT(const SkPoint& pt, double* t) {
     if (pt == fPts[count]) {
         *t = 1;
     }
+}
+
+bool SkOpSegment::reversePoints(const SkPoint& p1, const SkPoint& p2) const {
+    SkASSERT(p1 != p2);
+    int spanCount = count();
+    int p1IndexMin = -1;
+    int p2IndexMax = spanCount;
+    for (int index = 0; index < spanCount; ++index) {
+        const SkOpSpan& span = fTs[index];
+        if (span.fPt == p1) {
+            if (p1IndexMin < 0) {
+                p1IndexMin = index;
+            }
+        } else if (span.fPt == p2) {
+            p2IndexMax = index;
+        }
+    }
+    return p1IndexMin > p2IndexMax;
 }
 
 void SkOpSegment::setCoincidentRange(const SkPoint& startPt, const SkPoint& endPt, 

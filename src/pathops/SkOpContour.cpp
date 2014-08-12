@@ -452,8 +452,14 @@ void SkOpContour::checkCoincidentPair(const SkCoincidence& oneCoin, int oneIdx,
     }
     if (cancelers) {
         if (missingT1 >= 0) {
+            if (addTo1->reversePoints(missingPt1, missingPt2)) {
+                SkTSwap(missingPt1, missingPt2);
+            }
             addTo1->addTCancel(missingPt1, missingPt2, addOther1);
         } else {
+            if (addTo2->reversePoints(missingPt1, missingPt2)) {
+                SkTSwap(missingPt1, missingPt2);
+            }
             addTo2->addTCancel(missingPt1, missingPt2, addOther2);
         }
     } else if (missingT1 >= 0) {

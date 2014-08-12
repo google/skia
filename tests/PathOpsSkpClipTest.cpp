@@ -38,7 +38,7 @@ const struct SkipOverTest {
     { 7, "http___www_foxsports_nl_.skp", true},  // (no repro on mac) addT SkASSERT(this != other || fVerb == SkPath::kCubic_Verb)
     {13, "http___www_modernqigong_com_.skp", false},  // SkAAClip::Builder::addRun SkASSERT(fBounds.contains(x, y));
     {14, "http___www_devbridge_com_.skp", true},  // checkSmallCoincidence SkASSERT(!next->fSmall || checkMultiple);
-    {16, "http___www_1023world_net_.skp", true},  // bitmap decode assert (corrupt skp?)
+    {16, "http___www_1023world_net_.skp", false},  // bitmap decode assert (corrupt skp?)
     {19, "http___www_alamdi_com_.skp", true},  // cubic/quad intersection
     {26, "http___www_liveencounters_net_.skp", true},  // (no repro on mac) checkSmall addT:549 (line, expects cubic)
     {28, "http___www_encros_fr_.skp", false},  // SkAAClip::Builder::addRun SkASSERT(fBounds.contains(x, y));

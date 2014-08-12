@@ -160,10 +160,10 @@ public:
     void reset();
 private:
     void dump() const;  // utility to be called by user from debugger
+    SkChunkAlloc* fAngles;
 #if DEBUG_ANGLE
     int fCount;
 #endif
-    SkChunkAlloc* fAngles;
 };
 
 #endif

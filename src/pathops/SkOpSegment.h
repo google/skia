@@ -177,6 +177,8 @@ public:
         fTs.reset();
     }
 
+    bool reversePoints(const SkPoint& p1, const SkPoint& p2) const;
+
     void setOppXor(bool isOppXor) {
         fOppXor = isOppXor;
     }
