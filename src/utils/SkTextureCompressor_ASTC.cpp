@@ -285,10 +285,10 @@ static inline T swap_bits(T p) {
 }
 
 static inline uint64_t reverse64(uint64_t n) {
-    static const uint64_t m0 = 0x5555555555555555LLU;
-    static const uint64_t m1 = 0x0300c0303030c303LLU;
-    static const uint64_t m2 = 0x00c0300c03f0003fLLU;
-    static const uint64_t m3 = 0x00000ffc00003fffLLU;
+    static const uint64_t m0 = 0x5555555555555555ULL;
+    static const uint64_t m1 = 0x0300c0303030c303ULL;
+    static const uint64_t m2 = 0x00c0300c03f0003fULL;
+    static const uint64_t m3 = 0x00000ffc00003fffULL;
     n = ((n>>1)&m0) | (n&m0)<<1;
     n = swap_bits<uint64_t, m1, 4>(n);
     n = swap_bits<uint64_t, m2, 8>(n);
