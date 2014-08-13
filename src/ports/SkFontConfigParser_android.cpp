@@ -91,7 +91,9 @@ namespace lmpParser {
 
 void familyElementHandler(FontFamily* family, const char** attributes) {
     // A non-fallback <family> tag must have a canonical name attribute.
-    // A (fallback) <family> tag may have lang and variant attributes.
+    // A fallback <family> tag has no name, and may have lang and variant
+    // attributes.
+    family->fIsFallbackFont = true;
     for (size_t i = 0; attributes[i] != NULL &&
                        attributes[i+1] != NULL; i += 2) {
         const char* name = attributes[i];
@@ -101,6 +103,7 @@ void familyElementHandler(FontFamily* family, const char** attributes) {
         if (nameLen == 4 && !strncmp("name", name, nameLen)) {
             SkAutoAsciiToLC tolc(value);
             family->fNames.push_back().set(tolc.lc());
+            family->fIsFallbackFont = false;
         } else if (nameLen == 4 && !strncmp("lang", name, nameLen)) {
             family->fLanguage = SkLanguage (value);
         } else if (nameLen == 7 && !strncmp("variant", name, nameLen)) {
