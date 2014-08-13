@@ -230,14 +230,13 @@ private:
     // V29: Removed SaveFlags parameter from save().
     // V30: Remove redundant SkMatrix from SkLocalMatrixShader.
     // V31: Add a serialized UniqueID to SkImageFilter.
-    // V32: Removed SkPaintOptionsAndroid from SkPaint
 
     // Note: If the picture version needs to be increased then please follow the
     // steps to generate new SKPs in (only accessible to Googlers): http://goo.gl/qATVcw
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t MIN_PICTURE_VERSION = 19;
-    static const uint32_t CURRENT_PICTURE_VERSION = 32;
+    static const uint32_t CURRENT_PICTURE_VERSION = 31;
 
     mutable uint32_t      fUniqueID;
 

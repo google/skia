@@ -47,7 +47,6 @@ public:
         kNoMoreBitmapFlatten_Version       = 28,
         kSimplifyLocalMatrix_Version       = 30,
         kImageFilterUniqueID_Version       = 31,
-        kRemoveAndroidPaintOpts_Version    = 32,
     };
 
     /**

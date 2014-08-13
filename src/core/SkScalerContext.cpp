@@ -23,6 +23,10 @@
 #include "SkStroke.h"
 #include "SkThread.h"
 
+#ifdef SK_BUILD_FOR_ANDROID
+    #include "SkTypeface_android.h"
+#endif
+
 #define ComputeBWRowBytes(width)        (((unsigned)(width) + 7) >> 3)
 
 void SkGlyph::toMask(SkMask* mask) const {
@@ -106,6 +110,15 @@ SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
     SkDebugf("  pathEffect %x maskFilter %x\n",
              desc->findEntry(kPathEffect_SkDescriptorTag, NULL),
         desc->findEntry(kMaskFilter_SkDescriptorTag, NULL));
+#endif
+#ifdef SK_BUILD_FOR_ANDROID
+    uint32_t len;
+    const void* data = desc->findEntry(kAndroidOpts_SkDescriptorTag, &len);
+    if (data) {
+        SkReadBuffer buffer(data, len);
+        fPaintOptionsAndroid.unflatten(buffer);
+        SkASSERT(buffer.offset() == buffer.size());
+    }
 #endif
 }
 
