@@ -49,8 +49,9 @@ public:
     // set up the internal state in preparation for draws. Since many masks
     // may be accumulated in the helper during creation, "resultBounds"
     // allows the caller to specify the region of interest - to limit the
-    // amount of work.
-    bool init(const SkIRect& resultBounds, const SkMatrix* matrix);
+    // amount of work. allowCompression should be set to false if you plan on using
+    // your own texture to draw into, and not a scratch texture via getTexture().
+    bool init(const SkIRect& resultBounds, const SkMatrix* matrix, bool allowCompression = true);
 
     // Draw a single rect into the accumulation bitmap using the specified op
     void draw(const SkRect& rect, SkRegion::Op op,

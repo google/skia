@@ -106,6 +106,8 @@ void GrSWMaskHelper::draw(const SkRect& rect, SkRegion::Op op,
 
     SkXfermode* mode = SkXfermode::Create(op_to_mode(op));
 
+    SkASSERT(kNone_CompressionMode == fCompressionMode);
+
     paint.setXfermode(mode);
     paint.setAntiAlias(antiAlias);
     paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
@@ -156,7 +158,8 @@ void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegio
 }
 
 bool GrSWMaskHelper::init(const SkIRect& resultBounds,
-                          const SkMatrix* matrix) {
+                          const SkMatrix* matrix,
+                          bool allowCompression) {
     if (NULL != matrix) {
         fMatrix = *matrix;
     } else {
@@ -169,7 +172,8 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
     SkIRect bounds = SkIRect::MakeWH(resultBounds.width(),
                                      resultBounds.height());
 
-    if (fContext->getOptions().fDrawPathToCompressedTexture &&
+    if (allowCompression &&
+        fContext->getOptions().fDrawPathToCompressedTexture &&
         choose_compressed_fmt(fContext->getGpu()->caps(), &fCompressedFormat)) {
         fCompressionMode = kCompress_CompressionMode;
     }
