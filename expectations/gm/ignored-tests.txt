@@ -52,4 +52,11 @@ srcmode
 complexclip2_rect_aa
 bigblurs
 simpleaaclip_rect
+aarectmoes
+bigmatrix
+mixed_xfermodes
+aaclip
+circles
+shadows
+varied_text_clipped_no_lcd
 
