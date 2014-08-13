@@ -1020,17 +1020,17 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint);
-    
+
     /**
      Draw a cubic coons patch
-     
+
      @param cubic specifies the 4 bounding cubic bezier curves of a patch with clockwise order
                     starting at the top left corner.
      @param colors specifies the colors for the corners which will be bilerp across the patch,
                     their order is clockwise starting at the top left corner.
-     @param texCoords specifies the texture coordinates that will be bilerp across the patch, 
+     @param texCoords specifies the texture coordinates that will be bilerp across the patch,
                     their order is the same as the colors.
-     @param xmode specifies how are the colors and the textures combined if both of them are 
+     @param xmode specifies how are the colors and the textures combined if both of them are
                     present.
      @param paint Specifies the shader/texture if present.
      */
@@ -1212,6 +1212,7 @@ protected:
         return kFullLayer_SaveLayerStrategy;
     }
     virtual void willRestore() {}
+    virtual void didRestore() {}
     virtual void didConcat(const SkMatrix&) {}
     virtual void didSetMatrix(const SkMatrix&) {}
 
@@ -1230,7 +1231,7 @@ protected:
     virtual void onDrawTextOnPath(const void* text, size_t byteLength,
                                   const SkPath& path, const SkMatrix* matrix,
                                   const SkPaint& paint);
-    
+
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
 

@@ -895,6 +895,7 @@ void SkCanvas::restore() {
     if (fMCStack.count() > 1) {
         this->willRestore();
         this->internalRestore();
+        this->didRestore();
     }
 }
 
@@ -2260,7 +2261,7 @@ void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
     if (NULL == cubics) {
         return;
     }
-    
+
     // Since a patch is always within the convex hull of the control points, we discard it when its
     // bounding rectangle is completely outside the current clip.
     SkRect bounds;
@@ -2268,7 +2269,7 @@ void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
     if (this->quickReject(bounds)) {
         return;
     }
-    
+
     this->onDrawPatch(cubics, colors, texCoords, xmode, paint);
 }
 
@@ -2276,11 +2277,11 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
 
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, NULL)
-    
+
     while (iter.next()) {
         iter.fDevice->drawPatch(iter, cubics, colors, texCoords, xmode, paint);
     }
-    
+
     LOOPER_END
 }
 
@@ -2550,7 +2551,7 @@ SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatri
     } else if (NULL != matrix) {
         canvas->save();
     }
-    
+
     if (NULL != matrix) {
         canvas->concat(*matrix);
     }

@@ -117,6 +117,7 @@ public:
     FillBounds(const SkRecord& record, SkBBoxHierarchy* bbh) : fBounds(record.count()) {
         // Calculate bounds for all ops.  This won't go quite in order, so we'll need
         // to store the bounds separately then feed them in to the BBH later in order.
+        fCTM.setIdentity();
         for (fCurrentOp = 0; fCurrentOp < record.count(); fCurrentOp++) {
             record.visit<void>(fCurrentOp, *this);
         }
@@ -143,6 +144,7 @@ public:
     }
 
     template <typename T> void operator()(const T& r) {
+        this->updateCTM(r);
         this->trackBounds(r);
     }
 
@@ -151,6 +153,11 @@ private:
         int controlOps;  // Number of control ops in this Save block, including the Save.
         SkIRect bounds;  // Bounds of everything in the block.
     };
+
+    template <typename T> void updateCTM(const T&) { /* most ops don't change the CTM */ }
+    void updateCTM(const Restore& r)   { fCTM = r.matrix; }
+    void updateCTM(const SetMatrix& r) { fCTM = r.matrix; }
+    void updateCTM(const Concat& r)    { fCTM.preConcat(r.matrix); }
 
     // The bounds of these ops must be calculated when we hit the Restore
     // from the bounds of the ops in the same Save block.
@@ -219,6 +226,7 @@ private:
     SkIRect bounds(const NoOp&) { return SkIRect::MakeEmpty(); }  // NoOps don't draw anywhere.
 
     SkAutoTMalloc<SkIRect> fBounds;  // One for each op in the record.
+    SkMatrix fCTM;
     unsigned fCurrentOp;
     SkTDArray<SaveBounds> fSaveStack;
     SkTDArray<unsigned>   fControlIndices;

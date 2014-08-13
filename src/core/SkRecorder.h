@@ -64,7 +64,7 @@ public:
 
     void willSave() SK_OVERRIDE;
     SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SkCanvas::SaveFlags) SK_OVERRIDE;
-    void willRestore() SK_OVERRIDE;
+    void didRestore() SK_OVERRIDE;
 
     void didConcat(const SkMatrix&) SK_OVERRIDE;
     void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
@@ -92,7 +92,7 @@ public:
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                      const SkPoint texCoords[4], SkXfermode* xmode,
                      const SkPaint& paint) SK_OVERRIDE;
-    
+
     void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;
     void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;
     void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;

@@ -229,9 +229,9 @@ SkCanvas::SaveLayerStrategy SkRecorder::willSaveLayer(const SkRect* bounds,
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 
-void SkRecorder::willRestore() {
-    APPEND(Restore);
-    INHERITED(willRestore);
+void SkRecorder::didRestore() {
+    APPEND(Restore, this->getTotalMatrix());
+    INHERITED(didRestore);
 }
 
 void SkRecorder::onPushCull(const SkRect& rect) {
@@ -248,6 +248,7 @@ void SkRecorder::didConcat(const SkMatrix& matrix) {
 }
 
 void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
+    SkASSERT(matrix == this->getTotalMatrix());
     APPEND(SetMatrix, matrix);
     INHERITED(didSetMatrix, matrix);
 }

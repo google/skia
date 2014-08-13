@@ -197,7 +197,7 @@ private:
 
 RECORD0(NoOp);
 
-RECORD0(Restore);
+RECORD1(Restore, SkMatrix, matrix);
 RECORD0(Save);
 RECORD3(SaveLayer, Optional<SkRect>, bounds, Optional<SkPaint>, paint, SkCanvas::SaveFlags, flags);
 
@@ -291,10 +291,10 @@ struct DrawVertices {
     PODArray<uint16_t> indices;
     int indexCount;
 };
-    
+
 struct DrawPatch {
     static const Type kType = DrawPatch_Type;
-    
+
     DrawPatch(const SkPaint& paint, SkPoint cubics[12], SkColor colors[4],
               SkPoint texCoords[4], SkXfermode* xmode)
     : paint(paint)
@@ -302,7 +302,7 @@ struct DrawPatch {
     , colors(colors)
     , texCoords(texCoords)
     , xmode(SkSafeRef(xmode)) { }
-    
+
     SkPaint paint;
     PODArray<SkPoint> cubics;
     PODArray<SkColor> colors;
