@@ -34,6 +34,11 @@
 #    define DEBUG_FONT(args)
 #endif
 
+// For test only.
+static const char* gTestMainConfigFile = NULL;
+static const char* gTestFallbackConfigFile = NULL;
+static const char* gTestFontFilePrefix = NULL;
+
 class SkTypeface_Android : public SkTypeface_FreeType {
 public:
     SkTypeface_Android(int index,
@@ -510,4 +515,23 @@ SkFontMgr* SkFontMgr::Factory() {
     }
 
     return SkNEW(SkFontMgr_Android);
+}
+
+void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackconf,
+                             const char* fontsdir) {
+    gTestMainConfigFile = mainconf;
+    gTestFallbackConfigFile = fallbackconf;
+    gTestFontFilePrefix = fontsdir;
+    SkASSERT(gTestMainConfigFile);
+    SkASSERT(gTestFallbackConfigFile);
+    SkASSERT(gTestFontFilePrefix);
+    SkDEBUGF(("Use Test Config File Main %s, Fallback %s, Font Dir %s",
+              gTestMainConfigFile, gTestFallbackConfigFile, gTestFontFilePrefix));
+}
+
+void SkGetTestFontConfiguration(const char** mainconf, const char** fallbackconf,
+                                const char** fontsdir) {
+    *mainconf = gTestMainConfigFile;
+    *fallbackconf = gTestFallbackConfigFile;
+    *fontsdir = gTestFontFilePrefix;
 }
