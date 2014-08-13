@@ -7,7 +7,6 @@
 
 #include "SkData.h"
 #include "SkFlate.h"
-#include "SkRandom.h"
 #include "SkStream.h"
 #include "Test.h"
 
@@ -26,12 +25,12 @@ public:
     static const size_t kGetSizeKey = 0xDEADBEEF;
 };
 
-// Returns a deterministic data of the given size.
+// Returns a deterministic data of the given size that should be
+// very compressible.
 static SkData* new_test_data(size_t dataSize) {
     SkAutoTMalloc<uint8_t> testBuffer(dataSize);
-    SkRandom random(0);
     for (size_t i = 0; i < dataSize; ++i) {
-        testBuffer[i] = random.nextU() & 0xFF;
+        testBuffer[i] = i % 64;
     }
     return SkData::NewFromMalloc(testBuffer.detach(), dataSize);
 }
@@ -60,12 +59,7 @@ static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
                                          dataSize) == 0);
     }
 
-    // Assume there are two test sizes, big and small.
-    if (dataSize < 1024) {
-        REPORTER_ASSERT(reporter, compressed.getOffset() < 1024);
-    } else {
-        REPORTER_ASSERT(reporter, compressed.getOffset() > 1024);
-    }
+    size_t compressedSize = compressed.getOffset();
 
     SkAutoDataUnref compressedData(compressed.copyToData());
     testStream->setData(compressedData.get());
@@ -79,7 +73,7 @@ static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
     if (inputSize == 0) {
         inputSize = testStream->read(NULL, SkZeroSizeMemStream::kGetSizeKey);
     }
-    REPORTER_ASSERT(reporter, compressedData->size() == inputSize);
+    REPORTER_ASSERT(reporter,  compressedSize == inputSize);
     if (compressedData->size() == inputSize) {
         REPORTER_ASSERT(reporter, memcmp(testStream->getMemoryBase(),
                                          compressedData->data(),
@@ -93,6 +87,17 @@ static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
         REPORTER_ASSERT(reporter, memcmp(testData->data(),
                                          uncompressedData->data(),
                                          dataSize) == 0);
+    }
+
+    double compressionRatio = static_cast<double>(dataSize) / compressedSize;
+    // Assert that some compression took place.
+    REPORTER_ASSERT(reporter, compressionRatio > 1.2);
+
+    if (reporter->verbose()) {
+        SkDebugf("Flate Test: \t input size: " SK_SIZE_T_SPECIFIER
+                 "\tcompressed size: " SK_SIZE_T_SPECIFIER
+                 "\tratio: %.4g\n",
+                 dataSize, compressedSize, compressionRatio);
     }
 }
 
