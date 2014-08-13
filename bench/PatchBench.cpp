@@ -17,16 +17,16 @@
 #include "SkTArray.h"
 
 class PatchBench : public Benchmark {
-    
+
 public:
-    
+
     enum VertexMode {
         kNone_VertexMode,
         kColors_VertexMode,
         kTexCoords_VertexMode,
         kBoth_VertexMode
     };
-    
+
     PatchBench(SkPoint scale, VertexMode vertexMode)
     : fScale(scale)
     , fVertexMode(vertexMode) { }
@@ -35,7 +35,7 @@ public:
     virtual void appendName(SkString* name) {
         name->append("normal");
     }
-    
+
     // to make other type of patches override this method
     virtual void setCubics() {
         const SkPoint points[SkPatchUtils::kNumCtrlPts] = {
@@ -50,29 +50,29 @@ public:
         };
         memcpy(fCubics, points, SkPatchUtils::kNumCtrlPts * sizeof(SkPoint));
     }
-    
+
     virtual void setColors() {
         const SkColor colors[SkPatchUtils::kNumCorners] = {
             SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN
         };
         memcpy(fColors, colors, SkPatchUtils::kNumCorners * sizeof(SkColor));
     }
-    
+
     virtual void setTexCoords() {
         const SkPoint texCoords[SkPatchUtils::kNumCorners] = {
             {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f,1.0f}, {0.0f, 1.0f}
         };
         memcpy(fTexCoords, texCoords, SkPatchUtils::kNumCorners * sizeof(SkPoint));
     }
-    
+
     // override this method to change the shader
-    virtual SkShader* getShader() {
+    virtual SkShader* createShader() {
         const SkColor colors[] = {
             SK_ColorRED, SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE,
             SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
         };
         const SkPoint pts[] = { { 200.f / 4.f, 0.f }, { 3.f * 200.f / 4, 200.f } };
-        
+
         return SkGradientShader::CreateLinear(pts, colors, NULL,
                                               SK_ARRAY_COUNT(colors),
                                               SkShader::kMirror_TileMode);
@@ -103,13 +103,13 @@ protected:
                     fScale.x(), fScale.y());
         return fName.c_str();
     }
-    
+
     virtual void preDraw() {
-        
+
     }
 
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
-        
+
         this->setCubics();
         this->setColors();
         this->setTexCoords();
@@ -117,13 +117,13 @@ protected:
         switch (fVertexMode) {
             case kTexCoords_VertexMode:
             case kBoth_VertexMode:
-                fPaint.setShader(getShader());
+                fPaint.setShader(this->createShader())->unref();
                 break;
             default:
                 fPaint.setShader(NULL);
                 break;
         }
-        
+
         canvas->scale(fScale.x(), fScale.y());
         for (int i = 0; i < loops; i++) {
             switch (fVertexMode) {
@@ -152,7 +152,7 @@ protected:
     SkPoint     fTexCoords[4];
     SkColor     fColors[4];
     VertexMode  fVertexMode;
-    
+
     typedef Benchmark INHERITED;
 };
 
@@ -164,7 +164,7 @@ public:
     virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("square");
     }
-    
+
     virtual void setCubics() {
         const SkPoint points[SkPatchUtils::kNumCtrlPts] = {
             //top points
@@ -186,11 +186,11 @@ class LODDiffPatchBench : public PatchBench {
 public:
     LODDiffPatchBench(SkPoint scale, VertexMode vertexMode)
     : INHERITED(scale, vertexMode) { }
-    
+
     virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("LOD_Diff");
     }
-    
+
     virtual void setCubics() {
         const SkPoint points[SkPatchUtils::kNumCtrlPts] = {
             //top points
@@ -212,11 +212,11 @@ class LoopPatchBench : public PatchBench {
 public:
     LoopPatchBench(SkPoint scale, VertexMode vertexMode)
     : INHERITED(scale, vertexMode) { }
-    
+
     virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("loop");
     }
-    
+
     virtual void setCubics() {
         const SkPoint points[SkPatchUtils::kNumCtrlPts] = {
             //top points
