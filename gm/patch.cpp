@@ -87,9 +87,9 @@ protected:
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        
+
         SkPaint paint;
         
         // The order of the colors and points is clockwise starting at upper-left corner.
