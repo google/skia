@@ -385,7 +385,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
 
         size_t bpp = GrBytesPerPixel(desc.fConfig);
-        SkAutoSMalloc<128*128*4> stretchedPixels(bpp * rtDesc.fWidth * rtDesc.fHeight);
+        GrAutoMalloc<128*128*4> stretchedPixels(bpp * rtDesc.fWidth * rtDesc.fHeight);
         stretch_image(stretchedPixels.get(), rtDesc.fWidth, rtDesc.fHeight,
                       srcData, desc.fWidth, desc.fHeight, bpp);
 
