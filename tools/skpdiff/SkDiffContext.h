@@ -52,6 +52,25 @@ public:
     void setWhiteDiffDir(const SkString& directory);
 
     /**
+     * Modify the pattern used to generate commonName (= the 
+     * basename of rgb/white diff files).
+     *
+     * - true: basename is a combination of the input file names.
+     * - false: basename is the common prefix of the input file names.
+     *
+     * For example, for:
+     *   baselinePath=/tmp/dir/image-before.png
+     *   testPath=/tmp/dir/image-after.png
+     * 
+     * If setLongNames(true), commonName would be:
+     *    image-before-png-vs-image-after-png.png
+     * 
+     * If setLongNames(false), commonName would be:
+     *   image-.png
+     */
+    void setLongNames(const bool useLongNames);
+
+    /**
      * Sets the differs to be used in each diff. Already started diffs will not retroactively use
      * these.
      * @param differs An array of differs to use. The array is copied, but not the differs
@@ -85,8 +104,9 @@ public:
      *
      * The format of the JSON document is one top level array named "records".
      * Each record in the array is an object with the following values:
-     *    "commonName"     : string containing the common prefix of the baselinePath
-     *                       and testPath filenames
+     *    "commonName"     : string containing the output filename (basename) 
+     *                       depending on the value of 'longNames'. 
+     *                       (see 'setLongNames' for an explanation and example).
      *    "baselinePath"   : string containing the path to the baseline image
      *    "testPath"       : string containing the path to the test image
      *    "differencePath" : (optional) string containing the path to an alpha
@@ -177,6 +197,7 @@ private:
     SkString fAlphaMaskDir;
     SkString fRgbDiffDir;
     SkString fWhiteDiffDir;
+    bool longNames;
 };
 
 #endif

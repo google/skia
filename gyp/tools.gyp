@@ -170,10 +170,12 @@
       ],
       'include_dirs': [
         '../src/core/', # needed for SkTLList.h
+        '../tools/',    # needed for picture_utils::replace_char
       ],
       'dependencies': [
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
+        'tools.gyp:picture_utils',
       ],
       'cflags': [
         '-O3',

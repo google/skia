@@ -666,10 +666,33 @@ Loader.controller(
      * @param key (string): sort by value associated with this key in subdict
      */
     $scope.sortResultsBy = function(subdict, key) {
-      $scope.sortColumnSubdict = subdict;
-      $scope.sortColumnKey = key;
+      // if we are already sorting by this column then toggle between asc/desc
+      if ((subdict === $scope.sortColumnSubdict) && ($scope.sortColumnKey === key)) {
+        currSortAsc = !currSortAsc;
+      } else {
+        $scope.sortColumnSubdict = subdict;
+        $scope.sortColumnKey = key;
+        currSortAsc = true; 
+      }
       $scope.updateResults();
     }
+
+    /**
+     * Returns ASC or DESC (from constants) if currently the data
+     * is sorted by the provided column. 
+     *
+     * @param colName: name of the column for which we need to get the class.
+     */
+
+    $scope.sortedByColumnsCls = function (colName) {
+      if ($scope.sortColumnKey !== colName) {
+        return '';
+      }
+
+      var result = (currSortAsc) ? constants.ASC : constants.DESC;
+      console.log("sort class:", result);
+      return result;
+    };
 
     /**
      * For a particular ImagePair, return the value of the column we are
@@ -686,7 +709,7 @@ Loader.controller(
       } else {
         return undefined;
       }
-    }
+    };
 
     /**
      * For a particular ImagePair, return the value we use for the
@@ -701,7 +724,7 @@ Loader.controller(
     $scope.getSecondOrderSortValue = function(imagePair) {
       return imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL] + "-vs-" +
           imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL];
-    }
+    };
 
     /**
      * Set $scope.columnStringMatch[name] = value, and update results.
@@ -712,7 +735,7 @@ Loader.controller(
     $scope.setColumnStringMatch = function(name, value) {
       $scope.columnStringMatch[name] = value;
       $scope.updateResults();
-    }
+    };
 
     /**
      * Update $scope.showingColumnValues[columnName] and $scope.columnStringMatch[columnName]
@@ -727,7 +750,7 @@ Loader.controller(
       $scope.showingColumnValues[columnName] = {};
       $scope.toggleValueInSet(columnValue, $scope.showingColumnValues[columnName]);
       $scope.updateResults();
-    }
+    };
 
     /**
      * Update $scope.showingColumnValues[columnName] and $scope.columnStringMatch[columnName]
@@ -742,7 +765,7 @@ Loader.controller(
       $scope.toggleValuesInSet($scope.allColumnValues[columnName],
                                $scope.showingColumnValues[columnName]);
       $scope.updateResults();
-    }
+    };
 
 
     //
@@ -852,7 +875,7 @@ Loader.controller(
             "Please see server-side log for details.");
         $scope.submitPending = false;
       });
-    }
+    };
 
 
     //
@@ -870,7 +893,7 @@ Loader.controller(
      */
     $scope.setSize = function(set) {
       return Object.keys(set).length;
-    }
+    };
 
     /**
      * Returns true if value "value" is present within set "set".
@@ -881,7 +904,7 @@ Loader.controller(
      */
     $scope.isValueInSet = function(value, set) {
       return (true == set[value]);
-    }
+    };
 
     /**
      * If value "value" is already in set "set", remove it; otherwise, add it.
@@ -895,7 +918,7 @@ Loader.controller(
       } else {
         set[value] = true;
       }
-    }
+    };
 
     /**
      * For each value in valueArray, call toggleValueInSet(value, set).
@@ -908,7 +931,7 @@ Loader.controller(
       for (var i = 0; i < arrayLength; i++) {
         $scope.toggleValueInSet(valueArray[i], set);
       }
-    }
+    };
 
 
     //
@@ -925,7 +948,7 @@ Loader.controller(
      */
     $scope.isValueInArray = function(value, array) {
       return (-1 != array.indexOf(value));
-    }
+    };
 
     /**
      * If value "value" is already in array "array", remove it; otherwise,
@@ -941,7 +964,7 @@ Loader.controller(
       } else {
         array.splice(i, 1);
       }
-    }
+    };
 
 
     //
@@ -969,7 +992,7 @@ Loader.controller(
         slice.push(array[row][column]);
       }
       return slice;
-    }
+    };
 
     /**
      * Returns a human-readable (in local time zone) time string for a
@@ -980,7 +1003,7 @@ Loader.controller(
     $scope.localTimeString = function(secondsPastEpoch) {
       var d = new Date(secondsPastEpoch * 1000);
       return d.toString();
-    }
+    };
 
     /**
      * Returns a hex color string (such as "#aabbcc") for the given RGB values.
@@ -1003,7 +1026,7 @@ Loader.controller(
         bString = "0" + bString;
       }
       return '#' + rString + gString + bString;
-    }
+    };
 
     /**
      * Returns a hex color string (such as "#aabbcc") for the given brightness.
@@ -1016,7 +1039,7 @@ Loader.controller(
     $scope.brightnessStringToHexColor = function(brightnessString) {
       var v = parseInt(brightnessString);
       return $scope.hexColorString(v, v, v);
-    }
+    };
 
     /**
      * Returns the last path component of image diff URL for a given ImagePair.
@@ -1034,7 +1057,7 @@ Loader.controller(
           imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL] + "-vs-" +
           imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL];
       return before.replace(/[^\w\-]/g, "_") + ".png";
-    }
+    };
 
   }
 );

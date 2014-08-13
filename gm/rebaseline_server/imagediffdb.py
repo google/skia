@@ -125,8 +125,10 @@ class DiffRecord(object):
     try:
       skpdiff_summary_file = os.path.join(skpdiff_output_dir,
                                           'skpdiff-output.json')
-      skpdiff_rgbdiff_dir = os.path.join(skpdiff_output_dir, 'rgbDiff')
-      skpdiff_whitediff_dir = os.path.join(skpdiff_output_dir, 'whiteDiff')
+      skpdiff_rgbdiff_dir = os.path.join(storage_root, RGBDIFFS_SUBDIR)
+      skpdiff_whitediff_dir = os.path.join(storage_root, WHITEDIFFS_SUBDIR)
+      _mkdir_unless_exists(skpdiff_rgbdiff_dir)
+      _mkdir_unless_exists(skpdiff_rgbdiff_dir)
 
       # TODO(epoger): Consider calling skpdiff ONCE for all image pairs,
       # instead of calling it separately for each image pair.
@@ -134,9 +136,13 @@ class DiffRecord(object):
       # spinning up the skpdiff binary, etc.
       # Con: we would have to wait until all image pairs were loaded before
       # generating any of the diffs?
+      # Note(stephana): '--longnames' was added to allow for this 
+      # case (multiple files at once) versus specifying output diffs 
+      # directly.
       find_run_binary.run_command(
           [SKPDIFF_BINARY, '-p', expected_image_file, actual_image_file,
            '--jsonp', 'false',
+           '--longnames', 'true',
            '--output', skpdiff_summary_file,
            '--differs', 'perceptual', 'different_pixels',
            '--rgbDiffDir', skpdiff_rgbdiff_dir,
@@ -157,8 +163,6 @@ class DiffRecord(object):
       # See http://stackoverflow.com/a/626871
       self._max_diff_per_channel = [
           record['maxRedDiff'], record['maxGreenDiff'], record['maxBlueDiff']]
-      rgb_diff_path = record['rgbDiffPath']
-      white_diff_path = record['whiteDiffPath']
       per_differ_stats = record['diffs']
       for stats in per_differ_stats:
         differ_name = stats['differName']
@@ -175,22 +179,6 @@ class DiffRecord(object):
       if not 0 <= perceptual_similarity <= 1:
         perceptual_similarity = 0
       self._perceptual_difference = 100 - (perceptual_similarity * 100)
-
-      # Store the rgbdiff and whitediff images generated above.
-      diff_image_locator = _get_difference_locator(
-          expected_image_locator=expected_image_locator,
-          actual_image_locator=actual_image_locator)
-      basename = str(diff_image_locator) + image_suffix
-      _mkdir_unless_exists(os.path.join(storage_root, RGBDIFFS_SUBDIR))
-      _mkdir_unless_exists(os.path.join(storage_root, WHITEDIFFS_SUBDIR))
-      # TODO: Modify skpdiff's behavior so we can tell it exactly where to
-      # write the image files into, rather than having to move them around
-      # after skpdiff writes them out.
-      shutil.copyfile(rgb_diff_path,
-                      os.path.join(storage_root, RGBDIFFS_SUBDIR, basename))
-      shutil.copyfile(white_diff_path,
-                      os.path.join(storage_root, WHITEDIFFS_SUBDIR, basename))
-
     finally:
       shutil.rmtree(skpdiff_output_dir)
 
@@ -479,20 +467,3 @@ def _sanitize_locator(locator):
     return DISALLOWED_FILEPATH_CHAR_REGEX.sub('_', str(locator))
   else:
     return locator
-
-def _get_difference_locator(expected_image_locator, actual_image_locator):
-  """Returns the locator string used to look up the diffs between expected_image
-  and actual_image.
-
-  We must keep this function in sync with getImageDiffRelativeUrl() in
-  static/loader.js
-
-  Args:
-    expected_image_locator: locator string pointing at expected image
-    actual_image_locator: locator string pointing at actual image
-
-  Returns: already-sanitized locator where the diffs between expected and
-      actual images can be found
-  """
-  return "%s-vs-%s" % (_sanitize_locator(expected_image_locator),
-                       _sanitize_locator(actual_image_locator))

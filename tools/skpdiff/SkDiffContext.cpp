@@ -14,6 +14,9 @@
 #include "SkTDict.h"
 #include "SkThreadPool.h"
 
+// from the tools directory for replace_char(...)
+#include "picture_utils.h"
+
 #include "SkDiffContext.h"
 #include "SkImageDiffer.h"
 #include "skpdiff_util.h"
@@ -48,6 +51,10 @@ void SkDiffContext::setWhiteDiffDir(const SkString& path) {
     }
 }
 
+void SkDiffContext::setLongNames(const bool useLongNames) {
+    longNames = useLongNames;
+}
+
 void SkDiffContext::setDiffers(const SkTDArray<SkImageDiffer*>& differs) {
     // Delete whatever the last array of differs was
     if (NULL != fDiffers) {
@@ -79,6 +86,16 @@ static SkString get_common_prefix(const SkString& a, const SkString& b) {
     }
 }
 
+static SkString get_combined_name(const SkString& a, const SkString& b) {
+    // Note (stephana): We must keep this function in sync with 
+    // getImageDiffRelativeUrl() in static/loader.js (under rebaseline_server).
+    SkString result = a;
+    result.append("-vs-");
+    result.append(b);
+    sk_tools::replace_char(&result, '.', '_');
+    return result;
+}
+
 void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
     // Load the images at the paths
     SkBitmap baselineBitmap;
@@ -100,7 +117,13 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
     // compute the common name
     SkString baseName = SkOSPath::Basename(baselinePath);
     SkString testName = SkOSPath::Basename(testPath);
-    newRecord->fCommonName = get_common_prefix(baseName, testName);
+
+    if (longNames) {
+        newRecord->fCommonName = get_combined_name(baseName, testName);
+    } else {
+        newRecord->fCommonName = get_common_prefix(baseName, testName);
+    }
+    newRecord->fCommonName.append(".png");
 
     newRecord->fBaselinePath = baselinePath;
     newRecord->fTestPath = testPath;
