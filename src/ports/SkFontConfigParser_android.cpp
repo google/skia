@@ -19,7 +19,7 @@
 
 
 // From Android version LMP onwards, all font files collapse into
-// /system/fonts/fonts.xml. Instead of trying to detect which version
+// /system/etc/fonts.xml. Instead of trying to detect which version
 // we're on, try to open fonts.xml; if that fails, fall back to the
 // older filename.
 #define LMP_SYSTEM_FONTS_FILE "/system/etc/fonts.xml"
@@ -465,9 +465,10 @@ static void parseConfigFile(const char* filename, SkTDArray<FontFamily*> &famili
 }
 
 static void getSystemFontFamilies(SkTDArray<FontFamily*> &fontFamilies) {
+    int initialCount = fontFamilies.count();
     parseConfigFile(LMP_SYSTEM_FONTS_FILE, fontFamilies);
 
-    if (0 == fontFamilies.count()) {
+    if (initialCount == fontFamilies.count()) {
         parseConfigFile(OLD_SYSTEM_FONTS_FILE, fontFamilies);
     }
 }
