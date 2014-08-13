@@ -15,16 +15,11 @@ void SkRecordDraw(const SkRecord& record,
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
     if (NULL != bbh) {
-        SkASSERT(bbh->getCount() == SkToInt(record.count()));
-
         // Draw only ops that affect pixels in the canvas's current clip.
         SkIRect devBounds;
         canvas->getClipDeviceBounds(&devBounds);
         SkTDArray<void*> ops;
         bbh->search(devBounds, &ops);
-
-        // Until we start filling in real bounds, we should get every op back.
-        SkASSERT(ops.count() == SkToInt(record.count()));
 
         // FIXME: QuadTree doesn't send these back in the order we inserted them.  :(
         // Also remove the sort in SkPictureData::getActiveOps()?
@@ -100,33 +95,137 @@ DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.co
 
 
 // This is an SkRecord visitor that fills an SkBBoxHierarchy.
+//
+// The interesting part here is how to calculate bounds for ops which don't
+// have intrinsic bounds.  What is the bounds of a Save or a Translate?
+//
+// We answer this by thinking about a particular definition of bounds: if I
+// don't execute this op, pixels in this rectangle might draw incorrectly.  So
+// the bounds of a Save, a Translate, a Restore, etc. are the union of the
+// bounds of Draw* ops that they might have an effect on.  For any given
+// Save/Restore block, the bounds of the Save, the Restore, and any other
+// non-drawing ("control") ops inside are exactly the union of the bounds of
+// the drawing ops inside that block.
+//
+// To implement this, we keep a stack of active Save blocks.  As we consume ops
+// inside the Save/Restore block, drawing ops are unioned with the bounds of
+// the block, and control ops are stashed away for later.  When we finish the
+// block with a Restore, our bounds are complete, and we go back and fill them
+// in for all the control ops we stashed away.
 class FillBounds : SkNoncopyable {
 public:
-    explicit FillBounds(SkBBoxHierarchy* bbh) : fBBH(bbh), fIndex(0) {}
-    ~FillBounds() { fBBH->flushDeferredInserts(); }
+    FillBounds(const SkRecord& record, SkBBoxHierarchy* bbh) : fBounds(record.count()) {
+        // Calculate bounds for all ops.  This won't go quite in order, so we'll need
+        // to store the bounds separately then feed them in to the BBH later in order.
+        for (fCurrentOp = 0; fCurrentOp < record.count(); fCurrentOp++) {
+            record.visit<void>(fCurrentOp, *this);
+        }
 
-    uintptr_t index() const { return fIndex; }
-    void next() { ++fIndex; }
+        // If we have any lingering unpaired Saves, simulate restores to make
+        // sure all ops in those Save blocks have their bounds calculated.
+        while (!fSaveStack.isEmpty()) {
+            this->popSaveBlock();
+        }
+
+        // Any control ops not part of any Save/Restore block draw everywhere.
+        while (!fControlIndices.isEmpty()) {
+            this->popControl(SkIRect::MakeLargest());
+        }
+
+        // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
+        SkASSERT(NULL != bbh);
+        for (uintptr_t i = 0; i < record.count(); i++) {
+            if (!fBounds[i].isEmpty()) {
+                bbh->insert((void*)i, fBounds[i], true/*ok to defer*/);
+            }
+        }
+        bbh->flushDeferredInserts();
+    }
 
     template <typename T> void operator()(const T& r) {
-        // MakeLargest() is a trivially safe default for ops that haven't been bounded yet.
-        this->insert(this->index(), SkIRect::MakeLargest());
+        this->trackBounds(r);
     }
 
 private:
-    void insert(uintptr_t opIndex, const SkIRect& bounds) {
-        fBBH->insert((void*)opIndex, bounds, true/*ok to defer*/);
+    struct SaveBounds {
+        int controlOps;  // Number of control ops in this Save block, including the Save.
+        SkIRect bounds;  // Bounds of everything in the block.
+    };
+
+    // The bounds of these ops must be calculated when we hit the Restore
+    // from the bounds of the ops in the same Save block.
+    void trackBounds(const Save&)       { this->pushSaveBlock(); }
+    // TODO: bounds of SaveLayer may be more complicated?
+    void trackBounds(const SaveLayer&)  { this->pushSaveBlock(); }
+    void trackBounds(const Restore&)    { fBounds[fCurrentOp] = this->popSaveBlock(); }
+
+    void trackBounds(const Concat&)     { this->pushControl(); }
+    void trackBounds(const SetMatrix&)  { this->pushControl(); }
+    void trackBounds(const ClipRect&)   { this->pushControl(); }
+    void trackBounds(const ClipRRect&)  { this->pushControl(); }
+    void trackBounds(const ClipPath&)   { this->pushControl(); }
+    void trackBounds(const ClipRegion&) { this->pushControl(); }
+
+    // For all other ops, we can calculate and store the bounds directly now.
+    template <typename T> void trackBounds(const T& op) {
+        fBounds[fCurrentOp] = this->bounds(op);
+        this->updateSaveBounds(fBounds[fCurrentOp]);
     }
 
-    SkBBoxHierarchy* fBBH;  // Unowned. The BBH is guaranteed to be ref'd for our lifetime.
-    uintptr_t fIndex;
+    // TODO: remove this trivially-safe default when done bounding all ops
+    template <typename T> SkIRect bounds(const T&) { return SkIRect::MakeLargest(); }
+
+    void pushSaveBlock() {
+        // Starting a new Save block.  Push a new entry to represent that.
+        SaveBounds sb = { 0, SkIRect::MakeEmpty() };
+        fSaveStack.push(sb);
+        this->pushControl();
+    }
+
+    SkIRect popSaveBlock() {
+        // We're done the Save block.  Apply the block's bounds to all control ops inside it.
+        SaveBounds sb;
+        fSaveStack.pop(&sb);
+        while (sb.controlOps --> 0) {
+            this->popControl(sb.bounds);
+        }
+
+        // This whole Save block may be part another Save block.
+        this->updateSaveBounds(sb.bounds);
+
+        // If called from a real Restore (not a phony one for balance), it'll need the bounds.
+        return sb.bounds;
+    }
+
+    void pushControl() {
+        fControlIndices.push(fCurrentOp);
+        if (!fSaveStack.isEmpty()) {
+            fSaveStack.top().controlOps++;
+        }
+    }
+
+    void popControl(const SkIRect& bounds) {
+        fBounds[fControlIndices.top()] = bounds;
+        fControlIndices.pop();
+    }
+
+    void updateSaveBounds(const SkIRect& bounds) {
+        // If we're in a Save block, expand its bounds to cover these bounds too.
+        if (!fSaveStack.isEmpty()) {
+            fSaveStack.top().bounds.join(bounds);
+        }
+    }
+
+    SkIRect bounds(const NoOp&) { return SkIRect::MakeEmpty(); }  // NoOps don't draw anywhere.
+
+    SkAutoTMalloc<SkIRect> fBounds;  // One for each op in the record.
+    unsigned fCurrentOp;
+    SkTDArray<SaveBounds> fSaveStack;
+    SkTDArray<unsigned>   fControlIndices;
 };
 
 }  // namespace SkRecords
 
 void SkRecordFillBounds(const SkRecord& record, SkBBoxHierarchy* bbh) {
-    SkASSERT(NULL != bbh);
-    for(SkRecords::FillBounds fb(bbh); fb.index() < record.count(); fb.next()) {
-        record.visit<void>(fb.index(), fb);
-    }
+    SkRecords::FillBounds(record, bbh);
 }
