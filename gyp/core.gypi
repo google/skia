@@ -117,7 +117,6 @@
         '<(skia_src_path)/core/SkMipMap.cpp',
         '<(skia_src_path)/core/SkPackBits.cpp',
         '<(skia_src_path)/core/SkPaint.cpp',
-        '<(skia_src_path)/core/SkPaintOptionsAndroid.cpp',
         '<(skia_src_path)/core/SkPaintPriv.cpp',
         '<(skia_src_path)/core/SkPaintPriv.h',
         '<(skia_src_path)/core/SkPath.cpp',

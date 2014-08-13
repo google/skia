@@ -67,7 +67,7 @@ public:
                              bool isFixedPitch,
                              const SkString familyName,
                              const SkLanguage& lang,
-                             uint32_t variantStyle)
+                             FontVariant variantStyle)
         : INHERITED(index, style, isFixedPitch, familyName)
         , fPathName(pathName)
         , fLang(lang)
@@ -88,7 +88,7 @@ public:
 
     const SkString fPathName;
     const SkLanguage fLang;
-    const uint32_t fVariantStyle;
+    const FontVariant fVariantStyle;
 
     typedef SkTypeface_Android INHERITED;
 };
@@ -163,11 +163,10 @@ public:
                 continue;
             }
 
-            const SkLanguage& lang = fontFile.fPaintOptions.getLanguage();
-            uint32_t variant = fontFile.fPaintOptions.getFontVariant();
-            if (SkPaintOptionsAndroid::kDefault_Variant == variant) {
-                variant = SkPaintOptionsAndroid::kCompact_Variant |
-                          SkPaintOptionsAndroid::kElegant_Variant;
+            const SkLanguage& lang = family.fLanguage;
+            uint32_t variant = family.fVariant;
+            if (kDefault_FontVariant == variant) {
+                variant = kCompact_FontVariant | kElegant_FontVariant;
             }
 
             // The first specified family name overrides the family name found in the font.
@@ -353,7 +352,7 @@ protected:
         // TODO: add 'is_elegant' and 'is_compact' bits to 'style' request.
 
         // For compatibility, try 'elegant' fonts first in fallback.
-        uint32_t variantMask = SkPaintOptionsAndroid::kElegant_Variant;
+        uint32_t variantMask = kElegant_FontVariant;
 
         // The first time match anything in the mask, second time anything not in the mask.
         for (bool maskMatches = true; maskMatches != false; maskMatches = false) {
