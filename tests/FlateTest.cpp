@@ -89,6 +89,8 @@ static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
                                          dataSize) == 0);
     }
 
+    if (compressedSize < 1) { return; }
+
     double compressionRatio = static_cast<double>(dataSize) / compressedSize;
     // Assert that some compression took place.
     REPORTER_ASSERT(reporter, compressionRatio > 1.2);
