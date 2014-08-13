@@ -26,7 +26,7 @@
 #if SK_SUPPORT_GPU
     #include "gl/GrGLDefines.h"
     #include "GrContextFactory.h"
-    GrContextFactory gGrFactory;
+    SkAutoTDelete<GrContextFactory> gGrFactory;
 #endif
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
@@ -288,7 +288,7 @@ static bool is_gpu_config_allowed(const char* name, GrContextFactory::GLContextT
     if (!is_cpu_config_allowed(name)) {
         return false;
     }
-    if (const GrContext* ctx = gGrFactory.get(ctxType)) {
+    if (const GrContext* ctx = gGrFactory->get(ctxType)) {
         return sampleCnt <= ctx->getMaxSampleCount();
     }
     return false;
@@ -362,9 +362,9 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     }
 #if SK_SUPPORT_GPU
     else if (Benchmark::kGPU_Backend == config.backend) {
-        target->surface.reset(SkSurface::NewRenderTarget(gGrFactory.get(config.ctxType), info,
+        target->surface.reset(SkSurface::NewRenderTarget(gGrFactory->get(config.ctxType), info,
                                                          config.samples));
-        target->gl = gGrFactory.getGLContext(config.ctxType);
+        target->gl = gGrFactory->getGLContext(config.ctxType);
     }
 #endif
 
@@ -528,6 +528,10 @@ int nanobench_main() {
     SetupCrashHandler();
     SkAutoGraphics ag;
 
+#if SK_SUPPORT_GPU
+    gGrFactory.reset(SkNEW_ARGS(GrContextFactory, (GrContext::Options())));
+#endif
+
     if (kAutoTuneLoops != FLAGS_loops) {
         FLAGS_samples     = 1;
         FLAGS_gpuFrameLag = 0;
@@ -671,10 +675,10 @@ int nanobench_main() {
 
     #if SK_SUPPORT_GPU
         if (FLAGS_abandonGpuContext) {
-            gGrFactory.abandonContexts();
+            gGrFactory->abandonContexts();
         }
         if (FLAGS_resetGpuContext || FLAGS_abandonGpuContext) {
-            gGrFactory.destroyContexts();
+            gGrFactory->destroyContexts();
         }
     #endif
     }

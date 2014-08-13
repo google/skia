@@ -2284,7 +2284,7 @@ int tool_main(int argc, char** argv) {
     SkTDArray<SkScalar> tileGridReplayScales;
 #if SK_SUPPORT_GPU
     GrGLStandard gpuAPI = kNone_GrGLStandard;
-    GrContextFactory* grFactory = new GrContextFactory;
+    GrContextFactory* grFactory = new GrContextFactory(GrContext::Options());
 #else
     GrGLStandard gpuAPI = 0;
     GrContextFactory* grFactory = NULL;

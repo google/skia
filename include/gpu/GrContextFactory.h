@@ -88,6 +88,7 @@ public:
         }
     }
 
+    explicit GrContextFactory(const GrContext::Options& opts) : fGlobalOptions(opts) { }
     GrContextFactory() { }
 
     ~GrContextFactory() { this->destroyContexts(); }
@@ -176,7 +177,7 @@ public:
 
         glCtx->makeCurrent();
         GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(glInterface.get());
-        grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx));
+        grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx, &fGlobalOptions));
         if (!grCtx.get()) {
             return NULL;
         }
@@ -207,7 +208,8 @@ private:
         SkGLContextHelper*        fGLContext;
         GrContext*                fGrContext;
     };
-    SkTArray<GPUContext, true> fContexts;
+    SkTArray<GPUContext, true>    fContexts;
+    const GrContext::Options      fGlobalOptions;
 };
 
 #endif
