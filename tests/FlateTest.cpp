@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include <stdlib.h>
-#include <string.h>
-
 #include "SkData.h"
 #include "SkFlate.h"
+#include "SkRandom.h"
 #include "SkStream.h"
 #include "Test.h"
 
@@ -28,72 +26,87 @@ public:
     static const size_t kGetSizeKey = 0xDEADBEEF;
 };
 
+// Returns a deterministic data of the given size.
+static SkData* new_test_data(size_t dataSize) {
+    SkAutoTMalloc<uint8_t> testBuffer(dataSize);
+    SkRandom random(0);
+    for (size_t i = 0; i < dataSize; ++i) {
+        testBuffer[i] = random.nextU() & 0xFF;
+    }
+    return SkData::NewFromMalloc(testBuffer.detach(), dataSize);
+}
+
 static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
                       size_t dataSize) {
-    if (testStream == NULL)
-      return;
+    SkASSERT(testStream != NULL);
 
-    SkMemoryStream testData(dataSize);
-    uint8_t* data = (uint8_t*)testData.getMemoryBase();
-    srand(0);  // Make data deterministic.
-    for (size_t i = 0; i < dataSize; i++)
-        data[i] = rand() & 0xFF;
+    SkAutoDataUnref testData(new_test_data(dataSize));
+    SkASSERT(testData->size() == dataSize);
 
-    testStream->setMemory(testData.getMemoryBase(), dataSize, true);
+    testStream->setMemory(testData->data(), dataSize, /*copyData=*/ true);
     SkDynamicMemoryWStream compressed;
-    bool status = SkFlate::Deflate(testStream, &compressed);
-    REPORTER_ASSERT(reporter, status);
+    bool deflateSuccess = SkFlate::Deflate(testStream, &compressed);
+    REPORTER_ASSERT(reporter, deflateSuccess);
 
     // Check that the input data wasn't changed.
     size_t inputSize = testStream->getLength();
-    if (inputSize == 0)
+    if (inputSize == 0) {
         inputSize = testStream->read(NULL, SkZeroSizeMemStream::kGetSizeKey);
-    REPORTER_ASSERT(reporter, testData.getLength() == inputSize);
-    REPORTER_ASSERT(reporter, memcmp(testData.getMemoryBase(),
-                                     testStream->getMemoryBase(),
-                                     testData.getLength()) == 0);
+    }
+    REPORTER_ASSERT(reporter, dataSize == inputSize);
+    if (dataSize == inputSize) {
+        REPORTER_ASSERT(reporter, memcmp(testData->data(),
+                                         testStream->getMemoryBase(),
+                                         dataSize) == 0);
+    }
 
     // Assume there are two test sizes, big and small.
-    if (dataSize < 1024)
-      REPORTER_ASSERT(reporter, compressed.getOffset() < 1024);
-    else
-      REPORTER_ASSERT(reporter, compressed.getOffset() > 1024);
+    if (dataSize < 1024) {
+        REPORTER_ASSERT(reporter, compressed.getOffset() < 1024);
+    } else {
+        REPORTER_ASSERT(reporter, compressed.getOffset() > 1024);
+    }
 
-    SkAutoDataUnref data1(compressed.copyToData());
+    SkAutoDataUnref compressedData(compressed.copyToData());
+    testStream->setData(compressedData.get());
 
-    testStream->setData(data1.get())->unref();
     SkDynamicMemoryWStream uncompressed;
-    status = SkFlate::Inflate(testStream, &uncompressed);
-    REPORTER_ASSERT(reporter, status);
+    bool inflateSuccess = SkFlate::Inflate(testStream, &uncompressed);
+    REPORTER_ASSERT(reporter, inflateSuccess);
 
     // Check that the input data wasn't changed.
     inputSize = testStream->getLength();
-    if (inputSize == 0)
+    if (inputSize == 0) {
         inputSize = testStream->read(NULL, SkZeroSizeMemStream::kGetSizeKey);
-    REPORTER_ASSERT(reporter, data1->size() == inputSize);
-    REPORTER_ASSERT(reporter, memcmp(testStream->getMemoryBase(),
-                                     data1->data(),
-                                     data1->size()) == 0);
+    }
+    REPORTER_ASSERT(reporter, compressedData->size() == inputSize);
+    if (compressedData->size() == inputSize) {
+        REPORTER_ASSERT(reporter, memcmp(testStream->getMemoryBase(),
+                                         compressedData->data(),
+                                         compressedData->size()) == 0);
+    }
 
     // Check that the uncompressed data matches the source data.
-    SkAutoDataUnref data2(uncompressed.copyToData());
-    REPORTER_ASSERT(reporter, testData.getLength() == uncompressed.getOffset());
-    REPORTER_ASSERT(reporter, memcmp(testData.getMemoryBase(),
-                                     data2->data(),
-                                     testData.getLength()) == 0);
+    SkAutoDataUnref uncompressedData(uncompressed.copyToData());
+    REPORTER_ASSERT(reporter, dataSize == uncompressedData->size());
+    if (dataSize == uncompressedData->size()) {
+        REPORTER_ASSERT(reporter, memcmp(testData->data(),
+                                         uncompressedData->data(),
+                                         dataSize) == 0);
+    }
 }
 
 DEF_TEST(Flate, reporter) {
-    TestFlate(reporter, NULL, 0);
-#if defined(SK_ZLIB_INCLUDE) && !defined(SK_DEBUG)
+#ifdef SK_HAS_ZLIB
     REPORTER_ASSERT(reporter, SkFlate::HaveFlate());
-
-    SkMemoryStream memStream;
-    TestFlate(reporter, &memStream, 512);
-    TestFlate(reporter, &memStream, 10240);
-
-    SkZeroSizeMemStream fileStream;
-    TestFlate(reporter, &fileStream, 512);
-    TestFlate(reporter, &fileStream, 10240);
 #endif
+    if (SkFlate::HaveFlate()) {
+        SkMemoryStream memStream;
+        TestFlate(reporter, &memStream, 512);
+        TestFlate(reporter, &memStream, 10240);
+
+        SkZeroSizeMemStream fileStream;
+        TestFlate(reporter, &fileStream, 512);
+        TestFlate(reporter, &fileStream, 10240);
+    }
 }
