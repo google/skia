@@ -56,6 +56,8 @@ DEFINE_double(overheadGoal, 0.0001,
               "Loop until timer overhead is at most this fraction of our measurments.");
 DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
 DEFINE_int32(gpuFrameLag, 5, "Overestimate of maximum number of frames GPU allows to lag.");
+DEFINE_bool(gpuCompressAlphaMasks, false, "Compress masks generated from falling back to "
+                                          "software path rendering.");
 
 DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
 DEFINE_int32(maxCalibrationAttempts, 3,
@@ -529,7 +531,9 @@ int nanobench_main() {
     SkAutoGraphics ag;
 
 #if SK_SUPPORT_GPU
-    gGrFactory.reset(SkNEW_ARGS(GrContextFactory, (GrContext::Options())));
+    GrContext::Options grContextOpts;
+    grContextOpts.fDrawPathToCompressedTexture = FLAGS_gpuCompressAlphaMasks;
+    gGrFactory.reset(SkNEW_ARGS(GrContextFactory, (grContextOpts)));
 #endif
 
     if (kAutoTuneLoops != FLAGS_loops) {

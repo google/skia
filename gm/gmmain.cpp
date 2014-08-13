@@ -1438,6 +1438,8 @@ DEFINE_string(gpuCacheSize, "", "<bytes> <count>: Limit the gpu cache to byte si
               "object count. " TOSTRING(DEFAULT_CACHE_VALUE) " for either value means "
               "use the default. 0 for either disables the cache.");
 DEFINE_bool(gpu, true, "Allows GPU configs to be run. Applied after --config.");
+DEFINE_bool(gpuCompressAlphaMasks, false, "Compress masks generated from falling back to "
+                                          "software path rendering.");
 #endif
 DEFINE_bool(hierarchy, false, "Whether to use multilevel directory structure "
             "when reading/writing files.");
@@ -2284,7 +2286,9 @@ int tool_main(int argc, char** argv) {
     SkTDArray<SkScalar> tileGridReplayScales;
 #if SK_SUPPORT_GPU
     GrGLStandard gpuAPI = kNone_GrGLStandard;
-    GrContextFactory* grFactory = new GrContextFactory(GrContext::Options());
+    GrContext::Options grContextOpts;
+    grContextOpts.fDrawPathToCompressedTexture = FLAGS_gpuCompressAlphaMasks;
+    GrContextFactory* grFactory = new GrContextFactory(grContextOpts);
 #else
     GrGLStandard gpuAPI = 0;
     GrContextFactory* grFactory = NULL;
