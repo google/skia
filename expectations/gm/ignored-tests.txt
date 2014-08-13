@@ -35,3 +35,19 @@
 
 #joshualitt
 matrixconvolution
+
+#bsalomon: https://codereview.chromium.org/466873002/
+thinstrokedrects
+thinrects
+drawlooper
+convex_poly_effect
+rects
+gradients_2pt_conical_inside
+twopointconical
+gradients_local_perspective
+gradient_dirty_laundry
+gradients
+gradients_2pt_conical_edge
+gradients_2pt_conical_outside
+gradients_no_texture
+

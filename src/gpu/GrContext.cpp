@@ -726,6 +726,11 @@ static void setStrokeRectStrip(SkPoint verts[10], SkRect rect,
     verts[9] = verts[1];
 }
 
+static inline bool is_irect(const SkRect& r) {
+  return SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&	
+         SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);	
+}
+
 static bool apply_aa_to_rect(GrDrawTarget* target,
                              const SkRect& rect,
                              SkScalar strokeWidth,
@@ -759,6 +764,9 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
 #endif
 
     combinedMatrix.mapRect(devBoundRect, rect);
+    if (strokeWidth < 0) {
+        return !is_irect(*devBoundRect);
+    }
 
     return true;
 }
