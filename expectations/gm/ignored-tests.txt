@@ -50,4 +50,9 @@ gradients
 gradients_2pt_conical_edge
 gradients_2pt_conical_outside
 gradients_no_texture
+clamped_gradients
+srcmode
+complexclip2_rect_aa
+bigblurs
+simpleaaclip_rect
 
