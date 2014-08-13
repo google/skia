@@ -273,7 +273,7 @@ void SkConcatCommand::execute(SkCanvas* canvas) {
 }
 
 SkDrawBitmapCommand::SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                       const SkPaint* paint)
+                                         const SkPaint* paint)
     : INHERITED(DRAW_BITMAP) {
     fBitmap = bitmap;
     fLeft = left;
@@ -502,16 +502,36 @@ bool SkDrawPathCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
-SkDrawPictureCommand::SkDrawPictureCommand(const SkPicture* picture)
+SkDrawPictureCommand::SkDrawPictureCommand(const SkPicture* picture,
+                                           const SkMatrix* matrix,
+                                           const SkPaint* paint)
     : INHERITED(DRAW_PICTURE)
-    , fPicture(SkRef(picture)) {
+    , fPicture(SkRef(picture))
+    , fMatrixPtr(NULL)
+    , fPaintPtr(NULL) {
+
+    if (NULL != matrix) {
+        fMatrix = *matrix;
+        fMatrixPtr = &fMatrix;
+    }
+    if (NULL != paint) {
+        fPaint = *paint;
+        fPaintPtr = &fPaint;
+    }
+
     SkString* temp = new SkString;
     temp->appendf("SkPicture: W: %d H: %d", picture->width(), picture->height());
     fInfo.push(temp);
+    if (NULL != matrix) {
+        fInfo.push(SkObjectParser::MatrixToString(*matrix));
+    }
+    if (NULL != paint) {
+        fInfo.push(SkObjectParser::PaintToString(*paint));
+    }
 }
 
 void SkDrawPictureCommand::execute(SkCanvas* canvas) {
-    canvas->drawPicture(fPicture);
+    canvas->drawPicture(fPicture, fMatrixPtr, fPaintPtr);
 }
 
 bool SkDrawPictureCommand::render(SkCanvas* canvas) const {
