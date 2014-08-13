@@ -52,7 +52,7 @@ srcmode
 complexclip2_rect_aa
 bigblurs
 simpleaaclip_rect
-aarectmoes
+aarectmodes
 bigmatrix
 mixed_xfermodes
 aaclip
