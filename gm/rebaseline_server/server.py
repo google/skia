@@ -23,6 +23,7 @@ import subprocess
 import thread
 import threading
 import time
+import urllib
 import urlparse
 
 # Must fix up PYTHONPATH before importing from within Skia
@@ -30,6 +31,7 @@ import fix_pythonpath  # pylint: disable=W0611
 
 # Imports from within Skia
 from py.utils import gs_utils
+import buildbot_globals
 import gm_json
 
 # Imports from local dir
@@ -99,12 +101,25 @@ LIVE_PARAM__SET_B_SECTION = 'setBSection'
 # results to load.
 RELOAD_INTERVAL_UNTIL_READY = 10
 
-SUMMARY_TYPES = [
+_GM_SUMMARY_TYPES = [
     results_mod.KEY__HEADER__RESULTS_FAILURES,
     results_mod.KEY__HEADER__RESULTS_ALL,
 ]
 # If --compare-configs is specified, compare these configs.
 CONFIG_PAIRS_TO_COMPARE = [('8888', 'gpu')]
+
+# SKP results that are available to compare.
+#
+# TODO(stephana): We don't actually want to maintain this list of platforms.
+# We are just putting them in here for now, as "convenience" links for testing
+# SKP diffs.
+# Ultimately, we will depend on buildbot steps linking to their own diffs on
+# the shared rebaseline_server instance.
+_SKP_BASE_GS_URL = 'gs://' + buildbot_globals.Get('skp_summaries_bucket')
+_SKP_PLATFORMS = [
+    'Test-Mac10.8-MacMini4.1-GeForce320M-x86_64-Debug',
+    'Test-Ubuntu12-ShuttleA-GTX660-x86-Release',
+]
 
 _HTTP_HEADER_CONTENT_LENGTH = 'Content-Length'
 _HTTP_HEADER_CONTENT_TYPE = 'Content-Type'
@@ -170,22 +185,25 @@ def _create_index(file_path, config_pairs):
         '<!DOCTYPE html><html>'
         '<head><title>rebaseline_server</title></head>'
         '<body><ul>')
-    if SUMMARY_TYPES:
-      file_handle.write('<li>Expectations vs Actuals</li><ul>')
-      for summary_type in SUMMARY_TYPES:
+
+    if _GM_SUMMARY_TYPES:
+      file_handle.write('<li>GM Expectations vs Actuals</li><ul>')
+      for summary_type in _GM_SUMMARY_TYPES:
         file_handle.write(
-            '<li><a href="/{static_directive}/view.html#/view.html?'
+            '\n<li><a href="/{static_directive}/view.html#/view.html?'
             'resultsToLoad=/{results_directive}/{summary_type}">'
             '{summary_type}</a></li>'.format(
                 results_directive=GET__PRECOMPUTED_RESULTS,
                 static_directive=GET__STATIC_CONTENTS,
                 summary_type=summary_type))
       file_handle.write('</ul>')
+
     if config_pairs:
-      file_handle.write('<li>Comparing configs within actual results</li><ul>')
+      file_handle.write(
+          '\n<li>Comparing configs within actual GM results</li><ul>')
       for config_pair in config_pairs:
         file_handle.write('<li>%s vs %s:' % config_pair)
-        for summary_type in SUMMARY_TYPES:
+        for summary_type in _GM_SUMMARY_TYPES:
           file_handle.write(
               ' <a href="/%s/view.html#/view.html?'
               'resultsToLoad=/%s/%s/%s-vs-%s_%s.json">%s</a>' % (
@@ -194,7 +212,40 @@ def _create_index(file_path, config_pairs):
                   summary_type, summary_type))
         file_handle.write('</li>')
       file_handle.write('</ul>')
-    file_handle.write('</ul></body></html>')
+
+    if _SKP_PLATFORMS:
+      file_handle.write('\n<li>Rendered SKPs:<ul>')
+      for builder in _SKP_PLATFORMS:
+        file_handle.write(
+            '\n<li><a href="../live-view.html#live-view.html?%s">' %
+            urllib.urlencode({
+                LIVE_PARAM__SET_A_SECTION:
+                    gm_json.JSONKEY_EXPECTEDRESULTS,
+                LIVE_PARAM__SET_A_DIR:
+                    posixpath.join(_SKP_BASE_GS_URL, builder),
+                LIVE_PARAM__SET_B_SECTION:
+                    gm_json.JSONKEY_ACTUALRESULTS,
+                LIVE_PARAM__SET_B_DIR:
+                    posixpath.join(_SKP_BASE_GS_URL, builder),
+            }))
+        file_handle.write('expected vs actuals on %s</a></li>' % builder)
+      file_handle.write(
+          '\n<li><a href="../live-view.html#live-view.html?%s">' %
+          urllib.urlencode({
+              LIVE_PARAM__SET_A_SECTION:
+                  gm_json.JSONKEY_ACTUALRESULTS,
+              LIVE_PARAM__SET_A_DIR:
+                  posixpath.join(_SKP_BASE_GS_URL, _SKP_PLATFORMS[0]),
+              LIVE_PARAM__SET_B_SECTION:
+                  gm_json.JSONKEY_ACTUALRESULTS,
+              LIVE_PARAM__SET_B_DIR:
+                  posixpath.join(_SKP_BASE_GS_URL, _SKP_PLATFORMS[1]),
+          }))
+      file_handle.write('actuals on %s vs %s</a></li>' % (
+          _SKP_PLATFORMS[0], _SKP_PLATFORMS[1]))
+      file_handle.write('</li>')
+
+    file_handle.write('\n</ul></body></html>')
 
 
 class Server(object):
@@ -406,7 +457,7 @@ class Server(object):
             diff_base_url=posixpath.join(
                 os.pardir, GENERATED_IMAGES_SUBDIR),
             builder_regex_list=self._builder_regex_list)
-        for summary_type in SUMMARY_TYPES:
+        for summary_type in _GM_SUMMARY_TYPES:
           gm_json.WriteToFile(
               config_comparisons.get_packaged_results_of_type(
                   results_type=summary_type),
