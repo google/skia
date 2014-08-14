@@ -141,12 +141,12 @@ Loader.controller(
      * Once the dictionary is loaded, unhide the page elements so they can
      * render the data.
      */
-    var liveQueryUrl =
+    $scope.liveQueryUrl =
        "/live-results/setADir=" + encodeURIComponent($scope.setADir) +
        "&setASection=" + encodeURIComponent($scope.setASection) +
        "&setBDir=" + encodeURIComponent($scope.setBDir) +
        "&setBSection=" + encodeURIComponent($scope.setBSection);
-    $http.get(liveQueryUrl).success(
+    $http.get($scope.liveQueryUrl).success(
       function(data, status, header, config) {
         var dataHeader = data[constants.KEY__ROOT__HEADER];
         if (dataHeader[constants.KEY__HEADER__SCHEMA_VERSION] !=
