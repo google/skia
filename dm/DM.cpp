@@ -63,20 +63,14 @@ static SkString lowercase(SkString s) {
 }
 
 static const GrContextFactory::GLContextType native = GrContextFactory::kNative_GLContextType;
-static const GrContextFactory::GLContextType nvpr = GrContextFactory::kNVPR_GLContextType;
+static const GrContextFactory::GLContextType nvpr   = GrContextFactory::kNVPR_GLContextType;
 static const GrContextFactory::GLContextType null   = GrContextFactory::kNull_GLContextType;
 static const GrContextFactory::GLContextType debug  = GrContextFactory::kDebug_GLContextType;
-static const GrContextFactory::GLContextType angle  =
 #if SK_ANGLE
-GrContextFactory::kANGLE_GLContextType;
-#else
-native;
+static const GrContextFactory::GLContextType angle  = GrContextFactory::kANGLE_GLContextType;
 #endif
-static const GrContextFactory::GLContextType mesa   =
 #if SK_MESA
-GrContextFactory::kMESA_GLContextType;
-#else
-native;
+static const GrContextFactory::GLContextType mesa   = GrContextFactory::kMESA_GLContextType;
 #endif
 
 static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
@@ -101,8 +95,12 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
             START("nvprmsaa16", GpuGMTask, expectations, nvpr,   gpuAPI, 16);
             START("gpunull",    GpuGMTask, expectations, null,   gpuAPI, 0);
             START("gpudebug",   GpuGMTask, expectations, debug,  gpuAPI, 0);
+#if SK_ANGLE
             START("angle",      GpuGMTask, expectations, angle,  gpuAPI, 0);
+#endif
+#if SK_MESA
             START("mesa",       GpuGMTask, expectations, mesa,   gpuAPI, 0);
+#endif
             START("pdf",        PDFTask,   RASTERIZE_PDF_PROC);
         }
     }
