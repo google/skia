@@ -21,7 +21,6 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkPaintDefaults.h"
-#include "SkPaintOptionsAndroid.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
 #include "SkScalar.h"
@@ -55,7 +54,6 @@ enum {
     kImageFilter_DirtyBit         = 1 << 13,
     kTypeface_DirtyBit            = 1 << 14,
     kAnnotation_DirtyBit          = 1 << 15,
-    kPaintOptionsAndroid_DirtyBit = 1 << 16,
 };
 
 // define this to get a printf for out-of-range parameter in setters
@@ -101,7 +99,6 @@ SkPaint::SkPaint() {
 
     fDirtyBits    = 0;
 #ifdef SK_BUILD_FOR_ANDROID
-    new (&fPaintOptionsAndroid) SkPaintOptionsAndroid;
     fGenerationID = 0;
 #endif
 }
@@ -131,7 +128,6 @@ SkPaint::SkPaint(const SkPaint& src) {
     COPY(fDirtyBits);
 
 #ifdef SK_BUILD_FOR_ANDROID
-    new (&fPaintOptionsAndroid) SkPaintOptionsAndroid(src.fPaintOptionsAndroid);
     COPY(fGenerationID);
 #endif
 
@@ -183,8 +179,6 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     COPY(fDirtyBits);
 
 #ifdef SK_BUILD_FOR_ANDROID
-    fPaintOptionsAndroid.~SkPaintOptionsAndroid();
-    new (&fPaintOptionsAndroid) SkPaintOptionsAndroid(src.fPaintOptionsAndroid);
     ++fGenerationID;
 #endif
 
@@ -214,9 +208,6 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
         && EQUAL(fWidth)
         && EQUAL(fMiterLimit)
         && EQUAL(fBitfieldsUInt)
-#ifdef SK_BUILD_FOR_ANDROID
-        && EQUAL(fPaintOptionsAndroid)
-#endif
         ;
 #undef EQUAL
 }
@@ -240,14 +231,6 @@ uint32_t SkPaint::getGenerationID() const {
 
 void SkPaint::setGenerationID(uint32_t generationID) {
     fGenerationID = generationID;
-}
-
-void SkPaint::setPaintOptionsAndroid(const SkPaintOptionsAndroid& options) {
-    if (options != fPaintOptionsAndroid) {
-        fPaintOptionsAndroid = options;
-        GEN_ID_INC;
-        fDirtyBits |= kPaintOptionsAndroid_DirtyBit;
-    }
 }
 #endif
 
@@ -1843,14 +1826,6 @@ void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
         rec.fMaskFormat = SkMask::kA8_Format;   // force antialiasing when we do the scan conversion
     }
 
-#ifdef SK_BUILD_FOR_ANDROID
-    char buffer[128];
-    SkWriteBuffer androidBuffer(buffer, sizeof(buffer));
-    fPaintOptionsAndroid.flatten(androidBuffer);
-    descSize += androidBuffer.bytesWritten();
-    entryCount += 1;
-#endif
-
     ///////////////////////////////////////////////////////////////////////////
     // Now that we're done tweaking the rec, call the PostMakeRec cleanup
     SkScalerContext::PostMakeRec(*this, &rec);
@@ -1862,10 +1837,6 @@ void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
 
     desc->init();
     desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-
-#ifdef SK_BUILD_FOR_ANDROID
-    add_flattenable(desc, kAndroidOpts_SkDescriptorTag, &androidBuffer);
-#endif
 
     if (pe) {
         add_flattenable(desc, kPathEffect_SkDescriptorTag, &peBuffer);
@@ -1900,11 +1871,6 @@ void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
         desc2->init();
         desc1->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
         desc2->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-
-#ifdef SK_BUILD_FOR_ANDROID
-        add_flattenable(desc1, kAndroidOpts_SkDescriptorTag, &androidBuffer);
-        add_flattenable(desc2, kAndroidOpts_SkDescriptorTag, &androidBuffer);
-#endif
 
         if (pe) {
             add_flattenable(desc1, kPathEffect_SkDescriptorTag, &peBuffer);
@@ -2122,11 +2088,6 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
         asint(this->getImageFilter())) {
         flatFlags |= kHasEffects_FlatFlag;
     }
-#ifdef SK_BUILD_FOR_ANDROID
-    if (this->getPaintOptionsAndroid() != SkPaintOptionsAndroid()) {
-        flatFlags |= kHasNonDefaultPaintOptionsAndroid_FlatFlag;
-    }
-#endif
 
     SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
     uint32_t* ptr = buffer.reserve(kPODPaintSize);
@@ -2165,11 +2126,6 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
             buffer.writeBool(false);
         }
     }
-#ifdef SK_BUILD_FOR_ANDROID
-    if (flatFlags & kHasNonDefaultPaintOptionsAndroid_FlatFlag) {
-        this->getPaintOptionsAndroid().flatten(buffer);
-    }
-#endif
 }
 
 void SkPaint::unflatten(SkReadBuffer& buffer) {
@@ -2228,15 +2184,12 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
         this->setImageFilter(NULL);
     }
 
-#ifdef SK_BUILD_FOR_ANDROID
-    this->setPaintOptionsAndroid(SkPaintOptionsAndroid());
-#endif
-    if (flatFlags & kHasNonDefaultPaintOptionsAndroid_FlatFlag) {
-        SkPaintOptionsAndroid options;
-        options.unflatten(buffer);
-#ifdef SK_BUILD_FOR_ANDROID
-        this->setPaintOptionsAndroid(options);
-#endif
+    if (buffer.isVersionLT(SkReadBuffer::kRemoveAndroidPaintOpts_Version) &&
+            flatFlags & kHasNonDefaultPaintOptionsAndroid_FlatFlag) {
+        SkString tag;
+        buffer.readUInt();
+        buffer.readString(&tag);
+        buffer.readBool();
     }
 }
 
@@ -2695,9 +2648,6 @@ void SkPaint::FlatteningTraits::Flatten(SkWriteBuffer& buffer, const SkPaint& pa
 #undef F
     if (dirty & kTypeface_DirtyBit) buffer.writeTypeface(paint.getTypeface());
     if (dirty & kAnnotation_DirtyBit) paint.getAnnotation()->writeToBuffer(buffer);
-#ifdef SK_BUILD_FOR_ANDROID
-    if (dirty & kPaintOptionsAndroid_DirtyBit) paint.getPaintOptionsAndroid().flatten(buffer);
-#endif
 }
 
 void SkPaint::FlatteningTraits::Unflatten(SkReadBuffer& buffer, SkPaint* paint) {
@@ -2732,12 +2682,5 @@ void SkPaint::FlatteningTraits::Unflatten(SkReadBuffer& buffer, SkPaint* paint) 
     if (dirty & kAnnotation_DirtyBit) {
         paint->setAnnotation(SkAnnotation::Create(buffer))->unref();
     }
-#ifdef SK_BUILD_FOR_ANDROID
-    if (dirty & kPaintOptionsAndroid_DirtyBit) {
-        SkPaintOptionsAndroid options;
-        options.unflatten(buffer);
-        paint->setPaintOptionsAndroid(options);
-    }
-#endif
     SkASSERT(dirty == paint->fDirtyBits);
 }
