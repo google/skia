@@ -113,6 +113,14 @@
     fun:png_create_read_struct_2
     fun:png_create_read_struct
 }
+{
+    zlib_bug_2
+    Memcheck:Cond
+    fun:inflateReset2
+    fun:inflateInit2_
+    fun:_ZN12_GLOBAL__N_17doFlateEbP8SkStreamP9SkWStream
+    fun:_ZN7SkFlate7InflateEP8SkStreamP9SkWStream
+}
 
 # Why is it OK to suppress this?
 {
