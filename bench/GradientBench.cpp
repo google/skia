@@ -207,7 +207,6 @@ class GradientBench : public Benchmark {
     enum {
         W   = 400,
         H   = 400,
-        kRepeat = 15,
     };
 public:
     SkShader* makeShader(GradType gradType, GradData data, SkShader::TileMode tm, float scale) {
@@ -275,7 +274,7 @@ protected:
         }
 
         SkRect r = { 0, 0, SkIntToScalar(W), SkIntToScalar(H) };
-        for (int i = 0; i < loops * kRepeat; i++) {
+        for (int i = 0; i < loops; i++) {
             switch (fGeomType) {
                case kRect_GeomType:
                    canvas->drawRect(r, paint);
