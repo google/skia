@@ -61,15 +61,21 @@ module.constant('constants', (function() {
     KEY__HEADER__RESULTS_ALL: 'all',
     KEY__HEADER__RESULTS_FAILURES: 'failures',
     KEY__HEADER__SCHEMA_VERSION: 'schemaVersion',
+    KEY__HEADER__SET_A_DESCRIPTIONS: 'setA',
+    KEY__HEADER__SET_B_DESCRIPTIONS: 'setB',
     KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: 'timeNextUpdateAvailable',
     KEY__HEADER__TIME_UPDATED: 'timeUpdated',
     KEY__HEADER__TYPE: 'type',
-    VALUE__HEADER__SCHEMA_VERSION: 4,
+    VALUE__HEADER__SCHEMA_VERSION: 5,
     //
     KEY__RESULT_TYPE__FAILED: 'failed',
     KEY__RESULT_TYPE__FAILUREIGNORED: 'failure-ignored',
     KEY__RESULT_TYPE__NOCOMPARISON: 'no-comparison',
     KEY__RESULT_TYPE__SUCCEEDED: 'succeeded',
+    //
+    KEY__SET_DESCRIPTIONS__DIR: 'dir',
+    KEY__SET_DESCRIPTIONS__REPO_REVISION: 'repoRevision',
+    KEY__SET_DESCRIPTIONS__SECTION: 'section',
 
     // NOTE: Keep these in sync with ../server.py
     KEY__EDITS__MODIFICATIONS: 'modifications',

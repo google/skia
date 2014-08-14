@@ -79,7 +79,21 @@
     "dataHash": "-4754972663365911725", 
     "isEditable": false, 
     "isExported": true, 
-    "schemaVersion": 4, 
+    "schemaVersion": 5, 
+    "setA": {
+      "dir": [
+        "before-patch-fake-dir"
+      ], 
+      "repoRevision": null, 
+      "section": "actual-results"
+    }, 
+    "setB": {
+      "dir": [
+        "after-patch-fake-dir"
+      ], 
+      "repoRevision": null, 
+      "section": "actual-results"
+    }, 
     "timeNextUpdateAvailable": null, 
     "timeUpdated": 12345678, 
     "type": "all"

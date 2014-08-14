@@ -116,6 +116,9 @@ CONFIG_PAIRS_TO_COMPARE = [('8888', 'gpu')]
 # Ultimately, we will depend on buildbot steps linking to their own diffs on
 # the shared rebaseline_server instance.
 _SKP_BASE_GS_URL = 'gs://' + buildbot_globals.Get('skp_summaries_bucket')
+_SKP_BASE_REPO_URL = (
+    compare_rendered_pictures.REPO_URL_PREFIX + posixpath.join(
+        'expectations', 'skp'))
 _SKP_PLATFORMS = [
     'Test-Mac10.8-MacMini4.1-GeForce320M-x86_64-Debug',
     'Test-Ubuntu12-ShuttleA-GTX660-x86-Release',
@@ -222,7 +225,7 @@ def _create_index(file_path, config_pairs):
                 LIVE_PARAM__SET_A_SECTION:
                     gm_json.JSONKEY_EXPECTEDRESULTS,
                 LIVE_PARAM__SET_A_DIR:
-                    posixpath.join(_SKP_BASE_GS_URL, builder),
+                    posixpath.join(_SKP_BASE_REPO_URL, builder),
                 LIVE_PARAM__SET_B_SECTION:
                     gm_json.JSONKEY_ACTUALRESULTS,
                 LIVE_PARAM__SET_B_DIR:
@@ -588,13 +591,14 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     download_all_images = (
         param_dict.get(LIVE_PARAM__DOWNLOAD_ONLY_DIFFERING, [''])[0].lower()
         not in ['1', 'true'])
+    setA_dirs = param_dict[LIVE_PARAM__SET_A_DIR]
+    setB_dirs = param_dict[LIVE_PARAM__SET_B_DIR]
     setA_section = self._validate_summary_section(
         param_dict.get(LIVE_PARAM__SET_A_SECTION, [None])[0])
     setB_section = self._validate_summary_section(
         param_dict.get(LIVE_PARAM__SET_B_SECTION, [None])[0])
     results_obj = compare_rendered_pictures.RenderedPicturesComparisons(
-        setA_dirs=param_dict[LIVE_PARAM__SET_A_DIR],
-        setB_dirs=param_dict[LIVE_PARAM__SET_B_DIR],
+        setA_dirs=setA_dirs, setB_dirs=setB_dirs,
         setA_section=setA_section, setB_section=setB_section,
         image_diff_db=_SERVER.image_diff_db,
         diff_base_url='/static/generated-images',
@@ -604,7 +608,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.send_response(200)
     else:
       self.send_json_dict(results_obj.get_packaged_results_of_type(
-          results_mod.KEY__HEADER__RESULTS_ALL))
+          results_type=results_mod.KEY__HEADER__RESULTS_ALL))
 
   def do_GET_live_results(self, url_remainder):
     """ Handle a GET request for live-generated image diff data.

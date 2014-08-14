@@ -65,6 +65,14 @@ class CompareRenderedPicturesTest(base_unittest.TestCase):
         diff_base_url='/static/generated-images')
     results_obj.get_timestamp = mock_get_timestamp
 
+    # Overwrite elements within the results that change from one test run
+    # to the next.
+    # pylint: disable=W0212
+    results_obj._setA_descriptions[results.KEY__SET_DESCRIPTIONS__DIR] = [
+        'before-patch-fake-dir']
+    results_obj._setB_descriptions[results.KEY__SET_DESCRIPTIONS__DIR] = [
+        'after-patch-fake-dir']
+
     gm_json.WriteToFile(
         results_obj.get_packaged_results_of_type(
             results.KEY__HEADER__RESULTS_ALL),
@@ -82,6 +90,14 @@ class CompareRenderedPicturesTest(base_unittest.TestCase):
         image_base_gs_url='gs://fakebucket/fake/path',
         diff_base_url='/static/generated-images')
     results_obj.get_timestamp = mock_get_timestamp
+
+    # Overwrite elements within the results that change from one test run
+    # to the next.
+    # pylint: disable=W0212
+    results_obj._setA_descriptions\
+        [results.KEY__SET_DESCRIPTIONS__REPO_REVISION] = 'fake-repo-revision'
+    results_obj._setB_descriptions\
+        [results.KEY__SET_DESCRIPTIONS__REPO_REVISION] = 'fake-repo-revision'
 
     gm_json.WriteToFile(
         results_obj.get_packaged_results_of_type(

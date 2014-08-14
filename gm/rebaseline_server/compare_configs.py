@@ -48,6 +48,7 @@ class ConfigComparisons(results.BaseComparisons):
       builder_regex_list: List of regular expressions specifying which builders
           we will process. If None, process all builders.
     """
+    super(ConfigComparisons, self).__init__()
     time_start = int(time.time())
     if builder_regex_list != None:
       self.set_match_builders_pattern_list(builder_regex_list)

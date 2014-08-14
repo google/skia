@@ -163,11 +163,14 @@ def SplitGmRelativeUrl(url):
 
 def LoadFromString(file_contents):
   """Loads the JSON summary written out by the GM tool.
+
      Returns a dictionary keyed by the values listed as JSONKEY_ constants
-     above."""
+     above; if file_contents is empty, returns None."""
   # TODO(epoger): we should add a version number to the JSON file to ensure
   # that the writer and reader agree on the schema (raising an exception
   # otherwise).
+  if not file_contents:
+    return None
   json_dict = json.loads(file_contents)
   return json_dict
 

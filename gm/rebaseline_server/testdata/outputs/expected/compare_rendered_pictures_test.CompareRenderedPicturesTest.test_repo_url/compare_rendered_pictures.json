@@ -79,7 +79,21 @@
     "dataHash": "-4754972663365911725", 
     "isEditable": false, 
     "isExported": true, 
-    "schemaVersion": 4, 
+    "schemaVersion": 5, 
+    "setA": {
+      "dir": [
+        "repo:gm/rebaseline_server/testdata/inputs/skp-summaries/expectations"
+      ], 
+      "repoRevision": "fake-repo-revision", 
+      "section": "expected-results"
+    }, 
+    "setB": {
+      "dir": [
+        "repo:gm/rebaseline_server/testdata/inputs/skp-summaries/actuals"
+      ], 
+      "repoRevision": "fake-repo-revision", 
+      "section": "actual-results"
+    }, 
     "timeNextUpdateAvailable": null, 
     "timeUpdated": 12345678, 
     "type": "all"

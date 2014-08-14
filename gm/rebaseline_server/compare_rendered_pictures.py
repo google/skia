@@ -16,6 +16,7 @@ were generated from GMs or SKPs), and rename it accordingly.
 import logging
 import os
 import shutil
+import subprocess
 import tempfile
 import time
 
@@ -23,6 +24,7 @@ import time
 import fix_pythonpath  # pylint: disable=W0611
 
 # Imports from within Skia
+from py.utils import git_utils
 from py.utils import gs_utils
 from py.utils import url_utils
 import buildbot_globals
@@ -148,15 +150,37 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     try:
       setA_root = os.path.join(tempdir, 'setA')
       setB_root = os.path.join(tempdir, 'setB')
+      setA_repo_revision = None
+      setB_repo_revision = None
       for source_dir in setA_dirs:
         self._copy_dir_contents(source_dir=source_dir, dest_dir=setA_root)
+        # TODO(stephana): There is a potential race condition here... we copy
+        # the contents out of the source_dir, and THEN we get the commithash
+        # of source_dir.  If source_dir points at a git checkout, and that
+        # checkout is updated (by a different thread/process) during this
+        # operation, then the contents and commithash will be out of sync.
+        setA_repo_revision = self._get_repo_revision(
+            source_dir=source_dir, assert_if_not=setA_repo_revision)
       for source_dir in setB_dirs:
         self._copy_dir_contents(source_dir=source_dir, dest_dir=setB_root)
+        setB_repo_revision = self._get_repo_revision(
+            source_dir=source_dir, assert_if_not=setB_repo_revision)
+
+      self._setA_descriptions = {
+          results.KEY__SET_DESCRIPTIONS__DIR: setA_dirs,
+          results.KEY__SET_DESCRIPTIONS__REPO_REVISION: setA_repo_revision,
+          results.KEY__SET_DESCRIPTIONS__SECTION: setA_section,
+      }
+      self._setB_descriptions = {
+          results.KEY__SET_DESCRIPTIONS__DIR: setB_dirs,
+          results.KEY__SET_DESCRIPTIONS__REPO_REVISION: setB_repo_revision,
+          results.KEY__SET_DESCRIPTIONS__SECTION: setB_section,
+      }
 
       time_start = int(time.time())
       self._results = self._load_result_pairs(
-          setA_root=setA_root, setA_section=setA_section,
-          setB_root=setB_root, setB_section=setB_section)
+          setA_root=setA_root, setB_root=setB_root,
+          setA_section=setA_section, setB_section=setB_section)
       if self._results:
         self._timestamp = int(time.time())
         logging.info('Number of download file collisions: %s' %
@@ -166,15 +190,18 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     finally:
       shutil.rmtree(tempdir)
 
-  def _load_result_pairs(self, setA_root, setA_section, setB_root,
-                         setB_section):
+  def _load_result_pairs(self, setA_root, setB_root,
+                         setA_section, setB_section):
     """Loads all JSON image summaries from 2 directory trees and compares them.
+
+    TODO(stephana): This method is only called from within __init__(); it might
+    make more sense to just roll the content of this method into __init__().
 
     Args:
       setA_root: root directory containing JSON summaries of rendering results
+      setB_root: root directory containing JSON summaries of rendering results
       setA_section: which section (gm_json.JSONKEY_ACTUALRESULTS or
           gm_json.JSONKEY_EXPECTEDRESULTS) to load from the summaries in setA
-      setB_root: root directory containing JSON summaries of rendering results
       setB_section: which section (gm_json.JSONKEY_ACTUALRESULTS or
           gm_json.JSONKEY_EXPECTEDRESULTS) to load from the summaries in setB
 
@@ -400,3 +427,24 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       shutil.copytree(repo_dir, dest_dir)
     else:
       shutil.copytree(source_dir, dest_dir)
+
+  def _get_repo_revision(self, source_dir, assert_if_not=None):
+    """Get the commit hash of source_dir, IF it refers to a git checkout.
+
+    Args:
+      source_dir: path to source dir (GS URL, local filepath, or a special
+          "repo:" URL type that points at a file within our Skia checkout;
+          only the "repo:" URL type will have a commit hash.
+      assert_if_not: if not None, raise an Exception if source_dir has a
+          commit hash and that hash is not equal to this
+    """
+    if source_dir.lower().startswith(REPO_URL_PREFIX):
+      repo_dir = os.path.join(REPO_BASEPATH, source_dir[len(REPO_URL_PREFIX):])
+      revision = subprocess.check_output(
+          args=[git_utils.GIT, 'rev-parse', 'HEAD'], cwd=repo_dir).strip()
+      if assert_if_not and revision != assert_if_not:
+        raise Exception('found revision %s that did not match %s' % (
+            revision, assert_if_not))
+      return revision
+    else:
+      return None
