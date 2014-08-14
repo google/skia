@@ -197,6 +197,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--writeWholeImage'])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "descriptions" : None,
         "actual-results" : {
             "red.skp": {
                 "tiled-images": RED_TILES,
@@ -232,6 +233,7 @@ class RenderPicturesTest(base_unittest.TestCase):
     modified_red_tiles[5]['comparisonResult'] = 'no-comparison'
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "descriptions" : None,
         "actual-results" : {
             "red.skp": {
                 "tiled-images": modified_red_tiles,
@@ -276,6 +278,7 @@ class RenderPicturesTest(base_unittest.TestCase):
     if expected_summary_dict == None:
       expected_summary_dict = {
           "header" : EXPECTED_HEADER_CONTENTS,
+          "descriptions" : None,
           "actual-results" : {
               "red.skp": {
                   "whole-image": RED_WHOLEIMAGE,
@@ -300,6 +303,7 @@ class RenderPicturesTest(base_unittest.TestCase):
       pass
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "descriptions" : None,
         "actual-results" : {
             "red.skp": {
                 "whole-image": modified_dict(
@@ -320,12 +324,19 @@ class RenderPicturesTest(base_unittest.TestCase):
     write_path_dir = self.create_empty_dir(
         path=os.path.join(self._output_dir, 'writePath'))
     self._generate_skps()
-    self._run_render_pictures(['-r', self._input_skp_dir,
-                               '--writeChecksumBasedFilenames',
-                               '--writePath', write_path_dir,
-                               '--writeJsonSummaryPath', output_json_path])
+    self._run_render_pictures([
+        '-r', self._input_skp_dir,
+        '--descriptions', 'builder=builderName', 'renderMode=renderModeName',
+        '--writeChecksumBasedFilenames',
+        '--writePath', write_path_dir,
+        '--writeJsonSummaryPath', output_json_path,
+    ])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "descriptions" : {
+            "builder": "builderName",
+            "renderMode": "renderModeName",
+        },
         "actual-results" : {
             "red.skp": {
                 # Manually verified: 640x400 red rectangle with black border
@@ -373,6 +384,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "descriptions" : None,
         "actual-results" : {
             "red.skp": {
                 "whole-image": RED_WHOLEIMAGE,
@@ -400,6 +412,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "descriptions" : None,
         "actual-results" : {
             "red.skp": {
                 "tiled-images": RED_TILES,
@@ -434,6 +447,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "descriptions" : None,
         "actual-results" : {
             "red.skp": {
                 "tiled-images": RED_TILES,
@@ -464,6 +478,7 @@ class RenderPicturesTest(base_unittest.TestCase):
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "descriptions" : None,
         "actual-results" : {
             "red.skp": {
                 # Manually verified these 6 images, all 256x256 tiles,
@@ -589,6 +604,7 @@ class RenderPicturesTest(base_unittest.TestCase):
     """
     expectations_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "descriptions" : None,
         "expected-results" : {
             # red.skp: these should fail the comparison
             "red.skp": {

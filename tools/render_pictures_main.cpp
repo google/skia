@@ -26,12 +26,16 @@
 #include "picture_utils.h"
 
 // Flags used by this file, alphabetically:
+DEFINE_bool(bench_record, false, "If true, drop into an infinite loop of recording the picture.");
 DECLARE_bool(deferImageDecoding);
+DEFINE_string(descriptions, "", "one or more key=value pairs to add to the descriptions section "
+              "of the JSON summary.");
 DEFINE_int32(maxComponentDiff, 256, "Maximum diff on a component, 0 - 256. Components that differ "
              "by more than this amount are considered errors, though all diffs are reported. "
              "Requires --validate.");
 DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "
               "pixel mismatches into this directory.");
+DEFINE_bool(preprocess, false, "If true, perform device specific preprocessing before rendering.");
 DEFINE_string(readJsonSummaryPath, "", "JSON file to read image expectations from.");
 DECLARE_string(readPath);
 DEFINE_bool(writeChecksumBasedFilenames, false,
@@ -46,10 +50,6 @@ DEFINE_bool(writeWholeImage, false, "In tile mode, write the entire rendered ima
 DEFINE_bool(validate, false, "Verify that the rendered image contains the same pixels as "
             "the picture rendered in simple mode. When used in conjunction with --bbh, results "
             "are validated against the picture rendered in the same mode, but without the bbh.");
-
-DEFINE_bool(bench_record, false, "If true, drop into an infinite loop of recording the picture.");
-
-DEFINE_bool(preprocess, false, "If true, perform device specific preprocessing before rendering.");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -486,6 +486,13 @@ int tool_main(int argc, char** argv) {
 #endif
 #endif
     if (FLAGS_writeJsonSummaryPath.count() == 1) {
+        // If there were any descriptions on the command line, insert them now.
+        for (int i=0; i<FLAGS_descriptions.count(); i++) {
+            SkTArray<SkString> tokens;
+            SkStrSplit(FLAGS_descriptions[i], "=", &tokens);
+            SkASSERT(tokens.count() == 2);
+            jsonSummary.addDescription(tokens[0].c_str(), tokens[1].c_str());
+        }
         jsonSummary.writeToFile(FLAGS_writeJsonSummaryPath[0]);
     }
     return 0;

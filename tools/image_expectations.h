@@ -111,6 +111,14 @@ namespace sk_tools {
                  const int *tileNumber=NULL);
 
         /**
+         * Adds a key/value pair to the descriptions dict within the summary of results.
+         *
+         * @param key key within the descriptions dict
+         * @param value value to associate with that key
+         */
+        void addDescription(const char *key, const char *value);
+
+        /**
          * Returns true if this test result matches its expectations.
          * If there are no expectations for this test result, this will return false.
          *
@@ -140,6 +148,7 @@ namespace sk_tools {
         static bool Parse(SkFILE* filePtr, Json::Value *jsonRoot);
 
         Json::Value fActualResults;
+        Json::Value fDescriptions;
         Json::Value fExpectedJsonRoot;
         Json::Value fExpectedResults;
     };

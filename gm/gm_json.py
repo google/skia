@@ -48,6 +48,10 @@ JSONKEY_ACTUALRESULTS_NOCOMPARISON = 'no-comparison'
 JSONKEY_ACTUALRESULTS_SUCCEEDED = 'succeeded'
 
 
+# Descriptions of the result set as a whole.
+JSONKEY_DESCRIPTIONS = 'descriptions'
+
+
 JSONKEY_EXPECTEDRESULTS = 'expected-results'
 
 # One or more [HashType/DigestValue] pairs representing valid results for this

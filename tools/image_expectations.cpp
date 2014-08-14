@@ -28,6 +28,7 @@
  * output module.
  */
 const static char kJsonKey_ActualResults[] = "actual-results";
+const static char kJsonKey_Descriptions[] = "descriptions";
 const static char kJsonKey_ExpectedResults[] = "expected-results";
 const static char kJsonKey_Header[] = "header";
 const static char kJsonKey_Header_Type[] = "type";
@@ -177,6 +178,10 @@ namespace sk_tools {
         }
     }
 
+    void ImageResultsAndExpectations::addDescription(const char *key, const char *value) {
+        fDescriptions[key] = value;
+    }
+
     bool ImageResultsAndExpectations::matchesExpectation(const char *sourceName,
                                                          const ImageDigest &digest,
                                                          const int *tileNumber) {
@@ -205,8 +210,9 @@ namespace sk_tools {
         header[kJsonKey_Header_Type] = kJsonValue_Header_Type;
         header[kJsonKey_Header_Revision] = kJsonValue_Header_Revision;
         Json::Value root;
-        root[kJsonKey_Header] = header;
         root[kJsonKey_ActualResults] = fActualResults;
+        root[kJsonKey_Descriptions] = fDescriptions;
+        root[kJsonKey_Header] = header;
         std::string jsonStdString = root.toStyledString();
         SkFILEWStream stream(filename);
         stream.write(jsonStdString.c_str(), jsonStdString.length());
