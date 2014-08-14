@@ -10,16 +10,15 @@
 #include "GrGLDefines.h"
 #include "SkTDArray.h"
 #include "GrGLNoOpInterface.h"
+#include "SkTLS.h"
 
-// Functions not declared in GrGLBogusInterface.h (not common with the Debug GL interface).
-
-namespace { // added to suppress 'no previous prototype' warning
-
-class GrBufferObj {
+class BufferObj {
 public:
-    GrBufferObj(GrGLuint id) : fID(id), fDataPtr(NULL), fSize(0), fMapped(false) {
+    SK_DECLARE_INST_COUNT_ROOT(BufferObj);
+
+    BufferObj(GrGLuint id) : fID(id), fDataPtr(NULL), fSize(0), fMapped(false) {
     }
-    ~GrBufferObj() { SkDELETE_ARRAY(fDataPtr); }
+    ~BufferObj() { SkDELETE_ARRAY(fDataPtr); }
 
     void allocate(GrGLsizeiptr size, const GrGLchar* dataPtr) {
         if (NULL != fDataPtr) {
@@ -45,54 +44,104 @@ private:
     bool         fMapped;
 };
 
-// In debug builds we do asserts that ensure we agree with GL about when a buffer
-// is mapped.
-static SkTDArray<GrBufferObj*> gBuffers;  // slot 0 is reserved for head of free list
-static GrGLuint gCurrArrayBuffer;
-static GrGLuint gCurrElementArrayBuffer;
+// This class maintains a sparsely populated array of buffer pointers.
+class BufferManager {
+public:
+    SK_DECLARE_INST_COUNT_ROOT(BufferManager);
 
-static GrBufferObj* look_up(GrGLuint id) {
-    GrBufferObj* buffer = gBuffers[id];
-    SkASSERT(NULL != buffer && buffer->id() == id);
-    return buffer;
-}
+    BufferManager() : fFreeListHead(kFreeListEnd) {}
 
-static GrBufferObj* create_buffer() {
-    if (0 == gBuffers.count()) {
-        // slot zero is reserved for the head of the free list
-        *gBuffers.append() = NULL;
+    ~BufferManager() {
+        // NULL out the entries that are really free list links rather than ptrs before deleting.
+        intptr_t curr = fFreeListHead;
+        while (kFreeListEnd != curr) {
+            intptr_t next = reinterpret_cast<intptr_t>(fBuffers[SkToS32(curr)]);
+            fBuffers[SkToS32(curr)] = NULL;
+            curr = next;
+        }
+
+        fBuffers.deleteAll();
     }
 
-    GrGLuint id;
-    GrBufferObj* buffer;
-
-    if (NULL == gBuffers[0]) {
-        // no free slots - create a new one
-        id = gBuffers.count();
-        buffer = SkNEW_ARGS(GrBufferObj, (id));
-        gBuffers.append(1, &buffer);
-    } else {
-        // recycle a slot from the free list
-        id = SkTCast<GrGLuint>(gBuffers[0]);
-        gBuffers[0] = gBuffers[id];
-
-        buffer = SkNEW_ARGS(GrBufferObj, (id));
-        gBuffers[id] = buffer;
+    BufferObj* lookUp(GrGLuint id) {
+        BufferObj* buffer = fBuffers[id];
+        SkASSERT(NULL != buffer && buffer->id() == id);
+        return buffer;
     }
 
-    return buffer;
-}
+    BufferObj* create() {
+        GrGLuint id;
+        BufferObj* buffer;
 
-static void delete_buffer(GrBufferObj* buffer) {
-    SkASSERT(gBuffers.count() > 0);
+        if (kFreeListEnd == fFreeListHead) {
+            // no free slots - create a new one
+            id = fBuffers.count();
+            buffer = SkNEW_ARGS(BufferObj, (id));
+            *fBuffers.append() = buffer;
+        } else {
+            // grab the head of the free list and advance the head to the next free slot.
+            id = static_cast<GrGLuint>(fFreeListHead);
+            fFreeListHead = reinterpret_cast<intptr_t>(fBuffers[id]);
 
-    GrGLuint id = buffer->id();
-    SkDELETE(buffer);
+            buffer = SkNEW_ARGS(BufferObj, (id));
+            fBuffers[id] = buffer;
+        }
 
-    // Add this slot to the free list
-    gBuffers[id] = gBuffers[0];
-    gBuffers[0] = SkTCast<GrBufferObj*>((const void*)(intptr_t)id);
-}
+        return buffer;
+    }
+
+    void free(BufferObj* buffer) {
+        SkASSERT(fBuffers.count() > 0);
+
+        GrGLuint id = buffer->id();
+        SkDELETE(buffer);
+
+        fBuffers[id] = reinterpret_cast<BufferObj*>(fFreeListHead);
+        fFreeListHead = id;
+    }
+
+private:
+    static const intptr_t kFreeListEnd = -1;
+    // Index of the first entry of fBuffers in the free list. Free slots in fBuffers are indices to
+    // the next free slot. The last free slot has a value of kFreeListEnd.
+    intptr_t                fFreeListHead;
+    SkTDArray<BufferObj*>   fBuffers;
+};
+
+/**
+ * The global-to-thread state object for the null interface. All null interfaces on the
+ * same thread currently share one of these. This means two null contexts on the same thread
+ * can interfere with each other. It may make sense to more integrate this into SkNullGLContext
+ * and use it's makeCurrent mechanism.
+ */
+struct ThreadContext {
+public:
+    SK_DECLARE_INST_COUNT_ROOT(ThreadContext);
+
+    BufferManager   fBufferManager;
+    GrGLuint        fCurrArrayBuffer;
+    GrGLuint        fCurrElementArrayBuffer;
+    GrGLuint        fCurrProgramID;
+    GrGLuint        fCurrShaderID;
+
+    static ThreadContext* Get() {
+        return reinterpret_cast<ThreadContext*>(SkTLS::Get(Create, Delete));
+    }
+
+    ThreadContext()
+        : fCurrArrayBuffer(0)
+        , fCurrElementArrayBuffer(0)
+        , fCurrProgramID(0)
+        , fCurrShaderID(0) {}
+
+private:
+    static void* Create() { return SkNEW(ThreadContext ); }
+    static void Delete(void* context) { SkDELETE(reinterpret_cast<ThreadContext *>(context)); }
+};
+
+// Functions not declared in GrGLBogusInterface.h (not common with the Debug GL interface).
+
+namespace { // added to suppress 'no previous prototype' warning
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLActiveTexture(GrGLenum texture) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLAttachShader(GrGLuint program, GrGLuint shader) {}
@@ -102,9 +151,9 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindTexture(GrGLenum target, GrGLuint texture
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindVertexArray(GrGLuint id) {}
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
-
+    ThreadContext* ctx = ThreadContext::Get();
     for (int i = 0; i < n; ++i) {
-        GrBufferObj* buffer = create_buffer();
+        BufferObj* buffer = ctx->fBufferManager.create();
         ids[i] = buffer->id();
     }
 }
@@ -115,14 +164,15 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target,
                                               GrGLsizeiptr size,
                                               const GrGLvoid* data,
                                               GrGLenum usage) {
+    ThreadContext* ctx = ThreadContext::Get();
     GrGLuint id = 0;
 
     switch (target) {
     case GR_GL_ARRAY_BUFFER:
-        id = gCurrArrayBuffer;
+        id = ctx->fCurrArrayBuffer;
         break;
     case GR_GL_ELEMENT_ARRAY_BUFFER:
-        id = gCurrElementArrayBuffer;
+        id = ctx->fCurrElementArrayBuffer;
         break;
     default:
         SkFAIL("Unexpected target to nullGLBufferData");
@@ -130,7 +180,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target,
     }
 
     if (id > 0) {
-        GrBufferObj* buffer = look_up(id);
+        BufferObj* buffer = ctx->fBufferManager.lookUp(id);
         buffer->allocate(size, (const GrGLchar*) data);
     }
 }
@@ -147,13 +197,11 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLFramebufferRenderbuffer(GrGLenum target, GrGL
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLFramebufferTexture2D(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level) {}
 
 GrGLuint GR_GL_FUNCTION_TYPE nullGLCreateProgram() {
-    static GrGLuint gCurrID = 0;
-    return ++gCurrID;
+    return ++ThreadContext::Get()->fCurrProgramID;
 }
 
 GrGLuint GR_GL_FUNCTION_TYPE nullGLCreateShader(GrGLenum type) {
-    static GrGLuint gCurrID = 0;
-    return ++gCurrID;
+    return ++ThreadContext::Get()->fCurrShaderID;
 }
 
 // same delete used for shaders and programs
@@ -161,46 +209,49 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLDelete(GrGLuint program) {
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindBuffer(GrGLenum target, GrGLuint buffer) {
+    ThreadContext* ctx = ThreadContext::Get();
     switch (target) {
     case GR_GL_ARRAY_BUFFER:
-        gCurrArrayBuffer = buffer;
+        ctx->fCurrArrayBuffer = buffer;
         break;
     case GR_GL_ELEMENT_ARRAY_BUFFER:
-        gCurrElementArrayBuffer = buffer;
+        ctx->fCurrElementArrayBuffer = buffer;
         break;
     }
 }
 
 // deleting a bound buffer has the side effect of binding 0
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLDeleteBuffers(GrGLsizei n, const GrGLuint* ids) {
+    ThreadContext* ctx = ThreadContext::Get();
     for (int i = 0; i < n; ++i) {
-        if (ids[i] == gCurrArrayBuffer) {
-            gCurrArrayBuffer = 0;
+        if (ids[i] == ctx->fCurrArrayBuffer) {
+            ctx->fCurrArrayBuffer = 0;
         }
-        if (ids[i] == gCurrElementArrayBuffer) {
-            gCurrElementArrayBuffer = 0;
+        if (ids[i] == ctx->fCurrElementArrayBuffer) {
+            ctx->fCurrElementArrayBuffer = 0;
         }
 
-        GrBufferObj* buffer = look_up(ids[i]);
-        delete_buffer(buffer);
+        BufferObj* buffer = ctx->fBufferManager.lookUp(ids[i]);
+        ctx->fBufferManager.free(buffer);
     }
 }
 
 GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBufferRange(GrGLenum target, GrGLintptr offset,
                                                    GrGLsizeiptr length, GrGLbitfield access) {
+    ThreadContext* ctx = ThreadContext::Get();
     GrGLuint id = 0;
     switch (target) {
         case GR_GL_ARRAY_BUFFER:
-            id = gCurrArrayBuffer;
+            id = ctx->fCurrArrayBuffer;
             break;
         case GR_GL_ELEMENT_ARRAY_BUFFER:
-            id = gCurrElementArrayBuffer;
+            id = ctx->fCurrElementArrayBuffer;
             break;
     }
 
     if (id > 0) {
         // We just ignore the offset and length here.
-        GrBufferObj* buffer = look_up(id);
+        BufferObj* buffer = ctx->fBufferManager.lookUp(id);
         SkASSERT(!buffer->mapped());
         buffer->setMapped(true);
         return buffer->dataPtr();
@@ -209,18 +260,19 @@ GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBufferRange(GrGLenum target, GrGLintptr o
 }
 
 GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBuffer(GrGLenum target, GrGLenum access) {
+    ThreadContext* ctx = ThreadContext::Get();
     GrGLuint id = 0;
     switch (target) {
         case GR_GL_ARRAY_BUFFER:
-            id = gCurrArrayBuffer;
+            id = ctx->fCurrArrayBuffer;
             break;
         case GR_GL_ELEMENT_ARRAY_BUFFER:
-            id = gCurrElementArrayBuffer;
+            id = ctx->fCurrElementArrayBuffer;
             break;
     }
 
     if (id > 0) {
-        GrBufferObj* buffer = look_up(id);
+        BufferObj* buffer = ctx->fBufferManager.lookUp(id);
         SkASSERT(!buffer->mapped());
         buffer->setMapped(true);
         return buffer->dataPtr();
@@ -236,17 +288,18 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLFlushMappedBufferRange(GrGLenum target,
 
 
 GrGLboolean GR_GL_FUNCTION_TYPE nullGLUnmapBuffer(GrGLenum target) {
+    ThreadContext* ctx = ThreadContext::Get();
     GrGLuint id = 0;
     switch (target) {
     case GR_GL_ARRAY_BUFFER:
-        id = gCurrArrayBuffer;
+        id = ctx->fCurrArrayBuffer;
         break;
     case GR_GL_ELEMENT_ARRAY_BUFFER:
-        id = gCurrElementArrayBuffer;
+        id = ctx->fCurrElementArrayBuffer;
         break;
     }
     if (id > 0) {
-        GrBufferObj* buffer = look_up(id);
+        BufferObj* buffer = ctx->fBufferManager.lookUp(id);
         SkASSERT(buffer->mapped());
         buffer->setMapped(false);
         return GR_GL_TRUE;
@@ -257,20 +310,21 @@ GrGLboolean GR_GL_FUNCTION_TYPE nullGLUnmapBuffer(GrGLenum target) {
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLGetBufferParameteriv(GrGLenum target, GrGLenum pname, GrGLint* params) {
+    ThreadContext* ctx = ThreadContext::Get();
     switch (pname) {
         case GR_GL_BUFFER_MAPPED: {
             *params = GR_GL_FALSE;
             GrGLuint id = 0;
             switch (target) {
                 case GR_GL_ARRAY_BUFFER:
-                    id = gCurrArrayBuffer;
+                    id = ctx->fCurrArrayBuffer;
                     break;
                 case GR_GL_ELEMENT_ARRAY_BUFFER:
-                    id = gCurrElementArrayBuffer;
+                    id = ctx->fCurrElementArrayBuffer;
                     break;
             }
             if (id > 0) {
-                GrBufferObj* buffer = look_up(id);
+                BufferObj* buffer = ctx->fBufferManager.lookUp(id);
                 if (buffer->mapped()) {
                     *params = GR_GL_TRUE;
                 }
