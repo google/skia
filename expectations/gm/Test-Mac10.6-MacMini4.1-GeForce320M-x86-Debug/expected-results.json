@@ -15850,14 +15850,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6682913794993626676
+          12114185262432977992
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "tilemode_gradient_pdf-poppler.png": {
       "allowed-digests": [
