@@ -1042,10 +1042,14 @@ Loader.controller(
      *
      * @param imagePair: ImagePair to generate image diff URL for
      */
+     // TODO (stephana): this is a temporary fix. A fix is in the works
+     // to get rid of this function and include the URL in the data 
+     // sent from the backend.
+
     $scope.getImageDiffRelativeUrl = function(imagePair) {
       var before =
-          imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL] + "-vs-" +
-          imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL];
+          imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL] + "_png-vs-" +
+          imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL] + "_png";
       return before.replace(/[^\w\-]/g, "_") + ".png";
     };
 
