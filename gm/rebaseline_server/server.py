@@ -349,7 +349,13 @@ class Server(object):
 
   @property
   def is_editable(self):
-    """ True iff HTTP clients are allowed to submit new GM baselines. """
+    """ True iff HTTP clients are allowed to submit new GM baselines.
+
+    TODO(epoger): This only pertains to GM baselines; SKP baselines are
+    editable whenever expectations vs actuals are shown.
+    Once we move the GM baselines to use the same code as the SKP baselines,
+    we can delete this property.
+    """
     return self._editable
 
   @property
@@ -597,6 +603,21 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         param_dict.get(LIVE_PARAM__SET_A_SECTION, [None])[0])
     setB_section = self._validate_summary_section(
         param_dict.get(LIVE_PARAM__SET_B_SECTION, [None])[0])
+
+    # If the sets show expectations vs actuals, always show expectations on
+    # the left (setA).
+    if ((setA_section == gm_json.JSONKEY_ACTUALRESULTS) and
+        (setB_section == gm_json.JSONKEY_EXPECTEDRESULTS)):
+      setA_dirs, setB_dirs = setB_dirs, setA_dirs
+      setA_section, setB_section = setB_section, setA_section
+
+    # Are we comparing some actuals against expectations stored in the repo?
+    # If so, we can allow the user to submit new baselines.
+    is_editable = (
+        (setA_section == gm_json.JSONKEY_EXPECTEDRESULTS) and
+        (setA_dirs[0].startswith(compare_rendered_pictures.REPO_URL_PREFIX)) and
+        (setB_section == gm_json.JSONKEY_ACTUALRESULTS))
+
     results_obj = compare_rendered_pictures.RenderedPicturesComparisons(
         setA_dirs=setA_dirs, setB_dirs=setB_dirs,
         setA_section=setA_section, setB_section=setB_section,
@@ -608,7 +629,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.send_response(200)
     else:
       self.send_json_dict(results_obj.get_packaged_results_of_type(
-          results_type=results_mod.KEY__HEADER__RESULTS_ALL))
+          results_type=results_mod.KEY__HEADER__RESULTS_ALL,
+          is_editable=is_editable))
 
   def do_GET_live_results(self, url_remainder):
     """ Handle a GET request for live-generated image diff data.
@@ -822,7 +844,9 @@ def main():
                             'differences between these config pairs: '
                             + str(CONFIG_PAIRS_TO_COMPARE)))
   parser.add_argument('--editable', action='store_true',
-                      help=('Allow HTTP clients to submit new GM baselines.'))
+                      help=('Allow HTTP clients to submit new GM baselines; '
+                            'SKP baselines can be edited regardless of this '
+                            'setting.'))
   parser.add_argument('--export', action='store_true',
                       help=('Instead of only allowing access from HTTP clients '
                             'on localhost, allow HTTP clients on other hosts '

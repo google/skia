@@ -41,12 +41,6 @@
       which records are displayed.
     </div>
 
-    <div class="warning-div"
-         ng-show="header[constants.KEY__HEADER__IS_EDITABLE] && header[constants.KEY__HEADER__IS_EXPORTED]">
-      WARNING!  These results are editable and exported, so any user
-      who can connect to this server over the network can modify them.
-    </div>
-
     <div ng-show="header[constants.KEY__HEADER__TIME_UPDATED]">
       setA: "{{header[constants.KEY__HEADER__SET_A_DESCRIPTIONS][constants.KEY__SET_DESCRIPTIONS__SECTION]}}"
       within {{header[constants.KEY__HEADER__SET_A_DESCRIPTIONS][constants.KEY__SET_DESCRIPTIONS__DIR]}}
@@ -176,10 +170,13 @@
 
       <!-- Submission UI that we only show in the Pending Approval tab. -->
       <div ng-show="'Pending Approval' == viewingTab">
+        <div style="font-size:20px">
+          TODO(epoger): We don't yet support submitting new SKP expectations.
+        </div>
         <div style="display:inline-block">
           <button style="font-size:20px"
                   ng-click="submitApprovals(filteredImagePairs)"
-                  ng-disabled="submitPending || (filteredImagePairs.length == 0)">
+                  ng-disabled="true || submitPending || (filteredImagePairs.length == 0)">
             Update these {{filteredImagePairs.length}} expectations on the server
           </button>
         </div>
