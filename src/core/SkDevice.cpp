@@ -86,10 +86,12 @@ void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPoint cubics[12], const
     SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, draw.fMatrix);
 
     // It automatically adjusts lodX and lodY in case it exceeds the number of indices.
-    SkPatchUtils::getVertexData(&data, cubics, colors, texCoords, lod.width(), lod.height());
-    this->drawVertices(draw, SkCanvas::kTriangles_VertexMode, data.fVertexCount, data.fPoints,
-                       data.fTexCoords, data.fColors, xmode, data.fIndices, data.fIndexCount,
-                       paint);
+    // If it fails to generate the vertices, then we do not draw. 
+    if (SkPatchUtils::getVertexData(&data, cubics, colors, texCoords, lod.width(), lod.height())) {
+        this->drawVertices(draw, SkCanvas::kTriangles_VertexMode, data.fVertexCount, data.fPoints,
+                           data.fTexCoords, data.fColors, xmode, data.fIndices, data.fIndexCount,
+                           paint);
+    }
 }
 
 bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowBytes, int x, int y) {
