@@ -89,6 +89,8 @@ public:
 
     bool containsBitmaps() const;
 
+    int opCount() const { return fContentInfo.numOperations(); }
+
     const SkData* opData() const { return fOpData; }
 
 protected:
@@ -128,7 +130,7 @@ public:
         return &(*fPaints)[index - 1];
     }
 
-    void initIterator(SkPictureStateTree::Iterator* iter, 
+    void initIterator(SkPictureStateTree::Iterator* iter,
                       const SkTDArray<void*>& draws,
                       SkCanvas* canvas) const {
         if (NULL != fStateTree) {

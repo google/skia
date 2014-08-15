@@ -197,6 +197,13 @@ public:
     // Takes ref on listener.
     void addDeletionListener(DeletionListener* listener) const;
 
+    /** Return the approximate number of operations in this picture.  This
+     *  number may be greater or less than the number of SkCanvas calls
+     *  recorded: some calls may be recorded as more than one operation, or some
+     *  calls may be optimized away.
+     */
+    int approximateOpCount() const;
+
 private:
     // V2 : adds SkPixelRef's generation ID.
     // V3 : PictInfo tag at beginning, and EOF tag at the end

@@ -455,3 +455,15 @@ void SkPicture::callDeletionListeners() {
 
     fDeletionListeners.unrefAll();
 }
+
+// fRecord OK
+int SkPicture::approximateOpCount() const {
+    SkASSERT(fRecord.get() || fData.get());
+    if (fRecord.get()) {
+        return fRecord->count();
+    }
+    if (fData.get()) {
+        return fData->opCount();
+    }
+    return 0;
+}
