@@ -174,13 +174,14 @@ void SkPatchGrid::draw(SkCanvas* canvas, SkPaint& paint) {
             SkColor colors[4];
             this->getPatch(x, y, cubics, colors, texCoords);
             SkPatchUtils::VertexData data;
-            SkPatchUtils::getVertexData(&data, cubics,
-                                        fModeFlags & kColors_VertexType ? colors : NULL,
-                                        fModeFlags & kTexs_VertexType ? texCoords : NULL,
-                                        maxCols[x], maxRows[y]);
-            canvas->drawVertices(SkCanvas::kTriangles_VertexMode, data.fVertexCount,
-                                 data.fPoints, data.fTexCoords, data.fColors, fXferMode,
-                                 data.fIndices, data.fIndexCount, paint);
+            if (SkPatchUtils::getVertexData(&data, cubics,
+                                            fModeFlags & kColors_VertexType ? colors : NULL,
+                                            fModeFlags & kTexs_VertexType ? texCoords : NULL,
+                                            maxCols[x], maxRows[y])) {
+                canvas->drawVertices(SkCanvas::kTriangles_VertexMode, data.fVertexCount,
+                                     data.fPoints, data.fTexCoords, data.fColors, fXferMode,
+                                     data.fIndices, data.fIndexCount, paint);
+            }
         }
     }
     SkDELETE_ARRAY(maxCols);

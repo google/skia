@@ -70,6 +70,7 @@
     '../bench/MorphologyBench.cpp',
     '../bench/MutexBench.cpp',
     '../bench/PatchBench.cpp',
+    '../bench/PatchGridBench.cpp',
     '../bench/PathBench.cpp',
     '../bench/PathIterBench.cpp',
     '../bench/PathUtilsBench.cpp',

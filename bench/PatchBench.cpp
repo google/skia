@@ -5,16 +5,19 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkPaint.h"
 #include "SkPatchUtils.h"
-#include "SkRandom.h"
-#include "SkShader.h"
 #include "SkString.h"
-#include "SkTArray.h"
+
+/**
+ * This bench measures the rendering time of the call SkCanvas::drawPatch with different types of 
+ * input patches (regular case, with loops, a square, with a big difference between "parallel" 
+ * sides). This bench also tests the different combination of optional parameters for the function 
+ * (passing texture coordinates and colors, only textures coordinates, only colors or none).
+ * Finally, it applies a scale to test if the size affects the rendering time. 
+ */
 
 class PatchBench : public Benchmark {
 
@@ -92,7 +95,7 @@ protected:
                 vertexMode.set("texs");
                 break;
             case kBoth_VertexMode:
-                vertexMode.set("colors&texs");
+                vertexMode.set("colors_texs");
                 break;
             default:
                 break;
@@ -104,12 +107,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void preDraw() {
-
-    }
-
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
-
+    virtual void onPreDraw() SK_OVERRIDE {
         this->setCubics();
         this->setColors();
         this->setTexCoords();
@@ -123,7 +121,9 @@ protected:
                 fPaint.setShader(NULL);
                 break;
         }
+    }
 
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         canvas->scale(fScale.x(), fScale.y());
         for (int i = 0; i < loops; i++) {
             switch (fVertexMode) {
@@ -165,7 +165,7 @@ public:
         name->append("square");
     }
 
-    virtual void setCubics() {
+    virtual void setCubics() SK_OVERRIDE {
         const SkPoint points[SkPatchUtils::kNumCtrlPts] = {
             //top points
             {100,100},{150,100},{250,100}, {300,100},
@@ -191,7 +191,7 @@ public:
         name->append("LOD_Diff");
     }
 
-    virtual void setCubics() {
+    virtual void setCubics() SK_OVERRIDE {
         const SkPoint points[SkPatchUtils::kNumCtrlPts] = {
             //top points
             {100,175},{150,100},{250,100}, {300,0},
@@ -217,7 +217,7 @@ public:
         name->append("loop");
     }
 
-    virtual void setCubics() {
+    virtual void setCubics() SK_OVERRIDE {
         const SkPoint points[SkPatchUtils::kNumCtrlPts] = {
             //top points
             {100,100},{300,200},{100,200}, {300,100},
