@@ -95,3 +95,48 @@ DEF_TEST(RecordDraw_SetMatrixClobber, r) {
     expected.postConcat(translate);
     REPORTER_ASSERT(r, setMatrix->matrix == expected);
 }
+
+struct TestBBH : public SkBBoxHierarchy {
+    virtual void insert(void* data, const SkIRect& bounds, bool defer) SK_OVERRIDE {
+        Entry e = { (uintptr_t)data, bounds };
+        entries.push(e);
+    }
+    virtual int getCount() const SK_OVERRIDE { return entries.count(); }
+
+    virtual void flushDeferredInserts() SK_OVERRIDE {}
+
+    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const SK_OVERRIDE {}
+    virtual void clear() SK_OVERRIDE {}
+    virtual void rewindInserts() SK_OVERRIDE {}
+    virtual int getDepth() const SK_OVERRIDE { return -1; }
+
+    struct Entry {
+        uintptr_t data;
+        SkIRect bounds;
+    };
+    SkTDArray<Entry> entries;
+};
+
+// This test is not meant to make total sense yet.  It's testing the status quo
+// of SkRecordFillBounds(), which itself doesn't make total sense yet.
+DEF_TEST(RecordDraw_BBH, r) {
+    TestBBH bbh;
+
+    SkRecord record;
+
+    SkRecorder recorder(&record, W, H);
+    recorder.save();
+        recorder.clipRect(SkRect::MakeWH(400, 500));
+        recorder.scale(2, 2);
+        recorder.drawRect(SkRect::MakeWH(320, 240), SkPaint());
+    recorder.restore();
+
+    SkRecordFillBounds(record, &bbh);
+
+    REPORTER_ASSERT(r, bbh.entries.count() == 5);
+    for (int i = 0; i < bbh.entries.count(); i++) {
+        REPORTER_ASSERT(r, bbh.entries[i].data == (uintptr_t)i);
+
+        REPORTER_ASSERT(r, bbh.entries[i].bounds == SkIRect::MakeWH(400, 500));
+    }
+}

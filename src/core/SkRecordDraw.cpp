@@ -16,10 +16,16 @@ void SkRecordDraw(const SkRecord& record,
 
     if (NULL != bbh) {
         // Draw only ops that affect pixels in the canvas's current clip.
-        SkIRect devBounds;
-        canvas->getClipDeviceBounds(&devBounds);
+        SkIRect query;
+#if 1   // TODO: Why is this the right way to make the query?  I'd think it'd be the else branch.
+        SkRect clipBounds;
+        canvas->getClipBounds(&clipBounds);
+        clipBounds.roundOut(&query);
+#else
+        canvas->getClipDeviceBounds(&query);
+#endif
         SkTDArray<void*> ops;
-        bbh->search(devBounds, &ops);
+        bbh->search(query, &ops);
 
         // FIXME: QuadTree doesn't send these back in the order we inserted them.  :(
         // Also remove the sort in SkPictureData::getActiveOps()?
@@ -117,7 +123,9 @@ public:
     FillBounds(const SkRecord& record, SkBBoxHierarchy* bbh) : fBounds(record.count()) {
         // Calculate bounds for all ops.  This won't go quite in order, so we'll need
         // to store the bounds separately then feed them in to the BBH later in order.
+        const SkIRect largest = SkIRect::MakeLargest();
         fCTM.setIdentity();
+        fCurrentClipBounds = largest;
         for (fCurrentOp = 0; fCurrentOp < record.count(); fCurrentOp++) {
             record.visit<void>(fCurrentOp, *this);
         }
@@ -130,7 +138,7 @@ public:
 
         // Any control ops not part of any Save/Restore block draw everywhere.
         while (!fControlIndices.isEmpty()) {
-            this->popControl(SkIRect::MakeLargest());
+            this->popControl(largest);
         }
 
         // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
@@ -143,28 +151,44 @@ public:
         bbh->flushDeferredInserts();
     }
 
-    template <typename T> void operator()(const T& r) {
-        this->updateCTM(r);
-        this->trackBounds(r);
+    template <typename T> void operator()(const T& op) {
+        this->updateCTM(op);
+        this->updateClipBounds(op);
+        this->trackBounds(op);
     }
 
 private:
     struct SaveBounds {
-        int controlOps;  // Number of control ops in this Save block, including the Save.
-        SkIRect bounds;  // Bounds of everything in the block.
+        int controlOps;        // Number of control ops in this Save block, including the Save.
+        SkIRect bounds;        // Bounds of everything in the block.
+        const SkPaint* paint;  // Unowned.  If set, adjusts the bounds of all ops in this block.
     };
 
     template <typename T> void updateCTM(const T&) { /* most ops don't change the CTM */ }
-    void updateCTM(const Restore& r)   { fCTM = r.matrix; }
-    void updateCTM(const SetMatrix& r) { fCTM = r.matrix; }
-    void updateCTM(const Concat& r)    { fCTM.preConcat(r.matrix); }
+    void updateCTM(const Restore& op)   { fCTM = op.matrix; }
+    void updateCTM(const SetMatrix& op) { fCTM = op.matrix; }
+    void updateCTM(const Concat& op)    { fCTM.preConcat(op.matrix); }
+
+    template <typename T> void updateClipBounds(const T&) { /* most ops don't change the clip */ }
+    // Each of these devBounds fields is the state of the device bounds after the op.
+    // So Restore's devBounds are those bounds saved by its paired Save or SaveLayer.
+    void updateClipBounds(const Restore& op)    { fCurrentClipBounds = op.devBounds; }
+    void updateClipBounds(const ClipPath& op)   { fCurrentClipBounds = op.devBounds; }
+    void updateClipBounds(const ClipRRect& op)  { fCurrentClipBounds = op.devBounds; }
+    void updateClipBounds(const ClipRect& op)   { fCurrentClipBounds = op.devBounds; }
+    void updateClipBounds(const ClipRegion& op) { fCurrentClipBounds = op.devBounds; }
+    void updateClipBounds(const SaveLayer& op)  {
+        if (op.bounds) {
+            fCurrentClipBounds.intersect(this->adjustAndMap(*op.bounds, op.paint));
+        }
+    }
 
     // The bounds of these ops must be calculated when we hit the Restore
     // from the bounds of the ops in the same Save block.
-    void trackBounds(const Save&)       { this->pushSaveBlock(); }
+    void trackBounds(const Save&)          { this->pushSaveBlock(NULL); }
     // TODO: bounds of SaveLayer may be more complicated?
-    void trackBounds(const SaveLayer&)  { this->pushSaveBlock(); }
-    void trackBounds(const Restore&)    { fBounds[fCurrentOp] = this->popSaveBlock(); }
+    void trackBounds(const SaveLayer& op)  { this->pushSaveBlock(op.paint); }
+    void trackBounds(const Restore&) { fBounds[fCurrentOp] = this->popSaveBlock(); }
 
     void trackBounds(const Concat&)     { this->pushControl(); }
     void trackBounds(const SetMatrix&)  { this->pushControl(); }
@@ -179,12 +203,9 @@ private:
         this->updateSaveBounds(fBounds[fCurrentOp]);
     }
 
-    // TODO: remove this trivially-safe default when done bounding all ops
-    template <typename T> SkIRect bounds(const T&) { return SkIRect::MakeLargest(); }
-
-    void pushSaveBlock() {
+    void pushSaveBlock(const SkPaint* paint) {
         // Starting a new Save block.  Push a new entry to represent that.
-        SaveBounds sb = { 0, SkIRect::MakeEmpty() };
+        SaveBounds sb = { 0, SkIRect::MakeEmpty(), paint };
         fSaveStack.push(sb);
         this->pushControl();
     }
@@ -223,11 +244,54 @@ private:
         }
     }
 
-    SkIRect bounds(const NoOp&) { return SkIRect::MakeEmpty(); }  // NoOps don't draw anywhere.
+    // TODO: Remove this default when done bounding all ops.
+    template <typename T> SkIRect bounds(const T&) { return fCurrentClipBounds; }
+    SkIRect bounds(const Clear&) { return SkIRect::MakeLargest(); }  // Ignores the clip
+    SkIRect bounds(const NoOp&)  { return SkIRect::MakeEmpty(); }    // NoOps don't draw anywhere.
 
-    SkAutoTMalloc<SkIRect> fBounds;  // One for each op in the record.
-    SkMatrix fCTM;
+    // Adjust rect for all paints that may affect its geometry, then map it to device space.
+    SkIRect adjustAndMap(SkRect rect, const SkPaint* paint) {
+        // Adjust rect for its own paint.
+        if (paint) {
+            if (paint->canComputeFastBounds()) {
+                rect = paint->computeFastBounds(rect, &rect);
+            } else {
+                // The paint could do anything.  The only safe answer is the current clip.
+                return fCurrentClipBounds;
+            }
+        }
+
+        // Adjust rect for all the paints from the SaveLayers we're inside.
+        // For SaveLayers, only image filters will affect the bounds.
+        for (int i = fSaveStack.count() - 1; i >= 0; i--) {
+            if (fSaveStack[i].paint && fSaveStack[i].paint->getImageFilter()) {
+                if (paint->canComputeFastBounds()) {
+                    rect = fSaveStack[i].paint->computeFastBounds(rect, &rect);
+                } else {
+                    // Same deal as above.
+                    return fCurrentClipBounds;
+                }
+            }
+        }
+
+        // Map the rect back to device space.
+        fCTM.mapRect(&rect);
+        SkIRect devRect;
+        rect.roundOut(&devRect);
+        return devRect;
+    }
+
+    // Conservative device bounds for each op in the SkRecord.
+    SkAutoTMalloc<SkIRect> fBounds;
+
+    // We walk fCurrentOp through the SkRecord, as we go using updateCTM()
+    // and updateClipBounds() to maintain the exact CTM (fCTM) and conservative
+    // device bounds of the current clip (fCurrentClipBounds).
     unsigned fCurrentOp;
+    SkMatrix fCTM;
+    SkIRect fCurrentClipBounds;
+
+    // Used to track the bounds of Save/Restore blocks and the control ops inside them.
     SkTDArray<SaveBounds> fSaveStack;
     SkTDArray<unsigned>   fControlIndices;
 };

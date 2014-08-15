@@ -197,7 +197,7 @@ private:
 
 RECORD0(NoOp);
 
-RECORD1(Restore, SkMatrix, matrix);
+RECORD2(Restore, SkIRect, devBounds, SkMatrix, matrix);
 RECORD0(Save);
 RECORD3(SaveLayer, Optional<SkRect>, bounds, Optional<SkPaint>, paint, SkCanvas::SaveFlags, flags);
 
@@ -207,10 +207,10 @@ RECORD0(PopCull);
 RECORD1(Concat, SkMatrix, matrix);
 RECORD1(SetMatrix, SkMatrix, matrix);
 
-RECORD3(ClipPath, SkPath, path, SkRegion::Op, op, bool, doAA);
-RECORD3(ClipRRect, SkRRect, rrect, SkRegion::Op, op, bool, doAA);
-RECORD3(ClipRect, SkRect, rect, SkRegion::Op, op, bool, doAA);
-RECORD2(ClipRegion, SkRegion, region, SkRegion::Op, op);
+RECORD4(ClipPath,   SkIRect, devBounds, SkPath,   path,   SkRegion::Op, op, bool, doAA);
+RECORD4(ClipRRect,  SkIRect, devBounds, SkRRect,  rrect,  SkRegion::Op, op, bool, doAA);
+RECORD4(ClipRect,   SkIRect, devBounds, SkRect,   rect,   SkRegion::Op, op, bool, doAA);
+RECORD3(ClipRegion, SkIRect, devBounds, SkRegion, region, SkRegion::Op, op);
 
 RECORD1(Clear, SkColor, color);
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
