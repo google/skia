@@ -506,6 +506,9 @@ bool apply_morphology(const SkBitmap& input,
 
     if (radius.fWidth > 0) {
         GrAutoScratchTexture ast(context, desc);
+        if (NULL == ast.texture()) {
+            return false;
+        }
         GrContext::AutoRenderTarget art(context, ast.texture()->asRenderTarget());
         apply_morphology_pass(context, src, srcRect, dstRect, radius.fWidth,
                               morphType, Gr1DKernelEffect::kX_Direction);
@@ -519,6 +522,9 @@ bool apply_morphology(const SkBitmap& input,
     }
     if (radius.fHeight > 0) {
         GrAutoScratchTexture ast(context, desc);
+        if (NULL == ast.texture()) {
+            return false;
+        }
         GrContext::AutoRenderTarget art(context, ast.texture()->asRenderTarget());
         apply_morphology_pass(context, src, srcRect, dstRect, radius.fHeight,
                               morphType, Gr1DKernelEffect::kY_Direction);

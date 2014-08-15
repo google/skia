@@ -389,6 +389,9 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     desc.fConfig = kSkia8888_GrPixelConfig;
 
     GrAutoScratchTexture ast(context, desc);
+    if (NULL == ast.texture()) {
+        return false;
+    }
     SkAutoTUnref<GrTexture> dst(ast.detach());
 
     GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
