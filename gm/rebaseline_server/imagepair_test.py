@@ -89,6 +89,10 @@ class ImagePairTest(unittest.TestCase):
                     'numDifferingPixels': 662,
                     'percentDifferingPixels': 0.0662,
                     'perceptualDifference': 0.06620300000000157,
+                    'diffUrl': 'arcofzorro_16206093933823793653_png_png-vs-' +
+                        'arcofzorro_13786535001616823825_png_png.png',
+                    'whiteDiffUrl': 'arcofzorro_16206093933823793653_png_png' + 
+                        '-vs-arcofzorro_13786535001616823825_png_png.png',
                 },
                 'imageAUrl': 'arcofzorro/16206093933823793653.png',
                 'imageBUrl': 'arcofzorro/13786535001616823825.png',
@@ -115,6 +119,13 @@ class ImagePairTest(unittest.TestCase):
                     'numDifferingPixels': 102400,
                     'percentDifferingPixels': 100.00,
                     'perceptualDifference': 100.00,
+                    'diffUrl': 'gradients_degenerate_2pt_10552995703607727960' +
+                               '_png_png-vs-gradients_degenerate_2pt_' +
+                               '11198253335583713230_png_png.png',
+                    'whiteDiffUrl': 'gradients_degenerate_2pt_' +
+                               '10552995703607727960_png_png-vs-' +
+                               'gradients_degenerate_2pt_11198253335583713230' +
+                               '_png_png.png'
                 },
                 'expectations': {
                     'bugs': [1001, 1002],

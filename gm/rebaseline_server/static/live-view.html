@@ -377,10 +377,10 @@
             <div ng-if="imagePair[constants.KEY__IMAGEPAIRS__IS_DIFFERENT]"
                  title="{{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__NUM_DIFF_PIXELS] | number:0}} of {{(100 * imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__NUM_DIFF_PIXELS] / imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS]) | number:0}} pixels ({{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS].toFixed(4)}}%) differ from expectation.">
 
-              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
+              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__WHITE_DIFF_URL]}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
-                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
+                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__WHITE_DIFF_URL]}}" />
               <br/>
               {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS].toFixed(4)}}%
               ({{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__NUM_DIFF_PIXELS]}})
@@ -396,11 +396,11 @@
             <div ng-if="imagePair[constants.KEY__IMAGEPAIRS__IS_DIFFERENT]"
                  title="Perceptual difference measure is {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF].toFixed(4)}}%.  Maximum difference per channel: R={{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL][0]}}, G={{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL][1]}}, B={{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL][2]}}">
 
-              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
+              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__DIFF_URL]}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    ng-style="{backgroundColor: pixelDiffBgColor}"
                    width="{{imageSize}}"
-                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
+                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__DIFF_URL]}}" />
               <br/>
               {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF].toFixed(4)}}%
               {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL]}}

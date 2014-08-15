@@ -104,7 +104,7 @@
     "test"
   ], 
   "header": {
-    "dataHash": "-5829724510169924592", 
+    "dataHash": "-8474691963189557240", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 5, 
@@ -192,6 +192,7 @@
     }, 
     {
       "differenceData": {
+        "diffUrl": "bitmap-64bitMD5_displacement_11401048196735046263_png_png-vs-bitmap-64bitMD5_displacement_5698561127291561694_png_png.png", 
         "maxDiffPerChannel": [
           136, 
           68, 
@@ -199,7 +200,8 @@
         ], 
         "numDifferingPixels": 6081, 
         "percentDifferingPixels": 2.4324, 
-        "perceptualDifference": 1.9172010000000057
+        "perceptualDifference": 1.9172010000000057, 
+        "whiteDiffUrl": "bitmap-64bitMD5_displacement_11401048196735046263_png_png-vs-bitmap-64bitMD5_displacement_5698561127291561694_png_png.png"
       }, 
       "extraColumns": {
         "builder": "Test-Builder-We-Have-No-Expectations-File-For", 
@@ -213,6 +215,7 @@
     }, 
     {
       "differenceData": {
+        "diffUrl": "bitmap-64bitMD5_bigblurs_17309852422285247848_png_png-vs-bitmap-64bitMD5_bigblurs_1822195599289208664_png_png.png", 
         "maxDiffPerChannel": [
           255, 
           221, 
@@ -220,7 +223,8 @@
         ], 
         "numDifferingPixels": 50097, 
         "percentDifferingPixels": 30.5767822265625, 
-        "perceptualDifference": 3.391725000000008
+        "perceptualDifference": 3.391725000000008, 
+        "whiteDiffUrl": "bitmap-64bitMD5_bigblurs_17309852422285247848_png_png-vs-bitmap-64bitMD5_bigblurs_1822195599289208664_png_png.png"
       }, 
       "extraColumns": {
         "builder": "Test-Builder-We-Have-No-Expectations-File-For", 
@@ -256,6 +260,7 @@
     }, 
     {
       "differenceData": {
+        "diffUrl": "bitmap-64bitMD5_displacement_11401048196735046263_png_png-vs-bitmap-64bitMD5_displacement_5698561127291561694_png_png.png", 
         "maxDiffPerChannel": [
           136, 
           68, 
@@ -263,7 +268,8 @@
         ], 
         "numDifferingPixels": 6081, 
         "percentDifferingPixels": 2.4324, 
-        "perceptualDifference": 1.9172010000000057
+        "perceptualDifference": 1.9172010000000057, 
+        "whiteDiffUrl": "bitmap-64bitMD5_displacement_11401048196735046263_png_png-vs-bitmap-64bitMD5_displacement_5698561127291561694_png_png.png"
       }, 
       "extraColumns": {
         "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
@@ -277,6 +283,7 @@
     }, 
     {
       "differenceData": {
+        "diffUrl": "bitmap-64bitMD5_bigblurs_17309852422285247848_png_png-vs-bitmap-64bitMD5_bigblurs_1822195599289208664_png_png.png", 
         "maxDiffPerChannel": [
           255, 
           221, 
@@ -284,7 +291,8 @@
         ], 
         "numDifferingPixels": 50097, 
         "percentDifferingPixels": 30.5767822265625, 
-        "perceptualDifference": 3.391725000000008
+        "perceptualDifference": 3.391725000000008, 
+        "whiteDiffUrl": "bitmap-64bitMD5_bigblurs_17309852422285247848_png_png-vs-bitmap-64bitMD5_bigblurs_1822195599289208664_png_png.png"
       }, 
       "extraColumns": {
         "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 

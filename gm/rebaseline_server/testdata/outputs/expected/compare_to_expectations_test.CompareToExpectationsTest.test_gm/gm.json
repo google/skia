@@ -120,7 +120,7 @@
     "config"
   ], 
   "header": {
-    "dataHash": "-7804718549064096650", 
+    "dataHash": "6366271140430198826", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 5, 
@@ -131,6 +131,7 @@
   "imagePairs": [
     {
       "differenceData": {
+        "diffUrl": "bitmap-64bitMD5_texdata_2736593828543197285_png_png-vs-bitmap-64bitMD5_texdata_3695033638604474475_png_png.png", 
         "maxDiffPerChannel": [
           128, 
           128, 
@@ -138,7 +139,8 @@
         ], 
         "numDifferingPixels": 120000, 
         "percentDifferingPixels": 75.0, 
-        "perceptualDifference": 50.122499
+        "perceptualDifference": 50.122499, 
+        "whiteDiffUrl": "bitmap-64bitMD5_texdata_2736593828543197285_png_png-vs-bitmap-64bitMD5_texdata_3695033638604474475_png_png.png"
       }, 
       "expectations": {
         "bugs": null, 
@@ -157,6 +159,7 @@
     }, 
     {
       "differenceData": {
+        "diffUrl": "bitmap-64bitMD5_filterbitmap_checkerboard_192_192_9917960313903939620_png_png-vs-bitmap-64bitMD5_filterbitmap_checkerboard_192_192_4719210487426381700_png_png.png", 
         "maxDiffPerChannel": [
           255, 
           255, 
@@ -164,7 +167,8 @@
         ], 
         "numDifferingPixels": 765891, 
         "percentDifferingPixels": 97.38807678222656, 
-        "perceptualDifference": 25.256985
+        "perceptualDifference": 25.256985, 
+        "whiteDiffUrl": "bitmap-64bitMD5_filterbitmap_checkerboard_192_192_9917960313903939620_png_png-vs-bitmap-64bitMD5_filterbitmap_checkerboard_192_192_4719210487426381700_png_png.png"
       }, 
       "expectations": {
         "bugs": [
@@ -185,6 +189,7 @@
     }, 
     {
       "differenceData": {
+        "diffUrl": "bitmap-64bitMD5_filterbitmap_checkerboard_192_192_9917960313903939620_png_png-vs-bitmap-64bitMD5_filterbitmap_checkerboard_192_192_3154864687054945306_png_png.png", 
         "maxDiffPerChannel": [
           255, 
           255, 
@@ -192,7 +197,8 @@
         ], 
         "numDifferingPixels": 422432, 
         "percentDifferingPixels": 53.715006510416664, 
-        "perceptualDifference": 25.120543999999995
+        "perceptualDifference": 25.120543999999995, 
+        "whiteDiffUrl": "bitmap-64bitMD5_filterbitmap_checkerboard_192_192_9917960313903939620_png_png-vs-bitmap-64bitMD5_filterbitmap_checkerboard_192_192_3154864687054945306_png_png.png"
       }, 
       "expectations": {
         "bugs": [

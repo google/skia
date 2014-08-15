@@ -50,6 +50,8 @@ KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL = 'maxDiffPerChannel'
 KEY__DIFFERENCES__NUM_DIFF_PIXELS = 'numDifferingPixels'
 KEY__DIFFERENCES__PERCENT_DIFF_PIXELS = 'percentDifferingPixels'
 KEY__DIFFERENCES__PERCEPTUAL_DIFF = 'perceptualDifference'
+KEY__DIFFERENCES__DIFF_URL = 'diffUrl'
+KEY__DIFFERENCES__WHITE_DIFF_URL = 'whiteDiffUrl'
 
 # Special values within ImageDiffDB._diff_dict
 _DIFFRECORD_FAILED = 'failed'
@@ -158,6 +160,9 @@ class DiffRecord(object):
       record = data['records'][0]
       self._width = record['width']
       self._height = record['height']
+      self._diffUrl = os.path.split(record['rgbDiffPath'])[1]
+      self._whiteDiffUrl = os.path.split(record['whiteDiffPath'])[1]
+
       # TODO: make max_diff_per_channel a tuple instead of a list, because the
       # structure is meaningful (first element is red, second is green, etc.)
       # See http://stackoverflow.com/a/626871
@@ -212,7 +217,10 @@ class DiffRecord(object):
             self.get_percent_pixels_differing(),
         KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL: self._max_diff_per_channel,
         KEY__DIFFERENCES__PERCEPTUAL_DIFF: self._perceptual_difference,
+        KEY__DIFFERENCES__DIFF_URL: self._diffUrl,
+        KEY__DIFFERENCES__WHITE_DIFF_URL: self._whiteDiffUrl, 
     }
+
 
 
 class ImageDiffDB(object):

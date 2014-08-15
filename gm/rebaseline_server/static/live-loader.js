@@ -1040,28 +1040,5 @@ Loader.controller(
       var v = parseInt(brightnessString);
       return $scope.hexColorString(v, v, v);
     };
-
-    /**
-     * Returns the last path component of image diff URL for a given ImagePair.
-     *
-     * Depending on which diff this is (whitediffs, pixeldiffs, etc.) this
-     * will be relative to different base URLs.
-     *
-     * We must keep this function in sync with _get_difference_locator() in
-     * ../imagediffdb.py
-     *
-     * @param imagePair: ImagePair to generate image diff URL for
-     */
-     // TODO (stephana): this is a temporary fix. A fix is in the works
-     // to get rid of this function and include the URL in the data 
-     // sent from the backend.
-
-    $scope.getImageDiffRelativeUrl = function(imagePair) {
-      var before =
-          imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL] + "_png-vs-" +
-          imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL] + "_png";
-      return before.replace(/[^\w\-]/g, "_") + ".png";
-    };
-
   }
 );
