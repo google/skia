@@ -37,11 +37,6 @@ class AndroidMkCreationTest(unittest.TestCase):
                                       test_variables.ANDROID_MK)
     self.assertTrue(os.path.exists(path_to_android_mk))
 
-    # In addition, there should be an 'Android.mk' inside /tests/
-    path_to_tests_android_mk = os.path.join(self.__tmp_dir, 'tests',
-                                            test_variables.ANDROID_MK)
-    self.assertTrue(os.path.exists(path_to_tests_android_mk))
-
   def tearDown(self):
     # Remove self.__tmp_dir, which is no longer needed.
     shutil.rmtree(self.__tmp_dir)
