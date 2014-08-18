@@ -305,7 +305,16 @@ private:
 
     SkAutoTDelete<SkRecord>       fRecord;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
-    bool fRecordWillPlayBackBitmaps; // TODO: const
+
+    struct Analysis {
+        Analysis()
+            : fWillPlaybackBitmaps(false)
+            , fSuitableForGpuRasterization(false) { }
+        Analysis(const SkRecord&);
+
+        bool fWillPlaybackBitmaps;
+        bool fSuitableForGpuRasterization;
+    } const                       fAnalysis;
 };
 
 #endif

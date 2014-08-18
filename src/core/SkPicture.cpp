@@ -19,11 +19,13 @@
 #include "SkChunkAlloc.h"
 #include "SkDrawPictureCallback.h"
 #include "SkPaintPriv.h"
+#include "SkPathEffect.h"
 #include "SkPicture.h"
-#include "SkRecordAnalysis.h"
 #include "SkRegion.h"
+#include "SkShader.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
+#include "SkTLogic.h"
 #include "SkTSearch.h"
 #include "SkTime.h"
 
@@ -46,12 +48,180 @@ template <typename T> int SafeCount(const T* obj) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
+// Some commands have a paint, some have an optional paint.  Either way, get back a pointer.
+static const SkPaint* AsPtr(const SkPaint& p) { return &p; }
+static const SkPaint* AsPtr(const SkRecords::Optional<SkPaint>& p) { return p; }
+
+/** SkRecords visitor to determine whether an instance may require an
+    "external" bitmap to rasterize. May return false positives.
+    Does not return true for bitmap text.
+
+    Expected use is to determine whether images need to be decoded before
+    rasterizing a particular SkRecord.
+ */
+struct BitmapTester {
+    // Helpers.  These create HasMember_bitmap and HasMember_paint.
+    SK_CREATE_MEMBER_DETECTOR(bitmap);
+    SK_CREATE_MEMBER_DETECTOR(paint);
+
+
+    // Main entry for visitor:
+    // If the command has a bitmap directly, return true.
+    // If the command has a paint and the paint has a bitmap, return true.
+    // Otherwise, return false.
+    template <typename T>
+    bool operator()(const T& r) { return CheckBitmap(r); }
+
+
+    // If the command has a bitmap, of course we're going to play back bitmaps.
+    template <typename T>
+    static SK_WHEN(HasMember_bitmap<T>, bool) CheckBitmap(const T&) { return true; }
+
+    // If not, look for one in its paint (if it has a paint).
+    template <typename T>
+    static SK_WHEN(!HasMember_bitmap<T>, bool) CheckBitmap(const T& r) { return CheckPaint(r); }
+
+    // If we have a paint, dig down into the effects looking for a bitmap.
+    template <typename T>
+    static SK_WHEN(HasMember_paint<T>, bool) CheckPaint(const T& r) {
+        const SkPaint* paint = AsPtr(r.paint);
+        if (paint) {
+            const SkShader* shader = paint->getShader();
+            if (shader &&
+                shader->asABitmap(NULL, NULL, NULL) == SkShader::kDefault_BitmapType) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // If we don't have a paint, that non-paint has no bitmap.
+    template <typename T>
+    static SK_WHEN(!HasMember_paint<T>, bool) CheckPaint(const T&) { return false; }
+};
+
+bool WillPlaybackBitmaps(const SkRecord& record) {
+    BitmapTester tester;
+    for (unsigned i = 0; i < record.count(); i++) {
+        if (record.visit<bool>(i, tester)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/** SkRecords visitor to determine heuristically whether or not a SkPicture
+    will be performant when rasterized on the GPU.
+ */
+struct PathCounter {
+    SK_CREATE_MEMBER_DETECTOR(paint);
+
+    PathCounter()
+        : numPaintWithPathEffectUses (0)
+        , numFastPathDashEffects (0)
+        , numAAConcavePaths (0)
+        , numAAHairlineConcavePaths (0) {
+    }
+
+    void checkPaint(const SkPaint* paint) {
+        if (paint && paint->getPathEffect()) {
+            numPaintWithPathEffectUses++;
+        }
+    }
+
+    void operator()(const SkRecords::DrawPoints& op) {
+        this->checkPaint(&op.paint);
+        const SkPathEffect* effect = op.paint.getPathEffect();
+        if (effect) {
+            SkPathEffect::DashInfo info;
+            SkPathEffect::DashType dashType = effect->asADash(&info);
+            if (2 == op.count && SkPaint::kRound_Cap != op.paint.getStrokeCap() &&
+                SkPathEffect::kDash_DashType == dashType && 2 == info.fCount) {
+                numFastPathDashEffects++;
+            }
+        }
+    }
+
+    void operator()(const SkRecords::DrawPath& op) {
+        this->checkPaint(&op.paint);
+        if (op.paint.isAntiAlias() && !op.path.isConvex()) {
+            numAAConcavePaths++;
+
+            if (SkPaint::kStroke_Style == op.paint.getStyle() &&
+                0 == op.paint.getStrokeWidth()) {
+                numAAHairlineConcavePaths++;
+            }
+        }
+    }
+
+    template <typename T>
+    SK_WHEN(HasMember_paint<T>, void) operator()(const T& op) {
+        this->checkPaint(AsPtr(op.paint));
+    }
+
+    template <typename T>
+    SK_WHEN(!HasMember_paint<T>, void) operator()(const T& op) { /* do nothing */ }
+
+
+    int numPaintWithPathEffectUses;
+    int numFastPathDashEffects;
+    int numAAConcavePaths;
+    int numAAHairlineConcavePaths;
+};
+
+bool SuitableForGpuRasterization(const SkRecord& record,
+                                 const char** reason = NULL,
+                                 int sampleCount = 0) {
+    PathCounter counter;
+    for (unsigned i = 0; i < record.count(); i++) {
+        record.visit<void>(i, counter);
+    }
+
+    // TODO: the heuristic used here needs to be refined
+    static const int kNumPaintWithPathEffectsUsesTol = 1;
+    static const int kNumAAConcavePathsTol = 5;
+
+    int numNonDashedPathEffects = counter.numPaintWithPathEffectUses -
+                                  counter.numFastPathDashEffects;
+    bool suitableForDash = (0 == counter.numPaintWithPathEffectUses) ||
+                           (numNonDashedPathEffects < kNumPaintWithPathEffectsUsesTol
+                               && 0 == sampleCount);
+
+    bool ret = suitableForDash &&
+               (counter.numAAConcavePaths - counter.numAAHairlineConcavePaths)
+                   < kNumAAConcavePathsTol;
+
+    if (!ret && NULL != reason) {
+        if (!suitableForDash) {
+            if (0 != sampleCount) {
+                *reason = "Can't use multisample on dash effect.";
+            } else {
+                *reason = "Too many non dashed path effects.";
+            }
+        } else if ((counter.numAAConcavePaths - counter.numAAHairlineConcavePaths)
+                    >= kNumAAConcavePathsTol)
+            *reason = "Too many anti-aliased concave paths.";
+        else
+            *reason = "Unknown reason for GPU unsuitability.";
+    }
+    return ret;
+}
+
+} // namespace
+
+SkPicture::Analysis::Analysis(const SkRecord& record)
+    : fWillPlaybackBitmaps (WillPlaybackBitmaps(record))
+    , fSuitableForGpuRasterization (SuitableForGpuRasterization(record)) { }
+
+///////////////////////////////////////////////////////////////////////////////
+
 #ifdef SK_SUPPORT_LEGACY_DEFAULT_PICTURE_CTOR
 // fRecord OK
 SkPicture::SkPicture()
     : fWidth(0)
-    , fHeight(0)
-    , fRecordWillPlayBackBitmaps(false) {
+    , fHeight(0) {
     this->needsNewGenID();
 }
 #endif
@@ -61,8 +231,7 @@ SkPicture::SkPicture(int width, int height,
                      const SkPictureRecord& record,
                      bool deepCopyOps)
     : fWidth(width)
-    , fHeight(height)
-    , fRecordWillPlayBackBitmaps(false) {
+    , fHeight(height) {
     this->needsNewGenID();
 
     SkPictInfo info;
@@ -137,7 +306,6 @@ SkPicture* SkPicture::clone() const {
     }
 
     SkPicture* clone = SkNEW_ARGS(SkPicture, (newData.detach(), fWidth, fHeight));
-    clone->fRecordWillPlayBackBitmaps = fRecordWillPlayBackBitmaps;
     clone->fUniqueID = this->uniqueID(); // need to call method to ensure != 0
 
     return clone;
@@ -270,8 +438,7 @@ bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer& buffer, SkPictInfo* pInfo
 SkPicture::SkPicture(SkPictureData* data, int width, int height)
     : fData(data)
     , fWidth(width)
-    , fHeight(height)
-    , fRecordWillPlayBackBitmaps(false) {
+    , fHeight(height) {
     this->needsNewGenID();
 }
 
@@ -386,8 +553,11 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
 }
 
 #if SK_SUPPORT_GPU
-// fRecord TODO
+// fRecord OK
 bool SkPicture::suitableForGpuRasterization(GrContext* context, const char **reason) const {
+    if (fRecord.get()) {
+        return fAnalysis.fSuitableForGpuRasterization;
+    }
     if (NULL == fData.get()) {
         if (NULL != reason) {
             *reason = "Missing internal data.";
@@ -407,7 +577,7 @@ bool SkPicture::hasText() const {
 // fRecord OK
 bool SkPicture::willPlayBackBitmaps() const {
     if (fRecord.get()) {
-        return fRecordWillPlayBackBitmaps;
+        return fAnalysis.fWillPlaybackBitmaps;
     }
     if (!fData.get()) {
         return false;
@@ -441,7 +611,7 @@ SkPicture::SkPicture(int width, int height, SkRecord* record, SkBBoxHierarchy* b
     , fHeight(height)
     , fRecord(record)
     , fBBH(SkSafeRef(bbh))
-    , fRecordWillPlayBackBitmaps(SkRecordWillPlaybackBitmaps(*record)) {
+    , fAnalysis(*record) {
     // TODO: delay as much of this work until just before first playback?
     if (fBBH.get()) {
         SkRecordFillBounds(*record, fBBH.get());

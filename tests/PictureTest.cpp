@@ -578,6 +578,44 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
     }
 }
 
+#define GENERATE_CANVAS(recorder, x) \
+    (x) ? recorder.EXPERIMENTAL_beginRecording(100, 100) \
+        : recorder.beginRecording(100,100);
+
+/* Hit a few SkPicture::Analysis cases not handled elsewhere. */
+static void test_analysis(skiatest::Reporter* reporter, bool useNewPath) {
+    SkPictureRecorder recorder;
+
+    SkCanvas* canvas = GENERATE_CANVAS(recorder, useNewPath);
+    {
+        canvas->drawRect(SkRect::MakeWH(10, 10), SkPaint ());
+    }
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    REPORTER_ASSERT(reporter, !picture->willPlayBackBitmaps());
+
+    canvas = GENERATE_CANVAS(recorder, useNewPath);
+    {
+        SkPaint paint;
+        // CreateBitmapShader is too smart for us; an empty (or 1x1) bitmap shader
+        // gets optimized into a non-bitmap form, so we create a 2x2 bitmap here.
+        SkBitmap bitmap;
+        bitmap.allocPixels(SkImageInfo::MakeN32Premul(2, 2));
+        bitmap.eraseColor(SK_ColorBLUE);
+        *(bitmap.getAddr32(0, 0)) = SK_ColorGREEN;
+        SkShader* shader = SkShader::CreateBitmapShader(bitmap, SkShader::kClamp_TileMode,
+                                                        SkShader::kClamp_TileMode);
+        paint.setShader(shader)->unref();
+        REPORTER_ASSERT(reporter,
+                        shader->asABitmap(NULL, NULL, NULL) == SkShader::kDefault_BitmapType);
+
+        canvas->drawRect(SkRect::MakeWH(10, 10), paint);
+    }
+    picture.reset(recorder.endRecording());
+    REPORTER_ASSERT(reporter, picture->willPlayBackBitmaps());
+}
+
+#undef GENERATE_CANVAS
+
 static void test_gatherpixelrefsandrects(skiatest::Reporter* reporter) {
     const int IW = 32;
     const int IH = IW;
@@ -706,11 +744,16 @@ static void rand_op(SkCanvas* canvas, SkRandom& rand) {
 }
 
 #if SK_SUPPORT_GPU
-static void test_gpu_veto(skiatest::Reporter* reporter) {
+#define GENERATE_CANVAS(recorder, x) \
+    (x) ? recorder.EXPERIMENTAL_beginRecording(100, 100) \
+        : recorder.beginRecording(100,100);
+
+static void test_gpu_veto(skiatest::Reporter* reporter,
+                          bool useNewPath) {
 
     SkPictureRecorder recorder;
 
-    SkCanvas* canvas = recorder.beginRecording(100, 100);
+    SkCanvas* canvas = GENERATE_CANVAS(recorder, useNewPath);
     {
         SkPath path;
         path.moveTo(0, 0);
@@ -732,7 +775,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL, &reason));
     REPORTER_ASSERT(reporter, NULL != reason);
 
-    canvas = recorder.beginRecording(100, 100);
+    canvas = GENERATE_CANVAS(recorder, useNewPath);
     {
         SkPath path;
 
@@ -754,7 +797,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     // A lot of AA concave paths currently render an SkPicture undesireable for GPU rendering
     REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
 
-    canvas = recorder.beginRecording(100, 100);
+    canvas = GENERATE_CANVAS(recorder, useNewPath);
     {
         SkPath path;
 
@@ -777,7 +820,36 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     picture.reset(recorder.endRecording());
     // hairline stroked AA concave paths are fine for GPU rendering
     REPORTER_ASSERT(reporter, picture->suitableForGpuRasterization(NULL));
+
+    canvas = GENERATE_CANVAS(recorder, useNewPath);
+    {
+        SkPaint paint;
+        SkScalar intervals [] = { 10, 20 };
+        SkPathEffect* pe = SkDashPathEffect::Create(intervals, 2, 25);
+        paint.setPathEffect(pe)->unref();
+
+        SkPoint points [2] = { { 0, 0 }, { 100, 0 } };
+        canvas->drawPoints(SkCanvas::kLines_PointMode, 2, points, paint);
+    }
+    picture.reset(recorder.endRecording());
+    // fast-path dashed effects are fine for GPU rendering ...
+    REPORTER_ASSERT(reporter, picture->suitableForGpuRasterization(NULL));
+
+    canvas = GENERATE_CANVAS(recorder, useNewPath);
+    {
+        SkPaint paint;
+        SkScalar intervals [] = { 10, 20 };
+        SkPathEffect* pe = SkDashPathEffect::Create(intervals, 2, 25);
+        paint.setPathEffect(pe)->unref();
+
+        canvas->drawRect(SkRect::MakeWH(10, 10), paint);
+    }
+    picture.reset(recorder.endRecording());
+    // ... but only when applied to drawPoint() calls
+    REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
 }
+
+#undef GENERATE_CANVAS
 
 static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
                                           GrContextFactory* factory) {
@@ -1617,9 +1689,12 @@ DEF_TEST(Picture, reporter) {
     test_unbalanced_save_restores(reporter);
     test_peephole();
 #if SK_SUPPORT_GPU
-    test_gpu_veto(reporter);
+    test_gpu_veto(reporter, false);
+    test_gpu_veto(reporter, true);
 #endif
     test_has_text(reporter);
+    test_analysis(reporter, false);
+    test_analysis(reporter, true);
     test_gatherpixelrefs(reporter);
     test_gatherpixelrefsandrects(reporter);
     test_bitmap_with_encoded_data(reporter);
