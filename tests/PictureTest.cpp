@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBBoxHierarchy.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -662,7 +663,7 @@ static void test_gatherpixelrefsandrects(skiatest::Reporter* reporter) {
 }
 
 #ifdef SK_DEBUG
-// Ensure that deleting an empty SkPicture does not assert. Asserts only fire 
+// Ensure that deleting an empty SkPicture does not assert. Asserts only fire
 // in debug mode, so only run in debug mode.
 static void test_deleting_empty_picture() {
     SkPictureRecorder recorder;
@@ -1715,4 +1716,50 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
     // intead of a dark red.
     REPORTER_ASSERT(reporter, replayBM.getColor(30, 30) == 0xff000080);
     REPORTER_ASSERT(reporter, replayBM.getColor(55, 55) == 0xff800000);
+}
+
+struct CountingBBH : public SkBBoxHierarchy {
+    mutable int searchCalls;
+
+    CountingBBH() : searchCalls(0) {}
+
+    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const {
+        this->searchCalls++;
+    }
+
+    // All other methods unimplemented.
+    virtual void insert(void* data, const SkIRect& bounds, bool defer) {}
+    virtual void flushDeferredInserts() {}
+    virtual void clear() {}
+    virtual int getCount() const { return 0; }
+    virtual int getDepth() const { return 0; }
+    virtual void rewindInserts() {}
+};
+
+class SpoonFedBBHFactory : public SkBBHFactory {
+public:
+    explicit SpoonFedBBHFactory(SkBBoxHierarchy* bbh) : fBBH(bbh) {}
+    virtual SkBBoxHierarchy* operator()(int width, int height) const {
+        return SkRef(fBBH);
+    }
+private:
+    SkBBoxHierarchy* fBBH;
+};
+
+// When the canvas clip covers the full picture, we don't need to call the BBH.
+DEF_TEST(Picture_SkipBBH, r) {
+    CountingBBH bbh;
+    SpoonFedBBHFactory factory(&bbh);
+
+    SkPictureRecorder recorder;
+    recorder.beginRecording(320, 240, &factory);
+    SkAutoTUnref<const SkPicture> picture(recorder.endRecording());
+
+    SkCanvas big(640, 480), small(300, 200);
+
+    picture->draw(&big);
+    REPORTER_ASSERT(r, bbh.searchCalls == 0);
+
+    picture->draw(&small);
+    REPORTER_ASSERT(r, bbh.searchCalls == 1);
 }

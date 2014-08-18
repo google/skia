@@ -17,13 +17,15 @@ void SkRecordDraw(const SkRecord& record,
     if (NULL != bbh) {
         // Draw only ops that affect pixels in the canvas's current clip.
         SkIRect query;
-#if 1   // TODO: Why is this the right way to make the query?  I'd think it'd be the else branch.
-        SkRect clipBounds;
-        canvas->getClipBounds(&clipBounds);
+
+        // The SkRecord and BBH were recorded in identity space.  This canvas
+        // is not necessarily in that same space.  getClipBounds() returns us
+        // this canvas' clip bounds transformed back into identity space, which
+        // lets us query the BBH.
+        SkRect clipBounds = { 0, 0, 0, 0 };
+        (void)canvas->getClipBounds(&clipBounds);
         clipBounds.roundOut(&query);
-#else
-        canvas->getClipDeviceBounds(&query);
-#endif
+
         SkTDArray<void*> ops;
         bbh->search(query, &ops);
 
