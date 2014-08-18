@@ -175,7 +175,7 @@ public:
     };
     static int Width() { return 10; }
     static int Height() { return 10; }
-    static SkColor Color() { return SK_ColorCYAN; }
+    static uint32_t Color() { return 0xff123456; }
     TestImageGenerator(TestType type, skiatest::Reporter* reporter)
         : fType(type), fReporter(reporter) {
         SkASSERT((fType <= kLast_TestType) && (fType >= 0));
@@ -321,4 +321,44 @@ DEF_TEST(DiscardableAndCachingPixelRef, reporter) {
                    reporter, kSkDiscardable_PixelRefType, globalPool);
     check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType,
                    reporter, kSkDiscardable_PixelRefType, globalPool);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+DEF_TEST(Image_NewFromGenerator, r) {
+    TestImageGenerator::TestType testTypes[] = {
+        TestImageGenerator::kFailGetInfo_TestType,
+        TestImageGenerator::kFailGetPixels_TestType,
+        TestImageGenerator::kSucceedGetPixels_TestType,
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(testTypes); ++i) {
+        TestImageGenerator::TestType test = testTypes[i];
+        SkImageGenerator* gen = SkNEW_ARGS(TestImageGenerator, (test, r));
+        SkAutoTUnref<SkImage> image(SkImage::NewFromGenerator(gen));
+        if (TestImageGenerator::kFailGetInfo_TestType == test) {
+            REPORTER_ASSERT(r, NULL == image.get());
+            continue;
+        }
+        if (NULL == image.get()) {
+            ERRORF(r, "SkImage::NewFromGenerator unexpecedly failed ["
+                   SK_SIZE_T_SPECIFIER "]", i);
+            continue;
+        }
+        REPORTER_ASSERT(r, TestImageGenerator::Width() == image->width());
+        REPORTER_ASSERT(r, TestImageGenerator::Height() == image->height());
+
+        SkBitmap bitmap;
+        SkAssertResult(bitmap.allocN32Pixels(TestImageGenerator::Width(),
+                                             TestImageGenerator::Height()));
+        SkCanvas canvas(bitmap);
+        const SkColor kDefaultColor = 0xffabcdef;
+        canvas.clear(kDefaultColor);
+        image->draw(&canvas, 0, 0, NULL);
+        if (TestImageGenerator::kSucceedGetPixels_TestType == test) {
+            REPORTER_ASSERT(
+                    r, TestImageGenerator::Color() == *bitmap.getAddr32(0, 0));
+        } else {
+            REPORTER_ASSERT(r, kDefaultColor == bitmap.getColor(0,0));
+        }
+    }
 }
