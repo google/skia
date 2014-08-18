@@ -1989,7 +1989,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         if (pullForward[i]) {
             const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-            GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture, 
+            GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture->uniqueID(), 
                                                                                 info.fSaveLayerOpID, 
                                                                                 info.fRestoreOpID, 
                                                                                 info.fCTM);
@@ -2007,7 +2007,8 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
             desc.fConfig = kSkia8888_GrPixelConfig;
             // TODO: need to deal with sample count
 
-            bool needsRendering = !fContext->getLayerCache()->lock(layer, desc);
+            bool needsRendering = fContext->getLayerCache()->lock(layer, desc,
+                                                    info.fHasNestedLayers || info.fIsNested);
             if (NULL == layer->texture()) {
                 continue;
             }
@@ -2126,12 +2127,21 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
         const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-        GrCachedLayer* layer = fContext->getLayerCache()->findLayer(picture, 
+        GrCachedLayer* layer = fContext->getLayerCache()->findLayer(picture->uniqueID(), 
                                                                     info.fSaveLayerOpID,
                                                                     info.fRestoreOpID,
                                                                     info.fCTM);
         fContext->getLayerCache()->unlock(layer);
     }
+
+#if DISABLE_CACHING
+    // This code completely clears out the atlas. It is required when 
+    // caching is disabled so the atlas doesn't fill up and force more
+    // free floating layers
+    fContext->getLayerCache()->purge(picture->uniqueID());
+
+    fContext->getLayerCache()->purgeAll();
+#endif
 
     return true;
 }

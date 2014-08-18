@@ -117,7 +117,7 @@ public:
     const GrIRect16& rect() const { return fRect; }
 
     void setPlot(GrPlot* plot) {
-        SkASSERT(NULL == fPlot);
+        SkASSERT(NULL == plot || NULL == fPlot);
         fPlot = plot;
     }
     GrPlot* plot() { return fPlot; }
@@ -171,16 +171,15 @@ public:
     // elements by the GrContext
     void freeAll();
 
-    GrCachedLayer* findLayer(const SkPicture* picture, int start, int stop, const SkMatrix& ctm);
-    GrCachedLayer* findLayerOrCreate(const SkPicture* picture, 
+    GrCachedLayer* findLayer(uint32_t pictureID, int start, int stop, const SkMatrix& ctm);
+    GrCachedLayer* findLayerOrCreate(uint32_t pictureID,
                                      int start, int stop, 
                                      const SkMatrix& ctm);
-    
-    // Inform the cache that layer's cached image is now required. Return true
-    // if it was found in the ResourceCache and doesn't need to be regenerated.
-    // If false is returned the caller should (re)render the layer into the
-    // newly acquired texture.
-    bool lock(GrCachedLayer* layer, const GrTextureDesc& desc);
+
+    // Inform the cache that layer's cached image is now required. 
+    // Return true if the layer must be re-rendered. Return false if the
+    // layer was found in the cache and can be reused.
+    bool lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool dontAtlas);
 
     // Inform the cache that layer's cached image is not currently required
     void unlock(GrCachedLayer* layer);
@@ -228,7 +227,10 @@ private:
     int fPlotLocks[kNumPlotsX * kNumPlotsY];
 
     void initAtlas();
-    GrCachedLayer* createLayer(const SkPicture* picture, int start, int stop, const SkMatrix& ctm);
+    GrCachedLayer* createLayer(uint32_t pictureID, int start, int stop, const SkMatrix& ctm);
+
+public:
+    void purgeAll();
 
     // Remove all the layers (and unlock any resources) associated with 'pictureID'
     void purge(uint32_t pictureID);
@@ -236,6 +238,8 @@ private:
     static bool PlausiblyAtlasable(int width, int height) {
         return width <= kPlotWidth && height <= kPlotHeight;
     }
+
+    void purgePlot(GrPlot* plot);
 
     // Try to find a purgeable plot and clear it out. Return true if a plot
     // was purged; false otherwise.
