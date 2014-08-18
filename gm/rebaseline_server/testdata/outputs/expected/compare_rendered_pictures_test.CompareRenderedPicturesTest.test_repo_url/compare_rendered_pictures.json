@@ -1,5 +1,53 @@
 {
   "extraColumnHeaders": {
+    "builderA": {
+      "headerText": "builderA", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "useFreeformFilter": false, 
+      "valuesAndCounts": [
+        [
+          null, 
+          4
+        ]
+      ]
+    }, 
+    "builderB": {
+      "headerText": "builderB", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "useFreeformFilter": false, 
+      "valuesAndCounts": [
+        [
+          null, 
+          4
+        ]
+      ]
+    }, 
+    "renderModeA": {
+      "headerText": "renderModeA", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "useFreeformFilter": false, 
+      "valuesAndCounts": [
+        [
+          null, 
+          4
+        ]
+      ]
+    }, 
+    "renderModeB": {
+      "headerText": "renderModeB", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "useFreeformFilter": false, 
+      "valuesAndCounts": [
+        [
+          null, 
+          4
+        ]
+      ]
+    }, 
     "resultType": {
       "headerText": "resultType", 
       "isFilterable": true, 
@@ -73,10 +121,14 @@
     "resultType", 
     "sourceSkpFile", 
     "tiledOrWhole", 
-    "tilenum"
+    "tilenum", 
+    "builderA", 
+    "renderModeA", 
+    "builderB", 
+    "renderModeB"
   ], 
   "header": {
-    "dataHash": "-4754972663365911725", 
+    "dataHash": "-1510211866509185075", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 5, 
@@ -101,6 +153,10 @@
   "imagePairs": [
     {
       "extraColumns": {
+        "builderA": null, 
+        "builderB": null, 
+        "renderModeA": null, 
+        "renderModeB": null, 
         "resultType": "failed", 
         "sourceSkpFile": "changed.skp", 
         "tiledOrWhole": "whole", 
@@ -112,6 +168,10 @@
     }, 
     {
       "extraColumns": {
+        "builderA": null, 
+        "builderB": null, 
+        "renderModeA": null, 
+        "renderModeB": null, 
         "resultType": "no-comparison", 
         "sourceSkpFile": "only-in-after.skp", 
         "tiledOrWhole": "whole", 
@@ -123,6 +183,10 @@
     }, 
     {
       "extraColumns": {
+        "builderA": null, 
+        "builderB": null, 
+        "renderModeA": null, 
+        "renderModeB": null, 
         "resultType": "no-comparison", 
         "sourceSkpFile": "only-in-before.skp", 
         "tiledOrWhole": "whole", 
@@ -134,6 +198,10 @@
     }, 
     {
       "extraColumns": {
+        "builderA": null, 
+        "builderB": null, 
+        "renderModeA": null, 
+        "renderModeB": null, 
         "resultType": "succeeded", 
         "sourceSkpFile": "unchanged.skp", 
         "tiledOrWhole": "whole", 

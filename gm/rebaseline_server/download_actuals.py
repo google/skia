@@ -17,7 +17,7 @@ import re
 import urllib2
 
 # Must fix up PYTHONPATH before importing from within Skia
-import fix_pythonpath  # pylint: disable=W0611
+import rs_fixpypath  # pylint: disable=W0611
 
 # Imports from within Skia
 from py.utils import gs_utils

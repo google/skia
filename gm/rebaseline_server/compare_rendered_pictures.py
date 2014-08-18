@@ -21,7 +21,7 @@ import tempfile
 import time
 
 # Must fix up PYTHONPATH before importing from within Skia
-import fix_pythonpath  # pylint: disable=W0611
+import rs_fixpypath  # pylint: disable=W0611
 
 # Imports from within Skia
 from py.utils import git_utils
@@ -47,6 +47,11 @@ COLUMN__RESULT_TYPE = results.KEY__EXTRACOLUMNS__RESULT_TYPE
 COLUMN__SOURCE_SKP = 'sourceSkpFile'
 COLUMN__TILED_OR_WHOLE = 'tiledOrWhole'
 COLUMN__TILENUM = 'tilenum'
+COLUMN__BUILDER_A = 'builderA'
+COLUMN__RENDER_MODE_A = 'renderModeA'
+COLUMN__BUILDER_B = 'builderB'
+COLUMN__RENDER_MODE_B = 'renderModeB'
+
 FREEFORM_COLUMN_IDS = [
     COLUMN__SOURCE_SKP,
     COLUMN__TILENUM,
@@ -56,6 +61,10 @@ ORDERED_COLUMN_IDS = [
     COLUMN__SOURCE_SKP,
     COLUMN__TILED_OR_WHOLE,
     COLUMN__TILENUM,
+    COLUMN__BUILDER_A,
+    COLUMN__RENDER_MODE_A,
+    COLUMN__BUILDER_B,
+    COLUMN__RENDER_MODE_B,
 ]
 
 # A special "repo:" URL type that we use to refer to Skia repo contents.
@@ -262,6 +271,20 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       self._validate_dict_version(dictB)
       dictB_results = self.get_default(dictB, {}, setB_section)
 
+      # get the builders and render modes for each set
+      builder_A     = self.get_default(dictA, None, 
+                        gm_json.JSONKEY_DESCRIPTIONS, 
+                        gm_json.JSONKEY_DESCRIPTIONS_BUILDER)
+      render_mode_A = self.get_default(dictA, None, 
+                        gm_json.JSONKEY_DESCRIPTIONS, 
+                        gm_json.JSONKEY_DESCRIPTIONS_RENDER_MODE)
+      builder_B     = self.get_default(dictB, None, 
+                        gm_json.JSONKEY_DESCRIPTIONS, 
+                        gm_json.JSONKEY_DESCRIPTIONS_BUILDER)
+      render_mode_B = self.get_default(dictB, None, 
+                        gm_json.JSONKEY_DESCRIPTIONS, 
+                        gm_json.JSONKEY_DESCRIPTIONS_RENDER_MODE)
+
       skp_names = sorted(set(dictA_results.keys() + dictB_results.keys()))
       # Just for manual testing... truncate to an arbitrary subset.
       if self.truncate_results:
@@ -277,6 +300,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
             skp_name, gm_json.JSONKEY_SOURCE_WHOLEIMAGE)
         imagepairs_for_this_skp.append(self._create_image_pair(
             image_dict_A=whole_image_A, image_dict_B=whole_image_B,
+            builder_A=builder_A, render_mode_A=render_mode_A,
+            builder_B=builder_B, render_mode_B=render_mode_B,
             source_skp_name=skp_name, tilenum=None))
 
         tiled_images_A = self.get_default(
@@ -295,6 +320,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
                               if tile_num < num_tiles_A else None),
                 image_dict_B=(tiled_images_B[tile_num]
                               if tile_num < num_tiles_B else None),
+                builder_A=builder_A, render_mode_A=render_mode_A,
+                builder_B=builder_B, render_mode_B=render_mode_B,
                 source_skp_name=skp_name, tilenum=tile_num))
 
         for one_imagepair in imagepairs_for_this_skp:
@@ -340,13 +367,22 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       raise Exception('expected header_revision %d, but got %d' % (
           expected_header_revision, header_revision))
 
-  def _create_image_pair(self, image_dict_A, image_dict_B, source_skp_name,
+  def _create_image_pair(self, image_dict_A, image_dict_B, 
+                         builder_A, render_mode_A, 
+                         builder_B, render_mode_B,
+                         source_skp_name,
                          tilenum):
     """Creates an ImagePair object for this pair of images.
 
     Args:
       image_dict_A: dict with JSONKEY_IMAGE_* keys, or None if no image
       image_dict_B: dict with JSONKEY_IMAGE_* keys, or None if no image
+      builder_A: builder that created image set A or None if unknow
+      render_mode_A: render mode used to generate image set A or None if 
+                     unknown.
+      builder_B: builder that created image set A or None if unknow
+      render_mode_B: render mode used to generate image set A or None if 
+                     unknown.
       source_skp_name: string; name of the source SKP file
       tilenum: which tile, or None if a wholeimage
 
@@ -382,6 +418,10 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     extra_columns_dict = {
         COLUMN__RESULT_TYPE: result_type,
         COLUMN__SOURCE_SKP: source_skp_name,
+        COLUMN__BUILDER_A: builder_A,
+        COLUMN__RENDER_MODE_A: render_mode_A,
+        COLUMN__BUILDER_B: builder_B,
+        COLUMN__RENDER_MODE_B: render_mode_B,
     }
     if tilenum == None:
       extra_columns_dict[COLUMN__TILED_OR_WHOLE] = 'whole'

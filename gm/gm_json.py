@@ -50,7 +50,8 @@ JSONKEY_ACTUALRESULTS_SUCCEEDED = 'succeeded'
 
 # Descriptions of the result set as a whole.
 JSONKEY_DESCRIPTIONS = 'descriptions'
-
+JSONKEY_DESCRIPTIONS_BUILDER = 'builder'
+JSONKEY_DESCRIPTIONS_RENDER_MODE = 'renderMode'
 
 JSONKEY_EXPECTEDRESULTS = 'expected-results'
 
