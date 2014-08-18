@@ -239,32 +239,39 @@ private:
     }
 
     // TODO: Remove this default when done bounding all ops.
-    template <typename T> SkIRect bounds(const T&) { return fCurrentClipBounds; }
-    SkIRect bounds(const Clear&) { return SkIRect::MakeLargest(); }  // Ignores the clip
-    SkIRect bounds(const NoOp&)  { return SkIRect::MakeEmpty(); }    // NoOps don't draw anywhere.
+    template <typename T> SkIRect bounds(const T&) const { return fCurrentClipBounds; }
+    SkIRect bounds(const Clear&) const { return SkIRect::MakeLargest(); }  // Ignores the clip
+    SkIRect bounds(const NoOp&)  const { return SkIRect::MakeEmpty(); }    // NoOps don't draw.
 
-    // Adjust rect for all paints that may affect its geometry, then map it to device space.
-    SkIRect adjustAndMap(SkRect rect, const SkPaint* paint) {
-        // Adjust rect for its own paint.
+    // Returns true if rect was meaningfully adjusted for the effects of paint,
+    // false if the paint could affect the rect in unknown ways.
+    static bool AdjustForPaint(const SkPaint* paint, SkRect* rect) {
         if (paint) {
             if (paint->canComputeFastBounds()) {
-                rect = paint->computeFastBounds(rect, &rect);
-            } else {
-                // The paint could do anything.  The only safe answer is the current clip.
-                return fCurrentClipBounds;
+                *rect = paint->computeFastBounds(*rect, rect);
+                return true;
             }
+            return false;
+        }
+        return true;
+    }
+
+    // Adjust rect for all paints that may affect its geometry, then map it to device space.
+    SkIRect adjustAndMap(SkRect rect, const SkPaint* paint) const {
+        // Inverted rectangles really confuse our BBHs.
+        rect.sort();
+
+        // Adjust the rect for its own paint.
+        if (!AdjustForPaint(paint, &rect)) {
+            // The paint could do anything to our bounds.  The only safe answer is the current clip.
+            return fCurrentClipBounds;
         }
 
         // Adjust rect for all the paints from the SaveLayers we're inside.
-        // For SaveLayers, only image filters will affect the bounds.
         for (int i = fSaveStack.count() - 1; i >= 0; i--) {
-            if (fSaveStack[i].paint && fSaveStack[i].paint->getImageFilter()) {
-                if (paint->canComputeFastBounds()) {
-                    rect = fSaveStack[i].paint->computeFastBounds(rect, &rect);
-                } else {
-                    // Same deal as above.
-                    return fCurrentClipBounds;
-                }
+            if (!AdjustForPaint(fSaveStack[i].paint, &rect)) {
+                // Same deal as above.
+                return fCurrentClipBounds;
             }
         }
 
@@ -272,6 +279,10 @@ private:
         fCTM.mapRect(&rect);
         SkIRect devRect;
         rect.roundOut(&devRect);
+
+        // Nothing can draw outside the current clip.
+        // (Only bounded ops call into this method, so oddballs like Clear don't matter here.)
+        devRect.intersect(fCurrentClipBounds);
         return devRect;
     }
 
