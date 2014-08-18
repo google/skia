@@ -589,14 +589,7 @@ const SkPicture::OperationList* SkPictureData::getActiveOps(const SkIRect& query
     }
 
     SkPicture::OperationList* activeOps = SkNEW(SkPicture::OperationList);
-
     fBoundingHierarchy->search(query, &(activeOps->fOps));
-    if (0 != activeOps->fOps.count()) {
-        SkTQSort<SkPictureStateTree::Draw>(
-            reinterpret_cast<SkPictureStateTree::Draw**>(activeOps->fOps.begin()),
-            reinterpret_cast<SkPictureStateTree::Draw**>(activeOps->fOps.end()-1));
-    }
-
     return activeOps;
 }
 

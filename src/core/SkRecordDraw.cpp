@@ -27,12 +27,6 @@ void SkRecordDraw(const SkRecord& record,
         SkTDArray<void*> ops;
         bbh->search(query, &ops);
 
-        // FIXME: QuadTree doesn't send these back in the order we inserted them.  :(
-        // Also remove the sort in SkPictureData::getActiveOps()?
-        if (ops.count() > 0) {
-            SkTQSort(ops.begin(), ops.end() - 1, SkTCompareLT<void*>());
-        }
-
         SkRecords::Draw draw(canvas);
         for (int i = 0; i < ops.count(); i++) {
             if (NULL != callback && callback->abortDrawing()) {
