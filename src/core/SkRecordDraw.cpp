@@ -238,10 +238,91 @@ private:
         }
     }
 
-    // TODO: Remove this default when done bounding all ops.
+    // TODO(mtklein): Remove this default when done bounding all ops.
     template <typename T> SkIRect bounds(const T&) const { return fCurrentClipBounds; }
     SkIRect bounds(const Clear&) const { return SkIRect::MakeLargest(); }  // Ignores the clip
     SkIRect bounds(const NoOp&)  const { return SkIRect::MakeEmpty(); }    // NoOps don't draw.
+
+    SkIRect bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
+    SkIRect bounds(const DrawOval& op) const { return this->adjustAndMap(op.oval, &op.paint); }
+    SkIRect bounds(const DrawRRect& op) const {
+        return this->adjustAndMap(op.rrect.rect(), &op.paint);
+    }
+    SkIRect bounds(const DrawDRRect& op) const {
+        return this->adjustAndMap(op.outer.rect(), &op.paint);
+    }
+
+    SkIRect bounds(const DrawBitmapRectToRect& op) const {
+        return this->adjustAndMap(op.dst, op.paint);
+    }
+    SkIRect bounds(const DrawBitmapNine& op) const {
+        return this->adjustAndMap(op.dst, op.paint);
+    }
+    SkIRect bounds(const DrawBitmap& op) const {
+        const SkBitmap& bm = op.bitmap;
+        return this->adjustAndMap(SkRect::MakeXYWH(op.left, op.top, bm.width(), bm.height()),
+                                  op.paint);
+    }
+    SkIRect bounds(const DrawBitmapMatrix& op) const {
+        const SkBitmap& bm = op.bitmap;
+        SkRect dst = SkRect::MakeWH(bm.width(), bm.height());
+        op.matrix.mapRect(&dst);
+        return this->adjustAndMap(dst, op.paint);
+    }
+
+    SkIRect bounds(const DrawPath& op) const {
+        return op.path.isInverseFillType() ? fCurrentClipBounds
+                                           : this->adjustAndMap(op.path.getBounds(), &op.paint);
+    }
+    SkIRect bounds(const DrawPoints& op) const {
+        SkRect dst;
+        dst.set(op.pts, op.count);
+
+        // Pad the bounding box a little to make sure hairline points' bounds aren't empty.
+        SkScalar stroke = SkMaxScalar(op.paint.getStrokeWidth(), 0.01f);
+        dst.outset(stroke/2, stroke/2);
+
+        return this->adjustAndMap(dst, &op.paint);
+    }
+
+    SkIRect bounds(const DrawPosText& op) const {
+        const int N = op.paint.countText(op.text, op.byteLength);
+        if (N == 0) {
+            return SkIRect::MakeEmpty();
+        }
+
+        SkRect dst;
+        dst.set(op.pos, op.paint.countText(op.text, N));
+        AdjustTextForFontMetrics(&dst, op.paint);
+        return this->adjustAndMap(dst, &op.paint);
+    }
+    SkIRect bounds(const DrawPosTextH& op) const {
+        const int N = op.paint.countText(op.text, op.byteLength);
+        if (N == 0) {
+            return SkIRect::MakeEmpty();
+        }
+
+        SkScalar left = op.xpos[0], right = op.xpos[0];
+        for (int i = 1; i < N; i++) {
+            left  = SkMinScalar(left,  op.xpos[i]);
+            right = SkMaxScalar(right, op.xpos[i]);
+        }
+        SkRect dst = { left, op.y, right, op.y };
+        AdjustTextForFontMetrics(&dst, op.paint);
+        return this->adjustAndMap(dst, &op.paint);
+    }
+
+    static void AdjustTextForFontMetrics(SkRect* rect, const SkPaint& paint) {
+        // FIXME: These bounds should be tight (and correct), but reading SkFontMetrics is likely
+        // a performance bottleneck.  It's safe to overapproximate these metrics for speed.  E.g.
+        // fTop <= 1.5 * paint.getTextSize(), fXMax <= 8 * fTop, etc.
+        SkPaint::FontMetrics metrics;
+        paint.getFontMetrics(&metrics);
+        rect->fLeft   += metrics.fXMin;
+        rect->fTop    += metrics.fTop;
+        rect->fRight  += metrics.fXMax;
+        rect->fBottom += metrics.fBottom;
+    }
 
     // Returns true if rect was meaningfully adjusted for the effects of paint,
     // false if the paint could affect the rect in unknown ways.

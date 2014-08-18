@@ -137,6 +137,6 @@ DEF_TEST(RecordDraw_BBH, r) {
     for (int i = 0; i < bbh.entries.count(); i++) {
         REPORTER_ASSERT(r, bbh.entries[i].data == (uintptr_t)i);
 
-        REPORTER_ASSERT(r, bbh.entries[i].bounds == SkIRect::MakeWH(400, 500));
+        REPORTER_ASSERT(r, bbh.entries[i].bounds == SkIRect::MakeWH(400, 480));
     }
 }
