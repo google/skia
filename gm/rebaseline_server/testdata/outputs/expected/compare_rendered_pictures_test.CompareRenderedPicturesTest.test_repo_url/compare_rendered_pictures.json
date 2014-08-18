@@ -133,16 +133,12 @@
     "isExported": true, 
     "schemaVersion": 5, 
     "setA": {
-      "dir": [
-        "repo:gm/rebaseline_server/testdata/inputs/skp-summaries/expectations"
-      ], 
+      "dir": "repo:gm/rebaseline_server/testdata/inputs/skp-summaries/expectations", 
       "repoRevision": "fake-repo-revision", 
       "section": "expected-results"
     }, 
     "setB": {
-      "dir": [
-        "repo:gm/rebaseline_server/testdata/inputs/skp-summaries/actuals"
-      ], 
+      "dir": "repo:gm/rebaseline_server/testdata/inputs/skp-summaries/actuals", 
       "repoRevision": "fake-repo-revision", 
       "section": "actual-results"
     }, 

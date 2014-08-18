@@ -56,8 +56,8 @@ class CompareRenderedPicturesTest(base_unittest.TestCase):
         })
 
     results_obj = compare_rendered_pictures.RenderedPicturesComparisons(
-        setA_dirs=[os.path.join(self.temp_dir, setA_subdir)],
-        setB_dirs=[os.path.join(self.temp_dir, setB_subdir)],
+        setA_dir=os.path.join(self.temp_dir, setA_subdir),
+        setB_dir=os.path.join(self.temp_dir, setB_subdir),
         setA_section=gm_json.JSONKEY_ACTUALRESULTS,
         setB_section=gm_json.JSONKEY_ACTUALRESULTS,
         image_diff_db=imagediffdb.ImageDiffDB(self.temp_dir),
@@ -82,8 +82,8 @@ class CompareRenderedPicturesTest(base_unittest.TestCase):
     """Use repo: URL to specify summary files."""
     base_repo_url = 'repo:gm/rebaseline_server/testdata/inputs/skp-summaries'
     results_obj = compare_rendered_pictures.RenderedPicturesComparisons(
-        setA_dirs=[posixpath.join(base_repo_url, 'expectations')],
-        setB_dirs=[posixpath.join(base_repo_url, 'actuals')],
+        setA_dir=posixpath.join(base_repo_url, 'expectations'),
+        setB_dir=posixpath.join(base_repo_url, 'actuals'),
         setA_section=gm_json.JSONKEY_EXPECTEDRESULTS,
         setB_section=gm_json.JSONKEY_ACTUALRESULTS,
         image_diff_db=imagediffdb.ImageDiffDB(self.temp_dir),

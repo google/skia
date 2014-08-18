@@ -597,8 +597,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     download_all_images = (
         param_dict.get(LIVE_PARAM__DOWNLOAD_ONLY_DIFFERING, [''])[0].lower()
         not in ['1', 'true'])
-    setA_dirs = param_dict[LIVE_PARAM__SET_A_DIR]
-    setB_dirs = param_dict[LIVE_PARAM__SET_B_DIR]
+    setA_dir = param_dict[LIVE_PARAM__SET_A_DIR][0]
+    setB_dir = param_dict[LIVE_PARAM__SET_B_DIR][0]
     setA_section = self._validate_summary_section(
         param_dict.get(LIVE_PARAM__SET_A_SECTION, [None])[0])
     setB_section = self._validate_summary_section(
@@ -608,18 +608,18 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     # the left (setA).
     if ((setA_section == gm_json.JSONKEY_ACTUALRESULTS) and
         (setB_section == gm_json.JSONKEY_EXPECTEDRESULTS)):
-      setA_dirs, setB_dirs = setB_dirs, setA_dirs
+      setA_dir, setB_dir = setB_dir, setA_dir
       setA_section, setB_section = setB_section, setA_section
 
     # Are we comparing some actuals against expectations stored in the repo?
     # If so, we can allow the user to submit new baselines.
     is_editable = (
         (setA_section == gm_json.JSONKEY_EXPECTEDRESULTS) and
-        (setA_dirs[0].startswith(compare_rendered_pictures.REPO_URL_PREFIX)) and
+        (setA_dir.startswith(compare_rendered_pictures.REPO_URL_PREFIX)) and
         (setB_section == gm_json.JSONKEY_ACTUALRESULTS))
 
     results_obj = compare_rendered_pictures.RenderedPicturesComparisons(
-        setA_dirs=setA_dirs, setB_dirs=setB_dirs,
+        setA_dir=setA_dir, setB_dir=setB_dir,
         setA_section=setA_section, setB_section=setB_section,
         image_diff_db=_SERVER.image_diff_db,
         diff_base_url='/static/generated-images',

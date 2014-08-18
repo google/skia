@@ -85,7 +85,7 @@ class RenderedPicturesComparisons(results.BaseComparisons):
   """
 
   def __init__(self,
-               setA_dirs, setB_dirs,
+               setA_dir, setB_dir,
                setA_section, setB_section,
                image_diff_db,
                image_base_gs_url=DEFAULT_IMAGE_BASE_GS_URL, diff_base_url=None,
@@ -100,12 +100,12 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     asynchronously warm up the ImageDiffDB cache but not fill in self._results.
 
     Args:
-      setA_dirs: list of root directories to copy all JSON summaries from,
-          and to use as setA within the comparisons. These directories may be
-          gs:// URLs, special "repo:" URLs, or local filepaths.
-      setB_dirs: list of root directories to copy all JSON summaries from,
-          and to use as setB within the comparisons. These directories may be
-          gs:// URLs, special "repo:" URLs, or local filepaths.
+      setA_dir: root directory to copy all JSON summaries from, and to use as
+          setA within the comparisons. This directory may be specified as a
+          gs:// URL, special "repo:" URL, or local filepath.
+      setB_dir: root directory to copy all JSON summaries from, and to use as
+          setB within the comparisons. This directory may be specified as a
+          gs:// URL, special "repo:" URL, or local filepath.
       setA_section: which section within setA to examine; must be one of
           ALLOWED_SECTION_NAMES
       setB_section: which section within setB to examine; must be one of
@@ -159,29 +159,23 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     try:
       setA_root = os.path.join(tempdir, 'setA')
       setB_root = os.path.join(tempdir, 'setB')
-      setA_repo_revision = None
-      setB_repo_revision = None
-      for source_dir in setA_dirs:
-        self._copy_dir_contents(source_dir=source_dir, dest_dir=setA_root)
-        # TODO(stephana): There is a potential race condition here... we copy
-        # the contents out of the source_dir, and THEN we get the commithash
-        # of source_dir.  If source_dir points at a git checkout, and that
-        # checkout is updated (by a different thread/process) during this
-        # operation, then the contents and commithash will be out of sync.
-        setA_repo_revision = self._get_repo_revision(
-            source_dir=source_dir, assert_if_not=setA_repo_revision)
-      for source_dir in setB_dirs:
-        self._copy_dir_contents(source_dir=source_dir, dest_dir=setB_root)
-        setB_repo_revision = self._get_repo_revision(
-            source_dir=source_dir, assert_if_not=setB_repo_revision)
+      # TODO(stephana): There is a potential race condition here... we copy
+      # the contents out of the source_dir, and THEN we get the commithash
+      # of source_dir.  If source_dir points at a git checkout, and that
+      # checkout is updated (by a different thread/process) during this
+      # operation, then the contents and commithash will be out of sync.
+      self._copy_dir_contents(source_dir=setA_dir, dest_dir=setA_root)
+      setA_repo_revision = self._get_repo_revision(source_dir=setA_dir)
+      self._copy_dir_contents(source_dir=setB_dir, dest_dir=setB_root)
+      setB_repo_revision = self._get_repo_revision(source_dir=setB_dir)
 
       self._setA_descriptions = {
-          results.KEY__SET_DESCRIPTIONS__DIR: setA_dirs,
+          results.KEY__SET_DESCRIPTIONS__DIR: setA_dir,
           results.KEY__SET_DESCRIPTIONS__REPO_REVISION: setA_repo_revision,
           results.KEY__SET_DESCRIPTIONS__SECTION: setA_section,
       }
       self._setB_descriptions = {
-          results.KEY__SET_DESCRIPTIONS__DIR: setB_dirs,
+          results.KEY__SET_DESCRIPTIONS__DIR: setB_dir,
           results.KEY__SET_DESCRIPTIONS__REPO_REVISION: setB_repo_revision,
           results.KEY__SET_DESCRIPTIONS__SECTION: setB_section,
       }
@@ -468,23 +462,17 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     else:
       shutil.copytree(source_dir, dest_dir)
 
-  def _get_repo_revision(self, source_dir, assert_if_not=None):
+  def _get_repo_revision(self, source_dir):
     """Get the commit hash of source_dir, IF it refers to a git checkout.
 
     Args:
       source_dir: path to source dir (GS URL, local filepath, or a special
           "repo:" URL type that points at a file within our Skia checkout;
           only the "repo:" URL type will have a commit hash.
-      assert_if_not: if not None, raise an Exception if source_dir has a
-          commit hash and that hash is not equal to this
     """
     if source_dir.lower().startswith(REPO_URL_PREFIX):
       repo_dir = os.path.join(REPO_BASEPATH, source_dir[len(REPO_URL_PREFIX):])
-      revision = subprocess.check_output(
+      return subprocess.check_output(
           args=[git_utils.GIT, 'rev-parse', 'HEAD'], cwd=repo_dir).strip()
-      if assert_if_not and revision != assert_if_not:
-        raise Exception('found revision %s that did not match %s' % (
-            revision, assert_if_not))
-      return revision
     else:
       return None
