@@ -487,23 +487,6 @@ void SkGlyphCache_Globals::purgeAll() {
     this->internalPurge(fTotalMemoryUsed);
 }
 
-void SkGlyphCache::VisitAllCaches(bool (*proc)(SkGlyphCache*, void*),
-                                  void* context) {
-    SkGlyphCache_Globals& globals = getGlobals();
-    SkAutoMutexAcquire    ac(globals.fMutex);
-    SkGlyphCache*         cache;
-
-    globals.validate();
-
-    for (cache = globals.internalGetHead(); cache != NULL; cache = cache->fNext) {
-        if (proc(cache, context)) {
-            break;
-        }
-    }
-
-    globals.validate();
-}
-
 /*  This guy calls the visitor from within the mutext lock, so the visitor
     cannot:
     - take too much time

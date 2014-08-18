@@ -121,12 +121,6 @@ public:
 
     SkScalerContext* getScalerContext() const { return fScalerContext; }
 
-    /** Call proc on all cache entries, stopping early if proc returns true.
-        The proc should not create or delete caches, since it could produce
-        deadlock.
-    */
-    static void VisitAllCaches(bool (*proc)(SkGlyphCache*, void*), void* ctx);
-
     /** Find a matching cache entry, and call proc() with it. If none is found
         create a new one. If the proc() returns true, detach the cache and
         return it, otherwise leave it and return NULL.
