@@ -202,6 +202,8 @@ public:
         return NULL;
     }
 
+    const GrContext::Options& getGlobalOptions() const { return fGlobalOptions; }
+
 private:
     struct GPUContext {
         GLContextType             fType;

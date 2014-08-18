@@ -292,7 +292,12 @@ static bool render_picture(const SkString& inputPath, const SkString* writePath,
             referenceRenderer->ref();  // to match auto unref below
             arbbh.set(referenceRenderer, sk_tools::PictureRenderer::kNone_BBoxHierarchyType);
         } else {
+#if SK_SUPPORT_GPU
+            referenceRenderer = SkNEW_ARGS(sk_tools::SimplePictureRenderer,
+                                           (renderer.getGrContextOptions()));
+#else
             referenceRenderer = SkNEW(sk_tools::SimplePictureRenderer);
+#endif
         }
         SkAutoTUnref<sk_tools::PictureRenderer> aurReferenceRenderer(referenceRenderer);
 

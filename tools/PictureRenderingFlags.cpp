@@ -79,6 +79,8 @@ DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
               "forces OpenGL API. Using \"gles\" forces OpenGL ES API. "
               "Defaults to empty string, which selects the API native to the "
               "system.");
+DEFINE_bool(gpuCompressAlphaMasks, false, "Compress masks generated from falling back to "
+                                          "software path rendering.");
 #endif
 
 sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
@@ -92,11 +94,19 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
     const char* mode = NULL;
     bool gridSupported = false;
 
+#if SK_SUPPORT_GPU
+    GrContext::Options grContextOpts;
+    grContextOpts.fDrawPathToCompressedTexture = FLAGS_gpuCompressAlphaMasks;
+  #define RENDERER_ARGS (grContextOpts)
+#else
+  #define RENDERER_ARGS ()
+#endif
+
     SkAutoTUnref<sk_tools::PictureRenderer> renderer;
     if (FLAGS_mode.count() >= 1) {
         mode = FLAGS_mode[0];
         if (0 == strcmp(mode, "record")) {
-            renderer.reset(SkNEW(sk_tools::RecordPictureRenderer));
+            renderer.reset(SkNEW_ARGS(sk_tools::RecordPictureRenderer, RENDERER_ARGS));
             gridSupported = true;
         } else if (0 == strcmp(mode, "tile") || 0 == strcmp(mode, "pow2tile")
                    || 0 == strcmp(mode, "copyTile")) {
@@ -123,13 +133,17 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
 
             heightString = FLAGS_mode[2];
         } else if (0 == strcmp(mode, "playbackCreation") && kBench_PictureTool == tool) {
-            renderer.reset(SkNEW(sk_tools::PlaybackCreationRenderer));
+            renderer.reset(SkNEW_ARGS(sk_tools::PlaybackCreationRenderer, RENDERER_ARGS));
             gridSupported = true;
         // undocumented
         } else if (0 == strcmp(mode, "gatherPixelRefs") && kBench_PictureTool == tool) {
+#if SK_SUPPORT_GPU
+            renderer.reset(sk_tools::CreateGatherPixelRefsRenderer(grContextOpts));
+#else
             renderer.reset(sk_tools::CreateGatherPixelRefsRenderer());
+#endif
         } else if (0 == strcmp(mode, "rerecord") && kRender_PictureTool == tool) {
-            renderer.reset(SkNEW(sk_tools::RecordPictureRenderer));
+            renderer.reset(SkNEW_ARGS(sk_tools::RecordPictureRenderer, RENDERER_ARGS));
         // Allow 'mode' to be set to 'simple', but do not create a renderer, so we can
         // ensure that pipe does not override a mode besides simple. The renderer will
         // be created below.
@@ -167,9 +181,13 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
             } else {
                 x = y = 4;
             }
+#if SK_SUPPORT_GPU
+            tiledRenderer.reset(SkNEW_ARGS(sk_tools::CopyTilesRenderer, (grContextOpts, x, y)));
+#else
             tiledRenderer.reset(SkNEW_ARGS(sk_tools::CopyTilesRenderer, (x, y)));
+#endif
         } else {
-            tiledRenderer.reset(SkNEW(sk_tools::TiledPictureRenderer));
+            tiledRenderer.reset(SkNEW_ARGS(sk_tools::TiledPictureRenderer, RENDERER_ARGS));
         }
 
         if (isPowerOf2Mode) {
@@ -230,12 +248,12 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
                 error.printf("Pipe is incompatible with other modes.\n");
                 return NULL;
             }
-            renderer.reset(SkNEW(sk_tools::PipePictureRenderer));
+            renderer.reset(SkNEW_ARGS(sk_tools::PipePictureRenderer, RENDERER_ARGS));
         }
     }
 
     if (NULL == renderer) {
-        renderer.reset(SkNEW(sk_tools::SimplePictureRenderer));
+        renderer.reset(SkNEW_ARGS(sk_tools::SimplePictureRenderer, RENDERER_ARGS));
     }
 
     if (FLAGS_viewport.count() > 0) {

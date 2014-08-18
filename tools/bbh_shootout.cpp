@@ -105,14 +105,24 @@ int tool_main(int argc, char** argv) {
         for (int bBoxType = 0; bBoxType < kBBoxTypeCount; ++bBoxType) {
             if (!includeBBoxType[bBoxType]) { continue; }
             if (FLAGS_playback > 0) {
+#if SK_SUPPORT_GPU
+                GrContext::Options grContextOpts;
+                sk_tools::TiledPictureRenderer playbackRenderer(grContextOpts);
+#else
                 sk_tools::TiledPictureRenderer playbackRenderer;
+#endif
                 Timer playbackTimer;
                 do_benchmark_work(&playbackRenderer, (BBoxType)bBoxType,
                                   picture, FLAGS_playback, &playbackTimer);
                 measurement.fPlaybackAverage[bBoxType] = playbackTimer.fCpu;
             }
             if (FLAGS_record > 0) {
+#if SK_SUPPORT_GPU
+                GrContext::Options grContextOpts;
+                sk_tools::RecordPictureRenderer recordRenderer(grContextOpts);
+#else
                 sk_tools::RecordPictureRenderer recordRenderer;
+#endif
                 Timer recordTimer;
                 do_benchmark_work(&recordRenderer, (BBoxType)bBoxType,
                                   picture, FLAGS_record, &recordTimer);

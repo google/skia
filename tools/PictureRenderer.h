@@ -403,6 +403,10 @@ public:
     GrContext* getGrContext() {
         return fGrContext;
     }
+
+    const GrContext::Options& getGrContextOptions() {
+        return fGrContextFactory.getGlobalOptions();
+    }
 #endif
 
     SkCanvas* getCanvas() {
@@ -412,14 +416,19 @@ public:
     const SkPicture* getPicture() {
         return fPicture;
     }
-
+    
+#if SK_SUPPORT_GPU
+    explicit PictureRenderer(const GrContext::Options &opts)
+#else
     PictureRenderer()
+#endif
         : fJsonSummaryPtr(NULL)
         , fDeviceType(kBitmap_DeviceType)
         , fEnableWrites(false)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
         , fScaleFactor(SK_Scalar1)
 #if SK_SUPPORT_GPU
+        , fGrContextFactory(opts)
         , fGrContext(NULL)
         , fSampleCount(0)
 #endif
@@ -500,6 +509,11 @@ private:
  * to time.
  */
 class RecordPictureRenderer : public PictureRenderer {
+public:
+#if SK_SUPPORT_GPU
+    RecordPictureRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
+#endif
+
     virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
     virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
@@ -511,10 +525,16 @@ protected:
 
 private:
     virtual SkString getConfigNameInternal() SK_OVERRIDE;
+
+    typedef PictureRenderer INHERITED;
 };
 
 class PipePictureRenderer : public PictureRenderer {
 public:
+#if SK_SUPPORT_GPU
+    PipePictureRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
+#endif
+
     virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
 private:
@@ -525,6 +545,10 @@ private:
 
 class SimplePictureRenderer : public PictureRenderer {
 public:
+#if SK_SUPPORT_GPU
+    SimplePictureRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
+#endif
+
     virtual void init(const SkPicture* pict,
                       const SkString* writePath, 
                       const SkString* mismatchPath,
@@ -541,7 +565,11 @@ private:
 
 class TiledPictureRenderer : public PictureRenderer {
 public:
+#if SK_SUPPORT_GPU
+    TiledPictureRenderer(const GrContext::Options &opts);
+#else
     TiledPictureRenderer();
+#endif
 
     virtual void init(const SkPicture* pict, 
                       const SkString* writePath, 
@@ -668,6 +696,10 @@ private:
  */
 class PlaybackCreationRenderer : public PictureRenderer {
 public:
+#if SK_SUPPORT_GPU
+    PlaybackCreationRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
+#endif
+
     virtual void setup() SK_OVERRIDE;
 
     virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
@@ -684,7 +716,11 @@ private:
     typedef PictureRenderer INHERITED;
 };
 
+#if SK_SUPPORT_GPU
+extern PictureRenderer* CreateGatherPixelRefsRenderer(const GrContext::Options& opts);
+#else
 extern PictureRenderer* CreateGatherPixelRefsRenderer();
+#endif
 
 }
 

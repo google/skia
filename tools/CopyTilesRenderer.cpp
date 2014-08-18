@@ -16,10 +16,16 @@
 #include "SkString.h"
 
 namespace sk_tools {
+#if SK_SUPPORT_GPU
+    CopyTilesRenderer::CopyTilesRenderer(const GrContext::Options& opts, int x, int y)
+    : INHERITED(opts)
+    , fXTilesPerLargeTile(x)
+    , fYTilesPerLargeTile(y) { }
+#else
     CopyTilesRenderer::CopyTilesRenderer(int x, int y)
     : fXTilesPerLargeTile(x)
-    , fYTilesPerLargeTile(y) {
-    }
+    , fYTilesPerLargeTile(y) { }
+#endif
     void CopyTilesRenderer::init(const SkPicture* pict, const SkString* writePath,
                                  const SkString* mismatchPath, const SkString* inputFilename,
                                  bool useChecksumBasedFilenames) {
