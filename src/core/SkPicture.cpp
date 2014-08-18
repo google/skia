@@ -393,6 +393,11 @@ bool SkPicture::suitableForGpuRasterization(GrContext* context, const char **rea
 }
 #endif
 
+// fRecord TODO
+bool SkPicture::hasText() const {
+    return fData.get() && fData->hasText();
+}
+
 // fRecord OK
 bool SkPicture::willPlayBackBitmaps() const {
     if (fRecord.get()) {

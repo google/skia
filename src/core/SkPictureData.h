@@ -89,6 +89,8 @@ public:
 
     bool containsBitmaps() const;
 
+    bool hasText() const { return fContentInfo.hasText(); }
+
     int opCount() const { return fContentInfo.numOperations(); }
 
     const SkData* opData() const { return fOpData; }

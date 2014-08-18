@@ -919,6 +919,63 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 
 #endif
 
+static void test_has_text(skiatest::Reporter* reporter) {
+    SkPictureRecorder recorder;
+    SkPaint paint;
+    paint.setColor(SK_ColorBLUE);
+    SkPoint point = SkPoint::Make(10, 10);
+
+    SkCanvas* canvas = recorder.beginRecording(100, 100);
+    {
+        canvas->drawRect(SkRect::MakeWH(20, 20), paint);
+    }
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    REPORTER_ASSERT(reporter, !picture->hasText());
+
+    canvas = recorder.beginRecording(100, 100);
+    {
+        canvas->drawText("Q", 1, point.fX, point.fY, paint);
+    }
+    picture.reset(recorder.endRecording());
+    REPORTER_ASSERT(reporter, picture->hasText());
+
+    canvas = recorder.beginRecording(100, 100);
+    {
+        canvas->drawPosText("Q", 1, &point, paint);
+    }
+    picture.reset(recorder.endRecording());
+    REPORTER_ASSERT(reporter, picture->hasText());
+
+    canvas = recorder.beginRecording(100, 100);
+    {
+        canvas->drawPosTextH("Q", 1, &point.fX, point.fY, paint);
+    }
+    picture.reset(recorder.endRecording());
+    REPORTER_ASSERT(reporter, picture->hasText());
+
+    canvas = recorder.beginRecording(100, 100);
+    {
+        SkPath path;
+        path.moveTo(0, 0);
+        path.lineTo(50, 50);
+
+        canvas->drawTextOnPathHV("Q", 1, path, point.fX, point.fY, paint);
+    }
+    picture.reset(recorder.endRecording());
+    REPORTER_ASSERT(reporter, picture->hasText());
+
+    canvas = recorder.beginRecording(100, 100);
+    {
+        SkPath path;
+        path.moveTo(0, 0);
+        path.lineTo(50, 50);
+
+        canvas->drawTextOnPath("Q", 1, path, NULL, paint);
+    }
+    picture.reset(recorder.endRecording());
+    REPORTER_ASSERT(reporter, picture->hasText());
+}
+
 static void set_canvas_to_save_count_4(SkCanvas* canvas) {
     canvas->restoreToCount(1);
     canvas->save();
@@ -1561,6 +1618,7 @@ DEF_TEST(Picture, reporter) {
 #if SK_SUPPORT_GPU
     test_gpu_veto(reporter);
 #endif
+    test_has_text(reporter);
     test_gatherpixelrefs(reporter);
     test_gatherpixelrefsandrects(reporter);
     test_bitmap_with_encoded_data(reporter);

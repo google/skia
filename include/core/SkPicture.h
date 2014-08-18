@@ -204,6 +204,10 @@ public:
      */
     int approximateOpCount() const;
 
+    /** Return true if this picture contains text.
+     */
+    bool hasText() const;
+
 private:
     // V2 : adds SkPixelRef's generation ID.
     // V3 : PictInfo tag at beginning, and EOF tag at the end
