@@ -132,13 +132,13 @@ def main(target_dir=None, require_sk_user_config=False):
         defines=common.DEFINES)
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
-                                       target_file='tools.gyp',
+                                       target_file='bench.gyp',
                                        skia_trunk=target_dir,
-                                       dest_dir='tools',
+                                       dest_dir='bench',
                                        skia_lib_var_dict=common,
-                                       local_module_name='skia_bench_pictures',
+                                       local_module_name='skia_nanobench',
                                        local_module_tags=['tests'],
-                                       desired_targets=['bench_pictures'])
+                                       desired_targets=['nanobench'])
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
                                        target_file='gm.gyp',
