@@ -25,7 +25,6 @@ class SkRasterizer;
  *  than a nested struct inside SkScalerContext (where it started).
  */
 struct SkScalerContextRec {
-    uint32_t    fOrigFontID;
     uint32_t    fFontID;
     SkScalar    fTextSize, fPreScaleX, fPreSkewX;
     SkScalar    fPost2x2[2][2];

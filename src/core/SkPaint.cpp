@@ -1553,8 +1553,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     if (NULL == typeface) {
         typeface = SkTypeface::GetDefaultTypeface();
     }
-    rec->fOrigFontID = typeface->uniqueID();
-    rec->fFontID = rec->fOrigFontID;
+    rec->fFontID = typeface->uniqueID();
     rec->fTextSize = paint.getTextSize();
     rec->fPreScaleX = paint.getTextScaleX();
     rec->fPreSkewX  = paint.getTextSkewX();
