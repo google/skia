@@ -38,29 +38,6 @@ class SK_API SkBitmap {
 public:
     class SK_API Allocator;
 
-#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
-    enum Config {
-        kNo_Config,         //!< bitmap has not been configured
-        kA8_Config,         //!< 8-bits per pixel, with only alpha specified (0 is transparent, 0xFF is opaque)
-        kIndex8_Config,     //!< 8-bits per pixel, using SkColorTable to specify the colors
-        kRGB_565_Config,    //!< 16-bits per pixel, (see SkColorPriv.h for packing)
-        kARGB_4444_Config,  //!< 16-bits per pixel, (see SkColorPriv.h for packing)
-        kARGB_8888_Config,  //!< 32-bits per pixel, (see SkColorPriv.h for packing)
-    };
-
-    // do not add this to the Config enum, otherwise the compiler will let us
-    // pass this as a valid parameter for Config.
-    enum {
-        kConfigCount = kARGB_8888_Config + 1
-    };
-
-    /** Return the config for the bitmap. */
-    Config  config() const;
-    
-    SK_ATTR_DEPRECATED("use config()")
-    Config  getConfig() const { return this->config(); }
-#endif
-
     /**
      *  Default construct creates a bitmap with zero width and height, and no pixels.
      *  Its colortype is set to kUnknown_SkColorType.
@@ -864,14 +841,5 @@ inline SkPMColor SkBitmap::getIndex8Color(int x, int y) const {
     SkASSERT(fColorTable);
     return (*fColorTable)[*((const uint8_t*)fPixels + y * fRowBytes + x)];
 }
-
-#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
-///////////////////////////////////////////////////////////////////////////////
-//
-// Helpers until we can fully deprecate SkBitmap::Config
-//
-SK_API SkBitmap::Config SkColorTypeToBitmapConfig(SkColorType);
-SK_API SkColorType SkBitmapConfigToColorType(SkBitmap::Config);
-#endif
 
 #endif

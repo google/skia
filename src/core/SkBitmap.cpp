@@ -91,12 +91,6 @@ void SkBitmap::reset() {
     sk_bzero(this, sizeof(*this));
 }
 
-#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
-SkBitmap::Config SkBitmap::config() const {
-    return SkColorTypeToBitmapConfig(fInfo.colorType());
-}
-#endif
-
 void SkBitmap::getBounds(SkRect* bounds) const {
     SkASSERT(bounds);
     bounds->set(0, 0,

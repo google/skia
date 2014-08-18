@@ -160,52 +160,6 @@ public:
     Chooser* setChooser(Chooser*);
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
-    /**
-     *  Optional table describing the caller's preferred config based on
-     *  information about the src data. Each field should be set to the
-     *  preferred config for a src described in the name of the field. The
-     *  src attributes are described in terms of depth (8-index,
-     *  8bit-grayscale, or 8-bits/component) and whether there is per-pixel
-     *  alpha (does not apply to grayscale). If the caller has no preference
-     *  for a particular src type, its slot should be set to kNo_Config.
-     *
-     *  NOTE ABOUT PREFERRED CONFIGS:
-     *  If a config is preferred, either using a pref table or as a parameter
-     *  to some flavor of decode, it is still at the discretion of the codec
-     *  as to what output config is actually returned, as it may not be able
-     *  to support the caller's preference.
-     *
-     *  If a bitmap is decoded into SkBitmap::A8_Config, the resulting bitmap
-     *  will either be a conversion of the grayscale in the case of a
-     *  grayscale source or the alpha channel in the case of a source with
-     *  an alpha channel.
-     */
-    struct PrefConfigTable {
-        SkBitmap::Config fPrefFor_8Index_NoAlpha_src;
-        SkBitmap::Config fPrefFor_8Index_YesAlpha_src;
-        SkBitmap::Config fPrefFor_8Gray_src;
-        SkBitmap::Config fPrefFor_8bpc_NoAlpha_src;
-        SkBitmap::Config fPrefFor_8bpc_YesAlpha_src;
-    };
-
-    /**
-     *  Set an optional table for specifying the caller's preferred config
-     *  based on information about the src data.
-     *
-     *  The default is no preference, which will assume the config set by
-     *  decode is preferred.
-     */
-    void setPrefConfigTable(const PrefConfigTable&);
-
-    /**
-     *  Do not use a PrefConfigTable to determine the output config. This
-     *  is the default, so there is no need to call unless a PrefConfigTable
-     *  was previously set.
-     */
-    void resetPrefConfigTable() { fUsePrefTable = false; }
-#endif
-
     /**
      *  By default, the codec will try to comply with the "pref" colortype
      *  that is passed to decode() or decodeSubset(). However, this can be called
@@ -467,10 +421,6 @@ private:
     SkBitmap::Allocator*    fAllocator;
     int                     fSampleSize;
     SkColorType             fDefaultPref;   // use if fUsePrefTable is false
-#ifdef SK_SUPPORT_LEGACY_BITMAP_CONFIG
-    PrefConfigTable         fPrefTable;     // use if fUsePrefTable is true
-    bool                    fUsePrefTable;
-#endif
     bool                    fPreserveSrcDepth;
     bool                    fDitherImage;
     bool                    fSkipWritingZeroes;
