@@ -55,6 +55,7 @@
 #include "SkError.h"
 #include "SkFixed.h"
 #include "SkFlate.h"
+#include "SkFlattenableBuffers.h"
 #include "SkFlattenable.h"
 #include "SkFlattenableSerialization.h"
 #include "SkFloatBits.h"
