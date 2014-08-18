@@ -560,9 +560,9 @@ struct SkOTTableName {
         }
 
         struct Record {
-            SK_OT_USHORT type;
             SkString name;
             SkString language;
+            SK_OT_USHORT type;
         };
         bool next(Record&);
 
