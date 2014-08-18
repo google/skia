@@ -1157,7 +1157,7 @@ static SkString segment_masks_to_str(uint32_t segmentMasks) {
     return result;
 }
 
-static int lpath_getSegementTypes(lua_State* L) {
+static int lpath_getSegmentTypes(lua_State* L) {
     uint32_t segMasks = get_obj<SkPath>(L, 1)->getSegmentMasks();
     SkLua(L).pushString(segment_masks_to_str(segMasks));
     return 1;
@@ -1257,7 +1257,7 @@ static int lpath_gc(lua_State* L) {
 static const struct luaL_Reg gSkPath_Methods[] = {
     { "getBounds", lpath_getBounds },
     { "getFillType", lpath_getFillType },
-    { "getSegmentTypes", lpath_getSegementTypes },
+    { "getSegmentTypes", lpath_getSegmentTypes },
     { "isConvex", lpath_isConvex },
     { "isEmpty", lpath_isEmpty },
     { "isRect", lpath_isRect },
