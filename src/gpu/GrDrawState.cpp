@@ -396,22 +396,32 @@ bool GrDrawState::srcAlphaWillBeOne() const {
 
     // Check whether coverage is treated as color. If so we run through the coverage computation.
     if (this->isCoverageDrawing()) {
-        GrColor coverageColor = this->getCoverageColor();
-        GrColor oldColor = color;
-        color = 0;
-        for (int c = 0; c < 4; ++c) {
-            if (validComponentFlags & (1 << c)) {
-                U8CPU a = (oldColor >> (c * 8)) & 0xff;
-                U8CPU b = (coverageColor >> (c * 8)) & 0xff;
-                color |= (SkMulDiv255Round(a, b) << (c * 8));
-            }
+        // The shader generated for coverage drawing runs the full coverage computation and then
+        // makes the shader output be the multiplication of color and coverage. We mirror that here.
+        GrColor coverage;
+        uint32_t coverageComponentFlags;
+        if (this->hasCoverageVertexAttribute()) {
+            coverageComponentFlags = 0;
+            coverage = 0; // suppresses any warnings.
+        } else {
+            coverageComponentFlags = kRGBA_GrColorComponentFlags;
+            coverage = this->getCoverageColor();
         }
+
+        // Run through the coverage stages
         for (int s = 0; s < this->numCoverageStages(); ++s) {
             const GrEffect* effect = this->getCoverageStage(s).getEffect();
-            effect->getConstantColorComponents(&color, &validComponentFlags);
+            effect->getConstantColorComponents(&coverage, &coverageComponentFlags);
         }
+
+        // Since the shader will multiply coverage and color, the only way the final A==1 is if
+        // coverage and color both have A==1.
+        return (kA_GrColorComponentFlag & validComponentFlags & coverageComponentFlags) &&
+                0xFF == GrColorUnpackA(color) && 0xFF == GrColorUnpackA(coverage);
+
     }
-    return (kA_GrColorComponentFlag & validComponentFlags) && 0xff == GrColorUnpackA(color);
+
+    return (kA_GrColorComponentFlag & validComponentFlags) && 0xFF == GrColorUnpackA(color);
 }
 
 bool GrDrawState::hasSolidCoverage() const {
