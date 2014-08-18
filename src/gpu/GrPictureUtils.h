@@ -13,7 +13,7 @@
 
 // This class encapsulates the GPU-backend-specific acceleration data
 // for a single SkPicture
-class GPUAccelData : public SkPicture::AccelData {
+class GrAccelData : public SkPicture::AccelData {
 public:
     // Information about a given saveLayer in an SkPicture
     struct SaveLayerInfo {
@@ -43,9 +43,9 @@ public:
         bool    fIsNested;
     };
 
-    GPUAccelData(Key key) : INHERITED(key) { }
+    GrAccelData(Key key) : INHERITED(key) { }
 
-    virtual ~GPUAccelData() {
+    virtual ~GrAccelData() {
         for (int i = 0; i < fSaveLayerInfo.count(); ++i) {
             SkDELETE(fSaveLayerInfo[i].fPaint);
         }
@@ -74,6 +74,6 @@ private:
     typedef SkPicture::AccelData INHERITED;
 };
 
-void GatherGPUInfo(const SkPicture* pict, GPUAccelData* accelData);
+void GatherGPUInfo(const SkPicture* pict, GrAccelData* accelData);
 
 #endif // GrPictureUtils_DEFINED

@@ -13,14 +13,14 @@
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
 
-SkPicture::AccelData::Key GPUAccelData::ComputeAccelDataKey() {
+SkPicture::AccelData::Key GrAccelData::ComputeAccelDataKey() {
     static const SkPicture::AccelData::Key gGPUID = SkPicture::AccelData::GenerateDomain();
 
     return gGPUID;
 }
 
 // The GrGather device performs GPU-backend-specific preprocessing on
-// a picture. The results are stored in a GPUAccelData.
+// a picture. The results are stored in a GrAccelData.
 //
 // Currently the only interesting work is done in drawDevice (i.e., when a
 // saveLayer is collapsed back into its parent) and, maybe, in onCreateDevice.
@@ -31,7 +31,7 @@ class GrGatherDevice : public SkBaseDevice {
 public:
     SK_DECLARE_INST_COUNT(GrGatherDevice)
 
-    GrGatherDevice(int width, int height, SkPicturePlayback* playback, GPUAccelData* accelData,
+    GrGatherDevice(int width, int height, SkPicturePlayback* playback, GrAccelData* accelData,
                    int saveLayerDepth) {
         fPlayback = playback;
         fSaveLayerDepth = saveLayerDepth;
@@ -171,14 +171,14 @@ private:
     SkBitmap fEmptyBitmap; // legacy -- need to remove
 
     // All information gathered during the gather process is stored here
-    GPUAccelData* fAccelData;
+    GrAccelData* fAccelData;
 
     // true if this device has already been drawn back to its parent(s) at least
     // once.
     bool   fAlreadyDrawn;
 
     // The information regarding the saveLayer call this device represents.
-    GPUAccelData::SaveLayerInfo fInfo;
+    GrAccelData::SaveLayerInfo fInfo;
 
     // The depth of this device in the saveLayer stack
     int fSaveLayerDepth;
@@ -259,7 +259,7 @@ private:
 
 // GatherGPUInfo is only intended to be called within the context of SkGpuDevice's
 // EXPERIMENTAL_optimize method.
-void GatherGPUInfo(const SkPicture* pict, GPUAccelData* accelData) {
+void GatherGPUInfo(const SkPicture* pict, GrAccelData* accelData) {
     if (NULL == pict || 0 == pict->width() || 0 == pict->height()) {
         return ;
     }

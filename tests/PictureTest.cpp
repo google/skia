@@ -860,20 +860,20 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 
             canvas->EXPERIMENTAL_optimize(pict);
 
-            SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();
+            SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
 
             const SkPicture::AccelData* data = pict->EXPERIMENTAL_getAccelData(key);
             REPORTER_ASSERT(reporter, NULL != data);
 
-            const GPUAccelData *gpuData = static_cast<const GPUAccelData*>(data);
+            const GrAccelData *gpuData = static_cast<const GrAccelData*>(data);
             REPORTER_ASSERT(reporter, 5 == gpuData->numSaveLayers());
 
-            const GPUAccelData::SaveLayerInfo& info0 = gpuData->saveLayerInfo(0);
+            const GrAccelData::SaveLayerInfo& info0 = gpuData->saveLayerInfo(0);
             // The parent/child layer appear in reverse order
-            const GPUAccelData::SaveLayerInfo& info1 = gpuData->saveLayerInfo(2);
-            const GPUAccelData::SaveLayerInfo& info2 = gpuData->saveLayerInfo(1);
-            const GPUAccelData::SaveLayerInfo& info3 = gpuData->saveLayerInfo(3);
-//        const GPUAccelData::SaveLayerInfo& info4 = gpuData->saveLayerInfo(4);
+            const GrAccelData::SaveLayerInfo& info1 = gpuData->saveLayerInfo(2);
+            const GrAccelData::SaveLayerInfo& info2 = gpuData->saveLayerInfo(1);
+            const GrAccelData::SaveLayerInfo& info3 = gpuData->saveLayerInfo(3);
+//        const GrAccelData::SaveLayerInfo& info4 = gpuData->saveLayerInfo(4);
 
             REPORTER_ASSERT(reporter, info0.fValid);
             REPORTER_ASSERT(reporter, kWidth == info0.fSize.fWidth && kHeight == info0.fSize.fHeight);
