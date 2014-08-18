@@ -385,7 +385,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device) {
     fCachedLocalClipBoundsDirty = true;
     fAllowSoftClip = true;
     fAllowSimplifyClip = false;
-    fDeviceCMDirty = false;
+    fDeviceCMDirty = true;
     fSaveLayerCount = 0;
     fCullCount = 0;
     fMetaData = NULL;
@@ -398,7 +398,12 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device) {
 
     fSurfaceBase = NULL;
 
-    return this->setRootDevice(device);
+    if (device) {
+        device->onAttachToCanvas(this);
+        fMCRec->fLayer->fDevice = SkRef(device);
+        fMCRec->fRasterClip.setRect(SkIRect::MakeWH(device->width(), device->height()));
+    }
+    return device;
 }
 
 SkCanvas::SkCanvas()
