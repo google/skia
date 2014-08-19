@@ -73,7 +73,6 @@
       'core/SkPreConfig.h',
       'core/SkRRect.h',
       'core/SkRasterizer.h',
-      'core/SkReader32.h',
       'core/SkRect.h',
       'core/SkRefCnt.h',
       'core/SkRegion.h',
