@@ -75,8 +75,8 @@ public:
     enum Flags {
         /**
          *  Use the system's automatic hinting mechanism to hint the typeface.
-         *  If both bytecode and auto hints are specified, attempt to use the bytecodes first.
-         *  If that fails (e.g. there are no codes), then attempt to autohint.
+         *  This is a last resort hinting method applied only if other hinting methods do not apply.
+         *  TODO: where to put auto-normal vs auto-light?
          */
         kEnableAutoHints_Flag       = 1 << 0,
 
@@ -88,6 +88,13 @@ public:
         kEnableByteCodeHints_Flag   = 1 << 1,
 
         /**
+         *  If the typeface contains explicit bitmaps for hinting, use them.
+         *  If both bytecode and auto hints are also specified, attempt to use the bitmaps first;
+         *  if that fails (e.g. there are no bitmaps), then attempt to bytecode or autohint.
+         */
+        kEmbeddedBitmaps_Flag       = 1 << 2,
+
+        /**
          *  Use rounded metric values (e.g. advance).
          *  If either auto or bytecode hinting was used, apply those results to the metrics of the
          *  glyphs as well. If no hinting was applied, the metrics will just be rounded to the
@@ -96,10 +103,9 @@ public:
          *  This applies to calls that return metrics (e.g. measureText) and to drawing the glyphs
          *  (see SkCanvas drawText and drawPosText).
          */
-        kUseNonlinearMetrics_Flag   = 1 << 2,
+        kUseNonlinearMetrics_Flag   = 1 << 3,
 
-        kVertical_Flag              = 1 << 3,
-        kEmbeddedBitmaps_Flag       = 1 << 4,
+        kVertical_Flag              = 1 << 4,
         kGenA8FromLCD_Flag          = 1 << 5,
         kEmbolden_Flag              = 1 << 6,
         kDevKern_Flag               = 1 << 7,   // ifdef ANDROID ?
