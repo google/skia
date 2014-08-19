@@ -33,6 +33,7 @@
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
         'tools.gyp:gm_expectations',
+        'tools.gyp:proc_stats',
         'tools.gyp:resources',
         'tools.gyp:sk_tool_utils',
       ],

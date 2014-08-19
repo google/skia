@@ -10,6 +10,7 @@
 #include "Benchmark.h"
 #include "CrashHandler.h"
 #include "GMBench.h"
+#include "ProcStats.h"
 #include "ResultsWriter.h"
 #include "SKPBench.h"
 #include "Stats.h"
@@ -590,7 +591,7 @@ int nanobench_main() {
     } else if (FLAGS_quiet) {
         SkDebugf("median\tbench\tconfig\n");
     } else {
-        SkDebugf("loops\tmin\tmedian\tmean\tmax\tstddev\tsamples\tconfig\tbench\n");
+        SkDebugf("maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\tsamples\tconfig\tbench\n");
     }
 
     SkTDArray<Config> configs;
@@ -673,7 +674,8 @@ int nanobench_main() {
                 SkDebugf("%s\t%s\t%s\n", HUMANIZE(stats.median), bench->getName(), config);
             } else {
                 const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
-                SkDebugf("%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
+                SkDebugf("%4dM\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
+                        , sk_tools::getMaxResidentSetSizeMB()
                         , loops
                         , HUMANIZE(stats.min)
                         , HUMANIZE(stats.median)

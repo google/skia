@@ -12,19 +12,19 @@
     defined(SK_BUILD_FOR_ANDROID)
 
     #include <sys/resource.h>
-    int sk_tools::getMaxResidentSetSizeKB() {
+    int sk_tools::getMaxResidentSetSizeMB() {
         struct rusage ru;
         getrusage(RUSAGE_SELF, &ru);
     #if defined(SK_BUILD_FOR_MAC)
-        return static_cast<int>(ru.ru_maxrss / 1024);  // Darwin reports bytes.
+        return static_cast<int>(ru.ru_maxrss / 1024 / 1024);  // Darwin reports bytes.
     #else
-        return static_cast<int>(ru.ru_maxrss);  // Linux reports kilobytes.
+        return static_cast<int>(ru.ru_maxrss / 1024);  // Linux reports kilobytes.
     #endif
     }
 
 #else
 
-    int sk_tools::getMaxResidentSetSizeKB() {
+    int sk_tools::getMaxResidentSetSizeMB() {
         return -1;
     }
 

@@ -18,6 +18,7 @@
 #include "gm_expectations.h"
 #include "system_preferences.h"
 #include "CrashHandler.h"
+#include "ProcStats.h"
 #include "Resources.h"
 #include "SamplePipeControllers.h"
 #include "SkBitmap.h"
@@ -2386,10 +2387,11 @@ int tool_main(int argc, char** argv) {
 
         gmsRun++;
         SkISize size = gm->getISize();
-        SkDebugf("%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
+        SkDebugf("%4dM %sdrawing... %s [%d %d]\n",
+                 sk_tools::getMaxResidentSetSizeMB(), moduloStr.c_str(), shortName,
                  size.width(), size.height());
         if (!FLAGS_dryRun)
-            run_multiple_configs(gmmain, gm, configs, pdfRasterizers, tileGridReplayScales, 
+            run_multiple_configs(gmmain, gm, configs, pdfRasterizers, tileGridReplayScales,
                                  grFactory, gpuAPI);
     }
 

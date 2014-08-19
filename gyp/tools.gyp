@@ -530,7 +530,7 @@
         'pdf.gyp:pdf',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:picture_utils',
-        'tools.gyp:sk_tool_proc_stats',
+        'tools.gyp:proc_stats',
       ],
       'conditions': [
         ['skia_win_debuggers_path and skia_os == "win"',
@@ -648,7 +648,7 @@
       ],
     },
     {
-      'target_name': 'sk_tool_proc_stats',
+      'target_name': 'proc_stats',
       'type': 'static_library',
       'sources': [
         '../tools/ProcStats.h',

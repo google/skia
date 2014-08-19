@@ -22,9 +22,9 @@ void Reporter::printStatus(SkString name, SkMSec timeMs) const {
         status.appendf(", %d failed", failed);
     }
     if (FLAGS_verbose) {
-        int max_rss_kb = sk_tools::getMaxResidentSetSizeKB();
-        if (max_rss_kb >= 0) {
-            status.appendf("\t%4dM peak", max_rss_kb / 1024);
+        int max_rss_mb = sk_tools::getMaxResidentSetSizeMB();
+        if (max_rss_mb >= 0) {
+            status.appendf("\t%4dM peak", max_rss_mb);
         }
         status.appendf("\t%5dms\t%s", timeMs, name.c_str());
     }

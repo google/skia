@@ -24,6 +24,7 @@
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
+        'tools.gyp:proc_stats',
         'tools.gyp:timer',
       ],
     },

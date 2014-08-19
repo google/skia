@@ -18,7 +18,7 @@ namespace sk_tools {
  *  If not implemented for this OS, returns -1.  Otherwise, return
  *  the maximum resident set size, as reported by getrusage().
  */
-int getMaxResidentSetSizeKB();
+int getMaxResidentSetSizeMB();
 
 }  // namespace sk_tools
 

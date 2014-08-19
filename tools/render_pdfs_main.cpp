@@ -268,9 +268,9 @@ int tool_main_core(int argc, char** argv) {
             ++failures;
         }
 
-        int max_rss_kb = sk_tools::getMaxResidentSetSizeKB();
-        if (max_rss_kb >= 0) {
-            SkDebugf(" %4dM peak rss", max_rss_kb / 1024);
+        int max_rss_mb = sk_tools::getMaxResidentSetSizeMB();
+        if (max_rss_mb >= 0) {
+            SkDebugf(" %4dM peak rss", max_rss_mb);
         }
 
         SkDebugf("\n");
