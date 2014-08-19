@@ -457,7 +457,12 @@ static bool remove_save_layer2(SkWriter32* writer, int32_t offset,
 }
 
 static bool is_drawing_op(DrawType op) {
-    return (op > CONCAT && op < ROTATE) || DRAW_DRRECT == op;
+
+    // FIXME: yuck. convert to a lookup table?
+    return (op > CONCAT && op < ROTATE)
+            || DRAW_DRRECT == op
+            || DRAW_PATCH == op
+            || DRAW_PICTURE_MATRIX_PAINT == op;
 }
 
 /*
