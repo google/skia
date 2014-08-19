@@ -70,6 +70,8 @@ public:
                                   SkShader::TileMode,
                                   const SkMatrix* localMatrix) const SK_OVERRIDE;
 
+    virtual bool isOpaque() const SK_OVERRIDE;
+
     SkImage_Raster(const SkBitmap& bm)
         : INHERITED(bm.width(), bm.height())
         , fBitmap(bm) {}
@@ -218,4 +220,8 @@ SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
 
 SkPixelRef* SkBitmapImageGetPixelRef(SkImage* image) {
     return ((SkImage_Raster*)image)->getPixelRef();
+}
+
+bool SkImage_Raster::isOpaque() const {
+    return fBitmap.isOpaque();
 }

@@ -22,6 +22,8 @@ public:
     virtual void onDrawRectToRect(SkCanvas*, const SkRect*, const SkRect&,
                                   const SkPaint*) const SK_OVERRIDE;
 
+    virtual bool isOpaque() const SK_OVERRIDE;
+
 private:
     SkData*     fEncodedData;
     SkBitmap    fBitmap;
@@ -77,4 +79,9 @@ SkImage* SkImage::NewEncodedData(SkData* data) {
     }
 
     return SkNEW_ARGS(SkImage_Codec, (data, bitmap.width(), bitmap.height()));
+}
+
+
+bool SkImage_Codec::isOpaque() const {
+    return fBitmap.isOpaque();
 }

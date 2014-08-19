@@ -48,6 +48,8 @@ public:
      */
     static SkImage* NewTexture(const SkBitmap&);
 
+    virtual bool isOpaque() const { return false; }
+
     /**
      *  Construct a new SkImage based on the given ImageGenerator.
      *  This function will always take ownership of the passed

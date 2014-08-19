@@ -31,6 +31,9 @@ public:
     virtual SkShader* onNewShader(SkShader::TileMode,
                                   SkShader::TileMode,
                                   const SkMatrix* localMatrix) const SK_OVERRIDE;
+
+    virtual bool isOpaque() const SK_OVERRIDE;
+
 private:
     SkBitmap    fBitmap;
 
@@ -70,6 +73,10 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
 
 bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
     return fBitmap.copyTo(dst, kN32_SkColorType);
+}
+
+bool SkImage_Gpu::isOpaque() const {
+    return fBitmap.isOpaque();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
