@@ -25,7 +25,6 @@
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
 #include "GrResourceCache.h"
-#include "GrResourceCache2.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrStencilBuffer.h"
 #include "GrStencilAndCoverTextContext.h"
@@ -109,7 +108,6 @@ GrContext::GrContext(const Options& opts) : fOptions(opts) {
     fPathRendererChain = NULL;
     fSoftwarePathRenderer = NULL;
     fResourceCache = NULL;
-    fResourceCache2 = NULL;
     fFontCache = NULL;
     fDrawBuffer = NULL;
     fDrawBufferVBAllocPool = NULL;
@@ -135,7 +133,6 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
     fResourceCache = SkNEW_ARGS(GrResourceCache, (MAX_RESOURCE_CACHE_COUNT,
                                                   MAX_RESOURCE_CACHE_BYTES));
     fResourceCache->setOverbudgetCallback(OverbudgetCB, this);
-    fResourceCache2 = SkNEW(GrResourceCache2);
 
     fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
 
@@ -164,8 +161,10 @@ GrContext::~GrContext() {
         (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
     }
 
-    delete fResourceCache2;
-    fResourceCache2 = NULL;
+    // Since the gpu can hold scratch textures, give it a chance to let go
+    // of them before freeing the texture cache
+    fGpu->purgeResources();
+
     delete fResourceCache;
     fResourceCache = NULL;
     delete fFontCache;
@@ -185,9 +184,7 @@ GrContext::~GrContext() {
 void GrContext::abandonContext() {
     // abandon first to so destructors
     // don't try to free the resources in the API.
-    fResourceCache2->abandonAll();
-
-    fGpu->contextAbandonded();
+    fGpu->abandonResources();
 
     // a path renderer may be holding onto resources that
     // are now unusable
@@ -210,6 +207,7 @@ void GrContext::abandonContext() {
 
     fFontCache->freeAll();
     fLayerCache->freeAll();
+    fGpu->markContextDirty();
 }
 
 void GrContext::resetContext(uint32_t state) {
@@ -220,9 +218,6 @@ void GrContext::freeGpuResources() {
     this->flush();
 
     fGpu->purgeResources();
-    if (NULL != fDrawBuffer) {
-        fDrawBuffer->purgeResources();
-    }
 
     fAARectRenderer->reset();
     fOvalRenderer->reset();
@@ -545,10 +540,6 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
 }
 
 void GrContext::unlockScratchTexture(GrTexture* texture) {
-    if (texture->wasDestroyed()) {
-        return;
-    }
-
     ASSERT_OWNED_RESOURCE(texture);
     SkASSERT(NULL != texture->getCacheEntry());
 

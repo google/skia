@@ -73,6 +73,7 @@ void GrGLPathRendering::abandonGpuResources() {
     fPathNameAllocator.reset(NULL);
 }
 
+
 // NV_path_rendering
 GrGLuint GrGLPathRendering::genPaths(GrGLsizei range) {
     if (range > 1) {

@@ -35,7 +35,6 @@ class GrPath;
 class GrPathRenderer;
 class GrResourceEntry;
 class GrResourceCache;
-class GrResourceCache2;
 class GrStencilBuffer;
 class GrTestTarget;
 class GrTextContext;
@@ -927,7 +926,6 @@ public:
     GrDrawTarget* getTextTarget();
     const GrIndexBuffer* getQuadIndexBuffer() const;
     GrAARectRenderer* getAARectRenderer() { return fAARectRenderer; }
-    GrResourceCache2* getResourceCache2() { return fResourceCache2; }
 
     // Called by tests that draw directly to the context via GrDrawTarget
     void getTestTarget(GrTestTarget*);
@@ -975,7 +973,6 @@ private:
     GrDrawState*                    fDrawState;
 
     GrResourceCache*                fResourceCache;
-    GrResourceCache2*               fResourceCache2;
     GrFontCache*                    fFontCache;
     SkAutoTDelete<GrLayerCache>     fLayerCache;
 

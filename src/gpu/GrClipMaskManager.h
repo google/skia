@@ -53,11 +53,7 @@ public:
     bool setupClipping(const GrClipData* clipDataIn, GrDrawState::AutoRestoreEffects*,
                        const SkRect* devBounds);
 
-    /**
-     * Purge resources to free up memory. TODO: This class shouldn't hold any long lived refs
-     * which will allow ResourceCache2 to automatically purge anything this class has created.
-     */
-    void purgeResources();
+    void releaseResources();
 
     bool isClipInStencil() const {
         return kStencil_ClipMaskType == fCurrClipMaskType;

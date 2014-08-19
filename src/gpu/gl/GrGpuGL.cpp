@@ -182,15 +182,9 @@ GrGpuGL::~GrGpuGL() {
 
     // This must be called by before the GrDrawTarget destructor
     this->releaseGeometry();
-}
-
-void GrGpuGL::contextAbandonded() {
-    INHERITED::contextAbandonded();
-    fProgramCache->abandon();
-    fHWProgramID = 0;
-    if (this->glCaps().pathRenderingSupport()) {
-        fPathRendering->abandonGpuResources();
-    }
+    // This subclass must do this before the base class destructor runs
+    // since we will unref the GrGLInterface.
+    this->releaseResources();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
