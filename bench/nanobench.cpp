@@ -63,7 +63,10 @@ DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
 DEFINE_int32(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
 DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
-DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON.");
+DEFINE_string(key, "",
+              "Space-separated key/value pairs to add to JSON identifying this bench config.");
+DEFINE_string(options, "",
+              "Space-separated option/value pairs to add to JSON, logging extra info.");
 DEFINE_string(gitHash, "", "Git hash to add to JSON.");
 
 DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
@@ -565,7 +568,15 @@ int nanobench_main() {
     for (int i = 1; i < FLAGS_key.count(); i += 2) {
         log.key(FLAGS_key[i-1], FLAGS_key[i]);
     }
+
     fill_static_options(&log);
+    if (1 == FLAGS_options.count() % 2) {
+        SkDebugf("ERROR: --options must be passed with an even number of arguments.\n");
+        return 1;
+    }
+    for (int i = 1; i < FLAGS_options.count(); i += 2) {
+        log.option(FLAGS_options[i-1], FLAGS_options[i]);
+    }
 
     const double overhead = estimate_timer_overhead();
     SkDebugf("Timer overhead: %s\n", HUMANIZE(overhead));
