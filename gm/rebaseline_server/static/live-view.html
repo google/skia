@@ -272,7 +272,12 @@
                href=""
                title="setA: '{{header[constants.KEY__HEADER__SET_A_DESCRIPTIONS][constants.KEY__SET_DESCRIPTIONS__SECTION]}}' within {{header[constants.KEY__HEADER__SET_A_DESCRIPTIONS][constants.KEY__SET_DESCRIPTIONS__DIR]}}"
                class="sortable-header">
-                   {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
+              <span ng-show="'Pending Approval' != viewingTab">
+                {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
+              </span>
+              <span ng-show="'Pending Approval' == viewingTab">
+                old expectations
+              </span>
             </a>
           </th>
           <th width="{{imageSize}}">
@@ -281,7 +286,12 @@
                href=""
                title="setB: '{{header[constants.KEY__HEADER__SET_B_DESCRIPTIONS][constants.KEY__SET_DESCRIPTIONS__SECTION]}}' within {{header[constants.KEY__HEADER__SET_B_DESCRIPTIONS][constants.KEY__SET_DESCRIPTIONS__DIR]}}"
                class="sortable-header">
-                  {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
+              <span ng-show="'Pending Approval' != viewingTab">
+                {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
+              </span>
+              <span ng-show="'Pending Approval' == viewingTab">
+                new expectations
+              </span>
             </a>
           </th>
           <th width="{{imageSize}}">
