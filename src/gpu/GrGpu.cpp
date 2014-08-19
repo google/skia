@@ -49,62 +49,9 @@ GrGpu::GrGpu(GrContext* context)
 #endif
 }
 
-GrGpu::~GrGpu() {
-    this->releaseResources();
-}
+GrGpu::~GrGpu() {}
 
-void GrGpu::abandonResources() {
-
-    fClipMaskManager.releaseResources();
-
-    while (NULL != fObjectList.head()) {
-        fObjectList.head()->abandon();
-    }
-
-    SkASSERT(NULL == fQuadIndexBuffer || fQuadIndexBuffer->wasDestroyed());
-    SkSafeSetNull(fQuadIndexBuffer);
-    delete fVertexPool;
-    fVertexPool = NULL;
-    delete fIndexPool;
-    fIndexPool = NULL;
-}
-
-void GrGpu::releaseResources() {
-
-    fClipMaskManager.releaseResources();
-
-    while (NULL != fObjectList.head()) {
-        fObjectList.head()->release();
-    }
-
-    SkASSERT(NULL == fQuadIndexBuffer || fQuadIndexBuffer->wasDestroyed());
-    SkSafeSetNull(fQuadIndexBuffer);
-    delete fVertexPool;
-    fVertexPool = NULL;
-    delete fIndexPool;
-    fIndexPool = NULL;
-}
-
-void GrGpu::insertObject(GrGpuResource* object) {
-    SkASSERT(NULL != object);
-    SkASSERT(this == object->getGpu());
-
-    fObjectList.addToHead(object);
-}
-
-void GrGpu::removeObject(GrGpuResource* object) {
-    SkASSERT(NULL != object);
-    SkASSERT(this == object->getGpu());
-
-    fObjectList.remove(object);
-}
-
-
-void GrGpu::unimpl(const char msg[]) {
-#ifdef SK_DEBUG
-    GrPrintf("--- GrGpu unimplemented(\"%s\")\n", msg);
-#endif
-}
+void GrGpu::contextAbandonded() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -319,7 +266,8 @@ static inline void fill_indices(uint16_t* indices, int quadCount) {
 }
 
 const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
-    if (NULL == fQuadIndexBuffer) {
+    if (NULL == fQuadIndexBuffer || fQuadIndexBuffer->wasDestroyed()) {
+        SkSafeUnref(fQuadIndexBuffer);
         static const int SIZE = sizeof(uint16_t) * 6 * MAX_QUADS;
         GrGpu* me = const_cast<GrGpu*>(this);
         fQuadIndexBuffer = me->createIndexBuffer(SIZE, false);

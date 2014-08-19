@@ -267,7 +267,7 @@ void GrResourceCache::makeExclusive(GrResourceCacheEntry* entry) {
 void GrResourceCache::removeInvalidResource(GrResourceCacheEntry* entry) {
     // If the resource went invalid while it was detached then purge it
     // This can happen when a 3D context was lost,
-    // the client called GrContext::contextDestroyed() to notify Gr,
+    // the client called GrContext::abandonContext() to notify Gr,
     // and then later an SkGpuDevice's destructor releases its backing
     // texture (which was invalidated at contextDestroyed time).
     // TODO: Safely delete the GrResourceCacheEntry as well.

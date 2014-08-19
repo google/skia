@@ -112,7 +112,7 @@ void GrLayerCache::freeAll() {
     fAtlas.free();
     // GrLayerCache always assumes an atlas exists so recreate it. The atlas 
     // lazily allocates a replacement texture so reallocating a new 
-    // atlas here won't disrupt a GrContext::contextDestroyed or freeGpuResources.
+    // atlas here won't disrupt a GrContext::abandonContext or freeGpuResources.
     // TODO: Make GrLayerCache lazily allocate the atlas manager?
     this->initAtlas();
 }
