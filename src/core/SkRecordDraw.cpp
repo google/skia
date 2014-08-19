@@ -64,7 +64,6 @@ DRAW(SaveLayer, saveLayer(r.bounds, r.paint, r.flags));
 DRAW(PopCull, popCull());
 DRAW(PushCull, pushCull(r.rect));
 DRAW(Clear, clear(r.color));
-DRAW(Concat, concat(r.matrix));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 
 DRAW(ClipPath, clipPath(r.path, r.op, r.doAA));
@@ -120,7 +119,7 @@ public:
         // Calculate bounds for all ops.  This won't go quite in order, so we'll need
         // to store the bounds separately then feed them in to the BBH later in order.
         const SkIRect largest = SkIRect::MakeLargest();
-        fCTM.setIdentity();
+        fCTM = &SkMatrix::I();
         fCurrentClipBounds = largest;
         for (fCurrentOp = 0; fCurrentOp < record.count(); fCurrentOp++) {
             record.visit<void>(fCurrentOp, *this);
@@ -161,9 +160,8 @@ private:
     };
 
     template <typename T> void updateCTM(const T&) { /* most ops don't change the CTM */ }
-    void updateCTM(const Restore& op)   { fCTM = op.matrix; }
-    void updateCTM(const SetMatrix& op) { fCTM = op.matrix; }
-    void updateCTM(const Concat& op)    { fCTM.preConcat(op.matrix); }
+    void updateCTM(const Restore& op)   { fCTM = &op.matrix; }
+    void updateCTM(const SetMatrix& op) { fCTM = &op.matrix; }
 
     template <typename T> void updateClipBounds(const T&) { /* most ops don't change the clip */ }
     // Each of these devBounds fields is the state of the device bounds after the op.
@@ -186,7 +184,6 @@ private:
     void trackBounds(const SaveLayer& op)  { this->pushSaveBlock(op.paint); }
     void trackBounds(const Restore&) { fBounds[fCurrentOp] = this->popSaveBlock(); }
 
-    void trackBounds(const Concat&)     { this->pushControl(); }
     void trackBounds(const SetMatrix&)  { this->pushControl(); }
     void trackBounds(const ClipRect&)   { this->pushControl(); }
     void trackBounds(const ClipRRect&)  { this->pushControl(); }
@@ -359,7 +356,7 @@ private:
         }
 
         // Map the rect back to device space.
-        fCTM.mapRect(&rect);
+        fCTM->mapRect(&rect);
         SkIRect devRect;
         rect.roundOut(&devRect);
 
@@ -376,7 +373,7 @@ private:
     // and updateClipBounds() to maintain the exact CTM (fCTM) and conservative
     // device bounds of the current clip (fCurrentClipBounds).
     unsigned fCurrentOp;
-    SkMatrix fCTM;
+    const SkMatrix* fCTM;
     SkIRect fCurrentClipBounds;
 
     // Used to track the bounds of Save/Restore blocks and the control ops inside them.

@@ -218,20 +218,17 @@ void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
 
 void SkRecorder::willSave() {
     APPEND(Save);
-    INHERITED(willSave);
 }
 
 SkCanvas::SaveLayerStrategy SkRecorder::willSaveLayer(const SkRect* bounds,
                                                       const SkPaint* paint,
                                                       SkCanvas::SaveFlags flags) {
     APPEND(SaveLayer, this->copy(bounds), this->copy(paint), flags);
-    INHERITED(willSaveLayer, bounds, paint, flags);
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 
 void SkRecorder::didRestore() {
     APPEND(Restore, this->devBounds(), this->getTotalMatrix());
-    INHERITED(didRestore);
 }
 
 void SkRecorder::onPushCull(const SkRect& rect) {
@@ -243,14 +240,12 @@ void SkRecorder::onPopCull() {
 }
 
 void SkRecorder::didConcat(const SkMatrix& matrix) {
-    APPEND(Concat, matrix);
-    INHERITED(didConcat, matrix);
+    this->didSetMatrix(this->getTotalMatrix());
 }
 
 void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
     SkASSERT(matrix == this->getTotalMatrix());
     APPEND(SetMatrix, matrix);
-    INHERITED(didSetMatrix, matrix);
 }
 
 void SkRecorder::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {

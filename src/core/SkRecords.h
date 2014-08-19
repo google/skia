@@ -44,7 +44,6 @@ namespace SkRecords {
     M(SaveLayer)                                                    \
     M(PushCull)                                                     \
     M(PopCull)                                                      \
-    M(Concat)                                                       \
     M(SetMatrix)                                                    \
     M(ClipPath)                                                     \
     M(ClipRRect)                                                    \
@@ -204,7 +203,6 @@ RECORD3(SaveLayer, Optional<SkRect>, bounds, Optional<SkPaint>, paint, SkCanvas:
 RECORD1(PushCull, SkRect, rect);
 RECORD0(PopCull);
 
-RECORD1(Concat, SkMatrix, matrix);
 RECORD1(SetMatrix, SkMatrix, matrix);
 
 RECORD4(ClipPath,   SkIRect, devBounds, SkPath,   path,   SkRegion::Op, op, bool, doAA);
