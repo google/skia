@@ -264,9 +264,7 @@ static void test_float_conversions(skiatest::Reporter* reporter, float x) {
 static void test_int2float(skiatest::Reporter* reporter, int ival) {
     float x0 = (float)ival;
     float x1 = SkIntToFloatCast(ival);
-    float x2 = SkIntToFloatCast_NoOverflowCheck(ival);
     REPORTER_ASSERT(reporter, x0 == x1);
-    REPORTER_ASSERT(reporter, x0 == x2);
 }
 
 static void unittest_fastfloat(skiatest::Reporter* reporter) {

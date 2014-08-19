@@ -203,23 +203,3 @@ float SkIntToFloatCast(int32_t value) {
     data.fSignBitInt = (sign << 31) | (shift << 23) | (value & ~MATISSA_MAGIC_BIG);
     return data.fFloat;
 }
-
-float SkIntToFloatCast_NoOverflowCheck(int32_t value) {
-    if (0 == value) {
-        return 0;
-    }
-
-    int shift = EXP_BIAS;
-
-    // record the sign and make value positive
-    int sign = SkExtractSign(value);
-    value = SkApplySign(value, sign);
-
-    int zeros = SkCLZ(value << 8);
-    value <<= zeros;
-    shift -= zeros;
-
-    SkFloatIntUnion data;
-    data.fSignBitInt = (sign << 31) | (shift << 23) | (value & ~MATISSA_MAGIC_BIG);
-    return data.fFloat;
-}

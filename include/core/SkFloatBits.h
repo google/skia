@@ -95,7 +95,6 @@ static inline float Sk2sComplimentAsFloat(int32_t x) {
 /** Return x cast to a float (i.e. (float)x)
 */
 float SkIntToFloatCast(int x);
-float SkIntToFloatCast_NoOverflowCheck(int x);
 
 /** Return the float cast to an int.
     If the value is out of range, or NaN, return +/- SK_MaxS32
