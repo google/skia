@@ -213,7 +213,7 @@ class BaseComparisons(object):
     Raises:
       IOError if root does not refer to an existing directory
     """
-    # I considered making this call _read_dicts_from_root(), but I decided
+    # I considered making this call read_dicts_from_root(), but I decided
     # it was better to prune out the ignored builders within the os.walk().
     if not os.path.isdir(root):
       raise IOError('no directory found at path %s' % root)
@@ -227,8 +227,12 @@ class BaseComparisons(object):
         meta_dict[builder] = gm_json.LoadFromFile(full_path)
     return meta_dict
 
-  def _read_dicts_from_root(self, root, pattern='*.json'):
+  @staticmethod
+  def read_dicts_from_root(root, pattern='*.json'):
     """Read all JSON dictionaries within a directory tree.
+
+    TODO(stephana): Factor this out into a utility module, as a standalone
+    function (not part of a class).
 
     Args:
       root: path to root of directory tree

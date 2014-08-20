@@ -20,6 +20,7 @@ KEY__IMAGEPAIRS__EXTRACOLUMNS = 'extraColumns'
 KEY__IMAGEPAIRS__IMAGE_A_URL = 'imageAUrl'
 KEY__IMAGEPAIRS__IMAGE_B_URL = 'imageBUrl'
 KEY__IMAGEPAIRS__IS_DIFFERENT = 'isDifferent'
+KEY__IMAGEPAIRS__SOURCE_JSON_FILE = 'sourceJsonFile'
 
 # If self._diff_record is set to this, we haven't asked ImageDiffDB for the
 # image diff details yet.
@@ -32,7 +33,7 @@ class ImagePair(object):
 
   def __init__(self, image_diff_db,
                base_url, imageA_relative_url, imageB_relative_url,
-               expectations=None, extra_columns=None,
+               expectations=None, extra_columns=None, source_json_file=None,
                download_all_images=False):
     """
     Args:
@@ -46,6 +47,9 @@ class ImagePair(object):
           metadata (ignore-failure, bug numbers, etc.)
       extra_columns: optional dictionary containing more metadata (test name,
           builder name, etc.)
+      source_json_file: relative path of the JSON file where each image came
+          from; this will be the same for both imageA and imageB, within their
+          respective directories
       download_all_images: if True, download any images associated with this
           image pair, even if we don't need them to generate diffs
           (imageA == imageB, or one of them is missing)
@@ -56,6 +60,7 @@ class ImagePair(object):
     self.imageB_relative_url = imageB_relative_url
     self.expectations_dict = expectations
     self.extra_columns_dict = extra_columns
+    self.source_json_file = source_json_file
     if not imageA_relative_url or not imageB_relative_url:
       self._is_different = True
       self._diff_record = None
@@ -89,6 +94,8 @@ class ImagePair(object):
       asdict[KEY__IMAGEPAIRS__EXPECTATIONS] = self.expectations_dict
     if self.extra_columns_dict:
       asdict[KEY__IMAGEPAIRS__EXTRACOLUMNS] = self.extra_columns_dict
+    if self.source_json_file:
+      asdict[KEY__IMAGEPAIRS__SOURCE_JSON_FILE] = self.source_json_file
     if self._diff_record is _DIFF_RECORD_STILL_LOADING:
       # We have waited as long as we can to ask ImageDiffDB for details of
       # this image diff.  Now we must block until ImageDiffDB can provide

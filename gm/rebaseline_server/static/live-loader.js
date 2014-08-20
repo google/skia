@@ -776,14 +776,17 @@ Loader.controller(
      * Tell the server that the actual results of these particular tests
      * are acceptable.
      *
-     * TODO(epoger): This assumes that the original expectations are in
-     * imageSetA, and the actuals are in imageSetB.
+     * This assumes that the original expectations are in imageSetA, and the
+     * new expectations are in imageSetB.  That's fine, because the server
+     * mandates that anyway (it will swap the sets if the user requests them
+     * in the opposite order).
      *
      * @param imagePairsSubset an array of test results, most likely a subset of
      *        $scope.imagePairs (perhaps with some modifications)
      */
     $scope.submitApprovals = function(imagePairsSubset) {
       $scope.submitPending = true;
+      $scope.diffResults = "";
 
       // Convert bug text field to null or 1-item array.
       var bugs = null;
@@ -791,13 +794,6 @@ Loader.controller(
       if (!isNaN(bugNumber)) {
         bugs = [bugNumber];
       }
-
-      // TODO(epoger): This is a suboptimal way to prevent users from
-      // rebaselining failures in alternative renderModes, but it does work.
-      // For a better solution, see
-      // https://code.google.com/p/skia/issues/detail?id=1748 ('gm: add new
-      // result type, RenderModeMismatch')
-      var encounteredComparisonConfig = false;
 
       var updatedExpectations = [];
       for (var i = 0; i < imagePairsSubset.length; i++) {
@@ -807,14 +803,11 @@ Loader.controller(
             imagePair[constants.KEY__IMAGEPAIRS__EXPECTATIONS];
         updatedExpectation[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS] =
             imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS];
+        updatedExpectation[constants.KEY__IMAGEPAIRS__SOURCE_JSON_FILE] =
+            imagePair[constants.KEY__IMAGEPAIRS__SOURCE_JSON_FILE];
         // IMAGE_B_URL contains the actual image (which is now the expectation)
         updatedExpectation[constants.KEY__IMAGEPAIRS__IMAGE_B_URL] =
             imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL];
-        if (0 == updatedExpectation[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS]
-                                   [constants.KEY__EXTRACOLUMNS__CONFIG]
-                                   .indexOf('comparison-')) {
-          encounteredComparisonConfig = true;
-        }
 
         // Advanced settings...
         if (null == updatedExpectation[constants.KEY__IMAGEPAIRS__EXPECTATIONS]) {
@@ -835,41 +828,20 @@ Loader.controller(
 
         updatedExpectations.push(updatedExpectation);
       }
-      if (encounteredComparisonConfig) {
-        alert("Approval failed -- you cannot approve results with config " +
-            "type comparison-*");
-        $scope.submitPending = false;
-        return;
-      }
       var modificationData = {};
-      modificationData[constants.KEY__EDITS__MODIFICATIONS] =
+      modificationData[constants.KEY__LIVE_EDITS__MODIFICATIONS] =
           updatedExpectations;
-      modificationData[constants.KEY__EDITS__OLD_RESULTS_HASH] =
-          $scope.header[constants.KEY__HEADER__DATAHASH];
-      modificationData[constants.KEY__EDITS__OLD_RESULTS_TYPE] =
-          $scope.header[constants.KEY__HEADER__TYPE];
+      modificationData[constants.KEY__LIVE_EDITS__SET_A_DESCRIPTIONS] =
+          $scope.header[constants.KEY__HEADER__SET_A_DESCRIPTIONS];
+      modificationData[constants.KEY__LIVE_EDITS__SET_B_DESCRIPTIONS] =
+          $scope.header[constants.KEY__HEADER__SET_B_DESCRIPTIONS];
       $http({
         method: "POST",
-        url: "/edits",
+        url: "/live-edits",
         data: modificationData
       }).success(function(data, status, headers, config) {
-        var imagePairIndicesToMove = [];
-        for (var i = 0; i < imagePairsSubset.length; i++) {
-          imagePairIndicesToMove.push(imagePairsSubset[i].index);
-        }
-        $scope.moveImagePairsToTab(imagePairIndicesToMove,
-                                   "HackToMakeSureThisImagePairDisappears");
-        $scope.updateResults();
-        alert("New baselines submitted successfully!\n\n" +
-            "You still need to commit the updated expectations files on " +
-            "the server side to the Skia repo.\n\n" +
-            "When you click OK, your web UI will reload; after that " +
-            "completes, you will see the updated data (once the server has " +
-            "finished loading the update results into memory!) and you can " +
-            "submit more baselines if you want.");
-        // I don't know why, but if I just call reload() here it doesn't work.
-        // Making a timer call it fixes the problem.
-        $timeout(function(){location.reload();}, 1);
+        $scope.diffResults = data;
+        $scope.submitPending = false;
       }).error(function(data, status, headers, config) {
         alert("There was an error submitting your baselines.\n\n" +
             "Please see server-side log for details.");

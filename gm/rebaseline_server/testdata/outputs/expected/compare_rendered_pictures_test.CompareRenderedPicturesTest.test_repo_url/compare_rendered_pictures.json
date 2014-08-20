@@ -128,7 +128,7 @@
     "renderModeB"
   ], 
   "header": {
-    "dataHash": "-1510211866509185075", 
+    "dataHash": "-5707186260478709107", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 5, 
@@ -160,7 +160,8 @@
       }, 
       "imageAUrl": "changed_skp/bitmap-64bitMD5_3101044995537104462.png", 
       "imageBUrl": "changed_skp/bitmap-64bitMD5_13623922271964399662.png", 
-      "isDifferent": true
+      "isDifferent": true, 
+      "sourceJsonFile": "./summary.json"
     }, 
     {
       "extraColumns": {
@@ -175,7 +176,8 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "only-in-after_skp/bitmap-64bitMD5_2320185040577047131.png", 
-      "isDifferent": true
+      "isDifferent": true, 
+      "sourceJsonFile": "./summary.json"
     }, 
     {
       "extraColumns": {
@@ -190,7 +192,8 @@
       }, 
       "imageAUrl": "only-in-before_skp/bitmap-64bitMD5_2320185040577047131.png", 
       "imageBUrl": null, 
-      "isDifferent": true
+      "isDifferent": true, 
+      "sourceJsonFile": "./summary.json"
     }, 
     {
       "extraColumns": {
@@ -205,7 +208,8 @@
       }, 
       "imageAUrl": "unchanged_skp/bitmap-64bitMD5_3322248763049618493.png", 
       "imageBUrl": "unchanged_skp/bitmap-64bitMD5_3322248763049618493.png", 
-      "isDifferent": false
+      "isDifferent": false, 
+      "sourceJsonFile": "./summary.json"
     }
   ], 
   "imageSets": {

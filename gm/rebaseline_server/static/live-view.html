@@ -170,14 +170,11 @@
 
       <!-- Submission UI that we only show in the Pending Approval tab. -->
       <div ng-show="'Pending Approval' == viewingTab">
-        <div style="font-size:20px">
-          TODO(epoger): We don't yet support submitting new SKP expectations.
-        </div>
         <div style="display:inline-block">
           <button style="font-size:20px"
                   ng-click="submitApprovals(filteredImagePairs)"
-                  ng-disabled="true || submitPending || (filteredImagePairs.length == 0)">
-            Update these {{filteredImagePairs.length}} expectations on the server
+                  ng-disabled="submitPending || (filteredImagePairs.length == 0)">
+            Get a patchfile to update these {{filteredImagePairs.length}} expectations
           </button>
         </div>
         <div style="display:inline-block">
@@ -200,6 +197,12 @@
               <input type="text" ng-model="submitAdvancedSettings[setting]">
             </li>
           </ul>
+        </div>
+        <div ng-show="diffResults">
+          <p>
+          Here is the patch to apply to your local checkout:
+          <br>
+          <textarea rows="8" cols="50">{{diffResults}}</textarea>
         </div>
       </div>
 

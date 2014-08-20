@@ -31,6 +31,7 @@ module.constant('constants', (function() {
     KEY__IMAGEPAIRS__IMAGE_A_URL: 'imageAUrl',
     KEY__IMAGEPAIRS__IMAGE_B_URL: 'imageBUrl',
     KEY__IMAGEPAIRS__IS_DIFFERENT: 'isDifferent',
+    KEY__IMAGEPAIRS__SOURCE_JSON_FILE: 'sourceJsonFile',
 
     // NOTE: Keep these in sync with ../imagepairset.py
     KEY__ROOT__EXTRACOLUMNHEADERS: 'extraColumnHeaders',
@@ -83,6 +84,9 @@ module.constant('constants', (function() {
     KEY__EDITS__MODIFICATIONS: 'modifications',
     KEY__EDITS__OLD_RESULTS_HASH: 'oldResultsHash',
     KEY__EDITS__OLD_RESULTS_TYPE: 'oldResultsType',
+    KEY__LIVE_EDITS__MODIFICATIONS: 'modifications',
+    KEY__LIVE_EDITS__SET_A_DESCRIPTIONS: 'setA',
+    KEY__LIVE_EDITS__SET_B_DESCRIPTIONS: 'setB',
 
     // These are just used on the client side, no need to sync with server code.
     KEY__IMAGEPAIRS__ROWSPAN: 'rowspan',

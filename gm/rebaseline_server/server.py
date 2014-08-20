@@ -48,6 +48,8 @@ import download_actuals
 import imagediffdb
 import imagepairset
 import results as results_mod
+import writable_expectations as writable_expectations_mod
+
 
 PATHSPLIT_RE = re.compile('/([^/]+)/(.+)')
 
@@ -67,6 +69,9 @@ MIME_TYPE_MAP = {'': 'application/octet-stream',
 KEY__EDITS__MODIFICATIONS = 'modifications'
 KEY__EDITS__OLD_RESULTS_HASH = 'oldResultsHash'
 KEY__EDITS__OLD_RESULTS_TYPE = 'oldResultsType'
+KEY__LIVE_EDITS__MODIFICATIONS = 'modifications'
+KEY__LIVE_EDITS__SET_A_DESCRIPTIONS = 'setA'
+KEY__LIVE_EDITS__SET_B_DESCRIPTIONS = 'setB'
 
 DEFAULT_ACTUALS_DIR = results_mod.DEFAULT_ACTUALS_DIR
 DEFAULT_GM_SUMMARIES_BUCKET = download_actuals.GM_SUMMARIES_BUCKET
@@ -685,11 +690,11 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     normpath = posixpath.normpath(self.path)
     dispatchers = {
       '/edits': self.do_POST_edits,
+      '/live-edits': self.do_POST_live_edits,
     }
     try:
       dispatcher = dispatchers[normpath]
       dispatcher()
-      self.send_response(200)
     except:
       self.send_error(404)
       raise
@@ -749,6 +754,47 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     # We can do this in a separate thread; we should return our success message
     # to the UI as soon as possible.
     thread.start_new_thread(_SERVER.update_results, (True,))
+    self.send_response(200)
+
+  def do_POST_live_edits(self):
+    """ Handle a POST request with modifications to SKP expectations, in this
+    format:
+
+    {
+      KEY__LIVE_EDITS__SET_A_DESCRIPTIONS: {
+        # setA descriptions from the original data
+      },
+      KEY__LIVE_EDITS__SET_B_DESCRIPTIONS: {
+        # setB descriptions from the original data
+      },
+      KEY__LIVE_EDITS__MODIFICATIONS: [
+        # as needed by writable_expectations.modify()
+      ],
+    }
+
+    Raises an Exception if there were any problems.
+    """
+    content_type = self.headers[_HTTP_HEADER_CONTENT_TYPE]
+    if content_type != 'application/json;charset=UTF-8':
+      raise Exception('unsupported %s [%s]' % (
+          _HTTP_HEADER_CONTENT_TYPE, content_type))
+
+    content_length = int(self.headers[_HTTP_HEADER_CONTENT_LENGTH])
+    json_data = self.rfile.read(content_length)
+    data = json.loads(json_data)
+    logging.debug('do_POST_live_edits: received new GM expectations data [%s]' %
+                  data)
+    with writable_expectations_mod.WritableExpectations(
+        data[KEY__LIVE_EDITS__SET_A_DESCRIPTIONS]) as writable_expectations:
+      writable_expectations.modify(data[KEY__LIVE_EDITS__MODIFICATIONS])
+      diffs = writable_expectations.get_diffs()
+      # TODO(stephana): Move to a simpler web framework so we don't have to
+      # call these functions.  See http://skbug.com/2856 ('rebaseline_server:
+      # Refactor server to use a simple web framework')
+      self.send_response(200)
+      self.send_header('Content-type', 'text/plain')
+      self.end_headers()
+      self.wfile.write(diffs)
 
   def redirect_to(self, url):
     """ Redirect the HTTP client to a different url.

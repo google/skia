@@ -51,6 +51,9 @@ COLUMN__BUILDER_A = 'builderA'
 COLUMN__RENDER_MODE_A = 'renderModeA'
 COLUMN__BUILDER_B = 'builderB'
 COLUMN__RENDER_MODE_B = 'renderModeB'
+# Known values for some of those columns.
+COLUMN__TILED_OR_WHOLE__TILED = 'tiled'
+COLUMN__TILED_OR_WHOLE__WHOLE = 'whole'
 
 FREEFORM_COLUMN_IDS = [
     COLUMN__SOURCE_SKP,
@@ -213,8 +216,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     """
     logging.info('Reading JSON image summaries from dirs %s and %s...' % (
         setA_root, setB_root))
-    setA_dicts = self._read_dicts_from_root(setA_root)
-    setB_dicts = self._read_dicts_from_root(setB_root)
+    setA_dicts = self.read_dicts_from_root(setA_root)
+    setB_dicts = self.read_dicts_from_root(setB_root)
     logging.info('Comparing summary dicts...')
 
     all_image_pairs = imagepairset.ImagePairSet(
@@ -296,6 +299,7 @@ class RenderedPicturesComparisons(results.BaseComparisons):
             image_dict_A=whole_image_A, image_dict_B=whole_image_B,
             builder_A=builder_A, render_mode_A=render_mode_A,
             builder_B=builder_B, render_mode_B=render_mode_B,
+            source_json_file=dict_path,
             source_skp_name=skp_name, tilenum=None))
 
         tiled_images_A = self.get_default(
@@ -316,6 +320,7 @@ class RenderedPicturesComparisons(results.BaseComparisons):
                               if tile_num < num_tiles_B else None),
                 builder_A=builder_A, render_mode_A=render_mode_A,
                 builder_B=builder_B, render_mode_B=render_mode_B,
+                source_json_file=dict_path,
                 source_skp_name=skp_name, tilenum=tile_num))
 
         for one_imagepair in imagepairs_for_this_skp:
@@ -364,8 +369,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
   def _create_image_pair(self, image_dict_A, image_dict_B, 
                          builder_A, render_mode_A, 
                          builder_B, render_mode_B,
-                         source_skp_name,
-                         tilenum):
+                         source_json_file,
+                         source_skp_name, tilenum):
     """Creates an ImagePair object for this pair of images.
 
     Args:
@@ -377,6 +382,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       builder_B: builder that created image set A or None if unknow
       render_mode_B: render mode used to generate image set A or None if 
                      unknown.
+      source_json_file: string; relative path of the JSON file where this
+                        result came from, within setA and setB.
       source_skp_name: string; name of the source SKP file
       tilenum: which tile, or None if a wholeimage
 
@@ -418,10 +425,10 @@ class RenderedPicturesComparisons(results.BaseComparisons):
         COLUMN__RENDER_MODE_B: render_mode_B,
     }
     if tilenum == None:
-      extra_columns_dict[COLUMN__TILED_OR_WHOLE] = 'whole'
+      extra_columns_dict[COLUMN__TILED_OR_WHOLE] = COLUMN__TILED_OR_WHOLE__WHOLE
       extra_columns_dict[COLUMN__TILENUM] = 'N/A'
     else:
-      extra_columns_dict[COLUMN__TILED_OR_WHOLE] = 'tiled'
+      extra_columns_dict[COLUMN__TILED_OR_WHOLE] = COLUMN__TILED_OR_WHOLE__TILED
       extra_columns_dict[COLUMN__TILENUM] = str(tilenum)
 
     try:
@@ -431,6 +438,7 @@ class RenderedPicturesComparisons(results.BaseComparisons):
           imageA_relative_url=imageA_relative_url,
           imageB_relative_url=imageB_relative_url,
           extra_columns=extra_columns_dict,
+          source_json_file=source_json_file,
           download_all_images=self._download_all_images)
     except (KeyError, TypeError):
       logging.exception(
