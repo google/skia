@@ -312,15 +312,23 @@ private:
     }
 
     static void AdjustTextForFontMetrics(SkRect* rect, const SkPaint& paint) {
-        // FIXME: These bounds should be tight (and correct), but reading SkFontMetrics is likely
-        // a performance bottleneck.  It's safe to overapproximate these metrics for speed.  E.g.
-        // fTop <= 1.5 * paint.getTextSize(), fXMax <= 8 * fTop, etc.
+#if SK_DEBUG
+        SkRect correct = *rect;
+#endif
+        const SkScalar yPad = 1.5f * paint.getTextSize(),  // In practice, this seems to be enough.
+                       xPad = 4.0f * yPad;                 // Hack for very wide Github logo font.
+        rect->outset(xPad, yPad);
+#if SK_DEBUG
         SkPaint::FontMetrics metrics;
         paint.getFontMetrics(&metrics);
-        rect->fLeft   += metrics.fXMin;
-        rect->fTop    += metrics.fTop;
-        rect->fRight  += metrics.fXMax;
-        rect->fBottom += metrics.fBottom;
+        correct.fLeft   += metrics.fXMin;
+        correct.fTop    += metrics.fTop;
+        correct.fRight  += metrics.fXMax;
+        correct.fBottom += metrics.fBottom;
+        SkASSERTF(rect->contains(correct), "%f %f %f %f vs. %f %f %f %f\n",
+                  -xPad, -yPad, +xPad, +yPad,
+                  metrics.fXMin, metrics.fTop, metrics.fXMax, metrics.fBottom);
+#endif
     }
 
     // Returns true if rect was meaningfully adjusted for the effects of paint,
