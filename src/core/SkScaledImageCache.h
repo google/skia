@@ -27,6 +27,41 @@ class SkScaledImageCache {
 public:
     struct ID;
 
+    struct Key {
+        // Call this to access your private contents. Must not use the address after calling init()
+        void* writableContents() { return this + 1; }
+
+        // must call this after your private data has been written.
+        // length must be a multiple of 4
+        void init(size_t length);
+
+        // This is only valid after having called init().
+        uint32_t hash() const { return fHash; }
+
+        bool operator==(const Key& other) const {
+            const uint32_t* a = this->as32();
+            const uint32_t* b = other.as32();
+            for (int i = 0; i < fCount32; ++i) {
+                if (a[i] != b[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // delete using sk_free
+        Key* clone() const;
+
+    private:
+        // store fCount32 first, so we don't consider it in operator<
+        int32_t  fCount32;  // 2 + user contents count32
+        uint32_t fHash;
+        /* uint32_t fContents32[] */
+
+        const uint32_t* as32() const { return (const uint32_t*)this; }
+        const uint32_t* as32SkipCount() const { return this->as32() + 1; }
+    };
+
     /**
      *  Returns a locked/pinned SkDiscardableMemory instance for the specified
      *  number of bytes, or NULL on failure.
@@ -173,7 +208,6 @@ public:
 
 public:
     struct Rec;
-    struct Key;
 private:
     Rec*    fHead;
     Rec*    fTail;

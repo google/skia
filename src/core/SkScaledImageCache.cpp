@@ -30,57 +30,28 @@ static inline SkScaledImageCache::Rec* id_to_rec(SkScaledImageCache::ID* id) {
     return reinterpret_cast<SkScaledImageCache::Rec*>(id);
 }
 
-struct SkScaledImageCache::Key {
-    Key(uint32_t genID,
-        SkScalar scaleX,
-        SkScalar scaleY,
-        SkIRect  bounds)
-        : fGenID(genID)
-        , fScaleX(scaleX)
-        , fScaleY(scaleY)
-        , fBounds(bounds) {
-        fHash = SkChecksum::Murmur3(&fGenID, 28);
-    }
+void SkScaledImageCache::Key::init(size_t length) {
+    SkASSERT(SkAlign4(length) == length);
+    // 2 is fCount32 and fHash
+    fCount32 = SkToS32(2 + (length >> 2));
+    // skip both of our fields whe computing the murmur
+    fHash = SkChecksum::Murmur3(this->as32() + 2, (fCount32 - 2) << 2);
+}
 
-    bool operator<(const Key& other) const {
-        const uint32_t* a = &fGenID;
-        const uint32_t* b = &other.fGenID;
-        for (int i = 0; i < 7; ++i) {
-            if (a[i] < b[i]) {
-                return true;
-            }
-            if (a[i] > b[i]) {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    bool operator==(const Key& other) const {
-        const uint32_t* a = &fHash;
-        const uint32_t* b = &other.fHash;
-        for (int i = 0; i < 8; ++i) {
-            if (a[i] != b[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    uint32_t    fHash;
-    uint32_t    fGenID;
-    float       fScaleX;
-    float       fScaleY;
-    SkIRect     fBounds;
-};
+SkScaledImageCache::Key* SkScaledImageCache::Key::clone() const {
+    size_t size = fCount32 << 2;
+    void* copy = sk_malloc_throw(size);
+    memcpy(copy, this, size);
+    return (Key*)copy;
+}
 
 struct SkScaledImageCache::Rec {
-    Rec(const Key& key, const SkBitmap& bm) : fKey(key), fBitmap(bm) {
+    Rec(const Key& key, const SkBitmap& bm) : fKey(key.clone()), fBitmap(bm) {
         fLockCount = 1;
         fMip = NULL;
     }
 
-    Rec(const Key& key, const SkMipMap* mip) : fKey(key) {
+    Rec(const Key& key, const SkMipMap* mip) : fKey(key.clone()) {
         fLockCount = 1;
         fMip = mip;
         mip->ref();
@@ -88,10 +59,11 @@ struct SkScaledImageCache::Rec {
 
     ~Rec() {
         SkSafeUnref(fMip);
+        sk_free(fKey);
     }
 
-    static const Key& GetKey(const Rec& rec) { return rec.fKey; }
-    static uint32_t Hash(const Key& key) { return key.fHash; }
+    static const Key& GetKey(const Rec& rec) { return *rec.fKey; }
+    static uint32_t Hash(const Key& key) { return key.hash(); }
 
     size_t bytesUsed() const {
         return fMip ? fMip->getSize() : fBitmap.getSize();
@@ -101,7 +73,7 @@ struct SkScaledImageCache::Rec {
     Rec*    fPrev;
 
     // this guy wants to be 64bit aligned
-    Key     fKey;
+    Key*    fKey;
 
     int32_t fLockCount;
 
@@ -288,22 +260,33 @@ SkScaledImageCache::~SkScaledImageCache() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+struct GenWHKey : public SkScaledImageCache::Key {
+public:
+    GenWHKey(uint32_t genID, SkScalar scaleX, SkScalar scaleY, const SkIRect& bounds)
+    : fGenID(genID)
+    , fScaleX(scaleX)
+    , fScaleY(scaleY)
+    , fBounds(bounds) {
+        this->init(7 * sizeof(uint32_t));
+    }
+
+    uint32_t    fGenID;
+    SkScalar    fScaleX;
+    SkScalar    fScaleY;
+    SkIRect     fBounds;
+};
 
 SkScaledImageCache::Rec* SkScaledImageCache::findAndLock(uint32_t genID,
                                                         SkScalar scaleX,
                                                         SkScalar scaleY,
                                                         const SkIRect& bounds) {
-    const Key key(genID, scaleX, scaleY, bounds);
-    return this->findAndLock(key);
+    return this->findAndLock(GenWHKey(genID, scaleX, scaleY, bounds));
 }
 
 /**
    This private method is the fully general record finder. All other
    record finders should call this function or the one above. */
 SkScaledImageCache::Rec* SkScaledImageCache::findAndLock(const SkScaledImageCache::Key& key) {
-    if (key.fBounds.isEmpty()) {
-        return NULL;
-    }
 #ifdef USE_HASH
     Rec* rec = fHash->find(key);
 #else
@@ -382,7 +365,7 @@ SkScaledImageCache::ID* SkScaledImageCache::findAndLockMip(const SkBitmap& orig,
 SkScaledImageCache::ID* SkScaledImageCache::addAndLock(SkScaledImageCache::Rec* rec) {
     SkASSERT(rec);
     // See if we already have this key (racy inserts, etc.)
-    Rec* existing = this->findAndLock(rec->fKey);
+    Rec* existing = this->findAndLock(*rec->fKey);
     if (NULL != existing) {
         // Since we already have a matching entry, just delete the new one and return.
         // Call sites cannot assume the passed in object will live past this call.
@@ -406,7 +389,7 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLock(uint32_t genID,
                                                        int32_t width,
                                                        int32_t height,
                                                        const SkBitmap& bitmap) {
-    Key key(genID, SK_Scalar1, SK_Scalar1, SkIRect::MakeWH(width, height));
+    GenWHKey key(genID, SK_Scalar1, SK_Scalar1, SkIRect::MakeWH(width, height));
     Rec* rec = SkNEW_ARGS(Rec, (key, bitmap));
     return this->addAndLock(rec);
 }
@@ -423,7 +406,7 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLock(const SkBitmap& orig,
     if (bounds.isEmpty()) {
         return NULL;
     }
-    Key key(orig.getGenerationID(), scaleX, scaleY, bounds);
+    GenWHKey key(orig.getGenerationID(), scaleX, scaleY, bounds);
     Rec* rec = SkNEW_ARGS(Rec, (key, scaled));
     return this->addAndLock(rec);
 }
@@ -434,7 +417,7 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLockMip(const SkBitmap& orig,
     if (bounds.isEmpty()) {
         return NULL;
     }
-    Key key(orig.getGenerationID(), 0, 0, bounds);
+    GenWHKey key(orig.getGenerationID(), 0, 0, bounds);
     Rec* rec = SkNEW_ARGS(Rec, (key, mip));
     return this->addAndLock(rec);
 }
@@ -494,7 +477,7 @@ void SkScaledImageCache::purgeAsNeeded() {
             SkASSERT(used <= bytesUsed);
             this->detach(rec);
 #ifdef USE_HASH
-            fHash->remove(rec->fKey);
+            fHash->remove(*rec->fKey);
 #endif
 
             SkDELETE(rec);
