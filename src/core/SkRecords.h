@@ -63,11 +63,11 @@ namespace SkRecords {
     M(DrawPoints)                                                   \
     M(DrawPosText)                                                  \
     M(DrawPosTextH)                                                 \
+    M(DrawText)                                                     \
+    M(DrawTextOnPath)                                               \
     M(DrawRRect)                                                    \
     M(DrawRect)                                                     \
     M(DrawSprite)                                                   \
-    M(DrawText)                                                     \
-    M(DrawTextOnPath)                                               \
     M(DrawVertices)
 
 // Defines SkRecords::Type, an enum of all record types.

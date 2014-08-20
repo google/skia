@@ -307,18 +307,18 @@ private:
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
 
     struct Analysis {
-        // To get setup to work cleanly, we cast away constness and call init()
-        // instead of trying to set everything during construction.
-        void init(const SkRecord&);
+        Analysis() {}  // Only used by SkPictureData codepath.
+        explicit Analysis(const SkRecord&);
 
         bool suitableForGpuRasterization(const char** reason, int sampleCount) const;
 
         bool        fWillPlaybackBitmaps;
+        bool        fHasText;
         int         fNumPaintWithPathEffectUses;
         int         fNumFastPathDashEffects;
         int         fNumAAConcavePaths;
         int         fNumAAHairlineConcavePaths;
-    } const                       fAnalysis;
+    } fAnalysis;
 };
 
 #endif

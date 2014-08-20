@@ -171,10 +171,17 @@ struct PathCounter {
     int numAAHairlineConcavePaths;
 };
 
+// SkRecord visitor to find recorded text.
+struct TextHunter {
+    // All ops with text have that text as a char array member named "text".
+    SK_CREATE_MEMBER_DETECTOR(text);
+    template <typename T> SK_WHEN(HasMember_text<T>,  bool) operator()(const T&) { return true;  }
+    template <typename T> SK_WHEN(!HasMember_text<T>, bool) operator()(const T&) { return false; }
+};
+
 } // namespace
 
-void SkPicture::Analysis::init(const SkRecord& record) {
-
+SkPicture::Analysis::Analysis(const SkRecord& record) {
     fWillPlaybackBitmaps = WillPlaybackBitmaps(record);
 
     PathCounter counter;
@@ -182,9 +189,18 @@ void SkPicture::Analysis::init(const SkRecord& record) {
         record.visit<void>(i, counter);
     }
     fNumPaintWithPathEffectUses = counter.numPaintWithPathEffectUses;
-    fNumFastPathDashEffects = counter.numFastPathDashEffects;
-    fNumAAConcavePaths = counter.numAAConcavePaths;
-    fNumAAHairlineConcavePaths = counter.numAAHairlineConcavePaths;
+    fNumFastPathDashEffects     = counter.numFastPathDashEffects;
+    fNumAAConcavePaths          = counter.numAAConcavePaths;
+    fNumAAHairlineConcavePaths  = counter.numAAHairlineConcavePaths;
+
+    fHasText = false;
+    TextHunter text;
+    for (unsigned i = 0; i < record.count(); i++) {
+        if (record.visit<bool>(i, text)) {
+            fHasText = true;
+            break;
+        }
+    }
 }
 
 bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
@@ -575,9 +591,16 @@ bool SkPicture::suitableForGpuRasterization(GrContext* context, const char **rea
 }
 #endif
 
-// fRecord TODO
+// fRecord OK
 bool SkPicture::hasText() const {
-    return fData.get() && fData->hasText();
+    if (fRecord.get()) {
+        return fAnalysis.fHasText;
+    }
+    if (fData.get()) {
+        return fData->hasText();
+    }
+    SkFAIL("Unreachable");
+    return false;
 }
 
 // fRecord OK
@@ -585,10 +608,11 @@ bool SkPicture::willPlayBackBitmaps() const {
     if (fRecord.get()) {
         return fAnalysis.fWillPlaybackBitmaps;
     }
-    if (!fData.get()) {
-        return false;
+    if (fData.get()) {
+        return fData->containsBitmaps();
     }
-    return fData->containsBitmaps();
+    SkFAIL("Unreachable");
+    return false;
 }
 
 // fRecord OK
@@ -617,10 +641,8 @@ SkPicture::SkPicture(int width, int height, SkRecord* record, SkBBoxHierarchy* b
     , fHeight(height)
     , fRecord(record)
     , fBBH(SkSafeRef(bbh))
-    , fAnalysis() {
+    , fAnalysis(*record) {
     // TODO: delay as much of this work until just before first playback?
-
-    const_cast<Analysis*>(&fAnalysis)->init(*record);
     if (fBBH.get()) {
         SkRecordFillBounds(*record, fBBH.get());
     }

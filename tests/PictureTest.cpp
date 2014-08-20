@@ -988,61 +988,62 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 
 #endif
 
-static void test_has_text(skiatest::Reporter* reporter) {
+static void test_has_text(skiatest::Reporter* reporter, bool useNewPath) {
     SkPictureRecorder recorder;
-    SkPaint paint;
-    paint.setColor(SK_ColorBLUE);
-    SkPoint point = SkPoint::Make(10, 10);
+#define BEGIN_RECORDING useNewPath ? recorder.EXPERIMENTAL_beginRecording(100, 100) \
+                                   : recorder.             beginRecording(100, 100)
 
-    SkCanvas* canvas = recorder.beginRecording(100, 100);
+    SkCanvas* canvas = BEGIN_RECORDING;
     {
-        canvas->drawRect(SkRect::MakeWH(20, 20), paint);
+        canvas->drawRect(SkRect::MakeWH(20, 20), SkPaint());
     }
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
     REPORTER_ASSERT(reporter, !picture->hasText());
 
-    canvas = recorder.beginRecording(100, 100);
+    SkPoint point = SkPoint::Make(10, 10);
+    canvas = BEGIN_RECORDING;
     {
-        canvas->drawText("Q", 1, point.fX, point.fY, paint);
+        canvas->drawText("Q", 1, point.fX, point.fY, SkPaint());
     }
     picture.reset(recorder.endRecording());
     REPORTER_ASSERT(reporter, picture->hasText());
 
-    canvas = recorder.beginRecording(100, 100);
+    canvas = BEGIN_RECORDING;
     {
-        canvas->drawPosText("Q", 1, &point, paint);
+        canvas->drawPosText("Q", 1, &point, SkPaint());
     }
     picture.reset(recorder.endRecording());
     REPORTER_ASSERT(reporter, picture->hasText());
 
-    canvas = recorder.beginRecording(100, 100);
+    canvas = BEGIN_RECORDING;
     {
-        canvas->drawPosTextH("Q", 1, &point.fX, point.fY, paint);
+        canvas->drawPosTextH("Q", 1, &point.fX, point.fY, SkPaint());
     }
     picture.reset(recorder.endRecording());
     REPORTER_ASSERT(reporter, picture->hasText());
 
-    canvas = recorder.beginRecording(100, 100);
-    {
-        SkPath path;
-        path.moveTo(0, 0);
-        path.lineTo(50, 50);
-
-        canvas->drawTextOnPathHV("Q", 1, path, point.fX, point.fY, paint);
-    }
-    picture.reset(recorder.endRecording());
-    REPORTER_ASSERT(reporter, picture->hasText());
-
-    canvas = recorder.beginRecording(100, 100);
+    canvas = BEGIN_RECORDING;
     {
         SkPath path;
         path.moveTo(0, 0);
         path.lineTo(50, 50);
 
-        canvas->drawTextOnPath("Q", 1, path, NULL, paint);
+        canvas->drawTextOnPathHV("Q", 1, path, point.fX, point.fY, SkPaint());
     }
     picture.reset(recorder.endRecording());
     REPORTER_ASSERT(reporter, picture->hasText());
+
+    canvas = BEGIN_RECORDING;
+    {
+        SkPath path;
+        path.moveTo(0, 0);
+        path.lineTo(50, 50);
+
+        canvas->drawTextOnPath("Q", 1, path, NULL, SkPaint());
+    }
+    picture.reset(recorder.endRecording());
+    REPORTER_ASSERT(reporter, picture->hasText());
+#undef BEGIN_RECORDING
 }
 
 static void set_canvas_to_save_count_4(SkCanvas* canvas) {
@@ -1688,7 +1689,8 @@ DEF_TEST(Picture, reporter) {
     test_gpu_veto(reporter, false);
     test_gpu_veto(reporter, true);
 #endif
-    test_has_text(reporter);
+    test_has_text(reporter, false);
+    test_has_text(reporter, true);
     test_analysis(reporter, false);
     test_analysis(reporter, true);
     test_gatherpixelrefs(reporter);
