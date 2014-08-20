@@ -399,7 +399,7 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     def _checksum_and_relative_url(dic):
       if dic:
         return ((dic[gm_json.JSONKEY_IMAGE_CHECKSUMALGORITHM],
-                 dic[gm_json.JSONKEY_IMAGE_CHECKSUMVALUE]),
+                 int(dic[gm_json.JSONKEY_IMAGE_CHECKSUMVALUE])),
                 dic[gm_json.JSONKEY_IMAGE_FILEPATH])
       else:
         return None, None
