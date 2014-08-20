@@ -20,7 +20,6 @@
           'sources': [
             '../bench/GMBench.cpp',
             '../bench/SKPBench.cpp',
-            '../bench/ResultsWriter.cpp',
             '../bench/nanobench.cpp',
             '../tests/skia_test.cpp',
             '../tools/iOSShell.cpp',

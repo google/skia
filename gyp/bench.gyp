@@ -12,7 +12,6 @@
         '../gm/gm.cpp',
         '../bench/GMBench.cpp',
         '../bench/SKPBench.cpp',
-        '../bench/ResultsWriter.cpp',
         '../bench/nanobench.cpp',
       ],
       'includes': [

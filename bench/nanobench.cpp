@@ -64,11 +64,10 @@ DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
 DEFINE_int32(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
 DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
+DEFINE_string(properties, "",
+              "Space-separated key/value pairs to add to JSON identifying this nanobench run.");
 DEFINE_string(key, "",
               "Space-separated key/value pairs to add to JSON identifying this bench config.");
-DEFINE_string(options, "",
-              "Space-separated option/value pairs to add to JSON, logging extra info.");
-DEFINE_string(gitHash, "", "Git hash to add to JSON.");
 
 DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
 DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
@@ -392,20 +391,6 @@ static void create_targets(SkTDArray<Target*>* targets, Benchmark* b,
     }
 }
 
-static void fill_static_options(ResultsWriter* log) {
-#if defined(SK_BUILD_FOR_WIN32)
-    log->option("system", "WIN32");
-#elif defined(SK_BUILD_FOR_MAC)
-    log->option("system", "MAC");
-#elif defined(SK_BUILD_FOR_ANDROID)
-    log->option("system", "ANDROID");
-#elif defined(SK_BUILD_FOR_UNIX)
-    log->option("system", "UNIX");
-#else
-    log->option("system", "other");
-#endif
-}
-
 #if SK_SUPPORT_GPU
 static void fill_gpu_options(ResultsWriter* log, SkGLContextHelper* ctx) {
     const GrGLubyte* version;
@@ -553,30 +538,25 @@ int nanobench_main() {
         }
     }
 
-    MultiResultsWriter log;
-    SkAutoTDelete<NanoJSONResultsWriter> json;
+    SkAutoTDelete<ResultsWriter> log(SkNEW(ResultsWriter));
     if (!FLAGS_outResultsFile.isEmpty()) {
-        const char* gitHash = FLAGS_gitHash.isEmpty() ? "unknown-revision" : FLAGS_gitHash[0];
-        json.reset(SkNEW(NanoJSONResultsWriter(FLAGS_outResultsFile[0], gitHash)));
-        log.add(json.get());
+        log.reset(SkNEW(NanoJSONResultsWriter(FLAGS_outResultsFile[0])));
     }
-    CallEnd<MultiResultsWriter> ender(log);
+
+    if (1 == FLAGS_properties.count() % 2) {
+        SkDebugf("ERROR: --properties must be passed with an even number of arguments.\n");
+        return 1;
+    }
+    for (int i = 1; i < FLAGS_properties.count(); i += 2) {
+        log->property(FLAGS_properties[i-1], FLAGS_properties[i]);
+    }
 
     if (1 == FLAGS_key.count() % 2) {
         SkDebugf("ERROR: --key must be passed with an even number of arguments.\n");
         return 1;
     }
     for (int i = 1; i < FLAGS_key.count(); i += 2) {
-        log.key(FLAGS_key[i-1], FLAGS_key[i]);
-    }
-
-    fill_static_options(&log);
-    if (1 == FLAGS_options.count() % 2) {
-        SkDebugf("ERROR: --options must be passed with an even number of arguments.\n");
-        return 1;
-    }
-    for (int i = 1; i < FLAGS_options.count(); i += 2) {
-        log.option(FLAGS_options[i-1], FLAGS_options[i]);
+        log->key(FLAGS_key[i-1], FLAGS_key[i]);
     }
 
     const double overhead = estimate_timer_overhead();
@@ -608,7 +588,7 @@ int nanobench_main() {
         create_targets(&targets, bench.get(), configs);
 
         if (!targets.isEmpty()) {
-            log.bench(bench->getName(), bench->getSize().fX, bench->getSize().fY);
+            log->bench(bench->getName(), bench->getSize().fX, bench->getSize().fY);
             bench->preDraw();
         }
         for (int j = 0; j < targets.count(); j++) {
@@ -644,18 +624,18 @@ int nanobench_main() {
             }
 
             Stats stats(samples.get(), FLAGS_samples);
-            log.config(config);
-            benchStream.fillCurrentOptions(&log);
+            log->config(config);
+            benchStream.fillCurrentOptions(log.get());
 #if SK_SUPPORT_GPU
             if (Benchmark::kGPU_Backend == targets[j]->config.backend) {
-                fill_gpu_options(&log, targets[j]->gl);
+                fill_gpu_options(log.get(), targets[j]->gl);
             }
 #endif
-            log.timer("min_ms",    stats.min);
-            log.timer("median_ms", stats.median);
-            log.timer("mean_ms",   stats.mean);
-            log.timer("max_ms",    stats.max);
-            log.timer("stddev_ms", sqrt(stats.var));
+            log->timer("min_ms",    stats.min);
+            log->timer("median_ms", stats.median);
+            log->timer("mean_ms",   stats.mean);
+            log->timer("max_ms",    stats.max);
+            log->timer("stddev_ms", sqrt(stats.var));
 
             if (kAutoTuneLoops != FLAGS_loops) {
                 if (targets.count() == 1) {

@@ -387,7 +387,6 @@
       'sources': [
         '../bench/BenchLogger.cpp',
         '../bench/BenchLogger.h',
-        '../bench/ResultsWriter.cpp',
         '../tools/PictureBenchmark.cpp',
         '../tools/PictureResultsWriter.h',
         '../tools/bench_pictures_main.cpp',

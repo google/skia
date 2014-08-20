@@ -174,7 +174,7 @@ private:
 
 class PictureJSONResultsWriter : public PictureResultsWriter {
 public:
-    PictureJSONResultsWriter(const char filename[], 
+    PictureJSONResultsWriter(const char filename[],
                              const char builderName[],
                              int buildNumber,
                              int timestamp,
@@ -186,7 +186,7 @@ public:
         fTimestamp = timestamp;
         fGitHash = SkString(gitHash);
         fGitNumber = gitNumber;
-        fBuilderData = SkMakeBuilderJSON(fBuilderName);
+        fBuilderData = this->makeBuilderJson();
     }
 
     virtual void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
@@ -234,7 +234,7 @@ public:
                     vals++) {
                 times.push_back((*vals).asDouble());
             }
-            qsort(static_cast<void*>(times.begin()), times.count(), 
+            qsort(static_cast<void*>(times.begin()), times.count(),
                     sizeof(double), PictureJSONResultsWriter::CompareDoubles);
             data["value"] = times[static_cast<int>(times.count() * 0.25f)];
             data["params"]["measurementType"] = iter.key().asString();
@@ -245,12 +245,40 @@ public:
        fStream.flush();
     }
 private:
+    Json::Value makeBuilderJson() const {
+        static const int kNumKeys = 6;
+        static const char* kKeys[kNumKeys] = {
+            "role", "os", "model", "gpu", "arch", "configuration"};
+        Json::Value builderData;
+
+        if (!fBuilderName.isEmpty()) {
+            SkTArray<SkString> splitBuilder;
+            SkStrSplit(fBuilderName.c_str(), "-", &splitBuilder);
+            SkASSERT(splitBuilder.count() >= kNumKeys);
+            for (int i = 0; i < kNumKeys && i < splitBuilder.count(); ++i) {
+                builderData[kKeys[i]] = splitBuilder[i].c_str();
+            }
+            builderData["builderName"] = fBuilderName.c_str();
+            if (kNumKeys < splitBuilder.count()) {
+                SkString extras;
+                for (int i = kNumKeys; i < splitBuilder.count(); ++i) {
+                    extras.append(splitBuilder[i]);
+                    if (i != splitBuilder.count() - 1) {
+                        extras.append("-");
+                    }
+                }
+                builderData["badParams"] = extras.c_str();
+            }
+        }
+        return builderData;
+    }
+
     static int CompareDoubles(const void* p1, const void* p2) {
         if(*static_cast<const double*>(p1) < *static_cast<const double*>(p2)) {
             return -1;
-        } else if(*static_cast<const double*>(p1) == 
+        } else if(*static_cast<const double*>(p1) ==
                 *static_cast<const double*>(p2)) {
-            return 0; 
+            return 0;
         } else {
             return 1;
         }
