@@ -148,7 +148,7 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
     fHWProgramID = 0;
 
     if (this->glCaps().pathRenderingSupport()) {
-        fPathRendering.reset(GrGLPathRendering::Create(this));
+        fPathRendering.reset(new GrGLPathRendering(this));
     }
 }
 

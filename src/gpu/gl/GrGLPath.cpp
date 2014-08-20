@@ -85,7 +85,6 @@ void GrGLPath::InitPathObject(GrGpuGL* gpu,
                               GrGLuint pathID,
                               const SkPath& skPath,
                               const SkStrokeRec& stroke) {
-    GrGLPathRendering* pr = gpu->glPathRendering();
     SkSTArray<16, GrGLubyte, true> pathCommands;
     SkSTArray<16, SkPoint, true> pathPoints;
 
@@ -106,16 +105,23 @@ void GrGLPath::InitPathObject(GrGpuGL* gpu,
     }
     SkASSERT(pathPoints.count() == numPts);
 
-    pr->pathCommands(pathID, verbCnt, &pathCommands[0], 2 * pointCnt, GR_GL_FLOAT, &pathPoints[0]);
+    GR_GL_CALL(gpu->glInterface(),
+               PathCommands(pathID, verbCnt, &pathCommands[0],
+                            2 * pointCnt, GR_GL_FLOAT, &pathPoints[0]));
     if (stroke.needToApply()) {
         SkASSERT(!stroke.isHairlineStyle());
-        pr->pathParameterf(pathID, GR_GL_PATH_STROKE_WIDTH, SkScalarToFloat(stroke.getWidth()));
-        pr->pathParameterf(pathID, GR_GL_PATH_MITER_LIMIT, SkScalarToFloat(stroke.getMiter()));
+        GR_GL_CALL(gpu->glInterface(),
+            PathParameterf(pathID, GR_GL_PATH_STROKE_WIDTH, SkScalarToFloat(stroke.getWidth())));
+        GR_GL_CALL(gpu->glInterface(),
+            PathParameterf(pathID, GR_GL_PATH_MITER_LIMIT, SkScalarToFloat(stroke.getMiter())));
         GrGLenum join = join_to_gl_join(stroke.getJoin());
-        pr->pathParameteri(pathID, GR_GL_PATH_JOIN_STYLE, join);
+        GR_GL_CALL(gpu->glInterface(),
+            PathParameteri(pathID, GR_GL_PATH_JOIN_STYLE, join));
         GrGLenum cap = cap_to_gl_cap(stroke.getCap());
-        pr->pathParameteri(pathID, GR_GL_PATH_INITIAL_END_CAP, cap);
-        pr->pathParameteri(pathID, GR_GL_PATH_TERMINAL_END_CAP, cap);
+        GR_GL_CALL(gpu->glInterface(),
+            PathParameteri(pathID, GR_GL_PATH_INITIAL_END_CAP, cap));
+        GR_GL_CALL(gpu->glInterface(),
+            PathParameteri(pathID, GR_GL_PATH_TERMINAL_END_CAP, cap));
     }
 }
 

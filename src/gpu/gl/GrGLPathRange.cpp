@@ -28,7 +28,10 @@ void GrGLPathRange::initAt(size_t index, const SkPath& skPath) {
     }
 
     // Make sure the path at this index hasn't been initted already.
-    SkASSERT(GR_GL_FALSE == gpu->glPathRendering()->isPath(fBasePathID + index));
+    SkDEBUGCODE(
+        GrGLboolean isPath;
+        GR_GL_CALL_RET(gpu->glInterface(), isPath, IsPath(fBasePathID + index)));
+    SkASSERT(GR_GL_FALSE == isPath);
 
     GrGLPath::InitPathObject(gpu, fBasePathID + index, skPath, fStroke);
     ++fNumDefinedPaths;
