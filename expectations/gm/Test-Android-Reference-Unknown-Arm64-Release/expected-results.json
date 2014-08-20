@@ -8494,6 +8494,7 @@
           5520583909201375586
         ]
       ], 
+      "ignore-failure": true,
       "reviewed-by-human": true
     }, 
     "patch_primitive_565.png": {
