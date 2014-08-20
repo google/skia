@@ -215,13 +215,12 @@ GrIndexBuffer* GrGpu::createIndexBuffer(size_t size, bool dynamic) {
 GrPath* GrGpu::createPath(const SkPath& path, const SkStrokeRec& stroke) {
     SkASSERT(this->caps()->pathRenderingSupport());
     this->handleDirtyContext();
-    return this->onCreatePath(path, stroke);
+    return this->pathRendering()->createPath(path, stroke);
 }
 
 GrPathRange* GrGpu::createPathRange(size_t size, const SkStrokeRec& stroke) {
-    SkASSERT(this->caps()->pathRenderingSupport());
     this->handleDirtyContext();
-    return this->onCreatePathRange(size, stroke);
+    return this->pathRendering()->createPathRange(size, stroke);
 }
 
 void GrGpu::clear(const SkIRect* rect,
@@ -407,7 +406,7 @@ void GrGpu::onStencilPath(const GrPath* path, SkPath::FillType fill) {
         return;
     }
 
-    this->onGpuStencilPath(path, fill);
+    this->pathRendering()->stencilPath(path, fill);
 }
 
 
@@ -422,7 +421,7 @@ void GrGpu::onDrawPath(const GrPath* path, SkPath::FillType fill,
         return;
     }
 
-    this->onGpuDrawPath(path, fill);
+    this->pathRendering()->drawPath(path, fill);
 }
 
 void GrGpu::onDrawPaths(const GrPathRange* pathRange,
@@ -438,7 +437,7 @@ void GrGpu::onDrawPaths(const GrPathRange* pathRange,
         return;
     }
 
-    this->onGpuDrawPaths(pathRange, indices, count, transforms, transformsType, fill);
+    this->pathRendering()->drawPaths(pathRange, indices, count, transforms, transformsType, fill);
 }
 
 void GrGpu::finalizeReservedVertices() {

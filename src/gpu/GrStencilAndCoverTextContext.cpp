@@ -155,7 +155,7 @@ void GrStencilAndCoverTextContext::drawText(const GrPaint& paint,
     SkAutoGlyphCache autoCache(fSkPaint, &fDeviceProperties, glyphCacheTransform);
     fGlyphCache = autoCache.getCache();
     fGlyphs = GlyphPathRange::Create(fContext, fGlyphCache, fStroke);
-    fTransformType = GrDrawTarget::kTranslate_PathTransformType;
+    fTransformType = GrPathRendering::kTranslate_PathTransformType;
 
     const char* stop = text + byteLength;
 
@@ -243,7 +243,7 @@ void GrStencilAndCoverTextContext::drawPosText(const GrPaint& paint,
 
     if (SkPaint::kLeft_Align == fSkPaint.getTextAlign()) {
         if (1 == scalarsPerPosition) {
-            fTransformType = GrDrawTarget::kTranslateX_PathTransformType;
+            fTransformType = GrPathRendering::kTranslateX_PathTransformType;
             while (text < stop) {
                 const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
                 if (glyph.fWidth) {
@@ -253,7 +253,7 @@ void GrStencilAndCoverTextContext::drawPosText(const GrPaint& paint,
             }
         } else {
             SkASSERT(2 == scalarsPerPosition);
-            fTransformType = GrDrawTarget::kTranslate_PathTransformType;
+            fTransformType = GrPathRendering::kTranslate_PathTransformType;
             while (text < stop) {
                 const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
                 if (glyph.fWidth) {
@@ -263,7 +263,7 @@ void GrStencilAndCoverTextContext::drawPosText(const GrPaint& paint,
             }
         }
     } else {
-        fTransformType = GrDrawTarget::kTranslate_PathTransformType;
+        fTransformType = GrPathRendering::kTranslate_PathTransformType;
         SkTextMapStateProc tmsProc(SkMatrix::I(), 0, scalarsPerPosition);
         SkTextAlignProcScalar alignProc(fSkPaint.getTextAlign());
         while (text < stop) {
@@ -396,7 +396,7 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
 }
 
 inline void GrStencilAndCoverTextContext::appendGlyph(uint16_t glyphID, float x) {
-    SkASSERT(GrDrawTarget::kTranslateX_PathTransformType == fTransformType);
+    SkASSERT(GrPathRendering::kTranslateX_PathTransformType == fTransformType);
 
     if (fPendingGlyphCount >= kGlyphBufferSize) {
         this->flush();
@@ -411,7 +411,7 @@ inline void GrStencilAndCoverTextContext::appendGlyph(uint16_t glyphID, float x)
 }
 
 inline void GrStencilAndCoverTextContext::appendGlyph(uint16_t glyphID, float x, float y) {
-    SkASSERT(GrDrawTarget::kTranslate_PathTransformType == fTransformType);
+    SkASSERT(GrPathRendering::kTranslate_PathTransformType == fTransformType);
 
     if (fPendingGlyphCount >= kGlyphBufferSize) {
         this->flush();

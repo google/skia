@@ -264,3 +264,28 @@ template<> void GrGLGetMatrix<4>(GrGLfloat* dest, const SkMatrix& src) {
     dest[14] = 0;
     dest[15] = SkScalarToFloat(src[SkMatrix::kMPersp2]);
 }
+
+GrGLenum GrToGLStencilFunc(GrStencilFunc basicFunc) {
+    static const GrGLenum gTable[] = {
+        GR_GL_ALWAYS,           // kAlways_StencilFunc
+        GR_GL_NEVER,            // kNever_StencilFunc
+        GR_GL_GREATER,          // kGreater_StencilFunc
+        GR_GL_GEQUAL,           // kGEqual_StencilFunc
+        GR_GL_LESS,             // kLess_StencilFunc
+        GR_GL_LEQUAL,           // kLEqual_StencilFunc,
+        GR_GL_EQUAL,            // kEqual_StencilFunc,
+        GR_GL_NOTEQUAL,         // kNotEqual_StencilFunc,
+    };
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kBasicStencilFuncCount);
+    GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
+    GR_STATIC_ASSERT(1 == kNever_StencilFunc);
+    GR_STATIC_ASSERT(2 == kGreater_StencilFunc);
+    GR_STATIC_ASSERT(3 == kGEqual_StencilFunc);
+    GR_STATIC_ASSERT(4 == kLess_StencilFunc);
+    GR_STATIC_ASSERT(5 == kLEqual_StencilFunc);
+    GR_STATIC_ASSERT(6 == kEqual_StencilFunc);
+    GR_STATIC_ASSERT(7 == kNotEqual_StencilFunc);
+    SkASSERT((unsigned) basicFunc < kBasicStencilFuncCount);
+
+    return gTable[basicFunc];
+}

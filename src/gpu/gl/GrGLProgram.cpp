@@ -154,7 +154,7 @@ void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
     // custom shaders, it's ignored, so we don't need to change the texgen
     // settings in that case.
     if (!fHasVertexShader) {
-        fGpu->flushPathTexGenSettings(fTexCoordSetCnt);
+        fGpu->glPathRendering()->flushPathTexGenSettings(fTexCoordSetCnt);
     }
 }
 
@@ -247,7 +247,7 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
     if (!fHasVertexShader) {
         SkASSERT(!fBuiltinUniformHandles.fViewMatrixUni.isValid());
         SkASSERT(!fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
-        fGpu->setProjectionMatrix(drawState.getViewMatrix(), size, rt->origin());
+        fGpu->glPathRendering()->setProjectionMatrix(drawState.getViewMatrix(), size, rt->origin());
     } else if (fMatrixState.fRenderTargetOrigin != rt->origin() ||
                fMatrixState.fRenderTargetSize != size ||
                !fMatrixState.fViewMatrix.cheapEqualTo(drawState.getViewMatrix())) {

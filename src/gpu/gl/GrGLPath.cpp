@@ -85,7 +85,7 @@ void GrGLPath::InitPathObject(GrGpuGL* gpu,
                               GrGLuint pathID,
                               const SkPath& skPath,
                               const SkStrokeRec& stroke) {
-    GrGLPathRendering* pr = gpu->pathRendering();
+    GrGLPathRendering* pr = gpu->glPathRendering();
     SkSTArray<16, GrGLubyte, true> pathCommands;
     SkSTArray<16, SkPoint, true> pathPoints;
 
@@ -121,7 +121,7 @@ void GrGLPath::InitPathObject(GrGpuGL* gpu,
 
 GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
     : INHERITED(gpu, kIsWrapped, path, stroke),
-      fPathID(gpu->pathRendering()->genPaths(1)) {
+      fPathID(gpu->glPathRendering()->genPaths(1)) {
     SkASSERT(!path.isEmpty());
 
     InitPathObject(gpu, fPathID, fSkPath, stroke);
@@ -138,7 +138,7 @@ GrGLPath::~GrGLPath() {
 
 void GrGLPath::onRelease() {
     if (0 != fPathID && !this->isWrapped()) {
-        static_cast<GrGpuGL*>(this->getGpu())->pathRendering()->deletePaths(fPathID, 1);
+        static_cast<GrGpuGL*>(this->getGpu())->glPathRendering()->deletePaths(fPathID, 1);
         fPathID = 0;
     }
 

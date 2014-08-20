@@ -12,6 +12,7 @@
 #include "GrContext.h"
 #include "GrDrawState.h"
 #include "GrIndexBuffer.h"
+#include "GrPathRendering.h"
 #include "GrTraceMarker.h"
 
 #include "SkClipStack.h"
@@ -35,6 +36,9 @@ protected:
 
 public:
     SK_DECLARE_INST_COUNT(GrDrawTarget)
+
+
+    typedef GrPathRendering::PathTransformType PathTransformType ;
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -333,37 +337,10 @@ public:
                               PathTransformSize(transformsType) * count elements
      * @param fill            Fill type for drawing all the paths
      */
-    enum PathTransformType {
-        kNone_PathTransformType,        //!< []
-        kTranslateX_PathTransformType,  //!< [kMTransX]
-        kTranslateY_PathTransformType,  //!< [kMTransY]
-        kTranslate_PathTransformType,   //!< [kMTransX, kMTransY]
-        kAffine_PathTransformType,      //!< [kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY]
-
-        kLast_PathTransformType = kAffine_PathTransformType
-    };
     void drawPaths(const GrPathRange* pathRange,
                    const uint32_t indices[], int count,
                    const float transforms[], PathTransformType transformsType,
                    SkPath::FillType fill);
-
-    static inline int PathTransformSize(PathTransformType type) {
-        switch (type) {
-            case kNone_PathTransformType:
-                return 0;
-            case kTranslateX_PathTransformType:
-            case kTranslateY_PathTransformType:
-                return 1;
-            case kTranslate_PathTransformType:
-                return 2;
-            case kAffine_PathTransformType:
-                return 6;
-
-            default:
-                SkFAIL("Unknown path transform type");
-                return 0;
-        }
-    }
 
     /**
      * Helper function for drawing rects. It performs a geometry src push and pop

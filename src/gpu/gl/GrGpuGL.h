@@ -12,6 +12,7 @@
 #include "GrGLContext.h"
 #include "GrGLIRect.h"
 #include "GrGLIndexBuffer.h"
+#include "GrGLPathRendering.h"
 #include "GrGLProgram.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLTexture.h"
@@ -23,8 +24,6 @@
 #ifdef SK_DEVELOPER
 #define PROGRAM_CACHE_STATS
 #endif
-
-class GrGLPathRendering;
 
 class GrGpuGL : public GrGpu {
 public:
@@ -40,9 +39,9 @@ public:
     GrGLSLGeneration glslGeneration() const { return fGLContext.glslGeneration(); }
     const GrGLCaps& glCaps() const { return *fGLContext.caps(); }
 
-    GrGLPathRendering* pathRendering() const {
+    GrGLPathRendering* glPathRendering() {
         SkASSERT(glCaps().pathRenderingSupport());
-        return fPathRendering.get();
+        return static_cast<GrGLPathRendering*>(pathRendering());
     }
 
     virtual void discard(GrRenderTarget*) SK_OVERRIDE;
@@ -50,17 +49,7 @@ public:
     // Used by GrGLProgram and GrGLPathTexGenProgramEffects to configure OpenGL
     // state.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
-    void setProjectionMatrix(const SkMatrix& matrix,
-                             const SkISize& renderTargetSize,
-                             GrSurfaceOrigin renderTargetOrigin);
-    enum PathTexGenComponents {
-        kS_PathTexGenComponents = 1,
-        kST_PathTexGenComponents = 2,
-        kSTR_PathTexGenComponents = 3
-    };
-    void enablePathTexGen(int unitIdx, PathTexGenComponents, const GrGLfloat* coefficients);
-    void enablePathTexGen(int unitIdx, PathTexGenComponents, const SkMatrix& matrix);
-    void flushPathTexGenSettings(int numUsedTexCoordSets);
+
     bool shouldUseFixedFunctionTexturing() const {
         return this->glCaps().pathRenderingSupport();
     }
@@ -131,8 +120,6 @@ private:
                                                  const void* srcData) SK_OVERRIDE;
     virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
-    virtual GrPath* onCreatePath(const SkPath&, const SkStrokeRec&) SK_OVERRIDE;
-    virtual GrPathRange* onCreatePathRange(size_t size, const SkStrokeRec&) SK_OVERRIDE;
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) SK_OVERRIDE;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) SK_OVERRIDE;
     virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
@@ -160,12 +147,6 @@ private:
 
     virtual void onGpuDraw(const DrawInfo&) SK_OVERRIDE;
 
-    virtual void onGpuStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
-    virtual void onGpuDrawPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
-    virtual void onGpuDrawPaths(const GrPathRange*,
-                                const uint32_t indices[], int count,
-                                const float transforms[], PathTransformType,
-                                SkPath::FillType) SK_OVERRIDE;
 
     virtual void clearStencil() SK_OVERRIDE;
     virtual void clearStencilClip(const SkIRect& rect,
@@ -257,7 +238,6 @@ private:
     void flushRenderTarget(const SkIRect* bound);
     void flushStencil(DrawType);
     void flushAAState(DrawType);
-    void flushPathStencilSettings(SkPath::FillType fill);
 
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,
@@ -445,11 +425,9 @@ private:
 
     TriState fMSAAEnabled;
 
-    GrGLProgram::MatrixState    fHWProjectionMatrixState;
-
     GrStencilSettings           fHWStencilSettings;
     TriState                    fHWStencilTestEnabled;
-    GrStencilSettings           fHWPathStencilSettings;
+
 
     GrDrawState::DrawFace       fHWDrawFace;
     TriState                    fHWWriteToColor;
@@ -457,22 +435,14 @@ private:
     uint32_t                    fHWBoundRenderTargetUniqueID;
     SkTArray<uint32_t, true>    fHWBoundTextureUniqueIDs;
 
-    struct PathTexGenData {
-        GrGLenum  fMode;
-        GrGLint   fNumComponents;
-        GrGLfloat fCoefficients[3 * 3];
-    };
-    int                         fHWActivePathTexGenSets;
-    SkTArray<PathTexGenData, true>  fHWPathTexGenSettings;
     ///@}
 
     // we record what stencil format worked last time to hopefully exit early
     // from our loop that tries stencil formats and calls check fb status.
     int fLastSuccessfulStencilFmtIdx;
 
-    SkAutoTDelete<GrGLPathRendering> fPathRendering;
-
     typedef GrGpu INHERITED;
+    friend class GrGLPathRendering; // For accessing setTextureUnit.
 };
 
 #endif

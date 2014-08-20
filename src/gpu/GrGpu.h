@@ -10,6 +10,7 @@
 
 #include "GrDrawTarget.h"
 #include "GrClipMaskManager.h"
+#include "GrPathRendering.h"
 #include "SkPath.h"
 
 class GrContext;
@@ -53,6 +54,10 @@ public:
 
     GrContext* getContext() { return this->INHERITED::getContext(); }
     const GrContext* getContext() const { return this->INHERITED::getContext(); }
+
+    GrPathRendering* pathRendering() {
+        return fPathRendering.get();
+    }
 
     /**
      * The GrGpu object normally assumes that no outsider is setting state
@@ -410,6 +415,8 @@ protected:
     void finalizeReservedVertices();
     void finalizeReservedIndices();
 
+    SkAutoTDelete<GrPathRendering> fPathRendering;
+
 private:
     // GrDrawTarget overrides
     virtual bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices) SK_OVERRIDE;
@@ -438,8 +445,6 @@ private:
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;
     virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) = 0;
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) = 0;
-    virtual GrPath* onCreatePath(const SkPath& path, const SkStrokeRec&) = 0;
-    virtual GrPathRange* onCreatePathRange(size_t size, const SkStrokeRec&) = 0;
 
     // overridden by backend-specific derived class to perform the clear and
     // clearRect. NULL rect means clear whole target. If canIgnoreRect is
@@ -448,14 +453,6 @@ private:
 
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onGpuDraw(const DrawInfo&) = 0;
-
-    // overridden by backend-specific derived class to perform the path stenciling.
-    virtual void onGpuStencilPath(const GrPath*, SkPath::FillType) = 0;
-    virtual void onGpuDrawPath(const GrPath*, SkPath::FillType) = 0;
-    virtual void onGpuDrawPaths(const GrPathRange*,
-                                const uint32_t indices[], int count,
-                                const float transforms[], PathTransformType,
-                                SkPath::FillType) = 0;
 
     // overridden by backend-specific derived class to perform the read pixels.
     virtual bool onReadPixels(GrRenderTarget* target,

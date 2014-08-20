@@ -430,7 +430,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathRange* pathRange,
     memcpy(dp->fIndices, indices, sizeof(uint32_t) * count);
     dp->fCount = count;
 
-    const int transformsLength = PathTransformSize(transformsType) * count;
+    const int transformsLength = GrPathRendering::PathTransformSize(transformsType) * count;
     dp->fTransforms = SkNEW_ARRAY(float, transformsLength);
     memcpy(dp->fTransforms, transforms, sizeof(float) * transformsLength);
     dp->fTransformsType = transformsType;

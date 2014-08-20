@@ -478,16 +478,18 @@ void GrGLPathTexGenProgramEffects::setPathTexGenState(GrGpuGL* gpu,
         switch (get_matrix_type(totalKey, t)) {
             case kNoPersp_MatrixType: {
                 const SkMatrix& transform = get_transform_matrix(drawEffect, t);
-                gpu->enablePathTexGen(texCoordIndex++,
-                                      GrGpuGL::kST_PathTexGenComponents,
-                                      transform);
+                gpu->glPathRendering()->enablePathTexGen(
+                        texCoordIndex++,
+                        GrGLPathRendering::kST_PathTexGenComponents,
+                        transform);
                 break;
             }
             case kGeneral_MatrixType: {
                 const SkMatrix& transform = get_transform_matrix(drawEffect, t);
-                gpu->enablePathTexGen(texCoordIndex++,
-                                      GrGpuGL::kSTR_PathTexGenComponents,
-                                      transform);
+                gpu->glPathRendering()->enablePathTexGen(
+                        texCoordIndex++,
+                        GrGLPathRendering::kSTR_PathTexGenComponents,
+                        transform);
                 break;
             }
             default:

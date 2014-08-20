@@ -204,7 +204,7 @@ void GrGpuGL::abandonResources(){
     fProgramCache->abandon();
     fHWProgramID = 0;
     if (this->glCaps().pathRenderingSupport()) {
-        fPathRendering->abandonGpuResources();
+        this->glPathRendering()->abandonGpuResources();
     }
 }
 
@@ -222,7 +222,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
         const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
         SkISize size;
         size.set(rt->width(), rt->height());
-        this->setProjectionMatrix(drawState.getViewMatrix(), size, rt->origin());
+        this->glPathRendering()->setProjectionMatrix(drawState.getViewMatrix(), size, rt->origin());
     } else {
         this->flushMiscFixedFunctionState();
 

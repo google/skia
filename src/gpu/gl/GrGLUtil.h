@@ -10,6 +10,7 @@
 
 #include "gl/GrGLInterface.h"
 #include "GrGLDefines.h"
+#include "GrStencil.h"
 
 class SkMatrix;
 
@@ -180,5 +181,8 @@ template<int MatrixSize> void GrGLGetMatrix(GrGLfloat* dest, const SkMatrix& src
 
 // call glGetError without doing a redundant error check or logging.
 #define GR_GL_GET_ERROR(IFACE) (IFACE)->fFunctions.fGetError()
+
+GrGLenum GrToGLStencilFunc(GrStencilFunc basicFunc);
+
 
 #endif

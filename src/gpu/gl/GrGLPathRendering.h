@@ -9,27 +9,39 @@
 #define GrGLPathRendering_DEFINED
 
 #include "SkRefCnt.h"
+#include "GrPathRendering.h"
+#include "GrStencil.h"
 #include "gl/GrGLFunctions.h"
+#include "gl/GrGLProgram.h"
 
 class GrGLNameAllocator;
-struct GrGLInterface;
+class GrGpuGL;
 
 /**
  * This class wraps the NV_path_rendering extension and manages its various
- * API versions. If a method is not present in the GrGLInterface (because the
- * driver version is old), it tries to provide a backup implementation. But if
- * a backup implementation is not practical, it marks the method as not
- * supported.
+ * API versions. If a method is not present in the GrGLInterface of the GrGpuGL
+ * (because the driver version is old), it tries to provide a backup
+ * implementation. But if a backup implementation is not practical, it marks the
+ * method as not supported.
  */
-class GrGLPathRendering {
+class GrGLPathRendering : public GrPathRendering {
 public:
     /**
-     * Create a new GrGLPathRendering object from a given GL interface. Unless
+     * Create a new GrGLPathRendering object from a given GrGpuGL. Unless
      * otherwise specified in the caps, every method will work properly, even
-     * if it did not exist in the GL interface.
+     * if it did not exist in the GL interface of the gpu.
      */
-    static GrGLPathRendering* Create(const GrGLInterface*);
+    static GrGLPathRendering* Create(GrGpuGL* gpu);
     virtual ~GrGLPathRendering();
+
+    // GrPathRendering implementations.
+    virtual GrPath* createPath(const SkPath&, const SkStrokeRec&) SK_OVERRIDE;
+    virtual GrPathRange* createPathRange(size_t size, const SkStrokeRec&) SK_OVERRIDE;
+    virtual void stencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
+    virtual void drawPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
+    virtual void drawPaths(const GrPathRange*, const uint32_t indices[], int count,
+                           const float transforms[], PathTransformType,
+                           SkPath::FillType) SK_OVERRIDE;
 
     /**
      * Mark certain functionality as not supported if the driver version is too
@@ -40,11 +52,28 @@ public:
     };
     const Caps& caps() const { return fCaps; }
 
+
+    /* Called when the 3D context state is unknown. */
+    void resetContext();
+
     /**
      * Called when the GPU resources have been lost and need to be abandoned
      * (for example after a context loss).
      */
     void abandonGpuResources();
+
+    enum PathTexGenComponents {
+        kS_PathTexGenComponents = 1,
+        kST_PathTexGenComponents = 2,
+        kSTR_PathTexGenComponents = 3
+    };
+    void enablePathTexGen(int unitIdx, PathTexGenComponents, const GrGLfloat* coefficients);
+    void enablePathTexGen(int unitIdx, PathTexGenComponents, const SkMatrix& matrix);
+    void flushPathTexGenSettings(int numUsedTexCoordSets);
+    void setProjectionMatrix(const SkMatrix& matrix,
+                             const SkISize& renderTargetSize,
+                             GrSurfaceOrigin renderTargetOrigin);
+
 
     // NV_path_rendering
     GrGLuint genPaths(GrGLsizei range);
@@ -98,11 +127,24 @@ public:
                                                  const GrGLfloat *coeffs);
 
 protected:
-    GrGLPathRendering(const GrGLInterface*);
+    GrGLPathRendering(GrGpuGL* gpu);
 
-    SkAutoTUnref<const GrGLInterface> fGLInterface;
+    GrGpuGL* fGpu;
     SkAutoTDelete<GrGLNameAllocator> fPathNameAllocator;
     Caps fCaps;
+    GrGLProgram::MatrixState fHWProjectionMatrixState;
+    GrStencilSettings fHWPathStencilSettings;
+    struct PathTexGenData {
+        GrGLenum  fMode;
+        GrGLint   fNumComponents;
+        GrGLfloat fCoefficients[3 * 3];
+    };
+    int fHWActivePathTexGenSets;
+    SkTArray<PathTexGenData, true> fHWPathTexGenSettings;
+
+private:
+    void flushPathStencilSettings(SkPath::FillType fill);
+
 };
 
 #endif
