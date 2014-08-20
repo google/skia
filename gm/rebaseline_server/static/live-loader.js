@@ -8,6 +8,12 @@ var Loader = angular.module(
     ['ConstantsModule']
 );
 
+// This configuration is needed to allow downloads of the diff patch.
+// See https://github.com/angular/angular.js/issues/3889
+Loader.config(['$compileProvider', function($compileProvider) {
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|file|blob):/);
+}]);
+
 Loader.directive(
   'resultsUpdatedCallbackDirective',
   ['$timeout',
@@ -841,6 +847,8 @@ Loader.controller(
         data: modificationData
       }).success(function(data, status, headers, config) {
         $scope.diffResults = data;
+        var blob = new Blob([$scope.diffResults], {type: 'text/plain'});
+        $scope.diffResultsBlobUrl = window.URL.createObjectURL(blob);
         $scope.submitPending = false;
       }).error(function(data, status, headers, config) {
         alert("There was an error submitting your baselines.\n\n" +
