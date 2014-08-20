@@ -1338,5 +1338,9 @@
         }
       ]
     }
+  }, 
+  "header": {
+    "revision": 1, 
+    "type": "ChecksummedImages"
   }
 }
