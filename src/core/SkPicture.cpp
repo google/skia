@@ -273,64 +273,10 @@ SkPicture::~SkPicture() {
     this->callDeletionListeners();
 }
 
+// fRecord OK
 #ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
-// fRecord TODO, fix by deleting this method
 SkPicture* SkPicture::clone() const {
-#ifdef SK_PICTURE_CLONE_NOOP
     return SkRef(const_cast<SkPicture*>(this));
-#else
-    SkAutoTDelete<SkPictureData> newData;
-
-    if (fData.get()) {
-        SkPictCopyInfo copyInfo;
-
-        int paintCount = SafeCount(fData->fPaints);
-
-        /* The alternative to doing this is to have a clone method on the paint and have it
-         * make the deep copy of its internal structures as needed. The holdup to doing
-         * that is at this point we would need to pass the SkBitmapHeap so that we don't
-         * unnecessarily flatten the pixels in a bitmap shader.
-         */
-        copyInfo.paintData.setCount(paintCount);
-
-        /* Use an SkBitmapHeap to avoid flattening bitmaps in shaders. If there already is
-         * one, use it. If this SkPictureData was created from a stream, fBitmapHeap
-         * will be NULL, so create a new one.
-         */
-        if (fData->fBitmapHeap.get() == NULL) {
-            // FIXME: Put this on the stack inside SkPicture::clone.
-            SkBitmapHeap* heap = SkNEW(SkBitmapHeap);
-            copyInfo.controller.setBitmapStorage(heap);
-            heap->unref();
-        } else {
-            copyInfo.controller.setBitmapStorage(fData->fBitmapHeap);
-        }
-
-        SkDEBUGCODE(int heapSize = SafeCount(fData->fBitmapHeap.get());)
-        for (int i = 0; i < paintCount; i++) {
-            if (NeedsDeepCopy(fData->fPaints->at(i))) {
-                copyInfo.paintData[i] =
-                    SkFlatData::Create<SkPaint::FlatteningTraits>(&copyInfo.controller,
-                    fData->fPaints->at(i), 0);
-
-            } else {
-                // this is our sentinel, which we use in the unflatten loop
-                copyInfo.paintData[i] = NULL;
-            }
-        }
-        SkASSERT(SafeCount(fData->fBitmapHeap.get()) == heapSize);
-
-        // needed to create typeface playback
-        copyInfo.controller.setupPlaybacks();
-
-        newData.reset(SkNEW_ARGS(SkPictureData, (*fData, &copyInfo)));
-    }
-
-    SkPicture* clone = SkNEW_ARGS(SkPicture, (newData.detach(), fWidth, fHeight));
-    clone->fUniqueID = this->uniqueID(); // need to call method to ensure != 0
-
-    return clone;
-#endif
 }
 #endif//SK_SUPPORT_LEGACY_PICTURE_CLONE
 
@@ -372,7 +318,7 @@ const SkMatrix& SkPicture::OperationList::matrix(int index) const {
     return *((SkPictureStateTree::Draw*)fOps[index])->fMatrix;
 }
 
-// fRecord TODO
+// fRecord TODO(robert) / kind of OK in a non-optimal sense
 const SkPicture::OperationList* SkPicture::EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) const {
     SkASSERT(NULL != fData.get());
     if (NULL != fData.get()) {
@@ -464,6 +410,13 @@ SkPicture::SkPicture(SkPictureData* data, int width, int height)
     this->needsNewGenID();
 }
 
+SkPicture* SkPicture::Forwardport(const SkPicture& src) {
+    SkAutoTDelete<SkRecord> record(SkNEW(SkRecord));
+    SkRecorder canvas(record.get(), src.width(), src.height());
+    src.draw(&canvas);
+    return SkNEW_ARGS(SkPicture, (src.width(), src.height(), record.detach(), NULL/*bbh*/));
+}
+
 // fRecord OK
 SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc proc) {
     SkPictInfo info;
@@ -478,8 +431,7 @@ SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc pro
         if (NULL == data) {
             return NULL;
         }
-
-        return SkNEW_ARGS(SkPicture, (data, info.fWidth, info.fHeight));
+        return Forwardport(SkPicture(data, info.fWidth, info.fHeight));
     }
 
     return NULL;
@@ -499,8 +451,7 @@ SkPicture* SkPicture::CreateFromBuffer(SkReadBuffer& buffer) {
         if (NULL == data) {
             return NULL;
         }
-
-        return SkNEW_ARGS(SkPicture, (data, info.fWidth, info.fHeight));
+        return Forwardport(SkPicture(data, info.fWidth, info.fHeight));
     }
 
     return NULL;

@@ -302,6 +302,8 @@ private:
 
     // Takes ownership of the SkRecord, refs the (optional) BBH.
     SkPicture(int width, int height, SkRecord*, SkBBoxHierarchy*);
+    // Return as a new SkPicture that's backed by SkRecord.
+    static SkPicture* Forwardport(const SkPicture&);
 
     SkAutoTDelete<SkRecord>       fRecord;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
