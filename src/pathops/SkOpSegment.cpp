@@ -251,8 +251,8 @@ void SkOpSegment::addCancelOutsides(const SkPoint& startPt, const SkPoint& endPt
                     fTs[tIndexStart].fT, xyAtT(tIndexStart).fX,
                     xyAtT(tIndexStart).fY);
 #endif
-            addTPair(fTs[tIndexStart].fT, other, other->fTs[oIndex].fT, false,
-                    fTs[tIndexStart].fPt);
+            SkPoint copy = fTs[tIndexStart].fPt;  // add t pair may move the point array
+            addTPair(fTs[tIndexStart].fT, other, other->fTs[oIndex].fT, false, copy);
         }
         if (nextT < 1 && fTs[tIndex].fWindValue) {
 #if DEBUG_CONCIDENT
@@ -261,7 +261,8 @@ void SkOpSegment::addCancelOutsides(const SkPoint& startPt, const SkPoint& endPt
                     fTs[tIndex].fT, xyAtT(tIndex).fX,
                     xyAtT(tIndex).fY);
 #endif
-            addTPair(fTs[tIndex].fT, other, other->fTs[oIndexStart].fT, false, fTs[tIndex].fPt);
+            SkPoint copy = fTs[tIndex].fPt;  // add t pair may move the point array
+            addTPair(fTs[tIndex].fT, other, other->fTs[oIndexStart].fT, false, copy);
         }
     } else {
         SkASSERT(!other->fTs[oIndexStart].fWindValue);
