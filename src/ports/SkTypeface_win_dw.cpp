@@ -5,6 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+// SkTypes will include Windows.h, which will pull in all of the GDI defines.
+// GDI #defines GetGlyphIndices to GetGlyphIndicesA or GetGlyphIndicesW, but
+// IDWriteFontFace has a method called GetGlyphIndices. Since this file does
+// not use GDI, undefing GetGlyphIndices makes things less confusing.
+#undef GetGlyphIndices
+
 #include "SkDWriteFontFileStream.h"
 #include "SkFontDescriptor.h"
 #include "SkFontStream.h"
@@ -15,7 +22,6 @@
 #include "SkScalerContext.h"
 #include "SkScalerContext_win_dw.h"
 #include "SkTypeface_win_dw.h"
-#include "SkTypes.h"
 #include "SkUtils.h"
 
 void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
@@ -278,9 +284,6 @@ using namespace skia_advanced_typeface_metrics_utils;
 // Construct Glyph to Unicode table.
 // Unicode code points that require conjugate pairs in utf16 are not
 // supported.
-// TODO(arthurhsu): Add support for conjugate pairs. It looks like that may
-// require parsing the TTF cmap table (platform 4, encoding 12) directly instead
-// of calling GetFontUnicodeRange().
 // TODO(bungeman): This never does what anyone wants.
 // What is really wanted is the text to glyphs mapping
 static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
@@ -289,45 +292,19 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
     HRESULT hr = S_OK;
 
     //Do this like free type instead
-    UINT32 count = 0;
+    SkAutoTMalloc<SkUnichar> glyphToUni(glyphCount);
+    int maxGlyph = -1;
     for (UINT32 c = 0; c < 0x10FFFF; ++c) {
         UINT16 glyph;
         hr = fontFace->GetGlyphIndices(&c, 1, &glyph);
-        if (glyph > 0) {
-            ++count;
+        SkASSERT(glyph < glyphCount);
+        if (0 < glyph) {
+            maxGlyph = SkTMax(static_cast<int>(glyph), maxGlyph);
+            glyphToUni[glyph] = c;
         }
     }
 
-    SkAutoTArray<UINT32> chars(count);
-    count = 0;
-    for (UINT32 c = 0; c < 0x10FFFF; ++c) {
-        UINT16 glyph;
-        hr = fontFace->GetGlyphIndices(&c, 1, &glyph);
-        if (glyph > 0) {
-            chars[count] = c;
-            ++count;
-        }
-    }
-
-    SkAutoTArray<UINT16> glyph(count);
-    fontFace->GetGlyphIndices(chars.get(), count, glyph.get());
-
-    USHORT maxGlyph = 0;
-    for (USHORT j = 0; j < count; ++j) {
-        if (glyph[j] > maxGlyph) maxGlyph = glyph[j];
-    }
-
-    glyphToUnicode->setCount(maxGlyph+1);
-    for (USHORT j = 0; j < maxGlyph+1u; ++j) {
-        (*glyphToUnicode)[j] = 0;
-    }
-
-    //'invert'
-    for (USHORT j = 0; j < count; ++j) {
-        if (glyph[j] < glyphCount && (*glyphToUnicode)[glyph[j]] == 0) {
-            (*glyphToUnicode)[glyph[j]] = chars[j];
-        }
-    }
+    glyphToUnicode->swap(SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1));
 }
 
 static bool getWidthAdvance(IDWriteFontFace* fontFace, int gId, int16_t* advance) {
