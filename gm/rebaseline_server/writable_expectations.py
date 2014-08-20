@@ -79,7 +79,15 @@ class WritableExpectations(git_utils.NewGitCheckout):
     # Make sure we have expected-results sections in all our output dicts.
     for pathname, adict in dicts.iteritems():
       if not adict:
-        adict = {}
+        adict = {
+          # TODO(stephana): These values should be defined as constants
+          # somewhere, to be kept in sync between this file and
+          # compare_rendered_pictures.py.
+          gm_json.JSONKEY_HEADER: {
+            gm_json.JSONKEY_HEADER_TYPE: 'ChecksummedImages',
+            gm_json.JSONKEY_HEADER_REVISION: 1,
+          }
+        }
       if not adict.get(gm_json.JSONKEY_EXPECTEDRESULTS, None):
         adict[gm_json.JSONKEY_EXPECTEDRESULTS] = {}
       dicts[pathname] = adict
