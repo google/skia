@@ -305,7 +305,20 @@ private:
 
     SkAutoTDelete<SkRecord>       fRecord;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
-    bool fRecordWillPlayBackBitmaps; // TODO: const
+
+    struct Analysis {
+        // To get setup to work cleanly, we cast away constness and call init()
+        // instead of trying to set everything during construction.
+        void init(const SkRecord&);
+
+        bool suitableForGpuRasterization(const char** reason, int sampleCount) const;
+
+        bool        fWillPlaybackBitmaps;
+        int         fNumPaintWithPathEffectUses;
+        int         fNumFastPathDashEffects;
+        int         fNumAAConcavePaths;
+        int         fNumAAHairlineConcavePaths;
+    } const                       fAnalysis;
 };
 
 #endif
