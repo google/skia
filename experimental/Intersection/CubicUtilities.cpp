@@ -20,7 +20,7 @@ double calcPrecision(const Cubic& cubic) {
     return (width > height ? width : height) / gPrecisionUnit;
 }
 
-#if SK_DEBUG
+#ifdef SK_DEBUG
 double calcPrecision(const Cubic& cubic, double t, double scale) {
     Cubic part;
     sub_divide(cubic, SkTMax(0., t - scale), SkTMin(1., t + scale), part);
@@ -166,7 +166,7 @@ int cubicRootsValidT(double A, double B, double C, double D, double t[3]) {
 }
 
 int cubicRootsReal(double A, double B, double C, double D, double s[3]) {
-#if SK_DEBUG
+#ifdef SK_DEBUG
     // create a string mathematica understands
     // GDB set print repe 15 # if repeated digits is a bother
     //     set print elements 400 # if line doesn't fit

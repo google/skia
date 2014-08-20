@@ -38,7 +38,7 @@ union Float_t
 #endif
     int32_t i;
     float f;
-#if SK_DEBUG
+#ifdef SK_DEBUG
     struct
     {   // Bitfields for exploration. Do not use in production code.
         uint32_t mantissa : 23;
@@ -76,7 +76,7 @@ int UlpsDiff(float A, float B)
 }
 #endif
 
-#if SK_DEBUG
+#ifdef SK_DEBUG
 void mathematica_ize(char* str, size_t bufferLen) {
     size_t len = strlen(str);
     bool num = false;

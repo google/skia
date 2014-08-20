@@ -92,22 +92,11 @@
         # one makefile and allow someone to add SK_DEBUG etc for their own
         # debugging purposes.
         'configurations': {
-          'Debug': {
-            'defines': [
-              'SK_DEBUG',
-              'SK_DEVELOPER=1',
-            ],
-          },
-          'Release': {
-            'defines': [
-              'SK_RELEASE',
-            ],
-          },
+          'Debug':   { 'defines': [ 'SK_DEVELOPER=1' ] },
+          'Release': { 'defines': [ 'NDEBUG' ] },
           'Release_Developer': {
             'inherit_from': ['Release'],
-            'defines': [
-              'SK_DEVELOPER=1',
-            ],
+            'defines': [ 'SK_DEVELOPER=1' ],
           },
         },
       }],

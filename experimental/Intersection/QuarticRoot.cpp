@@ -32,7 +32,7 @@
 
 int reducedQuarticRoots(const double t4, const double t3, const double t2, const double t1,
         const double t0, const bool oneHint, double roots[4]) {
-#if SK_DEBUG
+#ifdef SK_DEBUG
     // create a string mathematica understands
     // GDB set print repe 15 # if repeated digits is a bother
     //     set print elements 400 # if line doesn't fit

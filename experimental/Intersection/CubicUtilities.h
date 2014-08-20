@@ -11,7 +11,7 @@
 #include "SkTDArray.h"
 
 double calcPrecision(const Cubic& cubic);
-#if SK_DEBUG
+#ifdef SK_DEBUG
 double calcPrecision(const Cubic& cubic, double t, double scale);
 #endif
 void chop_at(const Cubic& src, CubicPair& dst, double t);

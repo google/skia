@@ -245,7 +245,7 @@ static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
                 intersections2.fPt[pt1].y, xy2.x, xy2.y, tt2);
 #endif
         SkASSERT(xy1.approximatelyEqual(xy2));
-#if SK_DEBUG
+#ifdef SK_DEBUG
         found = false;
         for (pt3 = 0; pt3 < intersections3.used(); ++pt3) {
             if (roughly_equal(tt1, intersections3.fT[0][pt3])) {

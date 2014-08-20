@@ -13,7 +13,7 @@
 #include "QuadraticUtilities.h"
 #include "TSearch.h"
 
-#if SK_DEBUG
+#ifdef SK_DEBUG
 #include "LineUtilities.h"
 #endif
 
@@ -166,7 +166,7 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
         int roots = intersect(q2, *testLines[index], rootTs);
         for (int idx2 = 0; idx2 < roots; ++idx2) {
             double t = rootTs.fT[0][idx2];
-#if SK_DEBUG
+#ifdef SK_DEBUG
         _Point qPt, lPt;
         xy_at_t(q2, t, qPt.x, qPt.y);
         xy_at_t(*testLines[index], rootTs.fT[1][idx2], lPt.x, lPt.y);
@@ -261,7 +261,7 @@ static bool isLinear(const Quadratic& q1, const Quadratic& q2, Intersections& i)
 static void relaxedIsLinear(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     double m1 = flatMeasure(q1);
     double m2 = flatMeasure(q2);
-#if SK_DEBUG
+#ifdef SK_DEBUG
     double min = SkTMin(m1, m2);
     if (min > 5) {
         SkDebugf("%s maybe not flat enough.. %1.9g\n", __FUNCTION__, min);

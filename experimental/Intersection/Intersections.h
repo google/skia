@@ -11,12 +11,12 @@ class Intersections {
 public:
     Intersections()
         : fFlip(0)
-#if SK_DEBUG
+#ifdef SK_DEBUG
         , fDepth(0)
 #endif
         , fSwap(0)
     {
-#if SK_DEBUG
+#ifdef SK_DEBUG
         bzero(fPt, sizeof(fPt));
         bzero(fT, sizeof(fT));
         bzero(fIsCoincident, sizeof(fIsCoincident));
@@ -35,7 +35,7 @@ public:
             if (fIsCoincident[0] & (1 << index)) {
                 ++count;
             }
-    #if SK_DEBUG
+    #ifdef SK_DEBUG
             if (fIsCoincident[1] & (1 << index)) {
                 ++count2;
             }
@@ -119,7 +119,7 @@ public:
         SkASSERT(++fDepth < 16);
     }
 
-#if SK_DEBUG
+#ifdef SK_DEBUG
     int depth() const {
         return fDepth;
     }
@@ -131,7 +131,7 @@ public:
     unsigned char fUsed;
     bool fFlip;
     bool fUnsortable;
-#if SK_DEBUG
+#ifdef SK_DEBUG
     int fDepth;
 #endif
 protected:

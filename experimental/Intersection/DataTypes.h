@@ -409,7 +409,7 @@ struct QuadraticPair {
 #define sk_double_isnan(a) sk_float_isnan(a)
 
 // FIXME: move these to debugging file
-#if SK_DEBUG
+#ifdef SK_DEBUG
 void mathematica_ize(char* str, size_t bufferSize);
 bool valid_wind(int winding);
 void winding_printf(int winding);
