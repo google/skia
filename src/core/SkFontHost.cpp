@@ -210,21 +210,6 @@ SkFontMgr* SkFontMgr::RefDefault() {
 
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef SK_FONTHOST_DOES_NOT_USE_FONTMGR
-
-#if 0
-static SkFontStyle TypefaceStyleBitsToFontStyle(SkTypeface::Style styleBits) {
-    SkFontStyle::Weight weight = (styleBits & SkTypeface::kBold) ?
-                                     SkFontStyle::kBold_Weight :
-                                     SkFontStyle::kNormal_Weight;
-    SkFontStyle::Width width = SkFontStyle::kNormal_Width;
-    SkFontStyle::Slant slant = (styleBits & SkTypeface::kItalic) ?
-                                     SkFontStyle::kUpright_Slant :
-                                     SkFontStyle::kItalic_Slant;
-    return SkFontStyle(weight, width, slant);
-}
-#endif
-
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
                                        SkTypeface::Style style) {
@@ -252,5 +237,3 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
     return fm->createFromStream(stream);
 }
-
-#endif
