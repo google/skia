@@ -244,7 +244,11 @@ void SkRecorder::didConcat(const SkMatrix& matrix) {
 }
 
 void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
-    SkASSERT(matrix == this->getTotalMatrix());
+    SkDEBUGCODE(if (matrix != this->getTotalMatrix()) {
+        matrix.dump();
+        this->getTotalMatrix().dump();
+        SkASSERT(matrix == this->getTotalMatrix());
+    })
     APPEND(SetMatrix, matrix);
 }
 
