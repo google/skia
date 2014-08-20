@@ -953,6 +953,10 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
             case SkPaint::kNormal_Hinting:
                 if (fRec.fFlags & SkScalerContext::kForceAutohinting_Flag) {
                     loadFlags = FT_LOAD_FORCE_AUTOHINT;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+                } else {
+                    loadFlags = FT_LOAD_NO_AUTOHINT;
+#endif
                 }
                 break;
             case SkPaint::kFull_Hinting:
