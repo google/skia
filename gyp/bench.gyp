@@ -26,6 +26,13 @@
         'tools.gyp:proc_stats',
         'tools.gyp:timer',
       ],
+      'conditions': [
+        ['skia_android_framework', {
+          'libraries': [
+            '-lskia',
+          ],
+        }],
+      ],
     },
   ],
 }
