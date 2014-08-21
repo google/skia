@@ -463,7 +463,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face, const SkGly
             canvas.scale(SkIntToScalar(glyph.fWidth) / SkIntToScalar(face->glyph->bitmap.width),
                          SkIntToScalar(glyph.fHeight) / SkIntToScalar(face->glyph->bitmap.rows));
             SkPaint paint;
-            paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+            paint.setFilterLevel(SkPaint::kMedium_FilterLevel);
             canvas.drawBitmap(unscaledBitmap, 0, 0, &paint);
 
             // If the destination is BW or LCD, convert from A8.
