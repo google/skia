@@ -345,17 +345,15 @@ static inline void SkBlendRGB16(const uint16_t src[], uint16_t dst[],
 #define SkB32Assert(b)  SkASSERT((unsigned)(b) <= SK_B32_MASK)
 
 #ifdef SK_DEBUG
-    static inline void SkPMColorAssert(SkPMColor c) {
-        unsigned a = SkGetPackedA32(c);
-        unsigned r = SkGetPackedR32(c);
-        unsigned g = SkGetPackedG32(c);
-        unsigned b = SkGetPackedB32(c);
-
-        SkA32Assert(a);
-        SkASSERT(r <= a);
-        SkASSERT(g <= a);
-        SkASSERT(b <= a);
-    }
+    #define SkPMColorAssert(color_value)                                    \
+        do {                                                                \
+            SkPMColor pm_color_value = (color_value);                       \
+            uint32_t alpha_color_value = SkGetPackedA32(pm_color_value);    \
+            SkA32Assert(alpha_color_value);                                 \
+            SkASSERT(SkGetPackedR32(pm_color_value) <= alpha_color_value);  \
+            SkASSERT(SkGetPackedG32(pm_color_value) <= alpha_color_value);  \
+            SkASSERT(SkGetPackedB32(pm_color_value) <= alpha_color_value);  \
+        } while (false)
 #else
     #define SkPMColorAssert(c)
 #endif
