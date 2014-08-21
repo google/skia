@@ -30,6 +30,8 @@ public:
     GrGpuGL(const GrGLContext& ctx, GrContext* context);
     virtual ~GrGpuGL();
 
+    virtual void contextAbandonded() SK_OVERRIDE;
+
     const GrGLContext& glContext() const { return fGLContext; }
 
     const GrGLInterface* glInterface() const { return fGLContext.interface(); }
@@ -74,8 +76,6 @@ public:
     virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
 
     virtual void initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) SK_OVERRIDE;
-
-    virtual void abandonResources() SK_OVERRIDE;
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.

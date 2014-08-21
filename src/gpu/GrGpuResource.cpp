@@ -8,19 +8,27 @@
 
 
 #include "GrGpuResource.h"
+#include "GrResourceCache2.h"
 #include "GrGpu.h"
 
+static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
+    SkASSERT(NULL != gpu);
+    SkASSERT(NULL != gpu->getContext());
+    SkASSERT(NULL != gpu->getContext()->getResourceCache2());
+    return gpu->getContext()->getResourceCache2();
+}
+
 GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
-    : fRefCnt(1)
+    : fGpu(gpu)
+    , fRefCnt(1)
     , fCacheEntry(NULL)
     , fUniqueID(CreateUniqueID()) {
-    fGpu              = gpu;
     if (isWrapped) {
         fFlags = kWrapped_FlagBit;
     } else {
         fFlags = 0;
     }
-    fGpu->insertObject(this);
+    get_resource_cache2(fGpu)->insertResource(this);
 }
 
 GrGpuResource::~GrGpuResource() {
@@ -32,7 +40,7 @@ GrGpuResource::~GrGpuResource() {
 void GrGpuResource::release() {
     if (NULL != fGpu) {
         this->onRelease();
-        fGpu->removeObject(this);
+        get_resource_cache2(fGpu)->removeResource(this);
         fGpu = NULL;
     }
 }
@@ -40,7 +48,7 @@ void GrGpuResource::release() {
 void GrGpuResource::abandon() {
     if (NULL != fGpu) {
         this->onAbandon();
-        fGpu->removeObject(this);
+        get_resource_cache2(fGpu)->removeResource(this);
         fGpu = NULL;
     }
 }

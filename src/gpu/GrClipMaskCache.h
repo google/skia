@@ -41,6 +41,7 @@ public:
         // We could reuse the mask if bounds is a subset of last bounds. We'd have to communicate
         // an offset to the caller.
         if (back->fLastMask.texture() &&
+            !back->fLastMask.texture()->wasDestroyed() &&
             back->fLastBound == bounds &&
             back->fLastClipGenID == clipGenID) {
             return true;
@@ -179,8 +180,8 @@ public:
         return fContext;
     }
 
-    void releaseResources() {
-
+    //  TODO: Remove this when we hold cache keys instead of refs to textures.
+    void purgeResources() {
         SkDeque::F2BIter iter(fStack);
         for (GrClipStackFrame* frame = (GrClipStackFrame*) iter.next();
                 frame != NULL;
@@ -219,7 +220,8 @@ private:
 
         int32_t                 fLastClipGenID;
         // The mask's width & height values are used by GrClipMaskManager to correctly scale the
-        // texture coords for the geometry drawn with this mask.
+        // texture coords for the geometry drawn with this mask. TODO: This should be a cache key
+        // and not a hard ref to a texture.
         GrAutoScratchTexture    fLastMask;
         // fLastBound stores the bounding box of the clip mask in clip-stack space. This rect is
         // used by GrClipMaskManager to position a rect and compute texture coords for the mask.

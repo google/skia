@@ -12,6 +12,7 @@
 #include "SkTInternalLList.h"
 
 class GrResourceCacheEntry;
+class GrResourceCache2;
 class GrGpu;
 class GrContext;
 
@@ -118,12 +119,13 @@ private:
 
     static uint32_t CreateUniqueID();
 
-    // We're in an internal doubly linked list
+    // We're in an internal doubly linked list owned by GrResourceCache2
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrGpuResource);
 
-    GrGpu*              fGpu;               // not reffed. The GrGpu can be deleted while there
-                                            // are still live GrGpuResources. It will call
-                                            // release() on all such objects in its destructor.
+    // This is not ref'ed but abandon() or release() will be called before the GrGpu object
+    // is destroyed. Those calls set will this to NULL.
+    GrGpu* fGpu;
+
     enum Flags {
         /**
          * This object wraps a GPU object given to us by the user.

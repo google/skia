@@ -1112,8 +1112,8 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t elementsGenID,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GrClipMaskManager::releaseResources() {
-    fAACache.releaseResources();
+void GrClipMaskManager::purgeResources() {
+    fAACache.purgeResources();
 }
 
 void GrClipMaskManager::setGpu(GrGpu* gpu) {
