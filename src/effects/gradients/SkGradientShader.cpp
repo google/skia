@@ -161,10 +161,11 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc)
                     curr = SkScalarPin(desc.fPos[i], 0, 1);
                 }
                 *origPosPtr++ = curr;
-                
+
                 recs->fPos = SkScalarToFixed(curr);
-                if (curr > prev) {
-                    recs->fScale = (1 << 24) / SkScalarToFixed(curr - prev);
+                SkFixed diff = SkScalarToFixed(curr - prev);
+                if (diff > 0) {
+                    recs->fScale = (1 << 24) / diff;
                 } else {
                     recs->fScale = 0; // ignore this segment
                 }
