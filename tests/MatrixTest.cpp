@@ -320,7 +320,13 @@ static void test_matrix_is_similarity(skiatest::Reporter* reporter) {
     for (int angle = 0; angle < 360; ++angle) {
         mat.reset();
         mat.setRotate(SkIntToScalar(angle));
+#ifndef SK_CPU_ARM64
         REPORTER_ASSERT(reporter, mat.isSimilarity());
+#else
+        // 64-bit ARM devices built with -O2 and -ffp-contract=fast have a loss
+        // of precision and require that we have a higher tolerance
+        REPORTER_ASSERT(reporter, mat.isSimilarity(SK_ScalarNearlyZero + 0.00010113f));
+#endif
     }
 
     // see if there are any accumulated precision issues

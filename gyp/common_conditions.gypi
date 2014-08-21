@@ -26,11 +26,6 @@
       }],
      ],
     }],
-    [ 'skia_arch_type == "arm64"', {
-      'cflags': [
-        '-ffp-contract=off',
-      ],
-    }],
 
     # As of M35, Chrome requires SSE2 on x86 (and SSSE3 on Mac).
     [ 'skia_arch_type == "x86"', {
