@@ -16,11 +16,13 @@
 #include "Stats.h"
 #include "Timer.h"
 
-#include "SkOSFile.h"
+#include "SkBBHFactory.h"
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
+#include "SkOSFile.h"
+#include "SkPictureRecorder.h"
 #include "SkString.h"
 #include "SkSurface.h"
 
@@ -71,6 +73,7 @@ DEFINE_string(key, "",
 
 DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
 DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
+DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
 
 static SkString humanize(double ms) {
     if (ms > 1e+3) return SkStringPrintf("%.3gs",  ms/1e3);
@@ -480,6 +483,20 @@ public:
                 }
 
                 SkString name = SkOSPath::Basename(path.c_str());
+
+                if (FLAGS_bbh) {
+                    // The SKP we read off disk doesn't have a BBH.  Re-record so it grows one.
+                    // Here we use an SkTileGrid with parameters optimized for FLAGS_clip.
+                    const SkTileGridFactory::TileGridInfo info = {
+                        SkISize::Make(fClip.width(), fClip.height()),  // tile interval
+                        SkISize::Make(0,0),                            // margin
+                        SkIPoint::Make(fClip.left(), fClip.top()),     // offset
+                    };
+                    SkTileGridFactory factory(info);
+                    SkPictureRecorder recorder;
+                    pic->draw(recorder.beginRecording(pic->width(), pic->height(), &factory));
+                    pic.reset(recorder.endRecording());
+                }
 
                 fSourceType = "skp";
                 return SkNEW_ARGS(SKPBench,
