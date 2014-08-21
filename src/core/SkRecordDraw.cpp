@@ -326,7 +326,9 @@ private:
         correct.fTop    += metrics.fTop;
         correct.fRight  += metrics.fXMax;
         correct.fBottom += metrics.fBottom;
-        SkASSERTF(rect->contains(correct), "%f %f %f %f vs. %f %f %f %f\n",
+        // See skia:2862 for why we ignore small text sizes.
+        SkASSERTF(paint.getTextSize() < 0.001f || rect->contains(correct),
+                  "%f %f %f %f vs. %f %f %f %f\n",
                   -xPad, -yPad, +xPad, +yPad,
                   metrics.fXMin, metrics.fTop, metrics.fXMax, metrics.fBottom);
 #endif
