@@ -308,6 +308,8 @@ private:
     SkAutoTDelete<SkRecord>       fRecord;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
 
+    struct PathCounter;
+
     struct Analysis {
         Analysis() {}  // Only used by SkPictureData codepath.
         explicit Analysis(const SkRecord&);

@@ -843,6 +843,17 @@ static void test_gpu_veto(skiatest::Reporter* reporter,
     picture.reset(recorder.endRecording());
     // ... but only when applied to drawPoint() calls
     REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
+
+    // Nest the previous picture inside a new one.
+    // This doesn't work in the old backend.
+    if (useNewPath) {
+        canvas = GENERATE_CANVAS(recorder, useNewPath);
+        {
+            canvas->drawPicture(picture.get());
+        }
+        picture.reset(recorder.endRecording());
+        REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
+    }
 }
 
 #undef GENERATE_CANVAS
@@ -1043,6 +1054,17 @@ static void test_has_text(skiatest::Reporter* reporter, bool useNewPath) {
     }
     picture.reset(recorder.endRecording());
     REPORTER_ASSERT(reporter, picture->hasText());
+
+    // Nest the previous picture inside a new one.
+    // This doesn't work in the old backend.
+    if (useNewPath) {
+        canvas = BEGIN_RECORDING;
+        {
+            canvas->drawPicture(picture.get());
+        }
+        picture.reset(recorder.endRecording());
+        REPORTER_ASSERT(reporter, picture->hasText());
+    }
 #undef BEGIN_RECORDING
 }
 

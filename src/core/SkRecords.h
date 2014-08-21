@@ -14,18 +14,6 @@
 
 namespace SkRecords {
 
-template <typename T>
-class RefBox : SkNoncopyable {
-public:
-    RefBox(const T* obj) : fObj(SkRef(obj)) {}
-    ~RefBox() { fObj->unref(); }
-
-    operator const T*() const { return fObj; }
-
-private:
-    const T* fObj;
-};
-
 // A list of all the types of canvas calls we can record.
 // Each of these is reified into a struct below.
 //
@@ -132,6 +120,18 @@ struct T {                                                                \
     T* operator->() { return ptr; }           \
     const T* operator->() const { return ptr; }
 
+template <typename T>
+class RefBox : SkNoncopyable {
+public:
+    RefBox(T* obj) : fObj(SkRef(obj)) {}
+    ~RefBox() { fObj->unref(); }
+
+    ACT_AS_PTR(fObj);
+
+private:
+    T* fObj;
+};
+
 // An Optional doesn't own the pointer's memory, but may need to destroy non-POD data.
 template <typename T>
 class Optional : SkNoncopyable {
@@ -231,7 +231,9 @@ RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
 RECORD1(DrawPaint, SkPaint, paint);
 RECORD2(DrawPath, SkPaint, paint, SkPath, path);
 //RECORD2(DrawPatch, SkPaint, paint, SkPatch, patch);
-RECORD3(DrawPicture, Optional<SkPaint>, paint, RefBox<SkPicture>, picture, Optional<SkMatrix>, matrix);
+RECORD3(DrawPicture, Optional<SkPaint>, paint,
+                     RefBox<const SkPicture>, picture,
+                     Optional<SkMatrix>, matrix);
 RECORD4(DrawPoints, SkPaint, paint, SkCanvas::PointMode, mode, size_t, count, SkPoint*, pts);
 RECORD4(DrawPosText, SkPaint, paint,
                      PODArray<char>, text,
@@ -251,7 +253,7 @@ RECORD5(DrawText, SkPaint, paint,
                   SkScalar, x,
                   SkScalar, y);
 RECORD4(DrawTextBlob, SkPaint, paint,
-                      RefBox<SkTextBlob>, blob,
+                      RefBox<const SkTextBlob>, blob,
                       SkScalar, x,
                       SkScalar, y);
 RECORD5(DrawTextOnPath, SkPaint, paint,

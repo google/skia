@@ -68,9 +68,12 @@ struct BitmapTester {
 
 
     // Main entry for visitor:
+    // If the command is a DrawPicture, recurse.
     // If the command has a bitmap directly, return true.
     // If the command has a paint and the paint has a bitmap, return true.
     // Otherwise, return false.
+    bool operator()(const SkRecords::DrawPicture& op) { return op.picture->willPlayBackBitmaps(); }
+
     template <typename T>
     bool operator()(const T& r) { return CheckBitmap(r); }
 
@@ -112,10 +115,21 @@ bool WillPlaybackBitmaps(const SkRecord& record) {
     return false;
 }
 
+// SkRecord visitor to find recorded text.
+struct TextHunter {
+    // All ops with text have that text as a char array member named "text".
+    SK_CREATE_MEMBER_DETECTOR(text);
+    bool operator()(const SkRecords::DrawPicture& op) { return op.picture->hasText(); }
+    template <typename T> SK_WHEN(HasMember_text<T>,  bool) operator()(const T&) { return true;  }
+    template <typename T> SK_WHEN(!HasMember_text<T>, bool) operator()(const T&) { return false; }
+};
+
+} // namespace
+
 /** SkRecords visitor to determine heuristically whether or not a SkPicture
     will be performant when rasterized on the GPU.
  */
-struct PathCounter {
+struct SkPicture::PathCounter {
     SK_CREATE_MEMBER_DETECTOR(paint);
 
     PathCounter()
@@ -123,6 +137,18 @@ struct PathCounter {
         , numFastPathDashEffects (0)
         , numAAConcavePaths (0)
         , numAAHairlineConcavePaths (0) {
+    }
+
+    // Recurse into nested pictures.
+    void operator()(const SkRecords::DrawPicture& op) {
+        // If you're not also SkRecord-backed, tough luck.  Get on the bandwagon.
+        if (op.picture->fRecord.get() == NULL) {
+            return;
+        }
+        const SkRecord& nested = *op.picture->fRecord;
+        for (unsigned i = 0; i < nested.count(); i++) {
+            nested.visit<void>(i, *this);
+        }
     }
 
     void checkPaint(const SkPaint* paint) {
@@ -164,22 +190,11 @@ struct PathCounter {
     template <typename T>
     SK_WHEN(!HasMember_paint<T>, void) operator()(const T& op) { /* do nothing */ }
 
-
     int numPaintWithPathEffectUses;
     int numFastPathDashEffects;
     int numAAConcavePaths;
     int numAAHairlineConcavePaths;
 };
-
-// SkRecord visitor to find recorded text.
-struct TextHunter {
-    // All ops with text have that text as a char array member named "text".
-    SK_CREATE_MEMBER_DETECTOR(text);
-    template <typename T> SK_WHEN(HasMember_text<T>,  bool) operator()(const T&) { return true;  }
-    template <typename T> SK_WHEN(!HasMember_text<T>, bool) operator()(const T&) { return false; }
-};
-
-} // namespace
 
 SkPicture::Analysis::Analysis(const SkRecord& record) {
     fWillPlaybackBitmaps = WillPlaybackBitmaps(record);
