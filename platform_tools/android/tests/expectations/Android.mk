@@ -156,7 +156,7 @@ include $(BUILD_SHARED_LIBRARY)
 #
 
 # benchmark (timings)
-include $(BASE_PATH)/tools/Android.mk
+include $(BASE_PATH)/bench/Android.mk
 
 # golden-master (fidelity / regression test)
 include $(BASE_PATH)/gm/Android.mk
