@@ -25,6 +25,18 @@
 // perform a draw and this one does.
 class SimpleOffsetFilter : public SkImageFilter {
 public:
+    class Registrar {
+    public:
+        Registrar() {
+            SkFlattenable::Register("SimpleOffsetFilter",
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+                                    SimpleOffsetFilter::DeepCreateProc,
+#else
+                                    SimpleOffsetFilter::CreateProc,
+#endif
+                                    SimpleOffsetFilter::GetFlattenableType());
+        }
+    };
     static SkImageFilter* Create(SkScalar dx, SkScalar dy, SkImageFilter* input) {
         return SkNEW_ARGS(SimpleOffsetFilter, (dx, dy, input));
     }
@@ -73,19 +85,14 @@ protected:
 
 private:
     SimpleOffsetFilter(SkScalar dx, SkScalar dy, SkImageFilter* input)
-    : SkImageFilter(1, &input), fDX(dx), fDY(dy) {
-        static bool gOnce;
-        if (!gOnce) {
-            gOnce = true;
-            SkFlattenable::Register("SimpleOffsetFilter", this->getFactory(),
-                                    this->GetFlattenableType());
-        }
-    }
+        : SkImageFilter(1, &input), fDX(dx), fDY(dy) {}
 
     SkScalar fDX, fDY;
 
     typedef SkImageFilter INHERITED;
 };
+
+static SimpleOffsetFilter::Registrar gReg;
 
 SkFlattenable* SimpleOffsetFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
