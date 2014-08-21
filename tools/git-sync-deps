@@ -194,6 +194,10 @@ def git_sync_deps(deps_file_path, deps_os_list, verbose):
 
   multithread(git_checkout_to_directory, list_of_arg_lists)
 
+  for directory in deps.get('recursedeps', []):
+    recursive_path = os.path.join(deps_file_directory, directory, 'DEPS')
+    git_sync_deps(recursive_path, deps_os_list, verbose)
+
 
 def multithread(function, list_of_arg_lists):
   # for args in list_of_arg_lists:
