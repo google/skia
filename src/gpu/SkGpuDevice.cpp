@@ -1876,6 +1876,85 @@ static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* re
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
 }
 
+// Return true if any layers are suitable for hoisting
+bool SkGpuDevice::FindLayersToHoist(const GrAccelData *gpuData,
+                                    const SkPicture::OperationList* ops,
+                                    const SkIRect& query,
+                                    bool* pullForward) {
+    bool anyHoisted = false;
+
+    // Layer hoisting pre-renders the entire layer since it will be cached and potentially
+    // reused with different clips (e.g., in different tiles). Because of this the
+    // clip will not be limiting the size of the pre-rendered layer. kSaveLayerMaxSize
+    // is used to limit which clips are pre-rendered.
+    static const int kSaveLayerMaxSize = 256;
+
+    if (NULL != ops) {
+        // In this case the picture has been generated with a BBH so we use
+        // the BBH to limit the pre-rendering to just the layers needed to cover
+        // the region being drawn
+        for (int i = 0; i < ops->numOps(); ++i) {
+            uint32_t offset = ops->offset(i);
+
+            // For now we're saving all the layers in the GrAccelData so they
+            // can be nested. Additionally, the nested layers appear before
+            // their parent in the list.
+            for (int j = 0; j < gpuData->numSaveLayers(); ++j) {
+                const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
+
+                if (pullForward[j]) {
+                    continue;            // already pulling forward
+                }
+
+                if (offset < info.fSaveLayerOpID || offset > info.fRestoreOpID) {
+                    continue;            // the op isn't in this range
+                }
+
+                // TODO: once this code is more stable unsuitable layers can
+                // just be omitted during the optimization stage
+                if (!info.fValid ||
+                    kSaveLayerMaxSize < info.fSize.fWidth ||
+                    kSaveLayerMaxSize < info.fSize.fHeight ||
+                    info.fIsNested) {
+                    continue;            // this layer is unsuitable
+                }
+
+                pullForward[j] = true;
+                anyHoisted = true;
+            }
+        }
+    } else {
+        // In this case there is no BBH associated with the picture. Pre-render
+        // all the layers that intersect the drawn region
+        for (int j = 0; j < gpuData->numSaveLayers(); ++j) {
+            const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
+
+            SkIRect layerRect = SkIRect::MakeXYWH(info.fOffset.fX,
+                                                  info.fOffset.fY,
+                                                  info.fSize.fWidth,
+                                                  info.fSize.fHeight);
+
+            if (!SkIRect::Intersects(query, layerRect)) {
+                continue;
+            }
+
+            // TODO: once this code is more stable unsuitable layers can
+            // just be omitted during the optimization stage
+            if (!info.fValid ||
+                kSaveLayerMaxSize < info.fSize.fWidth ||
+                kSaveLayerMaxSize < info.fSize.fHeight ||
+                info.fIsNested) {
+                continue;
+            }
+
+            pullForward[j] = true;
+            anyHoisted = true;
+        }
+    }
+
+    return anyHoisted;
+}
+
 bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* picture,
                                            const SkMatrix* matrix, const SkPaint* paint) {
     // todo: should handle these natively
@@ -1912,71 +1991,8 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
     SkAutoTDelete<const SkPicture::OperationList> ops(picture->EXPERIMENTAL_getActiveOps(query));
 
-    // This code pre-renders the entire layer since it will be cached and potentially
-    // reused with different clips (e.g., in different tiles). Because of this the
-    // clip will not be limiting the size of the pre-rendered layer. kSaveLayerMaxSize
-    // is used to limit which clips are pre-rendered.
-    static const int kSaveLayerMaxSize = 256;
-
-    if (NULL != ops.get()) {
-        // In this case the picture has been generated with a BBH so we use
-        // the BBH to limit the pre-rendering to just the layers needed to cover
-        // the region being drawn
-        for (int i = 0; i < ops->numOps(); ++i) {
-            uint32_t offset = ops->offset(i);
-
-            // For now we're saving all the layers in the GrAccelData so they
-            // can be nested. Additionally, the nested layers appear before
-            // their parent in the list.
-            for (int j = 0 ; j < gpuData->numSaveLayers(); ++j) {
-                const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
-
-                if (pullForward[j]) {
-                    continue;            // already pulling forward
-                }
-
-                if (offset < info.fSaveLayerOpID || offset > info.fRestoreOpID) {
-                    continue;            // the op isn't in this range
-                }
-
-                // TODO: once this code is more stable unsuitable layers can
-                // just be omitted during the optimization stage
-                if (!info.fValid ||
-                    kSaveLayerMaxSize < info.fSize.fWidth ||
-                    kSaveLayerMaxSize < info.fSize.fHeight ||
-                    info.fIsNested) {
-                    continue;            // this layer is unsuitable
-                }
-
-                pullForward[j] = true;
-            }
-        }
-    } else {
-        // In this case there is no BBH associated with the picture. Pre-render
-        // all the layers that intersect the drawn region
-        for (int j = 0; j < gpuData->numSaveLayers(); ++j) {
-            const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
-
-            SkIRect layerRect = SkIRect::MakeXYWH(info.fOffset.fX,
-                                                  info.fOffset.fY,
-                                                  info.fSize.fWidth,
-                                                  info.fSize.fHeight);
-
-            if (!SkIRect::Intersects(query, layerRect)) {
-                continue;
-            }
-
-            // TODO: once this code is more stable unsuitable layers can
-            // just be omitted during the optimization stage
-            if (!info.fValid ||
-                kSaveLayerMaxSize < info.fSize.fWidth ||
-                kSaveLayerMaxSize < info.fSize.fHeight ||
-                info.fIsNested) {
-                continue;
-            }
-
-            pullForward[j] = true;
-        }
+    if (!FindLayersToHoist(gpuData, ops.get(), query, pullForward.get())) {
+        return false;
     }
 
     SkPictureReplacementPlayback::PlaybackReplacements replacements;
@@ -2037,13 +2053,28 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         }
     }
 
+    this->drawLayers(picture, atlased, nonAtlased);
+
+    // Render the entire picture using new layers
+    SkPictureReplacementPlayback playback(picture, &replacements, ops.get());
+
+    playback.draw(mainCanvas, NULL);
+
+    this->unlockLayers(picture);
+
+    return true;
+}
+
+void SkGpuDevice::drawLayers(const SkPicture* picture,
+                             const SkTDArray<GrCachedLayer*>& atlased, 
+                             const SkTDArray<GrCachedLayer*>& nonAtlased) {
     // Render the atlased layers that require it
     if (atlased.count() > 0) {
         // All the atlased layers are rendered into the same GrTexture
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
-                                        atlased[0]->texture()->asRenderTarget(),
-                                        SkSurface::kStandard_TextRenderMode,
-                                        SkSurface::kDontClear_RenderTargetFlag));
+                                            atlased[0]->texture()->asRenderTarget(),
+                                            SkSurface::kStandard_TextRenderMode,
+                                            SkSurface::kDontClear_RenderTargetFlag));
 
         SkCanvas* atlasCanvas = surface->getCanvas();
 
@@ -2091,9 +2122,9 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
         // Each non-atlased layer has its own GrTexture
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
-                                        layer->texture()->asRenderTarget(),
-                                        SkSurface::kStandard_TextRenderMode,
-                                        SkSurface::kDontClear_RenderTargetFlag));
+                                            layer->texture()->asRenderTarget(),
+                                            SkSurface::kStandard_TextRenderMode,
+                                            SkSurface::kDontClear_RenderTargetFlag));
 
         SkCanvas* layerCanvas = surface->getCanvas();
 
@@ -2117,17 +2148,22 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
         layerCanvas->flush();
     }
+}
 
-    // Render the entire picture using new layers
-    SkPictureReplacementPlayback playback(picture, &replacements, ops.get());
+void SkGpuDevice::unlockLayers(const SkPicture* picture) {
+    SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
 
-    playback.draw(mainCanvas, NULL);
+    const SkPicture::AccelData* data = picture->EXPERIMENTAL_getAccelData(key);
+    SkASSERT(NULL != data);
+
+    const GrAccelData *gpuData = static_cast<const GrAccelData*>(data);
+    SkASSERT(0 != gpuData->numSaveLayers());
 
     // unlock the layers
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
         const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-        GrCachedLayer* layer = fContext->getLayerCache()->findLayer(picture->uniqueID(), 
+        GrCachedLayer* layer = fContext->getLayerCache()->findLayer(picture->uniqueID(),
                                                                     info.fSaveLayerOpID,
                                                                     info.fRestoreOpID,
                                                                     info.fCTM);
@@ -2142,8 +2178,6 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
     fContext->getLayerCache()->purgeAll();
 #endif
-
-    return true;
 }
 
 SkImageFilter::Cache* SkGpuDevice::getImageFilterCache() {
