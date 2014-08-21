@@ -68,7 +68,7 @@ public:
     }
 
     bool operator== (const GrTextureDomain& that) const {
-        return fMode == that.fMode && fDomain == that.fDomain;
+        return fMode == that.fMode && (kIgnore_Mode == fMode || fDomain == that.fDomain);
     }
 
     /**
