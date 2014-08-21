@@ -66,7 +66,7 @@ static void rerecord(const SkPicture& src, SkBBHFactory* bbhFactory) {
     if (FLAGS_skr) {
         src.draw(recorder.EXPERIMENTAL_beginRecording(src.width(), src.height(), bbhFactory));
     } else {
-        src.draw(recorder.beginRecording(src.width(), src.height(), bbhFactory));
+        src.draw(recorder.  DEPRECATED_beginRecording(src.width(), src.height(), bbhFactory));
     }
     SkAutoTUnref<SkPicture> pic(recorder.endRecording());
 }

@@ -279,7 +279,8 @@ SkPicture::SkPicture(int width, int height,
 // This for compatibility with serialization code only.  This is not cheap.
 static SkPicture* backport(const SkRecord& src, int width, int height) {
     SkPictureRecorder recorder;
-    SkRecordDraw(src, recorder.beginRecording(width, height), NULL/*bbh*/, NULL/*callback*/);
+    SkRecordDraw(src,
+                 recorder.DEPRECATED_beginRecording(width, height), NULL/*bbh*/, NULL/*callback*/);
     return recorder.endRecording();
 }
 

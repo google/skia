@@ -20,6 +20,16 @@ SkPictureRecorder::~SkPictureRecorder() {}
 SkCanvas* SkPictureRecorder::beginRecording(int width, int height,
                                             SkBBHFactory* bbhFactory /* = NULL */,
                                             uint32_t recordFlags /* = 0 */) {
+#ifdef SK_PICTURE_USE_SK_RECORD
+    return EXPERIMENTAL_beginRecording(width, height, bbhFactory);
+#else
+    return DEPRECATED_beginRecording(width, height, bbhFactory, recordFlags);
+#endif
+}
+
+SkCanvas* SkPictureRecorder::DEPRECATED_beginRecording(int width, int height,
+                                                       SkBBHFactory* bbhFactory /* = NULL */,
+                                                       uint32_t recordFlags /* = 0 */) {
     fWidth = width;
     fHeight = height;
 

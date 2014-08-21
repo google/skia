@@ -580,7 +580,7 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
 
 #define GENERATE_CANVAS(recorder, x) \
     (x) ? recorder.EXPERIMENTAL_beginRecording(100, 100) \
-        : recorder.beginRecording(100,100);
+        : recorder.  DEPRECATED_beginRecording(100,100);
 
 /* Hit a few SkPicture::Analysis cases not handled elsewhere. */
 static void test_analysis(skiatest::Reporter* reporter, bool useNewPath) {
@@ -897,7 +897,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
         {
             SkPictureRecorder recorder;
 
-            SkCanvas* c = recorder.beginRecording(kWidth, kHeight);
+            SkCanvas* c = recorder.DEPRECATED_beginRecording(kWidth, kHeight);
             // 1)
             c->saveLayer(NULL, NULL);
             c->restore();
@@ -1002,7 +1002,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 static void test_has_text(skiatest::Reporter* reporter, bool useNewPath) {
     SkPictureRecorder recorder;
 #define BEGIN_RECORDING useNewPath ? recorder.EXPERIMENTAL_beginRecording(100, 100) \
-                                   : recorder.             beginRecording(100, 100)
+                                   : recorder.  DEPRECATED_beginRecording(100, 100)
 
     SkCanvas* canvas = BEGIN_RECORDING;
     {

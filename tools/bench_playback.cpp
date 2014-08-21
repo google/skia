@@ -45,7 +45,7 @@ static SkPicture* rerecord(const SkPicture& src, bool skr) {
 
     SkPictureRecorder recorder;
     src.draw(skr ? recorder.EXPERIMENTAL_beginRecording(src.width(), src.height(), &factory)
-                 : recorder.             beginRecording(src.width(), src.height(), &factory));
+                 : recorder.  DEPRECATED_beginRecording(src.width(), src.height(), &factory));
     return recorder.endRecording();
 }
 

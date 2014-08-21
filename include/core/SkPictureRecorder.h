@@ -41,7 +41,17 @@ public:
                              SkBBHFactory* bbhFactory = NULL,
                              uint32_t recordFlags = 0);
 
-    /** Same as beginRecording(), using a new faster backend. */
+    // As usual, we have a deprecated old version and a maybe almost working
+    // new version.  We currently point beginRecording() to
+    // DEPRECATED_beginRecording() unless SK_PICTURE_USE_SK_RECORD is defined,
+    // then we use EXPERIMENTAL_beginRecording().
+
+    // Old slower backend.
+    SkCanvas* DEPRECATED_beginRecording(int width, int height,
+                                        SkBBHFactory* bbhFactory = NULL,
+                                        uint32_t recordFlags = 0);
+
+    // New faster backend.
     SkCanvas* EXPERIMENTAL_beginRecording(int width, int height,
                                           SkBBHFactory* bbhFactory = NULL);
 
