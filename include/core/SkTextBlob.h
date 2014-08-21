@@ -69,6 +69,7 @@ private:
 
     friend class SkCanvas;
     friend class SkTextBlobBuilder;
+    friend class TextBlobTester;
 
     const SkAutoTMalloc<uint16_t>       fGlyphBuffer;
     const SkAutoTMalloc<SkScalar>       fPosBuffer;
