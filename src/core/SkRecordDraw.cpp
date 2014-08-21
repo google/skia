@@ -316,7 +316,7 @@ private:
 #ifdef SK_DEBUG
         SkRect correct = *rect;
 #endif
-        const SkScalar yPad = 1.5f * paint.getTextSize(),  // In practice, this seems to be enough.
+        const SkScalar yPad = 2.0f * paint.getTextSize(),  // In practice, this seems to be enough.
                        xPad = 4.0f * yPad;                 // Hack for very wide Github logo font.
         rect->outset(xPad, yPad);
 #ifdef SK_DEBUG
