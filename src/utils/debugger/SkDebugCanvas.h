@@ -210,11 +210,6 @@ public:
 
     virtual bool isClipEmpty() const SK_OVERRIDE { return false; }
     virtual bool isClipRect() const SK_OVERRIDE { return true; }
-#ifdef SK_SUPPORT_LEGACY_GETCLIPTYPE
-    virtual ClipType getClipType() const SK_OVERRIDE {
-        return kRect_ClipType;
-    }
-#endif
     virtual bool getClipBounds(SkRect* bounds) const SK_OVERRIDE {
         if (NULL != bounds) {
             bounds->setXYWH(0, 0,

@@ -59,9 +59,6 @@ public:
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE {return NULL;}
 
     virtual bool isClipEmpty() const SK_OVERRIDE { return false; }
-#ifdef SK_SUPPORT_LEGACY_GETCLIPTYPE
-    virtual ClipType getClipType() const SK_OVERRIDE { return kRect_ClipType; }
-#endif
     virtual bool getClipBounds(SkRect* bounds) const SK_OVERRIDE {
         if (NULL != bounds) {
             bounds->setXYWH(0, 0,

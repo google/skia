@@ -1115,18 +1115,6 @@ public:
     */
     const SkMatrix& getTotalMatrix() const;
 
-#ifdef SK_SUPPORT_LEGACY_GETCLIPTYPE
-    enum ClipType {
-        kEmpty_ClipType = 0,
-        kRect_ClipType,
-        kComplex_ClipType
-    };
-    /** Returns a description of the total clip; may be cheaper than
-        getting the clip and querying it directly.
-    */
-    virtual ClipType getClipType() const;
-#endif
-
     /** Return the clip stack. The clip stack stores all the individual
      *  clips organized by the save/restore frame in which they were
      *  added.

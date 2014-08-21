@@ -1681,18 +1681,6 @@ const SkMatrix& SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 
-#ifdef SK_SUPPORT_LEGACY_GETCLIPTYPE
-SkCanvas::ClipType SkCanvas::getClipType() const {
-    if (fMCRec->fRasterClip.isEmpty()) {
-        return kEmpty_ClipType;
-    }
-    if (fMCRec->fRasterClip.isRect()) {
-        return kRect_ClipType;
-    }
-    return kComplex_ClipType;
-}
-#endif
-
 const SkRegion& SkCanvas::internal_private_getTotalClip() const {
     return fMCRec->fRasterClip.forceGetBW();
 }
