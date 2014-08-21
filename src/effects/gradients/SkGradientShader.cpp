@@ -216,7 +216,7 @@ SkGradientShaderBase::SkGradientShaderBase(SkReadBuffer& buffer) : INHERITED(buf
 
     int colorCount = fColorCount = buffer.getArrayCount();
     if (colorCount > kColorStorageCount) {
-        size_t allocSize = (sizeof(SkColor) + sizeof(SkPMColor) + sizeof(Rec)) * colorCount;
+        size_t allocSize = (sizeof(SkColor) + sizeof(SkScalar) + sizeof(Rec)) * colorCount;
         if (buffer.validateAvailable(allocSize)) {
             fOrigColors = reinterpret_cast<SkColor*>(sk_malloc_throw(allocSize));
         } else {
@@ -228,20 +228,26 @@ SkGradientShaderBase::SkGradientShaderBase(SkReadBuffer& buffer) : INHERITED(buf
     }
     buffer.readColorArray(fOrigColors, colorCount);
 
+    fOrigPos = (SkScalar*)(fOrigColors + colorCount);
+
     {
         uint32_t packed = buffer.readUInt();
         fGradFlags = SkToU8(unpack_flags(packed));
         fTileMode = unpack_mode(packed);
     }
     fTileProc = gTileProcs[fTileMode];
-    fRecs = (Rec*)(fOrigColors + colorCount);
+    fRecs = (Rec*)(fOrigPos + colorCount);
     if (colorCount > 2) {
         Rec* recs = fRecs;
         recs[0].fPos = 0;
+        fOrigPos[0] = 0;
         for (int i = 1; i < colorCount; i++) {
             recs[i].fPos = buffer.readInt();
             recs[i].fScale = buffer.readUInt();
+            fOrigPos[i] = SkFixedToScalar(recs[i].fPos);
         }
+    } else {
+        fOrigPos = NULL;
     }
     buffer.readMatrix(&fPtsToUnit);
     this->initCommon();
