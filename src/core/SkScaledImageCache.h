@@ -73,26 +73,12 @@ public:
      *  instance of this cache.
      */
 
-    static ID* FindAndLock(uint32_t pixelGenerationID,
-                           int32_t width,
-                           int32_t height,
-                           SkBitmap* returnedBitmap);
-
-    static ID* FindAndLock(const SkBitmap& original, SkScalar scaleX,
-                           SkScalar scaleY, SkBitmap* returnedBitmap);
-    static ID* FindAndLockMip(const SkBitmap& original,
-                              SkMipMap const** returnedMipMap);
-
-
-    static ID* AddAndLock(uint32_t pixelGenerationID,
-                          int32_t width,
-                          int32_t height,
-                          const SkBitmap& bitmap);
-
-    static ID* AddAndLock(const SkBitmap& original, SkScalar scaleX,
-                          SkScalar scaleY, const SkBitmap& bitmap);
-    static ID* AddAndLockMip(const SkBitmap& original, const SkMipMap* mipMap);
-
+    static ID* FindAndLock(const Key&, SkBitmap* result);
+    static ID* AddAndLock(const Key&, const SkBitmap& result);
+    
+    static ID* FindAndLock(const Key&, const SkMipMap** result);
+    static ID* AddAndLock(const Key&, const SkMipMap* result);
+    
     static void Unlock(ID*);
 
     static size_t GetTotalBytesUsed();
@@ -126,39 +112,17 @@ public:
      *  that pushes the total bytesUsed over the limit. Note: The limit can be
      *  changed at runtime with setTotalByteLimit.
      */
-    SkScaledImageCache(size_t byteLimit);
-
+    explicit SkScaledImageCache(size_t byteLimit);
     ~SkScaledImageCache();
 
     /**
-     *  Search the cache for a matching bitmap (using generationID,
-     *  width, and height as a search key). If found, return it in
-     *  returnedBitmap, and return its ID pointer. Use the returned
-     *  ptr to unlock the cache when you are done using
-     *  returnedBitmap.
+     *  Search the cache for a matching key. If found, return its bitmap and return its ID pointer.
+     *  Use the returned ID to unlock the cache when you are done using outBitmap.
      *
-     *  If a match is not found, returnedBitmap will be unmodifed, and
-     *  NULL will be returned.
-     *
-     *  This is used if there is no scaling or subsetting, for example
-     *  by SkLazyPixelRef.
+     *  If a match is not found, outBitmap will be unmodifed, and NULL will be returned.
      */
-    ID* findAndLock(uint32_t pixelGenerationID, int32_t width, int32_t height,
-                    SkBitmap* returnedBitmap);
-
-    /**
-     *  Search the cache for a scaled version of original. If found,
-     *  return it in returnedBitmap, and return its ID pointer. Use
-     *  the returned ptr to unlock the cache when you are done using
-     *  returnedBitmap.
-     *
-     *  If a match is not found, returnedBitmap will be unmodifed, and
-     *  NULL will be returned.
-     */
-    ID* findAndLock(const SkBitmap& original, SkScalar scaleX,
-                    SkScalar scaleY, SkBitmap* returnedBitmap);
-    ID* findAndLockMip(const SkBitmap& original,
-                       SkMipMap const** returnedMipMap);
+    ID* findAndLock(const Key& key, SkBitmap* outBitmap);
+    ID* findAndLock(const Key& key, const SkMipMap** returnedMipMap);
 
     /**
      *  To add a new bitmap (or mipMap) to the cache, call
@@ -168,11 +132,8 @@ public:
      *  Use (generationID, width, and height) or (original, scaleX,
      *  scaleY) or (original) as a search key
      */
-    ID* addAndLock(uint32_t pixelGenerationID, int32_t width, int32_t height,
-                   const SkBitmap& bitmap);
-    ID* addAndLock(const SkBitmap& original, SkScalar scaleX,
-                   SkScalar scaleY, const SkBitmap& bitmap);
-    ID* addAndLockMip(const SkBitmap& original, const SkMipMap* mipMap);
+    ID* addAndLock(const Key&, const SkBitmap& bitmap);
+    ID* addAndLock(const Key&, const SkMipMap* mipMap);
 
     /**
      *  Given a non-null ID ptr returned by either findAndLock or addAndLock,
@@ -224,8 +185,6 @@ private:
     size_t  fSingleAllocationByteLimit;
     int     fCount;
 
-    Rec* findAndLock(uint32_t generationID, SkScalar sx, SkScalar sy,
-                     const SkIRect& bounds);
     Rec* findAndLock(const Key& key);
     ID* addAndLock(Rec* rec);
 

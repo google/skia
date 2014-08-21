@@ -8,6 +8,19 @@
 #include "Benchmark.h"
 #include "SkScaledImageCache.h"
 
+namespace {
+static void* gGlobalAddress;
+class TestKey : public SkScaledImageCache::Key {
+public:
+    void*    fPtr;
+    intptr_t fValue;
+
+    TestKey(intptr_t value) : fPtr(&gGlobalAddress), fValue(value) {
+        this->init(sizeof(fPtr) + sizeof(fValue));
+    }
+};
+}
+
 class ImageCacheBench : public Benchmark {
     SkScaledImageCache  fCache;
     SkBitmap            fBM;
@@ -22,12 +35,11 @@ public:
     }
 
     void populateCache() {
-        SkScalar scale = 1;
         for (int i = 0; i < CACHE_COUNT; ++i) {
+            TestKey key(i);
             SkBitmap tmp;
             tmp.allocN32Pixels(1, 1);
-            fCache.unlock(fCache.addAndLock(fBM, scale, scale, tmp));
-            scale += 1;
+            fCache.unlock(fCache.addAndLock(key, tmp));
         }
     }
 
@@ -41,10 +53,12 @@ protected:
             this->populateCache();
         }
 
+        TestKey key(-1);
         SkBitmap tmp;
         // search for a miss (-1 scale)
         for (int i = 0; i < loops; ++i) {
-            (void)fCache.findAndLock(fBM, -1, -1, &tmp);
+            SkDEBUGCODE(SkScaledImageCache::ID* id =) fCache.findAndLock(key, &tmp);
+            SkASSERT(NULL == id);
         }
     }
 

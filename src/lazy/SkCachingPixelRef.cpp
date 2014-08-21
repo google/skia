@@ -6,7 +6,7 @@
  */
 
 #include "SkCachingPixelRef.h"
-#include "SkScaledImageCache.h"
+#include "SkBitmapCache.h"
 
 bool SkCachingPixelRef::Install(SkImageGenerator* generator,
                                 SkBitmap* dst) {
@@ -48,10 +48,8 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
     const SkImageInfo& info = this->info();
     SkBitmap bitmap;
     SkASSERT(NULL == fScaledCacheId);
-    fScaledCacheId = SkScaledImageCache::FindAndLock(this->getGenerationID(),
-                                                     info.fWidth,
-                                                     info.fHeight,
-                                                     &bitmap);
+    fScaledCacheId = SkBitmapCache::FindAndLock(this->getGenerationID(), info.fWidth, info.fHeight,
+                                                &bitmap);
     if (NULL == fScaledCacheId) {
         // Cache has been purged, must re-decode.
         if (!bitmap.allocPixels(info, fRowBytes)) {
@@ -63,10 +61,8 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
             fErrorInDecoding = true;
             return false;
         }
-        fScaledCacheId = SkScaledImageCache::AddAndLock(this->getGenerationID(),
-                                                        info.fWidth,
-                                                        info.fHeight,
-                                                        bitmap);
+        fScaledCacheId = SkBitmapCache::AddAndLock(this->getGenerationID(),
+                                                   info.fWidth, info.fHeight, bitmap);
         SkASSERT(fScaledCacheId != NULL);
     }
 

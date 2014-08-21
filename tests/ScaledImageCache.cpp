@@ -7,7 +7,7 @@
 #include "Test.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
-#include "SkScaledImageCache.h"
+#include "SkBitmapCache.h"
 
 static const int kCanvasSize = 1;
 static const int kBitmapSize = 16;
@@ -17,7 +17,7 @@ static bool is_in_scaled_image_cache(const SkBitmap& orig,
                                      SkScalar xScale,
                                      SkScalar yScale) {
     SkBitmap scaled;
-    SkScaledImageCache::ID* id = SkScaledImageCache::FindAndLock(
+    SkScaledImageCache::ID* id = SkBitmapCache::FindAndLock(
             orig, SkScalarInvert(xScale), SkScalarInvert(yScale), &scaled);
     if (id) {
         SkScaledImageCache::Unlock(id);

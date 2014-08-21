@@ -19,6 +19,7 @@
         '<(skia_src_path)/core/SkBBoxHierarchyRecord.cpp',
         '<(skia_src_path)/core/SkBBoxHierarchyRecord.h',
         '<(skia_src_path)/core/SkBitmap.cpp',
+        '<(skia_src_path)/core/SkBitmapCache.cpp',
         '<(skia_src_path)/core/SkBitmapDevice.cpp',
         '<(skia_src_path)/core/SkBitmapFilter.h',
         '<(skia_src_path)/core/SkBitmapFilter.cpp',

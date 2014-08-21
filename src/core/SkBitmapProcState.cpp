@@ -1,10 +1,11 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "SkBitmapCache.h"
 #include "SkBitmapProcState.h"
 #include "SkColorPriv.h"
 #include "SkFilterProc.h"
@@ -14,7 +15,6 @@
 #include "SkBitmapScaler.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
-#include "SkScaledImageCache.h"
 #include "SkImageEncoder.h"
 
 #if !SK_ARM_NEON_IS_NONE
@@ -183,9 +183,8 @@ bool SkBitmapProcState::possiblyScaleImage() {
             return false;
         }
 
-        fScaledCacheID = SkScaledImageCache::FindAndLock(fOrigBitmap,
-                                                         invScaleX, invScaleY,
-                                                         &fScaledBitmap);
+        fScaledCacheID = SkBitmapCache::FindAndLock(fOrigBitmap, invScaleX, invScaleY,
+                                                    &fScaledBitmap);
         if (fScaledCacheID) {
             fScaledBitmap.lockPixels();
             if (!fScaledBitmap.getPixels()) {
@@ -216,10 +215,8 @@ bool SkBitmapProcState::possiblyScaleImage() {
             }
 
             SkASSERT(NULL != fScaledBitmap.getPixels());
-            fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
-                                                            invScaleX,
-                                                            invScaleY,
-                                                            fScaledBitmap);
+            fScaledCacheID = SkBitmapCache::AddAndLock(fOrigBitmap, invScaleX, invScaleY,
+                                                       fScaledBitmap);
             if (!fScaledCacheID) {
                 fScaledBitmap.reset();
                 return false;
@@ -286,13 +283,12 @@ bool SkBitmapProcState::possiblyScaleImage() {
         const SkMipMap* mip = NULL;
 
         SkASSERT(NULL == fScaledCacheID);
-        fScaledCacheID = SkScaledImageCache::FindAndLockMip(fOrigBitmap, &mip);
+        fScaledCacheID = SkMipMapCache::FindAndLock(fOrigBitmap, &mip);
         if (!fScaledCacheID) {
             SkASSERT(NULL == mip);
             mip = SkMipMap::Build(fOrigBitmap);
             if (mip) {
-                fScaledCacheID = SkScaledImageCache::AddAndLockMip(fOrigBitmap,
-                                                                   mip);
+                fScaledCacheID = SkMipMapCache::AddAndLock(fOrigBitmap, mip);
                 SkASSERT(mip->getRefCnt() > 1);
                 mip->unref();   // the cache took a ref
                 SkASSERT(fScaledCacheID);
@@ -354,9 +350,7 @@ bool SkBitmapProcState::lockBaseBitmap() {
             return false;
         }
     } else {
-        fScaledCacheID = SkScaledImageCache::FindAndLock(fOrigBitmap,
-                                                         SK_Scalar1, SK_Scalar1,
-                                                         &fScaledBitmap);
+        fScaledCacheID = SkBitmapCache::FindAndLock(fOrigBitmap, 1, 1, &fScaledBitmap);
         if (fScaledCacheID) {
             fScaledBitmap.lockPixels();
             if (!fScaledBitmap.getPixels()) {
@@ -376,9 +370,7 @@ bool SkBitmapProcState::lockBaseBitmap() {
             // TODO: if fScaled comes back at a different width/height than fOrig,
             // we need to update the matrix we are using to sample from this guy.
 
-            fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
-                                                            SK_Scalar1, SK_Scalar1,
-                                                            fScaledBitmap);
+            fScaledCacheID = SkBitmapCache::AddAndLock(fOrigBitmap, 1, 1, fScaledBitmap);
             if (!fScaledCacheID) {
                 fScaledBitmap.reset();
                 return false;
