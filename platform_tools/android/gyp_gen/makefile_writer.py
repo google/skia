@@ -194,7 +194,16 @@ def write_android_mk(target_dir, common, deviations_from_common):
     f.write(DEBUGGING_HELP)
 
     write_clear_vars(f)
+
+    # need flags to enable feedback driven optimization (FDO) when requested
+    # by the build system.
     f.write('LOCAL_FDO_SUPPORT := true\n')
+    f.write(
+        'ifneq ($(strip $($(LOCAL_2ND_ARCH_VAR_PREFIX)TARGET_FDO_CFLAGS)),)\n')
+    f.write('\t# This should be the last -Oxxx specified in LOCAL_CFLAGS\n')
+    f.write('\tLOCAL_CFLAGS += -O2\n')
+    f.write('endif\n\n')
+
     f.write('LOCAL_ARM_MODE := thumb\n')
 
     # need a flag to tell the C side when we're on devices with large memory
