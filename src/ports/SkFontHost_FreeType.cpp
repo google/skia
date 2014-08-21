@@ -1508,13 +1508,6 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
         return;
     }
 
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    // Android doesn't want to embolden a font that is already bold.
-    if ((fFace->style_flags & FT_STYLE_FLAG_BOLD)) {
-        return;
-    }
-#endif
-
     switch (glyph->format) {
         case FT_GLYPH_FORMAT_OUTLINE:
             FT_Pos strength;
