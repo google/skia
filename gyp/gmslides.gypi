@@ -173,6 +173,7 @@
         '../gm/testimagefilters.cpp',
         '../gm/texdata.cpp',
         '../gm/variedtext.cpp',
+        '../gm/textblob.cpp',
         '../gm/texturedomaineffect.cpp',
         '../gm/thinrects.cpp',
         '../gm/thinstrokedrects.cpp',

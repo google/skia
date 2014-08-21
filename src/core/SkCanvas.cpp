@@ -22,6 +22,7 @@
 #include "SkSmallAllocator.h"
 #include "SkSurface_Base.h"
 #include "SkTemplates.h"
+#include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
@@ -2215,6 +2216,43 @@ void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPat
     LOOPER_END
 }
 
+void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                              const SkPaint& paint) {
+    SkASSERT(blob);
+
+    // FIXME: dispatch to the device instead
+
+    if (x || y) {
+        this->translate(x, y);
+    }
+
+    SkTextBlob::RunIterator it(blob);
+    while (!it.done()) {
+        size_t textLen = it.glyphCount() * sizeof(uint16_t);
+        const SkPoint& offset = it.offset();
+
+        switch (it.positioning()) {
+        case SkTextBlob::kDefault_Positioning:
+            this->drawText(it.glyphs(), textLen, offset.x(), offset.y(), paint);
+            break;
+        case SkTextBlob::kHorizontal_Positioning:
+            this->drawPosTextH(it.glyphs(), textLen, it.pos(), offset.y(), paint);
+            break;
+        case SkTextBlob::kFull_Positioning:
+            this->drawPosText(it.glyphs(), textLen, (const SkPoint*)it.pos(), paint);
+            break;
+        default:
+            SkFAIL("unhandled positioning mode");
+        }
+
+        it.next();
+    }
+
+    if (x || y) {
+        this->translate(-x, -y);
+    }
+}
+
 // These will become non-virtual, so they always call the (virtual) onDraw... method
 void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                         const SkPaint& paint) {
@@ -2231,6 +2269,12 @@ void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar 
 void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                               const SkMatrix* matrix, const SkPaint& paint) {
     this->onDrawTextOnPath(text, byteLength, path, matrix, paint);
+}
+void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                            const SkPaint& paint) {
+    if (NULL != blob) {
+        this->onDrawTextBlob(blob, x, y, paint);
+    }
 }
 
 void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,

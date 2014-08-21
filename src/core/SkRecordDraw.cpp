@@ -89,6 +89,7 @@ DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
 DRAW(DrawRect, drawRect(r.rect, r.paint));
 DRAW(DrawSprite, drawSprite(shallow_copy(r.bitmap), r.left, r.top, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
+DRAW(DrawTextBlob, drawTextBlob(r.blob, r.x, r.y, r.paint));
 DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, r.matrix, r.paint));
 DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
                                 r.xmode.get(), r.indices, r.indexCount, r.paint));
