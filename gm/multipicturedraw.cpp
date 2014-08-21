@@ -75,7 +75,7 @@ static const SkPicture* make_picture(SkColor fillColor) {
     return recorder.endRecording();
 }
 
-static SkSurface* compat_surface(SkCanvas* canvas, int width, int height) {
+static SkSurface* create_compat_surface(SkCanvas* canvas, int width, int height) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
 
     SkSurface* surface = canvas->newSurface(info);
@@ -197,7 +197,7 @@ static void simple(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
 
     ComposeStep& step = composeSteps->push_back();
 
-    step.fSurf = SkSafeRef(compat_surface(finalCanvas, kPicWidth, kPicHeight));
+    step.fSurf = create_compat_surface(finalCanvas, kPicWidth, kPicHeight);
 
     SkCanvas* subCanvas = step.fSurf->getCanvas();
 
@@ -232,7 +232,7 @@ static void tiled(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
             step.fPaint->setColorFilter(
                 SkColorFilter::CreateModeFilter(colors[x][y], SkXfermode::kModulate_Mode))->unref();
 
-            step.fSurf = SkSafeRef(compat_surface(finalCanvas, kTileWidth, kTileHeight));
+            step.fSurf = create_compat_surface(finalCanvas, kTileWidth, kTileHeight);
 
             SkCanvas* subCanvas = step.fSurf->getCanvas();
 
