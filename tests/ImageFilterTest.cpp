@@ -56,12 +56,15 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit MatrixTestImageFilter(SkReadBuffer& buffer) : SkImageFilter(0, NULL) {
         fReporter = static_cast<skiatest::Reporter*>(buffer.readFunctionPtr());
         buffer.readMatrix(&fExpectedMatrix);
     }
+#endif
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+        this->INHERITED::flatten(buffer);
         buffer.writeFunctionPtr(fReporter);
         buffer.writeMatrix(fExpectedMatrix);
     }
@@ -69,8 +72,18 @@ protected:
 private:
     skiatest::Reporter* fReporter;
     SkMatrix fExpectedMatrix;
+    
+    typedef SkImageFilter INHERITED;
 };
 
+}
+
+SkFlattenable* MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    skiatest::Reporter* reporter = (skiatest::Reporter*)buffer.readFunctionPtr();
+    SkMatrix matrix;
+    buffer.readMatrix(&matrix);
+    return SkNEW_ARGS(MatrixTestImageFilter, (reporter, matrix));
 }
 
 static void make_small_bitmap(SkBitmap& bitmap) {

@@ -31,6 +31,7 @@ SkPictureImageFilter::~SkPictureImageFilter() {
     SkSafeUnref(fPicture);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkPictureImageFilter::SkPictureImageFilter(SkReadBuffer& buffer)
   : INHERITED(0, buffer),
     fPicture(NULL) {
@@ -43,9 +44,25 @@ SkPictureImageFilter::SkPictureImageFilter(SkReadBuffer& buffer)
     }
     buffer.readRect(&fCropRect);
 }
+#endif
+
+SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SkAutoTUnref<SkPicture> picture;
+    SkRect cropRect;
+
+    if (!buffer.isCrossProcess()) {
+        if (buffer.readBool()) {
+            picture.reset(SkPicture::CreateFromBuffer(buffer));
+        }
+    } else {
+        buffer.validate(!buffer.readBool());
+    }
+    buffer.readRect(&cropRect);
+
+    return Create(picture, cropRect);
+}
 
 void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
     if (!buffer.isCrossProcess()) {
         bool hasPicture = (fPicture != NULL);
         buffer.writeBool(hasPicture);

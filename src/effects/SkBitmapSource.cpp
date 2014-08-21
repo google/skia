@@ -13,12 +13,12 @@
 #include "SkValidationUtils.h"
 
 SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap)
-  : INHERITED(0, 0),
-    fBitmap(bitmap),
-    fSrcRect(SkRect::MakeWH(SkIntToScalar(bitmap.width()),
-                            SkIntToScalar(bitmap.height()))),
-    fDstRect(fSrcRect) {
-}
+  : INHERITED(0, 0)
+  , fBitmap(bitmap)
+  , fSrcRect(SkRect::MakeWH(SkIntToScalar(bitmap.width()),
+                            SkIntToScalar(bitmap.height())))
+  , fDstRect(fSrcRect)
+{}
 
 SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, const SkRect& dstRect)
   : INHERITED(0, 0)
@@ -26,6 +26,7 @@ SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, co
   , fSrcRect(srcRect)
   , fDstRect(dstRect) {}
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkBitmapSource::SkBitmapSource(SkReadBuffer& buffer) : INHERITED(0, buffer) {
     if (buffer.isVersionLT(SkReadBuffer::kNoMoreBitmapFlatten_Version)) {
         fBitmap.legacyUnflatten(buffer);
@@ -36,12 +37,23 @@ SkBitmapSource::SkBitmapSource(SkReadBuffer& buffer) : INHERITED(0, buffer) {
     buffer.readRect(&fDstRect);
     buffer.validate(buffer.isValid() && SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
 }
+#endif
+
+SkFlattenable* SkBitmapSource::CreateProc(SkReadBuffer& buffer) {
+    SkRect src, dst;
+    buffer.readRect(&src);
+    buffer.readRect(&dst);
+    SkBitmap bitmap;
+    if (!buffer.readBitmap(&bitmap)) {
+        return NULL;
+    }
+    return SkBitmapSource::Create(bitmap, src, dst);
+}
 
 void SkBitmapSource::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    buffer.writeBitmap(fBitmap);
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);
+    buffer.writeBitmap(fBitmap);
 }
 
 bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const Context& ctx,

@@ -24,7 +24,9 @@ public:
 protected:
     SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor,
                             SkImageFilter* input, const CropRect* cropRect);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkDropShadowImageFilter(SkReadBuffer&);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& source, const Context&, SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,

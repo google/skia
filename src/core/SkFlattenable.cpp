@@ -1,22 +1,21 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkFlattenable.h"
 #include "SkPtrRecorder.h"
+#include "SkReadBuffer.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkFlattenable::flatten(SkWriteBuffer&) const
-{
-    /*  we don't write anything at the moment, but this allows our subclasses
-        to not know that, since we want them to always call INHERITED::flatten()
-        in their code.
-    */
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+bool SkFlattenable::NeedsDeepUnflatten(const SkReadBuffer& buffer) {
+    return buffer.isVersionLT(SkReadBuffer::kFlattenCreateProc_Version);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

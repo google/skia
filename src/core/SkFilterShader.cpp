@@ -21,19 +21,28 @@ SkFilterShader::SkFilterShader(SkShader* shader, SkColorFilter* filter) {
     filter->ref();
 }
 
-SkFilterShader::SkFilterShader(SkReadBuffer& buffer)
-    : INHERITED(buffer) {
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkFilterShader::SkFilterShader(SkReadBuffer& buffer) : INHERITED(buffer) {
     fShader = buffer.readShader();
     fFilter = buffer.readColorFilter();
 }
+#endif
 
 SkFilterShader::~SkFilterShader() {
     fFilter->unref();
     fShader->unref();
 }
 
+SkFlattenable* SkFilterShader::CreateProc(SkReadBuffer& buffer) {
+    SkAutoTUnref<SkShader> shader(buffer.readShader());
+    SkAutoTUnref<SkColorFilter> filter(buffer.readColorFilter());
+    if (!shader.get() || !filter.get()) {
+        return NULL;
+    }
+    return SkNEW_ARGS(SkFilterShader, (shader, filter));
+}
+
 void SkFilterShader::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fShader);
     buffer.writeFlattenable(fFilter);
 }

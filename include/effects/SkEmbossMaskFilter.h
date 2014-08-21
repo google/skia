@@ -37,7 +37,9 @@ public:
 
 protected:
     SkEmbossMaskFilter(SkScalar blurSigma, const Light& light);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkEmbossMaskFilter(SkReadBuffer&);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

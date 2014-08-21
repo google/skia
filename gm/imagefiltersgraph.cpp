@@ -57,28 +57,42 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SimpleOffsetFilter);
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SimpleOffsetFilter(SkReadBuffer& buffer)
     : SkImageFilter(1, buffer) {
         fDX = buffer.readScalar();
         fDY = buffer.readScalar();
     }
+#endif
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
-        this->SkImageFilter::flatten(buffer);
+        this->INHERITED::flatten(buffer);
         buffer.writeScalar(fDX);
         buffer.writeScalar(fDY);
     }
 
 private:
     SimpleOffsetFilter(SkScalar dx, SkScalar dy, SkImageFilter* input)
-    : SkImageFilter(1, &input), fDX(dx), fDY(dy) {}
+    : SkImageFilter(1, &input), fDX(dx), fDY(dy) {
+        static bool gOnce;
+        if (!gOnce) {
+            gOnce = true;
+            SkFlattenable::Register("SimpleOffsetFilter", this->getFactory(),
+                                    this->GetFlattenableType());
+        }
+    }
 
     SkScalar fDX, fDY;
+
+    typedef SkImageFilter INHERITED;
 };
 
-SkFlattenable::Registrar registrar("SimpleOffsetFilter",
-                                   SimpleOffsetFilter::CreateProc,
-                                   SimpleOffsetFilter::GetFlattenableType());
+SkFlattenable* SimpleOffsetFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    SkScalar dx = buffer.readScalar();
+    SkScalar dy = buffer.readScalar();
+    return Create(dx, dy, common.getInput(0));
+}
 
 class ImageFiltersGraphGM : public skiagm::GM {
 public:

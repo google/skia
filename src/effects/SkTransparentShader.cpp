@@ -115,6 +115,10 @@ void SkTransparentShader::TransparentShaderContext::shadeSpan16(int x, int y, ui
     }
 }
 
+SkFlattenable* SkTransparentShader::CreateProc(SkReadBuffer& buffer) {
+    return SkNEW(SkTransparentShader);
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkTransparentShader::toString(SkString* str) const {
     str->append("SkTransparentShader: (");

@@ -15,10 +15,11 @@ public:
                         int count, const SkAlpha* SK_RESTRICT aa) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNEONProcCoeffXfermode)
 
 private:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkNEONProcCoeffXfermode(SkReadBuffer& buffer);
+#endif
 
     // void* is used to avoid pulling arm_neon.h in the core and having to build
     // it with -mfpu=neon.

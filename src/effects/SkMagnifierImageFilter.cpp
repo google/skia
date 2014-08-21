@@ -232,6 +232,22 @@ void GrMagnifierEffect::getConstantColorComponents(GrColor* color, uint32_t* val
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
+
+SkImageFilter* SkMagnifierImageFilter::Create(const SkRect& srcRect, SkScalar inset,
+                                              SkImageFilter* input) {
+    
+    if (!SkScalarIsFinite(inset) || !SkIsValidRect(srcRect)) {
+        return NULL;
+    }
+    // Negative numbers in src rect are not supported
+    if (srcRect.fLeft < 0 || srcRect.fTop < 0) {
+        return NULL;
+    }
+    return SkNEW_ARGS(SkMagnifierImageFilter, (srcRect, inset, input));
+}
+
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkMagnifierImageFilter::SkMagnifierImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     float x = buffer.readScalar();
@@ -245,6 +261,7 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkReadBuffer& buffer)
                     // Negative numbers in src rect are not supported
                     (fSrcRect.fLeft >= 0) && (fSrcRect.fTop >= 0));
 }
+#endif
 
 SkMagnifierImageFilter::SkMagnifierImageFilter(const SkRect& srcRect, SkScalar inset,
                                                SkImageFilter* input)
@@ -271,12 +288,16 @@ bool SkMagnifierImageFilter::asNewEffect(GrEffect** effect, GrTexture* texture, 
 }
 #endif
 
+SkFlattenable* SkMagnifierImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    SkRect src;
+    buffer.readRect(&src);
+    return Create(src, buffer.readScalar(), common.getInput(0));
+}
+
 void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeScalar(fSrcRect.x());
-    buffer.writeScalar(fSrcRect.y());
-    buffer.writeScalar(fSrcRect.width());
-    buffer.writeScalar(fSrcRect.height());
+    buffer.writeRect(fSrcRect);
     buffer.writeScalar(fInset);
 }
 

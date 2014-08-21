@@ -61,7 +61,9 @@ public:
     };
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkTable_ColorFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
@@ -69,6 +71,8 @@ private:
 
     uint8_t fStorage[256 * 4];
     unsigned fFlags;
+
+    friend class SkTableColorFilter;
 
     typedef SkColorFilter INHERITED;
 };
@@ -168,19 +172,62 @@ static const uint8_t gCountNibBits[] = {
 #include "SkPackBits.h"
 
 void SkTable_ColorFilter::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-
     uint8_t storage[5*256];
     int count = gCountNibBits[fFlags & 0xF];
     size_t size = SkPackBits::Pack8(fStorage, count * 256, storage);
     SkASSERT(size <= sizeof(storage));
 
-//    SkDebugf("raw %d packed %d\n", count * 256, size);
-
-    buffer.writeInt(fFlags);
+    buffer.write32(fFlags);
     buffer.writeByteArray(storage, size);
 }
 
+SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
+    const int flags = buffer.read32();
+    const size_t count = gCountNibBits[flags & 0xF];
+    SkASSERT(count <= 4);
+
+    uint8_t packedStorage[5*256];
+    size_t packedSize = buffer.getArrayCount();
+    if (!buffer.validate(packedSize <= sizeof(packedStorage))) {
+        return NULL;
+    }
+    if (!buffer.readByteArray(packedStorage, packedSize)) {
+        return NULL;
+    }
+
+    uint8_t unpackedStorage[4*256];
+    size_t unpackedSize = SkPackBits::Unpack8(packedStorage, packedSize, unpackedStorage);
+    // now check that we got the size we expected
+    if (!buffer.validate(unpackedSize != count*256)) {
+        return NULL;
+    }
+
+    const uint8_t* a = NULL;
+    const uint8_t* r = NULL;
+    const uint8_t* g = NULL;
+    const uint8_t* b = NULL;
+    const uint8_t* ptr = unpackedStorage;
+
+    if (flags & kA_Flag) {
+        a = ptr;
+        ptr += 256;
+    }
+    if (flags & kR_Flag) {
+        r = ptr;
+        ptr += 256;
+    }
+    if (flags & kG_Flag) {
+        g = ptr;
+        ptr += 256;
+    }
+    if (flags & kB_Flag) {
+        b = ptr;
+        ptr += 256;
+    }
+    return SkTableColorFilter::CreateARGB(a, r, g, b);
+}
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkTable_ColorFilter::SkTable_ColorFilter(SkReadBuffer& buffer) : INHERITED(buffer) {
     fBitmap = NULL;
 
@@ -199,6 +246,7 @@ SkTable_ColorFilter::SkTable_ColorFilter(SkReadBuffer& buffer) : INHERITED(buffe
     SkDEBUGCODE(size_t count = gCountNibBits[fFlags & 0xF]);
     SkASSERT(raw == count * 256);
 }
+#endif
 
 bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
     if (table) {

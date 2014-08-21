@@ -15,24 +15,30 @@ SkAvoidXfermode::SkAvoidXfermode(SkColor opColor, U8CPU tolerance, Mode mode) {
     if (tolerance > 255) {
         tolerance = 255;
     }
-
+    fTolerance = SkToU8(tolerance);
     fOpColor = opColor;
     fDistMul = (256 << 14) / (tolerance + 1);
     fMode = mode;
 }
 
-SkAvoidXfermode::SkAvoidXfermode(SkReadBuffer& buffer)
-    : INHERITED(buffer) {
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkAvoidXfermode::SkAvoidXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {
     fOpColor = buffer.readColor();
     fDistMul = buffer.readUInt();
     fMode = (Mode)buffer.readUInt();
 }
+#endif
+
+SkFlattenable* SkAvoidXfermode::CreateProc(SkReadBuffer& buffer) {
+    const SkColor color = buffer.readColor();
+    const unsigned tolerance = buffer.readUInt();
+    const unsigned mode = buffer.readUInt();
+    return Create(color, tolerance, (Mode)mode);
+}
 
 void SkAvoidXfermode::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-
     buffer.writeColor(fOpColor);
-    buffer.writeUInt(fDistMul);
+    buffer.writeUInt(fTolerance);
     buffer.writeUInt(fMode);
 }
 

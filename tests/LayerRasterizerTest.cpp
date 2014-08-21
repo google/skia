@@ -33,11 +33,9 @@ public:
 
     static int GetCount() { return gCount; }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyRasterizer)
+    SK_DECLARE_NOT_FLATTENABLE_PROCS(DummyRasterizer)
 
 private:
-    DummyRasterizer(SkReadBuffer&) {}
-
     static int gCount;
 
     typedef SkRasterizer INHERITED;

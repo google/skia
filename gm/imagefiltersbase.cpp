@@ -23,24 +23,34 @@ public:
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
+
 protected:
-    FailImageFilter() : INHERITED(0, NULL) {}
+    FailImageFilter() : INHERITED(0, NULL) {
+        static bool gOnce;
+        if (!gOnce) {
+            gOnce = true;
+            SkFlattenable::Register("FailImageFilter", this->getFactory(),
+                                    this->GetFlattenableType());
+        }
+    }
+
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
         return false;
     }
 
-    FailImageFilter(SkReadBuffer& buffer)
-      : INHERITED(0, buffer) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    FailImageFilter(SkReadBuffer& buffer) : INHERITED(0, buffer) {}
+#endif
 
 private:
     typedef SkImageFilter INHERITED;
 };
 
-// register the filter with the flattenable registry
-static SkFlattenable::Registrar gFailImageFilterReg("FailImageFilter",
-                                                    FailImageFilter::CreateProc,
-                                                    FailImageFilter::GetFlattenableType());
+SkFlattenable* FailImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
+    return FailImageFilter::Create();
+}
 
 class IdentityImageFilter : public SkImageFilter {
 public:
@@ -50,7 +60,15 @@ public:
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(IdentityImageFilter)
 protected:
-    IdentityImageFilter(SkImageFilter* input) : INHERITED(1, &input) {}
+    IdentityImageFilter(SkImageFilter* input) : INHERITED(1, &input) {
+        static bool gOnce;
+        if (!gOnce) {
+            gOnce = true;
+            SkFlattenable::Register("IdentityImageFilter", this->getFactory(),
+                                    this->GetFlattenableType());
+        }
+    }
+
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
         *result = src;
@@ -58,18 +76,18 @@ protected:
         return true;
     }
 
-    IdentityImageFilter(SkReadBuffer& buffer)
-      : INHERITED(1, buffer) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    IdentityImageFilter(SkReadBuffer& buffer) : INHERITED(1, buffer) {}
+#endif
 
 private:
     typedef SkImageFilter INHERITED;
 };
 
-// register the filter with the flattenable registry
-static SkFlattenable::Registrar gIdentityImageFilterReg("IdentityImageFilter",
-                                                        IdentityImageFilter::CreateProc,
-                                                        IdentityImageFilter::GetFlattenableType());
-
+SkFlattenable* IdentityImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    return IdentityImageFilter::Create(common.getInput(0));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

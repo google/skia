@@ -45,18 +45,25 @@ SkPairPathEffect::~SkPairPathEffect() {
     Format: [oe0-factory][pe1-factory][pe0-size][pe0-data][pe1-data]
 */
 void SkPairPathEffect::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fPE0);
     buffer.writeFlattenable(fPE1);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkPairPathEffect::SkPairPathEffect(SkReadBuffer& buffer) {
     fPE0 = buffer.readPathEffect();
     fPE1 = buffer.readPathEffect();
     // either of these may fail, so we have to check for nulls later on
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkFlattenable* SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
+    SkAutoTUnref<SkPathEffect> pe0(buffer.readPathEffect());
+    SkAutoTUnref<SkPathEffect> pe1(buffer.readPathEffect());
+    return SkComposePathEffect::Create(pe0, pe1);
+}
 
 bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
                              SkStrokeRec* rec, const SkRect* cullRect) const {
@@ -75,6 +82,12 @@ bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkFlattenable* SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {
+    SkAutoTUnref<SkPathEffect> pe0(buffer.readPathEffect());
+    SkAutoTUnref<SkPathEffect> pe1(buffer.readPathEffect());
+    return SkSumPathEffect::Create(pe0, pe1);
+}
 
 bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,
                              SkStrokeRec* rec, const SkRect* cullRect) const {

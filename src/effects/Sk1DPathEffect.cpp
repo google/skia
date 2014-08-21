@@ -147,6 +147,7 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkPath1DPathEffect::SkPath1DPathEffect(SkReadBuffer& buffer) {
     fAdvance = buffer.readScalar();
     if (fAdvance > 0) {
@@ -160,13 +161,25 @@ SkPath1DPathEffect::SkPath1DPathEffect(SkReadBuffer& buffer) {
         fStyle = kStyleCount;
     }
 }
+#endif
 
 SkScalar SkPath1DPathEffect::begin(SkScalar contourLength) const {
     return fInitialOffset;
 }
 
+SkFlattenable* SkPath1DPathEffect::CreateProc(SkReadBuffer& buffer) {
+    SkScalar advance = buffer.readScalar();
+    if (advance > 0) {
+        SkPath path;
+        buffer.readPath(&path);
+        SkScalar phase = buffer.readScalar();
+        Style style = (Style)buffer.readUInt();
+        return SkPath1DPathEffect::Create(path, advance, phase, style);
+    }
+    return NULL;
+}
+
 void SkPath1DPathEffect::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
     buffer.writeScalar(fAdvance);
     if (fAdvance > 0) {
         buffer.writePath(fPath);

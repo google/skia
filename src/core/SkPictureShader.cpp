@@ -28,13 +28,14 @@ SkPictureShader::SkPictureShader(const SkPicture* picture, TileMode tmx, TileMod
                                           SkIntToScalar(picture->height()));
 }
 
-SkPictureShader::SkPictureShader(SkReadBuffer& buffer)
-        : INHERITED(buffer) {
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkPictureShader::SkPictureShader(SkReadBuffer& buffer) : INHERITED(buffer) {
     fTmx = static_cast<SkShader::TileMode>(buffer.read32());
     fTmy = static_cast<SkShader::TileMode>(buffer.read32());
     buffer.readRect(&fTile);
     fPicture = SkPicture::CreateFromBuffer(buffer);
 }
+#endif
 
 SkPictureShader::~SkPictureShader() {
     fPicture->unref();
@@ -49,9 +50,19 @@ SkPictureShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx,
     return SkNEW_ARGS(SkPictureShader, (picture, tmx, tmy, localMatrix, tile));
 }
 
-void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
+SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
+    SkMatrix lm;
+    buffer.readMatrix(&lm);
+    TileMode mx = (TileMode)buffer.read32();
+    TileMode my = (TileMode)buffer.read32();
+    SkRect tile;
+    buffer.readRect(&tile);
+    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromBuffer(buffer));
+    return SkPictureShader::Create(picture, mx, my, &lm, &tile);
+}
 
+void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeMatrix(this->getLocalMatrix());
     buffer.write32(fTmx);
     buffer.write32(fTmy);
     buffer.writeRect(fTile);

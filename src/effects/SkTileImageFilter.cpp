@@ -16,6 +16,14 @@
 #include "SkShader.h"
 #include "SkValidationUtils.h"
 
+SkTileImageFilter* SkTileImageFilter::Create(const SkRect& srcRect, const SkRect& dstRect,
+                                             SkImageFilter* input) {
+    if (!SkIsValidRect(srcRect) || !SkIsValidRect(dstRect)) {
+        return NULL;
+    }
+    return SkNEW_ARGS(SkTileImageFilter, (srcRect, dstRect, input));
+}
+
 bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                       const Context& ctx,
                                       SkBitmap* dst, SkIPoint* offset) const {
@@ -86,11 +94,21 @@ bool SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkTileImageFilter::SkTileImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     buffer.readRect(&fSrcRect);
     buffer.readRect(&fDstRect);
     buffer.validate(buffer.isValid() && SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
+}
+#endif
+
+SkFlattenable* SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    SkRect src, dst;
+    buffer.readRect(&src);
+    buffer.readRect(&dst);
+    return Create(src, dst, common.getInput(0));
 }
 
 void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {

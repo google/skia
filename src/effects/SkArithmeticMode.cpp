@@ -47,6 +47,7 @@ private:
         fEnforcePMColor = enforcePMColor;
     }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkArithmeticMode_scalar(SkReadBuffer& buffer) : INHERITED(buffer) {
         fK[0] = buffer.readScalar();
         fK[1] = buffer.readScalar();
@@ -54,9 +55,9 @@ private:
         fK[3] = buffer.readScalar();
         fEnforcePMColor = buffer.readBool();
     }
+#endif
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
-        INHERITED::flatten(buffer);
         buffer.writeScalar(fK[0]);
         buffer.writeScalar(fK[1]);
         buffer.writeScalar(fK[2]);
@@ -66,8 +67,19 @@ private:
     SkScalar fK[4];
     bool fEnforcePMColor;
 
+    friend class SkArithmeticMode;
+
     typedef SkXfermode INHERITED;
 };
+
+SkFlattenable* SkArithmeticMode_scalar::CreateProc(SkReadBuffer& buffer) {
+    const SkScalar k1 = buffer.readScalar();
+    const SkScalar k2 = buffer.readScalar();
+    const SkScalar k3 = buffer.readScalar();
+    const SkScalar k4 = buffer.readScalar();
+    const bool enforcePMColor = buffer.readBool();
+    return Create(k1, k2, k3, k4, enforcePMColor);
+}
 
 static int pinToByte(int value) {
     if (value < 0) {

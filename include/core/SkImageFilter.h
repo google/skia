@@ -205,12 +205,22 @@ protected:
         Common() {}
         ~Common();
 
-        bool unflatten(SkReadBuffer&, int expectedInputs = -1);
+        /**
+         *  Attempt to unflatten the cropRect and the expected number of input filters.
+         *  If any number of input filters is valid, pass -1.
+         *  If this fails (i.e. corrupt buffer or contents) then return false and common will
+         *  be left uninitialized.
+         *  If this returns true, then inputCount() is the number of found input filters, each
+         *  of which may be NULL or a valid imagefilter.
+         */
+        bool unflatten(SkReadBuffer&, int expectedInputs);
 
-        CropRect        cropRect() const { return fCropRect; }
+        const CropRect& cropRect() const { return fCropRect; }
         int             inputCount() const { return fInputs.count(); }
         SkImageFilter** inputs() const { return fInputs.get(); }
         uint32_t        uniqueID() const { return fUniqueID; }
+
+        SkImageFilter*  getInput(int index) const { return fInputs[index]; }
 
         // If the caller wants a copy of the inputs, call this and it will transfer ownership
         // of the unflattened input filters to the caller. This is just a short-cut for copying
@@ -240,7 +250,7 @@ protected:
      */
     explicit SkImageFilter(int inputCount, SkReadBuffer& rb);
 
-    virtual void flatten(SkWriteBuffer& wb) const SK_OVERRIDE;
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     /**
      *  This is the virtual which should be overridden by the derived class
@@ -319,5 +329,16 @@ private:
     CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
 };
+
+/**
+ *  Helper to unflatten the common data, and return NULL if we fail.
+ */
+#define SK_IMAGEFILTER_UNFLATTEN_COMMON(localVar, expectedCount)    \
+    Common localVar;                                                \
+    do {                                                            \
+        if (!localVar.unflatten(buffer, expectedCount)) {           \
+            return NULL;                                            \
+        }                                                           \
+    } while (0)
 
 #endif

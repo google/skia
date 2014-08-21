@@ -41,7 +41,9 @@ protected:
     SkMatrixImageFilter(const SkMatrix& transform,
                         SkPaint::FilterLevel,
                         SkImageFilter* input);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkMatrixImageFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

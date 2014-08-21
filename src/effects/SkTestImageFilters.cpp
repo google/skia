@@ -71,14 +71,20 @@ bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     return true;
 }
 
+SkFlattenable* SkDownSampleImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    return Create(buffer.readScalar(), common.getInput(0));
+}
+
 void SkDownSampleImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-
     buffer.writeScalar(fScale);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkDownSampleImageFilter::SkDownSampleImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fScale = buffer.readScalar();
     buffer.validate(SkScalarIsFinite(fScale));
 }
+#endif

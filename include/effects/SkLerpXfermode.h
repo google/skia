@@ -32,7 +32,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLerpXfermode)
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkLerpXfermode(SkReadBuffer&);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

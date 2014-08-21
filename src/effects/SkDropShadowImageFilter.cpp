@@ -27,6 +27,7 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy,
 {
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkDropShadowImageFilter::SkDropShadowImageFilter(SkReadBuffer& buffer)
  : INHERITED(1, buffer) {
     fDx = buffer.readScalar();
@@ -39,9 +40,19 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkReadBuffer& buffer)
                     SkScalarIsFinite(fSigmaX) &&
                     SkScalarIsFinite(fSigmaY));
 }
+#endif
 
-void SkDropShadowImageFilter::flatten(SkWriteBuffer& buffer) const
-{
+SkFlattenable* SkDropShadowImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    SkScalar dx = buffer.readScalar();
+    SkScalar dy = buffer.readScalar();
+    SkScalar sigmaX = buffer.readScalar();
+    SkScalar sigmaY = buffer.readScalar();
+    SkColor color = buffer.readColor();
+    return Create(dx, dy, sigmaX, sigmaY, color, common.getInput(0), &common.cropRect());
+}
+
+void SkDropShadowImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fDx);
     buffer.writeScalar(fDy);

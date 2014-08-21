@@ -41,16 +41,17 @@ SkColorFilter* SkLumaColorFilter::Create() {
     return SkNEW(SkLumaColorFilter);
 }
 
-SkLumaColorFilter::SkLumaColorFilter()
-    : INHERITED() {
+SkLumaColorFilter::SkLumaColorFilter() : INHERITED() {}
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkLumaColorFilter::SkLumaColorFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
+
+SkFlattenable* SkLumaColorFilter::CreateProc(SkReadBuffer&) {
+    return SkNEW(SkLumaColorFilter);
 }
 
-SkLumaColorFilter::SkLumaColorFilter(SkReadBuffer& buffer)
-    : INHERITED(buffer) {
-}
-
-void SkLumaColorFilter::flatten(SkWriteBuffer&) const {
-}
+void SkLumaColorFilter::flatten(SkWriteBuffer&) const {}
 
 #ifndef SK_IGNORE_TO_STRING
 void SkLumaColorFilter::toString(SkString* str) const {

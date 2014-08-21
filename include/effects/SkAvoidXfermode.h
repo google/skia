@@ -54,12 +54,15 @@ public:
 
 protected:
     SkAvoidXfermode(SkColor opColor, U8CPU tolerance, Mode mode);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkAvoidXfermode(SkReadBuffer&);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkColor     fOpColor;
-    uint32_t    fDistMul;   // x.14
+    uint32_t    fDistMul;   // x.14 cached from fTolerance
+    uint8_t     fTolerance;
     Mode        fMode;
 
     typedef SkXfermode INHERITED;

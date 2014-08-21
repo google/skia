@@ -108,6 +108,8 @@ private:
         return SkMinScalar(xformedSigma, kMAX_BLUR_SIGMA);
     }
 
+    friend class SkBlurMaskFilter;
+
     typedef SkMaskFilter INHERITED;
 };
 
@@ -522,19 +524,29 @@ void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
              src.fRight + pad, src.fBottom + pad);
 }
 
-SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkReadBuffer& buffer)
-        : SkMaskFilter(buffer) {
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkReadBuffer& buffer) : SkMaskFilter(buffer) {
     fSigma = buffer.readScalar();
     fBlurStyle = (SkBlurStyle)buffer.readInt();
     fBlurFlags = buffer.readUInt() & SkBlurMaskFilter::kAll_BlurFlag;
     SkASSERT(fSigma > 0);
     SkASSERT((unsigned)fBlurStyle <= kLastEnum_SkBlurStyle);
 }
+#endif
+
+SkFlattenable* SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
+    const SkScalar sigma = buffer.readScalar();
+    const unsigned style = buffer.readUInt();
+    const unsigned flags = buffer.readUInt();
+    if (style <= kLastEnum_SkBlurStyle) {
+        return SkBlurMaskFilter::Create((SkBlurStyle)style, sigma, flags);
+    }
+    return NULL;
+}
 
 void SkBlurMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
     buffer.writeScalar(fSigma);
-    buffer.writeInt(fBlurStyle);
+    buffer.writeUInt(fBlurStyle);
     buffer.writeUInt(fBlurFlags);
 }
 

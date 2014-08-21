@@ -90,13 +90,15 @@ protected:
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     Dot2DPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
         fRadius = buffer.readScalar();
         fPts = NULL;
     }
+#endif
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
-        this->INHERITED::flatten(buffer);
+        buffer.writeMatrix(this->getMatrix());
         buffer.writeScalar(fRadius);
     }
 
@@ -106,6 +108,12 @@ private:
 
     typedef Sk2DPathEffect INHERITED;
 };
+
+SkFlattenable* Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
+    SkMatrix matrix;
+    buffer.readMatrix(&matrix);
+    return SkNEW_ARGS(Dot2DPathEffect, (buffer.readScalar(), matrix, NULL));
+}
 
 class InverseFillPE : public SkPathEffect {
 public:
@@ -119,11 +127,18 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(InverseFillPE)
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     InverseFillPE(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
+
 private:
 
     typedef SkPathEffect INHERITED;
 };
+
+SkFlattenable* InverseFillPE::CreateProc(SkReadBuffer& buffer) {
+    return SkNEW(InverseFillPE);
+}
 
 static SkPathEffect* makepe(float interp, SkTDArray<SkPoint>* pts) {
     SkMatrix    lattice;

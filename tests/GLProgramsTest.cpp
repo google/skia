@@ -274,7 +274,7 @@ void forceLinking();
 void forceLinking() {
     SkLightingImageFilter::CreateDistantLitDiffuse(SkPoint3(0,0,0), 0, 0, 0);
     SkAlphaThresholdFilter::Create(SkRegion(), .5f, .5f);
-    SkAutoTUnref<SkMagnifierImageFilter> mag(SkMagnifierImageFilter::Create(
+    SkAutoTUnref<SkImageFilter> mag(SkMagnifierImageFilter::Create(
         SkRect::MakeWH(SK_Scalar1, SK_Scalar1), SK_Scalar1));
     GrConfigConversionEffect::Create(NULL,
                                      false,

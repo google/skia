@@ -461,7 +461,9 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkShader(SkReadBuffer& );
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     bool computeTotalInverse(const ContextRec&, SkMatrix* totalInverse) const;

@@ -1240,6 +1240,7 @@ GrEffect* XferEffect::TestCreate(SkRandom* rand,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkProcCoeffXfermode::SkProcCoeffXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {
     uint32_t mode32 = buffer.read32() % SK_ARRAY_COUNT(gProcCoeffs);
     if (mode32 >= SK_ARRAY_COUNT(gProcCoeffs)) {
@@ -1253,6 +1254,19 @@ SkProcCoeffXfermode::SkProcCoeffXfermode(SkReadBuffer& buffer) : INHERITED(buffe
     // these may be valid, or may be CANNOT_USE_COEFF
     fSrcCoeff = rec.fSC;
     fDstCoeff = rec.fDC;
+}
+#endif
+
+SkFlattenable* SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
+    uint32_t mode32 = buffer.read32();
+    if (!buffer.validate(mode32 >= SK_ARRAY_COUNT(gProcCoeffs))) {
+        return NULL;
+    }
+    return SkXfermode::Create((SkXfermode::Mode)mode32);
+}
+
+void SkProcCoeffXfermode::flatten(SkWriteBuffer& buffer) const {
+    buffer.write32(fMode);
 }
 
 bool SkProcCoeffXfermode::asMode(Mode* mode) const {
@@ -1376,11 +1390,6 @@ bool SkProcCoeffXfermode::asNewEffect(GrEffect** effect, GrTexture* background) 
 }
 #endif
 
-void SkProcCoeffXfermode::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    buffer.write32(fMode);
-}
-
 const char* SkXfermode::ModeName(Mode mode) {
     SkASSERT((unsigned) mode <= (unsigned)kLastMode);
     const char* gModeStrings[] = {
@@ -1433,12 +1442,12 @@ public:
     virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkClearXfermode)
 
 private:
     SkClearXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kClear_Mode) {}
-    SkClearXfermode(SkReadBuffer& buffer)
-        : SkProcCoeffXfermode(buffer) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    SkClearXfermode(SkReadBuffer& buffer) : SkProcCoeffXfermode(buffer) {}
+#endif
 
     typedef SkProcCoeffXfermode INHERITED;
 };
@@ -1498,13 +1507,12 @@ public:
     virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSrcXfermode)
 
 private:
     SkSrcXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kSrc_Mode) {}
-    SkSrcXfermode(SkReadBuffer& buffer)
-        : SkProcCoeffXfermode(buffer) {}
-
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    SkSrcXfermode(SkReadBuffer& buffer) : SkProcCoeffXfermode(buffer) {}
+#endif
     typedef SkProcCoeffXfermode INHERITED;
 };
 
@@ -1567,11 +1575,12 @@ public:
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstInXfermode)
 
 private:
     SkDstInXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstIn_Mode) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkDstInXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
 
     typedef SkProcCoeffXfermode INHERITED;
 };
@@ -1613,12 +1622,12 @@ public:
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstOutXfermode)
 
 private:
     SkDstOutXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstOut_Mode) {}
-    SkDstOutXfermode(SkReadBuffer& buffer)
-        : INHERITED(buffer) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    SkDstOutXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
 
     typedef SkProcCoeffXfermode INHERITED;
 };
@@ -1692,7 +1701,7 @@ SkXfermode* create_mode(int iMode) {
                 break;
             default:
                 // no special-case, just rely in the rec and its function-ptrs
-                xfer = SkProcCoeffXfermode::Create(rec, mode);
+                xfer = SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
                 break;
         }
     }
@@ -1952,14 +1961,4 @@ SkXfermodeProc16 SkXfermode::GetProc16(Mode mode, SkColor srcColor) {
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkProcCoeffXfermode)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkClearXfermode)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSrcXfermode)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDstInXfermode)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDstOutXfermode)
-#if !SK_ARM_NEON_IS_NONE
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkNEONProcCoeffXfermode)
-#endif
-#if defined(SK_CPU_X86) && !defined(SK_BUILD_FOR_IOS)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSSE2ProcCoeffXfermode)
-#endif
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END

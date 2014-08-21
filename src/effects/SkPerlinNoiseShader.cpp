@@ -287,9 +287,8 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkPerlinNoiseShader::Type type,
     SkASSERT(numOctaves >= 0 && numOctaves < 256);
 }
 
-SkPerlinNoiseShader::SkPerlinNoiseShader(SkReadBuffer& buffer)
-    : INHERITED(buffer)
-{
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkPerlinNoiseShader::SkPerlinNoiseShader(SkReadBuffer& buffer) : INHERITED(buffer) {
     fType           = (SkPerlinNoiseShader::Type) buffer.readInt();
     fBaseFrequencyX = buffer.readScalar();
     fBaseFrequencyY = buffer.readScalar();
@@ -302,18 +301,37 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkReadBuffer& buffer)
                     (fNumOctaves >= 0) && (fNumOctaves <= 255) &&
                     (fStitchTiles != fTileSize.isEmpty()));
 }
+#endif
 
 SkPerlinNoiseShader::~SkPerlinNoiseShader() {
 }
 
+SkFlattenable* SkPerlinNoiseShader::CreateProc(SkReadBuffer& buffer) {
+    Type type = (Type)buffer.readInt();
+    SkScalar freqX = buffer.readScalar();
+    SkScalar freqY = buffer.readScalar();
+    int octaves = buffer.readInt();
+    SkScalar seed = buffer.readScalar();
+    SkISize tileSize;
+    tileSize.fWidth = buffer.readInt();
+    tileSize.fHeight = buffer.readInt();
+
+    switch (type) {
+        case kFractalNoise_Type:
+            return SkPerlinNoiseShader::CreateFractalNoise(freqX, freqY, octaves, seed, &tileSize);
+        case kTurbulence_Type:
+            return SkPerlinNoiseShader::CreateTubulence(freqX, freqY, octaves, seed, &tileSize);
+        default:
+            return NULL;
+    }
+}
+
 void SkPerlinNoiseShader::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
     buffer.writeInt((int) fType);
     buffer.writeScalar(fBaseFrequencyX);
     buffer.writeScalar(fBaseFrequencyY);
     buffer.writeInt(fNumOctaves);
     buffer.writeScalar(fSeed);
-    buffer.writeBool(fStitchTiles);
     buffer.writeInt(fTileSize.fWidth);
     buffer.writeInt(fTileSize.fHeight);
 }

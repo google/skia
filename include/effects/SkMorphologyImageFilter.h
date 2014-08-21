@@ -34,7 +34,9 @@ protected:
     bool filterImageGeneric(Proc procX, Proc procY,
                             Proxy*, const SkBitmap& src, const Context&,
                             SkBitmap* result, SkIPoint* offset) const;
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkMorphologyImageFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
     virtual bool canFilterImageGPU() const SK_OVERRIDE { return true; }
@@ -55,6 +57,9 @@ public:
     static SkDilateImageFilter* Create(int radiusX, int radiusY,
                                        SkImageFilter* input = NULL,
                                        const CropRect* cropRect = NULL) {
+        if (radiusX < 0 || radiusY < 0) {
+            return NULL;
+        }
         return SkNEW_ARGS(SkDilateImageFilter, (radiusX, radiusY, input, cropRect));
     }
 
@@ -70,7 +75,9 @@ public:
 protected:
     SkDilateImageFilter(int radiusX, int radiusY, SkImageFilter* input, const CropRect* cropRect)
         : INHERITED(radiusX, radiusY, input, cropRect) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkDilateImageFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
 
 private:
     typedef SkMorphologyImageFilter INHERITED;
@@ -81,6 +88,9 @@ public:
     static SkErodeImageFilter* Create(int radiusX, int radiusY,
                                       SkImageFilter* input = NULL,
                                       const CropRect* cropRect = NULL) {
+        if (radiusX < 0 || radiusY < 0) {
+            return NULL;
+        }
         return SkNEW_ARGS(SkErodeImageFilter, (radiusX, radiusY, input, cropRect));
     }
 
@@ -96,7 +106,9 @@ public:
 protected:
     SkErodeImageFilter(int radiusX, int radiusY, SkImageFilter* input, const CropRect* cropRect)
         : INHERITED(radiusX, radiusY, input, cropRect) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkErodeImageFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
 
 private:
     typedef SkMorphologyImageFilter INHERITED;

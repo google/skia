@@ -248,7 +248,7 @@ private:
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t MIN_PICTURE_VERSION = 19;
-    static const uint32_t CURRENT_PICTURE_VERSION = 32;
+    static const uint32_t CURRENT_PICTURE_VERSION = 33;
 
     mutable uint32_t      fUniqueID;
 

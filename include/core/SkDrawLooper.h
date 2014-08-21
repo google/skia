@@ -114,7 +114,9 @@ public:
 
 protected:
     SkDrawLooper() {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkDrawLooper(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
 
 private:
     typedef SkFlattenable INHERITED;

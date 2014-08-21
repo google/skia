@@ -217,7 +217,9 @@ public:
 
 protected:
     SkXfermode() {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkXfermode(SkReadBuffer& rb) : SkFlattenable(rb) {}
+#endif
 
     /** The default implementation of xfer32/xfer16/xferA8 in turn call this
         method, 1 color at a time (upscaled to a SkPMColor). The default

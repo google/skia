@@ -8,6 +8,13 @@
 class SK_API SkDownSampleImageFilter : public SkImageFilter {
 public:
     static SkDownSampleImageFilter* Create(SkScalar scale, SkImageFilter* input = NULL) {
+        if (!SkScalarIsFinite(scale)) {
+            return NULL;
+        }
+        // we don't support scale in this range
+        if (scale > SK_Scalar1 || scale <= 0) {
+            return NULL;
+        }
         return SkNEW_ARGS(SkDownSampleImageFilter, (scale, input));
     }
 
@@ -16,7 +23,9 @@ public:
 protected:
     SkDownSampleImageFilter(SkScalar scale, SkImageFilter* input)
       : INHERITED(1, &input), fScale(scale) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkDownSampleImageFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

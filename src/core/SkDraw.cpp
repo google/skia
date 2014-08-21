@@ -2019,11 +2019,9 @@ public:
     };
 
     SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTriColorShader)
+    SK_DECLARE_NOT_FLATTENABLE_PROCS(SkTriColorShader)
 
 protected:
-    SkTriColorShader(SkReadBuffer& buffer) : SkShader(buffer) {}
-
     virtual Context* onCreateContext(const ContextRec& rec, void* storage) const SK_OVERRIDE {
         return SkNEW_PLACEMENT_ARGS(storage, TriColorShaderContext, (*this, rec));
     }

@@ -41,9 +41,21 @@ SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
     return kSweep_GradientType;
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkSweepGradient::SkSweepGradient(SkReadBuffer& buffer)
     : INHERITED(buffer),
       fCenter(buffer.readPoint()) {
+}
+#endif
+
+SkFlattenable* SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
+    DescriptorScope desc;
+    if (!desc.unflatten(buffer)) {
+        return NULL;
+    }
+    const SkPoint center = buffer.readPoint();
+    return SkGradientShader::CreateSweep(center.x(), center.y(), desc.fColors, desc.fPos,
+                                         desc.fCount, desc.fGradFlags, desc.fLocalMatrix);
 }
 
 void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {

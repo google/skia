@@ -159,6 +159,22 @@ bool channel_selector_type_is_valid(SkDisplacementMapEffect::ChannelSelectorType
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkDisplacementMapEffect* SkDisplacementMapEffect::Create(ChannelSelectorType xChannelSelector,
+                                                         ChannelSelectorType yChannelSelector,
+                                                         SkScalar scale,
+                                                         SkImageFilter* displacement,
+                                                         SkImageFilter* color,
+                                                         const CropRect* cropRect) {
+    if (!channel_selector_type_is_valid(xChannelSelector) ||
+        !channel_selector_type_is_valid(yChannelSelector)) {
+        return NULL;
+    }
+
+    SkImageFilter* inputs[2] = { displacement, color };
+    return SkNEW_ARGS(SkDisplacementMapEffect, (xChannelSelector, yChannelSelector, scale,
+                                                inputs, cropRect));
+}
+
 SkDisplacementMapEffect::SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
                                                  ChannelSelectorType yChannelSelector,
                                                  SkScalar scale,
@@ -174,6 +190,7 @@ SkDisplacementMapEffect::SkDisplacementMapEffect(ChannelSelectorType xChannelSel
 SkDisplacementMapEffect::~SkDisplacementMapEffect() {
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkDisplacementMapEffect::SkDisplacementMapEffect(SkReadBuffer& buffer)
   : INHERITED(2, buffer)
 {
@@ -183,6 +200,15 @@ SkDisplacementMapEffect::SkDisplacementMapEffect(SkReadBuffer& buffer)
     buffer.validate(channel_selector_type_is_valid(fXChannelSelector) &&
                     channel_selector_type_is_valid(fYChannelSelector) &&
                     SkScalarIsFinite(fScale));
+}
+#endif
+
+SkFlattenable* SkDisplacementMapEffect::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
+    ChannelSelectorType xsel = (ChannelSelectorType)buffer.readInt();
+    ChannelSelectorType ysel = (ChannelSelectorType)buffer.readInt();
+    SkScalar scale = buffer.readScalar();
+    return Create(xsel, ysel, scale, common.getInput(0), common.getInput(1), &common.cropRect());
 }
 
 void SkDisplacementMapEffect::flatten(SkWriteBuffer& buffer) const {

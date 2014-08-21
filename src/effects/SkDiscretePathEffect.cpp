@@ -75,15 +75,24 @@ bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
     return true;
 }
 
+SkFlattenable* SkDiscretePathEffect::CreateProc(SkReadBuffer& buffer) {
+    SkScalar segLength = buffer.readScalar();
+    SkScalar perterb = buffer.readScalar();
+    uint32_t seed = buffer.readUInt();
+    return Create(segLength, perterb, seed);
+}
+
 void SkDiscretePathEffect::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
     buffer.writeScalar(fSegLength);
     buffer.writeScalar(fPerterb);
     buffer.writeUInt(fSeedAssist);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkDiscretePathEffect::SkDiscretePathEffect(SkReadBuffer& buffer) {
     fSegLength = buffer.readScalar();
     fPerterb = buffer.readScalar();
     fSeedAssist = buffer.readUInt();
 }
+#endif
+

@@ -51,13 +51,13 @@ public:
 
     virtual DashType asADash(DashInfo* info) const SK_OVERRIDE;
 
-    virtual Factory getFactory() const SK_OVERRIDE;
-
-    static SkFlattenable* CreateProc(SkReadBuffer&);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDashPathEffect)
 
 protected:
     SkDashPathEffect(const SkScalar intervals[], int count, SkScalar phase);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkDashPathEffect(SkReadBuffer&);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

@@ -58,6 +58,7 @@ private:
 
     void init();
 
+    friend class SkGradientShader;
     typedef SkGradientShaderBase INHERITED;
 };
 

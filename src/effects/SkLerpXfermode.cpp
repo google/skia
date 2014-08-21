@@ -23,14 +23,18 @@ SkXfermode* SkLerpXfermode::Create(SkScalar scale) {
 
 SkLerpXfermode::SkLerpXfermode(unsigned scale256) : fScale256(scale256) {}
 
-SkLerpXfermode::SkLerpXfermode(SkReadBuffer& buffer)
-    : INHERITED(buffer) {
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkLerpXfermode::SkLerpXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {
     fScale256 = buffer.readUInt();
 }
+#endif
 
 void SkLerpXfermode::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
     buffer.writeUInt(fScale256);
+}
+
+SkFlattenable* SkLerpXfermode::CreateProc(SkReadBuffer& buffer) {
+    return SkNEW_ARGS(SkLerpXfermode, (buffer.readUInt()));
 }
 
 void SkLerpXfermode::xfer32(SkPMColor dst[], const SkPMColor src[], int count,

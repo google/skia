@@ -95,6 +95,29 @@ public:
         int                 fCount;
         SkShader::TileMode  fTileMode;
         uint32_t            fGradFlags;
+
+        void flatten(SkWriteBuffer&) const;
+    };
+
+    class DescriptorScope : public Descriptor {
+    public:
+        DescriptorScope() {}
+        
+        bool unflatten(SkReadBuffer&);
+
+        // fColors and fPos always point into local memory, so they can be safely mutated
+        //
+        SkColor* mutableColors() { return const_cast<SkColor*>(fColors); }
+        SkScalar* mutablePos() { return const_cast<SkScalar*>(fPos); }
+
+    private:
+        enum {
+            kStorageCount = 16
+        };
+        SkColor fColorStorage[kStorageCount];
+        SkScalar fPosStorage[kStorageCount];
+        SkMatrix fLocalMatrixStorage;
+        SkAutoMalloc fDynamicStorage;
     };
 
 public:
@@ -234,10 +257,11 @@ private:
     enum {
         kColorStorageCount = 4, // more than this many colors, and we'll use sk_malloc for the space
 
-        kStorageSize = kColorStorageCount * (sizeof(SkColor) + sizeof(Rec))
+        kStorageSize = kColorStorageCount * (sizeof(SkColor) + sizeof(SkScalar) + sizeof(Rec))
     };
     SkColor     fStorage[(kStorageSize + 3) >> 2];
     SkColor*    fOrigColors; // original colors, before modulation by paint in context.
+    SkScalar*   fOrigPos;   // original positions
     bool        fColorsAreOpaque;
 
     GradientShaderCache* refCache(U8CPU alpha) const;

@@ -31,9 +31,17 @@ SkXfermodeImageFilter::~SkXfermodeImageFilter() {
     SkSafeUnref(fMode);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkXfermodeImageFilter::SkXfermodeImageFilter(SkReadBuffer& buffer)
   : INHERITED(2, buffer) {
     fMode = buffer.readXfermode();
+}
+#endif
+
+SkFlattenable* SkXfermodeImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
+    SkAutoTUnref<SkXfermode> mode(buffer.readXfermode());
+    return Create(mode, common.getInput(0), common.getInput(1), &common.cropRect());
 }
 
 void SkXfermodeImageFilter::flatten(SkWriteBuffer& buffer) const {

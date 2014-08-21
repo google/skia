@@ -32,7 +32,9 @@ public:
 
 protected:
     SkRasterizer() {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkRasterizer(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
 
     virtual bool onRasterize(const SkPath& path, const SkMatrix& matrix,
                              const SkIRect* clipBounds,

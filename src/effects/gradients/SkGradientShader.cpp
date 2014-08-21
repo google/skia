@@ -12,6 +12,61 @@
 #include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
 
+void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeColorArray(fColors, fCount);
+    if (fPos) {
+        buffer.writeBool(true);
+        buffer.writeScalarArray(fPos, fCount);
+    } else {
+        buffer.writeBool(false);
+    }
+    buffer.write32(fTileMode);
+    buffer.write32(fGradFlags);
+    if (fLocalMatrix) {
+        buffer.writeBool(true);
+        buffer.writeMatrix(*fLocalMatrix);
+    } else {
+        buffer.writeBool(false);
+    }
+}
+
+bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
+    fCount = buffer.getArrayCount();
+    if (fCount > kStorageCount) {
+        size_t allocSize = (sizeof(SkColor) + sizeof(SkScalar)) * fCount;
+        fDynamicStorage.reset(allocSize);
+        fColors = (SkColor*)fDynamicStorage.get();
+        fPos = (SkScalar*)(fColors + fCount);
+    } else {
+        fColors = fColorStorage;
+        fPos = fPosStorage;
+    }
+
+    if (!buffer.readColorArray(const_cast<SkColor*>(fColors), fCount)) {
+        return false;
+    }
+    if (buffer.readBool()) {
+        if (!buffer.readScalarArray(const_cast<SkScalar*>(fPos), fCount)) {
+            return false;
+        }
+    } else {
+        fPos = NULL;
+    }
+
+    fTileMode = (SkShader::TileMode)buffer.read32();
+    fGradFlags = buffer.read32();
+
+    if (buffer.readBool()) {
+        fLocalMatrix = &fLocalMatrixStorage;
+        buffer.readMatrix(&fLocalMatrixStorage);
+    } else {
+        fLocalMatrix = NULL;
+    }
+    return buffer.isValid();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc)
     : INHERITED(desc.fLocalMatrix)
 {
@@ -47,6 +102,9 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc)
 
     if (fColorCount > kColorStorageCount) {
         size_t size = sizeof(SkColor) + sizeof(Rec);
+        if (desc.fPos) {
+            size += sizeof(SkScalar);
+        }
         fOrigColors = reinterpret_cast<SkColor*>(
                                         sk_malloc_throw(size * fColorCount));
     }
@@ -67,13 +125,23 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc)
         }
     }
 
-    fRecs = (Rec*)(fOrigColors + fColorCount);
+    if (desc.fPos && fColorCount) {
+        fOrigPos = (SkScalar*)(fOrigColors + fColorCount);
+        fRecs = (Rec*)(fOrigPos + fColorCount);
+    } else {
+        fOrigPos = NULL;
+        fRecs = (Rec*)(fOrigColors + fColorCount);
+    }
+
     if (fColorCount > 2) {
         Rec* recs = fRecs;
         recs->fPos = 0;
         //  recs->fScale = 0; // unused;
         recs += 1;
         if (desc.fPos) {
+            SkScalar* origPosPtr = fOrigPos;
+            *origPosPtr++ = 0;
+
             /*  We need to convert the user's array of relative positions into
                 fixed-point positions and scale factors. We need these results
                 to be strictly monotonic (no two values equal or out of order).
@@ -81,26 +149,22 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc)
                 value if it sees a segment out of order, and it assures that
                 we start at 0 and end at 1.0
             */
-            SkFixed prev = 0;
+            SkScalar prev = 0;
             int startIndex = dummyFirst ? 0 : 1;
             int count = desc.fCount + dummyLast;
             for (int i = startIndex; i < count; i++) {
                 // force the last value to be 1.0
-                SkFixed curr;
+                SkScalar curr;
                 if (i == desc.fCount) {  // we're really at the dummyLast
-                    curr = SK_Fixed1;
+                    curr = 1;
                 } else {
-                    curr = SkScalarToFixed(desc.fPos[i]);
+                    curr = SkScalarPin(desc.fPos[i], 0, 1);
                 }
-                // pin curr withing range
-                if (curr < 0) {
-                    curr = 0;
-                } else if (curr > SK_Fixed1) {
-                    curr = SK_Fixed1;
-                }
-                recs->fPos = curr;
+                *origPosPtr++ = curr;
+                
+                recs->fPos = SkScalarToFixed(curr);
                 if (curr > prev) {
-                    recs->fScale = (1 << 24) / (curr - prev);
+                    recs->fScale = (1 << 24) / SkScalarToFixed(curr - prev);
                 } else {
                     recs->fScale = 0; // ignore this segment
                 }
@@ -109,6 +173,8 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc)
                 recs += 1;
             }
         } else {    // assume even distribution
+            fOrigPos = NULL;
+
             SkFixed dp = SK_Fixed1 / (desc.fCount - 1);
             SkFixed p = dp;
             SkFixed scale = (desc.fCount - 1) << 8;  // (1 << 24) / dp
@@ -121,16 +187,18 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc)
             recs->fPos = SK_Fixed1;
             recs->fScale = scale;
         }
+    } else if (desc.fPos) {
+        SkASSERT(2 == fColorCount);
+        fOrigPos[0] = SkScalarPin(desc.fPos[0], 0, 1);
+        fOrigPos[1] = SkScalarPin(desc.fPos[1], fOrigPos[0], 1);
+        if (0 == fOrigPos[0] && 1 == fOrigPos[1]) {
+            fOrigPos = NULL;
+        }
     }
     this->initCommon();
 }
 
-static uint32_t pack_mode_flags(SkShader::TileMode mode, uint32_t flags) {
-    SkASSERT(0 == (flags >> 28));
-    SkASSERT(0 == ((uint32_t)mode >> 4));
-    return (flags << 4) | mode;
-}
-
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 static SkShader::TileMode unpack_mode(uint32_t packed) {
     return (SkShader::TileMode)(packed & 0xF);
 }
@@ -177,6 +245,7 @@ SkGradientShaderBase::SkGradientShaderBase(SkReadBuffer& buffer) : INHERITED(buf
     buffer.readMatrix(&fPtsToUnit);
     this->initCommon();
 }
+#endif
 
 SkGradientShaderBase::~SkGradientShaderBase() {
     if (fOrigColors != fStorage) {
@@ -193,17 +262,16 @@ void SkGradientShaderBase::initCommon() {
 }
 
 void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    buffer.writeColorArray(fOrigColors, fColorCount);
-    buffer.writeUInt(pack_mode_flags(fTileMode, fGradFlags));
-    if (fColorCount > 2) {
-        Rec* recs = fRecs;
-        for (int i = 1; i < fColorCount; i++) {
-            buffer.writeInt(recs[i].fPos);
-            buffer.writeUInt(recs[i].fScale);
-        }
-    }
-    buffer.writeMatrix(fPtsToUnit);
+    Descriptor desc;
+    desc.fColors = fOrigColors;
+    desc.fPos = fOrigPos;
+    desc.fCount = fColorCount;
+    desc.fTileMode = fTileMode;
+    desc.fGradFlags = fGradFlags;
+
+    const SkMatrix& m = this->getLocalMatrix();
+    desc.fLocalMatrix = m.isIdentity() ? NULL : &m;
+    desc.flatten(buffer);
 }
 
 SkGradientShaderBase::GpuColorType SkGradientShaderBase::getGpuColorType(SkColor colors[3]) const {

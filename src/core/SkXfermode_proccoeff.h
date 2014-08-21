@@ -15,10 +15,14 @@ struct ProcCoeff {
 
 class SK_API SkProcCoeffXfermode : public SkXfermode {
 public:
-    static SkProcCoeffXfermode* Create(const ProcCoeff& rec, Mode mode) {
-        return SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
+    SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode) {
+        fMode = mode;
+        fProc = rec.fProc;
+        // these may be valid, or may be CANNOT_USE_COEFF
+        fSrcCoeff = rec.fSC;
+        fDstCoeff = rec.fDC;
     }
-
+    
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const SK_OVERRIDE;
     virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
@@ -39,15 +43,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
 protected:
-    SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode) {
-        fMode = mode;
-        fProc = rec.fProc;
-        // these may be valid, or may be CANNOT_USE_COEFF
-        fSrcCoeff = rec.fSC;
-        fDstCoeff = rec.fDC;
-    }
-
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkProcCoeffXfermode(SkReadBuffer& buffer);
+#endif
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
@@ -59,6 +57,8 @@ private:
     SkXfermodeProc  fProc;
     Mode            fMode;
     Coeff           fSrcCoeff, fDstCoeff;
+
+    friend class SkXfermode;
 
     typedef SkXfermode INHERITED;
 };

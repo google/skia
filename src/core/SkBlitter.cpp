@@ -714,19 +714,17 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk3DShader)
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     Sk3DShader(SkReadBuffer& buffer) : INHERITED(buffer) {
         fProxy = buffer.readShader();
         // Leaving this here until we bump the picture version, though this
         // shader should never be recorded.
         buffer.readColor();
     }
+#endif
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
-        this->INHERITED::flatten(buffer);
         buffer.writeFlattenable(fProxy);
-        // Leaving this here until we bump the picture version, though this
-        // shader should never be recorded.
-        buffer.writeColor(SkColor());
     }
 
 private:
@@ -734,6 +732,11 @@ private:
 
     typedef SkShader INHERITED;
 };
+
+SkFlattenable* Sk3DShader::CreateProc(SkReadBuffer& buffer) {
+    SkAutoTUnref<SkShader> shader(buffer.readShader());
+    return SkNEW_ARGS(Sk3DShader, (shader));
+}
 
 class Sk3DBlitter : public SkBlitter {
 public:

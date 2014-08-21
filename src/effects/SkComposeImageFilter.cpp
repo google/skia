@@ -21,14 +21,6 @@ bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
     SkImageFilter* outer = getInput(0);
     SkImageFilter* inner = getInput(1);
 
-    if (!outer && !inner) {
-        return false;
-    }
-
-    if (!outer || !inner) {
-        return (outer ? outer : inner)->filterImage(proxy, src, ctx, result, offset);
-    }
-
     SkBitmap tmp;
     return inner->filterImage(proxy, src, ctx, &tmp, offset) &&
            outer->filterImage(proxy, tmp, ctx, result, offset);
@@ -40,19 +32,17 @@ bool SkComposeImageFilter::onFilterBounds(const SkIRect& src,
     SkImageFilter* outer = getInput(0);
     SkImageFilter* inner = getInput(1);
 
-    if (!outer && !inner) {
-        return false;
-    }
-
-    if (!outer || !inner) {
-        return (outer ? outer : inner)->filterBounds(src, ctm, dst);
-    }
-
     SkIRect tmp;
-    return inner->filterBounds(src, ctm, &tmp) &&
-           outer->filterBounds(tmp, ctm, dst);
+    return inner->filterBounds(src, ctm, &tmp) && outer->filterBounds(tmp, ctm, dst);
 }
 
+SkFlattenable* SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
+    return SkComposeImageFilter::Create(common.getInput(0), common.getInput(1));
+}
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkComposeImageFilter::SkComposeImageFilter(SkReadBuffer& buffer)
   : INHERITED(2, buffer) {
 }
+#endif

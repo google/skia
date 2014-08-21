@@ -75,11 +75,11 @@ void SkImageFilter::Common::detachInputs(SkImageFilter** inputs) {
 }
 
 bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
-    int count = buffer.readInt();
-    if (expectedCount < 0) {    // means the caller doesn't care how many
-        expectedCount = count;
+    const int count = buffer.readInt();
+    if (!buffer.validate(count >= 0)) {
+        return false;
     }
-    if (!buffer.validate((count == expectedCount) && (count >= 0))) {
+    if (!buffer.validate(expectedCount < 0 || count == expectedCount)) {
         return false;
     }
 

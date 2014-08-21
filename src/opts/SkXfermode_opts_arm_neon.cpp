@@ -743,10 +743,11 @@ typedef uint8x8x4_t (*SkXfermodeProcSIMD)(uint8x8x4_t src, uint8x8x4_t dst);
 
 extern SkXfermodeProcSIMD gNEONXfermodeProcs[];
 
-SkNEONProcCoeffXfermode::SkNEONProcCoeffXfermode(SkReadBuffer& buffer)
-        : INHERITED(buffer) {
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkNEONProcCoeffXfermode::SkNEONProcCoeffXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {
     fProcSIMD = reinterpret_cast<void*>(gNEONXfermodeProcs[this->getMode()]);
 }
+#endif
 
 void SkNEONProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                                      const SkPMColor* SK_RESTRICT src, int count,

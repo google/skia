@@ -200,20 +200,6 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-
-#ifdef SK_DEBUG
-    {
-        Rec* rec = fRecs;
-        int count = 0;
-        while (rec) {
-            rec = rec->fNext;
-            count += 1;
-        }
-        SkASSERT(count == fCount);
-    }
-#endif
-
     buffer.writeInt(fCount);
 
     Rec* rec = fRecs;
@@ -245,22 +231,7 @@ SkFlattenable* SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
         info.fPostTranslate = buffer.readBool();
         buffer.readPaint(builder.addLayerOnTop(info));
     }
-    SkLayerDrawLooper* looper = builder.detachLooper();
-    SkASSERT(count == looper->fCount);
-
-#ifdef SK_DEBUG
-    {
-        Rec* rec = looper->fRecs;
-        int n = 0;
-        while (rec) {
-            rec = rec->fNext;
-            n += 1;
-        }
-        SkASSERT(count == n);
-    }
-#endif
-
-    return looper;
+    return builder.detachLooper();
 }
 
 #ifndef SK_IGNORE_TO_STRING

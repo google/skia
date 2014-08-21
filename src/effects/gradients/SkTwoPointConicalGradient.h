@@ -91,6 +91,7 @@ private:
     SkScalar fRadius2;
     bool fFlippedGrad;
 
+    friend class SkGradientShader;
     typedef SkGradientShaderBase INHERITED;
 };
 

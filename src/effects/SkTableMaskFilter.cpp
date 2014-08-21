@@ -71,15 +71,23 @@ SkMask::Format SkTableMaskFilter::getFormat() const {
 }
 
 void SkTableMaskFilter::flatten(SkWriteBuffer& wb) const {
-    this->INHERITED::flatten(wb);
     wb.writeByteArray(fTable, 256);
 }
 
-SkTableMaskFilter::SkTableMaskFilter(SkReadBuffer& rb)
-        : INHERITED(rb) {
+SkFlattenable* SkTableMaskFilter::CreateProc(SkReadBuffer& buffer) {
+    uint8_t table[256];
+    if (!buffer.readByteArray(table, 256)) {
+        return NULL;
+    }
+    return Create(table);
+}
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkTableMaskFilter::SkTableMaskFilter(SkReadBuffer& rb) : INHERITED(rb) {
     SkASSERT(256 == rb.getArrayCount());
     rb.readByteArray(fTable, 256);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

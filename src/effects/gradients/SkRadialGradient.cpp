@@ -252,10 +252,23 @@ SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
     return kRadial_GradientType;
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkRadialGradient::SkRadialGradient(SkReadBuffer& buffer)
     : INHERITED(buffer),
       fCenter(buffer.readPoint()),
       fRadius(buffer.readScalar()) {
+}
+#endif
+
+SkFlattenable* SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
+    DescriptorScope desc;
+    if (!desc.unflatten(buffer)) {
+        return NULL;
+    }
+    const SkPoint center = buffer.readPoint();
+    const SkScalar radius = buffer.readScalar();
+    return SkGradientShader::CreateRadial(center, radius, desc.fColors, desc.fPos, desc.fCount,
+                                          desc.fTileMode, desc.fGradFlags, desc.fLocalMatrix);
 }
 
 void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {

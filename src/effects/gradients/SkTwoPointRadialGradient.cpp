@@ -343,8 +343,8 @@ void SkTwoPointRadialGradient::toString(SkString* str) const {
 }
 #endif
 
-SkTwoPointRadialGradient::SkTwoPointRadialGradient(
-    SkReadBuffer& buffer)
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkTwoPointRadialGradient::SkTwoPointRadialGradient(SkReadBuffer& buffer)
     : INHERITED(buffer),
       fCenter1(buffer.readPoint()),
       fCenter2(buffer.readPoint()),
@@ -352,6 +352,21 @@ SkTwoPointRadialGradient::SkTwoPointRadialGradient(
       fRadius2(buffer.readScalar()) {
     init();
 };
+#endif
+
+SkFlattenable* SkTwoPointRadialGradient::CreateProc(SkReadBuffer& buffer) {
+    DescriptorScope desc;
+    if (!desc.unflatten(buffer)) {
+        return NULL;
+    }
+    const SkPoint c1 = buffer.readPoint();
+    const SkPoint c2 = buffer.readPoint();
+    const SkScalar r1 = buffer.readScalar();
+    const SkScalar r2 = buffer.readScalar();
+    return SkGradientShader::CreateTwoPointRadial(c1, r1, c2, r2, desc.fColors, desc.fPos,
+                                                  desc.fCount, desc.fTileMode, desc.fGradFlags,
+                                                  desc.fLocalMatrix);
+}
 
 void SkTwoPointRadialGradient::flatten(
     SkWriteBuffer& buffer) const {

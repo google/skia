@@ -45,6 +45,7 @@ SkShader::SkShader(const SkMatrix* localMatrix) {
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkShader::SkShader(SkReadBuffer& buffer) : INHERITED(buffer) {
     inc_shader_counter();
     if (buffer.readBool()) {
@@ -53,6 +54,7 @@ SkShader::SkShader(SkReadBuffer& buffer) : INHERITED(buffer) {
         fLocalMatrix.reset();
     }
 }
+#endif
 
 SkShader::~SkShader() {
     dec_shader_counter();
@@ -254,6 +256,7 @@ bool SkColorShader::isOpaque() const {
     return SkColorGetA(fColor) == 255;
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkColorShader::SkColorShader(SkReadBuffer& b) : INHERITED(b) {
     // V25_COMPATIBILITY_CODE We had a boolean to make the color shader inherit the paint's
     // color. We don't support that any more.
@@ -266,9 +269,13 @@ SkColorShader::SkColorShader(SkReadBuffer& b) : INHERITED(b) {
     }
     fColor = b.readColor();
 }
+#endif
+
+SkFlattenable* SkColorShader::CreateProc(SkReadBuffer& buffer) {
+    return SkNEW_ARGS(SkColorShader, (buffer.readColor()));
+}
 
 void SkColorShader::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
     buffer.writeColor(fColor);
 }
 
@@ -382,6 +389,10 @@ void SkColorShader::toString(SkString* str) const {
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkFlattenable* SkEmptyShader::CreateProc(SkReadBuffer&) {
+    return SkShader::CreateEmptyShader();
+}
 
 #ifndef SK_IGNORE_TO_STRING
 #include "SkEmptyShader.h"

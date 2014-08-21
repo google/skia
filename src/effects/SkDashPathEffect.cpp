@@ -238,20 +238,22 @@ SkPathEffect::DashType SkDashPathEffect::asADash(DashInfo* info) const {
     return kDash_DashType;
 }
 
-SkFlattenable::Factory SkDashPathEffect::getFactory() const {
-    return CreateProc;
-}
-
 void SkDashPathEffect::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
     buffer.writeScalar(fPhase);
     buffer.writeScalarArray(fIntervals, fCount);
 }
 
 SkFlattenable* SkDashPathEffect::CreateProc(SkReadBuffer& buffer) {
-    return SkNEW_ARGS(SkDashPathEffect, (buffer));
+    const SkScalar phase = buffer.readScalar();
+    uint32_t count = buffer.getArrayCount();
+    SkAutoSTArray<32, SkScalar> intervals(count);
+    if (buffer.readScalarArray(intervals.get(), count)) {
+        return Create(intervals.get(), SkToInt(count), phase);
+    }
+    return NULL;
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer)
         : INHERITED(buffer)
         , fPhase(0)
@@ -292,3 +294,5 @@ SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer)
                 &fInitialDashLength, &fInitialDashIndex, &fIntervalLength);
     }
 }
+#endif
+

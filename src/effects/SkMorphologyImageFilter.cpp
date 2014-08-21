@@ -21,6 +21,7 @@
 #include "effects/Gr1DKernelEffect.h"
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkMorphologyImageFilter::SkMorphologyImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fRadius.fWidth = buffer.readInt();
@@ -28,6 +29,7 @@ SkMorphologyImageFilter::SkMorphologyImageFilter(SkReadBuffer& buffer)
     buffer.validate((fRadius.fWidth >= 0) &&
                     (fRadius.fHeight >= 0));
 }
+#endif
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX,
                                                  int radiusY,
@@ -35,7 +37,6 @@ SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX,
                                                  const CropRect* cropRect)
     : INHERITED(1, &input, cropRect), fRadius(SkISize::Make(radiusX, radiusY)) {
 }
-
 
 void SkMorphologyImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
@@ -256,6 +257,20 @@ bool SkMorphologyImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&
     bounds.outset(SkScalarCeilToInt(radius.x()), SkScalarCeilToInt(radius.y()));
     *dst = bounds;
     return true;
+}
+
+SkFlattenable* SkErodeImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    const int width = buffer.readInt();
+    const int height = buffer.readInt();
+    return Create(width, height, common.getInput(0), &common.cropRect());
+}
+
+SkFlattenable* SkDilateImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    const int width = buffer.readInt();
+    const int height = buffer.readInt();
+    return Create(width, height, common.getInput(0), &common.cropRect());
 }
 
 #if SK_SUPPORT_GPU

@@ -23,6 +23,7 @@
 // raster paths.
 #define MAX_SIGMA SkIntToScalar(532)
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkBlurImageFilter::SkBlurImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fSigma.fWidth = buffer.readScalar();
@@ -32,6 +33,7 @@ SkBlurImageFilter::SkBlurImageFilter(SkReadBuffer& buffer)
                     (fSigma.fWidth >= 0) &&
                     (fSigma.fHeight >= 0));
 }
+#endif
 
 SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX,
                                      SkScalar sigmaY,
@@ -39,6 +41,13 @@ SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX,
                                      const CropRect* cropRect)
     : INHERITED(1, &input, cropRect), fSigma(SkSize::Make(sigmaX, sigmaY)) {
     SkASSERT(sigmaX >= 0 && sigmaY >= 0);
+}
+
+SkFlattenable* SkBlurImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    SkScalar sigmaX = buffer.readScalar();
+    SkScalar sigmaY = buffer.readScalar();
+    return Create(sigmaX, sigmaY, common.getInput(0), &common.cropRect());
 }
 
 void SkBlurImageFilter::flatten(SkWriteBuffer& buffer) const {

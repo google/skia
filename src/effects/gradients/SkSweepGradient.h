@@ -41,13 +41,16 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSweepGradient)
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkSweepGradient(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
 private:
     const SkPoint fCenter;
 
+    friend class SkGradientShader;
     typedef SkGradientShaderBase INHERITED;
 };
 

@@ -17,6 +17,9 @@ class SK_API SkOffsetImageFilter : public SkImageFilter {
 public:
     static SkOffsetImageFilter* Create(SkScalar dx, SkScalar dy, SkImageFilter* input = NULL,
                                        const CropRect* cropRect = NULL) {
+        if (!SkScalarIsFinite(dx) || !SkScalarIsFinite(dy)) {
+            return NULL;
+        }
         return SkNEW_ARGS(SkOffsetImageFilter, (dx, dy, input, cropRect));
     }
     virtual void computeFastBounds(const SkRect& src, SkRect* dst) const SK_OVERRIDE;
@@ -24,7 +27,9 @@ public:
 
 protected:
     SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input, const CropRect* cropRect);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkOffsetImageFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

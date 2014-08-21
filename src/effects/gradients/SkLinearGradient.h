@@ -42,6 +42,7 @@ protected:
     virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
 private:
+    friend class SkGradientShader;
     typedef SkGradientShaderBase INHERITED;
     const SkPoint fStart;
     const SkPoint fEnd;

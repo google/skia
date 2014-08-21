@@ -23,10 +23,11 @@ public:
                         int count, const SkAlpha aa[]) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSSE2ProcCoeffXfermode)
 
 private:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkSSE2ProcCoeffXfermode(SkReadBuffer& buffer);
+#endif
 
     void* fProcSIMD;
     typedef SkProcCoeffXfermode INHERITED;

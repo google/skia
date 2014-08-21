@@ -60,10 +60,24 @@ SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc)
     pts_to_unit_matrix(pts, &fPtsToUnit);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkLinearGradient::SkLinearGradient(SkReadBuffer& buffer)
     : INHERITED(buffer)
     , fStart(buffer.readPoint())
     , fEnd(buffer.readPoint()) {
+}
+#endif
+
+SkFlattenable* SkLinearGradient::CreateProc(SkReadBuffer& buffer) {
+    DescriptorScope desc;
+    if (!desc.unflatten(buffer)) {
+        return NULL;
+    }
+    SkPoint pts[2];
+    pts[0] = buffer.readPoint();
+    pts[1] = buffer.readPoint();
+    return SkGradientShader::CreateLinear(pts, desc.fColors, desc.fPos, desc.fCount,
+                                          desc.fTileMode, desc.fGradFlags, desc.fLocalMatrix);
 }
 
 void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
