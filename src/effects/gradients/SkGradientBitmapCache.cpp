@@ -7,9 +7,9 @@
  */
 
 
-#include "SkBitmapCache.h"
+#include "SkGradientBitmapCache.h"
 
-struct SkBitmapCache::Entry {
+struct SkGradientBitmapCache::Entry {
     Entry*      fPrev;
     Entry*      fNext;
 
@@ -33,14 +33,14 @@ struct SkBitmapCache::Entry {
     }
 };
 
-SkBitmapCache::SkBitmapCache(int max) : fMaxEntries(max) {
+SkGradientBitmapCache::SkGradientBitmapCache(int max) : fMaxEntries(max) {
     fEntryCount = 0;
     fHead = fTail = NULL;
 
     this->validate();
 }
 
-SkBitmapCache::~SkBitmapCache() {
+SkGradientBitmapCache::~SkGradientBitmapCache() {
     this->validate();
 
     Entry* entry = fHead;
@@ -51,7 +51,7 @@ SkBitmapCache::~SkBitmapCache() {
     }
 }
 
-SkBitmapCache::Entry* SkBitmapCache::detach(Entry* entry) const {
+SkGradientBitmapCache::Entry* SkGradientBitmapCache::detach(Entry* entry) const {
     if (entry->fPrev) {
         SkASSERT(fHead != entry);
         entry->fPrev->fNext = entry->fNext;
@@ -69,7 +69,7 @@ SkBitmapCache::Entry* SkBitmapCache::detach(Entry* entry) const {
     return entry;
 }
 
-void SkBitmapCache::attachToHead(Entry* entry) const {
+void SkGradientBitmapCache::attachToHead(Entry* entry) const {
     entry->fPrev = NULL;
     entry->fNext = fHead;
     if (fHead) {
@@ -80,7 +80,7 @@ void SkBitmapCache::attachToHead(Entry* entry) const {
     fHead = entry;
 }
 
-bool SkBitmapCache::find(const void* buffer, size_t size, SkBitmap* bm) const {
+bool SkGradientBitmapCache::find(const void* buffer, size_t size, SkBitmap* bm) const {
     AutoValidate av(this);
 
     Entry* entry = fHead;
@@ -99,7 +99,7 @@ bool SkBitmapCache::find(const void* buffer, size_t size, SkBitmap* bm) const {
     return false;
 }
 
-void SkBitmapCache::add(const void* buffer, size_t len, const SkBitmap& bm) {
+void SkGradientBitmapCache::add(const void* buffer, size_t len, const SkBitmap& bm) {
     AutoValidate av(this);
 
     if (fEntryCount == fMaxEntries) {
@@ -117,7 +117,7 @@ void SkBitmapCache::add(const void* buffer, size_t len, const SkBitmap& bm) {
 
 #ifdef SK_DEBUG
 
-void SkBitmapCache::validate() const {
+void SkGradientBitmapCache::validate() const {
     SkASSERT(fEntryCount >= 0 && fEntryCount <= fMaxEntries);
 
     if (fEntryCount > 0) {

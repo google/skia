@@ -7,15 +7,15 @@
  */
 
 
-#ifndef SkBitmapCache_DEFINED
-#define SkBitmapCache_DEFINED
+#ifndef SkGradientBitmapCache_DEFINED
+#define SkGradientBitmapCache_DEFINED
 
 #include "SkBitmap.h"
 
-class SkBitmapCache : SkNoncopyable {
+class SkGradientBitmapCache : SkNoncopyable {
 public:
-    SkBitmapCache(int maxEntries);
-    ~SkBitmapCache();
+    SkGradientBitmapCache(int maxEntries);
+    ~SkGradientBitmapCache();
 
     bool find(const void* buffer, size_t len, SkBitmap*) const;
     void add(const void* buffer, size_t len, const SkBitmap&);
@@ -39,10 +39,10 @@ private:
 
     class AutoValidate : SkNoncopyable {
     public:
-        AutoValidate(const SkBitmapCache* bc) : fBC(bc) { bc->validate(); }
+        AutoValidate(const SkGradientBitmapCache* bc) : fBC(bc) { bc->validate(); }
         ~AutoValidate() { fBC->validate(); }
     private:
-        const SkBitmapCache* fBC;
+        const SkGradientBitmapCache* fBC;
     };
 };
 

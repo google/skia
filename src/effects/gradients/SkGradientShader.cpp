@@ -674,13 +674,13 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap) const {
 
     ///////////////////////////////////
 
-    static SkBitmapCache* gCache;
+    static SkGradientBitmapCache* gCache;
     // each cache cost 1K of RAM, since each bitmap will be 1x256 at 32bpp
     static const int MAX_NUM_CACHED_GRADIENT_BITMAPS = 32;
     SkAutoMutexAcquire ama(gGradientCacheMutex);
 
     if (NULL == gCache) {
-        gCache = SkNEW_ARGS(SkBitmapCache, (MAX_NUM_CACHED_GRADIENT_BITMAPS));
+        gCache = SkNEW_ARGS(SkGradientBitmapCache, (MAX_NUM_CACHED_GRADIENT_BITMAPS));
     }
     size_t size = count * sizeof(int32_t);
 

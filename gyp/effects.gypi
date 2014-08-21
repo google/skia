@@ -58,11 +58,11 @@
     '<(skia_src_path)/effects/SkTransparentShader.cpp',
     '<(skia_src_path)/effects/SkXfermodeImageFilter.cpp',
 
-    '<(skia_src_path)/effects/gradients/SkBitmapCache.cpp',
-    '<(skia_src_path)/effects/gradients/SkBitmapCache.h',
     '<(skia_src_path)/effects/gradients/SkClampRange.cpp',
     '<(skia_src_path)/effects/gradients/SkClampRange.h',
     '<(skia_src_path)/effects/gradients/SkRadialGradient_Table.h',
+    '<(skia_src_path)/effects/gradients/SkGradientBitmapCache.cpp',
+    '<(skia_src_path)/effects/gradients/SkGradientBitmapCache.h',
     '<(skia_src_path)/effects/gradients/SkGradientShader.cpp',
     '<(skia_src_path)/effects/gradients/SkGradientShaderPriv.h',
     '<(skia_src_path)/effects/gradients/SkLinearGradient.cpp',

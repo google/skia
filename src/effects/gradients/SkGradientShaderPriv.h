@@ -8,6 +8,7 @@
 #ifndef SkGradientShaderPriv_DEFINED
 #define SkGradientShaderPriv_DEFINED
 
+#include "SkGradientBitmapCache.h"
 #include "SkGradientShader.h"
 #include "SkClampRange.h"
 #include "SkColorPriv.h"
@@ -16,7 +17,6 @@
 #include "SkMallocPixelRef.h"
 #include "SkUtils.h"
 #include "SkTemplates.h"
-#include "SkBitmapCache.h"
 #include "SkShader.h"
 #include "SkOnce.h"
 
