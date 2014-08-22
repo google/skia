@@ -44,3 +44,6 @@ drawbitmapmatrix
 
 # To be rebaselined (fmalita)
 textblob
+
+# reed
+matrixconvolution
