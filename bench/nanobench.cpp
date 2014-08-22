@@ -612,14 +612,6 @@ int nanobench_main() {
             SkCanvas* canvas = targets[j]->surface.get() ? targets[j]->surface->getCanvas() : NULL;
             const char* config = targets[j]->config.name;
 
-#ifdef SK_DEBUG
-            // skia:2797  Some SKPs SkASSERT in debug mode.  Skip them for now.
-            if (0 == strcmp("565", config) && SkStrContains(bench->getName(), ".skp")) {
-                SkDebugf("Skipping 565 %s.  See skia:2797\n", bench->getName());
-                continue;
-            }
-#endif
-
             const int loops =
 #if SK_SUPPORT_GPU
                 Benchmark::kGPU_Backend == targets[j]->config.backend
