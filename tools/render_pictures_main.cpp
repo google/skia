@@ -30,6 +30,7 @@ DEFINE_bool(bench_record, false, "If true, drop into an infinite loop of recordi
 DECLARE_bool(deferImageDecoding);
 DEFINE_string(descriptions, "", "one or more key=value pairs to add to the descriptions section "
               "of the JSON summary.");
+DEFINE_string(imageBaseGSUrl, "", "The Google Storage image base URL the images are stored in.");
 DEFINE_int32(maxComponentDiff, 256, "Maximum diff on a component, 0 - 256. Components that differ "
              "by more than this amount are considered errors, though all diffs are reported. "
              "Requires --validate.");
@@ -497,6 +498,9 @@ int tool_main(int argc, char** argv) {
             SkStrSplit(FLAGS_descriptions[i], "=", &tokens);
             SkASSERT(tokens.count() == 2);
             jsonSummary.addDescription(tokens[0].c_str(), tokens[1].c_str());
+        }
+        if (FLAGS_imageBaseGSUrl.count() == 1) {
+          jsonSummary.setImageBaseGSUrl(FLAGS_imageBaseGSUrl[0]);
         }
         jsonSummary.writeToFile(FLAGS_writeJsonSummaryPath[0]);
     }

@@ -79,9 +79,12 @@ class ImagePairSetTest(unittest.TestCase):
     """Assembles some ImagePairs into an ImagePairSet, and validates results.
     """
     image_pairs = [
-        MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_1_AS_DICT),
-        MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_2_AS_DICT),
-        MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_3_AS_DICT),
+        MockImagePair(imageA_base_url=BASE_URL_1, imageB_base_url=BASE_URL_1,
+                      dict_to_return=IMAGEPAIR_1_AS_DICT),
+        MockImagePair(imageA_base_url=BASE_URL_1, imageB_base_url=BASE_URL_1,
+                      dict_to_return=IMAGEPAIR_2_AS_DICT),
+        MockImagePair(imageA_base_url=BASE_URL_1, imageB_base_url=BASE_URL_1,
+                      dict_to_return=IMAGEPAIR_3_AS_DICT),
     ]
     expected_imageset_dict = {
         'extraColumnHeaders': {
@@ -150,12 +153,14 @@ class ImagePairSetTest(unittest.TestCase):
     image_pair_set = imagepairset.ImagePairSet(
         diff_base_url=DIFF_BASE_URL)
     image_pair_set.add_image_pair(
-        MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_1_AS_DICT))
+        MockImagePair(imageA_base_url=BASE_URL_1, imageB_base_url=BASE_URL_1,
+                      dict_to_return=IMAGEPAIR_1_AS_DICT))
     image_pair_set.add_image_pair(
-        MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_2_AS_DICT))
+        MockImagePair(imageA_base_url=BASE_URL_1, imageB_base_url=BASE_URL_1,
+                      dict_to_return=IMAGEPAIR_2_AS_DICT))
     with self.assertRaises(Exception):
       image_pair_set.add_image_pair(
-          MockImagePair(base_url=BASE_URL_2,
+          MockImagePair(imageA_base_url=BASE_URL_2, imageB_base_url=BASE_URL_2,
                         dict_to_return=IMAGEPAIR_3_AS_DICT))
 
   def test_missing_column_ids(self):
@@ -164,9 +169,11 @@ class ImagePairSetTest(unittest.TestCase):
     image_pair_set = imagepairset.ImagePairSet(
         diff_base_url=DIFF_BASE_URL)
     image_pair_set.add_image_pair(
-        MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_1_AS_DICT))
+        MockImagePair(imageA_base_url=BASE_URL_1, imageB_base_url=BASE_URL_1,
+                      dict_to_return=IMAGEPAIR_1_AS_DICT))
     image_pair_set.add_image_pair(
-        MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_2_AS_DICT))
+        MockImagePair(imageA_base_url=BASE_URL_1, imageB_base_url=BASE_URL_1,
+                      dict_to_return=IMAGEPAIR_2_AS_DICT))
     # Call as_dict() with default or reasonable column_ids_in_order.
     image_pair_set.as_dict()
     image_pair_set.as_dict(column_ids_in_order=['test', 'builder'])
@@ -178,13 +185,14 @@ class ImagePairSetTest(unittest.TestCase):
 
 class MockImagePair(object):
   """Mock ImagePair object, which will return canned results."""
-  def __init__(self, base_url, dict_to_return):
+  def __init__(self, imageA_base_url, imageB_base_url, dict_to_return):
     """
     Args:
       base_url: base_url attribute for this object
       dict_to_return: dictionary to return from as_dict()
     """
-    self.base_url = base_url
+    self.imageA_base_url = imageA_base_url
+    self.imageB_base_url = imageB_base_url
     self.extra_columns_dict = dict_to_return.get(
         imagepair.KEY__IMAGEPAIRS__EXTRACOLUMNS, None)
     self._dict_to_return = dict_to_return

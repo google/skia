@@ -30,6 +30,7 @@
 const static char kJsonKey_ActualResults[] = "actual-results";
 const static char kJsonKey_Descriptions[] = "descriptions";
 const static char kJsonKey_ExpectedResults[] = "expected-results";
+const static char kJsonKey_ImageBaseGSUrl[] = "image-base-gs-url";
 const static char kJsonKey_Header[] = "header";
 const static char kJsonKey_Header_Type[] = "type";
 const static char kJsonKey_Header_Revision[] = "revision";
@@ -198,6 +199,10 @@ namespace sk_tools {
         fDescriptions[key] = value;
     }
 
+    void ImageResultsAndExpectations::setImageBaseGSUrl(const char *imageBaseGSUrl) {
+        fImageBaseGSUrl = imageBaseGSUrl;
+    }
+
     Expectation ImageResultsAndExpectations::getExpectation(const char *sourceName,
                                                             const int *tileNumber) {
         if (fExpectedResults.isNull()) {
@@ -228,6 +233,7 @@ namespace sk_tools {
         root[kJsonKey_ActualResults] = fActualResults;
         root[kJsonKey_Descriptions] = fDescriptions;
         root[kJsonKey_Header] = header;
+        root[kJsonKey_ImageBaseGSUrl] = fImageBaseGSUrl;
         std::string jsonStdString = root.toStyledString();
         SkFILEWStream stream(filename);
         stream.write(jsonStdString.c_str(), jsonStdString.length());

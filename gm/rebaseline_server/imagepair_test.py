@@ -91,7 +91,7 @@ class ImagePairTest(unittest.TestCase):
                     'perceptualDifference': 0.06620300000000157,
                     'diffUrl': 'arcofzorro_16206093933823793653_png_png-vs-' +
                         'arcofzorro_13786535001616823825_png_png.png',
-                    'whiteDiffUrl': 'arcofzorro_16206093933823793653_png_png' + 
+                    'whiteDiffUrl': 'arcofzorro_16206093933823793653_png_png' +
                         '-vs-arcofzorro_13786535001616823825_png_png.png',
                 },
                 'imageAUrl': 'arcofzorro/16206093933823793653.png',
@@ -195,7 +195,8 @@ class ImagePairTest(unittest.TestCase):
     for selftest in selftests:
       image_pair = imagepair.ImagePair(
           image_diff_db=db,
-          base_url=IMG_URL_BASE,
+          imageA_base_url=IMG_URL_BASE,
+          imageB_base_url=IMG_URL_BASE,
           imageA_relative_url=selftest[0],
           imageB_relative_url=selftest[1],
           expectations=selftest[2],

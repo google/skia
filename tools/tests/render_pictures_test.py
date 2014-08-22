@@ -197,6 +197,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--writeWholeImage'])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "image-base-gs-url" : None,
         "descriptions" : None,
         "actual-results" : {
             "red.skp": {
@@ -233,6 +234,7 @@ class RenderPicturesTest(base_unittest.TestCase):
     modified_red_tiles[5]['comparisonResult'] = 'failure-ignored'
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "image-base-gs-url" : None,
         "descriptions" : None,
         "actual-results" : {
             "red.skp": {
@@ -270,6 +272,7 @@ class RenderPicturesTest(base_unittest.TestCase):
     modified_red_tiles[5]['comparisonResult'] = 'no-comparison'
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "image-base-gs-url" : None,
         "descriptions" : None,
         "actual-results" : {
             "red.skp": {
@@ -315,6 +318,7 @@ class RenderPicturesTest(base_unittest.TestCase):
     if expected_summary_dict == None:
       expected_summary_dict = {
           "header" : EXPECTED_HEADER_CONTENTS,
+          "image-base-gs-url" : None,
           "descriptions" : None,
           "actual-results" : {
               "red.skp": {
@@ -340,6 +344,7 @@ class RenderPicturesTest(base_unittest.TestCase):
       pass
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "image-base-gs-url" : None,
         "descriptions" : None,
         "actual-results" : {
             "red.skp": {
@@ -370,6 +375,7 @@ class RenderPicturesTest(base_unittest.TestCase):
     ])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "image-base-gs-url" : None,
         "descriptions" : {
             "builder": "builderName",
             "renderMode": "renderModeName",
@@ -421,6 +427,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "image-base-gs-url" : None,
         "descriptions" : None,
         "actual-results" : {
             "red.skp": {
@@ -449,6 +456,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "image-base-gs-url" : None,
         "descriptions" : None,
         "actual-results" : {
             "red.skp": {
@@ -484,6 +492,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "image-base-gs-url" : None,
         "descriptions" : None,
         "actual-results" : {
             "red.skp": {
@@ -515,6 +524,7 @@ class RenderPicturesTest(base_unittest.TestCase):
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
+        "image-base-gs-url" : None,
         "descriptions" : None,
         "actual-results" : {
             "red.skp": {

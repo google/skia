@@ -57,7 +57,8 @@ class ImagePairSet(object):
     self._descriptions = descriptions or DEFAULT_DESCRIPTIONS
     self._extra_column_tallies = {}  # maps column_id -> values
                                      #                -> instances_per_value
-    self._image_base_url = None
+    self._imageA_base_url = None
+    self._imageB_base_url = None
     self._diff_base_url = diff_base_url
 
     # We build self._image_pair_objects incrementally as calls come into
@@ -70,11 +71,15 @@ class ImagePairSet(object):
     """Adds an ImagePair; this may be repeated any number of times."""
     # Special handling when we add the first ImagePair...
     if not self._image_pair_objects:
-      self._image_base_url = image_pair.base_url
+      self._imageA_base_url = image_pair.imageA_base_url
+      self._imageB_base_url = image_pair.imageB_base_url
 
-    if image_pair.base_url != self._image_base_url:
+    if(image_pair.imageA_base_url != self._imageA_base_url):
       raise Exception('added ImagePair with base_url "%s" instead of "%s"' % (
-          image_pair.base_url, self._image_base_url))
+          image_pair.imageA_base_url, self._imageA_base_url))
+    if(image_pair.imageB_base_url != self._imageB_base_url):
+      raise Exception('added ImagePair with base_url "%s" instead of "%s"' % (
+          image_pair.imageB_base_url, self._imageB_base_url))
     self._image_pair_objects.append(image_pair)
     extra_columns_dict = image_pair.extra_columns_dict
     if extra_columns_dict:
@@ -171,10 +176,14 @@ class ImagePairSet(object):
 
     key_description = KEY__IMAGESETS__FIELD__DESCRIPTION
     key_base_url = KEY__IMAGESETS__FIELD__BASE_URL
-    if gs_utils.GSUtils.is_gs_url(self._image_base_url):
-      value_base_url = self._convert_gs_url_to_http_url(self._image_base_url)
+    if gs_utils.GSUtils.is_gs_url(self._imageA_base_url):
+      valueA_base_url = self._convert_gs_url_to_http_url(self._imageA_base_url)
     else:
-      value_base_url = self._image_base_url
+      valueA_base_url = self._imageA_base_url
+    if gs_utils.GSUtils.is_gs_url(self._imageB_base_url):
+      valueB_base_url = self._convert_gs_url_to_http_url(self._imageB_base_url)
+    else:
+      valueB_base_url = self._imageB_base_url
 
     # We've waited as long as we can to ask ImageDiffDB for details of the
     # image diffs, so that it has time to compute them.
@@ -188,11 +197,11 @@ class ImagePairSet(object):
         KEY__ROOT__IMAGESETS: {
             KEY__IMAGESETS__SET__IMAGE_A: {
                 key_description: self._descriptions[0],
-                key_base_url: value_base_url,
+                key_base_url: valueA_base_url,
             },
             KEY__IMAGESETS__SET__IMAGE_B: {
                 key_description: self._descriptions[1],
-                key_base_url: value_base_url,
+                key_base_url: valueB_base_url,
             },
             KEY__IMAGESETS__SET__DIFFS: {
                 key_description: 'color difference per channel',

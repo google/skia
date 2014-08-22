@@ -94,6 +94,7 @@ JSONKEY_IMAGE_COMPARISONRESULT = 'comparisonResult'
 JSONKEY_IMAGE_FILEPATH = 'filepath'
 JSONKEY_SOURCE_TILEDIMAGES = 'tiled-images'
 JSONKEY_SOURCE_WHOLEIMAGE = 'whole-image'
+JSONKEY_IMAGE_BASE_GS_URL = 'image-base-gs-url'
 
 
 # Root directory where the buildbots store their actually-generated images...

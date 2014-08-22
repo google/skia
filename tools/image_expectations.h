@@ -185,6 +185,13 @@ namespace sk_tools {
         void addDescription(const char *key, const char *value);
 
         /**
+         * Adds the image base Google Storage URL to the summary of results.
+         *
+         * @param imageBaseGSUrl the image base Google Storage URL
+         */
+        void setImageBaseGSUrl(const char *imageBaseGSUrl);
+
+        /**
          * Returns the Expectation for this test.
          *
          * @param sourceName name of the source file that generated this result
@@ -217,6 +224,7 @@ namespace sk_tools {
         Json::Value fDescriptions;
         Json::Value fExpectedJsonRoot;
         Json::Value fExpectedResults;
+        Json::Value fImageBaseGSUrl;
     };
 
 } // namespace sk_tools

@@ -268,18 +268,25 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       self._validate_dict_version(dictB)
       dictB_results = self.get_default(dictB, {}, setB_section)
 
+      image_A_base_url = self.get_default(
+          setA_dicts, self._image_base_gs_url, dict_path,
+          gm_json.JSONKEY_IMAGE_BASE_GS_URL)
+      image_B_base_url = self.get_default(
+          setB_dicts, self._image_base_gs_url, dict_path,
+          gm_json.JSONKEY_IMAGE_BASE_GS_URL)
+
       # get the builders and render modes for each set
-      builder_A     = self.get_default(dictA, None, 
-                        gm_json.JSONKEY_DESCRIPTIONS, 
+      builder_A     = self.get_default(dictA, None,
+                        gm_json.JSONKEY_DESCRIPTIONS,
                         gm_json.JSONKEY_DESCRIPTIONS_BUILDER)
-      render_mode_A = self.get_default(dictA, None, 
-                        gm_json.JSONKEY_DESCRIPTIONS, 
+      render_mode_A = self.get_default(dictA, None,
+                        gm_json.JSONKEY_DESCRIPTIONS,
                         gm_json.JSONKEY_DESCRIPTIONS_RENDER_MODE)
-      builder_B     = self.get_default(dictB, None, 
-                        gm_json.JSONKEY_DESCRIPTIONS, 
+      builder_B     = self.get_default(dictB, None,
+                        gm_json.JSONKEY_DESCRIPTIONS,
                         gm_json.JSONKEY_DESCRIPTIONS_BUILDER)
-      render_mode_B = self.get_default(dictB, None, 
-                        gm_json.JSONKEY_DESCRIPTIONS, 
+      render_mode_B = self.get_default(dictB, None,
+                        gm_json.JSONKEY_DESCRIPTIONS,
                         gm_json.JSONKEY_DESCRIPTIONS_RENDER_MODE)
 
       skp_names = sorted(set(dictA_results.keys() + dictB_results.keys()))
@@ -295,8 +302,11 @@ class RenderedPicturesComparisons(results.BaseComparisons):
         whole_image_B = self.get_default(
             dictB_results, None,
             skp_name, gm_json.JSONKEY_SOURCE_WHOLEIMAGE)
+
         imagepairs_for_this_skp.append(self._create_image_pair(
             image_dict_A=whole_image_A, image_dict_B=whole_image_B,
+            image_A_base_url=image_A_base_url,
+            image_B_base_url=image_B_base_url,
             builder_A=builder_A, render_mode_A=render_mode_A,
             builder_B=builder_B, render_mode_B=render_mode_B,
             source_json_file=dict_path,
@@ -318,6 +328,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
                               if tile_num < num_tiles_A else None),
                 image_dict_B=(tiled_images_B[tile_num]
                               if tile_num < num_tiles_B else None),
+                image_A_base_url=image_A_base_url,
+                image_B_base_url=image_B_base_url,
                 builder_A=builder_A, render_mode_A=render_mode_A,
                 builder_B=builder_B, render_mode_B=render_mode_B,
                 source_json_file=dict_path,
@@ -368,8 +380,9 @@ class RenderedPicturesComparisons(results.BaseComparisons):
       raise Exception('expected header_revision %d, but got %d' % (
           expected_header_revision, header_revision))
 
-  def _create_image_pair(self, image_dict_A, image_dict_B, 
-                         builder_A, render_mode_A, 
+  def _create_image_pair(self, image_dict_A, image_dict_B,
+                         image_A_base_url, image_B_base_url,
+                         builder_A, render_mode_A,
                          builder_B, render_mode_B,
                          source_json_file,
                          source_skp_name, tilenum):
@@ -378,11 +391,13 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     Args:
       image_dict_A: dict with JSONKEY_IMAGE_* keys, or None if no image
       image_dict_B: dict with JSONKEY_IMAGE_* keys, or None if no image
+      image_A_base_url: base URL for image A
+      image_B_base_url: base URL for image B
       builder_A: builder that created image set A or None if unknow
-      render_mode_A: render mode used to generate image set A or None if 
+      render_mode_A: render mode used to generate image set A or None if
                      unknown.
       builder_B: builder that created image set A or None if unknow
-      render_mode_B: render mode used to generate image set A or None if 
+      render_mode_B: render mode used to generate image set A or None if
                      unknown.
       source_json_file: string; relative path of the JSON file where this
                         result came from, within setA and setB.
@@ -436,7 +451,8 @@ class RenderedPicturesComparisons(results.BaseComparisons):
     try:
       return imagepair.ImagePair(
           image_diff_db=self._image_diff_db,
-          base_url=self._image_base_gs_url,
+          imageA_base_url=image_A_base_url,
+          imageB_base_url=image_B_base_url,
           imageA_relative_url=imageA_relative_url,
           imageB_relative_url=imageB_relative_url,
           extra_columns=extra_columns_dict,

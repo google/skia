@@ -347,7 +347,8 @@ class ExpectationComparisons(results.BaseComparisons):
           try:
             image_pair = imagepair.ImagePair(
                 image_diff_db=self._image_diff_db,
-                base_url=gm_json.GM_ACTUALS_ROOT_HTTP_URL,
+                imageA_base_url=gm_json.GM_ACTUALS_ROOT_HTTP_URL,
+                imageB_base_url=gm_json.GM_ACTUALS_ROOT_HTTP_URL,
                 imageA_relative_url=expected_image_relative_url,
                 imageB_relative_url=actual_image_relative_url,
                 expectations=expectations_dict,
