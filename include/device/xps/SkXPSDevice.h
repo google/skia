@@ -26,6 +26,8 @@
 #include "SkTScopedComPtr.h"
 #include "SkTypeface.h"
 
+//#define SK_XPS_USE_DETERMINISTIC_IDS
+
 /** \class SkXPSDevice
 
     The drawing context for the XPS backend.
@@ -171,6 +173,18 @@ private:
     SkVector fCurrentPixelsPerMeter;
 
     SkTArray<TypefaceUse, true> fTypefaces;
+
+    /** Creates a GUID based id and places it into buffer.
+        buffer should have space for at least GUID_ID_LEN wide characters.
+        The string will always be wchar null terminated.
+        XXXXXXXXsXXXXsXXXXsXXXXsXXXXXXXXXXXX0
+        The string may begin with a digit,
+        and so may not be suitable as a bare resource key.
+     */
+    HRESULT createId(wchar_t* buffer, size_t bufferSize, wchar_t sep = '-');
+#ifdef SK_XPS_USE_DETERMINISTIC_IDS
+    decltype(GUID::Data1) fNextId = 0;
+#endif
 
     HRESULT initXpsDocumentWriter(IXpsOMImageResource* image);
 

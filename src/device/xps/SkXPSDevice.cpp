@@ -30,6 +30,7 @@
 #include "SkIStream.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
+#include "SkPathOps.h"
 #include "SkPoint.h"
 #include "SkRasterizer.h"
 #include "SkSFNTHeader.h"
@@ -48,9 +49,9 @@
 //make it clear when converting a scalar that this is what is wanted.
 #define SkScalarToFLOAT(n) SkScalarToFloat(n)
 
-//Dummy representation of a GUID from create_id.
+//Dummy representation of a GUID from createId.
 #define L_GUID_ID L"XXXXXXXXsXXXXsXXXXsXXXXsXXXXXXXXXXXX"
-//Length of GUID representation from create_id, including NULL terminator.
+//Length of GUID representation from createId, including NULL terminator.
 #define GUID_ID_LEN SK_ARRAY_COUNT(L_GUID_ID)
 
 /**
@@ -84,18 +85,16 @@ static int format_guid(const GUID& guid,
                       guid.Data4[7]);
 }
 
-/**
-   Creates a GUID based id and places it into buffer.
-   buffer should have space for at least GUID_ID_LEN wide characters.
-   The string will always be wchar null terminated.
-   XXXXXXXXsXXXXsXXXXsXXXXsXXXXXXXXXXXX0
-   The string may begin with a digit,
-   and so may not be suitable as a bare resource key.
- */
-static HRESULT create_id(wchar_t* buffer, size_t bufferSize,
-                         wchar_t sep = '-') {
+HRESULT SkXPSDevice::createId(wchar_t* buffer, size_t bufferSize, wchar_t sep) {
     GUID guid = {};
+#ifdef SK_XPS_USE_DETERMINISTIC_IDS
+    guid.Data1 = fNextId++;
+    // The following make this a valid Type4 UUID.
+    guid.Data3 = 0x4000;
+    guid.Data4[0] = 0x80;
+#else
     HRM(CoCreateGuid(&guid), "Could not create GUID for id.");
+#endif
 
     if (format_guid(guid, buffer, bufferSize, sep) == -1) {
         HRM(E_UNEXPECTED, "Could not format GUID into id.");
@@ -193,7 +192,7 @@ HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
         swprintf_s(buffer, size, L"/Documents/1/Metadata/%u.png", pageNum);
     } else {
         wchar_t id[GUID_ID_LEN];
-        HR(create_id(id, GUID_ID_LEN));
+        HR(this->createId(id, GUID_ID_LEN));
         swprintf_s(buffer, size, L"/Metadata/%s.png", id);
     }
     HRM(this->fXpsFactory->CreatePartUri(buffer, &partUri),
@@ -647,7 +646,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         SK_ARRAY_COUNT(L"/Documents/1/Resources/Images/" L_GUID_ID L".png");
     wchar_t buffer[size];
     wchar_t id[GUID_ID_LEN];
-    HR(create_id(id, GUID_ID_LEN));
+    HR(this->createId(id, GUID_ID_LEN));
     swprintf_s(buffer, size, L"/Documents/1/Resources/Images/%s.png", id);
 
     SkTScopedComPtr<IOpcPartUri> imagePartUri;
@@ -1437,7 +1436,7 @@ HRESULT SkXPSDevice::drawInverseWindingPath(const SkDraw& d,
     const size_t size = SK_ARRAY_COUNT(L"ID" L_GUID_ID);
     wchar_t buffer[size];
     wchar_t id[GUID_ID_LEN];
-    HR(create_id(id, GUID_ID_LEN, '_'));
+    HR(this->createId(id, GUID_ID_LEN, '_'));
     swprintf_s(buffer, size, L"ID%s", id);
     HRM(newDictionary->Append(buffer, this->fCurrentXpsCanvas.get()),
         "Could not add canvas to inverse dictionary.");
@@ -2058,7 +2057,7 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
         SK_ARRAY_COUNT(L"/Resources/Fonts/" L_GUID_ID L".odttf");
     wchar_t buffer[size];
     wchar_t id[GUID_ID_LEN];
-    HR(create_id(id, GUID_ID_LEN));
+    HR(this->createId(id, GUID_ID_LEN));
     swprintf_s(buffer, size, L"/Resources/Fonts/%s.odttf", id);
 
     SkTScopedComPtr<IOpcPartUri> partUri;
