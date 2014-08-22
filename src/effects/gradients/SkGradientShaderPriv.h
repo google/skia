@@ -237,6 +237,8 @@ protected:
 
     void commonAsAGradient(GradientInfo*, bool flipGrad = false) const;
 
+    virtual bool onAsLuminanceColor(SkColor*) const SK_OVERRIDE;
+
     /*
      * Takes in pointers to gradient color and Rec info as colorSrc and recSrc respectively.
      * Count is the number of colors in the gradient

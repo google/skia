@@ -6,6 +6,7 @@
  */
 
 #include "SkBitmapProcShader.h"
+#include "SkColorShader.h"
 #include "SkEmptyShader.h"
 #include "SkReadBuffer.h"
 #include "SkMallocPixelRef.h"
@@ -79,6 +80,18 @@ bool SkShader::computeTotalInverse(const ContextRec& rec, SkMatrix* totalInverse
         m = &total;
     }
     return m->invert(totalInverse);
+}
+
+bool SkShader::asLuminanceColor(SkColor* colorPtr) const {
+    SkColor storage;
+    if (NULL == colorPtr) {
+        colorPtr = &storage;
+    }
+    if (this->onAsLuminanceColor(colorPtr)) {
+        *colorPtr = SkColorSetA(*colorPtr, 0xFF);   // we only return opaque
+        return true;
+    }
+    return false;
 }
 
 SkShader::Context* SkShader::createContext(const ContextRec& rec, void* storage) const {
@@ -224,6 +237,10 @@ SkShader* SkShader::CreateEmptyShader() {
     return SkNEW(SkEmptyShader);
 }
 
+SkShader* SkShader::CreateColorShader(SkColor color) {
+    return SkNEW_ARGS(SkColorShader, (color));
+}
+
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                        const SkMatrix* localMatrix) {
     return ::CreateBitmapShader(src, tmx, tmy, localMatrix, NULL);
@@ -245,7 +262,6 @@ void SkShader::toString(SkString* str) const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "SkColorShader.h"
 #include "SkUtils.h"
 
 SkColorShader::SkColorShader(SkColor c)

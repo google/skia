@@ -1497,10 +1497,12 @@ static SkPaint::Hinting computeHinting(const SkPaint& paint) {
 // return true if the paint is just a single color (i.e. not a shader). If its
 // a shader, then we can't compute a const luminance for it :(
 static bool justAColor(const SkPaint& paint, SkColor* color) {
-    if (paint.getShader()) {
+    SkColor c = paint.getColor();
+
+    SkShader* shader = paint.getShader();
+    if (shader && !shader->asLuminanceColor(&c)) {
         return false;
     }
-    SkColor c = paint.getColor();
     if (paint.getColorFilter()) {
         c = paint.getColorFilter()->filterColor(c);
     }

@@ -99,8 +99,6 @@ static void cgDrawText(CGContextRef cg, const void* text, size_t len,
 }
 #endif
 
-namespace skiagm {
-
 /**
    Test a set of clipping problems discovered while writing blitAntiRect,
    and test all the code paths through the clipping blitters.
@@ -110,7 +108,7 @@ namespace skiagm {
 
 #define HEIGHT 480
 
-class GammaTextGM : public GM {
+class GammaTextGM : public skiagm::GM {
 public:
     GammaTextGM() {
 
@@ -199,12 +197,89 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
+
+DEF_GM( return new GammaTextGM; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new GammaTextGM; }
-static GMRegistry reg(MyFactory);
-
+static SkShader* make_gradient(SkColor c) {
+    const SkPoint pts[] = { { 0, 0 }, { 240, 0 } };
+    SkColor colors[2];
+    colors[0] = c;
+    colors[1] = SkColorSetA(c, 0);
+    return SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
 }
+
+static void set_face(SkPaint* paint) {
+    SkTypeface* face = SkTypeface::CreateFromName("serif", SkTypeface::kItalic);
+    SkSafeUnref(paint->setTypeface(face));
+}
+
+static void draw_pair(SkCanvas* canvas, SkPaint* paint, SkShader* shader) {
+    const char text[] = "Now is the time for all good";
+    const size_t len = strlen(text);
+    
+    paint->setShader(NULL);
+    canvas->drawText(text, len, 10, 20, *paint);
+    paint->setShader(SkShader::CreateColorShader(paint->getColor()))->unref();
+    canvas->drawText(text, len, 10, 40, *paint);
+    paint->setShader(shader);
+    canvas->drawText(text, len, 10, 60, *paint);
+}
+
+class GammaShaderTextGM : public skiagm::GM {
+    SkShader* fShaders[3];
+    SkColor fColors[3];
+
+public:
+    GammaShaderTextGM() {
+        const SkColor colors[] = { SK_ColorBLACK, SK_ColorRED, SK_ColorBLUE };
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
+            fShaders[i] = NULL;
+            fColors[i] = colors[i];
+        }
+    }
+
+    virtual ~GammaShaderTextGM() {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
+            SkSafeUnref(fShaders[i]);
+        }
+    }
+
+protected:
+    virtual SkString onShortName() {
+        return SkString("gammagradienttext");
+    }
+    
+    virtual SkISize onISize() {
+        return SkISize::Make(300, 300);
+    }
+
+    virtual void onOnceBeforeDraw() {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
+            fShaders[i] = make_gradient(fColors[i]);
+        }
+    }
+
+    virtual void onDraw(SkCanvas* canvas) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setLCDRenderText(true);
+        paint.setTextSize(18);
+        set_face(&paint);
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
+            paint.setColor(fColors[i]);
+            draw_pair(canvas, &paint, fShaders[i]);
+            canvas->translate(0, 80);
+        }
+    }
+    
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+DEF_GM( return new GammaShaderTextGM; )
+

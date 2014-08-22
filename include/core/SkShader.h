@@ -386,6 +386,16 @@ public:
                              const SkMatrix* localMatrixOrNull, GrColor* paintColor,
                              GrEffect** effect) const;
 
+    /**
+     *  If the shader can represent its "average" luminance in a single color, return true and
+     *  if color is not NULL, return that color. If it cannot, return false and ignore the color
+     *  parameter.
+     *
+     *  Note: if this returns true, the returned color will always be opaque, as only the RGB
+     *  components are used to compute luminance.
+     */
+    bool asLuminanceColor(SkColor*) const;
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     /**
      *  If the shader is a custom shader which has data the caller might want, call this function
@@ -401,6 +411,12 @@ public:
      *  Call this to create a new "empty" shader, that will not draw anything.
      */
     static SkShader* CreateEmptyShader();
+
+    /**
+     *  Call this to create a new shader that just draws the specified color. This should always
+     *  draw the same as a paint with this color (and no shader).
+     */
+    static SkShader* CreateColorShader(SkColor);
 
     /** Call this to create a new shader that will draw with the specified bitmap.
      *
@@ -474,6 +490,9 @@ protected:
      */
     virtual Context* onCreateContext(const ContextRec&, void* storage) const;
 
+    virtual bool onAsLuminanceColor(SkColor*) const {
+        return false;
+    }
 private:
     // This is essentially const, but not officially so it can be modified in
     // constructors.

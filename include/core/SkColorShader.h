@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2007 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkColorShader_DEFINED
 #define SkColorShader_DEFINED
@@ -67,9 +65,13 @@ protected:
     SkColorShader(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
+    virtual bool onAsLuminanceColor(SkColor* lum) const SK_OVERRIDE {
+        *lum = fColor;
+        return true;
+    }
 
 private:
-    SkColor     fColor;         // ignored if fInheritColor is true
+    SkColor fColor;
 
     typedef SkShader INHERITED;
 };

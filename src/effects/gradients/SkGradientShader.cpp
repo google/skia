@@ -326,6 +326,28 @@ bool SkGradientShaderBase::isOpaque() const {
     return fColorsAreOpaque;
 }
 
+static unsigned rounded_divide(unsigned numer, unsigned denom) {
+    return (numer + (denom >> 1)) / denom;
+}
+
+bool SkGradientShaderBase::onAsLuminanceColor(SkColor* lum) const {
+    // we just compute an average color.
+    // possibly we could weight this based on the proportional width for each color
+    //   assuming they are not evenly distributed in the fPos array.
+    int r = 0;
+    int g = 0;
+    int b = 0;
+    const int n = fColorCount;
+    for (int i = 0; i < n; ++i) {
+        SkColor c = fOrigColors[i];
+        r += SkColorGetR(c);
+        g += SkColorGetG(c);
+        b += SkColorGetB(c);
+    }
+    *lum = SkColorSetRGB(rounded_divide(r, n), rounded_divide(g, n), rounded_divide(b, n));
+    return true;
+}
+
 SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
         const SkGradientShaderBase& shader, const ContextRec& rec)
     : INHERITED(shader, rec)
