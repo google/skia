@@ -366,7 +366,7 @@ static bool render_picture(const SkString& inputPath, const SkString* writePath,
             sk_tools::ImageDigest imageDigest(*bitmap);
             jsonSummaryPtr->add(inputFilename.c_str(), outputFilename.c_str(), imageDigest);
             if ((NULL != mismatchPath) && !mismatchPath->isEmpty() &&
-                !jsonSummaryPtr->matchesExpectation(inputFilename.c_str(), imageDigest)) {
+                !jsonSummaryPtr->getExpectation(inputFilename.c_str()).matches(imageDigest)) {
                 success &= sk_tools::write_bitmap_to_disk(*bitmap, *mismatchPath, NULL,
                                                           outputFilename);
             }

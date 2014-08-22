@@ -53,44 +53,69 @@ namespace sk_tools {
 
     // ImageDigest class...
 
-    ImageDigest::ImageDigest(const SkBitmap &bitmap) {
-        if (!SkBitmapHasher::ComputeDigest(bitmap, &fHashValue)) {
-            SkFAIL("unable to compute image digest");
-        }
-    }
+    ImageDigest::ImageDigest(const SkBitmap &bitmap) :
+        fBitmap(bitmap), fHashValue(0), fComputedHashValue(false) {}
 
-    ImageDigest::ImageDigest(const SkString &hashType, uint64_t hashValue) {
+    ImageDigest::ImageDigest(const SkString &hashType, uint64_t hashValue) :
+        fBitmap(), fHashValue(hashValue), fComputedHashValue(true) {
         if (!hashType.equals(kJsonValue_Image_ChecksumAlgorithm_Bitmap64bitMD5)) {
-            SkFAIL((SkString("unsupported hashType ")+=hashType).c_str());
-        } else {
-            fHashValue = hashValue;
+            SkDebugf("unsupported hashType '%s'\n", hashType.c_str());
+            SkFAIL("unsupported hashType (see above)");
         }
     }
 
-    SkString ImageDigest::getHashType() const {
+    bool ImageDigest::equals(ImageDigest &other) {
+        // TODO(epoger): The current implementation assumes that this
+        // and other always have hashType kJsonKey_Hashtype_Bitmap_64bitMD5
+        return (this->getHashValue() == other.getHashValue());
+    }
+
+    SkString ImageDigest::getHashType() {
         // TODO(epoger): The current implementation assumes that the
         // result digest is always of type kJsonValue_Image_ChecksumAlgorithm_Bitmap64bitMD5 .
         return SkString(kJsonValue_Image_ChecksumAlgorithm_Bitmap64bitMD5);
     }
 
-    uint64_t ImageDigest::getHashValue() const {
-        return fHashValue;
+    uint64_t ImageDigest::getHashValue() {
+        if (!this->fComputedHashValue) {
+            if (!SkBitmapHasher::ComputeDigest(this->fBitmap, &this->fHashValue)) {
+                SkFAIL("unable to compute image digest");
+            }
+            this->fComputedHashValue = true;
+        }
+        return this->fHashValue;
     }
 
     // BitmapAndDigest class...
 
-    BitmapAndDigest::BitmapAndDigest(const SkBitmap &bitmap) : fBitmap(bitmap) {
-    }
+    BitmapAndDigest::BitmapAndDigest(const SkBitmap &bitmap) :
+        fBitmap(bitmap), fImageDigest(bitmap) {}
 
-    const ImageDigest *BitmapAndDigest::getImageDigestPtr() {
-        if (NULL == fImageDigestRef.get()) {
-            fImageDigestRef.reset(SkNEW_ARGS(ImageDigest, (fBitmap)));
-        }
-        return fImageDigestRef.get();
-    }
+    const SkBitmap *BitmapAndDigest::getBitmapPtr() const {return &fBitmap;}
 
-    const SkBitmap *BitmapAndDigest::getBitmapPtr() const {
-        return &fBitmap;
+    ImageDigest *BitmapAndDigest::getImageDigestPtr() {return &fImageDigest;}
+
+    // Expectation class...
+
+    // For when we need a valid ImageDigest, but we don't care what it is.
+    static const ImageDigest kDummyImageDigest(
+        SkString(kJsonValue_Image_ChecksumAlgorithm_Bitmap64bitMD5), 0);
+
+    Expectation::Expectation(bool ignoreFailure) :
+        fIsEmpty(true), fIgnoreFailure(ignoreFailure), fImageDigest(kDummyImageDigest) {}
+
+    Expectation::Expectation(const SkString &hashType, uint64_t hashValue, bool ignoreFailure) :
+        fIsEmpty(false), fIgnoreFailure(ignoreFailure), fImageDigest(hashType, hashValue) {}
+
+    Expectation::Expectation(const SkBitmap& bitmap, bool ignoreFailure) :
+        fIsEmpty(false), fIgnoreFailure(ignoreFailure), fImageDigest(bitmap) {}
+
+    bool Expectation::ignoreFailure() const { return this->fIgnoreFailure; }
+
+    bool Expectation::empty() const { return this->fIsEmpty; }
+
+    bool Expectation::matches(ImageDigest &imageDigest) {
+        return !(this->fIsEmpty) && (this->fImageDigest.equals(imageDigest));
     }
 
     // ImageResultsAndExpectations class...
@@ -136,19 +161,11 @@ namespace sk_tools {
     }
 
     void ImageResultsAndExpectations::add(const char *sourceName, const char *fileName,
-                                          const ImageDigest &digest, const int *tileNumber) {
+                                          ImageDigest &digest, const int *tileNumber) {
         // Get expectation, if any.
-        Json::Value expectedImage;
-        if (!fExpectedResults.isNull()) {
-            if (NULL == tileNumber) {
-                expectedImage = fExpectedResults[sourceName][kJsonKey_Source_WholeImage];
-            } else {
-                expectedImage = fExpectedResults[sourceName][kJsonKey_Source_TiledImages]
-                                                [*tileNumber];
-            }
-        }
+        Expectation expectation = this->getExpectation(sourceName, tileNumber);
 
-        // Fill in info about the actual result itself.
+        // Fill in info about the actual result.
         Json::Value actualChecksumAlgorithm = digest.getHashType().c_str();
         Json::Value actualChecksumValue = Json::UInt64(digest.getHashValue());
         Json::Value actualImage;
@@ -157,16 +174,15 @@ namespace sk_tools {
         actualImage[kJsonKey_Image_Filepath] = fileName;
 
         // Compare against expectedImage to fill in comparisonResult.
-        Json::Value comparisonResult = kJsonValue_Image_ComparisonResult_NoComparison;
-        if (!expectedImage.isNull()) {
-            if ((actualChecksumAlgorithm == expectedImage[kJsonKey_Image_ChecksumAlgorithm]) &&
-                (actualChecksumValue == expectedImage[kJsonKey_Image_ChecksumValue])) {
-                comparisonResult = kJsonValue_Image_ComparisonResult_Succeeded;
-            } else if (expectedImage[kJsonKey_Image_IgnoreFailure] == true) {
-                comparisonResult = kJsonValue_Image_ComparisonResult_FailureIgnored;
-            } else {
-                comparisonResult = kJsonValue_Image_ComparisonResult_Failed;
-            }
+        Json::Value comparisonResult;
+        if (expectation.empty()) {
+            comparisonResult = kJsonValue_Image_ComparisonResult_NoComparison;
+        } else if (expectation.matches(digest)) {
+            comparisonResult = kJsonValue_Image_ComparisonResult_Succeeded;
+        } else if (expectation.ignoreFailure()) {
+            comparisonResult = kJsonValue_Image_ComparisonResult_FailureIgnored;
+        } else {
+            comparisonResult = kJsonValue_Image_ComparisonResult_Failed;
         }
         actualImage[kJsonKey_Image_ComparisonResult] = comparisonResult;
 
@@ -182,11 +198,10 @@ namespace sk_tools {
         fDescriptions[key] = value;
     }
 
-    bool ImageResultsAndExpectations::matchesExpectation(const char *sourceName,
-                                                         const ImageDigest &digest,
-                                                         const int *tileNumber) {
+    Expectation ImageResultsAndExpectations::getExpectation(const char *sourceName,
+                                                            const int *tileNumber) {
         if (fExpectedResults.isNull()) {
-            return false;
+            return Expectation();
         }
 
         Json::Value expectedImage;
@@ -196,13 +211,13 @@ namespace sk_tools {
             expectedImage = fExpectedResults[sourceName][kJsonKey_Source_TiledImages][*tileNumber];
         }
         if (expectedImage.isNull()) {
-            return false;
+            return Expectation();
         }
 
-        Json::Value actualChecksumAlgorithm = digest.getHashType().c_str();
-        Json::Value actualChecksumValue = Json::UInt64(digest.getHashValue());
-        return ((actualChecksumAlgorithm == expectedImage[kJsonKey_Image_ChecksumAlgorithm]) &&
-                (actualChecksumValue == expectedImage[kJsonKey_Image_ChecksumValue]));
+        bool ignoreFailure = (expectedImage[kJsonKey_Image_IgnoreFailure] == true);
+        return Expectation(SkString(expectedImage[kJsonKey_Image_ChecksumAlgorithm].asCString()),
+                           expectedImage[kJsonKey_Image_ChecksumValue].asUInt64(),
+                           ignoreFailure);
     }
 
     void ImageResultsAndExpectations::writeToFile(const char *filename) const {

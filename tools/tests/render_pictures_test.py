@@ -213,6 +213,43 @@ class RenderPicturesTest(base_unittest.TestCase):
     self._assert_directory_contents(
         write_path_dir, ['red_skp.png', 'green_skp.png'])
 
+  def test_ignore_some_failures(self):
+    """test_tiled_whole_image, but ignoring some failed tests.
+    """
+    output_json_path = os.path.join(self._output_dir, 'actuals.json')
+    write_path_dir = self.create_empty_dir(
+        path=os.path.join(self._output_dir, 'writePath'))
+    self._generate_skps()
+    expectations_path = self._create_expectations(ignore_some_failures=True)
+    self._run_render_pictures([
+        '-r', self._input_skp_dir,
+        '--bbh', 'grid', '256', '256',
+        '--mode', 'tile', '256', '256',
+        '--readJsonSummaryPath', expectations_path,
+        '--writeJsonSummaryPath', output_json_path,
+        '--writePath', write_path_dir,
+        '--writeWholeImage'])
+    modified_red_tiles = copy.deepcopy(RED_TILES)
+    modified_red_tiles[5]['comparisonResult'] = 'failure-ignored'
+    expected_summary_dict = {
+        "header" : EXPECTED_HEADER_CONTENTS,
+        "descriptions" : None,
+        "actual-results" : {
+            "red.skp": {
+                "tiled-images": modified_red_tiles,
+                "whole-image": modified_dict(
+                    RED_WHOLEIMAGE, {"comparisonResult" : "failure-ignored"}),
+            },
+            "green.skp": {
+                "tiled-images": GREEN_TILES,
+                "whole-image": GREEN_WHOLEIMAGE,
+            }
+        }
+    }
+    self._assert_json_contents(output_json_path, expected_summary_dict)
+    self._assert_directory_contents(
+        write_path_dir, ['red_skp.png', 'green_skp.png'])
+
   def test_missing_tile_and_whole_image(self):
     """test_tiled_whole_image, but missing expectations for some images.
     """
@@ -591,12 +628,14 @@ class RenderPicturesTest(base_unittest.TestCase):
         [binary, '--config', '8888'] + args)
 
   def _create_expectations(self, missing_some_images=False,
+                           ignore_some_failures=False,
                            rel_path='expectations.json'):
     """Creates expectations JSON file within self._expectations_dir .
 
     Args:
       missing_some_images: (bool) whether to remove expectations for a subset
           of the images
+      ignore_some_failures: (bool) whether to ignore some failing tests
       rel_path: (string) relative path within self._expectations_dir to write
           the expectations into
 
@@ -621,8 +660,13 @@ class RenderPicturesTest(base_unittest.TestCase):
         }
     }
     if missing_some_images:
-      del expectations_dict['expected-results']['red.skp']['whole-image']
-      del expectations_dict['expected-results']['red.skp']['tiled-images'][-1]
+      red_subdict = expectations_dict['expected-results']['red.skp']
+      del red_subdict['whole-image']
+      del red_subdict['tiled-images'][-1]
+    elif ignore_some_failures:
+      red_subdict = expectations_dict['expected-results']['red.skp']
+      red_subdict['whole-image']['ignoreFailure'] = True
+      red_subdict['tiled-images'][-1]['ignoreFailure'] = True
     path = os.path.join(self._expectations_dir, rel_path)
     with open(path, 'w') as fh:
       json.dump(expectations_dict, fh)

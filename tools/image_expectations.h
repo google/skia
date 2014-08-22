@@ -11,7 +11,6 @@
 #include "SkBitmap.h"
 #include "SkJSONCPP.h"
 #include "SkOSFile.h"
-#include "SkRefCnt.h"
 
 namespace sk_tools {
 
@@ -20,14 +19,12 @@ namespace sk_tools {
      *
      * Currently, this is always a uint64_t hash digest of an SkBitmap.
      */
-    class ImageDigest : public SkRefCnt {
+    class ImageDigest {
     public:
         /**
          * Create an ImageDigest of a bitmap.
          *
-         * Note that this is an expensive operation, because it has to examine all pixels in
-         * the bitmap.  You may wish to consider using the BitmapAndDigest class, which will
-         * compute the ImageDigest lazily.
+         * Computes the hash of the bitmap lazily, since that is an expensive operation.
          *
          * @param bitmap image to get the digest of
          */
@@ -43,36 +40,105 @@ namespace sk_tools {
         explicit ImageDigest(const SkString &hashType, uint64_t hashValue);
 
         /**
+         * Returns true iff this and other ImageDigest represent identical images.
+         */
+        bool equals(ImageDigest &other);
+
+        /**
          * Returns the hash digest type as an SkString.
          *
          * For now, this always returns kJsonValue_Image_ChecksumAlgorithm_Bitmap64bitMD5 .
          */
-        SkString getHashType() const;
+        SkString getHashType();
 
         /**
          * Returns the hash digest value as a uint64_t.
+         *
+         * Since the hash is computed lazily, this may take some time, and it may modify
+         * some fields on this object.
          */
-        uint64_t getHashValue() const;
+        uint64_t getHashValue();
 
     private:
+        const SkBitmap fBitmap;
         uint64_t fHashValue;
+        bool fComputedHashValue;
     };
 
     /**
-     * Container that holds a reference to an SkBitmap and computes its ImageDigest lazily.
-     *
-     * Computing the ImageDigest can be expensive, so this can help you postpone (or maybe even
-     * avoid) that work.
+     * Container that holds a reference to an SkBitmap and its ImageDigest.
      */
     class BitmapAndDigest {
     public:
         explicit BitmapAndDigest(const SkBitmap &bitmap);
 
-        const ImageDigest *getImageDigestPtr();
         const SkBitmap *getBitmapPtr() const;
+
+        /**
+         * Returns a pointer to the ImageDigest.
+         *
+         * Since the hash is computed lazily within the ImageDigest object, we cannot mandate
+         * that it be held const.
+         */
+        ImageDigest *getImageDigestPtr();
     private:
         const SkBitmap fBitmap;
-        SkAutoTUnref<ImageDigest> fImageDigestRef;
+        ImageDigest fImageDigest;
+    };
+
+    /**
+     * Expected test result: expected image (if any), and whether we want to ignore failures on
+     * this test or not.
+     *
+     * This is just an ImageDigest (or lack thereof, if there is no expectation) and a boolean
+     * telling us whether to ignore failures.
+     */
+    class Expectation {
+    public:
+        /**
+         * No expectation at all.
+         */
+        explicit Expectation(bool ignoreFailure=kDefaultIgnoreFailure);
+
+        /**
+         * Expect an image, passed as hashType/hashValue.
+         */
+        explicit Expectation(const SkString &hashType, uint64_t hashValue,
+                             bool ignoreFailure=kDefaultIgnoreFailure);
+
+        /**
+         * Expect an image, passed as a bitmap.
+         */
+        explicit Expectation(const SkBitmap& bitmap,
+                             bool ignoreFailure=kDefaultIgnoreFailure);
+
+        /**
+         * Returns true iff we want to ignore failed expectations.
+         */
+        bool ignoreFailure() const;
+
+        /**
+         * Returns true iff there are no allowed results.
+         */
+        bool empty() const;
+
+        /**
+         * Returns true iff we are expecting a particular image, and imageDigest matches it.
+         *
+         * If empty() returns true, this will return false.
+         *
+         * If this expectation DOES contain an image, and imageDigest doesn't match it,
+         * this method will return false regardless of what ignoreFailure() would return.
+         * (The caller can check that separately.)
+         */
+        bool matches(ImageDigest &imageDigest);
+
+    private:
+        static const bool kDefaultIgnoreFailure = false;
+
+        const bool fIsEmpty;
+        const bool fIgnoreFailure;
+        ImageDigest fImageDigest;  // cannot be const, because it computes its hash lazily
     };
 
     /**
@@ -107,7 +173,7 @@ namespace sk_tools {
          * @param digest description of the image's contents
          * @param tileNumber if not NULL, pointer to tile number
          */
-        void add(const char *sourceName, const char *fileName, const ImageDigest &digest,
+        void add(const char *sourceName, const char *fileName, ImageDigest &digest,
                  const int *tileNumber=NULL);
 
         /**
@@ -119,15 +185,15 @@ namespace sk_tools {
         void addDescription(const char *key, const char *value);
 
         /**
-         * Returns true if this test result matches its expectations.
-         * If there are no expectations for this test result, this will return false.
+         * Returns the Expectation for this test.
          *
          * @param sourceName name of the source file that generated this result
-         * @param digest description of the image's contents
          * @param tileNumber if not NULL, pointer to tile number
+         *
+         * TODO(stephana): To make this work for GMs, we will need to add parameters for
+         * config, and maybe renderMode/builder?
          */
-        bool matchesExpectation(const char *sourceName, const ImageDigest &digest,
-                                const int *tileNumber=NULL);
+        Expectation getExpectation(const char *sourceName, const int *tileNumber=NULL);
 
         /**
          * Writes the summary (as constructed so far) to a file.
