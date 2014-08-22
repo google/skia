@@ -2226,20 +2226,24 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         this->translate(x, y);
     }
 
+    SkPaint runPaint = paint;
     SkTextBlob::RunIterator it(blob);
     while (!it.done()) {
         size_t textLen = it.glyphCount() * sizeof(uint16_t);
         const SkPoint& offset = it.offset();
+        // applyFontToPaint() always overwrites the exact same attributes,
+        // so it is safe to not re-seed the paint.
+        it.applyFontToPaint(&runPaint);
 
         switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:
-            this->drawText(it.glyphs(), textLen, offset.x(), offset.y(), paint);
+            this->drawText(it.glyphs(), textLen, offset.x(), offset.y(), runPaint);
             break;
         case SkTextBlob::kHorizontal_Positioning:
-            this->drawPosTextH(it.glyphs(), textLen, it.pos(), offset.y(), paint);
+            this->drawPosTextH(it.glyphs(), textLen, it.pos(), offset.y(), runPaint);
             break;
         case SkTextBlob::kFull_Positioning:
-            this->drawPosText(it.glyphs(), textLen, (const SkPoint*)it.pos(), paint);
+            this->drawPosText(it.glyphs(), textLen, (const SkPoint*)it.pos(), runPaint);
             break;
         default:
             SkFAIL("unhandled positioning mode");

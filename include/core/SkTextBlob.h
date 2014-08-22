@@ -47,7 +47,7 @@ private:
         const uint16_t* glyphs() const;
         const SkScalar* pos() const;
         const SkPoint& offset() const;
-        const SkPaint& font() const;
+        void applyFontToPaint(SkPaint*) const;
         GlyphPositioning positioning() const;
 
     private:

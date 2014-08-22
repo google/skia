@@ -61,14 +61,37 @@ const SkPoint& SkTextBlob::RunIterator::offset() const {
     return (*fBlob->fRuns)[fIndex].offset;
 }
 
-const SkPaint& SkTextBlob::RunIterator::font() const {
-    SkASSERT(!this->done());
-    return (*fBlob->fRuns)[fIndex].font;
-}
-
 SkTextBlob::GlyphPositioning SkTextBlob::RunIterator::positioning() const {
     SkASSERT(!this->done());
     return (*fBlob->fRuns)[fIndex].positioning;
+}
+
+void SkTextBlob::RunIterator::applyFontToPaint(SkPaint* paint) const {
+    SkASSERT(!this->done());
+
+    const SkPaint& font = (*fBlob->fRuns)[fIndex].font;
+
+    paint->setTypeface(font.getTypeface());
+    paint->setTextEncoding(font.getTextEncoding());
+    paint->setTextSize(font.getTextSize());
+    paint->setTextScaleX(font.getTextScaleX());
+    paint->setTextSkewX(font.getTextSkewX());
+    paint->setHinting(font.getHinting());
+
+    uint32_t flagsMask = SkPaint::kAntiAlias_Flag
+                       | SkPaint::kUnderlineText_Flag
+                       | SkPaint::kStrikeThruText_Flag
+                       | SkPaint::kFakeBoldText_Flag
+                       | SkPaint::kLinearText_Flag
+                       | SkPaint::kSubpixelText_Flag
+                       | SkPaint::kDevKernText_Flag
+                       | SkPaint::kLCDRenderText_Flag
+                       | SkPaint::kEmbeddedBitmapText_Flag
+                       | SkPaint::kAutoHinting_Flag
+                       | SkPaint::kVerticalText_Flag
+                       | SkPaint::kGenA8FromLCD_Flag
+                       | SkPaint::kDistanceFieldTextTEMP_Flag;
+    paint->setFlags((paint->getFlags() & ~flagsMask) | (font.getFlags() & flagsMask));
 }
 
 SkTextBlobBuilder::SkTextBlobBuilder(unsigned runs)

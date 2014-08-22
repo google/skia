@@ -31,21 +31,33 @@ const struct BlobCfg {
         { { 1024,   kPoint_Pos, 1 }, { 0,   kPoint_Pos, 0 }, { 0,   kPoint_Pos, 0 } },
     },
     {
-        { { 4, kDefault_Pos, 1},     { 4, kDefault_Pos, 1},  { 4, kDefault_Pos, 1} },
-        { { 4,  kScalar_Pos, 1},     { 4,  kScalar_Pos, 1},  { 4,  kScalar_Pos, 1} },
-        { { 4,   kPoint_Pos, 1},     { 4,   kPoint_Pos, 1},  { 4,   kPoint_Pos, 1} },
+        { { 4, kDefault_Pos, 1 },     { 4, kDefault_Pos, 1 },  { 4, kDefault_Pos, 1 } },
+        { { 4,  kScalar_Pos, 1 },     { 4,  kScalar_Pos, 1 },  { 4,  kScalar_Pos, 1 } },
+        { { 4,   kPoint_Pos, 1 },     { 4,   kPoint_Pos, 1 },  { 4,   kPoint_Pos, 1 } },
     },
 
     {
-        { { 4, kDefault_Pos, 1},     { 4, kDefault_Pos, 1},  { 4,  kScalar_Pos, 1} },
-        { { 4,  kScalar_Pos, 1},     { 4,  kScalar_Pos, 1},  { 4,   kPoint_Pos, 1} },
-        { { 4,   kPoint_Pos, 1},     { 4,   kPoint_Pos, 1},  { 4, kDefault_Pos, 1} },
+        { { 4, kDefault_Pos, 1 },     { 4, kDefault_Pos, 1 },  { 4,  kScalar_Pos, 1 } },
+        { { 4,  kScalar_Pos, 1 },     { 4,  kScalar_Pos, 1 },  { 4,   kPoint_Pos, 1 } },
+        { { 4,   kPoint_Pos, 1 },     { 4,   kPoint_Pos, 1 },  { 4, kDefault_Pos, 1 } },
     },
 
     {
-        { { 4, kDefault_Pos, 1},     { 4,  kScalar_Pos, 1},  { 4,   kPoint_Pos, 1} },
-        { { 4,  kScalar_Pos, 1},     { 4,   kPoint_Pos, 1},  { 4, kDefault_Pos, 1} },
-        { { 4,   kPoint_Pos, 1},     { 4, kDefault_Pos, 1},  { 4,  kScalar_Pos, 1} },
+        { { 4, kDefault_Pos, 1 },     { 4,  kScalar_Pos, 1 },  { 4,   kPoint_Pos, 1 } },
+        { { 4,  kScalar_Pos, 1 },     { 4,   kPoint_Pos, 1 },  { 4, kDefault_Pos, 1 } },
+        { { 4,   kPoint_Pos, 1 },     { 4, kDefault_Pos, 1 },  { 4,  kScalar_Pos, 1 } },
+    },
+
+    {
+        { { 4, kDefault_Pos, .75f },     { 4, kDefault_Pos, 1 },  { 4,  kScalar_Pos, 1.25f } },
+        { { 4,  kScalar_Pos, .75f },     { 4,  kScalar_Pos, 1 },  { 4,   kPoint_Pos, 1.25f } },
+        { { 4,   kPoint_Pos, .75f },     { 4,   kPoint_Pos, 1 },  { 4, kDefault_Pos, 1.25f } },
+    },
+
+    {
+        { { 4, kDefault_Pos, 1 },     { 4,  kScalar_Pos, .75f },  { 4,   kPoint_Pos, 1.25f } },
+        { { 4,  kScalar_Pos, 1 },     { 4,   kPoint_Pos, .75f },  { 4, kDefault_Pos, 1.25f } },
+        { { 4,   kPoint_Pos, 1 },     { 4, kDefault_Pos, .75f },  { 4,  kScalar_Pos, 1.25f } },
     },
 };
 
@@ -74,14 +86,9 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         for (unsigned b = 0; b < SK_ARRAY_COUNT(blobConfigs); ++b) {
-            SkAutoTUnref<const SkTextBlob> blob(makeBlob(b));
+            SkAutoTUnref<const SkTextBlob> blob(this->makeBlob(b));
 
             SkPaint p;
-            p.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-            p.setTextSize(kFontSize);
-            p.setAntiAlias(true);
-            p.setSubpixelText(true);
-
             SkPoint offset = SkPoint::Make(SkIntToScalar(10 + 300 * (b % 2)),
                                            SkIntToScalar(20 + 150 * (b / 2)));
 
@@ -102,6 +109,8 @@ private:
 
         SkPaint font;
         font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        font.setAntiAlias(true);
+        font.setSubpixelText(true);
 
         for (unsigned l = 0; l < SK_ARRAY_COUNT(blobConfigs[blobIndex]); ++l) {
             unsigned currentGlyph = 0;

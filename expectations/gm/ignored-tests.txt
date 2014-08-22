@@ -41,3 +41,6 @@ gradtext
 gradients_view_perspective
 drawbitmaprect
 drawbitmapmatrix
+
+# To be rebaselined (fmalita)
+textblob
