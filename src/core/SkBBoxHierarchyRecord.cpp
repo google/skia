@@ -41,14 +41,9 @@ SkCanvas::SaveLayerStrategy SkBBoxHierarchyRecord::willSaveLayer(const SkRect* b
          (NULL != paint->getColorFilter()));
     SkRect drawBounds;
     if (paintAffectsTransparentBlack) {
-        if (bounds) {
-            drawBounds = *bounds;
-            this->getTotalMatrix().mapRect(&drawBounds);
-        } else {
-            SkIRect deviceBounds;
-            this->getClipDeviceBounds(&deviceBounds);
-            drawBounds.set(deviceBounds);
-        }
+        SkIRect deviceBounds;
+        this->getClipDeviceBounds(&deviceBounds);
+        drawBounds.set(deviceBounds);
     }
     fStateTree->appendSaveLayer(this->writeStream().bytesWritten());
     SkCanvas::SaveLayerStrategy strategy = this->INHERITED::willSaveLayer(bounds, paint, flags);
