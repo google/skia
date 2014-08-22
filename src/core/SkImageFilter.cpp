@@ -256,6 +256,9 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     GrAutoScratchTexture dst(context, desc);
+    if (NULL == dst.texture()) {
+        return false;
+    }
     GrContext::AutoMatrix am;
     am.setIdentity(context);
     GrContext::AutoRenderTarget art(context, dst.texture()->asRenderTarget());
