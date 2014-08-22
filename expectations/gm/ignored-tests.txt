@@ -32,3 +32,12 @@
 ## http://skbug.com/123456 : ignoring failures on gradtext GM test
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
+
+# mtklein will rebaseline https://codereview.chromium.org/474983007/ (skbug.com/2797)
+gpusamplerstress
+shadertext3
+pictures
+gradtext
+gradients_view_perspective
+drawbitmaprect
+drawbitmapmatrix
