@@ -447,12 +447,8 @@ SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc pro
         if (NULL == data) {
             return NULL;
         }
-#if 0
         const SkPicture src(data, info.fWidth, info.fHeight);
         return Forwardport(src);
-#else
-        return SkNEW_ARGS(SkPicture, (data, info.fWidth, info.fHeight));
-#endif
     }
 
     return NULL;
@@ -472,12 +468,8 @@ SkPicture* SkPicture::CreateFromBuffer(SkReadBuffer& buffer) {
         if (NULL == data) {
             return NULL;
         }
-#if 0
         const SkPicture src(data, info.fWidth, info.fHeight);
         return Forwardport(src);
-#else
-        return SkNEW_ARGS(SkPicture, (data, info.fWidth, info.fHeight));
-#endif
     }
 
     return NULL;
