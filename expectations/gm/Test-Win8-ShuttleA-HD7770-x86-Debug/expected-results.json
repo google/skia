@@ -12967,14 +12967,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6194629758544639580
+          6183456328083498663
         ]
       ], 
-      "bugs": [
-        1978
-      ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "verylargebitmap_8888.png": {
       "allowed-digests": [
