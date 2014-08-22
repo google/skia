@@ -1649,7 +1649,11 @@ void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
 const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm_neon[] = {
     // no dither
     S32_D565_Opaque_neon,
+#if 0
     S32_D565_Blend_neon,
+#else
+    NULL,  // https://code.google.com/p/skia/issues/detail?id=2797
+#endif
     S32A_D565_Opaque_neon,
 #ifdef SK_CPU_ARM64
     NULL,   // https://code.google.com/p/skia/issues/detail?id=2845
