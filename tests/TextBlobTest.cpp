@@ -14,65 +14,60 @@
 
 class TextBlobTester {
 public:
-    static void test_builder(skiatest::Reporter* reporter) {
-        SkPaint font;
-        font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-
+    // This unit test feeds an SkTextBlobBuilder various runs then checks to see if
+    // the result contains the provided data and merges runs when appropriate.
+    static void TestBuilder(skiatest::Reporter* reporter) {
         SkTextBlobBuilder builder;
 
         // empty run set
-        runBuilderTest(reporter, font, builder, NULL, 0, NULL, 0);
+        RunBuilderTest(reporter, builder, NULL, 0, NULL, 0);
 
-        RunDef SET1[] = {
+        RunDef set1[] = {
             { 128, SkTextBlob::kDefault_Positioning, 100, 100 },
         };
-        runBuilderTest(reporter, font, builder, SET1, SK_ARRAY_COUNT(SET1), SET1,
-                       SK_ARRAY_COUNT(SET1));
+        RunBuilderTest(reporter, builder, set1, SK_ARRAY_COUNT(set1), set1, SK_ARRAY_COUNT(set1));
 
-        RunDef SET2[] = {
+        RunDef set2[] = {
             { 128, SkTextBlob::kHorizontal_Positioning, 100, 100 },
         };
-        runBuilderTest(reporter, font, builder, SET2, SK_ARRAY_COUNT(SET2), SET2,
-                       SK_ARRAY_COUNT(SET2));
+        RunBuilderTest(reporter, builder, set2, SK_ARRAY_COUNT(set2), set2, SK_ARRAY_COUNT(set2));
 
-        RunDef SET3[] = {
+        RunDef set3[] = {
             { 128, SkTextBlob::kFull_Positioning, 100, 100 },
         };
-        runBuilderTest(reporter, font, builder, SET3, SK_ARRAY_COUNT(SET3), SET3,
-                       SK_ARRAY_COUNT(SET3));
+        RunBuilderTest(reporter, builder, set3, SK_ARRAY_COUNT(set3), set3, SK_ARRAY_COUNT(set3));
 
-        RunDef SET4[] = {
+        RunDef set4[] = {
             { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
             { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
             { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
         };
-        runBuilderTest(reporter, font, builder, SET4, SK_ARRAY_COUNT(SET4), SET4,
-                       SK_ARRAY_COUNT(SET4));
+        RunBuilderTest(reporter, builder, set4, SK_ARRAY_COUNT(set4), set4, SK_ARRAY_COUNT(set4));
 
-        RunDef SET5[] = {
+        RunDef set5[] = {
             { 128, SkTextBlob::kHorizontal_Positioning, 100, 150 },
             { 128, SkTextBlob::kHorizontal_Positioning, 200, 150 },
             { 128, SkTextBlob::kHorizontal_Positioning, 300, 250 },
         };
-        RunDef SET5_MERGED[] = {
+        RunDef mergedSet5[] = {
             { 256, SkTextBlob::kHorizontal_Positioning, 0, 150 },
             { 128, SkTextBlob::kHorizontal_Positioning, 0, 250 },
         };
-        runBuilderTest(reporter, font, builder, SET5, SK_ARRAY_COUNT(SET5), SET5_MERGED,
-                       SK_ARRAY_COUNT(SET5_MERGED));
+        RunBuilderTest(reporter, builder, set5, SK_ARRAY_COUNT(set5), mergedSet5,
+                       SK_ARRAY_COUNT(mergedSet5));
 
-        RunDef SET6[] = {
+        RunDef set6[] = {
             { 128, SkTextBlob::kFull_Positioning, 100, 100 },
             { 128, SkTextBlob::kFull_Positioning, 200, 200 },
             { 128, SkTextBlob::kFull_Positioning, 300, 300 },
         };
-        RunDef SET6_MERGED[] = {
+        RunDef mergedSet6[] = {
             { 384, SkTextBlob::kFull_Positioning, 0, 0 },
         };
-        runBuilderTest(reporter, font, builder, SET6, SK_ARRAY_COUNT(SET6), SET6_MERGED,
-                       SK_ARRAY_COUNT(SET6_MERGED));
+        RunBuilderTest(reporter, builder, set6, SK_ARRAY_COUNT(set6), mergedSet6,
+                       SK_ARRAY_COUNT(mergedSet6));
 
-        RunDef SET7[] = {
+        RunDef set7[] = {
             { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
             { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
             { 128, SkTextBlob::kHorizontal_Positioning, 100, 150 },
@@ -86,7 +81,7 @@ public:
             { 128, SkTextBlob::kFull_Positioning, 400, 750 },
             { 128, SkTextBlob::kFull_Positioning, 400, 850 },
         };
-        RunDef SET7_MERGED[] = {
+        RunDef mergedSet7[] = {
             { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
             { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
             { 256, SkTextBlob::kHorizontal_Positioning, 0, 150 },
@@ -97,8 +92,64 @@ public:
             { 128, SkTextBlob::kHorizontal_Positioning, 0, 650 },
             { 256, SkTextBlob::kFull_Positioning, 0, 0 },
         };
-        runBuilderTest(reporter, font, builder, SET7, SK_ARRAY_COUNT(SET7), SET7_MERGED,
-                       SK_ARRAY_COUNT(SET7_MERGED));
+        RunBuilderTest(reporter, builder, set7, SK_ARRAY_COUNT(set7), mergedSet7,
+                       SK_ARRAY_COUNT(mergedSet7));
+    }
+
+    // This unit test verifies blob bounds computation.
+    static void TestBounds(skiatest::Reporter* reporter) {
+        SkTextBlobBuilder builder;
+        SkPaint font;
+        font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+        // Explicit bounds.
+        {
+            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
+        }
+
+        {
+            SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
+            builder.allocRun(font, 16, 0, 0, &r1);
+            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            REPORTER_ASSERT(reporter, blob->bounds() == r1);
+        }
+
+        {
+            SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
+            builder.allocRunPosH(font, 16, 0, &r1);
+            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            REPORTER_ASSERT(reporter, blob->bounds() == r1);
+        }
+
+        {
+            SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
+            builder.allocRunPos(font, 16, &r1);
+            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            REPORTER_ASSERT(reporter, blob->bounds() == r1);
+        }
+
+        {
+            SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
+            SkRect r2 = SkRect::MakeXYWH(15, 20, 50, 50);
+            SkRect r3 = SkRect::MakeXYWH(0, 5, 10, 5);
+
+            builder.allocRun(font, 16, 0, 0, &r1);
+            builder.allocRunPosH(font, 16, 0, &r2);
+            builder.allocRunPos(font, 16, &r3);
+
+            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            REPORTER_ASSERT(reporter, blob->bounds() == SkRect::MakeXYWH(0, 5, 65, 65));
+        }
+
+        {
+            // Verify empty blob bounds after building some non-empty blobs.
+            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
+        }
+
+        // Implicit bounds
+        // FIXME: not supported yet.
     }
 
 private:
@@ -108,15 +159,17 @@ private:
         SkScalar                     x, y;
     };
 
-    static void runBuilderTest(skiatest::Reporter* reporter, const SkPaint& font,
-                               SkTextBlobBuilder& builder,
+    static void RunBuilderTest(skiatest::Reporter* reporter, SkTextBlobBuilder& builder,
                                const RunDef in[], unsigned inCount,
                                const RunDef out[], unsigned outCount) {
+        SkPaint font;
+        font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
         unsigned glyphCount = 0;
         unsigned posCount = 0;
 
         for (unsigned i = 0; i < inCount; ++i) {
-            addRun(font, in[i].count, in[i].pos, SkPoint::Make(in[i].x, in[i].y), builder);
+            AddRun(font, in[i].count, in[i].pos, SkPoint::Make(in[i].x, in[i].y), builder);
             glyphCount += in[i].count;
             posCount += in[i].count * in[i].pos;
         }
@@ -154,7 +207,7 @@ private:
         REPORTER_ASSERT(reporter, it.done());
     }
 
-    static void addRun(const SkPaint& font, int count, SkTextBlob::GlyphPositioning pos,
+    static void AddRun(const SkPaint& font, int count, SkTextBlob::GlyphPositioning pos,
                        const SkPoint& offset, SkTextBlobBuilder& builder,
                        const SkRect* bounds = NULL) {
         switch (pos) {
@@ -188,5 +241,6 @@ private:
 };
 
 DEF_TEST(TextBlob_builder, reporter) {
-    TextBlobTester::test_builder(reporter);
+    TextBlobTester::TestBuilder(reporter);
+    TextBlobTester::TestBounds(reporter);
 }
