@@ -783,6 +783,7 @@ private:
     uint32_t                            fFlagBits;
     const GrVertexAttrib*               fVAPtr;
     int                                 fVACount;
+    size_t                              fVertexSize;
     GrStencilSettings                   fStencilSettings;
     uint8_t                             fCoverage;
     DrawFace                            fDrawFace;

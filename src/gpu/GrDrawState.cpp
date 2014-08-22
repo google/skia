@@ -53,6 +53,7 @@ GrDrawState::CombinedState GrDrawState::CombineIfPossible(
         }
     }
 
+    SkASSERT(a.fVertexSize == b.fVertexSize);
     SkASSERT(0 == memcmp(a.fFixedFunctionVertexAttribIndices,
                             b.fFixedFunctionVertexAttribIndices,
                             sizeof(a.fFixedFunctionVertexAttribIndices)));
@@ -112,6 +113,7 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fFlagBits = that.fFlagBits;
     fVACount = that.fVACount;
     fVAPtr = that.fVAPtr;
+    fVertexSize = that.fVertexSize;
     fStencilSettings = that.fStencilSettings;
     fCoverage = that.fCoverage;
     fDrawFace = that.fDrawFace;
@@ -236,7 +238,7 @@ static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
 }
 
 size_t GrDrawState::getVertexSize() const {
-    return vertex_size(fVAPtr, fVACount);
+    return fVertexSize;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -246,6 +248,7 @@ void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
 
     fVAPtr = attribs;
     fVACount = count;
+    fVertexSize = vertex_size(fVAPtr, fVACount);
 
     // Set all the indices to -1
     memset(fFixedFunctionVertexAttribIndices,
@@ -283,6 +286,7 @@ void GrDrawState::setDefaultVertexAttribs() {
 
     fVAPtr = &kPositionAttrib;
     fVACount = 1;
+    fVertexSize = GrVertexAttribTypeSize(kVec2f_GrVertexAttribType);
 
     // set all the fixed function indices to -1 except position.
     memset(fFixedFunctionVertexAttribIndices,
