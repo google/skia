@@ -152,6 +152,7 @@ private:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrResourceCacheEntry);
 
     friend class GrResourceCache;
+    friend class GrContext;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

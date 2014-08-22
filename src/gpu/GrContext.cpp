@@ -548,8 +548,9 @@ void GrContext::unlockScratchTexture(GrTexture* texture) {
     if (texture->wasDestroyed()) {
         if (texture->getCacheEntry()->key().isScratch()) {
             // This texture was detached from the cache but the cache still had a ref to it but
-            // not a pointer to it.
-            texture->unref();
+            // not a pointer to it. This will unref the texture and delete its resource cache
+            // entry.
+            delete texture->getCacheEntry();
         }
         return;
     }
