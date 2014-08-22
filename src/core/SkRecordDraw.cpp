@@ -71,6 +71,10 @@ DRAW(ClipRRect, clipRRect(r.rrect, r.op, r.doAA));
 DRAW(ClipRect, clipRect(r.rect, r.op, r.doAA));
 DRAW(ClipRegion, clipRegion(r.region, r.op));
 
+DRAW(BeginCommentGroup, beginCommentGroup(r.description));
+DRAW(AddComment, addComment(r.key, r.value));
+DRAW(EndCommentGroup, endCommentGroup());
+
 DRAW(DrawBitmap, drawBitmap(shallow_copy(r.bitmap), r.left, r.top, r.paint));
 DRAW(DrawBitmapMatrix, drawBitmapMatrix(shallow_copy(r.bitmap), r.matrix, r.paint));
 DRAW(DrawBitmapNine, drawBitmapNine(shallow_copy(r.bitmap), r.center, r.dst, r.paint));

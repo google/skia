@@ -49,6 +49,25 @@ DEF_TEST(Recorder, r) {
     REPORTER_ASSERT(r, 1 == tally.count<SkRecords::DrawRect>());
 }
 
+// All of Skia will work fine without support for comment groups, but
+// Chrome's inspector can break.  This serves as a simple regression test.
+DEF_TEST(Recorder_CommentGroups, r) {
+    SkRecord record;
+    SkRecorder recorder(&record, 1920, 1080);
+
+    recorder.beginCommentGroup("test");
+        recorder.addComment("foo", "bar");
+        recorder.addComment("baz", "quux");
+    recorder.endCommentGroup();
+
+    Tally tally;
+    tally.apply(record);
+
+    REPORTER_ASSERT(r, 1 == tally.count<SkRecords::BeginCommentGroup>());
+    REPORTER_ASSERT(r, 2 == tally.count<SkRecords::AddComment>());
+    REPORTER_ASSERT(r, 1 == tally.count<SkRecords::EndCommentGroup>());
+}
+
 // Regression test for leaking refs held by optional arguments.
 DEF_TEST(Recorder_RefLeaking, r) {
     // We use SaveLayer to test:

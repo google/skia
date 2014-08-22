@@ -107,6 +107,10 @@ public:
     void onPushCull(const SkRect& cullRect) SK_OVERRIDE;
     void onPopCull() SK_OVERRIDE;
 
+    void beginCommentGroup(const char*) SK_OVERRIDE;
+    void addComment(const char*, const char*) SK_OVERRIDE;
+    void endCommentGroup() SK_OVERRIDE;
+
 private:
     template <typename T>
     T* copy(const T*);

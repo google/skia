@@ -82,6 +82,13 @@ char* SkRecorder::copy(const char src[], size_t count) {
     return dst;
 }
 
+// As above, assuming and copying a terminating \0.
+template <>
+char* SkRecorder::copy(const char* src) {
+    return this->copy(src, strlen(src)+1);
+}
+
+
 void SkRecorder::clear(SkColor color) {
     APPEND(Clear, color);
 }
@@ -275,4 +282,16 @@ void SkRecorder::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle e
 void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     INHERITED(onClipRegion, deviceRgn, op);
     APPEND(ClipRegion, this->devBounds(), delay_copy(deviceRgn), op);
+}
+
+void SkRecorder::beginCommentGroup(const char* description) {
+    APPEND(BeginCommentGroup, this->copy(description));
+}
+
+void SkRecorder::addComment(const char* key, const char* value) {
+    APPEND(AddComment, this->copy(key), this->copy(value));
+}
+
+void SkRecorder::endCommentGroup() {
+    APPEND(EndCommentGroup);
 }

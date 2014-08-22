@@ -37,6 +37,9 @@ namespace SkRecords {
     M(ClipRect)                                                     \
     M(ClipRegion)                                                   \
     M(Clear)                                                        \
+    M(BeginCommentGroup)                                            \
+    M(AddComment)                                                   \
+    M(EndCommentGroup)                                              \
     M(DrawBitmap)                                                   \
     M(DrawBitmapMatrix)                                             \
     M(DrawBitmapNine)                                               \
@@ -211,6 +214,11 @@ RECORD4(ClipRect,   SkIRect, devBounds, SkRect,   rect,   SkRegion::Op, op, bool
 RECORD3(ClipRegion, SkIRect, devBounds, SkRegion, region, SkRegion::Op, op);
 
 RECORD1(Clear, SkColor, color);
+
+RECORD1(BeginCommentGroup, PODArray<char>, description);
+RECORD2(AddComment, PODArray<char>, key, PODArray<char>, value);
+RECORD0(EndCommentGroup);
+
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
 RECORD4(DrawBitmap, Optional<SkPaint>, paint,
                     ImmutableBitmap, bitmap,
