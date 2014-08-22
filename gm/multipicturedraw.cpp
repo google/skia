@@ -295,8 +295,8 @@ namespace skiagm {
         const SkPicture* fPictures[2];
 
         virtual void onOnceBeforeDraw() SK_OVERRIDE {
-            fPictures[0] = SkRef(make_picture(SK_ColorWHITE));
-            fPictures[1] = SkRef(make_picture(SK_ColorGRAY));
+            fPictures[0] = make_picture(SK_ColorWHITE);
+            fPictures[1] = make_picture(SK_ColorGRAY);
         }
 
         virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE{
