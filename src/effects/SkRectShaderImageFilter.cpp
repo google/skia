@@ -44,7 +44,8 @@ SkRectShaderImageFilter::SkRectShaderImageFilter(SkReadBuffer& buffer)
 
 SkFlattenable* SkRectShaderImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
-    return Create(buffer.readShader(), &common.cropRect());
+    SkAutoTUnref<SkShader> shader(buffer.readShader());
+    return Create(shader.get(), &common.cropRect());
 }
 
 void SkRectShaderImageFilter::flatten(SkWriteBuffer& buffer) const {
