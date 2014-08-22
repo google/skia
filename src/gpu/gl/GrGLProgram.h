@@ -9,10 +9,10 @@
 #ifndef GrGLProgram_DEFINED
 #define GrGLProgram_DEFINED
 
+#include "builders/GrGLProgramBuilder.h"
 #include "GrDrawState.h"
 #include "GrGLContext.h"
 #include "GrGLProgramDesc.h"
-#include "GrGLShaderBuilder.h"
 #include "GrGLSL.h"
 #include "GrGLTexture.h"
 #include "GrGLProgramDataManager.h"
@@ -22,7 +22,7 @@
 
 class GrGLEffect;
 class GrGLProgramEffects;
-class GrGLShaderBuilder;
+class GrGLProgramBuilder;
 
 /**
  * This class manages a GPU program and records per-program information.
@@ -37,7 +37,7 @@ class GrGLProgram : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrGLProgram)
 
-    typedef GrGLShaderBuilder::BuiltinUniformHandles BuiltinUniformHandles;
+    typedef GrGLProgramBuilder::BuiltinUniformHandles BuiltinUniformHandles;
 
     static GrGLProgram* Create(GrGpuGL* gpu,
                                const GrGLProgramDesc& desc,
@@ -167,7 +167,7 @@ private:
 
     GrGLProgram(GrGpuGL*,
                 const GrGLProgramDesc&,
-                const GrGLShaderBuilder&);
+                const GrGLProgramBuilder&);
 
     // Sets the texture units for samplers.
     void initSamplerUniforms();

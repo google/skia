@@ -127,7 +127,7 @@ SkFlattenable* SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 #include "GrEffectUnitTest.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
 namespace {
@@ -222,7 +222,7 @@ public:
             : INHERITED(factory) {
         }
 
-        virtual void emitCode(GrGLShaderBuilder* builder,
+        virtual void emitCode(GrGLProgramBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
@@ -234,7 +234,7 @@ public:
             SkASSERT(SkXfermode::kDst_Mode != mode);
             const char* colorFilterColorUniName = NULL;
             if (drawEffect.castEffect<ModeColorFilterEffect>().willUseFilterColor()) {
-                fFilterColorUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                fFilterColorUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                       kVec4f_GrSLType, "FilterColor",
                                                       &colorFilterColorUniName);
             }
@@ -242,7 +242,8 @@ public:
             GrGLSLExpr4 filter =
                 color_filter_expression(mode, GrGLSLExpr4(colorFilterColorUniName), GrGLSLExpr4(inputColor));
 
-            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, filter.c_str());
+            builder->getFragmentShaderBuilder()->
+                    codeAppendf("\t%s = %s;\n", outputColor, filter.c_str());
         }
 
         static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,

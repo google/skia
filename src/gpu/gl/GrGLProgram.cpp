@@ -24,13 +24,12 @@ GrGLProgram* GrGLProgram::Create(GrGpuGL* gpu,
                                  const GrGLProgramDesc& desc,
                                  const GrEffectStage* colorStages[],
                                  const GrEffectStage* coverageStages[]) {
-    SkAutoTDelete<GrGLShaderBuilder> builder;
+    SkAutoTDelete<GrGLProgramBuilder> builder;
     if (desc.getHeader().fHasVertexCode ||!gpu->shouldUseFixedFunctionTexturing()) {
-        builder.reset(SkNEW_ARGS(GrGLFullShaderBuilder, (gpu, desc)));
+        builder.reset(SkNEW_ARGS(GrGLFullProgramBuilder, (gpu, desc)));
     } else {
-        builder.reset(SkNEW_ARGS(GrGLFragmentOnlyShaderBuilder, (gpu, desc)));
+        builder.reset(SkNEW_ARGS(GrGLFragmentOnlyProgramBuilder, (gpu, desc)));
     }
-
     if (builder->genProgram(colorStages, coverageStages)) {
         SkASSERT(0 != builder->getProgramID());
         return SkNEW_ARGS(GrGLProgram, (gpu, desc, *builder));
@@ -40,7 +39,7 @@ GrGLProgram* GrGLProgram::Create(GrGpuGL* gpu,
 
 GrGLProgram::GrGLProgram(GrGpuGL* gpu,
                          const GrGLProgramDesc& desc,
-                         const GrGLShaderBuilder& builder)
+                         const GrGLProgramBuilder& builder)
     : fColor(GrColor_ILLEGAL)
     , fCoverage(GrColor_ILLEGAL)
     , fDstCopyTexUnit(-1)

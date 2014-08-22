@@ -15,7 +15,7 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrTBackendEffectFactory.h"
 #endif
 
@@ -252,7 +252,7 @@ public:
     GrGLArithmeticEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
     virtual ~GrGLArithmeticEffect();
 
-    virtual void emitCode(GrGLShaderBuilder*,
+    virtual void emitCode(GrGLProgramBuilder*,
                           const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
@@ -359,7 +359,7 @@ GrGLArithmeticEffect::GrGLArithmeticEffect(const GrBackendEffectFactory& factory
 GrGLArithmeticEffect::~GrGLArithmeticEffect() {
 }
 
-void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
+void GrGLArithmeticEffect::emitCode(GrGLProgramBuilder* builder,
                                     const GrDrawEffect& drawEffect,
                                     const GrEffectKey& key,
                                     const char* outputColor,
@@ -368,42 +368,43 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
                                     const TextureSamplerArray& samplers) {
 
     GrTexture* backgroundTex = drawEffect.castEffect<GrArithmeticEffect>().backgroundTexture();
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* dstColor;
     if (backgroundTex) {
-        builder->fsCodeAppend("\t\tvec4 bgColor = ");
-        builder->fsAppendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
-        builder->fsCodeAppendf(";\n");
+        fsBuilder->codeAppend("\t\tvec4 bgColor = ");
+        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
+        fsBuilder->codeAppendf(";\n");
         dstColor = "bgColor";
     } else {
-        dstColor = builder->dstColor();
+        dstColor = fsBuilder->dstColor();
     }
 
     SkASSERT(NULL != dstColor);
-    fKUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fKUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                 kVec4f_GrSLType, "k");
     const char* kUni = builder->getUniformCStr(fKUni);
 
     // We don't try to optimize for this case at all
     if (NULL == inputColor) {
-        builder->fsCodeAppendf("\t\tconst vec4 src = vec4(1);\n");
+        fsBuilder->codeAppendf("\t\tconst vec4 src = vec4(1);\n");
     } else {
-        builder->fsCodeAppendf("\t\tvec4 src = %s;\n", inputColor);
+        fsBuilder->codeAppendf("\t\tvec4 src = %s;\n", inputColor);
         if (gUseUnpremul) {
-            builder->fsCodeAppendf("\t\tsrc.rgb = clamp(src.rgb / src.a, 0.0, 1.0);\n");
+            fsBuilder->codeAppendf("\t\tsrc.rgb = clamp(src.rgb / src.a, 0.0, 1.0);\n");
         }
     }
 
-    builder->fsCodeAppendf("\t\tvec4 dst = %s;\n", dstColor);
+    fsBuilder->codeAppendf("\t\tvec4 dst = %s;\n", dstColor);
     if (gUseUnpremul) {
-        builder->fsCodeAppendf("\t\tdst.rgb = clamp(dst.rgb / dst.a, 0.0, 1.0);\n");
+        fsBuilder->codeAppendf("\t\tdst.rgb = clamp(dst.rgb / dst.a, 0.0, 1.0);\n");
     }
 
-    builder->fsCodeAppendf("\t\t%s = %s.x * src * dst + %s.y * src + %s.z * dst + %s.w;\n", outputColor, kUni, kUni, kUni, kUni);
-    builder->fsCodeAppendf("\t\t%s = clamp(%s, 0.0, 1.0);\n", outputColor, outputColor);
+    fsBuilder->codeAppendf("\t\t%s = %s.x * src * dst + %s.y * src + %s.z * dst + %s.w;\n", outputColor, kUni, kUni, kUni, kUni);
+    fsBuilder->codeAppendf("\t\t%s = clamp(%s, 0.0, 1.0);\n", outputColor, outputColor);
     if (gUseUnpremul) {
-        builder->fsCodeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
+        fsBuilder->codeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
     } else if (fEnforcePMColor) {
-        builder->fsCodeAppendf("\t\t%s.rgb = min(%s.rgb, %s.a);\n", outputColor, outputColor, outputColor);
+        fsBuilder->codeAppendf("\t\t%s.rgb = min(%s.rgb, %s.a);\n", outputColor, outputColor, outputColor);
     }
 }
 

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrOvalEffect.h"
 
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLSL.h"
 #include "GrTBackendEffectFactory.h"
 
@@ -100,7 +100,7 @@ class GLCircleEffect : public GrGLEffect {
 public:
     GLCircleEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
@@ -126,7 +126,7 @@ GLCircleEffect::GLCircleEffect(const GrBackendEffectFactory& factory,
     fPrevRadius = -1.f;
 }
 
-void GLCircleEffect::emitCode(GrGLShaderBuilder* builder,
+void GLCircleEffect::emitCode(GrGLProgramBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
@@ -137,27 +137,29 @@ void GLCircleEffect::emitCode(GrGLShaderBuilder* builder,
     const char *circleName;
     // The circle uniform is (center.x, center.y, radius + 0.5) for regular fills and
     // (... ,radius - 0.5) for inverse fills.
-    fCircleUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fCircleUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                          kVec3f_GrSLType,
                                          "circle",
                                          &circleName);
-    const char* fragmentPos = builder->fragmentPosition();
+
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    const char* fragmentPos = fsBuilder->fragmentPosition();
 
     SkASSERT(kHairlineAA_GrEffectEdgeType != ce.getEdgeType());
     if (GrEffectEdgeTypeIsInverseFill(ce.getEdgeType())) {
-        builder->fsCodeAppendf("\t\tfloat d = length(%s.xy - %s.xy) - %s.z;\n",
+        fsBuilder->codeAppendf("\t\tfloat d = length(%s.xy - %s.xy) - %s.z;\n",
                                 circleName, fragmentPos, circleName);
     } else {
-        builder->fsCodeAppendf("\t\tfloat d = %s.z - length(%s.xy - %s.xy);\n",
+        fsBuilder->codeAppendf("\t\tfloat d = %s.z - length(%s.xy - %s.xy);\n",
                                circleName, fragmentPos, circleName);
     }
     if (GrEffectEdgeTypeIsAA(ce.getEdgeType())) {
-        builder->fsCodeAppend("\t\td = clamp(d, 0.0, 1.0);\n");
+        fsBuilder->codeAppend("\t\td = clamp(d, 0.0, 1.0);\n");
     } else {
-        builder->fsCodeAppend("\t\td = d > 0.5 ? 1.0 : 0.0;\n");
+        fsBuilder->codeAppend("\t\td = d > 0.5 ? 1.0 : 0.0;\n");
     }
 
-    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor,
+    fsBuilder->codeAppendf("\t\t%s = %s;\n", outputColor,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("d")).c_str());
 }
 
@@ -272,7 +274,7 @@ class GLEllipseEffect : public GrGLEffect {
 public:
     GLEllipseEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
@@ -298,7 +300,7 @@ GLEllipseEffect::GLEllipseEffect(const GrBackendEffectFactory& factory,
     fPrevRadii.fX = -1.f;
 }
 
-void GLEllipseEffect::emitCode(GrGLShaderBuilder* builder,
+void GLEllipseEffect::emitCode(GrGLProgramBuilder* builder,
                                const GrDrawEffect& drawEffect,
                                const GrEffectKey& key,
                                const char* outputColor,
@@ -308,41 +310,43 @@ void GLEllipseEffect::emitCode(GrGLShaderBuilder* builder,
     const EllipseEffect& ee = drawEffect.castEffect<EllipseEffect>();
     const char *ellipseName;
     // The ellipse uniform is (center.x, center.y, 1 / rx^2, 1 / ry^2)
-    fEllipseUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fEllipseUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                          kVec4f_GrSLType,
                                          "ellipse",
                                          &ellipseName);
-    const char* fragmentPos = builder->fragmentPosition();
+
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    const char* fragmentPos = fsBuilder->fragmentPosition();
 
     // d is the offset to the ellipse center
-    builder->fsCodeAppendf("\t\tvec2 d = %s.xy - %s.xy;\n", fragmentPos, ellipseName);
-    builder->fsCodeAppendf("\t\tvec2 Z = d * %s.zw;\n", ellipseName);
+    fsBuilder->codeAppendf("\t\tvec2 d = %s.xy - %s.xy;\n", fragmentPos, ellipseName);
+    fsBuilder->codeAppendf("\t\tvec2 Z = d * %s.zw;\n", ellipseName);
     // implicit is the evaluation of (x/rx)^2 + (y/ry)^2 - 1.
-    builder->fsCodeAppend("\t\tfloat implicit = dot(Z, d) - 1.0;\n");
+    fsBuilder->codeAppend("\t\tfloat implicit = dot(Z, d) - 1.0;\n");
     // grad_dot is the squared length of the gradient of the implicit.
-    builder->fsCodeAppendf("\t\tfloat grad_dot = 4.0 * dot(Z, Z);\n");
+    fsBuilder->codeAppendf("\t\tfloat grad_dot = 4.0 * dot(Z, Z);\n");
     // avoid calling inversesqrt on zero.
-    builder->fsCodeAppend("\t\tgrad_dot = max(grad_dot, 1.0e-4);\n");
-    builder->fsCodeAppendf("\t\tfloat approx_dist = implicit * inversesqrt(grad_dot);\n");
+    fsBuilder->codeAppend("\t\tgrad_dot = max(grad_dot, 1.0e-4);\n");
+    fsBuilder->codeAppendf("\t\tfloat approx_dist = implicit * inversesqrt(grad_dot);\n");
 
     switch (ee.getEdgeType()) {
         case kFillAA_GrEffectEdgeType:
-            builder->fsCodeAppend("\t\tfloat alpha = clamp(0.5 - approx_dist, 0.0, 1.0);\n");
+            fsBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 - approx_dist, 0.0, 1.0);\n");
             break;
         case kInverseFillAA_GrEffectEdgeType:
-            builder->fsCodeAppend("\t\tfloat alpha = clamp(0.5 + approx_dist, 0.0, 1.0);\n");
+            fsBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 + approx_dist, 0.0, 1.0);\n");
             break;
         case kFillBW_GrEffectEdgeType:
-            builder->fsCodeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n");
+            fsBuilder->codeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n");
             break;
         case kInverseFillBW_GrEffectEdgeType:
-            builder->fsCodeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n");
+            fsBuilder->codeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n");
             break;
         case kHairlineAA_GrEffectEdgeType:
             SkFAIL("Hairline not expected here.");
     }
 
-    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor,
+    fsBuilder->codeAppendf("\t\t%s = %s;\n", outputColor,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 

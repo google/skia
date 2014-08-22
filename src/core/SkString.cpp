@@ -583,6 +583,14 @@ void SkString::prependf(const char format[], ...) {
     this->prepend(buffer, strlen(buffer));
 }
 
+void SkString::prependVAList(const char format[], va_list args) {
+    char    buffer[kBufferSize];
+    VSNPRINTF(buffer, kBufferSize, format, args);
+
+    this->prepend(buffer, strlen(buffer));
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkString::remove(size_t offset, size_t length) {

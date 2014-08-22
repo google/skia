@@ -185,7 +185,7 @@ void SkSweepGradient::SweepGradientContext::shadeSpan16(int x, int y, uint16_t* 
 #if SK_SUPPORT_GPU
 
 #include "GrTBackendEffectFactory.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
 class GrGLSweepGradient : public GrGLGradientEffect {
@@ -195,7 +195,7 @@ public:
                       const GrDrawEffect&) : INHERITED (factory) { }
     virtual ~GrGLSweepGradient() { }
 
-    virtual void emitCode(GrGLShaderBuilder*,
+    virtual void emitCode(GrGLProgramBuilder*,
                           const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
@@ -265,7 +265,7 @@ GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
+void GrGLSweepGradient::emitCode(GrGLProgramBuilder* builder,
                                  const GrDrawEffect&,
                                  const GrEffectKey& key,
                                  const char* outputColor,
@@ -274,7 +274,7 @@ void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
                                  const TextureSamplerArray& samplers) {
     uint32_t baseKey = key.get32(0);
     this->emitUniforms(builder, baseKey);
-    SkString coords2D = builder->ensureFSCoords2D(coords, 0);
+    SkString coords2D = builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0);
     const GrGLContextInfo ctxInfo = builder->ctxInfo();
     SkString t;
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]

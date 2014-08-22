@@ -11,6 +11,7 @@
 #include "GrSingleTextureEffect.h"
 #include "gl/GrGLEffect.h"
 
+class GrGLProgramBuilder;
 class GrGLShaderBuilder;
 struct SkRect;
 

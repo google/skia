@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrGLProgramDesc.h"
 #include "GrBackendEffectFactory.h"
 #include "GrDrawEffect.h"
 #include "GrEffect.h"
-#include "GrGLShaderBuilder.h"
 #include "GrGpuGL.h"
 
 #include "SkChecksum.h"
@@ -212,15 +212,16 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
         if (NULL != dstCopy) {
             dstCopyTexture = dstCopy->texture();
         }
-        header->fDstReadKey = GrGLShaderBuilder::KeyForDstRead(dstCopyTexture, gpu->glCaps());
+        header->fDstReadKey = GrGLFragmentShaderBuilder::KeyForDstRead(dstCopyTexture,
+                gpu->glCaps());
         SkASSERT(0 != header->fDstReadKey);
     } else {
         header->fDstReadKey = 0;
     }
 
     if (readFragPosition) {
-        header->fFragPosKey = GrGLShaderBuilder::KeyForFragmentPosition(drawState.getRenderTarget(),
-                                                                      gpu->glCaps());
+        header->fFragPosKey = GrGLFragmentShaderBuilder::KeyForFragmentPosition(
+                drawState.getRenderTarget(), gpu->glCaps());
     } else {
         header->fFragPosKey = 0;
     }

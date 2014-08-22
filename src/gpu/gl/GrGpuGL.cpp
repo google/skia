@@ -8,7 +8,6 @@
 
 #include "GrGpuGL.h"
 #include "GrGLStencilBuffer.h"
-#include "GrGLShaderBuilder.h"
 #include "GrTemplates.h"
 #include "GrTypes.h"
 #include "SkStrokeRec.h"

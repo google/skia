@@ -86,7 +86,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrVertexEffect INHERITED;
+    typedef GrEffect INHERITED;
 };
 
 /**
@@ -131,7 +131,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrVertexEffect INHERITED;
+    typedef GrEffect INHERITED;
 };
 
 #endif

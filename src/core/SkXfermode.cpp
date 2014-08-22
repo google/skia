@@ -783,7 +783,7 @@ void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 #include "GrEffectUnitTest.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 /**
  * GrEffect that implements the all the separable xfer modes that cannot be expressed as Coeffs.
@@ -821,7 +821,7 @@ public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
             : GrGLEffect(factory) {
         }
-        virtual void emitCode(GrGLShaderBuilder* builder,
+        virtual void emitCode(GrGLProgramBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
@@ -830,82 +830,83 @@ public:
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
             SkXfermode::Mode mode = drawEffect.castEffect<XferEffect>().mode();
             const GrTexture* backgroundTex = drawEffect.castEffect<XferEffect>().backgroundAccess().getTexture();
+            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             const char* dstColor;
             if (backgroundTex) {
                 dstColor = "bgColor";
-                builder->fsCodeAppendf("\t\tvec4 %s = ", dstColor);
-                builder->fsAppendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
-                builder->fsCodeAppendf(";\n");
+                fsBuilder->codeAppendf("\t\tvec4 %s = ", dstColor);
+                fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
+                fsBuilder->codeAppendf(";\n");
             } else {
-                dstColor = builder->dstColor();
+                dstColor = fsBuilder->dstColor();
             }
             SkASSERT(NULL != dstColor);
 
             // We don't try to optimize for this case at all
             if (NULL == inputColor) {
-                builder->fsCodeAppendf("\t\tconst vec4 ones = vec4(1);\n");
+                fsBuilder->codeAppendf("\t\tconst vec4 ones = vec4(1);\n");
                 inputColor = "ones";
             }
-            builder->fsCodeAppendf("\t\t// SkXfermode::Mode: %s\n", SkXfermode::ModeName(mode));
+            fsBuilder->codeAppendf("\t\t// SkXfermode::Mode: %s\n", SkXfermode::ModeName(mode));
 
             // These all perform src-over on the alpha channel.
-            builder->fsCodeAppendf("\t\t%s.a = %s.a + (1.0 - %s.a) * %s.a;\n",
+            fsBuilder->codeAppendf("\t\t%s.a = %s.a + (1.0 - %s.a) * %s.a;\n",
                                     outputColor, inputColor, inputColor, dstColor);
 
             switch (mode) {
                 case SkXfermode::kOverlay_Mode:
                     // Overlay is Hard-Light with the src and dst reversed
-                    HardLight(builder, outputColor, dstColor, inputColor);
+                    HardLight(fsBuilder, outputColor, dstColor, inputColor);
                     break;
                 case SkXfermode::kDarken_Mode:
-                    builder->fsCodeAppendf("\t\t%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb, "
+                    fsBuilder->codeAppendf("\t\t%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb, "
                                                             "(1.0 - %s.a) * %s.rgb + %s.rgb);\n",
                                             outputColor,
                                             inputColor, dstColor, inputColor,
                                             dstColor, inputColor, dstColor);
                     break;
                 case SkXfermode::kLighten_Mode:
-                    builder->fsCodeAppendf("\t\t%s.rgb = max((1.0 - %s.a) * %s.rgb + %s.rgb, "
+                    fsBuilder->codeAppendf("\t\t%s.rgb = max((1.0 - %s.a) * %s.rgb + %s.rgb, "
                                                             "(1.0 - %s.a) * %s.rgb + %s.rgb);\n",
                                             outputColor,
                                             inputColor, dstColor, inputColor,
                                             dstColor, inputColor, dstColor);
                     break;
                 case SkXfermode::kColorDodge_Mode:
-                    ColorDodgeComponent(builder, outputColor, inputColor, dstColor, 'r');
-                    ColorDodgeComponent(builder, outputColor, inputColor, dstColor, 'g');
-                    ColorDodgeComponent(builder, outputColor, inputColor, dstColor, 'b');
+                    ColorDodgeComponent(fsBuilder, outputColor, inputColor, dstColor, 'r');
+                    ColorDodgeComponent(fsBuilder, outputColor, inputColor, dstColor, 'g');
+                    ColorDodgeComponent(fsBuilder, outputColor, inputColor, dstColor, 'b');
                     break;
                 case SkXfermode::kColorBurn_Mode:
-                    ColorBurnComponent(builder, outputColor, inputColor, dstColor, 'r');
-                    ColorBurnComponent(builder, outputColor, inputColor, dstColor, 'g');
-                    ColorBurnComponent(builder, outputColor, inputColor, dstColor, 'b');
+                    ColorBurnComponent(fsBuilder, outputColor, inputColor, dstColor, 'r');
+                    ColorBurnComponent(fsBuilder, outputColor, inputColor, dstColor, 'g');
+                    ColorBurnComponent(fsBuilder, outputColor, inputColor, dstColor, 'b');
                     break;
                 case SkXfermode::kHardLight_Mode:
-                    HardLight(builder, outputColor, inputColor, dstColor);
+                    HardLight(fsBuilder, outputColor, inputColor, dstColor);
                     break;
                 case SkXfermode::kSoftLight_Mode:
-                    builder->fsCodeAppendf("\t\tif (0.0 == %s.a) {\n", dstColor);
-                    builder->fsCodeAppendf("\t\t\t%s.rgba = %s;\n", outputColor, inputColor);
-                    builder->fsCodeAppendf("\t\t} else {\n");
-                    SoftLightComponentPosDstAlpha(builder, outputColor, inputColor, dstColor, 'r');
-                    SoftLightComponentPosDstAlpha(builder, outputColor, inputColor, dstColor, 'g');
-                    SoftLightComponentPosDstAlpha(builder, outputColor, inputColor, dstColor, 'b');
-                    builder->fsCodeAppendf("\t\t}\n");
+                    fsBuilder->codeAppendf("\t\tif (0.0 == %s.a) {\n", dstColor);
+                    fsBuilder->codeAppendf("\t\t\t%s.rgba = %s;\n", outputColor, inputColor);
+                    fsBuilder->codeAppendf("\t\t} else {\n");
+                    SoftLightComponentPosDstAlpha(fsBuilder, outputColor, inputColor, dstColor, 'r');
+                    SoftLightComponentPosDstAlpha(fsBuilder, outputColor, inputColor, dstColor, 'g');
+                    SoftLightComponentPosDstAlpha(fsBuilder, outputColor, inputColor, dstColor, 'b');
+                    fsBuilder->codeAppendf("\t\t}\n");
                     break;
                 case SkXfermode::kDifference_Mode:
-                    builder->fsCodeAppendf("\t\t%s.rgb = %s.rgb + %s.rgb -"
+                    fsBuilder->codeAppendf("\t\t%s.rgb = %s.rgb + %s.rgb -"
                                                        "2.0 * min(%s.rgb * %s.a, %s.rgb * %s.a);\n",
                                            outputColor, inputColor, dstColor, inputColor, dstColor,
                                            dstColor, inputColor);
                     break;
                 case SkXfermode::kExclusion_Mode:
-                    builder->fsCodeAppendf("\t\t%s.rgb = %s.rgb + %s.rgb - "
+                    fsBuilder->codeAppendf("\t\t%s.rgb = %s.rgb + %s.rgb - "
                                                         "2.0 * %s.rgb * %s.rgb;\n",
                                            outputColor, dstColor, inputColor, dstColor, inputColor);
                     break;
                 case SkXfermode::kMultiply_Mode:
-                    builder->fsCodeAppendf("\t\t%s.rgb = (1.0 - %s.a) * %s.rgb + "
+                    fsBuilder->codeAppendf("\t\t%s.rgb = (1.0 - %s.a) * %s.rgb + "
                                                         "(1.0 - %s.a) * %s.rgb + "
                                                          "%s.rgb * %s.rgb;\n",
                                            outputColor, inputColor, dstColor, dstColor, inputColor,
@@ -914,52 +915,52 @@ public:
                 case SkXfermode::kHue_Mode: {
                     //  SetLum(SetSat(S * Da, Sat(D * Sa)), Sa*Da, D*Sa) + (1 - Sa) * D + (1 - Da) * S
                     SkString setSat, setLum;
-                    AddSatFunction(builder, &setSat);
-                    AddLumFunction(builder, &setLum);
-                    builder->fsCodeAppendf("\t\tvec4 dstSrcAlpha = %s * %s.a;\n",
+                    AddSatFunction(fsBuilder, &setSat);
+                    AddLumFunction(fsBuilder, &setLum);
+                    fsBuilder->codeAppendf("\t\tvec4 dstSrcAlpha = %s * %s.a;\n",
                                            dstColor, inputColor);
-                    builder->fsCodeAppendf("\t\t%s.rgb = %s(%s(%s.rgb * %s.a, dstSrcAlpha.rgb), dstSrcAlpha.a, dstSrcAlpha.rgb);\n",
+                    fsBuilder->codeAppendf("\t\t%s.rgb = %s(%s(%s.rgb * %s.a, dstSrcAlpha.rgb), dstSrcAlpha.a, dstSrcAlpha.rgb);\n",
                                            outputColor, setLum.c_str(), setSat.c_str(), inputColor,
                                            dstColor);
-                    builder->fsCodeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
+                    fsBuilder->codeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
                                            outputColor, inputColor, dstColor, dstColor, inputColor);
                     break;
                 }
                 case SkXfermode::kSaturation_Mode: {
                     // SetLum(SetSat(D * Sa, Sat(S * Da)), Sa*Da, D*Sa)) + (1 - Sa) * D + (1 - Da) * S
                     SkString setSat, setLum;
-                    AddSatFunction(builder, &setSat);
-                    AddLumFunction(builder, &setLum);
-                    builder->fsCodeAppendf("\t\tvec4 dstSrcAlpha = %s * %s.a;\n",
+                    AddSatFunction(fsBuilder, &setSat);
+                    AddLumFunction(fsBuilder, &setLum);
+                    fsBuilder->codeAppendf("\t\tvec4 dstSrcAlpha = %s * %s.a;\n",
                                            dstColor, inputColor);
-                    builder->fsCodeAppendf("\t\t%s.rgb = %s(%s(dstSrcAlpha.rgb, %s.rgb * %s.a), dstSrcAlpha.a, dstSrcAlpha.rgb);\n",
+                    fsBuilder->codeAppendf("\t\t%s.rgb = %s(%s(dstSrcAlpha.rgb, %s.rgb * %s.a), dstSrcAlpha.a, dstSrcAlpha.rgb);\n",
                                            outputColor, setLum.c_str(), setSat.c_str(), inputColor,
                                            dstColor);
-                    builder->fsCodeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
+                    fsBuilder->codeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
                                            outputColor, inputColor, dstColor, dstColor, inputColor);
                     break;
                 }
                 case SkXfermode::kColor_Mode: {
                     //  SetLum(S * Da, Sa* Da, D * Sa) + (1 - Sa) * D + (1 - Da) * S
                     SkString setLum;
-                    AddLumFunction(builder, &setLum);
-                    builder->fsCodeAppendf("\t\tvec4 srcDstAlpha = %s * %s.a;\n",
+                    AddLumFunction(fsBuilder, &setLum);
+                    fsBuilder->codeAppendf("\t\tvec4 srcDstAlpha = %s * %s.a;\n",
                                            inputColor, dstColor);
-                    builder->fsCodeAppendf("\t\t%s.rgb = %s(srcDstAlpha.rgb, srcDstAlpha.a, %s.rgb * %s.a);\n",
+                    fsBuilder->codeAppendf("\t\t%s.rgb = %s(srcDstAlpha.rgb, srcDstAlpha.a, %s.rgb * %s.a);\n",
                                            outputColor, setLum.c_str(), dstColor, inputColor);
-                    builder->fsCodeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
+                    fsBuilder->codeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
                                            outputColor, inputColor, dstColor, dstColor, inputColor);
                     break;
                 }
                 case SkXfermode::kLuminosity_Mode: {
                     //  SetLum(D * Sa, Sa* Da, S * Da) + (1 - Sa) * D + (1 - Da) * S
                     SkString setLum;
-                    AddLumFunction(builder, &setLum);
-                    builder->fsCodeAppendf("\t\tvec4 srcDstAlpha = %s * %s.a;\n",
+                    AddLumFunction(fsBuilder, &setLum);
+                    fsBuilder->codeAppendf("\t\tvec4 srcDstAlpha = %s * %s.a;\n",
                                            inputColor, dstColor);
-                    builder->fsCodeAppendf("\t\t%s.rgb = %s(%s.rgb * %s.a, srcDstAlpha.a, srcDstAlpha.rgb);\n",
+                    fsBuilder->codeAppendf("\t\t%s.rgb = %s(%s.rgb * %s.a, srcDstAlpha.a, srcDstAlpha.rgb);\n",
                                            outputColor, setLum.c_str(), dstColor, inputColor);
-                    builder->fsCodeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
+                    fsBuilder->codeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
                                            outputColor, inputColor, dstColor, dstColor, inputColor);
                     break;
                 }
@@ -979,116 +980,116 @@ public:
         }
 
     private:
-        static void HardLight(GrGLShaderBuilder* builder,
+        static void HardLight(GrGLFragmentShaderBuilder* fsBuilder,
                               const char* final,
                               const char* src,
                               const char* dst) {
             static const char kComponents[] = {'r', 'g', 'b'};
             for (size_t i = 0; i < SK_ARRAY_COUNT(kComponents); ++i) {
                 char component = kComponents[i];
-                builder->fsCodeAppendf("\t\tif (2.0 * %s.%c <= %s.a) {\n", src, component, src);
-                builder->fsCodeAppendf("\t\t\t%s.%c = 2.0 * %s.%c * %s.%c;\n", final, component, src, component, dst, component);
-                builder->fsCodeAppend("\t\t} else {\n");
-                builder->fsCodeAppendf("\t\t\t%s.%c = %s.a * %s.a - 2.0 * (%s.a - %s.%c) * (%s.a - %s.%c);\n",
+                fsBuilder->codeAppendf("\t\tif (2.0 * %s.%c <= %s.a) {\n", src, component, src);
+                fsBuilder->codeAppendf("\t\t\t%s.%c = 2.0 * %s.%c * %s.%c;\n", final, component, src, component, dst, component);
+                fsBuilder->codeAppend("\t\t} else {\n");
+                fsBuilder->codeAppendf("\t\t\t%s.%c = %s.a * %s.a - 2.0 * (%s.a - %s.%c) * (%s.a - %s.%c);\n",
                                        final, component, src, dst, dst, dst, component, src, src, component);
-                builder->fsCodeAppend("\t\t}\n");
+                fsBuilder->codeAppend("\t\t}\n");
             }
-            builder->fsCodeAppendf("\t\t%s.rgb += %s.rgb * (1.0 - %s.a) + %s.rgb * (1.0 - %s.a);\n",
+            fsBuilder->codeAppendf("\t\t%s.rgb += %s.rgb * (1.0 - %s.a) + %s.rgb * (1.0 - %s.a);\n",
                                    final, src, dst, dst, src);
         }
 
         // Does one component of color-dodge
-        static void ColorDodgeComponent(GrGLShaderBuilder* builder,
+        static void ColorDodgeComponent(GrGLFragmentShaderBuilder* fsBuilder,
                                         const char* final,
                                         const char* src,
                                         const char* dst,
                                         const char component) {
-            builder->fsCodeAppendf("\t\tif (0.0 == %s.%c) {\n", dst, component);
-            builder->fsCodeAppendf("\t\t\t%s.%c = %s.%c * (1.0 - %s.a);\n",
+            fsBuilder->codeAppendf("\t\tif (0.0 == %s.%c) {\n", dst, component);
+            fsBuilder->codeAppendf("\t\t\t%s.%c = %s.%c * (1.0 - %s.a);\n",
                                    final, component, src, component, dst);
-            builder->fsCodeAppend("\t\t} else {\n");
-            builder->fsCodeAppendf("\t\t\tfloat d = %s.a - %s.%c;\n", src, src, component);
-            builder->fsCodeAppend("\t\t\tif (0.0 == d) {\n");
-            builder->fsCodeAppendf("\t\t\t\t%s.%c = %s.a * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
+            fsBuilder->codeAppend("\t\t} else {\n");
+            fsBuilder->codeAppendf("\t\t\tfloat d = %s.a - %s.%c;\n", src, src, component);
+            fsBuilder->codeAppend("\t\t\tif (0.0 == d) {\n");
+            fsBuilder->codeAppendf("\t\t\t\t%s.%c = %s.a * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
                                    final, component, src, dst, src, component, dst, dst, component,
                                    src);
-            builder->fsCodeAppend("\t\t\t} else {\n");
-            builder->fsCodeAppendf("\t\t\t\td = min(%s.a, %s.%c * %s.a / d);\n",
+            fsBuilder->codeAppend("\t\t\t} else {\n");
+            fsBuilder->codeAppendf("\t\t\t\td = min(%s.a, %s.%c * %s.a / d);\n",
                                    dst, dst, component, src);
-            builder->fsCodeAppendf("\t\t\t\t%s.%c = d * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
+            fsBuilder->codeAppendf("\t\t\t\t%s.%c = d * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
                                    final, component, src, src, component, dst, dst, component, src);
-            builder->fsCodeAppend("\t\t\t}\n");
-            builder->fsCodeAppend("\t\t}\n");
+            fsBuilder->codeAppend("\t\t\t}\n");
+            fsBuilder->codeAppend("\t\t}\n");
         }
 
         // Does one component of color-burn
-        static void ColorBurnComponent(GrGLShaderBuilder* builder,
+        static void ColorBurnComponent(GrGLFragmentShaderBuilder* fsBuilder,
                                        const char* final,
                                        const char* src,
                                        const char* dst,
                                        const char component) {
-            builder->fsCodeAppendf("\t\tif (%s.a == %s.%c) {\n", dst, dst, component);
-            builder->fsCodeAppendf("\t\t\t%s.%c = %s.a * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
+            fsBuilder->codeAppendf("\t\tif (%s.a == %s.%c) {\n", dst, dst, component);
+            fsBuilder->codeAppendf("\t\t\t%s.%c = %s.a * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
                                    final, component, src, dst, src, component, dst, dst, component,
                                    src);
-            builder->fsCodeAppendf("\t\t} else if (0.0 == %s.%c) {\n", src, component);
-            builder->fsCodeAppendf("\t\t\t%s.%c = %s.%c * (1.0 - %s.a);\n",
+            fsBuilder->codeAppendf("\t\t} else if (0.0 == %s.%c) {\n", src, component);
+            fsBuilder->codeAppendf("\t\t\t%s.%c = %s.%c * (1.0 - %s.a);\n",
                                    final, component, dst, component, src);
-            builder->fsCodeAppend("\t\t} else {\n");
-            builder->fsCodeAppendf("\t\t\tfloat d = max(0.0, %s.a - (%s.a - %s.%c) * %s.a / %s.%c);\n",
+            fsBuilder->codeAppend("\t\t} else {\n");
+            fsBuilder->codeAppendf("\t\t\tfloat d = max(0.0, %s.a - (%s.a - %s.%c) * %s.a / %s.%c);\n",
                                    dst, dst, dst, component, src, src, component);
-            builder->fsCodeAppendf("\t\t\t%s.%c = %s.a * d + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
+            fsBuilder->codeAppendf("\t\t\t%s.%c = %s.a * d + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
                                    final, component, src, src, component, dst, dst, component, src);
-            builder->fsCodeAppend("\t\t}\n");
+            fsBuilder->codeAppend("\t\t}\n");
         }
 
         // Does one component of soft-light. Caller should have already checked that dst alpha > 0.
-        static void SoftLightComponentPosDstAlpha(GrGLShaderBuilder* builder,
+        static void SoftLightComponentPosDstAlpha(GrGLFragmentShaderBuilder* fsBuilder,
                                                   const char* final,
                                                   const char* src,
                                                   const char* dst,
                                                   const char component) {
             // if (2S < Sa)
-            builder->fsCodeAppendf("\t\t\tif (2.0 * %s.%c <= %s.a) {\n", src, component, src);
+            fsBuilder->codeAppendf("\t\t\tif (2.0 * %s.%c <= %s.a) {\n", src, component, src);
             // (D^2 (Sa-2 S))/Da+(1-Da) S+D (-Sa+2 S+1)
-            builder->fsCodeAppendf("\t\t\t\t%s.%c = (%s.%c*%s.%c*(%s.a - 2.0*%s.%c)) / %s.a + (1.0 - %s.a) * %s.%c + %s.%c*(-%s.a + 2.0*%s.%c + 1.0);\n",
+            fsBuilder->codeAppendf("\t\t\t\t%s.%c = (%s.%c*%s.%c*(%s.a - 2.0*%s.%c)) / %s.a + (1.0 - %s.a) * %s.%c + %s.%c*(-%s.a + 2.0*%s.%c + 1.0);\n",
                                    final, component, dst, component, dst, component, src, src,
                                    component, dst, dst, src, component, dst, component, src, src,
                                    component);
             // else if (4D < Da)
-            builder->fsCodeAppendf("\t\t\t} else if (4.0 * %s.%c <= %s.a) {\n",
+            fsBuilder->codeAppendf("\t\t\t} else if (4.0 * %s.%c <= %s.a) {\n",
                                    dst, component, dst);
-            builder->fsCodeAppendf("\t\t\t\tfloat DSqd = %s.%c * %s.%c;\n",
+            fsBuilder->codeAppendf("\t\t\t\tfloat DSqd = %s.%c * %s.%c;\n",
                                    dst, component, dst, component);
-            builder->fsCodeAppendf("\t\t\t\tfloat DCub = DSqd * %s.%c;\n", dst, component);
-            builder->fsCodeAppendf("\t\t\t\tfloat DaSqd = %s.a * %s.a;\n", dst, dst);
-            builder->fsCodeAppendf("\t\t\t\tfloat DaCub = DaSqd * %s.a;\n", dst);
+            fsBuilder->codeAppendf("\t\t\t\tfloat DCub = DSqd * %s.%c;\n", dst, component);
+            fsBuilder->codeAppendf("\t\t\t\tfloat DaSqd = %s.a * %s.a;\n", dst, dst);
+            fsBuilder->codeAppendf("\t\t\t\tfloat DaCub = DaSqd * %s.a;\n", dst);
             // (Da^3 (-S)+Da^2 (S-D (3 Sa-6 S-1))+12 Da D^2 (Sa-2 S)-16 D^3 (Sa-2 S))/Da^2
-            builder->fsCodeAppendf("\t\t\t\t%s.%c = (-DaCub*%s.%c + DaSqd*(%s.%c - %s.%c * (3.0*%s.a - 6.0*%s.%c - 1.0)) + 12.0*%s.a*DSqd*(%s.a - 2.0*%s.%c) - 16.0*DCub * (%s.a - 2.0*%s.%c)) / DaSqd;\n",
+            fsBuilder->codeAppendf("\t\t\t\t%s.%c = (-DaCub*%s.%c + DaSqd*(%s.%c - %s.%c * (3.0*%s.a - 6.0*%s.%c - 1.0)) + 12.0*%s.a*DSqd*(%s.a - 2.0*%s.%c) - 16.0*DCub * (%s.a - 2.0*%s.%c)) / DaSqd;\n",
                                    final, component, src, component, src, component, dst, component,
                                    src, src, component, dst, src, src, component, src, src,
                                    component);
-            builder->fsCodeAppendf("\t\t\t} else {\n");
+            fsBuilder->codeAppendf("\t\t\t} else {\n");
             // -sqrt(Da * D) (Sa-2 S)-Da S+D (Sa-2 S+1)+S
-            builder->fsCodeAppendf("\t\t\t\t%s.%c = -sqrt(%s.a*%s.%c)*(%s.a - 2.0*%s.%c) - %s.a*%s.%c + %s.%c*(%s.a - 2.0*%s.%c + 1.0) + %s.%c;\n",
+            fsBuilder->codeAppendf("\t\t\t\t%s.%c = -sqrt(%s.a*%s.%c)*(%s.a - 2.0*%s.%c) - %s.a*%s.%c + %s.%c*(%s.a - 2.0*%s.%c + 1.0) + %s.%c;\n",
                                     final, component, dst, dst, component, src, src, component, dst,
                                     src, component, dst, component, src, src, component, src,
                                     component);
-            builder->fsCodeAppendf("\t\t\t}\n");
+            fsBuilder->codeAppendf("\t\t\t}\n");
         }
 
         // Adds a function that takes two colors and an alpha as input. It produces a color with the
         // hue and saturation of the first color, the luminosity of the second color, and the input
         // alpha. It has this signature:
         //      vec3 set_luminance(vec3 hueSatColor, float alpha, vec3 lumColor).
-        static void AddLumFunction(GrGLShaderBuilder* builder, SkString* setLumFunction) {
+        static void AddLumFunction(GrGLFragmentShaderBuilder* fsBuilder, SkString* setLumFunction) {
             // Emit a helper that gets the luminance of a color.
             SkString getFunction;
             GrGLShaderVar getLumArgs[] = {
                 GrGLShaderVar("color", kVec3f_GrSLType),
             };
             SkString getLumBody("\treturn dot(vec3(0.3, 0.59, 0.11), color);\n");
-            builder->fsEmitFunction(kFloat_GrSLType,
+            fsBuilder->emitFunction(kFloat_GrSLType,
                                     "luminance",
                                     SK_ARRAY_COUNT(getLumArgs), getLumArgs,
                                     getLumBody.c_str(),
@@ -1113,7 +1114,7 @@ public:
                               "\t\toutColor = outLum + ((outColor - vec3(outLum, outLum, outLum)) * (alpha - outLum)) / (maxComp - outLum);\n"
                               "\t}\n"
                               "\treturn outColor;\n");
-            builder->fsEmitFunction(kVec3f_GrSLType,
+            fsBuilder->emitFunction(kVec3f_GrSLType,
                                     "set_luminance",
                                     SK_ARRAY_COUNT(setLumArgs), setLumArgs,
                                     setLumBody.c_str(),
@@ -1123,14 +1124,14 @@ public:
         // Adds a function that creates a color with the hue and luminosity of one input color and
         // the saturation of another color. It will have this signature:
         //      float set_saturation(vec3 hueLumColor, vec3 satColor)
-        static void AddSatFunction(GrGLShaderBuilder* builder, SkString* setSatFunction) {
+        static void AddSatFunction(GrGLFragmentShaderBuilder* fsBuilder, SkString* setSatFunction) {
             // Emit a helper that gets the saturation of a color
             SkString getFunction;
             GrGLShaderVar getSatArgs[] = { GrGLShaderVar("color", kVec3f_GrSLType) };
             SkString getSatBody;
             getSatBody.printf("\treturn max(max(color.r, color.g), color.b) - "
                               "min(min(color.r, color.g), color.b);\n");
-            builder->fsEmitFunction(kFloat_GrSLType,
+            fsBuilder->emitFunction(kFloat_GrSLType,
                                     "saturation",
                                     SK_ARRAY_COUNT(getSatArgs), getSatArgs,
                                     getSatBody.c_str(),
@@ -1156,7 +1157,7 @@ public:
                                               "\t} else {\n"
                                               "\t\treturn vec3(0, 0, 0);\n"
                                               "\t}\n";
-            builder->fsEmitFunction(kVec3f_GrSLType,
+            fsBuilder->emitFunction(kVec3f_GrSLType,
                                     "set_saturation_helper",
                                     SK_ARRAY_COUNT(helperArgs), helperArgs,
                                     kHelperBody,
@@ -1187,7 +1188,7 @@ public:
                                "\treturn hueLumColor;\n",
                                getFunction.c_str(), helpFunc, helpFunc, helpFunc, helpFunc,
                                helpFunc, helpFunc);
-            builder->fsEmitFunction(kVec3f_GrSLType,
+            fsBuilder->emitFunction(kVec3f_GrSLType,
                                     "set_saturation",
                                     SK_ARRAY_COUNT(setSatArgs), setSatArgs,
                                     setSatBody.c_str(),

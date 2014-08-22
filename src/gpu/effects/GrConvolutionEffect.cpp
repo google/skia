@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrConvolutionEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "GrTBackendEffectFactory.h"
@@ -19,7 +19,7 @@ class GrGLConvolutionEffect : public GrGLEffect {
 public:
     GrGLConvolutionEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder*,
+    virtual void emitCode(GrGLProgramBuilder*,
                           const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
@@ -55,30 +55,32 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& facto
     fDirection = c.direction();
 }
 
-void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
+void GrGLConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
                                      const GrDrawEffect&,
                                      const GrEffectKey& key,
                                      const char* outputColor,
                                      const char* inputColor,
                                      const TransformedCoordsArray& coords,
                                      const TextureSamplerArray& samplers) {
-    SkString coords2D = builder->ensureFSCoords2D(coords, 0);
-    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fImageIncrementUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, "ImageIncrement");
     if (this->useBounds()) {
-        fBoundsUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+        fBoundsUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                          kVec2f_GrSLType, "Bounds");
     }
-    fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_Visibility,
+    fKernelUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
                                           kFloat_GrSLType, "Kernel", this->width());
 
-    builder->fsCodeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
+
+    fsBuilder->codeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
 
     int width = this->width();
     const GrGLShaderVar& kernel = builder->getUniformVariable(fKernelUni);
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
 
-    builder->fsCodeAppendf("\t\tvec2 coord = %s - %d.0 * %s;\n", coords2D.c_str(), fRadius, imgInc);
+    fsBuilder->codeAppendf("\t\tvec2 coord = %s - %d.0 * %s;\n", coords2D.c_str(), fRadius, imgInc);
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     for (int i = 0; i < width; i++) {
@@ -86,21 +88,21 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
         SkString kernelIndex;
         index.appendS32(i);
         kernel.appendArrayAccess(index.c_str(), &kernelIndex);
-        builder->fsCodeAppendf("\t\t%s += ", outputColor);
-        builder->fsAppendTextureLookup(samplers[0], "coord");
+        fsBuilder->codeAppendf("\t\t%s += ", outputColor);
+        fsBuilder->appendTextureLookup(samplers[0], "coord");
         if (this->useBounds()) {
             const char* bounds = builder->getUniformCStr(fBoundsUni);
             const char* component = this->direction() == Gr1DKernelEffect::kY_Direction ? "y" : "x";
-            builder->fsCodeAppendf(" * float(coord.%s >= %s.x && coord.%s <= %s.y)",
+            fsBuilder->codeAppendf(" * float(coord.%s >= %s.x && coord.%s <= %s.y)",
                 component, bounds, component, bounds);
         }
-        builder->fsCodeAppendf(" * %s;\n", kernelIndex.c_str());
-        builder->fsCodeAppendf("\t\tcoord += %s;\n", imgInc);
+        fsBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
+        fsBuilder->codeAppendf("\t\tcoord += %s;\n", imgInc);
     }
 
     SkString modulate;
     GrGLSLMulVarBy4f(&modulate, 2, outputColor, inputColor);
-    builder->fsCodeAppend(modulate.c_str());
+    fsBuilder->codeAppend(modulate.c_str());
 }
 
 void GrGLConvolutionEffect::setData(const GrGLProgramDataManager& pdman,

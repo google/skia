@@ -22,7 +22,7 @@
 #include "GrTexture.h"
 #include "GrEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkGrPixelRef.h"
@@ -610,7 +610,7 @@ class GrGLRectBlurEffect : public GrGLEffect {
 public:
     GrGLRectBlurEffect(const GrBackendEffectFactory& factory,
                       const GrDrawEffect&);
-    virtual void emitCode(GrGLShaderBuilder*,
+    virtual void emitCode(GrGLProgramBuilder*,
                           const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
@@ -635,23 +635,23 @@ GrGLRectBlurEffect::GrGLRectBlurEffect(const GrBackendEffectFactory& factory, co
     : INHERITED(factory) {
 }
 
-void OutputRectBlurProfileLookup(GrGLShaderBuilder* builder,
+void OutputRectBlurProfileLookup(GrGLFragmentShaderBuilder* fsBuilder,
                                  const GrGLShaderBuilder::TextureSampler& sampler,
                                  const char *output,
                                  const char *profileSize, const char *loc,
                                  const char *blurred_width,
                                  const char *sharp_width) {
-    builder->fsCodeAppendf("\tfloat %s;\n", output);
-    builder->fsCodeAppendf("\t\t{\n");
-    builder->fsCodeAppendf("\t\t\tfloat coord = (0.5 * (abs(2.0*%s - %s) - %s))/%s;\n",
+    fsBuilder->codeAppendf("\tfloat %s;\n", output);
+    fsBuilder->codeAppendf("\t\t{\n");
+    fsBuilder->codeAppendf("\t\t\tfloat coord = (0.5 * (abs(2.0*%s - %s) - %s))/%s;\n",
                            loc, blurred_width, sharp_width, profileSize);
-    builder->fsCodeAppendf("\t\t\t%s = ", output);
-    builder->fsAppendTextureLookup(sampler, "vec2(coord,0.5)");
-    builder->fsCodeAppend(".a;\n");
-    builder->fsCodeAppendf("\t\t}\n");
+    fsBuilder->codeAppendf("\t\t\t%s = ", output);
+    fsBuilder->appendTextureLookup(sampler, "vec2(coord,0.5)");
+    fsBuilder->codeAppend(".a;\n");
+    fsBuilder->codeAppendf("\t\t}\n");
 }
 
-void GrGLRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
+void GrGLRectBlurEffect::emitCode(GrGLProgramBuilder* builder,
                                  const GrDrawEffect&,
                                  const GrEffectKey& key,
                                  const char* outputColor,
@@ -662,36 +662,37 @@ void GrGLRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
     const char *rectName;
     const char *profileSizeName;
 
-    fProxyRectUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fProxyRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType,
                                             "proxyRect",
                                             &rectName);
-    fProfileSizeUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fProfileSizeUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kFloat_GrSLType,
                                             "profileSize",
                                             &profileSizeName);
 
-    const char *fragmentPos = builder->fragmentPosition();
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    const char *fragmentPos = fsBuilder->fragmentPosition();
 
     if (inputColor) {
-        builder->fsCodeAppendf("\tvec4 src=%s;\n", inputColor);
+        fsBuilder->codeAppendf("\tvec4 src=%s;\n", inputColor);
     } else {
-        builder->fsCodeAppendf("\tvec4 src=vec4(1)\n;");
+        fsBuilder->codeAppendf("\tvec4 src=vec4(1)\n;");
     }
 
-    builder->fsCodeAppendf("\tvec2 translatedPos = %s.xy - %s.xy;\n", fragmentPos, rectName );
-    builder->fsCodeAppendf("\tfloat width = %s.z - %s.x;\n", rectName, rectName);
-    builder->fsCodeAppendf("\tfloat height = %s.w - %s.y;\n", rectName, rectName);
+    fsBuilder->codeAppendf("\tvec2 translatedPos = %s.xy - %s.xy;\n", fragmentPos, rectName );
+    fsBuilder->codeAppendf("\tfloat width = %s.z - %s.x;\n", rectName, rectName);
+    fsBuilder->codeAppendf("\tfloat height = %s.w - %s.y;\n", rectName, rectName);
 
-    builder->fsCodeAppendf("\tvec2 smallDims = vec2(width - %s, height-%s);\n", profileSizeName, profileSizeName);
-    builder->fsCodeAppendf("\tfloat center = 2.0 * floor(%s/2.0 + .25) - 1.0;\n", profileSizeName);
-    builder->fsCodeAppendf("\tvec2 wh = smallDims - vec2(center,center);\n");
+    fsBuilder->codeAppendf("\tvec2 smallDims = vec2(width - %s, height-%s);\n", profileSizeName, profileSizeName);
+    fsBuilder->codeAppendf("\tfloat center = 2.0 * floor(%s/2.0 + .25) - 1.0;\n", profileSizeName);
+    fsBuilder->codeAppendf("\tvec2 wh = smallDims - vec2(center,center);\n");
 
-    OutputRectBlurProfileLookup(builder, samplers[0], "horiz_lookup", profileSizeName, "translatedPos.x", "width", "wh.x");
-    OutputRectBlurProfileLookup(builder, samplers[0], "vert_lookup", profileSizeName, "translatedPos.y", "height", "wh.y");
+    OutputRectBlurProfileLookup(fsBuilder, samplers[0], "horiz_lookup", profileSizeName, "translatedPos.x", "width", "wh.x");
+    OutputRectBlurProfileLookup(fsBuilder, samplers[0], "vert_lookup", profileSizeName, "translatedPos.y", "height", "wh.y");
 
-    builder->fsCodeAppendf("\tfloat final = horiz_lookup * vert_lookup;\n");
-    builder->fsCodeAppendf("\t%s = src * vec4(final);\n", outputColor );
+    fsBuilder->codeAppendf("\tfloat final = horiz_lookup * vert_lookup;\n");
+    fsBuilder->codeAppendf("\t%s = src * vec4(final);\n", outputColor );
 }
 
 void GrGLRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
@@ -971,7 +972,7 @@ class GrGLRRectBlurEffect : public GrGLEffect {
 public:
     GrGLRRectBlurEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
@@ -993,7 +994,7 @@ GrGLRRectBlurEffect::GrGLRRectBlurEffect(const GrBackendEffectFactory& factory,
     : INHERITED (factory) {
 }
 
-void GrGLRRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
+void GrGLRRectBlurEffect::emitCode(GrGLProgramBuilder* builder,
                              const GrDrawEffect& drawEffect,
                              const GrEffectKey& key,
                              const char* outputColor,
@@ -1007,45 +1008,47 @@ void GrGLRRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
     // The proxy rect has left, top, right, and bottom edges correspond to
     // components x, y, z, and w, respectively.
 
-    fProxyRectUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fProxyRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType,
                                             "proxyRect",
                                             &rectName);
-    fCornerRadiusUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fCornerRadiusUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                  kFloat_GrSLType,
                                                  "cornerRadius",
                                                  &cornerRadiusName);
-    fBlurRadiusUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fBlurRadiusUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                  kFloat_GrSLType,
                                                  "blurRadius",
                                                  &blurRadiusName);
-    const char* fragmentPos = builder->fragmentPosition();
+
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    const char* fragmentPos = fsBuilder->fragmentPosition();
 
     // warp the fragment position to the appropriate part of the 9patch blur texture
 
-    builder->fsCodeAppendf("\t\tvec2 rectCenter = (%s.xy + %s.zw)/2.0;\n", rectName, rectName);
-    builder->fsCodeAppendf("\t\tvec2 translatedFragPos = %s.xy - %s.xy;\n", fragmentPos, rectName);
-    builder->fsCodeAppendf("\t\tfloat threshold = %s + 2.0*%s;\n", cornerRadiusName, blurRadiusName );
-    builder->fsCodeAppendf("\t\tvec2 middle = %s.zw - %s.xy - 2.0*threshold;\n", rectName, rectName );
+    fsBuilder->codeAppendf("\t\tvec2 rectCenter = (%s.xy + %s.zw)/2.0;\n", rectName, rectName);
+    fsBuilder->codeAppendf("\t\tvec2 translatedFragPos = %s.xy - %s.xy;\n", fragmentPos, rectName);
+    fsBuilder->codeAppendf("\t\tfloat threshold = %s + 2.0*%s;\n", cornerRadiusName, blurRadiusName );
+    fsBuilder->codeAppendf("\t\tvec2 middle = %s.zw - %s.xy - 2.0*threshold;\n", rectName, rectName );
 
-    builder->fsCodeAppendf("\t\tif (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x+threshold)) {\n" );
-    builder->fsCodeAppendf("\t\t\ttranslatedFragPos.x = threshold;\n");
-    builder->fsCodeAppendf("\t\t} else if (translatedFragPos.x >= (middle.x + threshold)) {\n");
-    builder->fsCodeAppendf("\t\t\ttranslatedFragPos.x -= middle.x - 1.0;\n");
-    builder->fsCodeAppendf("\t\t}\n");
+    fsBuilder->codeAppendf("\t\tif (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x+threshold)) {\n" );
+    fsBuilder->codeAppendf("\t\t\ttranslatedFragPos.x = threshold;\n");
+    fsBuilder->codeAppendf("\t\t} else if (translatedFragPos.x >= (middle.x + threshold)) {\n");
+    fsBuilder->codeAppendf("\t\t\ttranslatedFragPos.x -= middle.x - 1.0;\n");
+    fsBuilder->codeAppendf("\t\t}\n");
 
-    builder->fsCodeAppendf("\t\tif (translatedFragPos.y > threshold && translatedFragPos.y < (middle.y+threshold)) {\n" );
-    builder->fsCodeAppendf("\t\t\ttranslatedFragPos.y = threshold;\n");
-    builder->fsCodeAppendf("\t\t} else if (translatedFragPos.y >= (middle.y + threshold)) {\n");
-    builder->fsCodeAppendf("\t\t\ttranslatedFragPos.y -= middle.y - 1.0;\n");
-    builder->fsCodeAppendf("\t\t}\n");
+    fsBuilder->codeAppendf("\t\tif (translatedFragPos.y > threshold && translatedFragPos.y < (middle.y+threshold)) {\n" );
+    fsBuilder->codeAppendf("\t\t\ttranslatedFragPos.y = threshold;\n");
+    fsBuilder->codeAppendf("\t\t} else if (translatedFragPos.y >= (middle.y + threshold)) {\n");
+    fsBuilder->codeAppendf("\t\t\ttranslatedFragPos.y -= middle.y - 1.0;\n");
+    fsBuilder->codeAppendf("\t\t}\n");
 
-    builder->fsCodeAppendf("\t\tvec2 proxyDims = vec2(2.0*threshold+1.0);\n");
-    builder->fsCodeAppendf("\t\tvec2 texCoord = translatedFragPos / proxyDims;\n");
+    fsBuilder->codeAppendf("\t\tvec2 proxyDims = vec2(2.0*threshold+1.0);\n");
+    fsBuilder->codeAppendf("\t\tvec2 texCoord = translatedFragPos / proxyDims;\n");
 
-    builder->fsCodeAppendf("\t%s = ", outputColor);
-    builder->fsAppendTextureLookupAndModulate(inputColor, samplers[0], "texCoord");
-    builder->fsCodeAppend(";\n");
+    fsBuilder->codeAppendf("\t%s = ", outputColor);
+    fsBuilder->appendTextureLookupAndModulate(inputColor, samplers[0], "texCoord");
+    fsBuilder->codeAppend(";\n");
 }
 
 void GrGLRRectBlurEffect::setData(const GrGLProgramDataManager& pdman,

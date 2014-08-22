@@ -68,7 +68,7 @@ public:
                             GrGLEffect. These can be passed to the builder to emit texture
                             reads in the generated code.
         */
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLUniformHandle.h"
 #include "gl/GrGpuGL.h"
@@ -17,13 +17,13 @@
 
 GrGLProgramDataManager::GrGLProgramDataManager(GrGpuGL* gpu,
                                                GrGLProgram*,
-                                               const GrGLShaderBuilder& builder)
+                                               const GrGLProgramBuilder& builder)
     : fGpu(gpu) {
     int count = builder.getUniformInfos().count();
     fUniforms.push_back_n(count);
     for (int i = 0; i < count; i++) {
         Uniform& uniform = fUniforms[i];
-        const GrGLShaderBuilder::UniformInfo& builderUniform = builder.getUniformInfos()[i];
+        const GrGLProgramBuilder::UniformInfo& builderUniform = builder.getUniformInfos()[i];
         SkASSERT(GrGLShaderVar::kNonArray == builderUniform.fVariable.getArrayCount() ||
                  builderUniform.fVariable.getArrayCount() > 0);
         SkDEBUGCODE(
@@ -32,12 +32,12 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGpuGL* gpu,
         );
         // TODO: Move the Xoom uniform array in both FS and VS bug workaround here.
 
-        if (GrGLShaderBuilder::kVertex_Visibility & builderUniform.fVisibility) {
+        if (GrGLProgramBuilder::kVertex_Visibility & builderUniform.fVisibility) {
             uniform.fVSLocation = builderUniform.fLocation;
         } else {
             uniform.fVSLocation = kUnusedUniform;
             }
-        if (GrGLShaderBuilder::kFragment_Visibility & builderUniform.fVisibility) {
+        if (GrGLProgramBuilder::kFragment_Visibility & builderUniform.fVisibility) {
             uniform.fFSLocation = builderUniform.fLocation;
         } else {
             uniform.fFSLocation = kUnusedUniform;

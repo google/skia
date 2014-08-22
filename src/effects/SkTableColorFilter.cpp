@@ -278,7 +278,7 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
 #include "GrEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
 class GLColorTableEffect;
@@ -316,7 +316,7 @@ class GLColorTableEffect : public GrGLEffect {
 public:
     GLColorTableEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder*,
+    virtual void emitCode(GrGLProgramBuilder*,
                           const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
@@ -337,7 +337,7 @@ GLColorTableEffect::GLColorTableEffect(const GrBackendEffectFactory& factory, co
     : INHERITED(factory) {
  }
 
-void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,
+void GLColorTableEffect::emitCode(GrGLProgramBuilder* builder,
                                   const GrDrawEffect&,
                                   const GrEffectKey&,
                                   const char* outputColor,
@@ -347,38 +347,39 @@ void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,
 
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     if (NULL == inputColor) {
         // the input color is solid white (all ones).
         static const float kMaxValue = kColorScaleFactor + kColorOffsetFactor;
-        builder->fsCodeAppendf("\t\tvec4 coord = vec4(%f, %f, %f, %f);\n",
+        fsBuilder->codeAppendf("\t\tvec4 coord = vec4(%f, %f, %f, %f);\n",
                                kMaxValue, kMaxValue, kMaxValue, kMaxValue);
 
     } else {
-        builder->fsCodeAppendf("\t\tfloat nonZeroAlpha = max(%s.a, .0001);\n", inputColor);
-        builder->fsCodeAppendf("\t\tvec4 coord = vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha);\n", inputColor);
-        builder->fsCodeAppendf("\t\tcoord = coord * %f + vec4(%f, %f, %f, %f);\n",
+        fsBuilder->codeAppendf("\t\tfloat nonZeroAlpha = max(%s.a, .0001);\n", inputColor);
+        fsBuilder->codeAppendf("\t\tvec4 coord = vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha);\n", inputColor);
+        fsBuilder->codeAppendf("\t\tcoord = coord * %f + vec4(%f, %f, %f, %f);\n",
                               kColorScaleFactor,
                               kColorOffsetFactor, kColorOffsetFactor,
                               kColorOffsetFactor, kColorOffsetFactor);
     }
 
-    builder->fsCodeAppendf("\t\t%s.a = ", outputColor);
-    builder->fsAppendTextureLookup(samplers[0], "vec2(coord.a, 0.125)");
-    builder->fsCodeAppend(";\n");
+    fsBuilder->codeAppendf("\t\t%s.a = ", outputColor);
+    fsBuilder->appendTextureLookup(samplers[0], "vec2(coord.a, 0.125)");
+    fsBuilder->codeAppend(";\n");
 
-    builder->fsCodeAppendf("\t\t%s.r = ", outputColor);
-    builder->fsAppendTextureLookup(samplers[0], "vec2(coord.r, 0.375)");
-    builder->fsCodeAppend(";\n");
+    fsBuilder->codeAppendf("\t\t%s.r = ", outputColor);
+    fsBuilder->appendTextureLookup(samplers[0], "vec2(coord.r, 0.375)");
+    fsBuilder->codeAppend(";\n");
 
-    builder->fsCodeAppendf("\t\t%s.g = ", outputColor);
-    builder->fsAppendTextureLookup(samplers[0], "vec2(coord.g, 0.625)");
-    builder->fsCodeAppend(";\n");
+    fsBuilder->codeAppendf("\t\t%s.g = ", outputColor);
+    fsBuilder->appendTextureLookup(samplers[0], "vec2(coord.g, 0.625)");
+    fsBuilder->codeAppend(";\n");
 
-    builder->fsCodeAppendf("\t\t%s.b = ", outputColor);
-    builder->fsAppendTextureLookup(samplers[0], "vec2(coord.b, 0.875)");
-    builder->fsCodeAppend(";\n");
+    fsBuilder->codeAppendf("\t\t%s.b = ", outputColor);
+    fsBuilder->appendTextureLookup(samplers[0], "vec2(coord.b, 0.875)");
+    fsBuilder->codeAppend(";\n");
 
-    builder->fsCodeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
+    fsBuilder->codeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

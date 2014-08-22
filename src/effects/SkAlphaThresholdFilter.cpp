@@ -50,7 +50,7 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 #include "GrCoordTransform.h"
 #include "GrEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrTBackendEffectFactory.h"
 #include "GrTextureAccess.h"
 
@@ -118,7 +118,7 @@ class GrGLAlphaThresholdEffect : public GrGLEffect {
 public:
     GrGLAlphaThresholdEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder*,
+    virtual void emitCode(GrGLProgramBuilder*,
                           const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
@@ -140,39 +140,41 @@ GrGLAlphaThresholdEffect::GrGLAlphaThresholdEffect(const GrBackendEffectFactory&
     : INHERITED(factory) {
 }
 
-void GrGLAlphaThresholdEffect::emitCode(GrGLShaderBuilder* builder,
+void GrGLAlphaThresholdEffect::emitCode(GrGLProgramBuilder* builder,
                                         const GrDrawEffect&,
                                         const GrEffectKey& key,
                                         const char* outputColor,
                                         const char* inputColor,
                                         const TransformedCoordsArray& coords,
                                         const TextureSamplerArray& samplers) {
-    SkString coords2D = builder->ensureFSCoords2D(coords, 0);
-    SkString maskCoords2D = builder->ensureFSCoords2D(coords, 1);
     fInnerThresholdVar = builder->addUniform(
-        GrGLShaderBuilder::kFragment_Visibility,
+        GrGLProgramBuilder::kFragment_Visibility,
         kFloat_GrSLType, "inner_threshold");
     fOuterThresholdVar = builder->addUniform(
-        GrGLShaderBuilder::kFragment_Visibility,
+        GrGLProgramBuilder::kFragment_Visibility,
         kFloat_GrSLType, "outer_threshold");
 
-    builder->fsCodeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
-    builder->fsCodeAppendf("\t\tvec2 mask_coord = %s;\n", maskCoords2D.c_str());
-    builder->fsCodeAppend("\t\tvec4 input_color = ");
-    builder->fsAppendTextureLookup(samplers[0], "coord");
-    builder->fsCodeAppend(";\n");
-    builder->fsCodeAppend("\t\tvec4 mask_color = ");
-    builder->fsAppendTextureLookup(samplers[1], "mask_coord");
-    builder->fsCodeAppend(";\n");
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
+    SkString maskCoords2D = fsBuilder->ensureFSCoords2D(coords, 1);
 
-    builder->fsCodeAppendf("\t\tfloat inner_thresh = %s;\n",
+    fsBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
+    fsBuilder->codeAppendf("\t\tvec2 mask_coord = %s;\n", maskCoords2D.c_str());
+    fsBuilder->codeAppend("\t\tvec4 input_color = ");
+    fsBuilder->appendTextureLookup(samplers[0], "coord");
+    fsBuilder->codeAppend(";\n");
+    fsBuilder->codeAppend("\t\tvec4 mask_color = ");
+    fsBuilder->appendTextureLookup(samplers[1], "mask_coord");
+    fsBuilder->codeAppend(";\n");
+
+    fsBuilder->codeAppendf("\t\tfloat inner_thresh = %s;\n",
                            builder->getUniformCStr(fInnerThresholdVar));
-    builder->fsCodeAppendf("\t\tfloat outer_thresh = %s;\n",
+    fsBuilder->codeAppendf("\t\tfloat outer_thresh = %s;\n",
                            builder->getUniformCStr(fOuterThresholdVar));
-    builder->fsCodeAppend("\t\tfloat mask = mask_color.a;\n");
+    fsBuilder->codeAppend("\t\tfloat mask = mask_color.a;\n");
 
-    builder->fsCodeAppend("vec4 color = input_color;\n");
-    builder->fsCodeAppend("\t\tif (mask < 0.5) {\n"
+    fsBuilder->codeAppend("vec4 color = input_color;\n");
+    fsBuilder->codeAppend("\t\tif (mask < 0.5) {\n"
                           "\t\t\tif (color.a > outer_thresh) {\n"
                           "\t\t\t\tfloat scale = outer_thresh / color.a;\n"
                           "\t\t\t\tcolor.rgb *= scale;\n"
@@ -184,7 +186,7 @@ void GrGLAlphaThresholdEffect::emitCode(GrGLShaderBuilder* builder,
                           "\t\t\tcolor.a = inner_thresh;\n"
                           "\t\t}\n");
 
-    builder->fsCodeAppendf("%s = %s;\n", outputColor,
+    fsBuilder->codeAppendf("%s = %s;\n", outputColor,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr4("color")).c_str());
 }
 

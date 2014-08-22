@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrDashingEffect.h"
 
 #include "../GrAARectRenderer.h"
@@ -12,7 +13,6 @@
 #include "effects/GrVertexEffect.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLVertexEffect.h"
-#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLSL.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
@@ -468,7 +468,7 @@ class GLDashingCircleEffect : public GrGLVertexEffect {
 public:
     GLDashingCircleEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLFullShaderBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
@@ -496,7 +496,7 @@ GLDashingCircleEffect::GLDashingCircleEffect(const GrBackendEffectFactory& facto
     fPrevIntervalLength = SK_ScalarMax;
 }
 
-void GLDashingCircleEffect::emitCode(GrGLFullShaderBuilder* builder,
+void GLDashingCircleEffect::emitCode(GrGLFullProgramBuilder* builder,
                                     const GrDrawEffect& drawEffect,
                                     const GrEffectKey& key,
                                     const char* outputColor,
@@ -507,32 +507,35 @@ void GLDashingCircleEffect::emitCode(GrGLFullShaderBuilder* builder,
     const char *paramName;
     // The param uniforms, xyz, refer to circle radius - 0.5, cicles center x coord, and
     // the total interval length of the dash.
-    fParamUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fParamUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                        kVec3f_GrSLType,
                                        "params",
                                        &paramName);
 
     const char *vsCoordName, *fsCoordName;
     builder->addVarying(kVec2f_GrSLType, "Coord", &vsCoordName, &fsCoordName);
+
+    GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
     const SkString* attr0Name =
-        builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-    builder->vsCodeAppendf("\t%s = %s;\n", vsCoordName, attr0Name->c_str());
+        vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+    vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, attr0Name->c_str());
 
     // transforms all points so that we can compare them to our test circle
-    builder->fsCodeAppendf("\t\tfloat xShifted = %s.x - floor(%s.x / %s.z) * %s.z;\n",
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    fsBuilder->codeAppendf("\t\tfloat xShifted = %s.x - floor(%s.x / %s.z) * %s.z;\n",
                            fsCoordName, fsCoordName, paramName, paramName);
-    builder->fsCodeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", fsCoordName);
-    builder->fsCodeAppendf("\t\tvec2 center = vec2(%s.y, 0.0);\n", paramName);
-    builder->fsCodeAppend("\t\tfloat dist = length(center - fragPosShifted);\n");
+    fsBuilder->codeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", fsCoordName);
+    fsBuilder->codeAppendf("\t\tvec2 center = vec2(%s.y, 0.0);\n", paramName);
+    fsBuilder->codeAppend("\t\tfloat dist = length(center - fragPosShifted);\n");
     if (GrEffectEdgeTypeIsAA(dce.getEdgeType())) {
-        builder->fsCodeAppendf("\t\tfloat diff = dist - %s.x;\n", paramName);
-        builder->fsCodeAppend("\t\tdiff = 1.0 - diff;\n");
-        builder->fsCodeAppend("\t\tfloat alpha = clamp(diff, 0.0, 1.0);\n");
+        fsBuilder->codeAppendf("\t\tfloat diff = dist - %s.x;\n", paramName);
+        fsBuilder->codeAppend("\t\tdiff = 1.0 - diff;\n");
+        fsBuilder->codeAppend("\t\tfloat alpha = clamp(diff, 0.0, 1.0);\n");
     } else {
-        builder->fsCodeAppendf("\t\tfloat alpha = 1.0;\n");
-        builder->fsCodeAppendf("\t\talpha *=  dist < %s.x + 0.5 ? 1.0 : 0.0;\n", paramName);
+        fsBuilder->codeAppendf("\t\tfloat alpha = 1.0;\n");
+        fsBuilder->codeAppendf("\t\talpha *=  dist < %s.x + 0.5 ? 1.0 : 0.0;\n", paramName);
     }
-    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor,
+    fsBuilder->codeAppendf("\t\t%s = %s;\n", outputColor,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
@@ -673,7 +676,7 @@ class GLDashingLineEffect : public GrGLVertexEffect {
 public:
     GLDashingLineEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLFullShaderBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
@@ -700,7 +703,7 @@ GLDashingLineEffect::GLDashingLineEffect(const GrBackendEffectFactory& factory,
     fPrevIntervalLength = SK_ScalarMax;
 }
 
-void GLDashingLineEffect::emitCode(GrGLFullShaderBuilder* builder,
+void GLDashingLineEffect::emitCode(GrGLFullProgramBuilder* builder,
                                     const GrDrawEffect& drawEffect,
                                     const GrEffectKey& key,
                                     const char* outputColor,
@@ -711,45 +714,47 @@ void GLDashingLineEffect::emitCode(GrGLFullShaderBuilder* builder,
     const char *rectName;
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
-    fRectUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                        kVec4f_GrSLType,
                                        "rect",
                                        &rectName);
     const char *intervalName;
     // The interval uniform's refers to the total length of the interval (on + off)
-    fIntervalUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fIntervalUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                        kFloat_GrSLType,
                                        "interval",
                                        &intervalName);
 
     const char *vsCoordName, *fsCoordName;
     builder->addVarying(kVec2f_GrSLType, "Coord", &vsCoordName, &fsCoordName);
+    GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
     const SkString* attr0Name =
-        builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-    builder->vsCodeAppendf("\t%s = %s;\n", vsCoordName, attr0Name->c_str());
+        vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+    vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, attr0Name->c_str());
 
     // transforms all points so that we can compare them to our test rect
-    builder->fsCodeAppendf("\t\tfloat xShifted = %s.x - floor(%s.x / %s) * %s;\n",
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    fsBuilder->codeAppendf("\t\tfloat xShifted = %s.x - floor(%s.x / %s) * %s;\n",
                            fsCoordName, fsCoordName, intervalName, intervalName);
-    builder->fsCodeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", fsCoordName);
+    fsBuilder->codeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", fsCoordName);
     if (GrEffectEdgeTypeIsAA(de.getEdgeType())) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
-        builder->fsCodeAppend("\t\tfloat xSub, ySub;\n");
-        builder->fsCodeAppendf("\t\txSub = min(fragPosShifted.x - %s.x, 0.0);\n", rectName);
-        builder->fsCodeAppendf("\t\txSub += min(%s.z - fragPosShifted.x, 0.0);\n", rectName);
-        builder->fsCodeAppendf("\t\tySub = min(fragPosShifted.y - %s.y, 0.0);\n", rectName);
-        builder->fsCodeAppendf("\t\tySub += min(%s.w - fragPosShifted.y, 0.0);\n", rectName);
+        fsBuilder->codeAppend("\t\tfloat xSub, ySub;\n");
+        fsBuilder->codeAppendf("\t\txSub = min(fragPosShifted.x - %s.x, 0.0);\n", rectName);
+        fsBuilder->codeAppendf("\t\txSub += min(%s.z - fragPosShifted.x, 0.0);\n", rectName);
+        fsBuilder->codeAppendf("\t\tySub = min(fragPosShifted.y - %s.y, 0.0);\n", rectName);
+        fsBuilder->codeAppendf("\t\tySub += min(%s.w - fragPosShifted.y, 0.0);\n", rectName);
         // Now compute coverage in x and y and multiply them to get the fraction of the pixel
         // covered.
-        builder->fsCodeAppendf("\t\tfloat alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n");
+        fsBuilder->codeAppendf("\t\tfloat alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n");
     } else {
         // Assuming the bounding geometry is tight so no need to check y values
-        builder->fsCodeAppendf("\t\tfloat alpha = 1.0;\n");
-        builder->fsCodeAppendf("\t\talpha *= (fragPosShifted.x - %s.x) > -0.5 ? 1.0 : 0.0;\n", rectName);
-        builder->fsCodeAppendf("\t\talpha *= (%s.z - fragPosShifted.x) >= -0.5 ? 1.0 : 0.0;\n", rectName);
+        fsBuilder->codeAppendf("\t\tfloat alpha = 1.0;\n");
+        fsBuilder->codeAppendf("\t\talpha *= (fragPosShifted.x - %s.x) > -0.5 ? 1.0 : 0.0;\n", rectName);
+        fsBuilder->codeAppendf("\t\talpha *= (%s.z - fragPosShifted.x) >= -0.5 ? 1.0 : 0.0;\n", rectName);
     }
-    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor,
+    fsBuilder->codeAppendf("\t\t%s = %s;\n", outputColor,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 

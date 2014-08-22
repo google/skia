@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrAAConvexPathRenderer.h"
 
 #include "GrContext.h"
@@ -19,7 +20,6 @@
 #include "SkTraceEvent.h"
 
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLVertexEffect.h"
 
@@ -531,7 +531,7 @@ public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
             : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLFullShaderBuilder* builder,
+        virtual void emitCode(GrGLFullProgramBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
@@ -539,35 +539,38 @@ public:
                               const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
             const char *vsName, *fsName;
-            const SkString* attrName =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            builder->fsCodeAppendf("\t\tfloat edgeAlpha;\n");
-
-            SkAssertResult(builder->enableFeature(
-                                              GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
             builder->addVarying(kVec4f_GrSLType, "QuadEdge", &vsName, &fsName);
 
+            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+
+            SkAssertResult(fsBuilder->enableFeature(
+                    GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
+            fsBuilder->codeAppendf("\t\tfloat edgeAlpha;\n");
+
             // keep the derivative instructions outside the conditional
-            builder->fsCodeAppendf("\t\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
-            builder->fsCodeAppendf("\t\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
-            builder->fsCodeAppendf("\t\tif (%s.z > 0.0 && %s.w > 0.0) {\n", fsName, fsName);
+            fsBuilder->codeAppendf("\t\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
+            fsBuilder->codeAppendf("\t\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
+            fsBuilder->codeAppendf("\t\tif (%s.z > 0.0 && %s.w > 0.0) {\n", fsName, fsName);
             // today we know z and w are in device space. We could use derivatives
-            builder->fsCodeAppendf("\t\t\tedgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);\n", fsName,
+            fsBuilder->codeAppendf("\t\t\tedgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);\n", fsName,
                                     fsName);
-            builder->fsCodeAppendf ("\t\t} else {\n");
-            builder->fsCodeAppendf("\t\t\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
+            fsBuilder->codeAppendf ("\t\t} else {\n");
+            fsBuilder->codeAppendf("\t\t\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
                                    "\t\t\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
                                    fsName, fsName);
-            builder->fsCodeAppendf("\t\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName,
+            fsBuilder->codeAppendf("\t\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName,
                                     fsName);
-            builder->fsCodeAppendf("\t\t\tedgeAlpha = "
+            fsBuilder->codeAppendf("\t\t\tedgeAlpha = "
                                    "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n\t\t}\n");
 
 
-            builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+            fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
 
-            builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
+            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            const SkString* attr0Name =
+                vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            vsBuilder->codeAppendf("\t%s = %s;\n", vsName, attr0Name->c_str());
         }
 
         static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
@@ -589,7 +592,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrVertexEffect INHERITED;
+    typedef GrEffect INHERITED;
 };
 
 GR_DEFINE_EFFECT_TEST(QuadEdgeEffect);

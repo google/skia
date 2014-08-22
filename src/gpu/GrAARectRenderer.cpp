@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrAARectRenderer.h"
 #include "GrGpu.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLVertexEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkColorPriv.h"
@@ -44,7 +44,7 @@ public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLFullShaderBuilder* builder,
+        virtual void emitCode(GrGLFullProgramBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
@@ -56,35 +56,38 @@ public:
             //      zw -> w/2+0.5, h/2+0.5
             const char *vsRectName, *fsRectName;
             builder->addVarying(kVec4f_GrSLType, "Rect", &vsRectName, &fsRectName);
-            const SkString* attr0Name =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            builder->vsCodeAppendf("\t%s = %s;\n", vsRectName, attr0Name->c_str());
 
+            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            const SkString* attr0Name =
+                vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            vsBuilder->codeAppendf("\t%s = %s;\n", vsRectName, attr0Name->c_str());
+
+            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             // TODO: compute all these offsets, spans, and scales in the VS
-            builder->fsCodeAppendf("\tfloat insetW = min(1.0, %s.z) - 0.5;\n", fsRectName);
-            builder->fsCodeAppendf("\tfloat insetH = min(1.0, %s.w) - 0.5;\n", fsRectName);
-            builder->fsCodeAppend("\tfloat outset = 0.5;\n");
+            fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.z) - 0.5;\n", fsRectName);
+            fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.w) - 0.5;\n", fsRectName);
+            fsBuilder->codeAppend("\tfloat outset = 0.5;\n");
             // For rects > 1 pixel wide and tall the span's are noops (i.e., 1.0). For rects
             // < 1 pixel wide or tall they serve to normalize the < 1 ramp to a 0 .. 1 range.
-            builder->fsCodeAppend("\tfloat spanW = insetW + outset;\n");
-            builder->fsCodeAppend("\tfloat spanH = insetH + outset;\n");
+            fsBuilder->codeAppend("\tfloat spanW = insetW + outset;\n");
+            fsBuilder->codeAppend("\tfloat spanH = insetH + outset;\n");
             // For rects < 1 pixel wide or tall, these scale factors are used to cap the maximum
             // value of coverage that is used. In other words it is the coverage that is
             // used in the interior of the rect after the ramp.
-            builder->fsCodeAppend("\tfloat scaleW = min(1.0, 2.0*insetW/spanW);\n");
-            builder->fsCodeAppend("\tfloat scaleH = min(1.0, 2.0*insetH/spanH);\n");
+            fsBuilder->codeAppend("\tfloat scaleW = min(1.0, 2.0*insetW/spanW);\n");
+            fsBuilder->codeAppend("\tfloat scaleH = min(1.0, 2.0*insetH/spanH);\n");
 
             // Compute the coverage for the rect's width
-            builder->fsCodeAppendf(
+            fsBuilder->codeAppendf(
                 "\tfloat coverage = scaleW*clamp((%s.z-abs(%s.x))/spanW, 0.0, 1.0);\n", fsRectName,
                 fsRectName);
             // Compute the coverage for the rect's height and merge with the width
-            builder->fsCodeAppendf(
+            fsBuilder->codeAppendf(
                 "\tcoverage = coverage*scaleH*clamp((%s.w-abs(%s.y))/spanH, 0.0, 1.0);\n",
                 fsRectName, fsRectName);
 
 
-            builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+            fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("coverage")).c_str());
         }
 
@@ -160,7 +163,7 @@ public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLFullShaderBuilder* builder,
+        virtual void emitCode(GrGLFullProgramBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
@@ -172,50 +175,53 @@ public:
             const char *vsRectEdgeName, *fsRectEdgeName;
             builder->addVarying(kVec4f_GrSLType, "RectEdge",
                                 &vsRectEdgeName, &fsRectEdgeName);
+
+            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
             const SkString* attr0Name =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            builder->vsCodeAppendf("\t%s = %s;\n", vsRectEdgeName, attr0Name->c_str());
+                vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            vsBuilder->codeAppendf("\t%s = %s;\n", vsRectEdgeName, attr0Name->c_str());
 
             // setup the varying for width/2+.5 and height/2+.5
             const char *vsWidthHeightName, *fsWidthHeightName;
             builder->addVarying(kVec2f_GrSLType, "WidthHeight",
                                 &vsWidthHeightName, &fsWidthHeightName);
             const SkString* attr1Name =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
-            builder->vsCodeAppendf("\t%s = %s;\n", vsWidthHeightName, attr1Name->c_str());
+                vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
+            vsBuilder->codeAppendf("\t%s = %s;\n", vsWidthHeightName, attr1Name->c_str());
 
+            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             // TODO: compute all these offsets, spans, and scales in the VS
-            builder->fsCodeAppendf("\tfloat insetW = min(1.0, %s.x) - 0.5;\n", fsWidthHeightName);
-            builder->fsCodeAppendf("\tfloat insetH = min(1.0, %s.y) - 0.5;\n", fsWidthHeightName);
-            builder->fsCodeAppend("\tfloat outset = 0.5;\n");
+            fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.x) - 0.5;\n", fsWidthHeightName);
+            fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.y) - 0.5;\n", fsWidthHeightName);
+            fsBuilder->codeAppend("\tfloat outset = 0.5;\n");
             // For rects > 1 pixel wide and tall the span's are noops (i.e., 1.0). For rects
             // < 1 pixel wide or tall they serve to normalize the < 1 ramp to a 0 .. 1 range.
-            builder->fsCodeAppend("\tfloat spanW = insetW + outset;\n");
-            builder->fsCodeAppend("\tfloat spanH = insetH + outset;\n");
+            fsBuilder->codeAppend("\tfloat spanW = insetW + outset;\n");
+            fsBuilder->codeAppend("\tfloat spanH = insetH + outset;\n");
             // For rects < 1 pixel wide or tall, these scale factors are used to cap the maximum
             // value of coverage that is used. In other words it is the coverage that is
             // used in the interior of the rect after the ramp.
-            builder->fsCodeAppend("\tfloat scaleW = min(1.0, 2.0*insetW/spanW);\n");
-            builder->fsCodeAppend("\tfloat scaleH = min(1.0, 2.0*insetH/spanH);\n");
+            fsBuilder->codeAppend("\tfloat scaleW = min(1.0, 2.0*insetW/spanW);\n");
+            fsBuilder->codeAppend("\tfloat scaleH = min(1.0, 2.0*insetH/spanH);\n");
 
             // Compute the coverage for the rect's width
-            builder->fsCodeAppendf("\tvec2 offset = %s.xy - %s.xy;\n",
-                                   builder->fragmentPosition(), fsRectEdgeName);
-            builder->fsCodeAppendf("\tfloat perpDot = abs(offset.x * %s.w - offset.y * %s.z);\n",
+            fsBuilder->codeAppendf("\tvec2 offset = %s.xy - %s.xy;\n",
+                                   fsBuilder->fragmentPosition(), fsRectEdgeName);
+            fsBuilder->codeAppendf("\tfloat perpDot = abs(offset.x * %s.w - offset.y * %s.z);\n",
                                    fsRectEdgeName, fsRectEdgeName);
-            builder->fsCodeAppendf(
+            fsBuilder->codeAppendf(
                 "\tfloat coverage = scaleW*clamp((%s.x-perpDot)/spanW, 0.0, 1.0);\n",
                 fsWidthHeightName);
 
             // Compute the coverage for the rect's height and merge with the width
-            builder->fsCodeAppendf("\tperpDot = abs(dot(offset, %s.zw));\n",
+            fsBuilder->codeAppendf("\tperpDot = abs(dot(offset, %s.zw));\n",
                                    fsRectEdgeName);
-            builder->fsCodeAppendf(
+            fsBuilder->codeAppendf(
                     "\tcoverage = coverage*scaleH*clamp((%s.y-perpDot)/spanH, 0.0, 1.0);\n",
                     fsWidthHeightName);
 
 
-            builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+            fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("coverage")).c_str());
         }
 

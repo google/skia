@@ -460,7 +460,7 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
 #if SK_SUPPORT_GPU
 
 #include "GrTBackendEffectFactory.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
 /////////////////////////////////////////////////////////////////////
@@ -473,7 +473,7 @@ public:
 
     virtual ~GrGLLinearGradient() { }
 
-    virtual void emitCode(GrGLShaderBuilder*,
+    virtual void emitCode(GrGLProgramBuilder*,
                           const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
@@ -550,7 +550,7 @@ GrEffect* GrLinearGradient::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
+void GrGLLinearGradient::emitCode(GrGLProgramBuilder* builder,
                                   const GrDrawEffect&,
                                   const GrEffectKey& key,
                                   const char* outputColor,
@@ -559,7 +559,7 @@ void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
                                   const TextureSamplerArray& samplers) {
     uint32_t baseKey = key.get32(0);
     this->emitUniforms(builder, baseKey);
-    SkString t = builder->ensureFSCoords2D(coords, 0);
+    SkString t = builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0);
     t.append(".x");
     this->emitColor(builder, t.c_str(), baseKey, outputColor, inputColor, samplers);
 }

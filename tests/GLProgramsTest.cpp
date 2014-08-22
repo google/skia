@@ -102,13 +102,13 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
     header->fCoverageEffectCnt = numCoverageStages;
 
     if (dstRead) {
-        header->fDstReadKey = SkToU8(GrGLShaderBuilder::KeyForDstRead(dstCopyTexture,
+        header->fDstReadKey = SkToU8(GrGLFragmentShaderBuilder::KeyForDstRead(dstCopyTexture,
                                                                       gpu->glCaps()));
     } else {
         header->fDstReadKey = 0;
     }
     if (fragPos) {
-        header->fFragPosKey = SkToU8(GrGLShaderBuilder::KeyForFragmentPosition(dstRenderTarget,
+        header->fFragPosKey = SkToU8(GrGLFragmentShaderBuilder::KeyForFragmentPosition(dstRenderTarget,
                                                                                gpu->glCaps()));
     } else {
         header->fFragPosKey = 0;

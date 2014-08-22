@@ -17,7 +17,7 @@
 class GrGpuGL;
 class SkMatrix;
 class GrGLProgram;
-class GrGLShaderBuilder;
+class GrGLProgramBuilder;
 
 /** Manages the resources used by a shader program.
  * The resources are objects the program uses to communicate with the
@@ -51,10 +51,10 @@ public:
 
         int fValue;
         friend class GrGLProgramDataManager; // For accessing toProgramDataIndex().
-        friend class GrGLShaderBuilder; // For accessing toShaderBuilderIndex().
+        friend class GrGLProgramBuilder; // For accessing toShaderBuilderIndex().
     };
 
-    GrGLProgramDataManager(GrGpuGL*, GrGLProgram*, const GrGLShaderBuilder&);
+    GrGLProgramDataManager(GrGpuGL*, GrGLProgram*, const GrGLProgramBuilder&);
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
      *  array of uniforms. arrayCount must be <= the array count of the uniform.

@@ -252,9 +252,12 @@ private:
     // part of GrGLShaderBuilder that is used by effects so that this header doesn't need to be
     // visible to GrGLEffects. Then make public accessors as necessary and remove friends.
     friend class GrGLProgram;
-    friend class GrGLShaderBuilder;
-    friend class GrGLFullShaderBuilder;
-    friend class GrGLFragmentOnlyShaderBuilder;
+    friend class GrGLProgramBuilder;
+    friend class GrGLFullProgramBuilder;
+    friend class GrGLFragmentOnlyProgramBuilder;
+    friend class GrGLVertexShaderBuilder;
+    friend class GrGLFragmentShaderBuilder;
+    friend class GrGLGeometryShaderBuilder;
 };
 
 #endif

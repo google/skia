@@ -208,7 +208,6 @@
       '<(skia_src_path)/gpu/gl/GrGLPathRange.h',
       '<(skia_src_path)/gpu/gl/GrGLPathRendering.cpp',
       '<(skia_src_path)/gpu/gl/GrGLPathRendering.h',
-      '<(skia_src_path)/gpu/gl/GrGLSLPrettyPrint.cpp',
       '<(skia_src_path)/gpu/gl/GrGLProgram.cpp',
       '<(skia_src_path)/gpu/gl/GrGLProgram.h',
       '<(skia_src_path)/gpu/gl/GrGLProgramDesc.cpp',
@@ -219,8 +218,6 @@
       '<(skia_src_path)/gpu/gl/GrGLProgramDataManager.h',
       '<(skia_src_path)/gpu/gl/GrGLRenderTarget.cpp',
       '<(skia_src_path)/gpu/gl/GrGLRenderTarget.h',
-      '<(skia_src_path)/gpu/gl/GrGLShaderBuilder.cpp',
-      '<(skia_src_path)/gpu/gl/GrGLShaderBuilder.h',
       '<(skia_src_path)/gpu/gl/GrGLShaderVar.h',
       '<(skia_src_path)/gpu/gl/GrGLSL.cpp',
       '<(skia_src_path)/gpu/gl/GrGLSL.h',
@@ -239,6 +236,21 @@
       '<(skia_src_path)/gpu/gl/GrGpuGL.cpp',
       '<(skia_src_path)/gpu/gl/GrGpuGL.h',
       '<(skia_src_path)/gpu/gl/GrGpuGL_program.cpp',
+
+      # Files for building GLSL shaders
+      '<(skia_src_path)/gpu/gl/builders/GrGLSLPrettyPrint.cpp',
+      '<(skia_src_path)/gpu/gl/builders/GrGLShaderBuilder.cpp',
+      '<(skia_src_path)/gpu/gl/builders/GrGLShaderBuilder.h',
+      '<(skia_src_path)/gpu/gl/builders/GrGLProgramBuilder.cpp',
+      '<(skia_src_path)/gpu/gl/builders/GrGLProgramBuilder.h',
+      '<(skia_src_path)/gpu/gl/builders/GrGLShaderStringBuilder.cpp',
+      '<(skia_src_path)/gpu/gl/builders/GrGLShaderStringBuilder.h',
+      '<(skia_src_path)/gpu/gl/builders/GrGLVertexShaderBuilder.cpp',
+      '<(skia_src_path)/gpu/gl/builders/GrGLVertexShaderBuilder.h',
+      '<(skia_src_path)/gpu/gl/builders/GrGLFragmentShaderBuilder.cpp',
+      '<(skia_src_path)/gpu/gl/builders/GrGLFragmentShaderBuilder.h',
+      '<(skia_src_path)/gpu/gl/builders/GrGLGeometryShaderBuilder.cpp',
+      '<(skia_src_path)/gpu/gl/builders/GrGLGeometryShaderBuilder.h',
 
       # Sk files
       '<(skia_include_path)/gpu/SkGpuDevice.h',

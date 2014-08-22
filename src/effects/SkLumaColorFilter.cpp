@@ -12,7 +12,7 @@
 
 #if SK_SUPPORT_GPU
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrContext.h"
 #include "GrTBackendEffectFactory.h"
 #endif
@@ -89,7 +89,7 @@ public:
 
         static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
 
-        virtual void emitCode(GrGLShaderBuilder* builder,
+        virtual void emitCode(GrGLProgramBuilder* builder,
                               const GrDrawEffect&,
                               const GrEffectKey&,
                               const char* outputColor,
@@ -100,12 +100,13 @@ public:
                 inputColor = "vec4(1)";
             }
 
-            builder->fsCodeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
+            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            fsBuilder->codeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
                                    SK_ITU_BT709_LUM_COEFF_R,
                                    SK_ITU_BT709_LUM_COEFF_G,
                                    SK_ITU_BT709_LUM_COEFF_B,
                                    inputColor);
-            builder->fsCodeAppendf("\t%s = vec4(0, 0, 0, luma);\n",
+            fsBuilder->codeAppendf("\t%s = vec4(0, 0, 0, luma);\n",
                                    outputColor);
 
         }

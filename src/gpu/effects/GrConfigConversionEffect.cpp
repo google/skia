@@ -10,7 +10,7 @@
 #include "GrTBackendEffectFactory.h"
 #include "GrSimpleTextureEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "SkMatrix.h"
 
 class GrGLConfigConversionEffect : public GrGLEffect {
@@ -23,7 +23,7 @@ public:
         fPMConversion = effect.pmConversion();
     }
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLProgramBuilder* builder,
                           const GrDrawEffect&,
                           const GrEffectKey& key,
                           const char* outputColor,
@@ -34,20 +34,23 @@ public:
         GrGLShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
         SkString tmpDecl;
         tmpVar.appendDecl(builder->ctxInfo(), &tmpDecl);
-        builder->fsCodeAppendf("%s;", tmpDecl.c_str());
 
-        builder->fsCodeAppendf("%s = ", tmpVar.c_str());
-        builder->fsAppendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
-        builder->fsCodeAppend(";");
+        GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+
+        fsBuilder->codeAppendf("%s;", tmpDecl.c_str());
+
+        fsBuilder->codeAppendf("%s = ", tmpVar.c_str());
+        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
+        fsBuilder->codeAppend(";");
 
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {
             SkASSERT(fSwapRedAndBlue);
-            builder->fsCodeAppendf("%s = %s.bgra;", outputColor, tmpVar.c_str());
+            fsBuilder->codeAppendf("%s = %s.bgra;", outputColor, tmpVar.c_str());
         } else {
             const char* swiz = fSwapRedAndBlue ? "bgr" : "rgb";
             switch (fPMConversion) {
                 case GrConfigConversionEffect::kMulByAlpha_RoundUp_PMConversion:
-                    builder->fsCodeAppendf(
+                    fsBuilder->codeAppendf(
                         "%s = vec4(ceil(%s.%s * %s.a * 255.0) / 255.0, %s.a);",
                         tmpVar.c_str(), tmpVar.c_str(), swiz, tmpVar.c_str(), tmpVar.c_str());
                     break;
@@ -56,17 +59,17 @@ public:
                     // In Intel GPUs, the integer value converted from floor(%s.r * 255.0) / 255.0
                     // is less than the integer value converted from  %s.r by 1 when the %s.r is
                     // converted from the integer value 2^n, such as 1, 2, 4, 8, etc.
-                    builder->fsCodeAppendf(
+                    fsBuilder->codeAppendf(
                         "%s = vec4(floor(%s.%s * %s.a * 255.0 + 0.001) / 255.0, %s.a);",
                         tmpVar.c_str(), tmpVar.c_str(), swiz, tmpVar.c_str(), tmpVar.c_str());
                     break;
                 case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
-                    builder->fsCodeAppendf(
+                    fsBuilder->codeAppendf(
                         "%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(ceil(%s.%s / %s.a * 255.0) / 255.0, %s.a);",
                         tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), swiz, tmpVar.c_str(), tmpVar.c_str());
                     break;
                 case GrConfigConversionEffect::kDivByAlpha_RoundDown_PMConversion:
-                    builder->fsCodeAppendf(
+                    fsBuilder->codeAppendf(
                         "%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(%s.%s / %s.a * 255.0) / 255.0, %s.a);",
                         tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), swiz, tmpVar.c_str(), tmpVar.c_str());
                     break;
@@ -74,11 +77,11 @@ public:
                     SkFAIL("Unknown conversion op.");
                     break;
             }
-            builder->fsCodeAppendf("%s = %s;", outputColor, tmpVar.c_str());
+            fsBuilder->codeAppendf("%s = %s;", outputColor, tmpVar.c_str());
         }
         SkString modulate;
         GrGLSLMulVarBy4f(&modulate, 2, outputColor, inputColor);
-        builder->fsCodeAppend(modulate.c_str());
+        fsBuilder->codeAppend(modulate.c_str());
     }
 
     static inline void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,

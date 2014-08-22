@@ -113,7 +113,7 @@ public:
     bool willReadFragmentPosition() const { return fWillReadFragmentPosition; }
 
     /** Will this effect emit custom vertex shader code?
-        (To set this value the effect must inherit from GrVertexEffect.) */
+        (To set this value the effect must inherit from GrEffect.) */
     bool hasVertexCode() const { return fHasVertexCode; }
 
     int numVertexAttribs() const {

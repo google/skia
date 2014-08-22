@@ -4,6 +4,9 @@
 .android_config
 .gclient*
 .gm-actuals
+.cproject
+.project
+.settings/
 TAGS
 common
 gyp/build

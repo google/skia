@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrYUVtoRGBEffect.h"
 
 #include "GrCoordTransform.h"
 #include "GrEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
 #include "GrTBackendEffectFactory.h"
 
 namespace {
@@ -44,26 +44,27 @@ public:
         : INHERITED(factory) {
         }
 
-        virtual void emitCode(GrGLShaderBuilder* builder,
+        virtual void emitCode(GrGLProgramBuilder* builder,
                               const GrDrawEffect&,
                               const GrEffectKey&,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray& coords,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
+            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             const char* yuvMatrix   = "yuvMatrix";
-            builder->fsCodeAppendf("\tconst mat4 %s = mat4(1.0,  0.0,    1.402, -0.701,\n\t\t\t"
+            fsBuilder->codeAppendf("\tconst mat4 %s = mat4(1.0,  0.0,    1.402, -0.701,\n\t\t\t"
                                                           "1.0, -0.344, -0.714,  0.529,\n\t\t\t"
                                                           "1.0,  1.772,  0.0,   -0.886,\n\t\t\t"
                                                           "0.0,  0.0,    0.0,    1.0);\n",
                                    yuvMatrix);
-            builder->fsCodeAppendf("\t%s = vec4(\n\t\t", outputColor);
-            builder->fsAppendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
-            builder->fsCodeAppend(".r,\n\t\t");
-            builder->fsAppendTextureLookup(samplers[1], coords[0].c_str(), coords[0].type());
-            builder->fsCodeAppend(".r,\n\t\t");
-            builder->fsAppendTextureLookup(samplers[2], coords[0].c_str(), coords[0].type());
-            builder->fsCodeAppendf(".r,\n\t\t1.0) * %s;\n", yuvMatrix);
+            fsBuilder->codeAppendf("\t%s = vec4(\n\t\t", outputColor);
+            fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
+            fsBuilder->codeAppend(".r,\n\t\t");
+            fsBuilder->appendTextureLookup(samplers[1], coords[0].c_str(), coords[0].type());
+            fsBuilder->codeAppend(".r,\n\t\t");
+            fsBuilder->appendTextureLookup(samplers[2], coords[0].c_str(), coords[0].type());
+            fsBuilder->codeAppendf(".r,\n\t\t1.0) * %s;\n", yuvMatrix);
         }
 
         typedef GrGLEffect INHERITED;

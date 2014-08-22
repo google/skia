@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrCustomCoordsTextureEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "gl/GrGLVertexEffect.h"
@@ -19,7 +19,7 @@ public:
     GrGLCustomCoordsTextureEffect(const GrBackendEffectFactory& factory, const GrDrawEffect& drawEffect)
         : INHERITED (factory) {}
 
-    virtual void emitCode(GrGLFullShaderBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
@@ -34,16 +34,18 @@ public:
         builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsVaryingNamePtr);
         fsCoordName = fsVaryingNamePtr;
 
-        const char* attrName =
-            builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0])->c_str();
-        builder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, attrName);
+        GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
+        const SkString* attr0Name =
+            vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+        vsBuilder->codeAppendf("\t%s = %s;\n", vsVaryingName, attr0Name->c_str());
 
-        builder->fsCodeAppendf("\t%s = ", outputColor);
-        builder->fsAppendTextureLookupAndModulate(inputColor,
+        GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        fsBuilder->codeAppendf("\t%s = ", outputColor);
+        fsBuilder->appendTextureLookupAndModulate(inputColor,
                                                   samplers[0],
                                                   fsCoordName.c_str(),
                                                   kVec2f_GrSLType);
-        builder->fsCodeAppend(";\n");
+        fsBuilder->codeAppend(";\n");
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,

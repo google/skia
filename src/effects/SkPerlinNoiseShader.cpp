@@ -18,7 +18,7 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkGr.h"
 #endif
@@ -515,7 +515,7 @@ public:
                     const GrDrawEffect& drawEffect);
     virtual ~GrGLPerlinNoise() {}
 
-    virtual void emitCode(GrGLShaderBuilder*,
+    virtual void emitCode(GrGLProgramBuilder*,
                           const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
@@ -663,7 +663,7 @@ GrGLPerlinNoise::GrGLPerlinNoise(const GrBackendEffectFactory& factory, const Gr
   , fNumOctaves(drawEffect.castEffect<GrPerlinNoiseEffect>().numOctaves()) {
 }
 
-void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
+void GrGLPerlinNoise::emitCode(GrGLProgramBuilder* builder,
                                const GrDrawEffect&,
                                const GrEffectKey& key,
                                const char* outputColor,
@@ -672,18 +672,19 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
                                const TextureSamplerArray& samplers) {
     sk_ignore_unused_variable(inputColor);
 
-    SkString vCoords = builder->ensureFSCoords2D(coords, 0);
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    SkString vCoords = fsBuilder->ensureFSCoords2D(coords, 0);
 
-    fBaseFrequencyUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fBaseFrequencyUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec2f_GrSLType, "baseFrequency");
     const char* baseFrequencyUni = builder->getUniformCStr(fBaseFrequencyUni);
-    fAlphaUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fAlphaUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                     kFloat_GrSLType, "alpha");
     const char* alphaUni = builder->getUniformCStr(fAlphaUni);
 
     const char* stitchDataUni = NULL;
     if (fStitchTiles) {
-        fStitchDataUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+        fStitchDataUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, "stitchData");
         stitchDataUni = builder->getUniformCStr(fStitchDataUni);
     }
@@ -755,7 +756,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
         xCoords.appendf("vec2(%s.x, 0.5)", floorVal);
 
         noiseCode.appendf("\n\tvec2 %s;\n\t%s.x = ", latticeIdx, latticeIdx);
-        builder->appendTextureLookup(&noiseCode, samplers[0], xCoords.c_str(), kVec2f_GrSLType);
+        fsBuilder->appendTextureLookup(&noiseCode, samplers[0], xCoords.c_str(), kVec2f_GrSLType);
         noiseCode.append(".r;");
     }
 
@@ -765,7 +766,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
         xCoords.appendf("vec2(%s.z, 0.5)", floorVal);
 
         noiseCode.appendf("\n\t%s.y = ", latticeIdx);
-        builder->appendTextureLookup(&noiseCode, samplers[0], xCoords.c_str(), kVec2f_GrSLType);
+        fsBuilder->appendTextureLookup(&noiseCode, samplers[0], xCoords.c_str(), kVec2f_GrSLType);
         noiseCode.append(".r;");
     }
 
@@ -789,7 +790,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
         SkString latticeCoords("");
         latticeCoords.appendf("vec2(%s.x, %s)", bcoords, chanCoord);
         noiseCode.appendf("\n\tvec4 %s = ", lattice);
-        builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
+        fsBuilder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.x = ", uv);
         noiseCode.appendf(dotLattice, lattice, lattice, inc8bit, fractVal);
@@ -801,7 +802,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
         SkString latticeCoords("");
         latticeCoords.appendf("vec2(%s.y, %s)", bcoords, chanCoord);
         noiseCode.append("\n\tlattice = ");
-        builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
+        fsBuilder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.y = ", uv);
         noiseCode.appendf(dotLattice, lattice, lattice, inc8bit, fractVal);
@@ -817,7 +818,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
         SkString latticeCoords("");
         latticeCoords.appendf("vec2(%s.w, %s)", bcoords, chanCoord);
         noiseCode.append("\n\tlattice = ");
-        builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
+        fsBuilder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.y = ", uv);
         noiseCode.appendf(dotLattice, lattice, lattice, inc8bit, fractVal);
@@ -829,7 +830,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
         SkString latticeCoords("");
         latticeCoords.appendf("vec2(%s.z, %s)", bcoords, chanCoord);
         noiseCode.append("\n\tlattice = ");
-        builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
+        fsBuilder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.x = ", uv);
         noiseCode.appendf(dotLattice, lattice, lattice, inc8bit, fractVal);
@@ -842,38 +843,38 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
 
     SkString noiseFuncName;
     if (fStitchTiles) {
-        builder->fsEmitFunction(kFloat_GrSLType,
+        fsBuilder->emitFunction(kFloat_GrSLType,
                                 "perlinnoise", SK_ARRAY_COUNT(gPerlinNoiseStitchArgs),
                                 gPerlinNoiseStitchArgs, noiseCode.c_str(), &noiseFuncName);
     } else {
-        builder->fsEmitFunction(kFloat_GrSLType,
+        fsBuilder->emitFunction(kFloat_GrSLType,
                                 "perlinnoise", SK_ARRAY_COUNT(gPerlinNoiseArgs),
                                 gPerlinNoiseArgs, noiseCode.c_str(), &noiseFuncName);
     }
 
     // There are rounding errors if the floor operation is not performed here
-    builder->fsCodeAppendf("\n\t\tvec2 %s = floor(%s.xy) * %s;",
+    fsBuilder->codeAppendf("\n\t\tvec2 %s = floor(%s.xy) * %s;",
                            noiseVec, vCoords.c_str(), baseFrequencyUni);
 
     // Clear the color accumulator
-    builder->fsCodeAppendf("\n\t\t%s = vec4(0.0);", outputColor);
+    fsBuilder->codeAppendf("\n\t\t%s = vec4(0.0);", outputColor);
 
     if (fStitchTiles) {
         // Set up TurbulenceInitial stitch values.
-        builder->fsCodeAppendf("\n\t\tvec2 %s = %s;", stitchData, stitchDataUni);
+        fsBuilder->codeAppendf("\n\t\tvec2 %s = %s;", stitchData, stitchDataUni);
     }
 
-    builder->fsCodeAppendf("\n\t\tfloat %s = 1.0;", ratio);
+    fsBuilder->codeAppendf("\n\t\tfloat %s = 1.0;", ratio);
 
     // Loop over all octaves
-    builder->fsCodeAppendf("\n\t\tfor (int octave = 0; octave < %d; ++octave) {", fNumOctaves);
+    fsBuilder->codeAppendf("\n\t\tfor (int octave = 0; octave < %d; ++octave) {", fNumOctaves);
 
-    builder->fsCodeAppendf("\n\t\t\t%s += ", outputColor);
+    fsBuilder->codeAppendf("\n\t\t\t%s += ", outputColor);
     if (fType != SkPerlinNoiseShader::kFractalNoise_Type) {
-        builder->fsCodeAppend("abs(");
+        fsBuilder->codeAppend("abs(");
     }
     if (fStitchTiles) {
-        builder->fsCodeAppendf(
+        fsBuilder->codeAppendf(
             "vec4(\n\t\t\t\t%s(%s, %s, %s),\n\t\t\t\t%s(%s, %s, %s),"
                  "\n\t\t\t\t%s(%s, %s, %s),\n\t\t\t\t%s(%s, %s, %s))",
             noiseFuncName.c_str(), chanCoordR, noiseVec, stitchData,
@@ -881,7 +882,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
             noiseFuncName.c_str(), chanCoordB, noiseVec, stitchData,
             noiseFuncName.c_str(), chanCoordA, noiseVec, stitchData);
     } else {
-        builder->fsCodeAppendf(
+        fsBuilder->codeAppendf(
             "vec4(\n\t\t\t\t%s(%s, %s),\n\t\t\t\t%s(%s, %s),"
                  "\n\t\t\t\t%s(%s, %s),\n\t\t\t\t%s(%s, %s))",
             noiseFuncName.c_str(), chanCoordR, noiseVec,
@@ -890,31 +891,31 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
             noiseFuncName.c_str(), chanCoordA, noiseVec);
     }
     if (fType != SkPerlinNoiseShader::kFractalNoise_Type) {
-        builder->fsCodeAppendf(")"); // end of "abs("
+        fsBuilder->codeAppendf(")"); // end of "abs("
     }
-    builder->fsCodeAppendf(" * %s;", ratio);
+    fsBuilder->codeAppendf(" * %s;", ratio);
 
-    builder->fsCodeAppendf("\n\t\t\t%s *= vec2(2.0);", noiseVec);
-    builder->fsCodeAppendf("\n\t\t\t%s *= 0.5;", ratio);
+    fsBuilder->codeAppendf("\n\t\t\t%s *= vec2(2.0);", noiseVec);
+    fsBuilder->codeAppendf("\n\t\t\t%s *= 0.5;", ratio);
 
     if (fStitchTiles) {
-        builder->fsCodeAppendf("\n\t\t\t%s *= vec2(2.0);", stitchData);
+        fsBuilder->codeAppendf("\n\t\t\t%s *= vec2(2.0);", stitchData);
     }
-    builder->fsCodeAppend("\n\t\t}"); // end of the for loop on octaves
+    fsBuilder->codeAppend("\n\t\t}"); // end of the for loop on octaves
 
     if (fType == SkPerlinNoiseShader::kFractalNoise_Type) {
         // The value of turbulenceFunctionResult comes from ((turbulenceFunctionResult) + 1) / 2
         // by fractalNoise and (turbulenceFunctionResult) by turbulence.
-        builder->fsCodeAppendf("\n\t\t%s = %s * vec4(0.5) + vec4(0.5);", outputColor, outputColor);
+        fsBuilder->codeAppendf("\n\t\t%s = %s * vec4(0.5) + vec4(0.5);", outputColor, outputColor);
     }
 
-    builder->fsCodeAppendf("\n\t\t%s.a *= %s;", outputColor, alphaUni);
+    fsBuilder->codeAppendf("\n\t\t%s.a *= %s;", outputColor, alphaUni);
 
     // Clamp values
-    builder->fsCodeAppendf("\n\t\t%s = clamp(%s, 0.0, 1.0);", outputColor, outputColor);
+    fsBuilder->codeAppendf("\n\t\t%s = clamp(%s, 0.0, 1.0);", outputColor, outputColor);
 
     // Pre-multiply the result
-    builder->fsCodeAppendf("\n\t\t%s = vec4(%s.rgb * %s.aaa, %s.a);\n",
+    fsBuilder->codeAppendf("\n\t\t%s = vec4(%s.rgb * %s.aaa, %s.a);\n",
                   outputColor, outputColor, outputColor, outputColor);
 }
 

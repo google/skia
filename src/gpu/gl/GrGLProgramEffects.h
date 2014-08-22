@@ -16,9 +16,9 @@
 class GrEffect;
 class GrEffectStage;
 class GrGLVertexProgramEffectsBuilder;
-class GrGLShaderBuilder;
-class GrGLFullShaderBuilder;
-class GrGLFragmentOnlyShaderBuilder;
+class GrGLProgramBuilder;
+class GrGLFullProgramBuilder;
+class GrGLFragmentOnlyProgramBuilder;
 
 /**
  * This class encapsulates an array of GrGLEffects and their supporting data (coord transforms
@@ -53,6 +53,8 @@ public:
     virtual void setData(GrGpuGL*,
                          const GrGLProgramDataManager&,
                          const GrEffectStage* effectStages[]) = 0;
+
+    void addEffect(GrGLEffect* effect) { fGLEffects.push_back(effect); }
 
     /**
      * Passed to GrGLEffects so they can add transformed coordinates to their shader code.
@@ -100,6 +102,7 @@ public:
     typedef SkTArray<TextureSampler> TextureSamplerArray;
 
 protected:
+
     /**
      * Helpers for GenEffectMetaKey.
      */
@@ -117,7 +120,7 @@ protected:
      * appends the necessary data to the TextureSamplerArray* object so effects can add texture
      * lookups to their code. This method is only meant to be called during the construction phase.
      */
-    void emitSamplers(GrGLShaderBuilder*, const GrEffect*, TextureSamplerArray*);
+    void emitSamplers(GrGLProgramBuilder*, const GrEffect*, TextureSamplerArray*);
 
     /**
      * Helper for setData(). Binds all the textures for an effect.
@@ -134,6 +137,7 @@ protected:
     SkTArray<SkSTArray<4, Sampler, true> > fSamplers;
 
 private:
+    friend class GrGLFragmentO;
     typedef SkRefCnt INHERITED;
 };
 
@@ -143,7 +147,6 @@ private:
 class GrGLProgramEffectsBuilder {
 public:
     virtual ~GrGLProgramEffectsBuilder() { }
-
     /**
      * Emits the effect's shader code, and stores the necessary uniforms internally.
      */
@@ -166,19 +169,17 @@ public:
                          const GrEffectStage* effectStages[]) SK_OVERRIDE;
 
 private:
-    friend class GrGLVertexProgramEffectsBuilder;
+    friend class GrGLFullProgramBuilder;
 
     GrGLVertexProgramEffects(int reserveCount, bool explicitLocalCoords)
         : INHERITED(reserveCount)
         , fTransforms(reserveCount)
         , fHasExplicitLocalCoords(explicitLocalCoords) {
     }
-
     /**
-     * Helper for GrGLProgramEffectsBuilder::emitEfffect(). This method is meant to only be called
-     * during the construction phase.
+     * This method is meant to only be called during the construction phase.
      */
-    void emitEffect(GrGLFullShaderBuilder*,
+    void emitEffect(GrGLFullProgramBuilder*,
                     const GrEffectStage&,
                     const GrEffectKey&,
                     const char* outColor,
@@ -188,7 +189,7 @@ private:
     /**
      * Helper for emitEffect(). Emits any attributes an effect may have.
      */
-    void emitAttributes(GrGLFullShaderBuilder*, const GrEffectStage&);
+    void emitAttributes(GrGLFullProgramBuilder*, const GrEffectStage&);
 
     /**
      * Helper for emitEffect(). Emits code to implement an effect's coord transforms in the VS.
@@ -197,7 +198,7 @@ private:
      * of the varyings in the VS and FS as well their types are appended to the
      * TransformedCoordsArray* object, which is in turn passed to the effect's emitCode() function.
      */
-    void emitTransforms(GrGLFullShaderBuilder*,
+    void emitTransforms(GrGLFullProgramBuilder*,
                         const GrDrawEffect&,
                         TransformedCoordsArray*);
 
@@ -215,6 +216,8 @@ private:
     SkTArray<SkSTArray<2, Transform, true> > fTransforms;
     bool                                     fHasExplicitLocalCoords;
 
+    friend class GrGLVertexProgramEffectsBuilder;
+
     typedef GrGLProgramEffects INHERITED;
 };
 
@@ -223,25 +226,21 @@ private:
  */
 class GrGLVertexProgramEffectsBuilder : public GrGLProgramEffectsBuilder {
 public:
-    GrGLVertexProgramEffectsBuilder(GrGLFullShaderBuilder*, int reserveCount);
+    GrGLVertexProgramEffectsBuilder(GrGLFullProgramBuilder*, int reserveCount);
     virtual ~GrGLVertexProgramEffectsBuilder() { }
-
     virtual void emitEffect(const GrEffectStage&,
                             const GrEffectKey&,
                             const char* outColor,
                             const char* inColor,
                             int stageIndex) SK_OVERRIDE;
-
     /**
      * Finalizes the building process and returns the effect array. After this call, the builder
      * becomes invalid.
      */
     GrGLProgramEffects* finish() { return fProgramEffects.detach(); }
-
 private:
-    GrGLFullShaderBuilder*                  fBuilder;
+    GrGLFullProgramBuilder*                 fBuilder;
     SkAutoTDelete<GrGLVertexProgramEffects> fProgramEffects;
-
     typedef GrGLProgramEffectsBuilder INHERITED;
 };
 
@@ -258,7 +257,7 @@ public:
                          const GrEffectStage* effectStages[]) SK_OVERRIDE;
 
 private:
-    friend class GrGLPathTexGenProgramEffectsBuilder;
+    friend class GrGLFragmentOnlyProgramBuilder;
 
     GrGLPathTexGenProgramEffects(int reserveCount)
         : INHERITED(reserveCount)
@@ -266,10 +265,9 @@ private:
     }
 
     /**
-     * Helper for GrGLProgramEffectsBuilder::emitEfffect(). This method is meant to only be called
-     * during the construction phase.
+     * This method is meant to only be called during the construction phase.
      */
-    void emitEffect(GrGLFragmentOnlyShaderBuilder*,
+    void emitEffect(GrGLFragmentOnlyProgramBuilder*,
                     const GrEffectStage&,
                     const GrEffectKey&,
                     const char* outColor,
@@ -284,7 +282,7 @@ private:
      * types are appended to the TransformedCoordsArray* object, which is in turn passed to the
      * effect's emitCode() function.
      */
-    void setupPathTexGen(GrGLFragmentOnlyShaderBuilder*,
+    void setupPathTexGen(GrGLFragmentOnlyProgramBuilder*,
                          const GrDrawEffect&,
                          TransformedCoordsArray*);
 
@@ -302,6 +300,7 @@ private:
 
     SkTArray<Transforms> fTransforms;
 
+    friend class GrGLPathTexGenProgramEffectsBuilder;
     typedef GrGLProgramEffects INHERITED;
 };
 
@@ -310,26 +309,23 @@ private:
  */
 class GrGLPathTexGenProgramEffectsBuilder : public GrGLProgramEffectsBuilder {
 public:
-    GrGLPathTexGenProgramEffectsBuilder(GrGLFragmentOnlyShaderBuilder*, int reserveCount);
+    GrGLPathTexGenProgramEffectsBuilder(GrGLFragmentOnlyProgramBuilder*, int reserveCount);
     virtual ~GrGLPathTexGenProgramEffectsBuilder() { }
-
     virtual void emitEffect(const GrEffectStage&,
                             const GrEffectKey&,
                             const char* outColor,
                             const char* inColor,
                             int stageIndex) SK_OVERRIDE;
-
     /**
      * Finalizes the building process and returns the effect array. After this call, the builder
      * becomes invalid.
      */
     GrGLProgramEffects* finish() { return fProgramEffects.detach(); }
-
 private:
-    GrGLFragmentOnlyShaderBuilder*          fBuilder;
+    GrGLFragmentOnlyProgramBuilder*          fBuilder;
     SkAutoTDelete<GrGLPathTexGenProgramEffects> fProgramEffects;
-
     typedef GrGLProgramEffectsBuilder INHERITED;
 };
+
 
 #endif

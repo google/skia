@@ -470,7 +470,7 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
 #if SK_SUPPORT_GPU
 
 #include "GrTBackendEffectFactory.h"
-#include "gl/GrGLShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
 class GrGLRadialGradient : public GrGLGradientEffect {
@@ -480,7 +480,7 @@ public:
                        const GrDrawEffect&) : INHERITED (factory) { }
     virtual ~GrGLRadialGradient() { }
 
-    virtual void emitCode(GrGLShaderBuilder*,
+    virtual void emitCode(GrGLProgramBuilder*,
                           const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
@@ -559,7 +559,7 @@ GrEffect* GrRadialGradient::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLRadialGradient::emitCode(GrGLShaderBuilder* builder,
+void GrGLRadialGradient::emitCode(GrGLProgramBuilder* builder,
                                   const GrDrawEffect&,
                                   const GrEffectKey& key,
                                   const char* outputColor,
@@ -569,7 +569,7 @@ void GrGLRadialGradient::emitCode(GrGLShaderBuilder* builder,
     uint32_t baseKey = key.get32(0);
     this->emitUniforms(builder, baseKey);
     SkString t("length(");
-    t.append(builder->ensureFSCoords2D(coords, 0));
+    t.append(builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0));
     t.append(")");
     this->emitColor(builder, t.c_str(), baseKey, outputColor, inputColor, samplers);
 }

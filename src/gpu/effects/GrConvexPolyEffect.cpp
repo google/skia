@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrConvexPolyEffect.h"
 
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLSL.h"
 #include "GrTBackendEffectFactory.h"
 
@@ -89,7 +89,7 @@ class GLAARectEffect : public GrGLEffect {
 public:
     GLAARectEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
@@ -113,7 +113,7 @@ GLAARectEffect::GLAARectEffect(const GrBackendEffectFactory& factory,
     fPrevRect.fLeft = SK_ScalarNaN;
 }
 
-void GLAARectEffect::emitCode(GrGLShaderBuilder* builder,
+void GLAARectEffect::emitCode(GrGLProgramBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
@@ -124,34 +124,36 @@ void GLAARectEffect::emitCode(GrGLShaderBuilder* builder,
     const char *rectName;
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
-    fRectUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+    fRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                        kVec4f_GrSLType,
                                        "rect",
                                        &rectName);
-    const char* fragmentPos = builder->fragmentPosition();
+
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    const char* fragmentPos = fsBuilder->fragmentPosition();
     if (GrEffectEdgeTypeIsAA(aare.getEdgeType())) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
-        builder->fsCodeAppend("\t\tfloat xSub, ySub;\n");
-        builder->fsCodeAppendf("\t\txSub = min(%s.x - %s.x, 0.0);\n", fragmentPos, rectName);
-        builder->fsCodeAppendf("\t\txSub += min(%s.z - %s.x, 0.0);\n", rectName, fragmentPos);
-        builder->fsCodeAppendf("\t\tySub = min(%s.y - %s.y, 0.0);\n", fragmentPos, rectName);
-        builder->fsCodeAppendf("\t\tySub += min(%s.w - %s.y, 0.0);\n", rectName, fragmentPos);
+        fsBuilder->codeAppend("\t\tfloat xSub, ySub;\n");
+        fsBuilder->codeAppendf("\t\txSub = min(%s.x - %s.x, 0.0);\n", fragmentPos, rectName);
+        fsBuilder->codeAppendf("\t\txSub += min(%s.z - %s.x, 0.0);\n", rectName, fragmentPos);
+        fsBuilder->codeAppendf("\t\tySub = min(%s.y - %s.y, 0.0);\n", fragmentPos, rectName);
+        fsBuilder->codeAppendf("\t\tySub += min(%s.w - %s.y, 0.0);\n", rectName, fragmentPos);
         // Now compute coverage in x and y and multiply them to get the fraction of the pixel
         // covered.
-        builder->fsCodeAppendf("\t\tfloat alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n");
+        fsBuilder->codeAppendf("\t\tfloat alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n");
     } else {
-        builder->fsCodeAppendf("\t\tfloat alpha = 1.0;\n");
-        builder->fsCodeAppendf("\t\talpha *= (%s.x - %s.x) > -0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
-        builder->fsCodeAppendf("\t\talpha *= (%s.z - %s.x) > -0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
-        builder->fsCodeAppendf("\t\talpha *= (%s.y - %s.y) > -0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
-        builder->fsCodeAppendf("\t\talpha *= (%s.w - %s.y) > -0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
+        fsBuilder->codeAppendf("\t\tfloat alpha = 1.0;\n");
+        fsBuilder->codeAppendf("\t\talpha *= (%s.x - %s.x) > -0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
+        fsBuilder->codeAppendf("\t\talpha *= (%s.z - %s.x) > -0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
+        fsBuilder->codeAppendf("\t\talpha *= (%s.y - %s.y) > -0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
+        fsBuilder->codeAppendf("\t\talpha *= (%s.w - %s.y) > -0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
     }
 
     if (GrEffectEdgeTypeIsInverseFill(aare.getEdgeType())) {
-        builder->fsCodeAppend("\t\talpha = 1.0 - alpha;\n");
+        fsBuilder->codeAppend("\t\talpha = 1.0 - alpha;\n");
     }
-    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor,
+    fsBuilder->codeAppendf("\t\t%s = %s;\n", outputColor,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
@@ -181,7 +183,7 @@ class GrGLConvexPolyEffect : public GrGLEffect {
 public:
     GrGLConvexPolyEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
@@ -205,7 +207,7 @@ GrGLConvexPolyEffect::GrGLConvexPolyEffect(const GrBackendEffectFactory& factory
     fPrevEdges[0] = SK_ScalarNaN;
 }
 
-void GrGLConvexPolyEffect::emitCode(GrGLShaderBuilder* builder,
+void GrGLConvexPolyEffect::emitCode(GrGLProgramBuilder* builder,
                                     const GrDrawEffect& drawEffect,
                                     const GrEffectKey& key,
                                     const char* outputColor,
@@ -215,34 +217,35 @@ void GrGLConvexPolyEffect::emitCode(GrGLShaderBuilder* builder,
     const GrConvexPolyEffect& cpe = drawEffect.castEffect<GrConvexPolyEffect>();
 
     const char *edgeArrayName;
-    fEdgeUniform = builder->addUniformArray(GrGLShaderBuilder::kFragment_Visibility,
+    fEdgeUniform = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec3f_GrSLType,
                                             "edges",
                                             cpe.getEdgeCount(),
                                             &edgeArrayName);
-    builder->fsCodeAppend("\t\tfloat alpha = 1.0;\n");
-    builder->fsCodeAppend("\t\tfloat edge;\n");
-    const char* fragmentPos = builder->fragmentPosition();
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    fsBuilder->codeAppend("\t\tfloat alpha = 1.0;\n");
+    fsBuilder->codeAppend("\t\tfloat edge;\n");
+    const char* fragmentPos = fsBuilder->fragmentPosition();
     for (int i = 0; i < cpe.getEdgeCount(); ++i) {
-        builder->fsCodeAppendf("\t\tedge = dot(%s[%d], vec3(%s.x, %s.y, 1));\n",
+        fsBuilder->codeAppendf("\t\tedge = dot(%s[%d], vec3(%s.x, %s.y, 1));\n",
                                edgeArrayName, i, fragmentPos, fragmentPos);
         if (GrEffectEdgeTypeIsAA(cpe.getEdgeType())) {
-            builder->fsCodeAppend("\t\tedge = clamp(edge, 0.0, 1.0);\n");
+            fsBuilder->codeAppend("\t\tedge = clamp(edge, 0.0, 1.0);\n");
         } else {
-            builder->fsCodeAppend("\t\tedge = edge >= 0.5 ? 1.0 : 0.0;\n");
+            fsBuilder->codeAppend("\t\tedge = edge >= 0.5 ? 1.0 : 0.0;\n");
         }
-        builder->fsCodeAppend("\t\talpha *= edge;\n");
+        fsBuilder->codeAppend("\t\talpha *= edge;\n");
     }
 
     // Woe is me. See skbug.com/2149.
     if (kTegra2_GrGLRenderer == builder->ctxInfo().renderer()) {
-        builder->fsCodeAppend("\t\tif (-1.0 == alpha) {\n\t\t\tdiscard;\n\t\t}\n");
+        fsBuilder->codeAppend("\t\tif (-1.0 == alpha) {\n\t\t\tdiscard;\n\t\t}\n");
     }
 
     if (GrEffectEdgeTypeIsInverseFill(cpe.getEdgeType())) {
-        builder->fsCodeAppend("\talpha = 1.0 - alpha;\n");
+        fsBuilder->codeAppend("\talpha = 1.0 - alpha;\n");
     }
-    builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+    fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 

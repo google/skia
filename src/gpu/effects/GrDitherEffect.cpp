@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrDitherEffect.h"
 
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLSL.h"
 #include "GrTBackendEffectFactory.h"
 
@@ -70,7 +70,7 @@ class GLDitherEffect : public GrGLEffect {
 public:
     GLDitherEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
@@ -87,13 +87,14 @@ GLDitherEffect::GLDitherEffect(const GrBackendEffectFactory& factory,
     : INHERITED (factory) {
 }
 
-void GLDitherEffect::emitCode(GrGLShaderBuilder* builder,
+void GLDitherEffect::emitCode(GrGLProgramBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) {
+    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     // Generate a random number based on the fragment position. For this
     // random number generator, we use the "GLSL rand" function
     // that seems to be floating around on the internet. It works under
@@ -103,10 +104,10 @@ void GLDitherEffect::emitCode(GrGLShaderBuilder* builder,
 
     // For each channel c, add the random offset to the pixel to either bump
     // it up or let it remain constant during quantization.
-    builder->fsCodeAppendf("\t\tfloat r = "
+    fsBuilder->codeAppendf("\t\tfloat r = "
                            "fract(sin(dot(%s.xy ,vec2(12.9898,78.233))) * 43758.5453);\n",
-                           builder->fragmentPosition());
-    builder->fsCodeAppendf("\t\t%s = (1.0/255.0) * vec4(r, r, r, r) + %s;\n",
+                           fsBuilder->fragmentPosition());
+    fsBuilder->codeAppendf("\t\t%s = (1.0/255.0) * vec4(r, r, r, r) + %s;\n",
                            outputColor, GrGLSLExpr4(inputColor).c_str());
 }
 
