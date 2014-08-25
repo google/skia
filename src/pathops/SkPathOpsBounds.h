@@ -67,6 +67,6 @@ struct SkPathOpsBounds : public SkRect {
     typedef SkRect INHERITED;
 };
 
-extern void (SkPathOpsBounds::*SetCurveBounds[])(const SkPoint[]);
+extern void (SkPathOpsBounds::* const SetCurveBounds[])(const SkPoint[]);
 
 #endif

@@ -287,8 +287,8 @@ private:
 #endif
 };
 
-extern int (SkIntersections::*CurveRay[])(const SkPoint[], const SkDLine& );
-extern int (SkIntersections::*CurveVertical[])(const SkPoint[], SkScalar top, SkScalar bottom,
+extern int (SkIntersections::* const CurveRay[])(const SkPoint[], const SkDLine& );
+extern int (SkIntersections::* const CurveVertical[])(const SkPoint[], SkScalar top, SkScalar bottom,
             SkScalar x, bool flipped);
 
 #endif

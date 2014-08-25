@@ -32,7 +32,7 @@ void SkPathOpsBounds::setQuadBounds(const SkPoint a[3]) {
             SkDoubleToScalar(dRect.fRight), SkDoubleToScalar(dRect.fBottom));
 }
 
-void (SkPathOpsBounds::*SetCurveBounds[])(const SkPoint[]) = {
+void (SkPathOpsBounds::* const SetCurveBounds[])(const SkPoint[]) = {
     NULL,
     &SkPathOpsBounds::setLineBounds,
     &SkPathOpsBounds::setQuadBounds,

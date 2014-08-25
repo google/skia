@@ -13,14 +13,14 @@ void SkIntersections::append(const SkIntersections& i) {
     }
 }
 
-int (SkIntersections::*CurveVertical[])(const SkPoint[], SkScalar, SkScalar, SkScalar, bool) = {
+int (SkIntersections::* const CurveVertical[])(const SkPoint[], SkScalar, SkScalar, SkScalar, bool) = {
     NULL,
     &SkIntersections::verticalLine,
     &SkIntersections::verticalQuad,
     &SkIntersections::verticalCubic
 };
 
-int (SkIntersections::*CurveRay[])(const SkPoint[], const SkDLine&) = {
+int ( SkIntersections::* const CurveRay[])(const SkPoint[], const SkDLine&) = {
     NULL,
     &SkIntersections::lineRay,
     &SkIntersections::quadRay,
