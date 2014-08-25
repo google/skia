@@ -75,10 +75,10 @@ public:
 
     static ID* FindAndLock(const Key&, SkBitmap* result);
     static ID* AddAndLock(const Key&, const SkBitmap& result);
-    
+
     static ID* FindAndLock(const Key&, const SkMipMap** result);
     static ID* AddAndLock(const Key&, const SkMipMap* result);
-    
+
     static void Unlock(ID*);
 
     static size_t GetTotalBytesUsed();
@@ -128,9 +128,6 @@ public:
      *  To add a new bitmap (or mipMap) to the cache, call
      *  AddAndLock. Use the returned ptr to unlock the cache when you
      *  are done using scaled.
-     *
-     *  Use (generationID, width, and height) or (original, scaleX,
-     *  scaleY) or (original) as a search key
      */
     ID* addAndLock(const Key&, const SkBitmap& bitmap);
     ID* addAndLock(const Key&, const SkMipMap* mipMap);

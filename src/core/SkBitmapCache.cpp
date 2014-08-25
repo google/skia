@@ -32,7 +32,7 @@ public:
     {
         this->init(sizeof(fGenID) + sizeof(fScaleX) + sizeof(fScaleY) + sizeof(fBounds));
     }
-    
+
     uint32_t    fGenID;
     SkScalar    fScaleX;
     SkScalar    fScaleY;
