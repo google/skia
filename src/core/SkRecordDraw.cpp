@@ -185,15 +185,19 @@ private:
     // The bounds of these ops must be calculated when we hit the Restore
     // from the bounds of the ops in the same Save block.
     void trackBounds(const Save&)          { this->pushSaveBlock(NULL); }
-    // TODO: bounds of SaveLayer may be more complicated?
     void trackBounds(const SaveLayer& op)  { this->pushSaveBlock(op.paint); }
     void trackBounds(const Restore&) { fBounds[fCurrentOp] = this->popSaveBlock(); }
 
-    void trackBounds(const SetMatrix&)  { this->pushControl(); }
-    void trackBounds(const ClipRect&)   { this->pushControl(); }
-    void trackBounds(const ClipRRect&)  { this->pushControl(); }
-    void trackBounds(const ClipPath&)   { this->pushControl(); }
-    void trackBounds(const ClipRegion&) { this->pushControl(); }
+    void trackBounds(const SetMatrix&)         { this->pushControl(); }
+    void trackBounds(const ClipRect&)          { this->pushControl(); }
+    void trackBounds(const ClipRRect&)         { this->pushControl(); }
+    void trackBounds(const ClipPath&)          { this->pushControl(); }
+    void trackBounds(const ClipRegion&)        { this->pushControl(); }
+    void trackBounds(const PushCull&)          { this->pushControl(); }
+    void trackBounds(const PopCull&)           { this->pushControl(); }
+    void trackBounds(const BeginCommentGroup&) { this->pushControl(); }
+    void trackBounds(const AddComment&)        { this->pushControl(); }
+    void trackBounds(const EndCommentGroup&)   { this->pushControl(); }
 
     // For all other ops, we can calculate and store the bounds directly now.
     template <typename T> void trackBounds(const T& op) {
@@ -252,9 +256,18 @@ private:
         }
     }
 
-    // TODO(mtklein): Remove this default when done bounding all ops.
-    template <typename T> SkIRect bounds(const T&) const { return fCurrentClipBounds; }
+    // FIXME: these methods could use better bounds
+    SkIRect bounds(const DrawPatch&)      const { return fCurrentClipBounds; }
+    SkIRect bounds(const DrawPicture&)    const { return fCurrentClipBounds; }
+    SkIRect bounds(const DrawTextOnPath&) const { return fCurrentClipBounds; }
+    SkIRect bounds(const DrawSprite&)     const { return fCurrentClipBounds; }
+    SkIRect bounds(const DrawTextBlob&)   const { return fCurrentClipBounds; }
+    SkIRect bounds(const DrawText&)       const { return fCurrentClipBounds; }
+    SkIRect bounds(const DrawVertices&)   const { return fCurrentClipBounds; }
+    //  end of methods that could use better bounds
+
     SkIRect bounds(const Clear&) const { return SkIRect::MakeLargest(); }  // Ignores the clip
+    SkIRect bounds(const DrawPaint&) const { return fCurrentClipBounds; }
     SkIRect bounds(const NoOp&)  const { return SkIRect::MakeEmpty(); }    // NoOps don't draw.
 
     SkIRect bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
