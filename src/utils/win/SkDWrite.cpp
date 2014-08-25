@@ -67,23 +67,19 @@ HRESULT sk_cstring_to_wchar(const char* skname, SkSMallocWCHAR* name) {
 }
 
 /** Converts a WCHAR string to a utf8 string. */
-HRESULT sk_wchar_to_skstring(WCHAR* name, SkString* skname) {
-    int len = WideCharToMultiByte(CP_UTF8, 0, name, -1, NULL, 0, NULL, NULL);
+HRESULT sk_wchar_to_skstring(WCHAR* name, int nameLen, SkString* skname) {
+    int len = WideCharToMultiByte(CP_UTF8, 0, name, nameLen, NULL, 0, NULL, NULL);
     if (0 == len) {
+        if (nameLen <= 0) {
+            skname->reset();
+            return S_OK;
+        }
         HRM(HRESULT_FROM_WIN32(GetLastError()),
             "Could not get length for utf-8 to wchar conversion.");
     }
-    skname->resize(len - 1);
+    skname->resize(len);
 
-    // TODO: remove after https://code.google.com/p/skia/issues/detail?id=1989 is fixed.
-    // If we resize to 0 then the skname points to gEmptyRec (the unique empty SkString::Rec).
-    // gEmptyRec is static const and on Windows this means the value is in a read only page.
-    // Writing to it in the following call to WideCharToMultiByte will cause an access violation.
-    if (1 == len) {
-        return S_OK;
-    }
-
-    len = WideCharToMultiByte(CP_UTF8, 0, name, -1, skname->writable_str(), len, NULL, NULL);
+    len = WideCharToMultiByte(CP_UTF8, 0, name, nameLen, skname->writable_str(), len, NULL, NULL);
     if (0 == len) {
         HRM(HRESULT_FROM_WIN32(GetLastError()), "Could not convert utf-8 to wchar.");
     }
@@ -105,14 +101,13 @@ void sk_get_locale_string(IDWriteLocalizedStrings* names, const WCHAR* preferedL
         }
     }
 
-    UINT32 nameLength;
-    HRVM(names->GetStringLength(nameIndex, &nameLength), "Could not get name length.");
-    nameLength += 1;
+    UINT32 nameLen;
+    HRVM(names->GetStringLength(nameIndex, &nameLen), "Could not get name length.");
 
-    SkSMallocWCHAR name(nameLength);
-    HRVM(names->GetString(nameIndex, name.get(), nameLength), "Could not get string.");
+    SkSMallocWCHAR name(nameLen+1);
+    HRVM(names->GetString(nameIndex, name.get(), nameLen+1), "Could not get string.");
 
-    HRV(sk_wchar_to_skstring(name.get(), skname));
+    HRV(sk_wchar_to_skstring(name.get(), nameLen, skname));
 }
 
 HRESULT SkGetGetUserDefaultLocaleNameProc(SkGetUserDefaultLocaleNameProc* proc) {

@@ -27,17 +27,17 @@
 void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
                                              bool* isLocalStream) const {
     // Get the family name.
-    SkTScopedComPtr<IDWriteLocalizedStrings> dwFamilyNames;
-    HRV(fDWriteFontFamily->GetFamilyNames(&dwFamilyNames));
+    SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
+    HRV(fDWriteFontFamily->GetFamilyNames(&familyNames));
 
-    UINT32 dwFamilyNamesLength;
-    HRV(dwFamilyNames->GetStringLength(0, &dwFamilyNamesLength));
+    UINT32 familyNamesLen;
+    HRV(familyNames->GetStringLength(0, &familyNamesLen));
 
-    SkSMallocWCHAR dwFamilyNameChar(dwFamilyNamesLength+1);
-    HRV(dwFamilyNames->GetString(0, dwFamilyNameChar.get(), dwFamilyNamesLength+1));
+    SkSMallocWCHAR familyName(familyNamesLen+1);
+    HRV(familyNames->GetString(0, familyName.get(), familyNamesLen+1));
 
     SkString utf8FamilyName;
-    HRV(sk_wchar_to_skstring(dwFamilyNameChar.get(), &utf8FamilyName));
+    HRV(sk_wchar_to_skstring(familyName.get(), familyNamesLen, &utf8FamilyName));
 
     desc->setFamilyName(utf8FamilyName.c_str());
     *isLocalStream = SkToBool(fDWriteFontFileLoader.get());
@@ -140,24 +140,22 @@ public:
         }
 
         // String
-        UINT32 stringLength;
-        HRBM(fStrings->GetStringLength(fIndex, &stringLength), "Could not get string length.");
-        stringLength += 1;
+        UINT32 stringLen;
+        HRBM(fStrings->GetStringLength(fIndex, &stringLen), "Could not get string length.");
 
-        SkSMallocWCHAR wString(stringLength);
-        HRBM(fStrings->GetString(fIndex, wString.get(), stringLength), "Could not get string.");
+        SkSMallocWCHAR wString(stringLen+1);
+        HRBM(fStrings->GetString(fIndex, wString.get(), stringLen+1), "Could not get string.");
 
-        HRB(sk_wchar_to_skstring(wString.get(), &localizedString->fString));
+        HRB(sk_wchar_to_skstring(wString.get(), stringLen, &localizedString->fString));
 
         // Locale
-        UINT32 localeLength;
-        HRBM(fStrings->GetLocaleNameLength(fIndex, &localeLength), "Could not get locale length.");
-        localeLength += 1;
+        UINT32 localeLen;
+        HRBM(fStrings->GetLocaleNameLength(fIndex, &localeLen), "Could not get locale length.");
 
-        SkSMallocWCHAR wLocale(localeLength);
-        HRBM(fStrings->GetLocaleName(fIndex, wLocale.get(), localeLength), "Could not get locale.");
+        SkSMallocWCHAR wLocale(localeLen+1);
+        HRBM(fStrings->GetLocaleName(fIndex, wLocale.get(), localeLen+1), "Could not get locale.");
 
-        HRB(sk_wchar_to_skstring(wLocale.get(), &localizedString->fLanguage));
+        HRB(sk_wchar_to_skstring(wLocale.get(), localeLen, &localizedString->fLanguage));
 
         ++fIndex;
         return true;
@@ -349,14 +347,13 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
     hr = fDWriteFontFamily->GetFamilyNames(&familyNames);
 
-    UINT32 familyNameLength;
-    hr = familyNames->GetStringLength(0, &familyNameLength);
+    UINT32 familyNameLen;
+    hr = familyNames->GetStringLength(0, &familyNameLen);
 
-    UINT32 size = familyNameLength+1;
-    SkSMallocWCHAR wFamilyName(size);
-    hr = familyNames->GetString(0, wFamilyName.get(), size);
+    SkSMallocWCHAR familyName(familyNameLen+1);
+    hr = familyNames->GetString(0, familyName.get(), familyNameLen+1);
 
-    hr = sk_wchar_to_skstring(wFamilyName.get(), &info->fFontName);
+    hr = sk_wchar_to_skstring(familyName.get(), familyNameLen, &info->fFontName);
 
     if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo) {
         populate_glyph_to_unicode(fDWriteFontFace.get(), glyphCount, &(info->fGlyphToUnicode));
