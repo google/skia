@@ -27,7 +27,6 @@ static const struct TagSize {
 } gKnownTableSizes[] = {
     {   kFontTableTag_head,         54 },
     {   kFontTableTag_hhea,         36 },
-    {   kFontTableTag_maxp,         32 },
 };
 
 // Test that getUnitsPerEm() agrees with a direct lookup in the 'head' table

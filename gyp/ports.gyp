@@ -92,7 +92,7 @@
                 ],
               },
               'sources': [
-                '../src/fonts/SkFontMgr_fontconfig.cpp',
+                '../src/ports/SkFontMgr_fontconfig.cpp',
                 '../src/ports/SkFontHost_fontconfig.cpp',
                 '../src/ports/SkFontConfigInterface_direct.cpp',
               ],

@@ -77,7 +77,19 @@ template <typename T, void (*P)(T*)> class SkAutoTCallVProc : SkNoncopyable {
 public:
     SkAutoTCallVProc(T* obj): fObj(obj) {}
     ~SkAutoTCallVProc() { if (fObj) P(fObj); }
+
+    operator T*() const { return fObj; }
+    T* operator->() const { SkASSERT(fObj); return fObj; }
+
     T* detach() { T* obj = fObj; fObj = NULL; return obj; }
+    void reset(T* obj = NULL) {
+        if (fObj != obj) {
+            if (fObj) {
+                P(fObj);
+            }
+            fObj = obj;
+        }
+    }
 private:
     T* fObj;
 };
