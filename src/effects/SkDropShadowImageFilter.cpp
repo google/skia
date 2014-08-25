@@ -121,6 +121,9 @@ void SkDropShadowImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) 
 bool SkDropShadowImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                              SkIRect* dst) const {
     SkIRect bounds = src;
+    if (getInput(0) && !getInput(0)->filterBounds(src, ctm, &bounds)) {
+        return false;
+    }
     SkVector offsetVec = SkVector::Make(fDx, fDy);
     ctm.mapVectors(&offsetVec, 1);
     bounds.offset(-SkScalarCeilToInt(offsetVec.x()),
@@ -130,9 +133,6 @@ bool SkDropShadowImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&
     bounds.outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
                   SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
     bounds.join(src);
-    if (getInput(0) && !getInput(0)->filterBounds(bounds, ctm, &bounds)) {
-        return false;
-    }
     *dst = bounds;
     return true;
 }

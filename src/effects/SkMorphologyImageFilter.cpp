@@ -248,13 +248,13 @@ void SkMorphologyImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) 
 bool SkMorphologyImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                              SkIRect* dst) const {
     SkIRect bounds = src;
+    if (getInput(0) && !getInput(0)->filterBounds(src, ctm, &bounds)) {
+        return false;
+    }
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
                                      SkIntToScalar(this->radius().height()));
     ctm.mapVectors(&radius, 1);
     bounds.outset(SkScalarCeilToInt(radius.x()), SkScalarCeilToInt(radius.y()));
-    if (getInput(0) && !getInput(0)->filterBounds(bounds, ctm, &bounds)) {
-        return false;
-    }
     *dst = bounds;
     return true;
 }
