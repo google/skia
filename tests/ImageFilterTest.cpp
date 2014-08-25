@@ -469,6 +469,50 @@ DEF_TEST(ImageFilterDrawMatrixBBH, reporter) {
     }
 }
 
+static SkImageFilter* makeBlur(SkImageFilter* input = NULL) {
+    return SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1, input);
+}
+
+static SkImageFilter* makeDropShadow(SkImageFilter* input = NULL) {
+    return SkDropShadowImageFilter::Create(
+        SkIntToScalar(100), SkIntToScalar(100),
+        SkIntToScalar(10), SkIntToScalar(10),
+        SK_ColorBLUE, input);
+}
+
+DEF_TEST(ImageFilterBlurThenShadowBounds, reporter) {
+    SkAutoTUnref<SkImageFilter> filter1(makeBlur());
+    SkAutoTUnref<SkImageFilter> filter2(makeDropShadow(filter1.get()));
+
+    SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
+    SkIRect expectedBounds = SkIRect::MakeXYWH(-133, -133, 236, 236);
+    filter2->filterBounds(bounds, SkMatrix::I(), &bounds);
+
+    REPORTER_ASSERT(reporter, bounds == expectedBounds);
+}
+
+DEF_TEST(ImageFilterShadowThenBlurBounds, reporter) {
+    SkAutoTUnref<SkImageFilter> filter1(makeDropShadow());
+    SkAutoTUnref<SkImageFilter> filter2(makeBlur(filter1.get()));
+
+    SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
+    SkIRect expectedBounds = SkIRect::MakeXYWH(-133, -133, 236, 236);
+    filter2->filterBounds(bounds, SkMatrix::I(), &bounds);
+
+    REPORTER_ASSERT(reporter, bounds == expectedBounds);
+}
+
+DEF_TEST(ImageFilterDilateThenBlurBounds, reporter) {
+    SkAutoTUnref<SkImageFilter> filter1(SkDilateImageFilter::Create(2, 2));
+    SkAutoTUnref<SkImageFilter> filter2(makeDropShadow(filter1.get()));
+
+    SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
+    SkIRect expectedBounds = SkIRect::MakeXYWH(-132, -132, 234, 234);
+    filter2->filterBounds(bounds, SkMatrix::I(), &bounds);
+
+    REPORTER_ASSERT(reporter, bounds == expectedBounds);
+}
+
 static void drawBlurredRect(SkCanvas* canvas) {
     SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(SkIntToScalar(8), 0));
     SkPaint filterPaint;
