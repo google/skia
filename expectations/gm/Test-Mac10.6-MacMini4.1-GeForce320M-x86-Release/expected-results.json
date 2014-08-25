@@ -9146,14 +9146,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9803122300416240866
+          7961471823724588641
         ]
       ], 
-      "bugs": [
-        476
-      ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "hairlines_565.png": {
       "allowed-digests": [
