@@ -265,8 +265,4 @@ SkDiscardableMemoryPool* SkGetGlobalDiscardableMemoryPool() {
     return global.get();
 }
 
-// defined in SkImageGenerator.h
-void SkPurgeGlobalDiscardableMemoryPool() {
-    SkGetGlobalDiscardableMemoryPool()->dumpPool();
-}
 ////////////////////////////////////////////////////////////////////////////////

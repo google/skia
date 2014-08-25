@@ -35,12 +35,6 @@ class SkImageGenerator;
  */
 SK_API bool SkInstallDiscardablePixelRef(SkImageGenerator*, SkBitmap* destination);
 
-/**
- *  Purges all unlocked discardable memory in Skia's global
- *  discardable memory pool.
- */
-SK_API void SkPurgeGlobalDiscardableMemoryPool();
-
 
 /**
  *  An interface that allows a purgeable PixelRef (such as a
