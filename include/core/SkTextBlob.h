@@ -17,7 +17,7 @@
 
     SkTextBlob combines multiple text runs into an immutable, ref-counted structure.
 */
-class SkTextBlob : public SkRefCnt {
+class SK_API SkTextBlob : public SkRefCnt {
 public:
     /**
      *  Returns the blob bounding box.
@@ -87,7 +87,7 @@ private:
 
     Helper class for constructing SkTextBlobs.
  */
-class SkTextBlobBuilder {
+class SK_API SkTextBlobBuilder {
 public:
     /**
      *  @param runs The number of runs to be added, if known. This is a storage hint and
