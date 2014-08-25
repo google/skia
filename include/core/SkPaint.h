@@ -56,6 +56,10 @@ public:
 
     SkPaint& operator=(const SkPaint&);
 
+    /** operator== may give false negatives: two paints that draw equivalently
+        may return false.  It will never give false positives: two paints that
+        are not equivalent always return false.
+    */
     SK_API friend bool operator==(const SkPaint& a, const SkPaint& b);
     friend bool operator!=(const SkPaint& a, const SkPaint& b) {
         return !(a == b);
