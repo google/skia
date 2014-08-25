@@ -6,7 +6,7 @@
  */
 
 #include "SkRecordDraw.h"
-#include "SkTSort.h"
+#include "SkPatchUtils.h"
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
@@ -256,19 +256,17 @@ private:
         }
     }
 
-    // FIXME: these methods could use better bounds
-    SkIRect bounds(const DrawPatch&)      const { return fCurrentClipBounds; }
-    SkIRect bounds(const DrawPicture&)    const { return fCurrentClipBounds; }
-    SkIRect bounds(const DrawTextOnPath&) const { return fCurrentClipBounds; }
-    SkIRect bounds(const DrawSprite&)     const { return fCurrentClipBounds; }
-    SkIRect bounds(const DrawTextBlob&)   const { return fCurrentClipBounds; }
-    SkIRect bounds(const DrawText&)       const { return fCurrentClipBounds; }
-    SkIRect bounds(const DrawVertices&)   const { return fCurrentClipBounds; }
-    //  end of methods that could use better bounds
+    // FIXME: this method could use better bounds
+    SkIRect bounds(const DrawText&) const { return fCurrentClipBounds; }
 
-    SkIRect bounds(const Clear&) const { return SkIRect::MakeLargest(); }  // Ignores the clip
+    SkIRect bounds(const Clear&) const { return SkIRect::MakeLargest(); }  // Ignores the clip.
     SkIRect bounds(const DrawPaint&) const { return fCurrentClipBounds; }
     SkIRect bounds(const NoOp&)  const { return SkIRect::MakeEmpty(); }    // NoOps don't draw.
+
+    SkIRect bounds(const DrawSprite& op) const {
+        const SkBitmap& bm = op.bitmap;
+        return SkIRect::MakeXYWH(op.left, op.top, bm.width(), bm.height());  // Ignores the matrix.
+    }
 
     SkIRect bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
     SkIRect bounds(const DrawOval& op) const { return this->adjustAndMap(op.oval, &op.paint); }
@@ -311,6 +309,24 @@ private:
 
         return this->adjustAndMap(dst, &op.paint);
     }
+    SkIRect bounds(const DrawPatch& op) const {
+        SkRect dst;
+        dst.set(op.cubics, SkPatchUtils::kNumCtrlPts);
+        return this->adjustAndMap(dst, &op.paint);
+    }
+    SkIRect bounds(const DrawVertices& op) const {
+        SkRect dst;
+        dst.set(op.vertices, op.vertexCount);
+        return this->adjustAndMap(dst, &op.paint);
+    }
+
+    SkIRect bounds(const DrawPicture& op) const {
+        SkRect dst = SkRect::MakeWH(op.picture->width(), op.picture->height());
+        if (op.matrix) {
+            op.matrix->mapRect(&dst);
+        }
+        return this->adjustAndMap(dst, op.paint);
+    }
 
     SkIRect bounds(const DrawPosText& op) const {
         const int N = op.paint.countText(op.text, op.byteLength);
@@ -336,6 +352,31 @@ private:
         }
         SkRect dst = { left, op.y, right, op.y };
         AdjustTextForFontMetrics(&dst, op.paint);
+        return this->adjustAndMap(dst, &op.paint);
+    }
+    SkIRect bounds(const DrawTextOnPath& op) const {
+        SkRect dst = op.path.getBounds();
+
+        // Pad all sides by the maximum padding in any direction we'd normally apply.
+        SkRect pad = { 0, 0, 0, 0};
+        AdjustTextForFontMetrics(&pad, op.paint);
+
+        // That maximum padding happens to always be the right pad today.
+        SkASSERT(pad.fLeft == -pad.fRight);
+        SkASSERT(pad.fTop  == -pad.fBottom);
+        SkASSERT(pad.fRight > pad.fBottom);
+        dst.outset(pad.fRight, pad.fRight);
+
+        return this->adjustAndMap(dst, &op.paint);
+    }
+
+    SkIRect bounds(const DrawTextBlob& op) const {
+        SkRect dst = op.blob->bounds();
+        dst.offset(op.x, op.y);
+        // TODO: remove when implicit bounds are plumbed through
+        if (dst.isEmpty()) {
+            return fCurrentClipBounds;
+        }
         return this->adjustAndMap(dst, &op.paint);
     }
 
