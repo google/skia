@@ -304,7 +304,7 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
         }
     }
 
-    glyphToUnicode->swap(SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1));
+    SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1).swap(*glyphToUnicode);
 }
 
 static bool getWidthAdvance(IDWriteFontFace* fontFace, int gId, int16_t* advance) {
