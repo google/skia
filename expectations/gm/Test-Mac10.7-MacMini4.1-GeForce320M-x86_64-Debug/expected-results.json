@@ -7330,10 +7330,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10358565987363211292
+          15387448829875767682
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "drawbitmapmatrix_8888.png": {
       "allowed-digests": [
@@ -7388,10 +7389,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17978468903925654073
+          18074555472627507022
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "drawbitmaprect_8888.png": {
       "allowed-digests": [
@@ -10402,7 +10404,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3351550727216338875
+          11562681936963040479
         ]
       ], 
       "ignore-failure": false, 
@@ -10471,7 +10473,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3027988817282544411
+          15758701092535531601
         ]
       ], 
       "ignore-failure": false, 
@@ -11804,7 +11806,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3286735716127700599
+          434632923319141574
         ]
       ], 
       "ignore-failure": false, 
@@ -11814,7 +11816,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16780787446185472833
+          6610148046456183203
         ]
       ], 
       "ignore-failure": false, 
@@ -11824,7 +11826,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3903869198734994636
+          8476248732632152119
         ]
       ], 
       "ignore-failure": false, 
@@ -11843,7 +11845,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16406204735946722431
+          5940994834242943779
         ]
       ], 
       "ignore-failure": false, 
@@ -14646,7 +14648,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9925437062346155958
+          3888857556865804716
         ]
       ], 
       "ignore-failure": false, 
