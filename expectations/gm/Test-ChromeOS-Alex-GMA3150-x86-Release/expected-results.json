@@ -1921,19 +1921,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4055619075226987340
+          4365324358071647520
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "colortype_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4557992853592297566
+          5614484684548433583
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_565.png": {
       "allowed-digests": [
@@ -2602,7 +2602,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1530707512178085561
+          7871239284934113104
         ]
       ], 
       "reviewed-by-human": true
@@ -2611,7 +2611,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          980323142529009371
+          5416786513228901495
         ]
       ], 
       "reviewed-by-human": true
@@ -2620,7 +2620,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17548929630775824590
+          14582625876117472843
         ]
       ], 
       "reviewed-by-human": true
@@ -2629,7 +2629,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11976677741164833714
+          7069073117618893824
         ]
       ], 
       "reviewed-by-human": true
@@ -2638,7 +2638,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5571304773194307139
+          10296003436293288220
         ]
       ], 
       "reviewed-by-human": true
@@ -2647,7 +2647,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7809896048824512616
+          4500394879909628401
         ]
       ], 
       "reviewed-by-human": true
@@ -2656,7 +2656,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11148261353425501841
+          15504940881377501244
         ]
       ], 
       "reviewed-by-human": true
@@ -2665,7 +2665,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17036053137930953952
+          13529381128569669558
         ]
       ], 
       "reviewed-by-human": true
@@ -3182,7 +3182,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2173204936520384840
+          10025423967750907106
         ]
       ], 
       "reviewed-by-human": true
@@ -3191,7 +3191,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7629194220620174331
+          12682513741653730072
         ]
       ], 
       "reviewed-by-human": true
@@ -3200,7 +3200,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14880073344865389405
+          7210148223881143672
         ]
       ], 
       "reviewed-by-human": true
@@ -3209,7 +3209,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14779749701421579036
+          9157103734033923606
         ]
       ], 
       "reviewed-by-human": true
@@ -3218,7 +3218,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15879723616088175665
+          3182518271651510698
         ]
       ], 
       "reviewed-by-human": true
@@ -3227,7 +3227,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13288279458404367808
+          6446291919439395967
         ]
       ], 
       "reviewed-by-human": true
@@ -3236,49 +3236,37 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11155802316895019081
+          12863225382202313992
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4456781603336379072
+          3652378674355769845
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_match_565.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          6338121414979628929
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_match_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2211593642825930916
+          2548288105368098781
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontscaler_565.png": {
       "allowed-digests": [
