@@ -64,6 +64,32 @@ static void test_path_crbug364224() {
     canvas->drawPath(path, paint);
 }
 
+/**
+ * In debug mode, this path was causing an assertion to fail in
+ * SkPathStroker::preJoinTo() and, in Release, the use of an unitialized value.
+ */
+static void make_path_crbugskia2820(SkPath* path, skiatest::Reporter* reporter) {
+    SkPoint orig, p1, p2, p3;
+    orig = SkPoint::Make(1.f, 1.f);
+    p1 = SkPoint::Make(1.f - SK_ScalarNearlyZero, 1.f);
+    p2 = SkPoint::Make(1.f, 1.f + SK_ScalarNearlyZero);
+    p3 = SkPoint::Make(2.f, 2.f);
+
+    path->reset();
+    path->moveTo(orig);
+    path->cubicTo(p1, p2, p3);
+    path->close();
+}
+
+static void test_path_crbugskia2820(skiatest::Reporter* reporter) {//GrContext* context) {
+    SkPath path;
+    make_path_crbugskia2820(&path, reporter);
+
+    SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+    stroke.setStrokeStyle(2 * SK_Scalar1);
+    stroke.applyToPath(&path, path);
+}
+
 static void make_path0(SkPath* path) {
     // from  *  https://code.google.com/p/skia/issues/detail?id=1706
 
@@ -3553,4 +3579,5 @@ DEF_TEST(Paths, reporter) {
     PathTest_Private::TestPathTo(reporter);
     PathRefTest_Private::TestPathRef(reporter);
     test_dump(reporter);
+    test_path_crbugskia2820(reporter);
 }
