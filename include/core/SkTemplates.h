@@ -127,6 +127,7 @@ public:
     ~SkAutoTDelete() { SkDELETE(fObj); }
 
     T* get() const { return fObj; }
+    operator T*() { return fObj; }
     T& operator*() const { SkASSERT(fObj); return *fObj; }
     T* operator->() const { SkASSERT(fObj); return fObj; }
 

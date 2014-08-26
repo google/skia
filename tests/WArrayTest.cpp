@@ -164,7 +164,7 @@ class TestWData {
         SkAutoTDelete<SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t> > result;
         result.reset(getAdvanceData((void*)this, fAdvancesLen, fSubset, fSubsetLen, getAdvance));
 
-        SkString stringResult = stringify_advance_data(result.get());
+        SkString stringResult = stringify_advance_data(result);
         if (!stringResult.equals(fExpected)) {
             SkDebugf("Expected: %s\n  Result: %s\n", fExpected, stringResult.c_str());
             return false;
