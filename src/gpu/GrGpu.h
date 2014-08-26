@@ -336,6 +336,10 @@ public:
         kDrawPaths_DrawType,
     };
 
+    static bool IsPathRenderingDrawType(DrawType type) {
+        return kDrawPath_DrawType == type || kDrawPaths_DrawType == type;
+    }
+
 protected:
     DrawType PrimTypeToDrawType(GrPrimitiveType type) {
         switch (type) {

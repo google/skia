@@ -900,8 +900,13 @@
 // shader stage of <program> (if a fragment stage exists).
 #define GR_GL_FRAGMENT_INPUT                                0x936D
 
+// NV_path_rendering extension to EXT_direct_state_access:
+// [the matrix functions] must support the PATH_PROJECTION_NV and
+// PATH_MODELVIEW_NV tokens for matrixMode.
+#define GR_GL_PATH_PROJECTION                               0x1701
+#define GR_GL_PATH_MODELVIEW                                0x1700
+
 /*  ARM specific define for MSAA support on framebuffer fetch */
 #define GR_GL_FETCH_PER_SAMPLE_ARM                          0x8F65
-
 
 #endif

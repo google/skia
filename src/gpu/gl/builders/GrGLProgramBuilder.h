@@ -40,6 +40,7 @@ public:
     };
 
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLProgramDataManager::VaryingHandle VaryingHandle;
 
     // Handles for program uniforms (other than per-effect uniforms)
     struct BuiltinUniformHandles {
@@ -69,6 +70,13 @@ public:
     // name strings. Otherwise, we'd have to hand out copies.
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
 
+    struct SeparableVaryingInfo {
+        GrGLShaderVar fVariable;
+        GrGLint       fLocation;
+    };
+
+    typedef GrTAllocator<SeparableVaryingInfo> SeparableVaryingInfoArray;
+
     /** Generates a shader program.
      *
      * The program implements what is specified in the stages given as input.
@@ -91,6 +99,9 @@ public:
     bool hasVertexShader() const { SkASSERT(fProgramID); return !fFragOnly; }
     int getTexCoordSetCount() const { SkASSERT(fProgramID); return fTexCoordSetCnt; }
     const UniformInfoArray& getUniformInfos() const { return fUniforms; }
+    const SeparableVaryingInfoArray& getSeparableVaryingInfos() const {
+        return fSeparableVaryingInfos;
+    }
 
     virtual ~GrGLProgramBuilder() {}
 
@@ -126,12 +137,11 @@ public:
     const GrGLContextInfo& ctxInfo() const;
 
     GrGLFragmentShaderBuilder* getFragmentShaderBuilder() { return &fFS; }
+    GrGpuGL* gpu() const { return fGpu; }
 
 protected:
     typedef GrTAllocator<GrGLShaderVar> VarArray;
     GrGLProgramBuilder(GrGpuGL*, const GrGLProgramDesc&);
-
-    GrGpuGL* gpu() const { return fGpu; }
 
     const GrGLProgramDesc& desc() const { return fDesc; }
 
@@ -162,6 +172,7 @@ protected:
     int                              fTexCoordSetCnt;
     GrGLuint                         fProgramID;
     GrGLFragmentShaderBuilder        fFS;
+    SeparableVaryingInfoArray        fSeparableVaryingInfos;
 private:
     class CodeStage : SkNoncopyable {
     public:
@@ -270,6 +281,17 @@ public:
                     const char* name,
                     const char** vsOutName = NULL,
                     const char** fsInName = NULL);
+
+    /** Add a separable varying input variable to the current program.
+     * A separable varying (fragment shader input) is a varying that can be used also when vertex
+     * shaders are not used. With a vertex shader, the operation is same as with other
+     * varyings. Without a vertex shader, such as with NV_path_rendering, GL APIs are used to
+     * populate the variable. The APIs can refer to the variable through the returned handle.
+     */
+    VaryingHandle addSeparableVarying(GrSLType type,
+                                      const char* name,
+                                      const char** vsOutName,
+                                      const char** fsInName);
 
     GrGLVertexShaderBuilder* getVertexShaderBuilder() { return &fVS; }
 

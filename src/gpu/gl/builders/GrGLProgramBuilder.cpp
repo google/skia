@@ -99,10 +99,13 @@ bool GrGLProgramBuilder::genProgram(const GrEffectStage* colorStages[],
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu,
                                        const GrGLProgramDesc& desc)
-    : fFragOnly(!desc.getHeader().fHasVertexCode && gpu->shouldUseFixedFunctionTexturing())
+    : fFragOnly(!desc.getHeader().fRequiresVertexShader &&
+                gpu->glCaps().pathRenderingSupport() &&
+                gpu->glPathRendering()->texturingMode() == GrGLPathRendering::FixedFunction_TexturingMode)
     , fTexCoordSetCnt(0)
     , fProgramID(0)
     , fFS(this, desc)
+    , fSeparableVaryingInfos(kVarsPerBlock)
     , fDesc(desc)
     , fGpu(gpu)
     , fUniforms(kVarsPerBlock) {
@@ -304,6 +307,16 @@ void GrGLProgramBuilder::resolveProgramLocations(GrGLuint programId) {
             fUniforms[i].fLocation = location;
         }
     }
+
+    int count = fSeparableVaryingInfos.count();
+    for (int i = 0; i < count; ++i) {
+        GrGLint location;
+        GL_CALL_RET(location,
+                    GetProgramResourceLocation(programId,
+                                               GR_GL_FRAGMENT_INPUT,
+                                               fSeparableVaryingInfos[i].fVariable.c_str()));
+        fSeparableVaryingInfos[i].fLocation = location;
+    }
 }
 
 const GrGLContextInfo& GrGLProgramBuilder::ctxInfo() const {
@@ -345,6 +358,18 @@ void GrGLFullProgramBuilder::addVarying(GrSLType type,
     fFS.addVarying(type, fsInputName->c_str(), fsInName);
 }
 
+GrGLFullProgramBuilder::VaryingHandle
+GrGLFullProgramBuilder::addSeparableVarying(GrSLType type,
+                                            const char* name,
+                                            const char** vsOutName,
+                                            const char** fsInName) {
+    addVarying(type, name, vsOutName, fsInName);
+    SeparableVaryingInfo& varying = fSeparableVaryingInfos.push_back();
+    varying.fVariable = fFS.fInputs.back();
+    return VaryingHandle::CreateFromSeparableVaryingIndex(fSeparableVaryingInfos.count() - 1);
+}
+
+
 GrGLProgramEffects* GrGLFullProgramBuilder::createAndEmitEffects(
         const GrEffectStage* effectStages[],
         int effectCnt,
@@ -381,7 +406,7 @@ void GrGLFullProgramBuilder::bindProgramLocations(GrGLuint programId) {
 GrGLFragmentOnlyProgramBuilder::GrGLFragmentOnlyProgramBuilder(GrGpuGL* gpu,
                                                                const GrGLProgramDesc& desc)
     : INHERITED(gpu, desc) {
-    SkASSERT(!desc.getHeader().fHasVertexCode);
+    SkASSERT(!desc.getHeader().fRequiresVertexShader);
     SkASSERT(gpu->glCaps().pathRenderingSupport());
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fColorInput);
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fCoverageInput);

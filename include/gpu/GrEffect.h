@@ -114,10 +114,10 @@ public:
 
     /** Will this effect emit custom vertex shader code?
         (To set this value the effect must inherit from GrEffect.) */
-    bool hasVertexCode() const { return fHasVertexCode; }
+    bool requiresVertexShader() const { return fRequiresVertexShader; }
 
     int numVertexAttribs() const {
-        SkASSERT(0 == fVertexAttribTypes.count() || fHasVertexCode);
+        SkASSERT(0 == fVertexAttribTypes.count() || fRequiresVertexShader);
         return fVertexAttribTypes.count();
     }
 
@@ -166,7 +166,7 @@ protected:
         : fWillReadDstColor(false)
         , fWillReadFragmentPosition(false)
         , fWillUseInputColor(true)
-        , fHasVertexCode(false) {}
+        , fRequiresVertexShader(false) {}
 
     /**
       * Helper for down-casting to a GrEffect subclass
@@ -204,7 +204,7 @@ private:
         getFactory()).*/
     virtual bool onIsEqual(const GrEffect& other) const = 0;
 
-    friend class GrVertexEffect; // to set fHasVertexCode and build fVertexAttribTypes.
+    friend class GrVertexEffect; // to set fRequiresVertexShader and build fVertexAttribTypes.
 
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
     SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
@@ -212,7 +212,7 @@ private:
     bool                                         fWillReadDstColor;
     bool                                         fWillReadFragmentPosition;
     bool                                         fWillUseInputColor;
-    bool                                         fHasVertexCode;
+    bool                                         fRequiresVertexShader;
 
     typedef SkRefCnt INHERITED;
 };

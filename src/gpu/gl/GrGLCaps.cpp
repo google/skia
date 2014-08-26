@@ -342,8 +342,7 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                    ctxInfo.hasExtension("GL_ARB_program_interface_query")) &&
                   NULL != gli->fFunctions.fProgramPathFragmentInputGen));
         } else {
-            // Note: path rendering is not yet implemented for GLES.
-            fPathRenderingSupport = ctxInfo.version() >= GR_GL_VER(3,1) && false;
+            fPathRenderingSupport = ctxInfo.version() >= GR_GL_VER(3,1);
         }
     }
 

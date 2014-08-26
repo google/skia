@@ -247,9 +247,6 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
             return false;
         }
 
-        SkASSERT((kDrawPath_DrawType != type && kDrawPaths_DrawType != type)
-                 || !fCurrentProgram->hasVertexShader());
-
         fCurrentProgram.get()->ref();
 
         GrGLuint programID = fCurrentProgram->programID();
@@ -261,7 +258,8 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
         fCurrentProgram->overrideBlend(&srcCoeff, &dstCoeff);
         this->flushBlend(kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
-        fCurrentProgram->setData(blendOpts,
+        fCurrentProgram->setData(type,
+                                 blendOpts,
                                  colorStages.begin(),
                                  coverageStages.begin(),
                                  dstCopy,

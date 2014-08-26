@@ -52,13 +52,6 @@ public:
     // state.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
 
-    bool shouldUseFixedFunctionTexturing() const {
-        // At the moment non-fixed-function texturing is not implemented
-        // even though the GrGLPathRendering would support it. Thus just
-        // return the below.
-        return this->glCaps().pathRenderingSupport();
-    }
-
     bool programUnitTest(int maxStages);
 
     // GrGpu overrides

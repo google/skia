@@ -17,7 +17,7 @@
  */
 class GrVertexEffect : public GrEffect {
 public:
-    GrVertexEffect() { fHasVertexCode = true; }
+    GrVertexEffect() { fRequiresVertexShader = true; }
 
 protected:
     /**

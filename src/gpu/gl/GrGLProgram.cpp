@@ -13,6 +13,7 @@
 #include "GrDrawEffect.h"
 #include "GrGLEffect.h"
 #include "GrGpuGL.h"
+#include "GrGLPathRendering.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
 #include "SkXfermode.h"
@@ -25,10 +26,12 @@ GrGLProgram* GrGLProgram::Create(GrGpuGL* gpu,
                                  const GrEffectStage* colorStages[],
                                  const GrEffectStage* coverageStages[]) {
     SkAutoTDelete<GrGLProgramBuilder> builder;
-    if (desc.getHeader().fHasVertexCode ||!gpu->shouldUseFixedFunctionTexturing()) {
-        builder.reset(SkNEW_ARGS(GrGLFullProgramBuilder, (gpu, desc)));
-    } else {
+    if (!desc.getHeader().fRequiresVertexShader &&
+        gpu->glCaps().pathRenderingSupport() &&
+        gpu->glPathRendering()->texturingMode() == GrGLPathRendering::FixedFunction_TexturingMode) {
         builder.reset(SkNEW_ARGS(GrGLFragmentOnlyProgramBuilder, (gpu, desc)));
+    } else {
+        builder.reset(SkNEW_ARGS(GrGLFullProgramBuilder, (gpu, desc)));
     }
     if (builder->genProgram(colorStages, coverageStages)) {
         SkASSERT(0 != builder->getProgramID());
@@ -100,7 +103,8 @@ void GrGLProgram::initSamplerUniforms() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
+void GrGLProgram::setData(GrGpu::DrawType drawType,
+                          GrDrawState::BlendOptFlags blendOpts,
                           const GrEffectStage* colorStages[],
                           const GrEffectStage* coverageStages[],
                           const GrDeviceCoordTexture* dstCopy,
@@ -122,7 +126,7 @@ void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
 
     this->setColor(drawState, color, sharedState);
     this->setCoverage(drawState, coverage, sharedState);
-    this->setMatrixAndRenderTargetHeight(drawState);
+    this->setMatrixAndRenderTargetHeight(drawType, drawState);
 
     if (NULL != dstCopy) {
         if (fBuiltinUniformHandles.fDstCopyTopLeftUni.isValid()) {
@@ -145,9 +149,8 @@ void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
         SkASSERT(!fBuiltinUniformHandles.fDstCopySamplerUni.isValid());
     }
 
-    fColorEffects->setData(fGpu, fProgramDataManager, colorStages);
-    fCoverageEffects->setData(fGpu, fProgramDataManager, coverageStages);
-
+    fColorEffects->setData(fGpu, drawType,fProgramDataManager, colorStages);
+    fCoverageEffects->setData(fGpu, drawType,fProgramDataManager, coverageStages);
 
     // PathTexGen state applies to the the fixed function vertex shader. For
     // custom shaders, it's ignored, so we don't need to change the texgen
@@ -231,7 +234,8 @@ void GrGLProgram::setCoverage(const GrDrawState& drawState,
     }
 }
 
-void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
+void GrGLProgram::setMatrixAndRenderTargetHeight(GrGpu::DrawType drawType,
+                                                 const GrDrawState& drawState) {
     const GrRenderTarget* rt = drawState.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
@@ -243,9 +247,7 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
                                    SkIntToScalar(size.fHeight));
     }
 
-    if (!fHasVertexShader) {
-        SkASSERT(!fBuiltinUniformHandles.fViewMatrixUni.isValid());
-        SkASSERT(!fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
+    if (GrGpu::IsPathRenderingDrawType(drawType)) {
         fGpu->glPathRendering()->setProjectionMatrix(drawState.getViewMatrix(), size, rt->origin());
     } else if (fMatrixState.fRenderTargetOrigin != rt->origin() ||
                fMatrixState.fRenderTargetSize != size ||

@@ -10,6 +10,7 @@
 
 #include "GrBackendEffectFactory.h"
 #include "GrGLProgramDataManager.h"
+#include "GrGpu.h"
 #include "GrTexture.h"
 #include "GrTextureAccess.h"
 
@@ -28,6 +29,7 @@ class GrGLFragmentOnlyProgramBuilder;
 class GrGLProgramEffects : public SkRefCnt {
 public:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLProgramDataManager::VaryingHandle VaryingHandle;
 
     /**
      * This class emits some of the code inserted into the shaders for an effect. The code it
@@ -51,6 +53,7 @@ public:
      * Calls setData() on each effect, and sets their transformation matrices and texture bindings.
      */
     virtual void setData(GrGpuGL*,
+                         GrGpu::DrawType,
                          const GrGLProgramDataManager&,
                          const GrEffectStage* effectStages[]) = 0;
 
@@ -165,6 +168,7 @@ public:
 class GrGLVertexProgramEffects : public GrGLProgramEffects {
 public:
     virtual void setData(GrGpuGL*,
+                         GrGpu::DrawType,
                          const GrGLProgramDataManager&,
                          const GrEffectStage* effectStages[]) SK_OVERRIDE;
 
@@ -205,7 +209,9 @@ private:
     /**
      * Helper for setData(). Sets all the transform matrices for an effect.
      */
-    void setTransformData(const GrGLProgramDataManager&, const GrDrawEffect&, int effectIdx);
+    void setTransformData(GrGpuGL* gpu, const GrGLProgramDataManager&, const GrDrawEffect&, int effectIdx);
+    void setPathTransformData(GrGpuGL* gpu, const GrGLProgramDataManager&, const GrDrawEffect&,
+                              int effectIdx);
 
     struct Transform {
         Transform() { fCurrentValue = SkMatrix::InvalidMatrix(); }
@@ -213,7 +219,15 @@ private:
         SkMatrix      fCurrentValue;
     };
 
+    struct PathTransform {
+        PathTransform() { fCurrentValue = SkMatrix::InvalidMatrix(); }
+        VaryingHandle fHandle;
+        SkMatrix fCurrentValue;
+        GrSLType fType;
+    };
+
     SkTArray<SkSTArray<2, Transform, true> > fTransforms;
+    SkTArray<SkTArray<PathTransform, true> > fPathTransforms;
     bool                                     fHasExplicitLocalCoords;
 
     friend class GrGLVertexProgramEffectsBuilder;
@@ -253,6 +267,7 @@ private:
 class GrGLPathTexGenProgramEffects : public GrGLProgramEffects {
 public:
     virtual void setData(GrGpuGL*,
+                         GrGpu::DrawType,
                          const GrGLProgramDataManager&,
                          const GrEffectStage* effectStages[]) SK_OVERRIDE;
 

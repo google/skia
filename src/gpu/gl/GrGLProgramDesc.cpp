@@ -21,7 +21,7 @@ bool GrGLProgramDesc::GetEffectKeyAndUpdateStats(const GrEffectStage& stage,
                                                  uint16_t* effectKeySize,
                                                  bool* setTrueIfReadsDst,
                                                  bool* setTrueIfReadsPos,
-                                                 bool* setTrueIfHasVertexCode) {
+                                                 bool* setTrueIfRequiresVertexShader) {
     const GrBackendEffectFactory& factory = stage.getEffect()->getFactory();
     GrDrawEffect drawEffect(stage, useExplicitLocalCoords);
     if (stage.getEffect()->willReadDstColor()) {
@@ -30,8 +30,8 @@ bool GrGLProgramDesc::GetEffectKeyAndUpdateStats(const GrEffectStage& stage,
     if (stage.getEffect()->willReadFragmentPosition()) {
         *setTrueIfReadsPos = true;
     }
-    if (stage.getEffect()->hasVertexCode()) {
-        *setTrueIfHasVertexCode = true;
+    if (stage.getEffect()->requiresVertexShader()) {
+        *setTrueIfRequiresVertexShader = true;
     }
     factory.getGLEffectKey(drawEffect, caps, b);
     size_t size = b->size();
@@ -102,9 +102,10 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     bool readsDst = false;
     bool readFragPosition = false;
-    // We use vertexshader-less shader programs only when drawing paths.
-    bool hasVertexCode = !(GrGpu::kDrawPath_DrawType == drawType ||
-                           GrGpu::kDrawPaths_DrawType == drawType);
+
+    // Provide option for shader programs without vertex shader only when drawing paths.
+    bool requiresVertexShader = !GrGpu::IsPathRenderingDrawType(drawType);
+
     int numStages = 0;
     if (!skipColor) {
         numStages += drawState.numColorStages() - firstEffectiveColorStage;
@@ -118,7 +119,6 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     desc->fKey.push_back_n(kEffectKeyOffsetsAndLengthOffset + 2 * sizeof(uint16_t) * numStages);
 
     int offsetAndSizeIndex = 0;
-
     bool effectKeySuccess = true;
     if (!skipColor) {
         for (int s = firstEffectiveColorStage; s < drawState.numColorStages(); ++s) {
@@ -133,7 +133,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
                                     drawState.getColorStage(s), gpu->glCaps(),
                                     requiresLocalCoordAttrib, &b,
                                     &effectKeySize, &readsDst,
-                                    &readFragPosition, &hasVertexCode);
+                                    &readFragPosition, &requiresVertexShader);
             effectKeySuccess |= (effectOffset <= SK_MaxU16);
 
             offsetAndSize[0] = SkToU16(effectOffset);
@@ -154,7 +154,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
                                     drawState.getCoverageStage(s), gpu->glCaps(),
                                     requiresLocalCoordAttrib, &b,
                                     &effectKeySize, &readsDst,
-                                    &readFragPosition, &hasVertexCode);
+                                    &readFragPosition, &requiresVertexShader);
             effectKeySuccess |= (effectOffset <= SK_MaxU16);
 
             offsetAndSize[0] = SkToU16(effectOffset);
@@ -174,7 +174,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
     // below here.
 
-    header->fHasVertexCode = hasVertexCode || requiresLocalCoordAttrib;
+    header->fRequiresVertexShader = requiresVertexShader || requiresLocalCoordAttrib;
     header->fEmitsPointSize = GrGpu::kDrawPoints_DrawType == drawType;
 
     // Currently the experimental GS will only work with triangle prims (and it doesn't do anything
@@ -192,7 +192,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
         header->fColorInput = kUniform_ColorInput;
     } else {
         header->fColorInput = kAttribute_ColorInput;
-        header->fHasVertexCode = true;
+        header->fRequiresVertexShader = true;
     }
 
     bool covIsSolidWhite = !requiresCoverageAttrib && 0xffffffff == drawState.getCoverageColor();
@@ -203,7 +203,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
         header->fCoverageInput = kUniform_ColorInput;
     } else {
         header->fCoverageInput = kAttribute_ColorInput;
-        header->fHasVertexCode = true;
+        header->fRequiresVertexShader = true;
     }
 
     if (readsDst) {

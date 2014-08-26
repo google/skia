@@ -156,7 +156,8 @@ public:
      * GrGpuGL object to bind the textures required by the GrGLEffects. The color and coverage
      * stages come from GrGLProgramDesc::Build().
      */
-    void setData(GrDrawState::BlendOptFlags,
+    void setData(GrGpu::DrawType,
+                 GrDrawState::BlendOptFlags,
                  const GrEffectStage* colorStages[],
                  const GrEffectStage* coverageStages[],
                  const GrDeviceCoordTexture* dstCopy, // can be NULL
@@ -181,7 +182,7 @@ private:
     void setCoverage(const GrDrawState&, GrColor coverage, SharedGLState*);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setMatrixAndRenderTargetHeight(const GrDrawState&);
+    void setMatrixAndRenderTargetHeight(GrGpu::DrawType drawType, const GrDrawState&);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     MatrixState                         fMatrixState;

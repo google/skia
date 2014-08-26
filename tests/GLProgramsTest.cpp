@@ -16,8 +16,8 @@
 #include "GrContextFactory.h"
 #include "GrDrawEffect.h"
 #include "effects/GrConfigConversionEffect.h"
+#include "gl/GrGLPathRendering.h"
 #include "gl/GrGpuGL.h"
-
 #include "SkChecksum.h"
 #include "SkRandom.h"
 #include "Test.h"
@@ -42,7 +42,7 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
 
     bool dstRead = false;
     bool fragPos = false;
-    bool vertexCode = false;
+    bool vertexShader = false;
     for (int s = 0; s < numStages; ++s) {
         uint16_t* offsetAndSize = reinterpret_cast<uint16_t*>(fKey.begin() +
                                                               kEffectKeyOffsetsAndLengthOffset +
@@ -56,7 +56,7 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
         GrEffectKeyBuilder b(&fKey);
         uint16_t effectKeySize;
         if (!GetEffectKeyAndUpdateStats(*stages[s], gpu->glCaps(), useLocalCoords, &b,
-                                        &effectKeySize, &dstRead, &fragPos, &vertexCode)) {
+                                        &effectKeySize, &dstRead, &fragPos, &vertexShader)) {
             fKey.reset();
             return false;
         }
@@ -114,10 +114,10 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
         header->fFragPosKey = 0;
     }
 
-    header->fHasVertexCode = vertexCode ||
-                             useLocalCoords ||
-                             kAttribute_ColorInput == header->fColorInput ||
-                             kAttribute_ColorInput == header->fCoverageInput;
+    header->fRequiresVertexShader = vertexShader ||
+                                    useLocalCoords ||
+                                    kAttribute_ColorInput == header->fColorInput ||
+                                    kAttribute_ColorInput == header->fCoverageInput;
 
     CoverageOutput coverageOutput;
     bool illegalCoverageOutput;
@@ -178,7 +178,8 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
         SkAutoSTMalloc<8, const GrEffectStage*> stages(numStages);
 
-        bool useFixedFunctionTexturing = this->shouldUseFixedFunctionTexturing();
+        bool useFixedFunctionPathRendering = this->glCaps().pathRenderingSupport() &&
+            this->glPathRendering()->texturingMode() == GrGLPathRendering::FixedFunction_TexturingMode;
 
         for (int s = 0; s < numStages;) {
             SkAutoTUnref<const GrEffect> effect(GrEffectTestFactory::CreateStage(
@@ -198,7 +199,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
             // If adding this effect would exceed the max texture coord set count then generate a
             // new random effect.
-            if (useFixedFunctionTexturing && !effect->hasVertexCode()) {
+            if (useFixedFunctionPathRendering && !effect->requiresVertexShader()) {
                 int numTransforms = effect->numTransforms();
                 if (currTextureCoordSet + numTransforms > this->glCaps().maxFixedFunctionTextureCoords()) {
                     continue;
@@ -206,7 +207,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                 currTextureCoordSet += numTransforms;
             }
 
-            useFixedFunctionTexturing = useFixedFunctionTexturing && !effect->hasVertexCode();
+            useFixedFunctionPathRendering = useFixedFunctionPathRendering && !effect->requiresVertexShader();
 
             for (int i = 0; i < numAttribs; ++i) {
                 attribIndices[i] = currAttribIndex++;

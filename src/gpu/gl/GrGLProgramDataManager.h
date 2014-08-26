@@ -26,32 +26,49 @@ class GrGLProgramBuilder;
 class GrGLProgramDataManager : public SkRefCnt {
 public:
     // Opaque handle to a uniform
-    class UniformHandle {
+    class ShaderResourceHandle {
+    public:
+        bool isValid() const { return -1 != fValue; }
+        ShaderResourceHandle()
+            : fValue(-1) {
+        }
+    protected:
+        ShaderResourceHandle(int value)
+            : fValue(value) {
+            SkASSERT(isValid());
+        }
+        int fValue;
+    };
+
+    class UniformHandle : public ShaderResourceHandle {
     public:
         /** Creates a reference to an unifrom of a GrGLShaderBuilder.
          * The ref can be used to set the uniform with corresponding the GrGLProgramDataManager.*/
         static UniformHandle CreateFromUniformIndex(int i);
-
-        bool isValid() const { return -1 != fValue; }
-
+        UniformHandle() { }
         bool operator==(const UniformHandle& other) const { return other.fValue == fValue; }
-
-        UniformHandle()
-            : fValue(-1) {
-        }
-
     private:
-        UniformHandle(int value)
-            : fValue(value) {
-            SkASSERT(isValid());
-        }
-
+        UniformHandle(int value) : ShaderResourceHandle(value) { }
         int toProgramDataIndex() const { SkASSERT(isValid()); return fValue; }
         int toShaderBuilderIndex() const { return toProgramDataIndex(); }
 
-        int fValue;
         friend class GrGLProgramDataManager; // For accessing toProgramDataIndex().
         friend class GrGLProgramBuilder; // For accessing toShaderBuilderIndex().
+    };
+
+    class VaryingHandle : public ShaderResourceHandle {
+    public:
+        /** Creates a reference to a varying in separable varyings of a GrGLShaderBuilder.
+         * The ref can be used to set the varying with the corresponding GrGLProgramDataManager.*/
+        static VaryingHandle CreateFromSeparableVaryingIndex(int i) {
+            return VaryingHandle(i);
+        }
+        VaryingHandle() { }
+        bool operator==(const VaryingHandle& other) const { return other.fValue == fValue; }
+    private:
+        VaryingHandle(int value) : ShaderResourceHandle(value) { }
+        int toProgramDataIndex() const { SkASSERT(isValid()); return fValue; }
+        friend class GrGLProgramDataManager; // For accessing toProgramDataIndex().
     };
 
     GrGLProgramDataManager(GrGpuGL*, GrGLProgram*, const GrGLProgramBuilder&);
@@ -78,6 +95,10 @@ public:
     // convenience method for uploading a SkMatrix to a 3x3 matrix uniform
     void setSkMatrix(UniformHandle, const SkMatrix&) const;
 
+    void setProgramPathFragmentInputTransform(VaryingHandle i,
+                                              unsigned components,
+                                              const SkMatrix& matrix) const;
+
 private:
     enum {
         kUnusedUniform = -1,
@@ -91,9 +112,17 @@ private:
             int         fArrayCount;
         );
     };
+    struct Varying {
+        GrGLint     fLocation;
+        SkDEBUGCODE(
+            GrSLType    fType;
+        );
+    };
 
     SkTArray<Uniform, true> fUniforms;
+    SkTArray<Varying, true> fVaryings;
     GrGpuGL* fGpu;
+    GrGLProgram* fProgram;
 
     typedef SkRefCnt INHERITED;
 };

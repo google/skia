@@ -147,7 +147,7 @@ private:
         ColorInput                  fCoverageInput : 8;
         CoverageOutput              fCoverageOutput : 8;
 
-        SkBool8                     fHasVertexCode;
+        SkBool8                     fRequiresVertexShader;
         SkBool8                     fEmitsPointSize;
 
         // To enable experimental geometry shader code (not for use in
@@ -203,7 +203,7 @@ private:
                                            uint16_t* effectKeySize,
                                            bool* setTrueIfReadsDst,
                                            bool* setTrueIfReadsPos,
-                                           bool* setTrueIfHasVertexCode);
+                                           bool* setTrueIfRequiresVertexShader);
 
     void finalize();
 
