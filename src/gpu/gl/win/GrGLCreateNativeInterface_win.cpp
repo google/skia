@@ -12,17 +12,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include <GL/gl.h>
-
-#define GET_PROC(F) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
-#define GET_PROC_SUFFIX(F, S) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F #S)
-#define GET_PROC_LOCAL(F) GrGL ## F ## Proc F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
-
-#define GET_LINKED GET_PROC
-#define GET_LINKED_SUFFIX GET_PROC_SUFFIX
-
-#include "gl/GrGLAssembleGLESInterface.h"
-
 class AutoLibraryUnload {
 public:
     AutoLibraryUnload(const char* moduleName) {

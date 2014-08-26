@@ -21,5 +21,5 @@ const GrGLInterface* GrGLCreateMesaInterface() {
     if (NULL == OSMesaGetCurrentContext()) {
         return NULL;
     }
-    return GrGLAssembleGLInterface(NULL, osmesa_get);
+    return GrGLAssembleInterface(NULL, osmesa_get);
 }

@@ -36,10 +36,13 @@ SkNativeGLContext::~SkNativeGLContext() {
 }
 
 void SkNativeGLContext::destroyGLContext() {
-    if ([EAGLContext currentContext] == EAGLCTX) {
-        [EAGLContext setCurrentContext:nil];
+    if (NULL != fEAGLContext) {
+        if ([EAGLContext currentContext] == EAGLCTX) {
+            [EAGLContext setCurrentContext:nil];
+        }
+        [EAGLCTX release];
+        fEAGLContext = NULL;
     }
-    [EAGLCTX release];
 }
 
 const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
