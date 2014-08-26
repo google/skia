@@ -154,7 +154,8 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
     //int fakeBitCount = read2Bytes(buf, 12 + choice*16); //should be real - usually 0
     const size_t size = read4Bytes(buf, 14 + choice*16);           //matters?
     const size_t offset = read4Bytes(buf, 18 + choice*16);
-    if ((offset + size) > length) {
+    // promote the sum to 64-bits to avoid overflow
+    if (((uint64_t)offset + size) > length) {
         return false;
     }
 
