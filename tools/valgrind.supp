@@ -82,28 +82,22 @@
     obj:/usr/lib*/libGL.so*
 }
 {
+    #Fixed by FontConfig 2.9.0
+    #http://cgit.freedesktop.org/fontconfig/commit/?id=1c475d5c8cb265ac939d6b9e097666e300162511
     font_config_bug_1
     Memcheck:Addr4
     fun:FcConfigFileExists
 }
 {
+    #https://bugs.freedesktop.org/show_bug.cgi?id=8215
+    #https://bugs.freedesktop.org/show_bug.cgi?id=8428
+    #FcPattern uses 'intptr_t elts_offset' instead of 'FcPatternEltPtr elts',
+    #which confuses valgrind.
     font_config_bug_2
     Memcheck:Leak
-    fun:malloc
-    fun:FcFontSetCreate
-}
-{
-    font_config_bug_3
-    Memcheck:Leak
-    fun:realloc
-    fun:FcFontSetAdd
-}
-{
-    font_config_bug_4
-    Memcheck:Leak
-    fun:malloc
+    fun:*alloc
     fun:FcPatternObjectInsertElt
-    fun:FcPatternObjectAddWithBinding
+    fun:Fc*Add*
 }
 {
     zlib_bug_1
