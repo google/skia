@@ -164,6 +164,10 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
         SkMemoryStream subStream(buf + offset, size, false);
         SkAutoTDelete<SkImageDecoder> otherDecoder(SkImageDecoder::Factory(&subStream));
         if (otherDecoder.get() != NULL) {
+            // Disallow nesting ICO files within one another
+            if (otherDecoder->getFormat() == SkImageDecoder::kICO_Format) {
+                return false;
+            }
             // Set fields on the other decoder to be the same as this one.
             this->copyFieldsToOther(otherDecoder.get());
             if(otherDecoder->decode(&subStream, bm, this->getDefaultPref(), mode)) {
