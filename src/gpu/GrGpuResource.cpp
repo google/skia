@@ -28,6 +28,9 @@ GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
     } else {
         fFlags = 0;
     }
+}
+
+void GrGpuResource::registerWithCache() {
     get_resource_cache2(fGpu)->insertResource(this);
 }
 
@@ -37,7 +40,7 @@ GrGpuResource::~GrGpuResource() {
     SkASSERT(this->wasDestroyed());
 }
 
-void GrGpuResource::release() {
+void GrGpuResource::release() { 
     if (NULL != fGpu) {
         this->onRelease();
         get_resource_cache2(fGpu)->removeResource(this);

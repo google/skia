@@ -33,6 +33,7 @@ void GrGLTexture::init(GrGpuGL* gpu,
 
         fRenderTarget.reset(SkNEW_ARGS(GrGLRenderTarget, (gpu, *rtDesc, vp, fTexIDObj, this)));
     }
+    this->registerWithCache();
 }
 
 GrGLTexture::GrGLTexture(GrGpuGL* gpu,

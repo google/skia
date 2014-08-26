@@ -73,6 +73,7 @@ GrGLVertexArray::GrGLVertexArray(GrGpuGL* gpu, GrGLint id, int attribCount)
     , fID(id)
     , fAttribArrays(attribCount)
     , fIndexBufferIDIsValid(false) {
+    this->registerWithCache();
 }
 
 void GrGLVertexArray::onAbandon() {

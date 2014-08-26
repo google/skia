@@ -90,6 +90,11 @@ public:
     uint32_t getUniqueID() const { return fUniqueID; }
 
 protected:
+
+    // This must be called by every GrGpuObject. It should be called once the object is fully
+    // initialized (i.e. not in a base class constructor).
+    void registerWithCache();
+
     GrGpuResource(GrGpu*, bool isWrapped);
     virtual ~GrGpuResource();
 
