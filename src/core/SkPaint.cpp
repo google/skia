@@ -1100,8 +1100,7 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
     return Sk48Dot16ToScalar(x);
 }
 
-SkScalar SkPaint::measureText(const void* textData, size_t length,
-                              SkRect* bounds, SkScalar zoom) const {
+SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bounds) const {
     const char* text = (const char*)textData;
     SkASSERT(text != NULL || length == 0);
 
@@ -1109,13 +1108,7 @@ SkScalar SkPaint::measureText(const void* textData, size_t length,
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
 
-    SkMatrix zoomMatrix, *zoomPtr = NULL;
-    if (zoom) {
-        zoomMatrix.setScale(zoom, zoom);
-        zoomPtr = &zoomMatrix;
-    }
-
-    SkAutoGlyphCache    autoCache(paint, NULL, zoomPtr);
+    SkAutoGlyphCache    autoCache(paint, NULL, NULL);
     SkGlyphCache*       cache = autoCache.getCache();
 
     SkScalar width = 0;

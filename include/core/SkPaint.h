@@ -862,12 +862,9 @@ public:
      *  @param length       Number of bytes of text to measure
      *  @param bounds       If not NULL, returns the bounds of the text,
      *                      relative to (0, 0).
-     *  @param scale        If not 0, return width as if the canvas were scaled
-     *                      by this value
      *  @return             The advance width of the text
      */
-    SkScalar measureText(const void* text, size_t length,
-                         SkRect* bounds, SkScalar scale = 0) const;
+    SkScalar measureText(const void* text, size_t length, SkRect* bounds) const;
 
     /** Return the width of the text. This will return the vertical measure
      *  if isVerticalText() is true, in which case the returned value should
@@ -878,7 +875,7 @@ public:
      *  @return         The advance width of the text
      */
     SkScalar measureText(const void* text, size_t length) const {
-        return this->measureText(text, length, NULL, 0);
+        return this->measureText(text, length, NULL);
     }
 
     /** Specify the direction the text buffer should be processed in breakText()

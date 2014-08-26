@@ -309,7 +309,7 @@ DEF_TEST(Paint_regression_measureText, reporter) {
     r.setLTRB(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
 
     // test that the rect was reset
-    paint.measureText("", 0, &r, 1.0f);
+    paint.measureText("", 0, &r);
     REPORTER_ASSERT(reporter, r.isEmpty());
 }
 

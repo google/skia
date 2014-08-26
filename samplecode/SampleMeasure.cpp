@@ -23,22 +23,15 @@
 
 // exercise scale/linear/devkern
 struct Setting {
-    SkScalar    fScale;
     bool        fLinearText;
     bool        fDevKernText;
 };
 
-static const SkScalar ONE = SkIntToScalar(9999)/10000;
-
 static const Setting gSettings[] = {
-    { 0,            false,  false   },
-    { 0,            false,  true    },
-    { 0,            true,   false   },
-    { 0,            true,   true    },
-    { ONE,   false,  false   },
-    { ONE,   false,  true    },
-    { ONE,   true,   false   },
-    { ONE,   true,   true    }
+    { false,  false   },
+    { false,  true    },
+    { true,   false   },
+    { true,   true    },
 };
 
 static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[]) {
@@ -55,10 +48,9 @@ static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[])
     for (size_t i = 0; i < SK_ARRAY_COUNT(gSettings); i++) {
         p.setLinearText(gSettings[i].fLinearText);
         p.setDevKernText(gSettings[i].fDevKernText);
-        SkScalar scale = gSettings[i].fScale;
 
         int n = p.getTextWidths(text, len, widths, rects);
-        SkScalar w = p.measureText(text, len, &bounds, scale);
+        SkScalar w = p.measureText(text, len, &bounds);
 
         p.setStyle(SkPaint::kFill_Style);
         p.setColor(0x8888FF88);
