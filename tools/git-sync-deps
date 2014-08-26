@@ -148,38 +148,29 @@ def parse_file_to_dict(path):
   return dictionary
 
 
-class DepsError(Exception):
-  """Raised if deps_os is a bad key.
-  """
-  pass
-
-
-def git_sync_deps(deps_file_path, deps_os_list, verbose):
+def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
   """Grab dependencies, with optional platform support.
 
   Args:
     deps_file_path (string) Path to the DEPS file.
 
-    deps_os_list (list of strings) Can be empty list.  List of
-                 strings that should each be a key in the deps_os
-                 dictionary in the DEPS file.
+    command_line_os_requests (list of strings) Can be empty list.
+        List of strings that should each be a key in the deps_os
+        dictionary in the DEPS file.
 
-  Raises DepsError exception and git Exceptions.
+  Raises git Exceptions.
   """
   git = git_executable()
   assert git
 
   deps_file_directory = os.path.dirname(deps_file_path)
-  deps = parse_file_to_dict(deps_file_path)
-  dependencies = deps['deps'].copy()
-  for deps_os in deps_os_list:
+  deps_file = parse_file_to_dict(deps_file_path)
+  dependencies = deps_file['deps'].copy()
+  os_specific_dependencies = deps_file.get('deps_os', [])
+  for os_name in command_line_os_requests:
     # Add OS-specific dependencies
-    if deps_os not in deps['deps_os']:
-      raise DepsError(
-        'Argument "%s" not found within deps_os keys %r' %
-        (deps_os, deps['deps_os'].keys()))
-    for dep in deps['deps_os'][deps_os]:
-      dependencies[dep] = deps['deps_os'][deps_os][dep]
+    if os_name in os_specific_dependencies:
+      dependencies.update(os_specific_dependencies[os_name])
   list_of_arg_lists = []
   for directory in dependencies:
     if '@' in dependencies[directory]:
@@ -194,9 +185,9 @@ def git_sync_deps(deps_file_path, deps_os_list, verbose):
 
   multithread(git_checkout_to_directory, list_of_arg_lists)
 
-  for directory in deps.get('recursedeps', []):
+  for directory in deps_file.get('recursedeps', []):
     recursive_path = os.path.join(deps_file_directory, directory, 'DEPS')
-    git_sync_deps(recursive_path, deps_os_list, verbose)
+    git_sync_deps(recursive_path, command_line_os_requests, verbose)
 
 
 def multithread(function, list_of_arg_lists):
@@ -215,12 +206,13 @@ def multithread(function, list_of_arg_lists):
 def main(argv):
   deps_file_path = os.environ.get('GIT_SYNC_DEPS_PATH', DEFAULT_DEPS_PATH)
   verbose = not bool(os.environ.get('GIT_SYNC_DEPS_QUIET', False))
-  try:
-    git_sync_deps(deps_file_path, argv, verbose)
-    return 0
-  except DepsError:
+
+  if '--help' in argv or '-h' in argv:
     usage(deps_file_path)
     return 1
+
+  git_sync_deps(deps_file_path, argv, verbose)
+  return 0
 
 
 if __name__ == '__main__':
