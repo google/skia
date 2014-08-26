@@ -189,11 +189,12 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   """
   results = []
   requires_owner_check = False
-  for affected_svn_file in input_api.AffectedFiles():
-    affected_file_path = affected_svn_file.AbsoluteLocalPath()
+  for affected_file in input_api.AffectedFiles():
+    affected_file_path = affected_file.LocalPath()
     file_path, file_ext = os.path.splitext(affected_file_path)
-    # We only care about files that end in .h and are under the include dir.
-    if file_ext == '.h' and 'include' in file_path.split(os.path.sep):
+    # We only care about files that end in .h and are under the top-level
+    # include dir.
+    if file_ext == '.h' and 'include' == file_path.split(os.path.sep)[0]:
       requires_owner_check = True
 
   if not requires_owner_check:
