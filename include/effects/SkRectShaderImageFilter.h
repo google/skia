@@ -28,7 +28,7 @@ public:
     SK_ATTR_DEPRECATED("use Create(SkShader*, const CropRect*)")
     static SkRectShaderImageFilter* Create(SkShader* s, const SkRect& rect);
 
-    static SkRectShaderImageFilter* Create(SkShader* s, const CropRect* rect = NULL);
+    static SkRectShaderImageFilter* Create(SkShader* s, const CropRect* rect = NULL, uint32_t uniqueID = 0);
     virtual ~SkRectShaderImageFilter();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRectShaderImageFilter)
@@ -43,7 +43,7 @@ protected:
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
 
 private:
-    SkRectShaderImageFilter(SkShader* s, const CropRect* rect);
+    SkRectShaderImageFilter(SkShader* s, const CropRect* rect, uint32_t uniqueID = 0);
     SkShader*  fShader;
 
     typedef SkImageFilter INHERITED;

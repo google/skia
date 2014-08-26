@@ -12,16 +12,17 @@
 #include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
-SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture)
-  : INHERITED(0, 0),
+SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, uint32_t uniqueID)
+  : INHERITED(0, 0, NULL, uniqueID),
     fPicture(picture),
     fCropRect(SkRect::MakeWH(picture ? SkIntToScalar(picture->width()) : 0,
                              picture ? SkIntToScalar(picture->height()) : 0)) {
     SkSafeRef(fPicture);
 }
 
-SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, const SkRect& cropRect)
-  : INHERITED(0, 0),
+SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, const SkRect& cropRect,
+                                           uint32_t uniqueID)
+  : INHERITED(0, 0, NULL, uniqueID),
     fPicture(picture),
     fCropRect(cropRect) {
     SkSafeRef(fPicture);

@@ -16,8 +16,8 @@ public:
     static SkBlurImageFilter* Create(SkScalar sigmaX,
                                      SkScalar sigmaY,
                                      SkImageFilter* input = NULL,
-                                     const CropRect* cropRect = NULL) {
-        return SkNEW_ARGS(SkBlurImageFilter, (sigmaX, sigmaY, input, cropRect));
+                                     const CropRect* cropRect = NULL, uint32_t uniqueID = 0) {
+        return SkNEW_ARGS(SkBlurImageFilter, (sigmaX, sigmaY, input, cropRect, uniqueID));
     }
 
     virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
@@ -28,7 +28,8 @@ protected:
     SkBlurImageFilter(SkScalar sigmaX,
                       SkScalar sigmaY,
                       SkImageFilter* input,
-                      const CropRect* cropRect);
+                      const CropRect* cropRect,
+                      uint32_t uniqueID);
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkBlurImageFilter(SkReadBuffer& buffer);
 #endif

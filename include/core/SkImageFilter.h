@@ -237,7 +237,7 @@ protected:
         void allocInputs(int count);
     };
 
-    SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL);
+    SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL, uint32_t uniqueID = 0);
 
     virtual ~SkImageFilter();
 

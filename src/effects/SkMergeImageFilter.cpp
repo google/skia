@@ -42,7 +42,9 @@ void SkMergeImageFilter::initModes(const SkXfermode::Mode modes[]) {
 
 SkMergeImageFilter::SkMergeImageFilter(SkImageFilter* filters[], int count,
                                        const SkXfermode::Mode modes[],
-                                       const CropRect* cropRect) : INHERITED(count, filters, cropRect) {
+                                       const CropRect* cropRect,
+                                       uint32_t uniqueID)
+  : INHERITED(count, filters, cropRect, uniqueID) {
     SkASSERT(count >= 0);
     this->initModes(modes);
 }
@@ -126,9 +128,9 @@ SkFlattenable* SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {
         if (!buffer.isValid()) {
             return NULL;
         }
-        return Create(common.inputs(), count, modes.get(), &common.cropRect());
+        return Create(common.inputs(), count, modes.get(), &common.cropRect(), common.uniqueID());
     }
-    return Create(common.inputs(), count, NULL, &common.cropRect());
+    return Create(common.inputs(), count, NULL, &common.cropRect(), common.uniqueID());
 }
 
 void SkMergeImageFilter::flatten(SkWriteBuffer& buffer) const {

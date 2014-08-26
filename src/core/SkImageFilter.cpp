@@ -110,12 +110,12 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect)
+SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect, uint32_t uniqueID)
   : fInputCount(inputCount),
     fInputs(new SkImageFilter*[inputCount]),
     fUsesSrcInput(false),
     fCropRect(cropRect ? *cropRect : CropRect(SkRect(), 0x0)),
-    fUniqueID(next_image_filter_unique_id()) {
+    fUniqueID(uniqueID ? uniqueID : next_image_filter_unique_id()) {
     for (int i = 0; i < inputCount; ++i) {
         if (NULL == inputs[i] || inputs[i]->usesSrcInput()) {
             fUsesSrcInput = true;

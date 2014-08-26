@@ -30,7 +30,8 @@ public:
 
     static SkMatrixImageFilter* Create(const SkMatrix& transform,
                                        SkPaint::FilterLevel,
-                                       SkImageFilter* input = NULL);
+                                       SkImageFilter* input = NULL,
+                                       uint32_t uniqueID = 0);
     virtual ~SkMatrixImageFilter();
 
     virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
@@ -40,7 +41,8 @@ public:
 protected:
     SkMatrixImageFilter(const SkMatrix& transform,
                         SkPaint::FilterLevel,
-                        SkImageFilter* input);
+                        SkImageFilter* input,
+                        uint32_t uniqueID);
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     SkMatrixImageFilter(SkReadBuffer& buffer);
 #endif

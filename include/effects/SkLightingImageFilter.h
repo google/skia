@@ -73,7 +73,8 @@ protected:
     SkLightingImageFilter(SkLight* light,
                           SkScalar surfaceScale,
                           SkImageFilter* input,
-                          const CropRect* cropRect);
+                          const CropRect* cropRect,
+                          uint32_t uniqueID);
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkLightingImageFilter(SkReadBuffer& buffer);
 #endif

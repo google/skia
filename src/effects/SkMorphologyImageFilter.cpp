@@ -34,8 +34,9 @@ SkMorphologyImageFilter::SkMorphologyImageFilter(SkReadBuffer& buffer)
 SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX,
                                                  int radiusY,
                                                  SkImageFilter* input,
-                                                 const CropRect* cropRect)
-    : INHERITED(1, &input, cropRect), fRadius(SkISize::Make(radiusX, radiusY)) {
+                                                 const CropRect* cropRect,
+                                                 uint32_t uniqueID)
+    : INHERITED(1, &input, cropRect, uniqueID), fRadius(SkISize::Make(radiusX, radiusY)) {
 }
 
 void SkMorphologyImageFilter::flatten(SkWriteBuffer& buffer) const {
@@ -263,14 +264,14 @@ SkFlattenable* SkErodeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     const int width = buffer.readInt();
     const int height = buffer.readInt();
-    return Create(width, height, common.getInput(0), &common.cropRect());
+    return Create(width, height, common.getInput(0), &common.cropRect(), common.uniqueID());
 }
 
 SkFlattenable* SkDilateImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     const int width = buffer.readInt();
     const int height = buffer.readInt();
-    return Create(width, height, common.getInput(0), &common.cropRect());
+    return Create(width, height, common.getInput(0), &common.cropRect(), common.uniqueID());
 }
 
 #if SK_SUPPORT_GPU

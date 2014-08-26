@@ -17,16 +17,18 @@
 
 SkMatrixImageFilter::SkMatrixImageFilter(const SkMatrix& transform,
                                          SkPaint::FilterLevel filterLevel,
-                                         SkImageFilter* input)
-  : INHERITED(1, &input),
+                                         SkImageFilter* input,
+                                         uint32_t uniqueID)
+  : INHERITED(1, &input, NULL, uniqueID),
     fTransform(transform),
     fFilterLevel(filterLevel) {
 }
 
 SkMatrixImageFilter* SkMatrixImageFilter::Create(const SkMatrix& transform,
                                                  SkPaint::FilterLevel filterLevel,
-                                                 SkImageFilter* input) {
-    return SkNEW_ARGS(SkMatrixImageFilter, (transform, filterLevel, input));
+                                                 SkImageFilter* input,
+                                                 uint32_t uniqueID) {
+    return SkNEW_ARGS(SkMatrixImageFilter, (transform, filterLevel, input, uniqueID));
 }
 
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
@@ -42,7 +44,7 @@ SkFlattenable* SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkPaint::FilterLevel level = static_cast<SkPaint::FilterLevel>(buffer.readInt());
-    return Create(matrix, level, common.getInput(0));
+    return Create(matrix, level, common.getInput(0), common.uniqueID());
 }
 
 void SkMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {

@@ -18,15 +18,17 @@ public:
 
     static SkMergeImageFilter* Create(SkImageFilter* first, SkImageFilter* second,
                                       SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode,
-                                      const CropRect* cropRect = NULL) {
+                                      const CropRect* cropRect = NULL,
+                                      uint32_t uniqueID = 0) {
         SkImageFilter* inputs[2] = { first, second };
         SkXfermode::Mode modes[2] = { mode, mode };
-        return SkNEW_ARGS(SkMergeImageFilter, (inputs, 2, modes, cropRect));
+        return SkNEW_ARGS(SkMergeImageFilter, (inputs, 2, modes, cropRect, uniqueID));
     }
     static SkMergeImageFilter* Create(SkImageFilter* filters[], int count,
                                       const SkXfermode::Mode modes[] = NULL,
-                                      const CropRect* cropRect = NULL) {
-        return SkNEW_ARGS(SkMergeImageFilter, (filters, count, modes, cropRect));
+                                      const CropRect* cropRect = NULL,
+                                      uint32_t uniqueID = 0) {
+        return SkNEW_ARGS(SkMergeImageFilter, (filters, count, modes, cropRect, uniqueID));
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMergeImageFilter)
@@ -34,7 +36,8 @@ public:
 protected:
     SkMergeImageFilter(SkImageFilter* filters[], int count,
                        const SkXfermode::Mode modes[],
-                       const CropRect* cropRect);
+                       const CropRect* cropRect,
+                       uint32_t uniqueID);
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkMergeImageFilter(SkReadBuffer& buffer);
 #endif

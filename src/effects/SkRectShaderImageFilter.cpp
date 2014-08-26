@@ -23,13 +23,14 @@ SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRe
     return SkNEW_ARGS(SkRectShaderImageFilter, (s, &cropRect));
 }
 
-SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const CropRect* cropRect) {
+SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const CropRect* cropRect, uint32_t uniqueID) {
     SkASSERT(s);
-    return SkNEW_ARGS(SkRectShaderImageFilter, (s, cropRect));
+    return SkNEW_ARGS(SkRectShaderImageFilter, (s, cropRect, uniqueID));
 }
 
-SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const CropRect* cropRect)
-  : INHERITED(0, NULL, cropRect)
+SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const CropRect* cropRect,
+                                                 uint32_t uniqueID)
+  : INHERITED(0, NULL, cropRect, uniqueID)
   , fShader(s) {
     SkASSERT(s);
     s->ref();
@@ -45,7 +46,7 @@ SkRectShaderImageFilter::SkRectShaderImageFilter(SkReadBuffer& buffer)
 SkFlattenable* SkRectShaderImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     SkAutoTUnref<SkShader> shader(buffer.readShader());
-    return Create(shader.get(), &common.cropRect());
+    return Create(shader.get(), &common.cropRect(), common.uniqueID());
 }
 
 void SkRectShaderImageFilter::flatten(SkWriteBuffer& buffer) const {

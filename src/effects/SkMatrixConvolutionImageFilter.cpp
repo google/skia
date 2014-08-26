@@ -26,8 +26,9 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
     TileMode tileMode,
     bool convolveAlpha,
     SkImageFilter* input,
-    const CropRect* cropRect)
-  : INHERITED(1, &input, cropRect),
+    const CropRect* cropRect,
+    uint32_t uniqueID)
+  : INHERITED(1, &input, cropRect, uniqueID),
     fKernelSize(kernelSize),
     fGain(gain),
     fBias(bias),
@@ -112,7 +113,7 @@ SkFlattenable* SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) 
     TileMode tileMode = (TileMode)buffer.readInt();
     bool convolveAlpha = buffer.readBool();
     return Create(kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode, convolveAlpha,
-                  common.getInput(0), &common.cropRect());
+                  common.getInput(0), &common.cropRect(), common.uniqueID());
 }
 
 void SkMatrixConvolutionImageFilter::flatten(SkWriteBuffer& buffer) const {
