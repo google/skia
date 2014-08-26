@@ -21,6 +21,7 @@
 #include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkString.h"
+#include "SkTextBlob.h"
 #include "SkTypeface.h"
 
 extern "C" {
@@ -45,6 +46,7 @@ DEF_MTNAME(SkPath)
 DEF_MTNAME(SkPaint)
 DEF_MTNAME(SkPathEffect)
 DEF_MTNAME(SkShader)
+DEF_MTNAME(SkTextBlob)
 DEF_MTNAME(SkTypeface)
 
 template <typename T> T* push_new(lua_State* L) {
@@ -270,6 +272,11 @@ void SkLua::pushPath(const SkPath& path, const char key[]) {
 
 void SkLua::pushCanvas(SkCanvas* canvas, const char key[]) {
     push_ref(fL, canvas);
+    CHECK_SETFIELD(key);
+}
+
+void SkLua::pushTextBlob(const SkTextBlob* blob, const char key[]) {
+    push_ref(fL, const_cast<SkTextBlob*>(blob));
     CHECK_SETFIELD(key);
 }
 

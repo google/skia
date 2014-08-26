@@ -7,6 +7,9 @@
 
 #include "SkTextBlob.h"
 
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
+
 SkTextBlob::SkTextBlob(uint16_t *glyphs, SkScalar *pos, const SkTArray<Run> *runs,
                        const SkRect& bounds)
     : fGlyphBuffer(glyphs)
@@ -24,6 +27,86 @@ uint32_t SkTextBlob::uniqueID() const {
     }
 
     return fUniqueID;
+}
+
+unsigned SkTextBlob::ScalarsPerGlyph(GlyphPositioning pos) {
+    // GlyphPositioning values are directly mapped to scalars-per-glyph.
+    SkASSERT(pos <= 2);
+    return pos;
+}
+
+void SkTextBlob::flatten(SkWriteBuffer& buffer) const {
+    int runCount = (NULL == fRuns.get()) ? 0 : fRuns->count();
+
+    buffer.write32(runCount);
+    buffer.writeRect(fBounds);
+
+    SkPaint runPaint;
+    RunIterator it(this);
+    while (!it.done()) {
+        SkASSERT(it.glyphCount() > 0);
+
+        buffer.write32(it.glyphCount());
+        buffer.write32(it.positioning());
+        buffer.writePoint(it.offset());
+        // This should go away when switching to SkFont
+        it.applyFontToPaint(&runPaint);
+        buffer.writePaint(runPaint);
+
+        buffer.writeByteArray(it.glyphs(), it.glyphCount() * sizeof(uint16_t));
+        buffer.writeByteArray(it.pos(),
+            it.glyphCount() * sizeof(SkScalar) * ScalarsPerGlyph(it.positioning()));
+
+        it.next();
+        SkDEBUGCODE(runCount--);
+    }
+    SkASSERT(0 == runCount);
+}
+
+const SkTextBlob* SkTextBlob::CreateFromBuffer(SkReadBuffer& reader) {
+    int runCount = reader.read32();
+    if (runCount < 0) {
+        return NULL;
+    }
+
+    SkRect bounds;
+    reader.readRect(&bounds);
+
+    SkTextBlobBuilder blobBuilder;
+    for (int i = 0; i < runCount; ++i) {
+        int glyphCount = reader.read32();
+        GlyphPositioning pos = static_cast<GlyphPositioning>(reader.read32());
+        if (glyphCount <= 0 || pos > kFull_Positioning) {
+            return NULL;
+        }
+
+        SkPoint offset;
+        reader.readPoint(&offset);
+        SkPaint font;
+        reader.readPaint(&font);
+
+        const SkTextBlobBuilder::RunBuffer* buf = NULL;
+        switch (pos) {
+        case kDefault_Positioning:
+            buf = &blobBuilder.allocRun(font, glyphCount, offset.x(), offset.y(), &bounds);
+            break;
+        case kHorizontal_Positioning:
+            buf = &blobBuilder.allocRunPosH(font, glyphCount, offset.y(), &bounds);
+            break;
+        case kFull_Positioning:
+            buf = &blobBuilder.allocRunPos(font, glyphCount, &bounds);
+            break;
+        default:
+            return NULL;
+        }
+
+        if (!reader.readByteArray(buf->glyphs, glyphCount * sizeof(uint16_t)) ||
+            !reader.readByteArray(buf->pos, glyphCount * sizeof(SkScalar) * ScalarsPerGlyph(pos))) {
+            return NULL;
+        }
+    }
+
+    return blobBuilder.build();
 }
 
 SkTextBlob::RunIterator::RunIterator(const SkTextBlob* blob)
@@ -161,9 +244,7 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
 
     this->ensureRun(font, positioning, offset);
 
-    // SkTextBlob::GlyphPositioning values are directly mapped to scalars-per-glyph.
-    unsigned posScalarsPerGlyph = positioning;
-    SkASSERT(posScalarsPerGlyph <= 2);
+    unsigned posScalarsPerGlyph = SkTextBlob::ScalarsPerGlyph(positioning);
 
     fGlyphBuffer.append(count);
     fPosBuffer.append(count * posScalarsPerGlyph);

@@ -22,6 +22,7 @@ class SkPaint;
 class SkPath;
 struct SkRect;
 class SkRRect;
+class SkTextBlob;
 
 #define SkScalarToLua(x)    SkScalarToDouble(x)
 #define SkLuaToScalar(x)    SkDoubleToScalar(x)
@@ -60,6 +61,7 @@ public:
     void pushCanvas(SkCanvas*, const char tableKey[] = NULL);
     void pushClipStack(const SkClipStack&, const char tableKey[] = NULL);
     void pushClipStackElement(const SkClipStack::Element& element, const char tableKey[] = NULL);
+    void pushTextBlob(const SkTextBlob*, const char tableKey[] = NULL);
 
     // This SkCanvas lua methods is declared here to benefit from SkLua's friendship with SkCanvas.
     static int lcanvas_getReducedClipStack(lua_State* L);

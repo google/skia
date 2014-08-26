@@ -12,6 +12,7 @@
 #include "SkPictureRecord.h"
 #include "SkPictureStateTree.h"
 #include "SkReader32.h"
+#include "SkTextBlob.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
@@ -419,6 +420,13 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             SkScalar x = reader->readScalar();
             SkScalar y = reader->readScalar();
             canvas->drawText(text.text(), text.length(), x, y, paint);
+        } break;
+        case DRAW_TEXT_BLOB: {
+            const SkPaint& paint = *fPictureData->getPaint(reader);
+            const SkTextBlob* blob = fPictureData->getTextBlob(reader);
+            SkScalar x = reader->readScalar();
+            SkScalar y = reader->readScalar();
+            canvas->drawTextBlob(blob, x, y, paint);
         } break;
         case DRAW_TEXT_TOP_BOTTOM: {
             const SkPaint& paint = *fPictureData->getPaint(reader);

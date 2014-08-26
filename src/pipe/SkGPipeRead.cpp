@@ -670,6 +670,10 @@ static void drawPicture_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     UNIMPLEMENTED
 }
 
+static void drawTextBlob_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
+                            SkGPipeState* state) {
+    UNIMPLEMENTED
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 static void paintOp_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
@@ -814,6 +818,7 @@ static const ReadProc gReadTable[] = {
     drawRRect_rp,
     drawSprite_rp,
     drawText_rp,
+    drawTextBlob_rp,
     drawTextOnPath_rp,
     drawVertices_rp,
     restore_rp,

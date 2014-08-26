@@ -436,6 +436,21 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
+class SkDrawTextBlobCommand : public SkDrawCommand {
+public:
+    SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint);
+
+    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+
+private:
+    SkAutoTUnref<const SkTextBlob> fBlob;
+    SkScalar                       fXPos;
+    SkScalar                       fYPos;
+    SkPaint                        fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
 class SkDrawRectCommand : public SkDrawCommand {
 public:
     SkDrawRectCommand(const SkRect& rect, const SkPaint& paint);

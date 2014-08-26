@@ -92,7 +92,7 @@ public:
     void onDrawTextBlob(const SkTextBlob* blob,
                         SkScalar x,
                         SkScalar y,
-                        const SkPaint& paint);
+                        const SkPaint& paint) SK_OVERRIDE;
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                      const SkPoint texCoords[4], SkXfermode* xmode,
                      const SkPaint& paint) SK_OVERRIDE;

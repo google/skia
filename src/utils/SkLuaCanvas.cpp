@@ -268,6 +268,15 @@ void SkLuaCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const Sk
     lua.pushPaint(paint, "paint");
 }
 
+void SkLuaCanvas::onDrawTextBlob(const SkTextBlob *blob, SkScalar x, SkScalar y,
+                                 const SkPaint &paint) {
+    AUTO_LUA("drawTextBlob");
+    lua.pushTextBlob(blob, "blob");
+    lua.pushScalar(x, "x");
+    lua.pushScalar(y, "y");
+    lua.pushPaint(paint, "paint");
+}
+
 void SkLuaCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                 const SkPaint* paint) {
     AUTO_LUA("drawPicture");

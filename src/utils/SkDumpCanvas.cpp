@@ -14,6 +14,7 @@
 #include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkString.h"
+#include "SkTextBlob.h"
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -421,6 +422,14 @@ void SkDumpCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const S
     toString(text, byteLength, paint.getTextEncoding(), &str);
     this->dump(kDrawText_Verb, &paint, "drawTextOnPath(%s [%d])",
                str.c_str(), byteLength);
+}
+
+void SkDumpCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                  const SkPaint& paint) {
+    SkString str;
+    toString(blob->bounds(), &str);
+    this->dump(kDrawText_Verb, &paint, "drawTextBlob(%p) [%s]", blob, str.c_str());
+    // FIXME: dump the actual blob content?
 }
 
 void SkDumpCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,

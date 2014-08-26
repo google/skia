@@ -26,6 +26,7 @@ class SkPaint;
 class SkPath;
 class SkPictureStateTree;
 class SkReadBuffer;
+class SkTextBlob;
 
 struct SkPictInfo {
     enum Flags {
@@ -49,9 +50,10 @@ struct SkPictInfo {
 // This tag specifies the size of the ReadBuffer, needed for the following tags
 #define SK_PICT_BUFFER_SIZE_TAG     SkSetFourByteTag('a', 'r', 'a', 'y')
 // these are all inside the ARRAYS tag
-#define SK_PICT_BITMAP_BUFFER_TAG  SkSetFourByteTag('b', 't', 'm', 'p')
-#define SK_PICT_PAINT_BUFFER_TAG   SkSetFourByteTag('p', 'n', 't', ' ')
-#define SK_PICT_PATH_BUFFER_TAG    SkSetFourByteTag('p', 't', 'h', ' ')
+#define SK_PICT_BITMAP_BUFFER_TAG   SkSetFourByteTag('b', 't', 'm', 'p')
+#define SK_PICT_PAINT_BUFFER_TAG    SkSetFourByteTag('p', 'n', 't', ' ')
+#define SK_PICT_PATH_BUFFER_TAG     SkSetFourByteTag('p', 't', 'h', ' ')
+#define SK_PICT_TEXTBLOB_BUFFER_TAG SkSetFourByteTag('b', 'l', 'o', 'b')
 
 // Always write this guy last (with no length field afterwards)
 #define SK_PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
@@ -132,6 +134,12 @@ public:
         return &(*fPaints)[index - 1];
     }
 
+    const SkTextBlob* getTextBlob(SkReader32* reader) const {
+        int index = reader->readInt();
+        SkASSERT(index > 0 && index <= fTextBlobCount);
+        return fTextBlobRefs[index - 1];
+    }
+
     void initIterator(SkPictureStateTree::Iterator* iter,
                       const SkTDArray<void*>& draws,
                       SkCanvas* canvas) const {
@@ -183,6 +191,8 @@ private:
 
     const SkPicture** fPictureRefs;
     int fPictureCount;
+    const SkTextBlob** fTextBlobRefs;
+    int fTextBlobCount;
 
     SkBBoxHierarchy* fBoundingHierarchy;
     SkPictureStateTree* fStateTree;

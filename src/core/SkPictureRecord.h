@@ -71,6 +71,10 @@ public:
         return fPictureRefs;
     }
 
+    const SkTDArray<const SkTextBlob* >& getTextBlobRefs() const {
+        return fTextBlobRefs;
+    }
+
     SkData* opData(bool deepCopy) const {
         this->validate(fWriter.bytesWritten(), 0);
 
@@ -181,6 +185,7 @@ private:
     void addRRect(const SkRRect&);
     void addRegion(const SkRegion& region);
     void addText(const void* text, size_t byteLength);
+    void addTextBlob(const SkTextBlob* blob);
 
     int find(const SkBitmap& bitmap);
 
@@ -213,6 +218,8 @@ protected:
                                 SkScalar constY, const SkPaint&) SK_OVERRIDE;
     virtual void onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                                   const SkMatrix* matrix, const SkPaint&) SK_OVERRIDE;
+    virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                const SkPaint& paint) SK_OVERRIDE;
     
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkXfermode* xmode,
@@ -281,7 +288,8 @@ private:
     SkWriter32 fWriter;
 
     // we ref each item in these arrays
-    SkTDArray<const SkPicture*> fPictureRefs;
+    SkTDArray<const SkPicture*>  fPictureRefs;
+    SkTDArray<const SkTextBlob*> fTextBlobRefs;
 
     uint32_t fRecordFlags;
     bool     fOptsEnabled;

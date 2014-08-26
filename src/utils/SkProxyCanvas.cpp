@@ -136,6 +136,11 @@ void SkProxyCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const 
     fProxy->drawTextOnPath(text, byteLength, path, matrix, paint);
 }
 
+void SkProxyCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                   const SkPaint& paint) {
+    fProxy->drawTextBlob(blob, x, y, paint);
+}
+
 void SkProxyCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                   const SkPaint* paint) {
     fProxy->drawPicture(picture, matrix, paint);

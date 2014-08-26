@@ -10,6 +10,8 @@
 #include "SkDrawCommand.h"
 #include "SkObjectParser.h"
 
+#include "SkTextBlob.h"
+
 // TODO(chudy): Refactor into non subclass model.
 
 SkDrawCommand::SkDrawCommand(DrawType type)
@@ -641,6 +643,26 @@ SkDrawPosTextHCommand::SkDrawPosTextHCommand(const void* text, size_t byteLength
 
 void SkDrawPosTextHCommand::execute(SkCanvas* canvas) {
     canvas->drawPosTextH(fText, fByteLength, fXpos, fConstY, fPaint);
+}
+
+SkDrawTextBlobCommand::SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                             const SkPaint& paint)
+    : INHERITED(DRAW_TEXT_BLOB)
+    , fBlob(blob)
+    , fXPos(x)
+    , fYPos(y)
+    , fPaint(paint) {
+
+    blob->ref();
+
+    // FIXME: push blob info
+    fInfo.push(SkObjectParser::ScalarToString(x, "XPOS: "));
+    fInfo.push(SkObjectParser::ScalarToString(x, "YPOS: "));
+    fInfo.push(SkObjectParser::PaintToString(paint));
+}
+
+void SkDrawTextBlobCommand::execute(SkCanvas* canvas) {
+    canvas->drawTextBlob(fBlob, fXPos, fYPos, fPaint);
 }
 
 SkDrawRectCommand::SkDrawRectCommand(const SkRect& rect, const SkPaint& paint)

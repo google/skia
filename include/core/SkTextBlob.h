@@ -13,6 +13,9 @@
 #include "SkTArray.h"
 #include "SkTDArray.h"
 
+class SkReadBuffer;
+class SkWriteBuffer;
+
 /** \class SkTextBlob
 
     SkTextBlob combines multiple text runs into an immutable, ref-counted structure.
@@ -67,7 +70,13 @@ private:
 
     SkTextBlob(uint16_t* glyphs, SkScalar* pos, const SkTArray<Run>* runs, const SkRect& bounds);
 
+    void flatten(SkWriteBuffer&) const;
+    static const SkTextBlob* CreateFromBuffer(SkReadBuffer&);
+
+    static unsigned ScalarsPerGlyph(GlyphPositioning pos);
+
     friend class SkCanvas;
+    friend class SkPictureData;
     friend class SkTextBlobBuilder;
     friend class TextBlobTester;
 

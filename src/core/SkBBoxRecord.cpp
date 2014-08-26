@@ -9,6 +9,8 @@
 #include "SkBBoxRecord.h"
 #include "SkPatchUtils.h"
 
+#include "SkTextBlob.h"
+
 SkBBoxRecord::~SkBBoxRecord() {
     fSaveStack.deleteAll();
 }
@@ -269,6 +271,20 @@ void SkBBoxRecord::onDrawTextOnPath(const void* text, size_t byteLength, const S
 
     if (this->transformBounds(bbox, &paint)) {
         INHERITED::onDrawTextOnPath(text, byteLength, path, matrix, paint);
+    }
+}
+
+void SkBBoxRecord::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                  const SkPaint& paint) {
+    SkRect bbox = blob->bounds();
+    bbox.offset(x, y);
+    // FIXME: implement implicit blob bounds!
+    if (bbox.isEmpty()) {
+        this->getClipBounds(&bbox);
+    }
+
+    if (this->transformBounds(bbox, &paint)) {
+        INHERITED::onDrawTextBlob(blob, x, y, paint);
     }
 }
 

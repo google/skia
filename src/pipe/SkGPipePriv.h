@@ -58,6 +58,7 @@ enum DrawOps {
     kDrawRRect_DrawOp,
     kDrawSprite_DrawOp,
     kDrawText_DrawOp,
+    kDrawTextBlob_DrawOp,
     kDrawTextOnPath_DrawOp,
     kDrawVertices_DrawOp,
     kRestore_DrawOp,

@@ -12,6 +12,7 @@
 #include "SkPictureStateTree.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
+#include "SkTextBlob.h"
 #include "SkTSearch.h"
 
 #define HEAP_BLOCK_SIZE 4096
@@ -59,6 +60,7 @@ SkPictureRecord::~SkPictureRecord() {
     SkSafeUnref(fStateTree);
     fFlattenableHeap.setBitmapStorage(NULL);
     fPictureRefs.unrefAll();
+    fTextBlobRefs.unrefAll();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,6 +116,7 @@ static inline size_t getPaintOffset(DrawType op, size_t opSize) {
         0,  // POP_CULL - no paint
         1,  // DRAW_PATCH - right after op code
         1,  // DRAW_PICTURE_MATRIX_PAINT - right after op code
+        1,  // DRAW_TEXT_BLOB- right after op code
     };
 
     SK_COMPILE_ASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1,
@@ -462,7 +465,8 @@ static bool is_drawing_op(DrawType op) {
     return (op > CONCAT && op < ROTATE)
             || DRAW_DRRECT == op
             || DRAW_PATCH == op
-            || DRAW_PICTURE_MATRIX_PAINT == op;
+            || DRAW_PICTURE_MATRIX_PAINT == op
+            || DRAW_TEXT_BLOB == op;
 }
 
 /*
@@ -1207,6 +1211,22 @@ void SkPictureRecord::onDrawTextOnPath(const void* text, size_t byteLength, cons
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                     const SkPaint& paint) {
+
+    // op + paint index + blob index + x/y
+    size_t size = 3 * kUInt32Size + 2 * sizeof(SkScalar);
+    size_t initialOffset = this->addDraw(DRAW_TEXT_BLOB, &size);
+    SkASSERT(initialOffset + getPaintOffset(DRAW_TEXT_BLOB, size) == fWriter.bytesWritten());
+
+    this->addPaint(paint);
+    this->addTextBlob(blob);
+    this->addScalar(x);
+    this->addScalar(y);
+
+    this->validate(initialOffset, size);
+}
+
 void SkPictureRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                     const SkPaint* paint) {
     // op + picture index
@@ -1521,6 +1541,17 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
     fContentInfo.onDrawText();
     addInt(SkToInt(byteLength));
     fWriter.writePad(text, byteLength);
+}
+
+void SkPictureRecord::addTextBlob(const SkTextBlob *blob) {
+    int index = fTextBlobRefs.find(blob);
+    if (index < 0) {    // not found
+        index = fTextBlobRefs.count();
+        *fTextBlobRefs.append() = blob;
+        blob->ref();
+    }
+    // follow the convention of recording a 1-based index
+    this->addInt(index + 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

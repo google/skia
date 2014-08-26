@@ -10,6 +10,7 @@
 #include "SkPictureData.h"
 #include "SkPictureRecord.h"
 #include "SkReadBuffer.h"
+#include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkTSort.h"
 #include "SkWriteBuffer.h"
@@ -76,6 +77,16 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
             fPictureRefs[i]->ref();
         }
     }
+
+    // templatize to consolidate with similar picture logic?
+    const SkTDArray<const SkTextBlob*>& blobs = record.getTextBlobRefs();
+    fTextBlobCount = blobs.count();
+    if (fTextBlobCount > 0) {
+        fTextBlobRefs = SkNEW_ARRAY(const SkTextBlob*, fTextBlobCount);
+        for (int i = 0; i < fTextBlobCount; ++i) {
+            fTextBlobRefs[i] = SkRef(blobs[i]);
+        }
+    }
 }
 
 #ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
@@ -139,6 +150,8 @@ void SkPictureData::init() {
     fPaints = NULL;
     fPictureRefs = NULL;
     fPictureCount = 0;
+    fTextBlobRefs = NULL;
+    fTextBlobCount = 0;
     fOpData = NULL;
     fFactoryPlayback = NULL;
     fBoundingHierarchy = NULL;
@@ -157,6 +170,11 @@ SkPictureData::~SkPictureData() {
         fPictureRefs[i]->unref();
     }
     SkDELETE_ARRAY(fPictureRefs);
+
+    for (int i = 0; i < fTextBlobCount; i++) {
+        fTextBlobRefs[i]->unref();
+    }
+    SkDELETE_ARRAY(fTextBlobRefs);
 
     SkDELETE(fFactoryPlayback);
 }
@@ -267,6 +285,13 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
     if ((n = SafeCount(fPathHeap.get())) > 0) {
         write_tag_size(buffer, SK_PICT_PATH_BUFFER_TAG, n);
         fPathHeap->flatten(buffer);
+    }
+
+    if (fTextBlobCount > 0) {
+        write_tag_size(buffer, SK_PICT_TEXTBLOB_BUFFER_TAG, fTextBlobCount);
+        for (i = 0; i  < fTextBlobCount; ++i) {
+            fTextBlobRefs[i]->flatten(buffer);
+        }
     }
 }
 
@@ -485,6 +510,33 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer,
                 fPathHeap.reset(SkNEW_ARGS(SkPathHeap, (buffer)));
             }
             break;
+        case SK_PICT_TEXTBLOB_BUFFER_TAG: {
+            if (!buffer.validate((0 == fTextBlobCount) && (NULL == fTextBlobRefs))) {
+                return false;
+            }
+            fTextBlobCount = size;
+            fTextBlobRefs = SkNEW_ARRAY(const SkTextBlob*, fTextBlobCount);
+            bool success = true;
+            int i = 0;
+            for ( ; i < fTextBlobCount; i++) {
+                fTextBlobRefs[i] = SkTextBlob::CreateFromBuffer(buffer);
+                if (NULL == fTextBlobRefs[i]) {
+                    success = false;
+                    break;
+                }
+            }
+            if (!success) {
+                // Delete all of the blobs that were already created (up to but excluding i):
+                for (int j = 0; j < i; j++) {
+                    fTextBlobRefs[j]->unref();
+                }
+                // Delete the array
+                SkDELETE_ARRAY(fTextBlobRefs);
+                fTextBlobRefs = NULL;
+                fTextBlobCount = 0;
+                return false;
+            }
+        } break;
         case SK_PICT_READER_TAG: {
             SkAutoMalloc storage(size);
             if (!buffer.readByteArray(storage.get(), size) ||
