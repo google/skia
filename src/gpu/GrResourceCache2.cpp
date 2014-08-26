@@ -17,13 +17,11 @@ GrResourceCache2::~GrResourceCache2() {
 void GrResourceCache2::insertResource(GrGpuResource* resource) {
     SkASSERT(NULL != resource);
     SkASSERT(!resource->wasDestroyed());
-    SkASSERT(!this->isInCache(resource));
     fResources.addToHead(resource);
     ++fCount;
 }
 
 void GrResourceCache2::removeResource(GrGpuResource* resource) {
-    SkASSERT(this->isInCache(resource));
     fResources.remove(resource);
     --fCount;
 }

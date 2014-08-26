@@ -38,7 +38,6 @@ public:
         : INHERITED(gpu, kIsWrapped),
           fSize(size),
           fStroke(stroke) {
-        this->registerWithCache();
     }
 
     size_t getSize() const { return fSize; }

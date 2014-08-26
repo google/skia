@@ -69,7 +69,6 @@ public:
         , fToDelete(NULL)
         , fSize(size) {
         ++fAlive;
-        this->registerWithCache();
     }
 
     ~TestResource() {

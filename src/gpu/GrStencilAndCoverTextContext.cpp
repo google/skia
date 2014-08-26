@@ -43,7 +43,6 @@ public:
             glyphs.reset(SkNEW_ARGS(GlyphPathRange, (context, cache->getDescriptor(), stroke)));
             context->addResourceToCache(resourceKey, glyphs);
         }
-        glyphs->registerWithCache();
 
         return glyphs.detach();
     }

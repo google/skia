@@ -136,7 +136,6 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
         // FIXME: try to account for stroking, without rasterizing the stroke.
         fBounds.outset(stroke.getWidth(), stroke.getWidth());
     }
-    this->registerWithCache();
 }
 
 GrGLPath::~GrGLPath() {
