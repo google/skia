@@ -9,7 +9,6 @@
 #include "SkScaledImageCache.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
-#include "SkRect.h"
 
 // This can be defined by the caller's build system
 //#define SK_USE_DISCARDABLE_SCALEDIMAGECACHE
