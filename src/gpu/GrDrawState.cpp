@@ -14,51 +14,13 @@
 GrDrawState::CombinedState GrDrawState::CombineIfPossible(
     const GrDrawState& a, const GrDrawState& b, const GrDrawTargetCaps& caps) {
 
-    bool usingVertexColors = a.hasColorVertexAttribute();
-    if (!usingVertexColors && a.fColor != b.fColor) {
+    if (!a.isEqual(b)) {
         return kIncompatible_CombinedState;
     }
 
-    if (a.fRenderTarget.get() != b.fRenderTarget.get() ||
-        a.fColorStages.count() != b.fColorStages.count() ||
-        a.fCoverageStages.count() != b.fCoverageStages.count() ||
-        !a.fViewMatrix.cheapEqualTo(b.fViewMatrix) ||
-        a.fSrcBlend != b.fSrcBlend ||
-        a.fDstBlend != b.fDstBlend ||
-        a.fBlendConstant != b.fBlendConstant ||
-        a.fFlagBits != b.fFlagBits ||
-        a.fVACount != b.fVACount ||
-        memcmp(a.fVAPtr, b.fVAPtr, a.fVACount * sizeof(GrVertexAttrib)) ||
-        a.fStencilSettings != b.fStencilSettings ||
-        a.fDrawFace != b.fDrawFace) {
-        return kIncompatible_CombinedState;
-    }
-
-    bool usingVertexCoverage = a.hasCoverageVertexAttribute();
-    if (!usingVertexCoverage && a.fCoverage != b.fCoverage) {
-        return kIncompatible_CombinedState;
-    }
-
-    bool explicitLocalCoords = a.hasLocalCoordAttribute();
-    for (int i = 0; i < a.numColorStages(); i++) {
-        if (!GrEffectStage::AreCompatible(a.getColorStage(i), b.getColorStage(i),
-                                          explicitLocalCoords)) {
-            return kIncompatible_CombinedState;
-        }
-    }
-    for (int i = 0; i < a.numCoverageStages(); i++) {
-        if (!GrEffectStage::AreCompatible(a.getCoverageStage(i), b.getCoverageStage(i),
-                                          explicitLocalCoords)) {
-            return kIncompatible_CombinedState;
-        }
-    }
-
-    SkASSERT(a.fVertexSize == b.fVertexSize);
-    SkASSERT(0 == memcmp(a.fFixedFunctionVertexAttribIndices,
-                            b.fFixedFunctionVertexAttribIndices,
-                            sizeof(a.fFixedFunctionVertexAttribIndices)));
-
-    if (usingVertexColors) {
+    // If the general draw states are equal (from check above) we know hasColorVertexAttribute()
+    // is equivalent for both a and b
+    if (a.hasColorVertexAttribute()) {
         // If one is opaque and the other is not then the combined state is not opaque. Moreover,
         // if the opaqueness affects the ability to get color/coverage blending correct then we
         // don't combine the draw states.
@@ -221,7 +183,7 @@ static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
 #ifdef SK_DEBUG
     uint32_t overlapCheck = 0;
 #endif
-    SkASSERT(count <= GrDrawState::kMaxVertexAttribCnt);
+    SkASSERT(count <= GrRODrawState::kMaxVertexAttribCnt);
     size_t size = 0;
     for (int index = 0; index < count; ++index) {
         size_t attribSize = GrVertexAttribTypeSize(attribs[index].fType);
@@ -235,10 +197,6 @@ static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
 #endif
     }
     return size;
-}
-
-size_t GrDrawState::getVertexSize() const {
-    return fVertexSize;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -298,65 +256,6 @@ void GrDrawState::setDefaultVertexAttribs() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrDrawState::validateVertexAttribs() const {
-    // check consistency of effects and attributes
-    GrSLType slTypes[kMaxVertexAttribCnt];
-    for (int i = 0; i < kMaxVertexAttribCnt; ++i) {
-        slTypes[i] = static_cast<GrSLType>(-1);
-    }
-    int totalStages = this->numTotalStages();
-    for (int s = 0; s < totalStages; ++s) {
-        int covIdx = s - this->numColorStages();
-        const GrEffectStage& stage = covIdx < 0 ? this->getColorStage(s) :
-                                                  this->getCoverageStage(covIdx);
-        const GrEffect* effect = stage.getEffect();
-        SkASSERT(NULL != effect);
-        // make sure that any attribute indices have the correct binding type, that the attrib
-        // type and effect's shader lang type are compatible, and that attributes shared by
-        // multiple effects use the same shader lang type.
-        const int* attributeIndices = stage.getVertexAttribIndices();
-        int numAttributes = stage.getVertexAttribIndexCount();
-        for (int i = 0; i < numAttributes; ++i) {
-            int attribIndex = attributeIndices[i];
-            if (attribIndex >= fVACount ||
-                kEffect_GrVertexAttribBinding != fVAPtr[attribIndex].fBinding) {
-                return false;
-            }
-
-            GrSLType effectSLType = effect->vertexAttribType(i);
-            GrVertexAttribType attribType = fVAPtr[attribIndex].fType;
-            int slVecCount = GrSLTypeVectorCount(effectSLType);
-            int attribVecCount = GrVertexAttribTypeVectorCount(attribType);
-            if (slVecCount != attribVecCount ||
-                (static_cast<GrSLType>(-1) != slTypes[attribIndex] &&
-                    slTypes[attribIndex] != effectSLType)) {
-                return false;
-            }
-            slTypes[attribIndex] = effectSLType;
-        }
-    }
-
-    return true;
-}
-
-bool GrDrawState::willEffectReadDstColor() const {
-    if (!this->isColorWriteDisabled()) {
-        for (int s = 0; s < this->numColorStages(); ++s) {
-            if (this->getColorStage(s).getEffect()->willReadDstColor()) {
-                return true;
-            }
-        }
-    }
-    for (int s = 0; s < this->numCoverageStages(); ++s) {
-        if (this->getCoverageStage(s).getEffect()->willReadDstColor()) {
-            return true;
-        }
-    }
-    return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 bool GrDrawState::couldApplyCoverage(const GrDrawTargetCaps& caps) const {
     if (caps.dualSourceBlendingSupport()) {
         return true;
@@ -366,114 +265,52 @@ bool GrDrawState::couldApplyCoverage(const GrDrawTargetCaps& caps) const {
     // or c) the src, dst blend coeffs are 1,0 and we will read Dst Color
     GrBlendCoeff srcCoeff;
     GrBlendCoeff dstCoeff;
-    GrDrawState::BlendOptFlags flag = this->getBlendOpts(true, &srcCoeff, &dstCoeff);
-    return GrDrawState::kNone_BlendOpt != flag ||
+    GrRODrawState::BlendOptFlags flag = this->getBlendOpts(true, &srcCoeff, &dstCoeff);
+    return GrRODrawState::kNone_BlendOpt != flag ||
            (this->willEffectReadDstColor() &&
             kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff);
 }
 
-bool GrDrawState::srcAlphaWillBeOne() const {
-    uint32_t validComponentFlags;
-    GrColor color;
-    // Check if per-vertex or constant color may have partial alpha
-    if (this->hasColorVertexAttribute()) {
-        if (fHints & kVertexColorsAreOpaque_Hint) {
-            validComponentFlags = kA_GrColorComponentFlag;
-            color = 0xFF << GrColor_SHIFT_A;            
-        } else {
-            validComponentFlags = 0;
-            color = 0; // not strictly necessary but we get false alarms from tools about uninit.
-        }
-    } else {
-        validComponentFlags = kRGBA_GrColorComponentFlags;
-        color = this->getColor();
-    }
+//////////////////////////////////////////////////////////////////////////////
 
-    // Run through the color stages
-    for (int s = 0; s < this->numColorStages(); ++s) {
-        const GrEffect* effect = this->getColorStage(s).getEffect();
-        effect->getConstantColorComponents(&color, &validComponentFlags);
-    }
-
-    // Check whether coverage is treated as color. If so we run through the coverage computation.
-    if (this->isCoverageDrawing()) {
-        // The shader generated for coverage drawing runs the full coverage computation and then
-        // makes the shader output be the multiplication of color and coverage. We mirror that here.
-        GrColor coverage;
-        uint32_t coverageComponentFlags;
-        if (this->hasCoverageVertexAttribute()) {
-            coverageComponentFlags = 0;
-            coverage = 0; // suppresses any warnings.
-        } else {
-            coverageComponentFlags = kRGBA_GrColorComponentFlags;
-            coverage = this->getCoverageColor();
-        }
-
-        // Run through the coverage stages
-        for (int s = 0; s < this->numCoverageStages(); ++s) {
-            const GrEffect* effect = this->getCoverageStage(s).getEffect();
-            effect->getConstantColorComponents(&coverage, &coverageComponentFlags);
-        }
-
-        // Since the shader will multiply coverage and color, the only way the final A==1 is if
-        // coverage and color both have A==1.
-        return (kA_GrColorComponentFlag & validComponentFlags & coverageComponentFlags) &&
-                0xFF == GrColorUnpackA(color) && 0xFF == GrColorUnpackA(coverage);
-
-    }
-
-    return (kA_GrColorComponentFlag & validComponentFlags) && 0xFF == GrColorUnpackA(color);
+GrDrawState::AutoVertexAttribRestore::AutoVertexAttribRestore(
+    GrDrawState* drawState) {
+    SkASSERT(NULL != drawState);
+    fDrawState = drawState;
+    fVAPtr = drawState->fVAPtr;
+    fVACount = drawState->fVACount;
+    fDrawState->setDefaultVertexAttribs();
 }
 
-bool GrDrawState::hasSolidCoverage() const {
-    // If we're drawing coverage directly then coverage is effectively treated as color.
-    if (this->isCoverageDrawing()) {
-        return true;
-    }
+//////////////////////////////////////////////////////////////////////////////s
 
-    GrColor coverage;
-    uint32_t validComponentFlags;
-    // Initialize to an unknown starting coverage if per-vertex coverage is specified.
-    if (this->hasCoverageVertexAttribute()) {
-        validComponentFlags = 0;
-    } else {
-        coverage = this->getCoverageColor();
-        validComponentFlags = kRGBA_GrColorComponentFlags;
-    }
+void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
+    if (NULL != fDrawState) {
+        int m = fDrawState->numColorStages() - fColorEffectCnt;
+        SkASSERT(m >= 0);
+        fDrawState->fColorStages.pop_back_n(m);
 
-    // Run through the coverage stages and see if the coverage will be all ones at the end.
-    for (int s = 0; s < this->numCoverageStages(); ++s) {
-        const GrEffect* effect = this->getCoverageStage(s).getEffect();
-        effect->getConstantColorComponents(&coverage, &validComponentFlags);
+        int n = fDrawState->numCoverageStages() - fCoverageEffectCnt;
+        SkASSERT(n >= 0);
+        fDrawState->fCoverageStages.pop_back_n(n);
+        if (m + n > 0) {
+            fDrawState->invalidateBlendOptFlags();
+        }
+        SkDEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
     }
-    return (kRGBA_GrColorComponentFlags == validComponentFlags) && (0xffffffff == coverage);
+    fDrawState = ds;
+    if (NULL != ds) {
+        fColorEffectCnt = ds->numColorStages();
+        fCoverageEffectCnt = ds->numCoverageStages();
+        SkDEBUGCODE(++ds->fBlockEffectRemovalCnt;)
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Some blend modes allow folding a fractional coverage value into the color's alpha channel, while
-// others will blend incorrectly.
-bool GrDrawState::canTweakAlphaForCoverage() const {
-    /*
-     The fractional coverage is f.
-     The src and dst coeffs are Cs and Cd.
-     The dst and src colors are S and D.
-     We want the blend to compute: f*Cs*S + (f*Cd + (1-f))D. By tweaking the source color's alpha
-     we're replacing S with S'=fS. It's obvious that that first term will always be ok. The second
-     term can be rearranged as [1-(1-Cd)f]D. By substituting in the various possibilities for Cd we
-     find that only 1, ISA, and ISC produce the correct destination when applied to S' and D.
-     Also, if we're directly rendering coverage (isCoverageDrawing) then coverage is treated as
-     color by definition.
-     */
-    return kOne_GrBlendCoeff == fDstBlend ||
-           kISA_GrBlendCoeff == fDstBlend ||
-           kISC_GrBlendCoeff == fDstBlend ||
-           this->isCoverageDrawing();
-}
-
-GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
-                                                     GrBlendCoeff* srcCoeff,
-                                                     GrBlendCoeff* dstCoeff) const {
+GrRODrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
+                                                       GrBlendCoeff* srcCoeff,
+                                                       GrBlendCoeff* dstCoeff) const {
     GrBlendCoeff bogusSrcCoeff, bogusDstCoeff;
     if (NULL == srcCoeff) {
         srcCoeff = &bogusSrcCoeff;
@@ -499,9 +336,9 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
     return fBlendOptFlags;
 }
 
-GrDrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
-                                                      GrBlendCoeff* srcCoeff,
-                                                      GrBlendCoeff* dstCoeff) const {
+GrRODrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
+                                                          GrBlendCoeff* srcCoeff,
+                                                          GrBlendCoeff* dstCoeff) const {
     *srcCoeff = this->getSrcBlendCoeff();
     *dstCoeff = this->getDstBlendCoeff();
 
@@ -579,49 +416,6 @@ GrDrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
     }
 
     return kNone_BlendOpt;
-}
-
-bool GrDrawState::canIgnoreColorAttribute() const {
-    if (fBlendOptFlags & kInvalid_BlendOptFlag) {
-        this->getBlendOpts();
-    }
-    return SkToBool(fBlendOptFlags & (GrDrawState::kEmitTransBlack_BlendOptFlag |
-                                      GrDrawState::kEmitCoverage_BlendOptFlag));
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-GrDrawState::AutoVertexAttribRestore::AutoVertexAttribRestore(
-    GrDrawState* drawState) {
-    SkASSERT(NULL != drawState);
-    fDrawState = drawState;
-    fVAPtr = drawState->fVAPtr;
-    fVACount = drawState->fVACount;
-    fDrawState->setDefaultVertexAttribs();
-}
-
-//////////////////////////////////////////////////////////////////////////////s
-
-void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
-    if (NULL != fDrawState) {
-        int m = fDrawState->numColorStages() - fColorEffectCnt;
-        SkASSERT(m >= 0);
-        fDrawState->fColorStages.pop_back_n(m);
-
-        int n = fDrawState->numCoverageStages() - fCoverageEffectCnt;
-        SkASSERT(n >= 0);
-        fDrawState->fCoverageStages.pop_back_n(n);
-        if (m + n > 0) {
-            fDrawState->invalidateBlendOptFlags();
-        }
-        SkDEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
-    }
-    fDrawState = ds;
-    if (NULL != ds) {
-        fColorEffectCnt = ds->numColorStages();
-        fCoverageEffectCnt = ds->numCoverageStages();
-        SkDEBUGCODE(++ds->fBlockEffectRemovalCnt;)
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -710,3 +504,67 @@ void GrDrawState::AutoViewMatrixRestore::doEffectCoordChanges(const SkMatrix& co
         fDrawState->fCoverageStages[s].localCoordChange(coordChangeMatrix);
     }
 }
+
+bool GrDrawState::srcAlphaWillBeOne() const {
+    uint32_t validComponentFlags;
+    GrColor color;
+    // Check if per-vertex or constant color may have partial alpha
+    if (this->hasColorVertexAttribute()) {
+        if (fHints & kVertexColorsAreOpaque_Hint) {
+            validComponentFlags = kA_GrColorComponentFlag;
+            color = 0xFF << GrColor_SHIFT_A;
+        } else {
+            validComponentFlags = 0;
+            color = 0; // not strictly necessary but we get false alarms from tools about uninit.
+        }
+    } else {
+        validComponentFlags = kRGBA_GrColorComponentFlags;
+        color = this->getColor();
+    }
+
+    // Run through the color stages
+    for (int s = 0; s < this->numColorStages(); ++s) {
+        const GrEffect* effect = this->getColorStage(s).getEffect();
+        effect->getConstantColorComponents(&color, &validComponentFlags);
+    }
+
+    // Check whether coverage is treated as color. If so we run through the coverage computation.
+    if (this->isCoverageDrawing()) {
+        // The shader generated for coverage drawing runs the full coverage computation and then
+        // makes the shader output be the multiplication of color and coverage. We mirror that here.
+        GrColor coverage;
+        uint32_t coverageComponentFlags;
+        if (this->hasCoverageVertexAttribute()) {
+            coverageComponentFlags = 0;
+            coverage = 0; // suppresses any warnings.
+        } else {
+            coverageComponentFlags = kRGBA_GrColorComponentFlags;
+            coverage = this->getCoverageColor();
+        }
+
+        // Run through the coverage stages
+        for (int s = 0; s < this->numCoverageStages(); ++s) {
+            const GrEffect* effect = this->getCoverageStage(s).getEffect();
+            effect->getConstantColorComponents(&coverage, &coverageComponentFlags);
+        }
+
+        // Since the shader will multiply coverage and color, the only way the final A==1 is if
+        // coverage and color both have A==1.
+        return (kA_GrColorComponentFlag & validComponentFlags & coverageComponentFlags) &&
+                0xFF == GrColorUnpackA(color) && 0xFF == GrColorUnpackA(coverage);
+
+    }
+
+    return (kA_GrColorComponentFlag & validComponentFlags) && 0xFF == GrColorUnpackA(color);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool GrDrawState::canIgnoreColorAttribute() const {
+    if (fBlendOptFlags & kInvalid_BlendOptFlag) {
+        this->getBlendOpts();
+    }
+    return SkToBool(fBlendOptFlags & (GrRODrawState::kEmitTransBlack_BlendOptFlag |
+                                      GrRODrawState::kEmitCoverage_BlendOptFlag));
+}
+

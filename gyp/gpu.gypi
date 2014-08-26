@@ -116,6 +116,8 @@
       '<(skia_src_path)/gpu/GrResourceCache.h',
       '<(skia_src_path)/gpu/GrResourceCache2.cpp',
       '<(skia_src_path)/gpu/GrResourceCache2.h',
+      '<(skia_src_path)/gpu/GrRODrawState.cpp',
+      '<(skia_src_path)/gpu/GrRODrawState.h',
       '<(skia_src_path)/gpu/GrStencil.cpp',
       '<(skia_src_path)/gpu/GrStencil.h',
       '<(skia_src_path)/gpu/GrStencilAndCoverPathRenderer.cpp',
