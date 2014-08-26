@@ -22,14 +22,6 @@ public:
     virtual ~SkBBHFactory() {};
 };
 
-class SK_API SkQuadTreeFactory : public SkBBHFactory {
-public:
-    virtual SkBBoxHierarchy* operator()(int width, int height) const SK_OVERRIDE;
-private:
-    typedef SkBBHFactory INHERITED;
-};
-
-
 class SK_API SkRTreeFactory : public SkBBHFactory {
 public:
     virtual SkBBoxHierarchy* operator()(int width, int height) const SK_OVERRIDE;

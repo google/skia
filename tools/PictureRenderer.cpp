@@ -48,10 +48,10 @@ enum {
     kDefaultTileHeight = 256
 };
 
-void PictureRenderer::init(const SkPicture* pict, 
-                           const SkString* writePath, 
+void PictureRenderer::init(const SkPicture* pict,
+                           const SkString* writePath,
                            const SkString* mismatchPath,
-                           const SkString* inputFilename, 
+                           const SkString* inputFilename,
                            bool useChecksumBasedFilenames) {
     this->CopyString(&fWritePath, writePath);
     this->CopyString(&fMismatchPath, mismatchPath);
@@ -446,7 +446,7 @@ SkString SimplePictureRenderer::getConfigNameInternal() {
 
 #if SK_SUPPORT_GPU
 TiledPictureRenderer::TiledPictureRenderer(const GrContext::Options& opts)
-    : INHERITED(opts)        
+    : INHERITED(opts)
     , fTileWidth(kDefaultTileWidth)
 #else
 TiledPictureRenderer::TiledPictureRenderer()
@@ -588,8 +588,8 @@ void TiledPictureRenderer::setupPowerOf2Tiles() {
  * Saves and restores so that the initial clip and matrix return to their state before this function
  * is called.
  */
-static void draw_tile_to_canvas(SkCanvas* canvas, 
-                                const SkRect& tileRect, 
+static void draw_tile_to_canvas(SkCanvas* canvas,
+                                const SkRect& tileRect,
                                 const SkPicture* picture) {
     int saveCount = canvas->save();
     // Translate so that we draw the correct portion of the picture.
@@ -736,8 +736,6 @@ SkBBHFactory* PictureRenderer::getFactory() {
     switch (fBBoxHierarchyType) {
         case kNone_BBoxHierarchyType:
             return NULL;
-        case kQuadTree_BBoxHierarchyType:
-            return SkNEW(SkQuadTreeFactory);
         case kRTree_BBoxHierarchyType:
             return SkNEW(SkRTreeFactory);
         case kTileGrid_BBoxHierarchyType:

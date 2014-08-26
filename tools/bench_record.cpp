@@ -23,7 +23,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 DEFINE_string2(skps, r, "skps", "Directory containing SKPs to read and re-record.");
 DEFINE_int32(samples, 10, "Number of times to re-record each SKP.");
 DEFINE_int32(tileGridSize, 512, "Set the tile grid size. Has no effect if bbh is not set to tilegrid.");
-DEFINE_string(bbh, "", "Turn on the bbh and select the type, one of rtree, tilegrid, quadtree");
+DEFINE_string(bbh, "", "Turn on the bbh and select the type, one of rtree, tilegrid");
 DEFINE_bool(skr, false, "Record SKR instead of SKP.");
 DEFINE_string(match, "", "The usual filters on file names of SKPs to bench.");
 DEFINE_string(timescale, "us", "Print times in ms, us, or ns");
@@ -54,10 +54,7 @@ static SkBBHFactory* parse_FLAGS_bbh() {
         info.fOffset.setZero();
         return SkNEW_ARGS(SkTileGridFactory, (info));
     }
-    if (FLAGS_bbh.contains("quadtree")) {
-        return SkNEW(SkQuadTreeFactory);
-    }
-    SkDebugf("Invalid bbh type %s, must be one of rtree, tilegrid, quadtree.\n", FLAGS_bbh[0]);
+    SkDebugf("Invalid bbh type %s, must be one of rtree, tilegrid.\n", FLAGS_bbh[0]);
     return NULL;
 }
 

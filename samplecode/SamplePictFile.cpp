@@ -68,9 +68,6 @@ protected:
             case kRTree_BBoxType:
                 name.append(" <bbox: R>");
                 break;
-            case kQuadTree_BBoxType:
-                name.append(" <bbox: Q>");
-                break;
             case kTileGrid_BBoxType:
                 name.append(" <bbox: T>");
                 break;
@@ -107,7 +104,6 @@ protected:
 private:
     enum BBoxType {
         kNo_BBoxType,
-        kQuadTree_BBoxType,
         kRTree_BBoxType,
         kTileGrid_BBoxType,
 
@@ -166,9 +162,6 @@ private:
             return pic.detach();
         case kRTree_BBoxType:
             factory.reset(SkNEW(SkRTreeFactory));
-            break;
-        case kQuadTree_BBoxType:
-            factory.reset(SkNEW(SkQuadTreeFactory));
             break;
         case kTileGrid_BBoxType: {
             SkASSERT(!fTileSize.isEmpty());

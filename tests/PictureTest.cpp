@@ -1473,16 +1473,6 @@ static void test_draw_empty(skiatest::Reporter* reporter) {
 
         canvas.drawPicture(picture);
     }
-
-    {
-        // quad tree
-        SkQuadTreeFactory factory;
-        SkPictureRecorder recorder;
-        recorder.beginRecording(1, 1, &factory);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-
-        canvas.drawPicture(picture);
-    }
 }
 
 static void test_clip_bound_opt(skiatest::Reporter* reporter) {

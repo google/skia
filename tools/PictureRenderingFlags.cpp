@@ -18,7 +18,7 @@
 
 // Alphabetized list of flags used by this file or bench_ and render_pictures.
 DEFINE_string(bbh, "none", "bbhType [width height]: Set the bounding box hierarchy type to "
-              "be used. Accepted values are: none, rtree, quadtree, grid. "
+              "be used. Accepted values are: none, rtree, grid. "
               "Not compatible with --pipe. With value "
               "'grid', width and height must be specified. 'grid' can "
               "only be used with modes tile, record, and "
@@ -346,8 +346,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
         const char* type = FLAGS_bbh[0];
         if (0 == strcmp(type, "none")) {
             bbhType = sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
-        } else if (0 == strcmp(type, "quadtree")) {
-            bbhType = sk_tools::PictureRenderer::kQuadTree_BBoxHierarchyType;
         } else if (0 == strcmp(type, "rtree")) {
             bbhType = sk_tools::PictureRenderer::kRTree_BBoxHierarchyType;
         } else if (0 == strcmp(type, "grid")) {

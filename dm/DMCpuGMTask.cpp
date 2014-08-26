@@ -45,11 +45,6 @@ void CpuGMTask::draw() {
     SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kRTree_BBH,    QuiltTask::kSkRecord_Backend);
     SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kTileGrid_BBH, QuiltTask::kSkRecord_Backend);
 
-    /* skia:2834 SkQuadTree does not return its data in the order it was inserted.
-    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kQuadTree_BBH, QuiltTask::kDefault_Backend);
-    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kQuadTree_BBH, QuiltTask::kSkRecord_Backend);
-    */
-
     SPAWN(SerializeTask, fGMFactory(NULL), bm, SerializeTask::kNormal_Mode);
     SPAWN(SerializeTask, fGMFactory(NULL), bm, SerializeTask::kSkRecord_Mode);
 

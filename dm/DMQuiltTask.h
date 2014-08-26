@@ -16,7 +16,6 @@ public:
     enum BBH {
         kNone_BBH,
         kRTree_BBH,
-        kQuadTree_BBH,
         kTileGrid_BBH,
     };
     enum Backend {

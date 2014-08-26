@@ -153,8 +153,6 @@
         '<(skia_src_path)/core/SkPtrRecorder.cpp',
         '<(skia_src_path)/core/SkQuadClipper.cpp',
         '<(skia_src_path)/core/SkQuadClipper.h',
-        '<(skia_src_path)/core/SkQuadTree.cpp',
-        '<(skia_src_path)/core/SkQuadTree.h',
         '<(skia_src_path)/core/SkRasterClip.cpp',
         '<(skia_src_path)/core/SkRasterizer.cpp',
         '<(skia_src_path)/core/SkReadBuffer.h',

@@ -56,7 +56,6 @@ public:
 
     enum BBoxHierarchyType {
         kNone_BBoxHierarchyType = 0,
-        kQuadTree_BBoxHierarchyType,
         kRTree_BBoxHierarchyType,
         kTileGrid_BBoxHierarchyType,
 
@@ -90,10 +89,10 @@ public:
      * @param useChecksumBasedFilenames Whether to use checksum-based filenames when writing
      *     bitmap images to disk.
      */
-    virtual void init(const SkPicture* pict, 
-                      const SkString* writePath, 
+    virtual void init(const SkPicture* pict,
+                      const SkString* writePath,
                       const SkString* mismatchPath,
-                      const SkString* inputFilename, 
+                      const SkString* inputFilename,
                       bool useChecksumBasedFilenames);
 
     /**
@@ -261,8 +260,6 @@ public:
         }
         if (kRTree_BBoxHierarchyType == fBBoxHierarchyType) {
             config.append("_rtree");
-        } else if (kQuadTree_BBoxHierarchyType == fBBoxHierarchyType) {
-            config.append("_quadtree");
         } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
             config.append("_grid");
             config.append("_");
@@ -311,8 +308,6 @@ public:
         }
         if (kRTree_BBoxHierarchyType == fBBoxHierarchyType) {
             result["bbh"] = "rtree";
-        } else if (kQuadTree_BBoxHierarchyType == fBBoxHierarchyType) {
-            result["bbh"] = "quadtree";
         } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
             SkString tmp("grid_");
             tmp.appendS32(fGridInfo.fTileInterval.width());
@@ -416,7 +411,7 @@ public:
     const SkPicture* getPicture() {
         return fPicture;
     }
-    
+
 #if SK_SUPPORT_GPU
     explicit PictureRenderer(const GrContext::Options &opts)
 #else
@@ -550,9 +545,9 @@ public:
 #endif
 
     virtual void init(const SkPicture* pict,
-                      const SkString* writePath, 
+                      const SkString* writePath,
                       const SkString* mismatchPath,
-                      const SkString* inputFilename, 
+                      const SkString* inputFilename,
                       bool useChecksumBasedFilenames) SK_OVERRIDE;
 
     virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
@@ -571,10 +566,10 @@ public:
     TiledPictureRenderer();
 #endif
 
-    virtual void init(const SkPicture* pict, 
-                      const SkString* writePath, 
+    virtual void init(const SkPicture* pict,
+                      const SkString* writePath,
                       const SkString* mismatchPath,
-                      const SkString* inputFilename, 
+                      const SkString* inputFilename,
                       bool useChecksumBasedFilenames) SK_OVERRIDE;
 
     /**

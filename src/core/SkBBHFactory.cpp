@@ -6,14 +6,9 @@
  */
 
 #include "SkBBHFactory.h"
-#include "SkQuadTree.h"
 #include "SkRTree.h"
 #include "SkTileGrid.h"
 
-
-SkBBoxHierarchy* SkQuadTreeFactory::operator()(int width, int height) const {
-    return SkNEW_ARGS(SkQuadTree, (SkIRect::MakeWH(width, height)));
-}
 
 SkBBoxHierarchy* SkRTreeFactory::operator()(int width, int height) const {
     // These values were empirically determined to produce reasonable

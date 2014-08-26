@@ -78,7 +78,6 @@
     '../bench/PicturePlaybackBench.cpp',
     '../bench/PictureRecordBench.cpp',
     '../bench/PremulAndUnpremulAlphaOpsBench.cpp',
-    '../bench/QuadTreeBench.cpp',
     '../bench/RTreeBench.cpp',
     '../bench/ReadPixBench.cpp',
     '../bench/RectBench.cpp',

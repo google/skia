@@ -14,7 +14,7 @@ namespace DM {
 
 static SkString suffix(QuiltTask::Backend backend, QuiltTask::BBH bbh) {
     static const char* kBackends[] = { "default", "skrecord" };
-    static const char* kBBHs[]     = { "nobbh", "rtree", "quadtree", "tilegrid" };
+    static const char* kBBHs[]     = { "nobbh", "rtree", "tilegrid" };
     return SkStringPrintf("%s-%s", kBackends[backend], kBBHs[bbh]);
 }
 
@@ -64,9 +64,6 @@ void QuiltTask::draw() {
         case kNone_BBH: break;
         case kRTree_BBH:
             factory.reset(SkNEW(SkRTreeFactory));
-            break;
-        case kQuadTree_BBH:
-            factory.reset(SkNEW(SkQuadTreeFactory));
             break;
         case kTileGrid_BBH: {
             const SkTileGridFactory::TileGridInfo tiles = {

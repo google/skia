@@ -7,14 +7,11 @@
 
 #include "Test.h"
 #include "SkRandom.h"
-#include "SkQuadTree.h"
 #include "SkRTree.h"
 #include "SkTSort.h"
 
 static const size_t RTREE_MIN_CHILDREN = 6;
 static const size_t RTREE_MAX_CHILDREN = 11;
-static const size_t QUADTREE_MIN_CHILDREN = 0;
-static const size_t QUADTREE_MAX_CHILDREN = 0; // No hard limit for quadtree
 
 static const int NUM_RECTS = 200;
 static const size_t NUM_ITERATIONS = 100;
@@ -166,19 +163,5 @@ DEF_TEST(BBoxHierarchy, reporter) {
         SkRTree* unsortedRtree = SkRTree::Create(RTREE_MIN_CHILDREN, RTREE_MAX_CHILDREN, 1, false);
         SkAutoUnref auo(unsortedRtree);
         tree_test_main(unsortedRtree, RTREE_MIN_CHILDREN, RTREE_MAX_CHILDREN, reporter);
-    }
-
-    // QuadTree
-    {
-        SkQuadTree* quadtree = SkNEW_ARGS(SkQuadTree, (
-            SkIRect::MakeLTRB(-MAX_SIZE, -MAX_SIZE, MAX_SIZE, MAX_SIZE)));
-        SkAutoUnref au(quadtree);
-        tree_test_main(quadtree, QUADTREE_MIN_CHILDREN, QUADTREE_MAX_CHILDREN, reporter);
-
-        // QuadTree that orders input rectangles on deferred insert.
-        SkQuadTree* unsortedQuadTree = SkNEW_ARGS(SkQuadTree, (
-            SkIRect::MakeLTRB(-MAX_SIZE, -MAX_SIZE, MAX_SIZE, MAX_SIZE)));
-        SkAutoUnref auo(unsortedQuadTree);
-        tree_test_main(unsortedQuadTree, QUADTREE_MIN_CHILDREN, QUADTREE_MAX_CHILDREN, reporter);
     }
 }

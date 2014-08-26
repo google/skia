@@ -23,7 +23,7 @@ static const int kBBoxTypeCount = sk_tools::PictureRenderer::kLast_BBoxHierarchy
 
 DEFINE_string2(skps, r, "", "The list of SKPs to benchmark.");
 DEFINE_string(bb_types, "", "The set of bbox types to test. If empty, all are tested. "
-                       "Should be one or more of none, quadtree, rtree, tilegrid.");
+                       "Should be one or more of none, rtree, tilegrid.");
 DEFINE_int32(record, 100, "Number of times to record each SKP.");
 DEFINE_int32(playback, 1, "Number of times to playback each SKP.");
 DEFINE_int32(tilesize, 256, "The size of a tile.");
@@ -36,7 +36,6 @@ struct Measurement {
 
 const char* kBBoxHierarchyTypeNames[kBBoxTypeCount] = {
     "none", // kNone_BBoxHierarchyType
-    "quadtree", // kQuadTree_BBoxHierarchyType
     "rtree", // kRTree_BBoxHierarchyType
     "tilegrid", // kTileGrid_BBoxHierarchyType
 };
