@@ -41,11 +41,14 @@ WriteTask::WriteTask(const Task& parent, SkBitmap bitmap)
     , fData(NULL)
     , fExtension(".png") {}
 
-WriteTask::WriteTask(const Task& parent, SkData *data, const char* ext)
+WriteTask::WriteTask(const Task& parent, SkStreamAsset *data, const char* ext)
     : CpuTask(parent)
     , fGmName(find_gm_name(parent, &fSuffixes))
-    , fData(SkRef(data))
-    , fExtension(ext) {}
+    , fData(data)
+    , fExtension(ext) {
+    SkASSERT(fData.get());
+    SkASSERT(fData->unique());
+}
 
 void WriteTask::makeDirOrFail(SkString dir) {
     if (!sk_mkdir(dir.c_str())) {
@@ -115,9 +118,10 @@ struct PngAndRaw {
 };
 
 // Does not take ownership of data.
-bool save_data_to_file(const SkData* data, const char* path) {
+bool save_data_to_file(SkStreamAsset* data, const char* path) {
+    data->rewind();
     SkFILEWStream stream(path);
-    if (!stream.isValid() || !stream.write(data->data(), data->size())) {
+    if (!stream.isValid() || !stream.writeStream(data, data->getLength())) {
         SkDebugf("Can't write %s.\n", path);
         return false;
     }
@@ -142,7 +146,7 @@ void WriteTask::draw() {
     SkString path = SkOSPath::Join(dir.c_str(), fGmName.c_str());
     path.append(fExtension);
 
-    const bool ok = fData.get() ? save_data_to_file(fData,   path.c_str())
+    const bool ok = fData.get() ? save_data_to_file(fData.get(), path.c_str())
                                 : PngAndRaw::Encode(fBitmap, path.c_str());
     if (!ok) {
         this->fail();

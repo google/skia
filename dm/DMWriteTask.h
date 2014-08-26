@@ -18,8 +18,9 @@ public:
     WriteTask(const Task& parent,  // WriteTask must be a child task.
               SkBitmap bitmap);    // Bitmap to encode to PNG and write to disk.
 
+    // Takes ownership of SkStreamAsset
     WriteTask(const Task& parent,   // WriteTask must be a child task.
-              SkData *data,         // Pre-encoded data to write to disk.
+              SkStreamAsset* data,  // Pre-encoded data to write to disk.
               const char* ext);     // File extension.
 
     virtual void draw() SK_OVERRIDE;
@@ -40,7 +41,7 @@ private:
     SkTArray<SkString> fSuffixes;
     const SkString fGmName;
     const SkBitmap fBitmap;
-    SkAutoTUnref<SkData> fData;
+    SkAutoTDelete<SkStreamAsset> fData;
     const char* fExtension;
 
     void makeDirOrFail(SkString dir);

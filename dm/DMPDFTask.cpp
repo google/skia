@@ -50,11 +50,11 @@ public:
 
     SkCanvas* canvas() { return fCanvas; }
 
-    SkData* end() {
+    SkStreamAsset* end() {
         fCanvas->flush();
         fDocument->endPage();
         fDocument->close();
-        return fWriteStream.copyToData();
+        return fWriteStream.detachAsStream();
     }
 
 private:
@@ -66,7 +66,7 @@ private:
 }  // namespace
 
 void PDFTask::draw() {
-    SkAutoTUnref<SkData> pdfData;
+    SkAutoTDelete<SkStreamAsset> pdfData;
     bool rasterize = true;
     if (fGM.get()) {
         rasterize = 0 == (fGM->getFlags() & skiagm::GM::kSkipPDFRasterization_Flag);
@@ -83,9 +83,11 @@ void PDFTask::draw() {
 
     SkASSERT(pdfData.get());
     if (rasterize) {
-        this->spawnChild(SkNEW_ARGS(PDFRasterizeTask, (*this, pdfData.get(), fRasterize)));
+        this->spawnChild(SkNEW_ARGS(PDFRasterizeTask,
+                                    (*this, pdfData->duplicate(), fRasterize)));
     }
-    this->spawnChild(SkNEW_ARGS(WriteTask, (*this, pdfData.get(), ".pdf")));
+    this->spawnChild(SkNEW_ARGS(WriteTask,
+                                (*this, pdfData->duplicate(), ".pdf")));
 }
 
 bool PDFTask::shouldSkip() const {

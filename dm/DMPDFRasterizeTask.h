@@ -21,8 +21,9 @@ typedef bool (*RasterizePdfProc)(SkStream* pdf, SkBitmap* output);
 
 class PDFRasterizeTask : public CpuTask {
 public:
+    // takes ownership of SkStreamAsset.
     PDFRasterizeTask(const Task& parent,
-                     SkData* pdf,
+                     SkStreamAsset* pdf,
                      RasterizePdfProc);
 
     virtual void draw() SK_OVERRIDE;
@@ -31,7 +32,7 @@ public:
 
 private:
     const SkString fName;
-    SkAutoTUnref<SkData> fPdf;
+    SkAutoTDelete<SkStreamAsset> fPdf;
     RasterizePdfProc fRasterize;
 };
 
