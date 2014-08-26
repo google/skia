@@ -33,6 +33,12 @@ public:
     void releaseAll();
 
 private:
+#ifdef SK_DEBUG
+    bool isInCache(const GrGpuResource* r) const {
+        return fResources.isInList(r);
+    }
+#endif
+
     int                             fCount;
     SkTInternalLList<GrGpuResource> fResources;
 };

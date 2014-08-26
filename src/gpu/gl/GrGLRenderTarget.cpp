@@ -21,6 +21,7 @@ void GrGLRenderTarget::init(const Desc& desc,
     fMSColorRenderbufferID  = desc.fMSColorRenderbufferID;
     fViewport               = viewport;
     fTexIDObj.reset(SkSafeRef(texID));
+    this->registerWithCache();
 }
 
 namespace {

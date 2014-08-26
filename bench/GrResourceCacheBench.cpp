@@ -27,6 +27,7 @@ public:
     StencilResource(GrGpu* gpu, int id)
         : INHERITED(gpu, false)
         , fID(id) {
+        this->registerWithCache();
     }
 
     virtual ~StencilResource() { this->release(); }
@@ -51,6 +52,7 @@ public:
     TextureResource(GrGpu* gpu, int id)
         : INHERITED(gpu, false)
         , fID(id) {
+        this->registerWithCache();
     }
 
     virtual ~TextureResource() { this->release(); }

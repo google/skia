@@ -41,6 +41,7 @@ public:
         if (NULL == glyphs ||
             !glyphs->fDesc->equals(cache->getDescriptor() /*checksum collision*/)) {
             glyphs.reset(SkNEW_ARGS(GlyphPathRange, (context, cache->getDescriptor(), stroke)));
+            glyphs->registerWithCache();
             context->addResourceToCache(resourceKey, glyphs);
         }
 

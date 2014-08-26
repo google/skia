@@ -32,6 +32,7 @@ public:
         : GrStencilBuffer(gpu, isWrapped, width, height, format.fStencilBits, sampleCnt)
         , fFormat(format)
         , fRenderbufferID(rbid) {
+        this->registerWithCache();
     }
 
     virtual ~GrGLStencilBuffer();
