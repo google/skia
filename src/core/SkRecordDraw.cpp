@@ -189,29 +189,19 @@ private:
         this->pushControl();
     }
 
-    static bool PaintMayAffectTransparentBlack(const SkPaint* paint) {
-        // FIXME: this is very conservative
-        return paint && (paint->getImageFilter() || paint->getColorFilter());
-    }
-
     SkIRect popSaveBlock() {
         // We're done the Save block.  Apply the block's bounds to all control ops inside it.
         SaveBounds sb;
         fSaveStack.pop(&sb);
-
-        // If the paint affects transparent black, we can't trust any of our calculated bounds.
-        const SkIRect& bounds =
-            PaintMayAffectTransparentBlack(sb.paint) ? fCurrentClipBounds : sb.bounds;
-
         while (sb.controlOps --> 0) {
-            this->popControl(bounds);
+            this->popControl(sb.bounds);
         }
 
         // This whole Save block may be part another Save block.
-        this->updateSaveBounds(bounds);
+        this->updateSaveBounds(sb.bounds);
 
         // If called from a real Restore (not a phony one for balance), it'll need the bounds.
-        return bounds;
+        return sb.bounds;
     }
 
     void pushControl() {
