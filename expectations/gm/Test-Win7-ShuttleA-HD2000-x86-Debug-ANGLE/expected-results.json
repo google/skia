@@ -14328,6 +14328,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "textblob_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8450106420219141611
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "texteffects_565.png": {
       "allowed-digests": [
         [

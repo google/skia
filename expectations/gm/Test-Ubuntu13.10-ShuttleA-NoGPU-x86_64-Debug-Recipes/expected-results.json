@@ -53,6 +53,33 @@
         ]
       ], 
       "reviewed-by-human": true
+    }, 
+    "textblob_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6283582074892934398
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "textblob_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11990496565593787222
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "textblob_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2298347222358284753
+        ]
+      ], 
+      "reviewed-by-human": true
     }
   }
 }

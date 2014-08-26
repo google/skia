@@ -33,5 +33,3 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
-# To be rebaselined (fmalita)
-textblob
