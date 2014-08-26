@@ -109,7 +109,7 @@ static SkScalar effective_matrix_scale_sqrd(const SkMatrix& mat) {
 
 class AutoScaledCacheUnlocker {
 public:
-    AutoScaledCacheUnlocker(SkScaledImageCache::ID** idPtr) : fIDPtr(idPtr) {}
+    AutoScaledCacheUnlocker(SkScaledImageCache::ID* idPtr) : fIDPtr(idPtr) {}
     ~AutoScaledCacheUnlocker() {
         if (fIDPtr && *fIDPtr) {
             SkScaledImageCache::Unlock(*fIDPtr);
@@ -123,7 +123,7 @@ public:
     }
 
 private:
-    SkScaledImageCache::ID** fIDPtr;
+    SkScaledImageCache::ID* fIDPtr;
 };
 #define AutoScaledCacheUnlocker(...) SK_REQUIRE_LOCAL_VAR(AutoScaledCacheUnlocker)
 
@@ -147,10 +147,7 @@ static inline bool cache_size_okay(const SkBitmap& bm, const SkMatrix& invMat) {
 // the interface to the cache, but might be well worth it.
 
 bool SkBitmapProcState::possiblyScaleImage() {
-    AutoScaledCacheUnlocker unlocker(&fScaledCacheID);
-
     SkASSERT(NULL == fBitmap);
-    SkASSERT(NULL == fScaledCacheID);
 
     if (fFilterLevel <= SkPaint::kLow_FilterLevel) {
         return false;
@@ -183,20 +180,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
             return false;
         }
 
-        fScaledCacheID = SkBitmapCache::FindAndLock(fOrigBitmap, invScaleX, invScaleY,
-                                                    &fScaledBitmap);
-        if (fScaledCacheID) {
-            fScaledBitmap.lockPixels();
-            if (!fScaledBitmap.getPixels()) {
-                fScaledBitmap.unlockPixels();
-                // found a purged entry (discardablememory?), release it
-                SkScaledImageCache::Unlock(fScaledCacheID);
-                fScaledCacheID = NULL;
-                // fall through to rebuild
-            }
-        }
-
-        if (NULL == fScaledCacheID) {
+        if (!SkBitmapCache::Find(fOrigBitmap, invScaleX, invScaleY, &fScaledBitmap)) {
             float dest_width  = fOrigBitmap.width() / invScaleX;
             float dest_height = fOrigBitmap.height() / invScaleY;
 
@@ -215,13 +199,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
             }
 
             SkASSERT(NULL != fScaledBitmap.getPixels());
-            fScaledCacheID = SkBitmapCache::AddAndLock(fOrigBitmap, invScaleX, invScaleY,
-                                                       fScaledBitmap);
-            if (!fScaledCacheID) {
-                fScaledBitmap.reset();
-                return false;
-            }
-            SkASSERT(NULL != fScaledBitmap.getPixels());
+            SkBitmapCache::Add(fOrigBitmap, invScaleX, invScaleY, fScaledBitmap);
         }
 
         SkASSERT(NULL != fScaledBitmap.getPixels());
@@ -235,7 +213,6 @@ bool SkBitmapProcState::possiblyScaleImage() {
         // image might require is some interpolation if the translation
         // is fractional.
         fFilterLevel = SkPaint::kLow_FilterLevel;
-        unlocker.release();
         return true;
     }
 
@@ -280,39 +257,30 @@ bool SkBitmapProcState::possiblyScaleImage() {
      *  a scale > 1 to indicate down scaling by the CTM.
      */
     if (scaleSqd > SK_Scalar1) {
-        const SkMipMap* mip = NULL;
-
-        SkASSERT(NULL == fScaledCacheID);
-        fScaledCacheID = SkMipMapCache::FindAndLock(fOrigBitmap, &mip);
-        if (!fScaledCacheID) {
-            SkASSERT(NULL == mip);
-            mip = SkMipMap::Build(fOrigBitmap);
-            if (mip) {
-                fScaledCacheID = SkMipMapCache::AddAndLock(fOrigBitmap, mip);
-                SkASSERT(mip->getRefCnt() > 1);
-                mip->unref();   // the cache took a ref
-                SkASSERT(fScaledCacheID);
+        fCurrMip.reset(SkMipMapCache::FindAndRef(fOrigBitmap));
+        if (NULL == fCurrMip.get()) {
+            fCurrMip.reset(SkMipMap::Build(fOrigBitmap));
+            if (NULL == fCurrMip.get()) {
+                return false;
             }
-        } else {
-            SkASSERT(mip);
+            SkMipMapCache::Add(fOrigBitmap, fCurrMip);
         }
 
-        if (mip) {
-            SkScalar levelScale = SkScalarInvert(SkScalarSqrt(scaleSqd));
-            SkMipMap::Level level;
-            if (mip->extractLevel(levelScale, &level)) {
-                SkScalar invScaleFixup = level.fScale;
-                fInvMatrix.postScale(invScaleFixup, invScaleFixup);
+        SkScalar levelScale = SkScalarInvert(SkScalarSqrt(scaleSqd));
+        SkMipMap::Level level;
+        if (fCurrMip->extractLevel(levelScale, &level)) {
+            SkScalar invScaleFixup = level.fScale;
+            fInvMatrix.postScale(invScaleFixup, invScaleFixup);
 
-                SkImageInfo info = fOrigBitmap.info();
-                info.fWidth = level.fWidth;
-                info.fHeight = level.fHeight;
-                fScaledBitmap.installPixels(info, level.fPixels, level.fRowBytes);
-                fBitmap = &fScaledBitmap;
-                fFilterLevel = SkPaint::kLow_FilterLevel;
-                unlocker.release();
-                return true;
-            }
+            SkImageInfo info = fOrigBitmap.info();
+            info.fWidth = level.fWidth;
+            info.fHeight = level.fHeight;
+            // todo: if we could wrap the fCurrMip in a pixelref, then we could just install
+            //       that here, and not need to explicitly track it ourselves.
+            fScaledBitmap.installPixels(info, level.fPixels, level.fRowBytes);
+            fBitmap = &fScaledBitmap;
+            fFilterLevel = SkPaint::kLow_FilterLevel;
+            return true;
         }
     }
 
@@ -336,11 +304,7 @@ static bool get_locked_pixels(const SkBitmap& src, int pow2, SkBitmap* dst) {
 }
 
 bool SkBitmapProcState::lockBaseBitmap() {
-    AutoScaledCacheUnlocker unlocker(&fScaledCacheID);
-
     SkPixelRef* pr = fOrigBitmap.pixelRef();
-
-    SkASSERT(NULL == fScaledCacheID);
 
     if (pr->isLocked() || !pr->implementsDecodeInto()) {
         // fast-case, no need to look in our cache
@@ -350,19 +314,7 @@ bool SkBitmapProcState::lockBaseBitmap() {
             return false;
         }
     } else {
-        fScaledCacheID = SkBitmapCache::FindAndLock(fOrigBitmap, 1, 1, &fScaledBitmap);
-        if (fScaledCacheID) {
-            fScaledBitmap.lockPixels();
-            if (!fScaledBitmap.getPixels()) {
-                fScaledBitmap.unlockPixels();
-                // found a purged entry (discardablememory?), release it
-                SkScaledImageCache::Unlock(fScaledCacheID);
-                fScaledCacheID = NULL;
-                // fall through to rebuild
-            }
-        }
-
-        if (NULL == fScaledCacheID) {
+        if (!SkBitmapCache::Find(fOrigBitmap, 1, 1, &fScaledBitmap)) {
             if (!get_locked_pixels(fOrigBitmap, 0, &fScaledBitmap)) {
                 return false;
             }
@@ -370,22 +322,14 @@ bool SkBitmapProcState::lockBaseBitmap() {
             // TODO: if fScaled comes back at a different width/height than fOrig,
             // we need to update the matrix we are using to sample from this guy.
 
-            fScaledCacheID = SkBitmapCache::AddAndLock(fOrigBitmap, 1, 1, fScaledBitmap);
-            if (!fScaledCacheID) {
-                fScaledBitmap.reset();
-                return false;
-            }
+            SkBitmapCache::Add(fOrigBitmap, 1, 1, fScaledBitmap);
         }
     }
     fBitmap = &fScaledBitmap;
-    unlocker.release();
     return true;
 }
 
 SkBitmapProcState::~SkBitmapProcState() {
-    if (fScaledCacheID) {
-        SkScaledImageCache::Unlock(fScaledCacheID);
-    }
     SkDELETE(fBitmapFilter);
 }
 
@@ -395,8 +339,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fBitmap = NULL;
     fInvMatrix = inv;
     fFilterLevel = paint.getFilterLevel();
-
-    SkASSERT(NULL == fScaledCacheID);
 
     // possiblyScaleImage will look to see if it can rescale the image as a
     // preprocess; either by scaling up to the target size, or by selecting

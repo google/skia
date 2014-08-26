@@ -19,10 +19,15 @@ struct TestingKey : public SkScaledImageCache::Key {
         this->init(sizeof(fPtr) + sizeof(fValue));
     }
 };
-}
+struct TestingRec : public SkScaledImageCache::Rec {
+    TestingRec(const TestingKey& key, uint32_t value) : fKey(key), fValue(value) {}
 
-static void make_bm(SkBitmap* bm, int w, int h) {
-    bm->allocN32Pixels(w, h);
+    TestingKey  fKey;
+    intptr_t    fValue;
+
+    virtual const Key& getKey() const SK_OVERRIDE { return fKey; }
+    virtual size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + sizeof(fValue); }
+};
 }
 
 static const int COUNT = 10;
@@ -30,44 +35,30 @@ static const int DIM = 256;
 
 static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
                        bool testPurge) {
-    SkScaledImageCache::ID* id;
-
-    SkBitmap bm[COUNT];
+    SkScaledImageCache::ID id;
 
     for (int i = 0; i < COUNT; ++i) {
-        make_bm(&bm[i], DIM, DIM);
-    }
+        TestingKey key(i);
 
-    for (int i = 0; i < COUNT; ++i) {
-        TestingKey key(bm[i].getGenerationID());
-        SkBitmap tmp;
+        const TestingRec* rec = (const TestingRec*)cache.findAndLock(key);
+        REPORTER_ASSERT(reporter, NULL == rec);
 
-        SkScaledImageCache::ID* id = cache.findAndLock(key, &tmp);
-        REPORTER_ASSERT(reporter, NULL == id);
+        TestingRec* newRec = SkNEW_ARGS(TestingRec, (key, i));
+        const TestingRec* addedRec = (const TestingRec*)cache.addAndLock(newRec);
+        REPORTER_ASSERT(reporter, NULL != addedRec);
 
-        make_bm(&tmp, DIM, DIM);
-        id = cache.addAndLock(key, tmp);
-        REPORTER_ASSERT(reporter, NULL != id);
-
-        SkBitmap tmp2;
-        SkScaledImageCache::ID* id2 = cache.findAndLock(key, &tmp2);
-        REPORTER_ASSERT(reporter, id == id2);
-        REPORTER_ASSERT(reporter, tmp.pixelRef() == tmp2.pixelRef());
-        REPORTER_ASSERT(reporter, tmp.width() == tmp2.width());
-        REPORTER_ASSERT(reporter, tmp.height() == tmp2.height());
-        cache.unlock(id2);
-
-        cache.unlock(id);
+        const TestingRec* foundRec = (const TestingRec*)cache.findAndLock(key);
+        REPORTER_ASSERT(reporter, foundRec == addedRec);
+        REPORTER_ASSERT(reporter, foundRec->fValue == i);
+        cache.unlock(foundRec);
+        cache.unlock(addedRec);
     }
 
     if (testPurge) {
         // stress test, should trigger purges
         for (size_t i = 0; i < COUNT * 100; ++i) {
             TestingKey key(i);
-            SkBitmap tmp;
-            make_bm(&tmp, DIM, DIM);
-
-            SkScaledImageCache::ID* id = cache.addAndLock(key, tmp);
+            SkScaledImageCache::ID id = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, i)));
             REPORTER_ASSERT(reporter, NULL != id);
             cache.unlock(id);
         }
@@ -75,9 +66,7 @@ static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
 
     // test the originals after all that purging
     for (int i = 0; i < COUNT; ++i) {
-        TestingKey key(bm[i].getGenerationID());
-        SkBitmap tmp;
-        id = cache.findAndLock(key, &tmp);
+        id = cache.findAndLock(TestingKey(i));
         if (id) {
             cache.unlock(id);
         }
@@ -118,27 +107,17 @@ DEF_TEST(ImageCache_doubleAdd, r) {
     // Adding the same key twice should be safe.
     SkScaledImageCache cache(4096);
 
-    SkBitmap original;
-    original.allocN32Pixels(40, 40);
+    TestingKey key(1);
 
-    SkBitmap scaled1;
-    scaled1.allocN32Pixels(20, 20);
-
-    SkBitmap scaled2;
-    scaled2.allocN32Pixels(20, 20);
-
-    TestingKey key(original.getGenerationID());
-
-    SkScaledImageCache::ID* id1 = cache.addAndLock(key, scaled1);
-    SkScaledImageCache::ID* id2 = cache.addAndLock(key, scaled2);
+    SkScaledImageCache::ID id1 = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, 2)));
+    SkScaledImageCache::ID id2 = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, 3)));
     // We don't really care if id1 == id2 as long as unlocking both works.
     cache.unlock(id1);
     cache.unlock(id2);
 
-    SkBitmap tmp;
-    // Lookup should return the value that was added last.
-    SkScaledImageCache::ID* id = cache.findAndLock(key, &tmp);
-    REPORTER_ASSERT(r, NULL != id);
-    REPORTER_ASSERT(r, tmp.getGenerationID() == scaled2.getGenerationID());
-    cache.unlock(id);
+    // Lookup can return either value.
+    const TestingRec* rec = (const TestingRec*)cache.findAndLock(key);
+    REPORTER_ASSERT(r, NULL != rec);
+    REPORTER_ASSERT(r, 2 == rec->fValue || 3 == rec->fValue);
+    cache.unlock(rec);
 }

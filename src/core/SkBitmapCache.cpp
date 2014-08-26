@@ -6,6 +6,8 @@
  */
 
 #include "SkBitmapCache.h"
+#include "SkScaledImageCache.h"
+#include "SkMipMap.h"
 #include "SkRect.h"
 
 /**
@@ -41,51 +43,103 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-SkScaledImageCache::ID* SkBitmapCache::FindAndLock(const SkBitmap& src,
-                                                   SkScalar invScaleX, SkScalar invScaleY,
-                                                   SkBitmap* result) {
+struct BitmapRec : public SkScaledImageCache::Rec {
+    BitmapRec(uint32_t genID, SkScalar scaleX, SkScalar scaleY, const SkIRect& bounds,
+              const SkBitmap& result)
+        : fKey(genID, scaleX, scaleY, bounds)
+        , fBitmap(result)
+    {}
+
+    BitmapKey   fKey;
+    SkBitmap    fBitmap;
+    
+    virtual const Key& getKey() const SK_OVERRIDE { return fKey; }
+    virtual size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + fBitmap.getSize(); }
+};
+
+static bool find_and_return(const BitmapKey& key, SkBitmap* result) {
+    const BitmapRec* rec = (BitmapRec*)SkScaledImageCache::FindAndLock(key);
+    if (rec) {
+        *result = rec->fBitmap;
+        SkScaledImageCache::Unlock(rec);
+
+        result->lockPixels();
+        if (result->getPixels()) {
+            return true;
+        }
+        // todo: we should explicitly purge rec from the cache at this point, since
+        //       it is effectively purged already (has no memory behind it)
+        result->reset();
+        // fall-through to false
+    }
+    return false;
+}
+
+bool SkBitmapCache::Find(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY,
+                         SkBitmap* result) {
     if (0 == invScaleX || 0 == invScaleY) {
         // degenerate, and the key we use for mipmaps
-        return NULL;
+        return false;
     }
     BitmapKey key(src.getGenerationID(), invScaleX, invScaleY, get_bounds_from_bitmap(src));
-    return SkScaledImageCache::FindAndLock(key, result);
+    return find_and_return(key, result);
 }
 
-SkScaledImageCache::ID* SkBitmapCache::AddAndLock(const SkBitmap& src,
-                                                  SkScalar invScaleX, SkScalar invScaleY,
-                                                  const SkBitmap& result) {
+void SkBitmapCache::Add(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY,
+                        const SkBitmap& result) {
     if (0 == invScaleX || 0 == invScaleY) {
         // degenerate, and the key we use for mipmaps
-        return NULL;
+        return;
     }
-    BitmapKey key(src.getGenerationID(), invScaleX, invScaleY, get_bounds_from_bitmap(src));
-    return SkScaledImageCache::AddAndLock(key, result);
+    SkScaledImageCache::Add(SkNEW_ARGS(BitmapRec,
+                                       (src.getGenerationID(), invScaleX, invScaleY,
+                                        get_bounds_from_bitmap(src), result)));
 }
 
-////
-
-SkScaledImageCache::ID* SkBitmapCache::FindAndLock(uint32_t genID, int width, int height,
-                                                   SkBitmap* result) {
+bool SkBitmapCache::Find(uint32_t genID, int width, int height, SkBitmap* result) {
     BitmapKey key(genID, SK_Scalar1, SK_Scalar1, SkIRect::MakeWH(width, height));
-    return SkScaledImageCache::FindAndLock(key, result);
+    return find_and_return(key, result);
 }
 
-SkScaledImageCache::ID* SkBitmapCache::AddAndLock(uint32_t genID, int width, int height,
-                                                     const SkBitmap& result) {
-    BitmapKey key(genID, SK_Scalar1, SK_Scalar1, SkIRect::MakeWH(width, height));
-    return SkScaledImageCache::AddAndLock(key, result);
+void SkBitmapCache::Add(uint32_t genID, int width, int height, const SkBitmap& result) {
+    SkScaledImageCache::Add(SkNEW_ARGS(BitmapRec, (genID, SK_Scalar1, SK_Scalar1,
+                                                   SkIRect::MakeWH(width, height), result)));
 }
 
-////
+//////////////////////////////////////////////////////////////////////////////////////////
 
-SkScaledImageCache::ID* SkMipMapCache::FindAndLock(const SkBitmap& src, const SkMipMap** result) {
-    BitmapKey key(src.getGenerationID(), SK_Scalar1, SK_Scalar1, get_bounds_from_bitmap(src));
-    return SkScaledImageCache::FindAndLock(key, result);
+struct MipMapRec : public SkScaledImageCache::Rec {
+    MipMapRec(const SkBitmap& src, const SkMipMap* result)
+        : fKey(src.getGenerationID(), 0, 0, get_bounds_from_bitmap(src))
+        , fMipMap(SkRef(result))
+    {}
+
+    virtual ~MipMapRec() {
+        fMipMap->unref();
+    }
+
+    BitmapKey       fKey;
+    const SkMipMap* fMipMap;
+    
+    virtual const Key& getKey() const SK_OVERRIDE { return fKey; }
+    virtual size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + fMipMap->getSize(); }
+};
+
+
+const SkMipMap* SkMipMapCache::FindAndRef(const SkBitmap& src) {
+    BitmapKey key(src.getGenerationID(), 0, 0, get_bounds_from_bitmap(src));
+    const MipMapRec* rec = (MipMapRec*)SkScaledImageCache::FindAndLock(key);
+    const SkMipMap* result = NULL;
+    if (rec) {
+        result = SkRef(rec->fMipMap);
+        SkScaledImageCache::Unlock(rec);
+    }
+    return result;
 }
 
-SkScaledImageCache::ID* SkMipMapCache::AddAndLock(const SkBitmap& src, const SkMipMap* result) {
-    BitmapKey key(src.getGenerationID(), SK_Scalar1, SK_Scalar1, get_bounds_from_bitmap(src));
-    return SkScaledImageCache::AddAndLock(key, result);
+void SkMipMapCache::Add(const SkBitmap& src, const SkMipMap* result) {
+    if (result) {
+        SkScaledImageCache::Add(SkNEW_ARGS(MipMapRec, (src, result)));
+    }
 }
 

@@ -8,6 +8,7 @@
 #ifndef SkCachingPixelRef_DEFINED
 #define SkCachingPixelRef_DEFINED
 
+#include "SkBitmapCache.h"
 #include "SkImageInfo.h"
 #include "SkImageGenerator.h"
 #include "SkPixelRef.h"
@@ -52,8 +53,9 @@ protected:
 private:
     SkImageGenerator* const fImageGenerator;
     bool                    fErrorInDecoding;
-    void*                   fScaledCacheId;
     const size_t            fRowBytes;
+
+    SkBitmap                fLockedBitmap;
 
     SkCachingPixelRef(const SkImageInfo&, SkImageGenerator*, size_t rowBytes);
 

@@ -25,8 +25,6 @@ class SkMipMap;
  */
 class SkScaledImageCache {
 public:
-    struct ID;
-
     struct Key {
         // Call this to access your private contents. Must not use the address after calling init()
         void* writableContents() { return this + 1; }
@@ -49,9 +47,6 @@ public:
             return true;
         }
 
-        // delete using sk_free
-        Key* clone() const;
-
     private:
         // store fCount32 first, so we don't consider it in operator<
         int32_t  fCount32;  // 2 + user contents count32
@@ -61,6 +56,32 @@ public:
         const uint32_t* as32() const { return (const uint32_t*)this; }
         const uint32_t* as32SkipCount() const { return this->as32() + 1; }
     };
+
+    struct Rec {
+        typedef SkScaledImageCache::Key Key;
+
+        Rec() : fLockCount(1) {}
+        virtual ~Rec() {}
+
+        uint32_t getHash() const { return this->getKey().hash(); }
+        
+        virtual const Key& getKey() const = 0;
+        virtual size_t bytesUsed() const = 0;
+        
+        // for SkTDynamicHash::Traits
+        static uint32_t Hash(const Key& key) { return key.hash(); }
+        static const Key& GetKey(const Rec& rec) { return rec.getKey(); }
+
+    private:
+        Rec*    fNext;
+        Rec*    fPrev;
+        int32_t fLockCount;
+        int32_t fPad;
+        
+        friend class SkScaledImageCache;
+    };
+
+    typedef const Rec* ID;
 
     /**
      *  Returns a locked/pinned SkDiscardableMemory instance for the specified
@@ -73,13 +94,10 @@ public:
      *  instance of this cache.
      */
 
-    static ID* FindAndLock(const Key&, SkBitmap* result);
-    static ID* AddAndLock(const Key&, const SkBitmap& result);
-
-    static ID* FindAndLock(const Key&, const SkMipMap** result);
-    static ID* AddAndLock(const Key&, const SkMipMap* result);
-
-    static void Unlock(ID*);
+    static const Rec* FindAndLock(const Key& key);
+    static const Rec* AddAndLock(Rec*);
+    static void Add(Rec*);
+    static void Unlock(ID);
 
     static size_t GetTotalBytesUsed();
     static size_t GetTotalByteLimit();
@@ -115,22 +133,9 @@ public:
     explicit SkScaledImageCache(size_t byteLimit);
     ~SkScaledImageCache();
 
-    /**
-     *  Search the cache for a matching key. If found, return its bitmap and return its ID pointer.
-     *  Use the returned ID to unlock the cache when you are done using outBitmap.
-     *
-     *  If a match is not found, outBitmap will be unmodifed, and NULL will be returned.
-     */
-    ID* findAndLock(const Key& key, SkBitmap* outBitmap);
-    ID* findAndLock(const Key& key, const SkMipMap** returnedMipMap);
-
-    /**
-     *  To add a new bitmap (or mipMap) to the cache, call
-     *  AddAndLock. Use the returned ptr to unlock the cache when you
-     *  are done using scaled.
-     */
-    ID* addAndLock(const Key&, const SkBitmap& bitmap);
-    ID* addAndLock(const Key&, const SkMipMap* mipMap);
+    const Rec* findAndLock(const Key& key);
+    const Rec* addAndLock(Rec*);
+    void add(Rec*);
 
     /**
      *  Given a non-null ID ptr returned by either findAndLock or addAndLock,
@@ -138,7 +143,7 @@ public:
      *  if needed. After this, the cached bitmap should no longer be
      *  referenced by the caller.
      */
-    void unlock(ID*);
+    void unlock(ID);
 
     size_t getTotalBytesUsed() const { return fTotalBytesUsed; }
     size_t getTotalByteLimit() const { return fTotalByteLimit; }
@@ -164,8 +169,6 @@ public:
      */
     void dump() const;
 
-public:
-    struct Rec;
 private:
     Rec*    fHead;
     Rec*    fTail;
@@ -181,9 +184,6 @@ private:
     size_t  fTotalByteLimit;
     size_t  fSingleAllocationByteLimit;
     int     fCount;
-
-    Rec* findAndLock(const Key& key);
-    ID* addAndLock(Rec* rec);
 
     void purgeRec(Rec*);
     void purgeAsNeeded();

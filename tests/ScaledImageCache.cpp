@@ -17,12 +17,7 @@ static bool is_in_scaled_image_cache(const SkBitmap& orig,
                                      SkScalar xScale,
                                      SkScalar yScale) {
     SkBitmap scaled;
-    SkScaledImageCache::ID* id = SkBitmapCache::FindAndLock(
-            orig, SkScalarInvert(xScale), SkScalarInvert(yScale), &scaled);
-    if (id) {
-        SkScaledImageCache::Unlock(id);
-    }
-    return id != NULL;
+    return SkBitmapCache::Find(orig, SkScalarInvert(xScale), SkScalarInvert(yScale), &scaled);
 }
 
 // Draw a scaled bitmap, then return true iff it has been cached.

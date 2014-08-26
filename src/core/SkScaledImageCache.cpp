@@ -21,14 +21,6 @@
     #define SK_DEFAULT_IMAGE_CACHE_LIMIT     (2 * 1024 * 1024)
 #endif
 
-static inline SkScaledImageCache::ID* rec_to_id(SkScaledImageCache::Rec* rec) {
-    return reinterpret_cast<SkScaledImageCache::ID*>(rec);
-}
-
-static inline SkScaledImageCache::Rec* id_to_rec(SkScaledImageCache::ID* id) {
-    return reinterpret_cast<SkScaledImageCache::Rec*>(id);
-}
-
 void SkScaledImageCache::Key::init(size_t length) {
     SkASSERT(SkAlign4(length) == length);
     // 2 is fCount32 and fHash
@@ -36,50 +28,6 @@ void SkScaledImageCache::Key::init(size_t length) {
     // skip both of our fields whe computing the murmur
     fHash = SkChecksum::Murmur3(this->as32() + 2, (fCount32 - 2) << 2);
 }
-
-SkScaledImageCache::Key* SkScaledImageCache::Key::clone() const {
-    size_t size = fCount32 << 2;
-    void* copy = sk_malloc_throw(size);
-    memcpy(copy, this, size);
-    return (Key*)copy;
-}
-
-struct SkScaledImageCache::Rec {
-    Rec(const Key& key, const SkBitmap& bm) : fKey(key.clone()), fBitmap(bm) {
-        fLockCount = 1;
-        fMip = NULL;
-    }
-
-    Rec(const Key& key, const SkMipMap* mip) : fKey(key.clone()) {
-        fLockCount = 1;
-        fMip = mip;
-        mip->ref();
-    }
-
-    ~Rec() {
-        SkSafeUnref(fMip);
-        sk_free(fKey);
-    }
-
-    static const Key& GetKey(const Rec& rec) { return *rec.fKey; }
-    static uint32_t Hash(const Key& key) { return key.hash(); }
-
-    size_t bytesUsed() const {
-        return fMip ? fMip->getSize() : fBitmap.getSize();
-    }
-
-    Rec*    fNext;
-    Rec*    fPrev;
-
-    // this guy wants to be 64bit aligned
-    Key*    fKey;
-
-    int32_t fLockCount;
-
-    // we use either fBitmap or fMip, but not both
-    SkBitmap fBitmap;
-    const SkMipMap* fMip;
-};
 
 #include "SkTDynamicHash.h"
 
@@ -259,11 +207,7 @@ SkScaledImageCache::~SkScaledImageCache() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
-   This private method is the fully general record finder. All other
-   record finders should call this function or the one above.
- */
-SkScaledImageCache::Rec* SkScaledImageCache::findAndLock(const SkScaledImageCache::Key& key) {
+const SkScaledImageCache::Rec* SkScaledImageCache::findAndLock(const Key& key) {
 #ifdef USE_HASH
     Rec* rec = fHash->find(key);
 #else
@@ -276,41 +220,13 @@ SkScaledImageCache::Rec* SkScaledImageCache::findAndLock(const SkScaledImageCach
     return rec;
 }
 
-SkScaledImageCache::ID* SkScaledImageCache::findAndLock(const Key& key, SkBitmap* result) {
-    Rec* rec = this->findAndLock(key);
-    if (rec) {
-        SkASSERT(NULL == rec->fMip);
-        SkASSERT(rec->fBitmap.pixelRef());
-        *result = rec->fBitmap;
-    }
-    return rec_to_id(rec);
-}
-
-SkScaledImageCache::ID* SkScaledImageCache::findAndLock(const Key& key, const SkMipMap** mip) {
-    Rec* rec = this->findAndLock(key);
-    if (rec) {
-        SkASSERT(rec->fMip);
-        SkASSERT(NULL == rec->fBitmap.pixelRef());
-        *mip = rec->fMip;
-    }
-    return rec_to_id(rec);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-/**
-   This private method is the fully general record adder. All other
-   record adders should call this funtion. */
-SkScaledImageCache::ID* SkScaledImageCache::addAndLock(SkScaledImageCache::Rec* rec) {
+const SkScaledImageCache::Rec* SkScaledImageCache::addAndLock(Rec* rec) {
     SkASSERT(rec);
     // See if we already have this key (racy inserts, etc.)
-    Rec* existing = this->findAndLock(*rec->fKey);
+    const Rec* existing = this->findAndLock(rec->getKey());
     if (NULL != existing) {
-        // Since we already have a matching entry, just delete the new one and return.
-        // Call sites cannot assume the passed in object will live past this call.
-        existing->fBitmap = rec->fBitmap;
         SkDELETE(rec);
-        return rec_to_id(existing);
+        return existing;
     }
 
     this->addToHead(rec);
@@ -321,20 +237,29 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLock(SkScaledImageCache::Rec* 
 #endif
     // We may (now) be overbudget, so see if we need to purge something.
     this->purgeAsNeeded();
-    return rec_to_id(rec);
+    return rec;
 }
 
-SkScaledImageCache::ID* SkScaledImageCache::addAndLock(const Key& key, const SkBitmap& scaled) {
-    Rec* rec = SkNEW_ARGS(Rec, (key, scaled));
-    return this->addAndLock(rec);
+void SkScaledImageCache::add(Rec* rec) {
+    SkASSERT(rec);
+    // See if we already have this key (racy inserts, etc.)
+    const Rec* existing = this->findAndLock(rec->getKey());
+    if (NULL != existing) {
+        SkDELETE(rec);
+        this->unlock(existing);
+        return;
+    }
+    
+    this->addToHead(rec);
+    SkASSERT(1 == rec->fLockCount);
+#ifdef USE_HASH
+    SkASSERT(fHash);
+    fHash->add(rec);
+#endif
+    this->unlock(rec);
 }
 
-SkScaledImageCache::ID* SkScaledImageCache::addAndLock(const Key& key, const SkMipMap* mip) {
-    Rec* rec = SkNEW_ARGS(Rec, (key, mip));
-    return this->addAndLock(rec);
-}
-
-void SkScaledImageCache::unlock(SkScaledImageCache::ID* id) {
+void SkScaledImageCache::unlock(SkScaledImageCache::ID id) {
     SkASSERT(id);
 
 #ifdef SK_DEBUG
@@ -342,7 +267,7 @@ void SkScaledImageCache::unlock(SkScaledImageCache::ID* id) {
         bool found = false;
         Rec* rec = fHead;
         while (rec != NULL) {
-            if (rec == id_to_rec(id)) {
+            if (rec == id) {
                 found = true;
                 break;
             }
@@ -351,9 +276,10 @@ void SkScaledImageCache::unlock(SkScaledImageCache::ID* id) {
         SkASSERT(found);
     }
 #endif
-    Rec* rec = id_to_rec(id);
+    const Rec* rec = id;
     SkASSERT(rec->fLockCount > 0);
-    rec->fLockCount -= 1;
+    // We're under our lock, and we're the only possible mutator, so unconsting is fine.
+    const_cast<Rec*>(rec)->fLockCount -= 1;
 
     // we may have been over-budget, but now have released something, so check
     // if we should purge.
@@ -389,7 +315,7 @@ void SkScaledImageCache::purgeAsNeeded() {
             SkASSERT(used <= bytesUsed);
             this->detach(rec);
 #ifdef USE_HASH
-            fHash->remove(*rec->fKey);
+            fHash->remove(rec->getKey());
 #endif
 
             SkDELETE(rec);
@@ -575,27 +501,7 @@ static SkScaledImageCache* get_cache() {
     return gScaledImageCache;
 }
 
-SkScaledImageCache::ID* SkScaledImageCache::FindAndLock(const Key& key, SkBitmap* result) {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->findAndLock(key, result);
-}
-
-SkScaledImageCache::ID* SkScaledImageCache::FindAndLock(const Key& key, SkMipMap const ** mip) {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->findAndLock(key, mip);
-}
-
-SkScaledImageCache::ID* SkScaledImageCache::AddAndLock(const Key& key, const SkBitmap& scaled) {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->addAndLock(key, scaled);
-}
-
-SkScaledImageCache::ID* SkScaledImageCache::AddAndLock(const Key& key, const SkMipMap* mip) {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->addAndLock(key, mip);
-}
-
-void SkScaledImageCache::Unlock(SkScaledImageCache::ID* id) {
+void SkScaledImageCache::Unlock(SkScaledImageCache::ID id) {
     SkAutoMutexAcquire am(gMutex);
     get_cache()->unlock(id);
 
@@ -635,6 +541,21 @@ size_t SkScaledImageCache::SetSingleAllocationByteLimit(size_t size) {
 size_t SkScaledImageCache::GetSingleAllocationByteLimit() {
     SkAutoMutexAcquire am(gMutex);
     return get_cache()->getSingleAllocationByteLimit();
+}
+
+const SkScaledImageCache::Rec* SkScaledImageCache::FindAndLock(const Key& key) {
+    SkAutoMutexAcquire am(gMutex);
+    return get_cache()->findAndLock(key);
+}
+
+const SkScaledImageCache::Rec* SkScaledImageCache::AddAndLock(Rec* rec) {
+    SkAutoMutexAcquire am(gMutex);
+    return get_cache()->addAndLock(rec);
+}
+
+void SkScaledImageCache::Add(Rec* rec) {
+    SkAutoMutexAcquire am(gMutex);
+    get_cache()->add(rec);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

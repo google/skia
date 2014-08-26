@@ -8,38 +8,33 @@
 #ifndef SkBitmapCache_DEFINED
 #define SkBitmapCache_DEFINED
 
-#include "SkScaledImageCache.h"
+#include "SkScalar.h"
+
+class SkBitmap;
+class SkMipMap;
 
 class SkBitmapCache {
 public:
-    typedef SkScaledImageCache::ID ID;
+    /**
+     *  Search based on the src bitmap and inverse scales in X and Y. If found, returns true and
+     *  result will be set to the matching bitmap with its pixels already locked.
+     */
+    static bool Find(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY, SkBitmap* result);
+    static void Add(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY,
+                    const SkBitmap& result);
 
-    static void Unlock(ID* id) {
-        SkScaledImageCache::Unlock(id);
-    }
-
-    /* Input: bitmap+inverse_scale */
-    static ID* FindAndLock(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY,
-                           SkBitmap* result);
-    static ID* AddAndLock(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY,
-                          const SkBitmap& result);
-
-    /* Input: bitmap_genID+width+height */
-    static ID* FindAndLock(uint32_t genID, int width, int height, SkBitmap* result);
-
-    static ID* AddAndLock(uint32_t genID, int width, int height, const SkBitmap& result);
+    /**
+     *  Search based on the bitmap's genID, width, height. If found, returns true and
+     *  result will be set to the matching bitmap with its pixels already locked.
+     */
+    static bool Find(uint32_t genID, int width, int height, SkBitmap* result);
+    static void Add(uint32_t genID, int width, int height, const SkBitmap& result);
 };
 
 class SkMipMapCache {
 public:
-    typedef SkScaledImageCache::ID ID;
-
-    static void Unlock(ID* id) {
-        SkScaledImageCache::Unlock(id);
-    }
-
-    static ID* FindAndLock(const SkBitmap& src, const SkMipMap** result);
-    static ID* AddAndLock(const SkBitmap& src, const SkMipMap* result);
+    static const SkMipMap* FindAndRef(const SkBitmap& src);
+    static void Add(const SkBitmap& src, const SkMipMap* result);
 };
 
 #endif
