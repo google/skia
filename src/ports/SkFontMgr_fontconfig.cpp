@@ -57,7 +57,7 @@ namespace {
 SK_DECLARE_STATIC_MUTEX(gFCMutex);
 
 #ifdef SK_DEBUG
-    void *CreateThreadFcLocked() { return SkNEW(bool); }
+    void *CreateThreadFcLocked() { return SkNEW_ARGS(bool, (false)); }
     void DeleteThreadFcLocked(void* v) { SkDELETE(static_cast<bool*>(v)); }
 #   define THREAD_FC_LOCKED \
         static_cast<bool*>(SkTLS::Get(CreateThreadFcLocked, DeleteThreadFcLocked))
