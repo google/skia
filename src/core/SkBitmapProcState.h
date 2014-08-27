@@ -144,6 +144,7 @@ private:
     SkBitmap            fScaledBitmap;      // chooseProcs
 
     SkAutoTUnref<const SkMipMap> fCurrMip;
+    bool                fAdjustedMatrix;    // set by possiblyScaleImage
 
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);

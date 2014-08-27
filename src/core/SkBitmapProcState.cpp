@@ -149,20 +149,33 @@ static inline bool cache_size_okay(const SkBitmap& bm, const SkMatrix& invMat) {
 bool SkBitmapProcState::possiblyScaleImage() {
     SkASSERT(NULL == fBitmap);
 
+    fAdjustedMatrix = false;
+
     if (fFilterLevel <= SkPaint::kLow_FilterLevel) {
         return false;
     }
     // Check to see if the transformation matrix is simple, and if we're
     // doing high quality scaling.  If so, do the bitmap scale here and
-    // remove the scaling component from the matrix.
+    // remove the (non-fractional) scaling component from the matrix.
+
+    SkScalar invScaleX = fInvMatrix.getScaleX();
+    SkScalar invScaleY = fInvMatrix.getScaleY();
+
+    float trueDestWidth  = fOrigBitmap.width() / invScaleX;
+    float trueDestHeight = fOrigBitmap.height() / invScaleY;
+
+#ifndef SK_IGNORE_PROPER_FRACTIONAL_SCALING
+    float roundedDestWidth = SkScalarRoundToScalar(trueDestWidth);
+    float roundedDestHeight = SkScalarRoundToScalar(trueDestHeight);
+#else
+    float roundedDestWidth = trueDestWidth;
+    float roundedDestHeight = trueDestHeight;
+#endif
 
     if (SkPaint::kHigh_FilterLevel == fFilterLevel &&
         fInvMatrix.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask) &&
         kN32_SkColorType == fOrigBitmap.colorType() &&
         cache_size_okay(fOrigBitmap, fInvMatrix)) {
-
-        SkScalar invScaleX = fInvMatrix.getScaleX();
-        SkScalar invScaleY = fInvMatrix.getScaleY();
 
         if (SkScalarNearlyEqual(invScaleX,1.0f) &&
             SkScalarNearlyEqual(invScaleY,1.0f)) {
@@ -180,17 +193,14 @@ bool SkBitmapProcState::possiblyScaleImage() {
             return false;
         }
 
-        if (!SkBitmapCache::Find(fOrigBitmap, invScaleX, invScaleY, &fScaledBitmap)) {
-            float dest_width  = fOrigBitmap.width() / invScaleX;
-            float dest_height = fOrigBitmap.height() / invScaleY;
-
+        if (!SkBitmapCache::Find(fOrigBitmap, roundedDestWidth, roundedDestHeight, &fScaledBitmap)) {
             // All the criteria are met; let's make a new bitmap.
 
             if (!SkBitmapScaler::Resize(&fScaledBitmap,
                                         fOrigBitmap,
                                         SkBitmapScaler::RESIZE_BEST,
-                                        dest_width,
-                                        dest_height,
+                                        roundedDestWidth,
+                                        roundedDestHeight,
                                         SkScaledImageCache::GetAllocator())) {
                 // we failed to create fScaledBitmap, so just return and let
                 // the scanline proc handle it.
@@ -199,7 +209,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
             }
 
             SkASSERT(NULL != fScaledBitmap.getPixels());
-            SkBitmapCache::Add(fOrigBitmap, invScaleX, invScaleY, fScaledBitmap);
+            SkBitmapCache::Add(fOrigBitmap, roundedDestWidth, roundedDestHeight, fScaledBitmap);
         }
 
         SkASSERT(NULL != fScaledBitmap.getPixels());
@@ -209,9 +219,19 @@ bool SkBitmapProcState::possiblyScaleImage() {
         fInvMatrix.setTranslate(fInvMatrix.getTranslateX() / fInvMatrix.getScaleX(),
                                 fInvMatrix.getTranslateY() / fInvMatrix.getScaleY());
 
+#ifndef SK_IGNORE_PROPER_FRACTIONAL_SCALING
+        // reintroduce any fractional scaling missed by our integral scale done above.
+
+        float fractionalScaleX = trueDestWidth/roundedDestWidth;
+        float fractionalScaleY = trueDestHeight/roundedDestHeight;
+
+        fInvMatrix.postScale(fractionalScaleX, fractionalScaleY);
+#endif
+        fAdjustedMatrix = true;
+
         // Set our filter level to low -- the only post-filtering this
         // image might require is some interpolation if the translation
-        // is fractional.
+        // is fractional or if there's any remaining scaling to be done.
         fFilterLevel = SkPaint::kLow_FilterLevel;
         return true;
     }
@@ -367,7 +387,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     bool clampClamp = SkShader::kClamp_TileMode == fTileModeX &&
                       SkShader::kClamp_TileMode == fTileModeY;
 
-    if (!(clampClamp || trivialMatrix)) {
+    if (!(fAdjustedMatrix || clampClamp || trivialMatrix)) {
         fInvMatrix.postIDiv(fOrigBitmap.width(), fOrigBitmap.height());
     }
 
