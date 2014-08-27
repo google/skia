@@ -21,11 +21,14 @@ public:
         // invalid (due to a non-invertible CTM) or 'fPaint' is NULL (due
         // to a non-copyable paint).
         bool fValid;
+        // ID of the picture containing the layer. This can be the ID of
+        // a sub-picture embedded within the picture owning the GrAccelData
+        uint32_t fPictureID;
         // The size of the saveLayer
         SkISize fSize;
-        // The CTM in which this layer's draws must occur. It already incorporates
+        // The matrix state in which this layer's draws must occur. It already incorporates
         // the translation needed to map the layer's top-left point to the origin.
-        SkMatrix fCTM;
+        SkMatrix fOriginXform;
         // The offset that needs to be passed to drawBitmap to correctly
         // position the pre-rendered layer. It is in device space.
         SkIPoint fOffset;
@@ -74,6 +77,6 @@ private:
     typedef SkPicture::AccelData INHERITED;
 };
 
-void GatherGPUInfo(const SkPicture* pict, GrAccelData* accelData);
+const GrAccelData* GPUOptimize(const SkPicture* pict);
 
 #endif // GrPictureUtils_DEFINED

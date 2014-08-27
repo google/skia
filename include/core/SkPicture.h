@@ -296,7 +296,7 @@ private:
     friend class SkPictureData;                // to access OperationList
     friend class SkPictureRecorder;            // just for SkPicture-based constructor
     friend class SkGpuDevice;                  // for EXPERIMENTAL_getActiveOps/OperationList
-    friend class GrGatherCanvas;               // needs to know if old or new picture
+    friend class CollectLayers;                // access to fRecord
     friend class SkPicturePlayback;            // to get fData & OperationList
     friend class SkPictureReplacementPlayback; // to access OperationList
 

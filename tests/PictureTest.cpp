@@ -876,7 +876,18 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
         static const int kWidth = 100;
         static const int kHeight = 100;
 
-        SkAutoTUnref<SkPicture> pict;
+        SkAutoTUnref<SkPicture> pict, child;
+
+        {
+            SkPictureRecorder recorder;
+
+            SkCanvas* c = recorder.beginRecording(kWidth, kHeight);
+
+            c->saveLayer(NULL, NULL);
+            c->restore();
+
+            child.reset(recorder.endRecording());
+        }
 
         // create a picture with the structure:
         // 1)
@@ -892,21 +903,26 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
         //      SaveLayer w/ copyable paint
         //      Restore
         // 4)
-        //      SaveLayer w/ non-copyable paint
+        //      SaveLayer
+        //          DrawPicture (which has a SaveLayer/Restore pair)
+        //      Restore
+        // 5)
+        //      SaveLayer
+        //          DrawPicture with Matrix & Paint (with SaveLayer/Restore pair)
         //      Restore
         {
             SkPictureRecorder recorder;
 
-            SkCanvas* c = recorder.DEPRECATED_beginRecording(kWidth, kHeight);
+            SkCanvas* c = recorder.beginRecording(kWidth, kHeight);
             // 1)
-            c->saveLayer(NULL, NULL);
+            c->saveLayer(NULL, NULL); // layer #0
             c->restore();
 
             // 2)
-            c->saveLayer(NULL, NULL);
-                c->translate(kWidth/2, kHeight/2);
+            c->saveLayer(NULL, NULL); // layer #1
+                c->translate(kWidth/2.0f, kHeight/2.0f);
                 SkRect r = SkRect::MakeXYWH(0, 0, kWidth/2, kHeight/2);
-                c->saveLayer(&r, NULL);
+                c->saveLayer(&r, NULL); // layer #2
                 c->restore();
             c->restore();
 
@@ -914,16 +930,23 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             {
                 SkPaint p;
                 p.setColor(SK_ColorRED);
-                c->saveLayer(NULL, &p);
+                c->saveLayer(NULL, &p); // layer #3
                 c->restore();
             }
             // 4)
-            // TODO: this case will need to be removed once the paint's are immutable
+            {
+                c->saveLayer(NULL, NULL);  // layer #4
+                    c->drawPicture(child);  // layer #5 inside picture
+                c->restore();
+            }
+            // 5
             {
                 SkPaint p;
-                SkAutoTUnref<SkColorFilter> cf(SkLumaColorFilter::Create());
-                p.setImageFilter(SkColorFilterImageFilter::Create(cf.get()))->unref();
-                c->saveLayer(NULL, &p);
+                SkMatrix trans;
+                trans.setTranslate(10, 10);
+
+                c->saveLayer(NULL, NULL);  // layer #6
+                    c->drawPicture(child, &trans, &p); // layer #7 inside picture
                 c->restore();
             }
 
@@ -946,53 +969,98 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, NULL != data);
 
             const GrAccelData *gpuData = static_cast<const GrAccelData*>(data);
-            REPORTER_ASSERT(reporter, 5 == gpuData->numSaveLayers());
+            REPORTER_ASSERT(reporter, 8 == gpuData->numSaveLayers());
 
             const GrAccelData::SaveLayerInfo& info0 = gpuData->saveLayerInfo(0);
-            // The parent/child layer appear in reverse order
+            // The parent/child layers appear in reverse order
             const GrAccelData::SaveLayerInfo& info1 = gpuData->saveLayerInfo(2);
             const GrAccelData::SaveLayerInfo& info2 = gpuData->saveLayerInfo(1);
+
             const GrAccelData::SaveLayerInfo& info3 = gpuData->saveLayerInfo(3);
-//        const GrAccelData::SaveLayerInfo& info4 = gpuData->saveLayerInfo(4);
+
+            // The parent/child layers appear in reverse order
+            const GrAccelData::SaveLayerInfo& info4 = gpuData->saveLayerInfo(5);
+            const GrAccelData::SaveLayerInfo& info5 = gpuData->saveLayerInfo(4);
+
+            // The parent/child layers appear in reverse order
+            const GrAccelData::SaveLayerInfo& info6 = gpuData->saveLayerInfo(7);
+            const GrAccelData::SaveLayerInfo& info7 = gpuData->saveLayerInfo(6);
 
             REPORTER_ASSERT(reporter, info0.fValid);
-            REPORTER_ASSERT(reporter, kWidth == info0.fSize.fWidth && kHeight == info0.fSize.fHeight);
-            REPORTER_ASSERT(reporter, info0.fCTM.isIdentity());
+            REPORTER_ASSERT(reporter, pict->uniqueID() == info0.fPictureID);
+            REPORTER_ASSERT(reporter, kWidth == info0.fSize.fWidth && 
+                                      kHeight == info0.fSize.fHeight);
+            REPORTER_ASSERT(reporter, info0.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info0.fOffset.fX && 0 == info0.fOffset.fY);
-            REPORTER_ASSERT(reporter, NULL != info0.fPaint);
+            REPORTER_ASSERT(reporter, NULL == info0.fPaint);
             REPORTER_ASSERT(reporter, !info0.fIsNested && !info0.fHasNestedLayers);
 
             REPORTER_ASSERT(reporter, info1.fValid);
-            REPORTER_ASSERT(reporter, kWidth == info1.fSize.fWidth && kHeight == info1.fSize.fHeight);
-            REPORTER_ASSERT(reporter, info1.fCTM.isIdentity());
+            REPORTER_ASSERT(reporter, pict->uniqueID() == info1.fPictureID);
+            REPORTER_ASSERT(reporter, kWidth == info1.fSize.fWidth && 
+                                      kHeight == info1.fSize.fHeight);
+            REPORTER_ASSERT(reporter, info1.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info1.fOffset.fX && 0 == info1.fOffset.fY);
-            REPORTER_ASSERT(reporter, NULL != info1.fPaint);
-            REPORTER_ASSERT(reporter, !info1.fIsNested && info1.fHasNestedLayers); // has a nested SL
+            REPORTER_ASSERT(reporter, NULL == info1.fPaint);
+            REPORTER_ASSERT(reporter, !info1.fIsNested && 
+                                      info1.fHasNestedLayers); // has a nested SL
 
             REPORTER_ASSERT(reporter, info2.fValid);
-            REPORTER_ASSERT(reporter, kWidth/2 == info2.fSize.fWidth &&
+            REPORTER_ASSERT(reporter, pict->uniqueID() == info2.fPictureID);
+            REPORTER_ASSERT(reporter, kWidth / 2 == info2.fSize.fWidth &&
                                       kHeight/2 == info2.fSize.fHeight); // bound reduces size
-            REPORTER_ASSERT(reporter, info2.fCTM.isIdentity());         // translated
-            REPORTER_ASSERT(reporter, kWidth/2 == info2.fOffset.fX &&
-                                      kHeight/2 == info2.fOffset.fY);
-            REPORTER_ASSERT(reporter, NULL != info1.fPaint);
+            REPORTER_ASSERT(reporter, info2.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, kWidth/2 == info2.fOffset.fX &&   // translated
+                                      kHeight/2 == info2.fOffset.fY); 
+            REPORTER_ASSERT(reporter, NULL == info1.fPaint);
             REPORTER_ASSERT(reporter, info2.fIsNested && !info2.fHasNestedLayers); // is nested
 
             REPORTER_ASSERT(reporter, info3.fValid);
-            REPORTER_ASSERT(reporter, kWidth == info3.fSize.fWidth && kHeight == info3.fSize.fHeight);
-            REPORTER_ASSERT(reporter, info3.fCTM.isIdentity());
+            REPORTER_ASSERT(reporter, pict->uniqueID() == info3.fPictureID);
+            REPORTER_ASSERT(reporter, kWidth == info3.fSize.fWidth && 
+                                      kHeight == info3.fSize.fHeight);
+            REPORTER_ASSERT(reporter, info3.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info3.fOffset.fX && 0 == info3.fOffset.fY);
             REPORTER_ASSERT(reporter, NULL != info3.fPaint);
             REPORTER_ASSERT(reporter, !info3.fIsNested && !info3.fHasNestedLayers);
 
-    #if 0 // needs more though for GrGatherCanvas
-            REPORTER_ASSERT(reporter, !info4.fValid);                 // paint is/was uncopyable
-            REPORTER_ASSERT(reporter, kWidth == info4.fSize.fWidth && kHeight == info4.fSize.fHeight);
+            REPORTER_ASSERT(reporter, info4.fValid);
+            REPORTER_ASSERT(reporter, pict->uniqueID() == info4.fPictureID);
+            REPORTER_ASSERT(reporter, kWidth == info4.fSize.fWidth && 
+                                      kHeight == info4.fSize.fHeight);
             REPORTER_ASSERT(reporter, 0 == info4.fOffset.fX && 0 == info4.fOffset.fY);
-            REPORTER_ASSERT(reporter, info4.fCTM.isIdentity());
-            REPORTER_ASSERT(reporter, NULL == info4.fPaint);     // paint is/was uncopyable
-            REPORTER_ASSERT(reporter, !info4.fIsNested && !info4.fHasNestedLayers);
-    #endif
+            REPORTER_ASSERT(reporter, info4.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, NULL == info4.fPaint);
+            REPORTER_ASSERT(reporter, !info4.fIsNested && 
+                                      info4.fHasNestedLayers); // has a nested SL
+
+            REPORTER_ASSERT(reporter, info5.fValid);
+            REPORTER_ASSERT(reporter, child->uniqueID() == info5.fPictureID); // in a child picture
+            REPORTER_ASSERT(reporter, kWidth == info5.fSize.fWidth && 
+                                      kHeight == info5.fSize.fHeight);
+            REPORTER_ASSERT(reporter, 0 == info5.fOffset.fX && 0 == info5.fOffset.fY);
+            REPORTER_ASSERT(reporter, info5.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, NULL == info5.fPaint);
+            REPORTER_ASSERT(reporter, info5.fIsNested && !info5.fHasNestedLayers); // is nested
+
+            REPORTER_ASSERT(reporter, info6.fValid);
+            REPORTER_ASSERT(reporter, pict->uniqueID() == info6.fPictureID);
+            REPORTER_ASSERT(reporter, kWidth == info6.fSize.fWidth && 
+                                      kHeight == info6.fSize.fHeight);
+            REPORTER_ASSERT(reporter, 0 == info6.fOffset.fX && 0 == info6.fOffset.fY);
+            REPORTER_ASSERT(reporter, info6.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, NULL == info6.fPaint);
+            REPORTER_ASSERT(reporter, !info6.fIsNested && 
+                                      info6.fHasNestedLayers); // has a nested SL
+
+            REPORTER_ASSERT(reporter, info7.fValid);
+            REPORTER_ASSERT(reporter, child->uniqueID() == info7.fPictureID); // in a child picture
+            REPORTER_ASSERT(reporter, kWidth == info7.fSize.fWidth && 
+                                      kHeight == info7.fSize.fHeight);
+            REPORTER_ASSERT(reporter, 0 == info7.fOffset.fX && 0 == info7.fOffset.fY);
+            REPORTER_ASSERT(reporter, info7.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, NULL == info7.fPaint);
+            REPORTER_ASSERT(reporter, info7.fIsNested && !info7.fHasNestedLayers); // is nested
         }
     }
 }

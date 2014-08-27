@@ -1861,11 +1861,7 @@ void SkGpuDevice::EXPERIMENTAL_optimize(const SkPicture* picture) {
         return;
     }
 
-    SkAutoTUnref<GrAccelData> data(SkNEW_ARGS(GrAccelData, (key)));
-
-    picture->EXPERIMENTAL_addAccelData(data);
-
-    GatherGPUInfo(picture, data);
+    GPUOptimize(picture);
 
     fContext->getLayerCache()->trackPicture(picture);
 }
@@ -2004,10 +2000,10 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         if (pullForward[i]) {
             const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-            GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture->uniqueID(),
-                                                                                info.fSaveLayerOpID,
-                                                                                info.fRestoreOpID,
-                                                                                info.fCTM);
+            GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture->uniqueID(), 
+                                                                                info.fSaveLayerOpID, 
+                                                                                info.fRestoreOpID, 
+                                                                                info.fOriginXform);
 
             SkPictureReplacementPlayback::PlaybackReplacements::ReplacementInfo* layerInfo =
                                                                         replacements.push();
@@ -2165,7 +2161,7 @@ void SkGpuDevice::unlockLayers(const SkPicture* picture) {
         GrCachedLayer* layer = fContext->getLayerCache()->findLayer(picture->uniqueID(),
                                                                     info.fSaveLayerOpID,
                                                                     info.fRestoreOpID,
-                                                                    info.fCTM);
+                                                                    info.fOriginXform);
         fContext->getLayerCache()->unlock(layer);
     }
 

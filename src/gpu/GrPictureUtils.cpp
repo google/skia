@@ -6,12 +6,10 @@
  */
 
 #include "GrPictureUtils.h"
-#include "SkCanvasPriv.h"
-#include "SkDevice.h"
-#include "SkDraw.h"
+
 #include "SkPaintPriv.h"
-#include "SkPictureData.h"
-#include "SkPicturePlayback.h"
+#include "SkRecord.h"
+#include "SkRecords.h"
 
 SkPicture::AccelData::Key GrAccelData::ComputeAccelDataKey() {
     static const SkPicture::AccelData::Key gGPUID = SkPicture::AccelData::GenerateDomain();
@@ -19,261 +17,261 @@ SkPicture::AccelData::Key GrAccelData::ComputeAccelDataKey() {
     return gGPUID;
 }
 
-// The GrGather device performs GPU-backend-specific preprocessing on
-// a picture. The results are stored in a GrAccelData.
-//
-// Currently the only interesting work is done in drawDevice (i.e., when a
-// saveLayer is collapsed back into its parent) and, maybe, in onCreateDevice.
-// All the current work could be done much more efficiently by just traversing the
-// raw op codes in the SkPicture (although we would still need to replay all the
-// clip calls).
-class GrGatherDevice : public SkBaseDevice {
+// SkRecord visitor to gather saveLayer/restore information.
+class CollectLayers {
 public:
-    SK_DECLARE_INST_COUNT(GrGatherDevice)
+    CollectLayers(const SkPicture* pict, GrAccelData* accelData)
+        : fPictureID(pict->uniqueID())
+        , fCTM(&SkMatrix::I())
+        , fCurrentClipBounds(SkIRect::MakeXYWH(0, 0, pict->width(), pict->height()))
+        , fSaveLayersInStack(0)
+        , fAccelData(accelData) {
 
-    GrGatherDevice(int width, int height, SkPicturePlayback* playback, GrAccelData* accelData,
-                   int saveLayerDepth) {
-        fPlayback = playback;
-        fSaveLayerDepth = saveLayerDepth;
-        fInfo.fValid = true;
-        fInfo.fSize.set(width, height);
-        fInfo.fPaint = NULL;
-        fInfo.fSaveLayerOpID = fPlayback->curOpID();
-        fInfo.fRestoreOpID = 0;
-        fInfo.fHasNestedLayers = false;
-        fInfo.fIsNested = (2 == fSaveLayerDepth);
-
-        fEmptyBitmap.setInfo(SkImageInfo::MakeUnknown(fInfo.fSize.fWidth, fInfo.fSize.fHeight));
-        fAccelData = accelData;
-        fAlreadyDrawn = false;
-    }
-
-    virtual ~GrGatherDevice() { }
-
-    virtual SkImageInfo imageInfo() const SK_OVERRIDE {
-        return fEmptyBitmap.info();
-    }
-
-#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
-    virtual void writePixels(const SkBitmap& bitmap, int x, int y,
-                             SkCanvas::Config8888 config8888) SK_OVERRIDE {
-        NotSupported();
-    }
-#endif
-    virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
-
-protected:
-    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE {
-        return false;
-    }
-    virtual void clear(SkColor color) SK_OVERRIDE {
-        NothingToDo();
-    }
-    virtual void drawPaint(const SkDraw& draw, const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
-                            const SkPoint points[], const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawRect(const SkDraw& draw, const SkRect& rect,
-                          const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawOval(const SkDraw& draw, const SkRect& rect,
-                          const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawRRect(const SkDraw& draw, const SkRRect& rrect,
-                           const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawPath(const SkDraw& draw, const SkPath& path,
-                          const SkPaint& paint, const SkMatrix* prePathMatrix,
-                          bool pathIsMutable) SK_OVERRIDE {
-    }
-    virtual void drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
-                            const SkMatrix& matrix, const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
-                            int x, int y, const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
-                                const SkRect* srcOrNull, const SkRect& dst,
-                                const SkPaint& paint,
-                                SkCanvas::DrawBitmapRectFlags flags) SK_OVERRIDE {
-    }
-    virtual void drawText(const SkDraw& draw, const void* text, size_t len,
-                          SkScalar x, SkScalar y,
-                          const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawPosText(const SkDraw& draw, const void* text, size_t len,
-                             const SkScalar pos[], SkScalar constY,
-                             int scalarsPerPos, const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawTextOnPath(const SkDraw& draw, const void* text, size_t len,
-                                const SkPath& path, const SkMatrix* matrix,
-                                const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawVertices(const SkDraw& draw, SkCanvas::VertexMode, int vertexCount,
-                              const SkPoint verts[], const SkPoint texs[],
-                              const SkColor colors[], SkXfermode* xmode,
-                              const uint16_t indices[], int indexCount,
-                              const SkPaint& paint) SK_OVERRIDE {
-    }
-    virtual void drawDevice(const SkDraw& draw, SkBaseDevice* deviceIn, int x, int y,
-                            const SkPaint& paint) SK_OVERRIDE {
-        // deviceIn is the one that is being "restored" back to its parent
-        GrGatherDevice* device = static_cast<GrGatherDevice*>(deviceIn);
-
-        if (device->fAlreadyDrawn) {
+        if (NULL == pict->fRecord.get()) {
             return;
         }
 
-        device->fInfo.fRestoreOpID = fPlayback->curOpID();
-        device->fInfo.fCTM = *draw.fMatrix;
-        device->fInfo.fCTM.postTranslate(SkIntToScalar(-device->getOrigin().fX),
-                                         SkIntToScalar(-device->getOrigin().fY));
-
-        device->fInfo.fOffset = device->getOrigin();
-
-        if (NeedsDeepCopy(paint)) {
-            // This NULL acts as a signal that the paint was uncopyable (for now)
-            device->fInfo.fPaint = NULL;
-            device->fInfo.fValid = false;
-        } else {
-            device->fInfo.fPaint = SkNEW_ARGS(SkPaint, (paint));
+        for (fCurrentOp = 0; fCurrentOp < pict->fRecord->count(); ++fCurrentOp) {
+            pict->fRecord->visit<void>(fCurrentOp, *this);
         }
 
-        fAccelData->addSaveLayerInfo(device->fInfo);
-        device->fAlreadyDrawn = true;
-    }
-    // TODO: allow this call to return failure, or move to SkBitmapDevice only.
-    virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE {
-        return fEmptyBitmap;
-    }
-#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
-    virtual bool onReadPixels(const SkBitmap& bitmap,
-                              int x, int y,
-                              SkCanvas::Config8888 config8888) SK_OVERRIDE {
-        NotSupported();
-        return false;
-    }
-#endif
-    virtual void lockPixels() SK_OVERRIDE { NothingToDo(); }
-    virtual void unlockPixels() SK_OVERRIDE { NothingToDo(); }
-    virtual bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }
-    virtual bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }
-    virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkImageFilter::Context&,
-                             SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
-        return false;
-    }
-
-private:
-    // The playback object driving this rendering
-    SkPicturePlayback *fPlayback;
-
-    SkBitmap fEmptyBitmap; // legacy -- need to remove
-
-    // All information gathered during the gather process is stored here
-    GrAccelData* fAccelData;
-
-    // true if this device has already been drawn back to its parent(s) at least
-    // once.
-    bool   fAlreadyDrawn;
-
-    // The information regarding the saveLayer call this device represents.
-    GrAccelData::SaveLayerInfo fInfo;
-
-    // The depth of this device in the saveLayer stack
-    int fSaveLayerDepth;
-
-    virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE {
-        NotSupported();
-    }
-
-    virtual SkBaseDevice* onCreateDevice(const SkImageInfo& info, Usage usage) SK_OVERRIDE {
-        // we expect to only get called via savelayer, in which case it is fine.
-        SkASSERT(kSaveLayer_Usage == usage);
-
-        fInfo.fHasNestedLayers = true;
-        return SkNEW_ARGS(GrGatherDevice, (info.width(), info.height(), fPlayback,
-                                           fAccelData, fSaveLayerDepth+1));
-    }
-
-    virtual void flush() SK_OVERRIDE {}
-
-    static void NotSupported() {
-        SkDEBUGFAIL("this method should never be called");
-    }
-
-    static void NothingToDo() {}
-
-    typedef SkBaseDevice INHERITED;
-};
-
-// The GrGatherCanvas allows saveLayers but simplifies clipping. It is really
-// only intended to be used as:
-//
-//      GrGatherDevice dev(w, h, picture, accelData);
-//      GrGatherCanvas canvas(..., picture);
-//      canvas.gather();
-//
-// which is all just to fill in 'accelData'
-class SK_API GrGatherCanvas : public SkCanvas {
-public:
-    GrGatherCanvas(GrGatherDevice* device) : INHERITED(device) {}
-
-protected:
-    // disable aa for speed
-    virtual void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle) SK_OVERRIDE {
-        this->INHERITED::onClipRect(rect, op, kHard_ClipEdgeStyle);
-    }
-
-    // for speed, just respect the bounds, and disable AA. May give us a few
-    // false positives and negatives.
-    virtual void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle) SK_OVERRIDE {
-        this->updateClipConservativelyUsingBounds(path.getBounds(), op,
-                                                  path.isInverseFillType());
-    }
-    virtual void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle) SK_OVERRIDE {
-        this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);
-    }
-
-    virtual void onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
-                               const SkPaint* paint) SK_OVERRIDE {
-        SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->width(), picture->height());
-
-        if (NULL != picture->fData.get()) {
-            // Disable the BBH for the old path so all the draw calls
-            // will be seen. The stock SkPicture::draw method can't be
-            // invoked since it just uses a vanilla SkPicturePlayback.
-            SkPicturePlayback playback(picture);
-            playback.setUseBBH(false);
-            playback.draw(this, NULL);
-        } else {
-            // Since we know this is the SkRecord path we can just call
-            // SkPicture::draw.
-            picture->draw(this);
+        while (!fSaveStack.isEmpty()) {
+            this->popSaveBlock();
         }
     }
 
+    template <typename T> void operator()(const T& op) {
+        this->updateCTM(op);
+        this->updateClipBounds(op);
+        this->trackSaveLayers(op);
+    }
+
 private:
-    typedef SkCanvas INHERITED;
+
+    class SaveInfo {
+    public:
+        SaveInfo() { }
+        SaveInfo(int opIndex, bool isSaveLayer, const SkPaint* paint, const SkIRect& bounds) 
+            : fStartIndex(opIndex)
+            , fIsSaveLayer(isSaveLayer)
+            , fHasNestedSaveLayer(false)
+            , fPaint(paint)
+            , fBounds(bounds) {
+
+        }
+
+        int            fStartIndex;
+        bool           fIsSaveLayer;
+        bool           fHasNestedSaveLayer;
+        const SkPaint* fPaint;
+        SkIRect        fBounds;
+    };
+
+    uint32_t            fPictureID;
+    unsigned int        fCurrentOp;
+    const SkMatrix*     fCTM;
+    SkIRect             fCurrentClipBounds;
+    int                 fSaveLayersInStack;
+    SkTDArray<SaveInfo> fSaveStack;
+    GrAccelData*        fAccelData;
+
+    template <typename T> void updateCTM(const T&) { /* most ops don't change the CTM */ }
+    void updateCTM(const SkRecords::Restore& op)   { fCTM = &op.matrix; }
+    void updateCTM(const SkRecords::SetMatrix& op) { fCTM = &op.matrix; }
+
+    template <typename T> void updateClipBounds(const T&) { /* most ops don't change the clip */ }
+    // Each of these devBounds fields is the state of the device bounds after the op.
+    // So Restore's devBounds are those bounds saved by its paired Save or SaveLayer.
+    void updateClipBounds(const SkRecords::Restore& op)    { fCurrentClipBounds = op.devBounds; }
+    void updateClipBounds(const SkRecords::ClipPath& op)   { fCurrentClipBounds = op.devBounds; }
+    void updateClipBounds(const SkRecords::ClipRRect& op)  { fCurrentClipBounds = op.devBounds; }
+    void updateClipBounds(const SkRecords::ClipRect& op)   { fCurrentClipBounds = op.devBounds; }
+    void updateClipBounds(const SkRecords::ClipRegion& op) { fCurrentClipBounds = op.devBounds; }
+    void updateClipBounds(const SkRecords::SaveLayer& op)  {
+        if (NULL != op.bounds) {
+            fCurrentClipBounds.intersect(this->adjustAndMap(*op.bounds, op.paint));
+        }
+    }
+
+    template <typename T> void trackSaveLayers(const T& op) { 
+        /* most ops aren't involved in saveLayers */ 
+    }
+    void trackSaveLayers(const SkRecords::Save& s) { this->pushSaveBlock(); }
+    void trackSaveLayers(const SkRecords::SaveLayer& sl) { this->pushSaveLayerBlock(sl.paint); }
+    void trackSaveLayers(const SkRecords::Restore& r) { this->popSaveBlock(); }
+    void trackSaveLayers(const SkRecords::DrawPicture& dp) {
+        // For sub-pictures, we wrap their layer information within the parent
+        // picture's rendering hierarchy
+        const GrAccelData* childData = GPUOptimize(dp.picture);
+
+        for (int i = 0; i < childData->numSaveLayers(); ++i) {
+            const GrAccelData::SaveLayerInfo& src = childData->saveLayerInfo(i);
+
+            this->updateStackForSaveLayer();
+
+            GrAccelData::SaveLayerInfo dst;
+
+            // TODO: need to store an SkRect in GrAccelData::SaveLayerInfo?
+            SkRect srcRect = SkRect::MakeXYWH(SkIntToScalar(src.fOffset.fX),
+                                              SkIntToScalar(src.fOffset.fY),
+                                              SkIntToScalar(src.fSize.width()),
+                                              SkIntToScalar(src.fSize.height()));
+            SkIRect newClip(fCurrentClipBounds);
+            newClip.intersect(this->adjustAndMap(srcRect, dp.paint));
+
+            dst.fValid = true;
+            dst.fPictureID = dp.picture->uniqueID();
+            dst.fSize = SkISize::Make(newClip.width(), newClip.height());
+            dst.fOffset = SkIPoint::Make(newClip.fLeft, newClip.fTop);
+            dst.fOriginXform = *fCTM;
+            dst.fOriginXform.postConcat(src.fOriginXform);
+            dst.fOriginXform.postTranslate(SkIntToScalar(-newClip.fLeft), 
+                                           SkIntToScalar(-newClip.fTop));
+
+            if (NULL == src.fPaint) {
+                dst.fPaint = NULL;
+            } else {
+                dst.fPaint = SkNEW_ARGS(SkPaint, (*src.fPaint));
+            }
+
+            dst.fSaveLayerOpID = src.fSaveLayerOpID;
+            dst.fRestoreOpID = src.fRestoreOpID;
+            dst.fHasNestedLayers = src.fHasNestedLayers;
+            dst.fIsNested = fSaveLayersInStack > 0 || src.fIsNested;
+
+            fAccelData->addSaveLayerInfo(dst);
+        }
+    }
+
+    void pushSaveBlock() {
+        fSaveStack.push(SaveInfo(fCurrentOp, false, NULL, SkIRect::MakeEmpty()));
+    }
+
+    // Inform all the saveLayers already on the stack that they now have a
+    // nested saveLayer inside them
+    void updateStackForSaveLayer() {
+        for (int index = fSaveStack.count() - 1; index >= 0; --index) {
+            if (fSaveStack[index].fHasNestedSaveLayer) {
+                break;
+            }
+            fSaveStack[index].fHasNestedSaveLayer = true;
+            if (fSaveStack[index].fIsSaveLayer) {
+                break;
+            }
+        }
+    }
+
+    void pushSaveLayerBlock(const SkPaint* paint) {
+        this->updateStackForSaveLayer();
+
+        fSaveStack.push(SaveInfo(fCurrentOp, true, paint, fCurrentClipBounds));
+        ++fSaveLayersInStack;
+    }
+
+    void popSaveBlock() {
+        if (fSaveStack.count() <= 0) {
+            SkASSERT(false);
+            return;
+        }
+
+        SaveInfo si;
+        fSaveStack.pop(&si);
+
+        if (!si.fIsSaveLayer) {
+            return;
+        }
+
+        --fSaveLayersInStack;
+
+        GrAccelData::SaveLayerInfo slInfo;
+
+        slInfo.fValid = true;
+        slInfo.fPictureID = fPictureID;
+        slInfo.fSize = SkISize::Make(si.fBounds.width(), si.fBounds.height());
+        slInfo.fOffset = SkIPoint::Make(si.fBounds.fLeft, si.fBounds.fTop);
+        slInfo.fOriginXform = *fCTM;
+        slInfo.fOriginXform.postTranslate(SkIntToScalar(-si.fBounds.fLeft),
+                                          SkIntToScalar(-si.fBounds.fTop));
+
+        if (NULL == si.fPaint) {
+            slInfo.fPaint = NULL;
+        } else {
+            slInfo.fPaint = SkNEW_ARGS(SkPaint, (*si.fPaint));
+        }
+
+        slInfo.fSaveLayerOpID = si.fStartIndex;
+        slInfo.fRestoreOpID = fCurrentOp;
+        slInfo.fHasNestedLayers = si.fHasNestedSaveLayer;
+        slInfo.fIsNested = fSaveLayersInStack > 0;
+
+        fAccelData->addSaveLayerInfo(slInfo);
+    }
+
+    // Returns true if rect was meaningfully adjusted for the effects of paint,
+    // false if the paint could affect the rect in unknown ways.
+    static bool AdjustForPaint(const SkPaint* paint, SkRect* rect) {
+        if (paint) {
+            if (paint->canComputeFastBounds()) {
+                *rect = paint->computeFastBounds(*rect, rect);
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    // Adjust rect for all paints that may affect its geometry, then map it to device space.
+    SkIRect adjustAndMap(SkRect rect, const SkPaint* paint) const {
+        // Inverted rectangles really confuse our BBHs.
+        rect.sort();
+
+        // Adjust the rect for its own paint.
+        if (!AdjustForPaint(paint, &rect)) {
+            // The paint could do anything to our bounds.  The only safe answer is the current clip.
+            return fCurrentClipBounds;
+        }
+
+        // Adjust rect for all the paints from the SaveLayers we're inside.
+        for (int i = fSaveStack.count() - 1; i >= 0; i--) {
+            if (!AdjustForPaint(fSaveStack[i].fPaint, &rect)) {
+                // Same deal as above.
+                return fCurrentClipBounds;
+            }
+        }
+
+        // Map the rect back to device space.
+        fCTM->mapRect(&rect);
+        SkIRect devRect;
+        rect.roundOut(&devRect);
+
+        // Nothing can draw outside the current clip.
+        // (Only bounded ops call into this method, so oddballs like Clear don't matter here.)
+        devRect.intersect(fCurrentClipBounds);
+        return devRect;
+    }
 };
 
-// GatherGPUInfo is only intended to be called within the context of SkGpuDevice's
+
+// GPUOptimize is only intended to be called within the context of SkGpuDevice's
 // EXPERIMENTAL_optimize method.
-void GatherGPUInfo(const SkPicture* pict, GrAccelData* accelData) {
+const GrAccelData* GPUOptimize(const SkPicture* pict) {
     if (NULL == pict || 0 == pict->width() || 0 == pict->height()) {
-        return ;
+        return NULL;
     }
 
-    // BBH-based rendering doesn't re-issue many of the operations the gather
-    // process cares about (e.g., saves and restores) so it must be disabled.
-    SkPicturePlayback playback(pict);
-    playback.setUseBBH(false);
+    SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
 
-    GrGatherDevice device(pict->width(), pict->height(), &playback, accelData, 0);
-    GrGatherCanvas canvas(&device);
+    const GrAccelData* existing = 
+                            static_cast<const GrAccelData*>(pict->EXPERIMENTAL_getAccelData(key));
+    if (NULL != existing) {
+        return existing;
+    }
 
-    canvas.clipRect(SkRect::MakeWH(SkIntToScalar(pict->width()),
-                                   SkIntToScalar(pict->height())),
-                    SkRegion::kIntersect_Op, false);
-    playback.draw(&canvas, NULL);
+    SkAutoTUnref<GrAccelData> data(SkNEW_ARGS(GrAccelData, (key)));
+
+    pict->EXPERIMENTAL_addAccelData(data);
+
+    CollectLayers collector(pict, data);
+
+    return data;
 }
