@@ -54,6 +54,7 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
         case DRAW_RRECT: return "Draw RRect";
         case DRAW_SPRITE: return "Draw Sprite";
         case DRAW_TEXT: return "Draw Text";
+        case DRAW_TEXT_BLOB: return "Draw Text Blob";
         case DRAW_TEXT_ON_PATH: return "Draw Text On Path";
         case DRAW_VERTICES: return "Draw Vertices";
         case RESTORE: return "Restore";
