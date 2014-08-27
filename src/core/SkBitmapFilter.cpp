@@ -28,6 +28,7 @@ template <typename Color, typename ColorPacker>
 void highQualityFilter(ColorPacker pack, const SkBitmapProcState& s, int x, int y, Color* SK_RESTRICT colors, int count) {
     const int maxX = s.fBitmap->width();
     const int maxY = s.fBitmap->height();
+    SkAutoTMalloc<SkScalar> xWeights(maxX);
 
     while (count-- > 0) {
         SkPoint srcPt;
@@ -44,11 +45,16 @@ void highQualityFilter(ColorPacker pack, const SkBitmapProcState& s, int x, int 
         int x0 = SkClampMax(SkScalarCeilToInt(srcPt.fX-s.getBitmapFilter()->width()), maxX);
         int x1 = SkClampMax(SkScalarFloorToInt(srcPt.fX+s.getBitmapFilter()->width())+1, maxX);
 
+        for (int srcX = x0; srcX < x1 ; srcX++) {
+            // Looking these up once instead of each loop is a ~15% speedup.
+            xWeights[srcX - x0] = s.getBitmapFilter()->lookupScalar((srcPt.fX - srcX));
+        }
+
         for (int srcY = y0; srcY < y1; srcY++) {
             SkScalar yWeight = s.getBitmapFilter()->lookupScalar((srcPt.fY - srcY));
 
             for (int srcX = x0; srcX < x1 ; srcX++) {
-                SkScalar xWeight = s.getBitmapFilter()->lookupScalar((srcPt.fX - srcX));
+                SkScalar xWeight = xWeights[srcX - x0];
 
                 SkScalar combined_weight = SkScalarMul(xWeight, yWeight);
 
