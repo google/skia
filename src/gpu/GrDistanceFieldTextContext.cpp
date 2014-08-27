@@ -159,7 +159,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
                                                                      lum/255.f,
                                                                      flags));
 #else
-            fCachedEffect.reset(GrDistanceFieldTextureEffect::Create(currTexture,
+            fCachedEffect.reset(GrDistanceFieldTextureEffect::Create(fCurrTexture,
                                                                      params, flags));
 #endif
         }
