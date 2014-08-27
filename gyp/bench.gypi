@@ -92,7 +92,6 @@
     '../bench/ShaderMaskBench.cpp',
     '../bench/SkipZeroesBench.cpp',
     '../bench/SortBench.cpp',
-    '../bench/StackBench.cpp',
     '../bench/StrokeBench.cpp',
     '../bench/TableBench.cpp',
     '../bench/TextBench.cpp',

@@ -67,94 +67,11 @@ BENCH(memcpy32_memcpy, 1000)
 BENCH(memcpy32_memcpy, 10000)
 BENCH(memcpy32_memcpy, 100000)
 
-// Let the compiler's autovectorizer do what it thinks is best.
-static void memcpy32_autovectorize(uint32_t* dst, const uint32_t* src, int count) {
-    while (count --> 0) {
-        *dst++ = *src++;
-    }
-}
-BENCH(memcpy32_autovectorize, 10)
-BENCH(memcpy32_autovectorize, 100)
-BENCH(memcpy32_autovectorize, 1000)
-BENCH(memcpy32_autovectorize, 10000)
-BENCH(memcpy32_autovectorize, 100000)
-
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-
-// Align dst to 16 bytes, then use aligned stores.  src isn't algined, so use unaligned loads.
-static void memcpy32_sse2_align(uint32_t* dst, const uint32_t* src, int count) {
-    if (count >= 16) {
-        while (uintptr_t(dst) & 0xF) {
-            *dst++ = *src++;
-            count--;
-        }
-
-        __m128i* dst128 = reinterpret_cast<__m128i*>(dst);
-        const __m128i* src128 = reinterpret_cast<const __m128i*>(src);
-        dst += 16 * (count / 16);
-        src += 16 * (count / 16);
-        while (count >= 16) {
-            __m128i a = _mm_loadu_si128(src128++);
-            __m128i b = _mm_loadu_si128(src128++);
-            __m128i c = _mm_loadu_si128(src128++);
-            __m128i d = _mm_loadu_si128(src128++);
-
-            _mm_store_si128(dst128++, a);
-            _mm_store_si128(dst128++, b);
-            _mm_store_si128(dst128++, c);
-            _mm_store_si128(dst128++, d);
-
-            count -= 16;
-        }
-    }
-
-    while (count --> 0) {
-        *dst++ = *src++;
-    }
-}
-BENCH(memcpy32_sse2_align, 10)
-BENCH(memcpy32_sse2_align, 100)
-BENCH(memcpy32_sse2_align, 1000)
-BENCH(memcpy32_sse2_align, 10000)
-BENCH(memcpy32_sse2_align, 100000)
-
-// Leave both dst and src unaliged, and so use unaligned stores for dst and unaligned loads for src.
-static void memcpy32_sse2_unalign(uint32_t* dst, const uint32_t* src, int count) {
-    __m128i* dst128 = reinterpret_cast<__m128i*>(dst);
-    const __m128i* src128 = reinterpret_cast<const __m128i*>(src);
-    dst += 16 * (count / 16);
-    src += 16 * (count / 16);
-    while (count >= 16) {
-        __m128i a = _mm_loadu_si128(src128++);
-        __m128i b = _mm_loadu_si128(src128++);
-        __m128i c = _mm_loadu_si128(src128++);
-        __m128i d = _mm_loadu_si128(src128++);
-
-        _mm_storeu_si128(dst128++, a);
-        _mm_storeu_si128(dst128++, b);
-        _mm_storeu_si128(dst128++, c);
-        _mm_storeu_si128(dst128++, d);
-
-        count -= 16;
-    }
-
-    while (count --> 0) {
-        *dst++ = *src++;
-    }
-}
-BENCH(memcpy32_sse2_unalign, 10)
-BENCH(memcpy32_sse2_unalign, 100)
-BENCH(memcpy32_sse2_unalign, 1000)
-BENCH(memcpy32_sse2_unalign, 10000)
-BENCH(memcpy32_sse2_unalign, 100000)
-
 // Test our chosen best, from SkUtils.h
 BENCH(sk_memcpy32, 10)
 BENCH(sk_memcpy32, 100)
 BENCH(sk_memcpy32, 1000)
 BENCH(sk_memcpy32, 10000)
 BENCH(sk_memcpy32, 100000)
-
-#endif // SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
 #undef BENCH
