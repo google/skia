@@ -19,6 +19,7 @@
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
+#include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
 #include "SkShader.h"
@@ -1915,4 +1916,32 @@ DEF_TEST(Picture_SkipBBH, r) {
 
     picture->draw(&small);
     REPORTER_ASSERT(r, bbh.searchCalls == 1);
+}
+
+DEF_TEST(Picture_BitmapLeak, r) {
+    SkBitmap mut, immut;
+    mut.allocN32Pixels(300, 200);
+    immut.allocN32Pixels(300, 200);
+    immut.setImmutable();
+    SkASSERT(!mut.isImmutable());
+    SkASSERT(immut.isImmutable());
+
+    // No one can hold a ref on our pixels yet.
+    REPORTER_ASSERT(r, mut.pixelRef()->unique());
+    REPORTER_ASSERT(r, immut.pixelRef()->unique());
+
+    SkPictureRecorder rec;
+    SkCanvas* canvas = rec.beginRecording(1920, 1200);
+        canvas->drawBitmap(mut, 0, 0);
+        canvas->drawBitmap(immut, 800, 600);
+    SkAutoTDelete<const SkPicture> pic(rec.endRecording());
+
+    // The picture shares the immutable pixels but copies the mutable ones.
+    REPORTER_ASSERT(r, mut.pixelRef()->unique());
+    REPORTER_ASSERT(r, !immut.pixelRef()->unique());
+
+    // When the picture goes away, it's just our bitmaps holding the refs.
+    pic.reset(NULL);
+    REPORTER_ASSERT(r, mut.pixelRef()->unique());
+    REPORTER_ASSERT(r, immut.pixelRef()->unique());
 }
