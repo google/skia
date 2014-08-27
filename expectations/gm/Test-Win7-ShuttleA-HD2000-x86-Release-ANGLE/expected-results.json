@@ -7921,11 +7921,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10005787191304110747
+          17652501242355395390
         ]
       ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_factory_565.png": {
       "allowed-digests": [

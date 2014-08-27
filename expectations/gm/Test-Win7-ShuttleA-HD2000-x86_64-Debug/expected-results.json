@@ -6460,11 +6460,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10433897477521617665
+          6940737243764937510
         ]
       ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_match_565.png": {
       "allowed-digests": [
