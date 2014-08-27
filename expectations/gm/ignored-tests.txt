@@ -33,11 +33,6 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
-# Extending fontmgr testing
-## http://skbug.com/2829 : ignoring failures on gradtext GM test
-fontmgr_iter_factory
-fontmgr_iter
-
 # To be rebaselined (fmalita)
 textblob
 

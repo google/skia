@@ -4569,10 +4569,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18038814198885194090
+          13605807214433697
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_match_565.png": {
       "allowed-digests": [

@@ -5017,25 +5017,33 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11620272997581822107
+          16895145046125160228
         ]
       ], 
+      "bugs": [
+        2887
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "fontmgr_iter_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11620272997581822107
+          16895145046125160228
         ]
       ], 
+      "bugs": [
+        2887
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "fontmgr_iter_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11620272997581822107
+          17324741886408040948
         ]
       ], 
       "reviewed-by-human": true

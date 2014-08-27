@@ -6095,21 +6095,27 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7072812895837463931
+          1857288326388942863
         ]
       ], 
-      "ignore-failure": false, 
-      "reviewed-by-human": false
+      "bugs": [
+        2887
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7072812895837463931
+          1857288326388942863
         ]
       ], 
-      "ignore-failure": false, 
-      "reviewed-by-human": false
+      "bugs": [
+        2887
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "fontmgr_match_565.png": {
       "allowed-digests": [
