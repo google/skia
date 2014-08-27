@@ -30,8 +30,18 @@ public:
     virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
 
 private:
+    GrTextStrike*           fStrike;
+    SkScalar                fTextRatio;
+    bool                    fUseLCDText;
+    bool                    fEnableDFRendering;
+    SkAutoTUnref<GrEffect>  fCachedEffect;
+    // Used to check whether fCachedEffect is still valid.
+    uint32_t                fEffectTextureUniqueID;
+    SkColor                 fEffectColor;
+    uint32_t                fEffectFlags;
+    GrTexture*              fGammaTexture;
+
     void init(const GrPaint&, const SkPaint&);
-    void allocateVertices(const char text[], size_t byteLength);
     void drawPackedGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);
     void flushGlyphs();                 // automatically called by destructor
     void setupCoverageEffect(const SkColor& filteredColor);
@@ -44,19 +54,9 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
-    GrTextStrike*           fStrike;
-    SkScalar                fTextRatio;
-    bool                    fUseLCDText;
-    bool                    fEnableDFRendering;
-    SkAutoTUnref<GrEffect>  fCachedEffect;
-    // Used to check whether fCachedEffect is still valid.
-    uint32_t                fEffectTextureUniqueID;
-    SkColor                 fEffectColor;
-    uint32_t                fEffectFlags;
-    GrTexture*              fGammaTexture;
-
     void*                   fVertices;
-    int                     fVertexCount;
+    int32_t                 fMaxVertices;
+    GrTexture*              fCurrTexture;
     int                     fCurrVertex;
     SkRect                  fVertexBounds;
 };
