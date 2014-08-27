@@ -180,7 +180,7 @@ private:
 
 // Like SkBitmap, but deep copies pixels if they're not immutable.
 // Using this, we guarantee the immutability of all bitmaps we record.
-class ImmutableBitmap {
+class ImmutableBitmap : SkNoncopyable {
 public:
     explicit ImmutableBitmap(const SkBitmap& bitmap) {
         if (bitmap.isImmutable()) {
