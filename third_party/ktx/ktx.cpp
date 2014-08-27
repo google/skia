@@ -256,6 +256,11 @@ bool SkKTXFile::readKTXFile(const uint8_t* data, size_t dataLen) {
         if (fHeader.fNumberOfFaces > 1) {
             return false;
         }
+
+        // We don't support width and/or height <= 0
+        if (fHeader.fPixelWidth <= 0 || fHeader.fPixelHeight <= 0) {
+            return false;
+        }
     }
 
     // Make sure that we have enough bytes left for the key/value
