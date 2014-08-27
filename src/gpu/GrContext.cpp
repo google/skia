@@ -1753,10 +1753,6 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
             GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
         }
 #endif
-        if (fDrawState->getBlendOpts() & GrDrawState::kSkipDraw_BlendOptFlag) {
-            are->set(NULL);
-            return NULL;
-        }
         // Clear any vertex attributes configured for the previous use of the
         // GrDrawState which can effect which blend optimizations are in effect.
         fDrawState->setDefaultVertexAttribs();
