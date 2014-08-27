@@ -44,8 +44,6 @@ extern const GrVertexAttrib gTextVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, sizeof(SkPoint) , kEffect_GrVertexAttribBinding}
 };
 
-static const size_t kTextVASize = 2 * sizeof(SkPoint); 
-
 // position + color + texture coord
 extern const GrVertexAttrib gTextVertexWithColorAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,                                 kPosition_GrVertexAttribBinding},
@@ -53,8 +51,6 @@ extern const GrVertexAttrib gTextVertexWithColorAttribs[] = {
     {kVec2f_GrVertexAttribType,  sizeof(SkPoint) + sizeof(GrColor), kEffect_GrVertexAttribBinding}
 };
     
-static const size_t kTextVAColorSize = 2 * sizeof(SkPoint) + sizeof(GrColor); 
-
 };
 
 GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
@@ -359,7 +355,7 @@ HAS_ATLAS:
     size_t vertSize = fUseLCDText ? (2 * sizeof(SkPoint))
                                   : (2 * sizeof(SkPoint) + sizeof(GrColor));
 
-    SkASSERT(vertSize == fDrawTarget->getDrawState().getVertexStride());
+    SkASSERT(vertSize == fDrawTarget->getDrawState().getVertexSize());
 
     SkPoint* positions = reinterpret_cast<SkPoint*>(
         reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex);
@@ -467,12 +463,10 @@ void GrDistanceFieldTextContext::allocateVertices(const char text[], size_t byte
     SkASSERT(NULL == fVertices);
     if (!fUseLCDText) {
         fDrawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
-                                                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs),
-                                                    kTextVAColorSize);
+                                                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs));
     } else {
         fDrawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
-                                                    SK_ARRAY_COUNT(gTextVertexAttribs),
-                                                    kTextVASize);
+                                                    SK_ARRAY_COUNT(gTextVertexAttribs));
     }
     fVertexCount = 4*fSkPaint.textToGlyphs(text, byteLength, NULL);
     bool success = fDrawTarget->reserveVertexAndIndexSpace(fVertexCount,

@@ -365,8 +365,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
                                                                    GrTextureParams::kNone_FilterMode);
         drawState->addColorTextureEffect(clampedTexture, SkMatrix::I(), params);
 
-        drawState->setVertexAttribs<gVertexAttribs>(SK_ARRAY_COUNT(gVertexAttribs),
-                                                    2 * sizeof(SkPoint));
+        drawState->setVertexAttribs<gVertexAttribs>(SK_ARRAY_COUNT(gVertexAttribs));
 
         GrDrawTarget::AutoReleaseGeometry arg(fGpu, 4, 0);
 
@@ -936,16 +935,10 @@ extern const GrVertexAttrib gPosUVColorAttribs[] = {
     {kVec4ub_GrVertexAttribType, 2*sizeof(SkPoint), kColor_GrVertexAttribBinding}
 };
 
-static const size_t kPosUVAttribsSize = 2 * sizeof(SkPoint);
-static const size_t kPosUVColorAttribsSize = 2 * sizeof(SkPoint) + sizeof(GrColor);
-
 extern const GrVertexAttrib gPosColorAttribs[] = {
     {kVec2f_GrVertexAttribType,  0, kPosition_GrVertexAttribBinding},
     {kVec4ub_GrVertexAttribType, sizeof(SkPoint), kColor_GrVertexAttribBinding},
 };
-
-static const size_t kPosAttribsSize = sizeof(SkPoint);
-static const size_t kPosColorAttribsSize = sizeof(SkPoint) + sizeof(GrColor);
 
 static void set_vertex_attributes(GrDrawState* drawState,
                                   const SkPoint* texCoords,
@@ -958,15 +951,15 @@ static void set_vertex_attributes(GrDrawState* drawState,
     if (NULL != texCoords && NULL != colors) {
         *texOffset = sizeof(SkPoint);
         *colorOffset = 2*sizeof(SkPoint);
-        drawState->setVertexAttribs<gPosUVColorAttribs>(3, kPosUVColorAttribsSize);
+        drawState->setVertexAttribs<gPosUVColorAttribs>(3);
     } else if (NULL != texCoords) {
         *texOffset = sizeof(SkPoint);
-        drawState->setVertexAttribs<gPosUVColorAttribs>(2, kPosUVAttribsSize);
+        drawState->setVertexAttribs<gPosUVColorAttribs>(2);
     } else if (NULL != colors) {
         *colorOffset = sizeof(SkPoint);
-        drawState->setVertexAttribs<gPosColorAttribs>(2, kPosColorAttribsSize);
+        drawState->setVertexAttribs<gPosColorAttribs>(2);
     } else {
-        drawState->setVertexAttribs<gPosColorAttribs>(1, kPosAttribsSize);
+        drawState->setVertexAttribs<gPosColorAttribs>(1);
     }
 }
 
@@ -995,8 +988,8 @@ void GrContext::drawVertices(const GrPaint& paint,
     int colorOffset = -1, texOffset = -1;
     set_vertex_attributes(drawState, texCoords, colors, &colorOffset, &texOffset);
 
-    size_t VertexStride = drawState->getVertexStride();
-    if (sizeof(SkPoint) != VertexStride) {
+    size_t vertexSize = drawState->getVertexSize();
+    if (sizeof(SkPoint) != vertexSize) {
         if (!geo.set(target, vertexCount, 0)) {
             GrPrintf("Failed to get space for vertices!\n");
             return;
@@ -1012,7 +1005,7 @@ void GrContext::drawVertices(const GrPaint& paint,
             if (colorOffset >= 0) {
                 *(GrColor*)((intptr_t)curVertex + colorOffset) = colors[i];
             }
-            curVertex = (void*)((intptr_t)curVertex + VertexStride);
+            curVertex = (void*)((intptr_t)curVertex + vertexSize);
         }
     } else {
         target->setVertexSourceToArray(positions, vertexCount);

@@ -674,7 +674,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     // Our computed verts should all be within one pixel of the segment control points.
     devBounds.outset(SK_Scalar1, SK_Scalar1);
 
-    drawState->setVertexAttribs<gPathAttribs>(SK_ARRAY_COUNT(gPathAttribs), sizeof(QuadVertex));
+    drawState->setVertexAttribs<gPathAttribs>(SK_ARRAY_COUNT(gPathAttribs));
 
     static const int kEdgeAttrIndex = 1;
     GrEffect* quadEffect = QuadEdgeEffect::Create();
@@ -684,6 +684,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     if (!arg.succeeded()) {
         return false;
     }
+    SkASSERT(sizeof(QuadVertex) == drawState->getVertexSize());
     verts = reinterpret_cast<QuadVertex*>(arg.vertices());
     idxs = reinterpret_cast<uint16_t*>(arg.indices());
 

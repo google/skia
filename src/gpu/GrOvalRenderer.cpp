@@ -519,8 +519,8 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
         return;
     }
 
-    drawState->setVertexAttribs<gCircleVertexAttribs>(SK_ARRAY_COUNT(gCircleVertexAttribs),
-                                                      sizeof(CircleVertex));
+    drawState->setVertexAttribs<gCircleVertexAttribs>(SK_ARRAY_COUNT(gCircleVertexAttribs));
+    SkASSERT(sizeof(CircleVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
@@ -680,8 +680,8 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         return false;
     }
 
-    drawState->setVertexAttribs<gEllipseVertexAttribs>(SK_ARRAY_COUNT(gEllipseVertexAttribs),
-                                                       sizeof(EllipseVertex));
+    drawState->setVertexAttribs<gEllipseVertexAttribs>(SK_ARRAY_COUNT(gEllipseVertexAttribs));
+    SkASSERT(sizeof(EllipseVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
@@ -799,8 +799,8 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     SkScalar innerRatioX = SkScalarDiv(xRadius, innerXRadius);
     SkScalar innerRatioY = SkScalarDiv(yRadius, innerYRadius);
 
-    drawState->setVertexAttribs<gDIEllipseVertexAttribs>(SK_ARRAY_COUNT(gDIEllipseVertexAttribs),
-                                                         sizeof(DIEllipseVertex));
+    drawState->setVertexAttribs<gDIEllipseVertexAttribs>(SK_ARRAY_COUNT(gDIEllipseVertexAttribs));
+    SkASSERT(sizeof(DIEllipseVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
@@ -1032,8 +1032,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
 
     // if the corners are circles, use the circle renderer
     if ((!hasStroke || scaledStroke.fX == scaledStroke.fY) && xRadius == yRadius) {
-        drawState->setVertexAttribs<gCircleVertexAttribs>(SK_ARRAY_COUNT(gCircleVertexAttribs),
-                                                          sizeof(CircleVertex));
+        drawState->setVertexAttribs<gCircleVertexAttribs>(SK_ARRAY_COUNT(gCircleVertexAttribs));
+        SkASSERT(sizeof(CircleVertex) == drawState->getVertexSize());
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
         if (!geo.succeeded()) {
@@ -1121,8 +1121,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
 
     // otherwise we use the ellipse renderer
     } else {
-        drawState->setVertexAttribs<gEllipseVertexAttribs>(SK_ARRAY_COUNT(gEllipseVertexAttribs),
-                                                           sizeof(EllipseVertex));
+        drawState->setVertexAttribs<gEllipseVertexAttribs>(SK_ARRAY_COUNT(gEllipseVertexAttribs));
+        SkASSERT(sizeof(EllipseVertex) == drawState->getVertexSize());
 
         SkScalar innerXRadius = 0.0f;
         SkScalar innerYRadius = 0.0f;

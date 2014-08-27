@@ -75,7 +75,7 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fFlagBits = that.fFlagBits;
     fVACount = that.fVACount;
     fVAPtr = that.fVAPtr;
-    fVAStride = that.fVAStride;
+    fVertexSize = that.fVertexSize;
     fStencilSettings = that.fStencilSettings;
     fCoverage = that.fCoverage;
     fDrawFace = that.fDrawFace;
@@ -178,34 +178,35 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void validate_vertex_attribs(const GrVertexAttrib* attribs, int count, size_t stride) {
+static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
     // this works as long as we're 4 byte-aligned
 #ifdef SK_DEBUG
     uint32_t overlapCheck = 0;
+#endif
     SkASSERT(count <= GrRODrawState::kMaxVertexAttribCnt);
+    size_t size = 0;
     for (int index = 0; index < count; ++index) {
         size_t attribSize = GrVertexAttribTypeSize(attribs[index].fType);
-        size_t attribOffset = attribs[index].fOffset;
-        SkASSERT(attribOffset + attribSize <= stride);
+        size += attribSize;
+#ifdef SK_DEBUG
         size_t dwordCount = attribSize >> 2;
         uint32_t mask = (1 << dwordCount)-1;
-        size_t offsetShift = attribOffset >> 2;
+        size_t offsetShift = attribs[index].fOffset >> 2;
         SkASSERT(!(overlapCheck & (mask << offsetShift)));
         overlapCheck |= (mask << offsetShift);
-    }
 #endif
+    }
+    return size;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrDrawState::internalSetVertexAttribs(const GrVertexAttrib* attribs, int count,
-                                           size_t stride) {
+void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
     SkASSERT(count <= kMaxVertexAttribCnt);
 
     fVAPtr = attribs;
     fVACount = count;
-    fVAStride = stride;
-    validate_vertex_attribs(fVAPtr, fVACount, fVAStride);
+    fVertexSize = vertex_size(fVAPtr, fVACount);
 
     // Set all the indices to -1
     memset(fFixedFunctionVertexAttribIndices,
@@ -243,7 +244,7 @@ void GrDrawState::setDefaultVertexAttribs() {
 
     fVAPtr = &kPositionAttrib;
     fVACount = 1;
-    fVAStride = GrVertexAttribTypeSize(kVec2f_GrVertexAttribType);
+    fVertexSize = GrVertexAttribTypeSize(kVec2f_GrVertexAttribType);
 
     // set all the fixed function indices to -1 except position.
     memset(fFixedFunctionVertexAttribIndices,
@@ -278,7 +279,6 @@ GrDrawState::AutoVertexAttribRestore::AutoVertexAttribRestore(
     fDrawState = drawState;
     fVAPtr = drawState->fVAPtr;
     fVACount = drawState->fVACount;
-    fVAStride = drawState->fVAStride;
     fDrawState->setDefaultVertexAttribs();
 }
 

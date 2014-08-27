@@ -40,16 +40,12 @@ extern const GrVertexAttrib gTextVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, sizeof(SkPoint) , kEffect_GrVertexAttribBinding}
 };
 
-static const size_t kTextVASize = 2 * sizeof(SkPoint); 
-
 // position + color + texture coord
 extern const GrVertexAttrib gTextVertexWithColorAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,                                 kPosition_GrVertexAttribBinding},
     {kVec4ub_GrVertexAttribType, sizeof(SkPoint),                   kColor_GrVertexAttribBinding},
     {kVec2f_GrVertexAttribType,  sizeof(SkPoint) + sizeof(GrColor), kEffect_GrVertexAttribBinding}
 };
-
-static const size_t kTextVAColorSize = 2 * sizeof(SkPoint) + sizeof(GrColor); 
 
 };
 
@@ -180,12 +176,10 @@ void GrBitmapTextContext::allocateVertices(const char text[], size_t byteLength)
     bool useColorVerts = kA8_GrMaskFormat == fStrike->getMaskFormat();
     if (useColorVerts) {
         fDrawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
-                                                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs),
-                                                    kTextVAColorSize);
+                                                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs));
     } else {
         fDrawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
-                                                    SK_ARRAY_COUNT(gTextVertexAttribs),
-                                                    kTextVASize);
+                                                    SK_ARRAY_COUNT(gTextVertexAttribs));
     }
     fVertexCount = 4*fSkPaint.textToGlyphs(text, byteLength, NULL);
     bool success = fDrawTarget->reserveVertexAndIndexSpace(fVertexCount,
@@ -565,7 +559,7 @@ HAS_ATLAS:
     size_t vertSize = useColorVerts ? (2 * sizeof(SkPoint) + sizeof(GrColor)) :
                                       (2 * sizeof(SkPoint));
 
-    SkASSERT(vertSize == fDrawTarget->getDrawState().getVertexStride());
+    SkASSERT(vertSize == fDrawTarget->getDrawState().getVertexSize());
 
     SkPoint* positions = reinterpret_cast<SkPoint*>(
         reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex);

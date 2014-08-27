@@ -350,8 +350,7 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
     }
 
     // Set up the vertex data for the line and start/end dashes
-    drawState->setVertexAttribs<gDashLineVertexAttribs>(SK_ARRAY_COUNT(gDashLineVertexAttribs),
-                                                        sizeof(DashLineVertex));
+    drawState->setVertexAttribs<gDashLineVertexAttribs>(SK_ARRAY_COUNT(gDashLineVertexAttribs));
 
     int totalRectCnt = 0;
 

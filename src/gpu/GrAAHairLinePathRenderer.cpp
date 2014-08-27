@@ -731,8 +731,8 @@ bool GrAAHairLinePathRenderer::createLineGeom(const SkPath& path,
 
     int vertCnt = kVertsPerLineSeg * lineCnt;
 
-    drawState->setVertexAttribs<gHairlineLineAttribs>(SK_ARRAY_COUNT(gHairlineLineAttribs),
-                                                      sizeof(LineVertex));
+    drawState->setVertexAttribs<gHairlineLineAttribs>(SK_ARRAY_COUNT(gHairlineLineAttribs));
+    SkASSERT(sizeof(LineVertex) == drawState->getVertexSize());
 
     if (!arg->set(target, vertCnt, 0)) {
         return false;
@@ -778,8 +778,8 @@ bool GrAAHairLinePathRenderer::createBezierGeom(
 
     int vertCnt = kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt;
 
-    int vAttribCnt = SK_ARRAY_COUNT(gHairlineBezierAttribs);
-    target->drawState()->setVertexAttribs<gHairlineBezierAttribs>(vAttribCnt, sizeof(BezierVertex));
+    target->drawState()->setVertexAttribs<gHairlineBezierAttribs>(SK_ARRAY_COUNT(gHairlineBezierAttribs));
+    SkASSERT(sizeof(BezierVertex) == target->getDrawState().getVertexSize());
 
     if (!arg->set(target, vertCnt, 0)) {
         return false;
