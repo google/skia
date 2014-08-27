@@ -33,7 +33,14 @@ protected:
     virtual void generateFontMetrics(SkPaint::FontMetrics*) SK_OVERRIDE;
 
 private:
-    const void* drawDWMask(const SkGlyph& glyph);
+    const void* drawDWMask(const SkGlyph& glyph,
+                           DWRITE_RENDERING_MODE renderingMode,
+                           DWRITE_TEXTURE_TYPE textureType);
+
+    void getBoundingBox(SkGlyph* glyph,
+                        DWRITE_RENDERING_MODE renderingMode,
+                        DWRITE_TEXTURE_TYPE textureType,
+                        RECT* bbox);
 
     SkTDArray<uint8_t> fBits;
     /** The total matrix without the text height scale. */
