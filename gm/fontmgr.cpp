@@ -24,6 +24,31 @@ static SkScalar drawString(SkCanvas* canvas, const SkString& text, SkScalar x,
     return x + paint.measureText(text.c_str(), text.size());
 }
 
+static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
+                              SkScalar y, SkPaint& paint, SkFontMgr* fm,
+                              const char* fontName, const char* bpc47,
+                              const SkFontStyle& fontStyle) {
+    // find typeface containing the requested character and draw it
+    SkString ch;
+    ch.appendUnichar(character);
+    SkTypeface* typeface = fm->matchFamilyStyleCharacter(fontName, fontStyle, bpc47, character);
+    SkSafeUnref(paint.setTypeface(typeface));
+    x = drawString(canvas, ch, x, y, paint) + 20;
+
+    if (NULL == typeface) {
+        return x;
+    }
+
+    // repeat the process, but this time use the family name of the typeface
+    // from the first pass.  This emulates the behavior in Blink where it
+    // it expects to get the same glyph when following this pattern.
+    SkString familyName;
+    typeface->getFamilyName(&familyName);
+    SkTypeface* typefaceCopy = fm->legacyCreateTypeface(familyName.c_str(), typeface->style());
+    SkSafeUnref(paint.setTypeface(typefaceCopy));
+    return drawString(canvas, ch, x, y, paint) + 20;
+}
+
 class FontMgrGM : public skiagm::GM {
 public:
     FontMgrGM(SkFontMgr* fontMgr = NULL) {
@@ -44,7 +69,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return SkISize::Make(640, 1024);
+        return SkISize::Make(1536, 768);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -75,6 +100,12 @@ protected:
 
                 SkSafeUnref(paint.setTypeface(set->createTypeface(j)));
                 x = drawString(canvas, sname, x, y, paint) + 20;
+
+                // check to see that we get different glyphs in japanese and chinese
+                x = drawCharacter(canvas, 0x5203, x, y, paint, fm, fName.c_str(), "zh", fs);
+                x = drawCharacter(canvas, 0x5203, x, y, paint, fm, fName.c_str(), "ja", fs);
+                // check that emoji characters are found
+                x = drawCharacter(canvas, 0x1f601, x, y, paint, fm, fName.c_str(), NULL, fs);
             }
             y += 24;
         }
