@@ -30,9 +30,8 @@ public:
     virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
 
 private:
-    GrTextStrike*          fStrike;
-
     void init(const GrPaint&, const SkPaint&);
+    void allocateVertices(const char text[], size_t byteLength);
     void drawPackedGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);
     void flushGlyphs();                 // automatically called by destructor
     void finish();
@@ -44,12 +43,13 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
-    void*                       fVertices;
-    int32_t                     fMaxVertices;
-    GrTexture*                  fCurrTexture;
+    GrTextStrike*               fStrike;
     SkAutoTUnref<GrEffect>      fCachedEffect;
     // Used to check whether fCachedEffect is still valid.
     uint32_t                    fEffectTextureUniqueID;
+
+    void*                       fVertices;
+    int                         fVertexCount;
     int                         fCurrVertex;
     SkRect                      fVertexBounds;
 };

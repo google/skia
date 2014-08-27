@@ -55,3 +55,6 @@ filterbitmap_image_mandrill_32.png
 filterbitmap_image_mandrill_64.png
 filterbitmap_text_3.00pt
 filterbitmap_text_7.00pt
+
+# Added as part of https://codereview.chromium.org/466363009/
+fontcache
