@@ -32,6 +32,7 @@ struct SkGlyph {
     void*       fDistanceField;
     uint8_t     fMaskFormat;
     int8_t      fRsbDelta, fLsbDelta;  // used by auto-kerning
+    int8_t      fForceBW;
 
     void init(uint32_t id) {
         fID             = id;
@@ -39,6 +40,7 @@ struct SkGlyph {
         fPath           = NULL;
         fDistanceField  = NULL;
         fMaskFormat     = MASK_FORMAT_UNKNOWN;
+        fForceBW        = 0;
     }
 
     /**
