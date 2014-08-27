@@ -13,6 +13,7 @@
 #include "SkData.h"
 #include "SkFlate.h"
 #include "SkPDFCatalog.h"
+#include "SkPixelRef.h"
 #include "SkRect.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -627,4 +628,92 @@ bool SkPDFImage::populate(SkPDFCatalog* catalog) {
         return false;
     }
     return true;
+}
+
+namespace {
+/**
+ *  This PDFObject assumes that its constructor was handed
+ *  Jpeg-encoded data that can be directly embedded into a PDF.
+ */
+class PDFJPEGImage : public SkPDFObject {
+    SkAutoTUnref<SkData> fData;
+    int fWidth;
+    int fHeight;
+public:
+    PDFJPEGImage(SkData* data, int width, int height)
+        : fData(SkRef(data)), fWidth(width), fHeight(height) {}
+    virtual void getResources(const SkTSet<SkPDFObject*>&,
+                              SkTSet<SkPDFObject*>*) SK_OVERRIDE {}
+    virtual void emitObject(
+            SkWStream* stream,
+            SkPDFCatalog* catalog, bool indirect) SK_OVERRIDE {
+        if (indirect) {
+            this->emitIndirectObject(stream, catalog);
+            return;
+        }
+        SkASSERT(fData.get());
+        const char kPrefaceFormat[] =
+            "<<"
+            "/Type /XObject\n"
+            "/Subtype /Image\n"
+            "/Width %d\n"
+            "/Height %d\n"
+            "/ColorSpace /DeviceRGB\n"
+            "/BitsPerComponent 8\n"
+            "/Filter /DCTDecode\n"
+            "/ColorTransform 0\n"
+            "/Length " SK_SIZE_T_SPECIFIER "\n"
+            ">> stream\n";
+        SkString preface(
+                SkStringPrintf(kPrefaceFormat, fWidth, fHeight, fData->size()));
+        const char kPostface[] = "\nendstream";
+        stream->write(preface.c_str(), preface.size());
+        stream->write(fData->data(), fData->size());
+        stream->write(kPostface, sizeof(kPostface));
+    }
+};
+
+/**
+ *  If the bitmap is not subsetted, return its encoded data, if
+ *  availible.
+ */
+static inline SkData* ref_encoded_data(const SkBitmap& bm) {
+    if ((NULL == bm.pixelRef())
+        || !bm.pixelRefOrigin().isZero()
+        || (bm.info().dimensions() != bm.pixelRef()->info().dimensions())) {
+        return NULL;
+    }
+    return bm.pixelRef()->refEncodedData();
+}
+
+/*
+ *  This functions may give false negatives but no false positives.
+ */
+static bool is_jfif_jpeg(SkData* data) {
+    if (!data || (data->size() < 11)) {
+        return false;
+    }
+    const uint8_t bytesZeroToThree[] = {0xFF, 0xD8, 0xFF, 0xE0};
+    const uint8_t bytesSixToTen[] = {'J', 'F', 'I', 'F', 0};
+    // 0   1   2   3   4   5   6   7   8   9   10
+    // FF  D8  FF  E0  ??  ??  'J' 'F' 'I' 'F' 00 ...
+    return ((0 == memcmp(data->bytes(), bytesZeroToThree,
+                         sizeof(bytesZeroToThree)))
+            && (0 == memcmp(data->bytes() + 6, bytesSixToTen,
+                            sizeof(bytesSixToTen))));
+}
+}  // namespace
+
+SkPDFObject* SkPDFCreateImageObject(
+        const SkBitmap& bitmap,
+        const SkIRect& subset,
+        SkPicture::EncodeBitmap encoder) {
+    if (SkIRect::MakeWH(bitmap.width(), bitmap.height()) == subset) {
+        SkAutoTUnref<SkData> encodedData(ref_encoded_data(bitmap));
+        if (is_jfif_jpeg(encodedData)) {
+            return SkNEW_ARGS(PDFJPEGImage,
+                              (encodedData, bitmap.width(), bitmap.height()));
+        }
+    }
+    return SkPDFImage::CreateImage(bitmap, subset, encoder);
 }

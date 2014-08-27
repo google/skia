@@ -17,8 +17,19 @@
 #include "SkRefCnt.h"
 
 class SkBitmap;
+class SkData;
 class SkPDFCatalog;
 struct SkIRect;
+
+/**
+ *  Return the mose efficient availible encoding of the given bitmap.
+ *
+ *  If the bitmap has encoded JPEG data and that data can be embedded
+ *  into the PDF output stream directly, use that.  Otherwise, fall
+ *  back on SkPDFImage::CreateImage.
+ */
+SkPDFObject* SkPDFCreateImageObject(
+        const SkBitmap&, const SkIRect& subset, SkPicture::EncodeBitmap);
 
 /** \class SkPDFImage
 

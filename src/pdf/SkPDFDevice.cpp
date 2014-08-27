@@ -2182,8 +2182,8 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
         return;
     }
 
-    SkAutoTUnref<SkPDFImage> image(
-        SkPDFImage::CreateImage(*bitmap, subset, fEncoder));
+    SkAutoTUnref<SkPDFObject> image(
+            SkPDFCreateImageObject(*bitmap, subset, fEncoder));
     if (!image) {
         return;
     }

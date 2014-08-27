@@ -143,6 +143,7 @@
     '../tests/OSPathTest.cpp',
     '../tests/ObjectPoolTest.cpp',
     '../tests/OnceTest.cpp',
+    '../tests/PDFJpegEmbedTest.cpp',
     '../tests/PDFPrimitivesTest.cpp',
     '../tests/PackBitsTest.cpp',
     '../tests/PaintTest.cpp',
