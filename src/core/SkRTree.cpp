@@ -44,7 +44,14 @@ SkRTree::~SkRTree() {
     this->clear();
 }
 
-void SkRTree::insert(void* data, const SkIRect& bounds, bool defer) {
+void SkRTree::insert(void* data, const SkRect& fbounds, bool defer) {
+    SkIRect bounds;
+    if (fbounds.isLargest()) {
+        bounds.setLargest();
+    } else {
+        fbounds.roundOut(&bounds);
+    }
+
     this->validate();
     if (bounds.isEmpty()) {
         SkASSERT(false);
@@ -102,7 +109,9 @@ void SkRTree::flushDeferredInserts() {
     this->validate();
 }
 
-void SkRTree::search(const SkIRect& query, SkTDArray<void*>* results) const {
+void SkRTree::search(const SkRect& fquery, SkTDArray<void*>* results) const {
+    SkIRect query;
+    fquery.roundOut(&query);
     this->validate();
     SkASSERT(0 == fDeferredInserts.count());  // If this fails, you should have flushed.
     if (!this->isEmpty() && SkIRect::IntersectsNoEmptyCheck(fRoot.fBounds, query)) {

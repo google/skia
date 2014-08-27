@@ -67,7 +67,7 @@ public:
      *  @param bounds The corresponding bounding box
      *  @param defer Can this insert be deferred? (this may be ignored)
      */
-    virtual void insert(void* data, const SkIRect& bounds, bool defer = false) SK_OVERRIDE;
+    virtual void insert(void* data, const SkRect& bounds, bool defer = false) SK_OVERRIDE;
 
     /**
      * If any inserts have been deferred, this will add them into the tree
@@ -77,7 +77,7 @@ public:
     /**
      * Given a query rectangle, populates the passed-in array with the elements it intersects
      */
-    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const SK_OVERRIDE;
+    virtual void search(const SkRect& query, SkTDArray<void*>* results) const SK_OVERRIDE;
 
     virtual void clear() SK_OVERRIDE;
     bool isEmpty() const { return 0 == fCount; }

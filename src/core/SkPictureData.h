@@ -84,7 +84,7 @@ public:
 
     virtual ~SkPictureData();
 
-    const SkPicture::OperationList* getActiveOps(const SkIRect& queryRect) const;
+    const SkPicture::OperationList* getActiveOps(const SkRect& queryRect) const;
 
     void serialize(SkWStream*, SkPicture::EncodeBitmap) const;
     void flatten(SkWriteBuffer&) const;

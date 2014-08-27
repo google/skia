@@ -49,7 +49,7 @@ public:
      *        structures than repeated inserts) until flushDeferredInserts is called or the first
      *        search.
      */
-    virtual void insert(void* data, const SkIRect& bounds, bool defer = false) = 0;
+    virtual void insert(void* data, const SkRect& bounds, bool defer = false) = 0;
 
     /**
      * If any insertions have been deferred, this forces them to be inserted
@@ -59,7 +59,7 @@ public:
     /**
      * Populate 'results' with data pointers corresponding to bounding boxes that intersect 'query'
      */
-    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const = 0;
+    virtual void search(const SkRect& query, SkTDArray<void*>* results) const = 0;
 
     virtual void clear() = 0;
 

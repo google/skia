@@ -23,13 +23,15 @@ SkTileGrid::~SkTileGrid() {
     SkDELETE_ARRAY(fTiles);
 }
 
-void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
-    SkASSERT(!bounds.isEmpty());
-    SkIRect dilatedBounds = bounds;
-
-    // Dilating the largest SkIRect will overflow.  Other nearly-largest rects may overflow too,
-    // but we don't make active use of them like we do the largest.
-    if (!bounds.isLargest()) {
+void SkTileGrid::insert(void* data, const SkRect& fbounds, bool) {
+    SkASSERT(!fbounds.isEmpty());
+    SkIRect dilatedBounds;
+    if (fbounds.isLargest()) {
+        // Dilating the largest SkIRect will overflow.  Other nearly-largest rects may overflow too,
+        // but we don't make active use of them like we do the largest.
+        dilatedBounds.setLargest();
+    } else {
+        fbounds.roundOut(&dilatedBounds);
         dilatedBounds.outset(fInfo.fMargin.width(), fInfo.fMargin.height());
         dilatedBounds.offset(fInfo.fOffset);
     }
@@ -67,8 +69,9 @@ static int divide_ceil(int x, int y) {
 // require 512 tiles of size 256 x 256 pixels.
 static const int kStackAllocationTileCount = 1024;
 
-void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) const {
-    SkIRect adjusted = query;
+void SkTileGrid::search(const SkRect& query, SkTDArray<void*>* results) const {
+    SkIRect adjusted;
+    query.roundOut(&adjusted);
 
     // The inset is to counteract the outset that was applied in 'insert'
     // The outset/inset is to optimize for lookups of size

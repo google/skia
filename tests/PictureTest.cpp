@@ -1808,12 +1808,12 @@ struct CountingBBH : public SkBBoxHierarchy {
 
     CountingBBH() : searchCalls(0) {}
 
-    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const {
+    virtual void search(const SkRect& query, SkTDArray<void*>* results) const {
         this->searchCalls++;
     }
 
     // All other methods unimplemented.
-    virtual void insert(void* data, const SkIRect& bounds, bool defer) {}
+    virtual void insert(void* data, const SkRect& bounds, bool defer) {}
     virtual void flushDeferredInserts() {}
     virtual void clear() {}
     virtual int getCount() const { return 0; }

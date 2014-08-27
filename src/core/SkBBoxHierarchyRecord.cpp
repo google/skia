@@ -20,10 +20,8 @@ SkBBoxHierarchyRecord::SkBBoxHierarchyRecord(const SkISize& size,
 }
 
 void SkBBoxHierarchyRecord::handleBBox(const SkRect& bounds) {
-    SkIRect r;
-    bounds.roundOut(&r);
     SkPictureStateTree::Draw* draw = fStateTree->appendDraw(this->writeStream().bytesWritten());
-    fBoundingHierarchy->insert(draw, r, true);
+    fBoundingHierarchy->insert(draw, bounds, true);
 }
 
 void SkBBoxHierarchyRecord::willSave() {

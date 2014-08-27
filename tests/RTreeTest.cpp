@@ -18,17 +18,17 @@ static const size_t NUM_ITERATIONS = 100;
 static const size_t NUM_QUERIES = 50;
 
 struct DataRect {
-    SkIRect rect;
+    SkRect rect;
     void* data;
 };
 
-static SkIRect random_rect(SkRandom& rand) {
-    SkIRect rect = {0,0,0,0};
+static SkRect random_rect(SkRandom& rand) {
+    SkRect rect = {0,0,0,0};
     while (rect.isEmpty()) {
-        rect.fLeft   = rand.nextS() % 1000;
-        rect.fRight  = rand.nextS() % 1000;
-        rect.fTop    = rand.nextS() % 1000;
-        rect.fBottom = rand.nextS() % 1000;
+        rect.fLeft   = rand.nextRangeF(0, 1000);
+        rect.fRight  = rand.nextRangeF(0, 1000);
+        rect.fTop    = rand.nextRangeF(0, 1000);
+        rect.fBottom = rand.nextRangeF(0, 1000);
         rect.sort();
     }
     return rect;
@@ -41,12 +41,16 @@ static void random_data_rects(SkRandom& rand, DataRect out[], int n) {
     }
 }
 
-static bool verify_query(SkIRect query, DataRect rects[],
+static bool verify_query(SkRect query, DataRect rects[],
                          SkTDArray<void*>& found) {
+    // TODO(mtklein): no need to do this after everything's SkRects
+    query.roundOut();
+
     SkTDArray<void*> expected;
+
     // manually intersect with every rectangle
     for (int i = 0; i < NUM_RECTS; ++i) {
-        if (SkIRect::IntersectsNoEmptyCheck(query, rects[i].rect)) {
+        if (SkRect::Intersects(query, rects[i].rect)) {
             expected.push(rects[i].data);
         }
     }
@@ -71,7 +75,7 @@ static void run_queries(skiatest::Reporter* reporter, SkRandom& rand, DataRect r
                        SkRTree& tree) {
     for (size_t i = 0; i < NUM_QUERIES; ++i) {
         SkTDArray<void*> hits;
-        SkIRect query = random_rect(rand);
+        SkRect query = random_rect(rand);
         tree.search(query, &hits);
         REPORTER_ASSERT(reporter, verify_query(query, rects, hits));
     }

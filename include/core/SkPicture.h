@@ -288,7 +288,7 @@ private:
     /** PRIVATE / EXPERIMENTAL -- do not call
         Return the operations required to render the content inside 'queryRect'.
     */
-    const OperationList* EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) const;
+    const OperationList* EXPERIMENTAL_getActiveOps(const SkRect& queryRect) const;
 
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);

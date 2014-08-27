@@ -635,7 +635,7 @@ bool SkPictureData::parseBuffer(SkReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-const SkPicture::OperationList* SkPictureData::getActiveOps(const SkIRect& query) const {
+const SkPicture::OperationList* SkPictureData::getActiveOps(const SkRect& query) const {
     if (NULL == fStateTree || NULL == fBoundingHierarchy) {
         return NULL;
     }

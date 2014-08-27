@@ -13,12 +13,12 @@
 #include "SkString.h"
 
 // confine rectangles to a smallish area, so queries generally hit something, and overlap occurs:
-static const int GENERATE_EXTENTS = 1000;
+static const SkScalar GENERATE_EXTENTS = 1000.0f;
 static const int NUM_BUILD_RECTS = 500;
 static const int NUM_QUERY_RECTS = 5000;
 static const int GRID_WIDTH = 100;
 
-typedef SkIRect (*MakeRectProc)(SkRandom&, int, int);
+typedef SkRect (*MakeRectProc)(SkRandom&, int, int);
 
 // Time how long it takes to build an R-Tree either bulk-loaded or not
 class RTreeBuildBench : public Benchmark {
@@ -115,32 +115,32 @@ protected:
         SkRandom rand;
         for (int i = 0; i < loops; ++i) {
             SkTDArray<void*> hits;
-            SkIRect query;
+            SkRect query;
             switch(fQuery) {
                 case kSmall_QueryType:
-                    query.fLeft = rand.nextU() % GENERATE_EXTENTS;
-                    query.fTop = rand.nextU() % GENERATE_EXTENTS;
-                    query.fRight = query.fLeft + (GENERATE_EXTENTS / 20);
-                    query.fBottom = query.fTop + (GENERATE_EXTENTS / 20);
+                    query.fLeft   = rand.nextRangeF(0, GENERATE_EXTENTS);
+                    query.fTop    = rand.nextRangeF(0, GENERATE_EXTENTS);
+                    query.fRight  = query.fLeft + (GENERATE_EXTENTS / 20);
+                    query.fBottom = query.fTop  + (GENERATE_EXTENTS / 20);
                     break;
                 case kLarge_QueryType:
-                    query.fLeft = rand.nextU() % GENERATE_EXTENTS;
-                    query.fTop = rand.nextU() % GENERATE_EXTENTS;
-                    query.fRight = query.fLeft + (GENERATE_EXTENTS / 2);
-                    query.fBottom = query.fTop + (GENERATE_EXTENTS / 2);
+                    query.fLeft   = rand.nextRangeF(0, GENERATE_EXTENTS);
+                    query.fTop    = rand.nextRangeF(0, GENERATE_EXTENTS);
+                    query.fRight  = query.fLeft + (GENERATE_EXTENTS / 2);
+                    query.fBottom = query.fTop  + (GENERATE_EXTENTS / 2);
                     break;
                 case kFull_QueryType:
-                    query.fLeft = -GENERATE_EXTENTS;
-                    query.fTop = -GENERATE_EXTENTS;
-                    query.fRight = 2 * GENERATE_EXTENTS;
+                    query.fLeft   = -GENERATE_EXTENTS;
+                    query.fTop    = -GENERATE_EXTENTS;
+                    query.fRight  = 2 * GENERATE_EXTENTS;
                     query.fBottom = 2 * GENERATE_EXTENTS;
                     break;
                 default: // fallthrough
                 case kRandom_QueryType:
-                    query.fLeft = rand.nextU() % GENERATE_EXTENTS;
-                    query.fTop = rand.nextU() % GENERATE_EXTENTS;
-                    query.fRight = query.fLeft + 1 + rand.nextU() % (GENERATE_EXTENTS / 2);
-                    query.fBottom = query.fTop + 1 + rand.nextU() % (GENERATE_EXTENTS / 2);
+                    query.fLeft   = rand.nextRangeF(0, GENERATE_EXTENTS);
+                    query.fTop    = rand.nextRangeF(0, GENERATE_EXTENTS);
+                    query.fRight  = query.fLeft + 1 + rand.nextRangeF(0, GENERATE_EXTENTS/2);
+                    query.fBottom = query.fTop  + 1 + rand.nextRangeF(0, GENERATE_EXTENTS/2);
                     break;
             };
             fTree->search(query, &hits);
@@ -155,34 +155,34 @@ private:
     typedef Benchmark INHERITED;
 };
 
-static inline SkIRect make_concentric_rects_increasing(SkRandom&, int index, int numRects) {
-    SkIRect out = {0, 0, index + 1, index + 1};
+static inline SkRect make_concentric_rects_increasing(SkRandom&, int index, int numRects) {
+    SkRect out = SkRect::MakeWH(SkIntToScalar(index+1), SkIntToScalar(index+1));
     return out;
 }
 
-static inline SkIRect make_XYordered_rects(SkRandom& rand, int index, int numRects) {
-    SkIRect out;
-    out.fLeft = index % GRID_WIDTH;
-    out.fTop = index / GRID_WIDTH;
-    out.fRight  = out.fLeft + 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
-    out.fBottom = out.fTop + 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
+static inline SkRect make_XYordered_rects(SkRandom& rand, int index, int numRects) {
+    SkRect out;
+    out.fLeft   = SkIntToScalar(index % GRID_WIDTH);
+    out.fTop    = SkIntToScalar(index / GRID_WIDTH);
+    out.fRight  = out.fLeft + 1 + rand.nextRangeF(0, GENERATE_EXTENTS/3);
+    out.fBottom = out.fTop  + 1 + rand.nextRangeF(0, GENERATE_EXTENTS/3);
     return out;
 }
-static inline SkIRect make_YXordered_rects(SkRandom& rand, int index, int numRects) {
-    SkIRect out;
-    out.fLeft = index / GRID_WIDTH;
-    out.fTop = index % GRID_WIDTH;
-    out.fRight  = out.fLeft + 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
-    out.fBottom = out.fTop + 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
+static inline SkRect make_YXordered_rects(SkRandom& rand, int index, int numRects) {
+    SkRect out;
+    out.fLeft   = SkIntToScalar(index / GRID_WIDTH);
+    out.fTop    = SkIntToScalar(index % GRID_WIDTH);
+    out.fRight  = out.fLeft + 1 + rand.nextRangeF(0, GENERATE_EXTENTS/3);
+    out.fBottom = out.fTop  + 1 + rand.nextRangeF(0, GENERATE_EXTENTS/3);
     return out;
 }
 
-static inline SkIRect make_random_rects(SkRandom& rand, int index, int numRects) {
-    SkIRect out;
-    out.fLeft   = rand.nextS() % GENERATE_EXTENTS;
-    out.fTop    = rand.nextS() % GENERATE_EXTENTS;
-    out.fRight  = out.fLeft + 1 + rand.nextU() % (GENERATE_EXTENTS / 5);
-    out.fBottom = out.fTop  + 1 + rand.nextU() % (GENERATE_EXTENTS / 5);
+static inline SkRect make_random_rects(SkRandom& rand, int index, int numRects) {
+    SkRect out;
+    out.fLeft   = rand.nextRangeF(0, GENERATE_EXTENTS);
+    out.fTop    = rand.nextRangeF(0, GENERATE_EXTENTS);
+    out.fRight  = out.fLeft + 1 + rand.nextRangeF(0, GENERATE_EXTENTS/5);
+    out.fBottom = out.fTop  + 1 + rand.nextRangeF(0, GENERATE_EXTENTS/5);
     return out;
 }
 

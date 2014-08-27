@@ -335,7 +335,7 @@ const SkMatrix& SkPicture::OperationList::matrix(int index) const {
 }
 
 // fRecord TODO(robert) / kind of OK in a non-optimal sense
-const SkPicture::OperationList* SkPicture::EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) const {
+const SkPicture::OperationList* SkPicture::EXPERIMENTAL_getActiveOps(const SkRect& queryRect) const {
     SkASSERT(NULL != fData.get());
     if (NULL != fData.get()) {
         return fData->getActiveOps(queryRect);

@@ -28,7 +28,7 @@ public:
      * @param bounds The bounding box, should not be empty.
      * @param defer  Ignored; SkTileGrid does not defer insertions.
      */
-    virtual void insert(void* data, const SkIRect& bounds, bool) SK_OVERRIDE;
+    virtual void insert(void* data, const SkRect& bounds, bool) SK_OVERRIDE;
 
     virtual void flushDeferredInserts() SK_OVERRIDE {};
 
@@ -36,7 +36,7 @@ public:
      * Populate 'results' with data pointers corresponding to bounding boxes that intersect 'query'.
      * This will be fastest if the query is an exact match to a single grid tile.
      */
-    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const SK_OVERRIDE;
+    virtual void search(const SkRect& query, SkTDArray<void*>* results) const SK_OVERRIDE;
 
     virtual void clear() SK_OVERRIDE;
 

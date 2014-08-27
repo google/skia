@@ -97,7 +97,7 @@ DEF_TEST(RecordDraw_SetMatrixClobber, r) {
 }
 
 struct TestBBH : public SkBBoxHierarchy {
-    virtual void insert(void* data, const SkIRect& bounds, bool defer) SK_OVERRIDE {
+    virtual void insert(void* data, const SkRect& bounds, bool defer) SK_OVERRIDE {
         Entry e = { (uintptr_t)data, bounds };
         entries.push(e);
     }
@@ -105,14 +105,14 @@ struct TestBBH : public SkBBoxHierarchy {
 
     virtual void flushDeferredInserts() SK_OVERRIDE {}
 
-    virtual void search(const SkIRect& query, SkTDArray<void*>* results) const SK_OVERRIDE {}
+    virtual void search(const SkRect& query, SkTDArray<void*>* results) const SK_OVERRIDE {}
     virtual void clear() SK_OVERRIDE {}
     virtual void rewindInserts() SK_OVERRIDE {}
     virtual int getDepth() const SK_OVERRIDE { return -1; }
 
     struct Entry {
         uintptr_t data;
-        SkIRect bounds;
+        SkRect bounds;
     };
     SkTDArray<Entry> entries;
 };
@@ -137,6 +137,6 @@ DEF_TEST(RecordDraw_BBH, r) {
     for (int i = 0; i < bbh.entries.count(); i++) {
         REPORTER_ASSERT(r, bbh.entries[i].data == (uintptr_t)i);
 
-        REPORTER_ASSERT(r, bbh.entries[i].bounds == SkIRect::MakeWH(400, 480));
+        REPORTER_ASSERT(r, bbh.entries[i].bounds == SkRect::MakeWH(400, 480));
     }
 }

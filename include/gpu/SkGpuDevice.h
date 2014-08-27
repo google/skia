@@ -144,7 +144,7 @@ protected:
 
     static bool FindLayersToHoist(const GrAccelData *gpuData,
                                   const SkPicture::OperationList* ops,
-                                  const SkIRect& query,
+                                  const SkRect& query,
                                   bool* pullForward);
     void drawLayers(const SkPicture* picture,
                     const SkTDArray<GrCachedLayer*>& atlased,
