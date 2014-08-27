@@ -25,6 +25,7 @@ bool GrRODrawState::isEqual(const GrRODrawState& that) const {
         this->fBlendConstant != that.fBlendConstant ||
         this->fFlagBits != that.fFlagBits ||
         this->fVACount != that.fVACount ||
+        this->fVAStride != that.fVAStride ||
         memcmp(this->fVAPtr, that.fVAPtr, this->fVACount * sizeof(GrVertexAttrib)) ||
         this->fStencilSettings != that.fStencilSettings ||
         this->fDrawFace != that.fDrawFace) {
@@ -50,7 +51,6 @@ bool GrRODrawState::isEqual(const GrRODrawState& that) const {
         }
     }
 
-    SkASSERT(this->fVertexSize == that.fVertexSize);
     SkASSERT(0 == memcmp(this->fFixedFunctionVertexAttribIndices,
                             that.fFixedFunctionVertexAttribIndices,
                             sizeof(this->fFixedFunctionVertexAttribIndices)));

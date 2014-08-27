@@ -97,9 +97,9 @@ extern const GrVertexAttrib kRectAttribs[] = {
  */
 static void set_vertex_attributes(GrDrawState* drawState, bool hasLocalCoords, GrColor color) {
     if (hasLocalCoords) {
-        drawState->setVertexAttribs<kRectAttribs>(3);
+        drawState->setVertexAttribs<kRectAttribs>(3, 2 * sizeof(SkPoint) + sizeof(SkColor));
     } else {
-        drawState->setVertexAttribs<kRectAttribs>(2);
+        drawState->setVertexAttribs<kRectAttribs>(2, sizeof(SkPoint) + sizeof(SkColor));
     }
     if (0xFF == GrColorUnpackA(color)) {
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
@@ -143,24 +143,24 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
         return;
     }
 
-    size_t vsize = drawState->getVertexSize();
+    size_t vstride = drawState->getVertexStride();
 
-    geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
-    matrix.mapPointsWithStride(geo.positions(), vsize, 4);
+    geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vstride);
+    matrix.mapPointsWithStride(geo.positions(), vstride, 4);
 
     SkRect devBounds;
     // since we already computed the dev verts, set the bounds hint. This will help us avoid
     // unnecessary clipping in our onDraw().
-    get_vertex_bounds(geo.vertices(), vsize, 4, &devBounds);
+    get_vertex_bounds(geo.vertices(), vstride, 4, &devBounds);
 
     if (NULL != localRect) {
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
         SkPoint* coords = GrTCast<SkPoint*>(GrTCast<intptr_t>(geo.vertices()) + kLocalOffset);
         coords->setRectFan(localRect->fLeft, localRect->fTop,
                            localRect->fRight, localRect->fBottom,
-                           vsize);
+                           vstride);
         if (NULL != localMatrix) {
-            localMatrix->mapPointsWithStride(coords, vsize, 4);
+            localMatrix->mapPointsWithStride(coords, vstride, 4);
         }
     }
 
@@ -168,7 +168,7 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
     GrColor* vertColor = GrTCast<GrColor*>(GrTCast<intptr_t>(geo.vertices()) + kColorOffset);
     for (int i = 0; i < 4; ++i) {
         *vertColor = color;
-        vertColor = (GrColor*) ((intptr_t) vertColor + vsize);
+        vertColor = (GrColor*) ((intptr_t) vertColor + vstride);
     }
 
     this->setIndexSourceToBuffer(this->getContext()->getQuadIndexBuffer());
@@ -266,7 +266,7 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
 
     // update the amount of reserved vertex data actually referenced in draws
     size_t vertexBytes = instancesToConcat * info.verticesPerInstance() *
-                         drawState.getVertexSize();
+                         drawState.getVertexStride();
     poolState.fUsedPoolVertexBytes = SkTMax(poolState.fUsedPoolVertexBytes, vertexBytes);
 
     draw->adjustInstanceCount(instancesToConcat);
@@ -339,7 +339,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
         case kReserved_GeometrySrcType: // fallthrough
         case kArray_GeometrySrcType: {
             size_t vertexBytes = (info.vertexCount() + info.startVertex()) *
-                                 drawState.getVertexSize();
+                                 drawState.getVertexStride();
             poolState.fUsedPoolVertexBytes = SkTMax(poolState.fUsedPoolVertexBytes, vertexBytes);
             draw->fVertexBuffer = poolState.fPoolVertexBuffer;
             draw->adjustStartVertex(poolState.fPoolStartVertex);
@@ -726,11 +726,11 @@ bool GrInOrderDrawBuffer::geometryHints(int* vertexCount,
         *indexCount = currIndices;
     }
     if (NULL != vertexCount) {
-        size_t vertexSize = this->getDrawState().getVertexSize();
-        int32_t currVertices = fVertexPool.currentBufferVertices(vertexSize);
+        size_t vertexStride = this->getDrawState().getVertexStride();
+        int32_t currVertices = fVertexPool.currentBufferVertices(vertexStride);
         if (*vertexCount > currVertices &&
             (!fVertexPool.preallocatedBuffersRemaining() &&
-             *vertexCount <= fVertexPool.preallocatedBufferVertices(vertexSize))) {
+             *vertexCount <= fVertexPool.preallocatedBufferVertices(vertexStride))) {
 
             flush = true;
         }
