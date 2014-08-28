@@ -398,10 +398,10 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
     glyph->fAdvanceY = SkScalarToFixed(vecs[0].fY);
 }
 
-void SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
-                                        DWRITE_RENDERING_MODE renderingMode,
-                                        DWRITE_TEXTURE_TYPE textureType,
-                                        RECT* bbox)
+HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
+                                           DWRITE_RENDERING_MODE renderingMode,
+                                           DWRITE_TEXTURE_TYPE textureType,
+                                           RECT* bbox)
 {
     //Measure raster size.
     fXform.dx = SkFixedToFloat(glyph->getSubXFixed());
@@ -426,50 +426,70 @@ void SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
     run.glyphOffsets = &offset;
 
     SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
-    HRVM(fTypeface->fFactory->CreateGlyphRunAnalysis(
-             &run,
-             1.0f, // pixelsPerDip,
-             &fXform,
-             renderingMode,
-             fMeasuringMode,
-             0.0f, // baselineOriginX,
-             0.0f, // baselineOriginY,
-             &glyphRunAnalysis),
-         "Could not create glyph run analysis.");
+    HRM(fTypeface->fFactory->CreateGlyphRunAnalysis(
+            &run,
+            1.0f, // pixelsPerDip,
+            &fXform,
+            renderingMode,
+            fMeasuringMode,
+            0.0f, // baselineOriginX,
+            0.0f, // baselineOriginY,
+            &glyphRunAnalysis),
+        "Could not create glyph run analysis.");
 
-    HRVM(glyphRunAnalysis->GetAlphaTextureBounds(textureType, bbox),
-         "Could not get texture bounds.");
+    HRM(glyphRunAnalysis->GetAlphaTextureBounds(textureType, bbox),
+        "Could not get texture bounds.");
+
+    return S_OK;
 }
 
-void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
-    glyph->fWidth = 0;
-
-    this->generateAdvance(glyph);
-
-    RECT bbox;
-    this->getBoundingBox(glyph, fRenderingMode, fTextureType, &bbox);
-
-    // GetAlphaTextureBounds succeeds but returns an empty RECT if there are no
-    // glyphs of the specified texture type. When this happens, try with the
-    // alternate texture type.
-    if (bbox.left == bbox.right || bbox.top == bbox.bottom) {
-        if (DWRITE_TEXTURE_CLEARTYPE_3x1 == fTextureType) {
-            this->getBoundingBox(glyph,
-                                 DWRITE_RENDERING_MODE_ALIASED,
-                                 DWRITE_TEXTURE_ALIASED_1x1,
-                                 &bbox);
-            if (bbox.left != bbox.right && bbox.top != bbox.bottom) {
-                glyph->fForceBW = 1;
-            }
-        }
-        // TODO: handle the case where a request for DWRITE_TEXTURE_ALIASED_1x1
-        // fails, and try DWRITE_TEXTURE_CLEARTYPE_3x1.
+/** GetAlphaTextureBounds succeeds but sometimes returns empty bounds like
+ *  { 0x80000000, 0x80000000, 0x80000000, 0x80000000 }
+ *  for small, but not quite zero, sized glyphs.
+ *  Only set as non-empty if the returned bounds are non-empty.
+ */
+static bool glyph_check_and_set_bounds(SkGlyph* glyph, const RECT& bbox) {
+    if (bbox.left >= bbox.right || bbox.top >= bbox.bottom) {
+        return false;
     }
-
     glyph->fWidth = SkToU16(bbox.right - bbox.left);
     glyph->fHeight = SkToU16(bbox.bottom - bbox.top);
     glyph->fLeft = SkToS16(bbox.left);
     glyph->fTop = SkToS16(bbox.top);
+    return true;
+}
+
+void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
+    glyph->fWidth = 0;
+    glyph->fHeight = 0;
+    glyph->fLeft = 0;
+    glyph->fTop = 0;
+
+    this->generateAdvance(glyph);
+
+    RECT bbox;
+    HRVM(this->getBoundingBox(glyph, fRenderingMode, fTextureType, &bbox),
+         "Requested bounding box could not be determined.");
+
+    if (glyph_check_and_set_bounds(glyph, bbox)) {
+        return;
+    }
+
+    // GetAlphaTextureBounds succeeds but returns an empty RECT if there are no
+    // glyphs of the specified texture type. When this happens, try with the
+    // alternate texture type.
+    if (DWRITE_TEXTURE_CLEARTYPE_3x1 == fTextureType) {
+        HRVM(this->getBoundingBox(glyph,
+                                  DWRITE_RENDERING_MODE_ALIASED,
+                                  DWRITE_TEXTURE_ALIASED_1x1,
+                                  &bbox),
+             "Fallback bounding box could not be determined.");
+        if (glyph_check_and_set_bounds(glyph, bbox)) {
+            glyph->fForceBW = 1;
+        }
+    }
+    // TODO: handle the case where a request for DWRITE_TEXTURE_ALIASED_1x1
+    // fails, and try DWRITE_TEXTURE_CLEARTYPE_3x1.
 }
 
 void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
