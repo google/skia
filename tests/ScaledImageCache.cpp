@@ -41,32 +41,32 @@ static bool test_scaled_image_cache_useage() {
 }
 
 // http://crbug.com/389439
-DEF_TEST(ScaledImageCache_SingleAllocationByteLimit, reporter) {
-    size_t originalByteLimit = SkGraphics::GetImageCacheTotalByteLimit();
+DEF_TEST(ResourceCache_SingleAllocationByteLimit, reporter) {
+    size_t originalByteLimit = SkGraphics::GetResourceCacheTotalByteLimit();
     size_t originalAllocationLimit =
-        SkGraphics::GetImageCacheSingleAllocationByteLimit();
+        SkGraphics::GetResourceCacheSingleAllocationByteLimit();
 
     size_t size = kBitmapSize * kScale * kBitmapSize * kScale
         * SkColorTypeBytesPerPixel(kN32_SkColorType);
 
-    SkGraphics::SetImageCacheTotalByteLimit(0);  // clear cache
-    SkGraphics::SetImageCacheTotalByteLimit(2 * size);
-    SkGraphics::SetImageCacheSingleAllocationByteLimit(0);  // No limit
+    SkGraphics::SetResourceCacheTotalByteLimit(0);  // clear cache
+    SkGraphics::SetResourceCacheTotalByteLimit(2 * size);
+    SkGraphics::SetResourceCacheSingleAllocationByteLimit(0);  // No limit
 
     REPORTER_ASSERT(reporter, test_scaled_image_cache_useage());
 
-    SkGraphics::SetImageCacheTotalByteLimit(0);  // clear cache
-    SkGraphics::SetImageCacheTotalByteLimit(2 * size);
-    SkGraphics::SetImageCacheSingleAllocationByteLimit(size * 2);  // big enough
+    SkGraphics::SetResourceCacheTotalByteLimit(0);  // clear cache
+    SkGraphics::SetResourceCacheTotalByteLimit(2 * size);
+    SkGraphics::SetResourceCacheSingleAllocationByteLimit(size * 2);  // big enough
 
     REPORTER_ASSERT(reporter, test_scaled_image_cache_useage());
 
-    SkGraphics::SetImageCacheTotalByteLimit(0);  // clear cache
-    SkGraphics::SetImageCacheTotalByteLimit(2 * size);
-    SkGraphics::SetImageCacheSingleAllocationByteLimit(size / 2);  // too small
+    SkGraphics::SetResourceCacheTotalByteLimit(0);  // clear cache
+    SkGraphics::SetResourceCacheTotalByteLimit(2 * size);
+    SkGraphics::SetResourceCacheSingleAllocationByteLimit(size / 2);  // too small
 
     REPORTER_ASSERT(reporter, !test_scaled_image_cache_useage());
 
-    SkGraphics::SetImageCacheSingleAllocationByteLimit(originalAllocationLimit);
-    SkGraphics::SetImageCacheTotalByteLimit(originalByteLimit);
+    SkGraphics::SetResourceCacheSingleAllocationByteLimit(originalAllocationLimit);
+    SkGraphics::SetResourceCacheTotalByteLimit(originalByteLimit);
 }

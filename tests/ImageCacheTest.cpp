@@ -6,12 +6,12 @@
  */
 
 #include "SkDiscardableMemory.h"
-#include "SkScaledImageCache.h"
+#include "SkResourceCache.h"
 #include "Test.h"
 
 namespace {
 static void* gGlobalAddress;
-struct TestingKey : public SkScaledImageCache::Key {
+struct TestingKey : public SkResourceCache::Key {
     void*       fPtr;
     intptr_t    fValue;
 
@@ -19,7 +19,7 @@ struct TestingKey : public SkScaledImageCache::Key {
         this->init(sizeof(fPtr) + sizeof(fValue));
     }
 };
-struct TestingRec : public SkScaledImageCache::Rec {
+struct TestingRec : public SkResourceCache::Rec {
     TestingRec(const TestingKey& key, uint32_t value) : fKey(key), fValue(value) {}
 
     TestingKey  fKey;
@@ -33,9 +33,9 @@ struct TestingRec : public SkScaledImageCache::Rec {
 static const int COUNT = 10;
 static const int DIM = 256;
 
-static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
+static void test_cache(skiatest::Reporter* reporter, SkResourceCache& cache,
                        bool testPurge) {
-    SkScaledImageCache::ID id;
+    SkResourceCache::ID id;
 
     for (int i = 0; i < COUNT; ++i) {
         TestingKey key(i);
@@ -58,7 +58,7 @@ static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
         // stress test, should trigger purges
         for (size_t i = 0; i < COUNT * 100; ++i) {
             TestingKey key(i);
-            SkScaledImageCache::ID id = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, i)));
+            SkResourceCache::ID id = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, i)));
             REPORTER_ASSERT(reporter, NULL != id);
             cache.unlock(id);
         }
@@ -87,30 +87,30 @@ DEF_TEST(ImageCache, reporter) {
     static const size_t defLimit = DIM * DIM * 4 * COUNT + 1024;    // 1K slop
 
     {
-        SkScaledImageCache cache(defLimit);
+        SkResourceCache cache(defLimit);
         test_cache(reporter, cache, true);
     }
     {
         SkAutoTUnref<SkDiscardableMemoryPool> pool(
                 SkDiscardableMemoryPool::Create(defLimit, NULL));
         gPool = pool.get();
-        SkScaledImageCache cache(pool_factory);
+        SkResourceCache cache(pool_factory);
         test_cache(reporter, cache, true);
     }
     {
-        SkScaledImageCache cache(SkDiscardableMemory::Create);
+        SkResourceCache cache(SkDiscardableMemory::Create);
         test_cache(reporter, cache, false);
     }
 }
 
 DEF_TEST(ImageCache_doubleAdd, r) {
     // Adding the same key twice should be safe.
-    SkScaledImageCache cache(4096);
+    SkResourceCache cache(4096);
 
     TestingKey key(1);
 
-    SkScaledImageCache::ID id1 = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, 2)));
-    SkScaledImageCache::ID id2 = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, 3)));
+    SkResourceCache::ID id1 = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, 2)));
+    SkResourceCache::ID id2 = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, 3)));
     // We don't really care if id1 == id2 as long as unlocking both works.
     cache.unlock(id1);
     cache.unlock(id2);

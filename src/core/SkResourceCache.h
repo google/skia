@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkScaledImageCache_DEFINED
-#define SkScaledImageCache_DEFINED
+#ifndef SkResourceCache_DEFINED
+#define SkResourceCache_DEFINED
 
 #include "SkBitmap.h"
 
@@ -23,7 +23,7 @@ class SkMipMap;
  *  As a convenience, a global instance is also defined, which can be safely
  *  access across threads via the static methods (e.g. FindAndLock, etc.).
  */
-class SkScaledImageCache {
+class SkResourceCache {
 public:
     struct Key {
         // Call this to access your private contents. Must not use the address after calling init()
@@ -58,7 +58,7 @@ public:
     };
 
     struct Rec {
-        typedef SkScaledImageCache::Key Key;
+        typedef SkResourceCache::Key Key;
 
         Rec() : fLockCount(1) {}
         virtual ~Rec() {}
@@ -78,7 +78,7 @@ public:
         int32_t fLockCount;
         int32_t fPad;
         
-        friend class SkScaledImageCache;
+        friend class SkResourceCache;
     };
 
     typedef const Rec* ID;
@@ -122,7 +122,7 @@ public:
      *  and getTotalByteLimit() will return 0, and setTotalByteLimit
      *  will ignore its argument and return 0.
      */
-    SkScaledImageCache(DiscardableFactory);
+    SkResourceCache(DiscardableFactory);
 
     /**
      *  Construct the cache, allocating memory with malloc, and respect the
@@ -130,8 +130,8 @@ public:
      *  that pushes the total bytesUsed over the limit. Note: The limit can be
      *  changed at runtime with setTotalByteLimit.
      */
-    explicit SkScaledImageCache(size_t byteLimit);
-    ~SkScaledImageCache();
+    explicit SkResourceCache(size_t byteLimit);
+    ~SkResourceCache();
 
     const Rec* findAndLock(const Key& key);
     const Rec* addAndLock(Rec*);

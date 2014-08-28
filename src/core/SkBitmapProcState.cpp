@@ -16,6 +16,7 @@
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 #include "SkImageEncoder.h"
+#include "SkResourceCache.h"
 
 #if !SK_ARM_NEON_IS_NONE
 // These are defined in src/opts/SkBitmapProcState_arm_neon.cpp
@@ -107,31 +108,10 @@ static SkScalar effective_matrix_scale_sqrd(const SkMatrix& mat) {
     return SkMaxScalar(v1.lengthSqd(), v2.lengthSqd());
 }
 
-class AutoScaledCacheUnlocker {
-public:
-    AutoScaledCacheUnlocker(SkScaledImageCache::ID* idPtr) : fIDPtr(idPtr) {}
-    ~AutoScaledCacheUnlocker() {
-        if (fIDPtr && *fIDPtr) {
-            SkScaledImageCache::Unlock(*fIDPtr);
-            *fIDPtr = NULL;
-        }
-    }
-
-    // forgets the ID, so it won't call Unlock
-    void release() {
-        fIDPtr = NULL;
-    }
-
-private:
-    SkScaledImageCache::ID* fIDPtr;
-};
-#define AutoScaledCacheUnlocker(...) SK_REQUIRE_LOCAL_VAR(AutoScaledCacheUnlocker)
-
 // Check to see that the size of the bitmap that would be produced by
 // scaling by the given inverted matrix is less than the maximum allowed.
 static inline bool cache_size_okay(const SkBitmap& bm, const SkMatrix& invMat) {
-    size_t maximumAllocation
-        = SkScaledImageCache::GetSingleAllocationByteLimit();
+    size_t maximumAllocation = SkResourceCache::GetSingleAllocationByteLimit();
     if (0 == maximumAllocation) {
         return true;
     }
@@ -191,7 +171,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
                                         SkBitmapScaler::RESIZE_BEST,
                                         dest_width,
                                         dest_height,
-                                        SkScaledImageCache::GetAllocator())) {
+                                        SkResourceCache::GetAllocator())) {
                 // we failed to create fScaledBitmap, so just return and let
                 // the scanline proc handle it.
                 return false;

@@ -6,11 +6,11 @@
  */
 
 #include "Benchmark.h"
-#include "SkScaledImageCache.h"
+#include "SkResourceCache.h"
 
 namespace {
 static void* gGlobalAddress;
-class TestKey : public SkScaledImageCache::Key {
+class TestKey : public SkResourceCache::Key {
 public:
     void*    fPtr;
     intptr_t fValue;
@@ -19,7 +19,7 @@ public:
         this->init(sizeof(fPtr) + sizeof(fValue));
     }
 };
-struct TestRec : public SkScaledImageCache::Rec {
+struct TestRec : public SkResourceCache::Rec {
     TestKey     fKey;
     intptr_t    fValue;
 
@@ -31,17 +31,13 @@ struct TestRec : public SkScaledImageCache::Rec {
 }
 
 class ImageCacheBench : public Benchmark {
-    SkScaledImageCache  fCache;
-    SkBitmap            fBM;
+    SkResourceCache fCache;
 
     enum {
-        DIM = 1,
         CACHE_COUNT = 500
     };
 public:
-    ImageCacheBench()  : fCache(CACHE_COUNT * 100) {
-        fBM.allocN32Pixels(DIM, DIM);
-    }
+    ImageCacheBench()  : fCache(CACHE_COUNT * 100) {}
 
     void populateCache() {
         for (int i = 0; i < CACHE_COUNT; ++i) {
@@ -62,7 +58,7 @@ protected:
         TestKey key(-1);
         // search for a miss (-1)
         for (int i = 0; i < loops; ++i) {
-            SkDEBUGCODE(SkScaledImageCache::ID id =) fCache.findAndLock(key);
+            SkDEBUGCODE(SkResourceCache::ID id =) fCache.findAndLock(key);
             SkASSERT(NULL == id);
         }
     }

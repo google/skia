@@ -13,7 +13,7 @@
 #include "SkDiscardableMemoryPool.h"
 #include "SkImageDecoder.h"
 #include "SkImageGeneratorPriv.h"
-#include "SkScaledImageCache.h"
+#include "SkResourceCache.h"
 #include "SkStream.h"
 #include "SkUtils.h"
 
@@ -257,7 +257,7 @@ static void check_pixelref(TestImageGenerator::TestType type,
     SkBitmap lazy;
     bool success;
     if (kSkCaching_PixelRefType == pixelRefType) {
-        // Ignore factory; use global SkScaledImageCache.
+        // Ignore factory; use global cache.
         success = SkCachingPixelRef::Install(gen.detach(), &lazy);
     } else {
         success = SkInstallDiscardablePixelRef(gen.detach(), &lazy, factory);

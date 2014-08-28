@@ -86,40 +86,53 @@ public:
      *
      *  This function returns the memory usage of the Scaled Image Cache.
      */
-    static size_t GetImageCacheTotalBytesUsed();
-    /**
-     *  These functions get/set the memory usage limit for the Scaled
-     *  Image Cache.  Bitmaps are purged from the cache when the
-     *  memory useage exceeds this limit.
-     */
-    static size_t GetImageCacheTotalByteLimit();
-    static size_t SetImageCacheTotalByteLimit(size_t newLimit);
+    static size_t GetResourceCacheTotalBytesUsed();
 
-    // DEPRECATED
+    /**
+     *  These functions get/set the memory usage limit for the resource cache, used for temporary
+     *  bitmaps and other resources. Entries are purged from the cache when the memory useage
+     *  exceeds this limit.
+     */
+    static size_t GetResourceCacheTotalByteLimit();
+    static size_t SetResourceCacheTotalByteLimit(size_t newLimit);
+
+    /**
+     *  When the cachable entry is very lage (e.g. a large scaled bitmap), adding it to the cache
+     *  can cause most/all of the existing entries to be purged. To avoid the, the client can set
+     *  a limit for a single allocation. If a cacheable entry would have been cached, but its size
+     *  exceeds this limit, then we do not attempt to cache it at all.
+     *
+     *  Zero is the default value, meaning we always attempt to cache entries.
+     */
+    static size_t GetResourceCacheSingleAllocationByteLimit();
+    static size_t SetResourceCacheSingleAllocationByteLimit(size_t newLimit);
+
+#ifdef SK_SUPPORT_LEGACY_IMAGECACHE_NAME
     static size_t GetImageCacheBytesUsed() {
         return GetImageCacheTotalBytesUsed();
     }
-    // DEPRECATED
     static size_t GetImageCacheByteLimit() {
         return GetImageCacheTotalByteLimit();
     }
-    // DEPRECATED
     static size_t SetImageCacheByteLimit(size_t newLimit) {
         return SetImageCacheTotalByteLimit(newLimit);
     }
-
-    /**
-     *  Scaling bitmaps with the SkPaint::kHigh_FilterLevel setting is
-     *  expensive, so the result is saved in the global Scaled Image
-     *  Cache.  When the resulting bitmap is too large, this can
-     *  overload the cache.  If the ImageCacheSingleAllocationByteLimit
-     *  is set to a non-zero number, and the resulting bitmap would be
-     *  larger than that value, the bitmap scaling algorithm falls
-     *  back onto a cheaper algorithm and does not cache the result.
-     *  Zero is the default value.
-     */
-    static size_t GetImageCacheSingleAllocationByteLimit();
-    static size_t SetImageCacheSingleAllocationByteLimit(size_t newLimit);
+    static size_t GetImageCacheTotalBytesUsed() {
+        return GetResourceCacheTotalBytesUsed();
+    }
+    static size_t GetImageCacheTotalByteLimit() {
+        return GetResourceCacheTotalByteLimit();
+    }
+    static size_t SetImageCacheTotalByteLimit(size_t newLimit) {
+        return SetResourceCacheTotalByteLimit(newLimit);
+    }
+    static size_t GetImageCacheSingleAllocationByteLimit() {
+        return GetResourceCacheSingleAllocationByteLimit();
+    }
+    static size_t SetImageCacheSingleAllocationByteLimit(size_t newLimit) {
+        return SetResourceCacheSingleAllocationByteLimit(newLimit);
+    }
+#endif
 
     /**
      *  Applications with command line options may pass optional state, such
