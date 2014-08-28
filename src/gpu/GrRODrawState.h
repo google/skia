@@ -37,7 +37,7 @@ public:
     const GrVertexAttrib* getVertexAttribs() const { return fVAPtr; }
     int getVertexAttribCount() const { return fVACount; }
 
-    size_t getVertexSize() const { return fVertexSize; }
+    size_t getVertexStride() const { return fVAStride; }
 
     /**
      * Getters for index into getVertexAttribs() for particular bindings. -1 is returned if the
@@ -340,8 +340,6 @@ public:
         kB_CombinedState,
     };
 
-    GrRODrawState& operator= (const GrRODrawState& that);
-
 protected:
     bool isEqual(const GrRODrawState& that) const;
 
@@ -353,7 +351,7 @@ protected:
     uint32_t                            fFlagBits;
     const GrVertexAttrib*               fVAPtr;
     int                                 fVACount;
-    size_t                              fVertexSize;
+    size_t                              fVAStride;
     GrStencilSettings                   fStencilSettings;
     uint8_t                             fCoverage;
     DrawFace                            fDrawFace;

@@ -168,7 +168,7 @@ protected:
                     context->getTestTarget(&tt);
                     SkASSERT(NULL != tt.target());
                     GrDrawState* drawState = tt.target()->drawState();
-                    drawState->setVertexAttribs<kAttribs>(2);
+                    drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
                     drawState->addCoverageEffect(effect, 1);
                     drawState->setRenderTarget(rt);
@@ -323,7 +323,7 @@ protected:
                     context->getTestTarget(&tt);
                     SkASSERT(NULL != tt.target());
                     GrDrawState* drawState = tt.target()->drawState();
-                    drawState->setVertexAttribs<kAttribs>(2);
+                    drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
                     drawState->addCoverageEffect(effect, 1);
                     drawState->setRenderTarget(rt);
@@ -507,7 +507,7 @@ protected:
                     context->getTestTarget(&tt);
                     SkASSERT(NULL != tt.target());
                     GrDrawState* drawState = tt.target()->drawState();
-                    drawState->setVertexAttribs<kAttribs>(2);
+                    drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
                     drawState->addCoverageEffect(effect, 1);
                     drawState->setRenderTarget(rt);

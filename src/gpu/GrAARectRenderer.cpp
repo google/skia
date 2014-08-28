@@ -276,10 +276,10 @@ enum CoverageAttribType {
 
 static CoverageAttribType set_rect_attribs(GrDrawState* drawState) {
     if (drawState->canTweakAlphaForCoverage()) {
-        drawState->setVertexAttribs<gAARectAttribs>(2);
+        drawState->setVertexAttribs<gAARectAttribs>(2, sizeof(SkPoint) + sizeof(SkColor));
         return kUseColor_CoverageAttribType;
     } else {
-        drawState->setVertexAttribs<gAARectAttribs>(3);
+        drawState->setVertexAttribs<gAARectAttribs>(3, sizeof(SkPoint) + 2 * sizeof(SkColor));
         return kUseCoverage_CoverageAttribType;
     }
 }
@@ -482,10 +482,10 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
     }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
-    size_t vsize = drawState->getVertexSize();
+    size_t vstride = drawState->getVertexStride();
 
     SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
-    SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vsize);
+    SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vstride);
 
     SkScalar inset = SkMinScalar(devRect.width(), SK_Scalar1);
     inset = SK_ScalarHalf * SkMinScalar(inset, devRect.height());
@@ -499,8 +499,8 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
         combinedMatrix.mapRect(&devRect, rect);
 #endif
 
-        set_inset_fan(fan0Pos, vsize, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
-        set_inset_fan(fan1Pos, vsize, devRect, inset,  inset);
+        set_inset_fan(fan0Pos, vstride, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
+        set_inset_fan(fan1Pos, vstride, devRect, inset,  inset);
     } else {
         // compute transformed (1, 0) and (0, 1) vectors
         SkVector vec[2] = {
@@ -515,38 +515,38 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
 
         // create the rotated rect
         fan0Pos->setRectFan(rect.fLeft, rect.fTop,
-                            rect.fRight, rect.fBottom, vsize);
-        combinedMatrix.mapPointsWithStride(fan0Pos, vsize, 4);
+                            rect.fRight, rect.fBottom, vstride);
+        combinedMatrix.mapPointsWithStride(fan0Pos, vstride, 4);
 
         // Now create the inset points and then outset the original
         // rotated points
 
         // TL
-        *((SkPoint*)((intptr_t)fan1Pos + 0 * vsize)) =
-            *((SkPoint*)((intptr_t)fan0Pos + 0 * vsize)) + vec[0] + vec[1];
-        *((SkPoint*)((intptr_t)fan0Pos + 0 * vsize)) -= vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan1Pos + 0 * vstride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 0 * vstride)) + vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 0 * vstride)) -= vec[0] + vec[1];
         // BL
-        *((SkPoint*)((intptr_t)fan1Pos + 1 * vsize)) =
-            *((SkPoint*)((intptr_t)fan0Pos + 1 * vsize)) + vec[0] - vec[1];
-        *((SkPoint*)((intptr_t)fan0Pos + 1 * vsize)) -= vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan1Pos + 1 * vstride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 1 * vstride)) + vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 1 * vstride)) -= vec[0] - vec[1];
         // BR
-        *((SkPoint*)((intptr_t)fan1Pos + 2 * vsize)) =
-            *((SkPoint*)((intptr_t)fan0Pos + 2 * vsize)) - vec[0] - vec[1];
-        *((SkPoint*)((intptr_t)fan0Pos + 2 * vsize)) += vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan1Pos + 2 * vstride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 2 * vstride)) - vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 2 * vstride)) += vec[0] + vec[1];
         // TR
-        *((SkPoint*)((intptr_t)fan1Pos + 3 * vsize)) =
-            *((SkPoint*)((intptr_t)fan0Pos + 3 * vsize)) - vec[0] + vec[1];
-        *((SkPoint*)((intptr_t)fan0Pos + 3 * vsize)) += vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan1Pos + 3 * vstride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 3 * vstride)) - vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 3 * vstride)) += vec[0] - vec[1];
     }
 
     // Make verts point to vertex color and then set all the color and coverage vertex attrs values.
     verts += sizeof(SkPoint);
     for (int i = 0; i < 4; ++i) {
         if (kUseCoverage_CoverageAttribType == covAttribType) {
-            *reinterpret_cast<GrColor*>(verts + i * vsize) = color;
-            *reinterpret_cast<GrColor*>(verts + i * vsize + sizeof(GrColor)) = 0;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
+            *reinterpret_cast<GrColor*>(verts + i * vstride + sizeof(GrColor)) = 0;
         } else {
-            *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = 0;
         }
     }
 
@@ -564,13 +564,13 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
     } else {
         innerCoverage = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
     }
-    verts += 4 * vsize;
+    verts += 4 * vstride;
     for (int i = 0; i < 4; ++i) {
         if (kUseCoverage_CoverageAttribType == covAttribType) {
-            *reinterpret_cast<GrColor*>(verts + i * vsize) = color;
-            *reinterpret_cast<GrColor*>(verts + i * vsize + sizeof(GrColor)) = innerCoverage;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
+            *reinterpret_cast<GrColor*>(verts + i * vstride + sizeof(GrColor)) = innerCoverage;
         } else {
-            *reinterpret_cast<GrColor*>(verts + i * vsize) = innerCoverage;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = innerCoverage;
         }
     }
 
@@ -634,8 +634,8 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
 
     SkScalar newWidth = SkScalarHalf(rect.width() * vec[0].length()) + SK_ScalarHalf;
     SkScalar newHeight = SkScalarHalf(rect.height() * vec[1].length()) + SK_ScalarHalf;
-    drawState->setVertexAttribs<gAARectVertexAttribs>(SK_ARRAY_COUNT(gAARectVertexAttribs));
-    SkASSERT(sizeof(RectVertex) == drawState->getVertexSize());
+    drawState->setVertexAttribs<gAARectVertexAttribs>(SK_ARRAY_COUNT(gAARectVertexAttribs),
+                                                      sizeof(RectVertex));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
@@ -684,8 +684,8 @@ void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
     GrDrawState* drawState = target->drawState();
     SkASSERT(combinedMatrix.rectStaysRect());
 
-    drawState->setVertexAttribs<gAAAARectVertexAttribs>(SK_ARRAY_COUNT(gAAAARectVertexAttribs));
-    SkASSERT(sizeof(AARectVertex) == drawState->getVertexSize());
+    drawState->setVertexAttribs<gAAAARectVertexAttribs>(SK_ARRAY_COUNT(gAAAARectVertexAttribs),
+                                                        sizeof(AARectVertex));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
@@ -834,15 +834,15 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
     }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
-    size_t vsize = drawState->getVertexSize();
+    size_t vstride = drawState->getVertexStride();
 
     // We create vertices for four nested rectangles. There are two ramps from 0 to full
     // coverage, one on the exterior of the stroke and the other on the interior.
     // The following pointers refer to the four rects, from outermost to innermost.
     SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
-    SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + outerVertexNum * vsize);
-    SkPoint* fan2Pos = reinterpret_cast<SkPoint*>(verts + 2 * outerVertexNum * vsize);
-    SkPoint* fan3Pos = reinterpret_cast<SkPoint*>(verts + (2 * outerVertexNum + innerVertexNum) * vsize);
+    SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + outerVertexNum * vstride);
+    SkPoint* fan2Pos = reinterpret_cast<SkPoint*>(verts + 2 * outerVertexNum * vstride);
+    SkPoint* fan3Pos = reinterpret_cast<SkPoint*>(verts + (2 * outerVertexNum + innerVertexNum) * vstride);
 
 #ifndef SK_IGNORE_THIN_STROKED_RECT_FIX
     // TODO: this only really works if the X & Y margins are the same all around
@@ -862,25 +862,25 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
 
     if (miterStroke) {
         // outermost
-        set_inset_fan(fan0Pos, vsize, devOutside, -SK_ScalarHalf, -SK_ScalarHalf);
+        set_inset_fan(fan0Pos, vstride, devOutside, -SK_ScalarHalf, -SK_ScalarHalf);
         // inner two
-        set_inset_fan(fan1Pos, vsize, devOutside,  inset,  inset);
-        set_inset_fan(fan2Pos, vsize, devInside,  -inset, -inset);
+        set_inset_fan(fan1Pos, vstride, devOutside,  inset,  inset);
+        set_inset_fan(fan2Pos, vstride, devInside,  -inset, -inset);
         // innermost
-        set_inset_fan(fan3Pos, vsize, devInside,   SK_ScalarHalf,  SK_ScalarHalf);
+        set_inset_fan(fan3Pos, vstride, devInside,   SK_ScalarHalf,  SK_ScalarHalf);
     } else {
-        SkPoint* fan0AssistPos = reinterpret_cast<SkPoint*>(verts + 4 * vsize);
-        SkPoint* fan1AssistPos = reinterpret_cast<SkPoint*>(verts + (outerVertexNum + 4) * vsize);
+        SkPoint* fan0AssistPos = reinterpret_cast<SkPoint*>(verts + 4 * vstride);
+        SkPoint* fan1AssistPos = reinterpret_cast<SkPoint*>(verts + (outerVertexNum + 4) * vstride);
         // outermost
-        set_inset_fan(fan0Pos, vsize, devOutside, -SK_ScalarHalf, -SK_ScalarHalf);
-        set_inset_fan(fan0AssistPos, vsize, devOutsideAssist, -SK_ScalarHalf, -SK_ScalarHalf);
+        set_inset_fan(fan0Pos, vstride, devOutside, -SK_ScalarHalf, -SK_ScalarHalf);
+        set_inset_fan(fan0AssistPos, vstride, devOutsideAssist, -SK_ScalarHalf, -SK_ScalarHalf);
         // outer one of the inner two
-        set_inset_fan(fan1Pos, vsize, devOutside,  inset,  inset);
-        set_inset_fan(fan1AssistPos, vsize, devOutsideAssist,  inset,  inset);
+        set_inset_fan(fan1Pos, vstride, devOutside,  inset,  inset);
+        set_inset_fan(fan1AssistPos, vstride, devOutsideAssist,  inset,  inset);
         // inner one of the inner two
-        set_inset_fan(fan2Pos, vsize, devInside,  -inset, -inset);
+        set_inset_fan(fan2Pos, vstride, devInside,  -inset, -inset);
         // innermost
-        set_inset_fan(fan3Pos, vsize, devInside,   SK_ScalarHalf,  SK_ScalarHalf);
+        set_inset_fan(fan3Pos, vstride, devInside,   SK_ScalarHalf,  SK_ScalarHalf);
     }
 
     // Make verts point to vertex color and then set all the color and coverage vertex attrs values.
@@ -888,10 +888,10 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
     verts += sizeof(SkPoint);
     for (int i = 0; i < outerVertexNum; ++i) {
         if (kUseCoverage_CoverageAttribType == covAttribType) {
-            *reinterpret_cast<GrColor*>(verts + i * vsize) = color;
-            *reinterpret_cast<GrColor*>(verts + i * vsize + sizeof(GrColor)) = 0;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
+            *reinterpret_cast<GrColor*>(verts + i * vstride + sizeof(GrColor)) = 0;
         } else {
-            *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = 0;
         }
     }
 
@@ -904,7 +904,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
         scale = 0xff;
     }
 
-    verts += outerVertexNum * vsize;
+    verts += outerVertexNum * vstride;
     GrColor innerCoverage;
     if (kUseCoverage_CoverageAttribType == covAttribType) {
         innerCoverage = GrColorPackRGBA(scale, scale, scale, scale);
@@ -914,21 +914,21 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
 
     for (int i = 0; i < outerVertexNum + innerVertexNum; ++i) {
         if (kUseCoverage_CoverageAttribType == covAttribType) {
-            *reinterpret_cast<GrColor*>(verts + i * vsize) = color;
-            *reinterpret_cast<GrColor*>(verts + i * vsize + sizeof(GrColor)) = innerCoverage;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
+            *reinterpret_cast<GrColor*>(verts + i * vstride + sizeof(GrColor)) = innerCoverage;
         } else {
-            *reinterpret_cast<GrColor*>(verts + i * vsize) = innerCoverage;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = innerCoverage;
         }
     }
 
     // The innermost rect has 0 coverage
-    verts += (outerVertexNum + innerVertexNum) * vsize;
+    verts += (outerVertexNum + innerVertexNum) * vstride;
     for (int i = 0; i < innerVertexNum; ++i) {
         if (kUseCoverage_CoverageAttribType == covAttribType) {
-            *reinterpret_cast<GrColor*>(verts + i * vsize) = color;
-            *reinterpret_cast<GrColor*>(verts + i * vsize + sizeof(GrColor)) = 0;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
+            *reinterpret_cast<GrColor*>(verts + i * vstride + sizeof(GrColor)) = 0;
         } else {
-            *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = 0;
         }
     }
 

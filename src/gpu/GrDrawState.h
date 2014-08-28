@@ -79,9 +79,12 @@ public:
     /**
      *  Sets vertex attributes for next draw. The object driving the templatization
      *  should be a global GrVertexAttrib array that is never changed.
+     *
+     *  @param count      the number of attributes being set, limited to kMaxVertexAttribCnt.
+     *  @param stride     the number of bytes between successive vertex data.
      */
-    template <const GrVertexAttrib A[]> void setVertexAttribs(int count) {
-        this->setVertexAttribs(A, count);
+    template <const GrVertexAttrib A[]> void setVertexAttribs(int count, size_t stride) {
+        this->internalSetVertexAttribs(A, count, stride);
     }
 
     /**
@@ -97,12 +100,13 @@ public:
      public:
          AutoVertexAttribRestore(GrDrawState* drawState);
 
-         ~AutoVertexAttribRestore() { fDrawState->setVertexAttribs(fVAPtr, fVACount); }
+         ~AutoVertexAttribRestore() { fDrawState->internalSetVertexAttribs(fVAPtr, fVACount, fVAStride); }
 
      private:
          GrDrawState*          fDrawState;
          const GrVertexAttrib* fVAPtr;
          int                   fVACount;
+         size_t                fVAStride;
      };
 
     /// @}
@@ -559,13 +563,7 @@ private:
     // This is used to assert that this condition holds.
     SkDEBUGCODE(int fBlockEffectRemovalCnt;)
 
-    /**
-     *  Sets vertex attributes for next draw.
-     *
-     *  @param attribs    the array of vertex attributes to set.
-     *  @param count      the number of attributes being set, limited to kMaxVertexAttribCnt.
-     */
-    void setVertexAttribs(const GrVertexAttrib attribs[], int count);
+    void internalSetVertexAttribs(const GrVertexAttrib attribs[], int count, size_t stride);
 
     typedef GrRODrawState INHERITED;
 };

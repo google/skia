@@ -40,12 +40,16 @@ extern const GrVertexAttrib gTextVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, sizeof(SkPoint) , kEffect_GrVertexAttribBinding}
 };
 
+static const size_t kTextVASize = 2 * sizeof(SkPoint); 
+
 // position + color + texture coord
 extern const GrVertexAttrib gTextVertexWithColorAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,                                 kPosition_GrVertexAttribBinding},
     {kVec4ub_GrVertexAttribType, sizeof(SkPoint),                   kColor_GrVertexAttribBinding},
     {kVec2f_GrVertexAttribType,  sizeof(SkPoint) + sizeof(GrColor), kEffect_GrVertexAttribBinding}
 };
+
+static const size_t kTextVAColorSize = 2 * sizeof(SkPoint) + sizeof(GrColor); 
 
 };
 
@@ -528,10 +532,10 @@ HAS_ATLAS:
         fMaxVertices = kMinRequestedVerts;
         if (useColorVerts) {
             fDrawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
-                SK_ARRAY_COUNT(gTextVertexWithColorAttribs));
+                SK_ARRAY_COUNT(gTextVertexWithColorAttribs), kTextVAColorSize);
         } else {
             fDrawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
-                SK_ARRAY_COUNT(gTextVertexAttribs));
+                SK_ARRAY_COUNT(gTextVertexAttribs), kTextVASize);
         }
         bool flush = fDrawTarget->geometryHints(&fMaxVertices, NULL);
         if (flush) {
@@ -539,10 +543,10 @@ HAS_ATLAS:
             fContext->flush();
             if (useColorVerts) {
                 fDrawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
-                  SK_ARRAY_COUNT(gTextVertexWithColorAttribs));
+                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs), kTextVAColorSize);
             } else {
                 fDrawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
-                  SK_ARRAY_COUNT(gTextVertexAttribs));
+                    SK_ARRAY_COUNT(gTextVertexAttribs), kTextVASize);
             }
         }
         fMaxVertices = kDefaultRequestedVerts;
@@ -577,7 +581,7 @@ HAS_ATLAS:
     size_t vertSize = useColorVerts ? (2 * sizeof(SkPoint) + sizeof(GrColor)) :
                                       (2 * sizeof(SkPoint));
 
-    SkASSERT(vertSize == fDrawTarget->getDrawState().getVertexSize());
+    SkASSERT(vertSize == fDrawTarget->getDrawState().getVertexStride());
 
     SkPoint* positions = reinterpret_cast<SkPoint*>(
         reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex);

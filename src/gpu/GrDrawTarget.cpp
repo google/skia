@@ -195,10 +195,10 @@ bool GrDrawTarget::reserveVertexAndIndexSpace(int vertexCount,
                                               int indexCount,
                                               void** vertices,
                                               void** indices) {
-    size_t vertexSize = this->drawState()->getVertexSize();
+    size_t vertexStride = this->drawState()->getVertexStride();
     this->willReserveVertexAndIndexSpace(vertexCount, indexCount);
     if (vertexCount) {
-        if (!this->reserveVertexSpace(vertexSize, vertexCount, vertices)) {
+        if (!this->reserveVertexSpace(vertexStride, vertexCount, vertices)) {
             if (indexCount) {
                 this->resetIndexSource();
             }
@@ -278,7 +278,7 @@ void GrDrawTarget::setVertexSourceToArray(const void* vertexArray,
     this->releasePreviousVertexSource();
     GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
     geoSrc.fVertexSrc = kArray_GeometrySrcType;
-    geoSrc.fVertexSize = this->drawState()->getVertexSize();
+    geoSrc.fVertexSize = this->drawState()->getVertexStride();
     geoSrc.fVertexCount = vertexCount;
     this->onSetVertexSourceToArray(vertexArray, vertexCount);
 }
@@ -298,7 +298,7 @@ void GrDrawTarget::setVertexSourceToBuffer(const GrVertexBuffer* buffer) {
     geoSrc.fVertexSrc    = kBuffer_GeometrySrcType;
     geoSrc.fVertexBuffer = buffer;
     buffer->ref();
-    geoSrc.fVertexSize = this->drawState()->getVertexSize();
+    geoSrc.fVertexSize = this->drawState()->getVertexStride();
 }
 
 void GrDrawTarget::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
@@ -673,9 +673,9 @@ extern const GrVertexAttrib gBWRectPosUVAttribs[] = {
 
 void set_vertex_attributes(GrDrawState* drawState, bool hasUVs) {
     if (hasUVs) {
-        drawState->setVertexAttribs<gBWRectPosUVAttribs>(2);
+        drawState->setVertexAttribs<gBWRectPosUVAttribs>(2, 2 * sizeof(SkPoint));
     } else {
-        drawState->setVertexAttribs<gBWRectPosUVAttribs>(1);
+        drawState->setVertexAttribs<gBWRectPosUVAttribs>(1, sizeof(SkPoint));
     }
 }
 
@@ -693,16 +693,16 @@ void GrDrawTarget::onDrawRect(const SkRect& rect,
         return;
     }
 
-    size_t vsize = this->drawState()->getVertexSize();
-    geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
+    size_t vstride = this->drawState()->getVertexStride();
+    geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vstride);
     if (NULL != localRect) {
         SkPoint* coords = GrTCast<SkPoint*>(GrTCast<intptr_t>(geo.vertices()) +
                                             sizeof(SkPoint));
         coords->setRectFan(localRect->fLeft, localRect->fTop,
                            localRect->fRight, localRect->fBottom,
-                           vsize);
+                           vstride);
         if (NULL != localMatrix) {
-            localMatrix->mapPointsWithStride(coords, vsize, 4);
+            localMatrix->mapPointsWithStride(coords, vstride, 4);
         }
     }
     SkRect bounds;
