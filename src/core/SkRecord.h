@@ -65,7 +65,8 @@ public:
     // Here T can be any class, not just those from SkRecords.  Throws on failure.
     template <typename T>
     T* alloc(size_t count = 1) {
-        return (T*)fAlloc.allocThrow(sizeof(T) * count);
+        // Bump up to the next pointer width if needed, so all allocations start pointer-aligned.
+        return (T*)fAlloc.allocThrow(SkAlignPtr(sizeof(T) * count));
     }
 
     // Add a new command of type T to the end of this SkRecord.
