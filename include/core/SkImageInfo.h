@@ -136,36 +136,69 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
  *  Describe an image's dimensions and pixel type.
  */
 struct SkImageInfo {
+public:
+    SkImageInfo() {}
+
     int         fWidth;
     int         fHeight;
     SkColorType fColorType;
     SkAlphaType fAlphaType;
 
+private:
+    enum Profile {
+        kUnknown_Profile,
+        kSRGB_Profile,
+        kExponential_Profile,
+    };
+    
+    uint32_t    fProfile;
+    float       fGamma;
+
+    SkImageInfo(int width, int height, SkColorType ct, SkAlphaType at, Profile p, float g)
+        : fWidth(width)
+        , fHeight(height)
+        , fColorType(ct)
+        , fAlphaType(at)
+        , fProfile(p)
+        , fGamma(g)
+    {}
+
+public:
+    /*
+     *  Return an info with the specified attributes, tagged as sRGB. Note that if the requested
+     *  color type does not make sense with sRGB (e.g. kAlpha_8) then the sRGB request is ignored.
+     *
+     *  You can call isSRGB() on the returned info to determine if the request was fulfilled.
+     */
+    static SkImageInfo MakeSRGB(int width, int height, SkColorType ct, SkAlphaType at);
+    
+    /*
+     *  Return an info with the specified attributes, tagged with a specific gamma.
+     *  Note that if the requested gamma is unsupported for the requested color type, then the gamma
+     *  value will be set to 1.0 (the default).
+     *
+     *  You can call gamma() to query the resulting gamma value.
+     */
+    static SkImageInfo MakeWithGamma(int width, int height, SkColorType ct, SkAlphaType at,
+                                     float gamma);
+    
     static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at) {
-        SkImageInfo info = {
-            width, height, ct, at
-        };
-        return info;
+        return MakeWithGamma(width, height, ct, at, 1);
     }
 
     /**
      *  Sets colortype to the native ARGB32 type.
      */
     static SkImageInfo MakeN32(int width, int height, SkAlphaType at) {
-        SkImageInfo info = {
-            width, height, kN32_SkColorType, at
-        };
-        return info;
+        return SkImageInfo(width, height, kN32_SkColorType, at, kExponential_Profile, 1);
     }
 
     /**
      *  Sets colortype to the native ARGB32 type, and the alphatype to premul.
      */
     static SkImageInfo MakeN32Premul(int width, int height) {
-        SkImageInfo info = {
-            width, height, kN32_SkColorType, kPremul_SkAlphaType
-        };
-        return info;
+        return SkImageInfo(width, height, kN32_SkColorType, kPremul_SkAlphaType,
+                           kExponential_Profile, 1);
     }
 
     /**
@@ -176,24 +209,17 @@ struct SkImageInfo {
     }
 
     static SkImageInfo MakeA8(int width, int height) {
-        SkImageInfo info = {
-            width, height, kAlpha_8_SkColorType, kPremul_SkAlphaType
-        };
-        return info;
+        return SkImageInfo(width, height, kAlpha_8_SkColorType, kPremul_SkAlphaType,
+                           kUnknown_Profile, 0);
     }
 
     static SkImageInfo MakeUnknown(int width, int height) {
-        SkImageInfo info = {
-            width, height, kUnknown_SkColorType, kIgnore_SkAlphaType
-        };
-        return info;
+        return SkImageInfo(width, height, kUnknown_SkColorType, kIgnore_SkAlphaType,
+                           kUnknown_Profile, 0);
     }
 
     static SkImageInfo MakeUnknown() {
-        SkImageInfo info = {
-            0, 0, kUnknown_SkColorType, kIgnore_SkAlphaType
-        };
-        return info;
+        return SkImageInfo(0, 0, kUnknown_SkColorType, kIgnore_SkAlphaType, kUnknown_Profile, 0);
     }
 
     int width() const { return fWidth; }
@@ -236,8 +262,11 @@ struct SkImageInfo {
         return 0 != memcmp(this, &other, sizeof(other));
     }
 
+    // DEPRECATED : use the static Unflatten
     void unflatten(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const;
+    
+    static SkImageInfo Unflatten(SkReadBuffer&);
 
     int64_t getSafeSize64(size_t rowBytes) const {
         if (0 == fHeight) {
@@ -256,6 +285,17 @@ struct SkImageInfo {
     }
 
     SkDEBUGCODE(void validate() const;)
+
+    /**
+     *  If the Info was tagged to be sRGB, return true, else return false.
+     */
+    bool isSRGB() const { return kSRGB_Profile == fProfile; }
+    
+    /**
+     *  If this was tagged with an explicit gamma value, return that value, else return 0.
+     *  If this was tagged as sRGB, return 0.
+     */
+    float gamma() const { return fGamma; }
 };
 
 #endif
