@@ -135,7 +135,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
 /**
  *  Describe an image's dimensions and pixel type.
  */
-struct SkImageInfo {
+struct SK_API SkImageInfo {
 public:
     SkImageInfo() {}
 
