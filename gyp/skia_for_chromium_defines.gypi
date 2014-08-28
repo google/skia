@@ -13,7 +13,6 @@
     # If these become 'permanent', they should be moved into skia_common.gypi
     #
     'skia_for_chromium_defines': [
-      'SK_IGNORE_PROPER_FRACTIONAL_SCALING',
       'SK_SUPPORT_LEGACY_PICTURE_CLONE',
       'SK_SUPPORT_LEGACY_GETDEVICE',
       'SK_IGNORE_ETC1_SUPPORT',
