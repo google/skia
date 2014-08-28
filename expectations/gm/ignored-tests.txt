@@ -38,3 +38,6 @@ textblob
 
 # reed
 matrixconvolution
+
+# Added as part of https://codereview.chromium.org/466363009/
+fontcache
