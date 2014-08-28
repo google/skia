@@ -26,6 +26,7 @@
 #include "SkRasterizer.h"
 #include "SkRRect.h"
 #include "SkShader.h"
+#include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkXfermode.h"
 
@@ -672,7 +673,19 @@ static void drawPicture_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 static void drawTextBlob_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                             SkGPipeState* state) {
-    UNIMPLEMENTED
+    SkScalar x = reader->readScalar();
+    SkScalar y = reader->readScalar();
+
+    size_t blobSize = reader->readU32();
+    const void* data = reader->skip(SkAlign4(blobSize));
+
+    if (state->shouldDraw()) {
+        SkReadBuffer blobBuffer(data, blobSize);
+        SkAutoTUnref<const SkTextBlob> blob(SkTextBlob::CreateFromBuffer(blobBuffer));
+        SkASSERT(blob.get());
+
+        canvas->drawTextBlob(blob, x, y, state->paint());
+    }
 }
 ///////////////////////////////////////////////////////////////////////////////
 

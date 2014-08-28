@@ -32,6 +32,20 @@ public:
      */
     uint32_t uniqueID() const;
 
+    /**
+     *  Serialize to a buffer.
+     */
+    void flatten(SkWriteBuffer&) const;
+
+    /**
+     *  Recreate an SkTextBlob that was serialized into a buffer.
+     *
+     *  @param  SkReadBuffer Serialized blob data.
+     *  @return A new SkTextBlob representing the serialized data, or NULL if the buffer is
+     *          invalid.
+     */
+    static const SkTextBlob* CreateFromBuffer(SkReadBuffer&);
+
 private:
     enum GlyphPositioning {
         kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
@@ -70,13 +84,9 @@ private:
 
     SkTextBlob(uint16_t* glyphs, SkScalar* pos, const SkTArray<Run>* runs, const SkRect& bounds);
 
-    void flatten(SkWriteBuffer&) const;
-    static const SkTextBlob* CreateFromBuffer(SkReadBuffer&);
-
     static unsigned ScalarsPerGlyph(GlyphPositioning pos);
 
     friend class SkCanvas;
-    friend class SkPictureData;
     friend class SkTextBlobBuilder;
     friend class TextBlobTester;
 

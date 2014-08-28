@@ -26,6 +26,7 @@
 #include "SkRRect.h"
 #include "SkShader.h"
 #include "SkStream.h"
+#include "SkTextBlob.h"
 #include "SkTSearch.h"
 #include "SkTypeface.h"
 #include "SkWriter32.h"
@@ -939,9 +940,22 @@ void SkGPipeCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const 
 
 void SkGPipeCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                    const SkPaint& paint) {
-    // FIXME: blob serialization only supports SkWriteBuffers
-    //        -- convert to SkWriter32 to avoid unrolling?
-    this->INHERITED::onDrawTextBlob(blob, x, y, paint);
+    NOTIFY_SETUP(this);
+    this->writePaint(paint);
+
+    // FIXME: this is inefficient but avoids duplicating the blob serialization logic.
+    SkWriteBuffer blobBuffer;
+    blob->flatten(blobBuffer);
+
+    size_t size = sizeof(uint32_t) + 2 * sizeof(SkScalar) + blobBuffer.bytesWritten();
+    if (this->needOpBytes(size)) {
+        this->writeOp(kDrawTextBlob_DrawOp);
+        fWriter.writeScalar(x);
+        fWriter.writeScalar(y);
+        fWriter.write32(SkToU32(blobBuffer.bytesWritten()));
+        uint32_t* pad = fWriter.reservePad(blobBuffer.bytesWritten());
+        blobBuffer.writeToMemory(pad);
+    }
 }
 
 void SkGPipeCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
