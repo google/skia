@@ -8351,25 +8351,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2923727738525710795
+          2425644440618781106
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6095335716309928708
+          17798897784508333200
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_gpu.png": {
       "allowed-digests": [
