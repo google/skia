@@ -14,13 +14,6 @@
         'libwebp.gyp:libwebp',
         'utils.gyp:utils',
       ],
-      'conditions': [
-        [ 'skia_android_framework == 0', {
-          'export_dependent_settings': [
-            'libjpeg.gyp:*',
-          ],
-        }],
-      ],
       'include_dirs': [
         '../include/images',
         '../src/lazy',
@@ -141,7 +134,16 @@
           'conditions': [
             [ 'skia_android_framework == 0', {
               'export_dependent_settings': [
-                'android_deps.gyp:png'
+                'android_deps.gyp:png',
+                'libjpeg.gyp:*'
+              ],
+            }, {
+              # The android framework disables these decoders as they are of little use to
+              # Java applications that can't take advantage of the compressed formats.
+              'sources!': [
+                '../src/images/SkImageDecoder_pkm.cpp',
+                '../src/images/SkImageDecoder_ktx.cpp',
+                '../src/images/SkImageDecoder_astc.cpp',
               ],
             }],
           ],
