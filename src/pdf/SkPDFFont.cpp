@@ -1312,13 +1312,13 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     size_t data SK_INIT_TO_AVOID_WARNING;
     size_t trailer SK_INIT_TO_AVOID_WARNING;
     SkAutoTUnref<SkStream> rawFontData(typeface()->openStream(&ttcIndex));
-    SkData* fontData = handle_type1_stream(rawFontData.get(), &header, &data,
-                                           &trailer);
-    if (fontData == NULL) {
+    SkAutoTUnref<SkData> fontData(handle_type1_stream(rawFontData.get(), &header,
+                                                      &data, &trailer));
+    if (fontData.get() == NULL) {
         return false;
     }
     if (canEmbed()) {
-        SkAutoTUnref<SkPDFStream> fontStream(new SkPDFStream(fontData));
+        SkAutoTUnref<SkPDFStream> fontStream(new SkPDFStream(fontData.get()));
         addResource(fontStream.get());
         fontStream->insertInt("Length1", header);
         fontStream->insertInt("Length2", data);
