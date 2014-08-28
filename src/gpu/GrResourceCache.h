@@ -11,10 +11,8 @@
 #ifndef GrResourceCache_DEFINED
 #define GrResourceCache_DEFINED
 
-#include "GrConfig.h"
-#include "GrTypes.h"
+#include "GrResourceKey.h"
 #include "SkTMultiMap.h"
-#include "GrBinHashKey.h"
 #include "SkMessageBus.h"
 #include "SkTInternalLList.h"
 
@@ -22,92 +20,6 @@ class GrGpuResource;
 class GrResourceCache;
 class GrResourceCacheEntry;
 
-class GrResourceKey {
-public:
-    static GrCacheID::Domain ScratchDomain() {
-        static const GrCacheID::Domain gDomain = GrCacheID::GenerateDomain();
-        return gDomain;
-    }
-
-    /** Uniquely identifies the GrGpuResource subclass in the key to avoid collisions
-        across resource types. */
-    typedef uint8_t ResourceType;
-
-    /** Flags set by the GrGpuResource subclass. */
-    typedef uint8_t ResourceFlags;
-
-    /** Generate a unique ResourceType */
-    static ResourceType GenerateResourceType();
-
-    /** Creates a key for resource */
-    GrResourceKey(const GrCacheID& id, ResourceType type, ResourceFlags flags) {
-        this->init(id.getDomain(), id.getKey(), type, flags);
-    };
-
-    GrResourceKey(const GrResourceKey& src) {
-        fKey = src.fKey;
-    }
-
-    GrResourceKey() {
-        fKey.reset();
-    }
-
-    void reset(const GrCacheID& id, ResourceType type, ResourceFlags flags) {
-        this->init(id.getDomain(), id.getKey(), type, flags);
-    }
-
-    uint32_t getHash() const {
-        return fKey.getHash();
-    }
-
-    bool isScratch() const {
-        return ScratchDomain() ==
-            *reinterpret_cast<const GrCacheID::Domain*>(fKey.getData() +
-                                                        kCacheIDDomainOffset);
-    }
-
-    ResourceType getResourceType() const {
-        return *reinterpret_cast<const ResourceType*>(fKey.getData() +
-                                                      kResourceTypeOffset);
-    }
-
-    ResourceFlags getResourceFlags() const {
-        return *reinterpret_cast<const ResourceFlags*>(fKey.getData() +
-                                                       kResourceFlagsOffset);
-    }
-
-    bool operator==(const GrResourceKey& other) const { return fKey == other.fKey; }
-
-private:
-    enum {
-        kCacheIDKeyOffset = 0,
-        kCacheIDDomainOffset = kCacheIDKeyOffset + sizeof(GrCacheID::Key),
-        kResourceTypeOffset = kCacheIDDomainOffset + sizeof(GrCacheID::Domain),
-        kResourceFlagsOffset = kResourceTypeOffset + sizeof(ResourceType),
-        kPadOffset = kResourceFlagsOffset + sizeof(ResourceFlags),
-        kKeySize = SkAlign4(kPadOffset),
-        kPadSize = kKeySize - kPadOffset
-    };
-
-    void init(const GrCacheID::Domain domain,
-              const GrCacheID::Key& key,
-              ResourceType type,
-              ResourceFlags flags) {
-        union {
-            uint8_t  fKey8[kKeySize];
-            uint32_t fKey32[kKeySize / 4];
-        } keyData;
-
-        uint8_t* k = keyData.fKey8;
-        memcpy(k + kCacheIDKeyOffset, key.fData8, sizeof(GrCacheID::Key));
-        memcpy(k + kCacheIDDomainOffset, &domain, sizeof(GrCacheID::Domain));
-        memcpy(k + kResourceTypeOffset, &type, sizeof(ResourceType));
-        memcpy(k + kResourceFlagsOffset, &flags, sizeof(ResourceFlags));
-        memset(k + kPadOffset, 0, kPadSize);
-        fKey.setKeyData(keyData.fKey32);
-    }
-    GrBinHashKey<kKeySize> fKey;
-};
 
 // The cache listens for these messages to purge junk resources proactively.
 struct GrResourceInvalidatedMessage {

@@ -20,11 +20,17 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
     SkASSERT(!this->isInCache(resource));
     fResources.addToHead(resource);
     ++fCount;
+    if (!resource->getScratchKey().isNullScratch()) {
+        fScratchMap.insert(resource->getScratchKey(), resource);
+    }
 }
 
 void GrResourceCache2::removeResource(GrGpuResource* resource) {
     SkASSERT(this->isInCache(resource));
-    fResources.remove(resource);
+    fResources.remove(resource);    
+    if (!resource->getScratchKey().isNullScratch()) {
+        fScratchMap.remove(resource->getScratchKey(), resource);
+    }
     --fCount;
 }
 
@@ -35,6 +41,7 @@ void GrResourceCache2::abandonAll() {
         // abandon should have already removed this from the list.
         SkASSERT(head != fResources.head());
     }
+    SkASSERT(!fScratchMap.count());
     SkASSERT(!fCount);
 }
 
@@ -45,5 +52,6 @@ void GrResourceCache2::releaseAll() {
         // release should have already removed this from the list.
         SkASSERT(head != fResources.head());
     }
+    SkASSERT(!fScratchMap.count());
     SkASSERT(!fCount);
 }

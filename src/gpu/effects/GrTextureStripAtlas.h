@@ -8,7 +8,7 @@
 #ifndef GrTextureStripAtlas_DEFINED
 #define GrTextureStripAtlas_DEFINED
 
-#include "GrBinHashKey.h"
+#include "GrMurmur3HashKey.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkTDArray.h"

@@ -22,7 +22,8 @@ GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
     : fGpu(gpu)
     , fRefCnt(1)
     , fCacheEntry(NULL)
-    , fUniqueID(CreateUniqueID()) {
+    , fUniqueID(CreateUniqueID())
+    , fScratchKey(GrResourceKey::NullScratchKey()) {
     if (isWrapped) {
         fFlags = kWrapped_FlagBit;
     } else {
@@ -70,6 +71,13 @@ GrContext* GrGpuResource::getContext() {
     } else {
         return NULL;
     }
+}
+
+void GrGpuResource::setScratchKey(const GrResourceKey& scratchKey) {
+    SkASSERT(fScratchKey.isNullScratch());
+    SkASSERT(scratchKey.isScratch());
+    SkASSERT(!scratchKey.isNullScratch());
+    fScratchKey = scratchKey;
 }
 
 uint32_t GrGpuResource::CreateUniqueID() {

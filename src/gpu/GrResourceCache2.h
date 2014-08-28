@@ -9,10 +9,10 @@
 #ifndef GrResourceCache2_DEFINED
 #define GrResourceCache2_DEFINED
 
-#include "GrTypes.h"
+#include "GrGpuResource.h"
+#include "GrResourceKey.h"
 #include "SkTInternalLList.h"
-
-class GrGpuResource;
+#include "SkTMultiMap.h"
 
 /**
  *  Eventual replacement for GrResourceCache. Currently it simply holds a list
@@ -39,8 +39,21 @@ private:
     }
 #endif
 
-    int                             fCount;
-    SkTInternalLList<GrGpuResource> fResources;
+
+    void removeScratch(const GrGpuResource* resource);
+    struct ScratchMapTraits {
+        static const GrResourceKey& GetKey(const GrGpuResource& r) {
+            return r.getScratchKey();
+        }
+
+        static uint32_t Hash(const GrResourceKey& key) { return key.getHash(); }
+    };
+    typedef SkTMultiMap<GrGpuResource, GrResourceKey, ScratchMapTraits> ScratchMap;
+
+    int                                 fCount;
+    SkTInternalLList<GrGpuResource>     fResources;
+    // This map holds all resources that can be used as scratch resources.
+    ScratchMap                          fScratchMap; 
 };
 
 #endif

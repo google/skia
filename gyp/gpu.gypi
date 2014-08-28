@@ -9,6 +9,7 @@
   'variables': {
     'skgpu_sources': [
       '<(skia_include_path)/gpu/GrBackendEffectFactory.h',
+      '<(skia_include_path)/gpu/GrBinHashKey.h',
       '<(skia_include_path)/gpu/GrClipData.h',
       '<(skia_include_path)/gpu/GrColor.h',
       '<(skia_include_path)/gpu/GrConfig.h',
@@ -25,6 +26,7 @@
       '<(skia_include_path)/gpu/GrPathRendererChain.h',
       '<(skia_include_path)/gpu/GrRect.h',
       '<(skia_include_path)/gpu/GrRenderTarget.h',
+      '<(skia_include_path)/gpu/GrResourceKey.h',
       '<(skia_include_path)/gpu/GrSurface.h',
       '<(skia_include_path)/gpu/GrTBackendEffectFactory.h',
       '<(skia_include_path)/gpu/GrTexture.h',
@@ -50,7 +52,6 @@
       '<(skia_src_path)/gpu/GrAllocPool.cpp',
       '<(skia_src_path)/gpu/GrAtlas.cpp',
       '<(skia_src_path)/gpu/GrAtlas.h',
-      '<(skia_src_path)/gpu/GrBinHashKey.h',
       '<(skia_src_path)/gpu/GrBitmapTextContext.cpp',
       '<(skia_src_path)/gpu/GrBitmapTextContext.h',
       '<(skia_src_path)/gpu/GrBlend.cpp',
@@ -87,6 +88,7 @@
       '<(skia_src_path)/gpu/GrLayerCache.h',
       '<(skia_src_path)/gpu/GrMemoryPool.cpp',
       '<(skia_src_path)/gpu/GrMemoryPool.h',
+      '<(skia_src_path)/gpu/GrMurmur3HashKey.h',
       '<(skia_src_path)/gpu/GrOrderedSet.h',
       '<(skia_src_path)/gpu/GrOvalRenderer.cpp',
       '<(skia_src_path)/gpu/GrOvalRenderer.h',

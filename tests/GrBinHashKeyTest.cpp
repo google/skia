@@ -8,6 +8,7 @@
 // This is a GPU-backend specific test
 #if SK_SUPPORT_GPU
 
+#include "GrMurmur3HashKey.h"
 #include "GrBinHashKey.h"
 
 #include "Test.h"

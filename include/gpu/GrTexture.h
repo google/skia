@@ -163,10 +163,7 @@ public:
     static bool NeedsBilerp(const GrResourceKey& key);
 
 protected:
-    GrTextureImpl(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
-    : INHERITED(gpu, isWrapped, desc)
-    , fMipMapsStatus(kNotAllocated_MipMapsStatus) {
-    }
+    GrTextureImpl(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc);
 
 private:
     enum MipMapsStatus {

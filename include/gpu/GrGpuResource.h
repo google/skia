@@ -10,6 +10,7 @@
 
 #include "SkInstCnt.h"
 #include "SkTInternalLList.h"
+#include "GrResourceKey.h"
 
 class GrResourceCacheEntry;
 class GrResourceCache2;
@@ -82,6 +83,12 @@ public:
     void setCacheEntry(GrResourceCacheEntry* cacheEntry) { fCacheEntry = cacheEntry; }
     GrResourceCacheEntry* getCacheEntry() { return fCacheEntry; }
 
+    /** 
+     * If this resource can be used as a scratch resource this returns a valid
+     * scratch key. Otherwise it returns a key for which isNullScratch is true.
+     */
+    const GrResourceKey& getScratchKey() const { return fScratchKey; }
+
     /**
      * Gets an id that is unique for this GrCacheable object. It is static in that it does
      * not change when the content of the GrCacheable object changes. This will never return
@@ -90,7 +97,6 @@ public:
     uint32_t getUniqueID() const { return fUniqueID; }
 
 protected:
-
     // This must be called by every GrGpuObject. It should be called once the object is fully
     // initialized (i.e. not in a base class constructor).
     void registerWithCache();
@@ -116,6 +122,12 @@ protected:
      * cache.
      */
     void didChangeGpuMemorySize() const;
+
+    /**
+     * Optionally called by the GrGpuResource subclass if the resource can be used as scratch.
+     * By default resources are not usable as scratch. This should only be called once.
+     **/
+    void setScratchKey(const GrResourceKey& scratchKey);
 
 private:
 #ifdef SK_DEBUG
@@ -145,6 +157,8 @@ private:
     mutable int32_t         fRefCnt;
     GrResourceCacheEntry*   fCacheEntry;  // NULL if not in cache
     const uint32_t          fUniqueID;
+
+    GrResourceKey           fScratchKey;
 
     typedef SkNoncopyable INHERITED;
 };

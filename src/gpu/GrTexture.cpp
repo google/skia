@@ -207,6 +207,11 @@ GrSurfaceOrigin resolve_origin(const GrTextureDesc& desc) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+GrTextureImpl::GrTextureImpl(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
+    : INHERITED(gpu, isWrapped, desc)
+    , fMipMapsStatus(kNotAllocated_MipMapsStatus) {
+    this->setScratchKey(ComputeScratchKey(desc));
+}
 
 GrResourceKey GrTextureImpl::ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* params,
