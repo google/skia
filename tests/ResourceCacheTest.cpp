@@ -298,7 +298,7 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
         desc.fHeight = gHeight;
 
         SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, NULL, 0));
-        SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice, (context, texture.get())));
+        SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(texture.get()));
         SkCanvas canvas(device.get());
 
         test_cache(reporter, context, &canvas);

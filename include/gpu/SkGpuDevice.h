@@ -53,20 +53,6 @@ public:
      */
     static SkGpuDevice* Create(GrContext*, const SkImageInfo&, int sampleCount);
 
-    /**
-     *  DEPRECATED -- need to make this private, call Create(surface)
-     *  New device that will render to the specified renderTarget.
-     */
-    SkGpuDevice(GrContext*, GrRenderTarget*, unsigned flags = 0);
-
-    /**
-     *  DEPRECATED -- need to make this private, call Create(surface)
-     *  New device that will render to the texture (as a rendertarget).
-     *  The GrTexture's asRenderTarget() must be non-NULL or device will not
-     *  function.
-     */
-    SkGpuDevice(GrContext*, GrTexture*, unsigned flags = 0);
-
     virtual ~SkGpuDevice();
 
     GrContext* context() const { return fContext; }
@@ -173,6 +159,10 @@ private:
 
     // remove when our clients don't rely on accessBitmap()
     SkBitmap fLegacyBitmap;
+
+    SkGpuDevice(GrContext*, GrRenderTarget*, unsigned flags = 0);
+
+    SkGpuDevice(GrContext*, GrTexture*, unsigned flags = 0);
 
     // called from rt and tex cons
     void initFromRenderTarget(GrContext*, GrRenderTarget*, unsigned flags);

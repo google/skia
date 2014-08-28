@@ -81,7 +81,7 @@ DEF_GPUTEST(ReadWriteAlpha, reporter, factory) {
         REPORTER_ASSERT(reporter, match);
 
         // Now try writing on the single channel texture
-        SkAutoTUnref<SkBaseDevice> device(new SkGpuDevice(context, texture->asRenderTarget()));
+        SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(texture->asRenderTarget()));
         SkCanvas canvas(device);
 
         SkPaint paint;

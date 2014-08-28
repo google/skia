@@ -64,7 +64,7 @@ DEF_GPUTEST(GpuDrawPath, reporter, factory) {
             desc.fHeight = H;
             desc.fSampleCnt = sampleCounts[i];
             SkAutoTUnref<GrTexture> texture(grContext->createUncachedTexture(desc, NULL, 0));
-            SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice, (grContext, texture.get())));
+            SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(texture.get()));
             SkCanvas drawingCanvas(device.get());
 
             test_drawPathEmpty(reporter, &drawingCanvas);

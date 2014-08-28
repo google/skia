@@ -275,7 +275,7 @@ public:
                                    SampleWindow* win) {
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && NULL != fCurContext) {
-            SkAutoTUnref<SkBaseDevice> device(new SkGpuDevice(fCurContext, fCurRenderTarget));
+            SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(fCurRenderTarget));
             return new SkCanvas(device);
         } else
 #endif
