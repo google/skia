@@ -242,6 +242,9 @@ protected:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) = 0;
+    // default implementation unrolls the blob runs.
+    virtual void drawTextBlob(const SkDraw&, const SkTextBlob*, SkScalar x, SkScalar y,
+                              const SkPaint& paint);
     // default implementation calls drawVertices
     virtual void drawPatch(const SkDraw&, const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);

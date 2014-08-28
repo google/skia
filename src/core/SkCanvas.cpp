@@ -22,7 +22,6 @@
 #include "SkSmallAllocator.h"
 #include "SkSurface_Base.h"
 #include "SkTemplates.h"
-#include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
@@ -2218,43 +2217,14 @@ void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPat
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
-    SkASSERT(blob);
+    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
 
-    // FIXME: dispatch to the device instead
-
-    if (x || y) {
-        this->translate(x, y);
+    while (iter.next()) {
+        SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
+        iter.fDevice->drawTextBlob(iter, blob, x, y, dfp.paint());
     }
 
-    SkPaint runPaint = paint;
-    SkTextBlob::RunIterator it(blob);
-    while (!it.done()) {
-        size_t textLen = it.glyphCount() * sizeof(uint16_t);
-        const SkPoint& offset = it.offset();
-        // applyFontToPaint() always overwrites the exact same attributes,
-        // so it is safe to not re-seed the paint.
-        it.applyFontToPaint(&runPaint);
-
-        switch (it.positioning()) {
-        case SkTextBlob::kDefault_Positioning:
-            this->drawText(it.glyphs(), textLen, offset.x(), offset.y(), runPaint);
-            break;
-        case SkTextBlob::kHorizontal_Positioning:
-            this->drawPosTextH(it.glyphs(), textLen, it.pos(), offset.y(), runPaint);
-            break;
-        case SkTextBlob::kFull_Positioning:
-            this->drawPosText(it.glyphs(), textLen, (const SkPoint*)it.pos(), runPaint);
-            break;
-        default:
-            SkFAIL("unhandled positioning mode");
-        }
-
-        it.next();
-    }
-
-    if (x || y) {
-        this->translate(-x, -y);
-    }
+    LOOPER_END
 }
 
 // These will become non-virtual, so they always call the (virtual) onDraw... method

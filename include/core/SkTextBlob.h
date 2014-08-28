@@ -86,7 +86,7 @@ private:
 
     static unsigned ScalarsPerGlyph(GlyphPositioning pos);
 
-    friend class SkCanvas;
+    friend class SkBaseDevice;
     friend class SkTextBlobBuilder;
     friend class TextBlobTester;
 

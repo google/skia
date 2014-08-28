@@ -9,6 +9,7 @@
 #include "SkDraw.h"
 #include "SkMetaData.h"
 #include "SkPatchUtils.h"
+#include "SkTextBlob.h"
 
 SkBaseDevice::SkBaseDevice()
     : fLeakyProperties(SkDeviceProperties::MakeDefault())
@@ -91,6 +92,44 @@ void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPoint cubics[12], const
         this->drawVertices(draw, SkCanvas::kTriangles_VertexMode, data.fVertexCount, data.fPoints,
                            data.fTexCoords, data.fColors, xmode, data.fIndices, data.fIndexCount,
                            paint);
+    }
+}
+
+void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                const SkPaint &paint) {
+
+    SkMatrix localMatrix;
+    SkDraw localDraw(draw);
+
+    if (x || y) {
+        localMatrix = *draw.fMatrix;
+        localMatrix.preTranslate(x, y);
+        localDraw.fMatrix = &localMatrix;
+    }
+
+    SkPaint runPaint = paint;
+    SkTextBlob::RunIterator it(blob);
+    while (!it.done()) {
+        size_t textLen = it.glyphCount() * sizeof(uint16_t);
+        const SkPoint& offset = it.offset();
+        // applyFontToPaint() always overwrites the exact same attributes,
+        // so it is safe to not re-seed the paint.
+        it.applyFontToPaint(&runPaint);
+
+        switch (it.positioning()) {
+        case SkTextBlob::kDefault_Positioning:
+            this->drawText(localDraw, it.glyphs(), textLen, offset.x(), offset.y(), runPaint);
+            break;
+        case SkTextBlob::kHorizontal_Positioning:
+        case SkTextBlob::kFull_Positioning:
+            this->drawPosText(localDraw, it.glyphs(), textLen, it.pos(), offset.y(),
+                              SkTextBlob::ScalarsPerGlyph(it.positioning()), runPaint);
+            break;
+        default:
+            SkFAIL("unhandled positioning mode");
+        }
+
+        it.next();
     }
 }
 
