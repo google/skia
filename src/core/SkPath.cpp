@@ -671,6 +671,8 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     fLastMoveToIndex = fPathRef->countPoints();
 
     ed.growForVerb(kMove_Verb)->set(x, y);
+
+    DIRTY_AFTER_EDIT;
 }
 
 void SkPath::rMoveTo(SkScalar x, SkScalar y) {
