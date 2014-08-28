@@ -139,7 +139,8 @@ DEF_TEST(RecordDraw_BBH, r) {
 
         if (bbh.entries[i].bounds != SkRect::MakeWH(400, 480)) {
             SkRect bounds = bbh.entries[i].bounds;
-            SkDebugf("Expected 0,0,400,480, got %f %f %f %f\n",
+            SkDebugf("Expected %x %x %x %x, got %x %x %x %x\n",
+                     0.0f, 0.0f, 400.0f, 480.0f,
                      bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
         }
         REPORTER_ASSERT(r, bbh.entries[i].bounds == SkRect::MakeWH(400, 480));
