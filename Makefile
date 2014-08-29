@@ -40,7 +40,7 @@ CWD := $(shell pwd)
 # TODO(epoger): I'm not sure if the above comment is still valid in a ninja
 # world.
 VALID_TARGETS := \
-                 bench \
+                 nanobench \
                  debugger \
                  dm \
                  everything \
