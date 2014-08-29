@@ -44,25 +44,3 @@ matrixconvolution
 
 # Added as part of https://codereview.chromium.org/466363009/
 fontcache
-
-#humper: https://codereview.chromium.org/470233002/
-imagefilterscropexpand_565
-xfermodeimagefilter_565
-bitmapsource_8888
-imagefiltersscaled_565
-resizeimagefilter_8888
-resizeimagefilter_565
-imagefiltersclipped_565
-tileimagefilter_565
-displacement_8888
-imagefiltersscaled_8888
-xfermodeimagefilter_8888
-imagefiltersclipped_8888
-imagefilterscropexpand_8888
-offsetimagefilter_8888
-displacement_565
-bitmapsource_565
-tileimagefilter_8888
-imagefiltersgraph_8888
-offsetimagefilter_565
-imagefiltersgraph_565
