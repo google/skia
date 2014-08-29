@@ -6140,6 +6140,24 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "imageblur2_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16489109101972185585
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "imageblur2_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6650426797361351839
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "imageblur2_gpu.png": {
       "allowed-digests": [
         [
