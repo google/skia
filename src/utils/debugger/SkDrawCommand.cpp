@@ -666,6 +666,20 @@ void SkDrawTextBlobCommand::execute(SkCanvas* canvas) {
     canvas->drawTextBlob(fBlob, fXPos, fYPos, fPaint);
 }
 
+bool SkDrawTextBlobCommand::render(SkCanvas* canvas) const {
+    canvas->clear(SK_ColorWHITE);
+    canvas->save();
+
+    SkRect bounds = fBlob->bounds().makeOffset(fXPos, fYPos);
+    xlate_and_scale_to_bounds(canvas, bounds);
+
+    canvas->drawTextBlob(fBlob.get(), fXPos, fYPos, fPaint);
+
+    canvas->restore();
+
+    return true;
+}
+
 SkDrawRectCommand::SkDrawRectCommand(const SkRect& rect, const SkPaint& paint)
     : INHERITED(DRAW_RECT) {
     fRect = rect;

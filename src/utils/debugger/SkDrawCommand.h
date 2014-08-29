@@ -441,6 +441,7 @@ public:
     SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint);
 
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 
 private:
     SkAutoTUnref<const SkTextBlob> fBlob;
