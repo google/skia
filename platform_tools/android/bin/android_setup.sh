@@ -193,12 +193,6 @@ adb_pull_if_needed() {
   ANDROID_SRC="$1"
   HOST_DST="$2"
 
-  if [ -d $HOST_DST ];
-  then
-    HOST_DST="${HOST_DST}/$(basename ${ANDROID_SRC})"
-  fi
-
-
   if [ -f $HOST_DST ];
   then
     #get the MD5 for dst and src
