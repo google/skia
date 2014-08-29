@@ -263,7 +263,8 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
 
 static SkBitmap draw_picture(SkPicture& picture) {
      SkBitmap bitmap;
-     bitmap.allocN32Pixels(picture.width(), picture.height());
+     bitmap.allocN32Pixels(SkScalarCeilToInt(picture.cullRect().width()), 
+                           SkScalarCeilToInt(picture.cullRect().height()));
      SkCanvas canvas(bitmap);
      picture.draw(&canvas);
      return bitmap;
@@ -315,7 +316,9 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
     // Paint some text.
     SkPictureRecorder recorder;
     SkIRect canvasRect = SkIRect::MakeWH(kBitmapSize, kBitmapSize);
-    SkCanvas* canvas = recorder.beginRecording(canvasRect.width(), canvasRect.height(), NULL, 0);
+    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(canvasRect.width()), 
+                                               SkIntToScalar(canvasRect.height()), 
+                                               NULL, 0);
     canvas->drawColor(SK_ColorWHITE);
     canvas->drawText("A", 1, 24, 32, paint);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
@@ -364,7 +367,7 @@ static bool make_checkerboard_bitmap(SkBitmap& bitmap) {
     return success;
 }
 
-static bool drawSomething(SkCanvas* canvas) {
+static bool draw_something(SkCanvas* canvas) {
     SkPaint paint;
     SkBitmap bitmap;
     bool success = make_checkerboard_bitmap(bitmap);
@@ -478,7 +481,9 @@ DEF_TEST(Serialization, reporter) {
     // Test simple SkPicture serialization
     {
         SkPictureRecorder recorder;
-        bool didDraw = drawSomething(recorder.beginRecording(kBitmapSize, kBitmapSize, NULL, 0));
+        bool didDraw = draw_something(recorder.beginRecording(SkIntToScalar(kBitmapSize), 
+                                                              SkIntToScalar(kBitmapSize), 
+                                                              NULL, 0));
         REPORTER_ASSERT(reporter, didDraw);
         SkAutoTUnref<SkPicture> pict(recorder.endRecording());
 

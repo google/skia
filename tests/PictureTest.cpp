@@ -882,7 +882,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
         {
             SkPictureRecorder recorder;
 
-            SkCanvas* c = recorder.beginRecording(kWidth, kHeight);
+            SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
 
             c->saveLayer(NULL, NULL);
             c->restore();
@@ -914,7 +914,8 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
         {
             SkPictureRecorder recorder;
 
-            SkCanvas* c = recorder.beginRecording(kWidth, kHeight);
+            SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth), 
+                                                  SkIntToScalar(kHeight));
             // 1)
             c->saveLayer(NULL, NULL); // layer #0
             c->restore();
@@ -1187,7 +1188,8 @@ private:
 void check_save_state(skiatest::Reporter* reporter, SkPicture* picture,
                       unsigned int numSaves, unsigned int numSaveLayers,
                       unsigned int numRestores) {
-    SaveCountingCanvas canvas(picture->width(), picture->height());
+    SaveCountingCanvas canvas(SkScalarCeilToInt(picture->cullRect().width()), 
+                              SkScalarCeilToInt(picture->cullRect().height()));
 
     picture->draw(&canvas);
 
@@ -1443,7 +1445,8 @@ static SkData* encode_bitmap_to_data(size_t*, const SkBitmap& bm) {
 
 static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(bitmap.width(), bitmap.height());
+    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(bitmap.width()), 
+                                               SkIntToScalar(bitmap.height()));
     canvas->drawBitmap(bitmap, 0, 0);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 

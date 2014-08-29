@@ -13,19 +13,16 @@
 #include "SkValidationUtils.h"
 
 SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, uint32_t uniqueID)
-  : INHERITED(0, 0, NULL, uniqueID),
-    fPicture(picture),
-    fCropRect(SkRect::MakeWH(picture ? SkIntToScalar(picture->width()) : 0,
-                             picture ? SkIntToScalar(picture->height()) : 0)) {
-    SkSafeRef(fPicture);
+    : INHERITED(0, 0, NULL, uniqueID)
+    , fPicture(SkSafeRef(picture))
+    , fCropRect(NULL != picture ? picture->cullRect() : SkRect::MakeEmpty()) {
 }
 
 SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, const SkRect& cropRect,
                                            uint32_t uniqueID)
-  : INHERITED(0, 0, NULL, uniqueID),
-    fPicture(picture),
-    fCropRect(cropRect) {
-    SkSafeRef(fPicture);
+    : INHERITED(0, 0, NULL, uniqueID)
+    , fPicture(SkSafeRef(picture))
+    , fCropRect(cropRect) {
 }
 
 SkPictureImageFilter::~SkPictureImageFilter() {

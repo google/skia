@@ -82,9 +82,9 @@ static void client(const char* skpPath, const char* dataEndpoint) {
     SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&stream));
 
     PictureHeader header;
-    SkRandom rand(picture->width() * picture->height());
-    SkScalar r = rand.nextRangeScalar(0, picture->width()),
-             b = rand.nextRangeScalar(0, picture->height()),
+    SkRandom rand(picture->cullRect().width() * picture->cullRect().height());
+    SkScalar r = rand.nextRangeScalar(0, picture->cullRect().width()),
+             b = rand.nextRangeScalar(0, picture->cullRect().height()),
              l = rand.nextRangeScalar(0, r),
              t = rand.nextRangeScalar(0, b);
     header.clip.setLTRB(l,t,r,b);

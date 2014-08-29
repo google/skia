@@ -11,15 +11,15 @@
 
 void SkPictureUtils::GatherPixelRefsAndRects(SkPicture* pict,
                                              SkPictureUtils::SkPixelRefContainer* prCont) {
-    if (0 == pict->width() || 0 == pict->height()) {
+    if (pict->cullRect().isEmpty()) {
         return ;
     }
 
-    SkGatherPixelRefsAndRectsDevice device(pict->width(), pict->height(), prCont);
+    SkGatherPixelRefsAndRectsDevice device(SkScalarCeilToInt(pict->cullRect().width()), 
+                                           SkScalarCeilToInt(pict->cullRect().height()), 
+                                           prCont);
     SkNoSaveLayerCanvas canvas(&device);
 
-    canvas.clipRect(SkRect::MakeWH(SkIntToScalar(pict->width()),
-                                   SkIntToScalar(pict->height())),
-                    SkRegion::kIntersect_Op, false);
+    canvas.clipRect(pict->cullRect(), SkRegion::kIntersect_Op, false);
     canvas.drawPicture(pict);
 }

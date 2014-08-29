@@ -123,7 +123,9 @@ private:
         if (SkImageDecoder::DecodeFile(path, &bm)) {
             bm.setImmutable();
             SkPictureRecorder recorder;
-            SkCanvas* can = recorder.beginRecording(bm.width(), bm.height(), NULL, 0);
+            SkCanvas* can = recorder.beginRecording(SkIntToScalar(bm.width()), 
+                                                    SkIntToScalar(bm.height()), 
+                                                    NULL, 0);
             can->drawBitmap(bm, 0, 0, NULL);
             pic.reset(recorder.endRecording());
         } else {
@@ -135,13 +137,16 @@ private:
             }
 
             if (false) {
-                SkSurface* surf = SkSurface::NewRasterPMColor(pic->width(), pic->height());
+                SkSurface* surf = SkSurface::NewRasterPMColor(SkScalarCeilToInt(pic->cullRect().width()), 
+                                                              SkScalarCeilToInt(pic->cullRect().height()));
                 surf->getCanvas()->drawPicture(pic);
                 surf->unref();
             }
             if (false) { // re-record
                 SkPictureRecorder recorder;
-                pic->draw(recorder.beginRecording(pic->width(), pic->height(), NULL, 0));
+                pic->draw(recorder.beginRecording(pic->cullRect().width(), 
+                                                  pic->cullRect().height(), 
+                                                  NULL, 0));
                 SkAutoTUnref<SkPicture> p2(recorder.endRecording());
 
                 SkString path2(path);
@@ -177,7 +182,9 @@ private:
         }
 
         SkPictureRecorder recorder;
-        pic->draw(recorder.beginRecording(pic->width(), pic->height(), factory.get(), 0));
+        pic->draw(recorder.beginRecording(pic->cullRect().width(), 
+                                          pic->cullRect().height(), 
+                                          factory.get(), 0));
         return recorder.endRecording();
     }
 

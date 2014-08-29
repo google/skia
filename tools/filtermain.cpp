@@ -677,8 +677,8 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
 
     memset(localCount, 0, sizeof(localCount));
 
-    SkDebugCanvas debugCanvas(inPicture->width(), inPicture->height());
-    debugCanvas.setBounds(inPicture->width(), inPicture->height());
+    SkDebugCanvas debugCanvas(SkScalarCeilToInt(inPicture->cullRect().width()), 
+                              SkScalarCeilToInt(inPicture->cullRect().height()));
     inPicture->draw(&debugCanvas);
 
     // delete the initial save and restore since replaying the commands will
@@ -717,7 +717,9 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
 
     if (!outFile.isEmpty()) {
         SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(inPicture->width(), inPicture->height(), NULL, 0);
+        SkCanvas* canvas = recorder.beginRecording(inPicture->cullRect().width(), 
+                                                   inPicture->cullRect().height(), 
+                                                   NULL, 0);
         debugCanvas.draw(canvas);
         SkAutoTUnref<SkPicture> outPicture(recorder.endRecording());
 

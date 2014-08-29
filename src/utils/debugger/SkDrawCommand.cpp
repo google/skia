@@ -523,7 +523,9 @@ SkDrawPictureCommand::SkDrawPictureCommand(const SkPicture* picture,
     }
 
     SkString* temp = new SkString;
-    temp->appendf("SkPicture: W: %d H: %d", picture->width(), picture->height());
+    temp->appendf("SkPicture: L: %f T: %f R: %f B: %f",
+                  picture->cullRect().fLeft, picture->cullRect().fTop,
+                  picture->cullRect().fRight, picture->cullRect().fBottom);
     fInfo.push(temp);
     if (NULL != matrix) {
         fInfo.push(SkObjectParser::MatrixToString(*matrix));
@@ -541,9 +543,7 @@ bool SkDrawPictureCommand::render(SkCanvas* canvas) const {
     canvas->clear(0xFFFFFFFF);
     canvas->save();
 
-    SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
-                                   SkIntToScalar(fPicture->height()));
-    xlate_and_scale_to_bounds(canvas, bounds);
+    xlate_and_scale_to_bounds(canvas, fPicture->cullRect());
 
     canvas->drawPicture(fPicture.get());
 

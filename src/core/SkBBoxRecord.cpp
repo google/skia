@@ -313,8 +313,7 @@ void SkBBoxRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
 
 void SkBBoxRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                  const SkPaint* paint) {
-    SkRect bounds = SkRect::MakeWH(SkIntToScalar(picture->width()),
-                                   SkIntToScalar(picture->height()));
+    SkRect bounds = picture->cullRect();
     // todo: wonder if we should allow passing an optional matrix to transformBounds so we don't
     // end up transforming the rect twice.
     if (matrix) {

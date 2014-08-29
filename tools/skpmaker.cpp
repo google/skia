@@ -25,18 +25,20 @@ DEFINE_int32(red, 128, "Value of red color channel in image, 0-255.");
 DEFINE_int32(width, 300, "Width of canvas to create.");
 DEFINE_string(writePath, "", "Filepath to write the SKP into.");
 
-static void skpmaker(int width, int height, int border, SkColor color,
+// Create a 'width' by 'height' skp with a 'border'-wide black border around
+// a 'color' rectangle.
+static void make_skp(SkScalar width, SkScalar height, SkScalar border, SkColor color,
                      const char *writePath) {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(width, height, NULL, 0);
     SkPaint paint;
     paint.setStyle(SkPaint::kFill_Style);
     paint.setColor(SK_ColorBLACK);
-    canvas->drawRectCoords(0, 0, SkIntToScalar(width), SkIntToScalar(height), paint);
+    SkRect r = SkRect::MakeWH(width, height);
+    canvas->drawRect(r, paint);
     paint.setColor(color);
-    canvas->drawRectCoords(SkIntToScalar(border), SkIntToScalar(border),
-                           SkIntToScalar(width - border*2), SkIntToScalar(height - border*2),
-                           paint);
+    r.inset(border, border);
+    canvas->drawRect(r, paint);
     SkAutoTUnref<SkPicture> pict(recorder.endRecording());
     SkFILEWStream stream(writePath);
     pict->serialize(&stream);
@@ -74,7 +76,10 @@ int tool_main(int argc, char** argv) {
     }
 
     SkColor color = SkColorSetRGB(FLAGS_red, FLAGS_green, FLAGS_blue);
-    skpmaker(FLAGS_width, FLAGS_height, FLAGS_border, color, FLAGS_writePath[0]);
+    make_skp(SkIntToScalar(FLAGS_width), 
+             SkIntToScalar(FLAGS_height), 
+             SkIntToScalar(FLAGS_border), 
+             color, FLAGS_writePath[0]);
     return 0;
 }
 

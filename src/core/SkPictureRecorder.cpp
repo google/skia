@@ -17,7 +17,7 @@ SkPictureRecorder::SkPictureRecorder() {}
 
 SkPictureRecorder::~SkPictureRecorder() {}
 
-SkCanvas* SkPictureRecorder::beginRecording(int width, int height,
+SkCanvas* SkPictureRecorder::beginRecording(SkScalar width, SkScalar height,
                                             SkBBHFactory* bbhFactory /* = NULL */,
                                             uint32_t recordFlags /* = 0 */) {
 #ifdef SK_PICTURE_USE_SK_RECORD
@@ -27,11 +27,11 @@ SkCanvas* SkPictureRecorder::beginRecording(int width, int height,
 #endif
 }
 
-SkCanvas* SkPictureRecorder::DEPRECATED_beginRecording(int width, int height,
+SkCanvas* SkPictureRecorder::DEPRECATED_beginRecording(SkScalar width, SkScalar height,
                                                        SkBBHFactory* bbhFactory /* = NULL */,
                                                        uint32_t recordFlags /* = 0 */) {
-    fWidth = width;
-    fHeight = height;
+    fCullWidth = width;
+    fCullHeight = height;
 
     const SkISize size = SkISize::Make(width, height);
 
@@ -49,10 +49,10 @@ SkCanvas* SkPictureRecorder::DEPRECATED_beginRecording(int width, int height,
     return this->getRecordingCanvas();
 }
 
-SkCanvas* SkPictureRecorder::EXPERIMENTAL_beginRecording(int width, int height,
+SkCanvas* SkPictureRecorder::EXPERIMENTAL_beginRecording(SkScalar width, SkScalar height,
                                                          SkBBHFactory* bbhFactory /* = NULL */) {
-    fWidth = width;
-    fHeight = height;
+    fCullWidth = width;
+    fCullHeight = height;
 
     if (NULL != bbhFactory) {
         fBBH.reset((*bbhFactory)(width, height));
@@ -75,13 +75,15 @@ SkPicture* SkPictureRecorder::endRecording() {
     SkPicture* picture = NULL;
 
     if (NULL != fRecord.get()) {
-        picture = SkNEW_ARGS(SkPicture, (fWidth, fHeight, fRecord.detach(), fBBH.get()));
+        picture = SkNEW_ARGS(SkPicture, (fCullWidth, fCullHeight, 
+                                         fRecord.detach(), fBBH.get()));
     }
 
     if (NULL != fPictureRecord.get()) {
         fPictureRecord->endRecording();
         const bool deepCopyOps = false;
-        picture = SkNEW_ARGS(SkPicture, (fWidth, fHeight, *fPictureRecord.get(), deepCopyOps));
+        picture = SkNEW_ARGS(SkPicture, (fCullWidth, fCullHeight, 
+                                         *fPictureRecord.get(), deepCopyOps));
     }
 
     return picture;
@@ -104,7 +106,8 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
 
     if (NULL != fPictureRecord.get()) {
         const bool deepCopyOps = true;
-        SkPicture picture(fWidth, fHeight, *fPictureRecord.get(), deepCopyOps);
+        SkPicture picture(fCullWidth, fCullHeight, 
+                          *fPictureRecord.get(), deepCopyOps);
         picture.draw(canvas);
     }
 }

@@ -1011,8 +1011,8 @@ public:
 
     static SkPicture* generate_new_picture(GM* gm, BbhType bbhType, uint32_t recordFlags,
                                            SkScalar scale = SK_Scalar1) {
-        int width = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().width()), scale));
-        int height = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().height()), scale));
+        SkScalar width = SkScalarMul(SkIntToScalar(gm->getISize().width()), scale);
+        SkScalar height = SkScalarMul(SkIntToScalar(gm->getISize().height()), scale);
 
         SkAutoTDelete<SkBBHFactory> factory;
         if (kTileGrid_BbhType == bbhType) {

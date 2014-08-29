@@ -23,9 +23,10 @@ public:
     CollectLayers(const SkPicture* pict, GrAccelData* accelData)
         : fPictureID(pict->uniqueID())
         , fCTM(&SkMatrix::I())
-        , fCurrentClipBounds(SkIRect::MakeXYWH(0, 0, pict->width(), pict->height()))
         , fSaveLayersInStack(0)
         , fAccelData(accelData) {
+
+        pict->cullRect().roundOut(&fCurrentClipBounds);
 
         if (NULL == pict->fRecord.get()) {
             return;
@@ -255,7 +256,7 @@ private:
 // GPUOptimize is only intended to be called within the context of SkGpuDevice's
 // EXPERIMENTAL_optimize method.
 const GrAccelData* GPUOptimize(const SkPicture* pict) {
-    if (NULL == pict || 0 == pict->width() || 0 == pict->height()) {
+    if (NULL == pict || pict->cullRect().isEmpty()) {
         return NULL;
     }
 

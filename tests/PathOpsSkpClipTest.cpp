@@ -394,22 +394,21 @@ static bool addError(TestState* data, const TestResult& testResult) {
 
 static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
     canvas->save();
-    int pWidth = pic->width();
-    int pHeight = pic->height();
-    const int maxDimension = 1000;
+    SkScalar pWidth = pic->cullRect().width();
+    SkScalar pHeight = pic->cullRect().height();
+    const SkScalar maxDimension = 1000.0f;
     const int slices = 3;
-    int xInterval = SkTMax(pWidth - maxDimension, 0) / (slices - 1);
-    int yInterval = SkTMax(pHeight - maxDimension, 0) / (slices - 1);
-    SkRect rect = {0, 0, SkIntToScalar(SkTMin(maxDimension, pWidth)),
-            SkIntToScalar(SkTMin(maxDimension, pHeight))};
+    SkScalar xInterval = SkTMax(pWidth - maxDimension, 0.0f) / (slices - 1);
+    SkScalar yInterval = SkTMax(pHeight - maxDimension, 0.0f) / (slices - 1);
+    SkRect rect = {0, 0, SkTMin(maxDimension, pWidth), SkTMin(maxDimension, pHeight) };
     canvas->clipRect(rect);
     SkMSec start = SkTime::GetMSecs();
     for (int x = 0; x < slices; ++x) {
         for (int y = 0; y < slices; ++y) {
             pic->draw(canvas);
-            canvas->translate(0, SkIntToScalar(yInterval));
+            canvas->translate(0, yInterval);
         }
-        canvas->translate(SkIntToScalar(xInterval), SkIntToScalar(-yInterval * slices));
+        canvas->translate(xInterval, -yInterval * slices);
     }
     SkMSec end = SkTime::GetMSecs();
     canvas->restore();
@@ -473,16 +472,16 @@ void TestResult::testOne() {
             SkDebugf("unable to decode %s\n", fFilename);
             goto finish;
         }
-        int width = pic->width();
-        int height = pic->height();
+        SkScalar width = pic->cullRect().width();
+        SkScalar height = pic->cullRect().height();
         SkBitmap oldBitmap, opBitmap;
         fScale = 1;
         while (width / fScale > 32767 || height / fScale > 32767) {
             ++fScale;
         }
         do {
-            int dimX = (width + fScale - 1) / fScale;
-            int dimY = (height + fScale - 1) / fScale;
+            int dimX = SkScalarCeilToInt(width / fScale);
+            int dimY = SkScalarCeilToInt(height / fScale);
             if (oldBitmap.allocN32Pixels(dimX, dimY) &&
                 opBitmap.allocN32Pixels(dimX, dimY)) {
                 break;
@@ -490,7 +489,7 @@ void TestResult::testOne() {
             SkDebugf("-%d-", fScale);
         } while (++fScale < 256);
         if (fScale >= 256) {
-            SkDebugf("unable to allocate bitmap for %s (w=%d h=%d)\n", fFilename,
+            SkDebugf("unable to allocate bitmap for %s (w=%f h=%f)\n", fFilename,
                     width, height);
             goto finish;
         }

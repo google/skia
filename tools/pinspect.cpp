@@ -40,7 +40,9 @@ static SkPicture* inspect(const char path[]) {
         SkDebugf("Could not create SkPicture: %s\n", path);
         return NULL;
     }
-    printf("picture size:[%d %d]\n", pic->width(), pic->height());
+    printf("picture cullRect: [%f %f %f %f]\n", 
+           pic->cullRect().fLeft, pic->cullRect().fTop,
+           pic->cullRect().fRight, pic->cullRect().fBottom);
     return pic;
 }
 

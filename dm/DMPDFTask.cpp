@@ -76,7 +76,7 @@ void PDFTask::draw() {
         fGM->draw(pdf.canvas());
         pdfData.reset(pdf.end());
     } else {
-        SinglePagePDF pdf(SkIntToScalar(fPicture->width()), SkIntToScalar(fPicture->height()));
+        SinglePagePDF pdf(fPicture->cullRect().width(), fPicture->cullRect().height());
         fPicture->draw(pdf.canvas());
         pdfData.reset(pdf.end());
     }

@@ -61,9 +61,7 @@ class PictureShaderTileGM : public skiagm::GM {
 public:
     PictureShaderTileGM() {
         SkPictureRecorder recorder;
-        SkCanvas* pictureCanvas = recorder.beginRecording(SkScalarCeilToInt(kPictureSize),
-                                                          SkScalarCeilToInt(kPictureSize),
-                                                          NULL, 0);
+        SkCanvas* pictureCanvas = recorder.beginRecording(kPictureSize, kPictureSize, NULL, 0);
         drawScene(pictureCanvas, kPictureSize);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 

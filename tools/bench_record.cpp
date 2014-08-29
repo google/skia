@@ -61,9 +61,13 @@ static SkBBHFactory* parse_FLAGS_bbh() {
 static void rerecord(const SkPicture& src, SkBBHFactory* bbhFactory) {
     SkPictureRecorder recorder;
     if (FLAGS_skr) {
-        src.draw(recorder.EXPERIMENTAL_beginRecording(src.width(), src.height(), bbhFactory));
+        src.draw(recorder.EXPERIMENTAL_beginRecording(src.cullRect().width(), 
+                                                      src.cullRect().height(), 
+                                                      bbhFactory));
     } else {
-        src.draw(recorder.  DEPRECATED_beginRecording(src.width(), src.height(), bbhFactory));
+        src.draw(recorder.  DEPRECATED_beginRecording(src.cullRect().width(), 
+                                                      src.cullRect().height(), 
+                                                      bbhFactory));
     }
     SkAutoTUnref<SkPicture> pic(recorder.endRecording());
 }

@@ -12,8 +12,7 @@
 
 DEFINE_string2(input, i, "", "skp on which to report");
 DEFINE_bool2(version, v, true, "version");
-DEFINE_bool2(width, w, true, "width");
-DEFINE_bool2(height, h, true, "height");
+DEFINE_bool2(cullRect, c, true, "cullRect");
 DEFINE_bool2(flags, f, true, "flags");
 DEFINE_bool2(tags, t, true, "tags");
 DEFINE_bool2(quiet, q, false, "quiet");
@@ -59,11 +58,10 @@ int tool_main(int argc, char** argv) {
     if (FLAGS_version && !FLAGS_quiet) {
         SkDebugf("Version: %d\n", info.fVersion);
     }
-    if (FLAGS_width && !FLAGS_quiet) {
-        SkDebugf("Width: %d\n", info.fWidth);
-    }
-    if (FLAGS_height && !FLAGS_quiet) {
-        SkDebugf("Height: %d\n", info.fHeight);
+    if (FLAGS_cullRect && !FLAGS_quiet) {
+        SkDebugf("Cull Rect: %f,%f,%f,%f\n", 
+                 info.fCullRect.fLeft, info.fCullRect.fTop, 
+                 info.fCullRect.fRight, info.fCullRect.fBottom);
     }
     if (FLAGS_flags && !FLAGS_quiet) {
         SkDebugf("Flags: 0x%x\n", info.fFlags);

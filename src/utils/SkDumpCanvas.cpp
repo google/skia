@@ -434,13 +434,15 @@ void SkDumpCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y
 
 void SkDumpCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                  const SkPaint* paint) {
-    this->dump(kDrawPicture_Verb, NULL, "drawPicture(%p) %d:%d", picture,
-               picture->width(), picture->height());
+    this->dump(kDrawPicture_Verb, NULL, "drawPicture(%p) %f:%f:%f:%f", picture,
+               picture->cullRect().fLeft, picture->cullRect().fTop,
+               picture->cullRect().fRight, picture->cullRect().fBottom);
     fNestLevel += 1;
     this->INHERITED::onDrawPicture(picture, matrix, paint);
     fNestLevel -= 1;
-    this->dump(kDrawPicture_Verb, NULL, "endPicture(%p) %d:%d", &picture,
-               picture->width(), picture->height());
+    this->dump(kDrawPicture_Verb, NULL, "endPicture(%p) %f:%f:%f:%f", &picture,
+               picture->cullRect().fLeft, picture->cullRect().fTop,
+               picture->cullRect().fRight, picture->cullRect().fBottom);
 }
 
 void SkDumpCanvas::drawVertices(VertexMode vmode, int vertexCount,

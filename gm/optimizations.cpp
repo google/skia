@@ -17,8 +17,8 @@
 // heavy-weight operation since we are drawing the picture into a debug canvas
 // to extract the commands.
 static bool check_pattern(SkPicture& input, const SkTDArray<DrawType> &pattern) {
-    SkDebugCanvas debugCanvas(input.width(), input.height());
-    debugCanvas.setBounds(input.width(), input.height());
+    SkDebugCanvas debugCanvas(SkScalarCeilToInt(input.cullRect().width()), 
+                              SkScalarCeilToInt(input.cullRect().height()));
     input.draw(&debugCanvas);
 
     if (pattern.count() != debugCanvas.getSize()) {
@@ -340,7 +340,7 @@ protected:
         };
 
         SkTDArray<DrawType> prePattern, postPattern;
-        int xPos = 0, yPos = 0;
+        SkScalar xPos = 0, yPos = 0;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gOpts); ++i) {
             SkAutoTUnref<SkPicture> pre((*gOpts[i])(&prePattern, &postPattern, fCheckerboard));
@@ -351,16 +351,18 @@ protected:
             }
 
             canvas->save();
-                canvas->translate(SkIntToScalar(xPos), SkIntToScalar(yPos));
+                canvas->translate(xPos, yPos);
                 pre->draw(canvas);
-                xPos += pre->width();
+                xPos += pre->cullRect().width();
             canvas->restore();
 
             // re-render the 'pre' picture and thus 'apply' the optimization
             SkPictureRecorder recorder;
 
             SkCanvas* recordCanvas =
-                recorder.DEPRECATED_beginRecording(pre->width(), pre->height(), NULL, 0);
+                recorder.DEPRECATED_beginRecording(pre->cullRect().width(), 
+                                                   pre->cullRect().height(), 
+                                                   NULL, 0);
 
             pre->draw(recordCanvas);
 
@@ -372,15 +374,15 @@ protected:
             }
 
             canvas->save();
-                canvas->translate(SkIntToScalar(xPos), SkIntToScalar(yPos));
+                canvas->translate(xPos, yPos);
                 post->draw(canvas);
-                xPos += post->width();
+                xPos += post->cullRect().width();
             canvas->restore();
 
             if (xPos >= kWidth) {
                 // start a new line
                 xPos = 0;
-                yPos += post->height();
+                yPos += post->cullRect().height();
             }
 
             // TODO: we could also render the pre and post pictures to bitmaps

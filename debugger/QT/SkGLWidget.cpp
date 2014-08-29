@@ -68,7 +68,7 @@ void SkGLWidget::resizeGL(int w, int h) {
         fGpuDevice = SkGpuDevice::Create(curRenderTarget);
         fCanvas = new SkCanvas(fGpuDevice);
     }
-    fDebugger->resize(w, h);
+    fDebugger->setWindowSize(w, h);
     draw();
 }
 

@@ -371,7 +371,9 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     {
         SkRTreeFactory factory;
         SkPictureRecorder recorder;
-        SkCanvas* recordingCanvas = recorder.beginRecording(kBitmapSize, kBitmapSize, &factory, 0);
+        SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(kBitmapSize), 
+                                                            SkIntToScalar(kBitmapSize), 
+                                                            &factory, 0);
         drawSomething(recordingCanvas);
         SkAutoTUnref<SkPicture> pict(recorder.endRecording());
         filter = SkPictureImageFilter::Create(pict.get(), make_rect());

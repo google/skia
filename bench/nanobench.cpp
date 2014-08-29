@@ -494,7 +494,9 @@ public:
                     };
                     SkTileGridFactory factory(info);
                     SkPictureRecorder recorder;
-                    pic->draw(recorder.beginRecording(pic->width(), pic->height(), &factory));
+                    pic->draw(recorder.beginRecording(pic->cullRect().width(), 
+                                                      pic->cullRect().height(), 
+                                                      &factory));
                     pic.reset(recorder.endRecording());
                 }
 

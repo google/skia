@@ -52,7 +52,8 @@ static const SkPicture* make_picture(SkColor fillColor) {
 
     SkPictureRecorder recorder;
 
-    SkCanvas* canvas = recorder.beginRecording(kPicWidth, kPicHeight);
+    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kPicWidth), 
+                                               SkIntToScalar(kPicHeight));
 
     SkScalar xPos, yPos = 0;
 
@@ -111,7 +112,7 @@ static void no_clip(SkCanvas* canvas, const SkPicture* pictures[2]) {
 static void rect_clip(SkCanvas* canvas, const SkPicture* pictures[2]) {
     canvas->drawPicture(pictures[0]);
 
-    SkRect rect = SkRect::MakeWH(SkIntToScalar(kPicWidth), SkIntToScalar(kPicHeight));
+    SkRect rect = pictures[0]->cullRect();
     rect.inset(kInset, kInset);
 
     canvas->clipRect(rect);
@@ -123,7 +124,7 @@ static void rect_clip(SkCanvas* canvas, const SkPicture* pictures[2]) {
 static void rrect_clip(SkCanvas* canvas, const SkPicture* pictures[2]) {
     canvas->drawPicture(pictures[0]);
 
-    SkRect rect = SkRect::MakeWH(SkIntToScalar(kPicWidth), SkIntToScalar(kPicHeight));
+    SkRect rect = pictures[0]->cullRect();
     rect.inset(kInset, kInset);
         
     SkRRect rrect;
@@ -175,7 +176,8 @@ static void create_content(SkMultiPictureDraw* mpd, PFContentMtd pfGen,
     {
         SkPictureRecorder recorder;
 
-        SkCanvas* pictureCanvas = recorder.beginRecording(kPicWidth, kPicHeight);
+        SkCanvas* pictureCanvas = recorder.beginRecording(SkIntToScalar(kPicWidth), 
+                                                          SkIntToScalar(kPicHeight));
 
         (*pfGen)(pictureCanvas, pictures);
 
@@ -299,7 +301,7 @@ namespace skiagm {
             fPictures[1] = make_picture(SK_ColorGRAY);
         }
 
-        virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE{
+        virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
             SkMultiPictureDraw mpd;
             SkTArray<ComposeStep> composeSteps;
 
@@ -320,9 +322,9 @@ namespace skiagm {
             }
         }
 
-        virtual SkISize onISize() SK_OVERRIDE{ return SkISize::Make(kPicWidth, kPicHeight); }
+        virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(kPicWidth, kPicHeight); }
 
-        virtual SkString onShortName() SK_OVERRIDE{
+        virtual SkString onShortName() SK_OVERRIDE {
             static const char* gContentNames[] = { 
                 "noclip", "rectclip", "rrectclip", "pathclip", "invpathclip" 
             };

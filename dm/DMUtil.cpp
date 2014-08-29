@@ -21,8 +21,8 @@ SkString FileToTaskName(SkString filename) {
 }
 
 SkPicture* RecordPicture(skiagm::GM* gm, SkBBHFactory* factory, bool skr) {
-    const int w = gm->getISize().width(),
-              h = gm->getISize().height();
+    const SkScalar w = SkIntToScalar(gm->getISize().width()),
+                   h = SkIntToScalar(gm->getISize().height());
     SkPictureRecorder recorder;
 
     SkCanvas* canvas = skr ? recorder.EXPERIMENTAL_beginRecording(w, h, factory)

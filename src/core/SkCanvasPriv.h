@@ -12,7 +12,7 @@
 
 class SkAutoCanvasMatrixPaint : SkNoncopyable {
 public:
-    SkAutoCanvasMatrixPaint(SkCanvas*, const SkMatrix*, const SkPaint*, int width, int height);
+    SkAutoCanvasMatrixPaint(SkCanvas*, const SkMatrix*, const SkPaint*, const SkRect& bounds);
     ~SkAutoCanvasMatrixPaint();
 
 private:

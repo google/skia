@@ -2445,7 +2445,7 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
         }
     }
 
-    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->width(), picture->height());
+    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
 
     picture->draw(this);
 }
@@ -2549,16 +2549,16 @@ SkCanvas* SkCanvas::NewRasterDirect(const SkImageInfo& info, void* pixels, size_
 ///////////////////////////////////////////////////////////////////////////////
 
 SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatrix* matrix,
-                                                 const SkPaint* paint, int width, int height)
+                                                 const SkPaint* paint, const SkRect& bounds)
     : fCanvas(canvas)
     , fSaveCount(canvas->getSaveCount())
 {
     if (NULL != paint) {
-        SkRect bounds = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
+        SkRect newBounds = bounds;
         if (matrix) {
-            matrix->mapRect(&bounds);
+            matrix->mapRect(&newBounds);
         }
-        canvas->saveLayer(&bounds, paint);
+        canvas->saveLayer(&newBounds, paint);
     } else if (NULL != matrix) {
         canvas->save();
     }

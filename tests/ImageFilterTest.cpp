@@ -421,7 +421,8 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     }
 }
 
-static void drawSaveLayerPicture(int width, int height, int tileSize, SkBBHFactory* factory, SkBitmap* result) {
+static void draw_saveLayer_picture(int width, int height, int tileSize, 
+                                   SkBBHFactory* factory, SkBitmap* result) {
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(50), 0);
@@ -434,7 +435,9 @@ static void drawSaveLayerPicture(int width, int height, int tileSize, SkBBHFacto
     paint.setImageFilter(imageFilter.get());
     SkPictureRecorder recorder;
     SkRect bounds = SkRect::Make(SkIRect::MakeXYWH(0, 0, 50, 50));
-    SkCanvas* recordingCanvas = recorder.beginRecording(width, height, factory, 0);
+    SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(width), 
+                                                        SkIntToScalar(height), 
+                                                        factory, 0);
     recordingCanvas->translate(-55, 0);
     recordingCanvas->saveLayer(&bounds, &paint);
     recordingCanvas->restore();
@@ -457,8 +460,8 @@ DEF_TEST(ImageFilterDrawMatrixBBH, reporter) {
     SkBitmap result1, result2;
     SkRTreeFactory factory;
 
-    drawSaveLayerPicture(width, height, tileSize, &factory, &result1);
-    drawSaveLayerPicture(width, height, tileSize, NULL, &result2);
+    draw_saveLayer_picture(width, height, tileSize, &factory, &result1);
+    draw_saveLayer_picture(width, height, tileSize, NULL, &result2);
 
     for (int y = 0; y < height; y++) {
         int diffs = memcmp(result1.getAddr32(0, y), result2.getAddr32(0, y), result1.rowBytes());
@@ -513,7 +516,7 @@ DEF_TEST(ImageFilterDilateThenBlurBounds, reporter) {
     REPORTER_ASSERT(reporter, bounds == expectedBounds);
 }
 
-static void drawBlurredRect(SkCanvas* canvas) {
+static void draw_blurred_rect(SkCanvas* canvas) {
     SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(SkIntToScalar(8), 0));
     SkPaint filterPaint;
     filterPaint.setColor(SK_ColorWHITE);
@@ -525,7 +528,7 @@ static void drawBlurredRect(SkCanvas* canvas) {
     canvas->restore();
 }
 
-static void drawPictureClipped(SkCanvas* canvas, const SkRect& clipRect, const SkPicture* picture) {
+static void draw_picture_clipped(SkCanvas* canvas, const SkRect& clipRect, const SkPicture* picture) {
     canvas->save();
     canvas->clipRect(clipRect);
     canvas->drawPicture(picture);
@@ -555,17 +558,21 @@ DEF_TEST(ImageFilterDrawTiledBlurRTree, reporter) {
 
     SkPictureRecorder recorder1, recorder2;
     // The only difference between these two pictures is that one has RTree aceleration.
-    SkCanvas* recordingCanvas1 = recorder1.beginRecording(width, height, NULL, 0);
-    SkCanvas* recordingCanvas2 = recorder2.beginRecording(width, height, &factory, 0);
-    drawBlurredRect(recordingCanvas1);
-    drawBlurredRect(recordingCanvas2);
+    SkCanvas* recordingCanvas1 = recorder1.beginRecording(SkIntToScalar(width), 
+                                                          SkIntToScalar(height), 
+                                                          NULL, 0);
+    SkCanvas* recordingCanvas2 = recorder2.beginRecording(SkIntToScalar(width), 
+                                                          SkIntToScalar(height), 
+                                                          &factory, 0);
+    draw_blurred_rect(recordingCanvas1);
+    draw_blurred_rect(recordingCanvas2);
     SkAutoTUnref<SkPicture> picture1(recorder1.endRecording());
     SkAutoTUnref<SkPicture> picture2(recorder2.endRecording());
     for (int y = 0; y < height; y += tileSize) {
         for (int x = 0; x < width; x += tileSize) {
             SkRect tileRect = SkRect::Make(SkIRect::MakeXYWH(x, y, tileSize, tileSize));
-            drawPictureClipped(&canvas1, tileRect, picture1);
-            drawPictureClipped(&canvas2, tileRect, picture2);
+            draw_picture_clipped(&canvas1, tileRect, picture1);
+            draw_picture_clipped(&canvas2, tileRect, picture2);
         }
     }
     for (int y = 0; y < height; y++) {

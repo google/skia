@@ -57,7 +57,8 @@ int tool_main(int argc, char** argv) {
             SkDebugf("Could not read %s as an SkPicture.\n", FLAGS_skps[i]);
             exit(1);
         }
-        const int w = src->width(), h = src->height();
+        const int w = SkScalarCeilToInt(src->cullRect().width());
+        const int h = SkScalarCeilToInt(src->cullRect().height());
 
         SkRecord record;
         SkRecorder canvas(&record, w, h);

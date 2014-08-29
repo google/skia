@@ -37,8 +37,7 @@ struct SkPictInfo {
 
     char        fMagic[8];
     uint32_t    fVersion;
-    uint32_t    fWidth;
-    uint32_t    fHeight;
+    SkRect      fCullRect;
     uint32_t    fFlags;
 };
 

@@ -166,9 +166,8 @@ static bool pdf_to_stream(SkPicture* picture,
                           SkPicture::EncodeBitmap encoder) {
     SkAutoTUnref<SkDocument> pdfDocument(
             SkDocument::CreatePDF(output, NULL, encoder));
-    SkCanvas* canvas = pdfDocument->beginPage(
-            SkIntToScalar(picture->width()),
-            SkIntToScalar(picture->height()));
+    SkCanvas* canvas = pdfDocument->beginPage(picture->cullRect().width(), 
+                                              picture->cullRect().height());
     canvas->drawPicture(picture);
     canvas->flush();
     return pdfDocument->close();
@@ -255,8 +254,10 @@ int tool_main_core(int argc, char** argv) {
             ++failures;
             continue;
         }
-        SkDebugf("[%-4i %6i] %-*s", picture->width(), picture->height(),
-                 maximumPathLength, basename.c_str());
+        SkDebugf("[%f,%f,%f,%f] %-*s", 
+            picture->cullRect().fLeft, picture->cullRect().fTop,
+            picture->cullRect().fRight, picture->cullRect().fBottom,
+            maximumPathLength, basename.c_str());
 
         SkAutoTDelete<SkWStream> stream(open_stream(outputDir, files[i]));
         if (!stream.get()) {

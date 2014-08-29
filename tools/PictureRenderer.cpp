@@ -191,7 +191,7 @@ void PictureRenderer::end() {
 
 int PictureRenderer::getViewWidth() {
     SkASSERT(fPicture != NULL);
-    int width = SkScalarCeilToInt(fPicture->width() * fScaleFactor);
+    int width = SkScalarCeilToInt(fPicture->cullRect().width() * fScaleFactor);
     if (fViewport.width() > 0) {
         width = SkMin32(width, fViewport.width());
     }
@@ -200,7 +200,7 @@ int PictureRenderer::getViewWidth() {
 
 int PictureRenderer::getViewHeight() {
     SkASSERT(fPicture != NULL);
-    int height = SkScalarCeilToInt(fPicture->height() * fScaleFactor);
+    int height = SkScalarCeilToInt(fPicture->cullRect().height() * fScaleFactor);
     if (fViewport.height() > 0) {
         height = SkMin32(height, fViewport.height());
     }
@@ -216,7 +216,8 @@ void PictureRenderer::buildBBoxHierarchy() {
     if (kNone_BBoxHierarchyType != fBBoxHierarchyType && NULL != fPicture) {
         SkAutoTDelete<SkBBHFactory> factory(this->getFactory());
         SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(fPicture->width(), fPicture->height(),
+        SkCanvas* canvas = recorder.beginRecording(fPicture->cullRect().width(), 
+                                                   fPicture->cullRect().height(),
                                                    factory.get(),
                                                    this->recordFlags());
         fPicture->draw(canvas);
@@ -355,7 +356,8 @@ static SkData* encode_bitmap_to_data(size_t*, const SkBitmap& bm) {
 bool RecordPictureRenderer::render(SkBitmap** out) {
     SkAutoTDelete<SkBBHFactory> factory(this->getFactory());
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(this->getViewWidth(), this->getViewHeight(),
+    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(this->getViewWidth()), 
+                                               SkIntToScalar(this->getViewHeight()),
                                                factory.get(),
                                                this->recordFlags());
     this->scaleToScaleFactor(canvas);
@@ -392,7 +394,8 @@ bool PipePictureRenderer::render(SkBitmap** out) {
     fCanvas->flush();
     if (NULL != out) {
         *out = SkNEW(SkBitmap);
-        setup_bitmap(*out, fPicture->width(), fPicture->height());
+        setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()), 
+                           SkScalarCeilToInt(fPicture->cullRect().height()));
         fCanvas->readPixels(*out, 0, 0);
     }
     if (fEnableWrites) {
@@ -427,7 +430,8 @@ bool SimplePictureRenderer::render(SkBitmap** out) {
     fCanvas->flush();
     if (NULL != out) {
         *out = SkNEW(SkBitmap);
-        setup_bitmap(*out, fPicture->width(), fPicture->height());
+        setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()), 
+                           SkScalarCeilToInt(fPicture->cullRect().height()));
         fCanvas->readPixels(*out, 0, 0);
     }
     if (fEnableWrites) {
@@ -479,10 +483,10 @@ void TiledPictureRenderer::init(const SkPicture* pict, const SkString* writePath
     this->buildBBoxHierarchy();
 
     if (fTileWidthPercentage > 0) {
-        fTileWidth = sk_float_ceil2int(float(fTileWidthPercentage * fPicture->width() / 100));
+        fTileWidth = SkScalarCeilToInt(float(fTileWidthPercentage * fPicture->cullRect().width() / 100));
     }
     if (fTileHeightPercentage > 0) {
-        fTileHeight = sk_float_ceil2int(float(fTileHeightPercentage * fPicture->height() / 100));
+        fTileHeight = SkScalarCeilToInt(float(fTileHeightPercentage * fPicture->cullRect().height() / 100));
     }
 
     if (fTileMinPowerOf2Width > 0) {
@@ -647,7 +651,8 @@ bool TiledPictureRenderer::render(SkBitmap** out) {
     SkBitmap bitmap;
     if (out){
         *out = SkNEW(SkBitmap);
-        setup_bitmap(*out, fPicture->width(), fPicture->height());
+        setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()), 
+                           SkScalarCeilToInt(fPicture->cullRect().height()));
         setup_bitmap(&bitmap, fTileWidth, fTileHeight);
     }
     bool success = true;
@@ -712,7 +717,8 @@ SkString TiledPictureRenderer::getConfigNameInternal() {
 void PlaybackCreationRenderer::setup() {
     SkAutoTDelete<SkBBHFactory> factory(this->getFactory());
     fRecorder.reset(SkNEW(SkPictureRecorder));
-    SkCanvas* canvas = fRecorder->beginRecording(this->getViewWidth(), this->getViewHeight(),
+    SkCanvas* canvas = fRecorder->beginRecording(SkIntToScalar(this->getViewWidth()), 
+                                                 SkIntToScalar(this->getViewHeight()),
                                                  factory.get(),
                                                  this->recordFlags());
     this->scaleToScaleFactor(canvas);
@@ -754,8 +760,8 @@ public:
 #endif
 
     virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE {
-        SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
-                                       SkIntToScalar(fPicture->height()));
+        SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture->cullRect().width()),
+                                       SkIntToScalar(fPicture->cullRect().height()));
         SkData* data = SkPictureUtils::GatherPixelRefs(fPicture, bounds);
         SkSafeUnref(data);
 

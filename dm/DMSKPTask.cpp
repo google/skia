@@ -14,8 +14,8 @@ SKPTask::SKPTask(Reporter* r, TaskRunner* tr, const SkPicture* pic, SkString fil
     : CpuTask(r, tr), fPicture(SkRef(pic)), fName(FileToTaskName(filename)) {}
 
 void SKPTask::draw() {
-    const int width  = SkTMin(fPicture->width(),  FLAGS_skpMaxWidth),
-              height = SkTMin(fPicture->height(), FLAGS_skpMaxHeight);
+    const int width  = SkTMin(SkScalarCeilToInt(fPicture->cullRect().width()),  FLAGS_skpMaxWidth),
+              height = SkTMin(SkScalarCeilToInt(fPicture->cullRect().height()), FLAGS_skpMaxHeight);
     SkBitmap bitmap;
     AllocatePixels(kN32_SkColorType, width, height, &bitmap);
     DrawPicture(*fPicture, &bitmap);

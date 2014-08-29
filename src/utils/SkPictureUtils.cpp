@@ -196,16 +196,16 @@ SkData* SkPictureUtils::GatherPixelRefs(const SkPicture* pict, const SkRect& are
     }
 
     // this test also handles if either area or pict's width/height are empty
-    if (!SkRect::Intersects(area,
-                            SkRect::MakeWH(SkIntToScalar(pict->width()),
-                                           SkIntToScalar(pict->height())))) {
+    if (!SkRect::Intersects(area, pict->cullRect())) {
         return NULL;
     }
 
     SkTDArray<SkPixelRef*> array;
     PixelRefSet prset(&array);
 
-    GatherPixelRefDevice device(pict->width(), pict->height(), &prset);
+    GatherPixelRefDevice device(SkScalarCeilToInt(pict->cullRect().width()), 
+                                SkScalarCeilToInt(pict->cullRect().height()), 
+                                &prset);
     SkNoSaveLayerCanvas canvas(&device);
 
     canvas.clipRect(area, SkRegion::kIntersect_Op, false);

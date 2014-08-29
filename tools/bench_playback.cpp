@@ -44,18 +44,23 @@ static SkPicture* rerecord(const SkPicture& src, bool skr) {
     SkTileGridFactory factory(info);
 
     SkPictureRecorder recorder;
-    src.draw(skr ? recorder.EXPERIMENTAL_beginRecording(src.width(), src.height(), &factory)
-                 : recorder.  DEPRECATED_beginRecording(src.width(), src.height(), &factory));
+    src.draw(skr ? recorder.EXPERIMENTAL_beginRecording(src.cullRect().width(), 
+                                                        src.cullRect().height(), 
+                                                        &factory)
+                 : recorder.  DEPRECATED_beginRecording(src.cullRect().width(), 
+                                                        src.cullRect().height(), 
+                                                        &factory));
     return recorder.endRecording();
 }
 
 static void bench(SkPMColor* scratch, const SkPicture& src, const char* name) {
     SkAutoTUnref<const SkPicture> picture(rerecord(src, FLAGS_skr));
 
-    SkAutoTDelete<SkCanvas> canvas(SkCanvas::NewRasterDirectN32(src.width(),
-                                                                src.height(),
-                                                                scratch,
-                                                                src.width() * sizeof(SkPMColor)));
+    SkAutoTDelete<SkCanvas> canvas(
+        SkCanvas::NewRasterDirectN32(SkScalarCeilToInt(src.cullRect().width()),
+                                     SkScalarCeilToInt(src.cullRect().height()),
+                                     scratch,
+                                     SkScalarCeilToInt(src.cullRect().width()) * sizeof(SkPMColor)));
     canvas->clipRect(SkRect::MakeWH(SkIntToScalar(FLAGS_tile), SkIntToScalar(FLAGS_tile)));
 
     // Draw once to warm any caches.  The first sample otherwise can be very noisy.
@@ -121,9 +126,13 @@ int tool_main(int argc, char** argv) {
             continue;
         }
 
-        if (src->width() * src->height() > kMaxArea) {
-            SkDebugf("%s (%dx%d) is larger than hardcoded scratch bitmap (%dpx).\n",
-                     path.c_str(), src->width(), src->height(), kMaxArea);
+        if (SkScalarCeilToInt(src->cullRect().width()) * 
+            SkScalarCeilToInt(src->cullRect().height()) > kMaxArea) {
+            SkDebugf("%s (%f,%f,%f,%f) is larger than hardcoded scratch bitmap (%dpx).\n",
+                     path.c_str(), 
+                     src->cullRect().fLeft, src->cullRect().fTop,
+                     src->cullRect().fRight, src->cullRect().fBottom,
+                     kMaxArea);
             failed = true;
             continue;
         }

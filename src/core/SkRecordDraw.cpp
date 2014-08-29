@@ -321,7 +321,7 @@ private:
     }
 
     Bounds bounds(const DrawPicture& op) const {
-        SkRect dst = SkRect::MakeWH(op.picture->width(), op.picture->height());
+        SkRect dst = op.picture->cullRect();
         if (op.matrix) {
             op.matrix->mapRect(&dst);
         }
