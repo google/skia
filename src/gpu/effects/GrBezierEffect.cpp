@@ -60,86 +60,56 @@ void GrGLConicEffect::emitCode(GrGLFullProgramBuilder* builder,
     vsBuilder->codeAppendf("%s = %s;", vsName, attr0Name->c_str());
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-
-    GrGLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar gF("gF", kVec2f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar gFM("gFM", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar func("func", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-
-    fsBuilder->declAppend(edgeAlpha);
-    fsBuilder->declAppend(dklmdx);
-    fsBuilder->declAppend(dklmdy);
-    fsBuilder->declAppend(dfdx);
-    fsBuilder->declAppend(dfdy);
-    fsBuilder->declAppend(gF);
-    fsBuilder->declAppend(gFM);
-    fsBuilder->declAppend(func);
+    fsBuilder->codeAppend("float edgeAlpha;");
 
     switch (fEdgeType) {
         case kHairlineAA_GrEffectEdgeType: {
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
-            fsBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), fsName);
-            fsBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), fsName);
-            fsBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
-                                   dfdx.c_str(), fsName, dklmdx.c_str(), fsName, dklmdx.c_str(),
-                                   fsName, dklmdx.c_str());
-            fsBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
-                                   dfdy.c_str(), fsName, dklmdy.c_str(), fsName, dklmdy.c_str(),
-                                   fsName, dklmdy.c_str());
-            fsBuilder->codeAppendf("%s = vec2(%s, %s);",
-                                   gF.c_str(), dfdx.c_str(), dfdy.c_str());
-            fsBuilder->codeAppendf("%s = sqrt(dot(%s, %s));",
-                                   gFM.c_str(), gF.c_str(), gF.c_str());
-            fsBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
-                                   func.c_str(), fsName, fsName, fsName, fsName);
-            fsBuilder->codeAppendf("%s = abs(%s);", func.c_str(), func.c_str());
-            fsBuilder->codeAppendf("%s = %s / %s;",
-                                   edgeAlpha.c_str(), func.c_str(), gFM.c_str());
-            fsBuilder->codeAppendf("%s = max(1.0 - %s, 0.0);",
-                                   edgeAlpha.c_str(), edgeAlpha.c_str());
+            fsBuilder->codeAppendf("vec3 dklmdx = dFdx(%s.xyz);", fsName);
+            fsBuilder->codeAppendf("vec3 dklmdy = dFdy(%s.xyz);", fsName);
+            fsBuilder->codeAppendf("float dfdx ="
+                                   "2.0 * %s.x * dklmdx.x - %s.y * dklmdx.z - %s.z * dklmdx.y;",
+                                   fsName, fsName, fsName);
+            fsBuilder->codeAppendf("float dfdy ="
+                                   "2.0 * %s.x * dklmdy.x - %s.y * dklmdy.z - %s.z * dklmdy.y;",
+                                   fsName, fsName, fsName);
+            fsBuilder->codeAppend("vec2 gF = vec2(dfdx, dfdy);");
+            fsBuilder->codeAppend("float gFM = sqrt(dot(gF, gF));");
+            fsBuilder->codeAppendf("float func = %s.x*%s.x - %s.y*%s.z;", fsName, fsName,
+                                   fsName, fsName);
+            fsBuilder->codeAppend("func = abs(func);");
+            fsBuilder->codeAppend("edgeAlpha = func / gFM;");
+            fsBuilder->codeAppend("edgeAlpha = max(1.0 - edgeAlpha, 0.0);");
             // Add line below for smooth cubic ramp
-            // fsBuilder->codeAppendf("%s = %s * %s * (3.0 - 2.0 * %s);",
-            //                        edgeAlpha.c_str(), edgeAlpha.c_str(), edgeAlpha.c_str(),
-            //                        edgeAlpha.c_str());
+            // fsBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
         }
         case kFillAA_GrEffectEdgeType: {
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
-            fsBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), fsName);
-            fsBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), fsName);
-            fsBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
-                                   dfdx.c_str(), fsName, dklmdx.c_str(), fsName, dklmdx.c_str(),
-                                   fsName, dklmdx.c_str());
-            fsBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
-                                   dfdy.c_str(), fsName, dklmdy.c_str(), fsName, dklmdy.c_str(),
-                                   fsName, dklmdy.c_str());
-            fsBuilder->codeAppendf("%s = vec2(%s, %s);",
-                                   gF.c_str(), dfdx.c_str(), dfdy.c_str());
-            fsBuilder->codeAppendf("%s = sqrt(dot(%s, %s));",
-                                   gFM.c_str(), gF.c_str(), gF.c_str());
-            fsBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
-                                   func.c_str(), fsName, fsName, fsName, fsName);
-            fsBuilder->codeAppendf("%s = %s / %s;",
-                                   edgeAlpha.c_str(), func.c_str(), gFM.c_str());
-            fsBuilder->codeAppendf("%s = clamp(1.0 - %s, 0.0, 1.0);",
-                                   edgeAlpha.c_str(), edgeAlpha.c_str());
+            fsBuilder->codeAppendf("vec3 dklmdx = dFdx(%s.xyz);", fsName);
+            fsBuilder->codeAppendf("vec3 dklmdy = dFdy(%s.xyz);", fsName);
+            fsBuilder->codeAppendf("float dfdx ="
+                                   "2.0 * %s.x * dklmdx.x - %s.y * dklmdx.z - %s.z * dklmdx.y;",
+                                   fsName, fsName, fsName);
+            fsBuilder->codeAppendf("float dfdy ="
+                                   "2.0 * %s.x * dklmdy.x - %s.y * dklmdy.z - %s.z * dklmdy.y;",
+                                   fsName, fsName, fsName);
+            fsBuilder->codeAppend("vec2 gF = vec2(dfdx, dfdy);");
+            fsBuilder->codeAppend("float gFM = sqrt(dot(gF, gF));");
+            fsBuilder->codeAppendf("float func = %s.x * %s.x - %s.y * %s.z;", fsName, fsName,
+                                   fsName, fsName);
+            fsBuilder->codeAppend("edgeAlpha = func / gFM;");
+            fsBuilder->codeAppend("edgeAlpha = clamp(1.0 - edgeAlpha, 0.0, 1.0);");
             // Add line below for smooth cubic ramp
-            // fsBuilder->codeAppendf("%s = %s * %s * (3.0 - 2.0 * %s);",
-            //                        edgeAlpha.c_str(), edgeAlpha.c_str(), edgeAlpha.c_str(),
-            //                        edgeAlpha.c_str());
+            // fsBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
         }
         case kFillBW_GrEffectEdgeType: {
-            fsBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
-                                   edgeAlpha.c_str(), fsName, fsName, fsName, fsName);
-            fsBuilder->codeAppendf("%s = float(%s < 0.0);",
-                                  edgeAlpha.c_str(), edgeAlpha.c_str());
+            fsBuilder->codeAppendf("edgeAlpha = %s.x * %s.x - %s.y * %s.z;", fsName, fsName,
+                                   fsName, fsName);
+            fsBuilder->codeAppend("edgeAlpha = float(edgeAlpha < 0.0);");
             break;
         }
         default:
@@ -147,7 +117,7 @@ void GrGLConicEffect::emitCode(GrGLFullProgramBuilder* builder,
     }
 
     fsBuilder->codeAppendf("%s = %s;", outputColor,
-                           (GrGLSLExpr4(inputColor) * GrGLSLExpr1(edgeAlpha.c_str())).c_str());
+                           (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
 }
 
 void GrGLConicEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
@@ -380,56 +350,82 @@ void GrGLCubicEffect::emitCode(GrGLFullProgramBuilder* builder,
     vsBuilder->codeAppendf("%s = %s;", vsName, attr0Name->c_str());
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    fsBuilder->codeAppend("float edgeAlpha;");
+
+    GrGLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
+    GrGLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
+    GrGLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
+    GrGLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
+    GrGLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
+    GrGLShaderVar gF("gF", kVec2f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
+    GrGLShaderVar gFM("gFM", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
+    GrGLShaderVar func("func", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
+
+    fsBuilder->declAppend(edgeAlpha);
+    fsBuilder->declAppend(dklmdx);
+    fsBuilder->declAppend(dklmdy);
+    fsBuilder->declAppend(dfdx);
+    fsBuilder->declAppend(dfdy);
+    fsBuilder->declAppend(gF);
+    fsBuilder->declAppend(gFM);
+    fsBuilder->declAppend(func);
 
     switch (fEdgeType) {
         case kHairlineAA_GrEffectEdgeType: {
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
-            fsBuilder->codeAppendf("vec3 dklmdx = dFdx(%s.xyz);", fsName);
-            fsBuilder->codeAppendf("vec3 dklmdy = dFdy(%s.xyz);", fsName);
-            fsBuilder->codeAppendf("float dfdx ="
-                                   "3.0*%s.x*%s.x * dklmdx.x - %s.y * dklmdx.z - %s.z * dklmdx.y;",
-                                   fsName, fsName, fsName, fsName);
-            fsBuilder->codeAppendf("float dfdy ="
-                                   "3.0*%s.x*%s.x * dklmdy.x - %s.y * dklmdy.z - %s.z * dklmdy.y;",
-                                   fsName, fsName, fsName, fsName);
-            fsBuilder->codeAppend("vec2 gF = vec2(dfdx, dfdy);");
-            fsBuilder->codeAppend("float gFM = sqrt(dot(gF, gF));");
-            fsBuilder->codeAppendf("float func = %s.x * %s.x * %s.x - %s.y * %s.z;",
-                                   fsName, fsName, fsName, fsName, fsName);
-            fsBuilder->codeAppend("func = abs(func);");
-            fsBuilder->codeAppend("edgeAlpha = func / gFM;");
-            fsBuilder->codeAppend("edgeAlpha = max(1.0 - edgeAlpha, 0.0);");
+            fsBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), fsName);
+            fsBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), fsName);
+            fsBuilder->codeAppendf("%s = 3.0 * %s.x * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+                                   dfdx.c_str(), fsName, fsName, dklmdx.c_str(), fsName,
+                                   dklmdx.c_str(), fsName, dklmdx.c_str());
+            fsBuilder->codeAppendf("%s = 3.0 * %s.x * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+                                   dfdy.c_str(), fsName, fsName, dklmdy.c_str(), fsName,
+                                   dklmdy.c_str(), fsName, dklmdy.c_str());
+            fsBuilder->codeAppendf("%s = vec2(%s, %s);", gF.c_str(), dfdx.c_str(), dfdy.c_str());
+            fsBuilder->codeAppendf("%s = sqrt(dot(%s, %s));", gFM.c_str(), gF.c_str(), gF.c_str());
+            fsBuilder->codeAppendf("%s = %s.x * %s.x * %s.x - %s.y * %s.z;",
+                                   func.c_str(), fsName, fsName, fsName, fsName, fsName);
+            fsBuilder->codeAppendf("%s = abs(%s);", func.c_str(), func.c_str());
+            fsBuilder->codeAppendf("%s = %s / %s;",
+                                   edgeAlpha.c_str(), func.c_str(), gFM.c_str());
+            fsBuilder->codeAppendf("%s = max(1.0 - %s, 0.0);",
+                                   edgeAlpha.c_str(), edgeAlpha.c_str());
             // Add line below for smooth cubic ramp
-            // fsBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
+            // fsBuilder->codeAppendf("%s = %s * %s * (3.0 - 2.0 * %s);",
+            //                        edgeAlpha.c_str(), edgeAlpha.c_str(), edgeAlpha.c_str(),
+            //                        edgeAlpha.c_str());
             break;
         }
         case kFillAA_GrEffectEdgeType: {
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
-            fsBuilder->codeAppendf("vec3 dklmdx = dFdx(%s.xyz);", fsName);
-            fsBuilder->codeAppendf("vec3 dklmdy = dFdy(%s.xyz);", fsName);
-            fsBuilder->codeAppendf("float dfdx ="
-                                   "3.0*%s.x*%s.x * dklmdx.x - %s.y * dklmdx.z - %s.z * dklmdx.y;",
-                                   fsName, fsName, fsName, fsName);
-            fsBuilder->codeAppendf("float dfdy ="
-                                   "3.0*%s.x*%s.x * dklmdy.x - %s.y * dklmdy.z - %s.z * dklmdy.y;",
-                                   fsName, fsName, fsName, fsName);
-            fsBuilder->codeAppend("vec2 gF = vec2(dfdx, dfdy);");
-            fsBuilder->codeAppend("float gFM = sqrt(dot(gF, gF));");
-            fsBuilder->codeAppendf("float func = %s.x * %s.x * %s.x - %s.y * %s.z;",
-                                   fsName, fsName, fsName, fsName, fsName);
-            fsBuilder->codeAppend("edgeAlpha = func / gFM;");
-            fsBuilder->codeAppend("edgeAlpha = clamp(1.0 - edgeAlpha, 0.0, 1.0);");
+            fsBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), fsName);
+            fsBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), fsName);
+            fsBuilder->codeAppendf("%s ="
+                                   "3.0 * %s.x * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+                                   dfdx.c_str(), fsName, fsName, dklmdx.c_str(), fsName,
+                                   dklmdx.c_str(), fsName, dklmdx.c_str());
+            fsBuilder->codeAppendf("%s = 3.0 * %s.x * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+                                   dfdy.c_str(), fsName, fsName, dklmdy.c_str(), fsName,
+                                   dklmdy.c_str(), fsName, dklmdy.c_str());
+            fsBuilder->codeAppendf("%s = vec2(%s, %s);", gF.c_str(), dfdx.c_str(), dfdy.c_str());
+            fsBuilder->codeAppendf("%s = sqrt(dot(%s, %s));", gFM.c_str(), gF.c_str(), gF.c_str());
+            fsBuilder->codeAppendf("%s = %s.x * %s.x * %s.x - %s.y * %s.z;",
+                                   func.c_str(), fsName, fsName, fsName, fsName, fsName);
+            fsBuilder->codeAppendf("%s = %s / %s;",
+                                   edgeAlpha.c_str(), func.c_str(), gFM.c_str());
+            fsBuilder->codeAppendf("%s = clamp(1.0 - %s, 0.0, 1.0);",
+                                   edgeAlpha.c_str(), edgeAlpha.c_str());
             // Add line below for smooth cubic ramp
-            // fsBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
+            // fsBuilder->codeAppendf("%s = %s * %s * (3.0 - 2.0 * %s);",
+            //                        edgeAlpha.c_str(), edgeAlpha.c_str(), edgeAlpha.c_str(),
+            //                        edgeAlpha.c_str());
             break;
         }
         case kFillBW_GrEffectEdgeType: {
-            fsBuilder->codeAppendf("edgeAlpha = %s.x * %s.x * %s.x - %s.y * %s.z;",
-                                   fsName, fsName, fsName, fsName, fsName);
-            fsBuilder->codeAppend("edgeAlpha = float(edgeAlpha < 0.0);");
+            fsBuilder->codeAppendf("%s = %s.x * %s.x * %s.x - %s.y * %s.z;",
+                                   edgeAlpha.c_str(), fsName, fsName, fsName, fsName, fsName);
+            fsBuilder->codeAppendf("%s = float(%s < 0.0);", edgeAlpha.c_str(), edgeAlpha.c_str());
             break;
         }
         default:
@@ -437,7 +433,7 @@ void GrGLCubicEffect::emitCode(GrGLFullProgramBuilder* builder,
     }
 
     fsBuilder->codeAppendf("%s = %s;", outputColor,
-                           (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
+                           (GrGLSLExpr4(inputColor) * GrGLSLExpr1(edgeAlpha.c_str())).c_str());
 }
 
 void GrGLCubicEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
@@ -481,3 +477,4 @@ GrEffect* GrCubicEffect::TestCreate(SkRandom* random,
     } while (NULL == effect);
     return effect;
 }
+
