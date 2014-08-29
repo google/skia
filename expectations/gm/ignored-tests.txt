@@ -43,6 +43,26 @@ matrixconvolution
 fontcache
 
 #humper: https://codereview.chromium.org/470233002/
+imagefilterscropexpand_565.png
+xfermodeimagefilter_565.png
+bitmapsource_8888.png
+imagefiltersscaled_565.png
+resizeimagefilter_8888.png
+resizeimagefilter_565.png
+imagefiltersclipped_565.png
+tileimagefilter_565.png
+displacement_8888.png
+imagefiltersscaled_8888.png
+xfermodeimagefilter_8888.png
+imagefiltersclipped_8888.png
+imagefilterscropexpand_8888.png
+offsetimagefilter_8888.png
+displacement_565.png
+bitmapsource_565.png
+tileimagefilter_8888.png
+imagefiltersgraph_8888.png
+offsetimagefilter_565.png
+imagefiltersgraph_565.png
 downsamplebitmap_checkerboard_high_512_256
 downsamplebitmap_image_high_mandrill_512.png
 downsamplebitmap_text_high_72.00pt
