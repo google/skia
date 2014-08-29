@@ -36,11 +36,18 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
     SkFDot6 x0, y0, x1, y1;
 
     {
+#ifdef SK_RASTERIZE_EVEN_ROUNDING
+        x0 = SkScalarRoundToFDot6(p0.fX, shift);
+        y0 = SkScalarRoundToFDot6(p0.fY, shift);
+        x1 = SkScalarRoundToFDot6(p1.fX, shift);
+        y1 = SkScalarRoundToFDot6(p1.fY, shift);
+#else
         float scale = float(1 << (shift + 6));
         x0 = int(p0.fX * scale);
         y0 = int(p0.fY * scale);
         x1 = int(p1.fX * scale);
         y1 = int(p1.fY * scale);
+#endif
     }
 
     int winding = 1;
@@ -171,6 +178,14 @@ int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], int shift)
     SkFDot6 x0, y0, x1, y1, x2, y2;
 
     {
+#ifdef SK_RASTERIZE_EVEN_ROUNDING
+        x0 = SkScalarRoundToFDot6(pts[0].fX, shift);
+        y0 = SkScalarRoundToFDot6(pts[0].fY, shift);
+        x1 = SkScalarRoundToFDot6(pts[1].fX, shift);
+        y1 = SkScalarRoundToFDot6(pts[1].fY, shift);
+        x2 = SkScalarRoundToFDot6(pts[2].fX, shift);
+        y2 = SkScalarRoundToFDot6(pts[2].fY, shift);
+#else
         float scale = float(1 << (shift + 6));
         x0 = int(pts[0].fX * scale);
         y0 = int(pts[0].fY * scale);
@@ -178,6 +193,7 @@ int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], int shift)
         y1 = int(pts[1].fY * scale);
         x2 = int(pts[2].fX * scale);
         y2 = int(pts[2].fY * scale);
+#endif
     }
 
     int winding = 1;
@@ -321,6 +337,16 @@ int SkCubicEdge::setCubic(const SkPoint pts[4], const SkIRect* clip, int shift)
     SkFDot6 x0, y0, x1, y1, x2, y2, x3, y3;
 
     {
+#ifdef SK_RASTERIZE_EVEN_ROUNDING
+        x0 = SkScalarRoundToFDot6(pts[0].fX, shift);
+        y0 = SkScalarRoundToFDot6(pts[0].fY, shift);
+        x1 = SkScalarRoundToFDot6(pts[1].fX, shift);
+        y1 = SkScalarRoundToFDot6(pts[1].fY, shift);
+        x2 = SkScalarRoundToFDot6(pts[2].fX, shift);
+        y2 = SkScalarRoundToFDot6(pts[2].fY, shift);
+        x3 = SkScalarRoundToFDot6(pts[3].fX, shift);
+        y3 = SkScalarRoundToFDot6(pts[3].fY, shift);
+#else
         float scale = float(1 << (shift + 6));
         x0 = int(pts[0].fX * scale);
         y0 = int(pts[0].fY * scale);
@@ -330,6 +356,7 @@ int SkCubicEdge::setCubic(const SkPoint pts[4], const SkIRect* clip, int shift)
         y2 = int(pts[2].fY * scale);
         x3 = int(pts[3].fX * scale);
         y3 = int(pts[3].fY * scale);
+#endif
     }
 
     int winding = 1;

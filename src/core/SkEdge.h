@@ -89,11 +89,18 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
     SkFDot6 x0, y0, x1, y1;
 
     {
+#ifdef SK_RASTERIZE_EVEN_ROUNDING
+        x0 = SkScalarRoundToFDot6(p0.fX, shift);
+        y0 = SkScalarRoundToFDot6(p0.fY, shift);
+        x1 = SkScalarRoundToFDot6(p1.fX, shift);
+        y1 = SkScalarRoundToFDot6(p1.fY, shift);
+#else
         float scale = float(1 << (shift + 6));
         x0 = int(p0.fX * scale);
         y0 = int(p0.fY * scale);
         x1 = int(p1.fX * scale);
         y1 = int(p1.fY * scale);
+#endif
     }
 
     int winding = 1;
