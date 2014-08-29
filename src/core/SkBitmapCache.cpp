@@ -10,6 +10,10 @@
 #include "SkMipMap.h"
 #include "SkRect.h"
 
+SkBitmap::Allocator* SkBitmapCache::GetAllocator() {
+    return SkResourceCache::GetAllocator();
+}
+
 /**
  This function finds the bounds of the bitmap *within its pixelRef*.
  If the bitmap lacks a pixelRef, it will return an empty rect, since
@@ -91,6 +95,7 @@ void SkBitmapCache::Add(const SkBitmap& src, SkScalar invScaleX, SkScalar invSca
         // degenerate, and the key we use for mipmaps
         return;
     }
+    SkASSERT(result.isImmutable());
     SkResourceCache::Add(SkNEW_ARGS(BitmapRec, (src.getGenerationID(), invScaleX, invScaleY,
                                                 get_bounds_from_bitmap(src), result)));
 }
@@ -101,6 +106,7 @@ bool SkBitmapCache::Find(uint32_t genID, int width, int height, SkBitmap* result
 }
 
 void SkBitmapCache::Add(uint32_t genID, int width, int height, const SkBitmap& result) {
+    SkASSERT(result.isImmutable());
     SkResourceCache::Add(SkNEW_ARGS(BitmapRec, (genID, SK_Scalar1, SK_Scalar1,
                                                 SkIRect::MakeWH(width, height), result)));
 }

@@ -189,6 +189,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
             }
 
             SkASSERT(NULL != fScaledBitmap.getPixels());
+            fScaledBitmap.setImmutable();
             SkBitmapCache::Add(fOrigBitmap, roundedDestWidth, roundedDestHeight, fScaledBitmap);
         }
 

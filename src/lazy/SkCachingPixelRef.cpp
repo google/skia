@@ -54,6 +54,7 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
             fErrorInDecoding = true;
             return false;
         }
+        fLockedBitmap.setImmutable();
         SkBitmapCache::Add(this->getGenerationID(), info.fWidth, info.fHeight, fLockedBitmap);
     }
 
