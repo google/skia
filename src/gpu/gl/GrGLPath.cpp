@@ -85,29 +85,32 @@ void GrGLPath::InitPathObject(GrGpuGL* gpu,
                               GrGLuint pathID,
                               const SkPath& skPath,
                               const SkStrokeRec& stroke) {
-    SkSTArray<16, GrGLubyte, true> pathCommands;
-    SkSTArray<16, SkPoint, true> pathPoints;
+    if (!skPath.isEmpty()) {
+        SkSTArray<16, GrGLubyte, true> pathCommands;
+        SkSTArray<16, SkPoint, true> pathPoints;
 
-    int verbCnt = skPath.countVerbs();
-    int pointCnt = skPath.countPoints();
-    pathCommands.resize_back(verbCnt);
-    pathPoints.resize_back(pointCnt);
+        int verbCnt = skPath.countVerbs();
+        int pointCnt = skPath.countPoints();
+        pathCommands.resize_back(verbCnt);
+        pathPoints.resize_back(pointCnt);
 
-    // TODO: Direct access to path points since we could pass them on directly.
-    skPath.getPoints(&pathPoints[0], pointCnt);
-    skPath.getVerbs(&pathCommands[0], verbCnt);
+        // TODO: Direct access to path points since we could pass them on directly.
+        skPath.getPoints(&pathPoints[0], pointCnt);
+        skPath.getVerbs(&pathCommands[0], verbCnt);
 
-    SkDEBUGCODE(int numPts = 0);
-    for (int i = 0; i < verbCnt; ++i) {
-        SkPath::Verb v = static_cast<SkPath::Verb>(pathCommands[i]);
-        pathCommands[i] = verb_to_gl_path_cmd(v);
-        SkDEBUGCODE(numPts += num_pts(v));
+        SkDEBUGCODE(int numPts = 0);
+        for (int i = 0; i < verbCnt; ++i) {
+            SkPath::Verb v = static_cast<SkPath::Verb>(pathCommands[i]);
+            pathCommands[i] = verb_to_gl_path_cmd(v);
+            SkDEBUGCODE(numPts += num_pts(v));
+        }
+        SkASSERT(pathPoints.count() == numPts);
+
+        GR_GL_CALL(gpu->glInterface(),
+                   PathCommands(pathID, verbCnt, &pathCommands[0],
+                                2 * pointCnt, GR_GL_FLOAT, &pathPoints[0]));
     }
-    SkASSERT(pathPoints.count() == numPts);
 
-    GR_GL_CALL(gpu->glInterface(),
-               PathCommands(pathID, verbCnt, &pathCommands[0],
-                            2 * pointCnt, GR_GL_FLOAT, &pathPoints[0]));
     if (stroke.needToApply()) {
         SkASSERT(!stroke.isHairlineStyle());
         GR_GL_CALL(gpu->glInterface(),
@@ -128,7 +131,6 @@ void GrGLPath::InitPathObject(GrGpuGL* gpu,
 GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
     : INHERITED(gpu, kIsWrapped, path, stroke),
       fPathID(gpu->glPathRendering()->genPaths(1)) {
-    SkASSERT(!path.isEmpty());
 
     InitPathObject(gpu, fPathID, fSkPath, stroke);
 
