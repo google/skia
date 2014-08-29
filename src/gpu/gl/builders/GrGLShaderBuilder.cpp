@@ -62,6 +62,12 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGLProgramBuilder* program)
     , fFeaturesAddedMask(0) {
 }
 
+void GrGLShaderBuilder::declAppend(const GrGLShaderVar& var) {
+    SkString tempDecl;
+    var.appendDecl(fProgramBuilder->ctxInfo(), &tempDecl);
+    this->codeAppendf("%s;", tempDecl.c_str());
+}
+
 void GrGLShaderBuilder::emitFunction(GrSLType returnType,
                                      const char* name,
                                      int argCnt,

@@ -36,6 +36,9 @@
 # To be rebaselined (fmalita)
 textblob
 
+# Expected diffs on gpu cubics (egdaniel)
+bezier_cubic_effects
+
 # reed
 matrixconvolution
 

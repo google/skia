@@ -94,6 +94,11 @@ public:
        va_end(args);
     }
 
+    /**
+     * Appends a variable declaration to one of the shaders
+     */
+    void declAppend(const GrGLShaderVar& var);
+
     /** Emits a helper function outside of main() in the fragment shader. */
     void emitFunction(GrSLType returnType,
                       const char* name,
