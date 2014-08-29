@@ -31,7 +31,7 @@ public:
     Gr1DKernelEffect(GrTexture* texture,
                      Direction direction,
                      int radius)
-        : GrSingleTextureEffect(texture, MakeDivByTextureWHMatrix(texture))
+        : GrSingleTextureEffect(texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
         , fDirection(direction)
         , fRadius(radius) {}
 

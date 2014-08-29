@@ -427,7 +427,7 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     ctx.ctm().mapVectors(&scale, 1);
 
     GrPaint paint;
-    SkMatrix offsetMatrix = GrEffect::MakeDivByTextureWHMatrix(displacement);
+    SkMatrix offsetMatrix = GrCoordTransform::MakeDivByTextureWHMatrix(displacement);
     offsetMatrix.preTranslate(SkIntToScalar(colorOffset.fX - displacementOffset.fX),
                               SkIntToScalar(colorOffset.fY - displacementOffset.fY));
 

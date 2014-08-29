@@ -90,9 +90,11 @@ private:
                          float outerThreshold)
         : fInnerThreshold(innerThreshold)
         , fOuterThreshold(outerThreshold)
-        , fImageCoordTransform(kLocal_GrCoordSet, MakeDivByTextureWHMatrix(texture), texture)
+        , fImageCoordTransform(kLocal_GrCoordSet,
+                               GrCoordTransform::MakeDivByTextureWHMatrix(texture), texture)
         , fImageTextureAccess(texture)
-        , fMaskCoordTransform(kLocal_GrCoordSet, MakeDivByTextureWHMatrix(maskTexture), maskTexture)
+        , fMaskCoordTransform(kLocal_GrCoordSet,
+                              GrCoordTransform::MakeDivByTextureWHMatrix(maskTexture), maskTexture)
         , fMaskTextureAccess(maskTexture) {
         this->addCoordTransform(&fImageCoordTransform);
         this->addTextureAccess(&fImageTextureAccess);

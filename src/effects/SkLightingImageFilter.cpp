@@ -1272,7 +1272,7 @@ GrLightingEffect::GrLightingEffect(GrTexture* texture,
                                    const SkLight* light,
                                    SkScalar surfaceScale,
                                    const SkMatrix& matrix)
-    : INHERITED(texture, MakeDivByTextureWHMatrix(texture))
+    : INHERITED(texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
     , fLight(light)
     , fSurfaceScale(surfaceScale)
     , fFilterMatrix(matrix) {

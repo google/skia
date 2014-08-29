@@ -125,15 +125,6 @@ public:
 
     static const int kMaxVertexAttribs = 2;
 
-    /** Useful for effects that want to insert a texture matrix that is implied by the texture
-        dimensions */
-    static inline SkMatrix MakeDivByTextureWHMatrix(const GrTexture* texture) {
-        SkASSERT(NULL != texture);
-        SkMatrix mat;
-        mat.setIDiv(texture->width(), texture->height());
-        return mat;
-    }
-
     void* operator new(size_t size);
     void operator delete(void* target);
 

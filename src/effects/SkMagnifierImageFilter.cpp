@@ -66,7 +66,7 @@ private:
                       float yInvZoom,
                       float xInvInset,
                       float yInvInset)
-        : GrSingleTextureEffect(texture, MakeDivByTextureWHMatrix(texture))
+        : GrSingleTextureEffect(texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
         , fXOffset(xOffset)
         , fYOffset(yOffset)
         , fXInvZoom(xInvZoom)

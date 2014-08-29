@@ -154,7 +154,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
         return false;
     }
 
-    SkMatrix foregroundMatrix = GrEffect::MakeDivByTextureWHMatrix(foregroundTex);
+    SkMatrix foregroundMatrix = GrCoordTransform::MakeDivByTextureWHMatrix(foregroundTex);
     foregroundMatrix.preTranslate(SkIntToScalar(backgroundOffset.fX-foregroundOffset.fX),
                                   SkIntToScalar(backgroundOffset.fY-foregroundOffset.fY));
 

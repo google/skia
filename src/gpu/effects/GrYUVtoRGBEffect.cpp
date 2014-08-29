@@ -72,7 +72,8 @@ public:
 
 private:
     YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture)
-    : fCoordTransform(kLocal_GrCoordSet, MakeDivByTextureWHMatrix(yTexture), yTexture)
+    : fCoordTransform(kLocal_GrCoordSet, GrCoordTransform::MakeDivByTextureWHMatrix(yTexture),
+                      yTexture)
     , fYAccess(yTexture)
     , fUAccess(uTexture)
     , fVAccess(vTexture) {

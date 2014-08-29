@@ -42,10 +42,12 @@ public:
         if (NULL == domain) {
             static const SkShader::TileMode kTileModes[] = { SkShader::kClamp_TileMode,
                                                              SkShader::kClamp_TileMode };
-            return Create(tex, coefficients, MakeDivByTextureWHMatrix(tex), kTileModes);
+            return Create(tex, coefficients, GrCoordTransform::MakeDivByTextureWHMatrix(tex),
+                          kTileModes);
         } else {
             return SkNEW_ARGS(GrBicubicEffect, (tex, coefficients,
-                                                MakeDivByTextureWHMatrix(tex), *domain));
+                                                GrCoordTransform::MakeDivByTextureWHMatrix(tex),
+                                                *domain));
         }
     }
 
