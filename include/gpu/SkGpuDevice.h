@@ -110,12 +110,6 @@ public:
 
     virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE;
 
-    /**
-     * Make's this device's rendertarget current in the underlying 3D API.
-     * Also implicitly flushes.
-     */
-    virtual void makeRenderTargetCurrent();
-
     virtual bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE;
     virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
                              const SkImageFilter::Context&,
@@ -160,12 +154,7 @@ private:
     // remove when our clients don't rely on accessBitmap()
     SkBitmap fLegacyBitmap;
 
-    SkGpuDevice(GrContext*, GrRenderTarget*, unsigned flags = 0);
-
-    SkGpuDevice(GrContext*, GrTexture*, unsigned flags = 0);
-
-    // called from rt and tex cons
-    void initFromRenderTarget(GrContext*, GrRenderTarget*, unsigned flags);
+    SkGpuDevice(GrSurface*, unsigned flags = 0);
 
     virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 

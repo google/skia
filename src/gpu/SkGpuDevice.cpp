@@ -134,44 +134,27 @@ public:
 
 SkGpuDevice* SkGpuDevice::Create(GrSurface* surface, unsigned flags) {
     SkASSERT(NULL != surface);
-    if (NULL == surface->asRenderTarget() || NULL == surface->getContext()) {
+    if (NULL == surface->asRenderTarget() || surface->wasDestroyed()) {
         return NULL;
     }
-    if (surface->asTexture()) {
-        return SkNEW_ARGS(SkGpuDevice, (surface->getContext(), surface->asTexture(), flags));
-    } else {
-        return SkNEW_ARGS(SkGpuDevice, (surface->getContext(), surface->asRenderTarget(), flags));
-    }
+    return SkNEW_ARGS(SkGpuDevice, (surface, flags));
 }
 
-SkGpuDevice::SkGpuDevice(GrContext* context, GrTexture* texture, unsigned flags) {
-    this->initFromRenderTarget(context, texture->asRenderTarget(), flags);
-}
+SkGpuDevice::SkGpuDevice(GrSurface* surface, unsigned flags) {
 
-SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget, unsigned flags) {
-    this->initFromRenderTarget(context, renderTarget, flags);
-}
-
-void SkGpuDevice::initFromRenderTarget(GrContext* context,
-                                       GrRenderTarget* renderTarget,
-                                       unsigned flags) {
     fDrawProcs = NULL;
 
-    fContext = context;
-    fContext->ref();
+    fContext = SkRef(surface->getContext());
 
-    fRenderTarget = NULL;
     fNeedClear = flags & kNeedClear_Flag;
 
-    SkASSERT(NULL != renderTarget);
-    fRenderTarget = renderTarget;
-    fRenderTarget->ref();
+    fRenderTarget = SkRef(surface->asRenderTarget());
 
     // Hold onto to the texture in the pixel ref (if there is one) because the texture holds a ref
     // on the RT but not vice-versa.
     // TODO: Remove this trickery once we figure out how to make SkGrPixelRef do this without
     // busting chrome (for a currently unknown reason).
-    GrSurface* surface = fRenderTarget->asTexture();
+    surface = fRenderTarget->asTexture();
     if (NULL == surface) {
         surface = fRenderTarget;
     }
@@ -217,7 +200,7 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo
         return NULL;
     }
 
-    return SkNEW_ARGS(SkGpuDevice, (context, texture.get()));
+    return SkNEW_ARGS(SkGpuDevice, (texture.get()));
 }
 
 SkGpuDevice::~SkGpuDevice() {
@@ -238,15 +221,8 @@ SkGpuDevice::~SkGpuDevice() {
         fContext->setClip(NULL);
     }
 
-    SkSafeUnref(fRenderTarget);
+    fRenderTarget->unref();
     fContext->unref();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void SkGpuDevice::makeRenderTargetCurrent() {
-    DO_DEFERRED_CLEAR();
-    fContext->setRenderTarget(fRenderTarget);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
