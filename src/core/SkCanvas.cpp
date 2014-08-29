@@ -22,6 +22,7 @@
 #include "SkSmallAllocator.h"
 #include "SkSurface_Base.h"
 #include "SkTemplates.h"
+#include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
@@ -2217,6 +2218,17 @@ void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPat
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
+
+    // FIXME: temporarily disable quickreject for empty bounds,
+    // pending implicit blob bounds implementation.
+    if (!blob->bounds().isEmpty() && paint.canComputeFastBounds()) {
+        SkRect storage;
+
+        if (this->quickReject(paint.computeFastBounds(blob->bounds().makeOffset(x, y), &storage))) {
+            return;
+        }
+    }
+
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
 
     while (iter.next()) {
