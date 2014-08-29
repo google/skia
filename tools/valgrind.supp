@@ -96,8 +96,18 @@
     font_config_bug_2
     Memcheck:Leak
     fun:*alloc
-    fun:FcPatternObjectInsertElt
+    ...
     fun:Fc*Add*
+}
+{
+    #Same root cause as font_config_bug_2.
+    #The 'leak' here is a copy of rule values, as opposed to new values.
+    font_config_bug_3
+    Memcheck:Leak
+    fun:*alloc
+    fun:FcConfigValues
+    fun:FcConfigSubstituteWithPat
+    fun:FcFontRenderPrepare
 }
 {
     zlib_bug_1
