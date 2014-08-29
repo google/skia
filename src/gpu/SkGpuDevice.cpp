@@ -150,15 +150,6 @@ SkGpuDevice::SkGpuDevice(GrSurface* surface, unsigned flags) {
 
     fRenderTarget = SkRef(surface->asRenderTarget());
 
-    // Hold onto to the texture in the pixel ref (if there is one) because the texture holds a ref
-    // on the RT but not vice-versa.
-    // TODO: Remove this trickery once we figure out how to make SkGrPixelRef do this without
-    // busting chrome (for a currently unknown reason).
-    surface = fRenderTarget->asTexture();
-    if (NULL == surface) {
-        surface = fRenderTarget;
-    }
-
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef,
                                 (surface->info(), surface, SkToBool(flags & kCached_Flag)));
     fLegacyBitmap.setInfo(surface->info());

@@ -106,20 +106,14 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkColorType dstCT
 
 SkGrPixelRef::SkGrPixelRef(const SkImageInfo& info, GrSurface* surface,
                            bool transferCacheLock) : INHERITED(info) {
-    // TODO: figure out if this is responsible for Chrome canvas errors
-#if 0
-    // The GrTexture has a ref to the GrRenderTarget but not vice versa.
-    // If the GrTexture exists take a ref to that (rather than the render
-    // target)
-    fSurface = surface->asTexture();
-#else
-    fSurface = NULL;
-#endif
+    // For surfaces that are both textures and render targets, the texture owns the
+    // render target but not vice versa. So we ref the texture to keep both alive for
+    // the lifetime of this pixel ref.
+    fSurface = SkSafeRef(surface->asTexture());
     if (NULL == fSurface) {
-        fSurface = surface;
+        fSurface = SkSafeRef(surface);
     }
     fUnlock = transferCacheLock;
-    SkSafeRef(surface);
 
     if (fSurface) {
         SkASSERT(info.fWidth <= fSurface->width());
