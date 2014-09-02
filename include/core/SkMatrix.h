@@ -81,12 +81,12 @@ public:
                         kPerspective_Mask);
     }
 
-    /** Returns true if the matrix contains only translation, rotation or uniform scale
+    /** Returns true if the matrix contains only translation, rotation/reflection or uniform scale
         Returns false if other transformation types are included or is degenerate
      */
     bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const;
 
-    /** Returns true if the matrix contains only translation, rotation or scale
+    /** Returns true if the matrix contains only translation, rotation/reflection or scale
         (non-uniform scale is allowed).
         Returns false if other transformation types are included or is degenerate
      */

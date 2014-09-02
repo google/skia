@@ -176,20 +176,16 @@ bool SkMatrix::isSimilarity(SkScalar tol) const {
         return false;
     }
 
-    // it has scales and skews, but it could also be rotation, check it out.
-    SkVector vec[2];
-    vec[0].set(mx, sx);
-    vec[1].set(sy, my);
-
-    return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(tol)) &&
-           SkScalarNearlyEqual(vec[0].lengthSqd(), vec[1].lengthSqd(),
-                               SkScalarSquare(tol));
+    // upper 2x2 is rotation/reflection + uniform scale if basis vectors
+    // are 90 degree rotations of each other
+    return (SkScalarNearlyEqual(mx, my, tol) && SkScalarNearlyEqual(sx, -sy, tol))
+        || (SkScalarNearlyEqual(mx, -my, tol) && SkScalarNearlyEqual(sx, sy, tol));
 }
 
 bool SkMatrix::preservesRightAngles(SkScalar tol) const {
     TypeMask mask = this->getType();
 
-    if (mask <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
+    if (mask <= kTranslate_Mask) {
         // identity, translate and/or scale
         return true;
     }
@@ -197,7 +193,7 @@ bool SkMatrix::preservesRightAngles(SkScalar tol) const {
         return false;
     }
 
-    SkASSERT(mask & kAffine_Mask);
+    SkASSERT(mask & (kAffine_Mask | kScale_Mask));
 
     SkScalar mx = fMat[kMScaleX];
     SkScalar my = fMat[kMScaleY];
@@ -208,14 +204,12 @@ bool SkMatrix::preservesRightAngles(SkScalar tol) const {
         return false;
     }
 
-    // it has scales and skews, but it could also be rotation, check it out.
+    // upper 2x2 is scale + rotation/reflection if basis vectors are orthogonal
     SkVector vec[2];
-    vec[0].set(mx, sx);
-    vec[1].set(sy, my);
+    vec[0].set(mx, sy);
+    vec[1].set(sx, my);
 
-    return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(tol)) &&
-           SkScalarNearlyEqual(vec[0].lengthSqd(), vec[1].lengthSqd(),
-                               SkScalarSquare(tol));
+    return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(tol));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
