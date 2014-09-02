@@ -117,13 +117,18 @@ struct TestBBH : public SkBBoxHierarchy {
     SkTDArray<Entry> entries;
 };
 
+// Like a==b, with a little slop recognizing that float equality can be weird.
+static bool sloppy_rect_eq(SkRect a, SkRect b) {
+    SkRect inset(a), outset(a);
+    inset.inset(1, 1);
+    outset.outset(1, 1);
+    return outset.contains(b) && !inset.contains(b);
+}
+
 // This test is not meant to make total sense yet.  It's testing the status quo
 // of SkRecordFillBounds(), which itself doesn't make total sense yet.
 DEF_TEST(RecordDraw_BBH, r) {
-    TestBBH bbh;
-
     SkRecord record;
-
     SkRecorder recorder(&record, W, H);
     recorder.save();
         recorder.clipRect(SkRect::MakeWH(400, 500));
@@ -131,17 +136,41 @@ DEF_TEST(RecordDraw_BBH, r) {
         recorder.drawRect(SkRect::MakeWH(320, 240), SkPaint());
     recorder.restore();
 
+    TestBBH bbh;
     SkRecordFillBounds(record, &bbh);
 
     REPORTER_ASSERT(r, bbh.entries.count() == 5);
     for (int i = 0; i < bbh.entries.count(); i++) {
         REPORTER_ASSERT(r, bbh.entries[i].data == (uintptr_t)i);
 
-        // We'd like to assert bounds == SkRect::MakeWH(400, 480).
-        // But we allow a little slop in recognition that float equality can be weird.
-        REPORTER_ASSERT(r,  SkRect::MakeLTRB(-1, -1, 401, 481).contains(bbh.entries[i].bounds));
-        REPORTER_ASSERT(r, !SkRect::MakeLTRB(+1, +1, 399, 479).contains(bbh.entries[i].bounds));
+        REPORTER_ASSERT(r, sloppy_rect_eq(SkRect::MakeWH(400, 480), bbh.entries[i].bounds));
     }
+}
+
+// A regression test for crbug.com/409110.
+DEF_TEST(RecordDraw_TextBounds, r) {
+    SkRecord record;
+    SkRecorder recorder(&record, W, H);
+
+    // Two Chinese characters in UTF-8.
+    const char text[] = { '\xe6', '\xbc', '\xa2', '\xe5', '\xad', '\x97' };
+    const size_t bytes = SK_ARRAY_COUNT(text);
+
+    const SkScalar xpos[] = { 10, 20 };
+    recorder.drawPosTextH(text, bytes, xpos, 30, SkPaint());
+
+    const SkPoint pos[] = { {40, 50}, {60, 70} };
+    recorder.drawPosText(text, bytes, pos, SkPaint());
+
+    TestBBH bbh;
+    SkRecordFillBounds(record, &bbh);
+    REPORTER_ASSERT(r, bbh.entries.count() == 2);
+
+    // We can make these next assertions confidently because SkRecordFillBounds
+    // builds its bounds by overestimating font metrics in a platform-independent way.
+    // If that changes, these tests will need to be more flexible.
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[0].bounds, SkRect::MakeLTRB(-86,  6, 116, 54)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[1].bounds, SkRect::MakeLTRB(-56, 26, 156, 94)));
 }
 
 // Base test to ensure start/stop range is respected

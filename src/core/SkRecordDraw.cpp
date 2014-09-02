@@ -349,7 +349,7 @@ private:
         }
 
         SkRect dst;
-        dst.set(op.pos, op.paint.countText(op.text, N));
+        dst.set(op.pos, N);
         AdjustTextForFontMetrics(&dst, op.paint);
         return this->adjustAndMap(dst, &op.paint);
     }
