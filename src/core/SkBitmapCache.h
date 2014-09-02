@@ -16,7 +16,8 @@ class SkMipMap;
 class SkBitmapCache {
 public:
     /**
-     *  Use this allocator for bitmaps, so they can use ashmem when available.
+     * Use this allocator for bitmaps, so they can use ashmem when available.
+     * Returns NULL if the ResourceCache has not been initialized with a DiscardableFactory.
      */
     static SkBitmap::Allocator* GetAllocator();
 
@@ -25,7 +26,7 @@ public:
      *  result will be set to the matching bitmap with its pixels already locked.
      */
     static bool Find(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY, SkBitmap* result);
-    
+
     /*
      *  result must be marked isImmutable()
      */

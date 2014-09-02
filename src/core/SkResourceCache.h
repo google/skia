@@ -64,10 +64,10 @@ public:
         virtual ~Rec() {}
 
         uint32_t getHash() const { return this->getKey().hash(); }
-        
+
         virtual const Key& getKey() const = 0;
         virtual size_t bytesUsed() const = 0;
-        
+
         // for SkTDynamicHash::Traits
         static uint32_t Hash(const Key& key) { return key.hash(); }
         static const Key& GetKey(const Rec& rec) { return rec.getKey(); }
@@ -77,7 +77,7 @@ public:
         Rec*    fPrev;
         int32_t fLockCount;
         int32_t fPad;
-        
+
         friend class SkResourceCache;
     };
 
@@ -106,6 +106,10 @@ public:
     static size_t SetSingleAllocationByteLimit(size_t);
     static size_t GetSingleAllocationByteLimit();
 
+    /**
+     * Use this allocator for bitmaps, so they can use ashmem when available.
+     * Returns NULL if the ResourceCache has not been initialized with a DiscardableFactory.
+     */
     static SkBitmap::Allocator* GetAllocator();
 
     /**
