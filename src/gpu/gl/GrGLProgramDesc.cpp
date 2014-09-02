@@ -188,7 +188,9 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
 #endif
     bool defaultToUniformInputs = GR_GL_NO_CONSTANT_ATTRIBUTES || gpu->caps()->pathRenderingSupport();
 
-    if (defaultToUniformInputs && !requiresColorAttrib && inputColorIsUsed) {
+    if (!inputColorIsUsed && !skipColor) {
+        header->fColorInput = kAllOnes_ColorInput;
+    } else if (defaultToUniformInputs && !requiresColorAttrib && inputColorIsUsed) {
         header->fColorInput = kUniform_ColorInput;
     } else {
         header->fColorInput = kAttribute_ColorInput;
@@ -198,7 +200,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     bool covIsSolidWhite = !requiresCoverageAttrib && 0xffffffff == drawState.getCoverageColor();
 
     if ((covIsSolidWhite || !inputCoverageIsUsed) && !skipCoverage) {
-        header->fCoverageInput = kSolidWhite_ColorInput;
+        header->fCoverageInput = kAllOnes_ColorInput;
     } else if (defaultToUniformInputs && !requiresCoverageAttrib && inputCoverageIsUsed) {
         header->fCoverageInput = kUniform_ColorInput;
     } else {

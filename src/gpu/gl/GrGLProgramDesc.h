@@ -99,7 +99,7 @@ public:
 private:
     // Specifies where the initial color comes from before the stages are applied.
     enum ColorInput {
-        kSolidWhite_ColorInput,
+        kAllOnes_ColorInput,
         kAttribute_ColorInput,
         kUniform_ColorInput,
 

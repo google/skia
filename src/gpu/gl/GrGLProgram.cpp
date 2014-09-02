@@ -188,6 +188,9 @@ void GrGLProgram::setColor(const GrDrawState& drawState,
                 }
                 sharedState->fConstAttribColorIndex = -1;
                 break;
+            case GrGLProgramDesc::kAllOnes_ColorInput:
+                sharedState->fConstAttribColorIndex = -1;
+                break;
             default:
                 SkFAIL("Unexpected color type.");
         }
@@ -223,7 +226,7 @@ void GrGLProgram::setCoverage(const GrDrawState& drawState,
                 }
                 sharedState->fConstAttribCoverageIndex = -1;
                 break;
-            case GrGLProgramDesc::kSolidWhite_ColorInput:
+            case GrGLProgramDesc::kAllOnes_ColorInput:
                 sharedState->fConstAttribCoverageIndex = -1;
                 break;
             default:

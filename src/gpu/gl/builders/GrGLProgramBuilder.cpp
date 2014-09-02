@@ -51,6 +51,8 @@ bool GrGLProgramBuilder::genProgram(const GrEffectStage* colorStages[],
                              "Color",
                              &name);
         inputColor = GrGLSLExpr4(name);
+    } else if (GrGLProgramDesc::kAllOnes_ColorInput == header.fColorInput) {
+        inputColor = GrGLSLExpr4(1);
     }
 
     if (GrGLProgramDesc::kUniform_ColorInput == header.fCoverageInput) {
@@ -61,7 +63,7 @@ bool GrGLProgramBuilder::genProgram(const GrEffectStage* colorStages[],
                              "Coverage",
                              &name);
         inputCoverage = GrGLSLExpr4(name);
-    } else if (GrGLProgramDesc::kSolidWhite_ColorInput == header.fCoverageInput) {
+    } else if (GrGLProgramDesc::kAllOnes_ColorInput == header.fCoverageInput) {
         inputCoverage = GrGLSLExpr4(1);
     }
 
