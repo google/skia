@@ -348,8 +348,7 @@ DEF_TEST(Image_NewFromGenerator, r) {
         REPORTER_ASSERT(r, TestImageGenerator::Height() == image->height());
 
         SkBitmap bitmap;
-        SkAssertResult(bitmap.allocN32Pixels(TestImageGenerator::Width(),
-                                             TestImageGenerator::Height()));
+        bitmap.allocN32Pixels(TestImageGenerator::Width(), TestImageGenerator::Height());
         SkCanvas canvas(bitmap);
         const SkColor kDefaultColor = 0xffabcdef;
         canvas.clear(kDefaultColor);

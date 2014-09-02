@@ -221,7 +221,7 @@ bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output) {
     int h = (int)CGRectGetHeight(bounds);
 
     SkBitmap bitmap;
-    if (!bitmap.allocPixels(SkImageInfo::MakeN32Premul(w, h))) {
+    if (!bitmap.tryAllocN32Pixels(w, h)) {
         return false;
     }
     bitmap.eraseColor(SK_ColorWHITE);
@@ -287,7 +287,7 @@ bool SkCreateBitmapFromCGImage(SkBitmap* dst, CGImageRef image, SkISize* scaleTo
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
 
     SkBitmap tmp;
-    if (!tmp.allocPixels(info)) {
+    if (!tmp.tryAllocPixels(info)) {
         return false;
     }
 

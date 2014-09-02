@@ -268,7 +268,7 @@ void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
     SkDEBUGCODE(this->validate();)
 }
 
-bool SkBitmap::allocPixels(Allocator* allocator, SkColorTable* ctable) {
+bool SkBitmap::tryAllocPixels(Allocator* allocator, SkColorTable* ctable) {
     HeapAllocator stdalloc;
 
     if (NULL == allocator) {
@@ -279,7 +279,7 @@ bool SkBitmap::allocPixels(Allocator* allocator, SkColorTable* ctable) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkBitmap::allocPixels(const SkImageInfo& requestedInfo, size_t rowBytes) {
+bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes) {
     if (kIndex_8_SkColorType == requestedInfo.colorType()) {
         return reset_return_false(this);
     }
@@ -308,8 +308,8 @@ bool SkBitmap::allocPixels(const SkImageInfo& requestedInfo, size_t rowBytes) {
     return true;
 }
 
-bool SkBitmap::allocPixels(const SkImageInfo& requestedInfo, SkPixelRefFactory* factory,
-                           SkColorTable* ctable) {
+bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, SkPixelRefFactory* factory,
+                                SkColorTable* ctable) {
     if (kIndex_8_SkColorType == requestedInfo.fColorType && NULL == ctable) {
         return reset_return_false(this);
     }
@@ -950,7 +950,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
         // TODO: can we just ref() the src colortable? Is it reentrant-safe?
         ctable.reset(SkNEW_ARGS(SkColorTable, (*src->getColorTable())));
     }
-    if (!tmpDst.allocPixels(alloc, ctable)) {
+    if (!tmpDst.tryAllocPixels(alloc, ctable)) {
         return false;
     }
 
@@ -1122,7 +1122,7 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
     } else {
     NO_FILTER_CASE:
         tmpBitmap.setInfo(SkImageInfo::MakeA8(this->width(), this->height()), srcM.fRowBytes);
-        if (!tmpBitmap.allocPixels(allocator, NULL)) {
+        if (!tmpBitmap.tryAllocPixels(allocator, NULL)) {
             // Allocation of pixels for alpha bitmap failed.
             SkDebugf("extractAlpha failed to allocate (%d,%d) alpha bitmap\n",
                     tmpBitmap.width(), tmpBitmap.height());
@@ -1146,7 +1146,7 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
 
     tmpBitmap.setInfo(SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height()),
                       dstM.fRowBytes);
-    if (!tmpBitmap.allocPixels(allocator, NULL)) {
+    if (!tmpBitmap.tryAllocPixels(allocator, NULL)) {
         // Allocation of pixels for alpha bitmap failed.
         SkDebugf("extractAlpha failed to allocate (%d,%d) alpha bitmap\n",
                 tmpBitmap.width(), tmpBitmap.height());

@@ -153,7 +153,7 @@ static void rand_bitmap_for_canvas(SkBitmap* bitmap) {
     do {
         info = SkImageInfo::Make(kBitmapSize, kBitmapSize, rand_colortype(),
                                  kPremul_SkAlphaType);
-    } while (!valid_for_raster_canvas(info) || !bitmap->allocPixels(info));
+    } while (!valid_for_raster_canvas(info) || !bitmap->tryAllocPixels(info));
 }
 
 static void make_g_bitmap(SkBitmap& bitmap) {

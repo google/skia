@@ -190,7 +190,9 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
     c.concat(matrix);
 
     SkBitmap bm;
-    bm.allocN32Pixels(width, height);
+    if (bm.tryAllocN32Pixels(width, height)) {
+        // allow this to fail silently, to test the code downstream
+    }
     bm.eraseColor(SK_ColorRED);
 
     matrix.setAll(0.0078740157f,

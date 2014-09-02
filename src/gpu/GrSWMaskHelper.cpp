@@ -205,7 +205,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
     // allocate the pixels for a bitmap
     const SkImageInfo bmImageInfo = SkImageInfo::MakeA8(cmpWidth, cmpHeight);
     if (kBlitter_CompressionMode != fCompressionMode) {
-        if (!fBM.allocPixels(bmImageInfo)) {
+        if (!fBM.tryAllocPixels(bmImageInfo)) {
             return false;
         }
 

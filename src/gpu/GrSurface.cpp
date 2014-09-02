@@ -25,8 +25,7 @@ SkImageInfo GrSurface::info() const {
 
 bool GrSurface::savePixels(const char* filename) {
     SkBitmap bm;
-    if (!bm.allocPixels(SkImageInfo::MakeN32Premul(this->width(),
-                                                   this->height()))) {
+    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(this->width(), this->height()))) {
         return false;
     }
 

@@ -375,7 +375,7 @@ bool SkWEBPImageDecoder::onDecodeSubset(SkBitmap* decodedBitmap,
         // alloc from native heap if it is a temp bitmap. (prevent GC)
         bool allocResult = (bitmap == decodedBitmap)
                                ? allocPixelRef(bitmap, NULL)
-                               : bitmap->allocPixels();
+                               : bitmap->tryAllocPixels();
         if (!allocResult) {
             return return_false(*decodedBitmap, "allocPixelRef");
         }

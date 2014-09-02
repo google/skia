@@ -568,7 +568,7 @@ bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
 
     bool weAllocated = false;
     if (NULL == bitmap->pixelRef()) {
-        if (!bitmap->allocPixels()) {
+        if (!bitmap->tryAllocPixels()) {
             return false;
         }
         weAllocated = true;
@@ -594,7 +594,7 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
         return false;
     }
 
-    if (!bitmap->allocN32Pixels(r.width(), r.height())) {
+    if (!bitmap->tryAllocN32Pixels(r.width(), r.height())) {
         // bitmap will already be reset.
         return false;
     }
@@ -1006,7 +1006,7 @@ SkAutoROCanvasPixels::SkAutoROCanvasPixels(SkCanvas* canvas) {
     fAddr = canvas->peekPixels(&fInfo, &fRowBytes);
     if (NULL == fAddr) {
         fInfo = canvas->imageInfo();
-        if (kUnknown_SkColorType == fInfo.colorType() || !fBitmap.allocPixels(fInfo)) {
+        if (kUnknown_SkColorType == fInfo.colorType() || !fBitmap.tryAllocPixels(fInfo)) {
             return; // failure, fAddr is NULL
         }
         if (!canvas->readPixels(&fBitmap, 0, 0)) {
@@ -2535,7 +2535,7 @@ SkCanvas* SkCanvas::NewRaster(const SkImageInfo& info) {
     }
 
     SkBitmap bitmap;
-    if (!bitmap.allocPixels(info)) {
+    if (!bitmap.tryAllocPixels(info)) {
         return NULL;
     }
 

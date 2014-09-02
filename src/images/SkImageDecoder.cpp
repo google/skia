@@ -133,7 +133,7 @@ bool SkImageDecoder::chooseFromOneChoice(SkColorType colorType, int width, int h
 
 bool SkImageDecoder::allocPixelRef(SkBitmap* bitmap,
                                    SkColorTable* ctable) const {
-    return bitmap->allocPixels(fAllocator, ctable);
+    return bitmap->tryAllocPixels(fAllocator, ctable);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

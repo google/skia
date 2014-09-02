@@ -770,7 +770,7 @@ public:
             fSize = 0;
             return true;
         }
-        return bm->allocPixels(NULL, ct);
+        return bm->tryAllocPixels(NULL, ct);
     }
     bool ready() { return fPixels != NULL; }
 private:

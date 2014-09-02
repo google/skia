@@ -375,8 +375,7 @@ static uint16_t get_argb4444_neighbor_avg_color(const SkBitmap& bitmap,
 static SkBitmap unpremultiply_bitmap(const SkBitmap& bitmap,
                                      const SkIRect& srcRect) {
     SkBitmap outBitmap;
-    SkAssertResult(outBitmap.allocPixels(
-            bitmap.info().makeWH(srcRect.width(), srcRect.height())));
+    outBitmap.allocPixels(bitmap.info().makeWH(srcRect.width(), srcRect.height()));
     int dstRow = 0;
 
     SkAutoLockPixels outBitmapPixelLock(outBitmap);

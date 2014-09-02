@@ -387,14 +387,16 @@ DEF_TEST(BitmapCopy, reporter) {
                 ct = init_ctable(kPremul_SkAlphaType);
             }
 
+            int localSubW;
             if (isExtracted[copyCase]) { // A larger image to extract from.
-                src.allocPixels(SkImageInfo::Make(2 * subW + 1, subH,
-                                                  gPairs[i].fColorType,
-                                                  kPremul_SkAlphaType));
+                localSubW = 2 * subW + 1;
             } else { // Tests expect a 2x2 bitmap, so make smaller.
-                src.allocPixels(SkImageInfo::Make(subW, subH,
-                                                  gPairs[i].fColorType,
-                                                  kPremul_SkAlphaType));
+                localSubW = subW;
+            }
+            // could fail if we pass kIndex_8 for the colortype
+            if (src.tryAllocPixels(SkImageInfo::Make(localSubW, subH, gPairs[i].fColorType,
+                                                     kPremul_SkAlphaType))) {
+                // failure is fine, as we will notice later on
             }
             SkSafeUnref(ct);
 

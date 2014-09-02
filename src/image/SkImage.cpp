@@ -117,9 +117,8 @@ bool SkImage_Base::onReadPixels(SkBitmap* bitmap, const SkIRect& subset) const {
             return false;
         }
     } else {
-        const SkImageInfo info = SkImageInfo::MakeN32Premul(subset.width(), subset.height());
         SkBitmap tmp;
-        if (!tmp.allocPixels(info)) {
+        if (!tmp.tryAllocN32Pixels(subset.width(), subset.height())) {
             return false;
         }
         *bitmap = tmp;

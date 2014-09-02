@@ -335,14 +335,12 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
     compare_bitmaps(reporter, origBitmap, destBitmap);
 }
 
-static bool setup_bitmap_for_canvas(SkBitmap* bitmap) {
-    SkImageInfo info = SkImageInfo::Make(
-        kBitmapSize, kBitmapSize, kN32_SkColorType, kPremul_SkAlphaType);
-    return bitmap->allocPixels(info);
+static void setup_bitmap_for_canvas(SkBitmap* bitmap) {
+    bitmap->allocN32Pixels(kBitmapSize, kBitmapSize);
 }
 
-static bool make_checkerboard_bitmap(SkBitmap& bitmap) {
-    bool success = setup_bitmap_for_canvas(&bitmap);
+static void make_checkerboard_bitmap(SkBitmap& bitmap) {
+    setup_bitmap_for_canvas(&bitmap);
 
     SkCanvas canvas(bitmap);
     canvas.clear(0x00000000);
@@ -363,14 +361,12 @@ static bool make_checkerboard_bitmap(SkBitmap& bitmap) {
             canvas.restore();
         }
     }
-
-    return success;
 }
 
-static bool draw_something(SkCanvas* canvas) {
+static void draw_something(SkCanvas* canvas) {
     SkPaint paint;
     SkBitmap bitmap;
-    bool success = make_checkerboard_bitmap(bitmap);
+    make_checkerboard_bitmap(bitmap);
 
     canvas->save();
     canvas->scale(0.5f, 0.5f);
@@ -389,8 +385,6 @@ static bool draw_something(SkCanvas* canvas) {
     paint.setColor(SK_ColorBLACK);
     paint.setTextSize(SkIntToScalar(kBitmapSize/3));
     canvas->drawText("Picture", 7, SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);
-
-    return success;
 }
 
 DEF_TEST(Serialization, reporter) {
@@ -481,10 +475,9 @@ DEF_TEST(Serialization, reporter) {
     // Test simple SkPicture serialization
     {
         SkPictureRecorder recorder;
-        bool didDraw = draw_something(recorder.beginRecording(SkIntToScalar(kBitmapSize), 
-                                                              SkIntToScalar(kBitmapSize), 
-                                                              NULL, 0));
-        REPORTER_ASSERT(reporter, didDraw);
+        draw_something(recorder.beginRecording(SkIntToScalar(kBitmapSize),
+                                               SkIntToScalar(kBitmapSize),
+                                               NULL, 0));
         SkAutoTUnref<SkPicture> pict(recorder.endRecording());
 
         // Serialize picture

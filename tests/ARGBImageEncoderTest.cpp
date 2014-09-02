@@ -35,9 +35,8 @@ DEF_TEST(ARGBImageEncoder, reporter) {
         // A bitmap that should generate the above bytes:
         SkBitmap bitmap;
         {
-            bool success = bitmap.allocPixels(SkImageInfo::Make(kWidth, kHeight,
-                                                        gColorTypes[ctIndex], kOpaque_SkAlphaType));
-            REPORTER_ASSERT(reporter, success);
+            bitmap.allocPixels(SkImageInfo::Make(kWidth, kHeight, gColorTypes[ctIndex],
+                                                 kOpaque_SkAlphaType));
             bitmap.eraseColor(SK_ColorBLUE);
             // Change rows [0,1] from blue to [red,green].
             SkCanvas canvas(bitmap);

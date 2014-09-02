@@ -364,11 +364,11 @@ bool SkGIFMovie::onGetBitmap(SkBitmap* bm)
         startIndex = 0;
 
         // create bitmap
-        if (!bm->allocPixels(SkImageInfo::MakeN32Premul(width, height))) {
+        if (!bm->tryAllocN32Pixels(width, height)) {
             return false;
         }
         // create bitmap for backup
-        if (!fBackup.allocPixels(SkImageInfo::MakeN32Premul(width, height))) {
+        if (!fBackup.tryAllocN32Pixels(width, height)) {
             return false;
         }
     } else if (startIndex > fCurrIndex) {

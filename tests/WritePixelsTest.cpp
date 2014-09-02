@@ -115,8 +115,7 @@ static uint32_t getBitmapColor(int x, int y, int w, SkColorType ct, SkAlphaType 
 static void fillCanvas(SkCanvas* canvas) {
     SkBitmap bmp;
     if (bmp.isNull()) {
-        SkDEBUGCODE(bool alloc = ) bmp.allocN32Pixels(DEV_W, DEV_H);
-        SkASSERT(alloc);
+        bmp.allocN32Pixels(DEV_W, DEV_H);
         for (int y = 0; y < DEV_H; ++y) {
             for (int x = 0; x < DEV_W; ++x) {
                 *bmp.getAddr32(x, y) = getCanvasColor(x, y);

@@ -823,7 +823,7 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
             return false;
         }
     } else {
-        if (!decodedBitmap.allocPixels(NULL, needColorTable ? colorTable : NULL)) {
+        if (!decodedBitmap.tryAllocPixels(NULL, needColorTable ? colorTable : NULL)) {
             return false;
         }
     }

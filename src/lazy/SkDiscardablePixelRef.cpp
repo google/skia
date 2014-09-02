@@ -110,7 +110,7 @@ bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst,
 
     SkASSERT(info.colorType() != kUnknown_SkColorType);
     if (dst->empty()) {  // Use a normal pixelref.
-        return dst->allocPixels();
+        return dst->tryAllocPixels();
     }
     SkAutoTUnref<SkDiscardablePixelRef> ref(
         SkNEW_ARGS(SkDiscardablePixelRef,

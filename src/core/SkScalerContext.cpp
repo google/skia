@@ -437,7 +437,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     SkBitmap bm;
 
     if (0 == dstRB) {
-        if (!bm.allocPixels(info)) {
+        if (!bm.tryAllocPixels(info)) {
             // can't allocate offscreen, so empty the mask and return
             sk_bzero(mask.fImage, mask.computeImageSize());
             return;

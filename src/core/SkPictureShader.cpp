@@ -107,7 +107,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
 
     if (!fCachedBitmapShader || tileScale != fCachedTileScale) {
         SkBitmap bm;
-        if (!bm.allocN32Pixels(tileSize.width(), tileSize.height())) {
+        if (!bm.tryAllocN32Pixels(tileSize.width(), tileSize.height())) {
             return NULL;
         }
         bm.eraseColor(SK_ColorTRANSPARENT);

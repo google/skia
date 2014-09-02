@@ -2120,7 +2120,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
 
         const int w = SkScalarCeilToInt(physicalPerspectiveOutline.getBounds().width());
         const int h = SkScalarCeilToInt(physicalPerspectiveOutline.getBounds().height());
-        if (!perspectiveBitmap.allocPixels(SkImageInfo::MakeN32Premul(w, h))) {
+        if (!perspectiveBitmap.tryAllocN32Pixels(w, h)) {
             return;
         }
         perspectiveBitmap.eraseColor(SK_ColorTRANSPARENT);

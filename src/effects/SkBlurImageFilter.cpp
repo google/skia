@@ -172,7 +172,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    if (!dst->allocPixels(src.info().makeWH(srcBounds.width(), srcBounds.height()))) {
+    if (!dst->tryAllocPixels(src.info().makeWH(srcBounds.width(), srcBounds.height()))) {
         return false;
     }
     dst->getBounds(&dstBounds);
@@ -199,7 +199,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkBitmap temp;
-    if (!temp.allocPixels(dst->info())) {
+    if (!temp.tryAllocPixels(dst->info())) {
         return false;
     }
 

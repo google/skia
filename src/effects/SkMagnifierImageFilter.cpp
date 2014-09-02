@@ -321,7 +321,7 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
       return false;
     }
 
-    if (!dst->allocPixels(src.info())) {
+    if (!dst->tryAllocPixels(src.info())) {
         return false;
     }
 

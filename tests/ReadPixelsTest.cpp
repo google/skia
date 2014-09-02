@@ -96,9 +96,7 @@ static SkPMColor convertToPMColor(SkColorType ct, SkAlphaType at, const uint32_t
 static void fillCanvas(SkCanvas* canvas) {
     static SkBitmap bmp;
     if (bmp.isNull()) {
-        SkDEBUGCODE(bool alloc =) bmp.allocN32Pixels(DEV_W, DEV_H);
-        SkASSERT(alloc);
-        SkAutoLockPixels alp(bmp);
+        bmp.allocN32Pixels(DEV_W, DEV_H);
         intptr_t pixels = reinterpret_cast<intptr_t>(bmp.getPixels());
         for (int y = 0; y < DEV_H; ++y) {
             for (int x = 0; x < DEV_W; ++x) {

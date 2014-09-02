@@ -82,7 +82,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
             return NULL;
         }
     } else {
-        if (!bitmap.allocPixels(info)) {
+        if (!bitmap.tryAllocPixels(info)) {
             return NULL;
         }
         if (!bitmap.info().isOpaque()) {

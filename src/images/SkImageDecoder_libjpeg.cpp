@@ -852,7 +852,7 @@ bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
             return return_false(*cinfo, bitmap, "allocPixelRef");
         }
     } else {
-        if (!bitmap.allocPixels()) {
+        if (!bitmap.tryAllocPixels()) {
             return return_false(*cinfo, bitmap, "allocPixels");
         }
     }

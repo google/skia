@@ -166,7 +166,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
         return false;
     }
 
-    if (!dst->allocPixels(src.info().makeWH(bounds.width(), bounds.height()))) {
+    if (!dst->tryAllocPixels(src.info().makeWH(bounds.width(), bounds.height()))) {
         return false;
     }
 
@@ -191,7 +191,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
     }
 
     SkBitmap temp;
-    if (!temp.allocPixels(dst->info())) {
+    if (!temp.tryAllocPixels(dst->info())) {
         return false;
     }
 

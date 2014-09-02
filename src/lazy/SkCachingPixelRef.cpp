@@ -46,7 +46,7 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
     const SkImageInfo& info = this->info();
     if (!SkBitmapCache::Find(this->getGenerationID(), info.fWidth, info.fHeight, &fLockedBitmap)) {
         // Cache has been purged, must re-decode.
-        if (!fLockedBitmap.allocPixels(info, fRowBytes)) {
+        if (!fLockedBitmap.tryAllocPixels(info, fRowBytes)) {
             fErrorInDecoding = true;
             return false;
         }

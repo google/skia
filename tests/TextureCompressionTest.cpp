@@ -58,8 +58,7 @@ DEF_TEST(CompressAlphaFailDimensions, reporter) {
     bool setInfoSuccess = bitmap.setInfo(info);
     REPORTER_ASSERT(reporter, setInfoSuccess);
 
-    bool allocPixelsSuccess = bitmap.allocPixels(info);
-    REPORTER_ASSERT(reporter, allocPixelsSuccess);
+    bitmap.allocPixels(info);
     bitmap.unlockPixels();
     
     for (int i = 0; i < SkTextureCompressor::kFormatCnt; ++i) {
@@ -92,8 +91,7 @@ DEF_TEST(CompressAlphaFailColorType, reporter) {
     bool setInfoSuccess = bitmap.setInfo(info);
     REPORTER_ASSERT(reporter, setInfoSuccess);
 
-    bool allocPixelsSuccess = bitmap.allocPixels(info);
-    REPORTER_ASSERT(reporter, allocPixelsSuccess);
+    bitmap.allocPixels(info);
     bitmap.unlockPixels();
 
     for (int i = 0; i < SkTextureCompressor::kFormatCnt; ++i) {
@@ -128,8 +126,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
     bool setInfoSuccess = bitmap.setInfo(info);
     REPORTER_ASSERT(reporter, setInfoSuccess);
 
-    bool allocPixelsSuccess = bitmap.allocPixels(info);
-    REPORTER_ASSERT(reporter, allocPixelsSuccess);
+    bitmap.allocPixels(info);
     bitmap.unlockPixels();
 
     // Populate bitmap
@@ -215,8 +212,7 @@ DEF_TEST(CompressLATC, reporter) {
     bool setInfoSuccess = bitmap.setInfo(info);
     REPORTER_ASSERT(reporter, setInfoSuccess);
 
-    bool allocPixelsSuccess = bitmap.allocPixels(info);
-    REPORTER_ASSERT(reporter, allocPixelsSuccess);
+    bitmap.allocPixels(info);
     bitmap.unlockPixels();
 
     int latcDimX, latcDimY;

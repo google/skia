@@ -128,11 +128,7 @@ protected:
             // Copy it to a bitmap which can be drawn, converting
             // to premultiplied:
             SkBitmap bm;
-            if (!bm.allocN32Pixels(fBitmap.width(), fBitmap.height())) {
-                SkString errMsg("allocPixels failed");
-                canvas->drawText(errMsg.c_str(), errMsg.size(), 0, height, paint);
-                return;
-            }
+            bm.allocN32Pixels(fBitmap.width(), fBitmap.height());
             for (int i = 0; i < fBitmap.width(); ++i) {
                 for (int j = 0; j < fBitmap.height(); ++j) {
                     *bm.getAddr32(i, j) = premultiply_unpmcolor(*fBitmap.getAddr32(i, j));

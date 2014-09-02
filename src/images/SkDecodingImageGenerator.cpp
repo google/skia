@@ -69,7 +69,7 @@ public:
     virtual bool allocPixelRef(SkBitmap* bm, SkColorTable* ct) {
         if (NULL == fTarget || !equal_modulo_alpha(fInfo, bm->info())) {
             // Call default allocator.
-            return bm->allocPixels(NULL, ct);
+            return bm->tryAllocPixels(NULL, ct);
         }
 
         // TODO(halcanary): verify that all callers of this function

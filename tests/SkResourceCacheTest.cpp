@@ -27,7 +27,7 @@ static bool test_scaled_image_cache_useage() {
     SkAutoTUnref<SkCanvas> canvas(
             SkCanvas::NewRasterN32(kCanvasSize, kCanvasSize));
     SkBitmap bitmap;
-    SkAssertResult(bitmap.allocN32Pixels(kBitmapSize, kBitmapSize));
+    bitmap.allocN32Pixels(kBitmapSize, kBitmapSize);
     bitmap.eraseColor(0xFFFFFFFF);
     SkScalar scale = SkIntToScalar(kScale);
     SkScalar scaledSize = SkIntToScalar(kBitmapSize) * scale;

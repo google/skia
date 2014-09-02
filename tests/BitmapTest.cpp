@@ -75,7 +75,7 @@ DEF_TEST(Bitmap, reporter) {
             bool setConf = bm.setInfo(SkImageInfo::MakeN32Premul(width, height));
             REPORTER_ASSERT(reporter, setConf);
             if (setConf) {
-                REPORTER_ASSERT(reporter, bm.allocPixels(NULL));
+                bm.allocPixels();
             }
             REPORTER_ASSERT(reporter, SkToBool(width & height) != bm.empty());
         }

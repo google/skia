@@ -482,8 +482,7 @@ void TestResult::testOne() {
         do {
             int dimX = SkScalarCeilToInt(width / fScale);
             int dimY = SkScalarCeilToInt(height / fScale);
-            if (oldBitmap.allocN32Pixels(dimX, dimY) &&
-                opBitmap.allocN32Pixels(dimX, dimY)) {
+            if (oldBitmap.tryAllocN32Pixels(dimX, dimY) && opBitmap.tryAllocN32Pixels(dimX, dimY)) {
                 break;
             }
             SkDebugf("-%d-", fScale);

@@ -50,7 +50,7 @@ bool SkPopplerRasterizePDF(SkStream* pdf, SkBitmap* output) {
   char *imgData = image.data();
 
   SkBitmap bitmap;
-  if (!bitmap.allocPixels(SkImageInfo::MakeN32Premul(width, height))) {
+  if (!bitmap.tryAllocN32Pixels(width, height)) {
     return false;
   }
   bitmap.eraseColor(SK_ColorWHITE);

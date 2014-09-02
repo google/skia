@@ -265,7 +265,7 @@ static SkBitmap unpremultiplyBitmap(const SkBitmap& src)
         return SkBitmap();
     }
     SkBitmap result;
-    if (!result.allocPixels(src.info())) {
+    if (!result.tryAllocPixels(src.info())) {
         return SkBitmap();
     }
     for (int y = 0; y < src.height(); ++y) {
@@ -307,7 +307,7 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    if (!result->allocPixels(src.info().makeWH(bounds.width(), bounds.height()))) {
+    if (!result->tryAllocPixels(src.info().makeWH(bounds.width(), bounds.height()))) {
         return false;
     }
 

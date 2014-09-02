@@ -17,8 +17,7 @@ typedef uint64_t checksum_result;
 // Fill in bitmap with test data.
 static void CreateTestBitmap(SkBitmap* bitmap, int width, int height,
                              SkColor color, skiatest::Reporter* reporter) {
-    SkImageInfo info = SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType);
-    REPORTER_ASSERT(reporter, bitmap->allocPixels(info));
+    bitmap->allocN32Pixels(width, height, kOpaque_SkAlphaType);
     bitmap->eraseColor(color);
 }
 

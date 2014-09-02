@@ -170,7 +170,7 @@ bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
         top = 0;
         height = this->info().fHeight;
     }
-    if (!dst->allocPixels(SkImageInfo::MakeN32Premul(width, height))) {
+    if (!dst->tryAllocN32Pixels(width, height)) {
         SkDebugf("SkGrPixelRef::onReadPixels failed to alloc bitmap for result!\n");
         return false;
     }
