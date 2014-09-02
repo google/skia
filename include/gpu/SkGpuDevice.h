@@ -122,15 +122,6 @@ protected:
     virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) SK_OVERRIDE;
     virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) SK_OVERRIDE;
 
-    static bool FindLayersToHoist(const GrAccelData *gpuData,
-                                  const SkPicture::OperationList* ops,
-                                  const SkRect& query,
-                                  bool* pullForward);
-    void drawLayers(const SkPicture* picture,
-                    const SkTDArray<GrCachedLayer*>& atlased,
-                    const SkTDArray<GrCachedLayer*>& nonAtlased);
-    void unlockLayers(const SkPicture* picture);
-
     /**  PRIVATE / EXPERIMENTAL -- do not call */
     virtual void EXPERIMENTAL_optimize(const SkPicture* picture) SK_OVERRIDE;
     /**  PRIVATE / EXPERIMENTAL -- do not call */

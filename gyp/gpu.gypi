@@ -86,6 +86,8 @@
       '<(skia_src_path)/gpu/GrInOrderDrawBuffer.h',
       '<(skia_src_path)/gpu/GrLayerCache.cpp',
       '<(skia_src_path)/gpu/GrLayerCache.h',
+      '<(skia_src_path)/gpu/GrLayerHoister.cpp',
+      '<(skia_src_path)/gpu/GrLayerHoister.h',
       '<(skia_src_path)/gpu/GrMemoryPool.cpp',
       '<(skia_src_path)/gpu/GrMemoryPool.h',
       '<(skia_src_path)/gpu/GrMurmur3HashKey.h',
