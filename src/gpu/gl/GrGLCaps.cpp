@@ -209,7 +209,9 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     // data for dynamic content on these GPUs. Perhaps we should read the renderer string and
     // limit this decision to specific GPU families rather than basing it on the vendor alone.
     if (!GR_GL_MUST_USE_VBO &&
-        (kARM_GrGLVendor == ctxInfo.vendor() || kImagination_GrGLVendor == ctxInfo.vendor())) {
+        (kARM_GrGLVendor == ctxInfo.vendor() ||
+         kImagination_GrGLVendor == ctxInfo.vendor() ||
+         kQualcomm_GrGLVendor == ctxInfo.vendor())) {
         fUseNonVBOVertexAndIndexDynamicData = true;
     }
 
