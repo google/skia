@@ -62,10 +62,6 @@ public:
         typedef SkRefCnt INHERITED;
     };
 
-#ifdef SK_SUPPORT_LEGACY_DEFAULT_PICTURE_CTOR
-    SkPicture();
-#endif
-
     /**  PRIVATE / EXPERIMENTAL -- do not call */
     void EXPERIMENTAL_addAccelData(const AccelData*) const;
 

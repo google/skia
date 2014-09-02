@@ -18,7 +18,6 @@
       'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
       # Transitional, for deprecated SkCanvas::SaveFlags methods.
       'SK_ATTR_DEPRECATED=SK_NOTHING_ARG1',
-      'SK_SUPPORT_LEGACY_DEFAULT_PICTURE_CTOR',
       'SK_LEGACY_PICTURE_SIZE_API',
     ],
   },

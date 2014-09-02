@@ -252,15 +252,6 @@ bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_DEFAULT_PICTURE_CTOR
-// fRecord OK
-SkPicture::SkPicture()
-    : fWidth(0)
-    , fHeight(0) {
-    this->needsNewGenID();
-}
-#endif
-
 // fRecord OK
 SkPicture::SkPicture(SkScalar width, SkScalar height,
                      const SkPictureRecord& record,
