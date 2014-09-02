@@ -306,7 +306,8 @@ static inline void SkBlendRGB16(const uint16_t src[], uint16_t dst[],
     do {
         uint32_t src32 = SkExpand_rgb_16(*src++);
         uint32_t dst32 = SkExpand_rgb_16(*dst);
-        *dst++ = SkCompact_rgb_16(dst32 + ((src32 - dst32) * srcScale >> 5));
+        *dst++ = static_cast<uint16_t>(
+            SkCompact_rgb_16(dst32 + ((src32 - dst32) * srcScale >> 5)));
     } while (--count > 0);
 }
 
@@ -785,7 +786,7 @@ static inline SkPMColor16 SkPackARGB4444(unsigned a, unsigned r,
                          (g << SK_G4444_SHIFT) | (b << SK_B4444_SHIFT));
 }
 
-static inline U16CPU SkAlphaMulQ4(U16CPU c, unsigned scale) {
+static inline SkPMColor16 SkAlphaMulQ4(SkPMColor16 c, int scale) {
     SkASSERT(scale <= 16);
 
     const unsigned mask = 0xF0F;    //gMask_0F0F;
@@ -795,32 +796,20 @@ static inline U16CPU SkAlphaMulQ4(U16CPU c, unsigned scale) {
     unsigned ag = ((c >> 4) & mask) * scale;
     return (rb & mask) | (ag & ~mask);
 #else
-    c = (c & mask) | ((c & (mask << 4)) << 12);
-    c = c * scale >> 4;
-    return (c & mask) | ((c >> 12) & (mask << 4));
+    unsigned expanded_c = (c & mask) | ((c & (mask << 4)) << 12);
+    unsigned scaled_c = (expanded_c * scale) >> 4;
+    return (scaled_c & mask) | ((scaled_c >> 12) & (mask << 4));
 #endif
 }
 
 /** Expand the SkPMColor16 color into a 32bit value that can be scaled all at
-    once by a value up to 16. Used in conjunction with SkCompact_4444.
+    once by a value up to 16.
 */
 static inline uint32_t SkExpand_4444(U16CPU c) {
     SkASSERT(c == (uint16_t)c);
 
     const unsigned mask = 0xF0F;    //gMask_0F0F;
     return (c & mask) | ((c & ~mask) << 12);
-}
-
-/** Compress an expanded value (from SkExpand_4444) back down to a SkPMColor16.
-    NOTE: this explicitly does not clean the top 16 bits (which may be garbage).
-    It does this for speed, since if it is being written directly to 16bits of
-    memory, the top 16bits will be ignored. Casting the result to uint16_t here
-    would add 2 more instructions, slow us down. It is up to the caller to
-    perform the cast if needed.
-*/
-static inline U16CPU SkCompact_4444(uint32_t c) {
-    const unsigned mask = 0xF0F;    //gMask_0F0F;
-    return (c & mask) | ((c >> 12) & ~mask);
 }
 
 static inline uint16_t SkSrcOver4444To16(SkPMColor16 s, uint16_t d) {
@@ -852,22 +841,6 @@ static inline uint16_t SkBlend4444To16(SkPMColor16 src, uint16_t dst, int scale1
     SkASSERT((unsigned)scale16 <= 16);
 
     return SkSrcOver4444To16(SkAlphaMulQ4(src, scale16), dst);
-}
-
-static inline uint16_t SkBlend4444(SkPMColor16 src, SkPMColor16 dst, int scale16) {
-    SkASSERT((unsigned)scale16 <= 16);
-
-    uint32_t src32 = SkExpand_4444(src) * scale16;
-    // the scaled srcAlpha is the bottom byte
-#ifdef SK_DEBUG
-    {
-        unsigned srcA = SkGetPackedA4444(src) * scale16;
-        SkASSERT(srcA == (src32 & 0xFF));
-    }
-#endif
-    unsigned dstScale = SkAlpha255To256(255 - (src32 & 0xFF)) >> 4;
-    uint32_t dst32 = SkExpand_4444(dst) * dstScale;
-    return SkCompact_4444((src32 + dst32) >> 4);
 }
 
 static inline SkPMColor SkPixel4444ToPixel32(U16CPU c) {
