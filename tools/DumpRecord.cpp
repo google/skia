@@ -20,6 +20,7 @@ public:
     explicit Dumper(SkCanvas* canvas, int count, bool timeWithCommand)
         : fDigits(0)
         , fIndent(0)
+        , fIndex(0)
         , fDraw(canvas)
         , fTimeWithCommand(timeWithCommand) {
         while (count > 0) {
@@ -27,9 +28,6 @@ public:
             fDigits++;
         }
     }
-
-    unsigned index() const { return fDraw.index(); }
-    void next() { fDraw.next(); }
 
     template <typename T>
     void operator()(const T& command) {
@@ -71,7 +69,7 @@ private:
         if (!fTimeWithCommand) {
             printf("%6.1f ", time * 1000);
         }
-        printf("%*d ", fDigits, fDraw.index());
+        printf("%*d ", fDigits, fIndex++);
         for (int i = 0; i < fIndent; i++) {
             putchar('\t');
         }
@@ -96,6 +94,7 @@ private:
 
     int fDigits;
     int fIndent;
+    int fIndex;
     SkRecords::Draw fDraw;
     const bool fTimeWithCommand;
 };
@@ -105,9 +104,8 @@ private:
 void DumpRecord(const SkRecord& record,
                   SkCanvas* canvas,
                   bool timeWithCommand) {
-    for (Dumper dumper(canvas, record.count(), timeWithCommand);
-         dumper.index() < record.count();
-         dumper.next()) {
-        record.visit<void>(dumper.index(), dumper);
+    Dumper dumper(canvas, record.count(), timeWithCommand);
+    for (unsigned i = 0; i < record.count(); i++) {
+        record.visit<void>(i, dumper);
     }
 }

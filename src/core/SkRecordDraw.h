@@ -19,16 +19,16 @@ void SkRecordFillBounds(const SkRecord&, SkBBoxHierarchy*);
 // Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.
 void SkRecordDraw(const SkRecord&, SkCanvas*, const SkBBoxHierarchy*, SkDrawPictureCallback*);
 
+// Draw a portion of an SkRecord into an SkCanvas while replacing clears with drawRects.
+void SkRecordPartialDraw(const SkRecord&, SkCanvas*, const SkRect&, unsigned start, unsigned stop);
+
 namespace SkRecords {
 
 // This is an SkRecord visitor that will draw that SkRecord to an SkCanvas.
 class Draw : SkNoncopyable {
 public:
     explicit Draw(SkCanvas* canvas)
-        : fInitialCTM(canvas->getTotalMatrix()), fCanvas(canvas), fIndex(0) {}
-
-    unsigned index() const { return fIndex; }
-    void next() { ++fIndex; }
+        : fInitialCTM(canvas->getTotalMatrix()), fCanvas(canvas) {}
 
     template <typename T> void operator()(const T& r) {
         this->draw(r);
@@ -40,7 +40,28 @@ private:
 
     const SkMatrix fInitialCTM;
     SkCanvas* fCanvas;
-    unsigned fIndex;
+};
+
+// Used by SkRecordPartialDraw.
+class PartialDraw : public Draw {
+public:
+    PartialDraw(SkCanvas* canvas, const SkRect& clearRect)
+        : INHERITED(canvas), fClearRect(clearRect) {}
+
+    // Same as Draw for all ops except Clear.
+    template <typename T> void operator()(const T& r) {
+        this->INHERITED::operator()(r);
+    }
+    void operator()(const Clear& c) {
+        SkPaint p;
+        p.setColor(c.color);
+        DrawRect drawRect(p, fClearRect);
+        this->INHERITED::operator()(drawRect);
+    }
+
+private:
+    const SkRect fClearRect;
+    typedef Draw INHERITED;
 };
 
 }  // namespace SkRecords

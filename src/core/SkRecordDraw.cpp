@@ -35,12 +35,26 @@ void SkRecordDraw(const SkRecord& record,
         }
     } else {
         // Draw all ops.
-        for (SkRecords::Draw draw(canvas); draw.index() < record.count(); draw.next()) {
+        SkRecords::Draw draw(canvas);
+        for (unsigned i = 0; i < record.count(); i++) {
             if (NULL != callback && callback->abortDrawing()) {
                 return;
             }
-            record.visit<void>(draw.index(), draw);
+            record.visit<void>(i, draw);
         }
+    }
+}
+
+void SkRecordPartialDraw(const SkRecord& record,
+                         SkCanvas* canvas,
+                         const SkRect& clearRect,
+                         unsigned start, unsigned stop) {
+    SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
+
+    stop = SkTMin(stop, record.count());
+    SkRecords::PartialDraw draw(canvas, clearRect);
+    for (unsigned i = start; i < stop; i++) {
+        record.visit<void>(i, draw);
     }
 }
 

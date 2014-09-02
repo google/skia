@@ -143,3 +143,55 @@ DEF_TEST(RecordDraw_BBH, r) {
         REPORTER_ASSERT(r, !SkRect::MakeLTRB(+1, +1, 399, 479).contains(bbh.entries[i].bounds));
     }
 }
+
+// Base test to ensure start/stop range is respected
+DEF_TEST(RecordDraw_PartialStartStop, r) {
+    static const int kWidth = 10, kHeight = 10;
+
+    SkRect r1 = { 0, 0, kWidth,   kHeight };
+    SkRect r2 = { 0, 0, kWidth,   kHeight/2 };
+    SkRect r3 = { 0, 0, kWidth/2, kHeight };
+    SkPaint p;
+
+    SkRecord record;
+    SkRecorder recorder(&record, kWidth, kHeight);
+    recorder.drawRect(r1, p);
+    recorder.drawRect(r2, p);
+    recorder.drawRect(r3, p);
+
+    SkRecord rerecord;
+    SkRecorder canvas(&rerecord, kWidth, kHeight);
+    SkRecordPartialDraw(record, &canvas, r1, 1, 2); // replay just drawRect of r2
+
+    REPORTER_ASSERT(r, 3 == rerecord.count());
+    assert_type<SkRecords::Save>     (r, rerecord, 0);
+    assert_type<SkRecords::DrawRect> (r, rerecord, 1);
+    assert_type<SkRecords::Restore>  (r, rerecord, 2);
+
+    const SkRecords::DrawRect* drawRect = assert_type<SkRecords::DrawRect>(r, rerecord, 1);
+    REPORTER_ASSERT(r, drawRect->rect == r2);
+}
+
+// Check that clears are converted to drawRects
+DEF_TEST(RecordDraw_PartialClear, r) {
+    static const int kWidth = 10, kHeight = 10;
+
+    SkRect rect = { 0, 0, kWidth, kHeight };
+
+    SkRecord record;
+    SkRecorder recorder(&record, kWidth, kHeight);
+    recorder.clear(SK_ColorRED);
+
+    SkRecord rerecord;
+    SkRecorder canvas(&rerecord, kWidth, kHeight);
+    SkRecordPartialDraw(record, &canvas, rect, 0, 1); // replay just the clear
+
+    REPORTER_ASSERT(r, 3 == rerecord.count());
+    assert_type<SkRecords::Save>    (r, rerecord, 0);
+    assert_type<SkRecords::DrawRect>(r, rerecord, 1);
+    assert_type<SkRecords::Restore> (r, rerecord, 2);
+
+    const SkRecords::DrawRect* drawRect = assert_type<SkRecords::DrawRect>(r, rerecord, 1);
+    REPORTER_ASSERT(r, drawRect->rect == rect);
+    REPORTER_ASSERT(r, drawRect->paint.getColor() == SK_ColorRED);
+}
