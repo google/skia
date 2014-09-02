@@ -44,3 +44,7 @@ matrixconvolution
 
 # Added as part of https://codereview.chromium.org/466363009/
 fontcache
+
+# fix broken blurs on android (djsollen
+# http://skbug.com/2845
+imageblur2
