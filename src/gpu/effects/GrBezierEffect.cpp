@@ -342,7 +342,7 @@ void GrGLCubicEffect::emitCode(GrGLFullProgramBuilder* builder,
     const char *vsName, *fsName;
 
     builder->addVarying(kVec4f_GrSLType, "CubicCoeffs",
-                              &vsName, &fsName);
+                              &vsName, &fsName, GrGLShaderVar::kHigh_Precision);
 
     GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
     const SkString* attr0Name =

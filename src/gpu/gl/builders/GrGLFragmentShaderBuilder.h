@@ -65,7 +65,8 @@ private:
      */
     void addVarying(GrSLType type,
                    const char* name,
-                   const char** fsInName);
+                   const char** fsInName,
+                   GrGLShaderVar::Precision fsPrecision = GrGLShaderVar::kDefault_Precision);
 
     /*
      * Private functions used by GrGLProgramBuilder for compilation

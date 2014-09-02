@@ -195,8 +195,9 @@ const char* GrGLFragmentShaderBuilder::fragmentPosition() {
 
 void GrGLFragmentShaderBuilder::addVarying(GrSLType type,
                const char* name,
-               const char** fsInName) {
-    fInputs.push_back().set(type, GrGLShaderVar::kVaryingIn_TypeModifier, name);
+               const char** fsInName,
+               GrGLShaderVar::Precision fsPrecision) {
+    fInputs.push_back().set(type, GrGLShaderVar::kVaryingIn_TypeModifier, name, fsPrecision);
     if (fsInName) {
         *fsInName = name;
     }

@@ -343,7 +343,8 @@ void GrGLFullProgramBuilder::emitCodeAfterEffects() {
 void GrGLFullProgramBuilder::addVarying(GrSLType type,
                                         const char* name,
                                         const char** vsOutName,
-                                        const char** fsInName) {
+                                        const char** fsInName,
+                                        GrGLShaderVar::Precision fsPrecision) {
     fVS.addVarying(type, name, vsOutName);
 
     SkString* fsInputName = fVS.fOutputs.back().accessName();
@@ -355,7 +356,7 @@ void GrGLFullProgramBuilder::addVarying(GrSLType type,
        fsInputName = fGS.fOutputs.back().accessName();
     }
 #endif
-    fFS.addVarying(type, fsInputName->c_str(), fsInName);
+    fFS.addVarying(type, fsInputName->c_str(), fsInName, fsPrecision);
 }
 
 GrGLFullProgramBuilder::VaryingHandle

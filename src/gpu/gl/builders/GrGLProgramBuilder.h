@@ -280,7 +280,8 @@ public:
     void addVarying(GrSLType type,
                     const char* name,
                     const char** vsOutName = NULL,
-                    const char** fsInName = NULL);
+                    const char** fsInName = NULL,
+                    GrGLShaderVar::Precision fsPrecision=GrGLShaderVar::kDefault_Precision);
 
     /** Add a separable varying input variable to the current program.
      * A separable varying (fragment shader input) is a varying that can be used also when vertex
