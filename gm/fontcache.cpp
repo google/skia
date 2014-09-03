@@ -13,15 +13,15 @@
 // GM to stress the GPU font cache
 
 const char* gFamilyNames[] = {
-    "sans-serif", "serif", "monospace"
+    "sans-serif", "serif"
 };
 
 const SkTypeface::Style gStyles[] = {
-    SkTypeface::kNormal, SkTypeface::kItalic
+    SkTypeface::kNormal, SkTypeface::kItalic, SkTypeface::kBold
 };
 
 const SkScalar gTextSizes[] = {
-    12, 14, 16, 18, 20, 22, 24, 26, 28, 30
+    192, 194, 196, 198, 200, 202, 204, 206
 };
 
 #define TYPEFACE_COUNT (SK_ARRAY_COUNT(gFamilyNames)*SK_ARRAY_COUNT(gStyles))
@@ -52,7 +52,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(640, 320);
+        return SkISize::Make(1280, 640);
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
@@ -72,33 +72,18 @@ protected:
         paint.setLCDRenderText(true);
         paint.setSubpixelText(true);
 
-        SkString text("Ham");
+        SkString text("H");
 
-        // draw some initial text to partially fill the GPU cache
-        for (size_t i = 0; i < 2; ++i) {
-            paint.setTypeface(fTypefaces[i]);
-            SkScalar x = 20;
-
-            for (size_t j = 0; j < SK_ARRAY_COUNT(gTextSizes); ++j) {
-                paint.setTextSize(gTextSizes[j]);
-                x = draw_string(canvas, text, x, y, paint) + 19;
-            }
-            y += 32;
-        }
-
-        // force a flush
-        canvas->flush();
-
-        // draw again, and more to overflow the cache
+        // draw enough to overflow the cache
         for (size_t i = 0; i < TYPEFACE_COUNT; ++i) {
             paint.setTypeface(fTypefaces[i]);
             SkScalar x = 20;
 
             for (size_t j = 0; j < SK_ARRAY_COUNT(gTextSizes); ++j) {
                 paint.setTextSize(gTextSizes[j]);
-                x = draw_string(canvas, text, x, y, paint) + 19;
+                x = draw_string(canvas, text, x, y, paint) + 10;
             }
-            y += 32;
+            y += 128;
         }
 
     }
