@@ -166,6 +166,7 @@
     '../tests/ReadWriteAlphaTest.cpp',
     '../tests/Reader32Test.cpp',
     '../tests/RecordDrawTest.cpp',
+    '../tests/RecordReplaceDrawTest.cpp',
     '../tests/RecordOptsTest.cpp',
     '../tests/RecordPatternTest.cpp',
     '../tests/RecordTest.cpp',

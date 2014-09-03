@@ -107,6 +107,8 @@
       '<(skia_src_path)/gpu/GrPictureUtils.h',
       '<(skia_src_path)/gpu/GrPictureUtils.cpp',
       '<(skia_src_path)/gpu/GrPlotMgr.h',
+      '<(skia_src_path)/gpu/GrRecordReplaceDraw.cpp',
+      '<(skia_src_path)/gpu/GrRecordReplaceDraw.h',
       '<(skia_src_path)/gpu/GrRectanizer.h',
       '<(skia_src_path)/gpu/GrRectanizer_pow2.cpp',
       '<(skia_src_path)/gpu/GrRectanizer_pow2.h',

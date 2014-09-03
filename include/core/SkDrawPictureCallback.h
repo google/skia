@@ -8,6 +8,8 @@
 #ifndef SkDrawPictureCallback_DEFINED
 #define SkDrawPictureCallback_DEFINED
 
+#include "SkTypes.h"
+
 /**
  *  Subclasses of this can be passed to canvas.drawPicture(). During the drawing
  *  of the picture, this callback will periodically be invoked. If its
