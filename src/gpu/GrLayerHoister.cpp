@@ -13,13 +13,9 @@
 
 // Return true if any layers are suitable for hoisting
 bool GrLayerHoister::FindLayersToHoist(const GrAccelData *gpuData,
-                                       const SkPicture::OperationList* ops,
                                        const SkRect& query,
                                        bool pullForward[]) {
     bool anyHoisted = false;
-    for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
-        pullForward[i] = false;
-    }
 
     // Layer hoisting pre-renders the entire layer since it will be cached and potentially
     // reused with different clips (e.g., in different tiles). Because of this the
@@ -27,67 +23,32 @@ bool GrLayerHoister::FindLayersToHoist(const GrAccelData *gpuData,
     // is used to limit which clips are pre-rendered.
     static const int kSaveLayerMaxSize = 256;
 
-    if (NULL != ops) {
-        // In this case the picture has been generated with a BBH so we use
-        // the BBH to limit the pre-rendering to just the layers needed to cover
-        // the region being drawn
-        for (int i = 0; i < ops->numOps(); ++i) {
-            uint32_t offset = ops->offset(i);
+    // Pre-render all the layers that intersect the query rect
+    for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
+        pullForward[i] = false;
 
-            // For now we're saving all the layers in the GrAccelData so they
-            // can be nested. Additionally, the nested layers appear before
-            // their parent in the list.
-            for (int j = 0; j < gpuData->numSaveLayers(); ++j) {
-                const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
+        const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-                if (pullForward[j]) {
-                    continue;            // already pulling forward
-                }
+        SkRect layerRect = SkRect::MakeXYWH(SkIntToScalar(info.fOffset.fX),
+                                            SkIntToScalar(info.fOffset.fY),
+                                            SkIntToScalar(info.fSize.fWidth),
+                                            SkIntToScalar(info.fSize.fHeight));
 
-                if (offset < info.fSaveLayerOpID || offset > info.fRestoreOpID) {
-                    continue;            // the op isn't in this range
-                }
-
-                // TODO: once this code is more stable unsuitable layers can
-                // just be omitted during the optimization stage
-                if (!info.fValid ||
-                    kSaveLayerMaxSize < info.fSize.fWidth ||
-                    kSaveLayerMaxSize < info.fSize.fHeight ||
-                    info.fIsNested) {
-                    continue;            // this layer is unsuitable
-                }
-
-                pullForward[j] = true;
-                anyHoisted = true;
-            }
+        if (!SkRect::Intersects(query, layerRect)) {
+            continue;
         }
-    } else {
-        // In this case there is no BBH associated with the picture. Pre-render
-        // all the layers that intersect the drawn region
-        for (int j = 0; j < gpuData->numSaveLayers(); ++j) {
-            const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
 
-            SkRect layerRect = SkRect::MakeXYWH(SkIntToScalar(info.fOffset.fX),
-                                                SkIntToScalar(info.fOffset.fY),
-                                                SkIntToScalar(info.fSize.fWidth),
-                                                SkIntToScalar(info.fSize.fHeight));
-
-            if (!SkRect::Intersects(query, layerRect)) {
-                continue;
-            }
-
-            // TODO: once this code is more stable unsuitable layers can
-            // just be omitted during the optimization stage
-            if (!info.fValid ||
-                kSaveLayerMaxSize < info.fSize.fWidth ||
-                kSaveLayerMaxSize < info.fSize.fHeight ||
-                info.fIsNested) {
-                continue;
-            }
-
-            pullForward[j] = true;
-            anyHoisted = true;
+        // TODO: once this code is more stable unsuitable layers can
+        // just be omitted during the optimization stage
+        if (!info.fValid ||
+            kSaveLayerMaxSize < info.fSize.fWidth ||
+            kSaveLayerMaxSize < info.fSize.fHeight ||
+            info.fIsNested) {
+            continue;
         }
+
+        pullForward[i] = true;
+        anyHoisted = true;
     }
 
     return anyHoisted;

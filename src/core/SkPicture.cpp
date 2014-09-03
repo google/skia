@@ -326,15 +326,6 @@ const SkMatrix& SkPicture::OperationList::matrix(int index) const {
     return *((SkPictureStateTree::Draw*)fOps[index])->fMatrix;
 }
 
-// fRecord TODO(robert) / kind of OK in a non-optimal sense
-const SkPicture::OperationList* SkPicture::EXPERIMENTAL_getActiveOps(const SkRect& queryRect) const {
-    SkASSERT(NULL != fData.get());
-    if (NULL != fData.get()) {
-        return fData->getActiveOps(queryRect);
-    }
-    return NULL;
-}
-
 // fRecord OK
 void SkPicture::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) const {
     SkASSERT(NULL != canvas);

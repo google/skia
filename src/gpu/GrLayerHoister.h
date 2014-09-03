@@ -24,14 +24,12 @@ class GrLayerHoister {
 public:
     /** Find the layers in 'gpuData' that need hoisting.
         @param gpuData  Acceleration structure containing layer information for a picture
-        @param ops      If a BBH is being used the operations about to be executed; NULL otherwise.
         @param query    The rectangle that is about to be drawn.
         @param pullForward A gpuData->numSaveLayers -sized Boolean array indicating 
                            which layers are to be hoisted
         Return true if any layers are suitable for hoisting; false otherwise
     */
     static bool FindLayersToHoist(const GrAccelData *gpuData,
-                                  const SkPicture::OperationList* ops,
                                   const SkRect& query,
                                   bool pullForward[]);
 

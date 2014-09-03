@@ -1871,10 +1871,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return true;
     }
 
-    SkAutoTDelete<const SkPicture::OperationList> ops(
-            picture->EXPERIMENTAL_getActiveOps(clipBounds));
-
-    if (!GrLayerHoister::FindLayersToHoist(gpuData, ops.get(), clipBounds, pullForward.get())) {
+    if (!GrLayerHoister::FindLayersToHoist(gpuData, clipBounds, pullForward.get())) {
         return false;
     }
 
@@ -1939,7 +1936,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     GrLayerHoister::DrawLayers(picture, atlased, nonAtlased);
 
     // Render the entire picture using new layers
-    SkPictureReplacementPlayback playback(picture, &replacements, ops.get());
+    SkPictureReplacementPlayback playback(picture, &replacements, NULL);
 
     playback.draw(mainCanvas, NULL);
 

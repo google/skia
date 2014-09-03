@@ -280,18 +280,12 @@ private:
         SkTDArray<void*> fOps;
     };
 
-    /** PRIVATE / EXPERIMENTAL -- do not call
-        Return the operations required to render the content inside 'queryRect'.
-    */
-    const OperationList* EXPERIMENTAL_getActiveOps(const SkRect& queryRect) const;
-
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
     friend class SkPictureData;                // to access OperationList
     friend class SkPictureRecorder;            // just for SkPicture-based constructor
-    friend class SkGpuDevice;                  // for EXPERIMENTAL_getActiveOps/OperationList
-    friend class GrLayerHoister;               // for EXPERIMENTAL_getActiveOps/OperationList
+    friend class SkGpuDevice;                  // for fData access
     friend class CollectLayers;                // access to fRecord
     friend class SkPicturePlayback;            // to get fData & OperationList
     friend class SkPictureReplacementPlayback; // to access OperationList
