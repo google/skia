@@ -167,6 +167,7 @@
         '../tools/skpdiff/SkImageDiffer.cpp',
         '../tools/skpdiff/SkPMetric.cpp',
         '../tools/skpdiff/skpdiff_util.cpp',
+        '../src/utils/SkTaskGroup.cpp',
       ],
       'include_dirs': [
         '../src/core/', # needed for SkTLList.h

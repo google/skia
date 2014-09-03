@@ -73,8 +73,8 @@ static void testSimplifyTrianglesMain(PathOpsThreadState* data) {
 }
 
 DEF_TEST(PathOpsSimplifyTrianglesThreaded, reporter) {
-    int threadCount = initializeTests(reporter, "testTriangles");
-    PathOpsThreadedTestRunner testRunner(reporter, threadCount);
+    initializeTests(reporter, "testTriangles");
+    PathOpsThreadedTestRunner testRunner(reporter);
     for (int a = 0; a < 15; ++a) {
         int ax = a & 0x03;
         int ay = a >> 2;

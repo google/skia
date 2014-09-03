@@ -27,6 +27,7 @@
 #include "SkGraphics.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
+#include "SkTaskGroup.h"
 
 #include "SkDifferentPixelsMetric.h"
 #include "SkDiffContext.h"
@@ -125,6 +126,7 @@ int tool_main(int argc, char * argv[]) {
 
     // Needed by various Skia components
     SkAutoGraphics ag;
+    SkTaskGroup::Enabler enabled;
 
     if (FLAGS_list) {
         SkDebugf("Available Metrics:\n");

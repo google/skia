@@ -5,7 +5,7 @@
 #include "SkBBHFactory.h"
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
-#include "SkThreadPool.h"
+#include "SkTaskGroup.h"
 
 DEFINE_bool(quilt, true, "If true, draw GM via a picture into a quilt of small tiles and compare.");
 DEFINE_int32(quiltTile, 256, "Dimension of (square) quilt tile.");
@@ -96,11 +96,11 @@ void QuiltTask::draw() {
         canvas.flush();
     } else {
         // Draw tiles in parallel into the same bitmap, simulating aggressive impl-side painting.
-        SkThreadPool pool(SkThreadPool::kThreadPerCore);
+        SkTaskGroup tg;
         for (int y = 0; y < tiles_needed(full.height(), FLAGS_quiltTile); y++) {
             for (int x = 0; x < tiles_needed(full.width(), FLAGS_quiltTile); x++) {
                 // Deletes itself when done.
-                pool.add(new Tile(x, y, *recorded, &full));
+                tg.add(new Tile(x, y, *recorded, &full));
             }
         }
     }

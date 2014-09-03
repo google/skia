@@ -111,8 +111,8 @@ static void testQuadLineIntersectMain(PathOpsThreadState* data)
 }
 
 DEF_TEST(PathOpsQuadLineIntersectionThreaded, reporter) {
-    int threadCount = initializeTests(reporter, "testQuadLineIntersect");
-    PathOpsThreadedTestRunner testRunner(reporter, threadCount);
+    initializeTests(reporter, "testQuadLineIntersect");
+    PathOpsThreadedTestRunner testRunner(reporter);
     for (int a = 0; a < 16; ++a) {
         for (int b = 0 ; b < 16; ++b) {
             for (int c = 0 ; c < 16; ++c) {

@@ -32,7 +32,6 @@ namespace skiatest {
         void endTest(Test*);
 
         virtual bool allowExtendedTest() const { return false; }
-        virtual bool allowThreaded() const { return false; }
         virtual bool verbose() const { return false; }
         virtual void bumpTestCount() { sk_atomic_inc(&fTestCount); }
 

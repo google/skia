@@ -33,17 +33,13 @@ struct PathOpsThreadState {
 
 class PathOpsThreadedTestRunner {
 public:
-    PathOpsThreadedTestRunner(skiatest::Reporter* reporter, int threadCount)
-        : fNumThreads(threadCount)
-        , fReporter(reporter) {
-    }
+    PathOpsThreadedTestRunner(skiatest::Reporter* reporter) : fReporter(reporter) {}
 
     ~PathOpsThreadedTestRunner();
 
     void render();
 
 public:
-    int fNumThreads;
     SkTDArray<PathOpsThreadedRunnable*> fRunnables;
     skiatest::Reporter* fReporter;
 };

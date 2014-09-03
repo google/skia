@@ -38,8 +38,8 @@ void Task::finish() {
     fReporter->printStatus(this->name(), SkTime::GetMSecs() - fStart);
 }
 
-void Task::spawnChildNext(CpuTask* task) {
-    fTaskRunner->addNext(task);
+void Task::reallySpawnChild(CpuTask* task) {
+    fTaskRunner->add(task);
 }
 
 CpuTask::CpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, taskRunner) {}
@@ -56,32 +56,32 @@ void CpuTask::run() {
 
 void CpuTask::spawnChild(CpuTask* task) {
     // Run children serially on this (CPU) thread.  This tends to save RAM and is usually no slower.
-    // Calling spawnChildNext() is nearly equivalent, but it'd pointlessly contend on the
-    // threadpool; spawnChildNext() is most useful when you want to change threadpools.
+    // Calling reallySpawnChild() is nearly equivalent, but it'd pointlessly contend on the
+    // threadpool; reallySpawnChild() is most useful when you want to change threadpools.
     task->run();
 }
 
 GpuTask::GpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, taskRunner) {}
 
-void GpuTask::run(GrContextFactory& factory) {
+void GpuTask::run(GrContextFactory* factory) {
     if (FLAGS_gpu && !this->shouldSkip()) {
         this->start();
-        if (!FLAGS_dryRun) this->draw(&factory);
+        if (!FLAGS_dryRun) this->draw(factory);
         this->finish();
         if (FLAGS_abandonGpuContext) {
-            factory.abandonContexts();
+            factory->abandonContexts();
         }
         if (FLAGS_resetGpuContext || FLAGS_abandonGpuContext) {
-            factory.destroyContexts();
+            factory->destroyContexts();
         }
     }
     SkDELETE(this);
 }
 
 void GpuTask::spawnChild(CpuTask* task) {
-    // Really spawn a new task so it runs on the CPU threadpool instead of the GPU one we're on now.
+    // Spawn a new task so it runs on the CPU threadpool instead of the GPU one we're on now.
     // It goes on the front of the queue to minimize the time we must hold reference bitmaps in RAM.
-    this->spawnChildNext(task);
+    this->reallySpawnChild(task);
 }
 
 }  // namespace DM

@@ -74,8 +74,8 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
 }
 
 DEF_TEST(PathOpsRectsThreaded, reporter) {
-    int threadCount = initializeTests(reporter, "testOp");
-    PathOpsThreadedTestRunner testRunner(reporter, threadCount);
+    initializeTests(reporter, "testOp");
+    PathOpsThreadedTestRunner testRunner(reporter);
     for (int a = 0; a < 6; ++a) {  // outermost
         for (int b = a + 1; b < 7; ++b) {
             for (int c = 0 ; c < 6; ++c) {

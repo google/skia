@@ -15,7 +15,7 @@
         '../src/pipe/utils',
         '../src/utils',
       ],
-      'dependencies': [ 
+      'dependencies': [
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
@@ -24,6 +24,7 @@
       'sources': [
 		'../tests/PathOpsDebug.cpp',
         '../tests/PathOpsSkpClipTest.cpp',
+        '../src/utils/SkTaskGroup.cpp',
       ],
       'conditions': [
         [ 'skia_android_framework == 1', {

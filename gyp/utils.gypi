@@ -10,7 +10,6 @@
         # Classes for a threadpool.
         '<(skia_src_path)/utils/SkCondVar.h',
         '<(skia_src_path)/utils/SkRunnable.h',
-        '<(skia_src_path)/utils/SkThreadPool.h',
         '<(skia_src_path)/utils/SkCondVar.cpp',
 
         '<(skia_include_path)/utils/SkBoundaryPatch.h',

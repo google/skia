@@ -7,7 +7,7 @@
 
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
-#include "SkThreadPool.h"
+#include "SkTaskGroup.h"
 
 PathOpsThreadedTestRunner::~PathOpsThreadedTestRunner() {
     for (int index = 0; index < fRunnables.count(); index++) {
@@ -16,8 +16,8 @@ PathOpsThreadedTestRunner::~PathOpsThreadedTestRunner() {
 }
 
 void PathOpsThreadedTestRunner::render() {
-    SkThreadPool pool(fNumThreads);
+    SkTaskGroup tg;
     for (int index = 0; index < fRunnables.count(); ++ index) {
-        pool.add(fRunnables[index]);
+        tg.add(fRunnables[index]);
     }
 }
