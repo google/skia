@@ -19,6 +19,7 @@ public:
 
 private:
   virtual bool allowExtendedTest() const SK_OVERRIDE;
+  virtual bool allowThreaded()     const SK_OVERRIDE;
   virtual bool verbose()           const SK_OVERRIDE;
 
   virtual void onReportFailed(const SkString& desc) SK_OVERRIDE {

@@ -6,6 +6,7 @@
  */
 
 #include "SkCommonFlags.h"
+#include "SkThreadPool.h"
 
 DEFINE_string(config, "565 8888 pdf gpu nonrendering angle",
               "Options: 565 8888 pdf gpu nonrendering msaa4 msaa16 nvprmsaa4 nvprmsaa16 "
@@ -41,10 +42,12 @@ DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test
 DEFINE_bool(abandonGpuContext, false, "Abandon the GrContext after running each test. "
                                       "Implies --resetGpuContext.");
 
+DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
+
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 
-DEFINE_int32(threads, 0, "Run threadsafe tests on a threadpool with this many threads, "
-                         "defaulting to one thread per core.");
+DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
+             "run threadsafe tests on a threadpool with this many threads.");
 
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 

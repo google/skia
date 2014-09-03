@@ -76,8 +76,8 @@ static void testSimplifyQuadralateralsMain(PathOpsThreadState* data)
 }
 
 DEF_TEST(PathOpsSimplifyQuadralateralsThreaded, reporter) {
-    initializeTests(reporter, "testQuadralaterals");
-    PathOpsThreadedTestRunner testRunner(reporter);
+    int threadCount = initializeTests(reporter, "testQuadralaterals");
+    PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 16; ++a) {
         for (int b = a ; b < 16; ++b) {
             for (int c = b ; c < 16; ++c) {

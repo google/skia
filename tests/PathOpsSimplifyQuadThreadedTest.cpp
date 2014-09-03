@@ -74,8 +74,8 @@ static void testSimplifyQuadsMain(PathOpsThreadState* data)
 }
 
 DEF_TEST(PathOpsSimplifyQuadsThreaded, reporter) {
-    initializeTests(reporter, "testQuads");
-    PathOpsThreadedTestRunner testRunner(reporter);
+    int threadCount = initializeTests(reporter, "testQuads");
+    PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     int a = 0;
     for (; a < 16; ++a) {
         for (int b = a ; b < 16; ++b) {

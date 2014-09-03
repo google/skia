@@ -213,12 +213,3 @@
     Memcheck:Addr2
     fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
 }
-
-{
-    sk_task_group_thread_pool_intentionally_leaks_in_Release_mode
-    Memcheck:Leak
-    ...
-    fun:_ZN8SkThreadC1EPFvPvES0_
-    ...
-    fun:_ZN11SkTaskGroup3addEP10SkRunnable
-}

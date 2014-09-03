@@ -20,7 +20,6 @@
         '../tests/PathOpsDebug.cpp',
         '../tests/PathOpsOpLoopThreadedTest.cpp',
         '../tests/skia_test.cpp',
-        '../src/utils/SkTaskGroup.cpp',
       ],
       'conditions': [
         [ 'skia_android_framework == 1', {

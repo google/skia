@@ -12,7 +12,7 @@
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkTDict.h"
-#include "SkTaskGroup.h"
+#include "SkThreadPool.h"
 
 // from the tools directory for replace_char(...)
 #include "picture_utils.h"
@@ -24,6 +24,7 @@
 SkDiffContext::SkDiffContext() {
     fDiffers = NULL;
     fDifferCount = 0;
+    fThreadCount = SkThreadPool::kThreadPerCore;
 }
 
 SkDiffContext::~SkDiffContext() {
@@ -86,7 +87,7 @@ static SkString get_common_prefix(const SkString& a, const SkString& b) {
 }
 
 static SkString get_combined_name(const SkString& a, const SkString& b) {
-    // Note (stephana): We must keep this function in sync with
+    // Note (stephana): We must keep this function in sync with 
     // getImageDiffRelativeUrl() in static/loader.js (under rebaseline_server).
     SkString result = a;
     result.append("-vs-");
@@ -237,7 +238,7 @@ void SkDiffContext::diffDirectories(const char baselinePath[], const char testPa
         return;
     }
 
-    SkTaskGroup tg;
+    SkThreadPool threadPool(fThreadCount);
     SkTArray<SkThreadedDiff> runnableDiffs;
     runnableDiffs.reset(baselineEntries.count());
 
@@ -252,11 +253,13 @@ void SkDiffContext::diffDirectories(const char baselinePath[], const char testPa
         if (sk_exists(testFile.c_str()) && !sk_isdir(testFile.c_str())) {
             // Queue up the comparison with the differ
             runnableDiffs[x].setup(this, baselineFile, testFile);
-            tg.add(&runnableDiffs[x]);
+            threadPool.add(&runnableDiffs[x]);
         } else {
             SkDebugf("Baseline file \"%s\" has no corresponding test file\n", baselineFile.c_str());
         }
     }
+
+    threadPool.wait();
 }
 
 
@@ -281,14 +284,16 @@ void SkDiffContext::diffPatterns(const char baselinePattern[], const char testPa
         return;
     }
 
-    SkTaskGroup tg;
+    SkThreadPool threadPool(fThreadCount);
     SkTArray<SkThreadedDiff> runnableDiffs;
     runnableDiffs.reset(baselineEntries.count());
 
     for (int x = 0; x < baselineEntries.count(); x++) {
         runnableDiffs[x].setup(this, baselineEntries[x], testEntries[x]);
-        tg.add(&runnableDiffs[x]);
+        threadPool.add(&runnableDiffs[x]);
     }
+
+    threadPool.wait();
 }
 
 void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {

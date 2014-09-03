@@ -12,8 +12,8 @@
 #include "SkGraphics.h"
 #include "SkOSFile.h"
 #include "SkTArray.h"
-#include "SkTaskGroup.h"
 #include "SkTemplates.h"
+#include "SkThreadPool.h"
 #include "SkTime.h"
 #include "Test.h"
 
@@ -54,6 +54,7 @@ public:
     explicit DebugfReporter(int total) : fDone(0), fTotal(total) {}
 
     virtual bool allowExtendedTest() const SK_OVERRIDE { return FLAGS_extendedTest; }
+    virtual bool allowThreaded()     const SK_OVERRIDE { return !FLAGS_single; }
     virtual bool verbose()           const SK_OVERRIDE { return FLAGS_veryVerbose; }
 
 protected:
@@ -174,8 +175,7 @@ int test_main() {
     int32_t failCount = 0;
     int skipCount = 0;
 
-    SkTaskGroup::SetThreadCount(FLAGS_threads);
-    SkTaskGroup cpuTests;
+    SkThreadPool threadpool(FLAGS_threads);
     SkTArray<Test*> gpuTests;  // Always passes ownership to an SkTestRunnable
 
     DebugfReporter reporter(toRun);
@@ -186,7 +186,7 @@ int test_main() {
         } else if (test->isGPUTest()) {
             gpuTests.push_back() = test.detach();
         } else {
-            cpuTests.add(SkNEW_ARGS(SkTestRunnable, (test.detach(), &failCount)));
+            threadpool.add(SkNEW_ARGS(SkTestRunnable, (test.detach(), &failCount)));
         }
     }
 
@@ -204,7 +204,7 @@ int test_main() {
     }
 
     // Block until threaded tests finish.
-    cpuTests.wait();
+    threadpool.wait();
 
     if (FLAGS_verbose) {
         SkDebugf("\nFinished %d tests, %d failures, %d skipped. (%d internal tests)",

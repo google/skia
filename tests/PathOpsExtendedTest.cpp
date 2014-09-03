@@ -14,8 +14,8 @@
 #include "SkPaint.h"
 #include "SkRTConf.h"
 #include "SkStream.h"
-#include "SkTaskGroup.h"
 #include "SkThread.h"
+#include "SkThreadPool.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <sys/sysctl.h>
@@ -542,7 +542,7 @@ bool testThreadedPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
 
 SK_DECLARE_STATIC_MUTEX(gMutex);
 
-void initializeTests(skiatest::Reporter* reporter, const char* test) {
+int initializeTests(skiatest::Reporter* reporter, const char* test) {
 #if 0  // doesn't work yet
     SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true);
     SK_CONF_SET("images.png.suppressDecoderWarnings", true);
@@ -566,6 +566,7 @@ void initializeTests(skiatest::Reporter* reporter, const char* test) {
             }
         }
     }
+    return reporter->allowThreaded() ? SkThreadPool::kThreadPerCore : 1;
 }
 
 void outputProgress(char* ramStr, const char* pathStr, SkPath::FillType pathFillType) {
