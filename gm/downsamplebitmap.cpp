@@ -50,7 +50,7 @@ protected:
 
     virtual SkISize onISize() SK_OVERRIDE {
         make_bitmap_wrapper();
-        return SkISize::Make(4 * fBM.width(), fBM.height());
+        return SkISize::Make(fBM.width(), 4 * fBM.height());
     }
 
     void make_bitmap_wrapper() {
@@ -65,8 +65,8 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         make_bitmap_wrapper();
 
-        int curX = 0;
-        int curWidth;
+        int curY = 0;
+        int curHeight;
         float curScale = 1;
         do {
 
@@ -77,14 +77,14 @@ protected:
             paint.setFilterLevel(fFilterLevel);
 
             canvas->save();
-            canvas->translate( (SkScalar) curX, 0.f );
+            canvas->translate(0, (SkScalar)curY);
             canvas->drawBitmapMatrix( fBM, matrix, &paint );
             canvas->restore();
 
-            curWidth = (int) (fBM.width() * curScale + 2);
-            curX += curWidth;
+            curHeight = (int) (fBM.height() * curScale + 2);
+            curY += curHeight;
             curScale *= 0.75f;
-        } while (curWidth >= 2 && curX < 4*fBM.width());
+        } while (curHeight >= 2 && curY < 4*fBM.height());
     }
 
 private:
