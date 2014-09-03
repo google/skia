@@ -41,7 +41,7 @@ bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
     static const size_t kMaxTotalSize = SK_MaxS32;
 
     int shift = 0;
-    switch (info.fColorType) {
+    switch (info.colorType()) {
         case kAlpha_8_SkColorType:
             shift = 0;
             break;
@@ -59,7 +59,7 @@ bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
         return true;
     }
 
-    uint64_t minRB = (uint64_t)info.fWidth << shift;
+    uint64_t minRB = (uint64_t)info.width() << shift;
     if (minRB > rowBytes) {
         return false;
     }
@@ -69,7 +69,7 @@ bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
         return false;
     }
 
-    uint64_t size = sk_64_mul(info.fHeight, rowBytes);
+    uint64_t size = sk_64_mul(info.height(), rowBytes);
     if (size > kMaxTotalSize) {
         return false;
     }
@@ -86,7 +86,7 @@ SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, void* pixels, size_t
 }
 
 SkSurface_Raster::SkSurface_Raster(SkPixelRef* pr)
-    : INHERITED(pr->info().fWidth, pr->info().fHeight)
+    : INHERITED(pr->info().width(), pr->info().height())
 {
     const SkImageInfo& info = pr->info();
 

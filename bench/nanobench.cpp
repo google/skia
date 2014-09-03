@@ -133,7 +133,7 @@ static bool write_canvas_png(SkCanvas* canvas, const SkString& filename) {
     if (filename.isEmpty()) {
         return false;
     }
-    if (kUnknown_SkColorType == canvas->imageInfo().fColorType) {
+    if (kUnknown_SkColorType == canvas->imageInfo().colorType()) {
         return false;
     }
     SkBitmap bmp;
@@ -357,11 +357,8 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
         return NULL;
     }
 
-    SkImageInfo info;
-    info.fAlphaType = config.alpha;
-    info.fColorType = config.color;
-    info.fWidth = bench->getSize().fX;
-    info.fHeight = bench->getSize().fY;
+    SkImageInfo info = SkImageInfo::Make(bench->getSize().fX, bench->getSize().fY,
+                                         config.color, config.alpha);
 
     Target* target = new Target(config);
 

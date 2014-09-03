@@ -16,10 +16,9 @@ static void sk_free_releaseproc(void* ptr, void*) {
 }
 
 static bool is_valid(const SkImageInfo& info, SkColorTable* ctable) {
-    if (info.fWidth < 0 ||
-        info.fHeight < 0 ||
-        (unsigned)info.fColorType > (unsigned)kLastEnum_SkColorType ||
-        (unsigned)info.fAlphaType > (unsigned)kLastEnum_SkAlphaType)
+    if (info.width() < 0 || info.height() < 0 ||
+        (unsigned)info.colorType() > (unsigned)kLastEnum_SkColorType ||
+        (unsigned)info.alphaType() > (unsigned)kLastEnum_SkAlphaType)
     {
         return false;
     }
@@ -72,7 +71,7 @@ SkMallocPixelRef* SkMallocPixelRef::NewAllocate(const SkImageInfo& info,
         rowBytes = minRB;
     }
 
-    int64_t bigSize = (int64_t)info.fHeight * rowBytes;
+    int64_t bigSize = (int64_t)info.height() * rowBytes;
     if (!sk_64_isS32(bigSize)) {
         return NULL;
     }
@@ -142,7 +141,7 @@ SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
     SkASSERT(is_valid(info, ctable));
     SkASSERT(rowBytes >= info.minRowBytes());
 
-    if (kIndex_8_SkColorType != info.fColorType) {
+    if (kIndex_8_SkColorType != info.colorType()) {
         ctable = NULL;
     }
 
@@ -165,7 +164,7 @@ SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
     SkASSERT(is_valid(info, ctable));
     SkASSERT(rowBytes >= info.minRowBytes());
 
-    if (kIndex_8_SkColorType != info.fColorType) {
+    if (kIndex_8_SkColorType != info.colorType()) {
         ctable = NULL;
     }
 

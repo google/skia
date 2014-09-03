@@ -212,7 +212,7 @@ static void test_diagonal(skiatest::Reporter* reporter) {
                                          kPremul_SkAlphaType);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gDstColorType); i++) {
-        info.fColorType = gDstColorType[i];
+        info = info.makeColorType(gDstColorType[i]);
 
         SkBitmap dstBM0, dstBM1;
         dstBM0.allocPixels(info);

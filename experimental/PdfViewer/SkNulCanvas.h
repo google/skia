@@ -62,8 +62,8 @@ public:
     virtual bool getClipBounds(SkRect* bounds) const SK_OVERRIDE {
         if (NULL != bounds) {
             bounds->setXYWH(0, 0,
-                            SkIntToScalar(this->imageInfo().fWidth),
-                            SkIntToScalar(this->imageInfo().fHeight));
+                            SkIntToScalar(this->imageInfo().width()),
+                            SkIntToScalar(this->imageInfo().height()));
         }
         return true;
     }

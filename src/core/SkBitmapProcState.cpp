@@ -273,9 +273,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
             SkScalar invScaleFixup = level.fScale;
             fInvMatrix.postScale(invScaleFixup, invScaleFixup);
 
-            SkImageInfo info = fOrigBitmap.info();
-            info.fWidth = level.fWidth;
-            info.fHeight = level.fHeight;
+            const SkImageInfo info = fOrigBitmap.info().makeWH(level.fWidth, level.fHeight);
             // todo: if we could wrap the fCurrMip in a pixelref, then we could just install
             //       that here, and not need to explicitly track it ourselves.
             fScaledBitmap.installPixels(info, level.fPixels, level.fRowBytes);

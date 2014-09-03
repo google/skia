@@ -631,10 +631,8 @@ bool SkCanvas::readPixels(const SkImageInfo& origInfo, void* dstP, size_t rowByt
         return false;
     }
 
-    SkImageInfo info = origInfo;
     // the intersect may have shrunk info's logical size
-    info.fWidth = srcR.width();
-    info.fHeight = srcR.height();
+    const SkImageInfo info = origInfo.makeWH(srcR.width(), srcR.height());
 
     // if x or y are negative, then we have to adjust pixels
     if (x > 0) {
@@ -686,10 +684,8 @@ bool SkCanvas::writePixels(const SkImageInfo& origInfo, const void* pixels, size
         return false;
     }
 
-    SkImageInfo info = origInfo;
     // the intersect may have shrunk info's logical size
-    info.fWidth = target.width();
-    info.fHeight = target.height();
+    const SkImageInfo info = origInfo.makeWH(target.width(), target.height());
 
     // if x or y are negative, then we have to adjust pixels
     if (x > 0) {

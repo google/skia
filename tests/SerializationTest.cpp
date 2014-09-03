@@ -463,9 +463,8 @@ DEF_TEST(Serialization, reporter) {
         validBitmap.setInfo(info);
 
         // Create a bitmap with a really large height
-        info.fHeight = 1000000000;
         SkBitmap invalidBitmap;
-        invalidBitmap.setInfo(info);
+        invalidBitmap.setInfo(info.makeWH(info.width(), 1000000000));
 
         // The deserialization should succeed, and the rendering shouldn't crash,
         // even when the device fails to initialize, due to its size

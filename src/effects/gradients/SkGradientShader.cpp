@@ -622,11 +622,8 @@ const SkPMColor* SkGradientShaderBase::GradientShaderCache::getCache32() {
 }
 
 void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache* cache) {
-    SkImageInfo info;
-    info.fWidth = kCache32Count;
-    info.fHeight = 4;   // for our 4 dither rows
-    info.fAlphaType = kPremul_SkAlphaType;
-    info.fColorType = kN32_SkColorType;
+    const int kNumberOfDitherRows = 4;
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(kCache32Count, kNumberOfDitherRows);
 
     SkASSERT(NULL == cache->fCache32PixelRef);
     cache->fCache32PixelRef = SkMallocPixelRef::NewAllocate(info, 0, NULL);

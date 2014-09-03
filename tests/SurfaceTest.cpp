@@ -90,7 +90,7 @@ static SkImage* createImage(ImageType imageType, GrContext* context,
     const SkPMColor pmcolor = SkPreMultiplyColor(color);
     const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
     const size_t rowBytes = info.minRowBytes();
-    const size_t size = rowBytes * info.fHeight;
+    const size_t size = rowBytes * info.height();
 
     void* addr = sk_malloc_throw(size);
     sk_memset32((SkPMColor*)addr, pmcolor, SkToInt(size >> 2));
@@ -142,11 +142,11 @@ static void test_imagepeek(skiatest::Reporter* reporter) {
         bool success = (NULL != addr);
         REPORTER_ASSERT(reporter, gRec[i].fPeekShouldSucceed == success);
         if (success) {
-            REPORTER_ASSERT(reporter, 10 == info.fWidth);
-            REPORTER_ASSERT(reporter, 10 == info.fHeight);
-            REPORTER_ASSERT(reporter, kN32_SkColorType == info.fColorType);
-            REPORTER_ASSERT(reporter, kPremul_SkAlphaType == info.fAlphaType ||
-                            kOpaque_SkAlphaType == info.fAlphaType);
+            REPORTER_ASSERT(reporter, 10 == info.width());
+            REPORTER_ASSERT(reporter, 10 == info.height());
+            REPORTER_ASSERT(reporter, kN32_SkColorType == info.colorType());
+            REPORTER_ASSERT(reporter, kPremul_SkAlphaType == info.alphaType() ||
+                            kOpaque_SkAlphaType == info.alphaType());
             REPORTER_ASSERT(reporter, info.minRowBytes() <= rowBytes);
             REPORTER_ASSERT(reporter, pmcolor == *(const SkPMColor*)addr);
         }

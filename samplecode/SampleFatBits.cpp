@@ -102,8 +102,7 @@ public:
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
         fMinSurface.reset(SkSurface::NewRaster(info));
-        info.fWidth *= zoom;
-        info.fHeight *= zoom;
+        info = info.makeWH(width * zoom, height * zoom);
         fMaxSurface.reset(SkSurface::NewRaster(info));
     }
 

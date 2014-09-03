@@ -58,9 +58,8 @@ static void fillCanvas(SkCanvas* canvas, SkColorType colorType, PackUnpremulProc
         }
     }
 
-    SkImageInfo info = bmp.info();
-    info.fColorType = colorType;
-    info.fAlphaType = kUnpremul_SkAlphaType;
+    const SkImageInfo info = SkImageInfo::Make(bmp.width(), bmp.height(),
+                                               colorType, kUnpremul_SkAlphaType);
     canvas->writePixels(info, bmp.getPixels(), bmp.rowBytes(), 0, 0);
 }
 

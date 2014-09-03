@@ -39,7 +39,7 @@ bool sk_tools::LazyDecodeBitmap(const void* src,
         return false;
     }
     SkDiscardableMemory::Factory* pool = NULL;
-    if ((!FLAGS_useVolatileCache) || (info.fWidth * info.fHeight < 32 * 1024)) {
+    if ((!FLAGS_useVolatileCache) || (info.width() * info.height() < 32 * 1024)) {
         // how to do switching with SkDiscardableMemory.
         pool = SkGetGlobalDiscardableMemoryPool();
         // Only meaningful if platform has a default discardable

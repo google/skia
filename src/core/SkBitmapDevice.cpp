@@ -70,11 +70,12 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkDeviceProperties&
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
                                        const SkDeviceProperties* props) {
-    SkImageInfo info = origInfo;
-    if (!valid_for_bitmap_device(info, &info.fAlphaType)) {
+    SkAlphaType newAT = origInfo.alphaType();
+    if (!valid_for_bitmap_device(origInfo, &newAT)) {
         return NULL;
     }
 
+    const SkImageInfo info = origInfo.makeAlphaType(newAT);
     SkBitmap bitmap;
 
     if (kUnknown_SkColorType == info.colorType()) {
@@ -150,9 +151,7 @@ bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPi
         return false;
     }
 
-    SkImageInfo dstInfo = fBitmap.info();
-    dstInfo.fWidth = srcInfo.width();
-    dstInfo.fHeight = srcInfo.height();
+    const SkImageInfo dstInfo = fBitmap.info().makeWH(srcInfo.width(), srcInfo.height());
 
     void* dstPixels = fBitmap.getAddr(x, y);
     size_t dstRowBytes = fBitmap.rowBytes();

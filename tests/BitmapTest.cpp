@@ -51,8 +51,7 @@ static void test_bigwidth(skiatest::Reporter* reporter) {
 
     SkImageInfo info = SkImageInfo::MakeA8(width, 1);
     REPORTER_ASSERT(reporter, bm.setInfo(info));
-    info.fColorType = kRGB_565_SkColorType;
-    REPORTER_ASSERT(reporter, bm.setInfo(info));
+    REPORTER_ASSERT(reporter, bm.setInfo(info.makeColorType(kRGB_565_SkColorType)));
 
     // for a 4-byte config, this width will compute a rowbytes of 0x80000000,
     // which does not fit in a int32_t. setConfig should detect this, and fail.
@@ -60,8 +59,7 @@ static void test_bigwidth(skiatest::Reporter* reporter) {
     // TODO: perhaps skia can relax this, and only require that rowBytes fit
     //       in a uint32_t (or larger), but for now this is the constraint.
 
-    info.fColorType = kN32_SkColorType;
-    REPORTER_ASSERT(reporter, !bm.setInfo(info));
+    REPORTER_ASSERT(reporter, !bm.setInfo(info.makeColorType(kN32_SkColorType)));
 }
 
 /**

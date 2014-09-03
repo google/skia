@@ -188,28 +188,26 @@ protected:
         if ((NULL == info) || (kFailGetInfo_TestType == fType)) {
             return false;
         }
-        info->fWidth = TestImageGenerator::Width();
-        info->fHeight = TestImageGenerator::Height();
-        info->fColorType = kN32_SkColorType;
-        info->fAlphaType = kOpaque_SkAlphaType;
+        *info = SkImageInfo::MakeN32(TestImageGenerator::Width(),
+                                     TestImageGenerator::Height(),
+                                     kOpaque_SkAlphaType);
         return true;
     }
 
     virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                              SkPMColor ctable[], int* ctableCount) SK_OVERRIDE {
         REPORTER_ASSERT(fReporter, pixels != NULL);
-        size_t minRowBytes
-            = static_cast<size_t>(info.fWidth * info.bytesPerPixel());
+        size_t minRowBytes = static_cast<size_t>(info.width() * info.bytesPerPixel());
         REPORTER_ASSERT(fReporter, rowBytes >= minRowBytes);
         if ((NULL == pixels)
             || (fType != kSucceedGetPixels_TestType)
-            || (info.fColorType != kN32_SkColorType)) {
+            || (info.colorType() != kN32_SkColorType)) {
             return false;
         }
         char* bytePtr = static_cast<char*>(pixels);
-        for (int y = 0; y < info.fHeight; ++y) {
+        for (int y = 0; y < info.height(); ++y) {
             sk_memset32(reinterpret_cast<SkColor*>(bytePtr),
-                        TestImageGenerator::Color(), info.fWidth);
+                        TestImageGenerator::Color(), info.width());
             bytePtr += rowBytes;
         }
         return true;

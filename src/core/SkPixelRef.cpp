@@ -81,10 +81,13 @@ void SkPixelRef::setMutex(SkBaseMutex* mutex) {
 // just need a > 0 value, so pick a funny one to aid in debugging
 #define SKPIXELREF_PRELOCKED_LOCKCOUNT     123456789
 
-SkPixelRef::SkPixelRef(const SkImageInfo& info) : fInfo(info) {
-    SkAssertResult(SkColorTypeValidateAlphaType(fInfo.colorType(), fInfo.alphaType(),
-                                                const_cast<SkAlphaType*>(&fInfo.fAlphaType)));
+static SkImageInfo validate_info(const SkImageInfo& info) {
+    SkAlphaType newAlphaType = info.alphaType();
+    SkAssertResult(SkColorTypeValidateAlphaType(info.colorType(), info.alphaType(), &newAlphaType));
+    return info.makeAlphaType(newAlphaType);
+}
 
+SkPixelRef::SkPixelRef(const SkImageInfo& info) : fInfo(validate_info(info)) {
     this->setMutex(NULL);
     fRec.zero();
     fLockCount = 0;
@@ -94,10 +97,7 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info) : fInfo(info) {
 }
 
 
-SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex) : fInfo(info) {
-    SkAssertResult(SkColorTypeValidateAlphaType(fInfo.colorType(), fInfo.alphaType(),
-                                                const_cast<SkAlphaType*>(&fInfo.fAlphaType)));
-
+SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex) : fInfo(validate_info(info)) {
     this->setMutex(mutex);
     fRec.zero();
     fLockCount = 0;
@@ -234,7 +234,7 @@ void SkPixelRef::notifyPixelsChanged() {
 }
 
 void SkPixelRef::changeAlphaType(SkAlphaType at) {
-    *const_cast<SkAlphaType*>(&fInfo.fAlphaType) = at;
+    *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeAlphaType(at);
 }
 
 void SkPixelRef::setImmutable() {

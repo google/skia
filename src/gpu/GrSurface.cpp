@@ -13,14 +13,11 @@
 #include <stdio.h>
 
 SkImageInfo GrSurface::info() const {
-    SkImageInfo info;
-    if (!GrPixelConfig2ColorType(this->config(), &info.fColorType)) {
+    SkColorType colorType;
+    if (!GrPixelConfig2ColorType(this->config(), &colorType)) {
         sk_throw();
     }
-    info.fWidth = this->width();
-    info.fHeight = this->height();
-    info.fAlphaType = kPremul_SkAlphaType;
-    return info;
+    return SkImageInfo::Make(this->width(), this->height(), colorType, kPremul_SkAlphaType);
 }
 
 bool GrSurface::savePixels(const char* filename) {

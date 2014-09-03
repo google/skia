@@ -80,10 +80,7 @@ SkSurface::SkSurface(int width, int height) : fWidth(width), fHeight(height) {
     fGenerationID = 0;
 }
 
-SkSurface::SkSurface(const SkImageInfo& info)
-    : fWidth(info.fWidth)
-    , fHeight(info.fHeight)
-{
+SkSurface::SkSurface(const SkImageInfo& info) : fWidth(info.width()), fHeight(info.height()) {
     SkASSERT(fWidth >= 0);
     SkASSERT(fHeight >= 0);
     fGenerationID = 0;

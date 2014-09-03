@@ -78,10 +78,10 @@ public:
 
     const SkImageInfo& info() const { return fInfo; }
 
-    int width() const { return fInfo.fWidth; }
-    int height() const { return fInfo.fHeight; }
-    SkColorType colorType() const { return fInfo.fColorType; }
-    SkAlphaType alphaType() const { return fInfo.fAlphaType; }
+    int width() const { return fInfo.width(); }
+    int height() const { return fInfo.height(); }
+    SkColorType colorType() const { return fInfo.colorType(); }
+    SkAlphaType alphaType() const { return fInfo.alphaType(); }
 
     /**
      *  Return the number of bytes per pixel based on the colortype. If the colortype is
@@ -142,7 +142,7 @@ public:
         Note this truncates the result to 32bits. Call getSize64() to detect
         if the real size exceeds 32bits.
     */
-    size_t getSize() const { return fInfo.fHeight * fRowBytes; }
+    size_t getSize() const { return fInfo.height() * fRowBytes; }
 
     /** Return the number of bytes from the pointer returned by getPixels()
         to the end of the allocated space in the buffer. Required in
@@ -154,7 +154,7 @@ public:
      *  Return the full size of the bitmap, in bytes.
      */
     int64_t computeSize64() const {
-        return sk_64_mul(fInfo.fHeight, fRowBytes);
+        return sk_64_mul(fInfo.height(), fRowBytes);
     }
 
     /**
@@ -264,18 +264,14 @@ public:
     }
 
     bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false) {
-        SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-        if (isOpaque) {
-            info.fAlphaType = kOpaque_SkAlphaType;
-        }
+        SkImageInfo info = SkImageInfo::MakeN32(width, height,
+                                            isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
         return this->tryAllocPixels(info);
     }
     
     SK_ALLOCPIXELS_RETURN_TYPE allocN32Pixels(int width, int height, bool isOpaque = false) {
-        SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-        if (isOpaque) {
-            info.fAlphaType = kOpaque_SkAlphaType;
-        }
+        SkImageInfo info = SkImageInfo::MakeN32(width, height,
+                                            isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
         return this->allocPixels(info);
     }
     

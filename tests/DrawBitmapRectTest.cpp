@@ -25,10 +25,7 @@ public:
 
 protected:
     virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
-        info->fWidth = 100;
-        info->fHeight = 100;
-        info->fColorType = kN32_SkColorType;
-        info->fAlphaType = kPremul_SkAlphaType;
+        *info = SkImageInfo::MakeN32Premul(100, 100);
         return true;
     }
     // default onGetPixels() returns false, which is what we want.

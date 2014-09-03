@@ -94,9 +94,9 @@ SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool raster_canvas_supports(const SkImageInfo& info) {
-    switch (info.fColorType) {
+    switch (info.colorType()) {
         case kN32_SkColorType:
-            return kUnpremul_SkAlphaType != info.fAlphaType;
+            return kUnpremul_SkAlphaType != info.alphaType();
         case kRGB_565_SkColorType:
             return true;
         case kAlpha_8_SkColorType:

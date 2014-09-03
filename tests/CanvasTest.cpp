@@ -883,17 +883,15 @@ static void test_newraster(skiatest::Reporter* reporter) {
     SkDELETE(canvas);
 
     // now try a deliberately bad info
-    info.fWidth = -1;
+    info = info.makeWH(-1, info.height());
     REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRaster(info));
 
     // too big
-    info.fWidth = 1 << 30;
-    info.fHeight = 1 << 30;
+    info = info.makeWH(1 << 30, 1 << 30);
     REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRaster(info));
 
     // not a valid pixel type
-    info.fWidth = info.fHeight = 10;
-    info.fColorType = kUnknown_SkColorType;
+    info = SkImageInfo::Make(10, 10, kUnknown_SkColorType, info.alphaType());
     REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRaster(info));
 
     // We should succeed with a zero-sized valid info

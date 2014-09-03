@@ -168,17 +168,19 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo
         return NULL;
     }
 
-    SkImageInfo info = origInfo;
+    SkColorType ct = origInfo.colorType();
+    SkAlphaType at = origInfo.alphaType();
     // TODO: perhas we can loosen this check now that colortype is more detailed
     // e.g. can we support both RGBA and BGRA here?
-    if (kRGB_565_SkColorType == info.colorType()) {
-        info.fAlphaType = kOpaque_SkAlphaType;  // force this setting
+    if (kRGB_565_SkColorType == ct) {
+        at = kOpaque_SkAlphaType;  // force this setting
     } else {
-        info.fColorType = kN32_SkColorType;
-        if (kOpaque_SkAlphaType != info.alphaType()) {
-            info.fAlphaType = kPremul_SkAlphaType;  // force this setting
+        ct = kN32_SkColorType;
+        if (kOpaque_SkAlphaType != at) {
+            at = kPremul_SkAlphaType;  // force this setting
         }
     }
+    const SkImageInfo info = SkImageInfo::Make(origInfo.width(), origInfo.height(), ct, at);
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit;

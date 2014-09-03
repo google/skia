@@ -72,7 +72,7 @@ static SkImage* make_image(SkColor color) {
     const SkPMColor pmcolor = SkPreMultiplyColor(color);
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     const size_t rowBytes = info.minRowBytes();
-    const size_t size = rowBytes * info.fHeight;
+    const size_t size = rowBytes * info.height();
 
     SkAutoMalloc addr(size);
     sk_memset32((SkPMColor*)addr.get(), pmcolor, SkToInt(size >> 2));
