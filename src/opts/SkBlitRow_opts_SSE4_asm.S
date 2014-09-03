@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#ifdef CRBUG_399842_FIXED
+
 #if defined(__clang__) || (defined(__GNUC__) && !defined(SK_BUILD_FOR_MAC))
 
 #define CFI_PUSH(REG) \
@@ -469,3 +471,5 @@ S32A_Opaque_BlitRow32_SSE4_asm:
     .size S32A_Opaque_BlitRow32_SSE4_asm, .-S32A_Opaque_BlitRow32_SSE4_asm
 #endif
 #endif
+
+#endif // CRBUG_399842_FIXED

@@ -10,6 +10,8 @@
 
 #include "SkBlitRow.h"
 
+#ifdef CRBUG_399842_FIXED
+
 /* Check if we are able to build assembly code, GCC/AT&T syntax:
  *  1) Clang and GCC are generally OK.  OS X's old LLVM-GCC 4.2 can't handle it;
  *  2) We're intentionally not linking this in even when supported (Clang) on Windows;
@@ -24,6 +26,8 @@ extern "C" void S32A_Opaque_BlitRow32_SSE4_asm(SkPMColor* SK_RESTRICT dst,
 
 #define SK_ATT_ASM_SUPPORTED
 #endif
+
+#endif // CRBUG_399842_FIXED
 
 #endif
 

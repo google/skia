@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#ifdef CRBUG_399842_FIXED
+
 #if defined(__clang__) || (defined(__GNUC__) && !defined(SK_BUILD_FOR_MAC))
 
 #define EXTRACT_ALPHA(var1, var2) \
@@ -466,3 +468,5 @@ S32A_Opaque_BlitRow32_SSE4_asm:
 .LResultMergeMask:
     .long   0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF
 #endif
+
+#endif // CRBUG_399842_FIXED
