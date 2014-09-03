@@ -68,8 +68,8 @@ static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
 }
 
 DEF_TEST(PathOpsSimplifyDegeneratesThreaded, reporter) {
-    int threadCount = initializeTests(reporter, "testDegenerates");
-    PathOpsThreadedTestRunner testRunner(reporter, threadCount);
+    initializeTests(reporter, "testDegenerates");
+    PathOpsThreadedTestRunner testRunner(reporter);
     for (int a = 0; a < 16; ++a) {
         int ax = a & 0x03;
         int ay = a >> 2;

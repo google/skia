@@ -12,7 +12,6 @@
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
 #include "SkGraphics.h"
-#include "SkThreadPool.h"
 #include "SkWindow.h"
 #include "sk_tool_utils.h"
 

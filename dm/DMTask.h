@@ -1,9 +1,10 @@
 #ifndef DMTask_DEFINED
 #define DMTask_DEFINED
 
-#include "DMReporter.h"
 #include "DMGpuSupport.h"
+#include "DMReporter.h"
 #include "SkRunnable.h"
+#include "SkTaskGroup.h"
 #include "SkTime.h"
 
 // DM will run() these tasks on one of two threadpools.
@@ -36,7 +37,7 @@ protected:
     void fail(const char* msg = NULL);
     void finish();
 
-    void spawnChildNext(CpuTask* task);  // For now we don't allow GPU child tasks.
+    void reallySpawnChild(CpuTask* task);  // For now we don't allow GPU child tasks.
 
 private:
     Reporter* fReporter;      // Unowned.
@@ -57,12 +58,12 @@ public:
     void spawnChild(CpuTask* task);
 };
 
-class GpuTask : public Task, public SkTRunnable<GrContextFactory> {
+class GpuTask : public Task {
  public:
     GpuTask(Reporter* reporter, TaskRunner* taskRunner);
     virtual ~GpuTask() {}
 
-    void run(GrContextFactory&) SK_OVERRIDE;
+    void run(GrContextFactory*);
     virtual void draw(GrContextFactory*) = 0;
 
     void spawnChild(CpuTask* task);

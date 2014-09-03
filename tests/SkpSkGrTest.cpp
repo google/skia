@@ -23,7 +23,7 @@
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
-#include "SkThreadPool.h"
+#include "SkTaskGroup.h"
 #include "SkTime.h"
 #include "Test.h"
 
@@ -125,14 +125,12 @@ struct SkpSkGrThreadState {
 };
 
 struct SkpSkGrThreadedTestRunner {
-    SkpSkGrThreadedTestRunner(skiatest::Reporter* reporter, int threadCount)
-        : fNumThreads(threadCount)
-        , fReporter(reporter) {
+    SkpSkGrThreadedTestRunner(skiatest::Reporter* reporter)
+        : fReporter(reporter) {
     }
 
     ~SkpSkGrThreadedTestRunner();
     void render();
-    int fNumThreads;
     SkTDArray<SkpSkGrThreadedRunnable*> fRunnables;
     skiatest::Reporter* fReporter;
 };
@@ -164,9 +162,9 @@ SkpSkGrThreadedTestRunner::~SkpSkGrThreadedTestRunner() {
 }
 
 void SkpSkGrThreadedTestRunner::render() {
-    SkThreadPool pool(fNumThreads);
+    SkTaskGroup tg;
     for (int index = 0; index < fRunnables.count(); ++ index) {
-        pool.add(fRunnables[index]);
+        tg.add(fRunnables[index]);
     }
 }
 
@@ -676,8 +674,7 @@ DEF_TEST(SkpSkGrThreaded, reporter) {
     if (!initTest()) {
         return;
     }
-    int threadCount = reporter->allowThreaded() ? 3 : 1;
-    SkpSkGrThreadedTestRunner testRunner(reporter, threadCount);
+    SkpSkGrThreadedTestRunner testRunner(reporter);
     for (int dirIndex = 1; dirIndex <= 100; ++dirIndex) {
         SkString pictDir = make_in_dir_name(dirIndex);
         if (pictDir.size() == 0) {

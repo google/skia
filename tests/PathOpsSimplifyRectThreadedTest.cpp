@@ -187,8 +187,8 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
 }
 
 DEF_TEST(PathOpsSimplifyRectsThreaded, reporter) {
-    int threadCount = initializeTests(reporter, "testLine");
-    PathOpsThreadedTestRunner testRunner(reporter, threadCount);
+    initializeTests(reporter, "testLine");
+    PathOpsThreadedTestRunner testRunner(reporter);
     for (int a = 0; a < 8; ++a) {  // outermost
         for (int b = a ; b < 8; ++b) {
             for (int c = b ; c < 8; ++c) {

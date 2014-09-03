@@ -6,7 +6,7 @@
  */
 
 #include "SkOnce.h"
-#include "SkThreadPool.h"
+#include "SkTaskGroup.h"
 #include "Test.h"
 
 static void add_five(int* x) {
@@ -42,7 +42,7 @@ public:
 };
 
 DEF_TEST(SkOnce_Multithreaded, r) {
-    const int kTasks = 16, kThreads = 4;
+    const int kTasks = 16;
 
     // Make a bunch of tasks that will race to be the first to add six to x.
     Racer racers[kTasks];
@@ -54,11 +54,11 @@ DEF_TEST(SkOnce_Multithreaded, r) {
     }
 
     // Let them race.
-    SkThreadPool pool(kThreads);
+    SkTaskGroup tg;
     for (int i = 0; i < kTasks; i++) {
-        pool.add(&racers[i]);
+        tg.add(&racers[i]);
     }
-    pool.wait();
+    tg.wait();
 
     // Only one should have done the +=.
     REPORTER_ASSERT(r, 6 == x);

@@ -75,10 +75,6 @@ protected:
         return fReporter->allowExtendedTest();
     }
 
-    virtual bool allowThreaded() const SK_OVERRIDE {
-        return fReporter->allowThreaded();
-    }
-
     virtual void bumpTestCount() SK_OVERRIDE {
         fReporter->bumpTestCount();
     }

@@ -41,7 +41,6 @@ using skiatest::TestRegistry;
 static const char kGpuAPINameGL[] = "gl";
 static const char kGpuAPINameGLES[] = "gles";
 
-DEFINE_int32(gpuThreads, 1, "Threads for GPU work.");
 DEFINE_string2(expectations, r, "",
                "If a directory, compare generated images against images under this path. "
                "If a file, compare generated images against JSON expectations at this path."
@@ -233,7 +232,7 @@ int dm_main() {
     SkDebugf("%d GMs x %d configs, %d tests, %d pictures\n",
              gms.count(), configs.count(), tests.count(), skps.count());
     DM::Reporter reporter;
-    DM::TaskRunner tasks(FLAGS_threads, FLAGS_gpuThreads);
+    DM::TaskRunner tasks(FLAGS_threads);
     kick_off_tests(tests, &reporter, &tasks);
     kick_off_gms(gms, configs, gpuAPI, *expectations, &reporter, &tasks);
     kick_off_skps(skps, &reporter, &tasks);
