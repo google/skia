@@ -7043,13 +7043,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4806854696235085637
+          14688683472045987229
         ]
       ], 
-      "bugs": [
-        2603
-      ], 
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "texdata_565.png": {
       "allowed-digests": [
