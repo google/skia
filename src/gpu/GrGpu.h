@@ -315,7 +315,7 @@ public:
     // GrGpu subclass sets clip bit in the stencil buffer. The subclass is
     // free to clear the remaining bits to zero if masked clears are more
     // expensive than clearing all bits.
-    virtual void clearStencilClip(const SkIRect& rect, bool insideClip) = 0;
+    virtual void clearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) = 0;
 
     enum PrivateDrawStateStateBits {
         kFirstBit = (GrDrawState::kLastPublicStateBit << 1),
@@ -435,7 +435,8 @@ private:
     // overridden by backend-specific derived class to perform the clear and
     // clearRect. NULL rect means clear whole target. If canIgnoreRect is
     // true, it is okay to perform a full clear instead of a partial clear
-    virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) = 0;
+    virtual void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
+                         bool canIgnoreRect) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onGpuDraw(const DrawInfo&) = 0;
@@ -470,8 +471,8 @@ private:
     // returns false if current state is unsupported.
     virtual bool flushGraphicsState(DrawType, const GrDeviceCoordTexture* dstCopy) = 0;
 
-    // clears the entire stencil buffer to 0
-    virtual void clearStencil() = 0;
+    // clears target's entire stencil buffer to 0
+    virtual void clearStencil(GrRenderTarget* target) = 0;
 
     // Given a rt, find or create a stencil buffer and attach it
     bool attachStencilBufferToRenderTarget(GrRenderTarget* target);

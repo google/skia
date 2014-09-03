@@ -1349,27 +1349,18 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(size_t size, bool dynamic) {
     }
 }
 
-void GrGpuGL::flushScissor() {
+void GrGpuGL::flushScissor(const GrGLIRect& rtViewport, GrSurfaceOrigin rtOrigin) {
     if (fScissorState.fEnabled) {
-        // Only access the RT if scissoring is being enabled. We can call this before performing
-        // a glBitframebuffer for a surface->surface copy, which requires no RT to be bound to the
-        // GrDrawState.
-        const GrDrawState& drawState = this->getDrawState();
-        const GrGLRenderTarget* rt =
-            static_cast<const GrGLRenderTarget*>(drawState.getRenderTarget());
-
-        SkASSERT(NULL != rt);
-        const GrGLIRect& vp = rt->getViewport();
         GrGLIRect scissor;
-        scissor.setRelativeTo(vp,
+        scissor.setRelativeTo(rtViewport,
                               fScissorState.fRect.fLeft,
                               fScissorState.fRect.fTop,
                               fScissorState.fRect.width(),
                               fScissorState.fRect.height(),
-                              rt->origin());
+                              rtOrigin);
         // if the scissor fully contains the viewport then we fall through and
         // disable the scissor test.
-        if (!scissor.contains(vp)) {
+        if (!scissor.contains(rtViewport)) {
             if (fHWScissorSettings.fRect != scissor) {
                 scissor.pushToGLScissor(this->glInterface());
                 fHWScissorSettings.fRect = scissor;
@@ -1388,11 +1379,11 @@ void GrGpuGL::flushScissor() {
     }
 }
 
-void GrGpuGL::onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) {
-    const GrDrawState& drawState = this->getDrawState();
-    const GrRenderTarget* rt = drawState.getRenderTarget();
+void GrGpuGL::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color,
+                      bool canIgnoreRect) {
     // parent class should never let us get here with no RT
-    SkASSERT(NULL != rt);
+    SkASSERT(NULL != target);
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
     if (canIgnoreRect && this->glCaps().fullClearIsFree()) {
         rect = NULL;
@@ -1402,7 +1393,7 @@ void GrGpuGL::onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) {
     if (NULL != rect) {
         // flushScissor expects rect to be clipped to the target.
         clippedRect = *rect;
-        SkIRect rtRect = SkIRect::MakeWH(rt->width(), rt->height());
+        SkIRect rtRect = SkIRect::MakeWH(target->width(), target->height());
         if (clippedRect.intersect(rtRect)) {
             rect = &clippedRect;
         } else {
@@ -1410,13 +1401,13 @@ void GrGpuGL::onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) {
         }
     }
 
-    this->flushRenderTarget(rect);
+    this->flushRenderTarget(glRT, rect);
     GrAutoTRestore<ScissorState> asr(&fScissorState);
     fScissorState.fEnabled = (NULL != rect);
     if (fScissorState.fEnabled) {
         fScissorState.fRect = *rect;
     }
-    this->flushScissor();
+    this->flushScissor(glRT->getViewport(), glRT->origin());
 
     GrGLfloat r, g, b, a;
     static const GrGLfloat scale255 = 1.f / 255.f;
@@ -1486,16 +1477,16 @@ void GrGpuGL::discard(GrRenderTarget* renderTarget) {
 }
 
 
-void GrGpuGL::clearStencil() {
-    if (NULL == this->getDrawState().getRenderTarget()) {
+void GrGpuGL::clearStencil(GrRenderTarget* target) {
+    if (NULL == target) {
         return;
     }
-
-    this->flushRenderTarget(&SkIRect::EmptyIRect());
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
+    this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
     GrAutoTRestore<ScissorState> asr(&fScissorState);
     fScissorState.fEnabled = false;
-    this->flushScissor();
+    this->flushScissor(glRT->getViewport(), glRT->origin());
 
     GL_CALL(StencilMask(0xffffffff));
     GL_CALL(ClearStencil(0));
@@ -1503,15 +1494,13 @@ void GrGpuGL::clearStencil() {
     fHWStencilSettings.invalidate();
 }
 
-void GrGpuGL::clearStencilClip(const SkIRect& rect, bool insideClip) {
-    const GrDrawState& drawState = this->getDrawState();
-    const GrRenderTarget* rt = drawState.getRenderTarget();
-    SkASSERT(NULL != rt);
+void GrGpuGL::clearStencilClip(GrRenderTarget* target, const SkIRect& rect, bool insideClip) {
+    SkASSERT(NULL != target);
 
     // this should only be called internally when we know we have a
     // stencil buffer.
-    SkASSERT(NULL != rt->getStencilBuffer());
-    GrGLint stencilBitCount =  rt->getStencilBuffer()->bits();
+    SkASSERT(NULL != target->getStencilBuffer());
+    GrGLint stencilBitCount =  target->getStencilBuffer()->bits();
 #if 0
     SkASSERT(stencilBitCount > 0);
     GrGLint clipStencilMask  = (1 << (stencilBitCount - 1));
@@ -1529,12 +1518,13 @@ void GrGpuGL::clearStencilClip(const SkIRect& rect, bool insideClip) {
     } else {
         value = 0;
     }
-    this->flushRenderTarget(&SkIRect::EmptyIRect());
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
+    this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
     GrAutoTRestore<ScissorState> asr(&fScissorState);
     fScissorState.fEnabled = true;
     fScissorState.fRect = rect;
-    this->flushScissor();
+    this->flushScissor(glRT->getViewport(), glRT->origin());
 
     GL_CALL(StencilMask((uint32_t) clipStencilMask));
     GL_CALL(ClearStencil(value));
@@ -1600,13 +1590,12 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
 
     // resolve the render target if necessary
     GrGLRenderTarget* tgt = static_cast<GrGLRenderTarget*>(target);
-    GrDrawState::AutoRenderTargetRestore artr;
     switch (tgt->getResolveType()) {
         case GrGLRenderTarget::kCantResolve_ResolveType:
             return false;
         case GrGLRenderTarget::kAutoResolves_ResolveType:
-            artr.set(this->drawState(), target);
-            this->flushRenderTarget(&SkIRect::EmptyIRect());
+            this->flushRenderTarget(static_cast<GrGLRenderTarget*>(target),
+                                    &SkIRect::EmptyIRect());
             break;
         case GrGLRenderTarget::kCanResolve_ResolveType:
             this->onResolveRenderTarget(tgt);
@@ -1702,15 +1691,13 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     return true;
 }
 
-void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
+void GrGpuGL::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) {
 
-    GrGLRenderTarget* rt =
-        static_cast<GrGLRenderTarget*>(this->drawState()->getRenderTarget());
-    SkASSERT(NULL != rt);
+    SkASSERT(NULL != target);
 
-    uint32_t rtID = rt->getUniqueID();
+    uint32_t rtID = target->getUniqueID();
     if (fHWBoundRenderTargetUniqueID != rtID) {
-        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, rt->renderFBOID()));
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, target->renderFBOID()));
 #ifdef SK_DEBUG
         // don't do this check in Chromium -- this is causing
         // lots of repeated command buffer flushes when the compositor is
@@ -1725,17 +1712,17 @@ void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
         }
 #endif
         fHWBoundRenderTargetUniqueID = rtID;
-        const GrGLIRect& vp = rt->getViewport();
+        const GrGLIRect& vp = target->getViewport();
         if (fHWViewport != vp) {
             vp.pushToGLViewport(this->glInterface());
             fHWViewport = vp;
         }
     }
     if (NULL == bound || !bound->isEmpty()) {
-        rt->flagAsNeedingResolve(bound);
+        target->flagAsNeedingResolve(bound);
     }
 
-    GrTexture *texture = rt->asTexture();
+    GrTexture *texture = target->asTexture();
     if (NULL != texture) {
         texture->impl()->dirtyMipMaps(true);
     }
@@ -1829,14 +1816,14 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
                 asr.reset(&fScissorState);
                 fScissorState.fEnabled = true;
                 fScissorState.fRect = dirtyRect;
-                this->flushScissor();
+                this->flushScissor(rt->getViewport(), rt->origin());
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
                 if (GrGLCaps::kDesktop_EXT_MSFBOType == this->glCaps().msFBOType()) {
                     // this respects the scissor during the blit, so disable it.
                     asr.reset(&fScissorState);
                     fScissorState.fEnabled = false;
-                    this->flushScissor();
+                    this->flushScissor(rt->getViewport(), rt->origin());
                 }
                 int right = r.fLeft + r.fWidth;
                 int top = r.fBottom + r.fHeight;
@@ -2512,7 +2499,7 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
                 // The EXT version applies the scissor during the blit, so disable it.
                 asr.reset(&fScissorState);
                 fScissorState.fEnabled = false;
-                this->flushScissor();
+                this->flushScissor(dstGLRect, dst->origin());
             }
             GrGLint srcY0;
             GrGLint srcY1;

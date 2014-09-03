@@ -380,40 +380,6 @@ public:
      */
     void setRenderTarget(GrRenderTarget* target) { fRenderTarget.reset(SkSafeRef(target)); }
 
-    class AutoRenderTargetRestore : public ::SkNoncopyable {
-    public:
-        AutoRenderTargetRestore() : fDrawState(NULL), fSavedTarget(NULL) {}
-        AutoRenderTargetRestore(GrDrawState* ds, GrRenderTarget* newTarget) {
-            fDrawState = NULL;
-            fSavedTarget = NULL;
-            this->set(ds, newTarget);
-        }
-        ~AutoRenderTargetRestore() { this->restore(); }
-
-        void restore() {
-            if (NULL != fDrawState) {
-                fDrawState->setRenderTarget(fSavedTarget);
-                fDrawState = NULL;
-            }
-            SkSafeSetNull(fSavedTarget);
-        }
-
-        void set(GrDrawState* ds, GrRenderTarget* newTarget) {
-            this->restore();
-
-            if (NULL != ds) {
-                SkASSERT(NULL == fSavedTarget);
-                fSavedTarget = ds->getRenderTarget();
-                SkSafeRef(fSavedTarget);
-                ds->setRenderTarget(newTarget);
-                fDrawState = ds;
-            }
-        }
-    private:
-        GrDrawState* fDrawState;
-        GrRenderTarget* fSavedTarget;
-    };
-
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////

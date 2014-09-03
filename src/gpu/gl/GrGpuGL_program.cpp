@@ -265,8 +265,10 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
                                  dstCopy,
                                  &fSharedGLProgramState);
     }
+
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(drawState.getRenderTarget());
     this->flushStencil(type);
-    this->flushScissor();
+    this->flushScissor(glRT->getViewport(), glRT->origin());
     this->flushAAState(type);
 
     SkIRect* devRect = NULL;
@@ -277,7 +279,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
     }
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(devRect);
+    this->flushRenderTarget(glRT, devRect);
 
     return true;
 }

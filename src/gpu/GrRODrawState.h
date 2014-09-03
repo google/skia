@@ -238,8 +238,7 @@ public:
      *
      * @return    The currently set render target.
      */
-    const GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
-    GrRenderTarget* getRenderTarget() { return fRenderTarget.get(); }
+    GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
 
     /// @}
 

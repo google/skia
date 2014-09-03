@@ -125,7 +125,8 @@ private:
         GrStencilBuffer* sb,
         GrRenderTarget* rt) SK_OVERRIDE;
 
-    virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) SK_OVERRIDE;
+    virtual void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
+                         bool canIgnoreRect) SK_OVERRIDE;
 
     virtual bool onReadPixels(GrRenderTarget* target,
                               int left, int top,
@@ -144,8 +145,8 @@ private:
     virtual void onGpuDraw(const DrawInfo&) SK_OVERRIDE;
 
 
-    virtual void clearStencil() SK_OVERRIDE;
-    virtual void clearStencilClip(const SkIRect& rect,
+    virtual void clearStencil(GrRenderTarget*) SK_OVERRIDE;
+    virtual void clearStencilClip(GrRenderTarget*, const SkIRect& rect,
                                   bool insideClip) SK_OVERRIDE;
     virtual bool flushGraphicsState(DrawType, const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 
@@ -218,7 +219,7 @@ private:
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
-    void flushScissor();
+    void flushScissor(const GrGLIRect& rtViewport, GrSurfaceOrigin rtOrigin);
 
     void initFSAASupport();
 
@@ -229,9 +230,10 @@ private:
     // ensures that such operations don't negatively interact with tracking bound textures.
     void setScratchTextureUnit();
 
-    // bound is region that may be modified and therefore has to be resolved.
+    // bounds is region that may be modified and therefore has to be resolved.
     // NULL means whole target. Can be an empty rect.
-    void flushRenderTarget(const SkIRect* bound);
+    void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
+
     void flushStencil(DrawType);
     void flushAAState(DrawType);
 

@@ -125,8 +125,7 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
         // We used to clear down in the GL subclass using a special purpose
         // FBO. But iOS doesn't allow a stencil-only FBO. It reports unsupported
         // FBO status.
-        GrDrawState::AutoRenderTargetRestore artr(this->drawState(), rt);
-        this->clearStencil();
+        this->clearStencil(rt);
         return true;
     } else {
         return false;
@@ -180,16 +179,15 @@ void GrGpu::clear(const SkIRect* rect,
                   GrColor color,
                   bool canIgnoreRect,
                   GrRenderTarget* renderTarget) {
-    GrDrawState::AutoRenderTargetRestore art;
-    if (NULL != renderTarget) {
-        art.set(this->drawState(), renderTarget);
+    if (NULL == renderTarget) {
+        renderTarget = this->getDrawState().getRenderTarget();
     }
-    if (NULL == this->getDrawState().getRenderTarget()) {
+    if (NULL == renderTarget) {
         SkASSERT(0);
         return;
     }
     this->handleDirtyContext();
-    this->onClear(rect, color, canIgnoreRect);
+    this->onClear(renderTarget, rect, color, canIgnoreRect);
 }
 
 bool GrGpu::readPixels(GrRenderTarget* target,
