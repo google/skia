@@ -100,14 +100,6 @@ void SkBitmapCache::Add(const SkBitmap& src, SkScalar invScaleX, SkScalar invSca
                                                 get_bounds_from_bitmap(src), result)));
 }
 
-bool SkBitmapCache::Find(uint32_t genID, int width, int height, SkBitmap* result) {
-    return Find(genID, SkIRect::MakeWH(width, height), result);
-}
-
-bool SkBitmapCache::Add(uint32_t genID, int width, int height, const SkBitmap& result) {
-    return Add(genID, SkIRect::MakeWH(width, height), result);
-}
-
 bool SkBitmapCache::Find(uint32_t genID, const SkIRect& subset, SkBitmap* result) {
     BitmapKey key(genID, SK_Scalar1, SK_Scalar1, subset);
     return find_and_return(key, result);

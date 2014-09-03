@@ -34,19 +34,6 @@ public:
             const SkBitmap& result);
 
     /**
-     *  Search based on the bitmap's genID, width, height. If found, returns true and
-     *  result will be set to the matching bitmap with its pixels already locked.
-     */
-    static bool Find(uint32_t genID, int width, int height, SkBitmap* result);
-
-    /**
-     * The width and the height provided for the key must be the same as the result bitmap ones.
-     *
-     * result must be marked isImmutable()
-     */
-    static bool Add(uint32_t genID, int width, int height, const SkBitmap& result);
-
-    /**
      *  Search based on the bitmap's genID and subset. If found, returns true and
      *  result will be set to the matching bitmap with its pixels already locked.
      */

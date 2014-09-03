@@ -7,6 +7,7 @@
 
 #include "SkCachingPixelRef.h"
 #include "SkBitmapCache.h"
+#include "SkRect.h"
 
 bool SkCachingPixelRef::Install(SkImageGenerator* generator,
                                 SkBitmap* dst) {
@@ -44,7 +45,9 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
     }
 
     const SkImageInfo& info = this->info();
-    if (!SkBitmapCache::Find(this->getGenerationID(), info.width(), info.height(), &fLockedBitmap)) {
+    if (!SkBitmapCache::Find(this->getGenerationID(),
+                             SkIRect::MakeWH(info.width(), info.height()),
+                             &fLockedBitmap)) {
         // Cache has been purged, must re-decode.
         if (!fLockedBitmap.tryAllocPixels(info, fRowBytes)) {
             fErrorInDecoding = true;
@@ -55,7 +58,9 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
             return false;
         }
         fLockedBitmap.setImmutable();
-        SkBitmapCache::Add(this->getGenerationID(), info.width(), info.height(), fLockedBitmap);
+        SkBitmapCache::Add(this->getGenerationID(),
+                           SkIRect::MakeWH(info.width(), info.height()),
+                           fLockedBitmap);
     }
 
     // Now bitmap should contain a concrete PixelRef of the decoded image.
