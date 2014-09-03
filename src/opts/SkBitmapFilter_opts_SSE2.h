@@ -11,8 +11,6 @@
 #include "SkBitmapProcState.h"
 #include "SkConvolver.h"
 
-void highQualityFilter_ScaleOnly_SSE2(const SkBitmapProcState &s, int x, int y,
-                                      SkPMColor *SK_RESTRICT colors, int count);
 void highQualityFilter_SSE2(const SkBitmapProcState &s, int x, int y,
                             SkPMColor *SK_RESTRICT colors, int count);
 
