@@ -45,6 +45,13 @@ protected:
         return SkISize::Make(640, 480);
     }
 
+#ifdef SK_CPU_ARM64
+    // Skip tiled drawing on 64-bit ARM until https://skbug.com/2908 is fixed.
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+#endif
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->drawColor(0xFFCCCCCC);
 
