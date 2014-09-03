@@ -240,6 +240,13 @@
               '-fno-omit-frame-pointer',
             ],
           }],
+          [ 'skia_arch_type == "arm64"', {
+            # this flag causes tiling errors with GCC 4.9 (pre-release) toolchain
+            # see skbug.com/ 
+            'cflags': [
+              '-fno-expensive-optimizations'
+            ],
+          }],
           [ 'skia_arch_type == "arm" and arm_thumb == 1', {
             'cflags': [
               '-mthumb',
@@ -578,7 +585,6 @@
           },
           'Release': {
             'cflags': ['-O2'],
-            'defines': [ 'NDEBUG' ],
           },
         },
         'libraries': [
