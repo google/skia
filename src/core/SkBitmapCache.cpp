@@ -56,7 +56,7 @@ struct BitmapRec : public SkResourceCache::Rec {
 
     BitmapKey   fKey;
     SkBitmap    fBitmap;
-    
+
     virtual const Key& getKey() const SK_OVERRIDE { return fKey; }
     virtual size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + fBitmap.getSize(); }
 };
@@ -101,16 +101,34 @@ void SkBitmapCache::Add(const SkBitmap& src, SkScalar invScaleX, SkScalar invSca
 }
 
 bool SkBitmapCache::Find(uint32_t genID, int width, int height, SkBitmap* result) {
-    BitmapKey key(genID, SK_Scalar1, SK_Scalar1, SkIRect::MakeWH(width, height));
+    return Find(genID, SkIRect::MakeWH(width, height), result);
+}
+
+bool SkBitmapCache::Add(uint32_t genID, int width, int height, const SkBitmap& result) {
+    return Add(genID, SkIRect::MakeWH(width, height), result);
+}
+
+bool SkBitmapCache::Find(uint32_t genID, const SkIRect& subset, SkBitmap* result) {
+    BitmapKey key(genID, SK_Scalar1, SK_Scalar1, subset);
     return find_and_return(key, result);
 }
 
-void SkBitmapCache::Add(uint32_t genID, int width, int height, const SkBitmap& result) {
+bool SkBitmapCache::Add(uint32_t genID, const SkIRect& subset, const SkBitmap& result) {
     SkASSERT(result.isImmutable());
-    SkResourceCache::Add(SkNEW_ARGS(BitmapRec, (genID, SK_Scalar1, SK_Scalar1,
-                                                SkIRect::MakeWH(width, height), result)));
-}
 
+    if (subset.isEmpty()
+        || subset.top() < 0
+        || subset.left() < 0
+        || result.width() != subset.width()
+        || result.height() != subset.height()) {
+        return false;
+    } else {
+        SkResourceCache::Add(SkNEW_ARGS(BitmapRec, (genID, SK_Scalar1, SK_Scalar1,
+                                                    subset, result)));
+
+        return true;
+    }
+}
 //////////////////////////////////////////////////////////////////////////////////////////
 
 struct MipMapRec : public SkResourceCache::Rec {
@@ -125,7 +143,7 @@ struct MipMapRec : public SkResourceCache::Rec {
 
     BitmapKey       fKey;
     const SkMipMap* fMipMap;
-    
+
     virtual const Key& getKey() const SK_OVERRIDE { return fKey; }
     virtual size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + fMipMap->getSize(); }
 };

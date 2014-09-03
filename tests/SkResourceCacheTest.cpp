@@ -72,3 +72,38 @@ DEF_TEST(ResourceCache_SingleAllocationByteLimit, reporter) {
     SkGraphics::SetResourceCacheSingleAllocationByteLimit(originalAllocationLimit);
     SkGraphics::SetResourceCacheTotalByteLimit(originalByteLimit);
 }
+
+static SkBitmap createAllocatedBitmap(const SkImageInfo& info) {
+    SkBitmap cachedBitmap;
+    cachedBitmap.setInfo(info);
+    SkBitmap::Allocator* allocator = SkBitmapCache::GetAllocator();
+    if (NULL != allocator) {
+        allocator->allocPixelRef(&cachedBitmap, 0);
+    } else {
+        cachedBitmap.allocPixels();
+    }
+
+    return cachedBitmap;
+}
+
+// http://skbug.com/2894
+DEF_TEST(BitmapCache_add_rect, reporter) {
+    SkBitmap bm;
+    SkIRect rect = SkIRect::MakeWH(5, 5);
+    SkBitmap cachedBitmap = createAllocatedBitmap(SkImageInfo::MakeN32Premul(5, 5));
+    cachedBitmap.setImmutable();
+
+    // Wrong subset size
+    REPORTER_ASSERT(reporter, ! SkBitmapCache::Add(cachedBitmap.getGenerationID(), SkIRect::MakeWH(4, 6), cachedBitmap));
+    REPORTER_ASSERT(reporter, ! SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm));
+    // Wrong offset value
+    REPORTER_ASSERT(reporter, ! SkBitmapCache::Add(cachedBitmap.getGenerationID(), SkIRect::MakeXYWH(-1, 0, 5, 5), cachedBitmap));
+    REPORTER_ASSERT(reporter, ! SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm));
+
+    // Should not be in the cache
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm));
+
+    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.getGenerationID(), rect, cachedBitmap));
+    // Should be in the cache, we just added it
+    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm));
+}
