@@ -123,7 +123,7 @@ static inline bool supports_simd(int minLevel) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SK_CONF_DECLARE( bool, c_hqfilter_sse, "bitmap.filter.highQualitySSE", false, "Use SSE optimized version of high quality image filters");
+SK_CONF_DECLARE( bool, c_hqfilter_sse, "bitmap.filter.highQualitySSE", true, "Use SSE optimized version of high quality image filters");
 
 void SkBitmapScaler::PlatformConvolutionProcs(SkConvolutionProcs* procs) {
     if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
