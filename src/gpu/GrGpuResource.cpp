@@ -11,6 +11,16 @@
 #include "GrResourceCache2.h"
 #include "GrGpu.h"
 
+GrGpuRef::~GrGpuRef() {
+    SkASSERT(0 == fRefCnt);
+    SkASSERT(0 == fPendingReads);
+    SkASSERT(0 == fPendingWrites);
+    // Set to invalid values.
+    SkDEBUGCODE(fRefCnt = fPendingReads = fPendingWrites = -10;)
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
     SkASSERT(NULL != gpu);
     SkASSERT(NULL != gpu->getContext());
@@ -20,7 +30,6 @@ static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
 
 GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
     : fGpu(gpu)
-    , fRefCnt(1)
     , fCacheEntry(NULL)
     , fUniqueID(CreateUniqueID())
     , fScratchKey(GrResourceKey::NullScratchKey()) {
@@ -36,7 +45,6 @@ void GrGpuResource::registerWithCache() {
 }
 
 GrGpuResource::~GrGpuResource() {
-    SkASSERT(0 == fRefCnt);
     // subclass should have released this.
     SkASSERT(this->wasDestroyed());
 }

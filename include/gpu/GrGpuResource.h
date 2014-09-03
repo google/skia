@@ -18,25 +18,108 @@ class GrGpu;
 class GrContext;
 
 /**
- * Base class for objects that can be kept in the GrResourceCache.
+ * Base class for GrGpuResource. Handles the various types of refs we need. Separated out as a base
+ * class to isolate the ref-cnting behavior and provide friendship without exposing all of
+ * GrGpuResource.
+ * 
+ * Gpu resources can have three types of refs:
+ *   1) Normal ref (+ by ref(), - by unref()): These are used by code that is issuing draw calls
+ *      that read and write the resource via GrDrawTarget and by any object that must own a
+ *      GrGpuResource and is itself owned (directly or indirectly) by Skia-client code.
+ *   2) Pending read (+ by addPendingRead(), - by readCompleted()): GrContext has scheduled a read
+ *      of the resource by the GPU as a result of a skia API call but hasn't executed it yet.
+ *   3) Pending write (+ by addPendingWrite(), - by writeCompleted()): GrContext has scheduled a
+ *      write to the resource by the GPU as a result of a skia API call but hasn't executed it yet.
+ *
+ * The latter two ref types are private and intended only for Gr core code.
  */
-class GrGpuResource : public SkNoncopyable {
+class GrGpuRef : public SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(GrGpuResource)
+    SK_DECLARE_INST_COUNT_ROOT(GrGpuRef)
 
-    // These method signatures are written to mirror SkRefCnt. However, we don't require
-    // thread safety as GrCacheable objects are not intended to cross thread boundaries.
+    virtual ~GrGpuRef();
+
+    // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
+    // templated helper classes (e.g. SkAutoTUnref). However, we have different categories of
+    // refs (e.g. pending reads). We also don't require thread safety as GrCacheable objects are
+    // not intended to cross thread boundaries.
     // internal_dispose() exists because of GrTexture's reliance on it. It will be removed
     // soon.
-    void ref() const { ++fRefCnt; }
-    void unref() const { --fRefCnt; if (0 == fRefCnt) { this->internal_dispose(); } }
-    virtual void internal_dispose() const { SkDELETE(this); }
-    bool unique() const { return 1 == fRefCnt; }
-#ifdef SK_DEBUG
-    void validate() const {
-        SkASSERT(fRefCnt > 0);
+    void ref() const {
+        ++fRefCnt;
+        // pre-validate once internal_dispose is removed (and therefore 0 ref cnt is not allowed).
+        this->validate();
     }
+
+    void unref() const {
+        this->validate();
+        --fRefCnt;
+        if (0 == fRefCnt && 0 == fPendingReads && 0 == fPendingWrites) {
+            this->internal_dispose();
+        }
+    }
+
+    virtual void internal_dispose() const { SkDELETE(this); }
+
+    /** This is exists to service the old mechanism for recycling scratch textures. It will
+        be removed soon. */
+    bool unique() const { return 1 == (fRefCnt + fPendingReads + fPendingWrites); }
+
+    void validate() const {
+#ifdef SK_DEBUG
+        SkASSERT(fRefCnt >= 0);
+        SkASSERT(fPendingReads >= 0);
+        SkASSERT(fPendingWrites >= 0);
+        SkASSERT(fRefCnt + fPendingReads + fPendingWrites > 0);
 #endif
+    }
+
+protected:
+    GrGpuRef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
+
+private:
+    void addPendingRead() const {
+        this->validate();
+        ++fPendingReads;
+    }
+
+    void completedRead() const {
+        this->validate();
+        --fPendingReads;
+        if (0 == fRefCnt && 0 == fPendingReads && 0 == fPendingWrites) {
+            this->internal_dispose();
+        }
+    }
+
+    void addPendingWrite() const {
+        this->validate();
+        ++fPendingWrites;
+    }
+
+    void completedWrite() const {
+        this->validate();
+        --fPendingWrites;
+        if (0 == fRefCnt && 0 == fPendingReads && 0 == fPendingWrites) {
+            this->internal_dispose();
+        }
+    }
+
+private:
+    mutable int32_t fRefCnt;
+    mutable int32_t fPendingReads;
+    mutable int32_t fPendingWrites;
+
+    // These functions need access to the pending read/write member functions.
+    friend class GrDrawState;
+    friend class GrProgramResource;
+};
+
+/**
+ * Base class for objects that can be kept in the GrResourceCache.
+ */
+class GrGpuResource : public GrGpuRef {
+public:
+    SK_DECLARE_INST_COUNT(GrGpuResource)
 
     /**
      * Frees the object in the underlying 3D API. It must be safe to call this
@@ -154,13 +237,12 @@ private:
 
     uint32_t                fFlags;
 
-    mutable int32_t         fRefCnt;
     GrResourceCacheEntry*   fCacheEntry;  // NULL if not in cache
     const uint32_t          fUniqueID;
 
     GrResourceKey           fScratchKey;
 
-    typedef SkNoncopyable INHERITED;
+    typedef GrGpuRef INHERITED;
 };
 
 #endif
