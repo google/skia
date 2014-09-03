@@ -72,10 +72,14 @@ public:
 
 protected:
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
+#ifdef SK_BUILD_FOR_ANDROID
+        return kSkipTiled_Flag;
+#else
         if (fDoFilter && fDoRotate && fMode != SkShader::kClamp_TileMode) {
             return kSkipTiled_Flag;
         }
         return 0;
+#endif
     }
 
     virtual SkString onShortName() {
