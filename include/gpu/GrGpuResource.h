@@ -110,7 +110,7 @@ private:
     mutable int32_t fPendingWrites;
 
     // These functions need access to the pending read/write member functions.
-    friend class GrDrawState;
+    friend class GrRODrawState;
     friend class GrProgramResource;
 };
 

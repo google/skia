@@ -10,16 +10,14 @@
 
 #include "GrColor.h"
 #include "GrEffectUnitTest.h"
-#include "GrTexture.h"
+#include "GrProgramElement.h"
 #include "GrTextureAccess.h"
 #include "GrTypesPriv.h"
 
 class GrBackendEffectFactory;
 class GrContext;
 class GrCoordTransform;
-class GrEffect;
-class GrVertexEffect;
-class SkString;
+
 
 /** Provides custom vertex shader, fragment shader, uniform data for a particular stage of the
     Ganesh shading pipeline.
@@ -31,7 +29,7 @@ class SkString;
     effect must reach 0 before the thread terminates and the pool is destroyed. To create a static
     effect use the macro GR_CREATE_STATIC_EFFECT declared below.
   */
-class GrEffect : public SkRefCnt {
+class GrEffect : public GrProgramElement {
 public:
     SK_DECLARE_INST_COUNT(GrEffect)
 
@@ -205,7 +203,7 @@ private:
     bool                                         fWillUseInputColor;
     bool                                         fRequiresVertexShader;
 
-    typedef SkRefCnt INHERITED;
+    typedef GrProgramElement INHERITED;
 };
 
 /**
@@ -216,6 +214,5 @@ private:
 static SkAlignedSStorage<sizeof(EFFECT_CLASS)> g_##NAME##_Storage;                                \
 static GrEffect* NAME SkNEW_PLACEMENT_ARGS(g_##NAME##_Storage.get(), EFFECT_CLASS, ARGS);         \
 static SkAutoTDestroy<GrEffect> NAME##_ad(NAME);
-
 
 #endif
