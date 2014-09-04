@@ -7,8 +7,8 @@
 
 #include "GrLayerCache.h"
 #include "GrLayerHoister.h"
-#include "SkPictureRangePlayback.h"
 #include "SkCanvas.h"
+#include "SkRecordDraw.h"
 #include "SkSurface.h"
 
 // Return true if any layers are suitable for hoisting
@@ -94,10 +94,8 @@ void GrLayerHoister::DrawLayers(const SkPicture* picture,
             atlasCanvas->translate(bound.fLeft, bound.fTop);
             atlasCanvas->concat(layer->ctm());
 
-            SkPictureRangePlayback rangePlayback(picture,
-                                                 layer->start(),
-                                                 layer->stop());
-            rangePlayback.draw(atlasCanvas, NULL);
+            SkRecordPartialDraw(*picture->fRecord.get(), atlasCanvas, bound,
+                                layer->start(), layer->stop());
 
             atlasCanvas->restore();
         }
@@ -111,9 +109,9 @@ void GrLayerHoister::DrawLayers(const SkPicture* picture,
 
         // Each non-atlased layer has its own GrTexture
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
-            layer->texture()->asRenderTarget(),
-            SkSurface::kStandard_TextRenderMode,
-            SkSurface::kDontClear_RenderTargetFlag));
+                                                layer->texture()->asRenderTarget(),
+                                                SkSurface::kStandard_TextRenderMode,
+                                                SkSurface::kDontClear_RenderTargetFlag));
 
         SkCanvas* layerCanvas = surface->getCanvas();
 
@@ -130,10 +128,8 @@ void GrLayerHoister::DrawLayers(const SkPicture* picture,
 
         layerCanvas->concat(layer->ctm());
 
-        SkPictureRangePlayback rangePlayback(picture,
-                                             layer->start(),
-                                             layer->stop());
-        rangePlayback.draw(layerCanvas, NULL);
+        SkRecordPartialDraw(*picture->fRecord.get(), layerCanvas, bound,
+                            layer->start(), layer->stop());
 
         layerCanvas->flush();
     }

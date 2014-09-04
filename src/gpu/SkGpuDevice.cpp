@@ -18,6 +18,7 @@
 #include "GrLayerCache.h"
 #include "GrLayerHoister.h"
 #include "GrPictureUtils.h"
+#include "GrRecordReplaceDraw.h"
 #include "GrStrokeInfo.h"
 #include "GrTracing.h"
 
@@ -31,8 +32,7 @@
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
-#include "SkPictureRangePlayback.h"
-#include "SkPictureReplacementPlayback.h"
+#include "SkRecord.h"
 #include "SkRRect.h"
 #include "SkStroke.h"
 #include "SkSurface.h"
@@ -1875,7 +1875,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return false;
     }
 
-    SkPictureReplacementPlayback::PlaybackReplacements replacements;
+    GrReplacements replacements;
 
     SkTDArray<GrCachedLayer*> atlased, nonAtlased;
     atlased.setReserve(gpuData->numSaveLayers());
@@ -1890,8 +1890,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
                                                                                 info.fRestoreOpID, 
                                                                                 info.fOriginXform);
 
-            SkPictureReplacementPlayback::PlaybackReplacements::ReplacementInfo* layerInfo =
-                                                                        replacements.push();
+            GrReplacements::ReplacementInfo* layerInfo = replacements.push();
             layerInfo->fStart = info.fSaveLayerOpID;
             layerInfo->fStop = info.fRestoreOpID;
             layerInfo->fPos = info.fOffset;
@@ -1909,11 +1908,12 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
                 continue;
             }
 
-            layerInfo->fBM = SkNEW(SkBitmap);  // fBM is allocated so ReplacementInfo can be POD
+            SkBitmap bm;
             wrap_texture(layer->texture(),
                          !layer->isAtlased() ? desc.fWidth : layer->texture()->width(),
                          !layer->isAtlased() ? desc.fHeight : layer->texture()->height(),
-                         layerInfo->fBM);
+                         &bm);
+            layerInfo->fImage = SkImage::NewTexture(bm);
 
             SkASSERT(info.fPaint);
             layerInfo->fPaint = info.fPaint;
@@ -1936,9 +1936,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     GrLayerHoister::DrawLayers(picture, atlased, nonAtlased);
 
     // Render the entire picture using new layers
-    SkPictureReplacementPlayback playback(picture, &replacements, NULL);
-
-    playback.draw(mainCanvas, NULL);
+    GrRecordReplaceDraw(*picture->fRecord, mainCanvas, picture->fBBH.get(), &replacements, NULL);
 
     GrLayerHoister::UnlockLayers(fContext->getLayerCache(), picture);
 

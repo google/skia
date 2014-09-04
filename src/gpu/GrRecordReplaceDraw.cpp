@@ -87,7 +87,7 @@ void GrRecordReplaceDraw(const SkRecord& record,
             if (NULL != callback && callback->abortDrawing()) {
                 return;
             }
-            ri = replacements->lookupByStart(i, &searchStart);
+            ri = replacements->lookupByStart((uintptr_t)ops[i], &searchStart);
             if (NULL != ri) {
                 draw_replacement_bitmap(ri, canvas);
 
