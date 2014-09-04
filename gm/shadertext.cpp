@@ -28,15 +28,6 @@ static void makebm(SkBitmap* bm, int w, int h) {
     canvas.drawPaint(paint);
 }
 
-static SkShader* MakeBitmapShader(SkShader::TileMode tx, SkShader::TileMode ty,
-                           int w, int h) {
-    static SkBitmap bmp;
-    if (bmp.isNull()) {
-        makebm(&bmp, w/2, h/4);
-    }
-    return SkShader::CreateBitmapShader(bmp, tx, ty);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 struct GradData {
@@ -115,8 +106,8 @@ protected:
         const int textLen = SK_ARRAY_COUNT(text) - 1;
         const int pointSize = 36;
 
-        int w = pointSize * textLen;
-        int h = pointSize;
+        const int w = pointSize * textLen;
+        const int h = pointSize;
 
         SkPoint pts[2] = {
             { 0, 0 },
@@ -144,11 +135,12 @@ protected:
                                                    SkShader::kClamp_TileMode);
             }
         }
+        
+        SkBitmap bm;
+        makebm(&bm, w/16, h/4);
         for (size_t tx = 0; tx < SK_ARRAY_COUNT(tileModes); ++tx) {
             for (size_t ty = 0; ty < SK_ARRAY_COUNT(tileModes); ++ty) {
-                shaders[shdIdx++] = MakeBitmapShader(tileModes[tx],
-                                                     tileModes[ty],
-                                                     w/8, h);
+                shaders[shdIdx++] = SkShader::CreateBitmapShader(bm, tileModes[tx], tileModes[ty]);
             }
         }
 
