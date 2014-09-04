@@ -73,6 +73,8 @@ DEF_TEST(ResourceCache_SingleAllocationByteLimit, reporter) {
     SkGraphics::SetResourceCacheTotalByteLimit(originalByteLimit);
 }
 
+#if 0  // skia:2912
+
 static SkBitmap createAllocatedBitmap(const SkImageInfo& info) {
     SkBitmap cachedBitmap;
     cachedBitmap.setInfo(info);
@@ -107,3 +109,4 @@ DEF_TEST(BitmapCache_add_rect, reporter) {
     // Should be in the cache, we just added it
     REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm));
 }
+#endif
