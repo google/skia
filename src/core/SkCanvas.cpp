@@ -1299,8 +1299,8 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
     }
 }
 
-static void clip_path_helper(const SkCanvas* canvas, SkRasterClip* currClip,
-                             const SkPath& devPath, SkRegion::Op op, bool doAA) {
+static void rasterclip_path(SkRasterClip* rc, const SkCanvas* canvas, const SkPath& devPath,
+                            SkRegion::Op op, bool doAA) {
     // base is used to limit the size (and therefore memory allocation) of the
     // region that results from scan converting devPath.
     SkRegion base;
@@ -1309,27 +1309,27 @@ static void clip_path_helper(const SkCanvas* canvas, SkRasterClip* currClip,
         // since we are intersect, we can do better (tighter) with currRgn's
         // bounds, than just using the device. However, if currRgn is complex,
         // our region blitter may hork, so we do that case in two steps.
-        if (currClip->isRect()) {
-            // FIXME: we should also be able to do this when currClip->isBW(),
+        if (rc->isRect()) {
+            // FIXME: we should also be able to do this when rc->isBW(),
             // but relaxing the test above triggers GM asserts in
             // SkRgnBuilder::blitH(). We need to investigate what's going on.
-            currClip->setPath(devPath, currClip->bwRgn(), doAA);
+            rc->setPath(devPath, rc->bwRgn(), doAA);
         } else {
-            base.setRect(currClip->getBounds());
+            base.setRect(rc->getBounds());
             SkRasterClip clip;
             clip.setPath(devPath, base, doAA);
-            currClip->op(clip, op);
+            rc->op(clip, op);
         }
     } else {
         const SkISize size = canvas->getBaseLayerSize();
         base.setRect(0, 0, size.width(), size.height());
 
         if (SkRegion::kReplace_Op == op) {
-            currClip->setPath(devPath, base, doAA);
+            rc->setPath(devPath, base, doAA);
         } else {
             SkRasterClip clip;
             clip.setPath(devPath, base, doAA);
-            currClip->op(clip, op);
+            rc->op(clip, op);
         }
     }
 }
@@ -1359,7 +1359,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle 
         SkPath devPath;
         devPath.addRRect(transformedRRect);
 
-        clip_path_helper(this, &fMCRec->fRasterClip, devPath, op, kSoft_ClipEdgeStyle == edgeStyle);
+        rasterclip_path(&fMCRec->fRasterClip, this, devPath, op, kSoft_ClipEdgeStyle == edgeStyle);
         return;
     }
 
@@ -1448,7 +1448,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
         op = SkRegion::kReplace_Op;
     }
 
-    clip_path_helper(this, &fMCRec->fRasterClip, devPath, op, edgeStyle);
+    rasterclip_path(&fMCRec->fRasterClip, this, devPath, op, edgeStyle);
 }
 
 void SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegion::Op op,
@@ -1571,7 +1571,7 @@ void SkCanvas::validateClip() const {
             default: {
                 SkPath path;
                 element->asPath(&path);
-                clip_path_helper(this, &tmpClip, path, element->getOp(), element->isAA());
+                rasterclip_path(&tmpClip, this, path, element->getOp(), element->isAA());
                 break;
             }
         }
