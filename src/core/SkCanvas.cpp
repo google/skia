@@ -1682,16 +1682,6 @@ const SkRegion& SkCanvas::internal_private_getTotalClip() const {
     return fMCRec->fRasterClip.forceGetBW();
 }
 
-void SkCanvas::internal_private_getTotalClipAsPath(SkPath* path) const {
-    path->reset();
-
-    const SkRegion& rgn = fMCRec->fRasterClip.forceGetBW();
-    if (rgn.isEmpty()) {
-        return;
-    }
-    (void)rgn.getBoundaryPath(path);
-}
-
 GrRenderTarget* SkCanvas::internal_private_accessTopLayerRenderTarget() {
     SkBaseDevice* dev = this->getTopDevice();
     return dev ? dev->accessRenderTarget() : NULL;

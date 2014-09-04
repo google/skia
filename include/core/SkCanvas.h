@@ -37,6 +37,12 @@ class SkTextBlob;
 class GrContext;
 class GrRenderTarget;
 
+class SkCanvasState;
+
+namespace SkCanvasStateUtils {
+    SkCanvasState* CaptureCanvasState(SkCanvas*);// needs gettotalclip()
+}
+
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -1182,10 +1188,6 @@ public:
     };
 
     // don't call
-    const SkRegion& internal_private_getTotalClip() const;
-    // don't call
-    void internal_private_getTotalClipAsPath(SkPath*) const;
-    // don't call
     GrRenderTarget* internal_private_accessTopLayerRenderTarget();
 
 protected:
@@ -1307,7 +1309,9 @@ private:
     friend class SkDebugCanvas;     // needs experimental fAllowSimplifyClip
     friend class SkDeferredDevice;  // needs getTopDevice()
     friend class SkSurface_Raster;  // needs getDevice()
-
+    
+    friend SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas*);// needs gettotalclip()
+    
     SkBaseDevice* createLayerDevice(const SkImageInfo&);
 
     SkBaseDevice* init(SkBaseDevice*);
@@ -1349,6 +1353,9 @@ private:
     static void DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
                                     const char text[], size_t byteLength,
                                     SkScalar x, SkScalar y);
+
+    // only for canvasutils
+    const SkRegion& internal_private_getTotalClip() const;
 
     /*  These maintain a cache of the clip bounds in local coordinates,
         (converted to 2s-compliment if floats are slow).
