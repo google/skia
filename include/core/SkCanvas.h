@@ -40,7 +40,7 @@ class GrRenderTarget;
 class SkCanvasState;
 
 namespace SkCanvasStateUtils {
-    SkCanvasState* CaptureCanvasState(SkCanvas*);// needs gettotalclip()
+    SK_API SkCanvasState* CaptureCanvasState(SkCanvas*);
 }
 
 /** \class SkCanvas
@@ -1310,7 +1310,8 @@ private:
     friend class SkDeferredDevice;  // needs getTopDevice()
     friend class SkSurface_Raster;  // needs getDevice()
     
-    friend SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas*);// needs gettotalclip()
+    // needs gettotalclip()
+    friend SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas*);
     
     SkBaseDevice* createLayerDevice(const SkImageInfo&);
 
