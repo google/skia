@@ -46,45 +46,45 @@ static inline void print128f(__m128 value) {
 void highQualityFilter_SSE2(const SkBitmapProcState& s, int x, int y,
                             SkPMColor* SK_RESTRICT colors, int count) {
 
-    const int maxX = s.fBitmap->width() - 1;
-    const int maxY = s.fBitmap->height() - 1;
+    const int maxX = s.fBitmap->width();
+    const int maxY = s.fBitmap->height();
+    SkAutoTMalloc<SkScalar> xWeights(maxX);
 
     while (count-- > 0) {
         SkPoint srcPt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x),
-                    SkIntToScalar(y), &srcPt);
+        s.fInvProc(s.fInvMatrix, x + 0.5f, y + 0.5f, &srcPt);
         srcPt.fX -= SK_ScalarHalf;
         srcPt.fY -= SK_ScalarHalf;
-
-        int sx = SkScalarFloorToInt(srcPt.fX);
-        int sy = SkScalarFloorToInt(srcPt.fY);
 
         __m128 weight = _mm_setzero_ps();
         __m128 accum = _mm_setzero_ps();
 
-        int y0 = SkTMax(0, int(ceil(sy-s.getBitmapFilter()->width() + 0.5f)));
-        int y1 = SkTMin(maxY, int(floor(sy+s.getBitmapFilter()->width() + 0.5f)));
-        int x0 = SkTMax(0, int(ceil(sx-s.getBitmapFilter()->width() + 0.5f)));
-        int x1 = SkTMin(maxX, int(floor(sx+s.getBitmapFilter()->width() + 0.5f)));
+        int y0 = SkClampMax(SkScalarCeilToInt(srcPt.fY-s.getBitmapFilter()->width()), maxY);
+        int y1 = SkClampMax(SkScalarFloorToInt(srcPt.fY+s.getBitmapFilter()->width()+1), maxY);
+        int x0 = SkClampMax(SkScalarCeilToInt(srcPt.fX-s.getBitmapFilter()->width()), maxX);
+        int x1 = SkClampMax(SkScalarFloorToInt(srcPt.fX+s.getBitmapFilter()->width())+1, maxX);
 
-        for (int src_y = y0; src_y <= y1; src_y++) {
-            float yweight = SkScalarToFloat(s.getBitmapFilter()->lookupScalar(srcPt.fY - src_y));
+        for (int srcX = x0; srcX < x1 ; srcX++) {
+            // Looking these up once instead of each loop is a ~15% speedup.
+            xWeights[srcX - x0] = s.getBitmapFilter()->lookupScalar((srcPt.fX - srcX));
+        }
 
-            for (int src_x = x0; src_x <= x1 ; src_x++) {
-                float xweight = SkScalarToFloat(s.getBitmapFilter()->lookupScalar(srcPt.fX - src_x));
+        for (int srcY = y0; srcY < y1; srcY++) {
+            SkScalar yWeight = s.getBitmapFilter()->lookupScalar((srcPt.fY - srcY));
 
-                float combined_weight = xweight * yweight;
+            for (int srcX = x0; srcX < x1 ; srcX++) {
+                SkScalar xWeight = xWeights[srcX - x0];
 
-                SkPMColor color = *s.fBitmap->getAddr32(src_x, src_y);
+                SkScalar combined_weight = SkScalarMul(xWeight, yWeight);
 
-                __m128i c = _mm_cvtsi32_si128( color );
+                SkPMColor color = *s.fBitmap->getAddr32(srcX, srcY);
+
+                __m128i c = _mm_cvtsi32_si128(color);
                 c = _mm_unpacklo_epi8(c, _mm_setzero_si128());
                 c = _mm_unpacklo_epi16(c, _mm_setzero_si128());
-
-                __m128 cfloat = _mm_cvtepi32_ps( c );
+                __m128 cfloat = _mm_cvtepi32_ps(c);
 
                 __m128 weightVector = _mm_set1_ps(combined_weight);
-
                 accum = _mm_add_ps(accum, _mm_mul_ps(cfloat, weightVector));
                 weight = _mm_add_ps( weight, weightVector );
             }
@@ -92,15 +92,15 @@ void highQualityFilter_SSE2(const SkBitmapProcState& s, int x, int y,
 
         accum = _mm_div_ps(accum, weight);
         accum = _mm_add_ps(accum, _mm_set1_ps(0.5f));
+        __m128i accumInt = _mm_cvttps_epi32(accum);
+        accumInt = _mm_packs_epi32(accumInt, _mm_setzero_si128());
+        accumInt = _mm_packus_epi16(accumInt, _mm_setzero_si128());
+        SkPMColor c = _mm_cvtsi128_si32(accumInt);
 
-        __m128i accumInt = _mm_cvtps_epi32( accum );
-
-        int localResult[4];
-        _mm_storeu_si128((__m128i *) (localResult), accumInt);
-        int a = SkClampMax(localResult[0], 255);
-        int r = SkClampMax(localResult[1], a);
-        int g = SkClampMax(localResult[2], a);
-        int b = SkClampMax(localResult[3], a);
+        int a = SkClampMax(SkGetPackedA32(c), 255);
+        int r = SkClampMax(SkGetPackedR32(c), a);
+        int g = SkClampMax(SkGetPackedG32(c), a);
+        int b = SkClampMax(SkGetPackedB32(c), a);
 
         *colors++ = SkPackARGB32(a, r, g, b);
 
