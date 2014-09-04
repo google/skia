@@ -58,7 +58,8 @@ namespace SkRecords {
     M(DrawRRect)                                                    \
     M(DrawRect)                                                     \
     M(DrawSprite)                                                   \
-    M(DrawTextBlob)                                                     \
+    M(DrawTextBlob)                                                 \
+    M(DrawData)                                                     \
     M(DrawVertices)
 
 // Defines SkRecords::Type, an enum of all record types.
@@ -269,6 +270,8 @@ RECORD5(DrawTextOnPath, SkPaint, paint,
                         size_t, byteLength,
                         SkPath, path,
                         Optional<SkMatrix>, matrix);
+
+RECORD2(DrawData, PODArray<char>, data, size_t, length);
 
 // This guy is so ugly we just write it manually.
 struct DrawVertices {

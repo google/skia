@@ -11,7 +11,9 @@
 
 // SkCanvas will fail in mysterious ways if it doesn't know the real width and height.
 SkRecorder::SkRecorder(SkRecord* record, int width, int height)
-    : SkCanvas(width, height), fRecord(record) {}
+    : SkCanvas(width, height)
+    , fRecord(record)
+    , fSaveLayerCount(0) {}
 
 void SkRecorder::forgetRecord() {
     fRecord = NULL;
@@ -229,17 +231,25 @@ void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
 }
 
 void SkRecorder::willSave() {
+    fSaveIsSaveLayer.push(false);
     APPEND(Save);
 }
 
 SkCanvas::SaveLayerStrategy SkRecorder::willSaveLayer(const SkRect* bounds,
                                                       const SkPaint* paint,
                                                       SkCanvas::SaveFlags flags) {
+    fSaveLayerCount++;
+    fSaveIsSaveLayer.push(true);
     APPEND(SaveLayer, this->copy(bounds), this->copy(paint), flags);
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 
 void SkRecorder::didRestore() {
+    SkBool8 saveLayer;
+    fSaveIsSaveLayer.pop(&saveLayer);
+    if (saveLayer) {
+        fSaveLayerCount--;
+    }
     APPEND(Restore, this->devBounds(), this->getTotalMatrix());
 }
 
@@ -294,4 +304,12 @@ void SkRecorder::addComment(const char* key, const char* value) {
 
 void SkRecorder::endCommentGroup() {
     APPEND(EndCommentGroup);
+}
+
+bool SkRecorder::isDrawingToLayer() const {
+    return fSaveLayerCount > 0;
+}
+
+void SkRecorder::drawData(const void* data, size_t length) {
+    APPEND(DrawData, copy((const char*)data), length);
 }

@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkRecord.h"
 #include "SkRecords.h"
+#include "SkTDArray.h"
 
 // SkRecorder provides an SkCanvas interface for recording into an SkRecord.
 
@@ -64,6 +65,7 @@ public:
 
     void willSave() SK_OVERRIDE;
     SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SkCanvas::SaveFlags) SK_OVERRIDE;
+    void willRestore() SK_OVERRIDE {}
     void didRestore() SK_OVERRIDE;
 
     void didConcat(const SkMatrix&) SK_OVERRIDE;
@@ -110,6 +112,10 @@ public:
     void beginCommentGroup(const char*) SK_OVERRIDE;
     void addComment(const char*, const char*) SK_OVERRIDE;
     void endCommentGroup() SK_OVERRIDE;
+    void drawData(const void*, size_t) SK_OVERRIDE;
+
+    bool isDrawingToLayer() const SK_OVERRIDE;
+    SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE { return NULL; }
 
 private:
     template <typename T>
@@ -125,6 +131,9 @@ private:
     }
 
     SkRecord* fRecord;
+
+    int fSaveLayerCount;
+    SkTDArray<SkBool8> fSaveIsSaveLayer;
 };
 
 #endif//SkRecorder_DEFINED
