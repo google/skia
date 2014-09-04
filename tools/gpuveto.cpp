@@ -55,9 +55,9 @@ int tool_main(int argc, char** argv) {
     // The SkPicture tracking information is only generated during recording
     // an isn't serialized. Replay the picture to regenerated the tracking data.
     SkPictureRecorder recorder;
-    picture->draw(recorder.beginRecording(picture->cullRect().width(), 
-                                          picture->cullRect().height(), 
-                                          NULL, 0));
+    picture->playback(recorder.beginRecording(picture->cullRect().width(), 
+                                              picture->cullRect().height(), 
+                                              NULL, 0));
     SkAutoTUnref<SkPicture> recorded(recorder.endRecording());
 
     if (recorded->suitableForGpuRasterization(NULL)) {

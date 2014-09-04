@@ -73,14 +73,14 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
     // Test parts of top-left tile
     {
         MockCanvas mockCanvas(store);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
         MockCanvas mockCanvas(store);
         mockCanvas.translate(-7.99f, -7.99f);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
@@ -88,7 +88,7 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
     {
         MockCanvas mockCanvas(store);
         mockCanvas.translate(-9.5f, -9.5f);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[1]);
@@ -97,7 +97,7 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
     {
         MockCanvas mockCanvas(store);
         mockCanvas.translate(-16.0f, -16.0f);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
     }
@@ -105,28 +105,28 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
     {
         MockCanvas mockCanvas(store);
         mockCanvas.translate(2.0f, 0.0f);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
         MockCanvas mockCanvas(store);
         mockCanvas.translate(0.0f, 2.0f);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
         MockCanvas mockCanvas(store);
         mockCanvas.translate(-22.0f, -16.0f);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
     }
     {
         MockCanvas mockCanvas(store);
         mockCanvas.translate(-16.0f, -22.0f);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
     }
@@ -168,14 +168,14 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
         // The offset should cancel the top and left borders of the top left tile
         // So a look-up at interval 0-10 should be grid aligned,
         MockCanvas mockCanvas(tileBitmap);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
         // Encroaching border by one pixel
         MockCanvas mockCanvas(moreThanATileBitmap);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[1]);
@@ -186,14 +186,14 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
         // with middle tile.
         MockCanvas mockCanvas(tileBitmap);
         mockCanvas.translate(SkIntToScalar(-8), SkIntToScalar(-8));
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
     }
     {
         MockCanvas mockCanvas(tileBitmap);
         mockCanvas.translate(-7.9f, -7.9f);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[1]);
@@ -201,7 +201,7 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
     {
         MockCanvas mockCanvas(tileBitmap);
         mockCanvas.translate(-8.1f, -8.1f);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
         REPORTER_ASSERT(reporter, rect3 == mockCanvas.fRects[1]);
@@ -212,7 +212,7 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
         // adjusted region, sitting right on top of the tile boundary.
         MockCanvas mockCanvas(tinyBitmap);
         mockCanvas.translate(-8.0f, -8.0f);
-        picture->draw(&mockCanvas);
+        picture->playback(&mockCanvas);
         // This test passes by not asserting. We do not validate the rects recorded
         // because the result is numerically unstable (floating point equality).
         // The content of any one of the four tiles of the tilegrid would be a valid

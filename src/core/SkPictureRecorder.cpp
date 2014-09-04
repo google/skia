@@ -108,6 +108,6 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
         const bool deepCopyOps = true;
         SkPicture picture(fCullWidth, fCullHeight, 
                           *fPictureRecord.get(), deepCopyOps);
-        picture.draw(canvas);
+        picture.playback(canvas);
     }
 }

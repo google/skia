@@ -46,7 +46,7 @@ protected:
         const SkPoint translateDelta = getTranslateDelta(loops);
 
         for (int i = 0; i < loops; i++) {
-            picture->draw(canvas);
+            picture->playback(canvas);
             canvas->translate(translateDelta.fX, translateDelta.fY);
         }
     }

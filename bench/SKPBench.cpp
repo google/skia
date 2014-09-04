@@ -30,7 +30,7 @@ void SKPBench::onDraw(const int loops, SkCanvas* canvas) {
     canvas->save();
         canvas->scale(fScale, fScale);
         for (int i = 0; i < loops; i++) {
-            fPic->draw(canvas);
+            fPic->playback(canvas);
             canvas->flush();
         }
     canvas->restore();

@@ -1191,7 +1191,7 @@ void check_save_state(skiatest::Reporter* reporter, SkPicture* picture,
     SaveCountingCanvas canvas(SkScalarCeilToInt(picture->cullRect().width()), 
                               SkScalarCeilToInt(picture->cullRect().height()));
 
-    picture->draw(&canvas);
+    picture->playback(&canvas);
 
     REPORTER_ASSERT(reporter, numSaves == canvas.getSaveCount());
     REPORTER_ASSERT(reporter, numSaveLayers == canvas.getSaveLayerCount());
@@ -1693,7 +1693,7 @@ static void test_clip_expansion(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     ClipCountingCanvas testCanvas(10, 10);
-    picture->draw(&testCanvas);
+    picture->playback(&testCanvas);
 
     // Both clips should be present on playback.
     REPORTER_ASSERT(reporter, testCanvas.getClipCount() == 2);
@@ -1866,7 +1866,7 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
     SkBitmap replayBM;
     make_bm(&replayBM, 100, 100, SK_ColorBLACK, false);
     SkCanvas replayCanvas(replayBM);
-    picture->draw(&replayCanvas);
+    picture->playback(&replayCanvas);
     replayCanvas.flush();
 
     // With the bug present, at (55, 55) we would get a fully opaque red
@@ -1914,10 +1914,10 @@ DEF_TEST(Picture_SkipBBH, r) {
 
     SkCanvas big(640, 480), small(300, 200);
 
-    picture->draw(&big);
+    picture->playback(&big);
     REPORTER_ASSERT(r, bbh.searchCalls == 0);
 
-    picture->draw(&small);
+    picture->playback(&small);
     REPORTER_ASSERT(r, bbh.searchCalls == 1);
 }
 

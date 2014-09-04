@@ -31,7 +31,7 @@ void SkDebugger::loadPicture(SkPicture* picture) {
     fDebugCanvas = new SkDebugCanvas(SkScalarCeilToInt(this->pictureCull().width()), 
                                      SkScalarCeilToInt(this->pictureCull().height()));
     fDebugCanvas->setPicture(picture);
-    picture->draw(fDebugCanvas);
+    picture->playback(fDebugCanvas);
     fDebugCanvas->setPicture(NULL);
     fIndex = fDebugCanvas->getSize() - 1;
 }

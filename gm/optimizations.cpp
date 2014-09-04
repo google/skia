@@ -19,7 +19,7 @@
 static bool check_pattern(SkPicture& input, const SkTDArray<DrawType> &pattern) {
     SkDebugCanvas debugCanvas(SkScalarCeilToInt(input.cullRect().width()), 
                               SkScalarCeilToInt(input.cullRect().height()));
-    input.draw(&debugCanvas);
+    input.playback(&debugCanvas);
 
     if (pattern.count() != debugCanvas.getSize()) {
         return false;
@@ -352,7 +352,7 @@ protected:
 
             canvas->save();
                 canvas->translate(xPos, yPos);
-                pre->draw(canvas);
+                pre->playback(canvas);
                 xPos += pre->cullRect().width();
             canvas->restore();
 
@@ -364,7 +364,7 @@ protected:
                                                    pre->cullRect().height(), 
                                                    NULL, 0);
 
-            pre->draw(recordCanvas);
+            pre->playback(recordCanvas);
 
             SkAutoTUnref<SkPicture> post(recorder.endRecording());
 
@@ -375,7 +375,7 @@ protected:
 
             canvas->save();
                 canvas->translate(xPos, yPos);
-                post->draw(canvas);
+                post->playback(canvas);
                 xPos += post->cullRect().width();
             canvas->restore();
 

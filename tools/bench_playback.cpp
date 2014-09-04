@@ -44,12 +44,12 @@ static SkPicture* rerecord(const SkPicture& src, bool skr) {
     SkTileGridFactory factory(info);
 
     SkPictureRecorder recorder;
-    src.draw(skr ? recorder.EXPERIMENTAL_beginRecording(src.cullRect().width(), 
-                                                        src.cullRect().height(), 
-                                                        &factory)
-                 : recorder.  DEPRECATED_beginRecording(src.cullRect().width(), 
-                                                        src.cullRect().height(), 
-                                                        &factory));
+    src.playback(skr ? recorder.EXPERIMENTAL_beginRecording(src.cullRect().width(), 
+                                                            src.cullRect().height(), 
+                                                            &factory)
+                     : recorder.  DEPRECATED_beginRecording(src.cullRect().width(), 
+                                                            src.cullRect().height(), 
+                                                            &factory));
     return recorder.endRecording();
 }
 
@@ -64,7 +64,7 @@ static void bench(SkPMColor* scratch, const SkPicture& src, const char* name) {
     canvas->clipRect(SkRect::MakeWH(SkIntToScalar(FLAGS_tile), SkIntToScalar(FLAGS_tile)));
 
     // Draw once to warm any caches.  The first sample otherwise can be very noisy.
-    picture->draw(canvas.get());
+    picture->playback(canvas.get());
 
     WallTimer timer;
     const double scale = timescale();
@@ -73,7 +73,7 @@ static void bench(SkPMColor* scratch, const SkPicture& src, const char* name) {
         // We assume timer overhead (typically, ~30ns) is insignificant
         // compared to draw runtime (at least ~100us, usually several ms).
         timer.start();
-        picture->draw(canvas.get());
+        picture->playback(canvas.get());
         timer.end();
         samples[i] = timer.fWall * scale;
     }

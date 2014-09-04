@@ -77,7 +77,7 @@ void PDFTask::draw() {
         pdfData.reset(pdf.end());
     } else {
         SinglePagePDF pdf(fPicture->cullRect().width(), fPicture->cullRect().height());
-        fPicture->draw(pdf.canvas());
+        fPicture->playback(pdf.canvas());
         pdfData.reset(pdf.end());
     }
 

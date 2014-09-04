@@ -633,7 +633,7 @@ public:
                     mat.postTranslate(SkIntToScalar(-xTile*tileSize.width()),
                                       SkIntToScalar(-yTile*tileSize.height()));
                     tileCanvas.setMatrix(mat);
-                    pict->draw(&tileCanvas);
+                    pict->playback(&tileCanvas);
                     tileCanvas.flush();
                     tileCanvas.restoreToCount(saveCount);
                     bmpCanvas.drawBitmap(tileBM,

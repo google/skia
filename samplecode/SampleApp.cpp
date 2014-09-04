@@ -1376,7 +1376,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
                 orig->drawPicture(pict.get());
             }
         } else {
-            picture->draw(orig);
+            picture->playback(orig);
         }
     }
 

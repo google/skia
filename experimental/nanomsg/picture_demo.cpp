@@ -152,7 +152,7 @@ static void server(const char* dataEndpoint, const char* controlEndpoint, SkCanv
         canvas->saveLayer(NULL, &paint);
             canvas->concat(header.matrix);
             canvas->clipRect(header.clip);
-            picture->draw(canvas);
+            picture->playback(canvas);
         canvas->restore();
         SkDebugf(" drew");
 

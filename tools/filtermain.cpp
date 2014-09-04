@@ -679,7 +679,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
 
     SkDebugCanvas debugCanvas(SkScalarCeilToInt(inPicture->cullRect().width()), 
                               SkScalarCeilToInt(inPicture->cullRect().height()));
-    inPicture->draw(&debugCanvas);
+    inPicture->playback(&debugCanvas);
 
     // delete the initial save and restore since replaying the commands will
     // re-add them

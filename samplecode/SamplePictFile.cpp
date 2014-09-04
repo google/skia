@@ -144,9 +144,9 @@ private:
             }
             if (false) { // re-record
                 SkPictureRecorder recorder;
-                pic->draw(recorder.beginRecording(pic->cullRect().width(), 
-                                                  pic->cullRect().height(), 
-                                                  NULL, 0));
+                pic->playback(recorder.beginRecording(pic->cullRect().width(),
+                                                      pic->cullRect().height(), 
+                                                      NULL, 0));
                 SkAutoTUnref<SkPicture> p2(recorder.endRecording());
 
                 SkString path2(path);
@@ -182,9 +182,9 @@ private:
         }
 
         SkPictureRecorder recorder;
-        pic->draw(recorder.beginRecording(pic->cullRect().width(), 
-                                          pic->cullRect().height(), 
-                                          factory.get(), 0));
+        pic->playback(recorder.beginRecording(pic->cullRect().width(),
+                                              pic->cullRect().height(), 
+                                              factory.get(), 0));
         return recorder.endRecording();
     }
 

@@ -400,7 +400,7 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
     SkMSec start = SkTime::GetMSecs();
     for (int x = 0; x < slices; ++x) {
         for (int y = 0; y < slices; ++y) {
-            pic->draw(canvas);
+            pic->playback(canvas);
             canvas->translate(0, yInterval);
         }
         canvas->translate(xInterval, -yInterval * slices);
@@ -416,7 +416,7 @@ static void drawPict(SkPicture* pic, SkCanvas* canvas, int scale) {
         canvas->save();
         canvas->scale(1.0f / scale, 1.0f / scale);
     }
-    pic->draw(canvas);
+    pic->playback(canvas);
     if (scale != 1) {
         canvas->restore();
     }

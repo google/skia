@@ -201,9 +201,9 @@ static bool run_single_benchmark(const SkString& inputPath,
         // Because the GPU preprocessing step relies on the in-memory picture
         // statistics we need to rerecord the picture here
         SkPictureRecorder recorder;
-        picture->draw(recorder.beginRecording(picture->cullRect().width(), 
-                                              picture->cullRect().height(), 
-                                              NULL, 0));
+        picture->playback(recorder.beginRecording(picture->cullRect().width(), 
+                                                  picture->cullRect().height(), 
+                                                  NULL, 0));
         picture.reset(recorder.endRecording());
     }
 

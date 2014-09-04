@@ -322,7 +322,7 @@ protected:
             do {
                 canvas->save();
                 canvas->clipRect(clip);
-                picture->draw(canvas);
+                picture->playback(canvas);
                 canvas->restore();
                 if (clip.fRight < SkIntToScalar(320))
                     clip.offset(SkIntToScalar(160), 0);

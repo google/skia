@@ -327,7 +327,7 @@ const SkMatrix& SkPicture::OperationList::matrix(int index) const {
 }
 
 // fRecord OK
-void SkPicture::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) const {
+void SkPicture::playback(SkCanvas* canvas, SkDrawPictureCallback* callback) const {
     SkASSERT(NULL != canvas);
     SkASSERT(NULL != fData.get() || NULL != fRecord.get());
 
@@ -459,7 +459,7 @@ SkPicture::SkPicture(SkPictureData* data, SkScalar width, SkScalar height)
 SkPicture* SkPicture::Forwardport(const SkPicture& src) {
     SkAutoTDelete<SkRecord> record(SkNEW(SkRecord));
     SkRecorder canvas(record.get(), src.cullRect().width(), src.cullRect().height());
-    src.draw(&canvas);
+    src.playback(&canvas);
     return SkNEW_ARGS(SkPicture, (src.cullRect().width(), src.cullRect().height(), 
                                   record.detach(), NULL/*bbh*/));
 }

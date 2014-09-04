@@ -220,7 +220,7 @@ void PictureRenderer::buildBBoxHierarchy() {
                                                    fPicture->cullRect().height(),
                                                    factory.get(),
                                                    this->recordFlags());
-        fPicture->draw(canvas);
+        fPicture->playback(canvas);
         fPicture.reset(recorder.endRecording());
     }
 }
@@ -361,7 +361,7 @@ bool RecordPictureRenderer::render(SkBitmap** out) {
                                                factory.get(),
                                                this->recordFlags());
     this->scaleToScaleFactor(canvas);
-    fPicture->draw(canvas);
+    fPicture->playback(canvas);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
     if (!fWritePath.isEmpty()) {
         // Record the new picture as a new SKP with PNG encoded bitmaps.

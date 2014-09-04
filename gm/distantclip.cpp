@@ -46,15 +46,15 @@ protected:
         SkAutoTUnref<SkPicture> pict(recorder.endRecording());
 
         // Next we play that picture into another picture of the same size.
-        pict->draw(recorder.beginRecording(pict->cullRect().width(), 
-                                           pict->cullRect().height(), 
-                                           NULL, 0));
+        pict->playback(recorder.beginRecording(pict->cullRect().width(), 
+                                               pict->cullRect().height(), 
+                                               NULL, 0));
         SkAutoTUnref<SkPicture> pict2(recorder.endRecording());
 
         // Finally we play the part of that second picture that should be green into the canvas.
         canvas->save();
         canvas->translate(kExtents / 2, -(kOffset - kExtents / 2));
-        pict2->draw(canvas);
+        pict2->playback(canvas);
         canvas->restore();
 
         // If the image is red, we erroneously decided the clipPath was empty and didn't record

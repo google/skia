@@ -2455,7 +2455,7 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
 
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
 
-    picture->draw(this);
+    picture->playback(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

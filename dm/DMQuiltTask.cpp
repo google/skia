@@ -46,7 +46,7 @@ public:
         SkCanvas tileCanvas(tile);
 
         tileCanvas.translate(SkIntToScalar(-fX), SkIntToScalar(-fY));
-        fPicture.draw(&tileCanvas);
+        fPicture.playback(&tileCanvas);
         tileCanvas.flush();
 
         delete this;
@@ -92,7 +92,7 @@ void QuiltTask::draw() {
     if (fGM->getFlags() & skiagm::GM::kSkipTiled_Flag) {
         // Some GMs don't draw exactly the same when tiled.  Draw them in one go.
         SkCanvas canvas(full);
-        recorded->draw(&canvas);
+        recorded->playback(&canvas);
         canvas.flush();
     } else {
         // Draw tiles in parallel into the same bitmap, simulating aggressive impl-side painting.

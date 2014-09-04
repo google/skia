@@ -266,7 +266,7 @@ static SkBitmap draw_picture(SkPicture& picture) {
      bitmap.allocN32Pixels(SkScalarCeilToInt(picture.cullRect().width()), 
                            SkScalarCeilToInt(picture.cullRect().height()));
      SkCanvas canvas(bitmap);
-     picture.draw(&canvas);
+     picture.playback(&canvas);
      return bitmap;
 }
 

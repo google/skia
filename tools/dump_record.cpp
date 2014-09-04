@@ -62,7 +62,7 @@ int tool_main(int argc, char** argv) {
 
         SkRecord record;
         SkRecorder canvas(&record, w, h);
-        src->draw(&canvas);
+        src->playback(&canvas);
 
         if (FLAGS_optimize) {
             SkRecordOptimize(&record);

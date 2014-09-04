@@ -61,11 +61,11 @@ static SkBBHFactory* parse_FLAGS_bbh() {
 static void rerecord(const SkPicture& src, SkBBHFactory* bbhFactory) {
     SkPictureRecorder recorder;
     if (FLAGS_skr) {
-        src.draw(recorder.EXPERIMENTAL_beginRecording(src.cullRect().width(), 
+        src.playback(recorder.EXPERIMENTAL_beginRecording(src.cullRect().width(), 
                                                       src.cullRect().height(), 
                                                       bbhFactory));
     } else {
-        src.draw(recorder.  DEPRECATED_beginRecording(src.cullRect().width(), 
+        src.playback(recorder.  DEPRECATED_beginRecording(src.cullRect().width(), 
                                                       src.cullRect().height(), 
                                                       bbhFactory));
     }
