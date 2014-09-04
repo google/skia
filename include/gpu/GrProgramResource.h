@@ -59,7 +59,13 @@ private:
         writes to the resource using the program element or draw state. */
     void removeRef() const;
 
-    friend class GrDrawState;
+    /** Called to indicate that the previous pending IO is complete. Useful when the owning object
+        still has refs, so it is not about to destroy this GrProgramResource, but its previously
+        pending executions have been complete.
+     */
+    void pendingIOComplete() const;
+
+    friend class GrRODrawState;
     friend class GrProgramElement;
 
     GrGpuResource*      fResource;

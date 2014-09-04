@@ -109,8 +109,7 @@ private:
     mutable int32_t fPendingReads;
     mutable int32_t fPendingWrites;
 
-    // These functions need access to the pending read/write member functions.
-    friend class GrRODrawState;
+    // This class is used to manage conversion of refs to pending reads/writes.
     friend class GrProgramResource;
 };
 

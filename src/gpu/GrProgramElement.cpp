@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrProgramElement.h"
 #include "GrProgramResource.h"
 
@@ -25,6 +24,23 @@ void GrProgramElement::convertRefToPendingExecution() const {
     if (0 == fRefCnt) {
         for (int i = 0; i < fProgramResources.count(); ++i) {
             fProgramResources[i]->removeRef();
+        }
+    }
+}
+
+void GrProgramElement::completedExecution() const {
+    this->validate();
+    --fPendingExecutions;
+    if (0 == fPendingExecutions) {
+        if (0 == fRefCnt) {
+            SkDELETE(this);
+        } else {
+            // Now our pending executions have ocurred and we still have refs. Convert
+            // ownership of our resources back to regular refs.
+            for (int i = 0; i < fProgramResources.count(); ++i) {
+                fProgramResources[i]->pendingIOComplete();
+            }
+
         }
     }
 }

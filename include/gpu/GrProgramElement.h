@@ -71,13 +71,7 @@ protected:
 private:
     void convertRefToPendingExecution() const;
 
-    void completedExecution() const {
-        this->validate();
-        --fPendingExecutions;
-        if (0 == fRefCnt && 0 == fPendingExecutions) {
-            SkDELETE(this);
-        }
-    }
+    void completedExecution() const;
 
     mutable int32_t fRefCnt;
     // Count of deferred executions not yet issued to the 3D API.
