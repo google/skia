@@ -121,8 +121,13 @@ public:
 
     int numColorStages() const { return fColorStages.count(); }
     int numCoverageStages() const { return fCoverageStages.count(); }
-    int numTotalStages() const { return this->numColorStages() + this->numCoverageStages(); }
+    int numTotalStages() const {
+         return this->numColorStages() + this->numCoverageStages() +
+                 (this->hasGeometryProcessor() ? 1 : 0);
+    }
 
+    bool hasGeometryProcessor() const { return NULL != fGeometryProcessor.get(); }
+    const GrEffectStage* getGeometryProcessor() const { return fGeometryProcessor.get(); }
     const GrEffectStage& getColorStage(int stageIdx) const { return fColorStages[stageIdx]; }
     const GrEffectStage& getCoverageStage(int stageIdx) const { return fCoverageStages[stageIdx]; }
 
@@ -358,6 +363,7 @@ protected:
     GrBlendCoeff                        fDstBlend;
 
     typedef SkSTArray<4, GrEffectStage> EffectStageArray;
+    SkAutoTDelete<GrEffectStage>        fGeometryProcessor;
     EffectStageArray                    fColorStages;
     EffectStageArray                    fCoverageStages;
 

@@ -84,11 +84,14 @@ public:
      * to be used.
      * @return true if generation was successful.
      */
-    bool genProgram(const GrEffectStage* inColorStages[],
+
+    bool genProgram(const GrEffectStage* inGeometryProcessor,
+                    const GrEffectStage* inColorStages[],
                     const GrEffectStage* inCoverageStages[]);
 
-    // Below are the results of the shader generation.
-
+    GrGLProgramEffects* getGeometryProcessor() const {
+        SkASSERT(fProgramID); return fGeometryProcessor.get();
+    }
     GrGLProgramEffects* getColorEffects() const { SkASSERT(fProgramID); return fColorEffects.get(); }
     GrGLProgramEffects* getCoverageEffects() const { SkASSERT(fProgramID); return fCoverageEffects.get(); }
     const BuiltinUniformHandles& getBuiltinUniformHandles() const {
@@ -165,6 +168,7 @@ protected:
     void appendDecls(const VarArray&, SkString*) const;
     void appendUniformDecls(ShaderVisibility, SkString*) const;
 
+    SkAutoTUnref<GrGLProgramEffects> fGeometryProcessor;
     SkAutoTUnref<GrGLProgramEffects> fColorEffects;
     SkAutoTUnref<GrGLProgramEffects> fCoverageEffects;
     BuiltinUniformHandles            fUniformHandles;
@@ -173,7 +177,7 @@ protected:
     GrGLuint                         fProgramID;
     GrGLFragmentShaderBuilder        fFS;
     SeparableVaryingInfoArray        fSeparableVaryingInfos;
-private:
+
     class CodeStage : SkNoncopyable {
     public:
         CodeStage() : fNextIndex(0), fCurrentIndex(-1), fEffectStage(NULL) {}
@@ -224,6 +228,7 @@ private:
         int                     fCurrentIndex;
         const GrEffectStage*    fEffectStage;
     } fCodeStage;
+private:
 
     /**
      * The base class will emit the fragment code that precedes the per-effect code and then call
@@ -232,7 +237,14 @@ private:
      *
      * The subclass can modify the initial color or coverage 
      */
-    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLExpr4* coverage) = 0;
+    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color,
+                                       GrGLSLExpr4* coverage) = 0;
+
+    /*
+     * Full shader builder needs to emit code after the color stages and before the coverage stages
+     */
+    virtual void emitGeometryProcessor(const GrEffectStage* geometryProcessor,
+                                       GrGLSLExpr4* coverage) = 0;
 
     /**
     * Adds code for effects and returns a GrGLProgramEffects* object. The caller is responsible for
@@ -297,12 +309,29 @@ public:
     GrGLVertexShaderBuilder* getVertexShaderBuilder() { return &fVS; }
 
 private:
-    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLExpr4* coverage) SK_OVERRIDE;
+    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color,
+                                       GrGLSLExpr4* coverage) SK_OVERRIDE;
+
+    virtual void emitGeometryProcessor(const GrEffectStage* geometryProcessor,
+                                       GrGLSLExpr4* coverage) SK_OVERRIDE;
 
     virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
                                                      int effectCnt,
                                                      const GrGLProgramDesc::EffectKeyProvider&,
                                                      GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
+
+    /*
+     * These functions are temporary and will eventually operate not on effects but on
+     * geometry processors
+     */
+    void createAndEmitEffect(GrGLProgramEffectsBuilder*,
+                             const GrEffectStage* effectStage,
+                             const GrGLProgramDesc::EffectKeyProvider&,
+                             GrGLSLExpr4* inOutFSColor);
+
+    GrGLProgramEffects* createAndEmitEffect(const GrEffectStage* geometryProcessor,
+                                            const GrGLProgramDesc::EffectKeyProvider&,
+                                            GrGLSLExpr4* inOutFSColor);
 
     virtual void emitCodeAfterEffects() SK_OVERRIDE;
 
@@ -326,7 +355,13 @@ public:
     int addTexCoordSets(int count);
 
 private:
-    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLExpr4* coverage) SK_OVERRIDE {}
+    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color,
+                                       GrGLSLExpr4* coverage) SK_OVERRIDE {}
+
+    virtual void emitGeometryProcessor(const GrEffectStage* geometryProcessor,
+                                       GrGLSLExpr4* coverage) SK_OVERRIDE {
+        SkASSERT(NULL == geometryProcessor);
+    }
 
     virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
                                                      int effectCnt,

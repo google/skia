@@ -38,6 +38,18 @@ bool GrRODrawState::isEqual(const GrRODrawState& that) const {
     }
 
     bool explicitLocalCoords = this->hasLocalCoordAttribute();
+    if (this->hasGeometryProcessor()) {
+        if (!that.hasGeometryProcessor()) {
+            return kIncompatible_CombinedState;
+        } else if (!GrEffectStage::AreCompatible(*this->getGeometryProcessor(),
+                                                 *that.getGeometryProcessor(),
+                                                 explicitLocalCoords)) {
+            return kIncompatible_CombinedState;
+        }
+    } else if (that.hasGeometryProcessor()) {
+        return kIncompatible_CombinedState;
+    }
+
     for (int i = 0; i < this->numColorStages(); i++) {
         if (!GrEffectStage::AreCompatible(this->getColorStage(i), that.getColorStage(i),
                                           explicitLocalCoords)) {
@@ -66,11 +78,9 @@ bool GrRODrawState::validateVertexAttribs() const {
     for (int i = 0; i < kMaxVertexAttribCnt; ++i) {
         slTypes[i] = static_cast<GrSLType>(-1);
     }
-    int totalStages = this->numTotalStages();
-    for (int s = 0; s < totalStages; ++s) {
-        int covIdx = s - this->numColorStages();
-        const GrEffectStage& stage = covIdx < 0 ? this->getColorStage(s) :
-                                                  this->getCoverageStage(covIdx);
+
+    if (this->hasGeometryProcessor()) {
+        const GrEffectStage& stage = *this->getGeometryProcessor();
         const GrEffect* effect = stage.getEffect();
         SkASSERT(NULL != effect);
         // make sure that any attribute indices have the correct binding type, that the attrib
@@ -118,6 +128,10 @@ bool GrRODrawState::hasSolidCoverage() const {
     }
 
     // Run through the coverage stages and see if the coverage will be all ones at the end.
+    if (this->hasGeometryProcessor()) {
+        const GrEffect* effect = fGeometryProcessor->getEffect();
+        effect->getConstantColorComponents(&coverage, &validComponentFlags);
+    }
     for (int s = 0; s < this->numCoverageStages(); ++s) {
         const GrEffect* effect = this->getCoverageStage(s).getEffect();
         effect->getConstantColorComponents(&coverage, &validComponentFlags);
@@ -137,6 +151,11 @@ bool GrRODrawState::willEffectReadDstColor() const {
     }
     for (int s = 0; s < this->numCoverageStages(); ++s) {
         if (this->getCoverageStage(s).getEffect()->willReadDstColor()) {
+            return true;
+        }
+    }
+    if (this->hasGeometryProcessor()) {
+        if (fGeometryProcessor->getEffect()->willReadDstColor()) {
             return true;
         }
     }

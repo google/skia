@@ -90,6 +90,7 @@ int GrGpuGL::ProgramCache::search(const GrGLProgramDesc& desc) const {
 }
 
 GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
+                                               const GrEffectStage* geometryProcessor,
                                                const GrEffectStage* colorStages[],
                                                const GrEffectStage* coverageStages[]) {
 #ifdef PROGRAM_CACHE_STATS
@@ -126,7 +127,8 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgram::Create(fGpu, desc, colorStages, coverageStages);
+        GrGLProgram* program = GrGLProgram::Create(fGpu, desc, geometryProcessor,
+                colorStages, coverageStages);
         if (NULL == program) {
             return NULL;
         }
@@ -222,6 +224,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
             return false;
         }
 
+        const GrEffectStage* geometryProcessor = NULL;
         SkSTArray<8, const GrEffectStage*, true> colorStages;
         SkSTArray<8, const GrEffectStage*, true> coverageStages;
         GrGLProgramDesc desc;
@@ -232,6 +235,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
                                dstCoeff,
                                this,
                                dstCopy,
+                               &geometryProcessor,
                                &colorStages,
                                &coverageStages,
                                &desc)) {
@@ -240,6 +244,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
         }
 
         fCurrentProgram.reset(fProgramCache->getProgram(desc,
+                                                        geometryProcessor,
                                                         colorStages.begin(),
                                                         coverageStages.begin()));
         if (NULL == fCurrentProgram.get()) {
@@ -260,6 +265,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
 
         fCurrentProgram->setData(type,
                                  blendOpts,
+                                 geometryProcessor,
                                  colorStages.begin(),
                                  coverageStages.begin(),
                                  dstCopy,

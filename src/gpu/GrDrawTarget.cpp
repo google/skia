@@ -389,6 +389,15 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
 
     SkASSERT(NULL != drawState.getRenderTarget());
 
+    if (drawState.hasGeometryProcessor()) {
+        const GrEffect* effect = drawState.getGeometryProcessor()->getEffect();
+        int numTextures = effect->numTextures();
+        for (int t = 0; t < numTextures; ++t) {
+            GrTexture* texture = effect->texture(t);
+            SkASSERT(texture->asRenderTarget() != drawState.getRenderTarget());
+        }
+    }
+
     for (int s = 0; s < drawState.numColorStages(); ++s) {
         const GrEffect* effect = drawState.getColorStage(s).getEffect();
         int numTextures = effect->numTextures();

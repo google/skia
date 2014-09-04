@@ -57,6 +57,11 @@ public:
                          const GrGLProgramDataManager&,
                          const GrEffectStage* effectStages[]) = 0;
 
+    virtual void setData(GrGpuGL*,
+                         GrGpu::DrawType,
+                         const GrGLProgramDataManager&,
+                         const GrEffectStage* effectStages) { SkFAIL("DO NOT USE"); }
+
     void addEffect(GrGLEffect* effect) { fGLEffects.push_back(effect); }
 
     /**
@@ -140,7 +145,6 @@ protected:
     SkTArray<SkSTArray<4, Sampler, true> > fSamplers;
 
 private:
-    friend class GrGLFragmentO;
     typedef SkRefCnt INHERITED;
 };
 
@@ -171,6 +175,11 @@ public:
                          GrGpu::DrawType,
                          const GrGLProgramDataManager&,
                          const GrEffectStage* effectStages[]) SK_OVERRIDE;
+
+    virtual void setData(GrGpuGL*,
+                         GrGpu::DrawType,
+                         const GrGLProgramDataManager&,
+                         const GrEffectStage* effectStages) SK_OVERRIDE;
 
 private:
     friend class GrGLFullProgramBuilder;

@@ -1738,7 +1738,8 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
                                        AutoCheckFlush* acf) {
     // All users of this draw state should be freeing up all effects when they're done.
     // Otherwise effects that own resources may keep those resources alive indefinitely.
-    SkASSERT(0 == fDrawState->numColorStages() && 0 == fDrawState->numCoverageStages());
+    SkASSERT(0 == fDrawState->numColorStages() && 0 == fDrawState->numCoverageStages() &&
+             !fDrawState->hasGeometryProcessor());
 
     if (NULL == fGpu) {
         return NULL;

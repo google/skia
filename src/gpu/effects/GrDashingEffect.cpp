@@ -345,7 +345,7 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
         bool isRoundCap = SkPaint::kRound_Cap == cap;
         GrDashingEffect::DashCap capType = isRoundCap ? GrDashingEffect::kRound_DashCap :
                                                         GrDashingEffect::kNonRound_DashCap;
-        drawState->addCoverageEffect(
+        drawState->setGeometryProcessor(
             GrDashingEffect::Create(edgeType, devInfo, strokeWidth, capType), 1)->unref();
     }
 

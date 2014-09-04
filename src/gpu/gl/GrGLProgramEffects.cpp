@@ -387,6 +387,24 @@ void GrGLVertexProgramEffects::setData(GrGpuGL* gpu,
     }
 }
 
+void GrGLVertexProgramEffects::setData(GrGpuGL* gpu,
+                                       GrGpu::DrawType drawType,
+                                       const GrGLProgramDataManager& programDataManager,
+                                       const GrEffectStage* effectStage) {
+    SkASSERT(1 == fTransforms.count());
+    SkASSERT(1 == fSamplers.count());
+    SkASSERT(1 == fGLEffects.count());
+    GrDrawEffect drawEffect(*effectStage, fHasExplicitLocalCoords);
+    fGLEffects[0]->setData(programDataManager, drawEffect);
+    if (GrGpu::IsPathRenderingDrawType(drawType)) {
+        this->setPathTransformData(gpu, programDataManager, drawEffect, 0);
+    } else {
+        this->setTransformData(gpu, programDataManager, drawEffect, 0);
+    }
+
+    this->bindTextures(gpu, drawEffect.effect(), 0);
+}
+
 void GrGLVertexProgramEffects::setTransformData(GrGpuGL* gpu,
                                                 const GrGLProgramDataManager& pdman,
                                                 const GrDrawEffect& drawEffect,

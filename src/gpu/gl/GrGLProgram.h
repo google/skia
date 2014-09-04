@@ -41,6 +41,7 @@ public:
 
     static GrGLProgram* Create(GrGpuGL* gpu,
                                const GrGLProgramDesc& desc,
+                               const GrEffectStage* geometryProcessor,
                                const GrEffectStage* colorStages[],
                                const GrEffectStage* coverageStages[]);
 
@@ -158,6 +159,7 @@ public:
      */
     void setData(GrGpu::DrawType,
                  GrDrawState::BlendOptFlags,
+                 const GrEffectStage* geometryProcessor,
                  const GrEffectStage* colorStages[],
                  const GrEffectStage* coverageStages[],
                  const GrDeviceCoordTexture* dstCopy, // can be NULL
@@ -191,6 +193,7 @@ private:
     int                                 fDstCopyTexUnit;
 
     BuiltinUniformHandles               fBuiltinUniformHandles;
+    SkAutoTUnref<GrGLProgramEffects>    fGeometryProcessor;
     SkAutoTUnref<GrGLProgramEffects>    fColorEffects;
     SkAutoTUnref<GrGLProgramEffects>    fCoverageEffects;
     GrGLuint                            fProgramID;

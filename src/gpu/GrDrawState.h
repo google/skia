@@ -165,6 +165,20 @@ public:
 
     /// @}
 
+    /**
+     * The geometry processor is the sole element of the skia pipeline which can use the vertex,
+     * geometry, and tesselation shaders.  The GP may also compute a coverage in its fragment shader
+     * but is never put in the color processing pipeline.
+     */
+
+    const GrEffect* setGeometryProcessor(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
+        SkASSERT(NULL != effect);
+        SkASSERT(!this->hasGeometryProcessor());
+        fGeometryProcessor.reset(new GrEffectStage(effect, attr0, attr1));
+        this->invalidateBlendOptFlags();
+        return effect;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     /// @name Effect Stages
     /// Each stage hosts a GrEffect. The effect produces an output color or coverage in the fragment
@@ -242,6 +256,7 @@ public:
 
     private:
         GrDrawState* fDrawState;
+        SkAutoTDelete<GrEffectStage> fGeometryProcessor;
         int fColorEffectCnt;
         int fCoverageEffectCnt;
     };
@@ -364,6 +379,7 @@ public:
         GrDrawState*                                        fDrawState;
         SkMatrix                                            fViewMatrix;
         int                                                 fNumColorStages;
+        bool                                                fHasGeometryProcessor;
         SkAutoSTArray<8, GrEffectStage::SavedCoordChange>   fSavedCoordChanges;
     };
 

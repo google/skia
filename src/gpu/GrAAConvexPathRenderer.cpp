@@ -678,7 +678,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
 
     static const int kEdgeAttrIndex = 1;
     GrEffect* quadEffect = QuadEdgeEffect::Create();
-    drawState->addCoverageEffect(quadEffect, kEdgeAttrIndex)->unref();
+    drawState->setGeometryProcessor(quadEffect, kEdgeAttrIndex)->unref();
 
     GrDrawTarget::AutoReleaseGeometry arg(target, vCount, iCount);
     if (!arg.succeeded()) {

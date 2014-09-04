@@ -108,7 +108,7 @@ void GrBitmapTextContext::flushGlyphs() {
         // This effect could be stored with one of the cache objects (atlas?)
         int coordsIdx = drawState->hasColorVertexAttribute() ? kGlyphCoordsWithColorAttributeIndex :
                                                                kGlyphCoordsNoColorAttributeIndex;
-        drawState->addCoverageEffect(fCachedEffect.get(), coordsIdx);
+        drawState->setGeometryProcessor(fCachedEffect.get(), coordsIdx);
         SkASSERT(NULL != fStrike);
         switch (fStrike->getMaskFormat()) {
             // Color bitmap text

@@ -179,6 +179,7 @@ private:
 
         void abandon();
         GrGLProgram* getProgram(const GrGLProgramDesc& desc,
+                                const GrEffectStage* geometryProcessor,
                                 const GrEffectStage* colorStages[],
                                 const GrEffectStage* coverageStages[]);
 

@@ -48,6 +48,7 @@ public:
                    const GrGpuGL* gpu,
                    const GrRenderTarget* dummyDstRenderTarget,
                    const GrTexture* dummyDstCopyTexture,
+                   const GrEffectStage* geometryProcessor,
                    const GrEffectStage* stages[],
                    int numColorStages,
                    int numCoverageStages,
@@ -67,9 +68,14 @@ public:
                       GrBlendCoeff dstCoeff,
                       const GrGpuGL* gpu,
                       const GrDeviceCoordTexture* dstCopy,
+                      const GrEffectStage** outGeometryProcessor,
                       SkTArray<const GrEffectStage*, true>* outColorStages,
                       SkTArray<const GrEffectStage*, true>* outCoverageStages,
                       GrGLProgramDesc* outDesc);
+
+    bool hasGeometryProcessor() const {
+        return SkToBool(this->getHeader().fHasGeometryProcessor);
+    }
 
     int numColorEffects() const {
         return this->getHeader().fColorEffectCnt;
@@ -161,6 +167,7 @@ private:
         int8_t                      fColorAttributeIndex;
         int8_t                      fCoverageAttributeIndex;
 
+        SkBool8                     fHasGeometryProcessor;
         int8_t                      fColorEffectCnt;
         int8_t                      fCoverageEffectCnt;
     };
@@ -213,13 +220,24 @@ private:
     class EffectKeyProvider {
     public:
         enum EffectType {
+            kGeometryProcessor_EffectType,
             kColor_EffectType,
             kCoverage_EffectType,
         };
 
         EffectKeyProvider(const GrGLProgramDesc* desc, EffectType type) : fDesc(desc) {
-            // Coverage effect key offsets begin immediately after those of the color effects.
-            fBaseIndex = kColor_EffectType == type ? 0 : desc->numColorEffects();
+            switch (type) {
+                case kGeometryProcessor_EffectType:
+                    // there can be only one
+                    fBaseIndex = 0;
+                    break;
+                case kColor_EffectType:
+                    fBaseIndex = desc->hasGeometryProcessor() ? 1 : 0;
+                    break;
+                case kCoverage_EffectType:
+                    fBaseIndex = desc->numColorEffects() + (desc->hasGeometryProcessor() ? 1 : 0);
+                    break;
+            }
         }
 
         GrEffectKey get(int index) const {

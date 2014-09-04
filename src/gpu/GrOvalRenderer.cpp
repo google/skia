@@ -553,7 +553,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
 
     GrEffect* effect = CircleEdgeEffect::Create(isStrokeOnly && innerRadius > 0);
     static const int kCircleEdgeAttrIndex = 1;
-    drawState->addCoverageEffect(effect, kCircleEdgeAttrIndex)->unref();
+    drawState->setGeometryProcessor(effect, kCircleEdgeAttrIndex)->unref();
 
     // The radii are outset for two reasons. First, it allows the shader to simply perform
     // clamp(distance-to-center - radius, 0, 1). Second, the outer radius is used to compute the
@@ -696,7 +696,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 
     static const int kEllipseCenterAttrIndex = 1;
     static const int kEllipseEdgeAttrIndex = 2;
-    drawState->addCoverageEffect(effect, kEllipseCenterAttrIndex, kEllipseEdgeAttrIndex)->unref();
+    drawState->setGeometryProcessor(effect, kEllipseCenterAttrIndex, kEllipseEdgeAttrIndex)->unref();
 
     // Compute the reciprocals of the radii here to save time in the shader
     SkScalar xRadRecip = SkScalarInvert(xRadius);
@@ -814,8 +814,8 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
 
     static const int kEllipseOuterOffsetAttrIndex = 1;
     static const int kEllipseInnerOffsetAttrIndex = 2;
-    drawState->addCoverageEffect(effect, kEllipseOuterOffsetAttrIndex,
-                                         kEllipseInnerOffsetAttrIndex)->unref();
+    drawState->setGeometryProcessor(effect, kEllipseOuterOffsetAttrIndex,
+                                    kEllipseInnerOffsetAttrIndex)->unref();
 
     // This expands the outer rect so that after CTM we end up with a half-pixel border
     SkScalar a = vm[SkMatrix::kMScaleX];
@@ -1063,7 +1063,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
 
         GrEffect* effect = CircleEdgeEffect::Create(isStrokeOnly);
         static const int kCircleEdgeAttrIndex = 1;
-        drawState->addCoverageEffect(effect, kCircleEdgeAttrIndex)->unref();
+        drawState->setGeometryProcessor(effect, kCircleEdgeAttrIndex)->unref();
 
         // The radii are outset for two reasons. First, it allows the shader to simply perform
         // clamp(distance-to-center - radius, 0, 1). Second, the outer radius is used to compute the
@@ -1168,8 +1168,9 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
         GrEffect* effect = EllipseEdgeEffect::Create(isStrokeOnly);
         static const int kEllipseOffsetAttrIndex = 1;
         static const int kEllipseRadiiAttrIndex = 2;
-        drawState->addCoverageEffect(effect,
-                                     kEllipseOffsetAttrIndex, kEllipseRadiiAttrIndex)->unref();
+        drawState->setGeometryProcessor(effect,
+                                        kEllipseOffsetAttrIndex,
+                                        kEllipseRadiiAttrIndex)->unref();
 
         // Compute the reciprocals of the radii here to save time in the shader
         SkScalar xRadRecip = SkScalarInvert(xRadius);

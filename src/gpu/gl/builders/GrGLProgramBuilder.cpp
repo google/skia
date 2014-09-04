@@ -31,7 +31,8 @@ static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GrGLProgramBuilder::genProgram(const GrEffectStage* colorStages[],
+bool GrGLProgramBuilder::genProgram(const GrEffectStage* geometryProcessor,
+                                    const GrEffectStage* colorStages[],
                                     const GrEffectStage* coverageStages[]) {
     const GrGLProgramDesc::KeyHeader& header = this->desc().getHeader();
 
@@ -78,6 +79,8 @@ bool GrGLProgramBuilder::genProgram(const GrEffectStage* colorStages[],
                                                    this->desc().numColorEffects(),
                                                    colorKeyProvider,
                                                    &inputColor));
+
+    this->emitGeometryProcessor(geometryProcessor, &inputCoverage);
 
     GrGLProgramDesc::EffectKeyProvider coverageKeyProvider(
         &this->desc(), GrGLProgramDesc::EffectKeyProvider::kCoverage_EffectType);
@@ -334,8 +337,21 @@ GrGLFullProgramBuilder::GrGLFullProgramBuilder(GrGpuGL* gpu,
     , fVS(this) {
 }
 
-void GrGLFullProgramBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLExpr4* coverage) {
+void GrGLFullProgramBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color,
+                                                   GrGLSLExpr4* coverage) {
     fVS.emitCodeBeforeEffects(color, coverage);
+}
+
+void GrGLFullProgramBuilder::emitGeometryProcessor(const GrEffectStage* geometryProcessor,
+                                                   GrGLSLExpr4* coverage) {
+    if (NULL != geometryProcessor) {
+        GrGLProgramDesc::EffectKeyProvider geometryProcessorKeyProvider(
+                &this->desc(), GrGLProgramDesc::EffectKeyProvider::kGeometryProcessor_EffectType);
+        fGeometryProcessor.reset(this->createAndEmitEffect(
+                                 geometryProcessor,
+                                 geometryProcessorKeyProvider,
+                                 coverage));
+    }
 }
 
 void GrGLFullProgramBuilder::emitCodeAfterEffects() {
@@ -385,6 +401,56 @@ GrGLProgramEffects* GrGLFullProgramBuilder::createAndEmitEffects(
                                           effectCnt,
                                           keyProvider,
                                           inOutFSColor);
+    return programEffectsBuilder.finish();
+}
+
+void GrGLFullProgramBuilder::createAndEmitEffect(GrGLProgramEffectsBuilder* programEffectsBuilder,
+                                              const GrEffectStage* effectStages,
+                                              const GrGLProgramDesc::EffectKeyProvider& keyProvider,
+                                              GrGLSLExpr4* fsInOutColor) {
+    GrGLSLExpr4 inColor = *fsInOutColor;
+    GrGLSLExpr4 outColor;
+
+    SkASSERT(NULL != effectStages && NULL != effectStages->getEffect());
+    const GrEffectStage& stage = *effectStages;
+
+    // Using scope to force ASR destructor to be triggered
+    {
+        CodeStage::AutoStageRestore csar(&fCodeStage, &stage);
+
+        if (inColor.isZeros()) {
+            SkString inColorName;
+
+            // Effects have no way to communicate zeros, they treat an empty string as ones.
+            this->nameVariable(&inColorName, '\0', "input");
+            fFS.codeAppendf("vec4 %s = %s;", inColorName.c_str(), inColor.c_str());
+            inColor = inColorName;
+        }
+
+        // create var to hold stage result
+        SkString outColorName;
+        this->nameVariable(&outColorName, '\0', "output");
+        fFS.codeAppendf("vec4 %s;", outColorName.c_str());
+        outColor = outColorName;
+
+
+        programEffectsBuilder->emitEffect(stage,
+                                          keyProvider.get(0),
+                                          outColor.c_str(),
+                                          inColor.isOnes() ? NULL : inColor.c_str(),
+                                          fCodeStage.stageIndex());
+    }
+
+    *fsInOutColor = outColor;
+}
+
+GrGLProgramEffects* GrGLFullProgramBuilder::createAndEmitEffect(
+        const GrEffectStage* geometryProcessor,
+        const GrGLProgramDesc::EffectKeyProvider& keyProvider,
+        GrGLSLExpr4* inOutFSColor) {
+
+    GrGLVertexProgramEffectsBuilder programEffectsBuilder(this, 1);
+    this->createAndEmitEffect(&programEffectsBuilder, geometryProcessor, keyProvider, inOutFSColor);
     return programEffectsBuilder.finish();
 }
 

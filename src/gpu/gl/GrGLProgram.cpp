@@ -23,17 +23,19 @@
 
 GrGLProgram* GrGLProgram::Create(GrGpuGL* gpu,
                                  const GrGLProgramDesc& desc,
+                                 const GrEffectStage* geometryProcessor,
                                  const GrEffectStage* colorStages[],
                                  const GrEffectStage* coverageStages[]) {
     SkAutoTDelete<GrGLProgramBuilder> builder;
     if (!desc.getHeader().fRequiresVertexShader &&
         gpu->glCaps().pathRenderingSupport() &&
         gpu->glPathRendering()->texturingMode() == GrGLPathRendering::FixedFunction_TexturingMode) {
+        SkASSERT(NULL == geometryProcessor);
         builder.reset(SkNEW_ARGS(GrGLFragmentOnlyProgramBuilder, (gpu, desc)));
     } else {
         builder.reset(SkNEW_ARGS(GrGLFullProgramBuilder, (gpu, desc)));
     }
-    if (builder->genProgram(colorStages, coverageStages)) {
+    if (builder->genProgram(geometryProcessor, colorStages, coverageStages)) {
         SkASSERT(0 != builder->getProgramID());
         return SkNEW_ARGS(GrGLProgram, (gpu, desc, *builder));
     }
@@ -47,6 +49,7 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
     , fCoverage(GrColor_ILLEGAL)
     , fDstCopyTexUnit(-1)
     , fBuiltinUniformHandles(builder.getBuiltinUniformHandles())
+    , fGeometryProcessor(SkSafeRef(builder.getGeometryProcessor()))
     , fColorEffects(SkRef(builder.getColorEffects()))
     , fCoverageEffects(SkRef(builder.getCoverageEffects()))
     , fProgramID(builder.getProgramID())
@@ -97,6 +100,9 @@ void GrGLProgram::initSamplerUniforms() {
         fProgramDataManager.setSampler(fBuiltinUniformHandles.fDstCopySamplerUni, texUnitIdx);
         fDstCopyTexUnit = texUnitIdx++;
     }
+    if (NULL != fGeometryProcessor.get()) {
+        fGeometryProcessor->initSamplers(fProgramDataManager, &texUnitIdx);
+    }
     fColorEffects->initSamplers(fProgramDataManager, &texUnitIdx);
     fCoverageEffects->initSamplers(fProgramDataManager, &texUnitIdx);
 }
@@ -105,6 +111,7 @@ void GrGLProgram::initSamplerUniforms() {
 
 void GrGLProgram::setData(GrGpu::DrawType drawType,
                           GrDrawState::BlendOptFlags blendOpts,
+                          const GrEffectStage* geometryProcessor,
                           const GrEffectStage* colorStages[],
                           const GrEffectStage* coverageStages[],
                           const GrDeviceCoordTexture* dstCopy,
@@ -149,6 +156,10 @@ void GrGLProgram::setData(GrGpu::DrawType drawType,
         SkASSERT(!fBuiltinUniformHandles.fDstCopySamplerUni.isValid());
     }
 
+    if (NULL != fGeometryProcessor.get()) {
+        SkASSERT(NULL != geometryProcessor);
+        fGeometryProcessor->setData(fGpu, drawType,fProgramDataManager, geometryProcessor);
+    }
     fColorEffects->setData(fGpu, drawType,fProgramDataManager, colorStages);
     fCoverageEffects->setData(fGpu, drawType,fProgramDataManager, coverageStages);
 

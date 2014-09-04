@@ -53,6 +53,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
                             GrBlendCoeff dstCoeff,
                             const GrGpuGL* gpu,
                             const GrDeviceCoordTexture* dstCopy,
+                            const GrEffectStage** geometryProcessor,
                             SkTArray<const GrEffectStage*, true>* colorStages,
                             SkTArray<const GrEffectStage*, true>* coverageStages,
                             GrGLProgramDesc* desc) {
@@ -69,6 +70,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     int firstEffectiveColorStage = 0;
     bool inputColorIsUsed = true;
+
     if (!skipColor) {
         firstEffectiveColorStage = drawState.numColorStages();
         while (firstEffectiveColorStage > 0 && inputColorIsUsed) {
@@ -107,6 +109,9 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     bool requiresVertexShader = !GrGpu::IsPathRenderingDrawType(drawType);
 
     int numStages = 0;
+    if (drawState.hasGeometryProcessor()) {
+        numStages++;
+    }
     if (!skipColor) {
         numStages += drawState.numColorStages() - firstEffectiveColorStage;
     }
@@ -120,9 +125,14 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     int offsetAndSizeIndex = 0;
     bool effectKeySuccess = true;
-    if (!skipColor) {
-        for (int s = firstEffectiveColorStage; s < drawState.numColorStages(); ++s) {
-            uint16_t* offsetAndSize =
+
+    KeyHeader* header = desc->header();
+    // make sure any padding in the header is zeroed.
+    memset(desc->header(), 0, kHeaderSize);
+
+    // We can only have one effect which touches the vertex shader
+    if (drawState.hasGeometryProcessor()) {
+        uint16_t* offsetAndSize =
                 reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
                                             offsetAndSizeIndex * 2 * sizeof(uint16_t));
 
@@ -130,7 +140,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
             uint16_t effectKeySize;
             uint32_t effectOffset = desc->fKey.count();
             effectKeySuccess |= GetEffectKeyAndUpdateStats(
-                                    drawState.getColorStage(s), gpu->glCaps(),
+                                    *drawState.getGeometryProcessor(), gpu->glCaps(),
                                     requiresLocalCoordAttrib, &b,
                                     &effectKeySize, &readsDst,
                                     &readFragPosition, &requiresVertexShader);
@@ -139,6 +149,32 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
             offsetAndSize[0] = SkToU16(effectOffset);
             offsetAndSize[1] = effectKeySize;
             ++offsetAndSizeIndex;
+            *geometryProcessor = drawState.getGeometryProcessor();
+            SkASSERT(requiresVertexShader);
+            header->fHasGeometryProcessor = true;
+    }
+
+    if (!skipColor) {
+        for (int s = firstEffectiveColorStage; s < drawState.numColorStages(); ++s) {
+            uint16_t* offsetAndSize =
+                reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
+                                            offsetAndSizeIndex * 2 * sizeof(uint16_t));
+
+            bool effectRequiresVertexShader = false;
+            GrEffectKeyBuilder b(&desc->fKey);
+            uint16_t effectKeySize;
+            uint32_t effectOffset = desc->fKey.count();
+            effectKeySuccess |= GetEffectKeyAndUpdateStats(
+                                    drawState.getColorStage(s), gpu->glCaps(),
+                                    requiresLocalCoordAttrib, &b,
+                                    &effectKeySize, &readsDst,
+                                    &readFragPosition, &effectRequiresVertexShader);
+            effectKeySuccess |= (effectOffset <= SK_MaxU16);
+
+            offsetAndSize[0] = SkToU16(effectOffset);
+            offsetAndSize[1] = effectKeySize;
+            ++offsetAndSizeIndex;
+            SkASSERT(!effectRequiresVertexShader);
         }
     }
     if (!skipCoverage) {
@@ -147,6 +183,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
                 reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
                                             offsetAndSizeIndex * 2 * sizeof(uint16_t));
 
+            bool effectRequiresVertexShader = false;
             GrEffectKeyBuilder b(&desc->fKey);
             uint16_t effectKeySize;
             uint32_t effectOffset = desc->fKey.count();
@@ -154,22 +191,19 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
                                     drawState.getCoverageStage(s), gpu->glCaps(),
                                     requiresLocalCoordAttrib, &b,
                                     &effectKeySize, &readsDst,
-                                    &readFragPosition, &requiresVertexShader);
+                                    &readFragPosition, &effectRequiresVertexShader);
             effectKeySuccess |= (effectOffset <= SK_MaxU16);
 
             offsetAndSize[0] = SkToU16(effectOffset);
             offsetAndSize[1] = effectKeySize;
             ++offsetAndSizeIndex;
+            SkASSERT(!effectRequiresVertexShader);
         }
     }
     if (!effectKeySuccess) {
         desc->fKey.reset();
         return false;
     }
-
-    KeyHeader* header = desc->header();
-    // make sure any padding in the header is zeroed.
-    memset(desc->header(), 0, kHeaderSize);
 
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
     // below here.
@@ -259,9 +293,11 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     header->fCoverageOutput = kModulate_CoverageOutput;
 
     // If we do have coverage determine whether it matters.
-    bool separateCoverageFromColor = false;
+    bool separateCoverageFromColor = drawState.hasGeometryProcessor();
     if (!drawState.isCoverageDrawing() && !skipCoverage &&
-        (drawState.numCoverageStages() > 0 || requiresCoverageAttrib)) {
+        (drawState.numCoverageStages() > 0 ||
+         drawState.hasGeometryProcessor() ||
+         requiresCoverageAttrib)) {
 
         if (gpu->caps()->dualSourceBlendingSupport() &&
             !(blendOpts & (GrDrawState::kEmitCoverage_BlendOptFlag |
@@ -286,6 +322,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
             separateCoverageFromColor = true;
         }
     }
+
     if (!skipColor) {
         for (int s = firstEffectiveColorStage; s < drawState.numColorStages(); ++s) {
             colorStages->push_back(&drawState.getColorStage(s));

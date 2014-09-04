@@ -648,7 +648,7 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
     GrEffect* effect = GrRectEffect::Create();
     static const int kRectAttrIndex = 1;
     static const int kWidthIndex = 2;
-    drawState->addCoverageEffect(effect, kRectAttrIndex, kWidthIndex)->unref();
+    drawState->setGeometryProcessor(effect, kRectAttrIndex, kWidthIndex)->unref();
 
     for (int i = 0; i < 4; ++i) {
         verts[i].fCenter = center;
@@ -697,7 +697,7 @@ void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
 
     GrEffect* effect = GrAlignedRectEffect::Create();
     static const int kOffsetIndex = 1;
-    drawState->addCoverageEffect(effect, kOffsetIndex)->unref();
+    drawState->setGeometryProcessor(effect, kOffsetIndex)->unref();
 
     SkRect devRect;
     combinedMatrix.mapRect(&devRect, rect);
