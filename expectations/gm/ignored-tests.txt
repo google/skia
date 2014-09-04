@@ -35,7 +35,3 @@
 
 # jvanverth
 fontcache
-
-# joshualitt
-convex_poly_clip
-bezier_cubic_effects
