@@ -5978,7 +5978,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8197937578774172307
+          5074057389327471760
         ]
       ], 
       "reviewed-by-human": true
@@ -6032,13 +6032,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18151825792332629539
+          12554309158897513995
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "downsamplebitmap_checkerboard_low_512_256_gpu.png": {
       "allowed-digests": [
@@ -6092,7 +6089,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8197937578774172307
+          5074057389327471760
         ]
       ], 
       "reviewed-by-human": true
@@ -6149,13 +6146,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17863627234966078184
+          2377348236008994698
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "downsamplebitmap_checkerboard_none_512_256_gpu.png": {
       "allowed-digests": [
@@ -6209,7 +6203,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2622242306943640776
+          9281115052846806992
         ]
       ], 
       "reviewed-by-human": true
@@ -6263,13 +6257,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15543119602279131183
+          4221707714960246704
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_low_mandrill_512.png_gpu.png": {
       "allowed-digests": [
@@ -6323,7 +6314,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2622242306943640776
+          9281115052846806992
         ]
       ], 
       "reviewed-by-human": true
@@ -6380,13 +6371,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17606136414045263365
+          17385794784074028214
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_none_mandrill_512.png_gpu.png": {
       "allowed-digests": [
@@ -6440,7 +6428,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4614676888621464214
+          5031508746353160829
         ]
       ], 
       "reviewed-by-human": true
@@ -6494,7 +6482,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12752053290919903408
+          7706893206933305485
         ]
       ], 
       "reviewed-by-human": true
@@ -6551,7 +6539,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4614676888621464214
+          5031508746353160829
         ]
       ], 
       "reviewed-by-human": true
@@ -6608,7 +6596,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18117153554777959279
+          9867001988272277110
         ]
       ], 
       "reviewed-by-human": true
