@@ -36,7 +36,7 @@ EXPECTED_HEADER_CONTENTS = {
 # the comparison.
 RED_WHOLEIMAGE = {
     "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 11092453015575919668,
+    "checksumValue" : 2853310525600416231,
     "comparisonResult" : "failed",
     "filepath" : "red_skp.png",
 }
@@ -46,7 +46,7 @@ RED_WHOLEIMAGE = {
 # the comparison.
 GREEN_WHOLEIMAGE = {
     "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 8891695120562235492,
+    "checksumValue" : 11143979097452425335,
     "comparisonResult" : "succeeded",
     "filepath" : "green_skp.png",
 }
@@ -68,22 +68,22 @@ RED_TILES = [{
     "filepath" : "red_skp-tile1.png",
 }, {
     "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 16670399404877552232,
+    "checksumValue" : 15939355025996362179,
     "comparisonResult" : "failed",
     "filepath" : "red_skp-tile2.png",
 }, {
     "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 2507897274083364964,
+    "checksumValue" : 649771916797529222,
     "comparisonResult" : "failed",
     "filepath" : "red_skp-tile3.png",
 }, {
     "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 7325267995523877959,
+    "checksumValue" : 8132820002266077288,
     "comparisonResult" : "failed",
     "filepath" : "red_skp-tile4.png",
 }, {
     "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 2181381724594493116,
+    "checksumValue" : 2406160701181324581,
     "comparisonResult" : "failed",
     "filepath" : "red_skp-tile5.png",
 }]
@@ -105,22 +105,22 @@ GREEN_TILES = [{
     "filepath" : "green_skp-tile1.png",
 }, {
     "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 5686489729535631913,
+    "checksumValue" : 11866144860997809880,
     "comparisonResult" : "succeeded",
     "filepath" : "green_skp-tile2.png",
 }, {
     "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 7980646035555096146,
+    "checksumValue" : 3893392565127823822,
     "comparisonResult" : "succeeded",
     "filepath" : "green_skp-tile3.png",
 }, {
     "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 17817086664365875131,
+    "checksumValue" : 2083084978343901738,
     "comparisonResult" : "succeeded",
     "filepath" : "green_skp-tile4.png",
 }, {
     "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 10673669813016809363,
+    "checksumValue" : 89620927366502076,
     "comparisonResult" : "succeeded",
     "filepath" : "green_skp-tile5.png",
 }]
@@ -385,20 +385,20 @@ class RenderPicturesTest(base_unittest.TestCase):
                 # Manually verified: 640x400 red rectangle with black border
                 "whole-image": {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
-                    "checksumValue" : 11092453015575919668,
+                    "checksumValue" : 2853310525600416231,
                     "comparisonResult" : "no-comparison",
                     "filepath" :
-                        "red_skp/bitmap-64bitMD5_11092453015575919668.png",
+                        "red_skp/bitmap-64bitMD5_2853310525600416231.png",
                 },
             },
             "green.skp": {
                 # Manually verified: 640x400 green rectangle with black border
                 "whole-image": {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
-                    "checksumValue" : 8891695120562235492,
+                    "checksumValue" : 11143979097452425335,
                     "comparisonResult" : "no-comparison",
                     "filepath" :
-                        "green_skp/bitmap-64bitMD5_8891695120562235492.png",
+                        "green_skp/bitmap-64bitMD5_11143979097452425335.png",
                 },
             }
         }
@@ -407,10 +407,10 @@ class RenderPicturesTest(base_unittest.TestCase):
     self._assert_directory_contents(write_path_dir, ['red_skp', 'green_skp'])
     self._assert_directory_contents(
         os.path.join(write_path_dir, 'red_skp'),
-        ['bitmap-64bitMD5_11092453015575919668.png'])
+        ['bitmap-64bitMD5_2853310525600416231.png'])
     self._assert_directory_contents(
         os.path.join(write_path_dir, 'green_skp'),
-        ['bitmap-64bitMD5_8891695120562235492.png'])
+        ['bitmap-64bitMD5_11143979097452425335.png'])
 
   def test_untiled_validate(self):
     """Same as test_untiled, but with --validate."""
@@ -545,28 +545,28 @@ class RenderPicturesTest(base_unittest.TestCase):
                         "red_skp/bitmap-64bitMD5_9323613075234140270.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
-                    "checksumValue" : 16670399404877552232,
+                    "checksumValue" : 15939355025996362179,
                     "comparisonResult" : "no-comparison",
                     "filepath" :
-                        "red_skp/bitmap-64bitMD5_16670399404877552232.png",
+                        "red_skp/bitmap-64bitMD5_15939355025996362179.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
-                    "checksumValue" : 2507897274083364964,
+                    "checksumValue" : 649771916797529222,
                     "comparisonResult" : "no-comparison",
                     "filepath" :
-                        "red_skp/bitmap-64bitMD5_2507897274083364964.png",
+                        "red_skp/bitmap-64bitMD5_649771916797529222.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
-                    "checksumValue" : 7325267995523877959,
+                    "checksumValue" : 8132820002266077288,
                     "comparisonResult" : "no-comparison",
                     "filepath" :
-                        "red_skp/bitmap-64bitMD5_7325267995523877959.png",
+                        "red_skp/bitmap-64bitMD5_8132820002266077288.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
-                    "checksumValue" : 2181381724594493116,
+                    "checksumValue" : 2406160701181324581,
                     "comparisonResult" : "no-comparison",
                     "filepath" :
-                        "red_skp/bitmap-64bitMD5_2181381724594493116.png",
+                        "red_skp/bitmap-64bitMD5_2406160701181324581.png",
                 }],
             },
             "green.skp": {
@@ -587,28 +587,28 @@ class RenderPicturesTest(base_unittest.TestCase):
                         "green_skp/bitmap-64bitMD5_7624374914829746293.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
-                    "checksumValue" : 5686489729535631913,
+                    "checksumValue" : 11866144860997809880,
                     "comparisonResult" : "no-comparison",
                     "filepath" :
-                        "green_skp/bitmap-64bitMD5_5686489729535631913.png",
+                        "green_skp/bitmap-64bitMD5_11866144860997809880.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
-                    "checksumValue" : 7980646035555096146,
+                    "checksumValue" : 3893392565127823822,
                     "comparisonResult" : "no-comparison",
                     "filepath" :
-                        "green_skp/bitmap-64bitMD5_7980646035555096146.png",
+                        "green_skp/bitmap-64bitMD5_3893392565127823822.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
-                    "checksumValue" : 17817086664365875131,
+                    "checksumValue" : 2083084978343901738,
                     "comparisonResult" : "no-comparison",
                     "filepath" :
-                        "green_skp/bitmap-64bitMD5_17817086664365875131.png",
+                        "green_skp/bitmap-64bitMD5_2083084978343901738.png",
                 }, {
                     "checksumAlgorithm" : "bitmap-64bitMD5",
-                    "checksumValue" : 10673669813016809363,
+                    "checksumValue" : 89620927366502076,
                     "comparisonResult" : "no-comparison",
                     "filepath" :
-                        "green_skp/bitmap-64bitMD5_10673669813016809363.png",
+                        "green_skp/bitmap-64bitMD5_89620927366502076.png",
                 }],
             }
         }
@@ -619,18 +619,18 @@ class RenderPicturesTest(base_unittest.TestCase):
         os.path.join(write_path_dir, 'red_skp'),
         ['bitmap-64bitMD5_5815827069051002745.png',
          'bitmap-64bitMD5_9323613075234140270.png',
-         'bitmap-64bitMD5_16670399404877552232.png',
-         'bitmap-64bitMD5_2507897274083364964.png',
-         'bitmap-64bitMD5_7325267995523877959.png',
-         'bitmap-64bitMD5_2181381724594493116.png'])
+         'bitmap-64bitMD5_15939355025996362179.png',
+         'bitmap-64bitMD5_649771916797529222.png',
+         'bitmap-64bitMD5_8132820002266077288.png',
+         'bitmap-64bitMD5_2406160701181324581.png'])
     self._assert_directory_contents(
         os.path.join(write_path_dir, 'green_skp'),
         ['bitmap-64bitMD5_12587324416545178013.png',
          'bitmap-64bitMD5_7624374914829746293.png',
-         'bitmap-64bitMD5_5686489729535631913.png',
-         'bitmap-64bitMD5_7980646035555096146.png',
-         'bitmap-64bitMD5_17817086664365875131.png',
-         'bitmap-64bitMD5_10673669813016809363.png'])
+         'bitmap-64bitMD5_11866144860997809880.png',
+         'bitmap-64bitMD5_3893392565127823822.png',
+         'bitmap-64bitMD5_2083084978343901738.png',
+         'bitmap-64bitMD5_89620927366502076.png'])
 
   def _run_render_pictures(self, args):
     binary = find_run_binary.find_path_to_program('render_pictures')

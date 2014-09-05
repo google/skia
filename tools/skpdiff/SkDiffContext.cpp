@@ -289,6 +289,7 @@ void SkDiffContext::diffPatterns(const char baselinePattern[], const char testPa
         runnableDiffs[x].setup(this, baselineEntries[x], testEntries[x]);
         tg.add(&runnableDiffs[x]);
     }
+    tg.wait();
 }
 
 void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
