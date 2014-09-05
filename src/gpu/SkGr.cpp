@@ -131,7 +131,7 @@ private:
 }  // namespace
 
 static void add_genID_listener(GrResourceKey key, SkPixelRef* pixelRef) {
-    SkASSERT(NULL != pixelRef);
+    SkASSERT(pixelRef);
     pixelRef->addGenIDChangeListener(SkNEW_ARGS(GrResourceInvalidator, (key)));
 }
 
@@ -188,7 +188,7 @@ static GrTexture *load_etc1_texture(GrContext* ctx,
 
     GrResourceKey key;
     GrTexture* result = ctx->createTexture(params, desc, cacheID, bytes, 0, &key);
-    if (NULL != result) {
+    if (result) {
         add_genID_listener(key, bm.pixelRef());
     }
     return result;
@@ -250,7 +250,7 @@ static GrTexture *load_yuv_texture(GrContext* ctx, const GrTextureParams* params
     GrResourceKey key;
     result = ctx->createTexture(params, rtDesc, cacheID, NULL, 0, &key);
     GrRenderTarget* renderTarget = result ? result->asRenderTarget() : NULL;
-    if (NULL != renderTarget) {
+    if (renderTarget) {
         add_genID_listener(key, bm.pixelRef());
         SkAutoTUnref<GrEffect> yuvToRgbEffect(GrYUVtoRGBEffect::Create(
             yuvTextures[0].texture(), yuvTextures[1].texture(), yuvTextures[2].texture()));
@@ -301,7 +301,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
                 GrResourceKey key;
                 GrTexture* result = ctx->createTexture(params, desc, cacheID,
                                                        storage.get(), bitmap->width(), &key);
-                if (NULL != result) {
+                if (result) {
                     add_genID_listener(key, origBitmap.pixelRef());
                 }
                 return result;
@@ -336,7 +336,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
         // data is.
         && !(bitmap->readyToDraw())) {
         GrTexture *texture = load_etc1_texture(ctx, params, *bitmap, desc);
-        if (NULL != texture) {
+        if (texture) {
             return texture;
         }
     }
@@ -344,7 +344,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
 
     else {
         GrTexture *texture = load_yuv_texture(ctx, params, *bitmap, desc);
-        if (NULL != texture) {
+        if (texture) {
             return texture;
         }
     }
@@ -360,7 +360,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
         GrResourceKey key;
         GrTexture* result = ctx->createTexture(params, desc, cacheID,
                                                bitmap->getPixels(), bitmap->rowBytes(), &key);
-        if (NULL != result) {
+        if (result) {
             add_genID_listener(key, origBitmap.pixelRef());
         }
         return result;
@@ -420,7 +420,7 @@ GrTexture* GrLockAndRefCachedBitmapTexture(GrContext* ctx,
 }
 
 void GrUnlockAndUnrefCachedBitmapTexture(GrTexture* texture) {
-    SkASSERT(NULL != texture->getContext());
+    SkASSERT(texture->getContext());
 
     texture->getContext()->unlockScratchTexture(texture);
     texture->unref();
@@ -495,7 +495,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
     SkXfermode* mode = skPaint.getXfermode();
     GrEffect* xferEffect = NULL;
     if (SkXfermode::AsNewEffectOrCoeff(mode, &xferEffect, &sm, &dm)) {
-        if (NULL != xferEffect) {
+        if (xferEffect) {
             grPaint->addColorEffect(xferEffect)->unref();
             sm = SkXfermode::kOne_Coeff;
             dm = SkXfermode::kZero_Coeff;
@@ -512,7 +512,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
     grPaint->setColor(paintColor);
 
     SkColorFilter* colorFilter = skPaint.getColorFilter();
-    if (NULL != colorFilter) {
+    if (colorFilter) {
         // if the source color is a constant then apply the filter here once rather than per pixel
         // in a shader.
         if (constantColor) {
@@ -520,7 +520,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
             SkAutoTUnref<GrEffect> effect(colorFilter->asNewEffect(context));
-            if (NULL != effect.get()) {
+            if (effect.get()) {
                 grPaint->addColorEffect(effect);
             }
         }
@@ -532,7 +532,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
     if (skPaint.isDither() && grPaint->numColorStages() > 0) {
         // What are we rendering into?
         const GrRenderTarget *target = context->getRenderTarget();
-        SkASSERT(NULL != target);
+        SkASSERT(target);
 
         // Suspect the dithering flag has no effect on these configs, otherwise
         // fall back on setting the appropriate state.
@@ -541,7 +541,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
             // The dither flag is set and the target is likely
             // not going to be dithered by the GPU.
             SkAutoTUnref<GrEffect> effect(GrDitherEffect::Create());
-            if (NULL != effect.get()) {
+            if (effect.get()) {
                 grPaint->addColorEffect(effect);
                 grPaint->setDither(false);
             }
@@ -562,7 +562,7 @@ public:
         fContext = context;
     }
     ~AutoMatrix() {
-        SkASSERT(NULL != fContext);
+        SkASSERT(fContext);
         fContext->setMatrix(fMatrix);
     }
 private:
@@ -595,7 +595,7 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
         // Allow the shader to modify paintColor and also create an effect to be installed as
         // the first color effect on the GrPaint.
         GrEffect* effect = NULL;
-        if (shader->asNewEffect(context, skPaint, NULL, &paintColor, &effect) && NULL != effect) {
+        if (shader->asNewEffect(context, skPaint, NULL, &paintColor, &effect) && effect) {
             grPaint->addColorEffect(effect)->unref();
             constantColor = false;
         }

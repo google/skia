@@ -83,7 +83,7 @@ struct DeviceCM {
 
     DeviceCM(SkBaseDevice* device, int x, int y, const SkPaint* paint, SkCanvas* canvas)
             : fNext(NULL) {
-        if (NULL != device) {
+        if (device) {
             device->ref();
             device->onAttachToCanvas(canvas);
         }
@@ -92,7 +92,7 @@ struct DeviceCM {
     }
 
     ~DeviceCM() {
-        if (NULL != fDevice) {
+        if (fDevice) {
             fDevice->onDetachFromCanvas();
             fDevice->unref();
         }
@@ -165,7 +165,7 @@ public:
     DeviceCM*   fTopLayer;
 
     MCRec(const MCRec* prev) {
-        if (NULL != prev) {
+        if (prev) {
             fMatrix = prev->fMatrix;
             fRasterClip = prev->fRasterClip;
 
@@ -769,7 +769,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
         op = SkRegion::kReplace_Op;
     }
     SkIRect ir;
-    if (NULL != bounds) {
+    if (bounds) {
         SkRect r;
 
         this->getTotalMatrix().mapRect(&r, *bounds);
@@ -923,7 +923,7 @@ void SkCanvas::internalRestore() {
         since if we're being recorded, we don't want to record this (the
         recorder will have already recorded the restore).
     */
-    if (NULL != layer) {
+    if (layer) {
         if (layer->fNext) {
             const SkIPoint& origin = layer->fDevice->getOrigin();
             this->internalDrawDevice(layer->fDevice, origin.x(), origin.y(),
@@ -1647,7 +1647,7 @@ bool SkCanvas::getClipBounds(SkRect* bounds) const {
         return false;
     }
 
-    if (NULL != bounds) {
+    if (bounds) {
         SkRect r;
         // adjust it outwards in case we are antialiasing
         const int inset = 1;
@@ -1668,7 +1668,7 @@ bool SkCanvas::getClipDeviceBounds(SkIRect* bounds) const {
         return false;
     }
 
-    if (NULL != bounds) {
+    if (bounds) {
         *bounds = clip.getBounds();
     }
     return true;
@@ -1695,9 +1695,9 @@ SkBaseDevice* SkCanvas::createLayerDevice(const SkImageInfo& info) {
 GrContext* SkCanvas::getGrContext() {
 #if SK_SUPPORT_GPU
     SkBaseDevice* device = this->getTopDevice();
-    if (NULL != device) {
+    if (device) {
         GrRenderTarget* renderTarget = device->accessRenderTarget();
-        if (NULL != renderTarget) {
+        if (renderTarget) {
             return renderTarget->getContext();
         }
     }
@@ -1740,7 +1740,7 @@ void SkCanvas::clear(SkColor color) {
 }
 
 void SkCanvas::onDiscard() {
-    if (NULL != fSurfaceBase) {
+    if (fSurfaceBase) {
         fSurfaceBase->aboutToDraw(SkSurface::kDiscard_ContentChangeMode);
     }
 }
@@ -2244,7 +2244,7 @@ void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath&
 }
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
-    if (NULL != blob) {
+    if (blob) {
         this->onDrawTextBlob(blob, x, y, paint);
     }
 }
@@ -2412,19 +2412,19 @@ void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
 ///////////////////////////////////////////////////////////////////////////////
 void SkCanvas::EXPERIMENTAL_optimize(const SkPicture* picture) {
     SkBaseDevice* device = this->getDevice();
-    if (NULL != device) {
+    if (device) {
         device->EXPERIMENTAL_optimize(picture);
     }
 }
 
 void SkCanvas::drawPicture(const SkPicture* picture) {
-    if (NULL != picture) {
+    if (picture) {
         this->onDrawPicture(picture, NULL, NULL);
     }
 }
 
 void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
-    if (NULL != picture) {
+    if (picture) {
         if (matrix && matrix->isIdentity()) {
             matrix = NULL;
         }
@@ -2435,7 +2435,7 @@ void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, con
 void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                              const SkPaint* paint) {
     SkBaseDevice* device = this->getTopDevice();
-    if (NULL != device) {
+    if (device) {
         // Canvas has to first give the device the opportunity to render
         // the picture itself.
         if (device->EXPERIMENTAL_drawPicture(this, picture, matrix, paint)) {
@@ -2551,17 +2551,17 @@ SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatri
     : fCanvas(canvas)
     , fSaveCount(canvas->getSaveCount())
 {
-    if (NULL != paint) {
+    if (paint) {
         SkRect newBounds = bounds;
         if (matrix) {
             matrix->mapRect(&newBounds);
         }
         canvas->saveLayer(&newBounds, paint);
-    } else if (NULL != matrix) {
+    } else if (matrix) {
         canvas->save();
     }
 
-    if (NULL != matrix) {
+    if (matrix) {
         canvas->concat(*matrix);
     }
 }

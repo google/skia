@@ -233,7 +233,7 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
     
     // if colors is not null then create array for colors
     SkPMColor colorsPM[kNumCorners];
-    if (NULL != colors) {
+    if (colors) {
         // premultiply colors to avoid color bleeding.
         for (int i = 0; i < kNumCorners; i++) {
             colorsPM[i] = SkPreMultiplyColor(colors[i]);
@@ -242,7 +242,7 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
     }
     
     // if texture coordinates are not null then create array for them
-    if (NULL != texCoords) {
+    if (texCoords) {
         data->fTexCoords = SkNEW_ARRAY(SkPoint, data->fVertexCount);
     }
     
@@ -286,7 +286,7 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
                                               + u * fBottom.getCtrlPoints()[3].y()));
             data->fPoints[dataIndex] = s0 + s1 - s2;
             
-            if (NULL != colors) {
+            if (colors) {
                 uint8_t a = uint8_t(bilerp(u, v,
                                    SkScalar(SkColorGetA(colorsPM[kTopLeft_Corner])),
                                    SkScalar(SkColorGetA(colorsPM[kTopRight_Corner])),
@@ -310,7 +310,7 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
                 data->fColors[dataIndex] = SkPackARGB32(a,r,g,b);
             }
             
-            if (NULL != texCoords) {
+            if (texCoords) {
                 data->fTexCoords[dataIndex] = SkPoint::Make(
                                             bilerp(u, v, texCoords[kTopLeft_Corner].x(),
                                                    texCoords[kTopRight_Corner].x(),

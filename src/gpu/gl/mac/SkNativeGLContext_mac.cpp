@@ -27,7 +27,7 @@ SkNativeGLContext::~SkNativeGLContext() {
 }
 
 void SkNativeGLContext::destroyGLContext() {
-    if (NULL != fContext) {
+    if (fContext) {
         CGLReleaseContext(fContext);
     }
 }

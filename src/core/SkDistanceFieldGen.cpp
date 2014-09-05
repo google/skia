@@ -332,8 +332,8 @@ static unsigned char pack_distance_field_val(float dist, float distanceMagnitude
 static bool generate_distance_field_from_image(unsigned char* distanceField,
                                                const unsigned char* copyPtr,
                                                int width, int height) {
-    SkASSERT(NULL != distanceField);
-    SkASSERT(NULL != copyPtr);
+    SkASSERT(distanceField);
+    SkASSERT(copyPtr);
 
     // we expand our temp data by one more on each side to simplify
     // the scanning code -- will always be treated as infinitely far away
@@ -462,8 +462,8 @@ static bool generate_distance_field_from_image(unsigned char* distanceField,
 bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
                                         const unsigned char* image,
                                         int width, int height, int rowBytes) {
-    SkASSERT(NULL != distanceField);
-    SkASSERT(NULL != image);
+    SkASSERT(distanceField);
+    SkASSERT(image);
 
     // create temp data
     SkAutoSMalloc<1024> copyStorage((width+2)*(height+2)*sizeof(char));
@@ -490,8 +490,8 @@ bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
 bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
                                         const unsigned char* image,
                                         int width, int height, int rowBytes) {
-    SkASSERT(NULL != distanceField);
-    SkASSERT(NULL != image);
+    SkASSERT(distanceField);
+    SkASSERT(image);
 
     // create temp data
     SkAutoSMalloc<1024> copyStorage((width+2)*(height+2)*sizeof(char));

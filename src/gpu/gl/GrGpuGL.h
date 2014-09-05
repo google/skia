@@ -314,7 +314,7 @@ private:
             fDefaultVertexArrayBoundIndexBufferID = false;
             fDefaultVertexArrayBoundIndexBufferIDIsValid = false;
             fDefaultVertexArrayAttribState.invalidate();
-            if (NULL != fVBOVertexArray) {
+            if (fVBOVertexArray) {
                 fVBOVertexArray->invalidateCachedState();
             }
         }
@@ -342,7 +342,7 @@ private:
             if (fBoundVertexBufferIDIsValid && id == fBoundVertexBufferID) {
                 fBoundVertexBufferID = 0;
             }
-            if (NULL != fVBOVertexArray) {
+            if (fVBOVertexArray) {
                 fVBOVertexArray->notifyVertexBufferDelete(id);
             }
             fDefaultVertexArrayAttribState.notifyVertexBufferDelete(id);
@@ -353,7 +353,7 @@ private:
                 id == fDefaultVertexArrayBoundIndexBufferID) {
                 fDefaultVertexArrayBoundIndexBufferID = 0;
             }
-            if (NULL != fVBOVertexArray) {
+            if (fVBOVertexArray) {
                 fVBOVertexArray->notifyIndexBufferDelete(id);
             }
         }

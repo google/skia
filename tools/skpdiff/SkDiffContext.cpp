@@ -27,7 +27,7 @@ SkDiffContext::SkDiffContext() {
 }
 
 SkDiffContext::~SkDiffContext() {
-    if (NULL != fDiffers) {
+    if (fDiffers) {
         SkDELETE_ARRAY(fDiffers);
     }
 }
@@ -56,7 +56,7 @@ void SkDiffContext::setLongNames(const bool useLongNames) {
 
 void SkDiffContext::setDiffers(const SkTDArray<SkImageDiffer*>& differs) {
     // Delete whatever the last array of differs was
-    if (NULL != fDiffers) {
+    if (fDiffers) {
         SkDELETE_ARRAY(fDiffers);
         fDiffers = NULL;
         fDifferCount = 0;
@@ -307,7 +307,7 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
     // See http://skbug.com/2713 ('make skpdiff use jsoncpp library to write out
     // JSON output, instead of manual writeText() calls?')
     stream.writeText("    \"records\": [\n");
-    while (NULL != currentRecord) {
+    while (currentRecord) {
         stream.writeText("        {\n");
 
             SkString baselineAbsPath = get_absolute_path(currentRecord->fBaselinePath);
@@ -386,7 +386,7 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
         currentRecord = iter.next();
 
         // JSON does not allow trailing commas
-        if (NULL != currentRecord) {
+        if (currentRecord) {
             stream.writeText(",");
         }
         stream.writeText("\n");
@@ -409,7 +409,7 @@ void SkDiffContext::outputCsv(SkWStream& stream) {
     DiffRecord* currentRecord = iter.get();
 
     // Write CSV header and create a dictionary of all columns.
-    while (NULL != currentRecord) {
+    while (currentRecord) {
         for (int diffIndex = 0; diffIndex < currentRecord->fDiffs.count(); diffIndex++) {
             DiffData& data = currentRecord->fDiffs[diffIndex];
             if (!columns.find(data.fDiffName)) {
@@ -428,7 +428,7 @@ void SkDiffContext::outputCsv(SkWStream& stream) {
 
     SkTLList<DiffRecord>::Iter iter2(fRecords, SkTLList<DiffRecord>::Iter::kHead_IterStart);
     currentRecord = iter2.get();
-    while (NULL != currentRecord) {
+    while (currentRecord) {
         for (int i = 0; i < cntColumns; i++) {
             values[i] = -1;
         }

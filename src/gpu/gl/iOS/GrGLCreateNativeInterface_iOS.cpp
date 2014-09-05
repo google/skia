@@ -19,7 +19,7 @@ public:
     }
 
     ~GLLoader() {
-        if (NULL != fLibrary) {
+        if (fLibrary) {
             dlclose(fLibrary);
         }
     }
@@ -45,7 +45,7 @@ private:
 };
 
 static GrGLFuncPtr ios_get_gl_proc(void* ctx, const char name[]) {
-    SkASSERT(NULL != ctx);
+    SkASSERT(ctx);
     const GLProcGetter* getter = (const GLProcGetter*) ctx;
     return getter->getProc(name);
 }

@@ -43,8 +43,8 @@ public:
     
     static bool AreCompatible(const GrEffectStage& a, const GrEffectStage& b,
                               bool usingExplicitLocalCoords) {
-        SkASSERT(NULL != a.fEffect.get());
-        SkASSERT(NULL != b.fEffect.get());
+        SkASSERT(a.fEffect.get());
+        SkASSERT(b.fEffect.get());
 
         if (!a.getEffect()->isEqual(*b.getEffect())) {
             return false;

@@ -10,7 +10,7 @@
 #include "SkHRESULT.h"
 
 void SkTraceHR(const char* file, unsigned long line, HRESULT hr, const char* msg) {
-    if (NULL != msg) {
+    if (msg) {
         SkDebugf("%s\n", msg);
     }
     SkDebugf("%s(%lu) : error 0x%x: ", file, line, hr);

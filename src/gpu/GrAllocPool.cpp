@@ -90,7 +90,7 @@ void* GrAllocPool::alloc(size_t size) {
 void GrAllocPool::release(size_t bytes) {
     this->validate();
 
-    while (bytes && NULL != fBlock) {
+    while (bytes && fBlock) {
         bytes = fBlock->release(bytes);
         if (fBlock->empty()) {
             Block* next = fBlock->fNext;

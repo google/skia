@@ -416,7 +416,7 @@ private:
         , fStrings(NULL) {
         fNext = SkCommandLineFlags::gHead;
         SkCommandLineFlags::gHead = this;
-        SkASSERT(NULL != name && strlen(name) > 1);
+        SkASSERT(name && strlen(name) > 1);
         SkASSERT(NULL == shortName || 1 == strlen(shortName));
     }
 

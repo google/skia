@@ -587,7 +587,7 @@ void SkFontConfigParser::GetTestFontFamilies(SkTDArray<FontFamily*> &fontFamilie
     parseConfigFile(testMainConfigFile, fontFamilies);
 
     SkTDArray<FontFamily*> fallbackFonts;
-    if (NULL != testFallbackConfigFile) {
+    if (testFallbackConfigFile) {
         parseConfigFile(testFallbackConfigFile, fallbackFonts);
     }
 

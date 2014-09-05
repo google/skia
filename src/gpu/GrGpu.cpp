@@ -87,10 +87,10 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
     } else {
         this->handleDirtyContext();
         tex = this->onCreateTexture(desc, srcData, rowBytes);
-        if (NULL != tex &&
+        if (tex &&
             (kRenderTarget_GrTextureFlagBit & desc.fFlags) &&
             !(kNoStencil_GrTextureFlagBit & desc.fFlags)) {
-            SkASSERT(NULL != tex->asRenderTarget());
+            SkASSERT(tex->asRenderTarget());
             // TODO: defer this and attach dynamically
             if (!this->attachStencilBufferToRenderTarget(tex->asRenderTarget())) {
                 tex->unref();
@@ -107,7 +107,7 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
         this->getContext()->findStencilBuffer(rt->width(),
                                               rt->height(),
                                               rt->numSamples());
-    if (NULL != sb) {
+    if (sb) {
         rt->setStencilBuffer(sb);
         bool attached = this->attachStencilBufferToRenderTarget(sb, rt);
         if (!attached) {
@@ -140,7 +140,7 @@ GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc) {
     }
     // TODO: defer this and attach dynamically
     GrRenderTarget* tgt = tex->asRenderTarget();
-    if (NULL != tgt &&
+    if (tgt &&
         !this->attachStencilBufferToRenderTarget(tgt)) {
         tex->unref();
         return NULL;
@@ -274,9 +274,9 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
         static const int SIZE = sizeof(uint16_t) * 6 * MAX_QUADS;
         GrGpu* me = const_cast<GrGpu*>(this);
         fQuadIndexBuffer = me->createIndexBuffer(SIZE, false);
-        if (NULL != fQuadIndexBuffer) {
+        if (fQuadIndexBuffer) {
             uint16_t* indices = (uint16_t*)fQuadIndexBuffer->map();
-            if (NULL != indices) {
+            if (indices) {
                 fill_indices(indices, MAX_QUADS);
                 fQuadIndexBuffer->unmap();
             } else {
@@ -393,12 +393,12 @@ void GrGpu::onDrawPaths(const GrPathRange* pathRange,
 }
 
 void GrGpu::finalizeReservedVertices() {
-    SkASSERT(NULL != fVertexPool);
+    SkASSERT(fVertexPool);
     fVertexPool->unmap();
 }
 
 void GrGpu::finalizeReservedIndices() {
-    SkASSERT(NULL != fIndexPool);
+    SkASSERT(fIndexPool);
     fIndexPool->unmap();
 }
 
@@ -434,7 +434,7 @@ bool GrGpu::onReserveVertexSpace(size_t vertexSize,
     GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
 
     SkASSERT(vertexCount > 0);
-    SkASSERT(NULL != vertices);
+    SkASSERT(vertices);
 
     this->prepareVertexPool();
 
@@ -453,7 +453,7 @@ bool GrGpu::onReserveIndexSpace(int indexCount, void** indices) {
     GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
 
     SkASSERT(indexCount > 0);
-    SkASSERT(NULL != indices);
+    SkASSERT(indices);
 
     this->prepareIndexPool();
 

@@ -125,7 +125,7 @@ SkGrPixelRef::~SkGrPixelRef() {
     if (fUnlock) {
         GrContext* context = fSurface->getContext();
         GrTexture* texture = fSurface->asTexture();
-        if (NULL != context && NULL != texture) {
+        if (context && texture) {
             context->unlockScratchTexture(texture);
         }
     }
@@ -133,7 +133,7 @@ SkGrPixelRef::~SkGrPixelRef() {
 }
 
 GrTexture* SkGrPixelRef::getTexture() {
-    if (NULL != fSurface) {
+    if (fSurface) {
         return fSurface->asTexture();
     }
     return NULL;
@@ -159,7 +159,7 @@ bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
     }
 
     int left, top, width, height;
-    if (NULL != subset) {
+    if (subset) {
         left = subset->fLeft;
         width = subset->width();
         top = subset->fTop;

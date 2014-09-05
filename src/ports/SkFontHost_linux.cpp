@@ -293,7 +293,7 @@ protected:
                                                  : SkFontStyle::kUpright_Slant);
         SkTypeface* tf = NULL;
 
-        if (NULL != familyName) {
+        if (familyName) {
             tf = this->onMatchFamilyStyle(familyName, style);
         }
 

@@ -21,7 +21,7 @@ public:
     ~BufferObj() { SkDELETE_ARRAY(fDataPtr); }
 
     void allocate(GrGLsizeiptr size, const GrGLchar* dataPtr) {
-        if (NULL != fDataPtr) {
+        if (fDataPtr) {
             SkASSERT(0 != fSize);
             SkDELETE_ARRAY(fDataPtr);
         }
@@ -65,7 +65,7 @@ public:
 
     BufferObj* lookUp(GrGLuint id) {
         BufferObj* buffer = fBuffers[id];
-        SkASSERT(NULL != buffer && buffer->id() == id);
+        SkASSERT(buffer && buffer->id() == id);
         return buffer;
     }
 

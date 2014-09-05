@@ -542,7 +542,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
                             GrPixelConfig dataConfig,
                             const void* data,
                             size_t rowBytes) {
-    SkASSERT(NULL != data || isNewTexture);
+    SkASSERT(data || isNewTexture);
 
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
@@ -602,7 +602,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     bool restoreGLRowLength = false;
     bool swFlipY = false;
     bool glFlipY = false;
-    if (NULL != data) {
+    if (data) {
         if (kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
             if (this->glCaps().unpackFlipYSupport()) {
                 glFlipY = true;
@@ -673,7 +673,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
         } else {
             // if we have data and we used TexStorage to create the texture, we
             // now upload with TexSubImage.
-            if (NULL != data && useTexStorage) {
+            if (data && useTexStorage) {
                 GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D,
                                       0, // level
                                       left, top,
@@ -712,7 +712,7 @@ bool GrGpuGL::uploadCompressedTexData(const GrGLTexture::Desc& desc,
                                       const void* data,
                                       bool isNewTexture,
                                       int left, int top, int width, int height) {
-    SkASSERT(NULL != data || isNewTexture);
+    SkASSERT(data || isNewTexture);
 
     // No support for software flip y, yet...
     SkASSERT(kBottomLeft_GrSurfaceOrigin != desc.fOrigin);
@@ -1225,7 +1225,7 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
     GrGLuint fbo = glrt->renderFBOID();
 
     if (NULL == sb) {
-        if (NULL != rt->getStencilBuffer()) {
+        if (rt->getStencilBuffer()) {
             GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                             GR_GL_STENCIL_ATTACHMENT,
                                             GR_GL_RENDERBUFFER, 0));
@@ -1382,7 +1382,7 @@ void GrGpuGL::flushScissor(const GrGLIRect& rtViewport, GrSurfaceOrigin rtOrigin
 void GrGpuGL::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color,
                       bool canIgnoreRect) {
     // parent class should never let us get here with no RT
-    SkASSERT(NULL != target);
+    SkASSERT(target);
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
     if (canIgnoreRect && this->glCaps().fullClearIsFree()) {
@@ -1390,7 +1390,7 @@ void GrGpuGL::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color
     }
 
     SkIRect clippedRect;
-    if (NULL != rect) {
+    if (rect) {
         // flushScissor expects rect to be clipped to the target.
         clippedRect = *rect;
         SkIRect rtRect = SkIRect::MakeWH(target->width(), target->height());
@@ -1403,7 +1403,7 @@ void GrGpuGL::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color
 
     this->flushRenderTarget(glRT, rect);
     GrAutoTRestore<ScissorState> asr(&fScissorState);
-    fScissorState.fEnabled = (NULL != rect);
+    fScissorState.fEnabled = SkToBool(rect);
     if (fScissorState.fEnabled) {
         fScissorState.fRect = *rect;
     }
@@ -1495,11 +1495,11 @@ void GrGpuGL::clearStencil(GrRenderTarget* target) {
 }
 
 void GrGpuGL::clearStencilClip(GrRenderTarget* target, const SkIRect& rect, bool insideClip) {
-    SkASSERT(NULL != target);
+    SkASSERT(target);
 
     // this should only be called internally when we know we have a
     // stencil buffer.
-    SkASSERT(NULL != target->getStencilBuffer());
+    SkASSERT(target->getStencilBuffer());
     GrGLint stencilBitCount =  target->getStencilBuffer()->bits();
 #if 0
     SkASSERT(stencilBitCount > 0);
@@ -1693,7 +1693,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
 
 void GrGpuGL::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) {
 
-    SkASSERT(NULL != target);
+    SkASSERT(target);
 
     uint32_t rtID = target->getUniqueID();
     if (fHWBoundRenderTargetUniqueID != rtID) {
@@ -1723,7 +1723,7 @@ void GrGpuGL::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) 
     }
 
     GrTexture *texture = target->asTexture();
-    if (NULL != texture) {
+    if (texture) {
         texture->impl()->dirtyMipMaps(true);
     }
 }
@@ -2006,13 +2006,13 @@ static inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
 }
 
 void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture) {
-    SkASSERT(NULL != texture);
+    SkASSERT(texture);
 
     // If we created a rt/tex and rendered to it without using a texture and now we're texturing
     // from the rt it will still be the last bound texture, but it needs resolving. So keep this
     // out of the "last != next" check.
     GrGLRenderTarget* texRT =  static_cast<GrGLRenderTarget*>(texture->asRenderTarget());
-    if (NULL != texRT) {
+    if (texRT) {
         this->onResolveRenderTarget(texRT);
     }
 
@@ -2318,7 +2318,7 @@ inline bool can_blit_framebuffer(const GrSurface* dst,
             (src->desc().fSampleCnt > 0 || src->config() != dst->config())) {
            return false;
         }
-        if (NULL != wouldNeedTempFBO) {
+        if (wouldNeedTempFBO) {
             *wouldNeedTempFBO = NULL == dst->asRenderTarget() || NULL == src->asRenderTarget();
         }
         return true;
@@ -2341,20 +2341,20 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
     const GrGLRenderTarget* dstRT = static_cast<const GrGLRenderTarget*>(dst->asRenderTarget());
     // If dst is multisampled (and uses an extension where there is a separate MSAA renderbuffer)
     // then we don't want to copy to the texture but to the MSAA buffer.
-    if (NULL != dstRT && dstRT->renderFBOID() != dstRT->textureFBOID()) {
+    if (dstRT && dstRT->renderFBOID() != dstRT->textureFBOID()) {
         return false;
     }
     const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src->asRenderTarget());
     // If the src is multisampled (and uses an extension where there is a separate MSAA
     // renderbuffer) then it is an invalid operation to call CopyTexSubImage
-    if (NULL != srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
+    if (srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
         return false;
     }
     if (gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
-        NULL != dst->asTexture() &&
+        dst->asTexture() &&
         dst->origin() == src->origin() &&
         !GrPixelConfigIsCompressed(src->config())) {
-        if (NULL != wouldNeedTempFBO) {
+        if (wouldNeedTempFBO) {
             *wouldNeedTempFBO = NULL == src->asRenderTarget();
         }
         return true;
@@ -2372,7 +2372,7 @@ inline GrGLuint bind_surface_as_fbo(const GrGLInterface* gl,
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     GrGLuint tempFBOID;
     if (NULL == rt) {
-        SkASSERT(NULL != surface->asTexture());
+        SkASSERT(surface->asTexture());
         GrGLuint texID = static_cast<GrGLTexture*>(surface->asTexture())->textureID();
         GR_GL_CALL(gl, GenFramebuffers(1, &tempFBOID));
         GR_GL_CALL(gl, BindFramebuffer(fboTarget, tempFBOID));
@@ -2411,7 +2411,7 @@ void GrGpuGL::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) 
     }
 
     const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src->asRenderTarget());
-    if (NULL != srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
+    if (srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
         // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer.
         INHERITED::initCopySurfaceDstDesc(src, desc);
     } else {
@@ -2434,7 +2434,7 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
         GrGLIRect srcVP;
         srcFBO = bind_surface_as_fbo(this->glInterface(), src, GR_GL_FRAMEBUFFER, &srcVP);
         GrGLTexture* dstTex = static_cast<GrGLTexture*>(dst->asTexture());
-        SkASSERT(NULL != dstTex);
+        SkASSERT(dstTex);
         // We modified the bound FBO
         fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
         GrGLIRect srcGLRect;
@@ -2577,7 +2577,7 @@ GrGLAttribArrayState* GrGpuGL::HWGeometryState::bindArrayAndBuffersToDraw(
                                                 GrGpuGL* gpu,
                                                 const GrGLVertexBuffer* vbuffer,
                                                 const GrGLIndexBuffer* ibuffer) {
-    SkASSERT(NULL != vbuffer);
+    SkASSERT(vbuffer);
     GrGLAttribArrayState* attribState;
 
     // We use a vertex array if we're on a core profile and the verts are in a VBO.
@@ -2591,7 +2591,7 @@ GrGLAttribArrayState* GrGpuGL::HWGeometryState::bindArrayAndBuffersToDraw(
         }
         attribState = fVBOVertexArray->bindWithIndexBuffer(ibuffer);
     } else {
-        if (NULL != ibuffer) {
+        if (ibuffer) {
             this->setIndexBufferIDOnDefaultVertexArray(gpu, ibuffer->bufferID());
         } else {
             this->setVertexArrayID(gpu, 0);

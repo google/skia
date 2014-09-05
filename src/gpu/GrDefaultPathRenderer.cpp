@@ -240,7 +240,7 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
     uint16_t subpathIdxStart = 0;
 
     SkPoint* base = reinterpret_cast<SkPoint*>(arg->vertices());
-    SkASSERT(NULL != base);
+    SkASSERT(base);
     SkPoint* vert = base;
 
     SkPoint pts[4];
@@ -361,7 +361,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
         return false;
     }
 
-    SkASSERT(NULL != target);
+    SkASSERT(target);
     GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kPreserve_ASRInit);
     GrDrawState* drawState = target->drawState();
     bool colorWritesWereDisabled = drawState->isColorWriteDisabled();
@@ -465,7 +465,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
 
     for (int p = 0; p < passCount; ++p) {
         drawState->setDrawFace(drawFace[p]);
-        if (NULL != passes[p]) {
+        if (passes[p]) {
             *drawState->stencil() = *passes[p];
         }
 
@@ -476,7 +476,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
             SkRect bounds;
             GrDrawState::AutoViewMatrixRestore avmr;
             if (reverse) {
-                SkASSERT(NULL != drawState->getRenderTarget());
+                SkASSERT(drawState->getRenderTarget());
                 // draw over the dev bounds (which will be the whole dst surface for inv fill).
                 bounds = devBounds;
                 SkMatrix vmi;

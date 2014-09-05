@@ -271,7 +271,7 @@ bool SkImageDecoder::DecodeStream(SkStreamRewindable* stream, SkBitmap* bm, SkCo
     bool success = false;
     SkImageDecoder* codec = SkImageDecoder::Factory(stream);
 
-    if (NULL != codec) {
+    if (codec) {
         success = codec->decode(stream, bm, pref, mode);
         if (success && format) {
             *format = codec->getFormat();

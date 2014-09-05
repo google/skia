@@ -980,12 +980,12 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
             // whether the result is bounded or not, the whole plane should start outside the clip.
             reducedStack.clipEmpty();
         }
-        for (ElementList::Iter iter = reducedClips.headIter(); NULL != iter.get(); iter.next()) {
+        for (ElementList::Iter iter = reducedClips.headIter(); iter.get(); iter.next()) {
             add_elem_to_stack(*iter.get(), &reducedStack);
         }
 
         // GrReducedClipStack assumes that the final result is clipped to the returned bounds
-        if (NULL != tightBounds) {
+        if (tightBounds) {
             reducedStack.clipDevRect(*tightBounds, SkRegion::kIntersect_Op);
         }
 
@@ -1191,7 +1191,7 @@ DEF_TEST(ClipStack, reporter) {
     SkRect answer;
     answer.iset(25, 25, 75, 75);
 
-    REPORTER_ASSERT(reporter, NULL != element);
+    REPORTER_ASSERT(reporter, element);
     REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
     REPORTER_ASSERT(reporter, SkRegion::kIntersect_Op == element->getOp());
     REPORTER_ASSERT(reporter, element->getRect() == answer);

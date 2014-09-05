@@ -16,7 +16,7 @@
 
 static GrGLFuncPtr angle_get_gl_proc(void* ctx, const char name[]) {
     GrGLFuncPtr proc = (GrGLFuncPtr) GetProcAddress((HMODULE)ctx, name);
-    if (NULL != proc) {
+    if (proc) {
         return proc;
     }
     return eglGetProcAddress(name);

@@ -58,7 +58,7 @@ public:
      * The pointer returned by the previous map call will no longer be valid.
      */
      void unmap() {
-         SkASSERT(NULL != fMapPtr);
+         SkASSERT(fMapPtr);
          this->onUnmap();
          fMapPtr = NULL;
      }
@@ -76,7 +76,7 @@ public:
 
      @return true if the buffer is mapped, false otherwise.
      */
-     bool isMapped() const { return NULL != fMapPtr; }
+     bool isMapped() const { return SkToBool(fMapPtr); }
 
     /**
      * Updates the buffer data.

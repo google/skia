@@ -46,18 +46,18 @@ public:
     }
 
     void remove(T* entry) {
-        SkASSERT(NULL != fHead && NULL != fTail);
+        SkASSERT(fHead && fTail);
         SkASSERT(this->isInList(entry));
 
         T* prev = entry->fPrev;
         T* next = entry->fNext;
 
-        if (NULL != prev) {
+        if (prev) {
             prev->fNext = next;
         } else {
             fHead = next;
         }
-        if (NULL != next) {
+        if (next) {
             next->fPrev = prev;
         } else {
             fTail = prev;
@@ -77,7 +77,7 @@ public:
 
         entry->fPrev = NULL;
         entry->fNext = fHead;
-        if (NULL != fHead) {
+        if (fHead) {
             fHead->fPrev = entry;
         }
         fHead = entry;
@@ -96,7 +96,7 @@ public:
 
         entry->fPrev = fTail;
         entry->fNext = NULL;
-        if (NULL != fTail) {
+        if (fTail) {
             fTail->fNext = entry;
         }
         fTail = entry;
@@ -115,7 +115,7 @@ public:
      * at the tail.
      */
     void addBefore(T* newEntry, T* existingEntry) {
-        SkASSERT(NULL != newEntry);
+        SkASSERT(newEntry);
 
         if (NULL == existingEntry) {
             this->addToTail(newEntry);
@@ -144,7 +144,7 @@ public:
      * at the head.
      */
     void addAfter(T* newEntry, T* existingEntry) {
-        SkASSERT(NULL != newEntry);
+        SkASSERT(newEntry);
 
         if (NULL == existingEntry) {
             this->addToHead(newEntry);
@@ -227,7 +227,7 @@ public:
     void validate() const {
         SkASSERT(!fHead == !fTail);
         Iter iter;
-        for (T* item = iter.init(*this, Iter::kHead_IterStart); NULL != item; item = iter.next()) {
+        for (T* item = iter.init(*this, Iter::kHead_IterStart); item; item = iter.next()) {
             SkASSERT(this->isInList(item));
             if (NULL == item->fPrev) {
                 SkASSERT(fHead == item);
@@ -255,7 +255,7 @@ public:
      */
     int countEntries() const {
         int count = 0;
-        for (T* entry = fHead; NULL != entry; entry = entry->fNext) {
+        for (T* entry = fHead; entry; entry = entry->fNext) {
             ++count;
         }
         return count;

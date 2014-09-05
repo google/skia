@@ -18,12 +18,12 @@ class XfermodeBench : public Benchmark {
 public:
     XfermodeBench(SkXfermode::Mode mode) {
         fXfermode.reset(SkXfermode::Create(mode));
-        SkASSERT(NULL != fXfermode.get() || SkXfermode::kSrcOver_Mode == mode);
+        SkASSERT(fXfermode.get() || SkXfermode::kSrcOver_Mode == mode);
         fName.printf("Xfermode_%s", SkXfermode::ModeName(mode));
     }
 
     XfermodeBench(SkXfermode* xferMode, const char* name) {
-        SkASSERT(NULL != xferMode);
+        SkASSERT(xferMode);
         fXfermode.reset(xferMode);
         fName.printf("Xfermode_%s", name);
     }

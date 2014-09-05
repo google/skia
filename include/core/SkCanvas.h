@@ -1442,13 +1442,13 @@ class SkAutoCommentBlock : SkNoncopyable {
 public:
     SkAutoCommentBlock(SkCanvas* canvas, const char* description) {
         fCanvas = canvas;
-        if (NULL != fCanvas) {
+        if (fCanvas) {
             fCanvas->beginCommentGroup(description);
         }
     }
 
     ~SkAutoCommentBlock() {
-        if (NULL != fCanvas) {
+        if (fCanvas) {
             fCanvas->endCommentGroup();
         }
     }

@@ -210,7 +210,7 @@ public:
      *  Return true on success; false on failure
      */
     bool        globalToLocal(SkPoint* pt) const {
-        if (NULL != pt) {
+        if (pt) {
             return this->globalToLocal(pt->fX, pt->fY, pt);
         }
         return true;  // nothing to do so return true

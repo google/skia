@@ -18,7 +18,7 @@ namespace sk_tools {
     void force_all_opaque(const SkBitmap& bitmap) {
         SkASSERT(NULL == bitmap.getTexture());
         SkASSERT(kN32_SkColorType == bitmap.colorType());
-        if (NULL != bitmap.getTexture() || kN32_SkColorType == bitmap.colorType()) {
+        if (bitmap.getTexture() || kN32_SkColorType == bitmap.colorType()) {
             return;
         }
 

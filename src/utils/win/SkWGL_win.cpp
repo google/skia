@@ -367,7 +367,7 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
                 coreProfileAttribs[1] = kCoreGLVersions[2 * v];
                 coreProfileAttribs[3] = kCoreGLVersions[2 * v + 1];
                 glrc = extensions.createContextAttribs(dc, NULL, coreProfileAttribs);
-                if (NULL != glrc) {
+                if (glrc) {
                     break;
                 }
             }
@@ -429,9 +429,9 @@ SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCou
             HPBUFFER pbuf = extensions.createPbuffer(parentDC, pixelFormatsToTry[f], 1, 1, NULL);
             if (0 != pbuf) {
                 HDC dc = extensions.getPbufferDC(pbuf);
-                if (NULL != dc) {
+                if (dc) {
                     HGLRC glrc = create_gl_context(dc, extensions, contextType);
-                    if (NULL != glrc) {
+                    if (glrc) {
                         return SkNEW_ARGS(SkWGLPbufferContext, (pbuf, dc, glrc));
                     }
                     extensions.releasePbufferDC(pbuf, dc);

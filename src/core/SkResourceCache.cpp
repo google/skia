@@ -222,7 +222,7 @@ const SkResourceCache::Rec* SkResourceCache::addAndLock(Rec* rec) {
     SkASSERT(rec);
     // See if we already have this key (racy inserts, etc.)
     const Rec* existing = this->findAndLock(rec->getKey());
-    if (NULL != existing) {
+    if (existing) {
         SkDELETE(rec);
         return existing;
     }
@@ -242,7 +242,7 @@ void SkResourceCache::add(Rec* rec) {
     SkASSERT(rec);
     // See if we already have this key (racy inserts, etc.)
     const Rec* existing = this->findAndLock(rec->getKey());
-    if (NULL != existing) {
+    if (existing) {
         SkDELETE(rec);
         this->unlock(existing);
         return;
@@ -414,9 +414,9 @@ void SkResourceCache::validate() const {
     }
 
     SkASSERT(NULL == fHead->fPrev);
-    SkASSERT(NULL != fHead->fNext);
+    SkASSERT(fHead->fNext);
     SkASSERT(NULL == fTail->fNext);
-    SkASSERT(NULL != fTail->fPrev);
+    SkASSERT(fTail->fPrev);
 
     size_t used = 0;
     int count = 0;

@@ -745,7 +745,7 @@ public:
             fContext = context;
         }
         ~AutoRenderTarget() {
-            if (NULL != fContext) {
+            if (fContext) {
                 fContext->setRenderTarget(fPrevTarget);
             }
             SkSafeUnref(fPrevTarget);
@@ -779,7 +779,7 @@ public:
          * Initializes by pre-concat'ing the context's current matrix with the preConcat param.
          */
         void setPreConcat(GrContext* context, const SkMatrix& preConcat, GrPaint* paint = NULL) {
-            SkASSERT(NULL != context);
+            SkASSERT(context);
 
             this->restore();
 
@@ -793,11 +793,11 @@ public:
          * update a paint but the matrix cannot be inverted.
          */
         bool setIdentity(GrContext* context, GrPaint* paint = NULL) {
-            SkASSERT(NULL != context);
+            SkASSERT(context);
 
             this->restore();
 
-            if (NULL != paint) {
+            if (paint) {
                 if (!paint->localCoordChangeInverse(context->getMatrix())) {
                     return false;
                 }
@@ -813,7 +813,7 @@ public:
          * required to update a paint but the matrix cannot be inverted.
          */
         bool set(GrContext* context, const SkMatrix& newMatrix, GrPaint* paint = NULL) {
-            if (NULL != paint) {
+            if (paint) {
                 if (!this->setIdentity(context, paint)) {
                     return false;
                 }
@@ -835,7 +835,7 @@ public:
          * performs an incremental update of the paint.
          */
         void preConcat(const SkMatrix& preConcat, GrPaint* paint = NULL) {
-            if (NULL != paint) {
+            if (paint) {
                 paint->localCoordChange(preConcat);
             }
             fContext->concatMatrix(preConcat);
@@ -845,13 +845,13 @@ public:
          * Returns false if never initialized or the inverse matrix was required to update a paint
          * but the matrix could not be inverted.
          */
-        bool succeeded() const { return NULL != fContext; }
+        bool succeeded() const { return SkToBool(fContext); }
 
         /**
          * If this has been initialized then the context's original matrix is restored.
          */
         void restore() {
-            if (NULL != fContext) {
+            if (fContext) {
                 fContext->setMatrix(fMatrix);
                 fContext = NULL;
             }
@@ -890,7 +890,7 @@ public:
         }
 
         ~AutoClip() {
-            if (NULL != fContext) {
+            if (fContext) {
                 fContext->setClip(fOldClip);
             }
         }
@@ -1091,7 +1091,7 @@ public:
     }
 
     void reset() {
-        if (NULL != fContext && NULL != fTexture) {
+        if (fContext && fTexture) {
             fContext->unlockScratchTexture(fTexture);
             fTexture->unref();
             fTexture = NULL;
@@ -1124,7 +1124,7 @@ public:
         SkASSERT(!texture->unique());
         texture->impl()->setFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit);
         texture->unref();
-        SkASSERT(NULL != texture->getCacheEntry());
+        SkASSERT(texture->getCacheEntry());
 
         return texture;
     }
@@ -1135,7 +1135,7 @@ public:
         this->reset();
 
         fContext = context;
-        if (NULL != fContext) {
+        if (fContext) {
             fTexture = fContext->lockAndRefScratchTexture(desc, match);
             if (NULL == fTexture) {
                 fContext = NULL;

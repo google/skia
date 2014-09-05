@@ -71,7 +71,7 @@ void GrRecordReplaceDraw(const SkRecord& record,
     const GrReplacements::ReplacementInfo* ri = NULL;
     int searchStart = 0;
 
-    if (NULL != bbh) {
+    if (bbh) {
         // Draw only ops that affect pixels in the canvas's current clip.
         // The SkRecord and BBH were recorded in identity space.  This canvas
         // is not necessarily in that same space.  getClipBounds() returns us
@@ -84,11 +84,11 @@ void GrRecordReplaceDraw(const SkRecord& record,
         bbh->search(query, &ops);
 
         for (int i = 0; i < ops.count(); i++) {
-            if (NULL != callback && callback->abortDrawing()) {
+            if (callback && callback->abortDrawing()) {
                 return;
             }
             ri = replacements->lookupByStart((uintptr_t)ops[i], &searchStart);
-            if (NULL != ri) {
+            if (ri) {
                 draw_replacement_bitmap(ri, canvas);
 
                 while ((uintptr_t)ops[i] < ri->fStop) {
@@ -102,11 +102,11 @@ void GrRecordReplaceDraw(const SkRecord& record,
         }
     } else {
         for (unsigned int i = 0; i < record.count(); ++i) {
-            if (NULL != callback && callback->abortDrawing()) {
+            if (callback && callback->abortDrawing()) {
                 return;
             }
             ri = replacements->lookupByStart(i, &searchStart);
-            if (NULL != ri) {
+            if (ri) {
                 draw_replacement_bitmap(ri, canvas);
 
                 i = ri->fStop;

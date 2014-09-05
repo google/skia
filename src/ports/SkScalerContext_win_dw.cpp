@@ -524,7 +524,7 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
 
-    if (NULL != fTypeface->fDWriteFontFace1.get()) {
+    if (fTypeface->fDWriteFontFace1.get()) {
         DWRITE_FONT_METRICS1 dwfm1;
         fTypeface->fDWriteFontFace1->GetMetrics(&dwfm1);
         metrics->fTop = -fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxTop) / upem;

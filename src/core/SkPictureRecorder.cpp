@@ -35,11 +35,11 @@ SkCanvas* SkPictureRecorder::DEPRECATED_beginRecording(SkScalar width, SkScalar 
 
     const SkISize size = SkISize::Make(width, height);
 
-    if (NULL != bbhFactory) {
+    if (bbhFactory) {
         // We don't need to hold a ref on the BBH ourselves, but might as well for
         // consistency with EXPERIMENTAL_beginRecording(), which does need to.
         fBBH.reset((*bbhFactory)(width, height));
-        SkASSERT(NULL != fBBH.get());
+        SkASSERT(fBBH.get());
         fPictureRecord.reset(SkNEW_ARGS(SkBBoxHierarchyRecord, (size, recordFlags, fBBH.get())));
     } else {
         fPictureRecord.reset(SkNEW_ARGS(SkPictureRecord, (size, recordFlags)));
@@ -54,9 +54,9 @@ SkCanvas* SkPictureRecorder::EXPERIMENTAL_beginRecording(SkScalar width, SkScala
     fCullWidth = width;
     fCullHeight = height;
 
-    if (NULL != bbhFactory) {
+    if (bbhFactory) {
         fBBH.reset((*bbhFactory)(width, height));
-        SkASSERT(NULL != fBBH.get());
+        SkASSERT(fBBH.get());
     }
 
     fRecord.reset(SkNEW(SkRecord));
@@ -65,7 +65,7 @@ SkCanvas* SkPictureRecorder::EXPERIMENTAL_beginRecording(SkScalar width, SkScala
 }
 
 SkCanvas* SkPictureRecorder::getRecordingCanvas() {
-    if (NULL != fRecorder.get()) {
+    if (fRecorder.get()) {
         return fRecorder.get();
     }
     return fPictureRecord.get();
@@ -74,12 +74,12 @@ SkCanvas* SkPictureRecorder::getRecordingCanvas() {
 SkPicture* SkPictureRecorder::endRecording() {
     SkPicture* picture = NULL;
 
-    if (NULL != fRecord.get()) {
+    if (fRecord.get()) {
         picture = SkNEW_ARGS(SkPicture, (fCullWidth, fCullHeight, 
                                          fRecord.detach(), fBBH.get()));
     }
 
-    if (NULL != fPictureRecord.get()) {
+    if (fPictureRecord.get()) {
         fPictureRecord->endRecording();
         const bool deepCopyOps = false;
         picture = SkNEW_ARGS(SkPicture, (fCullWidth, fCullHeight, 
@@ -90,7 +90,7 @@ SkPicture* SkPictureRecorder::endRecording() {
 }
 
 void SkPictureRecorder::internalOnly_EnableOpts(bool enableOpts) {
-    if (NULL != fPictureRecord.get()) {
+    if (fPictureRecord.get()) {
         fPictureRecord->internalOnly_EnableOpts(enableOpts);
     }
 }
@@ -100,11 +100,11 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
         return;
     }
 
-    if (NULL != fRecord.get()) {
+    if (fRecord.get()) {
         SkRecordDraw(*fRecord, canvas, NULL/*bbh*/, NULL/*callback*/);
     }
 
-    if (NULL != fPictureRecord.get()) {
+    if (fPictureRecord.get()) {
         const bool deepCopyOps = true;
         SkPicture picture(fCullWidth, fCullHeight, 
                           *fPictureRecord.get(), deepCopyOps);

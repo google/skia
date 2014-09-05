@@ -14,7 +14,7 @@ void SkRecordDraw(const SkRecord& record,
                   SkDrawPictureCallback* callback) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
-    if (NULL != bbh) {
+    if (bbh) {
         // Draw only ops that affect pixels in the canvas's current clip.
         // The SkRecord and BBH were recorded in identity space.  This canvas
         // is not necessarily in that same space.  getClipBounds() returns us
@@ -28,7 +28,7 @@ void SkRecordDraw(const SkRecord& record,
 
         SkRecords::Draw draw(canvas);
         for (int i = 0; i < ops.count(); i++) {
-            if (NULL != callback && callback->abortDrawing()) {
+            if (callback && callback->abortDrawing()) {
                 return;
             }
             record.visit<void>((uintptr_t)ops[i], draw);  // See FillBounds below.
@@ -37,7 +37,7 @@ void SkRecordDraw(const SkRecord& record,
         // Draw all ops.
         SkRecords::Draw draw(canvas);
         for (unsigned i = 0; i < record.count(); i++) {
-            if (NULL != callback && callback->abortDrawing()) {
+            if (callback && callback->abortDrawing()) {
                 return;
             }
             record.visit<void>(i, draw);
@@ -154,7 +154,7 @@ public:
         }
 
         // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
-        SkASSERT(NULL != bbh);
+        SkASSERT(bbh);
         for (uintptr_t i = 0; i < record.count(); i++) {
             if (!fBounds[i].isEmpty()) {
                 bbh->insert((void*)i, fBounds[i], true/*ok to defer*/);

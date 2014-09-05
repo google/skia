@@ -28,7 +28,7 @@ SkRTConfRegistry::SkRTConfRegistry(): fConfs(100) {
         if (commentptr == line) {
             continue;
         }
-        if (NULL != commentptr) {
+        if (commentptr) {
             *commentptr = '\0';
         }
 
@@ -99,7 +99,7 @@ void SkRTConfRegistry::validate() const {
 void SkRTConfRegistry::printAll(const char *fname) const {
     SkWStream *o;
 
-    if (NULL != fname) {
+    if (fname) {
         o = new SkFILEWStream(fname);
     } else {
         o = new SkDebugWStream();
@@ -133,7 +133,7 @@ bool SkRTConfRegistry::hasNonDefault() const {
 void SkRTConfRegistry::printNonDefault(const char *fname) const {
     SkWStream *o;
 
-    if (NULL != fname) {
+    if (fname) {
         o = new SkFILEWStream(fname);
     } else {
         o = new SkDebugWStream();

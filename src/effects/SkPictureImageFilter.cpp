@@ -15,7 +15,7 @@
 SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, uint32_t uniqueID)
     : INHERITED(0, 0, NULL, uniqueID)
     , fPicture(SkSafeRef(picture))
-    , fCropRect(NULL != picture ? picture->cullRect() : SkRect::MakeEmpty()) {
+    , fCropRect(picture ? picture->cullRect() : SkRect::MakeEmpty()) {
 }
 
 SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, const SkRect& cropRect,

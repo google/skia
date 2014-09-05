@@ -127,7 +127,7 @@ void GrMemoryPool::validate() {
     do {
         allocCount += block->fLiveCount;
         SkASSERT(prev == block->fPrev);
-        if (NULL != prev) {
+        if (prev) {
             SkASSERT(prev->fNext == block);
         }
 

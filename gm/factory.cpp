@@ -32,7 +32,7 @@ protected:
         // Copyright-free file from http://openclipart.org/detail/29213/paper-plane-by-ddoo
         SkString pngFilename = GetResourcePath("plane.png");
         SkAutoDataUnref data(SkData::NewFromFileName(pngFilename.c_str()));
-        if (NULL != data.get()) {
+        if (data.get()) {
             // Create a cache which will boot the pixels out anytime the
             // bitmap is unlocked.
             SkAutoTUnref<SkDiscardableMemoryPool> pool(

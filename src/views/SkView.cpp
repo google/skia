@@ -637,7 +637,7 @@ bool SkView::globalToLocal(SkScalar x, SkScalar y, SkPoint* local) const
 {
     SkASSERT(this);
 
-    if (NULL != local) {
+    if (local) {
         SkMatrix m;
         this->localToGlobal(&m);
         if (!m.invert(&m)) {

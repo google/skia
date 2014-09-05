@@ -46,7 +46,7 @@ static bool should_draw_immediately(const SkBitmap* bitmap, const SkPaint* paint
         if (shader && !shader->asAGradient(NULL)) {
             SkBitmap bm;
             if (shader->asABitmap(&bm, NULL, NULL) &&
-                NULL != bm.getTexture()) {
+                bm.getTexture()) {
                 return true;
             }
         }
@@ -336,11 +336,11 @@ bool SkDeferredDevice::hasPendingCommands() {
 
 void SkDeferredDevice::aboutToDraw()
 {
-    if (NULL != fNotificationClient) {
+    if (fNotificationClient) {
         fNotificationClient->prepareForDraw();
     }
     if (fCanDiscardCanvasContents) {
-        if (NULL != fSurface) {
+        if (fSurface) {
             fSurface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
         }
         fCanDiscardCanvasContents = false;
@@ -604,7 +604,7 @@ SkDeferredCanvas::~SkDeferredCanvas() {
 
 SkSurface* SkDeferredCanvas::setSurface(SkSurface* surface) {
     SkDeferredDevice* deferredDevice = this->getDeferredDevice();
-    SkASSERT(NULL != deferredDevice);
+    SkASSERT(deferredDevice);
     // By swapping the surface into the existing device, we preserve
     // all pending commands, which can help to seamlessly recover from
     // a lost accelerated graphics context.

@@ -50,7 +50,7 @@ SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
                                           selector:@selector(backingPropertiesChanged:)
                                           name:@"NSWindowDidChangeBackingPropertiesNotification"
                                           object:[self window]];
-    if (NULL != fWind) {
+    if (fWind) {
         fWind->setVisibleP(true);
         NSSize size = self.frame.size;
 #if RETINA_API_AVAILABLE
@@ -103,12 +103,9 @@ SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
 #if RETINA_API_AVAILABLE
     newSize = [self convertSizeToBacking:newSize];
 #endif
-    if (NULL != fWind &&
-            (fWind->width()  != newSize.width ||
-             fWind->height() != newSize.height))
-    {
+    if (fWind && (fWind->width()  != newSize.width || fWind->height() != newSize.height)) {
         fWind->resize((int) newSize.width, (int) newSize.height);
-        if (NULL != fGLContext) {
+        if (fGLContext) {
             glClear(GL_STENCIL_BUFFER_BIT);
             [fGLContext update];
         }
@@ -131,7 +128,7 @@ SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
 
 - (void)drawSkia {
     fRedrawRequestPending = false;
-    if (NULL != fWind) {
+    if (fWind) {
         SkAutoTUnref<SkCanvas> canvas(fWind->createCanvas());
         fWind->draw(canvas);
 #ifdef FORCE_REDRAW
@@ -268,7 +265,7 @@ static unsigned convertNSModifiersToSk(NSUInteger nsModi) {
     NSPoint p = [event locationInWindow];
     unsigned modi = convertNSModifiersToSk([event modifierFlags]);
 
-    if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
+    if ([self mouse:p inRect:[self bounds]] && fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
 #if RETINA_API_AVAILABLE
         loc = [self convertPointToBacking:loc]; //y-up
@@ -283,7 +280,7 @@ static unsigned convertNSModifiersToSk(NSUInteger nsModi) {
     NSPoint p = [event locationInWindow];
     unsigned modi = convertNSModifiersToSk([event modifierFlags]);
 
-    if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
+    if ([self mouse:p inRect:[self bounds]] && fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
 #if RETINA_API_AVAILABLE
         loc = [self convertPointToBacking:loc]; //y-up
@@ -298,7 +295,7 @@ static unsigned convertNSModifiersToSk(NSUInteger nsModi) {
     NSPoint p = [event locationInWindow];
     unsigned modi = convertNSModifiersToSk([event modifierFlags]);
     
-    if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
+    if ([self mouse:p inRect:[self bounds]] && fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
 #if RETINA_API_AVAILABLE
         loc = [self convertPointToBacking:loc]; //y-up
@@ -313,7 +310,7 @@ static unsigned convertNSModifiersToSk(NSUInteger nsModi) {
     NSPoint p = [event locationInWindow];
     unsigned modi = convertNSModifiersToSk([event modifierFlags]);
     
-    if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
+    if ([self mouse:p inRect:[self bounds]] && fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
 #if RETINA_API_AVAILABLE
         loc = [self convertPointToBacking:loc]; //y-up

@@ -186,7 +186,7 @@ void SkColorMatrixFilter::initState(const SkScalar* SK_RESTRICT src) {
         analyze the array, so we don't miss the case where the caller has zeros
         which could make us accidentally take the General or Add case.
     */
-    if (NULL != fProc) {
+    if (fProc) {
         int32_t add = 1 << (fState.fShift - 1);
         array[4] += add;
         array[9] += add;

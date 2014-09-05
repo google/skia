@@ -88,7 +88,7 @@ public:
      *  Returns true if a valid object has been initialized in the SkTLazy,
      *  false otherwise.
      */
-    bool isValid() const { return NULL != fPtr; }
+    bool isValid() const { return SkToBool(fPtr); }
 
     /**
      * Returns the object. This version should only be called when the caller
@@ -166,7 +166,7 @@ public:
      * Returns a writable T*. The first time this is called the initial object is cloned.
      */
     T* writable() {
-        SkASSERT(NULL != fObj);
+        SkASSERT(fObj);
         if (!fLazy.isValid()) {
             fLazy.set(*fObj);
             fObj = fLazy.get();

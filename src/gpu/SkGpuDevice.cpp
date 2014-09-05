@@ -90,12 +90,12 @@ public:
                         GrTexture** texture)
         : fDevice(NULL)
         , fTexture(NULL) {
-        SkASSERT(NULL != texture);
+        SkASSERT(texture);
         *texture = this->set(device, bitmap, params);
     }
 
     ~SkAutoCachedTexture() {
-        if (NULL != fTexture) {
+        if (fTexture) {
             GrUnlockAndUnrefCachedBitmapTexture(fTexture);
         }
     }
@@ -103,7 +103,7 @@ public:
     GrTexture* set(SkGpuDevice* device,
                    const SkBitmap& bitmap,
                    const GrTextureParams* params) {
-        if (NULL != fTexture) {
+        if (fTexture) {
             GrUnlockAndUnrefCachedBitmapTexture(fTexture);
             fTexture = NULL;
         }
@@ -134,7 +134,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGpuDevice* SkGpuDevice::Create(GrSurface* surface, unsigned flags) {
-    SkASSERT(NULL != surface);
+    SkASSERT(surface);
     if (NULL == surface->asRenderTarget() || surface->wasDestroyed()) {
         return NULL;
     }
@@ -278,7 +278,7 @@ void SkGpuDevice::onDetachFromCanvas() {
 // call this every draw call, to ensure that the context reflects our state,
 // and not the state from some other canvas/device
 void SkGpuDevice::prepareDraw(const SkDraw& draw, bool forceIdentity) {
-    SkASSERT(NULL != fClipData.fClipStack);
+    SkASSERT(fClipData.fClipStack);
 
     fContext->setRenderTarget(fRenderTarget);
 
@@ -425,7 +425,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     GrStrokeInfo strokeInfo(paint);
 
     const SkPathEffect* pe = paint.getPathEffect();
-    if (!usePath && NULL != pe && !strokeInfo.isDashed()) {
+    if (!usePath && pe && !strokeInfo.isDashed()) {
         usePath = true;
     }
 
@@ -489,7 +489,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         usePath = true;
     } else {
         const SkPathEffect* pe = paint.getPathEffect();
-        if (NULL != pe && !strokeInfo.isDashed()) {
+        if (pe && !strokeInfo.isDashed()) {
             usePath = true;
         }
     }
@@ -547,7 +547,7 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
         usePath = true;
     } else {
         const SkPathEffect* pe = paint.getPathEffect();
-        if (NULL != pe && !strokeInfo.isDashed()) {
+        if (pe && !strokeInfo.isDashed()) {
             usePath = true;
         }
     }
@@ -859,7 +859,7 @@ static void determine_clipped_src_rect(const GrContext* context,
     }
     SkRect clippedSrcRect = SkRect::Make(*clippedSrcIRect);
     inv.mapRect(&clippedSrcRect);
-    if (NULL != srcRectPtr) {
+    if (srcRectPtr) {
         // we've setup src space 0,0 to map to the top left of the src rect.
         clippedSrcRect.offset(srcRectPtr->fLeft, srcRectPtr->fTop);
         if (!clippedSrcRect.intersect(*srcRectPtr)) {
@@ -881,7 +881,7 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
                                    int* tileSize,
                                    SkIRect* clippedSrcRect) const {
     // if bitmap is explictly texture backed then just use the texture
-    if (NULL != bitmap.getTexture()) {
+    if (bitmap.getTexture()) {
         return false;
     }
 
@@ -1058,7 +1058,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
         srcRect.set(0, 0, w, h);
         flags = (SkCanvas::DrawBitmapRectFlags) (flags | SkCanvas::kBleed_DrawBitmapRectFlag);
     } else {
-        SkASSERT(NULL != dstSizePtr);
+        SkASSERT(dstSizePtr);
         srcRect = *srcRectPtr;
         dstSize = *dstSizePtr;
         if (srcRect.fLeft <= 0 && srcRect.fTop <= 0 &&
@@ -1073,7 +1073,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
         SkBitmap        tmp;    // subset of bitmap, if necessary
         const SkBitmap* bitmapPtr = &bitmap;
         SkMatrix localM;
-        if (NULL != srcRectPtr) {
+        if (srcRectPtr) {
             localM.setTranslate(-srcRectPtr->fLeft, -srcRectPtr->fTop);
             localM.postScale(dstSize.fWidth / srcRectPtr->width(),
                              dstSize.fHeight / srcRectPtr->height());
@@ -1392,7 +1392,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     // This bitmap will own the filtered result as a texture.
     SkBitmap filteredBitmap;
 
-    if (NULL != filter) {
+    if (filter) {
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkMatrix matrix(*draw.fMatrix);
         matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
@@ -1442,7 +1442,7 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
                      SkIntToScalar(bitmap.height()));
 
     // Compute matrix from the two rectangles
-    if (NULL != src) {
+    if (src) {
         tmpSrc = *src;
     } else {
         tmpSrc = bitmapBounds;
@@ -1451,7 +1451,7 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
     matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
 
     // clip the tmpSrc to the bounds of the bitmap. No check needed if src==null.
-    if (NULL != src) {
+    if (src) {
         if (!bitmapBounds.contains(tmpSrc)) {
             if (!tmpSrc.intersect(bitmapBounds)) {
                 return; // nothing to draw
@@ -1503,7 +1503,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     // This bitmap will own the filtered result as a texture.
     SkBitmap filteredBitmap;
 
-    if (NULL != filter) {
+    if (filter) {
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkMatrix matrix(*draw.fMatrix);
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
@@ -1651,7 +1651,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     }
 
 #if 0
-    if (NULL != xmode && NULL != texs && NULL != colors) {
+    if (xmode && texs && colors) {
         if (!SkXfermode::IsMode(xmode, SkXfermode::kModulate_Mode)) {
             SkDebugf("Unsupported vertex-color/texture xfer mode.\n");
             return;
@@ -1660,7 +1660,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 #endif
 
     SkAutoSTMalloc<128, GrColor> convertedColors(0);
-    if (NULL != colors) {
+    if (colors) {
         // need to convert byte order and from non-PM to PM
         convertedColors.reset(vertexCount);
         SkColor color;
@@ -1804,7 +1804,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) 
 #else
     texture.reset(fContext->createUncachedTexture(desc, NULL, 0));
 #endif
-    if (NULL != texture.get()) {
+    if (texture.get()) {
         return SkGpuDevice::Create(texture, flags);
     } else {
         GrPrintf("---- failed to create compatible device texture [%d %d]\n",
@@ -1820,14 +1820,14 @@ SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info) {
 void SkGpuDevice::EXPERIMENTAL_optimize(const SkPicture* picture) {
     fContext->getLayerCache()->processDeletedPictures();
 
-    if (NULL != picture->fData.get() && !picture->fData->suitableForLayerOptimization()) {
+    if (picture->fData.get() && !picture->fData->suitableForLayerOptimization()) {
         return;
     }
 
     SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
 
     const SkPicture::AccelData* existing = picture->EXPERIMENTAL_getAccelData(key);
-    if (NULL != existing) {
+    if (existing) {
         return;
     }
 

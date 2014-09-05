@@ -71,7 +71,7 @@ protected:
     }
 
     void createShader() {
-        if (NULL != fShader.get()) {
+        if (fShader.get()) {
             return;
         }
 
@@ -83,7 +83,7 @@ protected:
     }
 
     void createMaskFilter() {
-        if (NULL != fMaskFilter.get()) {
+        if (fMaskFilter.get()) {
             return;
         }
 

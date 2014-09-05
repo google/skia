@@ -77,7 +77,7 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
 void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
     // are we sharing our render target with the image?
-    SkASSERT(NULL != this->getCachedImage());
+    SkASSERT(this->getCachedImage());
     if (rt->asTexture() == SkTextureImageGetTexture(this->getCachedImage())) {
         // We call createCompatibleDevice because it uses the texture cache. This isn't
         // necessarily correct (http://skbug.com/2252), but never using the cache causes
@@ -88,7 +88,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
         if (kRetain_ContentChangeMode == mode) {
             fDevice->context()->copyTexture(rt->asTexture(), newDevice->accessRenderTarget());
         }
-        SkASSERT(NULL != this->getCachedCanvas());
+        SkASSERT(this->getCachedCanvas());
         SkASSERT(this->getCachedCanvas()->getDevice() == fDevice);
 
         this->getCachedCanvas()->setRootDevice(newDevice);

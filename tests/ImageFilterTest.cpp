@@ -152,7 +152,7 @@ DEF_TEST(ImageFilter, reporter) {
         // Check that a clipping color matrix followed by a grayscale does not concatenate into a single filter.
         SkAutoTUnref<SkImageFilter> doubleBrightness(make_scale(2.0f));
         SkAutoTUnref<SkImageFilter> halfBrightness(make_scale(0.5f, doubleBrightness));
-        REPORTER_ASSERT(reporter, NULL != halfBrightness->getInput(0));
+        REPORTER_ASSERT(reporter, halfBrightness->getInput(0));
     }
 
     {

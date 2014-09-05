@@ -85,7 +85,7 @@ void SkMessageBus<Message>::Inbox::receive(const Message& m) {
 
 template<typename Message>
 void SkMessageBus<Message>::Inbox::poll(SkTDArray<Message>* messages) {
-    SkASSERT(NULL != messages);
+    SkASSERT(messages);
     messages->reset();
     SkAutoMutexAcquire lock(fMessagesMutex);
     messages->swap(fMessages);

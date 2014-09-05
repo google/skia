@@ -62,9 +62,7 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
     return false;
 }
 
-bool GrGLContextInfo::isInitialized() const {
-    return NULL != fInterface.get();
-}
+bool GrGLContextInfo::isInitialized() const { return SkToBool(fInterface.get()); }
 
 void GrGLContextInfo::reset() {
     fInterface.reset(NULL);

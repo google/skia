@@ -142,7 +142,7 @@ public:
     void initIterator(SkPictureStateTree::Iterator* iter,
                       const SkTDArray<void*>& draws,
                       SkCanvas* canvas) const {
-        if (NULL != fStateTree) {
+        if (fStateTree) {
             fStateTree->initIterator(iter, draws, canvas);
         }
     }

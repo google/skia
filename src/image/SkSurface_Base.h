@@ -79,7 +79,7 @@ private:
 SkCanvas* SkSurface_Base::getCachedCanvas() {
     if (NULL == fCachedCanvas) {
         fCachedCanvas = this->onNewCanvas();
-        if (NULL != fCachedCanvas) {
+        if (fCachedCanvas) {
             fCachedCanvas->setSurfaceBase(this);
         }
     }

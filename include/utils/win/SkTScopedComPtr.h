@@ -54,7 +54,7 @@ public:
     T **operator&() { SkASSERT(fPtr == NULL); return &fPtr; }
     T *get() const { return fPtr; }
     void reset() {
-        if (NULL != this->fPtr) {
+        if (this->fPtr) {
             this->fPtr->Release();
             this->fPtr = NULL;
         }

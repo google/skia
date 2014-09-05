@@ -461,7 +461,7 @@ void GrGLVertexProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
                                                  const char* outColor,
                                                  const char* inColor,
                                                  int stageIndex) {
-    SkASSERT(NULL != fProgramEffects.get());
+    SkASSERT(fProgramEffects.get());
     fProgramEffects->emitEffect(fBuilder, stage, key, outColor, inColor, stageIndex);
 }
 
@@ -570,7 +570,7 @@ void GrGLPathTexGenProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
                                                      const char* outColor,
                                                      const char* inColor,
                                                      int stageIndex) {
-    SkASSERT(NULL != fProgramEffects.get());
+    SkASSERT(fProgramEffects.get());
     fProgramEffects->emitEffect(fBuilder, stage, key, outColor, inColor, stageIndex);
 }
 

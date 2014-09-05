@@ -45,7 +45,7 @@ void SkTLS::Destructor(void* ptr) {
         SkTLSRec* next = rec->fNext;
         SkDELETE(rec);
         rec = next;
-    } while (NULL != rec);
+    } while (rec);
 }
 
 void* SkTLS::Get(CreateProc createProc, DeleteProc deleteProc) {

@@ -192,7 +192,7 @@ protected:
         canvas->translate(80, 0);
         test_surface(canvas, surf1, true);
 #if SK_SUPPORT_GPU
-        if (NULL != ctx) {
+        if (ctx) {
             canvas->translate(80, 0);
             test_surface(canvas, surf4, true);
         }

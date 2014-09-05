@@ -139,7 +139,7 @@ void GrLayerHoister::UnlockLayers(GrLayerCache* layerCache, const SkPicture* pic
     SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
 
     const SkPicture::AccelData* data = picture->EXPERIMENTAL_getAccelData(key);
-    SkASSERT(NULL != data);
+    SkASSERT(data);
 
     const GrAccelData *gpuData = static_cast<const GrAccelData*>(data);
     SkASSERT(0 != gpuData->numSaveLayers());

@@ -628,7 +628,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
             }
             case SkCanvas::kLines_PointMode:
 #ifndef SK_DISABLE_DASHING_OPTIMIZATION
-                if (2 == count && NULL != paint.getPathEffect()) {
+                if (2 == count && paint.getPathEffect()) {
                     // most likely a dashed line - see if it is one of the ones
                     // we can accelerate
                     SkStrokeRec rec(paint);
@@ -939,7 +939,7 @@ bool SkDrawTreatAAStrokeAsHairline(SkScalar strokeWidth, const SkMatrix& matrix,
     SkScalar len0 = fast_len(dst[0]);
     SkScalar len1 = fast_len(dst[1]);
     if (len0 <= SK_Scalar1 && len1 <= SK_Scalar1) {
-        if (NULL != coverage) {
+        if (coverage) {
             *coverage = SkScalarAve(len0, len1);
         }
         return true;
@@ -2130,7 +2130,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                           const SkColor colors[], SkXfermode* xmode,
                           const uint16_t indices[], int indexCount,
                           const SkPaint& paint) const {
-    SkASSERT(0 == count || NULL != vertices);
+    SkASSERT(0 == count || vertices);
 
     // abort early if there is nothing to draw
     if (count < 3 || (indices && indexCount < 3) || fRC->isEmpty()) {
@@ -2168,7 +2168,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
 
     // setup the custom shader (if needed)
     SkAutoTUnref<SkComposeShader> composeShader;
-    if (NULL != colors) {
+    if (colors) {
         if (NULL == textures) {
             // just colors (no texture)
             shader = p.setShader(&triShader);
@@ -2198,9 +2198,9 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
     VertState       state(count, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(vmode);
 
-    if (NULL != textures || NULL != colors) {
+    if (textures || colors) {
         while (vertProc(&state)) {
-            if (NULL != textures) {
+            if (textures) {
                 SkMatrix tempM;
                 if (texture_to_matrix(state, vertices, textures, &tempM)) {
                     SkShader::ContextRec rec(*fBitmap, p, *fMatrix);
@@ -2210,7 +2210,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                     }
                 }
             }
-            if (NULL != colors) {
+            if (colors) {
                 // Find the context for triShader.
                 SkTriColorShader::TriColorShaderContext* triColorShaderContext;
 

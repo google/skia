@@ -135,7 +135,7 @@ bool SkKTXFile::KeyValue::writeKeyAndValueForKTX(SkWStream* strm) {
 }
 
 uint32_t SkKTXFile::readInt(const uint8_t** buf, size_t* bytesLeft) const {
-    SkASSERT(NULL != buf && NULL != bytesLeft);
+    SkASSERT(buf && bytesLeft);
 
     uint32_t result;
 

@@ -156,7 +156,7 @@ GrGLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(uint32
         uni.fVariable.setPrecision(kDefaultFragmentPrecision);
     }
 
-    if (NULL != outName) {
+    if (outName) {
         *outName = uni.fVariable.c_str();
     }
     return GrGLProgramDataManager::UniformHandle::CreateFromUniformIndex(fUniforms.count() - 1);
@@ -190,7 +190,7 @@ void GrGLProgramBuilder::createAndEmitEffects(GrGLProgramEffectsBuilder* program
     GrGLSLExpr4 outColor;
 
     for (int e = 0; e < effectCnt; ++e) {
-        SkASSERT(NULL != effectStages[e] && NULL != effectStages[e]->getEffect());
+        SkASSERT(effectStages[e] && effectStages[e]->getEffect());
         const GrEffectStage& stage = *effectStages[e];
 
         CodeStage::AutoStageRestore csar(&fCodeStage, &stage);
@@ -344,7 +344,7 @@ void GrGLFullProgramBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color,
 
 void GrGLFullProgramBuilder::emitGeometryProcessor(const GrEffectStage* geometryProcessor,
                                                    GrGLSLExpr4* coverage) {
-    if (NULL != geometryProcessor) {
+    if (geometryProcessor) {
         GrGLProgramDesc::EffectKeyProvider geometryProcessorKeyProvider(
                 &this->desc(), GrGLProgramDesc::EffectKeyProvider::kGeometryProcessor_EffectType);
         fGeometryProcessor.reset(this->createAndEmitEffect(
@@ -411,7 +411,7 @@ void GrGLFullProgramBuilder::createAndEmitEffect(GrGLProgramEffectsBuilder* prog
     GrGLSLExpr4 inColor = *fsInOutColor;
     GrGLSLExpr4 outColor;
 
-    SkASSERT(NULL != effectStages && NULL != effectStages->getEffect());
+    SkASSERT(effectStages && effectStages->getEffect());
     const GrEffectStage& stage = *effectStages;
 
     // Using scope to force ASR destructor to be triggered

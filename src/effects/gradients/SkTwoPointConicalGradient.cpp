@@ -423,7 +423,7 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 bool SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPaint& paint,
                                              const SkMatrix* localMatrix, GrColor* paintColor,
                                              GrEffect** effect)  const {
-    SkASSERT(NULL != context);
+    SkASSERT(context);
     SkASSERT(fPtsToUnit.isIdentity());
 
     *effect = Gr2PtConicalGradientEffect::Create(context, *this, fTileMode, localMatrix);

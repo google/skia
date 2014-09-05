@@ -796,7 +796,7 @@ protected:
                                         italic ? SkFontStyle::kItalic_Slant
                                                : SkFontStyle::kUpright_Slant);
         SkAutoTUnref<SkTypeface> typeface(this->matchFamilyStyle(familyName, style));
-        if (NULL != typeface.get()) {
+        if (typeface.get()) {
             return typeface.detach();
         }
 

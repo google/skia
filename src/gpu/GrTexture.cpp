@@ -16,7 +16,7 @@
 #include "GrResourceCache.h"
 
 GrTexture::~GrTexture() {
-    if (NULL != fRenderTarget.get()) {
+    if (fRenderTarget.get()) {
         fRenderTarget.get()->owningTextureDestroyed();
     }
 }
@@ -27,7 +27,7 @@ GrTexture::~GrTexture() {
  */
 void GrTexture::internal_dispose() const {
     if (this->impl()->isSetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit) &&
-        NULL != this->INHERITED::getContext()) {
+        this->INHERITED::getContext()) {
         GrTexture* nonConstThis = const_cast<GrTexture *>(this);
         this->ref(); // restore ref count to initial setting
 
@@ -123,18 +123,18 @@ void GrTexture::onRelease() {
 
 void GrTexture::onAbandon() {
     this->abandonReleaseCommon();
-    if (NULL != fRenderTarget.get()) {
+    if (fRenderTarget.get()) {
         fRenderTarget->abandon();
     }
     INHERITED::onAbandon();
 }
 
 void GrTexture::validateDesc() const {
-    if (NULL != this->asRenderTarget()) {
+    if (this->asRenderTarget()) {
         // This texture has a render target
         SkASSERT(0 != (fDesc.fFlags & kRenderTarget_GrTextureFlagBit));
 
-        if (NULL != this->asRenderTarget()->getStencilBuffer()) {
+        if (this->asRenderTarget()->getStencilBuffer()) {
             SkASSERT(0 != (fDesc.fFlags & kNoStencil_GrTextureFlagBit));
         } else {
             SkASSERT(0 == (fDesc.fFlags & kNoStencil_GrTextureFlagBit));
@@ -170,7 +170,7 @@ GrResourceKey::ResourceFlags get_texture_flags(const GrGpu* gpu,
                                                const GrTextureParams* params,
                                                const GrTextureDesc& desc) {
     GrResourceKey::ResourceFlags flags = 0;
-    bool tiled = NULL != params && params->isTiled();
+    bool tiled = params && params->isTiled();
     if (tiled && !gpu->caps()->npotTextureTileSupport()) {
         if (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight)) {
             flags |= kStretchToPOT_TextureFlag;

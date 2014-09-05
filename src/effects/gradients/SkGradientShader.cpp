@@ -1150,7 +1150,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
         desc.fContext = ctx;
         desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info());
         fAtlas = GrTextureStripAtlas::GetAtlas(desc);
-        SkASSERT(NULL != fAtlas);
+        SkASSERT(fAtlas);
 
         // We always filter the gradient table. Each table is one row of a texture, always y-clamp.
         GrTextureParams params;
@@ -1239,7 +1239,7 @@ int GrGradientEffect::RandomGradientParams(SkRandom* random,
     SkScalar stop = 0.f;
     for (int i = 0; i < outColors; ++i) {
         colors[i] = random->nextU();
-        if (NULL != *stops) {
+        if (*stops) {
             (*stops)[i] = stop;
             stop = i < outColors - 1 ? stop + random->nextUScalar1() * (1.f - stop) : 1.f;
         }

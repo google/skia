@@ -60,7 +60,7 @@ void PictureRenderer::init(const SkPicture* pict,
 
     SkASSERT(NULL == fPicture);
     SkASSERT(NULL == fCanvas.get());
-    if (NULL != fPicture || NULL != fCanvas.get()) {
+    if (fPicture || fCanvas.get()) {
         return;
     }
 
@@ -74,7 +74,7 @@ void PictureRenderer::init(const SkPicture* pict,
 }
 
 void PictureRenderer::CopyString(SkString* dest, const SkString* src) {
-    if (NULL != src) {
+    if (src) {
         dest->set(*src);
     } else {
         dest->reset();
@@ -90,7 +90,7 @@ public:
         paint->setFlags(paint->getFlags() & ~fFlags[t] & SkPaint::kAllFlags);
         if (PictureRenderer::kMaskFilter_DrawFilterFlag & fFlags[t]) {
             SkMaskFilter* maskFilter = paint->getMaskFilter();
-            if (NULL != maskFilter) {
+            if (maskFilter) {
                 paint->setMaskFilter(NULL);
             }
         }
@@ -212,8 +212,8 @@ int PictureRenderer::getViewHeight() {
  *  should call this method during init.
  */
 void PictureRenderer::buildBBoxHierarchy() {
-    SkASSERT(NULL != fPicture);
-    if (kNone_BBoxHierarchyType != fBBoxHierarchyType && NULL != fPicture) {
+    SkASSERT(fPicture);
+    if (kNone_BBoxHierarchyType != fBBoxHierarchyType && fPicture) {
         SkAutoTDelete<SkBBHFactory> factory(this->getFactory());
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(fPicture->cullRect().width(), 
@@ -305,14 +305,14 @@ static bool write(SkCanvas* canvas, const SkString& writePath, const SkString& m
         outputFilename.appendU64(imageDigestPtr->getHashValue());
     } else {
         outputFilename.set(escapedInputFilename);
-        if (NULL != tileNumberPtr) {
+        if (tileNumberPtr) {
             outputFilename.append("-tile");
             outputFilename.appendS32(*tileNumberPtr);
         }
     }
     outputFilename.append(".png");
 
-    if (NULL != jsonSummaryPtr) {
+    if (jsonSummaryPtr) {
         ImageDigest *imageDigestPtr = bitmapAndDigest.getImageDigestPtr();
         SkString outputRelativePath;
         if (outputSubdirPtr) {
@@ -392,7 +392,7 @@ bool PipePictureRenderer::render(SkBitmap** out) {
     pipeCanvas->drawPicture(fPicture);
     writer.endRecording();
     fCanvas->flush();
-    if (NULL != out) {
+    if (out) {
         *out = SkNEW(SkBitmap);
         setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()), 
                            SkScalarCeilToInt(fPicture->cullRect().height()));
@@ -421,14 +421,14 @@ void SimplePictureRenderer::init(const SkPicture* picture, const SkString* write
 
 bool SimplePictureRenderer::render(SkBitmap** out) {
     SkASSERT(fCanvas.get() != NULL);
-    SkASSERT(NULL != fPicture);
+    SkASSERT(fPicture);
     if (NULL == fCanvas.get() || NULL == fPicture) {
         return false;
     }
 
     fCanvas->drawPicture(fPicture);
     fCanvas->flush();
-    if (NULL != out) {
+    if (out) {
         *out = SkNEW(SkBitmap);
         setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()), 
                            SkScalarCeilToInt(fPicture->cullRect().height()));
@@ -467,7 +467,7 @@ TiledPictureRenderer::TiledPictureRenderer()
 void TiledPictureRenderer::init(const SkPicture* pict, const SkString* writePath,
                                 const SkString* mismatchPath, const SkString* inputFilename,
                                 bool useChecksumBasedFilenames) {
-    SkASSERT(NULL != pict);
+    SkASSERT(pict);
     SkASSERT(0 == fTileRects.count());
     if (NULL == pict || fTileRects.count() != 0) {
         return;
@@ -662,7 +662,7 @@ bool TiledPictureRenderer::render(SkBitmap** out) {
             success &= write(fCanvas, fWritePath, fMismatchPath, fInputFilename, fJsonSummaryPtr,
                              fUseChecksumBasedFilenames, &i);
         }
-        if (NULL != out) {
+        if (out) {
             if (fCanvas->readPixels(&bitmap, 0, 0)) {
                 // Add this tile to the entire bitmap.
                 bitmapCopyAtOffset(bitmap, *out, SkScalarFloorToInt(fTileRects[i].left()),
@@ -677,7 +677,7 @@ bool TiledPictureRenderer::render(SkBitmap** out) {
 
 SkCanvas* TiledPictureRenderer::setupCanvas(int width, int height) {
     SkCanvas* canvas = this->INHERITED::setupCanvas(width, height);
-    SkASSERT(NULL != fPicture);
+    SkASSERT(fPicture);
     // Clip the tile to an area that is completely inside both the SkPicture and the viewport. This
     // is mostly important for tiles on the right and bottom edges as they may go over this area and
     // the picture may have some commands that draw outside of this area and so should not actually

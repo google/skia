@@ -59,14 +59,14 @@ bool SkPatchGrid::setPatch(int x, int y, const SkPoint cubics[12], const SkColor
     fVrtCtrlPts[vrtPos + (fCols + 1) + 1] = cubics[SkPatchUtils::kRightP2_CubicCtrlPts];
     
     // set optional values (colors and texture coordinates)
-    if ((fModeFlags & kColors_VertexType)  && NULL != colors) {
+    if ((fModeFlags & kColors_VertexType)  && colors) {
         fCornerColors[cornerPos] = colors[0];
         fCornerColors[cornerPos + 1] = colors[1];
         fCornerColors[cornerPos + (fCols + 1)] = colors[3];
         fCornerColors[cornerPos + (fCols + 1) + 1] = colors[2];
     }
     
-    if ((fModeFlags & kTexs_VertexType) && NULL != texCoords) {
+    if ((fModeFlags & kTexs_VertexType) && texCoords) {
         fTexCoords[cornerPos] = texCoords[0];
         fTexCoords[cornerPos + 1] = texCoords[1];
         fTexCoords[cornerPos + (fCols + 1)] = texCoords[3];
@@ -102,14 +102,14 @@ bool SkPatchGrid::getPatch(int x, int y, SkPoint cubics[12], SkColor colors[4],
     cubics[SkPatchUtils::kLeftP2_CubicCtrlPts] = fVrtCtrlPts[vrtPos + (fCols + 1)];
     cubics[SkPatchUtils::kRightP2_CubicCtrlPts] = fVrtCtrlPts[vrtPos + (fCols + 1) + 1];
     
-    if ((fModeFlags & kColors_VertexType)  && NULL != colors) {
+    if ((fModeFlags & kColors_VertexType)  && colors) {
         colors[0] = fCornerColors[cornerPos];
         colors[1] = fCornerColors[cornerPos + 1];
         colors[3] = fCornerColors[cornerPos + (fCols + 1)];
         colors[2] = fCornerColors[cornerPos + (fCols + 1) + 1];
     }
     
-    if ((fModeFlags & kTexs_VertexType)  && NULL != texCoords) {
+    if ((fModeFlags & kTexs_VertexType)  && texCoords) {
         texCoords[0] = fTexCoords[cornerPos];
         texCoords[1] = fTexCoords[cornerPos + 1];
         texCoords[3] = fTexCoords[cornerPos + (fCols + 1)];

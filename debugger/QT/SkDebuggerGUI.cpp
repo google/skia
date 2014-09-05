@@ -186,7 +186,7 @@ public:
         int opIndex = -1;
 
         while (!reader.eof()) {
-            if (NULL != callback && callback->abortDrawing()) {
+            if (callback && callback->abortDrawing()) {
                 return;
             }
 

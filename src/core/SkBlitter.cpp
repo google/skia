@@ -700,7 +700,7 @@ public:
     virtual void toString(SkString* str) const SK_OVERRIDE {
         str->append("Sk3DShader: (");
 
-        if (NULL != fProxy) {
+        if (fProxy) {
             str->append("Proxy: ");
             fProxy->toString(str);
         }
@@ -875,7 +875,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         shader = shader3D;
     }
 
-    if (NULL != mode) {
+    if (mode) {
         switch (interpret_xfermode(*paint, mode, device.colorType())) {
             case kSrcOver_XferInterp:
                 mode = NULL;

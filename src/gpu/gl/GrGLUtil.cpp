@@ -40,10 +40,10 @@ void GrGLCheckErr(const GrGLInterface* gl,
     uint32_t err = GR_GL_GET_ERROR(gl);
     if (GR_GL_NO_ERROR != err) {
         GrPrintf("---- glGetError 0x%x(%s)", err, get_error_string(err));
-        if (NULL != location) {
+        if (location) {
             GrPrintf(" at\n\t%s", location);
         }
-        if (NULL != call) {
+        if (call) {
             GrPrintf("\n\t\t%s", call);
         }
         GrPrintf("\n");
@@ -167,7 +167,7 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
 }
 
 GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
-    if (NULL != vendorString) {
+    if (vendorString) {
         if (0 == strcmp(vendorString, "ARM")) {
             return kARM_GrGLVendor;
         }
@@ -188,7 +188,7 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
 }
 
 GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
-    if (NULL != rendererString) {
+    if (rendererString) {
         if (0 == strcmp(rendererString, "NVIDIA Tegra 3")) {
             return kTegra3_GrGLRenderer;
         } else if (0 == strcmp(rendererString, "NVIDIA Tegra")) {

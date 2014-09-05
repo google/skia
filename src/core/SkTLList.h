@@ -53,7 +53,7 @@ public:
         this->validate();
         typename NodeList::Iter iter;
         Node* node = iter.init(fList, Iter::kHead_IterStart);
-        while (NULL != node) {
+        while (node) {
             SkTCast<T*>(node->fObj)->~T();
             Block* block = node->fBlock;
             node = iter.next();
@@ -126,7 +126,7 @@ public:
     void popHead() {
         this->validate();
         Node* node = fList.head();
-        if (NULL != node) {
+        if (node) {
             this->removeNode(node);
         }
         this->validate();
@@ -135,7 +135,7 @@ public:
     void popTail() {
         this->validate();
         Node* node = fList.head();
-        if (NULL != node) {
+        if (node) {
             this->removeNode(node);
         }
         this->validate();
@@ -175,7 +175,7 @@ public:
         for (Iter a(*this, Iter::kHead_IterStart), b(list, Iter::kHead_IterStart);
              a.get();
              a.next(), b.next()) {
-            SkASSERT(NULL != b.get()); // already checked that counts match.
+            SkASSERT(b.get()); // already checked that counts match.
             if (!(*a.get() == *b.get())) {
                 return false;
             }
@@ -219,7 +219,7 @@ public:
         Node* getNode() { return INHERITED::get(); }
 
         T* nodeToObj(Node* node) {
-            if (NULL != node) {
+            if (node) {
                 return reinterpret_cast<T*>(node->fObj);
             } else {
                 return NULL;
@@ -243,7 +243,7 @@ private:
 
     Node* createNode() {
         Node* node = fFreeList.head();
-        if (NULL != node) {
+        if (node) {
             fFreeList.remove(node);
             ++node->fBlock->fNodesInUse;
         } else {
@@ -263,7 +263,7 @@ private:
     }
 
     void removeNode(Node* node) {
-        SkASSERT(NULL != node);
+        SkASSERT(node);
         fList.remove(node);
         SkTCast<T*>(node->fObj)->~T();
         if (0 == --node->fBlock->fNodesInUse) {
@@ -369,7 +369,7 @@ template <typename T>
 void *operator new(size_t, SkTLList<T>* list,
                    typename SkTLList<T>::Placement placement,
                    const typename SkTLList<T>::Iter& location) {
-    SkASSERT(NULL != list);
+    SkASSERT(list);
     if (SkTLList<T>::kBefore_Placement == placement) {
         return list->internalAddBefore(location);
     } else {

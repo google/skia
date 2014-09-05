@@ -143,7 +143,7 @@ public:
     static bool IsStrokeHairlineOrEquivalent(const SkStrokeRec& stroke, const SkMatrix& matrix,
                                              SkScalar* outCoverage) {
         if (stroke.isHairlineStyle()) {
-            if (NULL != outCoverage) {
+            if (outCoverage) {
                 *outCoverage = SK_Scalar1;
             }
             return true;

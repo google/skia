@@ -337,7 +337,7 @@ SkPaint* SkLayerDrawLooper::Builder::addLayerOnTop(const LayerInfo& info) {
     if (NULL == fRecs) {
         fRecs = rec;
     } else {
-        SkASSERT(NULL != fTopRec);
+        SkASSERT(fTopRec);
         fTopRec->fNext = rec;
     }
     fTopRec = rec;

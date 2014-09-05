@@ -73,7 +73,7 @@ bool GrPlot::addSubImage(int width, int height, const void* image, SkIPoint16* l
     }
 
     // if we have backing memory, copy to the memory and set for future upload
-    if (NULL != fPlotData) {
+    if (fPlotData) {
         const unsigned char* imagePtr = (const unsigned char*) image;
         // point ourselves at the right starting spot
         unsigned char* dataPtr = fPlotData;
@@ -90,7 +90,7 @@ bool GrPlot::addSubImage(int width, int height, const void* image, SkIPoint16* l
         adjust_for_offset(loc, fOffset);
         fDirty = true;
     // otherwise, just upload the image directly
-    } else if (NULL != image) {
+    } else if (image) {
         adjust_for_offset(loc, fOffset);
         GrContext* context = fTexture->getContext();
         TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrPlot::uploadToTexture");
@@ -117,7 +117,7 @@ void GrPlot::uploadToTexture() {
 
     if (fDirty) {
         TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrPlot::uploadToTexture");
-        SkASSERT(NULL != fTexture);
+        SkASSERT(fTexture);
         GrContext* context = fTexture->getContext();
         // We pass the flag that does not force a flush. We assume our caller is
         // smart and hasn't referenced the part of the texture we're about to update
@@ -144,7 +144,7 @@ void GrPlot::uploadToTexture() {
 }
 
 void GrPlot::resetRects() {
-    SkASSERT(NULL != fRects);
+    SkASSERT(fRects);
     fRects->reset();
 }
 
@@ -241,7 +241,7 @@ GrPlot* GrAtlas::addToAtlas(ClientPlotUsage* usage,
     GrPlotList::Iter plotIter;
     plotIter.init(fPlotList, GrPlotList::Iter::kHead_IterStart);
     GrPlot* plot;
-    while (NULL != (plot = plotIter.get())) {
+    while ((plot = plotIter.get())) {
         // make sure texture is set for quick lookup
         plot->fTexture = fTexture;
         if (plot->addSubImage(width, height, image, loc)) {
@@ -270,7 +270,7 @@ GrPlot* GrAtlas::getUnusedPlot() {
     GrPlotList::Iter plotIter;
     plotIter.init(fPlotList, GrPlotList::Iter::kTail_IterStart);
     GrPlot* plot;
-    while (NULL != (plot = plotIter.get())) {
+    while ((plot = plotIter.get())) {
         if (plot->drawToken().isIssued()) {
             return plot;
         }
@@ -285,7 +285,7 @@ void GrAtlas::uploadPlotsToTexture() {
         GrPlotList::Iter plotIter;
         plotIter.init(fPlotList, GrPlotList::Iter::kHead_IterStart);
         GrPlot* plot;
-        while (NULL != (plot = plotIter.get())) {
+        while ((plot = plotIter.get())) {
             plot->uploadToTexture();
             plotIter.next();
         }

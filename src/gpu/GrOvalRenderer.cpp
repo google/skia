@@ -881,7 +881,7 @@ GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(GrGpu* gpu) {
     if (NULL == fRRectIndexBuffer) {
         fRRectIndexBuffer =
         gpu->createIndexBuffer(sizeof(gRRectIndices), false);
-        if (NULL != fRRectIndexBuffer) {
+        if (fRRectIndexBuffer) {
 #ifdef SK_DEBUG
             bool updated =
 #endif

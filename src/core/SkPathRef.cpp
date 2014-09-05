@@ -343,7 +343,7 @@ SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
     }
 
     if (SkPath::kConic_Verb == verb) {
-        SkASSERT(NULL != weights);
+        SkASSERT(weights);
         *weights = fConicWeights.append(numVbs);
     }
 

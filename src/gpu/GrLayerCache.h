@@ -122,7 +122,7 @@ public:
     }
     GrPlot* plot() { return fPlot; }
 
-    bool isAtlased() const { return NULL != fPlot; }
+    bool isAtlased() const { return SkToBool(fPlot); }
 
     void setLocked(bool locked) { fLocked = locked; }
     bool locked() const { return fLocked; }
@@ -146,7 +146,7 @@ private:
     // It is always NULL for non-atlased layers.
     GrPlot*         fPlot;
 
-    // For non-atlased layers 'fLocked' should always match "NULL != fTexture".
+    // For non-atlased layers 'fLocked' should always match "fTexture".
     // (i.e., if there is a texture it is locked).
     // For atlased layers, 'fLocked' is true if the layer is in a plot and
     // actively required for rendering. If the layer is in a plot but not

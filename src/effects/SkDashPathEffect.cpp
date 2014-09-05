@@ -104,7 +104,7 @@ bool SkDashPathEffect::asPoints(PointData* results,
         return false;
     }
 
-    if (NULL != results) {
+    if (results) {
         results->fFlags = 0;
         SkScalar clampedInitialDashLength = SkMinScalar(length, fInitialDashLength);
 
@@ -229,7 +229,7 @@ bool SkDashPathEffect::asPoints(PointData* results,
 
 SkPathEffect::DashType SkDashPathEffect::asADash(DashInfo* info) const {
     if (info) {
-        if (info->fCount >= fCount && NULL != info->fIntervals) {
+        if (info->fCount >= fCount && info->fIntervals) {
             memcpy(info->fIntervals, fIntervals, fCount * sizeof(SkScalar));
         }
         info->fCount = fCount;

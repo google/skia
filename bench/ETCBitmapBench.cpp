@@ -21,7 +21,7 @@
 // This takes the etc1 data pointed to by orig, and copies it `factor` times in each
 // dimension. The return value is the new data or NULL on error.
 static etc1_byte* create_expanded_etc1_bitmap(const uint8_t* orig, int factor) {
-    SkASSERT(NULL != orig);
+    SkASSERT(orig);
     SkASSERT(factor > 1);
 
     const etc1_byte* origData = reinterpret_cast<const etc1_byte*>(orig);

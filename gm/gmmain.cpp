@@ -849,7 +849,7 @@ public:
             // If we have access to a single expected bitmap, log more
             // detail about the mismatch.
             const SkBitmap *expectedBitmapPtr = expectations.asBitmap();
-            if (NULL != expectedBitmapPtr) {
+            if (expectedBitmapPtr) {
                 report_bitmap_diffs(*expectedBitmapPtr, actualBitmapAndDigest.fBitmap,
                                     completeName);
             }
@@ -1762,7 +1762,7 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
                 desc.fHeight = gm->getISize().height();
                 desc.fSampleCnt = config.fSampleCnt;
                 auGpuTarget.reset(gr->createUncachedTexture(desc, NULL, 0));
-                if (NULL != auGpuTarget) {
+                if (auGpuTarget) {
                     gpuTarget = auGpuTarget;
                     grSuccess = true;
                     // Set the user specified cache limits if non-default.
@@ -2297,10 +2297,10 @@ int tool_main(int argc, char** argv) {
         if (FLAGS_writePath.count() == 1) {
             SkDebugf("writing to %s\n", FLAGS_writePath[0]);
         }
-        if (NULL != gmmain.fMismatchPath) {
+        if (gmmain.fMismatchPath) {
             SkDebugf("writing mismatches to %s\n", gmmain.fMismatchPath);
         }
-        if (NULL != gmmain.fMissingExpectationsPath) {
+        if (gmmain.fMissingExpectationsPath) {
             SkDebugf("writing images without expectations to %s\n",
                      gmmain.fMissingExpectationsPath);
         }
@@ -2324,13 +2324,13 @@ int tool_main(int argc, char** argv) {
                 return -1;
             }
         }
-        if (NULL != gmmain.fMismatchPath) {
+        if (gmmain.fMismatchPath) {
             if (!prepare_subdirectories(gmmain.fMismatchPath, gmmain.fUseFileHierarchy,
                                         configs, pdfRasterizers)) {
                 return -1;
             }
         }
-        if (NULL != gmmain.fMissingExpectationsPath) {
+        if (gmmain.fMissingExpectationsPath) {
             if (!prepare_subdirectories(gmmain.fMissingExpectationsPath, gmmain.fUseFileHierarchy,
                                         configs, pdfRasterizers)) {
                 return -1;

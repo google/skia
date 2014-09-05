@@ -24,7 +24,7 @@ static const T* assert_type(skiatest::Reporter* r, const SkRecord& record, unsig
     ReadAs<T> reader;
     record.visit<void>(index, reader);
     REPORTER_ASSERT(r, T::kType == reader.type);
-    REPORTER_ASSERT(r, NULL != reader.ptr);
+    REPORTER_ASSERT(r, SkToBool(reader.ptr));
     return reader.ptr;
 }
 

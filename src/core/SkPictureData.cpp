@@ -30,7 +30,7 @@ SkPictureData::SkPictureData(const SkPictInfo& info)
 
 void SkPictureData::initForPlayback() const {
     // ensure that the paths bounds are pre-computed
-    if (NULL != fPathHeap.get()) {
+    if (fPathHeap.get()) {
         for (int i = 0; i < fPathHeap->count(); i++) {
             (*fPathHeap.get())[i].updateBoundsCache();
         }
@@ -53,7 +53,7 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
     SkSafeRef(fStateTree);
     fContentInfo.set(record.fContentInfo);
 
-    if (NULL != fBoundingHierarchy) {
+    if (fBoundingHierarchy) {
         fBoundingHierarchy->flushDeferredInserts();
     }
 

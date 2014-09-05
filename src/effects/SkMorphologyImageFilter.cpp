@@ -502,7 +502,7 @@ bool apply_morphology(const SkBitmap& input,
                       SkISize radius,
                       SkBitmap* dst) {
     GrTexture* srcTexture = input.getTexture();
-    SkASSERT(NULL != srcTexture);
+    SkASSERT(srcTexture);
     GrContext* context = srcTexture->getContext();
     srcTexture->ref();
     SkAutoTUnref<GrTexture> src(srcTexture);

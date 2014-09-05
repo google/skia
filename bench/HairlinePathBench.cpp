@@ -181,7 +181,7 @@ public:
 #if SK_SUPPORT_GPU
         GrContext* context = canvas->getGrContext();
         // This is a workaround for skbug.com/2078. See also skbug.com/2033.
-        if (NULL != context) {
+        if (context) {
             GrTestTarget tt;
             context->getTestTarget(&tt);
             if (tt.target()->caps()->pathRenderingSupport()) {

@@ -384,7 +384,7 @@ protected:
                                     gMIN_ALLOC_COUNT;
         fPreAllocMemArray   = preAllocStorage;
         if (fReserveCount >= fCount &&
-            NULL != preAllocStorage) {
+            preAllocStorage) {
             fAllocCount = fReserveCount;
             fMemArray = preAllocStorage;
         } else {
@@ -427,7 +427,7 @@ private:
             fAllocCount = newAllocCount;
             char* newMemArray;
 
-            if (fAllocCount == fReserveCount && NULL != fPreAllocMemArray) {
+            if (fAllocCount == fReserveCount && fPreAllocMemArray) {
                 newMemArray = (char*) fPreAllocMemArray;
             } else {
                 newMemArray = (char*) sk_malloc_throw(fAllocCount*sizeof(T));

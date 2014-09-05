@@ -966,7 +966,7 @@ void GrGLPerlinNoise::setData(const GrGLProgramDataManager& pdman, const GrDrawE
 bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
                                       const SkMatrix* externalLocalMatrix, GrColor* paintColor,
                                       GrEffect** effect) const {
-    SkASSERT(NULL != context);
+    SkASSERT(context);
     
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
 
@@ -1001,7 +1001,7 @@ bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
     SkMatrix m = context->getMatrix();
     m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);
     m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
-    if ((NULL != permutationsTexture) && (NULL != noiseTexture)) {
+    if ((permutationsTexture) && (noiseTexture)) {
         *effect = GrPerlinNoiseEffect::Create(fType,
                                                 fNumOctaves,
                                                 fStitchTiles,
@@ -1016,10 +1016,10 @@ bool SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
     // Unlock immediately, this is not great, but we don't have a way of
     // knowing when else to unlock it currently. TODO: Remove this when
     // unref becomes the unlock replacement for all types of textures.
-    if (NULL != permutationsTexture) {
+    if (permutationsTexture) {
         GrUnlockAndUnrefCachedBitmapTexture(permutationsTexture);
     }
-    if (NULL != noiseTexture) {
+    if (noiseTexture) {
         GrUnlockAndUnrefCachedBitmapTexture(noiseTexture);
     }
 

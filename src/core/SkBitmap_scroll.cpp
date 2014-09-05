@@ -15,7 +15,7 @@ bool SkBitmap::scrollRect(const SkIRect* subset, int dx, int dy,
         return false;
     }
 
-    if (NULL != subset) {
+    if (subset) {
         SkBitmap tmp;
 
         return  this->extractSubset(&tmp, *subset) &&
@@ -29,14 +29,14 @@ bool SkBitmap::scrollRect(const SkIRect* subset, int dx, int dy,
 
     // check if there's nothing to do
     if ((dx | dy) == 0 || width <= 0 || height <= 0) {
-        if (NULL != inval) {
+        if (inval) {
             inval->setEmpty();
         }
         return true;
     }
 
     // compute the inval region now, before we see if there are any pixels
-    if (NULL != inval) {
+    if (inval) {
         SkIRect r;
 
         r.set(0, 0, width, height);

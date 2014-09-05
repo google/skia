@@ -27,7 +27,7 @@ bool SkPictureContentInfo::suitableForGpuRasterization(GrContext* context, const
     bool ret = suitableForDash &&
                     (fNumAAConcavePaths - fNumAAHairlineConcavePaths)
                     < kNumAAConcavePaths;
-    if (!ret && NULL != reason) {
+    if (!ret && reason) {
         if (!suitableForDash) {
             if (0 != sampleCount) {
                 *reason = "Can't use multisample on dash effect.";
@@ -66,7 +66,7 @@ void SkPictureContentInfo::onDrawPath(const SkPath& path, const SkPaint& paint) 
 }
 
 void SkPictureContentInfo::onAddPaintPtr(const SkPaint* paint) {
-    if (NULL != paint && NULL != paint->getPathEffect()) {
+    if (paint && paint->getPathEffect()) {
         ++fNumPaintWithPathEffectUses;
     }
 }

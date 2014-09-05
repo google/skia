@@ -125,7 +125,7 @@ private:
         SkCanvas* tempCanvas = NULL;
 #if SK_SUPPORT_GPU
         GrContext* context = baseCanvas->getGrContext();
-        if (NULL != context) {
+        if (context) {
             GrTextureDesc desc;
             desc.fWidth = w;
             desc.fHeight = h;
@@ -133,7 +133,7 @@ private:
             desc.fFlags = kRenderTarget_GrTextureFlagBit;
             SkAutoTUnref<GrSurface> surface(context->createUncachedTexture(desc, NULL, 0));
             SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(surface.get()));
-            if (NULL != device.get()) {
+            if (device.get()) {
                 tempCanvas = SkNEW_ARGS(SkCanvas, (device.get()));
             }
         }

@@ -379,7 +379,7 @@ void GrGLArithmeticEffect::emitCode(GrGLProgramBuilder* builder,
         dstColor = fsBuilder->dstColor();
     }
 
-    SkASSERT(NULL != dstColor);
+    SkASSERT(dstColor);
     fKUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                 kVec4f_GrSLType, "k");
     const char* kUni = builder->getUniformCStr(fKUni);

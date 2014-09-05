@@ -315,7 +315,7 @@ GrIndexBuffer* GrAARectRenderer::aaFillRectIndexBuffer(GrGpu* gpu) {
 
     if (NULL == fAAFillRectIndexBuffer) {
         fAAFillRectIndexBuffer = gpu->createIndexBuffer(kAAFillRectIndexBufferSize, false);
-        if (NULL != fAAFillRectIndexBuffer) {
+        if (fAAFillRectIndexBuffer) {
             uint16_t* data = (uint16_t*) fAAFillRectIndexBuffer->map();
             bool useTempData = (NULL == data);
             if (useTempData) {
@@ -428,7 +428,7 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(GrGpu* gpu, bool miterS
         if (NULL == fAAMiterStrokeRectIndexBuffer) {
             fAAMiterStrokeRectIndexBuffer =
                 gpu->createIndexBuffer(sizeof(gMiterStrokeAARectIdx), false);
-            if (NULL != fAAMiterStrokeRectIndexBuffer) {
+            if (fAAMiterStrokeRectIndexBuffer) {
 #ifdef SK_DEBUG
                 bool updated =
 #endif
@@ -442,7 +442,7 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(GrGpu* gpu, bool miterS
         if (NULL == fAABevelStrokeRectIndexBuffer) {
             fAABevelStrokeRectIndexBuffer =
                 gpu->createIndexBuffer(sizeof(gBevelStrokeAARectIdx), false);
-            if (NULL != fAABevelStrokeRectIndexBuffer) {
+            if (fAABevelStrokeRectIndexBuffer) {
 #ifdef SK_DEBUG
                 bool updated =
 #endif

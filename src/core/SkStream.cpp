@@ -255,7 +255,7 @@ SkStreamAsset* SkFILEStream::duplicate() const {
         return new SkMemoryStream();
     }
 
-    if (NULL != fData.get()) {
+    if (fData.get()) {
         return new SkMemoryStream(fData);
     }
 

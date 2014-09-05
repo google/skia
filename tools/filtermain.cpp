@@ -84,7 +84,7 @@ static void apply_0(SkDebugCanvas* canvas, int curCommand) {
     const SkPaint* saveLayerPaint = saveLayer->paint();
 
     // if (NULL == saveLayerPaint) the dbmr's paint doesn't need to be changed
-    if (NULL != saveLayerPaint) {
+    if (saveLayerPaint) {
         SkDrawBitmapRectCommand* dbmr =
             (SkDrawBitmapRectCommand*) canvas->getDrawCommandAt(curCommand+1);
         SkPaint* dbmrPaint = dbmr->paint();
@@ -92,7 +92,7 @@ static void apply_0(SkDebugCanvas* canvas, int curCommand) {
         if (NULL == dbmrPaint) {
             // if the DBMR doesn't have a paint just use the saveLayer's
             dbmr->setPaint(*saveLayerPaint);
-        } else if (NULL != saveLayerPaint) {
+        } else if (saveLayerPaint) {
             // Both paints are present so their alphas need to be combined
             SkColor color = saveLayerPaint->getColor();
             int a0 = SkColorGetA(color);
@@ -162,7 +162,7 @@ static void apply_1(SkDebugCanvas* canvas, int curCommand) {
     const SkPaint* saveLayerPaint = saveLayer->paint();
 
     // if (NULL == saveLayerPaint) the dbmr's paint doesn't need to be changed
-    if (NULL != saveLayerPaint) {
+    if (saveLayerPaint) {
         SkDrawBitmapRectCommand* dbmr =
             (SkDrawBitmapRectCommand*) canvas->getDrawCommandAt(curCommand+3);
         SkPaint* dbmrPaint = dbmr->paint();
@@ -423,8 +423,8 @@ static bool check_7(SkDebugCanvas* canvas, int curCommand) {
     const SkPaint* saveLayerPaint0 = saveLayer0->paint();
     const SkPaint* saveLayerPaint1 = saveLayer1->paint();
 
-    if ((NULL != saveLayerPaint0 && !is_simple(*saveLayerPaint0)) ||
-        (NULL != saveLayerPaint1 && !is_simple(*saveLayerPaint1))) {
+    if ((saveLayerPaint0 && !is_simple(*saveLayerPaint0)) ||
+        (saveLayerPaint1 && !is_simple(*saveLayerPaint1))) {
         return false;
     }
 
@@ -434,14 +434,14 @@ static bool check_7(SkDebugCanvas* canvas, int curCommand) {
         return true;
     }
 
-    if (NULL != saveLayerPaint0) {
+    if (saveLayerPaint0) {
         SkColor layerColor0 = saveLayerPaint0->getColor() | 0xFF000000; // force opaque
         if (dbmrPaint->getColor() != layerColor0) {
             return false;
         }
     }
 
-    if (NULL != saveLayerPaint1) {
+    if (saveLayerPaint1) {
         SkColor layerColor1 = saveLayerPaint1->getColor() | 0xFF000000; // force opaque
         if (dbmrPaint->getColor() != layerColor1) {
             return false;
@@ -477,7 +477,7 @@ static void apply_7(SkDebugCanvas* canvas, int curCommand) {
     int a0, a1;
 
     const SkPaint* saveLayerPaint0 = saveLayer0->paint();
-    if (NULL != saveLayerPaint0) {
+    if (saveLayerPaint0) {
         color = saveLayerPaint0->getColor();
         a0 = SkColorGetA(color);
     } else {
@@ -485,7 +485,7 @@ static void apply_7(SkDebugCanvas* canvas, int curCommand) {
     }
 
     const SkPaint* saveLayerPaint1 = saveLayer1->paint();
-    if (NULL != saveLayerPaint1) {
+    if (saveLayerPaint1) {
         color = saveLayerPaint1->getColor();
         a1 = SkColorGetA(color);
     } else {
@@ -497,7 +497,7 @@ static void apply_7(SkDebugCanvas* canvas, int curCommand) {
 
     SkPaint* dbmrPaint = dbmr->paint();
 
-    if (NULL != dbmrPaint) {
+    if (dbmrPaint) {
         SkColor newColor = SkColorSetA(dbmrPaint->getColor(), newA);
         dbmrPaint->setColor(newColor);
     } else {
@@ -579,7 +579,7 @@ static void apply_8(SkDebugCanvas* canvas, int curCommand) {
 
     SkScalar newSrcLeft, newSrcTop;
 
-    if (NULL != dbmr->srcRect()) {
+    if (dbmr->srcRect()) {
         newSrcLeft = dbmr->srcRect()->fLeft + clip->rect().fLeft - dbmr->dstRect().fLeft;
         newSrcTop  = dbmr->srcRect()->fTop + clip->rect().fTop - dbmr->dstRect().fTop;
     } else {

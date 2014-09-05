@@ -278,7 +278,7 @@ DEF_TEST(ImageDecoding_unpremul, reporter) {
 
         // This should never fail since we know the images we're decoding.
         SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&stream));
-        REPORTER_ASSERT(reporter, NULL != decoder.get());
+        REPORTER_ASSERT(reporter, decoder.get());
         if (NULL == decoder.get()) {
             continue;
         }
@@ -510,9 +510,9 @@ DEF_TEST(ImprovedBitmapFactory, reporter) {
         SkBitmap bm;
         SkAssertResult(bm.setInfo(SkImageInfo::MakeN32Premul(1, 1)));
         REPORTER_ASSERT(reporter,
-            NULL != install_pixel_ref(&bm, stream.detach(), 1, true));
+            install_pixel_ref(&bm, stream.detach(), 1, true));
         SkAutoLockPixels alp(bm);
-        REPORTER_ASSERT(reporter, NULL != bm.getPixels());
+        REPORTER_ASSERT(reporter, bm.getPixels());
     }
 }
 

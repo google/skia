@@ -34,9 +34,9 @@ SkCanvas::SaveLayerStrategy SkBBoxHierarchyRecord::willSaveLayer(const SkRect* b
                                                                  SaveFlags flags) {
     // For now, assume all filters affect transparent black.
     // FIXME: This could be made less conservative as an optimization.
-    bool paintAffectsTransparentBlack = NULL != paint &&
-        ((NULL != paint->getImageFilter()) ||
-         (NULL != paint->getColorFilter()));
+    bool paintAffectsTransparentBlack = paint &&
+        ((paint->getImageFilter()) ||
+         (paint->getColorFilter()));
     SkRect drawBounds;
     if (paintAffectsTransparentBlack) {
         SkIRect deviceBounds;

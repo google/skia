@@ -65,21 +65,21 @@ void ReduceClipStack(const SkClipStack& stack,
         SkRect isectRect;
         if (stackBounds.contains(scalarQueryBounds)) {
             *initialState = kAllIn_InitialState;
-            if (NULL != tighterBounds) {
+            if (tighterBounds) {
                 *tighterBounds = queryBounds;
             }
-            if (NULL != requiresAA) {
+            if (requiresAA) {
                *requiresAA = false;
             }
         } else if (isectRect.intersect(stackBounds, scalarQueryBounds)) {
             // If the caller asked for tighter integer bounds we may be able to
             // return kAllIn and give the bounds with no elements
-            if (NULL != tighterBounds) {
+            if (tighterBounds) {
                 isectRect.roundOut(tighterBounds);
                 SkRect scalarTighterBounds = SkRect::Make(*tighterBounds);
                 if (scalarTighterBounds == isectRect) {
                     // the round-out didn't add any area outside the clip rect.
-                    if (NULL != requiresAA) {
+                    if (requiresAA) {
                         *requiresAA = false;
                     }
                     *initialState = kAllIn_InitialState;
@@ -91,12 +91,12 @@ void ReduceClipStack(const SkClipStack& stack,
             SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
             bool doAA = iter.prev()->isAA();
             SkNEW_INSERT_AT_LLIST_HEAD(result, Element, (isectRect, SkRegion::kReplace_Op, doAA));
-            if (NULL != requiresAA) {
+            if (requiresAA) {
                 *requiresAA = doAA;
             }
         } else {
             *initialState = kAllOut_InitialState;
-             if (NULL != requiresAA) {
+             if (requiresAA) {
                 *requiresAA = false;
              }
         }
@@ -105,12 +105,12 @@ void ReduceClipStack(const SkClipStack& stack,
         if (SkClipStack::kNormal_BoundsType == stackBoundsType) {
             if (!SkRect::Intersects(stackBounds, scalarQueryBounds)) {
                 *initialState = kAllOut_InitialState;
-                if (NULL != requiresAA) {
+                if (requiresAA) {
                    *requiresAA = false;
                 }
                 return;
             }
-            if (NULL != tighterBounds) {
+            if (tighterBounds) {
                 SkIRect stackIBounds;
                 stackBounds.roundOut(&stackIBounds);
                 tighterBounds->intersect(queryBounds, stackIBounds);
@@ -119,12 +119,12 @@ void ReduceClipStack(const SkClipStack& stack,
         } else {
             if (stackBounds.contains(scalarQueryBounds)) {
                 *initialState = kAllOut_InitialState;
-                if (NULL != requiresAA) {
+                if (requiresAA) {
                    *requiresAA = false;
                 }
                 return;
             }
-            if (NULL != tighterBounds) {
+            if (tighterBounds) {
                 *tighterBounds = queryBounds;
             }
         }
@@ -367,7 +367,7 @@ void reduced_stack_walker(const SkClipStack& stack,
         result->reset();
     } else {
         Element* element = result->headIter().get();
-        while (NULL != element) {
+        while (element) {
             bool skippable = false;
             switch (element->getOp()) {
                 case SkRegion::kDifference_Op:
@@ -435,7 +435,7 @@ void reduced_stack_walker(const SkClipStack& stack,
             }
         }
     }
-    if (NULL != requiresAA) {
+    if (requiresAA) {
         *requiresAA = numAAElements > 0;
     }
 

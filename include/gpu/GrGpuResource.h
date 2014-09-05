@@ -186,7 +186,7 @@ protected:
     GrGpuResource(GrGpu*, bool isWrapped);
     virtual ~GrGpuResource();
 
-    bool isInCache() const { return NULL != fCacheEntry; }
+    bool isInCache() const { return SkToBool(fCacheEntry); }
 
     GrGpu* getGpu() const { return fGpu; }
 

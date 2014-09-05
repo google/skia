@@ -30,7 +30,7 @@ static void check_allocator_helper(GrTAllocator<C>* allocator, int cnt, int popC
 // again. Finally it resets the allocator and checks again.
 static void check_allocator(GrTAllocator<C>* allocator, int cnt, int popCnt,
                             skiatest::Reporter* reporter) {
-    SkASSERT(NULL != allocator);
+    SkASSERT(allocator);
     SkASSERT(allocator->empty());
     for (int i = 0; i < cnt; ++i) {
         // Try both variations of push_back().

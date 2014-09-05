@@ -234,7 +234,7 @@ bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
                (fNumAAConcavePaths - fNumAAHairlineConcavePaths)
                    < kNumAAConcavePathsTol;
 
-    if (!ret && NULL != reason) {
+    if (!ret && reason) {
         if (!suitableForDash) {
             if (0 != sampleCount) {
                 *reason = "Can't use multisample on dash effect.";
@@ -296,7 +296,7 @@ void SkPicture::EXPERIMENTAL_addAccelData(const SkPicture::AccelData* data) cons
 // fRecord OK
 const SkPicture::AccelData* SkPicture::EXPERIMENTAL_getAccelData(
         SkPicture::AccelData::Key key) const {
-    if (NULL != fAccelData.get() && fAccelData->getKey() == key) {
+    if (fAccelData.get() && fAccelData->getKey() == key) {
         return fAccelData.get();
     }
     return NULL;
@@ -328,20 +328,20 @@ const SkMatrix& SkPicture::OperationList::matrix(int index) const {
 
 // fRecord OK
 void SkPicture::playback(SkCanvas* canvas, SkDrawPictureCallback* callback) const {
-    SkASSERT(NULL != canvas);
-    SkASSERT(NULL != fData.get() || NULL != fRecord.get());
+    SkASSERT(canvas);
+    SkASSERT(fData.get() || fRecord.get());
 
     // If the query contains the whole picture, don't bother with the BBH.
     SkRect clipBounds = { 0, 0, 0, 0 };
     (void)canvas->getClipBounds(&clipBounds);
     const bool useBBH = !clipBounds.contains(this->cullRect());
 
-    if (NULL != fData.get()) {
+    if (fData.get()) {
         SkPicturePlayback playback(this);
         playback.setUseBBH(useBBH);
         playback.draw(canvas, callback);
     }
-    if (NULL != fRecord.get()) {
+    if (fRecord.get()) {
         SkRecordDraw(*fRecord, canvas, useBBH ? fBBH.get() : NULL, callback);
     }
 }
@@ -531,10 +531,10 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
 
     // If we're a new-format picture, backport to old format for serialization.
     SkAutoTDelete<SkPicture> oldFormat;
-    if (NULL == data && NULL != fRecord.get()) {
+    if (NULL == data && fRecord.get()) {
         oldFormat.reset(backport(*fRecord, this->cullRect()));
         data = oldFormat->fData.get();
-        SkASSERT(NULL != data);
+        SkASSERT(data);
     }
 
     SkPictInfo info;
@@ -542,7 +542,7 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     SkASSERT(sizeof(SkPictInfo) == 32);
     stream->write(&info, sizeof(info));
 
-    if (NULL != data) {
+    if (data) {
         stream->writeBool(true);
         data->serialize(stream, encoder);
     } else {
@@ -556,10 +556,10 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
 
     // If we're a new-format picture, backport to old format for serialization.
     SkAutoTDelete<SkPicture> oldFormat;
-    if (NULL == data && NULL != fRecord.get()) {
+    if (NULL == data && fRecord.get()) {
         oldFormat.reset(backport(*fRecord, this->cullRect()));
         data = oldFormat->fData.get();
-        SkASSERT(NULL != data);
+        SkASSERT(data);
     }
 
     SkPictInfo info;
@@ -569,7 +569,7 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(info.fCullRect);
     buffer.writeUInt(info.fFlags);
 
-    if (NULL != data) {
+    if (data) {
         buffer.writeBool(true);
         data->flatten(buffer);
     } else {
@@ -584,7 +584,7 @@ bool SkPicture::suitableForGpuRasterization(GrContext* context, const char **rea
         return fAnalysis.suitableForGpuRasterization(reason, 0);
     }
     if (NULL == fData.get()) {
-        if (NULL != reason) {
+        if (reason) {
             *reason = "Missing internal data.";
         }
         return false;
@@ -657,7 +657,7 @@ SkPicture::SkPicture(SkScalar width, SkScalar height, SkRecord* record, SkBBoxHi
 // SkGpuDevice::EXPERIMENTAL_optimize which should be only called from a single
 // thread.
 void SkPicture::addDeletionListener(DeletionListener* listener) const {
-    SkASSERT(NULL != listener);
+    SkASSERT(listener);
 
     *fDeletionListeners.append() = SkRef(listener);
 }

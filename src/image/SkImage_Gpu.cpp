@@ -45,7 +45,7 @@ private:
 SkImage_Gpu::SkImage_Gpu(const SkBitmap& bitmap)
     : INHERITED(bitmap.width(), bitmap.height())
     , fBitmap(bitmap) {
-    SkASSERT(NULL != fBitmap.getTexture());
+    SkASSERT(fBitmap.getTexture());
 }
 
 SkImage_Gpu::~SkImage_Gpu() {

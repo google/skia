@@ -64,7 +64,7 @@ DEF_TEST(MallocPixelRef, reporter) {
         SkAutoTUnref<SkMallocPixelRef> pr(
             SkMallocPixelRef::NewAllocate(info, rowBytes, NULL));
         REPORTER_ASSERT(reporter, pr.get() != NULL);
-        REPORTER_ASSERT(reporter, NULL != pr->pixels());
+        REPORTER_ASSERT(reporter, pr->pixels());
     }
     {
         void* addr = static_cast<void*>(new uint8_t[size]);

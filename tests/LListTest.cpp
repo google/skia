@@ -73,12 +73,12 @@ static void TestTInternalLList(skiatest::Reporter* reporter) {
     Iter iter;
 
     ListElement* cur = iter.init(list, Iter::kHead_IterStart);
-    for (int i = 0; NULL != cur; ++i, cur = iter.next()) {
+    for (int i = 0; cur; ++i, cur = iter.next()) {
         REPORTER_ASSERT(reporter, cur->fID == 3-i);
     }
 
     cur = iter.init(list, Iter::kTail_IterStart);
-    for (int i = 0; NULL != cur; ++i, cur = iter.prev()) {
+    for (int i = 0; cur; ++i, cur = iter.prev()) {
         REPORTER_ASSERT(reporter, cur->fID == i);
     }
 
@@ -114,7 +114,7 @@ static void TestTInternalLList(skiatest::Reporter* reporter) {
     check_list(list, reporter, false, 4, true, true, true, true, elements);
 
     cur = iter.init(list, Iter::kHead_IterStart);
-    for (int i = 0; NULL != cur; ++i, cur = iter.next()) {
+    for (int i = 0; cur; ++i, cur = iter.next()) {
         REPORTER_ASSERT(reporter, cur->fID == i);
     }
 }
@@ -228,7 +228,7 @@ static void TestTLList(skiatest::Reporter* reporter) {
                         next.next();
                         prev.prev();
 
-                        SkASSERT(NULL != iter.get());
+                        SkASSERT(iter.get());
                         // insert either before or after the iterator, then check that the
                         // surrounding sequence is correct.
                         if (2 == insertionMethod) {
@@ -237,10 +237,10 @@ static void TestTLList(skiatest::Reporter* reporter) {
                             newItem.prev();
                             REPORTER_ASSERT(reporter, newItem.get()->fID == id);
 
-                            if (NULL != next.get()) {
+                            if (next.get()) {
                                 REPORTER_ASSERT(reporter, next.prev()->fID == iter.get()->fID);
                             }
-                            if (NULL != prev.get()) {
+                            if (prev.get()) {
                                 REPORTER_ASSERT(reporter, prev.next()->fID == id);
                             }
                         } else {
@@ -249,10 +249,10 @@ static void TestTLList(skiatest::Reporter* reporter) {
                             newItem.next();
                             REPORTER_ASSERT(reporter, newItem.get()->fID == id);
 
-                            if (NULL != next.get()) {
+                            if (next.get()) {
                                 REPORTER_ASSERT(reporter, next.prev()->fID == id);
                             }
-                            if (NULL != prev.get()) {
+                            if (prev.get()) {
                                 REPORTER_ASSERT(reporter, prev.next()->fID == iter.get()->fID);
                             }
                         }
@@ -276,10 +276,10 @@ static void TestTLList(skiatest::Reporter* reporter) {
                 // find the element
                 Iter iter(list1, start);
                 while (n--) {
-                    REPORTER_ASSERT(reporter, NULL != iter.get());
+                    REPORTER_ASSERT(reporter, iter.get());
                     (iter.*incrFunc)();
                 }
-                REPORTER_ASSERT(reporter, NULL != iter.get());
+                REPORTER_ASSERT(reporter, iter.get());
 
                 // remember the prev and next elements from the element to be removed
                 Iter prev = iter;

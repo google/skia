@@ -142,7 +142,7 @@ void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegio
     SkTBlitterAllocator allocator;
     SkBlitter* blitter = NULL;
     if (kBlitter_CompressionMode == fCompressionMode) {
-        SkASSERT(NULL != fCompressedBuffer.get());
+        SkASSERT(fCompressedBuffer.get());
         blitter = SkTextureCompressor::CreateBlitterForFormat(
             fBM.width(), fBM.height(), fCompressedBuffer.get(), &allocator, fCompressedFormat);
     }
@@ -160,7 +160,7 @@ void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegio
 bool GrSWMaskHelper::init(const SkIRect& resultBounds,
                           const SkMatrix* matrix,
                           bool allowCompression) {
-    if (NULL != matrix) {
+    if (matrix) {
         fMatrix = *matrix;
     } else {
         fMatrix.setIdentity();
@@ -249,7 +249,7 @@ bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
     }
 
     texture->set(fContext, desc);
-    return NULL != texture->texture();
+    return SkToBool(texture->texture());
 }
 
 void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrTextureDesc& desc,
@@ -273,7 +273,7 @@ void GrSWMaskHelper::compressTextureData(GrTexture *texture, const GrTextureDesc
     SkASSERT(fmt_to_config(fCompressedFormat) == desc.fConfig);
 
     SkAutoDataUnref cmpData(SkTextureCompressor::CompressBitmapToFormat(fBM, fCompressedFormat));
-    SkASSERT(NULL != cmpData);
+    SkASSERT(cmpData);
 
     this->sendTextureData(texture, desc, cmpData->data(), 0);
 }
@@ -300,7 +300,7 @@ void GrSWMaskHelper::toTexture(GrTexture *texture) {
             break;
 
         case kBlitter_CompressionMode:
-            SkASSERT(NULL != fCompressedBuffer.get());
+            SkASSERT(fCompressedBuffer.get());
             this->sendTextureData(texture, desc, fCompressedBuffer.get(), 0);
             break;
     }

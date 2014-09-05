@@ -130,7 +130,7 @@ void GrFontCache::purgeStrike(GrTextStrike* strike) {
 }
 
 bool GrFontCache::freeUnusedPlot(GrTextStrike* preserveStrike) {
-    SkASSERT(NULL != preserveStrike);
+    SkASSERT(preserveStrike);
 
     GrAtlas* atlas = preserveStrike->fAtlas;
     GrPlot* plot = atlas->getUnusedPlot();
@@ -197,9 +197,9 @@ void GrFontCache::validate() const {
 void GrFontCache::dump() const {
     static int gDumpCount = 0;
     for (int i = 0; i < kAtlasCount; ++i) {
-        if (NULL != fAtlases[i]) {
+        if (fAtlases[i]) {
             GrTexture* texture = fAtlases[i]->getTexture();
-            if (NULL != texture) {
+            if (texture) {
                 SkString filename;
 #ifdef SK_BUILD_FOR_ANDROID
                 filename.printf("/sdcard/fontcache_%d%d.png", gDumpCount, i);

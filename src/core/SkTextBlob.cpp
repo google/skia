@@ -112,7 +112,7 @@ const SkTextBlob* SkTextBlob::CreateFromBuffer(SkReadBuffer& reader) {
 SkTextBlob::RunIterator::RunIterator(const SkTextBlob* blob)
     : fBlob(blob)
     , fIndex(0) {
-    SkASSERT(NULL != blob);
+    SkASSERT(blob);
 }
 
 bool SkTextBlob::RunIterator::done() const {
@@ -194,7 +194,7 @@ SkTextBlobBuilder::~SkTextBlobBuilder() {
 }
 
 void SkTextBlobBuilder::updateDeferredBounds() {
-    SkASSERT(!fDeferredBounds || (NULL != fRuns && !fRuns->empty()));
+    SkASSERT(!fDeferredBounds || (fRuns && !fRuns->empty()));
 
     if (!fDeferredBounds) {
         return;
@@ -249,7 +249,7 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
     fGlyphBuffer.append(count);
     fPosBuffer.append(count * posScalarsPerGlyph);
 
-    SkASSERT(NULL != fRuns && !fRuns->empty());
+    SkASSERT(fRuns && !fRuns->empty());
     SkTextBlob::Run& run = fRuns->back();
 
     run.count += count;
@@ -264,7 +264,7 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
     SkASSERT(NULL == fCurrentRunBuffer.pos || fCurrentRunBuffer.pos >= fPosBuffer.begin());
 
     if (!fDeferredBounds) {
-        if (NULL != bounds) {
+        if (bounds) {
             fBounds.join(*bounds);
         } else {
             fDeferredBounds = true;
@@ -301,7 +301,7 @@ const SkTextBlob* SkTextBlobBuilder::build() {
 
     if (fGlyphBuffer.count() > 0) {
         // we have some glyphs, construct a real blob
-        SkASSERT(NULL != fRuns && !fRuns->empty());
+        SkASSERT(fRuns && !fRuns->empty());
 
         this->updateDeferredBounds();
 

@@ -73,7 +73,7 @@ void PictureBenchmark::run(SkPicture* pict) {
     fRenderer->setup();
 
     if (fPreprocess) {
-        if (NULL != fRenderer->getCanvas()) {
+        if (fRenderer->getCanvas()) {
             fRenderer->getCanvas()->EXPERIMENTAL_optimize(fRenderer->getPicture());
         }
     }

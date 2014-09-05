@@ -113,7 +113,7 @@ SkIStream::SkIStream(SkStream* stream, bool unrefOnRelease)
 }
 
 SkIStream::~SkIStream() {
-    if (NULL != this->fSkStream && fUnrefOnRelease) {
+    if (this->fSkStream && fUnrefOnRelease) {
         this->fSkStream->unref();
     }
 }
@@ -196,7 +196,7 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
         break;
     }
 
-    if (NULL != lpNewFilePointer) {
+    if (lpNewFilePointer) {
         lpNewFilePointer->QuadPart = this->fLocation.QuadPart;
     }
     return hr;
@@ -228,7 +228,7 @@ SkWIStream::SkWIStream(SkWStream* stream)
 { }
 
 SkWIStream::~SkWIStream() {
-    if (NULL != this->fSkWStream) {
+    if (this->fSkWStream) {
         this->fSkWStream->flush();
     }
 }

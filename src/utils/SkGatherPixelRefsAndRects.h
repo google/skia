@@ -103,7 +103,7 @@ protected:
         }
 
         SkRect pathBounds = path.getBounds();
-        if (NULL != prePathMatrix) {
+        if (prePathMatrix) {
             prePathMatrix->mapRect(&pathBounds);
         }
 
@@ -295,7 +295,7 @@ private:
 
     static bool GetBitmapFromPaint(const SkPaint &paint, SkBitmap* bitmap) {
         SkShader* shader = paint.getShader();
-        if (NULL != shader) {
+        if (shader) {
             if (SkShader::kNone_GradientType == shader->asAGradient(NULL)) {
                 return SkShader::kNone_BitmapType != shader->asABitmap(bitmap, NULL, NULL);
             }

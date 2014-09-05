@@ -287,7 +287,7 @@ bool GrDrawState::couldApplyCoverage(const GrDrawTargetCaps& caps) const {
 
 GrDrawState::AutoVertexAttribRestore::AutoVertexAttribRestore(
     GrDrawState* drawState) {
-    SkASSERT(NULL != drawState);
+    SkASSERT(drawState);
     fDrawState = drawState;
     fVAPtr = drawState->fVAPtr;
     fVACount = drawState->fVACount;
@@ -298,7 +298,7 @@ GrDrawState::AutoVertexAttribRestore::AutoVertexAttribRestore(
 //////////////////////////////////////////////////////////////////////////////s
 
 void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
-    if (NULL != fDrawState) {
+    if (fDrawState) {
         // See the big comment on the class definition about GPs.
         if (SK_InvalidUniqueID == fOriginalGPID) {
             fDrawState->fGeometryProcessor.reset(NULL);
@@ -447,7 +447,7 @@ GrRODrawState::BlendOptFlags GrDrawState::calcBlendOpts(bool forceCoverage,
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawState::AutoViewMatrixRestore::restore() {
-    if (NULL != fDrawState) {
+    if (fDrawState) {
         SkDEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
         fDrawState->fViewMatrix = fViewMatrix;
         SkASSERT(fDrawState->numColorStages() >= fNumColorStages);

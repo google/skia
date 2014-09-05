@@ -158,7 +158,7 @@ GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
                                          float bounds[2])
     : Gr1DKernelEffect(texture, direction, radius), fUseBounds(useBounds) {
     SkASSERT(radius <= kMaxKernelRadius);
-    SkASSERT(NULL != kernel);
+    SkASSERT(kernel);
     int width = this->width();
     for (int i = 0; i < width; i++) {
         fKernel[i] = kernel[i];

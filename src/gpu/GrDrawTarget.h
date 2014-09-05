@@ -593,7 +593,7 @@ public:
         bool set(GrDrawTarget*  target,
                  int            vertexCount,
                  int            indexCount);
-        bool succeeded() const { return NULL != fTarget; }
+        bool succeeded() const { return SkToBool(fTarget); }
         void* vertices() const { SkASSERT(this->succeeded()); return fVertices; }
         void* indices() const { SkASSERT(this->succeeded()); return fIndices; }
         SkPoint* positions() const {
@@ -639,7 +639,7 @@ public:
     public:
         AutoGeometryPush(GrDrawTarget* target)
             : fAttribRestore(target->drawState()) {
-            SkASSERT(NULL != target);
+            SkASSERT(target);
             fTarget = target;
             target->pushGeometrySource();
         }
@@ -661,7 +661,7 @@ public:
                                  ASRInit init,
                                  const SkMatrix* viewMatrix = NULL)
             : fState(target, init, viewMatrix) {
-            SkASSERT(NULL != target);
+            SkASSERT(target);
             fTarget = target;
             target->pushGeometrySource();
             if (kPreserve_ASRInit == init) {
@@ -683,7 +683,7 @@ public:
         DrawToken(GrDrawTarget* drawTarget, uint32_t drawID) :
                   fDrawTarget(drawTarget), fDrawID(drawID) {}
 
-        bool isIssued() { return NULL != fDrawTarget && fDrawTarget->isIssued(fDrawID); }
+        bool isIssued() { return fDrawTarget && fDrawTarget->isIssued(fDrawID); }
 
     private:
         GrDrawTarget*  fDrawTarget;
@@ -822,7 +822,7 @@ protected:
 
         // NULL if no copy of the dst is needed for the draw.
         const GrDeviceCoordTexture* getDstCopy() const {
-            if (NULL != fDstCopy.texture()) {
+            if (fDstCopy.texture()) {
                 return &fDstCopy;
             } else {
                 return NULL;

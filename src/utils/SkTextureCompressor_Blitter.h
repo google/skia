@@ -440,7 +440,7 @@ private:
     typedef uint32_t Block[BlockDim][BlockDim/4];
     inline void updateBlockColumns(Block block, const int col,
                                    const int colsLeft, const Column curAlphai) {
-        SkASSERT(NULL != block);
+        SkASSERT(block);
         SkASSERT(col + colsLeft <= BlockDim);
 
         for (int i = col; i < (col + colsLeft); ++i) {

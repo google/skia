@@ -55,7 +55,7 @@ public:
     }
 
     ~GrProgramElementRef() {
-        if (NULL != fObj) {
+        if (fObj) {
             if (fOwnPendingExec) {
                 fObj->completedExecution();
             } else {

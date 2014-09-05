@@ -224,7 +224,7 @@ SkScalar SkPoint::distanceToLineBetweenSqd(const SkPoint& a,
 
     SkScalar uLengthSqd = u.lengthSqd();
     SkScalar det = u.cross(v);
-    if (NULL != side) {
+    if (side) {
         SkASSERT(-1 == SkPoint::kLeft_Side &&
                   0 == SkPoint::kOn_Side &&
                   1 == kRight_Side);

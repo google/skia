@@ -15,8 +15,8 @@
 #include "SkStrokeRec.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrContext* context) {
-    SkASSERT(NULL != context);
-    SkASSERT(NULL != context->getGpu());
+    SkASSERT(context);
+    SkASSERT(context->getGpu());
     if (context->getGpu()->caps()->pathRenderingSupport()) {
         return SkNEW_ARGS(GrStencilAndCoverPathRenderer, (context->getGpu()));
     } else {
@@ -40,7 +40,7 @@ bool GrStencilAndCoverPathRenderer::canDrawPath(const SkPath& path,
                                                 bool antiAlias) const {
     return !stroke.isHairlineStyle() &&
            !antiAlias && // doesn't do per-path AA, relies on the target having MSAA
-           NULL != target->getDrawState().getRenderTarget()->getStencilBuffer() &&
+           target->getDrawState().getRenderTarget()->getStencilBuffer() &&
            target->getDrawState().getStencil().isDisabled();
 }
 

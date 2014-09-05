@@ -32,7 +32,7 @@ const SkOSMenu::Item* SkOSMenu::getItemByID(int itemID) const {
 }
 
 void SkOSMenu::getItems(const SkOSMenu::Item* items[]) const {
-    if (NULL != items) {
+    if (items) {
         for (int i = 0; i < fItems.count(); ++i) {
             items[i] = fItems[i];
         }
@@ -204,7 +204,7 @@ bool SkOSMenu::FindListItemCount(const SkEvent& evt, int* count) {
 }
 
 bool SkOSMenu::FindListItems(const SkEvent& evt, SkString items[]) {
-    if (evt.isType(gMenuEventType) && NULL != items) {
+    if (evt.isType(gMenuEventType) && items) {
         const char* text = evt.findString(gList_Items_Str);
         if (text != NULL) {
             SkString temp(text);

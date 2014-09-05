@@ -13,7 +13,7 @@
 
 static GrGLFuncPtr osmesa_get(void* ctx, const char name[]) {
     SkASSERT(NULL == ctx);
-    SkASSERT(NULL != OSMesaGetCurrentContext());
+    SkASSERT(OSMesaGetCurrentContext());
     return OSMesaGetProcAddress(name);
 }
 

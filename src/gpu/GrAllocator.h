@@ -244,14 +244,14 @@ public:
      */
     T& push_back() {
         void* item = fAllocator.push_back();
-        SkASSERT(NULL != item);
+        SkASSERT(item);
         SkNEW_PLACEMENT(item, T);
         return *(T*)item;
     }
 
     T& push_back(const T& t) {
         void* item = fAllocator.push_back();
-        SkASSERT(NULL != item);
+        SkASSERT(item);
         SkNEW_PLACEMENT_ARGS(item, T, (t));
         return *(T*)item;
     }

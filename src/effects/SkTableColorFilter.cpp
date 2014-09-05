@@ -438,7 +438,7 @@ GrEffect* SkTable_ColorFilter::asNewEffect(GrContext* context) const {
     this->asComponentTable(&bitmap);
     // passing NULL because this effect does no tiling or filtering.
     GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, bitmap, NULL);
-    if (NULL != texture) {
+    if (texture) {
         effect = ColorTableEffect::Create(texture, fFlags);
 
         // Unlock immediately, this is not great, but we don't have a way of

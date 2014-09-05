@@ -139,7 +139,7 @@ static void test_imagepeek(skiatest::Reporter* reporter) {
             continue;   // gpu may not be enabled
         }
         const void* addr = image->peekPixels(&info, &rowBytes);
-        bool success = (NULL != addr);
+        bool success = SkToBool(addr);
         REPORTER_ASSERT(reporter, gRec[i].fPeekShouldSucceed == success);
         if (success) {
             REPORTER_ASSERT(reporter, 10 == info.width());
@@ -199,7 +199,7 @@ static void test_canvaspeek(skiatest::Reporter* reporter,
             surface->getCanvas()->clear(color);
 
             const void* addr = surface->getCanvas()->peekPixels(&info, &rowBytes);
-            bool success = (NULL != addr);
+            bool success = SkToBool(addr);
             REPORTER_ASSERT(reporter, gRec[i].fPeekShouldSucceed == success);
 
             SkImageInfo info2;
@@ -389,7 +389,7 @@ static void TestGetTexture(skiatest::Reporter* reporter,
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
     GrTexture* texture = image->getTexture();
     if (surfaceType == kGpu_SurfaceType || surfaceType == kGpuScratch_SurfaceType) {
-        REPORTER_ASSERT(reporter, NULL != texture);
+        REPORTER_ASSERT(reporter, texture);
         REPORTER_ASSERT(reporter, 0 != texture->getTextureHandle());
     } else {
         REPORTER_ASSERT(reporter, NULL == texture);
@@ -444,14 +444,14 @@ DEF_GPUTEST(Surface, reporter, factory) {
 
 #if SK_SUPPORT_GPU
     TestGetTexture(reporter, kRaster_SurfaceType, NULL);
-    if (NULL != factory) {
+    if (factory) {
         for (int i= 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
             GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
             if (!GrContextFactory::IsRenderingGLContext(glCtxType)) {
                 continue;
             }
             GrContext* context = factory->get(glCtxType);
-            if (NULL != context) {
+            if (context) {
                 TestSurfaceInCache(reporter, kGpu_SurfaceType, context);
                 TestSurfaceInCache(reporter, kGpuScratch_SurfaceType, context);
                 Test_crbug263329(reporter, kGpu_SurfaceType, context);

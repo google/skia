@@ -60,10 +60,10 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
 bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]) {
 #ifdef SK_DEBUG
     // In all cases, we need the sizes array
-    SkASSERT(NULL != sizes);
+    SkASSERT(sizes);
 
-    bool isValidWithPlanes = (NULL != planes) && (NULL != rowBytes) &&
-        ((NULL != planes[0]) && (NULL != planes[1]) && (NULL != planes[2]) &&
+    bool isValidWithPlanes = (planes) && (rowBytes) &&
+        ((planes[0]) && (planes[1]) && (planes[2]) &&
          (0  != rowBytes[0]) && (0  != rowBytes[1]) && (0  != rowBytes[2]));
     bool isValidWithoutPlanes =
         ((NULL == planes) ||

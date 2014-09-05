@@ -145,11 +145,11 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* w
                                     SkBitmap** out) {
     SkString inputFilename = SkOSPath::Basename(inputPath.c_str());
     SkString writePathString;
-    if (NULL != writePath && writePath->size() > 0 && !FLAGS_writeEncodedImages) {
+    if (writePath && writePath->size() > 0 && !FLAGS_writeEncodedImages) {
         writePathString.set(*writePath);
     }
     SkString mismatchPathString;
-    if (NULL != mismatchPath && mismatchPath->size() > 0) {
+    if (mismatchPath && mismatchPath->size() > 0) {
         mismatchPathString.set(*mismatchPath);
     }
 
@@ -207,7 +207,7 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* w
                   FLAGS_writeChecksumBasedFilenames);
 
     if (FLAGS_preprocess) {
-        if (NULL != renderer.getCanvas()) {
+        if (renderer.getCanvas()) {
             renderer.getCanvas()->EXPERIMENTAL_optimize(renderer.getPicture());
         }
     }
@@ -250,7 +250,7 @@ public:
     }
 
     ~AutoRestoreBbhType() {
-        if (NULL != fRenderer) {
+        if (fRenderer) {
             fRenderer->setBBoxHierarchyType(fSavedBbhType);
         }
     }
@@ -369,17 +369,17 @@ static bool render_picture(const SkString& inputPath, const SkString* writePath,
         sk_tools::replace_char(&outputFilename, '.', '_');
         outputFilename.append(".png");
 
-        if (NULL != jsonSummaryPtr) {
+        if (jsonSummaryPtr) {
             sk_tools::ImageDigest imageDigest(*bitmap);
             jsonSummaryPtr->add(inputFilename.c_str(), outputFilename.c_str(), imageDigest);
-            if ((NULL != mismatchPath) && !mismatchPath->isEmpty() &&
+            if ((mismatchPath) && !mismatchPath->isEmpty() &&
                 !jsonSummaryPtr->getExpectation(inputFilename.c_str()).matches(imageDigest)) {
                 success &= sk_tools::write_bitmap_to_disk(*bitmap, *mismatchPath, NULL,
                                                           outputFilename);
             }
         }
 
-        if ((NULL != writePath) && !writePath->isEmpty()) {
+        if ((writePath) && !writePath->isEmpty()) {
             success &= sk_tools::write_bitmap_to_disk(*bitmap, *writePath, NULL, outputFilename);
         }
     }

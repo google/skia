@@ -98,7 +98,7 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
         overview->append(SkDrawCommand::GetCommandString((DrawType) i));
         overview->append(": ");
         overview->appendS32(counts[i]);
-        if (NULL != typeTimes && totTime >= 0.0) {
+        if (typeTimes && totTime >= 0.0) {
             overview->append(" - ");
             overview->appendf("%.2f", (*typeTimes)[i]/(float)numRuns);
             overview->append("ms");
@@ -115,7 +115,7 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
         total += counts[i];
     }
 #ifdef SK_DEBUG
-    if (NULL != typeTimes) {
+    if (typeTimes) {
         SkASSERT(SkScalarNearlyEqual(SkDoubleToScalar(totPercent),
                                      SkDoubleToScalar(100.0)));
         SkASSERT(SkScalarNearlyEqual(SkDoubleToScalar(tempSum),

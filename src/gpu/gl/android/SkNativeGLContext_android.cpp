@@ -15,7 +15,7 @@ SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
 }
 
 SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
-    if (NULL != fOldDisplay) {
+    if (fOldDisplay) {
         eglMakeCurrent(fOldDisplay, fOldSurface, fOldSurface, fOldEGLContext);
     }
 }

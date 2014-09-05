@@ -30,7 +30,7 @@ static bool is_valid(const SkImageInfo& info, SkColorTable* ctable) {
     if (kIndex8_SkColorType == info.fColorType && NULL == ctable) {
         return false;
     }
-    if (kIndex8_SkColorType != info.fColorType && NULL != ctable) {
+    if (kIndex8_SkColorType != info.fColorType && ctable) {
         return false;
     }
 #endif

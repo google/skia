@@ -1035,15 +1035,15 @@ void SkGPipeCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4
     
     size_t size = SkPatchUtils::kNumCtrlPts * sizeof(SkPoint);
     unsigned flags = 0;
-    if (NULL != colors) {
+    if (colors) {
         flags |= kDrawVertices_HasColors_DrawOpFlag;
         size += SkPatchUtils::kNumCorners * sizeof(SkColor);
     }
-    if (NULL != texCoords) {
+    if (texCoords) {
         flags |= kDrawVertices_HasTexs_DrawOpFlag;
         size += SkPatchUtils::kNumCorners * sizeof(SkPoint);
     }
-    if (NULL != xmode) {
+    if (xmode) {
         SkXfermode::Mode mode;
         if (xmode->asMode(&mode) && SkXfermode::kModulate_Mode != mode) {
             flags |= kDrawVertices_HasXfermode_DrawOpFlag;
@@ -1057,11 +1057,11 @@ void SkGPipeCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4
         
         fWriter.write(cubics, SkPatchUtils::kNumCtrlPts * sizeof(SkPoint));
         
-        if (NULL != colors) {
+        if (colors) {
             fWriter.write(colors, SkPatchUtils::kNumCorners * sizeof(SkColor));
         }
         
-        if (NULL != texCoords) {
+        if (texCoords) {
             fWriter.write(texCoords, SkPatchUtils::kNumCorners * sizeof(SkPoint));
         }
         

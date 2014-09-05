@@ -188,12 +188,12 @@ bool SkBitmapProcState::possiblyScaleImage() {
 
             }
 
-            SkASSERT(NULL != fScaledBitmap.getPixels());
+            SkASSERT(fScaledBitmap.getPixels());
             fScaledBitmap.setImmutable();
             SkBitmapCache::Add(fOrigBitmap, roundedDestWidth, roundedDestHeight, fScaledBitmap);
         }
 
-        SkASSERT(NULL != fScaledBitmap.getPixels());
+        SkASSERT(fScaledBitmap.getPixels());
         fBitmap = &fScaledBitmap;
 
         // set the inv matrix type to translate-only;

@@ -897,7 +897,7 @@ uint16_t SkScalerContext_Mac::getFBoundingBoxesGlyphOffset() {
 
 bool SkScalerContext_Mac::generateBBoxes() {
     if (fGeneratedFBoundingBoxes) {
-        return NULL != fFBoundingBoxes.get();
+        return SkToBool(fFBoundingBoxes.get());
     }
     fGeneratedFBoundingBoxes = true;
 

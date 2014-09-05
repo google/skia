@@ -81,7 +81,7 @@ public:
     bool hasData(const char name[], const void* data, size_t byteCount) const {
         size_t len;
         const void* ptr = this->findData(name, &len);
-        return NULL != ptr && len == byteCount && !memcmp(ptr, data, len);
+        return ptr && len == byteCount && !memcmp(ptr, data, len);
     }
 
     void setS32(const char name[], int32_t value);

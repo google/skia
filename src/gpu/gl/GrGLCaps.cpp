@@ -342,7 +342,7 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                 (fMaxFixedFunctionTextureCoords > 0 ||
                  ((ctxInfo.version() >= GR_GL_VER(4,3) ||
                    ctxInfo.hasExtension("GL_ARB_program_interface_query")) &&
-                  NULL != gli->fFunctions.fProgramPathFragmentInputGen));
+                  gli->fFunctions.fProgramPathFragmentInputGen));
         } else {
             fPathRenderingSupport = ctxInfo.version() >= GR_GL_VER(3,1);
         }
@@ -519,7 +519,7 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     bool hasCompressTex2D = (kGL_GrGLStandard != standard || version >= GR_GL_VER(1, 3));
 
     fCompressedTexSubImageSupport =
-        hasCompressTex2D && (NULL != gli->fFunctions.fCompressedTexSubImage2D);
+        hasCompressTex2D && (gli->fFunctions.fCompressedTexSubImage2D);
 
     // Check for ETC1
     bool hasETC1 = false;

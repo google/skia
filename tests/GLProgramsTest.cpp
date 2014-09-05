@@ -44,9 +44,9 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
 
     bool dstRead = false;
     bool fragPos = false;
-    bool vertexShader = (NULL != geometryProcessor);
+    bool vertexShader = SkToBool(geometryProcessor);
     int offset = 0;
-    if (NULL != geometryProcessor) {
+    if (geometryProcessor) {
         const GrEffectStage* stage = geometryProcessor;
         uint16_t* offsetAndSize = reinterpret_cast<uint16_t*>(fKey.begin() +
                                                               kEffectKeyOffsetsAndLengthOffset +
@@ -295,7 +295,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 DEF_GPUTEST(GLPrograms, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(type));
-        if (NULL != context) {
+        if (context) {
             GrGpuGL* gpu = static_cast<GrGpuGL*>(context->getGpu());
             int maxStages = 6;
 #if SK_ANGLE

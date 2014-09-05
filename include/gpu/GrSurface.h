@@ -80,11 +80,11 @@ public:
      */
     bool isSameAs(const GrSurface* other) const {
         const GrRenderTarget* thisRT = this->asRenderTarget();
-        if (NULL != thisRT) {
+        if (thisRT) {
             return thisRT == other->asRenderTarget();
         } else {
             const GrTexture* thisTex = this->asTexture();
-            SkASSERT(NULL != thisTex); // We must be one or the other
+            SkASSERT(thisTex); // We must be one or the other
             return thisTex == other->asTexture();
         }
     }

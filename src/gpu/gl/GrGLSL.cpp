@@ -10,7 +10,7 @@
 #include "SkString.h"
 
 bool GrGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation) {
-    SkASSERT(NULL != generation);
+    SkASSERT(generation);
     GrGLSLVersion ver = GrGLGetGLSLVersion(gl);
     if (GR_GLSL_INVALID_VER == ver) {
         return false;

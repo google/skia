@@ -597,7 +597,7 @@ void SkClipStack::restoreTo(int saveCount) {
 void SkClipStack::getBounds(SkRect* canvFiniteBound,
                             BoundsType* boundType,
                             bool* isIntersectionOfRects) const {
-    SkASSERT(NULL != canvFiniteBound && NULL != boundType);
+    SkASSERT(canvFiniteBound && boundType);
 
     Element* element = (Element*)fDeque.back();
 
@@ -605,7 +605,7 @@ void SkClipStack::getBounds(SkRect* canvFiniteBound,
         // the clip is wide open - the infinite plane w/ no pixels un-writeable
         canvFiniteBound->setEmpty();
         *boundType = kInsideOut_BoundsType;
-        if (NULL != isIntersectionOfRects) {
+        if (isIntersectionOfRects) {
             *isIntersectionOfRects = false;
         }
         return;
@@ -613,13 +613,13 @@ void SkClipStack::getBounds(SkRect* canvFiniteBound,
 
     *canvFiniteBound = element->fFiniteBound;
     *boundType = element->fFiniteBoundType;
-    if (NULL != isIntersectionOfRects) {
+    if (isIntersectionOfRects) {
         *isIntersectionOfRects = element->fIsIntersectionOfRects;
     }
 }
 
 bool SkClipStack::intersectRectWithClip(SkRect* rect) const {
-    SkASSERT(NULL != rect);
+    SkASSERT(rect);
 
     SkRect bounds;
     SkClipStack::BoundsType bt;
@@ -667,7 +667,7 @@ void SkClipStack::pushElement(const Element& element) {
     SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
     Element* prior = (Element*) iter.prev();
 
-    if (NULL != prior) {
+    if (prior) {
         if (prior->canBeIntersectedInPlace(fSaveCount, element.getOp())) {
             switch (prior->fType) {
                 case Element::kEmpty_Type:
@@ -766,7 +766,7 @@ const SkClipStack::Element* SkClipStack::Iter::skipToTopmost(SkRegion::Op op) {
     const SkClipStack::Element* element = NULL;
 
     for (element = (const SkClipStack::Element*) fIter.prev();
-         NULL != element;
+         element;
          element = (const SkClipStack::Element*) fIter.prev()) {
 
         if (op == element->fOp) {
@@ -806,7 +806,7 @@ void SkClipStack::getConservativeBounds(int offsetX,
                                         int maxHeight,
                                         SkRect* devBounds,
                                         bool* isIntersectionOfRects) const {
-    SkASSERT(NULL != devBounds);
+    SkASSERT(devBounds);
 
     devBounds->setLTRB(0, 0,
                        SkIntToScalar(maxWidth), SkIntToScalar(maxHeight));

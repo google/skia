@@ -174,7 +174,7 @@ bool glob_files(const char globPattern[], SkTArray<SkString>* entries) {
     // Note these paths are in sorted order by default according to http://linux.die.net/man/3/glob
     // Check under the flag GLOB_NOSORT
     char** paths = globBuffer.gl_pathv;
-    while(NULL != *paths) {
+    while(*paths) {
         entries->push_back(SkString(*paths));
         paths++;
     }

@@ -46,7 +46,7 @@ public:
         SkBitmap source = src;
         SkImageFilter* input = getInput(0);
         SkIPoint srcOffset = SkIPoint::Make(0, 0);
-        if (NULL != input && !input->filterImage(proxy, src, ctx, &source, &srcOffset)) {
+        if (input && !input->filterImage(proxy, src, ctx, &source, &srcOffset)) {
             return false;
         }
 

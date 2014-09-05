@@ -840,7 +840,7 @@ public:
             } else {
                 dstColor = fsBuilder->dstColor();
             }
-            SkASSERT(NULL != dstColor);
+            SkASSERT(dstColor);
 
             // We don't try to optimize for this case at all
             if (NULL == inputColor) {
@@ -1298,7 +1298,7 @@ void SkProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
 
     SkXfermodeProc proc = fProc;
 
-    if (NULL != proc) {
+    if (proc) {
         if (NULL == aa) {
             for (int i = count - 1; i >= 0; --i) {
                 dst[i] = proc(src[i], dst[i]);
@@ -1326,7 +1326,7 @@ void SkProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
 
     SkXfermodeProc proc = fProc;
 
-    if (NULL != proc) {
+    if (proc) {
         if (NULL == aa) {
             for (int i = count - 1; i >= 0; --i) {
                 SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
@@ -1355,7 +1355,7 @@ void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 
     SkXfermodeProc proc = fProc;
 
-    if (NULL != proc) {
+    if (proc) {
         if (NULL == aa) {
             for (int i = count - 1; i >= 0; --i) {
                 SkPMColor res = proc(src[i], dst[i] << SK_A32_SHIFT);
@@ -1381,9 +1381,9 @@ void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 #if SK_SUPPORT_GPU
 bool SkProcCoeffXfermode::asNewEffect(GrEffect** effect, GrTexture* background) const {
     if (XferEffect::IsSupportedMode(fMode)) {
-        if (NULL != effect) {
+        if (effect) {
             *effect = XferEffect::Create(fMode, background);
-            SkASSERT(NULL != *effect);
+            SkASSERT(*effect);
         }
         return true;
     }
@@ -1594,7 +1594,7 @@ void SkDstInXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
     if (count <= 0) {
         return;
     }
-    if (NULL != aa) {
+    if (aa) {
         return this->INHERITED::xfer32(dst, src, count, aa);
     }
 
@@ -1641,7 +1641,7 @@ void SkDstOutXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
     if (count <= 0) {
         return;
     }
-    if (NULL != aa) {
+    if (aa) {
         return this->INHERITED::xfer32(dst, src, count, aa);
     }
 

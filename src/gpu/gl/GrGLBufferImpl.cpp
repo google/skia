@@ -38,7 +38,7 @@ GrGLBufferImpl::GrGLBufferImpl(GrGpuGL* gpu, const Desc& desc, GrGLenum bufferTy
 void GrGLBufferImpl::release(GrGpuGL* gpu) {
     VALIDATE();
     // make sure we've not been abandoned or already released
-    if (NULL != fCPUData) {
+    if (fCPUData) {
         sk_free(fCPUData);
         fCPUData = NULL;
     } else if (fDesc.fID && !fDesc.fIsWrapped) {
@@ -157,7 +157,7 @@ void GrGLBufferImpl::unmap(GrGpuGL* gpu) {
 
 bool GrGLBufferImpl::isMapped() const {
     VALIDATE();
-    return NULL != fMapPtr;
+    return SkToBool(fMapPtr);
 }
 
 bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInBytes) {
@@ -218,9 +218,9 @@ bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInB
 void GrGLBufferImpl::validate() const {
     SkASSERT(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
     // The following assert isn't valid when the buffer has been abandoned:
-    // SkASSERT((0 == fDesc.fID) == (NULL != fCPUData));
+    // SkASSERT((0 == fDesc.fID) == (fCPUData));
     SkASSERT(0 != fDesc.fID || !fDesc.fIsWrapped);
     SkASSERT(NULL == fCPUData || 0 == fGLSizeInBytes);
-    SkASSERT(NULL == fMapPtr || NULL != fCPUData || fGLSizeInBytes == fDesc.fSizeInBytes);
+    SkASSERT(NULL == fMapPtr || fCPUData || fGLSizeInBytes == fDesc.fSizeInBytes);
     SkASSERT(NULL == fCPUData || NULL == fMapPtr || fCPUData == fMapPtr);
 }

@@ -422,7 +422,7 @@ protected:
                                                  ? SkFontStyle::kItalic_Slant
                                                  : SkFontStyle::kUpright_Slant);
 
-        if (NULL != familyName) {
+        if (familyName) {
             // On Android, we must return NULL when we can't find the requested
             // named typeface so that the system/app can provide their own recovery
             // mechanism. On other platforms we'd provide a typeface from the

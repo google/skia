@@ -684,7 +684,7 @@ void add_line(const SkPoint p[2],
         (*vert)[5].fPos = b + vec - ortho;
         (*vert)[5].fCoverage = 0;
 
-        if (NULL != toSrc) {
+        if (toSrc) {
             toSrc->mapPointsWithStride(&(*vert)->fPos,
                                        sizeof(LineVertex),
                                        kVertsPerLineSeg);
@@ -808,7 +808,7 @@ bool GrAAHairLinePathRenderer::createBezierGeom(
         seedPts[0] = conics[0];
         seedPts[1] = conics[2];
     }
-    if (NULL != toDevice) {
+    if (toDevice) {
         toDevice->mapPoints(seedPts, 2);
     }
     devBounds->set(seedPts[0], seedPts[1]);
@@ -999,7 +999,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         if (quadCnt > 0) {
             GrEffect* hairQuadEffect = GrQuadEffect::Create(kHairlineAA_GrEffectEdgeType,
                                                             *target->caps());
-            SkASSERT(NULL != hairQuadEffect);
+            SkASSERT(hairQuadEffect);
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
             drawState->setGeometryProcessor(hairQuadEffect, kEdgeAttrIndex)->unref();
@@ -1020,7 +1020,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             GrDrawState::AutoRestoreEffects are(drawState);
             GrEffect* hairConicEffect = GrConicEffect::Create(kHairlineAA_GrEffectEdgeType,
                                                               *target->caps());
-            SkASSERT(NULL != hairConicEffect);
+            SkASSERT(hairConicEffect);
             drawState->setGeometryProcessor(hairConicEffect, 1, 2)->unref();
             int conics = 0;
             while (conics < conicCnt) {

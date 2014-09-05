@@ -63,7 +63,7 @@ public:
 
     void reset(GrCoordSet sourceCoords, const GrTexture* texture) {
         SkASSERT(!fInEffect);
-        SkASSERT(NULL != texture);
+        SkASSERT(texture);
         this->reset(sourceCoords, MakeDivByTextureWHMatrix(texture), texture);
     }
 
@@ -71,7 +71,7 @@ public:
         SkASSERT(!fInEffect);
         fSourceCoords = sourceCoords;
         fMatrix = m;
-        fReverseY = NULL != texture && kBottomLeft_GrSurfaceOrigin == texture->origin();
+        fReverseY = texture && kBottomLeft_GrSurfaceOrigin == texture->origin();
     }
 
     GrCoordTransform& operator= (const GrCoordTransform& other) {
@@ -104,7 +104,7 @@ public:
     /** Useful for effects that want to insert a texture matrix that is implied by the texture
         dimensions */
     static inline SkMatrix MakeDivByTextureWHMatrix(const GrTexture* texture) {
-        SkASSERT(NULL != texture);
+        SkASSERT(texture);
         SkMatrix mat;
         mat.setIDiv(texture->width(), texture->height());
         return mat;

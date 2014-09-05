@@ -39,7 +39,7 @@ void GrGLPathRange::initAt(size_t index, const SkPath& skPath) {
 }
 
 void GrGLPathRange::onRelease() {
-    SkASSERT(NULL != this->getGpu());
+    SkASSERT(this->getGpu());
 
     if (0 != fBasePathID && !this->isWrapped()) {
         static_cast<GrGpuGL*>(this->getGpu())->glPathRendering()->deletePaths(fBasePathID, fSize);

@@ -38,12 +38,12 @@ void SkMultiPictureDraw::add(SkCanvas* canvas,
 
     data->picture = SkRef(picture);
     data->canvas = SkRef(canvas);
-    if (NULL != matrix) {
+    if (matrix) {
         data->matrix = *matrix;
     } else {
         data->matrix.setIdentity();
     }
-    if (NULL != paint) {
+    if (paint) {
         data->paint = SkNEW_ARGS(SkPaint, (*paint));
     } else {
         data->paint = NULL;

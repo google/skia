@@ -49,13 +49,13 @@ GrGLPathRendering::GrGLPathRendering(GrGpuGL* gpu)
     : fGpu(gpu) {
     const GrGLInterface* glInterface = gpu->glInterface();
     fCaps.stencilThenCoverSupport =
-        NULL != glInterface->fFunctions.fStencilThenCoverFillPath &&
-        NULL != glInterface->fFunctions.fStencilThenCoverStrokePath &&
-        NULL != glInterface->fFunctions.fStencilThenCoverFillPathInstanced &&
-        NULL != glInterface->fFunctions.fStencilThenCoverStrokePathInstanced;
+        glInterface->fFunctions.fStencilThenCoverFillPath &&
+        glInterface->fFunctions.fStencilThenCoverStrokePath &&
+        glInterface->fFunctions.fStencilThenCoverFillPathInstanced &&
+        glInterface->fFunctions.fStencilThenCoverStrokePathInstanced;
     fCaps.fragmentInputGenSupport =
         kGLES_GrGLStandard == glInterface->fStandard &&
-        NULL != glInterface->fFunctions.fProgramPathFragmentInputGen;
+        glInterface->fFunctions.fProgramPathFragmentInputGen;
 
     if (!fCaps.fragmentInputGenSupport) {
         fHWPathTexGenSettings.reset(fGpu->glCaps().maxFixedFunctionTextureCoords());
@@ -97,8 +97,8 @@ GrPathRange* GrGLPathRendering::createPathRange(size_t size, const SkStrokeRec& 
 
 void GrGLPathRendering::stencilPath(const GrPath* path, SkPath::FillType fill) {
     GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
-    SkASSERT(NULL != fGpu->drawState()->getRenderTarget());
-    SkASSERT(NULL != fGpu->drawState()->getRenderTarget()->getStencilBuffer());
+    SkASSERT(fGpu->drawState()->getRenderTarget());
+    SkASSERT(fGpu->drawState()->getRenderTarget()->getStencilBuffer());
 
     this->flushPathStencilSettings(fill);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
@@ -111,8 +111,8 @@ void GrGLPathRendering::stencilPath(const GrPath* path, SkPath::FillType fill) {
 
 void GrGLPathRendering::drawPath(const GrPath* path, SkPath::FillType fill) {
     GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
-    SkASSERT(NULL != fGpu->drawState()->getRenderTarget());
-    SkASSERT(NULL != fGpu->drawState()->getRenderTarget()->getStencilBuffer());
+    SkASSERT(fGpu->drawState()->getRenderTarget());
+    SkASSERT(fGpu->drawState()->getRenderTarget()->getStencilBuffer());
 
     this->flushPathStencilSettings(fill);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
@@ -167,8 +167,8 @@ void GrGLPathRendering::drawPaths(const GrPathRange* pathRange, const uint32_t i
                                   const float transforms[], PathTransformType transformsType,
                                   SkPath::FillType fill) {
     SkASSERT(fGpu->caps()->pathRenderingSupport());
-    SkASSERT(NULL != fGpu->drawState()->getRenderTarget());
-    SkASSERT(NULL != fGpu->drawState()->getRenderTarget()->getStencilBuffer());
+    SkASSERT(fGpu->drawState()->getRenderTarget());
+    SkASSERT(fGpu->drawState()->getRenderTarget()->getStencilBuffer());
 
     GrGLuint baseID = static_cast<const GrGLPathRange*>(pathRange)->basePathID();
 

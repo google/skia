@@ -194,7 +194,7 @@ static bool skip_src_rows(GifFileType* gif, uint8_t* dst, int width, int rowsToS
 static void sanitize_indexed_bitmap(SkBitmap* bm) {
     if ((kIndex_8_SkColorType == bm->colorType()) && !(bm->empty())) {
         SkAutoLockPixels alp(*bm);
-        if (NULL != bm->getPixels()) {
+        if (bm->getPixels()) {
             SkColorTable* ct = bm->getColorTable();  // Index8 must have it.
             SkASSERT(ct != NULL);
             uint32_t count = ct->count();

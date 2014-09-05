@@ -118,7 +118,7 @@ SkImage* SkSurface_Raster::onNewImageSnapshot() {
 
 void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
     // are we sharing pixelrefs with the image?
-    SkASSERT(NULL != this->getCachedImage());
+    SkASSERT(this->getCachedImage());
     if (SkBitmapImageGetPixelRef(this->getCachedImage()) == fBitmap.pixelRef()) {
         SkASSERT(fWeOwnThePixels);
         if (kDiscard_ContentChangeMode == mode) {
@@ -131,7 +131,7 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
         // Now fBitmap is a deep copy of itself (and therefore different from
         // what is being used by the image. Next we update the canvas to use
         // this as its backend, so we can't modify the image's pixels anymore.
-        SkASSERT(NULL != this->getCachedCanvas());
+        SkASSERT(this->getCachedCanvas());
         this->getCachedCanvas()->getDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
     }
 }

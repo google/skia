@@ -184,7 +184,7 @@ protected:
 
         bool inStageCode() const {
             this->validate();
-            return NULL != fEffectStage;
+            return SkToBool(fEffectStage);
         }
 
         const GrEffectStage* effectStage() const {
@@ -200,7 +200,7 @@ protected:
         class AutoStageRestore : SkNoncopyable {
         public:
             AutoStageRestore(CodeStage* codeStage, const GrEffectStage* newStage) {
-                SkASSERT(NULL != codeStage);
+                SkASSERT(codeStage);
                 fSavedIndex = codeStage->fCurrentIndex;
                 fSavedEffectStage = codeStage->fEffectStage;
 

@@ -16,7 +16,7 @@ static void test_font(skiatest::Reporter* reporter) {
     uint32_t flags = 0;
     SkAutoTUnref<SkFont> font(SkFont::Create(NULL, 24, SkFont::kA8_MaskType, flags));
 
-    REPORTER_ASSERT(reporter, NULL != font->getTypeface());
+    REPORTER_ASSERT(reporter, font->getTypeface());
     REPORTER_ASSERT(reporter, 24 == font->getSize());
     REPORTER_ASSERT(reporter, 1 == font->getScaleX());
     REPORTER_ASSERT(reporter, 0 == font->getSkewX());

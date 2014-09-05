@@ -74,7 +74,7 @@ public:
 
     ~TestResource() {
         --fAlive;
-        if (NULL != fToDelete) {
+        if (fToDelete) {
             // Breaks our little 2-element cycle below.
             fToDelete->setDeleteWhenDestroyed(NULL, NULL);
             fCache->deleteResource(fToDelete->getCacheEntry());
@@ -274,7 +274,7 @@ static void test_resource_size_changed(skiatest::Reporter* reporter,
 
         REPORTER_ASSERT(reporter, 300 == cache.getCachedResourceBytes());
         REPORTER_ASSERT(reporter, 2 == cache.getCachedResourceCount());
-        REPORTER_ASSERT(reporter, NULL != cache.find(key1));
+        REPORTER_ASSERT(reporter, cache.find(key1));
         // Internal resource cache validation will test the detached size (debug mode only).
     }
 }

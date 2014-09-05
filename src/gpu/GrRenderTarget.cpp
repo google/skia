@@ -79,7 +79,7 @@ size_t GrRenderTarget::gpuMemorySize() const {
 
 void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {
     if (kCanResolve_ResolveType == getResolveType()) {
-        if (NULL != rect) {
+        if (rect) {
             fResolveRect.join(*rect);
             if (!fResolveRect.intersect(0, 0, this->width(), this->height())) {
                 fResolveRect.setEmpty();

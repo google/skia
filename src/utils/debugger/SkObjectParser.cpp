@@ -174,7 +174,7 @@ SkString* SkObjectParser::PathToString(const SkPath& path) {
 
     SkString* boundStr = SkObjectParser::RectToString(path.getBounds(), "    Bound: ");
 
-    if (NULL != boundStr) {
+    if (boundStr) {
         mPath->append(*boundStr);
         SkDELETE(boundStr);
     }

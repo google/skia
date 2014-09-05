@@ -144,7 +144,7 @@ public:
      *              fact ovals can report false.
      */
     bool isOval(SkRect* rect) const {
-        if (fIsOval && NULL != rect) {
+        if (fIsOval && rect) {
             *rect = getBounds();
         }
 

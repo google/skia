@@ -153,12 +153,12 @@ bool SkBitmap::setAlphaType(SkAlphaType newAlphaType) {
 }
 
 void SkBitmap::updatePixelsFromRef() const {
-    if (NULL != fPixelRef) {
+    if (fPixelRef) {
         if (fPixelLockCount > 0) {
             SkASSERT(fPixelRef->isLocked());
 
             void* p = fPixelRef->pixels();
-            if (NULL != p) {
+            if (p) {
                 p = (char*)p
                     + fPixelRefOrigin.fY * fRowBytes
                     + fPixelRefOrigin.fX * fInfo.bytesPerPixel();
@@ -221,7 +221,7 @@ SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
 }
 
 void SkBitmap::lockPixels() const {
-    if (NULL != fPixelRef && 0 == sk_atomic_inc(&fPixelLockCount)) {
+    if (fPixelRef && 0 == sk_atomic_inc(&fPixelLockCount)) {
         fPixelRef->lockPixels();
         this->updatePixelsFromRef();
     }
@@ -231,7 +231,7 @@ void SkBitmap::lockPixels() const {
 void SkBitmap::unlockPixels() const {
     SkASSERT(NULL == fPixelRef || fPixelLockCount > 0);
 
-    if (NULL != fPixelRef && 1 == sk_atomic_dec(&fPixelLockCount)) {
+    if (fPixelRef && 1 == sk_atomic_dec(&fPixelLockCount)) {
         fPixelRef->unlockPixels();
         this->updatePixelsFromRef();
     }
@@ -376,7 +376,7 @@ bool SkBitmap::installMaskPixels(const SkMask& mask) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkBitmap::freePixels() {
-    if (NULL != fPixelRef) {
+    if (fPixelRef) {
         if (fPixelLockCount > 0) {
             fPixelRef->unlockPixels();
         }
@@ -1103,7 +1103,7 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
     SkMaskFilter* filter = paint ? paint->getMaskFilter() : NULL;
 
     // compute our (larger?) dst bounds if we have a filter
-    if (NULL != filter) {
+    if (filter) {
         identity.reset();
         srcM.fImage = NULL;
         if (!filter->filterMask(&dstM, srcM, identity, NULL)) {
@@ -1366,7 +1366,7 @@ void SkBitmap::toString(SkString* str) const {
         str->appendf(" pixels:%p", this->getPixels());
     } else {
         const char* uri = pr->getURI();
-        if (NULL != uri) {
+        if (uri) {
             str->appendf(" uri:\"%s\"", uri);
         } else {
             str->appendf(" pixelref:%p", pr);

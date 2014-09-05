@@ -26,7 +26,7 @@ void append_texture_lookup(SkString* out,
                            uint32_t configComponentMask,
                            const char* swizzle,
                            GrSLType varyingType = kVec2f_GrSLType) {
-    SkASSERT(NULL != coordName);
+    SkASSERT(coordName);
 
     out->appendf("%s(%s, %s)",
                  sample_function_name(varyingType, gpu->glslGeneration()),

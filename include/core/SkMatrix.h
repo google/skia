@@ -349,7 +349,7 @@ public:
     bool SK_WARN_UNUSED_RESULT invert(SkMatrix* inverse) const {
         // Allow the trivial case to be inlined.
         if (this->isIdentity()) {
-            if (NULL != inverse) {
+            if (inverse) {
                 inverse->reset();
             }
             return true;

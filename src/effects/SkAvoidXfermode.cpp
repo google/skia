@@ -108,7 +108,7 @@ void SkAvoidXfermode::xfer32(SkPMColor dst[], const SkPMColor src[], int count,
         SkASSERT(d <= 256);
 
         if (d > 0) {
-            if (NULL != aa) {
+            if (aa) {
                 d = SkAlphaMul(d, Accurate255To256(*aa++));
                 if (0 == d) {
                     continue;
@@ -157,7 +157,7 @@ void SkAvoidXfermode::xfer16(uint16_t dst[], const SkPMColor src[], int count,
         SkASSERT(d <= 32);
 
         if (d > 0) {
-            if (NULL != aa) {
+            if (aa) {
                 d = SkAlphaMul(d, Accurate255To256(*aa++));
                 if (0 == d) {
                     continue;

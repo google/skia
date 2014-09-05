@@ -68,7 +68,7 @@ protected:
     public:
         AutoResetOpID(SkPicturePlayback* playback) : fPlayback(playback) { }
         ~AutoResetOpID() {
-            if (NULL != fPlayback) {
+            if (fPlayback) {
                 fPlayback->resetOpID();
             }
         }

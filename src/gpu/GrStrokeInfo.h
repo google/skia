@@ -56,7 +56,7 @@ public:
      * dashed effect and we are stroking, otherwise it retruns false.
      */
     bool setDashInfo(const SkPathEffect* pe) {
-        if (NULL != pe && !fStroke.isFillStyle()) {
+        if (pe && !fStroke.isFillStyle()) {
             fDashInfo.fIntervals = NULL;
             fDashType = pe->asADash(&fDashInfo);
             if (SkPathEffect::kDash_DashType == fDashType) {

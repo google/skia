@@ -188,7 +188,7 @@ void GrDistanceFieldTextContext::flushGlyphs() {
         // get our current color
         SkColor filteredColor;
         SkColorFilter* colorFilter = fSkPaint.getColorFilter();
-        if (NULL != colorFilter) {
+        if (colorFilter) {
             filteredColor = colorFilter->filterColor(fSkPaint.getColor());
         } else {
             filteredColor = fSkPaint.getColor();

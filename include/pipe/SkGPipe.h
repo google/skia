@@ -99,7 +99,7 @@ public:
     SkGPipeWriter();
     ~SkGPipeWriter();
 
-    bool isRecording() const { return NULL != fCanvas; }
+    bool isRecording() const { return SkToBool(fCanvas); }
 
     enum Flags {
         /**

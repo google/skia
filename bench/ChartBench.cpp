@@ -64,7 +64,7 @@ static void gen_paths(const SkTDArray<SkScalar>& topData,
         x += xDelta;
     }
 
-    if (NULL != bottomData) {
+    if (bottomData) {
         SkASSERT(bottomData->count() == topData.count());
         // iterate backwards over the previous graph's data to generate the bottom of the filled
         // area (and account for leftShift).

@@ -770,7 +770,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter,
 
     const char *reason = NULL;
     REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL, &reason));
-    REPORTER_ASSERT(reporter, NULL != reason);
+    REPORTER_ASSERT(reporter, reason);
 
     canvas = GENERATE_CANVAS(recorder, useNewPath);
     {
@@ -968,7 +968,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
 
             const SkPicture::AccelData* data = pict->EXPERIMENTAL_getAccelData(key);
-            REPORTER_ASSERT(reporter, NULL != data);
+            REPORTER_ASSERT(reporter, data);
 
             const GrAccelData *gpuData = static_cast<const GrAccelData*>(data);
             REPORTER_ASSERT(reporter, 8 == gpuData->numSaveLayers());
@@ -1023,7 +1023,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
                                       kHeight == info3.fSize.fHeight);
             REPORTER_ASSERT(reporter, info3.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info3.fOffset.fX && 0 == info3.fOffset.fY);
-            REPORTER_ASSERT(reporter, NULL != info3.fPaint);
+            REPORTER_ASSERT(reporter, info3.fPaint);
             REPORTER_ASSERT(reporter, !info3.fIsNested && !info3.fHasNestedLayers);
 
             REPORTER_ASSERT(reporter, info4.fValid);

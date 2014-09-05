@@ -158,7 +158,7 @@ protected:
         int testLayers = kBench_Mode != this->getMode();
         for (int doLayer = 0; doLayer <= testLayers; ++doLayer) {
             for (SkTLList<Clip>::Iter iter(fClips, SkTLList<Clip>::Iter::kHead_IterStart);
-                 NULL != iter.get();
+                 iter.get();
                  iter.next()) {
                 const Clip* clip = iter.get();
                 SkScalar x = startX;

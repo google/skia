@@ -14,7 +14,7 @@
 
 static GrGLFuncPtr glx_get(void* ctx, const char name[]) {
     SkASSERT(NULL == ctx);
-    SkASSERT(NULL != glXGetCurrentContext());
+    SkASSERT(glXGetCurrentContext());
     return glXGetProcAddress(reinterpret_cast<const GLubyte*>(name));
 }
 

@@ -100,7 +100,7 @@ GrGLAttribArrayState* GrGLVertexArray::bind() {
 
 GrGLAttribArrayState* GrGLVertexArray::bindWithIndexBuffer(const GrGLIndexBuffer* buffer) {
     GrGLAttribArrayState* state = this->bind();
-    if (NULL != state && NULL != buffer) {
+    if (state && buffer) {
         GrGLuint bufferID = buffer->bufferID();
         if (!fIndexBufferIDIsValid || bufferID != fIndexBufferID) {
             GL_CALL(BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, bufferID));

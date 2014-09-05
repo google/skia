@@ -37,11 +37,11 @@ static void create_diff_images (DiffMetricProc dmp,
     drp->fComparison.fStatus = DiffResource::kSpecified_Status;
 
     SkAutoDataUnref baseFileBits(read_file(drp->fBase.fFullPath.c_str()));
-    if (NULL != baseFileBits) {
+    if (baseFileBits) {
         drp->fBase.fStatus = DiffResource::kRead_Status;
     }
     SkAutoDataUnref comparisonFileBits(read_file(drp->fComparison.fFullPath.c_str()));
-    if (NULL != comparisonFileBits) {
+    if (comparisonFileBits) {
         drp->fComparison.fStatus = DiffResource::kRead_Status;
     }
     if (NULL == baseFileBits || NULL == comparisonFileBits) {

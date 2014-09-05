@@ -272,7 +272,7 @@ bool SkKTXImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap, int)
     SkAutoDataUnref data(bitmap.pixelRef()->refEncodedData());
 
     // Is this even encoded data?
-    if (NULL != data) {
+    if (data) {
         const uint8_t *bytes = data->bytes();
         if (etc1_pkm_is_valid(bytes)) {
             return this->encodePKM(stream, data);

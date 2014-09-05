@@ -79,7 +79,7 @@ static SkBitmap createAllocatedBitmap(const SkImageInfo& info) {
     SkBitmap cachedBitmap;
     cachedBitmap.setInfo(info);
     SkBitmap::Allocator* allocator = SkBitmapCache::GetAllocator();
-    if (NULL != allocator) {
+    if (allocator) {
         allocator->allocPixelRef(&cachedBitmap, 0);
     } else {
         cachedBitmap.allocPixels();

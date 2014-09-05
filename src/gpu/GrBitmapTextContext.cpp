@@ -109,7 +109,7 @@ void GrBitmapTextContext::flushGlyphs() {
         int coordsIdx = drawState->hasColorVertexAttribute() ? kGlyphCoordsWithColorAttributeIndex :
                                                                kGlyphCoordsNoColorAttributeIndex;
         drawState->setGeometryProcessor(fCachedEffect.get(), coordsIdx);
-        SkASSERT(NULL != fStrike);
+        SkASSERT(fStrike);
         switch (fStrike->getMaskFormat()) {
             // Color bitmap text
             case kARGB_GrMaskFormat:

@@ -100,7 +100,7 @@ void* SkDeque::push_front() {
         SkASSERT(NULL == fBack);
         fFront = fBack = begin;
     } else {
-        SkASSERT(NULL != fBack);
+        SkASSERT(fBack);
         fFront = begin;
     }
 
@@ -141,7 +141,7 @@ void* SkDeque::push_back() {
         SkASSERT(NULL == fFront);
         fFront = fBack = end;
     } else {
-        SkASSERT(NULL != fFront);
+        SkASSERT(fFront);
         fBack = end;
     }
 
@@ -169,14 +169,14 @@ void SkDeque::pop_front() {
 
     if (begin < fFrontBlock->fEnd) {
         first->fBegin = begin;
-        SkASSERT(NULL != first->fBegin);
+        SkASSERT(first->fBegin);
         fFront = first->fBegin;
     } else {
         first->fBegin = first->fEnd = NULL;  // mark as empty
         if (NULL == first->fNext) {
             fFront = fBack = NULL;
         } else {
-            SkASSERT(NULL != first->fNext->fBegin);
+            SkASSERT(first->fNext->fBegin);
             fFront = first->fNext->fBegin;
         }
     }
@@ -203,14 +203,14 @@ void SkDeque::pop_back() {
 
     if (end > last->fBegin) {
         last->fEnd = end;
-        SkASSERT(NULL != last->fEnd);
+        SkASSERT(last->fEnd);
         fBack = last->fEnd - fElemSize;
     } else {
         last->fBegin = last->fEnd = NULL;    // mark as empty
         if (NULL == last->fPrev) {
             fFront = fBack = NULL;
         } else {
-            SkASSERT(NULL != last->fPrev->fEnd);
+            SkASSERT(last->fPrev->fEnd);
             fBack = last->fPrev->fEnd - fElemSize;
         }
     }
@@ -293,14 +293,14 @@ void SkDeque::Iter::reset(const SkDeque& d, IterStart startLoc) {
     if (kFront_IterStart == startLoc) {
         // initialize the iterator to start at the front
         fCurBlock = d.fFrontBlock;
-        while (NULL != fCurBlock && NULL == fCurBlock->fBegin) {
+        while (fCurBlock && NULL == fCurBlock->fBegin) {
             fCurBlock = fCurBlock->fNext;
         }
         fPos = fCurBlock ? fCurBlock->fBegin : NULL;
     } else {
         // initialize the iterator to start at the back
         fCurBlock = d.fBackBlock;
-        while (NULL != fCurBlock && NULL == fCurBlock->fEnd) {
+        while (fCurBlock && NULL == fCurBlock->fEnd) {
             fCurBlock = fCurBlock->fPrev;
         }
         fPos = fCurBlock ? fCurBlock->fEnd - fElemSize : NULL;

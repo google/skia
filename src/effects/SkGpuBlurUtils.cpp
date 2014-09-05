@@ -146,7 +146,7 @@ GrTexture* GaussianBlur(GrContext* context,
                         bool cropToRect,
                         float sigmaX,
                         float sigmaY) {
-    SkASSERT(NULL != context);
+    SkASSERT(context);
 
     GrContext::AutoRenderTarget art(context);
 

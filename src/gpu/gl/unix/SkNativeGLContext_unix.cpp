@@ -18,7 +18,7 @@ SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
 }
 
 SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
-    if (NULL != fOldDisplay) {
+    if (fOldDisplay) {
         glXMakeCurrent(fOldDisplay, fOldDrawable, fOldGLXContext);
     }
 }

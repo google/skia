@@ -162,7 +162,7 @@ private:
     friend class GrTexture;
     // called by ~GrTexture to remove the non-ref'ed back ptr.
     void owningTextureDestroyed() {
-        SkASSERT(NULL != fTexture);
+        SkASSERT(fTexture);
         fTexture = NULL;
     }
 

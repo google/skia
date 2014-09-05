@@ -317,7 +317,7 @@ void SkLua::pushClipStack(const SkClipStack& stack, const char* key) {
     SkClipStack::B2TIter iter(stack);
     const SkClipStack::Element* element;
     int i = 0;
-    while (NULL != (element = iter.next())) {
+    while ((element = iter.next())) {
         this->pushClipStackElement(*element);
         lua_rawseti(fL, -2, ++i);
     }
@@ -521,7 +521,7 @@ int SkLua::lcanvas_getReducedClipStack(lua_State* L) {
     GrReducedClip::ElementList::Iter iter(elements);
     int i = 0;
     lua_newtable(L);
-    while(NULL != iter.get()) {
+    while(iter.get()) {
         SkLua(L).pushClipStackElement(*iter.get());
         iter.next();
         lua_rawseti(L, -2, ++i);

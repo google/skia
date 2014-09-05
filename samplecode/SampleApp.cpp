@@ -274,7 +274,7 @@ public:
     virtual SkCanvas* createCanvas(SampleWindow::DeviceType dType,
                                    SampleWindow* win) {
 #if SK_SUPPORT_GPU
-        if (IsGpuDeviceType(dType) && NULL != fCurContext) {
+        if (IsGpuDeviceType(dType) && fCurContext) {
             SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(fCurRenderTarget));
             return new SkCanvas(device);
         } else
@@ -2053,7 +2053,7 @@ void SampleWindow::updateTitle() {
 
 #if SK_SUPPORT_GPU
     if (IsGpuDeviceType(fDeviceType) &&
-        NULL != fDevManager &&
+        fDevManager &&
         fDevManager->getGrRenderTarget() &&
         fDevManager->getGrRenderTarget()->numSamples() > 0) {
         title.appendf(" [MSAA: %d]",

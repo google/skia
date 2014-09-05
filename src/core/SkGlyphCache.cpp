@@ -339,7 +339,7 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
             const_cast<SkGlyph&>(glyph).fImage = fGlyphAlloc.alloc(size,
                                         SkChunkAlloc::kReturnNil_AllocFailType);
             // check that alloc() actually succeeded
-            if (NULL != glyph.fImage) {
+            if (glyph.fImage) {
                 fScalerContext->getImage(glyph);
                 // TODO: the scaler may have changed the maskformat during
                 // getImage (e.g. from AA or LCD to BW) which means we may have
@@ -373,10 +373,10 @@ const void* SkGlyphCache::findDistanceField(const SkGlyph& glyph) {
             }
             const void* image = this->findImage(glyph);
             // now generate the distance field
-            if (NULL != image) {
+            if (image) {
                 const_cast<SkGlyph&>(glyph).fDistanceField = fGlyphAlloc.alloc(size,
                                             SkChunkAlloc::kReturnNil_AllocFailType);
-                if (NULL != glyph.fDistanceField) {
+                if (glyph.fDistanceField) {
                     SkMask::Format maskFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
                     if (SkMask::kA8_Format == maskFormat) {
                         // make the distance field from the image

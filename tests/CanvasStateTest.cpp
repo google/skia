@@ -270,7 +270,7 @@ DEF_TEST(CanvasState_test_draw_filters, reporter) {
     SkCanvas* tmpCanvas = SkCanvasStateUtils::CreateFromCanvasState(state);
     REPORTER_ASSERT(reporter, tmpCanvas);
 
-    REPORTER_ASSERT(reporter, NULL != canvas.getDrawFilter());
+    REPORTER_ASSERT(reporter, canvas.getDrawFilter());
     REPORTER_ASSERT(reporter, NULL == tmpCanvas->getDrawFilter());
 
     tmpCanvas->unref();

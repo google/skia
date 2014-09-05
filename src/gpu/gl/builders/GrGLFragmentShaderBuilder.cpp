@@ -48,7 +48,7 @@ GrGLFragmentShaderBuilder::DstReadKey GrGLFragmentShaderBuilder::KeyForDstRead(
     if (caps.fbFetchSupport()) {
         return key;
     }
-    SkASSERT(NULL != dstCopy);
+    SkASSERT(dstCopy);
     if (!caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(dstCopy->config())) {
         // The fact that the config is alpha-only must be considered when generating code.
         key |= kUseAlphaConfig_DstReadKeyBit;

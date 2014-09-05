@@ -256,15 +256,15 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
 
          for (int i = 0; i < n; ++i) {
 
-             if (NULL != frameBuffer->getColor() &&
+             if (frameBuffer->getColor() &&
                  textures[i] == frameBuffer->getColor()->getID()) {
                  frameBuffer->setColor(NULL);
              }
-             if (NULL != frameBuffer->getDepth() &&
+             if (frameBuffer->getDepth() &&
                  textures[i] == frameBuffer->getDepth()->getID()) {
                  frameBuffer->setDepth(NULL);
              }
-             if (NULL != frameBuffer->getStencil() &&
+             if (frameBuffer->getStencil() &&
                  textures[i] == frameBuffer->getStencil()->getID()) {
                  frameBuffer->setStencil(NULL);
              }
@@ -341,15 +341,15 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
 
          for (int i = 0; i < n; ++i) {
 
-             if (NULL != frameBuffer->getColor() &&
+             if (frameBuffer->getColor() &&
                  renderBuffers[i] == frameBuffer->getColor()->getID()) {
                  frameBuffer->setColor(NULL);
              }
-             if (NULL != frameBuffer->getDepth() &&
+             if (frameBuffer->getDepth() &&
                  renderBuffers[i] == frameBuffer->getDepth()->getID()) {
                  frameBuffer->setDepth(NULL);
              }
-             if (NULL != frameBuffer->getStencil() &&
+             if (frameBuffer->getStencil() &&
                  renderBuffers[i] == frameBuffer->getStencil()->getID()) {
                  frameBuffer->setStencil(NULL);
              }
@@ -390,7 +390,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
 
      GrFrameBufferObj *framebuffer = GrDebugGL::getInstance()->getFrameBuffer();
      // A render buffer cannot be attached to the default framebuffer
-     GrAlwaysAssert(NULL != framebuffer);
+     GrAlwaysAssert(framebuffer);
 
      // a renderBufferID of 0 is acceptable - it unbinds the current
      // render buffer
@@ -430,7 +430,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
 
      GrFrameBufferObj *framebuffer = GrDebugGL::getInstance()->getFrameBuffer();
      // A texture cannot be attached to the default framebuffer
-     GrAlwaysAssert(NULL != framebuffer);
+     GrAlwaysAssert(framebuffer);
 
      // A textureID of 0 is allowed - it unbinds the currently bound texture
      GrTextureObj *texture = GR_FIND(textureID, GrTextureObj,
@@ -566,7 +566,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteVertexArrays(GrGLsizei n, const GrGLui
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindVertexArray(GrGLuint id) {
     GrVertexArrayObj* array = GR_FIND(id, GrVertexArrayObj, GrDebugGL::kVertexArray_ObjTypes);
-    GrAlwaysAssert((0 == id) || NULL != array);
+    GrAlwaysAssert((0 == id) || array);
     GrDebugGL::getInstance()->setVertexArray(array);
 }
 
@@ -644,7 +644,7 @@ GrGLvoid* GR_GL_FUNCTION_TYPE debugGLMapBufferRange(GrGLenum target, GrGLintptr 
             break;
     }
 
-    if (NULL != buffer) {
+    if (buffer) {
         GrAlwaysAssert(offset >= 0 && offset + length <= buffer->getSize());
         GrAlwaysAssert(!buffer->getMapped());
         buffer->setMapped(offset, length);
@@ -695,7 +695,7 @@ GrGLboolean GR_GL_FUNCTION_TYPE debugGLUnmapBuffer(GrGLenum target) {
             break;
     }
 
-    if (NULL != buffer) {
+    if (buffer) {
         GrAlwaysAssert(buffer->getMapped());
         buffer->resetMapped();
         return GR_GL_TRUE;
@@ -724,7 +724,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLFlushMappedBufferRange(GrGLenum target,
             break;
     }
 
-    if (NULL != buffer) {
+    if (buffer) {
         GrAlwaysAssert(buffer->getMapped());
         GrAlwaysAssert(offset >= 0 && (offset + length) <= buffer->getMappedLength());
     } else {
@@ -757,17 +757,17 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetBufferParameteriv(GrGLenum target,
     switch (value) {
         case GR_GL_BUFFER_MAPPED:
             *params = GR_GL_FALSE;
-            if (NULL != buffer)
+            if (buffer)
                 *params = buffer->getMapped() ? GR_GL_TRUE : GR_GL_FALSE;
             break;
         case GR_GL_BUFFER_SIZE:
             *params = 0;
-            if (NULL != buffer)
+            if (buffer)
                 *params = SkToInt(buffer->getSize());
             break;
         case GR_GL_BUFFER_USAGE:
             *params = GR_GL_STATIC_DRAW;
-            if (NULL != buffer)
+            if (buffer)
                 *params = buffer->getUsage();
             break;
         default:

@@ -82,7 +82,7 @@ bool GrRODrawState::validateVertexAttribs() const {
     if (this->hasGeometryProcessor()) {
         const GrEffectStage& stage = *this->getGeometryProcessor();
         const GrEffect* effect = stage.getEffect();
-        SkASSERT(NULL != effect);
+        SkASSERT(effect);
         // make sure that any attribute indices have the correct binding type, that the attrib
         // type and effect's shader lang type are compatible, and that attributes shared by
         // multiple effects use the same shader lang type.

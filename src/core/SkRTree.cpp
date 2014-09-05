@@ -75,7 +75,7 @@ void SkRTree::insert(void* data, const SkRect& fbounds, bool defer) {
     Branch* newSibling = insert(fRoot.fChild.subtree, &newBranch);
     fRoot.fBounds = this->computeBounds(fRoot.fChild.subtree);
 
-    if (NULL != newSibling) {
+    if (newSibling) {
         Node* oldRoot = fRoot.fChild.subtree;
         Node* newRoot = this->allocateNode(oldRoot->fLevel + 1);
         newRoot->fNumChildren = 2;
@@ -143,7 +143,7 @@ SkRTree::Branch* SkRTree::insert(Node* root, Branch* branch, uint16_t level) {
         root->child(childIndex)->fBounds = this->computeBounds(
             root->child(childIndex)->fChild.subtree);
     }
-    if (NULL != toInsert) {
+    if (toInsert) {
         if (root->fNumChildren == fMaxChildren) {
             // handle overflow by splitting. TODO: opportunistic reinsertion
 

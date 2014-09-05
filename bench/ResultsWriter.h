@@ -98,7 +98,7 @@ public:
         fBench = &fResults[id.c_str()];
     }
     virtual void config(const char name[]) {
-        SkASSERT(NULL != fBench);
+        SkASSERT(fBench);
         fConfig = &(*fBench)[name];
     }
     virtual void configOption(const char name[], const char* value) {
@@ -109,7 +109,7 @@ public:
         if (sk_double_isnan(ms)) {
             return;
         }
-        SkASSERT(NULL != fConfig);
+        SkASSERT(fConfig);
         (*fConfig)[name] = ms;
     }
 

@@ -204,7 +204,7 @@ public:
     }
     Iter& operator --() {
         SkASSERT(*this != fTree->begin());
-        if (NULL != fN) {
+        if (fN) {
             fN = PredecessorNode(fN);
         } else {
             *this = fTree->last();
@@ -254,7 +254,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::last() {
 template <typename T, typename C>
 typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::find(const T& t) {
     Node* n = fRoot;
-    while (NULL != n) {
+    while (n) {
         if (fComp(t, n->fItem)) {
             n = n->fChildren[kLeft_Child];
         } else {
@@ -271,7 +271,7 @@ template <typename T, typename C>
 typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::findFirst(const T& t) {
     Node* n = fRoot;
     Node* leftMost = NULL;
-    while (NULL != n) {
+    while (n) {
         if (fComp(t, n->fItem)) {
             n = n->fChildren[kLeft_Child];
         } else {
@@ -291,7 +291,7 @@ template <typename T, typename C>
 typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::findLast(const T& t) {
     Node* n = fRoot;
     Node* rightMost = NULL;
-    while (NULL != n) {
+    while (n) {
         if (fComp(t, n->fItem)) {
             n = n->fChildren[kLeft_Child];
         } else {
@@ -313,7 +313,7 @@ int GrRedBlackTree<T,C>::countOf(const T& t) const {
 template <typename T, typename C>
 int GrRedBlackTree<T,C>::onCountOf(const Node* n, const T& t) const {
     // this is count*log(n) :(
-    while (NULL != n) {
+    while (n) {
         if (fComp(t, n->fItem)) {
             n = n->fChildren[kLeft_Child];
         } else {
@@ -360,7 +360,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
 
     bool first = true;
     bool last = true;
-    while (NULL != n) {
+    while (n) {
         gpc = pc;
         pc = fComp(x->fItem, n->fItem) ? kLeft_Child : kRight_Child;
         first = first && kLeft_Child == pc;
@@ -389,10 +389,10 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
 
     do {
         // assumptions at loop start.
-        SkASSERT(NULL != x);
+        SkASSERT(x);
         SkASSERT(kRed_Color == x->fColor);
         // can't have a grandparent but no parent.
-        SkASSERT(!(NULL != gp && NULL == p));
+        SkASSERT(!(gp && NULL == p));
         // make sure pc and gpc are correct
         SkASSERT(NULL == p  || p->fChildren[pc] == x);
         SkASSERT(NULL == gp || gp->fChildren[gpc] == p);
@@ -403,7 +403,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
             return Iter(returnNode, this);
         }
         // gp must be valid because if p was the root then it is black
-        SkASSERT(NULL != gp);
+        SkASSERT(gp);
         // gp must be black since it's child, p, is red.
         SkASSERT(kBlack_Color == gp->fColor);
 
@@ -413,7 +413,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
         // if x's uncle (p's sibling) is also red then we can flip
         // p and u to black and make gp red. But then we have to recurse
         // up to gp since it's parent may also be red.
-        if (NULL != u && kRed_Color == u->fColor) {
+        if (u && kRed_Color == u->fColor) {
             p->fColor = kBlack_Color;
             u->fColor = kBlack_Color;
             gp->fColor = kRed_Color;
@@ -429,7 +429,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
             gp = p->fParent;
             pc = (p->fChildren[kLeft_Child] == x) ? kLeft_Child :
                                                     kRight_Child;
-            if (NULL != gp) {
+            if (gp) {
                 gpc = (gp->fChildren[kLeft_Child] == p) ? kLeft_Child :
                                                           kRight_Child;
             }
@@ -493,10 +493,10 @@ void GrRedBlackTree<T,C>::rotateRight(Node* n) {
      */
     Node* d = n->fParent;
     Node* s = n->fChildren[kLeft_Child];
-    SkASSERT(NULL != s);
+    SkASSERT(s);
     Node* b = s->fChildren[kRight_Child];
 
-    if (NULL != d) {
+    if (d) {
         Child c = d->fChildren[kLeft_Child] == n ? kLeft_Child :
                                              kRight_Child;
         d->fChildren[c] = s;
@@ -508,7 +508,7 @@ void GrRedBlackTree<T,C>::rotateRight(Node* n) {
     s->fChildren[kRight_Child] = n;
     n->fParent = s;
     n->fChildren[kLeft_Child] = b;
-    if (NULL != b) {
+    if (b) {
         b->fParent = n;
     }
 
@@ -525,10 +525,10 @@ void GrRedBlackTree<T,C>::rotateLeft(Node* n) {
 
     Node* d = n->fParent;
     Node* s = n->fChildren[kRight_Child];
-    SkASSERT(NULL != s);
+    SkASSERT(s);
     Node* b = s->fChildren[kLeft_Child];
 
-    if (NULL != d) {
+    if (d) {
         Child c = d->fChildren[kRight_Child] == n ? kRight_Child :
                                                    kLeft_Child;
         d->fChildren[c] = s;
@@ -540,7 +540,7 @@ void GrRedBlackTree<T,C>::rotateLeft(Node* n) {
     s->fChildren[kLeft_Child] = n;
     n->fParent = s;
     n->fChildren[kRight_Child] = b;
-    if (NULL != b) {
+    if (b) {
         b->fParent = n;
     }
 
@@ -554,15 +554,15 @@ void GrRedBlackTree<T,C>::rotateLeft(Node* n) {
 
 template <typename T, typename C>
 typename GrRedBlackTree<T,C>::Node* GrRedBlackTree<T,C>::SuccessorNode(Node* x) {
-    SkASSERT(NULL != x);
-    if (NULL != x->fChildren[kRight_Child]) {
+    SkASSERT(x);
+    if (x->fChildren[kRight_Child]) {
         x = x->fChildren[kRight_Child];
-        while (NULL != x->fChildren[kLeft_Child]) {
+        while (x->fChildren[kLeft_Child]) {
             x = x->fChildren[kLeft_Child];
         }
         return x;
     }
-    while (NULL != x->fParent && x == x->fParent->fChildren[kRight_Child]) {
+    while (x->fParent && x == x->fParent->fChildren[kRight_Child]) {
         x = x->fParent;
     }
     return x->fParent;
@@ -570,15 +570,15 @@ typename GrRedBlackTree<T,C>::Node* GrRedBlackTree<T,C>::SuccessorNode(Node* x) 
 
 template <typename T, typename C>
 typename GrRedBlackTree<T,C>::Node* GrRedBlackTree<T,C>::PredecessorNode(Node* x) {
-    SkASSERT(NULL != x);
-    if (NULL != x->fChildren[kLeft_Child]) {
+    SkASSERT(x);
+    if (x->fChildren[kLeft_Child]) {
         x = x->fChildren[kLeft_Child];
-        while (NULL != x->fChildren[kRight_Child]) {
+        while (x->fChildren[kRight_Child]) {
             x = x->fChildren[kRight_Child];
         }
         return x;
     }
-    while (NULL != x->fParent && x == x->fParent->fChildren[kLeft_Child]) {
+    while (x->fParent && x == x->fParent->fChildren[kLeft_Child]) {
         x = x->fParent;
     }
     return x->fParent;
@@ -586,12 +586,12 @@ typename GrRedBlackTree<T,C>::Node* GrRedBlackTree<T,C>::PredecessorNode(Node* x
 
 template <typename T, typename C>
 void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
-    SkASSERT(NULL != x);
+    SkASSERT(x);
     validate();
     --fCount;
 
-    bool hasLeft =  NULL != x->fChildren[kLeft_Child];
-    bool hasRight = NULL != x->fChildren[kRight_Child];
+    bool hasLeft =  SkToBool(x->fChildren[kLeft_Child]);
+    bool hasRight = SkToBool(x->fChildren[kRight_Child]);
     Child c = hasLeft ? kLeft_Child : kRight_Child;
 
     if (hasLeft && hasRight) {
@@ -601,10 +601,10 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
         // if x is an interior node then we find it's successor
         // and swap them.
         Node* s = x->fChildren[kRight_Child];
-        while (NULL != s->fChildren[kLeft_Child]) {
+        while (s->fChildren[kLeft_Child]) {
             s = s->fChildren[kLeft_Child];
         }
-        SkASSERT(NULL != s);
+        SkASSERT(s);
         // this might be expensive relative to swapping node ptrs around.
         // depends on T.
         x->fItem = s->fItem;
@@ -615,7 +615,7 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
         // the new root (if the tree is not empty) black.
         SkASSERT(fRoot == x);
         fRoot = x->fChildren[c];
-        if (NULL != fRoot) {
+        if (fRoot) {
             fRoot->fParent = NULL;
             fRoot->fColor = kBlack_Color;
             if (x == fLast) {
@@ -665,7 +665,7 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
         //s cannot be an implicit black node because the original
         // black-height at x was >= 2 and s's black-height must equal the
         // initial black height of x.
-        SkASSERT(NULL != s);
+        SkASSERT(s);
         SkASSERT(p == s->fParent);
 
         // assigned in loop
@@ -682,7 +682,7 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
             // be real nodes.
             // The x side of p has a black-height that is one less than the
             // s side. It must be rebalanced.
-            SkASSERT(NULL != s);
+            SkASSERT(s);
             SkASSERT(p == s->fParent);
             SkASSERT(NULL == x || x->fParent == p);
 
@@ -697,8 +697,8 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
                 SkASSERT(kBlack_Color == p->fColor);
                 // s's children must also be black since s is red. They can't
                 // be implicit since s is red and it's black-height is >= 2.
-                SkASSERT(NULL != sl && kBlack_Color == sl->fColor);
-                SkASSERT(NULL != sr && kBlack_Color == sr->fColor);
+                SkASSERT(sl && kBlack_Color == sl->fColor);
+                SkASSERT(sr && kBlack_Color == sr->fColor);
                 p->fColor = kRed_Color;
                 s->fColor = kBlack_Color;
                 if (kLeft_Child == pc) {
@@ -718,8 +718,8 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
             SkASSERT(NULL == x || p == x->fParent);
 
             // when x is deleted its subtree will have reduced black-height.
-            slRed = (NULL != sl && kRed_Color == sl->fColor);
-            srRed = (NULL != sr && kRed_Color == sr->fColor);
+            slRed = (sl && kRed_Color == sl->fColor);
+            srRed = (sr && kRed_Color == sr->fColor);
             if (!slRed && !srRed) {
                 // if s can be made red that will balance out x's removal
                 // to make both subtrees of p have the same black-height.
@@ -744,7 +744,7 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
 
                     }
                     s = p->fChildren[1-pc];
-                    SkASSERT(NULL != s);
+                    SkASSERT(s);
                     SkASSERT(p == s->fParent);
                     continue;
                 } else if (kRed_Color == p->fColor) {
@@ -789,11 +789,11 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
         s->fColor = p->fColor;
         p->fColor = kBlack_Color;
         if (kLeft_Child == pc) {
-            SkASSERT(NULL != sr && kRed_Color == sr->fColor);
+            SkASSERT(sr && kRed_Color == sr->fColor);
             sr->fColor = kBlack_Color;
             rotateLeft(p);
         } else {
-            SkASSERT(NULL != sl && kRed_Color == sl->fColor);
+            SkASSERT(sl && kRed_Color == sl->fColor);
             sl->fColor = kBlack_Color;
             rotateRight(p);
         }
@@ -815,14 +815,14 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
         if (x == fFirst) {
             SkASSERT(c == kRight_Child);
             fFirst = c1;
-            while (NULL != fFirst->fChildren[kLeft_Child]) {
+            while (fFirst->fChildren[kLeft_Child]) {
                 fFirst = fFirst->fChildren[kLeft_Child];
             }
             SkASSERT(fFirst == SuccessorNode(x));
         } else if (x == fLast) {
             SkASSERT(c == kLeft_Child);
             fLast = c1;
-            while (NULL != fLast->fChildren[kRight_Child]) {
+            while (fLast->fChildren[kRight_Child]) {
                 fLast = fLast->fChildren[kRight_Child];
             }
             SkASSERT(fLast == PredecessorNode(x));
@@ -838,7 +838,7 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
 
 template <typename T, typename C>
 void GrRedBlackTree<T,C>::RecursiveDelete(Node* x) {
-    if (NULL != x) {
+    if (x) {
         RecursiveDelete(x->fChildren[kLeft_Child]);
         RecursiveDelete(x->fChildren[kRight_Child]);
         delete x;
@@ -850,8 +850,8 @@ template <typename T, typename C>
 void GrRedBlackTree<T,C>::validate() const {
     if (fCount) {
         SkASSERT(NULL == fRoot->fParent);
-        SkASSERT(NULL != fFirst);
-        SkASSERT(NULL != fLast);
+        SkASSERT(fFirst);
+        SkASSERT(fLast);
 
         SkASSERT(kBlack_Color == fRoot->fColor);
         if (1 == fCount) {
@@ -874,7 +874,7 @@ void GrRedBlackTree<T,C>::validate() const {
 
 template <typename T, typename C>
 int GrRedBlackTree<T,C>::checkNode(Node* n, int* bh) const {
-    if (NULL != n) {
+    if (n) {
         SkASSERT(validateChildRelations(n, false));
         if (kBlack_Color == n->fColor) {
             *bh += 1;
@@ -895,21 +895,21 @@ int GrRedBlackTree<T,C>::checkNode(Node* n, int* bh) const {
 template <typename T, typename C>
 bool GrRedBlackTree<T,C>::validateChildRelations(const Node* n,
                                                  bool allowRedRed) const {
-    if (NULL != n) {
-        if (NULL != n->fChildren[kLeft_Child] ||
-            NULL != n->fChildren[kRight_Child]) {
+    if (n) {
+        if (n->fChildren[kLeft_Child] ||
+            n->fChildren[kRight_Child]) {
             if (n->fChildren[kLeft_Child] == n->fChildren[kRight_Child]) {
                 return validateChildRelationsFailed();
             }
             if (n->fChildren[kLeft_Child] == n->fParent &&
-                NULL != n->fParent) {
+                n->fParent) {
                 return validateChildRelationsFailed();
             }
             if (n->fChildren[kRight_Child] == n->fParent &&
-                NULL != n->fParent) {
+                n->fParent) {
                 return validateChildRelationsFailed();
             }
-            if (NULL != n->fChildren[kLeft_Child]) {
+            if (n->fChildren[kLeft_Child]) {
                 if (!allowRedRed &&
                     kRed_Color == n->fChildren[kLeft_Child]->fColor &&
                     kRed_Color == n->fColor) {
@@ -924,7 +924,7 @@ bool GrRedBlackTree<T,C>::validateChildRelations(const Node* n,
                     return validateChildRelationsFailed();
                 }
             }
-            if (NULL != n->fChildren[kRight_Child]) {
+            if (n->fChildren[kRight_Child]) {
                 if (!allowRedRed &&
                     kRed_Color == n->fChildren[kRight_Child]->fColor &&
                     kRed_Color == n->fColor) {

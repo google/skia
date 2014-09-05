@@ -27,7 +27,7 @@ static bool verifyEmptyList(skiatest::Reporter* reporter,
         ERRORF(reporter, "%s - List count is not zero, %d instead", stage, list.getCount());
         return false;
     }
-    if (NULL != list.head()) {
+    if (list.head()) {
         ERRORF(reporter, "%s - List has elements when empty", stage);
         return false;
     }
@@ -55,7 +55,7 @@ static bool verifyList(skiatest::Reporter* reporter,
         }
         next = next->next();
     }
-    if (NULL != next) {
+    if (next) {
         ERRORF(reporter, "%s - List too long, should be %d", stage, count);
         return false;
     }

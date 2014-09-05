@@ -103,7 +103,7 @@ static SkString replace_all(const SkString &input,
     const char *first_char = input_cstr;
     const char *match_char;
     size_t oldSubstringLen = strlen(oldSubstring);
-    while (NULL != (match_char = strstr(first_char, oldSubstring))) {
+    while ((match_char = strstr(first_char, oldSubstring))) {
         output.append(first_char, (match_char - first_char));
         output.append(newSubstring);
         first_char = match_char + oldSubstringLen;

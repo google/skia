@@ -170,7 +170,7 @@ template <typename T> class SkAutoTDestroy : SkNoncopyable {
 public:
     SkAutoTDestroy(T* obj = NULL) : fObj(obj) {}
     ~SkAutoTDestroy() {
-        if (NULL != fObj) {
+        if (fObj) {
             fObj->~T();
         }
     }

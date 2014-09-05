@@ -198,7 +198,7 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
         // This should have succeeded, since there are enough bytes to read this
         REPORTER_ASSERT(reporter, buffer2.isValid());
         REPORTER_ASSERT(reporter, static_cast<size_t>(peekAfter - peekBefore) == bytesWritten);
-        REPORTER_ASSERT(reporter, NULL != obj2);
+        REPORTER_ASSERT(reporter, obj2);
     } else {
         // If the deserialization was supposed to fail, make sure it did
         REPORTER_ASSERT(reporter, !buffer.isValid());
@@ -490,7 +490,7 @@ DEF_TEST(Serialization, reporter) {
         SkValidatingReadBuffer reader(static_cast<void*>(data.get()), size);
         SkAutoTUnref<SkPicture> readPict(
             SkPicture::CreateFromBuffer(reader));
-        REPORTER_ASSERT(reporter, NULL != readPict.get());
+        REPORTER_ASSERT(reporter, readPict.get());
     }
 
     TestPictureTypefaceSerialization(reporter);

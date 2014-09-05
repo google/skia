@@ -15,7 +15,7 @@ GrResourceCache2::~GrResourceCache2() {
 }
 
 void GrResourceCache2::insertResource(GrGpuResource* resource) {
-    SkASSERT(NULL != resource);
+    SkASSERT(resource);
     SkASSERT(!resource->wasDestroyed());
     SkASSERT(!this->isInCache(resource));
     fResources.addToHead(resource);

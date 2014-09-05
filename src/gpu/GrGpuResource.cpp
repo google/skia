@@ -22,9 +22,9 @@ GrGpuRef::~GrGpuRef() {
 ///////////////////////////////////////////////////////////////////////////////
 
 static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
-    SkASSERT(NULL != gpu);
-    SkASSERT(NULL != gpu->getContext());
-    SkASSERT(NULL != gpu->getContext()->getResourceCache2());
+    SkASSERT(gpu);
+    SkASSERT(gpu->getContext());
+    SkASSERT(gpu->getContext()->getResourceCache2());
     return gpu->getContext()->getResourceCache2();
 }
 
@@ -50,7 +50,7 @@ GrGpuResource::~GrGpuResource() {
 }
 
 void GrGpuResource::release() { 
-    if (NULL != fGpu) {
+    if (fGpu) {
         this->onRelease();
         get_resource_cache2(fGpu)->removeResource(this);
         fGpu = NULL;
@@ -58,7 +58,7 @@ void GrGpuResource::release() {
 }
 
 void GrGpuResource::abandon() {
-    if (NULL != fGpu) {
+    if (fGpu) {
         this->onAbandon();
         get_resource_cache2(fGpu)->removeResource(this);
         fGpu = NULL;
@@ -66,7 +66,7 @@ void GrGpuResource::abandon() {
 }
 
 const GrContext* GrGpuResource::getContext() const {
-    if (NULL != fGpu) {
+    if (fGpu) {
         return fGpu->getContext();
     } else {
         return NULL;
@@ -74,7 +74,7 @@ const GrContext* GrGpuResource::getContext() const {
 }
 
 GrContext* GrGpuResource::getContext() {
-    if (NULL != fGpu) {
+    if (fGpu) {
         return fGpu->getContext();
     } else {
         return NULL;

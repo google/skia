@@ -166,7 +166,7 @@ protected:
 
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    SkASSERT(NULL != tt.target());
+                    SkASSERT(tt.target());
                     GrDrawState* drawState = tt.target()->drawState();
                     drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
@@ -321,7 +321,7 @@ protected:
 
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    SkASSERT(NULL != tt.target());
+                    SkASSERT(tt.target());
                     GrDrawState* drawState = tt.target()->drawState();
                     drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
@@ -505,7 +505,7 @@ protected:
 
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    SkASSERT(NULL != tt.target());
+                    SkASSERT(tt.target());
                     GrDrawState* drawState = tt.target()->drawState();
                     drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 

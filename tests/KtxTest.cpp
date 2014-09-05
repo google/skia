@@ -31,7 +31,7 @@ DEF_TEST(KtxReadWrite, reporter) {
     bm8888.allocN32Pixels(128, 128);
 
     uint8_t *pixels = reinterpret_cast<uint8_t*>(bm8888.getPixels());
-    REPORTER_ASSERT(reporter, NULL != pixels);
+    REPORTER_ASSERT(reporter, pixels);
 
     if (NULL == pixels) {
         return;
@@ -53,10 +53,10 @@ DEF_TEST(KtxReadWrite, reporter) {
     REPORTER_ASSERT(reporter, !(bm8888.empty()));
 
     SkAutoDataUnref encodedData(SkImageEncoder::EncodeData(bm8888, SkImageEncoder::kKTX_Type, 0));
-    REPORTER_ASSERT(reporter, NULL != encodedData);
+    REPORTER_ASSERT(reporter, encodedData);
 
     SkAutoTUnref<SkMemoryStream> stream(SkNEW_ARGS(SkMemoryStream, (encodedData)));
-    REPORTER_ASSERT(reporter, NULL != stream);
+    REPORTER_ASSERT(reporter, stream);
 
     SkBitmap decodedBitmap;
     bool imageDecodeSuccess = SkImageDecoder::DecodeStream(stream, &decodedBitmap);
@@ -69,7 +69,7 @@ DEF_TEST(KtxReadWrite, reporter) {
     REPORTER_ASSERT(reporter, !(decodedBitmap.empty()));
 
     uint8_t *decodedPixels = reinterpret_cast<uint8_t*>(decodedBitmap.getPixels());
-    REPORTER_ASSERT(reporter, NULL != decodedPixels);
+    REPORTER_ASSERT(reporter, decodedPixels);
     REPORTER_ASSERT(reporter, decodedBitmap.getSize() == bm8888.getSize());
 
     if (NULL == decodedPixels) {
@@ -109,7 +109,7 @@ DEF_TEST(KtxReadUnpremul, reporter) {
 
     SkAutoTUnref<SkMemoryStream> stream(
         SkNEW_ARGS(SkMemoryStream, (kHalfWhiteKTX, sizeof(kHalfWhiteKTX))));
-    REPORTER_ASSERT(reporter, NULL != stream);
+    REPORTER_ASSERT(reporter, stream);
 
     SkBitmap decodedBitmap;
     bool imageDecodeSuccess = SkImageDecoder::DecodeStream(stream, &decodedBitmap);
@@ -122,7 +122,7 @@ DEF_TEST(KtxReadUnpremul, reporter) {
     REPORTER_ASSERT(reporter, !(decodedBitmap.empty()));
 
     uint8_t *decodedPixels = reinterpret_cast<uint8_t*>(decodedBitmap.getPixels());
-    REPORTER_ASSERT(reporter, NULL != decodedPixels);
+    REPORTER_ASSERT(reporter, decodedPixels);
 
     uint8_t *row = decodedPixels;
     for (int j = 0; j < decodedBitmap.height(); ++j) {
@@ -145,7 +145,7 @@ DEF_TEST(KtxReexportPKM, reporter) {
     // Load PKM file into a bitmap
     SkBitmap etcBitmap;
     SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(pkmFilename.c_str()));
-    REPORTER_ASSERT(reporter, NULL != fileData);
+    REPORTER_ASSERT(reporter, fileData);
     if (NULL == fileData) {
         return;
     }
@@ -159,7 +159,7 @@ DEF_TEST(KtxReexportPKM, reporter) {
     // Write the bitmap out to a KTX file.
     SkData *ktxDataPtr = SkImageEncoder::EncodeData(etcBitmap, SkImageEncoder::kKTX_Type, 0);
     SkAutoDataUnref newKtxData(ktxDataPtr);
-    REPORTER_ASSERT(reporter, NULL != ktxDataPtr);
+    REPORTER_ASSERT(reporter, ktxDataPtr);
 
     // See is this data is identical to data in existing ktx file.
     SkString ktxFilename = GetResourcePath("mandrill_128.ktx");

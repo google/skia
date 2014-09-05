@@ -66,7 +66,7 @@ public:
     SkAutoNullKernelHandle(const HANDLE handle) : fHandle(handle) { }
     ~SkAutoNullKernelHandle() { CloseHandle(fHandle); }
     operator HANDLE() const { return fHandle; }
-    bool isValid() const { return NULL != fHandle; }
+    bool isValid() const { return SkToBool(fHandle); }
 private:
     HANDLE fHandle;
 };

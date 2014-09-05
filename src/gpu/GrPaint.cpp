@@ -76,7 +76,7 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
     GrSimplifyBlend(&srcCoeff, &dstCoeff, color, colorComps, 0, 0, 0);
 
     bool opaque = kZero_GrBlendCoeff == dstCoeff && !GrBlendCoeffRefsDst(srcCoeff);
-    if (NULL != solidColor) {
+    if (solidColor) {
         if (opaque) {
             switch (srcCoeff) {
                 case kZero_GrBlendCoeff:

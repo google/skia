@@ -190,7 +190,7 @@ void SkPictureRecord::recordSaveLayer(const SkRect* bounds, const SkPaint* paint
 
     // op + bool for 'bounds'
     size_t size = 2 * kUInt32Size;
-    if (NULL != bounds) {
+    if (bounds) {
         size += sizeof(*bounds); // + rect
     }
     // + paint index + flags
@@ -558,12 +558,12 @@ static void apply_optimization_to_bbh(PictureRecordOptType opt, SkPictureStateTr
                                       SkBBoxHierarchy* boundingHierarchy) {
     switch (opt) {
     case kCollapseSaveLayer_OptType:
-        if (NULL != stateTree) {
+        if (stateTree) {
             stateTree->saveCollapsed();
         }
         break;
     case kRewind_OptType:
-        if (NULL != boundingHierarchy) {
+        if (boundingHierarchy) {
             boundingHierarchy->rewindInserts();
         }
         // Note: No need to touch the state tree for this to work correctly.
@@ -596,7 +596,7 @@ void SkPictureRecord::willRestore() {
     if (fOptsEnabled) {
         for (opt = 0; opt < SK_ARRAY_COUNT(gPictureRecordOpts); ++opt) {
             if (0 != (gPictureRecordOpts[opt].fFlags & kSkipIfBBoxHierarchy_Flag)
-                && NULL != fBoundingHierarchy) {
+                && fBoundingHierarchy) {
                 continue;
             }
             if ((*gPictureRecordOpts[opt].fProc)(&fWriter, fRestoreOffsetStack.top(), &fPaints)) {
@@ -972,7 +972,7 @@ void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect*
 
     // id + paint index + bitmap index + bool for 'src' + flags
     size_t size = 5 * kUInt32Size;
-    if (NULL != src) {
+    if (src) {
         size += sizeof(*src);   // + rect
     }
     size += sizeof(dst);        // + rect
@@ -1264,7 +1264,7 @@ void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
     if (indexCount > 0) {
         flags |= DRAW_VERTICES_HAS_INDICES;
     }
-    if (NULL != xfer) {
+    if (xfer) {
         SkXfermode::Mode mode;
         if (xfer->asMode(&mode) && SkXfermode::kModulate_Mode != mode) {
             flags |= DRAW_VERTICES_HAS_XFER;
@@ -1318,15 +1318,15 @@ void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors
     // op + paint index + patch 12 control points + flag + patch 4 colors + 4 texture coordinates
     size_t size = 2 * kUInt32Size + SkPatchUtils::kNumCtrlPts * sizeof(SkPoint) + kUInt32Size;
     uint32_t flag = 0;
-    if (NULL != colors) {
+    if (colors) {
         flag |= DRAW_VERTICES_HAS_COLORS;
         size += SkPatchUtils::kNumCorners * sizeof(SkColor);
     }
-    if (NULL != texCoords) {
+    if (texCoords) {
         flag |= DRAW_VERTICES_HAS_TEXS;
         size += SkPatchUtils::kNumCorners * sizeof(SkPoint);
     }
-    if (NULL != xmode) {
+    if (xmode) {
         SkXfermode::Mode mode;
         if (xmode->asMode(&mode) && SkXfermode::kModulate_Mode != mode) {
             flag |= DRAW_VERTICES_HAS_XFER;
@@ -1341,10 +1341,10 @@ void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors
     this->addInt(flag);
     
     // write optional parameters
-    if (NULL != colors) {
+    if (colors) {
         fWriter.write(colors, SkPatchUtils::kNumCorners * sizeof(SkColor));
     }
-    if (NULL != texCoords) {
+    if (texCoords) {
         fWriter.write(texCoords, SkPatchUtils::kNumCorners * sizeof(SkPoint));
     }
     if (flag & DRAW_VERTICES_HAS_XFER) {

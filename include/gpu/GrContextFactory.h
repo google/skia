@@ -95,11 +95,11 @@ public:
 
     void destroyContexts() {
         for (int i = 0; i < fContexts.count(); ++i) {
-            if (NULL != fContexts[i].fGLContext) {  //  could be abandoned.
+            if (fContexts[i].fGLContext) {  //  could be abandoned.
                 fContexts[i].fGLContext->makeCurrent();
             }
             fContexts[i].fGrContext->unref();
-            if (NULL != fContexts[i].fGLContext) {
+            if (fContexts[i].fGLContext) {
                 fContexts[i].fGLContext->unref();
             }
         }
@@ -108,7 +108,7 @@ public:
 
     void abandonContexts() {
         for (int i = 0; i < fContexts.count(); ++i) {
-            if (NULL != fContexts[i].fGLContext) {
+            if (fContexts[i].fGLContext) {
                 fContexts[i].fGLContext->testAbandon();
                 SkSafeSetNull(fContexts[i].fGLContext);
             }

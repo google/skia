@@ -66,7 +66,7 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
         return 0;
     }
     // are we completely above or below the clip?
-    if (NULL != clip && (top >= clip->fBottom || bot <= clip->fTop)) {
+    if (clip && (top >= clip->fBottom || bot <= clip->fTop)) {
         return 0;
     }
 

@@ -243,9 +243,9 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     }
 
     if (readsDst) {
-        SkASSERT(NULL != dstCopy || gpu->caps()->dstReadInShaderSupport());
+        SkASSERT(dstCopy || gpu->caps()->dstReadInShaderSupport());
         const GrTexture* dstCopyTexture = NULL;
-        if (NULL != dstCopy) {
+        if (dstCopy) {
             dstCopyTexture = dstCopy->texture();
         }
         header->fDstReadKey = GrGLFragmentShaderBuilder::KeyForDstRead(dstCopyTexture,

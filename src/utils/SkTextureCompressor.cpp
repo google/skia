@@ -166,7 +166,7 @@ bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcCol
         }
     }
 
-    if (NULL != proc) {
+    if (proc) {
         return proc(dst, src, width, height, rowBytes);
     }
 

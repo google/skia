@@ -569,7 +569,7 @@ void GrGLLinearGradient::emitCode(GrGLProgramBuilder* builder,
 bool SkLinearGradient::asNewEffect(GrContext* context, const SkPaint& paint,
                                    const SkMatrix* localMatrix, GrColor* paintColor,
                                    GrEffect** effect)  const {
-    SkASSERT(NULL != context);
+    SkASSERT(context);
     
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {

@@ -35,7 +35,7 @@ GrTextureStripAtlas::Hash* GrTextureStripAtlas::GetCache() {
 
 // Remove the specified atlas from the cache
 void GrTextureStripAtlas::CleanUp(const GrContext*, void* info) {
-    SkASSERT(NULL != info);
+    SkASSERT(info);
 
     AtlasEntry* entry = static_cast<AtlasEntry*>(info);
 
@@ -209,11 +209,11 @@ void GrTextureStripAtlas::lockTexture() {
         this->initLRU();
         fKeyTable.rewind();
     }
-    SkASSERT(NULL != fTexture);
+    SkASSERT(fTexture);
 }
 
 void GrTextureStripAtlas::unlockTexture() {
-    SkASSERT(NULL != fTexture && 0 == fLockedRows);
+    SkASSERT(fTexture && 0 == fLockedRows);
     fTexture->unref();
     fTexture = NULL;
     fDesc.fContext->purgeCache();
@@ -246,8 +246,8 @@ void GrTextureStripAtlas::appendLRU(AtlasRow* row) {
 }
 
 void GrTextureStripAtlas::removeFromLRU(AtlasRow* row) {
-    SkASSERT(NULL != row);
-    if (NULL != row->fNext && NULL != row->fPrev) {
+    SkASSERT(row);
+    if (row->fNext && row->fPrev) {
         row->fPrev->fNext = row->fNext;
         row->fNext->fPrev = row->fPrev;
     } else {
@@ -342,7 +342,7 @@ void GrTextureStripAtlas::validate() {
     if (fLockedRows == 0) {
         SkASSERT(NULL == fTexture);
     } else {
-        SkASSERT(NULL != fTexture);
+        SkASSERT(fTexture);
     }
 }
 #endif

@@ -46,7 +46,7 @@ public:
     virtual void swapBuffers() const = 0;
 
     bool hasExtension(const char* extensionName) const {
-        SkASSERT(NULL != fGL);
+        SkASSERT(fGL);
         return fGL->hasExtension(extensionName);
     }
 

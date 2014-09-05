@@ -809,7 +809,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
 
     SkTScopedComPtr<IXpsOMMatrixTransform> xpsMatrixToUse;
     HR(this->createXpsTransform(localMatrix, &xpsMatrixToUse));
-    if (NULL != xpsMatrixToUse.get()) {
+    if (xpsMatrixToUse.get()) {
         HRM((*xpsBrush)->SetTransformLocal(xpsMatrixToUse.get()),
             "Could not set transform for image brush.");
     } else {
@@ -838,7 +838,7 @@ HRESULT SkXPSDevice::createXpsLinearGradient(SkShader::GradientInfo info,
                                              IXpsOMBrush** xpsBrush) {
     XPS_POINT startPoint;
     XPS_POINT endPoint;
-    if (NULL != xpsMatrix) {
+    if (xpsMatrix) {
         startPoint = xps_point(info.fPoint[0]);
         endPoint = xps_point(info.fPoint[1]);
     } else {
@@ -866,7 +866,7 @@ HRESULT SkXPSDevice::createXpsLinearGradient(SkShader::GradientInfo info,
                                                      &endPoint,
                                                      &gradientBrush),
         "Could not create linear gradient brush.");
-    if (NULL != xpsMatrix) {
+    if (xpsMatrix) {
         HRM(gradientBrush->SetTransformLocal(xpsMatrix),
             "Could not set transform on linear gradient brush.");
     }
@@ -912,7 +912,7 @@ HRESULT SkXPSDevice::createXpsRadialGradient(SkShader::GradientInfo info,
     XPS_POINT centerPoint;
     XPS_POINT gradientOrigin;
     XPS_SIZE radiiSizes;
-    if (NULL != xpsMatrix) {
+    if (xpsMatrix) {
         centerPoint = xps_point(info.fPoint[0]);
         gradientOrigin = xps_point(info.fPoint[0]);
         radiiSizes.width = SkScalarToFLOAT(info.fRadius[0]);
@@ -943,7 +943,7 @@ HRESULT SkXPSDevice::createXpsRadialGradient(SkShader::GradientInfo info,
                                                      &radiiSizes,
                                                      &gradientBrush),
         "Could not create radial gradient brush.");
-    if (NULL != xpsMatrix) {
+    if (xpsMatrix) {
         HRM(gradientBrush->SetTransformLocal(xpsMatrix),
             "Could not set transform on radial gradient brush.");
     }
@@ -1019,7 +1019,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         }
 
         SkMatrix localMatrix = shader->getLocalMatrix();
-        if (NULL != parentTransform) {
+        if (parentTransform) {
             localMatrix.preConcat(*parentTransform);
         }
         SkTScopedComPtr<IXpsOMMatrixTransform> xpsMatrixToUse;
@@ -1065,7 +1065,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         case SkShader::kDefault_BitmapType: {
             //TODO: outMatrix??
             SkMatrix localMatrix = shader->getLocalMatrix();
-            if (NULL != parentTransform) {
+            if (parentTransform) {
                 localMatrix.preConcat(*parentTransform);
             }
 
@@ -1327,7 +1327,7 @@ HRESULT SkXPSDevice::addXpsPathGeometry(
     while ((verb = iter.next(points)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb: {
-                if (NULL != xpsFigure.get()) {
+                if (xpsFigure.get()) {
                     HR(close_figure(segmentTypes, segmentStrokes, segmentData,
                                     stroke, fill,
                                     xpsFigure.get() , xpsFigures));
@@ -1378,7 +1378,7 @@ HRESULT SkXPSDevice::addXpsPathGeometry(
                 break;
         }
     }
-    if (NULL != xpsFigure.get()) {
+    if (xpsFigure.get()) {
         HR(close_figure(segmentTypes, segmentStrokes, segmentData,
                         stroke, fill,
                         xpsFigure.get(), xpsFigures));
@@ -1834,7 +1834,7 @@ void SkXPSDevice::drawBitmap(const SkDraw& d, const SkBitmap& bitmap,
     }
 
     SkTScopedComPtr<IXpsOMGeometryFigure> rectFigure;
-    if (NULL != xpsTransform.get()) {
+    if (xpsTransform.get()) {
         const SkShader::TileMode xy[2] = {
             SkShader::kClamp_TileMode,
             SkShader::kClamp_TileMode,
@@ -1979,12 +1979,12 @@ HRESULT SkXPSDevice::AddGlyphs(const SkDraw& d,
     SkTScopedComPtr<IXpsOMGlyphsEditor> glyphsEditor;
     HRM(glyphs->GetGlyphsEditor(&glyphsEditor), "Could not get glyph editor.");
 
-    if (NULL != text) {
+    if (text) {
         HRM(glyphsEditor->SetUnicodeString(text),
             "Could not set unicode string.");
     }
 
-    if (NULL != xpsGlyphs) {
+    if (xpsGlyphs) {
         HRM(glyphsEditor->SetGlyphIndices(xpsGlyphsLen, xpsGlyphs),
             "Could not set glyphs.");
     }

@@ -63,8 +63,8 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
     if (b1.isNull() || b1.empty()) {
         return;
     }
-    REPORTER_ASSERT(reporter, NULL != b1.getPixels());
-    REPORTER_ASSERT(reporter, NULL != b2.getPixels());
+    REPORTER_ASSERT(reporter, b1.getPixels());
+    REPORTER_ASSERT(reporter, b2.getPixels());
     if ((!(b1.getPixels())) || (!(b2.getPixels()))) {
         return;
     }
@@ -122,7 +122,7 @@ static void test_three_encodings(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
         {
             SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
-            REPORTER_ASSERT(reporter, NULL != lazy.getPixels());
+            REPORTER_ASSERT(reporter, lazy.getPixels());
             if (NULL == lazy.getPixels()) {
                 continue;
             }
@@ -131,7 +131,7 @@ static void test_three_encodings(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
         {
             SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
-            REPORTER_ASSERT(reporter, NULL != lazy.getPixels());
+            REPORTER_ASSERT(reporter, lazy.getPixels());
             if (NULL == lazy.getPixels()) {
                 continue;
             }
@@ -184,7 +184,7 @@ public:
 
 protected:
     virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
-        REPORTER_ASSERT(fReporter, NULL != info);
+        REPORTER_ASSERT(fReporter, info);
         if ((NULL == info) || (kFailGetInfo_TestType == fType)) {
             return false;
         }
@@ -223,7 +223,7 @@ static void check_test_image_generator_bitmap(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, TestImageGenerator::Width() == bm.width());
     REPORTER_ASSERT(reporter, TestImageGenerator::Height() == bm.height());
     SkAutoLockPixels autoLockPixels(bm);
-    REPORTER_ASSERT(reporter, NULL != bm.getPixels());
+    REPORTER_ASSERT(reporter, bm.getPixels());
     if (NULL == bm.getPixels()) {
         return;
     }

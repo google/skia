@@ -143,13 +143,13 @@ static bool InitFreetype() {
 #elif defined(SK_CAN_USE_DLOPEN) && SK_CAN_USE_DLOPEN == 1
         //The FreeType library is already loaded, so symbols are available in process.
         void* self = dlopen(NULL, RTLD_LAZY);
-        if (NULL != self) {
+        if (self) {
             FT_Library_SetLcdFilterWeightsProc setLcdFilterWeights;
             //The following cast is non-standard, but safe for POSIX.
             *reinterpret_cast<void**>(&setLcdFilterWeights) = dlsym(self, "FT_Library_SetLcdFilterWeights");
             dlclose(self);
 
-            if (NULL != setLcdFilterWeights) {
+            if (setLcdFilterWeights) {
                 err = setLcdFilterWeights(gFTLibrary, gGaussianLikeHeavyWeights);
             }
         }
@@ -316,7 +316,7 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
     memset(&args, 0, sizeof(args));
     const void* memoryBase = strm->getMemoryBase();
 
-    if (NULL != memoryBase) {
+    if (memoryBase) {
 //printf("mmap(%s)\n", keyString.c_str());
         args.flags = FT_OPEN_MEMORY;
         args.memory_base = (const FT_Byte*)memoryBase;
@@ -1654,7 +1654,7 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
         return 0;
     }
     FT_ULong size = SkTMin((FT_ULong)length, tableLength - (FT_ULong)offset);
-    if (NULL != data) {
+    if (data) {
         error = FT_Load_Sfnt_Table(face, tag, offset, reinterpret_cast<FT_Byte*>(data), &size);
         if (error) {
             return 0;
@@ -1681,7 +1681,7 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
     const void* memoryBase = stream->getMemoryBase();
     FT_StreamRec    streamRec;
 
-    if (NULL != memoryBase) {
+    if (memoryBase) {
         args.flags = FT_OPEN_MEMORY;
         args.memory_base = (const FT_Byte*)memoryBase;
         args.memory_size = stream->getLength();

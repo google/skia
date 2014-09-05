@@ -1040,7 +1040,7 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
 
     SkMeasureCacheProc glyphCacheProc;
     glyphCacheProc = this->getMeasureCacheProc(kForward_TextBufferDirection,
-                                               NULL != bounds);
+                                               bounds);
 
     int xyIndex;
     JoinBoundsProc joinBoundsProc;
@@ -1298,7 +1298,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
         return 0;
     }
 
-    SkASSERT(NULL != textData);
+    SkASSERT(textData);
 
     if (NULL == widths && NULL == bounds) {
         return this->countText(textData, byteLength);
@@ -1312,7 +1312,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     SkGlyphCache*       cache = autoCache.getCache();
     SkMeasureCacheProc  glyphCacheProc;
     glyphCacheProc = paint.getMeasureCacheProc(kForward_TextBufferDirection,
-                                               NULL != bounds);
+                                               bounds);
 
     const char* text = (const char*)textData;
     const char* stop = text + byteLength;
@@ -2311,7 +2311,7 @@ void SkPaint::toString(SkString* str) const {
     str->append("<dl><dt>SkPaint:</dt><dd><dl>");
 
     SkTypeface* typeface = this->getTypeface();
-    if (NULL != typeface) {
+    if (typeface) {
         SkDynamicMemoryWStream ostream;
         typeface->serialize(&ostream);
         SkAutoTUnref<SkData> data(ostream.copyToData());
@@ -2343,60 +2343,60 @@ void SkPaint::toString(SkString* str) const {
     str->append("</dd>");
 
     SkPathEffect* pathEffect = this->getPathEffect();
-    if (NULL != pathEffect) {
+    if (pathEffect) {
         str->append("<dt>PathEffect:</dt><dd>");
         str->append("</dd>");
     }
 
     SkShader* shader = this->getShader();
-    if (NULL != shader) {
+    if (shader) {
         str->append("<dt>Shader:</dt><dd>");
         shader->toString(str);
         str->append("</dd>");
     }
 
     SkXfermode* xfer = this->getXfermode();
-    if (NULL != xfer) {
+    if (xfer) {
         str->append("<dt>Xfermode:</dt><dd>");
         xfer->toString(str);
         str->append("</dd>");
     }
 
     SkMaskFilter* maskFilter = this->getMaskFilter();
-    if (NULL != maskFilter) {
+    if (maskFilter) {
         str->append("<dt>MaskFilter:</dt><dd>");
         maskFilter->toString(str);
         str->append("</dd>");
     }
 
     SkColorFilter* colorFilter = this->getColorFilter();
-    if (NULL != colorFilter) {
+    if (colorFilter) {
         str->append("<dt>ColorFilter:</dt><dd>");
         colorFilter->toString(str);
         str->append("</dd>");
     }
 
     SkRasterizer* rasterizer = this->getRasterizer();
-    if (NULL != rasterizer) {
+    if (rasterizer) {
         str->append("<dt>Rasterizer:</dt><dd>");
         str->append("</dd>");
     }
 
     SkDrawLooper* looper = this->getLooper();
-    if (NULL != looper) {
+    if (looper) {
         str->append("<dt>DrawLooper:</dt><dd>");
         looper->toString(str);
         str->append("</dd>");
     }
 
     SkImageFilter* imageFilter = this->getImageFilter();
-    if (NULL != imageFilter) {
+    if (imageFilter) {
         str->append("<dt>ImageFilter:</dt><dd>");
         str->append("</dd>");
     }
 
     SkAnnotation* annotation = this->getAnnotation();
-    if (NULL != annotation) {
+    if (annotation) {
         str->append("<dt>Annotation:</dt><dd>");
         str->append("</dd>");
     }

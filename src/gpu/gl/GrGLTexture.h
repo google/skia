@@ -89,7 +89,7 @@ public:
         fTexParamsTimestamp = timestamp;
     }
 
-    GrGLuint textureID() const { return (NULL != fTexIDObj.get()) ? fTexIDObj->id() : 0; }
+    GrGLuint textureID() const { return (fTexIDObj.get()) ? fTexIDObj->id() : 0; }
 
 protected:
     // overrides of GrTexture

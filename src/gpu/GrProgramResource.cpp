@@ -24,7 +24,7 @@ GrProgramResource::GrProgramResource(GrGpuResource* resource, IOType ioType) {
 
 GrProgramResource::~GrProgramResource() {
     if (fOwnRef) {
-        SkASSERT(NULL != fResource);
+        SkASSERT(fResource);
         fResource->unref();
     }
     if (fPendingIO) {
@@ -48,7 +48,7 @@ GrProgramResource::~GrProgramResource() {
 
 void GrProgramResource::reset() {
     SkASSERT(!fPendingIO);
-    SkASSERT((NULL != fResource) == fOwnRef);
+    SkASSERT(SkToBool(fResource) == fOwnRef);
     if (fOwnRef) {
         fResource->unref();
         fOwnRef = false;
@@ -59,7 +59,7 @@ void GrProgramResource::reset() {
 
 void GrProgramResource::setResource(GrGpuResource* resource, IOType ioType) {
     SkASSERT(!fPendingIO);
-    SkASSERT((NULL != fResource) == fOwnRef);
+    SkASSERT(SkToBool(fResource) == fOwnRef);
     SkSafeUnref(fResource);
     if (NULL == resource) {
         fResource = NULL;
@@ -77,7 +77,7 @@ void GrProgramResource::markPendingIO() const {
     // This should only be called when the owning GrProgramElement gets its first
     // pendingExecution ref.
     SkASSERT(!fPendingIO);
-    SkASSERT(NULL != fResource);
+    SkASSERT(fResource);
     fPendingIO = true;
     switch (fIOType) {
         case kNone_IOType:
@@ -127,7 +127,7 @@ void GrProgramResource::removeRef() const {
     SkASSERT(fOwnRef);
     SkASSERT(fPendingIO);
     SkASSERT(kNone_IOType != fIOType);
-    SkASSERT(NULL != fResource);
+    SkASSERT(fResource);
     fResource->unref();
     fOwnRef = false;
 }

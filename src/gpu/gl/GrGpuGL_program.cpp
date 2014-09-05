@@ -30,12 +30,12 @@ struct GrGpuGL::ProgramCache::Entry {
 
 struct GrGpuGL::ProgramCache::ProgDescLess {
     bool operator() (const GrGLProgramDesc& desc, const Entry* entry) {
-        SkASSERT(NULL != entry->fProgram.get());
+        SkASSERT(entry->fProgram.get());
         return GrGLProgramDesc::Less(desc, entry->fProgram->getDesc());
     }
 
     bool operator() (const Entry* entry, const GrGLProgramDesc& desc) {
-        SkASSERT(NULL != entry->fProgram.get());
+        SkASSERT(entry->fProgram.get());
         return GrGLProgramDesc::Less(entry->fProgram->getDesc(), desc);
     }
 };
@@ -77,7 +77,7 @@ GrGpuGL::ProgramCache::~ProgramCache() {
 
 void GrGpuGL::ProgramCache::abandon() {
     for (int i = 0; i < fCount; ++i) {
-        SkASSERT(NULL != fEntries[i]->fProgram.get());
+        SkASSERT(fEntries[i]->fProgram.get());
         fEntries[i]->fProgram->abandon();
         SkDELETE(fEntries[i]);
     }
@@ -106,8 +106,8 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
     }
     hashIdx &=((1 << kHashBits) - 1);
     Entry* hashedEntry = fHashTable[hashIdx];
-    if (NULL != hashedEntry && hashedEntry->fProgram->getDesc() == desc) {
-        SkASSERT(NULL != hashedEntry->fProgram);
+    if (hashedEntry && hashedEntry->fProgram->getDesc() == desc) {
+        SkASSERT(hashedEntry->fProgram);
         entry = hashedEntry;
     }
 
@@ -175,9 +175,9 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
             fEntries[entryIdx - 1] = entry;
         }
 #ifdef SK_DEBUG
-        SkASSERT(NULL != fEntries[0]->fProgram.get());
+        SkASSERT(fEntries[0]->fProgram.get());
         for (int i = 0; i < fCount - 1; ++i) {
-            SkASSERT(NULL != fEntries[i + 1]->fProgram.get());
+            SkASSERT(fEntries[i + 1]->fProgram.get());
             const GrGLProgramDesc& a = fEntries[i]->fProgram->getDesc();
             const GrGLProgramDesc& b = fEntries[i + 1]->fProgram->getDesc();
             SkASSERT(GrGLProgramDesc::Less(a, b));
@@ -207,7 +207,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
     const GrDrawState& drawState = this->getDrawState();
 
     // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
-    SkASSERT(NULL != drawState.getRenderTarget());
+    SkASSERT(drawState.getRenderTarget());
 
     if (kStencilPath_DrawType == type) {
         const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
@@ -314,13 +314,13 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
             SkFAIL("Unknown geometry src type!");
     }
 
-    SkASSERT(NULL != vbuf);
+    SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
     vertexOffsetInBytes += vbuf->baseOffset();
 
     GrGLIndexBuffer* ibuf = NULL;
     if (info.isIndexed()) {
-        SkASSERT(NULL != indexOffsetInBytes);
+        SkASSERT(indexOffsetInBytes);
 
         switch (this->getGeomSrc().fIndexSrc) {
         case kBuffer_GeometrySrcType:
@@ -338,7 +338,7 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
             SkFAIL("Unknown geometry src type!");
         }
 
-        SkASSERT(NULL != ibuf);
+        SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());
         *indexOffsetInBytes += ibuf->baseOffset();
     }

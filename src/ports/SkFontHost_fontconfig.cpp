@@ -137,7 +137,7 @@ SkStream* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
         size_t length = stream->getLength();
 
         const void* memory = stream->getMemoryBase();
-        if (NULL != memory) {
+        if (memory) {
             return new SkMemoryStream(memory, length, true);
         }
 

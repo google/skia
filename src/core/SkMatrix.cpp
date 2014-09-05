@@ -1766,15 +1766,15 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
         sin1 = -sin1;
     }
 
-    if (NULL != scale) {
+    if (scale) {
         scale->fX = SkDoubleToScalar(w1);
         scale->fY = SkDoubleToScalar(w2);
     }
-    if (NULL != rotation1) {
+    if (rotation1) {
         rotation1->fX = cos1;
         rotation1->fY = sin1;
     }
-    if (NULL != rotation2) {
+    if (rotation2) {
         rotation2->fX = cos2;
         rotation2->fY = sin2;
     }

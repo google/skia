@@ -83,7 +83,7 @@ bool SkPicturePlayback::initIterator(SkPictureStateTree::Iterator* iter,
                                      SkCanvas* canvas,
                                      const SkPicture::OperationList *activeOpsList) {
 
-    if (NULL != activeOpsList) {
+    if (activeOpsList) {
         if (0 == activeOpsList->numOps()) {
             return false;  // nothing to draw
         }
@@ -150,7 +150,7 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
     SkAutoCanvasRestore acr(canvas, false);
 
     while (!reader.eof()) {
-        if (NULL != callback && callback->abortDrawing()) {
+        if (callback && callback->abortDrawing()) {
             return;
         }
 

@@ -3377,7 +3377,7 @@ public:
             REPORTER_ASSERT(reporter, 2*kRepeatCnt == pathRef->countPoints());
             REPORTER_ASSERT(reporter, kRepeatCnt == pathRef->countWeights());
             REPORTER_ASSERT(reporter, SkPath::kConic_SegmentMask == pathRef->getSegmentMasks());
-            REPORTER_ASSERT(reporter, NULL != weights);
+            REPORTER_ASSERT(reporter, weights);
             for (int i = 0; i < kRepeatCnt; ++i) {
                 REPORTER_ASSERT(reporter, SkPath::kConic_Verb == pathRef->atVerb(i));
             }

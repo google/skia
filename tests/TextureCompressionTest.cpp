@@ -134,7 +134,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
         SkAutoLockPixels alp(bitmap);
 
         uint8_t* pixels = reinterpret_cast<uint8_t*>(bitmap.getPixels());
-        REPORTER_ASSERT(reporter, NULL != pixels);
+        REPORTER_ASSERT(reporter, pixels);
         if (NULL == pixels) {
             return;
         }
@@ -153,7 +153,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
 
     SkAutoMalloc decompMemory(kWidth*kHeight);
     uint8_t* decompBuffer = reinterpret_cast<uint8_t*>(decompMemory.get());
-    REPORTER_ASSERT(reporter, NULL != decompBuffer);
+    REPORTER_ASSERT(reporter, decompBuffer);
     if (NULL == decompBuffer) {
         return;
     }
@@ -168,7 +168,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
         }
 
         SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(bitmap, fmt));
-        REPORTER_ASSERT(reporter, NULL != data);
+        REPORTER_ASSERT(reporter, data);
         if (NULL == data) {
             continue;
         }
@@ -182,7 +182,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
 
         SkAutoLockPixels alp(bitmap);
         uint8_t* pixels = reinterpret_cast<uint8_t*>(bitmap.getPixels());
-        REPORTER_ASSERT(reporter, NULL != pixels);
+        REPORTER_ASSERT(reporter, pixels);
         if (NULL == pixels) {
             continue;
         }
@@ -228,7 +228,7 @@ DEF_TEST(CompressLATC, reporter) {
     for (int lum = 0; lum < 256; ++lum) {
         bitmap.lockPixels();
         uint8_t* pixels = reinterpret_cast<uint8_t*>(bitmap.getPixels());
-        REPORTER_ASSERT(reporter, NULL != pixels);
+        REPORTER_ASSERT(reporter, pixels);
         if (NULL == pixels) {
             bitmap.unlockPixels();
             continue;
@@ -241,7 +241,7 @@ DEF_TEST(CompressLATC, reporter) {
 
         SkAutoDataUnref latcData(
             SkTextureCompressor::CompressBitmapToFormat(bitmap, kLATCFormat));
-        REPORTER_ASSERT(reporter, NULL != latcData);
+        REPORTER_ASSERT(reporter, latcData);
         if (NULL == latcData) {
             continue;
         }

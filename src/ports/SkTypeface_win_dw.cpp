@@ -199,7 +199,7 @@ size_t DWriteFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
         return 0;
     }
     size_t size = SkTMin(length, table.fSize - offset);
-    if (NULL != data) {
+    if (data) {
         memcpy(data, table.fData + offset, size);
     }
 

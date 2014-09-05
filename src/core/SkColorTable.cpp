@@ -31,7 +31,7 @@ SkColorTable::SkColorTable(const SkColorTable& src) : INHERITED() {
 SkColorTable::SkColorTable(const SkPMColor colors[], int count, SkAlphaType at)
     : f16BitCache(NULL), fAlphaType(SkToU8(at))
 {
-    SkASSERT(0 == count || NULL != colors);
+    SkASSERT(0 == count || colors);
 
     if (count < 0) {
         count = 0;

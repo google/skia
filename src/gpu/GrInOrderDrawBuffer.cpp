@@ -34,8 +34,8 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
     fDstGpu->ref();
     fCaps.reset(SkRef(fDstGpu->caps()));
 
-    SkASSERT(NULL != vertexPool);
-    SkASSERT(NULL != indexPool);
+    SkASSERT(vertexPool);
+    SkASSERT(indexPool);
 
     GeometryPoolState& poolState = fGeoPoolStateStack.push_back();
     poolState.fUsedPoolVertexBytes = 0;
@@ -124,7 +124,7 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
 
     GrColor color = drawState->getColor();
 
-    set_vertex_attributes(drawState, NULL != localRect,  color);
+    set_vertex_attributes(drawState, SkToBool(localRect),  color);
 
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
@@ -153,13 +153,13 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
     // unnecessary clipping in our onDraw().
     get_vertex_bounds(geo.vertices(), vstride, 4, &devBounds);
 
-    if (NULL != localRect) {
+    if (localRect) {
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
         SkPoint* coords = GrTCast<SkPoint*>(GrTCast<intptr_t>(geo.vertices()) + kLocalOffset);
         coords->setRectFan(localRect->fLeft, localRect->fTop,
                            localRect->fRight, localRect->fBottom,
                            vstride);
-        if (NULL != localMatrix) {
+        if (localMatrix) {
             localMatrix->mapPointsWithStride(coords, vstride, 4);
         }
     }
@@ -288,7 +288,7 @@ class AutoClipReenable {
 public:
     AutoClipReenable() : fDrawState(NULL) {}
     ~AutoClipReenable() {
-        if (NULL != fDrawState) {
+        if (fDrawState) {
             fDrawState->enableState(GrDrawState::kClip_StateBit);
         }
     }
@@ -309,7 +309,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
     AutoClipReenable acr;
 
     if (drawState.isClipState() &&
-        NULL != info.getDevBounds() &&
+        info.getDevBounds() &&
         this->quickInsideClip(*info.getDevBounds())) {
         acr.set(this->drawState());
     }
@@ -407,7 +407,7 @@ void GrInOrderDrawBuffer::onDrawPath(const GrPath* path,
     cp->fPath.reset(path);
     path->ref();
     cp->fFill = fill;
-    if (NULL != dstCopy) {
+    if (dstCopy) {
         cp->fDstCopy = *dstCopy;
     }
 }
@@ -416,9 +416,9 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathRange* pathRange,
                                       const uint32_t indices[], int count,
                                       const float transforms[], PathTransformType transformsType,
                                       SkPath::FillType fill, const GrDeviceCoordTexture* dstCopy) {
-    SkASSERT(NULL != pathRange);
-    SkASSERT(NULL != indices);
-    SkASSERT(NULL != transforms);
+    SkASSERT(pathRange);
+    SkASSERT(indices);
+    SkASSERT(transforms);
 
     if (this->needsNewClip()) {
         this->recordClip();
@@ -437,7 +437,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathRange* pathRange,
 
     dp->fFill = fill;
 
-    if (NULL != dstCopy) {
+    if (dstCopy) {
         dp->fDstCopy = *dstCopy;
     }
 }
@@ -447,7 +447,7 @@ void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color,
     SkIRect r;
     if (NULL == renderTarget) {
         renderTarget = this->drawState()->getRenderTarget();
-        SkASSERT(NULL != renderTarget);
+        SkASSERT(renderTarget);
     }
     if (NULL == rect) {
         // We could do something smart and remove previous draws and clears to
@@ -471,7 +471,7 @@ void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
     }
     if (NULL == renderTarget) {
         renderTarget = this->drawState()->getRenderTarget();
-        SkASSERT(NULL != renderTarget);
+        SkASSERT(renderTarget);
     }
     Clear* clr = this->recordClear();
     clr->fColor = GrColor_ILLEGAL;
@@ -487,7 +487,7 @@ void GrInOrderDrawBuffer::reset() {
     DrawAllocator::Iter drawIter(&fDraws);
     while (drawIter.next()) {
         // we always have a VB, but not always an IB
-        SkASSERT(NULL != drawIter->fVertexBuffer);
+        SkASSERT(drawIter->fVertexBuffer);
         drawIter->fVertexBuffer->unref();
         SkSafeUnref(drawIter->fIndexBuffer);
     }
@@ -576,7 +576,7 @@ void GrInOrderDrawBuffer::flush() {
                 SkASSERT(fDstGpu->drawState() != prevDrawState);
                 SkAssertResult(drawPathIter.next());
                 fDstGpu->executeDrawPath(drawPathIter->fPath.get(), drawPathIter->fFill,
-                                         NULL != drawPathIter->fDstCopy.texture() ?
+                                         drawPathIter->fDstCopy.texture() ?
                                             &drawPathIter->fDstCopy :
                                             NULL);
                 break;
@@ -585,7 +585,7 @@ void GrInOrderDrawBuffer::flush() {
                 SkASSERT(fDstGpu->drawState() != prevDrawState);
                 SkAssertResult(drawPathsIter.next());
                 const GrDeviceCoordTexture* dstCopy =
-                    NULL !=drawPathsIter->fDstCopy.texture() ? &drawPathsIter->fDstCopy : NULL;
+                    drawPathsIter->fDstCopy.texture() ? &drawPathsIter->fDstCopy : NULL;
                 fDstGpu->executeDrawPaths(drawPathsIter->fPathRange.get(),
                                           drawPathsIter->fIndices,
                                           drawPathsIter->fCount,
@@ -715,7 +715,7 @@ bool GrInOrderDrawBuffer::geometryHints(int* vertexCount,
     // preallocated buffer but none are left and it can't fit
     // in the current buffer (which may not be prealloced).
     bool flush = false;
-    if (NULL != indexCount) {
+    if (indexCount) {
         int32_t currIndices = fIndexPool.currentBufferIndices();
         if (*indexCount > currIndices &&
             (!fIndexPool.preallocatedBuffersRemaining() &&
@@ -725,7 +725,7 @@ bool GrInOrderDrawBuffer::geometryHints(int* vertexCount,
         }
         *indexCount = currIndices;
     }
-    if (NULL != vertexCount) {
+    if (vertexCount) {
         size_t vertexStride = this->getDrawState().getVertexStride();
         int32_t currVertices = fVertexPool.currentBufferVertices(vertexStride);
         if (*vertexCount > currVertices &&
@@ -744,26 +744,26 @@ bool GrInOrderDrawBuffer::onReserveVertexSpace(size_t vertexSize,
                                                void** vertices) {
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
     SkASSERT(vertexCount > 0);
-    SkASSERT(NULL != vertices);
+    SkASSERT(vertices);
     SkASSERT(0 == poolState.fUsedPoolVertexBytes);
 
     *vertices = fVertexPool.makeSpace(vertexSize,
                                       vertexCount,
                                       &poolState.fPoolVertexBuffer,
                                       &poolState.fPoolStartVertex);
-    return NULL != *vertices;
+    return SkToBool(*vertices);
 }
 
 bool GrInOrderDrawBuffer::onReserveIndexSpace(int indexCount, void** indices) {
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
     SkASSERT(indexCount > 0);
-    SkASSERT(NULL != indices);
+    SkASSERT(indices);
     SkASSERT(0 == poolState.fUsedPoolIndexBytes);
 
     *indices = fIndexPool.makeSpace(indexCount,
                                     &poolState.fPoolIndexBuffer,
                                     &poolState.fPoolStartIndex);
-    return NULL != *indices;
+    return SkToBool(*indices);
 }
 
 void GrInOrderDrawBuffer::releaseReservedVertexSpace() {

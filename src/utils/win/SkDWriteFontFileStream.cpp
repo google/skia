@@ -188,7 +188,7 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::ReadFileFragment(
     }
 
     const void* data = fStream->getMemoryBase();
-    if (NULL != data) {
+    if (data) {
         *fragmentStart = static_cast<BYTE const*>(data) + static_cast<size_t>(fileOffset);
         *fragmentContext = NULL;
 

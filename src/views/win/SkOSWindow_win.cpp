@@ -60,7 +60,7 @@ SkOSWindow::SkOSWindow(void* hWnd) {
 
 SkOSWindow::~SkOSWindow() {
 #if SK_SUPPORT_GPU
-    if (NULL != fHGLRC) {
+    if (fHGLRC) {
         wglDeleteContext((HGLRC)fHGLRC);
     }
 #if SK_ANGLE

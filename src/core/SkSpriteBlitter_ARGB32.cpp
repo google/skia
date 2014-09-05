@@ -135,12 +135,12 @@ public:
         do {
             const SkPMColor* tmp = src;
 
-            if (NULL != colorFilter) {
+            if (colorFilter) {
                 colorFilter->filterSpan(src, width, fBuffer);
                 tmp = fBuffer;
             }
 
-            if (NULL != xfermode) {
+            if (xfermode) {
                 xfermode->xfer32(dst, tmp, width, NULL);
             } else {
                 fProc32(dst, tmp, width, fAlpha);
@@ -183,10 +183,10 @@ public:
         do {
             fillbuffer(buffer, src, width);
 
-            if (NULL != colorFilter) {
+            if (colorFilter) {
                 colorFilter->filterSpan(buffer, width, buffer);
             }
-            if (NULL != xfermode) {
+            if (xfermode) {
                 xfermode->xfer32(dst, buffer, width, NULL);
             } else {
                 fProc32(dst, buffer, width, fAlpha);

@@ -315,7 +315,7 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
 
     *resultPtr = result;
     resultPtr->lockPixels();
-    SkASSERT(NULL != resultPtr->getPixels());
+    SkASSERT(resultPtr->getPixels());
     return true;
 }
 

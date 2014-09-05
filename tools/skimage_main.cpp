@@ -511,7 +511,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
     const char* filename = basename.c_str();
 
     if (!codec->decode(&stream, &bitmap, gPrefColorType, SkImageDecoder::kDecodePixels_Mode)) {
-        if (NULL != gJsonExpectations.get()) {
+        if (gJsonExpectations.get()) {
             const SkString name_config = create_json_key(filename);
             skiagm::Expectations jsExpectations = gJsonExpectations->get(name_config.c_str());
             if (jsExpectations.ignoreFailure()) {
@@ -637,7 +637,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
             }
             if (SkImageDecoder::kUnknown_Format == format) {
                 const char* dot = strrchr(srcPath, '.');
-                if (NULL != dot) {
+                if (dot) {
                     format = guess_format_from_suffix(dot);
                 }
                 if (SkImageDecoder::kUnknown_Format == format) {

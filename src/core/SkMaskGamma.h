@@ -194,9 +194,7 @@ public:
     ~SkTMaskPreBlend() { }
 
     /** True if this PreBlend should be applied. When false, fR, fG, and fB are NULL. */
-    bool isApplicable() const {
-        return NULL != this->fG;
-    }
+    bool isApplicable() const { return SkToBool(this->fG); }
 
     const uint8_t* fR;
     const uint8_t* fG;

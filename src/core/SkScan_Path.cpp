@@ -727,7 +727,7 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
 
     SkScanClipper clipper(blitter, clipRgn, ir);
     blitter = clipper.getBlitter();
-    if (NULL != blitter) {
+    if (blitter) {
         sk_fill_triangle(pts, clipper.getClipRect(), blitter, ir);
     }
 }

@@ -435,7 +435,7 @@ static void do_fuzz(SkCanvas* canvas) {
         printf("Fuzzing with %u\n", kSeed);
     }
     numFilters++;
-    if (NULL != filter) {
+    if (filter) {
         numValidFilters++;
     }
     printf("Filter no : %u. Valid filters so far : %u\r", numFilters, numValidFilters);

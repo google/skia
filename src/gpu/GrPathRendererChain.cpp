@@ -65,7 +65,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const SkPath& path,
                                                                                       target);
                 if (support < minStencilSupport) {
                     continue;
-                } else if (NULL != stencilSupport) {
+                } else if (stencilSupport) {
                     *stencilSupport = support;
                 }
             }

@@ -21,8 +21,8 @@ public:
     GrDrawEffect(const GrEffectStage& stage, bool explicitLocalCoords)
         : fEffectStage(&stage)
         , fExplicitLocalCoords(explicitLocalCoords) {
-        SkASSERT(NULL != fEffectStage);
-        SkASSERT(NULL != fEffectStage->getEffect());
+        SkASSERT(fEffectStage);
+        SkASSERT(fEffectStage->getEffect());
     }
     const GrEffect* effect() const { return fEffectStage->getEffect(); }
 

@@ -172,7 +172,7 @@ public:
      */
 
     const GrEffect* setGeometryProcessor(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
-        SkASSERT(NULL != effect);
+        SkASSERT(effect);
         SkASSERT(!this->hasGeometryProcessor());
         fGeometryProcessor.reset(new GrEffectStage(effect, attr0, attr1));
         this->invalidateBlendOptFlags();
@@ -200,14 +200,14 @@ public:
     ////
 
     const GrEffect* addColorEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
-        SkASSERT(NULL != effect);
+        SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect, attr0, attr1));
         this->invalidateBlendOptFlags();
         return effect;
     }
 
     const GrEffect* addCoverageEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
-        SkASSERT(NULL != effect);
+        SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect, attr0, attr1));
         this->invalidateBlendOptFlags();
         return effect;
@@ -272,7 +272,7 @@ public:
 
         void set(GrDrawState* ds);
 
-        bool isSet() const { return NULL != fDrawState; }
+        bool isSet() const { return SkToBool(fDrawState); }
 
     private:
         GrDrawState*    fDrawState;

@@ -148,7 +148,7 @@ void render_bitmap(SkCanvas* canvas, const SkBitmap& input, const SkRect* srcRec
     canvas->clear(0xFFFFFFFF);
     canvas->drawBitmapRect(input, NULL, dst);
 
-    if (NULL != srcRect) {
+    if (srcRect) {
         SkRect r = SkRect::MakeLTRB(srcRect->fLeft * xScale + SK_Scalar1,
                                     srcRect->fTop * yScale + SK_Scalar1,
                                     srcRect->fRight * xScale + SK_Scalar1,
@@ -281,7 +281,7 @@ SkDrawBitmapCommand::SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, 
     fBitmap = bitmap;
     fLeft = left;
     fTop = top;
-    if (NULL != paint) {
+    if (paint) {
         fPaint = *paint;
         fPaintPtr = &fPaint;
     } else {
@@ -291,7 +291,7 @@ SkDrawBitmapCommand::SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, 
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
     fInfo.push(SkObjectParser::ScalarToString(left, "SkScalar left: "));
     fInfo.push(SkObjectParser::ScalarToString(top, "SkScalar top: "));
-    if (NULL != paint) {
+    if (paint) {
         fInfo.push(SkObjectParser::PaintToString(*paint));
     }
 }
@@ -311,7 +311,7 @@ SkDrawBitmapMatrixCommand::SkDrawBitmapMatrixCommand(const SkBitmap& bitmap,
     : INHERITED(DRAW_BITMAP_MATRIX) {
     fBitmap = bitmap;
     fMatrix = matrix;
-    if (NULL != paint) {
+    if (paint) {
         fPaint = *paint;
         fPaintPtr = &fPaint;
     } else {
@@ -320,7 +320,7 @@ SkDrawBitmapMatrixCommand::SkDrawBitmapMatrixCommand(const SkBitmap& bitmap,
 
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
     fInfo.push(SkObjectParser::MatrixToString(matrix));
-    if (NULL != paint) {
+    if (paint) {
         fInfo.push(SkObjectParser::PaintToString(*paint));
     }
 }
@@ -340,7 +340,7 @@ SkDrawBitmapNineCommand::SkDrawBitmapNineCommand(const SkBitmap& bitmap, const S
     fBitmap = bitmap;
     fCenter = center;
     fDst = dst;
-    if (NULL != paint) {
+    if (paint) {
         fPaint = *paint;
         fPaintPtr = &fPaint;
     } else {
@@ -350,7 +350,7 @@ SkDrawBitmapNineCommand::SkDrawBitmapNineCommand(const SkBitmap& bitmap, const S
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
     fInfo.push(SkObjectParser::IRectToString(center));
     fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
-    if (NULL != paint) {
+    if (paint) {
         fInfo.push(SkObjectParser::PaintToString(*paint));
     }
 }
@@ -369,14 +369,14 @@ SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const S
                                                  SkCanvas::DrawBitmapRectFlags flags)
     : INHERITED(DRAW_BITMAP_RECT_TO_RECT) {
     fBitmap = bitmap;
-    if (NULL != src) {
+    if (src) {
         fSrc = *src;
     } else {
         fSrc.setEmpty();
     }
     fDst = dst;
 
-    if (NULL != paint) {
+    if (paint) {
         fPaint = *paint;
         fPaintPtr = &fPaint;
     } else {
@@ -385,11 +385,11 @@ SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const S
     fFlags = flags;
 
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
-    if (NULL != src) {
+    if (src) {
         fInfo.push(SkObjectParser::RectToString(*src, "Src: "));
     }
     fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
-    if (NULL != paint) {
+    if (paint) {
         fInfo.push(SkObjectParser::PaintToString(*paint));
     }
     fInfo.push(SkObjectParser::IntToString(fFlags, "Flags: "));
@@ -513,11 +513,11 @@ SkDrawPictureCommand::SkDrawPictureCommand(const SkPicture* picture,
     , fMatrixPtr(NULL)
     , fPaintPtr(NULL) {
 
-    if (NULL != matrix) {
+    if (matrix) {
         fMatrix = *matrix;
         fMatrixPtr = &fMatrix;
     }
-    if (NULL != paint) {
+    if (paint) {
         fPaint = *paint;
         fPaintPtr = &fPaint;
     }
@@ -527,10 +527,10 @@ SkDrawPictureCommand::SkDrawPictureCommand(const SkPicture* picture,
                   picture->cullRect().fLeft, picture->cullRect().fTop,
                   picture->cullRect().fRight, picture->cullRect().fBottom);
     fInfo.push(temp);
-    if (NULL != matrix) {
+    if (matrix) {
         fInfo.push(SkObjectParser::MatrixToString(*matrix));
     }
-    if (NULL != paint) {
+    if (paint) {
         fInfo.push(SkObjectParser::PaintToString(*paint));
     }
 }
@@ -739,7 +739,7 @@ SkDrawSpriteCommand::SkDrawSpriteCommand(const SkBitmap& bitmap, int left, int t
     fBitmap = bitmap;
     fLeft = left;
     fTop = top;
-    if (NULL != paint) {
+    if (paint) {
         fPaint = *paint;
         fPaintPtr = &fPaint;
     } else {
@@ -749,7 +749,7 @@ SkDrawSpriteCommand::SkDrawSpriteCommand(const SkBitmap& bitmap, int left, int t
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
     fInfo.push(SkObjectParser::IntToString(left, "Left: "));
     fInfo.push(SkObjectParser::IntToString(top, "Top: "));
-    if (NULL != paint) {
+    if (paint) {
         fInfo.push(SkObjectParser::PaintToString(*paint));
     }
 }
@@ -791,7 +791,7 @@ SkDrawTextOnPathCommand::SkDrawTextOnPathCommand(const void* text, size_t byteLe
     memcpy(fText, text, byteLength);
     fByteLength = byteLength;
     fPath = path;
-    if (NULL != matrix) {
+    if (matrix) {
         fMatrix = *matrix;
     } else {
         fMatrix.setIdentity();
@@ -800,7 +800,7 @@ SkDrawTextOnPathCommand::SkDrawTextOnPathCommand(const void* text, size_t byteLe
 
     fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
     fInfo.push(SkObjectParser::PathToString(path));
-    if (NULL != matrix) {
+    if (matrix) {
         fInfo.push(SkObjectParser::MatrixToString(*matrix));
     }
     fInfo.push(SkObjectParser::PaintToString(paint));
@@ -825,14 +825,14 @@ SkDrawVerticesCommand::SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int ver
     fVertices = new SkPoint[vertexCount];
     memcpy(fVertices, vertices, vertexCount * sizeof(SkPoint));
 
-    if (NULL != texs) {
+    if (texs) {
         fTexs = new SkPoint[vertexCount];
         memcpy(fTexs, texs, vertexCount * sizeof(SkPoint));
     } else {
         fTexs = NULL;
     }
 
-    if (NULL != colors) {
+    if (colors) {
         fColors = new SkColor[vertexCount];
         memcpy(fColors, colors, vertexCount * sizeof(SkColor));
     } else {
@@ -840,7 +840,7 @@ SkDrawVerticesCommand::SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int ver
     }
 
     fXfermode = xfermode;
-    if (NULL != fXfermode) {
+    if (fXfermode) {
         fXfermode->ref();
     }
 
@@ -912,13 +912,13 @@ void SkSaveCommand::trackSaveState(int* state) {
 SkSaveLayerCommand::SkSaveLayerCommand(const SkRect* bounds, const SkPaint* paint,
                                        SkCanvas::SaveFlags flags)
     : INHERITED(SAVE_LAYER) {
-    if (NULL != bounds) {
+    if (bounds) {
         fBounds = *bounds;
     } else {
         fBounds.setEmpty();
     }
 
-    if (NULL != paint) {
+    if (paint) {
         fPaint = *paint;
         fPaintPtr = &fPaint;
     } else {
@@ -926,10 +926,10 @@ SkSaveLayerCommand::SkSaveLayerCommand(const SkRect* bounds, const SkPaint* pain
     }
     fFlags = flags;
 
-    if (NULL != bounds) {
+    if (bounds) {
         fInfo.push(SkObjectParser::RectToString(*bounds, "Bounds: "));
     }
-    if (NULL != paint) {
+    if (paint) {
         fInfo.push(SkObjectParser::PaintToString(*paint));
     }
     fInfo.push(SkObjectParser::SaveFlagsToString(flags));

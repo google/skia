@@ -579,7 +579,7 @@ void GrGLRadialGradient::emitCode(GrGLProgramBuilder* builder,
 bool SkRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
                                    const SkMatrix* localMatrix, GrColor* paintColor,
                                    GrEffect** effect) const {
-    SkASSERT(NULL != context);
+    SkASSERT(context);
     
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {

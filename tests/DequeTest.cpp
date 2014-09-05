@@ -19,8 +19,8 @@ static void assert_count(skiatest::Reporter* reporter, const SkDeque& deq, int c
         REPORTER_ASSERT(reporter, !deq.empty());
         REPORTER_ASSERT(reporter, count == deq.count());
         REPORTER_ASSERT(reporter, sizeof(int) == deq.elemSize());
-        REPORTER_ASSERT(reporter, NULL != deq.front());
-        REPORTER_ASSERT(reporter, NULL != deq.back());
+        REPORTER_ASSERT(reporter, deq.front());
+        REPORTER_ASSERT(reporter, deq.back());
         if (1 == count) {
             REPORTER_ASSERT(reporter, deq.back() == deq.front());
         } else {
@@ -36,7 +36,7 @@ static void assert_iter(skiatest::Reporter* reporter, const SkDeque& deq,
     void* ptr;
 
     int value = max;
-    while (NULL != (ptr = iter.next())) {
+    while ((ptr = iter.next())) {
         REPORTER_ASSERT(reporter, value == *(int*)ptr);
         value -= 1;
     }
@@ -46,7 +46,7 @@ static void assert_iter(skiatest::Reporter* reporter, const SkDeque& deq,
     iter.reset(deq, SkDeque::Iter::kBack_IterStart);
 
     value = min;
-    while (NULL != (ptr = iter.prev())) {
+    while ((ptr = iter.prev())) {
         REPORTER_ASSERT(reporter, value == *(int*)ptr);
         value += 1;
     }
@@ -57,12 +57,12 @@ static void assert_iter(skiatest::Reporter* reporter, const SkDeque& deq,
 
     value = max;
     // forward iteration half-way
-    for (int i = 0; i < deq.count()/2 && NULL != (ptr = iter.next()); i++) {
+    for (int i = 0; i < deq.count()/2 && (ptr = iter.next()); i++) {
         REPORTER_ASSERT(reporter, value == *(int*)ptr);
         value -= 1;
     }
     // then back down w/ reverse iteration
-    while (NULL != (ptr = iter.prev())) {
+    while ((ptr = iter.prev())) {
         REPORTER_ASSERT(reporter, value == *(int*)ptr);
         value += 1;
     }

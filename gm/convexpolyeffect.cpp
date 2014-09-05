@@ -114,7 +114,7 @@ protected:
 
         SkScalar y = 0;
         for (SkTLList<SkPath>::Iter iter(fPaths, SkTLList<SkPath>::Iter::kHead_IterStart);
-             NULL != iter.get();
+             iter.get();
              iter.next()) {
             const SkPath* path = iter.get();
             SkScalar x = 0;
@@ -172,7 +172,7 @@ protected:
         }
 
         for (SkTLList<SkRect>::Iter iter(fRects, SkTLList<SkRect>::Iter::kHead_IterStart);
-             NULL != iter.get();
+             iter.get();
              iter.next()) {
 
             SkScalar x = 0;

@@ -539,7 +539,7 @@ public:
      */
     void* reset(size_t size, OnShrink shrink = kAlloc_OnShrink,  bool* didChangeAlloc = NULL) {
         if (size == fSize || (kReuse_OnShrink == shrink && size < fSize)) {
-            if (NULL != didChangeAlloc) {
+            if (didChangeAlloc) {
                 *didChangeAlloc = false;
             }
             return fPtr;
@@ -548,7 +548,7 @@ public:
         sk_free(fPtr);
         fPtr = size ? sk_malloc_throw(size) : NULL;
         fSize = size;
-        if (NULL != didChangeAlloc) {
+        if (didChangeAlloc) {
             *didChangeAlloc = true;
         }
 
@@ -643,7 +643,7 @@ public:
                 bool* didChangeAlloc = NULL) {
         size = (size < kSize) ? kSize : size;
         bool alloc = size != fSize && (SkAutoMalloc::kAlloc_OnShrink == shrink || size > fSize);
-        if (NULL != didChangeAlloc) {
+        if (didChangeAlloc) {
             *didChangeAlloc = alloc;
         }
         if (alloc) {

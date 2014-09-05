@@ -619,7 +619,7 @@ int nanobench_main() {
 #endif
                  cpu_bench(       overhead, bench.get(), canvas, samples.get());
 
-            if (canvas && !FLAGS_writePath.isEmpty() && NULL != FLAGS_writePath[0]) {
+            if (canvas && !FLAGS_writePath.isEmpty() && FLAGS_writePath[0]) {
                 SkString pngFilename = SkOSPath::Join(FLAGS_writePath[0], config);
                 pngFilename = SkOSPath::Join(pngFilename.c_str(), bench->getName());
                 pngFilename.append(".png");

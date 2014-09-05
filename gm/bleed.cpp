@@ -212,7 +212,7 @@ protected:
 #if SK_SUPPORT_GPU
             GrContext* ctx = canvas->getGrContext();
             int oldMaxTextureSize = 0;
-            if (NULL != ctx) {
+            if (ctx) {
                 // shrink the max texture size so all our textures can be reasonably sized
                 oldMaxTextureSize = ctx->getMaxTextureSize();
                 ctx->setMaxTextureSizeOverride(kMaxTextureSize);
@@ -244,7 +244,7 @@ protected:
             this->drawCase4(canvas, kCol6X, kRow3Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
 
 #if SK_SUPPORT_GPU
-            if (NULL != ctx) {
+            if (ctx) {
                 ctx->setMaxTextureSizeOverride(oldMaxTextureSize);
             }
 #endif

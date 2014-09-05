@@ -205,7 +205,7 @@ GrEffect* GrMagnifierEffect::TestCreate(SkRandom* random,
         texture->height() / (float) y,
         (float) inset / texture->width(),
         (float) inset / texture->height());
-    SkASSERT(NULL != effect);
+    SkASSERT(effect);
     return effect;
 }
 

@@ -86,7 +86,7 @@ static void tree_test_main(SkBBoxHierarchy* tree, int minChildren, int maxChildr
                            skiatest::Reporter* reporter) {
     DataRect rects[NUM_RECTS];
     SkRandom rand;
-    REPORTER_ASSERT(reporter, NULL != tree);
+    REPORTER_ASSERT(reporter, tree);
 
     int expectedDepthMin = -1;
     int expectedDepthMax = -1;

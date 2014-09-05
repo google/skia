@@ -41,20 +41,20 @@ public:
 
     GrAutoTRestore(T* ptr) {
         fPtr = ptr;
-        if (NULL != ptr) {
+        if (ptr) {
             fVal = *ptr;
         }
     }
 
     ~GrAutoTRestore() {
-        if (NULL != fPtr) {
+        if (fPtr) {
             *fPtr = fVal;
         }
     }
 
     // restores previously saved value (if any) and saves value for passed T*
     void reset(T* ptr) {
-        if (NULL != fPtr) {
+        if (fPtr) {
             *fPtr = fVal;
         }
         fPtr = ptr;

@@ -100,7 +100,7 @@ void GrGLProgram::initSamplerUniforms() {
         fProgramDataManager.setSampler(fBuiltinUniformHandles.fDstCopySamplerUni, texUnitIdx);
         fDstCopyTexUnit = texUnitIdx++;
     }
-    if (NULL != fGeometryProcessor.get()) {
+    if (fGeometryProcessor.get()) {
         fGeometryProcessor->initSamplers(fProgramDataManager, &texUnitIdx);
     }
     fColorEffects->initSamplers(fProgramDataManager, &texUnitIdx);
@@ -135,7 +135,7 @@ void GrGLProgram::setData(GrGpu::DrawType drawType,
     this->setCoverage(drawState, coverage, sharedState);
     this->setMatrixAndRenderTargetHeight(drawType, drawState);
 
-    if (NULL != dstCopy) {
+    if (dstCopy) {
         if (fBuiltinUniformHandles.fDstCopyTopLeftUni.isValid()) {
             fProgramDataManager.set2f(fBuiltinUniformHandles.fDstCopyTopLeftUni,
                                        static_cast<GrGLfloat>(dstCopy->offset().fX),
@@ -156,8 +156,8 @@ void GrGLProgram::setData(GrGpu::DrawType drawType,
         SkASSERT(!fBuiltinUniformHandles.fDstCopySamplerUni.isValid());
     }
 
-    if (NULL != fGeometryProcessor.get()) {
-        SkASSERT(NULL != geometryProcessor);
+    if (fGeometryProcessor.get()) {
+        SkASSERT(geometryProcessor);
         fGeometryProcessor->setData(fGpu, drawType,fProgramDataManager, geometryProcessor);
     }
     fColorEffects->setData(fGpu, drawType,fProgramDataManager, colorStages);

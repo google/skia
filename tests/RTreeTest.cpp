@@ -84,7 +84,7 @@ static void run_queries(skiatest::Reporter* reporter, SkRandom& rand, DataRect r
 static void rtree_test_main(SkRTree* rtree, skiatest::Reporter* reporter) {
     DataRect rects[NUM_RECTS];
     SkRandom rand;
-    REPORTER_ASSERT(reporter, NULL != rtree);
+    REPORTER_ASSERT(reporter, rtree);
 
     int expectedDepthMin = -1;
     int expectedDepthMax = -1;

@@ -114,7 +114,7 @@ SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
 }
 
 bool SkFlattenable::NameToType(const char name[], SkFlattenable::Type* type) {
-    SkASSERT(NULL != type);
+    SkASSERT(type);
     InitializeFlattenablesIfNeeded();
 #ifdef SK_DEBUG
     report_no_entries(__FUNCTION__);

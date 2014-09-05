@@ -681,7 +681,7 @@ static PixelPtr get_surface_ptr(SkSurface* surface, bool useGpu) {
 
 static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
     SkImageInfo imageSpec = SkImageInfo::MakeN32Premul(10, 10);
-    bool useGpu = NULL != factory;
+    bool useGpu = SkToBool(factory);
     int cnt;
 #if SK_SUPPORT_GPU
     if (useGpu) {
@@ -712,7 +712,7 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
         {
            surface = SkSurface::NewRaster(imageSpec);
         }
-        SkASSERT(NULL != surface);
+        SkASSERT(surface);
         SkAutoTUnref<SkSurface> aur(surface);
         SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface));
 
@@ -764,7 +764,7 @@ static void TestDeferredCanvasSetSurface(skiatest::Reporter* reporter, GrContext
     SkImageInfo imageSpec = SkImageInfo::MakeN32Premul(10, 10);
     SkSurface* surface;
     SkSurface* alternateSurface;
-    bool useGpu = NULL != factory;
+    bool useGpu = SkToBool(factory);
     int cnt;
 #if SK_SUPPORT_GPU
     if (useGpu) {
@@ -796,8 +796,8 @@ static void TestDeferredCanvasSetSurface(skiatest::Reporter* reporter, GrContext
             surface = SkSurface::NewRaster(imageSpec);
             alternateSurface = SkSurface::NewRaster(imageSpec);
         }
-        SkASSERT(NULL != surface);
-        SkASSERT(NULL != alternateSurface);
+        SkASSERT(surface);
+        SkASSERT(alternateSurface);
         SkAutoTUnref<SkSurface> aur1(surface);
         SkAutoTUnref<SkSurface> aur2(alternateSurface);
         PixelPtr pixels1 = get_surface_ptr(surface, useGpu);

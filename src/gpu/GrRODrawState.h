@@ -126,7 +126,7 @@ public:
                  (this->hasGeometryProcessor() ? 1 : 0);
     }
 
-    bool hasGeometryProcessor() const { return NULL != fGeometryProcessor.get(); }
+    bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
     const GrEffectStage* getGeometryProcessor() const { return fGeometryProcessor.get(); }
     const GrEffectStage& getColorStage(int stageIdx) const { return fColorStages[stageIdx]; }
     const GrEffectStage& getCoverageStage(int stageIdx) const { return fCoverageStages[stageIdx]; }

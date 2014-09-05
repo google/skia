@@ -42,7 +42,7 @@ GrTextureAccess::GrTextureAccess(GrTexture* texture,
 void GrTextureAccess::reset(GrTexture* texture,
                             const char* swizzle,
                             const GrTextureParams& params) {
-    SkASSERT(NULL != texture);
+    SkASSERT(texture);
     SkASSERT(strlen(swizzle) >= 1 && strlen(swizzle) <= 4);
 
     fParams = params;
@@ -54,7 +54,7 @@ void GrTextureAccess::reset(GrTexture* texture,
                             const char* swizzle,
                             GrTextureParams::FilterMode filterMode,
                             SkShader::TileMode tileXAndY) {
-    SkASSERT(NULL != texture);
+    SkASSERT(texture);
     SkASSERT(strlen(swizzle) >= 1 && strlen(swizzle) <= 4);
 
     fParams.reset(tileXAndY, filterMode);
@@ -64,7 +64,7 @@ void GrTextureAccess::reset(GrTexture* texture,
 
 void GrTextureAccess::reset(GrTexture* texture,
                             const GrTextureParams& params) {
-    SkASSERT(NULL != texture);
+    SkASSERT(texture);
     fTexture.reset(SkRef(texture));
     fParams = params;
     memcpy(fSwizzle, "rgba", 5);
@@ -74,7 +74,7 @@ void GrTextureAccess::reset(GrTexture* texture,
 void GrTextureAccess::reset(GrTexture* texture,
                             GrTextureParams::FilterMode filterMode,
                             SkShader::TileMode tileXAndY) {
-    SkASSERT(NULL != texture);
+    SkASSERT(texture);
     fTexture.reset(SkRef(texture));
     fParams.reset(tileXAndY, filterMode);
     memcpy(fSwizzle, "rgba", 5);

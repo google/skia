@@ -16,7 +16,7 @@
 
 DEF_GPUTEST(GrSurface, reporter, factory) {
     GrContext* context = factory->get(GrContextFactory::kNull_GLContextType);
-    if (NULL != context) {
+    if (context) {
         GrTextureDesc desc;
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fFlags = kRenderTarget_GrTextureFlagBit;

@@ -64,7 +64,7 @@ SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
     SkColorFilter* inputColorFilter;
     if (input && cf->asColorMatrix(colorMatrix)
               && input->asColorFilter(&inputColorFilter)
-              && (NULL != inputColorFilter)) {
+              && (inputColorFilter)) {
         SkAutoUnref autoUnref(inputColorFilter);
         if (inputColorFilter->asColorMatrix(inputMatrix) && !matrix_needs_clamping(inputMatrix)) {
             SkScalar combinedMatrix[20];

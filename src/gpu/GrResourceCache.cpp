@@ -117,10 +117,10 @@ GrResourceCache::~GrResourceCache() {
 }
 
 void GrResourceCache::getLimits(int* maxResources, size_t* maxResourceBytes) const{
-    if (NULL != maxResources) {
+    if (maxResources) {
         *maxResources = fMaxCount;
     }
-    if (NULL != maxResourceBytes) {
+    if (maxResourceBytes) {
         *maxResourceBytes = fMaxBytes;
     }
 }
@@ -343,7 +343,7 @@ void GrResourceCache::purgeAsNeeded(int extraCount, size_t extraBytes) {
     this->internalPurge(extraCount, extraBytes);
     if (((fEntryCount+extraCount) > fMaxCount ||
         (fEntryBytes+extraBytes) > fMaxBytes) &&
-        NULL != fOverbudgetCB) {
+        fOverbudgetCB) {
         // Despite the purge we're still over budget. See if Ganesh can
         // release some resources and purge again.
         if ((*fOverbudgetCB)(fOverbudgetData)) {
@@ -402,7 +402,7 @@ void GrResourceCache::internalPurge(int extraCount, size_t extraBytes) {
         // in internalDetach)
         GrResourceCacheEntry* entry = iter.init(fList, EntryList::Iter::kTail_IterStart);
 
-        while (NULL != entry) {
+        while (entry) {
             GrAutoResourceCacheValidate atcv(this);
 
             if ((fEntryCount+extraCount) <= fMaxCount &&
@@ -462,7 +462,7 @@ size_t GrResourceCache::countBytes(const EntryList& list) {
     const GrResourceCacheEntry* entry = iter.init(const_cast<EntryList&>(list),
                                                   EntryList::Iter::kTail_IterStart);
 
-    for ( ; NULL != entry; entry = iter.prev()) {
+    for ( ; entry; entry = iter.prev()) {
         bytes += entry->resource()->gpuMemorySize();
     }
     return bytes;
@@ -487,7 +487,7 @@ void GrResourceCache::validate() const {
     const GrResourceCacheEntry* entry = iter.init(const_cast<EntryList&>(fExclusiveList),
                                                   EntryList::Iter::kHead_IterStart);
 
-    for ( ; NULL != entry; entry = iter.next()) {
+    for ( ; entry; entry = iter.next()) {
         entry->validate();
     }
 
@@ -495,7 +495,7 @@ void GrResourceCache::validate() const {
     entry = iter.init(const_cast<EntryList&>(fList), EntryList::Iter::kHead_IterStart);
 
     int count = 0;
-    for ( ; NULL != entry; entry = iter.next()) {
+    for ( ; entry; entry = iter.next()) {
         entry->validate();
         SkASSERT(fCache.find(entry->key()));
         count += 1;
@@ -523,7 +523,7 @@ void GrResourceCache::printStats() {
 
     GrResourceCacheEntry* entry = iter.init(fList, EntryList::Iter::kTail_IterStart);
 
-    for ( ; NULL != entry; entry = iter.prev()) {
+    for ( ; entry; entry = iter.prev()) {
         if (entry->fResource->getRefCnt() > 1) {
             ++locked;
         }

@@ -89,7 +89,7 @@ private:
     void updateClipBounds(const SkRecords::ClipRect& op)   { fCurrentClipBounds = op.devBounds; }
     void updateClipBounds(const SkRecords::ClipRegion& op) { fCurrentClipBounds = op.devBounds; }
     void updateClipBounds(const SkRecords::SaveLayer& op)  {
-        if (NULL != op.bounds) {
+        if (op.bounds) {
             fCurrentClipBounds.intersect(this->adjustAndMap(*op.bounds, op.paint));
         }
     }
@@ -264,7 +264,7 @@ const GrAccelData* GPUOptimize(const SkPicture* pict) {
 
     const GrAccelData* existing = 
                             static_cast<const GrAccelData*>(pict->EXPERIMENTAL_getAccelData(key));
-    if (NULL != existing) {
+    if (existing) {
         return existing;
     }
 

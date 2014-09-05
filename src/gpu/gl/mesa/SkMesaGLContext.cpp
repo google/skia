@@ -13,7 +13,7 @@
 
 SkMesaGLContext::AutoContextRestore::AutoContextRestore() {
     fOldContext = (Context)OSMesaGetCurrentContext();
-    if (NULL != (OSMesaContext)fOldContext) {
+    if (fOldContext) {
         OSMesaGetColorBuffer((OSMesaContext)fOldContext,
                               &fOldWidth, &fOldHeight,
                               &fOldFormat, &fOldImage);
@@ -21,7 +21,7 @@ SkMesaGLContext::AutoContextRestore::AutoContextRestore() {
 }
 
 SkMesaGLContext::AutoContextRestore::~AutoContextRestore() {
-    if (NULL != (OSMesaContext)fOldContext) {
+    if (fOldContext) {
         OSMesaMakeCurrent((OSMesaContext)fOldContext, fOldImage,
                           fOldFormat, fOldWidth, fOldHeight);
     }

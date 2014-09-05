@@ -35,7 +35,7 @@ public:
             return false;
         }
 
-        if (NULL != fClipStack && NULL != other.fClipStack) {
+        if (fClipStack && other.fClipStack) {
             return *fClipStack == *other.fClipStack;
         }
 

@@ -1037,7 +1037,7 @@ SkBlitter* SkBlitter_ChooseD565(const SkBitmap& device, const SkPaint& paint,
     SkXfermode* mode = paint.getXfermode();
 
     // we require a shader if there is an xfermode, handled by our caller
-    SkASSERT(NULL == mode || NULL != shader);
+    SkASSERT(NULL == mode || shader);
 
     if (shader) {
         SkASSERT(shaderContext != NULL);

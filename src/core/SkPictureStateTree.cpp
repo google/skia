@@ -46,7 +46,7 @@ void SkPictureStateTree::appendSaveLayer(size_t offset) {
 }
 
 void SkPictureStateTree::saveCollapsed() {
-    SkASSERT(NULL != fLastRestoredNode);
+    SkASSERT(fLastRestoredNode);
     SkASSERT(SkToBool(fLastRestoredNode->fFlags & \
         (Node::kSaveLayer_Flag | Node::kSave_Flag)));
     SkASSERT(fLastRestoredNode->fParent == fCurrentState.fNode);
@@ -102,7 +102,7 @@ void SkPictureStateTree::Iterator::init(const SkTDArray<void*>& draws, SkCanvas*
 }
 
 void SkPictureStateTree::Iterator::setCurrentMatrix(const SkMatrix* matrix) {
-    SkASSERT(NULL != matrix);
+    SkASSERT(matrix);
 
     if (matrix == fCurrentMatrix) {
         return;

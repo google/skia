@@ -22,7 +22,7 @@ SkPictureShader::SkPictureShader(const SkPicture* picture, TileMode tmx, TileMod
                                  const SkMatrix* localMatrix, const SkRect* tile)
     : INHERITED(localMatrix)
     , fPicture(SkRef(picture))
-    , fTile(NULL != tile ? *tile : picture->cullRect())
+    , fTile(tile ? *tile : picture->cullRect())
     , fTmx(tmx)
     , fTmy(tmy) {
 }
@@ -42,7 +42,7 @@ SkPictureShader::~SkPictureShader() {
 
 SkPictureShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx, TileMode tmy,
                                          const SkMatrix* localMatrix, const SkRect* tile) {
-    if (!picture || picture->cullRect().isEmpty() || (NULL != tile && tile->isEmpty())) {
+    if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
         return NULL;
     }
     return SkNEW_ARGS(SkPictureShader, (picture, tmx, tmy, localMatrix, tile));

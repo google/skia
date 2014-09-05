@@ -181,7 +181,7 @@ public:
      * Determines if the cache contains an entry matching a key. If a matching
      * entry exists but was detached then it will not be found.
      */
-    bool hasKey(const GrResourceKey& key) const { return NULL != fCache.find(key); }
+    bool hasKey(const GrResourceKey& key) const { return SkToBool(fCache.find(key)); }
 
     /**
      * Hide 'entry' so that future searches will not find it. Such

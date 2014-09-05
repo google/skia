@@ -45,7 +45,7 @@ static void test_cache(skiatest::Reporter* reporter, SkResourceCache& cache,
 
         TestingRec* newRec = SkNEW_ARGS(TestingRec, (key, i));
         const TestingRec* addedRec = (const TestingRec*)cache.addAndLock(newRec);
-        REPORTER_ASSERT(reporter, NULL != addedRec);
+        REPORTER_ASSERT(reporter, addedRec);
 
         const TestingRec* foundRec = (const TestingRec*)cache.findAndLock(key);
         REPORTER_ASSERT(reporter, foundRec == addedRec);
@@ -59,7 +59,7 @@ static void test_cache(skiatest::Reporter* reporter, SkResourceCache& cache,
         for (size_t i = 0; i < COUNT * 100; ++i) {
             TestingKey key(i);
             SkResourceCache::ID id = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, i)));
-            REPORTER_ASSERT(reporter, NULL != id);
+            REPORTER_ASSERT(reporter, id);
             cache.unlock(id);
         }
     }
@@ -117,7 +117,7 @@ DEF_TEST(ImageCache_doubleAdd, r) {
 
     // Lookup can return either value.
     const TestingRec* rec = (const TestingRec*)cache.findAndLock(key);
-    REPORTER_ASSERT(r, NULL != rec);
+    REPORTER_ASSERT(r, rec);
     REPORTER_ASSERT(r, 2 == rec->fValue || 3 == rec->fValue);
     cache.unlock(rec);
 }

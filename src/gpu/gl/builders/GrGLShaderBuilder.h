@@ -118,7 +118,7 @@ public:
     class ShaderBlock {
     public:
         ShaderBlock(GrGLShaderBuilder* builder) : fBuilder(builder) {
-            SkASSERT(NULL != builder);
+            SkASSERT(builder);
             fBuilder->codeAppend("{");
         }
 

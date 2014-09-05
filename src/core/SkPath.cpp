@@ -1914,7 +1914,7 @@ void SkPath::RawIter::setPath(const SkPath& path) {
 }
 
 SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
-    SkASSERT(NULL != pts);
+    SkASSERT(pts);
     if (fVerbs == fVerbStop) {
         return kDone_Verb;
     }
@@ -2007,7 +2007,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
         SkDEBUGCODE(this->validate();)
         buffer.skipToAlign4();
         sizeRead = buffer.pos();
-    } else if (NULL != pathRef) {
+    } else if (pathRef) {
         // If the buffer is not valid, pathRef should be NULL
         sk_throw();
     }
