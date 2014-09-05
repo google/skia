@@ -16,7 +16,7 @@ bool GrRODrawState::isEqual(const GrRODrawState& that) const {
         return false;
     }
 
-    if (this->fRenderTarget.get() != that.fRenderTarget.get() ||
+    if (this->getRenderTarget() != that.getRenderTarget() ||
         this->fColorStages.count() != that.fColorStages.count() ||
         this->fCoverageStages.count() != that.fCoverageStages.count() ||
         !this->fViewMatrix.cheapEqualTo(that.fViewMatrix) ||
@@ -184,3 +184,16 @@ bool GrRODrawState::canTweakAlphaForCoverage() const {
            this->isCoverageDrawing();
 }
 
+void GrRODrawState::convertToPendingExec() {
+    fRenderTarget.markPendingIO();
+    fRenderTarget.removeRef();
+    for (int i = 0; i < fColorStages.count(); ++i) {
+        fColorStages[i].convertToPendingExec();
+    }
+    if (fGeometryProcessor) {
+        fGeometryProcessor->convertToPendingExec();
+    }
+    for (int i = 0; i < fCoverageStages.count(); ++i) {
+        fCoverageStages[i].convertToPendingExec();
+    }
+}

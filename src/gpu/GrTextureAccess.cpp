@@ -46,7 +46,7 @@ void GrTextureAccess::reset(GrTexture* texture,
     SkASSERT(strlen(swizzle) >= 1 && strlen(swizzle) <= 4);
 
     fParams = params;
-    fTexture.reset(SkRef(texture));
+    fTexture.setResource(SkRef(texture), GrProgramResource::kRead_IOType);
     this->setSwizzle(swizzle);
 }
 
@@ -58,14 +58,14 @@ void GrTextureAccess::reset(GrTexture* texture,
     SkASSERT(strlen(swizzle) >= 1 && strlen(swizzle) <= 4);
 
     fParams.reset(tileXAndY, filterMode);
-    fTexture.reset(SkRef(texture));
+    fTexture.setResource(SkRef(texture), GrProgramResource::kRead_IOType);
     this->setSwizzle(swizzle);
 }
 
 void GrTextureAccess::reset(GrTexture* texture,
                             const GrTextureParams& params) {
     SkASSERT(texture);
-    fTexture.reset(SkRef(texture));
+    fTexture.setResource(SkRef(texture), GrProgramResource::kRead_IOType);
     fParams = params;
     memcpy(fSwizzle, "rgba", 5);
     fSwizzleMask = kRGBA_GrColorComponentFlags;
@@ -75,7 +75,7 @@ void GrTextureAccess::reset(GrTexture* texture,
                             GrTextureParams::FilterMode filterMode,
                             SkShader::TileMode tileXAndY) {
     SkASSERT(texture);
-    fTexture.reset(SkRef(texture));
+    fTexture.setResource(SkRef(texture), GrProgramResource::kRead_IOType);
     fParams.reset(tileXAndY, filterMode);
     memcpy(fSwizzle, "rgba", 5);
     fSwizzleMask = kRGBA_GrColorComponentFlags;

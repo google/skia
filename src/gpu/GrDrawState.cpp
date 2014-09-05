@@ -69,7 +69,9 @@ GrDrawState::GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatr
 
 GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numTotalStages());
-    this->setRenderTarget(that.fRenderTarget.get());
+    SkASSERT(!that.fRenderTarget.ownsPendingIO());
+    SkASSERT(!this->fRenderTarget.ownsPendingIO());
+    this->setRenderTarget(that.getRenderTarget());
     fColor = that.fColor;
     fViewMatrix = that.fViewMatrix;
     fSrcBlend = that.fSrcBlend;
@@ -103,11 +105,13 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
 
 void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numTotalStages());
+    SkASSERT(!fRenderTarget.ownsPendingIO());
+
     fGeometryProcessor.reset(NULL);
     fColorStages.reset();
     fCoverageStages.reset();
 
-    fRenderTarget.reset(NULL);
+    fRenderTarget.reset();
 
     this->setDefaultVertexAttribs();
 
@@ -609,4 +613,3 @@ bool GrDrawState::canIgnoreColorAttribute() const {
     return SkToBool(fBlendOptFlags & (GrRODrawState::kEmitTransBlack_BlendOptFlag |
                                       GrRODrawState::kEmitCoverage_BlendOptFlag));
 }
-

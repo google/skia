@@ -13,9 +13,8 @@
 
 #include "GrBackendEffectFactory.h"
 #include "GrEffect.h"
+#include "GrProgramElementRef.h"
 #include "SkMatrix.h"
-#include "GrTypes.h"
-
 #include "SkShader.h"
 
 class GrEffectStage {
@@ -136,10 +135,12 @@ public:
     const int* getVertexAttribIndices() const { return fVertexAttribIndices; }
     int getVertexAttribIndexCount() const { return fEffect->numVertexAttribs(); }
 
+    void convertToPendingExec() { fEffect.convertToPendingExec(); }
+
 private:
     bool                                fCoordChangeMatrixSet;
     SkMatrix                            fCoordChangeMatrix;
-    SkAutoTUnref<const GrEffect>        fEffect;
+    GrProgramElementRef<const GrEffect> fEffect;
     int                                 fVertexAttribIndices[2];
 };
 

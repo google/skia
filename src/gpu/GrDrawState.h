@@ -8,9 +8,9 @@
 #ifndef GrDrawState_DEFINED
 #define GrDrawState_DEFINED
 
-#include "GrRODrawState.h"
-
 #include "GrBlend.h"
+#include "GrProgramResource.h"
+#include "GrRODrawState.h"
 #include "effects/GrSimpleTextureEffect.h"
 
 /**
@@ -414,7 +414,9 @@ public:
      *
      * @param target  The render target to set.
      */
-    void setRenderTarget(GrRenderTarget* target) { fRenderTarget.reset(SkSafeRef(target)); }
+    void setRenderTarget(GrRenderTarget* target) {
+        fRenderTarget.setResource(SkSafeRef(target), GrProgramResource::kWrite_IOType);
+    }
 
     /// @}
 

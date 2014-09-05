@@ -10,7 +10,7 @@
 
 #include "SkRefCnt.h"
 #include "SkShader.h"
-#include "SkTypes.h"
+#include "GrProgramResource.h"
 
 class GrTexture;
 
@@ -112,8 +112,10 @@ private:
  *  key. However, if a GrEffect uses different swizzles based on its input then it must
  *  consider that variation in its key-generation.
  */
-class GrTextureAccess : SkNoncopyable {
+class GrTextureAccess : public SkNoncopyable {
 public:
+    SK_DECLARE_INST_COUNT_ROOT(GrTextureAccess);
+
     /**
      * A default GrTextureAccess must have reset() called on it in a GrEffect subclass's
      * constructor if it will be accessible via GrEffect::textureAccess().
@@ -155,13 +157,18 @@ public:
                  strcmp(fSwizzle, other.fSwizzle));
 #endif
         return fParams == other.fParams &&
-               (fTexture.get() == other.fTexture.get()) &&
+               (this->getTexture() == other.getTexture()) &&
                (0 == memcmp(fSwizzle, other.fSwizzle, sizeof(fSwizzle)-1));
     }
 
     bool operator!= (const GrTextureAccess& other) const { return !(*this == other); }
 
-    GrTexture* getTexture() const { return fTexture.get(); }
+    GrTexture* getTexture() const { return (GrTexture*)fTexture.getResource(); }
+
+    /**
+     * For internal use by GrEffect.
+     */
+    const GrProgramResource* getTextureProgramResource() const { return &fTexture; }
 
     /**
      * Returns a string representing the swizzle. The string is is null-terminated.
@@ -177,10 +184,10 @@ public:
 private:
     void setSwizzle(const char*);
 
-    GrTextureParams         fParams;
-    SkAutoTUnref<GrTexture> fTexture;
-    uint32_t                fSwizzleMask;
-    char                    fSwizzle[5];
+    GrProgramResource               fTexture;
+    GrTextureParams                 fParams;
+    uint32_t                        fSwizzleMask;
+    char                            fSwizzle[5];
 
     typedef SkNoncopyable INHERITED;
 };

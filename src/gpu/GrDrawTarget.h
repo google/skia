@@ -694,6 +694,10 @@ public:
     virtual DrawToken getCurrentDrawToken() { return DrawToken(this, 0); }
 
 protected:
+    // Extend access to GrRODrawState::convertToPEndeingExec to subclasses.
+    void convertDrawStateToPendingExec(GrRODrawState* ds) {
+        ds->convertToPendingExec();
+    }
 
     enum GeometrySrcType {
         kNone_GeometrySrcType,     //<! src has not been specified

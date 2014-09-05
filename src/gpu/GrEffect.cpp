@@ -72,6 +72,7 @@ void GrEffect::addCoordTransform(const GrCoordTransform* transform) {
 
 void GrEffect::addTextureAccess(const GrTextureAccess* access) {
     fTextureAccesses.push_back(access);
+    this->addProgramResource(access->getTextureProgramResource());
 }
 
 void* GrEffect::operator new(size_t size) {

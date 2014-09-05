@@ -888,14 +888,18 @@ void GrInOrderDrawBuffer::recordStateIfNecessary() {
     GrDrawState& prev = fStates.back();
     switch (GrDrawState::CombineIfPossible(prev, curr, *this->caps())) {
         case GrDrawState::kIncompatible_CombinedState:
-            fStates.push_back() = this->getDrawState();
+            this->convertDrawStateToPendingExec(&fStates.push_back(curr));
             this->addToCmdBuffer(kSetState_Cmd);
             break;
         case GrDrawState::kA_CombinedState:
         case GrDrawState::kAOrB_CombinedState: // Treat the same as kA.
             break;
         case GrDrawState::kB_CombinedState:
-            prev = curr;
+            // prev has already been converted to pending execution. That is a one-way ticket.
+            // So here we just delete prev and push back a new copy of curr. Note that this
+            // goes away when we move GrIODB over to taking optimized snapshots of draw states.
+            fStates.pop_back();
+            this->convertDrawStateToPendingExec(&fStates.push_back(curr));
             break;
     }
 }
