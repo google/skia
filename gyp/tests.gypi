@@ -108,6 +108,7 @@
     '../tests/GrBinHashKeyTest.cpp',
     '../tests/GrContextFactoryTest.cpp',
     '../tests/GrDrawTargetTest.cpp',
+    '../tests/GrAllocatorTest.cpp',
     '../tests/GrMemoryPoolTest.cpp',
     '../tests/GrOrderedSetTest.cpp',
     '../tests/GrGLSLPrettyPrintTest.cpp',

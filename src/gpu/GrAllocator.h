@@ -61,6 +61,24 @@ public:
     }
 
     /**
+     * Remove the last item, only call if count() != 0
+     */
+    void pop_back() {
+        SkASSERT(fCount);
+        SkASSERT(fInsertionIndexInBlock > 0);
+        --fInsertionIndexInBlock;
+        --fCount;
+        if (0 == fInsertionIndexInBlock) {
+            // Never delete the first block
+            if (fBlocks.count() > 1) {
+                sk_free(fBlocks.back());
+                fBlocks.pop_back();
+                fInsertionIndexInBlock = fItemsPerBlock;
+            }
+        }
+    }
+
+    /**
      * Removes all added items.
      */
     void reset() {
@@ -108,7 +126,6 @@ public:
         SkASSERT(fInsertionIndexInBlock > 0);
         return (const char*)(fBlocks.back()) + (fInsertionIndexInBlock - 1) * fItemSize;
     }
-
 
     /**
      * Iterates through the allocator. This is faster than using operator[] when walking linearly
@@ -237,6 +254,14 @@ public:
         SkASSERT(NULL != item);
         SkNEW_PLACEMENT_ARGS(item, T, (t));
         return *(T*)item;
+    }
+
+    /**
+     * Remove the last item, only call if count() != 0
+     */
+    void pop_back() {
+        this->back().~T();
+        fAllocator.pop_back();
     }
 
     /**
