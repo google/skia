@@ -237,14 +237,34 @@ public:
     }
 
     /**
-     * When this object is destroyed it will remove any effects from the draw state that were added
-     * after its constructor.
+     * When this object is destroyed it will remove any color/coverage effects from the draw state
+     * that were added after its constructor.
+     *
+     * This class has strange behavior around geometry processor. If there is a GP on the draw state
+     * it will assert that the GP is not modified until after the destructor of the ARE. If the
+     * draw state has a NULL GP when the ARE is constructed then it will reset it to null in the
+     * destructor.
+     *
+     * TODO: We'd prefer for the ARE to just save and restore the GP. However, this would add
+     * significant complexity to the multi-ref architecture for deferred drawing. Once GrDrawState
+     * and GrOptDrawState are fully separated then GrDrawState will never be in the deferred
+     * execution state and GrOptDrawState always will be (and will be immutable and therefore
+     * unable to have an ARE). At this point we can restore sanity and have the ARE save and restore
+     * the GP.
      */
     class AutoRestoreEffects : public ::SkNoncopyable {
     public:
-        AutoRestoreEffects() : fDrawState(NULL), fColorEffectCnt(0), fCoverageEffectCnt(0) {}
+        AutoRestoreEffects() 
+            : fDrawState(NULL)
+            , fOriginalGP(NULL)
+            , fColorEffectCnt(0)
+            , fCoverageEffectCnt(0) {}
 
-        AutoRestoreEffects(GrDrawState* ds) : fDrawState(NULL), fColorEffectCnt(0), fCoverageEffectCnt(0) {
+        AutoRestoreEffects(GrDrawState* ds)
+            : fDrawState(NULL)
+            , fOriginalGP(NULL)
+            , fColorEffectCnt(0)
+            , fCoverageEffectCnt(0) {
             this->set(ds);
         }
 
@@ -255,10 +275,10 @@ public:
         bool isSet() const { return NULL != fDrawState; }
 
     private:
-        GrDrawState* fDrawState;
-        SkAutoTDelete<GrEffectStage> fGeometryProcessor;
-        int fColorEffectCnt;
-        int fCoverageEffectCnt;
+        GrDrawState*    fDrawState;
+        const GrEffect* fOriginalGP;
+        int             fColorEffectCnt;
+        int             fCoverageEffectCnt;
     };
 
     /// @}

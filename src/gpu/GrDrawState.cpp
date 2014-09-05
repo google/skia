@@ -299,7 +299,14 @@ GrDrawState::AutoVertexAttribRestore::AutoVertexAttribRestore(
 
 void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
     if (NULL != fDrawState) {
-        fDrawState->fGeometryProcessor.reset(fGeometryProcessor.detach());
+        // See the big comment on the class definition about GPs.
+        if (NULL != fOriginalGP) {
+            SkASSERT(fDrawState->getGeometryProcessor()->getEffect() == fOriginalGP);
+            fOriginalGP->unref();
+            fOriginalGP = NULL;
+        } else {
+            fDrawState->fGeometryProcessor.reset(NULL);
+        }
 
         int m = fDrawState->numColorStages() - fColorEffectCnt;
         SkASSERT(m >= 0);
@@ -315,10 +322,9 @@ void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
     }
     fDrawState = ds;
     if (NULL != ds) {
-        if (ds->hasGeometryProcessor()) {
-            fGeometryProcessor.reset(SkNEW_ARGS(GrEffectStage, (*ds->getGeometryProcessor())));
-        } else {
-            fGeometryProcessor.reset(NULL);
+        SkASSERT(NULL == fOriginalGP);
+        if (NULL != ds->getGeometryProcessor()) {
+            fOriginalGP = SkRef(ds->getGeometryProcessor()->getEffect());
         }
         fColorEffectCnt = ds->numColorStages();
         fCoverageEffectCnt = ds->numCoverageStages();
