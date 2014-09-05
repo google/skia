@@ -8,6 +8,15 @@
 #include "GrProgramElement.h"
 #include "GrProgramResource.h"
 
+uint32_t GrProgramElement::CreateUniqueID() {
+    static int32_t gUniqueID = SK_InvalidUniqueID;
+    uint32_t id;
+    do {
+        id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+
 void GrProgramElement::convertRefToPendingExecution() const {
     // This function makes it so that all the GrProgramResources own a single ref to their
     // underlying GrGpuResource if there are any refs to the GrProgramElement and a single

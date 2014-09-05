@@ -172,8 +172,8 @@ public:
     const GrResourceKey& getScratchKey() const { return fScratchKey; }
 
     /**
-     * Gets an id that is unique for this GrCacheable object. It is static in that it does
-     * not change when the content of the GrCacheable object changes. This will never return
+     * Gets an id that is unique for this GrGpuResource object. It is static in that it does
+     * not change when the content of the GrGpuResource object changes. This will never return
      * 0.
      */
     uint32_t getUniqueID() const { return fUniqueID; }

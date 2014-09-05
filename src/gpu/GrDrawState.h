@@ -256,13 +256,13 @@ public:
     public:
         AutoRestoreEffects() 
             : fDrawState(NULL)
-            , fOriginalGP(NULL)
+            , fOriginalGPID(SK_InvalidUniqueID)
             , fColorEffectCnt(0)
             , fCoverageEffectCnt(0) {}
 
         AutoRestoreEffects(GrDrawState* ds)
             : fDrawState(NULL)
-            , fOriginalGP(NULL)
+            , fOriginalGPID(SK_InvalidUniqueID)
             , fColorEffectCnt(0)
             , fCoverageEffectCnt(0) {
             this->set(ds);
@@ -276,7 +276,7 @@ public:
 
     private:
         GrDrawState*    fDrawState;
-        const GrEffect* fOriginalGP;
+        uint32_t        fOriginalGPID;
         int             fColorEffectCnt;
         int             fCoverageEffectCnt;
     };
