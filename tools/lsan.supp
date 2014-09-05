@@ -7,3 +7,6 @@ leak:libfontconfig
 
 # Nvidia driver
 leak:libGL.so
+
+# Not clear what this is.  skia:2916
+leak:__strdup
