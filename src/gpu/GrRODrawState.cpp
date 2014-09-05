@@ -40,14 +40,14 @@ bool GrRODrawState::isEqual(const GrRODrawState& that) const {
     bool explicitLocalCoords = this->hasLocalCoordAttribute();
     if (this->hasGeometryProcessor()) {
         if (!that.hasGeometryProcessor()) {
-            return kIncompatible_CombinedState;
+            return false;
         } else if (!GrEffectStage::AreCompatible(*this->getGeometryProcessor(),
                                                  *that.getGeometryProcessor(),
                                                  explicitLocalCoords)) {
-            return kIncompatible_CombinedState;
+            return false;
         }
     } else if (that.hasGeometryProcessor()) {
-        return kIncompatible_CombinedState;
+        return false;
     }
 
     for (int i = 0; i < this->numColorStages(); i++) {
