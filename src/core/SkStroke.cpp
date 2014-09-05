@@ -424,7 +424,8 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
     bool    degenerateBC = SkPath::IsLineDegenerate(pt1, pt2);
     bool    degenerateCD = SkPath::IsLineDegenerate(pt2, pt3);
 
-    if (degenerateAB + degenerateBC + degenerateCD >= 2) {
+    if (degenerateAB + degenerateBC + degenerateCD >= 2
+            || (degenerateAB && SkPath::IsLineDegenerate(fPrevPt, pt2))) {
         this->lineTo(pt3);
         return;
     }
