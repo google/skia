@@ -39,14 +39,11 @@ public:
     bool setEmpty();
     bool setRect(const SkIRect&);
 
-    bool setPath(const SkPath& path, const SkRegion& clip, bool doAA);
-    bool setPath(const SkPath& path, const SkIRect& clip, bool doAA);
-
     bool op(const SkIRect&, SkRegion::Op);
     bool op(const SkRegion&, SkRegion::Op);
-    bool op(const SkRasterClip&, SkRegion::Op);
     bool op(const SkRect&, SkRegion::Op, bool doAA);
-
+    bool op(const SkPath&, const SkISize&, SkRegion::Op, bool doAA);
+    
     void translate(int dx, int dy, SkRasterClip* dst) const;
     void translate(int dx, int dy) {
         this->translate(dx, dy, this);
@@ -107,6 +104,10 @@ private:
     }
 
     void convertToAA();
+
+    bool setPath(const SkPath& path, const SkRegion& clip, bool doAA);
+    bool setPath(const SkPath& path, const SkIRect& clip, bool doAA);
+    bool op(const SkRasterClip&, SkRegion::Op);
 };
 
 class SkAutoRasterClipValidate : SkNoncopyable {
