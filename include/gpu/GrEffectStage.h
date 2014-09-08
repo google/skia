@@ -82,10 +82,12 @@ public:
     }
 
     class SavedCoordChange {
+    public:
+        SkDEBUGCODE(SavedCoordChange() : fEffectUniqueID(SK_InvalidUniqueID) {})
     private:
         bool fCoordChangeMatrixSet;
         SkMatrix fCoordChangeMatrix;
-        SkDEBUGCODE(mutable SkAutoTUnref<const GrEffect> fEffect;)
+        SkDEBUGCODE(mutable uint32_t fEffectUniqueID;)
 
         friend class GrEffectStage;
     };
@@ -101,9 +103,8 @@ public:
         if (fCoordChangeMatrixSet) {
             savedCoordChange->fCoordChangeMatrix = fCoordChangeMatrix;
         }
-        SkASSERT(NULL == savedCoordChange->fEffect.get());
-        SkDEBUGCODE(SkRef(fEffect.get());)
-        SkDEBUGCODE(savedCoordChange->fEffect.reset(fEffect.get());)
+        SkASSERT(SK_InvalidUniqueID == savedCoordChange->fEffectUniqueID);
+        SkDEBUGCODE(savedCoordChange->fEffectUniqueID = fEffect->getUniqueID();)
     }
 
     /**
@@ -114,8 +115,8 @@ public:
         if (fCoordChangeMatrixSet) {
             fCoordChangeMatrix = savedCoordChange.fCoordChangeMatrix;
         }
-        SkASSERT(savedCoordChange.fEffect.get() == fEffect);
-        SkDEBUGCODE(savedCoordChange.fEffect.reset(NULL);)
+        SkASSERT(savedCoordChange.fEffectUniqueID == fEffect->getUniqueID());
+        SkDEBUGCODE(savedCoordChange.fEffectUniqueID = SK_InvalidUniqueID);
     }
 
     /**
