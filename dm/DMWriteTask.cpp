@@ -67,59 +67,37 @@ void WriteTask::makeDirOrFail(SkString dir) {
     }
 }
 
-static bool save_bitmap_to_file(SkBitmap bitmap, const char* path) {
-    SkFILEWStream stream(path);
-    if (!stream.isValid() ||
-        !SkImageEncoder::EncodeStream(&stream, bitmap, SkImageEncoder::kPNG_Type, 100)) {
-        SkDebugf("Can't write a PNG to %s.\n", path);
-        return false;
+static SkStreamAsset* encode_to_png(const SkBitmap& bitmap) {
+    SkDynamicMemoryWStream png;
+    if (!SkImageEncoder::EncodeStream(&png, bitmap, SkImageEncoder::kPNG_Type, 100)) {
+        return NULL;
     }
-    return true;
+    png.copyToData()->unref();  // Forces detachAsStream() to be contiguous.
+    return png.detachAsStream();
 }
 
-// Does not take ownership of data.
-static bool save_data_to_file(SkStreamAsset* data, const char* path) {
-    data->rewind();
-    SkFILEWStream stream(path);
-    if (!stream.isValid() || !stream.writeStream(data, data->getLength())) {
-        SkDebugf("Can't write data to %s.\n", path);
-        return false;
-    }
-    return true;
-}
-
-static SkString finish_hash(SkMD5* hasher) {
-    SkMD5::Digest digest;
-    hasher->finish(digest);
-
-    SkString out;
-    for (int i = 0; i < 16; i++) {
-        out.appendf("%02x", digest.data[i]);
-    }
-    return out;
-}
-
-static SkString hash(const SkBitmap& src) {
-    SkMD5 hasher;
-    {
-        SkAutoLockPixels lock(src);
-        hasher.write(src.getPixels(), src.getSize());
-    }
-    return finish_hash(&hasher);
-}
-
-static SkString hash(SkStreamAsset* src) {
+static SkString get_md5(SkStreamAsset* src) {
     SkMD5 hasher;
     hasher.write(src->getMemoryBase(), src->getLength());
-    return finish_hash(&hasher);
+    SkMD5::Digest digest;
+    hasher.finish(digest);
+
+    SkString md5;
+    for (int i = 0; i < 16; i++) {
+        md5.appendf("%02x", digest.data[i]);
+    }
+    return md5;
 }
 
 void WriteTask::draw() {
-    JsonData entry = {
-        fFullName,
-        fData ? hash(fData) : hash(fBitmap),
-    };
+    if (!fData.get()) {
+        fData.reset(encode_to_png(fBitmap));
+        if (!fData.get()) {
+            this->fail("Can't encode to PNG.");
+        }
+    }
 
+    JsonData entry = { fFullName, get_md5(fData) };
     {
         SkAutoMutexAcquire lock(&gJsonDataLock);
         gJsonData.push_back(entry);
@@ -156,10 +134,14 @@ void WriteTask::draw() {
         // If already present we overwrite here, since the content may have changed.
     }
 
-    const bool ok = fData.get() ? save_data_to_file(fData.get(), path.c_str())
-                                : save_bitmap_to_file(fBitmap, path.c_str());
-    if (!ok) {
-        this->fail();
+    SkFILEWStream file(path.c_str());
+    if (!file.isValid()) {
+        return this->fail("Can't open file.");
+    }
+
+    fData->rewind();
+    if (!file.writeStream(fData, fData->getLength())) {
+        return this->fail("Can't write to file.");
     }
 }
 
@@ -213,7 +195,8 @@ bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
     }
 
     const char* expected = fJson[name.c_str()].asCString();
-    SkString actual = hash(bitmap);
+    SkAutoTDelete<SkStreamAsset> png(encode_to_png(bitmap));
+    SkString actual = get_md5(png);
     return actual.equals(expected);
 }
 
