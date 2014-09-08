@@ -38,6 +38,26 @@ public:
         fOwnPendingExec = true;
     }
 
+    // In the short term we need to support copying a GrEffectStage and making the copy own
+    // the same type of ref as the source. This function exists to support this. TODO: Once
+    // GrDrawState and GrOptDrawState no longer share a base class they won't have to share
+    // GrEffectStage and we can have GrOptDrawState always own pending executions rather than
+    // refs on GrProgramElements. At that point we should be able to delete this function.
+    // This function makes assumptions that are valid in the GrEffectStage use case and should
+    // not be used elsewhere.
+    void initAndRef(const GrProgramElementRef& that) {
+        SkASSERT(!fObj);
+        SkASSERT(that.fObj);
+        if (that.fOwnPendingExec) {
+            SkASSERT(that.fObj->fPendingExecutions > 0);
+            that.fObj->fPendingExecutions++;
+        } else {
+            that.fObj->ref();
+        }
+        this->fOwnPendingExec = that.fOwnPendingExec;
+        this->fObj = that.fObj;
+    }
+
     T* get() const { return fObj; }
     operator T*() { return fObj; }
 

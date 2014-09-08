@@ -17,6 +17,11 @@
 #include "SkMatrix.h"
 #include "SkShader.h"
 
+// TODO: Make two variations on this class: One for GrDrawState that only owns regular refs
+// and supports compatibility checks and changing local coords. The second is for GrOptDrawState,
+// is immutable, and only owns pending execution refs. This requries removing the common base
+// class from GrDrawState and GrOptDrawState called GrRODrawState and converting to GrOptDrawState
+// when draws are enqueued in the GrInOrderDrawBuffer.
 class GrEffectStage {
 public:
     explicit GrEffectStage(const GrEffect* effect, int attrIndex0 = -1, int attrIndex1 = -1)
@@ -27,17 +32,12 @@ public:
     }
 
     GrEffectStage(const GrEffectStage& other) {
-        *this = other;
-    }
-
-    GrEffectStage& operator= (const GrEffectStage& other) {
         fCoordChangeMatrixSet = other.fCoordChangeMatrixSet;
         if (other.fCoordChangeMatrixSet) {
             fCoordChangeMatrix = other.fCoordChangeMatrix;
         }
-        fEffect.reset(SkRef(other.fEffect.get()));
+        fEffect.initAndRef(other.fEffect);
         memcpy(fVertexAttribIndices, other.fVertexAttribIndices, sizeof(fVertexAttribIndices));
-        return *this;
     }
     
     static bool AreCompatible(const GrEffectStage& a, const GrEffectStage& b,
