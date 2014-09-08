@@ -935,20 +935,23 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
                 c->saveLayer(NULL, &p); // layer #3
                 c->restore();
             }
+
+            SkPaint layerPaint;
+            layerPaint.setColor(SK_ColorRED);  // Non-alpha only to avoid SaveLayerDrawRestoreNooper
             // 4)
             {
-                c->saveLayer(NULL, NULL);  // layer #4
+                c->saveLayer(NULL, &layerPaint);  // layer #4
                     c->drawPicture(child);  // layer #5 inside picture
                 c->restore();
             }
             // 5
             {
-                SkPaint p;
+                SkPaint picturePaint;
                 SkMatrix trans;
                 trans.setTranslate(10, 10);
 
-                c->saveLayer(NULL, NULL);  // layer #6
-                    c->drawPicture(child, &trans, &p); // layer #7 inside picture
+                c->saveLayer(NULL, &layerPaint);  // layer #6
+                    c->drawPicture(child, &trans, &picturePaint); // layer #7 inside picture
                 c->restore();
             }
 
@@ -1032,7 +1035,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
                                       kHeight == info4.fSize.fHeight);
             REPORTER_ASSERT(reporter, 0 == info4.fOffset.fX && 0 == info4.fOffset.fY);
             REPORTER_ASSERT(reporter, info4.fOriginXform.isIdentity());
-            REPORTER_ASSERT(reporter, NULL == info4.fPaint);
+            REPORTER_ASSERT(reporter, info4.fPaint);
             REPORTER_ASSERT(reporter, !info4.fIsNested &&
                                       info4.fHasNestedLayers); // has a nested SL
 
@@ -1051,7 +1054,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
                                       kHeight == info6.fSize.fHeight);
             REPORTER_ASSERT(reporter, 0 == info6.fOffset.fX && 0 == info6.fOffset.fY);
             REPORTER_ASSERT(reporter, info6.fOriginXform.isIdentity());
-            REPORTER_ASSERT(reporter, NULL == info6.fPaint);
+            REPORTER_ASSERT(reporter, info6.fPaint);
             REPORTER_ASSERT(reporter, !info6.fIsNested &&
                                       info6.fHasNestedLayers); // has a nested SL
 

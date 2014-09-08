@@ -639,18 +639,21 @@ uint32_t SkPicture::uniqueID() const {
     return fUniqueID;
 }
 
+static SkRecord* optimized(SkRecord* r) {
+    SkRecordOptimize(r);
+    return r;
+}
+
 // fRecord OK
 SkPicture::SkPicture(SkScalar width, SkScalar height, SkRecord* record, SkBBoxHierarchy* bbh)
     : fCullWidth(width)
     , fCullHeight(height)
-    , fRecord(record)
+    , fRecord(optimized(record))
     , fBBH(SkSafeRef(bbh))
-    , fAnalysis(*record) {
-    // TODO: move optimization before we construct fAnalysis?
-    SkRecordOptimize(record);
+    , fAnalysis(*fRecord) {
     // TODO: delay as much of this work until just before first playback?
     if (fBBH.get()) {
-        SkRecordFillBounds(*record, fBBH.get());
+        SkRecordFillBounds(*fRecord, fBBH.get());
     }
     this->needsNewGenID();
 }

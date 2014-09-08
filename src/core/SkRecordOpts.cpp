@@ -14,8 +14,7 @@
 using namespace SkRecords;
 
 void SkRecordOptimize(SkRecord* record) {
-    // TODO(mtklein): rebaseline and re-enable
-    //SkRecordNoopSaveLayerDrawRestores(record);
+    SkRecordNoopSaveLayerDrawRestores(record);
     SkRecordNoopSaveRestores(record);
     SkRecordReduceDrawPosTextStrength(record);
 }
