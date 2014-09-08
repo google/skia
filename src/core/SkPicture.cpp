@@ -40,6 +40,7 @@
 
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
+#include "SkRecordOpts.h"
 #include "SkRecorder.h"
 
 template <typename T> int SafeCount(const T* obj) {
@@ -271,7 +272,7 @@ SkPicture::SkPicture(SkScalar width, SkScalar height,
 static SkPicture* backport(const SkRecord& src, const SkRect& cullRect) {
     SkPictureRecorder recorder;
     SkRecordDraw(src,
-                 recorder.DEPRECATED_beginRecording(cullRect.width(), cullRect.height()), 
+                 recorder.DEPRECATED_beginRecording(cullRect.width(), cullRect.height()),
                  NULL/*bbh*/, NULL/*callback*/);
     return recorder.endRecording();
 }
@@ -460,7 +461,7 @@ SkPicture* SkPicture::Forwardport(const SkPicture& src) {
     SkAutoTDelete<SkRecord> record(SkNEW(SkRecord));
     SkRecorder canvas(record.get(), src.cullRect().width(), src.cullRect().height());
     src.playback(&canvas);
-    return SkNEW_ARGS(SkPicture, (src.cullRect().width(), src.cullRect().height(), 
+    return SkNEW_ARGS(SkPicture, (src.cullRect().width(), src.cullRect().height(),
                                   record.detach(), NULL/*bbh*/));
 }
 
@@ -645,6 +646,8 @@ SkPicture::SkPicture(SkScalar width, SkScalar height, SkRecord* record, SkBBoxHi
     , fRecord(record)
     , fBBH(SkSafeRef(bbh))
     , fAnalysis(*record) {
+    // TODO: move optimization before we construct fAnalysis?
+    SkRecordOptimize(record);
     // TODO: delay as much of this work until just before first playback?
     if (fBBH.get()) {
         SkRecordFillBounds(*record, fBBH.get());

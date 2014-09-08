@@ -14,12 +14,10 @@
 using namespace SkRecords;
 
 void SkRecordOptimize(SkRecord* record) {
-    // TODO(mtklein): fuse independent optimizations to reduce number of passes?
-    SkRecordNoopSaveRestores(record);
-    // TODO(mtklein): figure out why we draw differently and reenable
+    // TODO(mtklein): rebaseline and re-enable
     //SkRecordNoopSaveLayerDrawRestores(record);
-
-    SkRecordReduceDrawPosTextStrength(record);  // Helpful to run this before BoundDrawPosTextH.
+    SkRecordNoopSaveRestores(record);
+    SkRecordReduceDrawPosTextStrength(record);
 }
 
 // Most of the optimizations in this file are pattern-based.  These are all defined as structs with:

@@ -914,7 +914,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
         {
             SkPictureRecorder recorder;
 
-            SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth), 
+            SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth),
                                                   SkIntToScalar(kHeight));
             // 1)
             c->saveLayer(NULL, NULL); // layer #0
@@ -990,7 +990,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 
             REPORTER_ASSERT(reporter, info0.fValid);
             REPORTER_ASSERT(reporter, pict->uniqueID() == info0.fPictureID);
-            REPORTER_ASSERT(reporter, kWidth == info0.fSize.fWidth && 
+            REPORTER_ASSERT(reporter, kWidth == info0.fSize.fWidth &&
                                       kHeight == info0.fSize.fHeight);
             REPORTER_ASSERT(reporter, info0.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info0.fOffset.fX && 0 == info0.fOffset.fY);
@@ -999,12 +999,12 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 
             REPORTER_ASSERT(reporter, info1.fValid);
             REPORTER_ASSERT(reporter, pict->uniqueID() == info1.fPictureID);
-            REPORTER_ASSERT(reporter, kWidth == info1.fSize.fWidth && 
+            REPORTER_ASSERT(reporter, kWidth == info1.fSize.fWidth &&
                                       kHeight == info1.fSize.fHeight);
             REPORTER_ASSERT(reporter, info1.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info1.fOffset.fX && 0 == info1.fOffset.fY);
             REPORTER_ASSERT(reporter, NULL == info1.fPaint);
-            REPORTER_ASSERT(reporter, !info1.fIsNested && 
+            REPORTER_ASSERT(reporter, !info1.fIsNested &&
                                       info1.fHasNestedLayers); // has a nested SL
 
             REPORTER_ASSERT(reporter, info2.fValid);
@@ -1013,13 +1013,13 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
                                       kHeight/2 == info2.fSize.fHeight); // bound reduces size
             REPORTER_ASSERT(reporter, info2.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, kWidth/2 == info2.fOffset.fX &&   // translated
-                                      kHeight/2 == info2.fOffset.fY); 
+                                      kHeight/2 == info2.fOffset.fY);
             REPORTER_ASSERT(reporter, NULL == info1.fPaint);
             REPORTER_ASSERT(reporter, info2.fIsNested && !info2.fHasNestedLayers); // is nested
 
             REPORTER_ASSERT(reporter, info3.fValid);
             REPORTER_ASSERT(reporter, pict->uniqueID() == info3.fPictureID);
-            REPORTER_ASSERT(reporter, kWidth == info3.fSize.fWidth && 
+            REPORTER_ASSERT(reporter, kWidth == info3.fSize.fWidth &&
                                       kHeight == info3.fSize.fHeight);
             REPORTER_ASSERT(reporter, info3.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info3.fOffset.fX && 0 == info3.fOffset.fY);
@@ -1028,17 +1028,17 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 
             REPORTER_ASSERT(reporter, info4.fValid);
             REPORTER_ASSERT(reporter, pict->uniqueID() == info4.fPictureID);
-            REPORTER_ASSERT(reporter, kWidth == info4.fSize.fWidth && 
+            REPORTER_ASSERT(reporter, kWidth == info4.fSize.fWidth &&
                                       kHeight == info4.fSize.fHeight);
             REPORTER_ASSERT(reporter, 0 == info4.fOffset.fX && 0 == info4.fOffset.fY);
             REPORTER_ASSERT(reporter, info4.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, NULL == info4.fPaint);
-            REPORTER_ASSERT(reporter, !info4.fIsNested && 
+            REPORTER_ASSERT(reporter, !info4.fIsNested &&
                                       info4.fHasNestedLayers); // has a nested SL
 
             REPORTER_ASSERT(reporter, info5.fValid);
             REPORTER_ASSERT(reporter, child->uniqueID() == info5.fPictureID); // in a child picture
-            REPORTER_ASSERT(reporter, kWidth == info5.fSize.fWidth && 
+            REPORTER_ASSERT(reporter, kWidth == info5.fSize.fWidth &&
                                       kHeight == info5.fSize.fHeight);
             REPORTER_ASSERT(reporter, 0 == info5.fOffset.fX && 0 == info5.fOffset.fY);
             REPORTER_ASSERT(reporter, info5.fOriginXform.isIdentity());
@@ -1047,17 +1047,17 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 
             REPORTER_ASSERT(reporter, info6.fValid);
             REPORTER_ASSERT(reporter, pict->uniqueID() == info6.fPictureID);
-            REPORTER_ASSERT(reporter, kWidth == info6.fSize.fWidth && 
+            REPORTER_ASSERT(reporter, kWidth == info6.fSize.fWidth &&
                                       kHeight == info6.fSize.fHeight);
             REPORTER_ASSERT(reporter, 0 == info6.fOffset.fX && 0 == info6.fOffset.fY);
             REPORTER_ASSERT(reporter, info6.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, NULL == info6.fPaint);
-            REPORTER_ASSERT(reporter, !info6.fIsNested && 
+            REPORTER_ASSERT(reporter, !info6.fIsNested &&
                                       info6.fHasNestedLayers); // has a nested SL
 
             REPORTER_ASSERT(reporter, info7.fValid);
             REPORTER_ASSERT(reporter, child->uniqueID() == info7.fPictureID); // in a child picture
-            REPORTER_ASSERT(reporter, kWidth == info7.fSize.fWidth && 
+            REPORTER_ASSERT(reporter, kWidth == info7.fSize.fWidth &&
                                       kHeight == info7.fSize.fHeight);
             REPORTER_ASSERT(reporter, 0 == info7.fOffset.fX && 0 == info7.fOffset.fY);
             REPORTER_ASSERT(reporter, info7.fOriginXform.isIdentity());
@@ -1188,14 +1188,16 @@ private:
 void check_save_state(skiatest::Reporter* reporter, SkPicture* picture,
                       unsigned int numSaves, unsigned int numSaveLayers,
                       unsigned int numRestores) {
-    SaveCountingCanvas canvas(SkScalarCeilToInt(picture->cullRect().width()), 
+    SaveCountingCanvas canvas(SkScalarCeilToInt(picture->cullRect().width()),
                               SkScalarCeilToInt(picture->cullRect().height()));
 
     picture->playback(&canvas);
 
-    REPORTER_ASSERT(reporter, numSaves == canvas.getSaveCount());
-    REPORTER_ASSERT(reporter, numSaveLayers == canvas.getSaveLayerCount());
-    REPORTER_ASSERT(reporter, numRestores == canvas.getRestoreCount());
+    // Optimizations may have removed these,
+    // so expect to have seen no more than num{Saves,SaveLayers,Restores}.
+    REPORTER_ASSERT(reporter, numSaves >= canvas.getSaveCount());
+    REPORTER_ASSERT(reporter, numSaveLayers >= canvas.getSaveLayerCount());
+    REPORTER_ASSERT(reporter, numRestores >= canvas.getRestoreCount());
 }
 
 // This class exists so SkPicture can friend it and give it access to
@@ -1445,7 +1447,7 @@ static SkData* encode_bitmap_to_data(size_t*, const SkBitmap& bm) {
 
 static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(bitmap.width()), 
+    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(bitmap.width()),
                                                SkIntToScalar(bitmap.height()));
     canvas->drawBitmap(bitmap, 0, 0);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
