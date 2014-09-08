@@ -359,7 +359,6 @@ protected:
 
     friend class GrDrawTarget;
 
-protected:
     bool isEqual(const GrRODrawState& that) const;
 
     // These fields are roughly sorted by decreasing likelihood of being different in op==
