@@ -10,6 +10,8 @@
 #include "SkStream.h"
 #include "SkString.h"
 
+DEFINE_bool(nameByHash, false, "If true, write .../hash.png instead of .../mode/config/name.png");
+
 namespace DM {
 
 // Splits off the last N suffixes of name (splitting on _) and appends them to out.
@@ -35,7 +37,7 @@ inline static SkString find_base_name(const Task& parent, SkTArray<SkString>* su
 
 struct JsonData {
     SkString name;
-    SkMD5::Digest md5;
+    SkString md5;  // In ASCII, so 32 bytes long.
 };
 SkTArray<JsonData> gJsonData;
 SK_DECLARE_STATIC_MUTEX(gJsonDataLock);
@@ -86,7 +88,43 @@ static bool save_data_to_file(SkStreamAsset* data, const char* path) {
     return true;
 }
 
+static SkString finish_hash(SkMD5* hasher) {
+    SkMD5::Digest digest;
+    hasher->finish(digest);
+
+    SkString out;
+    for (int i = 0; i < 16; i++) {
+        out.appendf("%02x", digest.data[i]);
+    }
+    return out;
+}
+
+static SkString hash(const SkBitmap& src) {
+    SkMD5 hasher;
+    {
+        SkAutoLockPixels lock(src);
+        hasher.write(src.getPixels(), src.getSize());
+    }
+    return finish_hash(&hasher);
+}
+
+static SkString hash(SkStreamAsset* src) {
+    SkMD5 hasher;
+    hasher.write(src->getMemoryBase(), src->getLength());
+    return finish_hash(&hasher);
+}
+
 void WriteTask::draw() {
+    JsonData entry = {
+        fFullName,
+        fData ? hash(fData) : hash(fBitmap),
+    };
+
+    {
+        SkAutoMutexAcquire lock(&gJsonDataLock);
+        gJsonData.push_back(entry);
+    }
+
     SkString dir(FLAGS_writePath[0]);
 #if SK_BUILD_FOR_IOS
     if (dir.equals("@")) {
@@ -94,31 +132,29 @@ void WriteTask::draw() {
     }
 #endif
     this->makeDirOrFail(dir);
-    for (int i = 0; i < fSuffixes.count(); i++) {
-        dir = SkOSPath::Join(dir.c_str(), fSuffixes[i].c_str());
-        this->makeDirOrFail(dir);
-    }
 
-    // FIXME: MD5 is really slow.  Let's use a different hash.
-    SkMD5 hasher;
-    if (fData.get()) {
-        hasher.write(fData->getMemoryBase(), fData->getLength());
+    SkString path;
+    if (FLAGS_nameByHash) {
+        // Flat directory of hash-named files.
+        path = SkOSPath::Join(dir.c_str(), entry.md5.c_str());
+        path.append(fExtension);
+        // We're content-addressed, so it's possible two threads race to write
+        // this file.  We let the first one win.  This also means we won't
+        // overwrite identical files from previous runs.
+        if (sk_exists(path.c_str())) {
+            return;
+        }
     } else {
-        SkAutoLockPixels lock(fBitmap);
-        hasher.write(fBitmap.getPixels(), fBitmap.getSize());
+        // Nested by mode, config, etc.
+        for (int i = 0; i < fSuffixes.count(); i++) {
+            dir = SkOSPath::Join(dir.c_str(), fSuffixes[i].c_str());
+            this->makeDirOrFail(dir);
+        }
+        path = SkOSPath::Join(dir.c_str(), fBaseName.c_str());
+        path.append(fExtension);
+        // The path is unique, so two threads can't both write to the same file.
+        // If already present we overwrite here, since the content may have changed.
     }
-
-    JsonData entry;
-    entry.name = fFullName;
-    hasher.finish(entry.md5);
-
-    {
-        SkAutoMutexAcquire lock(&gJsonDataLock);
-        gJsonData.push_back(entry);
-    }
-
-    SkString path = SkOSPath::Join(dir.c_str(), fBaseName.c_str());
-    path.append(fExtension);
 
     const bool ok = fData.get() ? save_data_to_file(fData.get(), path.c_str())
                                 : save_bitmap_to_file(fBitmap, path.c_str());
@@ -176,22 +212,9 @@ bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
         return true;  // No expectations.
     }
 
-    const char* md5Ascii = fJson[name.c_str()].asCString();
-    uint8_t md5[16];
-
-    for (int j = 0; j < 16; j++) {
-        sscanf(md5Ascii + (j*2), "%02hhx", md5 + j);
-    }
-
-    SkMD5 hasher;
-    {
-        SkAutoLockPixels lock(bitmap);
-        hasher.write(bitmap.getPixels(), bitmap.getSize());
-    }
-    SkMD5::Digest digest;
-    hasher.finish(digest);
-
-    return 0 == memcmp(md5, digest.data, 16);
+    const char* expected = fJson[name.c_str()].asCString();
+    SkString actual = hash(bitmap);
+    return actual.equals(expected);
 }
 
 void WriteTask::DumpJson() {
@@ -204,11 +227,7 @@ void WriteTask::DumpJson() {
     {
         SkAutoMutexAcquire lock(&gJsonDataLock);
         for (int i = 0; i < gJsonData.count(); i++) {
-            char md5Ascii[32];
-            for (int j = 0; j < 16; j++) {
-                sprintf(md5Ascii + (j*2), "%02x", gJsonData[i].md5.data[j]);
-            }
-            root[gJsonData[i].name.c_str()] = md5Ascii;
+            root[gJsonData[i].name.c_str()] = gJsonData[i].md5.c_str();
         }
     }
 
