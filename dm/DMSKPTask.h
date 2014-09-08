@@ -1,6 +1,7 @@
 #ifndef DMSKPTask_DEFINED
 #define DMSKPTask_DEFINED
 
+#include "DMExpectations.h"
 #include "DMReporter.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"
@@ -14,7 +15,7 @@ namespace DM {
 
 class SKPTask : public CpuTask {
 public:
-    SKPTask(Reporter*, TaskRunner*, const SkPicture*, SkString name);
+    SKPTask(Reporter*, TaskRunner*, const Expectations&, const SkPicture*, SkString name);
 
     virtual void draw() SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE { return false; }
@@ -22,6 +23,7 @@ public:
 
 private:
     SkAutoTUnref<const SkPicture> fPicture;
+    const Expectations& fExpectations;
     const SkString fName;
 };
 

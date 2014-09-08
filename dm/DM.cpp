@@ -136,7 +136,9 @@ static void find_skps(SkTArray<SkString>* skps) {
 }
 
 static void kick_off_skps(const SkTArray<SkString>& skps,
-                          DM::Reporter* reporter, DM::TaskRunner* tasks) {
+                          const DM::Expectations& expectations,
+                          DM::Reporter* reporter,
+                          DM::TaskRunner* tasks) {
     for (int i = 0; i < skps.count(); ++i) {
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(skps[i].c_str()));
         if (stream.get() == NULL) {
@@ -151,7 +153,7 @@ static void kick_off_skps(const SkTArray<SkString>& skps,
         }
 
         SkString filename = SkOSPath::Basename(skps[i].c_str());
-        tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, pic, filename)));
+        tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, expectations, pic, filename)));
         tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic, filename,
                                             RASTERIZE_PDF_PROC)));
     }
@@ -237,7 +239,7 @@ int dm_main() {
     DM::TaskRunner tasks;
     kick_off_tests(tests, &reporter, &tasks);
     kick_off_gms(gms, configs, gpuAPI, *expectations, &reporter, &tasks);
-    kick_off_skps(skps, &reporter, &tasks);
+    kick_off_skps(skps, *expectations, &reporter, &tasks);
     tasks.wait();
 
     DM::WriteTask::DumpJson();
