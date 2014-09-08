@@ -4,6 +4,8 @@
 #include "DMExpectations.h"
 #include "DMTask.h"
 #include "SkBitmap.h"
+#include "SkJSONCPP.h"
+#include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
 
@@ -27,19 +29,22 @@ public:
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE;
 
-    // Reads image files WriteTask wrote under root and compares them with bitmap.
+    // Reads JSON file WriteTask wrote under root and compares the bitmap with checksums inside.
     class Expectations : public DM::Expectations {
     public:
-        explicit Expectations(const char* root) : fRoot(root) {}
-
+        static Expectations* Create(const char*);
         bool check(const Task& task, SkBitmap bitmap) const SK_OVERRIDE;
     private:
-        const char* fRoot;
+        Expectations() {}
+        Json::Value fJson;
     };
+
+    static void DumpJson();
 
 private:
     SkTArray<SkString> fSuffixes;
-    const SkString fGmName;
+    const SkString fFullName;
+    const SkString fBaseName;
     const SkBitmap fBitmap;
     SkAutoTDelete<SkStreamAsset> fData;
     const char* fExtension;

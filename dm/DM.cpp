@@ -6,6 +6,7 @@
 #include "SkCommonFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
+#include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkString.h"
 #include "SkTaskGroup.h"
@@ -208,19 +209,17 @@ int dm_main() {
 
     GrGLStandard gpuAPI = get_gl_standard();
 
+    SkAutoTDelete<DM::Expectations> expectations(SkNEW(DM::Expectations));
+    if (FLAGS_expectations.count() > 0) {
+        expectations.reset(DM::WriteTask::Expectations::Create(FLAGS_expectations[0]));
+        if (!expectations.get()) {
+            return 1;
+        }
+    }
+
     SkTDArray<GMRegistry::Factory> gms;
-    SkAutoTDelete<DM::Expectations> expectations(SkNEW(DM::NoExpectations));
     if (FLAGS_gms) {
         append_matching_factories<GM>(GMRegistry::Head(), &gms);
-
-        if (FLAGS_expectations.count() > 0) {
-            const char* path = FLAGS_expectations[0];
-            if (sk_isdir(path)) {
-                expectations.reset(SkNEW_ARGS(DM::WriteTask::Expectations, (path)));
-            } else {
-                expectations.reset(SkNEW_ARGS(DM::JsonExpectations, (path)));
-            }
-        }
     }
 
     SkTDArray<TestRegistry::Factory> tests;
@@ -240,6 +239,8 @@ int dm_main() {
     kick_off_gms(gms, configs, gpuAPI, *expectations, &reporter, &tasks);
     kick_off_skps(skps, &reporter, &tasks);
     tasks.wait();
+
+    DM::WriteTask::DumpJson();
 
     SkDebugf("\n");
 #ifdef SK_DEBUG

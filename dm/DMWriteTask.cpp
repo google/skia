@@ -4,12 +4,11 @@
 #include "SkColorPriv.h"
 #include "SkCommonFlags.h"
 #include "SkImageEncoder.h"
+#include "SkMD5.h"
 #include "SkMallocPixelRef.h"
+#include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkString.h"
-
-DEFINE_bool(writePngOnly, false, "If true, don't encode raw bitmap after .png data.  "
-                                 "This means -r won't work, but skdiff will still work fine.");
 
 namespace DM {
 
@@ -27,23 +26,33 @@ static int split_suffixes(int N, const char* name, SkTArray<SkString>* out) {
     return consumed;
 }
 
-inline static SkString find_gm_name(const Task& parent, SkTArray<SkString>* suffixList) {
+inline static SkString find_base_name(const Task& parent, SkTArray<SkString>* suffixList) {
     const int suffixes = parent.depth() + 1;
     const SkString& name = parent.name();
     const int totalSuffixLength = split_suffixes(suffixes, name.c_str(), suffixList);
     return SkString(name.c_str(), name.size() - totalSuffixLength);
 }
 
+struct JsonData {
+    SkString name;
+    SkMD5::Digest md5;
+};
+SkTArray<JsonData> gJsonData;
+SK_DECLARE_STATIC_MUTEX(gJsonDataLock);
+
 WriteTask::WriteTask(const Task& parent, SkBitmap bitmap)
     : CpuTask(parent)
-    , fGmName(find_gm_name(parent, &fSuffixes))
+    , fFullName(parent.name())
+    , fBaseName(find_base_name(parent, &fSuffixes))
     , fBitmap(bitmap)
     , fData(NULL)
-    , fExtension(".png") {}
+    , fExtension(".png") {
+}
 
 WriteTask::WriteTask(const Task& parent, SkStreamAsset *data, const char* ext)
     : CpuTask(parent)
-    , fGmName(find_gm_name(parent, &fSuffixes))
+    , fFullName(parent.name())
+    , fBaseName(find_base_name(parent, &fSuffixes))
     , fData(data)
     , fExtension(ext) {
     SkASSERT(fData.get());
@@ -56,79 +65,26 @@ void WriteTask::makeDirOrFail(SkString dir) {
     }
 }
 
-namespace {
-
-// One file that first contains a .png of an SkBitmap, then its raw pixels.
-// We use this custom format to avoid premultiplied/unpremultiplied pixel conversions.
-struct PngAndRaw {
-    static bool Encode(SkBitmap bitmap, const char* path) {
-        SkFILEWStream stream(path);
-        if (!stream.isValid()) {
-            SkDebugf("Can't write %s.\n", path);
-            return false;
-        }
-
-        // Write a PNG first for humans and other tools to look at.
-        if (!SkImageEncoder::EncodeStream(&stream, bitmap, SkImageEncoder::kPNG_Type, 100)) {
-            SkDebugf("Can't encode a PNG.\n");
-            return false;
-        }
-        if (FLAGS_writePngOnly) {
-            return true;
-        }
-
-        // Pad out so the raw pixels start 4-byte aligned.
-        const uint32_t maxPadding = 0;
-        const size_t pos = stream.bytesWritten();
-        stream.write(&maxPadding, SkAlign4(pos) - pos);
-
-        // Then write our secret raw pixels that only DM reads.
-        SkAutoLockPixels lock(bitmap);
-        return stream.write(bitmap.getPixels(), bitmap.getSize());
-    }
-
-    // This assumes bitmap already has allocated pixels of the correct size.
-    static bool Decode(const char* path, SkImageInfo info, SkBitmap* bitmap) {
-        SkAutoTUnref<SkData> data(SkData::NewFromFileName(path));
-        if (!data) {
-            SkDebugf("Can't read %s.\n", path);
-            return false;
-        }
-
-        // The raw pixels are at the end of the file.  We'll skip the encoded PNG at the front.
-        const size_t rowBytes = info.minRowBytes();  // Assume densely packed.
-        const size_t bitmapBytes = info.getSafeSize(rowBytes);
-        if (data->size() < bitmapBytes) {
-            SkDebugf("%s is too small to contain the bitmap we're looking for.\n", path);
-            return false;
-        }
-
-        const size_t offset = data->size() - bitmapBytes;
-        SkAutoTUnref<SkData> subset(
-                SkData::NewSubset(data, offset, bitmapBytes));
-        SkAutoTUnref<SkPixelRef> pixels(
-            SkMallocPixelRef::NewWithData(
-                    info, rowBytes, NULL/*ctable*/, subset));
-        SkASSERT(pixels);
-
-        bitmap->setInfo(info, rowBytes);
-        bitmap->setPixelRef(pixels);
-        return true;
-    }
-};
-
-// Does not take ownership of data.
-bool save_data_to_file(SkStreamAsset* data, const char* path) {
-    data->rewind();
+static bool save_bitmap_to_file(SkBitmap bitmap, const char* path) {
     SkFILEWStream stream(path);
-    if (!stream.isValid() || !stream.writeStream(data, data->getLength())) {
-        SkDebugf("Can't write %s.\n", path);
+    if (!stream.isValid() ||
+        !SkImageEncoder::EncodeStream(&stream, bitmap, SkImageEncoder::kPNG_Type, 100)) {
+        SkDebugf("Can't write a PNG to %s.\n", path);
         return false;
     }
     return true;
 }
 
-}  // namespace
+// Does not take ownership of data.
+static bool save_data_to_file(SkStreamAsset* data, const char* path) {
+    data->rewind();
+    SkFILEWStream stream(path);
+    if (!stream.isValid() || !stream.writeStream(data, data->getLength())) {
+        SkDebugf("Can't write data to %s.\n", path);
+        return false;
+    }
+    return true;
+}
 
 void WriteTask::draw() {
     SkString dir(FLAGS_writePath[0]);
@@ -143,11 +99,29 @@ void WriteTask::draw() {
         this->makeDirOrFail(dir);
     }
 
-    SkString path = SkOSPath::Join(dir.c_str(), fGmName.c_str());
+    // FIXME: MD5 is really slow.  Let's use a different hash.
+    SkMD5 hasher;
+    if (fData.get()) {
+        hasher.write(fData->getMemoryBase(), fData->getLength());
+    } else {
+        SkAutoLockPixels lock(fBitmap);
+        hasher.write(fBitmap.getPixels(), fBitmap.getSize());
+    }
+
+    JsonData entry;
+    entry.name = fFullName;
+    hasher.finish(entry.md5);
+
+    {
+        SkAutoMutexAcquire lock(&gJsonDataLock);
+        gJsonData.push_back(entry);
+    }
+
+    SkString path = SkOSPath::Join(dir.c_str(), fBaseName.c_str());
     path.append(fExtension);
 
     const bool ok = fData.get() ? save_data_to_file(fData.get(), path.c_str())
-                                : PngAndRaw::Encode(fBitmap, path.c_str());
+                                : save_bitmap_to_file(fBitmap, path.c_str());
     if (!ok) {
         this->fail();
     }
@@ -158,7 +132,7 @@ SkString WriteTask::name() const {
     for (int i = 0; i < fSuffixes.count(); i++) {
         name.appendf("%s/", fSuffixes[i].c_str());
     }
-    name.append(fGmName.c_str());
+    name.append(fBaseName.c_str());
     return name;
 }
 
@@ -166,38 +140,82 @@ bool WriteTask::shouldSkip() const {
     return FLAGS_writePath.isEmpty();
 }
 
-static SkString path_to_expected_image(const char* root, const Task& task) {
-    SkString filename = task.name();
+WriteTask::Expectations* WriteTask::Expectations::Create(const char* path) {
+    if (!FLAGS_writePath.isEmpty() && 0 == strcmp(FLAGS_writePath[0], path)) {
+        SkDebugf("We seem to be reading and writing %s concurrently.  This won't work.\n", path);
+        return NULL;
+    }
 
-    // We know that all names passed in here belong to top-level Tasks, which have a single suffix
-    // (8888, 565, gpu, etc.) indicating what subdirectory to look in.
-    SkTArray<SkString> suffixes;
-    const int suffixLength = split_suffixes(1, filename.c_str(), &suffixes);
-    SkASSERT(1 == suffixes.count());
+    SkString jsonPath;
+    if (sk_isdir(path)) {
+        jsonPath = SkOSPath::Join(path, "dm.json");
+    } else {
+        jsonPath.set(path);
+    }
 
-    // We'll look in root/suffix for images.
-    const SkString dir = SkOSPath::Join(root, suffixes[0].c_str());
+    SkAutoDataUnref json(SkData::NewFromFileName(jsonPath.c_str()));
+    if (NULL == json.get()) {
+        SkDebugf("Can't read %s!\n", jsonPath.c_str());
+        return NULL;
+    }
 
-    // Remove the suffix and tack on a .png.
-    filename.remove(filename.size() - suffixLength, suffixLength);
-    filename.append(".png");
-
-    return SkOSPath::Join(dir.c_str(), filename.c_str());
+    SkAutoTDelete<Expectations> expectations(SkNEW(Expectations));
+    Json::Reader reader;
+    const char* begin = (const char*)json->bytes();
+    const char* end   = begin + json->size();
+    if (!reader.parse(begin, end, expectations->fJson)) {
+        SkDebugf("Can't read %s as JSON!\n", jsonPath.c_str());
+        return NULL;
+    }
+    return expectations.detach();
 }
 
 bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
-    if (!FLAGS_writePath.isEmpty() && 0 == strcmp(FLAGS_writePath[0], fRoot)) {
-        SkDebugf("We seem to be reading and writing %s concurrently.  This won't work.\n", fRoot);
-        return false;
+    const SkString name = task.name();
+    if (fJson[name.c_str()].isNull()) {
+        return true;  // No expectations.
     }
 
-    const SkString path = path_to_expected_image(fRoot, task);
-    SkBitmap expected;
-    if (!PngAndRaw::Decode(path.c_str(), bitmap.info(), &expected)) {
-        return false;
+    const char* md5Ascii = fJson[name.c_str()].asCString();
+    uint8_t md5[16];
+
+    for (int j = 0; j < 16; j++) {
+        sscanf(md5Ascii + (j*2), "%02hhx", md5 + j);
     }
 
-    return BitmapsEqual(expected, bitmap);
+    SkMD5 hasher;
+    {
+        SkAutoLockPixels lock(bitmap);
+        hasher.write(bitmap.getPixels(), bitmap.getSize());
+    }
+    SkMD5::Digest digest;
+    hasher.finish(digest);
+
+    return 0 == memcmp(md5, digest.data, 16);
+}
+
+void WriteTask::DumpJson() {
+    if (FLAGS_writePath.isEmpty()) {
+        return;
+    }
+
+    // FIXME: This JSON format is a complete MVP strawman.
+    Json::Value root;
+    {
+        SkAutoMutexAcquire lock(&gJsonDataLock);
+        for (int i = 0; i < gJsonData.count(); i++) {
+            char md5Ascii[32];
+            for (int j = 0; j < 16; j++) {
+                sprintf(md5Ascii + (j*2), "%02x", gJsonData[i].md5.data[j]);
+            }
+            root[gJsonData[i].name.c_str()] = md5Ascii;
+        }
+    }
+
+    SkString path = SkOSPath::Join(FLAGS_writePath[0], "dm.json");
+    SkFILEWStream stream(path.c_str());
+    stream.writeText(Json::StyledWriter().write(root).c_str());
+    stream.flush();
 }
 
 }  // namespace DM
