@@ -95,7 +95,7 @@ void GrLayerHoister::DrawLayers(const SkPicture* picture,
             atlasCanvas->concat(layer->ctm());
 
             SkRecordPartialDraw(*picture->fRecord.get(), atlasCanvas, bound,
-                                layer->start(), layer->stop());
+                                layer->start()+1, layer->stop());
 
             atlasCanvas->restore();
         }
@@ -129,7 +129,7 @@ void GrLayerHoister::DrawLayers(const SkPicture* picture,
         layerCanvas->concat(layer->ctm());
 
         SkRecordPartialDraw(*picture->fRecord.get(), layerCanvas, bound,
-                            layer->start(), layer->stop());
+                            layer->start()+1, layer->stop());
 
         layerCanvas->flush();
     }

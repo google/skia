@@ -51,13 +51,18 @@ GrReplacements::lookupByStart(size_t start, int* searchStart) const {
 }
 
 static inline void draw_replacement_bitmap(const GrReplacements::ReplacementInfo* ri,
-                                           SkCanvas* canvas) {
+                                           SkCanvas* canvas,
+                                           const SkMatrix& initialMatrix) {
     SkRect src = SkRect::Make(ri->fSrcRect);
     SkRect dst = SkRect::MakeXYWH(SkIntToScalar(ri->fPos.fX),
                                   SkIntToScalar(ri->fPos.fY),
                                   SkIntToScalar(ri->fSrcRect.width()), 
                                   SkIntToScalar(ri->fSrcRect.height()));
+
+    canvas->save();
+    canvas->setMatrix(initialMatrix);
     ri->fImage->draw(canvas, &src, dst, ri->fPaint);
+    canvas->restore();
 }
 
 void GrRecordReplaceDraw(const SkRecord& record,
@@ -70,6 +75,8 @@ void GrRecordReplaceDraw(const SkRecord& record,
     SkRecords::Draw draw(canvas);
     const GrReplacements::ReplacementInfo* ri = NULL;
     int searchStart = 0;
+
+    const SkMatrix initialMatrix = canvas->getTotalMatrix();
 
     if (bbh) {
         // Draw only ops that affect pixels in the canvas's current clip.
@@ -89,7 +96,7 @@ void GrRecordReplaceDraw(const SkRecord& record,
             }
             ri = replacements->lookupByStart((uintptr_t)ops[i], &searchStart);
             if (ri) {
-                draw_replacement_bitmap(ri, canvas);
+                draw_replacement_bitmap(ri, canvas, initialMatrix);
 
                 while ((uintptr_t)ops[i] < ri->fStop) {
                     ++i;
@@ -107,8 +114,7 @@ void GrRecordReplaceDraw(const SkRecord& record,
             }
             ri = replacements->lookupByStart(i, &searchStart);
             if (ri) {
-                draw_replacement_bitmap(ri, canvas);
-
+                draw_replacement_bitmap(ri, canvas, initialMatrix);
                 i = ri->fStop;
                 continue;
             }
