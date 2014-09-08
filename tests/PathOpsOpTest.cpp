@@ -3771,7 +3771,52 @@ static void bufferOverflow(skiatest::Reporter* reporter, const char* filename) {
     testPathFailOp(reporter, path, pathB, kUnion_PathOp, filename);
 }
 
+// m 100,0 60,170 -160,-110 200,0 -170,11000000000 z
+static void fuzz433(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path1, path2;
+    path1.moveTo(100,0);
+    path1.lineTo(60,170);
+    path1.lineTo(-160,-110);
+    path1.lineTo(200,0);
+    path1.lineTo(-170,11000000000.0f);
+    path1.close();
+
+    path2.moveTo(100 + 20,0 + 20);
+    path2.lineTo(60 + 20,170 + 20);
+    path2.lineTo(-160 + 20,-110 + 20);
+    path2.lineTo(200 + 20,0 + 20);
+    path2.lineTo(-170 + 20,11000000000.0f + 20);
+    path2.close();
+
+    testPathFailOp(reporter, path1, path2, kIntersect_PathOp, filename);
+}
+
+static void fuzz433b(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path1, path2;
+    path1.setFillType(SkPath::kEvenOdd_FillType);
+    path1.moveTo(140, 40);
+    path1.lineTo(200, 210);
+    path1.lineTo(40, 100);
+    path1.lineTo(240, 100);
+    path1.lineTo(70, 1.1e+10f);
+    path1.lineTo(140, 40);
+    path1.close();
+
+    path1.setFillType(SkPath::kWinding_FillType);
+    path2.moveTo(190, 60);
+    path2.lineTo(250, 230);
+    path2.lineTo(90, 120);
+    path2.lineTo(290, 120);
+    path2.lineTo(120, 1.1e+10f);
+    path2.lineTo(190, 60);
+    path2.close();
+
+    testPathFailOp(reporter, path1, path2, kUnion_PathOp, filename);
+}
+
 static struct TestDesc failTests[] = {
+    TEST(fuzz433b),
+    TEST(fuzz433),
     TEST(bufferOverflow),
 };
 

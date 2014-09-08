@@ -1294,7 +1294,8 @@ void SkOpSegment::addTCoincident(const SkPoint& startPt, const SkPoint& endPt, d
     double testT = test->fT;
     SkOpSpan* oTest = &other->fTs[oIndex];
     const SkPoint* oTestPt = &oTest->fPt;
-    SkASSERT(AlmostEqualUlps(*testPt, *oTestPt));
+    // paths with extreme data will fail this test and eject out of pathops altogether later on
+    // SkASSERT(AlmostEqualUlps(*testPt, *oTestPt));
     do {
         SkASSERT(test->fT < 1);
         SkASSERT(oTest->fT < 1);
@@ -1477,6 +1478,9 @@ bool SkOpSegment::calcAngles() {
     const SkOpSpan* span = &fTs[0];
     if (firstSpan->fT == 0 || span->fTiny || span->fOtherT != 1 || span->fOther->multipleEnds()) {
         index = findStartSpan(0);  // curve start intersects
+        if (fTs[index].fT == 0) {
+            return false;
+        }
         SkASSERT(index > 0);
         if (activePrior >= 0) {
             addStartSpan(index);
