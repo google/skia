@@ -1544,12 +1544,9 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
 }
 
 void SkPictureRecord::addTextBlob(const SkTextBlob *blob) {
-    int index = fTextBlobRefs.find(blob);
-    if (index < 0) {    // not found
-        index = fTextBlobRefs.count();
-        *fTextBlobRefs.append() = blob;
-        blob->ref();
-    }
+    int index = fTextBlobRefs.count();
+    *fTextBlobRefs.append() = blob;
+    blob->ref();
     // follow the convention of recording a 1-based index
     this->addInt(index + 1);
 }
