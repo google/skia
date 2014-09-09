@@ -1265,6 +1265,11 @@ protected:
                         SkIRect* intersection,
                         const SkImageFilter* imageFilter = NULL);
 
+    // Called by child classes that override clipPath and clipRRect to only
+    // track fast conservative clip bounds, rather than exact clips.
+    void updateClipConservativelyUsingBounds(const SkRect&, SkRegion::Op,
+                                             bool inverseFilled);
+
     // notify our surface (if we have one) that we are about to draw, so it
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify();
@@ -1304,22 +1309,13 @@ private:
     friend class SkDebugCanvas;     // needs experimental fAllowSimplifyClip
     friend class SkDeferredDevice;  // needs getTopDevice()
     friend class SkSurface_Raster;  // needs getDevice()
-    friend class SkRecorder;        // InitFlags
-    friend class SkNoSaveLayerCanvas;   // InitFlags
     
-    enum InitFlags {
-        kDefault_InitFlags                  = 0,
-        kConservativeRasterClip_InitFlag    = 1 << 0,
-    };
-    SkCanvas(int width, int height, InitFlags flags);
-    SkCanvas(SkBaseDevice*, InitFlags flags);
-
     // needs gettotalclip()
     friend SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas*);
     
     SkBaseDevice* createLayerDevice(const SkImageInfo&);
 
-    SkBaseDevice* init(SkBaseDevice*, InitFlags);
+    SkBaseDevice* init(SkBaseDevice*);
 
     /**
      *  DEPRECATED
@@ -1369,7 +1365,6 @@ private:
     mutable bool   fCachedLocalClipBoundsDirty;
     bool fAllowSoftClip;
     bool fAllowSimplifyClip;
-    bool fConservativeRasterClip;
 
     const SkRect& getLocalClipBounds() const {
         if (fCachedLocalClipBoundsDirty) {

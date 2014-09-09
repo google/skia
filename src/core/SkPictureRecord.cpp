@@ -788,7 +788,7 @@ size_t SkPictureRecord::recordClipRect(const SkRect& rect, SkRegion::Op op, bool
 
 void SkPictureRecord::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     this->recordClipRRect(rrect, op, kSoft_ClipEdgeStyle == edgeStyle);
-    this->INHERITED::onClipRRect(rrect, op, edgeStyle);
+    this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);
 }
 
 size_t SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
@@ -810,7 +810,9 @@ size_t SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkRegion::Op op, b
 void SkPictureRecord::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     int pathID = this->addPathToHeap(path);
     this->recordClipPath(pathID, op, kSoft_ClipEdgeStyle == edgeStyle);
-    this->INHERITED::onClipPath(path, op, edgeStyle);
+
+    this->updateClipConservativelyUsingBounds(path.getBounds(), op,
+                                              path.isInverseFillType());
 }
 
 size_t SkPictureRecord::recordClipPath(int pathID, SkRegion::Op op, bool doAA) {

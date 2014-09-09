@@ -372,8 +372,6 @@ private:
     // TODO: move to SkBitmapDevice
     virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) {}
 
-    virtual bool forceConservativeRasterClip() const { return false; }
-
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }
     // just called by SkCanvas for saveLayer

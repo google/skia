@@ -10,10 +10,9 @@
 SkDeviceLooper::SkDeviceLooper(const SkBitmap& base,
                                const SkRasterClip& rc,
                                const SkIRect& bounds, bool aa)
-    : fBaseBitmap(base)
-    , fBaseRC(rc)
-    , fSubsetRC(rc.isForceConservativeRects())
-    , fDelta(aa ? kAA_Delta : kBW_Delta)
+: fBaseBitmap(base)
+, fBaseRC(rc)
+, fDelta(aa ? kAA_Delta : kBW_Delta)
 {
     // sentinels that next() has not yet been called, and so our mapper functions
     // should not be called either.

@@ -11,7 +11,7 @@
 
 // SkCanvas will fail in mysterious ways if it doesn't know the real width and height.
 SkRecorder::SkRecorder(SkRecord* record, int width, int height)
-    : SkCanvas(width, height, SkCanvas::kConservativeRasterClip_InitFlag)
+    : SkCanvas(width, height)
     , fRecord(record)
     , fSaveLayerCount(0) {}
 
@@ -280,12 +280,12 @@ void SkRecorder::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle e
 }
 
 void SkRecorder::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-    INHERITED(onClipRRect, rrect, op, edgeStyle);
+    INHERITED(updateClipConservativelyUsingBounds, rrect.getBounds(), op, false);
     APPEND(ClipRRect, this->devBounds(), rrect, op, edgeStyle == kSoft_ClipEdgeStyle);
 }
 
 void SkRecorder::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-    INHERITED(onClipPath, path, op, edgeStyle);
+    INHERITED(updateClipConservativelyUsingBounds, path.getBounds(), op, path.isInverseFillType());
     APPEND(ClipPath, this->devBounds(), delay_copy(path), op, edgeStyle == kSoft_ClipEdgeStyle);
 }
 
