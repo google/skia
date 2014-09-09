@@ -64,18 +64,9 @@ void WriteTask::makeDirOrFail(SkString dir) {
     }
 }
 
-static SkStreamAsset* encode_to_png(const SkBitmap& bitmap) {
-    SkDynamicMemoryWStream png;
-    if (!SkImageEncoder::EncodeStream(&png, bitmap, SkImageEncoder::kPNG_Type, 100)) {
-        return NULL;
-    }
-    png.copyToData()->unref();  // Forces detachAsStream() to be contiguous.
-    return png.detachAsStream();
-}
-
-static SkString get_md5(SkStreamAsset* src) {
+static SkString get_md5(const void* ptr, size_t len) {
     SkMD5 hasher;
-    hasher.write(src->getMemoryBase(), src->getLength());
+    hasher.write(ptr, len);
     SkMD5::Digest digest;
     hasher.finish(digest);
 
@@ -96,14 +87,14 @@ SkTArray<JsonData> gJsonData;
 SK_DECLARE_STATIC_MUTEX(gJsonDataLock);
 
 void WriteTask::draw() {
-    if (!fData.get()) {
-        fData.reset(encode_to_png(fBitmap));
-        if (!fData.get()) {
-            this->fail("Can't encode to PNG.");
-        }
+    SkString md5;
+    {
+        SkAutoLockPixels lock(fBitmap);
+        md5 = fData ? get_md5(fData->getMemoryBase(), fData->getLength())
+                    : get_md5(fBitmap.getPixels(), fBitmap.getSize());
     }
 
-    JsonData entry = { fBaseName, fSuffixes[0], fSourceType, get_md5(fData) };
+    JsonData entry = { fBaseName, fSuffixes[0], fSourceType, md5 };
     {
         SkAutoMutexAcquire lock(&gJsonDataLock);
         gJsonData.push_back(entry);
@@ -120,7 +111,7 @@ void WriteTask::draw() {
     SkString path;
     if (FLAGS_nameByHash) {
         // Flat directory of hash-named files.
-        path = SkOSPath::Join(dir.c_str(), entry.md5.c_str());
+        path = SkOSPath::Join(dir.c_str(), md5.c_str());
         path.append(fExtension);
         // We're content-addressed, so it's possible two threads race to write
         // this file.  We let the first one win.  This also means we won't
@@ -145,8 +136,9 @@ void WriteTask::draw() {
         return this->fail("Can't open file.");
     }
 
-    fData->rewind();
-    if (!file.writeStream(fData, fData->getLength())) {
+    bool ok = fData ? file.writeStream(fData, fData->getLength())
+                    : SkImageEncoder::EncodeStream(&file, fBitmap, SkImageEncoder::kPNG_Type, 100);
+    if (!ok) {
         return this->fail("Can't write to file.");
     }
 }
