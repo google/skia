@@ -817,7 +817,12 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     devRect.roundOut(&ir);
     if (paint.getStyle() != SkPaint::kFill_Style) {
         // extra space for hairlines
-        ir.inset(-1, -1);
+        if (paint.getStrokeWidth() == 0) {
+            ir.outset(1, 1);
+        } else {
+            SkScalar radius = SkScalarHalf(paint.getStrokeWidth());
+            ir.outset(radius, radius);
+        }
     }
     if (fRC->quickReject(ir)) {
         return;
