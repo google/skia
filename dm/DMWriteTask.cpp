@@ -3,6 +3,7 @@
 #include "DMUtil.h"
 #include "SkColorPriv.h"
 #include "SkCommonFlags.h"
+#include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkMD5.h"
 #include "SkMallocPixelRef.h"
@@ -156,48 +157,6 @@ SkString WriteTask::name() const {
 
 bool WriteTask::shouldSkip() const {
     return FLAGS_writePath.isEmpty();
-}
-
-WriteTask::Expectations* WriteTask::Expectations::Create(const char* path) {
-    if (!FLAGS_writePath.isEmpty() && 0 == strcmp(FLAGS_writePath[0], path)) {
-        SkDebugf("We seem to be reading and writing %s concurrently.  This won't work.\n", path);
-        return NULL;
-    }
-
-    SkString jsonPath;
-    if (sk_isdir(path)) {
-        jsonPath = SkOSPath::Join(path, "dm.json");
-    } else {
-        jsonPath.set(path);
-    }
-
-    SkAutoDataUnref json(SkData::NewFromFileName(jsonPath.c_str()));
-    if (NULL == json.get()) {
-        SkDebugf("Can't read %s!\n", jsonPath.c_str());
-        return NULL;
-    }
-
-    SkAutoTDelete<Expectations> expectations(SkNEW(Expectations));
-    Json::Reader reader;
-    const char* begin = (const char*)json->bytes();
-    const char* end   = begin + json->size();
-    if (!reader.parse(begin, end, expectations->fJson)) {
-        SkDebugf("Can't read %s as JSON!\n", jsonPath.c_str());
-        return NULL;
-    }
-    return expectations.detach();
-}
-
-bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
-    const SkString name = task.name();
-    if (fJson[name.c_str()].isNull()) {
-        return true;  // No expectations.
-    }
-
-    const char* expected = fJson[name.c_str()].asCString();
-    SkAutoTDelete<SkStreamAsset> png(encode_to_png(bitmap));
-    SkString actual = get_md5(png);
-    return actual.equals(expected);
 }
 
 void WriteTask::DumpJson() {

@@ -30,7 +30,6 @@
   'sources': [
     '../dm/DM.cpp',
     '../dm/DMCpuGMTask.cpp',
-    '../dm/DMExpectationsTask.cpp',
     '../dm/DMGpuGMTask.cpp',
     '../dm/DMPDFRasterizeTask.cpp',
     '../dm/DMPDFTask.cpp',
@@ -45,7 +44,6 @@
     '../dm/DMUtil.cpp',
     '../dm/DMWriteTask.cpp',
     '../gm/gm.cpp',
-    '../gm/gm_expectations.cpp',
 
     '../src/utils/SkTaskGroup.cpp',
 

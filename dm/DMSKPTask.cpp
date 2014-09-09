@@ -1,5 +1,4 @@
 #include "DMSKPTask.h"
-#include "DMExpectationsTask.h"
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 
@@ -13,12 +12,10 @@ namespace DM {
 
 SKPTask::SKPTask(Reporter* r,
                  TaskRunner* tr,
-                 const Expectations& expectations,
                  const SkPicture* pic,
                  SkString filename)
     : CpuTask(r, tr)
     , fPicture(SkRef(pic))
-    , fExpectations(expectations)
     , fName(FileToTaskName(filename)) {}
 
 void SKPTask::draw() {
@@ -29,7 +26,6 @@ void SKPTask::draw() {
     DrawPicture(*fPicture, &bitmap);
 
     this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
-    this->spawnChild(SkNEW_ARGS(ExpectationsTask, (*this, fExpectations, bitmap)));
 }
 
 }  // namespace DM

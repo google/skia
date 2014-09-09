@@ -6,7 +6,6 @@
  */
 
 #include "DMPDFRasterizeTask.h"
-#include "DMExpectationsTask.h"
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 #include "SkBitmap.h"

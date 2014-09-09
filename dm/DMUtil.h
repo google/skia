@@ -3,7 +3,7 @@
 
 #include "SkBitmap.h"
 #include "SkString.h"
-#include "gm_expectations.h"
+#include "gm.h"
 
 class SkBBHFactory;
 

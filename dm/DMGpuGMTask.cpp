@@ -1,6 +1,5 @@
 #include "DMGpuGMTask.h"
 
-#include "DMExpectationsTask.h"
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 #include "SkCommandLineFlags.h"
@@ -13,14 +12,12 @@ GpuGMTask::GpuGMTask(const char* config,
                      Reporter* reporter,
                      TaskRunner* taskRunner,
                      skiagm::GMRegistry::Factory gmFactory,
-                     const Expectations& expectations,
                      GrContextFactory::GLContextType contextType,
                      GrGLStandard gpuAPI,
                      int sampleCount)
     : GpuTask(reporter, taskRunner)
     , fGM(gmFactory(NULL))
     , fName(UnderJoin(fGM->getName(), config))
-    , fExpectations(expectations)
     , fContextType(contextType)
     , fGpuAPI(gpuAPI)
     , fSampleCount(sampleCount)
@@ -47,7 +44,6 @@ void GpuGMTask::draw(GrContextFactory* grFactory) {
     bitmap.setInfo(info);
     canvas->readPixels(&bitmap, 0, 0);
 
-    this->spawnChild(SkNEW_ARGS(ExpectationsTask, (*this, fExpectations, bitmap)));
     this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
 }
 

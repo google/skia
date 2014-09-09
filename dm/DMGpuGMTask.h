@@ -1,7 +1,6 @@
 #ifndef DMGpuGMTask_DEFINED
 #define DMGpuGMTask_DEFINED
 
-#include "DMExpectations.h"
 #include "DMGpuSupport.h"
 #include "DMReporter.h"
 #include "DMTask.h"
@@ -21,7 +20,6 @@ public:
               Reporter*,
               TaskRunner*,
               skiagm::GMRegistry::Factory,
-              const Expectations&,
               GrContextFactory::GLContextType,
               GrGLStandard gpuAPI,
               int sampleCount);
@@ -33,7 +31,6 @@ public:
 private:
     SkAutoTDelete<skiagm::GM> fGM;
     const SkString fName;
-    const Expectations& fExpectations;
     const GrContextFactory::GLContextType fContextType;
     GrGLStandard fGpuAPI;
     const int fSampleCount;

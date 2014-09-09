@@ -1,5 +1,4 @@
 #include "DMCpuGMTask.h"
-#include "DMExpectationsTask.h"
 #include "DMPipeTask.h"
 #include "DMQuiltTask.h"
 #include "DMSerializeTask.h"
@@ -12,13 +11,11 @@ CpuGMTask::CpuGMTask(const char* config,
                      Reporter* reporter,
                      TaskRunner* taskRunner,
                      skiagm::GMRegistry::Factory gmFactory,
-                     const Expectations& expectations,
                      SkColorType colorType)
     : CpuTask(reporter, taskRunner)
     , fGMFactory(gmFactory)
     , fGM(fGMFactory(NULL))
     , fName(UnderJoin(fGM->getName(), config))
-    , fExpectations(expectations)
     , fColorType(colorType)
     {}
 
@@ -32,8 +29,6 @@ void CpuGMTask::draw() {
     canvas.flush();
 
 #define SPAWN(ChildTask, ...) this->spawnChild(SkNEW_ARGS(ChildTask, (*this, __VA_ARGS__)))
-    SPAWN(ExpectationsTask, fExpectations, bm);
-
     SPAWN(PipeTask, fGMFactory(NULL), bm, PipeTask::kInProcess_Mode);
     SPAWN(PipeTask, fGMFactory(NULL), bm, PipeTask::kCrossProcess_Mode);
     SPAWN(PipeTask, fGMFactory(NULL), bm, PipeTask::kSharedAddress_Mode);

@@ -1,7 +1,6 @@
 #ifndef DMPDFTask_DEFINED
 #define DMPDFTask_DEFINED
 
-#include "DMExpectations.h"
 #include "DMPDFRasterizeTask.h"
 #include "DMTask.h"
 #include "SkBitmap.h"

@@ -43,11 +43,6 @@ using skiatest::TestRegistry;
 static const char kGpuAPINameGL[] = "gl";
 static const char kGpuAPINameGLES[] = "gles";
 
-DEFINE_string2(expectations, r, "",
-               "If a directory, compare generated images against images under this path. "
-               "If a file, compare generated images against JSON expectations at this path."
-);
-
 DEFINE_bool(gms, true, "Run GMs?");
 DEFINE_bool(tests, true, "Run tests?");
 DEFINE_bool(reportUsedChars, false, "Output test font construction data to be pasted into"
@@ -77,7 +72,6 @@ static const GrContextFactory::GLContextType mesa   = GrContextFactory::kMESA_GL
 static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
                          const SkTArray<SkString>& configs,
                          GrGLStandard gpuAPI,
-                         const DM::Expectations& expectations,
                          DM::Reporter* reporter,
                          DM::TaskRunner* tasks) {
 #define START(name, type, ...)                                                              \
@@ -87,20 +81,20 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
     for (int i = 0; i < gms.count(); i++) {
         for (int j = 0; j < configs.count(); j++) {
 
-            START("565",        CpuGMTask, expectations, kRGB_565_SkColorType);
-            START("8888",       CpuGMTask, expectations, kN32_SkColorType);
-            START("gpu",        GpuGMTask, expectations, native, gpuAPI, 0);
-            START("msaa4",      GpuGMTask, expectations, native, gpuAPI, 4);
-            START("msaa16",     GpuGMTask, expectations, native, gpuAPI, 16);
-            START("nvprmsaa4",  GpuGMTask, expectations, nvpr,   gpuAPI, 4);
-            START("nvprmsaa16", GpuGMTask, expectations, nvpr,   gpuAPI, 16);
-            START("gpunull",    GpuGMTask, expectations, null,   gpuAPI, 0);
-            START("gpudebug",   GpuGMTask, expectations, debug,  gpuAPI, 0);
+            START("565",        CpuGMTask, kRGB_565_SkColorType);
+            START("8888",       CpuGMTask, kN32_SkColorType);
+            START("gpu",        GpuGMTask, native, gpuAPI, 0);
+            START("msaa4",      GpuGMTask, native, gpuAPI, 4);
+            START("msaa16",     GpuGMTask, native, gpuAPI, 16);
+            START("nvprmsaa4",  GpuGMTask, nvpr,   gpuAPI, 4);
+            START("nvprmsaa16", GpuGMTask, nvpr,   gpuAPI, 16);
+            START("gpunull",    GpuGMTask, null,   gpuAPI, 0);
+            START("gpudebug",   GpuGMTask, debug,  gpuAPI, 0);
 #if SK_ANGLE
-            START("angle",      GpuGMTask, expectations, angle,  gpuAPI, 0);
+            START("angle",      GpuGMTask, angle,  gpuAPI, 0);
 #endif
 #if SK_MESA
-            START("mesa",       GpuGMTask, expectations, mesa,   gpuAPI, 0);
+            START("mesa",       GpuGMTask, mesa,   gpuAPI, 0);
 #endif
             START("pdf",        PDFTask,   RASTERIZE_PDF_PROC);
         }
@@ -136,7 +130,6 @@ static void find_skps(SkTArray<SkString>* skps) {
 }
 
 static void kick_off_skps(const SkTArray<SkString>& skps,
-                          const DM::Expectations& expectations,
                           DM::Reporter* reporter,
                           DM::TaskRunner* tasks) {
     for (int i = 0; i < skps.count(); ++i) {
@@ -153,9 +146,8 @@ static void kick_off_skps(const SkTArray<SkString>& skps,
         }
 
         SkString filename = SkOSPath::Basename(skps[i].c_str());
-        tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, expectations, pic, filename)));
-        tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic, filename,
-                                            RASTERIZE_PDF_PROC)));
+        tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, pic, filename)));
+        tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic, filename, RASTERIZE_PDF_PROC)));
     }
 }
 
@@ -211,14 +203,6 @@ int dm_main() {
 
     GrGLStandard gpuAPI = get_gl_standard();
 
-    SkAutoTDelete<DM::Expectations> expectations(SkNEW(DM::Expectations));
-    if (FLAGS_expectations.count() > 0) {
-        expectations.reset(DM::WriteTask::Expectations::Create(FLAGS_expectations[0]));
-        if (!expectations.get()) {
-            return 1;
-        }
-    }
-
     SkTDArray<GMRegistry::Factory> gms;
     if (FLAGS_gms) {
         append_matching_factories<GM>(GMRegistry::Head(), &gms);
@@ -238,8 +222,8 @@ int dm_main() {
 
     DM::TaskRunner tasks;
     kick_off_tests(tests, &reporter, &tasks);
-    kick_off_gms(gms, configs, gpuAPI, *expectations, &reporter, &tasks);
-    kick_off_skps(skps, *expectations, &reporter, &tasks);
+    kick_off_gms(gms, configs, gpuAPI, &reporter, &tasks);
+    kick_off_skps(skps, &reporter, &tasks);
     tasks.wait();
 
     DM::WriteTask::DumpJson();

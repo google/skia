@@ -1,7 +1,6 @@
 #ifndef DMCpuGMTask_DEFINED
 #define DMCpuGMTask_DEFINED
 
-#include "DMExpectations.h"
 #include "DMReporter.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"
@@ -21,7 +20,6 @@ public:
               Reporter*,
               TaskRunner*,
               skiagm::GMRegistry::Factory,
-              const Expectations&,
               SkColorType);
 
     virtual void draw() SK_OVERRIDE;
@@ -32,7 +30,6 @@ private:
     skiagm::GMRegistry::Factory fGMFactory;
     SkAutoTDelete<skiagm::GM> fGM;
     const SkString fName;
-    const Expectations& fExpectations;
     const SkColorType fColorType;
 };
 

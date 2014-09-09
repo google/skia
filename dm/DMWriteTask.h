@@ -1,7 +1,6 @@
 #ifndef DMWriteTask_DEFINED
 #define DMWriteTask_DEFINED
 
-#include "DMExpectations.h"
 #include "DMTask.h"
 #include "SkBitmap.h"
 #include "SkJSONCPP.h"
@@ -28,16 +27,6 @@ public:
     virtual void draw() SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE;
-
-    // Reads JSON file WriteTask wrote under root and compares the bitmap with checksums inside.
-    class Expectations : public DM::Expectations {
-    public:
-        static Expectations* Create(const char*);
-        bool check(const Task& task, SkBitmap bitmap) const SK_OVERRIDE;
-    private:
-        Expectations() {}
-        Json::Value fJson;
-    };
 
     static void DumpJson();
 
