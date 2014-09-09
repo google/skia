@@ -14,6 +14,8 @@
 #ifndef _SECCOMP_BPF_H_
 #define _SECCOMP_BPF_H_
 
+#ifndef SK_UNSAFE_BUILD_DESKTOP_ONLY
+
 #define _GNU_SOURCE 1
 #include <stdio.h>
 #include <stddef.h>
@@ -61,5 +63,7 @@ struct seccomp_data {
 
 #define KILL_PROCESS \
     BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
+
+#endif /* SK_UNSAFE_BUILD_DESKTOP_ONLY */
 
 #endif /* _SECCOMP_BPF_H_ */

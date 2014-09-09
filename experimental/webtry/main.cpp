@@ -23,6 +23,8 @@ DEFINE_string(source, "", "Filename of the source image.");
 extern SkBitmap source;
 
 static bool install_syscall_filter() {
+
+#ifndef SK_UNSAFE_BUILD_DESKTOP_ONLY
     struct sock_filter filter[] = {
         /* Grab the system call number. */
         EXAMINE_SYSCALL,
@@ -64,6 +66,9 @@ failed:
         fprintf(stderr, "SECCOMP_FILTER is not available. :(\n");
     }
     return false;
+#else
+    return true;
+#endif /* SK_UNSAFE_BUILD_DESKTOP_ONLY */
 }
 
 static void setLimits() {
