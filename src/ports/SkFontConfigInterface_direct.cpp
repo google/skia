@@ -221,7 +221,7 @@ FontEquivClass GetFontEquivClass(const char* fontname)
         { PGOTHIC, "MS PGothic" },
         { PGOTHIC, "\xef\xbc\xad\xef\xbc\xb3 \xef\xbc\xb0"
                    "\xe3\x82\xb4\xe3\x82\xb7\xe3\x83\x83\xe3\x82\xaf" },
-        { PGOTHIC, "Noto Sans CJK Japanese" },
+        { PGOTHIC, "Noto Sans CJK JP" },
         { PGOTHIC, "IPAPGothic" },
         { PGOTHIC, "MotoyaG04Gothic" },
 
@@ -260,7 +260,7 @@ FontEquivClass GetFontEquivClass(const char* fontname)
         // 黑体
         { SIMHEI, "Simhei" },
         { SIMHEI, "\xe9\xbb\x91\xe4\xbd\x93" },
-        { SIMHEI, "Noto Sans CJK Simplified Chinese" },
+        { SIMHEI, "Noto Sans CJK SC" },
         { SIMHEI, "MYingHeiGB18030" },
         { SIMHEI, "MYingHeiB5HK" },
 
