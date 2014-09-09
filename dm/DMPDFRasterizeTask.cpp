@@ -29,7 +29,7 @@ void PDFRasterizeTask::draw() {
     SkBitmap bitmap;
 
     if (fRasterize(fPdf.get(), &bitmap)) {
-        this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
+        this->spawnChild(SkNEW_ARGS(WriteTask, (*this, "PDF", bitmap)));
     } else {
         this->fail();
     }

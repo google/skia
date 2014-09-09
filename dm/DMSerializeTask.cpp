@@ -39,7 +39,7 @@ void SerializeTask::draw() {
     DrawPicture(*reconstructed, &bitmap);
     if (!BitmapsEqual(bitmap, fReference)) {
         this->fail();
-        this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
+        this->spawnChild(SkNEW_ARGS(WriteTask, (*this, "GM", bitmap)));
     }
 }
 

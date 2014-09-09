@@ -43,7 +43,7 @@ void CpuGMTask::draw() {
     SPAWN(SerializeTask, fGMFactory(NULL), bm, SerializeTask::kNormal_Mode);
     SPAWN(SerializeTask, fGMFactory(NULL), bm, SerializeTask::kSkRecord_Mode);
 
-    SPAWN(WriteTask, bm);
+    SPAWN(WriteTask, "GM", bm);
 #undef SPAWN
 }
 

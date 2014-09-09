@@ -66,11 +66,6 @@ DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
 DEFINE_int32(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
 DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
-DEFINE_string(properties, "",
-              "Space-separated key/value pairs to add to JSON identifying this nanobench run.");
-DEFINE_string(key, "",
-              "Space-separated key/value pairs to add to JSON identifying this bench config.");
-
 DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
 DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
@@ -492,7 +487,7 @@ public:
                     SkTileGridFactory factory(info);
                     SkPictureRecorder recorder;
                     pic->playback(recorder.beginRecording(pic->cullRect().width(),
-                                                          pic->cullRect().height(), 
+                                                          pic->cullRect().height(),
                                                           &factory));
                     pic.reset(recorder.endRecording());
                 }

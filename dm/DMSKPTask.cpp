@@ -25,7 +25,7 @@ void SKPTask::draw() {
     AllocatePixels(kN32_SkColorType, width, height, &bitmap);
     DrawPicture(*fPicture, &bitmap);
 
-    this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
+    this->spawnChild(SkNEW_ARGS(WriteTask, (*this, "SKP", bitmap)));
 }
 
 }  // namespace DM

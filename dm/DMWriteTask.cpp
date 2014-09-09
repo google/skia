@@ -36,26 +36,22 @@ inline static SkString find_base_name(const Task& parent, SkTArray<SkString>* su
     return SkString(name.c_str(), name.size() - totalSuffixLength);
 }
 
-struct JsonData {
-    SkString name;
-    SkString md5;  // In ASCII, so 32 bytes long.
-};
-SkTArray<JsonData> gJsonData;
-SK_DECLARE_STATIC_MUTEX(gJsonDataLock);
-
-WriteTask::WriteTask(const Task& parent, SkBitmap bitmap)
+WriteTask::WriteTask(const Task& parent, const char* sourceType, SkBitmap bitmap)
     : CpuTask(parent)
-    , fFullName(parent.name())
     , fBaseName(find_base_name(parent, &fSuffixes))
+    , fSourceType(sourceType)
     , fBitmap(bitmap)
     , fData(NULL)
     , fExtension(".png") {
 }
 
-WriteTask::WriteTask(const Task& parent, SkStreamAsset *data, const char* ext)
+WriteTask::WriteTask(const Task& parent,
+                     const char* sourceType,
+                     SkStreamAsset *data,
+                     const char* ext)
     : CpuTask(parent)
-    , fFullName(parent.name())
     , fBaseName(find_base_name(parent, &fSuffixes))
+    , fSourceType(sourceType)
     , fData(data)
     , fExtension(ext) {
     SkASSERT(fData.get());
@@ -90,6 +86,15 @@ static SkString get_md5(SkStreamAsset* src) {
     return md5;
 }
 
+struct JsonData {
+    SkString name;        // E.g. "ninepatch-stretch", "desk-gws_skp"
+    SkString config;      //      "gpu", "8888"
+    SkString sourceType;  //      "GM", "SKP"
+    SkString md5;  // In ASCII, so 32 bytes long.
+};
+SkTArray<JsonData> gJsonData;
+SK_DECLARE_STATIC_MUTEX(gJsonDataLock);
+
 void WriteTask::draw() {
     if (!fData.get()) {
         fData.reset(encode_to_png(fBitmap));
@@ -98,7 +103,7 @@ void WriteTask::draw() {
         }
     }
 
-    JsonData entry = { fFullName, get_md5(fData) };
+    JsonData entry = { fBaseName, fSuffixes[0], fSourceType, get_md5(fData) };
     {
         SkAutoMutexAcquire lock(&gJsonDataLock);
         gJsonData.push_back(entry);
@@ -164,12 +169,25 @@ void WriteTask::DumpJson() {
         return;
     }
 
-    // FIXME: This JSON format is a complete MVP strawman.
     Json::Value root;
+
+    for (int i = 1; i < FLAGS_properties.count(); i += 2) {
+        root[FLAGS_properties[i-1]] = FLAGS_properties[i];
+    }
+    for (int i = 1; i < FLAGS_key.count(); i += 2) {
+        root["key"][FLAGS_key[i-1]] = FLAGS_key[i];
+    }
+
     {
         SkAutoMutexAcquire lock(&gJsonDataLock);
         for (int i = 0; i < gJsonData.count(); i++) {
-            root[gJsonData[i].name.c_str()] = gJsonData[i].md5.c_str();
+            Json::Value result;
+            result["key"]["name"]            = gJsonData[i].name.c_str();
+            result["key"]["config"]          = gJsonData[i].config.c_str();
+            result["options"]["source_type"] = gJsonData[i].sourceType.c_str();
+            result["md5"]                    = gJsonData[i].md5.c_str();
+
+            root["results"].append(result);
         }
     }
 

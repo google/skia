@@ -86,8 +86,9 @@ void PDFTask::draw() {
         this->spawnChild(SkNEW_ARGS(PDFRasterizeTask,
                                     (*this, pdfData->duplicate(), fRasterize)));
     }
+    const char* sourceType = fGM.get() ? "GM" : "SKP";
     this->spawnChild(SkNEW_ARGS(WriteTask,
-                                (*this, pdfData->duplicate(), ".pdf")));
+                                (*this, sourceType, pdfData->duplicate(), ".pdf")));
 }
 
 bool PDFTask::shouldSkip() const {

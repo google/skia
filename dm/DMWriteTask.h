@@ -16,13 +16,15 @@ namespace DM {
 class WriteTask : public CpuTask {
 
 public:
-    WriteTask(const Task& parent,  // WriteTask must be a child task.
-              SkBitmap bitmap);    // Bitmap to encode to PNG and write to disk.
+    WriteTask(const Task& parent,      // WriteTask must be a child task.
+              const char* sourceType,  // E.g. "GM", "SKP".  For humans.
+              SkBitmap bitmap);        // Bitmap to encode to PNG and write to disk.
 
     // Takes ownership of SkStreamAsset
-    WriteTask(const Task& parent,   // WriteTask must be a child task.
-              SkStreamAsset* data,  // Pre-encoded data to write to disk.
-              const char* ext);     // File extension.
+    WriteTask(const Task& parent,      // WriteTask must be a child task.
+              const char* sourceType,  // E.g. "GM", "SKP".  For humans.
+              SkStreamAsset* data,     // Pre-encoded data to write to disk.
+              const char* ext);        // File extension.
 
     virtual void draw() SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;
@@ -32,8 +34,8 @@ public:
 
 private:
     SkTArray<SkString> fSuffixes;
-    const SkString fFullName;
     const SkString fBaseName;
+    const SkString fSourceType;
     const SkBitmap fBitmap;
     SkAutoTDelete<SkStreamAsset> fData;
     const char* fExtension;

@@ -44,7 +44,7 @@ void GpuGMTask::draw(GrContextFactory* grFactory) {
     bitmap.setInfo(info);
     canvas->readPixels(&bitmap, 0, 0);
 
-    this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
+    this->spawnChild(SkNEW_ARGS(WriteTask, (*this, "GM", bitmap)));
 }
 
 bool GpuGMTask::shouldSkip() const {

@@ -27,4 +27,7 @@ DECLARE_bool(verbose);
 DECLARE_bool(veryVerbose);
 DECLARE_string(writePath);
 
+DECLARE_string(key);
+DECLARE_string(properties);
+
 #endif

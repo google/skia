@@ -107,7 +107,7 @@ void QuiltTask::draw() {
 
     if (!BitmapsEqual(full, fReference)) {
         this->fail();
-        this->spawnChild(SkNEW_ARGS(WriteTask, (*this, full)));
+        this->spawnChild(SkNEW_ARGS(WriteTask, (*this, "GM", full)));
     }
 }
 
