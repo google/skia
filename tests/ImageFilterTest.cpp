@@ -307,6 +307,63 @@ static SkBitmap make_gradient_circle(int width, int height) {
     return bitmap;
 }
 
+static void test_negative_blur_sigma(SkBaseDevice* device, skiatest::Reporter* reporter) {
+    // Check that SkBlurImageFilter will accept a negative sigma, either in
+    // the given arguments or after CTM application.
+    int width = 32, height = 32;
+    SkDeviceImageFilterProxy proxy(device);
+    SkScalar five = SkIntToScalar(5);
+
+    SkAutoTUnref<SkBlurImageFilter> positiveFilter(
+        SkBlurImageFilter::Create(five, five)
+    );
+
+    SkAutoTUnref<SkBlurImageFilter> negativeFilter(
+        SkBlurImageFilter::Create(-five, five)
+    );
+
+    SkBitmap gradient = make_gradient_circle(width, height);
+    SkBitmap positiveResult1, negativeResult1;
+    SkBitmap positiveResult2, negativeResult2;
+    SkIPoint offset;
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), NULL);
+    positiveFilter->filterImage(&proxy, gradient, ctx, &positiveResult1, &offset);
+    negativeFilter->filterImage(&proxy, gradient, ctx, &negativeResult1, &offset);
+    SkMatrix negativeScale;
+    negativeScale.setScale(-SK_Scalar1, SK_Scalar1);
+    SkImageFilter::Context negativeCTX(negativeScale, SkIRect::MakeLargest(), NULL);
+    positiveFilter->filterImage(&proxy, gradient, negativeCTX, &negativeResult2, &offset);
+    negativeFilter->filterImage(&proxy, gradient, negativeCTX, &positiveResult2, &offset);
+    SkAutoLockPixels lockP1(positiveResult1);
+    SkAutoLockPixels lockP2(positiveResult2);
+    SkAutoLockPixels lockN1(negativeResult1);
+    SkAutoLockPixels lockN2(negativeResult2);
+    for (int y = 0; y < height; y++) {
+        int diffs = memcmp(positiveResult1.getAddr32(0, y), negativeResult1.getAddr32(0, y), positiveResult1.rowBytes());
+        REPORTER_ASSERT(reporter, !diffs);
+        if (diffs) {
+            break;
+        }
+        diffs = memcmp(positiveResult1.getAddr32(0, y), negativeResult2.getAddr32(0, y), positiveResult1.rowBytes());
+        REPORTER_ASSERT(reporter, !diffs);
+        if (diffs) {
+            break;
+        }
+        diffs = memcmp(positiveResult1.getAddr32(0, y), positiveResult2.getAddr32(0, y), positiveResult1.rowBytes());
+        REPORTER_ASSERT(reporter, !diffs);
+        if (diffs) {
+            break;
+        }
+    }
+}
+
+DEF_TEST(TestNegativeBlurSigma, reporter) {
+    SkBitmap temp;
+    temp.allocN32Pixels(100, 100);
+    SkBitmapDevice device(temp);
+    test_negative_blur_sigma(&device, reporter);
+}
+
 DEF_TEST(ImageFilterDrawTiled, reporter) {
     // Check that all filters when drawn tiled (with subsequent clip rects) exactly
     // match the same filters drawn with a single full-canvas bitmap draw.
@@ -965,5 +1022,13 @@ DEF_GPUTEST(XfermodeImageFilterCroppedInputGPU, reporter, factory) {
                                                          SkImageInfo::MakeN32Premul(1, 1),
                                                          0));
     test_xfermode_cropped_input(device, reporter);
+}
+
+DEF_GPUTEST(TestNegativeBlurSigmaGPU, reporter, factory) {
+    GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
+    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
+                                                         SkImageInfo::MakeN32Premul(1, 1),
+                                                         0));
+    test_negative_blur_sigma(device, reporter);
 }
 #endif

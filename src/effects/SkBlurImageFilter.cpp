@@ -23,6 +23,14 @@
 // raster paths.
 #define MAX_SIGMA SkIntToScalar(532)
 
+static SkVector mapSigma(const SkSize& localSigma, const SkMatrix& ctm) {
+    SkVector sigma = SkVector::Make(localSigma.width(), localSigma.height());
+    ctm.mapVectors(&sigma, 1);
+    sigma.fX = SkMinScalar(SkScalarAbs(sigma.fX), MAX_SIGMA);
+    sigma.fY = SkMinScalar(SkScalarAbs(sigma.fY), MAX_SIGMA);
+    return sigma;
+}
+
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkBlurImageFilter::SkBlurImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
@@ -177,10 +185,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     }
     dst->getBounds(&dstBounds);
 
-    SkVector sigma = SkVector::Make(fSigma.width(), fSigma.height());
-    ctx.ctm().mapVectors(&sigma, 1);
-    sigma.fX = SkMinScalar(sigma.fX, MAX_SIGMA);
-    sigma.fY = SkMinScalar(sigma.fY, MAX_SIGMA);
+    SkVector sigma = mapSigma(fSigma, ctx.ctm());
 
     int kernelSizeX, kernelSizeX3, lowOffsetX, highOffsetX;
     int kernelSizeY, kernelSizeY3, lowOffsetY, highOffsetY;
@@ -253,8 +258,7 @@ void SkBlurImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const 
 bool SkBlurImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                        SkIRect* dst) const {
     SkIRect bounds = src;
-    SkVector sigma = SkVector::Make(fSigma.width(), fSigma.height());
-    ctm.mapVectors(&sigma, 1);
+    SkVector sigma = mapSigma(fSigma, ctm);
     bounds.outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
                   SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
     if (getInput(0) && !getInput(0)->filterBounds(bounds, ctm, &bounds)) {
@@ -277,10 +281,7 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
         return false;
     }
     GrTexture* source = input.getTexture();
-    SkVector sigma = SkVector::Make(fSigma.width(), fSigma.height());
-    ctx.ctm().mapVectors(&sigma, 1);
-    sigma.fX = SkMinScalar(sigma.fX, MAX_SIGMA);
-    sigma.fY = SkMinScalar(sigma.fY, MAX_SIGMA);
+    SkVector sigma = mapSigma(fSigma, ctx.ctm());
     offset->fX = rect.fLeft;
     offset->fY = rect.fTop;
     rect.offset(-srcOffset);
