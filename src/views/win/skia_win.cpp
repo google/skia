@@ -100,7 +100,7 @@ static SkOSWindow* gSkWind;
 char* tchar_to_utf8(const TCHAR* str) {
 #ifdef _UNICODE
     int size = WideCharToMultiByte(CP_UTF8, 0, str, wcslen(str), NULL, 0, NULL, NULL);
-    char* str8 = (char*) malloc(size+1);
+    char* str8 = (char*) sk_malloc_throw(size+1);
     WideCharToMultiByte(CP_UTF8, 0, str, wcslen(str), str8, size, NULL, NULL);
     str8[size] = '\0';
     return str8;
@@ -150,7 +150,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, LPTSTR lpCmdLine)
 
    gSkWind = create_sk_window(hWnd, argc, argv);
    for (int i = 0; i < argc; ++i) {
-      free(argv[i]);
+      sk_free(argv[i]);
    }
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
