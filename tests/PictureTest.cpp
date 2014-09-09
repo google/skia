@@ -1570,8 +1570,8 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     path2.addOval(rect3);
     SkIRect clipBounds;
     SkPictureRecorder recorder;
-    // Minimalist test set for 100% code coverage of
-    // SkPictureRecord::updateClipConservativelyUsingBounds
+
+    // Testing conservative-raster-clip that is enabled by PictureRecord
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(invPath, SkRegion::kIntersect_Op);
