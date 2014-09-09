@@ -6134,9 +6134,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13056517433955848820
+          13941792161003672493
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "imageblur_565.png": {
@@ -6243,7 +6244,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11926507393578377073
+          18393256074175921933
         ]
       ], 
       "ignore-failure": true, 
