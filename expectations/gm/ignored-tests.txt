@@ -35,3 +35,6 @@
 
 # jvanverth
 fontcache
+
+#bungeman
+fontmgr_iter
