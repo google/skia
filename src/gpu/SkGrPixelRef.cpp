@@ -9,10 +9,8 @@
 
 
 #include "SkGrPixelRef.h"
-
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "SkBitmapCache.h"
 #include "SkGr.h"
 #include "SkRect.h"
 
@@ -145,7 +143,7 @@ SkPixelRef* SkGrPixelRef::deepCopy(SkColorType dstCT, const SkIRect* subset) {
     if (NULL == fSurface) {
         return NULL;
     }
-
+    
     // Note that when copying a render-target-backed pixel ref, we
     // return a texture-backed pixel ref instead.  This is because
     // render-target pixel refs are usually created in conjunction with
@@ -155,59 +153,30 @@ SkPixelRef* SkGrPixelRef::deepCopy(SkColorType dstCT, const SkIRect* subset) {
     return copyToTexturePixelRef(fSurface->asTexture(), dstCT, subset);
 }
 
-static bool tryAllocBitmapPixels(SkBitmap* bitmap) {
-    SkBitmap::Allocator* allocator = SkBitmapCache::GetAllocator();
-    if (NULL != allocator) {
-        return allocator->allocPixelRef(bitmap, 0);
-    } else {
-        // DiscardableMemory is not available, fallback to default allocator
-        return bitmap->tryAllocPixels();
-    }
-}
-
 bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
     if (NULL == fSurface || fSurface->wasDestroyed()) {
         return false;
     }
 
-    SkIRect bounds;
+    int left, top, width, height;
     if (subset) {
-        bounds = *subset;
+        left = subset->fLeft;
+        width = subset->width();
+        top = subset->fTop;
+        height = subset->height();
     } else {
-        bounds = SkIRect::MakeWH(this->info().width(), this->info().height());
+        left = 0;
+        width = this->info().width();
+        top = 0;
+        height = this->info().height();
     }
-
-    //Check the cache
-    if(!SkBitmapCache::Find(this->getGenerationID(), bounds, dst)) {
-        //Cache miss
-
-        SkBitmap cachedBitmap;
-        cachedBitmap.setInfo(this->info().makeWH(bounds.width(), bounds.height()));
-
-        // If we can't alloc the pixels, then fail
-        if (!tryAllocBitmapPixels(&cachedBitmap)) {
-            return false;
-        }
-
-        // Try to read the pixels from the surface
-        void* buffer = cachedBitmap.getPixels();
-        bool readPixelsOk = fSurface->readPixels(bounds.fLeft, bounds.fTop,
-                                bounds.width(), bounds.height(),
+    if (!dst->tryAllocN32Pixels(width, height)) {
+        SkDebugf("SkGrPixelRef::onReadPixels failed to alloc bitmap for result!\n");
+        return false;
+    }
+    SkAutoLockPixels al(*dst);
+    void* buffer = dst->getPixels();
+    return fSurface->readPixels(left, top, width, height,
                                 kSkia8888_GrPixelConfig,
-                                buffer, cachedBitmap.rowBytes());
-
-        if (!readPixelsOk) {
-            return false;
-        }
-
-        // If we are here, pixels were read correctly from the surface.
-        cachedBitmap.setImmutable();
-        //Add to the cache
-        SkBitmapCache::Add(this->getGenerationID(), bounds, cachedBitmap);
-
-        dst->swap(cachedBitmap);
-    }
-
-    return true;
-
+                                buffer, dst->rowBytes());
 }
