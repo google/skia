@@ -60,8 +60,7 @@ public:
      *  intersect, but returning true is a guarantee that they do not.
      */
     bool quickReject(const SkIRect& rect) const {
-        return this->isEmpty() || rect.isEmpty() ||
-               !SkIRect::Intersects(this->getBounds(), rect);
+        return !SkIRect::Intersects(this->getBounds(), rect);
     }
 
     // hack for SkCanvas::getTotalClip
