@@ -111,9 +111,13 @@ setup_device() {
       DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
       ANDROID_ARCH="arm"
       ;;
-    intel_rhb | razr_i | x86)
+    intel_rhb | razr_i)
       DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
       DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
+      ANDROID_ARCH="x86"
+      ;;
+    x86)
+      DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
       ANDROID_ARCH="x86"
       ;;
     x86_64 | x64)
