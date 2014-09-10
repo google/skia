@@ -57,6 +57,21 @@ SkOpSegment* SkOpContour::nonVerticalSegment(int* start, int* end) {
     return NULL;
 }
 
+// if one is very large the smaller may have collapsed to nothing
+static void bump_out_close_span(double* startTPtr, double* endTPtr) {
+    double startT = *startTPtr;
+    double endT = *endTPtr;
+    if (approximately_negative(endT - startT)) {
+        if (endT <= 1 - FLT_EPSILON) {
+            *endTPtr += FLT_EPSILON;
+            SkASSERT(*endTPtr <= 1);
+        } else {
+            *startTPtr -= FLT_EPSILON;
+            SkASSERT(*startTPtr >= 0);
+        }
+    }
+}
+
 // first pass, add missing T values
 // second pass, determine winding values of overlaps
 void SkOpContour::addCoincidentPoints() {
@@ -82,15 +97,7 @@ void SkOpContour::addCoincidentPoints() {
         if ((cancelers = startSwapped = startT > endT)) {
             SkTSwap(startT, endT);
         }
-        if (startT == endT) { // if one is very large the smaller may have collapsed to nothing
-            if (endT <= 1 - FLT_EPSILON) {
-                endT += FLT_EPSILON;
-                SkASSERT(endT <= 1);
-            } else {
-                startT -= FLT_EPSILON;
-                SkASSERT(startT >= 0);
-            }
-        }
+        bump_out_close_span(&startT, &endT);
         SkASSERT(!approximately_negative(endT - startT));
         double oStartT = coincidence.fTs[1][0];
         double oEndT = coincidence.fTs[1][1];
@@ -98,6 +105,7 @@ void SkOpContour::addCoincidentPoints() {
             SkTSwap(oStartT, oEndT);
             cancelers ^= true;
         }
+        bump_out_close_span(&oStartT, &oEndT);
         SkASSERT(!approximately_negative(oEndT - oStartT));
         const SkPoint& startPt = coincidence.fPts[0][startSwapped];
         if (cancelers) {
@@ -559,15 +567,7 @@ void SkOpContour::calcCommonCoincidentWinding(const SkCoincidence& coincidence) 
         SkTSwap<double>(startT, endT);
         SkTSwap<const SkPoint*>(startPt, endPt);
     }
-    if (startT == endT) { // if span is very large, the smaller may have collapsed to nothing
-        if (endT <= 1 - FLT_EPSILON) {
-            endT += FLT_EPSILON;
-            SkASSERT(endT <= 1);
-        } else {
-            startT -= FLT_EPSILON;
-            SkASSERT(startT >= 0);
-        }
-    }
+    bump_out_close_span(&startT, &endT);
     SkASSERT(!approximately_negative(endT - startT));
     double oStartT = coincidence.fTs[1][0];
     double oEndT = coincidence.fTs[1][1];
@@ -575,6 +575,7 @@ void SkOpContour::calcCommonCoincidentWinding(const SkCoincidence& coincidence) 
         SkTSwap<double>(oStartT, oEndT);
         cancelers ^= true;
     }
+    bump_out_close_span(&oStartT, &oEndT);
     SkASSERT(!approximately_negative(oEndT - oStartT));
     if (cancelers) {
         thisOne.addTCancel(*startPt, *endPt, &other);
