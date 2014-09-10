@@ -11,6 +11,7 @@
       'sources': [
         '../gm/gm.cpp',
         '../bench/GMBench.cpp',
+        '../bench/RecordingBench.cpp',
         '../bench/SKPBench.cpp',
         '../bench/nanobench.cpp',
       ],

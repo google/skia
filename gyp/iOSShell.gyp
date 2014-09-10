@@ -19,6 +19,7 @@
           ],
           'sources': [
             '../bench/GMBench.cpp',
+            '../bench/RecordingBench.cpp',
             '../bench/SKPBench.cpp',
             '../bench/nanobench.cpp',
             '../tests/skia_test.cpp',

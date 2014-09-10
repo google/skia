@@ -12,6 +12,7 @@
 #include "GMBench.h"
 #include "ProcStats.h"
 #include "ResultsWriter.h"
+#include "RecordingBench.h"
 #include "SKPBench.h"
 #include "Stats.h"
 #include "Timer.h"
@@ -407,6 +408,7 @@ class BenchmarkStream {
 public:
     BenchmarkStream() : fBenches(BenchRegistry::Head())
                       , fGMs(skiagm::GMRegistry::Head())
+                      , fCurrentRecording(0)
                       , fCurrentScale(0)
                       , fCurrentSKP(0) {
         for (int i = 0; i < FLAGS_skps.count(); i++) {
@@ -435,11 +437,33 @@ public:
         }
     }
 
+    static bool ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic) {
+        // Not strictly necessary, as it will be checked again later,
+        // but helps to avoid a lot of pointless work if we're going to skip it.
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path)) {
+            return false;
+        }
+
+        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
+        if (stream.get() == NULL) {
+            SkDebugf("Could not read %s.\n", path);
+            return false;
+        }
+
+        pic->reset(SkPicture::CreateFromStream(stream.get()));
+        if (pic->get() == NULL) {
+            SkDebugf("Could not read %s as an SkPicture.\n", path);
+            return false;
+        }
+        return true;
+    }
+
     Benchmark* next() {
         if (fBenches) {
             Benchmark* bench = fBenches->factory()(NULL);
             fBenches = fBenches->next();
             fSourceType = "bench";
+            fBenchType  = "micro";
             return bench;
         }
 
@@ -448,34 +472,32 @@ public:
             fGMs = fGMs->next();
             if (gm->getFlags() & skiagm::GM::kAsBench_Flag) {
                 fSourceType = "gm";
+                fBenchType  = "micro";
                 return SkNEW_ARGS(GMBench, (gm.detach()));
             }
         }
 
+        // First add all .skps as RecordingBenches.
+        while (fCurrentRecording < fSKPs.count()) {
+            const SkString& path = fSKPs[fCurrentRecording++];
+            SkAutoTUnref<SkPicture> pic;
+            if (!ReadPicture(path.c_str(), &pic)) {
+                continue;
+            }
+            SkString name = SkOSPath::Basename(path.c_str());
+            fSourceType = "skp";
+            fBenchType  = "recording";
+            return SkNEW_ARGS(RecordingBench, (name.c_str(), pic.get(), FLAGS_bbh));
+        }
+
+        // Then once each for each scale as SKPBenches (playback).
         while (fCurrentScale < fScales.count()) {
             while (fCurrentSKP < fSKPs.count()) {
                 const SkString& path = fSKPs[fCurrentSKP++];
-
-                // Not strictly necessary, as it will be checked again later,
-                // but helps to avoid a lot of pointless work if we're going to skip it.
-                if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+                SkAutoTUnref<SkPicture> pic;
+                if (!ReadPicture(path.c_str(), &pic)) {
                     continue;
                 }
-
-                SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path.c_str()));
-                if (stream.get() == NULL) {
-                    SkDebugf("Could not read %s.\n", path.c_str());
-                    exit(1);
-                }
-
-                SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(stream.get()));
-                if (pic.get() == NULL) {
-                    SkDebugf("Could not read %s as an SkPicture.\n", path.c_str());
-                    exit(1);
-                }
-
-                SkString name = SkOSPath::Basename(path.c_str());
-
                 if (FLAGS_bbh) {
                     // The SKP we read off disk doesn't have a BBH.  Re-record so it grows one.
                     // Here we use an SkTileGrid with parameters optimized for FLAGS_clip.
@@ -491,8 +513,9 @@ public:
                                                           &factory));
                     pic.reset(recorder.endRecording());
                 }
-
+                SkString name = SkOSPath::Basename(path.c_str());
                 fSourceType = "skp";
+                fBenchType  = "playback";
                 return SkNEW_ARGS(SKPBench,
                         (name.c_str(), pic.get(), fClip, fScales[fCurrentScale]));
             }
@@ -505,6 +528,7 @@ public:
 
     void fillCurrentOptions(ResultsWriter* log) const {
         log->configOption("source_type", fSourceType);
+        log->configOption("bench_type",  fBenchType);
         if (0 == strcmp(fSourceType, "skp")) {
             log->configOption("clip",
                     SkStringPrintf("%d %d %d %d", fClip.fLeft, fClip.fTop,
@@ -520,7 +544,9 @@ private:
     SkTArray<SkScalar> fScales;
     SkTArray<SkString> fSKPs;
 
-    const char* fSourceType;
+    const char* fSourceType;  // What we're benching: bench, GM, SKP, ...
+    const char* fBenchType;   // How we bench it: micro, recording, playback, ...
+    int fCurrentRecording;
     int fCurrentScale;
     int fCurrentSKP;
 };
