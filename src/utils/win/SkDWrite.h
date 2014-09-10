@@ -11,11 +11,16 @@
 #include "SkTemplates.h"
 
 #include <dwrite.h>
+#include <winsdkver.h>
 
 class SkString;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Factory
+
+#ifndef SK_HAS_DWRITE_1_H
+#define SK_HAS_DWRITE_1_H (WINVER_MAXVER >= 0x0602)
+#endif
 
 IDWriteFactory* sk_get_dwrite_factory();
 
