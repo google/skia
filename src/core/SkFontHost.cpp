@@ -207,33 +207,3 @@ SkFontMgr* SkFontMgr::RefDefault() {
     SK_DECLARE_STATIC_LAZY_PTR(SkFontMgr, singleton, CreateDefault);
     return SkRef(singleton.get());
 }
-
-//////////////////////////////////////////////////////////////////////////
-
-SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
-                                       const char familyName[],
-                                       SkTypeface::Style style) {
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    if (familyFace) {
-        bool bold = style & SkTypeface::kBold;
-        bool italic = style & SkTypeface::kItalic;
-        SkFontStyle newStyle = SkFontStyle(bold ? SkFontStyle::kBold_Weight
-                                                : SkFontStyle::kNormal_Weight,
-                                           SkFontStyle::kNormal_Width,
-                                           italic ? SkFontStyle::kItalic_Slant
-                                                  : SkFontStyle::kUpright_Slant);
-        return fm->matchFaceStyle(familyFace, newStyle);
-    } else {
-        return fm->legacyCreateTypeface(familyName, style);
-    }
-}
-
-SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return fm->createFromFile(path);
-}
-
-SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return fm->createFromStream(stream);
-}

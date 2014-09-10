@@ -8,7 +8,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkEndian.h"
 #include "SkFontDescriptor.h"
-#include "SkFontHost.h"
+#include "SkFontMgr.h"
 #include "SkLazyPtr.h"
 #include "SkOTTable_OS_2.h"
 #include "SkStream.h"
@@ -84,7 +84,8 @@ SkTypeface* SkTypeface::CreateDefault(int style) {
     // TODO(bungeman, mtklein): This is sad.  Make our fontconfig code safe?
     SkAutoMutexAcquire lock(&gCreateDefaultMutex);
 
-    SkTypeface* t = SkFontHost::CreateTypeface(NULL, NULL, (Style)style);
+    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    SkTypeface* t = fm->legacyCreateTypeface(NULL, style);;
     return t ? t : SkEmptyTypeface::Create();
 }
 
@@ -123,7 +124,8 @@ SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
     if (NULL == name) {
         return RefDefault(style);
     }
-    return SkFontHost::CreateTypeface(NULL, name, style);
+    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    return fm->legacyCreateTypeface(name, style);
 }
 
 SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
@@ -131,15 +133,25 @@ SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
         family->ref();
         return const_cast<SkTypeface*>(family);
     }
-    return SkFontHost::CreateTypeface(family, NULL, s);
+    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    bool bold = s & SkTypeface::kBold;
+    bool italic = s & SkTypeface::kItalic;
+    SkFontStyle newStyle = SkFontStyle(bold ? SkFontStyle::kBold_Weight
+                                            : SkFontStyle::kNormal_Weight,
+                                       SkFontStyle::kNormal_Width,
+                                       italic ? SkFontStyle::kItalic_Slant
+                                                : SkFontStyle::kUpright_Slant);
+    return fm->matchFaceStyle(family, newStyle);
 }
 
 SkTypeface* SkTypeface::CreateFromStream(SkStream* stream) {
-    return SkFontHost::CreateTypefaceFromStream(stream);
+    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    return fm->createFromStream(stream);
 }
 
 SkTypeface* SkTypeface::CreateFromFile(const char path[]) {
-    return SkFontHost::CreateTypefaceFromFile(path);
+    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    return fm->createFromFile(path);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -90,42 +90,6 @@ public:
     static void SetSubpixelOrder(LCDOrder order);
     /** @deprecated get from Device. */
     static LCDOrder GetSubpixelOrder();
-
-private:
-    /** Return a new, closest matching typeface given either an existing family
-        (specified by a typeface in that family) or by a familyName and a
-        requested style.
-        1) If familyFace is null, use familyName.
-        2) If familyName is null, use data (UTF-16 to cover).
-        3) If all are null, return the default font that best matches style
-     */
-    static SkTypeface* CreateTypeface(const SkTypeface* familyFace,
-                                      const char familyName[],
-                                      SkTypeface::Style style);
-
-    /** Return a new typeface given the data buffer. If the data does not
-        represent a valid font, returns null.
-
-        If a typeface instance is returned, the caller is responsible for
-        calling unref() on the typeface when they are finished with it.
-
-        The returned typeface may or may not have called ref() on the stream
-        parameter. If the typeface has not called ref(), then it may have made
-        a copy of the releveant data. In either case, the caller is still
-        responsible for its refcnt ownership of the stream.
-     */
-    static SkTypeface* CreateTypefaceFromStream(SkStream*);
-
-    /** Return a new typeface from the specified file path. If the file does not
-        represent a valid font, this returns null. If a typeface is returned,
-        the caller is responsible for calling unref() when it is no longer used.
-     */
-    static SkTypeface* CreateTypefaceFromFile(const char path[]);
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    friend class SkScalerContext;
-    friend class SkTypeface;
 };
 
 #endif
