@@ -37,4 +37,4 @@
 fontcache
 
 # reed - conservative_rasterclip CL
-multipicturedraw_pathclip_tiled_nvprmsaa4
+multipicturedraw_pathclip_tiled
