@@ -582,7 +582,8 @@ int nanobench_main() {
     } else if (FLAGS_quiet) {
         SkDebugf("median\tbench\tconfig\n");
     } else {
-        SkDebugf("maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\tsamples\tconfig\tbench\n");
+        SkDebugf("maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tconfig\tbench\n",
+                 FLAGS_samples, "samples");
     }
 
     SkTDArray<Config> configs;
