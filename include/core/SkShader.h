@@ -185,6 +185,9 @@ public:
             return SkShader::CanCallShadeSpan16(this->getFlags());
         }
 
+        // Notification from blitter::blitMask in case we need to see the non-alpha channels
+        virtual void set3DMask(const SkMask*) {}
+
     protected:
         // Reference to shader, so we don't have to dupe information.
         const SkShader& fShader;
