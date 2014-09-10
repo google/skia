@@ -55,8 +55,10 @@ struct SaveOnlyDrawsRestoreNooper {
 // Turns logical no-op Save-[non-drawing command]*-Restore patterns into actual no-ops.
 struct SaveNoDrawsRestoreNooper {
     // Star matches greedily, so we also have to exclude Save and Restore.
+    // Nested SaveLayers need to be excluded, or we'll match their Restore!
     typedef Pattern3<Is<Save>,
-                     Star<Not<Or3<Is<Save>,
+                     Star<Not<Or4<Is<Save>,
+                                  Is<SaveLayer>,
                                   Is<Restore>,
                                   IsDraw> > >,
                      Is<Restore> >

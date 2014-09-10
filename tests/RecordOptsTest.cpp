@@ -99,6 +99,23 @@ DEF_TEST(RecordOpts_NoopSaveRestores, r) {
     }
 }
 
+DEF_TEST(RecordOpts_SaveSaveLayerRestoreRestore, r) {
+    SkRecord record;
+    SkRecorder recorder(&record, W, H);
+
+    // A previous bug NoOp'd away the first 3 commands.
+    recorder.save();
+        recorder.saveLayer(NULL, NULL);
+        recorder.restore();
+    recorder.restore();
+
+    SkRecordNoopSaveRestores(&record);
+    assert_type<SkRecords::Save>     (r, record, 0);
+    assert_type<SkRecords::SaveLayer>(r, record, 1);
+    assert_type<SkRecords::Restore>  (r, record, 2);
+    assert_type<SkRecords::Restore>  (r, record, 3);
+}
+
 static void assert_savelayer_restore(skiatest::Reporter* r,
                                      SkRecord* record,
                                      unsigned i,

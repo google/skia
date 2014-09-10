@@ -85,6 +85,10 @@ struct Or {
 template <typename A, typename B, typename C>
 struct Or3 : Or<A, Or<B, C> > {};
 
+// Matches if any of A, B, C or D does.  Stores nothing.
+template <typename A, typename B, typename C, typename D>
+struct Or4 : Or<A, Or<B, Or<C, D> > > {};
+
 // Star is a special matcher that greedily matches Matcher 0 or more times.  Stores nothing.
 template <typename Matcher>
 struct Star {
