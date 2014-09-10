@@ -3055,19 +3055,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8902265261546230747
+          3439736162679063809
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6089254836638034865
+          15589891711481242151
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_match_565.png": {
       "allowed-digests": [
