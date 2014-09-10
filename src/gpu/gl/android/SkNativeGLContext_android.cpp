@@ -92,7 +92,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAP
 
     const GrGLInterface* interface = NULL;
 
-    for (size_t i = 0; NULL == interface && i < apiLimit; ++api) {
+    for (; NULL == interface && api < apiLimit; ++api) {
         fDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
         EGLint majorVersion;
