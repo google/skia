@@ -139,7 +139,7 @@ static GrTexture* sk_gr_allocate_texture(GrContext* ctx,
                                          bool cache,
                                          const GrTextureParams* params,
                                          const SkBitmap& bm,
-                                         GrTextureDesc desc,
+                                         const GrTextureDesc& desc,
                                          const void* pixels,
                                          size_t rowBytes) {
     GrTexture* result;
@@ -322,12 +322,9 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
     // Is this an ETC1 encoded texture?
 #ifndef SK_IGNORE_ETC1_SUPPORT
     else if (
-        // We do not support scratch ETC1 textures, hence they should all be at least
-        // trying to go to the cache.
-        cache
         // Make sure that the underlying device supports ETC1 textures before we go ahead
         // and check the data.
-        && ctx->getGpu()->caps()->isConfigTexturable(kETC1_GrPixelConfig)
+        ctx->getGpu()->caps()->isConfigTexturable(kETC1_GrPixelConfig)
         // If the bitmap had compressed data and was then uncompressed, it'll still return
         // compressed data on 'refEncodedData' and upload it. Probably not good, since if
         // the bitmap has available pixels, then they might not be what the decompressed

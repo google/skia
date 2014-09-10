@@ -84,12 +84,17 @@ protected:
     virtual SkString onShortName() SK_OVERRIDE {
         SkString str = SkString("etc1bitmap_");
         str.append(this->fileExtension());
+        if (this->isVolatile()) {
+            str.append("_volatile");
+        }
         return str;
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(128, 128);
     }
+
+    virtual bool isVolatile() const { return false; }
 
     virtual SkString fileExtension() const = 0;
 
@@ -110,6 +115,8 @@ protected:
             return;
         }
 
+        bm.setIsVolatile(this->isVolatile());
+
         canvas->drawBitmap(bm, 0, 0);
     }
 
@@ -126,6 +133,21 @@ public:
 protected:
 
     virtual SkString fileExtension() const SK_OVERRIDE { return SkString("pkm"); }
+
+private:
+    typedef ETC1BitmapGM INHERITED;
+};
+
+// This class specializes ETC1BitmapGM to load the mandrill_128.pkm file in a volatile bitmap.
+class ETC1Bitmap_PKM_VOLATILE_GM : public ETC1BitmapGM {
+public:
+    ETC1Bitmap_PKM_VOLATILE_GM() : ETC1BitmapGM() { }
+    virtual ~ETC1Bitmap_PKM_VOLATILE_GM() { }
+
+protected:
+
+    virtual SkString fileExtension() const SK_OVERRIDE { return SkString("pkm"); }
+    virtual bool isVolatile() const SK_OVERRIDE { return true; }
 
 private:
     typedef ETC1BitmapGM INHERITED;
@@ -224,6 +246,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return SkNEW(skiagm::ETC1Bitmap_PKM_GM); )
+DEF_GM( return SkNEW(skiagm::ETC1Bitmap_PKM_VOLATILE_GM); )
 DEF_GM( return SkNEW(skiagm::ETC1Bitmap_KTX_GM); )
 DEF_GM( return SkNEW(skiagm::ETC1Bitmap_R11_KTX_GM); )
 
