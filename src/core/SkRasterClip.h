@@ -13,10 +13,12 @@
 
 class SkRasterClip {
 public:
-    SkRasterClip();
-    SkRasterClip(const SkIRect&);
+    SkRasterClip(bool forceConservativeRects = false);
+    SkRasterClip(const SkIRect&, bool forceConservativeRects = false);
     SkRasterClip(const SkRasterClip&);
     ~SkRasterClip();
+
+    bool isForceConservativeRects() const { return fForceConservativeRects; }
 
     bool isBW() const { return fIsBW; }
     bool isAA() const { return !fIsBW; }
@@ -41,7 +43,7 @@ public:
 
     bool op(const SkIRect&, SkRegion::Op);
     bool op(const SkRegion&, SkRegion::Op);
-    bool op(const SkRect&, SkRegion::Op, bool doAA);
+    bool op(const SkRect&, const SkISize&, SkRegion::Op, bool doAA);
     bool op(const SkPath&, const SkISize&, SkRegion::Op, bool doAA);
     
     void translate(int dx, int dy, SkRasterClip* dst) const;
@@ -75,6 +77,7 @@ public:
 private:
     SkRegion    fBW;
     SkAAClip    fAA;
+    bool        fForceConservativeRects;
     bool        fIsBW;
     // these 2 are caches based on querying the right obj based on fIsBW
     bool        fIsEmpty;
@@ -107,6 +110,7 @@ private:
     bool setPath(const SkPath& path, const SkRegion& clip, bool doAA);
     bool setPath(const SkPath& path, const SkIRect& clip, bool doAA);
     bool op(const SkRasterClip&, SkRegion::Op);
+    bool setConservativeRect(const SkRect& r, const SkIRect& clipR, bool isInverse);
 };
 
 class SkAutoRasterClipValidate : SkNoncopyable {
