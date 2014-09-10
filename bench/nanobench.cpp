@@ -163,7 +163,7 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
         while (bench_plus_overhead < overhead) {
             if (round++ == FLAGS_maxCalibrationAttempts) {
                 SkDebugf("WARNING: Can't estimate loops for %s (%s vs. %s); skipping.\n",
-                         bench->getName(), HUMANIZE(bench_plus_overhead), HUMANIZE(overhead));
+                         bench->getUniqueName(), HUMANIZE(bench_plus_overhead), HUMANIZE(overhead));
                 return kFailedLoops;
             }
             bench_plus_overhead = time(1, bench, canvas, NULL);
@@ -592,7 +592,7 @@ int nanobench_main() {
     BenchmarkStream benchStream;
     while (Benchmark* b = benchStream.next()) {
         SkAutoTDelete<Benchmark> bench(b);
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getName())) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
             continue;
         }
 
@@ -600,7 +600,7 @@ int nanobench_main() {
         create_targets(&targets, bench.get(), configs);
 
         if (!targets.isEmpty()) {
-            log->bench(bench->getName(), bench->getSize().fX, bench->getSize().fY);
+            log->bench(bench->getUniqueName(), bench->getSize().fX, bench->getSize().fY);
             bench->preDraw();
         }
         for (int j = 0; j < targets.count(); j++) {
@@ -617,7 +617,7 @@ int nanobench_main() {
 
             if (canvas && !FLAGS_writePath.isEmpty() && FLAGS_writePath[0]) {
                 SkString pngFilename = SkOSPath::Join(FLAGS_writePath[0], config);
-                pngFilename = SkOSPath::Join(pngFilename.c_str(), bench->getName());
+                pngFilename = SkOSPath::Join(pngFilename.c_str(), bench->getUniqueName());
                 pngFilename.append(".png");
                 write_canvas_png(canvas, pngFilename);
             }
@@ -629,6 +629,7 @@ int nanobench_main() {
 
             Stats stats(samples.get(), FLAGS_samples);
             log->config(config);
+            log->configOption("name", bench->getName());
             benchStream.fillCurrentOptions(log.get());
 #if SK_SUPPORT_GPU
             if (Benchmark::kGPU_Backend == targets[j]->config.backend) {
@@ -645,17 +646,17 @@ int nanobench_main() {
                 if (targets.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
-                SkDebugf("%s\t%s\n", bench->getName(), config);
+                SkDebugf("%s\t%s\n", bench->getUniqueName(), config);
             } else if (FLAGS_verbose) {
                 for (int i = 0; i < FLAGS_samples; i++) {
                     SkDebugf("%s  ", HUMANIZE(samples[i]));
                 }
-                SkDebugf("%s\n", bench->getName());
+                SkDebugf("%s\n", bench->getUniqueName());
             } else if (FLAGS_quiet) {
                 if (targets.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
-                SkDebugf("%s\t%s\t%s\n", HUMANIZE(stats.median), bench->getName(), config);
+                SkDebugf("%s\t%s\t%s\n", HUMANIZE(stats.median), bench->getUniqueName(), config);
             } else {
                 const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
                 SkDebugf("%4dM\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
@@ -668,7 +669,7 @@ int nanobench_main() {
                         , stddev_percent
                         , stats.plot.c_str()
                         , config
-                        , bench->getName()
+                        , bench->getUniqueName()
                         );
             }
         }

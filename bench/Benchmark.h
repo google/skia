@@ -49,6 +49,7 @@ public:
     Benchmark();
 
     const char* getName();
+    const char* getUniqueName();
     SkIPoint getSize();
 
     enum Backend {
@@ -98,6 +99,7 @@ protected:
     virtual void setupPaint(SkPaint* paint);
 
     virtual const char* onGetName() = 0;
+    virtual const char* onGetUniqueName() { return this->onGetName(); }
     virtual void onPreDraw() {}
     // Each bench should do its main work in a loop like this:
     //   for (int i = 0; i < loops; i++) { <work here> }

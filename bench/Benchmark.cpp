@@ -24,6 +24,10 @@ const char* Benchmark::getName() {
     return this->onGetName();
 }
 
+const char* Benchmark::getUniqueName() {
+    return this->onGetUniqueName();
+}
+
 SkIPoint Benchmark::getSize() {
     return this->onGetSize();
 }

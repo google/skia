@@ -21,6 +21,7 @@ public:
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE;
+    virtual const char* onGetUniqueName() SK_OVERRIDE;
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE;
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE;
     virtual SkIPoint onGetSize() SK_OVERRIDE;
@@ -30,6 +31,7 @@ private:
     const SkIRect fClip;
     const SkScalar fScale;
     SkString fName;
+    SkString fUniqueName;
 
     typedef Benchmark INHERITED;
 };
