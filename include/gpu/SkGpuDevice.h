@@ -152,7 +152,9 @@ private:
     virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
 
     virtual SkImageFilter::Cache* getImageFilterCache() SK_OVERRIDE;
-    virtual bool forceConservativeRasterClip() const SK_OVERRIDE { return true; }
+
+    // temporarily change the return to false, until we understand the issues with filters and persp
+    virtual bool forceConservativeRasterClip() const SK_OVERRIDE { return false; }
 
     // sets the render target, clip, and matrix on GrContext. Use forceIdenity to override
     // SkDraw's matrix and draw in device coords.
