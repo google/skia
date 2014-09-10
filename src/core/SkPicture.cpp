@@ -640,7 +640,8 @@ uint32_t SkPicture::uniqueID() const {
 }
 
 static SkRecord* optimized(SkRecord* r) {
-    SkRecordOptimize(r);
+    // TODO(mtklein): try this after SkRecord has stuck
+    //SkRecordOptimize(r);
     return r;
 }
 
