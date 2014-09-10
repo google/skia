@@ -949,7 +949,7 @@ class TraceID {
    public:
     explicit DontMangle(const void* id)
         : data_(static_cast<uint64_t>(
-              reinterpret_cast<unsigned long>(id))) {}
+              reinterpret_cast<uintptr_t>(id))) {}
     explicit DontMangle(uint64_t id) : data_(id) {}
     explicit DontMangle(unsigned int id) : data_(id) {}
     explicit DontMangle(unsigned short id) : data_(id) {}
@@ -992,7 +992,7 @@ class TraceID {
 
   TraceID(const void* id, unsigned char* flags)
       : data_(static_cast<uint64_t>(
-              reinterpret_cast<unsigned long>(id))) {
+              reinterpret_cast<uintptr_t>(id))) {
     *flags |= TRACE_EVENT_FLAG_MANGLE_ID;
   }
   TraceID(ForceMangle id, unsigned char* flags) : data_(id.data()) {
