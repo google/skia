@@ -28,6 +28,9 @@ static void cb(SkError err, void *context) {
 }
 
 DEF_TEST(Error, reporter) {
+    // Some previous user of this thread may have left an error laying around.
+    SkClearLastError();
+
     SkError err;
 
     unsigned int test_value = 0xdeadbeef;
