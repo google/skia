@@ -71,8 +71,8 @@ static bool find_and_return(const BitmapKey& key, SkBitmap* result) {
         if (result->getPixels()) {
             return true;
         }
-        // todo: we should explicitly purge rec from the cache at this point, since
-        //       it is effectively purged already (has no memory behind it)
+
+        SkResourceCache::Remove(rec);
         result->reset();
         // fall-through to false
     }

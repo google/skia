@@ -286,6 +286,23 @@ void SkResourceCache::unlock(SkResourceCache::ID id) {
     }
 }
 
+void SkResourceCache::remove(Rec* rec) {
+    SkASSERT(0 == rec->fLockCount);
+
+    size_t used = rec->bytesUsed();
+    SkASSERT(used <= fTotalBytesUsed);
+
+    this->detach(rec);
+#ifdef USE_HASH
+    fHash->remove(rec->getKey());
+#endif
+
+    SkDELETE(rec);
+
+    fTotalBytesUsed -= used;
+    fCount -= 1;
+}
+
 void SkResourceCache::purgeAsNeeded() {
     size_t byteLimit;
     int    countLimit;
@@ -298,34 +315,18 @@ void SkResourceCache::purgeAsNeeded() {
         byteLimit = fTotalByteLimit;
     }
 
-    size_t bytesUsed = fTotalBytesUsed;
-    int    countUsed = fCount;
-
     Rec* rec = fTail;
     while (rec) {
-        if (bytesUsed < byteLimit && countUsed < countLimit) {
+        if (fTotalBytesUsed < byteLimit && fCount < countLimit) {
             break;
         }
 
         Rec* prev = rec->fPrev;
         if (0 == rec->fLockCount) {
-            size_t used = rec->bytesUsed();
-            SkASSERT(used <= bytesUsed);
-            this->detach(rec);
-#ifdef USE_HASH
-            fHash->remove(rec->getKey());
-#endif
-
-            SkDELETE(rec);
-
-            bytesUsed -= used;
-            countUsed -= 1;
+            this->remove(rec);
         }
         rec = prev;
     }
-
-    fTotalBytesUsed = bytesUsed;
-    fCount = countUsed;
 }
 
 size_t SkResourceCache::setTotalByteLimit(size_t newLimit) {
@@ -504,6 +505,28 @@ void SkResourceCache::Unlock(SkResourceCache::ID id) {
     get_cache()->unlock(id);
 
 //    get_cache()->dump();
+}
+
+void SkResourceCache::Remove(SkResourceCache::ID id) {
+    SkAutoMutexAcquire am(gMutex);
+    SkASSERT(id);
+
+#ifdef SK_DEBUG
+    {
+        bool found = false;
+        Rec* rec = get_cache()->fHead;
+        while (rec != NULL) {
+            if (rec == id) {
+                found = true;
+                break;
+            }
+            rec = rec->fNext;
+        }
+        SkASSERT(found);
+    }
+#endif
+    const Rec* rec = id;
+    get_cache()->remove(const_cast<Rec*>(rec));
 }
 
 size_t SkResourceCache::GetTotalBytesUsed() {

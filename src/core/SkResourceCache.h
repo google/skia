@@ -76,7 +76,6 @@ public:
         Rec*    fNext;
         Rec*    fPrev;
         int32_t fLockCount;
-        int32_t fPad;
 
         friend class SkResourceCache;
     };
@@ -98,6 +97,7 @@ public:
     static const Rec* AddAndLock(Rec*);
     static void Add(Rec*);
     static void Unlock(ID);
+    static void Remove(ID);
 
     static size_t GetTotalBytesUsed();
     static size_t GetTotalByteLimit();
@@ -140,6 +140,7 @@ public:
     const Rec* findAndLock(const Key& key);
     const Rec* addAndLock(Rec*);
     void add(Rec*);
+    void remove(Rec*);
 
     /**
      *  Given a non-null ID ptr returned by either findAndLock or addAndLock,
@@ -189,7 +190,6 @@ private:
     size_t  fSingleAllocationByteLimit;
     int     fCount;
 
-    void purgeRec(Rec*);
     void purgeAsNeeded();
 
     // linklist management

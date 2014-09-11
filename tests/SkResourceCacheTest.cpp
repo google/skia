@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkBitmapCache.h"
+#include "SkDiscardableMemoryPool.h"
 
 static const int kCanvasSize = 1;
 static const int kBitmapSize = 16;
@@ -107,6 +108,38 @@ DEF_TEST(BitmapCache_add_rect, reporter) {
 
     REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.getGenerationID(), rect, cachedBitmap));
     // Should be in the cache, we just added it
+    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm));
+}
+
+DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
+    SkBitmap bm;
+    SkIRect rect = SkIRect::MakeWH(5, 5);
+    SkBitmap cachedBitmap = createAllocatedBitmap(SkImageInfo::MakeN32Premul(5, 5));
+    cachedBitmap.setImmutable();
+    cachedBitmap.unlockPixels();
+
+    // Add a bitmap to the cache.
+    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.getGenerationID(), rect, cachedBitmap));
+    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm));
+
+    // Finding more than once works fine.
+    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm));
+    bm.unlockPixels();
+
+    // Drop the pixels in the bitmap.
+    REPORTER_ASSERT(reporter, SkGetGlobalDiscardableMemoryPool()->getRAMUsed() > 0);
+    SkGetGlobalDiscardableMemoryPool()->dumpPool();
+    REPORTER_ASSERT(reporter, SkGetGlobalDiscardableMemoryPool()->getRAMUsed() == 0);
+
+    // The bitmap is not in the cache since it has been dropped.
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm));
+
+    cachedBitmap = createAllocatedBitmap(SkImageInfo::MakeN32Premul(5, 5));
+    cachedBitmap.setImmutable();
+    cachedBitmap.unlockPixels();
+
+    // We can add the bitmap back to the cache and find it again.
+    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.getGenerationID(), rect, cachedBitmap));
     REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm));
 }
 #endif
