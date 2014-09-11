@@ -282,12 +282,12 @@ public:
     }
 
     // routines to treat the array like a stack
-    T*          push() { return this->append(); }
-    void        push(const T& elem) { *this->append() = elem; }
-    const T&    top() const { return (*this)[fCount - 1]; }
-    T&          top() { return (*this)[fCount - 1]; }
-    void        pop(T* elem) { if (elem) *elem = (*this)[fCount - 1]; --fCount; }
-    void        pop() { --fCount; }
+    T*       push() { return this->append(); }
+    void     push(const T& elem) { *this->append() = elem; }
+    const T& top() const { return (*this)[fCount - 1]; }
+    T&       top() { return (*this)[fCount - 1]; }
+    void     pop(T* elem) { SkASSERT(fCount > 0); if (elem) *elem = (*this)[fCount - 1]; --fCount; }
+    void     pop() { SkASSERT(fCount > 0); --fCount; }
 
     void deleteAll() {
         T*  iter = fArray;
