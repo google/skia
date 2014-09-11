@@ -71,12 +71,14 @@ void PDFTask::draw() {
     if (fGM.get()) {
         rasterize = 0 == (fGM->getFlags() & skiagm::GM::kSkipPDFRasterization_Flag);
         SinglePagePDF pdf(fGM->width(), fGM->height());
+        CanvasPreflight(pdf.canvas());
         //TODO(mtklein): GM doesn't do this.  Why not?
         //pdf.canvas()->concat(fGM->getInitialTransform());
         fGM->draw(pdf.canvas());
         pdfData.reset(pdf.end());
     } else {
         SinglePagePDF pdf(fPicture->cullRect().width(), fPicture->cullRect().height());
+        CanvasPreflight(pdf.canvas());
         fPicture->playback(pdf.canvas());
         pdfData.reset(pdf.end());
     }

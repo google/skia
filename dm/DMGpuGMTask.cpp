@@ -1,5 +1,4 @@
 #include "DMGpuGMTask.h"
-
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 #include "SkCommandLineFlags.h"
@@ -35,6 +34,7 @@ void GpuGMTask::draw(GrContextFactory* grFactory) {
         return;
     }
     SkCanvas* canvas = surface->getCanvas();
+    CanvasPreflight(canvas);
 
     canvas->concat(fGM->getInitialTransform());
     fGM->draw(canvas);

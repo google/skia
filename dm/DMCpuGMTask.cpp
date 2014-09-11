@@ -24,6 +24,7 @@ void CpuGMTask::draw() {
     AllocatePixels(fColorType, fGM->getISize().width(), fGM->getISize().height(), &bm);
 
     SkCanvas canvas(bm);
+    CanvasPreflight(&canvas);
     canvas.concat(fGM->getInitialTransform());
     fGM->draw(&canvas);
     canvas.flush();

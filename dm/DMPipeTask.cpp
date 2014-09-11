@@ -55,6 +55,7 @@ void PipeTask::draw() {
                                                  fFlags,
                                                  bitmap.width(),
                                                  bitmap.height());
+    CanvasPreflight(pipeCanvas);
     pipeCanvas->concat(fGM->getInitialTransform());
     fGM->draw(pipeCanvas);
     writer.endRecording();

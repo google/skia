@@ -2,6 +2,7 @@
 #define DMUtil_DEFINED
 
 #include "SkBitmap.h"
+#include "SkCanvas.h"
 #include "SkString.h"
 #include "gm.h"
 
@@ -35,6 +36,9 @@ unsigned MaxComponentDifference(const SkBitmap& a, const SkBitmap& b);
 
 // Are these identical bitmaps?
 bool BitmapsEqual(const SkBitmap& a, const SkBitmap& b);
+
+// Hook to modify canvas using global flag values (e.g. --matrix).
+void CanvasPreflight(SkCanvas*);
 
 }  // namespace DM
 
