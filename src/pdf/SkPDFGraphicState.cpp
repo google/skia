@@ -123,7 +123,7 @@ SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
         static const char psInvert[] = "{1 exch sub}";
         // Do not copy the trailing '\0' into the SkData.
         SkAutoTUnref<SkData> psInvertStream(
-                SkData::NewWithCopy(psInvert, strlen(psInvert)));
+                SkData::NewWithoutCopy(psInvert, strlen(psInvert)));
 
         invertFunction = new SkPDFStream(psInvertStream.get());
         invertFunction->insertInt("FunctionType", 4);

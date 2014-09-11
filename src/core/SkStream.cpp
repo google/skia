@@ -69,9 +69,9 @@ SkData* SkStream::readData() {
     if (0 == size) {
         return SkData::NewEmpty();
     } else {
-        void* buffer = sk_malloc_throw(size);
-        this->read(buffer, size);
-        return SkData::NewFromMalloc(buffer, size);
+        SkData* data = SkData::NewUninitialized(size);
+        this->read(data->writable_data(), size);
+        return data;
     }
 }
 
@@ -308,7 +308,7 @@ static SkData* newFromParams(const void* src, size_t size, bool copyData) {
     if (copyData) {
         return SkData::NewWithCopy(src, size);
     } else {
-        return SkData::NewWithProc(src, size, NULL, NULL);
+        return SkData::NewWithoutCopy(src, size);
     }
 }
 
@@ -318,7 +318,7 @@ SkMemoryStream::SkMemoryStream() {
 }
 
 SkMemoryStream::SkMemoryStream(size_t size) {
-    fData = SkData::NewFromMalloc(sk_malloc_throw(size), size);
+    fData = SkData::NewUninitialized(size);
     fOffset = 0;
 }
 
@@ -654,12 +654,12 @@ void SkDynamicMemoryWStream::padToAlign4()
 
 SkData* SkDynamicMemoryWStream::copyToData() const {
     if (NULL == fCopy) {
-        void* buffer = sk_malloc_throw(fBytesWritten);
-        this->copyTo(buffer);
-        fCopy = SkData::NewFromMalloc(buffer, fBytesWritten);
+        SkData* data = SkData::NewUninitialized(fBytesWritten);
+        // be sure to call copyTo() before we assign to fCopy
+        this->copyTo(data->writable_data());
+        fCopy = data;
     }
-    fCopy->ref();
-    return fCopy;
+    return SkRef(fCopy);
 }
 
 void SkDynamicMemoryWStream::invalidateCopy() {
@@ -891,11 +891,12 @@ SkData* SkCopyStreamToData(SkStream* stream) {
 
     if (stream->hasLength()) {
         const size_t length = stream->getLength();
-        SkAutoMalloc dst(length);
-        if (stream->read(dst.get(), length) != length) {
-            return NULL;
+        SkData* data = SkData::NewUninitialized(length);
+        if (stream->read(data->writable_data(), length) != length) {
+            data->unref();
+            data = NULL;
         }
-        return SkData::NewFromMalloc(dst.detach(), length);
+        return data;
     }
 
     SkDynamicMemoryWStream tempStream;
@@ -922,11 +923,9 @@ SkStreamRewindable* SkStreamRewindableFromSkStream(SkStream* stream) {
         if (stream->hasPosition()) {  // If stream has length, but can't rewind.
             length -= stream->getPosition();
         }
-        SkAutoMalloc allocMemory(length);
-        SkDEBUGCODE(size_t read =) stream->read(allocMemory.get(), length);
+        SkAutoTUnref<SkData> data(SkData::NewUninitialized(length));
+        SkDEBUGCODE(size_t read =) stream->read(data->writable_data(), length);
         SkASSERT(length == read);
-        SkAutoTUnref<SkData> data(
-                SkData::NewFromMalloc(allocMemory.detach(), length));
         return SkNEW_ARGS(SkMemoryStream, (data.get()));
     }
     SkDynamicMemoryWStream tempStream;

@@ -132,22 +132,20 @@ DecodingImageGenerator::~DecodingImageGenerator() {
 SkData* DecodingImageGenerator::onRefEncodedData() {
     // This functionality is used in `gm --serialize`
     // Does not encode options.
-    if (fData != NULL) {
-        return SkSafeRef(fData);
+    if (NULL == fData) {
+        // TODO(halcanary): SkStreamRewindable needs a refData() function
+        // which returns a cheap copy of the underlying data.
+        if (!fStream->rewind()) {
+            return NULL;
+        }
+        size_t length = fStream->getLength();
+        if (0 == length) {
+            return NULL;
+        }
+        fData = SkData::NewUninitialized(length);
+        SkCheckResult(fStream->read(fData->writable_data(), length), length);
     }
-    // TODO(halcanary): SkStreamRewindable needs a refData() function
-    // which returns a cheap copy of the underlying data.
-    if (!fStream->rewind()) {
-        return NULL;
-    }
-    size_t length = fStream->getLength();
-    if (0 == length) {
-        return NULL;
-    }
-    void* buffer = sk_malloc_flags(length, 0);
-    SkCheckResult(fStream->read(buffer, length), length);
-    fData = SkData::NewFromMalloc(buffer, length);
-    return SkSafeRef(fData);
+    return SkRef(fData);
 }
 
 bool DecodingImageGenerator::onGetPixels(const SkImageInfo& info,

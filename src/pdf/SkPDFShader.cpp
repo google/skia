@@ -1160,10 +1160,8 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     fState.get()->fImage.unlockPixels();
 }
 
-SkPDFStream* SkPDFFunctionShader::makePSFunction(const SkString& psCode,
-                                                 SkPDFArray* domain) {
-    SkAutoDataUnref funcData(SkData::NewWithCopy(psCode.c_str(),
-                                                 psCode.size()));
+SkPDFStream* SkPDFFunctionShader::makePSFunction(const SkString& psCode, SkPDFArray* domain) {
+    SkAutoDataUnref funcData(SkData::NewWithCopy(psCode.c_str(), psCode.size()));
     SkPDFStream* result = new SkPDFStream(funcData.get());
     result->insertInt("FunctionType", 4);
     result->insert("Domain", domain);
@@ -1171,14 +1169,12 @@ SkPDFStream* SkPDFFunctionShader::makePSFunction(const SkString& psCode,
     return result;
 }
 
-SkPDFShader::ShaderCanonicalEntry::ShaderCanonicalEntry(SkPDFObject* pdfShader,
-                                                        const State* state)
-    : fPDFShader(pdfShader),
-      fState(state) {
-}
+SkPDFShader::ShaderCanonicalEntry::ShaderCanonicalEntry(SkPDFObject* pdfShader, const State* state)
+    : fPDFShader(pdfShader)
+    , fState(state)
+{}
 
-bool SkPDFShader::ShaderCanonicalEntry::operator==(
-        const ShaderCanonicalEntry& b) const {
+bool SkPDFShader::ShaderCanonicalEntry::operator==(const ShaderCanonicalEntry& b) const {
     return fPDFShader == b.fPDFShader ||
            (fState != NULL && b.fState != NULL && *fState == *b.fState);
 }

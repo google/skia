@@ -173,7 +173,7 @@ bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcCol
     return false;
 }
 
-SkData *CompressBitmapToFormat(const SkBitmap &bitmap, Format format) {
+SkData* CompressBitmapToFormat(const SkBitmap &bitmap, Format format) {
     SkAutoLockPixels alp(bitmap);
 
     int compressedDataSize = GetCompressedDataSize(format, bitmap.width(), bitmap.height());
@@ -182,15 +182,14 @@ SkData *CompressBitmapToFormat(const SkBitmap &bitmap, Format format) {
     }
 
     const uint8_t* src = reinterpret_cast<const uint8_t*>(bitmap.getPixels());
-    uint8_t* dst = reinterpret_cast<uint8_t*>(sk_malloc_throw(compressedDataSize));
+    SkData* dst = SkData::NewUninitialized(compressedDataSize);
 
-    if (CompressBufferToFormat(dst, src, bitmap.colorType(), bitmap.width(), bitmap.height(),
-                               bitmap.rowBytes(), format)) {
-        return SkData::NewFromMalloc(dst, compressedDataSize);
+    if (!CompressBufferToFormat((uint8_t*)dst->writable_data(), src, bitmap.colorType(),
+                                bitmap.width(), bitmap.height(), bitmap.rowBytes(), format)) {
+        dst->unref();
+        dst = NULL;
     }
-
-    sk_free(dst);
-    return NULL;
+    return dst;
 }
 
 SkBlitter* CreateBlitterForFormat(int width, int height, void* compressedBuffer,

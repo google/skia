@@ -1,12 +1,9 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 
 #ifndef SkData_DEFINED
 #define SkData_DEFINED
@@ -45,6 +42,19 @@ public:
     }
 
     /**
+     *  USE WITH CAUTION.
+     *  This call will assert that the refcnt is 1, as a precaution against modifying the
+     *  contents when another client/thread has access to the data.
+     */
+    void* writable_data() {
+        if (fSize) {
+            // only assert we're unique if we're not empty
+            SkASSERT(this->unique());
+        }
+        return fPtr;
+    }
+
+    /**
      *  Helper to copy a range of the data into a caller-provided buffer.
      *  Returns the actual number of bytes copied, after clamping offset and
      *  length to the size of the data. If buffer is NULL, it is ignored, and
@@ -70,6 +80,12 @@ public:
     static SkData* NewWithCopy(const void* data, size_t length);
 
     /**
+     *  Create a new data with uninitialized contents. The caller should call writable_data()
+     *  to write into the buffer, but this must be done before another ref() is made.
+     */
+    static SkData* NewUninitialized(size_t length);
+
+    /**
      *  Create a new dataref by copying the specified c-string
      *  (a null-terminated array of bytes). The returned SkData will have size()
      *  equal to strlen(cstr) + 1. If cstr is NULL, it will be treated the same
@@ -81,8 +97,15 @@ public:
      *  Create a new dataref, taking the data ptr as is, and using the
      *  releaseproc to free it. The proc may be NULL.
      */
-    static SkData* NewWithProc(const void* data, size_t length,
-                               ReleaseProc proc, void* context);
+    static SkData* NewWithProc(const void* data, size_t length, ReleaseProc proc, void* context);
+
+    /**
+     *  Call this when the data parameter is already const and will outlive the lifetime of the
+     *  SkData. Suitable for with const globals.
+     */
+    static SkData* NewWithoutCopy(const void* data, size_t length) {
+        return NewWithProc(data, length, NULL, NULL);
+    }
 
     /**
      *  Create a new dataref from a pointer allocated by malloc. The Data object
@@ -130,15 +153,21 @@ private:
     ReleaseProc fReleaseProc;
     void*       fReleaseProcContext;
 
-    const void* fPtr;
+    void*       fPtr;
     size_t      fSize;
 
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);
+    SkData(size_t size);   // inplace new/delete
     virtual ~SkData();
+
+    virtual void internal_dispose() const SK_OVERRIDE;
 
     // Called the first time someone calls NewEmpty to initialize the singleton.
     static SkData* NewEmptyImpl();
     static void DeleteEmpty(SkData*);
+
+    // shared internal factory
+    static SkData* PrivateNewWithCopy(const void* srcOrNull, size_t length);
 
     typedef SkRefCnt INHERITED;
 };

@@ -11,16 +11,46 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
+static void sk_inplace_sentinel_releaseproc(const void*, size_t, void*) {
+    // we should never get called, as we are just a sentinel
+    sk_throw();
+}
+
 SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context) {
-    fPtr = ptr;
+    fPtr = const_cast<void*>(ptr);
     fSize = size;
     fReleaseProc = proc;
     fReleaseProcContext = context;
 }
 
+// This constructor means we are inline with our fPtr's contents. Thus we set fPtr
+// to point right after this. We also set our releaseproc to sk_inplace_sentinel_releaseproc,
+// since we need to handle "delete" ourselves. See internal_displose().
+//
+SkData::SkData(size_t size) {
+    fPtr = (char*)(this + 1);   // contents are immediately after this
+    fSize = size;
+    fReleaseProc = sk_inplace_sentinel_releaseproc;
+    fReleaseProcContext = NULL;
+}
+
 SkData::~SkData() {
     if (fReleaseProc) {
         fReleaseProc(fPtr, fSize, fReleaseProcContext);
+    }
+}
+
+void SkData::internal_dispose() const {
+    if (sk_inplace_sentinel_releaseproc == fReleaseProc) {
+        const_cast<SkData*>(this)->fReleaseProc = NULL;    // so we don't call it in our destructor
+
+        this->internal_dispose_restore_refcnt_to_1();
+        this->~SkData();        // explicitly call this for refcnt bookkeeping
+
+        sk_free(const_cast<SkData*>(this));
+    } else {
+        this->internal_dispose_restore_refcnt_to_1();
+        SkDELETE(this);
     }
 }
 
@@ -47,11 +77,24 @@ size_t SkData::copyRange(size_t offset, size_t length, void* buffer) const {
     return length;
 }
 
+SkData* SkData::PrivateNewWithCopy(const void* srcOrNull, size_t length) {
+    if (0 == length) {
+        return SkData::NewEmpty();
+    }
+    char* storage = (char*)sk_malloc_throw(sizeof(SkData) + length);
+    SkData* data = new (storage) SkData(length);
+    if (srcOrNull) {
+        memcpy(data->writable_data(), srcOrNull, length);
+    }
+    return data;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkData* SkData::NewEmptyImpl() {
     return new SkData(NULL, 0, NULL, NULL);
 }
+
 void SkData::DeleteEmpty(SkData* ptr) { SkDELETE(ptr); }
 
 SkData* SkData::NewEmpty() {
@@ -68,14 +111,13 @@ SkData* SkData::NewFromMalloc(const void* data, size_t length) {
     return new SkData(data, length, sk_free_releaseproc, NULL);
 }
 
-SkData* SkData::NewWithCopy(const void* data, size_t length) {
-    if (0 == length) {
-        return SkData::NewEmpty();
-    }
+SkData* SkData::NewWithCopy(const void* src, size_t length) {
+    SkASSERT(src);
+    return PrivateNewWithCopy(src, length);
+}
 
-    void* copy = sk_malloc_throw(length); // balanced in sk_free_releaseproc
-    memcpy(copy, data, length);
-    return new SkData(copy, length, sk_free_releaseproc, NULL);
+SkData* SkData::NewUninitialized(size_t length) {
+    return PrivateNewWithCopy(NULL, length);
 }
 
 SkData* SkData::NewWithProc(const void* data, size_t length,

@@ -1211,9 +1211,9 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
         return false;
     }
 
-    char* dst = (char*)sk_malloc_throw(ramSize);
+    SkAutoDataUnref data(SkData::NewUninitialized(ramSize));
+    char* dst = (char*)data->writable_data();
     buffer->readByteArray(dst, snugSize);
-    SkAutoDataUnref data(SkData::NewFromMalloc(dst, ramSize));
 
     if (snugSize != ramSize) {
         const char* srcRow = dst + snugRB * (height - 1);
