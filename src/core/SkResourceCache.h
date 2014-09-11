@@ -106,6 +106,8 @@ public:
     static size_t SetSingleAllocationByteLimit(size_t);
     static size_t GetSingleAllocationByteLimit();
 
+    static void PurgeAll();
+
     /**
      * Use this allocator for bitmaps, so they can use ashmem when available.
      * Returns NULL if the ResourceCache has not been initialized with a DiscardableFactory.
@@ -167,6 +169,10 @@ public:
      */
     size_t setTotalByteLimit(size_t newLimit);
 
+    void purgeAll() {
+        this->purgeAsNeeded(true);
+    }
+
     SkBitmap::Allocator* allocator() const { return fAllocator; };
 
     /**
@@ -190,7 +196,7 @@ private:
     size_t  fSingleAllocationByteLimit;
     int     fCount;
 
-    void purgeAsNeeded();
+    void purgeAsNeeded(bool forcePurge = false);
 
     // linklist management
     void moveToHead(Rec*);

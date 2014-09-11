@@ -303,7 +303,7 @@ void SkResourceCache::remove(Rec* rec) {
     fCount -= 1;
 }
 
-void SkResourceCache::purgeAsNeeded() {
+void SkResourceCache::purgeAsNeeded(bool forcePurge) {
     size_t byteLimit;
     int    countLimit;
 
@@ -317,7 +317,7 @@ void SkResourceCache::purgeAsNeeded() {
 
     Rec* rec = fTail;
     while (rec) {
-        if (fTotalBytesUsed < byteLimit && fCount < countLimit) {
+        if (!forcePurge && fTotalBytesUsed < byteLimit && fCount < countLimit) {
             break;
         }
 
@@ -564,6 +564,11 @@ size_t SkResourceCache::GetSingleAllocationByteLimit() {
     return get_cache()->getSingleAllocationByteLimit();
 }
 
+void SkResourceCache::PurgeAll() {
+    SkAutoMutexAcquire am(gMutex);
+    return get_cache()->purgeAll();
+}
+
 const SkResourceCache::Rec* SkResourceCache::FindAndLock(const Key& key) {
     SkAutoMutexAcquire am(gMutex);
     return get_cache()->findAndLock(key);
@@ -601,5 +606,9 @@ size_t SkGraphics::GetResourceCacheSingleAllocationByteLimit() {
 
 size_t SkGraphics::SetResourceCacheSingleAllocationByteLimit(size_t newLimit) {
     return SkResourceCache::SetSingleAllocationByteLimit(newLimit);
+}
+
+void SkGraphics::PurgeResourceCache() {
+    return SkResourceCache::PurgeAll();
 }
 

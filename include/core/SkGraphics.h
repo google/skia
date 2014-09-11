@@ -97,6 +97,12 @@ public:
     static size_t SetResourceCacheTotalByteLimit(size_t newLimit);
 
     /**
+     *  For debugging purposes, this will attempt to purge the resource cache. It
+     *  does not change the limit.
+     */
+    static void PurgeResourceCache();
+
+    /**
      *  When the cachable entry is very lage (e.g. a large scaled bitmap), adding it to the cache
      *  can cause most/all of the existing entries to be purged. To avoid the, the client can set
      *  a limit for a single allocation. If a cacheable entry would have been cached, but its size

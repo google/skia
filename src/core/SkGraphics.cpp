@@ -128,6 +128,7 @@ void SkGraphics::Init() {
 
 void SkGraphics::Term() {
     PurgeFontCache();
+    PurgeResourceCache();
     SkPaint::Term();
 }
 
