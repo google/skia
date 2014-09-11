@@ -16,7 +16,7 @@
       'SK_GAMMA_SRGB',
       'SK_GAMMA_APPLY_TO_A8',
       'SK_SCALAR_TO_FLOAT_EXCLUDED',  # temporary to allow Chrome to call SkFloatToScalar
-      'SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
+      # 'SK_USE_DISCARDABLE_SCALEDIMAGECACHE',  # TODO(reed): Re-enable when tests don't crash with this.
     ],
 
     # Validate the 'skia_os' setting against 'OS', because only certain
