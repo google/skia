@@ -798,9 +798,13 @@ protected:
                                          const SkFontStyle& style) const SK_OVERRIDE
     {
         //TODO: should the SkTypeface_fontconfig know its family?
-        const SkTypeface_fontconfig* fcTypeface =
-            static_cast<const SkTypeface_fontconfig*>(typeface);
-        return this->matchFamilyStyle(get_string(fcTypeface->fPattern, FC_FAMILY), style);
+        const char* name = NULL;
+        if (typeface) {
+            const SkTypeface_fontconfig* fcTypeface =
+                static_cast<const SkTypeface_fontconfig*>(typeface);
+            name = get_string(fcTypeface->fPattern, FC_FAMILY);
+        }
+        return this->matchFamilyStyle(name, style);
     }
 
     /** @param stream does not take ownership of the reference. */
