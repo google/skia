@@ -9,6 +9,7 @@
 #include "SkLazyPtr.h"
 #include "SkOSFile.h"
 #include "SkReadBuffer.h"
+#include "SkStream.h"
 #include "SkWriteBuffer.h"
 
 static void sk_inplace_sentinel_releaseproc(const void*, size_t, void*) {
@@ -198,3 +199,14 @@ SkData* SkData::NewWithCString(const char cstr[]) {
     }
     return NewWithCopy(cstr, size);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkData* SkData::NewFromStream(SkStream* stream, size_t size) {
+    SkAutoDataUnref data(SkData::NewUninitialized(size));
+    if (stream->read(data->writable_data(), size) != size) {
+        return NULL;
+    }
+    return data.detach();
+}
+

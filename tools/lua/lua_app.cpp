@@ -18,14 +18,11 @@ extern "C" {
 }
 
 static SkData* read_into_data(const char file[]) {
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(file));
-    if (!stream.get()) {
-        return SkData::NewEmpty();
+    SkData* data = SkData::NewFromFileName(file);
+    if (!data) {
+        data = SkData::NewEmpty();
     }
-    size_t len = stream->getLength();
-    void* buffer = sk_malloc_throw(len);
-    stream->read(buffer, len);
-    return SkData::NewFromMalloc(buffer, len);
+    return data;
 }
 
 int tool_main(int argc, char** argv);

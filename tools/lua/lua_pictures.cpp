@@ -47,17 +47,6 @@ static SkPicture* load_picture(const char path[]) {
     return pic;
 }
 
-static SkData* read_into_data(const char file[]) {
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(file));
-    if (!stream.get()) {
-        return SkData::NewEmpty();
-    }
-    size_t len = stream->getLength();
-    void* buffer = sk_malloc_throw(len);
-    stream->read(buffer, len);
-    return SkData::NewFromMalloc(buffer, len);
-}
-
 static void call_canvas(lua_State* L, SkLuaCanvas* canvas,
                         const char pictureFile[], const char funcName[]) {
     lua_getglobal(L, funcName);
@@ -97,7 +86,10 @@ int tool_main(int argc, char** argv) {
     SkLua L(summary);
 
     for (int i = 0; i < FLAGS_luaFile.count(); ++i) {
-        SkAutoDataUnref data(read_into_data(FLAGS_luaFile[i]));
+        SkAutoDataUnref data(SkData::NewFromFileName(FLAGS_luaFile[i]));
+        if (NULL == data.get()) {
+            data.reset(SkData::NewEmpty());
+        }
         if (!FLAGS_quiet) {
             SkDebugf("loading %s...\n", FLAGS_luaFile[i]);
         }

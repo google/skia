@@ -11,6 +11,7 @@
 #include "SkRefCnt.h"
 
 struct SkFILE;
+class SkStream;
 
 /**
  *  SkData holds an immutable data buffer. Not only is the data immutable,
@@ -136,6 +137,13 @@ public:
      *  Returns NULL on failure.
      */
     static SkData* NewFromFD(int fd);
+
+    /**
+     *  Attempt to read size bytes into a SkData. If the read succeeds, return the data,
+     *  else return NULL. Either way the stream's cursor may have been changed as a result
+     *  of calling read().
+     */
+    static SkData* NewFromStream(SkStream*, size_t size);
 
     /**
      *  Create a new dataref using a subset of the data in the specified

@@ -25,27 +25,11 @@ bool are_buffers_equal(SkData* skdata1, SkData* skdata2) {
 }
 
 SkData* read_file(const char* file_path) {
-    SkFILEStream fileStream(file_path);
-    if (!fileStream.isValid()) {
+    SkData* data = SkData::NewFromFileName(file_path);
+    if (!data) {
         SkDebugf("WARNING: could not open file <%s> for reading\n", file_path);
-        return NULL;
     }
-    size_t bytesInFile = fileStream.getLength();
-    size_t bytesLeftToRead = bytesInFile;
-
-    void* bufferStart = sk_malloc_throw(bytesInFile);
-    char* bufferPointer = (char*)bufferStart;
-    while (bytesLeftToRead > 0) {
-        size_t bytesReadThisTime = fileStream.read(bufferPointer, bytesLeftToRead);
-        if (0 == bytesReadThisTime) {
-            SkDebugf("WARNING: error reading from <%s>\n", file_path);
-            sk_free(bufferStart);
-            return NULL;
-        }
-        bytesLeftToRead -= bytesReadThisTime;
-        bufferPointer += bytesReadThisTime;
-    }
-    return SkData::NewFromMalloc(bufferStart, bytesInFile);
+    return data;
 }
 
 bool get_bitmap(SkData* fileBits, DiffResource& resource, SkImageDecoder::Mode mode) {

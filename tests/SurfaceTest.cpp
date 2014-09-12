@@ -74,8 +74,7 @@ static void test_image(skiatest::Reporter* reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
     size_t rowBytes = info.minRowBytes();
     size_t size = info.getSafeSize(rowBytes);
-    void* addr = sk_malloc_throw(size);
-    SkData* data = SkData::NewFromMalloc(addr, size);
+    SkData* data = SkData::NewUninitialized(size);
 
     REPORTER_ASSERT(reporter, 1 == data->getRefCnt());
     SkImage* image = SkImage::NewRasterData(info, data, rowBytes);
@@ -92,9 +91,9 @@ static SkImage* createImage(ImageType imageType, GrContext* context,
     const size_t rowBytes = info.minRowBytes();
     const size_t size = rowBytes * info.height();
 
-    void* addr = sk_malloc_throw(size);
+    SkAutoTUnref<SkData> data(SkData::NewUninitialized(size));
+    void* addr = data->writable_data();
     sk_memset32((SkPMColor*)addr, pmcolor, SkToInt(size >> 2));
-    SkAutoTUnref<SkData> data(SkData::NewFromMalloc(addr, size));
 
     switch (imageType) {
         case kRasterCopy_ImageType:

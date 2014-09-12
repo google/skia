@@ -139,13 +139,11 @@ SkData* DecodingImageGenerator::onRefEncodedData() {
             return NULL;
         }
         size_t length = fStream->getLength();
-        if (0 == length) {
-            return NULL;
+        if (length) {
+            fData = SkData::NewFromStream(fStream, length);
         }
-        fData = SkData::NewUninitialized(length);
-        SkCheckResult(fStream->read(fData->writable_data(), length), length);
     }
-    return SkRef(fData);
+    return SkSafeRef(fData);
 }
 
 bool DecodingImageGenerator::onGetPixels(const SkImageInfo& info,

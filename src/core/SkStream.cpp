@@ -869,13 +869,7 @@ SkData* SkCopyStreamToData(SkStream* stream) {
     SkASSERT(stream != NULL);
 
     if (stream->hasLength()) {
-        const size_t length = stream->getLength();
-        SkData* data = SkData::NewUninitialized(length);
-        if (stream->read(data->writable_data(), length) != length) {
-            data->unref();
-            data = NULL;
-        }
-        return data;
+        return SkData::NewFromStream(stream, stream->getLength());
     }
 
     SkDynamicMemoryWStream tempStream;
@@ -902,9 +896,7 @@ SkStreamRewindable* SkStreamRewindableFromSkStream(SkStream* stream) {
         if (stream->hasPosition()) {  // If stream has length, but can't rewind.
             length -= stream->getPosition();
         }
-        SkAutoTUnref<SkData> data(SkData::NewUninitialized(length));
-        SkDEBUGCODE(size_t read =) stream->read(data->writable_data(), length);
-        SkASSERT(length == read);
+        SkAutoTUnref<SkData> data(SkData::NewFromStream(stream, length));
         return SkNEW_ARGS(SkMemoryStream, (data.get()));
     }
     SkDynamicMemoryWStream tempStream;
