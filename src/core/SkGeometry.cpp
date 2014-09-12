@@ -102,7 +102,7 @@ static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio) {
     if (SkScalarIsNaN(r)) {
         return 0;
     }
-    SkASSERT(r >= 0 && r < SK_Scalar1);
+    SkASSERTF(r >= 0 && r < SK_Scalar1, "numer %f, denom %f, r %f", numer, denom, r);
     if (r == 0) { // catch underflow if numer <<<< denom
         return 0;
     }
