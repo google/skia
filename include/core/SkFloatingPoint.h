@@ -31,7 +31,7 @@ static inline float sk_float_pow(float base, float exp) {
 
 static inline float sk_float_copysign(float x, float y) {
 // c++11 contains a 'float copysign(float, float)' function in <cmath>.
-#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1800)
+#if (!defined(_MSC_VER) && __cplusplus >= 201103L) || (defined(_MSC_VER) && _MSC_VER >= 1800)
     return copysign(x, y);
 
 // Posix has demanded 'float copysignf(float, float)' (from C99) since Issue 6.
