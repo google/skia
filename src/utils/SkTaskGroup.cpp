@@ -23,12 +23,17 @@ namespace {
 class ThreadPool : SkNoncopyable {
 public:
     static void Add(SkRunnable* task, int32_t* pending) {
-        SkASSERT(gGlobal);  // If this fails, see SkTaskGroup::Enabler.
+        if (!gGlobal) {  // If we have no threads, run synchronously.
+            return task->run();
+        }
         gGlobal->add(task, pending);
     }
 
     static void Wait(int32_t* pending) {
-        SkASSERT(gGlobal);  // If this fails, see SkTaskGroup::Enabler.
+        if (!gGlobal) {  // If we have no threads, the work must already be done.
+            SkASSERT(*pending == 0);
+            return;
+        }
         while (sk_acquire_load(pending) > 0) {  // Pairs with sk_atomic_dec here or in Loop.
             // Lend a hand until our SkTaskGroup of interest is done.
             Work work;
