@@ -64,17 +64,6 @@ size_t SkStream::readPackedUInt() {
     }
 }
 
-SkData* SkStream::readData() {
-    size_t size = this->readU32();
-    if (0 == size) {
-        return SkData::NewEmpty();
-    } else {
-        SkData* data = SkData::NewUninitialized(size);
-        this->read(data->writable_data(), size);
-        return data;
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////////////////
 
 SkWStream::~SkWStream()
@@ -185,16 +174,6 @@ bool SkWStream::writeStream(SkStream* stream, size_t length) {
             return false;
         }
         length -= n;
-    }
-    return true;
-}
-
-bool SkWStream::writeData(const SkData* data) {
-    if (data) {
-        this->write32(SkToU32(data->size()));
-        this->write(data->data(), data->size());
-    } else {
-        this->write32(0);
     }
     return true;
 }

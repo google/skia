@@ -81,12 +81,6 @@ public:
     SkScalar readScalar();
     size_t   readPackedUInt();
 
-    /**
-     *  Reconstitute an SkData object that was written to the stream
-     *  using SkWStream::writeData().
-     */
-    SkData* readData();
-
 //SkStreamRewindable
     /** Rewinds to the beginning of the stream. Returns true if the stream is known
      *  to be at the beginning after this call returns.
@@ -208,16 +202,6 @@ public:
     bool    writePackedUInt(size_t);
 
     bool    writeStream(SkStream* input, size_t length);
-
-    /**
-     * Append an SkData object to the stream, such that it can be read
-     * out of the stream using SkStream::readData().
-     *
-     * Note that the encoding method used to write the SkData object
-     * to the stream may change over time.  This method DOES NOT
-     * just write the raw content of the SkData object to the stream.
-     */
-    bool writeData(const SkData*);
 
     /**
      * This returns the number of bytes in the stream required to store
