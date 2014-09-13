@@ -16,16 +16,19 @@ DEF_TEST(ImageGenerator, reporter) {
     sizes[2] = SkISize::Make( 50,  50);
     void*   planes[3] = { NULL };
     size_t  rowBytes[3] = { 0 };
+    SkYUVColorSpace colorSpace;
 
     // Check that the YUV decoding API does not cause any crashes
-    ig.getYUV8Planes(sizes, NULL, NULL);
-    ig.getYUV8Planes(sizes, planes, NULL);
-    ig.getYUV8Planes(sizes, NULL, rowBytes);
-    ig.getYUV8Planes(sizes, planes, rowBytes);
+    ig.getYUV8Planes(sizes, NULL, NULL, &colorSpace);
+    ig.getYUV8Planes(sizes, NULL, NULL, NULL);
+    ig.getYUV8Planes(sizes, planes, NULL, NULL);
+    ig.getYUV8Planes(sizes, NULL, rowBytes, NULL);
+    ig.getYUV8Planes(sizes, planes, rowBytes, NULL);
+    ig.getYUV8Planes(sizes, planes, rowBytes, &colorSpace);
 
     int dummy;
     planes[0] = planes[1] = planes[2] = &dummy;
     rowBytes[0] = rowBytes[1] = rowBytes[2] = 250;
 
-    ig.getYUV8Planes(sizes, planes, rowBytes);
+    ig.getYUV8Planes(sizes, planes, rowBytes, &colorSpace);
 }

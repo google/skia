@@ -50,8 +50,9 @@ private:
 
     virtual bool onGetYUV8Planes(SkISize sizes[3],
                                  void* planes[3],
-                                 size_t rowBytes[3]) SK_OVERRIDE {
-        return fGenerator->getYUV8Planes(sizes, planes, rowBytes);
+                                 size_t rowBytes[3],
+                                 SkYUVColorSpace* colorSpace) SK_OVERRIDE {
+        return fGenerator->getYUV8Planes(sizes, planes, rowBytes, colorSpace);
     }
 
     friend bool SkInstallDiscardablePixelRef(SkImageGenerator*, SkBitmap*,

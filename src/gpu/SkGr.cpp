@@ -222,7 +222,7 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
                                    const SkBitmap& bm, const GrTextureDesc& desc) {
     SkPixelRef* pixelRef = bm.pixelRef();
     SkISize yuvSizes[3];
-    if ((NULL == pixelRef) || !pixelRef->getYUV8Planes(yuvSizes, NULL, NULL)) {
+    if ((NULL == pixelRef) || !pixelRef->getYUV8Planes(yuvSizes, NULL, NULL, NULL)) {
         return NULL;
     }
 
@@ -239,8 +239,10 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
     planes[1] = (uint8_t*)planes[0] + sizes[0];
     planes[2] = (uint8_t*)planes[1] + sizes[1];
 
+    SkYUVColorSpace colorSpace;
+
     // Get the YUV planes
-    if (!pixelRef->getYUV8Planes(yuvSizes, planes, rowBytes)) {
+    if (!pixelRef->getYUV8Planes(yuvSizes, planes, rowBytes, &colorSpace)) {
         return NULL;
     }
 
@@ -269,7 +271,8 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
     GrRenderTarget* renderTarget = result ? result->asRenderTarget() : NULL;
     if (renderTarget) {
         SkAutoTUnref<GrEffect> yuvToRgbEffect(GrYUVtoRGBEffect::Create(
-            yuvTextures[0].texture(), yuvTextures[1].texture(), yuvTextures[2].texture()));
+            yuvTextures[0].texture(), yuvTextures[1].texture(), yuvTextures[2].texture(),
+            colorSpace));
         GrPaint paint;
         paint.addColorEffect(yuvToRgbEffect);
         SkRect r = SkRect::MakeWH(SkIntToScalar(yuvSizes[0].fWidth),

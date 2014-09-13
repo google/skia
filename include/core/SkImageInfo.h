@@ -133,6 +133,21 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
+ *  Describes the color space a YUV pixel.
+ */
+enum SkYUVColorSpace {
+    /** Standard JPEG color space. */
+    kJPEG_SkYUVColorSpace,
+    /** SDTV standard Rec. 601 color space. Uses "studio swing" [16, 235] color
+       range. See http://en.wikipedia.org/wiki/Rec._601 for details. */
+    kRec601_SkYUVColorSpace,
+
+    kLastEnum_SkYUVColorSpace = kRec601_SkYUVColorSpace
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
  *  Describe an image's dimensions and pixel type.
  */
 struct SkImageInfo {

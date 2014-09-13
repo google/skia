@@ -227,9 +227,13 @@ public:
      *  If all planes and rowBytes are not NULL, then it should copy the associated Y,U,V data
      *  into those planes of memory supplied by the caller. It should validate that the sizes
      *  match what it expected. If the sizes do not match, it should return false.
+     *
+     *  If colorSpace is not NULL, the YUV color space of the data should be stored in the address
+     *  it points at.
      */
-    bool getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]) {
-        return this->onGetYUV8Planes(sizes, planes, rowBytes);
+    bool getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
+                       SkYUVColorSpace* colorSpace) {
+        return this->onGetYUV8Planes(sizes, planes, rowBytes, colorSpace);
     }
 
     bool readPixels(SkBitmap* dst, const SkIRect* subset = NULL);
@@ -319,7 +323,8 @@ protected:
     virtual SkData* onRefEncodedData();
 
     // default impl returns false.
-    virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]);
+    virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
+                                 SkYUVColorSpace* colorSpace);
 
     /**
      *  Returns the size (in bytes) of the internally allocated memory.

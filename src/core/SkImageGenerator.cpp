@@ -57,7 +57,8 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
 }
 #endif
 
-bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]) {
+bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
+                                     SkYUVColorSpace* colorSpace) {
 #ifdef SK_DEBUG
     // In all cases, we need the sizes array
     SkASSERT(sizes);
@@ -89,11 +90,23 @@ bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t r
               (rowBytes[2] >= (size_t)sizes[2].fWidth)));
 #endif
 
-    return this->onGetYUV8Planes(sizes, planes, rowBytes);
+    return this->onGetYUV8Planes(sizes, planes, rowBytes, colorSpace);
 }
 
 bool SkImageGenerator::onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]) {
     return false;
+}
+
+bool SkImageGenerator::onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
+                                       SkYUVColorSpace* colorSpace) {
+    // In order to maintain compatibility with clients that implemented the original
+    // onGetYUV8Planes interface, we assume that the color space is JPEG.
+    // TODO(rileya): remove this and the old onGetYUV8Planes once clients switch over to
+    // the new interface.
+    if (colorSpace) {
+        *colorSpace = kJPEG_SkYUVColorSpace;
+    }
+    return this->onGetYUV8Planes(sizes, planes, rowBytes);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
