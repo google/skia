@@ -72,7 +72,6 @@
     '../tests/ColorFilterTest.cpp',
     '../tests/ColorPrivTest.cpp',
     '../tests/ColorTest.cpp',
-    '../tests/Cpp11Test.cpp',
     '../tests/DashPathEffectTest.cpp',
     '../tests/DataRefTest.cpp',
     '../tests/DeferredCanvasTest.cpp',

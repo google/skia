@@ -202,7 +202,6 @@
           '-Wno-unused-parameter',
         ],
         'cflags_cc': [
-          '-std=c++11',
           '-fno-rtti',
           '-Wnon-virtual-dtor',
           '-Wno-invalid-offsetof',  # GCC <4.6 is old-school strict about what is POD.
@@ -454,6 +453,8 @@
           }],
           [ 'skia_clang_build', {
             'cflags_cc': [
+                # Build in C++11 mode to make sure we'll have an easy time switching.
+                '-std=c++11',
                 '-Wno-unknown-warning-option',  # Allows unknown warnings.
                 '-Wno-deprecated',              # From Qt, via debugger (older Clang).
                 '-Wno-deprecated-register',     # From Qt, via debugger (newer Clang).
@@ -503,10 +504,9 @@
               'MACOSX_DEPLOYMENT_TARGET': '<(skia_osx_deployment_target)',
             }],
           ],
-          'CLANG_CXX_LANGUAGE_STANDARD':               'c++0x', # -std=c++11
-          'GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS': 'YES',   # -mssse3
-          'GCC_SYMBOLS_PRIVATE_EXTERN':                'NO',    # -fvisibility=hidden
-          'GCC_INLINES_ARE_PRIVATE_EXTERN':            'NO',    # -fvisibility-inlines-hidden
+          'GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS': 'YES',  # -mssse3
+          'GCC_SYMBOLS_PRIVATE_EXTERN':                'NO',   # -fvisibility=hidden
+          'GCC_INLINES_ARE_PRIVATE_EXTERN':            'NO',   # -fvisibility-inlines-hidden
           'WARNING_CFLAGS': [
             '-Wall',
             '-Wextra',
@@ -546,7 +546,6 @@
         },
         'xcode_settings': {
           'ARCHS': ['armv7'],
-          'CLANG_CXX_LANGUAGE_STANDARD':               'c++0x', # -std=c++11
           'CODE_SIGNING_REQUIRED': 'NO',
           'CODE_SIGN_IDENTITY[sdk=iphoneos*]': '',
           'IPHONEOS_DEPLOYMENT_TARGET': '<(ios_sdk_version)',
