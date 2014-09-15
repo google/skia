@@ -931,8 +931,9 @@ public:
      */
     bool contains(SkScalar x, SkScalar y) const;
 
-    void dump(SkWStream* , bool forceClose) const;
+    void dump(SkWStream* , bool forceClose, bool dumpAsHex) const;
     void dump() const;
+    void dumpHex() const;
 
     /**
      *  Write the path to the buffer, and return the number of bytes written.
