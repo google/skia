@@ -27,49 +27,46 @@ struct TestingRec : public SkResourceCache::Rec {
 
     virtual const Key& getKey() const SK_OVERRIDE { return fKey; }
     virtual size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + sizeof(fValue); }
+
+    static bool Visitor(const SkResourceCache::Rec& baseRec, void* context) {
+        const TestingRec& rec = static_cast<const TestingRec&>(baseRec);
+        intptr_t* result = (intptr_t*)context;
+        
+        *result = rec.fValue;
+        return true;
+    }
 };
 }
 
 static const int COUNT = 10;
 static const int DIM = 256;
 
-static void test_cache(skiatest::Reporter* reporter, SkResourceCache& cache,
-                       bool testPurge) {
-    SkResourceCache::ID id;
-
+static void test_cache(skiatest::Reporter* reporter, SkResourceCache& cache, bool testPurge) {
     for (int i = 0; i < COUNT; ++i) {
         TestingKey key(i);
+        intptr_t value = -1;
 
-        const TestingRec* rec = (const TestingRec*)cache.findAndLock(key);
-        REPORTER_ASSERT(reporter, NULL == rec);
+        REPORTER_ASSERT(reporter, !cache.find(key, TestingRec::Visitor, &value));
+        REPORTER_ASSERT(reporter, -1 == value);
 
-        TestingRec* newRec = SkNEW_ARGS(TestingRec, (key, i));
-        const TestingRec* addedRec = (const TestingRec*)cache.addAndLock(newRec);
-        REPORTER_ASSERT(reporter, addedRec);
+        cache.add(SkNEW_ARGS(TestingRec, (key, i)));
 
-        const TestingRec* foundRec = (const TestingRec*)cache.findAndLock(key);
-        REPORTER_ASSERT(reporter, foundRec == addedRec);
-        REPORTER_ASSERT(reporter, foundRec->fValue == i);
-        cache.unlock(foundRec);
-        cache.unlock(addedRec);
+        REPORTER_ASSERT(reporter, cache.find(key, TestingRec::Visitor, &value));
+        REPORTER_ASSERT(reporter, i == value);
     }
 
     if (testPurge) {
         // stress test, should trigger purges
         for (size_t i = 0; i < COUNT * 100; ++i) {
             TestingKey key(i);
-            SkResourceCache::ID id = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, i)));
-            REPORTER_ASSERT(reporter, id);
-            cache.unlock(id);
+            cache.add(SkNEW_ARGS(TestingRec, (key, i)));
         }
     }
 
     // test the originals after all that purging
     for (int i = 0; i < COUNT; ++i) {
-        id = cache.findAndLock(TestingKey(i));
-        if (id) {
-            cache.unlock(id);
-        }
+        intptr_t value;
+        (void)cache.find(TestingKey(i), TestingRec::Visitor, &value);
     }
 
     cache.setTotalByteLimit(0);
@@ -109,15 +106,11 @@ DEF_TEST(ImageCache_doubleAdd, r) {
 
     TestingKey key(1);
 
-    SkResourceCache::ID id1 = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, 2)));
-    SkResourceCache::ID id2 = cache.addAndLock(SkNEW_ARGS(TestingRec, (key, 3)));
-    // We don't really care if id1 == id2 as long as unlocking both works.
-    cache.unlock(id1);
-    cache.unlock(id2);
+    cache.add(SkNEW_ARGS(TestingRec, (key, 2)));
+    cache.add(SkNEW_ARGS(TestingRec, (key, 3)));
 
     // Lookup can return either value.
-    const TestingRec* rec = (const TestingRec*)cache.findAndLock(key);
-    REPORTER_ASSERT(r, rec);
-    REPORTER_ASSERT(r, 2 == rec->fValue || 3 == rec->fValue);
-    cache.unlock(rec);
+    intptr_t value = -1;
+    REPORTER_ASSERT(r, cache.find(key, TestingRec::Visitor, &value));
+    REPORTER_ASSERT(r, 2 == value || 3 == value);
 }

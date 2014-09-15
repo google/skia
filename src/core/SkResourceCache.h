@@ -60,7 +60,7 @@ public:
     struct Rec {
         typedef SkResourceCache::Key Key;
 
-        Rec() : fLockCount(1) {}
+        Rec() {}
         virtual ~Rec() {}
 
         uint32_t getHash() const { return this->getKey().hash(); }
@@ -75,12 +75,23 @@ public:
     private:
         Rec*    fNext;
         Rec*    fPrev;
-        int32_t fLockCount;
 
         friend class SkResourceCache;
     };
 
     typedef const Rec* ID;
+
+    /**
+     *  Callback function for find(). If called, the cache will have found a match for the
+     *  specified Key, and will pass in the corresponding Rec, along with a caller-specified
+     *  context. The function can read the data in Rec, and copy whatever it likes into context
+     *  (casting context to whatever it really is).
+     *
+     *  The return value determines what the cache will do with the Rec. If the function returns
+     *  true, then the Rec is considered "valid". If false is returned, the Rec will be considered
+     *  "stale" and will be purged from the cache.
+     */
+    typedef bool (*VisitorProc)(const Rec&, void* context);
 
     /**
      *  Returns a locked/pinned SkDiscardableMemory instance for the specified
@@ -93,11 +104,17 @@ public:
      *  instance of this cache.
      */
 
-    static const Rec* FindAndLock(const Key& key);
-    static const Rec* AddAndLock(Rec*);
+    /**
+     *  Returns true if the visitor was called on a matching Key, and the visitor returned true.
+     *
+     *  Find() will search the cache for the specified Key. If no match is found, return false and
+     *  do not call the VisitorProc. If a match is found, return whatever the visitor returns.
+     *  Its return value is interpreted to mean:
+     *      true  : Rec is valid
+     *      false : Rec is "stale" -- the cache will purge it.
+     */
+    static bool Find(const Key& key, VisitorProc, void* context);
     static void Add(Rec*);
-    static void Unlock(ID);
-    static void Remove(ID);
 
     static size_t GetTotalBytesUsed();
     static size_t GetTotalByteLimit();
@@ -139,18 +156,17 @@ public:
     explicit SkResourceCache(size_t byteLimit);
     ~SkResourceCache();
 
-    const Rec* findAndLock(const Key& key);
-    const Rec* addAndLock(Rec*);
-    void add(Rec*);
-    void remove(Rec*);
-
     /**
-     *  Given a non-null ID ptr returned by either findAndLock or addAndLock,
-     *  this releases the associated resources to be available to be purged
-     *  if needed. After this, the cached bitmap should no longer be
-     *  referenced by the caller.
+     *  Returns true if the visitor was called on a matching Key, and the visitor returned true.
+     *
+     *  find() will search the cache for the specified Key. If no match is found, return false and
+     *  do not call the VisitorProc. If a match is found, return whatever the visitor returns.
+     *  Its return value is interpreted to mean:
+     *      true  : Rec is valid
+     *      false : Rec is "stale" -- the cache will purge it.
      */
-    void unlock(ID);
+    bool find(const Key&, VisitorProc, void* context);
+    void add(Rec*);
 
     size_t getTotalBytesUsed() const { return fTotalBytesUsed; }
     size_t getTotalByteLimit() const { return fTotalByteLimit; }
@@ -202,6 +218,7 @@ private:
     void moveToHead(Rec*);
     void addToHead(Rec*);
     void detach(Rec*);
+    void remove(Rec*);
 
     void init();    // called by constructors
 
