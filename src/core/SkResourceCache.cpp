@@ -37,28 +37,10 @@ class SkResourceCache::Hash :
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// experimental hash to speed things up
-#define USE_HASH
-
-#if !defined(USE_HASH)
-static inline SkResourceCache::Rec* find_rec_in_list(
-        SkResourceCache::Rec* head, const Key & key) {
-    SkResourceCache::Rec* rec = head;
-    while ((rec != NULL) && (rec->fKey != key)) {
-        rec = rec->fNext;
-    }
-    return rec;
-}
-#endif
-
 void SkResourceCache::init() {
     fHead = NULL;
     fTail = NULL;
-#ifdef USE_HASH
     fHash = new Hash;
-#else
-    fHash = NULL;
-#endif
     fTotalBytesUsed = 0;
     fCount = 0;
     fSingleAllocationByteLimit = 0;
@@ -206,11 +188,7 @@ SkResourceCache::~SkResourceCache() {
 ////////////////////////////////////////////////////////////////////////////////
 
 const SkResourceCache::Rec* SkResourceCache::findAndLock(const Key& key) {
-#ifdef USE_HASH
     Rec* rec = fHash->find(key);
-#else
-    Rec* rec = find_rec_in_list(fHead, key);
-#endif
     if (rec) {
         this->moveToHead(rec);  // for our LRU
         rec->fLockCount += 1;
@@ -229,10 +207,7 @@ const SkResourceCache::Rec* SkResourceCache::addAndLock(Rec* rec) {
 
     this->addToHead(rec);
     SkASSERT(1 == rec->fLockCount);
-#ifdef USE_HASH
-    SkASSERT(fHash);
     fHash->add(rec);
-#endif
     // We may (now) be overbudget, so see if we need to purge something.
     this->purgeAsNeeded();
     return rec;
@@ -250,10 +225,7 @@ void SkResourceCache::add(Rec* rec) {
     
     this->addToHead(rec);
     SkASSERT(1 == rec->fLockCount);
-#ifdef USE_HASH
-    SkASSERT(fHash);
     fHash->add(rec);
-#endif
     this->unlock(rec);
 }
 
@@ -293,9 +265,7 @@ void SkResourceCache::remove(Rec* rec) {
     SkASSERT(used <= fTotalBytesUsed);
 
     this->detach(rec);
-#ifdef USE_HASH
     fHash->remove(rec->getKey());
-#endif
 
     SkDELETE(rec);
 
