@@ -142,14 +142,11 @@ struct SkPicture::PathCounter {
 
     // Recurse into nested pictures.
     void operator()(const SkRecords::DrawPicture& op) {
-        // If you're not also SkRecord-backed, tough luck.  Get on the bandwagon.
-        if (op.picture->fRecord.get() == NULL) {
-            return;
-        }
-        const SkRecord& nested = *op.picture->fRecord;
-        for (unsigned i = 0; i < nested.count(); i++) {
-            nested.visit<void>(i, *this);
-        }
+        const SkPicture::Analysis& analysis = op.picture->fAnalysis;
+        numPaintWithPathEffectUses += analysis.fNumPaintWithPathEffectUses;
+        numFastPathDashEffects     += analysis.fNumFastPathDashEffects;
+        numAAConcavePaths          += analysis.fNumAAConcavePaths;
+        numAAHairlineConcavePaths  += analysis.fNumAAHairlineConcavePaths;
     }
 
     void checkPaint(const SkPaint* paint) {
