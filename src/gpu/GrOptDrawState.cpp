@@ -1,0 +1,147 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "GrOptDrawState.h"
+
+#include "GrDrawState.h"
+
+GrOptDrawState::GrOptDrawState(const GrDrawState& drawState) : INHERITED(drawState) {
+    fColor = drawState.getColor();
+    fCoverage = drawState.getCoverage();
+    fViewMatrix = drawState.getViewMatrix();
+    fBlendConstant = drawState.getBlendConstant();
+    fFlagBits = drawState.getFlagBits();
+    fVAPtr = drawState.getVertexAttribs();
+    fVACount = drawState.getVertexAttribCount();
+    fVAStride = drawState.getVertexStride();
+    fStencilSettings = drawState.getStencil();
+    fDrawFace = drawState.getDrawFace();
+
+    fBlendOptFlags = drawState.getBlendOpts(false, &fSrcBlend, &fDstBlend);
+
+    memcpy(fFixedFunctionVertexAttribIndices,
+            drawState.getFixedFunctionVertexAttribIndices(),
+            sizeof(fFixedFunctionVertexAttribIndices));
+
+    fInputColorIsUsed = true;
+    fInputCoverageIsUsed = true;
+
+    if (drawState.hasGeometryProcessor()) {
+        fGeometryProcessor.reset(SkNEW_ARGS(GrEffectStage, (*drawState.getGeometryProcessor())));
+    } else {
+        fGeometryProcessor.reset(NULL);
+    }
+
+    this->copyEffectiveColorStages(drawState);
+    this->copyEffectiveCoverageStages(drawState);
+};
+
+void GrOptDrawState::removeFixedFunctionVertexAttribs(uint8_t removeVAFlag) {
+    int numToRemove = 0;
+    uint8_t maskCheck = 0x1;
+    // Count the number of vertex attributes that we will actually remove
+    for (int i = 0; i < kGrFixedFunctionVertexAttribBindingCnt; ++i) {
+        if ((maskCheck & removeVAFlag) && -1 != fFixedFunctionVertexAttribIndices[i]) {
+            ++numToRemove;
+        }
+        maskCheck <<= 1;
+    }
+    fOptVA.reset(fVACount - numToRemove);
+
+    GrVertexAttrib* dst = fOptVA.get();
+    const GrVertexAttrib* src = fVAPtr;
+
+    for (int i = 0, newIdx = 0; i < fVACount; ++i, ++src) {
+        const GrVertexAttrib& currAttrib = *src;
+        if (currAttrib.fBinding < kGrFixedFunctionVertexAttribBindingCnt) {
+            uint8_t maskCheck = 0x1 << currAttrib.fBinding;
+            if (maskCheck & removeVAFlag) {
+                SkASSERT(-1 != fFixedFunctionVertexAttribIndices[currAttrib.fBinding]);
+                fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = -1;
+                continue;
+            }
+        }
+        memcpy(dst, src, sizeof(GrVertexAttrib));
+        fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = newIdx;
+        ++newIdx;
+        ++dst;
+    }
+    fVACount -= numToRemove;
+    fVAPtr = fOptVA.get();
+}
+
+void GrOptDrawState::copyEffectiveColorStages(const GrDrawState& ds) {
+    int firstColorStage = 0;
+
+    // Set up color and flags for ConstantColorComponent checks
+    GrColor color;
+    uint32_t validComponentFlags;
+    if (!this->hasColorVertexAttribute()) {
+        color = ds.getColor();
+        validComponentFlags = kRGBA_GrColorComponentFlags;
+    } else {
+        if (ds.vertexColorsAreOpaque()) {
+            color = 0xFF << GrColor_SHIFT_A;
+            validComponentFlags = kA_GrColorComponentFlag;
+        } else {
+            validComponentFlags = 0;
+            color = 0; // not strictly necessary but we get false alarms from tools about uninit.
+        }
+    }
+
+    for (int i = 0; i < ds.numColorStages(); ++i) {
+        const GrEffect* effect = ds.getColorStage(i).getEffect();
+        if (!effect->willUseInputColor()) {
+            firstColorStage = i;
+            fInputColorIsUsed = false;
+        }
+        effect->getConstantColorComponents(&color, &validComponentFlags);
+        if (kRGBA_GrColorComponentFlags == validComponentFlags) {
+            firstColorStage = i + 1;
+            fColor = color;
+            fInputColorIsUsed = true;
+            this->removeFixedFunctionVertexAttribs(0x1 << kColor_GrVertexAttribBinding);
+        }
+    }
+    if (firstColorStage < ds.numColorStages()) {
+        fColorStages.reset(&ds.getColorStage(firstColorStage),
+                           ds.numColorStages() - firstColorStage);
+    } else {
+        fColorStages.reset();
+    }
+}
+
+void GrOptDrawState::copyEffectiveCoverageStages(const GrDrawState& ds) {
+    int firstCoverageStage = 0;
+
+    // We do not try to optimize out constantColor coverage effects here. It is extremely rare
+    // to have a coverage effect that returns a constant value for all four channels. Thus we
+    // save having to make extra virtual calls by not checking for it.
+
+    // Don't do any optimizations on coverage stages. It should not be the case where we do not use
+    // input coverage in an effect
+#ifdef OptCoverageStages
+    for (int i = 0; i < ds.numCoverageStages(); ++i) {
+        const GrEffect* effect = ds.getCoverageStage(i).getEffect();
+        if (!effect->willUseInputColor()) {
+            firstCoverageStage = i;
+            fInputCoverageIsUsed = false;
+        }
+    }
+#endif
+    if (ds.numCoverageStages() > 0) {
+        fCoverageStages.reset(&ds.getCoverageStage(firstCoverageStage),
+                              ds.numCoverageStages() - firstCoverageStage);
+    } else {
+        fCoverageStages.reset();
+    }
+}
+
+bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
+    return this->isEqual(that);
+}
+

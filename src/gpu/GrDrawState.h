@@ -9,6 +9,7 @@
 #define GrDrawState_DEFINED
 
 #include "GrBlend.h"
+#include "GrOptDrawState.h"
 #include "GrProgramResource.h"
 #include "GrRODrawState.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -23,12 +24,12 @@ class GrDrawState : public GrRODrawState {
 public:
     SK_DECLARE_INST_COUNT(GrDrawState)
 
-    GrDrawState() {
+    GrDrawState() : fCachedOptState(NULL) {
         SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         this->reset();
     }
 
-    GrDrawState(const SkMatrix& initialViewMatrix) {
+    GrDrawState(const SkMatrix& initialViewMatrix) : fCachedOptState(NULL) {
         SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         this->reset(initialViewMatrix);
     }
@@ -36,7 +37,7 @@ public:
     /**
      * Copies another draw state.
      **/
-    GrDrawState(const GrDrawState& state) : INHERITED() {
+    GrDrawState(const GrDrawState& state) : INHERITED(), fCachedOptState(NULL) {
         SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         *this = state;
     }
@@ -46,7 +47,10 @@ public:
      **/
     GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatrix);
 
-    virtual ~GrDrawState() { SkASSERT(0 == fBlockEffectRemovalCnt); }
+    virtual ~GrDrawState() {
+        SkSafeUnref(fCachedOptState);
+        SkASSERT(0 == fBlockEffectRemovalCnt);
+    }
 
     /**
      * Resets to the default state. GrEffects will be removed from all stages.
@@ -100,7 +104,8 @@ public:
      public:
          AutoVertexAttribRestore(GrDrawState* drawState);
 
-         ~AutoVertexAttribRestore() { fDrawState->internalSetVertexAttribs(fVAPtr, fVACount, fVAStride); }
+         ~AutoVertexAttribRestore() { fDrawState->internalSetVertexAttribs(fVAPtr, fVACount,
+                                                                           fVAStride); }
 
      private:
          GrDrawState*          fDrawState;
@@ -135,8 +140,10 @@ public:
      *  @param color    the color to set.
      */
     void setColor(GrColor color) {
-        fColor = color;
-        this->invalidateBlendOptFlags();
+        if (color != fColor) {
+            fColor = color;
+            this->invalidateOptState();
+        }
     }
 
     /**
@@ -159,8 +166,10 @@ public:
      * coverage is ignored when per-vertex coverage is provided.
      */
     void setCoverage(uint8_t coverage) {
-        fCoverage = coverage;
-        this->invalidateBlendOptFlags();
+        if (coverage != fCoverage) {
+            fCoverage = coverage;
+            this->invalidateOptState();
+        }
     }
 
     /// @}
@@ -175,7 +184,7 @@ public:
         SkASSERT(effect);
         SkASSERT(!this->hasGeometryProcessor());
         fGeometryProcessor.reset(new GrEffectStage(effect, attr0, attr1));
-        this->invalidateBlendOptFlags();
+        this->invalidateOptState();
         return effect;
     }
 
@@ -202,14 +211,14 @@ public:
     const GrEffect* addColorEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect, attr0, attr1));
-        this->invalidateBlendOptFlags();
+        this->invalidateOptState();
         return effect;
     }
 
     const GrEffect* addCoverageEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect, attr0, attr1));
-        this->invalidateBlendOptFlags();
+        this->invalidateOptState();
         return effect;
     }
 
@@ -301,9 +310,11 @@ public:
      * @param dstCoef coefficient applied to the dst color.
      */
     void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
-        fSrcBlend = srcCoeff;
-        fDstBlend = dstCoeff;
-        this->invalidateBlendOptFlags();
+        if (srcCoeff != fSrcBlend || dstCoeff != fDstBlend) {
+            fSrcBlend = srcCoeff;
+            fDstBlend = dstCoeff;
+            this->invalidateOptState();
+        }
     #ifdef SK_DEBUG
         if (GrBlendCoeffRefsDst(dstCoeff)) {
             GrPrintf("Unexpected dst blend coeff. Won't work correctly with coverage stages.\n");
@@ -325,33 +336,11 @@ public:
      * @param constant the constant to set
      */
     void setBlendConstant(GrColor constant) {
-        fBlendConstant = constant;
-        this->invalidateBlendOptFlags();
+        if (constant != fBlendConstant) {
+            fBlendConstant = constant;
+            this->invalidateOptState();
+        }
     }
-
-    /**
-     * Determines what optimizations can be applied based on the blend. The coefficients may have
-     * to be tweaked in order for the optimization to work. srcCoeff and dstCoeff are optional
-     * params that receive the tweaked coefficients. Normally the function looks at the current
-     * state to see if coverage is enabled. By setting forceCoverage the caller can speculatively
-     * determine the blend optimizations that would be used if there was partial pixel coverage.
-     *
-     * Subclasses of GrDrawTarget that actually draw (as opposed to those that just buffer for
-     * playback) must call this function and respect the flags that replace the output color.
-     *
-     * If the cached BlendOptFlags does not have the invalidate bit set, then getBlendOpts will
-     * simply returned the cached flags and coefficients. Otherwise it will calculate the values. 
-     */
-    BlendOptFlags getBlendOpts(bool forceCoverage = false,
-                               GrBlendCoeff* srcCoeff = NULL,
-                               GrBlendCoeff* dstCoeff = NULL) const;
-
-    /**
-     * We don't use suplied vertex color attributes if our blend mode is EmitCoverage or
-     * EmitTransBlack
-     */
-    bool canIgnoreColorAttribute() const;
-
 
     /// @}
 
@@ -416,6 +405,7 @@ public:
      */
     void setRenderTarget(GrRenderTarget* target) {
         fRenderTarget.setResource(SkSafeRef(target), GrProgramResource::kWrite_IOType);
+        this->invalidateOptState();
     }
 
     /// @}
@@ -432,16 +422,20 @@ public:
      * @param settings  the stencil settings to use.
      */
     void setStencil(const GrStencilSettings& settings) {
-        fStencilSettings = settings;
-        this->invalidateBlendOptFlags();
+        if (settings != fStencilSettings) {
+            fStencilSettings = settings;
+            this->invalidateOptState();
+        }
     }
 
     /**
      * Shortcut to disable stencil testing and ops.
      */
     void disableStencil() {
-        fStencilSettings.setDisabled();
-        this->invalidateBlendOptFlags();
+        if (!fStencilSettings.isDisabled()) {
+            fStencilSettings.setDisabled();
+            this->invalidateOptState();
+        }
     }
 
     GrStencilSettings* stencil() { return &fStencilSettings; }
@@ -453,8 +447,10 @@ public:
     ////
 
     void resetStateFlags() {
-        fFlagBits = 0;
-        this->invalidateBlendOptFlags();
+        if (0 != fFlagBits) {
+            fFlagBits = 0;
+            this->invalidateOptState();
+        }
     }
 
     /**
@@ -463,8 +459,10 @@ public:
      * @param stateBits bitfield of StateBits specifying the states to enable
      */
     void enableState(uint32_t stateBits) {
-        fFlagBits |= stateBits;
-        this->invalidateBlendOptFlags();
+        if (stateBits & ~fFlagBits) {
+            fFlagBits |= stateBits;
+            this->invalidateOptState();
+        }
     }
 
     /**
@@ -473,8 +471,10 @@ public:
      * @param stateBits bitfield of StateBits specifying the states to disable
      */
     void disableState(uint32_t stateBits) {
-        fFlagBits &= ~(stateBits);
-        this->invalidateBlendOptFlags();
+        if (stateBits & fFlagBits) {
+            fFlagBits &= ~(stateBits);
+            this->invalidateOptState();
+        }
     }
 
     /**
@@ -513,8 +513,6 @@ public:
     /// Hints that when provided can enable optimizations.
     ////
 
-    enum Hints { kVertexColorsAreOpaque_Hint = 0x1, };
-
     void setHint(Hints hint, bool value) { fHints = value ? (fHints | hint) : (fHints & ~hint); }
 
     /// @}
@@ -542,32 +540,33 @@ public:
 
     GrDrawState& operator= (const GrDrawState& that);
 
+    /**
+     * Returns a snapshot of the current optimized state. If the current drawState has a valid
+     * cached optimiezed state it will simply return a pointer to it otherwise it will create a new
+     * GrOptDrawState. In all cases the GrOptDrawState is reffed and ownership is given to the
+     * caller.
+     */
+    GrOptDrawState* createOptState() const;
+
 private:
+    void invalidateOptState() const {
+        SkSafeSetNull(fCachedOptState);
+        fBlendOptFlags = kInvalid_BlendOptFlag;
+    }
+
     void onReset(const SkMatrix* initialViewMatrix);
-
-    /**
-     * Determines whether src alpha is guaranteed to be one for all src pixels
-     */
-    bool srcAlphaWillBeOne() const;
-
-    /**
-     * Helper function for getBlendOpts.
-     */
-    BlendOptFlags calcBlendOpts(bool forceCoverage = false,
-                                GrBlendCoeff* srcCoeff = NULL,
-                                GrBlendCoeff* dstCoeff = NULL) const;
 
     void invalidateBlendOptFlags() {
         fBlendOptFlags = kInvalid_BlendOptFlag;
     }
-
-    uint32_t                            fHints;
 
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
     // This is used to assert that this condition holds.
     SkDEBUGCODE(int fBlockEffectRemovalCnt;)
 
     void internalSetVertexAttribs(const GrVertexAttrib attribs[], int count, size_t stride);
+
+    mutable GrOptDrawState* fCachedOptState;
 
     typedef GrRODrawState INHERITED;
 };

@@ -6,9 +6,16 @@
  */
 
 #include "GrRODrawState.h"
+
 #include "GrDrawTargetCaps.h"
+#include "GrRenderTarget.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+
+GrRODrawState::GrRODrawState(const GrRODrawState& drawState) : INHERITED() {
+    fRenderTarget.setResource(SkSafeRef(drawState.fRenderTarget.getResource()),
+                              GrProgramResource::kWrite_IOType);
+}
 
 bool GrRODrawState::isEqual(const GrRODrawState& that) const {
     bool usingVertexColors = this->hasColorVertexAttribute();
@@ -164,6 +171,118 @@ bool GrRODrawState::willEffectReadDstColor() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+GrRODrawState::BlendOptFlags GrRODrawState::getBlendOpts(bool forceCoverage,
+                                                         GrBlendCoeff* srcCoeff,
+                                                         GrBlendCoeff* dstCoeff) const {
+    GrBlendCoeff bogusSrcCoeff, bogusDstCoeff;
+    if (NULL == srcCoeff) {
+        srcCoeff = &bogusSrcCoeff;
+    }
+    if (NULL == dstCoeff) {
+        dstCoeff = &bogusDstCoeff;
+    }
+
+    if (forceCoverage) {
+        return this->calcBlendOpts(true, srcCoeff, dstCoeff);
+    }
+
+    if (0 == (fBlendOptFlags & kInvalid_BlendOptFlag)) {
+        *srcCoeff = fOptSrcBlend;
+        *dstCoeff = fOptDstBlend;
+        return fBlendOptFlags;
+    }
+
+    fBlendOptFlags = this->calcBlendOpts(forceCoverage, srcCoeff, dstCoeff);
+    fOptSrcBlend = *srcCoeff;
+    fOptDstBlend = *dstCoeff;
+
+    return fBlendOptFlags;
+}
+
+GrRODrawState::BlendOptFlags GrRODrawState::calcBlendOpts(bool forceCoverage,
+                                                          GrBlendCoeff* srcCoeff,
+                                                          GrBlendCoeff* dstCoeff) const {
+    *srcCoeff = this->getSrcBlendCoeff();
+    *dstCoeff = this->getDstBlendCoeff();
+
+    if (this->isColorWriteDisabled()) {
+        *srcCoeff = kZero_GrBlendCoeff;
+        *dstCoeff = kOne_GrBlendCoeff;
+    }
+
+    bool srcAIsOne = this->srcAlphaWillBeOne();
+    bool dstCoeffIsOne = kOne_GrBlendCoeff == *dstCoeff ||
+                         (kSA_GrBlendCoeff == *dstCoeff && srcAIsOne);
+    bool dstCoeffIsZero = kZero_GrBlendCoeff == *dstCoeff ||
+                         (kISA_GrBlendCoeff == *dstCoeff && srcAIsOne);
+
+    // When coeffs are (0,1) there is no reason to draw at all, unless
+    // stenciling is enabled. Having color writes disabled is effectively
+    // (0,1).
+    if ((kZero_GrBlendCoeff == *srcCoeff && dstCoeffIsOne)) {
+        if (this->getStencil().doesWrite()) {
+            return kEmitCoverage_BlendOptFlag;
+        } else {
+            return kSkipDraw_BlendOptFlag;
+        }
+    }
+
+    bool hasCoverage = forceCoverage || !this->hasSolidCoverage();
+
+    // if we don't have coverage we can check whether the dst
+    // has to read at all. If not, we'll disable blending.
+    if (!hasCoverage) {
+        if (dstCoeffIsZero) {
+            if (kOne_GrBlendCoeff == *srcCoeff) {
+                // if there is no coverage and coeffs are (1,0) then we
+                // won't need to read the dst at all, it gets replaced by src
+                *dstCoeff = kZero_GrBlendCoeff;
+                return kNone_BlendOpt;
+            } else if (kZero_GrBlendCoeff == *srcCoeff) {
+                // if the op is "clear" then we don't need to emit a color
+                // or blend, just write transparent black into the dst.
+                *srcCoeff = kOne_GrBlendCoeff;
+                *dstCoeff = kZero_GrBlendCoeff;
+                return kEmitTransBlack_BlendOptFlag;
+            }
+        }
+    } else if (this->isCoverageDrawing()) {
+        // we have coverage but we aren't distinguishing it from alpha by request.
+        return kCoverageAsAlpha_BlendOptFlag;
+    } else {
+        // check whether coverage can be safely rolled into alpha
+        // of if we can skip color computation and just emit coverage
+        if (this->canTweakAlphaForCoverage()) {
+            return kCoverageAsAlpha_BlendOptFlag;
+        }
+        if (dstCoeffIsZero) {
+            if (kZero_GrBlendCoeff == *srcCoeff) {
+                // the source color is not included in the blend
+                // the dst coeff is effectively zero so blend works out to:
+                // (c)(0)D + (1-c)D = (1-c)D.
+                *dstCoeff = kISA_GrBlendCoeff;
+                return  kEmitCoverage_BlendOptFlag;
+            } else if (srcAIsOne) {
+                // the dst coeff is effectively zero so blend works out to:
+                // cS + (c)(0)D + (1-c)D = cS + (1-c)D.
+                // If Sa is 1 then we can replace Sa with c
+                // and set dst coeff to 1-Sa.
+                *dstCoeff = kISA_GrBlendCoeff;
+                return  kCoverageAsAlpha_BlendOptFlag;
+            }
+        } else if (dstCoeffIsOne) {
+            // the dst coeff is effectively one so blend works out to:
+            // cS + (c)(1)D + (1-c)D = cS + D.
+            *dstCoeff = kOne_GrBlendCoeff;
+            return  kCoverageAsAlpha_BlendOptFlag;
+        }
+    }
+
+    return kNone_BlendOpt;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 // Some blend modes allow folding a fractional coverage value into the color's alpha channel, while
 // others will blend incorrectly.
 bool GrRODrawState::canTweakAlphaForCoverage() const {
@@ -197,3 +316,67 @@ void GrRODrawState::convertToPendingExec() {
         fCoverageStages[i].convertToPendingExec();
     }
 }
+
+bool GrRODrawState::srcAlphaWillBeOne() const {
+    uint32_t validComponentFlags;
+    GrColor color;
+    // Check if per-vertex or constant color may have partial alpha
+    if (this->hasColorVertexAttribute()) {
+        if (fHints & kVertexColorsAreOpaque_Hint) {
+            validComponentFlags = kA_GrColorComponentFlag;
+            color = 0xFF << GrColor_SHIFT_A;
+        } else {
+            validComponentFlags = 0;
+            color = 0; // not strictly necessary but we get false alarms from tools about uninit.
+        }
+    } else {
+        validComponentFlags = kRGBA_GrColorComponentFlags;
+        color = this->getColor();
+    }
+
+    // Run through the color stages
+    for (int s = 0; s < this->numColorStages(); ++s) {
+        const GrEffect* effect = this->getColorStage(s).getEffect();
+        effect->getConstantColorComponents(&color, &validComponentFlags);
+    }
+
+    // Check whether coverage is treated as color. If so we run through the coverage computation.
+    if (this->isCoverageDrawing()) {
+        // The shader generated for coverage drawing runs the full coverage computation and then
+        // makes the shader output be the multiplication of color and coverage. We mirror that here.
+        GrColor coverage;
+        uint32_t coverageComponentFlags;
+        if (this->hasCoverageVertexAttribute()) {
+            coverageComponentFlags = 0;
+            coverage = 0; // suppresses any warnings.
+        } else {
+            coverageComponentFlags = kRGBA_GrColorComponentFlags;
+            coverage = this->getCoverageColor();
+        }
+
+        // Run through the coverage stages
+        for (int s = 0; s < this->numCoverageStages(); ++s) {
+            const GrEffect* effect = this->getCoverageStage(s).getEffect();
+            effect->getConstantColorComponents(&coverage, &coverageComponentFlags);
+        }
+
+        // Since the shader will multiply coverage and color, the only way the final A==1 is if
+        // coverage and color both have A==1.
+        return (kA_GrColorComponentFlag & validComponentFlags & coverageComponentFlags) &&
+                0xFF == GrColorUnpackA(color) && 0xFF == GrColorUnpackA(coverage);
+
+    }
+
+    return (kA_GrColorComponentFlag & validComponentFlags) && 0xFF == GrColorUnpackA(color);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool GrRODrawState::canIgnoreColorAttribute() const {
+    if (fBlendOptFlags & kInvalid_BlendOptFlag) {
+        this->getBlendOpts();
+    }
+    return SkToBool(fBlendOptFlags & (GrRODrawState::kEmitTransBlack_BlendOptFlag |
+                                      GrRODrawState::kEmitCoverage_BlendOptFlag));
+}
+

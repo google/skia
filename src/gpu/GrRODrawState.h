@@ -13,6 +13,7 @@
 #include "GrStencil.h"
 #include "SkMatrix.h"
 
+class GrDrawState;
 class GrDrawTargetCaps;
 class GrPaint;
 class GrTexture;
@@ -25,6 +26,10 @@ class GrTexture;
 class GrRODrawState : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrRODrawState)
+
+    GrRODrawState() {}
+
+    GrRODrawState& operator= (const GrRODrawState& that);
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Vertex Attributes
@@ -66,6 +71,10 @@ public:
     }
     bool hasCoverageVertexAttribute() const {
         return -1 != fFixedFunctionVertexAttribIndices[kCoverage_GrVertexAttribBinding];
+    }
+
+    const int* getFixedFunctionVertexAttribIndices() const {
+        return fFixedFunctionVertexAttribIndices;
     }
 
     bool validateVertexAttribs() const;
@@ -158,6 +167,12 @@ public:
     GrColor getBlendConstant() const { return fBlendConstant; }
 
     /**
+     * We don't use supplied vertex color attributes if our blend mode is EmitCoverage or
+     * EmitTransBlack
+     */
+    bool canIgnoreColorAttribute() const;
+
+    /**
      * Determines whether multiplying the computed per-pixel color by the pixel's fractional
      * coverage before the blend will give the correct final destination color. In general it
      * will not as coverage is applied after blending.
@@ -198,6 +213,22 @@ public:
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
 
+    /**
+     * Determines what optimizations can be applied based on the blend. The coefficients may have
+     * to be tweaked in order for the optimization to work. srcCoeff and dstCoeff are optional
+     * params that receive the tweaked coefficients. Normally the function looks at the current
+     * state to see if coverage is enabled. By setting forceCoverage the caller can speculatively
+     * determine the blend optimizations that would be used if there was partial pixel coverage.
+     *
+     * Subclasses of GrDrawTarget that actually draw (as opposed to those that just buffer for
+     * playback) must call this function and respect the flags that replace the output color.
+     *
+     * If the cached BlendOptFlags does not have the invalidate bit set, then getBlendOpts will
+     * simply returned the cached flags and coefficients. Otherwise it will calculate the values. 
+     */
+    BlendOptFlags getBlendOpts(bool forceCoverage = false,
+                               GrBlendCoeff* srcCoeff = NULL,
+                               GrBlendCoeff* dstCoeff = NULL) const;
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -301,6 +332,8 @@ public:
         kLastPublicStateBit = kDummyStateBit-1,
     };
 
+    uint32_t getFlagBits() const { return fFlagBits; }
+
     bool isStateFlagEnabled(uint32_t stateBit) const { return 0 != (stateBit & fFlagBits); }
 
     bool isDitherState() const { return 0 != (fFlagBits & kDither_StateBit); }
@@ -333,6 +366,17 @@ public:
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
+    /// @name Hints
+    /// Hints that when provided can enable optimizations.
+    ////
+
+    enum Hints { kVertexColorsAreOpaque_Hint = 0x1, };
+
+    bool vertexColorsAreOpaque() const { return kVertexColorsAreOpaque_Hint & fHints; }
+
+    /// @}
+
+    ///////////////////////////////////////////////////////////////////////////
 
     /** Return type for CombineIfPossible. */
     enum CombinedState {
@@ -359,6 +403,8 @@ protected:
 
     friend class GrDrawTarget;
 
+    explicit GrRODrawState(const GrRODrawState& drawState);
+
     bool isEqual(const GrRODrawState& that) const;
 
     // These fields are roughly sorted by decreasing likelihood of being different in op==
@@ -381,6 +427,8 @@ protected:
     EffectStageArray                    fColorStages;
     EffectStageArray                    fCoverageStages;
 
+    uint32_t                            fHints;
+
     mutable GrBlendCoeff                fOptSrcBlend;
     mutable GrBlendCoeff                fOptDstBlend;
     mutable BlendOptFlags               fBlendOptFlags;
@@ -390,6 +438,18 @@ protected:
     int fFixedFunctionVertexAttribIndices[kGrFixedFunctionVertexAttribBindingCnt];
 
 private:
+    /**
+     * Determines whether src alpha is guaranteed to be one for all src pixels
+     */
+    bool srcAlphaWillBeOne() const;
+
+    /**
+     * Helper function for getBlendOpts.
+     */
+    BlendOptFlags calcBlendOpts(bool forceCoverage = false,
+                                GrBlendCoeff* srcCoeff = NULL,
+                                GrBlendCoeff* dstCoeff = NULL) const;
+
     typedef SkRefCnt INHERITED;
 };
 
