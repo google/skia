@@ -30,9 +30,6 @@
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
-static const int kGlyphCoordsNoColorAttributeIndex = 1;
-static const int kGlyphCoordsWithColorAttributeIndex = 2;
-
 namespace {
 // position + texture coord
 extern const GrVertexAttrib gTextVertexAttribs[] = {
@@ -106,9 +103,7 @@ void GrBitmapTextContext::flushGlyphs() {
         }
 
         // This effect could be stored with one of the cache objects (atlas?)
-        int coordsIdx = drawState->hasColorVertexAttribute() ? kGlyphCoordsWithColorAttributeIndex :
-                                                               kGlyphCoordsNoColorAttributeIndex;
-        drawState->setGeometryProcessor(fCachedEffect.get(), coordsIdx);
+        drawState->setGeometryProcessor(fCachedEffect.get());
         SkASSERT(fStrike);
         switch (fStrike->getMaskFormat()) {
             // Color bitmap text

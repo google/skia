@@ -34,7 +34,7 @@ class GrGLShaderBuilder;
 
 class GrDrawEffect;
 class GrGLTexture;
-class GrGLVertexEffect;
+class GrGLGeometryProcessor;
 
 class GrGLEffect {
 
@@ -90,14 +90,14 @@ public:
     static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
 
     /** Used by the system when generating shader code, to see if this effect can be downcasted to
-        the internal GrGLVertexEffect type */
+        the internal GrGLGeometryProcessor type */
     bool isVertexEffect() const { return fIsVertexEffect; }
 
 protected:
     const GrBackendEffectFactory& fFactory;
 
 private:
-    friend class GrGLVertexEffect; // to set fIsVertexEffect
+    friend class GrGLGeometryProcessor; // to set fIsVertexEffect
 
     bool fIsVertexEffect;
 };

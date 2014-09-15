@@ -990,8 +990,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         }
         GrDrawState* drawState = target->drawState();
 
-        static const int kEdgeAttrIndex = 1;
-
         // Check devBounds
         SkASSERT(check_bounds<BezierVertex>(drawState, devBounds, arg.vertices(),
                                             kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt));
@@ -1002,7 +1000,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             SkASSERT(hairQuadEffect);
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
-            drawState->setGeometryProcessor(hairQuadEffect, kEdgeAttrIndex)->unref();
+            drawState->setGeometryProcessor(hairQuadEffect)->unref();
             int quads = 0;
             while (quads < quadCnt) {
                 int n = SkTMin(quadCnt - quads, kNumQuadsInIdxBuffer);
@@ -1021,7 +1019,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             GrEffect* hairConicEffect = GrConicEffect::Create(kHairlineAA_GrEffectEdgeType,
                                                               *target->caps());
             SkASSERT(hairConicEffect);
-            drawState->setGeometryProcessor(hairConicEffect, 1, 2)->unref();
+            drawState->setGeometryProcessor(hairConicEffect)->unref();
             int conics = 0;
             while (conics < conicCnt) {
                 int n = SkTMin(conicCnt - conics, kNumQuadsInIdxBuffer);

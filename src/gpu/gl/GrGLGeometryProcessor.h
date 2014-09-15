@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLVertexEffect_DEFINED
-#define GrGLVertexEffect_DEFINED
+#ifndef GrGLGeometryProcessor_DEFINED
+#define GrGLGeometryProcessor_DEFINED
 
 #include "GrGLEffect.h"
 
@@ -15,9 +15,9 @@
  * from this class. Since paths don't have vertices, this class is only meant to be used internally
  * by skia, for special cases.
  */
-class GrGLVertexEffect : public GrGLEffect {
+class GrGLGeometryProcessor : public GrGLEffect {
 public:
-    GrGLVertexEffect(const GrBackendEffectFactory& factory)
+    GrGLGeometryProcessor(const GrBackendEffectFactory& factory)
         : INHERITED(factory) { fIsVertexEffect = true; }
 
     /**
@@ -41,7 +41,7 @@ public:
                           const char* inputColor,
                           const TransformedCoordsArray& coords,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
-        SkFAIL("GrGLVertexEffect requires GrGLFullProgramBuilder* overload for emitCode().");
+        SkFAIL("GrGLGeometryProcessor requires GrGLFullProgramBuilder* overload for emitCode().");
     }
 
 

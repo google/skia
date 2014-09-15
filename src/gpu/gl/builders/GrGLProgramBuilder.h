@@ -228,6 +228,7 @@ protected:
         int                     fCurrentIndex;
         const GrEffectStage*    fEffectStage;
     } fCodeStage;
+
 private:
 
     /**

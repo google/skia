@@ -9,7 +9,7 @@
 #define GrDistanceFieldTextureEffect_DEFINED
 
 #include "GrEffect.h"
-#include "GrVertexEffect.h"
+#include "GrGeometryProcessor.h"
 
 class GrGLDistanceFieldTextureEffect;
 class GrGLDistanceFieldLCDTextureEffect;
@@ -38,7 +38,7 @@ enum GrDistanceFieldEffectFlags {
  * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
  * coords are a custom attribute. Gamma correction is handled via a texture LUT.
  */
-class GrDistanceFieldTextureEffect : public GrVertexEffect {
+class GrDistanceFieldTextureEffect : public GrGeometryProcessor {
 public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     static GrEffect* Create(GrTexture* tex, const GrTextureParams& params,
@@ -59,6 +59,8 @@ public:
     static const char* Name() { return "DistanceFieldTexture"; }
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
+    const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
 #ifdef SK_GAMMA_APPLY_TO_A8
     float getLuminance() const { return fLuminance; }
 #endif
@@ -77,12 +79,13 @@ private:
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
-    GrTextureAccess fTextureAccess;
+    GrTextureAccess    fTextureAccess;
 #ifdef SK_GAMMA_APPLY_TO_A8
-    GrTextureAccess fGammaTextureAccess;
-    float           fLuminance;
+    GrTextureAccess    fGammaTextureAccess;
+    float              fLuminance;
 #endif
-    uint32_t        fFlags;
+    uint32_t           fFlags;
+    const GrShaderVar& fInTextureCoords;
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -95,7 +98,7 @@ private:
  * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
  * coords are a custom attribute. Gamma correction is handled via a texture LUT.
  */
-class GrDistanceFieldLCDTextureEffect : public GrVertexEffect {
+class GrDistanceFieldLCDTextureEffect : public GrGeometryProcessor {
 public:
     static GrEffect* Create(GrTexture* tex, const GrTextureParams& params,
                             GrTexture* gamma, const GrTextureParams& gammaParams, 
@@ -108,6 +111,7 @@ public:
 
     static const char* Name() { return "DistanceFieldLCDTexture"; }
 
+    const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
     GrColor getTextColor() const { return fTextColor; }
     uint32_t getFlags() const { return fFlags; }
@@ -124,10 +128,11 @@ private:
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
-    GrTextureAccess fTextureAccess;
-    GrTextureAccess fGammaTextureAccess;
-    GrColor         fTextColor;
-    uint32_t        fFlags;
+    GrTextureAccess    fTextureAccess;
+    GrTextureAccess    fGammaTextureAccess;
+    GrColor            fTextColor;
+    uint32_t           fFlags;
+    const GrShaderVar& fInTextureCoords;
 
     GR_DECLARE_EFFECT_TEST;
 

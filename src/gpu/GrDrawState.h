@@ -180,10 +180,11 @@ public:
      * but is never put in the color processing pipeline.
      */
 
-    const GrEffect* setGeometryProcessor(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
+    const GrEffect* setGeometryProcessor(const GrEffect* effect) {
         SkASSERT(effect);
+        SkASSERT(effect->requiresVertexShader());
         SkASSERT(!this->hasGeometryProcessor());
-        fGeometryProcessor.reset(new GrEffectStage(effect, attr0, attr1));
+        fGeometryProcessor.reset(new GrEffectStage(effect));
         this->invalidateOptState();
         return effect;
     }
@@ -208,16 +209,18 @@ public:
     /// the color / coverage distinction.
     ////
 
-    const GrEffect* addColorEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
+    const GrEffect* addColorEffect(const GrEffect* effect) {
         SkASSERT(effect);
-        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect, attr0, attr1));
+        SkASSERT(!effect->requiresVertexShader());
+        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect));
         this->invalidateOptState();
         return effect;
     }
 
-    const GrEffect* addCoverageEffect(const GrEffect* effect, int attr0 = -1, int attr1 = -1) {
+    const GrEffect* addCoverageEffect(const GrEffect* effect) {
         SkASSERT(effect);
-        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect, attr0, attr1));
+        SkASSERT(!effect->requiresVertexShader());
+        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect));
         this->invalidateOptState();
         return effect;
     }

@@ -39,9 +39,6 @@ public:
 
     bool programHasExplicitLocalCoords() const { return fExplicitLocalCoords; }
 
-    const int* getVertexAttribIndices() const { return fEffectStage->getVertexAttribIndices(); }
-    int getVertexAttribIndexCount() const { return fEffectStage->getVertexAttribIndexCount(); }
-
 private:
     const GrEffectStage*    fEffectStage;
     bool                    fExplicitLocalCoords;

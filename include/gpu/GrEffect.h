@@ -11,13 +11,14 @@
 #include "GrColor.h"
 #include "GrEffectUnitTest.h"
 #include "GrProgramElement.h"
+#include "GrShaderVar.h"
 #include "GrTextureAccess.h"
 #include "GrTypesPriv.h"
+#include "SkString.h"
 
 class GrBackendEffectFactory;
 class GrContext;
 class GrCoordTransform;
-
 
 /** Provides custom vertex shader, fragment shader, uniform data for a particular stage of the
     Ganesh shading pipeline.
@@ -114,14 +115,10 @@ public:
         (To set this value the effect must inherit from GrEffect.) */
     bool requiresVertexShader() const { return fRequiresVertexShader; }
 
-    int numVertexAttribs() const {
-        SkASSERT(0 == fVertexAttribTypes.count() || fRequiresVertexShader);
-        return fVertexAttribTypes.count();
-    }
-
-    GrSLType vertexAttribType(int index) const { return fVertexAttribTypes[index]; }
-
     static const int kMaxVertexAttribs = 2;
+    typedef SkSTArray<kMaxVertexAttribs, GrShaderVar, true> VertexAttribArray;
+
+    const VertexAttribArray& getVertexAttribs() const { return fVertexAttribs; }
 
     void* operator new(size_t size);
     void operator delete(void* target);
@@ -193,11 +190,11 @@ private:
         getFactory()).*/
     virtual bool onIsEqual(const GrEffect& other) const = 0;
 
-    friend class GrVertexEffect; // to set fRequiresVertexShader and build fVertexAttribTypes.
+    friend class GrGeometryProcessor; // to set fRequiresVertexShader and build fVertexAttribTypes.
 
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
     SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
-    SkSTArray<kMaxVertexAttribs, GrSLType, true> fVertexAttribTypes;
+    VertexAttribArray                            fVertexAttribs;
     bool                                         fWillReadDstColor;
     bool                                         fWillReadFragmentPosition;
     bool                                         fWillUseInputColor;

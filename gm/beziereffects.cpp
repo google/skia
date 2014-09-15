@@ -170,7 +170,7 @@ protected:
                     GrDrawState* drawState = tt.target()->drawState();
                     drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
-                    drawState->setGeometryProcessor(effect, 1);
+                    drawState->setGeometryProcessor(effect);
                     drawState->setRenderTarget(rt);
                     drawState->setColor(0xff000000);
 
@@ -325,7 +325,7 @@ protected:
                     GrDrawState* drawState = tt.target()->drawState();
                     drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
-                    drawState->setGeometryProcessor(effect, 1);
+                    drawState->setGeometryProcessor(effect);
                     drawState->setRenderTarget(rt);
                     drawState->setColor(0xff000000);
 
@@ -509,7 +509,7 @@ protected:
                     GrDrawState* drawState = tt.target()->drawState();
                     drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
-                    drawState->setGeometryProcessor(effect, 1);
+                    drawState->setGeometryProcessor(effect);
                     drawState->setRenderTarget(rt);
                     drawState->setColor(0xff000000);
 

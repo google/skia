@@ -127,7 +127,6 @@ protected:
                     return;
                 }
                 GrDrawState* drawState = tt.target()->drawState();
-                drawState->setVertexAttribs<kAttribs>(SK_ARRAY_COUNT(kAttribs), sizeof(SkPoint));
 
                 SkMatrix m;
                 SkPath p;
@@ -139,7 +138,7 @@ protected:
                 if (!effect) {
                     continue;
                 }
-                drawState->addCoverageEffect(effect, 1);
+                drawState->addCoverageEffect(effect);
                 drawState->setIdentityViewMatrix();
                 drawState->setRenderTarget(rt);
                 drawState->setColor(0xff000000);
@@ -193,8 +192,7 @@ protected:
                 }
 
                 GrDrawState* drawState = tt.target()->drawState();
-                drawState->setVertexAttribs<kAttribs>(SK_ARRAY_COUNT(kAttribs), sizeof(SkPoint));
-                drawState->addCoverageEffect(effect, 1);
+                drawState->addCoverageEffect(effect);
                 drawState->setIdentityViewMatrix();
                 drawState->setRenderTarget(rt);
                 drawState->setColor(0xff000000);

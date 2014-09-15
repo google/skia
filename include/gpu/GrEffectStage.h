@@ -24,11 +24,9 @@
 // when draws are enqueued in the GrInOrderDrawBuffer.
 class GrEffectStage {
 public:
-    explicit GrEffectStage(const GrEffect* effect, int attrIndex0 = -1, int attrIndex1 = -1)
+    explicit GrEffectStage(const GrEffect* effect)
     : fEffect(SkRef(effect)) {
         fCoordChangeMatrixSet = false;
-        fVertexAttribIndices[0] = attrIndex0;
-        fVertexAttribIndices[1] = attrIndex1;
     }
 
     GrEffectStage(const GrEffectStage& other) {
@@ -37,7 +35,6 @@ public:
             fCoordChangeMatrix = other.fCoordChangeMatrix;
         }
         fEffect.initAndRef(other.fEffect);
-        memcpy(fVertexAttribIndices, other.fVertexAttribIndices, sizeof(fVertexAttribIndices));
     }
     
     static bool AreCompatible(const GrEffectStage& a, const GrEffectStage& b,
@@ -133,16 +130,12 @@ public:
 
     const GrEffect* getEffect() const { return fEffect.get(); }
 
-    const int* getVertexAttribIndices() const { return fVertexAttribIndices; }
-    int getVertexAttribIndexCount() const { return fEffect->numVertexAttribs(); }
-
     void convertToPendingExec() { fEffect.convertToPendingExec(); }
 
 private:
     bool                                fCoordChangeMatrixSet;
     SkMatrix                            fCoordChangeMatrix;
     GrProgramElementRef<const GrEffect> fEffect;
-    int                                 fVertexAttribIndices[2];
 };
 
 #endif

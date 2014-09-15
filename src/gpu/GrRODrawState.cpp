@@ -93,26 +93,28 @@ bool GrRODrawState::validateVertexAttribs() const {
         // make sure that any attribute indices have the correct binding type, that the attrib
         // type and effect's shader lang type are compatible, and that attributes shared by
         // multiple effects use the same shader lang type.
-        const int* attributeIndices = stage.getVertexAttribIndices();
-        int numAttributes = stage.getVertexAttribIndexCount();
-        for (int i = 0; i < numAttributes; ++i) {
-            int attribIndex = attributeIndices[i];
-            if (attribIndex >= fVACount ||
-                kEffect_GrVertexAttribBinding != fVAPtr[attribIndex].fBinding) {
-                return false;
-            }
+        const GrEffect::VertexAttribArray& s = effect->getVertexAttribs();
 
-            GrSLType effectSLType = effect->vertexAttribType(i);
-            GrVertexAttribType attribType = fVAPtr[attribIndex].fType;
+        int effectIndex = 0;
+        for (int index = 0; index < fVACount; index++) {
+            if (kEffect_GrVertexAttribBinding != fVAPtr[index].fBinding) {
+                // we only care about effect bindings
+                continue;
+            }
+            SkASSERT(effectIndex < s.count());
+            GrSLType effectSLType = s[effectIndex].getType();
+            GrVertexAttribType attribType = fVAPtr[index].fType;
             int slVecCount = GrSLTypeVectorCount(effectSLType);
             int attribVecCount = GrVertexAttribTypeVectorCount(attribType);
             if (slVecCount != attribVecCount ||
-                (static_cast<GrSLType>(-1) != slTypes[attribIndex] &&
-                    slTypes[attribIndex] != effectSLType)) {
+                (static_cast<GrSLType>(-1) != slTypes[index] && slTypes[index] != effectSLType)) {
                 return false;
             }
-            slTypes[attribIndex] = effectSLType;
+            slTypes[index] = effectSLType;
+            effectIndex++;
         }
+        // Make sure all attributes are consumed and we were able to find everything
+        SkASSERT(s.count() == effectIndex);
     }
 
     return true;

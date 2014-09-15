@@ -10,7 +10,7 @@
 
 #include "GrDrawTargetCaps.h"
 #include "GrEffect.h"
-#include "GrVertexEffect.h"
+#include "GrGeometryProcessor.h"
 #include "GrTypesPriv.h"
 
 /**
@@ -55,7 +55,7 @@
  */
 class GrGLConicEffect;
 
-class GrConicEffect : public GrVertexEffect {
+class GrConicEffect : public GrGeometryProcessor {
 public:
     static GrEffect* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
         GR_CREATE_STATIC_EFFECT(gConicFillAA, GrConicEffect, (kFillAA_GrEffectEdgeType));
@@ -86,6 +86,7 @@ public:
 
     static const char* Name() { return "Conic"; }
 
+    inline const GrShaderVar& inConicCoeffs() const { return fInConicCoeffs; }
     inline bool isAntiAliased() const { return GrEffectEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrEffectEdgeTypeIsFill(fEdgeType); }
     inline GrEffectEdgeType getEdgeType() const { return fEdgeType; }
@@ -104,11 +105,12 @@ private:
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
-    GrEffectEdgeType fEdgeType;
+    GrEffectEdgeType   fEdgeType;
+    const GrShaderVar& fInConicCoeffs;
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrVertexEffect INHERITED;
+    typedef GrGeometryProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,7 +124,7 @@ private:
  */
 class GrGLQuadEffect;
 
-class GrQuadEffect : public GrVertexEffect {
+class GrQuadEffect : public GrGeometryProcessor {
 public:
     static GrEffect* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
         GR_CREATE_STATIC_EFFECT(gQuadFillAA, GrQuadEffect, (kFillAA_GrEffectEdgeType));
@@ -153,6 +155,7 @@ public:
 
     static const char* Name() { return "Quad"; }
 
+    inline const GrShaderVar& inHairQuadEdge() const { return fInHairQuadEdge; }
     inline bool isAntiAliased() const { return GrEffectEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrEffectEdgeTypeIsFill(fEdgeType); }
     inline GrEffectEdgeType getEdgeType() const { return fEdgeType; }
@@ -171,11 +174,12 @@ private:
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
-    GrEffectEdgeType fEdgeType;
+    GrEffectEdgeType   fEdgeType;
+    const GrShaderVar& fInHairQuadEdge;
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrVertexEffect INHERITED;
+    typedef GrGeometryProcessor INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -191,7 +195,7 @@ private:
  */
 class GrGLCubicEffect;
 
-class GrCubicEffect : public GrVertexEffect {
+class GrCubicEffect : public GrGeometryProcessor {
 public:
     static GrEffect* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
         GR_CREATE_STATIC_EFFECT(gCubicFillAA, GrCubicEffect, (kFillAA_GrEffectEdgeType));
@@ -222,6 +226,7 @@ public:
 
     static const char* Name() { return "Cubic"; }
 
+    inline const GrShaderVar& inCubicCoeffs() const { return fInCubicCoeffs; }
     inline bool isAntiAliased() const { return GrEffectEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrEffectEdgeTypeIsFill(fEdgeType); }
     inline GrEffectEdgeType getEdgeType() const { return fEdgeType; }
@@ -240,11 +245,12 @@ private:
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
-    GrEffectEdgeType fEdgeType;
+    GrEffectEdgeType   fEdgeType;
+    const GrShaderVar& fInCubicCoeffs;
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrVertexEffect INHERITED;
+    typedef GrGeometryProcessor INHERITED;
 };
 
 #endif

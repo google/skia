@@ -10,10 +10,10 @@
 
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
-#include "gl/GrGLVertexEffect.h"
+#include "gl/GrGLGeometryProcessor.h"
 #include "GrTBackendEffectFactory.h"
 
-class GrGLConicEffect : public GrGLVertexEffect {
+class GrGLConicEffect : public GrGLGeometryProcessor {
 public:
     GrGLConicEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
@@ -32,7 +32,7 @@ public:
 private:
     GrEffectEdgeType fEdgeType;
 
-    typedef GrGLVertexEffect INHERITED;
+    typedef GrGLGeometryProcessor INHERITED;
 };
 
 GrGLConicEffect::GrGLConicEffect(const GrBackendEffectFactory& factory,
@@ -54,10 +54,9 @@ void GrGLConicEffect::emitCode(GrGLFullProgramBuilder* builder,
     builder->addVarying(kVec4f_GrSLType, "ConicCoeffs",
                               &vsName, &fsName);
 
+    const GrShaderVar& inConicCoeffs = drawEffect.castEffect<GrConicEffect>().inConicCoeffs();
     GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
-    const SkString* attr0Name =
-        vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-    vsBuilder->codeAppendf("%s = %s;", vsName, attr0Name->c_str());
+    vsBuilder->codeAppendf("%s = %s;", vsName, inConicCoeffs.c_str());
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppend("float edgeAlpha;");
@@ -135,9 +134,11 @@ const GrBackendEffectFactory& GrConicEffect::getFactory() const {
     return GrTBackendEffectFactory<GrConicEffect>::getInstance();
 }
 
-GrConicEffect::GrConicEffect(GrEffectEdgeType edgeType) : GrVertexEffect() {
-    this->addVertexAttrib(kVec4f_GrSLType);
-    fEdgeType = edgeType;
+GrConicEffect::GrConicEffect(GrEffectEdgeType edgeType)
+    : fEdgeType(edgeType)
+    , fInConicCoeffs(this->addVertexAttrib(GrShaderVar("inConicCoeffs",
+                                                       kVec4f_GrSLType,
+                                                       GrShaderVar::kAttribute_TypeModifier))) {
 }
 
 bool GrConicEffect::onIsEqual(const GrEffect& other) const {
@@ -166,7 +167,7 @@ GrEffect* GrConicEffect::TestCreate(SkRandom* random,
 // Quad
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLQuadEffect : public GrGLVertexEffect {
+class GrGLQuadEffect : public GrGLGeometryProcessor {
 public:
     GrGLQuadEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
@@ -185,7 +186,7 @@ public:
 private:
     GrEffectEdgeType fEdgeType;
 
-    typedef GrGLVertexEffect INHERITED;
+    typedef GrGLGeometryProcessor INHERITED;
 };
 
 GrGLQuadEffect::GrGLQuadEffect(const GrBackendEffectFactory& factory,
@@ -206,9 +207,8 @@ void GrGLQuadEffect::emitCode(GrGLFullProgramBuilder* builder,
     builder->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
 
     GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
-    const SkString* attrName =
-        vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-    vsBuilder->codeAppendf("%s = %s;", vsName, attrName->c_str());
+    const GrShaderVar& inHairQuadEdge = drawEffect.castEffect<GrQuadEffect>().inHairQuadEdge();
+    vsBuilder->codeAppendf("%s = %s;", vsName, inHairQuadEdge.c_str());
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("float edgeAlpha;");
@@ -272,9 +272,11 @@ const GrBackendEffectFactory& GrQuadEffect::getFactory() const {
     return GrTBackendEffectFactory<GrQuadEffect>::getInstance();
 }
 
-GrQuadEffect::GrQuadEffect(GrEffectEdgeType edgeType) : GrVertexEffect() {
-    this->addVertexAttrib(kVec4f_GrSLType);
-    fEdgeType = edgeType;
+GrQuadEffect::GrQuadEffect(GrEffectEdgeType edgeType)
+    : fEdgeType(edgeType)
+    , fInHairQuadEdge(this->addVertexAttrib(GrShaderVar("inCubicCoeffs",
+                                                        kVec4f_GrSLType,
+                                                        GrShaderVar::kAttribute_TypeModifier))) {
 }
 
 bool GrQuadEffect::onIsEqual(const GrEffect& other) const {
@@ -303,7 +305,7 @@ GrEffect* GrQuadEffect::TestCreate(SkRandom* random,
 // Cubic
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLCubicEffect : public GrGLVertexEffect {
+class GrGLCubicEffect : public GrGLGeometryProcessor {
 public:
     GrGLCubicEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
@@ -322,7 +324,7 @@ public:
 private:
     GrEffectEdgeType fEdgeType;
 
-    typedef GrGLVertexEffect INHERITED;
+    typedef GrGLGeometryProcessor INHERITED;
 };
 
 GrGLCubicEffect::GrGLCubicEffect(const GrBackendEffectFactory& factory,
@@ -345,9 +347,8 @@ void GrGLCubicEffect::emitCode(GrGLFullProgramBuilder* builder,
                               &vsName, &fsName, GrGLShaderVar::kHigh_Precision);
 
     GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
-    const SkString* attr0Name =
-        vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-    vsBuilder->codeAppendf("%s = %s;", vsName, attr0Name->c_str());
+    const GrShaderVar& inCubicCoeffs = drawEffect.castEffect<GrCubicEffect>().inCubicCoeffs();
+    vsBuilder->codeAppendf("%s = %s;", vsName, inCubicCoeffs.c_str());
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
 
@@ -451,9 +452,11 @@ const GrBackendEffectFactory& GrCubicEffect::getFactory() const {
     return GrTBackendEffectFactory<GrCubicEffect>::getInstance();
 }
 
-GrCubicEffect::GrCubicEffect(GrEffectEdgeType edgeType) : GrVertexEffect() {
-    this->addVertexAttrib(kVec4f_GrSLType);
-    fEdgeType = edgeType;
+GrCubicEffect::GrCubicEffect(GrEffectEdgeType edgeType)
+    : fEdgeType(edgeType)
+    , fInCubicCoeffs(this->addVertexAttrib(GrShaderVar("inCubicCoeffs",
+                                                       kVec4f_GrSLType,
+                                                       GrShaderVar::kAttribute_TypeModifier))) {
 }
 
 bool GrCubicEffect::onIsEqual(const GrEffect& other) const {

@@ -10,11 +10,11 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "gl/GrGLVertexEffect.h"
+#include "gl/GrGLGeometryProcessor.h"
 #include "GrTBackendEffectFactory.h"
 #include "GrTexture.h"
 
-class GrGLCustomCoordsTextureEffect : public GrGLVertexEffect {
+class GrGLCustomCoordsTextureEffect : public GrGLGeometryProcessor {
 public:
     GrGLCustomCoordsTextureEffect(const GrBackendEffectFactory& factory, const GrDrawEffect& drawEffect)
         : INHERITED (factory) {}
@@ -26,7 +26,9 @@ public:
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
-        SkASSERT(1 == drawEffect.castEffect<GrCustomCoordsTextureEffect>().numVertexAttribs());
+        const GrCustomCoordsTextureEffect& customCoordsTextureEffect =
+                drawEffect.castEffect<GrCustomCoordsTextureEffect>();
+        SkASSERT(1 == customCoordsTextureEffect.getVertexAttribs().count());
 
         SkString fsCoordName;
         const char* vsVaryingName;
@@ -35,9 +37,8 @@ public:
         fsCoordName = fsVaryingNamePtr;
 
         GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
-        const SkString* attr0Name =
-            vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-        vsBuilder->codeAppendf("\t%s = %s;\n", vsVaryingName, attr0Name->c_str());
+        const GrShaderVar& inTextureCoords = customCoordsTextureEffect.inTextureCoords();
+        vsBuilder->codeAppendf("\t%s = %s;\n", vsVaryingName, inTextureCoords.c_str());
 
         GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("\t%s = ", outputColor);
@@ -52,16 +53,18 @@ public:
                          const GrDrawEffect& drawEffect) SK_OVERRIDE {}
 
 private:
-    typedef GrGLVertexEffect INHERITED;
+    typedef GrGLGeometryProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 GrCustomCoordsTextureEffect::GrCustomCoordsTextureEffect(GrTexture* texture,
                                                          const GrTextureParams& params)
-    : fTextureAccess(texture, params) {
+    : fTextureAccess(texture, params)
+    , fInTextureCoords(this->addVertexAttrib(GrShaderVar("inTextureCoords",
+                                                         kVec2f_GrSLType,
+                                                         GrShaderVar::kAttribute_TypeModifier))) {
     this->addTextureAccess(&fTextureAccess);
-    this->addVertexAttrib(kVec2f_GrSLType);
 }
 
 bool GrCustomCoordsTextureEffect::onIsEqual(const GrEffect& other) const {

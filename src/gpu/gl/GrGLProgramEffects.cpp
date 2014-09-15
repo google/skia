@@ -11,7 +11,7 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLPathRendering.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "gl/GrGLVertexEffect.h"
+#include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGpuGL.h"
 
 typedef GrGLProgramEffects::TransformedCoords TransformedCoords;
@@ -123,7 +123,7 @@ bool GrGLProgramEffects::GenEffectMetaKey(const GrDrawEffect& drawEffect, const 
 
     uint32_t textureKey = GrGLProgramEffects::GenTextureKey(drawEffect, caps);
     uint32_t transformKey = GrGLProgramEffects::GenTransformKey(drawEffect);
-    uint32_t attribKey = GrGLProgramEffects::GenAttribKey(drawEffect);
+    uint32_t attribKey = GrGLProgramEffects::GenAttribKey(drawEffect.castEffect<GrEffect>());
     uint32_t classID = drawEffect.effect()->getFactory().effectClassID();
 
     // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
@@ -139,14 +139,14 @@ bool GrGLProgramEffects::GenEffectMetaKey(const GrDrawEffect& drawEffect, const 
     return true;
 }
 
-uint32_t GrGLProgramEffects::GenAttribKey(const GrDrawEffect& drawEffect) {
+uint32_t GrGLProgramEffects::GenAttribKey(const GrEffect& effect) {
     uint32_t key = 0;
-    int numAttributes = drawEffect.getVertexAttribIndexCount();
+
+    const GrEffect::VertexAttribArray& vars = effect.getVertexAttribs();
+    int numAttributes = vars.count();
     SkASSERT(numAttributes <= 2);
-    const int* attributeIndices = drawEffect.getVertexAttribIndices();
     for (int a = 0; a < numAttributes; ++a) {
-        uint32_t value = attributeIndices[a] << 3 * a;
-        SkASSERT(0 == (value & key)); // keys for each attribute ought not to overlap
+        uint32_t value = 1 << a;
         key |= value;
     }
     return key;
@@ -279,7 +279,7 @@ void GrGLVertexProgramEffects::emitEffect(GrGLFullProgramBuilder* builder,
     vsBuilder->codeAppend(openBrace.c_str());
 
     if (glEffect->isVertexEffect()) {
-        GrGLVertexEffect* vertexEffect = static_cast<GrGLVertexEffect*>(glEffect);
+        GrGLGeometryProcessor* vertexEffect = static_cast<GrGLGeometryProcessor*>(glEffect);
         vertexEffect->emitCode(builder, drawEffect, key, outColor, inColor, coords, samplers);
     } else {
         glEffect->emitCode(builder, drawEffect, key, outColor, inColor, coords, samplers);
@@ -478,7 +478,7 @@ void GrGLPathTexGenProgramEffects::emitEffect(GrGLFragmentOnlyProgramBuilder* bu
     SkSTArray<2, TransformedCoords> coords(effect->numTransforms());
     SkSTArray<4, TextureSampler> samplers(effect->numTextures());
 
-    SkASSERT(0 == stage.getVertexAttribIndexCount());
+    SkASSERT(0 == effect->getVertexAttribs().count());
     this->setupPathTexGen(builder, drawEffect, &coords);
     this->emitSamplers(builder, effect, &samplers);
 

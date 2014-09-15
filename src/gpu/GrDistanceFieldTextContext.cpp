@@ -28,9 +28,6 @@
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
-static const int kGlyphCoordsNoColorAttributeIndex = 1;
-static const int kGlyphCoordsWithColorAttributeIndex = 2;
-
 static const int kSmallDFFontSize = 32;
 static const int kSmallDFFontLimit = 32;
 static const int kMediumDFFontSize = 64;
@@ -196,9 +193,7 @@ void GrDistanceFieldTextContext::flushGlyphs() {
         this->setupCoverageEffect(filteredColor);
        
         // Effects could be stored with one of the cache objects (atlas?)
-        int coordsIdx = drawState->hasColorVertexAttribute() ? kGlyphCoordsWithColorAttributeIndex :
-                                                               kGlyphCoordsNoColorAttributeIndex;
-        drawState->addCoverageEffect(fCachedEffect.get(), coordsIdx);
+        drawState->setGeometryProcessor(fCachedEffect.get());
         
         // Set draw state
         if (fUseLCDText) {

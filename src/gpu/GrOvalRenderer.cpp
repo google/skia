@@ -11,7 +11,7 @@
 #include "GrEffect.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
-#include "gl/GrGLVertexEffect.h"
+#include "gl/GrGLGeometryProcessor.h"
 #include "GrTBackendEffectFactory.h"
 
 #include "GrDrawState.h"
@@ -22,7 +22,7 @@
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
 
-#include "effects/GrVertexEffect.h"
+#include "effects/GrGeometryProcessor.h"
 #include "effects/GrRRectEffect.h"
 
 namespace {
@@ -60,7 +60,7 @@ inline bool circle_stays_circle(const SkMatrix& m) {
  * specified as offset_x, offset_y (both from center point), outer radius and inner radius.
  */
 
-class CircleEdgeEffect : public GrVertexEffect {
+class CircleEdgeEffect : public GrGeometryProcessor {
 public:
     static GrEffect* Create(bool stroke) {
         GR_CREATE_STATIC_EFFECT(gCircleStrokeEdge, CircleEdgeEffect, (true));
@@ -80,6 +80,8 @@ public:
         *validFlags = 0;
     }
 
+    const GrShaderVar& inCircleEdge() const { return fInCircleEdge; }
+
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
         return GrTBackendEffectFactory<CircleEdgeEffect>::getInstance();
     }
@@ -90,7 +92,7 @@ public:
 
     inline bool isStroked() const { return fStroke; }
 
-    class GLEffect : public GrGLVertexEffect {
+    class GLEffect : public GrGLGeometryProcessor {
     public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {}
@@ -106,10 +108,8 @@ public:
             const char *vsName, *fsName;
             builder->addVarying(kVec4f_GrSLType, "CircleEdge", &vsName, &fsName);
 
-            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
-            const SkString* attr0Name =
-                vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            vsBuilder->codeAppendf("\t%s = %s;\n", vsName, attr0Name->c_str());
+            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();;
+            vsBuilder->codeAppendf("\t%s = %s;\n", vsName, circleEffect.inCircleEdge().c_str());
 
             GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("\tfloat d = length(%s.xy);\n", fsName);
@@ -132,13 +132,16 @@ public:
         virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
     private:
-        typedef GrGLVertexEffect INHERITED;
+        typedef GrGLGeometryProcessor INHERITED;
     };
 
 
 private:
-    CircleEdgeEffect(bool stroke) : GrVertexEffect() {
-        this->addVertexAttrib(kVec4f_GrSLType);
+    CircleEdgeEffect(bool stroke)
+        : fInCircleEdge(this->addVertexAttrib(
+                GrShaderVar("inCircleEdge",
+                            kVec4f_GrSLType,
+                            GrShaderVar::kAttribute_TypeModifier))) {
         fStroke = stroke;
     }
 
@@ -147,11 +150,12 @@ private:
         return cee.fStroke == fStroke;
     }
 
+    const GrShaderVar& fInCircleEdge;
     bool fStroke;
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrVertexEffect INHERITED;
+    typedef GrGeometryProcessor INHERITED;
 };
 
 GR_DEFINE_EFFECT_TEST(CircleEdgeEffect);
@@ -173,7 +177,7 @@ GrEffect* CircleEdgeEffect::TestCreate(SkRandom* random,
  * We are using an implicit function of x^2/a^2 + y^2/b^2 - 1 = 0.
  */
 
-class EllipseEdgeEffect : public GrVertexEffect {
+class EllipseEdgeEffect : public GrGeometryProcessor {
 public:
     static GrEffect* Create(bool stroke) {
         GR_CREATE_STATIC_EFFECT(gEllipseStrokeEdge, EllipseEdgeEffect, (true));
@@ -201,9 +205,12 @@ public:
 
     static const char* Name() { return "EllipseEdge"; }
 
+    const GrShaderVar& inEllipseOffset() const { return fInEllipseOffset; }
+    const GrShaderVar& inEllipseRadii() const { return fInEllipseRadii; }
+
     inline bool isStroked() const { return fStroke; }
 
-    class GLEffect : public GrGLVertexEffect {
+    class GLEffect : public GrGLGeometryProcessor {
     public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {}
@@ -223,14 +230,11 @@ public:
             builder->addVarying(kVec2f_GrSLType, "EllipseOffsets", &vsOffsetName, &fsOffsetName);
 
             GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
-            const SkString* attr0Name =
-                vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            vsBuilder->codeAppendf("\t%s = %s;\n", vsOffsetName, attr0Name->c_str());
+            vsBuilder->codeAppendf("%s = %s;", vsOffsetName,
+                                   ellipseEffect.inEllipseOffset().c_str());
 
             builder->addVarying(kVec4f_GrSLType, "EllipseRadii", &vsRadiiName, &fsRadiiName);
-            const SkString* attr1Name =
-                vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
-            vsBuilder->codeAppendf("\t%s = %s;\n", vsRadiiName, attr1Name->c_str());
+            vsBuilder->codeAppendf("%s = %s;", vsRadiiName, ellipseEffect.inEllipseRadii().c_str());
 
             // for outer curve
             GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
@@ -266,13 +270,19 @@ public:
         }
 
     private:
-        typedef GrGLVertexEffect INHERITED;
+        typedef GrGLGeometryProcessor INHERITED;
     };
 
 private:
-    EllipseEdgeEffect(bool stroke) : GrVertexEffect() {
-        this->addVertexAttrib(kVec2f_GrSLType);
-        this->addVertexAttrib(kVec4f_GrSLType);
+    EllipseEdgeEffect(bool stroke)
+        : fInEllipseOffset(this->addVertexAttrib(
+                GrShaderVar("inEllipseOffset",
+                            kVec2f_GrSLType,
+                            GrShaderVar::kAttribute_TypeModifier)))
+        , fInEllipseRadii(this->addVertexAttrib(
+                GrShaderVar("inEllipseRadii",
+                            kVec4f_GrSLType,
+                            GrShaderVar::kAttribute_TypeModifier))) {
         fStroke = stroke;
     }
 
@@ -281,11 +291,13 @@ private:
         return eee.fStroke == fStroke;
     }
 
+    const GrShaderVar& fInEllipseOffset;
+    const GrShaderVar& fInEllipseRadii;
     bool fStroke;
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrVertexEffect INHERITED;
+    typedef GrGeometryProcessor INHERITED;
 };
 
 GR_DEFINE_EFFECT_TEST(EllipseEdgeEffect);
@@ -308,7 +320,7 @@ GrEffect* EllipseEdgeEffect::TestCreate(SkRandom* random,
  * The result is device-independent and can be used with any affine matrix.
  */
 
-class DIEllipseEdgeEffect : public GrVertexEffect {
+class DIEllipseEdgeEffect : public GrGeometryProcessor {
 public:
     enum Mode { kStroke = 0, kHairline, kFill };
 
@@ -342,9 +354,12 @@ public:
 
     static const char* Name() { return "DIEllipseEdge"; }
 
+    const GrShaderVar& inEllipseOffsets0() const { return fInEllipseOffsets0; }
+    const GrShaderVar& inEllipseOffsets1() const { return fInEllipseOffsets1; }
+
     inline Mode getMode() const { return fMode; }
 
-    class GLEffect : public GrGLVertexEffect {
+    class GLEffect : public GrGLGeometryProcessor {
     public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {}
@@ -363,15 +378,13 @@ public:
                                       &vsOffsetName0, &fsOffsetName0);
 
             GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
-            const SkString* attr0Name =
-                vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            vsBuilder->codeAppendf("\t%s = %s;\n", vsOffsetName0, attr0Name->c_str());
+            vsBuilder->codeAppendf("%s = %s;", vsOffsetName0,
+                                   ellipseEffect.inEllipseOffsets0().c_str());
             const char *vsOffsetName1, *fsOffsetName1;
             builder->addVarying(kVec2f_GrSLType, "EllipseOffsets1",
                                       &vsOffsetName1, &fsOffsetName1);
-            const SkString* attr1Name =
-                vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
-            vsBuilder->codeAppendf("\t%s = %s;\n", vsOffsetName1, attr1Name->c_str());
+            vsBuilder->codeAppendf("\t%s = %s;\n", vsOffsetName1,
+                                   ellipseEffect.inEllipseOffsets1().c_str());
 
             GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             SkAssertResult(fsBuilder->enableFeature(
@@ -426,13 +439,19 @@ public:
         }
 
     private:
-        typedef GrGLVertexEffect INHERITED;
+        typedef GrGLGeometryProcessor INHERITED;
     };
 
 private:
-    DIEllipseEdgeEffect(Mode mode) : GrVertexEffect() {
-        this->addVertexAttrib(kVec2f_GrSLType);
-        this->addVertexAttrib(kVec2f_GrSLType);
+    DIEllipseEdgeEffect(Mode mode)
+        : fInEllipseOffsets0(this->addVertexAttrib(
+                GrShaderVar("inEllipseOffsets0",
+                            kVec2f_GrSLType,
+                            GrShaderVar::kAttribute_TypeModifier)))
+        , fInEllipseOffsets1(this->addVertexAttrib(
+                GrShaderVar("inEllipseOffsets1",
+                            kVec2f_GrSLType,
+                            GrShaderVar::kAttribute_TypeModifier))) {
         fMode = mode;
     }
 
@@ -441,11 +460,13 @@ private:
         return eee.fMode == fMode;
     }
 
+    const GrShaderVar& fInEllipseOffsets0;
+    const GrShaderVar& fInEllipseOffsets1;
     Mode fMode;
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrVertexEffect INHERITED;
+    typedef GrGeometryProcessor INHERITED;
 };
 
 GR_DEFINE_EFFECT_TEST(DIEllipseEdgeEffect);
@@ -552,8 +573,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     }
 
     GrEffect* effect = CircleEdgeEffect::Create(isStrokeOnly && innerRadius > 0);
-    static const int kCircleEdgeAttrIndex = 1;
-    drawState->setGeometryProcessor(effect, kCircleEdgeAttrIndex)->unref();
+    drawState->setGeometryProcessor(effect)->unref();
 
     // The radii are outset for two reasons. First, it allows the shader to simply perform
     // clamp(distance-to-center - radius, 0, 1). Second, the outer radius is used to compute the
@@ -694,9 +714,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     GrEffect* effect = EllipseEdgeEffect::Create(isStrokeOnly &&
                                                  innerXRadius > 0 && innerYRadius > 0);
 
-    static const int kEllipseCenterAttrIndex = 1;
-    static const int kEllipseEdgeAttrIndex = 2;
-    drawState->setGeometryProcessor(effect, kEllipseCenterAttrIndex, kEllipseEdgeAttrIndex)->unref();
+    drawState->setGeometryProcessor(effect)->unref();
 
     // Compute the reciprocals of the radii here to save time in the shader
     SkScalar xRadRecip = SkScalarInvert(xRadius);
@@ -812,10 +830,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
 
     GrEffect* effect = DIEllipseEdgeEffect::Create(mode);
 
-    static const int kEllipseOuterOffsetAttrIndex = 1;
-    static const int kEllipseInnerOffsetAttrIndex = 2;
-    drawState->setGeometryProcessor(effect, kEllipseOuterOffsetAttrIndex,
-                                    kEllipseInnerOffsetAttrIndex)->unref();
+    drawState->setGeometryProcessor(effect)->unref();
 
     // This expands the outer rect so that after CTM we end up with a half-pixel border
     SkScalar a = vm[SkMatrix::kMScaleX];
@@ -1062,8 +1077,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
         isStrokeOnly = (isStrokeOnly && innerRadius >= 0);
 
         GrEffect* effect = CircleEdgeEffect::Create(isStrokeOnly);
-        static const int kCircleEdgeAttrIndex = 1;
-        drawState->setGeometryProcessor(effect, kCircleEdgeAttrIndex)->unref();
+        drawState->setGeometryProcessor(effect)->unref();
 
         // The radii are outset for two reasons. First, it allows the shader to simply perform
         // clamp(distance-to-center - radius, 0, 1). Second, the outer radius is used to compute the
@@ -1166,11 +1180,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(geo.vertices());
 
         GrEffect* effect = EllipseEdgeEffect::Create(isStrokeOnly);
-        static const int kEllipseOffsetAttrIndex = 1;
-        static const int kEllipseRadiiAttrIndex = 2;
-        drawState->setGeometryProcessor(effect,
-                                        kEllipseOffsetAttrIndex,
-                                        kEllipseRadiiAttrIndex)->unref();
+        drawState->setGeometryProcessor(effect)->unref();
 
         // Compute the reciprocals of the radii here to save time in the shader
         SkScalar xRadRecip = SkScalarInvert(xRadius);

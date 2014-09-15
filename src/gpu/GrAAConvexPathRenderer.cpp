@@ -21,9 +21,9 @@
 
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
-#include "gl/GrGLVertexEffect.h"
+#include "gl/GrGLGeometryProcessor.h"
 
-#include "effects/GrVertexEffect.h"
+#include "effects/GrGeometryProcessor.h"
 
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }
@@ -504,7 +504,7 @@ static void create_vertices(const SegmentArray&  segments,
  * Requires shader derivative instruction support.
  */
 
-class QuadEdgeEffect : public GrVertexEffect {
+class QuadEdgeEffect : public GrGeometryProcessor {
 public:
 
     static GrEffect* Create() {
@@ -522,11 +522,13 @@ public:
         *validFlags = 0;
     }
 
+    const GrShaderVar& inQuadEdge() const { return fInQuadEdge; }
+
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
         return GrTBackendEffectFactory<QuadEdgeEffect>::getInstance();
     }
 
-    class GLEffect : public GrGLVertexEffect {
+    class GLEffect : public GrGLGeometryProcessor {
     public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
             : INHERITED (factory) {}
@@ -567,10 +569,9 @@ public:
             fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
 
+            const GrShaderVar& inQuadEdge = drawEffect.castEffect<QuadEdgeEffect>().inQuadEdge();
             GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
-            const SkString* attr0Name =
-                vsBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            vsBuilder->codeAppendf("\t%s = %s;\n", vsName, attr0Name->c_str());
+            vsBuilder->codeAppendf("\t%s = %s;\n", vsName, inQuadEdge.c_str());
         }
 
         static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
@@ -578,17 +579,21 @@ public:
         virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
     private:
-        typedef GrGLVertexEffect INHERITED;
+        typedef GrGLGeometryProcessor INHERITED;
     };
 
 private:
-    QuadEdgeEffect() {
-        this->addVertexAttrib(kVec4f_GrSLType);
+    QuadEdgeEffect()
+        : fInQuadEdge(this->addVertexAttrib(GrShaderVar("inQuadEdge",
+                                                        kVec4f_GrSLType,
+                                                        GrShaderVar::kAttribute_TypeModifier))) {
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
         return true;
     }
+
+    const GrShaderVar& fInQuadEdge;
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -676,9 +681,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
 
     drawState->setVertexAttribs<gPathAttribs>(SK_ARRAY_COUNT(gPathAttribs), sizeof(QuadVertex));
 
-    static const int kEdgeAttrIndex = 1;
     GrEffect* quadEffect = QuadEdgeEffect::Create();
-    drawState->setGeometryProcessor(quadEffect, kEdgeAttrIndex)->unref();
+    drawState->setGeometryProcessor(quadEffect)->unref();
 
     GrDrawTarget::AutoReleaseGeometry arg(target, vCount, iCount);
     if (!arg.succeeded()) {

@@ -114,7 +114,7 @@ protected:
     /**
      * Helpers for GenEffectMetaKey.
      */
-    static uint32_t GenAttribKey(const GrDrawEffect&);
+    static uint32_t GenAttribKey(const GrEffect&);
     static uint32_t GenTransformKey(const GrDrawEffect&);
     static uint32_t GenTextureKey(const GrDrawEffect&, const GrGLCaps&);
 

@@ -12,7 +12,6 @@
 #include "gl/GrGLProgramEffects.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLProgramDataManager.h"
-#include "GrAllocator.h"
 #include "GrBackendEffectFactory.h"
 #include "GrColor.h"
 #include "GrEffect.h"

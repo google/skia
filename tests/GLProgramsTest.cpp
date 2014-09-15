@@ -162,6 +162,37 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
     return true;
 }
 
+// TODO clean this up, we have to do this to test geometry processors but there has got to be
+// a better way.  In the mean time, we actually fill out these generic vertex attribs below with
+// the correct vertex attribs from the GP.  We have to ensure, however, we don't try to add more
+// than two attributes.
+GrVertexAttrib genericVertexAttribs[] = {
+    { kVec2f_GrVertexAttribType, 0,   kPosition_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, 0,   kEffect_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, 0,   kEffect_GrVertexAttribBinding }
+};
+
+/*
+ * convert sl type to vertexattrib type, not a complete implementation, only use for debugging
+ */
+GrVertexAttribType convert_sltype_to_attribtype(GrSLType type) {
+    switch (type) {
+        case kFloat_GrSLType:
+            return kFloat_GrVertexAttribType;
+        case kVec2f_GrSLType:
+            return kVec2f_GrVertexAttribType;
+        case kVec3f_GrSLType:
+            return kVec3f_GrVertexAttribType;
+        case kVec4f_GrSLType:
+            return kVec4f_GrVertexAttribType;
+        default:
+            SkFAIL("Type isn't convertible");
+            return kFloat_GrVertexAttribType;
+    }
+}
+// TODO end test hack
+
+
 bool GrGpuGL::programUnitTest(int maxStages) {
 
     GrTextureDesc dummyDesc;
@@ -197,7 +228,6 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
         int currAttribIndex = 1;  // we need to always leave room for position
         int currTextureCoordSet = 0;
-        int attribIndices[2] = { 0, 0 };
         GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
 
         int numStages = random.nextULessThan(maxStages + 1);
@@ -220,19 +250,32 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                                                                                 *this->caps(),
                                                                                 dummyTextures));
                 SkASSERT(effect);
-
                 // Only geometryProcessor can use vertex shader
                 if (!effect->requiresVertexShader()) {
                     continue;
                 }
 
-                int numAttribs = effect->numVertexAttribs();
-                for (int i = 0; i < numAttribs; ++i) {
-                    attribIndices[i] = currAttribIndex++;
-                }
-                GrEffectStage* stage = SkNEW_ARGS(GrEffectStage,
-                                                  (effect.get(), attribIndices[0], attribIndices[1]));
+                GrEffectStage* stage = SkNEW_ARGS(GrEffectStage, (effect.get()));
                 geometryProcessor.reset(stage);
+
+                // we have to set dummy vertex attribs
+                const GrEffect::VertexAttribArray& v = effect->getVertexAttribs();
+                int numVertexAttribs = v.count();
+
+                SkASSERT(GrEffect::kMaxVertexAttribs == 2 &&
+                         GrEffect::kMaxVertexAttribs >= numVertexAttribs);
+                size_t runningStride = GrVertexAttribTypeSize(genericVertexAttribs[0].fType);
+                for (int i = 0; i < numVertexAttribs; i++) {
+                    genericVertexAttribs[i + 1].fOffset = runningStride;
+                    genericVertexAttribs[i + 1].fType =
+                            convert_sltype_to_attribtype(v[i].getType());
+                    runningStride += GrVertexAttribTypeSize(genericVertexAttribs[i + 1].fType);
+                }
+
+                // update the vertex attributes with the ds
+                GrDrawState* ds = this->drawState();
+                ds->setVertexAttribs<genericVertexAttribs>(numVertexAttribs + 1, runningStride);
+                currAttribIndex = numVertexAttribs + 1;
                 break;
             }
         }
@@ -258,8 +301,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                 }
                 currTextureCoordSet += numTransforms;
             }
-            GrEffectStage* stage = SkNEW_ARGS(GrEffectStage,
-                                              (effect.get(), attribIndices[0], attribIndices[1]));
+            GrEffectStage* stage = SkNEW_ARGS(GrEffectStage, (effect.get()));
 
             stages[s] = stage;
             ++s;
@@ -288,6 +330,9 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         if (NULL == program.get()) {
             return false;
         }
+
+        // We have to reset the drawstate because we might have added a gp
+        this->drawState()->reset();
     }
     return true;
 }

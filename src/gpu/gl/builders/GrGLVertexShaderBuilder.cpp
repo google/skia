@@ -14,8 +14,8 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(gpu->glInterface(), R, X)
 
 namespace {
-inline const char* color_attribute_name() { return "aColor"; }
-inline const char* coverage_attribute_name() { return "aCoverage"; }
+inline const char* color_attribute_name() { return "inColor"; }
+inline const char* coverage_attribute_name() { return "inCoverage"; }
 }
 
 GrGLVertexShaderBuilder::GrGLVertexShaderBuilder(GrGLFullProgramBuilder* program)
@@ -23,51 +23,27 @@ GrGLVertexShaderBuilder::GrGLVertexShaderBuilder(GrGLFullProgramBuilder* program
     , fPositionVar(NULL)
     , fLocalCoordsVar(NULL) {
 }
-bool GrGLVertexShaderBuilder::addAttribute(GrSLType type, const char* name) {
+bool GrGLVertexShaderBuilder::addAttribute(const GrShaderVar& var) {
+    SkASSERT(GrShaderVar::kAttribute_TypeModifier == var.getTypeModifier());
     for (int i = 0; i < fInputs.count(); ++i) {
         const GrGLShaderVar& attr = fInputs[i];
         // if attribute already added, don't add it again
-        if (attr.getName().equals(name)) {
+        if (attr.getName().equals(var.getName())) {
             return false;
         }
     }
-    fInputs.push_back().set(type, GrGLShaderVar::kAttribute_TypeModifier, name);
-    return true;
-}
-
-bool GrGLVertexShaderBuilder::addEffectAttribute(int attributeIndex,
-                                               GrSLType type,
-                                               const SkString& name) {
-    if (!this->addAttribute(type, name.c_str())) {
-        return false;
-    }
-
-    fEffectAttributes.push_back().set(attributeIndex, name);
+    fInputs.push_back(var);
     return true;
 }
 
 void GrGLVertexShaderBuilder::emitAttributes(const GrEffectStage& stage) {
-    int numAttributes = stage.getVertexAttribIndexCount();
-    const int* attributeIndices = stage.getVertexAttribIndices();
+    const GrEffect& effect = *stage.getEffect();
+    const GrEffect::VertexAttribArray& vars =
+            effect.getVertexAttribs();
+    int numAttributes = vars.count();
     for (int a = 0; a < numAttributes; ++a) {
-        // TODO: Make addAttribute mangle the name.
-        SkString attributeName("aAttr");
-        attributeName.appendS32(attributeIndices[a]);
-        this->addEffectAttribute(attributeIndices[a],
-                                 stage.getEffect()->vertexAttribType(a),
-                                 attributeName);
+        this->addAttribute(vars[a]);
     }
-}
-
-const SkString* GrGLVertexShaderBuilder::getEffectAttributeName(int attributeIndex) const {
-    const AttributePair* attribEnd = fEffectAttributes.end();
-    for (const AttributePair* attrib = fEffectAttributes.begin(); attrib != attribEnd; ++attrib) {
-        if (attrib->fIndex == attributeIndex) {
-            return &attrib->fName;
-        }
-    }
-
-    return NULL;
 }
 
 void GrGLVertexShaderBuilder::addVarying(GrSLType type, const char* name, const char** vsOutName) {
@@ -107,10 +83,27 @@ void GrGLVertexShaderBuilder::bindProgramLocations(GrGLuint programId) {
                                    coverage_attribute_name()));
     }
 
-    const AttributePair* attribEnd = fEffectAttributes.end();
-    for (const AttributePair* attrib = fEffectAttributes.begin(); attrib != attribEnd; ++attrib) {
-         GL_CALL(BindAttribLocation(programId, attrib->fIndex, attrib->fName.c_str()));
+    // We pull the current state of attributes off of drawstate and bind them in order
+    const GrRODrawState* ds = fProgramBuilder->gpu()->drawState();
+    const GrVertexAttrib* vaPtr = ds->getVertexAttribs();
+    const int vaCount = ds->getVertexAttribCount();
+
+    int i = fEffectAttribOffset;
+    for (int index = 0; index < vaCount; index++) {
+        if (kEffect_GrVertexAttribBinding != vaPtr[index].fBinding) {
+            continue;
+        }
+        SkASSERT(index != header.fPositionAttributeIndex &&
+                 index != header.fLocalCoordAttributeIndex &&
+                 index != header.fColorAttributeIndex &&
+                 index != header.fCoverageAttributeIndex);
+        // We should never find another effect attribute if we have bound everything
+        SkASSERT(i < fInputs.count());
+        GL_CALL(BindAttribLocation(programId, index, fInputs[i].c_str()));
+        i++;
     }
+    // Make sure we bound everything
+    SkASSERT(fInputs.count() == i);
 }
 
 bool GrGLVertexShaderBuilder::compileAndAttachShaders(GrGLuint programId,
@@ -183,7 +176,9 @@ void GrGLVertexShaderBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLEx
     }
 
     if (GrGLProgramDesc::kAttribute_ColorInput == header.fColorInput) {
-        this->addAttribute(kVec4f_GrSLType, color_attribute_name());
+        this->addAttribute(GrShaderVar(color_attribute_name(),
+                                       kVec4f_GrSLType,
+                                       GrShaderVar::kAttribute_TypeModifier));
         const char *vsName, *fsName;
         fFullProgramBuilder->addVarying(kVec4f_GrSLType, "Color", &vsName, &fsName);
         this->codeAppendf("\t%s = %s;\n", vsName, color_attribute_name());
@@ -191,10 +186,13 @@ void GrGLVertexShaderBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLEx
     }
 
     if (GrGLProgramDesc::kAttribute_ColorInput == header.fCoverageInput) {
-        this->addAttribute(kVec4f_GrSLType, coverage_attribute_name());
+        this->addAttribute(GrShaderVar(coverage_attribute_name(),
+                                       kVec4f_GrSLType,
+                                       GrShaderVar::kAttribute_TypeModifier));
         const char *vsName, *fsName;
         fFullProgramBuilder->addVarying(kVec4f_GrSLType, "Coverage", &vsName, &fsName);
         this->codeAppendf("\t%s = %s;\n", vsName, coverage_attribute_name());
         *coverage = fsName;
     }
+    fEffectAttribOffset = fInputs.count();
 }

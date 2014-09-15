@@ -136,7 +136,7 @@ protected:
                     drawState->reset(viewMatrix);
                     drawState->setRenderTarget(rt);
                     drawState->setColor(0xffffffff);
-                    drawState->addColorEffect(effect, 1);
+                    drawState->addColorEffect(effect);
 
                     tt.target()->drawSimpleRect(renderRect);
                     x += renderRect.width() + kTestPad;

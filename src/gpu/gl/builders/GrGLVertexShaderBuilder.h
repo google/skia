@@ -16,14 +16,6 @@ public:
     GrGLVertexShaderBuilder(GrGLFullProgramBuilder* program);
 
     /*
-     * Add attribute will push a new attribute onto the end.  It will also assert if there is
-     * a duplicate attribute
-     */
-    bool addAttribute(GrSLType type, const char* name);
-
-    bool addEffectAttribute(int attributeIndex, GrSLType type, const SkString& name);
-
-    /*
      * this call is only for GrGLProgramEffects' internal use
      */
     void emitAttributes(const GrEffectStage& stage);
@@ -47,6 +39,12 @@ public:
 
 private:
     /*
+     * Add attribute will push a new attribute onto the end.  It will also assert if there is
+     * a duplicate attribute
+     */
+    bool addAttribute(const GrShaderVar& var);
+
+    /*
      * Internal call for GrGLFullProgramBuilder.addVarying
      */
     void addVarying(GrSLType type,
@@ -69,9 +67,9 @@ private:
         SkString fName;
     };
 
-    SkSTArray<10, AttributePair, true>  fEffectAttributes;
     GrGLShaderVar*                      fPositionVar;
     GrGLShaderVar*                      fLocalCoordsVar;
+    int                                 fEffectAttribOffset;
 
     friend class GrGLFullProgramBuilder;
 
