@@ -187,80 +187,37 @@ SkResourceCache::~SkResourceCache() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const SkResourceCache::Rec* SkResourceCache::findAndLock(const Key& key) {
+bool SkResourceCache::find(const Key& key, VisitorProc visitor, void* context) {
     Rec* rec = fHash->find(key);
     if (rec) {
-        this->moveToHead(rec);  // for our LRU
-        rec->fLockCount += 1;
+        if (visitor(*rec, context)) {
+            this->moveToHead(rec);  // for our LRU
+            return true;
+        } else {
+            this->remove(rec);  // stale
+            return false;
+        }
     }
-    return rec;
-}
-
-const SkResourceCache::Rec* SkResourceCache::addAndLock(Rec* rec) {
-    SkASSERT(rec);
-    // See if we already have this key (racy inserts, etc.)
-    const Rec* existing = this->findAndLock(rec->getKey());
-    if (existing) {
-        SkDELETE(rec);
-        return existing;
-    }
-
-    this->addToHead(rec);
-    SkASSERT(1 == rec->fLockCount);
-    fHash->add(rec);
-    // We may (now) be overbudget, so see if we need to purge something.
-    this->purgeAsNeeded();
-    return rec;
+    return false;
 }
 
 void SkResourceCache::add(Rec* rec) {
     SkASSERT(rec);
     // See if we already have this key (racy inserts, etc.)
-    const Rec* existing = this->findAndLock(rec->getKey());
+    Rec* existing = fHash->find(rec->getKey());
     if (existing) {
         SkDELETE(rec);
-        this->unlock(existing);
         return;
     }
     
     this->addToHead(rec);
-    SkASSERT(1 == rec->fLockCount);
     fHash->add(rec);
-    this->unlock(rec);
-}
 
-void SkResourceCache::unlock(SkResourceCache::ID id) {
-    SkASSERT(id);
-
-#ifdef SK_DEBUG
-    {
-        bool found = false;
-        Rec* rec = fHead;
-        while (rec != NULL) {
-            if (rec == id) {
-                found = true;
-                break;
-            }
-            rec = rec->fNext;
-        }
-        SkASSERT(found);
-    }
-#endif
-    const Rec* rec = id;
-    SkASSERT(rec->fLockCount > 0);
-    // We're under our lock, and we're the only possible mutator, so unconsting is fine.
-    const_cast<Rec*>(rec)->fLockCount -= 1;
-
-    // we may have been over-budget, but now have released something, so check
-    // if we should purge.
-    if (0 == rec->fLockCount) {
-        this->purgeAsNeeded();
-    }
+    // since the new rec may push us over-budget, we perform a purge check now
+    this->purgeAsNeeded();
 }
 
 void SkResourceCache::remove(Rec* rec) {
-    SkASSERT(0 == rec->fLockCount);
-
     size_t used = rec->bytesUsed();
     SkASSERT(used <= fTotalBytesUsed);
 
@@ -292,9 +249,7 @@ void SkResourceCache::purgeAsNeeded(bool forcePurge) {
         }
 
         Rec* prev = rec->fPrev;
-        if (0 == rec->fLockCount) {
-            this->remove(rec);
-        }
+        this->remove(rec);
         rec = prev;
     }
 }
@@ -417,16 +372,8 @@ void SkResourceCache::validate() const {
 void SkResourceCache::dump() const {
     this->validate();
 
-    const Rec* rec = fHead;
-    int locked = 0;
-    while (rec) {
-        locked += rec->fLockCount > 0;
-        rec = rec->fNext;
-    }
-
-    SkDebugf("SkResourceCache: count=%d bytes=%d locked=%d %s\n",
-             fCount, fTotalBytesUsed, locked,
-             fDiscardableFactory ? "discardable" : "malloc");
+    SkDebugf("SkResourceCache: count=%d bytes=%d %s\n",
+             fCount, fTotalBytesUsed, fDiscardableFactory ? "discardable" : "malloc");
 }
 
 size_t SkResourceCache::setSingleAllocationByteLimit(size_t newLimit) {
@@ -470,35 +417,6 @@ static SkResourceCache* get_cache() {
     return gResourceCache;
 }
 
-void SkResourceCache::Unlock(SkResourceCache::ID id) {
-    SkAutoMutexAcquire am(gMutex);
-    get_cache()->unlock(id);
-
-//    get_cache()->dump();
-}
-
-void SkResourceCache::Remove(SkResourceCache::ID id) {
-    SkAutoMutexAcquire am(gMutex);
-    SkASSERT(id);
-
-#ifdef SK_DEBUG
-    {
-        bool found = false;
-        Rec* rec = get_cache()->fHead;
-        while (rec != NULL) {
-            if (rec == id) {
-                found = true;
-                break;
-            }
-            rec = rec->fNext;
-        }
-        SkASSERT(found);
-    }
-#endif
-    const Rec* rec = id;
-    get_cache()->remove(const_cast<Rec*>(rec));
-}
-
 size_t SkResourceCache::GetTotalBytesUsed() {
     SkAutoMutexAcquire am(gMutex);
     return get_cache()->getTotalBytesUsed();
@@ -539,14 +457,9 @@ void SkResourceCache::PurgeAll() {
     return get_cache()->purgeAll();
 }
 
-const SkResourceCache::Rec* SkResourceCache::FindAndLock(const Key& key) {
+bool SkResourceCache::Find(const Key& key, VisitorProc visitor, void* context) {
     SkAutoMutexAcquire am(gMutex);
-    return get_cache()->findAndLock(key);
-}
-
-const SkResourceCache::Rec* SkResourceCache::AddAndLock(Rec* rec) {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->addAndLock(rec);
+    return get_cache()->find(key, visitor, context);
 }
 
 void SkResourceCache::Add(Rec* rec) {
