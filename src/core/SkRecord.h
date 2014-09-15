@@ -26,9 +26,12 @@
 // get this wrong.
 
 class SkRecord : SkNoncopyable {
+    enum {
+        kChunkBytes = 4096,
+        kFirstReserveCount = 64 / sizeof(void*),
+    };
 public:
-    SkRecord(size_t chunkBytes = 4096, unsigned firstReserveCount = 64 / sizeof(void*))
-        : fAlloc(chunkBytes), fCount(0), fReserved(0), kFirstReserveCount(firstReserveCount) {}
+    SkRecord() : fAlloc(kChunkBytes), fCount(0), fReserved(0) {}
 
     ~SkRecord() {
         Destroyer destroyer;
@@ -74,7 +77,7 @@ public:
     template <typename T>
     T* append() {
         if (fCount == fReserved) {
-            fReserved = SkTMax(kFirstReserveCount, fReserved*2);
+            fReserved = SkTMax<unsigned>(kFirstReserveCount, fReserved*2);
             fRecords.realloc(fReserved);
             fTypes.realloc(fReserved);
         }
@@ -221,7 +224,7 @@ private:
     // chunks, returning a stable handle to that data for later retrieval.
     //
     // fRecords and fTypes need to be data structures that can append fixed length data, and need to
-    // support efficient forward iteration.  (They don't need to be contiguous or indexable.)
+    // support efficient random access and forward iteration.  (They don't need to be contiguous.)
 
     SkChunkAlloc fAlloc;
     SkAutoTMalloc<Record> fRecords;
@@ -229,7 +232,6 @@ private:
     // fCount and fReserved measure both fRecords and fTypes, which always grow in lock step.
     unsigned fCount;
     unsigned fReserved;
-    const unsigned kFirstReserveCount;
 };
 
 #endif//SkRecord_DEFINED
