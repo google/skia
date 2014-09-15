@@ -8986,10 +8986,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5520583909201375586
+          454419097931516549
         ]
       ], 
-      "reviewed-by-human": false
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "patch_primitive_565.png": {
       "allowed-digests": [
