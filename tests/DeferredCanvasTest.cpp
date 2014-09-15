@@ -839,6 +839,58 @@ static void TestDeferredCanvasCreateCompatibleDevice(skiatest::Reporter* reporte
     REPORTER_ASSERT(reporter, notificationCounter.fStorageAllocatedChangedCount == 1);
 }
 
+static void TestDeferredCanvasGetCanvasSize(skiatest::Reporter* reporter) {
+    SkRect rect;
+    rect.setXYWH(SkIntToScalar(0), SkIntToScalar(0), SkIntToScalar(gWidth), SkIntToScalar(gHeight));
+    SkRect clip;
+    clip.setXYWH(SkIntToScalar(0), SkIntToScalar(0), SkIntToScalar(1), SkIntToScalar(1));
+
+    SkPaint paint;
+    SkISize size = SkISize::Make(gWidth, gHeight);
+
+    SkAutoTUnref<SkSurface> surface(createSurface(0xFFFFFFFF));
+    SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
+
+    for (int i = 0; i < 2; ++i) {
+        if (i == 1) {
+            SkSurface* newSurface = SkSurface::NewRasterPMColor(4, 4);
+            canvas->setSurface(newSurface);
+            size = SkISize::Make(4, 4);
+        }
+
+        // verify that canvas size is correctly initialized or set
+        REPORTER_ASSERT(reporter, size == canvas->getCanvasSize());
+
+        // Verify that clear, clip and draw the canvas will not change its size
+        canvas->clear(0x00000000);
+        canvas->clipRect(clip, SkRegion::kIntersect_Op, false);
+        canvas->drawRect(rect, paint);
+        REPORTER_ASSERT(reporter, size == canvas->getCanvasSize());
+
+        // Verify that flush the canvas will not change its size
+        canvas->flush();
+        REPORTER_ASSERT(reporter, size == canvas->getCanvasSize());
+
+        // Verify that clear canvas with saved state will not change its size
+        canvas->save();
+        canvas->clear(0xFFFFFFFF);
+        REPORTER_ASSERT(reporter, size == canvas->getCanvasSize());
+
+        // Verify that restore canvas state will not change its size
+        canvas->restore();
+        REPORTER_ASSERT(reporter, size == canvas->getCanvasSize());
+
+        // Verify that clear within a layer will not change canvas size
+        canvas->saveLayer(&clip, &paint);
+        canvas->clear(0x00000000);
+        REPORTER_ASSERT(reporter, size == canvas->getCanvasSize());
+
+        // Verify that restore from a layer will not change canvas size
+        canvas->restore();
+        REPORTER_ASSERT(reporter, size == canvas->getCanvasSize());
+    }
+}
+
 DEF_TEST(DeferredCanvas_CPU, reporter) {
     TestDeferredCanvasFlush(reporter);
     TestDeferredCanvasSilentFlush(reporter);
@@ -850,6 +902,7 @@ DEF_TEST(DeferredCanvas_CPU, reporter) {
     TestDeferredCanvasBitmapSizeThreshold(reporter);
     TestDeferredCanvasCreateCompatibleDevice(reporter);
     TestDeferredCanvasWritePixelsToSurface(reporter);
+    TestDeferredCanvasGetCanvasSize(reporter);
     TestDeferredCanvasSurface(reporter, NULL);
     TestDeferredCanvasSetSurface(reporter, NULL);
 }
