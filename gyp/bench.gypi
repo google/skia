@@ -75,6 +75,7 @@
     '../bench/PathIterBench.cpp',
     '../bench/PathUtilsBench.cpp',
     '../bench/PerlinNoiseBench.cpp',
+    '../bench/PictureNestingBench.cpp',
     '../bench/PicturePlaybackBench.cpp',
     '../bench/PictureRecordBench.cpp',
     '../bench/PremulAndUnpremulAlphaOpsBench.cpp',
