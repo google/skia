@@ -20,7 +20,4 @@ void SkRecordNoopSaveRestores(SkRecord*);
 // draw, and no-op the SaveLayer and Restore.
 void SkRecordNoopSaveLayerDrawRestores(SkRecord*);
 
-// Convert DrawPosText to DrawPosTextH when all the Y coordinates are equal.
-void SkRecordReduceDrawPosTextStrength(SkRecord*);
-
 #endif//SkRecordOpts_DEFINED

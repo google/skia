@@ -14,9 +14,13 @@
 using namespace SkRecords;
 
 void SkRecordOptimize(SkRecord* record) {
+    // This might be useful  as a first pass in the future if we want to weed
+    // out junk for other optimization passes.  Right now, nothing needs it,
+    // and the bounding box hierarchy will do the work of skipping no-op
+    // Save-NoDraw-Restore sequences better than we can here.
+    //SkRecordNoopSaveRestores(record);
+
     SkRecordNoopSaveLayerDrawRestores(record);
-    SkRecordNoopSaveRestores(record);
-    SkRecordReduceDrawPosTextStrength(record);
 }
 
 // Most of the optimizations in this file are pattern-based.  These are all defined as structs with:
@@ -144,50 +148,6 @@ struct SaveLayerDrawRestoreNooper {
 };
 void SkRecordNoopSaveLayerDrawRestores(SkRecord* record) {
     SaveLayerDrawRestoreNooper pass;
-    apply(&pass, record);
-}
-
-
-// Replaces DrawPosText with DrawPosTextH when all Y coordinates are equal.
-struct StrengthReducer {
-    typedef Pattern1<Is<DrawPosText> > Pattern;
-
-    bool onMatch(SkRecord* record, Pattern* pattern, unsigned begin, unsigned end) {
-        SkASSERT(end == begin + 1);
-        DrawPosText* draw = pattern->first<DrawPosText>();
-
-        const unsigned points = draw->paint.countText(draw->text, draw->byteLength);
-        if (points == 0) {
-            return false;  // No point (ha!).
-        }
-
-        const SkScalar firstY = draw->pos[0].fY;
-        for (unsigned i = 1; i < points; i++) {
-            if (draw->pos[i].fY != firstY) {
-                return false;  // Needs full power of DrawPosText.
-            }
-        }
-        // All ys are the same.  We can replace DrawPosText with DrawPosTextH.
-
-        // draw->pos is points SkPoints, [(x,y),(x,y),(x,y),(x,y), ... ].
-        // We're going to squint and look at that as 2*points SkScalars, [x,y,x,y,x,y,x,y, ...].
-        // Then we'll rearrange things so all the xs are in order up front, clobbering the ys.
-        SK_COMPILE_ASSERT(sizeof(SkPoint) == 2 * sizeof(SkScalar), SquintingIsNotSafe);
-        SkScalar* scalars = &draw->pos[0].fX;
-        for (unsigned i = 0; i < 2*points; i += 2) {
-            scalars[i/2] = scalars[i];
-        }
-
-        // Extend lifetime of draw to the end of the loop so we can copy its paint.
-        Adopted<DrawPosText> adopted(draw);
-        SkNEW_PLACEMENT_ARGS(record->replace<DrawPosTextH>(begin, adopted),
-                             DrawPosTextH,
-                             (draw->paint, draw->text, draw->byteLength, scalars, firstY));
-        return true;
-    }
-};
-void SkRecordReduceDrawPosTextStrength(SkRecord* record) {
-    StrengthReducer pass;
     apply(&pass, record);
 }
 
