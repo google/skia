@@ -127,9 +127,9 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
     
     // set up any flags
     uint32_t flags = 0;
-    flags |= fContext->getMatrix().isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+    flags |= fTextMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
     flags |= fUseLCDText ? kUseLCD_DistanceFieldEffectFlag : 0;
-    flags |= fUseLCDText && fContext->getMatrix().rectStaysRect() ?
+    flags |= fUseLCDText && fTextMatrix.rectStaysRect() ?
     kRectToRect_DistanceFieldEffectFlag : 0;
     bool useBGR = SkDeviceProperties::Geometry::kBGR_Layout ==
     fDeviceProperties.fGeometry.getLayout();
@@ -176,7 +176,8 @@ void GrDistanceFieldTextContext::flushGlyphs() {
 
     GrDrawState* drawState = fDrawTarget->drawState();
     GrDrawState::AutoRestoreEffects are(drawState);
-    drawState->setFromPaint(fPaint, fContext->getMatrix(), fContext->getRenderTarget());
+
+    drawState->setFromPaint(fPaint, fTextMatrix, fContext->getRenderTarget());
 
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
@@ -443,18 +444,32 @@ inline void GrDistanceFieldTextContext::init(const GrPaint& paint, const SkPaint
 
     fStrike = NULL;
 
+    fTextMatrix = fContext->getMatrix();
+
+    // getMaxScale doesn't support perspective, so neither do we at the moment
+    SkASSERT(!fTextMatrix.hasPerspective());
+    SkScalar maxScale = fTextMatrix.getMaxScale();
+    SkScalar textSize = fSkPaint.getTextSize();
+    // if we have non-unity scale, we need to adjust our text size accordingly
+    // to avoid aliasing, and prescale the matrix by the inverse to end up with the same size
+    // TODO: do we need to do this if we're scaling down (i.e. maxScale < 1)?
+    if (maxScale > 0 && !SkScalarNearlyEqual(maxScale, SK_Scalar1)) {
+        textSize *= maxScale;
+        fTextMatrix.preScale(SK_Scalar1 / maxScale, SK_Scalar1 / maxScale);
+    }
+
     fCurrVertex = 0;
 
     fVertices = NULL;
 
-    if (fSkPaint.getTextSize() <= kSmallDFFontLimit) {
-        fTextRatio = fSkPaint.getTextSize()/kSmallDFFontSize;
+    if (textSize <= kSmallDFFontLimit) {
+        fTextRatio = textSize / kSmallDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kSmallDFFontSize));
-    } else if (fSkPaint.getTextSize() <= kMediumDFFontLimit) {
-        fTextRatio = fSkPaint.getTextSize()/kMediumDFFontSize;
+    } else if (textSize <= kMediumDFFontLimit) {
+        fTextRatio = textSize / kMediumDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kMediumDFFontSize));
     } else {
-        fTextRatio = fSkPaint.getTextSize()/kLargeDFFontSize;
+        fTextRatio = textSize / kLargeDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kLargeDFFontSize));
     }
 

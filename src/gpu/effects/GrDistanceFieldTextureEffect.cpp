@@ -34,7 +34,11 @@ public:
     GrGLDistanceFieldTextureEffect(const GrBackendEffectFactory& factory,
                                    const GrDrawEffect& drawEffect)
         : INHERITED (factory)
-        , fTextureSize(SkISize::Make(-1,-1)) {}
+        , fTextureSize(SkISize::Make(-1,-1))
+#ifdef SK_GAMMA_APPLY_TO_A8
+        , fLuminance(-1.0f)
+#endif
+        {}
 
     virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,
@@ -262,7 +266,8 @@ public:
     GrGLDistanceFieldLCDTextureEffect(const GrBackendEffectFactory& factory,
                                       const GrDrawEffect& drawEffect)
     : INHERITED (factory)
-    , fTextureSize(SkISize::Make(-1,-1)) {}
+    , fTextureSize(SkISize::Make(-1,-1))
+    , fTextColor(GrColor_ILLEGAL) {}
 
     virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrDrawEffect& drawEffect,

@@ -72,12 +72,10 @@ protected:
                     canvas->drawRect(r, p);
                 }
 
-                int index = 0;
                 for (int ps = 6; ps <= 22; ps++) {
                     paint.setTextSize(SkIntToScalar(ps));
                     canvas->drawText(text, textLen, x, y, paint);
                     y += paint.getFontMetrics(NULL);
-                    index += 1;
                 }
             }
             canvas->translate(0, SkIntToScalar(360));

@@ -31,6 +31,7 @@ public:
 
 private:
     GrTextStrike*           fStrike;
+    SkMatrix                fTextMatrix;
     SkScalar                fTextRatio;
     bool                    fUseLCDText;
     bool                    fEnableDFRendering;
