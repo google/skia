@@ -70,33 +70,41 @@ struct BitmapRec : public SkResourceCache::Rec {
     }
 };
 
-bool SkBitmapCache::Find(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY,
-                         SkBitmap* result) {
+#define CHECK_LOCAL(localCache, localName, globalName, ...) \
+    (localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__)
+
+bool SkBitmapCache::Find(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY, SkBitmap* result,
+                         SkResourceCache* localCache) {
     if (0 == invScaleX || 0 == invScaleY) {
         // degenerate, and the key we use for mipmaps
         return false;
     }
     BitmapKey key(src.getGenerationID(), invScaleX, invScaleY, get_bounds_from_bitmap(src));
-    return SkResourceCache::Find(key, BitmapRec::Visitor, result);
+
+    return CHECK_LOCAL(localCache, find, Find, key, BitmapRec::Visitor, result);
 }
 
 void SkBitmapCache::Add(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY,
-                        const SkBitmap& result) {
+                        const SkBitmap& result, SkResourceCache* localCache) {
     if (0 == invScaleX || 0 == invScaleY) {
         // degenerate, and the key we use for mipmaps
         return;
     }
     SkASSERT(result.isImmutable());
-    SkResourceCache::Add(SkNEW_ARGS(BitmapRec, (src.getGenerationID(), invScaleX, invScaleY,
-                                                get_bounds_from_bitmap(src), result)));
+    BitmapRec* rec = SkNEW_ARGS(BitmapRec, (src.getGenerationID(), invScaleX, invScaleY,
+                                            get_bounds_from_bitmap(src), result));
+    CHECK_LOCAL(localCache, add, Add, rec);
 }
 
-bool SkBitmapCache::Find(uint32_t genID, const SkIRect& subset, SkBitmap* result) {
+bool SkBitmapCache::Find(uint32_t genID, const SkIRect& subset, SkBitmap* result,
+                         SkResourceCache* localCache) {
     BitmapKey key(genID, SK_Scalar1, SK_Scalar1, subset);
-    return SkResourceCache::Find(key, BitmapRec::Visitor, result);
+
+    return CHECK_LOCAL(localCache, find, Find, key, BitmapRec::Visitor, result);
 }
 
-bool SkBitmapCache::Add(uint32_t genID, const SkIRect& subset, const SkBitmap& result) {
+bool SkBitmapCache::Add(uint32_t genID, const SkIRect& subset, const SkBitmap& result,
+                        SkResourceCache* localCache) {
     SkASSERT(result.isImmutable());
 
     if (subset.isEmpty()
@@ -106,9 +114,9 @@ bool SkBitmapCache::Add(uint32_t genID, const SkIRect& subset, const SkBitmap& r
         || result.height() != subset.height()) {
         return false;
     } else {
-        SkResourceCache::Add(SkNEW_ARGS(BitmapRec, (genID, SK_Scalar1, SK_Scalar1,
-                                                    subset, result)));
+        BitmapRec* rec = SkNEW_ARGS(BitmapRec, (genID, SK_Scalar1, SK_Scalar1, subset, result));
 
+        CHECK_LOCAL(localCache, add, Add, rec);
         return true;
     }
 }

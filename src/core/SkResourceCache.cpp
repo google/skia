@@ -432,6 +432,11 @@ size_t SkResourceCache::SetTotalByteLimit(size_t newLimit) {
     return get_cache()->setTotalByteLimit(newLimit);
 }
 
+SkResourceCache::DiscardableFactory SkResourceCache::GetDiscardableFactory() {
+    SkAutoMutexAcquire am(gMutex);
+    return get_cache()->discardableFactory();
+}
+
 SkBitmap::Allocator* SkResourceCache::GetAllocator() {
     SkAutoMutexAcquire am(gMutex);
     return get_cache()->allocator();

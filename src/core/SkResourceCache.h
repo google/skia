@@ -126,6 +126,11 @@ public:
     static void PurgeAll();
 
     /**
+     *  Returns the DiscardableFactory used by the global cache, or NULL.
+     */
+    static DiscardableFactory GetDiscardableFactory();
+
+    /**
      * Use this allocator for bitmaps, so they can use ashmem when available.
      * Returns NULL if the ResourceCache has not been initialized with a DiscardableFactory.
      */
@@ -189,6 +194,7 @@ public:
         this->purgeAsNeeded(true);
     }
 
+    DiscardableFactory discardableFactory() const { return fDiscardableFactory; }
     SkBitmap::Allocator* allocator() const { return fAllocator; };
 
     /**
