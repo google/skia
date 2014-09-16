@@ -521,6 +521,35 @@ static void test_3x3_conversion(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[3], vec4transformed2[3]));
 }
 
+static void test_has_perspective(skiatest::Reporter* reporter) {
+    SkMatrix44 transform(SkMatrix44::kIdentity_Constructor);
+
+    transform.set(3, 2, -0.1);
+    REPORTER_ASSERT(reporter, transform.hasPerspective());
+
+    transform.reset();
+    REPORTER_ASSERT(reporter, !transform.hasPerspective());
+
+    transform.set(3, 0, -1.0);
+    REPORTER_ASSERT(reporter, transform.hasPerspective());
+
+    transform.reset();
+    transform.set(3, 1, -1.0);
+    REPORTER_ASSERT(reporter, transform.hasPerspective());
+
+    transform.reset();
+    transform.set(3, 2, -0.3);
+    REPORTER_ASSERT(reporter, transform.hasPerspective());
+
+    transform.reset();
+    transform.set(3, 3, 0.5);
+    REPORTER_ASSERT(reporter, transform.hasPerspective());
+ 
+    transform.reset();
+    transform.set(3, 3, 0.0);
+    REPORTER_ASSERT(reporter, transform.hasPerspective());
+}
+
 DEF_TEST(Matrix44, reporter) {
     SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
     SkMatrix44 inverse(SkMatrix44::kUninitialized_Constructor);
@@ -626,4 +655,5 @@ DEF_TEST(Matrix44, reporter) {
     test_scale(reporter);
     test_map2(reporter);
     test_3x3_conversion(reporter);
+    test_has_perspective(reporter);
 }

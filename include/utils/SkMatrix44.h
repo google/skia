@@ -198,6 +198,10 @@ public:
         return !(this->getType() & ~(kScale_Mask | kTranslate_Mask));
     }
 
+    inline bool hasPerspective() const {
+        return SkToBool(this->getType() & kPerspective_Mask);
+    }
+
     void setIdentity();
     inline void reset() { this->setIdentity();}
 
