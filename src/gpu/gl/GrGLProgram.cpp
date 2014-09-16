@@ -4,7 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "GrGLProgram.h"
 
 #include "GrAllocator.h"
@@ -16,6 +15,7 @@
 #include "GrGLPathRendering.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
+#include "GrOptDrawState.h"
 #include "SkXfermode.h"
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
@@ -109,31 +109,19 @@ void GrGLProgram::initSamplerUniforms() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::setData(GrGpu::DrawType drawType,
-                          GrDrawState::BlendOptFlags blendOpts,
+void GrGLProgram::setData(const GrOptDrawState& optState,
+                          GrGpu::DrawType drawType,
                           const GrEffectStage* geometryProcessor,
                           const GrEffectStage* colorStages[],
                           const GrEffectStage* coverageStages[],
                           const GrDeviceCoordTexture* dstCopy,
                           SharedGLState* sharedState) {
-    const GrDrawState& drawState = fGpu->getDrawState();
+    GrColor color = optState.getColor();
+    GrColor coverage = optState.getCoverageColor();
 
-    GrColor color;
-    GrColor coverage;
-    if (blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag) {
-        color = 0;
-        coverage = 0;
-    } else if (blendOpts & GrDrawState::kEmitCoverage_BlendOptFlag) {
-        color = 0xffffffff;
-        coverage = drawState.getCoverageColor();
-    } else {
-        color = drawState.getColor();
-        coverage = drawState.getCoverageColor();
-    }
-
-    this->setColor(drawState, color, sharedState);
-    this->setCoverage(drawState, coverage, sharedState);
-    this->setMatrixAndRenderTargetHeight(drawType, drawState);
+    this->setColor(optState, color, sharedState);
+    this->setCoverage(optState, coverage, sharedState);
+    this->setMatrixAndRenderTargetHeight(drawType, optState);
 
     if (dstCopy) {
         if (fBuiltinUniformHandles.fDstCopyTopLeftUni.isValid()) {
@@ -171,11 +159,11 @@ void GrGLProgram::setData(GrGpu::DrawType drawType,
     }
 }
 
-void GrGLProgram::setColor(const GrDrawState& drawState,
+void GrGLProgram::setColor(const GrOptDrawState& optState,
                            GrColor color,
                            SharedGLState* sharedState) {
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
-    if (!drawState.hasColorVertexAttribute() || drawState.canIgnoreColorAttribute()) {
+    if (!optState.hasColorVertexAttribute()) {
         switch (header.fColorInput) {
             case GrGLProgramDesc::kAttribute_ColorInput:
                 SkASSERT(-1 != header.fColorAttributeIndex);
@@ -210,11 +198,11 @@ void GrGLProgram::setColor(const GrDrawState& drawState,
     }
 }
 
-void GrGLProgram::setCoverage(const GrDrawState& drawState,
+void GrGLProgram::setCoverage(const GrOptDrawState& optState,
                               GrColor coverage,
                               SharedGLState* sharedState) {
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
-    if (!drawState.hasCoverageVertexAttribute()) {
+    if (!optState.hasCoverageVertexAttribute()) {
         switch (header.fCoverageInput) {
             case GrGLProgramDesc::kAttribute_ColorInput:
                 if (sharedState->fConstAttribCoverage != coverage ||
@@ -249,8 +237,8 @@ void GrGLProgram::setCoverage(const GrDrawState& drawState,
 }
 
 void GrGLProgram::setMatrixAndRenderTargetHeight(GrGpu::DrawType drawType,
-                                                 const GrDrawState& drawState) {
-    const GrRenderTarget* rt = drawState.getRenderTarget();
+                                                 const GrOptDrawState& optState) {
+    const GrRenderTarget* rt = optState.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
 
@@ -262,13 +250,13 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(GrGpu::DrawType drawType,
     }
 
     if (GrGpu::IsPathRenderingDrawType(drawType)) {
-        fGpu->glPathRendering()->setProjectionMatrix(drawState.getViewMatrix(), size, rt->origin());
+        fGpu->glPathRendering()->setProjectionMatrix(optState.getViewMatrix(), size, rt->origin());
     } else if (fMatrixState.fRenderTargetOrigin != rt->origin() ||
                fMatrixState.fRenderTargetSize != size ||
-               !fMatrixState.fViewMatrix.cheapEqualTo(drawState.getViewMatrix())) {
+               !fMatrixState.fViewMatrix.cheapEqualTo(optState.getViewMatrix())) {
         SkASSERT(fBuiltinUniformHandles.fViewMatrixUni.isValid());
 
-        fMatrixState.fViewMatrix = drawState.getViewMatrix();
+        fMatrixState.fViewMatrix = optState.getViewMatrix();
         fMatrixState.fRenderTargetSize = size;
         fMatrixState.fRenderTargetOrigin = rt->origin();
 

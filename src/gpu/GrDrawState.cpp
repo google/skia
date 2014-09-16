@@ -15,9 +15,17 @@
 
 GrOptDrawState* GrDrawState::createOptState() const {
     if (NULL == fCachedOptState) {
-        fCachedOptState = SkNEW_ARGS(GrOptDrawState, (*this));
+        GrBlendCoeff srcCoeff;
+        GrBlendCoeff dstCoeff;
+        BlendOptFlags blendFlags = this->getBlendOpts(false, &srcCoeff, &dstCoeff);
+        fCachedOptState = SkNEW_ARGS(GrOptDrawState, (*this, blendFlags, srcCoeff, dstCoeff));
     } else {
-        SkASSERT(GrOptDrawState(*this) == *fCachedOptState);
+#ifdef SK_DEBUG
+        GrBlendCoeff srcCoeff;
+        GrBlendCoeff dstCoeff;
+        BlendOptFlags blendFlags = this->getBlendOpts(false, &srcCoeff, &dstCoeff);
+        SkASSERT(GrOptDrawState(*this, blendFlags, srcCoeff, dstCoeff) == *fCachedOptState);
+#endif
     }
     fCachedOptState->ref();
     return fCachedOptState;
@@ -106,9 +114,6 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     }
     fColorStages = that.fColorStages;
     fCoverageStages = that.fCoverageStages;
-    fOptSrcBlend = that.fOptSrcBlend;
-    fOptDstBlend = that.fOptDstBlend;
-    fBlendOptFlags = that.fBlendOptFlags;
 
     fHints = that.fHints;
 
@@ -299,7 +304,7 @@ bool GrDrawState::couldApplyCoverage(const GrDrawTargetCaps& caps) const {
     // or c) the src, dst blend coeffs are 1,0 and we will read Dst Color
     GrBlendCoeff srcCoeff;
     GrBlendCoeff dstCoeff;
-    GrRODrawState::BlendOptFlags flag = this->getBlendOpts(true, &srcCoeff, &dstCoeff);
+    BlendOptFlags flag = this->getBlendOpts(true, &srcCoeff, &dstCoeff);
     return GrRODrawState::kNone_BlendOpt != flag ||
            (this->willEffectReadDstColor() &&
             kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff);
@@ -453,5 +458,18 @@ void GrDrawState::AutoViewMatrixRestore::doEffectCoordChanges(const SkMatrix& co
         fDrawState->getCoverageStage(s).saveCoordChange(&fSavedCoordChanges[i]);
         fDrawState->fCoverageStages[s].localCoordChange(coordChangeMatrix);
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrDrawState::invalidateOptState() const {
+    SkSafeSetNull(fCachedOptState);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrDrawState::~GrDrawState() {
+    SkSafeUnref(fCachedOptState);
+    SkASSERT(0 == fBlockEffectRemovalCnt);
 }
 

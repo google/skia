@@ -167,68 +167,12 @@ public:
     GrColor getBlendConstant() const { return fBlendConstant; }
 
     /**
-     * We don't use supplied vertex color attributes if our blend mode is EmitCoverage or
-     * EmitTransBlack
-     */
-    bool canIgnoreColorAttribute() const;
-
-    /**
      * Determines whether multiplying the computed per-pixel color by the pixel's fractional
      * coverage before the blend will give the correct final destination color. In general it
      * will not as coverage is applied after blending.
      */
     bool canTweakAlphaForCoverage() const;
 
-    /**
-     * Optimizations for blending / coverage to that can be applied based on the current state.
-     */
-    enum BlendOptFlags {
-        /**
-         * No optimization
-         */
-        kNone_BlendOpt                  = 0,
-        /**
-         * Don't draw at all
-         */
-        kSkipDraw_BlendOptFlag          = 0x1,
-        /**
-         * The coverage value does not have to be computed separately from alpha, the output
-         * color can be the modulation of the two.
-         */
-        kCoverageAsAlpha_BlendOptFlag   = 0x2,
-        /**
-         * Instead of emitting a src color, emit coverage in the alpha channel and r,g,b are
-         * "don't cares".
-         */
-        kEmitCoverage_BlendOptFlag      = 0x4,
-        /**
-         * Emit transparent black instead of the src color, no need to compute coverage.
-         */
-        kEmitTransBlack_BlendOptFlag    = 0x8,
-        /**
-         * Flag used to invalidate the cached BlendOptFlags, OptSrcCoeff, and OptDstCoeff cached by
-         * the get BlendOpts function.
-         */
-        kInvalid_BlendOptFlag           = 1 << 31,
-    };
-    GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
-
-    /**
-     * Determines what optimizations can be applied based on the blend. The coefficients may have
-     * to be tweaked in order for the optimization to work. srcCoeff and dstCoeff are optional
-     * params that receive the tweaked coefficients. Normally the function looks at the current
-     * state to see if coverage is enabled. By setting forceCoverage the caller can speculatively
-     * determine the blend optimizations that would be used if there was partial pixel coverage.
-     *
-     * Subclasses of GrDrawTarget that actually draw (as opposed to those that just buffer for
-     * playback) must call this function and respect the flags that replace the output color.
-     *
-     * If the cached BlendOptFlags does not have the invalidate bit set, then getBlendOpts will
-     * simply returned the cached flags and coefficients. Otherwise it will calculate the values. 
-     */
-    BlendOptFlags getBlendOpts(bool forceCoverage = false,
-                               GrBlendCoeff* srcCoeff = NULL,
-                               GrBlendCoeff* dstCoeff = NULL) const;
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -407,6 +351,52 @@ protected:
 
     bool isEqual(const GrRODrawState& that) const;
 
+    /**
+     * Optimizations for blending / coverage to that can be applied based on the current state.
+     */
+    enum BlendOptFlags {
+        /**
+         * No optimization
+         */
+        kNone_BlendOpt                  = 0,
+        /**
+         * Don't draw at all
+         */
+        kSkipDraw_BlendOptFlag          = 0x1,
+        /**
+         * The coverage value does not have to be computed separately from alpha, the the output
+         * color can be the modulation of the two.
+         */
+        kCoverageAsAlpha_BlendOptFlag   = 0x2,
+        /**
+         * Instead of emitting a src color, emit coverage in the alpha channel and r,g,b are
+         * "don't cares".
+         */
+        kEmitCoverage_BlendOptFlag      = 0x4,
+        /**
+         * Emit transparent black instead of the src color, no need to compute coverage.
+         */
+        kEmitTransBlack_BlendOptFlag    = 0x8,
+    };
+    GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
+
+    /**
+     * Determines what optimizations can be applied based on the blend. The coefficients may have
+     * to be tweaked in order for the optimization to work. srcCoeff and dstCoeff are optional
+     * params that receive the tweaked coefficients. Normally the function looks at the current
+     * state to see if coverage is enabled. By setting forceCoverage the caller can speculatively
+     * determine the blend optimizations that would be used if there was partial pixel coverage.
+     *
+     * Subclasses of GrDrawTarget that actually draw (as opposed to those that just buffer for
+     * playback) must call this function and respect the flags that replace the output color.
+     *
+     * If the cached BlendOptFlags does not have the invalidate bit set, then getBlendOpts will
+     * simply returned the cached flags and coefficients. Otherwise it will calculate the values. 
+     */
+    BlendOptFlags getBlendOpts(bool forceCoverage = false,
+                               GrBlendCoeff* srcCoeff = NULL,
+                               GrBlendCoeff* dstCoeff = NULL) const;
+
     // These fields are roughly sorted by decreasing likelihood of being different in op==
     GrProgramResource                   fRenderTarget;
     GrColor                             fColor;
@@ -429,10 +419,6 @@ protected:
 
     uint32_t                            fHints;
 
-    mutable GrBlendCoeff                fOptSrcBlend;
-    mutable GrBlendCoeff                fOptDstBlend;
-    mutable BlendOptFlags               fBlendOptFlags;
-
     // This is simply a different representation of info in fVertexAttribs and thus does
     // not need to be compared in op==.
     int fFixedFunctionVertexAttribIndices[kGrFixedFunctionVertexAttribBindingCnt];
@@ -442,13 +428,6 @@ private:
      * Determines whether src alpha is guaranteed to be one for all src pixels
      */
     bool srcAlphaWillBeOne() const;
-
-    /**
-     * Helper function for getBlendOpts.
-     */
-    BlendOptFlags calcBlendOpts(bool forceCoverage = false,
-                                GrBlendCoeff* srcCoeff = NULL,
-                                GrBlendCoeff* dstCoeff = NULL) const;
 
     typedef SkRefCnt INHERITED;
 };

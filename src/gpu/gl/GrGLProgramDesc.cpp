@@ -11,6 +11,7 @@
 #include "GrDrawEffect.h"
 #include "GrEffect.h"
 #include "GrGpuGL.h"
+#include "GrOptDrawState.h"
 
 #include "SkChecksum.h"
 
@@ -46,9 +47,8 @@ bool GrGLProgramDesc::GetEffectKeyAndUpdateStats(const GrEffectStage& stage,
     return true;
 }
 
-bool GrGLProgramDesc::Build(const GrDrawState& drawState,
+bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
                             GrGpu::DrawType drawType,
-                            GrDrawState::BlendOptFlags blendOpts,
                             GrBlendCoeff srcCoeff,
                             GrBlendCoeff dstCoeff,
                             const GrGpuGL* gpu,
@@ -60,47 +60,19 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     colorStages->reset();
     coverageStages->reset();
 
-    // This should already have been caught
-    SkASSERT(!(GrDrawState::kSkipDraw_BlendOptFlag & blendOpts));
-
-    bool skipCoverage = SkToBool(blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag);
-
-    bool skipColor = SkToBool(blendOpts & (GrDrawState::kEmitTransBlack_BlendOptFlag |
-                                           GrDrawState::kEmitCoverage_BlendOptFlag));
-
-    int firstEffectiveColorStage = 0;
-    bool inputColorIsUsed = true;
-
-    if (!skipColor) {
-        firstEffectiveColorStage = drawState.numColorStages();
-        while (firstEffectiveColorStage > 0 && inputColorIsUsed) {
-            --firstEffectiveColorStage;
-            const GrEffect* effect = drawState.getColorStage(firstEffectiveColorStage).getEffect();
-            inputColorIsUsed = effect->willUseInputColor();
-        }
-    }
-
-    int firstEffectiveCoverageStage = 0;
-    bool inputCoverageIsUsed = true;
-    if (!skipCoverage) {
-        firstEffectiveCoverageStage = drawState.numCoverageStages();
-        while (firstEffectiveCoverageStage > 0 && inputCoverageIsUsed) {
-            --firstEffectiveCoverageStage;
-            const GrEffect* effect = drawState.getCoverageStage(firstEffectiveCoverageStage).getEffect();
-            inputCoverageIsUsed = effect->willUseInputColor();
-        }
-    }
+    bool inputColorIsUsed = optState.inputColorIsUsed();
+    bool inputCoverageIsUsed = optState.inputColorIsUsed();
 
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set
     // to a canonical value to avoid duplicate programs with different keys.
 
-    bool requiresColorAttrib = !skipColor && drawState.hasColorVertexAttribute();
-    bool requiresCoverageAttrib = !skipCoverage && drawState.hasCoverageVertexAttribute();
+    bool requiresColorAttrib = optState.hasColorVertexAttribute();
+    bool requiresCoverageAttrib = optState.hasCoverageVertexAttribute();
     // we only need the local coords if we're actually going to generate effect code
-    bool requiresLocalCoordAttrib = !(skipCoverage  && skipColor) &&
-                                    drawState.hasLocalCoordAttribute();
+    bool requiresLocalCoordAttrib = optState.numTotalStages() > 0 &&
+                                    optState.hasLocalCoordAttribute();
 
     bool readsDst = false;
     bool readFragPosition = false;
@@ -108,16 +80,8 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     // Provide option for shader programs without vertex shader only when drawing paths.
     bool requiresVertexShader = !GrGpu::IsPathRenderingDrawType(drawType);
 
-    int numStages = 0;
-    if (drawState.hasGeometryProcessor()) {
-        numStages++;
-    }
-    if (!skipColor) {
-        numStages += drawState.numColorStages() - firstEffectiveColorStage;
-    }
-    if (!skipCoverage) {
-        numStages += drawState.numCoverageStages() - firstEffectiveCoverageStage;
-    }
+    int numStages = optState.numTotalStages();
+
     GR_STATIC_ASSERT(0 == kEffectKeyOffsetsAndLengthOffset % sizeof(uint32_t));
     // Make room for everything up to and including the array of offsets to effect keys.
     desc->fKey.reset();
@@ -131,7 +95,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     memset(desc->header(), 0, kHeaderSize);
 
     // We can only have one effect which touches the vertex shader
-    if (drawState.hasGeometryProcessor()) {
+    if (optState.hasGeometryProcessor()) {
         uint16_t* offsetAndSize =
                 reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
                                             offsetAndSizeIndex * 2 * sizeof(uint16_t));
@@ -140,7 +104,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
             uint16_t effectKeySize;
             uint32_t effectOffset = desc->fKey.count();
             effectKeySuccess |= GetEffectKeyAndUpdateStats(
-                                    *drawState.getGeometryProcessor(), gpu->glCaps(),
+                                    *optState.getGeometryProcessor(), gpu->glCaps(),
                                     requiresLocalCoordAttrib, &b,
                                     &effectKeySize, &readsDst,
                                     &readFragPosition, &requiresVertexShader);
@@ -149,57 +113,55 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
             offsetAndSize[0] = SkToU16(effectOffset);
             offsetAndSize[1] = effectKeySize;
             ++offsetAndSizeIndex;
-            *geometryProcessor = drawState.getGeometryProcessor();
+            *geometryProcessor = optState.getGeometryProcessor();
             SkASSERT(requiresVertexShader);
             header->fHasGeometryProcessor = true;
     }
 
-    if (!skipColor) {
-        for (int s = firstEffectiveColorStage; s < drawState.numColorStages(); ++s) {
-            uint16_t* offsetAndSize =
-                reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
-                                            offsetAndSizeIndex * 2 * sizeof(uint16_t));
+    for (int s = 0; s < optState.numColorStages(); ++s) {
+        uint16_t* offsetAndSize =
+            reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
+                                        offsetAndSizeIndex * 2 * sizeof(uint16_t));
 
-            bool effectRequiresVertexShader = false;
-            GrEffectKeyBuilder b(&desc->fKey);
-            uint16_t effectKeySize;
-            uint32_t effectOffset = desc->fKey.count();
-            effectKeySuccess |= GetEffectKeyAndUpdateStats(
-                                    drawState.getColorStage(s), gpu->glCaps(),
-                                    requiresLocalCoordAttrib, &b,
-                                    &effectKeySize, &readsDst,
-                                    &readFragPosition, &effectRequiresVertexShader);
-            effectKeySuccess |= (effectOffset <= SK_MaxU16);
+        bool effectRequiresVertexShader = false;
+        GrEffectKeyBuilder b(&desc->fKey);
+        uint16_t effectKeySize;
+        uint32_t effectOffset = desc->fKey.count();
+        effectKeySuccess |= GetEffectKeyAndUpdateStats(
+            optState.getColorStage(s), gpu->glCaps(),
+            requiresLocalCoordAttrib, &b,
+            &effectKeySize, &readsDst,
+            &readFragPosition, &effectRequiresVertexShader);
+        effectKeySuccess |= (effectOffset <= SK_MaxU16);
 
-            offsetAndSize[0] = SkToU16(effectOffset);
-            offsetAndSize[1] = effectKeySize;
-            ++offsetAndSizeIndex;
-            SkASSERT(!effectRequiresVertexShader);
-        }
+        offsetAndSize[0] = SkToU16(effectOffset);
+        offsetAndSize[1] = effectKeySize;
+        ++offsetAndSizeIndex;
+        SkASSERT(!effectRequiresVertexShader);
     }
-    if (!skipCoverage) {
-        for (int s = firstEffectiveCoverageStage; s < drawState.numCoverageStages(); ++s) {
-            uint16_t* offsetAndSize =
-                reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
-                                            offsetAndSizeIndex * 2 * sizeof(uint16_t));
 
-            bool effectRequiresVertexShader = false;
-            GrEffectKeyBuilder b(&desc->fKey);
-            uint16_t effectKeySize;
-            uint32_t effectOffset = desc->fKey.count();
-            effectKeySuccess |= GetEffectKeyAndUpdateStats(
-                                    drawState.getCoverageStage(s), gpu->glCaps(),
-                                    requiresLocalCoordAttrib, &b,
-                                    &effectKeySize, &readsDst,
-                                    &readFragPosition, &effectRequiresVertexShader);
-            effectKeySuccess |= (effectOffset <= SK_MaxU16);
+    for (int s = 0; s < optState.numCoverageStages(); ++s) {
+        uint16_t* offsetAndSize =
+            reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
+                                        offsetAndSizeIndex * 2 * sizeof(uint16_t));
 
-            offsetAndSize[0] = SkToU16(effectOffset);
-            offsetAndSize[1] = effectKeySize;
-            ++offsetAndSizeIndex;
-            SkASSERT(!effectRequiresVertexShader);
-        }
+        bool effectRequiresVertexShader = false;
+        GrEffectKeyBuilder b(&desc->fKey);
+        uint16_t effectKeySize;
+        uint32_t effectOffset = desc->fKey.count();
+        effectKeySuccess |= GetEffectKeyAndUpdateStats(
+            optState.getCoverageStage(s), gpu->glCaps(),
+            requiresLocalCoordAttrib, &b,
+            &effectKeySize, &readsDst,
+            &readFragPosition, &effectRequiresVertexShader);
+        effectKeySuccess |= (effectOffset <= SK_MaxU16);
+
+        offsetAndSize[0] = SkToU16(effectOffset);
+        offsetAndSize[1] = effectKeySize;
+        ++offsetAndSizeIndex;
+        SkASSERT(!effectRequiresVertexShader);
     }
+
     if (!effectKeySuccess) {
         desc->fKey.reset();
         return false;
@@ -222,20 +184,20 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
 #endif
     bool defaultToUniformInputs = GR_GL_NO_CONSTANT_ATTRIBUTES || gpu->caps()->pathRenderingSupport();
 
-    if (!inputColorIsUsed && !skipColor) {
+    if (!inputColorIsUsed) {
         header->fColorInput = kAllOnes_ColorInput;
-    } else if (defaultToUniformInputs && !requiresColorAttrib && inputColorIsUsed) {
+    } else if (defaultToUniformInputs && !requiresColorAttrib) {
         header->fColorInput = kUniform_ColorInput;
     } else {
         header->fColorInput = kAttribute_ColorInput;
         header->fRequiresVertexShader = true;
     }
 
-    bool covIsSolidWhite = !requiresCoverageAttrib && 0xffffffff == drawState.getCoverageColor();
+    bool covIsSolidWhite = !requiresCoverageAttrib && 0xffffffff == optState.getCoverageColor();
 
-    if ((covIsSolidWhite || !inputCoverageIsUsed) && !skipCoverage) {
+    if (covIsSolidWhite || !inputCoverageIsUsed) {
         header->fCoverageInput = kAllOnes_ColorInput;
-    } else if (defaultToUniformInputs && !requiresCoverageAttrib && inputCoverageIsUsed) {
+    } else if (defaultToUniformInputs && !requiresCoverageAttrib) {
         header->fCoverageInput = kUniform_ColorInput;
     } else {
         header->fCoverageInput = kAttribute_ColorInput;
@@ -257,19 +219,19 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     if (readFragPosition) {
         header->fFragPosKey = GrGLFragmentShaderBuilder::KeyForFragmentPosition(
-                drawState.getRenderTarget(), gpu->glCaps());
+                optState.getRenderTarget(), gpu->glCaps());
     } else {
         header->fFragPosKey = 0;
     }
 
     // Record attribute indices
-    header->fPositionAttributeIndex = drawState.positionAttributeIndex();
-    header->fLocalCoordAttributeIndex = drawState.localCoordAttributeIndex();
+    header->fPositionAttributeIndex = optState.positionAttributeIndex();
+    header->fLocalCoordAttributeIndex = optState.localCoordAttributeIndex();
 
     // For constant color and coverage we need an attribute with an index beyond those already set
-    int availableAttributeIndex = drawState.getVertexAttribCount();
+    int availableAttributeIndex = optState.getVertexAttribCount();
     if (requiresColorAttrib) {
-        header->fColorAttributeIndex = drawState.colorVertexAttributeIndex();
+        header->fColorAttributeIndex = optState.colorVertexAttributeIndex();
     } else if (GrGLProgramDesc::kAttribute_ColorInput == header->fColorInput) {
         SkASSERT(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
         header->fColorAttributeIndex = availableAttributeIndex;
@@ -279,7 +241,7 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     }
 
     if (requiresCoverageAttrib) {
-        header->fCoverageAttributeIndex = drawState.coverageVertexAttributeIndex();
+        header->fCoverageAttributeIndex = optState.coverageVertexAttributeIndex();
     } else if (GrGLProgramDesc::kAttribute_ColorInput == header->fCoverageInput) {
         SkASSERT(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
         header->fCoverageAttributeIndex = availableAttributeIndex;
@@ -293,15 +255,13 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
     header->fCoverageOutput = kModulate_CoverageOutput;
 
     // If we do have coverage determine whether it matters.
-    bool separateCoverageFromColor = drawState.hasGeometryProcessor();
-    if (!drawState.isCoverageDrawing() && !skipCoverage &&
-        (drawState.numCoverageStages() > 0 ||
-         drawState.hasGeometryProcessor() ||
+    bool separateCoverageFromColor = optState.hasGeometryProcessor();
+    if (!optState.isCoverageDrawing() &&
+        (optState.numCoverageStages() > 0 ||
+         optState.hasGeometryProcessor() ||
          requiresCoverageAttrib)) {
 
-        if (gpu->caps()->dualSourceBlendingSupport() &&
-            !(blendOpts & (GrDrawState::kEmitCoverage_BlendOptFlag |
-                           GrDrawState::kCoverageAsAlpha_BlendOptFlag))) {
+        if (gpu->caps()->dualSourceBlendingSupport()) {
             if (kZero_GrBlendCoeff == dstCoeff) {
                 // write the coverage value to second color
                 header->fCoverageOutput =  kSecondaryCoverage_CoverageOutput;
@@ -323,22 +283,19 @@ bool GrGLProgramDesc::Build(const GrDrawState& drawState,
         }
     }
 
-    if (!skipColor) {
-        for (int s = firstEffectiveColorStage; s < drawState.numColorStages(); ++s) {
-            colorStages->push_back(&drawState.getColorStage(s));
-        }
+    for (int s = 0; s < optState.numColorStages(); ++s) {
+        colorStages->push_back(&optState.getColorStage(s));
     }
-    if (!skipCoverage) {
-        SkTArray<const GrEffectStage*, true>* array;
-        if (separateCoverageFromColor) {
-            array = coverageStages;
-        } else {
-            array = colorStages;
-        }
-        for (int s = firstEffectiveCoverageStage; s < drawState.numCoverageStages(); ++s) {
-            array->push_back(&drawState.getCoverageStage(s));
-        }
+    SkTArray<const GrEffectStage*, true>* array;
+    if (separateCoverageFromColor) {
+        array = coverageStages;
+    } else {
+        array = colorStages;
     }
+    for (int s = 0; s < optState.numCoverageStages(); ++s) {
+        array->push_back(&optState.getCoverageStage(s));
+    }
+
     header->fColorEffectCnt = colorStages->count();
     header->fCoverageEffectCnt = coverageStages->count();
 

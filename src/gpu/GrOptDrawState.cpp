@@ -9,7 +9,10 @@
 
 #include "GrDrawState.h"
 
-GrOptDrawState::GrOptDrawState(const GrDrawState& drawState) : INHERITED(drawState) {
+GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
+                               BlendOptFlags blendOptFlags,
+                               GrBlendCoeff optSrcCoeff,
+                               GrBlendCoeff optDstCoeff) : INHERITED(drawState) {
     fColor = drawState.getColor();
     fCoverage = drawState.getCoverage();
     fViewMatrix = drawState.getViewMatrix();
@@ -20,12 +23,14 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState) : INHERITED(drawSta
     fVAStride = drawState.getVertexStride();
     fStencilSettings = drawState.getStencil();
     fDrawFace = drawState.getDrawFace();
-
-    fBlendOptFlags = drawState.getBlendOpts(false, &fSrcBlend, &fDstBlend);
+    fBlendOptFlags = blendOptFlags;
+    fSrcBlend = optSrcCoeff;
+    fDstBlend = optDstCoeff;
 
     memcpy(fFixedFunctionVertexAttribIndices,
             drawState.getFixedFunctionVertexAttribIndices(),
             sizeof(fFixedFunctionVertexAttribIndices));
+
 
     fInputColorIsUsed = true;
     fInputCoverageIsUsed = true;
@@ -38,7 +43,39 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState) : INHERITED(drawSta
 
     this->copyEffectiveColorStages(drawState);
     this->copyEffectiveCoverageStages(drawState);
+    this->adjustFromBlendOpts();
 };
+
+void GrOptDrawState::adjustFromBlendOpts() {
+
+    switch (fBlendOptFlags) {
+        case kNone_BlendOpt:
+        case kSkipDraw_BlendOptFlag:
+            break;
+        case kCoverageAsAlpha_BlendOptFlag:
+            fFlagBits |= kCoverageDrawing_StateBit;
+            break;
+        case kEmitCoverage_BlendOptFlag:
+            fColor = 0xffffffff;
+            fInputColorIsUsed = true;
+            fColorStages.reset();
+            this->removeFixedFunctionVertexAttribs(0x1 << kColor_GrVertexAttribBinding);
+            break;
+        case kEmitTransBlack_BlendOptFlag:
+            fColor = 0;
+            fCoverage = 0xff;
+            fInputColorIsUsed = true;
+            fInputCoverageIsUsed = true;
+            fColorStages.reset();
+            fCoverageStages.reset();
+            this->removeFixedFunctionVertexAttribs(0x1 << kColor_GrVertexAttribBinding |
+                                                   0x1 << kCoverage_GrVertexAttribBinding);
+            break;
+        default:
+            SkFAIL("Unknown BlendOptFlag");
+
+    }
+}
 
 void GrOptDrawState::removeFixedFunctionVertexAttribs(uint8_t removeVAFlag) {
     int numToRemove = 0;
@@ -50,6 +87,7 @@ void GrOptDrawState::removeFixedFunctionVertexAttribs(uint8_t removeVAFlag) {
         }
         maskCheck <<= 1;
     }
+
     fOptVA.reset(fVACount - numToRemove);
 
     GrVertexAttrib* dst = fOptVA.get();
@@ -64,9 +102,9 @@ void GrOptDrawState::removeFixedFunctionVertexAttribs(uint8_t removeVAFlag) {
                 fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = -1;
                 continue;
             }
+            fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = newIdx;
         }
         memcpy(dst, src, sizeof(GrVertexAttrib));
-        fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = newIdx;
         ++newIdx;
         ++dst;
     }

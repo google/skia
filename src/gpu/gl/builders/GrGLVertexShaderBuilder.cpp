@@ -9,6 +9,7 @@
 #include "GrGLProgramBuilder.h"
 #include "GrGLShaderStringBuilder.h"
 #include "../GrGpuGL.h"
+#include "../../GrOptDrawState.h"
 
 #define GL_CALL(X) GR_GL_CALL(gpu->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(gpu->glInterface(), R, X)
@@ -83,10 +84,12 @@ void GrGLVertexShaderBuilder::bindProgramLocations(GrGLuint programId) {
                                    coverage_attribute_name()));
     }
 
-    // We pull the current state of attributes off of drawstate and bind them in order
-    const GrRODrawState* ds = fProgramBuilder->gpu()->drawState();
-    const GrVertexAttrib* vaPtr = ds->getVertexAttribs();
-    const int vaCount = ds->getVertexAttribCount();
+    // We pull the current state of attributes off of drawstate's optimized state and bind them in
+    // order. This assumes that the drawState has not changed since we called flushGraphicsState()
+    // higher up in the stack.
+    SkAutoTUnref<GrOptDrawState> optState(fProgramBuilder->gpu()->drawState()->createOptState());
+    const GrVertexAttrib* vaPtr = optState->getVertexAttribs();
+    const int vaCount = optState->getVertexAttribCount();
 
     int i = fEffectAttribOffset;
     for (int index = 0; index < vaCount; index++) {
