@@ -328,19 +328,19 @@ private:
 
 class GrGLMorphologyEffect : public GrGLEffect {
 public:
-    GrGLMorphologyEffect (const GrBackendEffectFactory&, const GrDrawEffect&);
+    GrGLMorphologyEffect (const GrBackendEffectFactory&, const GrEffect&);
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
+    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
 
 private:
     int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }
@@ -353,15 +353,15 @@ private:
 };
 
 GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendEffectFactory& factory,
-                                           const GrDrawEffect& drawEffect)
+                                           const GrEffect& effect)
     : INHERITED(factory) {
-    const GrMorphologyEffect& m = drawEffect.castEffect<GrMorphologyEffect>();
+    const GrMorphologyEffect& m = effect.cast<GrMorphologyEffect>();
     fRadius = m.radius();
     fType = m.type();
 }
 
 void GrGLMorphologyEffect::emitCode(GrGLProgramBuilder* builder,
-                                    const GrDrawEffect&,
+                                    const GrEffect&,
                                     const GrEffectKey& key,
                                     const char* outputColor,
                                     const char* inputColor,
@@ -401,17 +401,17 @@ void GrGLMorphologyEffect::emitCode(GrGLProgramBuilder* builder,
     fsBuilder->codeAppend(modulate.c_str());
 }
 
-void GrGLMorphologyEffect::GenKey(const GrDrawEffect& drawEffect,
+void GrGLMorphologyEffect::GenKey(const GrEffect& effect,
                                   const GrGLCaps&, GrEffectKeyBuilder* b) {
-    const GrMorphologyEffect& m = drawEffect.castEffect<GrMorphologyEffect>();
+    const GrMorphologyEffect& m = effect.cast<GrMorphologyEffect>();
     uint32_t key = static_cast<uint32_t>(m.radius());
     key |= (m.type() << 8);
     b->add32(key);
 }
 
 void GrGLMorphologyEffect::setData(const GrGLProgramDataManager& pdman,
-                                   const GrDrawEffect& drawEffect) {
-    const Gr1DKernelEffect& kern = drawEffect.castEffect<Gr1DKernelEffect>();
+                                   const GrEffect& effect) {
+    const Gr1DKernelEffect& kern = effect.cast<Gr1DKernelEffect>();
     GrTexture& texture = *kern.texture(0);
     // the code we generated was for a specific kernel radius
     SkASSERT(kern.radius() == fRadius);
@@ -447,7 +447,7 @@ const GrBackendEffectFactory& GrMorphologyEffect::getFactory() const {
 }
 
 bool GrMorphologyEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrMorphologyEffect& s = CastEffect<GrMorphologyEffect>(sBase);
+    const GrMorphologyEffect& s = sBase.cast<GrMorphologyEffect>();
     return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&
             this->direction() == s.direction() &&

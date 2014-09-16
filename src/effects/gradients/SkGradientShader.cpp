@@ -1001,9 +1001,9 @@ static inline void set_mul_color_uni(const GrGLProgramDataManager& pdman,
 }
 
 void GrGLGradientEffect::setData(const GrGLProgramDataManager& pdman,
-                                 const GrDrawEffect& drawEffect) {
+                                 const GrEffect& effect) {
 
-    const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
+    const GrGradientEffect& e = effect.cast<GrGradientEffect>();
 
 
     if (SkGradientShaderBase::kTwo_GpuColorType == e.getColorType()){
@@ -1038,8 +1038,8 @@ void GrGLGradientEffect::setData(const GrGLProgramDataManager& pdman,
 }
 
 
-uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrDrawEffect& drawEffect) {
-    const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
+uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrEffect& effect) {
+    const GrGradientEffect& e = effect.cast<GrGradientEffect>();
 
     uint32_t key = 0;
 
@@ -1186,7 +1186,7 @@ GrGradientEffect::~GrGradientEffect() {
 }
 
 bool GrGradientEffect::onIsEqual(const GrEffect& effect) const {
-    const GrGradientEffect& s = CastEffect<GrGradientEffect>(effect);
+    const GrGradientEffect& s = effect.cast<GrGradientEffect>();
 
     if (this->fColorType == s.getColorType()){
 

@@ -1206,23 +1206,23 @@ SkLight* create_random_light(SkRandom* random) {
 class GrGLLightingEffect  : public GrGLEffect {
 public:
     GrGLLightingEffect(const GrBackendEffectFactory& factory,
-                       const GrDrawEffect& effect);
+                       const GrEffect& effect);
     virtual ~GrGLLightingEffect();
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
+    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
 
     /**
      * Subclasses of GrGLLightingEffect must call INHERITED::setData();
      */
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
 
 protected:
     virtual void emitLightFunc(GrGLProgramBuilder*, SkString* funcName) = 0;
@@ -1240,9 +1240,9 @@ private:
 class GrGLDiffuseLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLDiffuseLightingEffect(const GrBackendEffectFactory& factory,
-                              const GrDrawEffect& drawEffect);
+                              const GrEffect& effect);
     virtual void emitLightFunc(GrGLProgramBuilder*, SkString* funcName) SK_OVERRIDE;
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1255,9 +1255,9 @@ private:
 class GrGLSpecularLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLSpecularLightingEffect(const GrBackendEffectFactory& factory,
-                               const GrDrawEffect& effect);
+                               const GrEffect& effect);
     virtual void emitLightFunc(GrGLProgramBuilder*, SkString* funcName) SK_OVERRIDE;
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1287,7 +1287,7 @@ GrLightingEffect::~GrLightingEffect() {
 }
 
 bool GrLightingEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrLightingEffect& s = CastEffect<GrLightingEffect>(sBase);
+    const GrLightingEffect& s = sBase.cast<GrLightingEffect>();
     return this->texture(0) == s.texture(0) &&
            fLight->isEqual(*s.fLight) &&
            fSurfaceScale == s.fSurfaceScale;
@@ -1308,7 +1308,7 @@ const GrBackendEffectFactory& GrDiffuseLightingEffect::getFactory() const {
 }
 
 bool GrDiffuseLightingEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrDiffuseLightingEffect& s = CastEffect<GrDiffuseLightingEffect>(sBase);
+    const GrDiffuseLightingEffect& s = sBase.cast<GrDiffuseLightingEffect>();
     return INHERITED::onIsEqual(sBase) &&
             this->kd() == s.kd();
 }
@@ -1334,9 +1334,9 @@ GrEffect* GrDiffuseLightingEffect::TestCreate(SkRandom* random,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLLightingEffect::GrGLLightingEffect(const GrBackendEffectFactory& factory,
-                                       const GrDrawEffect& drawEffect)
+                                       const GrEffect& effect)
     : INHERITED(factory) {
-    const GrLightingEffect& m = drawEffect.castEffect<GrLightingEffect>();
+    const GrLightingEffect& m = effect.cast<GrLightingEffect>();
     fLight = m.light()->createGLLight();
 }
 
@@ -1345,7 +1345,7 @@ GrGLLightingEffect::~GrGLLightingEffect() {
 }
 
 void GrGLLightingEffect::emitCode(GrGLProgramBuilder* builder,
-                                  const GrDrawEffect&,
+                                  const GrEffect&,
                                   const GrEffectKey& key,
                                   const char* outputColor,
                                   const char* inputColor,
@@ -1441,14 +1441,14 @@ void GrGLLightingEffect::emitCode(GrGLProgramBuilder* builder,
     fsBuilder->codeAppend(modulate.c_str());
 }
 
-void GrGLLightingEffect::GenKey(const GrDrawEffect& drawEffect,
+void GrGLLightingEffect::GenKey(const GrEffect& effect,
                                 const GrGLCaps& caps, GrEffectKeyBuilder* b) {
-    b->add32(drawEffect.castEffect<GrLightingEffect>().light()->type());
+    b->add32(effect.cast<GrLightingEffect>().light()->type());
 }
 
 void GrGLLightingEffect::setData(const GrGLProgramDataManager& pdman,
-                                 const GrDrawEffect& drawEffect) {
-    const GrLightingEffect& lighting = drawEffect.castEffect<GrLightingEffect>();
+                                 const GrEffect& effect) {
+    const GrLightingEffect& lighting = effect.cast<GrLightingEffect>();
     GrTexture* texture = lighting.texture(0);
     float ySign = texture->origin() == kTopLeft_GrSurfaceOrigin ? -1.0f : 1.0f;
     pdman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());
@@ -1462,8 +1462,8 @@ void GrGLLightingEffect::setData(const GrGLProgramDataManager& pdman,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLDiffuseLightingEffect::GrGLDiffuseLightingEffect(const GrBackendEffectFactory& factory,
-                                                     const GrDrawEffect& drawEffect)
-    : INHERITED(factory, drawEffect) {
+                                                     const GrEffect& effect)
+    : INHERITED(factory, effect) {
 }
 
 void GrGLDiffuseLightingEffect::emitLightFunc(GrGLProgramBuilder* builder, SkString* funcName) {
@@ -1490,9 +1490,9 @@ void GrGLDiffuseLightingEffect::emitLightFunc(GrGLProgramBuilder* builder, SkStr
 }
 
 void GrGLDiffuseLightingEffect::setData(const GrGLProgramDataManager& pdman,
-                                        const GrDrawEffect& drawEffect) {
-    INHERITED::setData(pdman, drawEffect);
-    const GrDiffuseLightingEffect& diffuse = drawEffect.castEffect<GrDiffuseLightingEffect>();
+                                        const GrEffect& effect) {
+    INHERITED::setData(pdman, effect);
+    const GrDiffuseLightingEffect& diffuse = effect.cast<GrDiffuseLightingEffect>();
     pdman.set1f(fKDUni, diffuse.kd());
 }
 
@@ -1514,7 +1514,7 @@ const GrBackendEffectFactory& GrSpecularLightingEffect::getFactory() const {
 }
 
 bool GrSpecularLightingEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrSpecularLightingEffect& s = CastEffect<GrSpecularLightingEffect>(sBase);
+    const GrSpecularLightingEffect& s = sBase.cast<GrSpecularLightingEffect>();
     return INHERITED::onIsEqual(sBase) &&
            this->ks() == s.ks() &&
            this->shininess() == s.shininess();
@@ -1541,8 +1541,8 @@ GrEffect* GrSpecularLightingEffect::TestCreate(SkRandom* random,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLSpecularLightingEffect::GrGLSpecularLightingEffect(const GrBackendEffectFactory& factory,
-                                                       const GrDrawEffect& drawEffect)
-    : INHERITED(factory, drawEffect) {
+                                                       const GrEffect& effect)
+    : INHERITED(factory, effect) {
 }
 
 void GrGLSpecularLightingEffect::emitLightFunc(GrGLProgramBuilder* builder, SkString* funcName) {
@@ -1573,9 +1573,9 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLProgramBuilder* builder, SkSt
 }
 
 void GrGLSpecularLightingEffect::setData(const GrGLProgramDataManager& pdman,
-                                         const GrDrawEffect& drawEffect) {
-    INHERITED::setData(pdman, drawEffect);
-    const GrSpecularLightingEffect& spec = drawEffect.castEffect<GrSpecularLightingEffect>();
+                                         const GrEffect& effect) {
+    INHERITED::setData(pdman, effect);
+    const GrSpecularLightingEffect& spec = effect.cast<GrSpecularLightingEffect>();
     pdman.set1f(fKSUni, spec.ks());
     pdman.set1f(fShininessUni, spec.shininess());
 }

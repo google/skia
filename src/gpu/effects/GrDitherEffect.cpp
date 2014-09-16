@@ -68,10 +68,10 @@ GrEffect* DitherEffect::TestCreate(SkRandom*,
 
 class GLDitherEffect : public GrGLEffect {
 public:
-    GLDitherEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
+    GLDitherEffect(const GrBackendEffectFactory&, const GrEffect&);
 
     virtual void emitCode(GrGLProgramBuilder* builder,
-                          const GrDrawEffect& drawEffect,
+                          const GrEffect& effect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
@@ -83,12 +83,12 @@ private:
 };
 
 GLDitherEffect::GLDitherEffect(const GrBackendEffectFactory& factory,
-                               const GrDrawEffect& drawEffect)
+                               const GrEffect& effect)
     : INHERITED (factory) {
 }
 
 void GLDitherEffect::emitCode(GrGLProgramBuilder* builder,
-                              const GrDrawEffect& drawEffect,
+                              const GrEffect& effect,
                               const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,

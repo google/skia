@@ -530,11 +530,11 @@ public:
 
     class GLEffect : public GrGLGeometryProcessor {
     public:
-        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+        GLEffect(const GrBackendEffectFactory& factory, const GrEffect&)
             : INHERITED (factory) {}
 
         virtual void emitCode(GrGLFullProgramBuilder* builder,
-                              const GrDrawEffect& drawEffect,
+                              const GrEffect& effect,
                               const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
@@ -569,14 +569,14 @@ public:
             fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
 
-            const GrShaderVar& inQuadEdge = drawEffect.castEffect<QuadEdgeEffect>().inQuadEdge();
+            const GrShaderVar& inQuadEdge = effect.cast<QuadEdgeEffect>().inQuadEdge();
             GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
             vsBuilder->codeAppendf("\t%s = %s;\n", vsName, inQuadEdge.c_str());
         }
 
-        static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
+        static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
 
-        virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE {}
 
     private:
         typedef GrGLGeometryProcessor INHERITED;

@@ -10,7 +10,6 @@
 #include "GrAllocator.h"
 #include "GrEffect.h"
 #include "GrCoordTransform.h"
-#include "GrDrawEffect.h"
 #include "GrGLEffect.h"
 #include "GrGpuGL.h"
 #include "GrGLPathRendering.h"

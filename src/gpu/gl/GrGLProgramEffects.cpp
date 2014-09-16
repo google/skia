@@ -7,7 +7,6 @@
 
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrGLProgramEffects.h"
-#include "GrDrawEffect.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLPathRendering.h"
 #include "gl/builders/GrGLProgramBuilder.h"
@@ -89,15 +88,17 @@ GrCoordSet get_source_coords(uint32_t transformKey, int transformIdx) {
 /**
  * Retrieves the final matrix that a transform needs to apply to its source coords.
  */
-SkMatrix get_transform_matrix(const GrDrawEffect& drawEffect, int transformIdx) {
-    const GrCoordTransform& coordTransform = drawEffect.effect()->coordTransform(transformIdx);
+SkMatrix get_transform_matrix(const GrEffectStage& effectStage,
+                              bool useExplicitLocalCoords,
+                              int transformIdx) {
+    const GrCoordTransform& coordTransform = effectStage.getEffect()->coordTransform(transformIdx);
     SkMatrix combined;
 
     if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
         // If we have explicit local coords then we shouldn't need a coord change.
-        SkASSERT(!drawEffect.programHasExplicitLocalCoords() ||
-                 drawEffect.getCoordChangeMatrix().isIdentity());
-        combined.setConcat(coordTransform.getMatrix(), drawEffect.getCoordChangeMatrix());
+        const SkMatrix& ccm =
+                useExplicitLocalCoords ? SkMatrix::I() : effectStage.getCoordChangeMatrix();
+        combined.setConcat(coordTransform.getMatrix(), ccm);
     } else {
         combined = coordTransform.getMatrix();
     }
@@ -113,18 +114,19 @@ SkMatrix get_transform_matrix(const GrDrawEffect& drawEffect, int transformIdx) 
     }
     return combined;
 }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGLProgramEffects::GenEffectMetaKey(const GrDrawEffect& drawEffect, const GrGLCaps& caps,
+bool GrGLProgramEffects::GenEffectMetaKey(const GrEffectStage& effectStage,
+                                          bool useExplicitLocalCoords,
+                                          const GrGLCaps& caps,
                                           GrEffectKeyBuilder* b) {
 
-    uint32_t textureKey = GrGLProgramEffects::GenTextureKey(drawEffect, caps);
-    uint32_t transformKey = GrGLProgramEffects::GenTransformKey(drawEffect);
-    uint32_t attribKey = GrGLProgramEffects::GenAttribKey(drawEffect.castEffect<GrEffect>());
-    uint32_t classID = drawEffect.effect()->getFactory().effectClassID();
+    uint32_t textureKey = GrGLProgramEffects::GenTextureKey(effectStage.getEffect(), caps);
+    uint32_t transformKey = GrGLProgramEffects::GenTransformKey(effectStage,useExplicitLocalCoords);
+    uint32_t attribKey = GrGLProgramEffects::GenAttribKey(effectStage.getEffect());
+    uint32_t classID = effectStage.getEffect()->getFactory().effectClassID();
 
     // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
     // don't fit.
@@ -139,10 +141,10 @@ bool GrGLProgramEffects::GenEffectMetaKey(const GrDrawEffect& drawEffect, const 
     return true;
 }
 
-uint32_t GrGLProgramEffects::GenAttribKey(const GrEffect& effect) {
+uint32_t GrGLProgramEffects::GenAttribKey(const GrEffect* effect) {
     uint32_t key = 0;
 
-    const GrEffect::VertexAttribArray& vars = effect.getVertexAttribs();
+    const GrEffect::VertexAttribArray& vars = effect->getVertexAttribs();
     int numAttributes = vars.count();
     SkASSERT(numAttributes <= 2);
     for (int a = 0; a < numAttributes; ++a) {
@@ -152,24 +154,22 @@ uint32_t GrGLProgramEffects::GenAttribKey(const GrEffect& effect) {
     return key;
 }
 
-uint32_t GrGLProgramEffects::GenTransformKey(const GrDrawEffect& drawEffect) {
+uint32_t GrGLProgramEffects::GenTransformKey(const GrEffectStage& effectStage,
+                                             bool useExplicitLocalCoords) {
     uint32_t totalKey = 0;
-    int numTransforms = drawEffect.effect()->numTransforms();
+    int numTransforms = effectStage.getEffect()->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
         uint32_t key = 0;
-        const GrCoordTransform& coordTransform = drawEffect.effect()->coordTransform(t);
+        const GrCoordTransform& coordTransform = effectStage.getEffect()->coordTransform(t);
         SkMatrix::TypeMask type0 = coordTransform.getMatrix().getType();
-        SkMatrix::TypeMask type1;
-        if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
-            type1 = drawEffect.getCoordChangeMatrix().getType();
-        } else {
-            if (drawEffect.programHasExplicitLocalCoords()) {
-                // We only make the key indicate that device coords are referenced when the local coords
-                // are not actually determined by positions. Otherwise the local coords var and position
-                // var are identical.
-                key |= kPositionCoords_Flag;
-            }
-            type1 = SkMatrix::kIdentity_Mask;
+        SkMatrix::TypeMask type1 = SkMatrix::kIdentity_Mask;
+        if (kLocal_GrCoordSet == coordTransform.sourceCoords() && !useExplicitLocalCoords) {
+            type1 = effectStage.getCoordChangeMatrix().getType();
+        } else if (kPosition_GrCoordSet == coordTransform.sourceCoords() && useExplicitLocalCoords) {
+            // We only make the key indicate that device coords are referenced when the local coords
+            // are not actually determined by positions. Otherwise the local coords var and position
+            // var are identical.
+            key |= kPositionCoords_Flag;
         }
 
         int combinedTypes = type0 | type1;
@@ -186,11 +186,11 @@ uint32_t GrGLProgramEffects::GenTransformKey(const GrDrawEffect& drawEffect) {
     return totalKey;
 }
 
-uint32_t GrGLProgramEffects::GenTextureKey(const GrDrawEffect& drawEffect, const GrGLCaps& caps) {
+uint32_t GrGLProgramEffects::GenTextureKey(const GrEffect* effect, const GrGLCaps& caps) {
     uint32_t key = 0;
-    int numTextures = drawEffect.effect()->numTextures();
+    int numTextures = effect->numTextures();
     for (int t = 0; t < numTextures; ++t) {
-        const GrTextureAccess& access = drawEffect.effect()->textureAccess(t);
+        const GrTextureAccess& access = effect->textureAccess(t);
         uint32_t configComponentMask = GrPixelConfigComponentMask(access.getTexture()->config());
         if (swizzle_requires_alpha_remapping(caps, configComponentMask, access.swizzleMask())) {
             key |= 1 << t;
@@ -207,10 +207,10 @@ GrGLProgramEffects::~GrGLProgramEffects() {
 }
 
 void GrGLProgramEffects::emitSamplers(GrGLProgramBuilder* builder,
-                                      const GrEffect* effect,
+                                      const GrEffect& effect,
                                       TextureSamplerArray* outSamplers) {
     SkTArray<Sampler, true>& samplers = fSamplers.push_back();
-    int numTextures = effect->numTextures();
+    int numTextures = effect.numTextures();
     samplers.push_back_n(numTextures);
     SkString name;
     for (int t = 0; t < numTextures; ++t) {
@@ -219,7 +219,7 @@ void GrGLProgramEffects::emitSamplers(GrGLProgramBuilder* builder,
                                                    kSampler2D_GrSLType,
                                                    name.c_str());
         SkNEW_APPEND_TO_TARRAY(outSamplers, TextureSampler,
-                               (samplers[t].fUniform, effect->textureAccess(t)));
+                               (samplers[t].fUniform, effect.textureAccess(t)));
     }
 }
 
@@ -237,13 +237,13 @@ void GrGLProgramEffects::initSamplers(const GrGLProgramDataManager& programResou
     }
 }
 
-void GrGLProgramEffects::bindTextures(GrGpuGL* gpu, const GrEffect* effect, int effectIdx) {
+void GrGLProgramEffects::bindTextures(GrGpuGL* gpu, const GrEffect& effect, int effectIdx) {
     const SkTArray<Sampler, true>& samplers = fSamplers[effectIdx];
     int numSamplers = samplers.count();
-    SkASSERT(numSamplers == effect->numTextures());
+    SkASSERT(numSamplers == effect.numTextures());
     for (int s = 0; s < numSamplers; ++s) {
         SkASSERT(samplers[s].fTextureUnit >= 0);
-        const GrTextureAccess& textureAccess = effect->textureAccess(s);
+        const GrTextureAccess& textureAccess = effect.textureAccess(s);
         gpu->bindTexture(samplers[s].fTextureUnit,
                          textureAccess.getParams(),
                          static_cast<GrGLTexture*>(textureAccess.getTexture()));
@@ -258,18 +258,17 @@ void GrGLVertexProgramEffects::emitEffect(GrGLFullProgramBuilder* builder,
                                           const char* outColor,
                                           const char* inColor,
                                           int stageIndex) {
-    GrDrawEffect drawEffect(stage, fHasExplicitLocalCoords);
-    const GrEffect* effect = stage.getEffect();
-    SkSTArray<2, TransformedCoords> coords(effect->numTransforms());
-    SkSTArray<4, TextureSampler> samplers(effect->numTextures());
+    const GrEffect& effect = *stage.getEffect();
+    SkSTArray<2, TransformedCoords> coords(effect.numTransforms());
+    SkSTArray<4, TextureSampler> samplers(effect.numTextures());
 
     GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     vsBuilder->emitAttributes(stage);
-    this->emitTransforms(builder, drawEffect, &coords);
+    this->emitTransforms(builder, stage, &coords);
     this->emitSamplers(builder, effect, &samplers);
 
-    GrGLEffect* glEffect = effect->getFactory().createGLInstance(drawEffect);
+    GrGLEffect* glEffect = effect.getFactory().createGLInstance(effect);
     fGLEffects.push_back(glEffect);
 
     // Enclose custom code in a block to avoid namespace conflicts
@@ -280,9 +279,9 @@ void GrGLVertexProgramEffects::emitEffect(GrGLFullProgramBuilder* builder,
 
     if (glEffect->isVertexEffect()) {
         GrGLGeometryProcessor* vertexEffect = static_cast<GrGLGeometryProcessor*>(glEffect);
-        vertexEffect->emitCode(builder, drawEffect, key, outColor, inColor, coords, samplers);
+        vertexEffect->emitCode(builder, effect, key, outColor, inColor, coords, samplers);
     } else {
-        glEffect->emitCode(builder, drawEffect, key, outColor, inColor, coords, samplers);
+        glEffect->emitCode(builder, effect, key, outColor, inColor, coords, samplers);
     }
 
     vsBuilder->codeAppend("\t}\n");
@@ -290,11 +289,11 @@ void GrGLVertexProgramEffects::emitEffect(GrGLFullProgramBuilder* builder,
 }
 
 void GrGLVertexProgramEffects::emitTransforms(GrGLFullProgramBuilder* builder,
-                                              const GrDrawEffect& drawEffect,
+                                              const GrEffectStage& effectStage,
                                               TransformedCoordsArray* outCoords) {
     SkTArray<Transform, true>& transforms = fTransforms.push_back();
-    uint32_t totalKey = GenTransformKey(drawEffect);
-    int numTransforms = drawEffect.effect()->numTransforms();
+    uint32_t totalKey = GenTransformKey(effectStage, fHasExplicitLocalCoords);
+    int numTransforms = effectStage.getEffect()->numTransforms();
     transforms.push_back_n(numTransforms);
 
     SkTArray<PathTransform, true>* pathTransforms = NULL;
@@ -375,15 +374,16 @@ void GrGLVertexProgramEffects::setData(GrGpuGL* gpu,
     SkASSERT(numEffects == fTransforms.count());
     SkASSERT(numEffects == fSamplers.count());
     for (int e = 0; e < numEffects; ++e) {
-        GrDrawEffect drawEffect(*effectStages[e], fHasExplicitLocalCoords);
-        fGLEffects[e]->setData(programDataManager, drawEffect);
+        const GrEffectStage& effectStage = *effectStages[e];
+        const GrEffect& effect = *effectStage.getEffect();
+        fGLEffects[e]->setData(programDataManager, effect);
         if (GrGpu::IsPathRenderingDrawType(drawType)) {
-            this->setPathTransformData(gpu, programDataManager, drawEffect, e);
+            this->setPathTransformData(gpu, programDataManager, effectStage, e);
         } else {
-            this->setTransformData(gpu, programDataManager, drawEffect, e);
+            this->setTransformData(gpu, programDataManager, effectStage, e);
         }
 
-        this->bindTextures(gpu, drawEffect.effect(), e);
+        this->bindTextures(gpu, effect, e);
     }
 }
 
@@ -394,27 +394,27 @@ void GrGLVertexProgramEffects::setData(GrGpuGL* gpu,
     SkASSERT(1 == fTransforms.count());
     SkASSERT(1 == fSamplers.count());
     SkASSERT(1 == fGLEffects.count());
-    GrDrawEffect drawEffect(*effectStage, fHasExplicitLocalCoords);
-    fGLEffects[0]->setData(programDataManager, drawEffect);
+    const GrEffect& effect = *effectStage->getEffect();
+    fGLEffects[0]->setData(programDataManager, effect);
     if (GrGpu::IsPathRenderingDrawType(drawType)) {
-        this->setPathTransformData(gpu, programDataManager, drawEffect, 0);
+        this->setPathTransformData(gpu, programDataManager, *effectStage, 0);
     } else {
-        this->setTransformData(gpu, programDataManager, drawEffect, 0);
+        this->setTransformData(gpu, programDataManager, *effectStage, 0);
     }
 
-    this->bindTextures(gpu, drawEffect.effect(), 0);
+    this->bindTextures(gpu, effect, 0);
 }
 
 void GrGLVertexProgramEffects::setTransformData(GrGpuGL* gpu,
                                                 const GrGLProgramDataManager& pdman,
-                                                const GrDrawEffect& drawEffect,
+                                                const GrEffectStage& effectStage,
                                                 int effectIdx) {
     SkTArray<Transform, true>& transforms = fTransforms[effectIdx];
     int numTransforms = transforms.count();
-    SkASSERT(numTransforms == drawEffect.effect()->numTransforms());
+    SkASSERT(numTransforms == effectStage.getEffect()->numTransforms());
     for (int t = 0; t < numTransforms; ++t) {
         SkASSERT(transforms[t].fHandle.isValid());
-        const SkMatrix& matrix = get_transform_matrix(drawEffect, t);
+        const SkMatrix& matrix = get_transform_matrix(effectStage, fHasExplicitLocalCoords, t);
         if (!transforms[t].fCurrentValue.cheapEqualTo(matrix)) {
             pdman.setSkMatrix(transforms[t].fHandle, matrix);
             transforms[t].fCurrentValue = matrix;
@@ -424,14 +424,14 @@ void GrGLVertexProgramEffects::setTransformData(GrGpuGL* gpu,
 
 void GrGLVertexProgramEffects::setPathTransformData(GrGpuGL* gpu,
                                                     const GrGLProgramDataManager& pdman,
-                                                    const GrDrawEffect& drawEffect,
+                                                    const GrEffectStage& effectStage,
                                                     int effectIdx) {
     SkTArray<PathTransform, true>& transforms = fPathTransforms[effectIdx];
     int numTransforms = transforms.count();
-    SkASSERT(numTransforms == drawEffect.effect()->numTransforms());
+    SkASSERT(numTransforms == effectStage.getEffect()->numTransforms());
     for (int t = 0; t < numTransforms; ++t) {
         SkASSERT(transforms[t].fHandle.isValid());
-        const SkMatrix& transform = get_transform_matrix(drawEffect, t);
+        const SkMatrix& transform = get_transform_matrix(effectStage, fHasExplicitLocalCoords, t);
         if (transforms[t].fCurrentValue.cheapEqualTo(transform)) {
             continue;
         }
@@ -473,16 +473,15 @@ void GrGLPathTexGenProgramEffects::emitEffect(GrGLFragmentOnlyProgramBuilder* bu
                                           const char* outColor,
                                           const char* inColor,
                                           int stageIndex) {
-    GrDrawEffect drawEffect(stage, false);
-    const GrEffect* effect = stage.getEffect();
-    SkSTArray<2, TransformedCoords> coords(effect->numTransforms());
-    SkSTArray<4, TextureSampler> samplers(effect->numTextures());
+    const GrEffect& effect = *stage.getEffect();
+    SkSTArray<2, TransformedCoords> coords(effect.numTransforms());
+    SkSTArray<4, TextureSampler> samplers(effect.numTextures());
 
-    SkASSERT(0 == effect->getVertexAttribs().count());
-    this->setupPathTexGen(builder, drawEffect, &coords);
+    SkASSERT(0 == effect.getVertexAttribs().count());
+    this->setupPathTexGen(builder, stage, &coords);
     this->emitSamplers(builder, effect, &samplers);
 
-    GrGLEffect* glEffect = effect->getFactory().createGLInstance(drawEffect);
+    GrGLEffect* glEffect = effect.getFactory().createGLInstance(effect);
     fGLEffects.push_back(glEffect);
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
@@ -492,16 +491,16 @@ void GrGLPathTexGenProgramEffects::emitEffect(GrGLFragmentOnlyProgramBuilder* bu
     fsBuilder->codeAppend(openBrace.c_str());
 
     SkASSERT(!glEffect->isVertexEffect());
-    glEffect->emitCode(builder, drawEffect, key, outColor, inColor, coords, samplers);
+    glEffect->emitCode(builder, effect, key, outColor, inColor, coords, samplers);
 
     fsBuilder->codeAppend("\t}\n");
 }
 
 void GrGLPathTexGenProgramEffects::setupPathTexGen(GrGLFragmentOnlyProgramBuilder* builder,
-                                           const GrDrawEffect& drawEffect,
+                                           const GrEffectStage& effectStage,
                                            TransformedCoordsArray* outCoords) {
-    int numTransforms = drawEffect.effect()->numTransforms();
-    uint32_t totalKey = GenTransformKey(drawEffect);
+    int numTransforms = effectStage.getEffect()->numTransforms();
+    uint32_t totalKey = GenTransformKey(effectStage, false);
     int texCoordIndex = builder->addTexCoordSets(numTransforms);
     SkNEW_APPEND_TO_TARRAY(&fTransforms, Transforms, (totalKey, texCoordIndex));
     SkString name;
@@ -522,23 +521,24 @@ void GrGLPathTexGenProgramEffects::setData(GrGpuGL* gpu,
     SkASSERT(numEffects == fTransforms.count());
     SkASSERT(numEffects == fSamplers.count());
     for (int e = 0; e < numEffects; ++e) {
-        GrDrawEffect drawEffect(*effectStages[e], false);
-        fGLEffects[e]->setData(pdman, drawEffect);
-        this->setPathTexGenState(gpu, drawEffect, e);
-        this->bindTextures(gpu, drawEffect.effect(), e);
+        const GrEffectStage& effectStage = *effectStages[e];
+        const GrEffect& effect = *effectStage.getEffect();
+        fGLEffects[e]->setData(pdman, effect);
+        this->setPathTexGenState(gpu, effectStage, e);
+        this->bindTextures(gpu, effect, e);
     }
 }
 
 void GrGLPathTexGenProgramEffects::setPathTexGenState(GrGpuGL* gpu,
-                                              const GrDrawEffect& drawEffect,
+                                              const GrEffectStage& effectStage,
                                               int effectIdx) {
     uint32_t totalKey = fTransforms[effectIdx].fTransformKey;
     int texCoordIndex = fTransforms[effectIdx].fTexCoordIndex;
-    int numTransforms = drawEffect.effect()->numTransforms();
+    int numTransforms = effectStage.getEffect()->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
         switch (get_matrix_type(totalKey, t)) {
             case kNoPersp_MatrixType: {
-                const SkMatrix& transform = get_transform_matrix(drawEffect, t);
+                const SkMatrix& transform = get_transform_matrix(effectStage, false, t);
                 gpu->glPathRendering()->enablePathTexGen(
                         texCoordIndex++,
                         GrGLPathRendering::kST_PathTexGenComponents,
@@ -546,7 +546,7 @@ void GrGLPathTexGenProgramEffects::setPathTexGenState(GrGpuGL* gpu,
                 break;
             }
             case kGeneral_MatrixType: {
-                const SkMatrix& transform = get_transform_matrix(drawEffect, t);
+                const SkMatrix& transform = get_transform_matrix(effectStage, false, t);
                 gpu->glPathRendering()->enablePathTexGen(
                         texCoordIndex++,
                         GrGLPathRendering::kSTR_PathTexGenComponents,

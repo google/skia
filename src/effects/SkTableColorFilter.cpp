@@ -314,31 +314,31 @@ private:
 
 class GLColorTableEffect : public GrGLEffect {
 public:
-    GLColorTableEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
+    GLColorTableEffect(const GrBackendEffectFactory&, const GrEffect&);
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {}
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE {}
 
-    static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
+    static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
 
 private:
 
     typedef GrGLEffect INHERITED;
 };
 
-GLColorTableEffect::GLColorTableEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+GLColorTableEffect::GLColorTableEffect(const GrBackendEffectFactory& factory, const GrEffect&)
     : INHERITED(factory) {
  }
 
 void GLColorTableEffect::emitCode(GrGLProgramBuilder* builder,
-                                  const GrDrawEffect&,
+                                  const GrEffect&,
                                   const GrEffectKey&,
                                   const char* outputColor,
                                   const char* inputColor,

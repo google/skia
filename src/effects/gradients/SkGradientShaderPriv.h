@@ -403,7 +403,7 @@ public:
     GrGLGradientEffect(const GrBackendEffectFactory& factory);
     virtual ~GrGLGradientEffect();
 
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
 
 protected:
     /**
@@ -411,7 +411,7 @@ protected:
      * by the base class. The subclasses must stick it in their key and then pass it to the below
      * emit* functions from their emitCode function.
      */
-    static uint32_t GenBaseGradientKey(const GrDrawEffect&);
+    static uint32_t GenBaseGradientKey(const GrEffect&);
 
     // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
     // should call this method from their emitCode().

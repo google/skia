@@ -25,7 +25,7 @@ public:
      * This allows the effect subclass to emit vertex code.
      */
     virtual void emitCode(GrGLFullProgramBuilder* builder,
-                          const GrDrawEffect& drawEffect,
+                          const GrEffect& effect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
@@ -35,7 +35,7 @@ public:
      * Provide a default override for base class's emitCode() function.
      */
     virtual void emitCode(GrGLProgramBuilder* builder,
-                          const GrDrawEffect& drawEffect,
+                          const GrEffect& effect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,

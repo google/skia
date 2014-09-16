@@ -45,15 +45,15 @@ public:
         static const GrGLfloat kRec601ConversionMatrix[16];
 
         // this class always generates the same code.
-        static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
+        static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
 
         GLEffect(const GrBackendEffectFactory& factory,
-                 const GrDrawEffect&)
+                 const GrEffect&)
         : INHERITED(factory) {
         }
 
         virtual void emitCode(GrGLProgramBuilder* builder,
-                              const GrDrawEffect& drawEffect,
+                              const GrEffect&,
                               const GrEffectKey&,
                               const char* outputColor,
                               const char* inputColor,
@@ -75,8 +75,8 @@ public:
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
-                             const GrDrawEffect& drawEffect) SK_OVERRIDE {
-            const YUVtoRGBEffect& yuvEffect = drawEffect.castEffect<YUVtoRGBEffect>();
+                             const GrEffect& effect) SK_OVERRIDE {
+            const YUVtoRGBEffect& yuvEffect = effect.cast<YUVtoRGBEffect>();
             switch (yuvEffect.getColorSpace()) {
                 case kJPEG_SkYUVColorSpace:
                     pdman.setMatrix4f(fMatrixUni, kJPEGConversionMatrix);
@@ -110,7 +110,7 @@ private:
     }
 
     virtual bool onIsEqual(const GrEffect& sBase) const {
-        const YUVtoRGBEffect& s = CastEffect<YUVtoRGBEffect>(sBase);
+        const YUVtoRGBEffect& s = sBase.cast<YUVtoRGBEffect>();
         return fYAccess.getTexture() == s.fYAccess.getTexture() &&
                fUAccess.getTexture() == s.fUAccess.getTexture() &&
                fVAccess.getTexture() == s.fVAccess.getTexture() &&

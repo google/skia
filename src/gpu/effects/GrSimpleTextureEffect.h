@@ -71,7 +71,7 @@ private:
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
-        const GrSimpleTextureEffect& ste = CastEffect<GrSimpleTextureEffect>(other);
+        const GrSimpleTextureEffect& ste = other.cast<GrSimpleTextureEffect>();
         return this->hasSameTextureParamsMatrixAndSourceCoords(ste);
     }
 

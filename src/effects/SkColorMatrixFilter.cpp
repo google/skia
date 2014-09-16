@@ -399,15 +399,15 @@ public:
     class GLEffect : public GrGLEffect {
     public:
         // this class always generates the same code.
-        static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
+        static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
 
         GLEffect(const GrBackendEffectFactory& factory,
-                 const GrDrawEffect&)
+                 const GrEffect&)
         : INHERITED(factory) {
         }
 
         virtual void emitCode(GrGLProgramBuilder* builder,
-                              const GrDrawEffect&,
+                              const GrEffect&,
                               const GrEffectKey&,
                               const char* outputColor,
                               const char* inputColor,
@@ -438,8 +438,8 @@ public:
         }
 
         virtual void setData(const GrGLProgramDataManager& uniManager,
-                             const GrDrawEffect& drawEffect) SK_OVERRIDE {
-            const ColorMatrixEffect& cme = drawEffect.castEffect<ColorMatrixEffect>();
+                             const GrEffect& effect) SK_OVERRIDE {
+            const ColorMatrixEffect& cme = effect.cast<ColorMatrixEffect>();
             const float* m = cme.fMatrix.fMat;
             // The GL matrix is transposed from SkColorMatrix.
             GrGLfloat mt[]  = {
@@ -467,7 +467,7 @@ private:
     ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {}
 
     virtual bool onIsEqual(const GrEffect& s) const {
-        const ColorMatrixEffect& cme = CastEffect<ColorMatrixEffect>(s);
+        const ColorMatrixEffect& cme = s.cast<ColorMatrixEffect>();
         return cme.fMatrix == fMatrix;
     }
 

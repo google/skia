@@ -512,20 +512,20 @@ void SkPerlinNoiseShader::PerlinNoiseShaderContext::shadeSpan16(
 class GrGLPerlinNoise : public GrGLEffect {
 public:
     GrGLPerlinNoise(const GrBackendEffectFactory& factory,
-                    const GrDrawEffect& drawEffect);
+                    const GrEffect& effect);
     virtual ~GrGLPerlinNoise() {}
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
+    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
 
 private:
 
@@ -574,7 +574,7 @@ public:
 
 private:
     virtual bool onIsEqual(const GrEffect& sBase) const SK_OVERRIDE {
-        const GrPerlinNoiseEffect& s = CastEffect<GrPerlinNoiseEffect>(sBase);
+        const GrPerlinNoiseEffect& s = sBase.cast<GrPerlinNoiseEffect>();
         return fType == s.fType &&
                fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency &&
                fNumOctaves == s.fNumOctaves &&
@@ -656,15 +656,15 @@ GrEffect* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
     return effect;
 }
 
-GrGLPerlinNoise::GrGLPerlinNoise(const GrBackendEffectFactory& factory, const GrDrawEffect& drawEffect)
+GrGLPerlinNoise::GrGLPerlinNoise(const GrBackendEffectFactory& factory, const GrEffect& effect)
   : INHERITED (factory)
-  , fType(drawEffect.castEffect<GrPerlinNoiseEffect>().type())
-  , fStitchTiles(drawEffect.castEffect<GrPerlinNoiseEffect>().stitchTiles())
-  , fNumOctaves(drawEffect.castEffect<GrPerlinNoiseEffect>().numOctaves()) {
+  , fType(effect.cast<GrPerlinNoiseEffect>().type())
+  , fStitchTiles(effect.cast<GrPerlinNoiseEffect>().stitchTiles())
+  , fNumOctaves(effect.cast<GrPerlinNoiseEffect>().numOctaves()) {
 }
 
 void GrGLPerlinNoise::emitCode(GrGLProgramBuilder* builder,
-                               const GrDrawEffect&,
+                               const GrEffect&,
                                const GrEffectKey& key,
                                const char* outputColor,
                                const char* inputColor,
@@ -919,8 +919,8 @@ void GrGLPerlinNoise::emitCode(GrGLProgramBuilder* builder,
                   outputColor, outputColor, outputColor, outputColor);
 }
 
-void GrGLPerlinNoise::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&, GrEffectKeyBuilder* b) {
-    const GrPerlinNoiseEffect& turbulence = drawEffect.castEffect<GrPerlinNoiseEffect>();
+void GrGLPerlinNoise::GenKey(const GrEffect& effect, const GrGLCaps&, GrEffectKeyBuilder* b) {
+    const GrPerlinNoiseEffect& turbulence = effect.cast<GrPerlinNoiseEffect>();
 
     uint32_t key = turbulence.numOctaves();
 
@@ -945,10 +945,10 @@ void GrGLPerlinNoise::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&, Gr
     b->add32(key);
 }
 
-void GrGLPerlinNoise::setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) {
-    INHERITED::setData(pdman, drawEffect);
+void GrGLPerlinNoise::setData(const GrGLProgramDataManager& pdman, const GrEffect& effect) {
+    INHERITED::setData(pdman, effect);
 
-    const GrPerlinNoiseEffect& turbulence = drawEffect.castEffect<GrPerlinNoiseEffect>();
+    const GrPerlinNoiseEffect& turbulence = effect.cast<GrPerlinNoiseEffect>();
 
     const SkVector& baseFrequency = turbulence.baseFrequency();
     pdman.set2f(fBaseFrequencyUni, baseFrequency.fX, baseFrequency.fY);

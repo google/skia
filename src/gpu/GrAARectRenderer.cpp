@@ -43,11 +43,11 @@ public:
 
     class GLEffect : public GrGLGeometryProcessor {
     public:
-        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+        GLEffect(const GrBackendEffectFactory& factory, const GrEffect&)
         : INHERITED (factory) {}
 
         virtual void emitCode(GrGLFullProgramBuilder* builder,
-                              const GrDrawEffect& drawEffect,
+                              const GrEffect& effect,
                               const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
@@ -59,7 +59,7 @@ public:
             const char *vsRectName, *fsRectName;
             builder->addVarying(kVec4f_GrSLType, "Rect", &vsRectName, &fsRectName);
 
-            const GrShaderVar& inRect = drawEffect.castEffect<GrAlignedRectEffect>().inRect();
+            const GrShaderVar& inRect = effect.cast<GrAlignedRectEffect>().inRect();
             GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
             vsBuilder->codeAppendf("\t%s = %s;\n", vsRectName, inRect.c_str());
 
@@ -92,9 +92,9 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("coverage")).c_str());
         }
 
-        static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
+        static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
 
-        virtual void setData(const GrGLProgramDataManager& pdman, const GrDrawEffect&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager& pdman, const GrEffect&) SK_OVERRIDE {}
 
     private:
         typedef GrGLGeometryProcessor INHERITED;
@@ -169,11 +169,11 @@ public:
 
     class GLEffect : public GrGLGeometryProcessor {
     public:
-        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+        GLEffect(const GrBackendEffectFactory& factory, const GrEffect&)
         : INHERITED (factory) {}
 
         virtual void emitCode(GrGLFullProgramBuilder* builder,
-                              const GrDrawEffect& drawEffect,
+                              const GrEffect& effect,
                               const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
@@ -185,7 +185,7 @@ public:
             builder->addVarying(kVec4f_GrSLType, "RectEdge",
                                 &vsRectEdgeName, &fsRectEdgeName);
 
-            const GrRectEffect& rectEffect = drawEffect.castEffect<GrRectEffect>();
+            const GrRectEffect& rectEffect = effect.cast<GrRectEffect>();
             GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
             vsBuilder->codeAppendf("%s = %s;", vsRectEdgeName, rectEffect.inRectEdge().c_str());
 
@@ -233,9 +233,9 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("coverage")).c_str());
         }
 
-        static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
+        static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
 
-        virtual void setData(const GrGLProgramDataManager& pdman, const GrDrawEffect&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager& pdman, const GrEffect&) SK_OVERRIDE {}
 
     private:
         typedef GrGLGeometryProcessor INHERITED;
