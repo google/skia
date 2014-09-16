@@ -93,17 +93,17 @@ typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 class GrGLMagnifierEffect : public GrGLEffect {
 public:
-    GrGLMagnifierEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GrGLMagnifierEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrEffect&,
+                          const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
     UniformHandle       fOffsetVar;
@@ -113,12 +113,12 @@ private:
     typedef GrGLEffect INHERITED;
 };
 
-GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
     : INHERITED(factory) {
 }
 
 void GrGLMagnifierEffect::emitCode(GrGLProgramBuilder* builder,
-                                   const GrEffect&,
+                                   const GrDrawEffect&,
                                    const GrEffectKey& key,
                                    const char* outputColor,
                                    const char* inputColor,
@@ -172,8 +172,8 @@ void GrGLMagnifierEffect::emitCode(GrGLProgramBuilder* builder,
 }
 
 void GrGLMagnifierEffect::setData(const GrGLProgramDataManager& pdman,
-                                  const GrEffect& effect) {
-    const GrMagnifierEffect& zoom = effect.cast<GrMagnifierEffect>();
+                                  const GrDrawEffect& drawEffect) {
+    const GrMagnifierEffect& zoom = drawEffect.castEffect<GrMagnifierEffect>();
     pdman.set2f(fOffsetVar, zoom.x_offset(), zoom.y_offset());
     pdman.set2f(fInvZoomVar, zoom.x_inv_zoom(), zoom.y_inv_zoom());
     pdman.set2f(fInvInsetVar, zoom.x_inv_inset(), zoom.y_inv_inset());
@@ -216,7 +216,7 @@ const GrBackendEffectFactory& GrMagnifierEffect::getFactory() const {
 }
 
 bool GrMagnifierEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrMagnifierEffect& s = sBase.cast<GrMagnifierEffect>();
+    const GrMagnifierEffect& s = CastEffect<GrMagnifierEffect>(sBase);
     return (this->texture(0) == s.texture(0) &&
             this->fXOffset == s.fXOffset &&
             this->fYOffset == s.fYOffset &&

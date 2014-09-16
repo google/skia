@@ -39,10 +39,7 @@ public:
      * which must be different for every GrEffect subclass. It can fail if an effect uses too many
      * textures, attributes, etc for the space allotted in the meta-key.
      */
-    static bool GenEffectMetaKey(const GrEffectStage&,
-                                 bool,
-                                 const GrGLCaps&,
-                                 GrEffectKeyBuilder*);
+    static bool GenEffectMetaKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
     virtual ~GrGLProgramEffects();
 
@@ -117,9 +114,9 @@ protected:
     /**
      * Helpers for GenEffectMetaKey.
      */
-    static uint32_t GenAttribKey(const GrEffect*);
-    static uint32_t GenTransformKey(const GrEffectStage&, bool useExplicitLocalCoords);
-    static uint32_t GenTextureKey(const GrEffect*, const GrGLCaps&);
+    static uint32_t GenAttribKey(const GrEffect&);
+    static uint32_t GenTransformKey(const GrDrawEffect&);
+    static uint32_t GenTextureKey(const GrDrawEffect&, const GrGLCaps&);
 
     GrGLProgramEffects(int reserveCount)
         : fGLEffects(reserveCount)
@@ -131,12 +128,12 @@ protected:
      * appends the necessary data to the TextureSamplerArray* object so effects can add texture
      * lookups to their code. This method is only meant to be called during the construction phase.
      */
-    void emitSamplers(GrGLProgramBuilder*, const GrEffect&, TextureSamplerArray*);
+    void emitSamplers(GrGLProgramBuilder*, const GrEffect*, TextureSamplerArray*);
 
     /**
      * Helper for setData(). Binds all the textures for an effect.
      */
-    void bindTextures(GrGpuGL*, const GrEffect&, int effectIdx);
+    void bindTextures(GrGpuGL*, const GrEffect*, int effectIdx);
 
     struct Sampler {
         SkDEBUGCODE(Sampler() : fTextureUnit(-1) {})
@@ -215,15 +212,14 @@ private:
      * TransformedCoordsArray* object, which is in turn passed to the effect's emitCode() function.
      */
     void emitTransforms(GrGLFullProgramBuilder*,
-                        const GrEffectStage&,
+                        const GrDrawEffect&,
                         TransformedCoordsArray*);
 
     /**
      * Helper for setData(). Sets all the transform matrices for an effect.
      */
-    void setTransformData(GrGpuGL* gpu, const GrGLProgramDataManager&, const GrEffectStage&,
-                          int effectIdx);
-    void setPathTransformData(GrGpuGL* gpu, const GrGLProgramDataManager&, const GrEffectStage&,
+    void setTransformData(GrGpuGL* gpu, const GrGLProgramDataManager&, const GrDrawEffect&, int effectIdx);
+    void setPathTransformData(GrGpuGL* gpu, const GrGLProgramDataManager&, const GrDrawEffect&,
                               int effectIdx);
 
     struct Transform {
@@ -311,13 +307,13 @@ private:
      * effect's emitCode() function.
      */
     void setupPathTexGen(GrGLFragmentOnlyProgramBuilder*,
-                         const GrEffectStage&,
+                         const GrDrawEffect&,
                          TransformedCoordsArray*);
 
     /**
      * Helper for setData(). Sets the PathTexGen state for each transform in an effect.
      */
-    void setPathTexGenState(GrGpuGL*, const GrEffectStage&, int effectIdx);
+    void setPathTexGenState(GrGpuGL*, const GrDrawEffect&, int effectIdx);
 
     struct Transforms {
         Transforms(uint32_t transformKey, int texCoordIndex)

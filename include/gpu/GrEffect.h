@@ -130,11 +130,6 @@ public:
         ::operator delete(target, placement);
     }
 
-    /**
-      * Helper for down-casting to a GrEffect subclass
-      */
-    template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
-
 protected:
     /**
      * Subclasses call this from their constructor to register coordinate transformations. The
@@ -158,6 +153,13 @@ protected:
         , fWillReadFragmentPosition(false)
         , fWillUseInputColor(true)
         , fRequiresVertexShader(false) {}
+
+    /**
+      * Helper for down-casting to a GrEffect subclass
+      */
+    template <typename T> static const T& CastEffect(const GrEffect& effect) {
+        return *static_cast<const T*>(&effect);
+    }
 
     /**
      * If the effect subclass will read the destination pixel value then it must call this function

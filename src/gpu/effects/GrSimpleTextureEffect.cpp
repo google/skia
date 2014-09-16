@@ -15,12 +15,12 @@
 
 class GrGLSimpleTextureEffect : public GrGLEffect {
 public:
-    GrGLSimpleTextureEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+    GrGLSimpleTextureEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {
     }
 
     virtual void emitCode(GrGLProgramBuilder* builder,
-                          const GrEffect& effect,
+                          const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,

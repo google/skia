@@ -16,18 +16,18 @@
 
 class GrGLCustomCoordsTextureEffect : public GrGLGeometryProcessor {
 public:
-    GrGLCustomCoordsTextureEffect(const GrBackendEffectFactory& factory, const GrEffect& effect)
+    GrGLCustomCoordsTextureEffect(const GrBackendEffectFactory& factory, const GrDrawEffect& drawEffect)
         : INHERITED (factory) {}
 
     virtual void emitCode(GrGLFullProgramBuilder* builder,
-                          const GrEffect& effect,
+                          const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
         const GrCustomCoordsTextureEffect& customCoordsTextureEffect =
-                effect.cast<GrCustomCoordsTextureEffect>();
+                drawEffect.castEffect<GrCustomCoordsTextureEffect>();
         SkASSERT(1 == customCoordsTextureEffect.getVertexAttribs().count());
 
         SkString fsCoordName;
@@ -50,7 +50,7 @@ public:
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrEffect& effect) SK_OVERRIDE {}
+                         const GrDrawEffect& drawEffect) SK_OVERRIDE {}
 
 private:
     typedef GrGLGeometryProcessor INHERITED;
@@ -68,7 +68,7 @@ GrCustomCoordsTextureEffect::GrCustomCoordsTextureEffect(GrTexture* texture,
 }
 
 bool GrCustomCoordsTextureEffect::onIsEqual(const GrEffect& other) const {
-    const GrCustomCoordsTextureEffect& cte = other.cast<GrCustomCoordsTextureEffect>();
+    const GrCustomCoordsTextureEffect& cte = CastEffect<GrCustomCoordsTextureEffect>(other);
     return fTextureAccess == cte.fTextureAccess;
 }
 

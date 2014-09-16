@@ -94,17 +94,17 @@ public:
 
     class GLEffect : public GrGLGeometryProcessor {
     public:
-        GLEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {}
 
         virtual void emitCode(GrGLFullProgramBuilder* builder,
-                              const GrEffect& effect,
+                              const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
-            const CircleEdgeEffect& circleEffect = effect.cast<CircleEdgeEffect>();
+            const CircleEdgeEffect& circleEffect = drawEffect.castEffect<CircleEdgeEffect>();
             const char *vsName, *fsName;
             builder->addVarying(kVec4f_GrSLType, "CircleEdge", &vsName, &fsName);
 
@@ -123,13 +123,13 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
-        static void GenKey(const GrEffect& effect, const GrGLCaps&,
+        static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                            GrEffectKeyBuilder* b) {
-            const CircleEdgeEffect& circleEffect = effect.cast<CircleEdgeEffect>();
+            const CircleEdgeEffect& circleEffect = drawEffect.castEffect<CircleEdgeEffect>();
             b->add32(circleEffect.isStroked());
         }
 
-        virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
     private:
         typedef GrGLGeometryProcessor INHERITED;
@@ -146,7 +146,7 @@ private:
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
-        const CircleEdgeEffect& cee = other.cast<CircleEdgeEffect>();
+        const CircleEdgeEffect& cee = CastEffect<CircleEdgeEffect>(other);
         return cee.fStroke == fStroke;
     }
 
@@ -212,17 +212,17 @@ public:
 
     class GLEffect : public GrGLGeometryProcessor {
     public:
-        GLEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {}
 
         virtual void emitCode(GrGLFullProgramBuilder* builder,
-                              const GrEffect& effect,
+                              const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
-            const EllipseEdgeEffect& ellipseEffect = effect.cast<EllipseEdgeEffect>();
+            const EllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<EllipseEdgeEffect>();
 
             const char *vsOffsetName, *fsOffsetName;
             const char *vsRadiiName, *fsRadiiName;
@@ -260,13 +260,13 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
-        static void GenKey(const GrEffect& effect, const GrGLCaps&,
+        static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                            GrEffectKeyBuilder* b) {
-            const EllipseEdgeEffect& ellipseEffect = effect.cast<EllipseEdgeEffect>();
+            const EllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<EllipseEdgeEffect>();
             b->add32(ellipseEffect.isStroked());
         }
 
-        virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE {
+        virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {
         }
 
     private:
@@ -287,7 +287,7 @@ private:
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
-        const EllipseEdgeEffect& eee = other.cast<EllipseEdgeEffect>();
+        const EllipseEdgeEffect& eee = CastEffect<EllipseEdgeEffect>(other);
         return eee.fStroke == fStroke;
     }
 
@@ -361,17 +361,17 @@ public:
 
     class GLEffect : public GrGLGeometryProcessor {
     public:
-        GLEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {}
 
         virtual void emitCode(GrGLFullProgramBuilder* builder,
-                              const GrEffect& effect,
+                              const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
-            const DIEllipseEdgeEffect& ellipseEffect = effect.cast<DIEllipseEdgeEffect>();
+            const DIEllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<DIEllipseEdgeEffect>();
 
             const char *vsOffsetName0, *fsOffsetName0;
             builder->addVarying(kVec2f_GrSLType, "EllipseOffsets0",
@@ -427,14 +427,15 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
-        static void GenKey(const GrEffect& effect, const GrGLCaps&,
+        static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                            GrEffectKeyBuilder* b) {
-            const DIEllipseEdgeEffect& ellipseEffect = effect.cast<DIEllipseEdgeEffect>();
+            const DIEllipseEdgeEffect& ellipseEffect =
+                drawEffect.castEffect<DIEllipseEdgeEffect>();
 
             b->add32(ellipseEffect.getMode());
         }
 
-        virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE {
+        virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {
         }
 
     private:
@@ -455,7 +456,7 @@ private:
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
-        const DIEllipseEdgeEffect& eee = other.cast<DIEllipseEdgeEffect>();
+        const DIEllipseEdgeEffect& eee = CastEffect<DIEllipseEdgeEffect>(other);
         return eee.fMode == fMode;
     }
 

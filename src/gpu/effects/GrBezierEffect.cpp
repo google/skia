@@ -15,19 +15,19 @@
 
 class GrGLConicEffect : public GrGLGeometryProcessor {
 public:
-    GrGLConicEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GrGLConicEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
     virtual void emitCode(GrGLFullProgramBuilder* builder,
-                          const GrEffect& effect,
+                          const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE {}
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
 private:
     GrEffectEdgeType fEdgeType;
@@ -36,14 +36,14 @@ private:
 };
 
 GrGLConicEffect::GrGLConicEffect(const GrBackendEffectFactory& factory,
-                                 const GrEffect& effect)
+                                 const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
-    const GrConicEffect& ce = effect.cast<GrConicEffect>();
+    const GrConicEffect& ce = drawEffect.castEffect<GrConicEffect>();
     fEdgeType = ce.getEdgeType();
 }
 
 void GrGLConicEffect::emitCode(GrGLFullProgramBuilder* builder,
-                               const GrEffect& effect,
+                               const GrDrawEffect& drawEffect,
                                const GrEffectKey& key,
                                const char* outputColor,
                                const char* inputColor,
@@ -54,7 +54,7 @@ void GrGLConicEffect::emitCode(GrGLFullProgramBuilder* builder,
     builder->addVarying(kVec4f_GrSLType, "ConicCoeffs",
                               &vsName, &fsName);
 
-    const GrShaderVar& inConicCoeffs = effect.cast<GrConicEffect>().inConicCoeffs();
+    const GrShaderVar& inConicCoeffs = drawEffect.castEffect<GrConicEffect>().inConicCoeffs();
     GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
     vsBuilder->codeAppendf("%s = %s;", vsName, inConicCoeffs.c_str());
 
@@ -119,9 +119,9 @@ void GrGLConicEffect::emitCode(GrGLFullProgramBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
 }
 
-void GrGLConicEffect::GenKey(const GrEffect& effect, const GrGLCaps&,
+void GrGLConicEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                              GrEffectKeyBuilder* b) {
-    const GrConicEffect& ce = effect.cast<GrConicEffect>();
+    const GrConicEffect& ce = drawEffect.castEffect<GrConicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     b->add32(key);
 }
@@ -142,7 +142,7 @@ GrConicEffect::GrConicEffect(GrEffectEdgeType edgeType)
 }
 
 bool GrConicEffect::onIsEqual(const GrEffect& other) const {
-    const GrConicEffect& ce = other.cast<GrConicEffect>();
+    const GrConicEffect& ce = CastEffect<GrConicEffect>(other);
     return (ce.fEdgeType == fEdgeType);
 }
 
@@ -169,19 +169,19 @@ GrEffect* GrConicEffect::TestCreate(SkRandom* random,
 
 class GrGLQuadEffect : public GrGLGeometryProcessor {
 public:
-    GrGLQuadEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GrGLQuadEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
     virtual void emitCode(GrGLFullProgramBuilder* builder,
-                          const GrEffect& effect,
+                          const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE {}
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
 private:
     GrEffectEdgeType fEdgeType;
@@ -190,14 +190,14 @@ private:
 };
 
 GrGLQuadEffect::GrGLQuadEffect(const GrBackendEffectFactory& factory,
-                                 const GrEffect& effect)
+                                 const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
-    const GrQuadEffect& ce = effect.cast<GrQuadEffect>();
+    const GrQuadEffect& ce = drawEffect.castEffect<GrQuadEffect>();
     fEdgeType = ce.getEdgeType();
 }
 
 void GrGLQuadEffect::emitCode(GrGLFullProgramBuilder* builder,
-                              const GrEffect& effect,
+                              const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
@@ -207,7 +207,7 @@ void GrGLQuadEffect::emitCode(GrGLFullProgramBuilder* builder,
     builder->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
 
     GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
-    const GrShaderVar& inHairQuadEdge = effect.cast<GrQuadEffect>().inHairQuadEdge();
+    const GrShaderVar& inHairQuadEdge = drawEffect.castEffect<GrQuadEffect>().inHairQuadEdge();
     vsBuilder->codeAppendf("%s = %s;", vsName, inHairQuadEdge.c_str());
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
@@ -257,9 +257,9 @@ void GrGLQuadEffect::emitCode(GrGLFullProgramBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
 }
 
-void GrGLQuadEffect::GenKey(const GrEffect& effect, const GrGLCaps&,
+void GrGLQuadEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                             GrEffectKeyBuilder* b) {
-    const GrQuadEffect& ce = effect.cast<GrQuadEffect>();
+    const GrQuadEffect& ce = drawEffect.castEffect<GrQuadEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     b->add32(key);
 }
@@ -280,7 +280,7 @@ GrQuadEffect::GrQuadEffect(GrEffectEdgeType edgeType)
 }
 
 bool GrQuadEffect::onIsEqual(const GrEffect& other) const {
-    const GrQuadEffect& ce = other.cast<GrQuadEffect>();
+    const GrQuadEffect& ce = CastEffect<GrQuadEffect>(other);
     return (ce.fEdgeType == fEdgeType);
 }
 
@@ -307,19 +307,19 @@ GrEffect* GrQuadEffect::TestCreate(SkRandom* random,
 
 class GrGLCubicEffect : public GrGLGeometryProcessor {
 public:
-    GrGLCubicEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GrGLCubicEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
     virtual void emitCode(GrGLFullProgramBuilder* builder,
-                          const GrEffect& effect,
+                          const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE {}
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
 private:
     GrEffectEdgeType fEdgeType;
@@ -328,14 +328,14 @@ private:
 };
 
 GrGLCubicEffect::GrGLCubicEffect(const GrBackendEffectFactory& factory,
-                                 const GrEffect& effect)
+                                 const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
-    const GrCubicEffect& ce = effect.cast<GrCubicEffect>();
+    const GrCubicEffect& ce = drawEffect.castEffect<GrCubicEffect>();
     fEdgeType = ce.getEdgeType();
 }
 
 void GrGLCubicEffect::emitCode(GrGLFullProgramBuilder* builder,
-                               const GrEffect& effect,
+                               const GrDrawEffect& drawEffect,
                                const GrEffectKey& key,
                                const char* outputColor,
                                const char* inputColor,
@@ -347,7 +347,7 @@ void GrGLCubicEffect::emitCode(GrGLFullProgramBuilder* builder,
                               &vsName, &fsName, GrGLShaderVar::kHigh_Precision);
 
     GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
-    const GrShaderVar& inCubicCoeffs = effect.cast<GrCubicEffect>().inCubicCoeffs();
+    const GrShaderVar& inCubicCoeffs = drawEffect.castEffect<GrCubicEffect>().inCubicCoeffs();
     vsBuilder->codeAppendf("%s = %s;", vsName, inCubicCoeffs.c_str());
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
@@ -437,9 +437,9 @@ void GrGLCubicEffect::emitCode(GrGLFullProgramBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1(edgeAlpha.c_str())).c_str());
 }
 
-void GrGLCubicEffect::GenKey(const GrEffect& effect, const GrGLCaps&,
+void GrGLCubicEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                              GrEffectKeyBuilder* b) {
-    const GrCubicEffect& ce = effect.cast<GrCubicEffect>();
+    const GrCubicEffect& ce = drawEffect.castEffect<GrCubicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     b->add32(key);
 }
@@ -460,7 +460,7 @@ GrCubicEffect::GrCubicEffect(GrEffectEdgeType edgeType)
 }
 
 bool GrCubicEffect::onIsEqual(const GrEffect& other) const {
-    const GrCubicEffect& ce = other.cast<GrCubicEffect>();
+    const GrCubicEffect& ce = CastEffect<GrCubicEffect>(other);
     return (ce.fEdgeType == fEdgeType);
 }
 

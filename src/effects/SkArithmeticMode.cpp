@@ -249,20 +249,20 @@ SkXfermode* SkArithmeticMode::Create(SkScalar k1, SkScalar k2,
 
 class GrGLArithmeticEffect : public GrGLEffect {
 public:
-    GrGLArithmeticEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GrGLArithmeticEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
     virtual ~GrGLArithmeticEffect();
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrEffect&,
+                          const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static void GenKey(const GrEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
+    static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
 private:
     GrGLProgramDataManager::UniformHandle fKUni;
@@ -330,7 +330,7 @@ GrArithmeticEffect::~GrArithmeticEffect() {
 }
 
 bool GrArithmeticEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrArithmeticEffect& s = sBase.cast<GrArithmeticEffect>();
+    const GrArithmeticEffect& s = CastEffect<GrArithmeticEffect>(sBase);
     return fK1 == s.fK1 &&
            fK2 == s.fK2 &&
            fK3 == s.fK3 &&
@@ -351,7 +351,7 @@ void GrArithmeticEffect::getConstantColorComponents(GrColor* color, uint32_t* va
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLArithmeticEffect::GrGLArithmeticEffect(const GrBackendEffectFactory& factory,
-                                           const GrEffect& effect)
+                                           const GrDrawEffect& drawEffect)
    : INHERITED(factory),
      fEnforcePMColor(true) {
 }
@@ -360,14 +360,14 @@ GrGLArithmeticEffect::~GrGLArithmeticEffect() {
 }
 
 void GrGLArithmeticEffect::emitCode(GrGLProgramBuilder* builder,
-                                    const GrEffect& effect,
+                                    const GrDrawEffect& drawEffect,
                                     const GrEffectKey& key,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TransformedCoordsArray& coords,
                                     const TextureSamplerArray& samplers) {
 
-    GrTexture* backgroundTex = effect.cast<GrArithmeticEffect>().backgroundTexture();
+    GrTexture* backgroundTex = drawEffect.castEffect<GrArithmeticEffect>().backgroundTexture();
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* dstColor;
     if (backgroundTex) {
@@ -408,15 +408,15 @@ void GrGLArithmeticEffect::emitCode(GrGLProgramBuilder* builder,
     }
 }
 
-void GrGLArithmeticEffect::setData(const GrGLProgramDataManager& pdman, const GrEffect& effect) {
-    const GrArithmeticEffect& arith = effect.cast<GrArithmeticEffect>();
+void GrGLArithmeticEffect::setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) {
+    const GrArithmeticEffect& arith = drawEffect.castEffect<GrArithmeticEffect>();
     pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
     fEnforcePMColor = arith.enforcePMColor();
 }
 
-void GrGLArithmeticEffect::GenKey(const GrEffect& effect,
+void GrGLArithmeticEffect::GenKey(const GrDrawEffect& drawEffect,
                                   const GrGLCaps&, GrEffectKeyBuilder* b) {
-    const GrArithmeticEffect& arith = effect.cast<GrArithmeticEffect>();
+    const GrArithmeticEffect& arith = drawEffect.castEffect<GrArithmeticEffect>();
     uint32_t key = arith.enforcePMColor() ? 1 : 0;
     if (arith.backgroundTexture()) {
         key |= 2;

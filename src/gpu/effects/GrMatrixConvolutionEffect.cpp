@@ -14,18 +14,18 @@
 class GrGLMatrixConvolutionEffect : public GrGLEffect {
 public:
     GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
-                                const GrEffect& effect);
+                                const GrDrawEffect& effect);
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrEffect&,
+                          const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -44,22 +44,22 @@ private:
 };
 
 GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
-                                                         const GrEffect& effect)
+                                                         const GrDrawEffect& drawEffect)
     : INHERITED(factory) {
-    const GrMatrixConvolutionEffect& m = effect.cast<GrMatrixConvolutionEffect>();
+    const GrMatrixConvolutionEffect& m = drawEffect.castEffect<GrMatrixConvolutionEffect>();
     fKernelSize = m.kernelSize();
     fConvolveAlpha = m.convolveAlpha();
 }
 
 void GrGLMatrixConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
-                                           const GrEffect& effect,
+                                           const GrDrawEffect& drawEffect,
                                            const GrEffectKey& key,
                                            const char* outputColor,
                                            const char* inputColor,
                                            const TransformedCoordsArray& coords,
                                            const TextureSamplerArray& samplers) {
     sk_ignore_unused_variable(inputColor);
-    const GrTextureDomain& domain = effect.cast<GrMatrixConvolutionEffect>().domain();
+    const GrTextureDomain& domain = drawEffect.castEffect<GrMatrixConvolutionEffect>().domain();
 
     fBoundsUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                      kVec4f_GrSLType, "Bounds");
@@ -120,9 +120,9 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
     fsBuilder->codeAppend(modulate.c_str());
 }
 
-void GrGLMatrixConvolutionEffect::GenKey(const GrEffect& effect,
+void GrGLMatrixConvolutionEffect::GenKey(const GrDrawEffect& drawEffect,
                                          const GrGLCaps&, GrEffectKeyBuilder* b) {
-    const GrMatrixConvolutionEffect& m = effect.cast<GrMatrixConvolutionEffect>();
+    const GrMatrixConvolutionEffect& m = drawEffect.castEffect<GrMatrixConvolutionEffect>();
     SkASSERT(m.kernelSize().width() <= 0x7FFF && m.kernelSize().height() <= 0xFFFF);
     uint32_t key = m.kernelSize().width() << 16 | m.kernelSize().height();
     key |= m.convolveAlpha() ? 1 << 31 : 0;
@@ -131,8 +131,8 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrEffect& effect,
 }
 
 void GrGLMatrixConvolutionEffect::setData(const GrGLProgramDataManager& pdman,
-                                          const GrEffect& effect) {
-    const GrMatrixConvolutionEffect& conv = effect.cast<GrMatrixConvolutionEffect>();
+                                          const GrDrawEffect& drawEffect) {
+    const GrMatrixConvolutionEffect& conv = drawEffect.castEffect<GrMatrixConvolutionEffect>();
     GrTexture& texture = *conv.texture(0);
     // the code we generated was for a specific kernel size
     SkASSERT(conv.kernelSize() == fKernelSize);
@@ -178,7 +178,7 @@ const GrBackendEffectFactory& GrMatrixConvolutionEffect::getFactory() const {
 }
 
 bool GrMatrixConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrMatrixConvolutionEffect& s = sBase.cast<GrMatrixConvolutionEffect>();
+    const GrMatrixConvolutionEffect& s = CastEffect<GrMatrixConvolutionEffect>(sBase);
     return this->texture(0) == s.texture(0) &&
            fKernelSize == s.kernelSize() &&
            !memcmp(fKernel, s.kernel(),

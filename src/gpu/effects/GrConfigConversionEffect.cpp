@@ -16,15 +16,15 @@
 class GrGLConfigConversionEffect : public GrGLEffect {
 public:
     GrGLConfigConversionEffect(const GrBackendEffectFactory& factory,
-                               const GrEffect& effect)
+                               const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
-        const GrConfigConversionEffect& configConversionEffect = effect.cast<GrConfigConversionEffect>();
-        fSwapRedAndBlue = configConversionEffect.swapsRedAndBlue();
-        fPMConversion = configConversionEffect.pmConversion();
+        const GrConfigConversionEffect& effect = drawEffect.castEffect<GrConfigConversionEffect>();
+        fSwapRedAndBlue = effect.swapsRedAndBlue();
+        fPMConversion = effect.pmConversion();
     }
 
     virtual void emitCode(GrGLProgramBuilder* builder,
-                          const GrEffect&,
+                          const GrDrawEffect&,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
@@ -84,9 +84,9 @@ public:
         fsBuilder->codeAppend(modulate.c_str());
     }
 
-    static inline void GenKey(const GrEffect& effect, const GrGLCaps&,
+    static inline void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                               GrEffectKeyBuilder* b) {
-        const GrConfigConversionEffect& conv = effect.cast<GrConfigConversionEffect>();
+        const GrConfigConversionEffect& conv = drawEffect.castEffect<GrConfigConversionEffect>();
         uint32_t key = (conv.swapsRedAndBlue() ? 0 : 1) | (conv.pmConversion() << 1);
         b->add32(key);
     }
@@ -119,7 +119,7 @@ const GrBackendEffectFactory& GrConfigConversionEffect::getFactory() const {
 }
 
 bool GrConfigConversionEffect::onIsEqual(const GrEffect& s) const {
-    const GrConfigConversionEffect& other = s.cast<GrConfigConversionEffect>();
+    const GrConfigConversionEffect& other = CastEffect<GrConfigConversionEffect>(s);
     return this->texture(0) == s.texture(0) &&
            other.fSwapRedAndBlue == fSwapRedAndBlue &&
            other.fPMConversion == fPMConversion;

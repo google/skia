@@ -10,6 +10,7 @@
 
 #include "GrSingleTextureEffect.h"
 #include "GrTextureDomain.h"
+#include "GrDrawEffect.h"
 #include "gl/GrGLEffect.h"
 #include "GrTBackendEffectFactory.h"
 

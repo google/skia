@@ -478,19 +478,19 @@ private:
 
 class GLDashingCircleEffect : public GrGLGeometryProcessor {
 public:
-    GLDashingCircleEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GLDashingCircleEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
     virtual void emitCode(GrGLFullProgramBuilder* builder,
-                          const GrEffect& effect,
+                          const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
     GrGLProgramDataManager::UniformHandle fParamUniform;
@@ -501,7 +501,7 @@ private:
 };
 
 GLDashingCircleEffect::GLDashingCircleEffect(const GrBackendEffectFactory& factory,
-                                             const GrEffect& effect)
+                                             const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
     fPrevRadius = SK_ScalarMin;
     fPrevCenterX = SK_ScalarMin;
@@ -509,13 +509,13 @@ GLDashingCircleEffect::GLDashingCircleEffect(const GrBackendEffectFactory& facto
 }
 
 void GLDashingCircleEffect::emitCode(GrGLFullProgramBuilder* builder,
-                                    const GrEffect& effect,
+                                    const GrDrawEffect& drawEffect,
                                     const GrEffectKey& key,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TransformedCoordsArray&,
                                     const TextureSamplerArray& samplers) {
-    const DashingCircleEffect& dce = effect.cast<DashingCircleEffect>();
+    const DashingCircleEffect& dce = drawEffect.castEffect<DashingCircleEffect>();
     const char *paramName;
     // The param uniforms, xyz, refer to circle radius - 0.5, cicles center x coord, and
     // the total interval length of the dash.
@@ -549,8 +549,8 @@ void GLDashingCircleEffect::emitCode(GrGLFullProgramBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman, const GrEffect& effect) {
-    const DashingCircleEffect& dce = effect.cast<DashingCircleEffect>();
+void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) {
+    const DashingCircleEffect& dce = drawEffect.castEffect<DashingCircleEffect>();
     SkScalar radius = dce.getRadius();
     SkScalar centerX = dce.getCenterX();
     SkScalar intervalLength = dce.getIntervalLength();
@@ -562,9 +562,9 @@ void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman, const G
     }
 }
 
-void GLDashingCircleEffect::GenKey(const GrEffect& effect, const GrGLCaps&,
+void GLDashingCircleEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                                    GrEffectKeyBuilder* b) {
-    const DashingCircleEffect& dce = effect.cast<DashingCircleEffect>();
+    const DashingCircleEffect& dce = drawEffect.castEffect<DashingCircleEffect>();
     b->add32(dce.getEdgeType());
 }
 
@@ -603,7 +603,7 @@ DashingCircleEffect::DashingCircleEffect(GrEffectEdgeType edgeType, const DashIn
 }
 
 bool DashingCircleEffect::onIsEqual(const GrEffect& other) const {
-    const DashingCircleEffect& dce = other.cast<DashingCircleEffect>();
+    const DashingCircleEffect& dce = CastEffect<DashingCircleEffect>(other);
     return (fEdgeType == dce.fEdgeType &&
             fIntervalLength == dce.fIntervalLength &&
             fRadius == dce.fRadius &&
@@ -688,19 +688,19 @@ private:
 
 class GLDashingLineEffect : public GrGLGeometryProcessor {
 public:
-    GLDashingLineEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GLDashingLineEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
     virtual void emitCode(GrGLFullProgramBuilder* builder,
-                          const GrEffect& effect,
+                          const GrDrawEffect& drawEffect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
     GrGLProgramDataManager::UniformHandle fRectUniform;
@@ -711,20 +711,20 @@ private:
 };
 
 GLDashingLineEffect::GLDashingLineEffect(const GrBackendEffectFactory& factory,
-                                     const GrEffect& effect)
+                                     const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
     fPrevRect.fLeft = SK_ScalarNaN;
     fPrevIntervalLength = SK_ScalarMax;
 }
 
 void GLDashingLineEffect::emitCode(GrGLFullProgramBuilder* builder,
-                                    const GrEffect& effect,
+                                    const GrDrawEffect& drawEffect,
                                     const GrEffectKey& key,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TransformedCoordsArray&,
                                     const TextureSamplerArray& samplers) {
-    const DashingLineEffect& de = effect.cast<DashingLineEffect>();
+    const DashingLineEffect& de = drawEffect.castEffect<DashingLineEffect>();
     const char *rectName;
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
@@ -770,8 +770,8 @@ void GLDashingLineEffect::emitCode(GrGLFullProgramBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman, const GrEffect& effect) {
-    const DashingLineEffect& de = effect.cast<DashingLineEffect>();
+void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman, const GrDrawEffect& drawEffect) {
+    const DashingLineEffect& de = drawEffect.castEffect<DashingLineEffect>();
     const SkRect& rect = de.getRect();
     SkScalar intervalLength = de.getIntervalLength();
     if (rect != fPrevRect || intervalLength != fPrevIntervalLength) {
@@ -783,9 +783,9 @@ void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman, const GrE
     }
 }
 
-void GLDashingLineEffect::GenKey(const GrEffect& effect, const GrGLCaps&,
+void GLDashingLineEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                                  GrEffectKeyBuilder* b) {
-    const DashingLineEffect& de = effect.cast<DashingLineEffect>();
+    const DashingLineEffect& de = drawEffect.castEffect<DashingLineEffect>();
     b->add32(de.getEdgeType());
 }
 
@@ -825,7 +825,7 @@ DashingLineEffect::DashingLineEffect(GrEffectEdgeType edgeType, const DashInfo& 
 }
 
 bool DashingLineEffect::onIsEqual(const GrEffect& other) const {
-    const DashingLineEffect& de = other.cast<DashingLineEffect>();
+    const DashingLineEffect& de = CastEffect<DashingLineEffect>(other);
     return (fEdgeType == de.fEdgeType &&
             fRect == de.fRect &&
             fIntervalLength == de.fIntervalLength);

@@ -22,21 +22,21 @@ const SkScalar GrBicubicEffect::gMitchellCoefficients[16] = {
 class GrGLBicubicEffect : public GrGLEffect {
 public:
     GrGLBicubicEffect(const GrBackendEffectFactory& factory,
-                      const GrEffect&);
+                      const GrDrawEffect&);
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrEffect&,
+                          const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect& effect, const GrGLCaps&,
+    static inline void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                               GrEffectKeyBuilder* b) {
-        const GrTextureDomain& domain = effect.cast<GrBicubicEffect>().domain();
+        const GrTextureDomain& domain = drawEffect.castEffect<GrBicubicEffect>().domain();
         b->add32(GrTextureDomain::GLDomain::DomainKey(domain));
     }
 
@@ -50,18 +50,18 @@ private:
     typedef GrGLEffect INHERITED;
 };
 
-GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
     : INHERITED(factory) {
 }
 
 void GrGLBicubicEffect::emitCode(GrGLProgramBuilder* builder,
-                                 const GrEffect& effect,
+                                 const GrDrawEffect& drawEffect,
                                  const GrEffectKey& key,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const TransformedCoordsArray& coords,
                                  const TextureSamplerArray& samplers) {
-    const GrTextureDomain& domain = effect.cast<GrBicubicEffect>().domain();
+    const GrTextureDomain& domain = drawEffect.castEffect<GrBicubicEffect>().domain();
 
     fCoefficientsUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                            kMat44f_GrSLType, "Coefficients");
@@ -116,15 +116,15 @@ void GrGLBicubicEffect::emitCode(GrGLProgramBuilder* builder,
 }
 
 void GrGLBicubicEffect::setData(const GrGLProgramDataManager& pdman,
-                                const GrEffect& effect) {
-    const GrBicubicEffect& bicubicEffect = effect.cast<GrBicubicEffect>();
+                                const GrDrawEffect& drawEffect) {
+    const GrBicubicEffect& effect = drawEffect.castEffect<GrBicubicEffect>();
     const GrTexture& texture = *effect.texture(0);
     float imageIncrement[2];
     imageIncrement[0] = 1.0f / texture.width();
     imageIncrement[1] = 1.0f / texture.height();
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
-    pdman.setMatrix4f(fCoefficientsUni, bicubicEffect.coefficients());
-    fDomain.setData(pdman, bicubicEffect.domain(), texture.origin());
+    pdman.setMatrix4f(fCoefficientsUni, effect.coefficients());
+    fDomain.setData(pdman, effect.domain(), texture.origin());
 }
 
 static inline void convert_row_major_scalar_coeffs_to_column_major_floats(float dst[16],
@@ -163,7 +163,7 @@ const GrBackendEffectFactory& GrBicubicEffect::getFactory() const {
 }
 
 bool GrBicubicEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrBicubicEffect& s = sBase.cast<GrBicubicEffect>();
+    const GrBicubicEffect& s = CastEffect<GrBicubicEffect>(sBase);
     return this->textureAccess(0) == s.textureAccess(0) &&
            !memcmp(fCoefficients, s.coefficients(), 16) &&
            fDomain == s.fDomain;

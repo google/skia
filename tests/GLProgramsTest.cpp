@@ -14,6 +14,7 @@
 
 #include "GrBackendEffectFactory.h"
 #include "GrContextFactory.h"
+#include "GrDrawEffect.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "gl/GrGLPathRendering.h"
 #include "gl/GrGpuGL.h"
@@ -55,6 +56,7 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
             fKey.reset();
             return false;
         }
+        GrDrawEffect drawEffect(*stage, useLocalCoords);
         GrEffectKeyBuilder b(&fKey);
         uint16_t effectKeySize;
         if (!GetEffectKeyAndUpdateStats(*stage, gpu->glCaps(), useLocalCoords, &b,
@@ -77,6 +79,7 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
             fKey.reset();
             return false;
         }
+        GrDrawEffect drawEffect(*stage, useLocalCoords);
         GrEffectKeyBuilder b(&fKey);
         uint16_t effectKeySize;
         if (!GetEffectKeyAndUpdateStats(*stage, gpu->glCaps(), useLocalCoords, &b,

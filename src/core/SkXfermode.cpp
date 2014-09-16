@@ -818,19 +818,18 @@ public:
 
     class GLEffect : public GrGLEffect {
     public:
-        GLEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
             : GrGLEffect(factory) {
         }
         virtual void emitCode(GrGLProgramBuilder* builder,
-                              const GrEffect& effect,
+                              const GrDrawEffect& drawEffect,
                               const GrEffectKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray& coords,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
-            SkXfermode::Mode mode = effect.cast<XferEffect>().mode();
-            const GrTexture* backgroundTex =
-                    effect.cast<XferEffect>().backgroundAccess().getTexture();
+            SkXfermode::Mode mode = drawEffect.castEffect<XferEffect>().mode();
+            const GrTexture* backgroundTex = drawEffect.castEffect<XferEffect>().backgroundAccess().getTexture();
             GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             const char* dstColor;
             if (backgroundTex) {
@@ -971,12 +970,12 @@ public:
             }
         }
 
-        static inline void GenKey(const GrEffect& effect, const GrGLCaps&,
+        static inline void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                                   GrEffectKeyBuilder* b) {
             // The background may come from the dst or from a texture.
-            uint32_t key = effect.numTextures();
+            uint32_t key = drawEffect.effect()->numTextures();
             SkASSERT(key <= 1);
-            key |= effect.cast<XferEffect>().mode() << 1;
+            key |= drawEffect.castEffect<XferEffect>().mode() << 1;
             b->add32(key);
         }
 
@@ -1215,7 +1214,7 @@ private:
         }
     }
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
-        const XferEffect& s = other.cast<XferEffect>();
+        const XferEffect& s = CastEffect<XferEffect>(other);
         return fMode == s.fMode &&
                fBackgroundAccess.getTexture() == s.fBackgroundAccess.getTexture();
     }

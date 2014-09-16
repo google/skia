@@ -167,19 +167,19 @@ void GrTextureDomain::GLDomain::setData(const GrGLProgramDataManager& pdman,
 
 class GrGLTextureDomainEffect : public GrGLEffect {
 public:
-    GrGLTextureDomainEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GrGLTextureDomainEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrEffect&,
+                          const GrDrawEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
+    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
 private:
     GrTextureDomain::GLDomain         fGLDomain;
@@ -187,19 +187,19 @@ private:
 };
 
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& factory,
-                                                 const GrEffect&)
+                                                 const GrDrawEffect&)
     : INHERITED(factory) {
 }
 
 void GrGLTextureDomainEffect::emitCode(GrGLProgramBuilder* builder,
-                                       const GrEffect& effect,
+                                       const GrDrawEffect& drawEffect,
                                        const GrEffectKey& key,
                                        const char* outputColor,
                                        const char* inputColor,
                                        const TransformedCoordsArray& coords,
                                        const TextureSamplerArray& samplers) {
-    const GrTextureDomainEffect& textureDomainEffect = effect.cast<GrTextureDomainEffect>();
-    const GrTextureDomain& domain = textureDomainEffect.textureDomain();
+    const GrTextureDomainEffect& effect = drawEffect.castEffect<GrTextureDomainEffect>();
+    const GrTextureDomain& domain = effect.textureDomain();
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
@@ -207,15 +207,15 @@ void GrGLTextureDomainEffect::emitCode(GrGLProgramBuilder* builder,
 }
 
 void GrGLTextureDomainEffect::setData(const GrGLProgramDataManager& pdman,
-                                      const GrEffect& effect) {
-    const GrTextureDomainEffect& textureDomainEffect = effect.cast<GrTextureDomainEffect>();
-    const GrTextureDomain& domain = textureDomainEffect.textureDomain();
+                                      const GrDrawEffect& drawEffect) {
+    const GrTextureDomainEffect& effect = drawEffect.castEffect<GrTextureDomainEffect>();
+    const GrTextureDomain& domain = effect.textureDomain();
     fGLDomain.setData(pdman, domain, effect.texture(0)->origin());
 }
 
-void GrGLTextureDomainEffect::GenKey(const GrEffect& effect, const GrGLCaps&,
+void GrGLTextureDomainEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
                                      GrEffectKeyBuilder* b) {
-    const GrTextureDomain& domain = effect.cast<GrTextureDomainEffect>().textureDomain();
+    const GrTextureDomain& domain = drawEffect.castEffect<GrTextureDomainEffect>().textureDomain();
     b->add32(GrTextureDomain::GLDomain::DomainKey(domain));
 }
 
@@ -264,7 +264,7 @@ const GrBackendEffectFactory& GrTextureDomainEffect::getFactory() const {
 }
 
 bool GrTextureDomainEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrTextureDomainEffect& s = sBase.cast<GrTextureDomainEffect>();
+    const GrTextureDomainEffect& s = CastEffect<GrTextureDomainEffect>(sBase);
     return this->hasSameTextureParamsMatrixAndSourceCoords(s) &&
            this->fTextureDomain == s.fTextureDomain;
 }
