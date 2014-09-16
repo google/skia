@@ -1993,7 +1993,6 @@ public:
         if (device->filterTextFlags(paint, &flags)) {
             SkPaint* newPaint = fLazy.set(paint);
             newPaint->setFlags(flags.fFlags);
-            newPaint->setHinting(flags.fHinting);
             fPaint = newPaint;
         } else {
             fPaint = &paint;

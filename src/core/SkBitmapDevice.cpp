@@ -386,9 +386,9 @@ bool SkBitmapDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
         paint.isFakeBoldText() ||
         paint.getStyle() != SkPaint::kFill_Style ||
         !SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode)) {
-        // turn off lcd
+        // turn off lcd, but turn on kGenA8
         flags->fFlags = paint.getFlags() & ~SkPaint::kLCDRenderText_Flag;
-        flags->fHinting = paint.getHinting();
+        flags->fFlags |= SkPaint::kGenA8FromLCD_Flag;
         return true;
     }
     // we're cool with the paint as is

@@ -138,8 +138,7 @@ protected:
     };
 
     struct TextFlags {
-        uint32_t            fFlags;     // SkPaint::getFlags()
-        SkPaint::Hinting    fHinting;
+        uint32_t    fFlags;     // SkPaint::getFlags()
     };
 
     /**
