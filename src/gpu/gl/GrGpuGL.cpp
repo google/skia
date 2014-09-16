@@ -1819,14 +1819,13 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
                 this->flushScissor(rt->getViewport(), rt->origin());
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
-                if (GrGLCaps::kDesktop_EXT_MSFBOType == this->glCaps().msFBOType()) {
-                    // this respects the scissor during the blit, so disable it.
-                    asr.reset(&fScissorState);
-                    fScissorState.fEnabled = false;
-                    this->flushScissor(rt->getViewport(), rt->origin());
-                }
                 int right = r.fLeft + r.fWidth;
                 int top = r.fBottom + r.fHeight;
+
+                // BlitFrameBuffer respects the scissor, so disable it.
+                asr.reset(&fScissorState);
+                fScissorState.fEnabled = false;
+                this->flushScissor(rt->getViewport(), rt->origin());
                 GL_CALL(BlitFramebuffer(r.fLeft, r.fBottom, right, top,
                                         r.fLeft, r.fBottom, right, top,
                                         GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
@@ -2495,12 +2494,11 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
                                     dst->origin());
 
             GrAutoTRestore<ScissorState> asr;
-            if (GrGLCaps::kDesktop_EXT_MSFBOType == this->glCaps().msFBOType()) {
-                // The EXT version applies the scissor during the blit, so disable it.
-                asr.reset(&fScissorState);
-                fScissorState.fEnabled = false;
-                this->flushScissor(dstGLRect, dst->origin());
-            }
+            // BlitFrameBuffer respects the scissor, so disable it.
+            asr.reset(&fScissorState);
+            fScissorState.fEnabled = false;
+            this->flushScissor(dstGLRect, dst->origin());
+
             GrGLint srcY0;
             GrGLint srcY1;
             // Does the blit need to y-mirror or not?
