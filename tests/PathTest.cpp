@@ -1195,6 +1195,17 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     stroke.applyToPath(&strokedSin, strokedSin);
     check_convexity(reporter, strokedSin, SkPath::kConcave_Convexity);
     check_direction(reporter, strokedSin, kDontCheckDir);
+
+    // http://crbug.com/412640
+    SkPath degenerateConcave;
+    degenerateConcave.moveTo(148.67912f, 191.875f);
+    degenerateConcave.lineTo(470.37695f, 7.5f);
+    degenerateConcave.lineTo(148.67912f, 191.875f);
+    degenerateConcave.lineTo(41.446522f, 376.25f);
+    degenerateConcave.lineTo(-55.971577f, 460.0f);
+    degenerateConcave.lineTo(41.446522f, 376.25f);
+    check_convexity(reporter, degenerateConcave, SkPath::kConcave_Convexity);
+    check_direction(reporter, degenerateConcave, SkPath::kUnknown_Direction);
 }
 
 static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
