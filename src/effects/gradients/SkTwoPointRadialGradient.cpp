@@ -408,19 +408,19 @@ class GrGLRadial2Gradient : public GrGLGradientEffect {
 
 public:
 
-    GrGLRadial2Gradient(const GrBackendEffectFactory& factory, const GrDrawEffect&);
+    GrGLRadial2Gradient(const GrBackendEffectFactory& factory, const GrEffect&);
     virtual ~GrGLRadial2Gradient() { }
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
 
-    static void GenKey(const GrDrawEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
+    static void GenKey(const GrEffect&, const GrGLCaps& caps, GrEffectKeyBuilder* b);
 
 protected:
 
@@ -474,7 +474,7 @@ public:
 
 private:
     virtual bool onIsEqual(const GrEffect& sBase) const SK_OVERRIDE {
-        const GrRadial2Gradient& s = CastEffect<GrRadial2Gradient>(sBase);
+        const GrRadial2Gradient& s = sBase.cast<GrRadial2Gradient>();
         return (INHERITED::onIsEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&
                 this->fRadius0 == s.fRadius0 &&
@@ -555,7 +555,7 @@ GrEffect* GrRadial2Gradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 GrGLRadial2Gradient::GrGLRadial2Gradient(const GrBackendEffectFactory& factory,
-                                         const GrDrawEffect& drawEffect)
+                                         const GrEffect& effect)
     : INHERITED(factory)
     , fVSVaryingName(NULL)
     , fFSVaryingName(NULL)
@@ -563,12 +563,12 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(const GrBackendEffectFactory& factory,
     , fCachedRadius(-SK_ScalarMax)
     , fCachedPosRoot(0) {
 
-    const GrRadial2Gradient& data = drawEffect.castEffect<GrRadial2Gradient>();
+    const GrRadial2Gradient& data = effect.cast<GrRadial2Gradient>();
     fIsDegenerate = data.isDegenerate();
 }
 
 void GrGLRadial2Gradient::emitCode(GrGLProgramBuilder* builder,
-                                   const GrDrawEffect& drawEffect,
+                                   const GrEffect& effect,
                                    const GrEffectKey& key,
                                    const char* outputColor,
                                    const char* inputColor,
@@ -642,9 +642,9 @@ void GrGLRadial2Gradient::emitCode(GrGLProgramBuilder* builder,
 }
 
 void GrGLRadial2Gradient::setData(const GrGLProgramDataManager& pdman,
-                                  const GrDrawEffect& drawEffect) {
-    INHERITED::setData(pdman, drawEffect);
-    const GrRadial2Gradient& data = drawEffect.castEffect<GrRadial2Gradient>();
+                                  const GrEffect& effect) {
+    INHERITED::setData(pdman, effect);
+    const GrRadial2Gradient& data = effect.cast<GrRadial2Gradient>();
     SkASSERT(data.isDegenerate() == fIsDegenerate);
     SkScalar centerX1 = data.center();
     SkScalar radius0 = data.radius();
@@ -675,11 +675,11 @@ void GrGLRadial2Gradient::setData(const GrGLProgramDataManager& pdman,
     }
 }
 
-void GrGLRadial2Gradient::GenKey(const GrDrawEffect& drawEffect,
+void GrGLRadial2Gradient::GenKey(const GrEffect& effect,
                                  const GrGLCaps&, GrEffectKeyBuilder* b) {
     uint32_t* key = b->add32n(2);
-    key[0] = GenBaseGradientKey(drawEffect);
-    key[1] = drawEffect.castEffect<GrRadial2Gradient>().isDegenerate();
+    key[0] = GenBaseGradientKey(effect);
+    key[1] = effect.cast<GrRadial2Gradient>().isDegenerate();
 }
 
 /////////////////////////////////////////////////////////////////////

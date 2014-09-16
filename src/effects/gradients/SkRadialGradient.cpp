@@ -477,19 +477,19 @@ class GrGLRadialGradient : public GrGLGradientEffect {
 public:
 
     GrGLRadialGradient(const GrBackendEffectFactory& factory,
-                       const GrDrawEffect&) : INHERITED (factory) { }
+                       const GrEffect&) : INHERITED (factory) { }
     virtual ~GrGLRadialGradient() { }
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&, GrEffectKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(drawEffect));
+    static void GenKey(const GrEffect& effect, const GrGLCaps&, GrEffectKeyBuilder* b) {
+        b->add32(GenBaseGradientKey(effect));
     }
 
 private:
@@ -560,7 +560,7 @@ GrEffect* GrRadialGradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLRadialGradient::emitCode(GrGLProgramBuilder* builder,
-                                  const GrDrawEffect&,
+                                  const GrEffect&,
                                   const GrEffectKey& key,
                                   const char* outputColor,
                                   const char* inputColor,

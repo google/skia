@@ -8,7 +8,6 @@
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrGLProgramDesc.h"
 #include "GrBackendEffectFactory.h"
-#include "GrDrawEffect.h"
 #include "GrEffect.h"
 #include "GrGpuGL.h"
 #include "GrOptDrawState.h"
@@ -24,24 +23,27 @@ bool GrGLProgramDesc::GetEffectKeyAndUpdateStats(const GrEffectStage& stage,
                                                  bool* setTrueIfReadsPos,
                                                  bool* setTrueIfRequiresVertexShader) {
     const GrBackendEffectFactory& factory = stage.getEffect()->getFactory();
-    GrDrawEffect drawEffect(stage, useExplicitLocalCoords);
-    if (stage.getEffect()->willReadDstColor()) {
+    const GrEffect& effect = *stage.getEffect();
+    if (effect.willReadDstColor()) {
         *setTrueIfReadsDst = true;
     }
-    if (stage.getEffect()->willReadFragmentPosition()) {
+    if (effect.willReadFragmentPosition()) {
         *setTrueIfReadsPos = true;
     }
-    if (stage.getEffect()->requiresVertexShader()) {
+    if (effect.requiresVertexShader()) {
         *setTrueIfRequiresVertexShader = true;
     }
-    factory.getGLEffectKey(drawEffect, caps, b);
+    factory.getGLEffectKey(effect, caps, b);
     size_t size = b->size();
     if (size > SK_MaxU16) {
         *effectKeySize = 0; // suppresses a warning.
         return false;
     }
     *effectKeySize = SkToU16(size);
-    if (!GrGLProgramEffects::GenEffectMetaKey(drawEffect, caps, b)) {
+    if (!GrGLProgramEffects::GenEffectMetaKey(stage,
+                                              useExplicitLocalCoords,
+                                              caps,
+                                              b)) {
         return false;
     }
     return true;

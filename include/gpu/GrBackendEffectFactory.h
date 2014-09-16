@@ -16,7 +16,7 @@
 
 class GrGLEffect;
 class GrGLCaps;
-class GrDrawEffect;
+class GrEffect;
 
 /**
  * Used by effects to build their keys. It incorporates each per-effect key into a larger shader key.
@@ -96,13 +96,13 @@ public:
      * configuration that affect GLSL code generation. Two GrEffect instances that would cause
      * this->createGLInstance()->emitCode() to produce different code must produce different keys.
      */
-    virtual void getGLEffectKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) const = 0;
+    virtual void getGLEffectKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*) const = 0;
 
     /**
      * Creates a GrGLEffect instance that is used both to generate code for the GrEffect in a GLSL
      * program and to manage updating uniforms for the program when it is used.
      */
-    virtual GrGLEffect* createGLInstance(const GrDrawEffect&) const = 0;
+    virtual GrGLEffect* createGLInstance(const GrEffect&) const = 0;
 
     /**
      * Produces a human-reable name for the effect.

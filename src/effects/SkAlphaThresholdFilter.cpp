@@ -118,17 +118,17 @@ private:
 
 class GrGLAlphaThresholdEffect : public GrGLEffect {
 public:
-    GrGLAlphaThresholdEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
+    GrGLAlphaThresholdEffect(const GrBackendEffectFactory&, const GrEffect&);
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
 
 private:
 
@@ -138,12 +138,13 @@ private:
     typedef GrGLEffect INHERITED;
 };
 
-GrGLAlphaThresholdEffect::GrGLAlphaThresholdEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+GrGLAlphaThresholdEffect::GrGLAlphaThresholdEffect(const GrBackendEffectFactory& factory,
+                                                   const GrEffect&)
     : INHERITED(factory) {
 }
 
 void GrGLAlphaThresholdEffect::emitCode(GrGLProgramBuilder* builder,
-                                        const GrDrawEffect&,
+                                        const GrEffect&,
                                         const GrEffectKey& key,
                                         const char* outputColor,
                                         const char* inputColor,
@@ -193,9 +194,8 @@ void GrGLAlphaThresholdEffect::emitCode(GrGLProgramBuilder* builder,
 }
 
 void GrGLAlphaThresholdEffect::setData(const GrGLProgramDataManager& pdman,
-                                  const GrDrawEffect& drawEffect) {
-    const AlphaThresholdEffect& alpha_threshold =
-        drawEffect.castEffect<AlphaThresholdEffect>();
+                                       const GrEffect& effect) {
+    const AlphaThresholdEffect& alpha_threshold = effect.cast<AlphaThresholdEffect>();
     pdman.set1f(fInnerThresholdVar, alpha_threshold.innerThreshold());
     pdman.set1f(fOuterThresholdVar, alpha_threshold.outerThreshold());
 }
@@ -222,7 +222,7 @@ const GrBackendEffectFactory& AlphaThresholdEffect::getFactory() const {
 }
 
 bool AlphaThresholdEffect::onIsEqual(const GrEffect& sBase) const {
-    const AlphaThresholdEffect& s = CastEffect<AlphaThresholdEffect>(sBase);
+    const AlphaThresholdEffect& s = sBase.cast<AlphaThresholdEffect>();
     return (this->texture(0) == s.texture(0) &&
             this->fInnerThreshold == s.fInnerThreshold &&
             this->fOuterThreshold == s.fOuterThreshold);

@@ -9,7 +9,6 @@
 #define GrTBackendEffectFactory_DEFINED
 
 #include "GrBackendEffectFactory.h"
-#include "GrDrawEffect.h"
 #include "gl/GrGLProgramEffects.h"
 
 /**
@@ -27,7 +26,7 @@
  * 1. The GrGLEffect used by GrEffect subclass MyEffect must be named or typedef'ed to
  *    MyEffect::GLEffect.
  * 2. MyEffect::GLEffect must have a static function:
- *      EffectKey GenKey(const GrDrawEffect, const GrGLCaps&)
+ *      EffectKey GenKey(const GrEffect, const GrGLCaps&)
  *    which generates a key that maps 1 to 1 with code variations emitted by
  *    MyEffect::GLEffect::emitCode().
  * 3. MyEffect must have a static function:
@@ -46,17 +45,17 @@ public:
 
 
     /** Implemented using GLEffect::GenKey as described in this class's comment. */
-    virtual void getGLEffectKey(const GrDrawEffect& drawEffect,
+    virtual void getGLEffectKey(const GrEffect& effect,
                                 const GrGLCaps& caps,
                                 GrEffectKeyBuilder* b) const SK_OVERRIDE {
-        GLEffect::GenKey(drawEffect, caps, b);
+        GLEffect::GenKey(effect, caps, b);
     }
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrEffect; caller is responsible for deleting
         the object. */
-    virtual GrGLEffect* createGLInstance(const GrDrawEffect& drawEffect) const SK_OVERRIDE {
-        return SkNEW_ARGS(GLEffect, (*this, drawEffect));
+    virtual GrGLEffect* createGLInstance(const GrEffect& effect) const SK_OVERRIDE {
+        return SkNEW_ARGS(GLEffect, (*this, effect));
     }
 
     /** This class is a singleton. This function returns the single instance. */

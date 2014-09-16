@@ -192,19 +192,19 @@ class GrGLSweepGradient : public GrGLGradientEffect {
 public:
 
     GrGLSweepGradient(const GrBackendEffectFactory& factory,
-                      const GrDrawEffect&) : INHERITED (factory) { }
+                      const GrEffect&) : INHERITED (factory) { }
     virtual ~GrGLSweepGradient() { }
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&, GrEffectKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(drawEffect));
+    static void GenKey(const GrEffect& effect, const GrGLCaps&, GrEffectKeyBuilder* b) {
+        b->add32(GenBaseGradientKey(effect));
     }
 
 private:
@@ -266,7 +266,7 @@ GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLSweepGradient::emitCode(GrGLProgramBuilder* builder,
-                                 const GrDrawEffect&,
+                                 const GrEffect&,
                                  const GrEffectKey& key,
                                  const char* outputColor,
                                  const char* inputColor,

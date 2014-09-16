@@ -20,19 +20,16 @@ class GrGLShaderBuilder;
     include/gpu/GrEffect.h. Objects of type GrGLEffect are responsible for emitting the
     GLSL code that implements a GrEffect and for uploading uniforms at draw time. If they don't
     always emit the same GLSL code, they must have a function:
-        static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*)
+        static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*)
     that is used to implement a program cache. When two GrEffects produce the same key this means
     that their GrGLEffects would emit the same GLSL code.
 
     The GrGLEffect subclass must also have a constructor of the form:
-        EffectSubclass::EffectSubclass(const GrBackendEffectFactory&, const GrDrawEffect&)
-    The effect held by the GrDrawEffect is guaranteed to be of the type that generated the
-    GrGLEffect subclass instance.
+        EffectSubclass::EffectSubclass(const GrBackendEffectFactory&, const GrEffect&)
 
     These objects are created by the factory object returned by the GrEffect::getFactory().
 */
 
-class GrDrawEffect;
 class GrGLTexture;
 class GrGLGeometryProcessor;
 
@@ -55,7 +52,7 @@ public:
         stages.
 
         @param builder      Interface used to emit code in the shaders.
-        @param drawEffect   A wrapper on the effect that generated this program stage.
+        @param effect       The effect that generated this program stage.
         @param key          The key that was computed by GenKey() from the generating GrEffect.
         @param outputColor  A predefined vec4 in the FS in which the stage should place its output
                             color (or coverage).
@@ -69,7 +66,7 @@ public:
                             reads in the generated code.
         */
     virtual void emitCode(GrGLProgramBuilder* builder,
-                          const GrDrawEffect& drawEffect,
+                          const GrEffect& effect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
@@ -78,16 +75,16 @@ public:
 
     /** A GrGLEffect instance can be reused with any GrEffect that produces the same stage
         key; this function reads data from a GrEffect and uploads any uniform variables required
-        by the shaders created in emitCode(). The GrEffect installed in the GrDrawEffect is
+        by the shaders created in emitCode(). The GrEffect is
         guaranteed to be of the same type that created this GrGLEffect and to have an identical
         effect key as the one that created this GrGLEffect. Effects that use local coords have
         to consider whether the GrEffectStage's coord change matrix should be used. When explicit
         local coordinates are used it can be ignored. */
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) {}
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) {}
 
     const char* name() const { return fFactory.name(); }
 
-    static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
+    static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
 
     /** Used by the system when generating shader code, to see if this effect can be downcasted to
         the internal GrGLGeometryProcessor type */

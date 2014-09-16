@@ -83,14 +83,14 @@ public:
     class GLEffect : public GrGLEffect {
     public:
         GLEffect(const GrBackendEffectFactory& factory,
-                 const GrDrawEffect&)
+                 const GrEffect&)
         : INHERITED(factory) {
         }
 
-        static void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
+        static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
 
         virtual void emitCode(GrGLProgramBuilder* builder,
-                              const GrDrawEffect&,
+                              const GrEffect&,
                               const GrEffectKey&,
                               const char* outputColor,
                               const char* inputColor,

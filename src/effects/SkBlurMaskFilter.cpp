@@ -609,16 +609,16 @@ private:
 class GrGLRectBlurEffect : public GrGLEffect {
 public:
     GrGLRectBlurEffect(const GrBackendEffectFactory& factory,
-                      const GrDrawEffect&);
+                      const GrEffect&);
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
 
 private:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -631,7 +631,7 @@ private:
 
 
 
-GrGLRectBlurEffect::GrGLRectBlurEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+GrGLRectBlurEffect::GrGLRectBlurEffect(const GrBackendEffectFactory& factory, const GrEffect&)
     : INHERITED(factory) {
 }
 
@@ -652,7 +652,7 @@ void OutputRectBlurProfileLookup(GrGLFragmentShaderBuilder* fsBuilder,
 }
 
 void GrGLRectBlurEffect::emitCode(GrGLProgramBuilder* builder,
-                                 const GrDrawEffect&,
+                                 const GrEffect&,
                                  const GrEffectKey& key,
                                  const char* outputColor,
                                  const char* inputColor,
@@ -696,8 +696,8 @@ void GrGLRectBlurEffect::emitCode(GrGLProgramBuilder* builder,
 }
 
 void GrGLRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
-                                 const GrDrawEffect& drawEffect) {
-    const GrRectBlurEffect& rbe = drawEffect.castEffect<GrRectBlurEffect>();
+                                 const GrEffect& effect) {
+    const GrRectBlurEffect& rbe = effect.cast<GrRectBlurEffect>();
     SkRect rect = rbe.getRect();
 
     pdman.set4f(fProxyRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
@@ -761,7 +761,7 @@ const GrBackendEffectFactory& GrRectBlurEffect::getFactory() const {
 }
 
 bool GrRectBlurEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrRectBlurEffect& s = CastEffect<GrRectBlurEffect>(sBase);
+    const GrRectBlurEffect& s = sBase.cast<GrRectBlurEffect>();
     return this->getSigma() == s.getSigma() && this->getRect() == s.getRect();
 }
 
@@ -945,7 +945,7 @@ GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTextur
 }
 
 bool GrRRectBlurEffect::onIsEqual(const GrEffect& other) const {
-    const GrRRectBlurEffect& rrbe = CastEffect<GrRRectBlurEffect>(other);
+    const GrRRectBlurEffect& rrbe = other.cast<GrRRectBlurEffect>();
     return fRRect.getSimpleRadii().fX == rrbe.fRRect.getSimpleRadii().fX && fSigma == rrbe.fSigma;
 }
 
@@ -970,17 +970,17 @@ GrEffect* GrRRectBlurEffect::TestCreate(SkRandom* random,
 
 class GrGLRRectBlurEffect : public GrGLEffect {
 public:
-    GrGLRRectBlurEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
+    GrGLRRectBlurEffect(const GrBackendEffectFactory&, const GrEffect&);
 
     virtual void emitCode(GrGLProgramBuilder* builder,
-                          const GrDrawEffect& drawEffect,
+                          const GrEffect& effect,
                           const GrEffectKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
 
 private:
     GrGLProgramDataManager::UniformHandle fProxyRectUniform;
@@ -990,12 +990,12 @@ private:
 };
 
 GrGLRRectBlurEffect::GrGLRRectBlurEffect(const GrBackendEffectFactory& factory,
-                             const GrDrawEffect& drawEffect)
+                             const GrEffect& effect)
     : INHERITED (factory) {
 }
 
 void GrGLRRectBlurEffect::emitCode(GrGLProgramBuilder* builder,
-                             const GrDrawEffect& drawEffect,
+                             const GrEffect& effect,
                              const GrEffectKey& key,
                              const char* outputColor,
                              const char* inputColor,
@@ -1052,8 +1052,8 @@ void GrGLRRectBlurEffect::emitCode(GrGLProgramBuilder* builder,
 }
 
 void GrGLRRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
-                                    const GrDrawEffect& drawEffect) {
-    const GrRRectBlurEffect& brre = drawEffect.castEffect<GrRRectBlurEffect>();
+                                    const GrEffect& effect) {
+    const GrRRectBlurEffect& brre = effect.cast<GrRRectBlurEffect>();
     SkRRect rrect = brre.getRRect();
 
     float blurRadius = 3.f*SkScalarCeilToScalar(brre.getSigma()-1/6.0f);

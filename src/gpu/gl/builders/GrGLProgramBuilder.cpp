@@ -9,7 +9,6 @@
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/GrGLUniformHandle.h"
 #include "GrCoordTransform.h"
-#include "GrDrawEffect.h"
 #include "../GrGpuGL.h"
 #include "GrGLFragmentShaderBuilder.h"
 #include "GrGLProgramBuilder.h"

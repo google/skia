@@ -17,19 +17,19 @@ typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 class GrGLConvolutionEffect : public GrGLEffect {
 public:
-    GrGLConvolutionEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
+    GrGLConvolutionEffect(const GrBackendEffectFactory&, const GrEffect&);
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager& pdman, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager& pdman, const GrEffect&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrDrawEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
+    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
 
 private:
     int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
@@ -47,16 +47,16 @@ private:
 };
 
 GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& factory,
-                                             const GrDrawEffect& drawEffect)
+                                             const GrEffect& effect)
     : INHERITED(factory) {
-    const GrConvolutionEffect& c = drawEffect.castEffect<GrConvolutionEffect>();
+    const GrConvolutionEffect& c = effect.cast<GrConvolutionEffect>();
     fRadius = c.radius();
     fUseBounds = c.useBounds();
     fDirection = c.direction();
 }
 
 void GrGLConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
-                                     const GrDrawEffect&,
+                                     const GrEffect&,
                                      const GrEffectKey& key,
                                      const char* outputColor,
                                      const char* inputColor,
@@ -106,8 +106,8 @@ void GrGLConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
 }
 
 void GrGLConvolutionEffect::setData(const GrGLProgramDataManager& pdman,
-                                    const GrDrawEffect& drawEffect) {
-    const GrConvolutionEffect& conv = drawEffect.castEffect<GrConvolutionEffect>();
+                                    const GrEffect& effect) {
+    const GrConvolutionEffect& conv = effect.cast<GrConvolutionEffect>();
     GrTexture& texture = *conv.texture(0);
     // the code we generated was for a specific kernel radius
     SkASSERT(conv.radius() == fRadius);
@@ -136,9 +136,9 @@ void GrGLConvolutionEffect::setData(const GrGLProgramDataManager& pdman,
     pdman.set1fv(fKernelUni, this->width(), conv.kernel());
 }
 
-void GrGLConvolutionEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&,
+void GrGLConvolutionEffect::GenKey(const GrEffect& effect, const GrGLCaps&,
                                    GrEffectKeyBuilder* b) {
-    const GrConvolutionEffect& conv = drawEffect.castEffect<GrConvolutionEffect>();
+    const GrConvolutionEffect& conv = effect.cast<GrConvolutionEffect>();
     uint32_t key = conv.radius();
     key <<= 2;
     if (conv.useBounds()) {
@@ -201,7 +201,7 @@ const GrBackendEffectFactory& GrConvolutionEffect::getFactory() const {
 }
 
 bool GrConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrConvolutionEffect& s = CastEffect<GrConvolutionEffect>(sBase);
+    const GrConvolutionEffect& s = sBase.cast<GrConvolutionEffect>();
     return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&
             this->direction() == s.direction() &&

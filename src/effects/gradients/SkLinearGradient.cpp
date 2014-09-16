@@ -468,21 +468,21 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
 class GrGLLinearGradient : public GrGLGradientEffect {
 public:
 
-    GrGLLinearGradient(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+    GrGLLinearGradient(const GrBackendEffectFactory& factory, const GrEffect&)
                        : INHERITED (factory) { }
 
     virtual ~GrGLLinearGradient() { }
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffect&,
                           const GrEffectKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static void GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&, GrEffectKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(drawEffect));
+    static void GenKey(const GrEffect& effect, const GrGLCaps&, GrEffectKeyBuilder* b) {
+        b->add32(GenBaseGradientKey(effect));
     }
 
 private:
@@ -551,7 +551,7 @@ GrEffect* GrLinearGradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLLinearGradient::emitCode(GrGLProgramBuilder* builder,
-                                  const GrDrawEffect&,
+                                  const GrEffect&,
                                   const GrEffectKey& key,
                                   const char* outputColor,
                                   const char* inputColor,
