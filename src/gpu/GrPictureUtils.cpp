@@ -126,8 +126,6 @@ private:
             dst.fOffset = SkIPoint::Make(newClip.fLeft, newClip.fTop);
             dst.fOriginXform = *fCTM;
             dst.fOriginXform.postConcat(src.fOriginXform);
-            dst.fOriginXform.postTranslate(SkIntToScalar(-newClip.fLeft), 
-                                           SkIntToScalar(-newClip.fTop));
 
             if (NULL == src.fPaint) {
                 dst.fPaint = NULL;
@@ -191,8 +189,6 @@ private:
         slInfo.fSize = SkISize::Make(si.fBounds.width(), si.fBounds.height());
         slInfo.fOffset = SkIPoint::Make(si.fBounds.fLeft, si.fBounds.fTop);
         slInfo.fOriginXform = *fCTM;
-        slInfo.fOriginXform.postTranslate(SkIntToScalar(-si.fBounds.fLeft),
-                                          SkIntToScalar(-si.fBounds.fTop));
 
         if (NULL == si.fPaint) {
             slInfo.fPaint = NULL;

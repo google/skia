@@ -190,7 +190,7 @@ DEF_TEST(RecordDraw_PartialStartStop, r) {
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
-    SkRecordPartialDraw(record, &canvas, r1, 1, 2); // replay just drawRect of r2
+    SkRecordPartialDraw(record, &canvas, r1, 1, 2, SkMatrix::I()); // replay just drawRect of r2
 
     REPORTER_ASSERT(r, 3 == rerecord.count());
     assert_type<SkRecords::Save>     (r, rerecord, 0);
@@ -213,7 +213,7 @@ DEF_TEST(RecordDraw_PartialClear, r) {
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
-    SkRecordPartialDraw(record, &canvas, rect, 0, 1); // replay just the clear
+    SkRecordPartialDraw(record, &canvas, rect, 0, 1, SkMatrix::I()); // replay just the clear
 
     REPORTER_ASSERT(r, 3 == rerecord.count());
     assert_type<SkRecords::Save>    (r, rerecord, 0);

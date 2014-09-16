@@ -26,8 +26,8 @@ public:
         uint32_t fPictureID;
         // The size of the saveLayer
         SkISize fSize;
-        // The matrix state in which this layer's draws must occur. It already incorporates
-        // the translation needed to map the layer's top-left point to the origin.
+        // The matrix state in which this layer's draws must occur. It does not
+        // include the translation needed to map the layer's top-left point to the origin.
         SkMatrix fOriginXform;
         // The offset that needs to be passed to drawBitmap to correctly
         // position the pre-rendered layer. It is in device space.

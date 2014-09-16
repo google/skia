@@ -91,11 +91,18 @@ void GrLayerHoister::DrawLayers(const SkPicture* picture,
             // info.fCTM maps the layer's top/left to the origin.
             // Since this layer is atlased, the top/left corner needs
             // to be offset to the correct location in the backing texture.
+            SkMatrix initialCTM;
+            initialCTM.setTranslate(SkIntToScalar(-layer->offset().fX), 
+                                    SkIntToScalar(-layer->offset().fY));
+            initialCTM.postTranslate(bound.fLeft, bound.fTop);
+            
+            atlasCanvas->translate(SkIntToScalar(-layer->offset().fX), 
+                                   SkIntToScalar(-layer->offset().fY));
             atlasCanvas->translate(bound.fLeft, bound.fTop);
             atlasCanvas->concat(layer->ctm());
 
             SkRecordPartialDraw(*picture->fRecord.get(), atlasCanvas, bound,
-                                layer->start()+1, layer->stop());
+                                layer->start()+1, layer->stop(), initialCTM);
 
             atlasCanvas->restore();
         }
@@ -126,10 +133,16 @@ void GrLayerHoister::DrawLayers(const SkPicture* picture,
 
         layerCanvas->clear(SK_ColorTRANSPARENT);
 
+        SkMatrix initialCTM;
+        initialCTM.setTranslate(SkIntToScalar(-layer->offset().fX), 
+                                SkIntToScalar(-layer->offset().fY));
+
+        layerCanvas->translate(SkIntToScalar(-layer->offset().fX), 
+                               SkIntToScalar(-layer->offset().fY));
         layerCanvas->concat(layer->ctm());
 
         SkRecordPartialDraw(*picture->fRecord.get(), layerCanvas, bound,
-                            layer->start()+1, layer->stop());
+                            layer->start()+1, layer->stop(), initialCTM);
 
         layerCanvas->flush();
     }
@@ -151,6 +164,7 @@ void GrLayerHoister::UnlockLayers(GrLayerCache* layerCache, const SkPicture* pic
         GrCachedLayer* layer = layerCache->findLayer(picture->uniqueID(),
                                                      info.fSaveLayerOpID,
                                                      info.fRestoreOpID,
+                                                     info.fOffset,
                                                      info.fOriginXform);
         layerCache->unlock(layer);
     }

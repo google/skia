@@ -1887,7 +1887,8 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
             GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture->uniqueID(), 
                                                                                 info.fSaveLayerOpID, 
-                                                                                info.fRestoreOpID, 
+                                                                                info.fRestoreOpID,
+                                                                                info.fOffset,
                                                                                 info.fOriginXform);
 
             GrReplacements::ReplacementInfo* layerInfo = replacements.push();

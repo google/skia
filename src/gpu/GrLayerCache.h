@@ -51,15 +51,17 @@ struct GrCachedLayer {
 public:
     // For SkTDynamicHash
     struct Key {
-        Key(uint32_t pictureID, int start, int stop, const SkMatrix& ctm) 
+        Key(uint32_t pictureID, int start, int stop, const SkIPoint& offset, const SkMatrix& ctm) 
         : fPictureID(pictureID)
         , fStart(start)
         , fStop(stop)
+        , fOffset(offset)
         , fCTM(ctm) {
             fCTM.getType(); // force initialization of type so hashes match
 
             // Key needs to be tightly packed.
             GR_STATIC_ASSERT(sizeof(Key) == sizeof(uint32_t) + 2 * sizeof(int) + 
+                                            2 * sizeof(int32_t) +
                                             9 * sizeof(SkScalar) + sizeof(uint32_t));
         }
 
@@ -67,12 +69,14 @@ public:
             return fPictureID == other.fPictureID &&
                    fStart == other.fStart &&
                    fStop == other.fStop &&
+                   fOffset == other.fOffset &&
                    fCTM.cheapEqualTo(other.fCTM);
         }
 
         uint32_t pictureID() const { return fPictureID; }
         int start() const { return fStart; }
         int stop() const { return fStop; }
+        const SkIPoint& offset() const { return fOffset; }
         const SkMatrix& ctm() const { return fCTM; }
 
     private:
@@ -81,6 +85,8 @@ public:
         // The range of commands in the picture this layer represents
         const int      fStart;
         const int      fStop;
+        // The offset of the layer in device space
+        const SkIPoint fOffset;
         // The CTM applied to this layer in the picture
         SkMatrix       fCTM;
     };
@@ -91,8 +97,9 @@ public:
     }
 
     // GrCachedLayer proper
-    GrCachedLayer(uint32_t pictureID, int start, int stop, const SkMatrix& ctm) 
-        : fKey(pictureID, start, stop, ctm)
+    GrCachedLayer(uint32_t pictureID, int start, int stop,
+                  const SkIPoint& offset, const SkMatrix& ctm) 
+        : fKey(pictureID, start, stop, offset, ctm)
         , fTexture(NULL)
         , fRect(GrIRect16::MakeEmpty())
         , fPlot(NULL)
@@ -107,6 +114,7 @@ public:
     uint32_t pictureID() const { return fKey.pictureID(); }
     int start() const { return fKey.start(); }
     int stop() const { return fKey.stop(); }
+    const SkIPoint& offset() const { return fKey.offset(); }
     const SkMatrix& ctm() const { return fKey.ctm(); }
 
     void setTexture(GrTexture* texture, const GrIRect16& rect) {
@@ -171,9 +179,11 @@ public:
     // elements by the GrContext
     void freeAll();
 
-    GrCachedLayer* findLayer(uint32_t pictureID, int start, int stop, const SkMatrix& ctm);
+    GrCachedLayer* findLayer(uint32_t pictureID, int start, int stop, 
+                             const SkIPoint& offset, const SkMatrix& ctm);
     GrCachedLayer* findLayerOrCreate(uint32_t pictureID,
                                      int start, int stop, 
+                                     const SkIPoint& offset,
                                      const SkMatrix& ctm);
 
     // Inform the cache that layer's cached image is now required. 
@@ -227,9 +237,9 @@ private:
     int fPlotLocks[kNumPlotsX * kNumPlotsY];
 
     void initAtlas();
-    GrCachedLayer* createLayer(uint32_t pictureID, int start, int stop, const SkMatrix& ctm);
+    GrCachedLayer* createLayer(uint32_t pictureID, int start, int stop, 
+                               const SkIPoint& offset, const SkMatrix& ctm);
 
-public:
     void purgeAll();
 
     // Remove all the layers (and unlock any resources) associated with 'pictureID'

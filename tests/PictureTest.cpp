@@ -1014,7 +1014,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, pict->uniqueID() == info2.fPictureID);
             REPORTER_ASSERT(reporter, kWidth / 2 == info2.fSize.fWidth &&
                                       kHeight/2 == info2.fSize.fHeight); // bound reduces size
-            REPORTER_ASSERT(reporter, info2.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, !info2.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, kWidth/2 == info2.fOffset.fX &&   // translated
                                       kHeight/2 == info2.fOffset.fY);
             REPORTER_ASSERT(reporter, NULL == info1.fPaint);
