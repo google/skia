@@ -23,8 +23,8 @@ public:
         fPaint.setColor(SK_ColorRED);
         fPaint.setAntiAlias(true);
         fPaint.setStyle(SkPaint::kStroke_Style);
-        fName.printf("picture_nesting_%s_%d", name,
-                     this->sierpinsky(SkCreateNullCanvas(), 0, fPaint));
+        SkAutoTUnref<SkCanvas> nullCanvas(SkCreateNullCanvas());
+        fName.printf("picture_nesting_%s_%d", name, this->sierpinsky(nullCanvas, 0, fPaint));
     }
 
 protected:
