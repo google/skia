@@ -184,26 +184,6 @@ GrRODrawState::BlendOptFlags GrRODrawState::getBlendOpts(bool forceCoverage,
         dstCoeff = &bogusDstCoeff;
     }
 
-    if (forceCoverage) {
-        return this->calcBlendOpts(true, srcCoeff, dstCoeff);
-    }
-
-    if (0 == (fBlendOptFlags & kInvalid_BlendOptFlag)) {
-        *srcCoeff = fOptSrcBlend;
-        *dstCoeff = fOptDstBlend;
-        return fBlendOptFlags;
-    }
-
-    fBlendOptFlags = this->calcBlendOpts(forceCoverage, srcCoeff, dstCoeff);
-    fOptSrcBlend = *srcCoeff;
-    fOptDstBlend = *dstCoeff;
-
-    return fBlendOptFlags;
-}
-
-GrRODrawState::BlendOptFlags GrRODrawState::calcBlendOpts(bool forceCoverage,
-                                                          GrBlendCoeff* srcCoeff,
-                                                          GrBlendCoeff* dstCoeff) const {
     *srcCoeff = this->getSrcBlendCoeff();
     *dstCoeff = this->getDstBlendCoeff();
 
@@ -225,6 +205,7 @@ GrRODrawState::BlendOptFlags GrRODrawState::calcBlendOpts(bool forceCoverage,
         if (this->getStencil().doesWrite()) {
             return kEmitCoverage_BlendOptFlag;
         } else {
+            *dstCoeff = kOne_GrBlendCoeff;
             return kSkipDraw_BlendOptFlag;
         }
     }
@@ -370,15 +351,5 @@ bool GrRODrawState::srcAlphaWillBeOne() const {
     }
 
     return (kA_GrColorComponentFlag & validComponentFlags) && 0xFF == GrColorUnpackA(color);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-bool GrRODrawState::canIgnoreColorAttribute() const {
-    if (fBlendOptFlags & kInvalid_BlendOptFlag) {
-        this->getBlendOpts();
-    }
-    return SkToBool(fBlendOptFlags & (GrRODrawState::kEmitTransBlack_BlendOptFlag |
-                                      GrRODrawState::kEmitCoverage_BlendOptFlag));
 }
 

@@ -9,10 +9,11 @@
 #define GrDrawState_DEFINED
 
 #include "GrBlend.h"
-#include "GrOptDrawState.h"
 #include "GrProgramResource.h"
 #include "GrRODrawState.h"
 #include "effects/GrSimpleTextureEffect.h"
+
+class GrOptDrawState;
 
 /**
  * Modifiable subclass derived from GrRODrawState. The majority of the data that represents a draw
@@ -47,10 +48,7 @@ public:
      **/
     GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatrix);
 
-    virtual ~GrDrawState() {
-        SkSafeUnref(fCachedOptState);
-        SkASSERT(0 == fBlockEffectRemovalCnt);
-    }
+    virtual ~GrDrawState();
 
     /**
      * Resets to the default state. GrEffects will be removed from all stages.
@@ -552,16 +550,9 @@ public:
     GrOptDrawState* createOptState() const;
 
 private:
-    void invalidateOptState() const {
-        SkSafeSetNull(fCachedOptState);
-        fBlendOptFlags = kInvalid_BlendOptFlag;
-    }
+    void invalidateOptState() const;
 
     void onReset(const SkMatrix* initialViewMatrix);
-
-    void invalidateBlendOptFlags() {
-        fBlendOptFlags = kInvalid_BlendOptFlag;
-    }
 
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
     // This is used to assert that this condition holds.
