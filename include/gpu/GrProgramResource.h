@@ -19,6 +19,8 @@ class GrGpuResource;
  */
 class GrProgramResource : SkNoncopyable {
 public:
+    SK_DECLARE_INST_COUNT_ROOT(GrProgramResource);
+
     enum IOType {
         kRead_IOType,
         kWrite_IOType,
@@ -27,20 +29,9 @@ public:
         kNone_IOType, // For internal use only, don't specify to constructor or setResource().
     };
 
-    SK_DECLARE_INST_COUNT_ROOT(GrProgramResource);
-    GrProgramResource();
-
-    /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
-        pending on the resource when markPendingIO is called. */
-    explicit GrProgramResource(GrGpuResource*, IOType ioType);
-
     ~GrProgramResource();
 
     GrGpuResource* getResource() const { return fResource; }
-
-    /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
-        pending on the resource when markPendingIO is called. */
-    void setResource(GrGpuResource*, IOType ioType);
 
     /** Does this object own a pending read or write on the resource it is wrapping. */
     bool ownsPendingIO() const { return fPendingIO; }
@@ -48,6 +39,17 @@ public:
     /** Shortcut for calling setResource() with NULL. It cannot be called after markingPendingIO
         is called. */
     void reset();
+
+protected:
+    GrProgramResource();
+
+    /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
+        pending on the resource when markPendingIO is called. */
+    GrProgramResource(GrGpuResource*, IOType);
+
+    /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
+        pending on the resource when markPendingIO is called. */
+    void setResource(GrGpuResource*, IOType);
 
 private:
     /** Called by owning GrProgramElement when the program element is first scheduled for
@@ -75,5 +77,21 @@ private:
 
     typedef SkNoncopyable INHERITED;
 };
+
+template <typename T> class GrProgramTResource : public GrProgramResource {
+public:
+    GrProgramTResource() {}
+
+    /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
+        pending on the resource when markPendingIO is called. */
+    GrProgramTResource(T* resource, IOType ioType) : GrProgramResource(resource, ioType) {}
+
+    T* get() const { return static_cast<T*>(this->getResource()); }
+
+    /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
+        pending on the resource when markPendingIO is called. */
+    void set(T* resource, IOType ioType) { this->setResource(resource, ioType); }
+};
+
 
 #endif

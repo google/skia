@@ -397,8 +397,9 @@ protected:
                                GrBlendCoeff* srcCoeff = NULL,
                                GrBlendCoeff* dstCoeff = NULL) const;
 
+    typedef GrProgramTResource<GrRenderTarget> ProgramRenderTarget;
     // These fields are roughly sorted by decreasing likelihood of being different in op==
-    GrProgramResource                   fRenderTarget;
+    ProgramRenderTarget                 fRenderTarget;
     GrColor                             fColor;
     SkMatrix                            fViewMatrix;
     GrColor                             fBlendConstant;

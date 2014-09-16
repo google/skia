@@ -8,11 +8,10 @@
 #ifndef GrTextureAccess_DEFINED
 #define GrTextureAccess_DEFINED
 
+#include "GrProgramResource.h"
+#include "GrTexture.h"
 #include "SkRefCnt.h"
 #include "SkShader.h"
-#include "GrProgramResource.h"
-
-class GrTexture;
 
 /**
  * Represents the filtering and tile modes used to access a texture. It is mostly used with
@@ -163,12 +162,12 @@ public:
 
     bool operator!= (const GrTextureAccess& other) const { return !(*this == other); }
 
-    GrTexture* getTexture() const { return (GrTexture*)fTexture.getResource(); }
+    GrTexture* getTexture() const { return fTexture.get(); }
 
     /**
      * For internal use by GrEffect.
      */
-    const GrProgramResource* getTextureProgramResource() const { return &fTexture; }
+    const GrProgramResource* getProgramTexture() const { return &fTexture; }
 
     /**
      * Returns a string representing the swizzle. The string is is null-terminated.
@@ -184,7 +183,9 @@ public:
 private:
     void setSwizzle(const char*);
 
-    GrProgramResource               fTexture;
+    typedef GrProgramTResource<GrTexture> ProgramTexture;
+
+    ProgramTexture                  fTexture;
     GrTextureParams                 fParams;
     uint32_t                        fSwizzleMask;
     char                            fSwizzle[5];
