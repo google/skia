@@ -89,6 +89,11 @@ public:
     bool isFreshFrame() const;
 
     /**
+     * Returns canvas's size.
+     */
+    SkISize getCanvasSize() const;
+
+    /**
      *  Returns true if the canvas has recorded draw commands that have
      *  not yet been played back.
      */
@@ -249,6 +254,9 @@ private:
 
     size_t fBitmapSizeThreshold;
     bool   fDeferredDrawing;
+
+    mutable SkISize fCachedCanvasSize;
+    mutable bool    fCachedCanvasSizeDirty;
 
     friend class SkDeferredCanvasTester; // for unit testing
     typedef SkCanvas INHERITED;
