@@ -23,6 +23,7 @@
             '../bench/SKPBench.cpp',
             '../bench/nanobench.cpp',
             '../tests/skia_test.cpp',
+            '../tools/LazyDecodeBitmap.cpp',
             '../tools/iOSShell.cpp',
             '../src/views/mac/SkEventNotifier.mm',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
