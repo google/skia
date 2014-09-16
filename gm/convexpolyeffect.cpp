@@ -22,12 +22,6 @@
 
 #include "effects/GrConvexPolyEffect.h"
 
-namespace {
-extern const GrVertexAttrib kAttribs[] = {
-    {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding},
-};
-}
-
 namespace skiagm {
 /**
  * This GM directly exercises a GrEffect that draws convex polygons.

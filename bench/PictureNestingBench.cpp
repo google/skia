@@ -99,7 +99,11 @@ public:
     }
 
 protected:
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    virtual bool isSuitableFor(Backend backend) {
+        return backend == kNonRendering_Backend;
+    }
+
+    virtual void onDraw(const int loops, SkCanvas*) {
         SkIPoint canvasSize = onGetSize();
         SkPictureRecorder recorder;
 
