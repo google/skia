@@ -55,13 +55,15 @@ public:
                    int currAttribIndex);
 
     /**
-     * Builds a program descriptor from a GrOptDrawState. Whether the primitive type is points, and
-     * the caps of the GrGpuGL are also inputs. It also outputs the color and coverage stages
-     * referenced by the generated descriptor. Coverage stages from the drawState may be treated as
-     * color stages in the output.
+     * Builds a program descriptor from a GrDrawState. Whether the primitive type is points, the
+     * output of GrDrawState::getBlendOpts, and the caps of the GrGpuGL are also inputs. It also
+     * outputs the color and coverage stages referenced by the generated descriptor. This may
+     * not contain all stages from the draw state and coverage stages from the drawState may
+     * be treated as color stages in the output.
      */
-    static bool Build(const GrOptDrawState&,
+    static bool Build(const GrDrawState&,
                       GrGpu::DrawType drawType,
+                      GrDrawState::BlendOptFlags,
                       GrBlendCoeff srcCoeff,
                       GrBlendCoeff dstCoeff,
                       const GrGpuGL* gpu,

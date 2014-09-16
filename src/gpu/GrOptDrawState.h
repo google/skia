@@ -8,8 +8,9 @@
 #ifndef GrOptDrawState_DEFINED
 #define GrOptDrawState_DEFINED
 
-#include "GrDrawState.h"
 #include "GrRODrawState.h"
+
+class GrDrawState;
 
 /**
  * Subclass of GrRODrawState that holds an optimized version of a GrDrawState. Like it's parent
@@ -18,19 +19,15 @@
  */
 class GrOptDrawState : public GrRODrawState {
 public:
-    bool operator== (const GrOptDrawState& that) const;
-
-    bool inputColorIsUsed() const { return fInputColorIsUsed; }
-    bool inputCoverageIsUsed() const { return fInputCoverageIsUsed; }
-
-private:
     /**
      * Constructs and optimized drawState out of a GrRODrawState.
      */
-    GrOptDrawState(const GrDrawState& drawState, BlendOptFlags blendOptFlags,
-                   GrBlendCoeff optSrcCoeff, GrBlendCoeff optDstCoeff);
+    explicit GrOptDrawState(const GrDrawState& drawState);
 
-    /**
+    bool operator== (const GrOptDrawState& that) const;
+
+private:
+    /*
      * Loops through all the color stage effects to check if the stage will ignore color input or
      * always output a constant color. In the ignore color input case we can ignore all previous
      * stages. In the constant color case, we can ignore all previous stages and
@@ -40,7 +37,7 @@ private:
      */
     void copyEffectiveColorStages(const GrDrawState& ds);
 
-    /**
+    /*
      * Loops through all the coverage stage effects to check if the stage will ignore color input.
      * If a coverage stage will ignore input, then we can ignore all coverage stages before it. We
      * loop to determine the first effective coverage stage, and then copy all of our effective
@@ -48,18 +45,14 @@ private:
      */
     void copyEffectiveCoverageStages(const GrDrawState& ds);
 
-    /**
+    /*
      * This function takes in a flag and removes the corresponding fixed function vertex attributes.
      * The flags are in the same order as GrVertexAttribBinding array. If bit i of removeVAFlags is
      * set, then vertex attributes with binding (GrVertexAttribute)i will be removed.
      */
     void removeFixedFunctionVertexAttribs(uint8_t removeVAFlags);
 
-    /**
-     * Alter the OptDrawState (adjusting stages, vertex attribs, flags, etc.) based on the
-     * BlendOptFlags.
-     */
-    void adjustFromBlendOpts();
+    void removeColorVertexAttrib();
 
     // These flags are needed to protect the code from creating an unused uniform color/coverage
     // which will cause shader compiler errors.
@@ -68,9 +61,6 @@ private:
 
     SkAutoSTArray<4, GrVertexAttrib> fOptVA;
 
-    BlendOptFlags   fBlendOptFlags;
-
-    friend GrOptDrawState* GrDrawState::createOptState() const;
     typedef GrRODrawState INHERITED;
 };
 
