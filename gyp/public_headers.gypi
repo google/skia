@@ -28,7 +28,6 @@
       'core/SkDataTable.h',
       'core/SkDeque.h',
       'core/SkDevice.h',
-      'core/SkDeviceProperties.h',
       'core/SkDither.h',
       'core/SkDocument.h',
       'core/SkDraw.h',
