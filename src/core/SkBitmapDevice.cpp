@@ -145,6 +145,7 @@ void* SkBitmapDevice::onAccessPixels(SkImageInfo* info, size_t* rowBytes) {
 }
 
 #include "SkConfig8888.h"
+#include "SkPixelRef.h"
 
 bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
                                    size_t srcRowBytes, int x, int y) {
@@ -261,8 +262,14 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         // the bitmap, we extract a subset.
         SkIRect srcIR;
         tmpSrc.roundOut(&srcIR);
-        if (!bitmap.extractSubset(&tmpBitmap, srcIR)) {
-            return;
+        if(bitmap.pixelRef()->getTexture()) {
+            // Accelerated source canvas, don't use extractSubset but readPixels to get the subset.
+            // This way, the pixels are copied in CPU memory instead of GPU memory.
+            bitmap.pixelRef()->readPixels(&tmpBitmap, &srcIR);
+        } else {
+            if (!bitmap.extractSubset(&tmpBitmap, srcIR)) {
+                return;
+            }
         }
         bitmapPtr = &tmpBitmap;
 
