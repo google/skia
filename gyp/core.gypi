@@ -116,6 +116,7 @@
         '<(skia_src_path)/core/SkMatrix.cpp',
         '<(skia_src_path)/core/SkMessageBus.h',
         '<(skia_src_path)/core/SkMetaData.cpp',
+        '<(skia_src_path)/core/SkMiniData.cpp',
         '<(skia_src_path)/core/SkMipMap.cpp',
         '<(skia_src_path)/core/SkMultiPictureDraw.cpp',
         '<(skia_src_path)/core/SkPackBits.cpp',
