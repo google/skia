@@ -46,7 +46,9 @@ CpuTask::CpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, ta
 CpuTask::CpuTask(const Task& parent) : Task(parent) {}
 
 void CpuTask::run() {
-    if (FLAGS_cpu && !this->shouldSkip()) {
+    // If the task says skip, or if we're starting a top-level CPU task and we don't want to, skip.
+    const bool skip = this->shouldSkip() || (this->depth() == 0 && !FLAGS_cpu);
+    if (!skip) {
         this->start();
         if (!FLAGS_dryRun) this->draw();
         this->finish();
@@ -64,7 +66,9 @@ void CpuTask::spawnChild(CpuTask* task) {
 GpuTask::GpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, taskRunner) {}
 
 void GpuTask::run(GrContextFactory* factory) {
-    if (FLAGS_gpu && !this->shouldSkip()) {
+    // If the task says skip, or if we're starting a top-level GPU task and we don't want to, skip.
+    const bool skip = this->shouldSkip() || (this->depth() == 0 && !FLAGS_gpu);
+    if (!skip) {
         this->start();
         if (!FLAGS_dryRun) this->draw(factory);
         this->finish();
