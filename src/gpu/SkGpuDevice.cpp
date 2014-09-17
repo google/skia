@@ -1842,6 +1842,34 @@ static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* re
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
 }
 
+static void convert_layers_to_replacements(const SkTDArray<GrCachedLayer*>& layers,
+                                           GrReplacements* replacements) {
+    // TODO: just replace GrReplacements::ReplacementInfo with GrCachedLayer?
+    for (int i = 0; i < layers.count(); ++i) {
+        GrReplacements::ReplacementInfo* layerInfo = replacements->push();
+        layerInfo->fStart = layers[i]->start();
+        layerInfo->fStop = layers[i]->stop();
+        layerInfo->fPos = layers[i]->offset();;
+
+        SkBitmap bm;
+        wrap_texture(layers[i]->texture(),
+                     !layers[i]->isAtlased() ? layers[i]->rect().width()
+                                             : layers[i]->texture()->width(),
+                     !layers[i]->isAtlased() ? layers[i]->rect().height()
+                                             : layers[i]->texture()->height(),
+                     &bm);
+        layerInfo->fImage = SkImage::NewTexture(bm);
+
+        // TODO: copy this?
+        layerInfo->fPaint = layers[i]->paint();
+
+        layerInfo->fSrcRect = SkIRect::MakeXYWH(layers[i]->rect().fLeft,
+                                                layers[i]->rect().fTop,
+                                                layers[i]->rect().width(),
+                                                layers[i]->rect().height());
+    }
+}
+
 bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* picture,
                                            const SkMatrix* matrix, const SkPaint* paint) {
     // todo: should handle these natively
@@ -1875,8 +1903,6 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return false;
     }
 
-    GrReplacements replacements;
-
     SkTDArray<GrCachedLayer*> atlased, nonAtlased;
     atlased.setReserve(gpuData->numSaveLayers());
 
@@ -1885,16 +1911,12 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         if (pullForward[i]) {
             const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-            GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture->uniqueID(), 
+            GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture->uniqueID(),
                                                                                 info.fSaveLayerOpID, 
                                                                                 info.fRestoreOpID,
                                                                                 info.fOffset,
-                                                                                info.fOriginXform);
-
-            GrReplacements::ReplacementInfo* layerInfo = replacements.push();
-            layerInfo->fStart = info.fSaveLayerOpID;
-            layerInfo->fStop = info.fRestoreOpID;
-            layerInfo->fPos = info.fOffset;
+                                                                                info.fOriginXform,
+                                                                                info.fPaint);
 
             GrTextureDesc desc;
             desc.fFlags = kRenderTarget_GrTextureFlagBit;
@@ -1909,21 +1931,6 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
                 continue;
             }
 
-            SkBitmap bm;
-            wrap_texture(layer->texture(),
-                         !layer->isAtlased() ? desc.fWidth : layer->texture()->width(),
-                         !layer->isAtlased() ? desc.fHeight : layer->texture()->height(),
-                         &bm);
-            layerInfo->fImage = SkImage::NewTexture(bm);
-
-            SkASSERT(info.fPaint);
-            layerInfo->fPaint = info.fPaint;
-
-            layerInfo->fSrcRect = SkIRect::MakeXYWH(layer->rect().fLeft,
-                                                    layer->rect().fTop,
-                                                    layer->rect().width(),
-                                                    layer->rect().height());
-
             if (needsRendering) {
                 if (layer->isAtlased()) {
                     *atlased.append() = layer;
@@ -1935,6 +1942,11 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     }
 
     GrLayerHoister::DrawLayers(picture, atlased, nonAtlased);
+
+    GrReplacements replacements;
+
+    convert_layers_to_replacements(atlased, &replacements);
+    convert_layers_to_replacements(nonAtlased, &replacements);
 
     // Render the entire picture using new layers
     GrRecordReplaceDraw(*picture->fRecord, mainCanvas, picture->fBBH.get(), &replacements, NULL);

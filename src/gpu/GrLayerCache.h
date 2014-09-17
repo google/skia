@@ -98,8 +98,10 @@ public:
 
     // GrCachedLayer proper
     GrCachedLayer(uint32_t pictureID, int start, int stop,
-                  const SkIPoint& offset, const SkMatrix& ctm) 
+                  const SkIPoint& offset, const SkMatrix& ctm,
+                  const SkPaint* paint)
         : fKey(pictureID, start, stop, offset, ctm)
+        , fPaint(paint)
         , fTexture(NULL)
         , fRect(GrIRect16::MakeEmpty())
         , fPlot(NULL)
@@ -122,6 +124,7 @@ public:
         fRect = rect;
     }
     GrTexture* texture() { return fTexture; }
+    const SkPaint* paint() const { return fPaint; }
     const GrIRect16& rect() const { return fRect; }
 
     void setPlot(GrPlot* plot) {
@@ -140,6 +143,10 @@ public:
 
 private:
     const Key       fKey;
+
+    // The paint used when dropping the layer down into the owning canvas.
+    // Can be NULL.
+    const SkPaint*  fPaint;
 
     // fTexture is a ref on the atlasing texture for atlased layers and a
     // ref on a GrTexture for non-atlased textures.
@@ -184,7 +191,8 @@ public:
     GrCachedLayer* findLayerOrCreate(uint32_t pictureID,
                                      int start, int stop, 
                                      const SkIPoint& offset,
-                                     const SkMatrix& ctm);
+                                     const SkMatrix& ctm,
+                                     const SkPaint* paint);
 
     // Inform the cache that layer's cached image is now required. 
     // Return true if the layer must be re-rendered. Return false if the
@@ -238,7 +246,8 @@ private:
 
     void initAtlas();
     GrCachedLayer* createLayer(uint32_t pictureID, int start, int stop, 
-                               const SkIPoint& offset, const SkMatrix& ctm);
+                               const SkIPoint& offset, const SkMatrix& ctm,
+                               const SkPaint* paint);
 
     void purgeAll();
 

@@ -34,7 +34,8 @@ static void create_layers(skiatest::Reporter* reporter,
         GrCachedLayer* layer = cache->findLayerOrCreate(picture.uniqueID(), 
                                                         idOffset+i+1, idOffset+i+2, 
                                                         SkIPoint::Make(0, 0),
-                                                        SkMatrix::I());
+                                                        SkMatrix::I(),
+                                                        NULL);
         REPORTER_ASSERT(reporter, layer);
         GrCachedLayer* temp = cache->findLayer(picture.uniqueID(), idOffset+i+1, idOffset+i+2, 
                                                SkIPoint::Make(0, 0), SkMatrix::I());
@@ -47,6 +48,7 @@ static void create_layers(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, layer->stop() == idOffset + i + 2);
         REPORTER_ASSERT(reporter, layer->ctm() == SkMatrix::I());
         REPORTER_ASSERT(reporter, NULL == layer->texture());
+        REPORTER_ASSERT(reporter, NULL == layer->paint());
         REPORTER_ASSERT(reporter, !layer->isAtlased());
     }
 
