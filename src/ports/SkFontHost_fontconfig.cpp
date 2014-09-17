@@ -162,6 +162,10 @@ SkStream* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
     return stream;
 }
 
+void FontConfigTypeface::onGetFamilyName(SkString* familyName) const {
+    *familyName = this->getFamilyName();
+}
+
 void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
                                              bool* isLocalStream) const {
     desc->setFamilyName(this->getFamilyName());

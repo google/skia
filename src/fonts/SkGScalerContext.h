@@ -34,6 +34,7 @@ protected:
     virtual int onCountGlyphs() const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
 
+    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
     virtual SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
 
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;

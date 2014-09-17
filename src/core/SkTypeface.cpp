@@ -67,6 +67,9 @@ protected:
     public:
         virtual bool next(SkTypeface::LocalizedString*) SK_OVERRIDE { return false; }
     };
+    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
+        familyName->reset();
+    }
     virtual SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE {
         return SkNEW(EmptyLocalizedStrings);
     };
@@ -273,10 +276,8 @@ SkTypeface::LocalizedStrings* SkTypeface::createFamilyNameIterator() const {
 }
 
 void SkTypeface::getFamilyName(SkString* name) const {
-    bool isLocal = false;
-    SkFontDescriptor desc(this->style());
-    this->onGetFontDescriptor(&desc, &isLocal);
-    name->set(desc.getFamilyName());
+    SkASSERT(name);
+    this->onGetFamilyName(name);
 }
 
 SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(

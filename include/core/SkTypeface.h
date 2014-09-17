@@ -312,6 +312,12 @@ protected:
     virtual bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
                                              int32_t adjustments[]) const;
 
+    /** Returns the family name of the typeface as known by its font manager.
+     *  This name may or may not be produced by the family name iterator.
+     */
+    virtual void onGetFamilyName(SkString* familyName) const = 0;
+
+    /** Returns an iterator over the family names in the font. */
     virtual LocalizedStrings* onCreateFamilyNameIterator() const = 0;
 
     virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;

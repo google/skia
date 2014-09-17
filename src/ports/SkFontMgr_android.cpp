@@ -49,9 +49,11 @@ public:
         , fIndex(index)
         , fFamilyName(familyName) { }
 
-    const SkString& name() const { return fFamilyName; }
-
 protected:
+    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
+        *familyName = fFamilyName;
+    }
+
     int fIndex;
     SkString fFamilyName;
 

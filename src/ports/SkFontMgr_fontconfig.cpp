@@ -389,6 +389,10 @@ public:
         , fIndex(ttcIndex)
     { };
 
+    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
+        familyName->reset();
+    }
+
     virtual void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const SK_OVERRIDE {
         desc->setStyle(this->style());
         *serialize = true;
@@ -413,6 +417,10 @@ public:
         return SkNEW_ARGS(SkTypeface_fontconfig, (pattern));
     }
     mutable SkAutoFcPattern fPattern;
+
+    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
+        *familyName = get_string(fPattern, FC_FAMILY);
+    }
 
     virtual void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const SK_OVERRIDE {
         FCLocker lock;

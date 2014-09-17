@@ -206,6 +206,10 @@ int SkGTypeface::onGetUPEM() const {
     return fProxy->getUnitsPerEm();
 }
 
+void SkGTypeface::onGetFamilyName(SkString* familyName) const {
+    fProxy->getFamilyName(familyName);
+}
+
 SkTypeface::LocalizedStrings* SkGTypeface::onCreateFamilyNameIterator() const {
     return fProxy->createFamilyNameIterator();
 }

@@ -452,6 +452,7 @@ protected:
 
     virtual int onGetUPEM() const SK_OVERRIDE;
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
+    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
     virtual SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
@@ -1898,6 +1899,10 @@ static const char* get_str(CFStringRef ref, SkString* str) {
     CFStringToSkString(ref, str);
     CFSafeRelease(ref);
     return str->c_str();
+}
+
+void SkTypeface_Mac::onGetFamilyName(SkString* familyName) const {
+    get_str(CTFontCopyFamilyName(fFontRef), familyName);
 }
 
 void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc,

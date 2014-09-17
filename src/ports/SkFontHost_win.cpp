@@ -276,6 +276,7 @@ protected:
                                 uint16_t glyphs[], int glyphCount) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
+    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
     virtual SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
@@ -1761,16 +1762,14 @@ static void logfont_for_name(const char* familyName, LOGFONT* lf) {
 #endif
 }
 
-void LogFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
-                                          bool* isLocalStream) const {
+void LogFontTypeface::onGetFamilyName(SkString* familyName) const {
     // Get the actual name of the typeface. The logfont may not know this.
     HFONT font = CreateFontIndirect(&fLogFont);
 
     HDC deviceContext = ::CreateCompatibleDC(NULL);
     HFONT savefont = (HFONT)SelectObject(deviceContext, font);
 
-    SkString familyName;
-    dcfontname_to_skstring(deviceContext, fLogFont, &familyName);
+    dcfontname_to_skstring(deviceContext, fLogFont, familyName);
 
     if (deviceContext) {
         ::SelectObject(deviceContext, savefont);
@@ -1779,7 +1778,12 @@ void LogFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     if (font) {
         ::DeleteObject(font);
     }
+}
 
+void LogFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
+                                          bool* isLocalStream) const {
+    SkString familyName;
+    this->onGetFamilyName(&familyName);
     desc->setFamilyName(familyName.c_str());
     *isLocalStream = this->fSerializeAsStream;
 }

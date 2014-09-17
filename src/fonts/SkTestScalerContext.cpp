@@ -175,6 +175,10 @@ int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
     return glyphCount;
 }
 
+void SkTestTypeface::onGetFamilyName(SkString* familyName) const {
+    *familyName = fTestFont->fName;
+}
+
 SkTypeface::LocalizedStrings* SkTestTypeface::onCreateFamilyNameIterator() const {
     SkString familyName(fTestFont->fName);
     SkString language("und"); //undetermined

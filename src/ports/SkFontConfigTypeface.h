@@ -65,6 +65,7 @@ protected:
         SkSafeRef(localStream);
     }
 
+    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
 

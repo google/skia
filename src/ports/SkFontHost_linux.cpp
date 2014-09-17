@@ -40,6 +40,10 @@ public:
     virtual const char* getUniqueString() const = 0;
 
 protected:
+    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
+        *familyName = fFamilyName;
+    }
+
     virtual void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const SK_OVERRIDE {
         desc->setFamilyName(fFamilyName.c_str());
         desc->setFontFileName(this->getUniqueString());
