@@ -58,6 +58,27 @@ public:
      */
     void reset();
 
+    /**
+     * Set iterator.
+     */
+    class Iter {
+    public:
+        Iter(const SkPtrSet& set)
+            : fSet(set)
+            , fIndex(0) {}
+
+        /**
+         * Return the next ptr in the set or null if the end was reached.
+         */
+        void* next() {
+            return fIndex < fSet.fList.count() ? fSet.fList[fIndex++].fPtr : NULL;
+        }
+
+    private:
+        const SkPtrSet& fSet;
+        int             fIndex;
+    };
+
 protected:
     virtual void incPtr(void*) {}
     virtual void decPtr(void*) {}

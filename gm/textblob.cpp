@@ -66,8 +66,10 @@ const SkScalar kFontSize = 16;
 
 class TextBlobGM : public skiagm::GM {
 public:
-    TextBlobGM(const char* txt) {
+    TextBlobGM(const char* txt)
+        : fTypeface(sk_tool_utils::create_portable_typeface("Times", SkTypeface::kNormal)) {
         SkPaint p;
+        p.setTypeface(fTypeface);
         size_t txtLen = strlen(txt);
         int glyphCount = p.textToGlyphs(txt, txtLen, NULL);
 
@@ -111,6 +113,7 @@ private:
         font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
         font.setAntiAlias(true);
         font.setSubpixelText(true);
+        font.setTypeface(fTypeface);
 
         for (unsigned l = 0; l < SK_ARRAY_COUNT(blobConfigs[blobIndex]); ++l) {
             unsigned currentGlyph = 0;
@@ -173,7 +176,8 @@ private:
         return builder.build();
     }
 
-    SkTDArray<uint16_t> fGlyphs;
+    SkTDArray<uint16_t>      fGlyphs;
+    SkAutoTUnref<SkTypeface> fTypeface;
 
     typedef skiagm::GM INHERITED;
 };

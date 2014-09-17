@@ -22,6 +22,7 @@
 #include "SkPatchUtils.h"
 #include "SkPathEffect.h"
 #include "SkPictureFlat.h"
+#include "SkPtrRecorder.h"
 #include "SkRasterizer.h"
 #include "SkRRect.h"
 #include "SkShader.h"
@@ -35,7 +36,7 @@ enum {
     kSizeOfFlatRRect = sizeof(SkRect) + 4 * sizeof(SkVector)
 };
 
-static bool isCrossProcess(uint32_t flags) {
+static bool is_cross_process(uint32_t flags) {
     return SkToBool(flags & SkGPipeWriter::kCrossProcess_Flag);
 }
 
@@ -338,6 +339,10 @@ private:
         }
     }
 
+    typedef SkAutoSTMalloc<128, uint8_t> TypefaceBuffer;
+    size_t getInProcessTypefaces(const SkRefCntSet& typefaceSet, TypefaceBuffer*);
+    size_t getCrossProcessTypefaces(const SkRefCntSet& typefaceSet, TypefaceBuffer*);
+
     // Should be called after any calls to an SkFlatDictionary::findAndReplace
     // if a new SkFlatData was added when in cross process mode
     void flattenFactoryNames();
@@ -411,7 +416,7 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
     fBitmapHeap->endAddingOwnersDeferral(added);
     int index = flat->index();
     if (added) {
-        if (isCrossProcess(fFlags)) {
+        if (is_cross_process(fFlags)) {
             this->flattenFactoryNames();
         }
         size_t flatSize = flat->flatSize();
@@ -436,10 +441,10 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
                              SkWriter32* writer, uint32_t flags,
                              uint32_t width, uint32_t height)
     : SkCanvas(width, height)
-    , fFactorySet(isCrossProcess(flags) ? SkNEW(SkNamedFactorySet) : NULL)
+    , fFactorySet(is_cross_process(flags) ? SkNEW(SkNamedFactorySet) : NULL)
     , fWriter(*writer)
     , fFlags(flags)
-    , fFlattenableHeap(FLATTENABLES_TO_KEEP, fFactorySet, isCrossProcess(flags))
+    , fFlattenableHeap(FLATTENABLES_TO_KEEP, fFactorySet, is_cross_process(flags))
     , fFlatDictionary(&fFlattenableHeap)
 {
     fController = controller;
@@ -938,23 +943,76 @@ void SkGPipeCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const 
     }
 }
 
+size_t SkGPipeCanvas::getInProcessTypefaces(const SkRefCntSet& typefaceSet,
+                                            TypefaceBuffer* buffer) {
+    // When in-process, we simply write out the typeface pointers.
+    size_t size = typefaceSet.count() * sizeof(SkTypeface*);
+    buffer->reset(size);
+    typefaceSet.copyToArray(reinterpret_cast<SkRefCnt**>(buffer->get()));
+
+    return size;
+}
+
+size_t SkGPipeCanvas::getCrossProcessTypefaces(const SkRefCntSet& typefaceSet,
+                                               TypefaceBuffer* buffer) {
+    // For cross-process we use typeface IDs.
+    size_t size = typefaceSet.count() * sizeof(uint32_t);
+    buffer->reset(size);
+
+    uint32_t* idBuffer = reinterpret_cast<uint32_t*>(buffer->get());
+    SkRefCntSet::Iter iter(typefaceSet);
+    int i = 0;
+
+    for (void* setPtr = iter.next(); setPtr; setPtr = iter.next()) {
+        idBuffer[i++] = this->getTypefaceID(reinterpret_cast<SkTypeface*>(setPtr));
+    }
+
+    SkASSERT(i == typefaceSet.count());
+
+    return size;
+}
+
 void SkGPipeCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                    const SkPaint& paint) {
     NOTIFY_SETUP(this);
     this->writePaint(paint);
 
     // FIXME: this is inefficient but avoids duplicating the blob serialization logic.
+    SkRefCntSet typefaceSet;
     SkWriteBuffer blobBuffer;
+    blobBuffer.setTypefaceRecorder(&typefaceSet);
     blob->flatten(blobBuffer);
 
-    size_t size = sizeof(uint32_t) + 2 * sizeof(SkScalar) + blobBuffer.bytesWritten();
+    // Unlike most draw ops (which only use one paint/typeface), text blobs may reference
+    // an arbitrary number of typefaces. Since the one-paint-per-op model is not applicable,
+    // we need to serialize these explicitly.
+    TypefaceBuffer typefaceBuffer;
+    size_t typefaceSize = is_cross_process(fFlags)
+        ? this->getCrossProcessTypefaces(typefaceSet, &typefaceBuffer)
+        : this->getInProcessTypefaces(typefaceSet, &typefaceBuffer);
+
+    // blob byte count + typeface count + x + y + blob data + an index (cross-process)
+    // or pointer (in-process) for each typeface
+    size_t size = 2 * sizeof(uint32_t)
+                + 2 * sizeof(SkScalar)
+                + blobBuffer.bytesWritten()
+                + typefaceSize;
+
     if (this->needOpBytes(size)) {
         this->writeOp(kDrawTextBlob_DrawOp);
+        SkDEBUGCODE(size_t initialOffset = fWriter.bytesWritten();)
+
         fWriter.writeScalar(x);
         fWriter.writeScalar(y);
+
+        fWriter.write32(typefaceSet.count());
+        fWriter.write(typefaceBuffer.get(), typefaceSize);
+
         fWriter.write32(SkToU32(blobBuffer.bytesWritten()));
         uint32_t* pad = fWriter.reservePad(blobBuffer.bytesWritten());
         blobBuffer.writeToMemory(pad);
+
+        SkASSERT(initialOffset + size == fWriter.bytesWritten());
     }
 }
 
@@ -1197,7 +1255,7 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
     }
 
     if (!SkTypeface::Equal(base.getTypeface(), paint.getTypeface())) {
-        if (isCrossProcess(fFlags)) {
+        if (is_cross_process(fFlags)) {
             uint32_t id = this->getTypefaceID(paint.getTypeface());
             *ptr++ = PaintOp_packOpData(kTypeface_PaintOp, id);
         } else if (this->needOpBytes(sizeof(void*))) {
