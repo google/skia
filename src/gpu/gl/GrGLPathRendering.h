@@ -99,6 +99,7 @@ private:
     struct Caps {
         bool stencilThenCoverSupport : 1;
         bool fragmentInputGenSupport : 1;
+        bool glyphLoadingSupport     : 1;
     };
     const Caps& caps() const { return fCaps; }
 

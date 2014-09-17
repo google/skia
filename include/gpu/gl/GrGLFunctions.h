@@ -252,6 +252,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilThenCoverStrokePathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat *transformValues);
     // NV_path_rendering v1.3
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramPathFragmentInputGenProc)(GrGLuint program, GrGLint location, GrGLenum genMode, GrGLint components,const GrGLfloat *coeffs);
+    typedef GrGLenum (GR_GL_FUNCTION_TYPE* GrGLPathMemoryGlyphIndexArrayProc)(GrGLuint firstPathName, GrGLenum fontTarget, GrGLsizeiptr fontSize, const GrGLvoid *fontData, GrGLsizei faceIndex, GrGLuint firstGlyphIndex, GrGLsizei numGlyphs, GrGLuint pathParameterTemplate, GrGLfloat emScale);
 }  // extern "C"
 
 #endif

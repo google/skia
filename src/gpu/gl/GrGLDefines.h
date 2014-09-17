@@ -895,6 +895,21 @@
 #define GR_GL_MITER_REVERT                                  0x90A7
 #define GR_GL_MITER_TRUNCATE                                0x90A8
 
+// glyph loading values
+#define GR_GL_STANDARD_FONT_NAME                            0x9072
+#define GR_GL_SYSTEM_FONT_NAME                              0x9073
+#define GR_GL_FILE_NAME                                     0x9074
+#define GR_GL_STANDARD_FONT_FORMAT                          0x936C
+#define GR_GL_SKIP_MISSING_GLYPH                            0x90A9
+#define GR_GL_USE_MISSING_GLYPH                             0x90AA
+#define GR_GL_FONT_GLYPHS_AVAILABLE                         0x9368
+#define GR_GL_FONT_TARGET_UNAVAILABLE                       0x9369
+#define GR_GL_FONT_UNAVAILABLE                              0x936A
+#define GR_GL_FONT_UNINTELLIGIBLE                           0x936B
+/*      GL_INVALID_ENUM */
+/*      GL_INVALID_VALUE */
+/*      GL_OUT_OF_MEMORY */
+
 // NV_path_rendering extension to ARB_program_interface_query:
 // .. corresponds to the set of active input variables used by the fragment
 // shader stage of <program> (if a fragment stage exists).

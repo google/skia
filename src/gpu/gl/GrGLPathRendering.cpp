@@ -49,13 +49,15 @@ GrGLPathRendering::GrGLPathRendering(GrGpuGL* gpu)
     : fGpu(gpu) {
     const GrGLInterface* glInterface = gpu->glInterface();
     fCaps.stencilThenCoverSupport =
-        glInterface->fFunctions.fStencilThenCoverFillPath &&
-        glInterface->fFunctions.fStencilThenCoverStrokePath &&
-        glInterface->fFunctions.fStencilThenCoverFillPathInstanced &&
-        glInterface->fFunctions.fStencilThenCoverStrokePathInstanced;
+        NULL != glInterface->fFunctions.fStencilThenCoverFillPath &&
+        NULL != glInterface->fFunctions.fStencilThenCoverStrokePath &&
+        NULL != glInterface->fFunctions.fStencilThenCoverFillPathInstanced &&
+        NULL != glInterface->fFunctions.fStencilThenCoverStrokePathInstanced;
     fCaps.fragmentInputGenSupport =
         kGLES_GrGLStandard == glInterface->fStandard &&
-        glInterface->fFunctions.fProgramPathFragmentInputGen;
+        NULL != glInterface->fFunctions.fProgramPathFragmentInputGen;
+    fCaps.glyphLoadingSupport =
+        NULL != glInterface->fFunctions.fPathMemoryGlyphIndexArray;
 
     if (!fCaps.fragmentInputGenSupport) {
         fHWPathTexGenSettings.reset(fGpu->glCaps().maxFixedFunctionTextureCoords());
