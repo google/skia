@@ -9,12 +9,11 @@
       'target_name': 'nanobench',
       'type': 'executable',
       'sources': [
+        '../gm/gm.cpp',
         '../bench/GMBench.cpp',
         '../bench/RecordingBench.cpp',
         '../bench/SKPBench.cpp',
         '../bench/nanobench.cpp',
-        '../gm/gm.cpp',
-        '../tools/LazyDecodeBitmap.cpp',
       ],
       'includes': [
         'bench.gypi',
