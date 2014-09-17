@@ -143,19 +143,6 @@ public:
     GrIndexBuffer* createIndexBuffer(size_t size, bool dynamic);
 
     /**
-     * Creates a path object that can be stenciled using stencilPath(). It is
-     * only legal to call this if the caps report support for path stenciling.
-     */
-    GrPath* createPath(const SkPath& path, const SkStrokeRec& stroke);
-
-    /**
-     * Creates a path range object that can be used to draw multiple paths via
-     * drawPaths(). It is only legal to call this if the caps report support for
-     * path rendering.
-     */
-    GrPathRange* createPathRange(size_t size, const SkStrokeRec&);
-
-    /**
      * Returns an index buffer that can be used to render quads.
      * Six indices per quad: 0, 1, 2, 0, 2, 3, etc.
      * The max number of quads can be queried using GrIndexBuffer::maxQuads().

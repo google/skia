@@ -1910,22 +1910,6 @@ const GrEffect* GrContext::createUPMToPMEffect(GrTexture* texture,
     }
 }
 
-GrPath* GrContext::createPath(const SkPath& inPath, const SkStrokeRec& stroke) {
-    SkASSERT(fGpu->caps()->pathRenderingSupport());
-
-    // TODO: now we add to fResourceCache. This should change to fResourceCache.
-    GrResourceKey resourceKey = GrPath::ComputeKey(inPath, stroke);
-    GrPath* path = static_cast<GrPath*>(fResourceCache->find(resourceKey));
-    if (path && path->isEqualTo(inPath, stroke)) {
-        path->ref();
-    } else {
-        path = fGpu->createPath(inPath, stroke);
-        fResourceCache->purgeAsNeeded(1, path->gpuMemorySize());
-        fResourceCache->addResource(resourceKey, path);
-    }
-    return path;
-}
-
 void GrContext::addResourceToCache(const GrResourceKey& resourceKey, GrGpuResource* resource) {
     fResourceCache->purgeAsNeeded(1, resource->gpuMemorySize());
     fResourceCache->addResource(resourceKey, resource);

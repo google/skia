@@ -86,7 +86,7 @@ private:
         // We reserve a range of kMaxGlyphCount paths because of fallbacks fonts. We
         // can't know exactly how many glyphs we might need without preloading every
         // fallback, which we don't want to do at this point.
-        , fPathRange(context->getGpu()->createPathRange(kMaxGlyphCount, stroke)) {
+        , fPathRange(context->getGpu()->pathRendering()->createPathRange(kMaxGlyphCount, stroke)) {
         memset(fLoadedGlyphs, 0, sizeof(fLoadedGlyphs));
     }
 

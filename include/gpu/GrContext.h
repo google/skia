@@ -1055,15 +1055,6 @@ private:
      */
     static bool OverbudgetCB(void* data);
 
-    /** Creates a new gpu path, based on the specified path and stroke and returns it.
-     * The caller owns a ref on the returned path which must be balanced by a call to unref.
-     *
-     * @param skPath the path geometry.
-     * @param stroke the path stroke.
-     * @return a new path or NULL if the operation is not supported by the backend.
-     */
-    GrPath* createPath(const SkPath& skPath, const SkStrokeRec& stroke);
-
     typedef SkRefCnt INHERITED;
 };
 

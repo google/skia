@@ -164,17 +164,6 @@ GrIndexBuffer* GrGpu::createIndexBuffer(size_t size, bool dynamic) {
     return this->onCreateIndexBuffer(size, dynamic);
 }
 
-GrPath* GrGpu::createPath(const SkPath& path, const SkStrokeRec& stroke) {
-    SkASSERT(this->caps()->pathRenderingSupport());
-    this->handleDirtyContext();
-    return this->pathRendering()->createPath(path, stroke);
-}
-
-GrPathRange* GrGpu::createPathRange(size_t size, const SkStrokeRec& stroke) {
-    this->handleDirtyContext();
-    return this->pathRendering()->createPathRange(size, stroke);
-}
-
 void GrGpu::clear(const SkIRect* rect,
                   GrColor color,
                   bool canIgnoreRect,

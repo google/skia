@@ -59,8 +59,26 @@ public:
         }
     }
 
+    /**
+     * Creates a new gpu path, based on the specified path and stroke and returns it.
+     * The caller owns a ref on the returned path which must be balanced by a call to unref.
+     *
+     * @param skPath the path geometry.
+     * @param stroke the path stroke.
+     * @return a new path.
+     */
     virtual GrPath* createPath(const SkPath&, const SkStrokeRec&) = 0;
+
+    /**
+     * Creates a range of gpu paths with a common stroke. The caller owns a ref on the
+     * returned path range which must be balanced by a call to unref.
+     *
+     * @param PathGenerator class that generates SkPath objects for each path in the range.
+     * @param SkStrokeRec   the common stroke applied to each path in the range.
+     * @return a new path range.
+     */
     virtual GrPathRange* createPathRange(size_t size, const SkStrokeRec&) = 0;
+
     virtual void stencilPath(const GrPath*, SkPath::FillType) = 0;
     virtual void drawPath(const GrPath*, SkPath::FillType) = 0;
     virtual void drawPaths(const GrPathRange*, const uint32_t indices[], int count,
