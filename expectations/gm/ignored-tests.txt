@@ -42,5 +42,3 @@ multipicturedraw_pathclip_tiled
 # rileya - https://codereview.chromium.org/516463005/ will rebaseline after bots cycle
 yuv_to_rgb_effect
 
-# fmalita - added typeface to test pipe serialization
-textblob

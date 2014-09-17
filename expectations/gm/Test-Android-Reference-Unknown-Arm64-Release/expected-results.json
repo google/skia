@@ -11707,46 +11707,46 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12320651101510448045
+          163112871246100159
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "textblob_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9047910060201698852
+          8109963484323310187
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "textblob_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5764134304639479868
+          8796565274520104554
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "textblob_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5764134304639479868
+          8796565274520104554
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "textblob_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14913685004765701671
+          11130782462247969877
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "texteffects_565.png": {
       "allowed-digests": [
