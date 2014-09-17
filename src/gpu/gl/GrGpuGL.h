@@ -30,7 +30,7 @@ public:
     GrGpuGL(const GrGLContext& ctx, GrContext* context);
     virtual ~GrGpuGL();
 
-    virtual void contextAbandonded() SK_OVERRIDE;
+    virtual void contextAbandoned() SK_OVERRIDE;
 
     const GrGLContext& glContext() const { return fGLContext; }
 

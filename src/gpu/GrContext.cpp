@@ -187,7 +187,7 @@ void GrContext::abandonContext() {
     // don't try to free the resources in the API.
     fResourceCache2->abandonAll();
 
-    fGpu->contextAbandonded();
+    fGpu->contextAbandoned();
 
     // a path renderer may be holding onto resources that
     // are now unusable

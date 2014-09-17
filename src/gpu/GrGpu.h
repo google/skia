@@ -62,8 +62,8 @@ public:
     // Called by GrContext when the underlying backend context has been destroyed.
     // GrGpu should use this to ensure that no backend API calls will be made from
     // here onward, including in its destructor. Subclasses should call
-    // INHERITED::contextAbandonded() if they override this.
-    virtual void contextAbandonded();
+    // INHERITED::contextAbandoned() if they override this.
+    virtual void contextAbandoned();
 
     /**
      * The GrGpu object normally assumes that no outsider is setting state

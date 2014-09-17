@@ -57,7 +57,7 @@ GrGpu::~GrGpu() {
     fIndexPool = NULL;
 }
 
-void GrGpu::contextAbandonded() {}
+void GrGpu::contextAbandoned() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 

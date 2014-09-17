@@ -166,8 +166,8 @@ GrGpuGL::~GrGpuGL() {
     this->releaseGeometry();
 }
 
-void GrGpuGL::contextAbandonded() {
-    INHERITED::contextAbandonded();
+void GrGpuGL::contextAbandoned() {
+    INHERITED::contextAbandoned();
     fProgramCache->abandon();
     fHWProgramID = 0;
     if (this->glCaps().pathRenderingSupport()) {
