@@ -21,6 +21,19 @@
 #include "SkRandom.h"
 #include "Test.h"
 
+static void get_stage_stats(const GrEffectStage stage, bool* readsDst,
+                            bool* readsFragPosition, bool* requiresVertexShader) {
+    if (stage.getEffect()->willReadDstColor()) {
+        *readsDst = true;
+    }
+    if (stage.getEffect()->willReadFragmentPosition()) {
+        *readsFragPosition = true;
+    }
+    if (stage.getEffect()->requiresVertexShader()) {
+        *requiresVertexShader = true;
+    }
+}
+
 bool GrGLProgramDesc::setRandom(SkRandom* random,
                                 const GrGpuGL* gpu,
                                 const GrRenderTarget* dstRenderTarget,
@@ -57,11 +70,11 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
         }
         GrEffectKeyBuilder b(&fKey);
         uint16_t effectKeySize;
-        if (!GetEffectKeyAndUpdateStats(*stage, gpu->glCaps(), useLocalCoords, &b,
-                                        &effectKeySize, &dstRead, &fragPos, &vertexShader)) {
+        if (!GetEffectKey(*stage, gpu->glCaps(), useLocalCoords, &b, &effectKeySize)) {
             fKey.reset();
             return false;
         }
+        get_stage_stats(*stage, &dstRead, &fragPos, &vertexShader);
         offsetAndSize[0] = effectKeyOffset;
         offsetAndSize[1] = effectKeySize;
         offset++;
@@ -79,11 +92,11 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
         }
         GrEffectKeyBuilder b(&fKey);
         uint16_t effectKeySize;
-        if (!GetEffectKeyAndUpdateStats(*stage, gpu->glCaps(), useLocalCoords, &b,
-                                        &effectKeySize, &dstRead, &fragPos, &vertexShader)) {
+        if (!GetEffectKey(*stages[s], gpu->glCaps(), useLocalCoords, &b, &effectKeySize)) {
             fKey.reset();
             return false;
         }
+        get_stage_stats(*stage, &dstRead, &fragPos, &vertexShader);
         offsetAndSize[0] = effectKeyOffset;
         offsetAndSize[1] = effectKeySize;
     }

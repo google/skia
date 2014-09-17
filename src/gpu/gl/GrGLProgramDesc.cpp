@@ -14,25 +14,11 @@
 
 #include "SkChecksum.h"
 
-bool GrGLProgramDesc::GetEffectKeyAndUpdateStats(const GrEffectStage& stage,
-                                                 const GrGLCaps& caps,
-                                                 bool useExplicitLocalCoords,
-                                                 GrEffectKeyBuilder* b,
-                                                 uint16_t* effectKeySize,
-                                                 bool* setTrueIfReadsDst,
-                                                 bool* setTrueIfReadsPos,
-                                                 bool* setTrueIfRequiresVertexShader) {
+bool GrGLProgramDesc::GetEffectKey(const GrEffectStage& stage, const GrGLCaps& caps,
+                                   bool useExplicitLocalCoords, GrEffectKeyBuilder* b,
+                                   uint16_t* effectKeySize) {
     const GrBackendEffectFactory& factory = stage.getEffect()->getFactory();
     const GrEffect& effect = *stage.getEffect();
-    if (effect.willReadDstColor()) {
-        *setTrueIfReadsDst = true;
-    }
-    if (effect.willReadFragmentPosition()) {
-        *setTrueIfReadsPos = true;
-    }
-    if (effect.requiresVertexShader()) {
-        *setTrueIfRequiresVertexShader = true;
-    }
     factory.getGLEffectKey(effect, caps, b);
     size_t size = b->size();
     if (size > SK_MaxU16) {
@@ -72,15 +58,7 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
 
     bool requiresColorAttrib = optState.hasColorVertexAttribute();
     bool requiresCoverageAttrib = optState.hasCoverageVertexAttribute();
-    // we only need the local coords if we're actually going to generate effect code
-    bool requiresLocalCoordAttrib = optState.numTotalStages() > 0 &&
-                                    optState.hasLocalCoordAttribute();
-
-    bool readsDst = false;
-    bool readFragPosition = false;
-
-    // Provide option for shader programs without vertex shader only when drawing paths.
-    bool requiresVertexShader = !GrGpu::IsPathRenderingDrawType(drawType);
+    bool requiresLocalCoordAttrib = optState.requiresLocalCoordAttrib();
 
     int numStages = optState.numTotalStages();
 
@@ -105,18 +83,14 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
             GrEffectKeyBuilder b(&desc->fKey);
             uint16_t effectKeySize;
             uint32_t effectOffset = desc->fKey.count();
-            effectKeySuccess |= GetEffectKeyAndUpdateStats(
-                                    *optState.getGeometryProcessor(), gpu->glCaps(),
-                                    requiresLocalCoordAttrib, &b,
-                                    &effectKeySize, &readsDst,
-                                    &readFragPosition, &requiresVertexShader);
+            effectKeySuccess |= GetEffectKey(*optState.getGeometryProcessor(), gpu->glCaps(),
+                                             requiresLocalCoordAttrib, &b, &effectKeySize);
             effectKeySuccess |= (effectOffset <= SK_MaxU16);
 
             offsetAndSize[0] = SkToU16(effectOffset);
             offsetAndSize[1] = effectKeySize;
             ++offsetAndSizeIndex;
             *geometryProcessor = optState.getGeometryProcessor();
-            SkASSERT(requiresVertexShader);
             header->fHasGeometryProcessor = true;
     }
 
@@ -125,21 +99,16 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
             reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
                                         offsetAndSizeIndex * 2 * sizeof(uint16_t));
 
-        bool effectRequiresVertexShader = false;
         GrEffectKeyBuilder b(&desc->fKey);
         uint16_t effectKeySize;
         uint32_t effectOffset = desc->fKey.count();
-        effectKeySuccess |= GetEffectKeyAndUpdateStats(
-            optState.getColorStage(s), gpu->glCaps(),
-            requiresLocalCoordAttrib, &b,
-            &effectKeySize, &readsDst,
-            &readFragPosition, &effectRequiresVertexShader);
+        effectKeySuccess |= GetEffectKey(optState.getColorStage(s), gpu->glCaps(),
+                                         requiresLocalCoordAttrib, &b, &effectKeySize);
         effectKeySuccess |= (effectOffset <= SK_MaxU16);
 
         offsetAndSize[0] = SkToU16(effectOffset);
         offsetAndSize[1] = effectKeySize;
         ++offsetAndSizeIndex;
-        SkASSERT(!effectRequiresVertexShader);
     }
 
     for (int s = 0; s < optState.numCoverageStages(); ++s) {
@@ -147,21 +116,16 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
             reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
                                         offsetAndSizeIndex * 2 * sizeof(uint16_t));
 
-        bool effectRequiresVertexShader = false;
         GrEffectKeyBuilder b(&desc->fKey);
         uint16_t effectKeySize;
         uint32_t effectOffset = desc->fKey.count();
-        effectKeySuccess |= GetEffectKeyAndUpdateStats(
-            optState.getCoverageStage(s), gpu->glCaps(),
-            requiresLocalCoordAttrib, &b,
-            &effectKeySize, &readsDst,
-            &readFragPosition, &effectRequiresVertexShader);
+        effectKeySuccess |= GetEffectKey(optState.getCoverageStage(s), gpu->glCaps(),
+                                         requiresLocalCoordAttrib, &b, &effectKeySize);
         effectKeySuccess |= (effectOffset <= SK_MaxU16);
 
         offsetAndSize[0] = SkToU16(effectOffset);
         offsetAndSize[1] = effectKeySize;
         ++offsetAndSizeIndex;
-        SkASSERT(!effectRequiresVertexShader);
     }
 
     if (!effectKeySuccess) {
@@ -172,7 +136,12 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
     // below here.
 
-    header->fRequiresVertexShader = requiresVertexShader || requiresLocalCoordAttrib;
+    // We will only require a vertex shader if we have more than just the position VA attrib.
+    // If we have a geom processor we must us a vertex shader and we should not have a geometry
+    // processor if we are doing path rendering.
+    SkASSERT(!GrGpu::IsPathRenderingDrawType(drawType) || !optState.requiresVertexShader());
+    header->fRequiresVertexShader = optState.requiresVertexShader() ||
+                                    !GrGpu::IsPathRenderingDrawType(drawType);
     header->fEmitsPointSize = GrGpu::kDrawPoints_DrawType == drawType;
 
     // Currently the experimental GS will only work with triangle prims (and it doesn't do anything
@@ -206,7 +175,7 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
         header->fRequiresVertexShader = true;
     }
 
-    if (readsDst) {
+    if (optState.readsDst()) {
         SkASSERT(dstCopy || gpu->caps()->dstReadInShaderSupport());
         const GrTexture* dstCopyTexture = NULL;
         if (dstCopy) {
@@ -219,7 +188,7 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
         header->fDstReadKey = 0;
     }
 
-    if (readFragPosition) {
+    if (optState.readsFragPosition()) {
         header->fFragPosKey = GrGLFragmentShaderBuilder::KeyForFragmentPosition(
                 optState.getRenderTarget(), gpu->glCaps());
     } else {
@@ -277,7 +246,7 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
                 header->fCoverageOutput = kSecondaryCoverageISC_CoverageOutput;
                 separateCoverageFromColor = true;
             }
-        } else if (readsDst &&
+        } else if (optState.readsDst() &&
                    kOne_GrBlendCoeff == srcCoeff &&
                    kZero_GrBlendCoeff == dstCoeff) {
             header->fCoverageOutput = kCombineWithDst_CoverageOutput;

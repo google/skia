@@ -44,6 +44,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     this->copyEffectiveColorStages(drawState);
     this->copyEffectiveCoverageStages(drawState);
     this->adjustFromBlendOpts();
+    this->getStageStats();
 };
 
 void GrOptDrawState::adjustFromBlendOpts() {
@@ -176,6 +177,41 @@ void GrOptDrawState::copyEffectiveCoverageStages(const GrDrawState& ds) {
                               ds.numCoverageStages() - firstCoverageStage);
     } else {
         fCoverageStages.reset();
+    }
+}
+
+static void get_stage_stats(const GrEffectStage& stage, bool* readsDst, bool* readsFragPosition) {
+    if (stage.getEffect()->willReadDstColor()) {
+        *readsDst = true;
+    }
+    if (stage.getEffect()->willReadFragmentPosition()) {
+        *readsFragPosition = true;
+    }
+}
+void GrOptDrawState::getStageStats() {
+    // We will need a local coord attrib if there is one currently set on the optState and we are
+    // actually generating some effect code
+    fRequiresLocalCoordAttrib = this->hasLocalCoordAttribute() && this->numTotalStages() > 0;
+
+    // if 1 == fVACount then that VA must be position, otherwise it contains some attribute which
+    // will require a vertexShader
+    fRequiresVertexShader = fVACount > 1;
+
+    fReadsDst = false;
+    fReadsFragPosition = false;
+
+    for (int s = 0; s < this->numColorStages(); ++s) {
+        const GrEffectStage& stage = this->getColorStage(s);
+        get_stage_stats(stage, &fReadsDst, &fReadsFragPosition);
+    }
+    for (int s = 0; s < this->numCoverageStages(); ++s) {
+        const GrEffectStage& stage = this->getCoverageStage(s);
+        get_stage_stats(stage, &fReadsDst, &fReadsFragPosition);
+    }
+    if (this->hasGeometryProcessor()) {
+        const GrEffectStage& stage = *this->getGeometryProcessor();
+        get_stage_stats(stage, &fReadsDst, &fReadsFragPosition);
+        SkASSERT(fRequiresVertexShader);
     }
 }
 

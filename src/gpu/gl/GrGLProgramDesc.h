@@ -201,14 +201,9 @@ private:
     KeyHeader* header() { return this->atOffset<KeyHeader, kHeaderOffset>(); }
 
     // Shared code between setRandom() and Build().
-    static bool GetEffectKeyAndUpdateStats(const GrEffectStage& stage,
-                                           const GrGLCaps& caps,
-                                           bool useExplicitLocalCoords,
-                                           GrEffectKeyBuilder* b,
-                                           uint16_t* effectKeySize,
-                                           bool* setTrueIfReadsDst,
-                                           bool* setTrueIfReadsPos,
-                                           bool* setTrueIfRequiresVertexShader);
+    static bool GetEffectKey(const GrEffectStage& stage, const GrGLCaps& caps,
+                             bool useExplicitLocalCoords, GrEffectKeyBuilder* b,
+                             uint16_t* effectKeySize);
 
     void finalize();
 

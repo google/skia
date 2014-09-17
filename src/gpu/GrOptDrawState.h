@@ -23,6 +23,11 @@ public:
     bool inputColorIsUsed() const { return fInputColorIsUsed; }
     bool inputCoverageIsUsed() const { return fInputCoverageIsUsed; }
 
+    bool readsDst() const { return fReadsDst; }
+    bool readsFragPosition() const { return fReadsFragPosition; }
+    bool requiresVertexShader() const { return fRequiresVertexShader; }
+    bool requiresLocalCoordAttrib() const { return fRequiresLocalCoordAttrib; }
+
 private:
     /**
      * Constructs and optimized drawState out of a GrRODrawState.
@@ -61,10 +66,22 @@ private:
      */
     void adjustFromBlendOpts();
 
+    /**
+     * Loop over the effect stages to determine various info like what data they will read and what
+     * shaders they require.
+     */
+    void getStageStats();
+
     // These flags are needed to protect the code from creating an unused uniform color/coverage
     // which will cause shader compiler errors.
     bool            fInputColorIsUsed;
     bool            fInputCoverageIsUsed;
+
+    // These flags give aggregated info on the effect stages that are used when building programs.
+    bool            fReadsDst;
+    bool            fReadsFragPosition;
+    bool            fRequiresVertexShader;
+    bool            fRequiresLocalCoordAttrib;
 
     SkAutoSTArray<4, GrVertexAttrib> fOptVA;
 
