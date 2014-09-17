@@ -273,7 +273,6 @@
       '<(skia_src_path)/gpu/gl/builders/GrGLGeometryShaderBuilder.h',
 
       # Sk files
-      '<(skia_include_path)/gpu/SkGpuDevice.h',
       '<(skia_include_path)/gpu/SkGr.h',
       '<(skia_include_path)/gpu/SkGrPixelRef.h',
       '<(skia_include_path)/gpu/SkGrTexturePixelRef.h',
@@ -281,6 +280,7 @@
       '<(skia_include_path)/gpu/gl/SkGLContextHelper.h',
 
       '<(skia_src_path)/gpu/SkGpuDevice.cpp',
+      '<(skia_src_path)/gpu/SkGpuDevice.h',
       '<(skia_src_path)/gpu/SkGr.cpp',
       '<(skia_src_path)/gpu/SkGrPixelRef.cpp',
       '<(skia_src_path)/gpu/SkGrTexturePixelRef.cpp',
