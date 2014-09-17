@@ -6,23 +6,14 @@
  */
 
 #include "SkDevice.h"
+#include "SkDeviceProperties.h"
 #include "SkDraw.h"
 #include "SkMetaData.h"
 #include "SkPatchUtils.h"
 #include "SkTextBlob.h"
 
 SkBaseDevice::SkBaseDevice()
-    : fLeakyProperties(SkDeviceProperties::MakeDefault())
-#ifdef SK_DEBUG
-    , fAttachedToCanvas(false)
-#endif
-{
-    fOrigin.setZero();
-    fMetaData = NULL;
-}
-
-SkBaseDevice::SkBaseDevice(const SkDeviceProperties& deviceProperties)
-    : fLeakyProperties(deviceProperties)
+    : fLeakyProperties(SkNEW_ARGS(SkDeviceProperties, (SkDeviceProperties::MakeDefault())))
 #ifdef SK_DEBUG
     , fAttachedToCanvas(false)
 #endif
@@ -32,7 +23,8 @@ SkBaseDevice::SkBaseDevice(const SkDeviceProperties& deviceProperties)
 }
 
 SkBaseDevice::~SkBaseDevice() {
-    delete fMetaData;
+    SkDELETE(fLeakyProperties);
+    SkDELETE(fMetaData);
 }
 
 SkBaseDevice* SkBaseDevice::createCompatibleDevice(const SkImageInfo& info) {

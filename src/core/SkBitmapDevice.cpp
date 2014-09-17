@@ -61,12 +61,14 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
 }
 
+#if 0
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkDeviceProperties& deviceProperties)
     : SkBaseDevice(deviceProperties)
     , fBitmap(bitmap)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
 }
+#endif
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
                                        const SkDeviceProperties* props) {
@@ -91,8 +93,8 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         }
     }
 
-    if (props) {
-        return SkNEW_ARGS(SkBitmapDevice, (bitmap, *props));
+    if (props && false) {
+//        return SkNEW_ARGS(SkBitmapDevice, (bitmap, *props));
     } else {
         return SkNEW_ARGS(SkBitmapDevice, (bitmap));
     }
@@ -110,7 +112,7 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
 }
 
 SkBaseDevice* SkBitmapDevice::onCreateDevice(const SkImageInfo& info, Usage usage) {
-    return SkBitmapDevice::Create(info, &this->getDeviceProperties());
+    return SkBitmapDevice::Create(info);// &this->getDeviceProperties());
 }
 
 void SkBitmapDevice::lockPixels() {

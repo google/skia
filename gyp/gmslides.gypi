@@ -61,7 +61,6 @@
         '../gm/discard.cpp',
         '../gm/dashcubics.cpp',
         '../gm/dashing.cpp',
-        '../gm/deviceproperties.cpp',
         '../gm/distantclip.cpp',
         '../gm/dftext.cpp',
         '../gm/displacement.cpp',

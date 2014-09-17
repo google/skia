@@ -29,10 +29,6 @@ public:
     SkTrackDevice(const SkBitmap& bitmap) : SkBitmapDevice(bitmap)
                                           , fTracker(NULL) {}
 
-    SkTrackDevice(const SkBitmap& bitmap, const SkDeviceProperties& deviceProperties)
-        : SkBitmapDevice(bitmap, deviceProperties)
-        , fTracker(NULL) {}
-
     virtual ~SkTrackDevice() {}
 
     // Install a tracker - we can reuse the tracker between multiple devices, and the state of the

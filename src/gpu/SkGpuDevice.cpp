@@ -157,8 +157,8 @@ SkGpuDevice::SkGpuDevice(GrSurface* surface, unsigned flags) {
     fLegacyBitmap.setPixelRef(pr)->unref();
 
     bool useDFFonts = !!(flags & kDFFonts_Flag);
-    fMainTextContext = fContext->createTextContext(fRenderTarget, fLeakyProperties, useDFFonts);
-    fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
+    fMainTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFFonts);
+    fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, this->getLeakyProperties()));
 }
 
 SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo,
