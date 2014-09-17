@@ -5,24 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "GrProgramResource.h"
+#include "GrGpuResourceRef.h"
 #include "GrGpuResource.h"
 
-GrProgramResource::GrProgramResource() {
+GrGpuResourceRef::GrGpuResourceRef() {
     fResource = NULL;
     fOwnRef = false;
     fPendingIO = false;
     fIOType = kNone_IOType;
 }
 
-GrProgramResource::GrProgramResource(GrGpuResource* resource, IOType ioType) {
+GrGpuResourceRef::GrGpuResourceRef(GrGpuResource* resource, IOType ioType) {
     fResource = NULL;
     fOwnRef = false;
     fPendingIO = false;
     this->setResource(resource, ioType);
 }
 
-GrProgramResource::~GrProgramResource() {
+GrGpuResourceRef::~GrGpuResourceRef() {
     if (fOwnRef) {
         SkASSERT(fResource);
         fResource->unref();
@@ -46,7 +46,7 @@ GrProgramResource::~GrProgramResource() {
     }
 }
 
-void GrProgramResource::reset() {
+void GrGpuResourceRef::reset() {
     SkASSERT(!fPendingIO);
     SkASSERT(SkToBool(fResource) == fOwnRef);
     if (fOwnRef) {
@@ -57,7 +57,7 @@ void GrProgramResource::reset() {
     }
 }
 
-void GrProgramResource::setResource(GrGpuResource* resource, IOType ioType) {
+void GrGpuResourceRef::setResource(GrGpuResource* resource, IOType ioType) {
     SkASSERT(!fPendingIO);
     SkASSERT(SkToBool(fResource) == fOwnRef);
     SkSafeUnref(fResource);
@@ -73,7 +73,7 @@ void GrProgramResource::setResource(GrGpuResource* resource, IOType ioType) {
     }
 }
 
-void GrProgramResource::markPendingIO() const {
+void GrGpuResourceRef::markPendingIO() const {
     // This should only be called when the owning GrProgramElement gets its first
     // pendingExecution ref.
     SkASSERT(!fPendingIO);
@@ -81,7 +81,7 @@ void GrProgramResource::markPendingIO() const {
     fPendingIO = true;
     switch (fIOType) {
         case kNone_IOType:
-            SkFAIL("GrProgramResource with neither reads nor writes?");
+            SkFAIL("GrGpuResourceRef with neither reads nor writes?");
             break;
         case kRead_IOType:
             fResource->addPendingRead();
@@ -97,14 +97,14 @@ void GrProgramResource::markPendingIO() const {
     }
 }
 
-void GrProgramResource::pendingIOComplete() const {
+void GrGpuResourceRef::pendingIOComplete() const {
     // This should only be called when the owner's pending executions have ocurred but it is still
     // reffed.
     SkASSERT(fOwnRef);
     SkASSERT(fPendingIO);
     switch (fIOType) {
         case kNone_IOType:
-            SkFAIL("GrProgramResource with neither reads nor writes?");
+            SkFAIL("GrGpuResourceRef with neither reads nor writes?");
             break;
         case kRead_IOType:
             fResource->completedRead();
@@ -121,7 +121,7 @@ void GrProgramResource::pendingIOComplete() const {
     fPendingIO = false;
 }
 
-void GrProgramResource::removeRef() const {
+void GrGpuResourceRef::removeRef() const {
     // This should only be called once, when the owners last ref goes away and
     // there is a pending execution.
     SkASSERT(fOwnRef);

@@ -14,7 +14,7 @@
 
 GrRODrawState::GrRODrawState(const GrRODrawState& drawState) : INHERITED() {
     fRenderTarget.setResource(SkSafeRef(drawState.fRenderTarget.getResource()),
-                              GrProgramResource::kWrite_IOType);
+                              GrGpuResourceRef::kWrite_IOType);
 }
 
 bool GrRODrawState::isEqual(const GrRODrawState& that) const {

@@ -9,7 +9,7 @@
 #define GrDrawState_DEFINED
 
 #include "GrBlend.h"
-#include "GrProgramResource.h"
+#include "GrGpuResourceRef.h"
 #include "GrRODrawState.h"
 #include "effects/GrSimpleTextureEffect.h"
 
@@ -405,7 +405,7 @@ public:
      * @param target  The render target to set.
      */
     void setRenderTarget(GrRenderTarget* target) {
-        fRenderTarget.set(SkSafeRef(target), GrProgramResource::kWrite_IOType);
+        fRenderTarget.set(SkSafeRef(target), GrGpuResourceRef::kWrite_IOType);
         this->invalidateOptState();
     }
 

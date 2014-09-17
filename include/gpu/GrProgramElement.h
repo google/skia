@@ -11,7 +11,7 @@
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 
-class GrProgramResource;
+class GrGpuResourceRef;
 
 /**
  * Base class for GrEffect (and future GrGeometryProcessor). GrDrawState uses this to manage
@@ -19,8 +19,8 @@ class GrProgramResource;
  * converts resources owned by the effect from being ref'ed to having pending reads/writes.
  *
  * All GrGpuResource objects owned by a GrProgramElement or derived classes (either directly or
- * indirectly) must be wrapped in a GrProgramResource and registered with the GrProgramElement using
- * addGrProgramResource(). This allows the regular refs to be converted to pending IO events
+ * indirectly) must be wrapped in a GrGpuResourceRef and registered with the GrProgramElement using
+ * addGpuResource(). This allows the regular refs to be converted to pending IO events
  * when the program element is scheduled for deferred execution.
  */
 class GrProgramElement : public SkNoncopyable {
@@ -67,10 +67,10 @@ protected:
 
     /** Subclasses registers their resources using this function. It is assumed the GrProgramResouce
         is and will remain owned by the subclass and this function will retain a raw ptr. Once a
-        GrProgramResource is registered its setResource must not be called.
+        GrGpuResourceRef is registered its setResource must not be called.
      */
-    void addProgramResource(const GrProgramResource* res) {
-        fProgramResources.push_back(res);
+    void addGpuResource(const GrGpuResourceRef* res) {
+        fGpuResources.push_back(res);
     }
 
 private:
@@ -85,7 +85,7 @@ private:
     mutable int32_t fPendingExecutions;
     uint32_t        fUniqueID;
 
-    SkSTArray<4, const GrProgramResource*, true> fProgramResources;
+    SkSTArray<4, const GrGpuResourceRef*, true> fGpuResources;
 
     // Only this class can access convertRefToPendingExecution() and completedExecution().
     template <typename T> friend class GrProgramElementRef;

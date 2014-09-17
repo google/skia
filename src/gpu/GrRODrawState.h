@@ -397,7 +397,7 @@ protected:
                                GrBlendCoeff* srcCoeff = NULL,
                                GrBlendCoeff* dstCoeff = NULL) const;
 
-    typedef GrProgramTResource<GrRenderTarget> ProgramRenderTarget;
+    typedef GrTGpuResourceRef<GrRenderTarget> ProgramRenderTarget;
     // These fields are roughly sorted by decreasing likelihood of being different in op==
     ProgramRenderTarget                 fRenderTarget;
     GrColor                             fColor;

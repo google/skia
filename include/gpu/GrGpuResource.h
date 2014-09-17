@@ -110,7 +110,7 @@ private:
     mutable int32_t fPendingWrites;
 
     // This class is used to manage conversion of refs to pending reads/writes.
-    friend class GrProgramResource;
+    friend class GrGpuResourceRef;
 };
 
 /**

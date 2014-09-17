@@ -8,7 +8,7 @@
 #ifndef GrTextureAccess_DEFINED
 #define GrTextureAccess_DEFINED
 
-#include "GrProgramResource.h"
+#include "GrGpuResourceRef.h"
 #include "GrTexture.h"
 #include "SkRefCnt.h"
 #include "SkShader.h"
@@ -167,7 +167,7 @@ public:
     /**
      * For internal use by GrEffect.
      */
-    const GrProgramResource* getProgramTexture() const { return &fTexture; }
+    const GrGpuResourceRef* getProgramTexture() const { return &fTexture; }
 
     /**
      * Returns a string representing the swizzle. The string is is null-terminated.
@@ -183,7 +183,7 @@ public:
 private:
     void setSwizzle(const char*);
 
-    typedef GrProgramTResource<GrTexture> ProgramTexture;
+    typedef GrTGpuResourceRef<GrTexture> ProgramTexture;
 
     ProgramTexture                  fTexture;
     GrTextureParams                 fParams;

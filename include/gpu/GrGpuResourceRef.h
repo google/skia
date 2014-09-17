@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrProgramResource_DEFINED
-#define GrProgramResource_DEFINED
+#ifndef GrGpuResourceRef_DEFINED
+#define GrGpuResourceRef_DEFINED
 
 #include "SkRefCnt.h"
 
@@ -17,9 +17,9 @@ class GrGpuResource;
  * converting refs to pending io operations. Like SkAutoTUnref, its constructor and setter adopt
  * a ref from their caller. This class is intended only for internal use in core Gr code.
  */
-class GrProgramResource : SkNoncopyable {
+class GrGpuResourceRef : SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(GrProgramResource);
+    SK_DECLARE_INST_COUNT_ROOT(GrGpuResourceRef);
 
     enum IOType {
         kRead_IOType,
@@ -29,7 +29,7 @@ public:
         kNone_IOType, // For internal use only, don't specify to constructor or setResource().
     };
 
-    ~GrProgramResource();
+    ~GrGpuResourceRef();
 
     GrGpuResource* getResource() const { return fResource; }
 
@@ -41,11 +41,11 @@ public:
     void reset();
 
 protected:
-    GrProgramResource();
+    GrGpuResourceRef();
 
     /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
-    GrProgramResource(GrGpuResource*, IOType);
+    GrGpuResourceRef(GrGpuResource*, IOType);
 
     /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
@@ -62,7 +62,7 @@ private:
     void removeRef() const;
 
     /** Called to indicate that the previous pending IO is complete. Useful when the owning object
-        still has refs, so it is not about to destroy this GrProgramResource, but its previously
+        still has refs, so it is not about to destroy this GrGpuResourceRef, but its previously
         pending executions have been complete.
      */
     void pendingIOComplete() const;
@@ -78,19 +78,22 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
-template <typename T> class GrProgramTResource : public GrProgramResource {
+template <typename T> class GrTGpuResourceRef : public GrGpuResourceRef {
 public:
-    GrProgramTResource() {}
+    GrTGpuResourceRef() {}
 
     /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
-    GrProgramTResource(T* resource, IOType ioType) : GrProgramResource(resource, ioType) {}
+    GrTGpuResourceRef(T* resource, IOType ioType) : INHERITED(resource, ioType) {}
 
     T* get() const { return static_cast<T*>(this->getResource()); }
 
     /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
     void set(T* resource, IOType ioType) { this->setResource(resource, ioType); }
+
+private:
+    typedef GrGpuResourceRef INHERITED;
 };
 
 
