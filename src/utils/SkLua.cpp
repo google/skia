@@ -13,6 +13,7 @@
 
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkDecodingImageGenerator.h"
 #include "SkDocument.h"
 #include "SkImage.h"
 #include "SkMatrix.h"
@@ -1460,7 +1461,9 @@ static int lsk_loadImage(lua_State* L) {
         const char* name = lua_tolstring(L, 1, NULL);
         SkAutoDataUnref data(SkData::NewFromFileName(name));
         if (data.get()) {
-            SkImage* image = SkImage::NewEncodedData(data.get());
+            SkImage* image = SkImage::NewFromGenerator(
+                SkDecodingImageGenerator::Create(data, SkDecodingImageGenerator::Options()));
+
             if (image) {
                 push_ref(L, image);
                 image->unref();
