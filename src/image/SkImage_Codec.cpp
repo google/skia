@@ -25,6 +25,8 @@ public:
     virtual bool isOpaque() const SK_OVERRIDE;
 
 private:
+    bool ensureBitmapDecoded() const;
+
     SkData*     fEncodedData;
     SkBitmap    fBitmap;
 
@@ -42,26 +44,31 @@ SkImage_Codec::~SkImage_Codec() {
     fEncodedData->unref();
 }
 
-void SkImage_Codec::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
+bool SkImage_Codec::ensureBitmapDecoded() const {
     if (!fBitmap.pixelRef()) {
         // todo: this needs to be thread-safe
         SkBitmap* bitmap = const_cast<SkBitmap*>(&fBitmap);
         if (!SkImageDecoder::DecodeMemory(fEncodedData->bytes(), fEncodedData->size(), bitmap)) {
-            return;
+            return false;
         }
     }
+    return true;
+}
+
+void SkImage_Codec::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
+    if(!this->ensureBitmapDecoded()) {
+        return;
+    }
+
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
 void SkImage_Codec::onDrawRectToRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
                                      const SkPaint* paint) const {
-    if (!fBitmap.pixelRef()) {
-        // todo: this needs to be thread-safe
-        SkBitmap* bitmap = const_cast<SkBitmap*>(&fBitmap);
-        if (!SkImageDecoder::DecodeMemory(fEncodedData->bytes(), fEncodedData->size(), bitmap)) {
-            return;
-        }
+    if(!this->ensureBitmapDecoded()) {
+        return;
     }
+
     canvas->drawBitmapRectToRect(fBitmap, src, dst, paint);
 }
 
