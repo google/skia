@@ -36,8 +36,8 @@ import (
 )
 
 const (
-	RESULT_COMPILE = `../../experimental/webtry/safec++ -DSK_GAMMA_SRGB -DSK_GAMMA_APPLY_TO_A8 -DSK_SCALAR_TO_FLOAT_EXCLUDED -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1 -DSK_SUPPORT_GPU=0 -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCEFIELD_FONTS=0 -DSK_SCALAR_IS_FLOAT -DSK_CAN_USE_FLOAT -DSK_SAMPLES_FOR_X -DSK_BUILD_FOR_UNIX -DSK_USE_POSIX_THREADS -DSK_SYSTEM_ZLIB=1 -DSK_DEBUG -DSK_DEVELOPER=1 -I../../src/core -I../../src/images -I../../tools/flags -I../../include/config -I../../include/core -I../../include/pathops -I../../include/pipe -I../../include/effects -I../../include/ports -I../../src/sfnt -I../../include/utils -I../../src/utils -I../../include/images -g -fno-exceptions -fstrict-aliasing -Wall -Wextra -Winit-self -Wpointer-arith -Wno-unused-parameter -m64 -fno-rtti -Wnon-virtual-dtor -c ../../../cache/%s.cpp -o ../../../cache/%s.o`
-	LINK           = `../../experimental/webtry/safec++ -m64 -lstdc++ -lm -o ../../../inout/%s -Wl,--start-group ../../../cache/%s.o obj/experimental/webtry/webtry.main.o obj/gyp/libflags.a libskia_images.a libskia_core.a libskia_effects.a obj/gyp/libjpeg.a obj/gyp/libetc1.a obj/gyp/libSkKTX.a obj/gyp/libwebp_dec.a obj/gyp/libwebp_demux.a obj/gyp/libwebp_dsp.a obj/gyp/libwebp_enc.a obj/gyp/libwebp_utils.a libskia_utils.a libskia_opts.a libskia_opts_ssse3.a libskia_ports.a libskia_sfnt.a -Wl,--end-group -lpng -lz -lgif -lpthread -lfontconfig -ldl -lfreetype`
+	RUN_GYP        = `../../experimental/webtry/gyp_for_webtry %s`
+	RUN_NINJA      = `ninja -C ../../../inout/Release %s`
 
 	DEFAULT_SAMPLE = `void draw(SkCanvas* canvas) {
     SkPaint p;
@@ -55,6 +55,9 @@ const (
 var (
 	// codeTemplate is the cpp code template the user's code is copied into.
 	codeTemplate *template.Template = nil
+
+	// gypTemplate is the GYP file to build the executable containing the user's code.
+	gypTemplate *template.Template = nil
 
 	// indexTemplate is the main index.html page we serve.
 	indexTemplate *htemplate.Template = nil
@@ -147,6 +150,10 @@ func init() {
 	os.Chdir(cwd)
 
 	codeTemplate, err = template.ParseFiles(filepath.Join(cwd, "templates/template.cpp"))
+	if err != nil {
+		panic(err)
+	}
+	gypTemplate, err = template.ParseFiles(filepath.Join(cwd, "templates/template.gyp"))
 	if err != nil {
 		panic(err)
 	}
@@ -337,14 +344,20 @@ type userCode struct {
 	Titlebar Titlebar
 }
 
-// expandToFile expands the template and writes the result to the file.
-func expandToFile(filename string, code string, t *template.Template) error {
+// writeTemplate creates a given output file and writes the template 
+// result there.
+func writeTemplate(filename string, t *template.Template, context interface{}) error {
 	f, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	return t.Execute(f, userCode{Code: code, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}})
+	return t.Execute( f, context )
+}
+
+// expandToFile expands the template and writes the result to the file.
+func expandToFile(filename string, code string, t *template.Template) error {
+	return writeTemplate( filename, t, userCode{Code: code, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}} )
 }
 
 // expandCode expands the template into a file and calculates the MD5 hash.
@@ -356,8 +369,13 @@ func expandCode(code string, source int) (string, error) {
 	// At this point we are running in skia/experimental/webtry, making cache a
 	// peer directory to skia.
 	// TODO(jcgregorio) Make all relative directories into flags.
-	err := expandToFile(fmt.Sprintf("../../../cache/%s.cpp", hash), code, codeTemplate)
+	err := expandToFile(fmt.Sprintf("../../../cache/src/%s.cpp", hash), code, codeTemplate)
 	return hash, err
+}
+
+// expandGyp produces the GYP file needed to build the code
+func expandGyp(hash string) (error) {
+	return writeTemplate(fmt.Sprintf("../../../cache/%s.gyp", hash), gypTemplate, struct {Hash string}{hash} )
 }
 
 // response is serialized to JSON as a response to POSTs.
@@ -738,7 +756,7 @@ func tryInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func cleanCompileOutput(s, hash string) string {
-	old := "../../../cache/" + hash + ".cpp:"
+	old := "../../../cache/src/" + hash + ".cpp:"
 	log.Printf("INFO: replacing %q\n", old)
 	return strings.Replace(s, old, "usercode.cpp:", -1)
 }
@@ -798,13 +816,18 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeToDatabase(hash, request.Code, request.Name, request.Source)
-		message, err := doCmd(fmt.Sprintf(RESULT_COMPILE, hash, hash), true)
+		err = expandGyp(hash)
+		if err != nil {
+			reportTryError(w, r, err, "Failed to write the gyp file.", hash)
+			return
+		}
+		message, err := doCmd(fmt.Sprintf(RUN_GYP, hash), true)
 		if err != nil {
 			message = cleanCompileOutput(message, hash)
 			reportTryError(w, r, err, message, hash)
 			return
 		}
-		linkMessage, err := doCmd(fmt.Sprintf(LINK, hash, hash), true)
+		linkMessage, err := doCmd(fmt.Sprintf(RUN_NINJA, hash), true)
 		if err != nil {
 			linkMessage = cleanCompileOutput(linkMessage, hash)
 			reportTryError(w, r, err, linkMessage, hash)
@@ -816,9 +839,9 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			cmd += fmt.Sprintf("  --source image-%d.png", request.Source)
 		}
 		if *useChroot {
-			cmd = "schroot -c webtry --directory=/inout -- /inout/" + cmd
+			cmd = "schroot -c webtry --directory=/inout -- /inout/Release/" + cmd
 		} else {
-			abs, err := filepath.Abs("../../../inout")
+			abs, err := filepath.Abs("../../../inout/Release")
 			if err != nil {
 				reportTryError(w, r, err, "Failed to find executable directory.", hash)
 				return

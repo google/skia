@@ -30,6 +30,7 @@ export GOPATH=$HOME/golib
 export PATH=$PATH:$GOROOT/bin
 
 mkdir /home/webtry/cache
+mkdir /home/webtry/cache/src
 mkdir /home/webtry/inout
 chmod 777 /home/webtry/inout
 
