@@ -6,7 +6,7 @@
  */
 
 #include "GrGLVertexShaderBuilder.h"
-#include "GrGLProgramBuilder.h"
+#include "GrGLFullProgramBuilder.h"
 #include "GrGLShaderStringBuilder.h"
 #include "../GrGpuGL.h"
 #include "../../GrOptDrawState.h"

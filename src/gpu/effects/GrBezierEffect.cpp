@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrBezierEffect.h"
 
+#include "gl/builders/GrGLFullProgramBuilder.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLGeometryProcessor.h"

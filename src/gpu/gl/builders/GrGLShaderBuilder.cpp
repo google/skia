@@ -6,6 +6,7 @@
  */
 
 #include "GrGLShaderBuilder.h"
+#include "GrGLFullProgramBuilder.h"
 #include "GrGLProgramBuilder.h"
 #include "../GrGpuGL.h"
 #include "../GrGLShaderVar.h"

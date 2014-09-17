@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrDashingEffect.h"
 
 #include "../GrAARectRenderer.h"
 
 #include "effects/GrGeometryProcessor.h"
+#include "gl/builders/GrGLFullProgramBuilder.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLSL.h"

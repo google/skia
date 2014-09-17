@@ -6,6 +6,8 @@
  */
 #include "GrGLProgram.h"
 
+#include "builders/GrGLFragmentOnlyProgramBuilder.h"
+#include "builders/GrGLFullProgramBuilder.h"
 #include "GrAllocator.h"
 #include "GrEffect.h"
 #include "GrCoordTransform.h"

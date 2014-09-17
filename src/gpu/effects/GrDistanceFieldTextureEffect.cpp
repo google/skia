@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrDistanceFieldTextureEffect.h"
+#include "gl/builders/GrGLFullProgramBuilder.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"

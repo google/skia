@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrGLProgramEffects.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLPathRendering.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "gl/builders/GrGLFullProgramBuilder.h"
+#include "gl/builders/GrGLFragmentOnlyProgramBuilder.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGpuGL.h"
 

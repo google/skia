@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrAAConvexPathRenderer.h"
 
 #include "GrContext.h"
@@ -19,6 +18,7 @@
 #include "SkStrokeRec.h"
 #include "SkTraceEvent.h"
 
+#include "gl/builders/GrGLFullProgramBuilder.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLGeometryProcessor.h"
