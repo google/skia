@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkSurface.h"
 #include "SkCanvas.h"
+#include "SkDecodingImageGenerator.h"
 #include "SkStream.h"
 #include "SkData.h"
 
@@ -31,7 +32,8 @@ static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
     // be exercised on machines other than mike's. Will require a
     // rebaseline.
     SkAutoDataUnref data(fileToData("/Users/mike/Downloads/skia.google.jpeg"));
-    SkImage* image = SkImage::NewEncodedData(data);
+    SkImage* image = SkImage::NewFromGenerator(
+                SkDecodingImageGenerator::Create(data, SkDecodingImageGenerator::Options()));
     if (image) {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->scale(size.width() * 1.0f / image->width(),
