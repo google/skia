@@ -24,12 +24,6 @@
 #include "SkOSFile.h"
 #include "SkStream.h"
 
-#if SK_SUPPORT_GPU
-#include "SkGpuDevice.h"
-#else
-class GrContext;
-#endif
-
 #define INT_SIZE        64
 #define SCALAR_SIZE     SkIntToScalar(INT_SIZE)
 

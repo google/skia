@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -8,6 +7,7 @@
 
 #import "SkNSView.h"
 #include "SkCanvas.h"
+#include "SkSurface.h"
 #include "SkCGUtils.h"
 #include "SkEvent.h"
 SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
@@ -129,8 +129,8 @@ SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
 - (void)drawSkia {
     fRedrawRequestPending = false;
     if (fWind) {
-        SkAutoTUnref<SkCanvas> canvas(fWind->createCanvas());
-        fWind->draw(canvas);
+        SkAutoTUnref<SkSurface> surface(fWind->createSurface());
+        fWind->draw(surface->getCanvas());
 #ifdef FORCE_REDRAW
         fWind->inval(NULL);
 #endif

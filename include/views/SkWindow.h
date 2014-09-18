@@ -21,8 +21,7 @@
 #endif
 //#define USE_GX_SCREEN
 
-class SkCanvas;
-
+class SkSurface;
 class SkOSMenu;
 
 class SkWindow : public SkView {
@@ -59,7 +58,7 @@ public:
     void    preConcat(const SkMatrix&);
     void    postConcat(const SkMatrix&);
 
-    virtual SkCanvas* createCanvas();
+    virtual SkSurface* createSurface();
 
     virtual void onPDFSaved(const char title[], const char desc[],
         const char path[]) {}

@@ -271,17 +271,14 @@ public:
         fBackend = kNone_BackEndType;
     }
 
-    virtual SkCanvas* createCanvas(SampleWindow::DeviceType dType,
-                                   SampleWindow* win) {
+    virtual SkSurface* createSurface(SampleWindow::DeviceType dType,
+                                     SampleWindow* win) SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && fCurContext) {
-            SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(fCurRenderTarget));
-            return new SkCanvas(device);
-        } else
-#endif
-        {
-            return NULL;
+            return SkSurface::NewRenderTargetDirect(fCurRenderTarget);
         }
+#endif
+        return NULL;
     }
 
     virtual void publishCanvas(SampleWindow::DeviceType dType,
