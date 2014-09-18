@@ -17,7 +17,7 @@ void SkView::Artist::draw(SkView* view, SkCanvas* canvas)
 
 void SkView::Artist::inflate(const SkDOM& dom, const SkDOM::Node* node)
 {
-    SkASSERT(&dom && node);
+    SkASSERT(node);
     this->onInflate(dom, node);
 }
 
@@ -63,7 +63,7 @@ void SkView::Layout::layoutChildren(SkView* parent)
 
 void SkView::Layout::inflate(const SkDOM& dom, const SkDOM::Node* node)
 {
-    SkASSERT(&dom && node);
+    SkASSERT(node);
     this->onInflate(dom, node);
 }
 

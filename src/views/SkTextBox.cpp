@@ -167,7 +167,7 @@ void SkTextBox::setSpacing(SkScalar mul, SkScalar add)
 
 void SkTextBox::draw(SkCanvas* canvas, const char text[], size_t len, const SkPaint& paint)
 {
-    SkASSERT(canvas && &paint && (text || len == 0));
+    SkASSERT(canvas && (text || len == 0));
 
     SkScalar marginWidth = fBox.width();
 
