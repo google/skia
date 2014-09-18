@@ -231,8 +231,9 @@ bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
     fragShaderSrc.append(fCode);
     fragShaderSrc.append("}\n");
 
-    GrGLuint fragShaderId = GrGLCompileAndAttachShader(gpu->glContext(),
-            programId, GR_GL_FRAGMENT_SHADER, fragShaderSrc);
+    GrGLuint fragShaderId = GrGLCompileAndAttachShader(gpu->glContext(), programId,
+                                                       GR_GL_FRAGMENT_SHADER, fragShaderSrc,
+                                                       gpu->gpuStats());
     if (!fragShaderId) {
         return false;
     }

@@ -36,6 +36,10 @@ DEFINE_int32(maxComponentDiff, 256, "Maximum diff on a component, 0 - 256. Compo
              "Requires --validate.");
 DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "
               "pixel mismatches into this directory.");
+#if GR_GPU_STATS
+DEFINE_bool(gpuStats, false, "Only meaningful with gpu configurations. "
+            "Report some GPU call statistics.");
+#endif
 DEFINE_bool(preprocess, false, "If true, perform device specific preprocessing before rendering.");
 DEFINE_string(readJsonSummaryPath, "", "JSON file to read image expectations from.");
 DECLARE_string(readPath);
@@ -494,6 +498,13 @@ int tool_main(int argc, char** argv) {
 #ifdef SK_DEVELOPER
         ctx->dumpFontCache();
 #endif
+    }
+#endif
+#if GR_GPU_STATS
+    if (FLAGS_gpuStats && renderer->isUsingGpuDevice()) {
+        GrContext* ctx = renderer->getGrContext();
+        SkDebugf("RenderTarget Binds: %d\n", ctx->gpuStats()->renderTargetBinds());
+        SkDebugf("Shader Compilations: %d\n", ctx->gpuStats()->shaderCompilations());
     }
 #endif
 #endif

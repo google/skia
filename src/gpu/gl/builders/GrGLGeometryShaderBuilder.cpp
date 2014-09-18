@@ -61,7 +61,9 @@ bool GrGLGeometryShaderBuilder::compileAndAttachShaders(GrGLuint programId,
                          "\tEndPrimitive();\n");
     geomShaderSrc.append("}\n");
     GrGLuint geomShaderId =
-            GrGLCompileAndAttachShader(glCtx, programId, GR_GL_GEOMETRY_SHADER, geomShaderSrc);
+        GrGLCompileAndAttachShader(glCtx, programId,
+                                   GR_GL_GEOMETRY_SHADER, geomShaderSrc,
+                                   fProgramBuilder->gpu()->gpuStats());
     if (!geomShaderId) {
         return false;
     }

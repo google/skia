@@ -49,6 +49,7 @@ public:
     bool preprocess() const { return fPreprocess; }
 
     PictureRenderer* setRenderer(PictureRenderer*);
+    PictureRenderer* renderer() { return fRenderer; }
 
     void setTimerResultType(TimerData::Result resultType) { fTimerResult = resultType; }
 

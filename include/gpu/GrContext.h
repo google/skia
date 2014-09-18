@@ -960,6 +960,30 @@ public:
     void printCacheStats() const;
 #endif
 
+    class GPUStats {
+    public:
+#if GR_GPU_STATS
+        GPUStats() { this->reset(); }
+
+        void reset() { fRenderTargetBinds = 0; fShaderCompilations = 0; }
+
+        int renderTargetBinds() const { return fRenderTargetBinds; }
+        void incRenderTargetBinds() { fRenderTargetBinds++; }
+        int shaderCompilations() const { return fShaderCompilations; }
+        void incShaderCompilations() { fShaderCompilations++; }
+    private:
+        int fRenderTargetBinds;
+        int fShaderCompilations;
+#else
+        void incRenderTargetBinds() {}
+        void incShaderCompilations() {}
+#endif
+    };
+
+#if GR_GPU_STATS
+    const GPUStats* gpuStats() const;
+#endif
+
 private:
     // Used to indicate whether a draw should be performed immediately or queued in fDrawBuffer.
     enum BufferedDraw {

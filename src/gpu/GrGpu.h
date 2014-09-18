@@ -327,6 +327,8 @@ public:
         return kDrawPath_DrawType == type || kDrawPaths_DrawType == type;
     }
 
+    GrContext::GPUStats* gpuStats() { return &fGPUStats; }
+
 protected:
     DrawType PrimTypeToDrawType(GrPrimitiveType type) {
         switch (type) {
@@ -363,6 +365,8 @@ protected:
                                           unsigned int* mask);
 
     GrClipMaskManager           fClipMaskManager;
+
+    GrContext::GPUStats         fGPUStats;
 
     struct GeometryPoolState {
         const GrVertexBuffer* fPoolVertexBuffer;

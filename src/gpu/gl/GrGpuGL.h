@@ -150,7 +150,7 @@ private:
                                   bool insideClip) SK_OVERRIDE;
     virtual bool flushGraphicsState(DrawType, const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 
-    // GrDrawTarget ovverides
+    // GrDrawTarget overrides
     virtual void didAddGpuTraceMarker() SK_OVERRIDE;
     virtual void didRemoveGpuTraceMarker() SK_OVERRIDE;
 
@@ -266,6 +266,8 @@ private:
     bool createRenderTargetObjects(int width, int height,
                                    GrGLuint texID,
                                    GrGLRenderTarget::Desc* desc);
+
+    GrGLuint bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport);
 
     GrGLContext fGLContext;
 

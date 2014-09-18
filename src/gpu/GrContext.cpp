@@ -1941,3 +1941,10 @@ void GrContext::printCacheStats() const {
     fResourceCache->printStats();
 }
 #endif
+
+#if GR_GPU_STATS
+const GrContext::GPUStats* GrContext::gpuStats() const {
+    return fGpu->gpuStats();
+}
+#endif
+
