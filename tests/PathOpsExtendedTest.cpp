@@ -23,6 +23,8 @@
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
+DEFINE_bool2(runFail, f, false, "run tests known to fail.");
+
 static const char marker[] =
     "</div>\n"
     "\n"

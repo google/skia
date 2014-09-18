@@ -54,6 +54,9 @@ static const SkDLine noIntersect[][2] = {
 static const size_t noIntersect_count = SK_ARRAY_COUNT(noIntersect);
 
 static const SkDLine coincidentTests[][2] = {
+   {{{ {-1.48383003e-006,-83}, {4.2268899e-014,-60} }},
+    {{ {9.5359502e-007,-60}, {5.08227985e-015,-83} }}},
+
    {{{ { 10105, 2510 }, { 10123, 2509.98999f } }},
     {{{10105, 2509.98999f}, { 10123, 2510 } }}},
 

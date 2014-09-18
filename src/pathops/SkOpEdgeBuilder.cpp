@@ -47,6 +47,17 @@ void SkOpEdgeBuilder::closeContour(const SkPoint& curveEnd, const SkPoint& curve
     fPathVerbs.push_back(SkPath::kClose_Verb);
 }
 
+// very tiny points cause numerical instability : don't allow them
+static void force_small_to_zero(SkPoint* pt) {
+    if (SkScalarAbs(pt->fX) < FLT_EPSILON_ORDERABLE_ERR) {
+        pt->fX = 0;
+    }
+    if (SkScalarAbs(pt->fY) < FLT_EPSILON_ORDERABLE_ERR) {
+        pt->fY = 0;
+    }
+}
+
+
 int SkOpEdgeBuilder::preFetch() {
     if (!fPath->isFinite()) {
         fUnparseable = true;
@@ -68,11 +79,13 @@ int SkOpEdgeBuilder::preFetch() {
                     closeContour(curve[0], curveStart);
                 }
                 fPathVerbs.push_back(verb);
+                force_small_to_zero(&pts[0]);
                 fPathPts.push_back(pts[0]);
                 curveStart = curve[0] = pts[0];
                 lastCurve = false;
                 continue;
             case SkPath::kLine_Verb:
+                force_small_to_zero(&pts[1]);
                 if (SkDPoint::ApproximatelyEqual(curve[0], pts[1])) {
                     uint8_t lastVerb = fPathVerbs.back();
                     if (lastVerb != SkPath::kLine_Verb && lastVerb != SkPath::kMove_Verb) {
@@ -82,6 +95,8 @@ int SkOpEdgeBuilder::preFetch() {
                 }
                 break;
             case SkPath::kQuad_Verb:
+                force_small_to_zero(&pts[1]);
+                force_small_to_zero(&pts[2]);
                 curve[1] = pts[1];
                 curve[2] = pts[2];
                 verb = SkReduceOrder::Quad(curve, pts);
@@ -102,6 +117,9 @@ int SkOpEdgeBuilder::preFetch() {
                 }
                 continue;
             case SkPath::kCubic_Verb:
+                force_small_to_zero(&pts[1]);
+                force_small_to_zero(&pts[2]);
+                force_small_to_zero(&pts[3]);
                 curve[1] = pts[1];
                 curve[2] = pts[2];
                 curve[3] = pts[3];

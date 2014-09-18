@@ -16,6 +16,7 @@
       ],
       'sources': [
         '../tests/PathOpsAngleIdeas.cpp',
+        '../tests/PathOpsBattles.cpp',
         '../tests/PathOpsCubicLineIntersectionIdeas.cpp',
         '../tests/PathOpsDebug.cpp',
         '../tests/PathOpsOpLoopThreadedTest.cpp',

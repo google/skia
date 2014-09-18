@@ -286,12 +286,9 @@ bool SkOpAngle::checkParallel(const SkOpAngle& rh) const {
 // would cause it to intersect one of the adjacent angles
 bool SkOpAngle::computeSector() {
     if (fComputedSector) {
-        // FIXME: logically, this should return !fUnorderable, but doing so breaks testQuadratic51
-        // -- but in general, this code may not work so this may be the least of problems
-        // adding the bang fixes testQuads46x in release, however
         return !fUnorderable;
     }
-    SkASSERT(fSegment->verb() != SkPath::kLine_Verb && small());
+//    SkASSERT(fSegment->verb() != SkPath::kLine_Verb && small());
     fComputedSector = true;
     int step = fStart < fEnd ? 1 : -1;
     int limit = step > 0 ? fSegment->count() : -1;
@@ -633,7 +630,7 @@ int SkOpAngle::findSector(SkPath::Verb verb, double x, double y) const {
         {{ 6,  3,  0}, { 7, -1, 15}, { 8, 11, 14}},  // abs(x) >  abs(y)
     };
     int sector = sedecimant[(xy >= 0) + (xy > 0)][(y >= 0) + (y > 0)][(x >= 0) + (x > 0)] * 2 + 1;
-    SkASSERT(SkPath::kLine_Verb == verb || sector >= 0);
+//    SkASSERT(SkPath::kLine_Verb == verb || sector >= 0);
     return sector;
 }
 
@@ -934,12 +931,12 @@ void SkOpAngle::setCurveHullSweep() {
 void SkOpAngle::setSector() {
     SkPath::Verb verb = fSegment->verb();
     if (SkPath::kLine_Verb != verb && small()) {
-        fSectorStart = fSectorEnd = -1;
-        fSectorMask = 0;
-        fComputeSector = true;  // can't determine sector until segment length can be found
-        return;
+        goto deferTilLater;
     }
     fSectorStart = findSector(verb, fSweep[0].fX, fSweep[0].fY);
+    if (fSectorStart < 0) {
+        goto deferTilLater;
+    }
     if (!fIsCurve) {  // if it's a line or line-like, note that both sectors are the same
         SkASSERT(fSectorStart >= 0);
         fSectorEnd = fSectorStart;
@@ -948,6 +945,13 @@ void SkOpAngle::setSector() {
     }
     SkASSERT(SkPath::kLine_Verb != verb);
     fSectorEnd = findSector(verb, fSweep[1].fX, fSweep[1].fY);
+    if (fSectorEnd < 0) {
+deferTilLater:
+        fSectorStart = fSectorEnd = -1;
+        fSectorMask = 0;
+        fComputeSector = true;  // can't determine sector until segment length can be found
+        return;
+    }
     if (fSectorEnd == fSectorStart) {
         SkASSERT((fSectorStart & 3) != 3);  // if the sector has no span, it can't be an exact angle
         fSectorMask = 1 << fSectorStart;

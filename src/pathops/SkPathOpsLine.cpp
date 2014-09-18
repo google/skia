@@ -89,7 +89,7 @@ double SkDLine::nearPoint(const SkDPoint& xy, bool* unequal) const {
     if (unequal) {
         *unequal = (float) largest != (float) (largest + dist);
     }
-    t = SkPinT(t);
+    t = SkPinT(t);  // a looser pin breaks skpwww_lptemp_com_3
     SkASSERT(between(0, t, 1));
     return t;
 }

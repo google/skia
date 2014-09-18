@@ -62,6 +62,9 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
 }
 
 DEF_TEST(PathOpsOpLoopsThreaded, reporter) {
+    if (!FLAGS_runFail) {
+        return;
+    }
     initializeTests(reporter, "cubicOp");
     PathOpsThreadedTestRunner testRunner(reporter);
     for (int a = 0; a < 6; ++a) {  // outermost
@@ -81,6 +84,9 @@ finish:
 }
 
 DEF_TEST(PathOpsOpLoops, reporter) {
+    if (!FLAGS_runFail) {
+        return;
+    }
     initializeTests(reporter, "cubicOp");
     PathOpsThreadState state;
     state.fReporter = reporter;

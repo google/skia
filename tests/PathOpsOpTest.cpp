@@ -2731,10 +2731,11 @@ static void skpcarpetplanet_ru22(skiatest::Reporter* reporter, const char* filen
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#define QUAD_CUBIC_FAILS_TO_FIND_INTERSECTION 0
-#if QUAD_CUBIC_FAILS_TO_FIND_INTERSECTION
 // this fails because cubic/quad misses an intersection (failure is isolated in c/q int test)
 static void skpcarrot_is24(skiatest::Reporter* reporter, const char* filename) {
+    if (!FLAGS_runFail) {
+        return;
+    }
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(945, 597);
@@ -2759,8 +2760,6 @@ static void skpcarrot_is24(skiatest::Reporter* reporter, const char* filename) {
     pathB.close();
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
-
-#endif
 
 static void skpbangalorenest_com4(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
@@ -3283,9 +3282,10 @@ static void cubicOp113(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
 }
 
-#define CUBIC_OP_114 0
-#if CUBIC_OP_114
 static void cubicOp114(skiatest::Reporter* reporter, const char* filename) {
+    if (!FLAGS_runFail) {
+        return;
+    }
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
     path.moveTo(0, 1);
@@ -3297,7 +3297,6 @@ static void cubicOp114(skiatest::Reporter* reporter, const char* filename) {
     pathB.close();
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
-#endif
 
 static void cubicOp114asQuad(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
@@ -3461,9 +3460,10 @@ static void rects4(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
 }
 
-#define TEST_ISSUE_2753 0
-#if TEST_ISSUE_2753
 static void issue2753(skiatest::Reporter* reporter, const char* filename) {
+    if (!FLAGS_runFail) {
+        return;
+    }
     SkPath path1;
     path1.moveTo(142.701f, 110.568f);
     path1.lineTo(142.957f, 100);
@@ -3482,7 +3482,6 @@ static void issue2753(skiatest::Reporter* reporter, const char* filename) {
 
     testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
 }
-#endif
 
 static void issue2808(skiatest::Reporter* reporter, const char* filename) {
     SkPath path1, path2;
@@ -3512,16 +3511,12 @@ static void issue2808(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
 }
 
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = cubicOp95u;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
-#if TEST_ISSUE_2753  // FIXME: pair of cubics miss intersection
-    TEST(issue2753),
-#endif
-#if CUBIC_OP_114  // FIXME: curve with inflection is ordered the wrong way
-    TEST(cubicOp114),
-#endif
+    TEST(issue2753),  // FIXME: pair of cubics miss intersection
+    TEST(cubicOp114),  // FIXME: curve with inflection is ordered the wrong way
     TEST(issue2808),
     TEST(cubicOp114asQuad),
     TEST(rects4),
@@ -3533,11 +3528,9 @@ static struct TestDesc tests[] = {
     TEST(kari1),
     TEST(quadOp10i),
     TEST(cubicOp113),
-#if QUAD_CUBIC_FAILS_TO_FIND_INTERSECTION
     // fails because a cubic/quadratic intersection is missed
     // the internal quad/quad is far enough away from the real cubic/quad that it is rejected
     TEST(skpcarrot_is24),
-#endif
     TEST(issue1417),
     TEST(cubicOp112),
     TEST(skpadspert_net23),
