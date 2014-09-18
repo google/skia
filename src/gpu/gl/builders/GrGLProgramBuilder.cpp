@@ -67,28 +67,9 @@ bool GrGLProgramBuilder::genProgram(const GrEffectStage* geometryProcessor,
         inputCoverage = GrGLSLExpr4(1);
     }
 
-    this->emitCodeBeforeEffects(&inputColor, &inputCoverage);
-
-    ///////////////////////////////////////////////////////////////////////////
-    // emit the per-effect code for both color and coverage effects
-
-    GrGLProgramDesc::EffectKeyProvider colorKeyProvider(
-        &this->desc(), GrGLProgramDesc::EffectKeyProvider::kColor_EffectType);
-    fColorEffects.reset(this->createAndEmitEffects(colorStages,
-                                                   this->desc().numColorEffects(),
-                                                   colorKeyProvider,
-                                                   &inputColor));
-
-    this->emitGeometryProcessor(geometryProcessor, &inputCoverage);
-
-    GrGLProgramDesc::EffectKeyProvider coverageKeyProvider(
-        &this->desc(), GrGLProgramDesc::EffectKeyProvider::kCoverage_EffectType);
-    fCoverageEffects.reset(this->createAndEmitEffects(coverageStages,
-                                                      this->desc().numCoverageEffects(),
-                                                      coverageKeyProvider,
-                                                      &inputCoverage));
-
-    this->emitCodeAfterEffects();
+    // Subclasses drive effect emitting
+    this->createAndEmitEffects(geometryProcessor, colorStages, coverageStages, &inputColor,
+                               &inputCoverage);
 
     fFS.emitCodeAfterEffects(inputColor, inputCoverage);
 
@@ -178,8 +159,7 @@ void GrGLProgramBuilder::appendUniformDecls(ShaderVisibility visibility,
     }
 }
 
-void GrGLProgramBuilder::createAndEmitEffects(GrGLProgramEffectsBuilder* programEffectsBuilder,
-                                              const GrEffectStage* effectStages[],
+void GrGLProgramBuilder::createAndEmitEffects(const GrEffectStage* effectStages[],
                                               int effectCnt,
                                               const GrGLProgramDesc::EffectKeyProvider& keyProvider,
                                               GrGLSLExpr4* fsInOutColor) {
@@ -189,39 +169,59 @@ void GrGLProgramBuilder::createAndEmitEffects(GrGLProgramEffectsBuilder* program
     GrGLSLExpr4 outColor;
 
     for (int e = 0; e < effectCnt; ++e) {
-        SkASSERT(effectStages[e] && effectStages[e]->getEffect());
-        const GrEffectStage& stage = *effectStages[e];
-
-        CodeStage::AutoStageRestore csar(&fCodeStage, &stage);
-
-        if (inColor.isZeros()) {
-            SkString inColorName;
-
-            // Effects have no way to communicate zeros, they treat an empty string as ones.
-            this->nameVariable(&inColorName, '\0', "input");
-            fFS.codeAppendf("\tvec4 %s = %s;\n", inColorName.c_str(), inColor.c_str());
-            inColor = inColorName;
-        }
-
-        // create var to hold stage result
-        SkString outColorName;
-        this->nameVariable(&outColorName, '\0', "output");
-        fFS.codeAppendf("\tvec4 %s;\n", outColorName.c_str());
-        outColor = outColorName;
-
-
-        programEffectsBuilder->emitEffect(stage,
-                                          keyProvider.get(e),
-                                          outColor.c_str(),
-                                          inColor.isOnes() ? NULL : inColor.c_str(),
-                                          fCodeStage.stageIndex());
-
-        inColor = outColor;
+        // calls into the subclass to emit the actual effect into the program effect object
+        this->emitEffect(*effectStages[e], e, keyProvider, &inColor, &outColor);
         effectEmitted = true;
     }
 
     if (effectEmitted) {
         *fsInOutColor = outColor;
+    }
+}
+
+void GrGLProgramBuilder::emitEffect(const GrEffectStage& effectStage,
+                                    int effectIndex,
+                                    const GrGLProgramDesc::EffectKeyProvider& keyProvider,
+                                    GrGLSLExpr4* inColor,
+                                    GrGLSLExpr4* outColor) {
+    SkASSERT(effectStage.getEffect());
+    CodeStage::AutoStageRestore csar(&fCodeStage, &effectStage);
+
+    if (inColor->isZeros()) {
+        SkString inColorName;
+
+        // Effects have no way to communicate zeros, they treat an empty string as ones.
+        this->nameVariable(&inColorName, '\0', "input");
+        fFS.codeAppendf("\tvec4 %s = %s;\n", inColorName.c_str(), inColor->c_str());
+        *inColor = inColorName;
+    }
+
+    // create var to hold stage result
+    SkString outColorName;
+    this->nameVariable(&outColorName, '\0', "output");
+    fFS.codeAppendf("\tvec4 %s;\n", outColorName.c_str());
+    *outColor = outColorName;
+
+    this->emitEffect(effectStage, keyProvider.get(effectIndex), outColor->c_str(),
+                     inColor->isOnes() ? NULL : inColor->c_str(), fCodeStage.stageIndex());
+
+    *inColor = *outColor;
+}
+
+void GrGLProgramBuilder::emitSamplers(const GrEffect& effect,
+                                      GrGLEffect::TextureSamplerArray* outSamplers) {
+    SkTArray<GrGLProgramEffects::Sampler, true>& samplers =
+            this->getProgramEffects()->addSamplers();
+    int numTextures = effect.numTextures();
+    samplers.push_back_n(numTextures);
+    SkString name;
+    for (int t = 0; t < numTextures; ++t) {
+        name.printf("Sampler%d", t);
+        samplers[t].fUniform = this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                                kSampler2D_GrSLType,
+                                                name.c_str());
+        SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLEffect::TextureSampler,
+                               (samplers[t].fUniform, effect.textureAccess(t)));
     }
 }
 

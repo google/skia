@@ -14,6 +14,133 @@
 
 #include "SkChecksum.h"
 
+/**
+ * The key for an individual coord transform is made up of a matrix type and a bit that
+ * indicates the source of the input coords.
+ */
+enum {
+    kMatrixTypeKeyBits   = 1,
+    kMatrixTypeKeyMask   = (1 << kMatrixTypeKeyBits) - 1,
+    kPositionCoords_Flag = (1 << kMatrixTypeKeyBits),
+    kTransformKeyBits    = kMatrixTypeKeyBits + 1,
+};
+
+/**
+ * We specialize the vertex code for each of these matrix types.
+ */
+enum MatrixType {
+    kNoPersp_MatrixType  = 0,
+    kGeneral_MatrixType  = 1,
+};
+
+/**
+ * Do we need to either map r,g,b->a or a->r. configComponentMask indicates which channels are
+ * present in the texture's config. swizzleComponentMask indicates the channels present in the
+ * shader swizzle.
+ */
+static bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
+                                             uint32_t configComponentMask,
+                                             uint32_t swizzleComponentMask) {
+    if (caps.textureSwizzleSupport()) {
+        // Any remapping is handled using texture swizzling not shader modifications.
+        return false;
+    }
+    // check if the texture is alpha-only
+    if (kA_GrColorComponentFlag == configComponentMask) {
+        if (caps.textureRedSupport() && (kA_GrColorComponentFlag & swizzleComponentMask)) {
+            // we must map the swizzle 'a's to 'r'.
+            return true;
+        }
+        if (kRGB_GrColorComponentFlags & swizzleComponentMask) {
+            // The 'r', 'g', and/or 'b's must be mapped to 'a' according to our semantics that
+            // alpha-only textures smear alpha across all four channels when read.
+            return true;
+        }
+    }
+    return false;
+}
+
+static uint32_t gen_attrib_key(const GrEffect* effect) {
+    uint32_t key = 0;
+
+    const GrEffect::VertexAttribArray& vars = effect->getVertexAttribs();
+    int numAttributes = vars.count();
+    SkASSERT(numAttributes <= 2);
+    for (int a = 0; a < numAttributes; ++a) {
+        uint32_t value = 1 << a;
+        key |= value;
+    }
+    return key;
+}
+
+static uint32_t gen_transform_key(const GrEffectStage& effectStage,
+                                  bool useExplicitLocalCoords) {
+    uint32_t totalKey = 0;
+    int numTransforms = effectStage.getEffect()->numTransforms();
+    for (int t = 0; t < numTransforms; ++t) {
+        uint32_t key = 0;
+        if (effectStage.isPerspectiveCoordTransform(t, useExplicitLocalCoords)) {
+            key |= kGeneral_MatrixType;
+        } else {
+            key |= kNoPersp_MatrixType;
+        }
+
+        const GrCoordTransform& coordTransform = effectStage.getEffect()->coordTransform(t);
+        if (kLocal_GrCoordSet != coordTransform.sourceCoords() && useExplicitLocalCoords) {
+            key |= kPositionCoords_Flag;
+        }
+        key <<= kTransformKeyBits * t;
+        SkASSERT(0 == (totalKey & key)); // keys for each transform ought not to overlap
+        totalKey |= key;
+    }
+    return totalKey;
+}
+
+static uint32_t gen_texture_key(const GrEffect* effect, const GrGLCaps& caps) {
+    uint32_t key = 0;
+    int numTextures = effect->numTextures();
+    for (int t = 0; t < numTextures; ++t) {
+        const GrTextureAccess& access = effect->textureAccess(t);
+        uint32_t configComponentMask = GrPixelConfigComponentMask(access.getTexture()->config());
+        if (swizzle_requires_alpha_remapping(caps, configComponentMask, access.swizzleMask())) {
+            key |= 1 << t;
+        }
+    }
+    return key;
+}
+
+/**
+ * A function which emits a meta key into the key builder.  This is required because shader code may
+ * be dependent on properties of the effect that the effect itself doesn't use
+ * in its key (e.g. the pixel format of textures used). So we create a meta-key for
+ * every effect using this function. It is also responsible for inserting the effect's class ID
+ * which must be different for every GrEffect subclass. It can fail if an effect uses too many
+ * textures, attributes, etc for the space allotted in the meta-key.
+ */
+
+static bool gen_effect_meta_key(const GrEffectStage& effectStage,
+                                bool useExplicitLocalCoords,
+                                const GrGLCaps& caps,
+                                GrEffectKeyBuilder* b) {
+
+    uint32_t textureKey = gen_texture_key(effectStage.getEffect(), caps);
+    uint32_t transformKey = gen_transform_key(effectStage,useExplicitLocalCoords);
+    uint32_t attribKey = gen_attrib_key(effectStage.getEffect());
+    uint32_t classID = effectStage.getEffect()->getFactory().effectClassID();
+
+    // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
+    // don't fit.
+    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t) SK_MaxU16);
+    if ((textureKey | transformKey | attribKey | classID) & kMetaKeyInvalidMask) {
+        return false;
+    }
+
+    uint32_t* key = b->add32n(2);
+    key[0] = (textureKey << 16 | transformKey);
+    key[1] = (classID << 16 | attribKey);
+    return true;
+}
+
 bool GrGLProgramDesc::GetEffectKey(const GrEffectStage& stage, const GrGLCaps& caps,
                                    bool useExplicitLocalCoords, GrEffectKeyBuilder* b,
                                    uint16_t* effectKeySize) {
@@ -26,10 +153,7 @@ bool GrGLProgramDesc::GetEffectKey(const GrEffectStage& stage, const GrGLCaps& c
         return false;
     }
     *effectKeySize = SkToU16(size);
-    if (!GrGLProgramEffects::GenEffectMetaKey(stage,
-                                              useExplicitLocalCoords,
-                                              caps,
-                                              b)) {
+    if (!gen_effect_meta_key(stage, useExplicitLocalCoords, caps, b)) {
         return false;
     }
     return true;

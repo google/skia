@@ -562,7 +562,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLProgramBuilder* builder,
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("\t\tvec4 %s = ", dColor);
-    fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
+    fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
     fsBuilder->codeAppend(";\n");
 
     // Unpremultiply the displacement
@@ -615,7 +615,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLProgramBuilder* builder,
         "bool %s = (%s.x < 0.0) || (%s.y < 0.0) || (%s.x > 1.0) || (%s.y > 1.0);\t\t",
         outOfBounds, cCoords, cCoords, cCoords, cCoords);
     fsBuilder->codeAppendf("%s = %s ? vec4(0.0) : ", outputColor, outOfBounds);
-    fsBuilder->appendTextureLookup(samplers[1], cCoords, coords[1].type());
+    fsBuilder->appendTextureLookup(samplers[1], cCoords, coords[1].getType());
     fsBuilder->codeAppend(";\n");
 }
 

@@ -118,9 +118,9 @@ bool GrGLVertexShaderBuilder::compileAndAttachShaders(GrGLuint programId,
     fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kVertex_Visibility, &vertShaderSrc);
     fProgramBuilder->appendDecls(fInputs, &vertShaderSrc);
     fProgramBuilder->appendDecls(fOutputs, &vertShaderSrc);
-    vertShaderSrc.append("void main() {\n");
+    vertShaderSrc.append("void main() {");
     vertShaderSrc.append(fCode);
-    vertShaderSrc.append("}\n");
+    vertShaderSrc.append("}");
     GrGLuint vertShaderId = GrGLCompileAndAttachShader(glCtx, programId,
             GR_GL_VERTEX_SHADER, vertShaderSrc);
     if (!vertShaderId) {
@@ -140,7 +140,7 @@ void GrGLVertexShaderBuilder::emitCodeAfterEffects() {
 
     // Transform from Skia's device coords to GL's normalized device coords.
     this->codeAppendf(
-        "\tgl_Position = vec4(dot(pos3.xz, %s.xy), dot(pos3.yz, %s.zw), 0, pos3.z);\n",
+        "gl_Position = vec4(dot(pos3.xz, %s.xy), dot(pos3.yz, %s.zw), 0, pos3.z);",
         rtAdjustName, rtAdjustName);
 }
 
@@ -148,12 +148,12 @@ void GrGLVertexShaderBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLEx
     const GrGLProgramDesc::KeyHeader& header = fProgramBuilder->desc().getHeader();
 
     fPositionVar = &fInputs.push_back();
-    fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
+    fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "inPosition");
     if (-1 != header.fLocalCoordAttributeIndex) {
         fLocalCoordsVar = &fInputs.push_back();
         fLocalCoordsVar->set(kVec2f_GrSLType,
                              GrGLShaderVar::kAttribute_TypeModifier,
-                             "aLocalCoords");
+                             "inLocalCoords");
     } else {
         fLocalCoordsVar = fPositionVar;
     }
@@ -166,7 +166,7 @@ void GrGLVertexShaderBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLEx
                                  &viewMName);
 
     // Transform the position into Skia's device coords.
-    this->codeAppendf("\tvec3 pos3 = %s * vec3(%s, 1);\n",
+    this->codeAppendf("vec3 pos3 = %s * vec3(%s, 1);",
                       viewMName, fPositionVar->c_str());
 
     // we output point size in the GS if present
@@ -175,7 +175,7 @@ void GrGLVertexShaderBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLEx
         && !header.fExperimentalGS
 #endif
         ) {
-        this->codeAppend("\tgl_PointSize = 1.0;\n");
+        this->codeAppend("gl_PointSize = 1.0;");
     }
 
     if (GrGLProgramDesc::kAttribute_ColorInput == header.fColorInput) {
@@ -184,7 +184,7 @@ void GrGLVertexShaderBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLEx
                                        GrShaderVar::kAttribute_TypeModifier));
         const char *vsName, *fsName;
         fFullProgramBuilder->addVarying(kVec4f_GrSLType, "Color", &vsName, &fsName);
-        this->codeAppendf("\t%s = %s;\n", vsName, color_attribute_name());
+        this->codeAppendf("%s = %s;", vsName, color_attribute_name());
         *color = fsName;
     }
 
@@ -194,7 +194,7 @@ void GrGLVertexShaderBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLEx
                                        GrShaderVar::kAttribute_TypeModifier));
         const char *vsName, *fsName;
         fFullProgramBuilder->addVarying(kVec4f_GrSLType, "Coverage", &vsName, &fsName);
-        this->codeAppendf("\t%s = %s;\n", vsName, coverage_attribute_name());
+        this->codeAppendf("%s = %s;", vsName, coverage_attribute_name());
         *coverage = fsName;
     }
     fEffectAttribOffset = fInputs.count();

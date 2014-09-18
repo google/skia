@@ -10,6 +10,8 @@
 
 #include "GrGLProgramBuilder.h"
 
+class GrGLVertexProgramEffects;
+
 class GrGLFullProgramBuilder : public GrGLProgramBuilder {
 public:
     GrGLFullProgramBuilder(GrGpuGL*, const GrGLProgramDesc&);
@@ -37,39 +39,45 @@ public:
     GrGLVertexShaderBuilder* getVertexShaderBuilder() { return &fVS; }
 
 private:
-    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color,
-                                       GrGLSLExpr4* coverage) SK_OVERRIDE;
+    virtual void createAndEmitEffects(const GrEffectStage* geometryProcessor,
+                                      const GrEffectStage* colorStages[],
+                                      const GrEffectStage* coverageStages[],
+                                      GrGLSLExpr4* inputColor,
+                                      GrGLSLExpr4* inputCoverage) SK_OVERRIDE;
 
-    virtual void emitGeometryProcessor(const GrEffectStage* geometryProcessor,
-                                       GrGLSLExpr4* coverage) SK_OVERRIDE;
+    GrGLProgramEffects* onCreateAndEmitEffects(const GrEffectStage* effectStages[],
+                                               int effectCnt,
+                                               const GrGLProgramDesc::EffectKeyProvider&,
+                                               GrGLSLExpr4* inOutFSColor);
 
-    virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
-                                                     int effectCnt,
-                                                     const GrGLProgramDesc::EffectKeyProvider&,
-                                                     GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
+    virtual void emitEffect(const GrEffectStage& stage,
+                            const GrEffectKey& key,
+                            const char* outColor,
+                            const char* inColor,
+                            int stageIndex) SK_OVERRIDE;
 
-    /*
-     * These functions are temporary and will eventually operate not on effects but on
-     * geometry processors
+    /**
+     * Helper for emitEffect(). Emits code to implement an effect's coord transforms in the VS.
+     * Varyings are added as an outputs of the VS and inputs to the FS. The varyings may be either a
+     * vec2f or vec3f depending upon whether perspective interpolation is required or not. The names
+     * of the varyings in the VS and FS as well their types are appended to the
+     * TransformedCoordsArray* object, which is in turn passed to the effect's emitCode() function.
      */
-    void createAndEmitEffect(GrGLProgramEffectsBuilder*,
-                             const GrEffectStage* effectStage,
-                             const GrGLProgramDesc::EffectKeyProvider&,
-                             GrGLSLExpr4* inOutFSColor);
-
-    GrGLProgramEffects* createAndEmitEffect(const GrEffectStage* geometryProcessor,
-                                            const GrGLProgramDesc::EffectKeyProvider&,
-                                            GrGLSLExpr4* inOutFSColor);
-
-    virtual void emitCodeAfterEffects() SK_OVERRIDE;
+    void emitTransforms(const GrEffectStage& effectStage,
+                        GrGLEffect::TransformedCoordsArray* outCoords);
 
     virtual bool compileAndAttachShaders(GrGLuint programId,
                                          SkTDArray<GrGLuint>* shaderIds) const SK_OVERRIDE;
 
     virtual void bindProgramLocations(GrGLuint programId) SK_OVERRIDE;
 
+    virtual GrGLProgramEffects* getProgramEffects() SK_OVERRIDE { return fProgramEffects.get(); }
+
+    typedef GrGLProgramDesc::EffectKeyProvider EffectKeyProvider;
+
     GrGLGeometryShaderBuilder fGS;
     GrGLVertexShaderBuilder   fVS;
+    SkAutoTDelete<GrGLVertexProgramEffects> fProgramEffects;
 
     typedef GrGLProgramBuilder INHERITED;
 };

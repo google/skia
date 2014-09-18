@@ -240,11 +240,11 @@ void GLEdge2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
     builder->getUniformVariable(fParamUni).appendArrayAccess(2, &p2);
 
     // We interpolate the linear component in coords[1].
-    SkASSERT(coords[0].type() == coords[1].type());
+    SkASSERT(coords[0].getType() == coords[1].getType());
     const char* coords2D;
     SkString bVar;
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    if (kVec3f_GrSLType == coords[0].type()) {
+    if (kVec3f_GrSLType == coords[0].getType()) {
         fsBuilder->codeAppendf("\tvec3 interpolants = vec3(%s.xy / %s.z, %s.x / %s.z);\n",
                                coords[0].c_str(), coords[0].c_str(), coords[1].c_str(),
                                coords[1].c_str());

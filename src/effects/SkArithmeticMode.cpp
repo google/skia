@@ -372,7 +372,7 @@ void GrGLArithmeticEffect::emitCode(GrGLProgramBuilder* builder,
     const char* dstColor;
     if (backgroundTex) {
         fsBuilder->codeAppend("\t\tvec4 bgColor = ");
-        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
+        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
         fsBuilder->codeAppendf(";\n");
         dstColor = "bgColor";
     } else {

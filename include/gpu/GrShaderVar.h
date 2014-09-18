@@ -55,6 +55,16 @@ public:
         , fPrecision(kDefault_Precision) {
     }
 
+    GrShaderVar(const SkString& name, GrSLType type, int arrayCount = kNonArray,
+                Precision precision = kDefault_Precision)
+        : fType(type)
+        , fTypeModifier(kNone_TypeModifier)
+        , fName(name)
+        , fCount(arrayCount)
+        , fPrecision(precision) {
+        SkASSERT(kVoid_GrSLType != type);
+    }
+
     GrShaderVar(const char* name, GrSLType type, int arrayCount = kNonArray,
                   Precision precision = kDefault_Precision)
         : fType(type)

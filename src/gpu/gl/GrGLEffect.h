@@ -34,11 +34,41 @@ class GrGLTexture;
 class GrGLGeometryProcessor;
 
 class GrGLEffect {
-
 public:
-    typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
-    typedef GrGLProgramEffects::TextureSampler TextureSampler;
-    typedef GrGLProgramEffects::TextureSamplerArray TextureSamplerArray;
+    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+
+    /**
+     * Passed to GrGLEffects so they can add transformed coordinates to their shader code.
+     */
+    typedef GrShaderVar TransformedCoords;
+    typedef SkTArray<GrShaderVar> TransformedCoordsArray;
+
+    /**
+     * Passed to GrGLEffects so they can add texture reads to their shader code.
+     */
+    class TextureSampler {
+    public:
+        TextureSampler(UniformHandle uniform, const GrTextureAccess& access)
+            : fSamplerUniform(uniform)
+            , fConfigComponentMask(GrPixelConfigComponentMask(access.getTexture()->config())) {
+            SkASSERT(0 != fConfigComponentMask);
+            memcpy(fSwizzle, access.getSwizzle(), 5);
+        }
+
+        // bitfield of GrColorComponentFlags present in the texture's config.
+        uint32_t configComponentMask() const { return fConfigComponentMask; }
+        // this is .abcd
+        const char* swizzle() const { return fSwizzle; }
+
+    private:
+        UniformHandle fSamplerUniform;
+        uint32_t      fConfigComponentMask;
+        char          fSwizzle[5];
+
+        friend class GrGLShaderBuilder;
+    };
+
+    typedef SkTArray<TextureSampler> TextureSamplerArray;
 
     GrGLEffect(const GrBackendEffectFactory& factory)
         : fFactory(factory)

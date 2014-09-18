@@ -120,8 +120,8 @@ bool GrGLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
 }
 
 SkString GrGLFragmentShaderBuilder::ensureFSCoords2D(const TransformedCoordsArray& coords, int index) {
-    if (kVec3f_GrSLType != coords[index].type()) {
-        SkASSERT(kVec2f_GrSLType == coords[index].type());
+    if (kVec3f_GrSLType != coords[index].getType()) {
+        SkASSERT(kVec2f_GrSLType == coords[index].getType());
         return coords[index].getName();
     }
 

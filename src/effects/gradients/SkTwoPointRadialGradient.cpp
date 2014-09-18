@@ -598,10 +598,10 @@ void GrGLRadial2Gradient::emitCode(GrGLProgramBuilder* builder,
 
     GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     // We interpolate the linear component in coords[1].
-    SkASSERT(coords[0].type() == coords[1].type());
+    SkASSERT(coords[0].getType() == coords[1].getType());
     const char* coords2D;
     SkString bVar;
-    if (kVec3f_GrSLType == coords[0].type()) {
+    if (kVec3f_GrSLType == coords[0].getType()) {
         fsBuilder->codeAppendf("\tvec3 interpolants = vec3(%s.xy, %s.x) / %s.z;\n",
                                coords[0].c_str(), coords[1].c_str(), coords[0].c_str());
         coords2D = "interpolants.xy";

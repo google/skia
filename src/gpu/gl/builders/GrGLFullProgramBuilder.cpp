@@ -6,6 +6,7 @@
  */
 
 #include "GrGLFullProgramBuilder.h"
+#include "../GrGLGeometryProcessor.h"
 #include "../GrGpuGL.h"
 
 GrGLFullProgramBuilder::GrGLFullProgramBuilder(GrGpuGL* gpu,
@@ -15,25 +16,43 @@ GrGLFullProgramBuilder::GrGLFullProgramBuilder(GrGpuGL* gpu,
     , fVS(this) {
 }
 
-void GrGLFullProgramBuilder::emitCodeBeforeEffects(GrGLSLExpr4* color,
-                                                   GrGLSLExpr4* coverage) {
-    fVS.emitCodeBeforeEffects(color, coverage);
-}
+void
+GrGLFullProgramBuilder::createAndEmitEffects(const GrEffectStage* geometryProcessor,
+                                             const GrEffectStage* colorStages[],
+                                             const GrEffectStage* coverageStages[],
+                                             GrGLSLExpr4* inputColor,
+                                             GrGLSLExpr4* inputCoverage) {
+    fVS.emitCodeBeforeEffects(inputColor, inputCoverage);
 
-void GrGLFullProgramBuilder::emitGeometryProcessor(const GrEffectStage* geometryProcessor,
-                                                   GrGLSLExpr4* coverage) {
+    ///////////////////////////////////////////////////////////////////////////
+    // emit the per-effect code for both color and coverage effects
+
+    bool useLocalCoords = this->getVertexShaderBuilder()->hasExplicitLocalCoords();
+    EffectKeyProvider colorKeyProvider(&this->desc(), EffectKeyProvider::kColor_EffectType);
+    fColorEffects.reset(this->onCreateAndEmitEffects(colorStages,
+                                                     this->desc().numColorEffects(),
+                                                     colorKeyProvider,
+                                                     inputColor));
+
     if (geometryProcessor) {
-        GrGLProgramDesc::EffectKeyProvider geometryProcessorKeyProvider(
-                &this->desc(), GrGLProgramDesc::EffectKeyProvider::kGeometryProcessor_EffectType);
-        fGeometryProcessor.reset(this->createAndEmitEffect(
-                                 geometryProcessor,
-                                 geometryProcessorKeyProvider,
-                                 coverage));
+        GrGLSLExpr4 gpInputCoverage = *inputCoverage;
+        GrGLSLExpr4 gpOutputCoverage;
+        EffectKeyProvider gpKeyProvider(&this->desc(),
+                EffectKeyProvider::kGeometryProcessor_EffectType);
+        fProgramEffects.reset(SkNEW_ARGS(GrGLVertexProgramEffects, (1, useLocalCoords)));
+        this->INHERITED::emitEffect(*geometryProcessor, 0, gpKeyProvider, &gpInputCoverage,
+                                    &gpOutputCoverage);
+        fGeometryProcessor.reset(fProgramEffects.detach());
+        *inputCoverage = gpOutputCoverage;
     }
-}
 
-void GrGLFullProgramBuilder::emitCodeAfterEffects() {
-    fVS.emitCodeAfterEffects();
+    EffectKeyProvider coverageKeyProvider(&this->desc(), EffectKeyProvider::kCoverage_EffectType);
+    fCoverageEffects.reset(this->onCreateAndEmitEffects(coverageStages,
+                                                        this->desc().numCoverageEffects(),
+                                                        coverageKeyProvider,
+                                                        inputCoverage));
+
+     fVS.emitCodeAfterEffects();
 }
 
 void GrGLFullProgramBuilder::addVarying(GrSLType type,
@@ -66,70 +85,123 @@ GrGLFullProgramBuilder::addSeparableVarying(GrSLType type,
     return VaryingHandle::CreateFromSeparableVaryingIndex(fSeparableVaryingInfos.count() - 1);
 }
 
-
-GrGLProgramEffects* GrGLFullProgramBuilder::createAndEmitEffects(
+GrGLProgramEffects* GrGLFullProgramBuilder::onCreateAndEmitEffects(
         const GrEffectStage* effectStages[],
         int effectCnt,
         const GrGLProgramDesc::EffectKeyProvider& keyProvider,
         GrGLSLExpr4* inOutFSColor) {
-
-    GrGLVertexProgramEffectsBuilder programEffectsBuilder(this, effectCnt);
-    this->INHERITED::createAndEmitEffects(&programEffectsBuilder,
-                                          effectStages,
+    fProgramEffects.reset(SkNEW_ARGS(GrGLVertexProgramEffects,
+                                 (effectCnt,
+                                  this->getVertexShaderBuilder()->hasExplicitLocalCoords())));
+    this->INHERITED::createAndEmitEffects(effectStages,
                                           effectCnt,
                                           keyProvider,
                                           inOutFSColor);
-    return programEffectsBuilder.finish();
+    return fProgramEffects.detach();
 }
 
-void GrGLFullProgramBuilder::createAndEmitEffect(GrGLProgramEffectsBuilder* programEffectsBuilder,
-                                              const GrEffectStage* effectStages,
-                                              const GrGLProgramDesc::EffectKeyProvider& keyProvider,
-                                              GrGLSLExpr4* fsInOutColor) {
-    GrGLSLExpr4 inColor = *fsInOutColor;
-    GrGLSLExpr4 outColor;
+void GrGLFullProgramBuilder::emitEffect(const GrEffectStage& stage,
+                                                 const GrEffectKey& key,
+                                                 const char* outColor,
+                                                 const char* inColor,
+                                                 int stageIndex) {
+    SkASSERT(fProgramEffects.get());
+    const GrEffect& effect = *stage.getEffect();
+    SkSTArray<2, GrGLEffect::TransformedCoords> coords(effect.numTransforms());
+    SkSTArray<4, GrGLEffect::TextureSampler> samplers(effect.numTextures());
 
-    SkASSERT(effectStages && effectStages->getEffect());
-    const GrEffectStage& stage = *effectStages;
+    fVS.emitAttributes(stage);
+    this->emitTransforms(stage, &coords);
+    this->emitSamplers(effect, &samplers);
 
-    // Using scope to force ASR destructor to be triggered
-    {
-        CodeStage::AutoStageRestore csar(&fCodeStage, &stage);
+    GrGLEffect* glEffect = effect.getFactory().createGLInstance(effect);
+    fProgramEffects->addEffect(glEffect);
 
-        if (inColor.isZeros()) {
-            SkString inColorName;
+    // Enclose custom code in a block to avoid namespace conflicts
+    SkString openBrace;
+    openBrace.printf("{ // Stage %d: %s\n", stageIndex, glEffect->name());
+    fFS.codeAppend(openBrace.c_str());
+    fVS.codeAppend(openBrace.c_str());
 
-            // Effects have no way to communicate zeros, they treat an empty string as ones.
-            this->nameVariable(&inColorName, '\0', "input");
-            fFS.codeAppendf("vec4 %s = %s;", inColorName.c_str(), inColor.c_str());
-            inColor = inColorName;
-        }
-
-        // create var to hold stage result
-        SkString outColorName;
-        this->nameVariable(&outColorName, '\0', "output");
-        fFS.codeAppendf("vec4 %s;", outColorName.c_str());
-        outColor = outColorName;
-
-
-        programEffectsBuilder->emitEffect(stage,
-                                          keyProvider.get(0),
-                                          outColor.c_str(),
-                                          inColor.isOnes() ? NULL : inColor.c_str(),
-                                          fCodeStage.stageIndex());
+    if (glEffect->isVertexEffect()) {
+        GrGLGeometryProcessor* vertexEffect = static_cast<GrGLGeometryProcessor*>(glEffect);
+        vertexEffect->emitCode(this, effect, key, outColor, inColor, coords, samplers);
+    } else {
+        glEffect->emitCode(this, effect, key, outColor, inColor, coords, samplers);
     }
 
-    *fsInOutColor = outColor;
+    fVS.codeAppend("\t}\n");
+    fFS.codeAppend("\t}\n");
 }
 
-GrGLProgramEffects* GrGLFullProgramBuilder::createAndEmitEffect(
-        const GrEffectStage* geometryProcessor,
-        const GrGLProgramDesc::EffectKeyProvider& keyProvider,
-        GrGLSLExpr4* inOutFSColor) {
+void GrGLFullProgramBuilder::emitTransforms(const GrEffectStage& effectStage,
+                                            GrGLEffect::TransformedCoordsArray* outCoords) {
+    SkTArray<GrGLVertexProgramEffects::Transform, true>& transforms =
+            fProgramEffects->addTransforms();
+    const GrEffect* effect = effectStage.getEffect();
+    int numTransforms = effect->numTransforms();
+    transforms.push_back_n(numTransforms);
 
-    GrGLVertexProgramEffectsBuilder programEffectsBuilder(this, 1);
-    this->createAndEmitEffect(&programEffectsBuilder, geometryProcessor, keyProvider, inOutFSColor);
-    return programEffectsBuilder.finish();
+    SkTArray<GrGLVertexProgramEffects::PathTransform, true>* pathTransforms = NULL;
+    const GrGLCaps* glCaps = this->ctxInfo().caps();
+    if (glCaps->pathRenderingSupport() &&
+        this->gpu()->glPathRendering()->texturingMode() ==
+           GrGLPathRendering::SeparableShaders_TexturingMode) {
+        pathTransforms = &fProgramEffects->addPathTransforms();
+        pathTransforms->push_back_n(numTransforms);
+    }
+
+    for (int t = 0; t < numTransforms; t++) {
+        const char* uniName = "StageMatrix";
+        GrSLType varyingType =
+                effectStage.isPerspectiveCoordTransform(t, fVS.hasExplicitLocalCoords()) ?
+                        kVec3f_GrSLType :
+                        kVec2f_GrSLType;
+
+        SkString suffixedUniName;
+        if (0 != t) {
+            suffixedUniName.append(uniName);
+            suffixedUniName.appendf("_%i", t);
+            uniName = suffixedUniName.c_str();
+        }
+        transforms[t].fHandle = this->addUniform(GrGLProgramBuilder::kVertex_Visibility,
+                                                 kMat33f_GrSLType,
+                                                 uniName,
+                                                 &uniName);
+
+        const char* varyingName = "MatrixCoord";
+        SkString suffixedVaryingName;
+        if (0 != t) {
+            suffixedVaryingName.append(varyingName);
+            suffixedVaryingName.appendf("_%i", t);
+            varyingName = suffixedVaryingName.c_str();
+        }
+        const char* vsVaryingName;
+        const char* fsVaryingName;
+        if (pathTransforms) {
+            (*pathTransforms)[t].fHandle =
+                this->addSeparableVarying(varyingType, varyingName, &vsVaryingName, &fsVaryingName);
+            (*pathTransforms)[t].fType = varyingType;
+        } else {
+            this->addVarying(varyingType, varyingName, &vsVaryingName, &fsVaryingName);
+        }
+
+        const GrGLShaderVar& coords =
+                kPosition_GrCoordSet == effect->coordTransform(t).sourceCoords() ?
+                                          fVS.positionAttribute() :
+                                          fVS.localCoordsAttribute();
+        // varying = matrix * coords (logically)
+        SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
+        if (kVec2f_GrSLType == varyingType) {
+            fVS.codeAppendf("%s = (%s * vec3(%s, 1)).xy;",
+                            vsVaryingName, uniName, coords.c_str());
+        } else {
+            fVS.codeAppendf("%s = %s * vec3(%s, 1);",
+                            vsVaryingName, uniName, coords.c_str());
+        }
+        SkNEW_APPEND_TO_TARRAY(outCoords, GrGLEffect::TransformedCoords,
+                               (SkString(fsVaryingName), varyingType));
+    }
 }
 
 bool GrGLFullProgramBuilder::compileAndAttachShaders(GrGLuint programId,

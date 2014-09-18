@@ -97,7 +97,7 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                                             GrSLType varyingType) const {
     append_texture_lookup(out,
                           fProgramBuilder->gpu(),
-                          fProgramBuilder->getUniformCStr(sampler.samplerUniform()),
+                          fProgramBuilder->getUniformCStr(sampler.fSamplerUniform),
                           coordName,
                           sampler.configComponentMask(),
                           sampler.swizzle(),

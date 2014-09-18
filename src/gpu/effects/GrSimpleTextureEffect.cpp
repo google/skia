@@ -31,7 +31,7 @@ public:
         fsBuilder->appendTextureLookupAndModulate(inputColor,
                                                   samplers[0],
                                                   coords[0].c_str(),
-                                                  coords[0].type());
+                                                  coords[0].getType());
         fsBuilder->codeAppend(";\n");
     }
 

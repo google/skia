@@ -12,6 +12,7 @@
 #define GrEffectStage_DEFINED
 
 #include "GrBackendEffectFactory.h"
+#include "GrCoordTransform.h"
 #include "GrEffect.h"
 #include "GrProgramElementRef.h"
 #include "SkMatrix.h"
@@ -125,6 +126,23 @@ public:
             return fCoordChangeMatrix;
         } else {
             return SkMatrix::I();
+        }
+    }
+
+    bool isPerspectiveCoordTransform(int matrixIndex, bool useExplicitLocalCoords) const {
+        const GrCoordTransform& coordTransform = this->getEffect()->coordTransform(matrixIndex);
+        SkMatrix::TypeMask type0 = coordTransform.getMatrix().getType();
+        SkMatrix::TypeMask type1 = SkMatrix::kIdentity_Mask;
+        if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
+          type1 = useExplicitLocalCoords ?
+                  SkMatrix::kIdentity_Mask : this->getCoordChangeMatrix().getType();
+        }
+
+        int combinedTypes = type0 | type1;
+        if (SkMatrix::kPerspective_Mask & combinedTypes) {
+          return true;
+        } else {
+          return false;
         }
     }
 

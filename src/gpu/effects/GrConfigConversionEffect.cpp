@@ -40,7 +40,7 @@ public:
         fsBuilder->codeAppendf("%s;", tmpDecl.c_str());
 
         fsBuilder->codeAppendf("%s = ", tmpVar.c_str());
-        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
+        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
         fsBuilder->codeAppend(";");
 
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {

@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "GrGLProgram.h"
 
 #include "builders/GrGLFragmentOnlyProgramBuilder.h"
@@ -147,10 +148,10 @@ void GrGLProgram::setData(const GrOptDrawState& optState,
 
     if (fGeometryProcessor.get()) {
         SkASSERT(geometryProcessor);
-        fGeometryProcessor->setData(fGpu, drawType,fProgramDataManager, geometryProcessor);
+        fGeometryProcessor->setData(fGpu, drawType, fProgramDataManager, &geometryProcessor);
     }
-    fColorEffects->setData(fGpu, drawType,fProgramDataManager, colorStages);
-    fCoverageEffects->setData(fGpu, drawType,fProgramDataManager, coverageStages);
+    fColorEffects->setData(fGpu, drawType, fProgramDataManager, colorStages);
+    fCoverageEffects->setData(fGpu, drawType, fProgramDataManager, coverageStages);
 
     // PathTexGen state applies to the the fixed function vertex shader. For
     // custom shaders, it's ignored, so we don't need to change the texgen

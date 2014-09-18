@@ -66,11 +66,11 @@ public:
                                              kMat44f_GrSLType, "YUVMatrix",
                                              &yuvMatrix);
             fsBuilder->codeAppendf("\t%s = vec4(\n\t\t", outputColor);
-            fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
+            fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
             fsBuilder->codeAppend(".r,\n\t\t");
-            fsBuilder->appendTextureLookup(samplers[1], coords[0].c_str(), coords[0].type());
+            fsBuilder->appendTextureLookup(samplers[1], coords[0].c_str(), coords[0].getType());
             fsBuilder->codeAppend(".r,\n\t\t");
-            fsBuilder->appendTextureLookup(samplers[2], coords[0].c_str(), coords[0].type());
+            fsBuilder->appendTextureLookup(samplers[2], coords[0].c_str(), coords[0].getType());
             fsBuilder->codeAppendf(".r,\n\t\t1.0) * %s;\n", yuvMatrix);
         }
 

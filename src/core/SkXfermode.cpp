@@ -836,7 +836,7 @@ public:
             if (backgroundTex) {
                 dstColor = "bgColor";
                 fsBuilder->codeAppendf("\t\tvec4 %s = ", dstColor);
-                fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
+                fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
                 fsBuilder->codeAppendf(";\n");
             } else {
                 dstColor = fsBuilder->dstColor();

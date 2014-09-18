@@ -30,8 +30,8 @@ class GrGLFullProgramBuilder;
 */
 class GrGLShaderBuilder {
 public:
-    typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
-    typedef GrGLProgramEffects::TextureSampler TextureSampler;
+    typedef GrGLEffect::TransformedCoordsArray TransformedCoordsArray;
+    typedef GrGLEffect::TextureSampler TextureSampler;
     GrGLShaderBuilder(GrGLProgramBuilder* program);
 
     void addInput(GrGLShaderVar i) { fInputs.push_back(i); }

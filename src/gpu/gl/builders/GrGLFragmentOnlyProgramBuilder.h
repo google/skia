@@ -17,20 +17,38 @@ public:
     int addTexCoordSets(int count);
 
 private:
-    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color,
-                                       GrGLSLExpr4* coverage) SK_OVERRIDE {}
+    virtual void createAndEmitEffects(const GrEffectStage* geometryProcessor,
+                                      const GrEffectStage* colorStages[],
+                                      const GrEffectStage* coverageStages[],
+                                      GrGLSLExpr4* inputColor,
+                                      GrGLSLExpr4* inputCoverage) SK_OVERRIDE;
 
-    virtual void emitGeometryProcessor(const GrEffectStage* geometryProcessor,
-                                       GrGLSLExpr4* coverage) SK_OVERRIDE {
-        SkASSERT(NULL == geometryProcessor);
-    }
+    GrGLProgramEffects* onCreateAndEmitEffects(const GrEffectStage* effectStages[],
+                                               int effectCnt,
+                                               const GrGLProgramDesc::EffectKeyProvider&,
+                                                   GrGLSLExpr4* inOutFSColor);
 
-    virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
-                                                     int effectCnt,
-                                                     const GrGLProgramDesc::EffectKeyProvider&,
-                                                     GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
+    virtual void emitEffect(const GrEffectStage& stage,
+                            const GrEffectKey& key,
+                            const char* outColor,
+                            const char* inColor,
+                            int stageIndex) SK_OVERRIDE;
 
-    virtual void emitCodeAfterEffects() SK_OVERRIDE {}
+    /**
+     * Helper for emitEffect(). Allocates texture units from the builder for each transform in an
+     * effect. The transforms all use adjacent texture units. They either use two or three of the
+     * coordinates at a given texture unit, depending on if they need perspective interpolation.
+     * The expressions to access the transformed coords (i.e. 'vec2(gl_TexCoord[0])') as well as the
+     * types are appended to the TransformedCoordsArray* object, which is in turn passed to the
+     * effect's emitCode() function.
+     */
+    void setupPathTexGen(const GrEffectStage&, GrGLEffect::TransformedCoordsArray*);
+
+    virtual GrGLProgramEffects* getProgramEffects() SK_OVERRIDE { return fProgramEffects.get(); }
+
+    typedef GrGLProgramDesc::EffectKeyProvider EffectKeyProvider;
+
+    SkAutoTDelete<GrGLPathTexGenProgramEffects> fProgramEffects;
 
     typedef GrGLProgramBuilder INHERITED;
 };
