@@ -19,11 +19,6 @@ public:
     ShellWindow(void* hwnd, int argc, char** argv);
     virtual ~ShellWindow();
 
-    virtual SkCanvas* createCanvas() SK_OVERRIDE {
-        SkCanvas* canvas = this->INHERITED::createCanvas();
-        return canvas;
-    }
-
 protected:
     virtual void onSizeChange() SK_OVERRIDE;
 
