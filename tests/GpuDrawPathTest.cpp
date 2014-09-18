@@ -12,10 +12,10 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
-#include "SkGpuDevice.h"
 #include "SkPaint.h"
 #include "SkRRect.h"
 #include "SkRect.h"
+#include "SkSurface.h"
 #include "Test.h"
 
 static void test_drawPathEmpty(skiatest::Reporter*, SkCanvas* canvas) {
@@ -54,20 +54,10 @@ DEF_GPUTEST(GpuDrawPath, reporter, factory) {
         static const int sampleCounts[] = { 0, 4, 16 };
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(sampleCounts); ++i) {
-            const int W = 255;
-            const int H = 255;
-
-            GrTextureDesc desc;
-            desc.fConfig = kSkia8888_GrPixelConfig;
-            desc.fFlags = kRenderTarget_GrTextureFlagBit;
-            desc.fWidth = W;
-            desc.fHeight = H;
-            desc.fSampleCnt = sampleCounts[i];
-            SkAutoTUnref<GrTexture> texture(grContext->createUncachedTexture(desc, NULL, 0));
-            SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(texture.get()));
-            SkCanvas drawingCanvas(device.get());
-
-            test_drawPathEmpty(reporter, &drawingCanvas);
+            SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
+            
+            SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(grContext, info, sampleCounts[i]));
+            test_drawPathEmpty(reporter, surface->getCanvas());
         }
     }
 }

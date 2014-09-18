@@ -7,9 +7,10 @@
 
 #if SK_SUPPORT_GPU
 
+#include "SkCanvas.h"
 #include "GrContextFactory.h"
 #include "GrResourceCache.h"
-#include "SkGpuDevice.h"
+#include "SkSurface.h"
 #include "Test.h"
 
 static const int gWidth = 640;
@@ -296,12 +297,10 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
         desc.fFlags = kRenderTarget_GrTextureFlagBit;
         desc.fWidth = gWidth;
         desc.fHeight = gHeight;
+        SkImageInfo info = SkImageInfo::MakeN32Premul(gWidth, gHeight);
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, info, 0));
 
-        SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, NULL, 0));
-        SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(texture.get()));
-        SkCanvas canvas(device.get());
-
-        test_cache(reporter, context, &canvas);
+        test_cache(reporter, context, surface->getCanvas());
         test_purge_invalidated(reporter, context);
         test_cache_delete_on_destruction(reporter, context);
         test_resource_size_changed(reporter, context);
