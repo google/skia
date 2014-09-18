@@ -672,7 +672,10 @@ int nanobench_main() {
                 if (targets.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
-                SkDebugf("%s\t%s\n", bench->getUniqueName(), config);
+                SkDebugf("%4dM\t%s\t%s\n"
+                         , sk_tools::getMaxResidentSetSizeMB()
+                         , bench->getUniqueName()
+                         , config);
             } else if (FLAGS_verbose) {
                 for (int i = 0; i < FLAGS_samples; i++) {
                     SkDebugf("%s  ", HUMANIZE(samples[i]));
