@@ -114,13 +114,13 @@ public:
     /** Return a new typeface given a file. If the file does not exist, or is
         not a valid font file, returns null.
     */
-    static SkTypeface* CreateFromFile(const char path[]);
+    static SkTypeface* CreateFromFile(const char path[], int index = 0);
 
     /** Return a new typeface given a stream. If the stream is
         not a valid font file, returns null. Ownership of the stream is
         transferred, so the caller must not reference it again.
     */
-    static SkTypeface* CreateFromStream(SkStream* stream);
+    static SkTypeface* CreateFromStream(SkStream* stream, int index = 0);
 
     /** Write a unique signature to a stream, sufficient to reconstruct a
         typeface referencing the same font when Deserialize is called.

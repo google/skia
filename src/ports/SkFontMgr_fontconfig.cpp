@@ -394,7 +394,7 @@ public:
     }
 
     virtual void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const SK_OVERRIDE {
-        desc->setStyle(this->style());
+        desc->setFontIndex(fIndex);
         *serialize = true;
     }
 
@@ -425,10 +425,10 @@ public:
     virtual void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const SK_OVERRIDE {
         FCLocker lock;
         desc->setFamilyName(get_string(fPattern, FC_FAMILY));
-        desc->setFontFileName(get_string(fPattern, FC_FILE));
         desc->setFullName(get_string(fPattern, FC_FULLNAME));
         desc->setPostscriptName(get_string(fPattern, FC_POSTSCRIPT_NAME));
-        desc->setStyle(this->style());
+        desc->setFontFileName(get_string(fPattern, FC_FILE));
+        desc->setFontIndex(get_int(fPattern, FC_INDEX, 0));
         *serialize = false;
     }
 

@@ -301,7 +301,7 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
         return;
     }
     SkString filename = SkOSPath::Join(resourcePath.c_str(), "test.ttc");
-    SkTypeface* typeface = SkTypeface::CreateFromFile(filename.c_str());
+    SkTypeface* typeface = SkTypeface::CreateFromFile(filename.c_str(), 1);
     if (!typeface) {
         SkDebugf("Could not run fontstream test because test.ttc not found.");
         return;
@@ -320,7 +320,7 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
                                                SkIntToScalar(canvasRect.height()), 
                                                NULL, 0);
     canvas->drawColor(SK_ColorWHITE);
-    canvas->drawText("A", 1, 24, 32, paint);
+    canvas->drawText("A!", 2, 24, 32, paint);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     // Serlialize picture and create its clone from stream.

@@ -2308,19 +2308,15 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
 
 #ifndef SK_IGNORE_TO_STRING
 
-static SkFontDescriptor typeface_getDescriptor(const SkTypeface* face) {
-    SkDynamicMemoryWStream ostream;
-    face->serialize(&ostream);
-    SkAutoTUnref<SkStreamAsset> istream(ostream.detachAsStream());
-    return SkFontDescriptor(istream);
-}
-
 void SkPaint::toString(SkString* str) const {
     str->append("<dl><dt>SkPaint:</dt><dd><dl>");
 
     SkTypeface* typeface = this->getTypeface();
     if (typeface) {
-        SkFontDescriptor descriptor(typeface_getDescriptor(typeface));
+        SkDynamicMemoryWStream ostream;
+        typeface->serialize(&ostream);
+        SkAutoTUnref<SkStreamAsset> istream(ostream.detachAsStream());
+        SkFontDescriptor descriptor(istream);
 
         str->append("<dt>Font Family Name:</dt><dd>");
         str->append(descriptor.getFamilyName());

@@ -81,6 +81,7 @@ public:
         SkASSERT(serialize);
         desc->setFamilyName(fFamilyName.c_str());
         desc->setFontFileName(fPathName.c_str());
+        desc->setFontIndex(fIndex);
         *serialize = false;
     }
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {

@@ -234,7 +234,7 @@ public:
     BlockRefType *operator->() const {
         return static_cast<BlockRefType*>(fObj);
     }
-    operator T*() { return fObj; }
+    operator T*() const { return fObj; }
 
 private:
     T*  fObj;
