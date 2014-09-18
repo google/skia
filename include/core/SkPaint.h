@@ -1127,6 +1127,8 @@ private:
     friend class GrBitmapTextContext;
     friend class GrDistanceFieldTextContext;
     friend class GrStencilAndCoverTextContext;
+    friend class GrPathRendering;
+    friend class GrGLPathRendering;
     friend class SkTextToPathIter;
     friend class SkCanonicalizePaint;
 

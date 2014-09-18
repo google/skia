@@ -378,6 +378,7 @@ void GrGpu::onDrawPaths(const GrPathRange* pathRange,
         return;
     }
 
+    pathRange->willDrawPaths(indices, count);
     this->pathRendering()->drawPaths(pathRange, indices, count, transforms, transformsType, fill);
 }
 

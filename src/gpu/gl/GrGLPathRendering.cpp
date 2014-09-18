@@ -14,6 +14,9 @@
 #include "GrGLPathRange.h"
 #include "GrGLPathRendering.h"
 
+#include "SkStream.h"
+#include "SkTypeface.h"
+
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(fGpu->glInterface(), RET, X)
 
@@ -93,8 +96,59 @@ GrPath* GrGLPathRendering::createPath(const SkPath& inPath, const SkStrokeRec& s
     return SkNEW_ARGS(GrGLPath, (fGpu, inPath, stroke));
 }
 
-GrPathRange* GrGLPathRendering::createPathRange(size_t size, const SkStrokeRec& stroke) {
-    return SkNEW_ARGS(GrGLPathRange, (fGpu, size, stroke));
+GrPathRange* GrGLPathRendering::createPathRange(GrPathRange::PathGenerator* pathGenerator,
+                                                const SkStrokeRec& stroke) {
+    return SkNEW_ARGS(GrGLPathRange, (fGpu, pathGenerator, stroke));
+}
+
+GrPathRange* GrGLPathRendering::createGlyphs(const SkTypeface* typeface,
+                                             const SkDescriptor* desc,
+                                             const SkStrokeRec& stroke) {
+    if (NULL != desc || !caps().glyphLoadingSupport) {
+        return GrPathRendering::createGlyphs(typeface, desc, stroke);
+    }
+
+    if (NULL == typeface) {
+        typeface = SkTypeface::GetDefaultTypeface();
+        SkASSERT(NULL != typeface);
+    }
+
+    int faceIndex;
+    SkAutoTUnref<SkStream> fontStream(typeface->openStream(&faceIndex));
+
+    const size_t fontDataLength = fontStream->getLength();
+    if (0 == fontDataLength) {
+        return GrPathRendering::createGlyphs(typeface, NULL, stroke);
+    }
+
+    SkTArray<uint8_t> fontTempBuffer;
+    const void* fontData = fontStream->getMemoryBase();
+    if (NULL == fontData) {
+        // TODO: Find a more efficient way to pass the font data (e.g. open file descriptor).
+        fontTempBuffer.reset(fontDataLength);
+        fontStream->read(&fontTempBuffer.front(), fontDataLength);
+        fontData = &fontTempBuffer.front();
+    }
+
+    const size_t numPaths = typeface->countGlyphs();
+    const GrGLuint basePathID = this->genPaths(numPaths);
+
+    GrGLenum status;
+    GL_CALL_RET(status, PathMemoryGlyphIndexArray(basePathID, GR_GL_STANDARD_FONT_FORMAT,
+                                                  fontDataLength, fontData, faceIndex, 0, numPaths,
+                                                  GrGLPath(fGpu, SkPath(), stroke).pathID(),
+                                                  SkPaint::kCanonicalTextSizeForPaths));
+
+    if (GR_GL_FONT_GLYPHS_AVAILABLE != status) {
+        this->deletePaths(basePathID, numPaths);
+        return GrPathRendering::createGlyphs(typeface, NULL, stroke);
+    }
+
+    // This is a crude approximation. We may want to consider giving this class
+    // a pseudo PathGenerator whose sole purpose is to track the approximate gpu
+    // memory size.
+    const size_t gpuMemorySize = fontDataLength / 4;
+    return SkNEW_ARGS(GrGLPathRange, (fGpu, basePathID, numPaths, gpuMemorySize, stroke));
 }
 
 void GrGLPathRendering::stencilPath(const GrPath* path, SkPath::FillType fill) {

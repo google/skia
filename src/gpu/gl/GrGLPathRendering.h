@@ -34,7 +34,11 @@ public:
 
     // GrPathRendering implementations.
     virtual GrPath* createPath(const SkPath&, const SkStrokeRec&) SK_OVERRIDE;
-    virtual GrPathRange* createPathRange(size_t size, const SkStrokeRec&) SK_OVERRIDE;
+    virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*,
+                                         const SkStrokeRec&) SK_OVERRIDE;
+    virtual GrPathRange* createGlyphs(const SkTypeface*,
+                                      const SkDescriptor*,
+                                      const SkStrokeRec&) SK_OVERRIDE;
     virtual void stencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
     virtual void drawPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
     virtual void drawPaths(const GrPathRange*, const uint32_t indices[], int count,

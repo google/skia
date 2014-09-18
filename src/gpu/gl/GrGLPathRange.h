@@ -22,25 +22,38 @@ class GrGpuGL;
 
 class GrGLPathRange : public GrPathRange {
 public:
-    GrGLPathRange(GrGpuGL*, size_t size, const SkStrokeRec&);
+    /**
+     * Initialize a GL path range from a PathGenerator. This class will allocate
+     * the GPU path objects and initialize them lazily.
+     */
+    GrGLPathRange(GrGpuGL*, PathGenerator*, const SkStrokeRec&);
+
+    /**
+     * Initialize a GL path range from an existing range of pre-initialized GPU
+     * path objects. This class assumes ownership of the GPU path objects and
+     * will delete them when done.
+     */
+    GrGLPathRange(GrGpuGL*,
+                  GrGLuint basePathID,
+                  int numPaths,
+                  size_t gpuMemorySize,
+                  const SkStrokeRec&);
+
     virtual ~GrGLPathRange();
 
     GrGLuint basePathID() const { return fBasePathID; }
 
-    virtual void initAt(size_t index, const SkPath&);
-
-    // TODO: Use a better approximation for the individual path sizes.
-    virtual size_t gpuMemorySize() const SK_OVERRIDE {
-        return 100 * fNumDefinedPaths;
-    }
+    virtual size_t gpuMemorySize() const SK_OVERRIDE { return fGpuMemorySize; }
 
 protected:
+    virtual void onInitPath(int index, const SkPath&) const;
+
     virtual void onRelease() SK_OVERRIDE;
     virtual void onAbandon() SK_OVERRIDE;
 
 private:
     GrGLuint fBasePathID;
-    size_t fNumDefinedPaths;
+    mutable size_t fGpuMemorySize;
 
     typedef GrPathRange INHERITED;
 };

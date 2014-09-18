@@ -328,6 +328,8 @@ private:
     friend class SkGTypeface;
     friend class SkPDFFont;
     friend class SkPDFCIDFont;
+    friend class GrPathRendering;
+    friend class GrGLPathRendering;
 
     /** Retrieve detailed typeface metrics.  Used by the PDF backend.
      @param perGlyphInfo Indicate what glyph specific information (advances,

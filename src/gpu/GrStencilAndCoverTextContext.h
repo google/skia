@@ -15,6 +15,7 @@
 
 class GrTextStrike;
 class GrPath;
+class GrPathRange;
 
 /*
  * This class implements text rendering using stencil and cover path rendering
@@ -37,15 +38,31 @@ public:
     virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
 
 private:
-    class GlyphPathRange;
     static const int kGlyphBufferSize = 1024;
 
-    enum DeviceSpaceGlyphsBehavior {
-        kUseIfNeeded_DeviceSpaceGlyphsBehavior,
-        kDoNotUse_DeviceSpaceGlyphsBehavior,
+    enum RenderMode {
+        /**
+         * This is the render mode used by drawText(), which is mainly used by
+         * the Skia unit tests. It tries match the other text backends exactly,
+         * with the exception of not implementing LCD text, and doing anti-
+         * aliasing with the built-in MSAA.
+         */
+        kMaxAccuracy_RenderMode,
+
+        /**
+         * This is the render mode used by drawPosText(). It ignores hinting and
+         * LCD text, even if the client provided positions for hinted glyphs,
+         * and renders from a canonically-sized, generic set of paths for the
+         * given typeface. In the future we should work out a system for the
+         * client to know it should not provide hinted glyph positions. This
+         * render mode also tries to use GPU stroking for fake bold, even when
+         * SK_USE_FREETYPE_EMBOLDEN is set.
+         */
+        kMaxPerformance_RenderMode,
     };
+
     void init(const GrPaint&, const SkPaint&, size_t textByteLength,
-              DeviceSpaceGlyphsBehavior, SkScalar textTranslateY = 0);
+              RenderMode, SkScalar textTranslateY = 0);
     void initGlyphs(SkGlyphCache* cache);
     void appendGlyph(uint16_t glyphID, float x);
     void appendGlyph(uint16_t glyphID, float x, float y);
@@ -55,9 +72,8 @@ private:
     GrDrawState::AutoRestoreEffects fStateRestore;
     SkScalar fTextRatio;
     float fTextInverseRatio;
-    SkStrokeRec fStroke;
     SkGlyphCache* fGlyphCache;
-    GlyphPathRange* fGlyphs;
+    GrPathRange* fGlyphs;
     uint32_t fIndexBuffer[kGlyphBufferSize];
     float fTransformBuffer[2 * kGlyphBufferSize];
     GrDrawTarget::PathTransformType fTransformType;

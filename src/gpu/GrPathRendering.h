@@ -9,10 +9,12 @@
 #define GrPathRendering_DEFINED
 
 #include "SkPath.h"
+#include "GrPathRange.h"
 
 class SkStrokeRec;
+class SkDescriptor;
+class SkTypeface;
 class GrPath;
-class GrPathRange;
 class GrGpu;
 
 /**
@@ -77,7 +79,37 @@ public:
      * @param SkStrokeRec   the common stroke applied to each path in the range.
      * @return a new path range.
      */
-    virtual GrPathRange* createPathRange(size_t size, const SkStrokeRec&) = 0;
+    virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*, const SkStrokeRec&) = 0;
+
+    /**
+     * Creates a range of glyph paths, indexed by glyph id. The glyphs will have an
+     * inverted y-direction in order to match the raw font path data. The caller owns
+     * a ref on the returned path range which must be balanced by a call to unref.
+     *
+     * @param SkTypeface   Typeface that defines the glyphs.
+     *                     If null, the default typeface will be used.
+     *
+     * @param SkDescriptor Additional font configuration that specifies the font's size,
+     *                     stroke, and other flags. This will generally come from an
+     *                     SkGlyphCache.
+     *
+     *                     It is recommended to leave this value null when possible, in
+     *                     which case the glyphs will be loaded directly from the font's
+     *                     raw path data and sized at SkPaint::kCanonicalTextSizeForPaths.
+     *                     This will result in less memory usage and more efficient paths.
+     *
+     *                     If non-null, the glyph paths will match the font descriptor,
+     *                     including with the stroke information baked directly into
+     *                     the outlines.
+     *
+     * @param SkStrokeRec  Common stroke that the GPU will apply to every path. Note that
+     *                     if the glyph outlines contain baked-in strokes from the font
+     *                     descriptor, the GPU stroke will be applied on top of those
+     *                     outlines.
+     *
+     * @return a new path range populated with glyphs.
+     */
+    virtual GrPathRange* createGlyphs(const SkTypeface*, const SkDescriptor*, const SkStrokeRec&) = 0;
 
     virtual void stencilPath(const GrPath*, SkPath::FillType) = 0;
     virtual void drawPath(const GrPath*, SkPath::FillType) = 0;
