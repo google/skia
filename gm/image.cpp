@@ -16,22 +16,14 @@
 #include "GrContext.h"
 #endif
 
-static SkData* fileToData(const char path[]) {
-    SkFILEStream stream(path);
-    if (!stream.isValid()) {
-        return SkData::NewEmpty();
-    }
-    size_t size = stream.getLength();
-    void* mem = sk_malloc_throw(size);
-    stream.read(mem, size);
-    return SkData::NewFromMalloc(mem, size);
-}
-
 static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
     // TODO: Make this draw a file that is checked in, so it can
     // be exercised on machines other than mike's. Will require a
     // rebaseline.
-    SkAutoDataUnref data(fileToData("/Users/mike/Downloads/skia.google.jpeg"));
+    SkAutoDataUnref data(SkData::NewFromFileName("/Users/mike/Downloads/skia.google.jpeg"));
+    if (NULL == data.get()) {
+        return;
+    }
     SkImage* image = SkImage::NewFromGenerator(
                 SkDecodingImageGenerator::Create(data, SkDecodingImageGenerator::Options()));
     if (image) {
