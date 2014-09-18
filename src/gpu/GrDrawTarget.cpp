@@ -818,7 +818,6 @@ bool GrDrawTarget::AutoReleaseGeometry::set(GrDrawTarget*  target,
     fTarget = target;
     bool success = true;
     if (fTarget) {
-        fTarget = target;
         success = target->reserveVertexAndIndexSpace(vertexCount,
                                                      indexCount,
                                                      &fVertices,
