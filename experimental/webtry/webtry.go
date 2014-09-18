@@ -36,8 +36,8 @@ import (
 )
 
 const (
-	RUN_GYP        = `../../experimental/webtry/gyp_for_webtry %s`
-	RUN_NINJA      = `ninja -C ../../../inout/Release %s`
+	RUN_GYP   = `../../experimental/webtry/gyp_for_webtry %s -Dskia_gpu=0`
+	RUN_NINJA = `ninja -C ../../../inout/Release %s`
 
 	DEFAULT_SAMPLE = `void draw(SkCanvas* canvas) {
     SkPaint p;
@@ -344,7 +344,7 @@ type userCode struct {
 	Titlebar Titlebar
 }
 
-// writeTemplate creates a given output file and writes the template 
+// writeTemplate creates a given output file and writes the template
 // result there.
 func writeTemplate(filename string, t *template.Template, context interface{}) error {
 	f, err := os.Create(filename)
@@ -352,12 +352,12 @@ func writeTemplate(filename string, t *template.Template, context interface{}) e
 		return err
 	}
 	defer f.Close()
-	return t.Execute( f, context )
+	return t.Execute(f, context)
 }
 
 // expandToFile expands the template and writes the result to the file.
 func expandToFile(filename string, code string, t *template.Template) error {
-	return writeTemplate( filename, t, userCode{Code: code, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}} )
+	return writeTemplate(filename, t, userCode{Code: code, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}})
 }
 
 // expandCode expands the template into a file and calculates the MD5 hash.
@@ -374,8 +374,8 @@ func expandCode(code string, source int) (string, error) {
 }
 
 // expandGyp produces the GYP file needed to build the code
-func expandGyp(hash string) (error) {
-	return writeTemplate(fmt.Sprintf("../../../cache/%s.gyp", hash), gypTemplate, struct {Hash string}{hash} )
+func expandGyp(hash string) error {
+	return writeTemplate(fmt.Sprintf("../../../cache/%s.gyp", hash), gypTemplate, struct{ Hash string }{hash})
 }
 
 // response is serialized to JSON as a response to POSTs.

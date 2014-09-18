@@ -5,6 +5,9 @@
         'Debug': { },
         'Release': { }
       },
+      'cflags!': [
+        '-Werror'
+      ],
       'target_name': '{{.Hash}}',
       'type': 'executable',
       'dependencies': [
@@ -26,12 +29,6 @@
         'src/{{.Hash}}.cpp',
         '../skia/experimental/webtry/main.cpp'
       ],
-      'ldflags': [
-        '-lskia', '-stdlib=libc++', '-std=c++11'
-      ],
-      'cflags': [
-        '-Werror', '-W', '-Wall', '-Wextra', '-Wno-unused-parameter', '-g', '-O0'
-      ]
     }
   ]
 }
