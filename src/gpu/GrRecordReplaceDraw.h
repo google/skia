@@ -30,7 +30,7 @@ public:
         unsigned        fStop;
         SkIPoint        fPos;
         SkImage*        fImage;  // Owns a ref
-        const SkPaint*  fPaint;  // Note: this object doesn't own the paint
+        const SkPaint*  fPaint;  // Owned by this object
 
         SkIRect         fSrcRect;
     };

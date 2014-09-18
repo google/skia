@@ -17,6 +17,7 @@ GrReplacements::ReplacementInfo* GrReplacements::push() {
 void GrReplacements::freeAll() {
     for (int i = 0; i < fReplacements.count(); ++i) {
         fReplacements[i].fImage->unref();
+        SkDELETE(fReplacements[i].fPaint);
     }
     fReplacements.reset();
 }

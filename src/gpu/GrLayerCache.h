@@ -101,7 +101,7 @@ public:
                   const SkIPoint& offset, const SkMatrix& ctm,
                   const SkPaint* paint)
         : fKey(pictureID, start, stop, offset, ctm)
-        , fPaint(paint)
+        , fPaint(paint ? SkNEW_ARGS(SkPaint, (*paint)) : NULL)
         , fTexture(NULL)
         , fRect(GrIRect16::MakeEmpty())
         , fPlot(NULL)
@@ -111,6 +111,7 @@ public:
 
     ~GrCachedLayer() {
         SkSafeUnref(fTexture);
+        SkDELETE(fPaint);
     }
 
     uint32_t pictureID() const { return fKey.pictureID(); }
@@ -145,7 +146,7 @@ private:
     const Key       fKey;
 
     // The paint used when dropping the layer down into the owning canvas.
-    // Can be NULL.
+    // Can be NULL. This class makes a copy for itself.
     const SkPaint*  fPaint;
 
     // fTexture is a ref on the atlasing texture for atlased layers and a

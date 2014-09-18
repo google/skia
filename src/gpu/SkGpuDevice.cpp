@@ -170,7 +170,7 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo
 
     SkColorType ct = origInfo.colorType();
     SkAlphaType at = origInfo.alphaType();
-    // TODO: perhas we can loosen this check now that colortype is more detailed
+    // TODO: perhaps we can loosen this check now that colortype is more detailed
     // e.g. can we support both RGBA and BGRA here?
     if (kRGB_565_SkColorType == ct) {
         at = kOpaque_SkAlphaType;  // force this setting
@@ -1860,8 +1860,7 @@ static void convert_layers_to_replacements(const SkTDArray<GrCachedLayer*>& laye
                      &bm);
         layerInfo->fImage = SkImage::NewTexture(bm);
 
-        // TODO: copy this?
-        layerInfo->fPaint = layers[i]->paint();
+        layerInfo->fPaint = layers[i]->paint() ? SkNEW_ARGS(SkPaint, (*layers[i]->paint())) : NULL;
 
         layerInfo->fSrcRect = SkIRect::MakeXYWH(layers[i]->rect().fLeft,
                                                 layers[i]->rect().fTop,

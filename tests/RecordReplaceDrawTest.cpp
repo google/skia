@@ -97,7 +97,7 @@ void test_replacements(skiatest::Reporter* r, bool useBBH) {
     ri->fStop = 2;
     ri->fPos.set(0, 0);
     ri->fImage = make_image(SK_ColorRED);
-    ri->fPaint = paint;
+    ri->fPaint = SkNEW(SkPaint);
     ri->fSrcRect = SkIRect::MakeWH(kWidth, kHeight);
 
     SkAutoTUnref<SkBBoxHierarchy> bbh;
