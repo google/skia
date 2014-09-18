@@ -132,10 +132,15 @@ SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
 }
 
 SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
-    if (family && family->style() == s) {
+    if (!family) {
+        return SkTypeface::RefDefault(s);
+    }
+
+    if (family->style() == s) {
         family->ref();
         return const_cast<SkTypeface*>(family);
     }
+
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
     bool bold = s & SkTypeface::kBold;
     bool italic = s & SkTypeface::kItalic;
@@ -143,7 +148,7 @@ SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
                                             : SkFontStyle::kNormal_Weight,
                                        SkFontStyle::kNormal_Width,
                                        italic ? SkFontStyle::kItalic_Slant
-                                                : SkFontStyle::kUpright_Slant);
+                                              : SkFontStyle::kUpright_Slant);
     return fm->matchFaceStyle(family, newStyle);
 }
 
