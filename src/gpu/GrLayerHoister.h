@@ -13,6 +13,7 @@
 
 class GrAccelData;
 struct GrCachedLayer;
+class GrReplacements;
 struct SkRect;
 
 // This class collects the layer hoisting functionality in one place.
@@ -23,25 +24,30 @@ struct SkRect;
 class GrLayerHoister {
 public:
     /** Find the layers in 'gpuData' that need hoisting.
-        @param gpuData  Acceleration structure containing layer information for a picture
-        @param query    The rectangle that is about to be drawn.
-        @param pullForward A gpuData->numSaveLayers -sized Boolean array indicating 
-                           which layers are to be hoisted
+        @param gpuData    Acceleration structure containing layer information for a picture
+        @param query      The rectangle that is about to be drawn.
+        @param atlased    Out parameter storing the layers that should be hoisted to the atlas
+        @param nonAtlased Out parameter storing the layers that should be hoisted stand alone
+        @param layerCache The source of new layers
         Return true if any layers are suitable for hoisting; false otherwise
     */
     static bool FindLayersToHoist(const GrAccelData *gpuData,
                                   const SkRect& query,
-                                  bool pullForward[]);
+                                  SkTDArray<GrCachedLayer*>* altased,
+                                  SkTDArray<GrCachedLayer*>* nonAtlased,
+                                  GrLayerCache* layerCache);
 
     /** Draw the specified layers of 'picture' into either the atlas or free
         floating textures.
-        @param picture  The picture containing the layers
-        @param atlased  The layers to be drawn into the atlas
-        @param nonAtlased The layers to be drawn into their own textures
+        @param picture      The picture containing the layers
+        @param atlased      The layers to be drawn into the atlas
+        @param nonAtlased   The layers to be drawn into their own textures
+        @oaram replacements The replacement structure to fill in with the rendered layer info
     */
     static void DrawLayers(const SkPicture* picture,
                            const SkTDArray<GrCachedLayer*>& atlased,
-                           const SkTDArray<GrCachedLayer*>& nonAtlased);
+                           const SkTDArray<GrCachedLayer*>& nonAtlased,
+                           GrReplacements* replacements);
 
     /** Unlock all the layers associated with picture in the layer cache.
         @param layerCache holder of the locked layers

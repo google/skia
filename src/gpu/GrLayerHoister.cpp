@@ -9,12 +9,16 @@
 #include "GrLayerHoister.h"
 #include "SkCanvas.h"
 #include "SkRecordDraw.h"
+#include "GrRecordReplaceDraw.h"
+#include "SkGrPixelRef.h"
 #include "SkSurface.h"
 
 // Return true if any layers are suitable for hoisting
 bool GrLayerHoister::FindLayersToHoist(const GrAccelData *gpuData,
                                        const SkRect& query,
-                                       bool pullForward[]) {
+                                       SkTDArray<GrCachedLayer*>* atlased,
+                                       SkTDArray<GrCachedLayer*>* nonAtlased,
+                                       GrLayerCache* layerCache) {
     bool anyHoisted = false;
 
     // Layer hoisting pre-renders the entire layer since it will be cached and potentially
@@ -22,6 +26,8 @@ bool GrLayerHoister::FindLayersToHoist(const GrAccelData *gpuData,
     // clip will not be limiting the size of the pre-rendered layer. kSaveLayerMaxSize
     // is used to limit which clips are pre-rendered.
     static const int kSaveLayerMaxSize = 256;
+
+    SkAutoTArray<bool> pullForward(gpuData->numSaveLayers());
 
     // Pre-render all the layers that intersect the query rect
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
@@ -51,12 +57,87 @@ bool GrLayerHoister::FindLayersToHoist(const GrAccelData *gpuData,
         anyHoisted = true;
     }
 
+    if (!anyHoisted) {
+        return false;
+    }
+
+    atlased->setReserve(atlased->reserved() + gpuData->numSaveLayers());
+
+    // Generate the layer and/or ensure it is locked
+    for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
+        if (pullForward[i]) {
+            const GrAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
+
+            GrCachedLayer* layer = layerCache->findLayerOrCreate(info.fPictureID,
+                                                                 info.fSaveLayerOpID,
+                                                                 info.fRestoreOpID,
+                                                                 info.fOffset,
+                                                                 info.fOriginXform,
+                                                                 info.fPaint);
+
+            GrTextureDesc desc;
+            desc.fFlags = kRenderTarget_GrTextureFlagBit;
+            desc.fWidth = info.fSize.fWidth;
+            desc.fHeight = info.fSize.fHeight;
+            desc.fConfig = kSkia8888_GrPixelConfig;
+            // TODO: need to deal with sample count
+
+            bool needsRendering = layerCache->lock(layer, desc,
+                                                   info.fHasNestedLayers || info.fIsNested);
+            if (NULL == layer->texture()) {
+                continue;
+            }
+
+            if (needsRendering) {
+                if (layer->isAtlased()) {
+                    *atlased->append() = layer;
+                } else {
+                    *nonAtlased->append() = layer;
+                }
+            }
+        }
+    }
+
     return anyHoisted;
+}
+
+static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* result) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    result->setInfo(info);
+    result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
+}
+
+static void convert_layers_to_replacements(const SkTDArray<GrCachedLayer*>& layers,
+                                           GrReplacements* replacements) {
+    // TODO: just replace GrReplacements::ReplacementInfo with GrCachedLayer?
+    for (int i = 0; i < layers.count(); ++i) {
+        GrReplacements::ReplacementInfo* layerInfo = replacements->push();
+        layerInfo->fStart = layers[i]->start();
+        layerInfo->fStop = layers[i]->stop();
+        layerInfo->fPos = layers[i]->offset();;
+
+        SkBitmap bm;
+        wrap_texture(layers[i]->texture(),
+                     !layers[i]->isAtlased() ? layers[i]->rect().width()
+                                             : layers[i]->texture()->width(),
+                     !layers[i]->isAtlased() ? layers[i]->rect().height()
+                                             : layers[i]->texture()->height(),
+                     &bm);
+        layerInfo->fImage = SkImage::NewTexture(bm);
+
+        layerInfo->fPaint = layers[i]->paint() ? SkNEW_ARGS(SkPaint, (*layers[i]->paint())) : NULL;
+
+        layerInfo->fSrcRect = SkIRect::MakeXYWH(layers[i]->rect().fLeft,
+                                                layers[i]->rect().fTop,
+                                                layers[i]->rect().width(),
+                                                layers[i]->rect().height());
+    }
 }
 
 void GrLayerHoister::DrawLayers(const SkPicture* picture,
                                 const SkTDArray<GrCachedLayer*>& atlased,
-                                const SkTDArray<GrCachedLayer*>& nonAtlased) {
+                                const SkTDArray<GrCachedLayer*>& nonAtlased,
+                                GrReplacements* replacements) {
     // Render the atlased layers that require it
     if (atlased.count() > 0) {
         // All the atlased layers are rendered into the same GrTexture
@@ -146,6 +227,9 @@ void GrLayerHoister::DrawLayers(const SkPicture* picture,
 
         layerCanvas->flush();
     }
+
+    convert_layers_to_replacements(atlased, replacements);
+    convert_layers_to_replacements(nonAtlased, replacements);
 }
 
 void GrLayerHoister::UnlockLayers(GrLayerCache* layerCache, const SkPicture* picture) {
