@@ -39,7 +39,6 @@ public:
 
     static SkImage* NewRasterCopy(const Info&, const void* pixels, size_t rowBytes);
     static SkImage* NewRasterData(const Info&, SkData* pixels, size_t rowBytes);
-    static SkImage* NewEncodedData(SkData*);
 
     /**
      * GrTexture is a more logical parameter for this factory, but its
