@@ -10,6 +10,7 @@
 #include "SkDraw.h"
 #include "SkMetaData.h"
 #include "SkPatchUtils.h"
+#include "SkShader.h"
 #include "SkTextBlob.h"
 
 SkBaseDevice::SkBaseDevice()
@@ -90,6 +91,7 @@ void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPoint cubics[12], const
 void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint &paint) {
 
+    SkPaint runPaint = paint;
     SkMatrix localMatrix;
     SkDraw localDraw(draw);
 
@@ -97,9 +99,21 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
         localMatrix = *draw.fMatrix;
         localMatrix.preTranslate(x, y);
         localDraw.fMatrix = &localMatrix;
+
+        if (paint.getShader()) {
+            // FIXME: We need to compensate for the translate above. This is suboptimal but
+            // temporary -- until we get proper derived class drawTextBlob implementations.
+
+            // TODO: pass x,y down to the other methods so they can handle the additional
+            // translate without needing to allocate a new shader.
+            SkMatrix shaderMatrix;
+            shaderMatrix.setTranslate(-x, -y);
+            SkAutoTUnref<SkShader> wrapper(
+                SkShader::CreateLocalMatrixShader(paint.getShader(), shaderMatrix));
+            runPaint.setShader(wrapper);
+        }
     }
 
-    SkPaint runPaint = paint;
     SkTextBlob::RunIterator it(blob);
     while (!it.done()) {
         size_t textLen = it.glyphCount() * sizeof(uint16_t);
