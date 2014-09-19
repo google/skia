@@ -78,10 +78,11 @@ static SkString get_md5(const void* ptr, size_t len) {
 }
 
 struct JsonData {
-    SkString name;        // E.g. "ninepatch-stretch", "desk-gws_skp"
-    SkString config;      //      "gpu", "8888"
-    SkString sourceType;  //      "GM", "SKP"
-    SkString md5;  // In ASCII, so 32 bytes long.
+    SkString name;            // E.g. "ninepatch-stretch", "desk-gws_skp"
+    SkString config;          //      "gpu", "8888"
+    SkString mode;            //      "direct", "default-tilegrid", "pipe"
+    SkString sourceType;      //      "GM", "SKP"
+    SkString md5;             // In ASCII, so 32 bytes long.
 };
 SkTArray<JsonData> gJsonData;
 SK_DECLARE_STATIC_MUTEX(gJsonDataLock);
@@ -94,7 +95,14 @@ void WriteTask::draw() {
                     : get_md5(fBitmap.getPixels(), fBitmap.getSize());
     }
 
-    JsonData entry = { fBaseName, fSuffixes[0], fSourceType, md5 };
+    SkASSERT(fSuffixes.count() > 0);
+    SkString config = fSuffixes.back();
+    SkString mode("direct");
+    if (fSuffixes.count() > 1) {
+        mode = fSuffixes.fromBack(1);
+    }
+
+    JsonData entry = { fBaseName, config, mode, fSourceType, md5 };
     {
         SkAutoMutexAcquire lock(&gJsonDataLock);
         gJsonData.push_back(entry);
@@ -176,6 +184,7 @@ void WriteTask::DumpJson() {
             Json::Value result;
             result["key"]["name"]            = gJsonData[i].name.c_str();
             result["key"]["config"]          = gJsonData[i].config.c_str();
+            result["key"]["mode"]            = gJsonData[i].mode.c_str();
             result["options"]["source_type"] = gJsonData[i].sourceType.c_str();
             result["md5"]                    = gJsonData[i].md5.c_str();
 
