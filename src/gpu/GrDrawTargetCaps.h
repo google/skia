@@ -19,8 +19,12 @@ class GrDrawTargetCaps : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrDrawTargetCaps)
 
-    GrDrawTargetCaps() { this->reset(); }
-    GrDrawTargetCaps(const GrDrawTargetCaps& other) : INHERITED() { *this = other; }
+    GrDrawTargetCaps() : fUniqueID(CreateUniqueID()) {
+        this->reset();
+    }
+    GrDrawTargetCaps(const GrDrawTargetCaps& other) : INHERITED(), fUniqueID(CreateUniqueID()) {
+        *this = other;
+    }
     GrDrawTargetCaps& operator= (const GrDrawTargetCaps&);
 
     virtual void reset();
@@ -77,6 +81,13 @@ public:
         return fConfigTextureSupport[config];
     }
 
+    /**
+     * Gets an id that is unique for this GrDrawTargetCaps object. It is static in that it does
+     * not change when the content of the GrDrawTargetCaps object changes. This will never return
+     * 0.
+     */
+    uint32_t getUniqueID() const { return fUniqueID; }
+
 protected:
     bool fNPOTTextureTileSupport    : 1;
     bool fMipMapSupport             : 1;
@@ -102,6 +113,11 @@ protected:
     // The first entry for each config is without msaa and the second is with.
     bool fConfigRenderSupport[kGrPixelConfigCnt][2];
     bool fConfigTextureSupport[kGrPixelConfigCnt];
+
+private:
+    static uint32_t CreateUniqueID();
+
+    const uint32_t          fUniqueID;
 
     typedef SkRefCnt INHERITED;
 };

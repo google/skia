@@ -1147,3 +1147,13 @@ SkString GrDrawTargetCaps::dump() const {
 
     return r;
 }
+
+uint32_t GrDrawTargetCaps::CreateUniqueID() {
+    static int32_t gUniqueID = SK_InvalidUniqueID;
+    uint32_t id;
+    do {
+        id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+
