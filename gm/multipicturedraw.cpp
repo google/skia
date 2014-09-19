@@ -407,7 +407,7 @@ namespace skiagm {
         virtual void onOnceBeforeDraw() SK_OVERRIDE {
             fPictures[0] = make_hex_plane_picture(SK_ColorWHITE);
             fPictures[1] = make_hex_plane_picture(SK_ColorGRAY);
-            fPictures[2] = SkRef(make_sierpinski_picture());
+            fPictures[2] = make_sierpinski_picture();
         }
 
         virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
