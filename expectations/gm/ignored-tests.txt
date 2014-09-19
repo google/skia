@@ -52,3 +52,4 @@ shadertext2
 glyph_pos_align
 getpostextpath
 fontmgr_iter
+chrome_gradtext2
