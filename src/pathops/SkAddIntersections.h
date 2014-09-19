@@ -13,6 +13,6 @@
 
 bool AddIntersectTs(SkOpContour* test, SkOpContour* next);
 void AddSelfIntersectTs(SkOpContour* test);
-void CoincidenceCheck(SkTArray<SkOpContour*, true>* contourList, int total);
+bool CoincidenceCheck(SkTArray<SkOpContour*, true>* contourList, int total);
 
 #endif

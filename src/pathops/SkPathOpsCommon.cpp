@@ -699,7 +699,9 @@ bool HandleCoincidence(SkTArray<SkOpContour*, true>* contourList, int total) {
 #if DEBUG_SHOW_WINDING
     SkOpContour::debugShowWindingValues(contourList);
 #endif
-    CoincidenceCheck(contourList, total);
+    if (!CoincidenceCheck(contourList, total)) {
+        return false;
+    }
 #if DEBUG_SHOW_WINDING
     SkOpContour::debugShowWindingValues(contourList);
 #endif

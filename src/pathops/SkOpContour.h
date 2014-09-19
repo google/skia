@@ -114,7 +114,7 @@ public:
     }
 
     bool calcAngles();
-    void calcCoincidentWinding();
+    bool calcCoincidentWinding();
     void calcPartialCoincidentWinding();
 
     void checkDuplicates() {
@@ -325,7 +325,7 @@ public:
 private:
     void alignPt(int index, SkPoint* point, int zeroPt) const;
     int alignT(bool swap, int tIndex, SkIntersections* ts) const;
-    void calcCommonCoincidentWinding(const SkCoincidence& );
+    bool calcCommonCoincidentWinding(const SkCoincidence& );
     void checkCoincidentPair(const SkCoincidence& oneCoin, int oneIdx,
                              const SkCoincidence& twoCoin, int twoIdx, bool partial);
     void joinCoincidence(const SkTArray<SkCoincidence, true>& , bool partial);

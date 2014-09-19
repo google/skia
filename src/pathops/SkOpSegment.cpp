@@ -1271,7 +1271,7 @@ void SkOpSegment::bumpCoincidentOther(const SkOpSpan& test, int* oIndexPtr,
 
 // set spans from start to end to increment the greater by one and decrement
 // the lesser
-void SkOpSegment::addTCoincident(const SkPoint& startPt, const SkPoint& endPt, double endT,
+bool SkOpSegment::addTCoincident(const SkPoint& startPt, const SkPoint& endPt, double endT,
         SkOpSegment* other) {
     bool binary = fOperand != other->fOperand;
     int index = 0;
@@ -1303,7 +1303,10 @@ void SkOpSegment::addTCoincident(const SkPoint& startPt, const SkPoint& endPt, d
     // SkASSERT(AlmostEqualUlps(*testPt, *oTestPt));
     do {
         SkASSERT(test->fT < 1);
-        SkASSERT(oTest->fT < 1);
+        if (oTest->fT == 1) {
+            // paths with extreme data may be so mismatched that we fail here
+            return false;
+        }
 
         // consolidate the winding count even if done
         if ((test->fWindValue == 0 && test->fOppValue == 0)
@@ -1409,6 +1412,7 @@ void SkOpSegment::addTCoincident(const SkPoint& startPt, const SkPoint& endPt, d
     }
     setCoincidentRange(startPt, endPt, other);
     other->setCoincidentRange(startPt, endPt, this);
+    return true;
 }
 
 // FIXME: this doesn't prevent the same span from being added twice
@@ -2422,8 +2426,8 @@ nextSmallCheck:
             do {
                 ++nextSpan;
             } while (nextSpan->fSmall);
-            missing.fSegment->addTCoincident(missing.fPt, nextSpan->fPt, nextSpan->fT,
-                    missingOther);
+            SkAssertResult(missing.fSegment->addTCoincident(missing.fPt, nextSpan->fPt,
+                    nextSpan->fT, missingOther));
         } else if (otherSpan.fT > 0) {
             const SkOpSpan* priorSpan = &otherSpan;
             do {
@@ -2494,7 +2498,7 @@ void SkOpSegment::checkSmallCoincidence(const SkOpSpan& span,
     }
 //    SkASSERT(oSpan.fSmall);
     if (oStartIndex < oEndIndex) {
-        addTCoincident(span.fPt, next->fPt, next->fT, other);
+        SkAssertResult(addTCoincident(span.fPt, next->fPt, next->fT, other));
     } else {
         addTCancel(span.fPt, next->fPt, other);
     }
@@ -2539,7 +2543,7 @@ void SkOpSegment::checkSmallCoincidence(const SkOpSpan& span,
                         oTest->fOtherT, tTest->fT);
 #endif
                 if (tTest->fT < oTest->fOtherT) {
-                    addTCoincident(span.fPt, next->fPt, next->fT, testOther);
+                    SkAssertResult(addTCoincident(span.fPt, next->fPt, next->fT, testOther));
                 } else {
                     addTCancel(span.fPt, next->fPt, testOther);
                 }
@@ -3428,7 +3432,7 @@ bool SkOpSegment::joinCoincidence(SkOpSegment* other, double otherT, const SkPoi
             if (cancel) {
                 match->addTCancel(startPt, endPt, other);
             } else {
-                match->addTCoincident(startPt, endPt, endT, other);
+                SkAssertResult(match->addTCoincident(startPt, endPt, endT, other));
             }
             return true;
         }
