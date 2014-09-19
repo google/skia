@@ -1407,7 +1407,13 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         t = SkScalarMul(SkScalarDiv(t, gAnimPeriod), gAnimMag);
         SkMatrix m;
         m.reset();
+#if 1
         m.setPerspY(t);
+#else
+        m.setPerspY(SK_Scalar1 / 1000);
+        m.setSkewX(SkScalarDiv(8, 25));
+        m.dump();
+#endif
         canvas->concat(m);
     }
 
