@@ -13,9 +13,25 @@
 class GrGpuResource;
 
 /**
+ * This class is intended only for internal use in core Gr code.
+ *
  * Class that wraps a resource referenced by a GrProgramElement or GrDrawState. It manages
- * converting refs to pending io operations. Like SkAutoTUnref, its constructor and setter adopt
- * a ref from their caller. This class is intended only for internal use in core Gr code.
+ * converting refs to pending IO operations. It allows a resource ownership to be in three
+ * states:
+ *          1. Owns a single ref
+ *          2. Owns a single ref and a pending IO operation (read, write, or read-write)
+ *          3. Owns a single pending IO operation.
+ *
+ * It is legal to destroy the GrGpuResourceRef in any of these states. It starts in state
+ * 1. Calling markPendingIO() converts it from state 1 to state 2. Calling removeRef() goes from
+ * state 2 to state 3. Calling pendingIOComplete() moves from state 2 to state 1. There is no
+ * valid way of going from state 3 back to 2 or 1.
+ *
+ * Like SkAutoTUnref, its constructor and setter adopt a ref from their caller.
+ *
+ * TODO: Once GrDODrawState no longer exists and therefore GrDrawState and GrOptDrawState no
+ * longer share an instance of this class, attempt to make the resource owned by GrGpuResourceRef
+ * only settable via the constructor.
  */
 class GrGpuResourceRef : SkNoncopyable {
 public:
@@ -53,18 +69,19 @@ protected:
 
 private:
     /** Called by owning GrProgramElement when the program element is first scheduled for
-        execution. */
+        execution. It can only be called once. */
     void markPendingIO() const;
 
     /** Called when the program element/draw state is no longer owned by GrDrawTarget-client code.
         This lets the cache know that the drawing code will no longer schedule additional reads or
-        writes to the resource using the program element or draw state. */
+        writes to the resource using the program element or draw state. It can only be called once.
+      */
     void removeRef() const;
 
     /** Called to indicate that the previous pending IO is complete. Useful when the owning object
         still has refs, so it is not about to destroy this GrGpuResourceRef, but its previously
-        pending executions have been complete.
-     */
+        pending executions have been complete. Can only be called if removeRef() was not previously
+        called. */
     void pendingIOComplete() const;
 
     friend class GrRODrawState;
@@ -78,6 +95,9 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
+/** 
+ * Templated version of GrGpuResourceRef to enforce type safety.
+ */
 template <typename T> class GrTGpuResourceRef : public GrGpuResourceRef {
 public:
     GrTGpuResourceRef() {}
@@ -96,5 +116,57 @@ private:
     typedef GrGpuResourceRef INHERITED;
 };
 
+/**
+ * This is similar to GrTGpuResourceRef but can only be in the pending IO state. It never owns a
+ * ref.
+ */
+template <typename T> class GrPendingIOResource : SkNoncopyable {
+public:
+    typedef GrGpuResourceRef::IOType IOType;
+    GrPendingIOResource(T* resource, IOType ioType) : fResource(resource), fIOType(ioType) {
+        if (NULL != fResource) {
+            switch (fIOType) {
+                case GrGpuResourceRef::kNone_IOType:
+                    SkFAIL("GrPendingIOResource with neither reads nor writes?");
+                    break;
+                case GrGpuResourceRef::kRead_IOType:
+                    fResource->addPendingRead();
+                    break;
+                case GrGpuResourceRef::kWrite_IOType:
+                    fResource->addPendingWrite();
+                    break;
+                case GrGpuResourceRef::kRW_IOType:
+                    fResource->addPendingRead();
+                    fResource->addPendingWrite();
+                    break;
+            }
+        }
+    }
 
+    ~GrPendingIOResource() {
+        if (NULL != fResource) {
+            switch (fIOType) {
+                case GrGpuResourceRef::kNone_IOType:
+                    SkFAIL("GrPendingIOResource with neither reads nor writes?");
+                    break;
+                case GrGpuResourceRef::kRead_IOType:
+                    fResource->completedRead();
+                    break;
+                case GrGpuResourceRef::kWrite_IOType:
+                    fResource->completedWrite();
+                    break;
+                case GrGpuResourceRef::kRW_IOType:
+                    fResource->completedRead();
+                    fResource->completedWrite();
+                    break;
+            }
+        }
+    }
+
+    T* get() const { return fResource; }
+
+private:
+    T*      fResource;
+    IOType  fIOType;
+};
 #endif

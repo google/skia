@@ -111,6 +111,7 @@ private:
 
     // This class is used to manage conversion of refs to pending reads/writes.
     friend class GrGpuResourceRef;
+    template <typename T> friend class GrPendingIOResource;
 };
 
 /**

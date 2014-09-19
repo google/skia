@@ -224,8 +224,10 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
-template <typename T>
-class GrTAllocator : SkNoncopyable {
+template <typename T> class GrTAllocator;
+template <typename T> void* operator new(size_t, GrTAllocator<T>*);
+
+template <typename T> class GrTAllocator : SkNoncopyable {
 public:
     virtual ~GrTAllocator() { this->reset(); };
 
@@ -360,6 +362,8 @@ protected:
     }
 
 private:
+    friend void* operator new<T>(size_t, GrTAllocator*);
+
     GrAllocator fAllocator;
     typedef SkNoncopyable INHERITED;
 };
@@ -376,5 +380,19 @@ public:
 private:
     SkAlignedSTStorage<N, T> fStorage;
 };
+
+template <typename T> void* operator new(size_t size, GrTAllocator<T>* allocator) {
+    return allocator->fAllocator.push_back();
+}
+
+// Skia doesn't use C++ exceptions but it may be compiled with them enabled. Having an op delete
+// to match the op new silences warnings about missing op delete when a constructor throws an
+// exception.
+template <typename T> void operator delete(void*, GrTAllocator<T>*) {
+    SK_CRASH();
+}
+
+#define GrNEW_APPEND_TO_ALLOCATOR(allocator_ptr, type_name, args) \
+    new (allocator_ptr) type_name args
 
 #endif

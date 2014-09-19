@@ -93,7 +93,6 @@ void GrGpuResourceRef::markPendingIO() const {
             fResource->addPendingRead();
             fResource->addPendingWrite();
             break;
-
     }
 }
 
