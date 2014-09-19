@@ -132,11 +132,12 @@ GrPathRange* GrGLPathRendering::createGlyphs(const SkTypeface* typeface,
 
     const size_t numPaths = typeface->countGlyphs();
     const GrGLuint basePathID = this->genPaths(numPaths);
+    SkAutoTUnref<GrGLPath> templatePath(SkNEW_ARGS(GrGLPath, (fGpu, SkPath(), stroke)));
 
     GrGLenum status;
     GL_CALL_RET(status, PathMemoryGlyphIndexArray(basePathID, GR_GL_STANDARD_FONT_FORMAT,
-                                                  fontDataLength, fontData, faceIndex, 0, numPaths,
-                                                  GrGLPath(fGpu, SkPath(), stroke).pathID(),
+                                                  fontDataLength, fontData, faceIndex, 0,
+                                                  numPaths, templatePath->pathID(),
                                                   SkPaint::kCanonicalTextSizeForPaths));
 
     if (GR_GL_FONT_GLYPHS_AVAILABLE != status) {
