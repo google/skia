@@ -8,9 +8,8 @@
 #ifndef GrGpuResourceRef_DEFINED
 #define GrGpuResourceRef_DEFINED
 
+#include "GrGpuResource.h"
 #include "SkRefCnt.h"
-
-class GrGpuResource;
 
 /**
  * This class is intended only for internal use in core Gr code.
@@ -37,14 +36,6 @@ class GrGpuResourceRef : SkNoncopyable {
 public:
     SK_DECLARE_INST_COUNT_ROOT(GrGpuResourceRef);
 
-    enum IOType {
-        kRead_IOType,
-        kWrite_IOType,
-        kRW_IOType,
-
-        kNone_IOType, // For internal use only, don't specify to constructor or setResource().
-    };
-
     ~GrGpuResourceRef();
 
     GrGpuResource* getResource() const { return fResource; }
@@ -61,11 +52,11 @@ protected:
 
     /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
-    GrGpuResourceRef(GrGpuResource*, IOType);
+    GrGpuResourceRef(GrGpuResource*, GrIORef::IOType);
 
     /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
-    void setResource(GrGpuResource*, IOType);
+    void setResource(GrGpuResource*, GrIORef::IOType);
 
 private:
     /** Called by owning GrProgramElement when the program element is first scheduled for
@@ -90,7 +81,7 @@ private:
     GrGpuResource*      fResource;
     mutable bool        fOwnRef;
     mutable bool        fPendingIO;
-    IOType              fIOType;
+    GrIORef::IOType     fIOType;
 
     typedef SkNoncopyable INHERITED;
 };
@@ -104,13 +95,13 @@ public:
 
     /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
-    GrTGpuResourceRef(T* resource, IOType ioType) : INHERITED(resource, ioType) {}
+    GrTGpuResourceRef(T* resource, GrIORef::IOType ioType) : INHERITED(resource, ioType) {}
 
     T* get() const { return static_cast<T*>(this->getResource()); }
 
     /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
-    void set(T* resource, IOType ioType) { this->setResource(resource, ioType); }
+    void set(T* resource, GrIORef::IOType ioType) { this->setResource(resource, ioType); }
 
 private:
     typedef GrGpuResourceRef INHERITED;
@@ -120,22 +111,18 @@ private:
  * This is similar to GrTGpuResourceRef but can only be in the pending IO state. It never owns a
  * ref.
  */
-template <typename T> class GrPendingIOResource : SkNoncopyable {
+template <typename T, GrIORef::IOType IO_TYPE> class GrPendingIOResource : SkNoncopyable {
 public:
-    typedef GrGpuResourceRef::IOType IOType;
-    GrPendingIOResource(T* resource, IOType ioType) : fResource(resource), fIOType(ioType) {
+    GrPendingIOResource(T* resource) : fResource(resource) {
         if (NULL != fResource) {
-            switch (fIOType) {
-                case GrGpuResourceRef::kNone_IOType:
-                    SkFAIL("GrPendingIOResource with neither reads nor writes?");
-                    break;
-                case GrGpuResourceRef::kRead_IOType:
+            switch (IO_TYPE) {
+                case GrIORef::kRead_IOType:
                     fResource->addPendingRead();
                     break;
-                case GrGpuResourceRef::kWrite_IOType:
+                case GrIORef::kWrite_IOType:
                     fResource->addPendingWrite();
                     break;
-                case GrGpuResourceRef::kRW_IOType:
+                case GrIORef::kRW_IOType:
                     fResource->addPendingRead();
                     fResource->addPendingWrite();
                     break;
@@ -145,17 +132,14 @@ public:
 
     ~GrPendingIOResource() {
         if (NULL != fResource) {
-            switch (fIOType) {
-                case GrGpuResourceRef::kNone_IOType:
-                    SkFAIL("GrPendingIOResource with neither reads nor writes?");
-                    break;
-                case GrGpuResourceRef::kRead_IOType:
+            switch (IO_TYPE) {
+                case GrIORef::kRead_IOType:
                     fResource->completedRead();
                     break;
-                case GrGpuResourceRef::kWrite_IOType:
+                case GrIORef::kWrite_IOType:
                     fResource->completedWrite();
                     break;
-                case GrGpuResourceRef::kRW_IOType:
+                case GrIORef::kRW_IOType:
                     fResource->completedRead();
                     fResource->completedWrite();
                     break;
@@ -167,6 +151,5 @@ public:
 
 private:
     T*      fResource;
-    IOType  fIOType;
 };
 #endif

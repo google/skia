@@ -11,7 +11,7 @@
 #include "GrResourceCache2.h"
 #include "GrGpu.h"
 
-GrGpuRef::~GrGpuRef() {
+GrIORef::~GrIORef() {
     SkASSERT(0 == fRefCnt);
     SkASSERT(0 == fPendingReads);
     SkASSERT(0 == fPendingWrites);

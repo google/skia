@@ -33,11 +33,17 @@ class GrContext;
  *
  * The latter two ref types are private and intended only for Gr core code.
  */
-class GrGpuRef : public SkNoncopyable {
+class GrIORef : public SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(GrGpuRef)
+    SK_DECLARE_INST_COUNT_ROOT(GrIORef)
 
-    virtual ~GrGpuRef();
+    enum IOType {
+        kRead_IOType,
+        kWrite_IOType,
+        kRW_IOType
+    };
+
+    virtual ~GrIORef();
 
     // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
     // templated helper classes (e.g. SkAutoTUnref). However, we have different categories of
@@ -75,7 +81,7 @@ public:
     }
 
 protected:
-    GrGpuRef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
+    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
 
 private:
     void addPendingRead() const {
@@ -111,13 +117,13 @@ private:
 
     // This class is used to manage conversion of refs to pending reads/writes.
     friend class GrGpuResourceRef;
-    template <typename T> friend class GrPendingIOResource;
+    template <typename, IOType> friend class GrPendingIOResource;
 };
 
 /**
  * Base class for objects that can be kept in the GrResourceCache.
  */
-class GrGpuResource : public GrGpuRef {
+class GrGpuResource : public GrIORef {
 public:
     SK_DECLARE_INST_COUNT(GrGpuResource)
 
@@ -242,7 +248,7 @@ private:
 
     GrResourceKey           fScratchKey;
 
-    typedef GrGpuRef INHERITED;
+    typedef GrIORef INHERITED;
 };
 
 #endif

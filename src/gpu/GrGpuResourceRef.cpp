@@ -6,16 +6,14 @@
  */
 
 #include "GrGpuResourceRef.h"
-#include "GrGpuResource.h"
 
 GrGpuResourceRef::GrGpuResourceRef() {
     fResource = NULL;
     fOwnRef = false;
     fPendingIO = false;
-    fIOType = kNone_IOType;
 }
 
-GrGpuResourceRef::GrGpuResourceRef(GrGpuResource* resource, IOType ioType) {
+GrGpuResourceRef::GrGpuResourceRef(GrGpuResource* resource, GrIORef::IOType ioType) {
     fResource = NULL;
     fOwnRef = false;
     fPendingIO = false;
@@ -29,16 +27,13 @@ GrGpuResourceRef::~GrGpuResourceRef() {
     }
     if (fPendingIO) {
         switch (fIOType) {
-            case kNone_IOType:
-                SkFAIL("Shouldn't get here if fIOType is kNone.");
-                break;
-            case kRead_IOType:
+            case GrIORef::kRead_IOType:
                 fResource->completedRead();
                 break;
-            case kWrite_IOType:
+            case GrIORef::kWrite_IOType:
                 fResource->completedWrite();
                 break;
-            case kRW_IOType:
+            case GrIORef::kRW_IOType:
                 fResource->completedRead();
                 fResource->completedWrite();
                 break;
@@ -53,20 +48,17 @@ void GrGpuResourceRef::reset() {
         fResource->unref();
         fOwnRef = false;
         fResource = NULL;
-        fIOType = kNone_IOType;
     }
 }
 
-void GrGpuResourceRef::setResource(GrGpuResource* resource, IOType ioType) {
+void GrGpuResourceRef::setResource(GrGpuResource* resource, GrIORef::IOType ioType) {
     SkASSERT(!fPendingIO);
     SkASSERT(SkToBool(fResource) == fOwnRef);
     SkSafeUnref(fResource);
     if (NULL == resource) {
         fResource = NULL;
         fOwnRef = false;
-        fIOType = kNone_IOType;
     } else {
-        SkASSERT(kNone_IOType != ioType);
         fResource = resource;
         fOwnRef = true;
         fIOType = ioType;
@@ -80,16 +72,13 @@ void GrGpuResourceRef::markPendingIO() const {
     SkASSERT(fResource);
     fPendingIO = true;
     switch (fIOType) {
-        case kNone_IOType:
-            SkFAIL("GrGpuResourceRef with neither reads nor writes?");
-            break;
-        case kRead_IOType:
+        case GrIORef::kRead_IOType:
             fResource->addPendingRead();
             break;
-        case kWrite_IOType:
+        case GrIORef::kWrite_IOType:
             fResource->addPendingWrite();
             break;
-        case kRW_IOType:
+        case GrIORef::kRW_IOType:
             fResource->addPendingRead();
             fResource->addPendingWrite();
             break;
@@ -102,16 +91,13 @@ void GrGpuResourceRef::pendingIOComplete() const {
     SkASSERT(fOwnRef);
     SkASSERT(fPendingIO);
     switch (fIOType) {
-        case kNone_IOType:
-            SkFAIL("GrGpuResourceRef with neither reads nor writes?");
-            break;
-        case kRead_IOType:
+        case GrIORef::kRead_IOType:
             fResource->completedRead();
             break;
-        case kWrite_IOType:
+        case GrIORef::kWrite_IOType:
             fResource->completedWrite();
             break;
-        case kRW_IOType:
+        case GrIORef::kRW_IOType:
             fResource->completedRead();
             fResource->completedWrite();
             break;
@@ -125,7 +111,6 @@ void GrGpuResourceRef::removeRef() const {
     // there is a pending execution.
     SkASSERT(fOwnRef);
     SkASSERT(fPendingIO);
-    SkASSERT(kNone_IOType != fIOType);
     SkASSERT(fResource);
     fResource->unref();
     fOwnRef = false;

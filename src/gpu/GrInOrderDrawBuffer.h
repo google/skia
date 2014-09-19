@@ -102,30 +102,30 @@ private:
     public:
         Draw(const DrawInfo& info, const GrVertexBuffer* vb, const GrIndexBuffer* ib)
             : DrawInfo(info)
-            , fVertexBuffer(vb, GrGpuResourceRef::kRead_IOType)
-            , fIndexBuffer(ib, GrGpuResourceRef::kRead_IOType) {}
+            , fVertexBuffer(vb)
+            , fIndexBuffer(ib) {}
 
         const GrVertexBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
         const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
 
     private:
-        GrPendingIOResource<const GrVertexBuffer> fVertexBuffer;
-        GrPendingIOResource<const GrIndexBuffer> fIndexBuffer;
+        GrPendingIOResource<const GrVertexBuffer, GrIORef::kRead_IOType>    fVertexBuffer;
+        GrPendingIOResource<const GrIndexBuffer, GrIORef::kRead_IOType>     fIndexBuffer;
     };
 
     struct StencilPath : public ::SkNoncopyable {
-        StencilPath(const GrPath* path) : fPath(path, GrGpuResourceRef::kRead_IOType) {}
+        StencilPath(const GrPath* path) : fPath(path) {}
 
         const GrPath* path() const { return fPath.get(); }
 
         SkPath::FillType fFill;
 
     private:
-        GrPendingIOResource<const GrPath>   fPath;
+        GrPendingIOResource<const GrPath, GrIORef::kRead_IOType>   fPath;
     };
 
     struct DrawPath : public ::SkNoncopyable {
-        DrawPath(const GrPath* path) : fPath(path, GrGpuResourceRef::kRead_IOType) {}
+        DrawPath(const GrPath* path) : fPath(path) {}
 
         const GrPath* path() const { return fPath.get(); }
 
@@ -133,12 +133,12 @@ private:
         GrDeviceCoordTexture    fDstCopy;
 
     private:
-        GrPendingIOResource<const GrPath>   fPath;
+        GrPendingIOResource<const GrPath, GrIORef::kRead_IOType> fPath;
     };
 
     struct DrawPaths : public ::SkNoncopyable {
         DrawPaths(const GrPathRange* pathRange)
-            : fPathRange(pathRange, GrGpuResourceRef::kRead_IOType) {}
+            : fPathRange(pathRange) {}
 
         ~DrawPaths() {
             if (fTransforms) {
@@ -159,12 +159,12 @@ private:
         GrDeviceCoordTexture    fDstCopy;
 
     private:
-        GrPendingIOResource<const GrPathRange>  fPathRange;
+        GrPendingIOResource<const GrPathRange, GrIORef::kRead_IOType> fPathRange;
     };
 
     // This is also used to record a discard by setting the color to GrColor_ILLEGAL
     struct Clear : public ::SkNoncopyable {
-        Clear(GrRenderTarget* rt) : fRenderTarget(rt, GrGpuResourceRef::kWrite_IOType) {}
+        Clear(GrRenderTarget* rt) : fRenderTarget(rt) {}
         ~Clear() { }
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
@@ -173,13 +173,11 @@ private:
         bool    fCanIgnoreRect;
 
     private:
-        GrPendingIOResource<GrRenderTarget> fRenderTarget;
+        GrPendingIOResource<GrRenderTarget, GrIORef::kWrite_IOType> fRenderTarget;
     };
 
     struct CopySurface : public ::SkNoncopyable {
-        CopySurface(GrSurface* dst, GrSurface* src)
-            : fDst(dst, GrGpuResourceRef::kWrite_IOType)
-            , fSrc(src, GrGpuResourceRef::kRead_IOType) {}
+        CopySurface(GrSurface* dst, GrSurface* src) : fDst(dst), fSrc(src) {}
 
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
@@ -188,8 +186,8 @@ private:
         SkIRect     fSrcRect;
 
     private:
-        GrPendingIOResource<GrSurface> fDst;
-        GrPendingIOResource<GrSurface> fSrc;
+        GrPendingIOResource<GrSurface, GrIORef::kWrite_IOType> fDst;
+        GrPendingIOResource<GrSurface, GrIORef::kRead_IOType> fSrc;
     };
 
     struct Clip : public ::SkNoncopyable {

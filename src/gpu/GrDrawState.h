@@ -405,7 +405,7 @@ public:
      * @param target  The render target to set.
      */
     void setRenderTarget(GrRenderTarget* target) {
-        fRenderTarget.set(SkSafeRef(target), GrGpuResourceRef::kWrite_IOType);
+        fRenderTarget.set(SkSafeRef(target), GrIORef::kWrite_IOType);
         this->invalidateOptState();
     }
 
