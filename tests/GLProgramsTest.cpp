@@ -128,9 +128,11 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
     header->fCoverageAttributeIndex = (header->fCoverageInput == kAttribute_ColorInput) ?
                                         currAttribIndex++ :
                                         -1;
-
+    bool useGS = random->nextBool();
 #if GR_GL_EXPERIMENTAL_GS
-    header->fExperimentalGS = gpu->caps()->geometryShaderSupport() && random->nextBool();
+    header->fExperimentalGS = gpu->caps()->geometryShaderSupport() && useGS;
+#else
+    (void) useGS;
 #endif
 
     header->fLocalCoordAttributeIndex = useLocalCoords ? currAttribIndex++ : -1;
