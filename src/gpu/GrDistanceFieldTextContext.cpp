@@ -273,30 +273,32 @@ void GrDistanceFieldTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
     }
 */
     if (NULL == glyph->fPlot) {
-        if (fStrike->addGlyphToAtlas(glyph, scaler)) {
-            goto HAS_ATLAS;
-        }
+        if (!fStrike->glyphTooLargeForAtlas(glyph)) {
+            if (fStrike->addGlyphToAtlas(glyph, scaler)) {
+                goto HAS_ATLAS;
+            }
 
-        // try to clear out an unused plot before we flush
-        if (fContext->getFontCache()->freeUnusedPlot(fStrike) &&
-            fStrike->addGlyphToAtlas(glyph, scaler)) {
-            goto HAS_ATLAS;
-        }
+            // try to clear out an unused plot before we flush
+            if (fContext->getFontCache()->freeUnusedPlot(fStrike) &&
+                fStrike->addGlyphToAtlas(glyph, scaler)) {
+                goto HAS_ATLAS;
+            }
 
-        if (c_DumpFontCache) {
+            if (c_DumpFontCache) {
 #ifdef SK_DEVELOPER
-            fContext->getFontCache()->dump();
+                fContext->getFontCache()->dump();
 #endif
-        }
+            }
 
-        // before we purge the cache, we must flush any accumulated draws
-        this->flushGlyphs();
-        fContext->flush();
+            // before we purge the cache, we must flush any accumulated draws
+            this->flushGlyphs();
+            fContext->flush();
 
-        // we should have an unused plot now
-        if (fContext->getFontCache()->freeUnusedPlot(fStrike) &&
-            fStrike->addGlyphToAtlas(glyph, scaler)) {
-            goto HAS_ATLAS;
+            // we should have an unused plot now
+            if (fContext->getFontCache()->freeUnusedPlot(fStrike) &&
+                fStrike->addGlyphToAtlas(glyph, scaler)) {
+                goto HAS_ATLAS;
+            }
         }
 
         if (NULL == glyph->fPath) {

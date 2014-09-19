@@ -289,6 +289,19 @@ void GrTextStrike::removePlot(const GrPlot* plot) {
     GrAtlas::RemovePlot(&fPlotUsage, plot);
 }
 
+bool GrTextStrike::glyphTooLargeForAtlas(GrGlyph* glyph) {
+    int width = glyph->fBounds.width();
+    int height = glyph->fBounds.height();
+    int pad = fUseDistanceField ? 2 * SK_DistanceFieldPad : 0;
+    if (width + pad > GR_PLOT_WIDTH) {
+        return true;
+    }
+    if (height + pad > GR_PLOT_HEIGHT) {
+        return true;
+    }
+
+    return false;
+}
 
 bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
 #if 0   // testing hack to force us to flush our cache often
