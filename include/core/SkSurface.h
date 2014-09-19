@@ -77,29 +77,20 @@ public:
         kDistanceField_TextRenderMode,
     };
 
-    enum RenderTargetFlags {
-        kNone_RenderTargetFlag      = 0x0,
-        /*
-         * By default a RenderTarget-based surface will be cleared on creation.
-         * Pass in this flag to prevent the clear from happening.
-         */
-        kDontClear_RenderTargetFlag = 0x01,
-    };
-
     /**
      *  Return a new surface using the specified render target.
+     *  The pixels in the rendertarget are not cleared or otherwised changed when the surface
+     *  is created.
      */
     static SkSurface* NewRenderTargetDirect(GrRenderTarget*,
-                                            TextRenderMode trm = kStandard_TextRenderMode,
-                                            RenderTargetFlags flags = kNone_RenderTargetFlag);
+                                            TextRenderMode trm = kStandard_TextRenderMode);
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
      *  render target, allocated by the surface.
      */
     static SkSurface* NewRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0,
-                                      TextRenderMode trm = kStandard_TextRenderMode,
-                                      RenderTargetFlags flags = kNone_RenderTargetFlag);
+                                      TextRenderMode trm = kStandard_TextRenderMode);
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
@@ -114,8 +105,7 @@ public:
      *  budget.
      */
     static SkSurface* NewScratchRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0,
-                                             TextRenderMode trm = kStandard_TextRenderMode,
-                                             RenderTargetFlags flags = kNone_RenderTargetFlag);
+                                             TextRenderMode trm = kStandard_TextRenderMode);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
