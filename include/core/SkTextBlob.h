@@ -53,8 +53,6 @@ private:
         kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
     };
 
-    class RunRecord;
-
     class RunIterator {
     public:
         RunIterator(const SkTextBlob* blob);
@@ -70,16 +68,21 @@ private:
         GlyphPositioning positioning() const;
 
     private:
-        const RunRecord* fCurrentRun;
-        int              fRemainingRuns;
-
-        SkDEBUGCODE(uint8_t* fStorageTop;)
+        const SkTextBlob* fBlob;
+        int               fIndex;
     };
 
-    SkTextBlob(int runCount, const SkRect& bounds);
+    // A run is a sequence of glyphs sharing the same font metrics and positioning mode.
+    struct Run {
+        uint32_t         count;
+        uint32_t         glyphStart; // index into fGlyphBuffer
+        uint32_t         posStart;   // index into fPosBuffer
+        SkPoint          offset;     // run offset (unsued for fully positioned glyphs)
+        SkPaint          font;
+        GlyphPositioning positioning;
+    };
 
-    virtual ~SkTextBlob();
-    virtual void internal_dispose() const SK_OVERRIDE;
+    SkTextBlob(uint16_t* glyphs, SkScalar* pos, const SkTArray<Run>* runs, const SkRect& bounds);
 
     static unsigned ScalarsPerGlyph(GlyphPositioning pos);
 
@@ -87,14 +90,14 @@ private:
     friend class SkTextBlobBuilder;
     friend class TextBlobTester;
 
-    const int        fRunCount;
-    const SkRect     fBounds;
-    mutable uint32_t fUniqueID;
+    const SkAutoTMalloc<uint16_t>       fGlyphBuffer;
+    const SkAutoTMalloc<SkScalar>       fPosBuffer;
 
-    SkDEBUGCODE(size_t fStorageSize;)
+    // SkTArray required here for run font destruction.
+    SkAutoTDelete<const SkTArray<Run> > fRuns;
+    const SkRect                        fBounds;
 
-    // The actual payload resides in externally-managed storage, following the object.
-    // (see the .cpp for more details)
+    mutable uint32_t                    fUniqueID;
 
     typedef SkRefCnt INHERITED;
 };
@@ -105,7 +108,11 @@ private:
  */
 class SK_API SkTextBlobBuilder {
 public:
-    SkTextBlobBuilder();
+    /**
+     *  @param runs The number of runs to be added, if known. This is a storage hint and
+     *              not a limit.
+     */
+    SkTextBlobBuilder(unsigned runs = 0);
 
     ~SkTextBlobBuilder();
 
@@ -173,23 +180,20 @@ public:
     const RunBuffer& allocRunPos(const SkPaint& font, int count, const SkRect* bounds = NULL);
 
 private:
-    void reserve(size_t size);
     void allocInternal(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
                        int count, SkPoint offset, const SkRect* bounds);
-    bool mergeRun(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
-                  int count, SkPoint offset);
+    void ensureRun(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
+                   const SkPoint& offset);
     void updateDeferredBounds();
 
-    SkAutoTMalloc<uint8_t> fStorage;
-    size_t                 fStorageSize;
-    size_t                 fStorageUsed;
+    SkTDArray<uint16_t>        fGlyphBuffer;
+    SkTDArray<SkScalar>        fPosBuffer;
+    SkTArray<SkTextBlob::Run>* fRuns;
 
-    SkRect                 fBounds;
-    int                    fRunCount;
-    bool                   fDeferredBounds;
-    size_t                 fLastRun; // index into fStorage
+    SkRect                     fBounds;
+    bool                       fDeferredBounds;
 
-    RunBuffer              fCurrentRunBuffer;
+    RunBuffer                  fCurrentRunBuffer;
 };
 
 #endif // SkTextBlob_DEFINED
