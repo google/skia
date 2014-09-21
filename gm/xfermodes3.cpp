@@ -132,8 +132,7 @@ private:
             desc.fConfig = SkImageInfo2GrPixelConfig(baseCanvas->imageInfo());
             desc.fFlags = kRenderTarget_GrTextureFlagBit;
             SkAutoTUnref<GrSurface> surface(context->createUncachedTexture(desc, NULL, 0));
-            SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(surface.get(),
-                                          SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)));
+            SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(surface.get()));
             if (device.get()) {
                 tempCanvas = SkNEW_ARGS(SkCanvas, (device.get()));
             }

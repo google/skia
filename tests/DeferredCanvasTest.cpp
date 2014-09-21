@@ -51,7 +51,7 @@ static SkPMColor read_pixel(SkSurface* surface, int x, int y) {
 
 class MockSurface : public SkSurface_Base {
 public:
-    MockSurface(int width, int height) : SkSurface_Base(width, height, NULL) {
+    MockSurface(int width, int height) : SkSurface_Base(width, height) {
         clearCounts();
         fBitmap.allocN32Pixels(width, height);
     }
@@ -706,7 +706,7 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
                 return;
             }
 
-            surface = SkSurface::NewRenderTarget(context, imageSpec, 0, NULL);
+            surface = SkSurface::NewRenderTarget(context, imageSpec);
         } else
 #endif
         {
@@ -788,8 +788,8 @@ static void TestDeferredCanvasSetSurface(skiatest::Reporter* reporter, GrContext
             if (NULL == context) {
                 continue;
             }
-            surface = SkSurface::NewRenderTarget(context, imageSpec, 0, NULL);
-            alternateSurface = SkSurface::NewRenderTarget(context, imageSpec, 0, NULL);
+            surface = SkSurface::NewRenderTarget(context, imageSpec);
+            alternateSurface = SkSurface::NewRenderTarget(context, imageSpec);
         } else
 #endif
         {

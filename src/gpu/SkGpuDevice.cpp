@@ -133,15 +133,15 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGpuDevice* SkGpuDevice::Create(GrSurface* surface, const SkSurfaceProps& props, unsigned flags) {
+SkGpuDevice* SkGpuDevice::Create(GrSurface* surface, unsigned flags) {
     SkASSERT(surface);
     if (NULL == surface->asRenderTarget() || surface->wasDestroyed()) {
         return NULL;
     }
-    return SkNEW_ARGS(SkGpuDevice, (surface, props, flags));
+    return SkNEW_ARGS(SkGpuDevice, (surface, flags));
 }
 
-SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsigned flags) {
+SkGpuDevice::SkGpuDevice(GrSurface* surface, unsigned flags) {
 
     fDrawProcs = NULL;
 
@@ -156,15 +156,13 @@ SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsign
     fLegacyBitmap.setInfo(surface->info());
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    this->setPixelGeometry(props.pixelGeometry());
-
     bool useDFFonts = !!(flags & kDFFonts_Flag);
     fMainTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFFonts);
     fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, this->getLeakyProperties()));
 }
 
 SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo,
-                                 const SkSurfaceProps& props, int sampleCount) {
+                                 int sampleCount) {
     if (kUnknown_SkColorType == origInfo.colorType() ||
         origInfo.width() < 0 || origInfo.height() < 0) {
         return NULL;
@@ -196,7 +194,7 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo
         return NULL;
     }
 
-    return SkNEW_ARGS(SkGpuDevice, (texture.get(), props));
+    return SkNEW_ARGS(SkGpuDevice, (texture.get()));
 }
 
 SkGpuDevice::~SkGpuDevice() {
@@ -1807,7 +1805,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) 
     texture.reset(fContext->createUncachedTexture(desc, NULL, 0));
 #endif
     if (texture.get()) {
-        return SkGpuDevice::Create(texture, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), flags);
+        return SkGpuDevice::Create(texture, flags);
     } else {
         GrPrintf("---- failed to create compatible device texture [%d %d]\n",
                  info.width(), info.height());
@@ -1815,8 +1813,8 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) 
     }
 }
 
-SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
-    return SkSurface::NewRenderTarget(fContext, info, fRenderTarget->numSamples(), &props);
+SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info) {
+    return SkSurface::NewRenderTarget(fContext, info, fRenderTarget->numSamples());
 }
 
 void SkGpuDevice::EXPERIMENTAL_optimize(const SkPicture* picture) {

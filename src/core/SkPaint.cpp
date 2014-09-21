@@ -1607,33 +1607,19 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
 
+    SkDeviceProperties::Geometry geometry = deviceProperties
+                                          ? deviceProperties->fGeometry
+                                          : SkDeviceProperties::Geometry::MakeDefault();
     if (SkMask::kLCD16_Format == rec->fMaskFormat || SkMask::kLCD32_Format == rec->fMaskFormat) {
-        if (tooBigForLCD(*rec)) {
+        if (!geometry.isOrientationKnown() || !geometry.isLayoutKnown() || tooBigForLCD(*rec)) {
+            // eeek, can't support LCD
             rec->fMaskFormat = SkMask::kA8_Format;
-            flags |= SkScalerContext::kGenA8FromLCD_Flag;
         } else {
-            SkPixelGeometry geometry = deviceProperties
-                                     ? deviceProperties->fPixelGeometry
-                                     : SkSurfacePropsDefaultPixelGeometry();
-            switch (geometry) {
-                case kUnknown_SkPixelGeometry:
-                    // eeek, can't support LCD
-                    rec->fMaskFormat = SkMask::kA8_Format;
-                    flags |= SkScalerContext::kGenA8FromLCD_Flag;
-                    break;
-                case kRGB_H_SkPixelGeometry:
-                    // our default, do nothing.
-                    break;
-                case kBGR_H_SkPixelGeometry:
-                    flags |= SkScalerContext::kLCD_BGROrder_Flag;
-                    break;
-                case kRGB_V_SkPixelGeometry:
-                    flags |= SkScalerContext::kLCD_Vertical_Flag;
-                    break;
-                case kBGR_V_SkPixelGeometry:
-                    flags |= SkScalerContext::kLCD_Vertical_Flag;
-                    flags |= SkScalerContext::kLCD_BGROrder_Flag;
-                    break;
+            if (SkDeviceProperties::Geometry::kVertical_Orientation == geometry.getOrientation()) {
+                flags |= SkScalerContext::kLCD_Vertical_Flag;
+            }
+            if (SkDeviceProperties::Geometry::kBGR_Layout == geometry.getLayout()) {
+                flags |= SkScalerContext::kLCD_BGROrder_Flag;
             }
         }
     }
@@ -1664,13 +1650,13 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         rec->setDeviceGamma(SK_GAMMA_EXPONENT);
         rec->setPaintGamma(SK_GAMMA_EXPONENT);
     } else {
-        rec->setDeviceGamma(deviceProperties->getGamma());
+        rec->setDeviceGamma(deviceProperties->fGamma);
 
         //For now always set the paint gamma equal to the device gamma.
         //The math in SkMaskGamma can handle them being different,
         //but it requires superluminous masks when
         //Ex : deviceGamma(x) < paintGamma(x) and x is sufficiently large.
-        rec->setPaintGamma(deviceProperties->getGamma());
+        rec->setPaintGamma(deviceProperties->fGamma);
     }
 
 #ifdef SK_GAMMA_CONTRAST

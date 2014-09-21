@@ -14,7 +14,7 @@
 #include "SkTextBlob.h"
 
 SkBaseDevice::SkBaseDevice()
-    : fLeakyProperties(SkNEW_ARGS(SkDeviceProperties, (SkDeviceProperties::kLegacyLCD_InitType)))
+    : fLeakyProperties(SkNEW_ARGS(SkDeviceProperties, (SkDeviceProperties::MakeDefault())))
 #ifdef SK_DEBUG
     , fAttachedToCanvas(false)
 #endif
@@ -57,11 +57,7 @@ const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
     return bitmap;
 }
 
-void SkBaseDevice::setPixelGeometry(SkPixelGeometry geo) {
-    fLeakyProperties->fPixelGeometry = geo;
-}
-
-SkSurface* SkBaseDevice::newSurface(const SkImageInfo&, const SkSurfaceProps&) { return NULL; }
+SkSurface* SkBaseDevice::newSurface(const SkImageInfo&) { return NULL; }
 
 const void* SkBaseDevice::peekPixels(SkImageInfo*, size_t*) { return NULL; }
 

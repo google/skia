@@ -8,14 +8,13 @@
 #ifndef SkSurface_Base_DEFINED
 #define SkSurface_Base_DEFINED
 
-#include "SkCanvas.h"
 #include "SkSurface.h"
-#include "SkSurfacePriv.h"
+#include "SkCanvas.h"
 
 class SkSurface_Base : public SkSurface {
 public:
-    SkSurface_Base(int width, int height, const SkSurfaceProps*);
-    SkSurface_Base(const SkImageInfo&, const SkSurfaceProps*);
+    SkSurface_Base(int width, int height);
+    explicit SkSurface_Base(const SkImageInfo&);
     virtual ~SkSurface_Base();
 
     /**

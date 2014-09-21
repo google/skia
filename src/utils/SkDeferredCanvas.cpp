@@ -161,7 +161,7 @@ public:
 
     virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 
-    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
 
 protected:
     virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE;
@@ -474,8 +474,8 @@ SkBaseDevice* SkDeferredDevice::onCreateDevice(const SkImageInfo& info, Usage us
     return immediateDevice()->createCompatibleDevice(info);
 }
 
-SkSurface* SkDeferredDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
-    return this->immediateDevice()->newSurface(info, props);
+SkSurface* SkDeferredDevice::newSurface(const SkImageInfo& info) {
+    return this->immediateDevice()->newSurface(info);
 }
 
 bool SkDeferredDevice::onReadPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,

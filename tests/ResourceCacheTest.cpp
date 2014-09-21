@@ -298,7 +298,7 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
         desc.fWidth = gWidth;
         desc.fHeight = gHeight;
         SkImageInfo info = SkImageInfo::MakeN32Premul(gWidth, gHeight);
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, info));
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, info, 0));
 
         test_cache(reporter, context, surface->getCanvas());
         test_purge_invalidated(reporter, context);

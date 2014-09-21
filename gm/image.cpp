@@ -179,7 +179,7 @@ protected:
 #if SK_SUPPORT_GPU
         GrContext* ctx = canvas->getGrContext();
 
-        SkAutoTUnref<SkSurface> surf4(SkSurface::NewRenderTarget(ctx, info));
+        SkAutoTUnref<SkSurface> surf4(SkSurface::NewRenderTarget(ctx, info, 0));
 #endif
 
         test_surface(canvas, surf0, true);

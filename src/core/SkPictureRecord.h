@@ -194,7 +194,7 @@ protected:
         SkASSERT(fWriter.bytesWritten() == initialOffset + size);
     }
 
-    virtual SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    virtual SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE;
     const void* onPeekPixels(SkImageInfo*, size_t*) SK_OVERRIDE {
         return NULL;
     }

@@ -142,7 +142,8 @@ void GrLayerHoister::DrawLayers(const SkPicture* picture,
     if (atlased.count() > 0) {
         // All the atlased layers are rendered into the same GrTexture
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
-                                        atlased[0]->texture()->asRenderTarget(), NULL));
+                                                atlased[0]->texture()->asRenderTarget(),
+                                                SkSurface::kStandard_TextRenderMode));
 
         SkCanvas* atlasCanvas = surface->getCanvas();
 
@@ -195,7 +196,8 @@ void GrLayerHoister::DrawLayers(const SkPicture* picture,
 
         // Each non-atlased layer has its own GrTexture
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
-                                        layer->texture()->asRenderTarget(), NULL));
+                                                layer->texture()->asRenderTarget(),
+                                                SkSurface::kStandard_TextRenderMode));
 
         SkCanvas* layerCanvas = surface->getCanvas();
 

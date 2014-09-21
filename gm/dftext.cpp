@@ -48,9 +48,8 @@ protected:
 #if SK_SUPPORT_GPU
         GrContext* ctx = inputCanvas->getGrContext();
         SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
-        SkSurfaceProps props(SkSurfaceProps::kUseDistanceFieldFonts_Flag,
-                             SkSurfaceProps::kLegacyFontHost_InitType);
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, info, 0, &props));
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, info, 0,
+                                                        SkSurface::kDistanceField_TextRenderMode));
         SkCanvas* canvas = surface->getCanvas();
 #else
         SkCanvas* canvas = inputCanvas;

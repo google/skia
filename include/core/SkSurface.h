@@ -10,9 +10,6 @@
 
 #include "SkRefCnt.h"
 #include "SkImage.h"
-#include "SkSurfaceProps.h"
-
-//#define SK_SUPPORT_LEGACY_TEXTRENDERMODE
 
 class SkCanvas;
 class SkPaint;
@@ -38,8 +35,7 @@ public:
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
      */
-    static SkSurface* NewRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes,
-                                      const SkSurfaceProps* = NULL);
+    static SkSurface* NewRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes);
 
     /**
      *  The same as NewRasterDirect, but also accepts a call-back routine, which is invoked
@@ -47,7 +43,7 @@ public:
      */
     static SkSurface* NewRasterDirectReleaseProc(const SkImageInfo&, void* pixels, size_t rowBytes,
                                                  void (*releaseProc)(void* pixels, void* context),
-                                                 void* context, const SkSurfaceProps* = NULL);
+                                                 void* context);
 
     /**
      *  Return a new surface, with the memory for the pixels automatically
@@ -56,57 +52,17 @@ public:
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
      */
-    static SkSurface* NewRaster(const SkImageInfo&, const SkSurfaceProps* = NULL);
+    static SkSurface* NewRaster(const SkImageInfo&);
 
     /**
      *  Helper version of NewRaster. It creates a SkImageInfo with the
      *  specified width and height, and populates the rest of info to match
      *  pixels in SkPMColor format.
      */
-    static SkSurface* NewRasterPMColor(int width, int height, const SkSurfaceProps* props = NULL) {
-        return NewRaster(SkImageInfo::MakeN32Premul(width, height), props);
+    static SkSurface* NewRasterPMColor(int width, int height) {
+        return NewRaster(SkImageInfo::MakeN32Premul(width, height));
     }
 
-    /**
-     *  Return a new surface using the specified render target.
-     */
-    static SkSurface* NewRenderTargetDirect(GrRenderTarget*, const SkSurfaceProps*);
-    
-    static SkSurface* NewRenderTargetDirect(GrRenderTarget* target) {
-        return NewRenderTargetDirect(target, NULL);
-    }
-    
-    /**
-     *  Return a new surface whose contents will be drawn to an offscreen
-     *  render target, allocated by the surface.
-     */
-    static SkSurface* NewRenderTarget(GrContext*, const SkImageInfo&, int sampleCount,
-                                      const SkSurfaceProps* = NULL);
-
-    static SkSurface* NewRenderTarget(GrContext* gr, const SkImageInfo& info) {
-        return NewRenderTarget(gr, info, 0, NULL);
-    }
-
-    /**
-     *  Return a new surface whose contents will be drawn to an offscreen
-     *  render target, allocated by the surface from the scratch texture pool
-     *  managed by the GrContext. The scratch texture pool serves the purpose
-     *  of retaining textures after they are no longer in use in order to
-     *  re-use them later without having to re-allocate.  Scratch textures
-     *  should be used in cases where high turnover is expected. This allows,
-     *  for example, the copy on write to recycle a texture from a recently
-     *  released SkImage snapshot of the surface.
-     *  Note: Scratch textures count against the GrContext's cached resource
-     *  budget.
-     */
-    static SkSurface* NewScratchRenderTarget(GrContext*, const SkImageInfo&, int sampleCount,
-                                             const SkSurfaceProps*);
-
-    static SkSurface* NewScratchRenderTarget(GrContext* gr, const SkImageInfo& info) {
-        return NewScratchRenderTarget(gr, info, 0, NULL);
-    }
-
-#ifdef SK_SUPPORT_LEGACY_TEXTRENDERMODE
     /**
      *  Text rendering modes that can be passed to NewRenderTarget*
      */
@@ -120,12 +76,36 @@ public:
          */
         kDistanceField_TextRenderMode,
     };
-    static SkSurface* NewRenderTargetDirect(GrRenderTarget*, TextRenderMode);
-    static SkSurface* NewRenderTarget(GrContext*, const SkImageInfo&, int sampleCount,
-                                      TextRenderMode);
-    static SkSurface* NewScratchRenderTarget(GrContext*, const SkImageInfo&, int sampleCount,
-                                             TextRenderMode);
-#endif
+
+    /**
+     *  Return a new surface using the specified render target.
+     *  The pixels in the rendertarget are not cleared or otherwised changed when the surface
+     *  is created.
+     */
+    static SkSurface* NewRenderTargetDirect(GrRenderTarget*,
+                                            TextRenderMode trm = kStandard_TextRenderMode);
+
+    /**
+     *  Return a new surface whose contents will be drawn to an offscreen
+     *  render target, allocated by the surface.
+     */
+    static SkSurface* NewRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0,
+                                      TextRenderMode trm = kStandard_TextRenderMode);
+
+    /**
+     *  Return a new surface whose contents will be drawn to an offscreen
+     *  render target, allocated by the surface from the scratch texture pool
+     *  managed by the GrContext. The scratch texture pool serves the purpose
+     *  of retaining textures after they are no longer in use in order to
+     *  re-use them later without having to re-allocate.  Scratch textures
+     *  should be used in cases where high turnover is expected. This allows,
+     *  for example, the copy on write to recycle a texture from a recently
+     *  released SkImage snapshot of the surface.
+     *  Note: Scratch textures count against the GrContext's cached resource
+     *  budget.
+     */
+    static SkSurface* NewScratchRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0,
+                                             TextRenderMode trm = kStandard_TextRenderMode);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -214,11 +194,9 @@ public:
      */
     const void* peekPixels(SkImageInfo* info, size_t* rowBytes);
 
-    const SkSurfaceProps& props() const { return fProps; }
-
 protected:
-    SkSurface(int width, int height, const SkSurfaceProps*);
-    SkSurface(const SkImageInfo&, const SkSurfaceProps*);
+    SkSurface(int width, int height);
+    SkSurface(const SkImageInfo&);
 
     // called by subclass if their contents have changed
     void dirtyGenerationID() {
@@ -226,10 +204,9 @@ protected:
     }
 
 private:
-    const SkSurfaceProps fProps;
-    const int            fWidth;
-    const int            fHeight;
-    uint32_t             fGenerationID;
+    const int   fWidth;
+    const int   fHeight;
+    uint32_t    fGenerationID;
 
     typedef SkRefCnt INHERITED;
 };

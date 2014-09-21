@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #include "SkCanvas.h"
 #include "SkCanvasPriv.h"
 #include "SkBitmapDevice.h"
@@ -62,19 +63,6 @@ void SkCanvas::predrawNotify() {
     if (fSurfaceBase) {
         fSurfaceBase->aboutToDraw(SkSurface::kRetain_ContentChangeMode);
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-static uint32_t filter_paint_flags(const SkSurfaceProps& props, uint32_t flags) {
-    const uint32_t propFlags = props.flags();
-    if (propFlags & SkSurfaceProps::kDisallowDither_Flag) {
-        flags &= ~SkPaint::kDither_Flag;
-    }
-    if (propFlags & SkSurfaceProps::kDisallowAntiAlias_Flag) {
-        flags &= ~SkPaint::kAntiAlias_Flag;
-    }
-    return flags;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -262,12 +250,12 @@ private:
 
 class AutoDrawLooper {
 public:
-    AutoDrawLooper(SkCanvas* canvas, const SkSurfaceProps& props, const SkPaint& paint,
+    AutoDrawLooper(SkCanvas* canvas, const SkPaint& paint,
                    bool skipLayerForImageFilter = false,
                    const SkRect* bounds = NULL) : fOrigPaint(paint) {
         fCanvas = canvas;
         fFilter = canvas->getDrawFilter();
-        fPaint = &fOrigPaint;
+        fPaint = NULL;
         fSaveCount = canvas->getSaveCount();
         fDoClearImageFilter = false;
         fDone = false;
@@ -292,15 +280,6 @@ public:
             // can we be marked as simple?
             fIsSimple = !fFilter && !fDoClearImageFilter;
         }
-        
-        uint32_t oldFlags = paint.getFlags();
-        fNewPaintFlags = filter_paint_flags(props, oldFlags);
-        if (fIsSimple && (fNewPaintFlags != oldFlags)) {
-            SkPaint* paint = fLazyPaint.set(fOrigPaint);
-            paint->setFlags(fNewPaintFlags);
-            fPaint = paint;
-            // if we're not simple, doNext() will take care of calling setFlags()
-        }
     }
 
     ~AutoDrawLooper() {
@@ -320,6 +299,7 @@ public:
             return false;
         } else if (fIsSimple) {
             fDone = true;
+            fPaint = &fOrigPaint;
             return !fPaint->nothingToDraw();
         } else {
             return this->doNext(drawType);
@@ -333,7 +313,6 @@ private:
     SkDrawFilter*   fFilter;
     const SkPaint*  fPaint;
     int             fSaveCount;
-    uint32_t        fNewPaintFlags;
     bool            fDoClearImageFilter;
     bool            fDone;
     bool            fIsSimple;
@@ -349,7 +328,6 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     SkASSERT(fLooperContext || fFilter || fDoClearImageFilter);
 
     SkPaint* paint = fLazyPaint.set(fOrigPaint);
-    paint->setFlags(fNewPaintFlags);
 
     if (fDoClearImageFilter) {
         paint->setImageFilter(NULL);
@@ -384,27 +362,25 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     return true;
 }
 
+#include "SkColorPriv.h"
+
 ////////// macros to place around the internal draw calls //////////////////
 
 #define LOOPER_BEGIN_DRAWDEVICE(paint, type)                        \
     this->predrawNotify();                                          \
-    AutoDrawLooper  looper(this, fProps, paint, true);              \
+    AutoDrawLooper  looper(this, paint, true);                      \
     while (looper.next(type)) {                                     \
         SkDrawIter          iter(this);
 
 #define LOOPER_BEGIN(paint, type, bounds)                           \
     this->predrawNotify();                                          \
-    AutoDrawLooper  looper(this, fProps, paint, false, bounds);     \
+    AutoDrawLooper  looper(this, paint, false, bounds);             \
     while (looper.next(type)) {                                     \
         SkDrawIter          iter(this);
 
 #define LOOPER_END    }
 
 ////////////////////////////////////////////////////////////////////////////
-
-void SkCanvas::setupDevice(SkBaseDevice* device) {
-    device->setPixelGeometry(fProps.pixelGeometry());
-}
 
 SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fConservativeRasterClip = SkToBool(flags & kConservativeRasterClip_InitFlag);
@@ -417,6 +393,10 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fCullCount = 0;
     fMetaData = NULL;
 
+    if (device && device->forceConservativeRasterClip()) {
+        fConservativeRasterClip = true;
+    }
+    
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(fConservativeRasterClip);
 
@@ -426,10 +406,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fSurfaceBase = NULL;
 
     if (device) {
-        this->setupDevice(device);
-        if (device->forceConservativeRasterClip()) {
-            fConservativeRasterClip = true;
-        }
         device->onAttachToCanvas(this);
         fMCRec->fLayer->fDevice = SkRef(device);
         fMCRec->fRasterClip.setRect(SkIRect::MakeWH(device->width(), device->height()));
@@ -439,7 +415,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
 SkCanvas::SkCanvas()
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
 {
     inc_canvas();
 
@@ -463,7 +438,6 @@ private:
 
 SkCanvas::SkCanvas(int width, int height)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
 {
     inc_canvas();
     
@@ -472,16 +446,14 @@ SkCanvas::SkCanvas(int width, int height)
 
 SkCanvas::SkCanvas(int width, int height, InitFlags flags)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
 {
     inc_canvas();
     
     this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice, (width, height)), flags)->unref();
 }
 
-SkCanvas::SkCanvas(SkBaseDevice* device, const SkSurfaceProps* props, InitFlags flags)
+SkCanvas::SkCanvas(SkBaseDevice* device, InitFlags flags)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(SkSurfacePropsCopyOrDefault(props))
 {
     inc_canvas();
     
@@ -490,31 +462,18 @@ SkCanvas::SkCanvas(SkBaseDevice* device, const SkSurfaceProps* props, InitFlags 
 
 SkCanvas::SkCanvas(SkBaseDevice* device)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
 {
     inc_canvas();
     
-    this->init(device, kDefault_InitFlags);
-}
-
-SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
-    : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(props)
-{
-    inc_canvas();
-    
-    SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
     this->init(device, kDefault_InitFlags);
 }
 
 SkCanvas::SkCanvas(const SkBitmap& bitmap)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
 {
     inc_canvas();
-    
-    SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
-    this->init(device, kDefault_InitFlags);
+
+    this->init(SkNEW_ARGS(SkBitmapDevice, (bitmap)), kDefault_InitFlags)->unref();
 }
 
 SkCanvas::~SkCanvas() {
@@ -605,7 +564,6 @@ SkBaseDevice* SkCanvas::setRootDevice(SkBaseDevice* device) {
 
     SkRefCnt_SafeAssign(rec->fLayer->fDevice, device);
     rootDevice = device;
-    this->setupDevice(device);
 
     fDeviceCMDirty = true;
 
@@ -941,7 +899,6 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
         SkDebugf("Unable to create device for layer.");
         return count;
     }
-    this->setupDevice(device);
 
     device->setOrigin(ir.fLeft, ir.fTop);
     DeviceCM* layer = SkNEW_ARGS(DeviceCM,
@@ -1037,16 +994,13 @@ bool SkCanvas::isDrawingToLayer() const {
     return fSaveLayerCount > 0;
 }
 
-SkSurface* SkCanvas::newSurface(const SkImageInfo& info, const SkSurfaceProps* props) {
-    if (NULL == props) {
-        props = &fProps;
-    }
-    return this->onNewSurface(info, *props);
+SkSurface* SkCanvas::newSurface(const SkImageInfo& info) {
+    return this->onNewSurface(info);
 }
 
-SkSurface* SkCanvas::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
+SkSurface* SkCanvas::onNewSurface(const SkImageInfo& info) {
     SkBaseDevice* dev = this->getDevice();
-    return dev ? dev->newSurface(info, props) : NULL;
+    return dev ? dev->newSurface(info) : NULL;
 }
 
 SkImageInfo SkCanvas::imageInfo() const {

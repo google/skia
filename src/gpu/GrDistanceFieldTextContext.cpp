@@ -131,7 +131,8 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
     flags |= fUseLCDText ? kUseLCD_DistanceFieldEffectFlag : 0;
     flags |= fUseLCDText && fTextMatrix.rectStaysRect() ?
     kRectToRect_DistanceFieldEffectFlag : 0;
-    bool useBGR = SkPixelGeometryIsBGR(fDeviceProperties.fPixelGeometry);
+    bool useBGR = SkDeviceProperties::Geometry::kBGR_Layout ==
+    fDeviceProperties.fGeometry.getLayout();
     flags |= fUseLCDText && useBGR ? kBGR_DistanceFieldEffectFlag : 0;
     
     // see if we need to create a new effect
@@ -148,7 +149,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
                                                                         flags));
         } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
-            U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.getGamma(),
+            U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.fGamma,
                                                                 filteredColor);
             fCachedEffect.reset(GrDistanceFieldTextureEffect::Create(fCurrTexture,
                                                                      params,
@@ -501,8 +502,8 @@ static void setup_gamma_texture(GrContext* context, const SkGlyphCache* cache,
 #else
         SkScalar contrast = 0.5f;
 #endif
-        SkScalar paintGamma = deviceProperties.getGamma();
-        SkScalar deviceGamma = deviceProperties.getGamma();
+        SkScalar paintGamma = deviceProperties.fGamma;
+        SkScalar deviceGamma = deviceProperties.fGamma;
 
         size = SkScalerContext::GetGammaLUTSize(contrast, paintGamma, deviceGamma,
                                                 &width, &height);

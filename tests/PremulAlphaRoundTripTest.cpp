@@ -90,8 +90,7 @@ DEF_GPUTEST(PremulAlphaRoundTrip, reporter, factory) {
                     continue;
                 }
 
-                device.reset(SkGpuDevice::Create(context, info,
-                                     SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), 0));
+                device.reset(SkGpuDevice::Create(context, info, 0));
 #else
                 continue;
 #endif

@@ -40,7 +40,6 @@ static CGDataProviderRef SkStreamToDataProvider(SkStream* stream) {
 
 static CGImageSourceRef SkStreamToCGImageSource(SkStream* stream) {
     CGDataProviderRef data = SkStreamToDataProvider(stream);
-    SkASSERT(data);
     CGImageSourceRef imageSrc = CGImageSourceCreateWithDataProvider(data, 0);
     CGDataProviderRelease(data);
     return imageSrc;

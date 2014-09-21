@@ -52,7 +52,7 @@ static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context,
         }
         case kGpu_SurfaceType:
 #if SK_SUPPORT_GPU
-            return context ? SkSurface::NewRenderTarget(context, info, 0, NULL) : NULL;
+            return context ? SkSurface::NewRenderTarget(context, info) : NULL;
 #endif
             break;
         case kGpuScratch_SurfaceType:

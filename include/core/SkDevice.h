@@ -288,7 +288,7 @@ protected:
 
 protected:
     // default impl returns NULL
-    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&);
+    virtual SkSurface* newSurface(const SkImageInfo&);
 
     // default impl returns NULL
     virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes);
@@ -342,8 +342,6 @@ protected:
      */
     virtual bool EXPERIMENTAL_drawPicture(SkCanvas*, const SkPicture*, const SkMatrix*,
                                           const SkPaint*);
-
-    void setPixelGeometry(SkPixelGeometry geo);
 
 private:
     friend class SkCanvas;

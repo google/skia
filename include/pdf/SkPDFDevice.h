@@ -217,7 +217,7 @@ protected:
         return false;
     }
 
-    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
 
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in

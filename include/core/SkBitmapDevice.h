@@ -155,7 +155,7 @@ private:
 
     virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 
-    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
     virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes) SK_OVERRIDE;
 
     virtual SkImageFilter::Cache* getImageFilterCache() SK_OVERRIDE;
