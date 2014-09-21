@@ -1000,10 +1000,13 @@ DEF_TEST(XfermodeImageFilterCroppedInput, reporter) {
 }
 
 #if SK_SUPPORT_GPU
+const SkSurfaceProps gProps = SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
+
 DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
     GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
                                                          SkImageInfo::MakeN32Premul(100, 100),
+                                                         gProps,
                                                          0));
     test_crop_rects(device, reporter);
 }
@@ -1012,6 +1015,7 @@ DEF_GPUTEST(HugeBlurImageFilterGPU, reporter, factory) {
     GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
                                                          SkImageInfo::MakeN32Premul(100, 100),
+                                                         gProps,
                                                          0));
     test_huge_blur(device, reporter);
 }
@@ -1020,6 +1024,7 @@ DEF_GPUTEST(XfermodeImageFilterCroppedInputGPU, reporter, factory) {
     GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
                                                          SkImageInfo::MakeN32Premul(1, 1),
+                                                         gProps,
                                                          0));
     test_xfermode_cropped_input(device, reporter);
 }
@@ -1028,6 +1033,7 @@ DEF_GPUTEST(TestNegativeBlurSigmaGPU, reporter, factory) {
     GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
                                                          SkImageInfo::MakeN32Premul(1, 1),
+                                                         gProps,
                                                          0));
     test_negative_blur_sigma(device, reporter);
 }

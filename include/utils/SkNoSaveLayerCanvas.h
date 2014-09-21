@@ -16,7 +16,8 @@
 // It also simplifies the clipping calls to only use rectangles.
 class SK_API SkNoSaveLayerCanvas : public SkCanvas {
 public:
-    SkNoSaveLayerCanvas(SkBaseDevice* device) : INHERITED(device, kConservativeRasterClip_InitFlag)
+    SkNoSaveLayerCanvas(SkBaseDevice* device)
+        : INHERITED(device, NULL, kConservativeRasterClip_InitFlag)
     {}
 
 protected:

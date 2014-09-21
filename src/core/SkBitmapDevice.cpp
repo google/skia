@@ -357,8 +357,8 @@ void SkBitmapDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     draw.drawSprite(src, x, y, paint);
 }
 
-SkSurface* SkBitmapDevice::newSurface(const SkImageInfo& info) {
-    return SkSurface::NewRaster(info);
+SkSurface* SkBitmapDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
+    return SkSurface::NewRaster(info, &props);
 }
 
 const void* SkBitmapDevice::peekPixels(SkImageInfo* info, size_t* rowBytes) {

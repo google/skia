@@ -157,7 +157,8 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
                 return NULL;
             }
 
-            SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(target));
+            SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(target,
+                                         SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)));
             canvas = SkNEW_ARGS(SkCanvas, (device.get()));
             break;
         }

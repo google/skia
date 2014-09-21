@@ -1261,8 +1261,8 @@ void SkPDFDevice::onDetachFromCanvas() {
     fClipStack = NULL;
 }
 
-SkSurface* SkPDFDevice::newSurface(const SkImageInfo& info) {
-    return SkSurface::NewRaster(info);
+SkSurface* SkPDFDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
+    return SkSurface::NewRaster(info, &props);
 }
 
 ContentEntry* SkPDFDevice::getLastContentEntry() {

@@ -16,6 +16,7 @@
 #include "SkRefCnt.h"
 #include "SkPath.h"
 #include "SkRegion.h"
+#include "SkSurfaceProps.h"
 #include "SkXfermode.h"
 
 #ifdef SK_SUPPORT_LEGACY_DRAWTEXT_VIRTUAL
@@ -200,8 +201,12 @@ public:
      *  Create a new surface matching the specified info, one that attempts to
      *  be maximally compatible when used with this canvas. If there is no matching Surface type,
      *  NULL is returned.
+     *
+     *  If surfaceprops is specified, those are passed to the new surface, otherwise the new surface
+     *  inherits the properties of the surface that owns this canvas. If this canvas has no parent
+     *  surface, then the new surface is created with default properties.
      */
-    SkSurface* newSurface(const SkImageInfo&);
+    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps* = NULL);
 
     /**
      * Return the GPU context of the device that is associated with the canvas.
@@ -1192,7 +1197,7 @@ public:
 
 protected:
     // default impl defers to getDevice()->newSurface(info)
-    virtual SkSurface* onNewSurface(const SkImageInfo&);
+    virtual SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&);
 
     // default impl defers to its device
     virtual const void* onPeekPixels(SkImageInfo*, size_t* rowBytes);
@@ -1282,6 +1287,8 @@ private:
     // the first N recs that can fit here mean we won't call malloc
     uint32_t    fMCRecStorage[32];
 
+    const SkSurfaceProps fProps;
+
     int         fSaveLayerCount;    // number of successful saveLayer calls
     int         fCullCount;         // number of active culls
 
@@ -1311,13 +1318,19 @@ private:
         kDefault_InitFlags                  = 0,
         kConservativeRasterClip_InitFlag    = 1 << 0,
     };
-    SkCanvas(int width, int height, InitFlags flags);
-    SkCanvas(SkBaseDevice*, InitFlags flags);
+    SkCanvas(int width, int height, InitFlags);
+    SkCanvas(SkBaseDevice*, const SkSurfaceProps*, InitFlags);
+    SkCanvas(const SkBitmap&, const SkSurfaceProps&);
 
     // needs gettotalclip()
     friend SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas*);
     
     SkBaseDevice* createLayerDevice(const SkImageInfo&);
+
+    // call this each time we attach ourselves to a device
+    //  - constructor
+    //  - internalSaveLayer
+    void setupDevice(SkBaseDevice*);
 
     SkBaseDevice* init(SkBaseDevice*, InitFlags);
 

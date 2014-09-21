@@ -115,7 +115,7 @@ public:
     void drawData(const void*, size_t) SK_OVERRIDE;
 
     bool isDrawingToLayer() const SK_OVERRIDE;
-    SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE { return NULL; }
+    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE { return NULL; }
 
 private:
     template <typename T>
