@@ -1347,7 +1347,7 @@ bool GrContext::writeTexturePixels(GrTexture* texture,
         }
     }
 
-    if (!(kDontFlush_PixelOpsFlag & flags)) {
+    if (!(kDontFlush_PixelOpsFlag & flags) && texture->hasPendingIO()) {
         this->flush();
     }
 
@@ -1418,7 +1418,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         }
     }
 
-    if (!(kDontFlush_PixelOpsFlag & flags)) {
+    if (!(kDontFlush_PixelOpsFlag & flags) && target->hasPendingWrite()) {
         this->flush();
     }
 
