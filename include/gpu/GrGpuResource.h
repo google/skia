@@ -80,13 +80,8 @@ public:
 #endif
     }
 
-
 protected:
     GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
-
-    bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
-    bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
-    bool internalHasPendingIO() const { return SkToBool(fPendingWrites | fPendingReads); }
 
 private:
     void addPendingRead() const {

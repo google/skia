@@ -833,7 +833,7 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(const GeometrySrcState& restored
 
 void GrInOrderDrawBuffer::recordStateIfNecessary() {
     if (fStates.empty()) {
-        this->convertDrawStateToPendingExec(&fStates.push_back(this->getDrawState()));
+        fStates.push_back() = this->getDrawState();
         this->addToCmdBuffer(kSetState_Cmd);
         return;
     }
