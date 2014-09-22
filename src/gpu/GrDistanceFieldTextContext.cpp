@@ -124,12 +124,13 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
     GrTextureParams gammaParams(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
     
     uint32_t textureUniqueID = fCurrTexture->getUniqueID();
+    const SkMatrix& ctm = fContext->getMatrix();
     
     // set up any flags
     uint32_t flags = 0;
-    flags |= fTextMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+    flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
     flags |= fUseLCDText ? kUseLCD_DistanceFieldEffectFlag : 0;
-    flags |= fUseLCDText && fTextMatrix.rectStaysRect() ?
+    flags |= fUseLCDText && ctm.rectStaysRect() ?
     kRectToRect_DistanceFieldEffectFlag : 0;
     bool useBGR = SkPixelGeometryIsBGR(fDeviceProperties.fPixelGeometry);
     flags |= fUseLCDText && useBGR ? kBGR_DistanceFieldEffectFlag : 0;
@@ -176,7 +177,7 @@ void GrDistanceFieldTextContext::flushGlyphs() {
     GrDrawState* drawState = fDrawTarget->drawState();
     GrDrawState::AutoRestoreEffects are(drawState);
 
-    drawState->setFromPaint(fPaint, fTextMatrix, fContext->getRenderTarget());
+    drawState->setFromPaint(fPaint, fContext->getMatrix(), fContext->getRenderTarget());
 
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
@@ -445,28 +446,28 @@ inline void GrDistanceFieldTextContext::init(const GrPaint& paint, const SkPaint
 
     fStrike = NULL;
 
-    fTextMatrix = fContext->getMatrix();
+    const SkMatrix& ctm = fContext->getMatrix();
 
     // getMaxScale doesn't support perspective, so neither do we at the moment
-    SkASSERT(!fTextMatrix.hasPerspective());
-    SkScalar maxScale = fTextMatrix.getMaxScale();
+    SkASSERT(!ctm.hasPerspective());
+    SkScalar maxScale = ctm.getMaxScale();
     SkScalar textSize = fSkPaint.getTextSize();
-    // if we have non-unity scale, we need to adjust our text size accordingly
-    // to avoid aliasing, and prescale the matrix by the inverse to end up with the same size
+    SkScalar scaledTextSize = textSize;
+    // if we have non-unity scale, we need to choose our base text size
+    // based on the SkPaint's text size multiplied by the max scale factor
     // TODO: do we need to do this if we're scaling down (i.e. maxScale < 1)?
     if (maxScale > 0 && !SkScalarNearlyEqual(maxScale, SK_Scalar1)) {
-        textSize *= maxScale;
-        fTextMatrix.preScale(SK_Scalar1 / maxScale, SK_Scalar1 / maxScale);
+        scaledTextSize *= maxScale;
     }
 
     fCurrVertex = 0;
 
     fVertices = NULL;
 
-    if (textSize <= kSmallDFFontLimit) {
+    if (scaledTextSize <= kSmallDFFontLimit) {
         fTextRatio = textSize / kSmallDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kSmallDFFontSize));
-    } else if (textSize <= kMediumDFFontLimit) {
+    } else if (scaledTextSize <= kMediumDFFontLimit) {
         fTextRatio = textSize / kMediumDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kMediumDFFontSize));
     } else {

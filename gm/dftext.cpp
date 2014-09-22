@@ -51,10 +51,13 @@ protected:
         SkSurfaceProps props(SkSurfaceProps::kUseDistanceFieldFonts_Flag,
                              SkSurfaceProps::kLegacyFontHost_InitType);
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, info, 0, &props));
-        SkCanvas* canvas = surface->getCanvas();
+        SkCanvas* canvas = surface.get() ? surface->getCanvas() : inputCanvas;
 #else
         SkCanvas* canvas = inputCanvas;
 #endif
+        
+        // apply global scale to test glyph positioning
+        canvas->scale(1.05f, 1.05f);
         canvas->clear(0xffffffff);
 
         SkPaint paint;
@@ -97,7 +100,7 @@ protected:
 
         // check scaling down
         paint.setLCDRenderText(true);
-        x = SkIntToScalar(700);
+        x = SkIntToScalar(680);
         y = SkIntToScalar(20);
         size_t arraySize = SK_ARRAY_COUNT(textSizes);
         for (size_t i = 0; i < arraySize; ++i) {
@@ -110,6 +113,29 @@ protected:
             y += paint.getFontMetrics(NULL)*scaleFactor;
         }
 
+        // check pos text
+        {
+            SkAutoCanvasRestore acr(canvas, true);
+
+            canvas->scale(2.0f, 2.0f);
+
+            SkAutoTArray<SkPoint>  pos(textLen);
+            SkAutoTArray<SkScalar> widths(textLen);
+            paint.setTextSize(textSizes[0]);
+
+            paint.getTextWidths(text, textLen, &widths[0]);
+
+            SkScalar x = SkIntToScalar(340);
+            SkScalar y = SkIntToScalar(75);
+            for (unsigned int i = 0; i < textLen; ++i) {
+                pos[i].set(x, y);
+                x += widths[i];
+            }
+
+            canvas->drawPosText(text, textLen, &pos[0], paint);
+        }
+
+
         // check gamma-corrected blending
         const SkColor fg[] = {
             0xFFFFFFFF,
@@ -119,10 +145,10 @@ protected:
         };
 
         paint.setColor(0xFFF1F1F1);
-        SkRect r = SkRect::MakeLTRB(690, 250, 840, 460);
+        SkRect r = SkRect::MakeLTRB(670, 250, 820, 460);
         canvas->drawRect(r, paint);
 
-        x = SkIntToScalar(700);
+        x = SkIntToScalar(680);
         y = SkIntToScalar(270);
         paint.setTextSize(SkIntToScalar(22));
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
@@ -133,10 +159,10 @@ protected:
         }
 
         paint.setColor(0xFF1F1F1F);
-        r = SkRect::MakeLTRB(840, 250, 990, 460);
+        r = SkRect::MakeLTRB(820, 250, 970, 460);
         canvas->drawRect(r, paint);
 
-        x = SkIntToScalar(850);
+        x = SkIntToScalar(830);
         y = SkIntToScalar(270);
         paint.setTextSize(SkIntToScalar(22));
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
@@ -148,9 +174,11 @@ protected:
 
 #if SK_SUPPORT_GPU
         // render offscreen buffer
-        SkImage* image = surface->newImageSnapshot();
-        image->draw(inputCanvas, 0, 0, NULL);
-        image->unref();
+        if (surface) {
+            SkImage* image = surface->newImageSnapshot();
+            image->draw(inputCanvas, 0, 0, NULL);
+            image->unref();
+        }
 #endif
     }
 
