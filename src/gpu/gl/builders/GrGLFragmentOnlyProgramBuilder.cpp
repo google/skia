@@ -11,7 +11,7 @@
 GrGLFragmentOnlyProgramBuilder::GrGLFragmentOnlyProgramBuilder(GrGpuGL* gpu,
                                                                const GrGLProgramDesc& desc)
     : INHERITED(gpu, desc) {
-    SkASSERT(!desc.getHeader().fRequiresVertexShader);
+    SkASSERT(desc.getHeader().fUseFragShaderOnly);
     SkASSERT(gpu->glCaps().pathRenderingSupport());
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fColorInput);
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fCoverageInput);

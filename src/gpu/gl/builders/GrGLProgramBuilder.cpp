@@ -84,9 +84,7 @@ bool GrGLProgramBuilder::genProgram(const GrEffectStage* geometryProcessor,
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu,
                                        const GrGLProgramDesc& desc)
-    : fFragOnly(!desc.getHeader().fRequiresVertexShader &&
-                gpu->glCaps().pathRenderingSupport() &&
-                gpu->glPathRendering()->texturingMode() == GrGLPathRendering::FixedFunction_TexturingMode)
+    : fFragOnly(SkToBool(desc.getHeader().fUseFragShaderOnly))
     , fTexCoordSetCnt(0)
     , fProgramID(0)
     , fFS(this, desc)

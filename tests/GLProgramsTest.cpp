@@ -35,15 +35,19 @@ static void get_stage_stats(const GrEffectStage stage, bool* readsDst,
 }
 
 bool GrGLProgramDesc::setRandom(SkRandom* random,
-                                const GrGpuGL* gpu,
+                                GrGpuGL* gpu,
                                 const GrRenderTarget* dstRenderTarget,
                                 const GrTexture* dstCopyTexture,
                                 const GrEffectStage* geometryProcessor,
                                 const GrEffectStage* stages[],
                                 int numColorStages,
                                 int numCoverageStages,
-                                int currAttribIndex) {
-    bool useLocalCoords = random->nextBool() && currAttribIndex < GrDrawState::kMaxVertexAttribCnt;
+                                int currAttribIndex,
+                                GrGpu::DrawType drawType) {
+    bool isPathRendering = GrGpu::IsPathRenderingDrawType(drawType);
+    bool useLocalCoords = !isPathRendering &&
+                          random->nextBool() &&
+                          currAttribIndex < GrDrawState::kMaxVertexAttribCnt;
 
     int numStages = numColorStages + numCoverageStages;
     fKey.reset();
@@ -110,12 +114,10 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
     // if the effects have used up all off the available attributes,
     // don't try to use color or coverage attributes as input
     do {
-        uint32_t colorRand = random->nextULessThan(2);
-        header->fColorInput = (0 == colorRand) ? GrGLProgramDesc::kAttribute_ColorInput :
-                                                 GrGLProgramDesc::kUniform_ColorInput;
-    } while (GrDrawState::kMaxVertexAttribCnt <= currAttribIndex &&
+        header->fColorInput = static_cast<GrGLProgramDesc::ColorInput>(
+                                     random->nextULessThan(kColorInputCnt));
+    } while ((GrDrawState::kMaxVertexAttribCnt <= currAttribIndex || isPathRendering) &&
              kAttribute_ColorInput == header->fColorInput);
-
     header->fColorAttributeIndex = (header->fColorInput == kAttribute_ColorInput) ?
                                         currAttribIndex++ :
                                         -1;
@@ -123,7 +125,7 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
     do {
         header->fCoverageInput = static_cast<GrGLProgramDesc::ColorInput>(
                                      random->nextULessThan(kColorInputCnt));
-    } while (GrDrawState::kMaxVertexAttribCnt <= currAttribIndex  &&
+    } while ((GrDrawState::kMaxVertexAttribCnt <= currAttribIndex || isPathRendering)  &&
              kAttribute_ColorInput == header->fCoverageInput);
     header->fCoverageAttributeIndex = (header->fCoverageInput == kAttribute_ColorInput) ?
                                         currAttribIndex++ :
@@ -153,10 +155,8 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
         header->fFragPosKey = 0;
     }
 
-    header->fRequiresVertexShader = vertexShader ||
-                                    useLocalCoords ||
-                                    kAttribute_ColorInput == header->fColorInput ||
-                                    kAttribute_ColorInput == header->fCoverageInput;
+    header->fUseFragShaderOnly = isPathRendering && gpu->glPathRendering()->texturingMode() ==
+                                                    GrGLPathRendering::FixedFunction_TexturingMode;
     header->fHasGeometryProcessor = vertexShader;
 
     CoverageOutput coverageOutput;
@@ -248,12 +248,13 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
         SkAutoSTMalloc<8, const GrEffectStage*> stages(numStages);
 
-        bool useFixedFunctionPathRendering = this->glCaps().pathRenderingSupport() &&
-            this->glPathRendering()->texturingMode() == GrGLPathRendering::FixedFunction_TexturingMode &&
-            random.nextBool();
+        bool usePathRendering = this->glCaps().pathRenderingSupport() && random.nextBool();
+        
+        GrGpu::DrawType drawType = usePathRendering ? GrGpu::kDrawPath_DrawType :
+                                                      GrGpu::kDrawPoints_DrawType;
 
         SkAutoTDelete<GrEffectStage> geometryProcessor;
-        bool hasGeometryProcessor = useFixedFunctionPathRendering ? false : random.nextBool();
+        bool hasGeometryProcessor = usePathRendering ? false : random.nextBool();
         if (hasGeometryProcessor) {
             while (true) {
                 SkAutoTUnref<const GrEffect> effect(GrEffectTestFactory::CreateStage(
@@ -306,7 +307,8 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
             // If adding this effect would exceed the max texture coord set count then generate a
             // new random effect.
-            if (useFixedFunctionPathRendering) {
+            if (usePathRendering && this->glPathRendering()->texturingMode() ==
+                                    GrGLPathRendering::FixedFunction_TexturingMode) {;
                 int numTransforms = effect->numTransforms();
                 if (currTextureCoordSet + numTransforms > this->glCaps().maxFixedFunctionTextureCoords()) {
                     continue;
@@ -327,7 +329,8 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                              stages.get(),
                              numColorStages,
                              numCoverageStages,
-                             currAttribIndex)) {
+                             currAttribIndex,
+                             drawType)) {
             return false;
         }
 

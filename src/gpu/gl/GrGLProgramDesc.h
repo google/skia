@@ -45,14 +45,15 @@ public:
 
     // For unit testing.
     bool setRandom(SkRandom*,
-                   const GrGpuGL* gpu,
+                   GrGpuGL* gpu,
                    const GrRenderTarget* dummyDstRenderTarget,
                    const GrTexture* dummyDstCopyTexture,
                    const GrEffectStage* geometryProcessor,
                    const GrEffectStage* stages[],
                    int numColorStages,
                    int numCoverageStages,
-                   int currAttribIndex);
+                   int currAttribIndex,
+                   GrGpu::DrawType);
 
     /**
      * Builds a program descriptor from a GrOptDrawState. Whether the primitive type is points, and
@@ -64,7 +65,7 @@ public:
                       GrGpu::DrawType drawType,
                       GrBlendCoeff srcCoeff,
                       GrBlendCoeff dstCoeff,
-                      const GrGpuGL* gpu,
+                      GrGpuGL* gpu,
                       const GrDeviceCoordTexture* dstCopy,
                       const GrEffectStage** outGeometryProcessor,
                       SkTArray<const GrEffectStage*, true>* outColorStages,
@@ -151,7 +152,7 @@ private:
         ColorInput                  fCoverageInput : 8;
         CoverageOutput              fCoverageOutput : 8;
 
-        SkBool8                     fRequiresVertexShader;
+        SkBool8                     fUseFragShaderOnly;
         SkBool8                     fEmitsPointSize;
 
         // To enable experimental geometry shader code (not for use in

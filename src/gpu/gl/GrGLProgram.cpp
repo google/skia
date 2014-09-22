@@ -29,9 +29,10 @@ GrGLProgram* GrGLProgram::Create(GrGpuGL* gpu,
                                  const GrEffectStage* colorStages[],
                                  const GrEffectStage* coverageStages[]) {
     SkAutoTDelete<GrGLProgramBuilder> builder;
-    if (!desc.getHeader().fRequiresVertexShader &&
-        gpu->glCaps().pathRenderingSupport() &&
-        gpu->glPathRendering()->texturingMode() == GrGLPathRendering::FixedFunction_TexturingMode) {
+    if (desc.getHeader().fUseFragShaderOnly) {
+        SkASSERT(gpu->glCaps().pathRenderingSupport());
+        SkASSERT(gpu->glPathRendering()->texturingMode() ==
+                 GrGLPathRendering::FixedFunction_TexturingMode);
         SkASSERT(NULL == geometryProcessor);
         builder.reset(SkNEW_ARGS(GrGLFragmentOnlyProgramBuilder, (gpu, desc)));
     } else {
