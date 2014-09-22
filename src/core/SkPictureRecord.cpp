@@ -1429,7 +1429,7 @@ void SkPictureRecord::onPopCull() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info) {
+SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {
     return NULL;
 }
 

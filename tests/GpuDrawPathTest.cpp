@@ -56,7 +56,8 @@ DEF_GPUTEST(GpuDrawPath, reporter, factory) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(sampleCounts); ++i) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
             
-            SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(grContext, info, sampleCounts[i]));
+            SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(grContext, info,
+                                                                       sampleCounts[i], NULL));
             test_drawPathEmpty(reporter, surface->getCanvas());
         }
     }

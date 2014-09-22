@@ -43,7 +43,7 @@ public:
      * the kCached_Flag should be specified to make the device responsible for unlocking
      * the surface when it is released.
      */
-    static SkGpuDevice* Create(GrSurface* surface, unsigned flags = 0);
+    static SkGpuDevice* Create(GrSurface* surface, const SkSurfaceProps&, unsigned flags = 0);
 
     /**
      *  New device that will create an offscreen renderTarget based on the
@@ -51,7 +51,8 @@ public:
      *  count against the GrContext's texture cache budget. The device's pixels
      *  will be uninitialized. On failure, returns NULL.
      */
-    static SkGpuDevice* Create(GrContext*, const SkImageInfo&, int sampleCount);
+    static SkGpuDevice* Create(GrContext*, const SkImageInfo&, const SkSurfaceProps&,
+                               int sampleCount);
 
     virtual ~SkGpuDevice();
 
@@ -145,11 +146,11 @@ private:
     // remove when our clients don't rely on accessBitmap()
     SkBitmap fLegacyBitmap;
 
-    SkGpuDevice(GrSurface*, unsigned flags = 0);
+    SkGpuDevice(GrSurface*, const SkSurfaceProps&, unsigned flags = 0);
 
     virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 
-    virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
+    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
 
     virtual SkImageFilter::Cache* getImageFilterCache() SK_OVERRIDE;
 

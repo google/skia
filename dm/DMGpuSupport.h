@@ -22,7 +22,7 @@ static inline SkSurface* NewGpuSurface(GrContextFactory* grFactory,
                                        GrGLStandard gpuAPI,
                                        SkImageInfo info,
                                        int samples) {
-    return SkSurface::NewRenderTarget(grFactory->get(type, gpuAPI), info, samples);
+    return SkSurface::NewRenderTarget(grFactory->get(type, gpuAPI), info, samples, NULL);
 }
 
 }  // namespace DM
