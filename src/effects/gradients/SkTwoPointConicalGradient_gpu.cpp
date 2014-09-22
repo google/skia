@@ -98,9 +98,12 @@ private:
         fDiffRadius(shader.getDiffRadius()){
         // We should only be calling this shader if we are degenerate case with touching circles
         // When deciding if we are in edge case, we scaled by the end radius for cases when the
-        // start radius was close to zero, otherwise we scaled by the start radius
-        SkASSERT(SkScalarAbs(SkScalarAbs(fDiffRadius) - SkScalarAbs(fCenterX1)) <
-                 kEdgeErrorTol * (fRadius0 < kErrorTol ? shader.getEndRadius() : fRadius0));
+        // start radius was close to zero, otherwise we scaled by the start radius.  In addition
+        // Our test for the edge case in set_matrix_circle_conical has a higher tolerance so we
+        // need the sqrt value below
+        SkASSERT(SkScalarAbs(SkScalarAbs(fDiffRadius) - fCenterX1) <
+                 (fRadius0 < kErrorTol ? shader.getEndRadius() * kEdgeErrorTol :
+                                         fRadius0 * sqrt(kEdgeErrorTol)));
 
         // We pass the linear part of the quadratic as a varying.
         //    float b = -2.0 * (fCenterX1 * x + fRadius0 * fDiffRadius * z)
@@ -173,6 +176,9 @@ const GrBackendEffectFactory& Edge2PtConicalEffect::getFactory() const {
 
 GR_DEFINE_EFFECT_TEST(Edge2PtConicalEffect);
 
+/*
+ * All Two point conical gradient test create functions may occasionally create edge case shaders
+ */
 GrEffect* Edge2PtConicalEffect::TestCreate(SkRandom* random,
                                            GrContext* context,
                                            const GrDrawTargetCaps&,
@@ -452,6 +458,9 @@ const GrBackendEffectFactory& FocalOutside2PtConicalEffect::getFactory() const {
 
 GR_DEFINE_EFFECT_TEST(FocalOutside2PtConicalEffect);
 
+/*
+ * All Two point conical gradient test create functions may occasionally create edge case shaders
+ */
 GrEffect* FocalOutside2PtConicalEffect::TestCreate(SkRandom* random,
                                                    GrContext* context,
                                                    const GrDrawTargetCaps&,
@@ -656,6 +665,9 @@ const GrBackendEffectFactory& FocalInside2PtConicalEffect::getFactory() const {
 
 GR_DEFINE_EFFECT_TEST(FocalInside2PtConicalEffect);
 
+/*
+ * All Two point conical gradient test create functions may occasionally create edge case shaders
+ */
 GrEffect* FocalInside2PtConicalEffect::TestCreate(SkRandom* random,
                                                   GrContext* context,
                                                   const GrDrawTargetCaps&,
@@ -903,6 +915,9 @@ const GrBackendEffectFactory& CircleInside2PtConicalEffect::getFactory() const {
 
 GR_DEFINE_EFFECT_TEST(CircleInside2PtConicalEffect);
 
+/*
+ * All Two point conical gradient test create functions may occasionally create edge case shaders
+ */
 GrEffect* CircleInside2PtConicalEffect::TestCreate(SkRandom* random,
                                                    GrContext* context,
                                                    const GrDrawTargetCaps&,
@@ -1135,6 +1150,9 @@ const GrBackendEffectFactory& CircleOutside2PtConicalEffect::getFactory() const 
 
 GR_DEFINE_EFFECT_TEST(CircleOutside2PtConicalEffect);
 
+/*
+ * All Two point conical gradient test create functions may occasionally create edge case shaders
+ */
 GrEffect* CircleOutside2PtConicalEffect::TestCreate(SkRandom* random,
                                                     GrContext* context,
                                                     const GrDrawTargetCaps&,
@@ -1148,11 +1166,11 @@ GrEffect* CircleOutside2PtConicalEffect::TestCreate(SkRandom* random,
         center2.set(random->nextUScalar1(), random->nextUScalar1());
         // If the circles share a center than we can't be in the outside case
     } while (center1 == center2);
-        SkPoint diff = center2 - center1;
-        diffLen = diff.length();
-        // Below makes sure that circle one is not contained within circle two
-        // and have radius2 >= radius to match sorting on cpu side
-        radius2 = radius1 + random->nextRangeF(0.f, diffLen);
+    SkPoint diff = center2 - center1;
+    diffLen = diff.length();
+    // Below makes sure that circle one is not contained within circle two
+    // and have radius2 >= radius to match sorting on cpu side
+    radius2 = radius1 + random->nextRangeF(0.f, diffLen);
 
     SkColor colors[kMaxRandomGradientColors];
     SkScalar stopsArray[kMaxRandomGradientColors];
