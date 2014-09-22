@@ -14,6 +14,7 @@
 
 #include "GrBackendEffectFactory.h"
 #include "GrContextFactory.h"
+#include "GrOptDrawState.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "gl/GrGLPathRendering.h"
 #include "gl/GrGpuGL.h"
@@ -159,16 +160,25 @@ bool GrGLProgramDesc::setRandom(SkRandom* random,
                                                     GrGLPathRendering::FixedFunction_TexturingMode;
     header->fHasGeometryProcessor = vertexShader;
 
-    CoverageOutput coverageOutput;
-    bool illegalCoverageOutput;
-    do {
-        coverageOutput = static_cast<CoverageOutput>(random->nextULessThan(kCoverageOutputCnt));
-        illegalCoverageOutput = (!gpu->caps()->dualSourceBlendingSupport() &&
-                                 CoverageOutputUsesSecondaryOutput(coverageOutput)) ||
-                                (!dstRead && kCombineWithDst_CoverageOutput == coverageOutput);
-    } while (illegalCoverageOutput);
+    GrOptDrawState::PrimaryOutputType primaryOutput;
+    GrOptDrawState::SecondaryOutputType secondaryOutput;
+    if (!dstRead) {
+        primaryOutput = GrOptDrawState::kModulate_PrimaryOutputType;
+    } else {
+        primaryOutput = static_cast<GrOptDrawState::PrimaryOutputType>(
+            random->nextULessThan(GrOptDrawState::kPrimaryOutputTypeCnt));
+    }
 
-    header->fCoverageOutput = coverageOutput;
+    if (GrOptDrawState::kCombineWithDst_PrimaryOutputType == primaryOutput ||
+        !gpu->caps()->dualSourceBlendingSupport()) {
+        secondaryOutput = GrOptDrawState::kNone_SecondaryOutputType;
+    } else {
+        secondaryOutput = static_cast<GrOptDrawState::SecondaryOutputType>(
+            random->nextULessThan(GrOptDrawState::kSecondaryOutputTypeCnt));
+    }
+
+    header->fPrimaryOutputType = primaryOutput;
+    header->fSecondaryOutputType = secondaryOutput;
 
     this->finalize();
     return true;
@@ -249,7 +259,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         SkAutoSTMalloc<8, const GrEffectStage*> stages(numStages);
 
         bool usePathRendering = this->glCaps().pathRenderingSupport() && random.nextBool();
-        
+
         GrGpu::DrawType drawType = usePathRendering ? GrGpu::kDrawPath_DrawType :
                                                       GrGpu::kDrawPoints_DrawType;
 

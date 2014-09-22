@@ -9,6 +9,7 @@
 #define GrDrawState_DEFINED
 
 #include "GrBlend.h"
+#include "GrDrawTargetCaps.h"
 #include "GrGpuResourceRef.h"
 #include "GrRODrawState.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -547,7 +548,7 @@ public:
      * GrOptDrawState. In all cases the GrOptDrawState is reffed and ownership is given to the
      * caller.
      */
-    GrOptDrawState* createOptState() const;
+    GrOptDrawState* createOptState(const GrDrawTargetCaps&) const;
 
 private:
     void invalidateOptState() const;
@@ -561,6 +562,7 @@ private:
     void internalSetVertexAttribs(const GrVertexAttrib attribs[], int count, size_t stride);
 
     mutable GrOptDrawState* fCachedOptState;
+    mutable uint32_t fCachedCapsID;
 
     typedef GrRODrawState INHERITED;
 };

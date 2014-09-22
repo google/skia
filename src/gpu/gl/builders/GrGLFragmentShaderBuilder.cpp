@@ -304,18 +304,22 @@ void GrGLFragmentShaderBuilder::emitCodeAfterEffects(const GrGLSLExpr4& inputCol
 
     ///////////////////////////////////////////////////////////////////////////
     // write the secondary color output if necessary
-    if (GrGLProgramDesc::CoverageOutputUsesSecondaryOutput(header.fCoverageOutput)) {
+    if (GrOptDrawState::kNone_SecondaryOutputType != header.fSecondaryOutputType) {
         const char* secondaryOutputName = this->enableSecondaryOutput();
-
-        // default coeff to ones for kCoverage_DualSrcOutput
         GrGLSLExpr4 coeff(1);
-        if (GrGLProgramDesc::kSecondaryCoverageISA_CoverageOutput == header.fCoverageOutput) {
-            // Get (1-A) into coeff
-            coeff = GrGLSLExpr4::VectorCast(GrGLSLExpr1(1) - inputColor.a());
-        } else if (GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput ==
-                   header.fCoverageOutput){
-            // Get (1-RGBA) into coeff
-            coeff = GrGLSLExpr4(1) - inputColor;
+        switch (header.fSecondaryOutputType) {
+            case GrOptDrawState::kCoverage_SecondaryOutputType:
+                break;
+            case GrOptDrawState::kCoverageISA_SecondaryOutputType:
+                // Get (1-A) into coeff
+                coeff = GrGLSLExpr4::VectorCast(GrGLSLExpr1(1) - inputColor.a());
+                break;
+            case GrOptDrawState::kCoverageISC_SecondaryOutputType:
+                // Get (1-RGBA) into coeff
+                coeff = GrGLSLExpr4(1) - inputColor;
+                break;
+            default:
+                SkFAIL("Unexpected Secondary Output");
         }
         // Get coeff * coverage into modulate and then write that to the dual source output.
         codeAppendf("\t%s = %s;\n", secondaryOutputName, (coeff * inputCoverage).c_str());
@@ -326,13 +330,19 @@ void GrGLFragmentShaderBuilder::emitCodeAfterEffects(const GrGLSLExpr4& inputCol
 
     // Get "color * coverage" into fragColor
     GrGLSLExpr4 fragColor = inputColor * inputCoverage;
-    // Now tack on "+(1-coverage)dst onto the frag color if we were asked to do so.
-    if (GrGLProgramDesc::kCombineWithDst_CoverageOutput == header.fCoverageOutput) {
-        GrGLSLExpr4 dstCoeff = GrGLSLExpr4(1) - inputCoverage;
-
-        GrGLSLExpr4 dstContribution = dstCoeff * GrGLSLExpr4(dstColor());
-
-        fragColor = fragColor + dstContribution;
+    switch (header.fPrimaryOutputType) {
+        case GrOptDrawState::kModulate_PrimaryOutputType:
+            break;
+        case GrOptDrawState::kCombineWithDst_PrimaryOutputType:
+            {
+                // Tack on "+(1-coverage)dst onto the frag color.
+                GrGLSLExpr4 dstCoeff = GrGLSLExpr4(1) - inputCoverage;
+                GrGLSLExpr4 dstContribution = dstCoeff * GrGLSLExpr4(dstColor());
+                fragColor = fragColor + dstContribution;
+            }
+            break;
+        default:
+            SkFAIL("Unknown Primary Output");
     }
     codeAppendf("\t%s = %s;\n", this->getColorOutputName(), fragColor.c_str());
 }

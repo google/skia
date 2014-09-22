@@ -7,24 +7,24 @@
 
 #include "GrDrawState.h"
 
-#include "GrDrawTargetCaps.h"
 #include "GrOptDrawState.h"
 #include "GrPaint.h"
 
 //////////////////////////////////////////////////////////////////////////////s
 
-GrOptDrawState* GrDrawState::createOptState() const {
-    if (NULL == fCachedOptState) {
+GrOptDrawState* GrDrawState::createOptState(const GrDrawTargetCaps& caps) const {
+    if (NULL == fCachedOptState || caps.getUniqueID() != fCachedCapsID) {
         GrBlendCoeff srcCoeff;
         GrBlendCoeff dstCoeff;
         BlendOptFlags blendFlags = this->getBlendOpts(false, &srcCoeff, &dstCoeff);
-        fCachedOptState = SkNEW_ARGS(GrOptDrawState, (*this, blendFlags, srcCoeff, dstCoeff));
+        fCachedOptState = SkNEW_ARGS(GrOptDrawState, (*this, blendFlags, srcCoeff, dstCoeff, caps));
+        fCachedCapsID = caps.getUniqueID();
     } else {
 #ifdef SK_DEBUG
         GrBlendCoeff srcCoeff;
         GrBlendCoeff dstCoeff;
         BlendOptFlags blendFlags = this->getBlendOpts(false, &srcCoeff, &dstCoeff);
-        SkASSERT(GrOptDrawState(*this, blendFlags, srcCoeff, dstCoeff) == *fCachedOptState);
+        SkASSERT(GrOptDrawState(*this, blendFlags, srcCoeff, dstCoeff, caps) == *fCachedOptState);
 #endif
     }
     fCachedOptState->ref();

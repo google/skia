@@ -74,28 +74,6 @@ void GrGLProgram::abandon() {
     fProgramID = 0;
 }
 
-void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
-                                GrBlendCoeff* dstCoeff) const {
-    switch (fDesc.getHeader().fCoverageOutput) {
-        case GrGLProgramDesc::kModulate_CoverageOutput:
-            break;
-        // The prog will write a coverage value to the secondary
-        // output and the dst is blended by one minus that value.
-        case GrGLProgramDesc::kSecondaryCoverage_CoverageOutput:
-        case GrGLProgramDesc::kSecondaryCoverageISA_CoverageOutput:
-        case GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput:
-            *dstCoeff = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
-            break;
-        case GrGLProgramDesc::kCombineWithDst_CoverageOutput:
-            // We should only have set this if the blend was specified as (1, 0)
-            SkASSERT(kOne_GrBlendCoeff == *srcCoeff && kZero_GrBlendCoeff == *dstCoeff);
-            break;
-        default:
-            SkFAIL("Unexpected coverage output");
-            break;
-    }
-}
-
 void GrGLProgram::initSamplerUniforms() {
     GL_CALL(UseProgram(fProgramID));
     GrGLint texUnitIdx = 0;

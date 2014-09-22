@@ -343,51 +343,14 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
         header->fCoverageAttributeIndex = -1;
     }
 
-    // Here we deal with whether/how we handle color and coverage separately.
-
-    // Set this default and then possibly change our mind if there is coverage.
-    header->fCoverageOutput = kModulate_CoverageOutput;
-
-    // If we do have coverage determine whether it matters.
-    bool separateCoverageFromColor = optState.hasGeometryProcessor();
-    if (!optState.isCoverageDrawing() &&
-        (optState.numCoverageStages() > 0 ||
-         optState.hasGeometryProcessor() ||
-         requiresCoverageAttrib)) {
-
-        if (gpu->caps()->dualSourceBlendingSupport()) {
-            if (kZero_GrBlendCoeff == dstCoeff) {
-                // write the coverage value to second color
-                header->fCoverageOutput =  kSecondaryCoverage_CoverageOutput;
-                separateCoverageFromColor = true;
-            } else if (kSA_GrBlendCoeff == dstCoeff) {
-                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
-                header->fCoverageOutput = kSecondaryCoverageISA_CoverageOutput;
-                separateCoverageFromColor = true;
-            } else if (kSC_GrBlendCoeff == dstCoeff) {
-                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
-                header->fCoverageOutput = kSecondaryCoverageISC_CoverageOutput;
-                separateCoverageFromColor = true;
-            }
-        } else if (optState.readsDst() &&
-                   kOne_GrBlendCoeff == srcCoeff &&
-                   kZero_GrBlendCoeff == dstCoeff) {
-            header->fCoverageOutput = kCombineWithDst_CoverageOutput;
-            separateCoverageFromColor = true;
-        }
-    }
+    header->fPrimaryOutputType = optState.getPrimaryOutputType();
+    header->fSecondaryOutputType = optState.getSecondaryOutputType();
 
     for (int s = 0; s < optState.numColorStages(); ++s) {
         colorStages->push_back(&optState.getColorStage(s));
     }
-    SkTArray<const GrEffectStage*, true>* array;
-    if (separateCoverageFromColor) {
-        array = coverageStages;
-    } else {
-        array = colorStages;
-    }
     for (int s = 0; s < optState.numCoverageStages(); ++s) {
-        array->push_back(&optState.getCoverageStage(s));
+        coverageStages->push_back(&optState.getCoverageStage(s));
     }
 
     header->fColorEffectCnt = colorStages->count();

@@ -11,6 +11,7 @@
 #include "GrGLEffect.h"
 #include "GrDrawState.h"
 #include "GrGpu.h"
+#include "GrOptDrawState.h"
 
 class GrGpuGL;
 
@@ -111,49 +112,23 @@ private:
         kColorInputCnt
     };
 
-    enum CoverageOutput {
-        // modulate color and coverage, write result as the color output.
-        kModulate_CoverageOutput,
-        // Writes color*coverage as the primary color output and also writes coverage as the
-        // secondary output. Only set if dual source blending is supported.
-        kSecondaryCoverage_CoverageOutput,
-        // Writes color*coverage as the primary color output and also writes coverage * (1 - colorA)
-        // as the secondary output. Only set if dual source blending is supported.
-        kSecondaryCoverageISA_CoverageOutput,
-        // Writes color*coverage as the primary color output and also writes coverage *
-        // (1 - colorRGB) as the secondary output. Only set if dual source blending is supported.
-        kSecondaryCoverageISC_CoverageOutput,
-        // Combines the coverage, dst, and color as coverage * color + (1 - coverage) * dst. This
-        // can only be set if fDstReadKey is non-zero.
-        kCombineWithDst_CoverageOutput,
-
-        kCoverageOutputCnt
-    };
-
-    static bool CoverageOutputUsesSecondaryOutput(CoverageOutput co) {
-        switch (co) {
-            case kSecondaryCoverage_CoverageOutput: //  fallthru
-            case kSecondaryCoverageISA_CoverageOutput:
-            case kSecondaryCoverageISC_CoverageOutput:
-                return true;
-            default:
-                return false;
-        }
-    }
-
     struct KeyHeader {
-        uint8_t                     fDstReadKey;        // set by GrGLShaderBuilder if there
+        uint8_t                          fDstReadKey;   // set by GrGLShaderBuilder if there
                                                         // are effects that must read the dst.
                                                         // Otherwise, 0.
-        uint8_t                     fFragPosKey;        // set by GrGLShaderBuilder if there are
+        uint8_t                          fFragPosKey;   // set by GrGLShaderBuilder if there are
                                                         // effects that read the fragment position.
                                                         // Otherwise, 0.
-        ColorInput                  fColorInput : 8;
-        ColorInput                  fCoverageInput : 8;
-        CoverageOutput              fCoverageOutput : 8;
 
         SkBool8                     fUseFragShaderOnly;
         SkBool8                     fEmitsPointSize;
+
+        ColorInput                       fColorInput : 8;
+        ColorInput                       fCoverageInput : 8;
+
+        GrOptDrawState::PrimaryOutputType    fPrimaryOutputType : 8;
+        GrOptDrawState::SecondaryOutputType  fSecondaryOutputType : 8;
+
 
         // To enable experimental geometry shader code (not for use in
         // production)

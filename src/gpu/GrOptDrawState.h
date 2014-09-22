@@ -28,12 +28,48 @@ public:
     bool requiresVertexShader() const { return fRequiresVertexShader; }
     bool requiresLocalCoordAttrib() const { return fRequiresLocalCoordAttrib; }
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// @name Stage Output Types
+    ////
+
+    enum PrimaryOutputType {
+        // Modulate color and coverage, write result as the color output.
+        kModulate_PrimaryOutputType,
+        // Combines the coverage, dst, and color as coverage * color + (1 - coverage) * dst. This
+        // can only be set if fDstReadKey is non-zero.
+        kCombineWithDst_PrimaryOutputType,
+
+        kPrimaryOutputTypeCnt,
+    };
+
+    enum SecondaryOutputType {
+        // There is no secondary output
+        kNone_SecondaryOutputType,
+        // Writes coverage as the secondary output. Only set if dual source blending is supported
+        // and primary output is kModulate.
+        kCoverage_SecondaryOutputType,
+        // Writes coverage * (1 - colorA) as the secondary output. Only set if dual source blending
+        // is supported and primary output is kModulate.
+        kCoverageISA_SecondaryOutputType,
+        // Writes coverage * (1 - colorRGBA) as the secondary output. Only set if dual source
+        // blending is supported and primary output is kModulate.
+        kCoverageISC_SecondaryOutputType,
+
+        kSecondaryOutputTypeCnt,
+    };
+
+    PrimaryOutputType getPrimaryOutputType() const { return fPrimaryOutputType; }
+    SecondaryOutputType getSecondaryOutputType() const { return fSecondaryOutputType; }
+
+    /// @}
+
 private:
     /**
      * Constructs and optimized drawState out of a GrRODrawState.
      */
     GrOptDrawState(const GrDrawState& drawState, BlendOptFlags blendOptFlags,
-                   GrBlendCoeff optSrcCoeff, GrBlendCoeff optDstCoeff);
+                   GrBlendCoeff optSrcCoeff, GrBlendCoeff optDstCoeff,
+                   const GrDrawTargetCaps& caps);
 
     /**
      * Loops through all the color stage effects to check if the stage will ignore color input or
@@ -72,6 +108,13 @@ private:
      */
     void getStageStats();
 
+    /**
+     * Calculates the primary and secondary output types of the shader. For certain output types
+     * the function may adjust the blend coefficients. After this function is called the src and dst
+     * blend coeffs will represent those used by backend API.
+     */
+    void setOutputStateInfo(const GrDrawTargetCaps&);
+
     // These flags are needed to protect the code from creating an unused uniform color/coverage
     // which will cause shader compiler errors.
     bool            fInputColorIsUsed;
@@ -87,7 +130,11 @@ private:
 
     BlendOptFlags   fBlendOptFlags;
 
-    friend GrOptDrawState* GrDrawState::createOptState() const;
+    // Fragment shader color outputs
+    PrimaryOutputType  fPrimaryOutputType : 8;
+    SecondaryOutputType  fSecondaryOutputType : 8;
+
+    friend GrOptDrawState* GrDrawState::createOptState(const GrDrawTargetCaps&) const;
     typedef GrRODrawState INHERITED;
 };
 

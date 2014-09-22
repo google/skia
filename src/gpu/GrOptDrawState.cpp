@@ -8,11 +8,14 @@
 #include "GrOptDrawState.h"
 
 #include "GrDrawState.h"
+#include "GrDrawTargetCaps.h"
+#include "GrGpu.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                BlendOptFlags blendOptFlags,
                                GrBlendCoeff optSrcCoeff,
-                               GrBlendCoeff optDstCoeff) : INHERITED(drawState) {
+                               GrBlendCoeff optDstCoeff,
+                               const GrDrawTargetCaps& caps) : INHERITED(drawState) {
     fColor = drawState.getColor();
     fCoverage = drawState.getCoverage();
     fViewMatrix = drawState.getViewMatrix();
@@ -45,7 +48,55 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     this->copyEffectiveCoverageStages(drawState);
     this->adjustFromBlendOpts();
     this->getStageStats();
+    this->setOutputStateInfo(caps);
 };
+
+void GrOptDrawState::setOutputStateInfo(const GrDrawTargetCaps& caps) {
+    // Set this default and then possibly change our mind if there is coverage.
+    fPrimaryOutputType = kModulate_PrimaryOutputType;
+    fSecondaryOutputType = kNone_SecondaryOutputType;
+
+    // If we do have coverage determine whether it matters.
+    bool separateCoverageFromColor = this->hasGeometryProcessor();
+    if (!this->isCoverageDrawing() &&
+        (this->numCoverageStages() > 0 ||
+         this->hasGeometryProcessor() ||
+         this->hasCoverageVertexAttribute())) {
+
+        if (caps.dualSourceBlendingSupport()) {
+            if (kZero_GrBlendCoeff == fDstBlend) {
+                // write the coverage value to second color
+                fSecondaryOutputType =  kCoverage_SecondaryOutputType;
+                separateCoverageFromColor = true;
+                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+            } else if (kSA_GrBlendCoeff == fDstBlend) {
+                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
+                fSecondaryOutputType = kCoverageISA_SecondaryOutputType;
+                separateCoverageFromColor = true;
+                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+            } else if (kSC_GrBlendCoeff == fDstBlend) {
+                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
+                fSecondaryOutputType = kCoverageISC_SecondaryOutputType;
+                separateCoverageFromColor = true;
+                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+            }
+        } else if (fReadsDst &&
+                   kOne_GrBlendCoeff == fSrcBlend &&
+                   kZero_GrBlendCoeff == fDstBlend) {
+            fPrimaryOutputType = kCombineWithDst_PrimaryOutputType;
+            separateCoverageFromColor = true;
+        }
+    }
+
+    // TODO: Once we have flag to know if we only multiply on stages, only push coverage into color
+    // stages if everything is multipy
+    if (!separateCoverageFromColor) {
+        for (int s = 0; s < this->numCoverageStages(); ++s) {
+            fColorStages.push_back(this->getCoverageStage(s));
+        }
+        fCoverageStages.reset();
+    }
+}
 
 void GrOptDrawState::adjustFromBlendOpts() {
 

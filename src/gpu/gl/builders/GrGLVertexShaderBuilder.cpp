@@ -87,7 +87,9 @@ void GrGLVertexShaderBuilder::bindProgramLocations(GrGLuint programId) {
     // We pull the current state of attributes off of drawstate's optimized state and bind them in
     // order. This assumes that the drawState has not changed since we called flushGraphicsState()
     // higher up in the stack.
-    SkAutoTUnref<GrOptDrawState> optState(fProgramBuilder->gpu()->drawState()->createOptState());
+    const GrDrawTargetCaps* caps = fProgramBuilder->gpu()->caps();
+    const GrDrawState& drawState = *fProgramBuilder->gpu()->drawState();
+    SkAutoTUnref<GrOptDrawState> optState(drawState.createOptState(*caps));
     const GrVertexAttrib* vaPtr = optState->getVertexAttribs();
     const int vaCount = optState->getVertexAttribCount();
 

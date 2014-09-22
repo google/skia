@@ -52,11 +52,6 @@ public:
      */
     void abandon();
 
-    /**
-     * The shader may modify the blend coefficients. Params are in/out.
-     */
-    void overrideBlend(GrBlendCoeff* srcCoeff, GrBlendCoeff* dstCoeff) const;
-
     const GrGLProgramDesc& getDesc() { return fDesc; }
 
     /**

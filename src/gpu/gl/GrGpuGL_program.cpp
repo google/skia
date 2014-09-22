@@ -205,7 +205,7 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
 bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstCopy) {
-    SkAutoTUnref<GrOptDrawState> optState(this->getDrawState().createOptState());
+    SkAutoTUnref<GrOptDrawState> optState(this->getDrawState().createOptState(*this->caps()));
 
     // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
     SkASSERT(optState->getRenderTarget());
@@ -262,7 +262,6 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
             fHWProgramID = programID;
         }
 
-        fCurrentProgram->overrideBlend(&srcCoeff, &dstCoeff);
         this->flushBlend(kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
         fCurrentProgram->setData(*optState.get(),
@@ -293,7 +292,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
 }
 
 void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
-    SkAutoTUnref<GrOptDrawState> optState(this->getDrawState().createOptState());
+    SkAutoTUnref<GrOptDrawState> optState(this->getDrawState().createOptState(*this->caps()));
 
     GrGLsizei stride = static_cast<GrGLsizei>(optState->getVertexStride());
 
