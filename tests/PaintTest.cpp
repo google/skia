@@ -318,19 +318,22 @@ DEF_TEST(Paint_regression_measureText, reporter) {
 DEF_TEST(Paint_FlatteningTraits, r) {
     SkPaint paint;
     paint.setColor(0x00AABBCC);
-    paint.setTextScaleX(1.0f);  // Encoded despite being the default value.
+    paint.setTextScaleX(1.0f);  // Default value, ignored.
     paint.setTextSize(19);
     paint.setXfermode(SkXfermode::Create(SkXfermode::kModulate_Mode))->unref();
-    paint.setLooper(NULL);  // Ignored.
+    paint.setLooper(NULL);  // Default value, ignored.
 
     SkWriteBuffer writer;
     SkPaint::FlatteningTraits::Flatten(writer, paint);
-    const size_t expectedBytesWritten = sizeof(void*) == 8 ? 36 : 32;
-    ASSERT(expectedBytesWritten == writer.bytesWritten());
 
-    const uint32_t* written = writer.getWriter32()->contiguousArray();
-    SkASSERT(written != NULL);
-    ASSERT(*written == ((1<<0) | (1<<1) | (1<<2) | (1<<8)));  // Dirty bits for our 4.
+    // BEGIN white box asserts: if the impl changes, these asserts may change
+        const size_t expectedBytesWritten = sizeof(void*) == 8 ? 32 : 28;
+        ASSERT(expectedBytesWritten == writer.bytesWritten());
+
+        const uint32_t* written = writer.getWriter32()->contiguousArray();
+        SkASSERT(written != NULL);
+        ASSERT(*written == ((1<<0) | (1<<1) | (1<<8)));  // Dirty bits for our 3.
+    // END white box asserts
 
     SkReadBuffer reader(written, writer.bytesWritten());
     SkPaint other;

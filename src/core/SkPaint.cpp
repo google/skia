@@ -190,8 +190,10 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
 
 bool operator==(const SkPaint& a, const SkPaint& b) {
 #define EQUAL(field) (a.field == b.field)
-    // Don't check fGenerationID or fDirtyBits, which can be different for logically equal paints.
-    return EQUAL(fTypeface)
+    // Don't check fGenerationID, which can be different for logically equal paints.
+    // fDirtyBits is a very quick check for non-equality, so check it first.
+    return EQUAL(fDirtyBits)
+        && EQUAL(fTypeface)
         && EQUAL(fPathEffect)
         && EQUAL(fShader)
         && EQUAL(fXfermode)
@@ -315,7 +317,7 @@ void SkPaint::setStyle(Style style) {
 void SkPaint::setColor(SkColor color) {
     GEN_ID_INC_EVAL(color != fColor);
     fColor = color;
-    fDirtyBits |= kColor_DirtyBit;
+    fDirtyBits = SkSetClearMask(fDirtyBits, color != SK_ColorBLACK, kColor_DirtyBit);
 }
 
 void SkPaint::setAlpha(U8CPU a) {
@@ -331,7 +333,7 @@ void SkPaint::setStrokeWidth(SkScalar width) {
     if (width >= 0) {
         GEN_ID_INC_EVAL(width != fWidth);
         fWidth = width;
-        fDirtyBits |= kStrokeWidth_DirtyBit;
+        fDirtyBits = SkSetClearMask(fDirtyBits, width != 0, kStrokeWidth_DirtyBit);
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStrokeWidth() called with negative value\n");
@@ -343,7 +345,9 @@ void SkPaint::setStrokeMiter(SkScalar limit) {
     if (limit >= 0) {
         GEN_ID_INC_EVAL(limit != fMiterLimit);
         fMiterLimit = limit;
-        fDirtyBits |= kStrokeMiter_DirtyBit;
+        fDirtyBits = SkSetClearMask(fDirtyBits,
+                                    limit != SkPaintDefaults_MiterLimit,
+                                    kStrokeMiter_DirtyBit);
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStrokeMiter() called with negative value\n");
@@ -390,7 +394,7 @@ void SkPaint::setTextSize(SkScalar ts) {
     if (ts >= 0) {
         GEN_ID_INC_EVAL(ts != fTextSize);
         fTextSize = ts;
-        fDirtyBits |= kTextSize_DirtyBit;
+        fDirtyBits = SkSetClearMask(fDirtyBits, ts != SkPaintDefaults_TextSize, kTextSize_DirtyBit);
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setTextSize() called with negative value\n");
@@ -401,13 +405,13 @@ void SkPaint::setTextSize(SkScalar ts) {
 void SkPaint::setTextScaleX(SkScalar scaleX) {
     GEN_ID_INC_EVAL(scaleX != fTextScaleX);
     fTextScaleX = scaleX;
-    fDirtyBits |= kTextScaleX_DirtyBit;
+    fDirtyBits = SkSetClearMask(fDirtyBits, scaleX != SK_Scalar1, kTextScaleX_DirtyBit);
 }
 
 void SkPaint::setTextSkewX(SkScalar skewX) {
     GEN_ID_INC_EVAL(skewX != fTextSkewX);
     fTextSkewX = skewX;
-    fDirtyBits |= kTextSkewX_DirtyBit;
+    fDirtyBits = SkSetClearMask(fDirtyBits, skewX != 0, kTextSkewX_DirtyBit);
 }
 
 void SkPaint::setTextEncoding(TextEncoding encoding) {
@@ -423,43 +427,38 @@ void SkPaint::setTextEncoding(TextEncoding encoding) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Returns dst with the given bitmask enabled or disabled, depending on value.
-inline static uint32_t set_mask(uint32_t dst, uint32_t bitmask, bool value) {
-    return value ? (dst | bitmask) : (dst & ~bitmask);
-}
-
 SkTypeface* SkPaint::setTypeface(SkTypeface* font) {
     SkRefCnt_SafeAssign(fTypeface, font);
     GEN_ID_INC;
-    fDirtyBits = set_mask(fDirtyBits, kTypeface_DirtyBit, font != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, font != NULL, kTypeface_DirtyBit);
     return font;
 }
 
 SkRasterizer* SkPaint::setRasterizer(SkRasterizer* r) {
     SkRefCnt_SafeAssign(fRasterizer, r);
     GEN_ID_INC;
-    fDirtyBits = set_mask(fDirtyBits, kRasterizer_DirtyBit, r != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, r != NULL, kRasterizer_DirtyBit);
     return r;
 }
 
 SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
     SkRefCnt_SafeAssign(fLooper, looper);
     GEN_ID_INC;
-    fDirtyBits = set_mask(fDirtyBits, kLooper_DirtyBit, looper != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, looper != NULL, kLooper_DirtyBit);
     return looper;
 }
 
 SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imageFilter) {
     SkRefCnt_SafeAssign(fImageFilter, imageFilter);
     GEN_ID_INC;
-    fDirtyBits = set_mask(fDirtyBits, kImageFilter_DirtyBit, imageFilter != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, imageFilter != NULL, kImageFilter_DirtyBit);
     return imageFilter;
 }
 
 SkAnnotation* SkPaint::setAnnotation(SkAnnotation* annotation) {
     SkRefCnt_SafeAssign(fAnnotation, annotation);
     GEN_ID_INC;
-    fDirtyBits = set_mask(fDirtyBits, kAnnotation_DirtyBit, annotation != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, annotation != NULL, kAnnotation_DirtyBit);
     return annotation;
 }
 
@@ -2206,21 +2205,21 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
 SkShader* SkPaint::setShader(SkShader* shader) {
     GEN_ID_INC_EVAL(shader != fShader);
     SkRefCnt_SafeAssign(fShader, shader);
-    fDirtyBits = set_mask(fDirtyBits, kShader_DirtyBit, shader != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, shader != NULL, kShader_DirtyBit);
     return shader;
 }
 
 SkColorFilter* SkPaint::setColorFilter(SkColorFilter* filter) {
     GEN_ID_INC_EVAL(filter != fColorFilter);
     SkRefCnt_SafeAssign(fColorFilter, filter);
-    fDirtyBits = set_mask(fDirtyBits, kColorFilter_DirtyBit, filter != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, filter != NULL, kColorFilter_DirtyBit);
     return filter;
 }
 
 SkXfermode* SkPaint::setXfermode(SkXfermode* mode) {
     GEN_ID_INC_EVAL(mode != fXfermode);
     SkRefCnt_SafeAssign(fXfermode, mode);
-    fDirtyBits = set_mask(fDirtyBits, kXfermode_DirtyBit, mode != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, mode != NULL, kXfermode_DirtyBit);
     return mode;
 }
 
@@ -2228,21 +2227,21 @@ SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
     SkSafeUnref(fXfermode);
     fXfermode = SkXfermode::Create(mode);
     GEN_ID_INC;
-    fDirtyBits = set_mask(fDirtyBits, kXfermode_DirtyBit, fXfermode != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, fXfermode != NULL, kXfermode_DirtyBit);
     return fXfermode;
 }
 
 SkPathEffect* SkPaint::setPathEffect(SkPathEffect* effect) {
     GEN_ID_INC_EVAL(effect != fPathEffect);
     SkRefCnt_SafeAssign(fPathEffect, effect);
-    fDirtyBits = set_mask(fDirtyBits, kPathEffect_DirtyBit, effect != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, effect != NULL, kPathEffect_DirtyBit);
     return effect;
 }
 
 SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter) {
     GEN_ID_INC_EVAL(filter != fMaskFilter);
     SkRefCnt_SafeAssign(fMaskFilter, filter);
-    fDirtyBits = set_mask(fDirtyBits, kMaskFilter_DirtyBit, filter != NULL);
+    fDirtyBits = SkSetClearMask(fDirtyBits, filter != NULL, kMaskFilter_DirtyBit);
     return filter;
 }
 
