@@ -11,7 +11,6 @@
 #include "SkCanvas.h"
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "SkGrPixelRef.h"
 
 class SkImage_Gpu : public SkImage_Base {
 public:

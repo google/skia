@@ -8,7 +8,6 @@
 #ifndef SkImagePriv_DEFINED
 #define SkImagePriv_DEFINED
 
-#include "SkBitmap.h"
 #include "SkImage.h"
 
 // Call this if you explicitly want to use/share this pixelRef in the image

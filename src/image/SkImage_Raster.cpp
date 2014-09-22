@@ -11,7 +11,6 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
-#include "SkMallocPixelRef.h"
 
 class SkImage_Raster : public SkImage_Base {
 public:
