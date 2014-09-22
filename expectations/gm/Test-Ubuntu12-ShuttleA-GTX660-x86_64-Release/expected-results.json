@@ -10196,7 +10196,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9417740708006228553
+          13267969425935880104
         ]
       ], 
       "reviewed-by-human": true
@@ -11066,7 +11066,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5517046736815047176
+          4586436592064500005
         ]
       ], 
       "reviewed-by-human": true
@@ -17875,20 +17875,17 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9290689085471276179
+          8805637738762869076
         ]
       ], 
-      "bugs": [
-        2619
-      ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext2_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18049480755586834860
+          8805974184185185146
         ]
       ], 
       "ignore-failure": true, 
@@ -17945,7 +17942,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11394412766733702308
+          2353063788706484506
         ]
       ], 
       "reviewed-by-human": true
@@ -18902,7 +18899,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14173416644935306899
+          4126252108879846874
         ]
       ], 
       "reviewed-by-human": true
@@ -19262,7 +19259,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14766001416849802483
+          10744565359108073823
         ]
       ], 
       "reviewed-by-human": true
@@ -19510,7 +19507,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7853742472515146284
+          1358760508249242163
         ]
       ], 
       "reviewed-by-human": true
@@ -20290,7 +20287,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          442052346159338989
+          11562824691469652309
         ]
       ], 
       "reviewed-by-human": true
