@@ -1347,7 +1347,7 @@ bool GrContext::writeTexturePixels(GrTexture* texture,
         }
     }
 
-    if (!(kDontFlush_PixelOpsFlag & flags)) {
+    if (!(kDontFlush_PixelOpsFlag & flags) && texture->hasPendingIO()) {
         this->flush();
     }
 
@@ -1418,7 +1418,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         }
     }
 
-    if (!(kDontFlush_PixelOpsFlag & flags)) {
+    if (!(kDontFlush_PixelOpsFlag & flags) && target->hasPendingWrite()) {
         this->flush();
     }
 
@@ -1578,11 +1578,10 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint*
     }
     ASSERT_OWNED_RESOURCE(src);
 
-    // Writes pending to the source texture are not tracked, so a flush
-    // is required to ensure that the copy captures the most recent contents
-    // of the source texture. See similar behavior in
-    // GrContext::resolveRenderTarget.
-    this->flush();
+
+    if (src->hasPendingWrite() || dst->hasPendingIO()) {
+        this->flush();
+    }
 
     GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = fGpu->drawState();
@@ -1715,9 +1714,15 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
         return false;
     }
 
+    // TODO: Usually this could go to fDrawBuffer but currently
     // writeRenderTargetPixels can be called in the midst of drawing another
     // object (e.g., when uploading a SW path rendering to the gpu while
-    // drawing a rect) so preserve the current geometry.
+    // drawing a rect). So we always draw directly to GrGpu and preserve the current geometry.
+    // But that means we also have to flush the draw buffer if there is a pending IO operation to
+    // the render target.
+    if (!(kDontFlush_PixelOpsFlag & flags) && target->hasPendingIO()) {
+        this->flush();
+    }
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
     GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit, &matrix);

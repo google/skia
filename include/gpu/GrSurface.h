@@ -135,6 +135,10 @@ public:
      */
     bool savePixels(const char* filename);
 
+    bool hasPendingRead() const;
+    bool hasPendingWrite() const;
+    bool hasPendingIO() const;
+
 protected:
     GrSurface(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
     : INHERITED(gpu, isWrapped)
