@@ -89,7 +89,7 @@ The server is started and stopped via:
 
     sudo /etc/init.d/webtry [start|stop|restart]
 
-By sysv init only handles starting and stopping a program once, so we use
+But sysv init only handles starting and stopping a program once, so we use
 Monit to monitor the application and restart it if it crashes. The config
 is in:
 
