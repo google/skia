@@ -180,8 +180,6 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
     // bindings in use or other descriptor field settings) it should be set
     // to a canonical value to avoid duplicate programs with different keys.
 
-    bool requiresColorAttrib = optState.hasColorVertexAttribute();
-    bool requiresCoverageAttrib = optState.hasCoverageVertexAttribute();
     bool requiresLocalCoordAttrib = optState.requiresLocalCoordAttrib();
 
     int numStages = optState.numTotalStages();
@@ -260,10 +258,6 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
     // below here.
 
-    header->fUseFragShaderOnly = gpu->caps()->pathRenderingSupport() &&
-        GrGpu::IsPathRenderingDrawType(drawType) &&
-        gpu->glPathRendering()->texturingMode() == GrGLPathRendering::FixedFunction_TexturingMode;
-    SkASSERT(!header->fUseFragShaderOnly || !optState.hasGeometryProcessor());
 
     header->fEmitsPointSize = GrGpu::kDrawPoints_DrawType == drawType;
 
@@ -276,26 +270,38 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
     header->fExperimentalGS = false;
 #endif
 #endif
-    bool defaultToUniformInputs = GR_GL_NO_CONSTANT_ATTRIBUTES || header->fUseFragShaderOnly;
 
-    if (!inputColorIsUsed) {
-        header->fColorInput = kAllOnes_ColorInput;
-    } else if (defaultToUniformInputs && !requiresColorAttrib) {
-        header->fColorInput = kUniform_ColorInput;
+    if (gpu->caps()->pathRenderingSupport() &&
+        GrGpu::IsPathRenderingDrawType(drawType) &&
+        gpu->glPathRendering()->texturingMode() == GrGLPathRendering::FixedFunction_TexturingMode) {
+        header->fUseFragShaderOnly = true;
+        SkASSERT(!optState.hasGeometryProcessor());
     } else {
-        header->fColorInput = kAttribute_ColorInput;
         header->fUseFragShaderOnly = false;
     }
 
-    bool covIsSolidWhite = !requiresCoverageAttrib && 0xffffffff == optState.getCoverageColor();
+    bool defaultToUniformInputs = GrGpu::IsPathRenderingDrawType(drawType) ||
+                                  GR_GL_NO_CONSTANT_ATTRIBUTES;
+
+    if (!inputColorIsUsed) {
+        header->fColorInput = kAllOnes_ColorInput;
+    } else if (defaultToUniformInputs && !optState.hasColorVertexAttribute()) {
+        header->fColorInput = kUniform_ColorInput;
+    } else {
+        header->fColorInput = kAttribute_ColorInput;
+        SkASSERT(!header->fUseFragShaderOnly);
+    }
+
+    bool covIsSolidWhite = !optState.hasCoverageVertexAttribute() &&
+                           0xffffffff == optState.getCoverageColor();
 
     if (covIsSolidWhite || !inputCoverageIsUsed) {
         header->fCoverageInput = kAllOnes_ColorInput;
-    } else if (defaultToUniformInputs && !requiresCoverageAttrib) {
+    } else if (defaultToUniformInputs && !optState.hasCoverageVertexAttribute()) {
         header->fCoverageInput = kUniform_ColorInput;
     } else {
         header->fCoverageInput = kAttribute_ColorInput;
-        header->fUseFragShaderOnly = false;
+        SkASSERT(!header->fUseFragShaderOnly);
     }
 
     if (optState.readsDst()) {
@@ -324,7 +330,7 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
 
     // For constant color and coverage we need an attribute with an index beyond those already set
     int availableAttributeIndex = optState.getVertexAttribCount();
-    if (requiresColorAttrib) {
+    if (optState.hasColorVertexAttribute()) {
         header->fColorAttributeIndex = optState.colorVertexAttributeIndex();
     } else if (GrGLProgramDesc::kAttribute_ColorInput == header->fColorInput) {
         SkASSERT(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
@@ -334,7 +340,7 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
         header->fColorAttributeIndex = -1;
     }
 
-    if (requiresCoverageAttrib) {
+    if (optState.hasCoverageVertexAttribute()) {
         header->fCoverageAttributeIndex = optState.coverageVertexAttributeIndex();
     } else if (GrGLProgramDesc::kAttribute_ColorInput == header->fCoverageInput) {
         SkASSERT(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
