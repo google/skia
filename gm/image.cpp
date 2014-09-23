@@ -30,7 +30,7 @@ static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->scale(size.width() * 1.0f / image->width(),
                       size.height() * 1.0f / image->height());
-        image->draw(canvas, 0, 0, NULL);
+        canvas->drawImage(image, 0, 0, NULL);
         image->unref();
     }
 }
@@ -77,8 +77,8 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
 //    paint.setFilterBitmap(true);
 //    paint.setAlpha(0x80);
 
-    imgR->draw(canvas, 0, 0, usePaint ? &paint : NULL);
-    imgG->draw(canvas, 0, 80, usePaint ? &paint : NULL);
+    canvas->drawImage(imgR, 0, 0, usePaint ? &paint : NULL);
+    canvas->drawImage(imgG, 0, 80, usePaint ? &paint : NULL);
     surf->draw(canvas, 0, 160, usePaint ? &paint : NULL);
 
     SkRect src1, src2, src3;
@@ -93,10 +93,10 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
     dst3.set(0, 400, 65, 465);
     dst4.set(0, 480, 65, 545);
 
-    imgR->draw(canvas, &src1, dst1, usePaint ? &paint : NULL);
-    imgG->draw(canvas, &src2, dst2, usePaint ? &paint : NULL);
-    imgR->draw(canvas, &src3, dst3, usePaint ? &paint : NULL);
-    imgG->draw(canvas, NULL, dst4, usePaint ? &paint : NULL);
+    canvas->drawImageRect(imgR, &src1, dst1, usePaint ? &paint : NULL);
+    canvas->drawImageRect(imgG, &src2, dst2, usePaint ? &paint : NULL);
+    canvas->drawImageRect(imgR, &src3, dst3, usePaint ? &paint : NULL);
+    canvas->drawImageRect(imgG, NULL, dst4, usePaint ? &paint : NULL);
 
     imgG->unref();
     imgR->unref();

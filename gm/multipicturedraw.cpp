@@ -56,7 +56,7 @@ static const SkPicture* make_hex_plane_picture(SkColor fillColor) {
 
     SkPictureRecorder recorder;
 
-    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kPicWidth), 
+    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kPicWidth),
                                                SkIntToScalar(kPicHeight));
 
     SkScalar xPos, yPos = 0;
@@ -138,7 +138,7 @@ static const SkPicture* make_sub_picture(const SkPicture* tri) {
 }
 
 // Create a Sierpinkski-like picture that starts with a top row with a picture
-// that just contains a triangle. Subsequent rows take the prior row's picture, 
+// that just contains a triangle. Subsequent rows take the prior row's picture,
 // shrinks it and replicates it 3 times then draws and appropriate number of
 // copies of it.
 static const SkPicture* make_sierpinski_picture() {
@@ -217,7 +217,7 @@ static void rrect_clip(SkCanvas* canvas, const SkPicture* pictures[kNumPictures]
 
     SkRect rect = pictures[0]->cullRect();
     rect.inset(kInset, kInset);
-        
+
     SkRRect rrect;
     rrect.setRectXY(rect, kInset, kInset);
 
@@ -280,7 +280,7 @@ static void create_content(SkMultiPictureDraw* mpd, PFContentMtd pfGen,
     {
         SkPictureRecorder recorder;
 
-        SkCanvas* pictureCanvas = recorder.beginRecording(SkIntToScalar(kPicWidth), 
+        SkCanvas* pictureCanvas = recorder.beginRecording(SkIntToScalar(kPicWidth),
                                                           SkIntToScalar(kPicHeight));
 
         (*pfGen)(pictureCanvas, pictures);
@@ -291,13 +291,13 @@ static void create_content(SkMultiPictureDraw* mpd, PFContentMtd pfGen,
     mpd->add(dest, composite, &xform);
 }
 
-typedef void(*PFLayoutMtd)(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd, 
+typedef void(*PFLayoutMtd)(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
                            PFContentMtd pfGen, const SkPicture* pictures[kNumPictures],
                            SkTArray<ComposeStep>* composeSteps);
 
 // Draw the content into a single canvas
-static void simple(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd, 
-                   PFContentMtd pfGen, 
+static void simple(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
+                   PFContentMtd pfGen,
                    const SkPicture* pictures[kNumPictures],
                    SkTArray<ComposeStep> *composeSteps) {
 
@@ -312,7 +312,7 @@ static void simple(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
 
 // Draw the content into multiple canvases/tiles
 static void tiled(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
-                  PFContentMtd pfGen, 
+                  PFContentMtd pfGen,
                   const SkPicture* pictures[kNumPictures],
                   SkTArray<ComposeStep> *composeSteps) {
     static const int kNumTilesX = 2;
@@ -324,7 +324,7 @@ static void tiled(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
     SkASSERT(kPicHeight == kNumTilesY * kTileHeight);
 
     static const SkColor colors[kNumTilesX][kNumTilesY] = {
-        { SK_ColorCYAN,   SK_ColorMAGENTA }, 
+        { SK_ColorCYAN,   SK_ColorMAGENTA },
         { SK_ColorYELLOW, SK_ColorGREEN   }
     };
 
@@ -415,8 +415,8 @@ namespace skiagm {
             SkTArray<ComposeStep> composeSteps;
 
             // Fill up the MultiPictureDraw
-            (*gLayoutMthds[fLayout])(canvas, &mpd, 
-                                     gContentMthds[fContent], 
+            (*gLayoutMthds[fLayout])(canvas, &mpd,
+                                     gContentMthds[fContent],
                                      fPictures, &composeSteps);
 
             mpd.draw();
@@ -427,14 +427,14 @@ namespace skiagm {
 
                 SkAutoTUnref<SkImage> image(step.fSurf->newImageSnapshot());
 
-                image->draw(canvas, step.fX, step.fY, step.fPaint);
+                canvas->drawImage(image, step.fX, step.fY, step.fPaint);
             }
         }
 
         virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(kPicWidth, kPicHeight); }
 
         virtual SkString onShortName() SK_OVERRIDE {
-            static const char* gContentNames[] = { 
+            static const char* gContentNames[] = {
                 "noclip", "rectclip", "rrectclip", "pathclip", "invpathclip", "sierpinski"
             };
             static const char* gLayoutNames[] = { "simple", "tiled" };
@@ -456,28 +456,28 @@ namespace skiagm {
         typedef GM INHERITED;
     };
 
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kNoClipSingle_Content,     
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kNoClipSingle_Content,
                                                 MultiPictureDraw::kSimple_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRectClipMulti_Content,    
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRectClipMulti_Content,
                                                 MultiPictureDraw::kSimple_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRRectClipMulti_Content,   
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRRectClipMulti_Content,
                                                 MultiPictureDraw::kSimple_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kPathClipMulti_Content,    
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kPathClipMulti_Content,
                                                 MultiPictureDraw::kSimple_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kInvPathClipMulti_Content, 
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kInvPathClipMulti_Content,
                                                 MultiPictureDraw::kSimple_Layout));)
     DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kSierpinski_Content,
                                                 MultiPictureDraw::kSimple_Layout));)
 
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kNoClipSingle_Content,     
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kNoClipSingle_Content,
                                                 MultiPictureDraw::kTiled_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRectClipMulti_Content,    
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRectClipMulti_Content,
                                                 MultiPictureDraw::kTiled_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRRectClipMulti_Content,   
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRRectClipMulti_Content,
                                                 MultiPictureDraw::kTiled_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kPathClipMulti_Content,    
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kPathClipMulti_Content,
                                                 MultiPictureDraw::kTiled_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kInvPathClipMulti_Content, 
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kInvPathClipMulti_Content,
                                                 MultiPictureDraw::kTiled_Layout));)
     DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kSierpinski_Content,
                                                 MultiPictureDraw::kTiled_Layout));)

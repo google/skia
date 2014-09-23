@@ -76,7 +76,7 @@ SkSurface_Base::~SkSurface_Base() {
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
     SkImage* image = this->newImageSnapshot();
     if (image) {
-        image->draw(canvas, x, y, paint);
+        canvas->drawImage(image, x, y, paint);
         image->unref();
     }
 }
