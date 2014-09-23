@@ -8,7 +8,7 @@
 #ifndef GrSingleTextureEffect_DEFINED
 #define GrSingleTextureEffect_DEFINED
 
-#include "GrEffect.h"
+#include "GrProcessor.h"
 #include "SkMatrix.h"
 #include "GrCoordTransform.h"
 
@@ -18,7 +18,7 @@ class GrTexture;
  * A base class for effects that draw a single texture with a texture matrix. This effect has no
  * backend implementations. One must be provided by the subclass.
  */
-class GrSingleTextureEffect : public GrEffect {
+class GrSingleTextureEffect : public GrFragmentProcessor {
 public:
     virtual ~GrSingleTextureEffect();
 
@@ -61,7 +61,7 @@ private:
     GrCoordTransform fCoordTransform;
     GrTextureAccess  fTextureAccess;
 
-    typedef GrEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
 #endif

@@ -9,6 +9,7 @@
 #define GrGLFullProgramBuilder_DEFINED
 
 #include "GrGLProgramBuilder.h"
+#include "../GrGLGeometryProcessor.h"
 
 class GrGLVertexProgramEffects;
 
@@ -38,20 +39,63 @@ public:
 
     GrGLVertexShaderBuilder* getVertexShaderBuilder() { return &fVS; }
 
+    /*
+     * This non-virtual call will hide the parent call to prevent GPs from accessing fragment shader
+     * functionality they shouldn't be using
+     */
+    GrGLProcessorFragmentShaderBuilder* getFragmentShaderBuilder() { return &fFS; }
+
 private:
-    virtual void createAndEmitEffects(const GrEffectStage* geometryProcessor,
-                                      const GrEffectStage* colorStages[],
-                                      const GrEffectStage* coverageStages[],
+    virtual void createAndEmitEffects(const GrGeometryStage* geometryProcessor,
+                                      const GrFragmentStage* colorStages[],
+                                      const GrFragmentStage* coverageStages[],
                                       GrGLSLExpr4* inputColor,
                                       GrGLSLExpr4* inputCoverage) SK_OVERRIDE;
 
-    GrGLProgramEffects* onCreateAndEmitEffects(const GrEffectStage* effectStages[],
+    GrGLProgramEffects* onCreateAndEmitEffects(const GrFragmentStage* effectStages[],
                                                int effectCnt,
                                                const GrGLProgramDesc::EffectKeyProvider&,
                                                GrGLSLExpr4* inOutFSColor);
 
-    virtual void emitEffect(const GrEffectStage& stage,
-                            const GrEffectKey& key,
+    class GrGLGeometryProcessorEmitter : public GrGLProgramBuilder::GrGLProcessorEmitterInterface {
+        public:
+            GrGLGeometryProcessorEmitter(GrGLFullProgramBuilder* builder)
+                : fBuilder(builder)
+                , fGeometryProcessor(NULL)
+                , fGLGeometryProcessor(NULL) {}
+            virtual ~GrGLGeometryProcessorEmitter() {}
+            void set(const GrGeometryProcessor* gp) {
+                SkASSERT(NULL == fGeometryProcessor);
+                fGeometryProcessor = gp;
+            }
+            virtual GrGLProcessor* createGLInstance() {
+                SkASSERT(fGeometryProcessor);
+                SkASSERT(NULL == fGLGeometryProcessor);
+                fGLGeometryProcessor =
+                        fGeometryProcessor->getFactory().createGLInstance(*fGeometryProcessor);
+                return fGLGeometryProcessor;
+            }
+            virtual void emit(const GrProcessorKey& key,
+                              const char* outColor,
+                              const char* inColor,
+                              const GrGLProcessor::TransformedCoordsArray& coords,
+                              const GrGLProcessor::TextureSamplerArray& samplers) {
+                SkASSERT(fGeometryProcessor);
+                SkASSERT(fGLGeometryProcessor);
+                fGLGeometryProcessor->emitCode(fBuilder, *fGeometryProcessor, key, outColor,
+                                               inColor, coords, samplers);
+                // this will not leak because it has already been used by createGLInstance
+                fGLGeometryProcessor = NULL;
+                fGeometryProcessor = NULL;
+            }
+        private:
+            GrGLFullProgramBuilder*     fBuilder;
+            const GrGeometryProcessor*  fGeometryProcessor;
+            GrGLGeometryProcessor*      fGLGeometryProcessor;
+        };
+
+    virtual void emitEffect(const GrProcessorStage& stage,
+                            const GrProcessorKey& key,
                             const char* outColor,
                             const char* inColor,
                             int stageIndex) SK_OVERRIDE;
@@ -63,8 +107,8 @@ private:
      * of the varyings in the VS and FS as well their types are appended to the
      * TransformedCoordsArray* object, which is in turn passed to the effect's emitCode() function.
      */
-    void emitTransforms(const GrEffectStage& effectStage,
-                        GrGLEffect::TransformedCoordsArray* outCoords);
+    void emitTransforms(const GrProcessorStage& effectStage,
+                        GrGLProcessor::TransformedCoordsArray* outCoords);
 
     virtual bool compileAndAttachShaders(GrGLuint programId,
                                          SkTDArray<GrGLuint>* shaderIds) const SK_OVERRIDE;
@@ -75,6 +119,7 @@ private:
 
     typedef GrGLProgramDesc::EffectKeyProvider EffectKeyProvider;
 
+    GrGLGeometryProcessorEmitter fGLGeometryProcessorEmitter;
     GrGLGeometryShaderBuilder fGS;
     GrGLVertexShaderBuilder   fVS;
     SkAutoTDelete<GrGLVertexProgramEffects> fProgramEffects;

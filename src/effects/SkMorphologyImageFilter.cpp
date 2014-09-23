@@ -15,8 +15,8 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "GrTBackendEffectFactory.h"
-#include "gl/GrGLEffect.h"
+#include "GrTBackendProcessorFactory.h"
+#include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "effects/Gr1DKernelEffect.h"
 #endif
@@ -295,7 +295,8 @@ public:
         kDilate_MorphologyType,
     };
 
-    static GrEffect* Create(GrTexture* tex, Direction dir, int radius, MorphologyType type) {
+    static GrFragmentProcessor* Create(GrTexture* tex, Direction dir, int radius,
+                                       MorphologyType type) {
         return SkNEW_ARGS(GrMorphologyEffect, (tex, dir, radius, type));
     }
 
@@ -305,9 +306,9 @@ public:
 
     static const char* Name() { return "Morphology"; }
 
-    typedef GrGLMorphologyEffect GLEffect;
+    typedef GrGLMorphologyEffect GLProcessor;
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 protected:
@@ -315,32 +316,32 @@ protected:
     MorphologyType fType;
 
 private:
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
 
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
 
-    GR_DECLARE_EFFECT_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef Gr1DKernelEffect INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrGLMorphologyEffect : public GrGLEffect {
+class GrGLMorphologyEffect : public GrGLFragmentProcessor {
 public:
-    GrGLMorphologyEffect (const GrBackendEffectFactory&, const GrEffect&);
+    GrGLMorphologyEffect (const GrBackendProcessorFactory&, const GrProcessor&);
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrEffect&,
-                          const GrEffectKey&,
+                          const GrFragmentProcessor&,
+                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder* b);
+    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
 private:
     int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }
@@ -349,20 +350,20 @@ private:
     GrMorphologyEffect::MorphologyType    fType;
     GrGLProgramDataManager::UniformHandle fImageIncrementUni;
 
-    typedef GrGLEffect INHERITED;
+    typedef GrGLFragmentProcessor INHERITED;
 };
 
-GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendEffectFactory& factory,
-                                           const GrEffect& effect)
+GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendProcessorFactory& factory,
+                                           const GrProcessor& proc)
     : INHERITED(factory) {
-    const GrMorphologyEffect& m = effect.cast<GrMorphologyEffect>();
+    const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
     fRadius = m.radius();
     fType = m.type();
 }
 
 void GrGLMorphologyEffect::emitCode(GrGLProgramBuilder* builder,
-                                    const GrEffect&,
-                                    const GrEffectKey& key,
+                                    const GrFragmentProcessor&,
+                                    const GrProcessorKey& key,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TransformedCoordsArray& coords,
@@ -401,17 +402,17 @@ void GrGLMorphologyEffect::emitCode(GrGLProgramBuilder* builder,
     fsBuilder->codeAppend(modulate.c_str());
 }
 
-void GrGLMorphologyEffect::GenKey(const GrEffect& effect,
-                                  const GrGLCaps&, GrEffectKeyBuilder* b) {
-    const GrMorphologyEffect& m = effect.cast<GrMorphologyEffect>();
+void GrGLMorphologyEffect::GenKey(const GrProcessor& proc,
+                                  const GrGLCaps&, GrProcessorKeyBuilder* b) {
+    const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
     uint32_t key = static_cast<uint32_t>(m.radius());
     key |= (m.type() << 8);
     b->add32(key);
 }
 
 void GrGLMorphologyEffect::setData(const GrGLProgramDataManager& pdman,
-                                   const GrEffect& effect) {
-    const Gr1DKernelEffect& kern = effect.cast<Gr1DKernelEffect>();
+                                   const GrProcessor& proc) {
+    const Gr1DKernelEffect& kern = proc.cast<Gr1DKernelEffect>();
     GrTexture& texture = *kern.texture(0);
     // the code we generated was for a specific kernel radius
     SkASSERT(kern.radius() == fRadius);
@@ -442,11 +443,11 @@ GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
 GrMorphologyEffect::~GrMorphologyEffect() {
 }
 
-const GrBackendEffectFactory& GrMorphologyEffect::getFactory() const {
-    return GrTBackendEffectFactory<GrMorphologyEffect>::getInstance();
+const GrBackendFragmentProcessorFactory& GrMorphologyEffect::getFactory() const {
+    return GrTBackendFragmentProcessorFactory<GrMorphologyEffect>::getInstance();
 }
 
-bool GrMorphologyEffect::onIsEqual(const GrEffect& sBase) const {
+bool GrMorphologyEffect::onIsEqual(const GrProcessor& sBase) const {
     const GrMorphologyEffect& s = sBase.cast<GrMorphologyEffect>();
     return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&
@@ -462,14 +463,14 @@ void GrMorphologyEffect::getConstantColorComponents(GrColor* color, uint32_t* va
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_EFFECT_TEST(GrMorphologyEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect);
 
-GrEffect* GrMorphologyEffect::TestCreate(SkRandom* random,
-                                         GrContext*,
-                                         const GrDrawTargetCaps&,
-                                         GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
-                                      GrEffectUnitTest::kAlphaTextureIdx;
+GrFragmentProcessor* GrMorphologyEffect::TestCreate(SkRandom* random,
+                                                    GrContext*,
+                                                    const GrDrawTargetCaps&,
+                                                    GrTexture* textures[]) {
+    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
+                                      GrProcessorUnitTest::kAlphaTextureIdx;
     Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
     static const int kMaxRadius = 10;
     int radius = random->nextRangeU(1, kMaxRadius);
@@ -489,10 +490,10 @@ void apply_morphology_pass(GrContext* context,
                            GrMorphologyEffect::MorphologyType morphType,
                            Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
-    paint.addColorEffect(GrMorphologyEffect::Create(texture,
-                                                    direction,
-                                                    radius,
-                                                    morphType))->unref();
+    paint.addColorProcessor(GrMorphologyEffect::Create(texture,
+                                                       direction,
+                                                       radius,
+                                                       morphType))->unref();
     context->drawRectToRect(paint, SkRect::Make(dstRect), SkRect::Make(srcRect));
 }
 

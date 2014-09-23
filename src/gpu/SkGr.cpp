@@ -270,11 +270,11 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
 
     GrRenderTarget* renderTarget = result ? result->asRenderTarget() : NULL;
     if (renderTarget) {
-        SkAutoTUnref<GrEffect> yuvToRgbEffect(GrYUVtoRGBEffect::Create(
+        SkAutoTUnref<GrFragmentProcessor> yuvToRgbProcessor(GrYUVtoRGBEffect::Create(
             yuvTextures[0].texture(), yuvTextures[1].texture(), yuvTextures[2].texture(),
             colorSpace));
         GrPaint paint;
-        paint.addColorEffect(yuvToRgbEffect);
+        paint.addColorProcessor(yuvToRgbProcessor);
         SkRect r = SkRect::MakeWH(SkIntToScalar(yuvSizes[0].fWidth),
                                   SkIntToScalar(yuvSizes[0].fHeight));
         GrContext::AutoRenderTarget autoRT(ctx, renderTarget);
@@ -471,10 +471,10 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
     SkXfermode::Coeff dm;
 
     SkXfermode* mode = skPaint.getXfermode();
-    GrEffect* xferEffect = NULL;
-    if (SkXfermode::AsNewEffectOrCoeff(mode, &xferEffect, &sm, &dm)) {
-        if (xferEffect) {
-            grPaint->addColorEffect(xferEffect)->unref();
+    GrFragmentProcessor* xferProcessor = NULL;
+    if (SkXfermode::asFragmentProcessorOrCoeff(mode, &xferProcessor, &sm, &dm)) {
+        if (xferProcessor) {
+            grPaint->addColorProcessor(xferProcessor)->unref();
             sm = SkXfermode::kOne_Coeff;
             dm = SkXfermode::kZero_Coeff;
         }
@@ -497,9 +497,9 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
-            SkAutoTUnref<GrEffect> effect(colorFilter->asNewEffect(context));
-            if (effect.get()) {
-                grPaint->addColorEffect(effect);
+            SkAutoTUnref<GrFragmentProcessor> fp(colorFilter->asFragmentProcessor(context));
+            if (fp.get()) {
+                grPaint->addColorProcessor(fp);
             }
         }
     }
@@ -518,9 +518,9 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
             target->config() == kBGRA_8888_GrPixelConfig) {
             // The dither flag is set and the target is likely
             // not going to be dithered by the GPU.
-            SkAutoTUnref<GrEffect> effect(GrDitherEffect::Create());
-            if (effect.get()) {
-                grPaint->addColorEffect(effect);
+            SkAutoTUnref<GrFragmentProcessor> fp(GrDitherEffect::Create());
+            if (fp.get()) {
+                grPaint->addColorProcessor(fp);
                 grPaint->setDither(false);
             }
         }
@@ -560,26 +560,27 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
     GrColor paintColor = SkColor2GrColor(skPaint.getColor());
 
     // Start a new block here in order to preserve our context state after calling
-    // asNewEffect(). Since these calls get passed back to the client, we don't really
+    // asFragmentProcessor(). Since these calls get passed back to the client, we don't really
     // want them messing around with the context.
     {
-        // SkShader::asNewEffect() may do offscreen rendering. Save off the current RT, clip, and
-        // matrix. We don't reset the matrix on the context because SkShader::asNewEffect may use
-        // GrContext::getMatrix() to know the transformation from local coords to device space.
+        // SkShader::asFragmentProcessor() may do offscreen rendering. Save off the current RT,
+        // clip, and matrix. We don't reset the matrix on the context because
+        // SkShader::asFragmentProcessor may use GrContext::getMatrix() to know the transformation
+        // from local coords to device space.
         GrContext::AutoRenderTarget art(context, NULL);
         GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
         AutoMatrix am(context);
 
         // Allow the shader to modify paintColor and also create an effect to be installed as
         // the first color effect on the GrPaint.
-        GrEffect* effect = NULL;
-        if (shader->asNewEffect(context, skPaint, NULL, &paintColor, &effect) && effect) {
-            grPaint->addColorEffect(effect)->unref();
+        GrFragmentProcessor* fp = NULL;
+        if (shader->asFragmentProcessor(context, skPaint, NULL, &paintColor, &fp) && fp) {
+            grPaint->addColorProcessor(fp)->unref();
             constantColor = false;
         }
     }
 
-    // The grcolor is automatically set when calling asneweffect.
+    // The grcolor is automatically set when calling asFragmentProcessor.
     // If the shader can be seen as an effect it returns true and adds its effect to the grpaint.
     SkPaint2GrPaintNoShader(context, skPaint, paintColor, constantColor, grPaint);
 }

@@ -32,7 +32,8 @@ public:
                                  SkMatrix* matrix,
                                  TileMode* xy) const SK_OVERRIDE;
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
-    virtual bool asNewEffect(GrContext*, const SkPaint&, const SkMatrix*, GrColor*, GrEffect**) const SK_OVERRIDE;
+    virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+                                     GrFragmentProcessor**) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRadialGradient)

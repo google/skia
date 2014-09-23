@@ -108,7 +108,7 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
 #if SK_SUPPORT_GPU
 
 bool SkXfermodeImageFilter::canFilterImageGPU() const {
-    return fMode && fMode->asNewEffect(NULL, NULL) && !cropRectIsSet();
+    return fMode && fMode->asFragmentProcessor(NULL, NULL) && !cropRectIsSet();
 }
 
 bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
@@ -132,7 +132,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     GrTexture* foregroundTex = foreground.getTexture();
     GrContext* context = foregroundTex->getContext();
 
-    GrEffect* xferEffect = NULL;
+    GrFragmentProcessor* xferProcessor = NULL;
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
@@ -148,7 +148,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
 
     GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
 
-    if (!fMode || !fMode->asNewEffect(&xferEffect, backgroundTex)) {
+    if (!fMode || !fMode->asFragmentProcessor(&xferProcessor, backgroundTex)) {
         // canFilterImageGPU() should've taken care of this
         SkASSERT(false);
         return false;
@@ -163,8 +163,8 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     src.getBounds(&srcRect);
 
     GrPaint paint;
-    paint.addColorTextureEffect(foregroundTex, foregroundMatrix);
-    paint.addColorEffect(xferEffect)->unref();
+    paint.addColorTextureProcessor(foregroundTex, foregroundMatrix);
+    paint.addColorProcessor(xferProcessor)->unref();
     context->drawRect(paint, srcRect);
 
     offset->fX = backgroundOffset.fX;

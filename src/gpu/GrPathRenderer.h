@@ -49,9 +49,9 @@ public:
     /**
      * A caller may wish to use a path renderer to draw a path into the stencil buffer. However,
      * the path renderer itself may require use of the stencil buffer. Also a path renderer may
-     * use a GrEffect coverage stage that sets coverage to zero to eliminate pixels that are covered
-     * by bounding geometry but outside the path. These exterior pixels would still be rendered into
-     * the stencil.
+     * use a GrProcessor coverage stage that sets coverage to zero to eliminate pixels that are
+     * covered by bounding geometry but outside the path. These exterior pixels would still be
+     * rendered into the stencil.
      *
      * A GrPathRenderer can provide three levels of support for stenciling paths:
      * 1) kNoRestriction: This is the most general. The caller sets up the GrDrawState on the target

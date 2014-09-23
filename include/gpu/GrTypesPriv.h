@@ -115,9 +115,9 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
 }
 
 /**
- * Semantic bindings for vertex attributes. kEffect means that the attribute is input to a GrEffect.
- * Each binding other than kEffect may not appear more than once in the current set of attributes.
- * kPosition must be appear for exactly one attribute.
+ * Semantic bindings for vertex attributes. kEffect means that the attribute is input to a
+ * GrProcessor. Each binding other than kEffect may not appear more than once in the current set of
+ * attributes. kPosition must be appear for exactly one attribute.
  */
 enum GrVertexAttribBinding {
     kPosition_GrVertexAttribBinding,    // required, must have vector count of 2
@@ -127,10 +127,10 @@ enum GrVertexAttribBinding {
 
     kLastFixedFunction_GrVertexAttribBinding = kCoverage_GrVertexAttribBinding,
 
-    kEffect_GrVertexAttribBinding,      // vector length must agree with
-                                        // GrEffect::vertexAttribType() for each effect input to
+    kGeometryProcessor_GrVertexAttribBinding,      // vector length must agree with
+                                        // GrProcessor::vertexAttribType() for each effect input to
                                         // which the attribute is mapped by GrDrawState::setEffect()
-    kLast_GrVertexAttribBinding = kEffect_GrVertexAttribBinding
+    kLast_GrVertexAttribBinding = kGeometryProcessor_GrVertexAttribBinding
 };
 
 static const int kGrVertexAttribBindingCnt = kLast_GrVertexAttribBinding + 1;
@@ -173,48 +173,48 @@ template <int N> class GrVertexAttribArray : public SkSTArray<N, GrVertexAttrib,
 /**
 * We have coverage effects that clip rendering to the edge of some geometric primitive.
 * This enum specifies how that clipping is performed. Not all factories that take a
-* GrEffectEdgeType will succeed with all values and it is up to the caller to check for
+* GrProcessorEdgeType will succeed with all values and it is up to the caller to check for
 * a NULL return.
 */
-enum GrEffectEdgeType {
-    kFillBW_GrEffectEdgeType,
-    kFillAA_GrEffectEdgeType,
-    kInverseFillBW_GrEffectEdgeType,
-    kInverseFillAA_GrEffectEdgeType,
-    kHairlineAA_GrEffectEdgeType,
+enum GrPrimitiveEdgeType {
+    kFillBW_GrProcessorEdgeType,
+    kFillAA_GrProcessorEdgeType,
+    kInverseFillBW_GrProcessorEdgeType,
+    kInverseFillAA_GrProcessorEdgeType,
+    kHairlineAA_GrProcessorEdgeType,
 
-    kLast_GrEffectEdgeType = kHairlineAA_GrEffectEdgeType
+    kLast_GrProcessorEdgeType = kHairlineAA_GrProcessorEdgeType
 };
 
-static const int kGrEffectEdgeTypeCnt = kLast_GrEffectEdgeType + 1;
+static const int kGrProcessorEdgeTypeCnt = kLast_GrProcessorEdgeType + 1;
 
-static inline bool GrEffectEdgeTypeIsFill(const GrEffectEdgeType edgeType) {
-    return (kFillAA_GrEffectEdgeType == edgeType || kFillBW_GrEffectEdgeType == edgeType);
+static inline bool GrProcessorEdgeTypeIsFill(const GrPrimitiveEdgeType edgeType) {
+    return (kFillAA_GrProcessorEdgeType == edgeType || kFillBW_GrProcessorEdgeType == edgeType);
 }
 
-static inline bool GrEffectEdgeTypeIsInverseFill(const GrEffectEdgeType edgeType) {
-    return (kInverseFillAA_GrEffectEdgeType == edgeType ||
-            kInverseFillBW_GrEffectEdgeType == edgeType);
+static inline bool GrProcessorEdgeTypeIsInverseFill(const GrPrimitiveEdgeType edgeType) {
+    return (kInverseFillAA_GrProcessorEdgeType == edgeType ||
+            kInverseFillBW_GrProcessorEdgeType == edgeType);
 }
 
-static inline bool GrEffectEdgeTypeIsAA(const GrEffectEdgeType edgeType) {
-    return (kFillBW_GrEffectEdgeType != edgeType && kInverseFillBW_GrEffectEdgeType != edgeType);
+static inline bool GrProcessorEdgeTypeIsAA(const GrPrimitiveEdgeType edgeType) {
+    return (kFillBW_GrProcessorEdgeType != edgeType && kInverseFillBW_GrProcessorEdgeType != edgeType);
 }
 
-static inline GrEffectEdgeType GrInvertEffectEdgeType(const GrEffectEdgeType edgeType) {
+static inline GrPrimitiveEdgeType GrInvertProcessorEdgeType(const GrPrimitiveEdgeType edgeType) {
     switch (edgeType) {
-        case kFillBW_GrEffectEdgeType:
-            return kInverseFillBW_GrEffectEdgeType;
-        case kFillAA_GrEffectEdgeType:
-            return kInverseFillAA_GrEffectEdgeType;
-        case kInverseFillBW_GrEffectEdgeType:
-            return kFillBW_GrEffectEdgeType;
-        case kInverseFillAA_GrEffectEdgeType:
-            return kFillAA_GrEffectEdgeType;
-        case kHairlineAA_GrEffectEdgeType:
+        case kFillBW_GrProcessorEdgeType:
+            return kInverseFillBW_GrProcessorEdgeType;
+        case kFillAA_GrProcessorEdgeType:
+            return kInverseFillAA_GrProcessorEdgeType;
+        case kInverseFillBW_GrProcessorEdgeType:
+            return kFillBW_GrProcessorEdgeType;
+        case kInverseFillAA_GrProcessorEdgeType:
+            return kFillAA_GrProcessorEdgeType;
+        case kHairlineAA_GrProcessorEdgeType:
             SkFAIL("Hairline fill isn't invertible.");
     }
-    return kFillAA_GrEffectEdgeType; // suppress warning.
+    return kFillAA_GrProcessorEdgeType; // suppress warning.
 }
 
 #endif

@@ -39,7 +39,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fInputCoverageIsUsed = true;
 
     if (drawState.hasGeometryProcessor()) {
-        fGeometryProcessor.reset(SkNEW_ARGS(GrEffectStage, (*drawState.getGeometryProcessor())));
+        fGeometryProcessor.reset(SkNEW_ARGS(GrGeometryStage, (*drawState.getGeometryProcessor())));
     } else {
         fGeometryProcessor.reset(NULL);
     }
@@ -184,12 +184,12 @@ void GrOptDrawState::copyEffectiveColorStages(const GrDrawState& ds) {
     }
 
     for (int i = 0; i < ds.numColorStages(); ++i) {
-        const GrEffect* effect = ds.getColorStage(i).getEffect();
-        if (!effect->willUseInputColor()) {
+        const GrFragmentProcessor* fp = ds.getColorStage(i).getFragmentProcessor();
+        if (!fp->willUseInputColor()) {
             firstColorStage = i;
             fInputColorIsUsed = false;
         }
-        effect->getConstantColorComponents(&color, &validComponentFlags);
+        fp->getConstantColorComponents(&color, &validComponentFlags);
         if (kRGBA_GrColorComponentFlags == validComponentFlags) {
             firstColorStage = i + 1;
             fColor = color;
@@ -216,8 +216,8 @@ void GrOptDrawState::copyEffectiveCoverageStages(const GrDrawState& ds) {
     // input coverage in an effect
 #ifdef OptCoverageStages
     for (int i = 0; i < ds.numCoverageStages(); ++i) {
-        const GrEffect* effect = ds.getCoverageStage(i).getEffect();
-        if (!effect->willUseInputColor()) {
+        const GrProcessor* processor = ds.getCoverageStage(i).getProcessor();
+        if (!processor->willUseInputColor()) {
             firstCoverageStage = i;
             fInputCoverageIsUsed = false;
         }
@@ -231,14 +231,15 @@ void GrOptDrawState::copyEffectiveCoverageStages(const GrDrawState& ds) {
     }
 }
 
-static void get_stage_stats(const GrEffectStage& stage, bool* readsDst, bool* readsFragPosition) {
-    if (stage.getEffect()->willReadDstColor()) {
+static void get_stage_stats(const GrFragmentStage& stage, bool* readsDst, bool* readsFragPosition) {
+    if (stage.getFragmentProcessor()->willReadDstColor()) {
         *readsDst = true;
     }
-    if (stage.getEffect()->willReadFragmentPosition()) {
+    if (stage.getFragmentProcessor()->willReadFragmentPosition()) {
         *readsFragPosition = true;
     }
 }
+
 void GrOptDrawState::getStageStats() {
     // We will need a local coord attrib if there is one currently set on the optState and we are
     // actually generating some effect code
@@ -252,16 +253,16 @@ void GrOptDrawState::getStageStats() {
     fReadsFragPosition = false;
 
     for (int s = 0; s < this->numColorStages(); ++s) {
-        const GrEffectStage& stage = this->getColorStage(s);
+        const GrFragmentStage& stage = this->getColorStage(s);
         get_stage_stats(stage, &fReadsDst, &fReadsFragPosition);
     }
     for (int s = 0; s < this->numCoverageStages(); ++s) {
-        const GrEffectStage& stage = this->getCoverageStage(s);
+        const GrFragmentStage& stage = this->getCoverageStage(s);
         get_stage_stats(stage, &fReadsDst, &fReadsFragPosition);
     }
     if (this->hasGeometryProcessor()) {
-        const GrEffectStage& stage = *this->getGeometryProcessor();
-        get_stage_stats(stage, &fReadsDst, &fReadsFragPosition);
+        const GrGeometryStage& stage = *this->getGeometryProcessor();
+        fReadsFragPosition = fReadsFragPosition || stage.getProcessor()->willReadFragmentPosition();
         SkASSERT(fRequiresVertexShader);
     }
 }

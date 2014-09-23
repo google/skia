@@ -38,7 +38,7 @@ namespace {
 // position + texture coord
 extern const GrVertexAttrib gTextVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,                kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(SkPoint) , kEffect_GrVertexAttribBinding}
+    {kVec2f_GrVertexAttribType, sizeof(SkPoint) , kGeometryProcessor_GrVertexAttribBinding}
 };
 
 static const size_t kTextVASize = 2 * sizeof(SkPoint); 
@@ -47,7 +47,7 @@ static const size_t kTextVASize = 2 * sizeof(SkPoint);
 extern const GrVertexAttrib gTextVertexWithColorAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,                                 kPosition_GrVertexAttribBinding},
     {kVec4ub_GrVertexAttribType, sizeof(SkPoint),                   kColor_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType,  sizeof(SkPoint) + sizeof(GrColor), kEffect_GrVertexAttribBinding}
+    {kVec2f_GrVertexAttribType,  sizeof(SkPoint) + sizeof(GrColor), kGeometryProcessor_GrVertexAttribBinding}
 };
     
 static const size_t kTextVAColorSize = 2 * sizeof(SkPoint) + sizeof(GrColor); 
@@ -141,25 +141,27 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
         flags != fEffectFlags) {
         if (fUseLCDText) {
             GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
-            fCachedEffect.reset(GrDistanceFieldLCDTextureEffect::Create(fCurrTexture,
-                                                                        params,
-                                                                        fGammaTexture,
-                                                                        gammaParams,
-                                                                        colorNoPreMul,
-                                                                        flags));
+            fCachedGeometryProcessor.reset(
+                    GrDistanceFieldLCDTextureEffect::Create(fCurrTexture,
+                                                            params,
+                                                            fGammaTexture,
+                                                            gammaParams,
+                                                            colorNoPreMul,
+                                                            flags));
         } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.getGamma(),
                                                                 filteredColor);
-            fCachedEffect.reset(GrDistanceFieldTextureEffect::Create(fCurrTexture,
-                                                                     params,
-                                                                     fGammaTexture,
-                                                                     gammaParams,
-                                                                     lum/255.f,
-                                                                     flags));
+            fCachedGeometryProcessor.reset(
+                    GrDistanceFieldTextureEffect::Create(fCurrTexture,
+                                                         params,
+                                                         fGammaTexture,
+                                                         gammaParams,
+                                                         lum/255.f,
+                                                         flags));
 #else
-            fCachedEffect.reset(GrDistanceFieldTextureEffect::Create(fCurrTexture,
-                                                                     params, flags));
+            fCachedGeometryProcessor.reset(GrDistanceFieldTextureEffect::Create(fCurrTexture,
+                                                                                params, flags));
 #endif
         }
         fEffectTextureUniqueID = textureUniqueID;
@@ -194,7 +196,7 @@ void GrDistanceFieldTextContext::flushGlyphs() {
         this->setupCoverageEffect(filteredColor);
        
         // Effects could be stored with one of the cache objects (atlas?)
-        drawState->setGeometryProcessor(fCachedEffect.get());
+        drawState->setGeometryProcessor(fCachedGeometryProcessor.get());
         
         // Set draw state
         if (fUseLCDText) {

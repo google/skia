@@ -8,12 +8,13 @@
 
 
 
-#ifndef GrEffectStage_DEFINED
-#define GrEffectStage_DEFINED
+#ifndef GrProcessorStage_DEFINED
+#define GrProcessorStage_DEFINED
 
-#include "GrBackendEffectFactory.h"
+#include "GrBackendProcessorFactory.h"
 #include "GrCoordTransform.h"
-#include "GrEffect.h"
+#include "GrProcessor.h"
+#include "GrGeometryProcessor.h"
 #include "GrProgramElementRef.h"
 #include "SkMatrix.h"
 #include "SkShader.h"
@@ -23,27 +24,27 @@
 // is immutable, and only owns pending execution refs. This requries removing the common base
 // class from GrDrawState and GrOptDrawState called GrRODrawState and converting to GrOptDrawState
 // when draws are enqueued in the GrInOrderDrawBuffer.
-class GrEffectStage {
+class GrProcessorStage {
 public:
-    explicit GrEffectStage(const GrEffect* effect)
-    : fEffect(SkRef(effect)) {
+    explicit GrProcessorStage(const GrProcessor* proc)
+    : fProc(SkRef(proc)) {
         fCoordChangeMatrixSet = false;
     }
 
-    GrEffectStage(const GrEffectStage& other) {
+    GrProcessorStage(const GrProcessorStage& other) {
         fCoordChangeMatrixSet = other.fCoordChangeMatrixSet;
         if (other.fCoordChangeMatrixSet) {
             fCoordChangeMatrix = other.fCoordChangeMatrix;
         }
-        fEffect.initAndRef(other.fEffect);
+        fProc.initAndRef(other.fProc);
     }
     
-    static bool AreCompatible(const GrEffectStage& a, const GrEffectStage& b,
+    static bool AreCompatible(const GrProcessorStage& a, const GrProcessorStage& b,
                               bool usingExplicitLocalCoords) {
-        SkASSERT(a.fEffect.get());
-        SkASSERT(b.fEffect.get());
+        SkASSERT(a.fProc.get());
+        SkASSERT(b.fProc.get());
 
-        if (!a.getEffect()->isEqual(*b.getEffect())) {
+        if (!a.getProcessor()->isEqual(*b.getProcessor())) {
             return false;
         }
 
@@ -87,7 +88,7 @@ public:
         SkMatrix fCoordChangeMatrix;
         SkDEBUGCODE(mutable uint32_t fEffectUniqueID;)
 
-        friend class GrEffectStage;
+        friend class GrProcessorStage;
     };
 
     /**
@@ -102,7 +103,7 @@ public:
             savedCoordChange->fCoordChangeMatrix = fCoordChangeMatrix;
         }
         SkASSERT(SK_InvalidUniqueID == savedCoordChange->fEffectUniqueID);
-        SkDEBUGCODE(savedCoordChange->fEffectUniqueID = fEffect->getUniqueID();)
+        SkDEBUGCODE(savedCoordChange->fEffectUniqueID = fProc->getUniqueID();)
     }
 
     /**
@@ -113,12 +114,12 @@ public:
         if (fCoordChangeMatrixSet) {
             fCoordChangeMatrix = savedCoordChange.fCoordChangeMatrix;
         }
-        SkASSERT(savedCoordChange.fEffectUniqueID == fEffect->getUniqueID());
+        SkASSERT(savedCoordChange.fEffectUniqueID == fProc->getUniqueID());
         SkDEBUGCODE(savedCoordChange.fEffectUniqueID = SK_InvalidUniqueID);
     }
 
     /**
-     * Gets the matrix representing all changes of coordinate system since the GrEffect was
+     * Gets the matrix representing all changes of coordinate system since the GrProcessor was
      * installed in the stage.
      */
     const SkMatrix& getCoordChangeMatrix() const {
@@ -130,7 +131,7 @@ public:
     }
 
     bool isPerspectiveCoordTransform(int matrixIndex, bool useExplicitLocalCoords) const {
-        const GrCoordTransform& coordTransform = this->getEffect()->coordTransform(matrixIndex);
+        const GrCoordTransform& coordTransform = this->getProcessor()->coordTransform(matrixIndex);
         SkMatrix::TypeMask type0 = coordTransform.getMatrix().getType();
         SkMatrix::TypeMask type1 = SkMatrix::kIdentity_Mask;
         if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
@@ -146,14 +147,32 @@ public:
         }
     }
 
-    const GrEffect* getEffect() const { return fEffect.get(); }
+    const GrProcessor* getProcessor() const { return fProc.get(); }
 
-    void convertToPendingExec() { fEffect.convertToPendingExec(); }
+    void convertToPendingExec() { fProc.convertToPendingExec(); }
 
 private:
-    bool                                fCoordChangeMatrixSet;
-    SkMatrix                            fCoordChangeMatrix;
-    GrProgramElementRef<const GrEffect> fEffect;
+    bool                                   fCoordChangeMatrixSet;
+    SkMatrix                               fCoordChangeMatrix;
+    GrProgramElementRef<const GrProcessor> fProc;
+};
+
+class GrFragmentStage : public GrProcessorStage {
+public:
+    GrFragmentStage(const GrFragmentProcessor* fp) : GrProcessorStage(fp) {}
+
+    const GrFragmentProcessor* getFragmentProcessor() const {
+        return static_cast<const GrFragmentProcessor*>(this->getProcessor());
+    }
+};
+
+class GrGeometryStage : public GrProcessorStage {
+public:
+    GrGeometryStage(const GrGeometryProcessor* gp) : GrProcessorStage(gp) {}
+
+    const GrGeometryProcessor* getGeometryProcessor() const {
+        return static_cast<const GrGeometryProcessor*>(this->getProcessor());
+    }
 };
 
 #endif

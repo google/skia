@@ -34,7 +34,7 @@ namespace {
 // position + texture coord
 extern const GrVertexAttrib gTextVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(SkPoint) , kEffect_GrVertexAttribBinding}
+    {kVec2f_GrVertexAttribType, sizeof(SkPoint), kGeometryProcessor_GrVertexAttribBinding}
 };
 
 static const size_t kTextVASize = 2 * sizeof(SkPoint); 
@@ -43,7 +43,7 @@ static const size_t kTextVASize = 2 * sizeof(SkPoint);
 extern const GrVertexAttrib gTextVertexWithColorAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,                                 kPosition_GrVertexAttribBinding},
     {kVec4ub_GrVertexAttribType, sizeof(SkPoint),                   kColor_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType,  sizeof(SkPoint) + sizeof(GrColor), kEffect_GrVertexAttribBinding}
+    {kVec2f_GrVertexAttribType,  sizeof(SkPoint) + sizeof(GrColor), kGeometryProcessor_GrVertexAttribBinding}
 };
 
 static const size_t kTextVAColorSize = 2 * sizeof(SkPoint) + sizeof(GrColor); 
@@ -98,12 +98,13 @@ void GrBitmapTextContext::flushGlyphs() {
         uint32_t textureUniqueID = fCurrTexture->getUniqueID();
         
         if (textureUniqueID != fEffectTextureUniqueID) {
-            fCachedEffect.reset(GrCustomCoordsTextureEffect::Create(fCurrTexture, params));
+            fCachedGeometryProcessor.reset(GrCustomCoordsTextureEffect::Create(fCurrTexture,
+                                                                               params));
             fEffectTextureUniqueID = textureUniqueID;
         }
 
         // This effect could be stored with one of the cache objects (atlas?)
-        drawState->setGeometryProcessor(fCachedEffect.get());
+        drawState->setGeometryProcessor(fCachedGeometryProcessor.get());
         SkASSERT(fStrike);
         switch (fStrike->getMaskFormat()) {
             // Color bitmap text

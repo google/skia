@@ -86,7 +86,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
                              bool constantColor, GrPaint* grPaint);
 
 // This function is similar to skPaint2GrPaintNoShader but also converts
-// skPaint's shader to a GrTexture/GrEffectStage if possible.
+// skPaint's shader to a GrTexture/GrProcessorStage if possible.
 // constantColor has the same meaning as in skPaint2GrPaintNoShader.
 void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
                            bool constantColor, GrPaint* grPaint);

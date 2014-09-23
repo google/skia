@@ -122,13 +122,13 @@ protected:
                 SkScalar x = kDrawPad + kTestPad;
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
-                    SkAutoTUnref<GrEffect> effect(
+                    SkAutoTUnref<GrFragmentProcessor> fp(
                         GrTextureDomainEffect::Create(texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
                                                                                 texelDomains[d]),
                                                 mode, GrTextureParams::kNone_FilterMode));
 
-                    if (!effect) {
+                    if (!fp) {
                         continue;
                     }
                     SkMatrix viewMatrix;
@@ -136,7 +136,7 @@ protected:
                     drawState->reset(viewMatrix);
                     drawState->setRenderTarget(rt);
                     drawState->setColor(0xffffffff);
-                    drawState->addColorEffect(effect);
+                    drawState->addColorProcessor(fp);
 
                     tt.target()->drawSimpleRect(renderRect);
                     x += renderRect.width() + kTestPad;

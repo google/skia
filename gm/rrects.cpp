@@ -86,7 +86,7 @@ protected:
 #endif
 
 #if SK_SUPPORT_GPU
-        int lastEdgeType = (kEffect_Type == fType) ? kLast_GrEffectEdgeType: 0;
+        int lastEdgeType = (kEffect_Type == fType) ? kLast_GrProcessorEdgeType: 0;
 #else
         int lastEdgeType = 0;
 #endif
@@ -116,10 +116,11 @@ protected:
 
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
-                        GrEffectEdgeType edgeType = (GrEffectEdgeType) et;
-                        SkAutoTUnref<GrEffect> effect(GrRRectEffect::Create(edgeType, rrect));
-                        if (effect) {
-                            drawState->addCoverageEffect(effect);
+                        GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
+                        SkAutoTUnref<GrFragmentProcessor> fp(GrRRectEffect::Create(edgeType,
+                                                                                   rrect));
+                        if (fp) {
+                            drawState->addCoverageProcessor(fp);
                             drawState->setIdentityViewMatrix();
                             drawState->setRenderTarget(rt);
                             drawState->setColor(0xff000000);

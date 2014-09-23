@@ -8,7 +8,7 @@
 #ifndef GrRODrawState_DEFINED
 #define GrRODrawState_DEFINED
 
-#include "GrEffectStage.h"
+#include "GrProcessorStage.h"
 #include "GrRenderTarget.h"
 #include "GrStencil.h"
 #include "SkMatrix.h"
@@ -110,8 +110,8 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Effect Stages
-    /// Each stage hosts a GrEffect. The effect produces an output color or coverage in the fragment
-    /// shader. Its inputs are the output from the previous stage as well as some variables
+    /// Each stage hosts a GrProcessor. The effect produces an output color or coverage in the
+    /// fragment shader. Its inputs are the output from the previous stage as well as some variables
     /// available to it in the fragment and vertex shader (e.g. the vertex position, the dst color,
     /// the fragment position, local coordinates).
     ///
@@ -136,9 +136,9 @@ public:
     }
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
-    const GrEffectStage* getGeometryProcessor() const { return fGeometryProcessor.get(); }
-    const GrEffectStage& getColorStage(int stageIdx) const { return fColorStages[stageIdx]; }
-    const GrEffectStage& getCoverageStage(int stageIdx) const { return fCoverageStages[stageIdx]; }
+    const GrGeometryStage* getGeometryProcessor() const { return fGeometryProcessor.get(); }
+    const GrFragmentStage& getColorStage(int stageIdx) const { return fColorStages[stageIdx]; }
+    const GrFragmentStage& getCoverageStage(int stageIdx) const { return fCoverageStages[stageIdx]; }
 
     /**
      * Checks whether any of the effects will read the dst pixel color.
@@ -413,10 +413,10 @@ protected:
     GrBlendCoeff                        fSrcBlend;
     GrBlendCoeff                        fDstBlend;
 
-    typedef SkSTArray<4, GrEffectStage> EffectStageArray;
-    SkAutoTDelete<GrEffectStage>        fGeometryProcessor;
-    EffectStageArray                    fColorStages;
-    EffectStageArray                    fCoverageStages;
+    typedef SkSTArray<4, GrFragmentStage>   FragmentStageArray;
+    SkAutoTDelete<GrGeometryStage>          fGeometryProcessor;
+    FragmentStageArray                      fColorStages;
+    FragmentStageArray                      fCoverageStages;
 
     uint32_t                            fHints;
 

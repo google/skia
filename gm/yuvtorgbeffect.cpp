@@ -107,18 +107,18 @@ protected:
           const int indices[6][3] = {{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
 
           for (int i = 0; i < 6; ++i) {
-              SkAutoTUnref<GrEffect> effect(
+              SkAutoTUnref<GrFragmentProcessor> fp(
                           GrYUVtoRGBEffect::Create(texture[indices[i][0]],
                                                    texture[indices[i][1]],
                                                    texture[indices[i][2]],
                                                    static_cast<SkYUVColorSpace>(space)));
-              if (effect) {
+              if (fp) {
                   SkMatrix viewMatrix;
                   viewMatrix.setTranslate(x, y);
                   drawState->reset(viewMatrix);
                   drawState->setRenderTarget(rt);
                   drawState->setColor(0xffffffff);
-                  drawState->addColorEffect(effect);
+                  drawState->addColorProcessor(fp);
                   tt.target()->drawSimpleRect(renderRect);
               }
               x += renderRect.width() + kTestPad;

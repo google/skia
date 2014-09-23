@@ -108,7 +108,7 @@ private:
 /** A class representing the swizzle access pattern for a texture. Note that if the texture is
  *  an alpha-only texture then the alpha channel is substituted for other components. Any mangling
  *  to handle the r,g,b->a conversions for alpha textures is automatically included in the stage
- *  key. However, if a GrEffect uses different swizzles based on its input then it must
+ *  key. However, if a GrProcessor uses different swizzles based on its input then it must
  *  consider that variation in its key-generation.
  */
 class GrTextureAccess : public SkNoncopyable {
@@ -116,8 +116,8 @@ public:
     SK_DECLARE_INST_COUNT_ROOT(GrTextureAccess);
 
     /**
-     * A default GrTextureAccess must have reset() called on it in a GrEffect subclass's
-     * constructor if it will be accessible via GrEffect::textureAccess().
+     * A default GrTextureAccess must have reset() called on it in a GrProcessor subclass's
+     * constructor if it will be accessible via GrProcessor::textureAccess().
      */
     GrTextureAccess();
 
@@ -165,7 +165,7 @@ public:
     GrTexture* getTexture() const { return fTexture.get(); }
 
     /**
-     * For internal use by GrEffect.
+     * For internal use by GrProcessor.
      */
     const GrGpuResourceRef* getProgramTexture() const { return &fTexture; }
 

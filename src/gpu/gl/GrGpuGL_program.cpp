@@ -7,8 +7,8 @@
 
 #include "GrGpuGL.h"
 
-#include "GrEffect.h"
-#include "GrGLEffect.h"
+#include "GrProcessor.h"
+#include "GrGLProcessor.h"
 #include "GrGLPathRendering.h"
 #include "GrOptDrawState.h"
 #include "SkRTConf.h"
@@ -91,9 +91,9 @@ int GrGpuGL::ProgramCache::search(const GrGLProgramDesc& desc) const {
 }
 
 GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
-                                               const GrEffectStage* geometryProcessor,
-                                               const GrEffectStage* colorStages[],
-                                               const GrEffectStage* coverageStages[]) {
+                                               const GrGeometryStage* geometryProcessor,
+                                               const GrFragmentStage* colorStages[],
+                                               const GrFragmentStage* coverageStages[]) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif
@@ -227,9 +227,9 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
             return false;
         }
 
-        const GrEffectStage* geometryProcessor = NULL;
-        SkSTArray<8, const GrEffectStage*, true> colorStages;
-        SkSTArray<8, const GrEffectStage*, true> coverageStages;
+        const GrGeometryStage* geometryProcessor = NULL;
+        SkSTArray<8, const GrFragmentStage*, true> colorStages;
+        SkSTArray<8, const GrFragmentStage*, true> coverageStages;
         GrGLProgramDesc desc;
         if (!GrGLProgramDesc::Build(*optState.get(),
                                type,

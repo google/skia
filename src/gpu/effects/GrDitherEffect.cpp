@@ -8,9 +8,9 @@
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrDitherEffect.h"
 
-#include "gl/GrGLEffect.h"
+#include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
-#include "GrTBackendEffectFactory.h"
+#include "GrTBackendProcessorFactory.h"
 
 #include "SkRect.h"
 
@@ -18,22 +18,22 @@
 
 class GLDitherEffect;
 
-class DitherEffect : public GrEffect {
+class DitherEffect : public GrFragmentProcessor {
 public:
-    static GrEffect* Create() {
-        GR_CREATE_STATIC_EFFECT(gDitherEffect, DitherEffect, ())
+    static GrFragmentProcessor* Create() {
+        GR_CREATE_STATIC_FRAGMENT_PROCESSOR(gDitherEffect, DitherEffect, ())
         return SkRef(gDitherEffect);
     }
 
     virtual ~DitherEffect() {};
     static const char* Name() { return "Dither"; }
 
-    typedef GLDitherEffect GLEffect;
+    typedef GLDitherEffect GLProcessor;
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendEffectFactory<DitherEffect>::getInstance();
+    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendFragmentProcessorFactory<DitherEffect>::getInstance();
     }
 
 private:
@@ -42,11 +42,11 @@ private:
     }
 
     // All dither effects are equal
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE { return true; }
+    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
 
-    GR_DECLARE_EFFECT_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    typedef GrEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
 void DitherEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
@@ -55,41 +55,41 @@ void DitherEffect::getConstantColorComponents(GrColor* color, uint32_t* validFla
 
 //////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_EFFECT_TEST(DitherEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(DitherEffect);
 
-GrEffect* DitherEffect::TestCreate(SkRandom*,
-                                   GrContext*,
-                                   const GrDrawTargetCaps&,
-                                   GrTexture*[]) {
+GrFragmentProcessor* DitherEffect::TestCreate(SkRandom*,
+                                              GrContext*,
+                                              const GrDrawTargetCaps&,
+                                              GrTexture*[]) {
     return DitherEffect::Create();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDitherEffect : public GrGLEffect {
+class GLDitherEffect : public GrGLFragmentProcessor {
 public:
-    GLDitherEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GLDitherEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
     virtual void emitCode(GrGLProgramBuilder* builder,
-                          const GrEffect& effect,
-                          const GrEffectKey& key,
+                          const GrFragmentProcessor& fp,
+                          const GrProcessorKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
 private:
-    typedef GrGLEffect INHERITED;
+    typedef GrGLFragmentProcessor INHERITED;
 };
 
-GLDitherEffect::GLDitherEffect(const GrBackendEffectFactory& factory,
-                               const GrEffect& effect)
+GLDitherEffect::GLDitherEffect(const GrBackendProcessorFactory& factory,
+                               const GrProcessor&)
     : INHERITED (factory) {
 }
 
 void GLDitherEffect::emitCode(GrGLProgramBuilder* builder,
-                              const GrEffect& effect,
-                              const GrEffectKey& key,
+                              const GrFragmentProcessor& fp,
+                              const GrProcessorKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -113,4 +113,4 @@ void GLDitherEffect::emitCode(GrGLProgramBuilder* builder,
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffect* GrDitherEffect::Create() { return DitherEffect::Create(); }
+GrFragmentProcessor* GrDitherEffect::Create() { return DitherEffect::Create(); }

@@ -8,7 +8,7 @@
 #ifndef GrGLProgramDesc_DEFINED
 #define GrGLProgramDesc_DEFINED
 
-#include "GrGLEffect.h"
+#include "GrGLProcessor.h"
 #include "GrDrawState.h"
 #include "GrGpu.h"
 #include "GrOptDrawState.h"
@@ -46,11 +46,11 @@ public:
 
     // For unit testing.
     bool setRandom(SkRandom*,
-                   GrGpuGL* gpu,
+                   GrGpuGL*,
                    const GrRenderTarget* dummyDstRenderTarget,
                    const GrTexture* dummyDstCopyTexture,
-                   const GrEffectStage* geometryProcessor,
-                   const GrEffectStage* stages[],
+                   const GrGeometryStage* geometryProcessor,
+                   const GrFragmentStage* stages[],
                    int numColorStages,
                    int numCoverageStages,
                    int currAttribIndex,
@@ -63,15 +63,15 @@ public:
      * color stages in the output.
      */
     static bool Build(const GrOptDrawState&,
-                      GrGpu::DrawType drawType,
+                      GrGpu::DrawType,
                       GrBlendCoeff srcCoeff,
                       GrBlendCoeff dstCoeff,
-                      GrGpuGL* gpu,
+                      GrGpuGL*,
                       const GrDeviceCoordTexture* dstCopy,
-                      const GrEffectStage** outGeometryProcessor,
-                      SkTArray<const GrEffectStage*, true>* outColorStages,
-                      SkTArray<const GrEffectStage*, true>* outCoverageStages,
-                      GrGLProgramDesc* outDesc);
+                      const GrGeometryStage** geometryProcessor,
+                      SkTArray<const GrFragmentStage*, true>* colorStages,
+                      SkTArray<const GrFragmentStage*, true>* coverageStages,
+                      GrGLProgramDesc*);
 
     bool hasGeometryProcessor() const {
         return SkToBool(this->getHeader().fHasGeometryProcessor);
@@ -177,10 +177,17 @@ private:
     KeyHeader* header() { return this->atOffset<KeyHeader, kHeaderOffset>(); }
 
     // Shared code between setRandom() and Build().
-    static bool GetEffectKey(const GrEffectStage& stage, const GrGLCaps& caps,
-                             bool useExplicitLocalCoords, GrEffectKeyBuilder* b,
-                             uint16_t* effectKeySize);
+    static bool GetProcessorKey(const GrProcessorStage& stage,
+                                const GrGLCaps& caps,
+                                bool useExplicitLocalCoords,
+                                GrProcessorKeyBuilder* b,
+                                uint16_t* effectKeySize);
 
+    static bool GetGeometryProcessorKey(const GrGeometryStage& stage,
+                                        const GrGLCaps& caps,
+                                        bool useExplicitLocalCoords,
+                                        GrProcessorKeyBuilder* b,
+                                        uint16_t* effectKeySize);
     void finalize();
 
     const KeyHeader& getHeader() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
@@ -209,7 +216,7 @@ private:
             }
         }
 
-        GrEffectKey get(int index) const {
+        GrProcessorKey get(int index) const {
             const uint16_t* offsetsAndLengths = reinterpret_cast<const uint16_t*>(
                 fDesc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset);
             // We store two uint16_ts per effect, one for the offset to the effect's key and one for
@@ -218,7 +225,7 @@ private:
             uint16_t length = offsetsAndLengths[2 * (fBaseIndex + index) + 1];
             // Currently effects must add to the key in units of uint32_t.
             SkASSERT(0 == (length % sizeof(uint32_t)));
-            return GrEffectKey(reinterpret_cast<const uint32_t*>(fDesc->fKey.begin() + offset),
+            return GrProcessorKey(reinterpret_cast<const uint32_t*>(fDesc->fKey.begin() + offset),
                                length / sizeof(uint32_t));
         }
     private:
@@ -237,7 +244,7 @@ private:
 
     // GrGLProgram and GrGLShaderBuilder read the private fields to generate code. TODO: Split out
     // part of GrGLShaderBuilder that is used by effects so that this header doesn't need to be
-    // visible to GrGLEffects. Then make public accessors as necessary and remove friends.
+    // visible to GrGLProcessors. Then make public accessors as necessary and remove friends.
     friend class GrGLProgram;
     friend class GrGLProgramBuilder;
     friend class GrGLFullProgramBuilder;

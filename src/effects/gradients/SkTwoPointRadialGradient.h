@@ -14,15 +14,15 @@
 class SkTwoPointRadialGradient : public SkGradientShaderBase {
 public:
     SkTwoPointRadialGradient(const SkPoint& start, SkScalar startRadius,
-                              const SkPoint& end, SkScalar endRadius,
-                              const Descriptor&);
+                             const SkPoint& end, SkScalar endRadius,
+                             const Descriptor&);
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
                                  TileMode* xy) const SK_OVERRIDE;
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
-    virtual bool asNewEffect(GrContext* context, const SkPaint&, const SkMatrix*, GrColor*,
-                             GrEffect**)  const SK_OVERRIDE;
+    virtual bool asFragmentProcessor(GrContext* context, const SkPaint&, const SkMatrix*, GrColor*,
+                                     GrFragmentProcessor**)  const SK_OVERRIDE;
 
     virtual size_t contextSize() const SK_OVERRIDE;
 

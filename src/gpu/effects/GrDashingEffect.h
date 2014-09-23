@@ -14,6 +14,7 @@
 
 class GrGpu;
 class GrDrawTarget;
+class GrGeometryProcessor;
 class GrPaint;
 class GrStrokeInfo;
 
@@ -35,8 +36,10 @@ namespace GrDashingEffect {
      * Bounding geometry is rendered and the effect computes coverage based on the fragment's
      * position relative to the dashed line.
      */
-    GrEffect* Create(GrEffectEdgeType edgeType, const SkPathEffect::DashInfo& info,
-                     SkScalar strokeWidth, DashCap cap);
+    GrGeometryProcessor* Create(GrPrimitiveEdgeType edgeType,
+                                const SkPathEffect::DashInfo& info,
+                                SkScalar strokeWidth,
+                                DashCap cap);
 }
 
 #endif

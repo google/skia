@@ -945,11 +945,11 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #if SK_SUPPORT_GPU
 
 #include "effects/GrTextureStripAtlas.h"
-#include "GrTBackendEffectFactory.h"
+#include "GrTBackendProcessorFactory.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
-GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
+GrGLGradientEffect::GrGLGradientEffect(const GrBackendProcessorFactory& factory)
     : INHERITED(factory)
     , fCachedYCoord(SK_ScalarMax) {
 }
@@ -1001,9 +1001,9 @@ static inline void set_mul_color_uni(const GrGLProgramDataManager& pdman,
 }
 
 void GrGLGradientEffect::setData(const GrGLProgramDataManager& pdman,
-                                 const GrEffect& effect) {
+                                 const GrProcessor& processor) {
 
-    const GrGradientEffect& e = effect.cast<GrGradientEffect>();
+    const GrGradientEffect& e = processor.cast<GrGradientEffect>();
 
 
     if (SkGradientShaderBase::kTwo_GpuColorType == e.getColorType()){
@@ -1038,8 +1038,8 @@ void GrGLGradientEffect::setData(const GrGLProgramDataManager& pdman,
 }
 
 
-uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrEffect& effect) {
-    const GrGradientEffect& e = effect.cast<GrGradientEffect>();
+uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrProcessor& processor) {
+    const GrGradientEffect& e = processor.cast<GrGradientEffect>();
 
     uint32_t key = 0;
 
@@ -1185,8 +1185,8 @@ GrGradientEffect::~GrGradientEffect() {
     }
 }
 
-bool GrGradientEffect::onIsEqual(const GrEffect& effect) const {
-    const GrGradientEffect& s = effect.cast<GrGradientEffect>();
+bool GrGradientEffect::onIsEqual(const GrProcessor& processor) const {
+    const GrGradientEffect& s = processor.cast<GrGradientEffect>();
 
     if (this->fColorType == s.getColorType()){
 

@@ -17,7 +17,7 @@ class SkBitmap;
 class SkColorFilter;
 class SkBaseDevice;
 struct SkIPoint;
-class GrEffect;
+class GrFragmentProcessor;
 class GrTexture;
 
 /**
@@ -114,8 +114,8 @@ public:
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most
      *  often used for multi-pass effects, where intermediate results must be
-     *  rendered to textures.  For single-pass effects, use asNewEffect().
-     *  The default implementation returns asNewEffect(NULL, NULL, SkMatrix::I(),
+     *  rendered to textures.  For single-pass effects, use asFragmentProcessor().
+     *  The default implementation returns asFragmentProcessor(NULL, NULL, SkMatrix::I(),
      *  SkIRect()).
      */
     virtual bool canFilterImageGPU() const;
@@ -123,12 +123,12 @@ public:
     /**
      *  Process this image filter on the GPU.  This is most often used for
      *  multi-pass effects, where intermediate results must be rendered to
-     *  textures.  For single-pass effects, use asNewEffect().  src is the
+     *  textures.  For single-pass effects, use asFragmentProcessor().  src is the
      *  source image for processing, as a texture-backed bitmap.  result is
      *  the destination bitmap, which should contain a texture-backed pixelref
      *  on success.  offset is the amount to translate the resulting image
      *  relative to the src when it is drawn. The default implementation does
-     *  single-pass processing using asNewEffect().
+     *  single-pass processing using asFragmentProcessor().
      */
     virtual bool filterImageGPU(Proxy*, const SkBitmap& src, const Context&,
                                 SkBitmap* result, SkIPoint* offset) const;
@@ -290,10 +290,10 @@ protected:
 
     /**
      *  Returns true if the filter can be expressed a single-pass
-     *  GrEffect, used to process this filter on the GPU, or false if
+     *  GrProcessor, used to process this filter on the GPU, or false if
      *  not.
      *
-     *  If effect is non-NULL, a new GrEffect instance is stored
+     *  If effect is non-NULL, a new GrProcessor instance is stored
      *  in it.  The caller assumes ownership of the stage, and it is up to the
      *  caller to unref it.
      *
@@ -303,10 +303,8 @@ protected:
      *  will be called with (NULL, NULL, SkMatrix::I()) to query for support,
      *  so returning "true" indicates support for all possible matrices.
      */
-    virtual bool asNewEffect(GrEffect** effect,
-                             GrTexture*,
-                             const SkMatrix& matrix,
-                             const SkIRect& bounds) const;
+    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
+                                     const SkIRect& bounds) const;
 
 private:
     bool usesSrcInput() const { return fUsesSrcInput; }

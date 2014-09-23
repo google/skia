@@ -361,7 +361,7 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     maskMatrix.preTranslate(SkIntToScalar(-rect.fLeft), SkIntToScalar(-rect.fTop));
     maskMatrix.preConcat(drawState->getViewMatrix());
 
-    drawState->addCoverageEffect(
+    drawState->addCoverageProcessor(
                          GrSimpleTextureEffect::Create(texture,
                                                        maskMatrix,
                                                        GrTextureParams::kNone_FilterMode,

@@ -108,7 +108,7 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fCoverage = that.fCoverage;
     fDrawFace = that.fDrawFace;
     if (that.hasGeometryProcessor()) {
-        fGeometryProcessor.reset(SkNEW_ARGS(GrEffectStage, (*that.fGeometryProcessor.get())));
+        fGeometryProcessor.reset(SkNEW_ARGS(GrGeometryStage, (*that.fGeometryProcessor.get())));
     } else {
         fGeometryProcessor.reset(NULL);
     }
@@ -329,7 +329,7 @@ void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
         if (SK_InvalidUniqueID == fOriginalGPID) {
             fDrawState->fGeometryProcessor.reset(NULL);
         } else {
-            SkASSERT(fDrawState->getGeometryProcessor()->getEffect()->getUniqueID() ==
+            SkASSERT(fDrawState->getGeometryProcessor()->getProcessor()->getUniqueID() ==
                      fOriginalGPID);
             fOriginalGPID = SK_InvalidUniqueID;
         }
@@ -350,7 +350,7 @@ void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
     if (NULL != ds) {
         SkASSERT(SK_InvalidUniqueID == fOriginalGPID);
         if (NULL != ds->getGeometryProcessor()) {
-            fOriginalGPID = ds->getGeometryProcessor()->getEffect()->getUniqueID();
+            fOriginalGPID = ds->getGeometryProcessor()->getProcessor()->getUniqueID();
         }
         fColorEffectCnt = ds->numColorStages();
         fCoverageEffectCnt = ds->numCoverageStages();

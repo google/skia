@@ -30,9 +30,9 @@ static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GrGLProgramBuilder::genProgram(const GrEffectStage* geometryProcessor,
-                                    const GrEffectStage* colorStages[],
-                                    const GrEffectStage* coverageStages[]) {
+bool GrGLProgramBuilder::genProgram(const GrGeometryStage* geometryProcessor,
+                                    const GrFragmentStage* colorStages[],
+                                    const GrFragmentStage* coverageStages[]) {
     const GrGLProgramDesc::KeyHeader& header = this->desc().getHeader();
 
     fFS.emitCodeBeforeEffects();
@@ -84,11 +84,13 @@ bool GrGLProgramBuilder::genProgram(const GrEffectStage* geometryProcessor,
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu,
                                        const GrGLProgramDesc& desc)
-    : fFragOnly(SkToBool(desc.getHeader().fUseFragShaderOnly))
+    : fEffectEmitter(NULL)
+    , fFragOnly(SkToBool(desc.getHeader().fUseFragShaderOnly))
     , fTexCoordSetCnt(0)
     , fProgramID(0)
     , fFS(this, desc)
     , fSeparableVaryingInfos(kVarsPerBlock)
+    , fGrProcessorEmitter(this)
     , fDesc(desc)
     , fGpu(gpu)
     , fUniforms(kVarsPerBlock) {
@@ -157,7 +159,7 @@ void GrGLProgramBuilder::appendUniformDecls(ShaderVisibility visibility,
     }
 }
 
-void GrGLProgramBuilder::createAndEmitEffects(const GrEffectStage* effectStages[],
+void GrGLProgramBuilder::createAndEmitEffects(const GrFragmentStage* effectStages[],
                                               int effectCnt,
                                               const GrGLProgramDesc::EffectKeyProvider& keyProvider,
                                               GrGLSLExpr4* fsInOutColor) {
@@ -167,6 +169,8 @@ void GrGLProgramBuilder::createAndEmitEffects(const GrEffectStage* effectStages[
     GrGLSLExpr4 outColor;
 
     for (int e = 0; e < effectCnt; ++e) {
+        fGrProcessorEmitter.set(effectStages[e]->getFragmentProcessor());
+        fEffectEmitter = &fGrProcessorEmitter;
         // calls into the subclass to emit the actual effect into the program effect object
         this->emitEffect(*effectStages[e], e, keyProvider, &inColor, &outColor);
         effectEmitted = true;
@@ -177,12 +181,12 @@ void GrGLProgramBuilder::createAndEmitEffects(const GrEffectStage* effectStages[
     }
 }
 
-void GrGLProgramBuilder::emitEffect(const GrEffectStage& effectStage,
+void GrGLProgramBuilder::emitEffect(const GrProcessorStage& effectStage,
                                     int effectIndex,
                                     const GrGLProgramDesc::EffectKeyProvider& keyProvider,
                                     GrGLSLExpr4* inColor,
                                     GrGLSLExpr4* outColor) {
-    SkASSERT(effectStage.getEffect());
+    SkASSERT(effectStage.getProcessor());
     CodeStage::AutoStageRestore csar(&fCodeStage, &effectStage);
 
     if (inColor->isZeros()) {
@@ -206,8 +210,8 @@ void GrGLProgramBuilder::emitEffect(const GrEffectStage& effectStage,
     *inColor = *outColor;
 }
 
-void GrGLProgramBuilder::emitSamplers(const GrEffect& effect,
-                                      GrGLEffect::TextureSamplerArray* outSamplers) {
+void GrGLProgramBuilder::emitSamplers(const GrProcessor& effect,
+                                      GrGLProcessor::TextureSamplerArray* outSamplers) {
     SkTArray<GrGLProgramEffects::Sampler, true>& samplers =
             this->getProgramEffects()->addSamplers();
     int numTextures = effect.numTextures();
@@ -218,7 +222,7 @@ void GrGLProgramBuilder::emitSamplers(const GrEffect& effect,
         samplers[t].fUniform = this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                 kSampler2D_GrSLType,
                                                 name.c_str());
-        SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLEffect::TextureSampler,
+        SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLProcessor::TextureSampler,
                                (samplers[t].fUniform, effect.textureAccess(t)));
     }
 }

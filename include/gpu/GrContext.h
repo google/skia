@@ -22,8 +22,8 @@ class GrAARectRenderer;
 class GrAutoScratchTexture;
 class GrDrawState;
 class GrDrawTarget;
-class GrEffect;
 class GrFontCache;
+class GrFragmentProcessor;
 class GrGpu;
 class GrGpuTraceMarker;
 class GrIndexBuffer;
@@ -759,7 +759,7 @@ public:
      * Save/restore the view-matrix in the context. It can optionally adjust a paint to account
      * for a coordinate system change. Here is an example of how the paint param can be used:
      *
-     * A GrPaint is setup with GrEffects. The stages will have access to the pre-matrix source
+     * A GrPaint is setup with GrProcessors. The stages will have access to the pre-matrix source
      * geometry positions when the draw is executed. Later on a decision is made to transform the
      * geometry to device space on the CPU. The effects now need to know that the space in which
      * the geometry will be specified has changed.
@@ -1066,12 +1066,8 @@ private:
      * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
      * return NULL.
      */
-    const GrEffect* createPMToUPMEffect(GrTexture* texture,
-                                        bool swapRAndB,
-                                        const SkMatrix& matrix);
-    const GrEffect* createUPMToPMEffect(GrTexture* texture,
-                                        bool swapRAndB,
-                                        const SkMatrix& matrix);
+    const GrFragmentProcessor* createPMToUPMEffect(GrTexture*, bool swapRAndB, const SkMatrix&);
+    const GrFragmentProcessor* createUPMToPMEffect(GrTexture*, bool swapRAndB, const SkMatrix&);
 
     /**
      *  This callback allows the resource cache to callback into the GrContext

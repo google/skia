@@ -298,7 +298,7 @@ SkMaskFilter::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
 }
 
 #if SK_SUPPORT_GPU
-bool SkMaskFilter::asNewEffect(GrEffect** effect, GrTexture*, const SkMatrix&) const {
+bool SkMaskFilter::asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&) const {
     return false;
 }
 

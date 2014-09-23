@@ -13,7 +13,7 @@
 #include "SkFlattenable.h"
 #include "SkColor.h"
 
-class GrEffect;
+class GrFragmentProcessor;
 class GrTexture;
 class SkString;
 
@@ -198,18 +198,16 @@ public:
         fragment shader. If NULL, the effect should request access to destination color
         (setWillReadDstColor()), and use that in the fragment shader (builder->dstColor()).
      */
-    virtual bool asNewEffect(GrEffect** effect, GrTexture* background = NULL) const;
+    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture* background = NULL) const;
 
     /** Returns true if the xfermode can be expressed as coeffs (src, dst), or as an effect
-        (effect). This helper calls the asCoeff() and asNewEffect() virtuals. If the xfermode is
-        NULL, it is treated as kSrcOver_Mode. It is legal to call this with all params NULL to
-        simply test the return value.  effect, src, and dst must all be NULL or all non-NULL.
+        (effect). This helper calls the asCoeff() and asFragmentProcessor() virtuals. If the
+        xfermode is NULL, it is treated as kSrcOver_Mode. It is legal to call this with all params
+        NULL to simply test the return value.  effect, src, and dst must all be NULL or all
+        non-NULL.
      */
-    static bool AsNewEffectOrCoeff(SkXfermode*,
-                                   GrEffect** effect,
-                                   Coeff* src,
-                                   Coeff* dst,
-                                   GrTexture* background = NULL);
+    static bool asFragmentProcessorOrCoeff(SkXfermode*, GrFragmentProcessor**, Coeff* src,
+                                           Coeff* dst, GrTexture* background = NULL);
 
     SK_TO_STRING_PUREVIRT()
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

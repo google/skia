@@ -18,7 +18,7 @@ public:
     /*
      * this call is only for GrGLProgramEffects' internal use
      */
-    void emitAttributes(const GrEffectStage& stage);
+    void emitAttributes(const GrGeometryProcessor& gp);
 
     /**
      * Are explicit local coordinates provided as input to the vertex shader.

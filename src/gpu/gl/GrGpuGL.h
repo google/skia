@@ -179,9 +179,9 @@ private:
 
         void abandon();
         GrGLProgram* getProgram(const GrGLProgramDesc& desc,
-                                const GrEffectStage* geometryProcessor,
-                                const GrEffectStage* colorStages[],
-                                const GrEffectStage* coverageStages[]);
+                                const GrGeometryStage* geometryProcessor,
+                                const GrFragmentStage* colorStages[],
+                                const GrFragmentStage* coverageStages[]);
 
     private:
         enum {

@@ -80,9 +80,13 @@ GrGLFragmentShaderBuilder::GrGLFragmentShaderBuilder(GrGLProgramBuilder* program
 
 const char* GrGLFragmentShaderBuilder::dstColor() {
     if (fProgramBuilder->fCodeStage.inStageCode()) {
-        const GrEffect* effect = fProgramBuilder->fCodeStage.effectStage()->getEffect();
-        if (!effect->willReadDstColor()) {
-            SkDEBUGFAIL("GrGLEffect asked for dst color but its generating GrEffect "
+        const GrProcessor* effect = fProgramBuilder->fCodeStage.effectStage()->getProcessor();
+        // TODO GPs can't read dst color, and full program builder only returns a pointer to the
+        // base fragment shader builder which does not have this function.  Unfortunately,
+        // the code stage class only has a GrProcessor pointer so this is required for the time
+        // being
+        if (!static_cast<const GrFragmentProcessor*>(effect)->willReadDstColor()) {
+            SkDEBUGFAIL("GrGLProcessor asked for dst color but its generating GrProcessor "
                         "did not request access.");
             return "";
         }
@@ -119,7 +123,8 @@ bool GrGLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     }
 }
 
-SkString GrGLFragmentShaderBuilder::ensureFSCoords2D(const TransformedCoordsArray& coords, int index) {
+SkString GrGLFragmentShaderBuilder::ensureFSCoords2D(
+        const GrGLProcessor::TransformedCoordsArray& coords, int index) {
     if (kVec3f_GrSLType != coords[index].getType()) {
         SkASSERT(kVec2f_GrSLType == coords[index].getType());
         return coords[index].getName();
@@ -137,9 +142,9 @@ SkString GrGLFragmentShaderBuilder::ensureFSCoords2D(const TransformedCoordsArra
 const char* GrGLFragmentShaderBuilder::fragmentPosition() {
     GrGLProgramBuilder::CodeStage* cs = &fProgramBuilder->fCodeStage;
     if (cs->inStageCode()) {
-        const GrEffect* effect = cs->effectStage()->getEffect();
+        const GrProcessor* effect = cs->effectStage()->getProcessor();
         if (!effect->willReadFragmentPosition()) {
-            SkDEBUGFAIL("GrGLEffect asked for frag position but its generating GrEffect "
+            SkDEBUGFAIL("GrGLProcessor asked for frag position but its generating GrProcessor "
                         "did not request access.");
             return "";
         }

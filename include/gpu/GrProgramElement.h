@@ -14,8 +14,8 @@
 class GrGpuResourceRef;
 
 /**
- * Base class for GrEffect (and future GrGeometryProcessor). GrDrawState uses this to manage
- * transitioning a GrEffect from being owned by a client to being scheduled for execution. It
+ * Base class for GrProcessor. GrDrawState uses this to manage
+ * transitioning a GrProcessor from being owned by a client to being scheduled for execution. It
  * converts resources owned by the effect from being ref'ed to having pending reads/writes.
  *
  * All GrGpuResource objects owned by a GrProgramElement or derived classes (either directly or

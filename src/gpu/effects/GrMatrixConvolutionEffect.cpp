@@ -6,26 +6,26 @@
  */
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrMatrixConvolutionEffect.h"
-#include "gl/GrGLEffect.h"
+#include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "GrTBackendEffectFactory.h"
+#include "GrTBackendProcessorFactory.h"
 
-class GrGLMatrixConvolutionEffect : public GrGLEffect {
+class GrGLMatrixConvolutionEffect : public GrGLFragmentProcessor {
 public:
-    GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
-                                const GrEffect& effect);
+    GrGLMatrixConvolutionEffect(const GrBackendProcessorFactory& factory,
+                                const GrProcessor&);
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrEffect&,
-                          const GrEffectKey&,
+                          const GrFragmentProcessor&,
+                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
 private:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -40,26 +40,26 @@ private:
     UniformHandle               fBiasUni;
     GrTextureDomain::GLDomain   fDomain;
 
-    typedef GrGLEffect INHERITED;
+    typedef GrGLFragmentProcessor INHERITED;
 };
 
-GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
-                                                         const GrEffect& effect)
+GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendProcessorFactory& factory,
+                                                         const GrProcessor& processor)
     : INHERITED(factory) {
-    const GrMatrixConvolutionEffect& m = effect.cast<GrMatrixConvolutionEffect>();
+    const GrMatrixConvolutionEffect& m = processor.cast<GrMatrixConvolutionEffect>();
     fKernelSize = m.kernelSize();
     fConvolveAlpha = m.convolveAlpha();
 }
 
 void GrGLMatrixConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
-                                           const GrEffect& effect,
-                                           const GrEffectKey& key,
+                                           const GrFragmentProcessor& fp,
+                                           const GrProcessorKey& key,
                                            const char* outputColor,
                                            const char* inputColor,
                                            const TransformedCoordsArray& coords,
                                            const TextureSamplerArray& samplers) {
     sk_ignore_unused_variable(inputColor);
-    const GrTextureDomain& domain = effect.cast<GrMatrixConvolutionEffect>().domain();
+    const GrTextureDomain& domain = fp.cast<GrMatrixConvolutionEffect>().domain();
 
     fBoundsUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                      kVec4f_GrSLType, "Bounds");
@@ -120,9 +120,9 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
     fsBuilder->codeAppend(modulate.c_str());
 }
 
-void GrGLMatrixConvolutionEffect::GenKey(const GrEffect& effect,
-                                         const GrGLCaps&, GrEffectKeyBuilder* b) {
-    const GrMatrixConvolutionEffect& m = effect.cast<GrMatrixConvolutionEffect>();
+void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
+                                         const GrGLCaps&, GrProcessorKeyBuilder* b) {
+    const GrMatrixConvolutionEffect& m = processor.cast<GrMatrixConvolutionEffect>();
     SkASSERT(m.kernelSize().width() <= 0x7FFF && m.kernelSize().height() <= 0xFFFF);
     uint32_t key = m.kernelSize().width() << 16 | m.kernelSize().height();
     key |= m.convolveAlpha() ? 1 << 31 : 0;
@@ -131,8 +131,8 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrEffect& effect,
 }
 
 void GrGLMatrixConvolutionEffect::setData(const GrGLProgramDataManager& pdman,
-                                          const GrEffect& effect) {
-    const GrMatrixConvolutionEffect& conv = effect.cast<GrMatrixConvolutionEffect>();
+                                          const GrProcessor& processor) {
+    const GrMatrixConvolutionEffect& conv = processor.cast<GrMatrixConvolutionEffect>();
     GrTexture& texture = *conv.texture(0);
     // the code we generated was for a specific kernel size
     SkASSERT(conv.kernelSize() == fKernelSize);
@@ -173,11 +173,11 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
 GrMatrixConvolutionEffect::~GrMatrixConvolutionEffect() {
 }
 
-const GrBackendEffectFactory& GrMatrixConvolutionEffect::getFactory() const {
-    return GrTBackendEffectFactory<GrMatrixConvolutionEffect>::getInstance();
+const GrBackendFragmentProcessorFactory& GrMatrixConvolutionEffect::getFactory() const {
+    return GrTBackendFragmentProcessorFactory<GrMatrixConvolutionEffect>::getInstance();
 }
 
-bool GrMatrixConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
+bool GrMatrixConvolutionEffect::onIsEqual(const GrProcessor& sBase) const {
     const GrMatrixConvolutionEffect& s = sBase.cast<GrMatrixConvolutionEffect>();
     return this->texture(0) == s.texture(0) &&
            fKernelSize == s.kernelSize() &&
@@ -191,16 +191,17 @@ bool GrMatrixConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
 }
 
 // Static function to create a 2D convolution
-GrEffect* GrMatrixConvolutionEffect::CreateGaussian(GrTexture* texture,
-                                                    const SkIRect& bounds,
-                                                    const SkISize& kernelSize,
-                                                    SkScalar gain,
-                                                    SkScalar bias,
-                                                    const SkIPoint& kernelOffset,
-                                                    GrTextureDomain::Mode tileMode,
-                                                    bool convolveAlpha,
-                                                    SkScalar sigmaX,
-                                                    SkScalar sigmaY) {
+GrFragmentProcessor*
+GrMatrixConvolutionEffect::CreateGaussian(GrTexture* texture,
+                                          const SkIRect& bounds,
+                                          const SkISize& kernelSize,
+                                          SkScalar gain,
+                                          SkScalar bias,
+                                          const SkIPoint& kernelOffset,
+                                          GrTextureDomain::Mode tileMode,
+                                          bool convolveAlpha,
+                                          SkScalar sigmaX,
+                                          SkScalar sigmaY) {
     float kernel[MAX_KERNEL_SIZE];
     int width = kernelSize.width();
     int height = kernelSize.height();
@@ -238,14 +239,14 @@ GrEffect* GrMatrixConvolutionEffect::CreateGaussian(GrTexture* texture,
                                                   convolveAlpha));
 }
 
-GR_DEFINE_EFFECT_TEST(GrMatrixConvolutionEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
-GrEffect* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
-                                                GrContext* context,
-                                                const GrDrawTargetCaps&,
-                                                GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
-                                      GrEffectUnitTest::kAlphaTextureIdx;
+GrFragmentProcessor* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
+                                                           GrContext* context,
+                                                           const GrDrawTargetCaps&,
+                                                           GrTexture* textures[]) {
+    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
+                                      GrProcessorUnitTest::kAlphaTextureIdx;
     int width = random->nextRangeU(1, MAX_KERNEL_SIZE);
     int height = random->nextRangeU(1, MAX_KERNEL_SIZE / width);
     SkISize kernelSize = SkISize::Make(width, height);

@@ -7,8 +7,8 @@
 
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrGLProgramDesc.h"
-#include "GrBackendEffectFactory.h"
-#include "GrEffect.h"
+#include "GrBackendProcessorFactory.h"
+#include "GrProcessor.h"
 #include "GrGpuGL.h"
 #include "GrOptDrawState.h"
 
@@ -60,10 +60,10 @@ static bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
     return false;
 }
 
-static uint32_t gen_attrib_key(const GrEffect* effect) {
+static uint32_t gen_attrib_key(const GrGeometryProcessor* effect) {
     uint32_t key = 0;
 
-    const GrEffect::VertexAttribArray& vars = effect->getVertexAttribs();
+    const GrGeometryProcessor::VertexAttribArray& vars = effect->getVertexAttribs();
     int numAttributes = vars.count();
     SkASSERT(numAttributes <= 2);
     for (int a = 0; a < numAttributes; ++a) {
@@ -73,10 +73,10 @@ static uint32_t gen_attrib_key(const GrEffect* effect) {
     return key;
 }
 
-static uint32_t gen_transform_key(const GrEffectStage& effectStage,
+static uint32_t gen_transform_key(const GrProcessorStage& effectStage,
                                   bool useExplicitLocalCoords) {
     uint32_t totalKey = 0;
-    int numTransforms = effectStage.getEffect()->numTransforms();
+    int numTransforms = effectStage.getProcessor()->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
         uint32_t key = 0;
         if (effectStage.isPerspectiveCoordTransform(t, useExplicitLocalCoords)) {
@@ -85,7 +85,7 @@ static uint32_t gen_transform_key(const GrEffectStage& effectStage,
             key |= kNoPersp_MatrixType;
         }
 
-        const GrCoordTransform& coordTransform = effectStage.getEffect()->coordTransform(t);
+        const GrCoordTransform& coordTransform = effectStage.getProcessor()->coordTransform(t);
         if (kLocal_GrCoordSet != coordTransform.sourceCoords() && useExplicitLocalCoords) {
             key |= kPositionCoords_Flag;
         }
@@ -96,7 +96,7 @@ static uint32_t gen_transform_key(const GrEffectStage& effectStage,
     return totalKey;
 }
 
-static uint32_t gen_texture_key(const GrEffect* effect, const GrGLCaps& caps) {
+static uint32_t gen_texture_key(const GrProcessor* effect, const GrGLCaps& caps) {
     uint32_t key = 0;
     int numTextures = effect->numTextures();
     for (int t = 0; t < numTextures; ++t) {
@@ -114,50 +114,83 @@ static uint32_t gen_texture_key(const GrEffect* effect, const GrGLCaps& caps) {
  * be dependent on properties of the effect that the effect itself doesn't use
  * in its key (e.g. the pixel format of textures used). So we create a meta-key for
  * every effect using this function. It is also responsible for inserting the effect's class ID
- * which must be different for every GrEffect subclass. It can fail if an effect uses too many
- * textures, attributes, etc for the space allotted in the meta-key.
+ * which must be different for every GrProcessor subclass. It can fail if an effect uses too many
+ * textures, transforms, etc, for the space allotted in the meta-key.
  */
 
-static bool gen_effect_meta_key(const GrEffectStage& effectStage,
-                                bool useExplicitLocalCoords,
-                                const GrGLCaps& caps,
-                                GrEffectKeyBuilder* b) {
+static uint32_t* get_processor_meta_key(const GrProcessorStage& processorStage,
+                                        bool useExplicitLocalCoords,
+                                        const GrGLCaps& caps,
+                                        GrProcessorKeyBuilder* b) {
 
-    uint32_t textureKey = gen_texture_key(effectStage.getEffect(), caps);
-    uint32_t transformKey = gen_transform_key(effectStage,useExplicitLocalCoords);
-    uint32_t attribKey = gen_attrib_key(effectStage.getEffect());
-    uint32_t classID = effectStage.getEffect()->getFactory().effectClassID();
+    uint32_t textureKey = gen_texture_key(processorStage.getProcessor(), caps);
+    uint32_t transformKey = gen_transform_key(processorStage,useExplicitLocalCoords);
+    uint32_t classID = processorStage.getProcessor()->getFactory().effectClassID();
 
     // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
     // don't fit.
     static const uint32_t kMetaKeyInvalidMask = ~((uint32_t) SK_MaxU16);
-    if ((textureKey | transformKey | attribKey | classID) & kMetaKeyInvalidMask) {
-        return false;
+    if ((textureKey | transformKey | classID) & kMetaKeyInvalidMask) {
+        return NULL;
     }
 
     uint32_t* key = b->add32n(2);
     key[0] = (textureKey << 16 | transformKey);
-    key[1] = (classID << 16 | attribKey);
+    key[1] = (classID << 16);
+    return key;
+}
+
+bool GrGLProgramDesc::GetProcessorKey(const GrProcessorStage& stage,
+                                      const GrGLCaps& caps,
+                                      bool useExplicitLocalCoords,
+                                      GrProcessorKeyBuilder* b,
+                                      uint16_t* processorKeySize) {
+    const GrProcessor& effect = *stage.getProcessor();
+    const GrBackendProcessorFactory& factory = effect.getFactory();
+    factory.getGLProcessorKey(effect, caps, b);
+    size_t size = b->size();
+    if (size > SK_MaxU16) {
+        *processorKeySize = 0; // suppresses a warning.
+        return false;
+    }
+    *processorKeySize = SkToU16(size);
+    if (NULL == get_processor_meta_key(stage, useExplicitLocalCoords, caps, b)) {
+        return false;
+    }
     return true;
 }
 
-bool GrGLProgramDesc::GetEffectKey(const GrEffectStage& stage, const GrGLCaps& caps,
-                                   bool useExplicitLocalCoords, GrEffectKeyBuilder* b,
-                                   uint16_t* effectKeySize) {
-    const GrBackendEffectFactory& factory = stage.getEffect()->getFactory();
-    const GrEffect& effect = *stage.getEffect();
-    factory.getGLEffectKey(effect, caps, b);
+bool GrGLProgramDesc::GetGeometryProcessorKey(const GrGeometryStage& stage,
+                                              const GrGLCaps& caps,
+                                              bool useExplicitLocalCoords,
+                                              GrProcessorKeyBuilder* b,
+                                              uint16_t* processorKeySize) {
+    const GrProcessor& effect = *stage.getProcessor();
+    const GrBackendProcessorFactory& factory = effect.getFactory();
+    factory.getGLProcessorKey(effect, caps, b);
     size_t size = b->size();
     if (size > SK_MaxU16) {
-        *effectKeySize = 0; // suppresses a warning.
+        *processorKeySize = 0; // suppresses a warning.
         return false;
     }
-    *effectKeySize = SkToU16(size);
-    if (!gen_effect_meta_key(stage, useExplicitLocalCoords, caps, b)) {
+    *processorKeySize = SkToU16(size);
+    uint32_t* key = get_processor_meta_key(stage, useExplicitLocalCoords, caps, b);
+    if (NULL == key) {
         return false;
     }
+    uint32_t attribKey = gen_attrib_key(stage.getGeometryProcessor());
+
+    // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
+    // don't fit.
+    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t) SK_MaxU16);
+    if ((attribKey) & kMetaKeyInvalidMask) {
+       return false;
+    }
+
+    key[1] |= attribKey;
     return true;
 }
+
 
 bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
                             GrGpu::DrawType drawType,
@@ -165,9 +198,9 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
                             GrBlendCoeff dstCoeff,
                             GrGpuGL* gpu,
                             const GrDeviceCoordTexture* dstCopy,
-                            const GrEffectStage** geometryProcessor,
-                            SkTArray<const GrEffectStage*, true>* colorStages,
-                            SkTArray<const GrEffectStage*, true>* coverageStages,
+                            const GrGeometryStage** geometryProcessor,
+                            SkTArray<const GrFragmentStage*, true>* colorStages,
+                            SkTArray<const GrFragmentStage*, true>* coverageStages,
                             GrGLProgramDesc* desc) {
     colorStages->reset();
     coverageStages->reset();
@@ -190,7 +223,6 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
     desc->fKey.push_back_n(kEffectKeyOffsetsAndLengthOffset + 2 * sizeof(uint16_t) * numStages);
 
     int offsetAndSizeIndex = 0;
-    bool effectKeySuccess = true;
 
     KeyHeader* header = desc->header();
     // make sure any padding in the header is zeroed.
@@ -202,18 +234,22 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
                 reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
                                             offsetAndSizeIndex * 2 * sizeof(uint16_t));
 
-            GrEffectKeyBuilder b(&desc->fKey);
-            uint16_t effectKeySize;
-            uint32_t effectOffset = desc->fKey.count();
-            effectKeySuccess |= GetEffectKey(*optState.getGeometryProcessor(), gpu->glCaps(),
-                                             requiresLocalCoordAttrib, &b, &effectKeySize);
-            effectKeySuccess |= (effectOffset <= SK_MaxU16);
+        GrProcessorKeyBuilder b(&desc->fKey);
+        uint16_t processorKeySize;
+        uint32_t processorOffset = desc->fKey.count();
+        const GrGeometryStage& gpStage = *optState.getGeometryProcessor();
+        if (processorOffset > SK_MaxU16 ||
+                !GetGeometryProcessorKey(gpStage, gpu->glCaps(), requiresLocalCoordAttrib, &b,
+                                         &processorKeySize)) {
+            desc->fKey.reset();
+            return false;
+        }
 
-            offsetAndSize[0] = SkToU16(effectOffset);
-            offsetAndSize[1] = effectKeySize;
-            ++offsetAndSizeIndex;
-            *geometryProcessor = optState.getGeometryProcessor();
-            header->fHasGeometryProcessor = true;
+        offsetAndSize[0] = SkToU16(processorOffset);
+        offsetAndSize[1] = processorKeySize;
+        ++offsetAndSizeIndex;
+        *geometryProcessor = &gpStage;
+        header->fHasGeometryProcessor = true;
     }
 
     for (int s = 0; s < optState.numColorStages(); ++s) {
@@ -221,15 +257,18 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
             reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
                                         offsetAndSizeIndex * 2 * sizeof(uint16_t));
 
-        GrEffectKeyBuilder b(&desc->fKey);
-        uint16_t effectKeySize;
-        uint32_t effectOffset = desc->fKey.count();
-        effectKeySuccess |= GetEffectKey(optState.getColorStage(s), gpu->glCaps(),
-                                         requiresLocalCoordAttrib, &b, &effectKeySize);
-        effectKeySuccess |= (effectOffset <= SK_MaxU16);
+        GrProcessorKeyBuilder b(&desc->fKey);
+        uint16_t processorKeySize;
+        uint32_t processorOffset = desc->fKey.count();
+        if (processorOffset > SK_MaxU16 ||
+                !GetProcessorKey(optState.getColorStage(s), gpu->glCaps(),
+                                 requiresLocalCoordAttrib, &b, &processorKeySize)) {
+            desc->fKey.reset();
+            return false;
+        }
 
-        offsetAndSize[0] = SkToU16(effectOffset);
-        offsetAndSize[1] = effectKeySize;
+        offsetAndSize[0] = SkToU16(processorOffset);
+        offsetAndSize[1] = processorKeySize;
         ++offsetAndSizeIndex;
     }
 
@@ -238,21 +277,19 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
             reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
                                         offsetAndSizeIndex * 2 * sizeof(uint16_t));
 
-        GrEffectKeyBuilder b(&desc->fKey);
-        uint16_t effectKeySize;
-        uint32_t effectOffset = desc->fKey.count();
-        effectKeySuccess |= GetEffectKey(optState.getCoverageStage(s), gpu->glCaps(),
-                                         requiresLocalCoordAttrib, &b, &effectKeySize);
-        effectKeySuccess |= (effectOffset <= SK_MaxU16);
+        GrProcessorKeyBuilder b(&desc->fKey);
+        uint16_t processorKeySize;
+        uint32_t processorOffset = desc->fKey.count();
+        if (processorOffset > SK_MaxU16 ||
+                !GetProcessorKey(optState.getCoverageStage(s), gpu->glCaps(),
+                                 requiresLocalCoordAttrib, &b, &processorKeySize)) {
+            desc->fKey.reset();
+            return false;
+        }
 
-        offsetAndSize[0] = SkToU16(effectOffset);
-        offsetAndSize[1] = effectKeySize;
+        offsetAndSize[0] = SkToU16(processorOffset);
+        offsetAndSize[1] = processorKeySize;
         ++offsetAndSizeIndex;
-    }
-
-    if (!effectKeySuccess) {
-        desc->fKey.reset();
-        return false;
     }
 
     // Because header is a pointer into the dynamic array, we can't push any new data into the key

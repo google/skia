@@ -10,15 +10,15 @@
 
 #include "SkImageInfo.h"
 
-class GrEffect;
+class GrFragmentProcessor;
 class GrTexture;
 
 namespace GrYUVtoRGBEffect {
     /**
      * Creates an effect that performs color conversion from YUV to RGB
      */
-    GrEffect* Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                     SkYUVColorSpace colorSpace);
+    GrFragmentProcessor* Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
+                                SkYUVColorSpace colorSpace);
 };
 
 #endif

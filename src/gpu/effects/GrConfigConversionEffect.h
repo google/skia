@@ -10,7 +10,7 @@
 
 #include "GrSingleTextureEffect.h"
 
-class GrEffectStage;
+class GrProcessorStage;
 class GrGLConfigConversionEffect;
 
 /**
@@ -34,16 +34,14 @@ public:
         kPMConversionCnt
     };
 
-    // Installs an effect in the GrEffectStage to perform a config conversion.
-    static const GrEffect* Create(GrTexture*,
-                                  bool swapRedAndBlue,
-                                  PMConversion pmConversion,
-                                  const SkMatrix& matrix);
+    // Installs an effect in the GrProcessorStage to perform a config conversion.
+    static const GrFragmentProcessor* Create(GrTexture*, bool swapRedAndBlue, PMConversion,
+                                             const SkMatrix&);
 
     static const char* Name() { return "Config Conversion"; }
-    typedef GrGLConfigConversionEffect GLEffect;
+    typedef GrGLConfigConversionEffect GLProcessor;
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
@@ -65,12 +63,12 @@ private:
                             PMConversion pmConversion,
                             const SkMatrix& matrix);
 
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
 
     bool            fSwapRedAndBlue;
     PMConversion    fPMConversion;
 
-    GR_DECLARE_EFFECT_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrSingleTextureEffect INHERITED;
 };

@@ -54,10 +54,10 @@ static void convolve_gaussian_1d(GrContext* context,
                                  float bounds[2]) {
     GrPaint paint;
     paint.reset();
-    SkAutoTUnref<GrEffect> conv(GrConvolutionEffect::CreateGaussian(
+    SkAutoTUnref<GrFragmentProcessor> conv(GrConvolutionEffect::CreateGaussian(
         texture, direction, radius, sigma, useBounds, bounds));
     paint.reset();
-    paint.addColorEffect(conv);
+    paint.addColorProcessor(conv);
     context->drawRectToRect(paint, dstRect, srcRect);
 }
 
@@ -75,12 +75,12 @@ static void convolve_gaussian_2d(GrContext* context,
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
     GrPaint paint;
     paint.reset();
-    SkAutoTUnref<GrEffect> conv(GrMatrixConvolutionEffect::CreateGaussian(
+    SkAutoTUnref<GrFragmentProcessor> conv(GrMatrixConvolutionEffect::CreateGaussian(
             texture, bounds, size, 1.0, 0.0, kernelOffset,
             useBounds ? GrTextureDomain::kClamp_Mode : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
     paint.reset();
-    paint.addColorEffect(conv);
+    paint.addColorProcessor(conv);
     context->drawRectToRect(paint, dstRect, srcRect);
 }
 
@@ -197,16 +197,16 @@ GrTexture* GaussianBlur(GrContext* context,
             matrix.mapRect(&domain, rect);
             domain.inset(i < scaleFactorX ? SK_ScalarHalf / srcTexture->width() : 0.0f,
                          i < scaleFactorY ? SK_ScalarHalf / srcTexture->height() : 0.0f);
-            SkAutoTUnref<GrEffect> effect(GrTextureDomainEffect::Create(
+            SkAutoTUnref<GrFragmentProcessor> fp(GrTextureDomainEffect::Create(
                 srcTexture,
                 matrix,
                 domain,
                 GrTextureDomain::kDecal_Mode,
                 GrTextureParams::kBilerp_FilterMode));
-            paint.addColorEffect(effect);
+            paint.addColorProcessor(fp);
         } else {
             GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
-            paint.addColorTextureEffect(srcTexture, matrix, params);
+            paint.addColorTextureProcessor(srcTexture, matrix, params);
         }
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                              i < scaleFactorY ? 0.5f : 1.0f);
@@ -286,7 +286,7 @@ GrTexture* GaussianBlur(GrContext* context,
         GrPaint paint;
         // FIXME:  this should be mitchell, not bilinear.
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
-        paint.addColorTextureEffect(srcTexture, matrix, params);
+        paint.addColorTextureProcessor(srcTexture, matrix, params);
 
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);

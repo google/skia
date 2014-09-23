@@ -12,15 +12,15 @@
 #include "gl/GrGLProgramEffects.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLProgramDataManager.h"
-#include "GrBackendEffectFactory.h"
+#include "GrBackendProcessorFactory.h"
 #include "GrColor.h"
-#include "GrEffect.h"
+#include "GrProcessor.h"
 #include "SkTypes.h"
 
 #include <stdarg.h>
 
 class GrGLContextInfo;
-class GrEffectStage;
+class GrProcessorStage;
 class GrGLProgramDesc;
 class GrGLProgramBuilder;
 class GrGLFullProgramBuilder;
@@ -30,8 +30,8 @@ class GrGLFullProgramBuilder;
 */
 class GrGLShaderBuilder {
 public:
-    typedef GrGLEffect::TransformedCoordsArray TransformedCoordsArray;
-    typedef GrGLEffect::TextureSampler TextureSampler;
+    typedef GrGLProcessor::TransformedCoordsArray TransformedCoordsArray;
+    typedef GrGLProcessor::TextureSampler TextureSampler;
     GrGLShaderBuilder(GrGLProgramBuilder* program);
 
     void addInput(GrGLShaderVar i) { fInputs.push_back(i); }
@@ -75,7 +75,7 @@ public:
     static const GrGLenum* GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps);
 
     /**
-    * Called by GrGLEffects to add code to one of the shaders.
+    * Called by GrGLProcessors to add code to one of the shaders.
     */
     void codeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
        va_list args;

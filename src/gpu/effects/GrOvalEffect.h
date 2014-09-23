@@ -11,14 +11,14 @@
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
 
-class GrEffect;
+class GrProcessor;
 struct SkRect;
 
 namespace GrOvalEffect {
     /**
      * Creates an effect that performs clipping against an oval.
      */
-    GrEffect* Create(GrEffectEdgeType, const SkRect&);
+    GrFragmentProcessor* Create(GrPrimitiveEdgeType, const SkRect&);
 };
 
 #endif

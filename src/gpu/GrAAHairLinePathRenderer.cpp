@@ -10,11 +10,11 @@
 #include "GrContext.h"
 #include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
-#include "GrEffect.h"
+#include "GrProcessor.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPathUtils.h"
-#include "GrTBackendEffectFactory.h"
+#include "GrTBackendProcessorFactory.h"
 #include "SkGeometry.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"
@@ -708,7 +708,7 @@ namespace {
 // position + edge
 extern const GrVertexAttrib gHairlineBezierAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,                  kPosition_GrVertexAttribBinding},
-    {kVec4f_GrVertexAttribType, sizeof(SkPoint),    kEffect_GrVertexAttribBinding}
+    {kVec4f_GrVertexAttribType, sizeof(SkPoint),    kGeometryProcessor_GrVertexAttribBinding}
 };
 
 // position + coverage
@@ -995,12 +995,12 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                                             kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt));
 
         if (quadCnt > 0) {
-            GrEffect* hairQuadEffect = GrQuadEffect::Create(kHairlineAA_GrEffectEdgeType,
-                                                            *target->caps());
-            SkASSERT(hairQuadEffect);
+            GrGeometryProcessor* hairQuadProcessor =
+                    GrQuadEffect::Create(kHairlineAA_GrProcessorEdgeType, *target->caps());
+            SkASSERT(hairQuadProcessor);
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
-            drawState->setGeometryProcessor(hairQuadEffect)->unref();
+            drawState->setGeometryProcessor(hairQuadProcessor)->unref();
             int quads = 0;
             while (quads < quadCnt) {
                 int n = SkTMin(quadCnt - quads, kNumQuadsInIdxBuffer);
@@ -1016,10 +1016,10 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
         if (conicCnt > 0) {
             GrDrawState::AutoRestoreEffects are(drawState);
-            GrEffect* hairConicEffect = GrConicEffect::Create(kHairlineAA_GrEffectEdgeType,
-                                                              *target->caps());
-            SkASSERT(hairConicEffect);
-            drawState->setGeometryProcessor(hairConicEffect)->unref();
+            GrGeometryProcessor* hairConicProcessor = GrConicEffect::Create(
+                    kHairlineAA_GrProcessorEdgeType, *target->caps());
+            SkASSERT(hairConicProcessor);
+            drawState->setGeometryProcessor(hairConicProcessor)->unref();
             int conics = 0;
             while (conics < conicCnt) {
                 int n = SkTMin(conicCnt - conics, kNumQuadsInIdxBuffer);

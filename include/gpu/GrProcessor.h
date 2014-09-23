@@ -5,18 +5,19 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrEffect_DEFINED
-#define GrEffect_DEFINED
+#ifndef GrProcessor_DEFINED
+#define GrProcessor_DEFINED
 
+#include "GrBackendProcessorFactory.h"
 #include "GrColor.h"
-#include "GrEffectUnitTest.h"
+#include "GrProcessorUnitTest.h"
 #include "GrProgramElement.h"
 #include "GrShaderVar.h"
 #include "GrTextureAccess.h"
 #include "GrTypesPriv.h"
 #include "SkString.h"
 
-class GrBackendEffectFactory;
+class GrBackendProcessorFactory;
 class GrContext;
 class GrCoordTransform;
 
@@ -24,17 +25,17 @@ class GrCoordTransform;
     Ganesh shading pipeline.
     Subclasses must have a function that produces a human-readable name:
         static const char* Name();
-    GrEffect objects *must* be immutable: after being constructed, their fields may not change.
+    GrProcessor objects *must* be immutable: after being constructed, their fields may not change.
 
-    Dynamically allocated GrEffects are managed by a per-thread memory pool. The ref count of an
+    Dynamically allocated GrProcessors are managed by a per-thread memory pool. The ref count of an
     effect must reach 0 before the thread terminates and the pool is destroyed. To create a static
     effect use the macro GR_CREATE_STATIC_EFFECT declared below.
   */
-class GrEffect : public GrProgramElement {
+class GrProcessor : public GrProgramElement {
 public:
-    SK_DECLARE_INST_COUNT(GrEffect)
+    SK_DECLARE_INST_COUNT(GrProcessor)
 
-    virtual ~GrEffect();
+    virtual ~GrProcessor();
 
     /**
      * This function is used to perform optimizations. When called the color and validFlags params
@@ -45,17 +46,14 @@ public:
      */
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const = 0;
 
-    /** Will this effect read the source color value? */
-    bool willUseInputColor() const { return fWillUseInputColor; }
-
     /** This object, besides creating back-end-specific helper objects, is used for run-time-type-
         identification. The factory should be an instance of templated class,
-        GrTBackendEffectFactory. It is templated on the subclass of GrEffect. The subclass must have
-        a nested type (or typedef) named GLEffect which will be the subclass of GrGLEffect created
-        by the factory.
+        GrTBackendEffectFactory. It is templated on the subclass of GrProcessor. The subclass must
+        have a nested type (or typedef) named GLProcessor which will be the subclass of
+        GrGLProcessor created by the factory.
 
         Example:
-        class MyCustomEffect : public GrEffect {
+        class MyCustomEffect : public GrProcessor {
         ...
             virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
                 return GrTBackendEffectFactory<MyCustomEffect>::getInstance();
@@ -63,7 +61,7 @@ public:
         ...
         };
      */
-    virtual const GrBackendEffectFactory& getFactory() const = 0;
+    virtual const GrBackendProcessorFactory& getFactory() const = 0;
 
     /** Returns true if this and other effect conservatively draw identically. It can only return
         true when the two effects are of the same subclass (i.e. they return the same object from
@@ -73,7 +71,7 @@ public:
         generate the same shader code. To test for identical code generation use the effects' keys
         computed by the GrBackendEffectFactory.
      */
-    bool isEqual(const GrEffect& other) const {
+    bool isEqual(const GrProcessor& other) const {
         if (&this->getFactory() != &other.getFactory()) {
             return false;
         }
@@ -105,20 +103,8 @@ public:
     /** Shortcut for textureAccess(index).texture(); */
     GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
 
-    /** Will this effect read the destination pixel value? */
-    bool willReadDstColor() const { return fWillReadDstColor; }
-
     /** Will this effect read the fragment position? */
     bool willReadFragmentPosition() const { return fWillReadFragmentPosition; }
-
-    /** Will this effect emit custom vertex shader code?
-        (To set this value the effect must inherit from GrEffect.) */
-    bool requiresVertexShader() const { return fRequiresVertexShader; }
-
-    static const int kMaxVertexAttribs = 2;
-    typedef SkSTArray<kMaxVertexAttribs, GrShaderVar, true> VertexAttribArray;
-
-    const VertexAttribArray& getVertexAttribs() const { return fVertexAttribs; }
 
     void* operator new(size_t size);
     void operator delete(void* target);
@@ -131,7 +117,7 @@ public:
     }
 
     /**
-      * Helper for down-casting to a GrEffect subclass
+      * Helper for down-casting to a GrProcessor subclass
       */
     template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
 
@@ -139,32 +125,23 @@ protected:
     /**
      * Subclasses call this from their constructor to register coordinate transformations. The
      * effect subclass manages the lifetime of the transformations (this function only stores a
-     * pointer). The GrCoordTransform is typically a member field of the GrEffect subclass. When the
-     * matrix has perspective, the transformed coordinates will have 3 components. Otherwise they'll
-     * have 2. This must only be called from the constructor because GrEffects are immutable.
+     * pointer). The GrCoordTransform is typically a member field of the GrProcessor subclass. When
+     * the matrix has perspective, the transformed coordinates will have 3 components. Otherwise
+     * they'll have 2. This must only be called from the constructor because GrProcessors are
+     * immutable.
      */
     void addCoordTransform(const GrCoordTransform* coordTransform);
 
     /**
      * Subclasses call this from their constructor to register GrTextureAccesses. The effect
      * subclass manages the lifetime of the accesses (this function only stores a pointer). The
-     * GrTextureAccess is typically a member field of the GrEffect subclass. This must only be
-     * called from the constructor because GrEffects are immutable.
+     * GrTextureAccess is typically a member field of the GrProcessor subclass. This must only be
+     * called from the constructor because GrProcessors are immutable.
      */
     void addTextureAccess(const GrTextureAccess* textureAccess);
 
-    GrEffect()
-        : fWillReadDstColor(false)
-        , fWillReadFragmentPosition(false)
-        , fWillUseInputColor(true)
-        , fRequiresVertexShader(false) {}
-
-    /**
-     * If the effect subclass will read the destination pixel value then it must call this function
-     * from its constructor. Otherwise, when its generated backend-specific effect class attempts
-     * to generate code that reads the destination pixel it will fail.
-     */
-    void setWillReadDstColor() { fWillReadDstColor = true; }
+    GrProcessor()
+        : fWillReadFragmentPosition(false) {}
 
     /**
      * If the effect will generate a backend-specific effect that will read the fragment position
@@ -173,41 +150,68 @@ protected:
      */
     void setWillReadFragmentPosition() { fWillReadFragmentPosition = true; }
 
-    /**
-     * If the effect will generate a result that does not depend on the input color value then it must
-     * call this function from its constructor. Otherwise, when its generated backend-specific code
-     * might fail during variable binding due to unused variables.
-     */
-    void setWillNotUseInputColor() { fWillUseInputColor = false; }
-
 private:
-    SkDEBUGCODE(void assertEquality(const GrEffect& other) const;)
+    SkDEBUGCODE(void assertEquality(const GrProcessor& other) const;)
 
     /** Subclass implements this to support isEqual(). It will only be called if it is known that
         the two effects are of the same subclass (i.e. they return the same object from
         getFactory()).*/
-    virtual bool onIsEqual(const GrEffect& other) const = 0;
+    virtual bool onIsEqual(const GrProcessor& other) const = 0;
 
     friend class GrGeometryProcessor; // to set fRequiresVertexShader and build fVertexAttribTypes.
 
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
     SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
-    VertexAttribArray                            fVertexAttribs;
-    bool                                         fWillReadDstColor;
     bool                                         fWillReadFragmentPosition;
-    bool                                         fWillUseInputColor;
-    bool                                         fRequiresVertexShader;
 
     typedef GrProgramElement INHERITED;
 };
 
+class GrFragmentProcessor : public GrProcessor {
+public:
+    GrFragmentProcessor()
+        : INHERITED()
+        , fWillReadDstColor(false)
+        , fWillUseInputColor(true) {}
+
+    virtual const GrBackendFragmentProcessorFactory& getFactory() const = 0;
+
+    /** Will this effect read the destination pixel value? */
+    bool willReadDstColor() const { return fWillReadDstColor; }
+
+    /** Will this effect read the source color value? */
+    bool willUseInputColor() const { return fWillUseInputColor; }
+
+protected:
+    /**
+     * If the effect subclass will read the destination pixel value then it must call this function
+     * from its constructor. Otherwise, when its generated backend-specific effect class attempts
+     * to generate code that reads the destination pixel it will fail.
+     */
+    void setWillReadDstColor() { fWillReadDstColor = true; }
+
+    /**
+     * If the effect will generate a result that does not depend on the input color value then it
+     * must call this function from its constructor. Otherwise, when its generated backend-specific
+     * code might fail during variable binding due to unused variables.
+     */
+    void setWillNotUseInputColor() { fWillUseInputColor = false; }
+
+private:
+    bool                                         fWillReadDstColor;
+    bool                                         fWillUseInputColor;
+
+    typedef GrProcessor INHERITED;
+};
+
 /**
  * This creates an effect outside of the effect memory pool. The effect's destructor will be called
- * at global destruction time. NAME will be the name of the created GrEffect.
+ * at global destruction time. NAME will be the name of the created GrProcessor.
  */
-#define GR_CREATE_STATIC_EFFECT(NAME, EFFECT_CLASS, ARGS)                                         \
+#define GR_CREATE_STATIC_FRAGMENT_PROCESSOR(NAME, EFFECT_CLASS, ARGS)                             \
 static SkAlignedSStorage<sizeof(EFFECT_CLASS)> g_##NAME##_Storage;                                \
-static GrEffect* NAME SkNEW_PLACEMENT_ARGS(g_##NAME##_Storage.get(), EFFECT_CLASS, ARGS);         \
-static SkAutoTDestroy<GrEffect> NAME##_ad(NAME);
+static GrFragmentProcessor*                                                                       \
+NAME SkNEW_PLACEMENT_ARGS(g_##NAME##_Storage.get(), EFFECT_CLASS, ARGS);                          \
+static SkAutoTDestroy<GrFragmentProcessor> NAME##_ad(NAME);
 
 #endif

@@ -469,27 +469,27 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
 
 #if SK_SUPPORT_GPU
 
-#include "GrTBackendEffectFactory.h"
+#include "GrTBackendProcessorFactory.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
 class GrGLRadialGradient : public GrGLGradientEffect {
 public:
 
-    GrGLRadialGradient(const GrBackendEffectFactory& factory,
-                       const GrEffect&) : INHERITED (factory) { }
+    GrGLRadialGradient(const GrBackendProcessorFactory& factory,
+                       const GrProcessor&) : INHERITED (factory) { }
     virtual ~GrGLRadialGradient() { }
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrEffect&,
-                          const GrEffectKey&,
+                          const GrFragmentProcessor&,
+                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static void GenKey(const GrEffect& effect, const GrGLCaps&, GrEffectKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(effect));
+    static void GenKey(const GrProcessor& processor, const GrGLCaps&, GrProcessorKeyBuilder* b) {
+        b->add32(GenBaseGradientKey(processor));
     }
 
 private:
@@ -502,21 +502,21 @@ private:
 
 class GrRadialGradient : public GrGradientEffect {
 public:
-    static GrEffect* Create(GrContext* ctx,
-                            const SkRadialGradient& shader,
-                            const SkMatrix& matrix,
-                            SkShader::TileMode tm) {
+    static GrFragmentProcessor* Create(GrContext* ctx,
+                                       const SkRadialGradient& shader,
+                                       const SkMatrix& matrix,
+                                       SkShader::TileMode tm) {
         return SkNEW_ARGS(GrRadialGradient, (ctx, shader, matrix, tm));
     }
 
     virtual ~GrRadialGradient() { }
 
     static const char* Name() { return "Radial Gradient"; }
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendEffectFactory<GrRadialGradient>::getInstance();
+    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendFragmentProcessorFactory<GrRadialGradient>::getInstance();
     }
 
-    typedef GrGLRadialGradient GLEffect;
+    typedef GrGLRadialGradient GLProcessor;
 
 private:
     GrRadialGradient(GrContext* ctx,
@@ -526,19 +526,19 @@ private:
         : INHERITED(ctx, shader, matrix, tm) {
     }
 
-    GR_DECLARE_EFFECT_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrGradientEffect INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_EFFECT_TEST(GrRadialGradient);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradient);
 
-GrEffect* GrRadialGradient::TestCreate(SkRandom* random,
-                                       GrContext* context,
-                                       const GrDrawTargetCaps&,
-                                       GrTexture**) {
+GrFragmentProcessor* GrRadialGradient::TestCreate(SkRandom* random,
+                                                  GrContext* context,
+                                                  const GrDrawTargetCaps&,
+                                                  GrTexture**) {
     SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius = random->nextUScalar1();
 
@@ -552,16 +552,16 @@ GrEffect* GrRadialGradient::TestCreate(SkRandom* random,
                                                                  tm));
     SkPaint paint;
     GrColor paintColor;
-    GrEffect* effect;
-    SkAssertResult(shader->asNewEffect(context, paint, NULL, &paintColor, &effect));
-    return effect;
+    GrFragmentProcessor* fp;
+    SkAssertResult(shader->asFragmentProcessor(context, paint, NULL, &paintColor, &fp));
+    return fp;
 }
 
 /////////////////////////////////////////////////////////////////////
 
 void GrGLRadialGradient::emitCode(GrGLProgramBuilder* builder,
-                                  const GrEffect&,
-                                  const GrEffectKey& key,
+                                  const GrFragmentProcessor&,
+                                  const GrProcessorKey& key,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TransformedCoordsArray& coords,
@@ -576,9 +576,9 @@ void GrGLRadialGradient::emitCode(GrGLProgramBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
-                                   const SkMatrix* localMatrix, GrColor* paintColor,
-                                   GrEffect** effect) const {
+bool SkRadialGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
+                                           const SkMatrix* localMatrix, GrColor* paintColor,
+                                           GrFragmentProcessor** fp) const {
     SkASSERT(context);
     
     SkMatrix matrix;
@@ -595,16 +595,15 @@ bool SkRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
     matrix.postConcat(fPtsToUnit);
     
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
-    *effect = GrRadialGradient::Create(context, *this, matrix, fTileMode);
+    *fp = GrRadialGradient::Create(context, *this, matrix, fTileMode);
     
     return true;
 }
 
 #else
 
-bool SkRadialGradient::asNewEffect(GrContext* context, const SkPaint& paint,
-                                   const SkMatrix* localMatrix, GrColor* paintColor,
-                                   GrEffect** effect) const {
+bool SkRadialGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+                                           GrFragmentProcessor**) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

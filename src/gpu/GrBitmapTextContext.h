@@ -10,6 +10,7 @@
 
 #include "GrTextContext.h"
 
+class GrGeometryProcessor;
 class GrTextStrike;
 
 /*
@@ -44,14 +45,14 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
-    void*                       fVertices;
-    int32_t                     fMaxVertices;
-    GrTexture*                  fCurrTexture;
-    SkAutoTUnref<GrEffect>      fCachedEffect;
+    void*                             fVertices;
+    int32_t                           fMaxVertices;
+    GrTexture*                        fCurrTexture;
+    SkAutoTUnref<GrGeometryProcessor> fCachedGeometryProcessor;
     // Used to check whether fCachedEffect is still valid.
-    uint32_t                    fEffectTextureUniqueID;
-    int                         fCurrVertex;
-    SkRect                      fVertexBounds;
+    uint32_t                          fEffectTextureUniqueID;
+    int                               fCurrVertex;
+    SkRect                            fVertexBounds;
 };
 
 #endif

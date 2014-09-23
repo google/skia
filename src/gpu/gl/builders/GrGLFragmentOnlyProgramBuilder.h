@@ -17,19 +17,19 @@ public:
     int addTexCoordSets(int count);
 
 private:
-    virtual void createAndEmitEffects(const GrEffectStage* geometryProcessor,
-                                      const GrEffectStage* colorStages[],
-                                      const GrEffectStage* coverageStages[],
+    virtual void createAndEmitEffects(const GrGeometryStage* geometryProcessor,
+                                      const GrFragmentStage* colorStages[],
+                                      const GrFragmentStage* coverageStages[],
                                       GrGLSLExpr4* inputColor,
                                       GrGLSLExpr4* inputCoverage) SK_OVERRIDE;
 
-    GrGLProgramEffects* onCreateAndEmitEffects(const GrEffectStage* effectStages[],
+    GrGLProgramEffects* onCreateAndEmitEffects(const GrFragmentStage* effectStages[],
                                                int effectCnt,
                                                const GrGLProgramDesc::EffectKeyProvider&,
                                                    GrGLSLExpr4* inOutFSColor);
 
-    virtual void emitEffect(const GrEffectStage& stage,
-                            const GrEffectKey& key,
+    virtual void emitEffect(const GrProcessorStage& stage,
+                            const GrProcessorKey& key,
                             const char* outColor,
                             const char* inColor,
                             int stageIndex) SK_OVERRIDE;
@@ -42,7 +42,7 @@ private:
      * types are appended to the TransformedCoordsArray* object, which is in turn passed to the
      * effect's emitCode() function.
      */
-    void setupPathTexGen(const GrEffectStage&, GrGLEffect::TransformedCoordsArray*);
+    void setupPathTexGen(const GrProcessorStage&, GrGLProcessor::TransformedCoordsArray*);
 
     virtual GrGLProgramEffects* getProgramEffects() SK_OVERRIDE { return fProgramEffects.get(); }
 

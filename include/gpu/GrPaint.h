@@ -11,7 +11,7 @@
 #define GrPaint_DEFINED
 
 #include "GrColor.h"
-#include "GrEffectStage.h"
+#include "GrProcessorStage.h"
 
 #include "SkXfermode.h"
 
@@ -20,7 +20,7 @@
  * functions and the how color is blended with the destination pixel.
  *
  * The paint allows installation of custom color and coverage stages. New types of stages are
- * created by subclassing GrEffect.
+ * created by subclassing GrProcessor.
  *
  * The primitive color computation starts with the color specified by setColor(). This color is the
  * input to the first color stage. Each color stage feeds its output to the next color stage. The
@@ -39,7 +39,7 @@
  * Note that the coverage is applied after the blend. This is why they are computed as distinct
  * values.
  *
- * TODO: Encapsulate setXfermodeColorFilter in a GrEffect and remove from GrPaint.
+ * TODO: Encapsulate setXfermodeColorFilter in a GrProcessor and remove from GrPaint.
  */
 class GrPaint {
 public:
@@ -85,51 +85,44 @@ public:
     bool isDither() const { return fDither; }
 
     /**
-     * Appends an additional color effect to the color computation.
+     * Appends an additional color processor to the color computation.
      */
-    const GrEffect* addColorEffect(const GrEffect* effect) {
-        SkASSERT(effect);
-        SkASSERT(!effect->requiresVertexShader());
-        if (!effect->willUseInputColor()) {
+    const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* fp) {
+        SkASSERT(fp);
+        if (!fp->willUseInputColor()) {
             fColorStages.reset();
         }
-        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect));
-        return effect;
+        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrProcessorStage, (fp));
+        return fp;
     }
 
     /**
-     * Appends an additional coverage effect to the coverage computation.
+     * Appends an additional coverage processor to the coverage computation.
      */
-    const GrEffect* addCoverageEffect(const GrEffect* effect) {
-        SkASSERT(effect);
-        SkASSERT(!effect->requiresVertexShader());
-        if (!effect->willUseInputColor()) {
+    const GrFragmentProcessor* addCoverageProcessor(const GrFragmentProcessor* fp) {
+        SkASSERT(fp);
+        if (!fp->willUseInputColor()) {
             fCoverageStages.reset();
         }
-        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect));
-        return effect;
+        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrProcessorStage, (fp));
+        return fp;
     }
 
     /**
      * Helpers for adding color or coverage effects that sample a texture. The matrix is applied
      * to the src space position to compute texture coordinates.
      */
-    void addColorTextureEffect(GrTexture* texture, const SkMatrix& matrix);
-    void addCoverageTextureEffect(GrTexture* texture, const SkMatrix& matrix);
-
-    void addColorTextureEffect(GrTexture* texture,
-                               const SkMatrix& matrix,
-                               const GrTextureParams& params);
-    void addCoverageTextureEffect(GrTexture* texture,
-                                  const SkMatrix& matrix,
-                                  const GrTextureParams& params);
+    void addColorTextureProcessor(GrTexture*, const SkMatrix&);
+    void addCoverageTextureProcessor(GrTexture*, const SkMatrix&);
+    void addColorTextureProcessor(GrTexture*, const SkMatrix&, const GrTextureParams&);
+    void addCoverageTextureProcessor(GrTexture*, const SkMatrix&, const GrTextureParams&);
 
     int numColorStages() const { return fColorStages.count(); }
     int numCoverageStages() const { return fCoverageStages.count(); }
     int numTotalStages() const { return this->numColorStages() + this->numCoverageStages(); }
 
-    const GrEffectStage& getColorStage(int s) const { return fColorStages[s]; }
-    const GrEffectStage& getCoverageStage(int s) const { return fCoverageStages[s]; }
+    const GrFragmentStage& getColorStage(int s) const { return fColorStages[s]; }
+    const GrFragmentStage& getCoverageStage(int s) const { return fCoverageStages[s]; }
 
     GrPaint& operator=(const GrPaint& paint) {
         fSrcBlendCoeff = paint.fSrcBlendCoeff;
@@ -218,8 +211,8 @@ private:
     friend class GrContext; // To access above two functions
     friend class GrStencilAndCoverTextContext;  // To access above two functions
 
-    SkSTArray<4, GrEffectStage> fColorStages;
-    SkSTArray<2, GrEffectStage> fCoverageStages;
+    SkSTArray<4, GrFragmentStage> fColorStages;
+    SkSTArray<2, GrFragmentStage> fCoverageStages;
 
     GrBlendCoeff                fSrcBlendCoeff;
     GrBlendCoeff                fDstBlendCoeff;

@@ -9,23 +9,23 @@
 #include "GrYUVtoRGBEffect.h"
 
 #include "GrCoordTransform.h"
-#include "GrEffect.h"
-#include "gl/GrGLEffect.h"
-#include "GrTBackendEffectFactory.h"
+#include "GrProcessor.h"
+#include "gl/GrGLProcessor.h"
+#include "GrTBackendProcessorFactory.h"
 
 namespace {
 
-class YUVtoRGBEffect : public GrEffect {
+class YUVtoRGBEffect : public GrFragmentProcessor {
 public:
-    static GrEffect* Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                            SkYUVColorSpace colorSpace) {
+    static GrFragmentProcessor* Create(GrTexture* yTexture, GrTexture* uTexture,
+                                       GrTexture* vTexture, SkYUVColorSpace colorSpace) {
         return SkNEW_ARGS(YUVtoRGBEffect, (yTexture, uTexture, vTexture, colorSpace));
     }
 
     static const char* Name() { return "YUV to RGB"; }
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendEffectFactory<YUVtoRGBEffect>::getInstance();
+    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendFragmentProcessorFactory<YUVtoRGBEffect>::getInstance();
     }
 
     virtual void getConstantColorComponents(GrColor* color,
@@ -39,22 +39,22 @@ public:
         return fColorSpace;
     }
 
-    class GLEffect : public GrGLEffect {
+    class GLProcessor : public GrGLFragmentProcessor {
     public:
         static const GrGLfloat kJPEGConversionMatrix[16];
         static const GrGLfloat kRec601ConversionMatrix[16];
 
         // this class always generates the same code.
-        static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
+        static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
 
-        GLEffect(const GrBackendEffectFactory& factory,
-                 const GrEffect&)
+        GLProcessor(const GrBackendProcessorFactory& factory,
+                    const GrProcessor&)
         : INHERITED(factory) {
         }
 
         virtual void emitCode(GrGLProgramBuilder* builder,
-                              const GrEffect&,
-                              const GrEffectKey&,
+                              const GrFragmentProcessor&,
+                              const GrProcessorKey&,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray& coords,
@@ -75,8 +75,8 @@ public:
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
-                             const GrEffect& effect) SK_OVERRIDE {
-            const YUVtoRGBEffect& yuvEffect = effect.cast<YUVtoRGBEffect>();
+                             const GrProcessor& processor) SK_OVERRIDE {
+            const YUVtoRGBEffect& yuvEffect = processor.cast<YUVtoRGBEffect>();
             switch (yuvEffect.getColorSpace()) {
                 case kJPEG_SkYUVColorSpace:
                     pdman.setMatrix4f(fMatrixUni, kJPEGConversionMatrix);
@@ -90,7 +90,7 @@ public:
     private:
         GrGLProgramDataManager::UniformHandle fMatrixUni;
 
-        typedef GrGLEffect INHERITED;
+        typedef GrGLFragmentProcessor INHERITED;
     };
 
 private:
@@ -109,7 +109,7 @@ private:
         this->setWillNotUseInputColor();
     }
 
-    virtual bool onIsEqual(const GrEffect& sBase) const {
+    virtual bool onIsEqual(const GrProcessor& sBase) const {
         const YUVtoRGBEffect& s = sBase.cast<YUVtoRGBEffect>();
         return fYAccess.getTexture() == s.fYAccess.getTexture() &&
                fUAccess.getTexture() == s.fUAccess.getTexture() &&
@@ -123,15 +123,15 @@ private:
     GrTextureAccess fVAccess;
     SkYUVColorSpace fColorSpace;
 
-    typedef GrEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
-const GrGLfloat YUVtoRGBEffect::GLEffect::kJPEGConversionMatrix[16] = {
+const GrGLfloat YUVtoRGBEffect::GLProcessor::kJPEGConversionMatrix[16] = {
     1.0f,  0.0f,      1.402f,  -0.701f,
     1.0f, -0.34414f, -0.71414f, 0.529f,
     1.0f,  1.772f,    0.0f,    -0.886f,
     0.0f,  0.0f,      0.0f,     1.0};
-const GrGLfloat YUVtoRGBEffect::GLEffect::kRec601ConversionMatrix[16] = {
+const GrGLfloat YUVtoRGBEffect::GLProcessor::kRec601ConversionMatrix[16] = {
     1.164f,  0.0f,    1.596f, -0.87075f,
     1.164f, -0.391f, -0.813f,  0.52925f,
     1.164f,  2.018f,  0.0f,   -1.08175f,
@@ -140,7 +140,8 @@ const GrGLfloat YUVtoRGBEffect::GLEffect::kRec601ConversionMatrix[16] = {
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffect* GrYUVtoRGBEffect::Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                                   SkYUVColorSpace colorSpace) {
+GrFragmentProcessor*
+GrYUVtoRGBEffect::Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
+                         SkYUVColorSpace colorSpace) {
     return YUVtoRGBEffect::Create(yTexture, uTexture, vTexture, colorSpace);
 }

@@ -54,9 +54,8 @@ public:
 
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
 
-    virtual bool asNewEffect(GrContext* context, const SkPaint& paint,
-                             const SkMatrix* localMatrix, GrColor* paintColor,
-                             GrEffect** effect) const SK_OVERRIDE;
+    virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+                                     GrFragmentProcessor**) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorShader)

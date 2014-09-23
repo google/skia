@@ -8,7 +8,7 @@
 #ifndef GrCustomCoordsTextureEffect_DEFINED
 #define GrCustomCoordsTextureEffect_DEFINED
 
-#include "GrEffect.h"
+#include "GrProcessor.h"
 #include "GrGeometryProcessor.h"
 
 class GrGLCustomCoordsTextureEffect;
@@ -20,7 +20,7 @@ class GrGLCustomCoordsTextureEffect;
  */
 class GrCustomCoordsTextureEffect : public GrGeometryProcessor {
 public:
-    static GrEffect* Create(GrTexture* tex, const GrTextureParams& p) {
+    static GrGeometryProcessor* Create(GrTexture* tex, const GrTextureParams& p) {
         return SkNEW_ARGS(GrCustomCoordsTextureEffect, (tex, p));
     }
 
@@ -32,19 +32,19 @@ public:
 
     const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
 
-    typedef GrGLCustomCoordsTextureEffect GLEffect;
+    typedef GrGLCustomCoordsTextureEffect GLProcessor;
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     GrCustomCoordsTextureEffect(GrTexture* texture, const GrTextureParams& params);
 
-    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
     const GrShaderVar& fInTextureCoords;
 
-    GR_DECLARE_EFFECT_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
     typedef GrGeometryProcessor INHERITED;
 };

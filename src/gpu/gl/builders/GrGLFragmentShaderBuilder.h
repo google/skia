@@ -11,7 +11,62 @@
 
 class GrGLProgramBuilder;
 
-class GrGLFragmentShaderBuilder : public GrGLShaderBuilder {
+/*
+ * This base class encapsulates the functionality which all GrProcessors are allowed to use in their
+ * fragment shader
+ */
+class GrGLProcessorFragmentShaderBuilder : public GrGLShaderBuilder {
+public:
+    GrGLProcessorFragmentShaderBuilder(GrGLProgramBuilder* program) : INHERITED(program) {}
+    virtual ~GrGLProcessorFragmentShaderBuilder() {}
+    /**
+     * Use of these features may require a GLSL extension to be enabled. Shaders may not compile
+     * if code is added that uses one of these features without calling enableFeature()
+     */
+    enum GLSLFeature {
+        kStandardDerivatives_GLSLFeature = 0,
+        kLastGLSLFeature = kStandardDerivatives_GLSLFeature
+    };
+
+    /**
+     * If the feature is supported then true is returned and any necessary #extension declarations
+     * are added to the shaders. If the feature is not supported then false will be returned.
+     */
+    virtual bool enableFeature(GLSLFeature) = 0;
+
+    /**
+     * This returns a variable name to access the 2D, perspective correct version of the coords in
+     * the fragment shader. If the coordinates at index are 3-dimensional, it immediately emits a
+     * perspective divide into the fragment shader (xy / z) to convert them to 2D.
+     */
+    virtual SkString ensureFSCoords2D(const GrGLProcessor::TransformedCoordsArray& coords,
+                                      int index) = 0;
+
+
+    /** Returns a variable name that represents the position of the fragment in the FS. The position
+        is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
+    virtual const char* fragmentPosition() = 0;
+
+private:
+    typedef GrGLShaderBuilder INHERITED;
+};
+
+/*
+ * Fragment processor's, in addition to all of the above, may need to use dst color so they use
+ * this builder to create their shader
+ */
+class GrGLFragmentProcessorShaderBuilder : public GrGLProcessorFragmentShaderBuilder {
+public:
+    GrGLFragmentProcessorShaderBuilder(GrGLProgramBuilder* program) : INHERITED(program) {}
+    /** Returns the variable name that holds the color of the destination pixel. This may be NULL if
+        no effect advertised that it will read the destination. */
+    virtual const char* dstColor() = 0;
+
+private:
+    typedef GrGLProcessorFragmentShaderBuilder INHERITED;
+};
+
+class GrGLFragmentShaderBuilder : public GrGLFragmentProcessorShaderBuilder {
 public:
     typedef uint8_t DstReadKey;
     typedef uint8_t FragPosKey;
@@ -28,36 +83,14 @@ public:
 
     GrGLFragmentShaderBuilder(GrGLProgramBuilder* program, const GrGLProgramDesc& desc);
 
-    /** Returns the variable name that holds the color of the destination pixel. This may be NULL if
-        no effect advertised that it will read the destination. */
-    const char* dstColor();
+    virtual const char* dstColor() SK_OVERRIDE;
 
-    /**
-     * Use of these features may require a GLSL extension to be enabled. Shaders may not compile
-     * if code is added that uses one of these features without calling enableFeature()
-     */
-    enum GLSLFeature {
-        kStandardDerivatives_GLSLFeature = 0,
-        kLastGLSLFeature = kStandardDerivatives_GLSLFeature
-    };
+    virtual bool enableFeature(GLSLFeature) SK_OVERRIDE;
 
-    /**
-     * If the feature is supported then true is returned and any necessary #extension declarations
-     * are added to the shaders. If the feature is not supported then false will be returned.
-     */
-    bool enableFeature(GLSLFeature);
+    virtual SkString ensureFSCoords2D(const GrGLProcessor::TransformedCoordsArray& coords,
+                                      int index) SK_OVERRIDE;
 
-    /**
-     * This returns a variable name to access the 2D, perspective correct version of the coords in
-     * the fragment shader. If the coordinates at index are 3-dimensional, it immediately emits a
-     * perspective divide into the fragment shader (xy / z) to convert them to 2D.
-     */
-    SkString ensureFSCoords2D(const TransformedCoordsArray& coords, int index);
-
-
-    /** Returns a variable name that represents the position of the fragment in the FS. The position
-        is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
-    const char* fragmentPosition();
+    virtual const char* fragmentPosition() SK_OVERRIDE;
 
 private:
     /*
@@ -113,7 +146,7 @@ private:
     friend class GrGLProgramBuilder;
     friend class GrGLFullProgramBuilder;
 
-    typedef GrGLShaderBuilder INHERITED;
+    typedef GrGLFragmentProcessorShaderBuilder INHERITED;
 };
 
 #endif

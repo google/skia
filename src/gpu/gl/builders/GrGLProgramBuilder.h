@@ -9,13 +9,14 @@
 #define GrGLProgramBuilder_DEFINED
 
 #include "GrAllocator.h"
-#include "GrBackendEffectFactory.h"
+#include "GrBackendProcessorFactory.h"
 #include "GrColor.h"
-#include "GrEffect.h"
+#include "GrProcessor.h"
 #include "GrGLFragmentShaderBuilder.h"
 #include "GrGLGeometryShaderBuilder.h"
 #include "GrGLVertexShaderBuilder.h"
 #include "SkTypes.h"
+#include "gl/GrGLProcessor.h"
 #include "gl/GrGLProgramDesc.h"
 #include "gl/GrGLProgramEffects.h"
 #include "gl/GrGLSL.h"
@@ -24,7 +25,7 @@
 #include <stdarg.h>
 
 class GrGLContextInfo;
-class GrEffectStage;
+class GrProcessorStage;
 class GrGLProgramDesc;
 
 /**
@@ -85,9 +86,9 @@ public:
      * @return true if generation was successful.
      */
 
-    bool genProgram(const GrEffectStage* inGeometryProcessor,
-                    const GrEffectStage* inColorStages[],
-                    const GrEffectStage* inCoverageStages[]);
+    bool genProgram(const GrGeometryStage* inGeometryProcessor,
+                    const GrFragmentStage* inColorStages[],
+                    const GrFragmentStage* inCoverageStages[]);
 
     GrGLProgramEffects* getGeometryProcessor() const {
         SkASSERT(fProgramID); return fGeometryProcessor.get();
@@ -149,7 +150,7 @@ protected:
     const GrGLProgramDesc& desc() const { return fDesc; }
 
     // Helper for emitEffects().
-    void createAndEmitEffects(const GrEffectStage* effectStages[],
+    void createAndEmitEffects(const GrFragmentStage* effectStages[],
                               int effectCnt,
                               const GrGLProgramDesc::EffectKeyProvider&,
                               GrGLSLExpr4* inOutFSColor);
@@ -158,7 +159,7 @@ protected:
      * A helper function called to emit the geometry processor as well as individual coverage
      * and color stages.  this will call into subclasses emit effect
      */
-    void emitEffect(const GrEffectStage& effectStage,
+    void emitEffect(const GrProcessorStage& effectStage,
                     int effectIndex,
                     const GrGLProgramDesc::EffectKeyProvider& keyProvider,
                     GrGLSLExpr4* inColor,
@@ -169,7 +170,8 @@ protected:
      * appends the necessary data to the TextureSamplerArray* object so effects can add texture
      * lookups to their code. This method is only meant to be called during the construction phase.
      */
-    void emitSamplers(const GrEffect& effect, GrGLEffect::TextureSamplerArray* outSamplers);
+    void emitSamplers(const GrProcessor& effect,
+                      GrGLProcessor::TextureSamplerArray* outSamplers);
 
     // Generates a name for a variable. The generated string will be name prefixed by the prefix
     // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're
@@ -193,7 +195,7 @@ protected:
             return SkToBool(fEffectStage);
         }
 
-        const GrEffectStage* effectStage() const {
+        const GrProcessorStage* effectStage() const {
             this->validate();
             return fEffectStage;
         }
@@ -205,7 +207,7 @@ protected:
 
         class AutoStageRestore : SkNoncopyable {
         public:
-            AutoStageRestore(CodeStage* codeStage, const GrEffectStage* newStage) {
+            AutoStageRestore(CodeStage* codeStage, const GrProcessorStage* newStage) {
                 SkASSERT(codeStage);
                 fSavedIndex = codeStage->fCurrentIndex;
                 fSavedEffectStage = codeStage->fEffectStage;
@@ -226,15 +228,64 @@ protected:
         private:
             CodeStage*              fCodeStage;
             int                     fSavedIndex;
-            const GrEffectStage*    fSavedEffectStage;
+            const GrProcessorStage*    fSavedEffectStage;
         };
     private:
         void validate() const { SkASSERT((NULL == fEffectStage) == (-1 == fCurrentIndex)); }
         int                     fNextIndex;
         int                     fCurrentIndex;
-        const GrEffectStage*    fEffectStage;
+        const GrProcessorStage*    fEffectStage;
     };
 
+    class GrGLProcessorEmitterInterface {
+     public:
+        virtual ~GrGLProcessorEmitterInterface() {}
+        virtual GrGLProcessor* createGLInstance() = 0;
+        virtual void emit(const GrProcessorKey& key,
+                          const char* outColor,
+                          const char* inColor,
+                          const GrGLProcessor::TransformedCoordsArray& coords,
+                          const GrGLProcessor::TextureSamplerArray& samplers) = 0;
+    };
+
+    class GrGLFragmentProcessorEmitter  : public GrGLProcessorEmitterInterface {
+    public:
+        GrGLFragmentProcessorEmitter(GrGLProgramBuilder* builder)
+            : fBuilder(builder)
+            , fFragmentProcessor(NULL)
+            , fGLFragmentProcessor(NULL) {}
+        virtual ~GrGLFragmentProcessorEmitter() {}
+        void set(const GrFragmentProcessor* fp) {
+            SkASSERT(NULL == fFragmentProcessor);
+            fFragmentProcessor = fp;
+        }
+        virtual GrGLProcessor* createGLInstance() {
+            SkASSERT(fFragmentProcessor);
+            SkASSERT(NULL == fGLFragmentProcessor);
+            fGLFragmentProcessor =
+                    fFragmentProcessor->getFactory().createGLInstance(*fFragmentProcessor);
+            return fGLFragmentProcessor;
+        }
+        virtual void emit(const GrProcessorKey& key,
+                          const char* outColor,
+                          const char* inColor,
+                          const GrGLProcessor::TransformedCoordsArray& coords,
+                          const GrGLProcessor::TextureSamplerArray& samplers) {
+            SkASSERT(fFragmentProcessor);
+            SkASSERT(fGLFragmentProcessor);
+            fGLFragmentProcessor->emitCode(fBuilder, *fFragmentProcessor, key, outColor, inColor,
+                                           coords, samplers);
+            // this will not leak because it hasa already been used by createGLInstance
+            fGLFragmentProcessor = NULL;
+            fFragmentProcessor = NULL;
+        }
+    private:
+        GrGLProgramBuilder*         fBuilder;
+        const GrFragmentProcessor*  fFragmentProcessor;
+        GrGLFragmentProcessor*      fGLFragmentProcessor;
+    };
+
+    GrGLProcessorEmitterInterface*   fEffectEmitter;
     CodeStage                        fCodeStage;
     SkAutoTUnref<GrGLProgramEffects> fGeometryProcessor;
     SkAutoTUnref<GrGLProgramEffects> fColorEffects;
@@ -247,16 +298,16 @@ protected:
     SeparableVaryingInfoArray        fSeparableVaryingInfos;
 
 private:
-    virtual void createAndEmitEffects(const GrEffectStage* geometryProcessor,
-                                      const GrEffectStage* colorStages[],
-                                      const GrEffectStage* coverageStages[],
+    virtual void createAndEmitEffects(const GrGeometryStage* geometryProcessor,
+                                      const GrFragmentStage* colorStages[],
+                                      const GrFragmentStage* coverageStages[],
                                       GrGLSLExpr4* inputColor,
                                       GrGLSLExpr4* inputCoverage) = 0;
     /*
      * Subclasses override emitEffect below to emit data and code for a specific single effect
      */
-    virtual void emitEffect(const GrEffectStage&,
-                            const GrEffectKey&,
+    virtual void emitEffect(const GrProcessorStage&,
+                            const GrProcessorKey&,
                             const char* outColor,
                             const char* inColor,
                             int stageIndex) = 0;
@@ -272,6 +323,8 @@ private:
      * struct.
      **/
     bool finish();
+
+    GrGLFragmentProcessorEmitter            fGrProcessorEmitter;
 
     const GrGLProgramDesc&                  fDesc;
     GrGpuGL*                                fGpu;

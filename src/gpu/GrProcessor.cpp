@@ -5,21 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrEffect.h"
-#include "GrBackendEffectFactory.h"
+#include "GrProcessor.h"
+#include "GrBackendProcessorFactory.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrMemoryPool.h"
 #include "SkTLS.h"
 
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-SkTArray<GrEffectTestFactory*, true>* GrEffectTestFactory::GetFactories() {
-    static SkTArray<GrEffectTestFactory*, true> gFactories;
-    return &gFactories;
-}
-#endif
-
-namespace GrEffectUnitTest {
+namespace GrProcessorUnitTest {
 const SkMatrix& TestMatrix(SkRandom* random) {
     static SkMatrix gMatrices[5];
     static bool gOnce;
@@ -39,7 +32,7 @@ const SkMatrix& TestMatrix(SkRandom* random) {
 }
 }
 
-class GrEffect_Globals {
+class GrProcessor_Globals {
 public:
     static GrMemoryPool* GetTLS() {
         return (GrMemoryPool*)SkTLS::Get(CreateTLS, DeleteTLS);
@@ -55,36 +48,37 @@ private:
     }
 };
 
-int32_t GrBackendEffectFactory::fCurrEffectClassID = GrBackendEffectFactory::kIllegalEffectClassID;
+int32_t GrBackendProcessorFactory::fCurrEffectClassID =
+        GrBackendProcessorFactory::kIllegalEffectClassID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrEffect::~GrEffect() {}
+GrProcessor::~GrProcessor() {}
 
-const char* GrEffect::name() const {
+const char* GrProcessor::name() const {
     return this->getFactory().name();
 }
 
-void GrEffect::addCoordTransform(const GrCoordTransform* transform) {
+void GrProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
     SkDEBUGCODE(transform->setInEffect();)
 }
 
-void GrEffect::addTextureAccess(const GrTextureAccess* access) {
+void GrProcessor::addTextureAccess(const GrTextureAccess* access) {
     fTextureAccesses.push_back(access);
     this->addGpuResource(access->getProgramTexture());
 }
 
-void* GrEffect::operator new(size_t size) {
-    return GrEffect_Globals::GetTLS()->allocate(size);
+void* GrProcessor::operator new(size_t size) {
+    return GrProcessor_Globals::GetTLS()->allocate(size);
 }
 
-void GrEffect::operator delete(void* target) {
-    GrEffect_Globals::GetTLS()->release(target);
+void GrProcessor::operator delete(void* target) {
+    GrProcessor_Globals::GetTLS()->release(target);
 }
 
 #ifdef SK_DEBUG
-void GrEffect::assertEquality(const GrEffect& other) const {
+void GrProcessor::assertEquality(const GrProcessor& other) const {
     SkASSERT(this->numTransforms() == other.numTransforms());
     for (int i = 0; i < this->numTransforms(); ++i) {
         SkASSERT(this->coordTransform(i) == other.coordTransform(i));

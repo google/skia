@@ -111,7 +111,7 @@ protected:
                 SkMatrix tm;
                 tm = vm;
                 tm.postIDiv(2*S, 2*S);
-                paint.addColorTextureEffect(texture, tm);
+                paint.addColorTextureProcessor(texture, tm);
 
                 ctx->drawRect(paint, SkRect::MakeWH(2*S, 2*S));
 

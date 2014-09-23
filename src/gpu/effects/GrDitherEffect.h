@@ -11,13 +11,13 @@
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
 
-class GrEffect;
+class GrProcessor;
 
 namespace GrDitherEffect {
     /**
      * Creates an effect that dithers the resulting color to an RGBA8 framebuffer
      */
-    GrEffect* Create();
+    GrFragmentProcessor* Create();
 };
 
 #endif

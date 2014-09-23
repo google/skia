@@ -48,9 +48,9 @@ bool GrRODrawState::isEqual(const GrRODrawState& that) const {
     if (this->hasGeometryProcessor()) {
         if (!that.hasGeometryProcessor()) {
             return false;
-        } else if (!GrEffectStage::AreCompatible(*this->getGeometryProcessor(),
-                                                 *that.getGeometryProcessor(),
-                                                 explicitLocalCoords)) {
+        } else if (!GrProcessorStage::AreCompatible(*this->getGeometryProcessor(),
+                                                    *that.getGeometryProcessor(),
+                                                    explicitLocalCoords)) {
             return false;
         }
     } else if (that.hasGeometryProcessor()) {
@@ -58,14 +58,14 @@ bool GrRODrawState::isEqual(const GrRODrawState& that) const {
     }
 
     for (int i = 0; i < this->numColorStages(); i++) {
-        if (!GrEffectStage::AreCompatible(this->getColorStage(i), that.getColorStage(i),
-                                          explicitLocalCoords)) {
+        if (!GrProcessorStage::AreCompatible(this->getColorStage(i), that.getColorStage(i),
+                                             explicitLocalCoords)) {
             return false;
         }
     }
     for (int i = 0; i < this->numCoverageStages(); i++) {
-        if (!GrEffectStage::AreCompatible(this->getCoverageStage(i), that.getCoverageStage(i),
-                                          explicitLocalCoords)) {
+        if (!GrProcessorStage::AreCompatible(this->getCoverageStage(i), that.getCoverageStage(i),
+                                             explicitLocalCoords)) {
             return false;
         }
     }
@@ -87,17 +87,17 @@ bool GrRODrawState::validateVertexAttribs() const {
     }
 
     if (this->hasGeometryProcessor()) {
-        const GrEffectStage& stage = *this->getGeometryProcessor();
-        const GrEffect* effect = stage.getEffect();
-        SkASSERT(effect);
+        const GrGeometryStage& stage = *this->getGeometryProcessor();
+        const GrGeometryProcessor* gp = stage.getGeometryProcessor();
+        SkASSERT(gp);
         // make sure that any attribute indices have the correct binding type, that the attrib
         // type and effect's shader lang type are compatible, and that attributes shared by
         // multiple effects use the same shader lang type.
-        const GrEffect::VertexAttribArray& s = effect->getVertexAttribs();
+        const GrGeometryProcessor::VertexAttribArray& s = gp->getVertexAttribs();
 
         int effectIndex = 0;
         for (int index = 0; index < fVACount; index++) {
-            if (kEffect_GrVertexAttribBinding != fVAPtr[index].fBinding) {
+            if (kGeometryProcessor_GrVertexAttribBinding != fVAPtr[index].fBinding) {
                 // we only care about effect bindings
                 continue;
             }
@@ -138,12 +138,12 @@ bool GrRODrawState::hasSolidCoverage() const {
 
     // Run through the coverage stages and see if the coverage will be all ones at the end.
     if (this->hasGeometryProcessor()) {
-        const GrEffect* effect = fGeometryProcessor->getEffect();
-        effect->getConstantColorComponents(&coverage, &validComponentFlags);
+        const GrGeometryProcessor* gp = fGeometryProcessor->getGeometryProcessor();
+        gp->getConstantColorComponents(&coverage, &validComponentFlags);
     }
     for (int s = 0; s < this->numCoverageStages(); ++s) {
-        const GrEffect* effect = this->getCoverageStage(s).getEffect();
-        effect->getConstantColorComponents(&coverage, &validComponentFlags);
+        const GrProcessor* processor = this->getCoverageStage(s).getProcessor();
+        processor->getConstantColorComponents(&coverage, &validComponentFlags);
     }
     return (kRGBA_GrColorComponentFlags == validComponentFlags) && (0xffffffff == coverage);
 }
@@ -153,18 +153,13 @@ bool GrRODrawState::hasSolidCoverage() const {
 bool GrRODrawState::willEffectReadDstColor() const {
     if (!this->isColorWriteDisabled()) {
         for (int s = 0; s < this->numColorStages(); ++s) {
-            if (this->getColorStage(s).getEffect()->willReadDstColor()) {
+            if (this->getColorStage(s).getFragmentProcessor()->willReadDstColor()) {
                 return true;
             }
         }
     }
     for (int s = 0; s < this->numCoverageStages(); ++s) {
-        if (this->getCoverageStage(s).getEffect()->willReadDstColor()) {
-            return true;
-        }
-    }
-    if (this->hasGeometryProcessor()) {
-        if (fGeometryProcessor->getEffect()->willReadDstColor()) {
+        if (this->getCoverageStage(s).getFragmentProcessor()->willReadDstColor()) {
             return true;
         }
     }
@@ -319,8 +314,8 @@ bool GrRODrawState::srcAlphaWillBeOne() const {
 
     // Run through the color stages
     for (int s = 0; s < this->numColorStages(); ++s) {
-        const GrEffect* effect = this->getColorStage(s).getEffect();
-        effect->getConstantColorComponents(&color, &validComponentFlags);
+        const GrProcessor* processor = this->getColorStage(s).getProcessor();
+        processor->getConstantColorComponents(&color, &validComponentFlags);
     }
 
     // Check whether coverage is treated as color. If so we run through the coverage computation.
@@ -339,8 +334,8 @@ bool GrRODrawState::srcAlphaWillBeOne() const {
 
         // Run through the coverage stages
         for (int s = 0; s < this->numCoverageStages(); ++s) {
-            const GrEffect* effect = this->getCoverageStage(s).getEffect();
-            effect->getConstantColorComponents(&coverage, &coverageComponentFlags);
+            const GrProcessor* processor = this->getCoverageStage(s).getProcessor();
+            processor->getConstantColorComponents(&coverage, &coverageComponentFlags);
         }
 
         // Since the shader will multiply coverage and color, the only way the final A==1 is if

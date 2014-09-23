@@ -91,10 +91,8 @@ protected:
 
 
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffect** effect,
-                             GrTexture*,
-                             const SkMatrix& ctm,
-                             const SkIRect& bounds) const SK_OVERRIDE;
+    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
+                                     const SkIRect& bounds) const SK_OVERRIDE;
 #endif
 
 private:

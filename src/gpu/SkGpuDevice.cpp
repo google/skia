@@ -588,7 +588,7 @@ bool draw_mask(GrContext* context, const SkRect& maskRect,
     matrix.setTranslate(-maskRect.fLeft, -maskRect.fTop);
     matrix.postIDiv(mask->width(), mask->height());
 
-    grp->addCoverageEffect(GrSimpleTextureEffect::Create(mask, matrix))->unref();
+    grp->addCoverageProcessor(GrSimpleTextureEffect::Create(mask, matrix))->unref();
     context->drawRect(*grp, maskRect);
     return true;
 }
@@ -1308,7 +1308,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                       SkScalarMul(srcRect.fBottom, hInv));
 
     SkRect textureDomain = SkRect::MakeEmpty();
-    SkAutoTUnref<GrEffect> effect;
+    SkAutoTUnref<GrFragmentProcessor> fp;
     if (needsTextureDomain && !(flags & SkCanvas::kBleed_DrawBitmapRectFlag)) {
         // Use a constrained texture domain to avoid color bleeding
         SkScalar left, top, right, bottom;
@@ -1328,9 +1328,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         }
         textureDomain.setLTRB(left, top, right, bottom);
         if (bicubic) {
-            effect.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), textureDomain));
+            fp.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), textureDomain));
         } else {
-            effect.reset(GrTextureDomainEffect::Create(texture,
+            fp.reset(GrTextureDomainEffect::Create(texture,
                                                        SkMatrix::I(),
                                                        textureDomain,
                                                        GrTextureDomain::kClamp_Mode,
@@ -1339,15 +1339,15 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     } else if (bicubic) {
         SkASSERT(GrTextureParams::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        effect.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), tileModes));
+        fp.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), tileModes));
     } else {
-        effect.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
+        fp.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
     }
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
     GrPaint grPaint;
-    grPaint.addColorEffect(effect);
+    grPaint.addColorProcessor(fp);
     bool alphaOnly = !(kAlpha_8_SkColorType == bitmap.colorType());
     GrColor paintColor = (alphaOnly) ? SkColor2GrColorJustAlpha(paint.getColor()) :
                                        SkColor2GrColor(paint.getColor());
@@ -1416,7 +1416,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     }
 
     GrPaint grPaint;
-    grPaint.addColorTextureEffect(texture, SkMatrix::I());
+    grPaint.addColorTextureProcessor(texture, SkMatrix::I());
 
     SkPaint2GrPaintNoShader(this->context(), paint, SkColor2GrColorJustAlpha(paint.getColor()),
                             false, &grPaint);
@@ -1527,7 +1527,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     }
 
     GrPaint grPaint;
-    grPaint.addColorTextureEffect(devTex, SkMatrix::I());
+    grPaint.addColorTextureProcessor(devTex, SkMatrix::I());
 
     SkPaint2GrPaintNoShader(this->context(), paint, SkColor2GrColorJustAlpha(paint.getColor()),
                             false, &grPaint);

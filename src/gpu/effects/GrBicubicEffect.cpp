@@ -19,23 +19,23 @@ const SkScalar GrBicubicEffect::gMitchellCoefficients[16] = {
 };
 
 
-class GrGLBicubicEffect : public GrGLEffect {
+class GrGLBicubicEffect : public GrGLFragmentProcessor {
 public:
-    GrGLBicubicEffect(const GrBackendEffectFactory& factory,
-                      const GrEffect&);
+    GrGLBicubicEffect(const GrBackendProcessorFactory& factory,
+                      const GrProcessor&);
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrEffect&,
-                          const GrEffectKey&,
+                          const GrFragmentProcessor&,
+                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrEffect& effect, const GrGLCaps&,
-                              GrEffectKeyBuilder* b) {
+    static inline void GenKey(const GrProcessor& effect, const GrGLCaps&,
+                              GrProcessorKeyBuilder* b) {
         const GrTextureDomain& domain = effect.cast<GrBicubicEffect>().domain();
         b->add32(GrTextureDomain::GLDomain::DomainKey(domain));
     }
@@ -47,16 +47,16 @@ private:
     UniformHandle               fImageIncrementUni;
     GrTextureDomain::GLDomain   fDomain;
 
-    typedef GrGLEffect INHERITED;
+    typedef GrGLFragmentProcessor INHERITED;
 };
 
-GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendProcessorFactory& factory, const GrProcessor&)
     : INHERITED(factory) {
 }
 
 void GrGLBicubicEffect::emitCode(GrGLProgramBuilder* builder,
-                                 const GrEffect& effect,
-                                 const GrEffectKey& key,
+                                 const GrFragmentProcessor& effect,
+                                 const GrProcessorKey& key,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const TransformedCoordsArray& coords,
@@ -116,9 +116,9 @@ void GrGLBicubicEffect::emitCode(GrGLProgramBuilder* builder,
 }
 
 void GrGLBicubicEffect::setData(const GrGLProgramDataManager& pdman,
-                                const GrEffect& effect) {
-    const GrBicubicEffect& bicubicEffect = effect.cast<GrBicubicEffect>();
-    const GrTexture& texture = *effect.texture(0);
+                                const GrProcessor& processor) {
+    const GrBicubicEffect& bicubicEffect = processor.cast<GrBicubicEffect>();
+    const GrTexture& texture = *processor.texture(0);
     float imageIncrement[2];
     imageIncrement[0] = 1.0f / texture.width();
     imageIncrement[1] = 1.0f / texture.height();
@@ -158,11 +158,11 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
 GrBicubicEffect::~GrBicubicEffect() {
 }
 
-const GrBackendEffectFactory& GrBicubicEffect::getFactory() const {
-    return GrTBackendEffectFactory<GrBicubicEffect>::getInstance();
+const GrBackendFragmentProcessorFactory& GrBicubicEffect::getFactory() const {
+    return GrTBackendFragmentProcessorFactory<GrBicubicEffect>::getInstance();
 }
 
-bool GrBicubicEffect::onIsEqual(const GrEffect& sBase) const {
+bool GrBicubicEffect::onIsEqual(const GrProcessor& sBase) const {
     const GrBicubicEffect& s = sBase.cast<GrBicubicEffect>();
     return this->textureAccess(0) == s.textureAccess(0) &&
            !memcmp(fCoefficients, s.coefficients(), 16) &&
@@ -175,14 +175,14 @@ void GrBicubicEffect::getConstantColorComponents(GrColor* color, uint32_t* valid
     return;
 }
 
-GR_DEFINE_EFFECT_TEST(GrBicubicEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
 
-GrEffect* GrBicubicEffect::TestCreate(SkRandom* random,
-                                      GrContext* context,
-                                      const GrDrawTargetCaps&,
-                                      GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
-                                      GrEffectUnitTest::kAlphaTextureIdx;
+GrFragmentProcessor* GrBicubicEffect::TestCreate(SkRandom* random,
+                                                 GrContext* context,
+                                                 const GrDrawTargetCaps&,
+                                                 GrTexture* textures[]) {
+    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
+                                      GrProcessorUnitTest::kAlphaTextureIdx;
     SkScalar coefficients[16];
     for (int i = 0; i < 16; i++) {
         coefficients[i] = random->nextSScalar1();

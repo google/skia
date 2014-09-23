@@ -223,9 +223,8 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
     return kNone_GradientType;
 }
 
-bool SkShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                           const SkMatrix* localMatrixOrNull, GrColor* paintColor,
-                           GrEffect** effect)  const {
+bool SkShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+                                   GrFragmentProcessor**)  const {
     return false;
 }
 
@@ -370,10 +369,9 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 
 #include "SkGr.h"
 
-bool SkColorShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                const SkMatrix* localMatrix, GrColor* paintColor,
-                                GrEffect** effect) const {
-    *effect = NULL;
+bool SkColorShader::asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix*,
+                                        GrColor* paintColor, GrFragmentProcessor** fp) const {
+    *fp = NULL;
     SkColor skColor = fColor;
     U8CPU newA = SkMulDiv255Round(SkColorGetA(fColor), paint.getAlpha());
     *paintColor = SkColor2GrColor(SkColorSetA(skColor, newA));
@@ -382,9 +380,8 @@ bool SkColorShader::asNewEffect(GrContext* context, const SkPaint& paint,
 
 #else
 
-bool SkColorShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                     const SkMatrix* localMatrix, GrColor* paintColor,
-                                     GrEffect** effect) const {
+bool SkColorShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+                                        GrFragmentProcessor**) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

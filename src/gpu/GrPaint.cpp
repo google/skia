@@ -11,24 +11,24 @@
 #include "GrBlend.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-void GrPaint::addColorTextureEffect(GrTexture* texture, const SkMatrix& matrix) {
-    this->addColorEffect(GrSimpleTextureEffect::Create(texture, matrix))->unref();
+void GrPaint::addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
+    this->addColorProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
 }
 
-void GrPaint::addCoverageTextureEffect(GrTexture* texture, const SkMatrix& matrix) {
-    this->addCoverageEffect(GrSimpleTextureEffect::Create(texture, matrix))->unref();
+void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
+    this->addCoverageProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
 }
 
-void GrPaint::addColorTextureEffect(GrTexture* texture,
+void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                     const SkMatrix& matrix,
                                     const GrTextureParams& params) {
-    this->addColorEffect(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
+    this->addColorProcessor(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
 }
 
-void GrPaint::addCoverageTextureEffect(GrTexture* texture,
+void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
                                        const SkMatrix& matrix,
                                        const GrTextureParams& params) {
-    this->addCoverageEffect(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
+    this->addCoverageProcessor(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
 }
 
 bool GrPaint::isOpaque() const {
@@ -56,7 +56,7 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
     uint32_t coverageComps = kRGBA_GrColorComponentFlags;
     int count = fCoverageStages.count();
     for (int i = 0; i < count; ++i) {
-        fCoverageStages[i].getEffect()->getConstantColorComponents(&coverage, &coverageComps);
+        fCoverageStages[i].getProcessor()->getConstantColorComponents(&coverage, &coverageComps);
     }
     if (kRGBA_GrColorComponentFlags != coverageComps || 0xffffffff != coverage) {
         return false;
@@ -66,7 +66,7 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
     uint32_t colorComps = kRGBA_GrColorComponentFlags;
     count = fColorStages.count();
     for (int i = 0; i < count; ++i) {
-        fColorStages[i].getEffect()->getConstantColorComponents(&color, &colorComps);
+        fColorStages[i].getProcessor()->getConstantColorComponents(&color, &colorComps);
     }
 
     SkASSERT((NULL == solidColor) == (NULL == solidColorKnownComponents));

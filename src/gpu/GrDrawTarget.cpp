@@ -390,16 +390,16 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     SkASSERT(drawState.getRenderTarget());
 
     if (drawState.hasGeometryProcessor()) {
-        const GrEffect* effect = drawState.getGeometryProcessor()->getEffect();
-        int numTextures = effect->numTextures();
+        const GrGeometryProcessor* gp = drawState.getGeometryProcessor()->getGeometryProcessor();
+        int numTextures = gp->numTextures();
         for (int t = 0; t < numTextures; ++t) {
-            GrTexture* texture = effect->texture(t);
+            GrTexture* texture = gp->texture(t);
             SkASSERT(texture->asRenderTarget() != drawState.getRenderTarget());
         }
     }
 
     for (int s = 0; s < drawState.numColorStages(); ++s) {
-        const GrEffect* effect = drawState.getColorStage(s).getEffect();
+        const GrProcessor* effect = drawState.getColorStage(s).getProcessor();
         int numTextures = effect->numTextures();
         for (int t = 0; t < numTextures; ++t) {
             GrTexture* texture = effect->texture(t);
@@ -407,7 +407,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         }
     }
     for (int s = 0; s < drawState.numCoverageStages(); ++s) {
-        const GrEffect* effect = drawState.getCoverageStage(s).getEffect();
+        const GrProcessor* effect = drawState.getCoverageStage(s).getProcessor();
         int numTextures = effect->numTextures();
         for (int t = 0; t < numTextures; ++t) {
             GrTexture* texture = effect->texture(t);
@@ -984,7 +984,7 @@ bool GrDrawTarget::onCopySurface(GrSurface* dst,
     matrix.setTranslate(SkIntToScalar(srcRect.fLeft - dstPoint.fX),
                         SkIntToScalar(srcRect.fTop - dstPoint.fY));
     matrix.postIDiv(tex->width(), tex->height());
-    this->drawState()->addColorTextureEffect(tex, matrix);
+    this->drawState()->addColorTextureProcessor(tex, matrix);
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX,
                                         dstPoint.fY,
                                         srcRect.width(),

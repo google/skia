@@ -298,10 +298,10 @@ static inline int next_dither_toggle16(int toggle) {
 #if SK_SUPPORT_GPU
 
 #include "GrCoordTransform.h"
-#include "gl/GrGLEffect.h"
+#include "gl/GrGLProcessor.h"
 
-class GrEffectStage;
-class GrBackendEffectFactory;
+class GrProcessorStage;
+class GrBackendProcessorFactory;
 
 /*
  * The interpretation of the texture matrix depends on the sample mode. The
@@ -329,7 +329,7 @@ class GrBackendEffectFactory;
  class GrTextureStripAtlas;
 
 // Base class for Gr gradient effects
-class GrGradientEffect : public GrEffect {
+class GrGradientEffect : public GrFragmentProcessor {
 public:
 
     GrGradientEffect(GrContext* ctx,
@@ -374,7 +374,7 @@ protected:
                                     SkScalar** stops,
                                     SkShader::TileMode* tm);
 
-    virtual bool onIsEqual(const GrEffect& effect) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
 
     const GrCoordTransform& getCoordTransform() const { return fCoordTransform; }
 
@@ -391,19 +391,19 @@ private:
     SkColor fColors[3]; // More than 3 colors we use texture
     PremulType fPremulType; // This only changes behavior for two and three color special cases.
                             // It is already baked into to the table for texture gradients.
-    typedef GrEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 // Base class for GL gradient effects
-class GrGLGradientEffect : public GrGLEffect {
+class GrGLGradientEffect : public GrGLFragmentProcessor {
 public:
-    GrGLGradientEffect(const GrBackendEffectFactory& factory);
+    GrGLGradientEffect(const GrBackendProcessorFactory& factory);
     virtual ~GrGLGradientEffect();
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
 protected:
     /**
@@ -411,7 +411,7 @@ protected:
      * by the base class. The subclasses must stick it in their key and then pass it to the below
      * emit* functions from their emitCode function.
      */
-    static uint32_t GenBaseGradientKey(const GrEffect&);
+    static uint32_t GenBaseGradientKey(const GrProcessor&);
 
     // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
     // should call this method from their emitCode().
@@ -467,7 +467,7 @@ private:
     GrGLProgramDataManager::UniformHandle fColorMidUni;
     GrGLProgramDataManager::UniformHandle fColorEndUni;
 
-    typedef GrGLEffect INHERITED;
+    typedef GrGLFragmentProcessor INHERITED;
 };
 
 #endif

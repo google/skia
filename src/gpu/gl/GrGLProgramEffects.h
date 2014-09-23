@@ -8,21 +8,21 @@
 #ifndef GrGLProgramEffects_DEFINED
 #define GrGLProgramEffects_DEFINED
 
-#include "GrBackendEffectFactory.h"
+#include "GrBackendProcessorFactory.h"
 #include "GrGLProgramDataManager.h"
 #include "GrGpu.h"
 #include "GrTexture.h"
 #include "GrTextureAccess.h"
 
-class GrEffect;
-class GrEffectStage;
+class GrProcessor;
+class GrProcessorStage;
 class GrGLVertexProgramEffectsBuilder;
 class GrGLProgramBuilder;
 class GrGLFullProgramBuilder;
 class GrGLFragmentOnlyProgramBuilder;
 
 /**
- * This class encapsulates an array of GrGLEffects and their supporting data (coord transforms
+ * This class encapsulates an array of GrGLProcessors and their supporting data (coord transforms
  * and textures). It is built with GrGLProgramEffectsBuilder, then used to manage the necessary GL
  * state and shader uniforms.
  */
@@ -30,7 +30,6 @@ class GrGLProgramEffects : public SkRefCnt {
 public:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProgramDataManager::VaryingHandle VaryingHandle;
-
     virtual ~GrGLProgramEffects();
 
     /**
@@ -45,18 +44,25 @@ public:
     virtual void setData(GrGpuGL*,
                          GrGpu::DrawType,
                          const GrGLProgramDataManager&,
-                         const GrEffectStage* effectStages[]) = 0;
+                         const GrGeometryStage* effectStages) {
+        SkFAIL("For geometry processor only");
+    }
+
+    virtual void setData(GrGpuGL*,
+                         GrGpu::DrawType,
+                         const GrGLProgramDataManager&,
+                         const GrFragmentStage* effectStages[]) = 0;
 
 protected:
     GrGLProgramEffects(int reserveCount)
-        : fGLEffects(reserveCount)
+        : fGLProcessors(reserveCount)
         , fSamplers(reserveCount) {
     }
 
     /**
      * Helper for setData(). Binds all the textures for an effect.
      */
-    void bindTextures(GrGpuGL*, const GrEffect&, int effectIdx);
+    void bindTextures(GrGpuGL*, const GrProcessor&, int effectIdx);
 
     struct Sampler {
         SkDEBUGCODE(Sampler() : fTextureUnit(-1) {})
@@ -67,10 +73,10 @@ protected:
     /*
      * Helpers for shader builders to build up program effects objects alongside shader code
      */
-    void addEffect(GrGLEffect* effect) { fGLEffects.push_back(effect); }
+    void addEffect(GrGLProcessor* effect) { fGLProcessors.push_back(effect); }
     SkTArray<Sampler, true>& addSamplers() { return fSamplers.push_back(); }
 
-    SkTArray<GrGLEffect*>                  fGLEffects;
+    SkTArray<GrGLProcessor*>               fGLProcessors;
     SkTArray<SkSTArray<4, Sampler, true> > fSamplers;
 
 private:
@@ -91,7 +97,12 @@ public:
     virtual void setData(GrGpuGL*,
                          GrGpu::DrawType,
                          const GrGLProgramDataManager&,
-                         const GrEffectStage* effectStages[]) SK_OVERRIDE;
+                         const GrGeometryStage* effectStages) SK_OVERRIDE;
+
+    virtual void setData(GrGpuGL*,
+                         GrGpu::DrawType,
+                         const GrGLProgramDataManager&,
+                         const GrFragmentStage* effectStages[]) SK_OVERRIDE;
 
 private:
     GrGLVertexProgramEffects(int reserveCount, bool explicitLocalCoords)
@@ -123,10 +134,16 @@ private:
     /**
      * Helper for setData(). Sets all the transform matrices for an effect.
      */
-    void setTransformData(GrGpuGL* gpu, const GrGLProgramDataManager&, const GrEffectStage&,
+    void setDataInternal(GrGpuGL* gpu,
+                         GrGpu::DrawType drawType,
+                         const GrGLProgramDataManager& programDataManager,
+                         const GrProcessorStage& effectStage,
+                         int index);
+    void setTransformData(GrGpuGL* gpu, const GrGLProgramDataManager&, const GrProcessorStage&,
                           int effectIdx);
-    void setPathTransformData(GrGpuGL* gpu, const GrGLProgramDataManager&, const GrEffectStage&,
-                              int effectIdx);
+    void setPathTransformData(GrGpuGL* gpu, const GrGLProgramDataManager&,
+                              const GrProcessorStage&, int effectIdx);
+
 
     SkTArray<SkSTArray<2, Transform, true> > fTransforms;
     SkTArray<SkTArray<PathTransform, true> > fPathTransforms;
@@ -148,7 +165,7 @@ public:
     virtual void setData(GrGpuGL*,
                          GrGpu::DrawType,
                          const GrGLProgramDataManager&,
-                         const GrEffectStage* effectStages[]) SK_OVERRIDE;
+                         const GrFragmentStage* effectStages[]) SK_OVERRIDE;
 
 private:
     GrGLPathTexGenProgramEffects(int reserveCount)
@@ -159,7 +176,7 @@ private:
     /**
      * Helper for setData(). Sets the PathTexGen state for each transform in an effect.
      */
-    void setPathTexGenState(GrGpuGL*, const GrEffectStage&, int effectIdx);
+    void setPathTexGenState(GrGpuGL*, const GrProcessorStage&, int effectIdx);
 
     struct Transforms {
         Transforms(int texCoordIndex)

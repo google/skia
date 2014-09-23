@@ -10,16 +10,17 @@
 #include "../GrGpuGL.h"
 
 GrGLFullProgramBuilder::GrGLFullProgramBuilder(GrGpuGL* gpu,
-                                              const GrGLProgramDesc& desc)
+                                               const GrGLProgramDesc& desc)
     : INHERITED(gpu, desc)
+    , fGLGeometryProcessorEmitter(this)
     , fGS(this)
     , fVS(this) {
 }
 
 void
-GrGLFullProgramBuilder::createAndEmitEffects(const GrEffectStage* geometryProcessor,
-                                             const GrEffectStage* colorStages[],
-                                             const GrEffectStage* coverageStages[],
+GrGLFullProgramBuilder::createAndEmitEffects(const GrGeometryStage* geometryProcessor,
+                                             const GrFragmentStage* colorStages[],
+                                             const GrFragmentStage* coverageStages[],
                                              GrGLSLExpr4* inputColor,
                                              GrGLSLExpr4* inputCoverage) {
     fVS.emitCodeBeforeEffects(inputColor, inputCoverage);
@@ -27,7 +28,6 @@ GrGLFullProgramBuilder::createAndEmitEffects(const GrEffectStage* geometryProces
     ///////////////////////////////////////////////////////////////////////////
     // emit the per-effect code for both color and coverage effects
 
-    bool useLocalCoords = this->getVertexShaderBuilder()->hasExplicitLocalCoords();
     EffectKeyProvider colorKeyProvider(&this->desc(), EffectKeyProvider::kColor_EffectType);
     fColorEffects.reset(this->onCreateAndEmitEffects(colorStages,
                                                      this->desc().numColorEffects(),
@@ -35,10 +35,15 @@ GrGLFullProgramBuilder::createAndEmitEffects(const GrEffectStage* geometryProces
                                                      inputColor));
 
     if (geometryProcessor) {
+        const GrGeometryProcessor& gp = *geometryProcessor->getGeometryProcessor();
+        fGLGeometryProcessorEmitter.set(&gp);
+        fEffectEmitter = &fGLGeometryProcessorEmitter;
+        fVS.emitAttributes(gp);
         GrGLSLExpr4 gpInputCoverage = *inputCoverage;
         GrGLSLExpr4 gpOutputCoverage;
         EffectKeyProvider gpKeyProvider(&this->desc(),
                 EffectKeyProvider::kGeometryProcessor_EffectType);
+        bool useLocalCoords = this->getVertexShaderBuilder()->hasExplicitLocalCoords();
         fProgramEffects.reset(SkNEW_ARGS(GrGLVertexProgramEffects, (1, useLocalCoords)));
         this->INHERITED::emitEffect(*geometryProcessor, 0, gpKeyProvider, &gpInputCoverage,
                                     &gpOutputCoverage);
@@ -86,7 +91,7 @@ GrGLFullProgramBuilder::addSeparableVarying(GrSLType type,
 }
 
 GrGLProgramEffects* GrGLFullProgramBuilder::onCreateAndEmitEffects(
-        const GrEffectStage* effectStages[],
+        const GrFragmentStage* effectStages[],
         int effectCnt,
         const GrGLProgramDesc::EffectKeyProvider& keyProvider,
         GrGLSLExpr4* inOutFSColor) {
@@ -100,21 +105,21 @@ GrGLProgramEffects* GrGLFullProgramBuilder::onCreateAndEmitEffects(
     return fProgramEffects.detach();
 }
 
-void GrGLFullProgramBuilder::emitEffect(const GrEffectStage& stage,
-                                                 const GrEffectKey& key,
-                                                 const char* outColor,
-                                                 const char* inColor,
-                                                 int stageIndex) {
+void GrGLFullProgramBuilder::emitEffect(const GrProcessorStage& stage,
+                                        const GrProcessorKey& key,
+                                        const char* outColor,
+                                        const char* inColor,
+                                        int stageIndex) {
     SkASSERT(fProgramEffects.get());
-    const GrEffect& effect = *stage.getEffect();
-    SkSTArray<2, GrGLEffect::TransformedCoords> coords(effect.numTransforms());
-    SkSTArray<4, GrGLEffect::TextureSampler> samplers(effect.numTextures());
+    const GrProcessor& effect = *stage.getProcessor();
+    SkSTArray<2, GrGLProcessor::TransformedCoords> coords(effect.numTransforms());
+    SkSTArray<4, GrGLProcessor::TextureSampler> samplers(effect.numTextures());
 
-    fVS.emitAttributes(stage);
     this->emitTransforms(stage, &coords);
     this->emitSamplers(effect, &samplers);
 
-    GrGLEffect* glEffect = effect.getFactory().createGLInstance(effect);
+    SkASSERT(fEffectEmitter);
+    GrGLProcessor* glEffect = fEffectEmitter->createGLInstance();
     fProgramEffects->addEffect(glEffect);
 
     // Enclose custom code in a block to avoid namespace conflicts
@@ -123,22 +128,17 @@ void GrGLFullProgramBuilder::emitEffect(const GrEffectStage& stage,
     fFS.codeAppend(openBrace.c_str());
     fVS.codeAppend(openBrace.c_str());
 
-    if (glEffect->isVertexEffect()) {
-        GrGLGeometryProcessor* vertexEffect = static_cast<GrGLGeometryProcessor*>(glEffect);
-        vertexEffect->emitCode(this, effect, key, outColor, inColor, coords, samplers);
-    } else {
-        glEffect->emitCode(this, effect, key, outColor, inColor, coords, samplers);
-    }
+    fEffectEmitter->emit(key, outColor, inColor, coords, samplers);
 
     fVS.codeAppend("\t}\n");
     fFS.codeAppend("\t}\n");
 }
 
-void GrGLFullProgramBuilder::emitTransforms(const GrEffectStage& effectStage,
-                                            GrGLEffect::TransformedCoordsArray* outCoords) {
+void GrGLFullProgramBuilder::emitTransforms(const GrProcessorStage& effectStage,
+                                            GrGLProcessor::TransformedCoordsArray* outCoords) {
     SkTArray<GrGLVertexProgramEffects::Transform, true>& transforms =
             fProgramEffects->addTransforms();
-    const GrEffect* effect = effectStage.getEffect();
+    const GrProcessor* effect = effectStage.getProcessor();
     int numTransforms = effect->numTransforms();
     transforms.push_back_n(numTransforms);
 
@@ -199,7 +199,7 @@ void GrGLFullProgramBuilder::emitTransforms(const GrEffectStage& effectStage,
             fVS.codeAppendf("%s = %s * vec3(%s, 1);",
                             vsVaryingName, uniName, coords.c_str());
         }
-        SkNEW_APPEND_TO_TARRAY(outCoords, GrGLEffect::TransformedCoords,
+        SkNEW_APPEND_TO_TARRAY(outCoords, GrGLProcessor::TransformedCoords,
                                (SkString(fsVaryingName), varyingType));
     }
 }

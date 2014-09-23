@@ -8,11 +8,11 @@
 #include "GrAARectRenderer.h"
 #include "GrGpu.h"
 #include "gl/builders/GrGLFullProgramBuilder.h"
-#include "gl/GrGLEffect.h"
+#include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "GrTBackendEffectFactory.h"
+#include "GrTBackendProcessorFactory.h"
 #include "SkColorPriv.h"
-#include "effects/GrGeometryProcessor.h"
+#include "GrGeometryProcessor.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 class GrGLAlignedRectEffect;
@@ -20,8 +20,8 @@ class GrGLAlignedRectEffect;
 // Axis Aligned special case
 class GrAlignedRectEffect : public GrGeometryProcessor {
 public:
-    static GrEffect* Create() {
-        GR_CREATE_STATIC_EFFECT(gAlignedRectEffect, GrAlignedRectEffect, ());
+    static GrGeometryProcessor* Create() {
+        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gAlignedRectEffect, GrAlignedRectEffect, ());
         gAlignedRectEffect->ref();
         return gAlignedRectEffect;
     }
@@ -37,18 +37,18 @@ public:
 
     const GrShaderVar& inRect() const { return fInRect; }
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendEffectFactory<GrAlignedRectEffect>::getInstance();
+    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendGeometryProcessorFactory<GrAlignedRectEffect>::getInstance();
     }
 
-    class GLEffect : public GrGLGeometryProcessor {
+    class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+        GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
         virtual void emitCode(GrGLFullProgramBuilder* builder,
-                              const GrEffect& effect,
-                              const GrEffectKey& key,
+                              const GrGeometryProcessor& geometryProcessor,
+                              const GrProcessorKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -59,11 +59,11 @@ public:
             const char *vsRectName, *fsRectName;
             builder->addVarying(kVec4f_GrSLType, "Rect", &vsRectName, &fsRectName);
 
-            const GrShaderVar& inRect = effect.cast<GrAlignedRectEffect>().inRect();
+            const GrShaderVar& inRect = geometryProcessor.cast<GrAlignedRectEffect>().inRect();
             GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
             vsBuilder->codeAppendf("\t%s = %s;\n", vsRectName, inRect.c_str());
 
-            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             // TODO: compute all these offsets, spans, and scales in the VS
             fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.z) - 0.5;\n", fsRectName);
             fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.w) - 0.5;\n", fsRectName);
@@ -92,9 +92,9 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("coverage")).c_str());
         }
 
-        static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
+        static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
 
-        virtual void setData(const GrGLProgramDataManager& pdman, const GrEffect&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager& pdman, const GrProcessor&) SK_OVERRIDE {}
 
     private:
         typedef GrGLGeometryProcessor INHERITED;
@@ -110,20 +110,20 @@ private:
 
     const GrShaderVar& fInRect;
 
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE { return true; }
+    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
 
-    GR_DECLARE_EFFECT_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
     typedef GrGeometryProcessor INHERITED;
 };
 
 
-GR_DEFINE_EFFECT_TEST(GrAlignedRectEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrAlignedRectEffect);
 
-GrEffect* GrAlignedRectEffect::TestCreate(SkRandom* random,
-                                          GrContext* context,
-                                          const GrDrawTargetCaps&,
-                                          GrTexture* textures[]) {
+GrGeometryProcessor* GrAlignedRectEffect::TestCreate(SkRandom* random,
+                                                     GrContext* context,
+                                                     const GrDrawTargetCaps&,
+                                                     GrTexture* textures[]) {
     return GrAlignedRectEffect::Create();
 }
 
@@ -145,8 +145,8 @@ class GrGLRectEffect;
 
 class GrRectEffect : public GrGeometryProcessor {
 public:
-    static GrEffect* Create() {
-        GR_CREATE_STATIC_EFFECT(gRectEffect, GrRectEffect, ());
+    static GrGeometryProcessor* Create() {
+        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gRectEffect, GrRectEffect, ());
         gRectEffect->ref();
         return gRectEffect;
     }
@@ -163,18 +163,18 @@ public:
     const GrShaderVar& inRectEdge() const { return fInRectEdge; }
     const GrShaderVar& inWidthHeight() const { return fInWidthHeight; }
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendEffectFactory<GrRectEffect>::getInstance();
+    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendGeometryProcessorFactory<GrRectEffect>::getInstance();
     }
 
-    class GLEffect : public GrGLGeometryProcessor {
+    class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+        GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
         virtual void emitCode(GrGLFullProgramBuilder* builder,
-                              const GrEffect& effect,
-                              const GrEffectKey& key,
+                              const GrGeometryProcessor& geometryProcessor,
+                              const GrProcessorKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -185,7 +185,7 @@ public:
             builder->addVarying(kVec4f_GrSLType, "RectEdge",
                                 &vsRectEdgeName, &fsRectEdgeName);
 
-            const GrRectEffect& rectEffect = effect.cast<GrRectEffect>();
+            const GrRectEffect& rectEffect = geometryProcessor.cast<GrRectEffect>();
             GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
             vsBuilder->codeAppendf("%s = %s;", vsRectEdgeName, rectEffect.inRectEdge().c_str());
 
@@ -197,7 +197,7 @@ public:
                                    vsWidthHeightName,
                                    rectEffect.inWidthHeight().c_str());
 
-            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             // TODO: compute all these offsets, spans, and scales in the VS
             fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.x) - 0.5;\n", fsWidthHeightName);
             fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.y) - 0.5;\n", fsWidthHeightName);
@@ -233,9 +233,9 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("coverage")).c_str());
         }
 
-        static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder*) {}
+        static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
 
-        virtual void setData(const GrGLProgramDataManager& pdman, const GrEffect&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager& pdman, const GrProcessor&) SK_OVERRIDE {}
 
     private:
         typedef GrGLGeometryProcessor INHERITED;
@@ -255,23 +255,23 @@ private:
         this->setWillReadFragmentPosition();
     }
 
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE { return true; }
+    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
 
     const GrShaderVar& fInRectEdge;
     const GrShaderVar& fInWidthHeight;
 
-    GR_DECLARE_EFFECT_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
     typedef GrGeometryProcessor INHERITED;
 };
 
 
-GR_DEFINE_EFFECT_TEST(GrRectEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRectEffect);
 
-GrEffect* GrRectEffect::TestCreate(SkRandom* random,
-                                   GrContext* context,
-                                   const GrDrawTargetCaps&,
-                                   GrTexture* textures[]) {
+GrGeometryProcessor* GrRectEffect::TestCreate(SkRandom* random,
+                                              GrContext* context,
+                                              const GrDrawTargetCaps&,
+                                              GrTexture* textures[]) {
     return GrRectEffect::Create();
 }
 
@@ -611,8 +611,8 @@ struct RectVertex {
 // Rotated
 extern const GrVertexAttrib gAARectVertexAttribs[] = {
     { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding },
-    { kVec4f_GrVertexAttribType, sizeof(SkPoint),   kEffect_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 3*sizeof(SkPoint), kEffect_GrVertexAttribBinding }
+    { kVec4f_GrVertexAttribType, sizeof(SkPoint),   kGeometryProcessor_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, 3*sizeof(SkPoint), kGeometryProcessor_GrVertexAttribBinding }
 };
 
 // Axis Aligned
@@ -625,7 +625,7 @@ struct AARectVertex {
 // Axis Aligned
 extern const GrVertexAttrib gAAAARectVertexAttribs[] = {
     { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding },
-    { kVec4f_GrVertexAttribType, sizeof(SkPoint),   kEffect_GrVertexAttribBinding },
+    { kVec4f_GrVertexAttribType, sizeof(SkPoint),   kGeometryProcessor_GrVertexAttribBinding },
 };
 
 };
@@ -662,8 +662,8 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
 
     RectVertex* verts = reinterpret_cast<RectVertex*>(geo.vertices());
 
-    GrEffect* effect = GrRectEffect::Create();
-    drawState->setGeometryProcessor(effect)->unref();
+    GrGeometryProcessor* gp = GrRectEffect::Create();
+    drawState->setGeometryProcessor(gp)->unref();
 
     for (int i = 0; i < 4; ++i) {
         verts[i].fCenter = center;
@@ -710,8 +710,8 @@ void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
 
     AARectVertex* verts = reinterpret_cast<AARectVertex*>(geo.vertices());
 
-    GrEffect* effect = GrAlignedRectEffect::Create();
-    drawState->setGeometryProcessor(effect)->unref();
+    GrGeometryProcessor* gp = GrAlignedRectEffect::Create();
+    drawState->setGeometryProcessor(gp)->unref();
 
     SkRect devRect;
     combinedMatrix.mapRect(&devRect, rect);

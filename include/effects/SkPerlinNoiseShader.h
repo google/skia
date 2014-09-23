@@ -96,8 +96,8 @@ public:
         typedef SkShader::Context INHERITED;
     };
 
-    virtual bool asNewEffect(GrContext* context, const SkPaint&, const SkMatrix*, GrColor*,
-                             GrEffect**) const SK_OVERRIDE;
+    virtual bool asFragmentProcessor(GrContext* context, const SkPaint&, const SkMatrix*, GrColor*,
+                                     GrFragmentProcessor**) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPerlinNoiseShader)

@@ -35,8 +35,8 @@ public:
     virtual bool asCoeff(Coeff* sc, Coeff* dc) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffect** effect,
-                             GrTexture* background) const SK_OVERRIDE;
+    virtual bool asFragmentProcessor(GrFragmentProcessor**,
+                                     GrTexture* background) const SK_OVERRIDE;
 #endif
 
     SK_TO_STRING_OVERRIDE()

@@ -10,6 +10,7 @@
 
 #include "GrTextContext.h"
 
+class GrGeometryProcessor;
 class GrTextStrike;
 
 /*
@@ -30,11 +31,11 @@ public:
     virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
 
 private:
-    GrTextStrike*           fStrike;
-    SkScalar                fTextRatio;
-    bool                    fUseLCDText;
-    bool                    fEnableDFRendering;
-    SkAutoTUnref<GrEffect>  fCachedEffect;
+    GrTextStrike*                      fStrike;
+    SkScalar                           fTextRatio;
+    bool                               fUseLCDText;
+    bool                               fEnableDFRendering;
+    SkAutoTUnref<GrGeometryProcessor>  fCachedGeometryProcessor;
     // Used to check whether fCachedEffect is still valid.
     uint32_t                fEffectTextureUniqueID;
     SkColor                 fEffectColor;

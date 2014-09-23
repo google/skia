@@ -52,7 +52,7 @@ public:
     virtual ~GrDrawState();
 
     /**
-     * Resets to the default state. GrEffects will be removed from all stages.
+     * Resets to the default state. GrProcessors will be removed from all stages.
      */
     void reset() { this->onReset(NULL); }
 
@@ -75,7 +75,7 @@ public:
      * the type of the attribute, its offset, and semantic binding (see GrVertexAttrib in
      * GrTypesPriv.h).
      *
-     * The mapping of attributes with kEffect bindings to GrEffect inputs is specified when
+     * The mapping of attributes with kEffect bindings to GrProcessor inputs is specified when
      * setEffect is called.
      */
 
@@ -179,19 +179,18 @@ public:
      * but is never put in the color processing pipeline.
      */
 
-    const GrEffect* setGeometryProcessor(const GrEffect* effect) {
-        SkASSERT(effect);
-        SkASSERT(effect->requiresVertexShader());
+    const GrGeometryProcessor* setGeometryProcessor(const GrGeometryProcessor* geometryProcessor) {
+        SkASSERT(geometryProcessor);
         SkASSERT(!this->hasGeometryProcessor());
-        fGeometryProcessor.reset(new GrEffectStage(effect));
+        fGeometryProcessor.reset(new GrGeometryStage(geometryProcessor));
         this->invalidateOptState();
-        return effect;
+        return geometryProcessor;
     }
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Effect Stages
-    /// Each stage hosts a GrEffect. The effect produces an output color or coverage in the fragment
-    /// shader. Its inputs are the output from the previous stage as well as some variables
+    /// Each stage hosts a GrProcessor. The effect produces an output color or coverage in the
+    /// fragment shader. Its inputs are the output from the previous stage as well as some variables
     /// available to it in the fragment and vertex shader (e.g. the vertex position, the dst color,
     /// the fragment position, local coordinates).
     ///
@@ -208,18 +207,16 @@ public:
     /// the color / coverage distinction.
     ////
 
-    const GrEffect* addColorEffect(const GrEffect* effect) {
+    const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
-        SkASSERT(!effect->requiresVertexShader());
-        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect));
+        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrFragmentStage, (effect));
         this->invalidateOptState();
         return effect;
     }
 
-    const GrEffect* addCoverageEffect(const GrEffect* effect) {
+    const GrFragmentProcessor* addCoverageProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
-        SkASSERT(!effect->requiresVertexShader());
-        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect));
+        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrFragmentStage, (effect));
         this->invalidateOptState();
         return effect;
     }
@@ -227,24 +224,24 @@ public:
     /**
      * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
      */
-    void addColorTextureEffect(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorEffect(GrSimpleTextureEffect::Create(texture, matrix))->unref();
+    void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
+        this->addColorProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
     }
 
-    void addCoverageTextureEffect(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageEffect(GrSimpleTextureEffect::Create(texture, matrix))->unref();
+    void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
+        this->addCoverageProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
     }
 
-    void addColorTextureEffect(GrTexture* texture,
-                               const SkMatrix& matrix,
-                               const GrTextureParams& params) {
-        this->addColorEffect(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
-    }
-
-    void addCoverageTextureEffect(GrTexture* texture,
+    void addColorTextureProcessor(GrTexture* texture,
                                   const SkMatrix& matrix,
                                   const GrTextureParams& params) {
-        this->addCoverageEffect(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
+        this->addColorProcessor(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
+    }
+
+    void addCoverageTextureProcessor(GrTexture* texture,
+                                     const SkMatrix& matrix,
+                                     const GrTextureParams& params) {
+        this->addCoverageProcessor(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
     }
 
     /**
@@ -387,11 +384,11 @@ public:
     private:
         void doEffectCoordChanges(const SkMatrix& coordChangeMatrix);
 
-        GrDrawState*                                        fDrawState;
-        SkMatrix                                            fViewMatrix;
-        int                                                 fNumColorStages;
-        bool                                                fHasGeometryProcessor;
-        SkAutoSTArray<8, GrEffectStage::SavedCoordChange>   fSavedCoordChanges;
+        GrDrawState*                                           fDrawState;
+        SkMatrix                                               fViewMatrix;
+        int                                                    fNumColorStages;
+        bool                                                   fHasGeometryProcessor;
+        SkAutoSTArray<8, GrProcessorStage::SavedCoordChange>   fSavedCoordChanges;
     };
 
     /// @}

@@ -37,10 +37,8 @@ bool GrGLVertexShaderBuilder::addAttribute(const GrShaderVar& var) {
     return true;
 }
 
-void GrGLVertexShaderBuilder::emitAttributes(const GrEffectStage& stage) {
-    const GrEffect& effect = *stage.getEffect();
-    const GrEffect::VertexAttribArray& vars =
-            effect.getVertexAttribs();
+void GrGLVertexShaderBuilder::emitAttributes(const GrGeometryProcessor& gp) {
+    const GrGeometryProcessor::VertexAttribArray& vars = gp.getVertexAttribs();
     int numAttributes = vars.count();
     for (int a = 0; a < numAttributes; ++a) {
         this->addAttribute(vars[a]);
@@ -95,7 +93,7 @@ void GrGLVertexShaderBuilder::bindProgramLocations(GrGLuint programId) {
 
     int i = fEffectAttribOffset;
     for (int index = 0; index < vaCount; index++) {
-        if (kEffect_GrVertexAttribBinding != vaPtr[index].fBinding) {
+        if (kGeometryProcessor_GrVertexAttribBinding != vaPtr[index].fBinding) {
             continue;
         }
         SkASSERT(index != header.fPositionAttributeIndex &&

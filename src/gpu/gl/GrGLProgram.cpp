@@ -7,12 +7,12 @@
 
 #include "GrGLProgram.h"
 
-#include "builders/GrGLFragmentOnlyProgramBuilder.h"
 #include "builders/GrGLFullProgramBuilder.h"
+#include "builders/GrGLFragmentOnlyProgramBuilder.h"
 #include "GrAllocator.h"
-#include "GrEffect.h"
+#include "GrProcessor.h"
 #include "GrCoordTransform.h"
-#include "GrGLEffect.h"
+#include "GrGLProcessor.h"
 #include "GrGpuGL.h"
 #include "GrGLPathRendering.h"
 #include "GrGLShaderVar.h"
@@ -25,9 +25,9 @@
 
 GrGLProgram* GrGLProgram::Create(GrGpuGL* gpu,
                                  const GrGLProgramDesc& desc,
-                                 const GrEffectStage* geometryProcessor,
-                                 const GrEffectStage* colorStages[],
-                                 const GrEffectStage* coverageStages[]) {
+                                 const GrGeometryStage* geometryProcessor,
+                                 const GrFragmentStage* colorStages[],
+                                 const GrFragmentStage* coverageStages[]) {
     SkAutoTDelete<GrGLProgramBuilder> builder;
     if (desc.getHeader().fUseFragShaderOnly) {
         SkASSERT(gpu->glCaps().pathRenderingSupport());
@@ -92,9 +92,9 @@ void GrGLProgram::initSamplerUniforms() {
 
 void GrGLProgram::setData(const GrOptDrawState& optState,
                           GrGpu::DrawType drawType,
-                          const GrEffectStage* geometryProcessor,
-                          const GrEffectStage* colorStages[],
-                          const GrEffectStage* coverageStages[],
+                          const GrGeometryStage* geometryProcessor,
+                          const GrFragmentStage* colorStages[],
+                          const GrFragmentStage* coverageStages[],
                           const GrDeviceCoordTexture* dstCopy,
                           SharedGLState* sharedState) {
     GrColor color = optState.getColor();
@@ -127,7 +127,7 @@ void GrGLProgram::setData(const GrOptDrawState& optState,
 
     if (fGeometryProcessor.get()) {
         SkASSERT(geometryProcessor);
-        fGeometryProcessor->setData(fGpu, drawType, fProgramDataManager, &geometryProcessor);
+        fGeometryProcessor->setData(fGpu, drawType, fProgramDataManager, geometryProcessor);
     }
     fColorEffects->setData(fGpu, drawType, fProgramDataManager, colorStages);
     fCoverageEffects->setData(fGpu, drawType, fProgramDataManager, coverageStages);

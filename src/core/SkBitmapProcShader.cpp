@@ -395,9 +395,9 @@ void SkBitmapProcShader::toString(SkString* str) const {
 #include "effects/GrSimpleTextureEffect.h"
 #include "SkGr.h"
 
-bool SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                     const SkMatrix* localMatrix, GrColor* paintColor,
-                                     GrEffect** effect) const {
+bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& paint,
+                                             const SkMatrix* localMatrix, GrColor* paintColor,
+                                             GrFragmentProcessor** fp) const {
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
 
@@ -472,9 +472,9 @@ bool SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
                                                 SkColor2GrColorJustAlpha(paint.getColor());
 
     if (useBicubic) {
-        *effect = GrBicubicEffect::Create(texture, matrix, tm);
+        *fp = GrBicubicEffect::Create(texture, matrix, tm);
     } else {
-        *effect = GrSimpleTextureEffect::Create(texture, matrix, params);
+        *fp = GrSimpleTextureEffect::Create(texture, matrix, params);
     }
     GrUnlockAndUnrefCachedBitmapTexture(texture);
 
@@ -483,9 +483,8 @@ bool SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
 
 #else 
 
-bool SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
-                                     const SkMatrix* localMatrix, GrColor* paintColor,
-                                     GrEffect** effect) const {
+bool SkBitmapProcShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+                                             GrFragmentProcessor**) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

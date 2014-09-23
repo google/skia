@@ -25,9 +25,9 @@ int GrGLFragmentOnlyProgramBuilder::addTexCoordSets(int count) {
 }
 
 void
-GrGLFragmentOnlyProgramBuilder::createAndEmitEffects(const GrEffectStage* geometryProcessor,
-                                                     const GrEffectStage* colorStages[],
-                                                     const GrEffectStage* coverageStages[],
+GrGLFragmentOnlyProgramBuilder::createAndEmitEffects(const GrGeometryStage* geometryProcessor,
+                                                     const GrFragmentStage* colorStages[],
+                                                     const GrFragmentStage* coverageStages[],
                                                      GrGLSLExpr4* inputColor,
                                                      GrGLSLExpr4* inputCoverage) {
     ///////////////////////////////////////////////////////////////////////////
@@ -47,9 +47,8 @@ GrGLFragmentOnlyProgramBuilder::createAndEmitEffects(const GrEffectStage* geomet
 }
 
 GrGLProgramEffects* GrGLFragmentOnlyProgramBuilder::onCreateAndEmitEffects(
-        const GrEffectStage* effectStages[], int effectCnt,
+        const GrFragmentStage* effectStages[], int effectCnt,
         const GrGLProgramDesc::EffectKeyProvider& keyProvider, GrGLSLExpr4* inOutFSColor) {
-
     fProgramEffects.reset(SkNEW_ARGS(GrGLPathTexGenProgramEffects, (effectCnt)));
     this->INHERITED::createAndEmitEffects(effectStages,
                                           effectCnt,
@@ -58,23 +57,22 @@ GrGLProgramEffects* GrGLFragmentOnlyProgramBuilder::onCreateAndEmitEffects(
     return fProgramEffects.detach();
 }
 
-void GrGLFragmentOnlyProgramBuilder::emitEffect(const GrEffectStage& stage,
-                                                 const GrEffectKey& key,
-                                                 const char* outColor,
-                                                 const char* inColor,
-                                                 int stageIndex) {
+void GrGLFragmentOnlyProgramBuilder::emitEffect(const GrProcessorStage& stage,
+                                                const GrProcessorKey& key,
+                                                const char* outColor,
+                                                const char* inColor,
+                                                int stageIndex) {
     SkASSERT(fProgramEffects.get());
-    const GrEffect& effect = *stage.getEffect();
-    SkASSERT(0 == effect.getVertexAttribs().count());
+    const GrProcessor& effect = *stage.getProcessor();
 
-    SkSTArray<2, GrGLEffect::TransformedCoords> coords(effect.numTransforms());
-    SkSTArray<4, GrGLEffect::TextureSampler> samplers(effect.numTextures());
+    SkSTArray<2, GrGLProcessor::TransformedCoords> coords(effect.numTransforms());
+    SkSTArray<4, GrGLProcessor::TextureSampler> samplers(effect.numTextures());
 
     this->setupPathTexGen(stage, &coords);
     this->emitSamplers(effect, &samplers);
 
-    GrGLEffect* glEffect = effect.getFactory().createGLInstance(effect);
-    SkASSERT(!glEffect->isVertexEffect());
+    SkASSERT(fEffectEmitter);
+    GrGLProcessor* glEffect = fEffectEmitter->createGLInstance();
     fProgramEffects->addEffect(glEffect);
 
     GrGLFragmentShaderBuilder* fsBuilder = this->getFragmentShaderBuilder();
@@ -83,14 +81,14 @@ void GrGLFragmentOnlyProgramBuilder::emitEffect(const GrEffectStage& stage,
     openBrace.printf("\t{ // Stage %d: %s\n", stageIndex, glEffect->name());
     fsBuilder->codeAppend(openBrace.c_str());
 
-    glEffect->emitCode(this, effect, key, outColor, inColor, coords, samplers);
+    fEffectEmitter->emit(key, outColor, inColor, coords, samplers);
 
     fsBuilder->codeAppend("\t}\n");
 }
 
-void GrGLFragmentOnlyProgramBuilder::setupPathTexGen(const GrEffectStage& effectStage,
-                                           GrGLEffect::TransformedCoordsArray* outCoords) {
-    int numTransforms = effectStage.getEffect()->numTransforms();
+void GrGLFragmentOnlyProgramBuilder::setupPathTexGen(
+        const GrProcessorStage& effectStage, GrGLProcessor::TransformedCoordsArray* outCoords) {
+    int numTransforms = effectStage.getProcessor()->numTransforms();
     int texCoordIndex = this->addTexCoordSets(numTransforms);
 
     fProgramEffects->addTransforms(texCoordIndex);
@@ -103,6 +101,6 @@ void GrGLFragmentOnlyProgramBuilder::setupPathTexGen(const GrEffectStage& effect
                         kVec2f_GrSLType;
 
         name.printf("%s(gl_TexCoord[%i])", GrGLSLTypeString(type), texCoordIndex++);
-        SkNEW_APPEND_TO_TARRAY(outCoords, GrGLEffect::TransformedCoords, (name, type));
+        SkNEW_APPEND_TO_TARRAY(outCoords, GrGLProcessor::TransformedCoords, (name, type));
     }
 }

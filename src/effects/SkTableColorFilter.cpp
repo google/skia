@@ -43,7 +43,7 @@ public:
     virtual bool asComponentTable(SkBitmap* table) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual GrEffect* asNewEffect(GrContext* context) const SK_OVERRIDE;
+    virtual GrFragmentProcessor* asFragmentProcessor(GrContext* context) const SK_OVERRIDE;
 #endif
 
     virtual void filterSpan(const SkPMColor src[], int count,
@@ -275,71 +275,71 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
 
 #if SK_SUPPORT_GPU
 
-#include "GrEffect.h"
-#include "GrTBackendEffectFactory.h"
-#include "gl/GrGLEffect.h"
+#include "GrProcessor.h"
+#include "GrTBackendProcessorFactory.h"
+#include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
 class GLColorTableEffect;
 
-class ColorTableEffect : public GrEffect {
+class ColorTableEffect : public GrFragmentProcessor {
 public:
-    static GrEffect* Create(GrTexture* texture, unsigned flags) {
+    static GrFragmentProcessor* Create(GrTexture* texture, unsigned flags) {
         return SkNEW_ARGS(ColorTableEffect, (texture, flags));
     }
 
     virtual ~ColorTableEffect();
 
     static const char* Name() { return "ColorTable"; }
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
-    typedef GLColorTableEffect GLEffect;
+    typedef GLColorTableEffect GLProcessor;
 
 private:
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
 
     explicit ColorTableEffect(GrTexture* texture, unsigned flags);
 
-    GR_DECLARE_EFFECT_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     GrTextureAccess fTextureAccess;
     unsigned        fFlags; // currently not used in shader code, just to assist
                             // getConstantColorComponents().
 
-    typedef GrEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
-class GLColorTableEffect : public GrGLEffect {
+class GLColorTableEffect : public GrGLFragmentProcessor {
 public:
-    GLColorTableEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GLColorTableEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
     virtual void emitCode(GrGLProgramBuilder*,
-                          const GrEffect&,
-                          const GrEffectKey&,
+                          const GrFragmentProcessor&,
+                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrEffect&) SK_OVERRIDE {}
+    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {}
 
-    static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
+    static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b) {}
 
 private:
 
-    typedef GrGLEffect INHERITED;
+    typedef GrGLFragmentProcessor INHERITED;
 };
 
-GLColorTableEffect::GLColorTableEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+GLColorTableEffect::GLColorTableEffect(const GrBackendProcessorFactory& factory, const GrProcessor&)
     : INHERITED(factory) {
  }
 
 void GLColorTableEffect::emitCode(GrGLProgramBuilder* builder,
-                                  const GrEffect&,
-                                  const GrEffectKey&,
+                                  const GrFragmentProcessor&,
+                                  const GrProcessorKey&,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TransformedCoordsArray&,
@@ -393,11 +393,11 @@ ColorTableEffect::ColorTableEffect(GrTexture* texture, unsigned flags)
 ColorTableEffect::~ColorTableEffect() {
 }
 
-const GrBackendEffectFactory&  ColorTableEffect::getFactory() const {
-    return GrTBackendEffectFactory<ColorTableEffect>::getInstance();
+const GrBackendFragmentProcessorFactory&  ColorTableEffect::getFactory() const {
+    return GrTBackendFragmentProcessorFactory<ColorTableEffect>::getInstance();
 }
 
-bool ColorTableEffect::onIsEqual(const GrEffect& sBase) const {
+bool ColorTableEffect::onIsEqual(const GrProcessor& sBase) const {
     return this->texture(0) == sBase.texture(0);
 }
 
@@ -421,32 +421,32 @@ void ColorTableEffect::getConstantColorComponents(GrColor* color, uint32_t* vali
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_EFFECT_TEST(ColorTableEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect);
 
-GrEffect* ColorTableEffect::TestCreate(SkRandom* random,
-                                       GrContext* context,
-                                       const GrDrawTargetCaps&,
-                                       GrTexture* textures[]) {
+GrFragmentProcessor* ColorTableEffect::TestCreate(SkRandom* random,
+                                                  GrContext* context,
+                                                  const GrDrawTargetCaps&,
+                                                  GrTexture* textures[]) {
     static unsigned kAllFlags = SkTable_ColorFilter::kR_Flag | SkTable_ColorFilter::kG_Flag |
                                 SkTable_ColorFilter::kB_Flag | SkTable_ColorFilter::kA_Flag;
-    return ColorTableEffect::Create(textures[GrEffectUnitTest::kAlphaTextureIdx], kAllFlags);
+    return ColorTableEffect::Create(textures[GrProcessorUnitTest::kAlphaTextureIdx], kAllFlags);
 }
 
-GrEffect* SkTable_ColorFilter::asNewEffect(GrContext* context) const {
+GrFragmentProcessor* SkTable_ColorFilter::asFragmentProcessor(GrContext* context) const {
     SkBitmap bitmap;
-    GrEffect* effect = NULL;
+    GrFragmentProcessor* fp = NULL;
     this->asComponentTable(&bitmap);
     // passing NULL because this effect does no tiling or filtering.
     GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, bitmap, NULL);
     if (texture) {
-        effect = ColorTableEffect::Create(texture, fFlags);
+        fp = ColorTableEffect::Create(texture, fFlags);
 
         // Unlock immediately, this is not great, but we don't have a way of
         // knowing when else to unlock it currently. TODO: Remove this when
         // unref becomes the unlock replacement for all types of textures.
         GrUnlockAndUnrefCachedBitmapTexture(texture);
     }
-    return effect;
+    return fp;
 }
 
 #endif // SK_SUPPORT_GPU

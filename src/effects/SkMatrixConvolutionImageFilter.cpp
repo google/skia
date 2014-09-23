@@ -363,23 +363,23 @@ static GrTextureDomain::Mode convert_tilemodes(
     return GrTextureDomain::kIgnore_Mode;
 }
 
-bool SkMatrixConvolutionImageFilter::asNewEffect(GrEffect** effect,
-                                                 GrTexture* texture,
-                                                 const SkMatrix&,
-                                                 const SkIRect& bounds) const {
-    if (!effect) {
+bool SkMatrixConvolutionImageFilter::asFragmentProcessor(GrFragmentProcessor** fp,
+                                                         GrTexture* texture,
+                                                         const SkMatrix&,
+                                                         const SkIRect& bounds) const {
+    if (!fp) {
         return fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE;
     }
     SkASSERT(fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE);
-    *effect = GrMatrixConvolutionEffect::Create(texture,
-                                                bounds,
-                                                fKernelSize,
-                                                fKernel,
-                                                fGain,
-                                                fBias,
-                                                fKernelOffset,
-                                                convert_tilemodes(fTileMode),
-                                                fConvolveAlpha);
+    *fp = GrMatrixConvolutionEffect::Create(texture,
+                                            bounds,
+                                            fKernelSize,
+                                            fKernel,
+                                            fGain,
+                                            fBias,
+                                            fKernelOffset,
+                                            convert_tilemodes(fTileMode),
+                                            fConvolveAlpha);
     return true;
 }
 #endif

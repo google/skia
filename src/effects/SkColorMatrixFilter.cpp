@@ -332,21 +332,21 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
 }
 
 #if SK_SUPPORT_GPU
-#include "GrEffect.h"
-#include "GrTBackendEffectFactory.h"
-#include "gl/GrGLEffect.h"
+#include "GrProcessor.h"
+#include "GrTBackendProcessorFactory.h"
+#include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
-class ColorMatrixEffect : public GrEffect {
+class ColorMatrixEffect : public GrFragmentProcessor {
 public:
-    static GrEffect* Create(const SkColorMatrix& matrix) {
+    static GrFragmentProcessor* Create(const SkColorMatrix& matrix) {
         return SkNEW_ARGS(ColorMatrixEffect, (matrix));
     }
 
     static const char* Name() { return "Color Matrix"; }
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendEffectFactory<ColorMatrixEffect>::getInstance();
+    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendFragmentProcessorFactory<ColorMatrixEffect>::getInstance();
     }
 
     virtual void getConstantColorComponents(GrColor* color,
@@ -394,21 +394,21 @@ public:
         *color = static_cast<uint8_t>(SkScalarPin(outputA, 0, 255)) << GrColor_SHIFT_A;
     }
 
-    GR_DECLARE_EFFECT_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    class GLEffect : public GrGLEffect {
+    class GLProcessor : public GrGLFragmentProcessor {
     public:
         // this class always generates the same code.
-        static void GenKey(const GrEffect&, const GrGLCaps&, GrEffectKeyBuilder* b) {}
+        static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b) {}
 
-        GLEffect(const GrBackendEffectFactory& factory,
-                 const GrEffect&)
+        GLProcessor(const GrBackendProcessorFactory& factory,
+                 const GrProcessor&)
         : INHERITED(factory) {
         }
 
         virtual void emitCode(GrGLProgramBuilder* builder,
-                              const GrEffect&,
-                              const GrEffectKey&,
+                              const GrFragmentProcessor&,
+                              const GrProcessorKey&,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -438,8 +438,8 @@ public:
         }
 
         virtual void setData(const GrGLProgramDataManager& uniManager,
-                             const GrEffect& effect) SK_OVERRIDE {
-            const ColorMatrixEffect& cme = effect.cast<ColorMatrixEffect>();
+                             const GrProcessor& proc) SK_OVERRIDE {
+            const ColorMatrixEffect& cme = proc.cast<ColorMatrixEffect>();
             const float* m = cme.fMatrix.fMat;
             // The GL matrix is transposed from SkColorMatrix.
             GrGLfloat mt[]  = {
@@ -460,28 +460,28 @@ public:
         GrGLProgramDataManager::UniformHandle fMatrixHandle;
         GrGLProgramDataManager::UniformHandle fVectorHandle;
 
-        typedef GrGLEffect INHERITED;
+        typedef GrGLFragmentProcessor INHERITED;
     };
 
 private:
     ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {}
 
-    virtual bool onIsEqual(const GrEffect& s) const {
+    virtual bool onIsEqual(const GrProcessor& s) const {
         const ColorMatrixEffect& cme = s.cast<ColorMatrixEffect>();
         return cme.fMatrix == fMatrix;
     }
 
     SkColorMatrix fMatrix;
 
-    typedef GrEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
-GR_DEFINE_EFFECT_TEST(ColorMatrixEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorMatrixEffect);
 
-GrEffect* ColorMatrixEffect::TestCreate(SkRandom* random,
-                                        GrContext*,
-                                        const GrDrawTargetCaps&,
-                                        GrTexture* dummyTextures[2]) {
+GrFragmentProcessor* ColorMatrixEffect::TestCreate(SkRandom* random,
+                                                   GrContext*,
+                                                   const GrDrawTargetCaps&,
+                                                   GrTexture* dummyTextures[2]) {
     SkColorMatrix colorMatrix;
     for (size_t i = 0; i < SK_ARRAY_COUNT(colorMatrix.fMat); ++i) {
         colorMatrix.fMat[i] = random->nextSScalar1();
@@ -489,7 +489,7 @@ GrEffect* ColorMatrixEffect::TestCreate(SkRandom* random,
     return ColorMatrixEffect::Create(colorMatrix);
 }
 
-GrEffect* SkColorMatrixFilter::asNewEffect(GrContext*) const {
+GrFragmentProcessor* SkColorMatrixFilter::asFragmentProcessor(GrContext*) const {
     return ColorMatrixEffect::Create(fMatrix);
 }
 
