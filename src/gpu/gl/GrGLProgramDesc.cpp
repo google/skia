@@ -173,7 +173,7 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
     coverageStages->reset();
 
     bool inputColorIsUsed = optState.inputColorIsUsed();
-    bool inputCoverageIsUsed = optState.inputColorIsUsed();
+    bool inputCoverageIsUsed = optState.inputCoverageIsUsed();
 
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
