@@ -10,9 +10,10 @@
 
 #include "SkDebugCanvas.h"
 #include "SkDrawPictureCallback.h"
+#include "SkDropShadowImageFilter.h"
 #include "SkRecord.h"
-#include "SkRecordOpts.h"
 #include "SkRecordDraw.h"
+#include "SkRecordOpts.h"
 #include "SkRecorder.h"
 #include "SkRecords.h"
 
@@ -223,4 +224,30 @@ DEF_TEST(RecordDraw_PartialClear, r) {
     const SkRecords::DrawRect* drawRect = assert_type<SkRecords::DrawRect>(r, rerecord, 1);
     REPORTER_ASSERT(r, drawRect->rect == rect);
     REPORTER_ASSERT(r, drawRect->paint.getColor() == SK_ColorRED);
+}
+
+// A regression test for crbug.com/415468 and skbug.com/2957.
+DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
+    SkRecord record;
+    SkRecorder recorder(&record, 50, 50);
+
+    // We draw a rectangle with a long drop shadow.  We used to not update the clip
+    // bounds based on SaveLayer paints, so the drop shadow could be cut off.
+    SkPaint paint;
+    paint.setImageFilter(SkDropShadowImageFilter::Create(20, 0, 0, 0, SK_ColorBLACK))->unref();
+
+    recorder.saveLayer(NULL, &paint);
+        recorder.clipRect(SkRect::MakeWH(20, 40));
+        recorder.drawRect(SkRect::MakeWH(20, 40), SkPaint());
+    recorder.restore();
+
+    // Under the original bug, all the right edge values would be 20 less than asserted here
+    // because we intersected them with a clip that had not been adjusted for the drop shadow.
+    TestBBH bbh;
+    SkRecordFillBounds(record, &bbh);
+    REPORTER_ASSERT(r, bbh.entries.count() == 4);
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[0].bounds, SkRect::MakeLTRB(0, 0, 70, 50)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[1].bounds, SkRect::MakeLTRB(0, 0, 70, 50)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[2].bounds, SkRect::MakeLTRB(0, 0, 40, 40)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[3].bounds, SkRect::MakeLTRB(0, 0, 70, 50)));
 }

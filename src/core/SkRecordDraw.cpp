@@ -7,6 +7,7 @@
 
 #include "SkRecordDraw.h"
 #include "SkPatchUtils.h"
+#include "SkTLogic.h"
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
@@ -184,17 +185,27 @@ private:
     void updateCTM(const Restore& op)   { fCTM = &op.matrix; }
     void updateCTM(const SetMatrix& op) { fCTM = &op.matrix; }
 
-    template <typename T> void updateClipBounds(const T&) { /* most ops don't change the clip */ }
-    // Each of these devBounds fields is the state of the device bounds after the op.
-    // So Restore's devBounds are those bounds saved by its paired Save or SaveLayer.
-    void updateClipBounds(const Restore& op)    { fCurrentClipBounds = Bounds::Make(op.devBounds); }
-    void updateClipBounds(const ClipPath& op)   { fCurrentClipBounds = Bounds::Make(op.devBounds); }
-    void updateClipBounds(const ClipRRect& op)  { fCurrentClipBounds = Bounds::Make(op.devBounds); }
-    void updateClipBounds(const ClipRect& op)   { fCurrentClipBounds = Bounds::Make(op.devBounds); }
-    void updateClipBounds(const ClipRegion& op) { fCurrentClipBounds = Bounds::Make(op.devBounds); }
+    // Most ops don't change the clip.  Those that do generally have a field named devBounds.
+    SK_CREATE_MEMBER_DETECTOR(devBounds);
+
+    template <typename T>
+    SK_WHEN(!HasMember_devBounds<T>, void) updateClipBounds(const T& op) {}
+
+    // Each of the devBounds fields holds the state of the device bounds after the op.
+    // (So Restore's devBounds are those bounds saved by its paired Save or SaveLayer.)
+    template <typename T>
+    SK_WHEN(HasMember_devBounds<T>, void) updateClipBounds(const T& op) {
+        Bounds clip = SkRect::Make(op.devBounds);
+        // We don't call adjustAndMap() because as its last step it would intersect the adjusted
+        // clip bounds with the previous clip, exactly what we can't do when the clip grows.
+        fCurrentClipBounds = this->adjustForSaveLayerPaints(&clip) ? clip : Bounds::MakeLargest();
+    }
+
+    // We also take advantage of SaveLayer bounds when present to further cut the clip down.
     void updateClipBounds(const SaveLayer& op)  {
         if (op.bounds) {
-            fCurrentClipBounds.intersect(this->adjustAndMap(*op.bounds, op.paint));
+            // adjustAndMap() intersects these layer bounds with the previous clip for us.
+            fCurrentClipBounds = this->adjustAndMap(*op.bounds, op.paint);
         }
     }
 
@@ -467,6 +478,15 @@ private:
         return true;
     }
 
+    bool adjustForSaveLayerPaints(SkRect* rect) const {
+        for (int i = fSaveStack.count() - 1; i >= 0; i--) {
+            if (!AdjustForPaint(fSaveStack[i].paint, rect)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     // Adjust rect for all paints that may affect its geometry, then map it to identity space.
     Bounds adjustAndMap(SkRect rect, const SkPaint* paint) const {
         // Inverted rectangles really confuse our BBHs.
@@ -479,11 +499,9 @@ private:
         }
 
         // Adjust rect for all the paints from the SaveLayers we're inside.
-        for (int i = fSaveStack.count() - 1; i >= 0; i--) {
-            if (!AdjustForPaint(fSaveStack[i].paint, &rect)) {
-                // Same deal as above.
-                return fCurrentClipBounds;
-            }
+        if (!this->adjustForSaveLayerPaints(&rect)) {
+            // Same deal as above.
+            return fCurrentClipBounds;
         }
 
         // Map the rect back to identity space.
