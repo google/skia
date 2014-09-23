@@ -297,6 +297,7 @@
       '<(skia_src_path)/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp',
       '<(skia_src_path)/gpu/gl/win/GrGLCreateNativeInterface_win.cpp',
       '<(skia_src_path)/gpu/gl/unix/GrGLCreateNativeInterface_unix.cpp',
+      '<(skia_src_path)/gpu/gl/egl/GrGLCreateNativeInterface_egl.cpp',
       '<(skia_src_path)/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp',
       '<(skia_src_path)/gpu/gl/android/GrGLCreateNativeInterface_android.cpp',
 
@@ -306,7 +307,7 @@
       '<(skia_src_path)/gpu/gl/nacl/SkNativeGLContext_nacl.cpp',
       '<(skia_src_path)/gpu/gl/win/SkNativeGLContext_win.cpp',
       '<(skia_src_path)/gpu/gl/unix/SkNativeGLContext_unix.cpp',
-      '<(skia_src_path)/gpu/gl/android/SkNativeGLContext_android.cpp',
+      '<(skia_src_path)/gpu/gl/egl/SkNativeGLContext_egl.cpp',
       '<(skia_src_path)/gpu/gl/iOS/SkNativeGLContext_iOS.mm',
     ],
     'skgpu_mesa_gl_sources': [

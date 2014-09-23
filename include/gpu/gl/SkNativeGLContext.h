@@ -35,7 +35,7 @@ static const struct { int major, minor; } gl_versions[] = {
 
 #if defined(SK_BUILD_FOR_MAC)
     #include <OpenGL/OpenGL.h>
-#elif defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_NACL)
+#elif defined(SK_EGL)
     #include <GLES2/gl2.h>
     #include <EGL/egl.h>
 #elif defined(SK_BUILD_FOR_UNIX)
@@ -64,7 +64,7 @@ public:
     private:
     #if defined(SK_BUILD_FOR_MAC)
         CGLContextObj fOldCGLContext;
-    #elif defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_NACL)
+    #elif defined(SK_EGL)
         EGLContext fOldEGLContext;
         EGLDisplay fOldDisplay;
         EGLSurface fOldSurface;
@@ -88,7 +88,7 @@ protected:
 private:
 #if defined(SK_BUILD_FOR_MAC)
     CGLContextObj fContext;
-#elif defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_NACL)
+#elif defined(SK_EGL)
     EGLContext fContext;
     EGLDisplay fDisplay;
     EGLSurface fSurface;
