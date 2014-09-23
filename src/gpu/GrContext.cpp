@@ -1576,16 +1576,21 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint*
     if (NULL == src || NULL == dst) {
         return;
     }
-    ASSERT_OWNED_RESOURCE(src);
 
+    ASSERT_OWNED_RESOURCE(src);
+    ASSERT_OWNED_RESOURCE(dst);
 
     if (src->hasPendingWrite() || dst->hasPendingIO()) {
         this->flush();
     }
 
-    GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
-    GrDrawState* drawState = fGpu->drawState();
+    GrDrawTarget* target = this->prepareToDraw(NULL, kYes_BufferedDraw, NULL, NULL);
+    GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit);
+    GrDrawState* drawState = target->drawState();
+
+    drawState->disableState(GrDrawState::kClip_StateBit);
     drawState->setRenderTarget(dst);
+
     SkMatrix sampleM;
     sampleM.setIDiv(src->width(), src->height());
     SkIRect srcRect = SkIRect::MakeWH(dst->width(), dst->height());
@@ -1598,8 +1603,9 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint*
     }
     sampleM.preTranslate(SkIntToScalar(srcRect.fLeft), SkIntToScalar(srcRect.fTop));
     drawState->addColorTextureEffect(src, sampleM);
+
     SkRect dstR = SkRect::MakeWH(SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
-    fGpu->drawSimpleRect(dstR);
+    target->drawSimpleRect(dstR);
 }
 
 bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
