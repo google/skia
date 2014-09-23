@@ -24,9 +24,9 @@ static uint32_t get_flags(PipeTask::Mode mode) {
 static const char* get_name(const uint32_t flags) {
     if (flags & SkGPipeWriter::kCrossProcess_Flag &&
         flags & SkGPipeWriter::kSharedAddressSpace_Flag) {
-        return "shared_address_space_pipe";
+        return "shared-address-space-pipe";
     } else if (flags & SkGPipeWriter::kCrossProcess_Flag) {
-        return "cross_process_pipe";
+        return "cross-process-pipe";
     } else {
         return "pipe";
     }
