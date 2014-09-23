@@ -25,7 +25,6 @@ public:
 
     bool readsDst() const { return fReadsDst; }
     bool readsFragPosition() const { return fReadsFragPosition; }
-    bool requiresVertexShader() const { return fRequiresVertexShader; }
     bool requiresLocalCoordAttrib() const { return fRequiresLocalCoordAttrib; }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -123,7 +122,6 @@ private:
     // These flags give aggregated info on the effect stages that are used when building programs.
     bool            fReadsDst;
     bool            fReadsFragPosition;
-    bool            fRequiresVertexShader;
     bool            fRequiresLocalCoordAttrib;
 
     SkAutoSTArray<4, GrVertexAttrib> fOptVA;

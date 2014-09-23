@@ -245,10 +245,6 @@ void GrOptDrawState::getStageStats() {
     // actually generating some effect code
     fRequiresLocalCoordAttrib = this->hasLocalCoordAttribute() && this->numTotalStages() > 0;
 
-    // if 1 == fVACount then that VA must be position, otherwise it contains some attribute which
-    // will require a vertexShader
-    fRequiresVertexShader = fVACount > 1;
-
     fReadsDst = false;
     fReadsFragPosition = false;
 
@@ -263,7 +259,6 @@ void GrOptDrawState::getStageStats() {
     if (this->hasGeometryProcessor()) {
         const GrGeometryStage& stage = *this->getGeometryProcessor();
         fReadsFragPosition = fReadsFragPosition || stage.getProcessor()->willReadFragmentPosition();
-        SkASSERT(fRequiresVertexShader);
     }
 }
 
