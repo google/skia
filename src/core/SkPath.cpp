@@ -2132,6 +2132,16 @@ void SkPath::validate() const {
 static int sign(SkScalar x) { return x < 0; }
 #define kValueNeverReturnedBySign   2
 
+enum DirChange {
+    kLeft_DirChange,
+    kRight_DirChange,
+    kStraight_DirChange,
+    kBackwards_DirChange,
+
+    kInvalid_DirChange
+};
+
+
 static bool almost_equal(SkScalar compA, SkScalar compB) {
     // The error epsilon was empirically derived; worse case round rects
     // with a mid point outset by 2x float epsilon in tests had an error
@@ -2146,13 +2156,37 @@ static bool almost_equal(SkScalar compA, SkScalar compB) {
     return aBits < bBits + epsilon && bBits < aBits + epsilon;
 }
 
+static DirChange direction_change(const SkPoint& lastPt, const SkVector& curPt,
+                                  const SkVector& lastVec, const SkVector& curVec) {
+    SkScalar cross = SkPoint::CrossProduct(lastVec, curVec);
+
+    SkScalar smallest = SkTMin(curPt.fX, SkTMin(curPt.fY, SkTMin(lastPt.fX, lastPt.fY)));
+    SkScalar largest = SkTMax(curPt.fX, SkTMax(curPt.fY, SkTMax(lastPt.fX, lastPt.fY)));
+    largest = SkTMax(largest, -smallest);
+
+    if (!almost_equal(largest, largest + cross)) {
+        int sign = SkScalarSignAsInt(cross);
+        if (sign) {
+            return (1 == sign) ? kRight_DirChange : kLeft_DirChange;
+        }
+    }
+
+    if (!SkScalarNearlyZero(lastVec.lengthSqd(), SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
+        !SkScalarNearlyZero(curVec.lengthSqd(), SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
+        lastVec.dot(curVec) < 0.0f) {
+        return kBackwards_DirChange;
+    }
+
+    return kStraight_DirChange;
+}
+
 // only valid for a single contour
 struct Convexicator {
     Convexicator()
     : fPtCount(0)
     , fConvexity(SkPath::kConvex_Convexity)
     , fDirection(SkPath::kUnknown_Direction) {
-        fSign = 0;
+        fExpectedDir = kInvalid_DirChange;
         // warnings
         fLastPt.set(0, 0);
         fCurrPt.set(0, 0);
@@ -2211,20 +2245,28 @@ struct Convexicator {
 private:
     void addVec(const SkVector& vec) {
         SkASSERT(vec.fX || vec.fY);
-        SkScalar cross = SkPoint::CrossProduct(fLastVec, vec);
-        SkScalar smallest = SkTMin(fCurrPt.fX, SkTMin(fCurrPt.fY, SkTMin(fLastPt.fX, fLastPt.fY)));
-        SkScalar largest = SkTMax(fCurrPt.fX, SkTMax(fCurrPt.fY, SkTMax(fLastPt.fX, fLastPt.fY)));
-        largest = SkTMax(largest, -smallest);
-        if (!almost_equal(largest, largest + cross)) {
-            int sign = SkScalarSignAsInt(cross);
-            if (0 == fSign) {
-                fSign = sign;
-                fDirection = (1 == sign) ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
-            } else if (sign && fSign != sign) {
-                fConvexity = SkPath::kConcave_Convexity;
-                fDirection = SkPath::kUnknown_Direction;
-            }
-            fLastVec = vec;
+        DirChange dir = direction_change(fLastPt, fCurrPt, fLastVec, vec);
+        switch (dir) {
+            case kLeft_DirChange:       // fall through
+            case kRight_DirChange:
+                if (kInvalid_DirChange == fExpectedDir) {
+                    fExpectedDir = dir;
+                    fDirection = (kRight_DirChange == dir) ? SkPath::kCW_Direction
+                                                           : SkPath::kCCW_Direction;
+                } else if (dir != fExpectedDir) {
+                    fConvexity = SkPath::kConcave_Convexity;
+                    fDirection = SkPath::kUnknown_Direction;
+                }
+                fLastVec = vec;
+                break;
+            case kStraight_DirChange:
+                break;
+            case kBackwards_DirChange:
+                fLastVec = vec;
+                break;
+            case kInvalid_DirChange:
+                SkFAIL("Use of invalid direction change flag");
+                break;
         }
     }
 
@@ -2234,7 +2276,7 @@ private:
     // value with the current vec is deemed to be of a significant value.
     SkVector            fLastVec, fFirstVec;
     int                 fPtCount;   // non-degenerate points
-    int                 fSign;
+    DirChange           fExpectedDir;
     SkPath::Convexity   fConvexity;
     SkPath::Direction   fDirection;
     int                 fDx, fDy, fSx, fSy;
