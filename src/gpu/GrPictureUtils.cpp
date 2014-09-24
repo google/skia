@@ -110,8 +110,6 @@ private:
 
             this->updateStackForSaveLayer();
 
-            GrAccelData::SaveLayerInfo dst;
-
             // TODO: need to store an SkRect in GrAccelData::SaveLayerInfo?
             SkRect srcRect = SkRect::MakeXYWH(SkIntToScalar(src.fOffset.fX),
                                               SkIntToScalar(src.fOffset.fY),
@@ -120,25 +118,24 @@ private:
             SkIRect newClip(fCurrentClipBounds);
             newClip.intersect(this->adjustAndMap(srcRect, dp.paint));
 
+            GrAccelData::SaveLayerInfo& dst = fAccelData->addSaveLayerInfo();
+
             dst.fValid = true;
-            dst.fPictureID = dp.picture->uniqueID();
+            // If src.fPicture is NULL the layer is in dp.picture; otherwise
+            // it belongs to a sub-picture.
+            dst.fPicture = src.fPicture ? src.fPicture : static_cast<const SkPicture*>(dp.picture);
+            dst.fPicture->ref();
             dst.fSize = SkISize::Make(newClip.width(), newClip.height());
             dst.fOffset = SkIPoint::Make(newClip.fLeft, newClip.fTop);
             dst.fOriginXform = *fCTM;
             dst.fOriginXform.postConcat(src.fOriginXform);
-
-            if (NULL == src.fPaint) {
-                dst.fPaint = NULL;
-            } else {
+            if (src.fPaint) {
                 dst.fPaint = SkNEW_ARGS(SkPaint, (*src.fPaint));
             }
-
             dst.fSaveLayerOpID = src.fSaveLayerOpID;
             dst.fRestoreOpID = src.fRestoreOpID;
             dst.fHasNestedLayers = src.fHasNestedLayers;
             dst.fIsNested = fSaveLayersInStack > 0 || src.fIsNested;
-
-            fAccelData->addSaveLayerInfo(dst);
         }
     }
 
@@ -182,26 +179,20 @@ private:
 
         --fSaveLayersInStack;
 
-        GrAccelData::SaveLayerInfo slInfo;
+        GrAccelData::SaveLayerInfo& slInfo = fAccelData->addSaveLayerInfo();
 
         slInfo.fValid = true;
-        slInfo.fPictureID = fPictureID;
+        SkASSERT(NULL == slInfo.fPicture);  // This layer is in the top-most picture
         slInfo.fSize = SkISize::Make(si.fBounds.width(), si.fBounds.height());
         slInfo.fOffset = SkIPoint::Make(si.fBounds.fLeft, si.fBounds.fTop);
         slInfo.fOriginXform = *fCTM;
-
-        if (NULL == si.fPaint) {
-            slInfo.fPaint = NULL;
-        } else {
+        if (si.fPaint) {
             slInfo.fPaint = SkNEW_ARGS(SkPaint, (*si.fPaint));
         }
-
         slInfo.fSaveLayerOpID = si.fStartIndex;
         slInfo.fRestoreOpID = fCurrentOp;
         slInfo.fHasNestedLayers = si.fHasNestedSaveLayer;
         slInfo.fIsNested = fSaveLayersInStack > 0;
-
-        fAccelData->addSaveLayerInfo(slInfo);
     }
 
     // Returns true if rect was meaningfully adjusted for the effects of paint,

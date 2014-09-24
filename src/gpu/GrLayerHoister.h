@@ -23,37 +23,43 @@ struct SkRect;
 //  UnlockLayers should be called once to allow the texture resources to be recycled
 class GrLayerHoister {
 public:
-    /** Find the layers in 'gpuData' that need hoisting.
-        @param gpuData    Acceleration structure containing layer information for a picture
-        @param query      The rectangle that is about to be drawn.
-        @param atlased    Out parameter storing the layers that should be hoisted to the atlas
-        @param nonAtlased Out parameter storing the layers that should be hoisted stand alone
+    struct HoistedLayer {
+        const SkPicture* fPicture;
+        GrCachedLayer*   fLayer;
+    };
+
+    /** Find the layers in 'topLevelPicture' that need hoisting. Note that the discovered
+        layers can be inside nested sub-pictures.
+        @param topLevelPicture The top-level picture that is about to be rendered
+        @param query       The rectangle that is about to be drawn.
+        @param atlased     Out parameter storing the layers that should be hoisted to the atlas
+        @param nonAtlased  Out parameter storing the layers that should be hoisted stand alone
         @param layerCache The source of new layers
         Return true if any layers are suitable for hoisting; false otherwise
     */
-    static bool FindLayersToHoist(const GrAccelData *gpuData,
+    static bool FindLayersToHoist(const SkPicture* topLevelPicture,
                                   const SkRect& query,
-                                  SkTDArray<GrCachedLayer*>* altased,
-                                  SkTDArray<GrCachedLayer*>* nonAtlased,
+                                  SkTDArray<HoistedLayer>* altased,
+                                  SkTDArray<HoistedLayer>* nonAtlased,
                                   GrLayerCache* layerCache);
 
-    /** Draw the specified layers of 'picture' into either the atlas or free
-        floating textures.
-        @param picture      The picture containing the layers
+    /** Draw the specified layers into either the atlas or free floating textures.
         @param atlased      The layers to be drawn into the atlas
         @param nonAtlased   The layers to be drawn into their own textures
         @oaram replacements The replacement structure to fill in with the rendered layer info
     */
-    static void DrawLayers(const SkPicture* picture,
-                           const SkTDArray<GrCachedLayer*>& atlased,
-                           const SkTDArray<GrCachedLayer*>& nonAtlased,
+    static void DrawLayers(const SkTDArray<HoistedLayer>& atlased,
+                           const SkTDArray<HoistedLayer>& nonAtlased,
                            GrReplacements* replacements);
 
-    /** Unlock all the layers associated with picture in the layer cache.
+    /** Unlock unneeded layers in the layer cache.
         @param layerCache holder of the locked layers
-        @pmara picture    the source of the locked layers
+        @param atlased    Unneeded layers in the atlas
+        @param nonAtlased Unneeded layers in their own textures
     */
-    static void UnlockLayers(GrLayerCache* layerCache, const SkPicture* picture);
+    static void UnlockLayers(GrLayerCache* layerCache,
+                             const SkTDArray<HoistedLayer>& atlased,
+                             const SkTDArray<HoistedLayer>& nonAtlased);
 };
 
 #endif

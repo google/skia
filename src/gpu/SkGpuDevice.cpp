@@ -1838,7 +1838,7 @@ void SkGpuDevice::EXPERIMENTAL_optimize(const SkPicture* picture) {
     fContext->getLayerCache()->trackPicture(picture);
 }
 
-bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* picture,
+bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* mainPicture,
                                            const SkMatrix* matrix, const SkPaint* paint) {
     // todo: should handle these natively
     if (matrix || paint) {
@@ -1847,38 +1847,27 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
     fContext->getLayerCache()->processDeletedPictures();
 
-    SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
-
-    const SkPicture::AccelData* data = picture->EXPERIMENTAL_getAccelData(key);
-    if (NULL == data) {
-        return false;
-    }
-
-    const GrAccelData *gpuData = static_cast<const GrAccelData*>(data);
-    if (0 == gpuData->numSaveLayers()) {
-        return false;
-    }
-
     SkRect clipBounds;
     if (!mainCanvas->getClipBounds(&clipBounds)) {
         return true;
     }
 
-    SkTDArray<GrCachedLayer*> atlased, nonAtlased;
+    SkTDArray<GrLayerHoister::HoistedLayer> atlased, nonAtlased;
 
-    if (!GrLayerHoister::FindLayersToHoist(gpuData, clipBounds, &atlased, &nonAtlased,
+    if (!GrLayerHoister::FindLayersToHoist(mainPicture, clipBounds, &atlased, &nonAtlased,
                                            fContext->getLayerCache())) {
         return false;
     }
 
     GrReplacements replacements;
 
-    GrLayerHoister::DrawLayers(picture, atlased, nonAtlased, &replacements);
+    GrLayerHoister::DrawLayers(atlased, nonAtlased, &replacements);
 
     // Render the entire picture using new layers
-    GrRecordReplaceDraw(*picture->fRecord, mainCanvas, picture->fBBH.get(), &replacements, NULL);
+    GrRecordReplaceDraw(*mainPicture->fRecord, mainCanvas, mainPicture->fBBH.get(), 
+                        &replacements, NULL);
 
-    GrLayerHoister::UnlockLayers(fContext->getLayerCache(), picture);
+    GrLayerHoister::UnlockLayers(fContext->getLayerCache(), atlased, nonAtlased);
 
     return true;
 }
