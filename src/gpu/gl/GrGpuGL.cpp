@@ -1931,7 +1931,7 @@ void GrGpuGL::flushStencil(DrawType type) {
     }
 }
 
-void GrGpuGL::flushAAState(DrawType type) {
+void GrGpuGL::flushAAState(const GrOptDrawState& optState, DrawType type) {
 // At least some ATI linux drivers will render GL_LINES incorrectly when MSAA state is enabled but
 // the target is not multisampled. Single pixel wide lines are rendered thicker than 1 pixel wide.
 #if 0
@@ -1941,13 +1941,13 @@ void GrGpuGL::flushAAState(DrawType type) {
     #define RT_HAS_MSAA (rt->isMultisampled() || kDrawLines_DrawType == type)
 #endif
 
-    const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
+    const GrRenderTarget* rt = optState.getRenderTarget();
     if (kGL_GrGLStandard == this->glStandard()) {
         if (RT_HAS_MSAA) {
             // FIXME: GL_NV_pr doesn't seem to like MSAA disabled. The paths
             // convex hulls of each segment appear to get filled.
             bool enableMSAA = kStencilPath_DrawType == type ||
-                              this->getDrawState().isHWAntialiasState();
+                              optState.isHWAntialiasState();
             if (enableMSAA) {
                 if (kYes_TriState != fMSAAEnabled) {
                     GL_CALL(Enable(GR_GL_MULTISAMPLE));
@@ -1963,9 +1963,8 @@ void GrGpuGL::flushAAState(DrawType type) {
     }
 }
 
-void GrGpuGL::flushBlend(bool isLines,
-                         GrBlendCoeff srcCoeff,
-                         GrBlendCoeff dstCoeff) {
+void GrGpuGL::flushBlend(const GrOptDrawState& optState, bool isLines,
+                         GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
     // Any optimization to disable blending should have already been applied and
     // tweaked the coeffs to (1, 0).
     bool blendOff = kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
@@ -1986,7 +1985,7 @@ void GrGpuGL::flushBlend(bool isLines,
             fHWBlendState.fSrcCoeff = srcCoeff;
             fHWBlendState.fDstCoeff = dstCoeff;
         }
-        GrColor blendConst = this->getDrawState().getBlendConstant();
+        GrColor blendConst = optState.getBlendConstant();
         if ((BlendCoeffReferencesConstant(srcCoeff) ||
              BlendCoeffReferencesConstant(dstCoeff)) &&
             (!fHWBlendState.fConstColorValid ||
@@ -2109,11 +2108,8 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
     texture->setCachedTexParams(newTexParams, this->getResetTimestamp());
 }
 
-void GrGpuGL::flushMiscFixedFunctionState() {
-
-    const GrDrawState& drawState = this->getDrawState();
-
-    if (drawState.isDitherState()) {
+void GrGpuGL::flushMiscFixedFunctionState(const GrOptDrawState& optState) {
+    if (optState.isDitherState()) {
         if (kYes_TriState != fHWDitherEnabled) {
             GL_CALL(Enable(GR_GL_DITHER));
             fHWDitherEnabled = kYes_TriState;
@@ -2125,7 +2121,7 @@ void GrGpuGL::flushMiscFixedFunctionState() {
         }
     }
 
-    if (drawState.isColorWriteDisabled()) {
+    if (optState.isColorWriteDisabled()) {
         if (kNo_TriState != fHWWriteToColor) {
             GL_CALL(ColorMask(GR_GL_FALSE, GR_GL_FALSE,
                               GR_GL_FALSE, GR_GL_FALSE));
@@ -2138,8 +2134,8 @@ void GrGpuGL::flushMiscFixedFunctionState() {
         }
     }
 
-    if (fHWDrawFace != drawState.getDrawFace()) {
-        switch (this->getDrawState().getDrawFace()) {
+    if (fHWDrawFace != optState.getDrawFace()) {
+        switch (optState.getDrawFace()) {
             case GrDrawState::kCCW_DrawFace:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
                 GL_CALL(CullFace(GR_GL_BACK));
@@ -2154,7 +2150,7 @@ void GrGpuGL::flushMiscFixedFunctionState() {
             default:
                 SkFAIL("Unknown draw face.");
         }
-        fHWDrawFace = drawState.getDrawFace();
+        fHWDrawFace = optState.getDrawFace();
     }
 }
 

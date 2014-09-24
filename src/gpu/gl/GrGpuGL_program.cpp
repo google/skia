@@ -216,7 +216,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
         size.set(rt->width(), rt->height());
         this->glPathRendering()->setProjectionMatrix(optState->getViewMatrix(), size, rt->origin());
     } else {
-        this->flushMiscFixedFunctionState();
+        this->flushMiscFixedFunctionState(*optState.get());
 
         GrBlendCoeff srcCoeff = optState->getSrcBlendCoeff();
         GrBlendCoeff dstCoeff = optState->getDstBlendCoeff();
@@ -262,7 +262,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
             fHWProgramID = programID;
         }
 
-        this->flushBlend(kDrawLines_DrawType == type, srcCoeff, dstCoeff);
+        this->flushBlend(*optState.get(), kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
         fCurrentProgram->setData(*optState.get(),
                                  type,
@@ -276,7 +276,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState->getRenderTarget());
     this->flushStencil(type);
     this->flushScissor(glRT->getViewport(), glRT->origin());
-    this->flushAAState(type);
+    this->flushAAState(*optState.get(), type);
 
     SkIRect* devRect = NULL;
     SkIRect devClipBounds;

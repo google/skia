@@ -166,7 +166,8 @@ private:
     // The params should be the final coefficients to apply
     // (after any blending optimizations or dual source blending considerations
     // have been accounted for).
-    void flushBlend(bool isLines, GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff);
+    void flushBlend(const GrOptDrawState& optState, bool isLines,
+                    GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff);
 
     bool hasExtension(const char* ext) const { return fGLContext.hasExtension(ext); }
 
@@ -216,7 +217,7 @@ private:
     };
 
     // flushes dithering, color-mask, and face culling stat
-    void flushMiscFixedFunctionState();
+    void flushMiscFixedFunctionState(const GrOptDrawState&);
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
@@ -236,7 +237,7 @@ private:
     void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
 
     void flushStencil(DrawType);
-    void flushAAState(DrawType);
+    void flushAAState(const GrOptDrawState&, DrawType);
 
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,
