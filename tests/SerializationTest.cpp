@@ -261,6 +261,19 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
     }
 }
 
+static void TestXfermodeSerialization(skiatest::Reporter* reporter) {
+    for (size_t i = 0; i <= SkXfermode::kLastMode; ++i) {
+        if (i == SkXfermode::kSrcOver_Mode) {
+            // skip SrcOver, as it is allowed to return NULL from Create()
+            continue;
+        }
+        SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(static_cast<SkXfermode::Mode>(i)));
+        REPORTER_ASSERT(reporter, mode.get());
+        SkAutoTUnref<SkXfermode> copy(
+            TestFlattenableSerialization<SkXfermode>(mode.get(), true, reporter));
+    }
+}
+
 static SkBitmap draw_picture(SkPicture& picture) {
      SkBitmap bitmap;
      bitmap.allocN32Pixels(SkScalarCeilToInt(picture.cullRect().width()), 
@@ -404,6 +417,11 @@ DEF_TEST(Serialization, reporter) {
     {
         SkRegion region;
         TestObjectSerialization(&region, reporter);
+    }
+
+    // Test xfermode serialization
+    {
+        TestXfermodeSerialization(reporter);
     }
 
     // Test string serialization

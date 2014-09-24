@@ -1258,7 +1258,7 @@ SkProcCoeffXfermode::SkProcCoeffXfermode(SkReadBuffer& buffer) : INHERITED(buffe
 
 SkFlattenable* SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
     uint32_t mode32 = buffer.read32();
-    if (!buffer.validate(mode32 >= SK_ARRAY_COUNT(gProcCoeffs))) {
+    if (!buffer.validate(mode32 < SK_ARRAY_COUNT(gProcCoeffs))) {
         return NULL;
     }
     return SkXfermode::Create((SkXfermode::Mode)mode32);
