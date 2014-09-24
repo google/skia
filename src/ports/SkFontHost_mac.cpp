@@ -1981,10 +1981,10 @@ int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
     if (srcCount > glyphCount) {
         int extra = 0;
         for (int i = 0; i < glyphCount; ++i) {
+            compactedGlyphs[i] = macGlyphs[i + extra];
             if (SkUTF16_IsHighSurrogate(src[i + extra])) {
                 ++extra;
             }
-            compactedGlyphs[i] = macGlyphs[i + extra];
         }
     }
 
