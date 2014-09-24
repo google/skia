@@ -52,8 +52,8 @@ void SkTileGrid::insert(void* data, const SkRect& fbounds, bool) {
                                   fYTiles - 1));
 
     Entry entry = { fCount++, data };
-    for (int x = minX; x <= maxX; x++) {
-        for (int y = minY; y <= maxY; y++) {
+    for (int y = minY; y <= maxY; y++) {
+        for (int x = minX; x <= maxX; x++) {
             fTiles[y * fXTiles + x].push(entry);
         }
     }
