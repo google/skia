@@ -71,7 +71,7 @@ protected:
 
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(405, 5, 305, 305);
-        canvas->drawImageRect(image, &srcRect, dstRect, &paint);
+        image->draw(canvas, &srcRect, dstRect, &paint);
 
         // Test that bitmap blurring using a subrect
         // renders correctly
@@ -83,7 +83,7 @@ protected:
             SkBlurMaskFilter::kHighQuality_BlurFlag |
             SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
         paint.setMaskFilter(mf)->unref();
-        canvas->drawImageRect(image, &srcRect, dstRect, &paint);
+        image->draw(canvas, &srcRect, dstRect, &paint);
 
         // Blur and a rotation + NULL src rect
         // This should not trigger the texture domain code

@@ -12,7 +12,6 @@
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
-#include "SkImage.h"
 #include "SkMetaData.h"
 #include "SkPathOps.h"
 #include "SkPatchUtils.h"
@@ -184,7 +183,7 @@ public:
         fFilter     = NULL;
         fLayer      = NULL;
         fTopLayer   = NULL;
-
+        
         // don't bother initializing fNext
         inc_rec();
     }
@@ -193,7 +192,7 @@ public:
         fFilter = SkSafeRef(prev.fFilter);
         fLayer = NULL;
         fTopLayer = prev.fTopLayer;
-
+        
         // don't bother initializing fNext
         inc_rec();
     }
@@ -293,7 +292,7 @@ public:
             // can we be marked as simple?
             fIsSimple = !fFilter && !fDoClearImageFilter;
         }
-
+        
         uint32_t oldFlags = paint.getFlags();
         fNewPaintFlags = filter_paint_flags(props, oldFlags);
         if (fIsSimple && (fNewPaintFlags != oldFlags)) {
@@ -458,7 +457,7 @@ public:
     SkNoPixelsBitmapDevice(int width, int height) : INHERITED(make_nopixels(width, height)) {}
 
 private:
-
+    
     typedef SkBitmapDevice INHERITED;
 };
 
@@ -467,7 +466,7 @@ SkCanvas::SkCanvas(int width, int height)
     , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
 {
     inc_canvas();
-
+    
     this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice, (width, height)), kDefault_InitFlags)->unref();
 }
 
@@ -476,7 +475,7 @@ SkCanvas::SkCanvas(int width, int height, InitFlags flags)
     , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
 {
     inc_canvas();
-
+    
     this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice, (width, height)), flags)->unref();
 }
 
@@ -485,7 +484,7 @@ SkCanvas::SkCanvas(SkBaseDevice* device, const SkSurfaceProps* props, InitFlags 
     , fProps(SkSurfacePropsCopyOrDefault(props))
 {
     inc_canvas();
-
+    
     this->init(device, flags);
 }
 
@@ -494,7 +493,7 @@ SkCanvas::SkCanvas(SkBaseDevice* device)
     , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
 {
     inc_canvas();
-
+    
     this->init(device, kDefault_InitFlags);
 }
 
@@ -503,7 +502,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
     , fProps(props)
 {
     inc_canvas();
-
+    
     SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
     this->init(device, kDefault_InitFlags);
 }
@@ -513,7 +512,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
     , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
 {
     inc_canvas();
-
+    
     SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
     this->init(device, kDefault_InitFlags);
 }
@@ -1884,17 +1883,6 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     }
 
     LOOPER_END
-}
-
-void SkCanvas::drawImage(const SkImage* image, SkScalar left, SkScalar top,
-                       const SkPaint* paint) {
-    image->draw(this, left, top, paint);
-}
-
-void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src,
-                           const SkRect& dst,
-                           const SkPaint* paint) {
-    image->draw(this, src, dst, paint);
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,

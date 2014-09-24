@@ -57,12 +57,12 @@ static inline void draw_replacement_bitmap(const GrReplacements::ReplacementInfo
     SkRect src = SkRect::Make(ri->fSrcRect);
     SkRect dst = SkRect::MakeXYWH(SkIntToScalar(ri->fPos.fX),
                                   SkIntToScalar(ri->fPos.fY),
-                                  SkIntToScalar(ri->fSrcRect.width()),
+                                  SkIntToScalar(ri->fSrcRect.width()), 
                                   SkIntToScalar(ri->fSrcRect.height()));
 
     canvas->save();
     canvas->setMatrix(initialMatrix);
-    canvas->drawImageRect(ri->fImage, &src, dst, ri->fPaint);
+    ri->fImage->draw(canvas, &src, dst, ri->fPaint);
     canvas->restore();
 }
 

@@ -456,7 +456,7 @@ static int lcanvas_drawImage(lua_State* L) {
         paint.setAlpha(SkScalarRoundToInt(lua2scalar(L, 5) * 255));
         paintPtr = &paint;
     }
-    canvas->drawImage(image, x, y, paintPtr);
+    image->draw(canvas, x, y, paintPtr);
     return 0;
 }
 

@@ -176,7 +176,7 @@ protected:
         // render offscreen buffer
         if (surface) {
             SkImage* image = surface->newImageSnapshot();
-            inputCanvas->drawImage(image, 0, 0, NULL);
+            image->draw(inputCanvas, 0, 0, NULL);
             image->unref();
         }
 #endif

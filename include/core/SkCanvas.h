@@ -29,7 +29,6 @@ class SkCanvasClipVisitor;
 class SkBaseDevice;
 class SkDraw;
 class SkDrawFilter;
-class SkImage;
 class SkMetaData;
 class SkPicture;
 class SkRRect;
@@ -812,13 +811,6 @@ public:
     */
     virtual void drawPath(const SkPath& path, const SkPaint& paint);
 
-    virtual void drawImage(const SkImage* image, SkScalar left, SkScalar top,
-                           const SkPaint* paint = NULL);
-
-    virtual void drawImageRect(const SkImage* image, const SkRect* src,
-                               const SkRect& dst,
-                               const SkPaint* paint = NULL);
-
     /** Draw the specified bitmap, with its top/left corner at (x,y), using the
         specified paint, transformed by the current matrix. Note: if the paint
         contains a maskfilter that generates a mask which extends beyond the
@@ -1321,7 +1313,7 @@ private:
     friend class SkSurface_Raster;  // needs getDevice()
     friend class SkRecorder;        // InitFlags
     friend class SkNoSaveLayerCanvas;   // InitFlags
-
+    
     enum InitFlags {
         kDefault_InitFlags                  = 0,
         kConservativeRasterClip_InitFlag    = 1 << 0,
@@ -1332,7 +1324,7 @@ private:
 
     // needs gettotalclip()
     friend SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas*);
-
+    
     SkBaseDevice* createLayerDevice(const SkImageInfo&);
 
     // call this each time we attach ourselves to a device
