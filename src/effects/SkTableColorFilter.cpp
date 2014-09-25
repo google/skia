@@ -198,7 +198,7 @@ SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
     uint8_t unpackedStorage[4*256];
     size_t unpackedSize = SkPackBits::Unpack8(packedStorage, packedSize, unpackedStorage);
     // now check that we got the size we expected
-    if (!buffer.validate(unpackedSize != count*256)) {
+    if (!buffer.validate(unpackedSize == count*256)) {
         return NULL;
     }
 

@@ -11,6 +11,7 @@
 #include "SkMallocPixelRef.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
+#include "SkTableColorFilter.h"
 #include "SkTemplates.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
@@ -177,7 +178,7 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
     size_t bytesWritten = writer.bytesWritten();
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
 
-    unsigned char dataWritten[1024];
+    unsigned char dataWritten[4096];
     SkASSERT(bytesWritten <= sizeof(dataWritten));
     writer.writeToMemory(dataWritten);
 
@@ -272,6 +273,16 @@ static void TestXfermodeSerialization(skiatest::Reporter* reporter) {
         SkAutoTUnref<SkXfermode> copy(
             TestFlattenableSerialization<SkXfermode>(mode.get(), true, reporter));
     }
+}
+
+static void TestColorFilterSerialization(skiatest::Reporter* reporter) {
+    uint8_t table[256];
+    for (int i = 0; i < 256; ++i) {
+        table[i] = (i * 41) % 256;
+    }
+    SkAutoTUnref<SkColorFilter> colorFilter(SkTableColorFilter::Create(table));
+    SkAutoTUnref<SkColorFilter> copy(
+        TestFlattenableSerialization<SkColorFilter>(colorFilter.get(), true, reporter));
 }
 
 static SkBitmap draw_picture(SkPicture& picture) {
@@ -422,6 +433,11 @@ DEF_TEST(Serialization, reporter) {
     // Test xfermode serialization
     {
         TestXfermodeSerialization(reporter);
+    }
+
+    // Test color filter serialization
+    {
+        TestColorFilterSerialization(reporter);
     }
 
     // Test string serialization
