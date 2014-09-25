@@ -812,9 +812,25 @@ public:
     */
     virtual void drawPath(const SkPath& path, const SkPaint& paint);
 
+    /** Draw the specified image, with its top/left corner at (x,y), using the
+        specified paint, transformed by the current matrix.
+
+        @param image    The image to be drawn
+        @param left     The position of the left side of the image being drawn
+        @param top      The position of the top side of the image being drawn
+        @param paint    The paint used to draw the image, or NULL
+     */
     virtual void drawImage(const SkImage* image, SkScalar left, SkScalar top,
                            const SkPaint* paint = NULL);
+    /** Draw the specified image, with the specified matrix applied (before the
+        canvas' matrix is applied).
 
+        @param image   The image to be drawn
+        @param src      Optional: specify the subset of the image to be drawn
+        @param dst      The destination rectangle where the scaled/translated
+                        image will be drawn
+        @param paint    The paint used to draw the image, or NULL
+    */
     virtual void drawImageRect(const SkImage* image, const SkRect* src,
                                const SkRect& dst,
                                const SkPaint* paint = NULL);
