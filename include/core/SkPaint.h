@@ -1024,11 +1024,6 @@ public:
 
     SK_TO_STRING_NONVIRT()
 
-    struct FlatteningTraits {
-        static void Flatten(SkWriteBuffer& buffer, const SkPaint& paint);
-        static void Unflatten(SkReadBuffer& buffer, SkPaint* paint);
-    };
-
 private:
     SkTypeface*     fTypeface;
     SkPathEffect*   fPathEffect;
@@ -1062,7 +1057,6 @@ private:
         } fBitfields;
         uint32_t fBitfieldsUInt;
     };
-    uint32_t fDirtyBits;
 
     SkDrawCacheProc    getDrawCacheProc() const;
     SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,

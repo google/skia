@@ -34,28 +34,6 @@
 #include "SkTypeface.h"
 #include "SkXfermode.h"
 
-enum {
-    kColor_DirtyBit               = 1 <<  0,
-    kTextSize_DirtyBit            = 1 <<  1,
-    kTextScaleX_DirtyBit          = 1 <<  2,
-    kTextSkewX_DirtyBit           = 1 <<  3,
-    kStrokeWidth_DirtyBit         = 1 <<  4,
-    kStrokeMiter_DirtyBit         = 1 <<  5,
-
-    kPOD_DirtyBitMask             = 63,
-
-    kPathEffect_DirtyBit          = 1 <<  6,
-    kShader_DirtyBit              = 1 <<  7,
-    kXfermode_DirtyBit            = 1 <<  8,
-    kMaskFilter_DirtyBit          = 1 <<  9,
-    kColorFilter_DirtyBit         = 1 << 10,
-    kRasterizer_DirtyBit          = 1 << 11,
-    kLooper_DirtyBit              = 1 << 12,
-    kImageFilter_DirtyBit         = 1 << 13,
-    kTypeface_DirtyBit            = 1 << 14,
-    kAnnotation_DirtyBit          = 1 << 15,
-};
-
 // define this to get a printf for out-of-range parameter in setters
 // e.g. setTextSize(-1)
 //#define SK_REPORT_API_RANGE_CHECK
@@ -97,7 +75,6 @@ SkPaint::SkPaint() {
     fBitfields.fTextEncoding = kUTF8_TextEncoding;
     fBitfields.fHinting      = SkPaintDefaults_Hinting;
 
-    fDirtyBits    = 0;
 #ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = 0;
 #endif
@@ -125,7 +102,6 @@ SkPaint::SkPaint(const SkPaint& src) {
     COPY(fWidth);
     COPY(fMiterLimit);
     COPY(fBitfields);
-    COPY(fDirtyBits);
 
 #ifdef SK_BUILD_FOR_ANDROID
     COPY(fGenerationID);
@@ -176,8 +152,6 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     COPY(fWidth);
     COPY(fMiterLimit);
     COPY(fBitfields);
-    COPY(fDirtyBits);
-
 #ifdef SK_BUILD_FOR_ANDROID
     ++fGenerationID;
 #endif
@@ -191,9 +165,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
 bool operator==(const SkPaint& a, const SkPaint& b) {
 #define EQUAL(field) (a.field == b.field)
     // Don't check fGenerationID, which can be different for logically equal paints.
-    // fDirtyBits is a very quick check for non-equality, so check it first.
-    return EQUAL(fDirtyBits)
-        && EQUAL(fTypeface)
+    return EQUAL(fTypeface)
         && EQUAL(fPathEffect)
         && EQUAL(fShader)
         && EQUAL(fXfermode)
@@ -317,7 +289,6 @@ void SkPaint::setStyle(Style style) {
 void SkPaint::setColor(SkColor color) {
     GEN_ID_INC_EVAL(color != fColor);
     fColor = color;
-    fDirtyBits = SkSetClearMask(fDirtyBits, color != SK_ColorBLACK, kColor_DirtyBit);
 }
 
 void SkPaint::setAlpha(U8CPU a) {
@@ -333,7 +304,6 @@ void SkPaint::setStrokeWidth(SkScalar width) {
     if (width >= 0) {
         GEN_ID_INC_EVAL(width != fWidth);
         fWidth = width;
-        fDirtyBits = SkSetClearMask(fDirtyBits, width != 0, kStrokeWidth_DirtyBit);
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStrokeWidth() called with negative value\n");
@@ -345,9 +315,6 @@ void SkPaint::setStrokeMiter(SkScalar limit) {
     if (limit >= 0) {
         GEN_ID_INC_EVAL(limit != fMiterLimit);
         fMiterLimit = limit;
-        fDirtyBits = SkSetClearMask(fDirtyBits,
-                                    limit != SkPaintDefaults_MiterLimit,
-                                    kStrokeMiter_DirtyBit);
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStrokeMiter() called with negative value\n");
@@ -394,7 +361,6 @@ void SkPaint::setTextSize(SkScalar ts) {
     if (ts >= 0) {
         GEN_ID_INC_EVAL(ts != fTextSize);
         fTextSize = ts;
-        fDirtyBits = SkSetClearMask(fDirtyBits, ts != SkPaintDefaults_TextSize, kTextSize_DirtyBit);
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setTextSize() called with negative value\n");
@@ -405,13 +371,11 @@ void SkPaint::setTextSize(SkScalar ts) {
 void SkPaint::setTextScaleX(SkScalar scaleX) {
     GEN_ID_INC_EVAL(scaleX != fTextScaleX);
     fTextScaleX = scaleX;
-    fDirtyBits = SkSetClearMask(fDirtyBits, scaleX != SK_Scalar1, kTextScaleX_DirtyBit);
 }
 
 void SkPaint::setTextSkewX(SkScalar skewX) {
     GEN_ID_INC_EVAL(skewX != fTextSkewX);
     fTextSkewX = skewX;
-    fDirtyBits = SkSetClearMask(fDirtyBits, skewX != 0, kTextSkewX_DirtyBit);
 }
 
 void SkPaint::setTextEncoding(TextEncoding encoding) {
@@ -430,35 +394,30 @@ void SkPaint::setTextEncoding(TextEncoding encoding) {
 SkTypeface* SkPaint::setTypeface(SkTypeface* font) {
     SkRefCnt_SafeAssign(fTypeface, font);
     GEN_ID_INC;
-    fDirtyBits = SkSetClearMask(fDirtyBits, font != NULL, kTypeface_DirtyBit);
     return font;
 }
 
 SkRasterizer* SkPaint::setRasterizer(SkRasterizer* r) {
     SkRefCnt_SafeAssign(fRasterizer, r);
     GEN_ID_INC;
-    fDirtyBits = SkSetClearMask(fDirtyBits, r != NULL, kRasterizer_DirtyBit);
     return r;
 }
 
 SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
     SkRefCnt_SafeAssign(fLooper, looper);
     GEN_ID_INC;
-    fDirtyBits = SkSetClearMask(fDirtyBits, looper != NULL, kLooper_DirtyBit);
     return looper;
 }
 
 SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imageFilter) {
     SkRefCnt_SafeAssign(fImageFilter, imageFilter);
     GEN_ID_INC;
-    fDirtyBits = SkSetClearMask(fDirtyBits, imageFilter != NULL, kImageFilter_DirtyBit);
     return imageFilter;
 }
 
 SkAnnotation* SkPaint::setAnnotation(SkAnnotation* annotation) {
     SkRefCnt_SafeAssign(fAnnotation, annotation);
     GEN_ID_INC;
-    fDirtyBits = SkSetClearMask(fDirtyBits, annotation != NULL, kAnnotation_DirtyBit);
     return annotation;
 }
 
@@ -2205,21 +2164,18 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
 SkShader* SkPaint::setShader(SkShader* shader) {
     GEN_ID_INC_EVAL(shader != fShader);
     SkRefCnt_SafeAssign(fShader, shader);
-    fDirtyBits = SkSetClearMask(fDirtyBits, shader != NULL, kShader_DirtyBit);
     return shader;
 }
 
 SkColorFilter* SkPaint::setColorFilter(SkColorFilter* filter) {
     GEN_ID_INC_EVAL(filter != fColorFilter);
     SkRefCnt_SafeAssign(fColorFilter, filter);
-    fDirtyBits = SkSetClearMask(fDirtyBits, filter != NULL, kColorFilter_DirtyBit);
     return filter;
 }
 
 SkXfermode* SkPaint::setXfermode(SkXfermode* mode) {
     GEN_ID_INC_EVAL(mode != fXfermode);
     SkRefCnt_SafeAssign(fXfermode, mode);
-    fDirtyBits = SkSetClearMask(fDirtyBits, mode != NULL, kXfermode_DirtyBit);
     return mode;
 }
 
@@ -2227,21 +2183,18 @@ SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
     SkSafeUnref(fXfermode);
     fXfermode = SkXfermode::Create(mode);
     GEN_ID_INC;
-    fDirtyBits = SkSetClearMask(fDirtyBits, fXfermode != NULL, kXfermode_DirtyBit);
     return fXfermode;
 }
 
 SkPathEffect* SkPaint::setPathEffect(SkPathEffect* effect) {
     GEN_ID_INC_EVAL(effect != fPathEffect);
     SkRefCnt_SafeAssign(fPathEffect, effect);
-    fDirtyBits = SkSetClearMask(fDirtyBits, effect != NULL, kPathEffect_DirtyBit);
     return effect;
 }
 
 SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter) {
     GEN_ID_INC_EVAL(filter != fMaskFilter);
     SkRefCnt_SafeAssign(fMaskFilter, filter);
-    fDirtyBits = SkSetClearMask(fDirtyBits, filter != NULL, kMaskFilter_DirtyBit);
     return filter;
 }
 
@@ -2611,82 +2564,3 @@ bool SkPaint::nothingToDraw() const {
     return false;
 }
 
-inline static unsigned popcount(uint8_t x) {
-    // As in Hacker's delight, adapted for just 8 bits.
-    x = (x & 0x55) + ((x >> 1) & 0x55);  // a b c d w x y z -> a+b c+d w+x y+z
-    x = (x & 0x33) + ((x >> 2) & 0x33);  // a+b c+d w+x y+z -> a+b+c+d w+x+y+z
-    x = (x & 0x0F) + ((x >> 4) & 0x0F);  // a+b+c+d w+x+y+z -> a+b+c+d+w+x+y+z
-    return x;
-}
-
-void SkPaint::FlatteningTraits::Flatten(SkWriteBuffer& buffer, const SkPaint& paint) {
-    const uint32_t dirty = paint.fDirtyBits;
-
-    // Each of the low 7 dirty bits corresponds to a 4-byte flat value,
-    // plus one for the dirty bits and one for the bitfields
-    const size_t flatBytes = 4 * (popcount(dirty & kPOD_DirtyBitMask) + 2);
-    SkASSERT(flatBytes <= 32);
-    uint32_t* u32 = buffer.reserve(flatBytes);
-    *u32++ = dirty;
-    *u32++ = paint.fBitfieldsUInt;
-    if (0 == dirty) {
-        return;
-    }
-
-#define F(dst, field) if (dirty & k##field##_DirtyBit) *dst++ = paint.get##field()
-    F(u32, Color);
-    SkScalar* f32 = reinterpret_cast<SkScalar*>(u32);
-    F(f32, TextSize);
-    F(f32, TextScaleX);
-    F(f32, TextSkewX);
-    F(f32, StrokeWidth);
-    F(f32, StrokeMiter);
-#undef F
-#define F(field) if (dirty & k##field##_DirtyBit) buffer.writeFlattenable(paint.get##field())
-    F(PathEffect);
-    F(Shader);
-    F(Xfermode);
-    F(MaskFilter);
-    F(ColorFilter);
-    F(Rasterizer);
-    F(Looper);
-    F(ImageFilter);
-#undef F
-    if (dirty & kTypeface_DirtyBit) buffer.writeTypeface(paint.getTypeface());
-    if (dirty & kAnnotation_DirtyBit) paint.getAnnotation()->writeToBuffer(buffer);
-}
-
-void SkPaint::FlatteningTraits::Unflatten(SkReadBuffer& buffer, SkPaint* paint) {
-    const uint32_t dirty = buffer.readUInt();
-    paint->fBitfieldsUInt = buffer.readUInt();
-    if (dirty == 0) {
-        return;
-    }
-#define F(field, reader) if (dirty & k##field##_DirtyBit) paint->set##field(buffer.reader())
-// Same function, except it unrefs the object newly set on the paint:
-#define F_UNREF(field, reader)                      \
-    if (dirty & k##field##_DirtyBit)                \
-        paint->set##field(buffer.reader())->unref()
-
-    F(Color,       readUInt);
-    F(TextSize,    readScalar);
-    F(TextScaleX,  readScalar);
-    F(TextSkewX,   readScalar);
-    F(StrokeWidth, readScalar);
-    F(StrokeMiter, readScalar);
-    F_UNREF(PathEffect,  readPathEffect);
-    F_UNREF(Shader,      readShader);
-    F_UNREF(Xfermode,    readXfermode);
-    F_UNREF(MaskFilter,  readMaskFilter);
-    F_UNREF(ColorFilter, readColorFilter);
-    F_UNREF(Rasterizer,  readRasterizer);
-    F_UNREF(Looper,      readDrawLooper);
-    F_UNREF(ImageFilter, readImageFilter);
-    F(Typeface,    readTypeface);
-#undef F
-#undef F_UNREF
-    if (dirty & kAnnotation_DirtyBit) {
-        paint->setAnnotation(SkAnnotation::Create(buffer))->unref();
-    }
-    SkASSERT(dirty == paint->fDirtyBits);
-}

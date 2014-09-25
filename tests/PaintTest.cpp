@@ -315,7 +315,7 @@ DEF_TEST(Paint_regression_measureText, reporter) {
 
 #define ASSERT(expr) REPORTER_ASSERT(r, expr)
 
-DEF_TEST(Paint_FlatteningTraits, r) {
+DEF_TEST(Paint_MoreFlattening, r) {
     SkPaint paint;
     paint.setColor(0x00AABBCC);
     paint.setTextScaleX(1.0f);  // Default value, ignored.
@@ -324,20 +324,11 @@ DEF_TEST(Paint_FlatteningTraits, r) {
     paint.setLooper(NULL);  // Default value, ignored.
 
     SkWriteBuffer writer;
-    SkPaint::FlatteningTraits::Flatten(writer, paint);
+    paint.flatten(writer);
 
-    // BEGIN white box asserts: if the impl changes, these asserts may change
-        const size_t expectedBytesWritten = sizeof(void*) == 8 ? 32 : 28;
-        ASSERT(expectedBytesWritten == writer.bytesWritten());
-
-        const uint32_t* written = writer.getWriter32()->contiguousArray();
-        SkASSERT(written != NULL);
-        ASSERT(*written == ((1<<0) | (1<<1) | (1<<8)));  // Dirty bits for our 3.
-    // END white box asserts
-
-    SkReadBuffer reader(written, writer.bytesWritten());
+    SkReadBuffer reader(writer.getWriter32()->contiguousArray(), writer.bytesWritten());
     SkPaint other;
-    SkPaint::FlatteningTraits::Unflatten(reader, &other);
+    other.unflatten(reader);
     ASSERT(reader.offset() == writer.bytesWritten());
 
     // No matter the encoding, these must always hold.

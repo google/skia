@@ -66,7 +66,7 @@ enum DrawType {
     DRAW_DRRECT,
     PUSH_CULL,
     POP_CULL,
-    
+
     DRAW_PATCH, // could not add in aphabetical order
     DRAW_PICTURE_MATRIX_PAINT,
     DRAW_TEXT_BLOB,
@@ -570,7 +570,12 @@ private:
     SkTDynamicHash<SkFlatData, SkFlatData, SkFlatData::HashTraits> fHash;
 };
 
-typedef SkFlatDictionary<SkPaint, SkPaint::FlatteningTraits> SkPaintDictionary;
+struct SkPaintFlatteningTraits {
+    static void Flatten(SkWriteBuffer& buffer, const SkPaint& paint) { paint.flatten(buffer); }
+    static void Unflatten(SkReadBuffer& buffer, SkPaint* paint) { paint->unflatten(buffer); }
+};
+
+typedef SkFlatDictionary<SkPaint, SkPaintFlatteningTraits> SkPaintDictionary;
 
 class SkChunkFlatController : public SkFlatController {
 public:
