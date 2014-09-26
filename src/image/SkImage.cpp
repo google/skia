@@ -135,6 +135,6 @@ bool SkImage_Base::onReadPixels(SkBitmap* bitmap, const SkIRect& subset) const {
     paint.setXfermodeMode(SkXfermode::kClear_Mode);
     canvas.drawRect(dstR, paint);
 
-    const_cast<SkImage_Base*>(this)->onDrawRectToRect(&canvas, &srcR, dstR, NULL);
+    canvas.drawImageRect(this, &srcR, dstR);
     return true;
 }
