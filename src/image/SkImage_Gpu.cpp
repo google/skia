@@ -20,7 +20,7 @@ public:
     virtual ~SkImage_Gpu();
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const SK_OVERRIDE;
-    virtual void onDrawRectToRect(SkCanvas*, const SkRect* src, const SkRect& dst,
+    virtual void onDrawRect(SkCanvas*, const SkRect* src, const SkRect& dst,
                                   const SkPaint*) const SK_OVERRIDE;
     virtual GrTexture* onGetTexture() const SK_OVERRIDE;
     virtual bool getROPixels(SkBitmap*) const SK_OVERRIDE;
@@ -61,7 +61,7 @@ void SkImage_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-void SkImage_Gpu::onDrawRectToRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
+void SkImage_Gpu::onDrawRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
                                    const SkPaint* paint) const {
     canvas->drawBitmapRectToRect(fBitmap, src, dst, paint);
 }

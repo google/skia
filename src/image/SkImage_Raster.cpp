@@ -54,7 +54,7 @@ public:
     virtual ~SkImage_Raster();
 
     virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) const SK_OVERRIDE;
-    virtual void onDrawRectToRect(SkCanvas*, const SkRect*, const SkRect&,
+    virtual void onDrawRect(SkCanvas*, const SkRect*, const SkRect&,
                                   const SkPaint*) const SK_OVERRIDE;
     virtual bool onReadPixels(SkBitmap*, const SkIRect&) const SK_OVERRIDE;
     virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const SK_OVERRIDE;
@@ -131,7 +131,7 @@ void SkImage_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPa
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-void SkImage_Raster::onDrawRectToRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
+void SkImage_Raster::onDrawRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
                                       const SkPaint* paint) const {
     canvas->drawBitmapRectToRect(fBitmap, src, dst, paint);
 }

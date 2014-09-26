@@ -15,7 +15,7 @@ public:
     SkImage_Base(int width, int height) : INHERITED(width, height) {}
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const = 0;
-    virtual void onDrawRectToRect(SkCanvas*, const SkRect* src,
+    virtual void onDrawRect(SkCanvas*, const SkRect* src,
                                   const SkRect& dst, const SkPaint*) const = 0;
 
     // Default impl calls onDraw

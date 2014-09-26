@@ -122,7 +122,7 @@ private:
      *
      *  See SkCanvas::drawBitmapRectToRect for similar behavior.
      */
-    void draw(SkCanvas*, const SkRect* src, const SkRect& dst, const SkPaint*) const;
+    void drawRect(SkCanvas*, const SkRect* src, const SkRect& dst, const SkPaint*) const;
 
     /**
      *  Return a copy of the image's pixels, limiting them to the subset

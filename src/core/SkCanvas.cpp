@@ -1894,7 +1894,7 @@ void SkCanvas::drawImage(const SkImage* image, SkScalar left, SkScalar top,
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src,
                            const SkRect& dst,
                            const SkPaint* paint) {
-    image->draw(this, src, dst, paint);
+    image->drawRect(this, src, dst, paint);
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
