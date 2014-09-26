@@ -31,3 +31,4 @@ sudo chmod 744 /etc/init.d/webtry
 
 # Confirm that monit is happy.
 sudo monit -t
+sudo monit reload
