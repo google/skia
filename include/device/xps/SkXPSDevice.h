@@ -118,8 +118,8 @@ protected:
     virtual void drawPosText(
         const SkDraw&,
         const void* text, size_t len,
-        const SkScalar pos[], SkScalar constY, int scalarsPerPos,
-        const SkPaint& paint) SK_OVERRIDE;
+        const SkScalar pos[], int scalarsPerPos,
+        const SkPoint& offset, const SkPaint& paint) SK_OVERRIDE;
 
     virtual void drawTextOnPath(
         const SkDraw&,

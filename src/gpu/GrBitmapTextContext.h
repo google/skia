@@ -25,8 +25,8 @@ public:
                           SkScalar x, SkScalar y) SK_OVERRIDE;
     virtual void drawPosText(const GrPaint&, const SkPaint&,
                              const char text[], size_t byteLength,
-                             const SkScalar pos[], SkScalar constY,
-                             int scalarsPerPosition) SK_OVERRIDE;
+                             const SkScalar pos[], int scalarsPerPosition,
+                             const SkPoint& offset) SK_OVERRIDE;
 
     virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
 

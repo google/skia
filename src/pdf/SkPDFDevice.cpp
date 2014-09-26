@@ -1144,8 +1144,8 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
 }
 
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
-                              const SkScalar pos[], SkScalar constY,
-                              int scalarsPerPos, const SkPaint& paint) {
+                              const SkScalar pos[], int scalarsPerPos,
+                              const SkPoint& offset, const SkPaint& paint) {
     NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
     if (paint.getMaskFilter() != NULL) {
         // Don't pretend we support drawing MaskFilters, it makes for artifacts
@@ -1177,8 +1177,9 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
             continue;
         }
         fFontGlyphUsage->noteGlyphUsage(font, &encodedValue, 1);
-        SkScalar x = pos[i * scalarsPerPos];
-        SkScalar y = scalarsPerPos == 1 ? constY : pos[i * scalarsPerPos + 1];
+        SkScalar x = offset.x() + pos[i * scalarsPerPos];
+        SkScalar y = offset.y() + (2 == scalarsPerPos ? pos[i * scalarsPerPos + 1] : 0);
+
         align_text(glyphCacheProc, textPaint, glyphIDs + i, 1, &x, &y);
         set_text_transform(x, y, textPaint.getTextSkewX(),
                            &content.entry()->fContent);
