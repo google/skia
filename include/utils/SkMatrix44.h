@@ -29,6 +29,9 @@
     static inline double SkMScalarToDouble(double x) {
         return x;
     }
+    static inline double SkMScalarAbs(double x) {
+        return fabs(x);
+    }
     static const SkMScalar SK_MScalarPI = 3.141592653589793;
 #elif defined SK_MSCALAR_IS_FLOAT
 #ifdef SK_MSCALAR_IS_DOUBLE
@@ -47,6 +50,9 @@
     }
     static inline double SkMScalarToDouble(float x) {
         return static_cast<double>(x);
+    }
+    static inline float SkMScalarAbs(float x) {
+        return sk_float_abs(x);
     }
     static const SkMScalar SK_MScalarPI = 3.14159265f;
 #endif
@@ -376,6 +382,18 @@ public:
      */
     void map2(const float src2[], int count, float dst4[]) const;
     void map2(const double src2[], int count, double dst4[]) const;
+
+    /** Returns true if transformating an axis-aligned square in 2d by this matrix
+        will produce another 2d axis-aligned square; typically means the matrix
+        is a scale with perhaps a 90-degree rotation. A 3d rotation through 90
+        degrees into a perpendicular plane collapses a square to a line, but
+        is still considered to be axis-aligned.
+
+        By default, tolerates very slight error due to float imprecisions;
+        a 90-degree rotation can still end up with 10^-17 of
+        "non-axis-aligned" result.
+     */
+    bool preserves2dAxisAlignment(SkMScalar epsilon = SK_ScalarNearlyZero) const;
 
     void dump() const;
 

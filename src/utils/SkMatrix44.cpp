@@ -857,6 +857,46 @@ void SkMatrix44::map2(const double src2[], int count, double dst4[]) const {
     proc(fMat, src2, count, dst4);
 }
 
+bool SkMatrix44::preserves2dAxisAlignment (SkMScalar epsilon) const {
+
+    // Can't check (mask & kPerspective_Mask) because Z isn't relevant here.
+    if (0 != perspX() || 0 != perspY()) return false;
+
+    // A matrix with two non-zeroish values in any of the upper right
+    // rows or columns will skew.  If only one value in each row or
+    // column is non-zeroish, we get a scale plus perhaps a 90-degree
+    // rotation.
+    int col0 = 0;
+    int col1 = 0;
+    int row0 = 0;
+    int row1 = 0;
+
+    // Must test against epsilon, not 0, because we can get values
+    // around 6e-17 in the matrix that "should" be 0.
+
+    if (SkMScalarAbs(fMat[0][0]) > epsilon) {
+        col0++;
+        row0++;
+    }
+    if (SkMScalarAbs(fMat[0][1]) > epsilon) {
+        col1++;
+        row0++;
+    }
+    if (SkMScalarAbs(fMat[1][0]) > epsilon) {
+        col0++;
+        row1++;
+    }
+    if (SkMScalarAbs(fMat[1][1]) > epsilon) {
+        col1++;
+        row1++;
+    }
+    if (col0 > 1 || col1 > 1 || row0 > 1 || row1 > 1) {
+        return false;
+    }
+
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::dump() const {

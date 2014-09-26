@@ -550,6 +550,218 @@ static void test_has_perspective(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, transform.hasPerspective());
 }
 
+static bool is_rectilinear (SkVector4& p1, SkVector4& p2, SkVector4& p3, SkVector4& p4) {
+    return (SkScalarNearlyEqual(p1.fData[0], p2.fData[0]) &&
+            SkScalarNearlyEqual(p2.fData[1], p3.fData[1]) &&
+            SkScalarNearlyEqual(p3.fData[0], p4.fData[0]) &&
+            SkScalarNearlyEqual(p4.fData[1], p1.fData[1])) ||
+           (SkScalarNearlyEqual(p1.fData[1], p2.fData[1]) &&
+            SkScalarNearlyEqual(p2.fData[0], p3.fData[0]) &&
+            SkScalarNearlyEqual(p3.fData[1], p4.fData[1]) &&
+            SkScalarNearlyEqual(p4.fData[0], p1.fData[0]));
+}
+
+static SkVector4 mul_with_persp_divide(const SkMatrix44& transform, const SkVector4& target) {
+    SkVector4 result = transform * target;
+    if (result.fData[3] != 0.0f && result.fData[3] != SK_Scalar1) {
+        float wInverse = SK_Scalar1 / result.fData[3];
+        result.set(result.fData[0] * wInverse,
+                   result.fData[1] * wInverse,
+                   result.fData[2] * wInverse,
+                   SK_Scalar1);
+    }
+    return result;
+}
+
+static bool empirically_preserves_2d_axis_alignment(skiatest::Reporter* reporter,
+                                                    const SkMatrix44& transform) {
+  SkVector4 p1(5.0f, 5.0f, 0.0f);
+  SkVector4 p2(10.0f, 5.0f, 0.0f);
+  SkVector4 p3(10.0f, 20.0f, 0.0f);
+  SkVector4 p4(5.0f, 20.0f, 0.0f);
+
+  REPORTER_ASSERT(reporter, is_rectilinear(p1, p2, p3, p4));
+
+  p1 = mul_with_persp_divide(transform, p1);
+  p2 = mul_with_persp_divide(transform, p2);
+  p3 = mul_with_persp_divide(transform, p3);
+  p4 = mul_with_persp_divide(transform, p4);
+
+  return is_rectilinear(p1, p2, p3, p4);
+}
+
+static void test(bool expected, skiatest::Reporter* reporter, const SkMatrix44& transform) {
+    if (expected) {
+        REPORTER_ASSERT(reporter, empirically_preserves_2d_axis_alignment(reporter, transform));
+        REPORTER_ASSERT(reporter, transform.preserves2dAxisAlignment());
+    } else {
+        REPORTER_ASSERT(reporter, !empirically_preserves_2d_axis_alignment(reporter, transform));
+        REPORTER_ASSERT(reporter, !transform.preserves2dAxisAlignment());
+    }
+}
+
+static void test_preserves_2d_axis_alignment(skiatest::Reporter* reporter) {
+  SkMatrix44 transform(SkMatrix44::kUninitialized_Constructor);
+  SkMatrix44 transform2(SkMatrix44::kUninitialized_Constructor);
+
+  static const struct TestCase {
+    SkMScalar a; // row 1, column 1
+    SkMScalar b; // row 1, column 2
+    SkMScalar c; // row 2, column 1
+    SkMScalar d; // row 2, column 2
+    bool expected;
+  } test_cases[] = {
+    { 3.f, 0.f,
+      0.f, 4.f, true }, // basic case
+    { 0.f, 4.f,
+      3.f, 0.f, true }, // rotate by 90
+    { 0.f, 0.f,
+      0.f, 4.f, true }, // degenerate x
+    { 3.f, 0.f,
+      0.f, 0.f, true }, // degenerate y
+    { 0.f, 0.f,
+      3.f, 0.f, true }, // degenerate x + rotate by 90
+    { 0.f, 4.f,
+      0.f, 0.f, true }, // degenerate y + rotate by 90
+    { 3.f, 4.f,
+      0.f, 0.f, false },
+    { 0.f, 0.f,
+      3.f, 4.f, false },
+    { 0.f, 3.f,
+      0.f, 4.f, false },
+    { 3.f, 0.f,
+      4.f, 0.f, false },
+    { 3.f, 4.f,
+      5.f, 0.f, false },
+    { 3.f, 4.f,
+      0.f, 5.f, false },
+    { 3.f, 0.f,
+      4.f, 5.f, false },
+    { 0.f, 3.f,
+      4.f, 5.f, false },
+    { 2.f, 3.f,
+      4.f, 5.f, false },
+  };
+
+  for (size_t i = 0; i < sizeof(test_cases)/sizeof(TestCase); ++i) {
+    const TestCase& value = test_cases[i];
+    transform.setIdentity();
+    transform.set(0, 0, value.a);
+    transform.set(0, 1, value.b);
+    transform.set(1, 0, value.c);
+    transform.set(1, 1, value.d);
+
+    test(value.expected, reporter, transform);
+  }
+
+  // Try the same test cases again, but this time make sure that other matrix
+  // elements (except perspective) have entries, to test that they are ignored.
+  for (size_t i = 0; i < sizeof(test_cases)/sizeof(TestCase); ++i) {
+    const TestCase& value = test_cases[i];
+    transform.setIdentity();
+    transform.set(0, 0, value.a);
+    transform.set(0, 1, value.b);
+    transform.set(1, 0, value.c);
+    transform.set(1, 1, value.d);
+
+    transform.set(0, 2, 1.f);
+    transform.set(0, 3, 2.f);
+    transform.set(1, 2, 3.f);
+    transform.set(1, 3, 4.f);
+    transform.set(2, 0, 5.f);
+    transform.set(2, 1, 6.f);
+    transform.set(2, 2, 7.f);
+    transform.set(2, 3, 8.f);
+
+    test(value.expected, reporter, transform);
+  }
+
+  // Try the same test cases again, but this time add perspective which is
+  // always assumed to not-preserve axis alignment.
+  for (size_t i = 0; i < sizeof(test_cases)/sizeof(TestCase); ++i) {
+    const TestCase& value = test_cases[i];
+    transform.setIdentity();
+    transform.set(0, 0, value.a);
+    transform.set(0, 1, value.b);
+    transform.set(1, 0, value.c);
+    transform.set(1, 1, value.d);
+
+    transform.set(0, 2, 1.f);
+    transform.set(0, 3, 2.f);
+    transform.set(1, 2, 3.f);
+    transform.set(1, 3, 4.f);
+    transform.set(2, 0, 5.f);
+    transform.set(2, 1, 6.f);
+    transform.set(2, 2, 7.f);
+    transform.set(2, 3, 8.f);
+    transform.set(3, 0, 9.f);
+    transform.set(3, 1, 10.f);
+    transform.set(3, 2, 11.f);
+    transform.set(3, 3, 12.f);
+
+    test(false, reporter, transform);
+  }
+
+  // Try a few more practical situations to check precision
+  // Reuse TestCase (a, b, c, d) as (x, y, z, degrees) axis to rotate about.
+  TestCase rotation_tests[] = {
+    { 0.0, 0.0, 1.0, 90.0, true },
+    { 0.0, 0.0, 1.0, 180.0, true },
+    { 0.0, 0.0, 1.0, 270.0, true },
+    { 0.0, 1.0, 0.0, 90.0, true },
+    { 1.0, 0.0, 0.0, 90.0, true },
+    { 0.0, 0.0, 1.0, 45.0, false },
+    // In 3d these next two are non-preserving, but we're testing in 2d after
+    // orthographic projection, where they are.
+    { 0.0, 1.0, 0.0, 45.0, true },
+    { 1.0, 0.0, 0.0, 45.0, true },
+  };
+
+  for (size_t i = 0; i < sizeof(rotation_tests)/sizeof(TestCase); ++i) {
+    const TestCase& value = rotation_tests[i];
+    transform.setRotateDegreesAbout(value.a, value.b, value.c, value.d);
+    test(value.expected, reporter, transform);
+  }
+
+  static const struct DoubleRotationCase {
+    SkMScalar x1;
+    SkMScalar y1;
+    SkMScalar z1;
+    SkMScalar degrees1;
+    SkMScalar x2;
+    SkMScalar y2;
+    SkMScalar z2;
+    SkMScalar degrees2;
+    bool expected;
+  } double_rotation_tests[] = {
+    { 0.0, 0.0, 1.0, 90.0, 0.0, 1.0, 0.0, 90.0, true },
+    { 0.0, 0.0, 1.0, 90.0, 1.0, 0.0, 0.0, 90.0, true },
+    { 0.0, 1.0, 0.0, 90.0, 0.0, 0.0, 1.0, 90.0, true },
+  };
+
+  for (size_t i = 0; i < sizeof(double_rotation_tests)/sizeof(DoubleRotationCase); ++i) {
+    const DoubleRotationCase& value = double_rotation_tests[i];
+    transform.setRotateDegreesAbout(value.x1, value.y1, value.z1, value.degrees1);
+    transform2.setRotateDegreesAbout(value.x2, value.y2, value.z2, value.degrees2);
+    transform.postConcat(transform2);
+    test(value.expected, reporter, transform);
+  }
+
+  // Perspective cases.
+  transform.setIdentity();
+  transform.set(3, 2, -0.1); // Perspective depth 10
+  transform2.setRotateDegreesAbout(0.0, 1.0, 0.0, 45.0);
+  transform.preConcat(transform2);
+  test(false, reporter, transform);
+
+  transform.setIdentity();
+  transform.set(3, 2, -0.1); // Perspective depth 10
+  transform2.setRotateDegreesAbout(0.0, 0.0, 1.0, 90.0);
+  transform.preConcat(transform2);
+  test(true, reporter, transform);
+}
+
+
 DEF_TEST(Matrix44, reporter) {
     SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
     SkMatrix44 inverse(SkMatrix44::kUninitialized_Constructor);
@@ -656,4 +868,5 @@ DEF_TEST(Matrix44, reporter) {
     test_map2(reporter);
     test_3x3_conversion(reporter);
     test_has_perspective(reporter);
+    test_preserves_2d_axis_alignment(reporter);
 }
