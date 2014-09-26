@@ -8,21 +8,22 @@
 #ifndef GrDrawState_DEFINED
 #define GrDrawState_DEFINED
 
+
 #include "GrBlend.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpuResourceRef.h"
-#include "GrRODrawState.h"
+#include "GrProcessorStage.h"
+#include "GrRenderTarget.h"
+#include "GrStencil.h"
+#include "SkMatrix.h"
 #include "effects/GrSimpleTextureEffect.h"
 
+class GrDrawTargetCaps;
 class GrOptDrawState;
+class GrPaint;
+class GrTexture;
 
-/**
- * Modifiable subclass derived from GrRODrawState. The majority of the data that represents a draw
- * state is stored in the parent class. GrDrawState contains methods for setting, adding to, etc.
- * various data members of the draw state. This class is used to configure the state used when
- * issuing draws via GrDrawTarget.
- */
-class GrDrawState : public GrRODrawState {
+class GrDrawState : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrDrawState)
 
@@ -69,6 +70,31 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Vertex Attributes
     ////
+
+    enum {
+        kMaxVertexAttribCnt = kLast_GrVertexAttribBinding + 4,
+    };
+
+    const GrVertexAttrib* getVertexAttribs() const { return fVAPtr; }
+    int getVertexAttribCount() const { return fVACount; }
+
+    size_t getVertexStride() const { return fVAStride; }
+
+    bool hasLocalCoordAttribute() const {
+        return -1 != fFixedFunctionVertexAttribIndices[kLocalCoord_GrVertexAttribBinding];
+    }
+    bool hasColorVertexAttribute() const {
+        return -1 != fFixedFunctionVertexAttribIndices[kColor_GrVertexAttribBinding];
+    }
+    bool hasCoverageVertexAttribute() const {
+        return -1 != fFixedFunctionVertexAttribIndices[kCoverage_GrVertexAttribBinding];
+    }
+
+    const int* getFixedFunctionVertexAttribIndices() const {
+        return fFixedFunctionVertexAttribIndices;
+    }
+
+    bool validateVertexAttribs() const;
 
    /**
      * The format of vertices is represented as an array of GrVertexAttribs, with each representing
@@ -127,11 +153,18 @@ public:
      */
     bool couldApplyCoverage(const GrDrawTargetCaps& caps) const;
 
+    /**
+     * Determines whether the output coverage is guaranteed to be one for all pixels hit by a draw.
+     */
+    bool hasSolidCoverage() const;
+
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Color
     ////
+
+    GrColor getColor() const { return fColor; }
 
     /**
      *  Sets color for next draw to a premultiplied-alpha color.
@@ -158,6 +191,12 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Coverage
     ////
+
+    uint8_t getCoverage() const { return fCoverage; }
+
+    GrColor getCoverageColor() const {
+        return GrColorPackRGBA(fCoverage, fCoverage, fCoverage, fCoverage);
+    }
 
     /**
      * Sets a constant fractional coverage to be applied to the draw. The
@@ -206,6 +245,23 @@ public:
     /// See the documentation of kCoverageDrawing_StateBit for information about disabling the
     /// the color / coverage distinction.
     ////
+
+    int numColorStages() const { return fColorStages.count(); }
+    int numCoverageStages() const { return fCoverageStages.count(); }
+    int numTotalStages() const {
+         return this->numColorStages() + this->numCoverageStages() +
+                 (this->hasGeometryProcessor() ? 1 : 0);
+    }
+
+    bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
+    const GrGeometryStage* getGeometryProcessor() const { return fGeometryProcessor.get(); }
+    const GrFragmentStage& getColorStage(int idx) const { return fColorStages[idx]; }
+    const GrFragmentStage& getCoverageStage(int idx) const { return fCoverageStages[idx]; }
+
+    /**
+     * Checks whether any of the effects will read the dst pixel color.
+     */
+    bool willEffectReadDstColor() const;
 
     const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
@@ -295,6 +351,22 @@ public:
     /// @name Blending
     ////
 
+    GrBlendCoeff getSrcBlendCoeff() const { return fSrcBlend; }
+    GrBlendCoeff getDstBlendCoeff() const { return fDstBlend; }
+
+    /**
+     * Retrieves the last value set by setBlendConstant()
+     * @return the blending constant value
+     */
+    GrColor getBlendConstant() const { return fBlendConstant; }
+
+    /**
+     * Determines whether multiplying the computed per-pixel color by the pixel's fractional
+     * coverage before the blend will give the correct final destination color. In general it
+     * will not as coverage is applied after blending.
+     */
+    bool canTweakAlphaForCoverage() const;
+
     /**
      * Sets the blending function coefficients.
      *
@@ -348,6 +420,32 @@ public:
     ////
 
     /**
+     * Retrieves the current view matrix
+     * @return the current view matrix.
+     */
+    const SkMatrix& getViewMatrix() const { return fViewMatrix; }
+
+    /**
+     *  Retrieves the inverse of the current view matrix.
+     *
+     *  If the current view matrix is invertible, return true, and if matrix
+     *  is non-null, copy the inverse into it. If the current view matrix is
+     *  non-invertible, return false and ignore the matrix parameter.
+     *
+     * @param matrix if not null, will receive a copy of the current inverse.
+     */
+    bool getViewInverse(SkMatrix* matrix) const {
+        SkMatrix inverse;
+        if (fViewMatrix.invert(&inverse)) {
+            if (matrix) {
+                *matrix = inverse;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Sets the view matrix to identity and updates any installed effects to compensate for the
      * coord system change.
      */
@@ -398,6 +496,15 @@ public:
     ////
 
     /**
+     * Retrieves the currently set render-target.
+     *
+     * @return    The currently set render target.
+     */
+    GrRenderTarget* getRenderTarget() const {
+        return static_cast<GrRenderTarget*>(fRenderTarget.getResource());
+    }
+
+    /**
      * Sets the render-target used at the next drawing call
      *
      * @param target  The render target to set.
@@ -412,6 +519,8 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Stencil
     ////
+
+    const GrStencilSettings& getStencil() const { return fStencilSettings; }
 
     /**
      * Sets the stencil settings to use for the next draw.
@@ -444,6 +553,54 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name State Flags
     ////
+
+    /**
+     *  Flags that affect rendering. Controlled using enable/disableState(). All
+     *  default to disabled.
+     */
+    enum StateBits {
+        /**
+         * Perform dithering. TODO: Re-evaluate whether we need this bit
+         */
+        kDither_StateBit        = 0x01,
+        /**
+         * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
+         * or smooth-line rendering if a line primitive is drawn and line smoothing is supported by
+         * the 3D API.
+         */
+        kHWAntialias_StateBit   = 0x02,
+        /**
+         * Draws will respect the clip, otherwise the clip is ignored.
+         */
+        kClip_StateBit          = 0x04,
+        /**
+         * Disables writing to the color buffer. Useful when performing stencil
+         * operations.
+         */
+        kNoColorWrites_StateBit = 0x08,
+
+        /**
+         * Usually coverage is applied after color blending. The color is blended using the coeffs
+         * specified by setBlendFunc(). The blended color is then combined with dst using coeffs
+         * of src_coverage, 1-src_coverage. Sometimes we are explicitly drawing a coverage mask. In
+         * this case there is no distinction between coverage and color and the caller needs direct
+         * control over the blend coeffs. When set, there will be a single blend step controlled by
+         * setBlendFunc() which will use coverage*color as the src color.
+         */
+         kCoverageDrawing_StateBit = 0x10,
+
+        // Users of the class may add additional bits to the vector
+        kDummyStateBit,
+        kLastPublicStateBit = kDummyStateBit-1,
+    };
+
+    uint32_t getFlagBits() const { return fFlagBits; }
+
+    bool isStateFlagEnabled(uint32_t stateBit) const { return 0 != (stateBit & fFlagBits); }
+
+    bool isClipState() const { return 0 != (fFlagBits & kClip_StateBit); }
+    bool isColorWriteDisabled() const { return 0 != (fFlagBits & kNoColorWrites_StateBit); }
+    bool isCoverageDrawing() const { return 0 != (fFlagBits & kCoverageDrawing_StateBit); }
 
     void resetStateFlags() {
         if (0 != fFlagBits) {
@@ -496,6 +653,21 @@ public:
     /// @name Face Culling
     ////
 
+    enum DrawFace {
+        kInvalid_DrawFace = -1,
+
+        kBoth_DrawFace,
+        kCCW_DrawFace,
+        kCW_DrawFace,
+    };
+
+    /**
+     * Gets whether the target is drawing clockwise, counterclockwise,
+     * or both faces.
+     * @return the current draw face(s).
+     */
+    DrawFace getDrawFace() const { return fDrawFace; }
+
     /**
      * Controls whether clockwise, counterclockwise, or both faces are drawn.
      * @param face  the face(s) to draw.
@@ -512,7 +684,11 @@ public:
     /// Hints that when provided can enable optimizations.
     ////
 
+    enum Hints { kVertexColorsAreOpaque_Hint = 0x1, };
+
     void setHint(Hints hint, bool value) { fHints = value ? (fHints | hint) : (fHints & ~hint); }
+
+    bool vertexColorsAreOpaque() const { return kVertexColorsAreOpaque_Hint & fHints; }
 
     /// @}
 
@@ -548,6 +724,71 @@ public:
     GrOptDrawState* createOptState(const GrDrawTargetCaps&) const;
 
 private:
+    /**
+     * Converts refs on GrGpuResources owned directly or indirectly by this GrDrawState into
+     * pending reads and writes. This should be called when a GrDrawState is recorded into
+     * a GrDrawTarget for later execution. Subclasses of GrDrawState may add setters. However,
+     * once this call has been made the GrDrawState is immutable. It is also no longer copyable.
+     * In the future this conversion will automatically happen when converting a GrDrawState into
+     * an optimized draw state.
+     */
+    void convertToPendingExec();
+
+    friend class GrDrawTarget;
+
+    bool isEqual(const GrDrawState& that) const;
+
+    /**
+     * Optimizations for blending / coverage to that can be applied based on the current state.
+     */
+    enum BlendOptFlags {
+        /**
+         * No optimization
+         */
+        kNone_BlendOpt                  = 0,
+        /**
+         * Don't draw at all
+         */
+        kSkipDraw_BlendOptFlag          = 0x1,
+        /**
+         * The coverage value does not have to be computed separately from alpha, the the output
+         * color can be the modulation of the two.
+         */
+        kCoverageAsAlpha_BlendOptFlag   = 0x2,
+        /**
+         * Instead of emitting a src color, emit coverage in the alpha channel and r,g,b are
+         * "don't cares".
+         */
+        kEmitCoverage_BlendOptFlag      = 0x4,
+        /**
+         * Emit transparent black instead of the src color, no need to compute coverage.
+         */
+        kEmitTransBlack_BlendOptFlag    = 0x8,
+    };
+    GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
+
+    /**
+     * Determines what optimizations can be applied based on the blend. The coefficients may have
+     * to be tweaked in order for the optimization to work. srcCoeff and dstCoeff are optional
+     * params that receive the tweaked coefficients. Normally the function looks at the current
+     * state to see if coverage is enabled. By setting forceCoverage the caller can speculatively
+     * determine the blend optimizations that would be used if there was partial pixel coverage.
+     *
+     * Subclasses of GrDrawTarget that actually draw (as opposed to those that just buffer for
+     * playback) must call this function and respect the flags that replace the output color.
+     *
+     * If the cached BlendOptFlags does not have the invalidate bit set, then getBlendOpts will
+     * simply returned the cached flags and coefficients. Otherwise it will calculate the values. 
+     */
+    BlendOptFlags getBlendOpts(bool forceCoverage = false,
+                               GrBlendCoeff* srcCoeff = NULL,
+                               GrBlendCoeff* dstCoeff = NULL) const;
+
+    /**
+     * Determines whether src alpha is guaranteed to be one for all src pixels
+     */
+    bool srcAlphaWillBeOne() const;
+
     void invalidateOptState() const;
 
     void onReset(const SkMatrix* initialViewMatrix);
@@ -558,10 +799,39 @@ private:
 
     void internalSetVertexAttribs(const GrVertexAttrib attribs[], int count, size_t stride);
 
+    typedef GrTGpuResourceRef<GrRenderTarget> ProgramRenderTarget;
+    // These fields are roughly sorted by decreasing likelihood of being different in op==
+    ProgramRenderTarget                 fRenderTarget;
+    GrColor                             fColor;
+    SkMatrix                            fViewMatrix;
+    GrColor                             fBlendConstant;
+    uint32_t                            fFlagBits;
+    const GrVertexAttrib*               fVAPtr;
+    int                                 fVACount;
+    size_t                              fVAStride;
+    GrStencilSettings                   fStencilSettings;
+    uint8_t                             fCoverage;
+    DrawFace                            fDrawFace;
+    GrBlendCoeff                        fSrcBlend;
+    GrBlendCoeff                        fDstBlend;
+
+    typedef SkSTArray<4, GrFragmentStage>   FragmentStageArray;
+    SkAutoTDelete<GrGeometryStage>          fGeometryProcessor;
+    FragmentStageArray                      fColorStages;
+    FragmentStageArray                      fCoverageStages;
+
+    uint32_t                            fHints;
+
+    // This is simply a different representation of info in fVertexAttribs and thus does
+    // not need to be compared in op==.
+    int fFixedFunctionVertexAttribIndices[kGrFixedFunctionVertexAttribBindingCnt];
+
     mutable GrOptDrawState* fCachedOptState;
     mutable uint32_t fCachedCapsID;
 
-    typedef GrRODrawState INHERITED;
+    typedef SkRefCnt INHERITED;
 };
+
+//GR_MAKE_BITFIELD_OPS(GrDrawState::BlendOptFlags);
 
 #endif

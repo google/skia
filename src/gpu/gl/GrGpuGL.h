@@ -431,7 +431,7 @@ private:
     TriState                    fHWStencilTestEnabled;
 
 
-    GrDrawState::DrawFace       fHWDrawFace;
+    GrOptDrawState::DrawFace    fHWDrawFace;
     TriState                    fHWWriteToColor;
     TriState                    fHWDitherEnabled;
     uint32_t                    fHWBoundRenderTargetUniqueID;

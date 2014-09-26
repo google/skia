@@ -15,7 +15,9 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                BlendOptFlags blendOptFlags,
                                GrBlendCoeff optSrcCoeff,
                                GrBlendCoeff optDstCoeff,
-                               const GrDrawTargetCaps& caps) : INHERITED(drawState) {
+                               const GrDrawTargetCaps& caps) {
+    fRenderTarget.set(SkSafeRef(drawState.getRenderTarget()),
+                              GrIORef::kWrite_IOType);
     fColor = drawState.getColor();
     fCoverage = drawState.getCoverage();
     fViewMatrix = drawState.getViewMatrix();
@@ -25,14 +27,14 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fVACount = drawState.getVertexAttribCount();
     fVAStride = drawState.getVertexStride();
     fStencilSettings = drawState.getStencil();
-    fDrawFace = drawState.getDrawFace();
+    fDrawFace = (DrawFace)drawState.getDrawFace();
     fBlendOptFlags = blendOptFlags;
     fSrcBlend = optSrcCoeff;
     fDstBlend = optDstCoeff;
 
     memcpy(fFixedFunctionVertexAttribIndices,
-            drawState.getFixedFunctionVertexAttribIndices(),
-            sizeof(fFixedFunctionVertexAttribIndices));
+           drawState.getFixedFunctionVertexAttribIndices(),
+           sizeof(fFixedFunctionVertexAttribIndices));
 
 
     fInputColorIsUsed = true;
@@ -262,7 +264,76 @@ void GrOptDrawState::getStageStats() {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
     return this->isEqual(that);
+}
+
+bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
+    bool usingVertexColors = this->hasColorVertexAttribute();
+    if (!usingVertexColors && this->fColor != that.fColor) {
+        return false;
+    }
+
+    if (this->getRenderTarget() != that.getRenderTarget() ||
+        this->fColorStages.count() != that.fColorStages.count() ||
+        this->fCoverageStages.count() != that.fCoverageStages.count() ||
+        !this->fViewMatrix.cheapEqualTo(that.fViewMatrix) ||
+        this->fSrcBlend != that.fSrcBlend ||
+        this->fDstBlend != that.fDstBlend ||
+        this->fBlendConstant != that.fBlendConstant ||
+        this->fFlagBits != that.fFlagBits ||
+        this->fVACount != that.fVACount ||
+        this->fVAStride != that.fVAStride ||
+        memcmp(this->fVAPtr, that.fVAPtr, this->fVACount * sizeof(GrVertexAttrib)) ||
+        this->fStencilSettings != that.fStencilSettings ||
+        this->fDrawFace != that.fDrawFace ||
+        this->fInputColorIsUsed != that.fInputColorIsUsed ||
+        this->fInputCoverageIsUsed != that.fInputCoverageIsUsed ||
+        this->fReadsDst != that.fReadsDst ||
+        this->fReadsFragPosition != that.fReadsFragPosition ||
+        this->fRequiresLocalCoordAttrib != that.fRequiresLocalCoordAttrib ||
+        this->fPrimaryOutputType != that.fPrimaryOutputType ||
+        this->fSecondaryOutputType != that.fSecondaryOutputType) {
+        return false;
+    }
+
+    bool usingVertexCoverage = this->hasCoverageVertexAttribute();
+    if (!usingVertexCoverage && this->fCoverage != that.fCoverage) {
+        return false;
+    }
+
+    bool explicitLocalCoords = this->hasLocalCoordAttribute();
+    if (this->hasGeometryProcessor()) {
+        if (!that.hasGeometryProcessor()) {
+            return false;
+        } else if (!GrProcessorStage::AreCompatible(*this->getGeometryProcessor(),
+                                                    *that.getGeometryProcessor(),
+                                                    explicitLocalCoords)) {
+            return false;
+        }
+    } else if (that.hasGeometryProcessor()) {
+        return false;
+    }
+
+    for (int i = 0; i < this->numColorStages(); i++) {
+        if (!GrProcessorStage::AreCompatible(this->getColorStage(i), that.getColorStage(i),
+                                             explicitLocalCoords)) {
+            return false;
+        }
+    }
+    for (int i = 0; i < this->numCoverageStages(); i++) {
+        if (!GrProcessorStage::AreCompatible(this->getCoverageStage(i), that.getCoverageStage(i),
+                                             explicitLocalCoords)) {
+            return false;
+        }
+    }
+
+    SkASSERT(0 == memcmp(this->fFixedFunctionVertexAttribIndices,
+                         that.fFixedFunctionVertexAttribIndices,
+                         sizeof(this->fFixedFunctionVertexAttribIndices)));
+
+    return true;
 }
 

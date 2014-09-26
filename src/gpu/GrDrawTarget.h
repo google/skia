@@ -694,8 +694,8 @@ public:
     virtual DrawToken getCurrentDrawToken() { return DrawToken(this, 0); }
 
 protected:
-    // Extend access to GrRODrawState::convertToPEndeingExec to subclasses.
-    void convertDrawStateToPendingExec(GrRODrawState* ds) {
+    // Extend access to GrDrawState::convertToPEndeingExec to subclasses.
+    void convertDrawStateToPendingExec(GrDrawState* ds) {
         ds->convertToPendingExec();
     }
 
