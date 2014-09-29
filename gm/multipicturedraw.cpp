@@ -91,7 +91,7 @@ static SkPath make_tri_path(SkScalar originX, SkScalar originY) {
 }
 
 static const SkPicture* make_tri_picture() {
-    SkPath tri = make_tri_path(0, 0);
+    SkPath tri = make_tri_path(SkScalarHalf(kTriSide), 0);
 
     SkPaint fill;
     fill.setStyle(SkPaint::kFill_Style);
@@ -122,15 +122,18 @@ static const SkPicture* make_sub_picture(const SkPicture* tri) {
 
     canvas->scale(1.0f/2.0f, 1.0f/2.0f);
 
-    canvas->drawPicture(tri);
-
     canvas->save();
-    canvas->translate(SkScalarHalf(kTriSide), 1.5f * kTriSide / kRoot3);
+    canvas->translate(SkScalarHalf(kTriSide), 0);
     canvas->drawPicture(tri);
     canvas->restore();
 
     canvas->save();
-    canvas->translate(-SkScalarHalf(kTriSide), 1.5f * kTriSide / kRoot3);
+    canvas->translate(SkIntToScalar(kTriSide), 1.5f * kTriSide / kRoot3);
+    canvas->drawPicture(tri);
+    canvas->restore();
+
+    canvas->save();
+    canvas->translate(0, 1.5f * kTriSide / kRoot3);
     canvas->drawPicture(tri);
     canvas->restore();
 
@@ -152,7 +155,7 @@ static const SkPicture* make_sierpinski_picture() {
     static const int kNumLevels = 4;
     for (int i = 0; i < kNumLevels; ++i) {
         canvas->save();
-            canvas->translate(-i*kTriSide / 2.0f, 0);
+            canvas->translate(kPicWidth/2 - (i+1) * (kTriSide/2.0f), 0.0f);
             for (int j = 0; j < i+1; ++j) {
                 canvas->drawPicture(pic);
                 canvas->translate(SkIntToScalar(kTriSide), 0);
@@ -254,11 +257,10 @@ static void invpath_clip(SkCanvas* canvas, const SkPicture* pictures[kNumPicture
 // Reuse a single base (triangular) picture a _lot_ (rotated, scaled and translated).
 static void sierpinski(SkCanvas* canvas, const SkPicture* pictures[kNumPictures]) {
     canvas->save();
-        canvas->translate(kPicWidth / 2.0f, 0.0f);
         canvas->drawPicture(pictures[2]);
 
         canvas->rotate(180.0f);
-        canvas->translate(0.0f, -SkIntToScalar(kPicHeight));
+        canvas->translate(-SkIntToScalar(kPicWidth), -SkIntToScalar(kPicHeight));
         canvas->drawPicture(pictures[2]);
     canvas->restore();
 }
