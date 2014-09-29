@@ -73,7 +73,10 @@ static inline void build_16bitcache(uint16_t dst[], const SkPMColor src[],
 }
 
 const uint16_t* SkColorTable::lock16BitCache() {
-    if (this->isOpaque() && NULL == f16BitCache) {
+    // Assert that we're opaque, since our 16-bit cache will be sort of useless
+    // if there is alpha (which we're throwing away)
+    SkASSERT(this->isOpaque());
+    if (NULL == f16BitCache) {
         f16BitCache = (uint16_t*)sk_malloc_throw(fCount * sizeof(uint16_t));
         build_16bitcache(f16BitCache, fColors, fCount);
     }
