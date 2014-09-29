@@ -2152,13 +2152,11 @@ void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkSca
 
 void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                              const SkPaint& paint) {
-    SkPoint textOffset = SkPoint::Make(0, 0);
-
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
 
     while (iter.next()) {
         SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
-        iter.fDevice->drawPosText(iter, text, byteLength, &pos->fX, 2, textOffset,
+        iter.fDevice->drawPosText(iter, text, byteLength, &pos->fX, 0, 2,
                                   dfp.paint());
     }
 
@@ -2167,14 +2165,11 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
 
 void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                               SkScalar constY, const SkPaint& paint) {
-
-    SkPoint textOffset = SkPoint::Make(0, constY);
-
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
 
     while (iter.next()) {
         SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
-        iter.fDevice->drawPosText(iter, text, byteLength, xpos, 1, textOffset,
+        iter.fDevice->drawPosText(iter, text, byteLength, xpos, constY, 1,
                                   dfp.paint());
     }
 

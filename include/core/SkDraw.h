@@ -60,8 +60,8 @@ public:
     void    drawText(const char text[], size_t byteLength, SkScalar x,
                      SkScalar y, const SkPaint& paint) const;
     void    drawPosText(const char text[], size_t byteLength,
-                        const SkScalar pos[], int scalarsPerPosition,
-                        const SkPoint& offset, const SkPaint& paint) const;
+                        const SkScalar pos[], SkScalar constY,
+                        int scalarsPerPosition, const SkPaint& paint) const;
     void    drawTextOnPath(const char text[], size_t byteLength,
                         const SkPath&, const SkMatrix*, const SkPaint&) const;
     void    drawVertices(SkCanvas::VertexMode mode, int count,
@@ -113,8 +113,8 @@ public:
     void        drawText_asPaths(const char text[], size_t byteLength,
                                  SkScalar x, SkScalar y, const SkPaint&) const;
     void        drawPosText_asPaths(const char text[], size_t byteLength,
-                                    const SkScalar pos[], int scalarsPerPosition,
-                                    const SkPoint& offset, const SkPaint&) const;
+                                    const SkScalar pos[], SkScalar constY,
+                                    int scalarsPerPosition, const SkPaint&) const;
 
 private:
     void    drawDevMask(const SkMask& mask, const SkPaint&) const;

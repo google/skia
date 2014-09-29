@@ -1713,9 +1713,10 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
     }
 }
 
-void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteLength,
-                              const SkScalar pos[], int scalarsPerPos,
-                              const SkPoint& offset, const SkPaint& paint) {
+void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
+                             size_t byteLength, const SkScalar pos[],
+                             SkScalar constY, int scalarsPerPos,
+                             const SkPaint& paint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawPosText", fContext);
     CHECK_SHOULD_DRAW(draw, false);
 
@@ -1726,7 +1727,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
         SkDEBUGCODE(this->validate();)
 
         fMainTextContext->drawPosText(grPaint, paint, (const char *)text, byteLength, pos,
-                                      scalarsPerPos, offset);
+                                      constY, scalarsPerPos);
     } else if (fFallbackTextContext && fFallbackTextContext->canDraw(paint)) {
         GrPaint grPaint;
         SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
@@ -1734,9 +1735,10 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
         SkDEBUGCODE(this->validate();)
 
         fFallbackTextContext->drawPosText(grPaint, paint, (const char *)text, byteLength, pos,
-                                          scalarsPerPos, offset);
+                                          constY, scalarsPerPos);
     } else {
-        draw.drawPosText_asPaths((const char*)text, byteLength, pos, scalarsPerPos, offset, paint);
+        draw.drawPosText_asPaths((const char*)text, byteLength, pos, constY,
+                                 scalarsPerPos, paint);
     }
 }
 

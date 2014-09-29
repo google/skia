@@ -123,13 +123,13 @@ void SkPDFDeviceFlattener::drawText(const SkDraw& d, const void* text, size_t le
 }
 
 void SkPDFDeviceFlattener::drawPosText(const SkDraw& d, const void* text, size_t len,
-                                       const SkScalar pos[], int scalarsPerPos,
-                                       const SkPoint& offset, const SkPaint& paint) {
+                                       const SkScalar pos[], SkScalar constY,
+                                       int scalarsPerPos, const SkPaint& paint) {
     if (mustPathText(d, paint)) {
-        d.drawPosText_asPaths((const char*)text, len, pos, scalarsPerPos, offset, paint);
+        d.drawPosText_asPaths((const char*)text, len, pos, constY, scalarsPerPos, paint);
         return;
     }
-    INHERITED::drawPosText(d, text, len, pos, scalarsPerPos, offset, paint);
+    INHERITED::drawPosText(d, text, len, pos, constY,scalarsPerPos, paint);
 }
 
 void SkPDFDeviceFlattener::drawTextOnPath(const SkDraw& d, const void* text, size_t len,

@@ -1655,8 +1655,9 @@ void SkDraw::drawText(const char text[], size_t byteLength,
 //////////////////////////////////////////////////////////////////////////////
 
 void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
-                                 const SkScalar pos[], int scalarsPerPosition,
-                                 const SkPoint& offset, const SkPaint& origPaint) const {
+                                 const SkScalar pos[], SkScalar constY,
+                                 int scalarsPerPosition,
+                                 const SkPaint& origPaint) const {
     // setup our std paint, in hopes of getting hits in the cache
     SkPaint paint(origPaint);
     SkScalar matrixScale = paint.setupForAsPaths();
@@ -1674,7 +1675,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
 
     const char*        stop = text + byteLength;
     SkTextAlignProcScalar alignProc(paint.getTextAlign());
-    SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
+    SkTextMapStateProc tmsProc(SkMatrix::I(), constY, scalarsPerPosition);
 
     // Now restore the original settings, so we "draw" with whatever style/stroking.
     paint.setStyle(origPaint.getStyle());
@@ -1704,8 +1705,8 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
 }
 
 void SkDraw::drawPosText(const char text[], size_t byteLength,
-                         const SkScalar pos[], int scalarsPerPosition,
-                         const SkPoint& offset, const SkPaint& paint) const {
+                         const SkScalar pos[], SkScalar constY,
+                         int scalarsPerPosition, const SkPaint& paint) const {
     SkASSERT(byteLength == 0 || text != NULL);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
@@ -1717,7 +1718,8 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     }
 
     if (ShouldDrawTextAsPaths(paint, *fMatrix)) {
-        this->drawPosText_asPaths(text, byteLength, pos, scalarsPerPosition, offset, paint);
+        this->drawPosText_asPaths(text, byteLength, pos, constY,
+                                  scalarsPerPosition, paint);
         return;
     }
 
@@ -1741,7 +1743,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     SkTextAlignProc    alignProc(paint.getTextAlign());
     SkDraw1Glyph       d1g;
     SkDraw1Glyph::Proc proc = d1g.init(this, blitter, cache, paint);
-    SkTextMapStateProc tmsProc(*fMatrix, offset, scalarsPerPosition);
+    SkTextMapStateProc tmsProc(*fMatrix, constY, scalarsPerPosition);
 
     if (cache->isSubpixel()) {
         // maybe we should skip the rounding if linearText is set

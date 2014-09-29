@@ -2165,8 +2165,9 @@ void SkXPSDevice::drawText(const SkDraw& d,
 
 void SkXPSDevice::drawPosText(const SkDraw& d,
                               const void* text, size_t byteLen,
-                              const SkScalar pos[], int scalarsPerPos,
-                              const SkPoint& offset, const SkPaint& paint) {
+                              const SkScalar pos[],
+                              SkScalar constY, int scalarsPerPos,
+                              const SkPaint& paint) {
     if (byteLen < 1) return;
 
     if (text_must_be_pathed(paint, *d.fMatrix)) {
@@ -2186,7 +2187,9 @@ void SkXPSDevice::drawPosText(const SkDraw& d,
     SkXPSDrawProcs procs;
     text_draw_init(paint, text, byteLen, *typeface->glyphsUsed, myDraw, procs);
 
-    myDraw.drawPosText(static_cast<const char*>(text), byteLen, pos, scalarsPerPos, offset, paint);
+    myDraw.drawPosText(static_cast<const char*>(text), byteLen,
+                       pos, constY, scalarsPerPos,
+                       paint);
 
     // SkDraw may have clipped out the glyphs, so we need to check
     if (procs.xpsGlyphs.count() == 0) {
