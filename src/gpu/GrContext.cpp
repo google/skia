@@ -1595,17 +1595,17 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint*
     target->copySurface(dst, src, srcRect, dstPoint);
 }
 
-bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
+bool GrContext::writeRenderTargetPixels(GrRenderTarget* renderTarget,
                                         int left, int top, int width, int height,
                                         GrPixelConfig srcConfig,
                                         const void* buffer,
                                         size_t rowBytes,
                                         uint32_t flags) {
-    ASSERT_OWNED_RESOURCE(target);
+    ASSERT_OWNED_RESOURCE(renderTarget);
 
-    if (NULL == target) {
-        target = fRenderTarget.get();
-        if (NULL == target) {
+    if (NULL == renderTarget) {
+        renderTarget = fRenderTarget.get();
+        if (NULL == renderTarget) {
             return false;
         }
     }
@@ -1625,9 +1625,9 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     // At least some drivers on the Mac get confused when glTexImage2D is called on a texture
     // attached to an FBO. The FBO still sees the old image. TODO: determine what OS versions and/or
     // HW is affected.
-    if (target->asTexture() && !(kUnpremul_PixelOpsFlag & flags) &&
-        fGpu->canWriteTexturePixels(target->asTexture(), srcConfig)) {
-        return this->writeTexturePixels(target->asTexture(),
+    if (renderTarget->asTexture() && !(kUnpremul_PixelOpsFlag & flags) &&
+        fGpu->canWriteTexturePixels(renderTarget->asTexture(), srcConfig)) {
+        return this->writeTexturePixels(renderTarget->asTexture(),
                                         left, top, width, height,
                                         srcConfig, buffer, rowBytes, flags);
     }
@@ -1640,7 +1640,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     bool swapRAndB = false;
     GrPixelConfig writeConfig = srcConfig;
     if (GrPixelConfigSwapRAndB(srcConfig) ==
-        fGpu->preferredWritePixelsConfig(srcConfig, target->config())) {
+        fGpu->preferredWritePixelsConfig(srcConfig, renderTarget->config())) {
         writeConfig = GrPixelConfigSwapRAndB(srcConfig);
         swapRAndB = true;
     }
@@ -1695,9 +1695,9 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     }
     if (NULL == fp) {
         fp.reset(GrConfigConversionEffect::Create(texture,
-                                                      swapRAndB,
-                                                      GrConfigConversionEffect::kNone_PMConversion,
-                                                      textureMatrix));
+                                                  swapRAndB,
+                                                  GrConfigConversionEffect::kNone_PMConversion,
+                                                  textureMatrix));
     }
 
     if (!this->writeTexturePixels(texture,
@@ -1707,25 +1707,19 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
         return false;
     }
 
-    // TODO: Usually this could go to fDrawBuffer but currently
-    // writeRenderTargetPixels can be called in the midst of drawing another
-    // object (e.g., when uploading a SW path rendering to the gpu while
-    // drawing a rect). So we always draw directly to GrGpu and preserve the current geometry.
-    // But that means we also have to flush the draw buffer if there is a pending IO operation to
-    // the render target.
-    if (!(kDontFlush_PixelOpsFlag & flags) && target->hasPendingIO()) {
-        this->flush();
-    }
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
-    GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit, &matrix);
-    GrDrawState* drawState = fGpu->drawState();
-    SkASSERT(fp);
+
+    // This function can be called in the midst of drawing another object (e.g., when uploading a
+    // SW-rasterized clip while issuing a draw). So we push the current geometry state before
+    // drawing a rect to the render target.
+    GrDrawTarget* drawTarget = this->prepareToDraw(NULL, kYes_BufferedDraw, NULL, NULL);
+    GrDrawTarget::AutoGeometryAndStatePush agasp(drawTarget, GrDrawTarget::kReset_ASRInit, &matrix);
+    GrDrawState* drawState = drawTarget->drawState();
     drawState->addColorProcessor(fp);
-
-    drawState->setRenderTarget(target);
-
-    fGpu->drawSimpleRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)));
+    drawState->setRenderTarget(renderTarget);
+    drawState->disableState(GrDrawState::kClip_StateBit);
+    drawTarget->drawSimpleRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)));
     return true;
 }
 ////////////////////////////////////////////////////////////////////////////////
