@@ -34,15 +34,11 @@ void CpuGMTask::draw() {
     SPAWN(PipeTask, fGMFactory(NULL), bm, PipeTask::kCrossProcess_Mode);
     SPAWN(PipeTask, fGMFactory(NULL), bm, PipeTask::kSharedAddress_Mode);
 
-    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kNone_BBH,     QuiltTask::kDefault_Backend);
-    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kRTree_BBH,    QuiltTask::kDefault_Backend);
-    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kTileGrid_BBH, QuiltTask::kDefault_Backend);
-    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kNone_BBH,     QuiltTask::kSkRecord_Backend);
-    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kRTree_BBH,    QuiltTask::kSkRecord_Backend);
-    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kTileGrid_BBH, QuiltTask::kSkRecord_Backend);
+    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kNone_BBH);
+    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kRTree_BBH);
+    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kTileGrid_BBH);
 
-    SPAWN(SerializeTask, fGMFactory(NULL), bm, SerializeTask::kNormal_Mode);
-    SPAWN(SerializeTask, fGMFactory(NULL), bm, SerializeTask::kSkRecord_Mode);
+    SPAWN(SerializeTask, fGMFactory(NULL), bm);
 
     SPAWN(WriteTask, "GM", bm);
 #undef SPAWN

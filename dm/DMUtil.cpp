@@ -34,13 +34,12 @@ SkString FileToTaskName(SkString filename) {
     return filename;
 }
 
-SkPicture* RecordPicture(skiagm::GM* gm, SkBBHFactory* factory, bool skr) {
+SkPicture* RecordPicture(skiagm::GM* gm, SkBBHFactory* factory) {
     const SkScalar w = SkIntToScalar(gm->getISize().width()),
                    h = SkIntToScalar(gm->getISize().height());
     SkPictureRecorder recorder;
 
-    SkCanvas* canvas = skr ? recorder.EXPERIMENTAL_beginRecording(w, h, factory)
-                           : recorder.  DEPRECATED_beginRecording(w, h, factory);
+    SkCanvas* canvas = recorder.beginRecording(w, h, factory);
     CanvasPreflight(canvas);
     canvas->concat(gm->getInitialTransform());
     gm->draw(canvas);

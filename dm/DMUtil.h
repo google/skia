@@ -18,10 +18,8 @@ SkString UnderJoin(const char* a, const char* b);
 // "foo_bar.skp" -> "foo-bar_skp"
 SkString FileToTaskName(SkString);
 
-// Draw gm to picture.  If skr is true, uses EXPERIMENTAL_beginRecording().
-SkPicture* RecordPicture(skiagm::GM* gm,
-                         SkBBHFactory* factory = NULL,
-                         bool skr = false);
+// Draw gm to picture.
+SkPicture* RecordPicture(skiagm::GM* gm, SkBBHFactory* factory = NULL);
 
 // Allocate an empty bitmap with this size and depth.
 void AllocatePixels(SkColorType, int w, int h, SkBitmap* bitmap);

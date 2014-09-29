@@ -12,18 +12,11 @@ DEFINE_int32(quiltTile, 256, "Dimension of (square) quilt tile.");
 
 namespace DM {
 
-static SkString suffix(QuiltTask::Backend backend, QuiltTask::BBH bbh) {
-    static const char* kBackends[] = { "default", "skrecord" };
-    static const char* kBBHs[]     = { "nobbh", "rtree", "tilegrid" };
-    return SkStringPrintf("%s-%s", kBackends[backend], kBBHs[bbh]);
-}
-
-QuiltTask::QuiltTask(const Task& parent, skiagm::GM* gm, SkBitmap reference,
-                     QuiltTask::BBH bbh, QuiltTask::Backend backend)
+static const char* kBBHs[] = { "nobbh", "rtree", "tilegrid" };
+QuiltTask::QuiltTask(const Task& parent, skiagm::GM* gm, SkBitmap reference, QuiltTask::BBH bbh)
     : CpuTask(parent)
     , fBBH(bbh)
-    , fBackend(backend)
-    , fName(UnderJoin(parent.name().c_str(), suffix(backend, bbh).c_str()))
+    , fName(UnderJoin(parent.name().c_str(), kBBHs[bbh]))
     , fGM(gm)
     , fReference(reference)
     {}
@@ -83,8 +76,7 @@ void QuiltTask::draw() {
         factory.reset(NULL);
     }
 
-    SkAutoTUnref<const SkPicture> recorded(
-            RecordPicture(fGM.get(), factory.get(), kSkRecord_Backend == fBackend));
+    SkAutoTUnref<const SkPicture> recorded(RecordPicture(fGM.get(), factory.get()));
 
     SkBitmap full;
     AllocatePixels(fReference, &full);

@@ -6,28 +6,19 @@
 #include "SkPicture.h"
 #include "SkPixelRef.h"
 
-DEFINE_bool(serialize,     true, "If true, run picture serialization tests via SkPictureData.");
-DEFINE_bool(serialize_skr, true, "If true, run picture serialization tests via SkRecord.");
-
-static const char* kSuffixes[] = { "serialize", "serialize-skr" };
-static const bool* kEnabled[]  = { &FLAGS_serialize, &FLAGS_serialize_skr };
+DEFINE_bool(serialize, true, "If true, run picture serialization tests via SkPictureData.");
 
 namespace DM {
 
-SerializeTask::SerializeTask(const Task& parent,
-                             skiagm::GM* gm,
-                             SkBitmap reference,
-                             SerializeTask::Mode mode)
+SerializeTask::SerializeTask(const Task& parent, skiagm::GM* gm, SkBitmap reference)
     : CpuTask(parent)
-    , fMode(mode)
-    , fName(UnderJoin(parent.name().c_str(), kSuffixes[mode]))
+    , fName(UnderJoin(parent.name().c_str(), "serialize"))
     , fGM(gm)
     , fReference(reference)
     {}
 
 void SerializeTask::draw() {
-    SkAutoTUnref<SkPicture> recorded(
-        RecordPicture(fGM.get(), NULL/*no BBH*/, kSkRecord_Mode == fMode));
+    SkAutoTUnref<SkPicture> recorded(RecordPicture(fGM.get(), NULL/*no BBH*/));
 
     SkDynamicMemoryWStream wStream;
     recorded->serialize(&wStream, NULL);
@@ -47,7 +38,7 @@ bool SerializeTask::shouldSkip() const {
     if (fGM->getFlags() & skiagm::GM::kSkipPicture_Flag) {
         return true;
     }
-    return !*kEnabled[fMode];
+    return !FLAGS_serialize;
 }
 
 }  // namespace DM
