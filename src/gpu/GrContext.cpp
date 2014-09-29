@@ -1575,6 +1575,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint*
         return;
     }
     ASSERT_OWNED_RESOURCE(src);
+    ASSERT_OWNED_RESOURCE(dst);
 
     SkIRect srcRect = SkIRect::MakeWH(dst->width(), dst->height());
     if (topLeft) {

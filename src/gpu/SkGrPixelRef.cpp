@@ -54,7 +54,7 @@ bool SkROLockPixelsPixelRef::onLockPixelsAreWritable() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorType dstCT,
-                                           const SkIRect* subset) {
+                                                  const SkIRect* subset) {
     if (NULL == texture || kUnknown_SkColorType == dstCT) {
         return NULL;
     }
