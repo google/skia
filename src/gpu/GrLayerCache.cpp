@@ -14,7 +14,7 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrPictureDeletedMessage);
 #ifdef SK_DEBUG
 void GrCachedLayer::validate(const GrTexture* backingTexture) const {
     SkASSERT(SK_InvalidGenID != fKey.pictureID());
-    SkASSERT(fKey.start() > 0 && fKey.stop() > 0);
+    SkASSERT(fKey.start() > 0);
 
 
     if (fTexture) {
@@ -119,33 +119,30 @@ void GrLayerCache::freeAll() {
 
 GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID, 
                                          int start, int stop, 
-                                         const SkIPoint& offset,
                                          const SkMatrix& ctm,
                                          const SkPaint* paint) {
     SkASSERT(pictureID != SK_InvalidGenID && start > 0 && stop > 0);
 
-    GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (pictureID, start, stop, offset, ctm, paint));
+    GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (pictureID, start, stop, ctm, paint));
     fLayerHash.add(layer);
     return layer;
 }
 
 GrCachedLayer* GrLayerCache::findLayer(uint32_t pictureID,
-                                       int start, int stop, 
-                                       const SkIPoint& offset,
+                                       int start, 
                                        const SkMatrix& ctm) {
-    SkASSERT(pictureID != SK_InvalidGenID && start > 0 && stop > 0);
-    return fLayerHash.find(GrCachedLayer::Key(pictureID, start, stop, offset, ctm));
+    SkASSERT(pictureID != SK_InvalidGenID && start > 0);
+    return fLayerHash.find(GrCachedLayer::Key(pictureID, start, ctm));
 }
 
 GrCachedLayer* GrLayerCache::findLayerOrCreate(uint32_t pictureID,
                                                int start, int stop,
-                                               const SkIPoint& offset,
                                                const SkMatrix& ctm,
                                                const SkPaint* paint) {
     SkASSERT(pictureID != SK_InvalidGenID && start > 0 && stop > 0);
-    GrCachedLayer* layer = fLayerHash.find(GrCachedLayer::Key(pictureID, start, stop, offset, ctm));
+    GrCachedLayer* layer = fLayerHash.find(GrCachedLayer::Key(pictureID, start, ctm));
     if (NULL == layer) {
-        layer = this->createLayer(pictureID, start, stop, offset, ctm, paint);
+        layer = this->createLayer(pictureID, start, stop, ctm, paint);
     }
 
     return layer;

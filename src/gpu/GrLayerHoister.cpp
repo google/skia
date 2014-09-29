@@ -56,6 +56,7 @@ bool GrLayerHoister::FindLayersToHoist(const SkPicture* topLevelPicture,
             continue;
         }
 
+        // TODO: ignore perspective projected layers here!
         // TODO: once this code is more stable unsuitable layers can
         // just be omitted during the optimization stage
         if (!info.fValid ||
@@ -84,7 +85,6 @@ bool GrLayerHoister::FindLayersToHoist(const SkPicture* topLevelPicture,
             GrCachedLayer* layer = layerCache->findLayerOrCreate(pict->uniqueID(),
                                                                  info.fSaveLayerOpID,
                                                                  info.fRestoreOpID,
-                                                                 info.fOffset,
                                                                  info.fOriginXform,
                                                                  info.fPaint);
 
@@ -102,16 +102,18 @@ bool GrLayerHoister::FindLayersToHoist(const SkPicture* topLevelPicture,
             }
 
             if (needsRendering) {
-                HoistedLayer* info;
+                HoistedLayer* hl;
 
                 if (layer->isAtlased()) {
-                    info = atlased->append();
+                    hl = atlased->append();
                 } else {
-                    info = nonAtlased->append();
+                    hl = nonAtlased->append();
                 }
 
-                info->fLayer = layer;
-                info->fPicture = pict;
+                hl->fLayer = layer;
+                hl->fPicture = pict;
+                hl->fOffset = info.fOffset;
+                hl->fCTM = info.fOriginXform;
             }
         }
     }
@@ -129,10 +131,12 @@ static void convert_layers_to_replacements(const SkTDArray<GrLayerHoister::Hoist
                                            GrReplacements* replacements) {
     // TODO: just replace GrReplacements::ReplacementInfo with GrCachedLayer?
     for (int i = 0; i < layers.count(); ++i) {
+        GrCachedLayer* layer = layers[i].fLayer;
+
         GrReplacements::ReplacementInfo* layerInfo = replacements->push();
-        layerInfo->fStart = layers[i].fLayer->start();
-        layerInfo->fStop = layers[i].fLayer->stop();
-        layerInfo->fPos = layers[i].fLayer->offset();;
+        layerInfo->fStart = layer->start();
+        layerInfo->fStop = layer->stop();
+        layerInfo->fPos = layers[i].fOffset;
 
         SkBitmap bm;
         wrap_texture(layers[i].fLayer->texture(),
@@ -172,6 +176,7 @@ void GrLayerHoister::DrawLayers(const SkTDArray<HoistedLayer>& atlased,
         for (int i = 0; i < atlased.count(); ++i) {
             GrCachedLayer* layer = atlased[i].fLayer;
             const SkPicture* pict = atlased[i].fPicture;
+            const SkIPoint offset = atlased[i].fOffset;
 
             atlasCanvas->save();
 
@@ -191,14 +196,14 @@ void GrLayerHoister::DrawLayers(const SkTDArray<HoistedLayer>& atlased,
             // Since this layer is atlased, the top/left corner needs
             // to be offset to the correct location in the backing texture.
             SkMatrix initialCTM;
-            initialCTM.setTranslate(SkIntToScalar(-layer->offset().fX), 
-                                    SkIntToScalar(-layer->offset().fY));
+            initialCTM.setTranslate(SkIntToScalar(-offset.fX), 
+                                    SkIntToScalar(-offset.fY));
             initialCTM.postTranslate(bound.fLeft, bound.fTop);
             
-            atlasCanvas->translate(SkIntToScalar(-layer->offset().fX), 
-                                   SkIntToScalar(-layer->offset().fY));
+            atlasCanvas->translate(SkIntToScalar(-offset.fX), 
+                                   SkIntToScalar(-offset.fY));
             atlasCanvas->translate(bound.fLeft, bound.fTop);
-            atlasCanvas->concat(layer->ctm());
+            atlasCanvas->concat(atlased[i].fCTM);
 
             SkRecordPartialDraw(*pict->fRecord.get(), atlasCanvas, bound,
                                 layer->start()+1, layer->stop(), initialCTM);
@@ -213,6 +218,7 @@ void GrLayerHoister::DrawLayers(const SkTDArray<HoistedLayer>& atlased,
     for (int i = 0; i < nonAtlased.count(); ++i) {
         GrCachedLayer* layer = nonAtlased[i].fLayer;
         const SkPicture* pict = nonAtlased[i].fPicture;
+        const SkIPoint offset = nonAtlased[i].fOffset;
 
         // Each non-atlased layer has its own GrTexture
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
@@ -232,12 +238,12 @@ void GrLayerHoister::DrawLayers(const SkTDArray<HoistedLayer>& atlased,
         layerCanvas->clear(SK_ColorTRANSPARENT);
 
         SkMatrix initialCTM;
-        initialCTM.setTranslate(SkIntToScalar(-layer->offset().fX), 
-                                SkIntToScalar(-layer->offset().fY));
+        initialCTM.setTranslate(SkIntToScalar(-offset.fX), 
+                                SkIntToScalar(-offset.fY));
 
-        layerCanvas->translate(SkIntToScalar(-layer->offset().fX), 
-                               SkIntToScalar(-layer->offset().fY));
-        layerCanvas->concat(layer->ctm());
+        layerCanvas->translate(SkIntToScalar(-offset.fX), 
+                               SkIntToScalar(-offset.fY));
+        layerCanvas->concat(nonAtlased[i].fCTM);
 
         SkRecordPartialDraw(*pict->fRecord.get(), layerCanvas, bound,
                             layer->start()+1, layer->stop(), initialCTM);
@@ -262,7 +268,7 @@ static void unlock_layer_in_cache(GrLayerCache* layerCache,
 #endif
 }
 
-void GrLayerHoister::UnlockLayers(GrLayerCache* layerCache, 
+void GrLayerHoister::UnlockLayers(GrLayerCache* layerCache,
                                   const SkTDArray<HoistedLayer>& atlased,
                                   const SkTDArray<HoistedLayer>& nonAtlased) {
 

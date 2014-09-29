@@ -26,6 +26,8 @@ public:
     struct HoistedLayer {
         const SkPicture* fPicture;
         GrCachedLayer*   fLayer;
+        SkIPoint         fOffset;
+        SkMatrix         fCTM;
     };
 
     /** Find the layers in 'topLevelPicture' that need hoisting. Note that the discovered
