@@ -128,7 +128,7 @@ To connect to the database from the skia-webtry-b server:
 
     $ mysql --host=173.194.83.52 --user=root --password
 
-Initial setup of the database, the user, and the only table:
+Initial setup of the database, the user, and the tables:
 
     CREATE DATABASE webtry;
     USE webtry;
