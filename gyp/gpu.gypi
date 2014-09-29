@@ -149,6 +149,7 @@
       '<(skia_src_path)/gpu/GrSWMaskHelper.h',
       '<(skia_src_path)/gpu/GrSoftwarePathRenderer.cpp',
       '<(skia_src_path)/gpu/GrSoftwarePathRenderer.h',
+      '<(skia_src_path)/gpu/GrSurfacePriv.h',
       '<(skia_src_path)/gpu/GrSurface.cpp',
       '<(skia_src_path)/gpu/GrTemplates.h',
       '<(skia_src_path)/gpu/GrTextContext.cpp',
@@ -157,6 +158,7 @@
       '<(skia_src_path)/gpu/GrTextStrike.h',
       '<(skia_src_path)/gpu/GrTextStrike_impl.h',
       '<(skia_src_path)/gpu/GrTexture.cpp',
+      '<(skia_src_path)/gpu/GrTexturePriv.h',
       '<(skia_src_path)/gpu/GrTextureAccess.cpp',
       '<(skia_src_path)/gpu/GrVertexBuffer.h',
 

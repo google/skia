@@ -13,6 +13,7 @@
 #include "GrDrawTargetCaps.h"
 #include "GrPath.h"
 #include "GrRenderTarget.h"
+#include "GrSurfacePriv.h"
 #include "GrTemplates.h"
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
@@ -964,7 +965,7 @@ bool GrDrawTarget::onCanCopySurface(GrSurface* dst,
     SkASSERT(dstPoint.fX + srcRect.width() <= dst->width() &&
              dstPoint.fY + srcRect.height() <= dst->height());
 
-    return !dst->isSameAs(src) && dst->asRenderTarget() && src->asTexture();
+    return !dst->surfacePriv().isSameAs(src) && dst->asRenderTarget() && src->asTexture();
 }
 
 bool GrDrawTarget::onCopySurface(GrSurface* dst,
