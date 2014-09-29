@@ -332,7 +332,6 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                 // Declare colorPtr here for scope.
                 SkPMColor colorPtr[256]; // storage for worst-case
                 const ColorMapObject* cmap = find_colormap(gif);
-                SkAlphaType alphaType = kOpaque_SkAlphaType;
                 if (cmap != NULL) {
                     SkASSERT(cmap->ColorCount == (1 << (cmap->BitsPerPixel)));
                     colorCount = cmap->ColorCount;
@@ -355,16 +354,13 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                 transpIndex = find_transpIndex(temp_save, colorCount);
                 if (transpIndex >= 0) {
                     colorPtr[transpIndex] = SK_ColorTRANSPARENT; // ram in a transparent SkPMColor
-                    alphaType = kPremul_SkAlphaType;
                     fillIndex = transpIndex;
                 } else if (fillIndex >= colorCount) {
                     // gif->SBackGroundColor should be less than colorCount.
                     fillIndex = 0;  // If not, fix it.
                 }
 
-                SkAutoTUnref<SkColorTable> ctable(SkNEW_ARGS(SkColorTable,
-                                                  (colorPtr, colorCount,
-                                                   alphaType)));
+                SkAutoTUnref<SkColorTable> ctable(SkNEW_ARGS(SkColorTable, (colorPtr, colorCount)));
                 if (!this->allocPixelRef(bm, ctable)) {
                     return error_return(*bm, "allocPixelRef");
                 }

@@ -57,11 +57,10 @@ static SkBitmap make_bitmap() {
     for (int i = 0; i < 256; i++) {
         c[i] = SkPackARGB32(0xFF, i, 0, 0);
     }
-    SkColorTable* ctable = new SkColorTable(c, 256, kOpaque_SkAlphaType);
+    SkColorTable* ctable = new SkColorTable(c, 256);
 
     SkBitmap bm;
-    bm.allocPixels(SkImageInfo::Make(256, 32, kIndex_8_SkColorType,
-                                     kPremul_SkAlphaType),
+    bm.allocPixels(SkImageInfo::Make(256, 32, kIndex_8_SkColorType, kPremul_SkAlphaType),
                    NULL, ctable);
     ctable->unref();
 

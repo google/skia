@@ -61,11 +61,11 @@ static void init_src(const SkBitmap& bitmap) {
     }
 }
 
-static SkColorTable* init_ctable(SkAlphaType alphaType) {
+static SkColorTable* init_ctable() {
     static const SkColor colors[] = {
         SK_ColorBLACK, SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE
     };
-    return new SkColorTable(colors, SK_ARRAY_COUNT(colors), alphaType);
+    return new SkColorTable(colors, SK_ARRAY_COUNT(colors));
 }
 
 struct Pair {
@@ -196,19 +196,16 @@ static const int H = 33;
 
 static void setup_src_bitmaps(SkBitmap* srcOpaque, SkBitmap* srcPremul,
                               SkColorType ct) {
-    SkColorTable* ctOpaque = NULL;
-    SkColorTable* ctPremul = NULL;
+    SkColorTable* ctable = NULL;
     if (kIndex_8_SkColorType == ct) {
-        ctOpaque = init_ctable(kOpaque_SkAlphaType);
-        ctPremul = init_ctable(kPremul_SkAlphaType);
+        ctable = init_ctable();
     }
 
     srcOpaque->allocPixels(SkImageInfo::Make(W, H, ct, kOpaque_SkAlphaType),
-                           NULL, ctOpaque);
+                           NULL, ctable);
     srcPremul->allocPixels(SkImageInfo::Make(W, H, ct, kPremul_SkAlphaType),
-                           NULL, ctPremul);
-    SkSafeUnref(ctOpaque);
-    SkSafeUnref(ctPremul);
+                           NULL, ctable);
+    SkSafeUnref(ctable);
     init_src(*srcOpaque);
     init_src(*srcPremul);
 }
@@ -384,7 +381,7 @@ DEF_TEST(BitmapCopy, reporter) {
             SkBitmap src, subset;
             SkColorTable* ct = NULL;
             if (kIndex_8_SkColorType == src.colorType()) {
-                ct = init_ctable(kPremul_SkAlphaType);
+                ct = init_ctable();
             }
 
             int localSubW;

@@ -249,13 +249,14 @@ private:
     // V33: Serialize only public API of effects.
     // V34: Add SkTextBlob serialization.
     // V35: Store SkRect (rather then width & height) in header
+    // V36: Remove (obsolete) alphatype from SkColorTable
 
     // Note: If the picture version needs to be increased then please follow the
     // steps to generate new SKPs in (only accessible to Googlers): http://goo.gl/qATVcw
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t MIN_PICTURE_VERSION = 19;
-    static const uint32_t CURRENT_PICTURE_VERSION = 35;
+    static const uint32_t CURRENT_PICTURE_VERSION = 36;
 
     mutable uint32_t      fUniqueID;
 

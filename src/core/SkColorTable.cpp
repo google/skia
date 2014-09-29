@@ -13,44 +13,36 @@
 #include "SkStream.h"
 #include "SkTemplates.h"
 
-// As copy constructor is hidden in the class hierarchy, we need to call
-// default constructor explicitly to suppress a compiler warning.
-SkColorTable::SkColorTable(const SkColorTable& src) : INHERITED() {
-    f16BitCache = NULL;
-    fAlphaType = src.fAlphaType;
-    int count = src.count();
-    fCount = SkToU16(count);
-    fColors = reinterpret_cast<SkPMColor*>(
-                                    sk_malloc_throw(count * sizeof(SkPMColor)));
-    memcpy(fColors, src.fColors, count * sizeof(SkPMColor));
+void SkColorTable::init(const SkPMColor colors[], int count) {
+    SkASSERT((unsigned)count <= 256);
 
+    f16BitCache = NULL;
+    fCount = count;
+    fColors = reinterpret_cast<SkPMColor*>(sk_malloc_throw(count * sizeof(SkPMColor)));
+    
+    memcpy(fColors, colors, count * sizeof(SkPMColor));
+    
     SkDEBUGCODE(fColorLockCount = 0;)
     SkDEBUGCODE(f16BitCacheLockCount = 0;)
 }
 
-SkColorTable::SkColorTable(const SkPMColor colors[], int count, SkAlphaType at)
-    : f16BitCache(NULL), fAlphaType(SkToU8(at))
-{
-    SkASSERT(0 == count || colors);
+// As copy constructor is hidden in the class hierarchy, we need to call
+// default constructor explicitly to suppress a compiler warning.
+SkColorTable::SkColorTable(const SkColorTable& src) : INHERITED() {
+    this->init(src.fColors, src.fCount);
+}
 
+SkColorTable::SkColorTable(const SkPMColor colors[], int count) {
+    SkASSERT(0 == count || colors);
     if (count < 0) {
         count = 0;
     } else if (count > 256) {
         count = 256;
     }
-
-    fCount = SkToU16(count);
-    fColors = reinterpret_cast<SkPMColor*>(
-                                    sk_malloc_throw(count * sizeof(SkPMColor)));
-
-    memcpy(fColors, colors, count * sizeof(SkPMColor));
-
-    SkDEBUGCODE(fColorLockCount = 0;)
-    SkDEBUGCODE(f16BitCacheLockCount = 0;)
+    this->init(colors, count);
 }
 
-SkColorTable::~SkColorTable()
-{
+SkColorTable::~SkColorTable() {
     SkASSERT(fColorLockCount == 0);
     SkASSERT(f16BitCacheLockCount == 0);
 
@@ -73,9 +65,6 @@ static inline void build_16bitcache(uint16_t dst[], const SkPMColor src[],
 }
 
 const uint16_t* SkColorTable::lock16BitCache() {
-    // Assert that we're opaque, since our 16-bit cache will be sort of useless
-    // if there is alpha (which we're throwing away)
-    SkASSERT(this->isOpaque());
     if (NULL == f16BitCache) {
         f16BitCache = (uint16_t*)sk_malloc_throw(fCount * sizeof(uint16_t));
         build_16bitcache(f16BitCache, fColors, fCount);
@@ -92,7 +81,10 @@ SkColorTable::SkColorTable(SkReadBuffer& buffer) {
     SkDEBUGCODE(fColorLockCount = 0;)
     SkDEBUGCODE(f16BitCacheLockCount = 0;)
 
-    fAlphaType = SkToU8(buffer.readUInt());
+    if (buffer.isVersionLT(SkReadBuffer::kRemoveColorTableAlpha_Version)) {
+        /*fAlphaType = */buffer.readUInt();
+    }
+
     fCount = buffer.getArrayCount();
     size_t allocSize = fCount * sizeof(SkPMColor);
     SkDEBUGCODE(bool success = false;)
@@ -110,6 +102,5 @@ SkColorTable::SkColorTable(SkReadBuffer& buffer) {
 }
 
 void SkColorTable::writeToBuffer(SkWriteBuffer& buffer) const {
-    buffer.writeUInt(fAlphaType);
     buffer.writeColorArray(fColors, fCount);
 }

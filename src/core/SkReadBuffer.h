@@ -49,6 +49,7 @@ public:
         kImageFilterUniqueID_Version       = 31,
         kRemoveAndroidPaintOpts_Version    = 32,
         kFlattenCreateProc_Version         = 33,
+        kRemoveColorTableAlpha_Version     = 36,
     };
 
     /**

@@ -709,17 +709,7 @@ bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
         *colorPtr = colorPtr[-1];
     }
 
-    SkAlphaType alphaType = kOpaque_SkAlphaType;
-    if (reallyHasAlpha) {
-        if (this->getRequireUnpremultipliedColors()) {
-            alphaType = kUnpremul_SkAlphaType;
-        } else {
-            alphaType = kPremul_SkAlphaType;
-        }
-    }
-
-    *colorTablep = SkNEW_ARGS(SkColorTable,
-                              (colorStorage, colorCount, alphaType));
+    *colorTablep = SkNEW_ARGS(SkColorTable, (colorStorage, colorCount));
     *reallyHasAlphap = reallyHasAlpha;
     return true;
 }

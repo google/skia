@@ -44,7 +44,7 @@ static void convertToIndex666(const SkBitmap& src, SkBitmap* dst, SkAlphaType aT
             }
         }
     }
-    SkColorTable* ctable = new SkColorTable(storage, 216, aType);
+    SkColorTable* ctable = new SkColorTable(storage, 216);
     dst->allocPixels(SkImageInfo::Make(src.width(), src.height(), kIndex_8_SkColorType, aType),
                      NULL, ctable);
     ctable->unref();
