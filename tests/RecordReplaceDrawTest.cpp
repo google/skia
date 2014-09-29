@@ -8,13 +8,14 @@
 #if SK_SUPPORT_GPU
 
 #include "Test.h"
-#include "RecordTestUtils.h"
 
+#include "GrRecordReplaceDraw.h"
+#include "RecordTestUtils.h"
 #include "SkBBHFactory.h"
+#include "SkPictureRecorder.h"
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
 #include "SkUtils.h"
-#include "GrRecordReplaceDraw.h"
 
 static const int kWidth = 100;
 static const int kHeight = 100;
@@ -30,18 +31,25 @@ private:
 
 // Make sure the abort callback works
 DEF_TEST(RecordReplaceDraw_Abort, r) {
-    // Record two commands.
-    SkRecord record;
-    SkRecorder recorder(&record, kWidth, kHeight);
-    recorder.drawRect(SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight)), SkPaint());
-    recorder.clipRect(SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight)));
+    SkAutoTUnref<const SkPicture> pic;
+
+    {
+        // Record two commands.
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
+
+        canvas->drawRect(SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight)), SkPaint());
+        canvas->clipRect(SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight)));
+
+        pic.reset(recorder.endRecording());
+    }
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
 
     GrReplacements replacements;
     JustOneDraw callback;
-    GrRecordReplaceDraw(record, &canvas, NULL/*bbh*/, &replacements, &callback);
+    GrRecordReplaceDraw(pic, &canvas, &replacements, SkMatrix::I(), &callback);
 
     REPORTER_ASSERT(r, 3 == rerecord.count());
     assert_type<SkRecords::Save>(r, rerecord, 0);
@@ -51,15 +59,23 @@ DEF_TEST(RecordReplaceDraw_Abort, r) {
 
 // Make sure GrRecordReplaceDraw balances unbalanced saves
 DEF_TEST(RecordReplaceDraw_Unbalanced, r) {
-    SkRecord record;
-    SkRecorder recorder(&record, kWidth, kHeight);
-    recorder.save();  // We won't balance this, but GrRecordReplaceDraw will for us.
+    SkAutoTUnref<const SkPicture> pic;
+
+    {
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
+
+        // We won't balance this, but GrRecordReplaceDraw will for us.
+        canvas->save();
+
+        pic.reset(recorder.endRecording());
+    }
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
 
     GrReplacements replacements;
-    GrRecordReplaceDraw(record, &canvas, NULL/*bbh*/, &replacements, NULL/*callback*/);
+    GrRecordReplaceDraw(pic, &canvas, &replacements, SkMatrix::I(), NULL/*callback*/);
 
     REPORTER_ASSERT(r, 4 == rerecord.count());
     assert_type<SkRecords::Save>(r, rerecord, 0);
@@ -82,14 +98,23 @@ static SkImage* make_image(SkColor color) {
 
 // Test out the layer replacement functionality with and w/o a BBH
 void test_replacements(skiatest::Reporter* r, bool useBBH) {
-    SkRecord record;
-    SkRecorder recorder(&record, kWidth, kHeight);
-    SkAutoTDelete<SkPaint> paint(SkNEW(SkPaint));
-    recorder.saveLayer(NULL, paint);
-    recorder.clear(SK_ColorRED);
-    recorder.restore();
-    recorder.drawRect(SkRect::MakeWH(SkIntToScalar(kWidth/2), SkIntToScalar(kHeight/2)), 
-                      SkPaint());
+    SkAutoTUnref<const SkPicture> pic;
+
+    {
+        SkRTreeFactory bbhFactory;
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight), 
+                                                   useBBH ? &bbhFactory : NULL);
+
+        SkAutoTDelete<SkPaint> paint(SkNEW(SkPaint));
+        canvas->saveLayer(NULL, paint);
+        canvas->clear(SK_ColorRED);
+        canvas->restore();
+        canvas->drawRect(SkRect::MakeWH(SkIntToScalar(kWidth / 2), SkIntToScalar(kHeight / 2)),
+                         SkPaint());
+
+        pic.reset(recorder.endRecording());
+    }
 
     GrReplacements replacements;
     GrReplacements::ReplacementInfo* ri = replacements.push();
@@ -102,15 +127,9 @@ void test_replacements(skiatest::Reporter* r, bool useBBH) {
 
     SkAutoTUnref<SkBBoxHierarchy> bbh;
 
-    if (useBBH) {
-        SkRTreeFactory factory;
-        bbh.reset((factory)(kWidth, kHeight));
-        SkRecordFillBounds(record, bbh);
-    }
-
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
-    GrRecordReplaceDraw(record, &canvas, bbh, &replacements, NULL/*callback*/);
+    GrRecordReplaceDraw(pic, &canvas, &replacements, SkMatrix::I(), NULL/*callback*/);
 
     REPORTER_ASSERT(r, 7 == rerecord.count());
     assert_type<SkRecords::Save>(r, rerecord, 0);

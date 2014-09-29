@@ -66,18 +66,22 @@ static inline void draw_replacement_bitmap(const GrReplacements::ReplacementInfo
     canvas->restore();
 }
 
-void GrRecordReplaceDraw(const SkRecord& record,
+void GrRecordReplaceDraw(const SkPicture* picture,
                          SkCanvas* canvas,
-                         const SkBBoxHierarchy* bbh,
                          const GrReplacements* replacements,
+                         const SkMatrix& initialMatrix,
                          SkDrawPictureCallback* callback) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
+
+    const SkBBoxHierarchy* bbh = picture->fBBH.get();
+    const SkRecord* record = picture->fRecord.get();
+    if (NULL == record) {
+        return;
+    }
 
     SkRecords::Draw draw(canvas);
     const GrReplacements::ReplacementInfo* ri = NULL;
     int searchStart = 0;
-
-    const SkMatrix initialMatrix = canvas->getTotalMatrix();
 
     if (bbh) {
         // Draw only ops that affect pixels in the canvas's current clip.
@@ -106,10 +110,10 @@ void GrRecordReplaceDraw(const SkRecord& record,
                 continue;
             }
 
-            record.visit<void>((uintptr_t)ops[i], draw);
+            record->visit<void>((uintptr_t)ops[i], draw);
         }
     } else {
-        for (unsigned int i = 0; i < record.count(); ++i) {
+        for (unsigned int i = 0; i < record->count(); ++i) {
             if (callback && callback->abortDrawing()) {
                 return;
             }
@@ -120,7 +124,7 @@ void GrRecordReplaceDraw(const SkRecord& record,
                 continue;
             }
 
-            record.visit<void>(i, draw);
+            record->visit<void>(i, draw);
         }
     }
 }

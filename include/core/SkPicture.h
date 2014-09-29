@@ -20,6 +20,7 @@
 class GrContext;
 #endif
 
+class GrReplacements;
 class SkBBoxHierarchy;
 class SkCanvas;
 class SkData;
@@ -299,7 +300,11 @@ private:
     friend class GrLayerHoister;               // access to fRecord
     friend class CollectLayers;                // access to fRecord
     friend class SkPicturePlayback;            // to get fData & OperationList
-    friend class SkPictureReplacementPlayback; // to access OperationList
+    friend void GrRecordReplaceDraw(const SkPicture* picture,
+                                    SkCanvas* canvas,
+                                    const GrReplacements* replacements,
+                                    const SkMatrix& initialMatrix,
+                                    SkDrawPictureCallback* callback);
 
     typedef SkRefCnt INHERITED;
 

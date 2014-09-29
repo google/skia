@@ -1864,8 +1864,9 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     GrLayerHoister::DrawLayers(atlased, nonAtlased, &replacements);
 
     // Render the entire picture using new layers
-    GrRecordReplaceDraw(*mainPicture->fRecord, mainCanvas, mainPicture->fBBH.get(), 
-                        &replacements, NULL);
+    const SkMatrix initialMatrix = mainCanvas->getTotalMatrix();
+
+    GrRecordReplaceDraw(mainPicture, mainCanvas, &replacements, initialMatrix, NULL);
 
     GrLayerHoister::UnlockLayers(fContext->getLayerCache(), atlased, nonAtlased);
 

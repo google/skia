@@ -16,7 +16,9 @@ class SkBBoxHierarchy;
 class SkBitmap;
 class SkCanvas;
 class SkImage;
+class SkMatrix;
 class SkPaint;
+class SkPicture;
 class SkRecord;
 
 // GrReplacements collects op ranges that can be replaced with
@@ -58,12 +60,12 @@ private:
 #endif
 };
 
-// Draw an SkRecord into an SkCanvas replacing saveLayer/restore blocks with
+// Draw an SkPicture into an SkCanvas replacing saveLayer/restore blocks with
 // drawBitmap calls.  A convenience wrapper around SkRecords::Draw.
-void GrRecordReplaceDraw(const SkRecord&, 
+void GrRecordReplaceDraw(const SkPicture*,
                          SkCanvas*,
-                         const SkBBoxHierarchy*,
                          const GrReplacements*,
+                         const SkMatrix&,
                          SkDrawPictureCallback*);
 
 #endif // GrRecordReplaceDraw_DEFINED
