@@ -91,5 +91,4 @@ Third Party Code
 ----------------
 
   * res/js/polyfill.js - Various JS polyfill libraries. To rebuild or update
-    see polyfill/README.md.
-
+    see poly/README.md.
