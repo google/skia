@@ -30,7 +30,9 @@ SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
 //////////////////////////////////////////////////////////////////////////////
 
 SkPathRef* SkPathRef::CreateEmptyImpl() {
-    return SkNEW(SkPathRef);
+    SkPathRef* empty = SkNEW(SkPathRef);
+    empty->computeBounds();   // Avoids races later to be the first to do this.
+    return empty;
 }
 
 SkPathRef* SkPathRef::CreateEmpty() {
