@@ -8,9 +8,10 @@ immediately. To make sandboxing easier this must be built w/GPU off.
 Running Locally
 ===============
 
-    $ GYP_GENERATORS=ninja  ./gyp_skia  gyp/webtry.gyp gyp/most.gyp -Dskia_gpu=0
+    $ GYP_GENERATORS=ninja ./gyp_skia gyp/webtry.gyp gyp/most.gyp -Dskia_gpu=0
     $ ninja -C out/Debug webtry
     $ cd experimental/webtry
+    $ go get -d
     $ go build webtry.go
     $ ./webtry
 
