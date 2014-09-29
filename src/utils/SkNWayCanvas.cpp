@@ -225,6 +225,23 @@ void SkNWayCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
     }
 }
 
+void SkNWayCanvas::drawImage(const SkImage* image, SkScalar left, SkScalar top,
+                             const SkPaint* paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawImage(image, left, top, paint);
+    }
+}
+
+void SkNWayCanvas::drawImageRect(const SkImage* image, const SkRect* src,
+                                 const SkRect& dst,
+                                 const SkPaint* paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawImageRect(image, src, dst, paint);
+    }
+}
+
 void SkNWayCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                               const SkPaint* paint) {
     Iter iter(fList);
