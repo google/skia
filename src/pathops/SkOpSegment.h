@@ -407,7 +407,7 @@ private:
                    const SkOpSegment* other2, SkOpSpan* oSpan, SkTDArray<AlignedSpan>* );
     bool betweenPoints(double midT, const SkPoint& pt1, const SkPoint& pt2) const;
     void bumpCoincidentBlind(bool binary, int index, int last);
-    void bumpCoincidentThis(const SkOpSpan& oTest, bool binary, int* index,
+    bool bumpCoincidentThis(const SkOpSpan& oTest, bool binary, int* index,
                            SkTArray<SkPoint, true>* outsideTs);
     void bumpCoincidentOBlind(int index, int last);
     void bumpCoincidentOther(const SkOpSpan& oTest, int* index,

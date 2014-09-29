@@ -1211,7 +1211,7 @@ void SkOpSegment::bumpCoincidentBlind(bool binary, int index, int endIndex) {
     } while (++index < endIndex);
 }
 
-void SkOpSegment::bumpCoincidentThis(const SkOpSpan& oTest, bool binary, int* indexPtr,
+bool SkOpSegment::bumpCoincidentThis(const SkOpSpan& oTest, bool binary, int* indexPtr,
         SkTArray<SkPoint, true>* outsideTs) {
     int index = *indexPtr;
     int oWindValue = oTest.fWindValue;
@@ -1223,12 +1223,16 @@ void SkOpSegment::bumpCoincidentThis(const SkOpSpan& oTest, bool binary, int* in
     SkOpSpan* end = test;
     const SkPoint& oStartPt = oTest.fPt;
     do {
+        if (end->fDone && !end->fTiny && !end->fSmall) {  // extremely large paths trigger this
+            return false;
+        }
         if (bumpSpan(end, oWindValue, oOppValue)) {
             TrackOutside(outsideTs, oStartPt);
         }
         end = &fTs[++index];
     } while ((end->fPt == test->fPt || precisely_equal(end->fT, test->fT)) && end->fT < 1);
     *indexPtr = index;
+    return true;
 }
 
 void SkOpSegment::bumpCoincidentOBlind(int index, int endIndex) {
@@ -1329,10 +1333,14 @@ bool SkOpSegment::addTCoincident(const SkPoint& startPt, const SkPoint& endPt, d
             } while (*oTestPt == other->fTs[oIndex].fPt);
         } else {
             if (!binary || test->fWindValue + oTest->fOppValue >= 0) {
-                bumpCoincidentThis(*oTest, binary, &index, &outsidePts);
+                if (!bumpCoincidentThis(*oTest, binary, &index, &outsidePts)) {
+                    return false;
+                }
                 other->bumpCoincidentOther(*test, &oIndex, &oOutsidePts);
             } else {
-                other->bumpCoincidentThis(*test, binary, &oIndex, &oOutsidePts);
+                if (!other->bumpCoincidentThis(*test, binary, &oIndex, &oOutsidePts)) {
+                    return false;
+                }
                 bumpCoincidentOther(*oTest, &index, &outsidePts);
             }
         }
@@ -1396,7 +1404,9 @@ bool SkOpSegment::addTCoincident(const SkPoint& startPt, const SkPoint& endPt, d
                 if (!binary || test->fWindValue + oTest->fOppValue >= 0) {
                     other->bumpCoincidentOther(*test, &oIndex, &oOutsidePts);
                 } else {
-                    other->bumpCoincidentThis(*test, binary, &oIndex, &oOutsidePts);
+                    if (!other->bumpCoincidentThis(*test, binary, &oIndex, &oOutsidePts)) {
+                        return false;
+                    }
                 }
                 oTest = &other->fTs[oIndex];
                 oTestPt = &oTest->fPt;
