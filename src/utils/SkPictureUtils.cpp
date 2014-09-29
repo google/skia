@@ -132,8 +132,8 @@ public:
         this->addBitmapFromPaint(paint);
     }
     virtual void drawPosText(const SkDraw&, const void* text, size_t len,
-                             const SkScalar pos[], SkScalar constY,
-                             int, const SkPaint& paint) SK_OVERRIDE {
+                             const SkScalar pos[], int,
+                             const SkPoint&, const SkPaint& paint) SK_OVERRIDE {
         this->addBitmapFromPaint(paint);
     }
     virtual void drawTextOnPath(const SkDraw&, const void* text, size_t len,

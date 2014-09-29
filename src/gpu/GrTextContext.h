@@ -28,8 +28,8 @@ public:
                           SkScalar x, SkScalar y) = 0;
     virtual void drawPosText(const GrPaint&, const SkPaint&,
                              const char text[], size_t byteLength,
-                             const SkScalar pos[], SkScalar constY,
-                             int scalarsPerPosition) = 0;
+                             const SkScalar pos[], int scalarsPerPosition,
+                             const SkPoint& offset) = 0;
 
     virtual bool canDraw(const SkPaint& paint) = 0;
 

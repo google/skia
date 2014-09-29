@@ -13,20 +13,22 @@
 
 class SkTextMapStateProc {
 public:
-    SkTextMapStateProc(const SkMatrix& matrix, SkScalar y, int scalarsPerPosition)
+    SkTextMapStateProc(const SkMatrix& matrix, const SkPoint& offset, int scalarsPerPosition)
         : fMatrix(matrix)
         , fProc(matrix.getMapXYProc())
-        , fY(y)
-        , fScaleX(fMatrix.getScaleX())
-        , fTransX(fMatrix.getTranslateX()) {
+        , fOffset(offset)
+        , fScaleX(fMatrix.getScaleX()) {
         SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
         if (1 == scalarsPerPosition) {
             unsigned mtype = fMatrix.getType();
             if (mtype & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
                 fMapCase = kX;
             } else {
-                fY = SkScalarMul(y, fMatrix.getScaleY()) +
-                    fMatrix.getTranslateY();
+                // Bake the matrix scale/translation components into fOffset,
+                // to expedite proc computations.
+                fOffset.set(SkScalarMul(offset.x(), fMatrix.getScaleX()) + fMatrix.getTranslateX(),
+                            SkScalarMul(offset.y(), fMatrix.getScaleY()) + fMatrix.getTranslateY());
+
                 if (mtype & SkMatrix::kScale_Mask) {
                     fMapCase = kOnlyScaleX;
                 } else {
@@ -49,25 +51,25 @@ private:
         kX
     } fMapCase;
     const SkMatrix::MapXYProc fProc;
-    SkScalar fY; // Ignored by kXY case.
-    SkScalar fScaleX, fTransX; // These are only used by Only... cases.
+    SkPoint  fOffset; // In kOnly* mode, this includes the matrix translation component.
+    SkScalar fScaleX; // This is only used by kOnly... cases.
 };
 
 inline void SkTextMapStateProc::operator()(const SkScalar pos[], SkPoint* loc) const {
     switch(fMapCase) {
     case kXY:
-        fProc(fMatrix, pos[0], pos[1], loc);
+        fProc(fMatrix, pos[0] + fOffset.x(), pos[1] + fOffset.y(), loc);
         break;
     case kOnlyScaleX:
-        loc->set(SkScalarMul(fScaleX, *pos) + fTransX, fY);
+        loc->set(SkScalarMul(fScaleX, *pos) + fOffset.x(), fOffset.y());
         break;
     case kOnlyTransX:
-        loc->set(*pos + fTransX, fY);
+        loc->set(*pos + fOffset.x(), fOffset.y());
         break;
     default:
         SkASSERT(false);
     case kX:
-        fProc(fMatrix, *pos, fY, loc);
+        fProc(fMatrix, *pos + fOffset.x(), fOffset.y(), loc);
         break;
     }
 }

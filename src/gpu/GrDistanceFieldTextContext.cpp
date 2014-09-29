@@ -609,8 +609,8 @@ void GrDistanceFieldTextContext::drawText(const GrPaint& paint, const SkPaint& s
 
 void GrDistanceFieldTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint,
                                              const char text[], size_t byteLength,
-                                             const SkScalar pos[], SkScalar constY,
-                                             int scalarsPerPosition) {
+                                             const SkScalar pos[], int scalarsPerPosition,
+                                             const SkPoint& offset) {
 
     SkASSERT(byteLength == 0 || text != NULL);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
@@ -638,8 +638,8 @@ void GrDistanceFieldTextContext::drawPosText(const GrPaint& paint, const SkPaint
             const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
 
             if (glyph.fWidth) {
-                SkScalar x = pos[0];
-                SkScalar y = scalarsPerPosition == 1 ? constY : pos[1];
+                SkScalar x = offset.x() + pos[0];
+                SkScalar y = offset.y() + (2 == scalarsPerPosition ? pos[1] : 0);
 
                 this->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
@@ -657,8 +657,8 @@ void GrDistanceFieldTextContext::drawPosText(const GrPaint& paint, const SkPaint
             const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
 
             if (glyph.fWidth) {
-                SkScalar x = pos[0];
-                SkScalar y = scalarsPerPosition == 1 ? constY : pos[1];
+                SkScalar x = offset.x() + pos[0];
+                SkScalar y = offset.y() + (2 == scalarsPerPosition ? pos[1] : 0);
 
                 this->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),

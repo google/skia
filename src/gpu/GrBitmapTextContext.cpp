@@ -270,8 +270,8 @@ void GrBitmapTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint,
 
 void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint,
                                       const char text[], size_t byteLength,
-                                      const SkScalar pos[], SkScalar constY,
-                                      int scalarsPerPosition) {
+                                      const SkScalar pos[], int scalarsPerPosition,
+                                      const SkPoint& offset) {
     SkASSERT(byteLength == 0 || text != NULL);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
@@ -295,7 +295,7 @@ void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPai
 
     const char*        stop = text + byteLength;
     SkTextAlignProc    alignProc(fSkPaint.getTextAlign());
-    SkTextMapStateProc tmsProc(ctm, constY, scalarsPerPosition);
+    SkTextMapStateProc tmsProc(ctm, offset, scalarsPerPosition);
     SkFixed halfSampleX = 0, halfSampleY = 0;
 
     if (cache->isSubpixel()) {

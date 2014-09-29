@@ -329,9 +329,9 @@ void SkBitmapDevice::drawText(const SkDraw& draw, const void* text, size_t len,
 }
 
 void SkBitmapDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
-                                 const SkScalar xpos[], SkScalar y,
-                                 int scalarsPerPos, const SkPaint& paint) {
-    draw.drawPosText((const char*)text, len, xpos, y, scalarsPerPos, paint);
+                                 const SkScalar xpos[], int scalarsPerPos,
+                                 const SkPoint& offset, const SkPaint& paint) {
+    draw.drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint);
 }
 
 void SkBitmapDevice::drawTextOnPath(const SkDraw& draw, const void* text,
