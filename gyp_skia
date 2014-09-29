@@ -23,6 +23,10 @@ gyp_source_dir = os.path.join(script_dir, 'third_party', 'externals', 'gyp')
 # Directory within which we can find most of Skia's gyp configuration files.
 gyp_config_dir = os.path.join(script_dir, 'gyp')
 
+# Allow the user to override the directory where gyp should produce its output
+# Default to the current directory.
+gyp_output_dir = os.environ.get('SKIA_GYP_OUTPUT_DIR', '.')
+
 # Ensure we import our current gyp source's module, not any version
 # pre-installed in your PYTHONPATH.
 sys.path.insert(0, os.path.join(gyp_source_dir, 'pylib'))
@@ -133,7 +137,7 @@ if __name__ == '__main__':
   args.extend(['--generator-output', os.path.abspath(get_output_dir())])
 
   # Tell ninja to write its output into the same directory.
-  args.extend(['-Goutput_dir=.'])
+  args.extend(['-Goutput_dir=%s' % gyp_output_dir])
 
   # By default, we build 'most' instead of 'all' or 'everything'. See skia.gyp.
   args.extend(['-Gdefault_target=most'])
