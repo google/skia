@@ -7,13 +7,13 @@
  */
 
 
-#include "GrTexture.h"
-
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrRenderTarget.h"
 #include "GrResourceCache.h"
+#include "GrTexture.h"
+#include "GrTexturePriv.h"
 
 GrTexture::~GrTexture() {
     if (fRenderTarget.get()) {
@@ -26,12 +26,12 @@ GrTexture::~GrTexture() {
  * textures back in the texture cache when their ref count goes to zero.
  */
 void GrTexture::internal_dispose() const {
-    if (this->impl()->isSetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit) &&
+    if (this->texturePriv().isSetFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit) &&
         this->INHERITED::getContext()) {
         GrTexture* nonConstThis = const_cast<GrTexture *>(this);
         this->ref(); // restore ref count to initial setting
 
-        nonConstThis->impl()->resetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit);
+        nonConstThis->texturePriv().resetFlag((GrTextureFlags) kReturnToCache_FlagBit);
         nonConstThis->INHERITED::getContext()->addExistingTextureToCache(nonConstThis);
 
         // Note: "this" texture might be freed inside addExistingTextureToCache
@@ -42,10 +42,10 @@ void GrTexture::internal_dispose() const {
     this->INHERITED::internal_dispose();
 }
 
-void GrTextureImpl::dirtyMipMaps(bool mipMapsDirty) {
+void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
     if (mipMapsDirty) {
         if (kValid_MipMapsStatus == fMipMapsStatus) {
-            fMipMapsStatus = kAllocated_MipMapsStatus;
+           fMipMapsStatus = kAllocated_MipMapsStatus;
         }
     } else {
         const bool sizeChanged = kNotAllocated_MipMapsStatus == fMipMapsStatus;
@@ -66,7 +66,7 @@ size_t GrTexture::gpuMemorySize() const {
         textureSize = (size_t) fDesc.fWidth * fDesc.fHeight * GrBytesPerPixel(fDesc.fConfig);
     }
 
-    if (this->impl()->hasMipMaps()) {
+    if (this->texturePriv().hasMipMaps()) {
         // We don't have to worry about the mipmaps being a different size than
         // we'd expect because we never change fDesc.fWidth/fHeight.
         textureSize *= 2;
@@ -107,17 +107,17 @@ void GrTexture::abandonReleaseCommon() {
     // After abandon() or release() the resource cache will be unreachable (getContext() == NULL).
     // So we readd the texture to the cache here so that it is removed from the exclusive list and
     // there is no longer an unref'ed ptr to the texture in the cache.
-    if (this->impl()->isSetFlag((GrTextureFlags)GrTextureImpl::kReturnToCache_FlagBit)) {
+    if (this->texturePriv().isSetFlag((GrTextureFlags)kReturnToCache_FlagBit)) {
         SkASSERT(!this->wasDestroyed());
         this->ref();  // restores the ref the resource cache gave up when it marked this exclusive.
-        this->impl()->resetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit);
+        this->texturePriv().resetFlag((GrTextureFlags) kReturnToCache_FlagBit);
         this->getContext()->addExistingTextureToCache(this);
     }
 }
 
 void GrTexture::onRelease() {
     this->abandonReleaseCommon();
-    SkASSERT(!this->impl()->isSetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit));
+    SkASSERT(!this->texturePriv().isSetFlag((GrTextureFlags) kReturnToCache_FlagBit));
     INHERITED::onRelease();
 }
 
@@ -207,13 +207,17 @@ GrSurfaceOrigin resolve_origin(const GrTextureDesc& desc) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-GrTextureImpl::GrTextureImpl(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
+GrTexture::GrTexture(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
     : INHERITED(gpu, isWrapped, desc)
+    , fRenderTarget(NULL)
     , fMipMapsStatus(kNotAllocated_MipMapsStatus) {
-    this->setScratchKey(ComputeScratchKey(desc));
+    this->setScratchKey(GrTexturePriv::ComputeScratchKey(desc));
+    // only make sense if alloc size is pow2
+    fShiftFixedX = 31 - SkCLZ(fDesc.fWidth);
+    fShiftFixedY = 31 - SkCLZ(fDesc.fHeight);
 }
 
-GrResourceKey GrTextureImpl::ComputeKey(const GrGpu* gpu,
+GrResourceKey GrTexturePriv::ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* params,
                                     const GrTextureDesc& desc,
                                     const GrCacheID& cacheID) {
@@ -221,7 +225,7 @@ GrResourceKey GrTextureImpl::ComputeKey(const GrGpu* gpu,
     return GrResourceKey(cacheID, texture_resource_type(), flags);
 }
 
-GrResourceKey GrTextureImpl::ComputeScratchKey(const GrTextureDesc& desc) {
+GrResourceKey GrTexturePriv::ComputeScratchKey(const GrTextureDesc& desc) {
     GrCacheID::Key idKey;
     // Instead of a client-provided key of the texture contents we create a key from the
     // descriptor.
@@ -240,10 +244,10 @@ GrResourceKey GrTextureImpl::ComputeScratchKey(const GrTextureDesc& desc) {
     return GrResourceKey(cacheID, texture_resource_type(), 0);
 }
 
-bool GrTextureImpl::NeedsResizing(const GrResourceKey& key) {
+bool GrTexturePriv::NeedsResizing(const GrResourceKey& key) {
     return SkToBool(key.getResourceFlags() & kStretchToPOT_TextureFlag);
 }
 
-bool GrTextureImpl::NeedsBilerp(const GrResourceKey& key) {
+bool GrTexturePriv::NeedsBilerp(const GrResourceKey& key) {
     return SkToBool(key.getResourceFlags() & kBilerp_TextureFlag);
 }

@@ -6,6 +6,7 @@
  */
 
 #include "GrSurface.h"
+#include "GrSurfacePriv.h"
 
 #include "SkBitmap.h"
 #include "SkGr.h"
@@ -20,14 +21,16 @@ SkImageInfo GrSurface::info() const {
     return SkImageInfo::Make(this->width(), this->height(), colorType, kPremul_SkAlphaType);
 }
 
+// TODO: This should probably be a non-member helper function. It might only be needed in
+// debug or developer builds.
 bool GrSurface::savePixels(const char* filename) {
     SkBitmap bm;
     if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(this->width(), this->height()))) {
         return false;
     }
 
-    bool result = readPixels(0, 0, this->width(), this->height(), kSkia8888_GrPixelConfig,
-                             bm.getPixels());
+    bool result = this->readPixels(0, 0, this->width(), this->height(), kSkia8888_GrPixelConfig,
+                                   bm.getPixels());
     if (!result) {
         SkDebugf("------ failed to read pixels for %s\n", filename);
         return false;
@@ -79,4 +82,15 @@ bool GrSurface::hasPendingIO() const {
         return true;
     }
     return false;
+}
+
+bool GrSurface::isSameAs(const GrSurface* other) const {
+    const GrRenderTarget* thisRT = this->asRenderTarget();
+    if (thisRT) {
+        return thisRT == other->asRenderTarget();
+    } else {
+        const GrTexture* thisTex = this->asTexture();
+        SkASSERT(thisTex); // We must be one or the other
+        return thisTex == other->asTexture();
+    }
 }
