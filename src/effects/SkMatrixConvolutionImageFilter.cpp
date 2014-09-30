@@ -29,6 +29,10 @@ static bool tile_mode_is_valid(SkMatrixConvolutionImageFilter::TileMode tileMode
     return false;
 }
 
+// We need to be able to read at most SK_MaxS32 bytes, so divide that
+// by the size of a scalar to know how many scalars we can read.
+static const int32_t gMaxKernelSize = SK_MaxS32 / sizeof(SkScalar);
+
 SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
     const SkISize& kernelSize,
     const SkScalar* kernel,
@@ -46,7 +50,7 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
     fKernelOffset(kernelOffset),
     fTileMode(tileMode),
     fConvolveAlpha(convolveAlpha) {
-    uint32_t size = fKernelSize.fWidth * fKernelSize.fHeight;
+    size_t size = (size_t) sk_64_mul(fKernelSize.width(), fKernelSize.height());
     fKernel = SkNEW_ARRAY(SkScalar, size);
     memcpy(fKernel, kernel, size * sizeof(SkScalar));
     SkASSERT(kernelSize.fWidth >= 1 && kernelSize.fHeight >= 1);
@@ -54,18 +58,39 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
     SkASSERT(kernelOffset.fY >= 0 && kernelOffset.fY < kernelSize.fHeight);
 }
 
+SkMatrixConvolutionImageFilter* SkMatrixConvolutionImageFilter::Create(
+    const SkISize& kernelSize,
+    const SkScalar* kernel,
+    SkScalar gain,
+    SkScalar bias,
+    const SkIPoint& kernelOffset,
+    TileMode tileMode,
+    bool convolveAlpha,
+    SkImageFilter* input,
+    const CropRect* cropRect) {
+    if (kernelSize.width() < 1 || kernelSize.height() < 1) {
+        return NULL;
+    }
+    if (gMaxKernelSize / kernelSize.fWidth < kernelSize.fHeight) {
+        return NULL;
+    }
+    if (!kernel) {
+        return NULL;
+    }
+    return SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize, kernel, gain, bias,
+                                                       kernelOffset, tileMode, convolveAlpha,
+                                                       input, cropRect));
+}
+
 SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkReadBuffer& buffer)
     : INHERITED(1, buffer) {
-    // We need to be able to read at most SK_MaxS32 bytes, so divide that
-    // by the size of a scalar to know how many scalars we can read.
-    static const int32_t kMaxSize = SK_MaxS32 / sizeof(SkScalar);
     fKernelSize.fWidth = buffer.readInt();
     fKernelSize.fHeight = buffer.readInt();
     if ((fKernelSize.fWidth >= 1) && (fKernelSize.fHeight >= 1) &&
         // Make sure size won't be larger than a signed int,
         // which would still be extremely large for a kernel,
         // but we don't impose a hard limit for kernel size
-        (kMaxSize / fKernelSize.fWidth >= fKernelSize.fHeight)) {
+        (gMaxKernelSize / fKernelSize.fWidth >= fKernelSize.fHeight)) {
         size_t size = fKernelSize.fWidth * fKernelSize.fHeight;
         fKernel = SkNEW_ARRAY(SkScalar, size);
         SkDEBUGCODE(bool success =) buffer.readScalarArray(fKernel, size);

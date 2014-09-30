@@ -774,6 +774,60 @@ DEF_TEST(HugeBlurImageFilter, reporter) {
     test_huge_blur(&device, reporter);
 }
 
+DEF_TEST(MatrixConvolutionSanityTest, reporter) {
+    SkScalar kernel[1] = { 0 };
+    SkScalar gain = SK_Scalar1, bias = 0;
+    SkIPoint kernelOffset = SkIPoint::Make(1, 1);
+
+    // Check that an enormous (non-allocatable) kernel gives a NULL filter.
+    SkAutoTUnref<SkImageFilter> conv(SkMatrixConvolutionImageFilter::Create(
+        SkISize::Make(1<<30, 1<<30),
+        kernel,
+        gain,
+        bias,
+        kernelOffset,
+        SkMatrixConvolutionImageFilter::kRepeat_TileMode,
+        false));
+
+    REPORTER_ASSERT(reporter, NULL == conv.get());
+
+    // Check that a NULL kernel gives a NULL filter.
+    conv.reset(SkMatrixConvolutionImageFilter::Create(
+        SkISize::Make(1, 1),
+        NULL,
+        gain,
+        bias,
+        kernelOffset,
+        SkMatrixConvolutionImageFilter::kRepeat_TileMode,
+        false));
+
+    REPORTER_ASSERT(reporter, NULL == conv.get());
+
+    // Check that a kernel width < 1 gives a NULL filter.
+    conv.reset(SkMatrixConvolutionImageFilter::Create(
+        SkISize::Make(0, 1),
+        kernel,
+        gain,
+        bias,
+        kernelOffset,
+        SkMatrixConvolutionImageFilter::kRepeat_TileMode,
+        false));
+
+    REPORTER_ASSERT(reporter, NULL == conv.get());
+
+    // Check that kernel height < 1 gives a NULL filter.
+    conv.reset(SkMatrixConvolutionImageFilter::Create(
+        SkISize::Make(1, -1),
+        kernel,
+        gain,
+        bias,
+        kernelOffset,
+        SkMatrixConvolutionImageFilter::kRepeat_TileMode,
+        false));
+
+    REPORTER_ASSERT(reporter, NULL == conv.get());
+}
+
 static void test_xfermode_cropped_input(SkBaseDevice* device, skiatest::Reporter* reporter) {
     SkCanvas canvas(device);
     canvas.clear(0);

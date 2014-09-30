@@ -60,11 +60,7 @@ public:
                                                   TileMode tileMode,
                                                   bool convolveAlpha,
                                                   SkImageFilter* input = NULL,
-                                                  const CropRect* cropRect = NULL) {
-        return SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize, kernel, gain, bias,
-                                                           kernelOffset, tileMode, convolveAlpha,
-                                                           input, cropRect));
-    }
+                                                  const CropRect* cropRect = NULL);
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
 
