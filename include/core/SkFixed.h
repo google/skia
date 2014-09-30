@@ -82,18 +82,6 @@ SkFixed SkFixedMul_portable(SkFixed, SkFixed);
 
 #define SkFixedDiv(numer, denom)    SkDivBits(numer, denom, 16)
 
-///////////////////////////////////////////////////////////////////////////////
-// TODO: move fixed sin/cos into SkCosineMapper, as that is the only caller
-//       or rewrite SkCosineMapper to not use it at all
-
-SkFixed SkFixedSinCos(SkFixed radians, SkFixed* cosValueOrNull);
-#define SkFixedSin(radians)         SkFixedSinCos(radians, NULL)
-static inline SkFixed SkFixedCos(SkFixed radians) {
-    SkFixed cosValue;
-    (void)SkFixedSinCos(radians, &cosValue);
-    return cosValue;
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Now look for ASM overrides for our portable versions (should consider putting this in its own file)
 
