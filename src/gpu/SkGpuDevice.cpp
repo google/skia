@@ -1850,23 +1850,23 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return true;
     }
 
-    SkTDArray<GrLayerHoister::HoistedLayer> atlased, nonAtlased;
+    SkTDArray<GrLayerHoister::HoistedLayer> atlased, nonAtlased, recycled;
 
     if (!GrLayerHoister::FindLayersToHoist(mainPicture, clipBounds, &atlased, &nonAtlased,
-                                           fContext->getLayerCache())) {
+                                           &recycled, fContext->getLayerCache())) {
         return false;
     }
 
     GrReplacements replacements;
 
-    GrLayerHoister::DrawLayers(atlased, nonAtlased, &replacements);
+    GrLayerHoister::DrawLayers(atlased, nonAtlased, recycled, &replacements);
 
     // Render the entire picture using new layers
     const SkMatrix initialMatrix = mainCanvas->getTotalMatrix();
 
     GrRecordReplaceDraw(mainPicture, mainCanvas, &replacements, initialMatrix, NULL);
 
-    GrLayerHoister::UnlockLayers(fContext->getLayerCache(), atlased, nonAtlased);
+    GrLayerHoister::UnlockLayers(fContext->getLayerCache(), atlased, nonAtlased, recycled);
 
     return true;
 }

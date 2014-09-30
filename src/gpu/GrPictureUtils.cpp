@@ -127,8 +127,8 @@ private:
             dst.fPicture->ref();
             dst.fSize = SkISize::Make(newClip.width(), newClip.height());
             dst.fOffset = SkIPoint::Make(newClip.fLeft, newClip.fTop);
-            dst.fOriginXform = *fCTM;
-            dst.fOriginXform.postConcat(src.fOriginXform);
+            dst.fOriginXform = src.fOriginXform;
+            dst.fOriginXform.postConcat(*fCTM);
             if (src.fPaint) {
                 dst.fPaint = SkNEW_ARGS(SkPaint, (*src.fPaint));
             }

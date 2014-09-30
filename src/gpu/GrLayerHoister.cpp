@@ -18,6 +18,7 @@ bool GrLayerHoister::FindLayersToHoist(const SkPicture* topLevelPicture,
                                        const SkRect& query,
                                        SkTDArray<HoistedLayer>* atlased,
                                        SkTDArray<HoistedLayer>* nonAtlased,
+                                       SkTDArray<HoistedLayer>* recycled,
                                        GrLayerCache* layerCache) {
     bool anyHoisted = false;
 
@@ -101,20 +102,22 @@ bool GrLayerHoister::FindLayersToHoist(const SkPicture* topLevelPicture,
                 continue;
             }
 
-            if (needsRendering) {
-                HoistedLayer* hl;
+            HoistedLayer* hl;
 
+            if (needsRendering) {
                 if (layer->isAtlased()) {
                     hl = atlased->append();
                 } else {
                     hl = nonAtlased->append();
                 }
-
-                hl->fLayer = layer;
-                hl->fPicture = pict;
-                hl->fOffset = info.fOffset;
-                hl->fCTM = info.fOriginXform;
+            } else {
+                hl = recycled->append();
             }
+        
+            hl->fLayer = layer;
+            hl->fPicture = pict;
+            hl->fOffset = info.fOffset;
+            hl->fCTM = info.fOriginXform;
         }
     }
 
@@ -160,6 +163,7 @@ static void convert_layers_to_replacements(const SkTDArray<GrLayerHoister::Hoist
 
 void GrLayerHoister::DrawLayers(const SkTDArray<HoistedLayer>& atlased,
                                 const SkTDArray<HoistedLayer>& nonAtlased,
+                                const SkTDArray<HoistedLayer>& recycled,
                                 GrReplacements* replacements) {
     // Render the atlased layers that require it
     if (atlased.count() > 0) {
@@ -253,6 +257,7 @@ void GrLayerHoister::DrawLayers(const SkTDArray<HoistedLayer>& atlased,
 
     convert_layers_to_replacements(atlased, replacements);
     convert_layers_to_replacements(nonAtlased, replacements);
+    convert_layers_to_replacements(recycled, replacements);
 }
 
 static void unlock_layer_in_cache(GrLayerCache* layerCache,
@@ -270,7 +275,8 @@ static void unlock_layer_in_cache(GrLayerCache* layerCache,
 
 void GrLayerHoister::UnlockLayers(GrLayerCache* layerCache,
                                   const SkTDArray<HoistedLayer>& atlased,
-                                  const SkTDArray<HoistedLayer>& nonAtlased) {
+                                  const SkTDArray<HoistedLayer>& nonAtlased,
+                                  const SkTDArray<HoistedLayer>& recycled) {
 
     for (int i = 0; i < atlased.count(); ++i) {
         unlock_layer_in_cache(layerCache, atlased[i].fPicture, atlased[i].fLayer);
@@ -278,6 +284,10 @@ void GrLayerHoister::UnlockLayers(GrLayerCache* layerCache,
 
     for (int i = 0; i < nonAtlased.count(); ++i) {
         unlock_layer_in_cache(layerCache, nonAtlased[i].fPicture, nonAtlased[i].fLayer);
+    }
+
+    for (int i = 0; i < recycled.count(); ++i) {
+        unlock_layer_in_cache(layerCache, recycled[i].fPicture, recycled[i].fLayer);
     }
 
 #if DISABLE_CACHING
