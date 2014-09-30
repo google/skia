@@ -996,10 +996,10 @@ bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint&
 
     SkPerlinNoiseShader::PaintingData* paintingData =
             SkNEW_ARGS(PaintingData, (fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, matrix));
-    GrTexture* permutationsTexture = GrLockAndRefCachedBitmapTexture(
-        context, paintingData->getPermutationsBitmap(), NULL);
-    GrTexture* noiseTexture = GrLockAndRefCachedBitmapTexture(
-        context, paintingData->getNoiseBitmap(), NULL);
+    SkAutoTUnref<GrTexture> permutationsTexture(
+        GrRefCachedBitmapTexture(context, paintingData->getPermutationsBitmap(), NULL));
+    SkAutoTUnref<GrTexture> noiseTexture(
+        GrRefCachedBitmapTexture(context, paintingData->getNoiseBitmap(), NULL));
 
     SkMatrix m = context->getMatrix();
     m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);
@@ -1015,17 +1015,6 @@ bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint&
         SkDELETE(paintingData);
         *fp = NULL;
     }
-
-    // Unlock immediately, this is not great, but we don't have a way of
-    // knowing when else to unlock it currently. TODO: Remove this when
-    // unref becomes the unlock replacement for all types of textures.
-    if (permutationsTexture) {
-        GrUnlockAndUnrefCachedBitmapTexture(permutationsTexture);
-    }
-    if (noiseTexture) {
-        GrUnlockAndUnrefCachedBitmapTexture(noiseTexture);
-    }
-
     return true;
 }
 

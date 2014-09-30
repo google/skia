@@ -8,7 +8,8 @@
 
 
 #include "GrResourceCache2.h"
-#include "GrGpuResource.h"
+#include "GrGpuResource.h"  
+#include "SkRefCnt.h"
 
 GrResourceCache2::~GrResourceCache2() {
     this->releaseAll();
@@ -54,4 +55,19 @@ void GrResourceCache2::releaseAll() {
     }
     SkASSERT(!fScratchMap.count());
     SkASSERT(!fCount);
+}
+
+class GrResourceCache2::AvailableForScratchUse {
+public:
+    bool operator()(const GrGpuResource* resource) const {
+        // Because duties are currently shared between GrResourceCache and GrResourceCache2, the
+        // current interpretation of this rule is that only GrResourceCache has a ref but that
+        // it has been marked as a scratch resource.
+        return resource->reffedOnlyByCache() && GrIORef::kYes_IsScratch == resource->fIsScratch;
+    }
+};
+
+GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrResourceKey& scratchKey) {
+    SkASSERT(scratchKey.isScratch());
+    return SkSafeRef(fScratchMap.find(scratchKey, AvailableForScratchUse()));
 }

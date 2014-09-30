@@ -41,11 +41,9 @@ class SK_API SkGrPixelRef : public SkROLockPixelsPixelRef {
 public:
     SK_DECLARE_INST_COUNT(SkGrPixelRef)
     /**
-     * Constructs a pixel ref around a GrSurface. If the caller has locked the GrSurface in the
-     * cache and would like the pixel ref to unlock it in its destructor then transferCacheLock
-     * should be set to true.
+     * Constructs a pixel ref around a GrSurface.
      */
-    SkGrPixelRef(const SkImageInfo&, GrSurface*, bool transferCacheLock = false);
+    SkGrPixelRef(const SkImageInfo&, GrSurface*);
     virtual ~SkGrPixelRef();
 
     // override from SkPixelRef
@@ -58,8 +56,6 @@ protected:
 
 private:
     GrSurface*  fSurface;
-    bool        fUnlock;   // if true the pixel ref owns a texture cache lock on fSurface
-
     typedef SkROLockPixelsPixelRef INHERITED;
 };
 
