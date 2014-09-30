@@ -89,62 +89,6 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
-SkPictureData::SkPictureData(const SkPictureData& src, SkPictCopyInfo* deepCopyInfo)
-    : fInfo(src.fInfo) {
-    this->init();
-
-    fBitmapHeap.reset(SkSafeRef(src.fBitmapHeap.get()));
-    fPathHeap.reset(SkSafeRef(src.fPathHeap.get()));
-
-    fOpData = SkSafeRef(src.fOpData);
-
-    fBoundingHierarchy = src.fBoundingHierarchy;
-    fStateTree = src.fStateTree;
-    fContentInfo.set(src.fContentInfo);
-
-    SkSafeRef(fBoundingHierarchy);
-    SkSafeRef(fStateTree);
-
-    if (deepCopyInfo) {
-        int paintCount = SafeCount(src.fPaints);
-
-        if (src.fBitmaps) {
-            fBitmaps = SkTRefArray<SkBitmap>::Create(src.fBitmaps->begin(), src.fBitmaps->count());
-        }
-
-        fPaints = SkTRefArray<SkPaint>::Create(paintCount);
-        SkASSERT(deepCopyInfo->paintData.count() == paintCount);
-        SkBitmapHeap* bmHeap = deepCopyInfo->controller.getBitmapHeap();
-        SkTypefacePlayback* tfPlayback = deepCopyInfo->controller.getTypefacePlayback();
-        for (int i = 0; i < paintCount; i++) {
-            if (deepCopyInfo->paintData[i]) {
-                deepCopyInfo->paintData[i]->unflatten<SkPaintFlatteningTraits>(
-                        &fPaints->writableAt(i), bmHeap, tfPlayback);
-            } else {
-                // needs_deep_copy was false, so just need to assign
-                fPaints->writableAt(i) = src.fPaints->at(i);
-            }
-        }
-
-    } else {
-        fBitmaps = SkSafeRef(src.fBitmaps);
-        fPaints = SkSafeRef(src.fPaints);
-    }
-
-    fPictureCount = src.fPictureCount;
-    fPictureRefs = SkNEW_ARRAY(const SkPicture*, fPictureCount);
-    for (int i = 0; i < fPictureCount; i++) {
-        if (deepCopyInfo) {
-            fPictureRefs[i] = src.fPictureRefs[i]->clone();
-        } else {
-            fPictureRefs[i] = src.fPictureRefs[i];
-            fPictureRefs[i]->ref();
-        }
-    }
-}
-#endif//SK_SUPPORT_LEGACY_PICTURE_CLONE
-
 void SkPictureData::init() {
     fBitmaps = NULL;
     fPaints = NULL;

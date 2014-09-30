@@ -280,13 +280,6 @@ SkPicture::~SkPicture() {
 }
 
 // fRecord OK
-#ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
-SkPicture* SkPicture::clone() const {
-    return SkRef(const_cast<SkPicture*>(this));
-}
-#endif//SK_SUPPORT_LEGACY_PICTURE_CLONE
-
-// fRecord OK
 void SkPicture::EXPERIMENTAL_addAccelData(const SkPicture::AccelData* data) const {
     fAccelData.reset(SkRef(data));
 }

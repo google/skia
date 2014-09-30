@@ -57,24 +57,8 @@ struct SkPictInfo {
 // Always write this guy last (with no length field afterwards)
 #define SK_PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
 
-#ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
-/**
- * Container for data that is needed to deep copy a SkPicture. The container
- * enables the data to be generated once and reused for subsequent copies.
- */
-struct SkPictCopyInfo {
-    SkPictCopyInfo() : controller(1024) {}
-
-    SkChunkFlatController controller;
-    SkTDArray<SkFlatData*> paintData;
-};
-#endif
-
 class SkPictureData {
 public:
-#ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
-    SkPictureData(const SkPictureData& src, SkPictCopyInfo* deepCopyInfo = NULL);
-#endif
     SkPictureData(const SkPictureRecord& record, const SkPictInfo&, bool deepCopyOps);
     static SkPictureData* CreateFromStream(SkStream*,
                                            const SkPictInfo&,
@@ -166,8 +150,6 @@ public:
 #endif
 
 private:
-    friend class SkPicture; // needed in SkPicture::clone (rm when it is removed)
-
     void init();
 
     // these help us with reading/writing

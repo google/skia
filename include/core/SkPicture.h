@@ -105,13 +105,6 @@ public:
 
     virtual ~SkPicture();
 
-#ifdef SK_SUPPORT_LEGACY_PICTURE_CLONE
-    /**
-     *  Creates a thread-safe clone of the picture that is ready for playback.
-     */
-    SkPicture* clone() const;
-#endif
-
     /** Replays the drawing commands on the specified canvas. Note that
         this has the effect of unfurling this picture into the destination
         canvas. Using the SkCanvas::drawPicture entry point gives the destination
