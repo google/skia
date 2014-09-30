@@ -11,7 +11,6 @@
 #include "GrContextFactory.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
-#include "GrSurfacePriv.h"
 #include "SkTypes.h"
 #include "Test.h"
 
@@ -29,14 +28,14 @@ DEF_GPUTEST(GrSurface, reporter, factory) {
         desc.fFlags = kNone_GrTextureFlags;
         GrSurface* tex1 = context->createUncachedTexture(desc, NULL, 0);
 
-        REPORTER_ASSERT(reporter, texRT1->surfacePriv().isSameAs(texRT1));
-        REPORTER_ASSERT(reporter, texRT1->surfacePriv().isSameAs(texRT1->asRenderTarget()));
-        REPORTER_ASSERT(reporter, texRT1->asRenderTarget()->surfacePriv().isSameAs(texRT1));
-        REPORTER_ASSERT(reporter, !texRT2->surfacePriv().isSameAs(texRT1));
-        REPORTER_ASSERT(reporter, !texRT2->asRenderTarget()->surfacePriv().isSameAs(texRT1));
-        REPORTER_ASSERT(reporter, !texRT2->surfacePriv().isSameAs(texRT1->asRenderTarget()));
-        REPORTER_ASSERT(reporter, !texRT2->surfacePriv().isSameAs(tex1));
-        REPORTER_ASSERT(reporter, !texRT2->asRenderTarget()->surfacePriv().isSameAs(tex1));
+        REPORTER_ASSERT(reporter, texRT1->isSameAs(texRT1));
+        REPORTER_ASSERT(reporter, texRT1->isSameAs(texRT1->asRenderTarget()));
+        REPORTER_ASSERT(reporter, texRT1->asRenderTarget()->isSameAs(texRT1));
+        REPORTER_ASSERT(reporter, !texRT2->isSameAs(texRT1));
+        REPORTER_ASSERT(reporter, !texRT2->asRenderTarget()->isSameAs(texRT1));
+        REPORTER_ASSERT(reporter, !texRT2->isSameAs(texRT1->asRenderTarget()));
+        REPORTER_ASSERT(reporter, !texRT2->isSameAs(tex1));
+        REPORTER_ASSERT(reporter, !texRT2->asRenderTarget()->isSameAs(tex1));
 
         GrBackendTextureDesc backendDesc;
         backendDesc.fConfig = kSkia8888_GrPixelConfig;
@@ -46,13 +45,11 @@ DEF_GPUTEST(GrSurface, reporter, factory) {
         backendDesc.fSampleCnt = 0;
         backendDesc.fTextureHandle = 5;
         GrSurface* externalTexRT = context->wrapBackendTexture(backendDesc);
-        REPORTER_ASSERT(reporter, externalTexRT->surfacePriv().isSameAs(externalTexRT));
-        REPORTER_ASSERT(reporter,
-                        externalTexRT->surfacePriv().isSameAs(externalTexRT->asRenderTarget()));
-        REPORTER_ASSERT(reporter,
-                        externalTexRT->asRenderTarget()->surfacePriv().isSameAs(externalTexRT));
-        REPORTER_ASSERT(reporter, !externalTexRT->surfacePriv().isSameAs(texRT1));
-        REPORTER_ASSERT(reporter, !externalTexRT->asRenderTarget()->surfacePriv().isSameAs(texRT1));
+        REPORTER_ASSERT(reporter, externalTexRT->isSameAs(externalTexRT));
+        REPORTER_ASSERT(reporter, externalTexRT->isSameAs(externalTexRT->asRenderTarget()));
+        REPORTER_ASSERT(reporter, externalTexRT->asRenderTarget()->isSameAs(externalTexRT));
+        REPORTER_ASSERT(reporter, !externalTexRT->isSameAs(texRT1));
+        REPORTER_ASSERT(reporter, !externalTexRT->asRenderTarget()->isSameAs(texRT1));
 
         texRT1->unref();
         texRT2->unref();

@@ -1121,7 +1121,24 @@ public:
      * Note that the caller is assumed to accept and manage the ref to the
      * returned texture.
      */
-    GrTexture* detach();
+    GrTexture* detach() {
+        if (NULL == fTexture) {
+            return NULL;
+        }
+        GrTexture* texture = fTexture;
+        fTexture = NULL;
+
+        // This GrAutoScratchTexture has a ref from lockAndRefScratchTexture, which we give up now.
+        // The cache also has a ref which we are lending to the caller of detach(). When the caller
+        // lets go of the ref and the ref count goes to 0 internal_dispose will see this flag is
+        // set and re-ref the texture, thereby restoring the cache's ref.
+        SkASSERT(!texture->unique());
+        texture->impl()->setFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit);
+        texture->unref();
+        SkASSERT(texture->getCacheEntry());
+
+        return texture;
+    }
 
     GrTexture* set(GrContext* context,
                    const GrTextureDesc& desc,

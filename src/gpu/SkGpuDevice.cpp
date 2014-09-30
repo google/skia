@@ -151,10 +151,9 @@ SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsign
 
     fRenderTarget = SkRef(surface->asRenderTarget());
 
-    SkImageInfo info = surface->surfacePriv().info();
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef,
-                                (info, surface, SkToBool(flags & kCached_Flag)));
-    fLegacyBitmap.setInfo(info);
+                                (surface->info(), surface, SkToBool(flags & kCached_Flag)));
+    fLegacyBitmap.setInfo(surface->info());
     fLegacyBitmap.setPixelRef(pr)->unref();
 
     this->setPixelGeometry(props.pixelGeometry());
@@ -692,7 +691,7 @@ bool create_mask_GPU(GrContext* context,
 
 SkBitmap wrap_texture(GrTexture* texture) {
     SkBitmap result;
-    result.setInfo(texture->surfacePriv().info());
+    result.setInfo(texture->info());
     result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (result.info(), texture)))->unref();
     return result;
 }

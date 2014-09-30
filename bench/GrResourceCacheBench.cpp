@@ -14,7 +14,6 @@
 #include "GrResourceCache.h"
 #include "GrStencilBuffer.h"
 #include "GrTexture.h"
-#include "GrTexturePriv.h"
 #include "SkCanvas.h"
 
 enum {
@@ -63,7 +62,7 @@ public:
     }
 
     static GrResourceKey ComputeKey(const GrTextureDesc& desc) {
-        return GrTexturePriv::ComputeScratchKey(desc);
+        return GrTextureImpl::ComputeScratchKey(desc);
     }
 
     int fID;

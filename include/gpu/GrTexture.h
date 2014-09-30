@@ -16,7 +16,7 @@
 
 class GrResourceKey;
 class GrTextureParams;
-class GrTexturePriv;
+class GrTextureImpl;
 
 class GrTexture : public GrSurface {
 public:
@@ -44,6 +44,19 @@ public:
     virtual const GrRenderTarget* asRenderTarget() const SK_OVERRIDE { return fRenderTarget.get(); }
 
     /**
+     * Convert from texels to normalized texture coords for POT textures only. Please don't add
+     * new callsites for these functions. They are slated for removal.
+     */
+    SkFixed normalizeFixedX(SkFixed x) const {
+        SkASSERT(SkIsPow2(fDesc.fWidth));
+        return x >> fShiftFixedX;
+    }
+    SkFixed normalizeFixedY(SkFixed y) const {
+        SkASSERT(SkIsPow2(fDesc.fHeight));
+        return y >> fShiftFixedY;
+    }
+
+    /**
      *  Return the native ID or handle to the texture, depending on the
      *  platform. e.g. on OpenGL, return the texture ID.
      */
@@ -54,9 +67,11 @@ public:
      * changed externally to Skia.
      */
     virtual void textureParamsModified() = 0;
+    SK_ATTR_DEPRECATED("Renamed to textureParamsModified.")
+    void invalidateCachedState() { this->textureParamsModified(); }
 
     /**
-     * Informational texture flags. This will be removed soon.
+     * Informational texture flags. This will be moved to the private GrTextureImpl class soon.
      */
     enum FlagBits {
         kFirstBit = (kLastPublic_GrTextureFlagBit << 1),
@@ -79,16 +94,21 @@ public:
     }
 #endif
 
-    /** Access methods that are only to be used within Skia code. */
-    inline GrTexturePriv texturePriv();
-    inline const GrTexturePriv texturePriv() const;
+    GrTextureImpl* impl() { return reinterpret_cast<GrTextureImpl*>(this); }
+    const GrTextureImpl* impl() const { return reinterpret_cast<const GrTextureImpl*>(this); }
 
 protected:
     // A texture refs its rt representation but not vice-versa. It is up to
     // the subclass constructor to initialize this pointer.
     SkAutoTUnref<GrRenderTarget> fRenderTarget;
 
-    GrTexture(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc);
+    GrTexture(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
+    : INHERITED(gpu, isWrapped, desc)
+    , fRenderTarget(NULL) {
+        // only make sense if alloc size is pow2
+        fShiftFixedX = 31 - SkCLZ(fDesc.fWidth);
+        fShiftFixedY = 31 - SkCLZ(fDesc.fHeight);
+    }
 
     virtual ~GrTexture();
 
@@ -101,23 +121,60 @@ protected:
 private:
     void abandonReleaseCommon();
     virtual void internal_dispose() const SK_OVERRIDE;
+
+    // these two shift a fixed-point value into normalized coordinates
+    // for this texture if the texture is power of two sized.
+    int                 fShiftFixedX;
+    int                 fShiftFixedY;
+
+    typedef GrSurface INHERITED;
+};
+
+class GrTextureImpl : public GrTexture {
+public:
+    SK_DECLARE_INST_COUNT(GrTextureImpl)
+
+    void setFlag(GrTextureFlags flags) {
+        fDesc.fFlags = fDesc.fFlags | flags;
+    }
+    void resetFlag(GrTextureFlags flags) {
+        fDesc.fFlags = fDesc.fFlags & ~flags;
+    }
+    bool isSetFlag(GrTextureFlags flags) const {
+        return 0 != (fDesc.fFlags & flags);
+    }
+
     void dirtyMipMaps(bool mipMapsDirty);
 
+    bool mipMapsAreDirty() const {
+        return kValid_MipMapsStatus != fMipMapsStatus;
+    }
+
+    bool hasMipMaps() const {
+        return kNotAllocated_MipMapsStatus != fMipMapsStatus;
+    }
+
+    static GrResourceKey ComputeKey(const GrGpu* gpu,
+                                    const GrTextureParams* params,
+                                    const GrTextureDesc& desc,
+                                    const GrCacheID& cacheID);
+    static GrResourceKey ComputeScratchKey(const GrTextureDesc& desc);
+    static bool NeedsResizing(const GrResourceKey& key);
+    static bool NeedsBilerp(const GrResourceKey& key);
+
+protected:
+    GrTextureImpl(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc);
+
+private:
     enum MipMapsStatus {
         kNotAllocated_MipMapsStatus,
         kAllocated_MipMapsStatus,
         kValid_MipMapsStatus
     };
 
-    MipMapsStatus   fMipMapsStatus;
-    // These two shift a fixed-point value into normalized coordinates	
-    // for this texture if the texture is power of two sized.
-    int             fShiftFixedX;
-    int             fShiftFixedY;
+    MipMapsStatus       fMipMapsStatus;
 
-    friend class GrTexturePriv;
-
-    typedef GrSurface INHERITED;
+    typedef GrTexture INHERITED;
 };
 
 /**

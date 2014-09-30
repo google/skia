@@ -7,20 +7,18 @@
 
 #include "GrDistanceFieldTextContext.h"
 #include "GrAtlas.h"
+#include "SkColorFilter.h"
 #include "GrDrawTarget.h"
 #include "GrDrawTargetCaps.h"
 #include "GrFontScaler.h"
+#include "SkGlyphCache.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrStrokeInfo.h"
-#include "GrTexturePriv.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
-
-#include "SkColorFilter.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
-#include "SkGlyphCache.h"
 #include "SkGpuDevice.h"
 #include "SkPath.h"
 #include "SkRTConf.h"
@@ -425,10 +423,10 @@ HAS_ATLAS:
     // The texture coords are last in both the with and without color vertex layouts.
     SkPoint* textureCoords = reinterpret_cast<SkPoint*>(
             reinterpret_cast<intptr_t>(positions) + vertSize  - sizeof(SkPoint));
-    textureCoords->setRectFan(SkFixedToFloat(texture->texturePriv().normalizeFixedX(tx)),
-                              SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty)),
-                              SkFixedToFloat(texture->texturePriv().normalizeFixedX(tx + tw)),
-                              SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty + th)),
+    textureCoords->setRectFan(SkFixedToFloat(texture->normalizeFixedX(tx)),
+                              SkFixedToFloat(texture->normalizeFixedY(ty)),
+                              SkFixedToFloat(texture->normalizeFixedX(tx + tw)),
+                              SkFixedToFloat(texture->normalizeFixedY(ty + th)),
                               vertSize);
     if (useColorVerts) {
         if (0xFF == GrColorUnpackA(fPaint.getColor())) {

@@ -7,7 +7,6 @@
 
 #include "GrGpu.h"
 #include "GrRectanizer.h"
-#include "GrSurfacePriv.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
 #include "SkString.h"
@@ -207,7 +206,7 @@ void GrFontCache::dump() const {
 #else
                 filename.printf("fontcache_%d%d.png", gDumpCount, i);
 #endif
-                texture->surfacePriv().savePixels(filename.c_str());
+                texture->savePixels(filename.c_str());
             }
         }
     }

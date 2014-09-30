@@ -45,7 +45,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 
-class GrGLTexture : public GrTexture {
+class GrGLTexture : public GrTextureImpl {
 
 public:
     struct TexParams {
@@ -105,7 +105,7 @@ private:
               const Desc& textureDesc,
               const GrGLRenderTarget::Desc* rtDesc);
 
-    typedef GrTexture INHERITED;
+    typedef GrTextureImpl INHERITED;
 };
 
 #endif

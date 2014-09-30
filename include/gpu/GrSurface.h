@@ -11,12 +11,11 @@
 
 #include "GrTypes.h"
 #include "GrGpuResource.h"
-#include "SkImageInfo.h"
 #include "SkRect.h"
 
-class GrRenderTarget;
-class GrSurfacePriv;
 class GrTexture;
+class GrRenderTarget;
+struct SkImageInfo;
 
 class GrSurface : public GrGpuResource {
 public:
@@ -60,6 +59,8 @@ public:
      */
     const GrTextureDesc& desc() const { return fDesc; }
 
+    SkImageInfo info() const;
+
     /**
      * @return the texture associated with the surface, may be NULL.
      */
@@ -71,6 +72,22 @@ public:
      */
     virtual GrRenderTarget* asRenderTarget() = 0;
     virtual const GrRenderTarget* asRenderTarget() const = 0;
+
+    /**
+     * Checks whether this GrSurface refers to the same GPU object as other. This
+     * catches the case where a GrTexture and GrRenderTarget refer to the same
+     * GPU memory.
+     */
+    bool isSameAs(const GrSurface* other) const {
+        const GrRenderTarget* thisRT = this->asRenderTarget();
+        if (thisRT) {
+            return thisRT == other->asRenderTarget();
+        } else {
+            const GrTexture* thisTex = this->asTexture();
+            SkASSERT(thisTex); // We must be one or the other
+            return thisTex == other->asTexture();
+        }
+    }
 
     /**
      * Reads a rectangle of pixels from the surface.
@@ -112,22 +129,17 @@ public:
                              size_t rowBytes = 0,
                              uint32_t pixelOpsFlags = 0) = 0;
 
-    /** Access methods that are only to be used within Skia code. */
-    inline GrSurfacePriv surfacePriv();
-    inline const GrSurfacePriv surfacePriv() const;
-
-protected:
-    // Methods made available via GrSurfacePriv
-    SkImageInfo info() const;
+    /**
+     * Write the contents of the surface to a PNG. Returns true if successful.
+     * @param filename      Full path to desired file
+     */
     bool savePixels(const char* filename);
+
     bool hasPendingRead() const;
     bool hasPendingWrite() const;
     bool hasPendingIO() const;
-    bool isSameAs(const GrSurface* other) const;
 
-    // Provides access to methods that should be public within Skia code.
-    friend class GrSurfacePriv;
-
+protected:
     GrSurface(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
     : INHERITED(gpu, isWrapped)
     , fDesc(desc) {
@@ -139,4 +151,4 @@ private:
     typedef GrGpuResource INHERITED;
 };
 
-#endif
+#endif // GrSurface_DEFINED

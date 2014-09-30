@@ -17,7 +17,6 @@
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "GrContext.h"
-#include "GrSurfacePriv.h"
 
 struct SkDrawProcs;
 struct GrSkDrawProcs;
@@ -62,7 +61,7 @@ public:
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
     virtual SkImageInfo imageInfo() const SK_OVERRIDE {
-        return fRenderTarget ? fRenderTarget->surfacePriv().info() : SkImageInfo::MakeUnknown();
+        return fRenderTarget ? fRenderTarget->info() : SkImageInfo::MakeUnknown();
     }
 
     virtual void clear(SkColor color) SK_OVERRIDE;

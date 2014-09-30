@@ -9,9 +9,7 @@
 #include "GrGpuGL.h"
 #include "GrGLStencilBuffer.h"
 #include "GrOptDrawState.h"
-#include "GrSurfacePriv.h"
 #include "GrTemplates.h"
-#include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
@@ -495,7 +493,7 @@ bool GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     }
 
     if (success) {
-        texture->texturePriv().dirtyMipMaps(true);
+        texture->impl()->dirtyMipMaps(true);
         return true;
     }
 
@@ -1733,7 +1731,7 @@ void GrGpuGL::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) 
 
     GrTexture *texture = target->asTexture();
     if (texture) {
-        texture->texturePriv().dirtyMipMaps(true);
+        texture->impl()->dirtyMipMaps(true);
     }
 }
 
@@ -2055,9 +2053,9 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
     newTexParams.fMagFilter = glMagFilterModes[filterMode];
 
     if (GrTextureParams::kMipMap_FilterMode == filterMode &&
-        texture->texturePriv().mipMapsAreDirty() && !GrPixelConfigIsCompressed(texture->config())) {
+        texture->mipMapsAreDirty() && !GrPixelConfigIsCompressed(texture->config())) {
         GL_CALL(GenerateMipmap(GR_GL_TEXTURE_2D));
-        texture->texturePriv().dirtyMipMaps(false);
+        texture->dirtyMipMaps(false);
     }
 
     newTexParams.fWrapS = tile_to_gl_wrap(params.getTileModeX());
@@ -2471,7 +2469,7 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
         SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                             srcRect.width(), srcRect.height());
         bool selfOverlap = false;
-        if (dst->surfacePriv().isSameAs(src)) {
+        if (dst->isSameAs(src)) {
             selfOverlap = SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect);
         }
 
@@ -2549,7 +2547,7 @@ bool GrGpuGL::onCanCopySurface(GrSurface* dst,
         return true;
     }
     if (can_blit_framebuffer(dst, src, this)) {
-        if (dst->surfacePriv().isSameAs(src)) {
+        if (dst->isSameAs(src)) {
             SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                                 srcRect.width(), srcRect.height());
             if(!SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect)) {
