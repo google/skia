@@ -12,7 +12,6 @@
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
-#include "SkPictureStateTree.h"
 
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
@@ -32,7 +31,6 @@
 #include "SkReader32.h"
 #include "SkWriter32.h"
 #include "SkRTree.h"
-#include "SkBBoxHierarchyRecord.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -307,32 +305,21 @@ SkPicture::AccelData::Domain SkPicture::AccelData::GenerateDomain() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-uint32_t SkPicture::OperationList::offset(int index) const {
-    SkASSERT(index < fOps.count());
-    return ((SkPictureStateTree::Draw*)fOps[index])->fOffset;
-}
-
-const SkMatrix& SkPicture::OperationList::matrix(int index) const {
-    SkASSERT(index < fOps.count());
-    return *((SkPictureStateTree::Draw*)fOps[index])->fMatrix;
-}
-
 // fRecord OK
 void SkPicture::playback(SkCanvas* canvas, SkDrawPictureCallback* callback) const {
     SkASSERT(canvas);
     SkASSERT(fData.get() || fRecord.get());
 
-    // If the query contains the whole picture, don't bother with the BBH.
-    SkRect clipBounds = { 0, 0, 0, 0 };
-    (void)canvas->getClipBounds(&clipBounds);
-    const bool useBBH = !clipBounds.contains(this->cullRect());
-
     if (fData.get()) {
         SkPicturePlayback playback(this);
-        playback.setUseBBH(useBBH);
         playback.draw(canvas, callback);
     }
     if (fRecord.get()) {
+        // If the query contains the whole picture, don't bother with the BBH.
+        SkRect clipBounds = { 0, 0, 0, 0 };
+        (void)canvas->getClipBounds(&clipBounds);
+        const bool useBBH = !clipBounds.contains(this->cullRect());
+
         SkRecordDraw(*fRecord, canvas, useBBH ? fBBH.get() : NULL, callback);
     }
 }

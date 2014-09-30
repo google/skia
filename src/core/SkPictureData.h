@@ -13,7 +13,6 @@
 #include "SkPicture.h"
 #include "SkPictureContentInfo.h"
 #include "SkPictureFlat.h"
-#include "SkPictureStateTree.h"
 
 class SkData;
 class SkPictureRecord;
@@ -24,7 +23,6 @@ class SkBBoxHierarchy;
 class SkMatrix;
 class SkPaint;
 class SkPath;
-class SkPictureStateTree;
 class SkReadBuffer;
 class SkTextBlob;
 
@@ -66,8 +64,6 @@ public:
     static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
     virtual ~SkPictureData();
-
-    const SkPicture::OperationList* getActiveOps(const SkRect& queryRect) const;
 
     void serialize(SkWStream*, SkPicture::EncodeBitmap) const;
     void flatten(SkWriteBuffer&) const;
@@ -123,14 +119,6 @@ public:
         return fTextBlobRefs[index - 1];
     }
 
-    void initIterator(SkPictureStateTree::Iterator* iter,
-                      const SkTDArray<void*>& draws,
-                      SkCanvas* canvas) const {
-        if (fStateTree) {
-            fStateTree->initIterator(iter, draws, canvas);
-        }
-    }
-
 #if SK_SUPPORT_GPU
     /**
      * sampleCount is the number of samples-per-pixel or zero if non-MSAA.
@@ -174,9 +162,6 @@ private:
     int fPictureCount;
     const SkTextBlob** fTextBlobRefs;
     int fTextBlobCount;
-
-    SkBBoxHierarchy* fBoundingHierarchy;
-    SkPictureStateTree* fStateTree;
 
     SkPictureContentInfo fContentInfo;
 

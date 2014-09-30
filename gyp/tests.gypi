@@ -155,7 +155,6 @@
     '../tests/PathTest.cpp',
     '../tests/PathUtilsTest.cpp',
     '../tests/PictureShaderTest.cpp',
-    '../tests/PictureStateTreeTest.cpp',
     '../tests/PictureTest.cpp',
     '../tests/PixelRefTest.cpp',
     '../tests/PointTest.cpp',

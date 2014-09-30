@@ -46,16 +46,7 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 
     fOpData = record.opData(deepCopyOps);
 
-    fBoundingHierarchy = record.fBoundingHierarchy;
-    fStateTree = record.fStateTree;
-
-    SkSafeRef(fBoundingHierarchy);
-    SkSafeRef(fStateTree);
     fContentInfo.set(record.fContentInfo);
-
-    if (fBoundingHierarchy) {
-        fBoundingHierarchy->flushDeferredInserts();
-    }
 
     // copy over the refcnt dictionary to our reader
     record.fFlattenableHeap.setupPlaybacks();
@@ -98,8 +89,6 @@ void SkPictureData::init() {
     fTextBlobCount = 0;
     fOpData = NULL;
     fFactoryPlayback = NULL;
-    fBoundingHierarchy = NULL;
-    fStateTree = NULL;
 }
 
 SkPictureData::~SkPictureData() {
@@ -107,8 +96,6 @@ SkPictureData::~SkPictureData() {
 
     SkSafeUnref(fBitmaps);
     SkSafeUnref(fPaints);
-    SkSafeUnref(fBoundingHierarchy);
-    SkSafeUnref(fStateTree);
 
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
@@ -577,16 +564,6 @@ bool SkPictureData::parseBuffer(SkReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
-const SkPicture::OperationList* SkPictureData::getActiveOps(const SkRect& query) const {
-    if (NULL == fStateTree || NULL == fBoundingHierarchy) {
-        return NULL;
-    }
-
-    SkPicture::OperationList* activeOps = SkNEW(SkPicture::OperationList);
-    fBoundingHierarchy->search(query, &(activeOps->fOps));
-    return activeOps;
-}
 
 #if SK_SUPPORT_GPU
 bool SkPictureData::suitableForGpuRasterization(GrContext* context, const char **reason,

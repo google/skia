@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkBBoxHierarchyRecord.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
 #include "SkRecord.h"
@@ -26,20 +25,11 @@ SkCanvas* SkPictureRecorder::beginRecording(SkScalar width, SkScalar height,
 SkCanvas* SkPictureRecorder::DEPRECATED_beginRecording(SkScalar width, SkScalar height,
                                                        SkBBHFactory* bbhFactory /* = NULL */,
                                                        uint32_t recordFlags /* = 0 */) {
+    SkASSERT(!bbhFactory);  // No longer suppported with this backend.
+
     fCullWidth = width;
     fCullHeight = height;
-
-    const SkISize size = SkISize::Make(width, height);
-
-    if (bbhFactory) {
-        // We don't need to hold a ref on the BBH ourselves, but might as well for
-        // consistency with EXPERIMENTAL_beginRecording(), which does need to.
-        fBBH.reset((*bbhFactory)(width, height));
-        SkASSERT(fBBH.get());
-        fPictureRecord.reset(SkNEW_ARGS(SkBBoxHierarchyRecord, (size, recordFlags, fBBH.get())));
-    } else {
-        fPictureRecord.reset(SkNEW_ARGS(SkPictureRecord, (size, recordFlags)));
-    }
+    fPictureRecord.reset(SkNEW_ARGS(SkPictureRecord, (SkISize::Make(width, height), recordFlags)));
 
     fPictureRecord->beginRecording();
     return this->getRecordingCanvas();
@@ -83,12 +73,6 @@ SkPicture* SkPictureRecorder::endRecording() {
     }
 
     return picture;
-}
-
-void SkPictureRecorder::internalOnly_EnableOpts(bool enableOpts) {
-    if (fPictureRecord.get()) {
-        fPictureRecord->internalOnly_EnableOpts(enableOpts);
-    }
 }
 
 void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {

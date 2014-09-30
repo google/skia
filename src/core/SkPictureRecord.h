@@ -17,9 +17,6 @@
 #include "SkTemplates.h"
 #include "SkWriter32.h"
 
-class SkBBoxHierarchy;
-class SkPictureStateTree;
-
 // These macros help with packing and unpacking a single byte value and
 // a 3 byte value into/out of a uint32_t
 #define MASK_24 0x00FFFFFF
@@ -64,9 +61,6 @@ public:
     virtual void endCommentGroup() SK_OVERRIDE;
     virtual bool isDrawingToLayer() const SK_OVERRIDE;
 
-    void addFontMetricsTopBottom(const SkPaint& paint, const SkFlatData&,
-                                 SkScalar minY, SkScalar maxY);
-
     const SkTDArray<const SkPicture* >& getPictureRefs() const {
         return fPictureRefs;
     }
@@ -107,10 +101,6 @@ public:
 
     void beginRecording();
     void endRecording();
-
-    void internalOnly_EnableOpts(bool optsEnabled) {
-        fOptsEnabled = optsEnabled;
-    }
 
 protected:
     void addNoOp();
@@ -170,9 +160,8 @@ private:
     // The command at 'offset' in the skp uses the specified bitmap
     int addBitmap(const SkBitmap& bitmap);
     void addMatrix(const SkMatrix& matrix);
-    const SkFlatData* addPaint(const SkPaint& paint) { return this->addPaintPtr(&paint); }
-    const SkFlatData* addPaintPtr(const SkPaint* paint);
-    void addFlatPaint(const SkFlatData* flatPaint);
+    void addPaint(const SkPaint& paint) { this->addPaintPtr(&paint); }
+    void addPaintPtr(const SkPaint* paint);
     void addPatch(const SkPoint cubics[12]);
     void addPath(const SkPath& path);
     void addPicture(const SkPicture* picture);
@@ -220,7 +209,7 @@ protected:
                                   const SkMatrix* matrix, const SkPaint&) SK_OVERRIDE;
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) SK_OVERRIDE;
-    
+
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkXfermode* xmode,
                              const SkPaint& paint) SK_OVERRIDE;
@@ -231,27 +220,6 @@ protected:
     virtual void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
 
     virtual void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE;
-
-    // Return fontmetrics.fTop,fBottom in topbot[0,1], after they have been
-    // tweaked by paint.computeFastBounds().
-    static void ComputeFontMetricsTopBottom(const SkPaint& paint, SkScalar topbot[2]);
-
-    // Make sure that flat has fTopBot written.
-    static void WriteTopBot(const SkPaint& paint, const SkFlatData& flat) {
-        if (!flat.isTopBotWritten()) {
-            ComputeFontMetricsTopBottom(paint, flat.writableTopBot());
-            SkASSERT(flat.isTopBotWritten());
-        }
-    }
-    // Will return a cached version when possible.
-    const SkFlatData* getFlatPaintData(const SkPaint& paint);
-    /**
-     * SkBBoxRecord::drawPosTextH gets a flat paint and uses it,
-     * then it calls this, using the extra parameter, to avoid duplication.
-     */
-    void drawPosTextHImpl(const void* text, size_t byteLength,
-                          const SkScalar xpos[], SkScalar constY,
-                          const SkPaint& paint, const SkFlatData* flatPaintData);
 
     int addPathToHeap(const SkPath& path);  // does not write to ops stream
 
@@ -268,11 +236,6 @@ protected:
     void recordSave();
     void recordSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
     void recordRestore(bool fillInSkips = true);
-
-    // These are set to NULL in our constructor, but may be changed by
-    // subclasses, in which case they will be SkSafeUnref'd in our destructor.
-    SkBBoxHierarchy* fBoundingHierarchy;
-    SkPictureStateTree* fStateTree;
 
     // Allocated in the constructor and managed by this class.
     SkBitmapHeap* fBitmapHeap;
@@ -292,7 +255,6 @@ private:
     SkTDArray<const SkTextBlob*> fTextBlobRefs;
 
     uint32_t fRecordFlags;
-    bool     fOptsEnabled;
     int      fInitialSaveCount;
 
     friend class SkPictureData;   // for SkPictureData's SkPictureRecord-based constructor

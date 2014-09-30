@@ -253,8 +253,7 @@ private:
 
     mutable uint32_t      fUniqueID;
 
-    // TODO: make SkPictureData const when clone method goes away
-    SkAutoTDelete<SkPictureData> fData;
+    SkAutoTDelete<const SkPictureData>    fData;
     const SkScalar                        fCullWidth;
     const SkScalar                        fCullHeight;
     mutable SkAutoTUnref<const AccelData> fAccelData;
@@ -270,30 +269,14 @@ private:
 
     SkPicture(SkScalar width, SkScalar height, const SkPictureRecord& record, bool deepCopyOps);
 
-    // An OperationList encapsulates a set of operation offsets into the picture byte
-    // stream along with the CTMs needed for those operation.
-    class OperationList : ::SkNoncopyable {
-    public:
-        // The following three entry points should only be accessed if
-        // 'valid' returns true.
-        int numOps() const { return fOps.count(); }
-        // The offset in the picture of the operation to execute.
-        uint32_t offset(int index) const;
-        // The CTM that must be installed for the operation to behave correctly
-        const SkMatrix& matrix(int index) const;
-
-        SkTDArray<void*> fOps;
-    };
-
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
-    friend class SkPictureData;                // to access OperationList
     friend class SkPictureRecorder;            // just for SkPicture-based constructor
     friend class SkGpuDevice;                  // for fData access
     friend class GrLayerHoister;               // access to fRecord
     friend class CollectLayers;                // access to fRecord
-    friend class SkPicturePlayback;            // to get fData & OperationList
+    friend class SkPicturePlayback;            // to get fData
     friend void GrRecordReplaceDraw(const SkPicture* picture,
                                     SkCanvas* canvas,
                                     const GrReplacements* replacements,

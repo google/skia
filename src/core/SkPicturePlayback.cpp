@@ -10,7 +10,6 @@
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
-#include "SkPictureStateTree.h"
 #include "SkReader32.h"
 #include "SkTextBlob.h"
 #include "SkTDArray.h"
@@ -66,83 +65,11 @@ static SkBitmap shallow_copy(const SkBitmap& bitmap) {
     return bitmap;
 }
 
-const SkPicture::OperationList* SkPicturePlayback::getActiveOps(const SkCanvas* canvas) {
-
-    if (fUseBBH) {
-        SkRect clipBounds;
-        if (canvas->getClipBounds(&clipBounds)) {
-            return fPictureData->getActiveOps(clipBounds);
-        }
-    }
-
-    return NULL;
-}
-
-// Initialize the state tree iterator. Return false if there is nothing left to draw.
-bool SkPicturePlayback::initIterator(SkPictureStateTree::Iterator* iter,
-                                     SkCanvas* canvas,
-                                     const SkPicture::OperationList *activeOpsList) {
-
-    if (activeOpsList) {
-        if (0 == activeOpsList->numOps()) {
-            return false;  // nothing to draw
-        }
-
-        fPictureData->initIterator(iter, activeOpsList->fOps, canvas);
-    }
-
-    return true;
-}
-
-// If 'iter' is valid use it to skip forward through the picture.
-void SkPicturePlayback::StepIterator(SkPictureStateTree::Iterator* iter, SkReader32* reader) {
-    if (iter->isValid()) {
-        uint32_t skipTo = iter->nextDraw();
-        if (SkPictureStateTree::Iterator::kDrawComplete == skipTo) {
-            reader->setOffset(reader->size());  // skip to end
-        } else {
-            reader->setOffset(skipTo);
-        }
-    }
-}
-
-// Update the iterator and state tree to catch up with the skipped ops.
-void SkPicturePlayback::SkipIterTo(SkPictureStateTree::Iterator* iter,
-                                   SkReader32* reader,
-                                   uint32_t skipTo) {
-    SkASSERT(skipTo <= reader->size());
-    SkASSERT(reader->offset() <= skipTo); // should only be skipping forward
-
-    if (iter->isValid()) {
-        // If using a bounding box hierarchy, advance the state tree
-        // iterator until at or after skipTo
-        uint32_t adjustedSkipTo;
-        do {
-            adjustedSkipTo = iter->nextDraw();
-        } while (adjustedSkipTo < skipTo);
-        skipTo = adjustedSkipTo;
-    }
-    if (SkPictureStateTree::Iterator::kDrawComplete == skipTo) {
-        reader->setOffset(reader->size());  // skip to end
-    } else {
-        reader->setOffset(skipTo);
-    }
-}
-
 void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) {
     AutoResetOpID aroi(this);
     SkASSERT(0 == fCurOffset);
 
-    SkAutoTDelete<const SkPicture::OperationList> activeOpsList(this->getActiveOps(canvas));
-    SkPictureStateTree::Iterator it;
-
-    if (!this->initIterator(&it, canvas, activeOpsList.get())) {
-        return;  // nothing to draw
-    }
-
     SkReader32 reader(fPictureData->opData()->bytes(), fPictureData->opData()->size());
-
-    StepIterator(&it, &reader);
 
     // Record this, so we can concat w/ it if we encounter a setMatrix()
     SkMatrix initialMatrix = canvas->getTotalMatrix();
@@ -157,15 +84,8 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) 
         fCurOffset = reader.offset();
         uint32_t size;
         DrawType op = ReadOpAndSize(&reader, &size);
-        if (NOOP == op) {
-            // NOOPs are to be ignored - do not propagate them any further
-            SkipIterTo(&it, &reader, fCurOffset + size);
-            continue;
-        }
 
         this->handleOp(&reader, op, size, canvas, initialMatrix);
-
-        StepIterator(&it, &reader);
     }
 }
 
@@ -175,6 +95,10 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
                                  SkCanvas* canvas,
                                  const SkMatrix& initialMatrix) {
     switch (op) {
+        case NOOP: {
+            SkASSERT(size >= 4);
+            reader->skip(size - 4);
+        } break;
         case CLIP_PATH: {
             const SkPath& path = fPictureData->getPath(reader);
             uint32_t packed = reader->readInt();
@@ -518,7 +442,7 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             canvas->translate(dx, dy);
         } break;
         default:
-            SkASSERT(0);
+            SkASSERTF(false, "Unknown draw type: %d", op);
     }
 }
 
