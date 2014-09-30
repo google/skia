@@ -11,7 +11,6 @@
 
 #include "SkBlitter.h"
 #include "SkCanvas.h"
-#include "SkFloat.h"
 #include "SkGeometry.h"
 #include "SkMath.h"
 #include "SkMatrix.h"

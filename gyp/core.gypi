@@ -87,8 +87,6 @@
         '<(skia_src_path)/core/SkFilterShader.cpp',
         '<(skia_src_path)/core/SkFlattenable.cpp',
         '<(skia_src_path)/core/SkFlattenableSerialization.cpp',
-        '<(skia_src_path)/core/SkFloat.cpp',
-        '<(skia_src_path)/core/SkFloat.h',
         '<(skia_src_path)/core/SkFloatBits.cpp',
         '<(skia_src_path)/core/SkFont.cpp',
         '<(skia_src_path)/core/SkFontHost.cpp',
