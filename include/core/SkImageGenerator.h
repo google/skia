@@ -48,13 +48,6 @@ public:
      */
     virtual ~SkImageGenerator() { }
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEGENERATORAPI
-    virtual SkData* refEncodedData() { return this->onRefEncodedData(); }
-    virtual bool getInfo(SkImageInfo* info) { return this->onGetInfo(info); }
-    virtual bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-        return this->onGetPixels(info, pixels, rowBytes, NULL, NULL);
-    }
-#else
     /**
      *  Return a ref to the encoded (i.e. compressed) representation,
      *  of this data.
@@ -108,7 +101,6 @@ public:
      *  Simplified version of getPixels() that asserts that info is NOT kIndex8_SkColorType.
      */
     bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
-#endif
 
     /**
      *  If planes or rowBytes is NULL or if any entry in planes is NULL or if any entry in rowBytes

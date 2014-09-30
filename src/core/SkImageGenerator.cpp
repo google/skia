@@ -7,7 +7,6 @@
 
 #include "SkImageGenerator.h"
 
-#ifndef SK_SUPPORT_LEGACY_IMAGEGENERATORAPI
 bool SkImageGenerator::getInfo(SkImageInfo* info) {
     SkImageInfo dummy;
     if (NULL == info) {
@@ -55,7 +54,6 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     }
     return this->getPixels(info, pixels, rowBytes, NULL, NULL);
 }
-#endif
 
 bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                      SkYUVColorSpace* colorSpace) {

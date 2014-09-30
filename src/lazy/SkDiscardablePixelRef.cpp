@@ -64,11 +64,7 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     SkPMColor colors[256];
     int colorCount = 0;
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEGENERATORAPI
-    if (!fGenerator->getPixels(info, pixels, fRowBytes)) {
-#else
     if (!fGenerator->getPixels(info, pixels, fRowBytes, colors, &colorCount)) {
-#endif
         fDiscardableMemory->unlock();
         SkDELETE(fDiscardableMemory);
         fDiscardableMemory = NULL;
