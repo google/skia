@@ -101,7 +101,8 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGrPixelRef::SkGrPixelRef(const SkImageInfo& info, GrSurface* surface) : INHERITED(info) {
+SkGrPixelRef::SkGrPixelRef(const SkImageInfo& info, GrSurface* surface,
+                           bool transferCacheLock) : INHERITED(info) {
     // For surfaces that are both textures and render targets, the texture owns the
     // render target but not vice versa. So we ref the texture to keep both alive for
     // the lifetime of this pixel ref.
@@ -109,6 +110,7 @@ SkGrPixelRef::SkGrPixelRef(const SkImageInfo& info, GrSurface* surface) : INHERI
     if (NULL == fSurface) {
         fSurface = SkSafeRef(surface);
     }
+    fUnlock = transferCacheLock;
 
     if (fSurface) {
         SkASSERT(info.width() <= fSurface->width());
@@ -117,6 +119,13 @@ SkGrPixelRef::SkGrPixelRef(const SkImageInfo& info, GrSurface* surface) : INHERI
 }
 
 SkGrPixelRef::~SkGrPixelRef() {
+    if (fUnlock) {
+        GrContext* context = fSurface->getContext();
+        GrTexture* texture = fSurface->asTexture();
+        if (context && texture) {
+            context->unlockScratchTexture(texture);
+        }
+    }
     SkSafeUnref(fSurface);
 }
 

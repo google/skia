@@ -76,37 +76,50 @@ enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Helper for turning a bitmap into a texture. If the bitmap is GrTexture backed this
-// just accesses the backing GrTexture. Otherwise, it creates a cached texture
-// representation and releases it in the destructor.
-class AutoBitmapTexture : public SkNoncopyable {
-public:
-    AutoBitmapTexture() {}
 
-    AutoBitmapTexture(GrContext* context,
-                      const SkBitmap& bitmap,
-                      const GrTextureParams* params,
-                      GrTexture** texture) {
-        SkASSERT(texture);
-        *texture = this->set(context, bitmap, params);
+class SkGpuDevice::SkAutoCachedTexture : public ::SkNoncopyable {
+public:
+    SkAutoCachedTexture()
+        : fDevice(NULL)
+        , fTexture(NULL) {
     }
 
-    GrTexture* set(GrContext* context,
-                   const SkBitmap& bitmap,
-                   const GrTextureParams* params) {
-        // Either get the texture directly from the bitmap, or else use the cache and
-        // remember to unref it.
-        if (GrTexture* bmpTexture = bitmap.getTexture()) {
-            fTexture.reset(NULL);
-            return bmpTexture;
-        } else {
-            fTexture.reset(GrRefCachedBitmapTexture(context, bitmap, params));
-            return fTexture.get();
+    SkAutoCachedTexture(SkGpuDevice* device,
+                        const SkBitmap& bitmap,
+                        const GrTextureParams* params,
+                        GrTexture** texture)
+        : fDevice(NULL)
+        , fTexture(NULL) {
+        SkASSERT(texture);
+        *texture = this->set(device, bitmap, params);
+    }
+
+    ~SkAutoCachedTexture() {
+        if (fTexture) {
+            GrUnlockAndUnrefCachedBitmapTexture(fTexture);
         }
     }
 
+    GrTexture* set(SkGpuDevice* device,
+                   const SkBitmap& bitmap,
+                   const GrTextureParams* params) {
+        if (fTexture) {
+            GrUnlockAndUnrefCachedBitmapTexture(fTexture);
+            fTexture = NULL;
+        }
+        fDevice = device;
+        GrTexture* result = (GrTexture*)bitmap.getTexture();
+        if (NULL == result) {
+            // Cannot return the native texture so look it up in our cache
+            fTexture = GrLockAndRefCachedBitmapTexture(device->context(), bitmap, params);
+            result = fTexture;
+        }
+        return result;
+    }
+
 private:
-    SkAutoTUnref<GrTexture> fTexture;
+    SkGpuDevice* fDevice;
+    GrTexture*   fTexture;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -139,7 +152,8 @@ SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsign
     fRenderTarget = SkRef(surface->asRenderTarget());
 
     SkImageInfo info = surface->surfacePriv().info();
-    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, surface));
+    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef,
+                                (info, surface, SkToBool(flags & kCached_Flag)));
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
@@ -1280,7 +1294,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
              bitmap.height() <= fContext->getMaxTextureSize());
 
     GrTexture* texture;
-    AutoBitmapTexture abt(fContext, bitmap, &params, &texture);
+    SkAutoCachedTexture act(this, bitmap, &params, &texture);
     if (NULL == texture) {
         return;
     }
@@ -1375,7 +1389,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     GrTexture* texture;
     // draw sprite uses the default texture params
-    AutoBitmapTexture abt(fContext, bitmap, NULL, &texture);
+    SkAutoCachedTexture act(this, bitmap, NULL, &texture);
 
     SkImageFilter* filter = paint.getImageFilter();
     // This bitmap will own the filtered result as a texture.
@@ -1552,7 +1566,7 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
     GrTexture* texture;
     // We assume here that the filter will not attempt to tile the src. Otherwise, this cache lookup
     // must be pushed upstack.
-    AutoBitmapTexture abt(fContext, src, NULL, &texture);
+    SkAutoCachedTexture act(this, src, NULL, &texture);
 
     return filter_texture(this, fContext, texture, filter, src.width(), src.height(), ctx,
                           result, offset);
@@ -1783,6 +1797,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) 
 #if CACHE_COMPATIBLE_DEVICE_TEXTURES
     // layers are never draw in repeat modes, so we can request an approx
     // match and ignore any padding.
+    flags |= kCached_Flag;
     const GrContext::ScratchTexMatch match = (kSaveLayer_Usage == usage) ?
                                                 GrContext::kApprox_ScratchTexMatch :
                                                 GrContext::kExact_ScratchTexMatch;

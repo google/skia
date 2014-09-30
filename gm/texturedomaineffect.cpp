@@ -92,8 +92,8 @@ protected:
 
         GrDrawState* drawState = tt.target()->drawState();
 
-        SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fBmp, NULL));
-        if (!texture) {
+        GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, fBmp, NULL);
+        if (NULL == texture) {
             return;
         }
 
@@ -144,6 +144,7 @@ protected:
                 y += renderRect.height() + kTestPad;
             }
         }
+        GrUnlockAndUnrefCachedBitmapTexture(texture);
     }
 
 private:

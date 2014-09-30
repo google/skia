@@ -459,9 +459,9 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
 
     }
     GrTextureParams params(tm, textureFilterMode);
-    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fRawBitmap, &params));
+    GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, fRawBitmap, &params);
 
-    if (!texture) {
+    if (NULL == texture) {
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "Couldn't convert bitmap to texture.");
         return false;
@@ -476,6 +476,7 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
     } else {
         *fp = GrSimpleTextureEffect::Create(texture, matrix, params);
     }
+    GrUnlockAndUnrefCachedBitmapTexture(texture);
 
     return true;
 }

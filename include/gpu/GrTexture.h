@@ -99,6 +99,8 @@ protected:
     void validateDesc() const;
 
 private:
+    void abandonReleaseCommon();
+    virtual void internal_dispose() const SK_OVERRIDE;
     void dirtyMipMaps(bool mipMapsDirty);
 
     enum MipMapsStatus {

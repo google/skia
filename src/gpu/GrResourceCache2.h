@@ -24,15 +24,13 @@ public:
     GrResourceCache2() : fCount(0) {};
     ~GrResourceCache2();
 
-    void insertResource(GrGpuResource*);
+    void insertResource(GrGpuResource* resource);
 
-    void removeResource(GrGpuResource*);
+    void removeResource(GrGpuResource* resource);
 
     void abandonAll();
 
     void releaseAll();
-
-    GrGpuResource* findAndRefScratchResource(const GrResourceKey& scratchKey);
 
 private:
 #ifdef SK_DEBUG
@@ -41,8 +39,8 @@ private:
     }
 #endif
 
-    class AvailableForScratchUse;
 
+    void removeScratch(const GrGpuResource* resource);
     struct ScratchMapTraits {
         static const GrResourceKey& GetKey(const GrGpuResource& r) {
             return r.getScratchKey();

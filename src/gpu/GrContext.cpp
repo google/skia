@@ -70,6 +70,25 @@ static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 4;
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 
+GrTexture* GrAutoScratchTexture::detach() {
+    if (NULL == fTexture) {
+        return NULL;
+    }
+    GrTexture* texture = fTexture;
+    fTexture = NULL;
+
+    // This GrAutoScratchTexture has a ref from lockAndRefScratchTexture, which we give up now.
+    // The cache also has a ref which we are lending to the caller of detach(). When the caller
+    // lets go of the ref and the ref count goes to 0 internal_dispose will see this flag is
+    // set and re-ref the texture, thereby restoring the cache's ref.
+    SkASSERT(!texture->unique());
+    texture->texturePriv().setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);
+    texture->unref();
+    SkASSERT(texture->getCacheEntry());
+
+    return texture;
+}
+
 // Glorified typedef to avoid including GrDrawState.h in GrContext.h
 class GrContext::AutoRestoreEffects : public GrDrawState::AutoRestoreEffects {};
 
@@ -440,77 +459,157 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
     return texture;
 }
 
-bool GrContext::createNewScratchTexture(const GrTextureDesc& desc) {
-    SkAutoTUnref<GrTexture> texture(fGpu->createTexture(desc, NULL, 0));
-    if (!texture) {
-        return false;
+static GrTexture* create_scratch_texture(GrGpu* gpu,
+                                         GrResourceCache* resourceCache,
+                                         const GrTextureDesc& desc) {
+    GrTexture* texture = gpu->createTexture(desc, NULL, 0);
+    if (texture) {
+        GrResourceKey key = GrTexturePriv::ComputeScratchKey(texture->desc());
+        // Adding a resource could put us overbudget. Try to free up the
+        // necessary space before adding it.
+        resourceCache->purgeAsNeeded(1, texture->gpuMemorySize());
+        // Make the resource exclusive so future 'find' calls don't return it
+        resourceCache->addResource(key, texture, GrResourceCache::kHide_OwnershipFlag);
     }
-    fResourceCache->addResource(texture->getScratchKey(), texture);
-    texture->fIsScratch = GrIORef::kYes_IsScratch;
-    return true;
+    return texture;
 }
 
 GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, ScratchTexMatch match) {
 
-    // kNoStencil has no meaning if kRT isn't set.
     SkASSERT((inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
              !(inDesc.fFlags & kNoStencil_GrTextureFlagBit));
 
-    // Make sure caller has checked for renderability if kRT is set.
-    SkASSERT(!(inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
-             this->isConfigRenderable(inDesc.fConfig, inDesc.fSampleCnt > 0));
+    // Renderable A8 targets are not universally supported (e.g., not on ANGLE)
+    SkASSERT(this->isConfigRenderable(kAlpha_8_GrPixelConfig, inDesc.fSampleCnt > 0) ||
+             !(inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
+             (inDesc.fConfig != kAlpha_8_GrPixelConfig));
 
-    SkTCopyOnFirstWrite<GrTextureDesc> desc(inDesc);
+    if (!fGpu->caps()->reuseScratchTextures() &&
+        !(inDesc.fFlags & kRenderTarget_GrTextureFlagBit)) {
+        // If we're never recycling this texture we can always make it the right size
+        return create_scratch_texture(fGpu, fResourceCache, inDesc);
+    }
 
-    // There is a regression here in that when reuseScratchTextures is false, the texture won't be
-    // freed when its ref and io counts reach zero. TODO: Make GrResourceCache2 free scratch
-    // resources immediately after it is the sole owner and reuseScratchTextures is false.
-    if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrTextureFlagBit)) {
-        GrTextureFlags origFlags = desc->fFlags;
-        if (kApprox_ScratchTexMatch == match) {
-            // bin by pow2 with a reasonable min
-            static const int MIN_SIZE = 16;
-            GrTextureDesc* wdesc = desc.writable();
-            wdesc->fWidth  = SkTMax(MIN_SIZE, GrNextPow2(desc->fWidth));
-            wdesc->fHeight = SkTMax(MIN_SIZE, GrNextPow2(desc->fHeight));
+    GrTextureDesc desc = inDesc;
+
+    if (kApprox_ScratchTexMatch == match) {
+        // bin by pow2 with a reasonable min
+        static const int MIN_SIZE = 16;
+        desc.fWidth  = SkTMax(MIN_SIZE, GrNextPow2(desc.fWidth));
+        desc.fHeight = SkTMax(MIN_SIZE, GrNextPow2(desc.fHeight));
+    }
+
+    GrGpuResource* resource = NULL;
+    int origWidth = desc.fWidth;
+    int origHeight = desc.fHeight;
+
+    do {
+        GrResourceKey key = GrTexturePriv::ComputeScratchKey(desc);
+        // Ensure we have exclusive access to the texture so future 'find' calls don't return it
+        resource = fResourceCache->find(key, GrResourceCache::kHide_OwnershipFlag);
+        if (resource) {
+            resource->ref();
+            break;
+        }
+        if (kExact_ScratchTexMatch == match) {
+            break;
+        }
+        // We had a cache miss and we are in approx mode, relax the fit of the flags.
+
+        // We no longer try to reuse textures that were previously used as render targets in
+        // situations where no RT is needed; doing otherwise can confuse the video driver and
+        // cause significant performance problems in some cases.
+        if (desc.fFlags & kNoStencil_GrTextureFlagBit) {
+            desc.fFlags = desc.fFlags & ~kNoStencil_GrTextureFlagBit;
+        } else {
+            break;
         }
 
-        do {
-            GrResourceKey key = GrTexturePriv::ComputeScratchKey(*desc);
-            GrGpuResource* resource = fResourceCache2->findAndRefScratchResource(key);
-            if (resource) {
-                fResourceCache->makeResourceMRU(resource);
-                return static_cast<GrTexture*>(resource);
-            }
+    } while (true);
 
-            if (kExact_ScratchTexMatch == match) {
-                break;
-            }
-            // We had a cache miss and we are in approx mode, relax the fit of the flags.
-
-            // We no longer try to reuse textures that were previously used as render targets in
-            // situations where no RT is needed; doing otherwise can confuse the video driver and
-            // cause significant performance problems in some cases.
-            if (desc->fFlags & kNoStencil_GrTextureFlagBit) {
-                desc.writable()->fFlags = desc->fFlags & ~kNoStencil_GrTextureFlagBit;
-            } else {
-                break;
-            }
-
-        } while (true);
-
-        desc.writable()->fFlags = origFlags;
+    if (NULL == resource) {
+        desc.fFlags = inDesc.fFlags;
+        desc.fWidth = origWidth;
+        desc.fHeight = origHeight;
+        resource = create_scratch_texture(fGpu, fResourceCache, desc);
     }
 
-    if (!this->createNewScratchTexture(*desc)) {
-        return NULL;
-    }
-
-    // If we got here then we didn't find a cached texture, but we just added one.
-    GrResourceKey key = GrTexturePriv::ComputeScratchKey(*desc);
-    GrGpuResource* resource = fResourceCache2->findAndRefScratchResource(key);
-    SkASSERT(resource);
     return static_cast<GrTexture*>(resource);
+}
+
+void GrContext::addExistingTextureToCache(GrTexture* texture) {
+
+    if (NULL == texture) {
+        return;
+    }
+
+    // This texture should already have a cache entry since it was once
+    // attached
+    SkASSERT(texture->getCacheEntry());
+
+    // Conceptually, the cache entry is going to assume responsibility
+    // for the creation ref. Assert refcnt == 1.
+    // Except that this also gets called when the texture is prematurely
+    // abandoned. In that case the ref count may be > 1.
+    // SkASSERT(texture->unique());
+
+    if (fGpu->caps()->reuseScratchTextures() || texture->asRenderTarget()) {
+        // Since this texture came from an AutoScratchTexture it should
+        // still be in the exclusive pile. Recycle it.
+        fResourceCache->makeNonExclusive(texture->getCacheEntry());
+        this->purgeCache();
+    } else {
+        // When we aren't reusing textures we know this scratch texture
+        // will never be reused and would be just wasting time in the cache
+        fResourceCache->makeNonExclusive(texture->getCacheEntry());
+        fResourceCache->deleteResource(texture->getCacheEntry());
+    }
+}
+
+void GrContext::unlockScratchTexture(GrTexture* texture) {
+    if (texture->wasDestroyed()) {
+        if (texture->getCacheEntry()->key().isScratch()) {
+            // This texture was detached from the cache but the cache still had a ref to it but
+            // not a pointer to it. This will unref the texture and delete its resource cache
+            // entry.
+            delete texture->getCacheEntry();
+        }
+        return;
+    }
+
+    ASSERT_OWNED_RESOURCE(texture);
+    SkASSERT(texture->getCacheEntry());
+
+    // If this is a scratch texture we detached it from the cache
+    // while it was locked (to avoid two callers simultaneously getting
+    // the same texture).
+    if (texture->getCacheEntry()->key().isScratch()) {
+        if (fGpu->caps()->reuseScratchTextures() || texture->asRenderTarget()) {
+            fResourceCache->makeNonExclusive(texture->getCacheEntry());
+            this->purgeCache();
+        } else if (texture->unique()) {
+            // Only the cache now knows about this texture. Since we're never
+            // reusing scratch textures (in this code path) it would just be
+            // wasting time sitting in the cache.
+            fResourceCache->makeNonExclusive(texture->getCacheEntry());
+            fResourceCache->deleteResource(texture->getCacheEntry());
+        } else {
+            // In this case (there is still a non-cache ref) but we don't really
+            // want to readd it to the cache (since it will never be reused).
+            // Instead, give up the cache's ref and leave the decision up to
+            // addExistingTextureToCache once its ref count reaches 0. For
+            // this to work we need to leave it in the exclusive list.
+            texture->texturePriv().setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);
+            // Give up the cache's ref to the texture
+            texture->unref();
+        }
+    }
+}
+
+void GrContext::purgeCache() {
+    if (fResourceCache) {
+        fResourceCache->purgeAsNeeded();
+    }
 }
 
 bool GrContext::OverbudgetCB(void* data) {

@@ -141,13 +141,26 @@ public:
      */
     int getCachedResourceCount() const { return fEntryCount; }
 
+    // For a found or added resource to be completely exclusive to the caller
+    // both the kNoOtherOwners and kHide flags need to be specified
+    enum OwnershipFlags {
+        kNoOtherOwners_OwnershipFlag = 0x1, // found/added resource has no other owners
+        kHide_OwnershipFlag = 0x2  // found/added resource is hidden from future 'find's
+    };
+
     /**
      *  Search for an entry with the same Key. If found, return it.
      *  If not found, return null.
+     *  If ownershipFlags includes kNoOtherOwners and a resource is returned
+     *  then that resource has no other refs to it.
+     *  If ownershipFlags includes kHide and a resource is returned then that
+     *  resource will not be returned from future 'find' calls until it is
+     *  'freed' (and recycled) or makeNonExclusive is called.
+     *  For a resource to be completely exclusive to a caller both kNoOtherOwners
+     *  and kHide must be specified.
      */
-    GrGpuResource* find(const GrResourceKey& key);
-
-    void makeResourceMRU(GrGpuResource*);
+    GrGpuResource* find(const GrResourceKey& key,
+                        uint32_t ownershipFlags = 0);
 
     /**
      *  Add the new resource to the cache (by creating a new cache entry based
@@ -155,14 +168,34 @@ public:
      *
      *  Ownership of the resource is transferred to the resource cache,
      *  which will unref() it when it is purged or deleted.
+     *
+     *  If ownershipFlags includes kHide, subsequent calls to 'find' will not
+     *  return 'resource' until it is 'freed' (and recycled) or makeNonExclusive
+     *  is called.
      */
-    void addResource(const GrResourceKey& key, GrGpuResource* resource);
+    void addResource(const GrResourceKey& key,
+                     GrGpuResource* resource,
+                     uint32_t ownershipFlags = 0);
 
     /**
      * Determines if the cache contains an entry matching a key. If a matching
      * entry exists but was detached then it will not be found.
      */
     bool hasKey(const GrResourceKey& key) const { return SkToBool(fCache.find(key)); }
+
+    /**
+     * Hide 'entry' so that future searches will not find it. Such
+     * hidden entries will not be purged. The entry still counts against
+     * the cache's budget and should be made non-exclusive when exclusive access
+     * is no longer needed.
+     */
+    void makeExclusive(GrResourceCacheEntry* entry);
+
+    /**
+     * Restore 'entry' so that it can be found by future searches. 'entry'
+     * will also be purgeable (provided its lock count is now 0.)
+     */
+    void makeNonExclusive(GrResourceCacheEntry* entry);
 
     /**
      * Notify the cache that the size of a resource has changed.
@@ -204,14 +237,26 @@ public:
 #endif
 
 private:
-    void internalDetach(GrResourceCacheEntry*);
-    void attachToHead(GrResourceCacheEntry*);
+    enum BudgetBehaviors {
+        kAccountFor_BudgetBehavior,
+        kIgnore_BudgetBehavior
+    };
+
+    void internalDetach(GrResourceCacheEntry*, BudgetBehaviors behavior = kAccountFor_BudgetBehavior);
+    void attachToHead(GrResourceCacheEntry*, BudgetBehaviors behavior = kAccountFor_BudgetBehavior);
+
+    void removeInvalidResource(GrResourceCacheEntry* entry);
 
     SkTMultiMap<GrResourceCacheEntry, GrResourceKey> fCache;
 
     // We're an internal doubly linked list
     typedef SkTInternalLList<GrResourceCacheEntry> EntryList;
     EntryList      fList;
+
+#ifdef SK_DEBUG
+    // These objects cannot be returned by a search
+    EntryList      fExclusiveList;
+#endif
 
     // our budget, used in purgeAsNeeded()
     int            fMaxCount;
@@ -221,10 +266,14 @@ private:
 #if GR_CACHE_STATS
     int            fHighWaterEntryCount;
     size_t         fHighWaterEntryBytes;
+    int            fHighWaterClientDetachedCount;
+    size_t         fHighWaterClientDetachedBytes;
 #endif
 
     int            fEntryCount;
     size_t         fEntryBytes;
+    int            fClientDetachedCount;
+    size_t         fClientDetachedBytes;
 
     // prevents recursive purging
     bool           fPurging;

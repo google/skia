@@ -216,6 +216,7 @@ void GrTextureStripAtlas::unlockTexture() {
     SkASSERT(fTexture && 0 == fLockedRows);
     fTexture->unref();
     fTexture = NULL;
+    fDesc.fContext->purgeCache();
 }
 
 void GrTextureStripAtlas::initLRU() {
