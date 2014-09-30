@@ -238,7 +238,7 @@ func init() {
 			log.Printf("ERROR: Failed to open: %q\n", err)
 			panic(err)
 		}
-		sql := `CREATE TABLE source_images (
+		sql := `CREATE TABLE IF NOT EXISTS source_images (
              id        INTEGER     PRIMARY KEY                NOT NULL,
              image     MEDIUMBLOB  DEFAULT ''                 NOT NULL, -- formatted as a PNG.
              width     INTEGER     DEFAULT 0                  NOT NULL,
@@ -247,9 +247,11 @@ func init() {
              hidden    INTEGER     DEFAULT 0                  NOT NULL
              )`
 		_, err = db.Exec(sql)
-		log.Printf("Info: status creating sqlite table for sources: %q\n", err)
+		if err != nil {
+			log.Printf("Info: status creating sqlite table for sources: %q\n", err)
+		}
 
-		sql = `CREATE TABLE webtry (
+		sql = `CREATE TABLE IF NOT EXISTS webtry (
              code               TEXT      DEFAULT ''                 NOT NULL,
              create_ts          TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
              hash               CHAR(64)  DEFAULT ''                 NOT NULL,
@@ -258,17 +260,21 @@ func init() {
              PRIMARY KEY(hash)
             )`
 		_, err = db.Exec(sql)
-		log.Printf("Info: status creating sqlite table for webtry: %q\n", err)
+		if err != nil {
+			log.Printf("Info: status creating sqlite table for webtry: %q\n", err)
+		}
 
-		sql = `CREATE TABLE workspace (
+		sql = `CREATE TABLE IF NOT EXISTS workspace (
           name      CHAR(64)  DEFAULT ''                 NOT NULL,
           create_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
           PRIMARY KEY(name)
         )`
 		_, err = db.Exec(sql)
-		log.Printf("Info: status creating sqlite table for workspace: %q\n", err)
+		if err != nil {
+			log.Printf("Info: status creating sqlite table for workspace: %q\n", err)
+		}
 
-		sql = `CREATE TABLE workspacetry (
+		sql = `CREATE TABLE IF NOT EXISTS workspacetry (
           name               CHAR(64)  DEFAULT ''                 NOT NULL,
           create_ts          TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
           hash               CHAR(64)  DEFAULT ''                 NOT NULL,
@@ -278,7 +284,9 @@ func init() {
           FOREIGN KEY (name)   REFERENCES workspace(name)
         )`
 		_, err = db.Exec(sql)
-		log.Printf("Info: status creating sqlite table for workspace try: %q\n", err)
+		if err != nil {
+			log.Printf("Info: status creating sqlite table for workspace try: %q\n", err)
+		}
 	}
 
 	// Ping the database to keep the connection fresh.
