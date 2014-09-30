@@ -631,9 +631,7 @@ uint32_t SkPicture::uniqueID() const {
 
 
 static SkRecord* optimized(SkRecord* r) {
-#ifdef SK_PICTURE_OPTIMIZE_SK_RECORD
     SkRecordOptimize(r);
-#endif
     return r;
 }
 

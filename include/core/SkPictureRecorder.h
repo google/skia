@@ -49,9 +49,7 @@ public:
                              uint32_t recordFlags = 0);
 
     // As usual, we have a deprecated old version and a maybe almost working
-    // new version.  We currently point beginRecording() to
-    // DEPRECATED_beginRecording() unless SK_PICTURE_USE_SK_RECORD is defined,
-    // then we use EXPERIMENTAL_beginRecording().
+    // new version.  We currently point beginRecording() to EXPERIMENTAL_beginRecording().
 
     // Old slower backend.
     SkCanvas* DEPRECATED_beginRecording(SkScalar width, SkScalar height,
