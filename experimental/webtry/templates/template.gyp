@@ -11,14 +11,14 @@
       'target_name': '{{.Hash}}',
       'type': 'executable',
       'dependencies': [
-        '../skia/gyp/skia_lib.gyp:skia_lib',
-        '../skia/gyp/flags.gyp:flags'
+        'skia_lib.gyp:skia_lib',
+        'flags.gyp:flags'
       ],
       'include_dirs': [
-        '../skia/include/config',
-        '../skia/include/core',
-        '../skia/tools/flags',
-        '../skia/src/core',
+        '../include/config',
+        '../include/core',
+        '../tools/flags',
+        '../src/core',
       ],
       'conditions': [
         ['skia_os == "mac"', {
@@ -26,8 +26,8 @@
         }]
       ],
       'sources': [
-        'src/{{.Hash}}.cpp',
-        '../skia/experimental/webtry/main.cpp'
+        '../../cache/src/{{.Hash}}.cpp',
+        '../experimental/webtry/main.cpp'
       ],
     }
   ]

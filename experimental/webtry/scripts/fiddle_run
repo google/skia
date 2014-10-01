@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# fiddle_run executes the build fiddle (from the local
+# skia tree's out/Release directory) and places the output
+# png into the inout directory so it can be seen
+# outside the chroot jail and served back to the user. 
+
+[ -z $SKIA_ROOT ] && SKIA_ROOT="/skia_build/skia"
+[ -z $WEBTRY_INOUT ] && WEBTRY_INOUT="/skia_build/inout"
+
+if [ "$#" -eq 2 ]; then
+  FIDDLE_SOURCE_ARGS="--source $WEBTRY_INOUT/$2"
+fi
+
+$SKIA_ROOT/out/Release/$1 --out $WEBTRY_INOUT/$1.png $FIDDLE_SOURCE_ARGS

@@ -11,6 +11,11 @@
 [ -z "$SKIA_ROOT" ] && SKIA_ROOT="../.."
 [ -z "$WEBTRY_ROOT" ] && WEBTRY_ROOT=`pwd`
 
+[ -z "$GOROOT" ] && export GOROOT=/home/webtry/go
+[ -z "$GOPATH" ] && export GOPATH=/home/webtry/golib
+
+PATH=$PATH:$GOROOT/bin
+
 cd ${SKIA_ROOT}/include
 echo "Creating compile template..."
 find core effects pathops  -maxdepth 1 -name "*.h" | sed "s#^[^\/]*\/##g" | sed "s/\(.*\)/#include \"\1\"/" | sort > ${WEBTRY_ROOT}/templates/template.cpp

@@ -36,8 +36,6 @@ import (
 )
 
 const (
-	RUN_GYP   = `../../experimental/webtry/gyp_for_webtry %s -Dskia_gpu=0`
-	RUN_NINJA = `ninja -C ../../../inout/Release %s`
 
 	DEFAULT_SAMPLE = `void draw(SkCanvas* canvas) {
     SkPaint p;
@@ -200,7 +198,7 @@ func init() {
 	//
 	//   f672cead70404080a991ebfb86c38316a4589b23 2014-04-27 19:21:51 +0000
 	//
-	logOutput, err := doCmd(`git log --format=%H%x20%ai HEAD^..HEAD`, true)
+	logOutput, err := doCmd(`git log --format=%H%x20%ai HEAD^..HEAD`)
 	if err != nil {
 		panic(err)
 	}
@@ -394,9 +392,10 @@ type response struct {
 	Hash    string `json:"hash"`
 }
 
-// doCmd executes the given command line string in either the out/Debug
-// directory or the inout directory. Returns the stdout and stderr.
-func doCmd(commandLine string, moveToDebug bool) (string, error) {
+// doCmd executes the given command line string; the command being
+// run is expected to not care what its current working directory is.
+// Returns the stdout and stderr.
+func doCmd(commandLine string) (string, error) {
 	log.Printf("Command: %q\n", commandLine)
 	programAndArgs := strings.SplitN(commandLine, " ", 2)
 	program := programAndArgs[0]
@@ -405,20 +404,6 @@ func doCmd(commandLine string, moveToDebug bool) (string, error) {
 		args = strings.Split(programAndArgs[1], " ")
 	}
 	cmd := exec.Command(program, args...)
-	abs, err := filepath.Abs("../../out/Debug")
-	if err != nil {
-		return "", fmt.Errorf("Failed to find absolute path to Debug directory.")
-	}
-	if moveToDebug {
-		cmd.Dir = abs
-	} else if !*useChroot { // Don't set cmd.Dir when using chroot.
-		abs, err := filepath.Abs("../../../inout")
-		if err != nil {
-			return "", fmt.Errorf("Failed to find absolute path to inout directory.")
-		}
-		cmd.Dir = abs
-	}
-	log.Printf("Run in directory: %q\n", cmd.Dir)
 	message, err := cmd.CombinedOutput()
 	log.Printf("StdOut + StdErr: %s\n", string(message))
 	if err != nil {
@@ -829,37 +814,17 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			reportTryError(w, r, err, "Failed to write the gyp file.", hash)
 			return
 		}
-		message, err := doCmd(fmt.Sprintf(RUN_GYP, hash), true)
-		if err != nil {
-			message = cleanCompileOutput(message, hash)
-			reportTryError(w, r, err, message, hash)
-			return
-		}
-		linkMessage, err := doCmd(fmt.Sprintf(RUN_NINJA, hash), true)
-		if err != nil {
-			linkMessage = cleanCompileOutput(linkMessage, hash)
-			reportTryError(w, r, err, linkMessage, hash)
-			return
-		}
-		message += linkMessage
-		cmd := hash + " --out " + hash + ".png"
-		if request.Source > 0 {
-			cmd += fmt.Sprintf("  --source image-%d.png", request.Source)
-		}
+		cmd := "scripts/fiddle_wrapper " + hash
 		if *useChroot {
-			cmd = "schroot -c webtry --directory=/inout -- /inout/Release/" + cmd
-		} else {
-			abs, err := filepath.Abs("../../../inout/Release")
-			if err != nil {
-				reportTryError(w, r, err, "Failed to find executable directory.", hash)
-				return
-			}
-			cmd = abs + "/" + cmd
+			cmd = "schroot -c webtry --directory=/ -- /skia_build/skia/experimental/webtry/" + cmd
+		} 
+		if request.Source > 0 {
+			cmd += fmt.Sprintf(" image-%d.png", request.Source)
 		}
 
-		execMessage, err := doCmd(cmd, false)
+		message, err := doCmd(cmd)
 		if err != nil {
-			reportTryError(w, r, err, "Failed to run the code:\n"+execMessage, hash)
+			reportTryError(w, r, err, "Failed to run the code:\n"+message, hash)
 			return
 		}
 		png, err := ioutil.ReadFile("../../../inout/" + hash + ".png")
@@ -870,7 +835,6 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 		m := response{
 			Message: message,
-			StdOut:  execMessage,
 			Img:     base64.StdEncoding.EncodeToString([]byte(png)),
 			Hash:    hash,
 		}
