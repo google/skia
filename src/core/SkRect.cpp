@@ -146,8 +146,7 @@ bool SkRect::intersect(const SkRect& a, const SkRect& b) {
     return false;
 }
 
-void SkRect::join(SkScalar left, SkScalar top, SkScalar right,
-                  SkScalar bottom) {
+void SkRect::join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
     // do nothing if the params are empty
     if (left >= right || top >= bottom) {
         return;
@@ -157,9 +156,9 @@ void SkRect::join(SkScalar left, SkScalar top, SkScalar right,
     if (fLeft >= fRight || fTop >= fBottom) {
         this->set(left, top, right, bottom);
     } else {
-        if (left < fLeft) fLeft = left;
-        if (top < fTop) fTop = top;
-        if (right > fRight) fRight = right;
-        if (bottom > fBottom) fBottom = bottom;
+        fLeft   = SkMinScalar(fLeft, left);
+        fTop    = SkMinScalar(fTop, top);
+        fRight  = SkMaxScalar(fRight, right);
+        fBottom = SkMaxScalar(fBottom, bottom);
     }
 }
