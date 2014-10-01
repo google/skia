@@ -6849,6 +6849,15 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "emboss_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2677768719405172427
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "emptypath_565.png": {
       "allowed-digests": [
         [
@@ -14408,6 +14417,15 @@
         [
           "bitmap-64bitMD5", 
           7861383235576349971
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "surfaceprops_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17696500947018939252
         ]
       ], 
       "reviewed-by-human": true
