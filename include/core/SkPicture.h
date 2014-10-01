@@ -277,11 +277,7 @@ private:
     friend class GrLayerHoister;               // access to fRecord
     friend class CollectLayers;                // access to fRecord
     friend class SkPicturePlayback;            // to get fData
-    friend void GrRecordReplaceDraw(const SkPicture* picture,
-                                    SkCanvas* canvas,
-                                    const GrReplacements* replacements,
-                                    const SkMatrix& initialMatrix,
-                                    SkDrawPictureCallback* callback);
+    friend class ReplaceDraw;
 
     typedef SkRefCnt INHERITED;
 

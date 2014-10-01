@@ -135,9 +135,12 @@ static void convert_layers_to_replacements(const SkTDArray<GrLayerHoister::Hoist
     // TODO: just replace GrReplacements::ReplacementInfo with GrCachedLayer?
     for (int i = 0; i < layers.count(); ++i) {
         GrCachedLayer* layer = layers[i].fLayer;
+        const SkPicture* picture = layers[i].fPicture;
 
-        GrReplacements::ReplacementInfo* layerInfo = replacements->push();
-        layerInfo->fStart = layer->start();
+        GrReplacements::ReplacementInfo* layerInfo =
+                    replacements->newReplacement(picture->uniqueID(),
+                                                 layer->start(),
+                                                 layers[i].fCTM);
         layerInfo->fStop = layer->stop();
         layerInfo->fPos = layers[i].fOffset;
 

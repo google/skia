@@ -112,13 +112,12 @@ void test_replacements(skiatest::Reporter* r, bool useBBH) {
         canvas->restore();
         canvas->drawRect(SkRect::MakeWH(SkIntToScalar(kWidth / 2), SkIntToScalar(kHeight / 2)),
                          SkPaint());
-
         pic.reset(recorder.endRecording());
     }
 
     GrReplacements replacements;
-    GrReplacements::ReplacementInfo* ri = replacements.push();
-    ri->fStart = 0;
+    GrReplacements::ReplacementInfo* ri = replacements.newReplacement(pic->uniqueID(), 
+                                                                      0, SkMatrix::I());
     ri->fStop = 2;
     ri->fPos.set(0, 0);
     ri->fImage = make_image(SK_ColorRED);
