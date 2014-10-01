@@ -579,22 +579,18 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
     }
 }
 
-#define GENERATE_CANVAS(recorder, x) \
-    (x) ? recorder.EXPERIMENTAL_beginRecording(100, 100) \
-        : recorder.  DEPRECATED_beginRecording(100,100);
-
 /* Hit a few SkPicture::Analysis cases not handled elsewhere. */
-static void test_analysis(skiatest::Reporter* reporter, bool useNewPath) {
+static void test_analysis(skiatest::Reporter* reporter) {
     SkPictureRecorder recorder;
 
-    SkCanvas* canvas = GENERATE_CANVAS(recorder, useNewPath);
+    SkCanvas* canvas = recorder.beginRecording(100, 100);
     {
         canvas->drawRect(SkRect::MakeWH(10, 10), SkPaint ());
     }
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
     REPORTER_ASSERT(reporter, !picture->willPlayBackBitmaps());
 
-    canvas = GENERATE_CANVAS(recorder, useNewPath);
+    canvas = recorder.beginRecording(100, 100);
     {
         SkPaint paint;
         // CreateBitmapShader is too smart for us; an empty (or 1x1) bitmap shader
@@ -745,12 +741,10 @@ static void rand_op(SkCanvas* canvas, SkRandom& rand) {
 
 #if SK_SUPPORT_GPU
 
-static void test_gpu_veto(skiatest::Reporter* reporter,
-                          bool useNewPath) {
-
+static void test_gpu_veto(skiatest::Reporter* reporter) {
     SkPictureRecorder recorder;
 
-    SkCanvas* canvas = GENERATE_CANVAS(recorder, useNewPath);
+    SkCanvas* canvas = recorder.beginRecording(100, 100);
     {
         SkPath path;
         path.moveTo(0, 0);
@@ -772,7 +766,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL, &reason));
     REPORTER_ASSERT(reporter, reason);
 
-    canvas = GENERATE_CANVAS(recorder, useNewPath);
+    canvas = recorder.beginRecording(100, 100);
     {
         SkPath path;
 
@@ -794,7 +788,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter,
     // A lot of AA concave paths currently render an SkPicture undesireable for GPU rendering
     REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
 
-    canvas = GENERATE_CANVAS(recorder, useNewPath);
+    canvas = recorder.beginRecording(100, 100);
     {
         SkPath path;
 
@@ -818,7 +812,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter,
     // hairline stroked AA concave paths are fine for GPU rendering
     REPORTER_ASSERT(reporter, picture->suitableForGpuRasterization(NULL));
 
-    canvas = GENERATE_CANVAS(recorder, useNewPath);
+    canvas = recorder.beginRecording(100, 100);
     {
         SkPaint paint;
         SkScalar intervals [] = { 10, 20 };
@@ -832,7 +826,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter,
     // fast-path dashed effects are fine for GPU rendering ...
     REPORTER_ASSERT(reporter, picture->suitableForGpuRasterization(NULL));
 
-    canvas = GENERATE_CANVAS(recorder, useNewPath);
+    canvas = recorder.beginRecording(100, 100);
     {
         SkPaint paint;
         SkScalar intervals [] = { 10, 20 };
@@ -846,18 +840,13 @@ static void test_gpu_veto(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
 
     // Nest the previous picture inside a new one.
-    // This doesn't work in the old backend.
-    if (useNewPath) {
-        canvas = GENERATE_CANVAS(recorder, useNewPath);
-        {
-            canvas->drawPicture(picture.get());
-        }
-        picture.reset(recorder.endRecording());
-        REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
+    canvas = recorder.beginRecording(100, 100);
+    {
+        canvas->drawPicture(picture.get());
     }
+    picture.reset(recorder.endRecording());
+    REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
 }
-
-#undef GENERATE_CANVAS
 
 static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
                                           GrContextFactory* factory) {
@@ -1072,12 +1061,10 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 
 #endif
 
-static void test_has_text(skiatest::Reporter* reporter, bool useNewPath) {
+static void test_has_text(skiatest::Reporter* reporter) {
     SkPictureRecorder recorder;
-#define BEGIN_RECORDING useNewPath ? recorder.EXPERIMENTAL_beginRecording(100, 100) \
-                                   : recorder.  DEPRECATED_beginRecording(100, 100)
 
-    SkCanvas* canvas = BEGIN_RECORDING;
+    SkCanvas* canvas = recorder.beginRecording(100,100);
     {
         canvas->drawRect(SkRect::MakeWH(20, 20), SkPaint());
     }
@@ -1085,28 +1072,28 @@ static void test_has_text(skiatest::Reporter* reporter, bool useNewPath) {
     REPORTER_ASSERT(reporter, !picture->hasText());
 
     SkPoint point = SkPoint::Make(10, 10);
-    canvas = BEGIN_RECORDING;
+    canvas = recorder.beginRecording(100,100);
     {
         canvas->drawText("Q", 1, point.fX, point.fY, SkPaint());
     }
     picture.reset(recorder.endRecording());
     REPORTER_ASSERT(reporter, picture->hasText());
 
-    canvas = BEGIN_RECORDING;
+    canvas = recorder.beginRecording(100,100);
     {
         canvas->drawPosText("Q", 1, &point, SkPaint());
     }
     picture.reset(recorder.endRecording());
     REPORTER_ASSERT(reporter, picture->hasText());
 
-    canvas = BEGIN_RECORDING;
+    canvas = recorder.beginRecording(100,100);
     {
         canvas->drawPosTextH("Q", 1, &point.fX, point.fY, SkPaint());
     }
     picture.reset(recorder.endRecording());
     REPORTER_ASSERT(reporter, picture->hasText());
 
-    canvas = BEGIN_RECORDING;
+    canvas = recorder.beginRecording(100,100);
     {
         SkPath path;
         path.moveTo(0, 0);
@@ -1117,7 +1104,7 @@ static void test_has_text(skiatest::Reporter* reporter, bool useNewPath) {
     picture.reset(recorder.endRecording());
     REPORTER_ASSERT(reporter, picture->hasText());
 
-    canvas = BEGIN_RECORDING;
+    canvas = recorder.beginRecording(100,100);
     {
         SkPath path;
         path.moveTo(0, 0);
@@ -1129,16 +1116,12 @@ static void test_has_text(skiatest::Reporter* reporter, bool useNewPath) {
     REPORTER_ASSERT(reporter, picture->hasText());
 
     // Nest the previous picture inside a new one.
-    // This doesn't work in the old backend.
-    if (useNewPath) {
-        canvas = BEGIN_RECORDING;
-        {
-            canvas->drawPicture(picture.get());
-        }
-        picture.reset(recorder.endRecording());
-        REPORTER_ASSERT(reporter, picture->hasText());
+    canvas = recorder.beginRecording(100,100);
+    {
+        canvas->drawPicture(picture.get());
     }
-#undef BEGIN_RECORDING
+    picture.reset(recorder.endRecording());
+    REPORTER_ASSERT(reporter, picture->hasText());
 }
 
 static void set_canvas_to_save_count_4(SkCanvas* canvas) {
@@ -1775,13 +1758,10 @@ DEF_TEST(Picture, reporter) {
     test_unbalanced_save_restores(reporter);
     test_peephole();
 #if SK_SUPPORT_GPU
-    test_gpu_veto(reporter, false);
-    test_gpu_veto(reporter, true);
+    test_gpu_veto(reporter);
 #endif
-    test_has_text(reporter, false);
-    test_has_text(reporter, true);
-    test_analysis(reporter, false);
-    test_analysis(reporter, true);
+    test_has_text(reporter);
+    test_analysis(reporter);
     test_gatherpixelrefs(reporter);
     test_gatherpixelrefsandrects(reporter);
     test_bitmap_with_encoded_data(reporter);

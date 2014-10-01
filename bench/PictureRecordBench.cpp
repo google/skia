@@ -53,14 +53,14 @@ public:
 protected:
     virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkPictureRecorder recorder;
-        SkCanvas* canvas = NULL;
+        SkCanvas* canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
 
         const SkPoint translateDelta = getTranslateDelta(loops);
 
         for (int i = 0; i < loops; i++) {
             if (0 == i % kMaxLoopsPerCanvas) {
                 SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-                canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT, NULL, 0);
+                canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
             }
 
             SkColor color = SK_ColorYELLOW + (i % 255);
@@ -98,6 +98,7 @@ protected:
             canvas->restore();
             canvas->translate(translateDelta.fX, translateDelta.fY);
         }
+        SkAutoTUnref<SkPicture> cleanup(recorder.endRecording());
     }
 
     SkPoint getTranslateDelta(int M) {
@@ -122,15 +123,16 @@ protected:
         SkRandom rand;
         SkPaint paint;
         SkPictureRecorder recorder;
-        SkCanvas* canvas = NULL;
+        SkCanvas* canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
         for (int i = 0; i < loops; i++) {
             if (0 == i % kMaxLoopsPerCanvas) {
                 SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-                canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT, NULL, 0);
+                canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
             }
             paint.setColor(rand.nextU());
             canvas->drawPaint(paint);
         }
+        SkAutoTUnref<SkPicture> cleanup(recorder.endRecording());
     }
 
 private:

@@ -272,7 +272,7 @@ private:
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
-    friend class SkPictureRecorder;            // just for SkPicture-based constructor
+    friend class SkPictureRecorder;            // SkRecord-based constructor.
     friend class SkGpuDevice;                  // for fData access
     friend class GrLayerHoister;               // access to fRecord
     friend class CollectLayers;                // access to fRecord
@@ -285,6 +285,8 @@ private:
     SkPicture(SkScalar width, SkScalar height, SkRecord*, SkBBoxHierarchy*);
     // Return as a new SkPicture that's backed by SkRecord.
     static SkPicture* Forwardport(const SkPicture&);
+    // Return as a new SkPicture that's backed by the old backend.
+    static SkPicture* Backport(const SkRecord& src, const SkRect& cullRect);
 
     SkAutoTDelete<SkRecord>       fRecord;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;

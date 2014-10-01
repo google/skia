@@ -48,18 +48,6 @@ public:
                              SkBBHFactory* bbhFactory = NULL,
                              uint32_t recordFlags = 0);
 
-    // As usual, we have a deprecated old version and a maybe almost working
-    // new version.  We currently point beginRecording() to EXPERIMENTAL_beginRecording().
-
-    // Old slower backend.
-    SkCanvas* DEPRECATED_beginRecording(SkScalar width, SkScalar height,
-                                        SkBBHFactory* bbhFactory = NULL,
-                                        uint32_t recordFlags = 0);
-
-    // New faster backend.
-    SkCanvas* EXPERIMENTAL_beginRecording(SkScalar width, SkScalar height,
-                                          SkBBHFactory* bbhFactory = NULL);
-
     /** Returns the recording canvas if one is active, or NULL if recording is
         not active. This does not alter the refcnt on the canvas (if present).
     */
@@ -87,13 +75,8 @@ private:
     SkScalar                      fCullWidth;
     SkScalar                      fCullHeight;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
-
-    // One of these two canvases will be non-NULL.
-    SkAutoTUnref<SkPictureRecord> fPictureRecord;  // beginRecording()
-    SkAutoTUnref<SkRecorder>      fRecorder;       // EXPERIMENTAL_beginRecording()
-
-    // Used by EXPERIMENTAL_beginRecording().
-    SkAutoTDelete<SkRecord> fRecord;
+    SkAutoTUnref<SkRecorder>      fRecorder;
+    SkAutoTDelete<SkRecord>       fRecord;
 
     typedef SkNoncopyable INHERITED;
 };

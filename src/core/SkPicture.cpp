@@ -264,12 +264,12 @@ SkPicture::SkPicture(SkScalar width, SkScalar height,
 
 // Create an SkPictureData-backed SkPicture from an SkRecord.
 // This for compatibility with serialization code only.  This is not cheap.
-static SkPicture* backport(const SkRecord& src, const SkRect& cullRect) {
-    SkPictureRecorder recorder;
-    SkRecordDraw(src,
-                 recorder.DEPRECATED_beginRecording(cullRect.width(), cullRect.height()),
-                 NULL/*bbh*/, NULL/*callback*/);
-    return recorder.endRecording();
+SkPicture* SkPicture::Backport(const SkRecord& src, const SkRect& cullRect) {
+    SkPictureRecord rec(SkISize::Make(cullRect.width(), cullRect.height()), 0/*flags*/);
+    rec.beginRecording();
+        SkRecordDraw(src, &rec, NULL/*bbh*/, NULL/*callback*/);
+    rec.endRecording();
+    return SkNEW_ARGS(SkPicture, (cullRect.width(), cullRect.height(), rec, false/*deepCopyOps*/));
 }
 
 // fRecord OK
@@ -510,7 +510,7 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     // If we're a new-format picture, backport to old format for serialization.
     SkAutoTDelete<SkPicture> oldFormat;
     if (NULL == data && fRecord.get()) {
-        oldFormat.reset(backport(*fRecord, this->cullRect()));
+        oldFormat.reset(Backport(*fRecord, this->cullRect()));
         data = oldFormat->fData.get();
         SkASSERT(data);
     }
@@ -535,7 +535,7 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     // If we're a new-format picture, backport to old format for serialization.
     SkAutoTDelete<SkPicture> oldFormat;
     if (NULL == data && fRecord.get()) {
-        oldFormat.reset(backport(*fRecord, this->cullRect()));
+        oldFormat.reset(Backport(*fRecord, this->cullRect()));
         data = oldFormat->fData.get();
         SkASSERT(data);
     }

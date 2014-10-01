@@ -121,10 +121,6 @@ static const int kHeight = 2;
 static const char* const kDefaultAssertMessageFormat = "%s";
 static const char* const kCanvasDrawAssertMessageFormat =
     "Drawing test step %s with SkCanvas";
-static const char* const kPictureDrawAssertMessageFormat =
-    "Drawing test step %s with SkPicture";
-static const char* const kPictureSecondDrawAssertMessageFormat =
-    "Duplicate draw of test step %s with SkPicture";
 static const char* const kDeferredDrawAssertMessageFormat =
     "Drawing test step %s with SkDeferredCanvas";
 static const char* const kProxyDrawAssertMessageFormat =
@@ -137,8 +133,6 @@ static const char* const kDeferredPostFlushPlaybackAssertMessageFormat =
     "test step %s, SkDeferredCanvas playback canvas state consistency after flush";
 static const char* const kDeferredPostSilentFlushPlaybackAssertMessageFormat =
     "test step %s, SkDeferredCanvas playback canvas state consistency after silent flush";
-static const char* const kPictureResourceReuseMessageFormat =
-    "test step %s, SkPicture duplicate flattened object test";
 static const char* const kProxyStateAssertMessageFormat =
     "test step %s, SkProxyCanvas state consistency";
 static const char* const kProxyIndirectStateAssertMessageFormat =
@@ -463,7 +457,7 @@ static void DrawPictureTestStep(SkCanvas* canvas,
                                 skiatest::Reporter*,
                                 CanvasTestStep*) {
     SkPictureRecorder recorder;
-    SkCanvas* testCanvas = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight), 
+    SkCanvas* testCanvas = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight),
                                                    NULL, 0);
     testCanvas->scale(SkIntToScalar(2), SkIntToScalar(1));
     testCanvas->clipRect(kTestRect);
@@ -678,37 +672,6 @@ private:
         */
 
     }
-
-public:
-
-    static void TestPictureFlattenedObjectReuse(skiatest::Reporter* reporter,
-                                                CanvasTestStep* testStep,
-                                                uint32_t recordFlags) {
-        // Verify that when a test step is executed twice, no extra resources
-        // are flattened during the second execution
-        testStep->setAssertMessageFormat(kPictureDrawAssertMessageFormat);
-        SkPictureRecorder referenceRecorder;
-        SkCanvas* referenceCanvas =
-            referenceRecorder.DEPRECATED_beginRecording(SkIntToScalar(kWidth), 
-                                                        SkIntToScalar(kHeight), 
-                                                        NULL, recordFlags);
-        testStep->draw(referenceCanvas, reporter);
-
-        SkPictureRecorder testRecorder;
-        SkCanvas* testCanvas =
-            testRecorder.DEPRECATED_beginRecording(SkIntToScalar(kWidth), 
-                                                   SkIntToScalar(kHeight), 
-                                                   NULL, recordFlags);
-        testStep->draw(testCanvas, reporter);
-        testStep->setAssertMessageFormat(kPictureSecondDrawAssertMessageFormat);
-        testStep->draw(testCanvas, reporter);
-
-        SkPictureRecord* referenceRecord = static_cast<SkPictureRecord*>(referenceCanvas);
-        SkPictureRecord* testRecord = static_cast<SkPictureRecord*>(testCanvas);
-        testStep->setAssertMessageFormat(kPictureResourceReuseMessageFormat);
-        AssertFlattenedObjectsEqual(referenceRecord, testRecord,
-                                    reporter, testStep);
-    }
 };
 
 static void TestPdfDevice(skiatest::Reporter* reporter,
@@ -908,8 +871,6 @@ DEF_TEST(Canvas, reporter) {
 
     for (int testStep = 0; testStep < testStepArray().count(); testStep++) {
         TestOverrideStateConsistency(reporter, testStepArray()[testStep]);
-        SkPictureTester::TestPictureFlattenedObjectReuse(reporter,
-            testStepArray()[testStep], 0);
         if (testStepArray()[testStep]->enablePdfTesting()) {
             TestPdfDevice(reporter, testStepArray()[testStep]);
         }
