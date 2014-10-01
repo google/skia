@@ -7,7 +7,6 @@
 
 #include "SkRecordDraw.h"
 #include "SkPatchUtils.h"
-#include "SkTLogic.h"
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
@@ -181,24 +180,38 @@ private:
         const SkPaint* paint;  // Unowned.  If set, adjusts the bounds of all ops in this block.
     };
 
-    template <typename T> void updateCTM(const T&) { /* most ops don't change the CTM */ }
+    // Only Restore and SetMatrix change the CTM.
+    template <typename T> void updateCTM(const T&) {}
     void updateCTM(const Restore& op)   { fCTM = &op.matrix; }
     void updateCTM(const SetMatrix& op) { fCTM = &op.matrix; }
 
-    // Most ops don't change the clip.  Those that do generally have a field named devBounds.
-    SK_CREATE_MEMBER_DETECTOR(devBounds);
+    // Most ops don't change the clip.
+    template <typename T> void updateClipBounds(const T&) {}
 
-    template <typename T>
-    SK_WHEN(!HasMember_devBounds<T>, void) updateClipBounds(const T& op) {}
+    // Clip{Path,RRect,Rect,Region} obviously change the clip.  They all know their bounds already.
+    void updateClipBounds(const ClipPath&   op) { this->updateClipBoundsForClipOp(op.devBounds); }
+    void updateClipBounds(const ClipRRect&  op) { this->updateClipBoundsForClipOp(op.devBounds); }
+    void updateClipBounds(const ClipRect&   op) { this->updateClipBoundsForClipOp(op.devBounds); }
+    void updateClipBounds(const ClipRegion& op) { this->updateClipBoundsForClipOp(op.devBounds); }
 
-    // Each of the devBounds fields holds the state of the device bounds after the op.
-    // (So Restore's devBounds are those bounds saved by its paired Save or SaveLayer.)
-    template <typename T>
-    SK_WHEN(HasMember_devBounds<T>, void) updateClipBounds(const T& op) {
-        Bounds clip = SkRect::Make(op.devBounds);
+    // The bounds of clip ops need to be adjusted for the paints of saveLayers they're inside.
+    void updateClipBoundsForClipOp(const SkIRect& devBounds) {
+        Bounds clip = SkRect::Make(devBounds);
         // We don't call adjustAndMap() because as its last step it would intersect the adjusted
         // clip bounds with the previous clip, exactly what we can't do when the clip grows.
         fCurrentClipBounds = this->adjustForSaveLayerPaints(&clip) ? clip : Bounds::MakeLargest();
+    }
+
+    // Restore holds the devBounds for the clip after the {save,saveLayer}/restore block completes.
+    void updateClipBounds(const Restore& op) {
+        // This is just like the clip ops above, but we need to skip the effects (if any) of our
+        // paired saveLayer (if it is one); it has not yet been popped off the save stack.  Our
+        // devBounds reflect the state of the world after the saveLayer/restore block is done,
+        // so they are not affected by the saveLayer's paint.
+        const int kSavesToIgnore = 1;
+        Bounds clip = SkRect::Make(op.devBounds);
+        fCurrentClipBounds =
+            this->adjustForSaveLayerPaints(&clip, kSavesToIgnore) ? clip : Bounds::MakeLargest();
     }
 
     // We also take advantage of SaveLayer bounds when present to further cut the clip down.
@@ -478,8 +491,8 @@ private:
         return true;
     }
 
-    bool adjustForSaveLayerPaints(SkRect* rect) const {
-        for (int i = fSaveStack.count() - 1; i >= 0; i--) {
+    bool adjustForSaveLayerPaints(SkRect* rect, int savesToIgnore = 0) const {
+        for (int i = fSaveStack.count() - 1 - savesToIgnore; i >= 0; i--) {
             if (!AdjustForPaint(fSaveStack[i].paint, rect)) {
                 return false;
             }

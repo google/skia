@@ -227,6 +227,10 @@ DEF_TEST(RecordDraw_PartialClear, r) {
 }
 
 // A regression test for crbug.com/415468 and skbug.com/2957.
+//
+// This also now serves as a regression test for crbug.com/418417.  We used to adjust the
+// bounds for the saveLayer, clip, and restore to be greater than the bounds of the picture.
+// (We were applying the saveLayer paint to the bounds after restore, which makes no sense.)
 DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     SkRecord record;
     SkRecorder recorder(&record, 50, 50);
@@ -241,13 +245,16 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
         recorder.drawRect(SkRect::MakeWH(20, 40), SkPaint());
     recorder.restore();
 
-    // Under the original bug, all the right edge values would be 20 less than asserted here
-    // because we intersected them with a clip that had not been adjusted for the drop shadow.
+    // Under the original bug, the right edge value of the drawRect would be 20 less than asserted
+    // here because we intersected it with a clip that had not been adjusted for the drop shadow.
+    //
+    // The second bug showed up as adjusting the picture bounds (0,0,50,50) by the drop shadow too.
+    // The saveLayer, clipRect, and restore bounds were incorrectly (0,0,70,50).
     TestBBH bbh;
     SkRecordFillBounds(record, &bbh);
     REPORTER_ASSERT(r, bbh.entries.count() == 4);
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[0].bounds, SkRect::MakeLTRB(0, 0, 70, 50)));
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[1].bounds, SkRect::MakeLTRB(0, 0, 70, 50)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[0].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[1].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[2].bounds, SkRect::MakeLTRB(0, 0, 40, 40)));
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[3].bounds, SkRect::MakeLTRB(0, 0, 70, 50)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[3].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
 }
