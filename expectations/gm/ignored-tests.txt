@@ -36,8 +36,5 @@
 # jvanverth
 fontcache
 
-# reed - conservative_rasterclip CL
-multipicturedraw_pathclip_tiled
-
 # rileya - https://codereview.chromium.org/516463005/ will rebaseline after bots cycle
 yuv_to_rgb_effect
