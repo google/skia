@@ -411,7 +411,7 @@ HAS_ATLAS:
     r.fRight = sx + width;
     r.fBottom = sy + height;
 
-    fVertexBounds.growToInclude(r);
+    fVertexBounds.joinNonEmptyArg(r);
 
     size_t vertSize = fUseLCDText ? (2 * sizeof(SkPoint))
                                   : (2 * sizeof(SkPoint) + sizeof(GrColor));

@@ -702,8 +702,19 @@ struct SK_API SkRect {
     void join(const SkRect& r) {
         this->join(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
-    // alias for join()
-    void growToInclude(const SkRect& r) { this->join(r); }
+
+    void joinNonEmptyArg(const SkRect& r) {
+        SkASSERT(!r.isEmpty());
+        // if we are empty, just assign
+        if (fLeft >= fRight || fTop >= fBottom) {
+            *this = r;
+        } else {
+            fLeft   = SkMinScalar(fLeft, r.left());
+            fTop    = SkMinScalar(fTop, r.top());
+            fRight  = SkMaxScalar(fRight, r.right());
+            fBottom = SkMaxScalar(fBottom, r.bottom());
+        }
+    }
 
     /**
      *  Grow the rect to include the specified (x,y). After this call, the

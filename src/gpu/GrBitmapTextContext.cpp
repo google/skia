@@ -575,7 +575,7 @@ HAS_ATLAS:
     r.fRight = SkFixedToFloat(vx + width);
     r.fBottom = SkFixedToFloat(vy + height);
 
-    fVertexBounds.growToInclude(r);
+    fVertexBounds.joinNonEmptyArg(r);
 
     size_t vertSize = useColorVerts ? (2 * sizeof(SkPoint) + sizeof(GrColor)) :
                                       (2 * sizeof(SkPoint));
