@@ -9203,6 +9203,30 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "multipicturedraw_sierpinski_simple_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12215154048185637848
+        ]
+      ], 
+      "bugs": [
+        2979
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "multipicturedraw_sierpinski_simple_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13170998890626682042
+        ]
+      ], 
+      "bugs": [
+        2979
+      ], 
+      "reviewed-by-human": true
+    }, 
     "multipicturedraw_sierpinski_tiled_565.png": {
       "allowed-digests": [
         [
@@ -9218,6 +9242,30 @@
           "bitmap-64bitMD5", 
           1046298969627112289
         ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "multipicturedraw_sierpinski_tiled_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4826414779428449079
+        ]
+      ], 
+      "bugs": [
+        2979
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "multipicturedraw_sierpinski_tiled_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4076965846757577309
+        ]
+      ], 
+      "bugs": [
+        2979
       ], 
       "reviewed-by-human": true
     }, 

@@ -12922,6 +12922,18 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "multipicturedraw_sierpinski_simple_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          237609131529135346
+        ]
+      ], 
+      "bugs": [
+        2979
+      ], 
+      "reviewed-by-human": true
+    }, 
     "multipicturedraw_sierpinski_simple_pdf-mac.png": {
       "allowed-digests": [
         [
@@ -12946,6 +12958,18 @@
           "bitmap-64bitMD5", 
           1046298969627112289
         ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "multipicturedraw_sierpinski_tiled_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6204971877139189869
+        ]
+      ], 
+      "bugs": [
+        2979
       ], 
       "reviewed-by-human": true
     }, 

@@ -11108,6 +11108,30 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "multipicturedraw_sierpinski_simple_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11594688387107019920
+        ]
+      ], 
+      "bugs": [
+        2979
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "multipicturedraw_sierpinski_tiled_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17578222270818295881
+        ]
+      ], 
+      "bugs": [
+        2979
+      ], 
+      "reviewed-by-human": true
+    }, 
     "nested_aa_565.png": {
       "allowed-digests": [
         [
