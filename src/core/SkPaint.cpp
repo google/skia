@@ -1481,14 +1481,15 @@ static SkColor computeLuminanceColor(const SkPaint& paint) {
 
 const SkScalar gMaxSize2ForLCDText = SK_MAX_SIZE_FOR_LCDTEXT * SK_MAX_SIZE_FOR_LCDTEXT;
 
-static bool tooBigForLCD(const SkScalerContext::Rec& rec, bool checkPost2x2) {
-    SkScalar size = rec.fTextSize;
+static bool too_big_for_lcd(const SkScalerContext::Rec& rec, bool checkPost2x2) {
     if (checkPost2x2) {
         SkScalar area = rec.fPost2x2[0][0] * rec.fPost2x2[1][1] -
                         rec.fPost2x2[1][0] * rec.fPost2x2[0][1];
-        size *= SkScalarAbs(area);
+        area *= rec.fTextSize * rec.fTextSize;
+        return area > gMaxSize2ForLCDText;
+    } else {
+        return rec.fTextSize > SK_MAX_SIZE_FOR_LCDTEXT;
     }
-    return size > gMaxSize2ForLCDText;
 }
 
 /*
@@ -1584,7 +1585,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
 
     if (SkMask::kLCD16_Format == rec->fMaskFormat || SkMask::kLCD32_Format == rec->fMaskFormat) {
-        if (tooBigForLCD(*rec, checkPost2x2)) {
+        if (too_big_for_lcd(*rec, checkPost2x2)) {
             rec->fMaskFormat = SkMask::kA8_Format;
             flags |= SkScalerContext::kGenA8FromLCD_Flag;
         } else {
