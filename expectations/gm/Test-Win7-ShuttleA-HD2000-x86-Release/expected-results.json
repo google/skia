@@ -3244,6 +3244,33 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "clip_strokerect_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2446825235851096664
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "clip_strokerect_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1632410406583024772
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "clip_strokerect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12843769459378001473
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "clippedcubic_565.png": {
       "allowed-digests": [
         [
