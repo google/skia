@@ -11,7 +11,7 @@
         ],
       }],
       ['skia_os != "linux" and skia_os != "chromeos"', {
-        'sources/': [ ['exclude', '_unix.(h|cpp)$'],
+        'sources/': [ ['exclude', '_glx.(h|cpp)$'],
         ],
       }],
       ['skia_os != "ios"', {
@@ -24,6 +24,18 @@
       }],
       ['skia_os != "nacl"', {
         'sources/': [ ['exclude', '_nacl.(h|cpp)$'],
+        ],
+      }],
+      ['skia_os == "nacl" or skia_egl == 0', {
+        'sources/': [ ['exclude', '_egl.(h|cpp)$'],
+        ],
+      }],
+      ['skia_os == "android"', {
+        'sources/': [ ['exclude', 'GrGLCreateNativeInterface_egl.cpp'],
+        ],
+      }],
+      ['skia_egl == 1', {
+        'sources/': [ ['exclude', '_glx.(h|cpp)$'],
         ],
       }],
       # nullify the targets in this gyp file if skia_gpu is 0
@@ -140,6 +152,16 @@
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
             '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
           ],
+        }],
+        [ '(skia_os == "linux" or skia_os == "chromeos") and skia_egl == 1', {
+          'link_settings': {
+            'libraries': [
+              '-lEGL',
+              '-lGLESv2',
+            ],
+          },
+        }],
+        [ '(skia_os == "linux" or skia_os == "chromeos") and skia_egl == 0', {
           'link_settings': {
             'libraries': [
               '-lGL',
@@ -154,6 +176,16 @@
               '-lppapi_gles2',
             ],
           },
+        }],
+        [ 'skia_egl == 1', {
+          'defines': [
+            'SK_EGL=1',
+          ],
+        }],
+        [ 'skia_egl == 0', {
+          'defines': [
+            'SK_EGL=0',
+          ],
         }],
         [ 'skia_mesa and skia_os == "linux"', {
           'link_settings': {
