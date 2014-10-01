@@ -1479,11 +1479,16 @@ static SkColor computeLuminanceColor(const SkPaint& paint) {
     #define SK_MAX_SIZE_FOR_LCDTEXT    48
 #endif
 
-static bool tooBigForLCD(const SkScalerContext::Rec& rec) {
-    SkScalar area = rec.fPost2x2[0][0] * rec.fPost2x2[1][1] -
-                    rec.fPost2x2[1][0] * rec.fPost2x2[0][1];
-    SkScalar size = SkScalarSqrt(SkScalarAbs(area)) * rec.fTextSize;
-    return size > SkIntToScalar(SK_MAX_SIZE_FOR_LCDTEXT);
+const SkScalar gMaxSize2ForLCDText = SK_MAX_SIZE_FOR_LCDTEXT * SK_MAX_SIZE_FOR_LCDTEXT;
+
+static bool tooBigForLCD(const SkScalerContext::Rec& rec, bool checkPost2x2) {
+    SkScalar size = rec.fTextSize;
+    if (checkPost2x2) {
+        SkScalar area = rec.fPost2x2[0][0] * rec.fPost2x2[1][1] -
+                        rec.fPost2x2[1][0] * rec.fPost2x2[0][1];
+        size *= SkScalarAbs(area);
+    }
+    return size > gMaxSize2ForLCDText;
 }
 
 /*
@@ -1511,11 +1516,24 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     rec->fPreScaleX = paint.getTextScaleX();
     rec->fPreSkewX  = paint.getTextSkewX();
 
+    bool checkPost2x2 = false;
+
     if (deviceMatrix) {
-        rec->fPost2x2[0][0] = sk_relax(deviceMatrix->getScaleX());
-        rec->fPost2x2[0][1] = sk_relax(deviceMatrix->getSkewX());
-        rec->fPost2x2[1][0] = sk_relax(deviceMatrix->getSkewY());
-        rec->fPost2x2[1][1] = sk_relax(deviceMatrix->getScaleY());
+        const SkMatrix::TypeMask mask = deviceMatrix->getType();
+        if (mask & SkMatrix::kScale_Mask) {
+            rec->fPost2x2[0][0] = sk_relax(deviceMatrix->getScaleX());
+            rec->fPost2x2[1][1] = sk_relax(deviceMatrix->getScaleY());
+            checkPost2x2 = true;
+        } else {
+            rec->fPost2x2[0][0] = rec->fPost2x2[1][1] = SK_Scalar1;
+        }
+        if (mask & SkMatrix::kAffine_Mask) {
+            rec->fPost2x2[0][1] = sk_relax(deviceMatrix->getSkewX());
+            rec->fPost2x2[1][0] = sk_relax(deviceMatrix->getSkewY());
+            checkPost2x2 = true;
+        } else {
+            rec->fPost2x2[0][1] = rec->fPost2x2[1][0] = 0;
+        }
     } else {
         rec->fPost2x2[0][0] = rec->fPost2x2[1][1] = SK_Scalar1;
         rec->fPost2x2[0][1] = rec->fPost2x2[1][0] = 0;
@@ -1566,7 +1584,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
 
     if (SkMask::kLCD16_Format == rec->fMaskFormat || SkMask::kLCD32_Format == rec->fMaskFormat) {
-        if (tooBigForLCD(*rec)) {
+        if (tooBigForLCD(*rec, checkPost2x2)) {
             rec->fMaskFormat = SkMask::kA8_Format;
             flags |= SkScalerContext::kGenA8FromLCD_Flag;
         } else {
