@@ -1576,16 +1576,6 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint*
     }
     ASSERT_OWNED_RESOURCE(src);
 
-
-    if (src->hasPendingWrite() || dst->hasPendingIO()) {
-        this->flush();
-    }
-
-    GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
-    GrDrawState* drawState = fGpu->drawState();
-    drawState->setRenderTarget(dst);
-    SkMatrix sampleM;
-    sampleM.setIDiv(src->width(), src->height());
     SkIRect srcRect = SkIRect::MakeWH(dst->width(), dst->height());
     if (topLeft) {
         srcRect.offset(*topLeft);
@@ -1594,10 +1584,14 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint*
     if (!srcRect.intersect(srcBounds)) {
         return;
     }
-    sampleM.preTranslate(SkIntToScalar(srcRect.fLeft), SkIntToScalar(srcRect.fTop));
-    drawState->addColorTextureProcessor(src, sampleM);
-    SkRect dstR = SkRect::MakeWH(SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
-    fGpu->drawSimpleRect(dstR);
+
+    GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW, NULL, NULL);
+    if (NULL == target) {
+        return;
+    }
+    SkIPoint dstPoint;
+    dstPoint.setZero();
+    target->copySurface(dst, src, srcRect, dstPoint);
 }
 
 bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,

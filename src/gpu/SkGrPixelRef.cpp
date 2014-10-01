@@ -53,7 +53,7 @@ bool SkROLockPixelsPixelRef::onLockPixelsAreWritable() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkColorType dstCT,
+static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorType dstCT,
                                            const SkIRect* subset) {
     if (NULL == texture || kUnknown_SkColorType == dstCT) {
         return NULL;
@@ -88,15 +88,10 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkColorType dstCT
 
     context->copyTexture(texture, dst->asRenderTarget(), topLeft);
 
-    // TODO: figure out if this is responsible for Chrome canvas errors
-#if 0
-    // The render texture we have created (to perform the copy) isn't fully
-    // functional (since it doesn't have a stencil buffer). Release it here
-    // so the caller doesn't try to render to it.
-    // TODO: we can undo this release when dynamic stencil buffer attach/
-    // detach has been implemented
-    dst->releaseRenderTarget();
-#endif
+    // Blink is relying on the above copy being sent to GL immediately in the case when the source
+    // is a WebGL canvas backing store. We could have a TODO to remove this flush, but we have a
+    // larger TODO to remove SkGrPixelRef entirely.
+    context->flush();
 
     SkImageInfo info = SkImageInfo::Make(desc.fWidth, desc.fHeight, dstCT, kPremul_SkAlphaType);
     SkGrPixelRef* pixelRef = SkNEW_ARGS(SkGrPixelRef, (info, dst));
@@ -152,7 +147,7 @@ SkPixelRef* SkGrPixelRef::deepCopy(SkColorType dstCT, const SkIRect* subset) {
     // a GrTexture owned elsewhere (e.g., SkGpuDevice), and cannot live
     // independently of that texture.  Texture-backed pixel refs, on the other
     // hand, own their GrTextures, and are thus self-contained.
-    return copyToTexturePixelRef(fSurface->asTexture(), dstCT, subset);
+    return copy_to_new_texture_pixelref(fSurface->asTexture(), dstCT, subset);
 }
 
 static bool tryAllocBitmapPixels(SkBitmap* bitmap) {
