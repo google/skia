@@ -7,6 +7,7 @@
 
 #include "Benchmark.h"
 
+#include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkParse.h"
 
@@ -37,6 +38,7 @@ void Benchmark::preDraw() {
 }
 
 void Benchmark::draw(const int loops, SkCanvas* canvas) {
+    SkAutoCanvasRestore ar(canvas, true/*save now*/);
     this->onDraw(loops, canvas);
 }
 
