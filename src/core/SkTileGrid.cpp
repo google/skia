@@ -122,26 +122,24 @@ void SkTileGrid::search(const SkRect& query, SkTDArray<unsigned>* results) const
     // Merge tiles into results until they're fully consumed.
     results->reset();
     while (true) {
-        // The tiles themselves are already ordered, so the earliest is at the front of some tile.
-        // It may be at the front of several, even all, tiles.
-        const unsigned* earliest = NULL;
+        // The tiles themselves are already ordered, so the earliest op is at the front of some
+        // tile. It may be at the front of several, even all, tiles.
+        unsigned earliest = SK_MaxU32;
         for (int i = 0; i < starts.count(); i++) {
             if (starts[i] < ends[i]) {
-                if (NULL == earliest || *starts[i]< *earliest) {
-                    earliest = starts[i];
-                }
+                earliest = SkTMin(earliest, *starts[i]);
             }
         }
 
-        // If we didn't find an earliest entry, there isn't anything left to merge.
-        if (NULL == earliest) {
+        // If we didn't find an earliest op, there isn't anything left to merge.
+        if (SK_MaxU32 == earliest) {
             return;
         }
 
-        // We did find an earliest entry. Output it, and step forward every tile that contains it.
-        results->push(*earliest);
+        // We did find an earliest op. Output it, and step forward every tile that contains it.
+        results->push(earliest);
         for (int i = 0; i < starts.count(); i++) {
-            if (starts[i] < ends[i] && *starts[i] == *earliest) {
+            if (starts[i] < ends[i] && *starts[i] == earliest) {
                 starts[i]++;
             }
         }
