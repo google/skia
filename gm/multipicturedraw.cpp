@@ -21,7 +21,7 @@ static const int kNumHexY = 6;
 static const int kPicWidth = kNumHexX * kHexSide;
 static const int kPicHeight = SkScalarCeilToInt((kNumHexY - 0.5f) * 2 * kHexSide * kRoot3Over2);
 static const SkScalar kInset = 20.0f;
-static const int kNumPictures = 3;
+static const int kNumPictures = 4;
 
 static const int kTriSide = 40;
 
@@ -68,6 +68,56 @@ static const SkPicture* make_hex_plane_picture(SkColor fillColor) {
             canvas->saveLayer(NULL, NULL);
             canvas->translate(xPos, yPos + ((x % 2) ? kRoot3Over2 * kHexSide : 0));
             canvas->drawPath(hex, fill);
+            canvas->drawPath(hex, stroke);
+            canvas->restore();
+
+            xPos += 1.5f * kHexSide;
+        }
+
+        yPos += 2 * kHexSide * kRoot3Over2;
+    }
+
+    return recorder.endRecording();
+}
+
+// Create a picture that consists of a single large layer that is tiled
+// with hexagons.
+// This is intended to exercise the layer hoisting code's clip handling (in
+// tile mode).
+static const SkPicture* make_single_layer_hex_plane_picture() {
+
+    // Create a hexagon with its center at the origin
+    SkPath hex = make_hex_path(0, 0);
+
+    SkPaint whiteFill;
+    whiteFill.setStyle(SkPaint::kFill_Style);
+    whiteFill.setColor(SK_ColorWHITE);
+
+    SkPaint greyFill;
+    greyFill.setStyle(SkPaint::kFill_Style);
+    greyFill.setColor(SK_ColorLTGRAY);
+
+    SkPaint stroke;
+    stroke.setStyle(SkPaint::kStroke_Style);
+    stroke.setStrokeWidth(3);
+
+    SkPictureRecorder recorder;
+
+    static const SkScalar kBig = 10000.0f;
+    SkCanvas* canvas = recorder.beginRecording(kBig, kBig);
+
+    SkScalar xPos = 0.0f, yPos = 0.0f;
+
+    for (int y = 0; yPos < kBig; ++y) {
+        xPos = 0;
+
+        for (int x = 0; xPos < kBig; ++x) {
+            canvas->save();
+            canvas->translate(xPos, yPos + ((x % 2) ? kRoot3Over2 * kHexSide : 0));
+            // The color of the filled hex is swapped to yield a different
+            // pattern in each tile. This allows an error in layer hoisting (e.g.,
+            // the clip isn't blocking cache reuse) to cause a visual discrepancy.
+            canvas->drawPath(hex, ((x+y) % 3) ? whiteFill : greyFill);
             canvas->drawPath(hex, stroke);
             canvas->restore();
 
@@ -265,13 +315,18 @@ static void sierpinski(SkCanvas* canvas, const SkPicture* pictures[kNumPictures]
     canvas->restore();
 }
 
+static void big_layer(SkCanvas* canvas, const SkPicture* pictures[kNumPictures]) {
+    canvas->drawPicture(pictures[3]);
+}
+
 static const PFContentMtd gContentMthds[] = {
     no_clip,
     rect_clip,
     rrect_clip,
     path_clip,
     invpath_clip,
-    sierpinski
+    sierpinski,
+    big_layer,
 };
 
 static void create_content(SkMultiPictureDraw* mpd, PFContentMtd pfGen,
@@ -371,8 +426,9 @@ namespace skiagm {
             kPathClipMulti_Content,
             kInvPathClipMulti_Content,
             kSierpinski_Content,
+            kBigLayer_Content,
 
-            kLast_Content = kSierpinski_Content
+            kLast_Content = kBigLayer_Content
         };
 
         static const int kContentCnt = kLast_Content + 1;
@@ -410,6 +466,7 @@ namespace skiagm {
             fPictures[0] = make_hex_plane_picture(SK_ColorWHITE);
             fPictures[1] = make_hex_plane_picture(SK_ColorGRAY);
             fPictures[2] = make_sierpinski_picture();
+            fPictures[3] = make_single_layer_hex_plane_picture();
         }
 
         virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -437,7 +494,8 @@ namespace skiagm {
 
         virtual SkString onShortName() SK_OVERRIDE {
             static const char* gContentNames[] = {
-                "noclip", "rectclip", "rrectclip", "pathclip", "invpathclip", "sierpinski"
+                "noclip", "rectclip", "rrectclip", "pathclip", 
+                "invpathclip", "sierpinski", "biglayer"
             };
             static const char* gLayoutNames[] = { "simple", "tiled" };
 
@@ -470,6 +528,8 @@ namespace skiagm {
                                                 MultiPictureDraw::kSimple_Layout));)
     DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kSierpinski_Content,
                                                 MultiPictureDraw::kSimple_Layout));)
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kBigLayer_Content,
+                                                MultiPictureDraw::kSimple_Layout));)
 
     DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kNoClipSingle_Content,
                                                 MultiPictureDraw::kTiled_Layout));)
@@ -482,5 +542,7 @@ namespace skiagm {
     DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kInvPathClipMulti_Content,
                                                 MultiPictureDraw::kTiled_Layout));)
     DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kSierpinski_Content,
+                                                MultiPictureDraw::kTiled_Layout));)
+    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kBigLayer_Content,
                                                 MultiPictureDraw::kTiled_Layout));)
 }
