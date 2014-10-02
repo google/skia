@@ -297,8 +297,7 @@ public:
                                              SkImageInfo2GrPixelConfig(bm.colorType(),
                                                                        bm.alphaType()),
                                              bm.getPixels(),
-                                             bm.rowBytes(),
-                                             GrContext::kFlushWrites_PixelOp);
+                                             bm.rowBytes());
             }
         }
 #endif

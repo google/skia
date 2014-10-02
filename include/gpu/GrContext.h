@@ -597,15 +597,12 @@ public:
     * These flags can be used with the read/write pixels functions below.
     */
     enum PixelOpsFlags {
-        /** The GrContext will not be flushed before the surface read or write. This means that
-            the read or write may occur before previous draws have executed. */
+        /** The GrContext will not be flushed. This means that the read or write may occur before
+            previous draws have executed. */
         kDontFlush_PixelOpsFlag = 0x1,
-        /** Any surface writes should be flushed to the backend 3D API after the surface operation
-            is complete */
-        kFlushWrites_PixelOp = 0x2,
         /** The src for write or dst read is unpremultiplied. This is only respected if both the
             config src and dst configs are an RGBA/BGRA 8888 format. */
-        kUnpremul_PixelOpsFlag  = 0x4,
+        kUnpremul_PixelOpsFlag  = 0x2,
     };
 
     /**
@@ -698,36 +695,15 @@ public:
                             uint32_t pixelOpsFlags = 0);
 
     /**
-     * Copies a rectangle of texels from src to dst.
+     * Copies a rectangle of texels from src to dst. The size of dst is the size of the rectangle
+     * copied and topLeft is the position of the rect in src. The rectangle is clipped to src's
      * bounds.
-     * @param dst           the surface to copy to.
-     * @param src           the surface to copy from.
-     * @param srcRect       the rectangle of the src that should be copied.
-     * @param dstPoint      the translation applied when writing the srcRect's pixels to the dst.
-     * @param pixelOpsFlags see PixelOpsFlags enum above. (kUnpremul_PixelOpsFlag is not allowed).
+     * @param src           the texture to copy from.
+     * @param dst           the render target to copy to.
+     * @param topLeft       the point in src that will be copied to the top-left of dst. If NULL,
+     *                      (0, 0) will be used.
      */
-    void copySurface(GrSurface* dst,
-                     GrSurface* src,
-                     const SkIRect& srcRect,
-                     const SkIPoint& dstPoint,
-                     uint32_t pixelOpsFlags = 0);
-
-    /** Helper that copies the whole surface but fails when the two surfaces are not identically
-        sized. */
-    bool copySurface(GrSurface* dst, GrSurface* src) {
-        if (NULL == dst || NULL == src || dst->width() != src->width() ||
-            dst->height() != src->height()) {
-            return false;
-        }
-        this->copySurface(dst, src, SkIRect::MakeWH(dst->width(), dst->height()),
-                          SkIPoint::Make(0,0));
-        return true;
-    }
-
-    /**
-     * After this returns any pending writes to the surface will have been issued to the backend 3D API.
-     */
-    void flushSurfaceWrites(GrSurface* surface);
+    void copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint* topLeft = NULL);
 
     /**
      * Resolves a render target that has MSAA. The intermediate MSAA buffer is

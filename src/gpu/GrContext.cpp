@@ -1374,8 +1374,6 @@ bool GrContext::writeTexturePixels(GrTexture* texture,
 
     return fGpu->writeTexturePixels(texture, left, top, width, height,
                                     config, buffer, rowBytes);
-
-    // No need to check the kFlushWrites flag here since we issued the write directly to fGpu.
 }
 
 bool GrContext::readTexturePixels(GrTexture* texture,
@@ -1405,8 +1403,7 @@ bool GrContext::readTexturePixels(GrTexture* texture,
         ast.set(this, desc, kExact_ScratchTexMatch);
         GrTexture* dst = ast.texture();
         if (dst && (target = dst->asRenderTarget())) {
-            this->copySurface(target, texture, SkIRect::MakeXYWH(top, left, width, height),
-                              SkIPoint::Make(0,0));
+            this->copyTexture(texture, target, NULL);
             return this->readRenderTargetPixels(target,
                                                 left, top, width, height,
                                                 config, buffer, rowBytes,
@@ -1594,26 +1591,29 @@ void GrContext::discardRenderTarget(GrRenderTarget* renderTarget) {
     target->discard(renderTarget);
 }
 
-void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                            const SkIPoint& dstPoint, uint32_t pixelOpsFlags) {
+void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint* topLeft) {
     if (NULL == src || NULL == dst) {
         return;
     }
     ASSERT_OWNED_RESOURCE(src);
     ASSERT_OWNED_RESOURCE(dst);
 
-    // Since we're going to the draw target and not GPU, no need to check kNoFlush
-    // here.
+    SkIRect srcRect = SkIRect::MakeWH(dst->width(), dst->height());
+    if (topLeft) {
+        srcRect.offset(*topLeft);
+    }
+    SkIRect srcBounds = SkIRect::MakeWH(src->width(), src->height());
+    if (!srcRect.intersect(srcBounds)) {
+        return;
+    }
 
     GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW, NULL, NULL);
     if (NULL == target) {
         return;
     }
+    SkIPoint dstPoint;
+    dstPoint.setZero();
     target->copySurface(dst, src, srcRect, dstPoint);
-
-    if (kFlushWrites_PixelOp & pixelOpsFlags) {
-        this->flush();
-    }
 }
 
 bool GrContext::writeRenderTargetPixels(GrRenderTarget* renderTarget,
@@ -1621,7 +1621,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* renderTarget,
                                         GrPixelConfig srcConfig,
                                         const void* buffer,
                                         size_t rowBytes,
-                                        uint32_t pixelOpsFlags) {
+                                        uint32_t flags) {
     ASSERT_OWNED_RESOURCE(renderTarget);
 
     if (NULL == renderTarget) {
@@ -1646,11 +1646,11 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* renderTarget,
     // At least some drivers on the Mac get confused when glTexImage2D is called on a texture
     // attached to an FBO. The FBO still sees the old image. TODO: determine what OS versions and/or
     // HW is affected.
-    if (renderTarget->asTexture() && !(kUnpremul_PixelOpsFlag & pixelOpsFlags) &&
+    if (renderTarget->asTexture() && !(kUnpremul_PixelOpsFlag & flags) &&
         fGpu->canWriteTexturePixels(renderTarget->asTexture(), srcConfig)) {
         return this->writeTexturePixels(renderTarget->asTexture(),
                                         left, top, width, height,
-                                        srcConfig, buffer, rowBytes, pixelOpsFlags);
+                                        srcConfig, buffer, rowBytes, flags);
     }
 #endif
 
@@ -1683,7 +1683,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* renderTarget,
     // allocate a tmp buffer and sw convert the pixels to premul
     SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
 
-    if (kUnpremul_PixelOpsFlag & pixelOpsFlags) {
+    if (kUnpremul_PixelOpsFlag & flags) {
         if (!GrPixelConfigIs8888(srcConfig)) {
             return false;
         }
@@ -1724,42 +1724,25 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* renderTarget,
     if (!this->writeTexturePixels(texture,
                                   0, 0, width, height,
                                   writeConfig, buffer, rowBytes,
-                                  pixelOpsFlags & ~kUnpremul_PixelOpsFlag)) {
+                                  flags & ~kUnpremul_PixelOpsFlag)) {
         return false;
     }
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
 
-
     // This function can be called in the midst of drawing another object (e.g., when uploading a
     // SW-rasterized clip while issuing a draw). So we push the current geometry state before
     // drawing a rect to the render target.
-    // The bracket ensures we pop the stack if we wind up flushing below.
-    {
-        GrDrawTarget* drawTarget = this->prepareToDraw(NULL, kYes_BufferedDraw, NULL, NULL);
-        GrDrawTarget::AutoGeometryAndStatePush agasp(drawTarget, GrDrawTarget::kReset_ASRInit,
-                                                     &matrix);
-        GrDrawState* drawState = drawTarget->drawState();
-        drawState->addColorProcessor(fp);
-        drawState->setRenderTarget(renderTarget);
-        drawState->disableState(GrDrawState::kClip_StateBit);
-        drawTarget->drawSimpleRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)));
-    }
-
-    if (kFlushWrites_PixelOp & pixelOpsFlags) {
-        this->flush();
-    }
-
+    GrDrawTarget* drawTarget = this->prepareToDraw(NULL, kYes_BufferedDraw, NULL, NULL);
+    GrDrawTarget::AutoGeometryAndStatePush agasp(drawTarget, GrDrawTarget::kReset_ASRInit, &matrix);
+    GrDrawState* drawState = drawTarget->drawState();
+    drawState->addColorProcessor(fp);
+    drawState->setRenderTarget(renderTarget);
+    drawState->disableState(GrDrawState::kClip_StateBit);
+    drawTarget->drawSimpleRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)));
     return true;
 }
-
-void GrContext::flushSurfaceWrites(GrSurface* surface) {
-    if (surface->surfacePriv().hasPendingWrite()) {
-        this->flush();
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,

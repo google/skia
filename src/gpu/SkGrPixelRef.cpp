@@ -64,18 +64,19 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
     }
     GrTextureDesc desc;
 
-    SkIRect srcRect;
-
-    if (!subset) {
-        desc.fWidth  = texture->width();
-        desc.fHeight = texture->height();
-        srcRect = SkIRect::MakeWH(texture->width(), texture->height());
-    } else {
+    SkIPoint pointStorage;
+    SkIPoint* topLeft;
+    if (subset != NULL) {
         SkASSERT(SkIRect::MakeWH(texture->width(), texture->height()).contains(*subset));
         // Create a new texture that is the size of subset.
         desc.fWidth = subset->width();
         desc.fHeight = subset->height();
-        srcRect = *subset;
+        pointStorage.set(subset->x(), subset->y());
+        topLeft = &pointStorage;
+    } else {
+        desc.fWidth  = texture->width();
+        desc.fHeight = texture->height();
+        topLeft = NULL;
     }
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
     desc.fConfig = SkImageInfo2GrPixelConfig(dstCT, kPremul_SkAlphaType);
@@ -85,12 +86,13 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
         return NULL;
     }
 
+    context->copyTexture(texture, dst->asRenderTarget(), topLeft);
+
     // Blink is relying on the above copy being sent to GL immediately in the case when the source
-    // is a WebGL canvas backing store. We could have a TODO to remove this flush flag, but we have
-    // a larger TODO to remove SkGrPixelRef entirely.
-    context->copySurface(texture, dst->asRenderTarget(), srcRect, SkIPoint::Make(0,0),
-                         GrContext::kFlushWrites_PixelOp);
-  
+    // is a WebGL canvas backing store. We could have a TODO to remove this flush, but we have a
+    // larger TODO to remove SkGrPixelRef entirely.
+    context->flush();
+
     SkImageInfo info = SkImageInfo::Make(desc.fWidth, desc.fHeight, dstCT, kPremul_SkAlphaType);
     SkGrPixelRef* pixelRef = SkNEW_ARGS(SkGrPixelRef, (info, dst));
     SkSafeUnref(dst);
