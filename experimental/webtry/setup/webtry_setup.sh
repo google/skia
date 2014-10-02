@@ -29,7 +29,7 @@ if [ ! -d ${CHROOT_JAIL} ]; then
 	sudo cp setup_jail.sh ${CHROOT_JAIL}/bin
 	sudo chmod 755 ${CHROOT_JAIL}/bin/setup_jail.sh
 	sudo chroot ${CHROOT_JAIL} /bin/setup_jail.sh
-	sudo echo "none /dev/shm tmpfs rw,nosuid,nodev,noexec 0 0" >> ${CHROOT_JAIL}/etc/fstab
+	sudo sh -c "echo 'none /dev/shm tmpfs rw,nosuid,nodev,noexec 0 0' >> ${CHROOT_JAIL}/etc/fstab"
 fi
 
 # the continue_install script will fetch the latest versions of 
