@@ -79,22 +79,14 @@ public:
      */
     virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE;
 
-    virtual void clear() SK_OVERRIDE;
-    bool isEmpty() const { return 0 == fCount; }
-
-    /**
-     * Gets the depth of the tree structure
-     */
-    virtual int getDepth() const SK_OVERRIDE {
-        return this->isEmpty() ? 0 : fRoot.fChild.subtree->fLevel + 1;
-    }
-
-    /**
-     * This gets the insertion count (rather than the node count)
-     */
-    virtual int getCount() const SK_OVERRIDE { return fCount; }
+    void clear();
+    // Return the depth of the tree structure.
+    int getDepth() const { return this->isEmpty() ? 0 : fRoot.fChild.subtree->fLevel + 1; }
+    // Insertion count (not overall node count, which may be greater).
+    int getCount() const { return fCount; }
 
 private:
+    bool isEmpty() const { return 0 == this->getCount(); }
 
     struct Node;
 

@@ -11,7 +11,6 @@ SkTileGrid::SkTileGrid(int xTiles, int yTiles, const SkTileGridFactory::TileGrid
     : fXTiles(xTiles)
     , fYTiles(yTiles)
     , fInfo(info)
-    , fCount(0)
     , fTiles(SkNEW_ARRAY(SkTDArray<unsigned>, xTiles * yTiles)) {
     // Margin is offset by 1 as a provision for AA and
     // to cancel-out the outset applied by getClipDeviceBounds.
@@ -143,12 +142,6 @@ void SkTileGrid::search(const SkRect& query, SkTDArray<unsigned>* results) const
                 starts[i]++;
             }
         }
-    }
-}
-
-void SkTileGrid::clear() {
-    for (int i = 0; i < fXTiles * fYTiles; i++) {
-        fTiles[i].reset();
     }
 }
 

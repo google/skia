@@ -24,7 +24,7 @@ typedef SkRect (*MakeRectProc)(SkRandom&, int, int);
 class RTreeBuildBench : public Benchmark {
 public:
     RTreeBuildBench(const char* name, MakeRectProc proc, bool bulkLoad,
-                    SkBBoxHierarchy* tree)
+                    SkRTree* tree)
         : fTree(tree)
         , fProc(proc)
         , fBulkLoad(bulkLoad) {
@@ -58,7 +58,7 @@ protected:
         }
     }
 private:
-    SkBBoxHierarchy* fTree;
+    SkRTree* fTree;
     MakeRectProc fProc;
     SkString fName;
     bool fBulkLoad;
@@ -76,7 +76,7 @@ public:
     };
 
     RTreeQueryBench(const char* name, MakeRectProc proc, bool bulkLoad,
-                    QueryType q, SkBBoxHierarchy* tree)
+                    QueryType q, SkRTree* tree)
         : fTree(tree)
         , fProc(proc)
         , fBulkLoad(bulkLoad)

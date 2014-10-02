@@ -44,23 +44,6 @@ public:
      */
     virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const = 0;
 
-    virtual void clear() = 0;
-
-    /**
-     * Gets the number of insertions actually made (does not include deferred insertions)
-     */
-    virtual int getCount() const = 0;
-
-    /**
-     * Returns the depth of the currently allocated tree. The root node counts for 1 level,
-     * so it should be 1 or more if there's a root node. This information provides details
-     * about the underlying structure, which is useful mainly for testing purposes.
-     *
-     * Returns 0 if there are currently no nodes in the tree.
-     * Returns -1 if the structure isn't a tree.
-     */
-    virtual int getDepth() const = 0;
-
 private:
     typedef SkRefCnt INHERITED;
 };

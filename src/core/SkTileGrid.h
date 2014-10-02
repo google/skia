@@ -38,19 +38,12 @@ public:
      */
     virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE;
 
-    virtual void clear() SK_OVERRIDE;
-
-    virtual int getCount() const SK_OVERRIDE { return fCount; }
-
-    virtual int getDepth() const SK_OVERRIDE { return -1; }
-
     // For testing.
     int tileCount(int x, int y) { return fTiles[y * fXTiles + x].count(); }
 
 private:
     const int fXTiles, fYTiles;
     SkTileGridFactory::TileGridInfo fInfo;
-    size_t fCount;
 
     // (fXTiles * fYTiles) SkTDArrays, each listing ops overlapping that tile in order.
     SkTDArray<unsigned>* fTiles;

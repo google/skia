@@ -102,13 +102,9 @@ struct TestBBH : public SkBBoxHierarchy {
         Entry e = { opIndex, bounds };
         fEntries.push(e);
     }
-    virtual int getCount() const SK_OVERRIDE { return fEntries.count(); }
 
     virtual void flushDeferredInserts() SK_OVERRIDE {}
-
     virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE {}
-    virtual void clear() SK_OVERRIDE {}
-    virtual int getDepth() const SK_OVERRIDE { return -1; }
 
     struct Entry {
         unsigned opIndex;
