@@ -187,6 +187,7 @@
         '<(skia_src_path)/core/SkTextBlob.cpp',
         '<(skia_src_path)/core/SkTextFormatParams.h',
         '<(skia_src_path)/core/SkTextMapStateProc.h',
+        '<(skia_src_path)/core/SkTHashCache.h',
         '<(skia_src_path)/core/SkTileGrid.cpp',
         '<(skia_src_path)/core/SkTileGrid.h',
         '<(skia_src_path)/core/SkTLList.h',
