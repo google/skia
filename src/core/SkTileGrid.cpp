@@ -24,16 +24,11 @@ SkTileGrid::~SkTileGrid() {
 
 void SkTileGrid::insert(unsigned opIndex, const SkRect& fbounds, bool) {
     SkASSERT(!fbounds.isEmpty());
+
     SkIRect dilatedBounds;
-    if (fbounds.isLargest()) {
-        // Dilating the largest SkIRect will overflow.  Other nearly-largest rects may overflow too,
-        // but we don't make active use of them like we do the largest.
-        dilatedBounds.setLargest();
-    } else {
-        fbounds.roundOut(&dilatedBounds);
-        dilatedBounds.outset(fInfo.fMargin.width(), fInfo.fMargin.height());
-        dilatedBounds.offset(fInfo.fOffset);
-    }
+    fbounds.roundOut(&dilatedBounds);
+    dilatedBounds.outset(fInfo.fMargin.width(), fInfo.fMargin.height());
+    dilatedBounds.offset(fInfo.fOffset);
 
     const SkIRect gridBounds =
         { 0, 0, fInfo.fTileInterval.width() * fXTiles, fInfo.fTileInterval.height() * fYTiles };

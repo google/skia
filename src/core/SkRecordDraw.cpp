@@ -113,6 +113,13 @@ DRAW(DrawData, drawData(r.data, r.length));
 #undef DRAW
 
 
+// This looks silly, I know.  Why not just use SkRect::MakeLargest()?
+// In practice, this is well large enough, and it has a few extra advantages:
+// it fits in an SkIRect, and we can munge it a little in both SkRect and
+// SKIRect space without worrying about overflow.
+static const SkRect kUnbounded = { -2e9f, -2e9f, 2e9f, 2e9f };
+
+
 // This is an SkRecord visitor that fills an SkBBoxHierarchy.
 //
 // The interesting part here is how to calculate bounds for ops which don't
@@ -136,9 +143,8 @@ public:
     FillBounds(const SkRecord& record, SkBBoxHierarchy* bbh) : fBounds(record.count()) {
         // Calculate bounds for all ops.  This won't go quite in order, so we'll need
         // to store the bounds separately then feed them in to the BBH later in order.
-        const Bounds largest = Bounds::MakeLargest();
         fCTM = &SkMatrix::I();
-        fCurrentClipBounds = largest;
+        fCurrentClipBounds = kUnbounded;
         for (fCurrentOp = 0; fCurrentOp < record.count(); fCurrentOp++) {
             record.visit<void>(fCurrentOp, *this);
         }
@@ -151,7 +157,7 @@ public:
 
         // Any control ops not part of any Save/Restore block draw everywhere.
         while (!fControlIndices.isEmpty()) {
-            this->popControl(largest);
+            this->popControl(kUnbounded);
         }
 
         // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
@@ -199,7 +205,7 @@ private:
         Bounds clip = SkRect::Make(devBounds);
         // We don't call adjustAndMap() because as its last step it would intersect the adjusted
         // clip bounds with the previous clip, exactly what we can't do when the clip grows.
-        fCurrentClipBounds = this->adjustForSaveLayerPaints(&clip) ? clip : Bounds::MakeLargest();
+        fCurrentClipBounds = this->adjustForSaveLayerPaints(&clip) ? clip : kUnbounded;
     }
 
     // Restore holds the devBounds for the clip after the {save,saveLayer}/restore block completes.
@@ -211,7 +217,7 @@ private:
         const int kSavesToIgnore = 1;
         Bounds clip = SkRect::Make(op.devBounds);
         fCurrentClipBounds =
-            this->adjustForSaveLayerPaints(&clip, kSavesToIgnore) ? clip : Bounds::MakeLargest();
+            this->adjustForSaveLayerPaints(&clip, kSavesToIgnore) ? clip : kUnbounded;
     }
 
     // We also take advantage of SaveLayer bounds when present to further cut the clip down.
@@ -335,7 +341,7 @@ private:
     // FIXME: this method could use better bounds
     Bounds bounds(const DrawText&) const { return fCurrentClipBounds; }
 
-    Bounds bounds(const Clear&) const { return Bounds::MakeLargest(); }  // Ignores the clip.
+    Bounds bounds(const Clear&) const { return kUnbounded; }             // Ignores the clip.
     Bounds bounds(const DrawPaint&) const { return fCurrentClipBounds; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
