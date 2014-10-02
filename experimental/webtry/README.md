@@ -46,22 +46,23 @@ Do the first time
 The following things only need to be done once.
 
 1. SSH into the server as default.
+
 2. sudo apt-get install git schroot debootstrap
-3. git clone https://skia.googlesource.com/skia
-4. cd ~/skia/experimental/webtry/setup
-5. ./webtry_setup.sh
 
-6. Add the following to /etc/fstab and reboot:
+3. Add the following to the /etc/schroot/minimal/fstab:
 
-    none /dev/shm tmpfs rw,nosuid,nodev,noexec 0 0
+  none /run/shm tmpfs rw,nosuid,nodev,noexec 0 0
+  /home/webtry/inout             /skia_build/inout  none    rw,bind         0       0
+  /home/webtry/cache             /skia_build/cache  none    rw,bind         0       0
 
-The above will allow ninja to run. See http://stackoverflow.com/questions/2009278/python-multiprocessing-permission-denied
 
-7. Add the following to the /etc/schroot/minimal/fstab:
+4. git clone https://skia.googlesource.com/skia
 
-    /home/webtry/inout             /inout  none    rw,bind         0       0
+5. cd ~/skia/experimental/webtry/setup
 
-8. Change /etc/monit/monitrc to:
+6. ./webtry_setup.sh
+
+7. Change /etc/monit/monitrc to:
 
     set daemon 2
 
@@ -71,18 +72,10 @@ then run the following so it applies:
 
 This means that monit will poll every two seconds that our application is up and running.
 
-9. Set the TCP keepalive. For more info see:
+8. Set the TCP keepalive. For more info see:
    https://developers.google.com/cloud-sql/docs/gce-access
 
     sudo bash -c 'echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time'
-
-Once, after setup
-=================
-
-Do this step only once, but only after running webtry_setup.sh the first time.
-
-    sudo debootstrap --variant=minbase wheezy /srv/chroot/webtry
-
 
 To update the code
 ==================
@@ -91,7 +84,6 @@ To update the code
 2. cd ~/skia/experimental/webtry/setup
 3. git pull
 4. ./webtry_setup.sh
-
 
 Third Party Code
 ================
