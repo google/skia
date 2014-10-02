@@ -28,13 +28,6 @@ public:
         return GrTBackendFragmentProcessorFactory<YUVtoRGBEffect>::getInstance();
     }
 
-    virtual void getConstantColorComponents(GrColor* color,
-                                            uint32_t* validFlags) const SK_OVERRIDE {
-        // YUV is opaque
-        *color = 0xFF;
-        *validFlags = kA_GrColorComponentFlag;
-    }
-
     SkYUVColorSpace getColorSpace() const {
         return fColorSpace;
     }
@@ -115,6 +108,13 @@ private:
                fUAccess.getTexture() == s.fUAccess.getTexture() &&
                fVAccess.getTexture() == s.fVAccess.getTexture() &&
                fColorSpace == s.getColorSpace();
+    }
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+        // YUV is opaque
+        inout->fColor = 0xFF;
+        inout->fValidFlags = kA_GrColorComponentFlag;
+        inout->fIsSingleComponent = false;
     }
 
     GrCoordTransform fCoordTransform;

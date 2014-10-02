@@ -586,6 +586,11 @@ private:
                fPaintingData->fStitchDataInit == s.fPaintingData->fStitchDataInit;
     }
 
+    void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+        inout->fValidFlags = 0; // This is noise. Nothing is constant.
+        inout->fIsSingleComponent = false;
+    }
+
     GrPerlinNoiseEffect(SkPerlinNoiseShader::Type type,
                         int numOctaves, bool stitchTiles,
                         SkPerlinNoiseShader::PaintingData* paintingData,
@@ -615,10 +620,6 @@ private:
     GrTextureAccess                 fPermutationsAccess;
     GrTextureAccess                 fNoiseAccess;
     SkPerlinNoiseShader::PaintingData *fPaintingData;
-
-    void getConstantColorComponents(GrColor*, uint32_t* validFlags) const SK_OVERRIDE {
-        *validFlags = 0; // This is noise. Nothing is constant.
-    }
 
 private:
     typedef GrFragmentProcessor INHERITED;

@@ -41,8 +41,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrSimpleTextureEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
-    this->updateConstantColorComponentsForModulation(color, validFlags);
+void GrSimpleTextureEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+    this->updateInvariantOutputForModulation(inout);
+    inout->fIsSingleComponent = false;
 }
 
 const GrBackendFragmentProcessorFactory& GrSimpleTextureEffect::getFactory() const {

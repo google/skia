@@ -342,8 +342,6 @@ public:
     bool useAtlas() const { return SkToBool(-1 != fRow); }
     SkScalar getYCoord() const { return fYCoord; };
 
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-
     SkGradientShaderBase::GpuColorType getColorType() const { return fColorType; }
 
     enum PremulType {
@@ -375,6 +373,8 @@ protected:
                                     SkShader::TileMode* tm);
 
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     const GrCoordTransform& getCoordTransform() const { return fCoordTransform; }
 

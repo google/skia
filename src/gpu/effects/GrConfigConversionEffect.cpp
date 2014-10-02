@@ -126,9 +126,9 @@ bool GrConfigConversionEffect::onIsEqual(const GrProcessor& s) const {
            other.fPMConversion == fPMConversion;
 }
 
-void GrConfigConversionEffect::getConstantColorComponents(GrColor* color,
-                                                          uint32_t* validFlags) const {
-    this->updateConstantColorComponentsForModulation(color, validFlags);
+void GrConfigConversionEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+    this->updateInvariantOutputForModulation(inout);
+    inout->fIsSingleComponent = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

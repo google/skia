@@ -29,7 +29,6 @@ public:
     typedef GrGLBicubicEffect GLProcessor;
 
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
     const GrTextureDomain& domain() const { return fDomain; }
 
@@ -92,6 +91,8 @@ private:
     GrBicubicEffect(GrTexture*, const SkScalar coefficients[16],
                     const SkMatrix &matrix, const SkRect& domain);
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     float           fCoefficients[16];
     GrTextureDomain fDomain;

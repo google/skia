@@ -517,11 +517,6 @@ public:
 
     static const char* Name() { return "QuadEdge"; }
 
-    virtual void getConstantColorComponents(GrColor* color,
-                                            uint32_t* validFlags) const SK_OVERRIDE {
-        *validFlags = 0;
-    }
-
     const GrShaderVar& inQuadEdge() const { return fInQuadEdge; }
 
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
@@ -591,6 +586,11 @@ private:
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
         return true;
+    }
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+        inout->fValidFlags = 0;
+        inout->fIsSingleComponent = false;
     }
 
     const GrShaderVar& fInQuadEdge;

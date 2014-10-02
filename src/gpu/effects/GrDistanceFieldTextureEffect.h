@@ -58,8 +58,6 @@ public:
 
     static const char* Name() { return "DistanceFieldTexture"; }
 
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-
     const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
 #ifdef SK_GAMMA_APPLY_TO_A8
     float getLuminance() const { return fLuminance; }
@@ -78,6 +76,8 @@ private:
                                  uint32_t flags);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -112,7 +112,6 @@ public:
     static const char* Name() { return "DistanceFieldLCDTexture"; }
 
     const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
     GrColor getTextColor() const { return fTextColor; }
     uint32_t getFlags() const { return fFlags; }
 
@@ -127,6 +126,8 @@ private:
                                     uint32_t flags);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
     GrTextureAccess    fGammaTextureAccess;

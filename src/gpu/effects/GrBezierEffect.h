@@ -97,17 +97,17 @@ public:
 
     typedef GrGLConicEffect GLProcessor;
 
-    virtual void getConstantColorComponents(GrColor* color,
-                                            uint32_t* validFlags) const SK_OVERRIDE {
-        *validFlags = 0;
-    }
-
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     GrConicEffect(GrPrimitiveEdgeType);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+        inout->fValidFlags = 0;
+        inout->fIsSingleComponent = false;
+    }
 
     GrPrimitiveEdgeType   fEdgeType;
     const GrShaderVar& fInConicCoeffs;
@@ -170,17 +170,17 @@ public:
 
     typedef GrGLQuadEffect GLProcessor;
 
-    virtual void getConstantColorComponents(GrColor* color,
-                                            uint32_t* validFlags) const SK_OVERRIDE {
-        *validFlags = 0;
-    }
-
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     GrQuadEffect(GrPrimitiveEdgeType);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+        inout->fValidFlags = 0;
+        inout->fIsSingleComponent = false;
+    }
 
     GrPrimitiveEdgeType   fEdgeType;
     const GrShaderVar& fInHairQuadEdge;
@@ -245,17 +245,17 @@ public:
 
     typedef GrGLCubicEffect GLProcessor;
 
-    virtual void getConstantColorComponents(GrColor* color,
-                                            uint32_t* validFlags) const SK_OVERRIDE {
-        *validFlags = 0;
-    }
-
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     GrCubicEffect(GrPrimitiveEdgeType);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+        inout->fValidFlags = 0;
+        inout->fIsSingleComponent = false;
+    }
 
     GrPrimitiveEdgeType   fEdgeType;
     const GrShaderVar& fInCubicCoeffs;

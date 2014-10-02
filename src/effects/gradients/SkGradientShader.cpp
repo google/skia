@@ -1217,12 +1217,13 @@ bool GrGradientEffect::onIsEqual(const GrProcessor& processor) const {
     return false;
 }
 
-void GrGradientEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
-    if (fIsOpaque && (kA_GrColorComponentFlag & *validFlags) && 0xff == GrColorUnpackA(*color)) {
-        *validFlags = kA_GrColorComponentFlag;
+void GrGradientEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+    if (fIsOpaque && inout->isOpaque()) {
+        inout->fValidFlags = kA_GrColorComponentFlag;
     } else {
-        *validFlags = 0;
+        inout->fValidFlags = 0;
     }
+    inout->fIsSingleComponent = false;
 }
 
 int GrGradientEffect::RandomGradientParams(SkRandom* random,

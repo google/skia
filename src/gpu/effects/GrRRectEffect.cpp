@@ -59,14 +59,14 @@ public:
 
     typedef GLCircularRRectEffect GLProcessor;
 
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     CircularRRectEffect(GrPrimitiveEdgeType, uint32_t circularCornerFlags, const SkRRect&);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     SkRRect                fRRect;
     GrPrimitiveEdgeType    fEdgeType;
@@ -86,8 +86,9 @@ GrFragmentProcessor* CircularRRectEffect::Create(GrPrimitiveEdgeType edgeType,
     return SkNEW_ARGS(CircularRRectEffect, (edgeType, circularCornerFlags, rrect));
 }
 
-void CircularRRectEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
-    *validFlags = 0;
+void CircularRRectEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+    inout->fValidFlags = 0;
+    inout->fIsSingleComponent = false;
 }
 
 const GrBackendFragmentProcessorFactory& CircularRRectEffect::getFactory() const {
@@ -399,14 +400,14 @@ public:
 
     typedef GLEllipticalRRectEffect GLProcessor;
 
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     EllipticalRRectEffect(GrPrimitiveEdgeType, const SkRRect&);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     SkRRect             fRRect;
     GrPrimitiveEdgeType    fEdgeType;
@@ -424,8 +425,9 @@ EllipticalRRectEffect::Create(GrPrimitiveEdgeType edgeType, const SkRRect& rrect
     return SkNEW_ARGS(EllipticalRRectEffect, (edgeType, rrect));
 }
 
-void EllipticalRRectEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
-    *validFlags = 0;
+void EllipticalRRectEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+    inout->fValidFlags = 0;
+    inout->fIsSingleComponent = false;
 }
 
 const GrBackendFragmentProcessorFactory& EllipticalRRectEffect::getFactory() const {

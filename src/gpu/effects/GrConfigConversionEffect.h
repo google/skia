@@ -43,8 +43,6 @@ public:
 
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-
     bool swapsRedAndBlue() const { return fSwapRedAndBlue; }
     PMConversion  pmConversion() const { return fPMConversion; }
 
@@ -64,6 +62,8 @@ private:
                             const SkMatrix& matrix);
 
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     bool            fSwapRedAndBlue;
     PMConversion    fPMConversion;

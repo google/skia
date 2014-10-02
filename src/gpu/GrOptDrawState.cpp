@@ -170,18 +170,19 @@ void GrOptDrawState::copyEffectiveColorStages(const GrDrawState& ds) {
     int firstColorStage = 0;
 
     // Set up color and flags for ConstantColorComponent checks
-    GrColor color;
-    uint32_t validComponentFlags;
+    GrProcessor::InvariantOutput inout;
+    inout.fIsSingleComponent = false;
     if (!this->hasColorVertexAttribute()) {
-        color = ds.getColor();
-        validComponentFlags = kRGBA_GrColorComponentFlags;
+        inout.fColor = ds.getColor();
+        inout.fValidFlags = kRGBA_GrColorComponentFlags;
     } else {
         if (ds.vertexColorsAreOpaque()) {
-            color = 0xFF << GrColor_SHIFT_A;
-            validComponentFlags = kA_GrColorComponentFlag;
+            inout.fColor = 0xFF << GrColor_SHIFT_A;
+            inout.fValidFlags = kA_GrColorComponentFlag;
         } else {
-            validComponentFlags = 0;
-            color = 0; // not strictly necessary but we get false alarms from tools about uninit.
+            inout.fValidFlags = 0;
+            // not strictly necessary but we get false alarms from tools about uninit.
+            inout.fColor = 0;
         }
     }
 
@@ -191,10 +192,10 @@ void GrOptDrawState::copyEffectiveColorStages(const GrDrawState& ds) {
             firstColorStage = i;
             fInputColorIsUsed = false;
         }
-        fp->getConstantColorComponents(&color, &validComponentFlags);
-        if (kRGBA_GrColorComponentFlags == validComponentFlags) {
+        fp->computeInvariantOutput(&inout);
+        if (kRGBA_GrColorComponentFlags == inout.fValidFlags) {
             firstColorStage = i + 1;
-            fColor = color;
+            fColor = inout.fColor;
             fInputColorIsUsed = true;
             this->removeFixedFunctionVertexAttribs(0x1 << kColor_GrVertexAttribBinding);
         }

@@ -350,14 +350,14 @@ public:
     SkScalar surfaceScale() const { return fSurfaceScale; }
     const SkMatrix& filterMatrix() const { return fFilterMatrix; }
 
-    virtual void getConstantColorComponents(GrColor* color,
-                                            uint32_t* validFlags) const SK_OVERRIDE {
-        // lighting shaders are complicated. We just throw up our hands.
-        *validFlags = 0;
-    }
-
 protected:
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+        // lighting shaders are complicated. We just throw up our hands.
+        inout->fValidFlags = 0;
+        inout->fIsSingleComponent = false;
+    }
 
 private:
     typedef GrSingleTextureEffect INHERITED;

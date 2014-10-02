@@ -269,12 +269,13 @@ bool GrTextureDomainEffect::onIsEqual(const GrProcessor& sBase) const {
            this->fTextureDomain == s.fTextureDomain;
 }
 
-void GrTextureDomainEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+void GrTextureDomainEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     if (GrTextureDomain::kDecal_Mode == fTextureDomain.mode()) { // TODO: helper
-        *validFlags = 0;
+        inout->fValidFlags = 0;
     } else {
-        this->updateConstantColorComponentsForModulation(color, validFlags);
+        this->updateInvariantOutputForModulation(inout);
     }
+    inout->fIsSingleComponent = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

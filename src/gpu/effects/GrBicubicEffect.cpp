@@ -169,9 +169,10 @@ bool GrBicubicEffect::onIsEqual(const GrProcessor& sBase) const {
            fDomain == s.fDomain;
 }
 
-void GrBicubicEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+void GrBicubicEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     // FIXME: Perhaps we can do better.
-    *validFlags = 0;
+    inout->fValidFlags = 0;
+    inout->fIsSingleComponent = false;
     return;
 }
 

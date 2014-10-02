@@ -52,12 +52,6 @@ public:
 
     virtual ~GrMatrixConvolutionEffect();
 
-    virtual void getConstantColorComponents(GrColor* color,
-                                            uint32_t* validFlags) const SK_OVERRIDE {
-        // TODO: Try to do better?
-        *validFlags = 0;
-    }
-
     static const char* Name() { return "MatrixConvolution"; }
     const SkIRect& bounds() const { return fBounds; }
     const SkISize& kernelSize() const { return fKernelSize; }
@@ -84,6 +78,12 @@ private:
                               bool convolveAlpha);
 
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+        // TODO: Try to do better?
+        inout->fValidFlags = 0;
+        inout->fIsSingleComponent = false;
+    }
 
     SkIRect         fBounds;
     SkISize         fKernelSize;
