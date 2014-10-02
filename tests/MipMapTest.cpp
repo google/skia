@@ -25,7 +25,7 @@ DEF_TEST(MipMap, reporter) {
 
     for (int i = 0; i < 500; ++i) {
         make_bitmap(&bm, rand);
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(bm));
+        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(bm, NULL));
 
         REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1, NULL));
         REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1 * 2, NULL));

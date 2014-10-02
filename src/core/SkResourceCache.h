@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 
+class SkCachedData;
 class SkDiscardableMemory;
 class SkMipMap;
 
@@ -136,6 +137,8 @@ public:
      */
     static SkBitmap::Allocator* GetAllocator();
 
+    static SkCachedData* NewCachedData(size_t bytes);
+
     /**
      *  Call SkDebugf() with diagnostic information about the state of the cache
      */
@@ -196,6 +199,8 @@ public:
 
     DiscardableFactory discardableFactory() const { return fDiscardableFactory; }
     SkBitmap::Allocator* allocator() const { return fAllocator; };
+
+    SkCachedData* newCachedData(size_t bytes);
 
     /**
      *  Call SkDebugf() with diagnostic information about the state of the cache

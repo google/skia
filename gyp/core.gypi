@@ -42,6 +42,7 @@
         '<(skia_src_path)/core/SkBlitter_RGB16.cpp',
         '<(skia_src_path)/core/SkBlitter_Sprite.cpp',
         '<(skia_src_path)/core/SkBuffer.cpp',
+        '<(skia_src_path)/core/SkCachedData.cpp',
         '<(skia_src_path)/core/SkCanvas.cpp',
         '<(skia_src_path)/core/SkChunkAlloc.cpp',
         '<(skia_src_path)/core/SkClipStack.cpp',
