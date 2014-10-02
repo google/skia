@@ -51,8 +51,7 @@ protected:
         SkRandom rand;
         for (int i = 0; i < loops; ++i) {
             for (int j = 0; j < NUM_BUILD_RECTS; ++j) {
-                fTree->insert(reinterpret_cast<void*>(j), fProc(rand, j, NUM_BUILD_RECTS),
-                              fBulkLoad);
+                fTree->insert(j, fProc(rand, j, NUM_BUILD_RECTS), fBulkLoad);
             }
             fTree->flushDeferredInserts();
             fTree->clear();
@@ -104,9 +103,7 @@ protected:
     virtual void onPreDraw() SK_OVERRIDE {
         SkRandom rand;
         for (int j = 0; j < NUM_QUERY_RECTS; ++j) {
-            fTree->insert(reinterpret_cast<void*>(j),
-                          fProc(rand, j, NUM_QUERY_RECTS),
-                          fBulkLoad);
+            fTree->insert(j, fProc(rand, j, NUM_QUERY_RECTS), fBulkLoad);
         }
         fTree->flushDeferredInserts();
     }
@@ -114,7 +111,7 @@ protected:
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRandom rand;
         for (int i = 0; i < loops; ++i) {
-            SkTDArray<void*> hits;
+            SkTDArray<unsigned> hits;
             SkRect query;
             switch(fQuery) {
                 case kSmall_QueryType:

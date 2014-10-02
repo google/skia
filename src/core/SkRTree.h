@@ -63,11 +63,11 @@ public:
      * Insert a node, consisting of bounds and a data value into the tree, if we don't immediately
      * need to use the tree; we may allow the insert to be deferred (this can allow us to bulk-load
      * a large batch of nodes at once, which tends to be faster and produce a better tree).
-     *  @param data The data value
+     *  @param opIndex The data value
      *  @param bounds The corresponding bounding box
      *  @param defer Can this insert be deferred? (this may be ignored)
      */
-    virtual void insert(void* data, const SkRect& bounds, bool defer = false) SK_OVERRIDE;
+    virtual void insert(unsigned opIndex, const SkRect& bounds, bool defer = false) SK_OVERRIDE;
 
     /**
      * If any inserts have been deferred, this will add them into the tree
@@ -77,7 +77,7 @@ public:
     /**
      * Given a query rectangle, populates the passed-in array with the elements it intersects
      */
-    virtual void search(const SkRect& query, SkTDArray<void*>* results) const SK_OVERRIDE;
+    virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE;
 
     virtual void clear() SK_OVERRIDE;
     bool isEmpty() const { return 0 == fCount; }
@@ -94,8 +94,6 @@ public:
      */
     virtual int getCount() const SK_OVERRIDE { return fCount; }
 
-    virtual void rewindInserts() SK_OVERRIDE;
-
 private:
 
     struct Node;
@@ -106,7 +104,7 @@ private:
     struct Branch {
         union {
             Node* subtree;
-            void* data;
+            unsigned opIndex;
         } fChild;
         SkIRect fBounds;
     };
@@ -162,7 +160,7 @@ private:
     int chooseSubtree(Node* root, Branch* branch);
     SkIRect computeBounds(Node* n);
     int distributeChildren(Branch* children);
-    void search(Node* root, const SkIRect query, SkTDArray<void*>* results) const;
+    void search(Node* root, const SkIRect query, SkTDArray<unsigned>* results) const;
 
     /**
      * This performs a bottom-up bulk load using the STR (sort-tile-recursive) algorithm, this

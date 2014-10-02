@@ -31,14 +31,14 @@ public:
     SkTDArray<SkRect> fRects;
 };
 
-static void verifyTileHits(skiatest::Reporter* reporter, SkRect rect,
-                           uint32_t tileMask, int borderPixels = 0) {
+static void verify_tile_hits(skiatest::Reporter* reporter, SkRect rect,
+                             uint32_t tileMask, int borderPixels = 0) {
     SkTileGridFactory::TileGridInfo info;
     info.fMargin.set(borderPixels, borderPixels);
     info.fOffset.setZero();
     info.fTileInterval.set(10 - 2 * borderPixels, 10 - 2 * borderPixels);
     SkTileGrid grid(2, 2, info);
-    grid.insert(NULL, rect, false);
+    grid.insert(0, rect, false);
     REPORTER_ASSERT(reporter, grid.tileCount(0, 0) ==
                     ((tileMask & kTopLeft_Tile)? 1 : 0));
     REPORTER_ASSERT(reporter, grid.tileCount(1, 0) ==
@@ -223,29 +223,28 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
 
 DEF_TEST(TileGrid, reporter) {
     // Out of bounds
-    verifyTileHits(reporter, SkRect::MakeXYWH(30, 0, 1, 1),  0);
-    verifyTileHits(reporter, SkRect::MakeXYWH(0, 30, 1, 1),  0);
-    verifyTileHits(reporter, SkRect::MakeXYWH(-10, 0, 1, 1),  0);
-    verifyTileHits(reporter, SkRect::MakeXYWH(0, -10, 1, 1),  0);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(30, 0, 1, 1),  0);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(0, 30, 1, 1),  0);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(-10, 0, 1, 1), 0);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(0, -10, 1, 1), 0);
 
     // Dilation for AA consideration
-    verifyTileHits(reporter, SkRect::MakeXYWH(0, 0, 9, 9),  kTopLeft_Tile);
-    verifyTileHits(reporter, SkRect::MakeXYWH(0, 0, 10, 10),  kAll_Tile);
-    verifyTileHits(reporter, SkRect::MakeXYWH(9, 9, 1, 1),  kAll_Tile);
-    verifyTileHits(reporter, SkRect::MakeXYWH(10, 10, 1, 1),  kAll_Tile);
-    verifyTileHits(reporter, SkRect::MakeXYWH(11, 11, 1, 1),  kBottomRight_Tile);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(0, 0, 9, 9),   kTopLeft_Tile);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(0, 0, 10, 10), kAll_Tile);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(9, 9, 1, 1),   kAll_Tile);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(10, 10, 1, 1), kAll_Tile);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(11, 11, 1, 1), kBottomRight_Tile);
 
     // BorderPixels
-    verifyTileHits(reporter, SkRect::MakeXYWH(0, 0, 6, 6),  kTopLeft_Tile, 1);
-    verifyTileHits(reporter, SkRect::MakeXYWH(0, 0, 7, 7),  kAll_Tile, 1);
-    verifyTileHits(reporter, SkRect::MakeXYWH(9, 9, 1, 1),  kAll_Tile, 1);
-    verifyTileHits(reporter, SkRect::MakeXYWH(10, 10, 1, 1),  kBottomRight_Tile, 1);
-    verifyTileHits(reporter, SkRect::MakeXYWH(17, 17, 1, 1),  kBottomRight_Tile, 1);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(0, 0, 6, 6),   kTopLeft_Tile,     1);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(0, 0, 7, 7),   kAll_Tile,         1);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(9, 9, 1, 1),   kAll_Tile,         1);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(10, 10, 1, 1), kBottomRight_Tile, 1);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(17, 17, 1, 1), kBottomRight_Tile, 1);
 
     // BBoxes that overlap tiles
-    verifyTileHits(reporter, SkRect::MakeXYWH(5, 5, 10, 1),  kTopLeft_Tile | kTopRight_Tile);
-    verifyTileHits(reporter, SkRect::MakeXYWH(5, 5, 1, 10),  kTopLeft_Tile |
-                   kBottomLeft_Tile);
-    verifyTileHits(reporter, SkRect::MakeXYWH(5, 5, 10, 10),  kAll_Tile);
-    verifyTileHits(reporter, SkRect::MakeXYWH(-10, -10, 40, 40),  kAll_Tile);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(5, 5, 10, 1),     kTopLeft_Tile | kTopRight_Tile);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(5, 5, 1, 10),     kTopLeft_Tile | kBottomLeft_Tile);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(5, 5, 10, 10),    kAll_Tile);
+    verify_tile_hits(reporter, SkRect::MakeXYWH(-10, -10, 40, 40),kAll_Tile);
 }

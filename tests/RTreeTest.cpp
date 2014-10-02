@@ -17,11 +17,6 @@ static const int NUM_RECTS = 200;
 static const size_t NUM_ITERATIONS = 100;
 static const size_t NUM_QUERIES = 50;
 
-struct DataRect {
-    SkRect rect;
-    void* data;
-};
-
 static SkRect random_rect(SkRandom& rand) {
     SkRect rect = {0,0,0,0};
     while (rect.isEmpty()) {
@@ -34,24 +29,22 @@ static SkRect random_rect(SkRandom& rand) {
     return rect;
 }
 
-static void random_data_rects(SkRandom& rand, DataRect out[], int n) {
+static void random_data_rects(SkRandom& rand, SkRect out[], int n) {
     for (int i = 0; i < n; ++i) {
-        out[i].rect = random_rect(rand);
-        out[i].data = reinterpret_cast<void*>(i);
+        out[i] = random_rect(rand);
     }
 }
 
-static bool verify_query(SkRect query, DataRect rects[],
-                         SkTDArray<void*>& found) {
+static bool verify_query(SkRect query, SkRect rects[], SkTDArray<unsigned>& found) {
     // TODO(mtklein): no need to do this after everything's SkRects
     query.roundOut();
 
-    SkTDArray<void*> expected;
+    SkTDArray<unsigned> expected;
 
     // manually intersect with every rectangle
     for (int i = 0; i < NUM_RECTS; ++i) {
-        if (SkRect::Intersects(query, rects[i].rect)) {
-            expected.push(rects[i].data);
+        if (SkRect::Intersects(query, rects[i])) {
+            expected.push(i);
         }
     }
 
@@ -63,18 +56,16 @@ static bool verify_query(SkRect query, DataRect rects[],
         return true;
     }
 
-    // Just cast to long since sorting by the value of the void*'s was being problematic...
-    SkTQSort(reinterpret_cast<long*>(expected.begin()),
-             reinterpret_cast<long*>(expected.end() - 1));
-    SkTQSort(reinterpret_cast<long*>(found.begin()),
-             reinterpret_cast<long*>(found.end() - 1));
+    // skia:2834.  RTree doesn't always return results in order.
+    SkTQSort(expected.begin(), expected.end() -1);
+    SkTQSort(found.begin(), found.end() -1);
     return found == expected;
 }
 
-static void run_queries(skiatest::Reporter* reporter, SkRandom& rand, DataRect rects[],
+static void run_queries(skiatest::Reporter* reporter, SkRandom& rand, SkRect rects[],
                        SkRTree& tree) {
     for (size_t i = 0; i < NUM_QUERIES; ++i) {
-        SkTDArray<void*> hits;
+        SkTDArray<unsigned> hits;
         SkRect query = random_rect(rand);
         tree.search(query, &hits);
         REPORTER_ASSERT(reporter, verify_query(query, rects, hits));
@@ -82,7 +73,7 @@ static void run_queries(skiatest::Reporter* reporter, SkRandom& rand, DataRect r
 }
 
 static void rtree_test_main(SkRTree* rtree, skiatest::Reporter* reporter) {
-    DataRect rects[NUM_RECTS];
+    SkRect rects[NUM_RECTS];
     SkRandom rand;
     REPORTER_ASSERT(reporter, rtree);
 
@@ -108,7 +99,7 @@ static void rtree_test_main(SkRTree* rtree, skiatest::Reporter* reporter) {
 
         // First try bulk-loaded inserts
         for (int i = 0; i < NUM_RECTS; ++i) {
-            rtree->insert(rects[i].data, rects[i].rect, true);
+            rtree->insert(i, rects[i], true);
         }
         rtree->flushDeferredInserts();
         run_queries(reporter, rand, rects, *rtree);
@@ -120,7 +111,7 @@ static void rtree_test_main(SkRTree* rtree, skiatest::Reporter* reporter) {
 
         // Then try immediate inserts
         for (int i = 0; i < NUM_RECTS; ++i) {
-            rtree->insert(rects[i].data, rects[i].rect);
+            rtree->insert(i, rects[i]);
         }
         run_queries(reporter, rand, rects, *rtree);
         REPORTER_ASSERT(reporter, NUM_RECTS == rtree->getCount());
@@ -131,7 +122,7 @@ static void rtree_test_main(SkRTree* rtree, skiatest::Reporter* reporter) {
 
         // And for good measure try immediate inserts, but in reversed order
         for (int i = NUM_RECTS - 1; i >= 0; --i) {
-            rtree->insert(rects[i].data, rects[i].rect);
+            rtree->insert(i, rects[i]);
         }
         run_queries(reporter, rand, rects, *rtree);
         REPORTER_ASSERT(reporter, NUM_RECTS == rtree->getCount());

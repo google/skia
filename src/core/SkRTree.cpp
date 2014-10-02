@@ -44,7 +44,7 @@ SkRTree::~SkRTree() {
     this->clear();
 }
 
-void SkRTree::insert(void* data, const SkRect& fbounds, bool defer) {
+void SkRTree::insert(unsigned opIndex, const SkRect& fbounds, bool defer) {
     SkIRect bounds;
     if (fbounds.isLargest()) {
         bounds.setLargest();
@@ -59,7 +59,7 @@ void SkRTree::insert(void* data, const SkRect& fbounds, bool defer) {
     }
     Branch newBranch;
     newBranch.fBounds = bounds;
-    newBranch.fChild.data = data;
+    newBranch.fChild.opIndex = opIndex;
     if (this->isEmpty()) {
         // since a bulk-load into an existing tree is as of yet unimplemented (and arguably not
         // of vital importance right now), we only batch up inserts if the tree is empty.
@@ -109,7 +109,7 @@ void SkRTree::flushDeferredInserts() {
     this->validate();
 }
 
-void SkRTree::search(const SkRect& fquery, SkTDArray<void*>* results) const {
+void SkRTree::search(const SkRect& fquery, SkTDArray<unsigned>* results) const {
     SkIRect query;
     fquery.roundOut(&query);
     this->validate();
@@ -309,11 +309,11 @@ int SkRTree::distributeChildren(Branch* children) {
     return fMinChildren - 1 + k;
 }
 
-void SkRTree::search(Node* root, const SkIRect query, SkTDArray<void*>* results) const {
+void SkRTree::search(Node* root, const SkIRect query, SkTDArray<unsigned>* results) const {
     for (int i = 0; i < root->fNumChildren; ++i) {
         if (SkIRect::IntersectsNoEmptyCheck(root->child(i)->fBounds, query)) {
             if (root->isLeaf()) {
-                results->push(root->child(i)->fChild.data);
+                results->push(root->child(i)->fChild.opIndex);
             } else {
                 this->search(root->child(i)->fChild.subtree, query, results);
             }
@@ -445,14 +445,6 @@ int SkRTree::validateSubtree(Node* root, SkIRect bounds, bool isRoot) const {
                                                 root->child(i)->fBounds);
         }
         return childCount;
-    }
-}
-
-void SkRTree::rewindInserts() {
-    SkASSERT(this->isEmpty()); // Currently only supports deferred inserts
-    while (!fDeferredInserts.isEmpty() &&
-           fClient->shouldRewind(fDeferredInserts.top().fChild.data)) {
-        fDeferredInserts.pop();
     }
 }
 

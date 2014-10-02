@@ -11,7 +11,7 @@
 #include "SkRecordDraw.h"
 #include "SkRecords.h"
 
-GrReplacements::ReplacementInfo* GrReplacements::newReplacement(uint32_t pictureID, 
+GrReplacements::ReplacementInfo* GrReplacements::newReplacement(uint32_t pictureID,
                                                                 unsigned int start,
                                                                 const SkMatrix& ctm) {
     ReplacementInfo* replacement = SkNEW_ARGS(ReplacementInfo, (pictureID, start, ctm));
@@ -30,8 +30,8 @@ void GrReplacements::freeAll() {
     fReplacementHash.reset();
 }
 
-const GrReplacements::ReplacementInfo* GrReplacements::lookupByStart(uint32_t pictureID, 
-                                                                     size_t start, 
+const GrReplacements::ReplacementInfo* GrReplacements::lookupByStart(uint32_t pictureID,
+                                                                     size_t start,
                                                                      const SkMatrix& ctm) const {
     return fReplacementHash.find(ReplacementInfo::Key(pictureID, start, ctm));
 }
@@ -94,7 +94,7 @@ public:
                     return;
                 }
 
-                record->visit<void>((uintptr_t)fOps[fIndex], *this);
+                record->visit<void>(fOps[fIndex], *this);
             }
 
         } else {
@@ -121,29 +121,29 @@ public:
         draw.draw();
     }
     void operator()(const SkRecords::SaveLayer& sl) {
-        
+
         // For a saveLayer command, check if it can be replaced by a drawBitmap
         // call and, if so, draw it and then update the current op index accordingly.
         size_t startOffset;
         if (fOps.count()) {
-            startOffset = (uintptr_t)fOps[fIndex];
+            startOffset = fOps[fIndex];
         } else {
             startOffset = fIndex;
         }
 
         const GrReplacements::ReplacementInfo* ri = fReplacements->lookupByStart(
-                                                            fPicture->uniqueID(), 
-                                                            startOffset, 
+                                                            fPicture->uniqueID(),
+                                                            startOffset,
                                                             fCanvas->getTotalMatrix());
 
         if (ri) {
             draw_replacement_bitmap(ri, fCanvas, fInitialMatrix);
 
             if (fPicture->fBBH.get()) {
-                while ((uintptr_t)fOps[fIndex] < ri->fStop) {
+                while (fOps[fIndex] < ri->fStop) {
                     ++fIndex;
                 }
-                SkASSERT((uintptr_t)fOps[fIndex] == ri->fStop);
+                SkASSERT(fOps[fIndex] == ri->fStop);
             } else {
                 fIndex = ri->fStop;
             }
@@ -161,7 +161,7 @@ private:
     const SkMatrix         fInitialMatrix;
     SkDrawPictureCallback* fCallback;
 
-    SkTDArray<void*>       fOps;
+    SkTDArray<unsigned>    fOps;
     int                    fIndex;
 
     typedef Draw INHERITED;

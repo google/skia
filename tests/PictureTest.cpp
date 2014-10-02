@@ -1865,17 +1865,16 @@ struct CountingBBH : public SkBBoxHierarchy {
 
     CountingBBH() : searchCalls(0) {}
 
-    virtual void search(const SkRect& query, SkTDArray<void*>* results) const {
+    virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE {
         this->searchCalls++;
     }
 
     // All other methods unimplemented.
-    virtual void insert(void* data, const SkRect& bounds, bool defer) {}
-    virtual void flushDeferredInserts() {}
-    virtual void clear() {}
-    virtual int getCount() const { return 0; }
-    virtual int getDepth() const { return 0; }
-    virtual void rewindInserts() {}
+    virtual void insert(unsigned opIndex, const SkRect& bounds, bool defer) SK_OVERRIDE {}
+    virtual void flushDeferredInserts() SK_OVERRIDE {}
+    virtual void clear() SK_OVERRIDE {}
+    virtual int getCount() const SK_OVERRIDE { return 0; }
+    virtual int getDepth() const SK_OVERRIDE { return 0; }
 };
 
 class SpoonFedBBHFactory : public SkBBHFactory {

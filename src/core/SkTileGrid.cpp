@@ -12,7 +12,7 @@ SkTileGrid::SkTileGrid(int xTiles, int yTiles, const SkTileGridFactory::TileGrid
     , fYTiles(yTiles)
     , fInfo(info)
     , fCount(0)
-    , fTiles(SkNEW_ARRAY(SkTDArray<Entry>, xTiles * yTiles)) {
+    , fTiles(SkNEW_ARRAY(SkTDArray<unsigned>, xTiles * yTiles)) {
     // Margin is offset by 1 as a provision for AA and
     // to cancel-out the outset applied by getClipDeviceBounds.
     fInfo.fMargin.fHeight++;
@@ -23,7 +23,7 @@ SkTileGrid::~SkTileGrid() {
     SkDELETE_ARRAY(fTiles);
 }
 
-void SkTileGrid::insert(void* data, const SkRect& fbounds, bool) {
+void SkTileGrid::insert(unsigned opIndex, const SkRect& fbounds, bool) {
     SkASSERT(!fbounds.isEmpty());
     SkIRect dilatedBounds;
     if (fbounds.isLargest()) {
@@ -51,10 +51,9 @@ void SkTileGrid::insert(void* data, const SkRect& fbounds, bool) {
     int maxY = SkMax32(0, SkMin32((dilatedBounds.bottom() - 1) / fInfo.fTileInterval.height(),
                                   fYTiles - 1));
 
-    Entry entry = { fCount++, data };
     for (int y = minY; y <= maxY; y++) {
         for (int x = minX; x <= maxX; x++) {
-            fTiles[y * fXTiles + x].push(entry);
+            fTiles[y * fXTiles + x].push(opIndex);
         }
     }
 }
@@ -69,7 +68,7 @@ static int divide_ceil(int x, int y) {
 // require 512 tiles of size 256 x 256 pixels.
 static const int kStackAllocationTileCount = 1024;
 
-void SkTileGrid::search(const SkRect& query, SkTDArray<void*>* results) const {
+void SkTileGrid::search(const SkRect& query, SkTDArray<unsigned>* results) const {
     SkIRect adjusted;
     query.roundOut(&adjusted);
 
@@ -102,24 +101,20 @@ void SkTileGrid::search(const SkRect& query, SkTDArray<void*>* results) const {
 
     if (tilesHit == 1) {
         // A performance shortcut.  The merging code below would work fine here too.
-        const SkTDArray<Entry>& tile = fTiles[startY * fXTiles + startX];
-        results->setCount(tile.count());
-        for (int i = 0; i < tile.count(); i++) {
-            (*results)[i] = tile[i].data;
-        }
+        *results = fTiles[startY * fXTiles + startX];
         return;
     }
 
     // We've got to merge the data in many tiles into a single sorted and deduplicated stream.
-    // We do a simple k-way merge based on the order the data was inserted.
+    // We do a simple k-way merge based on the value of opIndex.
 
     // Gather pointers to the starts and ends of the tiles to merge.
-    SkAutoSTArray<kStackAllocationTileCount, const Entry*> starts(tilesHit), ends(tilesHit);
+    SkAutoSTArray<kStackAllocationTileCount, const unsigned*> starts(tilesHit), ends(tilesHit);
     int i = 0;
     for (int x = startX; x < endX; x++) {
         for (int y = startY; y < endY; y++) {
             starts[i] = fTiles[y * fXTiles + x].begin();
-            ends[i]  = fTiles[y * fXTiles + x].end();
+            ends[i]   = fTiles[y * fXTiles + x].end();
             i++;
         }
     }
@@ -129,10 +124,10 @@ void SkTileGrid::search(const SkRect& query, SkTDArray<void*>* results) const {
     while (true) {
         // The tiles themselves are already ordered, so the earliest is at the front of some tile.
         // It may be at the front of several, even all, tiles.
-        const Entry* earliest = NULL;
+        const unsigned* earliest = NULL;
         for (int i = 0; i < starts.count(); i++) {
             if (starts[i] < ends[i]) {
-                if (NULL == earliest || starts[i]->order < earliest->order) {
+                if (NULL == earliest || *starts[i]< *earliest) {
                     earliest = starts[i];
                 }
             }
@@ -144,9 +139,9 @@ void SkTileGrid::search(const SkRect& query, SkTDArray<void*>* results) const {
         }
 
         // We did find an earliest entry. Output it, and step forward every tile that contains it.
-        results->push(earliest->data);
+        results->push(*earliest);
         for (int i = 0; i < starts.count(); i++) {
-            if (starts[i] < ends[i] && starts[i]->order == earliest->order) {
+            if (starts[i] < ends[i] && *starts[i] == *earliest) {
                 starts[i]++;
             }
         }
@@ -159,11 +154,3 @@ void SkTileGrid::clear() {
     }
 }
 
-void SkTileGrid::rewindInserts() {
-    SkASSERT(fClient);
-    for (int i = 0; i < fXTiles * fYTiles; i++) {
-        while (!fTiles[i].isEmpty() && fClient->shouldRewind(fTiles[i].top().data)) {
-            fTiles[i].pop();
-        }
-    }
-}

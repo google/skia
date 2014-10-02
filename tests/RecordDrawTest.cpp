@@ -98,24 +98,23 @@ DEF_TEST(RecordDraw_SetMatrixClobber, r) {
 }
 
 struct TestBBH : public SkBBoxHierarchy {
-    virtual void insert(void* data, const SkRect& bounds, bool defer) SK_OVERRIDE {
-        Entry e = { (uintptr_t)data, bounds };
-        entries.push(e);
+    virtual void insert(unsigned opIndex, const SkRect& bounds, bool defer) SK_OVERRIDE {
+        Entry e = { opIndex, bounds };
+        fEntries.push(e);
     }
-    virtual int getCount() const SK_OVERRIDE { return entries.count(); }
+    virtual int getCount() const SK_OVERRIDE { return fEntries.count(); }
 
     virtual void flushDeferredInserts() SK_OVERRIDE {}
 
-    virtual void search(const SkRect& query, SkTDArray<void*>* results) const SK_OVERRIDE {}
+    virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE {}
     virtual void clear() SK_OVERRIDE {}
-    virtual void rewindInserts() SK_OVERRIDE {}
     virtual int getDepth() const SK_OVERRIDE { return -1; }
 
     struct Entry {
-        uintptr_t data;
+        unsigned opIndex;
         SkRect bounds;
     };
-    SkTDArray<Entry> entries;
+    SkTDArray<Entry> fEntries;
 };
 
 // Like a==b, with a little slop recognizing that float equality can be weird.
@@ -140,11 +139,11 @@ DEF_TEST(RecordDraw_BBH, r) {
     TestBBH bbh;
     SkRecordFillBounds(record, &bbh);
 
-    REPORTER_ASSERT(r, bbh.entries.count() == 5);
-    for (int i = 0; i < bbh.entries.count(); i++) {
-        REPORTER_ASSERT(r, bbh.entries[i].data == (uintptr_t)i);
+    REPORTER_ASSERT(r, bbh.fEntries.count() == 5);
+    for (int i = 0; i < bbh.fEntries.count(); i++) {
+        REPORTER_ASSERT(r, bbh.fEntries[i].opIndex == (unsigned)i);
 
-        REPORTER_ASSERT(r, sloppy_rect_eq(SkRect::MakeWH(400, 480), bbh.entries[i].bounds));
+        REPORTER_ASSERT(r, sloppy_rect_eq(SkRect::MakeWH(400, 480), bbh.fEntries[i].bounds));
     }
 }
 
@@ -165,13 +164,13 @@ DEF_TEST(RecordDraw_TextBounds, r) {
 
     TestBBH bbh;
     SkRecordFillBounds(record, &bbh);
-    REPORTER_ASSERT(r, bbh.entries.count() == 2);
+    REPORTER_ASSERT(r, bbh.fEntries.count() == 2);
 
     // We can make these next assertions confidently because SkRecordFillBounds
     // builds its bounds by overestimating font metrics in a platform-independent way.
     // If that changes, these tests will need to be more flexible.
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[0].bounds, SkRect::MakeLTRB(-86,  6, 116, 54)));
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[1].bounds, SkRect::MakeLTRB(-56, 26, 156, 94)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[0].bounds, SkRect::MakeLTRB(-86,  6, 116, 54)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[1].bounds, SkRect::MakeLTRB(-56, 26, 156, 94)));
 }
 
 // Base test to ensure start/stop range is respected
@@ -252,9 +251,9 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     // The saveLayer, clipRect, and restore bounds were incorrectly (0,0,70,50).
     TestBBH bbh;
     SkRecordFillBounds(record, &bbh);
-    REPORTER_ASSERT(r, bbh.entries.count() == 4);
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[0].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[1].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[2].bounds, SkRect::MakeLTRB(0, 0, 40, 40)));
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.entries[3].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
+    REPORTER_ASSERT(r, bbh.fEntries.count() == 4);
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[0].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[1].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[2].bounds, SkRect::MakeLTRB(0, 0, 40, 40)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[3].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
 }

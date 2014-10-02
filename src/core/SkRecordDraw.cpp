@@ -23,7 +23,7 @@ void SkRecordDraw(const SkRecord& record,
         SkRect query = { 0, 0, 0, 0 };
         (void)canvas->getClipBounds(&query);
 
-        SkTDArray<void*> ops;
+        SkTDArray<unsigned> ops;
         bbh->search(query, &ops);
 
         SkRecords::Draw draw(canvas);
@@ -31,7 +31,7 @@ void SkRecordDraw(const SkRecord& record,
             if (callback && callback->abortDrawing()) {
                 return;
             }
-            record.visit<void>((uintptr_t)ops[i], draw);  // See FillBounds below.
+            record.visit<void>(ops[i], draw);
         }
     } else {
         // Draw all ops.
@@ -156,9 +156,9 @@ public:
 
         // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
         SkASSERT(bbh);
-        for (uintptr_t i = 0; i < record.count(); i++) {
+        for (unsigned i = 0; i < record.count(); i++) {
             if (!fBounds[i].isEmpty()) {
-                bbh->insert((void*)i, fBounds[i], true/*ok to defer*/);
+                bbh->insert(i, fBounds[i], true/*ok to defer*/);
             }
         }
         bbh->flushDeferredInserts();
