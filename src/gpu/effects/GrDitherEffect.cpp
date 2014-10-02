@@ -30,6 +30,8 @@ public:
 
     typedef GLDitherEffect GLProcessor;
 
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
         return GrTBackendFragmentProcessorFactory<DitherEffect>::getInstance();
     }
@@ -42,16 +44,13 @@ private:
     // All dither effects are equal
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
-
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrFragmentProcessor INHERITED;
 };
 
-void DitherEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+void DitherEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    *validFlags = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////

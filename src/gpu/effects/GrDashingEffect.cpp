@@ -456,14 +456,14 @@ public:
 
     typedef GLDashingCircleEffect GLProcessor;
 
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     DashingCircleEffect(GrPrimitiveEdgeType edgeType, const DashInfo& info, SkScalar radius);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
-
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType    fEdgeType;
     const GrShaderVar&  fInCoord;
@@ -584,9 +584,8 @@ GrGeometryProcessor* DashingCircleEffect::Create(GrPrimitiveEdgeType edgeType, c
 
 DashingCircleEffect::~DashingCircleEffect() {}
 
-void DashingCircleEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+void DashingCircleEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    *validFlags = 0;
 }
 
 const GrBackendGeometryProcessorFactory& DashingCircleEffect::getFactory() const {
@@ -669,14 +668,14 @@ public:
 
     typedef GLDashingLineEffect GLProcessor;
 
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     DashingLineEffect(GrPrimitiveEdgeType edgeType, const DashInfo& info, SkScalar strokeWidth);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
-
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType    fEdgeType;
     const GrShaderVar&  fInCoord;
@@ -808,9 +807,8 @@ GrGeometryProcessor* DashingLineEffect::Create(GrPrimitiveEdgeType edgeType,
 
 DashingLineEffect::~DashingLineEffect() {}
 
-void DashingLineEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+void DashingLineEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    *validFlags = 0;
 }
 
 const GrBackendGeometryProcessorFactory& DashingLineEffect::getFactory() const {

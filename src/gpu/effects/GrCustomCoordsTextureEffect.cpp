@@ -72,13 +72,14 @@ bool GrCustomCoordsTextureEffect::onIsEqual(const GrProcessor& other) const {
     return fTextureAccess == cte.fTextureAccess;
 }
 
-void GrCustomCoordsTextureEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    if (inout->isOpaque() && GrPixelConfigIsOpaque(this->texture(0)->config())) {
-        inout->fValidFlags = kA_GrColorComponentFlag;
+void GrCustomCoordsTextureEffect::getConstantColorComponents(GrColor* color,
+                                                             uint32_t* validFlags) const {
+    if ((*validFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(*color) &&
+        GrPixelConfigIsOpaque(this->texture(0)->config())) {
+        *validFlags = kA_GrColorComponentFlag;
     } else {
-        inout->fValidFlags = 0;
+        *validFlags = 0;
     }
-    inout->fIsSingleComponent = false;
 }
 
 const GrBackendGeometryProcessorFactory& GrCustomCoordsTextureEffect::getFactory() const {

@@ -88,46 +88,4 @@ void GrProcessor::assertEquality(const GrProcessor& other) const {
         SkASSERT(this->textureAccess(i) == other.textureAccess(i));
     }
 }
-
-void GrProcessor::InvariantOutput::validate() const {
-    if (fIsSingleComponent) {
-        SkASSERT(0 == fValidFlags || kRGBA_GrColorComponentFlags == fValidFlags);
-        if (kRGBA_GrColorComponentFlags == fValidFlags) {
-            SkASSERT(this->colorComponentsAllEqual());
-        }
-    }
-
-    SkASSERT(this->validPreMulColor());
-}
-
-bool GrProcessor::InvariantOutput::colorComponentsAllEqual() const {
-    unsigned colorA = GrColorUnpackA(fColor);
-    return(GrColorUnpackR(fColor) == colorA &&
-           GrColorUnpackG(fColor) == colorA &&
-           GrColorUnpackB(fColor) == colorA);
-}
-
-bool GrProcessor::InvariantOutput::validPreMulColor() const {
-    if (kA_GrColorComponentFlag & fValidFlags) {
-        float c[4];
-        GrColorToRGBAFloat(fColor, c);
-        if (kR_GrColorComponentFlag & fValidFlags) {
-            if (c[0] > c[3]) {
-                return false;
-            }
-        }
-        if (kG_GrColorComponentFlag & fValidFlags) {
-            if (c[1] > c[3]) {
-                return false;
-            }
-        }
-        if (kB_GrColorComponentFlag & fValidFlags) {
-            if (c[2] > c[3]) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
 #endif
-

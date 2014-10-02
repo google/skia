@@ -309,6 +309,7 @@ public:
     typedef GrGLMorphologyEffect GLProcessor;
 
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 protected:
 
@@ -316,8 +317,6 @@ protected:
 
 private:
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
-
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
 
@@ -456,11 +455,10 @@ bool GrMorphologyEffect::onIsEqual(const GrProcessor& sBase) const {
             this->type() == s.type());
 }
 
-void GrMorphologyEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrMorphologyEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
     // This is valid because the color components of the result of the kernel all come
     // exactly from existing values in the source texture.
-    this->updateInvariantOutputForModulation(inout);
-    inout->fIsSingleComponent = false;
+    this->updateConstantColorComponentsForModulation(color, validFlags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

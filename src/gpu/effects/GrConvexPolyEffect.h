@@ -70,14 +70,14 @@ public:
 
     typedef GrGLConvexPolyEffect GLProcessor;
 
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[]);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
-
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType    fEdgeType;
     int                    fEdgeCount;

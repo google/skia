@@ -28,6 +28,8 @@ public:
 
     static const char* Name() { return "Texture"; }
 
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
     const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
 
     typedef GrGLCustomCoordsTextureEffect GLProcessor;
@@ -38,8 +40,6 @@ private:
     GrCustomCoordsTextureEffect(GrTexture* texture, const GrTextureParams& params);
 
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
-
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
     const GrShaderVar& fInTextureCoords;

@@ -30,6 +30,11 @@ public:
 
     static const char* Name() { return "AlignedRectEdge"; }
 
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
     const GrShaderVar& inRect() const { return fInRect; }
 
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
@@ -107,11 +112,6 @@ private:
 
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
-    }
-
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
     typedef GrGeometryProcessor INHERITED;
@@ -154,6 +154,11 @@ public:
     virtual ~GrRectEffect() {}
 
     static const char* Name() { return "RectEdge"; }
+
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
 
     const GrShaderVar& inRectEdge() const { return fInRectEdge; }
     const GrShaderVar& inWidthHeight() const { return fInWidthHeight; }
@@ -251,11 +256,6 @@ private:
     }
 
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
-
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
-    }
 
     const GrShaderVar& fInRectEdge;
     const GrShaderVar& fInWidthHeight;

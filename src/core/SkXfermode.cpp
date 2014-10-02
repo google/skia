@@ -799,6 +799,11 @@ public:
         }
     }
 
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
         return GrTBackendFragmentProcessorFactory<XferEffect>::getInstance();
     }
@@ -1210,11 +1215,6 @@ private:
         const XferEffect& s = other.cast<XferEffect>();
         return fMode == s.fMode &&
                fBackgroundAccess.getTexture() == s.fBackgroundAccess.getTexture();
-    }
-    
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
     }
 
     SkXfermode::Mode fMode;

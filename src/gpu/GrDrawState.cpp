@@ -421,26 +421,26 @@ bool GrDrawState::hasSolidCoverage() const {
         return true;
     }
 
-    GrProcessor::InvariantOutput inout;
-    inout.fIsSingleComponent = false;
+    GrColor coverage;
+    uint32_t validComponentFlags;
     // Initialize to an unknown starting coverage if per-vertex coverage is specified.
     if (this->hasCoverageVertexAttribute()) {
-        inout.fValidFlags = 0;
+        validComponentFlags = 0;
     } else {
-        inout.fColor = fCoverage;
-        inout.fValidFlags = kRGBA_GrColorComponentFlags;
+        coverage = fCoverage;
+        validComponentFlags = kRGBA_GrColorComponentFlags;
     }
 
     // Run through the coverage stages and see if the coverage will be all ones at the end.
     if (this->hasGeometryProcessor()) {
         const GrGeometryProcessor* gp = fGeometryProcessor->getGeometryProcessor();
-        gp->computeInvariantOutput(&inout);
+        gp->getConstantColorComponents(&coverage, &validComponentFlags);
     }
     for (int s = 0; s < this->numCoverageStages(); ++s) {
         const GrProcessor* processor = this->getCoverageStage(s).getProcessor();
-        processor->computeInvariantOutput(&inout);
+        processor->getConstantColorComponents(&coverage, &validComponentFlags);
     }
-    return inout.isSolidWhite();
+    return (kRGBA_GrColorComponentFlags == validComponentFlags) && (0xffffffff == coverage);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -755,54 +755,55 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
 
 
 bool GrDrawState::srcAlphaWillBeOne() const {
-    GrProcessor::InvariantOutput inoutColor;
-    inoutColor.fIsSingleComponent = false;
+    uint32_t validComponentFlags;
+    GrColor color;
     // Check if per-vertex or constant color may have partial alpha
     if (this->hasColorVertexAttribute()) {
         if (fHints & kVertexColorsAreOpaque_Hint) {
-            inoutColor.fValidFlags = kA_GrColorComponentFlag;
-            inoutColor.fColor = 0xFF << GrColor_SHIFT_A;
+            validComponentFlags = kA_GrColorComponentFlag;
+            color = 0xFF << GrColor_SHIFT_A;
         } else {
-            inoutColor.fValidFlags = 0;
-            // not strictly necessary but we get false alarms from tools about uninit.
-            inoutColor.fColor = 0;
+            validComponentFlags = 0;
+            color = 0; // not strictly necessary but we get false alarms from tools about uninit.
         }
     } else {
-        inoutColor.fValidFlags = kRGBA_GrColorComponentFlags;
-        inoutColor.fColor = this->getColor();
+        validComponentFlags = kRGBA_GrColorComponentFlags;
+        color = this->getColor();
     }
 
     // Run through the color stages
     for (int s = 0; s < this->numColorStages(); ++s) {
         const GrProcessor* processor = this->getColorStage(s).getProcessor();
-        processor->computeInvariantOutput(&inoutColor);
+        processor->getConstantColorComponents(&color, &validComponentFlags);
     }
 
     // Check whether coverage is treated as color. If so we run through the coverage computation.
     if (this->isCoverageDrawing()) {
         // The shader generated for coverage drawing runs the full coverage computation and then
         // makes the shader output be the multiplication of color and coverage. We mirror that here.
-        GrProcessor::InvariantOutput inoutCoverage;
-        inoutCoverage.fIsSingleComponent = false;
+        GrColor coverage;
+        uint32_t coverageComponentFlags;
         if (this->hasCoverageVertexAttribute()) {
-            inoutCoverage.fValidFlags = 0;
-            inoutCoverage.fColor = 0; // suppresses any warnings.
+            coverageComponentFlags = 0;
+            coverage = 0; // suppresses any warnings.
         } else {
-            inoutCoverage.fValidFlags = kRGBA_GrColorComponentFlags;
-            inoutCoverage.fColor = this->getCoverageColor();
+            coverageComponentFlags = kRGBA_GrColorComponentFlags;
+            coverage = this->getCoverageColor();
         }
 
         // Run through the coverage stages
         for (int s = 0; s < this->numCoverageStages(); ++s) {
             const GrProcessor* processor = this->getCoverageStage(s).getProcessor();
-            processor->computeInvariantOutput(&inoutCoverage);
+            processor->getConstantColorComponents(&coverage, &coverageComponentFlags);
         }
 
         // Since the shader will multiply coverage and color, the only way the final A==1 is if
         // coverage and color both have A==1.
-        return (inoutColor.isOpaque() && inoutCoverage.isOpaque());
+        return (kA_GrColorComponentFlag & validComponentFlags & coverageComponentFlags) &&
+                0xFF == GrColorUnpackA(color) && 0xFF == GrColorUnpackA(coverage);
+
     }
 
-    return inoutColor.isOpaque();
+    return (kA_GrColorComponentFlag & validComponentFlags) && 0xFF == GrColorUnpackA(color);
 }
 

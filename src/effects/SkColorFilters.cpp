@@ -195,6 +195,8 @@ public:
         return SkNEW_ARGS(ModeColorFilterEffect, (c, mode));
     }
 
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
     bool willUseFilterColor() const {
         SkXfermode::Coeff dstCoeff;
         SkXfermode::Coeff srcCoeff;
@@ -291,8 +293,6 @@ private:
         return fMode == s.fMode && fColor == s.fColor;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
-
     SkXfermode::Mode fMode;
     GrColor fColor;
 
@@ -382,19 +382,18 @@ private:
 
 }
 
-void ModeColorFilterEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void ModeColorFilterEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
     float inputColor[4];
-    GrColorToRGBAFloat(inout->fColor, inputColor);
+    GrColorToRGBAFloat(*color, inputColor);
     float filterColor[4];
     GrColorToRGBAFloat(fColor, filterColor);
     MaskedColorExpr result =
         color_filter_expression(fMode,
                                 MaskedColorExpr(filterColor, kRGBA_GrColorComponentFlags),
-                                MaskedColorExpr(inputColor, inout->fValidFlags));
+                                MaskedColorExpr(inputColor, *validFlags));
 
-    inout->fColor = result.getColor();
-    inout->fValidFlags = result.getValidComponents();
-    inout->fIsSingleComponent = false;
+    *color = result.getColor();
+    *validFlags = result.getValidComponents();
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ModeColorFilterEffect);

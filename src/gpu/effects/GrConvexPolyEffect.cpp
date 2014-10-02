@@ -29,6 +29,17 @@ public:
         return SkNEW_ARGS(AARectEffect, (edgeType, rect));
     }
 
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        if (fRect.isEmpty()) {
+            // An empty rect will have no coverage anywhere.
+            *color = 0x00000000;
+            *validFlags = kRGBA_GrColorComponentFlags;
+        } else {
+            *validFlags = 0;
+        }
+    }
+
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
@@ -41,17 +52,6 @@ private:
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
         const AARectEffect& aare = other.cast<AARectEffect>();
         return fRect == aare.fRect;
-    }
-
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        if (fRect.isEmpty()) {
-            // An empty rect will have no coverage anywhere.
-            inout->fColor = 0x00000000;
-            inout->fValidFlags = kRGBA_GrColorComponentFlags;
-        } else {
-            inout->fValidFlags = 0;
-        }
-        inout->fIsSingleComponent = false;
     }
 
     SkRect              fRect;
@@ -328,9 +328,8 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType edgeType, co
 
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
 
-void GrConvexPolyEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+void GrConvexPolyEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    *validFlags = 0;
 }
 
 const GrBackendFragmentProcessorFactory& GrConvexPolyEffect::getFactory() const {

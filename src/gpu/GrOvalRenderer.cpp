@@ -75,6 +75,11 @@ public:
         }
     }
 
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
     const GrShaderVar& inCircleEdge() const { return fInCircleEdge; }
 
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
@@ -145,11 +150,6 @@ private:
         return cee.fStroke == fStroke;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
-    }
-
     const GrShaderVar& fInCircleEdge;
     bool fStroke;
 
@@ -190,6 +190,11 @@ public:
             gEllipseFillEdge->ref();
             return gEllipseFillEdge;
         }
+    }
+
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
     }
 
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
@@ -286,11 +291,6 @@ private:
         return eee.fStroke == fStroke;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
-    }
-
     const GrShaderVar& fInEllipseOffset;
     const GrShaderVar& fInEllipseRadii;
     bool fStroke;
@@ -339,6 +339,11 @@ public:
             gEllipseFillEdge->ref();
             return gEllipseFillEdge;
         }
+    }
+
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
     }
 
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
@@ -453,11 +458,6 @@ private:
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
         const DIEllipseEdgeEffect& eee = other.cast<DIEllipseEdgeEffect>();
         return eee.fMode == fMode;
-    }
-
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
     }
 
     const GrShaderVar& fInEllipseOffsets0;

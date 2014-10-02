@@ -44,15 +44,16 @@ protected:
     }
 
     /**
-     * Can be used as a helper to implement subclass onComputeInvariantOutput(). It assumes that
+     * Can be used as a helper to implement subclass getConstantColorComponents(). It assumes that
      * the subclass output color will be a modulation of the input color with a value read from the
      * texture.
      */
-    void updateInvariantOutputForModulation(InvariantOutput* inout) const {
-        if (inout->isOpaque() && GrPixelConfigIsOpaque(this->texture(0)->config())) {
-            inout->fValidFlags = kA_GrColorComponentFlag;
+    void updateConstantColorComponentsForModulation(GrColor* color, uint32_t* validFlags) const {
+        if ((*validFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(*color) &&
+            GrPixelConfigIsOpaque(this->texture(0)->config())) {
+            *validFlags = kA_GrColorComponentFlag;
         } else {
-            inout->fValidFlags = 0;
+            *validFlags = 0;
         }
     }
 

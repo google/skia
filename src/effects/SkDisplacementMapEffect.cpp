@@ -351,10 +351,10 @@ public:
     typedef GrGLDisplacementMapEffect GLProcessor;
     static const char* Name() { return "DisplacementMap"; }
 
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
 private:
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
-
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
@@ -491,14 +491,14 @@ const GrBackendFragmentProcessorFactory& GrDisplacementMapEffect::getFactory() c
     return GrTBackendFragmentProcessorFactory<GrDisplacementMapEffect>::getInstance();
 }
 
-void GrDisplacementMapEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrDisplacementMapEffect::getConstantColorComponents(GrColor*,
+                                                         uint32_t* validFlags) const {
     // Any displacement offset bringing a pixel out of bounds will output a color of (0,0,0,0),
     // so the only way we'd get a constant alpha is if the input color image has a constant alpha
     // and no displacement offset push any texture coordinates out of bounds OR if the constant
     // alpha is 0. Since this isn't trivial to compute at this point, let's assume the output is
     // not of constant color when a displacement effect is applied.
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    *validFlags = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

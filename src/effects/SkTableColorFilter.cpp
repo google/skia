@@ -294,12 +294,12 @@ public:
     static const char* Name() { return "ColorTable"; }
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
     typedef GLColorTableEffect GLProcessor;
 
 private:
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
-
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     explicit ColorTableEffect(GrTexture* texture, unsigned flags);
 
@@ -307,7 +307,7 @@ private:
 
     GrTextureAccess fTextureAccess;
     unsigned        fFlags; // currently not used in shader code, just to assist
-                            // onComputeInvariantOutput().
+                            // getConstantColorComponents().
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -401,22 +401,21 @@ bool ColorTableEffect::onIsEqual(const GrProcessor& sBase) const {
     return this->texture(0) == sBase.texture(0);
 }
 
-void ColorTableEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void ColorTableEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
     // If we kept the table in the effect then we could actually run known inputs through the
     // table.
     if (fFlags & SkTable_ColorFilter::kR_Flag) {
-        inout->fValidFlags &= ~kR_GrColorComponentFlag;
+        *validFlags &= ~kR_GrColorComponentFlag;
     }
     if (fFlags & SkTable_ColorFilter::kG_Flag) {
-        inout->fValidFlags &= ~kG_GrColorComponentFlag;
+        *validFlags &= ~kG_GrColorComponentFlag;
     }
     if (fFlags & SkTable_ColorFilter::kB_Flag) {
-        inout->fValidFlags &= ~kB_GrColorComponentFlag;
+        *validFlags &= ~kB_GrColorComponentFlag;
     }
     if (fFlags & SkTable_ColorFilter::kA_Flag) {
-        inout->fValidFlags &= ~kA_GrColorComponentFlag;
+        *validFlags &= ~kA_GrColorComponentFlag;
     }
-    inout->fIsSingleComponent = false;
 }
 
 

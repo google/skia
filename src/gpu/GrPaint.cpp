@@ -52,32 +52,28 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
 
     // TODO: Share this implementation with GrDrawState
 
-    GrProcessor::InvariantOutput inout;
-    inout.fColor = GrColorPackRGBA(fCoverage, fCoverage, fCoverage, fCoverage);
-    inout.fValidFlags = kRGBA_GrColorComponentFlags;
-    inout.fIsSingleComponent = false;
+    GrColor coverage = GrColorPackRGBA(fCoverage, fCoverage, fCoverage, fCoverage);
+    uint32_t coverageComps = kRGBA_GrColorComponentFlags;
     int count = fCoverageStages.count();
     for (int i = 0; i < count; ++i) {
-        fCoverageStages[i].getProcessor()->computeInvariantOutput(&inout);
+        fCoverageStages[i].getProcessor()->getConstantColorComponents(&coverage, &coverageComps);
     }
-    if (!inout.isSolidWhite()) {
+    if (kRGBA_GrColorComponentFlags != coverageComps || 0xffffffff != coverage) {
         return false;
     }
 
-    inout.fColor = fColor;
-    inout.fValidFlags = kRGBA_GrColorComponentFlags;
-    inout.fIsSingleComponent = false;
+    GrColor color = fColor;
+    uint32_t colorComps = kRGBA_GrColorComponentFlags;
     count = fColorStages.count();
     for (int i = 0; i < count; ++i) {
-        fColorStages[i].getProcessor()->computeInvariantOutput(&inout);
+        fColorStages[i].getProcessor()->getConstantColorComponents(&color, &colorComps);
     }
 
     SkASSERT((NULL == solidColor) == (NULL == solidColorKnownComponents));
 
     GrBlendCoeff srcCoeff = fSrcBlendCoeff;
     GrBlendCoeff dstCoeff = fDstBlendCoeff;
-    GrSimplifyBlend(&srcCoeff, &dstCoeff, inout.fColor, inout.fValidFlags,
-                    0, 0, 0);
+    GrSimplifyBlend(&srcCoeff, &dstCoeff, color, colorComps, 0, 0, 0);
 
     bool opaque = kZero_GrBlendCoeff == dstCoeff && !GrBlendCoeffRefsDst(srcCoeff);
     if (solidColor) {
@@ -89,8 +85,8 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
                     break;
 
                 case kOne_GrBlendCoeff:
-                    *solidColor = inout.fColor;
-                    *solidColorKnownComponents = inout.fValidFlags;
+                    *solidColor = color;
+                    *solidColorKnownComponents = colorComps;
                     break;
 
                 // The src coeff should never refer to the src and if it refers to dst then opaque
