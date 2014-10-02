@@ -280,7 +280,16 @@ void SkMatrix::setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
     if (1 == sx && 1 == sy) {
         this->reset();
     } else {
-        this->setScaleTranslate(sx, sy, px - sx * px, py - sy * py);
+        fMat[kMScaleX] = sx;
+        fMat[kMScaleY] = sy;
+        fMat[kMTransX] = px - sx * px;
+        fMat[kMTransY] = py - sy * py;
+        fMat[kMPersp2] = 1;
+
+        fMat[kMSkewX]  = fMat[kMSkewY] =
+        fMat[kMPersp0] = fMat[kMPersp1] = 0;
+
+        this->setTypeMask(kScale_Mask | kTranslate_Mask | kRectStaysRect_Mask);
     }
 }
 
@@ -381,7 +390,8 @@ bool SkMatrix::postIDiv(int divx, int divy) {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-void SkMatrix::setSinCos(SkScalar sinV, SkScalar cosV, SkScalar px, SkScalar py) {
+void SkMatrix::setSinCos(SkScalar sinV, SkScalar cosV,
+                         SkScalar px, SkScalar py) {
     const SkScalar oneMinusCosV = 1 - cosV;
 
     fMat[kMScaleX]  = cosV;
@@ -507,7 +517,9 @@ void SkMatrix::postSkew(SkScalar sx, SkScalar sy) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit align) {
+bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst,
+                             ScaleToFit align)
+{
     if (src.isEmpty()) {
         this->reset();
         return false;
@@ -515,7 +527,6 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit al
 
     if (dst.isEmpty()) {
         sk_bzero(fMat, 8 * sizeof(SkScalar));
-        fMat[kMPersp2] = 1;
         this->setTypeMask(kScale_Mask | kRectStaysRect_Mask);
     } else {
         SkScalar    tx, sx = dst.width() / src.width();
@@ -553,8 +564,24 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit al
             }
         }
 
-        this->setScaleTranslate(sx, sy, tx, ty);
+        fMat[kMScaleX] = sx;
+        fMat[kMScaleY] = sy;
+        fMat[kMTransX] = tx;
+        fMat[kMTransY] = ty;
+        fMat[kMSkewX]  = fMat[kMSkewY] =
+        fMat[kMPersp0] = fMat[kMPersp1] = 0;
+
+        unsigned mask = kRectStaysRect_Mask;
+        if (sx != 1 || sy != 1) {
+            mask |= kScale_Mask;
+        }
+        if (tx || ty) {
+            mask |= kTranslate_Mask;
+        }
+        this->setTypeMask(mask);
     }
+    // shared cleanup
+    fMat[kMPersp2] = 1;
     return true;
 }
 
@@ -575,23 +602,14 @@ static void normalize_perspective(SkScalar mat[9]) {
     }
 }
 
-static bool only_scale_and_translate(unsigned mask) {
-    return 0 == (mask & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask));
-}
-
 void SkMatrix::setConcat(const SkMatrix& a, const SkMatrix& b) {
-    TypeMask aType = a.getType();
-    TypeMask bType = b.getType();
+    TypeMask aType = a.getPerspectiveTypeMaskOnly();
+    TypeMask bType = b.getPerspectiveTypeMaskOnly();
 
     if (a.isTriviallyIdentity()) {
         *this = b;
     } else if (b.isTriviallyIdentity()) {
         *this = a;
-    } else if (only_scale_and_translate(aType | bType)) {
-        this->setScaleTranslate(a.fMat[kMScaleX] * b.fMat[kMScaleX],
-                                a.fMat[kMScaleY] * b.fMat[kMScaleY],
-                                a.fMat[kMScaleX] * b.fMat[kMTransX] + a.fMat[kMTransX],
-                                a.fMat[kMScaleY] * b.fMat[kMTransY] + a.fMat[kMTransY]);
     } else {
         SkMatrix tmp;
 
@@ -608,7 +626,7 @@ void SkMatrix::setConcat(const SkMatrix& a, const SkMatrix& b) {
 
             normalize_perspective(tmp.fMat);
             tmp.setTypeMask(kUnknown_Mask);
-        } else {
+        } else {    // not perspective
             tmp.fMat[kMScaleX] = muladdmul(a.fMat[kMScaleX],
                                            b.fMat[kMScaleX],
                                            a.fMat[kMSkewX],
@@ -622,7 +640,9 @@ void SkMatrix::setConcat(const SkMatrix& a, const SkMatrix& b) {
             tmp.fMat[kMTransX] = muladdmul(a.fMat[kMScaleX],
                                            b.fMat[kMTransX],
                                            a.fMat[kMSkewX],
-                                           b.fMat[kMTransY]) + a.fMat[kMTransX];
+                                           b.fMat[kMTransY]);
+
+            tmp.fMat[kMTransX] += a.fMat[kMTransX];
 
             tmp.fMat[kMSkewY]  = muladdmul(a.fMat[kMSkewY],
                                            b.fMat[kMScaleX],
@@ -637,10 +657,10 @@ void SkMatrix::setConcat(const SkMatrix& a, const SkMatrix& b) {
             tmp.fMat[kMTransY] = muladdmul(a.fMat[kMSkewY],
                                            b.fMat[kMTransX],
                                            a.fMat[kMScaleY],
-                                           b.fMat[kMTransY]) + a.fMat[kMTransY];
+                                           b.fMat[kMTransY]);
 
-            tmp.fMat[kMPersp0] = 0;
-            tmp.fMat[kMPersp1] = 0;
+            tmp.fMat[kMTransY] += a.fMat[kMTransY];
+            tmp.fMat[kMPersp0] = tmp.fMat[kMPersp1] = 0;
             tmp.fMat[kMPersp2] = 1;
             //SkDebugf("Concat mat non-persp type: %d\n", tmp.getType());
             //SkASSERT(!(tmp.getType() & kPerspective_Mask));

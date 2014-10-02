@@ -646,29 +646,6 @@ private:
     SkScalar         fMat[9];
     mutable SkTRacy<uint32_t> fTypeMask;
 
-    void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
-        fMat[kMScaleX] = sx;
-        fMat[kMSkewX]  = 0;
-        fMat[kMTransX] = tx;
-        
-        fMat[kMSkewY]  = 0;
-        fMat[kMScaleY] = sy;
-        fMat[kMTransY] = ty;
-        
-        fMat[kMPersp0] = 0;
-        fMat[kMPersp1] = 0;
-        fMat[kMPersp2] = 1;
-        
-        unsigned mask = 0;
-        if (sx != 1 || sy != 1) {
-            mask |= kScale_Mask;
-        }
-        if (tx || ty) {
-            mask |= kTranslate_Mask;
-        }
-        this->setTypeMask(mask | kRectStaysRect_Mask);
-    }
-
     uint8_t computeTypeMask() const;
     uint8_t computePerspectiveTypeMask() const;
 
