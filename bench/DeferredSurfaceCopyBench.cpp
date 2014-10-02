@@ -38,6 +38,13 @@ protected:
         const SkRect fullCanvasRect = SkRect::MakeWH(
             SkIntToScalar(kSurfaceWidth), SkIntToScalar(kSurfaceHeight));
         SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+
+        // newSurface() can return NULL for several reasons, so we need to check
+        if (NULL == surface.get()) {
+            SkDebugf("DeferredSurfaceCopyBench newSurface failed, bench results are meaningless\n");
+            return; // should we signal the caller that we hit an error?
+        }
+
         SkAutoTUnref<SkDeferredCanvas> drawingCanvas(SkDeferredCanvas::Create(surface));
 
         for (int iteration = 0; iteration < loops; iteration++) {
