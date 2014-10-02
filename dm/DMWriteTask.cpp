@@ -64,17 +64,27 @@ void WriteTask::makeDirOrFail(SkString dir) {
     }
 }
 
-static SkString get_md5(const void* ptr, size_t len) {
-    SkMD5 hasher;
-    hasher.write(ptr, len);
+static SkString get_md5_string(SkMD5* hasher) {
     SkMD5::Digest digest;
-    hasher.finish(digest);
+    hasher->finish(digest);
 
     SkString md5;
     for (int i = 0; i < 16; i++) {
         md5.appendf("%02x", digest.data[i]);
     }
     return md5;
+}
+
+static SkString get_md5(const void* ptr, size_t len) {
+    SkMD5 hasher;
+    hasher.write(ptr, len);
+    return get_md5_string(&hasher);
+}
+
+static SkString get_md5(SkStreamAsset* stream) {
+    SkMD5 hasher;
+    hasher.writeStream(stream, stream->getLength());
+    return get_md5_string(&hasher);
 }
 
 struct JsonData {
@@ -91,7 +101,7 @@ void WriteTask::draw() {
     SkString md5;
     {
         SkAutoLockPixels lock(fBitmap);
-        md5 = fData ? get_md5(fData->getMemoryBase(), fData->getLength())
+        md5 = fData ? get_md5(fData)
                     : get_md5(fBitmap.getPixels(), fBitmap.getSize());
     }
 
