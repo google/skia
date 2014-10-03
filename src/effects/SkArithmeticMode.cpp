@@ -289,8 +289,6 @@ public:
     static const char* Name() { return "Arithmetic"; }
     GrTexture* backgroundTexture() const { return fBackgroundAccess.getTexture(); }
 
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-
     float k1() const { return fK1; }
     float k2() const { return fK2; }
     float k3() const { return fK3; }
@@ -299,6 +297,8 @@ public:
 
 private:
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GrArithmeticEffect(float k1, float k2, float k3, float k4, bool enforcePMColor,
                        GrTexture* background);
@@ -344,9 +344,10 @@ const GrBackendFragmentProcessorFactory& GrArithmeticEffect::getFactory() const 
     return GrTBackendFragmentProcessorFactory<GrArithmeticEffect>::getInstance();
 }
 
-void GrArithmeticEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+void GrArithmeticEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     // TODO: optimize this
-    *validFlags = 0;
+    inout->fValidFlags = 0;
+    inout->fIsSingleComponent = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

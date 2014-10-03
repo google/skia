@@ -37,14 +37,48 @@ public:
 
     virtual ~GrProcessor();
 
+    struct InvariantOutput{
+        GrColor fColor;
+        uint32_t fValidFlags;
+        bool fIsSingleComponent;
+
+        bool isOpaque() const {
+            return ((fValidFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(fColor));
+        }
+
+        bool isSolidWhite() const {
+            return (fValidFlags == kRGBA_GrColorComponentFlags && 0xFFFFFFFF == fColor);
+        }
+
+        /**
+         * If isSingleComponent is true, then the flag values for r, g, b, and a must all be the
+         * same. If the flags are all set then all color components must be equal.
+         */
+        SkDEBUGCODE(void validate() const;)
+
+    private:
+        SkDEBUGCODE(bool colorComponentsAllEqual() const;)
+
+        /**
+         * If alpha is valid, check that any valid R,G,B values are <= A
+         */
+        SkDEBUGCODE(bool validPreMulColor() const;)
+    };
+
     /**
-     * This function is used to perform optimizations. When called the color and validFlags params
+     * This function is used to perform optimizations. When called the invarientOuput param
      * indicate whether the input components to this effect in the FS will have known values.
-     * validFlags is a bitfield of GrColorComponentFlags. The function updates both params to
-     * indicate known values of its output. A component of the color param only has meaning if the
-     * corresponding bit in validFlags is set.
+     * In inout the validFlags member is a bitfield of GrColorComponentFlags. The isSingleComponent
+     * member indicates whether the input will be 1 or 4 bytes. The function updates the members of
+     * inout to indicate known values of its output. A component of the color member only has
+     * meaning if the corresponding bit in validFlags is set.
      */
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const = 0;
+    void computeInvariantOutput(InvariantOutput* inout) const {
+        this->onComputeInvariantOutput(inout);
+#ifdef SK_DEBUG
+        inout->validate();
+#endif
+    }
 
     /** This object, besides creating back-end-specific helper objects, is used for run-time-type-
         identification. The factory should be an instance of templated class,
@@ -158,6 +192,10 @@ private:
         getFactory()).*/
     virtual bool onIsEqual(const GrProcessor& other) const = 0;
 
+    /** 
+     * Subclass implements this to support getConstantColorComponents(...).
+     */
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const = 0;
     friend class GrGeometryProcessor; // to set fRequiresVertexShader and build fVertexAttribTypes.
 
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;

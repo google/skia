@@ -73,13 +73,6 @@ public:
         return GrTBackendFragmentProcessorFactory<LumaColorFilterEffect>::getInstance();
     }
 
-    virtual void getConstantColorComponents(GrColor* color,
-                                            uint32_t* validFlags) const SK_OVERRIDE {
-        // The output is always black.
-        *color = GrColorPackRGBA(0, 0, 0, GrColorUnpackA(*color));
-        *validFlags = kRGB_GrColorComponentFlags;
-    }
-
     class GLProcessor : public GrGLFragmentProcessor {
     public:
         GLProcessor(const GrBackendProcessorFactory& factory,
@@ -118,6 +111,13 @@ public:
 private:
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE {
         return true;
+    }
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+        // The output is always black.
+        inout->fColor = GrColorPackRGBA(0, 0, 0, GrColorUnpackA(inout->fColor));
+        inout->fValidFlags = kRGB_GrColorComponentFlags;
+        inout->fIsSingleComponent = false;
     }
 };
 

@@ -206,14 +206,14 @@ bool GrDistanceFieldTextureEffect::onIsEqual(const GrProcessor& other) const {
            fFlags == cte.fFlags;
 }
 
-void GrDistanceFieldTextureEffect::getConstantColorComponents(GrColor* color,
-                                                             uint32_t* validFlags) const {
-    if ((*validFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(*color) &&
-        GrPixelConfigIsOpaque(this->texture(0)->config())) {
-        *validFlags = kA_GrColorComponentFlag;
+void GrDistanceFieldTextureEffect::onComputeInvariantOutput(
+    InvariantOutput* inout) const {
+    if (inout->isOpaque() && GrPixelConfigIsOpaque(this->texture(0)->config())) {
+        inout->fValidFlags = kA_GrColorComponentFlag;
     } else {
-        *validFlags = 0;
+        inout->fValidFlags = 0;
     }
+    inout->fIsSingleComponent = false;
 }
 
 const GrBackendGeometryProcessorFactory& GrDistanceFieldTextureEffect::getFactory() const {
@@ -476,14 +476,14 @@ bool GrDistanceFieldLCDTextureEffect::onIsEqual(const GrProcessor& other) const 
             fFlags == cte.fFlags);
 }
 
-void GrDistanceFieldLCDTextureEffect::getConstantColorComponents(GrColor* color,
-                                                                 uint32_t* validFlags) const {
-    if ((*validFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(*color) &&
-        GrPixelConfigIsOpaque(this->texture(0)->config())) {
-        *validFlags = kA_GrColorComponentFlag;
+void GrDistanceFieldLCDTextureEffect::onComputeInvariantOutput(
+    InvariantOutput* inout) const {
+    if (inout->isOpaque() && GrPixelConfigIsOpaque(this->texture(0)->config())) {
+        inout->fValidFlags = kA_GrColorComponentFlag;
     } else {
-        *validFlags = 0;
+        inout->fValidFlags = 0;
     }
+    inout->fIsSingleComponent = false;
 }
 
 const GrBackendGeometryProcessorFactory& GrDistanceFieldLCDTextureEffect::getFactory() const {

@@ -76,8 +76,6 @@ public:
     static const char* Name() { return "Alpha Threshold"; }
 
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-
     float innerThreshold() const { return fInnerThreshold; }
     float outerThreshold() const { return fOuterThreshold; }
 
@@ -103,6 +101,8 @@ private:
     }
 
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -228,13 +228,13 @@ bool AlphaThresholdEffect::onIsEqual(const GrProcessor& sBase) const {
             this->fOuterThreshold == s.fOuterThreshold);
 }
 
-void AlphaThresholdEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
-    if ((*validFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(*color) &&
-        GrPixelConfigIsOpaque(this->texture(0)->config())) {
-        *validFlags = kA_GrColorComponentFlag;
+void AlphaThresholdEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+    if (inout->isOpaque() && GrPixelConfigIsOpaque(this->texture(0)->config())) {
+        inout->fValidFlags = kA_GrColorComponentFlag;
     } else {
-        *validFlags = 0;
+        inout->fValidFlags = 0;
     }
+    inout->fIsSingleComponent = false;
 }
 
 #endif

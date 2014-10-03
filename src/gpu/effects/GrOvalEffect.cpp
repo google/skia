@@ -32,14 +32,14 @@ public:
 
     typedef GLCircleEffect GLProcessor;
 
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     CircleEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar radius);
 
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     SkPoint             fCenter;
     SkScalar            fRadius;
@@ -56,8 +56,9 @@ GrFragmentProcessor* CircleEffect::Create(GrPrimitiveEdgeType edgeType, const Sk
     return SkNEW_ARGS(CircleEffect, (edgeType, center, radius));
 }
 
-void CircleEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
-    *validFlags = 0;
+void CircleEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+    inout->fValidFlags = 0;
+    inout->fIsSingleComponent = false;
 }
 
 const GrBackendFragmentProcessorFactory& CircleEffect::getFactory() const {
@@ -204,14 +205,14 @@ public:
 
     typedef GLEllipseEffect GLProcessor;
 
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     EllipseEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar rx, SkScalar ry);
 
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     SkPoint             fCenter;
     SkVector            fRadii;
@@ -230,8 +231,9 @@ GrFragmentProcessor* EllipseEffect::Create(GrPrimitiveEdgeType edgeType,
     return SkNEW_ARGS(EllipseEffect, (edgeType, center, rx, ry));
 }
 
-void EllipseEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
-    *validFlags = 0;
+void EllipseEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+    inout->fValidFlags = 0;
+    inout->fIsSingleComponent = false;
 }
 
 const GrBackendFragmentProcessorFactory& EllipseEffect::getFactory() const {

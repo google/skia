@@ -49,8 +49,6 @@ public:
 
     static const char* Name() { return "Texture"; }
 
-    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-
     typedef GrGLSimpleTextureEffect GLProcessor;
 
     virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
@@ -74,6 +72,8 @@ private:
         const GrSimpleTextureEffect& ste = other.cast<GrSimpleTextureEffect>();
         return this->hasSameTextureParamsMatrixAndSourceCoords(ste);
     }
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
