@@ -1592,21 +1592,17 @@ size_t SkMatrix::readFromMemory(const void* buffer, size_t length) {
     return sizeInMemory;
 }
 
-#ifdef SK_DEVELOPER
 void SkMatrix::dump() const {
     SkString str;
     this->toString(&str);
     SkDebugf("%s\n", str.c_str());
 }
-#endif
 
-#ifndef SK_IGNORE_TO_STRING
 void SkMatrix::toString(SkString* str) const {
     str->appendf("[%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f]",
              fMat[0], fMat[1], fMat[2], fMat[3], fMat[4], fMat[5],
              fMat[6], fMat[7], fMat[8]);
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
