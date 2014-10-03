@@ -37,8 +37,7 @@ static void test_breakText() {
     SkScalar nn = 0;
     for (SkScalar w = 0; w <= width; w += SK_Scalar1) {
         SkScalar m;
-        size_t n = paint.breakText(text, length, w, &m,
-                                    SkPaint::kBackward_TextBufferDirection);
+        size_t n = paint.breakText(text, length, w, &m);
 
         SkASSERT(n <= length);
         SkASSERT(m <= width);

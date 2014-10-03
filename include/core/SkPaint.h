@@ -1,12 +1,9 @@
-
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkPaint_DEFINED
 #define SkPaint_DEFINED
@@ -878,19 +875,6 @@ public:
         return this->measureText(text, length, NULL);
     }
 
-    /** Specify the direction the text buffer should be processed in breakText()
-    */
-    enum TextBufferDirection {
-        /** When measuring text for breakText(), begin at the start of the text
-            buffer and proceed forward through the data. This is the default.
-        */
-        kForward_TextBufferDirection,
-        /** When measuring text for breakText(), begin at the end of the text
-            buffer and proceed backwards through the data.
-        */
-        kBackward_TextBufferDirection
-    };
-
     /** Return the number of bytes of text that were measured. If
      *  isVerticalText() is true, then the vertical advances are used for
      *  the measurement.
@@ -901,15 +885,11 @@ public:
      *                  widths are <= maxWidth are measured.
      *  @param measuredWidth Optional. If non-null, this returns the actual
      *                  width of the measured text.
-     *  @param tbd      Optional. The direction the text buffer should be
-     *                  traversed during measuring.
      *  @return         The number of bytes of text that were measured. Will be
      *                  <= length.
      */
     size_t  breakText(const void* text, size_t length, SkScalar maxWidth,
-                      SkScalar* measuredWidth = NULL,
-                      TextBufferDirection tbd = kForward_TextBufferDirection)
-                      const;
+                      SkScalar* measuredWidth = NULL) const;
 
     /** Return the advances for the text. These will be vertical advances if
      *  isVerticalText() returns true.
@@ -1059,8 +1039,7 @@ private:
     };
 
     SkDrawCacheProc    getDrawCacheProc() const;
-    SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,
-                                           bool needFullMetrics) const;
+    SkMeasureCacheProc getMeasureCacheProc(bool needFullMetrics) const;
 
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
