@@ -27,6 +27,8 @@ public:
         init();
     }
 
+    void addOperand(const SkPath& path);
+
     void complete() {
         if (fCurrentContour && fCurrentContour->segments().count()) {
             fCurrentContour->complete();
@@ -34,13 +36,10 @@ public:
         }
     }
 
-    SkPathOpsMask xorMask() const {
-        return fXorMask[fOperand];
-    }
-
-    void addOperand(const SkPath& path);
     bool finish();
     void init();
+    bool unparseable() const { return fUnparseable; }
+    SkPathOpsMask xorMask() const { return fXorMask[fOperand]; }
 
 private:
     void closeContour(const SkPoint& curveEnd, const SkPoint& curveStart);

@@ -270,6 +270,9 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     SkTArray<SkOpContour> contours;
     // FIXME: add self-intersecting cubics' T values to segment
     SkOpEdgeBuilder builder(*minuend, contours);
+    if (builder.unparseable()) {
+        return false;
+    }
     const int xorMask = builder.xorMask();
     builder.addOperand(*subtrahend);
     if (!builder.finish()) {
