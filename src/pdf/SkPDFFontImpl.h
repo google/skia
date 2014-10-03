@@ -78,7 +78,7 @@ private:
     SkPDFType3Font(const SkAdvancedTypefaceMetrics* info,
                    SkTypeface* typeface, uint16_t glyphID);
 
-    bool populate(int16_t glyphID);
+    bool populate(uint16_t glyphID);
 };
 
 #endif
