@@ -44,8 +44,12 @@ public:
     void unref() const {
         this->validate();
         --fRefCnt;
-        if (0 == fRefCnt && 0 == fPendingExecutions) {
-            SkDELETE(this);
+        if (0 == fRefCnt) {
+            if (0 == fPendingExecutions) {
+                SkDELETE(this);
+            } else {
+                this->removeRefs();
+            }
         }
     }
 
@@ -79,6 +83,8 @@ private:
     void convertRefToPendingExecution() const;
 
     void completedExecution() const;
+
+    void removeRefs() const;
 
     mutable int32_t fRefCnt;
     // Count of deferred executions not yet issued to the 3D API.

@@ -31,9 +31,7 @@ void GrProgramElement::convertRefToPendingExecution() const {
     ++fPendingExecutions;
     this->unref();
     if (0 == fRefCnt) {
-        for (int i = 0; i < fGpuResources.count(); ++i) {
-            fGpuResources[i]->removeRef();
-        }
+        this->removeRefs();
     }
 }
 
@@ -51,5 +49,11 @@ void GrProgramElement::completedExecution() const {
             }
 
         }
+    }
+}
+
+void GrProgramElement::removeRefs() const {
+    for (int i = 0; i < fGpuResources.count(); ++i) {
+        fGpuResources[i]->removeRef();
     }
 }
