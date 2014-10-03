@@ -1204,7 +1204,6 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
                                   const SkPaint* paint) {
     SkPaint tmp;
     if (NULL == paint) {
-        tmp.setDither(true);
         paint = &tmp;
     }
 
