@@ -155,6 +155,9 @@ static const SkPicture* make_tri_picture() {
 
     SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kPicWidth),
                                                SkIntToScalar(kPicHeight));
+    SkRect r = tri.getBounds();
+    r.outset(2.0f, 2.0f);       // outset for stroke
+    canvas->clipRect(r);
     // The saveLayer/restore block is to exercise layer hoisting
     canvas->saveLayer(NULL, NULL);
         canvas->drawPath(tri, fill);
