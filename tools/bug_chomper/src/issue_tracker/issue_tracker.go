@@ -16,7 +16,6 @@ package issue_tracker
 
 import (
 	"bytes"
-	"code.google.com/p/goauth2/oauth"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -24,6 +23,8 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+
+	"code.google.com/p/goauth2/oauth"
 )
 
 // BugPriorities are the possible values for "Priority-*" labels for issues.
