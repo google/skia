@@ -1027,7 +1027,7 @@ bool SkPDFFont::addCommonFontDescriptorEntries(int16_t defaultWidth) {
     return true;
 }
 
-void SkPDFFont::adjustGlyphRangeForSingleByteEncoding(int16_t glyphID) {
+void SkPDFFont::adjustGlyphRangeForSingleByteEncoding(uint16_t glyphID) {
     // Single byte glyph encoding supports a max of 255 glyphs.
     fFirstGlyphID = glyphID - (glyphID - 1) % 255;
     if (fLastGlyphID > fFirstGlyphID + 255 - 1) {
@@ -1424,7 +1424,7 @@ SkPDFType3Font::SkPDFType3Font(const SkAdvancedTypefaceMetrics* info,
 
 SkPDFType3Font::~SkPDFType3Font() {}
 
-bool SkPDFType3Font::populate(int16_t glyphID) {
+bool SkPDFType3Font::populate(uint16_t glyphID) {
     SkPaint paint;
     paint.setTypeface(typeface());
     paint.setTextSize(1000);

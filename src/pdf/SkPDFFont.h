@@ -164,7 +164,7 @@ protected:
     /** Set fFirstGlyphID and fLastGlyphID to span at most 255 glyphs,
      *  including the passed glyphID.
      */
-    void adjustGlyphRangeForSingleByteEncoding(int16_t glyphID);
+    void adjustGlyphRangeForSingleByteEncoding(uint16_t glyphID);
 
     // Generate ToUnicode table according to glyph usage subset.
     // If subset is NULL, all available glyph ids will be used.
