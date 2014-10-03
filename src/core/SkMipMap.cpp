@@ -109,18 +109,18 @@ static void downsampleby2_proc4444(SkBitmap* dst, int x, int y,
     *dst->getAddr16(x >> 1, y >> 1) = (uint16_t)collaps4444(c >> 2);
 }
 
-size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
+SkMipMap::Level* SkMipMap::AllocLevels(int levelCount, size_t pixelSize) {
     if (levelCount < 0) {
-        return 0;
+        return NULL;
     }
     int64_t size = sk_64_mul(levelCount + 1, sizeof(Level)) + pixelSize;
     if (!sk_64_isS32(size)) {
-        return 0;
+        return NULL;
     }
-    return sk_64_asS32(size);
+    return (Level*)sk_malloc_throw(sk_64_asS32(size));
 }
 
-SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
+SkMipMap* SkMipMap::Build(const SkBitmap& src) {
     void (*proc)(SkBitmap* dst, int x, int y, const SkBitmap& src);
 
     const SkColorType ct = src.colorType();
@@ -165,27 +165,11 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
         return NULL;
     }
 
-    size_t storageSize = SkMipMap::AllocLevelsSize(countLevels, size);
-    if (0 == storageSize) {
+    Level* levels = SkMipMap::AllocLevels(countLevels, size);
+    if (NULL == levels) {
         return NULL;
     }
 
-    SkMipMap* mipmap;
-    if (fact) {
-        SkDiscardableMemory* dm = fact(storageSize);
-        if (NULL == dm) {
-            return NULL;
-        }
-        mipmap = SkNEW_ARGS(SkMipMap, (storageSize, dm));
-    } else {
-        mipmap = SkNEW_ARGS(SkMipMap, (sk_malloc_throw(storageSize), storageSize));
-    }
-
-    // init
-    mipmap->fCount = countLevels;
-    mipmap->fLevels = (Level*)mipmap->writable_data();
-
-    Level* levels = mipmap->fLevels;
     uint8_t*    baseAddr = (uint8_t*)&levels[countLevels];
     uint8_t*    addr = baseAddr;
     int         width = src.width();
@@ -220,12 +204,24 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
     }
     SkASSERT(addr == baseAddr + size);
 
-    return mipmap;
+    return SkNEW_ARGS(SkMipMap, (levels, countLevels, size));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 //static int gCounter;
+
+SkMipMap::SkMipMap(Level* levels, int count, size_t size)
+    : fSize(size), fLevels(levels), fCount(count) {
+    SkASSERT(levels);
+    SkASSERT(count > 0);
+//    SkDebugf("mips %d\n", ++gCounter);
+}
+
+SkMipMap::~SkMipMap() {
+    sk_free(fLevels);
+//    SkDebugf("mips %d\n", --gCounter);
+}
 
 static SkFixed compute_level(SkScalar scale) {
     SkFixed s = SkAbs32(SkScalarToFixed(SkScalarInvert(scale)));
@@ -239,10 +235,6 @@ static SkFixed compute_level(SkScalar scale) {
 }
 
 bool SkMipMap::extractLevel(SkScalar scale, Level* levelPtr) const {
-    if (NULL == fLevels) {
-        return false;
-    }
-
     if (scale >= SK_Scalar1) {
         return false;
     }

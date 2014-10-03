@@ -121,55 +121,6 @@ DEF_TEST(BitmapCache_add_rect, reporter) {
     REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
 }
 
-#include "SkMipMap.h"
-
-enum LockedState {
-    kNotLocked,
-    kLocked,
-};
-
-enum CachedState {
-    kNotInCache,
-    kInCache,
-};
-
-static void check_data(skiatest::Reporter* reporter, const SkCachedData* data,
-                       int refcnt, CachedState cacheState, LockedState lockedState) {
-    REPORTER_ASSERT(reporter, data->testing_only_getRefCnt() == refcnt);
-    REPORTER_ASSERT(reporter, data->testing_only_isInCache() == (kInCache == cacheState));
-    bool isLocked = (data->data() != NULL);
-    REPORTER_ASSERT(reporter, isLocked == (lockedState == kLocked));
-}
-
-static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cache) {
-    cache->purgeAll();
-
-    SkBitmap src;
-    src.allocN32Pixels(5, 5);
-    src.setImmutable();
-
-    const SkMipMap* mipmap = SkMipMapCache::FindAndRef(src, cache);
-    REPORTER_ASSERT(reporter, NULL == mipmap);
-
-    mipmap = SkMipMapCache::AddAndRef(src, cache);
-    REPORTER_ASSERT(reporter, mipmap);
-    check_data(reporter, mipmap, 2, kInCache, kLocked);
-
-    mipmap->unref();
-    // tricky, since technically after this I'm no longer an owner, but since the cache is
-    // local, I know it won't get purged behind my back
-    check_data(reporter, mipmap, 1, kInCache, kNotLocked);
-
-    // find us again
-    mipmap = SkMipMapCache::FindAndRef(src, cache);
-    check_data(reporter, mipmap, 2, kInCache, kLocked);
-
-    cache->purgeAll();
-    check_data(reporter, mipmap, 1, kNotInCache, kLocked);
-
-    mipmap->unref();
-}
-
 DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
     SkResourceCache::DiscardableFactory factory = SkResourceCache::GetDiscardableFactory();
     SkBitmap::Allocator* allocator = SkBitmapCache::GetAllocator();
@@ -214,6 +165,4 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
     // We can add the bitmap back to the cache and find it again.
     REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.getGenerationID(), rect, cachedBitmap, cache));
     REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
-
-    test_mipmapcache(reporter, cache);
 }

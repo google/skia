@@ -52,8 +52,8 @@ public:
 
 class SkMipMapCache {
 public:
-    static const SkMipMap* FindAndRef(const SkBitmap& src, SkResourceCache* localCache = NULL);
-    static const SkMipMap* AddAndRef(const SkBitmap& src, SkResourceCache* localCache = NULL);
+    static const SkMipMap* FindAndRef(const SkBitmap& src);
+    static void Add(const SkBitmap& src, const SkMipMap* result);
 };
 
 #endif
