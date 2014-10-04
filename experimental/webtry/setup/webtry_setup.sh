@@ -21,7 +21,7 @@ sudo chmod 777 /home/webtry/cache/src
 sudo cp ../sys/webtry_schroot /etc/schroot/chroot.d/webtry
 
 CHROOT_JAIL=/srv/chroot/webtry_gyp
-# Build the chroot environment
+# Build the chroot environment.
 if [ ! -d ${CHROOT_JAIL} ]; then
 	sudo mkdir -p ${CHROOT_JAIL}
 
@@ -32,8 +32,8 @@ if [ ! -d ${CHROOT_JAIL} ]; then
 	sudo sh -c "echo 'none /dev/shm tmpfs rw,nosuid,nodev,noexec 0 0' >> ${CHROOT_JAIL}/etc/fstab"
 fi
 
-# the continue_install script will fetch the latest versions of 
-# skia and depot_tools.  We split up the installation process into 
+# The continue_install script will fetch the latest versions of
+# skia and depot_tools.  We split up the installation process into
 # two pieces like this so that the continue_install script can
 # be run independently of this one to fetch and build the latest skia.
 
@@ -45,6 +45,7 @@ sudo cp ../sys/webtry_squid /etc/squid3/squid.conf
 sudo chmod 744 /etc/init.d/webtry
 
 # Confirm that monit is happy.
-
 sudo monit -t
 sudo monit reload
+
+sudo /etc/init.d/webtry restart
