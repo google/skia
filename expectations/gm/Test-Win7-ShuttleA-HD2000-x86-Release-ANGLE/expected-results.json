@@ -11058,101 +11058,98 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17287639956046803338
+          14825176176656111174
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "multipicturedraw_invpathclip_tiled_angle.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8850164348354363393
+          2098839240856311891
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "multipicturedraw_noclip_simple_angle.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9121382299391264577
+          579116527982302365
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "multipicturedraw_noclip_tiled_angle.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11695898540945930296
+          17738722464731208969
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "multipicturedraw_pathclip_simple_angle.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2845576788353783281
+          1027129624741630233
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "multipicturedraw_pathclip_tiled_angle.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11211712352447365565
+          8958785048052626606
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "multipicturedraw_rectclip_simple_angle.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6388754610233777743
+          8857324920392996150
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "multipicturedraw_rectclip_tiled_angle.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8396932509075294070
+          17320703428375130370
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "multipicturedraw_rrectclip_simple_angle.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5815720514657918820
+          15658984906998822552
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "multipicturedraw_rrectclip_tiled_angle.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13123455672052131213
+          17820913593613496819
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "multipicturedraw_sierpinski_simple_angle.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11594688387107019920
+          12732137969509744346
         ]
-      ], 
-      "bugs": [
-        2979
       ], 
       "reviewed-by-human": true
     }, 
@@ -11160,11 +11157,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17578222270818295881
+          9701156115419658541
         ]
-      ], 
-      "bugs": [
-        2979
       ], 
       "reviewed-by-human": true
     }, 
