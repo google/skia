@@ -21,6 +21,7 @@
 #include "GrRecordReplaceDraw.h"
 #include "GrStrokeInfo.h"
 #include "GrTracing.h"
+#include "GrGpu.h"
 
 #include "SkGrTexturePixelRef.h"
 
@@ -643,15 +644,19 @@ bool create_mask_GPU(GrContext* context,
                      const SkPath& devPath,
                      const GrStrokeInfo& strokeInfo,
                      bool doAA,
-                     GrAutoScratchTexture* mask) {
+                     GrAutoScratchTexture* mask,
+                     int SampleCnt) {
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
     desc.fWidth = SkScalarCeilToInt(maskRect.width());
     desc.fHeight = SkScalarCeilToInt(maskRect.height());
+    desc.fSampleCnt = SampleCnt;
     // We actually only need A8, but it often isn't supported as a
     // render target so default to RGBA_8888
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    if (context->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
+
+    if (context->isConfigRenderable(kAlpha_8_GrPixelConfig,
+                                    desc.fSampleCnt > 0)) {
         desc.fConfig = kAlpha_8_GrPixelConfig;
     }
 
@@ -785,7 +790,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
             GrAutoScratchTexture mask;
 
             if (create_mask_GPU(fContext, maskRect, *devPathPtr, strokeInfo,
-                                grPaint.isAntiAlias(), &mask)) {
+                                grPaint.isAntiAlias(), &mask, fRenderTarget->numSamples())) {
                 GrTexture* filtered;
 
                 if (paint.getMaskFilter()->filterMaskGPU(mask.texture(),
