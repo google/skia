@@ -275,7 +275,8 @@ public:
                                      SampleWindow* win) SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && fCurContext) {
-            return SkSurface::NewRenderTargetDirect(fCurRenderTarget);
+            SkSurfaceProps props(win->getSurfaceProps());
+            return SkSurface::NewRenderTargetDirect(fCurRenderTarget, &props);
         }
 #endif
         return NULL;
@@ -1715,6 +1716,9 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             post_event_to_sink(SkNEW_ARGS(SkEvent, (gUpdateWindowTitleEvtName)), this);
             this->inval(NULL);
             break;
+        case 'D':
+            toggleDistanceFieldFonts();
+            break;
         case 'f':
             // only
             toggleFPS();
@@ -1808,6 +1812,15 @@ void SampleWindow::toggleRendering() {
 
 void SampleWindow::toggleFPS() {
     fMeasureFPS = !fMeasureFPS;
+    this->updateTitle();
+    this->inval(NULL);
+}
+
+void SampleWindow::toggleDistanceFieldFonts() {
+    SkSurfaceProps props = this->getSurfaceProps();
+    uint32_t flags = props.flags() ^ SkSurfaceProps::kUseDistanceFieldFonts_Flag;
+    this->setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
+
     this->updateTitle();
     this->inval(NULL);
 }
@@ -2022,6 +2035,9 @@ void SampleWindow::updateTitle() {
     }
     if (fPerspAnim) {
         title.prepend("<K> ");
+    }
+    if (this->getSurfaceProps().flags() & SkSurfaceProps::kUseDistanceFieldFonts_Flag) {
+        title.prepend("<DFF> ");
     }
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));

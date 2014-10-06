@@ -118,6 +118,7 @@ public:
     void toggleSlideshow();
     void toggleFPS();
     void showOverview();
+    void toggleDistanceFieldFonts();
 
     GrContext* getGrContext() const { return fDevManager->getGrContext(); }
 
