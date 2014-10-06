@@ -119,7 +119,7 @@ void WriteTask::draw() {
     }
 
     SkString dir(FLAGS_writePath[0]);
-#if SK_BUILD_FOR_IOS
+#if defined(SK_BUILD_FOR_IOS)
     if (dir.equals("@")) {
         dir.set(FLAGS_resourcePath[0]);
     }

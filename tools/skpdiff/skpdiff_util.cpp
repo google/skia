@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#if SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX || SK_BUILD_FOR_ANDROID
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
 #   include <unistd.h>
 #   include <sys/time.h>
 #   include <dirent.h>
 #endif
 
-#if SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX)
 #   include <glob.h>
 #endif
 
-#if SK_BUILD_FOR_MAC
+#if defined(SK_BUILD_FOR_MAC)
 #   include <sys/syslimits.h> // PATH_MAX is here for Macs
 #endif
 
-#if SK_BUILD_FOR_WIN32
+#if defined(SK_BUILD_FOR_WIN32)
 #   include <windows.h>
 #endif
 
@@ -85,7 +85,7 @@ const char* cl_error_to_string(cl_int err) {
 
 // TODO refactor Timer to be used here
 double get_seconds() {
-#if SK_BUILD_FOR_WIN32
+#if defined(SK_BUILD_FOR_WIN32)
     LARGE_INTEGER currentTime;
     LARGE_INTEGER frequency;
     QueryPerformanceCounter(&currentTime);
@@ -95,7 +95,7 @@ double get_seconds() {
     struct timespec currentTime;
     clock_gettime(CLOCK_REALTIME, &currentTime);
     return currentTime.tv_sec + (double)currentTime.tv_nsec / 1e9;
-#elif SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX || SK_BUILD_FOR_ANDROID
+#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
     struct timeval currentTime;
     gettimeofday(&currentTime, NULL);
     return currentTime.tv_sec + (double)currentTime.tv_usec / 1e6;
@@ -105,7 +105,7 @@ double get_seconds() {
 }
 
 bool get_directory(const char path[], SkTArray<SkString>* entries) {
-#if SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX || SK_BUILD_FOR_ANDROID
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
     // Open the directory and check for success
     DIR* dir = opendir(path);
     if (NULL == dir) {
@@ -128,7 +128,7 @@ bool get_directory(const char path[], SkTArray<SkString>* entries) {
     closedir(dir);
 
     return true;
-#elif SK_BUILD_FOR_WIN32
+#elif defined(SK_BUILD_FOR_WIN32)
     char pathDirGlob[MAX_PATH];
     size_t pathLength = strlen(path);
     strncpy(pathDirGlob, path, pathLength);
@@ -164,7 +164,7 @@ bool get_directory(const char path[], SkTArray<SkString>* entries) {
 }
 
 bool glob_files(const char globPattern[], SkTArray<SkString>* entries) {
-#if SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX)
     // TODO Make sure this works on windows. This may require use of FindNextFile windows function.
     glob_t globBuffer;
     if (glob(globPattern, 0, NULL, &globBuffer) != 0) {
@@ -188,13 +188,13 @@ bool glob_files(const char globPattern[], SkTArray<SkString>* entries) {
 }
 
 SkString get_absolute_path(const SkString& path) {
-#if SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX || SK_BUILD_FOR_ANDROID
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
     SkString fullPath(PATH_MAX + 1);
     if (realpath(path.c_str(), fullPath.writable_str()) == NULL) {
         fullPath.reset();
     }
     return fullPath;
-#elif SK_BUILD_FOR_WIN32
+#elif defined(SK_BUILD_FOR_WIN32)
     SkString fullPath(MAX_PATH);
     if (_fullpath(fullPath.writable_str(), path.c_str(), MAX_PATH) == NULL) {
         fullPath.reset();

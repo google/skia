@@ -16,7 +16,7 @@
 #include <string.h>
 #include <pthread.h>
 
-#if SK_BUILD_FOR_ANDROID
+#if defined(SK_BUILD_FOR_ANDROID)
 #  include <cpu-features.h>
 #endif
 

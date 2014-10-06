@@ -12,7 +12,7 @@
 #include "SkTArray.h"
 
 #if SK_SUPPORT_OPENCL
-#if SK_BUILD_FOR_MAC
+#if defined(SK_BUILD_FOR_MAC)
 #   include <OpenCL/cl.h>
 #else
 #   include <CL/cl.h>
