@@ -14,7 +14,7 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrPictureDeletedMessage);
 #ifdef SK_DEBUG
 void GrCachedLayer::validate(const GrTexture* backingTexture) const {
     SkASSERT(SK_InvalidGenID != fKey.pictureID());
-    SkASSERT(fKey.start() > 0);
+    SkASSERT(fKey.start() >= 0);
 
 
     if (fTexture) {
@@ -121,7 +121,7 @@ GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID,
                                          int start, int stop, 
                                          const SkMatrix& ctm,
                                          const SkPaint* paint) {
-    SkASSERT(pictureID != SK_InvalidGenID && start > 0 && stop > 0);
+    SkASSERT(pictureID != SK_InvalidGenID && start >= 0 && stop > 0);
 
     GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (pictureID, start, stop, ctm, paint));
     fLayerHash.add(layer);
@@ -139,7 +139,7 @@ GrCachedLayer* GrLayerCache::findLayerOrCreate(uint32_t pictureID,
                                                int start, int stop,
                                                const SkMatrix& ctm,
                                                const SkPaint* paint) {
-    SkASSERT(pictureID != SK_InvalidGenID && start > 0 && stop > 0);
+    SkASSERT(pictureID != SK_InvalidGenID && start >= 0 && stop > 0);
     GrCachedLayer* layer = fLayerHash.find(GrCachedLayer::Key(pictureID, start, ctm));
     if (NULL == layer) {
         layer = this->createLayer(pictureID, start, stop, ctm, paint);
@@ -369,18 +369,20 @@ void GrLayerCache::purgePlot(GrPlot* plot) {
     for (int i = 0; i < toBeRemoved.count(); ++i) {
         SkASSERT(!toBeRemoved[i]->locked());
 
-        GrPictureInfo* pictInfo = fPictureHash.find(toBeRemoved[i]->pictureID());
-        SkASSERT(pictInfo);
+        uint32_t pictureIDToRemove = toBeRemoved[i]->pictureID();
 
-        GrAtlas::RemovePlot(&pictInfo->fPlotUsage, plot);
-
-        // Aggressively remove layers and, if now totally uncached, picture info
+        // Aggressively remove layers and, if it becomes totally uncached, delete the picture info
         fLayerHash.remove(GrCachedLayer::GetKey(*toBeRemoved[i]));
         SkDELETE(toBeRemoved[i]);
 
-        if (pictInfo->fPlotUsage.isEmpty()) {
-            fPictureHash.remove(pictInfo->fPictureID);
-            SkDELETE(pictInfo);
+        GrPictureInfo* pictInfo = fPictureHash.find(pictureIDToRemove);
+        if (pictInfo) {
+            GrAtlas::RemovePlot(&pictInfo->fPlotUsage, plot);
+
+            if (pictInfo->fPlotUsage.isEmpty()) {
+                fPictureHash.remove(pictInfo->fPictureID);
+                SkDELETE(pictInfo);
+            }
         }
     }
 
