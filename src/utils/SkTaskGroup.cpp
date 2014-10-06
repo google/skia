@@ -67,7 +67,7 @@ private:
     };
 
     explicit ThreadPool(int threads) : fDraining(false) {
-        if (threads == 0) {
+        if (threads == -1) {
             threads = num_cores();
         }
         for (int i = 0; i < threads; i++) {
@@ -133,11 +133,12 @@ ThreadPool* ThreadPool::gGlobal = NULL;
 
 SkTaskGroup::Enabler::Enabler(int threads) {
     SkASSERT(ThreadPool::gGlobal == NULL);
-    ThreadPool::gGlobal = SkNEW_ARGS(ThreadPool, (threads));
+    if (threads != 0) {
+        ThreadPool::gGlobal = SkNEW_ARGS(ThreadPool, (threads));
+    }
 }
 
 SkTaskGroup::Enabler::~Enabler() {
-    SkASSERT(ThreadPool::gGlobal != NULL);
     SkDELETE(ThreadPool::gGlobal);
 }
 

@@ -43,8 +43,8 @@ DEFINE_bool(abandonGpuContext, false, "Abandon the GrContext after running each 
 
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 
-DEFINE_int32(threads, 0, "Run threadsafe tests on a threadpool with this many threads, "
-                         "defaulting to one thread per core.");
+DEFINE_int32(threads, -1, "Run threadsafe tests on a threadpool with this many extra threads, "
+                          "defaulting to one extra thread per core.");
 
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 

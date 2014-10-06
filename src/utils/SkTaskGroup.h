@@ -15,7 +15,7 @@ class SkTaskGroup : SkNoncopyable {
 public:
     // Create one of these in main() to enable SkTaskGroups globally.
     struct Enabler : SkNoncopyable {
-        explicit Enabler(int threads = 0);  // Default is system-reported core count.
+        explicit Enabler(int threads = -1);  // Default is system-reported core count.
         ~Enabler();
     };
 
