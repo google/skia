@@ -9,8 +9,9 @@
 #include "../GrGpuGL.h"
 
 GrGLFragmentOnlyProgramBuilder::GrGLFragmentOnlyProgramBuilder(GrGpuGL* gpu,
+                                                               const GrOptDrawState& optState,
                                                                const GrGLProgramDesc& desc)
-    : INHERITED(gpu, desc) {
+    : INHERITED(gpu, optState, desc) {
     SkASSERT(desc.getHeader().fUseFragShaderOnly);
     SkASSERT(gpu->glCaps().pathRenderingSupport());
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fColorInput);

@@ -15,7 +15,7 @@ class GrGLVertexProgramEffects;
 
 class GrGLFullProgramBuilder : public GrGLProgramBuilder {
 public:
-    GrGLFullProgramBuilder(GrGpuGL*, const GrGLProgramDesc&);
+    GrGLFullProgramBuilder(GrGpuGL*, const GrOptDrawState&, const GrGLProgramDesc&);
 
    /** Add a varying variable to the current program to pass values between vertex and fragment
         shaders. If the last two parameters are non-NULL, they are filled in with the name

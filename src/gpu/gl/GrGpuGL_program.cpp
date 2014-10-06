@@ -90,7 +90,8 @@ int GrGpuGL::ProgramCache::search(const GrGLProgramDesc& desc) const {
     return SkTSearch(fEntries, fCount, desc, sizeof(Entry*), less);
 }
 
-GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
+GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState,
+                                               const GrGLProgramDesc& desc,
                                                const GrGeometryStage* geometryProcessor,
                                                const GrFragmentStage* colorStages[],
                                                const GrFragmentStage* coverageStages[]) {
@@ -128,8 +129,8 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgram::Create(fGpu, desc, geometryProcessor,
-                colorStages, coverageStages);
+        GrGLProgram* program = GrGLProgram::Create(fGpu, optState, desc, geometryProcessor,
+                                                   colorStages, coverageStages);
         if (NULL == program) {
             return NULL;
         }
@@ -245,7 +246,8 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
             return false;
         }
 
-        fCurrentProgram.reset(fProgramCache->getProgram(desc,
+        fCurrentProgram.reset(fProgramCache->getProgram(*optState.get(),
+                                                        desc,
                                                         geometryProcessor,
                                                         colorStages.begin(),
                                                         coverageStages.begin()));

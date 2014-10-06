@@ -40,6 +40,7 @@ public:
     typedef GrGLProgramBuilder::BuiltinUniformHandles BuiltinUniformHandles;
 
     static GrGLProgram* Create(GrGpuGL* gpu,
+                               const GrOptDrawState& optState,
                                const GrGLProgramDesc& desc,
                                const GrGeometryStage* geometryProcessor,
                                const GrFragmentStage* colorStages[],

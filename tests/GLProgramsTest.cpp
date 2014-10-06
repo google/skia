@@ -332,7 +332,9 @@ bool GrGpuGL::programUnitTest(int maxStages) {
             return false;
         }
 
+        SkAutoTUnref<GrOptDrawState> optState(this->getDrawState().createOptState(*this->caps()));
         SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this,
+                                                              *optState.get(),
                                                               pdesc,
                                                               geometryProcessor.get(),
                                                               stages,

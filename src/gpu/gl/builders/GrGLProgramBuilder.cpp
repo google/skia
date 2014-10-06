@@ -82,7 +82,7 @@ bool GrGLProgramBuilder::genProgram(const GrGeometryStage* geometryProcessor,
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu,
+GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu, const GrOptDrawState& optState,
                                        const GrGLProgramDesc& desc)
     : fEffectEmitter(NULL)
     , fFragOnly(SkToBool(desc.getHeader().fUseFragShaderOnly))
@@ -91,6 +91,7 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu,
     , fFS(this, desc)
     , fSeparableVaryingInfos(kVarsPerBlock)
     , fGrProcessorEmitter(this)
+    , fOptState(optState)
     , fDesc(desc)
     , fGpu(gpu)
     , fUniforms(kVarsPerBlock) {

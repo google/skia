@@ -145,8 +145,9 @@ public:
 
 protected:
     typedef GrTAllocator<GrGLShaderVar> VarArray;
-    GrGLProgramBuilder(GrGpuGL*, const GrGLProgramDesc&);
+    GrGLProgramBuilder(GrGpuGL*, const GrOptDrawState&, const GrGLProgramDesc&);
 
+    const GrOptDrawState& optState() const { return fOptState; }
     const GrGLProgramDesc& desc() const { return fDesc; }
 
     // Helper for emitEffects().
@@ -326,6 +327,7 @@ private:
 
     GrGLFragmentProcessorEmitter            fGrProcessorEmitter;
 
+    const GrOptDrawState&                   fOptState;
     const GrGLProgramDesc&                  fDesc;
     GrGpuGL*                                fGpu;
     UniformInfoArray                        fUniforms;

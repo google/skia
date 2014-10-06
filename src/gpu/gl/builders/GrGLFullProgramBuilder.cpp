@@ -9,9 +9,9 @@
 #include "../GrGLGeometryProcessor.h"
 #include "../GrGpuGL.h"
 
-GrGLFullProgramBuilder::GrGLFullProgramBuilder(GrGpuGL* gpu,
+GrGLFullProgramBuilder::GrGLFullProgramBuilder(GrGpuGL* gpu, const GrOptDrawState& optState,
                                                const GrGLProgramDesc& desc)
-    : INHERITED(gpu, desc)
+    : INHERITED(gpu, optState, desc)
     , fGLGeometryProcessorEmitter(this)
     , fGS(this)
     , fVS(this) {

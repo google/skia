@@ -24,6 +24,7 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fGpu->glInterface(), R, X)
 
 GrGLProgram* GrGLProgram::Create(GrGpuGL* gpu,
+                                 const GrOptDrawState& optState,
                                  const GrGLProgramDesc& desc,
                                  const GrGeometryStage* geometryProcessor,
                                  const GrFragmentStage* colorStages[],
@@ -34,9 +35,9 @@ GrGLProgram* GrGLProgram::Create(GrGpuGL* gpu,
         SkASSERT(gpu->glPathRendering()->texturingMode() ==
                  GrGLPathRendering::FixedFunction_TexturingMode);
         SkASSERT(NULL == geometryProcessor);
-        builder.reset(SkNEW_ARGS(GrGLFragmentOnlyProgramBuilder, (gpu, desc)));
+        builder.reset(SkNEW_ARGS(GrGLFragmentOnlyProgramBuilder, (gpu, optState, desc)));
     } else {
-        builder.reset(SkNEW_ARGS(GrGLFullProgramBuilder, (gpu, desc)));
+        builder.reset(SkNEW_ARGS(GrGLFullProgramBuilder, (gpu, optState, desc)));
     }
     if (builder->genProgram(geometryProcessor, colorStages, coverageStages)) {
         SkASSERT(0 != builder->getProgramID());

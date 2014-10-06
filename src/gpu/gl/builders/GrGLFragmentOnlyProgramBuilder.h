@@ -12,7 +12,7 @@
 
 class GrGLFragmentOnlyProgramBuilder : public GrGLProgramBuilder {
 public:
-    GrGLFragmentOnlyProgramBuilder(GrGpuGL*, const GrGLProgramDesc&);
+    GrGLFragmentOnlyProgramBuilder(GrGpuGL*, const GrOptDrawState&, const GrGLProgramDesc&);
 
     int addTexCoordSets(int count);
 
