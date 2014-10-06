@@ -106,6 +106,8 @@ static const SkPicture* make_single_layer_hex_plane_picture() {
     static const SkScalar kBig = 10000.0f;
     SkCanvas* canvas = recorder.beginRecording(kBig, kBig);
 
+    canvas->saveLayer(NULL, NULL);
+
     SkScalar xPos = 0.0f, yPos = 0.0f;
 
     for (int y = 0; yPos < kBig; ++y) {
@@ -126,6 +128,8 @@ static const SkPicture* make_single_layer_hex_plane_picture() {
 
         yPos += 2 * kHexSide * kRoot3Over2;
     }
+
+    canvas->restore();
 
     return recorder.endRecording();
 }
