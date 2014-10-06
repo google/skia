@@ -68,10 +68,6 @@ code {
   display: block !important;
 }
 
-.fiddle-output {
-  display: none;
-}
-
 #chooseSource {
   display: none;
 }
@@ -87,6 +83,10 @@ code {
 
 #gitInfo {
   font-size: 70%;
+}
+
+#output, #stdout {
+  display: none;
 }
 
 /* CodeMirror customization */
