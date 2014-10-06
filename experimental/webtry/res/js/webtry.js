@@ -45,6 +45,11 @@
         sourceSelectByID(sourceId);
       }
 
+      function setIFrameURL() {
+        var url = document.URL;
+        url = url.replace('/c/', '/iframe/');
+        embed.value = '<iframe src="' + url + '" width="740" height="550" style="border: solid #00a 5px; border-radius: 5px;"/>'
+      }
 
       function beginWait() {
         document.body.classList.add('waiting');
@@ -133,6 +138,7 @@
           req.send();
         } else {
           sourceId = 0;
+          chooseSource.classList.remove('show');
         }
       }
 
@@ -166,10 +172,14 @@
 
       function clearOutput() {
         output.textContent = "";
+        output.style.display='none';
         if (stdout) {
           stdout.textContent = "";
+          stdout.style.display='none';
         }
-        embed.style.display='none';
+        if (embed) {
+          embed.style.display='none';
+        }
       }
 
       /**
@@ -204,6 +214,7 @@
         sourceSelectByID(body.source);
         if (permalink) {
           permalink.href = '/c/' + body.hash;
+          permalink.style.display='inline-block';
         }
       }
 
@@ -237,8 +248,14 @@
         console.log(e.target.response);
         body = JSON.parse(e.target.response);
         output.textContent = body.message;
+        if (body.message) {
+          output.style.display = 'block';
+        }
         if (stdout) {
           stdout.textContent = body.stdout;
+          if (body.stdout) {
+            stdout.style.display = 'block';
+          }
         }
         if (body.hasOwnProperty('img')) {
           img.src = 'data:image/png;base64,' + body.img;
@@ -253,14 +270,13 @@
         }
         if (permalink) {
           permalink.href = '/c/' + body.hash;
+          permalink.style.display = 'inline-block';
         }
         if (embed) {
-          var url = document.URL;
-          url = url.replace('/c/', '/iframe/');
-          embed.value = '<iframe src="' + url + '" width="740" height="550" style="border: solid #00a 5px; border-radius: 5px;"/>'
+          setIFrameURL();
         }
-        if (embedButton && embedButton.hasAttribute('disabled')) {
-          embedButton.removeAttribute('disabled');
+        if (embedButton) {
+          embedButton.style.display = 'inline-block';
         }
       }
 
@@ -286,6 +302,8 @@
       if (embedButton) {
         embedButton.addEventListener('click', onEmbedClick);
       }
+
+      setIFrameURL();
 
       // Add the images to the history if we are on a workspace page.
       if (tryHistory && history_) {

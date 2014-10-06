@@ -1,14 +1,11 @@
-body {
-  font-family: helvetica arial sans-serif;
-  margin: 0;
-  padding: 0;
-}
+@import "bootstrap-compass";
+@import "bootstrap-variables";
+@import "bootstrap";
 
 img {
   box-shadow: 2px 2px 5px gray;
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAAAAAA6mKC9AAAAAXNSR0IArs4c6QAAAAJiS0dEAP+Hj8y/AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTUUH3gUBEi4DGRAQYgAAAB1JREFUGNNjfMoAAVJQmokBDdBHgPE/lPFsYN0BABdaAwN6tehMAAAAAElFTkSuQmCC");
 }
-
 
 h1 {
   font-size: 18px;
@@ -22,13 +19,6 @@ h2 {
   cursor: wait;
 }
 
-textarea {
-  margin-left: 0;
-  border: solid 1px #ccc;
-  color: green;
-  background: #eee;
-}
-
 .iframe textarea {
   resize: none;
 }
@@ -38,11 +28,11 @@ template {
 }
 
 code {
-    color: green;
+  color: green;
 }
 
-pre, code {
-    padding: 0;
+code {
+  padding: 0;
 }
 
 .tries {
@@ -50,34 +40,19 @@ pre, code {
   float: left;
 }
 
-#title {
-  color: #ddd;
-  background: #444;
-  margin: 0;
-  padding: 0.5em;
-}
-
-#title a:link,
-#title a:visited,
-#title a:hover,
-#title a:active
-{
-  color: #ddd;
-}
-
 #content {
   padding: 1em;
 }
 
 #tryHistory {
-    position: absolute;
-    top: 3em;
-    right: 10px;
-    width: 75px;
-}
+  position: absolute;
+  top: 3em;
+  right: 10px;
+  width: 75px;
 
-#tryHistory .tries {
+  .tries {
     float: none;
+  }
 }
 
 #chooseList {
@@ -85,37 +60,36 @@ pre, code {
   flex-flow: row wrap;
 }
 
-#chooseSource {
-  display: none;
-  background: ivory;
-  padding: 1em;
-  border: solid lightgray 2px;
+.action-buttons {
+  padding: 10px 0;
 }
 
-#chooseSource.show {
-  display: block;
+.show {
+  display: block !important;
+}
+
+.fiddle-output {
+  display: none;
+}
+
+#chooseSource {
+  display: none;
 }
 
 #selectedSource {
   display: none;
 }
 
-#selectedSource.show {
-  display: block;
-}
-
 #sourceCode {
   display: none;
-}
-
-#sourceCode.show {
-  display: block;
+  margin-top: 10px;
 }
 
 #gitInfo {
-    float: right;
-    font-size: 70%;
+  font-size: 70%;
 }
+
+/* CodeMirror customization */
 
 .CodeMirror-lines,
 .CodeMirror-scroll
@@ -128,7 +102,21 @@ pre, code {
   height: auto;
 }
 
+/* Make the code editor automatically resize */
+
 .CodeMirror-scroll {
   overflow-y: hidden;
   overflow-x: auto;
+}
+
+/* Twitter Bootstrap customization */
+
+.navbar-brand {
+  padding: 0;
+
+  img {
+    height: 50px;
+    box-shadow: none;
+    background: none;
+  }
 }

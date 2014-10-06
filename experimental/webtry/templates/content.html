@@ -1,33 +1,56 @@
 
 <section id=content>
 
-  <template id=sourcesTemplate>
+  <template id="sourcesTemplate">
       <button id="" class=source><img width=64 height=64 src=''></button>
   </template>
-  <input type="checkbox" id="enableSource" data-id="{{.Source}}"> Use an input bitmap.
-  <br>
-  <button id="selectedSource"></button>
-  <pre id="sourceCode">SkBitmap source;</pre>
-  <div id="chooseSource">
-    Choose an image below or upload a new one to use as an input bitmap.
-    <div id="chooseList">
-    </div>
-    <form action="/sources/" method="post" accept-charset="utf-8" enctype="multipart/form-data">
-      <input type="file" accept="image/*" name="upload" value="" id="upload">
-      <input type="submit" value="Add Image">
-    </form>
+
+  <div id="inputBitmapEnable">
+    <input type="checkbox" id="enableSource" data-id="{{.Source}}">
+    <label for="enableSource">Use an input bitmap</label>
   </div>
 
-  <pre>
-    <textarea spellcheck=false name='code' id='code' rows='15' cols='100'>{{.Code}}</textarea>
-  </pre>
+  <button id="selectedSource"></button>
 
-  <input type='button' value='Run' id='run'>
-  <a href='{{if .Hash}}/c/{{.Hash}}{{end}}' target=_blank id=permalink>Share</a>
+  <pre id="sourceCode">SkBitmap source;</pre>
 
-  <input type='button' value='Embed' id='embedButton' disabled/>
-  <input type="text" value="" id="embed" readonly style="display:none;">
-  <br>
+  <div class="well" id="chooseSource">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          Choose an existing image to use as an input bitmap, or upload a new one below.
+        </h3>
+      </div>
+      <div class="panel-body" id="chooseList">
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <div class="panel-title">
+          Upload a new image
+        </div>
+      </div>
+      <div class="panel-body">
+        <form action="/sources/" method="post" accept-charset="utf-8" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="upload">File input</label>
+            <input type="file" accept="image/*" name="upload" value="" id="upload">
+          </div>
+          <button class="btn btn-default" type="submit">Upload Image</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <textarea spellcheck=false name='code' id='code' rows='15' cols='100'>{{.Code}}</textarea>
+
+  <div class="action-buttons">
+    <button class="btn btn-primary btn-lg" id='run'>Run</button>
+    <a class="btn btn-default btn-lg" href='{{if .Hash}}/c/{{.Hash}}{{end}}' {{if not .Hash}}style="display: none;"{{end}} target=_blank id="permalink">Share</a>
+
+    <button class="btn btn-default btn-lg" id='embedButton' {{if not .Hash}}style="display:none;"{{end}}/>Embed</button>
+    <input type="text" value="" id="embed" readonly style="display:none;">
+  </div>
 
   <p>
   <img  touch-action='none' class='zoom' id='img' src='{{if .Hash}}/i/{{.Hash}}.png{{end}}'/>
@@ -35,8 +58,8 @@
   <p id='zoomHex'></p>
 
   <h2>Warnings and Errors</h2>
-  <pre><code id='output'></code></pre>
+  <pre class="fiddle-output"><code id='output'></code></pre>
   <h2>Runtime output</h2>
-  <pre id='stdout'></pre>
+  <pre class="fiddle-output" id='stdout'></pre>
 
 </section>
