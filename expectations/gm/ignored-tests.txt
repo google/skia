@@ -34,8 +34,6 @@
 #gradtext
 
 # jvanverth
-# new fontcache GM
-fontcache
 # distance field paths
 nested_aa
 shadertext

@@ -9955,31 +9955,25 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15918710972937868190
+          17035850379153874226
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontcache_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15918710972937868190
+          17035850379153874226
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontcache_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8722739816575573844
+          5670443011217289849
         ]
       ], 
       "reviewed-by-human": true

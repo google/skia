@@ -8372,13 +8372,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3872327577491529043
+          11071730978455329999
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_565.png": {
       "allowed-digests": [
