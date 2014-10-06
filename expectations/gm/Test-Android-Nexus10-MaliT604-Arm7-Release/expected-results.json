@@ -414,7 +414,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16508684429113109899
+          7934149381931836538
         ]
       ], 
       "reviewed-by-human": true
@@ -847,13 +847,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9867627344966414537
+          14312149710266134937
         ]
       ], 
-      "bugs": [
-        2762
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blend_gpu.png": {
       "allowed-digests": [
@@ -904,10 +901,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7279256031086971938
+          14565713740382103170
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blurquickreject_565.png": {
       "allowed-digests": [
@@ -2645,7 +2642,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          158195814517883351
+          7131542388321120580
         ]
       ], 
       "reviewed-by-human": true
@@ -2681,10 +2678,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10426400083921889194
+          17479474044354893809
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blurroundrect-WH[100x100]-unevenCorners_565.png": {
       "allowed-digests": [
@@ -2753,7 +2750,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9323354551120439554
+          16999601652961192407
         ]
       ], 
       "reviewed-by-human": true
@@ -5029,7 +5026,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14484858848664747251
+          11343495394983612906
         ]
       ], 
       "ignore-failure": false, 
@@ -11608,7 +11605,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8411590397840305868
+          590591673143621095
         ]
       ], 
       "reviewed-by-human": true
@@ -11642,10 +11639,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14741463111103498316
+          4807547432861546230
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "spritebitmap_565.png": {
       "allowed-digests": [
