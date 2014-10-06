@@ -12,6 +12,7 @@
 #include "GrGeometryProcessor.h"
 
 class GrGLDistanceFieldTextureEffect;
+class GrGLDistanceFieldNoGammaTextureEffect;
 class GrGLDistanceFieldLCDTextureEffect;
 
 enum GrDistanceFieldEffectFlags {
@@ -89,7 +90,49 @@ private:
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
-    typedef GrFragmentProcessor INHERITED;
+    typedef GrGeometryProcessor INHERITED;
+};
+
+
+/**
+* The output color of this effect is a modulation of the input color and a sample from a
+* distance field texture (using a smoothed step function near 0.5).
+* It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
+* coords are a custom attribute. No gamma correct blending is applied.
+*/
+class GrDistanceFieldNoGammaTextureEffect : public GrGeometryProcessor {
+public:
+    static GrGeometryProcessor* Create(GrTexture* tex, const GrTextureParams& params,
+                                       uint32_t flags) {
+        return SkNEW_ARGS(GrDistanceFieldNoGammaTextureEffect, (tex, params, flags));
+    }
+
+    virtual ~GrDistanceFieldNoGammaTextureEffect() {}
+
+    static const char* Name() { return "DistanceFieldTexture"; }
+
+    const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
+    uint32_t getFlags() const { return fFlags; }
+
+    typedef GrGLDistanceFieldNoGammaTextureEffect GLProcessor;
+
+    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
+
+private:
+    GrDistanceFieldNoGammaTextureEffect(GrTexture* texture, const GrTextureParams& params,
+                                        uint32_t flags);
+
+    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+
+    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+
+    GrTextureAccess    fTextureAccess;
+    uint32_t           fFlags;
+    const GrShaderVar& fInTextureCoords;
+
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+
+    typedef GrGeometryProcessor INHERITED;
 };
 
 /**
@@ -137,7 +180,7 @@ private:
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
-    typedef GrFragmentProcessor INHERITED;
+    typedef GrGeometryProcessor INHERITED;
 };
 
 #endif

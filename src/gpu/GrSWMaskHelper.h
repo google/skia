@@ -68,13 +68,16 @@ public:
     // Move the mask generation results from the internal bitmap to the gpu.
     void toTexture(GrTexture* texture);
 
+    // Convert mask generation results to a signed distance field
+    void toSDF(unsigned char* sdf);
+    
     // Reset the internal bitmap
     void clear(uint8_t alpha) {
         fBM.eraseColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
     }
 
     // Canonical usage utility that draws a single path and uploads it
-    // to the GPU. The result is returned in "result".
+    // to the GPU. The result is returned.
     static GrTexture* DrawPathMaskToTexture(GrContext* context,
                                             const SkPath& path,
                                             const SkStrokeRec& stroke,

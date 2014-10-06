@@ -12,6 +12,7 @@
 #include "GrGpu.h"
 
 #include "SkData.h"
+#include "SkDistanceFieldGen.h"
 #include "SkStrokeRec.h"
 
 // TODO: try to remove this #include
@@ -304,6 +305,16 @@ void GrSWMaskHelper::toTexture(GrTexture *texture) {
             this->sendTextureData(texture, desc, fCompressedBuffer.get(), 0);
             break;
     }
+}
+
+/**
+ * Convert mask generation results to a signed distance field
+ */
+void GrSWMaskHelper::toSDF(unsigned char* sdf) {
+    SkAutoLockPixels alp(fBM);
+    
+    SkGenerateDistanceFieldFromA8Image(sdf, (const unsigned char*)fBM.getPixels(),
+                                       fBM.width(), fBM.height(), fBM.rowBytes());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

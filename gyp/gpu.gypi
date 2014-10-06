@@ -48,6 +48,8 @@
       '<(skia_src_path)/gpu/GrAAHairLinePathRenderer.h',
       '<(skia_src_path)/gpu/GrAAConvexPathRenderer.cpp',
       '<(skia_src_path)/gpu/GrAAConvexPathRenderer.h',
+      '<(skia_src_path)/gpu/GrAADistanceFieldPathRenderer.cpp',
+      '<(skia_src_path)/gpu/GrAADistanceFieldPathRenderer.h',
       '<(skia_src_path)/gpu/GrAARectRenderer.cpp',
       '<(skia_src_path)/gpu/GrAARectRenderer.h',
       '<(skia_src_path)/gpu/GrAddPathRenderers_default.cpp',
