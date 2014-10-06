@@ -65,4 +65,7 @@ xfermodes
 xfermodes2
 xfermodes3
 
+# robertphillips - Fix multipicturedraw_biglayer GM - https://codereview.chromium.org/632743002
+multipicturedraw_biglayer_tiled
+multipicturedraw_biglayer_simple
 
