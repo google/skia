@@ -9,16 +9,16 @@ immediately. To make sandboxing easier this must be built w/GPU off.
 Running Locally
 ===============
 
-    $ GYP_GENERATORS=ninja ./gyp_skia gyp/webtry.gyp gyp/most.gyp -Dskia_gpu=0
-    $ ninja -C out/Debug webtry
+Set your SKIA_ROOT environment variable to point at your skia tree, then:
+
     $ cd experimental/webtry
     $ go get -d
-    $ go build webtry.go
+    $ ./build
     $ ./webtry
 
 Then visit http://localhost:8000 in your browser.
 
-Only tested under linux, doubtful it will work on other platforms.
+Only tested under linux and MacOS, doubtful it will work on other platforms.
 
 
 Server Setup
