@@ -52,8 +52,10 @@ Do the first time
 The following things only need to be done once.
 
 1. SSH into the server as default.
-
-2. sudo apt-get install git schroot debootstrap
+2. sudo apt-get install git
+3. git clone https://skia.googlesource.com/skia
+4. cd ~/skia/experimental/webtry/setup
+5. ./webtry_setup.sh
 
 3. Add the following to the /etc/schroot/minimal/fstab:
 
@@ -81,7 +83,7 @@ This means that monit will poll every two seconds that our application is up and
 8. Set the TCP keepalive. For more info see:
    https://developers.google.com/cloud-sql/docs/gce-access
 
-    sudo bash -c 'echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time'
+    sudo sh -c 'echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time'
 
 To update the code
 ==================
