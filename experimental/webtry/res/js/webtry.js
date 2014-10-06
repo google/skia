@@ -144,13 +144,15 @@
         theme: "default",
         lineNumbers: true,
         matchBrackets: true,
+        lineWrapping: true,
         mode: "text/x-c++src",
         indentUnit: 4,
       });
 
-      // Match the initial textarea size.
+      // Match the initial textarea width, but leave the height alone
+      // The css will automatically resize the editor vertically.
       editor.setSize(editor.defaultCharWidth() * code.cols,
-                     editor.defaultTextHeight() * code.rows);
+                     null);
 
 
       /**

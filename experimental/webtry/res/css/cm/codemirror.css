@@ -3,11 +3,13 @@
 .CodeMirror {
   /* Set height, width, borders, and global font properties here */
   font-family: monospace;
-  height: 300px;
 }
 .CodeMirror-scroll {
-  /* Set scrolling behaviour here */
-  overflow: auto;
+  /* These settings combine to allow the code portion to automatically resize itself */
+  height: auto;
+
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 /* PADDING */
@@ -121,7 +123,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   /* See overflow: hidden in .CodeMirror */
   margin-bottom: -30px; margin-right: -30px;
   padding-bottom: 30px;
-  height: 100%;
   outline: none; /* Prevent dragging from highlighting the element */
   position: relative;
   -moz-box-sizing: content-box;
