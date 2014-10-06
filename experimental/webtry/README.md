@@ -9,7 +9,13 @@ immediately. To make sandboxing easier this must be built w/GPU off.
 Running Locally
 ===============
 
-Set your SKIA_ROOT environment variable to point at your skia tree, then:
+One time setup:
+
+    $ export SKIA_ROOT=path_to_your_skia_source
+    $ export WEBTRY_INOUT=path_to_a_writeable_directory
+    $ mkdir -p $WEBTRY_INOUT
+
+Then, to run:
 
     $ cd experimental/webtry
     $ go get -d
