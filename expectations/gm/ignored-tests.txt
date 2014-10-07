@@ -51,7 +51,3 @@ roundrects
 # rileya - https://codereview.chromium.org/516463005/ will rebaseline after bots cycle
 yuv_to_rgb_effect
 
-# robertphillips - Fix multipicturedraw_biglayer GM - https://codereview.chromium.org/632743002
-multipicturedraw_biglayer_tiled
-multipicturedraw_biglayer_simple
-
