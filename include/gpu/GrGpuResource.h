@@ -49,27 +49,21 @@ public:
     // templated helper classes (e.g. SkAutoTUnref). However, we have different categories of
     // refs (e.g. pending reads). We also don't require thread safety as GrCacheable objects are
     // not intended to cross thread boundaries.
-    // internal_dispose() exists because of GrTexture's reliance on it. It will be removed
-    // soon.
     void ref() const {
-        ++fRefCnt;
-        // pre-validate once internal_dispose is removed (and therefore 0 ref cnt is not allowed).
         this->validate();
+        ++fRefCnt;
     }
 
     void unref() const {
         this->validate();
         --fRefCnt;
         if (0 == fRefCnt && 0 == fPendingReads && 0 == fPendingWrites) {
-            this->internal_dispose();
+            SkDELETE(this);
         }
     }
 
-    virtual void internal_dispose() const { SkDELETE(this); }
-
-    /** This is exists to service the old mechanism for recycling scratch textures. It will
-        be removed soon. */
-    bool unique() const { return 1 == (fRefCnt + fPendingReads + fPendingWrites); }
+    bool isPurgable() const { return this->reffedOnlyByCache() && !this->internalHasPendingIO(); }
+    bool reffedOnlyByCache() const { return 1 == fRefCnt; }
 
     void validate() const {
 #ifdef SK_DEBUG
@@ -80,9 +74,8 @@ public:
 #endif
     }
 
-
 protected:
-    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
+    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0), fIsScratch(kNo_IsScratch) { }
 
     bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
     bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
@@ -98,7 +91,7 @@ private:
         this->validate();
         --fPendingReads;
         if (0 == fRefCnt && 0 == fPendingReads && 0 == fPendingWrites) {
-            this->internal_dispose();
+            SkDELETE(this);
         }
     }
 
@@ -111,7 +104,7 @@ private:
         this->validate();
         --fPendingWrites;
         if (0 == fRefCnt && 0 == fPendingReads && 0 == fPendingWrites) {
-            this->internal_dispose();
+            SkDELETE(this);
         }
     }
 
@@ -122,6 +115,17 @@ private:
 
     // This class is used to manage conversion of refs to pending reads/writes.
     friend class GrGpuResourceRef;
+
+    // This is temporary until GrResourceCache is fully replaced by GrResourceCache2.
+    enum IsScratch {
+        kNo_IsScratch,
+        kYes_IsScratch
+    } fIsScratch;
+
+    friend class GrContext; // to set the above field.
+    friend class GrResourceCache; // to check the above field.
+    friend class GrResourceCache2; // to check the above field.
+
     template <typename, IOType> friend class GrPendingIOResource;
 };
 

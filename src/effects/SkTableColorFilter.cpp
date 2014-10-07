@@ -419,7 +419,6 @@ void ColorTableEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     inout->fIsSingleComponent = false;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect);
@@ -435,19 +434,10 @@ GrFragmentProcessor* ColorTableEffect::TestCreate(SkRandom* random,
 
 GrFragmentProcessor* SkTable_ColorFilter::asFragmentProcessor(GrContext* context) const {
     SkBitmap bitmap;
-    GrFragmentProcessor* fp = NULL;
     this->asComponentTable(&bitmap);
     // passing NULL because this effect does no tiling or filtering.
-    GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, bitmap, NULL);
-    if (texture) {
-        fp = ColorTableEffect::Create(texture, fFlags);
-
-        // Unlock immediately, this is not great, but we don't have a way of
-        // knowing when else to unlock it currently. TODO: Remove this when
-        // unref becomes the unlock replacement for all types of textures.
-        GrUnlockAndUnrefCachedBitmapTexture(texture);
-    }
-    return fp;
+    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, bitmap, NULL));
+    return texture ? ColorTableEffect::Create(texture, fFlags) : NULL;
 }
 
 #endif // SK_SUPPORT_GPU

@@ -290,15 +290,13 @@ public:
      * tiling non-power-of-two textures on APIs that don't support this (e.g.
      * unextended GLES2). Tiling a NPOT texture created by lockScratchTexture on
      * such an API will create gaps in the tiling pattern. This includes clamp
-     * mode. (This may be addressed in a future update.)
+     * mode. (This may be addressed in a future update.)7
+     *
+     * internalFlag is a temporary workaround until changes in the internal
+     * architecture are complete. Use the default value.
      */
-    GrTexture* lockAndRefScratchTexture(const GrTextureDesc&, ScratchTexMatch match);
-
-    /**
-     *  When done with an entry, call unlockScratchTexture(entry) on it, which returns
-     *  it to the cache, where it may be purged. This does not unref the texture.
-     */
-    void unlockScratchTexture(GrTexture* texture);
+    GrTexture* lockAndRefScratchTexture(const GrTextureDesc&, ScratchTexMatch match,
+                                        bool internalFlag = false);
 
     /**
      * Creates a texture that is outside the cache. Does not count against
@@ -1075,15 +1073,7 @@ private:
                                     size_t rowBytes,
                                     bool filter);
 
-    // Needed so GrTexture's returnToCache helper function can call
-    // addExistingTextureToCache
-    friend class GrTexture;
-    friend class GrStencilAndCoverPathRenderer;
-    friend class GrStencilAndCoverTextContext;
-
-    // Add an existing texture to the texture cache. This is intended solely
-    // for use with textures released from an GrAutoScratchTexture.
-    void addExistingTextureToCache(GrTexture* texture);
+    bool createNewScratchTexture(const GrTextureDesc& desc);
 
     /**
      * These functions create premul <-> unpremul effects if it is possible to generate a pair
@@ -1103,8 +1093,7 @@ private:
 };
 
 /**
- * Gets and locks a scratch texture from a descriptor using either exact or approximate criteria.
- * Unlocks texture in the destructor.
+ * This is deprecated. Don't use it.
  */
 class SK_API GrAutoScratchTexture : public ::SkNoncopyable {
 public:
@@ -1115,10 +1104,11 @@ public:
 
     GrAutoScratchTexture(GrContext* context,
                          const GrTextureDesc& desc,
-                         GrContext::ScratchTexMatch match = GrContext::kApprox_ScratchTexMatch)
+                         GrContext::ScratchTexMatch match = GrContext::kApprox_ScratchTexMatch,
+                         bool internalFlag = false)
       : fContext(NULL)
       , fTexture(NULL) {
-      this->set(context, desc, match);
+      this->set(context, desc, match, internalFlag);
     }
 
     ~GrAutoScratchTexture() {
@@ -1127,34 +1117,26 @@ public:
 
     void reset() {
         if (fContext && fTexture) {
-            fContext->unlockScratchTexture(fTexture);
             fTexture->unref();
             fTexture = NULL;
         }
     }
 
-    /*
-     * When detaching a texture we do not unlock it in the texture cache but
-     * we do set the returnToCache flag. In this way the texture remains
-     * "locked" in the texture cache until it is freed and recycled in
-     * GrTexture::internal_dispose. In reality, the texture has been removed
-     * from the cache (because this is in AutoScratchTexture) and by not
-     * calling unlockScratchTexture we simply don't re-add it. It will be
-     * reattached in GrTexture::internal_dispose.
-     *
-     * Note that the caller is assumed to accept and manage the ref to the
-     * returned texture.
-     */
-    GrTexture* detach();
+    GrTexture* detach() {
+        GrTexture* texture = fTexture;
+        fTexture = NULL;
+        return texture;
+    }
 
     GrTexture* set(GrContext* context,
                    const GrTextureDesc& desc,
-                   GrContext::ScratchTexMatch match = GrContext::kApprox_ScratchTexMatch) {
+                   GrContext::ScratchTexMatch match = GrContext::kApprox_ScratchTexMatch,
+                   bool internalFlag = 0) {
         this->reset();
 
         fContext = context;
         if (fContext) {
-            fTexture = fContext->lockAndRefScratchTexture(desc, match);
+            fTexture = fContext->lockAndRefScratchTexture(desc, match, internalFlag);
             if (NULL == fTexture) {
                 fContext = NULL;
             }

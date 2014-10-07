@@ -247,37 +247,6 @@ static void test_resource_size_changed(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, 201 == cache.getCachedResourceBytes());
         REPORTER_ASSERT(reporter, 1 == cache.getCachedResourceCount());
     }
-
-    // Test changing the size of an exclusively-held resource.
-    {
-        GrResourceCache cache(2, 300);
-
-        TestResource* a = new TestResource(context->getGpu(), 100);
-        cache.addResource(key1, a);
-        cache.makeExclusive(a->getCacheEntry());
-
-        TestResource* b = new TestResource(context->getGpu(), 100);
-        cache.addResource(key2, b);
-        b->unref();
-
-        REPORTER_ASSERT(reporter, 200 == cache.getCachedResourceBytes());
-        REPORTER_ASSERT(reporter, 2 == cache.getCachedResourceCount());
-        REPORTER_ASSERT(reporter, NULL == cache.find(key1));
-
-        a->setSize(200);
-
-        REPORTER_ASSERT(reporter, 300 == cache.getCachedResourceBytes());
-        REPORTER_ASSERT(reporter, 2 == cache.getCachedResourceCount());
-        // Internal resource cache validation will test the detached size (debug mode only).
-
-        cache.makeNonExclusive(a->getCacheEntry());
-        a->unref();
-
-        REPORTER_ASSERT(reporter, 300 == cache.getCachedResourceBytes());
-        REPORTER_ASSERT(reporter, 2 == cache.getCachedResourceCount());
-        REPORTER_ASSERT(reporter, cache.find(key1));
-        // Internal resource cache validation will test the detached size (debug mode only).
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
