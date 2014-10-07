@@ -343,3 +343,29 @@ DEF_TEST(Paint_MoreFlattening, r) {
     ASSERT(paint.getXfermode()->asMode(&paintMode));
     ASSERT(otherMode == paintMode);
 }
+
+DEF_TEST(Paint_getHash, r) {
+    // Try not to inspect the actual hash values in here.
+    // We might want to change the hash function.
+
+    SkPaint paint;
+    const uint32_t defaultHash = paint.getHash();
+
+    // Check that some arbitrary field affects the hash.
+    paint.setColor(0xFF00FF00);
+    REPORTER_ASSERT(r, paint.getHash() != defaultHash);
+    paint.setColor(SK_ColorBLACK);  // Reset to default value.
+    REPORTER_ASSERT(r, paint.getHash() == defaultHash);
+
+    // SkTypeface is the first field we hash, so test it specially.
+    paint.setTypeface(SkTypeface::RefDefault())->unref();
+    REPORTER_ASSERT(r, paint.getHash() != defaultHash);
+    paint.setTypeface(NULL);
+    REPORTER_ASSERT(r, paint.getHash() == defaultHash);
+
+    // This is part of fBitfields, the last field we hash.
+    paint.setHinting(SkPaint::kSlight_Hinting);
+    REPORTER_ASSERT(r, paint.getHash() != defaultHash);
+    paint.setHinting(SkPaint::kNormal_Hinting);
+    REPORTER_ASSERT(r, paint.getHash() == defaultHash);
+}

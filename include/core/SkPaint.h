@@ -62,6 +62,11 @@ public:
         return !(a == b);
     }
 
+    /** getHash() is a shallow hash, with the same limitations as operator==.
+     *  If operator== returns true for two paints, getHash() returns the same value for each.
+     */
+    uint32_t getHash() const;
+
     void flatten(SkWriteBuffer&) const;
     void unflatten(SkReadBuffer&);
 
