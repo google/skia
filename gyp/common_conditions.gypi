@@ -509,6 +509,7 @@
           'WARNING_CFLAGS': [
             '-Wall',
             '-Wextra',
+            '-Wno-invalid-offsetof',
             '-Wno-unused-parameter',
             '-Wno-uninitialized',  # Disabled because we think GCC 4.2 is bad at this.
           ],
@@ -551,6 +552,7 @@
           'SDKROOT': 'iphoneos',
           'TARGETED_DEVICE_FAMILY': '1,2',
           'OTHER_CPLUSPLUSFLAGS': [
+            '-Wno-invalid-offsetof',
             '-fvisibility=hidden',
             '-fvisibility-inlines-hidden',
           ],
