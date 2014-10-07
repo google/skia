@@ -715,14 +715,6 @@ public:
 
     GrDrawState& operator= (const GrDrawState& that);
 
-    /**
-     * Returns a snapshot of the current optimized state. If the current drawState has a valid
-     * cached optimiezed state it will simply return a pointer to it otherwise it will create a new
-     * GrOptDrawState. In all cases the GrOptDrawState is reffed and ownership is given to the
-     * caller.
-     */
-    GrOptDrawState* createOptState(const GrDrawTargetCaps&) const;
-
 private:
     /**
      * Converts refs on GrGpuResources owned directly or indirectly by this GrDrawState into
@@ -829,9 +821,11 @@ private:
     mutable GrOptDrawState* fCachedOptState;
     mutable uint32_t fCachedCapsID;
 
+    friend class GrOptDrawState;
+
     typedef SkRefCnt INHERITED;
 };
 
-//GR_MAKE_BITFIELD_OPS(GrDrawState::BlendOptFlags);
+GR_MAKE_BITFIELD_OPS(GrDrawState::BlendOptFlags);
 
 #endif

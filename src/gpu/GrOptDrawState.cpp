@@ -9,7 +9,6 @@
 
 #include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
-#include "GrGpu.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                BlendOptFlags blendOptFlags,
@@ -52,6 +51,42 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     this->getStageStats();
     this->setOutputStateInfo(caps);
 };
+
+GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState, const GrDrawTargetCaps& caps,
+                                       GrGpu::DrawType drawType) {
+    if (NULL == drawState.fCachedOptState || caps.getUniqueID() != drawState.fCachedCapsID) {
+        GrBlendCoeff srcCoeff;
+        GrBlendCoeff dstCoeff;
+        BlendOptFlags blendFlags = (BlendOptFlags) drawState.getBlendOpts(false,
+                                                                          &srcCoeff,
+                                                                          &dstCoeff);
+
+        // If our blend coeffs are set to 0,1 we know we will not end up drawing unless we are
+        // stenciling. When path rendering the stencil settings are not always set on the draw state
+        // so we must check the draw type. In cases where we will skip drawing we simply return a
+        // null GrOptDrawState.
+        if (kZero_GrBlendCoeff == srcCoeff && kOne_GrBlendCoeff == dstCoeff &&
+            !drawState.getStencil().doesWrite() && GrGpu::kStencilPath_DrawType != drawType) {
+            return NULL;
+        }
+
+        drawState.fCachedOptState = SkNEW_ARGS(GrOptDrawState, (drawState, blendFlags, srcCoeff,
+                                                                dstCoeff, caps));
+        drawState.fCachedCapsID = caps.getUniqueID();
+    } else {
+#ifdef SK_DEBUG
+        GrBlendCoeff srcCoeff;
+        GrBlendCoeff dstCoeff;
+        BlendOptFlags blendFlags = (BlendOptFlags) drawState.getBlendOpts(false,
+                                                                          &srcCoeff,
+                                                                          &dstCoeff);
+        SkASSERT(GrOptDrawState(drawState, blendFlags, srcCoeff, dstCoeff, caps) ==
+                 *drawState.fCachedOptState);
+#endif
+    }
+    drawState.fCachedOptState->ref();
+    return drawState.fCachedOptState;
+}
 
 void GrOptDrawState::setOutputStateInfo(const GrDrawTargetCaps& caps) {
     // Set this default and then possibly change our mind if there is coverage.

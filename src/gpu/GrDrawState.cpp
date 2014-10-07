@@ -12,29 +12,6 @@
 
 //////////////////////////////////////////////////////////////////////////////s
 
-GrOptDrawState* GrDrawState::createOptState(const GrDrawTargetCaps& caps) const {
-    if (NULL == fCachedOptState || caps.getUniqueID() != fCachedCapsID) {
-        GrBlendCoeff srcCoeff;
-        GrBlendCoeff dstCoeff;
-        GrOptDrawState::BlendOptFlags blendFlags =
-            (GrOptDrawState::BlendOptFlags) this->getBlendOpts(false, &srcCoeff, &dstCoeff);
-        fCachedOptState = SkNEW_ARGS(GrOptDrawState, (*this, blendFlags, srcCoeff, dstCoeff, caps));
-        fCachedCapsID = caps.getUniqueID();
-    } else {
-#ifdef SK_DEBUG
-        GrBlendCoeff srcCoeff;
-        GrBlendCoeff dstCoeff;
-        GrOptDrawState::BlendOptFlags blendFlags =
-            (GrOptDrawState::BlendOptFlags) this->getBlendOpts(false, &srcCoeff, &dstCoeff);
-        SkASSERT(GrOptDrawState(*this, blendFlags, srcCoeff, dstCoeff, caps) == *fCachedOptState);
-#endif
-    }
-    fCachedOptState->ref();
-    return fCachedOptState;
-}
-
-//////////////////////////////////////////////////////////////////////////////s
-
 bool GrDrawState::isEqual(const GrDrawState& that) const {
     bool usingVertexColors = this->hasColorVertexAttribute();
     if (!usingVertexColors && this->fColor != that.fColor) {
