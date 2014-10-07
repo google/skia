@@ -56,10 +56,11 @@ protected:
                              SkSurfaceProps::kLegacyFontHost_InitType);
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, info, 0, &props));
         SkCanvas* canvas = surface.get() ? surface->getCanvas() : inputCanvas;
+        // init our new canvas with the old canvas's matrix
+        canvas->setMatrix(inputCanvas->getTotalMatrix());
 #else
         SkCanvas* canvas = inputCanvas;
 #endif
-        
         // apply global scale to test glyph positioning
         canvas->scale(1.05f, 1.05f);
         canvas->clear(0xffffffff);
@@ -187,6 +188,9 @@ protected:
 #if SK_SUPPORT_GPU
         // render offscreen buffer
         if (surface) {
+            SkAutoCanvasRestore acr(inputCanvas, true);
+            // since we prepended this matrix already, we blit using identity
+            inputCanvas->resetMatrix();
             SkImage* image = surface->newImageSnapshot();
             inputCanvas->drawImage(image, 0, 0, NULL);
             image->unref();
