@@ -372,10 +372,7 @@ bool GrIsBitmapInCache(const GrContext* ctx,
 GrTexture* GrLockAndRefCachedBitmapTexture(GrContext* ctx,
                                            const SkBitmap& bitmap,
                                            const GrTextureParams* params) {
-    GrTexture* result = bitmap.getTexture();
-    if (result) {
-        return SkRef(result);
-    }
+    GrTexture* result = NULL;
 
     bool cache = !bitmap.isVolatile();
 
@@ -403,9 +400,7 @@ GrTexture* GrLockAndRefCachedBitmapTexture(GrContext* ctx,
 void GrUnlockAndUnrefCachedBitmapTexture(GrTexture* texture) {
     SkASSERT(texture->getContext());
 
-    if (texture->getCacheEntry()) {
-        texture->getContext()->unlockScratchTexture(texture);
-    }
+    texture->getContext()->unlockScratchTexture(texture);
     texture->unref();
 }
 
