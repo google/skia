@@ -51,20 +51,6 @@ roundrects
 # rileya - https://codereview.chromium.org/516463005/ will rebaseline after bots cycle
 yuv_to_rgb_effect
 
-# robertphillips - Don't turn on dither for saveLayers which have no paint https://codereview.chromium.org/619363002/
-aarectmodes
-arithmode
-complexclip_aa_layer
-complexclip_bw_layer
-convex_poly_clip
-hairmodes
-lerpmode
-lumafilter
-modecolorfilters
-xfermodes
-xfermodes2
-xfermodes3
-
 # robertphillips - Fix multipicturedraw_biglayer GM - https://codereview.chromium.org/632743002
 multipicturedraw_biglayer_tiled
 multipicturedraw_biglayer_simple
