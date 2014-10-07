@@ -6,7 +6,7 @@
  */
 
 #include "GrDistanceFieldTextureEffect.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "gl/builders/GrGLFullProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
@@ -40,7 +40,7 @@ public:
 #endif
         {}
 
-    virtual void emitCode(GrGLGPBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrGeometryProcessor& geometryProcessor,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -51,7 +51,7 @@ public:
                 geometryProcessor.cast<GrDistanceFieldTextureEffect>();
         SkASSERT(1 == dfTexEffect.getVertexAttribs().count());
 
-        GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
@@ -61,7 +61,7 @@ public:
         builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
         fsCoordName = fsCoordNamePtr;
 
-        GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+        GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
         vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, dfTexEffect.inTextureCoords().c_str());
 
         const char* textureSizeUniName = NULL;
@@ -267,7 +267,7 @@ public:
         : INHERITED(factory)
         , fTextureSize(SkISize::Make(-1, -1)) {}
 
-    virtual void emitCode(GrGLGPBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrGeometryProcessor& effect,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -278,7 +278,7 @@ public:
                                                 effect.cast<GrDistanceFieldNoGammaTextureEffect>();
         SkASSERT(1 == dfTexEffect.getVertexAttribs().count());
 
-        GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                                      GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
@@ -288,7 +288,7 @@ public:
         builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
         fsCoordName = fsCoordNamePtr;
 
-        GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+        GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
         vsBuilder->codeAppendf("%s = %s;", vsCoordName, dfTexEffect.inTextureCoords().c_str());
 
         const char* textureSizeUniName = NULL;
@@ -439,7 +439,7 @@ public:
     , fTextureSize(SkISize::Make(-1,-1))
     , fTextColor(GrColor_ILLEGAL) {}
 
-    virtual void emitCode(GrGLGPBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrGeometryProcessor& geometryProcessor,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -456,7 +456,7 @@ public:
         builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
         fsCoordName = fsCoordNamePtr;
 
-        GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+        GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
         vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, dfTexEffect.inTextureCoords().c_str());
 
         const char* textureSizeUniName = NULL;
@@ -465,7 +465,7 @@ public:
                                               kVec3f_GrSLType, "TextureSize",
                                               &textureSizeUniName);
 
-        GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
 
         SkAssertResult(fsBuilder->enableFeature(
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));

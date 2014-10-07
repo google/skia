@@ -56,18 +56,22 @@ public:
         friend class GrGLProgramBuilder; // For accessing toShaderBuilderIndex().
     };
 
-    struct UniformInfo {
-        GrGLShaderVar fVariable;
-        uint32_t      fVisibility;
-        GrGLint       fLocation;
+    class VaryingHandle : public ShaderResourceHandle {
+    public:
+        /** Creates a reference to a varying in separable varyings of a GrGLShaderBuilder.
+         * The ref can be used to set the varying with the corresponding GrGLProgramDataManager.*/
+        static VaryingHandle CreateFromSeparableVaryingIndex(int i) {
+            return VaryingHandle(i);
+        }
+        VaryingHandle() { }
+        bool operator==(const VaryingHandle& other) const { return other.fValue == fValue; }
+    private:
+        VaryingHandle(int value) : ShaderResourceHandle(value) { }
+        int toProgramDataIndex() const { SkASSERT(isValid()); return fValue; }
+        friend class GrGLProgramDataManager; // For accessing toProgramDataIndex().
     };
 
-    // This uses an allocator rather than array so that the GrGLShaderVars don't move in memory
-    // after they are inserted. Users of GrGLShaderBuilder get refs to the vars and ptrs to their
-    // name strings. Otherwise, we'd have to hand out copies.
-    typedef GrTAllocator<UniformInfo> UniformInfoArray;
-
-    GrGLProgramDataManager(GrGpuGL*, const UniformInfoArray&);
+    GrGLProgramDataManager(GrGpuGL*, GrGLProgram*, const GrGLProgramBuilder&);
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
      *  array of uniforms. arrayCount must be <= the array count of the uniform.
@@ -91,6 +95,10 @@ public:
     // convenience method for uploading a SkMatrix to a 3x3 matrix uniform
     void setSkMatrix(UniformHandle, const SkMatrix&) const;
 
+    void setProgramPathFragmentInputTransform(VaryingHandle i,
+                                              unsigned components,
+                                              const SkMatrix& matrix) const;
+
 private:
     enum {
         kUnusedUniform = -1,
@@ -104,10 +112,19 @@ private:
             int         fArrayCount;
         );
     };
+    struct Varying {
+        GrGLint     fLocation;
+        SkDEBUGCODE(
+            GrSLType    fType;
+        );
+    };
 
     SkTArray<Uniform, true> fUniforms;
+    SkTArray<Varying, true> fVaryings;
     GrGpuGL* fGpu;
+    GrGLProgram* fProgram;
 
     typedef SkRefCnt INHERITED;
 };
+
 #endif

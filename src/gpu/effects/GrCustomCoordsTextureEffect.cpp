@@ -6,7 +6,7 @@
  */
 
 #include "GrCustomCoordsTextureEffect.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "gl/builders/GrGLFullProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
@@ -19,7 +19,7 @@ public:
     GrGLCustomCoordsTextureEffect(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-    virtual void emitCode(GrGLGPBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrGeometryProcessor& geometryProcessor,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -36,11 +36,11 @@ public:
         builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsVaryingNamePtr);
         fsCoordName = fsVaryingNamePtr;
 
-        GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+        GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
         const GrShaderVar& inTextureCoords = customCoordsTextureEffect.inTextureCoords();
         vsBuilder->codeAppendf("\t%s = %s;\n", vsVaryingName, inTextureCoords.c_str());
 
-        GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("\t%s = ", outputColor);
         fsBuilder->appendTextureLookupAndModulate(inputColor,
                                                   samplers[0],

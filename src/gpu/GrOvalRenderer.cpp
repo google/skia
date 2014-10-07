@@ -7,7 +7,7 @@
 
 #include "GrOvalRenderer.h"
 
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "gl/builders/GrGLFullProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLGeometryProcessor.h"
@@ -92,7 +92,7 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLGPBuilder* builder,
+        virtual void emitCode(GrGLFullProgramBuilder* builder,
                               const GrGeometryProcessor& geometryProcessor,
                               const GrProcessorKey& key,
                               const char* outputColor,
@@ -103,10 +103,10 @@ public:
             const char *vsName, *fsName;
             builder->addVarying(kVec4f_GrSLType, "CircleEdge", &vsName, &fsName);
 
-            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();;
+            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();;
             vsBuilder->codeAppendf("\t%s = %s;\n", vsName, circleEffect.inCircleEdge().c_str());
 
-            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("\tfloat d = length(%s.xy);\n", fsName);
             fsBuilder->codeAppendf("\tfloat edgeAlpha = clamp(%s.z - d, 0.0, 1.0);\n", fsName);
             if (circleEffect.isStroked()) {
@@ -210,7 +210,7 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLGPBuilder* builder,
+        virtual void emitCode(GrGLFullProgramBuilder* builder,
                               const GrGeometryProcessor& geometryProcessor,
                               const GrProcessorKey& key,
                               const char* outputColor,
@@ -224,7 +224,7 @@ public:
 
             builder->addVarying(kVec2f_GrSLType, "EllipseOffsets", &vsOffsetName, &fsOffsetName);
 
-            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
             vsBuilder->codeAppendf("%s = %s;", vsOffsetName,
                                    ellipseEffect.inEllipseOffset().c_str());
 
@@ -232,7 +232,7 @@ public:
             vsBuilder->codeAppendf("%s = %s;", vsRadiiName, ellipseEffect.inEllipseRadii().c_str());
 
             // for outer curve
-            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("\tvec2 scaledOffset = %s*%s.xy;\n", fsOffsetName, fsRadiiName);
             fsBuilder->codeAppend("\tfloat test = dot(scaledOffset, scaledOffset) - 1.0;\n");
             fsBuilder->codeAppendf("\tvec2 grad = 2.0*scaledOffset*%s.xy;\n", fsRadiiName);
@@ -359,7 +359,7 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLGPBuilder* builder,
+        virtual void emitCode(GrGLFullProgramBuilder* builder,
                               const GrGeometryProcessor& geometryProcessor,
                               const GrProcessorKey& key,
                               const char* outputColor,
@@ -373,7 +373,7 @@ public:
             builder->addVarying(kVec2f_GrSLType, "EllipseOffsets0",
                                       &vsOffsetName0, &fsOffsetName0);
 
-            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
             vsBuilder->codeAppendf("%s = %s;", vsOffsetName0,
                                    ellipseEffect.inEllipseOffsets0().c_str());
             const char *vsOffsetName1, *fsOffsetName1;
@@ -382,7 +382,7 @@ public:
             vsBuilder->codeAppendf("\t%s = %s;\n", vsOffsetName1,
                                    ellipseEffect.inEllipseOffsets1().c_str());
 
-            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             // for outer curve

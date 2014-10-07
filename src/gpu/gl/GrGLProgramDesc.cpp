@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLFragmentShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrGLProgramDesc.h"
 #include "GrBackendProcessorFactory.h"
 #include "GrProcessor.h"
@@ -178,7 +178,7 @@ bool GrGLProgramDesc::GetGeometryProcessorKey(const GrGeometryStage& stage,
     if (NULL == key) {
         return false;
     }
-    uint32_t attribKey = gen_attrib_key(stage.getProcessor());
+    uint32_t attribKey = gen_attrib_key(stage.getGeometryProcessor());
 
     // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
     // don't fit.
@@ -348,16 +348,15 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
             dstCopyTexture = dstCopy->texture();
         }
         header->fDstReadKey = GrGLFragmentShaderBuilder::KeyForDstRead(dstCopyTexture,
-                                                                       gpu->glCaps());
+                gpu->glCaps());
         SkASSERT(0 != header->fDstReadKey);
     } else {
         header->fDstReadKey = 0;
     }
 
     if (optState.readsFragPosition()) {
-        header->fFragPosKey =
-                GrGLFragmentShaderBuilder::KeyForFragmentPosition(optState.getRenderTarget(),
-                                                                  gpu->glCaps());
+        header->fFragPosKey = GrGLFragmentShaderBuilder::KeyForFragmentPosition(
+                optState.getRenderTarget(), gpu->glCaps());
     } else {
         header->fFragPosKey = 0;
     }

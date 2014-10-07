@@ -7,7 +7,7 @@
 
 #include "GrBezierEffect.h"
 
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "gl/builders/GrGLFullProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLGeometryProcessor.h"
@@ -17,7 +17,7 @@ class GrGLConicEffect : public GrGLGeometryProcessor {
 public:
     GrGLConicEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLGPBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrGeometryProcessor& geometryProcessor,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -42,7 +42,7 @@ GrGLConicEffect::GrGLConicEffect(const GrBackendProcessorFactory& factory,
     fEdgeType = ce.getEdgeType();
 }
 
-void GrGLConicEffect::emitCode(GrGLGPBuilder* builder,
+void GrGLConicEffect::emitCode(GrGLFullProgramBuilder* builder,
                                const GrGeometryProcessor& geometryProcessor,
                                const GrProcessorKey& key,
                                const char* outputColor,
@@ -55,10 +55,10 @@ void GrGLConicEffect::emitCode(GrGLGPBuilder* builder,
                               &vsName, &fsName);
 
     const GrShaderVar& inConicCoeffs = geometryProcessor.cast<GrConicEffect>().inConicCoeffs();
-    GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+    GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
     vsBuilder->codeAppendf("%s = %s;", vsName, inConicCoeffs.c_str());
 
-    GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppend("float edgeAlpha;");
 
     switch (fEdgeType) {
@@ -171,7 +171,7 @@ class GrGLQuadEffect : public GrGLGeometryProcessor {
 public:
     GrGLQuadEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLGPBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrGeometryProcessor& geometryProcessor,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -196,7 +196,7 @@ GrGLQuadEffect::GrGLQuadEffect(const GrBackendProcessorFactory& factory,
     fEdgeType = ce.getEdgeType();
 }
 
-void GrGLQuadEffect::emitCode(GrGLGPBuilder* builder,
+void GrGLQuadEffect::emitCode(GrGLFullProgramBuilder* builder,
                               const GrGeometryProcessor& geometryProcessor,
                               const GrProcessorKey& key,
                               const char* outputColor,
@@ -206,11 +206,11 @@ void GrGLQuadEffect::emitCode(GrGLGPBuilder* builder,
     const char *vsName, *fsName;
     builder->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
 
-    GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+    GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
     const GrShaderVar& inHairQuadEdge = geometryProcessor.cast<GrQuadEffect>().inHairQuadEdge();
     vsBuilder->codeAppendf("%s = %s;", vsName, inHairQuadEdge.c_str());
 
-    GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("float edgeAlpha;");
 
     switch (fEdgeType) {
@@ -309,7 +309,7 @@ class GrGLCubicEffect : public GrGLGeometryProcessor {
 public:
     GrGLCubicEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLGPBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrGeometryProcessor& geometryProcessor,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -334,7 +334,7 @@ GrGLCubicEffect::GrGLCubicEffect(const GrBackendProcessorFactory& factory,
     fEdgeType = ce.getEdgeType();
 }
 
-void GrGLCubicEffect::emitCode(GrGLGPBuilder* builder,
+void GrGLCubicEffect::emitCode(GrGLFullProgramBuilder* builder,
                                const GrGeometryProcessor& geometryProcessor,
                                const GrProcessorKey& key,
                                const char* outputColor,
@@ -346,11 +346,11 @@ void GrGLCubicEffect::emitCode(GrGLGPBuilder* builder,
     builder->addVarying(kVec4f_GrSLType, "CubicCoeffs",
                               &vsName, &fsName, GrGLShaderVar::kHigh_Precision);
 
-    GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+    GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
     const GrShaderVar& inCubicCoeffs = geometryProcessor.cast<GrCubicEffect>().inCubicCoeffs();
     vsBuilder->codeAppendf("%s = %s;", vsName, inCubicCoeffs.c_str());
 
-    GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
 
     GrGLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
     GrGLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);

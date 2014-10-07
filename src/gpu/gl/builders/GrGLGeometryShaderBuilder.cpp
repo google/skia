@@ -10,12 +10,12 @@
 #include "GrGLProgramBuilder.h"
 #include "../GrGpuGL.h"
 
-GrGLGeometryBuilder::GrGLGeometryBuilder(GrGLProgramBuilder* program)
+GrGLGeometryShaderBuilder::GrGLGeometryShaderBuilder(GrGLFullProgramBuilder* program)
     : INHERITED(program) {
 
 }
 
-void GrGLGeometryBuilder::addVarying(GrSLType type,
+void GrGLGeometryShaderBuilder::addVarying(GrSLType type,
                const char* name,
                const char** gsOutName) {
     // if we have a GS take each varying in as an array
@@ -35,15 +35,15 @@ void GrGLGeometryBuilder::addVarying(GrSLType type,
 }
 
 
-bool GrGLGeometryBuilder::compileAndAttachShaders(GrGLuint programId,
+bool GrGLGeometryShaderBuilder::compileAndAttachShaders(GrGLuint programId,
         SkTDArray<GrGLuint>* shaderIds) const {
     const GrGLContext& glCtx = fProgramBuilder->gpu()->glContext();
     SkASSERT(fProgramBuilder->ctxInfo().glslGeneration() >= k150_GrGLSLGeneration);
     SkString geomShaderSrc(GrGetGLSLVersionDecl(fProgramBuilder->ctxInfo()));
     geomShaderSrc.append("layout(triangles) in;\n"
                          "layout(triangle_strip, max_vertices = 6) out;\n");
-    this->appendDecls(fInputs, &geomShaderSrc);
-    this->appendDecls(fOutputs, &geomShaderSrc);
+    fProgramBuilder->appendDecls(fInputs, &geomShaderSrc);
+    fProgramBuilder->appendDecls(fOutputs, &geomShaderSrc);
     geomShaderSrc.append("void main() {\n");
     geomShaderSrc.append("\tfor (int i = 0; i < 3; ++i) {\n"
                          "\t\tgl_Position = gl_in[i].gl_Position;\n");

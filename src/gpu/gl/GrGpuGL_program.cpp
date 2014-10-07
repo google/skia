@@ -7,7 +7,6 @@
 
 #include "GrGpuGL.h"
 
-#include "builders/GrGLProgramBuilder.h"
 #include "GrProcessor.h"
 #include "GrGLProcessor.h"
 #include "GrGLPathRendering.h"
@@ -93,7 +92,6 @@ int GrGpuGL::ProgramCache::search(const GrGLProgramDesc& desc) const {
 
 GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState,
                                                const GrGLProgramDesc& desc,
-                                               DrawType type,
                                                const GrGeometryStage* geometryProcessor,
                                                const GrFragmentStage* colorStages[],
                                                const GrFragmentStage* coverageStages[]) {
@@ -131,9 +129,8 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState,
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(optState, desc, type,
-                                                                 geometryProcessor, colorStages,
-                                                                 coverageStages, fGpu);
+        GrGLProgram* program = GrGLProgram::Create(fGpu, optState, desc, geometryProcessor,
+                                                   colorStages, coverageStages);
         if (NULL == program) {
             return NULL;
         }
@@ -257,7 +254,6 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
 
         fCurrentProgram.reset(fProgramCache->getProgram(*optState.get(),
                                                         desc,
-                                                        type,
                                                         geometryProcessor,
                                                         colorStages.begin(),
                                                         coverageStages.begin()));

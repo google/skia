@@ -10,7 +10,7 @@
 #include "../GrAARectRenderer.h"
 
 #include "GrGeometryProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "gl/builders/GrGLFullProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLSL.h"
@@ -482,7 +482,7 @@ class GLDashingCircleEffect : public GrGLGeometryProcessor {
 public:
     GLDashingCircleEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLGPBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrGeometryProcessor& geometryProcessor,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -510,7 +510,7 @@ GLDashingCircleEffect::GLDashingCircleEffect(const GrBackendProcessorFactory& fa
     fPrevIntervalLength = SK_ScalarMax;
 }
 
-void GLDashingCircleEffect::emitCode(GrGLGPBuilder* builder,
+void GLDashingCircleEffect::emitCode(GrGLFullProgramBuilder* builder,
                                     const GrGeometryProcessor& geometryProcessor,
                                     const GrProcessorKey& key,
                                     const char* outputColor,
@@ -529,11 +529,11 @@ void GLDashingCircleEffect::emitCode(GrGLGPBuilder* builder,
     const char *vsCoordName, *fsCoordName;
     builder->addVarying(kVec2f_GrSLType, "Coord", &vsCoordName, &fsCoordName);
 
-    GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+    GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
     vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, dce.inCoord().c_str());
 
     // transforms all points so that we can compare them to our test circle
-    GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("\t\tfloat xShifted = %s.x - floor(%s.x / %s.z) * %s.z;\n",
                            fsCoordName, fsCoordName, paramName, paramName);
     fsBuilder->codeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", fsCoordName);
@@ -694,7 +694,7 @@ class GLDashingLineEffect : public GrGLGeometryProcessor {
 public:
     GLDashingLineEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLGPBuilder* builder,
+    virtual void emitCode(GrGLFullProgramBuilder* builder,
                           const GrGeometryProcessor& geometryProcessor,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -721,7 +721,7 @@ GLDashingLineEffect::GLDashingLineEffect(const GrBackendProcessorFactory& factor
     fPrevIntervalLength = SK_ScalarMax;
 }
 
-void GLDashingLineEffect::emitCode(GrGLGPBuilder* builder,
+void GLDashingLineEffect::emitCode(GrGLFullProgramBuilder* builder,
                                    const GrGeometryProcessor& geometryProcessor,
                                    const GrProcessorKey& key,
                                    const char* outputColor,
@@ -745,11 +745,11 @@ void GLDashingLineEffect::emitCode(GrGLGPBuilder* builder,
 
     const char *vsCoordName, *fsCoordName;
     builder->addVarying(kVec2f_GrSLType, "Coord", &vsCoordName, &fsCoordName);
-    GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+    GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
     vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, de.inCoord().c_str());
 
     // transforms all points so that we can compare them to our test rect
-    GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("\t\tfloat xShifted = %s.x - floor(%s.x / %s) * %s;\n",
                            fsCoordName, fsCoordName, intervalName, intervalName);
     fsBuilder->codeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", fsCoordName);

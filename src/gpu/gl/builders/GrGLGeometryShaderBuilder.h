@@ -10,9 +10,12 @@
 
 #include "GrGLShaderBuilder.h"
 
-class GrGLGeometryBuilder : public GrGLShaderBuilder {
+class GrGLProgramBuilder;
+
+class GrGLGeometryShaderBuilder : public GrGLFullShaderBuilder {
 public:
-    GrGLGeometryBuilder(GrGLProgramBuilder* program);
+    GrGLGeometryShaderBuilder(GrGLFullProgramBuilder* program);
+private:
     /*
      * an internal call for GrGLFullProgramBuilder to add varyings
      */
@@ -22,7 +25,8 @@ public:
 
     bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;
 
-    typedef GrGLShaderBuilder INHERITED;
+    friend class GrGLFullProgramBuilder;
+    typedef GrGLFullShaderBuilder INHERITED;
 };
 
 #endif

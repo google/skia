@@ -16,7 +16,6 @@
 #include "GrContextFactory.h"
 #include "GrOptDrawState.h"
 #include "effects/GrConfigConversionEffect.h"
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLPathRendering.h"
 #include "gl/GrGpuGL.h"
 #include "SkChecksum.h"
@@ -25,7 +24,7 @@
 
 static void get_stage_stats(const GrFragmentStage stage, bool* readsDst,
                             bool* readsFragPosition, bool* requiresVertexShader) {
-    if (stage.getProcessor()->willReadDstColor()) {
+    if (stage.getFragmentProcessor()->willReadDstColor()) {
         *readsDst = true;
     }
     if (stage.getProcessor()->willReadFragmentPosition()) {
@@ -336,14 +335,12 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         SkAutoTUnref<GrOptDrawState> optState(GrOptDrawState::Create(this->getDrawState(),
                                                                      *this->caps(),
                                                                      drawType));
-        SkAutoTUnref<GrGLProgram> program(
-                        GrGLProgramBuilder::CreateProgram(*optState,
-                                                          pdesc,
-                                                          drawType,
-                                                          geometryProcessor,
-                                                          stages,
-                                                          stages + numColorStages,
-                                                          this));
+        SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this,
+                                                              *optState.get(),
+                                                              pdesc,
+                                                              geometryProcessor.get(),
+                                                              stages,
+                                                              stages + numColorStages));
         for (int s = 0; s < numStages; ++s) {
             SkDELETE(stages[s]);
         }

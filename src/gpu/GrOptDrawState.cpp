@@ -222,7 +222,7 @@ void GrOptDrawState::copyEffectiveColorStages(const GrDrawState& ds) {
     }
 
     for (int i = 0; i < ds.numColorStages(); ++i) {
-        const GrFragmentProcessor* fp = ds.getColorStage(i).getProcessor();
+        const GrFragmentProcessor* fp = ds.getColorStage(i).getFragmentProcessor();
         if (!fp->willUseInputColor()) {
             firstColorStage = i;
             fInputColorIsUsed = false;
@@ -270,10 +270,10 @@ void GrOptDrawState::copyEffectiveCoverageStages(const GrDrawState& ds) {
 }
 
 static void get_stage_stats(const GrFragmentStage& stage, bool* readsDst, bool* readsFragPosition) {
-    if (stage.getProcessor()->willReadDstColor()) {
+    if (stage.getFragmentProcessor()->willReadDstColor()) {
         *readsDst = true;
     }
-    if (stage.getProcessor()->willReadFragmentPosition()) {
+    if (stage.getFragmentProcessor()->willReadFragmentPosition()) {
         *readsFragPosition = true;
     }
 }

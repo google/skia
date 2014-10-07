@@ -9,12 +9,21 @@
 #define GrGLShaderBuilder_DEFINED
 
 #include "gl/GrGLProgramDesc.h"
+#include "gl/GrGLProgramEffects.h"
+#include "gl/GrGLSL.h"
 #include "gl/GrGLProgramDataManager.h"
+#include "GrBackendProcessorFactory.h"
+#include "GrColor.h"
+#include "GrProcessor.h"
+#include "SkTypes.h"
 
 #include <stdarg.h>
 
 class GrGLContextInfo;
+class GrProcessorStage;
+class GrGLProgramDesc;
 class GrGLProgramBuilder;
+class GrGLFullProgramBuilder;
 
 /**
   base class for all shaders builders
@@ -23,7 +32,6 @@ class GrGLShaderBuilder {
 public:
     typedef GrGLProcessor::TransformedCoordsArray TransformedCoordsArray;
     typedef GrGLProcessor::TextureSampler TextureSampler;
-
     GrGLShaderBuilder(GrGLProgramBuilder* program);
 
     void addInput(GrGLShaderVar i) { fInputs.push_back(i); }
@@ -104,7 +112,7 @@ public:
     GrGLProgramBuilder* getProgramBuilder() { return fProgramBuilder; }
 
     /**
-     * Helper for begining and ending a block in the shader code.
+     * Helper for begining and ending a block in the fragment code.
      */
     class ShaderBlock {
     public:
@@ -119,10 +127,7 @@ public:
     private:
         GrGLShaderBuilder* fBuilder;
     };
-
 protected:
-    typedef GrTAllocator<GrGLShaderVar> VarArray;
-    void appendDecls(const VarArray& vars, SkString* out) const;
 
     /*
      * this super low level function is just for use internally to builders
@@ -137,6 +142,8 @@ protected:
      */
     void addFeature(uint32_t featureBit, const char* extensionName);
 
+    typedef GrTAllocator<GrGLShaderVar> VarArray;
+
     GrGLProgramBuilder* fProgramBuilder;
 
     SkString fCode;
@@ -146,5 +153,22 @@ protected:
     VarArray fInputs;
     VarArray fOutputs;
     uint32_t fFeaturesAddedMask;
+};
+
+
+/*
+ * Full Shader builder is the base class for shaders which are only accessible through full program
+ * builder, ie vertex, geometry, and later TCU / TES.  Using this base class, they can access the
+ * full program builder functionality through the full program pointer
+ */
+class GrGLFullShaderBuilder : public GrGLShaderBuilder {
+public:
+    GrGLFullShaderBuilder(GrGLFullProgramBuilder* program);
+
+    GrGLFullProgramBuilder* fullProgramBuilder() { return fFullProgramBuilder; }
+protected:
+    GrGLFullProgramBuilder* fFullProgramBuilder;
+private:
+    typedef GrGLShaderBuilder INHERITED;
 };
 #endif
