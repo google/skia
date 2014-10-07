@@ -267,6 +267,7 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(const SkPath& path,
     
     GrTexture* texture = fAtlas->getTexture();
     GrDrawState* drawState = target->drawState();
+    GrDrawState::AutoRestoreEffects are(drawState);
     
     SkASSERT(pathData->fPlot);
     GrDrawTarget::DrawToken drawToken = target->getCurrentDrawToken();
