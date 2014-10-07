@@ -51,3 +51,5 @@ roundrects
 # rileya - https://codereview.chromium.org/516463005/ will rebaseline after bots cycle
 yuv_to_rgb_effect
 
+# robertphillips - skia:2995
+blurrects
