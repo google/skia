@@ -299,6 +299,9 @@ public:
                                                                        bm.alphaType()),
                                              bm.getPixels(),
                                              bm.rowBytes());
+
+                // extra flush call, until Brian can figure out what's going on.
+                fCurContext->flush();
             }
         }
 #endif
