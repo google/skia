@@ -118,10 +118,15 @@ SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
 }
 
 - (void)dealloc {
-    delete fWind;
+    [self freeNativeWind];
     self.fGLContext = nil;
     self.fTitle = nil;
     [super dealloc];
+}
+
+- (void)freeNativeWind {
+    delete fWind;
+    fWind = nil;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

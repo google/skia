@@ -18,11 +18,6 @@
     return self;
 }
 
-- (void)dealloc {
-    delete fWind;
-    [super dealloc];
-}
-
 - (void)swipeWithEvent:(NSEvent *)event {
     CGFloat x = [event deltaX];
     if (x < 0)

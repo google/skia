@@ -18,6 +18,7 @@
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+    [fView freeNativeWind];
     application_term();
     return NSTerminateNow;
 }

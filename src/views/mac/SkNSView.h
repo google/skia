@@ -49,4 +49,7 @@ class SkEvent;
 - (bool)attach:(SkOSWindow::SkBackEndTypes)attachType withMSAASampleCount:(int) sampleCount andGetInfo:(SkOSWindow::AttachmentInfo*) info;
 - (void)detach;
 - (void)present;
+
+- (void)freeNativeWind;
+
 @end
