@@ -21,4 +21,7 @@
 @property (assign) IBOutlet SkOptionsTableView* fOptions;
 
 - (IBAction)toiPadSize:(id)sender;
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender;
+
 @end

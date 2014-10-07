@@ -1,4 +1,7 @@
 #import "SampleAppDelegate.h"
+
+#include "SkApplication.h"
+
 @implementation SampleAppDelegate
 @synthesize fWindow, fView, fOptions;
 
@@ -13,4 +16,10 @@
     NSRect frame = NSMakeRect(fWindow.frame.origin.x, fWindow.frame.origin.y, 768, 1024);
     [fWindow setFrame:frame display:YES animate:YES];
 }
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+    application_term();
+    return NSTerminateNow;
+}
+
 @end

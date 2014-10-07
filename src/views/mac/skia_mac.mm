@@ -14,7 +14,11 @@ int main(int argc, char *argv[]) {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     application_init();
     int retVal =  NSApplicationMain(argc, (const char **)argv);
+    
+#if 0
+    // we don't expect NSApplicationMain to return. See our applicationShouldTerminate handler.
     application_term();
     [pool release];
+#endif
     return retVal;
 }
