@@ -684,10 +684,7 @@ public:
     /// Hints that when provided can enable optimizations.
     ////
 
-    enum Hints {
-        kVertexColorsAreOpaque_Hint = 0x1,
-        kLast_Hint = kVertexColorsAreOpaque_Hint
-    };
+    enum Hints { kVertexColorsAreOpaque_Hint = 0x1, };
 
     void setHint(Hints hint, bool value) { fHints = value ? (fHints | hint) : (fHints & ~hint); }
 

@@ -42,8 +42,6 @@ public:
         uint32_t fValidFlags;
         bool fIsSingleComponent;
 
-        InvariantOutput() : fColor(0), fValidFlags(0), fIsSingleComponent(false) {}
-
         bool isOpaque() const {
             return ((fValidFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(fColor));
         }

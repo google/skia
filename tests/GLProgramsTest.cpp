@@ -22,42 +22,172 @@
 #include "SkRandom.h"
 #include "Test.h"
 
-static const int kRenderTargetHeight = 1;
-static const int kRenderTargetWidth = 1;
-
-static GrRenderTarget* random_render_target(GrGpuGL* gpu,
-                                            const GrCacheID& cacheId,
-                                            SkRandom* random) {
-    // setup render target
-    GrTextureParams params;
-    GrTextureDesc texDesc;
-    texDesc.fWidth = kRenderTargetWidth;
-    texDesc.fHeight = kRenderTargetHeight;
-    texDesc.fFlags = kRenderTarget_GrTextureFlagBit;
-    texDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    texDesc.fOrigin = random->nextBool() == true ? kTopLeft_GrSurfaceOrigin :
-                                                   kBottomLeft_GrSurfaceOrigin;
-
-    GrTexture* texture = gpu->getContext()->findAndRefTexture(texDesc, cacheId, &params);
-    if (NULL == texture) {
-        texture = gpu->getContext()->createTexture(&params, texDesc, cacheId, 0, 0);
-        if (NULL == texture) {
-            return NULL;
-        }
+static void get_stage_stats(const GrFragmentStage stage, bool* readsDst,
+                            bool* readsFragPosition, bool* requiresVertexShader) {
+    if (stage.getFragmentProcessor()->willReadDstColor()) {
+        *readsDst = true;
     }
-    return texture->asRenderTarget();
+    if (stage.getProcessor()->willReadFragmentPosition()) {
+        *readsFragPosition = true;
+    }
+}
+
+bool GrGLProgramDesc::setRandom(SkRandom* random,
+                                GrGpuGL* gpu,
+                                const GrRenderTarget* dstRenderTarget,
+                                const GrTexture* dstCopyTexture,
+                                const GrGeometryStage* geometryProcessor,
+                                const GrFragmentStage* stages[],
+                                int numColorStages,
+                                int numCoverageStages,
+                                int currAttribIndex,
+                                GrGpu::DrawType drawType) {
+    bool isPathRendering = GrGpu::IsPathRenderingDrawType(drawType);
+    bool useLocalCoords = !isPathRendering &&
+                          random->nextBool() &&
+                          currAttribIndex < GrDrawState::kMaxVertexAttribCnt;
+
+    int numStages = numColorStages + numCoverageStages;
+    fKey.reset();
+
+    GR_STATIC_ASSERT(0 == kEffectKeyOffsetsAndLengthOffset % sizeof(uint32_t));
+
+    // Make room for everything up to and including the array of offsets to effect keys.
+    fKey.push_back_n(kEffectKeyOffsetsAndLengthOffset + 2 * sizeof(uint16_t) * (numStages +
+            (geometryProcessor ? 1 : 0)));
+
+    bool dstRead = false;
+    bool fragPos = false;
+    bool vertexShader = SkToBool(geometryProcessor);
+    int offset = 0;
+    if (geometryProcessor) {
+        const GrGeometryStage* stage = geometryProcessor;
+        uint16_t* offsetAndSize = reinterpret_cast<uint16_t*>(fKey.begin() +
+                                                              kEffectKeyOffsetsAndLengthOffset +
+                                                              offset * 2 * sizeof(uint16_t));
+        uint32_t effectKeyOffset = fKey.count();
+        if (effectKeyOffset > SK_MaxU16) {
+            fKey.reset();
+            return false;
+        }
+        GrProcessorKeyBuilder b(&fKey);
+        uint16_t effectKeySize;
+        if (!GetProcessorKey(*stage, gpu->glCaps(), useLocalCoords, &b, &effectKeySize)) {
+            fKey.reset();
+            return false;
+        }
+        vertexShader = true;
+        fragPos = stage->getProcessor()->willReadFragmentPosition();
+        offsetAndSize[0] = effectKeyOffset;
+        offsetAndSize[1] = effectKeySize;
+        offset++;
+    }
+
+    for (int s = 0; s < numStages; ++s, ++offset) {
+        const GrFragmentStage* stage = stages[s];
+        uint16_t* offsetAndSize = reinterpret_cast<uint16_t*>(fKey.begin() +
+                                                              kEffectKeyOffsetsAndLengthOffset +
+                                                              offset * 2 * sizeof(uint16_t));
+        uint32_t effectKeyOffset = fKey.count();
+        if (effectKeyOffset > SK_MaxU16) {
+            fKey.reset();
+            return false;
+        }
+        GrProcessorKeyBuilder b(&fKey);
+        uint16_t effectKeySize;
+        if (!GetProcessorKey(*stages[s], gpu->glCaps(), useLocalCoords, &b, &effectKeySize)) {
+            fKey.reset();
+            return false;
+        }
+        get_stage_stats(*stage, &dstRead, &fragPos, &vertexShader);
+        offsetAndSize[0] = effectKeyOffset;
+        offsetAndSize[1] = effectKeySize;
+    }
+
+    KeyHeader* header = this->header();
+    memset(header, 0, kHeaderSize);
+    header->fEmitsPointSize = random->nextBool();
+
+    header->fPositionAttributeIndex = 0;
+
+    // if the effects have used up all off the available attributes,
+    // don't try to use color or coverage attributes as input
+    do {
+        header->fColorInput = static_cast<GrGLProgramDesc::ColorInput>(
+                                     random->nextULessThan(kColorInputCnt));
+    } while ((GrDrawState::kMaxVertexAttribCnt <= currAttribIndex || isPathRendering) &&
+             kAttribute_ColorInput == header->fColorInput);
+    header->fColorAttributeIndex = (header->fColorInput == kAttribute_ColorInput) ?
+                                        currAttribIndex++ :
+                                        -1;
+
+    do {
+        header->fCoverageInput = static_cast<GrGLProgramDesc::ColorInput>(
+                                     random->nextULessThan(kColorInputCnt));
+    } while ((GrDrawState::kMaxVertexAttribCnt <= currAttribIndex || isPathRendering)  &&
+             kAttribute_ColorInput == header->fCoverageInput);
+    header->fCoverageAttributeIndex = (header->fCoverageInput == kAttribute_ColorInput) ?
+                                        currAttribIndex++ :
+                                        -1;
+    bool useGS = random->nextBool();
+#if GR_GL_EXPERIMENTAL_GS
+    header->fExperimentalGS = gpu->caps()->geometryShaderSupport() && useGS;
+#else
+    (void) useGS;
+#endif
+
+    header->fLocalCoordAttributeIndex = useLocalCoords ? currAttribIndex++ : -1;
+
+    header->fColorEffectCnt = numColorStages;
+    header->fCoverageEffectCnt = numCoverageStages;
+
+    if (dstRead) {
+        header->fDstReadKey = SkToU8(GrGLFragmentShaderBuilder::KeyForDstRead(dstCopyTexture,
+                                                                      gpu->glCaps()));
+    } else {
+        header->fDstReadKey = 0;
+    }
+    if (fragPos) {
+        header->fFragPosKey = SkToU8(GrGLFragmentShaderBuilder::KeyForFragmentPosition(dstRenderTarget,
+                                                                               gpu->glCaps()));
+    } else {
+        header->fFragPosKey = 0;
+    }
+
+    header->fUseFragShaderOnly = isPathRendering && gpu->glPathRendering()->texturingMode() ==
+                                                    GrGLPathRendering::FixedFunction_TexturingMode;
+    header->fHasGeometryProcessor = vertexShader;
+
+    GrOptDrawState::PrimaryOutputType primaryOutput;
+    GrOptDrawState::SecondaryOutputType secondaryOutput;
+    if (!dstRead) {
+        primaryOutput = GrOptDrawState::kModulate_PrimaryOutputType;
+    } else {
+        primaryOutput = static_cast<GrOptDrawState::PrimaryOutputType>(
+            random->nextULessThan(GrOptDrawState::kPrimaryOutputTypeCnt));
+    }
+
+    if (GrOptDrawState::kCombineWithDst_PrimaryOutputType == primaryOutput ||
+        !gpu->caps()->dualSourceBlendingSupport()) {
+        secondaryOutput = GrOptDrawState::kNone_SecondaryOutputType;
+    } else {
+        secondaryOutput = static_cast<GrOptDrawState::SecondaryOutputType>(
+            random->nextULessThan(GrOptDrawState::kSecondaryOutputTypeCnt));
+    }
+
+    header->fPrimaryOutputType = primaryOutput;
+    header->fSecondaryOutputType = secondaryOutput;
+
+    this->finalize();
+    return true;
 }
 
 // TODO clean this up, we have to do this to test geometry processors but there has got to be
 // a better way.  In the mean time, we actually fill out these generic vertex attribs below with
 // the correct vertex attribs from the GP.  We have to ensure, however, we don't try to add more
-// than two attributes.  In addition, we 'pad' the below array with GPs up to 6 entries, 4 fixed
-// function vertex attributes and 2 GP custom attributes.
-GrVertexAttrib kGenericVertexAttribs[] = {
+// than two attributes.
+GrVertexAttrib genericVertexAttribs[] = {
     { kVec2f_GrVertexAttribType, 0,   kPosition_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 0,   kGeometryProcessor_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 0,   kGeometryProcessor_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 0,   kGeometryProcessor_GrVertexAttribBinding },
     { kVec2f_GrVertexAttribType, 0,   kGeometryProcessor_GrVertexAttribBinding },
     { kVec2f_GrVertexAttribType, 0,   kGeometryProcessor_GrVertexAttribBinding }
 };
@@ -65,7 +195,7 @@ GrVertexAttrib kGenericVertexAttribs[] = {
 /*
  * convert sl type to vertexattrib type, not a complete implementation, only use for debugging
  */
-static GrVertexAttribType convert_sltype_to_attribtype(GrSLType type) {
+GrVertexAttribType convert_sltype_to_attribtype(GrSLType type) {
     switch (type) {
         case kFloat_GrSLType:
             return kFloat_GrVertexAttribType;
@@ -80,227 +210,11 @@ static GrVertexAttribType convert_sltype_to_attribtype(GrSLType type) {
             return kFloat_GrVertexAttribType;
     }
 }
-// end test hack
+// TODO end test hack
 
-static void setup_random_ff_attribute(GrVertexAttribBinding binding, GrVertexAttribType type,
-                                      SkRandom* random, int* attribIndex, int* runningStride) {
-    if (random->nextBool()) {
-        kGenericVertexAttribs[*attribIndex].fType = type;
-        kGenericVertexAttribs[*attribIndex].fOffset = *runningStride;
-        kGenericVertexAttribs[*attribIndex].fBinding = binding;
-        *runningStride += GrVertexAttribTypeSize(kGenericVertexAttribs[(*attribIndex)++].fType);
-    }
-}
-
-static void set_random_gp(GrGpuGL* gpu, SkRandom* random, GrTexture* dummyTextures[]) {
-    GrProgramElementRef<const GrGeometryProcessor> gp(
-            GrProcessorTestFactory<GrGeometryProcessor>::CreateStage(random,
-                                                                     gpu->getContext(),
-                                                                     *gpu->caps(),
-                                                                     dummyTextures));
-    SkASSERT(gp);
-
-    // we have to set dummy vertex attributes, first we setup the fixed function attributes
-    // always leave the position attribute untouched in the array
-    int attribIndex = 1;
-    int runningStride = GrVertexAttribTypeSize(kGenericVertexAttribs[0].fType);
-
-    // local coords
-    setup_random_ff_attribute(kLocalCoord_GrVertexAttribBinding, kVec2f_GrVertexAttribType,
-                              random, &attribIndex, &runningStride);
-
-    // color
-    setup_random_ff_attribute(kColor_GrVertexAttribBinding, kVec4f_GrVertexAttribType,
-                              random, &attribIndex, &runningStride);
-
-    // coverage
-    setup_random_ff_attribute(kCoverage_GrVertexAttribBinding, kVec4f_GrVertexAttribType,
-                              random, &attribIndex, &runningStride);
-
-    // Update the geometry processor attributes
-    const GrGeometryProcessor::VertexAttribArray& v = gp->getVertexAttribs();
-    int numGPAttribs = v.count();
-    SkASSERT(numGPAttribs <= GrGeometryProcessor::kMaxVertexAttribs &&
-             GrGeometryProcessor::kMaxVertexAttribs == 2);
-
-    // we actually can't overflow if kMaxVertexAttribs == 2, but GCC 4.8 wants more proof
-    int maxIndex = SK_ARRAY_COUNT(kGenericVertexAttribs);
-    for (int i = 0; i < numGPAttribs && i + attribIndex < maxIndex; i++) {
-        kGenericVertexAttribs[i + attribIndex].fType =
-                convert_sltype_to_attribtype(v[i].getType());
-        kGenericVertexAttribs[i + attribIndex].fOffset = runningStride;
-        kGenericVertexAttribs[i + attribIndex].fBinding = kGeometryProcessor_GrVertexAttribBinding;
-        runningStride += GrVertexAttribTypeSize(kGenericVertexAttribs[i + attribIndex].fType);
-    }
-
-    // update the vertex attributes with the ds
-    GrDrawState* ds = gpu->drawState();
-    ds->setVertexAttribs<kGenericVertexAttribs>(attribIndex + numGPAttribs, runningStride);
-    ds->setGeometryProcessor(gp);
-}
-
-static void set_random_color_coverage_stages(GrGpuGL* gpu,
-                                             int maxStages,
-                                             bool usePathRendering,
-                                             SkRandom* random,
-                                             GrTexture* dummyTextures[]) {
-    int numProcs = random->nextULessThan(maxStages + 1);
-    int numColorProcs = random->nextULessThan(numProcs + 1);
-
-    int currTextureCoordSet = 0;
-    for (int s = 0; s < numProcs;) {
-        GrProgramElementRef<GrFragmentProcessor> fp(
-                GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(random,
-                                                                         gpu->getContext(),
-                                                                         *gpu->caps(),
-                                                                         dummyTextures));
-        SkASSERT(fp);
-
-        // don't add dst color reads to coverage stage
-        if (s >= numColorProcs && fp->willReadDstColor()) {
-            continue;
-        }
-
-        // If adding this effect would exceed the max texture coord set count then generate a
-        // new random effect.
-        if (usePathRendering && gpu->glPathRendering()->texturingMode() ==
-                                GrGLPathRendering::FixedFunction_TexturingMode) {;
-            int numTransforms = fp->numTransforms();
-            if (currTextureCoordSet + numTransforms >
-                gpu->glCaps().maxFixedFunctionTextureCoords()) {
-                continue;
-            }
-            currTextureCoordSet += numTransforms;
-        }
-
-        // finally add the stage to the correct pipeline in the drawstate
-        GrDrawState* ds = gpu->drawState();
-        if (s < numColorProcs) {
-            ds->addColorProcessor(fp);
-        } else {
-            ds->addCoverageProcessor(fp);
-        }
-        ++s;
-    }
-}
-
-// There are only a few cases of random colors which interest us
-enum ColorMode {
-    kAllOnes_ColorMode,
-    kAllZeros_ColorMode,
-    kAlphaOne_ColorMode,
-    kRandom_ColorMode,
-    kLast_ColorMode = kRandom_ColorMode
-};
-
-static void set_random_color(GrGpuGL* gpu, SkRandom* random) {
-    ColorMode colorMode = ColorMode(random->nextULessThan(kLast_ColorMode + 1));
-    GrColor color;
-    switch (colorMode) {
-        case kAllOnes_ColorMode:
-            color = GrColorPackRGBA(0xFF, 0xFF, 0xFF, 0xFF);
-            break;
-        case kAllZeros_ColorMode:
-            color = GrColorPackRGBA(0, 0, 0, 0);
-            break;
-        case kAlphaOne_ColorMode:
-            color = GrColorPackRGBA(random->nextULessThan(256),
-                                    random->nextULessThan(256),
-                                    random->nextULessThan(256),
-                                    0xFF);
-            break;
-        case kRandom_ColorMode:
-            uint8_t alpha = random->nextULessThan(256);
-            color = GrColorPackRGBA(random->nextRangeU(0, alpha),
-                                    random->nextRangeU(0, alpha),
-                                    random->nextRangeU(0, alpha),
-                                    alpha);
-            break;
-    }
-    GrColorIsPMAssert(color);
-    gpu->drawState()->setColor(color);
-}
-
-// There are only a few cases of random coverages which interest us
-enum CoverageMode {
-    kZero_CoverageMode,
-    kFF_CoverageMode,
-    kRandom_CoverageMode,
-    kLast_CoverageMode = kRandom_CoverageMode
-};
-
-static void set_random_coverage(GrGpuGL* gpu, SkRandom* random) {
-    CoverageMode coverageMode = CoverageMode(random->nextULessThan(kLast_CoverageMode + 1));
-    uint8_t coverage;
-    switch (coverageMode) {
-        case kZero_CoverageMode:
-            coverage = 0;
-            break;
-        case kFF_CoverageMode:
-            coverage = 0xFF;
-            break;
-        case kRandom_CoverageMode:
-            coverage = uint8_t(random->nextU());
-            break;
-    }
-    gpu->drawState()->setCoverage(coverage);
-}
-
-static void set_random_hints(GrGpuGL* gpu, SkRandom* random) {
-    for (int i = 1; i <= GrDrawState::kLast_Hint; i <<= 1) {
-        gpu->drawState()->setHint(GrDrawState::Hints(i), random->nextBool());
-    }
-}
-
-static void set_random_state(GrGpuGL* gpu, SkRandom* random) {
-    int state = 0;
-    for (int i = 1; i <= GrDrawState::kLastPublicStateBit; i <<= 1) {
-        state |= random->nextBool() * i;
-    }
-    gpu->drawState()->enableState(state);
-}
-
-// this function will randomly pick non-self referencing blend modes
-static void set_random_blend_func(GrGpuGL* gpu, SkRandom* random) {
-    GrBlendCoeff src;
-    do {
-        src = GrBlendCoeff(random->nextRangeU(kFirstPublicGrBlendCoeff, kLastPublicGrBlendCoeff));
-    } while (GrBlendCoeffRefsSrc(src));
-
-    GrBlendCoeff dst;
-    do {
-        dst = GrBlendCoeff(random->nextRangeU(kFirstPublicGrBlendCoeff, kLastPublicGrBlendCoeff));
-    } while (GrBlendCoeffRefsDst(dst));
-
-    gpu->drawState()->setBlendFunc(src, dst);
-}
-
-// right now, the only thing we seem to care about in drawState's stencil is 'doesWrite()'
-static void set_random_stencil(GrGpuGL* gpu, SkRandom* random) {
-    GR_STATIC_CONST_SAME_STENCIL(kDoesWriteStencil,
-                                 kReplace_StencilOp,
-                                 kReplace_StencilOp,
-                                 kAlways_StencilFunc,
-                                 0xffff,
-                                 0xffff,
-                                 0xffff);
-    GR_STATIC_CONST_SAME_STENCIL(kDoesNotWriteStencil,
-                                 kKeep_StencilOp,
-                                 kKeep_StencilOp,
-                                 kNever_StencilFunc,
-                                 0xffff,
-                                 0xffff,
-                                 0xffff);
-
-    if (random->nextBool()) {
-        gpu->drawState()->setStencil(kDoesWriteStencil);
-    } else {
-        gpu->drawState()->setStencil(kDoesNotWriteStencil);
-    }
-}
 
 bool GrGpuGL::programUnitTest(int maxStages) {
-    // setup dummy textures
+
     GrTextureDesc dummyDesc;
     dummyDesc.fFlags = kRenderTarget_GrTextureFlagBit;
     dummyDesc.fConfig = kSkia8888_GrPixelConfig;
@@ -314,114 +228,128 @@ bool GrGpuGL::programUnitTest(int maxStages) {
     SkAutoTUnref<GrTexture> dummyTexture2(this->createTexture(dummyDesc, NULL, 0));
 
     if (!dummyTexture1 || ! dummyTexture2) {
-        SkDebugf("Could not allocate dummy textures");
         return false;
     }
 
-    GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
-
-    // Setup texture cache id key
-    const GrCacheID::Domain glProgramsDomain = GrCacheID::GenerateDomain();
-    GrCacheID::Key key;
-    memset(&key, 0, sizeof(key));
-    key.fData32[0] = kRenderTargetWidth;
-    key.fData32[1] = kRenderTargetHeight;
-    GrCacheID glProgramsCacheID(glProgramsDomain, key);
-
-    // setup clip
-    SkRect screen =
-            SkRect::MakeWH(SkIntToScalar(kRenderTargetWidth), SkIntToScalar(kRenderTargetHeight));
-
-    SkClipStack stack;
-    stack.clipDevRect(screen, SkRegion::kReplace_Op, false);
-
-    // wrap the SkClipStack in a GrClipData
-    GrClipData clipData;
-    clipData.fClipStack = &stack;
-    this->setClip(&clipData);
+    static const int NUM_TESTS = 512;
 
     SkRandom random;
-    static const int NUM_TESTS = 512;
-    for (int t = 0; t < NUM_TESTS;) {
-        // setup random render target(can fail)
-        GrRenderTarget* rtPtr = random_render_target(this, glProgramsCacheID, &random);
-        if (!rtPtr) {
-            SkDebugf("Could not allocate render target");
-            return false;
+    for (int t = 0; t < NUM_TESTS; ++t) {
+
+#if 0
+        GrPrintf("\nTest Program %d\n-------------\n", t);
+        static const int stop = -1;
+        if (t == stop) {
+            int breakpointhere = 9;
         }
-        GrTGpuResourceRef<GrRenderTarget> rt(SkRef(rtPtr), GrIORef::kWrite_IOType);
+#endif
 
-        GrDrawState* ds = this->drawState();
-        ds->setRenderTarget(rt.get());
+        GrGLProgramDesc pdesc;
 
-        // if path rendering we have to setup a couple of things like the draw type
+        int currAttribIndex = 1;  // we need to always leave room for position
+        int currTextureCoordSet = 0;
+        GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
+
+        int numStages = random.nextULessThan(maxStages + 1);
+        int numColorStages = random.nextULessThan(numStages + 1);
+        int numCoverageStages = numStages - numColorStages;
+
+        SkAutoSTMalloc<8, const GrFragmentStage*> stages(numStages);
+
         bool usePathRendering = this->glCaps().pathRenderingSupport() && random.nextBool();
 
         GrGpu::DrawType drawType = usePathRendering ? GrGpu::kDrawPath_DrawType :
                                                       GrGpu::kDrawPoints_DrawType;
 
-        // twiddle drawstate knobs randomly
+        SkAutoTDelete<GrGeometryStage> geometryProcessor;
         bool hasGeometryProcessor = usePathRendering ? false : random.nextBool();
         if (hasGeometryProcessor) {
-            set_random_gp(this, &random, dummyTextures);
-        }
-        set_random_color_coverage_stages(this, maxStages, usePathRendering, &random, dummyTextures);
-        set_random_color(this, &random);
-        set_random_coverage(this, &random);
-        set_random_hints(this, &random);
-        set_random_state(this, &random);
-        set_random_blend_func(this, &random);
-        set_random_stencil(this, &random);
+            while (true) {
+                SkAutoTUnref<const GrGeometryProcessor> effect(
+                        GrProcessorTestFactory<GrGeometryProcessor>::CreateStage(&random, this->getContext(), *this->caps(),
+                                                         dummyTextures));
+                SkASSERT(effect);
+                // Only geometryProcessor can use vertex shader
+                GrGeometryStage* stage = SkNEW_ARGS(GrGeometryStage, (effect.get()));
+                geometryProcessor.reset(stage);
 
-        // create optimized draw state, setup readDst texture if required, and build a descriptor
-        // and program.  ODS creation can fail, so we have to check
-        SkAutoTUnref<GrOptDrawState> ods(GrOptDrawState::Create(this->getDrawState(),
-                                                                *this->caps(),
-                                                                drawType));
-        if (!ods.get()) {
-            ds->reset();
-            continue;
-        }
-        const GrGeometryStage*                     geometryProcessor = NULL;
-        SkSTArray<8, const GrFragmentStage*, true> colorStages;
-        SkSTArray<8, const GrFragmentStage*, true> coverageStages;
-        GrGLProgramDesc desc;
-        GrDeviceCoordTexture dstCopy;
+                // we have to set dummy vertex attribs
+                const GrGeometryProcessor::VertexAttribArray& v = effect->getVertexAttribs();
+                int numVertexAttribs = v.count();
 
-        if (!this->setupDstReadIfNecessary(&dstCopy, NULL)) {
-            SkDebugf("Couldn't setup dst read texture");
+                SkASSERT(GrGeometryProcessor::kMaxVertexAttribs == 2 &&
+                         GrGeometryProcessor::kMaxVertexAttribs >= numVertexAttribs);
+                size_t runningStride = GrVertexAttribTypeSize(genericVertexAttribs[0].fType);
+                for (int i = 0; i < numVertexAttribs; i++) {
+                    genericVertexAttribs[i + 1].fOffset = runningStride;
+                    genericVertexAttribs[i + 1].fType =
+                            convert_sltype_to_attribtype(v[i].getType());
+                    runningStride += GrVertexAttribTypeSize(genericVertexAttribs[i + 1].fType);
+                }
+
+                // update the vertex attributes with the ds
+                GrDrawState* ds = this->drawState();
+                ds->setVertexAttribs<genericVertexAttribs>(numVertexAttribs + 1, runningStride);
+                currAttribIndex = numVertexAttribs + 1;
+                break;
+            }
+        }
+        for (int s = 0; s < numStages;) {
+            SkAutoTUnref<const GrFragmentProcessor> effect(
+                    GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(
+                                                                            &random,
+                                                                            this->getContext(),
+                                                                            *this->caps(),
+                                                                            dummyTextures));
+            SkASSERT(effect);
+
+            // If adding this effect would exceed the max texture coord set count then generate a
+            // new random effect.
+            if (usePathRendering && this->glPathRendering()->texturingMode() ==
+                                    GrGLPathRendering::FixedFunction_TexturingMode) {;
+                int numTransforms = effect->numTransforms();
+                if (currTextureCoordSet + numTransforms > this->glCaps().maxFixedFunctionTextureCoords()) {
+                    continue;
+                }
+                currTextureCoordSet += numTransforms;
+            }
+            GrFragmentStage* stage = SkNEW_ARGS(GrFragmentStage, (effect.get()));
+
+            stages[s] = stage;
+            ++s;
+        }
+        const GrTexture* dstTexture = random.nextBool() ? dummyTextures[0] : dummyTextures[1];
+        if (!pdesc.setRandom(&random,
+                             this,
+                             dummyTextures[0]->asRenderTarget(),
+                             dstTexture,
+                             geometryProcessor.get(),
+                             stages.get(),
+                             numColorStages,
+                             numCoverageStages,
+                             currAttribIndex,
+                             drawType)) {
             return false;
         }
-        if (!GrGLProgramDesc::Build(*ods,
-                                    drawType,
-                                    ods->getSrcBlendCoeff(),
-                                    ods->getDstBlendCoeff(),
-                                    this,
-                                    dstCopy.texture() ? &dstCopy : NULL,
-                                    &geometryProcessor,
-                                    &colorStages,
-                                    &coverageStages,
-                                    &desc)) {
-            SkDebugf("Failed to generate GL program descriptor");
-            return false;
-        }
+
+        SkAutoTUnref<GrOptDrawState> optState(GrOptDrawState::Create(this->getDrawState(),
+                                                                     *this->caps(),
+                                                                     drawType));
         SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this,
-                                                              *ods,
-                                                              desc,
-                                                              geometryProcessor,
-                                                              colorStages.begin(),
-                                                              coverageStages.begin()));
+                                                              *optState.get(),
+                                                              pdesc,
+                                                              geometryProcessor.get(),
+                                                              stages,
+                                                              stages + numColorStages));
+        for (int s = 0; s < numStages; ++s) {
+            SkDELETE(stages[s]);
+        }
         if (NULL == program.get()) {
-            SkDebugf("Failed to create program!");
             return false;
         }
 
         // We have to reset the drawstate because we might have added a gp
-        ds->reset();
-
-        // because occasionally optimized drawstate creation will fail for valid reasons, we only
-        // want to increment on success
-        ++t;
+        this->drawState()->reset();
     }
     return true;
 }
