@@ -18,7 +18,7 @@
 #include "SkStrokeRec.h"
 #include "SkTraceEvent.h"
 
-#include "gl/builders/GrGLFullProgramBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLGeometryProcessor.h"
@@ -528,7 +528,7 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
             : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLFullProgramBuilder* builder,
+        virtual void emitCode(GrGLGPBuilder* builder,
                               const GrGeometryProcessor& geometryProcessor,
                               const GrProcessorKey& key,
                               const char* outputColor,
@@ -538,7 +538,7 @@ public:
             const char *vsName, *fsName;
             builder->addVarying(kVec4f_GrSLType, "QuadEdge", &vsName, &fsName);
 
-            GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
 
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
@@ -565,7 +565,7 @@ public:
                                    (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
 
             const GrShaderVar& inQuadEdge = geometryProcessor.cast<QuadEdgeEffect>().inQuadEdge();
-            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
             vsBuilder->codeAppendf("\t%s = %s;\n", vsName, inQuadEdge.c_str());
         }
 

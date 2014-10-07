@@ -24,7 +24,7 @@ public:
      * This is similar to emitCode() in the base class, except it takes a full shader builder.
      * This allows the effect subclass to emit vertex code.
      */
-    virtual void emitCode(GrGLFullProgramBuilder* builder,
+    virtual void emitCode(GrGLGPBuilder* builder,
                           const GrGeometryProcessor& geometryProcessor,
                           const GrProcessorKey& key,
                           const char* outputColor,

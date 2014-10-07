@@ -247,11 +247,10 @@ private:
     // visible to GrGLProcessors. Then make public accessors as necessary and remove friends.
     friend class GrGLProgram;
     friend class GrGLProgramBuilder;
-    friend class GrGLFullProgramBuilder;
-    friend class GrGLFragmentOnlyProgramBuilder;
-    friend class GrGLVertexShaderBuilder;
+    friend class GrGLLegacyNvprProgramBuilder;
+    friend class GrGLVertexBuilder;
     friend class GrGLFragmentShaderBuilder;
-    friend class GrGLGeometryShaderBuilder;
+    friend class GrGLGeometryBuilder;
 };
 
 #endif

@@ -391,7 +391,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     SkASSERT(drawState.getRenderTarget());
 
     if (drawState.hasGeometryProcessor()) {
-        const GrGeometryProcessor* gp = drawState.getGeometryProcessor()->getGeometryProcessor();
+        const GrGeometryProcessor* gp = drawState.getGeometryProcessor()->getProcessor();
         int numTextures = gp->numTextures();
         for (int t = 0; t < numTextures; ++t) {
             GrTexture* texture = gp->texture(t);

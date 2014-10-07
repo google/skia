@@ -266,7 +266,7 @@ bool GrDrawState::validateVertexAttribs() const {
 
     if (this->hasGeometryProcessor()) {
         const GrGeometryStage& stage = *this->getGeometryProcessor();
-        const GrGeometryProcessor* gp = stage.getGeometryProcessor();
+        const GrGeometryProcessor* gp = stage.getProcessor();
         SkASSERT(gp);
         // make sure that any attribute indices have the correct binding type, that the attrib
         // type and effect's shader lang type are compatible, and that attributes shared by
@@ -410,7 +410,7 @@ bool GrDrawState::hasSolidCoverage() const {
 
     // Run through the coverage stages and see if the coverage will be all ones at the end.
     if (this->hasGeometryProcessor()) {
-        const GrGeometryProcessor* gp = fGeometryProcessor->getGeometryProcessor();
+        const GrGeometryProcessor* gp = fGeometryProcessor->getProcessor();
         gp->computeInvariantOutput(&inout);
     }
     for (int s = 0; s < this->numCoverageStages(); ++s) {
@@ -436,13 +436,13 @@ GrDrawState::AutoVertexAttribRestore::AutoVertexAttribRestore(GrDrawState* drawS
 bool GrDrawState::willEffectReadDstColor() const {
     if (!this->isColorWriteDisabled()) {
         for (int s = 0; s < this->numColorStages(); ++s) {
-            if (this->getColorStage(s).getFragmentProcessor()->willReadDstColor()) {
+            if (this->getColorStage(s).getProcessor()->willReadDstColor()) {
                 return true;
             }
         }
     }
     for (int s = 0; s < this->numCoverageStages(); ++s) {
-        if (this->getCoverageStage(s).getFragmentProcessor()->willReadDstColor()) {
+        if (this->getCoverageStage(s).getProcessor()->willReadDstColor()) {
             return true;
         }
     }
