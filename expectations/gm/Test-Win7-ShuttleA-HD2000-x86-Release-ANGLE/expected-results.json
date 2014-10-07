@@ -5835,6 +5835,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "dftext_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14168152538103472428
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "discard_angle.png": {
       "allowed-digests": [
         [
