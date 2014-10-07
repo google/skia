@@ -855,6 +855,14 @@ protected:
         GrDeviceCoordTexture    fDstCopy;
     };
 
+    // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
+    // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
+    // needs to be accessed by GLPrograms to setup a correct drawstate
+    bool setupDstReadIfNecessary(DrawInfo* info) {
+        return this->setupDstReadIfNecessary(&info->fDstCopy, info->getDevBounds());
+    }
+    bool setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const SkRect* drawBounds);
+
 private:
     // A subclass can optionally overload this function to be notified before
     // vertex and index space is reserved.
@@ -912,13 +920,6 @@ private:
     // called when setting a new vert/idx source to unref prev vb/ib
     void releasePreviousVertexSource();
     void releasePreviousIndexSource();
-
-    // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
-    // but couldn't be made. Otherwise, returns true.
-    bool setupDstReadIfNecessary(DrawInfo* info) {
-        return this->setupDstReadIfNecessary(&info->fDstCopy, info->getDevBounds());
-    }
-    bool setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const SkRect* drawBounds);
 
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }

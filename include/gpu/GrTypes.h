@@ -222,8 +222,10 @@ enum GrBlendCoeff {
     kConstA_GrBlendCoeff,  //<! constant color alpha
     kIConstA_GrBlendCoeff, //<! one minus constant color alpha
 
-    kPublicGrBlendCoeffCount
+    kFirstPublicGrBlendCoeff = kZero_GrBlendCoeff,
+    kLastPublicGrBlendCoeff = kIConstA_GrBlendCoeff,
 };
+static const int kPublicGrBlendCoeffCount = kLastPublicGrBlendCoeff + 1;
 
 /**
  *  Formats for masks, used by the font cache.
