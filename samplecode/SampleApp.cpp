@@ -298,10 +298,8 @@ public:
                                              SkImageInfo2GrPixelConfig(bm.colorType(),
                                                                        bm.alphaType()),
                                              bm.getPixels(),
-                                             bm.rowBytes());
-
-                // extra flush call, until Brian can figure out what's going on.
-                fCurContext->flush();
+                                             bm.rowBytes(),
+                                             GrContext::kFlushWrites_PixelOp);
             }
         }
 #endif

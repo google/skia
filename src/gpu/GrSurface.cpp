@@ -48,6 +48,12 @@ bool GrSurface::savePixels(const char* filename) {
     return true;
 }
 
+void GrSurface::flushWrites() {
+    if (!this->wasDestroyed()) {
+        this->getContext()->flushSurfaceWrites(this);
+    }
+}
+
 bool GrSurface::hasPendingRead() const {
     const GrTexture* thisTex = this->asTexture();
     if (thisTex && thisTex->internalHasPendingRead()) {

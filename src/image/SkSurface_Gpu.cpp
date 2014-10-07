@@ -89,7 +89,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
             fDevice->createCompatibleDevice(fDevice->imageInfo()));
         SkAutoTUnref<SkGpuDevice> aurd(newDevice);
         if (kRetain_ContentChangeMode == mode) {
-            fDevice->context()->copyTexture(rt->asTexture(), newDevice->accessRenderTarget());
+            fDevice->context()->copySurface(newDevice->accessRenderTarget(), rt->asTexture());
         }
         SkASSERT(this->getCachedCanvas());
         SkASSERT(this->getCachedCanvas()->getDevice() == fDevice);
