@@ -650,7 +650,7 @@ bool create_mask_GPU(GrContext* context,
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
     desc.fWidth = SkScalarCeilToInt(maskRect.width());
     desc.fHeight = SkScalarCeilToInt(maskRect.height());
-    desc.fSampleCnt = SampleCnt;
+    desc.fSampleCnt = doAA ? SampleCnt : 0;
     // We actually only need A8, but it often isn't supported as a
     // render target so default to RGBA_8888
     desc.fConfig = kRGBA_8888_GrPixelConfig;

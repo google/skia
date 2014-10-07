@@ -53,3 +53,10 @@ yuv_to_rgb_effect
 
 # robertphillips - skia:2995
 blurrects
+
+# derekf https://codereview.chromium.org/639523002/
+simpleblurroundrect
+blurrects
+blurcircles
+bleed
+drawbitmapmatrix
