@@ -10,50 +10,58 @@
 SkTileGrid::SkTileGrid(int xTiles, int yTiles, const SkTileGridFactory::TileGridInfo& info)
     : fXTiles(xTiles)
     , fYTiles(yTiles)
-    , fInfo(info)
-    , fTiles(SkNEW_ARRAY(SkTDArray<unsigned>, xTiles * yTiles)) {
-    // Margin is offset by 1 as a provision for AA and
-    // to cancel-out the outset applied by getClipDeviceBounds.
-    fInfo.fMargin.fHeight++;
-    fInfo.fMargin.fWidth++;
-}
+    , fInvWidth( SkScalarInvert(info.fTileInterval.width()))
+    , fInvHeight(SkScalarInvert(info.fTileInterval.height()))
+    , fMarginWidth (info.fMargin.fWidth +1)  // Margin is offset by 1 as a provision for AA and
+    , fMarginHeight(info.fMargin.fHeight+1)  // to cancel the outset applied by getClipDeviceBounds.
+    , fOffset(SkPoint::Make(info.fOffset.fX, info.fOffset.fY))
+    , fGridBounds(SkRect::MakeWH(xTiles * info.fTileInterval.width(),
+                                 yTiles * info.fTileInterval.height()))
+    , fTiles(SkNEW_ARRAY(SkTDArray<unsigned>, xTiles * yTiles)) {}
 
 SkTileGrid::~SkTileGrid() {
     SkDELETE_ARRAY(fTiles);
 }
 
-void SkTileGrid::insert(unsigned opIndex, const SkRect& fbounds, bool) {
-    SkASSERT(!fbounds.isEmpty());
+// Adjustments to user-provided bounds common to both insert() and search().
+// Call this after making insert- or search- specific adjustments.
+void SkTileGrid::commonAdjust(SkRect* rect) const {
+    // Apply our offset.
+    rect->offset(fOffset);
 
-    SkIRect dilatedBounds;
-    fbounds.roundOut(&dilatedBounds);
-    dilatedBounds.outset(fInfo.fMargin.width(), fInfo.fMargin.height());
-    dilatedBounds.offset(fInfo.fOffset);
+    // Scrunch the bounds in just a little to make the right and bottom edges
+    // exclusive.  We want bounds of exactly one tile to hit exactly one tile.
+    rect->fRight  -= SK_ScalarNearlyZero;
+    rect->fBottom -= SK_ScalarNearlyZero;
+}
 
-    const SkIRect gridBounds =
-        { 0, 0, fInfo.fTileInterval.width() * fXTiles, fInfo.fTileInterval.height() * fYTiles };
-    if (!SkIRect::Intersects(dilatedBounds, gridBounds)) {
+// Convert user-space bounds to grid tiles they cover (LT inclusive, RB exclusive).
+void SkTileGrid::userToGrid(const SkRect& user, SkIRect* grid) const {
+    grid->fLeft   = SkPin32(user.left()   * fInvWidth , 0, fXTiles - 1);
+    grid->fTop    = SkPin32(user.top()    * fInvHeight, 0, fYTiles - 1);
+    grid->fRight  = SkPin32(user.right()  * fInvWidth , 0, fXTiles - 1) + 1;
+    grid->fBottom = SkPin32(user.bottom() * fInvHeight, 0, fYTiles - 1) + 1;
+}
+
+void SkTileGrid::insert(unsigned opIndex, const SkRect& originalBounds, bool) {
+    SkRect bounds = originalBounds;
+    bounds.outset(fMarginWidth, fMarginHeight);
+    this->commonAdjust(&bounds);
+
+    // TODO(mtklein): can we assert this instead to save an intersection in Release mode,
+    // or just allow out-of-bound insertions to insert anyway (clamped to nearest tile)?
+    if (!SkRect::Intersects(bounds, fGridBounds)) {
         return;
     }
 
-    // Note: SkIRects are non-inclusive of the right() column and bottom() row,
-    // hence the "-1"s in the computations of maxX and maxY.
-    int minX = SkMax32(0, SkMin32(dilatedBounds.left() / fInfo.fTileInterval.width(), fXTiles - 1));
-    int minY = SkMax32(0, SkMin32(dilatedBounds.top() / fInfo.fTileInterval.height(), fYTiles - 1));
-    int maxX = SkMax32(0, SkMin32((dilatedBounds.right()  - 1) / fInfo.fTileInterval.width(),
-                                  fXTiles - 1));
-    int maxY = SkMax32(0, SkMin32((dilatedBounds.bottom() - 1) / fInfo.fTileInterval.height(),
-                                  fYTiles - 1));
+    SkIRect grid;
+    this->userToGrid(bounds, &grid);
 
-    for (int y = minY; y <= maxY; y++) {
-        for (int x = minX; x <= maxX; x++) {
+    for (int y = grid.fTop; y < grid.fBottom; y++) {
+        for (int x = grid.fLeft; x < grid.fRight; x++) {
             fTiles[y * fXTiles + x].push(opIndex);
         }
     }
-}
-
-static int divide_ceil(int x, int y) {
-    return (x + y - 1) / y;
 }
 
 // Number of tiles for which data is allocated on the stack in
@@ -62,40 +70,30 @@ static int divide_ceil(int x, int y) {
 // require 512 tiles of size 256 x 256 pixels.
 static const int kStackAllocationTileCount = 1024;
 
-void SkTileGrid::search(const SkRect& query, SkTDArray<unsigned>* results) const {
-    SkIRect adjusted;
-    query.roundOut(&adjusted);
+void SkTileGrid::search(const SkRect& originalQuery, SkTDArray<unsigned>* results) const {
+    // The inset counteracts the outset that applied in 'insert', which optimizes
+    // for lookups of size 'tileInterval + 2 * margin' (aligned with the tile grid).
+    SkRect query = originalQuery;
+    query.inset(fMarginWidth, fMarginHeight);
+    this->commonAdjust(&query);
 
-    // The inset is to counteract the outset that was applied in 'insert'
-    // The outset/inset is to optimize for lookups of size
-    // 'tileInterval + 2 * margin' that are aligned with the tile grid.
-    adjusted.inset(fInfo.fMargin.width(), fInfo.fMargin.height());
-    adjusted.offset(fInfo.fOffset);
-    adjusted.sort();  // in case the inset inverted the rectangle
+    // The inset may have inverted the rectangle, so sort().
+    // TODO(mtklein): It looks like we only end up with inverted bounds in unit tests
+    // that make explicitly inverted queries, not from insetting.  If we can drop support for
+    // unsorted bounds (i.e. we don't see them outside unit tests), I think we can drop this.
+    query.sort();
 
-    // Convert the query rectangle from device coordinates to tile coordinates
-    // by rounding outwards to the nearest tile boundary so that the resulting tile
-    // region includes the query rectangle.
-    int startX = adjusted.left() / fInfo.fTileInterval.width(),
-        startY = adjusted.top()  / fInfo.fTileInterval.height();
-    int endX = divide_ceil(adjusted.right(),  fInfo.fTileInterval.width()),
-        endY = divide_ceil(adjusted.bottom(), fInfo.fTileInterval.height());
+    // No intersection check.  We optimize for queries that are in bounds.
+    // We're safe anyway: userToGrid() will clamp out-of-bounds queries to nearest tile.
+    SkIRect grid;
+    this->userToGrid(query, &grid);
 
-    // Logically, we could pin endX to [startX, fXTiles], but we force it
-    // up to (startX, fXTiles] to make sure we hit at least one tile.
-    // This snaps just-out-of-bounds queries to the neighboring border tile.
-    // I don't know if this is an important feature outside of unit tests.
-    startX = SkPin32(startX, 0, fXTiles - 1);
-    startY = SkPin32(startY, 0, fYTiles - 1);
-    endX   = SkPin32(endX, startX + 1, fXTiles);
-    endY   = SkPin32(endY, startY + 1, fYTiles);
-
-    const int tilesHit = (endX - startX) * (endY - startY);
+    const int tilesHit = (grid.fRight - grid.fLeft) * (grid.fBottom - grid.fTop);
     SkASSERT(tilesHit > 0);
 
     if (tilesHit == 1) {
         // A performance shortcut.  The merging code below would work fine here too.
-        *results = fTiles[startY * fXTiles + startX];
+        *results = fTiles[grid.fTop * fXTiles + grid.fLeft];
         return;
     }
 
@@ -105,8 +103,8 @@ void SkTileGrid::search(const SkRect& query, SkTDArray<unsigned>* results) const
     // Gather pointers to the starts and ends of the tiles to merge.
     SkAutoSTArray<kStackAllocationTileCount, const unsigned*> starts(tilesHit), ends(tilesHit);
     int i = 0;
-    for (int x = startX; x < endX; x++) {
-        for (int y = startY; y < endY; y++) {
+    for (int y = grid.fTop; y < grid.fBottom; y++) {
+        for (int x = grid.fLeft; x < grid.fRight; x++) {
             starts[i] = fTiles[y * fXTiles + x].begin();
             ends[i]   = fTiles[y * fXTiles + x].end();
             i++;

@@ -42,8 +42,14 @@ public:
     int tileCount(int x, int y) { return fTiles[y * fXTiles + x].count(); }
 
 private:
+    void commonAdjust(SkRect*) const;
+    void userToGrid(const SkRect&, SkIRect* grid) const;
+
     const int fXTiles, fYTiles;
-    SkTileGridFactory::TileGridInfo fInfo;
+    const SkScalar fInvWidth, fInvHeight;
+    const SkScalar fMarginWidth, fMarginHeight;
+    const SkPoint fOffset;
+    const SkRect  fGridBounds;
 
     // (fXTiles * fYTiles) SkTDArrays, each listing ops overlapping that tile in order.
     SkTDArray<unsigned>* fTiles;
