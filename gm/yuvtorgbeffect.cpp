@@ -83,12 +83,11 @@ protected:
 
         GrDrawState* drawState = tt.target()->drawState();
 
-        SkAutoTUnref<GrTexture> texture[3];
-        texture[0].reset(GrRefCachedBitmapTexture(context, fBmp[0], NULL));
-        texture[1].reset(GrRefCachedBitmapTexture(context, fBmp[1], NULL));
-        texture[2].reset(GrRefCachedBitmapTexture(context, fBmp[2], NULL));
-
-        if (!texture[0] || !texture[1] || !texture[2]) {
+        GrTexture* texture[3];
+        texture[0] = GrLockAndRefCachedBitmapTexture(context, fBmp[0], NULL);
+        texture[1] = GrLockAndRefCachedBitmapTexture(context, fBmp[1], NULL);
+        texture[2] = GrLockAndRefCachedBitmapTexture(context, fBmp[2], NULL);
+        if ((NULL == texture[0]) || (NULL == texture[1]) || (NULL == texture[2])) {
             return;
         }
 
@@ -98,35 +97,38 @@ protected:
 
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace;
              ++space) {
-            SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fBmp[0].width()),
-                                               SkIntToScalar(fBmp[0].height()));
-            renderRect.outset(kDrawPad, kDrawPad);
+          SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fBmp[0].width()),
+                                             SkIntToScalar(fBmp[0].height()));
+          renderRect.outset(kDrawPad, kDrawPad);
 
-            SkScalar y = kDrawPad + kTestPad + space * kColorSpaceOffset;
-            SkScalar x = kDrawPad + kTestPad;
+          SkScalar y = kDrawPad + kTestPad + space * kColorSpaceOffset;
+          SkScalar x = kDrawPad + kTestPad;
 
-            const int indices[6][3] = {{0, 1, 2}, {0, 2, 1}, {1, 0, 2},
-                                       {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
+          const int indices[6][3] = {{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
 
-            for (int i = 0; i < 6; ++i) {
-                SkAutoTUnref<GrFragmentProcessor> fp(
-                            GrYUVtoRGBEffect::Create(texture[indices[i][0]],
-                                                    texture[indices[i][1]],
-                                                    texture[indices[i][2]],
-                                                    static_cast<SkYUVColorSpace>(space)));
-                if (fp) {
-                    SkMatrix viewMatrix;
-                    viewMatrix.setTranslate(x, y);
-                    drawState->reset(viewMatrix);
-                    drawState->setRenderTarget(rt);
-                    drawState->setColor(0xffffffff);
-                    drawState->addColorProcessor(fp);
-                    tt.target()->drawSimpleRect(renderRect);
-                }
-                x += renderRect.width() + kTestPad;
-            }
+          for (int i = 0; i < 6; ++i) {
+              SkAutoTUnref<GrFragmentProcessor> fp(
+                          GrYUVtoRGBEffect::Create(texture[indices[i][0]],
+                                                   texture[indices[i][1]],
+                                                   texture[indices[i][2]],
+                                                   static_cast<SkYUVColorSpace>(space)));
+              if (fp) {
+                  SkMatrix viewMatrix;
+                  viewMatrix.setTranslate(x, y);
+                  drawState->reset(viewMatrix);
+                  drawState->setRenderTarget(rt);
+                  drawState->setColor(0xffffffff);
+                  drawState->addColorProcessor(fp);
+                  tt.target()->drawSimpleRect(renderRect);
+              }
+              x += renderRect.width() + kTestPad;
+          }
         }
-     }
+
+        GrUnlockAndUnrefCachedBitmapTexture(texture[0]);
+        GrUnlockAndUnrefCachedBitmapTexture(texture[1]);
+        GrUnlockAndUnrefCachedBitmapTexture(texture[2]);
+    }
 
 private:
     SkBitmap fBmp[3];

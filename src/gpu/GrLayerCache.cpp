@@ -245,6 +245,7 @@ void GrLayerCache::unlock(GrCachedLayer* layer) {
 #endif
 
     } else {
+        fContext->unlockScratchTexture(layer->texture());
         layer->setTexture(NULL, GrIRect16::MakeEmpty());
     }
 

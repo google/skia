@@ -34,7 +34,8 @@ class SK_API SkGpuDevice : public SkBaseDevice {
 public:
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
-        kDFFonts_Flag   = 1 << 1,  //!< Surface should render fonts using signed distance fields
+        kCached_Flag    = 1 << 1,  //!< Surface is cached and needs to be unlocked when released
+        kDFFonts_Flag   = 1 << 2,  //!< Surface should render fonts using signed distance fields
     };
 
     /**
@@ -115,6 +116,9 @@ public:
     virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
                              const SkImageFilter::Context&,
                              SkBitmap*, SkIPoint*) SK_OVERRIDE;
+
+    class SkAutoCachedTexture; // used internally
+
 
 protected:
     virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) SK_OVERRIDE;
