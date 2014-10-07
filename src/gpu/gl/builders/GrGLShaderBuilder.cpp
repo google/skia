@@ -6,7 +6,7 @@
  */
 
 #include "GrGLShaderBuilder.h"
-#include "GrGLFullProgramBuilder.h"
+#include "GrGLProgramBuilder.h"
 #include "GrGLProgramBuilder.h"
 #include "../GrGpuGL.h"
 #include "../GrGLShaderVar.h"
@@ -53,13 +53,12 @@ void append_texture_lookup(SkString* out,
         out->appendf(".%s", swizzle);
     }
 }
-static const int kVarsPerBlock = 8;
 }
 
 GrGLShaderBuilder::GrGLShaderBuilder(GrGLProgramBuilder* program)
     : fProgramBuilder(program)
-    , fInputs(kVarsPerBlock)
-    , fOutputs(kVarsPerBlock)
+    , fInputs(GrGLProgramBuilder::kVarsPerBlock)
+    , fOutputs(GrGLProgramBuilder::kVarsPerBlock)
     , fFeaturesAddedMask(0) {
 }
 
@@ -143,6 +142,13 @@ void GrGLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionNam
     }
 }
 
+void GrGLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
+    for (int i = 0; i < vars.count(); ++i) {
+        vars[i].appendDecl(fProgramBuilder->ctxInfo(), out);
+        out->append(";\n");
+    }
+}
+
 void GrGLShaderBuilder::appendTextureLookup(const char* samplerName,
                                             const char* coordName,
                                             uint32_t configComponentMask,
@@ -155,8 +161,3 @@ void GrGLShaderBuilder::appendTextureLookup(const char* samplerName,
                           swizzle,
                           kVec2f_GrSLType);
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-GrGLFullShaderBuilder::GrGLFullShaderBuilder(GrGLFullProgramBuilder* program)
-    : INHERITED(program)
-    , fFullProgramBuilder(program) {}

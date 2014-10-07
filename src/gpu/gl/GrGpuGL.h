@@ -179,8 +179,9 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* getProgram(const GrOptDrawState& optState,
-                                const GrGLProgramDesc& desc,
+        GrGLProgram* getProgram(const GrOptDrawState&,
+                                const GrGLProgramDesc&,
+                                DrawType,
                                 const GrGeometryStage* geometryProcessor,
                                 const GrFragmentStage* colorStages[],
                                 const GrFragmentStage* coverageStages[]);

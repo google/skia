@@ -92,7 +92,7 @@ public:
         if (!fp->willUseInputColor()) {
             fColorStages.reset();
         }
-        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrProcessorStage, (fp));
+        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrFragmentStage, (fp));
         return fp;
     }
 
@@ -104,7 +104,7 @@ public:
         if (!fp->willUseInputColor()) {
             fCoverageStages.reset();
         }
-        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrProcessorStage, (fp));
+        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrFragmentStage, (fp));
         return fp;
     }
 

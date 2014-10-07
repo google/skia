@@ -5,9 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLPathRendering.h"
-#include "gl/GrGLProgram.h"
 #include "gl/GrGLUniformHandle.h"
 #include "gl/GrGpuGL.h"
 #include "SkMatrix.h"
@@ -16,16 +14,13 @@
          SkASSERT(arrayCount <= uni.fArrayCount || \
                   (1 == arrayCount && GrGLShaderVar::kNonArray == uni.fArrayCount))
 
-GrGLProgramDataManager::GrGLProgramDataManager(GrGpuGL* gpu,
-                                               GrGLProgram* program,
-                                               const GrGLProgramBuilder& builder)
-    : fGpu(gpu),
-      fProgram(program) {
-    int count = builder.getUniformInfos().count();
+GrGLProgramDataManager::GrGLProgramDataManager(GrGpuGL* gpu, const UniformInfoArray& uniforms)
+    : fGpu(gpu) {
+    int count = uniforms.count();
     fUniforms.push_back_n(count);
     for (int i = 0; i < count; i++) {
         Uniform& uniform = fUniforms[i];
-        const GrGLProgramBuilder::UniformInfo& builderUniform = builder.getUniformInfos()[i];
+        const UniformInfo& builderUniform = uniforms[i];
         SkASSERT(GrGLShaderVar::kNonArray == builderUniform.fVariable.getArrayCount() ||
                  builderUniform.fVariable.getArrayCount() > 0);
         SkDEBUGCODE(
@@ -38,25 +33,12 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGpuGL* gpu,
             uniform.fVSLocation = builderUniform.fLocation;
         } else {
             uniform.fVSLocation = kUnusedUniform;
-            }
+        }
         if (GrGLProgramBuilder::kFragment_Visibility & builderUniform.fVisibility) {
             uniform.fFSLocation = builderUniform.fLocation;
         } else {
             uniform.fFSLocation = kUnusedUniform;
         }
-    }
-
-    count = builder.getSeparableVaryingInfos().count();
-    fVaryings.push_back_n(count);
-    for (int i = 0; i < count; i++) {
-        Varying& varying = fVaryings[i];
-        const GrGLProgramBuilder::SeparableVaryingInfo& builderVarying =
-            builder.getSeparableVaryingInfos()[i];
-        SkASSERT(GrGLShaderVar::kNonArray == builderVarying.fVariable.getArrayCount());
-        SkDEBUGCODE(
-            varying.fType = builderVarying.fVariable.getType();
-        );
-        varying.fLocation = builderVarying.fLocation;
     }
 }
 
@@ -275,15 +257,4 @@ void GrGLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix
         matrix.get(SkMatrix::kMPersp2),
     };
     this->setMatrix3f(u, mt);
-}
-
-void GrGLProgramDataManager::setProgramPathFragmentInputTransform(VaryingHandle i,
-                                                                  unsigned components,
-                                                                  const SkMatrix& matrix) const {
-    const Varying& fragmentInput = fVaryings[i.toProgramDataIndex()];
-    fGpu->glPathRendering()->setProgramPathFragmentInputTransform(fProgram->programID(),
-                                                                  fragmentInput.fLocation,
-                                                                  GR_GL_OBJECT_LINEAR,
-                                                                  components,
-                                                                  matrix);
 }

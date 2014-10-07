@@ -7,7 +7,7 @@
 
 #include "GrAARectRenderer.h"
 #include "GrGpu.h"
-#include "gl/builders/GrGLFullProgramBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "GrTBackendProcessorFactory.h"
@@ -41,7 +41,7 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLFullProgramBuilder* builder,
+        virtual void emitCode(GrGLGPBuilder* builder,
                               const GrGeometryProcessor& geometryProcessor,
                               const GrProcessorKey& key,
                               const char* outputColor,
@@ -55,10 +55,10 @@ public:
             builder->addVarying(kVec4f_GrSLType, "Rect", &vsRectName, &fsRectName);
 
             const GrShaderVar& inRect = geometryProcessor.cast<GrAlignedRectEffect>().inRect();
-            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
             vsBuilder->codeAppendf("\t%s = %s;\n", vsRectName, inRect.c_str());
 
-            GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             // TODO: compute all these offsets, spans, and scales in the VS
             fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.z) - 0.5;\n", fsRectName);
             fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.w) - 0.5;\n", fsRectName);
@@ -167,7 +167,7 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLFullProgramBuilder* builder,
+        virtual void emitCode(GrGLGPBuilder* builder,
                               const GrGeometryProcessor& geometryProcessor,
                               const GrProcessorKey& key,
                               const char* outputColor,
@@ -181,7 +181,7 @@ public:
                                 &vsRectEdgeName, &fsRectEdgeName);
 
             const GrRectEffect& rectEffect = geometryProcessor.cast<GrRectEffect>();
-            GrGLVertexShaderBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
             vsBuilder->codeAppendf("%s = %s;", vsRectEdgeName, rectEffect.inRectEdge().c_str());
 
             // setup the varying for width/2+.5 and height/2+.5
@@ -192,7 +192,7 @@ public:
                                    vsWidthHeightName,
                                    rectEffect.inWidthHeight().c_str());
 
-            GrGLProcessorFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             // TODO: compute all these offsets, spans, and scales in the VS
             fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.x) - 0.5;\n", fsWidthHeightName);
             fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.y) - 0.5;\n", fsWidthHeightName);

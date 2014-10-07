@@ -9,7 +9,6 @@
 #define GrTBackendProcessorFactory_DEFINED
 
 #include "GrBackendProcessorFactory.h"
-#include "gl/GrGLProgramEffects.h"
 
 /**
  * Implements GrBackendEffectFactory for a GrProcessor subclass as a singleton. This can be used by

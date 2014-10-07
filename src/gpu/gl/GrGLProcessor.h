@@ -9,9 +9,8 @@
 #define GrGLProcessor_DEFINED
 
 #include "GrBackendProcessorFactory.h"
-#include "GrGLProgramEffects.h"
-#include "GrGLShaderVar.h"
-#include "GrGLSL.h"
+#include "GrGLProgramDataManager.h"
+#include "GrTextureAccess.h"
 
 /** @file
     This file contains specializations for OpenGL of the shader stages declared in

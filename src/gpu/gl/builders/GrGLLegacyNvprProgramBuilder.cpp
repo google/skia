@@ -1,0 +1,55 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "GrGLLegacyNvprProgramBuilder.h"
+#include "../GrGpuGL.h"
+
+GrGLLegacyNvprProgramBuilder::GrGLLegacyNvprProgramBuilder(GrGpuGL* gpu,
+                                                           const GrOptDrawState& optState,
+                                                           const GrGLProgramDesc& desc)
+    : INHERITED(gpu, optState, desc)
+    , fTexCoordSetCnt(0) {
+    SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fColorInput);
+    SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fCoverageInput);
+}
+
+int GrGLLegacyNvprProgramBuilder::addTexCoordSets(int count) {
+    int firstFreeCoordSet = fTexCoordSetCnt;
+    fTexCoordSetCnt += count;
+    SkASSERT(gpu()->glCaps().maxFixedFunctionTextureCoords() >= fTexCoordSetCnt);
+    return firstFreeCoordSet;
+}
+
+void GrGLLegacyNvprProgramBuilder::emitTransforms(const GrProcessorStage& processorStage,
+                                            GrGLProcessor::TransformedCoordsArray* outCoords,
+                                            GrGLInstalledProcessors* installedProcessors) {
+    int numTransforms = processorStage.getProcessor()->numTransforms();
+    int texCoordIndex = this->addTexCoordSets(numTransforms);
+
+    SkTArray<GrGLInstalledProcessors::Transform, true>& transforms =
+            installedProcessors->addTransforms();
+
+    // Use the first uniform location as the texcoord index.  This may seem a bit hacky but it
+    // allows us to use one program effects object for all of our programs which really simplifies
+    // the code overall
+    transforms.push_back_n(1);
+    transforms[0].fHandle = GrGLInstalledProcessors::ShaderVarHandle(texCoordIndex);
+
+    SkString name;
+    for (int t = 0; t < numTransforms; ++t) {
+        GrSLType type = processorStage.isPerspectiveCoordTransform(t, false) ? kVec3f_GrSLType :
+                                                                               kVec2f_GrSLType;
+
+        name.printf("%s(gl_TexCoord[%i])", GrGLSLTypeString(type), texCoordIndex++);
+        SkNEW_APPEND_TO_TARRAY(outCoords, GrGLProcessor::TransformedCoords, (name, type));
+    }
+}
+
+GrGLProgram* GrGLLegacyNvprProgramBuilder::createProgram(GrGLuint programID) {
+    return SkNEW_ARGS(GrGLLegacyNvprProgram, (fGpu, fDesc, fUniformHandles, programID, fUniforms,
+                                        fColorEffects, fCoverageEffects,  fTexCoordSetCnt));
+}

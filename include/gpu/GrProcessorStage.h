@@ -31,6 +31,8 @@ public:
         fCoordChangeMatrixSet = false;
     }
 
+    virtual ~GrProcessorStage() {}
+
     GrProcessorStage(const GrProcessorStage& other) {
         fCoordChangeMatrixSet = other.fCoordChangeMatrixSet;
         if (other.fCoordChangeMatrixSet) {
@@ -147,11 +149,11 @@ public:
         }
     }
 
-    const GrProcessor* getProcessor() const { return fProc.get(); }
+    virtual const GrProcessor* getProcessor() const = 0;
 
     void convertToPendingExec() { fProc.convertToPendingExec(); }
 
-private:
+protected:
     bool                                   fCoordChangeMatrixSet;
     SkMatrix                               fCoordChangeMatrix;
     GrProgramElementRef<const GrProcessor> fProc;
@@ -161,18 +163,24 @@ class GrFragmentStage : public GrProcessorStage {
 public:
     GrFragmentStage(const GrFragmentProcessor* fp) : GrProcessorStage(fp) {}
 
-    const GrFragmentProcessor* getFragmentProcessor() const {
-        return static_cast<const GrFragmentProcessor*>(this->getProcessor());
+    virtual const GrFragmentProcessor* getProcessor() const {
+        return static_cast<const GrFragmentProcessor*>(fProc.get());
     }
+
+    typedef GrFragmentProcessor   Processor;
+    typedef GrGLFragmentProcessor GLProcessor;
 };
 
 class GrGeometryStage : public GrProcessorStage {
 public:
     GrGeometryStage(const GrGeometryProcessor* gp) : GrProcessorStage(gp) {}
 
-    const GrGeometryProcessor* getGeometryProcessor() const {
-        return static_cast<const GrGeometryProcessor*>(this->getProcessor());
+    virtual const GrGeometryProcessor* getProcessor() const {
+        return static_cast<const GrGeometryProcessor*>(fProc.get());
     }
+
+    typedef GrGeometryProcessor   Processor;
+    typedef GrGLGeometryProcessor GLProcessor;
 };
 
 #endif
