@@ -38,6 +38,7 @@ static bool install_syscall_filter() {
         ALLOW_SYSCALL(mmap),
         ALLOW_SYSCALL(munmap),
         ALLOW_SYSCALL(brk),
+        ALLOW_SYSCALL(futex),
         KILL_PROCESS,
     };
     struct sock_fprog prog = {
