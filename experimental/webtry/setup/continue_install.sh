@@ -1,19 +1,16 @@
 #!/bin/bash
 #
-# The continue_install script updates the jail's copy of depot tools and the latest
-# verion of skia.  It then builds the skia libraries inside the jail, and builds the webtry
-# server outside the jail.
+# The continue_install script updates the webtry user's copy of skia and depot_tools.
+# It then builds the webtry server outside the jail.
+#
+# The setup scripts should run this script as the 'webtry' user.
 #
 # See the README file for detailed installation instructions.
 
-CHROOT_JAIL=/srv/chroot/webtry_gyp
-sudo cp continue_install_jail.sh ${CHROOT_JAIL}/bin/continue_install_jail.sh
-sudo chmod 755 ${CHROOT_JAIL}/bin/continue_install_jail.sh
-sudo chroot ${CHROOT_JAIL} /bin/continue_install_jail.sh
-sudo chown -R webtry:webtry ${CHROOT_JAIL}/skia_build/skia
+# Install Go
+
 cd
 
-# Install Go
 if [ -d go ]; then
   echo Go already installed.
 else
@@ -26,7 +23,22 @@ export GOROOT=${HOME}/go
 export GOPATH=${HOME}/golib
 export PATH=$PATH:$GOROOT/bin
 
-cd skia/experimental/webtry
+# Install depot_tools.
+if [ -d depot_tools ]; then
+  (cd depot_tools && git pull);
+else
+  git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git;
+fi
+export PATH=$PATH:~/depot_tools
+
+# Checkout the skia code and dependencies (again)
+mkdir skia
+cd skia
+gclient config --name . https://skia.googlesource.com/skia.git
+gclient sync
+git checkout master
+
+cd experimental/webtry
 
 go get -d
 ./build
