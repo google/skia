@@ -12,7 +12,9 @@
       'type': 'executable',
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'flags.gyp:flags'
+        'flags.gyp:flags',
+        'tools.gyp:sk_tool_utils'
+
       ],
       'include_dirs': [
         '../include/config',

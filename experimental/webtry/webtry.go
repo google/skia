@@ -36,7 +36,6 @@ import (
 )
 
 const (
-
 	DEFAULT_SAMPLE = `void draw(SkCanvas* canvas) {
     SkPaint p;
     p.setColor(SK_ColorRED);
@@ -368,14 +367,29 @@ func expandToFile(filename string, code string, t *template.Template) error {
 
 // expandCode expands the template into a file and calculates the MD5 hash.
 func expandCode(code string, source int) (string, error) {
+	// in order to support fonts in the chroot jail, we need to make sure
+	// we're using portable typefaces.
+	// TODO(humper):  Make this more robust, supporting things like setTypeface
+
+	inputCodeLines := strings.Split(code, "\n")
+	outputCodeLines := []string{}
+	for _, line := range inputCodeLines {
+		outputCodeLines = append(outputCodeLines, line)
+		if strings.HasPrefix(strings.TrimSpace(line), "SkPaint ") {
+			outputCodeLines = append(outputCodeLines, "sk_tool_utils::set_portable_typeface(&p);")
+		}
+	}
+
+	fontFriendlyCode := strings.Join(outputCodeLines, "\n")
+
 	h := md5.New()
-	h.Write([]byte(code))
+	h.Write([]byte(fontFriendlyCode))
 	binary.Write(h, binary.LittleEndian, int64(source))
 	hash := fmt.Sprintf("%x", h.Sum(nil))
 	// At this point we are running in skia/experimental/webtry, making cache a
 	// peer directory to skia.
 	// TODO(jcgregorio) Make all relative directories into flags.
-	err := expandToFile(fmt.Sprintf("../../../cache/src/%s.cpp", hash), code, codeTemplate)
+	err := expandToFile(fmt.Sprintf("../../../cache/src/%s.cpp", hash), fontFriendlyCode, codeTemplate)
 	return hash, err
 }
 
@@ -817,7 +831,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		cmd := "scripts/fiddle_wrapper " + hash
 		if *useChroot {
 			cmd = "schroot -c webtry --directory=/ -- /skia_build/skia/experimental/webtry/" + cmd
-		} 
+		}
 		if request.Source > 0 {
 			cmd += fmt.Sprintf(" image-%d.png", request.Source)
 		}
