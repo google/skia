@@ -60,3 +60,12 @@ blurrects
 blurcircles
 bleed
 drawbitmapmatrix
+
+#bsalomon slight(?) changes after reseting GrContext between GMs
+imageblur_large
+imageblur
+dftext
+megalooper_0x0
+megalooper_1x4
+megalooper_4x1
+imagefiltersbase
