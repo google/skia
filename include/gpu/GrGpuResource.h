@@ -103,7 +103,8 @@ private:
     void didUnref() const {
         if (0 == fPendingReads && 0 == fPendingWrites) {
             if (0 == fRefCnt) {
-                SkDELETE(this);
+                // Must call derived destructor since this is not a virtual class.
+                SkDELETE(static_cast<const DERIVED*>(this));
             } else if (1 == fRefCnt) {
                 // The one ref is the cache's
                 static_cast<const DERIVED*>(this)->notifyIsPurgable();
