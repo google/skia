@@ -52,16 +52,17 @@ typedef struct {
 typedef struct sk_path_t sk_path_t;
 
 sk_path_t* sk_path_new();
+void sk_path_delete(sk_path_t*);
 void sk_path_move_to(sk_path_t*, float x, float y);
 void sk_path_line_to(sk_path_t*, float x, float y);
 void sk_path_quad_to(sk_path_t*, float x0, float y0, float x1, float y1);
-void sk_path_get_bounds(const sk_path_t*, sk_rect_t*);
+void sk_path_close(sk_path_t*);
 
 typedef struct sk_paint_t sk_paint_t;
 
 sk_paint_t* sk_paint_new();
 void sk_paint_delete(sk_paint_t*);
-bool sk_paint_is_antialias(sk_paint_t*);
+bool sk_paint_is_antialias(const sk_paint_t*);
 void sk_paint_set_antialias(sk_paint_t*, bool);
 sk_color_t sk_paint_get_color(const sk_paint_t*);
 void sk_paint_set_color(sk_paint_t*, sk_color_t);

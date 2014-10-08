@@ -12,6 +12,8 @@
         '../experimental/SkSetPoly3To3.cpp',
         '../experimental/SkSetPoly3To3_A.cpp',
         '../experimental/SkSetPoly3To3_D.cpp',
+        '../experimental/sk_surface.h',
+        '../experimental/sk_surface.cpp',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

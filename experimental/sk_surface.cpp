@@ -27,6 +27,10 @@ static const SkPath& AsPath(const sk_path_t& cpath) {
     return reinterpret_cast<const SkPath&>(cpath);
 }
 
+static SkPath* as_path(sk_path_t* cpath) {
+    return reinterpret_cast<SkPath*>(cpath);
+}
+
 static const SkImage* AsImage(const sk_image_t* cimage) {
     return reinterpret_cast<const SkImage*>(cimage);
 }
@@ -98,6 +102,32 @@ sk_color_t sk_paint_get_color(const sk_paint_t* cpaint) {
 
 void sk_paint_set_color(sk_paint_t* cpaint, sk_color_t c) {
     AsPaint(cpaint)->setColor(c);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+sk_path_t* sk_path_new() {
+    return (sk_path_t*)SkNEW(SkPath);
+}
+
+void sk_path_delete(sk_path_t* cpath) {
+    SkDELETE(as_path(cpath));
+}
+
+void sk_path_move_to(sk_path_t* cpath, float x, float y) {
+    as_path(cpath)->moveTo(x, y);
+}
+
+void sk_path_line_to(sk_path_t* cpath, float x, float y) {
+    as_path(cpath)->lineTo(x, y);
+}
+
+void sk_path_quad_to(sk_path_t* cpath, float x0, float y0, float x1, float y1) {
+    as_path(cpath)->quadTo(x0, y0, x1, y1);
+}
+
+void sk_path_close(sk_path_t* cpath) {
+    as_path(cpath)->close();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -196,11 +226,20 @@ void sk_test_capi(SkCanvas* canvas) {
     sk_paint_set_color(cpaint, 0xFF00FF00);
     sk_canvas_draw_rect(ccanvas, &cr, cpaint);
     
+    sk_path_t* cpath = sk_path_new();
+    sk_path_move_to(cpath, 50, 50);
+    sk_path_line_to(cpath, 100, 100);
+    sk_path_line_to(cpath, 50, 100);
+    sk_path_close(cpath);
+
+    sk_canvas_draw_path(ccanvas, cpath, cpaint);
+
     sk_image_t* cimage = sk_surface_new_image_snapshot(csurface);
     
     // HERE WE CROSS THE C..C++ boundary
     canvas->drawImage((const SkImage*)cimage, 20, 20, NULL);
     
+    sk_path_delete(cpath);
     sk_paint_delete(cpaint);
     sk_image_unref(cimage);
     sk_surface_delete(csurface);
