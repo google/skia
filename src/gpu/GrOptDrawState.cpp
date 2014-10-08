@@ -69,12 +69,12 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     }
 
     // Copy Coverage Stages from DS to ODS
-    if (drawState.numCoverageStages() > 0 && separateCoverageFromColor) {
+    if (firstCoverageStageIdx < drawState.numCoverageStages() && separateCoverageFromColor) {
         fCoverageStages.reset(&drawState.getCoverageStage(firstCoverageStageIdx),
                               drawState.numCoverageStages() - firstCoverageStageIdx);
     } else {
         fCoverageStages.reset();
-        if (drawState.numCoverageStages() > 0) {
+        if (firstCoverageStageIdx < drawState.numCoverageStages()) {
             // TODO: Once we have flag to know if we only multiply on stages, only push coverage
             // into color stages if everything is multiply
             fColorStages.push_back_n(drawState.numCoverageStages() - firstCoverageStageIdx,
