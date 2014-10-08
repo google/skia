@@ -13,7 +13,7 @@
 
 namespace {
 
-class IOSNativeGLContext : public SkGLContext {
+class IOSNativeGLContext : public SkNativeGLContext {
 public:
     IOSNativeGLContext();
 
