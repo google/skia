@@ -41,7 +41,6 @@ class GrContext;
 template <typename DERIVED> class GrIORef : public SkNoncopyable {
 public:
     SK_DECLARE_INST_COUNT_ROOT(GrIORef)
-    virtual ~GrIORef();
 
     // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
     // templated helper classes (e.g. SkAutoTUnref). However, we have different categories of

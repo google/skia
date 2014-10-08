@@ -11,16 +11,6 @@
 #include "GrResourceCache2.h"
 #include "GrGpu.h"
 
-template<typename D> GrIORef<D>::~GrIORef() {
-    SkASSERT(0 == fRefCnt);
-    SkASSERT(0 == fPendingReads);
-    SkASSERT(0 == fPendingWrites);
-    // Set to invalid values.
-    SkDEBUGCODE(fRefCnt = fPendingReads = fPendingWrites = -10;)
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
     SkASSERT(gpu);
     SkASSERT(gpu->getContext());
