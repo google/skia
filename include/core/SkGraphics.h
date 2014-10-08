@@ -113,33 +113,6 @@ public:
     static size_t GetResourceCacheSingleAllocationByteLimit();
     static size_t SetResourceCacheSingleAllocationByteLimit(size_t newLimit);
 
-#ifdef SK_SUPPORT_LEGACY_IMAGECACHE_NAME
-    static size_t GetImageCacheBytesUsed() {
-        return GetImageCacheTotalBytesUsed();
-    }
-    static size_t GetImageCacheByteLimit() {
-        return GetImageCacheTotalByteLimit();
-    }
-    static size_t SetImageCacheByteLimit(size_t newLimit) {
-        return SetImageCacheTotalByteLimit(newLimit);
-    }
-    static size_t GetImageCacheTotalBytesUsed() {
-        return GetResourceCacheTotalBytesUsed();
-    }
-    static size_t GetImageCacheTotalByteLimit() {
-        return GetResourceCacheTotalByteLimit();
-    }
-    static size_t SetImageCacheTotalByteLimit(size_t newLimit) {
-        return SetResourceCacheTotalByteLimit(newLimit);
-    }
-    static size_t GetImageCacheSingleAllocationByteLimit() {
-        return GetResourceCacheSingleAllocationByteLimit();
-    }
-    static size_t SetImageCacheSingleAllocationByteLimit(size_t newLimit) {
-        return SetResourceCacheSingleAllocationByteLimit(newLimit);
-    }
-#endif
-
     /**
      *  Applications with command line options may pass optional state, such
      *  as cache sizes, here, for instance:
