@@ -67,15 +67,15 @@ public:
             // either by drawing code or for pending io operations.
             // This will be removed when flush no longer creates resources.
             return resource->reffedOnlyByCache() && !resource->internalHasPendingIO() &&
-                   GrGpuResource::kYes_IsScratch == resource->fIsScratch;
+                   (NULL == resource->getContentKey());
         } else {
             // Because duties are currently shared between GrResourceCache and GrResourceCache2, the
             // current interpretation of this rule is that only GrResourceCache has a ref but that
             // it has been marked as a scratch resource.
-            return resource->reffedOnlyByCache() &&
-                GrGpuResource::kYes_IsScratch == resource->fIsScratch;
+            return resource->reffedOnlyByCache() && (NULL == resource->getContentKey());
         }
     }
+
 private:
     bool fFlushing;
 };

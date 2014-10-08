@@ -101,6 +101,13 @@ void GrGpuResource::setScratchKey(const GrResourceKey& scratchKey) {
     fScratchKey = scratchKey;
 }
 
+const GrResourceKey* GrGpuResource::getContentKey() const {
+    if (fCacheEntry && !fCacheEntry->key().isScratch()) {
+        return &fCacheEntry->key();
+    }
+    return NULL;
+}
+
 uint32_t GrGpuResource::CreateUniqueID() {
     static int32_t gUniqueID = SK_InvalidUniqueID;
     uint32_t id;
