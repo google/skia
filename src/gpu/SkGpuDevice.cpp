@@ -1849,17 +1849,15 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return false;
     }
 
-    fContext->getLayerCache()->processDeletedPictures();
-
     SkRect clipBounds;
     if (!mainCanvas->getClipBounds(&clipBounds)) {
         return true;
     }
 
-    SkTDArray<GrLayerHoister::HoistedLayer> atlased, nonAtlased, recycled;
+    SkTDArray<GrHoistedLayer> atlased, nonAtlased, recycled;
 
-    if (!GrLayerHoister::FindLayersToHoist(mainPicture, clipBounds, &atlased, &nonAtlased,
-                                           &recycled, fContext->getLayerCache())) {
+    if (!GrLayerHoister::FindLayersToHoist(fContext, mainPicture, clipBounds, 
+                                           &atlased, &nonAtlased, &recycled)) {
         return false;
     }
 
@@ -1872,7 +1870,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
     GrRecordReplaceDraw(mainPicture, mainCanvas, &replacements, initialMatrix, NULL);
 
-    GrLayerHoister::UnlockLayers(fContext->getLayerCache(), atlased, nonAtlased, recycled);
+    GrLayerHoister::UnlockLayers(fContext, atlased, nonAtlased, recycled);
 
     return true;
 }

@@ -14,13 +14,17 @@
 #include "SkSurface.h"
 
 // Return true if any layers are suitable for hoisting
-bool GrLayerHoister::FindLayersToHoist(const SkPicture* topLevelPicture,
+bool GrLayerHoister::FindLayersToHoist(GrContext* context,
+                                       const SkPicture* topLevelPicture,
                                        const SkRect& query,
-                                       SkTDArray<HoistedLayer>* atlased,
-                                       SkTDArray<HoistedLayer>* nonAtlased,
-                                       SkTDArray<HoistedLayer>* recycled,
-                                       GrLayerCache* layerCache) {
+                                       SkTDArray<GrHoistedLayer>* atlased,
+                                       SkTDArray<GrHoistedLayer>* nonAtlased,
+                                       SkTDArray<GrHoistedLayer>* recycled) {
     bool anyHoisted = false;
+
+    GrLayerCache* layerCache = context->getLayerCache();
+
+    layerCache->processDeletedPictures();
 
     SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
 
@@ -102,7 +106,7 @@ bool GrLayerHoister::FindLayersToHoist(const SkPicture* topLevelPicture,
                 continue;
             }
 
-            HoistedLayer* hl;
+            GrHoistedLayer* hl;
 
             if (needsRendering) {
                 if (layer->isAtlased()) {
@@ -130,7 +134,7 @@ static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* re
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
 }
 
-static void convert_layers_to_replacements(const SkTDArray<GrLayerHoister::HoistedLayer>& layers,
+static void convert_layers_to_replacements(const SkTDArray<GrHoistedLayer>& layers,
                                            GrReplacements* replacements) {
     // TODO: just replace GrReplacements::ReplacementInfo with GrCachedLayer?
     for (int i = 0; i < layers.count(); ++i) {
@@ -164,9 +168,9 @@ static void convert_layers_to_replacements(const SkTDArray<GrLayerHoister::Hoist
     }
 }
 
-void GrLayerHoister::DrawLayers(const SkTDArray<HoistedLayer>& atlased,
-                                const SkTDArray<HoistedLayer>& nonAtlased,
-                                const SkTDArray<HoistedLayer>& recycled,
+void GrLayerHoister::DrawLayers(const SkTDArray<GrHoistedLayer>& atlased,
+                                const SkTDArray<GrHoistedLayer>& nonAtlased,
+                                const SkTDArray<GrHoistedLayer>& recycled,
                                 GrReplacements* replacements) {
     // Render the atlased layers that require it
     if (atlased.count() > 0) {
@@ -276,10 +280,11 @@ static void unlock_layer_in_cache(GrLayerCache* layerCache,
 #endif
 }
 
-void GrLayerHoister::UnlockLayers(GrLayerCache* layerCache,
-                                  const SkTDArray<HoistedLayer>& atlased,
-                                  const SkTDArray<HoistedLayer>& nonAtlased,
-                                  const SkTDArray<HoistedLayer>& recycled) {
+void GrLayerHoister::UnlockLayers(GrContext* context,
+                                  const SkTDArray<GrHoistedLayer>& atlased,
+                                  const SkTDArray<GrHoistedLayer>& nonAtlased,
+                                  const SkTDArray<GrHoistedLayer>& recycled) {
+    GrLayerCache* layerCache = context->getLayerCache();
 
     for (int i = 0; i < atlased.count(); ++i) {
         unlock_layer_in_cache(layerCache, atlased[i].fPicture, atlased[i].fLayer);
