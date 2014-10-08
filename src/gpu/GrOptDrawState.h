@@ -375,19 +375,17 @@ private:
      * Loops through all the color stage effects to check if the stage will ignore color input or
      * always output a constant color. In the ignore color input case we can ignore all previous
      * stages. In the constant color case, we can ignore all previous stages and
-     * the current one and set the state color to the constant color. Once we determine the so
-     * called first effective stage, we copy all the effective stages into our optimized
-     * state.
+     * the current one and set the state color to the constant color.
      */
-    void copyEffectiveColorStages(const GrDrawState& ds);
+    void computeEffectiveColorStages(const GrDrawState& ds, int* firstColorStageIdx,
+                                     uint8_t* fixFunctionVAToRemove);
 
     /**
      * Loops through all the coverage stage effects to check if the stage will ignore color input.
      * If a coverage stage will ignore input, then we can ignore all coverage stages before it. We
-     * loop to determine the first effective coverage stage, and then copy all of our effective
-     * coverage stages into our optimized state.
+     * loop to determine the first effective coverage stage.
      */
-    void copyEffectiveCoverageStages(const GrDrawState& ds);
+    void computeEffectiveCoverageStages(const GrDrawState& ds, int* firstCoverageStageIdx);
 
     /**
      * This function takes in a flag and removes the corresponding fixed function vertex attributes.
@@ -400,20 +398,22 @@ private:
      * Alter the OptDrawState (adjusting stages, vertex attribs, flags, etc.) based on the
      * BlendOptFlags.
      */
-    void adjustFromBlendOpts();
+    void adjustFromBlendOpts(const GrDrawState& ds, int* firstColorStageIdx,
+                             int* firstCoverageStageIdx, uint8_t* fixedFunctionVAToRemove);
 
     /**
      * Loop over the effect stages to determine various info like what data they will read and what
      * shaders they require.
      */
-    void getStageStats();
+    void getStageStats(const GrDrawState& ds, int firstColorStageIdx, int firstCoverageStageIdx);
 
     /**
      * Calculates the primary and secondary output types of the shader. For certain output types
      * the function may adjust the blend coefficients. After this function is called the src and dst
      * blend coeffs will represent those used by backend API.
      */
-    void setOutputStateInfo(const GrDrawTargetCaps&);
+    void setOutputStateInfo(const GrDrawState& ds, const GrDrawTargetCaps&,
+                            int firstCoverageStageIdx, bool* separateCoverageFromColor);
 
     bool isEqual(const GrOptDrawState& that) const;
 
@@ -433,7 +433,7 @@ private:
     GrBlendCoeff                        fSrcBlend;
     GrBlendCoeff                        fDstBlend;
 
-    typedef SkSTArray<4, GrFragmentStage> FragmentStageArray;
+    typedef SkSTArray<8, GrFragmentStage> FragmentStageArray;
     SkAutoTDelete<GrGeometryStage>        fGeometryProcessor;
     FragmentStageArray                    fColorStages;
     FragmentStageArray                    fCoverageStages;
