@@ -6,51 +6,36 @@
  * found in the LICENSE file.
  */
 
-#include "gl/SkGLContext.h"
-
-#include <windows.h>
-#include <GL/GL.h>
-#include "SkWGL.h"
+#include "gl/SkNativeGLContext.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-namespace {
+SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
+    fOldHGLRC = wglGetCurrentContext();
+    fOldHDC = wglGetCurrentDC();
+}
 
-class WinGLContext : public SkGLContext {
-public:
-    WinGLContext();
+SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
+    wglMakeCurrent(fOldHDC, fOldHGLRC);
+}
 
-    virtual ~WinGLContext();
+///////////////////////////////////////////////////////////////////////////////
 
-    virtual void makeCurrent() const SK_OVERRIDE;
-    virtual void swapBuffers() const SK_OVERRIDE;
-protected:
-    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
-    virtual void destroyGLContext() SK_OVERRIDE;
+ATOM SkNativeGLContext::gWC = 0;
 
-private:
-    HWND fWindow;
-    HDC fDeviceContext;
-    HGLRC fGlRenderContext;
-    static ATOM gWC;
-    SkWGLPbufferContext* fPbufferContext;
-};
-
-ATOM WinGLContext::gWC = 0;
-
-WinGLContext::WinGLContext()
+SkNativeGLContext::SkNativeGLContext()
     : fWindow(NULL)
     , fDeviceContext(NULL)
     , fGlRenderContext(0)
     , fPbufferContext(NULL) {
 }
 
-WinGLContext::~WinGLContext() {
+SkNativeGLContext::~SkNativeGLContext() {
     this->destroyGLContext();
 }
 
-void WinGLContext::destroyGLContext() {
+void SkNativeGLContext::destroyGLContext() {
     SkSafeSetNull(fPbufferContext);
     if (fGlRenderContext) {
         wglDeleteContext(fGlRenderContext);
@@ -66,7 +51,7 @@ void WinGLContext::destroyGLContext() {
     }
 }
 
-const GrGLInterface* WinGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
+const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
 
     if (!gWC) {
@@ -149,7 +134,7 @@ const GrGLInterface* WinGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     return interface;
 }
 
-void WinGLContext::makeCurrent() const {
+void SkNativeGLContext::makeCurrent() const {
     HDC dc;
     HGLRC glrc;
 
@@ -166,7 +151,7 @@ void WinGLContext::makeCurrent() const {
     }
 }
 
-void WinGLContext::swapBuffers() const {
+void SkNativeGLContext::swapBuffers() const {
     HDC dc;
 
     if (NULL == fPbufferContext) {
@@ -178,10 +163,3 @@ void WinGLContext::swapBuffers() const {
         SkDebugf("Could not complete SwapBuffers.\n");
     }
 }
-
-} // anonymous namespace
-
-SkGLContext* SkCreatePlatformGLContext() {
-    return SkNEW(WinGLContext);
-}
-

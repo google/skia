@@ -6,38 +6,36 @@
  * found in the LICENSE file.
  */
 
-#include "gl/SkGLContext.h"
+#include "gl/SkNativeGLContext.h"
 #import <OpenGLES/EAGL.h>
 
 #define EAGLCTX ((EAGLContext*)(fEAGLContext))
 
-namespace {
+SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
+    fEAGLContext = [EAGLContext currentContext];
+    if (EAGLCTX) {
+        [EAGLCTX retain];
+    }
+}
 
-class IOSNativeGLContext : public SkNativeGLContext {
-public:
-    IOSNativeGLContext();
+SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
+    if (EAGLCTX) {
+        [EAGLContext setCurrentContext:EAGLCTX];
+        [EAGLCTX release];
+    }
+}
 
-    virtual ~IOSNativeGLContext();
+///////////////////////////////////////////////////////////////////////////////
 
-    virtual void makeCurrent() const SK_OVERRIDE;
-    virtual void swapBuffers() const SK_OVERRIDE;
-protected:
-    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
-    virtual void destroyGLContext() SK_OVERRIDE;
-
-private:
-    void* fEAGLContext;
-};
-
-IOSNativeGLContext::IOSNativeGLContext()
+SkNativeGLContext::SkNativeGLContext()
     : fEAGLContext(NULL) {
 }
 
-IOSNativeGLContext::~IOSNativeGLContext() {
+SkNativeGLContext::~SkNativeGLContext() {
     this->destroyGLContext();
 }
 
-void IOSNativeGLContext::destroyGLContext() {
+void SkNativeGLContext::destroyGLContext() {
     if (fEAGLContext) {
         if ([EAGLContext currentContext] == EAGLCTX) {
             [EAGLContext setCurrentContext:nil];
@@ -47,7 +45,7 @@ void IOSNativeGLContext::destroyGLContext() {
     }
 }
 
-const GrGLInterface* IOSNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
+const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     if (kGL_GrGLStandard == forcedGpuAPI) {
         return NULL;
     }
@@ -64,18 +62,10 @@ const GrGLInterface* IOSNativeGLContext::createGLContext(GrGLStandard forcedGpuA
     return interface;
 }
 
-void IOSNativeGLContext::makeCurrent() const {
+void SkNativeGLContext::makeCurrent() const {
     if (![EAGLContext setCurrentContext:EAGLCTX]) {
         SkDebugf("Could not set the context.\n");
     }
 }
 
-void IOSNativeGLContext::swapBuffers() const { }
-
-} // anonymous namespace
-
-
-SkNativeGLContext* SkCreatePlatformGLContext() {
-    return SkNEW(IOSNativeGLContext);
-}
-
+void SkNativeGLContext::swapBuffers() const { }

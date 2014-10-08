@@ -11,6 +11,24 @@
 #include "gl/SkMesaGLContext.h"
 #include "gl/GrGLDefines.h"
 
+SkMesaGLContext::AutoContextRestore::AutoContextRestore() {
+    fOldContext = (Context)OSMesaGetCurrentContext();
+    if (fOldContext) {
+        OSMesaGetColorBuffer((OSMesaContext)fOldContext,
+                              &fOldWidth, &fOldHeight,
+                              &fOldFormat, &fOldImage);
+    }
+}
+
+SkMesaGLContext::AutoContextRestore::~AutoContextRestore() {
+    if (fOldContext) {
+        OSMesaMakeCurrent((OSMesaContext)fOldContext, fOldImage,
+                          fOldFormat, fOldWidth, fOldHeight);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 SkMesaGLContext::SkMesaGLContext()
     : fContext(static_cast<Context>(NULL))
     , fImage(NULL) {

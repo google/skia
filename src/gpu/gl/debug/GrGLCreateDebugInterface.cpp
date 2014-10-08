@@ -819,7 +819,7 @@ public:
     //      The solution to this is probably to alter SkDebugGlContext's
     //      "makeCurrent" method to make a call like "makeCurrent(this)" to
     //      the debug GL interface (assuming that the application will create
-    //      multiple SkGLContext's) to let it switch between the active
+    //      multiple SkGLContextHelper's) to let it switch between the active
     //      context. Everything in the GrDebugGL object would then need to be
     //      moved to a GrContextObj and the GrDebugGL object would just switch
     //      between them. Note that this approach would also require that

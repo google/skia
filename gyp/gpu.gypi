@@ -279,7 +279,7 @@
       '<(skia_include_path)/gpu/SkGrPixelRef.h',
       '<(skia_include_path)/gpu/SkGrTexturePixelRef.h',
 
-      '<(skia_include_path)/gpu/gl/SkGLContext.h',
+      '<(skia_include_path)/gpu/gl/SkGLContextHelper.h',
 
       '<(skia_src_path)/gpu/SkGpuDevice.cpp',
       '<(skia_src_path)/gpu/SkGpuDevice.h',
@@ -290,7 +290,7 @@
       '<(skia_src_path)/image/SkImage_Gpu.cpp',
       '<(skia_src_path)/image/SkSurface_Gpu.cpp',
 
-      '<(skia_src_path)/gpu/gl/SkGLContext.cpp'
+      '<(skia_src_path)/gpu/gl/SkGLContextHelper.cpp'
     ],
     'skgpu_native_gl_sources': [
       '<(skia_src_path)/gpu/gl/GrGLDefaultInterface_native.cpp',
@@ -302,12 +302,13 @@
       '<(skia_src_path)/gpu/gl/android/GrGLCreateNativeInterface_android.cpp',
 
       # Sk files
-      '<(skia_src_path)/gpu/gl/mac/SkCreatePlatformGLContext_mac.cpp',
-      '<(skia_src_path)/gpu/gl/nacl/SkCreatePlatformGLContext_nacl.cpp',
-      '<(skia_src_path)/gpu/gl/win/SkCreatePlatformGLContext_win.cpp',
-      '<(skia_src_path)/gpu/gl/glx/SkCreatePlatformGLContext_glx.cpp',
-      '<(skia_src_path)/gpu/gl/egl/SkCreatePlatformGLContext_egl.cpp',
-      '<(skia_src_path)/gpu/gl/iOS/SkCreatePlatformGLContext_iOS.mm',
+      '<(skia_include_path)/gpu/gl/SkNativeGLContext.h',
+      '<(skia_src_path)/gpu/gl/mac/SkNativeGLContext_mac.cpp',
+      '<(skia_src_path)/gpu/gl/nacl/SkNativeGLContext_nacl.cpp',
+      '<(skia_src_path)/gpu/gl/win/SkNativeGLContext_win.cpp',
+      '<(skia_src_path)/gpu/gl/glx/SkNativeGLContext_glx.cpp',
+      '<(skia_src_path)/gpu/gl/egl/SkNativeGLContext_egl.cpp',
+      '<(skia_src_path)/gpu/gl/iOS/SkNativeGLContext_iOS.mm',
     ],
     'skgpu_mesa_gl_sources': [
       '<(skia_src_path)/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',

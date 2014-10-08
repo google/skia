@@ -7,18 +7,18 @@
 #ifndef GpuTimer_DEFINED
 #define GpuTimer_DEFINED
 
-class SkGLContext;
+class SkGLContextHelper;
 
 class GpuTimer {
 public:
-    GpuTimer(const SkGLContext*);
+    GpuTimer(const SkGLContextHelper*);
     ~GpuTimer();
     void start();
     double end();
 private:
     unsigned fQuery;
     int fStarted;
-    const SkGLContext* fContext;
+    const SkGLContextHelper* fContext;
     bool fSupported;
 };
 

@@ -5,17 +5,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gl/SkGLContext.h"
+#include "gl/SkGLContextHelper.h"
 #include "GrGLUtil.h"
 
-SkGLContext::SkGLContext()
+SkGLContextHelper::SkGLContextHelper()
     : fFBO(0)
     , fColorBufferID(0)
     , fDepthStencilBufferID(0)
     , fGL(NULL) {
 }
 
-SkGLContext::~SkGLContext() {
+SkGLContextHelper::~SkGLContextHelper() {
 
     if (fGL) {
         // TODO: determine why DeleteFramebuffers is generating a GL error in tests
@@ -27,7 +27,7 @@ SkGLContext::~SkGLContext() {
     SkSafeUnref(fGL);
 }
 
-bool SkGLContext::init(GrGLStandard forcedGpuAPI, int width,
+bool SkGLContextHelper::init(GrGLStandard forcedGpuAPI, int width,
                              int height) {
     if (fGL) {
         fGL->unref();
@@ -135,7 +135,7 @@ bool SkGLContext::init(GrGLStandard forcedGpuAPI, int width,
     return false;
 }
 
-void SkGLContext::testAbandon() {
+void SkGLContextHelper::testAbandon() {
     if (fGL) {
         fGL->abandon();
     }

@@ -84,7 +84,7 @@ static SkString humanize(double ms) {
 }
 #define HUMANIZE(ms) humanize(ms).c_str()
 
-static double time(int loops, Benchmark* bench, SkCanvas* canvas, SkGLContext* gl) {
+static double time(int loops, Benchmark* bench, SkCanvas* canvas, SkGLContextHelper* gl) {
     if (canvas) {
         canvas->clear(SK_ColorWHITE);
     }
@@ -203,7 +203,7 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
 }
 
 #if SK_SUPPORT_GPU
-static int gpu_bench(SkGLContext* gl,
+static int gpu_bench(SkGLContextHelper* gl,
                      Benchmark* bench,
                      SkCanvas* canvas,
                      double* samples) {
@@ -274,7 +274,7 @@ struct Target {
     const Config config;
     SkAutoTDelete<SkSurface> surface;
 #if SK_SUPPORT_GPU
-    SkGLContext* gl;
+    SkGLContextHelper* gl;
 #endif
 };
 
@@ -389,7 +389,7 @@ static void create_targets(SkTDArray<Target*>* targets, Benchmark* b,
 }
 
 #if SK_SUPPORT_GPU
-static void fill_gpu_options(ResultsWriter* log, SkGLContext* ctx) {
+static void fill_gpu_options(ResultsWriter* log, SkGLContextHelper* ctx) {
     const GrGLubyte* version;
     SK_GL_RET(*ctx, version, GetString(GR_GL_VERSION));
     log->configOption("GL_VERSION", (const char*)(version));

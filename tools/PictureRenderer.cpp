@@ -228,7 +228,7 @@ void PictureRenderer::buildBBoxHierarchy() {
 
 void PictureRenderer::resetState(bool callFinish) {
 #if SK_SUPPORT_GPU
-    SkGLContext* glContext = this->getGLContext();
+    SkGLContextHelper* glContext = this->getGLContext();
     if (NULL == glContext) {
         SkASSERT(kBitmap_DeviceType == fDeviceType);
         return;
@@ -248,7 +248,7 @@ void PictureRenderer::purgeTextures() {
     pool->dumpPool();
 
 #if SK_SUPPORT_GPU
-    SkGLContext* glContext = this->getGLContext();
+    SkGLContextHelper* glContext = this->getGLContext();
     if (NULL == glContext) {
         SkASSERT(kBitmap_DeviceType == fDeviceType);
         return;
