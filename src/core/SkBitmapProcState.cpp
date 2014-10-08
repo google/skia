@@ -260,11 +260,14 @@ bool SkBitmapProcState::possiblyScaleImage() {
     if (scaleSqd > SK_Scalar1) {
         fCurrMip.reset(SkMipMapCache::FindAndRef(fOrigBitmap));
         if (NULL == fCurrMip.get()) {
-            fCurrMip.reset(SkMipMap::Build(fOrigBitmap));
+            fCurrMip.reset(SkMipMapCache::AddAndRef(fOrigBitmap));
             if (NULL == fCurrMip.get()) {
                 return false;
             }
-            SkMipMapCache::Add(fOrigBitmap, fCurrMip);
+        }
+        // diagnostic for a crasher...
+        if (NULL == fCurrMip->data()) {
+            sk_throw();
         }
 
         SkScalar levelScale = SkScalarInvert(SkScalarSqrt(scaleSqd));
@@ -280,6 +283,9 @@ bool SkBitmapProcState::possiblyScaleImage() {
             fBitmap = &fScaledBitmap;
             fFilterLevel = SkPaint::kLow_FilterLevel;
             return true;
+        } else {
+            // failed to extract, so release the mipmap
+            fCurrMip.reset(NULL);
         }
     }
 

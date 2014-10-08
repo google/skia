@@ -8,14 +8,17 @@
 #ifndef SkMipMap_DEFINED
 #define SkMipMap_DEFINED
 
-#include "SkRefCnt.h"
+#include "SkCachedData.h"
 #include "SkScalar.h"
 
 class SkBitmap;
+class SkDiscardableMemory;
 
-class SkMipMap : public SkRefCnt {
+typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
+
+class SkMipMap : public SkCachedData {
 public:
-    static SkMipMap* Build(const SkBitmap& src);
+    static SkMipMap* Build(const SkBitmap& src, SkDiscardableFactoryProc);
 
     struct Level {
         void*       fPixels;
@@ -26,18 +29,22 @@ public:
 
     bool extractLevel(SkScalar scale, Level*) const;
 
-    size_t getSize() const { return fSize; }
+protected:
+    virtual void onDataChange(void* oldData, void* newData) SK_OVERRIDE {
+        fLevels = (Level*)newData; // could be NULL
+    }
 
 private:
-    size_t  fSize;
     Level*  fLevels;
     int     fCount;
 
     // we take ownership of levels, and will free it with sk_free()
-    SkMipMap(Level* levels, int count, size_t size);
-    virtual ~SkMipMap();
+    SkMipMap(void* malloc, size_t size) : INHERITED(malloc, size) {}
+    SkMipMap(size_t size, SkDiscardableMemory* dm) : INHERITED(size, dm) {}
 
-    static Level* AllocLevels(int levelCount, size_t pixelSize);
+    static size_t AllocLevelsSize(int levelCount, size_t pixelSize);
+
+    typedef SkCachedData INHERITED;
 };
 
 #endif

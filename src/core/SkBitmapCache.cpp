@@ -71,7 +71,7 @@ struct BitmapRec : public SkResourceCache::Rec {
 };
 
 #define CHECK_LOCAL(localCache, localName, globalName, ...) \
-    (localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__)
+    ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))
 
 bool SkBitmapCache::Find(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY, SkBitmap* result,
                          SkResourceCache* localCache) {
@@ -125,41 +125,58 @@ bool SkBitmapCache::Add(uint32_t genID, const SkIRect& subset, const SkBitmap& r
 struct MipMapRec : public SkResourceCache::Rec {
     MipMapRec(const SkBitmap& src, const SkMipMap* result)
         : fKey(src.getGenerationID(), 0, 0, get_bounds_from_bitmap(src))
-        , fMipMap(SkRef(result))
-    {}
-
-    virtual ~MipMapRec() {
-        fMipMap->unref();
+        , fMipMap(result)
+    {
+        fMipMap->attachToCacheAndRef();
     }
 
-    BitmapKey       fKey;
-    const SkMipMap* fMipMap;
+    virtual ~MipMapRec() {
+        fMipMap->detachFromCacheAndUnref();
+    }
 
     virtual const Key& getKey() const SK_OVERRIDE { return fKey; }
-    virtual size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + fMipMap->getSize(); }
+    virtual size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + fMipMap->size(); }
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* contextMip) {
         const MipMapRec& rec = static_cast<const MipMapRec&>(baseRec);
-        const SkMipMap** result = (const SkMipMap**)contextMip;
-        
-        *result = SkRef(rec.fMipMap);
-        // mipmaps don't use the custom allocator yet, so we don't need to check pixels
+        const SkMipMap* mm = SkRef(rec.fMipMap);
+        // the call to ref() above triggers a "lock" in the case of discardable memory,
+        // which means we can now check for null (in case the lock failed).
+        if (NULL == mm->data()) {
+            mm->unref();    // balance our call to ref()
+            return false;
+        }
+        // the call must call unref() when they are done.
+        *(const SkMipMap**)contextMip = mm;
         return true;
     }
+
+private:
+    BitmapKey       fKey;
+    const SkMipMap* fMipMap;
 };
 
-const SkMipMap* SkMipMapCache::FindAndRef(const SkBitmap& src) {
+const SkMipMap* SkMipMapCache::FindAndRef(const SkBitmap& src, SkResourceCache* localCache) {
     BitmapKey key(src.getGenerationID(), 0, 0, get_bounds_from_bitmap(src));
     const SkMipMap* result;
-    if (!SkResourceCache::Find(key, MipMapRec::Visitor, &result)) {
+
+    if (!CHECK_LOCAL(localCache, find, Find, key, MipMapRec::Visitor, &result)) {
         result = NULL;
     }
     return result;
 }
 
-void SkMipMapCache::Add(const SkBitmap& src, const SkMipMap* result) {
-    if (result) {
-        SkResourceCache::Add(SkNEW_ARGS(MipMapRec, (src, result)));
+static SkResourceCache::DiscardableFactory get_fact(SkResourceCache* localCache) {
+    return localCache ? localCache->GetDiscardableFactory()
+                      : SkResourceCache::GetDiscardableFactory();
+}
+
+const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmap& src, SkResourceCache* localCache) {
+    SkMipMap* mipmap = SkMipMap::Build(src, get_fact(localCache));
+    if (mipmap) {
+        MipMapRec* rec = SkNEW_ARGS(MipMapRec, (src, mipmap));
+        CHECK_LOCAL(localCache, add, Add, rec);
     }
+    return mipmap;
 }
 

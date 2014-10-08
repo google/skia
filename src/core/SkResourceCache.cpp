@@ -201,6 +201,18 @@ bool SkResourceCache::find(const Key& key, VisitorProc visitor, void* context) {
     return false;
 }
 
+static void make_size_str(size_t size, SkString* str) {
+    const char suffix[] = { 'b', 'k', 'm', 'g', 't', 0 };
+    int i = 0;
+    while (suffix[i] && (size > 1024)) {
+        i += 1;
+        size >>= 10;
+    }
+    str->printf("%zu%c", size, suffix[i]);
+}
+
+static bool gDumpCacheTransactions;
+
 void SkResourceCache::add(Rec* rec) {
     SkASSERT(rec);
     // See if we already have this key (racy inserts, etc.)
@@ -213,6 +225,14 @@ void SkResourceCache::add(Rec* rec) {
     this->addToHead(rec);
     fHash->add(rec);
 
+    if (gDumpCacheTransactions) {
+        SkString bytesStr, totalStr;
+        make_size_str(rec->bytesUsed(), &bytesStr);
+        make_size_str(fTotalBytesUsed, &totalStr);
+        SkDebugf("RC:    add %5s %12p key %08x -- total %5s, count %d\n",
+                 bytesStr.c_str(), rec, rec->getHash(), totalStr.c_str(), fCount);
+    }
+
     // since the new rec may push us over-budget, we perform a purge check now
     this->purgeAsNeeded();
 }
@@ -224,10 +244,18 @@ void SkResourceCache::remove(Rec* rec) {
     this->detach(rec);
     fHash->remove(rec->getKey());
 
-    SkDELETE(rec);
-
     fTotalBytesUsed -= used;
     fCount -= 1;
+
+    if (gDumpCacheTransactions) {
+        SkString bytesStr, totalStr;
+        make_size_str(used, &bytesStr);
+        make_size_str(fTotalBytesUsed, &totalStr);
+        SkDebugf("RC: remove %5s %12p key %08x -- total %5s, count %d\n",
+                 bytesStr.c_str(), rec, rec->getHash(), totalStr.c_str(), fCount);
+    }
+
+    SkDELETE(rec);
 }
 
 void SkResourceCache::purgeAsNeeded(bool forcePurge) {
