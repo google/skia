@@ -135,7 +135,7 @@ private:
 /**
  * Base class for objects that can be kept in the GrResourceCache.
  */
-class GrGpuResource : public GrIORef<GrGpuResource> {
+class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
 public:
     SK_DECLARE_INST_COUNT(GrGpuResource)
 
