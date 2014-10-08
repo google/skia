@@ -28,6 +28,30 @@ GrStencilAndCoverTextContext::GrStencilAndCoverTextContext(
 GrStencilAndCoverTextContext::~GrStencilAndCoverTextContext() {
 }
 
+bool GrStencilAndCoverTextContext::canDraw(const SkPaint& paint) {
+    if (paint.getRasterizer()) {
+        return false;
+    }
+    if (paint.getMaskFilter()) {
+        return false;
+    }
+    if (paint.getPathEffect()) {
+        return false;
+    }
+
+    // No hairlines unless we can map the 1 px width to the object space.
+    if (paint.getStyle() == SkPaint::kStroke_Style
+        && paint.getStrokeWidth() == 0
+        && fContext->getMatrix().hasPerspective()) {
+        return false;
+    }
+
+    // No color bitmap fonts.
+    SkScalerContext::Rec    rec;
+    SkScalerContext::MakeRec(paint, &fDeviceProperties, NULL, &rec);
+    return rec.getFormat() != SkMask::kARGB32_Format;
+}
+
 void GrStencilAndCoverTextContext::drawText(const GrPaint& paint,
                                             const SkPaint& skPaint,
                                             const char text[],
@@ -187,30 +211,6 @@ void GrStencilAndCoverTextContext::drawPosText(const GrPaint& paint,
     }
 
     this->finish();
-}
-
-bool GrStencilAndCoverTextContext::canDraw(const SkPaint& paint) {
-    if (paint.getRasterizer()) {
-        return false;
-    }
-    if (paint.getMaskFilter()) {
-        return false;
-    }
-    if (paint.getPathEffect()) {
-        return false;
-    }
-
-    // No hairlines unless we can map the 1 px width to the object space.
-    if (paint.getStyle() == SkPaint::kStroke_Style
-        && paint.getStrokeWidth() == 0
-        && fContext->getMatrix().hasPerspective()) {
-        return false;
-    }
-
-    // No color bitmap fonts.
-    SkScalerContext::Rec    rec;
-    SkScalerContext::MakeRec(paint, &fDeviceProperties, NULL, &rec);
-    return rec.getFormat() != SkMask::kARGB32_Format;
 }
 
 static GrPathRange* get_gr_glyphs(GrContext* ctx,

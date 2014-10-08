@@ -21,6 +21,8 @@ public:
     GrBitmapTextContext(GrContext*, const SkDeviceProperties&);
     virtual ~GrBitmapTextContext();
 
+    virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
+
     virtual void drawText(const GrPaint&, const SkPaint&, const char text[], size_t byteLength,
                           SkScalar x, SkScalar y) SK_OVERRIDE;
     virtual void drawPosText(const GrPaint&, const SkPaint&,
@@ -28,16 +30,7 @@ public:
                              const SkScalar pos[], int scalarsPerPosition,
                              const SkPoint& offset) SK_OVERRIDE;
 
-    virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
-
 private:
-    GrTextStrike*          fStrike;
-
-    void init(const GrPaint&, const SkPaint&);
-    void drawPackedGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);
-    void flushGlyphs();                 // automatically called by destructor
-    void finish();
-
     enum {
         kMinRequestedGlyphs      = 1,
         kDefaultRequestedGlyphs  = 64,
@@ -45,6 +38,7 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
+    GrTextStrike*                     fStrike;
     void*                             fVertices;
     int32_t                           fMaxVertices;
     GrTexture*                        fCurrTexture;
@@ -53,6 +47,12 @@ private:
     uint32_t                          fEffectTextureUniqueID;
     int                               fCurrVertex;
     SkRect                            fVertexBounds;
+
+    void init(const GrPaint&, const SkPaint&);
+    void appendGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);
+    void flush();                 // automatically called by destructor
+    void finish();
+
 };
 
 #endif

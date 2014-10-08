@@ -27,6 +27,8 @@ public:
     GrStencilAndCoverTextContext(GrContext*, const SkDeviceProperties&);
     virtual ~GrStencilAndCoverTextContext();
 
+    virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
+
     virtual void drawText(const GrPaint&, const SkPaint&, const char text[],
                           size_t byteLength,
                           SkScalar x, SkScalar y) SK_OVERRIDE;
@@ -34,8 +36,6 @@ public:
                              const char text[], size_t byteLength,
                              const SkScalar pos[], int scalarsPerPosition,
                              const SkPoint& offset) SK_OVERRIDE;
-
-    virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
 
 private:
     static const int kGlyphBufferSize = 1024;
@@ -61,6 +61,18 @@ private:
         kMaxPerformance_RenderMode,
     };
 
+    GrDrawState::AutoRestoreEffects fStateRestore;
+    SkScalar                        fTextRatio;
+    float                           fTextInverseRatio;
+    SkGlyphCache*                   fGlyphCache;
+    GrPathRange*                    fGlyphs;
+    uint32_t                        fIndexBuffer[kGlyphBufferSize];
+    float                           fTransformBuffer[2 * kGlyphBufferSize];
+    GrDrawTarget::PathTransformType fTransformType;
+    int                             fPendingGlyphCount;
+    SkMatrix                        fContextInitialMatrix;
+    bool                            fNeedsDeviceSpaceGlyphs;
+
     void init(const GrPaint&, const SkPaint&, size_t textByteLength,
               RenderMode, const SkPoint& textTranslate);
     void initGlyphs(SkGlyphCache* cache);
@@ -69,17 +81,6 @@ private:
     void flush();
     void finish();
 
-    GrDrawState::AutoRestoreEffects fStateRestore;
-    SkScalar fTextRatio;
-    float fTextInverseRatio;
-    SkGlyphCache* fGlyphCache;
-    GrPathRange* fGlyphs;
-    uint32_t fIndexBuffer[kGlyphBufferSize];
-    float fTransformBuffer[2 * kGlyphBufferSize];
-    GrDrawTarget::PathTransformType fTransformType;
-    int fPendingGlyphCount;
-    SkMatrix fContextInitialMatrix;
-    bool fNeedsDeviceSpaceGlyphs;
 };
 
 #endif

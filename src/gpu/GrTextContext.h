@@ -24,6 +24,9 @@ class GrFontScaler;
 class GrTextContext {
 public:
     virtual ~GrTextContext() {}
+
+    virtual bool canDraw(const SkPaint& paint) = 0;
+
     virtual void drawText(const GrPaint&, const SkPaint&, const char text[], size_t byteLength,
                           SkScalar x, SkScalar y) = 0;
     virtual void drawPosText(const GrPaint&, const SkPaint&,
@@ -31,18 +34,7 @@ public:
                              const SkScalar pos[], int scalarsPerPosition,
                              const SkPoint& offset) = 0;
 
-    virtual bool canDraw(const SkPaint& paint) = 0;
-
 protected:
-    GrTextContext(GrContext*, const SkDeviceProperties&);
-
-    static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
-    static void MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
-                            const char text[], size_t byteLength, SkVector* stopVector);
-
-    void init(const GrPaint&, const SkPaint&);
-    void finish() { fDrawTarget = NULL; }
-
     GrContext*         fContext;
     SkDeviceProperties fDeviceProperties;
 
@@ -50,6 +42,15 @@ protected:
     SkIRect            fClipRect;
     GrPaint            fPaint;
     SkPaint            fSkPaint;
+
+    GrTextContext(GrContext*, const SkDeviceProperties&);
+
+    void init(const GrPaint&, const SkPaint&);
+    void finish() { fDrawTarget = NULL; }
+
+    static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
+    static void MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
+                            const char text[], size_t byteLength, SkVector* stopVector);
 };
 
 #endif
