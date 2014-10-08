@@ -5,34 +5,43 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gl/SkNativeGLContext.h"
+#include "gl/SkGLContext.h"
 #include "AvailabilityMacros.h"
 
-SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
-    fOldCGLContext = CGLGetCurrentContext();
-}
+#include <OpenGL/OpenGL.h>
 
-SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
-    CGLSetCurrentContext(fOldCGLContext);
-}
+namespace {
+class MacGLContext : public SkGLContext {
+public:
+    MacGLContext();
 
-///////////////////////////////////////////////////////////////////////////////
+    virtual ~MacGLContext();
 
-SkNativeGLContext::SkNativeGLContext()
+    virtual void makeCurrent() const SK_OVERRIDE;
+    virtual void swapBuffers() const SK_OVERRIDE;
+protected:
+    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
+    virtual void destroyGLContext() SK_OVERRIDE;
+
+private:
+    CGLContextObj fContext;
+};
+
+MacGLContext::MacGLContext()
     : fContext(NULL) {
 }
 
-SkNativeGLContext::~SkNativeGLContext() {
+MacGLContext::~MacGLContext() {
     this->destroyGLContext();
 }
 
-void SkNativeGLContext::destroyGLContext() {
+void MacGLContext::destroyGLContext() {
     if (fContext) {
         CGLReleaseContext(fContext);
     }
 }
 
-const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
+const GrGLInterface* MacGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     SkASSERT(NULL == fContext);
     if (kGLES_GrGLStandard == forcedGpuAPI) {
         return NULL;
@@ -75,10 +84,16 @@ const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAP
     return interface;
 }
 
-void SkNativeGLContext::makeCurrent() const {
+void MacGLContext::makeCurrent() const {
     CGLSetCurrentContext(fContext);
 }
 
-void SkNativeGLContext::swapBuffers() const {
+void MacGLContext::swapBuffers() const {
     CGLFlushDrawable(fContext);
+}
+
+} // anonymous namespace
+
+SkGLContext* SkCreatePlatformGLContext() {
+    return SkNEW(MacGLContext);
 }

@@ -5,8 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkGLContextHelper_DEFINED
-#define SkGLContextHelper_DEFINED
+#ifndef SkGLContext_DEFINED
+#define SkGLContext_DEFINED
 
 #include "GrGLInterface.h"
 
@@ -15,12 +15,12 @@
  * Provides a GrGLInterface struct of function pointers for the context.
  */
 
-class SK_API SkGLContextHelper : public SkRefCnt {
+class SK_API SkGLContext : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkGLContextHelper)
+    SK_DECLARE_INST_COUNT(SkGLContext)
 
-    SkGLContextHelper();
-    virtual ~SkGLContextHelper();
+    SkGLContext();
+    virtual ~SkGLContext();
 
     /**
      * Initializes the context and makes it current.
@@ -80,6 +80,14 @@ private:
 
     typedef SkRefCnt INHERITED;
 };
+
+/** Creates platform-dependent GL context object
+ * Note: If Skia embedder needs a custom GL context that sets up the GL
+ * interface, this function should be implemented by the embedder.
+ * Otherwise, the default implementation for the platform should be compiled in
+ * the library.
+ */
+SK_API SkGLContext* SkCreatePlatformGLContext();
 
 /**
  * Helper macros for using the GL context through the GrGLInterface. Example:

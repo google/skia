@@ -8,9 +8,9 @@
 #ifndef SkDebugGLContext_DEFINED
 #define SkDebugGLContext_DEFINED
 
-#include "SkGLContextHelper.h"
+#include "SkGLContext.h"
 
-class SkDebugGLContext : public SkGLContextHelper {
+class SkDebugGLContext : public SkGLContext {
 
 public:
     SkDebugGLContext() {}

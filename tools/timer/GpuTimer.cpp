@@ -6,10 +6,10 @@
  * found in the LICENSE file.
  */
 #include "GpuTimer.h"
-#include "gl/SkGLContextHelper.h"
+#include "gl/SkGLContext.h"
 #include "gl/GrGLUtil.h"
 
-GpuTimer::GpuTimer(const SkGLContextHelper* glctx) : fContext(glctx) {
+GpuTimer::GpuTimer(const SkGLContext* glctx) : fContext(glctx) {
     if (fContext) {
         fContext->ref();
         fContext->makeCurrent();

@@ -15,7 +15,7 @@
 #if SK_MESA
     #include "gl/SkMesaGLContext.h"
 #endif
-#include "gl/SkNativeGLContext.h"
+#include "gl/SkGLContext.h"
 #include "gl/SkNullGLContext.h"
 
 #include "GrContext.h"
@@ -130,12 +130,12 @@ public:
                 return fContexts[i].fGrContext;
             }
         }
-        SkAutoTUnref<SkGLContextHelper> glCtx;
+        SkAutoTUnref<SkGLContext> glCtx;
         SkAutoTUnref<GrContext> grCtx;
         switch (type) {
             case kNVPR_GLContextType: // fallthru
             case kNative_GLContextType:
-                glCtx.reset(SkNEW(SkNativeGLContext));
+                glCtx.reset(SkCreatePlatformGLContext());
                 break;
 #ifdef SK_ANGLE
             case kANGLE_GLContextType:
@@ -192,7 +192,7 @@ public:
 
     // Returns the GLContext of the given type. If it has not been created yet,
     // NULL is returned instead.
-    SkGLContextHelper* getGLContext(GLContextType type) {
+    SkGLContext* getGLContext(GLContextType type) {
         for (int i = 0; i < fContexts.count(); ++i) {
             if (fContexts[i].fType == type) {
                 return fContexts[i].fGLContext;
@@ -207,7 +207,7 @@ public:
 private:
     struct GPUContext {
         GLContextType             fType;
-        SkGLContextHelper*        fGLContext;
+        SkGLContext*              fGLContext;
         GrContext*                fGrContext;
     };
     SkTArray<GPUContext, true>    fContexts;
