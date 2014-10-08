@@ -22,6 +22,7 @@ class GrRenderTarget;
 
 class SkCanvas;
 class SkData;
+class SkDocument;
 class SkEvent;
 class SkTypeface;
 class SkViewFactory;
@@ -132,7 +133,6 @@ public:
     bool handleTouch(int ownerId, float x, float y,
             SkView::Click::State state);
     void saveToPdf();
-    SkData* getPDFData() { return fPDFData; }
     void postInvalDelay();
 
     DeviceType getDeviceType() const { return fDeviceType; }
@@ -173,8 +173,7 @@ private:
     DeviceManager* fDevManager;
 
     bool fSaveToPdf;
-    SkCanvas* fPdfCanvas;
-    SkData* fPDFData;
+    SkAutoTUnref<SkDocument> fPDFDocument;
 
     bool fUseClip;
     bool fNClip;
@@ -226,6 +225,7 @@ private:
 
     void loadView(SkView*);
     void updateTitle();
+    bool getRawTitle(SkString*);
 
     bool zoomIn();
     bool zoomOut();

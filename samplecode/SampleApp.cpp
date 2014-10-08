@@ -15,12 +15,13 @@
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDevice.h"
+#include "SkDocument.h"
 #include "SkGPipe.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
-#include "SkPDFDevice.h"
-#include "SkPDFDocument.h"
+//#include "SkPDFDevice.h"
+//#include "SkPDFDocument.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -859,7 +860,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fMagnify = false;
 
     fSaveToPdf = false;
-    fPdfCanvas = NULL;
 
     fTransitionNext = 6;
     fTransitionPrev = 2;
@@ -948,8 +948,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     this->loadView((*fSamples[fCurrIndex])());
 
-    fPDFData = NULL;
-
     if (NULL == devManager) {
         fDevManager = new DefaultDeviceManager();
     } else {
@@ -972,7 +970,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 }
 
 SampleWindow::~SampleWindow() {
-    delete fPdfCanvas;
     SkSafeUnref(fTypeface);
     SkSafeUnref(fDevManager);
 }
@@ -1281,13 +1278,16 @@ void SampleWindow::saveToPdf()
 
 SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     if (fSaveToPdf) {
-        const SkBitmap bmp = capture_bitmap(canvas);
-        SkISize size = SkISize::Make(bmp.width(), bmp.height());
-        SkPDFDevice* pdfDevice = new SkPDFDevice(size, size,
-                canvas->getTotalMatrix());
-        fPdfCanvas = new SkCanvas(pdfDevice);
-        pdfDevice->unref();
-        canvas = fPdfCanvas;
+        SkString name;
+        if (!this->getRawTitle(&name)) {
+            name.set("unknown_sample");
+        }
+        name.append(".pdf");
+#ifdef SK_BUILD_FOR_ANDROID
+        name.prepend("/sdcard/");
+#endif
+        fPDFDocument.reset(SkDocument::CreatePDF(name.c_str()));
+        canvas = fPDFDocument->beginPage(this->width(), this->height());
     } else if (kPicture_DeviceType == fDeviceType) {
         canvas = fRecorder.beginRecording(9999, 9999, NULL, 0);
     } else {
@@ -1307,38 +1307,11 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     return canvas;
 }
 
-#include "SkData.h"
 void SampleWindow::afterChildren(SkCanvas* orig) {
     if (fSaveToPdf) {
         fSaveToPdf = false;
-        if (fShowZoomer) {
-            showZoomer(fPdfCanvas);
-        }
-        SkString name;
-        name.printf("%s.pdf", this->getTitle());
-        SkPDFDocument doc;
-        SkPDFDevice* device = NULL;//static_cast<SkPDFDevice*>(fPdfCanvas->getDevice());
-        SkASSERT(false);
-        doc.appendPage(device);
-#ifdef SK_BUILD_FOR_ANDROID
-        name.prepend("/sdcard/");
-#endif
-
-#ifdef SK_BUILD_FOR_IOS
-        SkDynamicMemoryWStream mstream;
-        doc.emitPDF(&mstream);
-        fPDFData = mstream.copyToData();
-#endif
-        SkFILEWStream stream(name.c_str());
-        if (stream.isValid()) {
-            doc.emitPDF(&stream);
-            const char* desc = "File saved from Skia SampleApp";
-            this->onPDFSaved(this->getTitle(), desc, name.c_str());
-        }
-
-        delete fPdfCanvas;
-        fPdfCanvas = NULL;
-
+        fPDFDocument->endPage();
+        fPDFDocument.reset(NULL);
         // We took over the draw calls in order to create the PDF, so we need
         // to redraw.
         this->inval(NULL);
@@ -2009,11 +1982,13 @@ static const char* trystate_str(SkOSMenu::TriState state,
     return NULL;
 }
 
-void SampleWindow::updateTitle() {
-    SkView* view = curr_view(this);
+bool SampleWindow::getRawTitle(SkString* title) {
+    return curr_title(this, title);
+}
 
+void SampleWindow::updateTitle() {
     SkString title;
-    if (!curr_title(this, &title)) {
+    if (!this->getRawTitle(&title)) {
         title.set("<unknown>");
     }
 
@@ -2056,6 +2031,8 @@ void SampleWindow::updateTitle() {
     if (fMeasureFPS) {
         title.appendf(" %8.3f ms", fMeasureFPS_Time / (float)FPS_REPEAT_COUNT);
     }
+
+    SkView* view = curr_view(this);
     if (SampleView::IsSampleView(view)) {
         switch (fPipeState) {
             case SkOSMenu::kOnState:
