@@ -20,6 +20,7 @@ cd ${SKIA_ROOT}/include
 echo "Creating compile template..."
 find core effects pathops  -maxdepth 1 -name "*.h" | sed "s/.*\///" | sed "s/\(.*\)/#include \"\1\"/" | sort > ${WEBTRY_ROOT}/templates/template.cpp
 echo '#include "sk_tool_utils.h"' >> ${WEBTRY_ROOT}/templates/template.cpp
+echo '#include "SkCommandLineFlags.h"' >> ${WEBTRY_ROOT}/templates/template.cpp
 echo '' >> ${WEBTRY_ROOT}/templates/template.cpp
 echo "SkBitmap source;" >> ${WEBTRY_ROOT}/templates/template.cpp
 echo "{{.Code}}" >> ${WEBTRY_ROOT}/templates/template.cpp

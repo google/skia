@@ -372,11 +372,12 @@ func expandCode(code string, source int) (string, error) {
 	// TODO(humper):  Make this more robust, supporting things like setTypeface
 
 	inputCodeLines := strings.Split(code, "\n")
-	outputCodeLines := []string{}
+	outputCodeLines := []string{"DECLARE_bool(portableFonts);"}
 	for _, line := range inputCodeLines {
 		outputCodeLines = append(outputCodeLines, line)
-		if strings.HasPrefix(strings.TrimSpace(line), "SkPaint ") {
-			outputCodeLines = append(outputCodeLines, "sk_tool_utils::set_portable_typeface(&p);")
+		if strings.HasPrefix(strings.TrimSpace(line), "SkPaint p") {
+			outputCodeLines = append(outputCodeLines, "FLAGS_portableFonts = true;")
+			outputCodeLines = append(outputCodeLines, "sk_tool_utils::set_portable_typeface(&p, \"Helvetica\", SkTypeface::kNormal);")
 		}
 	}
 
