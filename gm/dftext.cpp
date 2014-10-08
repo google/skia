@@ -41,7 +41,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* inputCanvas) {
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
 #else
         SkScalar textSizes[] = { 11.0f, 11.0f*2.0f, 11.0f*5.0f, 11.0f*2.0f*5.0f };
@@ -155,7 +155,7 @@ protected:
 
         x = SkIntToScalar(680);
         y = SkIntToScalar(270);
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
         paint.setTextSize(SkIntToScalar(19));
 #else
         paint.setTextSize(SkIntToScalar(22));
@@ -173,7 +173,7 @@ protected:
 
         x = SkIntToScalar(830);
         y = SkIntToScalar(270);
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
         paint.setTextSize(SkIntToScalar(19));
 #else
         paint.setTextSize(SkIntToScalar(22));
