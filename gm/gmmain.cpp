@@ -1466,13 +1466,9 @@ DEFINE_bool(pipe, false, "Exercise the SkGPipe replay test pass.");
 DEFINE_string2(readPath, r, "", "Read reference images from this dir, and report "
                "any differences between those and the newly generated ones.");
 DEFINE_bool(replay, false, "Exercise the SkPicture replay test pass.");
-
-#ifdef SK_BUILD_FOR_ANDROID
-DEFINE_bool(resetGpuContext, true, "Reset the GrContext prior to running each GM.");
-#else
+#if SK_SUPPORT_GPU
 DEFINE_bool(resetGpuContext, false, "Reset the GrContext prior to running each GM.");
 #endif
-
 DEFINE_bool(rtree, false, "Exercise the R-Tree variant of SkPicture test pass.");
 DEFINE_bool(serialize, false, "Exercise the SkPicture serialization & deserialization test pass.");
 DEFINE_bool(simulatePipePlaybackFailure, false, "Simulate a rendering failure in pipe mode only.");
