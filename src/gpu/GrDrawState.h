@@ -510,7 +510,7 @@ public:
      * @param target  The render target to set.
      */
     void setRenderTarget(GrRenderTarget* target) {
-        fRenderTarget.set(SkSafeRef(target), GrIORef::kWrite_IOType);
+        fRenderTarget.set(SkSafeRef(target), kWrite_GrIOType);
         this->invalidateOptState();
     }
 

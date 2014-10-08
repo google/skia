@@ -70,9 +70,7 @@ static inline GrColor SkColor2GrColorJustAlpha(SkColor c) {
 
 bool GrIsBitmapInCache(const GrContext*, const SkBitmap&, const GrTextureParams*);
 
-GrTexture* GrLockAndRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams*);
-
-void GrUnlockAndUnrefCachedBitmapTexture(GrTexture*);
+GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams*);
 
 ////////////////////////////////////////////////////////////////////////////////
 

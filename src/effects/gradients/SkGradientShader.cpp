@@ -1164,15 +1164,10 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
             fCoordTransform.reset(kCoordSet, matrix, fAtlas->getTexture());
             fTextureAccess.reset(fAtlas->getTexture(), params);
         } else {
-            GrTexture* texture = GrLockAndRefCachedBitmapTexture(ctx, bitmap, &params);
+            SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(ctx, bitmap, &params));
             fCoordTransform.reset(kCoordSet, matrix, texture);
             fTextureAccess.reset(texture, params);
             fYCoord = SK_ScalarHalf;
-
-            // Unlock immediately, this is not great, but we don't have a way of
-            // knowing when else to unlock it currently, so it may get purged from
-            // the cache, but it'll still be ref'd until it's no longer being used.
-            GrUnlockAndUnrefCachedBitmapTexture(texture);
         }
         this->addTextureAccess(&fTextureAccess);
     }

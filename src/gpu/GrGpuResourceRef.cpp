@@ -13,7 +13,7 @@ GrGpuResourceRef::GrGpuResourceRef() {
     fPendingIO = false;
 }
 
-GrGpuResourceRef::GrGpuResourceRef(GrGpuResource* resource, GrIORef::IOType ioType) {
+GrGpuResourceRef::GrGpuResourceRef(GrGpuResource* resource, GrIOType ioType) {
     fResource = NULL;
     fOwnRef = false;
     fPendingIO = false;
@@ -27,13 +27,13 @@ GrGpuResourceRef::~GrGpuResourceRef() {
     }
     if (fPendingIO) {
         switch (fIOType) {
-            case GrIORef::kRead_IOType:
+            case kRead_GrIOType:
                 fResource->completedRead();
                 break;
-            case GrIORef::kWrite_IOType:
+            case kWrite_GrIOType:
                 fResource->completedWrite();
                 break;
-            case GrIORef::kRW_IOType:
+            case kRW_GrIOType:
                 fResource->completedRead();
                 fResource->completedWrite();
                 break;
@@ -51,7 +51,7 @@ void GrGpuResourceRef::reset() {
     }
 }
 
-void GrGpuResourceRef::setResource(GrGpuResource* resource, GrIORef::IOType ioType) {
+void GrGpuResourceRef::setResource(GrGpuResource* resource, GrIOType ioType) {
     SkASSERT(!fPendingIO);
     SkASSERT(SkToBool(fResource) == fOwnRef);
     SkSafeUnref(fResource);
@@ -72,13 +72,13 @@ void GrGpuResourceRef::markPendingIO() const {
     SkASSERT(fResource);
     fPendingIO = true;
     switch (fIOType) {
-        case GrIORef::kRead_IOType:
+        case kRead_GrIOType:
             fResource->addPendingRead();
             break;
-        case GrIORef::kWrite_IOType:
+        case kWrite_GrIOType:
             fResource->addPendingWrite();
             break;
-        case GrIORef::kRW_IOType:
+        case kRW_GrIOType:
             fResource->addPendingRead();
             fResource->addPendingWrite();
             break;
@@ -91,13 +91,13 @@ void GrGpuResourceRef::pendingIOComplete() const {
     SkASSERT(fOwnRef);
     SkASSERT(fPendingIO);
     switch (fIOType) {
-        case GrIORef::kRead_IOType:
+        case kRead_GrIOType:
             fResource->completedRead();
             break;
-        case GrIORef::kWrite_IOType:
+        case kWrite_GrIOType:
             fResource->completedWrite();
             break;
-        case GrIORef::kRW_IOType:
+        case kRW_GrIOType:
             fResource->completedRead();
             fResource->completedWrite();
             break;

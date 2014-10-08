@@ -21,27 +21,6 @@ GrTexture::~GrTexture() {
     }
 }
 
-/**
- * This method allows us to interrupt the normal deletion process and place
- * textures back in the texture cache when their ref count goes to zero.
- */
-void GrTexture::internal_dispose() const {
-    if (this->texturePriv().isSetFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit) &&
-        this->INHERITED::getContext()) {
-        GrTexture* nonConstThis = const_cast<GrTexture *>(this);
-        this->ref(); // restore ref count to initial setting
-
-        nonConstThis->texturePriv().resetFlag((GrTextureFlags) kReturnToCache_FlagBit);
-        nonConstThis->INHERITED::getContext()->addExistingTextureToCache(nonConstThis);
-
-        // Note: "this" texture might be freed inside addExistingTextureToCache
-        // if it is purged.
-        return;
-    }
-
-    this->INHERITED::internal_dispose();
-}
-
 void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
     if (mipMapsDirty) {
         if (kValid_MipMapsStatus == fMipMapsStatus) {
@@ -102,27 +81,12 @@ void GrTexture::writePixels(int left, int top, int width, int height,
                                 pixelOpsFlags);
 }
 
-void GrTexture::abandonReleaseCommon() {
-    // In debug builds the resource cache tracks removed/exclusive textures and has an unref'ed ptr.
-    // After abandon() or release() the resource cache will be unreachable (getContext() == NULL).
-    // So we readd the texture to the cache here so that it is removed from the exclusive list and
-    // there is no longer an unref'ed ptr to the texture in the cache.
-    if (this->texturePriv().isSetFlag((GrTextureFlags)kReturnToCache_FlagBit)) {
-        SkASSERT(!this->wasDestroyed());
-        this->ref();  // restores the ref the resource cache gave up when it marked this exclusive.
-        this->texturePriv().resetFlag((GrTextureFlags) kReturnToCache_FlagBit);
-        this->getContext()->addExistingTextureToCache(this);
-    }
-}
-
 void GrTexture::onRelease() {
-    this->abandonReleaseCommon();
     SkASSERT(!this->texturePriv().isSetFlag((GrTextureFlags) kReturnToCache_FlagBit));
     INHERITED::onRelease();
 }
 
 void GrTexture::onAbandon() {
-    this->abandonReleaseCommon();
     if (fRenderTarget.get()) {
         fRenderTarget->abandon();
     }
@@ -187,11 +151,6 @@ GrResourceKey::ResourceFlags get_texture_flags(const GrGpu* gpu,
     return flags;
 }
 
-GrResourceKey::ResourceType texture_resource_type() {
-    static const GrResourceKey::ResourceType gType = GrResourceKey::GenerateResourceType();
-    return gType;
-}
-
 // FIXME:  This should be refactored with the code in gl/GrGpuGL.cpp.
 GrSurfaceOrigin resolve_origin(const GrTextureDesc& desc) {
     // By default, GrRenderTargets are GL's normal orientation so that they
@@ -222,7 +181,7 @@ GrResourceKey GrTexturePriv::ComputeKey(const GrGpu* gpu,
                                     const GrTextureDesc& desc,
                                     const GrCacheID& cacheID) {
     GrResourceKey::ResourceFlags flags = get_texture_flags(gpu, params, desc);
-    return GrResourceKey(cacheID, texture_resource_type(), flags);
+    return GrResourceKey(cacheID, ResourceType(), flags);
 }
 
 GrResourceKey GrTexturePriv::ComputeScratchKey(const GrTextureDesc& desc) {
@@ -241,7 +200,7 @@ GrResourceKey GrTexturePriv::ComputeScratchKey(const GrTextureDesc& desc) {
     memset(idKey.fData8 + 16, 0, kPadSize);
 
     GrCacheID cacheID(GrResourceKey::ScratchDomain(), idKey);
-    return GrResourceKey(cacheID, texture_resource_type(), 0);
+    return GrResourceKey(cacheID, ResourceType(), 0);
 }
 
 bool GrTexturePriv::NeedsResizing(const GrResourceKey& key) {

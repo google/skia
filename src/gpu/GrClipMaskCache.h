@@ -204,7 +204,9 @@ private:
 
             fLastClipGenID = clipGenID;
 
-            fLastMask.set(context, desc);
+            // HACK: set the last param to true to indicate that this request is at
+            // flush time and therefore we require a scratch texture with no pending IO operations.
+            fLastMask.set(context, desc, GrContext::kApprox_ScratchTexMatch, /*flushing=*/true);
 
             fLastBound = bound;
         }

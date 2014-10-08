@@ -11,6 +11,7 @@
 #include "Benchmark.h"
 #include "GrGpuResource.h"
 #include "GrContext.h"
+#include "GrGpu.h"
 #include "GrResourceCache.h"
 #include "GrStencilBuffer.h"
 #include "GrTexture.h"
@@ -185,7 +186,7 @@ protected:
         GrGpu* gpu = canvas->getGrContext()->getGpu();
 
         for (int i = 0; i < loops; ++i) {
-            GrResourceCache cache(CACHE_SIZE_COUNT, CACHE_SIZE_BYTES);
+            GrResourceCache cache(gpu->caps(), CACHE_SIZE_COUNT, CACHE_SIZE_BYTES);
             populate_cache(&cache, gpu, DUPLICATE_COUNT);
             populate_cache(&cache, gpu, RESOURCE_COUNT);
 
@@ -219,7 +220,7 @@ protected:
 
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         GrGpu* gpu = canvas->getGrContext()->getGpu();
-        GrResourceCache cache(CACHE_SIZE_COUNT, CACHE_SIZE_BYTES);
+        GrResourceCache cache(gpu->caps(), CACHE_SIZE_COUNT, CACHE_SIZE_BYTES);
         populate_cache(&cache, gpu, DUPLICATE_COUNT);
         populate_cache(&cache, gpu, RESOURCE_COUNT);
 

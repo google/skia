@@ -15,8 +15,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                GrBlendCoeff optSrcCoeff,
                                GrBlendCoeff optDstCoeff,
                                const GrDrawTargetCaps& caps) {
-    fRenderTarget.set(SkSafeRef(drawState.getRenderTarget()),
-                              GrIORef::kWrite_IOType);
+    fRenderTarget.set(SkSafeRef(drawState.getRenderTarget()), kWrite_GrIOType);
     fColor = drawState.getColor();
     fCoverage = drawState.getCoverage();
     fViewMatrix = drawState.getViewMatrix();

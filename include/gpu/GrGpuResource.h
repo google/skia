@@ -8,9 +8,10 @@
 #ifndef GrGpuResource_DEFINED
 #define GrGpuResource_DEFINED
 
+#include "GrResourceKey.h"
+#include "GrTypesPriv.h"
 #include "SkInstCnt.h"
 #include "SkTInternalLList.h"
-#include "GrResourceKey.h"
 
 class GrResourceCacheEntry;
 class GrResourceCache2;
@@ -26,50 +27,39 @@ class GrContext;
  *   1) Normal ref (+ by ref(), - by unref()): These are used by code that is issuing draw calls
  *      that read and write the resource via GrDrawTarget and by any object that must own a
  *      GrGpuResource and is itself owned (directly or indirectly) by Skia-client code.
- *   2) Pending read (+ by addPendingRead(), - by readCompleted()): GrContext has scheduled a read
+ *   2) Pending read (+ by addPendingRead(), - by completedRead()): GrContext has scheduled a read
  *      of the resource by the GPU as a result of a skia API call but hasn't executed it yet.
- *   3) Pending write (+ by addPendingWrite(), - by writeCompleted()): GrContext has scheduled a
+ *   3) Pending write (+ by addPendingWrite(), - by completedWrite()): GrContext has scheduled a
  *      write to the resource by the GPU as a result of a skia API call but hasn't executed it yet.
  *
  * The latter two ref types are private and intended only for Gr core code.
+ *
+ * When an item is purgable DERIVED:notifyIsPurgable() will be called (static poly morphism using
+ * CRTP). GrIORef and GrGpuResource are separate classes for organizational reasons and to be
+ * able to give access via friendship to only the functions related to pending IO operations.
  */
-class GrIORef : public SkNoncopyable {
+template <typename DERIVED> class GrIORef : public SkNoncopyable {
 public:
     SK_DECLARE_INST_COUNT_ROOT(GrIORef)
-
-    enum IOType {
-        kRead_IOType,
-        kWrite_IOType,
-        kRW_IOType
-    };
-
     virtual ~GrIORef();
 
     // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
     // templated helper classes (e.g. SkAutoTUnref). However, we have different categories of
     // refs (e.g. pending reads). We also don't require thread safety as GrCacheable objects are
     // not intended to cross thread boundaries.
-    // internal_dispose() exists because of GrTexture's reliance on it. It will be removed
-    // soon.
     void ref() const {
-        ++fRefCnt;
-        // pre-validate once internal_dispose is removed (and therefore 0 ref cnt is not allowed).
         this->validate();
+        ++fRefCnt;
     }
 
     void unref() const {
         this->validate();
         --fRefCnt;
-        if (0 == fRefCnt && 0 == fPendingReads && 0 == fPendingWrites) {
-            this->internal_dispose();
-        }
+        this->didUnref();
     }
 
-    virtual void internal_dispose() const { SkDELETE(this); }
-
-    /** This is exists to service the old mechanism for recycling scratch textures. It will
-        be removed soon. */
-    bool unique() const { return 1 == (fRefCnt + fPendingReads + fPendingWrites); }
+    bool isPurgable() const { return this->reffedOnlyByCache() && !this->internalHasPendingIO(); }
+    bool reffedOnlyByCache() const { return 1 == fRefCnt; }
 
     void validate() const {
 #ifdef SK_DEBUG
@@ -80,9 +70,8 @@ public:
 #endif
     }
 
-
 protected:
-    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
+    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0), fIsScratch(kNo_IsScratch) { }
 
     bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
     bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
@@ -97,9 +86,7 @@ private:
     void completedRead() const {
         this->validate();
         --fPendingReads;
-        if (0 == fRefCnt && 0 == fPendingReads && 0 == fPendingWrites) {
-            this->internal_dispose();
-        }
+        this->didUnref();
     }
 
     void addPendingWrite() const {
@@ -110,25 +97,45 @@ private:
     void completedWrite() const {
         this->validate();
         --fPendingWrites;
-        if (0 == fRefCnt && 0 == fPendingReads && 0 == fPendingWrites) {
-            this->internal_dispose();
-        }
+        this->didUnref();
     }
 
 private:
+    void didUnref() const {
+        if (0 == fPendingReads && 0 == fPendingWrites) {
+            if (0 == fRefCnt) {
+                SkDELETE(this);
+            } else if (1 == fRefCnt) {
+                // The one ref is the cache's
+                static_cast<const DERIVED*>(this)->notifyIsPurgable();
+            }
+        }
+    }
+
     mutable int32_t fRefCnt;
     mutable int32_t fPendingReads;
     mutable int32_t fPendingWrites;
 
     // This class is used to manage conversion of refs to pending reads/writes.
     friend class GrGpuResourceRef;
-    template <typename, IOType> friend class GrPendingIOResource;
+
+    // This is temporary until GrResourceCache is fully replaced by GrResourceCache2.
+    enum IsScratch {
+        kNo_IsScratch,
+        kYes_IsScratch
+    } fIsScratch;
+
+    friend class GrContext; // to set the above field.
+    friend class GrResourceCache; // to check the above field.
+    friend class GrResourceCache2; // to check the above field.
+
+    template <typename, GrIOType> friend class GrPendingIOResource;
 };
 
 /**
  * Base class for objects that can be kept in the GrResourceCache.
  */
-class GrGpuResource : public GrIORef {
+class GrGpuResource : public GrIORef<GrGpuResource> {
 public:
     SK_DECLARE_INST_COUNT(GrGpuResource)
 
@@ -175,7 +182,7 @@ public:
     virtual size_t gpuMemorySize() const = 0;
 
     void setCacheEntry(GrResourceCacheEntry* cacheEntry) { fCacheEntry = cacheEntry; }
-    GrResourceCacheEntry* getCacheEntry() { return fCacheEntry; }
+    GrResourceCacheEntry* getCacheEntry() const { return fCacheEntry; }
 
     /** 
      * If this resource can be used as a scratch resource this returns a valid
@@ -224,6 +231,8 @@ protected:
     void setScratchKey(const GrResourceKey& scratchKey);
 
 private:
+    void notifyIsPurgable() const;
+
 #ifdef SK_DEBUG
     friend class GrGpu; // for assert in GrGpu to access getGpu
 #endif
@@ -253,7 +262,8 @@ private:
 
     GrResourceKey           fScratchKey;
 
-    typedef GrIORef INHERITED;
+    typedef GrIORef<GrGpuResource> INHERITED;
+    friend class GrIORef<GrGpuResource>; // to access notifyIsPurgable.
 };
 
 #endif

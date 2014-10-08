@@ -11,7 +11,7 @@
 #include "GrResourceCache2.h"
 #include "GrGpu.h"
 
-GrIORef::~GrIORef() {
+template<typename D> GrIORef<D>::~GrIORef() {
     SkASSERT(0 == fRefCnt);
     SkASSERT(0 == fPendingReads);
     SkASSERT(0 == fPendingWrites);
@@ -26,6 +26,13 @@ static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
     SkASSERT(gpu->getContext());
     SkASSERT(gpu->getContext()->getResourceCache2());
     return gpu->getContext()->getResourceCache2();
+}
+
+static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
+    SkASSERT(gpu);
+    SkASSERT(gpu->getContext());
+    SkASSERT(gpu->getContext()->getResourceCache());
+    return gpu->getContext()->getResourceCache();
 }
 
 GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
@@ -78,6 +85,12 @@ GrContext* GrGpuResource::getContext() {
         return fGpu->getContext();
     } else {
         return NULL;
+    }
+}
+
+void GrGpuResource::notifyIsPurgable() const {
+    if (fCacheEntry && !this->wasDestroyed()) {
+        get_resource_cache(fGpu)->notifyPurgable(this);
     }
 }
 

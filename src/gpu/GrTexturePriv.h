@@ -39,6 +39,11 @@ public:
         return GrTexture::kNotAllocated_MipMapsStatus != fTexture->fMipMapsStatus;
     }
 
+    static GrResourceKey::ResourceType ResourceType() {
+        static const GrResourceKey::ResourceType gType = GrResourceKey::GenerateResourceType();
+        return gType;
+    }
+
     static GrResourceKey ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* params,
                                     const GrTextureDesc& desc,

@@ -217,4 +217,13 @@ static inline GrPrimitiveEdgeType GrInvertProcessorEdgeType(const GrPrimitiveEdg
     return kFillAA_GrProcessorEdgeType; // suppress warning.
 }
 
+/**
+ * Indicates the type of pending IO operations that can be recorded for gpu resources.
+ */
+enum GrIOType {
+    kRead_GrIOType,
+    kWrite_GrIOType,
+    kRW_GrIOType
+};
+
 #endif

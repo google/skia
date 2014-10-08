@@ -109,8 +109,8 @@ private:
         const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
 
     private:
-        GrPendingIOResource<const GrVertexBuffer, GrIORef::kRead_IOType>    fVertexBuffer;
-        GrPendingIOResource<const GrIndexBuffer, GrIORef::kRead_IOType>     fIndexBuffer;
+        GrPendingIOResource<const GrVertexBuffer, kRead_GrIOType>    fVertexBuffer;
+        GrPendingIOResource<const GrIndexBuffer, kRead_GrIOType>     fIndexBuffer;
     };
 
     struct StencilPath : public ::SkNoncopyable {
@@ -121,7 +121,7 @@ private:
         SkPath::FillType fFill;
 
     private:
-        GrPendingIOResource<const GrPath, GrIORef::kRead_IOType>   fPath;
+        GrPendingIOResource<const GrPath, kRead_GrIOType>   fPath;
     };
 
     struct DrawPath : public ::SkNoncopyable {
@@ -133,7 +133,7 @@ private:
         GrDeviceCoordTexture    fDstCopy;
 
     private:
-        GrPendingIOResource<const GrPath, GrIORef::kRead_IOType> fPath;
+        GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
     };
 
     struct DrawPaths : public ::SkNoncopyable {
@@ -159,7 +159,7 @@ private:
         GrDeviceCoordTexture    fDstCopy;
 
     private:
-        GrPendingIOResource<const GrPathRange, GrIORef::kRead_IOType> fPathRange;
+        GrPendingIOResource<const GrPathRange, kRead_GrIOType> fPathRange;
     };
 
     // This is also used to record a discard by setting the color to GrColor_ILLEGAL
@@ -173,7 +173,7 @@ private:
         bool    fCanIgnoreRect;
 
     private:
-        GrPendingIOResource<GrRenderTarget, GrIORef::kWrite_IOType> fRenderTarget;
+        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
     };
 
     struct CopySurface : public ::SkNoncopyable {
@@ -186,8 +186,8 @@ private:
         SkIRect     fSrcRect;
 
     private:
-        GrPendingIOResource<GrSurface, GrIORef::kWrite_IOType> fDst;
-        GrPendingIOResource<GrSurface, GrIORef::kRead_IOType> fSrc;
+        GrPendingIOResource<GrSurface, kWrite_GrIOType> fDst;
+        GrPendingIOResource<GrSurface, kRead_GrIOType> fSrc;
     };
 
     struct Clip : public ::SkNoncopyable {
