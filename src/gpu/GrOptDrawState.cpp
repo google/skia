@@ -61,23 +61,20 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
 
     // Copy Color Stages from DS to ODS
     if (firstColorStageIdx < drawState.numColorStages()) {
-        fColorStages.reset(&drawState.getColorStage(firstColorStageIdx),
-                           drawState.numColorStages() - firstColorStageIdx);
+        fFragmentStages.reset(&drawState.getColorStage(firstColorStageIdx),
+                              drawState.numColorStages() - firstColorStageIdx);
     } else {
-        fColorStages.reset();
+        fFragmentStages.reset();
     }
 
+    fNumColorStages = fFragmentStages.count();
+
     // Copy Coverage Stages from DS to ODS
-    if (firstCoverageStageIdx < drawState.numCoverageStages() && separateCoverageFromColor) {
-        fCoverageStages.reset(&drawState.getCoverageStage(firstCoverageStageIdx),
-                              drawState.numCoverageStages() - firstCoverageStageIdx);
-    } else {
-        fCoverageStages.reset();
-        if (firstCoverageStageIdx < drawState.numCoverageStages()) {
-            // TODO: Once we have flag to know if we only multiply on stages, only push coverage
-            // into color stages if everything is multiply
-            fColorStages.push_back_n(drawState.numCoverageStages() - firstCoverageStageIdx,
-                                     &drawState.getCoverageStage(firstCoverageStageIdx));
+    if (firstCoverageStageIdx < drawState.numCoverageStages()) {
+        fFragmentStages.push_back_n(drawState.numCoverageStages() - firstCoverageStageIdx,
+                                    &drawState.getCoverageStage(firstCoverageStageIdx));
+        if (!separateCoverageFromColor) {
+            fNumColorStages = fFragmentStages.count();
         }
     }
 };
@@ -326,8 +323,8 @@ bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
     }
 
     if (this->getRenderTarget() != that.getRenderTarget() ||
-        this->fColorStages.count() != that.fColorStages.count() ||
-        this->fCoverageStages.count() != that.fCoverageStages.count() ||
+        this->fFragmentStages.count() != that.fFragmentStages.count() ||
+        this->fNumColorStages != that.fNumColorStages ||
         !this->fViewMatrix.cheapEqualTo(that.fViewMatrix) ||
         this->fSrcBlend != that.fSrcBlend ||
         this->fDstBlend != that.fDstBlend ||
@@ -366,14 +363,8 @@ bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
         return false;
     }
 
-    for (int i = 0; i < this->numColorStages(); i++) {
-        if (!GrProcessorStage::AreCompatible(this->getColorStage(i), that.getColorStage(i),
-                                             explicitLocalCoords)) {
-            return false;
-        }
-    }
-    for (int i = 0; i < this->numCoverageStages(); i++) {
-        if (!GrProcessorStage::AreCompatible(this->getCoverageStage(i), that.getCoverageStage(i),
+    for (int i = 0; i < this->numFragmentStages(); i++) {
+        if (!GrProcessorStage::AreCompatible(this->getFragmentStage(i), that.getFragmentStage(i),
                                              explicitLocalCoords)) {
             return false;
         }

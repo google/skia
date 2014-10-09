@@ -119,17 +119,24 @@ public:
     /// the color / coverage distinction.
     ////
 
-    int numColorStages() const { return fColorStages.count(); }
-    int numCoverageStages() const { return fCoverageStages.count(); }
+    int numColorStages() const { return fNumColorStages; }
+    int numCoverageStages() const { return fFragmentStages.count() - fNumColorStages; }
+    int numFragmentStages() const { return fFragmentStages.count(); }
     int numTotalStages() const {
-         return this->numColorStages() + this->numCoverageStages() +
-                 (this->hasGeometryProcessor() ? 1 : 0);
+         return this->numFragmentStages() + (this->hasGeometryProcessor() ? 1 : 0);
     }
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
     const GrGeometryStage* getGeometryProcessor() const { return fGeometryProcessor.get(); }
-    const GrFragmentStage& getColorStage(int idx) const { return fColorStages[idx]; }
-    const GrFragmentStage& getCoverageStage(int idx) const { return fCoverageStages[idx]; }
+    const GrFragmentStage& getColorStage(int idx) const {
+        SkASSERT(idx < this->numColorStages());
+        return fFragmentStages[idx];
+    }
+    const GrFragmentStage& getCoverageStage(int idx) const {
+        SkASSERT(idx < this->numCoverageStages());
+        return fFragmentStages[fNumColorStages + idx];
+    }
+    const GrFragmentStage& getFragmentStage(int idx) const { return fFragmentStages[idx]; }
 
     /// @}
 
@@ -435,8 +442,10 @@ private:
 
     typedef SkSTArray<8, GrFragmentStage> FragmentStageArray;
     SkAutoTDelete<GrGeometryStage>        fGeometryProcessor;
-    FragmentStageArray                    fColorStages;
-    FragmentStageArray                    fCoverageStages;
+    FragmentStageArray                    fFragmentStages;
+
+    // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
+    int                                   fNumColorStages;
 
     // This is simply a different representation of info in fVertexAttribs and thus does
     // not need to be compared in op==.
