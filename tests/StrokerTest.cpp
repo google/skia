@@ -10,6 +10,8 @@
 
 #ifndef SK_BUILD_FOR_IOS
 DEFINE_bool2(extendedTest, x, false, "run extended tests regardless of how long takes");
+#else
+DECLARE_bool(extendedTest);
 #endif
 
 #define MS_TEST_DURATION 10
