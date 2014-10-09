@@ -15,15 +15,14 @@
 namespace sk_tools {
 
 PictureBenchmark::PictureBenchmark()
-: fRepeats(1)
-, fRenderer(NULL)
-, fTimerResult(TimerData::kAvg_Result)
-, fTimerTypes(0)
-, fTimeIndividualTiles(false)
-, fPurgeDecodedTex(false)
-, fPreprocess(false)
-, fWriter(NULL)
-{}
+    : fRepeats(1)
+    , fRenderer(NULL)
+    , fTimerResult(TimerData::kAvg_Result)
+    , fTimerTypes(0)
+    , fTimeIndividualTiles(false)
+    , fPurgeDecodedTex(false)
+    , fWriter(NULL) {
+}
 
 PictureBenchmark::~PictureBenchmark() {
     SkSafeUnref(fRenderer);
@@ -56,7 +55,7 @@ PictureRenderer* PictureBenchmark::setRenderer(sk_tools::PictureRenderer* render
     return renderer;
 }
 
-void PictureBenchmark::run(SkPicture* pict) {
+void PictureBenchmark::run(SkPicture* pict, bool useMultiPictureDraw) {
     SkASSERT(pict);
     if (NULL == pict) {
         return;
@@ -67,16 +66,10 @@ void PictureBenchmark::run(SkPicture* pict) {
         return;
     }
 
-    fRenderer->init(pict, NULL, NULL, NULL, false);
+    fRenderer->init(pict, NULL, NULL, NULL, false, useMultiPictureDraw);
 
     // We throw this away to remove first time effects (such as paging in this program)
     fRenderer->setup();
-
-    if (fPreprocess) {
-        if (fRenderer->getCanvas()) {
-            fRenderer->getCanvas()->EXPERIMENTAL_optimize(fRenderer->getPicture());
-        }
-    }
 
     fRenderer->render(NULL);
     fRenderer->resetState(true);   // flush, swapBuffers and Finish

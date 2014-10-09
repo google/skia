@@ -356,7 +356,7 @@ void SkDebuggerGUI::run(const SkPicture* pict,
         return;
     }
 
-    renderer->init(pict, NULL, NULL, NULL, false);
+    renderer->init(pict, NULL, NULL, NULL, false, false);
 
     renderer->setup();
     renderer->render();

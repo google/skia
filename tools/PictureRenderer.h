@@ -88,12 +88,14 @@ public:
      * @param inputFilename The name of the input file we are rendering.
      * @param useChecksumBasedFilenames Whether to use checksum-based filenames when writing
      *     bitmap images to disk.
+     * @param useMultiPictureDraw true if MultiPictureDraw should be used for rendering
      */
     virtual void init(const SkPicture* pict,
                       const SkString* writePath,
                       const SkString* mismatchPath,
                       const SkString* inputFilename,
-                      bool useChecksumBasedFilenames);
+                      bool useChecksumBasedFilenames,
+                      bool useMultiPictureDraw);
 
     /**
      * TODO(epoger): Temporary hack, while we work on http://skbug.com/2584 ('bench_pictures is
@@ -445,6 +447,7 @@ protected:
     SkAutoTUnref<SkCanvas> fCanvas;
     SkAutoTUnref<const SkPicture> fPicture;
     bool                   fUseChecksumBasedFilenames;
+    bool                   fUseMultiPictureDraw;
     ImageResultsAndExpectations*   fJsonSummaryPtr;
     SkDeviceTypes          fDeviceType;
     bool                   fEnableWrites;
@@ -548,7 +551,8 @@ public:
                       const SkString* writePath,
                       const SkString* mismatchPath,
                       const SkString* inputFilename,
-                      bool useChecksumBasedFilenames) SK_OVERRIDE;
+                      bool useChecksumBasedFilenames,
+                      bool useMultiPictureDraw) SK_OVERRIDE;
 
     virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
@@ -570,7 +574,8 @@ public:
                       const SkString* writePath,
                       const SkString* mismatchPath,
                       const SkString* inputFilename,
-                      bool useChecksumBasedFilenames) SK_OVERRIDE;
+                      bool useChecksumBasedFilenames,
+                      bool useMultiPictureDraw) SK_OVERRIDE;
 
     /**
      * Renders to tiles, rather than a single canvas.
@@ -659,7 +664,7 @@ public:
     void drawCurrentTile();
 
 protected:
-    SkTDArray<SkRect> fTileRects;
+    SkTDArray<SkIRect> fTileRects;
 
     virtual SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
     virtual SkString getConfigNameInternal() SK_OVERRIDE;
@@ -681,6 +686,9 @@ private:
 
     void setupTiles();
     void setupPowerOf2Tiles();
+    bool postRender(SkCanvas*, const SkIRect& tileRect, 
+                    SkBitmap* tempBM, SkBitmap** out,
+                    int tileNumber);
 
     typedef PictureRenderer INHERITED;
 };

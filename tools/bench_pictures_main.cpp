@@ -59,7 +59,7 @@ DEFINE_bool(gpuStats, false, "Only meaningful with gpu configurations. "
             "Report some GPU call statistics.");
 #endif
 
-DEFINE_bool(preprocess, false, "If true, perform device specific preprocessing before timing.");
+DEFINE_bool(mpd, false, "If true, use MultiPictureDraw to render.");
 
 // Buildbot-specific parameters
 DEFINE_string(builderName, "", "Name of the builder this is running on.");
@@ -202,23 +202,13 @@ static bool run_single_benchmark(const SkString& inputPath,
         return false;
     }
 
-    if (FLAGS_preprocess) {
-        // Because the GPU preprocessing step relies on the in-memory picture
-        // statistics we need to rerecord the picture here
-        SkPictureRecorder recorder;
-        picture->playback(recorder.beginRecording(picture->cullRect().width(), 
-                                                  picture->cullRect().height(), 
-                                                  NULL, 0));
-        picture.reset(recorder.endRecording());
-    }
-
     SkString filename = SkOSPath::Basename(inputPath.c_str());
 
     gWriter.bench(filename.c_str(), 
                   SkScalarCeilToInt(picture->cullRect().width()), 
                   SkScalarCeilToInt(picture->cullRect().height()));
 
-    benchmark.run(picture);
+    benchmark.run(picture, FLAGS_mpd);
 
 #if SK_LAZY_CACHE_STATS
     if (FLAGS_trackDeferredCaching) {
@@ -365,7 +355,6 @@ static void setup_benchmark(sk_tools::PictureBenchmark* benchmark) {
     }
 
     benchmark->setPurgeDecodedTex(FLAGS_purgeDecodedTex);
-    benchmark->setPreprocess(FLAGS_preprocess);
 
     if (FLAGS_readPath.count() < 1) {
         gLogger.logError(".skp files or directories are required.\n");

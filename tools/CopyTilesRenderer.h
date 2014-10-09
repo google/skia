@@ -31,7 +31,8 @@ namespace sk_tools {
                           const SkString* writePath, 
                           const SkString* mismatchPath,
                           const SkString* inputFilename,
-                          bool useChecksumBasedFilenames) SK_OVERRIDE;
+                          bool useChecksumBasedFilenames,
+                          bool useMultiPictureDraw) SK_OVERRIDE;
 
         /**
          *  Similar to TiledPictureRenderer, this will draw a PNG for each tile. However, the

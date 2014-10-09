@@ -60,13 +60,13 @@ static SkPicture* pic_from_path(const char path[]) {
  * @param timer The timer used to benchmark the work.
  */
 static void do_benchmark_work(sk_tools::PictureRenderer* renderer,
-        BBoxType bBoxType,
-        SkPicture* pic,
-        const int numRepeats,
-        Timer* timer) {
+                              BBoxType bBoxType,
+                              SkPicture* pic,
+                              const int numRepeats,
+                              Timer* timer) {
     renderer->setBBoxHierarchyType(bBoxType);
     renderer->setGridSize(FLAGS_tilesize, FLAGS_tilesize);
-    renderer->init(pic, NULL, NULL, NULL, false);
+    renderer->init(pic, NULL, NULL, NULL, false, false);
 
     SkDebugf("%s %d times...\n", renderer->getConfigName().c_str(), numRepeats);
     for (int i = 0; i < numRepeats; ++i) {
