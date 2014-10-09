@@ -515,6 +515,7 @@ void GrDrawState::AutoViewMatrixRestore::restore() {
         fDrawState->fViewMatrix = fViewMatrix;
         SkASSERT(fDrawState->numColorStages() >= fNumColorStages);
         int numCoverageStages = fSavedCoordChanges.count() - fNumColorStages;
+        numCoverageStages -= fHasGeometryProcessor ? 1 : 0;
         SkASSERT(fDrawState->numCoverageStages() >= numCoverageStages);
 
         int i = 0;
