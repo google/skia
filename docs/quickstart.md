@@ -26,18 +26,17 @@ This guide assumes you've got `git`, `ninja`, and `python` on your path.
     * `ninja -C out/Release`: optimization, asserts disabled
     * `ninja -C out/Coverage`: no optimization, asserts enabled, code coverage generated
 5. Run some tests:
-    * `out/Debug/tests`: runs unit tests from tests/
-    * `out/Debug/dm`: runs golden master tests from gm/
+    * `out/Debug/dm`: runs golden master tests from gm/, unit tests from tests/
 6. Make some changes:
     * `git checkout -b my-new-feature origin/master`
     * `vim src/...`
     * `git commit -am "Changes for my new feature."`
     * `vim tests/...`
     * `git commit --amend -a`
-    * `ninja -C out/Debug && out/Debug/tests && out/Debug/dm && echo ok`
+    * `ninja -C out/Debug && out/Debug/dm && echo ok`
 7. Rebase your change onto the latest Skia code:
     * `git pull --rebase`
-    * `ninja -C out/Debug && out/Debug/tests && out/Debug/dm && echo ok`
+    * `ninja -C out/Debug && out/Debug/dm && echo ok`
 8. Upload your change and send it out for review:
     * `git cl upload -r my-skia-reviewer@google.com -s`
     * `git cl web`
