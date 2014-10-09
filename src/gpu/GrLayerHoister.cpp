@@ -13,6 +13,53 @@
 #include "SkGrPixelRef.h"
 #include "SkSurface.h"
 
+// Create the layer information for the hoisted layer and secure the
+// required texture/render target resources.
+static void prepare_for_hoisting(GrLayerCache* layerCache, 
+                             const SkPicture* topLevelPicture,
+                             const GrAccelData::SaveLayerInfo& info,
+                             SkTDArray<GrHoistedLayer>* atlased,
+                             SkTDArray<GrHoistedLayer>* nonAtlased,
+                             SkTDArray<GrHoistedLayer>* recycled) {
+    const SkPicture* pict = info.fPicture ? info.fPicture : topLevelPicture;
+
+    GrCachedLayer* layer = layerCache->findLayerOrCreate(pict->uniqueID(),
+                                                         info.fSaveLayerOpID,
+                                                         info.fRestoreOpID,
+                                                         info.fOriginXform,
+                                                         info.fPaint);
+
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    desc.fWidth = info.fSize.fWidth;
+    desc.fHeight = info.fSize.fHeight;
+    desc.fConfig = kSkia8888_GrPixelConfig;
+    // TODO: need to deal with sample count
+
+    bool needsRendering = layerCache->lock(layer, desc, info.fHasNestedLayers || info.fIsNested);
+    if (NULL == layer->texture()) {
+        // GPU resources could not be secured for the hoisting of this layer
+        return;
+    }
+
+    GrHoistedLayer* hl;
+
+    if (needsRendering) {
+        if (layer->isAtlased()) {
+            hl = atlased->append();
+        } else {
+            hl = nonAtlased->append();
+        }
+    } else {
+        hl = recycled->append();
+    }
+    
+    hl->fLayer = layer;
+    hl->fPicture = pict;
+    hl->fOffset = info.fOffset;
+    hl->fCTM = info.fOriginXform;
+}
+
 // Return true if any layers are suitable for hoisting
 bool GrLayerHoister::FindLayersToHoist(GrContext* context,
                                        const SkPicture* topLevelPicture,
@@ -20,7 +67,6 @@ bool GrLayerHoister::FindLayersToHoist(GrContext* context,
                                        SkTDArray<GrHoistedLayer>* atlased,
                                        SkTDArray<GrHoistedLayer>* nonAtlased,
                                        SkTDArray<GrHoistedLayer>* recycled) {
-    bool anyHoisted = false;
 
     GrLayerCache* layerCache = context->getLayerCache();
 
@@ -29,7 +75,7 @@ bool GrLayerHoister::FindLayersToHoist(GrContext* context,
     SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
 
     const SkPicture::AccelData* topLevelData = topLevelPicture->EXPERIMENTAL_getAccelData(key);
-    if (NULL == topLevelData) {
+    if (!topLevelData) {
         return false;
     }
 
@@ -38,17 +84,20 @@ bool GrLayerHoister::FindLayersToHoist(GrContext* context,
         return false;
     }
 
-    // Layer hoisting pre-renders the entire layer since it will be cached and potentially
-    // reused with different clips (e.g., in different tiles). Because of this the
-    // clip will not be limiting the size of the pre-rendered layer. kSaveLayerMaxSize
-    // is used to limit which clips are pre-rendered.
-    static const int kSaveLayerMaxSize = 256;
+    bool anyHoisted = false;
 
-    SkAutoTArray<bool> pullForward(topLevelGPUData->numSaveLayers());
+    // The layer hoisting code will pre-render and cache an entire layer if most
+    // of it is being used (~70%) and it will fit in a texture. This is to allow
+    // such layers to be re-used for different clips/tiles. 
+    // Small layers will additionally be atlased.
+    // The only limitation right now is that nested layers are currently not hoisted.
+    // Parent layers are hoisted but are never atlased (so that we never swap
+    // away from the atlas rendertarget when generating the hoisted layers).
 
-    // Pre-render all the layers that intersect the query rect
+    atlased->setReserve(atlased->count() + topLevelGPUData->numSaveLayers());
+
+    // Find and prepare for hoisting all the layers that intersect the query rect
     for (int i = 0; i < topLevelGPUData->numSaveLayers(); ++i) {
-        pullForward[i] = false;
 
         const GrAccelData::SaveLayerInfo& info = topLevelGPUData->saveLayerInfo(i);
 
@@ -64,65 +113,12 @@ bool GrLayerHoister::FindLayersToHoist(GrContext* context,
         // TODO: ignore perspective projected layers here!
         // TODO: once this code is more stable unsuitable layers can
         // just be omitted during the optimization stage
-        if (!info.fValid ||
-            kSaveLayerMaxSize < info.fSize.fWidth ||
-            kSaveLayerMaxSize < info.fSize.fHeight ||
-            info.fIsNested) {
+        if (!info.fValid || info.fIsNested) {
             continue;
         }
 
-        pullForward[i] = true;
+        prepare_for_hoisting(layerCache, topLevelPicture, info, atlased, nonAtlased, recycled);
         anyHoisted = true;
-    }
-
-    if (!anyHoisted) {
-        return false;
-    }
-
-    atlased->setReserve(atlased->reserved() + topLevelGPUData->numSaveLayers());
-
-    // Generate the layer and/or ensure it is locked
-    for (int i = 0; i < topLevelGPUData->numSaveLayers(); ++i) {
-        if (pullForward[i]) {
-            const GrAccelData::SaveLayerInfo& info = topLevelGPUData->saveLayerInfo(i);
-            const SkPicture* pict = info.fPicture ? info.fPicture : topLevelPicture;
-
-            GrCachedLayer* layer = layerCache->findLayerOrCreate(pict->uniqueID(),
-                                                                 info.fSaveLayerOpID,
-                                                                 info.fRestoreOpID,
-                                                                 info.fOriginXform,
-                                                                 info.fPaint);
-
-            GrTextureDesc desc;
-            desc.fFlags = kRenderTarget_GrTextureFlagBit;
-            desc.fWidth = info.fSize.fWidth;
-            desc.fHeight = info.fSize.fHeight;
-            desc.fConfig = kSkia8888_GrPixelConfig;
-            // TODO: need to deal with sample count
-
-            bool needsRendering = layerCache->lock(layer, desc,
-                                                   info.fHasNestedLayers || info.fIsNested);
-            if (NULL == layer->texture()) {
-                continue;
-            }
-
-            GrHoistedLayer* hl;
-
-            if (needsRendering) {
-                if (layer->isAtlased()) {
-                    hl = atlased->append();
-                } else {
-                    hl = nonAtlased->append();
-                }
-            } else {
-                hl = recycled->append();
-            }
-        
-            hl->fLayer = layer;
-            hl->fPicture = pict;
-            hl->fOffset = info.fOffset;
-            hl->fCTM = info.fOriginXform;
-        }
     }
 
     return anyHoisted;
