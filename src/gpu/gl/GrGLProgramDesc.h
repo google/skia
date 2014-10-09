@@ -15,15 +15,6 @@
 
 class GrGpuGL;
 
-#ifdef SK_DEBUG
-  // Optionally compile the experimental GS code. Set to SK_DEBUG so that debug build bots will
-  // execute the code.
-  #define GR_GL_EXPERIMENTAL_GS 1
-#else
-  #define GR_GL_EXPERIMENTAL_GS 0
-#endif
-
-
 /** This class describes a program to generate. It also serves as a program cache key. Very little
     of this is GL-specific. The GL-specific parts could be factored out into a subclass. */
 class GrGLProgramDesc {
@@ -43,18 +34,6 @@ public:
 
     // Gets the a checksum of the key. Can be used as a hash value for a fast lookup in a cache.
     uint32_t getChecksum() const { return *this->atOffset<uint32_t, kChecksumOffset>(); }
-
-    // For unit testing.
-    bool setRandom(SkRandom*,
-                   GrGpuGL*,
-                   const GrRenderTarget* dummyDstRenderTarget,
-                   const GrTexture* dummyDstCopyTexture,
-                   const GrGeometryStage* geometryProcessor,
-                   const GrFragmentStage* stages[],
-                   int numColorStages,
-                   int numCoverageStages,
-                   int currAttribIndex,
-                   GrGpu::DrawType);
 
     /**
      * Builds a program descriptor from a GrOptDrawState. Whether the primitive type is points, and
@@ -129,13 +108,6 @@ private:
         GrOptDrawState::PrimaryOutputType    fPrimaryOutputType : 8;
         GrOptDrawState::SecondaryOutputType  fSecondaryOutputType : 8;
 
-
-        // To enable experimental geometry shader code (not for use in
-        // production)
-#if GR_GL_EXPERIMENTAL_GS
-        SkBool8                     fExperimentalGS;
-#endif
-
         int8_t                      fPositionAttributeIndex;
         int8_t                      fLocalCoordAttributeIndex;
         int8_t                      fColorAttributeIndex;
@@ -176,18 +148,13 @@ private:
 
     KeyHeader* header() { return this->atOffset<KeyHeader, kHeaderOffset>(); }
 
-    // Shared code between setRandom() and Build().
-    static bool GetProcessorKey(const GrProcessorStage& stage,
-                                const GrGLCaps& caps,
-                                bool useExplicitLocalCoords,
-                                GrProcessorKeyBuilder* b,
-                                uint16_t* effectKeySize);
-
-    static bool GetGeometryProcessorKey(const GrGeometryStage& stage,
+    // a helper class to handle getting an individual processor's key
+    template <class ProcessorKeyBuilder>
+    static bool BuildStagedProcessorKey(const typename ProcessorKeyBuilder::StagedProcessor& stage,
                                         const GrGLCaps& caps,
-                                        bool useExplicitLocalCoords,
-                                        GrProcessorKeyBuilder* b,
-                                        uint16_t* effectKeySize);
+                                        bool requiresLocalCoordAttrib,
+                                        GrGLProgramDesc* desc,
+                                        int* offsetAndSizeIndex);
     void finalize();
 
     const KeyHeader& getHeader() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }

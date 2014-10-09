@@ -242,15 +242,15 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
         SkSTArray<8, const GrFragmentStage*, true> coverageStages;
         GrGLProgramDesc desc;
         if (!GrGLProgramDesc::Build(*optState.get(),
-                               type,
-                               srcCoeff,
-                               dstCoeff,
-                               this,
-                               dstCopy,
-                               &geometryProcessor,
-                               &colorStages,
-                               &coverageStages,
-                               &desc)) {
+                                    type,
+                                    srcCoeff,
+                                    dstCoeff,
+                                    this,
+                                    dstCopy,
+                                    &geometryProcessor,
+                                    &colorStages,
+                                    &coverageStages,
+                                    &desc)) {
             SkDEBUGFAIL("Failed to generate GL program descriptor");
             return false;
         }

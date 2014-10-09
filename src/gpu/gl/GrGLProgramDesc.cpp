@@ -140,11 +140,11 @@ static uint32_t* get_processor_meta_key(const GrProcessorStage& processorStage,
     return key;
 }
 
-bool GrGLProgramDesc::GetProcessorKey(const GrProcessorStage& stage,
-                                      const GrGLCaps& caps,
-                                      bool useExplicitLocalCoords,
-                                      GrProcessorKeyBuilder* b,
-                                      uint16_t* processorKeySize) {
+static bool get_fp_key(const GrProcessorStage& stage,
+                       const GrGLCaps& caps,
+                       bool useExplicitLocalCoords,
+                       GrProcessorKeyBuilder* b,
+                       uint16_t* processorKeySize) {
     const GrProcessor& effect = *stage.getProcessor();
     const GrBackendProcessorFactory& factory = effect.getFactory();
     factory.getGLProcessorKey(effect, caps, b);
@@ -160,11 +160,11 @@ bool GrGLProgramDesc::GetProcessorKey(const GrProcessorStage& stage,
     return true;
 }
 
-bool GrGLProgramDesc::GetGeometryProcessorKey(const GrGeometryStage& stage,
-                                              const GrGLCaps& caps,
-                                              bool useExplicitLocalCoords,
-                                              GrProcessorKeyBuilder* b,
-                                              uint16_t* processorKeySize) {
+static bool get_gp_key(const GrGeometryStage& stage,
+                       const GrGLCaps& caps,
+                       bool useExplicitLocalCoords,
+                       GrProcessorKeyBuilder* b,
+                       uint16_t* processorKeySize) {
     const GrProcessor& effect = *stage.getProcessor();
     const GrBackendProcessorFactory& factory = effect.getFactory();
     factory.getGLProcessorKey(effect, caps, b);
@@ -191,6 +191,54 @@ bool GrGLProgramDesc::GetGeometryProcessorKey(const GrGeometryStage& stage,
     return true;
 }
 
+struct GeometryProcessorKeyBuilder {
+    typedef GrGeometryStage StagedProcessor;
+    static bool GetProcessorKey(const GrGeometryStage& gpStage,
+                                const GrGLCaps& caps,
+                                bool requiresLocalCoordAttrib,
+                                GrProcessorKeyBuilder* b,
+                                uint16_t* processorKeySize) {
+        return get_gp_key(gpStage, caps, requiresLocalCoordAttrib, b, processorKeySize);
+    }
+};
+
+struct FragmentProcessorKeyBuilder {
+    typedef GrFragmentStage StagedProcessor;
+    static bool GetProcessorKey(const GrFragmentStage& fpStage,
+                                const GrGLCaps& caps,
+                                bool requiresLocalCoordAttrib,
+                                GrProcessorKeyBuilder* b,
+                                uint16_t* processorKeySize) {
+        return get_fp_key(fpStage, caps, requiresLocalCoordAttrib, b, processorKeySize);
+    }
+};
+
+
+template <class ProcessorKeyBuilder>
+bool
+GrGLProgramDesc::BuildStagedProcessorKey(const typename ProcessorKeyBuilder::StagedProcessor& stage,
+                                         const GrGLCaps& caps,
+                                         bool requiresLocalCoordAttrib,
+                                         GrGLProgramDesc* desc,
+                                         int* offsetAndSizeIndex) {
+    GrProcessorKeyBuilder b(&desc->fKey);
+    uint16_t processorKeySize;
+    uint32_t processorOffset = desc->fKey.count();
+    if (processorOffset > SK_MaxU16 ||
+            !ProcessorKeyBuilder::GetProcessorKey(stage, caps, requiresLocalCoordAttrib, &b,
+                                                  &processorKeySize)){
+        desc->fKey.reset();
+        return false;
+    }
+
+    uint16_t* offsetAndSize =
+            reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
+                                        *offsetAndSizeIndex * 2 * sizeof(uint16_t));
+    offsetAndSize[0] = SkToU16(processorOffset);
+    offsetAndSize[1] = processorKeySize;
+    ++(*offsetAndSizeIndex);
+    return true;
+}
 
 bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
                             GrGpu::DrawType drawType,
@@ -224,89 +272,50 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
 
     int offsetAndSizeIndex = 0;
 
-    KeyHeader* header = desc->header();
-    // make sure any padding in the header is zeroed.
-    memset(desc->header(), 0, kHeaderSize);
-
     // We can only have one effect which touches the vertex shader
     if (optState.hasGeometryProcessor()) {
-        uint16_t* offsetAndSize =
-                reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
-                                            offsetAndSizeIndex * 2 * sizeof(uint16_t));
-
-        GrProcessorKeyBuilder b(&desc->fKey);
-        uint16_t processorKeySize;
-        uint32_t processorOffset = desc->fKey.count();
         const GrGeometryStage& gpStage = *optState.getGeometryProcessor();
-        if (processorOffset > SK_MaxU16 ||
-                !GetGeometryProcessorKey(gpStage, gpu->glCaps(), requiresLocalCoordAttrib, &b,
-                                         &processorKeySize)) {
-            desc->fKey.reset();
+        if (!BuildStagedProcessorKey<GeometryProcessorKeyBuilder>(gpStage,
+                                                                  gpu->glCaps(),
+                                                                  requiresLocalCoordAttrib,
+                                                                  desc,
+                                                                  &offsetAndSizeIndex)) {
             return false;
         }
-
-        offsetAndSize[0] = SkToU16(processorOffset);
-        offsetAndSize[1] = processorKeySize;
-        ++offsetAndSizeIndex;
         *geometryProcessor = &gpStage;
-        header->fHasGeometryProcessor = true;
     }
 
     for (int s = 0; s < optState.numColorStages(); ++s) {
-        uint16_t* offsetAndSize =
-            reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
-                                        offsetAndSizeIndex * 2 * sizeof(uint16_t));
-
-        GrProcessorKeyBuilder b(&desc->fKey);
-        uint16_t processorKeySize;
-        uint32_t processorOffset = desc->fKey.count();
-        if (processorOffset > SK_MaxU16 ||
-                !GetProcessorKey(optState.getColorStage(s), gpu->glCaps(),
-                                 requiresLocalCoordAttrib, &b, &processorKeySize)) {
-            desc->fKey.reset();
+        if (!BuildStagedProcessorKey<FragmentProcessorKeyBuilder>(optState.getColorStage(s),
+                                                                  gpu->glCaps(),
+                                                                  requiresLocalCoordAttrib,
+                                                                  desc,
+                                                                  &offsetAndSizeIndex)) {
             return false;
         }
-
-        offsetAndSize[0] = SkToU16(processorOffset);
-        offsetAndSize[1] = processorKeySize;
-        ++offsetAndSizeIndex;
     }
 
     for (int s = 0; s < optState.numCoverageStages(); ++s) {
-        uint16_t* offsetAndSize =
-            reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
-                                        offsetAndSizeIndex * 2 * sizeof(uint16_t));
-
-        GrProcessorKeyBuilder b(&desc->fKey);
-        uint16_t processorKeySize;
-        uint32_t processorOffset = desc->fKey.count();
-        if (processorOffset > SK_MaxU16 ||
-                !GetProcessorKey(optState.getCoverageStage(s), gpu->glCaps(),
-                                 requiresLocalCoordAttrib, &b, &processorKeySize)) {
-            desc->fKey.reset();
+        if (!BuildStagedProcessorKey<FragmentProcessorKeyBuilder>(optState.getCoverageStage(s),
+                                                                  gpu->glCaps(),
+                                                                  requiresLocalCoordAttrib,
+                                                                  desc,
+                                                                  &offsetAndSizeIndex)) {
             return false;
         }
-
-        offsetAndSize[0] = SkToU16(processorOffset);
-        offsetAndSize[1] = processorKeySize;
-        ++offsetAndSizeIndex;
     }
 
+    // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
     // below here.
+    KeyHeader* header = desc->header();
 
+    // make sure any padding in the header is zeroed.
+    memset(header, 0, kHeaderSize);
+
+    header->fHasGeometryProcessor = optState.hasGeometryProcessor();
 
     header->fEmitsPointSize = GrGpu::kDrawPoints_DrawType == drawType;
-
-    // Currently the experimental GS will only work with triangle prims (and it doesn't do anything
-    // other than pass through values from the VS to the FS anyway).
-#if GR_GL_EXPERIMENTAL_GS
-#if 0
-    header->fExperimentalGS = gpu->caps().geometryShaderSupport();
-#else
-    header->fExperimentalGS = false;
-#endif
-#endif
 
     if (gpu->caps()->pathRenderingSupport() &&
         GrGpu::IsPathRenderingDrawType(drawType) &&
@@ -399,7 +408,6 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
 
     header->fColorEffectCnt = colorStages->count();
     header->fCoverageEffectCnt = coverageStages->count();
-
     desc->finalize();
     return true;
 }

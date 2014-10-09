@@ -406,7 +406,13 @@ GrFragmentProcessor* ModeColorFilterEffect::TestCreate(SkRandom* rand,
     while (SkXfermode::kDst_Mode == mode) {
         mode = static_cast<SkXfermode::Mode>(rand->nextRangeU(0, SkXfermode::kLastCoeffMode));
     }
-    GrColor color = rand->nextU();
+
+    // pick a random premul color
+    uint8_t alpha = rand->nextULessThan(256);
+    GrColor color = GrColorPackRGBA(rand->nextRangeU(0, alpha),
+                                    rand->nextRangeU(0, alpha),
+                                    rand->nextRangeU(0, alpha),
+                                    alpha);
     return ModeColorFilterEffect::Create(color, mode);
 }
 

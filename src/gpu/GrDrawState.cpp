@@ -404,7 +404,7 @@ bool GrDrawState::hasSolidCoverage() const {
     if (this->hasCoverageVertexAttribute()) {
         inout.fValidFlags = 0;
     } else {
-        inout.fColor = fCoverage;
+        inout.fColor = this->getCoverageColor();
         inout.fValidFlags = kRGBA_GrColorComponentFlags;
     }
 
@@ -413,6 +413,7 @@ bool GrDrawState::hasSolidCoverage() const {
         const GrGeometryProcessor* gp = fGeometryProcessor->getProcessor();
         gp->computeInvariantOutput(&inout);
     }
+
     for (int s = 0; s < this->numCoverageStages(); ++s) {
         const GrProcessor* processor = this->getCoverageStage(s).getProcessor();
         processor->computeInvariantOutput(&inout);
@@ -640,8 +641,8 @@ GrDrawState::~GrDrawState() {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
-                                                         GrBlendCoeff* srcCoeff,
-                                                         GrBlendCoeff* dstCoeff) const {
+                                                     GrBlendCoeff* srcCoeff,
+                                                     GrBlendCoeff* dstCoeff) const {
     GrBlendCoeff bogusSrcCoeff, bogusDstCoeff;
     if (NULL == srcCoeff) {
         srcCoeff = &bogusSrcCoeff;
