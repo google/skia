@@ -94,12 +94,11 @@ private:
     }
 
     void test(const int loops, SkCanvas* canvas) {
-        SkAutoTUnref<SkColorFilter> colorCube(
-            SkColorCubeFilter::Create(fCubeData, fCubeDimension));
         SkPaint paint;
-        paint.setColorFilter(colorCube);
-
         for (int i = 0; i < loops; i++) {
+            SkAutoTUnref<SkColorFilter> colorCube(
+                SkColorCubeFilter::Create(fCubeData, fCubeDimension));
+            paint.setColorFilter(colorCube);
             canvas->drawBitmap(fBitmap, 0, 0, &paint);
         }
     }
