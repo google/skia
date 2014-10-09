@@ -33,21 +33,6 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
-# jvanverth
-# distance field paths
-nested_aa
-shadertext
-shadertext2
-strokes_round
-strokes3
-pathopsinverse
-path-reverse
-pathfill
-polygons
-nonclosedpaths
-rects
-roundrects
-
 # rileya - https://codereview.chromium.org/516463005/ will rebaseline after bots cycle
 yuv_to_rgb_effect
 

@@ -9952,13 +9952,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6848780514335340286
+          12856748839313681733
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "nested_aa_pdf-poppler.png": {
       "allowed-digests": [
@@ -10096,13 +10093,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          746588582851589237
+          5546160019946628696
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "nonclosedpaths_pdf-poppler.png": {
       "allowed-digests": [
@@ -10324,7 +10318,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14883265963077518402
+          16392706088758087704
         ]
       ], 
       "reviewed-by-human": true
@@ -10417,13 +10411,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11409851714268576319
+          1247236215366640301
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "pathfill_pdf-poppler.png": {
       "allowed-digests": [
@@ -10558,13 +10549,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          235054007794480574
+          5177309494499931000
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "pathopsinverse_pdf-poppler.png": {
       "allowed-digests": [
@@ -10972,13 +10960,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13458851990162123132
+          4203788810914040765
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "polygons_pdf-poppler.png": {
       "allowed-digests": [
@@ -11182,7 +11167,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17814588108040439543
+          12647030344415832667
         ]
       ], 
       "reviewed-by-human": true
@@ -11259,7 +11244,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6803348334220308545
+          12779200764792863447
         ]
       ], 
       "reviewed-by-human": true
@@ -11899,7 +11884,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11361790156959481856
+          12156584869642659179
         ]
       ], 
       "reviewed-by-human": true
@@ -11977,7 +11962,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7137647242198869163
+          5445066502949845025
         ]
       ], 
       "reviewed-by-human": true
@@ -12733,13 +12718,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7285747350507646820
+          11235192866908742352
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "strokes3_pdf-poppler.png": {
       "allowed-digests": [
@@ -12826,7 +12808,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5368785673322311495
+          6451267481052670554
         ]
       ], 
       "reviewed-by-human": true
