@@ -8,11 +8,7 @@
 #include "SkTime.h"
 #include "Test.h"
 
-#ifndef SK_BUILD_FOR_IOS
-DEFINE_bool2(extendedTest, x, false, "run extended tests regardless of how long takes");
-#else
-DECLARE_bool(extendedTest);
-#endif
+DEFINE_bool(timeout, true, "run until alloted time expires");
 
 #define MS_TEST_DURATION 10
 
@@ -53,7 +49,7 @@ static void cubicSetTest(const SkDCubic* dCubic, size_t count) {
 		SkPoint c[4] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                          {(float) d[2].fX, (float) d[2].fY}, {(float) d[3].fX, (float) d[3].fY} };
 	    cubicTest(c);
-        if (!FLAGS_extendedTest && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
             return;
         }
 	}
@@ -67,7 +63,7 @@ static void cubicPairSetTest(const SkDCubic dCubic[][2], size_t count) {
 			SkPoint c[4] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                              {(float) d[2].fX, (float) d[2].fY}, {(float) d[3].fX, (float) d[3].fY} };
 			cubicTest(c);
-            if (!FLAGS_extendedTest && SkTime::GetMSecs() > limit) {
+            if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
                 return;
             }
 		}
@@ -81,7 +77,7 @@ static void quadSetTest(const SkDQuad* dQuad, size_t count) {
 		SkPoint c[3] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                          {(float) d[2].fX, (float) d[2].fY}  };
 	    quadTest(c);
-        if (!FLAGS_extendedTest && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
             return;
         }
 	}
@@ -95,7 +91,7 @@ static void quadPairSetTest(const SkDQuad dQuad[][2], size_t count) {
 			SkPoint c[3] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                              {(float) d[2].fX, (float) d[2].fY}  };
 			quadTest(c);
-            if (!FLAGS_extendedTest && SkTime::GetMSecs() > limit) {
+            if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
                 return;
             }
 		}
@@ -147,7 +143,7 @@ DEF_TEST(QuadStrokerUnbounded, reporter) {
         p.getFillPath(path, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
         if (best < gMaxRecursion[2]) {
-            if (FLAGS_verbose) {
+            if (FLAGS_veryVerbose) {
                 SkDebugf("\n%s quad=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[2],
                         p.getStrokeWidth());
                 path.dumpHex();
@@ -157,12 +153,12 @@ DEF_TEST(QuadStrokerUnbounded, reporter) {
             best = gMaxRecursion[2];
         }
 #endif
-        if (!FLAGS_extendedTest && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
             return;
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
-    if (FLAGS_verbose) {
+    if (FLAGS_veryVerbose) {
        SkDebugf("\n%s max quad=%d\n", __FUNCTION__, best);
     }
 #endif
@@ -187,7 +183,7 @@ DEF_TEST(CubicStrokerUnbounded, reporter) {
         p.getFillPath(path, &fill);
     #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
         if (bestTan < gMaxRecursion[0] || bestCubic < gMaxRecursion[1]) {
-            if (FLAGS_verbose) {
+            if (FLAGS_veryVerbose) {
                 SkDebugf("\n%s tan=%d cubic=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[0],
                         gMaxRecursion[1], p.getStrokeWidth());
                 path.dumpHex();
@@ -198,12 +194,12 @@ DEF_TEST(CubicStrokerUnbounded, reporter) {
             bestCubic = SkTMax(bestCubic, gMaxRecursion[1]);
         }
     #endif
-        if (!FLAGS_extendedTest && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
             return;
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
-    if (FLAGS_verbose) {
+    if (FLAGS_veryVerbose) {
         SkDebugf("\n%s max tan=%d cubic=%d\n", __FUNCTION__, bestTan, bestCubic);
     }
 #endif
@@ -239,7 +235,7 @@ DEF_TEST(QuadStrokerConstrained, reporter) {
         p.getFillPath(path, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
         if (best < gMaxRecursion[2]) {
-            if (FLAGS_verbose) {
+            if (FLAGS_veryVerbose) {
                 SkDebugf("\n%s quad=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[2],
                         p.getStrokeWidth());
                 path.dumpHex();
@@ -249,12 +245,12 @@ DEF_TEST(QuadStrokerConstrained, reporter) {
             best = gMaxRecursion[2];
         }
 #endif
-        if (!FLAGS_extendedTest && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
             return;
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
-    if (FLAGS_verbose) {
+    if (FLAGS_veryVerbose) {
         SkDebugf("\n%s max quad=%d\n", __FUNCTION__, best);
     }
 #endif
@@ -297,7 +293,7 @@ DEF_TEST(CubicStrokerConstrained, reporter) {
         p.getFillPath(path, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
         if (bestTan < gMaxRecursion[0] || bestCubic < gMaxRecursion[1]) {
-            if (FLAGS_verbose) {
+            if (FLAGS_veryVerbose) {
                 SkDebugf("\n%s tan=%d cubic=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[0],
                         gMaxRecursion[1], p.getStrokeWidth());
                 path.dumpHex();
@@ -308,12 +304,12 @@ DEF_TEST(CubicStrokerConstrained, reporter) {
             bestCubic = SkTMax(bestCubic, gMaxRecursion[1]);
         }
 #endif
-        if (!FLAGS_extendedTest && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
             return;
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
-    if (FLAGS_verbose) {
+    if (FLAGS_veryVerbose) {
         SkDebugf("\n%s max tan=%d cubic=%d\n", __FUNCTION__, bestTan, bestCubic);
     }
 #endif
@@ -343,7 +339,7 @@ DEF_TEST(QuadStrokerRange, reporter) {
         p.getFillPath(path, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
         if (best < gMaxRecursion[2]) {
-            if (FLAGS_verbose) {
+            if (FLAGS_veryVerbose) {
                 SkDebugf("\n%s quad=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[2],
                         p.getStrokeWidth());
                 path.dumpHex();
@@ -353,7 +349,7 @@ DEF_TEST(QuadStrokerRange, reporter) {
             best = gMaxRecursion[2];
         }
 #endif
-        if (!FLAGS_extendedTest && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
             return;
         }
     }
@@ -382,7 +378,7 @@ DEF_TEST(CubicStrokerRange, reporter) {
         p.getFillPath(path, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
         if (best[0] < gMaxRecursion[0] || best[1] < gMaxRecursion[1]) {
-            if (FLAGS_verbose) {
+            if (FLAGS_veryVerbose) {
                 SkDebugf("\n%s tan=%d cubic=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[0],
                         gMaxRecursion[1], p.getStrokeWidth());
                 path.dumpHex();
@@ -393,12 +389,12 @@ DEF_TEST(CubicStrokerRange, reporter) {
             best[1] = SkTMax(best[1], gMaxRecursion[1]);
         }
 #endif
-        if (!FLAGS_extendedTest && SkTime::GetMSecs() > limit) {
+        if (FLAGS_timeout && SkTime::GetMSecs() > limit) {
             return;
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
-    if (FLAGS_verbose) {
+    if (FLAGS_veryVerbose) {
         SkDebugf("\n%s max tan=%d cubic=%d\n", __FUNCTION__, best[0], best[1]);
     }
 #endif
@@ -417,14 +413,14 @@ DEF_TEST(QuadStrokerOneOff, reporter) {
 path.moveTo(SkBits2Float(0x43c99223), SkBits2Float(0x42b7417e));
 path.quadTo(SkBits2Float(0x4285d839), SkBits2Float(0x43ed6645), SkBits2Float(0x43c941c8), SkBits2Float(0x42b3ace3));
     p.getFillPath(path, &fill);
-    if (FLAGS_verbose) {
+    if (FLAGS_veryVerbose) {
         SkDebugf("\n%s path\n", __FUNCTION__);
         path.dump();
         SkDebugf("fill:\n");
         fill.dump();
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
-    if (FLAGS_verbose) {
+    if (FLAGS_veryVerbose) {
         SkDebugf("max quad=%d\n", gMaxRecursion[2]);
     }
 #endif
@@ -442,14 +438,14 @@ DEF_TEST(CubicStrokerOneOff, reporter) {
 path.moveTo(SkBits2Float(0x433f5370), SkBits2Float(0x43d1f4b3));
 path.cubicTo(SkBits2Float(0x4331cb76), SkBits2Float(0x43ea3340), SkBits2Float(0x4388f498), SkBits2Float(0x42f7f08d), SkBits2Float(0x43f1cd32), SkBits2Float(0x42802ec1));
     p.getFillPath(path, &fill);
-    if (FLAGS_verbose) {
+    if (FLAGS_veryVerbose) {
         SkDebugf("\n%s path\n", __FUNCTION__);
         path.dump();
         SkDebugf("fill:\n");
         fill.dump();
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
-    if (FLAGS_verbose) {
+    if (FLAGS_veryVerbose) {
         SkDebugf("max tan=%d cubic=%d\n", gMaxRecursion[0], gMaxRecursion[1]);
     }
 #endif
