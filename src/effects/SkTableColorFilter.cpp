@@ -316,7 +316,7 @@ class GLColorTableEffect : public GrGLFragmentProcessor {
 public:
     GLColorTableEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -337,7 +337,7 @@ GLColorTableEffect::GLColorTableEffect(const GrBackendProcessorFactory& factory,
     : INHERITED(factory) {
  }
 
-void GLColorTableEffect::emitCode(GrGLProgramBuilder* builder,
+void GLColorTableEffect::emitCode(GrGLFPBuilder* builder,
                                   const GrFragmentProcessor&,
                                   const GrProcessorKey&,
                                   const char* outputColor,
@@ -347,7 +347,7 @@ void GLColorTableEffect::emitCode(GrGLProgramBuilder* builder,
 
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     if (NULL == inputColor) {
         // the input color is solid white (all ones).
         static const float kMaxValue = kColorScaleFactor + kColorOffsetFactor;

@@ -89,7 +89,7 @@ class GLAARectEffect : public GrGLFragmentProcessor {
 public:
     GLAARectEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -113,7 +113,7 @@ GLAARectEffect::GLAARectEffect(const GrBackendProcessorFactory& factory,
     fPrevRect.fLeft = SK_ScalarNaN;
 }
 
-void GLAARectEffect::emitCode(GrGLProgramBuilder* builder,
+void GLAARectEffect::emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor& fp,
                               const GrProcessorKey& key,
                               const char* outputColor,
@@ -129,7 +129,7 @@ void GLAARectEffect::emitCode(GrGLProgramBuilder* builder,
                                        "rect",
                                        &rectName);
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
     if (GrProcessorEdgeTypeIsAA(aare.getEdgeType())) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
@@ -183,7 +183,7 @@ class GrGLConvexPolyEffect : public GrGLFragmentProcessor {
 public:
     GrGLConvexPolyEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -207,7 +207,7 @@ GrGLConvexPolyEffect::GrGLConvexPolyEffect(const GrBackendProcessorFactory& fact
     fPrevEdges[0] = SK_ScalarNaN;
 }
 
-void GrGLConvexPolyEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLConvexPolyEffect::emitCode(GrGLFPBuilder* builder,
                                     const GrFragmentProcessor& fp,
                                     const GrProcessorKey& key,
                                     const char* outputColor,
@@ -222,7 +222,7 @@ void GrGLConvexPolyEffect::emitCode(GrGLProgramBuilder* builder,
                                             "edges",
                                             cpe.getEdgeCount(),
                                             &edgeArrayName);
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppend("\t\tfloat alpha = 1.0;\n");
     fsBuilder->codeAppend("\t\tfloat edge;\n");
     const char* fragmentPos = fsBuilder->fragmentPosition();

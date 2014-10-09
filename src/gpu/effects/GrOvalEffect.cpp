@@ -102,7 +102,7 @@ class GLCircleEffect : public GrGLFragmentProcessor {
 public:
     GLCircleEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -128,7 +128,7 @@ GLCircleEffect::GLCircleEffect(const GrBackendProcessorFactory& factory,
     fPrevRadius = -1.f;
 }
 
-void GLCircleEffect::emitCode(GrGLProgramBuilder* builder,
+void GLCircleEffect::emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor& fp,
                               const GrProcessorKey& key,
                               const char* outputColor,
@@ -144,7 +144,7 @@ void GLCircleEffect::emitCode(GrGLProgramBuilder* builder,
                                          "circle",
                                          &circleName);
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
 
     SkASSERT(kHairlineAA_GrProcessorEdgeType != ce.getEdgeType());
@@ -278,7 +278,7 @@ class GLEllipseEffect : public GrGLFragmentProcessor {
 public:
     GLEllipseEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -304,7 +304,7 @@ GLEllipseEffect::GLEllipseEffect(const GrBackendProcessorFactory& factory,
     fPrevRadii.fX = -1.f;
 }
 
-void GLEllipseEffect::emitCode(GrGLProgramBuilder* builder,
+void GLEllipseEffect::emitCode(GrGLFPBuilder* builder,
                                const GrFragmentProcessor& fp,
                                const GrProcessorKey& key,
                                const char* outputColor,
@@ -319,7 +319,7 @@ void GLEllipseEffect::emitCode(GrGLProgramBuilder* builder,
                                          "ellipse",
                                          &ellipseName);
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
 
     // d is the offset to the ellipse center

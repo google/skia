@@ -19,14 +19,14 @@ public:
         : INHERITED (factory) {
     }
 
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
                           const GrProcessorKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray& coords,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
-        GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("\t%s = ", outputColor);
         fsBuilder->appendTextureLookupAndModulate(inputColor,
                                                   samplers[0],

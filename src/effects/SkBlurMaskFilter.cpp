@@ -610,7 +610,7 @@ class GrGLRectBlurEffect : public GrGLFragmentProcessor {
 public:
     GrGLRectBlurEffect(const GrBackendProcessorFactory& factory,
                        const GrProcessor&);
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -635,7 +635,7 @@ GrGLRectBlurEffect::GrGLRectBlurEffect(const GrBackendProcessorFactory& factory,
     : INHERITED(factory) {
 }
 
-void OutputRectBlurProfileLookup(GrGLFragmentShaderBuilder* fsBuilder,
+void OutputRectBlurProfileLookup(GrGLFPFragmentBuilder* fsBuilder,
                                  const GrGLShaderBuilder::TextureSampler& sampler,
                                  const char *output,
                                  const char *profileSize, const char *loc,
@@ -651,7 +651,7 @@ void OutputRectBlurProfileLookup(GrGLFragmentShaderBuilder* fsBuilder,
     fsBuilder->codeAppendf("\t\t}\n");
 }
 
-void GrGLRectBlurEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLRectBlurEffect::emitCode(GrGLFPBuilder* builder,
                                  const GrFragmentProcessor&,
                                  const GrProcessorKey& key,
                                  const char* outputColor,
@@ -671,7 +671,7 @@ void GrGLRectBlurEffect::emitCode(GrGLProgramBuilder* builder,
                                             "profileSize",
                                             &profileSizeName);
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char *fragmentPos = fsBuilder->fragmentPosition();
 
     if (inputColor) {
@@ -974,7 +974,7 @@ class GrGLRRectBlurEffect : public GrGLFragmentProcessor {
 public:
     GrGLRRectBlurEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -996,7 +996,7 @@ GrGLRRectBlurEffect::GrGLRRectBlurEffect(const GrBackendProcessorFactory& factor
     : INHERITED (factory) {
 }
 
-void GrGLRRectBlurEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLRRectBlurEffect::emitCode(GrGLFPBuilder* builder,
                                    const GrFragmentProcessor&,
                                    const GrProcessorKey&,
                                    const char* outputColor,
@@ -1023,7 +1023,7 @@ void GrGLRRectBlurEffect::emitCode(GrGLProgramBuilder* builder,
                                                  "blurRadius",
                                                  &blurRadiusName);
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
 
     // warp the fragment position to the appropriate part of the 9patch blur texture

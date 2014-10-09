@@ -45,14 +45,14 @@ public:
         : INHERITED(factory) {
         }
 
-        virtual void emitCode(GrGLProgramBuilder* builder,
+        virtual void emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor&,
                               const GrProcessorKey&,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray& coords,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
-            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
 
             const char* yuvMatrix   = NULL;
             fMatrixUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,

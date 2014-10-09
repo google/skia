@@ -120,7 +120,7 @@ class GrGLAlphaThresholdEffect : public GrGLFragmentProcessor {
 public:
     GrGLAlphaThresholdEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -143,7 +143,7 @@ GrGLAlphaThresholdEffect::GrGLAlphaThresholdEffect(const GrBackendProcessorFacto
     : INHERITED(factory) {
 }
 
-void GrGLAlphaThresholdEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLAlphaThresholdEffect::emitCode(GrGLFPBuilder* builder,
                                         const GrFragmentProcessor&,
                                         const GrProcessorKey& key,
                                         const char* outputColor,
@@ -157,7 +157,7 @@ void GrGLAlphaThresholdEffect::emitCode(GrGLProgramBuilder* builder,
         GrGLProgramBuilder::kFragment_Visibility,
         kFloat_GrSLType, "outer_threshold");
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
     SkString maskCoords2D = fsBuilder->ensureFSCoords2D(coords, 1);
 

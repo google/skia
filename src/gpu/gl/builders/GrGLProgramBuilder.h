@@ -147,7 +147,7 @@ public:
 
     virtual GrGpuGL* gpu() const SK_OVERRIDE { return fGpu; }
 
-    virtual GrGLFragmentShaderBuilder* getFragmentShaderBuilder() SK_OVERRIDE { return &fFS; }
+    virtual GrGLFPFragmentBuilder* getFragmentShaderBuilder() SK_OVERRIDE { return &fFS; }
     virtual GrGLVertexBuilder* getVertexShaderBuilder() SK_OVERRIDE { return &fVS; }
 
     virtual void addVarying(GrSLType type,

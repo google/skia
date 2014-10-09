@@ -480,7 +480,7 @@ public:
                        const GrProcessor&) : INHERITED (factory) { }
     virtual ~GrGLRadialGradient() { }
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -559,7 +559,7 @@ GrFragmentProcessor* GrRadialGradient::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLRadialGradient::emitCode(GrGLProgramBuilder* builder,
+void GrGLRadialGradient::emitCode(GrGLFPBuilder* builder,
                                   const GrFragmentProcessor&,
                                   const GrProcessorKey& key,
                                   const char* outputColor,

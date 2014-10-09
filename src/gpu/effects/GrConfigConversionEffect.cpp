@@ -24,7 +24,7 @@ public:
         fPMConversion = configConversionEffect.pmConversion();
     }
 
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor&,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -36,7 +36,7 @@ public:
         SkString tmpDecl;
         tmpVar.appendDecl(builder->ctxInfo(), &tmpDecl);
 
-        GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
 
         fsBuilder->codeAppendf("%s;", tmpDecl.c_str());
 

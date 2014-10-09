@@ -813,7 +813,7 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
             : INHERITED(factory) {
         }
-        virtual void emitCode(GrGLProgramBuilder* builder,
+        virtual void emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor& fp,
                               const GrProcessorKey& key,
                               const char* outputColor,
@@ -823,7 +823,7 @@ public:
             SkXfermode::Mode mode = fp.cast<XferEffect>().mode();
             const GrTexture* backgroundTex =
                     fp.cast<XferEffect>().backgroundAccess().getTexture();
-            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             const char* dstColor;
             if (backgroundTex) {
                 dstColor = "bgColor";
@@ -973,7 +973,7 @@ public:
         }
 
     private:
-        static void HardLight(GrGLFragmentShaderBuilder* fsBuilder,
+        static void HardLight(GrGLFPFragmentBuilder* fsBuilder,
                               const char* final,
                               const char* src,
                               const char* dst) {
@@ -992,7 +992,7 @@ public:
         }
 
         // Does one component of color-dodge
-        static void ColorDodgeComponent(GrGLFragmentShaderBuilder* fsBuilder,
+        static void ColorDodgeComponent(GrGLFPFragmentBuilder* fsBuilder,
                                         const char* final,
                                         const char* src,
                                         const char* dst,
@@ -1016,7 +1016,7 @@ public:
         }
 
         // Does one component of color-burn
-        static void ColorBurnComponent(GrGLFragmentShaderBuilder* fsBuilder,
+        static void ColorBurnComponent(GrGLFPFragmentBuilder* fsBuilder,
                                        const char* final,
                                        const char* src,
                                        const char* dst,
@@ -1037,7 +1037,7 @@ public:
         }
 
         // Does one component of soft-light. Caller should have already checked that dst alpha > 0.
-        static void SoftLightComponentPosDstAlpha(GrGLFragmentShaderBuilder* fsBuilder,
+        static void SoftLightComponentPosDstAlpha(GrGLFPFragmentBuilder* fsBuilder,
                                                   const char* final,
                                                   const char* src,
                                                   const char* dst,
@@ -1075,7 +1075,7 @@ public:
         // hue and saturation of the first color, the luminosity of the second color, and the input
         // alpha. It has this signature:
         //      vec3 set_luminance(vec3 hueSatColor, float alpha, vec3 lumColor).
-        static void AddLumFunction(GrGLFragmentShaderBuilder* fsBuilder, SkString* setLumFunction) {
+        static void AddLumFunction(GrGLFPFragmentBuilder* fsBuilder, SkString* setLumFunction) {
             // Emit a helper that gets the luminance of a color.
             SkString getFunction;
             GrGLShaderVar getLumArgs[] = {
@@ -1117,7 +1117,7 @@ public:
         // Adds a function that creates a color with the hue and luminosity of one input color and
         // the saturation of another color. It will have this signature:
         //      float set_saturation(vec3 hueLumColor, vec3 satColor)
-        static void AddSatFunction(GrGLFragmentShaderBuilder* fsBuilder, SkString* setSatFunction) {
+        static void AddSatFunction(GrGLFPFragmentBuilder* fsBuilder, SkString* setSatFunction) {
             // Emit a helper that gets the saturation of a color
             SkString getFunction;
             GrGLShaderVar getSatArgs[] = { GrGLShaderVar("color", kVec3f_GrSLType) };

@@ -70,7 +70,7 @@ public:
     GLBigKeyProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED(factory) {}
 
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
                           const GrProcessorKey& key,
                           const char* outputColor,

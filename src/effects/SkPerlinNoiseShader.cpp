@@ -515,7 +515,7 @@ public:
                     const GrProcessor&);
     virtual ~GrGLPerlinNoise() {}
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -665,7 +665,7 @@ GrGLPerlinNoise::GrGLPerlinNoise(const GrBackendProcessorFactory& factory,
   , fNumOctaves(processor.cast<GrPerlinNoiseEffect>().numOctaves()) {
 }
 
-void GrGLPerlinNoise::emitCode(GrGLProgramBuilder* builder,
+void GrGLPerlinNoise::emitCode(GrGLFPBuilder* builder,
                                const GrFragmentProcessor&,
                                const GrProcessorKey& key,
                                const char* outputColor,
@@ -674,7 +674,7 @@ void GrGLPerlinNoise::emitCode(GrGLProgramBuilder* builder,
                                const TextureSamplerArray& samplers) {
     sk_ignore_unused_variable(inputColor);
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString vCoords = fsBuilder->ensureFSCoords2D(coords, 0);
 
     fBaseFrequencyUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,

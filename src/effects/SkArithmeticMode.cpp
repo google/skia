@@ -253,7 +253,7 @@ public:
     GrGLArithmeticEffect(const GrBackendProcessorFactory&, const GrProcessor&);
     virtual ~GrGLArithmeticEffect();
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -361,7 +361,7 @@ GrGLArithmeticEffect::GrGLArithmeticEffect(const GrBackendProcessorFactory& fact
 GrGLArithmeticEffect::~GrGLArithmeticEffect() {
 }
 
-void GrGLArithmeticEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLArithmeticEffect::emitCode(GrGLFPBuilder* builder,
                                     const GrFragmentProcessor& fp,
                                     const GrProcessorKey& key,
                                     const char* outputColor,
@@ -370,7 +370,7 @@ void GrGLArithmeticEffect::emitCode(GrGLProgramBuilder* builder,
                                     const TextureSamplerArray& samplers) {
 
     GrTexture* backgroundTex = fp.cast<GrArithmeticEffect>().backgroundTexture();
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* dstColor;
     if (backgroundTex) {
         fsBuilder->codeAppend("\t\tvec4 bgColor = ");

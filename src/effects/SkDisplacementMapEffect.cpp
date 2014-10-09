@@ -303,7 +303,7 @@ public:
                               const GrProcessor&);
     virtual ~GrGLDisplacementMapEffect();
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -540,7 +540,7 @@ GrGLDisplacementMapEffect::GrGLDisplacementMapEffect(const GrBackendProcessorFac
 GrGLDisplacementMapEffect::~GrGLDisplacementMapEffect() {
 }
 
-void GrGLDisplacementMapEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLDisplacementMapEffect::emitCode(GrGLFPBuilder* builder,
                                          const GrFragmentProcessor&,
                                          const GrProcessorKey& key,
                                          const char* outputColor,
@@ -559,7 +559,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLProgramBuilder* builder,
                                    // a number smaller than that to approximate 0, but
                                    // leave room for 32-bit float GPU rounding errors.
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("\t\tvec4 %s = ", dColor);
     fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
     fsBuilder->codeAppend(";\n");

@@ -220,7 +220,7 @@ public:
             : INHERITED(factory) {
         }
 
-        virtual void emitCode(GrGLProgramBuilder* builder,
+        virtual void emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor& fp,
                               const GrProcessorKey&,
                               const char* outputColor,

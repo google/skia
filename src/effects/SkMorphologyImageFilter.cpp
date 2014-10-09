@@ -332,7 +332,7 @@ class GrGLMorphologyEffect : public GrGLFragmentProcessor {
 public:
     GrGLMorphologyEffect (const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -362,7 +362,7 @@ GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendProcessorFactory& fact
     fType = m.type();
 }
 
-void GrGLMorphologyEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLMorphologyEffect::emitCode(GrGLFPBuilder* builder,
                                     const GrFragmentProcessor&,
                                     const GrProcessorKey& key,
                                     const char* outputColor,
@@ -372,7 +372,7 @@ void GrGLMorphologyEffect::emitCode(GrGLProgramBuilder* builder,
     fImageIncrementUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, "ImageIncrement");
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
     const char* func;
     switch (fType) {

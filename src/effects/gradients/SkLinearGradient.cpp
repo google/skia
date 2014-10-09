@@ -473,7 +473,7 @@ public:
 
     virtual ~GrGLLinearGradient() { }
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -550,7 +550,7 @@ GrFragmentProcessor* GrLinearGradient::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLLinearGradient::emitCode(GrGLProgramBuilder* builder,
+void GrGLLinearGradient::emitCode(GrGLFPBuilder* builder,
                                   const GrFragmentProcessor&,
                                   const GrProcessorKey& key,
                                   const char* outputColor,

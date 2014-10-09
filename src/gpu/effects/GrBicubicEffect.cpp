@@ -24,7 +24,7 @@ public:
     GrGLBicubicEffect(const GrBackendProcessorFactory& factory,
                       const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -54,7 +54,7 @@ GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendProcessorFactory& factory, c
     : INHERITED(factory) {
 }
 
-void GrGLBicubicEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLBicubicEffect::emitCode(GrGLFPBuilder* builder,
                                  const GrFragmentProcessor& effect,
                                  const GrProcessorKey& key,
                                  const char* outputColor,
@@ -81,7 +81,7 @@ void GrGLBicubicEffect::emitCode(GrGLProgramBuilder* builder,
         GrGLShaderVar("c2",            kVec4f_GrSLType),
         GrGLShaderVar("c3",            kVec4f_GrSLType),
     };
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
     fsBuilder->emitFunction(kVec4f_GrSLType,
                             "cubicBlend",

@@ -169,7 +169,7 @@ class GrGLTextureDomainEffect : public GrGLFragmentProcessor {
 public:
     GrGLTextureDomainEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -191,7 +191,7 @@ GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendProcessorFactory
     : INHERITED(factory) {
 }
 
-void GrGLTextureDomainEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLTextureDomainEffect::emitCode(GrGLFPBuilder* builder,
                                        const GrFragmentProcessor& fp,
                                        const GrProcessorKey& key,
                                        const char* outputColor,
@@ -201,7 +201,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLProgramBuilder* builder,
     const GrTextureDomainEffect& textureDomainEffect = fp.cast<GrTextureDomainEffect>();
     const GrTextureDomain& domain = textureDomainEffect.textureDomain();
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
     fGLDomain.sampleTexture(fsBuilder, domain, outputColor, coords2D, samplers[0], inputColor);
 }

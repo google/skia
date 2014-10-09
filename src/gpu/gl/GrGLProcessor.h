@@ -87,6 +87,8 @@ protected:
     const GrBackendProcessorFactory& fFactory;
 };
 
+class GrGLFPBuilder;
+
 class GrGLFragmentProcessor : public GrGLProcessor {
 public:
     GrGLFragmentProcessor(const GrBackendProcessorFactory& factory)
@@ -113,7 +115,7 @@ public:
                             can be passed to the builder to emit texture reads in the generated
                             code.
         */
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& effect,
                           const GrProcessorKey& key,
                           const char* outputColor,

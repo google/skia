@@ -137,7 +137,7 @@ class GLCircularRRectEffect : public GrGLFragmentProcessor {
 public:
     GLCircularRRectEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -162,7 +162,7 @@ GLCircularRRectEffect::GLCircularRRectEffect(const GrBackendProcessorFactory& fa
     fPrevRRect.setEmpty();
 }
 
-void GLCircularRRectEffect::emitCode(GrGLProgramBuilder* builder,
+void GLCircularRRectEffect::emitCode(GrGLFPBuilder* builder,
                              const GrFragmentProcessor& fp,
                              const GrProcessorKey& key,
                              const char* outputColor,
@@ -185,7 +185,7 @@ void GLCircularRRectEffect::emitCode(GrGLProgramBuilder* builder,
                                                  "radiusPlusHalf",
                                                  &radiusPlusHalfName);
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
     // At each quarter-circle corner we compute a vector that is the offset of the fragment position
     // from the circle center. The vector is pinned in x and y to be in the quarter-plane relevant
@@ -493,7 +493,7 @@ class GLEllipticalRRectEffect : public GrGLFragmentProcessor {
 public:
     GLEllipticalRRectEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& effect,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -518,7 +518,7 @@ GLEllipticalRRectEffect::GLEllipticalRRectEffect(const GrBackendProcessorFactory
     fPrevRRect.setEmpty();
 }
 
-void GLEllipticalRRectEffect::emitCode(GrGLProgramBuilder* builder,
+void GLEllipticalRRectEffect::emitCode(GrGLFPBuilder* builder,
                                        const GrFragmentProcessor& effect,
                                        const GrProcessorKey& key,
                                        const char* outputColor,
@@ -533,7 +533,7 @@ void GLEllipticalRRectEffect::emitCode(GrGLProgramBuilder* builder,
                                             "innerRect",
                                             &rectName);
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
     // At each quarter-ellipse corner we compute a vector that is the offset of the fragment pos
     // to the ellipse center. The vector is pinned in x and y to be in the quarter-plane relevant

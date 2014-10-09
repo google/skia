@@ -82,7 +82,7 @@ public:
 
         static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b) {}
 
-        virtual void emitCode(GrGLProgramBuilder* builder,
+        virtual void emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor&,
                               const GrProcessorKey&,
                               const char* outputColor,
@@ -93,7 +93,7 @@ public:
                 inputColor = "vec4(1)";
             }
 
-            GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
                                    SK_ITU_BT709_LUM_COEFF_R,
                                    SK_ITU_BT709_LUM_COEFF_G,

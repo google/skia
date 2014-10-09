@@ -212,7 +212,7 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&);
         virtual ~GLProcessor();
 
-        virtual void emitCode(GrGLProgramBuilder*,
+        virtual void emitCode(GrGLFPBuilder*,
                               const GrFragmentProcessor&,
                               const GrProcessorKey&,
                               const char* outputColor,
@@ -278,7 +278,7 @@ GrColorProfileEffect::GLProcessor::GLProcessor(const GrBackendProcessorFactory& 
 GrColorProfileEffect::GLProcessor::~GLProcessor() {
 }
 
-void GrColorProfileEffect::GLProcessor::emitCode(GrGLProgramBuilder* builder,
+void GrColorProfileEffect::GLProcessor::emitCode(GrGLFPBuilder* builder,
                                                  const GrFragmentProcessor&,
                                                  const GrProcessorKey&,
                                                  const char* outputColor,
@@ -305,7 +305,7 @@ void GrColorProfileEffect::GLProcessor::emitCode(GrGLProgramBuilder* builder,
     // Note: if implemented using texture3D in OpenGL ES older than OpenGL ES 3.0,
     //       the shader might need "#extension GL_OES_texture_3D : enable".
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
 
     // Unpremultiply color
     fsBuilder->codeAppendf("\tfloat %s = max(%s.a, 0.00001);\n", nonZeroAlpha, inputColor);

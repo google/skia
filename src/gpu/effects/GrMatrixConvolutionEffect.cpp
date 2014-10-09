@@ -15,7 +15,7 @@ class GrGLMatrixConvolutionEffect : public GrGLFragmentProcessor {
 public:
     GrGLMatrixConvolutionEffect(const GrBackendProcessorFactory& factory,
                                 const GrProcessor&);
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -51,7 +51,7 @@ GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendProcesso
     fConvolveAlpha = m.convolveAlpha();
 }
 
-void GrGLMatrixConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLMatrixConvolutionEffect::emitCode(GrGLFPBuilder* builder,
                                            const GrFragmentProcessor& fp,
                                            const GrProcessorKey& key,
                                            const char* outputColor,
@@ -84,7 +84,7 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
     int kWidth = fKernelSize.width();
     int kHeight = fKernelSize.height();
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
     fsBuilder->codeAppend("vec4 sum = vec4(0, 0, 0, 0);");
     fsBuilder->codeAppendf("vec2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset,

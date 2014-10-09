@@ -956,7 +956,7 @@ GrGLGradientEffect::GrGLGradientEffect(const GrBackendProcessorFactory& factory)
 
 GrGLGradientEffect::~GrGLGradientEffect() { }
 
-void GrGLGradientEffect::emitUniforms(GrGLProgramBuilder* builder, uint32_t baseKey) {
+void GrGLGradientEffect::emitUniforms(GrGLFPBuilder* builder, uint32_t baseKey) {
 
     if (SkGradientShaderBase::kTwo_GpuColorType == ColorTypeFromKey(baseKey)) { // 2 Color case
         fColorStartUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -1056,13 +1056,13 @@ uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrProcessor& processor) {
     return key;
 }
 
-void GrGLGradientEffect::emitColor(GrGLProgramBuilder* builder,
+void GrGLGradientEffect::emitColor(GrGLFPBuilder* builder,
                                    const char* gradientTValue,
                                    uint32_t baseKey,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     if (SkGradientShaderBase::kTwo_GpuColorType == ColorTypeFromKey(baseKey)){
         fsBuilder->codeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
                                builder->getUniformVariable(fColorStartUni).c_str(),

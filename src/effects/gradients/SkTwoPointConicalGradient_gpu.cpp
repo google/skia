@@ -140,7 +140,7 @@ public:
     GLEdge2PtConicalEffect(const GrBackendProcessorFactory& factory, const GrProcessor&);
     virtual ~GLEdge2PtConicalEffect() { }
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -223,7 +223,7 @@ GLEdge2PtConicalEffect::GLEdge2PtConicalEffect(const GrBackendProcessorFactory& 
     , fCachedRadius(-SK_ScalarMax)
     , fCachedDiffRadius(-SK_ScalarMax) {}
 
-void GLEdge2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
+void GLEdge2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
                                       const GrFragmentProcessor&,
                                       const GrProcessorKey& key,
                                       const char* outputColor,
@@ -249,7 +249,7 @@ void GLEdge2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
     SkASSERT(coords[0].getType() == coords[1].getType());
     const char* coords2D;
     SkString bVar;
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     if (kVec3f_GrSLType == coords[0].getType()) {
         fsBuilder->codeAppendf("\tvec3 interpolants = vec3(%s.xy / %s.z, %s.x / %s.z);\n",
                                coords[0].c_str(), coords[0].c_str(), coords[1].c_str(),
@@ -421,7 +421,7 @@ public:
     GLFocalOutside2PtConicalEffect(const GrBackendProcessorFactory& factory, const GrProcessor&);
     virtual ~GLFocalOutside2PtConicalEffect() { }
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -504,7 +504,7 @@ GLFocalOutside2PtConicalEffect::GLFocalOutside2PtConicalEffect(const GrBackendPr
     fIsFlipped = data.isFlipped();
 }
 
-void GLFocalOutside2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
+void GLFocalOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
                                               const GrFragmentProcessor&,
                                               const GrProcessorKey& key,
                                               const char* outputColor,
@@ -523,7 +523,7 @@ void GLFocalOutside2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
     builder->getUniformVariable(fParamUni).appendArrayAccess(1, &p1);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
     const char* coords2D = coords2DString.c_str();
 
@@ -630,7 +630,7 @@ public:
     GLFocalInside2PtConicalEffect(const GrBackendProcessorFactory& factory, const GrProcessor&);
     virtual ~GLFocalInside2PtConicalEffect() {}
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -710,7 +710,7 @@ GLFocalInside2PtConicalEffect::GLFocalInside2PtConicalEffect(const GrBackendProc
     , fFSVaryingName(NULL)
     , fCachedFocal(SK_ScalarMax) {}
 
-void GLFocalInside2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
+void GLFocalInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
                                              const GrFragmentProcessor&,
                                              const GrProcessorKey& key,
                                              const char* outputColor,
@@ -728,7 +728,7 @@ void GLFocalInside2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
     GrGLShaderVar focal = builder->getUniformVariable(fFocalUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
     const char* coords2D = coords2DString.c_str();
 
@@ -875,7 +875,7 @@ public:
     GLCircleInside2PtConicalEffect(const GrBackendProcessorFactory& factory, const GrProcessor&);
     virtual ~GLCircleInside2PtConicalEffect() {}
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -963,7 +963,7 @@ GLCircleInside2PtConicalEffect::GLCircleInside2PtConicalEffect(const GrBackendPr
     , fCachedB(SK_ScalarMax)
     , fCachedC(SK_ScalarMax) {}
 
-void GLCircleInside2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
+void GLCircleInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
                                               const GrFragmentProcessor&,
                                               const GrProcessorKey& key,
                                               const char* outputColor,
@@ -985,7 +985,7 @@ void GLCircleInside2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
     GrGLShaderVar params = builder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
     const char* coords2D = coords2DString.c_str();
 
@@ -1107,7 +1107,7 @@ public:
     GLCircleOutside2PtConicalEffect(const GrBackendProcessorFactory&, const GrProcessor&);
     virtual ~GLCircleOutside2PtConicalEffect() {}
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -1203,7 +1203,7 @@ GLCircleOutside2PtConicalEffect::GLCircleOutside2PtConicalEffect(const GrBackend
     fIsFlipped = data.isFlipped();
     }
 
-void GLCircleOutside2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
+void GLCircleOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
                                                const GrFragmentProcessor&,
                                                const GrProcessorKey& key,
                                                const char* outputColor,
@@ -1225,7 +1225,7 @@ void GLCircleOutside2PtConicalEffect::emitCode(GrGLProgramBuilder* builder,
     GrGLShaderVar params = builder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
     const char* coords2D = coords2DString.c_str();
 

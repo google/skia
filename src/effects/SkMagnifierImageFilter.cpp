@@ -95,7 +95,7 @@ class GrGLMagnifierEffect : public GrGLFragmentProcessor {
 public:
     GrGLMagnifierEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -118,7 +118,7 @@ GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendProcessorFactory& factor
     : INHERITED(factory) {
 }
 
-void GrGLMagnifierEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLMagnifierEffect::emitCode(GrGLFPBuilder* builder,
                                    const GrFragmentProcessor&,
                                    const GrProcessorKey& key,
                                    const char* outputColor,
@@ -138,7 +138,7 @@ void GrGLMagnifierEffect::emitCode(GrGLProgramBuilder* builder,
         GrGLProgramBuilder::kVertex_Visibility,
         kVec2f_GrSLType, "InvInset");
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
     fsBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
     fsBuilder->codeAppendf("\t\tvec2 zoom_coord = %s + %s * %s;\n",

@@ -19,7 +19,7 @@ class GrGLConvolutionEffect : public GrGLFragmentProcessor {
 public:
     GrGLConvolutionEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder*,
+    virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const GrProcessorKey&,
                           const char* outputColor,
@@ -55,7 +55,7 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendProcessorFactory& fa
     fDirection = c.direction();
 }
 
-void GrGLConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
+void GrGLConvolutionEffect::emitCode(GrGLFPBuilder* builder,
                                      const GrFragmentProcessor&,
                                      const GrProcessorKey& key,
                                      const char* outputColor,
@@ -71,7 +71,7 @@ void GrGLConvolutionEffect::emitCode(GrGLProgramBuilder* builder,
     fKernelUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
                                           kFloat_GrSLType, "Kernel", this->width());
 
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
 
     fsBuilder->codeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);

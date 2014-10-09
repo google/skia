@@ -71,7 +71,7 @@ class GLDitherEffect : public GrGLFragmentProcessor {
 public:
     GLDitherEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLProgramBuilder* builder,
+    virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
                           const GrProcessorKey& key,
                           const char* outputColor,
@@ -88,14 +88,14 @@ GLDitherEffect::GLDitherEffect(const GrBackendProcessorFactory& factory,
     : INHERITED (factory) {
 }
 
-void GLDitherEffect::emitCode(GrGLProgramBuilder* builder,
+void GLDitherEffect::emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor& fp,
                               const GrProcessorKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) {
-    GrGLFragmentShaderBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     // Generate a random number based on the fragment position. For this
     // random number generator, we use the "GLSL rand" function
     // that seems to be floating around on the internet. It works under
