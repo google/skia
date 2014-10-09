@@ -35,6 +35,7 @@
     '../bench/ChecksumBench.cpp',
     '../bench/ChromeBench.cpp',
     '../bench/CmapBench.cpp',
+    '../bench/ColorCubeBench.cpp',
     '../bench/ColorFilterBench.cpp',
     '../bench/ColorPrivBench.cpp',
     '../bench/CoverageBench.cpp',

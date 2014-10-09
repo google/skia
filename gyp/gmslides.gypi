@@ -42,6 +42,7 @@
         '../gm/circularclips.cpp',
         '../gm/clip_strokerect.cpp',
         '../gm/clippedbitmapshaders.cpp',
+        '../gm/colorcube.cpp',
         '../gm/coloremoji.cpp',
         '../gm/colorfilterimagefilter.cpp',
         '../gm/colorfilters.cpp',
