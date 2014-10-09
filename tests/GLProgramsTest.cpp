@@ -506,7 +506,22 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
         GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(type));
         if (context) {
             GrGpuGL* gpu = static_cast<GrGpuGL*>(context->getGpu());
-            int maxStages = 6;
+
+            /*
+             * For the time being, we only support the test with desktop GL or for android on
+             * ARM platforms
+             * TODO When we run ES 3.00 GLSL in more places, test again
+             */
+            int maxStages;
+            if (kGL_GrGLStandard == gpu->glStandard() ||
+                kARM_GrGLVendor == gpu->ctxInfo().vendor()) {
+                maxStages = 6;
+            } else if (kTegra3_GrGLRenderer == gpu->ctxInfo().renderer() ||
+                       kOther_GrGLRenderer == gpu->ctxInfo().renderer()) {
+                maxStages = 1;
+            } else {
+                return;
+            }
 #if SK_ANGLE
             // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
             if (type == GrContextFactory::kANGLE_GLContextType) {
@@ -516,31 +531,6 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
             REPORTER_ASSERT(reporter, gpu->programUnitTest(maxStages));
         }
     }
-}
-
-// This is evil evil evil. The linker may throw away whole translation units as dead code if it
-// thinks none of the functions are called. It will do this even if there are static initializers
-// in the unit that could pass pointers to functions from the unit out to other translation units!
-// We force some of the effects that would otherwise be discarded to link here.
-
-#include "SkAlphaThresholdFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkLightingImageFilter.h"
-#include "SkMagnifierImageFilter.h"
-
-void forceLinking();
-
-void forceLinking() {
-    SkLightingImageFilter::CreateDistantLitDiffuse(SkPoint3(0,0,0), 0, 0, 0);
-    SkAlphaThresholdFilter::Create(SkRegion(), .5f, .5f);
-    SkAutoTUnref<SkImageFilter> mag(SkMagnifierImageFilter::Create(
-        SkRect::MakeWH(SK_Scalar1, SK_Scalar1), SK_Scalar1));
-    GrConfigConversionEffect::Create(NULL,
-                                     false,
-                                     GrConfigConversionEffect::kNone_PMConversion,
-                                     SkMatrix::I());
-    SkScalar matrix[20];
-    SkAutoTUnref<SkColorMatrixFilter> cmf(SkColorMatrixFilter::Create(matrix));
 }
 
 #endif

@@ -40,9 +40,9 @@ class GrProcessorTestFactory : SkNoncopyable {
 public:
 
     typedef Processor* (*CreateProc)(SkRandom*,
-                                    GrContext*,
-                                    const GrDrawTargetCaps& caps,
-                                    GrTexture* dummyTextures[]);
+                                     GrContext*,
+                                     const GrDrawTargetCaps& caps,
+                                     GrTexture* dummyTextures[]);
 
     GrProcessorTestFactory(CreateProc createProc) {
         fCreateProc = createProc;
@@ -50,42 +50,43 @@ public:
     }
 
     static Processor* CreateStage(SkRandom* random,
-                                 GrContext* context,
-                                 const GrDrawTargetCaps& caps,
-                                 GrTexture* dummyTextures[]) {
+                                  GrContext* context,
+                                  const GrDrawTargetCaps& caps,
+                                  GrTexture* dummyTextures[]) {
+        VerifyFactoryCount();
+        SkASSERT(GetFactories()->count());
         uint32_t idx = random->nextRangeU(0, GetFactories()->count() - 1);
         GrProcessorTestFactory<Processor>* factory = (*GetFactories())[idx];
         return factory->fCreateProc(random, context, caps, dummyTextures);
     }
 
+    /*
+     * A test function which verifies the count of factories.
+     */
+    static void VerifyFactoryCount();
+
 private:
     CreateProc fCreateProc;
 
-    #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-    static SkTArray<GrProcessorTestFactory<Processor>*, true>* GetFactories() {
-        static SkTArray<GrProcessorTestFactory<Processor>*, true> gFactories;
-        return &gFactories;
-    }
-    #endif
+    static SkTArray<GrProcessorTestFactory<Processor>*, true>* GetFactories();
 };
 
 /** GrProcessor subclasses should insert this macro in their declaration to be included in the
  *  program generation unit test.
  */
-
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                                                         \
-    static GrProcessorTestFactory<GrGeometryProcessor> gTestFactory;                               \
+    static GrProcessorTestFactory<GrGeometryProcessor> gTestFactory SK_UNUSED;                     \
     static GrGeometryProcessor* TestCreate(SkRandom*,                                              \
-                                GrContext*,                                                        \
-                                const GrDrawTargetCaps&,                                           \
-                                GrTexture* dummyTextures[2])
+                                           GrContext*,                                             \
+                                           const GrDrawTargetCaps&,                                \
+                                           GrTexture* dummyTextures[2])
 
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
-    static GrProcessorTestFactory<GrFragmentProcessor> gTestFactory;                               \
+    static GrProcessorTestFactory<GrFragmentProcessor> gTestFactory SK_UNUSED;                     \
     static GrFragmentProcessor* TestCreate(SkRandom*,                                              \
-                                GrContext*,                                                        \
-                                const GrDrawTargetCaps&,                                           \
-                                GrTexture* dummyTextures[2])
+                                           GrContext*,                                             \
+                                           const GrDrawTargetCaps&,                                \
+                                           GrTexture* dummyTextures[2])
 
 /** GrProcessor subclasses should insert this macro in their implementation file. They must then
  *  also implement this static function:

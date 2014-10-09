@@ -12,6 +12,50 @@
 #include "GrMemoryPool.h"
 #include "SkTLS.h"
 
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+
+/*
+ * Originally these were both in the processor unit test header, but then it seemed to cause linker
+ * problems on android.
+ */
+template<>
+SkTArray<GrProcessorTestFactory<GrFragmentProcessor>*, true>*
+GrProcessorTestFactory<GrFragmentProcessor>::GetFactories() {
+    static SkTArray<GrProcessorTestFactory<GrFragmentProcessor>*, true> gFactories;
+    return &gFactories;
+}
+
+template<>
+SkTArray<GrProcessorTestFactory<GrGeometryProcessor>*, true>*
+GrProcessorTestFactory<GrGeometryProcessor>::GetFactories() {
+    static SkTArray<GrProcessorTestFactory<GrGeometryProcessor>*, true> gFactories;
+    return &gFactories;
+}
+
+/*
+ * To ensure we always have successful static initialization, before creating from the factories
+ * we verify the count is as expected.  If a new factory is added, then these numbers must be
+ * manually adjusted.
+ */
+static const int kFPFactoryCount = 37;
+static const int kGPFactoryCount = 15;
+
+template<>
+void GrProcessorTestFactory<GrFragmentProcessor>::VerifyFactoryCount() {
+    if (kFPFactoryCount != GetFactories()->count()) {
+        SkFAIL("Wrong number of fragment processor factories!");
+    }
+}
+
+template<>
+void GrProcessorTestFactory<GrGeometryProcessor>::VerifyFactoryCount() {
+    if (kGPFactoryCount != GetFactories()->count()) {
+        SkFAIL("Wrong number of geometry processor factories!");
+    }
+}
+
+#endif
+
 namespace GrProcessorUnitTest {
 const SkMatrix& TestMatrix(SkRandom* random) {
     static SkMatrix gMatrices[5];
