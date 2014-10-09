@@ -108,6 +108,9 @@ bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
     stroker.setMiterLimit(fMiterLimit);
     stroker.setWidth(fWidth);
     stroker.setDoFill(fStrokeAndFill);
+#if QUAD_STROKE_APPROXIMATION
+    stroker.setError(1);
+#endif
     stroker.strokePath(src, dst);
     return true;
 }

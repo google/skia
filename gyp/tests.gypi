@@ -192,6 +192,7 @@
     '../tests/StreamTest.cpp',
     '../tests/StringTest.cpp',
     '../tests/StrokeTest.cpp',
+    '../tests/StrokerTest.cpp',
     '../tests/SurfaceTest.cpp',
     '../tests/TArrayTest.cpp',
     '../tests/THashCache.cpp',

@@ -11,6 +11,7 @@
 #include "SkRandom.h"
 #include "SkRRect.h"
 #include "SkColorPriv.h"
+#include "SkStrokerPriv.h"
 
 static void rotateAbout(SkCanvas* canvas, SkScalar degrees,
                         SkScalar cx, SkScalar cy) {
@@ -177,6 +178,12 @@ static int getOnCurvePoints(const SkPath& path, SkPoint storage[]) {
 
 #include "SkPathMeasure.h"
 
+struct StrokeTypeButton {
+    SkRect fBounds;
+    char fLabel;
+    bool fEnabled;
+};
+
 class TestStrokeView : public SampleView {
     enum {
         SKELETON_COLOR = 0xFF0000FF,
@@ -187,7 +194,19 @@ class TestStrokeView : public SampleView {
         kCount = 9
     };
     SkPoint fPts[kCount];
+    SkRect fErrorControl;
+    SkRect fWidthControl;
+    StrokeTypeButton fCubicButton;
+    StrokeTypeButton fQuadButton;
+    StrokeTypeButton fRRectButton;
     SkScalar fWidth, fDWidth;
+    bool fAnimate;
+#if QUAD_STROKE_APPROXIMATION && defined(SK_DEBUG)
+    #define kStrokerErrorMin 0.001f
+    #define kStrokerErrorMax 5
+#endif
+    #define kWidthMin 1
+    #define kWidthMax 100
 public:
     TestStrokeView() {
         this->setBGColor(SK_ColorLTGRAY);
@@ -206,6 +225,14 @@ public:
 
         fWidth = 50;
         fDWidth = 0.25f;
+
+        fCubicButton.fLabel = 'C';
+        fCubicButton.fEnabled = true;
+        fQuadButton.fLabel = 'Q';
+        fQuadButton.fEnabled = true;
+        fRRectButton.fLabel = 'R';
+        fRRectButton.fEnabled = true;
+        fAnimate = true;
     }
 
 protected:
@@ -217,12 +244,21 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
+    virtual void onSizeChange() {
+        fErrorControl.setXYWH(this->width() - 100, 30, 30, 400);
+        fWidthControl.setXYWH(this->width() -  50, 30, 30, 400);
+        fCubicButton.fBounds.setXYWH(this->width() - 50, 450, 30, 30);
+        fQuadButton.fBounds.setXYWH(this->width() - 50, 500, 30, 30);
+        fRRectButton.fBounds.setXYWH(this->width() - 50, 550, 30, 30);
+        this->INHERITED::onSizeChange();
+    }
+
     void draw_points(SkCanvas* canvas, const SkPath& path, SkColor color,
                      bool show_lines) {
         SkPaint paint;
         paint.setColor(color);
         paint.setAlpha(0x80);
-
+        paint.setAntiAlias(true);
         int n = path.countPoints();
         SkAutoSTArray<32, SkPoint> pts(n);
         if (show_lines) {
@@ -280,45 +316,95 @@ protected:
         draw_points(canvas, fill, WIREFRAME_COLOR, false);
     }
 
+    void draw_button(SkCanvas* canvas, const StrokeTypeButton& button) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setColor(button.fEnabled ? 0xFF3F0000 : 0x6F3F0000);
+        canvas->drawRect(button.fBounds, paint);
+        paint.setTextSize(25.0f);
+        paint.setColor(button.fEnabled ? 0xFF3F0000 : 0x6F3F0000);
+        paint.setTextAlign(SkPaint::kCenter_Align);
+        paint.setStyle(SkPaint::kFill_Style);
+        canvas->drawText(&button.fLabel, 1, button.fBounds.centerX(), button.fBounds.fBottom - 5,
+                paint);
+    }
+
+    void draw_control(SkCanvas* canvas, const SkRect& bounds, SkScalar value,
+            SkScalar min, SkScalar max, const char* name) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawRect(bounds, paint);
+        SkScalar scale = max - min;
+        SkScalar yPos = bounds.fTop + (value - min) * bounds.height() / scale;
+        paint.setColor(0xFFFF0000);
+        canvas->drawLine(bounds.fLeft - 5, yPos, bounds.fRight + 5, yPos, paint);
+        SkString label;
+        label.printf("%0.3g", value);
+        paint.setColor(0xFF000000);
+        paint.setTextSize(11.0f);
+        paint.setStyle(SkPaint::kFill_Style);
+        canvas->drawText(label.c_str(), label.size(), bounds.fLeft + 5, yPos - 5, paint);
+        paint.setTextSize(13.0f);
+        canvas->drawText(name, strlen(name), bounds.fLeft, bounds.bottom() + 11, paint);
+    }
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPath path;
         SkScalar width = fWidth;
 
-        path.moveTo(fPts[0]);
-        path.cubicTo(fPts[1], fPts[2], fPts[3]);
-        draw_stroke(canvas, path, width);
-
-        path.reset();
-        path.moveTo(fPts[4]);
-        path.quadTo(fPts[5], fPts[6]);
-        draw_stroke(canvas, path, width);
-
-        SkScalar rad = 32;
-        SkRect r;
-        r.set(&fPts[7], 2);
-        path.reset();
-        SkRRect rr;
-        rr.setRectXY(r, rad, rad);
-        path.addRRect(rr);
-        draw_stroke(canvas, path, width);
-
-        path.reset();
-        SkRRect rr2;
-        rr.inset(width/2, width/2, &rr2);
-        path.addRRect(rr2, SkPath::kCCW_Direction);
-        rr.inset(-width/2, -width/2, &rr2);
-        path.addRRect(rr2, SkPath::kCW_Direction);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setColor(0x40FF8844);
-        canvas->drawPath(path, paint);
-
-        fWidth += fDWidth;
-        if (fDWidth > 0 && fWidth > 100) {
-            fDWidth = -fDWidth;
-        } else if (fDWidth < 0 && fWidth < 10) {
-            fDWidth = -fDWidth;
+        if (fCubicButton.fEnabled) {
+            path.moveTo(fPts[0]);
+            path.cubicTo(fPts[1], fPts[2], fPts[3]);
+            draw_stroke(canvas, path, width);
         }
+
+        if (fQuadButton.fEnabled) {
+            path.reset();
+            path.moveTo(fPts[4]);
+            path.quadTo(fPts[5], fPts[6]);
+            draw_stroke(canvas, path, width);
+        }
+
+        if (fRRectButton.fEnabled) {
+            SkScalar rad = 32;
+            SkRect r;
+            r.set(&fPts[7], 2);
+            path.reset();
+            SkRRect rr;
+            rr.setRectXY(r, rad, rad);
+            path.addRRect(rr);
+            draw_stroke(canvas, path, width);
+
+            path.reset();
+            SkRRect rr2;
+            rr.inset(width/2, width/2, &rr2);
+            path.addRRect(rr2, SkPath::kCCW_Direction);
+            rr.inset(-width/2, -width/2, &rr2);
+            path.addRRect(rr2, SkPath::kCW_Direction);
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            paint.setColor(0x40FF8844);
+            canvas->drawPath(path, paint);
+        }
+
+        if (fAnimate) {
+            fWidth += fDWidth;
+            if (fDWidth > 0 && fWidth > kWidthMax) {
+                fDWidth = -fDWidth;
+            } else if (fDWidth < 0 && fWidth < kWidthMin) {
+                fDWidth = -fDWidth;
+            }
+        }
+#if QUAD_STROKE_APPROXIMATION && defined(SK_DEBUG)
+        draw_control(canvas, fErrorControl, gDebugStrokerError, kStrokerErrorMin, kStrokerErrorMax,
+                "error");
+#endif
+        draw_control(canvas, fWidthControl, fWidth, kWidthMin, kWidthMax, "width");
+        draw_button(canvas, fQuadButton);
+        draw_button(canvas, fCubicButton);
+        draw_button(canvas, fRRectButton);
         this->inval(NULL);
     }
 
@@ -335,14 +421,53 @@ protected:
                 return new MyClick(this, (int)i);
             }
         }
+        const SkRect& rectPt = SkRect::MakeXYWH(x, y, 1, 1);
+#if QUAD_STROKE_APPROXIMATION && defined(SK_DEBUG)
+        if (fErrorControl.contains(rectPt)) {
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 1);
+        }
+#endif
+        if (fWidthControl.contains(rectPt)) {
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 3);
+        }
+        if (fCubicButton.fBounds.contains(rectPt)) {
+            fCubicButton.fEnabled ^= true;
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 4);
+        }
+        if (fQuadButton.fBounds.contains(rectPt)) {
+            fQuadButton.fEnabled ^= true;
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 5);
+        }
+        if (fRRectButton.fBounds.contains(rectPt)) {
+            fRRectButton.fEnabled ^= true;
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 6);
+        }
         return this->INHERITED::onFindClickHandler(x, y, modi);
+    }
+
+    static SkScalar MapScreenYtoValue(int y, const SkRect& control, SkScalar min,
+            SkScalar max) {
+        return (SkIntToScalar(y) - control.fTop) / control.height() * (max - min) + min;
     }
 
     virtual bool onClick(Click* click) {
         int index = ((MyClick*)click)->fIndex;
-        fPts[index].offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
-                           SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
-        this->inval(NULL);
+        if (index < (int) SK_ARRAY_COUNT(fPts)) {
+            fPts[index].offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
+                               SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
+            this->inval(NULL);
+        }
+#if QUAD_STROKE_APPROXIMATION && defined(SK_DEBUG)
+        else if (index == (int) SK_ARRAY_COUNT(fPts) + 1) {
+            gDebugStrokerError = MapScreenYtoValue(click->fICurr.fY, fErrorControl,
+                    kStrokerErrorMin, kStrokerErrorMax);
+            gDebugStrokerErrorSet = true;
+        }
+#endif
+        else if (index == (int) SK_ARRAY_COUNT(fPts) + 3) {
+            fWidth = MapScreenYtoValue(click->fICurr.fY, fWidthControl, kWidthMin, kWidthMax);
+            fAnimate = fWidth <= kWidthMin;
+        }
         return true;
     }
 
