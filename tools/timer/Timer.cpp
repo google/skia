@@ -6,7 +6,7 @@
  */
 #include "Timer.h"
 
-Timer::Timer(SkGLContextHelper* gl)
+Timer::Timer(SkGLContext* gl)
         : fCpu(-1.0)
         , fWall(-1.0)
         , fTruncatedCpu(-1.0)

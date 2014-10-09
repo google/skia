@@ -5,34 +5,42 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gl/SkNativeGLContext.h"
+#include "gl/SkGLContext.h"
 
-SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
-    fOldEGLContext = eglGetCurrentContext();
-    fOldDisplay = eglGetCurrentDisplay();
-    fOldSurface = eglGetCurrentSurface(EGL_DRAW);
+#include <GLES2/gl2.h>
+#include <EGL/egl.h>
 
-}
+namespace {
 
-SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
-    if (fOldDisplay) {
-        eglMakeCurrent(fOldDisplay, fOldSurface, fOldSurface, fOldEGLContext);
-    }
-}
+class EGLGLContext : public SkGLContext  {
+public:
+    EGLGLContext();
 
-///////////////////////////////////////////////////////////////////////////////
+    virtual ~EGLGLContext();
 
-SkNativeGLContext::SkNativeGLContext()
+    virtual void makeCurrent() const SK_OVERRIDE;
+    virtual void swapBuffers() const SK_OVERRIDE;
+protected:
+    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
+    virtual void destroyGLContext() SK_OVERRIDE;
+
+private:
+    EGLContext fContext;
+    EGLDisplay fDisplay;
+    EGLSurface fSurface;
+};
+
+EGLGLContext::EGLGLContext()
     : fContext(EGL_NO_CONTEXT)
     , fDisplay(EGL_NO_DISPLAY)
     , fSurface(EGL_NO_SURFACE) {
 }
 
-SkNativeGLContext::~SkNativeGLContext() {
+EGLGLContext::~EGLGLContext() {
     this->destroyGLContext();
 }
 
-void SkNativeGLContext::destroyGLContext() {
+void EGLGLContext::destroyGLContext() {
     if (fDisplay) {
         eglMakeCurrent(fDisplay, 0, 0, 0);
 
@@ -51,7 +59,7 @@ void SkNativeGLContext::destroyGLContext() {
     }
 }
 
-const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
+const GrGLInterface* EGLGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     static const EGLint kEGLContextAttribsForOpenGL[] = {
         EGL_NONE
     };
@@ -169,14 +177,21 @@ const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAP
     return interface;
 }
 
-void SkNativeGLContext::makeCurrent() const {
+void EGLGLContext::makeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
 }
 
-void SkNativeGLContext::swapBuffers() const {
+void EGLGLContext::swapBuffers() const {
     if (!eglSwapBuffers(fDisplay, fSurface)) {
         SkDebugf("Could not complete eglSwapBuffers.\n");
     }
 }
+
+} // anonymous namespace
+
+SkGLContext* SkCreatePlatformGLContext() {
+    return SkNEW(EGLGLContext);
+}
+

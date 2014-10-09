@@ -8,11 +8,11 @@
 #ifndef SkMesaGLContext_DEFINED
 #define SkMesaGLContext_DEFINED
 
-#include "SkGLContextHelper.h"
+#include "SkGLContext.h"
 
 #if SK_MESA
 
-class SkMesaGLContext : public SkGLContextHelper {
+class SkMesaGLContext : public SkGLContext {
 private:
     typedef intptr_t Context;
 
@@ -23,19 +23,6 @@ public:
 
     virtual void makeCurrent() const SK_OVERRIDE;
     virtual void swapBuffers() const SK_OVERRIDE;
-
-    class AutoContextRestore {
-    public:
-        AutoContextRestore();
-        ~AutoContextRestore();
-
-    private:
-        Context fOldContext;
-        GrGLint fOldWidth;
-        GrGLint fOldHeight;
-        GrGLint fOldFormat;
-        void*   fOldImage;
-    };
 
 protected:
     virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;

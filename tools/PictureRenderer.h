@@ -30,7 +30,7 @@
 
 class SkBitmap;
 class SkCanvas;
-class SkGLContextHelper;
+class SkGLContext;
 class SkThread;
 
 namespace sk_tools {
@@ -371,7 +371,7 @@ public:
         }
     }
 
-    SkGLContextHelper* getGLContext() {
+    SkGLContext* getGLContext() {
         GrContextFactory::GLContextType glContextType
                 = GrContextFactory::kNull_GLContextType;
         switch(fDeviceType) {

@@ -5,25 +5,38 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gl/SkNativeGLContext.h"
+#include "gl/SkGLContext.h"
 
+#include <X11/Xlib.h>
+#include <GL/glx.h>
 #include <GL/glu.h>
+
+namespace {
 
 /* Note: Skia requires glx 1.3 or newer */
 
-SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
-    fOldGLXContext = glXGetCurrentContext();
-    fOldDisplay = glXGetCurrentDisplay();
-    fOldDrawable = glXGetCurrentDrawable();
-}
-
-SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
-    if (fOldDisplay) {
-        glXMakeCurrent(fOldDisplay, fOldDrawable, fOldGLXContext);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
+/* This struct is taken from a mesa demo.  Please update as required */
+static const struct { int major, minor; } gl_versions[] = {
+   {1, 0},
+   {1, 1},
+   {1, 2},
+   {1, 3},
+   {1, 4},
+   {1, 5},
+   {2, 0},
+   {2, 1},
+   {3, 0},
+   {3, 1},
+   {3, 2},
+   {3, 3},
+   {4, 0},
+   {4, 1},
+   {4, 2},
+   {4, 3},
+   {4, 4},
+   {0, 0} /* end of list */
+};
+#define NUM_GL_VERSIONS SK_ARRAY_COUNT(gl_versions)
 
 static bool ctxErrorOccurred = false;
 static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
@@ -31,18 +44,37 @@ static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
     return 0;
 }
 
-SkNativeGLContext::SkNativeGLContext()
+class GLXGLContext : public SkGLContext {
+public:
+    GLXGLContext();
+
+    virtual ~GLXGLContext();
+
+    virtual void makeCurrent() const SK_OVERRIDE;
+    virtual void swapBuffers() const SK_OVERRIDE;
+protected:
+    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
+    virtual void destroyGLContext() SK_OVERRIDE;
+
+private:
+    GLXContext fContext;
+    Display* fDisplay;
+    Pixmap fPixmap;
+    GLXPixmap fGlxPixmap;
+};
+
+GLXGLContext::GLXGLContext()
     : fContext(NULL)
     , fDisplay(NULL)
     , fPixmap(0)
     , fGlxPixmap(0) {
 }
 
-SkNativeGLContext::~SkNativeGLContext() {
+GLXGLContext::~GLXGLContext() {
     this->destroyGLContext();
 }
 
-void SkNativeGLContext::destroyGLContext() {
+void GLXGLContext::destroyGLContext() {
     if (fDisplay) {
         glXMakeCurrent(fDisplay, 0, 0);
 
@@ -66,7 +98,7 @@ void SkNativeGLContext::destroyGLContext() {
     }
 }
 
-const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
+const GrGLInterface* GLXGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     fDisplay = XOpenDisplay(0);
 
     if (!fDisplay) {
@@ -277,12 +309,18 @@ const GrGLInterface* SkNativeGLContext::createGLContext(GrGLStandard forcedGpuAP
     return interface;
 }
 
-void SkNativeGLContext::makeCurrent() const {
+void GLXGLContext::makeCurrent() const {
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
 }
 
-void SkNativeGLContext::swapBuffers() const {
+void GLXGLContext::swapBuffers() const {
     glXSwapBuffers(fDisplay, fGlxPixmap);
+}
+
+} // anonymous namespace
+
+SkGLContext* SkCreatePlatformGLContext() {
+    return SkNEW(GLXGLContext);
 }

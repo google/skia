@@ -15,7 +15,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "gl/SkNativeGLContext.h"
+#include "gl/SkGLContext.h"
 #else
 class GrContext;
 #endif

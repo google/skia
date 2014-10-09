@@ -8,21 +8,6 @@
 
 #include "gl/SkANGLEGLContext.h"
 
-SkANGLEGLContext::AutoContextRestore::AutoContextRestore() {
-    fOldEGLContext = eglGetCurrentContext();
-    fOldDisplay = eglGetCurrentDisplay();
-    fOldSurface = eglGetCurrentSurface(EGL_DRAW);
-
-}
-
-SkANGLEGLContext::AutoContextRestore::~AutoContextRestore() {
-    if (fOldDisplay) {
-        eglMakeCurrent(fOldDisplay, fOldSurface, fOldSurface, fOldEGLContext);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 SkANGLEGLContext::SkANGLEGLContext()
     : fContext(EGL_NO_CONTEXT)
     , fDisplay(EGL_NO_DISPLAY)

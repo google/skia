@@ -21,7 +21,7 @@
     #include "GpuTimer.h"
 #endif
 
-class SkGLContextHelper;
+class SkGLContext;
 
 /**
  * SysTimers and GpuTimers are implemented orthogonally.
@@ -34,7 +34,7 @@ class SkGLContextHelper;
  */
 class Timer {
 public:
-    explicit Timer(SkGLContextHelper* gl = NULL);
+    explicit Timer(SkGLContext* gl = NULL);
 
     void start();
     void truncatedEnd();
