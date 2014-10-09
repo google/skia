@@ -1,3 +1,5 @@
+DM (Diamond Master, a.k.a Dungeon master, a.k.a GM 2).
+
 DM is like GM, but multithreaded.  It doesn't do everything GM does.
 
 DM's design is based around Tasks and a TaskRunner.
