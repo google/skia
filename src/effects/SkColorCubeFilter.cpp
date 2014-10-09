@@ -171,9 +171,8 @@ SkColorCubeFilter::SkColorCubeFilter(SkReadBuffer& buffer)
 
 SkFlattenable* SkColorCubeFilter::CreateProc(SkReadBuffer& buffer) {
     int cubeDimension = buffer.readInt();
-    SkData* cubeData = buffer.readByteArrayAsData();
+    SkAutoDataUnref cubeData(buffer.readByteArrayAsData());
     if (!buffer.validate(is_valid_3D_lut(cubeData, cubeDimension))) {
-        SkSafeUnref(cubeData);
         return NULL;
     }
     return Create(cubeData, cubeDimension);
