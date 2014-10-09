@@ -49,6 +49,7 @@
     '../bench/FontCacheBench.cpp',
     '../bench/FontScalerBench.cpp',
     '../bench/GameBench.cpp',
+    '../bench/GeometryBench.cpp',
     '../bench/GrMemoryPoolBench.cpp',
     '../bench/GrResourceCacheBench.cpp',
     '../bench/GrOrderedSetBench.cpp',

@@ -651,7 +651,6 @@ struct SK_API SkRect {
         If either rectangle is empty, do nothing and return false.
     */
     bool intersect(const SkRect& r);
-    bool intersect2(const SkRect& r);
 
     /** If this rectangle intersects the rectangle specified by left, top, right, bottom,
         return true and set this rectangle to that intersection, otherwise return false
@@ -661,31 +660,38 @@ struct SK_API SkRect {
     bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
 
     /**
-     *  Return true if this rectangle is not empty, and the specified sides of
-     *  a rectangle are not empty, and they intersect.
-     */
-    bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const {
-        return // first check that both are not empty
-               left < right && top < bottom &&
-               fLeft < fRight && fTop < fBottom &&
-               // now check for intersection
-               fLeft < right && left < fRight &&
-               fTop < bottom && top < fBottom;
-    }
-
-    /** If rectangles a and b intersect, return true and set this rectangle to
+     *  If rectangles a and b intersect, return true and set this rectangle to
      *  that intersection, otherwise return false and do not change this
      *  rectangle. If either rectangle is empty, do nothing and return false.
      */
     bool intersect(const SkRect& a, const SkRect& b);
 
+
+private:
+    static bool Intersects(SkScalar al, SkScalar at, SkScalar ar, SkScalar ab,
+                           SkScalar bl, SkScalar bt, SkScalar br, SkScalar bb) {
+        SkScalar L = SkMaxScalar(al, bl);
+        SkScalar R = SkMinScalar(ar, br);
+        SkScalar T = SkMaxScalar(at, bt);
+        SkScalar B = SkMinScalar(ab, bb);
+        return L < R && T < B;
+    }
+
+public:
+    /**
+     *  Return true if this rectangle is not empty, and the specified sides of
+     *  a rectangle are not empty, and they intersect.
+     */
+    bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const {
+        return Intersects(fLeft, fTop, fRight, fBottom, left, top, right, bottom);
+    }
+
     /**
      *  Return true if rectangles a and b are not empty and intersect.
      */
     static bool Intersects(const SkRect& a, const SkRect& b) {
-        return  !a.isEmpty() && !b.isEmpty() &&
-                a.fLeft < b.fRight && b.fLeft < a.fRight &&
-                a.fTop < b.fBottom && b.fTop < a.fBottom;
+        return Intersects(a.fLeft, a.fTop, a.fRight, a.fBottom,
+                          b.fLeft, b.fTop, b.fRight, b.fBottom);
     }
 
     /**

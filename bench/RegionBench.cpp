@@ -117,59 +117,6 @@ private:
     typedef Benchmark INHERITED;
 };
 
-class RectSectBench : public Benchmark {
-    enum {
-        N = 1000
-    };
-    SkRect fArray0[N];
-    SkRect fArray1[N];
-    SkString fName;
-    bool fNewWay;
-
-public:
-    static void RandRect(SkRect* r, SkRandom& rand) {
-        r->set(rand.nextSScalar1(), rand.nextSScalar1(),
-               rand.nextSScalar1(), rand.nextSScalar1());
-        r->sort();
-    }
-
-    RectSectBench(bool newWay) : fNewWay(newWay) {
-        fName.printf("rect_intersect_%s", newWay ? "new" : "old");
-
-        SkRandom rand;
-        for (int i = 0; i < N; i++) {
-            RandRect(&fArray0[i], rand);
-            RandRect(&fArray1[i], rand);
-        }
-    }
-
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
-        return backend == kNonRendering_Backend;
-    }
-
-protected:
-    virtual const char* onGetName() { return fName.c_str(); }
-
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
-        for (int i = 0; i < loops; ++i) {
-            if (fNewWay) {
-                for (int j = 0; j < N; ++j) {
-                    SkRect r = fArray0[j];
-                    r.intersect2(fArray1[j]);
-                }
-            } else {
-                for (int j = 0; j < N; ++j) {
-                    SkRect r = fArray0[j];
-                    r.intersect(fArray1[j]);
-                }
-            }
-        }
-    }
-
-private:
-    typedef Benchmark INHERITED;
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #define SMALL   16
@@ -183,6 +130,3 @@ DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, containsrect_proc, "containsre
 DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, sectsrgn_proc, "intersectsrgn")); )
 DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, sectsrect_proc, "intersectsrect")); )
 DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, containsxy_proc, "containsxy")); )
-
-DEF_BENCH( return SkNEW_ARGS(RectSectBench, (false)); )
-DEF_BENCH( return SkNEW_ARGS(RectSectBench, (true)); )
