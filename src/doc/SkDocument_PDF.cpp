@@ -7,7 +7,7 @@
 
 #include "SkDocument.h"
 #include "SkPDFDocument.h"
-#include "SkPDFDeviceFlattener.h"
+#include "SkPDFDevice.h"
 
 class SkDocument_PDF : public SkDocument {
 public:
@@ -33,10 +33,10 @@ protected:
         SkASSERT(NULL == fCanvas);
         SkASSERT(NULL == fDevice);
 
-        SkSize mediaBoxSize;
-        mediaBoxSize.set(width, height);
+        SkISize mediaBoxSize;
+        mediaBoxSize.set(SkScalarRoundToInt(width), SkScalarRoundToInt(height));
 
-        fDevice = SkNEW_ARGS(SkPDFDeviceFlattener, (mediaBoxSize, &trimBox));
+        fDevice = SkNEW_ARGS(SkPDFDevice, (mediaBoxSize, mediaBoxSize, SkMatrix::I()));
         if (fEncoder) {
             fDevice->setDCTEncoder(fEncoder);
         }
@@ -78,7 +78,7 @@ protected:
 
 private:
     SkPDFDocument*  fDoc;
-    SkPDFDeviceFlattener* fDevice;
+    SkPDFDevice*    fDevice;
     SkCanvas*       fCanvas;
     SkPicture::EncodeBitmap fEncoder;
     SkScalar        fRasterDpi;
