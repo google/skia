@@ -231,9 +231,10 @@ private:
     // This implements a plot-centric locking mechanism (since the atlas
     // backing texture is always locked). Each layer that is locked (i.e.,
     // needed for the current rendering) in a plot increments the plot lock
-    // count for that plot. Similarly, once a rendering is complete all the
-    // layers used in it decrement the lock count for the used plots.
-    // Plots with a 0 lock count are open for recycling/purging.
+    // count for that plot for each time it is used. Similarly, once a 
+    // rendering is complete all the layers used in it decrement the lock
+    // count for the used plots. Plots with a 0 lock count are open for 
+    // recycling/purging.
     int fPlotLocks[kNumPlotsX * kNumPlotsY];
 
     void initAtlas();
@@ -254,6 +255,12 @@ private:
     // Try to find a purgeable plot and clear it out. Return true if a plot
     // was purged; false otherwise.
     bool purgePlot();
+
+    void incPlotLock(int plotIdx) { ++fPlotLocks[plotIdx]; }
+    void decPlotLock(int plotIdx) {
+        SkASSERT(fPlotLocks[plotIdx] > 0);
+        --fPlotLocks[plotIdx];
+    }
 
     // for testing
     friend class TestingAccess;
