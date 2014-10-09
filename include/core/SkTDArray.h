@@ -347,11 +347,6 @@ public:
     }
 #endif
 
-    void shrinkToFit() {
-        fReserve = fCount;
-        fArray = (T*)sk_realloc_throw(fArray, fReserve * sizeof(T));
-    }
-
 private:
 #ifdef SK_DEBUG
     enum {

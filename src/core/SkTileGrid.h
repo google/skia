@@ -39,9 +39,6 @@ public:
     // For testing.
     int tileCount(int x, int y) { return fTiles[y * fXTiles + x].count(); }
 
-    virtual void reserve(unsigned opCount) SK_OVERRIDE;
-    virtual void flushDeferredInserts() SK_OVERRIDE;
-
 private:
     void commonAdjust(SkRect*) const;
     void userToGrid(const SkRect&, SkIRect* grid) const;

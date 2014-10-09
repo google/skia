@@ -17,35 +17,10 @@ SkTileGrid::SkTileGrid(int xTiles, int yTiles, const SkTileGridFactory::TileGrid
     , fOffset(SkPoint::Make(info.fOffset.fX, info.fOffset.fY))
     , fGridBounds(SkRect::MakeWH(xTiles * info.fTileInterval.width(),
                                  yTiles * info.fTileInterval.height()))
-    , fTiles(SkNEW_ARRAY(SkTDArray<unsigned>, xTiles * yTiles)) {
-    SkASSERT(fXTiles * fYTiles != 0);
-}
+    , fTiles(SkNEW_ARRAY(SkTDArray<unsigned>, xTiles * yTiles)) {}
 
 SkTileGrid::~SkTileGrid() {
     SkDELETE_ARRAY(fTiles);
-}
-
-void SkTileGrid::reserve(unsigned opCount) {
-    // If we assume every op we're about to try to insert() falls within our grid bounds,
-    // then every op has to hit at least one tile.  In fact, a quick scan over our small
-    // SKP set shows that in the average SKP, each op hits two 256x256 tiles.
-
-    // If we take those observations and further assume the ops are distributed evenly
-    // across the picture, we get this guess for number of ops per tile:
-    const int opsPerTileGuess = (2 * opCount) / (fXTiles * fYTiles);
-
-    for (SkTDArray<unsigned>* tile = fTiles; tile != fTiles + (fXTiles * fYTiles); tile++) {
-        tile->setReserve(opsPerTileGuess);
-    }
-
-    // In practice, this heuristic means we'll temporarily allocate about 30% more bytes
-    // than if we made no setReserve() calls, but time spent in insert() drops by about 50%.
-}
-
-void SkTileGrid::flushDeferredInserts() {
-    for (SkTDArray<unsigned>* tile = fTiles; tile != fTiles + (fXTiles * fYTiles); tile++) {
-        tile->shrinkToFit();
-    }
 }
 
 // Adjustments to user-provided bounds common to both insert() and search().
