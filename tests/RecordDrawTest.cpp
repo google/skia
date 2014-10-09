@@ -103,7 +103,6 @@ struct TestBBH : public SkBBoxHierarchy {
         fEntries.push(e);
     }
 
-    virtual void flushDeferredInserts() SK_OVERRIDE {}
     virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE {}
 
     struct Entry {

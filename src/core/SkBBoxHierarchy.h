@@ -24,9 +24,14 @@ public:
     SkBBoxHierarchy() {}
 
     /**
-     * Insert opIndex and corresponding bounding box
+     * Hint that <= opCount calls to insert() will be made.
+     */
+    virtual void reserve(unsigned opCount) {}
+
+    /**
+     * Insert opIndex and corresponding bounding box.
      * @param opIndex Any value, will be returned in order.
-     * @param bounds The bounding box, should not be empty
+     * @param bounds The bounding box, should not be empty.
      * @param defer Whether or not it is acceptable to delay insertion of this element (building up
      *        an entire spatial data structure at once is often faster and produces better
      *        structures than repeated inserts) until flushDeferredInserts is called or the first
@@ -35,9 +40,9 @@ public:
     virtual void insert(unsigned opIndex, const SkRect& bounds, bool defer = false) = 0;
 
     /**
-     * If any insertions have been deferred, this forces them to be inserted
+     * If any insertions have been deferred, force them to be inserted.
      */
-    virtual void flushDeferredInserts() = 0;
+    virtual void flushDeferredInserts() {}
 
     /**
      * Populate results with sorted opIndex corresponding to bounding boxes that intersect query.

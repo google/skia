@@ -1869,9 +1869,7 @@ struct CountingBBH : public SkBBoxHierarchy {
         this->searchCalls++;
     }
 
-    // All other methods unimplemented.
     virtual void insert(unsigned opIndex, const SkRect& bounds, bool defer) SK_OVERRIDE {}
-    virtual void flushDeferredInserts() SK_OVERRIDE {}
 };
 
 class SpoonFedBBHFactory : public SkBBHFactory {

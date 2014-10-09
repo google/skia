@@ -30,8 +30,6 @@ public:
      */
     virtual void insert(unsigned opIndex, const SkRect& bounds, bool) SK_OVERRIDE;
 
-    virtual void flushDeferredInserts() SK_OVERRIDE {};
-
     /**
      * Populate 'results' with opIndexes corresponding to bounding boxes that intersect 'query'.
      * This will be fastest if the query is an exact match to a single grid tile.

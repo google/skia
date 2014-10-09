@@ -162,6 +162,7 @@ public:
 
         // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
         SkASSERT(bbh);
+        bbh->reserve(record.count());
         for (unsigned i = 0; i < record.count(); i++) {
             if (!fBounds[i].isEmpty()) {
                 bbh->insert(i, fBounds[i], true/*ok to defer*/);
