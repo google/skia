@@ -980,7 +980,6 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             const GrAccelData::SaveLayerInfo& info6 = gpuData->saveLayerInfo(7);
             const GrAccelData::SaveLayerInfo& info7 = gpuData->saveLayerInfo(6);
 
-            REPORTER_ASSERT(reporter, info0.fValid);
             REPORTER_ASSERT(reporter, NULL == info0.fPicture);
             REPORTER_ASSERT(reporter, kWidth == info0.fSize.fWidth &&
                                       kHeight == info0.fSize.fHeight);
@@ -989,7 +988,6 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, NULL == info0.fPaint);
             REPORTER_ASSERT(reporter, !info0.fIsNested && !info0.fHasNestedLayers);
 
-            REPORTER_ASSERT(reporter, info1.fValid);
             REPORTER_ASSERT(reporter, NULL == info1.fPicture);
             REPORTER_ASSERT(reporter, kWidth == info1.fSize.fWidth &&
                                       kHeight == info1.fSize.fHeight);
@@ -999,7 +997,6 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, !info1.fIsNested &&
                                       info1.fHasNestedLayers); // has a nested SL
 
-            REPORTER_ASSERT(reporter, info2.fValid);
             REPORTER_ASSERT(reporter, NULL == info2.fPicture);
             REPORTER_ASSERT(reporter, kWidth / 2 == info2.fSize.fWidth &&
                                       kHeight/2 == info2.fSize.fHeight); // bound reduces size
@@ -1009,7 +1006,6 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, NULL == info1.fPaint);
             REPORTER_ASSERT(reporter, info2.fIsNested && !info2.fHasNestedLayers); // is nested
 
-            REPORTER_ASSERT(reporter, info3.fValid);
             REPORTER_ASSERT(reporter, NULL == info3.fPicture);
             REPORTER_ASSERT(reporter, kWidth == info3.fSize.fWidth &&
                                       kHeight == info3.fSize.fHeight);
@@ -1018,7 +1014,6 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, info3.fPaint);
             REPORTER_ASSERT(reporter, !info3.fIsNested && !info3.fHasNestedLayers);
 
-            REPORTER_ASSERT(reporter, info4.fValid);
             REPORTER_ASSERT(reporter, NULL == info4.fPicture);
             REPORTER_ASSERT(reporter, kWidth == info4.fSize.fWidth &&
                                       kHeight == info4.fSize.fHeight);
@@ -1028,7 +1023,6 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, !info4.fIsNested &&
                                       info4.fHasNestedLayers); // has a nested SL
 
-            REPORTER_ASSERT(reporter, info5.fValid);
             REPORTER_ASSERT(reporter, child == info5.fPicture); // in a child picture
             REPORTER_ASSERT(reporter, kWidth == info5.fSize.fWidth &&
                                       kHeight == info5.fSize.fHeight);
@@ -1037,7 +1031,6 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, NULL == info5.fPaint);
             REPORTER_ASSERT(reporter, info5.fIsNested && !info5.fHasNestedLayers); // is nested
 
-            REPORTER_ASSERT(reporter, info6.fValid);
             REPORTER_ASSERT(reporter, NULL == info6.fPicture);
             REPORTER_ASSERT(reporter, kWidth == info6.fSize.fWidth &&
                                       kHeight == info6.fSize.fHeight);
@@ -1047,7 +1040,6 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, !info6.fIsNested &&
                                       info6.fHasNestedLayers); // has a nested SL
 
-            REPORTER_ASSERT(reporter, info7.fValid);
             REPORTER_ASSERT(reporter, child == info7.fPicture); // in a child picture
             REPORTER_ASSERT(reporter, kWidth == info7.fSize.fWidth &&
                                       kHeight == info7.fSize.fHeight);

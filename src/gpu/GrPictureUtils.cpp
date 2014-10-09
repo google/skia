@@ -120,7 +120,6 @@ private:
 
             GrAccelData::SaveLayerInfo& dst = fAccelData->addSaveLayerInfo();
 
-            dst.fValid = true;
             // If src.fPicture is NULL the layer is in dp.picture; otherwise
             // it belongs to a sub-picture.
             dst.fPicture = src.fPicture ? src.fPicture : static_cast<const SkPicture*>(dp.picture);
@@ -181,7 +180,6 @@ private:
 
         GrAccelData::SaveLayerInfo& slInfo = fAccelData->addSaveLayerInfo();
 
-        slInfo.fValid = true;
         SkASSERT(NULL == slInfo.fPicture);  // This layer is in the top-most picture
         slInfo.fSize = SkISize::Make(si.fBounds.width(), si.fBounds.height());
         slInfo.fOffset = SkIPoint::Make(si.fBounds.fLeft, si.fBounds.fTop);

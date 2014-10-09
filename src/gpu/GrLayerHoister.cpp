@@ -16,11 +16,11 @@
 // Create the layer information for the hoisted layer and secure the
 // required texture/render target resources.
 static void prepare_for_hoisting(GrLayerCache* layerCache, 
-                             const SkPicture* topLevelPicture,
-                             const GrAccelData::SaveLayerInfo& info,
-                             SkTDArray<GrHoistedLayer>* atlased,
-                             SkTDArray<GrHoistedLayer>* nonAtlased,
-                             SkTDArray<GrHoistedLayer>* recycled) {
+                                 const SkPicture* topLevelPicture,
+                                 const GrAccelData::SaveLayerInfo& info,
+                                 SkTDArray<GrHoistedLayer>* atlased,
+                                 SkTDArray<GrHoistedLayer>* nonAtlased,
+                                 SkTDArray<GrHoistedLayer>* recycled) {
     const SkPicture* pict = info.fPicture ? info.fPicture : topLevelPicture;
 
     GrCachedLayer* layer = layerCache->findLayerOrCreate(pict->uniqueID(),
@@ -113,7 +113,7 @@ bool GrLayerHoister::FindLayersToHoist(GrContext* context,
         // TODO: ignore perspective projected layers here!
         // TODO: once this code is more stable unsuitable layers can
         // just be omitted during the optimization stage
-        if (!info.fValid || info.fIsNested) {
+        if (info.fIsNested) {
             continue;
         }
 

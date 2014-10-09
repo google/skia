@@ -21,10 +21,6 @@ public:
         SaveLayerInfo() : fPicture(NULL), fPaint(NULL) {}
         ~SaveLayerInfo() { SkSafeUnref(fPicture); SkDELETE(fPaint); }
 
-        // True if the SaveLayerInfo is valid. False if 'fOffset' is
-        // invalid (due to a non-invertible CTM).
-        // TODO: remove fValid
-        bool fValid;
         // The picture owning the layer. If the owning picture is the top-most
         // one (i.e., the picture for which this GrAccelData was created) then
         // this pointer is NULL. If it is a nested picture then the pointer
