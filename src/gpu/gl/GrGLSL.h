@@ -310,10 +310,9 @@ private:
 
 /**
  * Does an inplace mul, *=, of vec4VarName by mulFactor.
- * A semicolon and newline are added after the assignment.
+ * A semicolon is added after the assignment.
  */
-void GrGLSLMulVarBy4f(SkString* outAppend, unsigned tabCnt,
-                      const char* vec4VarName, const GrGLSLExpr4& mulFactor);
+void GrGLSLMulVarBy4f(SkString* outAppend, const char* vec4VarName, const GrGLSLExpr4& mulFactor);
 
 #include "GrGLSL_impl.h"
 

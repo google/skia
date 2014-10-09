@@ -168,7 +168,7 @@ void GrGLMagnifierEffect::emitCode(GrGLProgramBuilder* builder,
 
     fsBuilder->codeAppendf("\t\t%s = output_color;", outputColor);
     SkString modulate;
-    GrGLSLMulVarBy4f(&modulate, 2, outputColor, inputColor);
+    GrGLSLMulVarBy4f(&modulate, outputColor, inputColor);
     fsBuilder->codeAppend(modulate.c_str());
 }
 

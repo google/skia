@@ -69,30 +69,14 @@ const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
     }
 }
 
-namespace {
-    void append_tabs(SkString* outAppend, int tabCnt) {
-        static const char kTabs[] = "\t\t\t\t\t\t\t\t";
-        while (tabCnt) {
-            int cnt = SkTMin((int)SK_ARRAY_COUNT(kTabs), tabCnt);
-            outAppend->append(kTabs, cnt);
-            tabCnt -= cnt;
-        }
-    }
-}
-
-void GrGLSLMulVarBy4f(SkString* outAppend,
-                      unsigned tabCnt,
-                      const char* vec4VarName,
-                      const GrGLSLExpr4& mulFactor) {
+void GrGLSLMulVarBy4f(SkString* outAppend, const char* vec4VarName, const GrGLSLExpr4& mulFactor) {
     if (mulFactor.isOnes()) {
         *outAppend = SkString();
     }
 
-    append_tabs(outAppend, tabCnt);
-
     if (mulFactor.isZeros()) {
-        outAppend->appendf("%s = vec4(0);\n", vec4VarName);
+        outAppend->appendf("%s = vec4(0);", vec4VarName);
     } else {
-        outAppend->appendf("%s *= %s;\n", vec4VarName, mulFactor.c_str());
+        outAppend->appendf("%s *= %s;", vec4VarName, mulFactor.c_str());
     }
 }

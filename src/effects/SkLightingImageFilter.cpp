@@ -1454,7 +1454,7 @@ void GrGLLightingEffect::emitCode(GrGLProgramBuilder* builder,
     fLight->emitLightColor(builder, "surfaceToLight");
     fsBuilder->codeAppend(");\n");
     SkString modulate;
-    GrGLSLMulVarBy4f(&modulate, 2, outputColor, inputColor);
+    GrGLSLMulVarBy4f(&modulate, outputColor, inputColor);
     fsBuilder->codeAppend(modulate.c_str());
 }
 
