@@ -251,8 +251,8 @@ Squid
 
 Squid is configured to run on port 80 and run as an accelerator for the actual
 Go program which is running on port 8000. The config for the squid proxy is
-held in sys/webtry_squid, which is copied into place during installation and
-squid is kept running via monit.
+held in setup/sys/webtry_squid, which is copied into place during installation
+and squid is kept running via monit.
 
 Workspaces
 ----------

@@ -31,7 +31,7 @@ sudo chmod 777 /home/webtry/inout
 sudo chmod 777 /home/webtry/cache
 sudo chmod 777 /home/webtry/cache/src
 
-sudo cp ../sys/webtry_schroot /etc/schroot/chroot.d/webtry
+sudo cp sys/webtry_schroot /etc/schroot/chroot.d/webtry
 
 CHROOT_JAIL=/srv/chroot/webtry_gyp
 # Build the chroot environment.
@@ -68,9 +68,9 @@ sudo su - webtry -c /home/webtry/continue_install.sh
 
 banner "Setting up system initialization scripts"
 
-sudo cp ../sys/webtry_init /etc/init.d/webtry
-sudo cp ../sys/webtry_monit /etc/monit/conf.d/webtry
-sudo cp ../sys/webtry_squid /etc/squid3/squid.conf
+sudo cp sys/webtry_init /etc/init.d/webtry
+sudo cp sys/webtry_monit /etc/monit/conf.d/webtry
+sudo cp sys/webtry_squid /etc/squid3/squid.conf
 sudo chmod 744 /etc/init.d/webtry
 
 # Confirm that monit is happy.
