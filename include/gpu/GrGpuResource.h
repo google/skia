@@ -70,7 +70,7 @@ public:
     }
 
 protected:
-    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0), fIsScratch(kNo_IsScratch) { }
+    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
 
     bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
     bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
@@ -118,16 +118,7 @@ private:
 
     // This class is used to manage conversion of refs to pending reads/writes.
     friend class GrGpuResourceRef;
-
-    // This is temporary until GrResourceCache is fully replaced by GrResourceCache2.
-    enum IsScratch {
-        kNo_IsScratch,
-        kYes_IsScratch
-    } fIsScratch;
-
-    friend class GrContext; // to set the above field.
-    friend class GrResourceCache; // to check the above field.
-    friend class GrResourceCache2; // to check the above field.
+    friend class GrResourceCache2; // to check IO ref counts.
 
     template <typename, GrIOType> friend class GrPendingIOResource;
 };
@@ -183,12 +174,19 @@ public:
 
     void setCacheEntry(GrResourceCacheEntry* cacheEntry) { fCacheEntry = cacheEntry; }
     GrResourceCacheEntry* getCacheEntry() const { return fCacheEntry; }
+    bool isScratch() const;
 
     /** 
      * If this resource can be used as a scratch resource this returns a valid
      * scratch key. Otherwise it returns a key for which isNullScratch is true.
      */
     const GrResourceKey& getScratchKey() const { return fScratchKey; }
+
+    /** 
+     * If this resource is currently cached by its contents then this will return
+     * the content key. Otherwise, NULL is returned.
+     */
+    const GrResourceKey* getContentKey() const;
 
     /**
      * Gets an id that is unique for this GrGpuResource object. It is static in that it does

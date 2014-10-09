@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrContext.h"
 
 #include "effects/GrConfigConversionEffect.h"
@@ -444,7 +443,6 @@ GrTexture* GrContext::createNewScratchTexture(const GrTextureDesc& desc) {
         return NULL;
     }
     fResourceCache->addResource(texture->getScratchKey(), texture);
-    texture->fIsScratch = GrGpuResource::kYes_IsScratch;
     return texture;
 }
 

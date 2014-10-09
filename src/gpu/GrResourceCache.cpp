@@ -6,12 +6,9 @@
  * found in the LICENSE file.
  */
 
-
-
 #include "GrResourceCache.h"
 #include "GrGpuResource.h"
 #include "GrTexturePriv.h"
-
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
 
@@ -181,7 +178,7 @@ void GrResourceCache::notifyPurgable(const GrGpuResource* resource) {
     // scratch texture reuse is turned off.
     SkASSERT(resource->getCacheEntry());
     if (resource->getCacheEntry()->key().getResourceType() == GrTexturePriv::ResourceType() &&
-        resource->fIsScratch &&
+        resource->getCacheEntry()->key().isScratch() &&
         !fCaps->reuseScratchTextures() &&
         !(static_cast<const GrTexture*>(resource)->desc().fFlags &
           kRenderTarget_GrTextureFlagBit)) {
@@ -190,12 +187,12 @@ void GrResourceCache::notifyPurgable(const GrGpuResource* resource) {
 }
 
 GrGpuResource* GrResourceCache::find(const GrResourceKey& key) {
+    // GrResourceCache2 is responsible for scratch resources.
+    SkASSERT(!key.isScratch());
+
     GrAutoResourceCacheValidate atcv(this);
 
-    GrResourceCacheEntry* entry = NULL;
-
-    entry = fCache.find(key);
-
+    GrResourceCacheEntry* entry = fCache.find(key);
     if (NULL == entry) {
         return NULL;
     }
@@ -204,8 +201,6 @@ GrGpuResource* GrResourceCache::find(const GrResourceKey& key) {
     this->internalDetach(entry);
     this->attachToHead(entry);
 
-    // GrResourceCache2 is responsible for scratch resources.
-    SkASSERT(GrGpuResource::kNo_IsScratch == entry->resource()->fIsScratch);
     return entry->fResource;
 }
 

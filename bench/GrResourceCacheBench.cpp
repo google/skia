@@ -64,7 +64,14 @@ public:
     }
 
     static GrResourceKey ComputeKey(const GrTextureDesc& desc) {
-        return GrTexturePriv::ComputeScratchKey(desc);
+        GrCacheID::Key key;
+        memset(&key, 0, sizeof(key));
+        key.fData32[0] = (desc.fWidth) | (desc.fHeight << 16);
+        key.fData32[1] = desc.fConfig | desc.fSampleCnt << 16;
+        key.fData32[2] = desc.fFlags;
+        static int gType = GrResourceKey::GenerateResourceType();
+        static int gDomain = GrCacheID::GenerateDomain();
+        return GrResourceKey(GrCacheID(gDomain, key), gType, 0);
     }
 
     int fID;
