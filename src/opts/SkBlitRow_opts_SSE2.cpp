@@ -441,11 +441,10 @@ void SkARGB32_A8_BlitMask_SSE2(void* device, size_t dstRB, const void* maskPtr,
                 __m128i dst_pixel = _mm_load_si128(d);
 
                 //set the aphla value
-                __m128i src_scale_wide =  _mm_set_epi8(0, *(mask+3),\
-                                0, *(mask+3),0, \
-                                *(mask+2),0, *(mask+2),\
-                                0,*(mask+1), 0,*(mask+1),\
-                                0, *mask,0,*mask);
+                __m128i src_scale_wide = _mm_cvtsi32_si128(*reinterpret_cast<const uint32_t*>(mask));
+                src_scale_wide = _mm_unpacklo_epi8(src_scale_wide,
+                                                   _mm_setzero_si128());
+                src_scale_wide = _mm_unpacklo_epi16(src_scale_wide, src_scale_wide);
 
                 //call SkAlpha255To256()
                 src_scale_wide = _mm_add_epi16(src_scale_wide, c_1);
