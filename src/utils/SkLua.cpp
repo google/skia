@@ -460,6 +460,30 @@ static int lcanvas_drawImage(lua_State* L) {
     return 0;
 }
 
+static int lcanvas_drawImageRect(lua_State* L) {
+    SkCanvas* canvas = get_ref<SkCanvas>(L, 1);
+    SkImage* image = get_ref<SkImage>(L, 2);
+    if (NULL == image) {
+        return 0;
+    }
+
+    SkRect srcR, dstR;
+    SkRect* srcRPtr = NULL;
+    if (!lua_isnil(L, 3)) {
+        srcRPtr = lua2rect(L, 3, &srcR);
+    }
+    lua2rect(L, 4, &dstR);
+    
+    SkPaint paint;
+    const SkPaint* paintPtr = NULL;
+    if (lua_isnumber(L, 5)) {
+        paint.setAlpha(SkScalarRoundToInt(lua2scalar(L, 5) * 255));
+        paintPtr = &paint;
+    }
+    canvas->drawImageRect(image, srcRPtr, dstR, paintPtr);
+    return 0;
+}
+
 static int lcanvas_drawPath(lua_State* L) {
     get_ref<SkCanvas>(L, 1)->drawPath(*get_obj<SkPath>(L, 2),
                                       *get_obj<SkPaint>(L, 3));
@@ -576,6 +600,7 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
     { "drawOval", lcanvas_drawOval },
     { "drawCircle", lcanvas_drawCircle },
     { "drawImage", lcanvas_drawImage },
+    { "drawImageRect", lcanvas_drawImageRect },
     { "drawPath", lcanvas_drawPath },
     { "drawText", lcanvas_drawText },
     { "getSaveCount", lcanvas_getSaveCount },
