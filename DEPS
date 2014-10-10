@@ -3,7 +3,7 @@ use_relative_paths = True
 # Dependencies on outside packages.
 #
 deps = {
-  "common": "https://skia.googlesource.com/common.git@5dd2918f96b277ebe04eb66469ec3d5c7ba6952a",
+  "common": "https://skia.googlesource.com/common.git@af1de867422c42855ae54ed3838c62ea445ea6b4",
 
   "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git@23a8a433529d9db23882c702a29d5e594841563d",
   "third_party/externals/freetype" : "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",

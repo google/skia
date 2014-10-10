@@ -46,6 +46,11 @@ import gm_json
 import jsondiff
 import svn
 
+CHECKOUT_ROOT = os.path.realpath(
+    os.path.join(os.path.dirname(__file__), os.pardir))
+sys.path.append(CHECKOUT_ROOT)
+from common.py.utils import git_utils
+
 USAGE_STRING = 'Usage: %s [options]'
 HELP_STRING = '''
 
@@ -185,12 +190,6 @@ def _RunCommand(args):
         raise Exception('command "%s" failed: %s' % (args, stderr))
     return stdout
 
-def _GitGetModifiedFiles():
-    """Returns a list of locally modified files within the current working dir.
-
-    TODO(epoger): Move this into a git utility package?
-    """
-    return _RunCommand(['git', 'ls-files', '-m']).splitlines()
 
 def _GitExportBaseVersionOfFile(file_within_repo, dest_path):
     """Retrieves a copy of the base version of a file within the repository.
@@ -254,7 +253,7 @@ def SvnDiff(path_to_skdiff, dest_dir, source_dir):
         modified_file_paths = svn_repo.GetFilesWithStatus(
             svn.STATUS_ADDED | svn.STATUS_DELETED | svn.STATUS_MODIFIED)
     else:
-        modified_file_paths = _GitGetModifiedFiles()
+        modified_file_paths = git_utils.GetModifiedFiles()
 
     # For each modified file:
     # 1. copy its current contents into modified_flattened_dir
