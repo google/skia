@@ -12,7 +12,6 @@
 #define H   400
 #define N   10
 
-static const SkScalar SW = SkIntToScalar(W);
 static const SkScalar SH = SkIntToScalar(H);
 
 static void rnd_quad(SkPath* p, SkPaint* paint, SkLCGRandom& rand) {

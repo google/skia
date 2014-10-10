@@ -41,10 +41,6 @@ class GrRenderTarget;
 
 class SkCanvasState;
 
-namespace SkCanvasStateUtils {
-    SK_API SkCanvasState* CaptureCanvasState(SkCanvas*);
-}
-
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -1347,7 +1343,7 @@ private:
     SkCanvas(const SkBitmap&, const SkSurfaceProps&);
 
     // needs gettotalclip()
-    friend SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas*);
+    friend class SkCanvasStateUtils;
 
     SkBaseDevice* createLayerDevice(const SkImageInfo&);
 
