@@ -216,7 +216,8 @@ GrPlot* GrAtlas::addToAtlas(ClientPlotUsage* usage,
     // last one was most recently added and probably most empty
     for (int i = usage->fPlots.count()-1; i >= 0; --i) {
         GrPlot* plot = usage->fPlots[i];
-        if (plot->addSubImage(width, height, image, loc)) {
+        // client may have plots from more than one atlas, must check for ours before adding
+        if (this == plot->fAtlas && plot->addSubImage(width, height, image, loc)) {
             this->makeMRU(plot);
             return plot;
         }
