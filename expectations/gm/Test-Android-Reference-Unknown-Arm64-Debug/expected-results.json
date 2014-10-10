@@ -9320,19 +9320,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11892545700196234679
+          16405707403603840230
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "patch_primitive_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11023418833969415383
+          7838370347361830341
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "path-reverse_565.png": {
       "allowed-digests": [
