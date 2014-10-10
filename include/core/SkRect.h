@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkRect_DEFINED
 #define SkRect_DEFINED
@@ -842,7 +840,17 @@ public:
      *  if the edges are computed separately, and may have crossed over each
      *  other. When this returns, left <= right && top <= bottom
      */
-    void sort();
+    void sort() {
+        SkScalar min = SkMinScalar(fLeft, fRight);
+        SkScalar max = SkMaxScalar(fLeft, fRight);
+        fLeft = min;
+        fRight = max;
+        
+        min = SkMinScalar(fTop, fBottom);
+        max = SkMaxScalar(fTop, fBottom);
+        fTop = min;
+        fBottom = max;
+    }
 
     /**
      *  cast-safe way to treat the rect as an array of (4) SkScalars.

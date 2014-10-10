@@ -37,15 +37,6 @@ void SkIRect::sort() {
 
 /////////////////////////////////////////////////////////////////////////////
 
-void SkRect::sort() {
-    if (fLeft > fRight) {
-        SkTSwap<SkScalar>(fLeft, fRight);
-    }
-    if (fTop > fBottom) {
-        SkTSwap<SkScalar>(fTop, fBottom);
-    }
-}
-
 void SkRect::toQuad(SkPoint quad[4]) const {
     SkASSERT(quad);
 

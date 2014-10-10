@@ -97,7 +97,7 @@ protected:
 class GeoRectBench_Intersects : public GeoRectBench {
 public:
     GeoRectBench_Intersects() : GeoRectBench("rect_Intersects") {}
-
+    
 protected:
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         for (int outer = 0; outer < loops; ++outer) {
@@ -110,6 +110,22 @@ protected:
     }
 };
 
+class GeoRectBench_sort : public GeoRectBench {
+public:
+    GeoRectBench_sort() : GeoRectBench("rect_sort") {}
+    
+protected:
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        for (int outer = 0; outer < loops; ++outer) {
+            for (size_t i = 0; i < SK_ARRAY_COUNT(fRects); ++i) {
+                fRects[i].sort();
+            }
+        }
+    }
+};
+
 DEF_BENCH( return new GeoRectBench_intersect; )
 DEF_BENCH( return new GeoRectBench_intersect_rect; )
 DEF_BENCH( return new GeoRectBench_Intersects; )
+
+DEF_BENCH( return new GeoRectBench_sort; )
