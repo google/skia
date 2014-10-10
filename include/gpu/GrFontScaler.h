@@ -66,7 +66,8 @@ public:
     virtual ~GrFontScaler();
     
     const GrFontDescKey* getKey();
-    GrMaskFormat getMaskFormat();
+    GrMaskFormat getMaskFormat() const;
+    GrMaskFormat getPackedGlyphMaskFormat(GrGlyph::PackedID) const;
     bool getPackedGlyphBounds(GrGlyph::PackedID, SkIRect* bounds);
     bool getPackedGlyphImage(GrGlyph::PackedID, int width, int height,
                                      int rowBytes, void* image);

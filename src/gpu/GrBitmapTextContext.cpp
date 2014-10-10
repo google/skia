@@ -370,7 +370,7 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
             }
 
             // try to clear out an unused plot before we flush
-            if (fContext->getFontCache()->freeUnusedPlot(fStrike) &&
+            if (fContext->getFontCache()->freeUnusedPlot(fStrike, glyph) &&
                 fStrike->addGlyphToAtlas(glyph, scaler)) {
                 goto HAS_ATLAS;
             }
@@ -386,7 +386,7 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
             fContext->flush();
 
             // we should have an unused plot now
-            if (fContext->getFontCache()->freeUnusedPlot(fStrike) &&
+            if (fContext->getFontCache()->freeUnusedPlot(fStrike, glyph) &&
                 fStrike->addGlyphToAtlas(glyph, scaler)) {
                 goto HAS_ATLAS;
             }
@@ -422,6 +422,7 @@ HAS_ATLAS:
     width = SkIntToFixed(width);
     height = SkIntToFixed(height);
 
+    // the current texture/maskformat must match what the glyph needs
     GrTexture* texture = glyph->fPlot->texture();
     SkASSERT(texture);
 
@@ -429,9 +430,10 @@ HAS_ATLAS:
         this->flush();
         fCurrTexture = texture;
         fCurrTexture->ref();
+        fCurrMaskFormat = glyph->fMaskFormat;
     }
 
-    bool useColorVerts = kA8_GrMaskFormat == fStrike->getMaskFormat();
+    bool useColorVerts = kA8_GrMaskFormat == fCurrMaskFormat;
 
     if (NULL == fVertices) {
        // If we need to reserve vertices allow the draw target to suggest
@@ -549,12 +551,12 @@ void GrBitmapTextContext::flush() {
         // This effect could be stored with one of the cache objects (atlas?)
         drawState->setGeometryProcessor(fCachedGeometryProcessor.get());
         SkASSERT(fStrike);
-        switch (fStrike->getMaskFormat()) {
+        switch (fCurrMaskFormat) {
                 // Color bitmap text
             case kARGB_GrMaskFormat:
                 SkASSERT(!drawState->hasColorVertexAttribute());
                 drawState->setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
-                drawState->setColor(0xffffffff);
+                drawState->setAlpha(fSkPaint.getAlpha());
                 break;
                 // LCD text
             case kA888_GrMaskFormat:
@@ -585,7 +587,7 @@ void GrBitmapTextContext::flush() {
                 SkASSERT(drawState->hasColorVertexAttribute());
                 break;
             default:
-                SkFAIL("Unexepected mask format.");
+                SkFAIL("Unexpected mask format.");
         }
         int nGlyphs = fCurrVertex / 4;
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());

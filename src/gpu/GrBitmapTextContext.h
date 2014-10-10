@@ -40,13 +40,14 @@ private:
 
     GrTextStrike*                     fStrike;
     void*                             fVertices;
-    int32_t                           fMaxVertices;
+    int                               fCurrVertex;
+    int                               fMaxVertices;
+    SkRect                            fVertexBounds;
     GrTexture*                        fCurrTexture;
+    GrMaskFormat                      fCurrMaskFormat;
     SkAutoTUnref<GrGeometryProcessor> fCachedGeometryProcessor;
     // Used to check whether fCachedEffect is still valid.
     uint32_t                          fEffectTextureUniqueID;
-    int                               fCurrVertex;
-    SkRect                            fVertexBounds;
 
     void init(const GrPaint&, const SkPaint&);
     void appendGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);
