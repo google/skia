@@ -5134,19 +5134,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10274342291140328927
+          5212774837146287438
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10274342291140328927
+          5212774837146287438
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_nvprmsaa4.png": {
       "allowed-digests": [
