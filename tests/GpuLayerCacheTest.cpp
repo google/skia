@@ -21,6 +21,9 @@ public:
     static void Purge(GrLayerCache* cache, uint32_t pictureID) {
         cache->purge(pictureID);
     }
+    static int Uses(GrCachedLayer* layer) {
+        return layer->uses();
+    }
 };
 
 // Add several layers to the cache
@@ -70,6 +73,10 @@ static void lock_layer(skiatest::Reporter* reporter,
 
     REPORTER_ASSERT(reporter, layer->texture());
     REPORTER_ASSERT(reporter, layer->locked());
+
+    cache->addUse(layer);
+
+    REPORTER_ASSERT(reporter, 1 == TestingAccess::Uses(layer));
 }
 
 // This test case exercises the public API of the GrLayerCache class.
@@ -120,20 +127,22 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         for (int i = 0; i < kInitialNumLayers; ++i) {
             GrCachedLayer* layer = cache.findLayer(picture->uniqueID(), i+1, SkMatrix::I());
             REPORTER_ASSERT(reporter, layer);
-            cache.unlock(layer);
+            cache.removeUse(layer);
         }
 
         for (int i = 0; i < kInitialNumLayers; ++i) {
             GrCachedLayer* layer = cache.findLayer(picture->uniqueID(), i+1, SkMatrix::I());
             REPORTER_ASSERT(reporter, layer);
 
+            // All the layers should be unlocked
             REPORTER_ASSERT(reporter, !layer->locked());
+
             // The first 4 layers should still be in the atlas.
             if (i < 4) {
                 REPORTER_ASSERT(reporter, layer->texture());
                 REPORTER_ASSERT(reporter, layer->isAtlased());
             } else {
-                // The final layer should be unlocked.
+                // The final layer should not be atlased.
                 REPORTER_ASSERT(reporter, NULL == layer->texture());
                 REPORTER_ASSERT(reporter, !layer->isAtlased());
             }
@@ -148,7 +157,7 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
             REPORTER_ASSERT(reporter, layer);
 
             lock_layer(reporter, &cache, layer);
-            cache.unlock(layer);
+            cache.removeUse(layer);
         }
 
         for (int i = 0; i < kInitialNumLayers+1; ++i) {

@@ -16,7 +16,6 @@ void GrCachedLayer::validate(const GrTexture* backingTexture) const {
     SkASSERT(SK_InvalidGenID != fKey.pictureID());
     SkASSERT(fKey.start() >= 0);
 
-
     if (fTexture) {
         // If the layer is in some texture then it must occupy some rectangle
         SkASSERT(!fRect.isEmpty());
@@ -42,6 +41,15 @@ void GrCachedLayer::validate(const GrTexture* backingTexture) const {
         // the atlas-backing texture) and occupy some space.
         SkASSERT(fTexture);
         SkASSERT(!fRect.isEmpty());
+    }
+
+    // Unfortunately there is a brief time where a layer can be locked
+    // but not used, so we can only check the "used implies locked"
+    // invariant.
+    if (fUses > 0) {
+        SkASSERT(fLocked);
+    } else {
+        SkASSERT(0 == fUses);
     }
 }
 
@@ -81,6 +89,7 @@ GrLayerCache::~GrLayerCache() {
     SkTDynamicHash<GrCachedLayer, GrCachedLayer::Key>::Iter iter(&fLayerHash);
     for (; !iter.done(); ++iter) {
         GrCachedLayer* layer = &(*iter);
+        SkASSERT(0 == layer->uses());
         this->unlock(layer);
         SkDELETE(layer);
     }
@@ -168,7 +177,7 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool do
         // Hooray it is still in the atlas - make sure it stays there
         SkASSERT(!dontAtlas);
         layer->setLocked(true);
-        fPlotLocks[layer->plot()->id()]++;
+        this->incPlotLock(layer->plot()->id());
         return false;
     } else if (!dontAtlas && PlausiblyAtlasable(desc.fWidth, desc.fHeight)) {
         // Not in the atlas - will it fit?
@@ -193,7 +202,7 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool do
                 layer->setTexture(fAtlas->getTexture(), bounds);
                 layer->setPlot(plot);
                 layer->setLocked(true);
-                fPlotLocks[layer->plot()->id()]++;
+                this->incPlotLock(layer->plot()->id());
                 return true;
             }
 
@@ -227,8 +236,7 @@ void GrLayerCache::unlock(GrCachedLayer* layer) {
     if (layer->isAtlased()) {
         const int plotID = layer->plot()->id();
 
-        SkASSERT(fPlotLocks[plotID] > 0);
-        fPlotLocks[plotID]--;
+        this->decPlotLock(plotID);
         // At this point we could aggressively clear out un-locked plots but
         // by delaying we may be able to reuse some of the atlased layers later.
 #if DISABLE_CACHING
@@ -270,7 +278,7 @@ void GrLayerCache::validate() const {
             SkASSERT(!pictInfo->fPlotUsage.isEmpty());
 #endif
         } else {
-            // If there is no picture info for this layer then all of its
+            // If there is no picture info for this picture then all of its
             // layers should be non-atlased.
             SkASSERT(!layer->isAtlased());
         }
@@ -321,6 +329,7 @@ void GrLayerCache::purge(uint32_t pictureID) {
     }
 
     for (int i = 0; i < toBeRemoved.count(); ++i) {
+        SkASSERT(0 == toBeRemoved[i]->uses());
         this->unlock(toBeRemoved[i]);
         fLayerHash.remove(GrCachedLayer::GetKey(*toBeRemoved[i]));
         SkDELETE(toBeRemoved[i]);
@@ -366,6 +375,7 @@ void GrLayerCache::purgePlot(GrPlot* plot) {
     }
 
     for (int i = 0; i < toBeRemoved.count(); ++i) {
+        SkASSERT(0 == toBeRemoved[i]->uses());
         SkASSERT(!toBeRemoved[i]->locked());
 
         uint32_t pictureIDToRemove = toBeRemoved[i]->pictureID();

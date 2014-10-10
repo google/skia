@@ -54,6 +54,7 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
         hl = recycled->append();
     }
     
+    layerCache->addUse(layer);
     hl->fLayer = layer;
     hl->fPicture = pict;
     hl->fOffset = info.fOffset;
@@ -263,19 +264,6 @@ void GrLayerHoister::DrawLayers(const SkTDArray<GrHoistedLayer>& atlased,
     convert_layers_to_replacements(recycled, replacements);
 }
 
-static void unlock_layer_in_cache(GrLayerCache* layerCache,
-                                  const SkPicture* picture,
-                                  GrCachedLayer* layer) {
-    layerCache->unlock(layer);
-
-#if DISABLE_CACHING
-    // This code completely clears out the atlas. It is required when
-    // caching is disabled so the atlas doesn't fill up and force more
-    // free floating layers
-    layerCache->purge(picture->uniqueID());
-#endif
-}
-
 void GrLayerHoister::UnlockLayers(GrContext* context,
                                   const SkTDArray<GrHoistedLayer>& atlased,
                                   const SkTDArray<GrHoistedLayer>& nonAtlased,
@@ -283,15 +271,15 @@ void GrLayerHoister::UnlockLayers(GrContext* context,
     GrLayerCache* layerCache = context->getLayerCache();
 
     for (int i = 0; i < atlased.count(); ++i) {
-        unlock_layer_in_cache(layerCache, atlased[i].fPicture, atlased[i].fLayer);
+        layerCache->removeUse(atlased[i].fLayer);
     }
 
     for (int i = 0; i < nonAtlased.count(); ++i) {
-        unlock_layer_in_cache(layerCache, nonAtlased[i].fPicture, nonAtlased[i].fLayer);
+        layerCache->removeUse(nonAtlased[i].fLayer);
     }
 
     for (int i = 0; i < recycled.count(); ++i) {
-        unlock_layer_in_cache(layerCache, recycled[i].fPicture, recycled[i].fLayer);
+        layerCache->removeUse(recycled[i].fLayer);
     }
 
 #if DISABLE_CACHING
@@ -300,5 +288,7 @@ void GrLayerHoister::UnlockLayers(GrContext* context,
     // free floating layers
     layerCache->purgeAll();
 #endif
+
+    SkDEBUGCODE(layerCache->validate();)
 }
 

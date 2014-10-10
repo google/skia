@@ -97,6 +97,7 @@ public:
         , fTexture(NULL)
         , fRect(GrIRect16::MakeEmpty())
         , fPlot(NULL)
+        , fUses(0)
         , fLocked(false) {
         SkASSERT(SK_InvalidGenID != pictureID && start >= 0 && stop >= 0);
     }
@@ -155,6 +156,11 @@ private:
     // It is always NULL for non-atlased layers.
     GrPlot*         fPlot;
 
+    // The number of actively hoisted layers using this cached image (e.g.,
+    // extant GrHoistedLayers pointing at this object). This object will
+    // be unlocked when the use count reaches 0.
+    int             fUses;
+
     // For non-atlased layers 'fLocked' should always match "fTexture".
     // (i.e., if there is a texture it is locked).
     // For atlased layers, 'fLocked' is true if the layer is in a plot and
@@ -162,6 +168,13 @@ private:
     // actively required for rendering, then 'fLocked' is false. If the
     // layer isn't in a plot then is can never be locked.
     bool            fLocked;
+
+    void addUse()     { ++fUses; }
+    void removeUse()  { SkASSERT(fUses > 0); --fUses; }
+    int uses() const { return fUses; }
+
+    friend class GrLayerCache;  // for access to usage methods
+    friend class TestingAccess; // for testing
 };
 
 // The GrLayerCache caches pre-computed saveLayers for later rendering.
@@ -191,8 +204,15 @@ public:
     // layer was found in the cache and can be reused.
     bool lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool dontAtlas);
 
-    // Inform the cache that layer's cached image is not currently required
-    void unlock(GrCachedLayer* layer);
+    // addUse is just here to keep the API symmetric
+    void addUse(GrCachedLayer* layer) { layer->addUse(); }
+    void removeUse(GrCachedLayer* layer) {
+        layer->removeUse();
+        if (layer->uses() == 0) {
+            // If no one cares about the layer allow it to be recycled.
+            this->unlock(layer);
+        }
+    }
 
     // Setup to be notified when 'picture' is deleted
     void trackPicture(const SkPicture* picture);
@@ -236,6 +256,9 @@ private:
     // Plots with a 0 lock count are open for recycling/purging.
     int fPlotLocks[kNumPlotsX * kNumPlotsY];
 
+    // Inform the cache that layer's cached image is not currently required
+    void unlock(GrCachedLayer* layer);
+
     void initAtlas();
     GrCachedLayer* createLayer(uint32_t pictureID, int start, int stop, 
                                const SkMatrix& ctm, const SkPaint* paint);
@@ -254,6 +277,12 @@ private:
     // Try to find a purgeable plot and clear it out. Return true if a plot
     // was purged; false otherwise.
     bool purgePlot();
+
+    void incPlotLock(int plotIdx) { ++fPlotLocks[plotIdx]; }
+    void decPlotLock(int plotIdx) {
+        SkASSERT(fPlotLocks[plotIdx] > 0);
+        --fPlotLocks[plotIdx];
+    }
 
     // for testing
     friend class TestingAccess;
