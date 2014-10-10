@@ -59,7 +59,7 @@ GrFontScaler::~GrFontScaler() {
     SkSafeUnref(fKey);
 }
 
-GrMaskFormat GrFontScaler::getMaskFormat() const {
+GrMaskFormat GrFontScaler::getMaskFormat() {
     SkMask::Format format = fStrike->getMaskFormat();
     switch (format) {
         case SkMask::kBW_Format:
@@ -83,28 +83,6 @@ const GrFontDescKey* GrFontScaler::getKey() {
         fKey = SkNEW_ARGS(GrFontDescKey, (fStrike->getDescriptor()));
     }
     return fKey;
-}
-
-GrMaskFormat GrFontScaler::getPackedGlyphMaskFormat(GrGlyph::PackedID packed) const {
-    const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
-                                                      GrGlyph::UnpackFixedX(packed),
-                                                      GrGlyph::UnpackFixedY(packed));
-    SkMask::Format format = static_cast<SkMask::Format>(glyph.fMaskFormat);
-    switch (format) {
-        case SkMask::kBW_Format:
-            // fall through to kA8 -- we store BW glyphs in our 8-bit cache
-        case SkMask::kA8_Format:
-            return kA8_GrMaskFormat;
-        case SkMask::kLCD16_Format:
-            return kA565_GrMaskFormat;
-        case SkMask::kLCD32_Format:
-            return kA888_GrMaskFormat;
-        case SkMask::kARGB32_Format:
-            return kARGB_GrMaskFormat;
-        default:
-            SkDEBUGFAIL("unsupported SkMask::Format");
-            return kA8_GrMaskFormat;
-    }
 }
 
 bool GrFontScaler::getPackedGlyphBounds(GrGlyph::PackedID packed, SkIRect* bounds) {

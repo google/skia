@@ -412,11 +412,6 @@ void GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
         return;
     }
 
-    // TODO: support color glyphs
-    if (kA8_GrMaskFormat != glyph->fMaskFormat) {
-        return;
-    }
-
     SkScalar sx = SkFixedToScalar(vx);
     SkScalar sy = SkFixedToScalar(vy);
 /*
@@ -445,7 +440,7 @@ void GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
             }
 
             // try to clear out an unused plot before we flush
-            if (fContext->getFontCache()->freeUnusedPlot(fStrike, glyph) &&
+            if (fContext->getFontCache()->freeUnusedPlot(fStrike) &&
                 fStrike->addGlyphToAtlas(glyph, scaler)) {
                 goto HAS_ATLAS;
             }
@@ -461,7 +456,7 @@ void GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
             fContext->flush();
 
             // we should have an unused plot now
-            if (fContext->getFontCache()->freeUnusedPlot(fStrike, glyph) &&
+            if (fContext->getFontCache()->freeUnusedPlot(fStrike) &&
                 fStrike->addGlyphToAtlas(glyph, scaler)) {
                 goto HAS_ATLAS;
             }

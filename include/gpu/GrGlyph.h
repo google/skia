@@ -9,10 +9,8 @@
 #define GrGlyph_DEFINED
 
 #include "GrRect.h"
-#include "GrTypes.h"
-
-#include "SkChecksum.h"
 #include "SkPath.h"
+#include "SkChecksum.h"
 
 class GrPlot;
 
@@ -25,19 +23,17 @@ class GrPlot;
 struct GrGlyph {
     typedef uint32_t PackedID;
 
-    GrPlot*      fPlot;
-    SkPath*      fPath;
-    PackedID     fPackedID;
-    GrMaskFormat fMaskFormat;
-    GrIRect16    fBounds;
-    SkIPoint16   fAtlasLocation;
+    GrPlot*     fPlot;
+    SkPath*     fPath;
+    PackedID    fPackedID;
+    GrIRect16   fBounds;
+    SkIPoint16  fAtlasLocation;
 
-    void init(GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format) {
+    void init(GrGlyph::PackedID packed, const SkIRect& bounds) {
         fPlot = NULL;
         fPath = NULL;
         fPackedID = packed;
         fBounds.set(bounds);
-        fMaskFormat = format;
         fAtlasLocation.set(0, 0);
     }
 
