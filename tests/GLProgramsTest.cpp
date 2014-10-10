@@ -456,6 +456,9 @@ bool GrGpuGL::programUnitTest(int maxStages) {
             ds->reset();
             continue;
         }
+        const GrGeometryStage*                     geometryProcessor = NULL;
+        SkSTArray<8, const GrFragmentStage*, true> colorStages;
+        SkSTArray<8, const GrFragmentStage*, true> coverageStages;
         GrGLProgramDesc desc;
         GrDeviceCoordTexture dstCopy;
 
@@ -465,14 +468,24 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         }
         if (!GrGLProgramDesc::Build(*ods,
                                     drawType,
+                                    ods->getSrcBlendCoeff(),
+                                    ods->getDstBlendCoeff(),
                                     this,
                                     dstCopy.texture() ? &dstCopy : NULL,
+                                    &geometryProcessor,
+                                    &colorStages,
+                                    &coverageStages,
                                     &desc)) {
             SkDebugf("Failed to generate GL program descriptor");
             return false;
         }
-        SkAutoTUnref<GrGLProgram> program(
-                GrGLProgramBuilder::CreateProgram(*ods, desc, drawType, this));
+        SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(*ods,
+                                                                            desc,
+                                                                            drawType,
+                                                                            geometryProcessor,
+                                                                            colorStages.begin(),
+                                                                            coverageStages.begin(),
+                                                                            this));
         if (NULL == program.get()) {
             SkDebugf("Failed to create program!");
             return false;

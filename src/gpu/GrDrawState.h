@@ -221,7 +221,7 @@ public:
     const GrGeometryProcessor* setGeometryProcessor(const GrGeometryProcessor* geometryProcessor) {
         SkASSERT(geometryProcessor);
         SkASSERT(!this->hasGeometryProcessor());
-        fGeometryProcessor.reset(SkRef(geometryProcessor));
+        fGeometryProcessor.reset(new GrGeometryStage(geometryProcessor));
         this->invalidateOptState();
         return geometryProcessor;
     }
@@ -254,7 +254,7 @@ public:
     }
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
-    const GrGeometryProcessor* getGeometryProcessor() const { return fGeometryProcessor.get(); }
+    const GrGeometryStage* getGeometryProcessor() const { return fGeometryProcessor.get(); }
     const GrFragmentStage& getColorStage(int idx) const { return fColorStages[idx]; }
     const GrFragmentStage& getCoverageStage(int idx) const { return fCoverageStages[idx]; }
 
@@ -485,7 +485,8 @@ public:
         GrDrawState*                                           fDrawState;
         SkMatrix                                               fViewMatrix;
         int                                                    fNumColorStages;
-        SkAutoSTArray<8, GrFragmentStage::SavedCoordChange>    fSavedCoordChanges;
+        bool                                                   fHasGeometryProcessor;
+        SkAutoSTArray<8, GrProcessorStage::SavedCoordChange>   fSavedCoordChanges;
     };
 
     /// @}
@@ -809,11 +810,10 @@ private:
     GrBlendCoeff                        fSrcBlend;
     GrBlendCoeff                        fDstBlend;
 
-    typedef SkSTArray<4, GrFragmentStage> FragmentStageArray;
-    typedef GrProgramElementRef<const GrGeometryProcessor> ProgramGeometryProcessor;
-    ProgramGeometryProcessor            fGeometryProcessor;
-    FragmentStageArray                  fColorStages;
-    FragmentStageArray                  fCoverageStages;
+    typedef SkSTArray<4, GrFragmentStage>   FragmentStageArray;
+    SkAutoTDelete<GrGeometryStage>          fGeometryProcessor;
+    FragmentStageArray                      fColorStages;
+    FragmentStageArray                      fCoverageStages;
 
     uint32_t                            fHints;
 

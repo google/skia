@@ -60,10 +60,10 @@ static bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
     return false;
 }
 
-static uint32_t gen_attrib_key(const GrGeometryProcessor& proc) {
+static uint32_t gen_attrib_key(const GrGeometryProcessor* effect) {
     uint32_t key = 0;
 
-    const GrGeometryProcessor::VertexAttribArray& vars = proc.getVertexAttribs();
+    const GrGeometryProcessor::VertexAttribArray& vars = effect->getVertexAttribs();
     int numAttributes = vars.count();
     SkASSERT(numAttributes <= 2);
     for (int a = 0; a < numAttributes; ++a) {
@@ -73,7 +73,7 @@ static uint32_t gen_attrib_key(const GrGeometryProcessor& proc) {
     return key;
 }
 
-static uint32_t gen_transform_key(const GrFragmentStage& effectStage,
+static uint32_t gen_transform_key(const GrProcessorStage& effectStage,
                                   bool useExplicitLocalCoords) {
     uint32_t totalKey = 0;
     int numTransforms = effectStage.getProcessor()->numTransforms();
@@ -96,11 +96,11 @@ static uint32_t gen_transform_key(const GrFragmentStage& effectStage,
     return totalKey;
 }
 
-static uint32_t gen_texture_key(const GrProcessor& proc, const GrGLCaps& caps) {
+static uint32_t gen_texture_key(const GrProcessor* effect, const GrGLCaps& caps) {
     uint32_t key = 0;
-    int numTextures = proc.numTextures();
+    int numTextures = effect->numTextures();
     for (int t = 0; t < numTextures; ++t) {
-        const GrTextureAccess& access = proc.textureAccess(t);
+        const GrTextureAccess& access = effect->textureAccess(t);
         uint32_t configComponentMask = GrPixelConfigComponentMask(access.getTexture()->config());
         if (swizzle_requires_alpha_remapping(caps, configComponentMask, access.swizzleMask())) {
             key |= 1 << t;
@@ -115,61 +115,101 @@ static uint32_t gen_texture_key(const GrProcessor& proc, const GrGLCaps& caps) {
  * in its key (e.g. the pixel format of textures used). So we create a meta-key for
  * every effect using this function. It is also responsible for inserting the effect's class ID
  * which must be different for every GrProcessor subclass. It can fail if an effect uses too many
- * textures, transforms, etc, for the space allotted in the meta-key.  NOTE, both FPs and GPs share
- * this function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
+ * textures, transforms, etc, for the space allotted in the meta-key.
  */
-static bool get_meta_key(const GrProcessor& proc,
-                         const GrGLCaps& caps,
-                         uint32_t transformKey,
-                         uint32_t attribKey,
-                         GrProcessorKeyBuilder* b,
-                         uint16_t* processorKeySize) {
-    const GrBackendProcessorFactory& factory = proc.getFactory();
-    factory.getGLProcessorKey(proc, caps, b);
+
+static uint32_t* get_processor_meta_key(const GrProcessorStage& processorStage,
+                                        bool useExplicitLocalCoords,
+                                        const GrGLCaps& caps,
+                                        GrProcessorKeyBuilder* b) {
+
+    uint32_t textureKey = gen_texture_key(processorStage.getProcessor(), caps);
+    uint32_t transformKey = gen_transform_key(processorStage,useExplicitLocalCoords);
+    uint32_t classID = processorStage.getProcessor()->getFactory().effectClassID();
+
+    // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
+    // don't fit.
+    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t) SK_MaxU16);
+    if ((textureKey | transformKey | classID) & kMetaKeyInvalidMask) {
+        return NULL;
+    }
+
+    uint32_t* key = b->add32n(2);
+    key[0] = (textureKey << 16 | transformKey);
+    key[1] = (classID << 16);
+    return key;
+}
+
+static bool get_fp_key(const GrProcessorStage& stage,
+                       const GrGLCaps& caps,
+                       bool useExplicitLocalCoords,
+                       GrProcessorKeyBuilder* b,
+                       uint16_t* processorKeySize) {
+    const GrProcessor& effect = *stage.getProcessor();
+    const GrBackendProcessorFactory& factory = effect.getFactory();
+    factory.getGLProcessorKey(effect, caps, b);
     size_t size = b->size();
     if (size > SK_MaxU16) {
         *processorKeySize = 0; // suppresses a warning.
         return false;
     }
     *processorKeySize = SkToU16(size);
-    uint32_t textureKey = gen_texture_key(proc, caps);
-    uint32_t classID = proc.getFactory().effectClassID();
+    if (NULL == get_processor_meta_key(stage, useExplicitLocalCoords, caps, b)) {
+        return false;
+    }
+    return true;
+}
+
+static bool get_gp_key(const GrGeometryStage& stage,
+                       const GrGLCaps& caps,
+                       bool useExplicitLocalCoords,
+                       GrProcessorKeyBuilder* b,
+                       uint16_t* processorKeySize) {
+    const GrProcessor& effect = *stage.getProcessor();
+    const GrBackendProcessorFactory& factory = effect.getFactory();
+    factory.getGLProcessorKey(effect, caps, b);
+    size_t size = b->size();
+    if (size > SK_MaxU16) {
+        *processorKeySize = 0; // suppresses a warning.
+        return false;
+    }
+    *processorKeySize = SkToU16(size);
+    uint32_t* key = get_processor_meta_key(stage, useExplicitLocalCoords, caps, b);
+    if (NULL == key) {
+        return false;
+    }
+    uint32_t attribKey = gen_attrib_key(stage.getProcessor());
 
     // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
     // don't fit.
     static const uint32_t kMetaKeyInvalidMask = ~((uint32_t) SK_MaxU16);
-    if ((textureKey | transformKey | classID) & kMetaKeyInvalidMask) {
-        return false;
+    if ((attribKey) & kMetaKeyInvalidMask) {
+       return false;
     }
 
-    uint32_t* key = b->add32n(2);
-    key[0] = (textureKey << 16 | transformKey);
-    key[1] = (classID << 16);
+    key[1] |= attribKey;
     return true;
 }
 
 struct GeometryProcessorKeyBuilder {
-    typedef GrGeometryProcessor StagedProcessor;
-    static bool GetProcessorKey(const GrGeometryProcessor& gp,
+    typedef GrGeometryStage StagedProcessor;
+    static bool GetProcessorKey(const GrGeometryStage& gpStage,
                                 const GrGLCaps& caps,
-                                bool,
+                                bool requiresLocalCoordAttrib,
                                 GrProcessorKeyBuilder* b,
-                                uint16_t* keySize) {
-        /* 0 because no transforms on a GP */
-        return get_meta_key(gp, caps, 0, gen_attrib_key(gp), b, keySize);
+                                uint16_t* processorKeySize) {
+        return get_gp_key(gpStage, caps, requiresLocalCoordAttrib, b, processorKeySize);
     }
 };
 
 struct FragmentProcessorKeyBuilder {
     typedef GrFragmentStage StagedProcessor;
-    static bool GetProcessorKey(const GrFragmentStage& fps,
+    static bool GetProcessorKey(const GrFragmentStage& fpStage,
                                 const GrGLCaps& caps,
-                                bool useLocalCoords,
+                                bool requiresLocalCoordAttrib,
                                 GrProcessorKeyBuilder* b,
-                                uint16_t* keySize) {
-        /* 0 because no attribs on a fP */
-        return get_meta_key(*fps.getProcessor(), caps, gen_transform_key(fps, useLocalCoords), 0,
-                            b, keySize);
+                                uint16_t* processorKeySize) {
+        return get_fp_key(fpStage, caps, requiresLocalCoordAttrib, b, processorKeySize);
     }
 };
 
@@ -202,9 +242,17 @@ GrGLProgramDesc::BuildStagedProcessorKey(const typename ProcessorKeyBuilder::Sta
 
 bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
                             GrGpu::DrawType drawType,
+                            GrBlendCoeff srcCoeff,
+                            GrBlendCoeff dstCoeff,
                             GrGpuGL* gpu,
                             const GrDeviceCoordTexture* dstCopy,
+                            const GrGeometryStage** geometryProcessor,
+                            SkTArray<const GrFragmentStage*, true>* colorStages,
+                            SkTArray<const GrFragmentStage*, true>* coverageStages,
                             GrGLProgramDesc* desc) {
+    colorStages->reset();
+    coverageStages->reset();
+
     bool inputColorIsUsed = optState.inputColorIsUsed();
     bool inputCoverageIsUsed = optState.inputCoverageIsUsed();
 
@@ -226,17 +274,29 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
 
     // We can only have one effect which touches the vertex shader
     if (optState.hasGeometryProcessor()) {
-        if (!BuildStagedProcessorKey<GeometryProcessorKeyBuilder>(*optState.getGeometryProcessor(),
+        const GrGeometryStage& gpStage = *optState.getGeometryProcessor();
+        if (!BuildStagedProcessorKey<GeometryProcessorKeyBuilder>(gpStage,
                                                                   gpu->glCaps(),
-                                                                  false,
+                                                                  requiresLocalCoordAttrib,
+                                                                  desc,
+                                                                  &offsetAndSizeIndex)) {
+            return false;
+        }
+        *geometryProcessor = &gpStage;
+    }
+
+    for (int s = 0; s < optState.numColorStages(); ++s) {
+        if (!BuildStagedProcessorKey<FragmentProcessorKeyBuilder>(optState.getColorStage(s),
+                                                                  gpu->glCaps(),
+                                                                  requiresLocalCoordAttrib,
                                                                   desc,
                                                                   &offsetAndSizeIndex)) {
             return false;
         }
     }
 
-    for (int s = 0; s < optState.numFragmentStages(); ++s) {
-        if (!BuildStagedProcessorKey<FragmentProcessorKeyBuilder>(optState.getFragmentStage(s),
+    for (int s = 0; s < optState.numCoverageStages(); ++s) {
+        if (!BuildStagedProcessorKey<FragmentProcessorKeyBuilder>(optState.getCoverageStage(s),
                                                                   gpu->glCaps(),
                                                                   requiresLocalCoordAttrib,
                                                                   desc,
@@ -339,8 +399,15 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
     header->fPrimaryOutputType = optState.getPrimaryOutputType();
     header->fSecondaryOutputType = optState.getSecondaryOutputType();
 
-    header->fColorEffectCnt = optState.numColorStages();
-    header->fCoverageEffectCnt = optState.numCoverageStages();
+    for (int s = 0; s < optState.numColorStages(); ++s) {
+        colorStages->push_back(&optState.getColorStage(s));
+    }
+    for (int s = 0; s < optState.numCoverageStages(); ++s) {
+        coverageStages->push_back(&optState.getCoverageStage(s));
+    }
+
+    header->fColorEffectCnt = colorStages->count();
+    header->fCoverageEffectCnt = coverageStages->count();
     desc->finalize();
     return true;
 }

@@ -43,8 +43,13 @@ public:
      */
     static bool Build(const GrOptDrawState&,
                       GrGpu::DrawType,
+                      GrBlendCoeff srcCoeff,
+                      GrBlendCoeff dstCoeff,
                       GrGpuGL*,
-                      const GrDeviceCoordTexture*,
+                      const GrDeviceCoordTexture* dstCopy,
+                      const GrGeometryStage** geometryProcessor,
+                      SkTArray<const GrFragmentStage*, true>* colorStages,
+                      SkTArray<const GrFragmentStage*, true>* coverageStages,
                       GrGLProgramDesc*);
 
     bool hasGeometryProcessor() const {
@@ -155,22 +160,25 @@ private:
     const KeyHeader& getHeader() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
 
     /** Used to provide effects' keys to their emitCode() function. */
-    class ProcKeyProvider {
+    class EffectKeyProvider {
     public:
-        enum ProcessorType {
-            kGeometry_ProcessorType,
-            kFragment_ProcessorType,
+        enum EffectType {
+            kGeometryProcessor_EffectType,
+            kColor_EffectType,
+            kCoverage_EffectType,
         };
 
-        ProcKeyProvider(const GrGLProgramDesc* desc, ProcessorType type)
-            : fDesc(desc), fBaseIndex(0) {
+        EffectKeyProvider(const GrGLProgramDesc* desc, EffectType type) : fDesc(desc) {
             switch (type) {
-                case kGeometry_ProcessorType:
+                case kGeometryProcessor_EffectType:
                     // there can be only one
                     fBaseIndex = 0;
                     break;
-                case kFragment_ProcessorType:
+                case kColor_EffectType:
                     fBaseIndex = desc->hasGeometryProcessor() ? 1 : 0;
+                    break;
+                case kCoverage_EffectType:
+                    fBaseIndex = desc->numColorEffects() + (desc->hasGeometryProcessor() ? 1 : 0);
                     break;
             }
         }

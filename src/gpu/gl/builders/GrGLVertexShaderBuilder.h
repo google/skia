@@ -21,7 +21,7 @@ public:
     /**
      * Are explicit local coordinates provided as input to the vertex shader.
      */
-    bool hasLocalCoords() const { return (fLocalCoordsVar != fPositionVar); }
+    bool hasExplicitLocalCoords() const { return (fLocalCoordsVar != fPositionVar); }
 
     /** Returns a vertex attribute that represents the local coords in the VS. This may be the same
         as positionAttribute() or it may not be. It depends upon whether the rendering code

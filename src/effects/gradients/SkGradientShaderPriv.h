@@ -300,7 +300,7 @@ static inline int next_dither_toggle16(int toggle) {
 #include "GrCoordTransform.h"
 #include "gl/GrGLProcessor.h"
 
-class GrFragmentStage;
+class GrProcessorStage;
 class GrBackendProcessorFactory;
 
 /*

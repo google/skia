@@ -124,6 +124,12 @@ public:
         in generated shader code. */
     const char* name() const;
 
+    int numTransforms() const { return fCoordTransforms.count(); }
+
+    /** Returns the coordinate transformation at index. index must be valid according to
+        numTransforms(). */
+    const GrCoordTransform& coordTransform(int index) const { return *fCoordTransforms[index]; }
+
     int numTextures() const { return fTextureAccesses.count(); }
 
     /** Returns the access pattern for the texture at index. index must be valid according to
@@ -152,6 +158,16 @@ public:
     template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
 
 protected:
+    /**
+     * Subclasses call this from their constructor to register coordinate transformations. The
+     * effect subclass manages the lifetime of the transformations (this function only stores a
+     * pointer). The GrCoordTransform is typically a member field of the GrProcessor subclass. When
+     * the matrix has perspective, the transformed coordinates will have 3 components. Otherwise
+     * they'll have 2. This must only be called from the constructor because GrProcessors are
+     * immutable.
+     */
+    void addCoordTransform(const GrCoordTransform* coordTransform);
+
     /**
      * Subclasses call this from their constructor to register GrTextureAccesses. The effect
      * subclass manages the lifetime of the accesses (this function only stores a pointer). The
@@ -182,7 +198,9 @@ private:
      * Subclass implements this to support getConstantColorComponents(...).
      */
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const = 0;
+    friend class GrGeometryProcessor; // to set fRequiresVertexShader and build fVertexAttribTypes.
 
+    SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
     SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
     bool                                         fWillReadFragmentPosition;
 
@@ -198,12 +216,6 @@ public:
 
     virtual const GrBackendFragmentProcessorFactory& getFactory() const = 0;
 
-    int numTransforms() const { return fCoordTransforms.count(); }
-
-    /** Returns the coordinate transformation at index. index must be valid according to
-        numTransforms(). */
-    const GrCoordTransform& coordTransform(int index) const { return *fCoordTransforms[index]; }
-
     /** Will this effect read the destination pixel value? */
     bool willReadDstColor() const { return fWillReadDstColor; }
 
@@ -211,16 +223,6 @@ public:
     bool willUseInputColor() const { return fWillUseInputColor; }
 
 protected:
-    /**
-     * Fragment Processor subclasses call this from their constructor to register coordinate
-     * transformations. The processor subclass manages the lifetime of the transformations (this
-     * function only stores a pointer). The GrCoordTransform is typically a member field of the
-     * GrProcessor subclass. When the matrix has perspective, the transformed coordinates will have
-     * 3 components. Otherwise they'll have 2. This must only be called from the constructor because
-     * GrProcessors are immutable.
-     */
-    void addCoordTransform(const GrCoordTransform*);
-
     /**
      * If the effect subclass will read the destination pixel value then it must call this function
      * from its constructor. Otherwise, when its generated backend-specific effect class attempts
@@ -236,7 +238,6 @@ protected:
     void setWillNotUseInputColor() { fWillUseInputColor = false; }
 
 private:
-    SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
     bool                                         fWillReadDstColor;
     bool                                         fWillUseInputColor;
 

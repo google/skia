@@ -152,6 +152,9 @@ public:
      */
     void setData(const GrOptDrawState&,
                  GrGpu::DrawType,
+                 const GrGeometryStage* geometryProcessor,
+                 const GrFragmentStage* colorStages[],
+                 const GrFragmentStage* coverageStages[],
                  const GrDeviceCoordTexture* dstCopy, // can be NULL
                  SharedGLState*);
 
@@ -164,12 +167,13 @@ protected:
                 const BuiltinUniformHandles&,
                 GrGLuint programID,
                 const UniformInfoArray&,
-                GrGLInstalledGeoProc* geometryProcessor,
-                GrGLInstalledFragProcs* fragmentProcessors);
+                GrGLInstalledProcessors* geometryProcessor,
+                GrGLInstalledProcessors* colorProcessors,
+                GrGLInstalledProcessors* coverageProcessors);
 
     // Sets the texture units for samplers.
     void initSamplerUniforms();
-    void initSamplers(GrGLInstalledProc*, int* texUnitIdx);
+    void initSamplers(GrGLInstalledProcessors* processors, int* texUnitIdx);
 
     // Helper for setData(). Makes GL calls to specify the initial color when there is not
     // per-vertex colors.
@@ -180,9 +184,23 @@ protected:
     void setCoverage(const GrOptDrawState&, GrColor coverage, SharedGLState*);
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
-    void setFragmentData(const GrOptDrawState&);
-    virtual void setTransformData(const GrFragmentStage& effectStage, GrGLInstalledFragProc* pe);
-    void bindTextures(const GrGLInstalledProc*, const GrProcessor&);
+    template <class ProcessorStage>
+    void setData(const ProcessorStage* effectStages[],
+                 GrGLInstalledProcessors* installedProcessors) {
+        int numEffects = installedProcessors->fGLProcessors.count();
+        SkASSERT(numEffects == installedProcessors->fTransforms.count());
+        SkASSERT(numEffects == installedProcessors->fSamplers.count());
+        for (int e = 0; e < numEffects; ++e) {
+            const GrProcessor& effect = *effectStages[e]->getProcessor();
+            installedProcessors->fGLProcessors[e]->setData(fProgramDataManager, effect);
+            this->setTransformData(*effectStages[e], e, installedProcessors);
+            this->bindTextures(installedProcessors, effect, e);
+        }
+    }
+    virtual void setTransformData(const GrProcessorStage& effectStage,
+                                  int effectIdx,
+                                  GrGLInstalledProcessors* pe);
+    void bindTextures(const GrGLInstalledProcessors*, const GrProcessor&, int effectIdx);
 
     /*
      * Legacy NVPR needs a hook here to flush path tex gen settings.
@@ -203,8 +221,9 @@ protected:
     GrGLuint fProgramID;
 
     // the installed effects
-    SkAutoTDelete<GrGLInstalledGeoProc> fGeometryProcessor;
-    SkAutoTUnref<GrGLInstalledFragProcs> fFragmentProcessors;
+    SkAutoTUnref<GrGLInstalledProcessors> fGeometryProcessor;
+    SkAutoTUnref<GrGLInstalledProcessors> fColorEffects;
+    SkAutoTUnref<GrGLInstalledProcessors> fCoverageEffects;
 
     GrGLProgramDesc fDesc;
     GrGpuGL* fGpu;
@@ -229,7 +248,8 @@ protected:
                         const BuiltinUniformHandles&,
                         GrGLuint programID,
                         const UniformInfoArray&,
-                        GrGLInstalledFragProcs* fragmentProcessors);
+                        GrGLInstalledProcessors* colorProcessors,
+                        GrGLInstalledProcessors* coverageProcessors);
     virtual void onSetMatrixAndRenderTargetHeight(GrGpu::DrawType, const GrOptDrawState&);
 
     typedef GrGLProgram INHERITED;
@@ -247,10 +267,13 @@ private:
                     const BuiltinUniformHandles&,
                     GrGLuint programID,
                     const UniformInfoArray&,
-                    GrGLInstalledFragProcs* fragmentProcessors,
+                    GrGLInstalledProcessors* colorProcessors,
+                    GrGLInstalledProcessors* coverageProcessors,
                     const SeparableVaryingInfoArray& separableVaryings);
     virtual void didSetData(GrGpu::DrawType) SK_OVERRIDE;
-    virtual void setTransformData(const GrFragmentStage&, GrGLInstalledFragProc*) SK_OVERRIDE;
+    virtual void setTransformData(const GrProcessorStage&,
+                                  int effectIdx,
+                                  GrGLInstalledProcessors*) SK_OVERRIDE;
 
     struct Varying {
         GrGLint     fLocation;
@@ -275,10 +298,13 @@ private:
                           const BuiltinUniformHandles&,
                           GrGLuint programID,
                           const UniformInfoArray&,
-                          GrGLInstalledFragProcs* fragmentProcessors,
+                          GrGLInstalledProcessors* colorProcessors,
+                          GrGLInstalledProcessors* coverageProcessors,
                           int texCoordSetCnt);
     virtual void didSetData(GrGpu::DrawType) SK_OVERRIDE;
-    virtual void setTransformData(const GrFragmentStage&, GrGLInstalledFragProc*) SK_OVERRIDE;
+    virtual void setTransformData(const GrProcessorStage&,
+                                  int effectIdx,
+                                  GrGLInstalledProcessors*) SK_OVERRIDE;
 
     int fTexCoordSetCnt;
 

@@ -127,7 +127,7 @@ public:
     }
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
-    const GrGeometryProcessor* getGeometryProcessor() const { return fGeometryProcessor.get(); }
+    const GrGeometryStage* getGeometryProcessor() const { return fGeometryProcessor.get(); }
     const GrFragmentStage& getColorStage(int idx) const {
         SkASSERT(idx < this->numColorStages());
         return fFragmentStages[idx];
@@ -441,12 +441,11 @@ private:
     GrBlendCoeff                        fDstBlend;
 
     typedef SkSTArray<8, GrFragmentStage> FragmentStageArray;
-    typedef GrProgramElementRef<const GrGeometryProcessor> ProgramGeometryProcessor;
-    ProgramGeometryProcessor            fGeometryProcessor;
-    FragmentStageArray                  fFragmentStages;
+    SkAutoTDelete<GrGeometryStage>        fGeometryProcessor;
+    FragmentStageArray                    fFragmentStages;
 
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
-    int                                 fNumColorStages;
+    int                                   fNumColorStages;
 
     // This is simply a different representation of info in fVertexAttribs and thus does
     // not need to be compared in op==.

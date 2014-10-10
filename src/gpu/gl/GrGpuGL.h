@@ -181,7 +181,10 @@ private:
         void abandon();
         GrGLProgram* getProgram(const GrOptDrawState&,
                                 const GrGLProgramDesc&,
-                                DrawType);
+                                DrawType,
+                                const GrGeometryStage* geometryProcessor,
+                                const GrFragmentStage* colorStages[],
+                                const GrFragmentStage* coverageStages[]);
 
     private:
         enum {

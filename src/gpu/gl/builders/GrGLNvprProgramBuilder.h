@@ -28,11 +28,11 @@ public:
     virtual GrGLProgram* createProgram(GrGLuint programID);
 
 private:
-    virtual void emitTransforms(const GrFragmentStage&,
+    virtual void emitTransforms(const GrProcessorStage&,
                                 GrGLProcessor::TransformedCoordsArray* outCoords,
-                                GrGLInstalledFragProc*) SK_OVERRIDE;
+                                GrGLInstalledProcessors*) SK_OVERRIDE;
 
-    typedef GrGLInstalledFragProc::ShaderVarHandle ShaderVarHandle;
+    typedef GrGLInstalledProcessors::ShaderVarHandle ShaderVarHandle;
 
     /**
      * Add a separable varying input variable to the current program.

@@ -24,14 +24,16 @@
 // is immutable, and only owns pending execution refs. This requries removing the common base
 // class from GrDrawState and GrOptDrawState called GrRODrawState and converting to GrOptDrawState
 // when draws are enqueued in the GrInOrderDrawBuffer.
-class GrFragmentStage {
+class GrProcessorStage {
 public:
-    explicit GrFragmentStage(const GrFragmentProcessor* proc)
+    explicit GrProcessorStage(const GrProcessor* proc)
     : fProc(SkRef(proc)) {
         fCoordChangeMatrixSet = false;
     }
 
-    GrFragmentStage(const GrFragmentStage& other) {
+    virtual ~GrProcessorStage() {}
+
+    GrProcessorStage(const GrProcessorStage& other) {
         fCoordChangeMatrixSet = other.fCoordChangeMatrixSet;
         if (other.fCoordChangeMatrixSet) {
             fCoordChangeMatrix = other.fCoordChangeMatrix;
@@ -39,7 +41,7 @@ public:
         fProc.initAndRef(other.fProc);
     }
     
-    static bool AreCompatible(const GrFragmentStage& a, const GrFragmentStage& b,
+    static bool AreCompatible(const GrProcessorStage& a, const GrProcessorStage& b,
                               bool usingExplicitLocalCoords) {
         SkASSERT(a.fProc.get());
         SkASSERT(b.fProc.get());
@@ -88,7 +90,7 @@ public:
         SkMatrix fCoordChangeMatrix;
         SkDEBUGCODE(mutable uint32_t fEffectUniqueID;)
 
-        friend class GrFragmentStage;
+        friend class GrProcessorStage;
     };
 
     /**
@@ -147,14 +149,38 @@ public:
         }
     }
 
-    const GrFragmentProcessor* getProcessor() const { return fProc.get(); }
+    virtual const GrProcessor* getProcessor() const = 0;
 
     void convertToPendingExec() { fProc.convertToPendingExec(); }
 
 protected:
-    bool                                           fCoordChangeMatrixSet;
-    SkMatrix                                       fCoordChangeMatrix;
-    GrProgramElementRef<const GrFragmentProcessor> fProc;
+    bool                                   fCoordChangeMatrixSet;
+    SkMatrix                               fCoordChangeMatrix;
+    GrProgramElementRef<const GrProcessor> fProc;
+};
+
+class GrFragmentStage : public GrProcessorStage {
+public:
+    GrFragmentStage(const GrFragmentProcessor* fp) : GrProcessorStage(fp) {}
+
+    virtual const GrFragmentProcessor* getProcessor() const {
+        return static_cast<const GrFragmentProcessor*>(fProc.get());
+    }
+
+    typedef GrFragmentProcessor   Processor;
+    typedef GrGLFragmentProcessor GLProcessor;
+};
+
+class GrGeometryStage : public GrProcessorStage {
+public:
+    GrGeometryStage(const GrGeometryProcessor* gp) : GrProcessorStage(gp) {}
+
+    virtual const GrGeometryProcessor* getProcessor() const {
+        return static_cast<const GrGeometryProcessor*>(fProc.get());
+    }
+
+    typedef GrGeometryProcessor   Processor;
+    typedef GrGLGeometryProcessor GLProcessor;
 };
 
 #endif

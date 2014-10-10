@@ -114,7 +114,6 @@ public:
         @param samplers     Contains one entry for each GrTextureAccess of the GrProcessor. These
                             can be passed to the builder to emit texture reads in the generated
                             code.
-        TODO this should take a struct
         */
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& effect,
