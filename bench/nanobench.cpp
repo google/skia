@@ -35,7 +35,7 @@
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-static const int kAutoTuneLoops = -1;
+static const int kAutoTuneLoops = 0;
 
 static const int kDefaultLoops =
 #ifdef SK_DEBUG
@@ -112,6 +112,14 @@ static double estimate_timer_overhead() {
         overhead += time(1, NULL, NULL, NULL);
     }
     return overhead / FLAGS_overheadLoops;
+}
+
+static int detect_forever_loops(int loops) {
+    // look for a magic run-forever value
+    if (loops < 0) {
+        loops = SK_MaxS32;
+    }
+    return loops;
 }
 
 static int clamp_loops(int loops) {
@@ -193,8 +201,10 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
         const double numer = overhead / FLAGS_overheadGoal - overhead;
         const double denom = bench_plus_overhead - overhead;
         loops = (int)ceil(numer / denom);
+        loops = clamp_loops(loops);
+    } else {
+        loops = detect_forever_loops(loops);
     }
-    loops = clamp_loops(loops);
 
     for (int i = 0; i < FLAGS_samples; i++) {
         samples[i] = time(loops, bench, canvas, NULL) / loops;
@@ -228,11 +238,13 @@ static int gpu_bench(SkGLContext* gl,
 
         // We've overshot at least a little.  Scale back linearly.
         loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
+        loops = clamp_loops(loops);
 
         // Might as well make sure we're not still timing our calibration.
         SK_GL(*gl, Finish());
+    } else {
+        loops = detect_forever_loops(loops);
     }
-    loops = clamp_loops(loops);
 
     // Pretty much the same deal as the calibration: do some warmup to make
     // sure we're timing steady-state pipelined frames.
