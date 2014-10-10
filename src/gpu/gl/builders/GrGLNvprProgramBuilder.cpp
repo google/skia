@@ -18,15 +18,13 @@ GrGLNvprProgramBuilder::GrGLNvprProgramBuilder(GrGpuGL* gpu,
         , fSeparableVaryingInfos(kVarsPerBlock) {
 }
 
-void GrGLNvprProgramBuilder::emitTransforms(const GrProcessorStage& processorStage,
+void GrGLNvprProgramBuilder::emitTransforms(const GrFragmentStage& processorStage,
                                             GrGLProcessor::TransformedCoordsArray* outCoords,
-                                            GrGLInstalledProcessors* installedProcessors) {
-    const GrProcessor* effect = processorStage.getProcessor();
+                                            GrGLInstalledFragProc* ifp) {
+    const GrFragmentProcessor* effect = processorStage.getProcessor();
     int numTransforms = effect->numTransforms();
 
-    SkTArray<GrGLInstalledProcessors::Transform, true>& transforms =
-            installedProcessors->addTransforms();
-    transforms.push_back_n(numTransforms);
+    ifp->fTransforms.push_back_n(numTransforms);
 
     for (int t = 0; t < numTransforms; t++) {
         GrSLType varyingType =
@@ -43,24 +41,24 @@ void GrGLNvprProgramBuilder::emitTransforms(const GrProcessorStage& processorSta
         }
         const char* vsVaryingName;
         const char* fsVaryingName;
-        transforms[t].fHandle = this->addSeparableVarying(varyingType, varyingName,
-                                                          &vsVaryingName, &fsVaryingName);
-        transforms[t].fType = varyingType;
+        ifp->fTransforms[t].fHandle = this->addSeparableVarying(varyingType, varyingName,
+                                                                &vsVaryingName, &fsVaryingName);
+        ifp->fTransforms[t].fType = varyingType;
 
         SkNEW_APPEND_TO_TARRAY(outCoords, GrGLProcessor::TransformedCoords,
                                (SkString(fsVaryingName), varyingType));
     }
 }
 
-GrGLInstalledProcessors::ShaderVarHandle
+GrGLInstalledFragProc::ShaderVarHandle
 GrGLNvprProgramBuilder::addSeparableVarying(GrSLType type,
-                                              const char* name,
-                                              const char** vsOutName,
-                                              const char** fsInName) {
+                                            const char* name,
+                                            const char** vsOutName,
+                                            const char** fsInName) {
     addVarying(type, name, vsOutName, fsInName);
     SeparableVaryingInfo& varying = fSeparableVaryingInfos.push_back();
     varying.fVariable = fFS.fInputs.back();
-    return GrGLInstalledProcessors::ShaderVarHandle(fSeparableVaryingInfos.count() - 1);
+    return GrGLInstalledFragProc::ShaderVarHandle(fSeparableVaryingInfos.count() - 1);
 }
 
 void GrGLNvprProgramBuilder::resolveSeparableVaryings(GrGLuint programId) {
@@ -80,5 +78,5 @@ GrGLProgram* GrGLNvprProgramBuilder::createProgram(GrGLuint programID) {
     // building
     this->resolveSeparableVaryings(programID);
     return SkNEW_ARGS(GrGLNvprProgram, (fGpu, fDesc, fUniformHandles, programID, fUniforms,
-                                        fColorEffects, fCoverageEffects, fSeparableVaryingInfos));
+                                        fFragmentProcessors.get(), fSeparableVaryingInfos));
 }

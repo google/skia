@@ -32,16 +32,13 @@ const int GrGLProgramBuilder::kVarsPerBlock = 8;
 GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
                                                const GrGLProgramDesc& desc,
                                                GrGpu::DrawType drawType,
-                                               const GrGeometryStage* geometryProcessor,
-                                               const GrFragmentStage* colorStages[],
-                                               const GrFragmentStage* coverageStages[],
                                                GrGpuGL* gpu) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
     SkAutoTDelete<GrGLProgramBuilder> builder(CreateProgramBuilder(desc,
                                                                    optState,
                                                                    drawType,
-                                                                   SkToBool(geometryProcessor),
+                                                                   optState.hasGeometryProcessor(),
                                                                    gpu));
 
     GrGLProgramBuilder* pb = builder.get();
@@ -74,8 +71,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
         }
     }
 
-    pb->createAndEmitProcessors(geometryProcessor, colorStages, coverageStages, &inputColor,
-                                &inputCoverage);
+    pb->emitAndInstallProcs(optState, &inputColor, &inputCoverage);
 
     if (hasVertexShader) {
         pb->fVS.transformSkiaToGLCoords();
@@ -116,13 +112,15 @@ GrGLProgramBuilder::CreateProgramBuilder(const GrGLProgramDesc& desc,
 
 /////////////////////////////////////////////////////////////////////////////
 
-GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu, const GrOptDrawState& optState,
+GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu,
+                                       const GrOptDrawState& optState,
                                        const GrGLProgramDesc& desc)
     : fVS(this)
     , fGS(this)
     , fFS(this, desc)
     , fOutOfStage(true)
     , fStageIndex(-1)
+    , fGeometryProcessor(NULL)
     , fOptState(optState)
     , fDesc(desc)
     , fGpu(gpu)
@@ -225,104 +223,106 @@ void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* input
     }
 }
 
-void GrGLProgramBuilder::createAndEmitProcessors(const GrGeometryStage* geometryProcessor,
-                                                 const GrFragmentStage* colorStages[],
-                                                 const GrFragmentStage* coverageStages[],
-                                                 GrGLSLExpr4* inputColor,
-                                                 GrGLSLExpr4* inputCoverage) {
-    bool useLocalCoords = fVS.hasExplicitLocalCoords();
-
-    EffectKeyProvider colorKeyProvider(&fDesc, EffectKeyProvider::kColor_EffectType);
-    int numColorEffects = fDesc.numColorEffects();
-    GrGLInstalledProcessors* ip = SkNEW_ARGS(GrGLInstalledProcessors, (numColorEffects,
-                                                                       useLocalCoords));
-    this->createAndEmitProcessors<GrFragmentStage>(colorStages, numColorEffects, colorKeyProvider,
-                                                   inputColor, ip);
-    fColorEffects.reset(ip);
-
-    if (geometryProcessor) {
-        fVS.emitAttributes(*geometryProcessor->getProcessor());
-        EffectKeyProvider gpKeyProvider(&fDesc, EffectKeyProvider::kGeometryProcessor_EffectType);
-        ip = SkNEW_ARGS(GrGLInstalledProcessors, (1, useLocalCoords));
-        this->createAndEmitProcessors<GrGeometryStage>(&geometryProcessor, 1, gpKeyProvider,
-                                                       inputCoverage, ip);
-        fGeometryProcessor.reset(ip);
+void GrGLProgramBuilder::emitAndInstallProcs(const GrOptDrawState& optState,
+                                             GrGLSLExpr4* inputColor,
+                                             GrGLSLExpr4* inputCoverage) {
+    fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));
+    int numProcs = optState.numFragmentStages();
+    this->emitAndInstallFragProcs(0, optState.numColorStages(), inputColor);
+    if (optState.hasGeometryProcessor()) {
+        const GrGeometryProcessor& gp = *optState.getGeometryProcessor();
+        fVS.emitAttributes(gp);
+        ProcKeyProvider keyProvider(&fDesc, ProcKeyProvider::kGeometry_ProcessorType);
+        GrGLSLExpr4 output;
+        this->emitAndInstallProc<GrGeometryProcessor>(gp, 0, keyProvider, *inputCoverage, &output);
+        *inputCoverage = output;
     }
-
-    EffectKeyProvider coverageKeyProvider(&fDesc, EffectKeyProvider::kCoverage_EffectType);
-    int numCoverageEffects = fDesc.numCoverageEffects();
-    ip = SkNEW_ARGS(GrGLInstalledProcessors, (numCoverageEffects, useLocalCoords));
-    this->createAndEmitProcessors<GrFragmentStage>(coverageStages, numCoverageEffects,
-                                                   coverageKeyProvider, inputCoverage, ip);
-    fCoverageEffects.reset(ip);
+    this->emitAndInstallFragProcs(optState.numColorStages(), numProcs,  inputCoverage);
 }
 
-template <class ProcessorStage>
-void GrGLProgramBuilder::createAndEmitProcessors(const ProcessorStage* processStages[],
-                                                 int effectCnt,
-                                                 const EffectKeyProvider& keyProvider,
-                                                 GrGLSLExpr4* fsInOutColor,
-                                                 GrGLInstalledProcessors* installedProcessors) {
-    bool effectEmitted = false;
-
-    GrGLSLExpr4 inColor = *fsInOutColor;
-    GrGLSLExpr4 outColor;
-
-    for (int e = 0; e < effectCnt; ++e) {
-        // Program builders have a bit of state we need to clear with each effect
-        AutoStageAdvance adv(this);
-        const ProcessorStage& stage = *processStages[e];
-        SkASSERT(stage.getProcessor());
-
-        if (inColor.isZeros()) {
-            SkString inColorName;
-
-            // Effects have no way to communicate zeros, they treat an empty string as ones.
-            this->nameVariable(&inColorName, '\0', "input");
-            fFS.codeAppendf("vec4 %s = %s;", inColorName.c_str(), inColor.c_str());
-            inColor = inColorName;
-        }
-
-        // create var to hold stage result
-        SkString outColorName;
-        this->nameVariable(&outColorName, '\0', "output");
-        fFS.codeAppendf("vec4 %s;", outColorName.c_str());
-        outColor = outColorName;
-
-        SkASSERT(installedProcessors);
-        const typename ProcessorStage::Processor& processor = *stage.getProcessor();
-        SkSTArray<2, GrGLProcessor::TransformedCoords> coords(processor.numTransforms());
-        SkSTArray<4, GrGLProcessor::TextureSampler> samplers(processor.numTextures());
-
-        this->emitTransforms(stage, &coords, installedProcessors);
-        this->emitSamplers(processor, &samplers, installedProcessors);
-
-        typename ProcessorStage::GLProcessor* glEffect =
-                processor.getFactory().createGLInstance(processor);
-        installedProcessors->addEffect(glEffect);
-
-        // Enclose custom code in a block to avoid namespace conflicts
-        SkString openBrace;
-        openBrace.printf("{ // Stage %d: %s\n", fStageIndex, glEffect->name());
-        fFS.codeAppend(openBrace.c_str());
-        fVS.codeAppend(openBrace.c_str());
-
-        glEffect->emitCode(this, processor, keyProvider.get(e), outColor.c_str(),
-                           inColor.isOnes() ? NULL : inColor.c_str(), coords, samplers);
-
-        // We have to check that effects and the code they emit are consistent, ie if an effect
-        // asks for dst color, then the emit code needs to follow suit
-        verify(processor);
-        fFS.codeAppend("}");
-        fVS.codeAppend("}");
-
-        inColor = outColor;
-        effectEmitted = true;
+void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset, int numProcs, GrGLSLExpr4* inOut) {
+    ProcKeyProvider keyProvider(&fDesc, ProcKeyProvider::kFragment_ProcessorType);
+    for (int e = procOffset; e < numProcs; ++e) {
+        GrGLSLExpr4 output;
+        const GrFragmentStage& stage = fOptState.getFragmentStage(e);
+        this->emitAndInstallProc<GrFragmentStage>(stage, e, keyProvider, *inOut, &output);
+        *inOut = output;
     }
+}
 
-    if (effectEmitted) {
-        *fsInOutColor = outColor;
-    }
+// TODO Processors cannot output zeros because an empty string is all 1s
+// the fix is to allow effects to take the GrGLSLExpr4 directly
+template <class Proc>
+void GrGLProgramBuilder::emitAndInstallProc(const Proc& proc,
+                                            int index,
+                                            const ProcKeyProvider keyProvider,
+                                            const GrGLSLExpr4& input,
+                                            GrGLSLExpr4* output) {
+    // Program builders have a bit of state we need to clear with each effect
+    AutoStageAdvance adv(this);
+
+    // create var to hold stage result
+    SkString outColorName;
+    this->nameVariable(&outColorName, '\0', "output");
+    fFS.codeAppendf("vec4 %s;", outColorName.c_str());
+    *output = outColorName;
+
+    // Enclose custom code in a block to avoid namespace conflicts
+    SkString openBrace;
+    openBrace.printf("{ // Stage %d\n", fStageIndex);
+    fFS.codeAppend(openBrace.c_str());
+
+    this->emitAndInstallProc(proc, keyProvider.get(index), output->c_str(),
+                             input.isOnes() ? NULL : input.c_str());
+
+    fFS.codeAppend("}");
+}
+
+void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentStage& fs,
+                                            const GrProcessorKey& key,
+                                            const char* outColor,
+                                            const char* inColor) {
+    GrGLInstalledFragProc* ifp = SkNEW_ARGS(GrGLInstalledFragProc, (fVS.hasLocalCoords()));
+
+    const GrFragmentProcessor& fp = *fs.getProcessor();
+    ifp->fGLProc = fp.getFactory().createGLInstance(fp);
+
+    SkSTArray<4, GrGLProcessor::TextureSampler> samplers(fp.numTextures());
+    this->emitSamplers(fp, &samplers, ifp);
+
+    // Fragment processors can have coord transforms
+    SkSTArray<2, GrGLProcessor::TransformedCoords> coords(fp.numTransforms());
+    this->emitTransforms(fs, &coords, ifp);
+
+    ifp->fGLProc->emitCode(this, fp, key, outColor, inColor, coords, samplers);
+
+    // We have to check that effects and the code they emit are consistent, ie if an effect
+    // asks for dst color, then the emit code needs to follow suit
+    verify(fp);
+    fFragmentProcessors->fProcs.push_back(ifp);
+}
+
+void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
+                                            const GrProcessorKey& key,
+                                            const char* outColor,
+                                            const char* inColor) {
+    SkASSERT(!fGeometryProcessor);
+    fGeometryProcessor = SkNEW(GrGLInstalledGeoProc);
+
+    fGeometryProcessor->fGLProc = gp.getFactory().createGLInstance(gp);
+
+    SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
+    this->emitSamplers(gp, &samplers, fGeometryProcessor);
+
+    SkSTArray<2, GrGLProcessor::TransformedCoords> coords;
+
+    // TODO remove coords from emit code signature, probably best to use a struct here so these
+    // updates are less painful
+    fGeometryProcessor->fGLProc->emitCode(this, gp, key, outColor, inColor, coords, samplers);
+
+    // We have to check that effects and the code they emit are consistent, ie if an effect
+    // asks for dst color, then the emit code needs to follow suit
+    verify(gp);
 }
 
 void GrGLProgramBuilder::verify(const GrGeometryProcessor& gp) {
@@ -334,19 +334,17 @@ void GrGLProgramBuilder::verify(const GrFragmentProcessor& fp) {
     SkASSERT(fFS.hasReadDstColor() == fp.willReadDstColor());
 }
 
-void GrGLProgramBuilder::emitTransforms(const GrProcessorStage& effectStage,
+void GrGLProgramBuilder::emitTransforms(const GrFragmentStage& effectStage,
                                         GrGLProcessor::TransformedCoordsArray* outCoords,
-                                        GrGLInstalledProcessors* installedProcessors) {
-    SkTArray<GrGLInstalledProcessors::Transform, true>& transforms =
-            installedProcessors->addTransforms();
-    const GrProcessor* effect = effectStage.getProcessor();
+                                        GrGLInstalledFragProc* ifp) {
+    const GrFragmentProcessor* effect = effectStage.getProcessor();
     int numTransforms = effect->numTransforms();
-    transforms.push_back_n(numTransforms);
+    ifp->fTransforms.push_back_n(numTransforms);
 
     for (int t = 0; t < numTransforms; t++) {
         const char* uniName = "StageMatrix";
         GrSLType varyingType =
-                effectStage.isPerspectiveCoordTransform(t, fVS.hasExplicitLocalCoords()) ?
+                effectStage.isPerspectiveCoordTransform(t, fVS.hasLocalCoords()) ?
                         kVec3f_GrSLType :
                         kVec2f_GrSLType;
 
@@ -356,10 +354,10 @@ void GrGLProgramBuilder::emitTransforms(const GrProcessorStage& effectStage,
             suffixedUniName.appendf("_%i", t);
             uniName = suffixedUniName.c_str();
         }
-        transforms[t].fHandle = this->addUniform(GrGLProgramBuilder::kVertex_Visibility,
-                                                 kMat33f_GrSLType,
-                                                 uniName,
-                                                 &uniName).toShaderBuilderIndex();
+        ifp->fTransforms[t].fHandle = this->addUniform(GrGLProgramBuilder::kVertex_Visibility,
+                                                       kMat33f_GrSLType,
+                                                       uniName,
+                                                       &uniName).toShaderBuilderIndex();
 
         const char* varyingName = "MatrixCoord";
         SkString suffixedVaryingName;
@@ -393,18 +391,17 @@ void GrGLProgramBuilder::emitTransforms(const GrProcessorStage& effectStage,
 
 void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
                                       GrGLProcessor::TextureSamplerArray* outSamplers,
-                                      GrGLInstalledProcessors* installedProcessors) {
-    SkTArray<GrGLInstalledProcessors::Sampler, true>& samplers = installedProcessors->addSamplers();
+                                      GrGLInstalledProc* ip) {
     int numTextures = processor.numTextures();
-    samplers.push_back_n(numTextures);
+    ip->fSamplers.push_back_n(numTextures);
     SkString name;
     for (int t = 0; t < numTextures; ++t) {
         name.printf("Sampler%d", t);
-        samplers[t].fUniform = this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                kSampler2D_GrSLType,
-                                                name.c_str());
+        ip->fSamplers[t].fUniform = this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                                     kSampler2D_GrSLType,
+                                                     name.c_str());
         SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLProcessor::TextureSampler,
-                               (samplers[t].fUniform, processor.textureAccess(t)));
+                               (ip->fSamplers[t].fUniform, processor.textureAccess(t)));
     }
 }
 
@@ -506,14 +503,14 @@ void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
 
 GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
     return SkNEW_ARGS(GrGLProgram, (fGpu, fDesc, fUniformHandles, programID, fUniforms,
-                                    fGeometryProcessor, fColorEffects, fCoverageEffects));
+                                    fGeometryProcessor, fFragmentProcessors.get()));
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrGLInstalledProcessors::~GrGLInstalledProcessors() {
-    int numEffects = fGLProcessors.count();
-    for (int e = 0; e < numEffects; ++e) {
-        SkDELETE(fGLProcessors[e]);
+GrGLInstalledFragProcs::~GrGLInstalledFragProcs() {
+    int numProcs = fProcs.count();
+    for (int e = 0; e < numProcs; ++e) {
+        SkDELETE(fProcs[e]->fGLProc);
     }
 }

@@ -54,7 +54,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
 
     // Copy GeometryProcesssor from DS or ODS
     if (drawState.hasGeometryProcessor()) {
-        fGeometryProcessor.reset(SkNEW_ARGS(GrGeometryStage, (*drawState.getGeometryProcessor())));
+        fGeometryProcessor.initAndRef(drawState.fGeometryProcessor);
     } else {
         fGeometryProcessor.reset(NULL);
     }
@@ -305,8 +305,8 @@ void GrOptDrawState::getStageStats(const GrDrawState& ds, int firstColorStageIdx
         get_stage_stats(stage, &fReadsDst, &fReadsFragPosition);
     }
     if (ds.hasGeometryProcessor()) {
-        const GrGeometryStage& stage = *ds.getGeometryProcessor();
-        fReadsFragPosition = fReadsFragPosition || stage.getProcessor()->willReadFragmentPosition();
+        const GrGeometryProcessor& gp = *ds.getGeometryProcessor();
+        fReadsFragPosition = fReadsFragPosition || gp.willReadFragmentPosition();
     }
 }
 
@@ -354,9 +354,7 @@ bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
     if (this->hasGeometryProcessor()) {
         if (!that.hasGeometryProcessor()) {
             return false;
-        } else if (!GrProcessorStage::AreCompatible(*this->getGeometryProcessor(),
-                                                    *that.getGeometryProcessor(),
-                                                    explicitLocalCoords)) {
+        } else if (!this->getGeometryProcessor()->isEqual(*that.getGeometryProcessor())) {
             return false;
         }
     } else if (that.hasGeometryProcessor()) {
@@ -364,8 +362,8 @@ bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
     }
 
     for (int i = 0; i < this->numFragmentStages(); i++) {
-        if (!GrProcessorStage::AreCompatible(this->getFragmentStage(i), that.getFragmentStage(i),
-                                             explicitLocalCoords)) {
+        if (!GrFragmentStage::AreCompatible(this->getFragmentStage(i), that.getFragmentStage(i),
+                                            explicitLocalCoords)) {
             return false;
         }
     }

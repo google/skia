@@ -103,11 +103,6 @@ const char* GrProcessor::name() const {
     return this->getFactory().name();
 }
 
-void GrProcessor::addCoordTransform(const GrCoordTransform* transform) {
-    fCoordTransforms.push_back(transform);
-    SkDEBUGCODE(transform->setInEffect();)
-}
-
 void GrProcessor::addTextureAccess(const GrTextureAccess* access) {
     fTextureAccesses.push_back(access);
     this->addGpuResource(access->getProgramTexture());
@@ -123,10 +118,6 @@ void GrProcessor::operator delete(void* target) {
 
 #ifdef SK_DEBUG
 void GrProcessor::assertEquality(const GrProcessor& other) const {
-    SkASSERT(this->numTransforms() == other.numTransforms());
-    for (int i = 0; i < this->numTransforms(); ++i) {
-        SkASSERT(this->coordTransform(i) == other.coordTransform(i));
-    }
     SkASSERT(this->numTextures() == other.numTextures());
     for (int i = 0; i < this->numTextures(); ++i) {
         SkASSERT(this->textureAccess(i) == other.textureAccess(i));
@@ -173,5 +164,11 @@ bool GrProcessor::InvariantOutput::validPreMulColor() const {
     }
     return true;
 }
-#endif
+#endif // end DEBUG
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
+    fCoordTransforms.push_back(transform);
+    SkDEBUGCODE(transform->setInEffect();)
+}

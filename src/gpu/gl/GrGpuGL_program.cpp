@@ -93,10 +93,7 @@ int GrGpuGL::ProgramCache::search(const GrGLProgramDesc& desc) const {
 
 GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState,
                                                const GrGLProgramDesc& desc,
-                                               DrawType type,
-                                               const GrGeometryStage* geometryProcessor,
-                                               const GrFragmentStage* colorStages[],
-                                               const GrFragmentStage* coverageStages[]) {
+                                               DrawType type) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif
@@ -131,9 +128,7 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState,
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(optState, desc, type,
-                                                                 geometryProcessor, colorStages,
-                                                                 coverageStages, fGpu);
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(optState, desc, type, fGpu);
         if (NULL == program) {
             return NULL;
         }
@@ -237,30 +232,13 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
             return false;
         }
 
-        const GrGeometryStage* geometryProcessor = NULL;
-        SkSTArray<8, const GrFragmentStage*, true> colorStages;
-        SkSTArray<8, const GrFragmentStage*, true> coverageStages;
         GrGLProgramDesc desc;
-        if (!GrGLProgramDesc::Build(*optState.get(),
-                                    type,
-                                    srcCoeff,
-                                    dstCoeff,
-                                    this,
-                                    dstCopy,
-                                    &geometryProcessor,
-                                    &colorStages,
-                                    &coverageStages,
-                                    &desc)) {
+        if (!GrGLProgramDesc::Build(*optState.get(), type, this, dstCopy, &desc)) {
             SkDEBUGFAIL("Failed to generate GL program descriptor");
             return false;
         }
 
-        fCurrentProgram.reset(fProgramCache->getProgram(*optState.get(),
-                                                        desc,
-                                                        type,
-                                                        geometryProcessor,
-                                                        colorStages.begin(),
-                                                        coverageStages.begin()));
+        fCurrentProgram.reset(fProgramCache->getProgram(*optState.get(), desc, type));
         if (NULL == fCurrentProgram.get()) {
             SkDEBUGFAIL("Failed to create program!");
             return false;
@@ -276,13 +254,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
 
         this->flushBlend(*optState.get(), kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
-        fCurrentProgram->setData(*optState.get(),
-                                 type,
-                                 geometryProcessor,
-                                 colorStages.begin(),
-                                 coverageStages.begin(),
-                                 dstCopy,
-                                 &fSharedGLProgramState);
+        fCurrentProgram->setData(*optState.get(), type, dstCopy, &fSharedGLProgramState);
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState->getRenderTarget());
