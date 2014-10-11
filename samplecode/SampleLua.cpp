@@ -23,6 +23,7 @@ extern "C" {
 
 static const char gDrawName[] = "onDrawContent";
 static const char gClickName[] = "onClickHandler";
+static const char gUnicharName[] = "onCharHandler";
 
 static const char gMissingCode[] = ""
     "local paint = Sk.newPaint()"
@@ -79,6 +80,21 @@ protected:
         }
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
+            lua_State* L = this->ensureLua();
+            lua_getglobal(L, gUnicharName);
+            if (lua_isfunction(L, -1)) {
+                SkString str;
+                str.appendUnichar(uni);
+                fLua->pushString(str.c_str());
+                if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
+                    SkDebugf("lua err: %s\n", lua_tostring(L, -1));
+                } else {
+                    if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
+                        this->inval(NULL);
+                        return true;
+                    }
+                }
+            }
         }
         return this->INHERITED::onQuery(evt);
     }
