@@ -43,9 +43,7 @@ bool GrDrawState::isEqual(const GrDrawState& that) const {
     if (this->hasGeometryProcessor()) {
         if (!that.hasGeometryProcessor()) {
             return false;
-        } else if (!GrProcessorStage::AreCompatible(*this->getGeometryProcessor(),
-                                                    *that.getGeometryProcessor(),
-                                                    explicitLocalCoords)) {
+        } else if (!this->getGeometryProcessor()->isEqual(*that.getGeometryProcessor())) {
             return false;
         }
     } else if (that.hasGeometryProcessor()) {
@@ -53,13 +51,13 @@ bool GrDrawState::isEqual(const GrDrawState& that) const {
     }
 
     for (int i = 0; i < this->numColorStages(); i++) {
-        if (!GrProcessorStage::AreCompatible(this->getColorStage(i), that.getColorStage(i),
+        if (!GrFragmentStage::AreCompatible(this->getColorStage(i), that.getColorStage(i),
                                              explicitLocalCoords)) {
             return false;
         }
     }
     for (int i = 0; i < this->numCoverageStages(); i++) {
-        if (!GrProcessorStage::AreCompatible(this->getCoverageStage(i), that.getCoverageStage(i),
+        if (!GrFragmentStage::AreCompatible(this->getCoverageStage(i), that.getCoverageStage(i),
                                              explicitLocalCoords)) {
             return false;
         }
@@ -116,9 +114,6 @@ GrDrawState::GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatr
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
     *this = state;
     if (!preConcatMatrix.isIdentity()) {
-        if (this->hasGeometryProcessor()) {
-            fGeometryProcessor->localCoordChange(preConcatMatrix);
-        }
         for (int i = 0; i < this->numColorStages(); ++i) {
             fColorStages[i].localCoordChange(preConcatMatrix);
         }
@@ -147,7 +142,7 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fCoverage = that.fCoverage;
     fDrawFace = that.fDrawFace;
     if (that.hasGeometryProcessor()) {
-        fGeometryProcessor.reset(SkNEW_ARGS(GrGeometryStage, (*that.fGeometryProcessor.get())));
+        fGeometryProcessor.initAndRef(that.fGeometryProcessor);
     } else {
         fGeometryProcessor.reset(NULL);
     }
@@ -201,9 +196,6 @@ bool GrDrawState::setIdentityViewMatrix()  {
         if (!fViewMatrix.invert(&invVM)) {
             // sad trombone sound
             return false;
-        }
-        if (this->hasGeometryProcessor()) {
-            fGeometryProcessor->localCoordChange(invVM);
         }
         for (int s = 0; s < this->numColorStages(); ++s) {
             fColorStages[s].localCoordChange(invVM);
@@ -265,9 +257,7 @@ bool GrDrawState::validateVertexAttribs() const {
     }
 
     if (this->hasGeometryProcessor()) {
-        const GrGeometryStage& stage = *this->getGeometryProcessor();
-        const GrGeometryProcessor* gp = stage.getProcessor();
-        SkASSERT(gp);
+        const GrGeometryProcessor* gp = this->getGeometryProcessor();
         // make sure that any attribute indices have the correct binding type, that the attrib
         // type and effect's shader lang type are compatible, and that attributes shared by
         // multiple effects use the same shader lang type.
@@ -410,8 +400,7 @@ bool GrDrawState::hasSolidCoverage() const {
 
     // Run through the coverage stages and see if the coverage will be all ones at the end.
     if (this->hasGeometryProcessor()) {
-        const GrGeometryProcessor* gp = fGeometryProcessor->getProcessor();
-        gp->computeInvariantOutput(&inout);
+        fGeometryProcessor->computeInvariantOutput(&inout);
     }
 
     for (int s = 0; s < this->numCoverageStages(); ++s) {
@@ -456,7 +445,7 @@ void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
         if (SK_InvalidUniqueID == fOriginalGPID) {
             fDrawState->fGeometryProcessor.reset(NULL);
         } else {
-            SkASSERT(fDrawState->getGeometryProcessor()->getProcessor()->getUniqueID() ==
+            SkASSERT(fDrawState->getGeometryProcessor()->getUniqueID() ==
                      fOriginalGPID);
             fOriginalGPID = SK_InvalidUniqueID;
         }
@@ -477,7 +466,7 @@ void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
     if (NULL != ds) {
         SkASSERT(SK_InvalidUniqueID == fOriginalGPID);
         if (NULL != ds->getGeometryProcessor()) {
-            fOriginalGPID = ds->getGeometryProcessor()->getProcessor()->getUniqueID();
+            fOriginalGPID = ds->getGeometryProcessor()->getUniqueID();
         }
         fColorEffectCnt = ds->numColorStages();
         fCoverageEffectCnt = ds->numCoverageStages();
@@ -515,14 +504,9 @@ void GrDrawState::AutoViewMatrixRestore::restore() {
         fDrawState->fViewMatrix = fViewMatrix;
         SkASSERT(fDrawState->numColorStages() >= fNumColorStages);
         int numCoverageStages = fSavedCoordChanges.count() - fNumColorStages;
-        numCoverageStages -= fHasGeometryProcessor ? 1 : 0;
         SkASSERT(fDrawState->numCoverageStages() >= numCoverageStages);
 
         int i = 0;
-        if (fHasGeometryProcessor) {
-            SkASSERT(fDrawState->hasGeometryProcessor());
-            fDrawState->fGeometryProcessor->restoreCoordChange(fSavedCoordChanges[i++]);
-        }
         for (int s = 0; s < fNumColorStages; ++s, ++i) {
             fDrawState->fColorStages[s].restoreCoordChange(fSavedCoordChanges[i]);
         }
@@ -568,7 +552,6 @@ bool GrDrawState::AutoViewMatrixRestore::setIdentity(GrDrawState* drawState) {
     if (0 == drawState->numTotalStages()) {
         drawState->fViewMatrix.reset();
         fDrawState = drawState;
-        fHasGeometryProcessor = false;
         fNumColorStages = 0;
         fSavedCoordChanges.reset(0);
         SkDEBUGCODE(++fDrawState->fBlockEffectRemovalCnt;)
@@ -589,13 +572,6 @@ bool GrDrawState::AutoViewMatrixRestore::setIdentity(GrDrawState* drawState) {
 void GrDrawState::AutoViewMatrixRestore::doEffectCoordChanges(const SkMatrix& coordChangeMatrix) {
     fSavedCoordChanges.reset(fDrawState->numTotalStages());
     int i = 0;
-
-    fHasGeometryProcessor = false;
-    if (fDrawState->hasGeometryProcessor()) {
-        fDrawState->fGeometryProcessor->saveCoordChange(&fSavedCoordChanges[i++]);
-        fDrawState->fGeometryProcessor->localCoordChange(coordChangeMatrix);
-        fHasGeometryProcessor = true;
-    }
 
     fNumColorStages = fDrawState->numColorStages();
     for (int s = 0; s < fNumColorStages; ++s, ++i) {
@@ -619,7 +595,7 @@ void GrDrawState::convertToPendingExec() {
         fColorStages[i].convertToPendingExec();
     }
     if (fGeometryProcessor) {
-        fGeometryProcessor->convertToPendingExec();
+        fGeometryProcessor.convertToPendingExec();
     }
     for (int i = 0; i < fCoverageStages.count(); ++i) {
         fCoverageStages[i].convertToPendingExec();

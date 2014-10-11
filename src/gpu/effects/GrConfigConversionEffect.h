@@ -10,7 +10,7 @@
 
 #include "GrSingleTextureEffect.h"
 
-class GrProcessorStage;
+class GrFragmentStage;
 class GrGLConfigConversionEffect;
 
 /**

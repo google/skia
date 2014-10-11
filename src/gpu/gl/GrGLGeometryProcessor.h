@@ -10,6 +10,8 @@
 
 #include "GrGLProcessor.h"
 
+class GrGLGPBuilder;
+
 /**
  * If a GL effect needs a GrGLFullShaderBuilder* object to emit vertex code, then it must inherit
  * from this class. Since paths don't have vertices, this class is only meant to be used internally
