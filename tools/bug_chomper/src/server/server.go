@@ -29,30 +29,34 @@ import (
 
 import "github.com/gorilla/securecookie"
 
-const certFile = "certs/cert.pem"
-const keyFile = "certs/key.pem"
-const issueComment = "Edited by BugChomper"
-const oauthCallbackPath = "/oauth2callback"
-const oauthConfigFile = "oauth_client_secret.json"
-const defaultPort = 8000
-const localHost = "127.0.0.1"
-const maxSessionLen = time.Duration(3600 * time.Second)
-const priorityPrefix = "Priority-"
-const project = "skia"
-const cookieName = "BugChomperCookie"
+const (
+	certFile          = "certs/cert.pem"
+	keyFile           = "certs/key.pem"
+	issueComment      = "Edited by BugChomper"
+	oauthCallbackPath = "/oauth2callback"
+	oauthConfigFile   = "oauth_client_secret.json"
+	defaultPort       = 8000
+	localHost         = "127.0.0.1"
+	maxSessionLen     = time.Duration(3600 * time.Second)
+	priorityPrefix    = "Priority-"
+	project           = "skia"
+	cookieName        = "BugChomperCookie"
+)
 
-var scheme = "http"
+var (
+	scheme = "http"
 
-var curdir, _ = filepath.Abs(".")
-var templatePath, _ = filepath.Abs("templates")
-var templates = template.Must(template.ParseFiles(
-	path.Join(templatePath, "bug_chomper.html"),
-	path.Join(templatePath, "submitted.html"),
-	path.Join(templatePath, "error.html")))
+	curdir, _       = filepath.Abs(".")
+	templatePath, _ = filepath.Abs("templates")
+	templates       = template.Must(template.ParseFiles(
+		path.Join(templatePath, "bug_chomper.html"),
+		path.Join(templatePath, "submitted.html"),
+		path.Join(templatePath, "error.html")))
 
-var hashKey = securecookie.GenerateRandomKey(32)
-var blockKey = securecookie.GenerateRandomKey(32)
-var secureCookie = securecookie.New(hashKey, blockKey)
+	hashKey      = securecookie.GenerateRandomKey(32)
+	blockKey     = securecookie.GenerateRandomKey(32)
+	secureCookie = securecookie.New(hashKey, blockKey)
+)
 
 // SessionState contains data for a given session.
 type SessionState struct {
