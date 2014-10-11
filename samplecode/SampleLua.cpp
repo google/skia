@@ -18,7 +18,11 @@ extern "C" {
 #include "lauxlib.h"
 }
 
+#define LUA_FILENAME    "test.lua"
+//#define LUA_FILENAME    "slides.lua"
+
 static const char gDrawName[] = "onDrawContent";
+static const char gClickName[] = "onClickHandler";
 
 static const char gMissingCode[] = ""
     "local paint = Sk.newPaint()"
@@ -54,7 +58,7 @@ public:
         if (NULL == fLua) {
             fLua = SkNEW(SkLua);
 
-            SkString str = GetResourcePath("test.lua");
+            SkString str = GetResourcePath(LUA_FILENAME);
             SkData* data = SkData::NewFromFileName(str.c_str());
             if (data) {
                 fLua->runCode(data->data(), data->size());
@@ -91,17 +95,31 @@ protected:
             // does it make sense to try to "cache" the lua version of this
             // canvas between draws?
             fLua->pushCanvas(canvas);
-            if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+            if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
                 SkDebugf("lua err: %s\n", lua_tostring(L, -1));
+            } else {
+                if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
+                    this->inval(NULL);
+                }
             }
         }
-        // need a way for the lua-sample to tell us if they want animations...
-        // hard-code it ON for now.
-        this->inval(NULL);
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
                                               unsigned modi) SK_OVERRIDE {
+        lua_State* L = this->ensureLua();
+        lua_getglobal(L, gClickName);
+        if (lua_isfunction(L, -1)) {
+            fLua->pushScalar(x);
+            fLua->pushScalar(y);
+            if (lua_pcall(L, 2, 1, 0) != LUA_OK) {
+                SkDebugf("lua err: %s\n", lua_tostring(L, -1));
+            } else {
+                if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
+                    this->inval(NULL);
+                }
+            }
+        }
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 

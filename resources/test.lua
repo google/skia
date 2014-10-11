@@ -69,6 +69,8 @@ function onDrawContent(canvas)
     r2.bottom = r2.top + image:height() * 1;
     canvas:drawImageRect(image, nil, r2, 0.75);
     if x > 200 then x = 0 end;
+
+    return true -- so we can animate
 end
 
 onStartup()
