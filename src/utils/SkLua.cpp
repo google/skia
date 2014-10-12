@@ -22,6 +22,7 @@
 #include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkString.h"
+#include "SkSurface.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
 
@@ -47,6 +48,7 @@ DEF_MTNAME(SkPath)
 DEF_MTNAME(SkPaint)
 DEF_MTNAME(SkPathEffect)
 DEF_MTNAME(SkShader)
+DEF_MTNAME(SkSurface)
 DEF_MTNAME(SkTextBlob)
 DEF_MTNAME(SkTypeface)
 
@@ -351,6 +353,14 @@ void SkLua::pushClipStackElement(const SkClipStack::Element& element, const char
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+static int lua2int_def(lua_State* L, int index, int defaultValue) {
+    if (lua_isnumber(L, index)) {
+        return (int)lua_tonumber(L, index);
+    } else {
+        return defaultValue;
+    }
+}
+
 static SkScalar lua2scalar(lua_State* L, int index) {
     SkASSERT(lua_isnumber(L, index));
     return SkLuaToScalar(lua_tonumber(L, index));
@@ -400,10 +410,10 @@ static U8CPU unit2byte(SkScalar x) {
 }
 
 static SkColor lua2color(lua_State* L, int index) {
-    return SkColorSetARGB(unit2byte(getfield_scalar(L, index, "a")),
-                          unit2byte(getfield_scalar(L, index, "r")),
-                          unit2byte(getfield_scalar(L, index, "g")),
-                          unit2byte(getfield_scalar(L, index, "b")));
+    return SkColorSetARGB(unit2byte(getfield_scalar_default(L, index, "a", 1)),
+                          unit2byte(getfield_scalar_default(L, index, "r", 0)),
+                          unit2byte(getfield_scalar_default(L, index, "g", 0)),
+                          unit2byte(getfield_scalar_default(L, index, "b", 0)));
 }
 
 static SkRect* lua2rect(lua_State* L, int index, SkRect* rect) {
@@ -441,6 +451,20 @@ static int lcanvas_drawCircle(lua_State* L) {
     return 0;
 }
 
+static SkPaint* lua2OptionalPaint(lua_State* L, int index, SkPaint* paint) {
+    if (lua_isnumber(L, index)) {
+        paint->setAlpha(SkScalarRoundToInt(lua2scalar(L, index) * 255));
+        return paint;
+    } else {
+        const SkPaint* ptr = get_obj<SkPaint>(L, index);
+        if (ptr) {
+            *paint = *ptr;
+            return paint;
+        }
+    }
+    return NULL;
+}
+
 static int lcanvas_drawImage(lua_State* L) {
     SkCanvas* canvas = get_ref<SkCanvas>(L, 1);
     SkImage* image = get_ref<SkImage>(L, 2);
@@ -451,12 +475,7 @@ static int lcanvas_drawImage(lua_State* L) {
     SkScalar y = lua2scalar(L, 4);
 
     SkPaint paint;
-    const SkPaint* paintPtr = NULL;
-    if (lua_isnumber(L, 5)) {
-        paint.setAlpha(SkScalarRoundToInt(lua2scalar(L, 5) * 255));
-        paintPtr = &paint;
-    }
-    canvas->drawImage(image, x, y, paintPtr);
+    canvas->drawImage(image, x, y, lua2OptionalPaint(L, 5, &paint));
     return 0;
 }
 
@@ -475,12 +494,7 @@ static int lcanvas_drawImageRect(lua_State* L) {
     lua2rect(L, 4, &dstR);
     
     SkPaint paint;
-    const SkPaint* paintPtr = NULL;
-    if (lua_isnumber(L, 5)) {
-        paint.setAlpha(SkScalarRoundToInt(lua2scalar(L, 5) * 255));
-        paintPtr = &paint;
-    }
-    canvas->drawImageRect(image, srcRPtr, dstR, paintPtr);
+    canvas->drawImageRect(image, srcRPtr, dstR, lua2OptionalPaint(L, 5, &paint));
     return 0;
 }
 
@@ -589,6 +603,20 @@ static int lcanvas_rotate(lua_State* L) {
     return 0;
 }
 
+static int lcanvas_newSurface(lua_State* L) {
+    int width = lua2int_def(L, 2, 0);
+    int height = lua2int_def(L, 2, 0);
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    SkSurface* surface = get_ref<SkCanvas>(L, 1)->newSurface(info);
+    if (NULL == surface) {
+        lua_pushnil(L);
+    } else {
+        push_ref(L, surface);
+        surface->unref();
+    }
+    return 1;
+}
+
 static int lcanvas_gc(lua_State* L) {
     get_ref<SkCanvas>(L, 1)->unref();
     return 0;
@@ -614,6 +642,9 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
     { "scale", lcanvas_scale },
     { "translate", lcanvas_translate },
     { "rotate", lcanvas_rotate },
+
+    { "newSurface", lcanvas_newSurface },
+
     { "__gc", lcanvas_gc },
     { NULL, NULL }
 };
@@ -1391,6 +1422,73 @@ static const struct luaL_Reg gSkImage_Methods[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int lsurface_width(lua_State* L) {
+    lua_pushinteger(L, get_ref<SkSurface>(L, 1)->width());
+    return 1;
+}
+
+static int lsurface_height(lua_State* L) {
+    lua_pushinteger(L, get_ref<SkSurface>(L, 1)->height());
+    return 1;
+}
+
+static int lsurface_getCanvas(lua_State* L) {
+    SkCanvas* canvas = get_ref<SkSurface>(L, 1)->getCanvas();
+    if (NULL == canvas) {
+        lua_pushnil(L);
+    } else {
+        push_ref(L, canvas);
+        // note: we don't unref canvas, since getCanvas did not ref it.
+        // warning: this is weird: now Lua owns a ref on this canvas, but what if they let
+        // the real owner (the surface) go away, but still hold onto the canvas?
+        // *really* we want to sort of ref the surface again, but have the native object
+        // know that it is supposed to be treated as a canvas...
+    }
+    return 1;
+}
+
+static int lsurface_newImageSnapshot(lua_State* L) {
+    SkImage* image = get_ref<SkSurface>(L, 1)->newImageSnapshot();
+    if (NULL == image) {
+        lua_pushnil(L);
+    } else {
+        push_ref(L, image);
+        image->unref();
+    }
+    return 1;
+}
+
+static int lsurface_newSurface(lua_State* L) {
+    int width = lua2int_def(L, 2, 0);
+    int height = lua2int_def(L, 2, 0);
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    SkSurface* surface = get_ref<SkSurface>(L, 1)->newSurface(info);
+    if (NULL == surface) {
+        lua_pushnil(L);
+    } else {
+        push_ref(L, surface);
+        surface->unref();
+    }
+    return 1;
+}
+
+static int lsurface_gc(lua_State* L) {
+    get_ref<SkSurface>(L, 1)->unref();
+    return 0;
+}
+
+static const struct luaL_Reg gSkSurface_Methods[] = {
+    { "width", lsurface_width },
+    { "height", lsurface_height },
+    { "getCanvas", lsurface_getCanvas },
+    { "newImageSnapshot", lsurface_newImageSnapshot },
+    { "newSurface", lsurface_newSurface },
+    { "__gc", lsurface_gc },
+    { NULL, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 static int ltypeface_gc(lua_State* L) {
     SkSafeUnref(get_ref<SkTypeface>(L, 1));
     return 0;
@@ -1487,6 +1585,20 @@ static int lsk_newTypeface(lua_State* L) {
     return 1;
 }
 
+static int lsk_newRasterSurface(lua_State* L) {
+    int width = lua2int_def(L, 2, 0);
+    int height = lua2int_def(L, 2, 0);
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    SkSurface* surface = SkSurface::NewRaster(info);
+    if (NULL == surface) {
+        lua_pushnil(L);
+    } else {
+        push_ref(L, surface);
+        surface->unref();
+    }
+    return 1;
+}
+
 static int lsk_loadImage(lua_State* L) {
     if (lua_gettop(L) > 0 && lua_isstring(L, 1)) {
         const char* name = lua_tolstring(L, 1, NULL);
@@ -1516,6 +1628,7 @@ static void register_Sk(lua_State* L) {
     setfield_function(L, "newPaint", lsk_newPaint);
     setfield_function(L, "newPath", lsk_newPath);
     setfield_function(L, "newRRect", lsk_newRRect);
+    setfield_function(L, "newRasterSurface", lsk_newRasterSurface);
     setfield_function(L, "newTypeface", lsk_newTypeface);
     lua_pop(L, 1);  // pop off the Sk table
 }
@@ -1539,6 +1652,7 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkPathEffect);
     REG_CLASS(L, SkRRect);
     REG_CLASS(L, SkShader);
+    REG_CLASS(L, SkSurface);
     REG_CLASS(L, SkTypeface);
     REG_CLASS(L, SkMatrix);
 }
