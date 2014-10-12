@@ -111,14 +111,15 @@ static GrRenderTarget* random_render_target(GrGpuGL* gpu,
     texDesc.fOrigin = random->nextBool() == true ? kTopLeft_GrSurfaceOrigin :
                                                    kBottomLeft_GrSurfaceOrigin;
 
-    GrTexture* texture = gpu->getContext()->findAndRefTexture(texDesc, cacheId, &params);
-    if (NULL == texture) {
-        texture = gpu->getContext()->createTexture(&params, texDesc, cacheId, 0, 0);
-        if (NULL == texture) {
+    SkAutoTUnref<GrTexture> texture(
+        gpu->getContext()->findAndRefTexture(texDesc, cacheId, &params));
+    if (!texture) {
+        texture.reset(gpu->getContext()->createTexture(&params, texDesc, cacheId, 0, 0));
+        if (!texture) {
             return NULL;
         }
     }
-    return texture->asRenderTarget();
+    return SkRef(texture->asRenderTarget());
 }
 
 // TODO clean this up, we have to do this to test geometry processors but there has got to be
@@ -417,12 +418,11 @@ bool GrGpuGL::programUnitTest(int maxStages) {
     static const int NUM_TESTS = 512;
     for (int t = 0; t < NUM_TESTS;) {
         // setup random render target(can fail)
-        GrRenderTarget* rtPtr = random_render_target(this, glProgramsCacheID, &random);
-        if (!rtPtr) {
+        SkAutoTUnref<GrRenderTarget> rt(random_render_target(this, glProgramsCacheID, &random));
+        if (!rt) {
             SkDebugf("Could not allocate render target");
             return false;
         }
-        GrTGpuResourceRef<GrRenderTarget> rt(SkRef(rtPtr), kWrite_GrIOType);
 
         GrDrawState* ds = this->drawState();
         ds->setRenderTarget(rt.get());
