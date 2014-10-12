@@ -424,6 +424,11 @@ static SkRect* lua2rect(lua_State* L, int index, SkRect* rect) {
     return rect;
 }
 
+static int lcanvas_clear(lua_State* L) {
+    get_ref<SkCanvas>(L, 1)->clear(0);
+    return 0;
+}
+
 static int lcanvas_drawColor(lua_State* L) {
     get_ref<SkCanvas>(L, 1)->drawColor(lua2color(L, 2));
     return 0;
@@ -455,7 +460,7 @@ static SkPaint* lua2OptionalPaint(lua_State* L, int index, SkPaint* paint) {
     if (lua_isnumber(L, index)) {
         paint->setAlpha(SkScalarRoundToInt(lua2scalar(L, index) * 255));
         return paint;
-    } else {
+    } else if (lua_isuserdata(L, index)) {
         const SkPaint* ptr = get_obj<SkPaint>(L, index);
         if (ptr) {
             *paint = *ptr;
@@ -623,6 +628,7 @@ static int lcanvas_gc(lua_State* L) {
 }
 
 const struct luaL_Reg gSkCanvas_Methods[] = {
+    { "clear", lcanvas_clear },
     { "drawColor", lcanvas_drawColor },
     { "drawRect", lcanvas_drawRect },
     { "drawOval", lcanvas_drawOval },

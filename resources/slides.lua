@@ -40,6 +40,35 @@ function drawSlide(canvas, slide, template, paints)
     end
 end
 
+function slide_transition(prev, next, is_forward)
+    local rec = {
+        proc = function(self, canvas, drawSlideProc)
+            if self:isDone() then
+                drawSlideProc(canvas)
+                return nil
+            end
+            canvas:drawImage(self.prevImage, self.curr_x, 0)
+            canvas:drawImage(self.nextImage, self.curr_x + 640, 0)
+            self.curr_x = self.curr_x + self.step_x
+            return self
+        end
+    }
+    if is_forward then
+        rec.prevImage = prev
+        rec.nextImage = next
+        rec.curr_x = 0
+        rec.step_x = -15
+        rec.isDone = function (self) return self.curr_x <= -640 end
+    else
+        rec.prevImage = next
+        rec.nextImage = prev
+        rec.curr_x = -640
+        rec.step_x = 15
+        rec.isDone = function (self) return self.curr_x >= 0 end
+    end
+    return rec
+end
+
 --------------------------------------------------------------------------------------
 
 gTemplate = {
@@ -65,13 +94,15 @@ gSlides = {
                     canvas:drawOval({left=300, top=300, right=400, bottom=400}, gRedPaint)
             end },
         },
+        transition = slide_transition
     },
     {   text = "Title2", style="title", color = { a=1, r=0, g=1, b=0 },
         children = {
             {   text = "bullet uno", style = "child" },
             {   text = "bullet 2", style = "child" },
             {   text = "bullet tres", style = "child" },
-        }
+        },
+        transition = fade_transition
     },
     {   text = "Title3", style="title",
         children = {
@@ -83,24 +114,25 @@ gSlides = {
 }
 
 --------------------------------------------------------------------------------------
-
-gSlideIndex = 1
-
-function next_slide()
-    gSlideIndex = gSlideIndex + 1
-    if gSlideIndex > #gSlides then
-        gSlideIndex = 1
+function tostr(t)
+    local str = ""
+    for k, v in next, t do
+        if #str > 0 then
+            str = str .. ", "
+        end
+        if type(k) == "number" then
+            str = str .. "[" .. k .. "] = "
+        else
+            str = str .. tostring(k) .. " = "
+        end
+        if type(v) == "table" then
+            str = str .. "{ " .. tostr(v) .. " }"
+        else
+            str = str .. tostring(v)
+        end
     end
+    return str
 end
-
-function prev_slide()
-    gSlideIndex = gSlideIndex - 1
-    if gSlideIndex < 1 then
-        gSlideIndex = #gSlides
-    end
-end
-
---------------------------------------------------------------------------------------
 
 -- animation.proc is passed the canvas before drawing.
 -- The animation.proc returns itself or another animation (which means keep animating)
@@ -108,22 +140,78 @@ end
 --
 local gCurrAnimation
 
+gSlideIndex = 1
+
+function next_slide()
+    local prev = gSlides[gSlideIndex]
+
+    gSlideIndex = gSlideIndex + 1
+    if gSlideIndex > #gSlides then
+        gSlideIndex = 1
+    end
+
+    spawn_transition(prev, gSlides[gSlideIndex], true)
+end
+
+function prev_slide()
+    local prev = gSlides[gSlideIndex]
+
+    gSlideIndex = gSlideIndex - 1
+    if gSlideIndex < 1 then
+        gSlideIndex = #gSlides
+    end
+
+    spawn_transition(prev, gSlides[gSlideIndex], false)
+end
+
+gSurfaceFactory = function (w, h) return Sk.newRasterSurface(w, h) end
+
+function spawn_transition(prevSlide, nextSlide, is_forward)
+    local transition
+    if is_forward then
+        transition = prevSlide.transition
+    else
+        transition = nextSlide.transition
+    end
+
+    if not transition then
+        return
+    end
+
+    local surf = gSurfaceFactory(640, 480)
+    local canvas = surf:getCanvas()
+
+    canvas:clear()
+    drawSlide(canvas, prevSlide, gTemplate, gPaints)
+    local prevImage = surf:newImageSnapshot()
+
+    canvas:clear()
+    drawSlide(canvas, nextSlide, gTemplate, gPaints)
+    local nextImage = surf:newImageSnapshot()
+
+    gCurrAnimation = transition(prevImage, nextImage, is_forward)
+end
+
+--------------------------------------------------------------------------------------
+
 function spawn_rotate_animation()
     gCurrAnimation = {
         angle = 0,
         angle_delta = 5,
         pivot_x = 320,
         pivot_y = 240,
-        proc = function (this, canvas)
-            if this.angle >= 360 then
+        proc = function (self, canvas, drawSlideProc)
+            if self.angle >= 360 then
+                drawSlideProc(canvas)
                 return nil
             end
-            canvas:translate(this.pivot_x, this.pivot_y)
-            canvas:rotate(this.angle)
-            canvas:translate(-this.pivot_x, -this.pivot_y)
+            canvas:translate(self.pivot_x, self.pivot_y)
+            canvas:rotate(self.angle)
+            canvas:translate(-self.pivot_x, -self.pivot_y)
+            drawSlideProc(canvas)
 
-            this.angle = this.angle + this.angle_delta
-            return this
+            self.angle = self.angle + self.angle_delta
+            return self
         end
     }
 end
@@ -135,34 +223,36 @@ function spawn_scale_animation()
         scale_limit = 0.2,
         pivot_x = 320,
         pivot_y = 240,
-        proc = function (this, canvas)
-            if this.scale < this.scale_limit then
-                this.scale = this.scale_limit
-                this.scale_delta = 1 / this.scale_delta
+        proc = function (self, canvas, drawSlideProc)
+            if self.scale < self.scale_limit then
+                self.scale = self.scale_limit
+                self.scale_delta = 1 / self.scale_delta
             end
-            if this.scale > 1 then
+            if self.scale > 1 then
+                drawSlideProc(canvas)
                 return nil
             end
-            canvas:translate(this.pivot_x, this.pivot_y)
-            canvas:scale(this.scale, this.scale)
-            canvas:translate(-this.pivot_x, -this.pivot_y)
+            canvas:translate(self.pivot_x, self.pivot_y)
+            canvas:scale(self.scale, self.scale)
+            canvas:translate(-self.pivot_x, -self.pivot_y)
+            drawSlideProc(canvas)
 
-            this.scale = this.scale * this.scale_delta
-            return this
+            self.scale = self.scale * self.scale_delta
+            return self
         end
     }
 end
 
 function onDrawContent(canvas)
-    if gCurrAnimation then
-        gCurrAnimation = gCurrAnimation:proc(canvas)
+    local drawSlideProc = function(canvas)
+        drawSlide(canvas, gSlides[gSlideIndex], gTemplate, gPaints)
     end
 
-    drawSlide(canvas, gSlides[gSlideIndex], gTemplate, gPaints)
-
     if gCurrAnimation then
+        gCurrAnimation = gCurrAnimation:proc(canvas, drawSlideProc)
         return true
     else
+        drawSlideProc(canvas)
         return false
     end
 end
