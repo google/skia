@@ -260,8 +260,9 @@ SkDiscardableMemoryPool* SkDiscardableMemoryPool::Create(size_t size, SkBaseMute
     return SkNEW_ARGS(DiscardableMemoryPool, (size, mutex));
 }
 
+SK_DECLARE_STATIC_LAZY_PTR(SkDiscardableMemoryPool, global, create_global_pool);
+
 SkDiscardableMemoryPool* SkGetGlobalDiscardableMemoryPool() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkDiscardableMemoryPool, global, create_global_pool);
     return global.get();
 }
 

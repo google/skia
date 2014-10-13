@@ -16,11 +16,12 @@ SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity
     *data = fData;
 }
 
-SkRemotableFontIdentitySet* SkRemotableFontIdentitySet::NewEmptyImpl() {
+// As a template argument, this must have external linkage.
+SkRemotableFontIdentitySet* sk_remotable_font_identity_set_new() {
     return SkNEW(SkRemotableFontIdentitySet);
 }
 
+SK_DECLARE_STATIC_LAZY_PTR(SkRemotableFontIdentitySet, empty, sk_remotable_font_identity_set_new);
 SkRemotableFontIdentitySet* SkRemotableFontIdentitySet::NewEmpty() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkRemotableFontIdentitySet, empty, NewEmptyImpl);
     return SkRef(empty.get());
 }

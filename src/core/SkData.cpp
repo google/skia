@@ -92,14 +92,13 @@ SkData* SkData::PrivateNewWithCopy(const void* srcOrNull, size_t length) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkData* SkData::NewEmptyImpl() {
-    return new SkData(NULL, 0, NULL, NULL);
-}
+// As a template argument these must have external linkage.
+SkData* sk_new_empty_data() { return new SkData(NULL, 0, NULL, NULL); }
+namespace { void sk_unref_data(SkData* ptr) { return SkSafeUnref(ptr); } }
 
-void SkData::DeleteEmpty(SkData* ptr) { SkDELETE(ptr); }
+SK_DECLARE_STATIC_LAZY_PTR(SkData, empty, sk_new_empty_data, sk_unref_data);
 
 SkData* SkData::NewEmpty() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkData, empty, NewEmptyImpl, DeleteEmpty);
     return SkRef(empty.get());
 }
 

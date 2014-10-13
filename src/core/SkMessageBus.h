@@ -38,19 +38,21 @@ public:
 private:
     SkMessageBus();
     static SkMessageBus* Get();
-    static SkMessageBus* New();
+
+    // Allow SkLazyPtr to call SkMessageBus::SkMessageBus().
+    template <typename T> friend T* Private::sk_new();
 
     SkTDArray<Inbox*> fInboxes;
     SkMutex           fInboxesMutex;
 };
 
 // This must go in a single .cpp file, not some .h, or we risk creating more than one global
-// SkMessageBus per type when using shared libraries.
-#define DECLARE_SKMESSAGEBUS_MESSAGE(Message)                        \
-    template <>                                                      \
-    SkMessageBus<Message>* SkMessageBus<Message>::Get() {            \
-        SK_DECLARE_STATIC_LAZY_PTR(SkMessageBus<Message>, bus, New); \
-        return bus.get();                                            \
+// SkMessageBus per type when using shared libraries.  NOTE: at most one per file will compile.
+#define DECLARE_SKMESSAGEBUS_MESSAGE(Message)               \
+    SK_DECLARE_STATIC_LAZY_PTR(SkMessageBus<Message>, bus); \
+    template <>                                             \
+    SkMessageBus<Message>* SkMessageBus<Message>::Get() {   \
+        return bus.get();                                   \
     }
 
 //   ----------------------- Implementation of SkMessageBus::Inbox -----------------------
@@ -95,11 +97,6 @@ void SkMessageBus<Message>::Inbox::poll(SkTDArray<Message>* messages) {
 
 template <typename Message>
 SkMessageBus<Message>::SkMessageBus() {}
-
-template <typename Message>
-/*static*/ SkMessageBus<Message>* SkMessageBus<Message>::New() {
-    return SkNEW(SkMessageBus<Message>);
-}
 
 template <typename Message>
 /*static*/ void SkMessageBus<Message>::Post(const Message& m) {

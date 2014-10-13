@@ -97,7 +97,7 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
     if (!buffer.isValid() || !buffer.validate(SkIsValidRect(rect))) {
         return false;
     }
-    
+
     uint32_t flags = buffer.readUInt();
     fCropRect = CropRect(rect, flags);
     if (buffer.isVersionLT(SkReadBuffer::kImageFilterUniqueID_Version)) {
@@ -495,7 +495,8 @@ SkImageFilter::Cache* SkImageFilter::Cache::Create(size_t maxBytes) {
     return SkNEW_ARGS(CacheImpl, (maxBytes));
 }
 
+SK_DECLARE_STATIC_LAZY_PTR(SkImageFilter::Cache, cache, CreateCache);
+
 SkImageFilter::Cache* SkImageFilter::Cache::Get() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkImageFilter::Cache, cache, CreateCache);
     return cache.get();
 }

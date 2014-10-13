@@ -171,8 +171,7 @@ private:
     virtual void internal_dispose() const SK_OVERRIDE;
 
     // Called the first time someone calls NewEmpty to initialize the singleton.
-    static SkData* NewEmptyImpl();
-    static void DeleteEmpty(SkData*);
+    friend SkData* sk_new_empty_data();
 
     // shared internal factory
     static SkData* PrivateNewWithCopy(const void* srcOrNull, size_t length);

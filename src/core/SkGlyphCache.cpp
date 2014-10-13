@@ -29,9 +29,10 @@ SkGlyphCache_Globals* create_globals() {
 
 }  // namespace
 
+SK_DECLARE_STATIC_LAZY_PTR(SkGlyphCache_Globals, globals, create_globals);
+
 // Returns the shared globals
 static SkGlyphCache_Globals& getSharedGlobals() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkGlyphCache_Globals, globals, create_globals);
     return *globals.get();
 }
 

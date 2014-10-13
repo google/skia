@@ -1211,7 +1211,7 @@ private:
         return fMode == s.fMode &&
                fBackgroundAccess.getTexture() == s.fBackgroundAccess.getTexture();
     }
-    
+
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         inout->setToUnknown();
     }
@@ -1708,6 +1708,7 @@ SkXfermode* create_mode(int iMode) {
 }
 }  // namespace
 
+SK_DECLARE_STATIC_LAZY_PTR_ARRAY(SkXfermode, cached, SkXfermode::kLastMode + 1, create_mode);
 
 SkXfermode* SkXfermode::Create(Mode mode) {
     SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
@@ -1723,7 +1724,6 @@ SkXfermode* SkXfermode::Create(Mode mode) {
         return NULL;
     }
 
-    SK_DECLARE_STATIC_LAZY_PTR_ARRAY(SkXfermode, cached, kModeCount, create_mode);
     return SkSafeRef(cached[mode]);
 }
 

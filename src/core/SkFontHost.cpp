@@ -198,12 +198,14 @@ SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[],
     return this->onLegacyCreateTypeface(familyName, styleBits);
 }
 
-SkFontMgr* SkFontMgr::CreateDefault() {
+// As a template argument this must have external linkage.
+SkFontMgr* sk_fontmgr_create_default() {
     SkFontMgr* fm = SkFontMgr::Factory();
     return fm ? fm : SkNEW(SkEmptyFontMgr);
 }
 
+SK_DECLARE_STATIC_LAZY_PTR(SkFontMgr, singleton, sk_fontmgr_create_default);
+
 SkFontMgr* SkFontMgr::RefDefault() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkFontMgr, singleton, CreateDefault);
     return SkRef(singleton.get());
 }

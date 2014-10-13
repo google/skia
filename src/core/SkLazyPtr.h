@@ -47,15 +47,18 @@
  *  We may call Create more than once, but all threads will see the same pointer
  *  returned from get().  Any extra calls to Create will be cleaned up.
  *
- *  These macros must be used in a global or function scope, not as a class member.
+ *  These macros must be used in a global scope, not in function scope or as a class member.
  */
 
 #define SK_DECLARE_STATIC_LAZY_PTR(T, name, ...) \
-    static Private::SkLazyPtr<T, ##__VA_ARGS__> name
+    namespace {} static Private::SkLazyPtr<T, ##__VA_ARGS__> name
 
 #define SK_DECLARE_STATIC_LAZY_PTR_ARRAY(T, name, N, ...) \
-    static Private::SkLazyPtrArray<T, N, ##__VA_ARGS__> name
+    namespace {} static Private::SkLazyPtrArray<T, N, ##__VA_ARGS__> name
 
+// namespace {} forces these macros to only be legal in global scopes.  Chrome has thread-safety
+// problems with them in function-local statics because it uses -fno-threadsafe-statics, and even
+// in builds with threadsafe statics, those threadsafe statics are just unnecessary overhead.
 
 
 // Everything below here is private implementation details.  Don't touch, don't even look.

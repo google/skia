@@ -46,7 +46,8 @@ public:
 
 private:
     SkRemotableFontIdentitySet() : fCount(0), fData() { }
-    static SkRemotableFontIdentitySet* NewEmptyImpl();
+
+    friend SkRemotableFontIdentitySet* sk_remotable_font_identity_set_new();
 
     int fCount;
     SkAutoTMalloc<SkFontIdentity> fData;
