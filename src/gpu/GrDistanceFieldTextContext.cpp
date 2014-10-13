@@ -190,10 +190,9 @@ static void setup_gamma_texture(GrContext* context, const SkGlyphCache* cache,
             return;
         }
 
-        context->writeTexturePixels(*gammaTexture,
-                                    0, 0, width, height,
-                                    (*gammaTexture)->config(), data.get(), 0,
-                                    GrContext::kDontFlush_PixelOpsFlag);
+        (*gammaTexture)->writePixels(0, 0, width, height,
+                                     (*gammaTexture)->config(), data.get(), 0,
+                                     GrContext::kDontFlush_PixelOpsFlag);
     }
 }
 

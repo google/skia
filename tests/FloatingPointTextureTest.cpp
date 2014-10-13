@@ -68,9 +68,8 @@ DEF_GPUTEST(FloatingPointTextureTest, reporter, factory) {
             }
 
             // write square
-            context->writeTexturePixels(fpTexture, 0, 0, DEV_W, DEV_H, desc.fConfig,
-                    controlPixelData, 0);
-            context->readTexturePixels(fpTexture, 0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer, 0);
+            fpTexture->writePixels(0, 0, DEV_W, DEV_H, desc.fConfig, controlPixelData, 0);
+            fpTexture->readPixels(0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer, 0);
             for (int j = 0; j < FP_CONTROL_ARRAY_SIZE; ++j) {
                 REPORTER_ASSERT(reporter, readBuffer[j] == controlPixelData[j]);
             }

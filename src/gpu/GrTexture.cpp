@@ -53,33 +53,6 @@ size_t GrTexture::gpuMemorySize() const {
     return textureSize;
 }
 
-bool GrTexture::readPixels(int left, int top, int width, int height,
-                           GrPixelConfig config, void* buffer,
-                           size_t rowBytes, uint32_t pixelOpsFlags) {
-    // go through context so that all necessary flushing occurs
-    GrContext* context = this->getContext();
-    if (NULL == context) {
-        return false;
-    }
-    return context->readTexturePixels(this,
-                                      left, top, width, height,
-                                      config, buffer, rowBytes,
-                                      pixelOpsFlags);
-}
-
-void GrTexture::writePixels(int left, int top, int width, int height,
-                            GrPixelConfig config, const void* buffer,
-                            size_t rowBytes, uint32_t pixelOpsFlags) {
-    // go through context so that all necessary flushing occurs
-    GrContext* context = this->getContext();
-    if (NULL == context) {
-        return;
-    }
-    context->writeTexturePixels(this,
-                                left, top, width, height,
-                                config, buffer, rowBytes,
-                                pixelOpsFlags);
-}
 
 void GrTexture::onRelease() {
     SkASSERT(!this->texturePriv().isSetFlag((GrTextureFlags) kReturnToCache_FlagBit));

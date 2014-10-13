@@ -254,9 +254,8 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
         yuvDesc.fHeight = yuvSizes[i].fHeight;
         yuvTextures[i].set(ctx, yuvDesc);
         if ((NULL == yuvTextures[i].texture()) ||
-            !ctx->writeTexturePixels(yuvTextures[i].texture(),
-                0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
-                yuvDesc.fConfig, planes[i], rowBytes[i])) {
+            !yuvTextures[i].texture()->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
+                                                   yuvDesc.fConfig, planes[i], rowBytes[i])) {
             return NULL;
         }
     }

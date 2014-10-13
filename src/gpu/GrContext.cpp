@@ -35,6 +35,7 @@
 #include "GrTraceMarker.h"
 #include "GrTracing.h"
 #include "SkDashPathPriv.h"
+#include "SkConfig8888.h"
 #include "SkGr.h"
 #include "SkRTConf.h"
 #include "SkRRect.h"
@@ -1244,72 +1245,140 @@ void GrContext::flush(int flagsBitfield) {
     fFlushToReduceCacheSize = false;
 }
 
-bool GrContext::writeTexturePixels(GrTexture* texture,
-                                   int left, int top, int width, int height,
-                                   GrPixelConfig config, const void* buffer, size_t rowBytes,
-                                   uint32_t flags) {
-    ASSERT_OWNED_RESOURCE(texture);
-
-    if ((kUnpremul_PixelOpsFlag & flags) || !fGpu->canWriteTexturePixels(texture, config)) {
-        if (texture->asRenderTarget()) {
-            return this->writeRenderTargetPixels(texture->asRenderTarget(),
-                                                 left, top, width, height,
-                                                 config, buffer, rowBytes, flags);
-        } else {
-            return false;
-        }
-    }
-
-    if (!(kDontFlush_PixelOpsFlag & flags) && texture->surfacePriv().hasPendingIO()) {
-        this->flush();
-    }
-
-    return fGpu->writeTexturePixels(texture, left, top, width, height,
-                                    config, buffer, rowBytes);
-
-    // No need to check the kFlushWrites flag here since we issued the write directly to fGpu.
-}
-
-bool GrContext::readTexturePixels(GrTexture* texture,
-                                  int left, int top, int width, int height,
-                                  GrPixelConfig config, void* buffer, size_t rowBytes,
-                                  uint32_t flags) {
-    ASSERT_OWNED_RESOURCE(texture);
-
-    GrRenderTarget* target = texture->asRenderTarget();
-    if (target) {
-        return this->readRenderTargetPixels(target,
-                                            left, top, width, height,
-                                            config, buffer, rowBytes,
-                                            flags);
-    } else {
-        // TODO: make this more efficient for cases where we're reading the entire
-        //       texture, i.e., use GetTexImage() instead
-
-        // create scratch rendertarget and read from that
-        GrAutoScratchTexture ast;
-        GrTextureDesc desc;
-        desc.fFlags = kRenderTarget_GrTextureFlagBit;
-        desc.fWidth = width;
-        desc.fHeight = height;
-        desc.fConfig = config;
-        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-        ast.set(this, desc, kExact_ScratchTexMatch);
-        GrTexture* dst = ast.texture();
-        if (dst && (target = dst->asRenderTarget())) {
-            this->copySurface(target, texture, SkIRect::MakeXYWH(top, left, width, height),
-                              SkIPoint::Make(0,0));
-            return this->readRenderTargetPixels(target,
-                                                left, top, width, height,
-                                                config, buffer, rowBytes,
-                                                flags);
-        }
-
+bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,
+                          const void* inPixels, size_t outRowBytes, void* outPixels) {
+    SkSrcPixelInfo srcPI;
+    if (!GrPixelConfig2ColorType(srcConfig, &srcPI.fColorType)) {
         return false;
     }
+    srcPI.fAlphaType = kUnpremul_SkAlphaType;
+    srcPI.fPixels = inPixels;
+    srcPI.fRowBytes = inRowBytes;
+
+    SkDstPixelInfo dstPI;
+    dstPI.fColorType = srcPI.fColorType;
+    dstPI.fAlphaType = kPremul_SkAlphaType;
+    dstPI.fPixels = outPixels;
+    dstPI.fRowBytes = outRowBytes;
+
+    return srcPI.convertPixelsTo(&dstPI, width, height);
 }
 
-#include "SkConfig8888.h"
+bool GrContext::writeSurfacePixels(GrSurface* surface,
+                                   int left, int top, int width, int height,
+                                   GrPixelConfig srcConfig, const void* buffer, size_t rowBytes,
+                                   uint32_t pixelOpsFlags) {
+
+    {
+        GrTexture* texture = NULL;
+        if (!(kUnpremul_PixelOpsFlag & pixelOpsFlags) && (texture = surface->asTexture()) &&
+            fGpu->canWriteTexturePixels(texture, srcConfig)) {
+
+            if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) &&
+                surface->surfacePriv().hasPendingIO()) {
+                this->flush();
+            }
+            return fGpu->writeTexturePixels(texture, left, top, width, height,
+                                            srcConfig, buffer, rowBytes);
+            // Don't need to check kFlushWrites_PixelOp here, we just did a direct write so the
+            // upload is already flushed.
+        }
+    }
+
+    // If we didn't do a direct texture write then we upload the pixels to a texture and draw.
+    GrRenderTarget* renderTarget = surface->asRenderTarget();
+    if (NULL == renderTarget) {
+        return false;
+    }
+
+    // We ignore the preferred config unless it is a R/B swap of the src config. In that case
+    // we will upload the original src data to a scratch texture but we will spoof it as the swapped
+    // config. This scratch will then have R and B swapped. We correct for this by swapping again
+    // when drawing the scratch to the dst using a conversion effect.
+    bool swapRAndB = false;
+    GrPixelConfig writeConfig = srcConfig;
+    if (GrPixelConfigSwapRAndB(srcConfig) ==
+        fGpu->preferredWritePixelsConfig(srcConfig, renderTarget->config())) {
+        writeConfig = GrPixelConfigSwapRAndB(srcConfig);
+        swapRAndB = true;
+    }
+
+    GrTextureDesc desc;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = writeConfig;
+    GrAutoScratchTexture ast(this, desc);
+    GrTexture* texture = ast.texture();
+    if (NULL == texture) {
+        return false;
+    }
+
+    SkAutoTUnref<const GrFragmentProcessor> fp;
+    SkMatrix textureMatrix;
+    textureMatrix.setIDiv(texture->width(), texture->height());
+
+    // allocate a tmp buffer and sw convert the pixels to premul
+    SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
+
+    if (kUnpremul_PixelOpsFlag & pixelOpsFlags) {
+        if (!GrPixelConfigIs8888(srcConfig)) {
+            return false;
+        }
+        fp.reset(this->createUPMToPMEffect(texture, swapRAndB, textureMatrix));
+        // handle the unpremul step on the CPU if we couldn't create an effect to do it.
+        if (NULL == fp) {
+            size_t tmpRowBytes = 4 * width;
+            tmpPixels.reset(width * height);
+            if (!sw_convert_to_premul(srcConfig, width, height, rowBytes, buffer, tmpRowBytes,
+                                      tmpPixels.get())) {
+                return false;
+            }
+            rowBytes = tmpRowBytes;
+            buffer = tmpPixels.get();
+        }
+    }
+    if (NULL == fp) {
+        fp.reset(GrConfigConversionEffect::Create(texture,
+                                                  swapRAndB,
+                                                  GrConfigConversionEffect::kNone_PMConversion,
+                                                  textureMatrix));
+    }
+
+    // Even if the client told us not to flush, we still flush here. The client may have known that
+    // writes to the original surface caused no data hazards, but they can't know that the scratch
+    // we just got is safe.
+    if (texture->surfacePriv().hasPendingIO()) {
+        this->flush();
+    }
+    if (!fGpu->writeTexturePixels(texture, 0, 0, width, height,
+                                  writeConfig, buffer, rowBytes)) {
+        return false;
+    }
+
+    SkMatrix matrix;
+    matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
+
+    // This function can be called in the midst of drawing another object (e.g., when uploading a
+    // SW-rasterized clip while issuing a draw). So we push the current geometry state before
+    // drawing a rect to the render target.
+    // The bracket ensures we pop the stack if we wind up flushing below.
+    {
+        GrDrawTarget* drawTarget = this->prepareToDraw(NULL, kYes_BufferedDraw, NULL, NULL);
+        GrDrawTarget::AutoGeometryAndStatePush agasp(drawTarget, GrDrawTarget::kReset_ASRInit,
+                                                     &matrix);
+        GrDrawState* drawState = drawTarget->drawState();
+        drawState->addColorProcessor(fp);
+        drawState->setRenderTarget(renderTarget);
+        drawState->disableState(GrDrawState::kClip_StateBit);
+        drawTarget->drawSimpleRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)));
+    }
+
+    if (kFlushWrites_PixelOp & pixelOpsFlags) {
+        this->flushSurfaceWrites(surface);
+    }
+
+    return true;
+}
 
 // toggles between RGBA and BGRA
 static SkColorType toggle_colortype32(SkColorType ct) {
@@ -1372,8 +1441,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     GrTexture* src = target->asTexture();
     GrAutoScratchTexture ast;
     if (src && (swapRAndB || unpremul || flipY)) {
-        // Make the scratch a render target because we don't have a robust readTexturePixels as of
-        // yet. It calls this function.
+        // Make the scratch a render so we can read its pixels.
         GrTextureDesc desc;
         desc.fFlags = kRenderTarget_GrTextureFlagBit;
         desc.fWidth = width;
@@ -1506,144 +1574,6 @@ void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     if (kFlushWrites_PixelOp & pixelOpsFlags) {
         this->flush();
     }
-}
-
-bool GrContext::writeRenderTargetPixels(GrRenderTarget* renderTarget,
-                                        int left, int top, int width, int height,
-                                        GrPixelConfig srcConfig,
-                                        const void* buffer,
-                                        size_t rowBytes,
-                                        uint32_t pixelOpsFlags) {
-    ASSERT_OWNED_RESOURCE(renderTarget);
-
-    if (NULL == renderTarget) {
-        renderTarget = fRenderTarget.get();
-        if (NULL == renderTarget) {
-            return false;
-        }
-    }
-
-    // TODO: when underlying api has a direct way to do this we should use it (e.g. glDrawPixels on
-    // desktop GL).
-
-    // We will always call some form of writeTexturePixels and we will pass our flags on to it.
-    // Thus, we don't perform a flush here since that call will do it (if the kNoFlush flag isn't
-    // set.)
-
-    // If the RT is also a texture and we don't have to premultiply then take the texture path.
-    // We expect to be at least as fast or faster since it doesn't use an intermediate texture as
-    // we do below.
-
-#if !defined(SK_BUILD_FOR_MAC)
-    // At least some drivers on the Mac get confused when glTexImage2D is called on a texture
-    // attached to an FBO. The FBO still sees the old image. TODO: determine what OS versions and/or
-    // HW is affected.
-    if (renderTarget->asTexture() && !(kUnpremul_PixelOpsFlag & pixelOpsFlags) &&
-        fGpu->canWriteTexturePixels(renderTarget->asTexture(), srcConfig)) {
-        return this->writeTexturePixels(renderTarget->asTexture(),
-                                        left, top, width, height,
-                                        srcConfig, buffer, rowBytes, pixelOpsFlags);
-    }
-#endif
-
-    // We ignore the preferred config unless it is a R/B swap of the src config. In that case
-    // we will upload the original src data to a scratch texture but we will spoof it as the swapped
-    // config. This scratch will then have R and B swapped. We correct for this by swapping again
-    // when drawing the scratch to the dst using a conversion effect.
-    bool swapRAndB = false;
-    GrPixelConfig writeConfig = srcConfig;
-    if (GrPixelConfigSwapRAndB(srcConfig) ==
-        fGpu->preferredWritePixelsConfig(srcConfig, renderTarget->config())) {
-        writeConfig = GrPixelConfigSwapRAndB(srcConfig);
-        swapRAndB = true;
-    }
-
-    GrTextureDesc desc;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = writeConfig;
-    GrAutoScratchTexture ast(this, desc);
-    GrTexture* texture = ast.texture();
-    if (NULL == texture) {
-        return false;
-    }
-
-    SkAutoTUnref<const GrFragmentProcessor> fp;
-    SkMatrix textureMatrix;
-    textureMatrix.setIDiv(texture->width(), texture->height());
-
-    // allocate a tmp buffer and sw convert the pixels to premul
-    SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
-
-    if (kUnpremul_PixelOpsFlag & pixelOpsFlags) {
-        if (!GrPixelConfigIs8888(srcConfig)) {
-            return false;
-        }
-        fp.reset(this->createUPMToPMEffect(texture, swapRAndB, textureMatrix));
-        // handle the unpremul step on the CPU if we couldn't create an effect to do it.
-        if (NULL == fp) {
-            SkSrcPixelInfo srcPI;
-            if (!GrPixelConfig2ColorType(srcConfig, &srcPI.fColorType)) {
-                return false;
-            }
-            srcPI.fAlphaType = kUnpremul_SkAlphaType;
-            srcPI.fPixels = buffer;
-            srcPI.fRowBytes = rowBytes;
-
-            tmpPixels.reset(width * height);
-
-            SkDstPixelInfo dstPI;
-            dstPI.fColorType = srcPI.fColorType;
-            dstPI.fAlphaType = kPremul_SkAlphaType;
-            dstPI.fPixels = tmpPixels.get();
-            dstPI.fRowBytes = 4 * width;
-
-            if (!srcPI.convertPixelsTo(&dstPI, width, height)) {
-                return false;
-            }
-
-            buffer = tmpPixels.get();
-            rowBytes = 4 * width;
-        }
-    }
-    if (NULL == fp) {
-        fp.reset(GrConfigConversionEffect::Create(texture,
-                                                  swapRAndB,
-                                                  GrConfigConversionEffect::kNone_PMConversion,
-                                                  textureMatrix));
-    }
-
-    if (!this->writeTexturePixels(texture,
-                                  0, 0, width, height,
-                                  writeConfig, buffer, rowBytes,
-                                  pixelOpsFlags & ~kUnpremul_PixelOpsFlag)) {
-        return false;
-    }
-
-    SkMatrix matrix;
-    matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
-
-
-    // This function can be called in the midst of drawing another object (e.g., when uploading a
-    // SW-rasterized clip while issuing a draw). So we push the current geometry state before
-    // drawing a rect to the render target.
-    // The bracket ensures we pop the stack if we wind up flushing below.
-    {
-        GrDrawTarget* drawTarget = this->prepareToDraw(NULL, kYes_BufferedDraw, NULL, NULL);
-        GrDrawTarget::AutoGeometryAndStatePush agasp(drawTarget, GrDrawTarget::kReset_ASRInit,
-                                                     &matrix);
-        GrDrawState* drawState = drawTarget->drawState();
-        drawState->addColorProcessor(fp);
-        drawState->setRenderTarget(renderTarget);
-        drawState->disableState(GrDrawState::kClip_StateBit);
-        drawTarget->drawSimpleRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)));
-    }
-
-    if (kFlushWrites_PixelOp & pixelOpsFlags) {
-        this->flush();
-    }
-
-    return true;
 }
 
 void GrContext::flushSurfaceWrites(GrSurface* surface) {

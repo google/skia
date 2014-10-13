@@ -43,18 +43,6 @@ public:
         return this;
     }
 
-    virtual bool readPixels(int left, int top, int width, int height,
-                            GrPixelConfig config,
-                            void* buffer,
-                            size_t rowBytes = 0,
-                            uint32_t pixelOpsFlags = 0) SK_OVERRIDE;
-
-    virtual void writePixels(int left, int top, int width, int height,
-                             GrPixelConfig config,
-                             const void* buffer,
-                             size_t rowBytes = 0,
-                             uint32_t pixelOpsFlags = 0) SK_OVERRIDE;
-
     // GrRenderTarget
     /**
      * If this RT is multisampled, this is the multisample buffer

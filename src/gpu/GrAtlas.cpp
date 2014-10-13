@@ -92,12 +92,9 @@ bool GrPlot::addSubImage(int width, int height, const void* image, SkIPoint16* l
     // otherwise, just upload the image directly
     } else if (image) {
         adjust_for_offset(loc, fOffset);
-        GrContext* context = fTexture->getContext();
         TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrPlot::uploadToTexture");
-        context->writeTexturePixels(fTexture,
-                                    loc->fX, loc->fY, width, height,
-                                    fTexture->config(), image, 0,
-                                    GrContext::kDontFlush_PixelOpsFlag);
+        fTexture->writePixels(loc->fX, loc->fY, width, height, fTexture->config(), image, 0,
+                              GrContext::kDontFlush_PixelOpsFlag);
     } else {
         adjust_for_offset(loc, fOffset);
     }
@@ -118,7 +115,6 @@ void GrPlot::uploadToTexture() {
     if (fDirty) {
         TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrPlot::uploadToTexture");
         SkASSERT(fTexture);
-        GrContext* context = fTexture->getContext();
         // We pass the flag that does not force a flush. We assume our caller is
         // smart and hasn't referenced the part of the texture we're about to update
         // since the last flush.
@@ -126,12 +122,9 @@ void GrPlot::uploadToTexture() {
         const unsigned char* dataPtr = fPlotData;
         dataPtr += rowBytes*fDirtyRect.fTop;
         dataPtr += fBytesPerPixel*fDirtyRect.fLeft;
-        context->writeTexturePixels(fTexture,
-                                    fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
-                                    fDirtyRect.width(), fDirtyRect.height(),
-                                    fTexture->config(), dataPtr,
-                                    rowBytes,
-                                    GrContext::kDontFlush_PixelOpsFlag);
+        fTexture->writePixels(fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
+                              fDirtyRect.width(), fDirtyRect.height(), fTexture->config(), dataPtr,
+                              rowBytes, GrContext::kDontFlush_PixelOpsFlag);
         fDirtyRect.setEmpty();
         fDirty = false;
         // If the Plot is nearly full, anything else we add will probably be small and one

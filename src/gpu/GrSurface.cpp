@@ -13,6 +13,34 @@
 #include "SkImageEncoder.h"
 #include <stdio.h>
 
+bool GrSurface::writePixels(int left, int top, int width, int height,
+                            GrPixelConfig config, const void* buffer, size_t rowBytes,
+                            uint32_t pixelOpsFlags) {
+    // go through context so that all necessary flushing occurs
+    GrContext* context = this->getContext();
+    if (NULL == context) {
+        return false;
+    }
+    return context->writeSurfacePixels(this, left, top, width, height, config, buffer, rowBytes,
+                                       pixelOpsFlags);
+}
+
+bool GrSurface::readPixels(int left, int top, int width, int height,
+                           GrPixelConfig config, void* buffer, size_t rowBytes,
+                           uint32_t pixelOpsFlags) {
+    // go through context so that all necessary flushing occurs
+    GrContext* context = this->getContext();
+    if (NULL == context) {
+        return false;
+    }
+    GrRenderTarget* target = this->asRenderTarget();
+    if (target) {
+        return context->readRenderTargetPixels(target, left, top, width, height, config, buffer,
+                                               rowBytes, pixelOpsFlags);
+    }
+    return false;
+}
+
 SkImageInfo GrSurface::info() const {
     SkColorType colorType;
     if (!GrPixelConfig2ColorType(this->config(), &colorType)) {

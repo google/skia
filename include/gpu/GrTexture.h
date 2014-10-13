@@ -25,19 +25,6 @@ public:
      */
     virtual size_t gpuMemorySize() const SK_OVERRIDE;
 
-    // GrSurface overrides
-    virtual bool readPixels(int left, int top, int width, int height,
-                            GrPixelConfig config,
-                            void* buffer,
-                            size_t rowBytes = 0,
-                            uint32_t pixelOpsFlags = 0) SK_OVERRIDE;
-
-    virtual void writePixels(int left, int top, int width, int height,
-                             GrPixelConfig config,
-                             const void* buffer,
-                             size_t rowBytes = 0,
-                             uint32_t pixelOpsFlags = 0) SK_OVERRIDE;
-
     virtual GrTexture* asTexture() SK_OVERRIDE { return this; }
     virtual const GrTexture* asTexture() const SK_OVERRIDE { return this; }
     virtual GrRenderTarget* asRenderTarget() SK_OVERRIDE { return fRenderTarget.get(); }
