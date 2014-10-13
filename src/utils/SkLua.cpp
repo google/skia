@@ -19,6 +19,7 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPictureRecorder.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkString.h"
@@ -47,6 +48,8 @@ DEF_MTNAME(SkRRect)
 DEF_MTNAME(SkPath)
 DEF_MTNAME(SkPaint)
 DEF_MTNAME(SkPathEffect)
+DEF_MTNAME(SkPicture)
+DEF_MTNAME(SkPictureRecorder)
 DEF_MTNAME(SkShader)
 DEF_MTNAME(SkSurface)
 DEF_MTNAME(SkTextBlob)
@@ -509,6 +512,22 @@ static int lcanvas_drawPath(lua_State* L) {
     return 0;
 }
 
+// drawPicture(pic, x, y, paint)
+static int lcanvas_drawPicture(lua_State* L) {
+    SkCanvas* canvas = get_ref<SkCanvas>(L, 1);
+    SkPicture* picture = get_ref<SkPicture>(L, 2);
+    SkScalar x = lua2scalar_def(L, 3, 0);
+    SkScalar y = lua2scalar_def(L, 4, 0);
+    SkMatrix matrix, *matrixPtr = NULL;
+    if (x || y) {
+        matrix.setTranslate(x, y);
+        matrixPtr = &matrix;
+    }
+    SkPaint paint;
+    canvas->drawPicture(picture, matrixPtr, lua2OptionalPaint(L, 5, &paint));
+    return 0;
+}
+
 static int lcanvas_drawText(lua_State* L) {
     if (lua_gettop(L) < 5) {
         return 0;
@@ -636,6 +655,7 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
     { "drawImage", lcanvas_drawImage },
     { "drawImageRect", lcanvas_drawImageRect },
     { "drawPath", lcanvas_drawPath },
+    { "drawPicture", lcanvas_drawPicture },
     { "drawText", lcanvas_drawText },
     { "getSaveCount", lcanvas_getSaveCount },
     { "getTotalMatrix", lcanvas_getTotalMatrix },
@@ -1466,7 +1486,7 @@ static int lsurface_newImageSnapshot(lua_State* L) {
 
 static int lsurface_newSurface(lua_State* L) {
     int width = lua2int_def(L, 2, 0);
-    int height = lua2int_def(L, 2, 0);
+    int height = lua2int_def(L, 3, 0);
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
     SkSurface* surface = get_ref<SkSurface>(L, 1)->newSurface(info);
     if (NULL == surface) {
@@ -1490,6 +1510,84 @@ static const struct luaL_Reg gSkSurface_Methods[] = {
     { "newImageSnapshot", lsurface_newImageSnapshot },
     { "newSurface", lsurface_newSurface },
     { "__gc", lsurface_gc },
+    { NULL, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+static int lpicturerecorder_beginRecording(lua_State* L) {
+    const SkScalar w = lua2scalar_def(L, 2, -1);
+    const SkScalar h = lua2scalar_def(L, 3, -1);
+    if (w <= 0 || h <= 0) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    SkCanvas* canvas = get_obj<SkPictureRecorder>(L, 1)->beginRecording(w, h);
+    if (NULL == canvas) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    push_ref(L, canvas);
+    return 1;
+}
+
+static int lpicturerecorder_getCanvas(lua_State* L) {
+    SkCanvas* canvas = get_obj<SkPictureRecorder>(L, 1)->getRecordingCanvas();
+    if (NULL == canvas) {
+        lua_pushnil(L);
+        return 1;
+    }
+    push_ref(L, canvas);
+    return 1;
+}
+
+static int lpicturerecorder_endRecording(lua_State* L) {
+    SkPicture* pic = get_obj<SkPictureRecorder>(L, 1)->endRecording();
+    if (NULL == pic) {
+        lua_pushnil(L);
+        return 1;
+    }
+    push_ref(L, pic);
+    pic->unref();   // lua is the only owner, so we unref ours
+    return 1;
+}
+
+static int lpicturerecorder_gc(lua_State* L) {
+    get_obj<SkPictureRecorder>(L, 1)->~SkPictureRecorder();
+    return 0;
+}
+
+static const struct luaL_Reg gSkPictureRecorder_Methods[] = {
+    { "beginRecording", lpicturerecorder_beginRecording },
+    { "getCanvas", lpicturerecorder_getCanvas },
+    { "endRecording", lpicturerecorder_endRecording },
+    { "__gc", lpicturerecorder_gc },
+    { NULL, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+static int lpicture_width(lua_State* L) {
+    lua_pushnumber(L, get_ref<SkPicture>(L, 1)->cullRect().width());
+    return 1;
+}
+
+static int lpicture_height(lua_State* L) {
+    lua_pushnumber(L, get_ref<SkPicture>(L, 1)->cullRect().height());
+    return 1;
+}
+
+static int lpicture_gc(lua_State* L) {
+    get_ref<SkPicture>(L, 1)->unref();
+    return 0;
+}
+
+static const struct luaL_Reg gSkPicture_Methods[] = {
+    { "width", lpicture_width },
+    { "height", lpicture_height },
+    { "__gc", lpicture_gc },
     { NULL, NULL }
 };
 
@@ -1559,6 +1657,11 @@ static int lsk_newPaint(lua_State* L) {
 
 static int lsk_newPath(lua_State* L) {
     push_new<SkPath>(L);
+    return 1;
+}
+
+static int lsk_newPictureRecorder(lua_State* L) {
+    push_new<SkPictureRecorder>(L);
     return 1;
 }
 
@@ -1633,6 +1736,7 @@ static void register_Sk(lua_State* L) {
     setfield_function(L, "loadImage", lsk_loadImage);
     setfield_function(L, "newPaint", lsk_newPaint);
     setfield_function(L, "newPath", lsk_newPath);
+    setfield_function(L, "newPictureRecorder", lsk_newPictureRecorder);
     setfield_function(L, "newRRect", lsk_newRRect);
     setfield_function(L, "newRasterSurface", lsk_newRasterSurface);
     setfield_function(L, "newTypeface", lsk_newTypeface);
@@ -1656,6 +1760,8 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkPaint);
     REG_CLASS(L, SkPath);
     REG_CLASS(L, SkPathEffect);
+    REG_CLASS(L, SkPicture);
+    REG_CLASS(L, SkPictureRecorder);
     REG_CLASS(L, SkRRect);
     REG_CLASS(L, SkShader);
     REG_CLASS(L, SkSurface);

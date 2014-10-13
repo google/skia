@@ -47,21 +47,21 @@ function slide_transition(prev, next, is_forward)
                 drawSlideProc(canvas)
                 return nil
             end
-            canvas:drawImage(self.prevImage, self.curr_x, 0)
-            canvas:drawImage(self.nextImage, self.curr_x + 640, 0)
+            self.prevDrawable:draw(canvas, self.curr_x, 0)
+            self.nextDrawable:draw(canvas, self.curr_x + 640, 0)
             self.curr_x = self.curr_x + self.step_x
             return self
         end
     }
     if is_forward then
-        rec.prevImage = prev
-        rec.nextImage = next
+        rec.prevDrawable = prev
+        rec.nextDrawable = next
         rec.curr_x = 0
         rec.step_x = -15
         rec.isDone = function (self) return self.curr_x <= -640 end
     else
-        rec.prevImage = next
-        rec.nextImage = prev
+        rec.prevDrawable = next
+        rec.nextDrawable = prev
         rec.curr_x = -640
         rec.step_x = 15
         rec.isDone = function (self) return self.curr_x >= 0 end
@@ -71,15 +71,15 @@ end
 
 function fade_slide_transition(prev, next, is_forward)
     local rec = {
-        prevImage = prev,
-        nextImage = next,
+        prevDrawable = prev,
+        nextDrawable = next,
         proc = function(self, canvas, drawSlideProc)
             if self:isDone() then
                 drawSlideProc(canvas)
                 return nil
             end
-            canvas:drawImage(self.prevImage, self.prev_x, 0, self.prev_a)
-            canvas:drawImage(self.nextImage, self.next_x, 0, self.next_a)
+            self.prevDrawable:draw(canvas, self.prev_x, 0, self.prev_a)
+            self.nextDrawable:draw(canvas, self.next_x, 0, self.next_a)
             self:step()
             return self
         end
@@ -205,7 +205,27 @@ function prev_slide()
     spawn_transition(prev, gSlides[gSlideIndex], false)
 end
 
-gSurfaceFactory = function (w, h) return Sk.newRasterSurface(w, h) end
+function new_drawable_picture(pic)
+    return {
+        picture = pic,
+        width = pic:width(),
+        height = pic:height(),
+        draw = function (self, canvas, x, y, paint)
+            canvas:drawPicture(self.picture, x, y, paint)
+        end
+    }
+end
+
+function new_drawable_image(img)
+    return {
+        image = img,
+        width = img:width(),
+        height = img:height(),
+        draw = function (self, canvas, x, y, paint)
+            canvas:drawImage(self.image, x, y, paint)
+        end
+    }
+end
 
 function spawn_transition(prevSlide, nextSlide, is_forward)
     local transition
@@ -219,18 +239,15 @@ function spawn_transition(prevSlide, nextSlide, is_forward)
         return
     end
 
-    local surf = gSurfaceFactory(640, 480)
-    local canvas = surf:getCanvas()
+    local rec = Sk.newPictureRecorder()
 
-    canvas:clear()
-    drawSlide(canvas, prevSlide, gTemplate, gPaints)
-    local prevImage = surf:newImageSnapshot()
+    drawSlide(rec:beginRecording(640, 480), prevSlide, gTemplate, gPaints)
+    local prevDrawable = new_drawable_picture(rec:endRecording())
 
-    canvas:clear()
-    drawSlide(canvas, nextSlide, gTemplate, gPaints)
-    local nextImage = surf:newImageSnapshot()
+    drawSlide(rec:beginRecording(640, 480), nextSlide, gTemplate, gPaints)
+    local nextDrawable = new_drawable_picture(rec:endRecording())
 
-    gCurrAnimation = transition(prevImage, nextImage, is_forward)
+    gCurrAnimation = transition(prevDrawable, nextDrawable, is_forward)
 end
 
 --------------------------------------------------------------------------------------
