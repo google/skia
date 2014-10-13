@@ -2,6 +2,60 @@
 @import "bootstrap-variables";
 @import "bootstrap";
 
+$sidebar-width: 200px;
+$content-background: white;
+$sidebar-background: #eee;
+
+html, body {
+  min-height: 100%;
+}
+
+#wrapper { 
+  padding-top: 50px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#lower-wrapper {
+  min-height: 100%;
+  position: relative;
+}
+
+#content {
+  height: 100%;
+  padding: 1em;
+
+  margin-left: $sidebar-width;
+  background: $content-background;
+}
+
+#sidebar {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: $sidebar-width;
+  background: $sidebar-background;
+  height: 100%;
+
+  padding: 5px;
+
+  .panel-heading {
+    padding: 3px 5px;
+
+    .panel-title {
+      font-size: 12px;
+      font-weight: 200;
+    }
+  }
+}
+
+.navbar {
+  margin-top: -50px;
+}
+
 img {
   box-shadow: 2px 2px 5px gray;
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAAAAAA6mKC9AAAAAXNSR0IArs4c6QAAAAJiS0dEAP+Hj8y/AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTUUH3gUBEi4DGRAQYgAAAB1JREFUGNNjfMoAAVJQmokBDdBHgPE/lPFsYN0BABdaAwN6tehMAAAAAElFTkSuQmCC");
@@ -38,10 +92,6 @@ code {
 .tries {
   margin: 1em;
   float: left;
-}
-
-#content {
-  padding: 1em;
 }
 
 #tryHistory {
@@ -110,6 +160,10 @@ code {
 }
 
 /* Twitter Bootstrap customization */
+
+.navbar {
+  border: none;
+}
 
 .navbar-brand {
   padding: 0;

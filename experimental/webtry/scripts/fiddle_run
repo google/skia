@@ -8,8 +8,4 @@
 [ -z $SKIA_ROOT ] && SKIA_ROOT="/skia_build/skia"
 [ -z $WEBTRY_INOUT ] && WEBTRY_INOUT="/skia_build/inout"
 
-if [ "$#" -eq 2 ]; then
-  FIDDLE_SOURCE_ARGS="--source $WEBTRY_INOUT/$2"
-fi
-
-$SKIA_ROOT/out/Release/$1 --out $WEBTRY_INOUT/$1.png $FIDDLE_SOURCE_ARGS
+$SKIA_ROOT/out/Release/$1 --out $WEBTRY_INOUT/$1.png "${@:2}"

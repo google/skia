@@ -6,8 +6,13 @@
     <link rel='import' type='text/html' href='/res/imp/zoom.html'>
 </head>
 <body>
-  {{template "titlebar.html" .}}
-  {{template "content.html" .}}
+  <div id="wrapper">
+    {{template "titlebar.html" .}}
+    <div id="lower-wrapper">
+      {{template "sidebar.html" .}}
+      {{template "content.html" .}}
+    </div>
+  </div>
 
   <script type='text/javascript'>
       // Not running in a workspace.

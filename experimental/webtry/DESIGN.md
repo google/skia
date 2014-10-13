@@ -144,6 +144,8 @@ Initial setup of the database, the user, and the tables:
       code               TEXT      DEFAULT ''                 NOT NULL,
       create_ts          TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
       hash               CHAR(64)  DEFAULT ''                 NOT NULL,
+      width              INTEGER   DEFAULT 256                NOT NULL,
+      height             INTEGER   DEFAULT 256                NOT NULL,
       source_image_id    INTEGER   DEFAULT 0                  NOT NULL,
       PRIMARY KEY(hash),
 
@@ -160,6 +162,8 @@ Initial setup of the database, the user, and the tables:
       name             CHAR(64)  DEFAULT ''                 NOT NULL,
       create_ts        TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
       hash             CHAR(64)  DEFAULT ''                 NOT NULL,
+      width            INTEGER   DEFAULT 256                NOT NULL,
+      height           INTEGER   DEFAULT 256                NOT NULL,
       source_image_id  INTEGER   DEFAULT 0                  NOT NULL,
       hidden           INTEGER   DEFAULT 0                  NOT NULL,
 

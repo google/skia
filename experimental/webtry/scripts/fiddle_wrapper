@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# fiddle_wrapper takes the hash of the fiddle as its first argument, and a source image to include as an
-# optional second.  Then it:
+# fiddle_wrapper takes the hash of the fiddle as its first argument, and additional arguments to 
+# be passed to the build fiddle executable.  Then it:
 #
 # 1) runs fiddle_gyp to create the gyp file
 # 2) runs fiddle_ninja to build the executable
@@ -16,4 +16,4 @@ cd $SKIA_ROOT/experimental/webtry/scripts
 
 ./fiddle_gyp $1
 ./fiddle_ninja $1
-./fiddle_run $1 $2
+./fiddle_run $@

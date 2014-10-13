@@ -26,6 +26,8 @@
       var output          = document.getElementById('output');
       var stdout          = document.getElementById('stdout');
       var img             = document.getElementById('img');
+      var imageWidth      = document.getElementById('image-width');
+      var imageHeight     = document.getElementById('image-height');
       var tryHistory      = document.getElementById('tryHistory');
       var parser          = new DOMParser();
       var tryTemplate     = document.getElementById('tryTemplate');
@@ -211,6 +213,8 @@
         code.value = body.code;
         editor.setValue(body.code);
         img.src = '/i/'+body.hash+'.png';
+        imageWidth.value = body.width;
+        imageHeight.value = body.height;
         sourceSelectByID(body.source);
         if (permalink) {
           permalink.href = '/c/' + body.hash;
@@ -245,7 +249,6 @@
         // The img is optional and only appears if there is a valid
         // image to display.
         endWait();
-        console.log(e.target.response);
         body = JSON.parse(e.target.response);
         output.textContent = body.message;
         if (body.message) {
@@ -290,7 +293,7 @@
         req.overrideMimeType('application/json');
         req.open('POST', '/', true);
         req.setRequestHeader('content-type', 'application/json');
-        req.send(JSON.stringify({'code': editor.getValue(), 'name': workspaceName, 'source': sourceId}));
+        req.send(JSON.stringify({'code': editor.getValue(), 'width': parseInt(imageWidth.value), 'height': parseInt(imageHeight.value), 'name': workspaceName, 'source': sourceId}));
       }
       run.addEventListener('click', onSubmitCode);
 
