@@ -202,6 +202,7 @@
         ],
         'cflags_cc': [
           '-fno-rtti',
+          '-fno-threadsafe-statics',  # Chrome disables this, so for safety we should too.
           '-Wnon-virtual-dtor',
           '-Wno-invalid-offsetof',  # GCC <4.6 is old-school strict about what is POD.
         ],
