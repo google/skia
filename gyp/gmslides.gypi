@@ -220,9 +220,6 @@
         # SOME of the bitmaprect tests are disabled on Android; see
         # ../gm/bitmaprect.cpp
 
-        # Fail for now until the appropriate freetype changes are submitted.
-        '../gm/coloremoji.cpp',
-
         # We skip GPU tests in this GM; see
         # ../gm/deviceproperties.cpp
 

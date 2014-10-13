@@ -33,10 +33,6 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
-# jvanverth
-# color emoji fix
-coloremoji
-
 # rileya - https://codereview.chromium.org/516463005/ will rebaseline after bots cycle
 yuv_to_rgb_effect
 
