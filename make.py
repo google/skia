@@ -8,7 +8,7 @@
 #
 # Some usage examples:
 #   make clean
-#   make tests
+#   make dm
 #   make bench BUILDTYPE=Release
 #   make gm GYP_DEFINES=skia_scalar=fixed BUILDTYPE=Release
 #   make all
