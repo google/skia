@@ -35,12 +35,16 @@ const (
 	issueComment      = "Edited by BugChomper"
 	oauthCallbackPath = "/oauth2callback"
 	oauthConfigFile   = "oauth_client_secret.json"
-	defaultPort       = 8000
 	localHost         = "127.0.0.1"
 	maxSessionLen     = time.Duration(3600 * time.Second)
 	priorityPrefix    = "Priority-"
 	project           = "skia"
 	cookieName        = "BugChomperCookie"
+)
+
+// Flags:
+var (
+	port = flag.String("port", ":8000", "HTTP service address (e.g., ':8000')")
 )
 
 var (
@@ -362,17 +366,16 @@ func main() {
 	http.HandleFunc("/", handleRoot)
 	http.HandleFunc(oauthCallbackPath, handleOAuth2Callback)
 	http.Handle("/res/", http.FileServer(http.Dir(curdir)))
-	port := ":" + strconv.Itoa(defaultPort)
-	log.Println("Server is running at " + scheme + "://" + localHost + port)
+	log.Println("Server is running at " + scheme + "://" + localHost + *port)
 	var err error
 	if public {
 		log.Println("WARNING: This server is not secure and should not be made " +
 			"publicly accessible.")
 		scheme = "https"
-		err = http.ListenAndServeTLS(port, certFile, keyFile, nil)
+		err = http.ListenAndServeTLS(*port, certFile, keyFile, nil)
 	} else {
 		scheme = "http"
-		err = http.ListenAndServe(localHost+port, nil)
+		err = http.ListenAndServe(localHost+*port, nil)
 	}
 	if err != nil {
 		log.Println(err.Error())

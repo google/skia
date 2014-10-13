@@ -20,4 +20,3 @@ if [[ ! -f oauth_client_secret.json ]]; then
 fi
 
 GOPATH="$GOPATH:$DIR" go run $DIR/src/server/server.go $@
-
