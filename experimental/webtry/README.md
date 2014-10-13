@@ -57,18 +57,11 @@ The following things only need to be done once.
 4. cd ~/skia/experimental/webtry/setup
 5. ./webtry_setup.sh
 
-3. Add the following to the /etc/schroot/minimal/fstab:
+6. Add the following to the /etc/schroot/minimal/fstab:
 
   none /run/shm tmpfs rw,nosuid,nodev,noexec 0 0
   /home/webtry/inout             /skia_build/inout  none    rw,bind         0       0
   /home/webtry/cache             /skia_build/cache  none    rw,bind         0       0
-
-
-4. git clone https://skia.googlesource.com/skia
-
-5. cd ~/skia/experimental/webtry/setup
-
-6. ./webtry_setup.sh
 
 7. Change /etc/monit/monitrc to:
 
@@ -85,6 +78,7 @@ This means that monit will poll every two seconds that our application is up and
 
     sudo sh -c 'echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time'
 
+
 To update the code
 ==================
 
@@ -92,6 +86,7 @@ To update the code
 2. cd ~/skia/experimental/webtry/setup
 3. git pull
 4. ./webtry_setup.sh
+
 
 Third Party Code
 ================
