@@ -36,6 +36,6 @@ git checkout master
 # wget https://codereview.chromium.org/download/$PATCH
 # git apply $PATCH
 
-SKIA_GYP_OUTPUT_DIR=${SKIA_BUILD}/skia/out GYP_GENERATORS=ninja ./gyp_skia -Dskia_mesa=1
+SKIA_GYP_OUTPUT_DIR=${SKIA_BUILD}/skia/out GYP_GENERATORS=ninja ./gyp_skia -Dskia_gpu=0
 
 ninja -C ${SKIA_BUILD}/skia/out/Release skia_lib libjpeg libSkKTX libetc1 flags sk_tool_utils resources

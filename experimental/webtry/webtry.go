@@ -255,9 +255,8 @@ func init() {
              code               TEXT      DEFAULT ''                 NOT NULL,
              create_ts          TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
              hash               CHAR(64)  DEFAULT ''                 NOT NULL,
-             width              INTEGER   DEFAULT 256                NOT NULL,
-             height             INTEGER   DEFAULT 256                NOT NULL,
-             gpu                BOOL      DEFAULT 0                  NOT NULL,
+             width     			INTEGER   DEFAULT 256                NOT NULL,
+             height    			INTEGER   DEFAULT 256                NOT NULL,
              source_image_id    INTEGER   DEFAULT 0                  NOT NULL,
 
              PRIMARY KEY(hash)
@@ -281,9 +280,8 @@ func init() {
           name               CHAR(64)  DEFAULT ''                 NOT NULL,
           create_ts          TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
           hash               CHAR(64)  DEFAULT ''                 NOT NULL,
-          width              INTEGER   DEFAULT 256                NOT NULL,
-          height             INTEGER   DEFAULT 256                NOT NULL,
-          gpu                BOOL      DEFAULT 0                  NOT NULL,
+          width     		 INTEGER   DEFAULT 256                NOT NULL,
+          height    		 INTEGER   DEFAULT 256                NOT NULL,
           hidden             INTEGER   DEFAULT 0                  NOT NULL,
           source_image_id    INTEGER   DEFAULT 0                  NOT NULL,
 
@@ -356,7 +354,6 @@ type userCode struct {
 	Hash     string
 	Width    int
 	Height   int
-	GPU      bool
 	Source   int
 	Titlebar Titlebar
 }
@@ -383,17 +380,13 @@ func expandToFile(filename string, code string, t *template.Template) error {
 // expandCode expands the template into a file and calculates the MD5 hash.
 // We include the width and height here so that a single hash can capture
 // both the code and the supplied width/height parameters.
-func expandCode(code string, source int, width, height int, gpu bool) (string, error) {
+func expandCode(code string, source int, width, height int) (string, error) {
 	// in order to support fonts in the chroot jail, we need to make sure
 	// we're using portable typefaces.
 	// TODO(humper):  Make this more robust, supporting things like setTypeface
 
 	inputCodeLines := strings.Split(code, "\n")
-	outputCodeLines := []string{
-		"DECLARE_bool(portableFonts);",
-		fmt.Sprintf("// WxH: %d, %d", width, height),
-		fmt.Sprintf("// GPU: %v", gpu),
-	}
+	outputCodeLines := []string{"DECLARE_bool(portableFonts);", fmt.Sprintf("// WxH: %d, %d", width, height)}
 	for _, line := range inputCodeLines {
 		outputCodeLines = append(outputCodeLines, line)
 		if strings.HasPrefix(strings.TrimSpace(line), "SkPaint p") {
@@ -472,15 +465,15 @@ func reportTryError(w http.ResponseWriter, r *http.Request, err error, message, 
 	w.Write(resp)
 }
 
-func writeToDatabase(hash string, code string, workspaceName string, source int, width, height int, gpu bool) {
+func writeToDatabase(hash string, code string, workspaceName string, source int, width, height int) {
 	if db == nil {
 		return
 	}
-	if _, err := db.Exec("INSERT INTO webtry (code, hash, width, height, gpu, source_image_id) VALUES(?, ?, ?, ?, ?, ?)", code, hash, width, height, gpu, source); err != nil {
+	if _, err := db.Exec("INSERT INTO webtry (code, hash, width, height, source_image_id) VALUES(?, ?, ?, ?, ?)", code, hash, width, height, source); err != nil {
 		log.Printf("ERROR: Failed to insert code into database: %q\n", err)
 	}
 	if workspaceName != "" {
-		if _, err := db.Exec("INSERT INTO workspacetry (name, hash, width, height, gpu, source_image_id) VALUES(?, ?, ?, ?, ?, ?)", workspaceName, hash, width, height, gpu, source); err != nil {
+		if _, err := db.Exec("INSERT INTO workspacetry (name, hash, width, height, source_image_id) VALUES(?, ?, ?, ?, ?)", workspaceName, hash, width, height, source); err != nil {
 			log.Printf("ERROR: Failed to insert into workspacetry table: %q\n", err)
 		}
 	}
@@ -623,7 +616,6 @@ type Workspace struct {
 	Width    int
 	Height   int
 	Source   int
-	GPU      bool
 	Tries    []Try
 	Titlebar Titlebar
 }
@@ -645,17 +637,16 @@ func newWorkspace() (string, error) {
 }
 
 // getCode returns the code for a given hash, or the empty string if not found.
-func getCode(hash string) (string, int, int, int, bool, error) {
+func getCode(hash string) (string, int, int, int, error) {
 	code := ""
 	width := 0
 	height := 0
 	source := 0
-	gpu := false
-	if err := db.QueryRow("SELECT code, width, height, gpu, source_image_id FROM webtry WHERE hash=?", hash).Scan(&code, &width, &height, &gpu, &source); err != nil {
+	if err := db.QueryRow("SELECT code, width, height, source_image_id FROM webtry WHERE hash=?", hash).Scan(&code, &width, &height, &source); err != nil {
 		log.Printf("ERROR: Code for hash is missing: %q\n", err)
-		return code, width, height, source, gpu, err
+		return code, width, height, source, err
 	}
-	return code, width, height, source, gpu, nil
+	return code, width, height, source, nil
 }
 
 func workspaceHandler(w http.ResponseWriter, r *http.Request) {
@@ -687,17 +678,16 @@ func workspaceHandler(w http.ResponseWriter, r *http.Request) {
 		var width int
 		var height int
 		source := 0
-		gpu := false
 		if len(tries) == 0 {
 			code = DEFAULT_SAMPLE
 			width = 256
 			height = 256
 		} else {
 			hash = tries[len(tries)-1].Hash
-			code, width, height, source, gpu, _ = getCode(hash)
+			code, width, height, source, _ = getCode(hash)
 		}
 		w.Header().Set("Content-Type", "text/html")
-		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name, Hash: hash, Width: width, Height: height, GPU: gpu, Source: source, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
+		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name, Hash: hash, Width: width, Height: height, Source: source, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
 		}
 	} else if r.Method == "POST" {
@@ -725,7 +715,6 @@ type TryRequest struct {
 	Code   string `json:"code"`
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
-	GPU    bool   `json:"gpu"`
 	Name   string `json:"name"`   // Optional name of the workspace the code is in.
 	Source int    `json:"source"` // ID of the source image, 0 if none.
 }
@@ -748,14 +737,14 @@ func iframeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var code string
-	code, width, height, source, gpu, err := getCode(hash)
+	code, width, height, source, err := getCode(hash)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 	// Expand the template.
 	w.Header().Set("Content-Type", "text/html")
-	if err := iframeTemplate.Execute(w, userCode{Code: code, Width: width, Height: height, GPU: gpu, Hash: hash, Source: source}); err != nil {
+	if err := iframeTemplate.Execute(w, userCode{Code: code, Width: width, Height: height, Hash: hash, Source: source}); err != nil {
 		log.Printf("ERROR: Failed to expand template: %q\n", err)
 	}
 }
@@ -765,7 +754,6 @@ type TryInfo struct {
 	Code   string `json:"code"`
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
-	GPU    bool   `json:"gpu"`
 	Source int    `json:"source"`
 }
 
@@ -782,7 +770,7 @@ func tryInfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hash := match[1]
-	code, width, height, source, gpu, err := getCode(hash)
+	code, width, height, source, err := getCode(hash)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -792,7 +780,6 @@ func tryInfoHandler(w http.ResponseWriter, r *http.Request) {
 		Code:   code,
 		Width:  width,
 		Height: height,
-		GPU:    gpu,
 		Source: source,
 	}
 	resp, err := json.Marshal(m)
@@ -819,7 +806,6 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		source := 0
 		width := 256
 		height := 256
-		gpu := false
 		match := directLink.FindStringSubmatch(r.URL.Path)
 		var hash string
 		if len(match) == 2 && r.URL.Path != "/" {
@@ -829,14 +815,14 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			// Update 'code' with the code found in the database.
-			if err := db.QueryRow("SELECT code, width, height, gpu, source_image_id FROM webtry WHERE hash=?", hash).Scan(&code, &width, &height, &gpu, &source); err != nil {
+			if err := db.QueryRow("SELECT code, width, height, source_image_id FROM webtry WHERE hash=?", hash).Scan(&code, &width, &height, &source); err != nil {
 				http.NotFound(w, r)
 				return
 			}
 		}
 		// Expand the template.
 		w.Header().Set("Content-Type", "text/html")
-		if err := indexTemplate.Execute(w, userCode{Code: code, Hash: hash, Source: source, Width: width, Height: height, GPU: gpu, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
+		if err := indexTemplate.Execute(w, userCode{Code: code, Hash: hash, Source: source, Width: width, Height: height, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
 		}
 	} else if r.Method == "POST" {
@@ -862,21 +848,18 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			reportTryError(w, r, err, "Preprocessor macros aren't allowed.", "")
 			return
 		}
-		hash, err := expandCode(LineNumbers(request.Code), request.Source, request.Width, request.Height, request.GPU)
+		hash, err := expandCode(LineNumbers(request.Code), request.Source, request.Width, request.Height)
 		if err != nil {
 			reportTryError(w, r, err, "Failed to write the code to compile.", hash)
 			return
 		}
-		writeToDatabase(hash, request.Code, request.Name, request.Source, request.Width, request.Height, request.GPU)
+		writeToDatabase(hash, request.Code, request.Name, request.Source, request.Width, request.Height)
 		err = expandGyp(hash)
 		if err != nil {
 			reportTryError(w, r, err, "Failed to write the gyp file.", hash)
 			return
 		}
 		cmd := fmt.Sprintf("scripts/fiddle_wrapper %s --width %d --height %d", hash, request.Width, request.Height)
-		if request.GPU {
-			cmd += " --gpu"
-		}
 		if *useChroot {
 			cmd = "schroot -c webtry --directory=/ -- /skia_build/skia/experimental/webtry/" + cmd
 		}

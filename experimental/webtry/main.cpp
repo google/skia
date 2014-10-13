@@ -1,8 +1,6 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#include "GrContextFactory.h"
-
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
@@ -23,7 +21,6 @@ DEFINE_string(out, "", "Filename of the PNG to write to.");
 DEFINE_string(source, "", "Filename of the source image.");
 DEFINE_int32(width, 256, "Width of output image.");
 DEFINE_int32(height, 256, "Height of output image.");
-DEFINE_bool(gpu, false, "Use GPU (Mesa) rendering.");
 
 // Defined in template.cpp.
 extern SkBitmap source;
@@ -122,22 +119,8 @@ int main(int argc, char** argv) {
     SkFILEWStream stream(FLAGS_out[0]);
 
     SkImageInfo info = SkImageInfo::MakeN32(FLAGS_width, FLAGS_height, kPremul_SkAlphaType);
-
-    SkCanvas* canvas;
-    SkAutoTUnref<SkSurface> surface;
-
-    GrContextFactory* grFactory = NULL;
-
-    if (FLAGS_gpu) {
-        GrContext::Options grContextOpts;
-        grFactory = new GrContextFactory(grContextOpts);
-        GrContext* gr = grFactory->get(GrContextFactory::kMESA_GLContextType);
-        surface.reset(SkSurface::NewRenderTarget(gr,info));
-    } else {
-        surface.reset(SkSurface::NewRaster(info));
-    }    
-
-    canvas = surface->getCanvas();
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    SkCanvas* canvas = surface->getCanvas();
 
     setLimits();
 
@@ -155,5 +138,4 @@ int main(int argc, char** argv) {
         exit(1);
     }
     stream.write(data->data(), data->size());
-    delete grFactory;
 }
