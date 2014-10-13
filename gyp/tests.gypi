@@ -115,7 +115,6 @@
     '../tests/GrRedBlackTreeTest.cpp',
     '../tests/GrSurfaceTest.cpp',
     '../tests/GrTBSearchTest.cpp',
-    '../tests/GrTRecorderTest.cpp',
     '../tests/GradientTest.cpp',
     '../tests/ImageCacheTest.cpp',
     '../tests/ImageDecodingTest.cpp',
