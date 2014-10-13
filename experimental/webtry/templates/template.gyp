@@ -19,6 +19,7 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
+        '../include/gpu',
         '../tools/flags',
         '../src/core',
       ],

@@ -25,6 +25,7 @@
       var code            = document.getElementById('code');
       var output          = document.getElementById('output');
       var stdout          = document.getElementById('stdout');
+      var gpu             = document.getElementById('use-gpu');
       var img             = document.getElementById('img');
       var imageWidth      = document.getElementById('image-width');
       var imageHeight     = document.getElementById('image-height');
@@ -215,6 +216,7 @@
         img.src = '/i/'+body.hash+'.png';
         imageWidth.value = body.width;
         imageHeight.value = body.height;
+        gpu.checked = body.gpu;
         sourceSelectByID(body.source);
         if (permalink) {
           permalink.href = '/c/' + body.hash;
@@ -293,7 +295,14 @@
         req.overrideMimeType('application/json');
         req.open('POST', '/', true);
         req.setRequestHeader('content-type', 'application/json');
-        req.send(JSON.stringify({'code': editor.getValue(), 'width': parseInt(imageWidth.value), 'height': parseInt(imageHeight.value), 'name': workspaceName, 'source': sourceId}));
+        req.send(JSON.stringify({
+          'code': editor.getValue(),
+          'width': parseInt(imageWidth.value),
+          'height': parseInt(imageHeight.value),
+          'name': workspaceName,
+          'source': sourceId,
+          'gpu': gpu.checked
+        }));
       }
       run.addEventListener('click', onSubmitCode);
 
