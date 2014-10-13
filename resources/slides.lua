@@ -69,6 +69,47 @@ function slide_transition(prev, next, is_forward)
     return rec
 end
 
+function fade_slide_transition(prev, next, is_forward)
+    local rec = {
+        prevImage = prev,
+        nextImage = next,
+        proc = function(self, canvas, drawSlideProc)
+            if self:isDone() then
+                drawSlideProc(canvas)
+                return nil
+            end
+            canvas:drawImage(self.prevImage, self.prev_x, 0, self.prev_a)
+            canvas:drawImage(self.nextImage, self.next_x, 0, self.next_a)
+            self:step()
+            return self
+        end
+    }
+    if is_forward then
+        rec.prev_x = 0
+        rec.prev_a = 1
+        rec.next_x = 640
+        rec.next_a = 0
+        rec.isDone = function (self) return self.next_x <= 0 end
+        rec.step = function (self)
+            self.next_x = self.next_x - 20
+            self.next_a = (640 - self.next_x) / 640
+            self.prev_a = 1 - self.next_a
+        end
+    else
+        rec.prev_x = 0
+        rec.prev_a = 1
+        rec.next_x = 0
+        rec.next_a = 0
+        rec.isDone = function (self) return self.prev_x >= 640 end
+        rec.step = function (self)
+            self.prev_x = self.prev_x + 20
+            self.prev_a = (640 - self.prev_x) / 640
+            self.next_a = 1 - self.prev_a
+        end
+    end
+    return rec
+end
+
 --------------------------------------------------------------------------------------
 
 gTemplate = {
@@ -94,7 +135,7 @@ gSlides = {
                     canvas:drawOval({left=300, top=300, right=400, bottom=400}, gRedPaint)
             end },
         },
-        transition = slide_transition
+        transition = fade_slide_transition
     },
     {   text = "Title2", style="title", color = { a=1, r=0, g=1, b=0 },
         children = {
@@ -102,7 +143,7 @@ gSlides = {
             {   text = "bullet 2", style = "child" },
             {   text = "bullet tres", style = "child" },
         },
-        transition = fade_transition
+        transition = slide_transition
     },
     {   text = "Title3", style="title",
         children = {

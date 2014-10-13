@@ -100,6 +100,12 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+        SkMatrix matrix;
+        matrix.setRectToRect(SkRect::MakeWH(640, 480),
+                             SkRect::MakeWH(this->width(), this->height()),
+                             SkMatrix::kCenter_ScaleToFit);
+        canvas->concat(matrix);
+
         lua_State* L = this->ensureLua();
 
         lua_getglobal(L, gDrawName);
