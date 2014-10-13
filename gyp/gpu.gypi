@@ -162,6 +162,7 @@
       '<(skia_src_path)/gpu/GrTexture.cpp',
       '<(skia_src_path)/gpu/GrTexturePriv.h',
       '<(skia_src_path)/gpu/GrTextureAccess.cpp',
+      '<(skia_src_path)/gpu/GrTRecorder.h',
       '<(skia_src_path)/gpu/GrVertexBuffer.h',
 
       '<(skia_src_path)/gpu/effects/Gr1DKernelEffect.h',
