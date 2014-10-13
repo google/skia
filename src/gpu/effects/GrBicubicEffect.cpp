@@ -171,9 +171,7 @@ bool GrBicubicEffect::onIsEqual(const GrProcessor& sBase) const {
 
 void GrBicubicEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     // FIXME: Perhaps we can do better.
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
-    return;
+    inout->mulByUnknownAlpha();
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);

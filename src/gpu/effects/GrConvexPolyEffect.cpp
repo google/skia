@@ -46,12 +46,10 @@ private:
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         if (fRect.isEmpty()) {
             // An empty rect will have no coverage anywhere.
-            inout->fColor = 0x00000000;
-            inout->fValidFlags = kRGBA_GrColorComponentFlags;
+            inout->setToTransparentBlack();
         } else {
-            inout->fValidFlags = 0;
+            inout->mulByUnknownAlpha();
         }
-        inout->fIsSingleComponent = false;
     }
 
     SkRect              fRect;
@@ -329,8 +327,7 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType edgeType, co
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
 
 void GrConvexPolyEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    inout->mulByUnknownAlpha();
 }
 
 const GrBackendFragmentProcessorFactory& GrConvexPolyEffect::getFactory() const {

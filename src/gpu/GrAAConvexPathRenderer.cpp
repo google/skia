@@ -589,8 +589,7 @@ private:
     }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownAlpha();
     }
 
     const GrShaderVar& fInQuadEdge;

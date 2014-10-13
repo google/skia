@@ -346,8 +346,7 @@ const GrBackendFragmentProcessorFactory& GrArithmeticEffect::getFactory() const 
 
 void GrArithmeticEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     // TODO: optimize this
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    inout->setToUnknown();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

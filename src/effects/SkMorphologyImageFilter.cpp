@@ -460,7 +460,6 @@ void GrMorphologyEffect::onComputeInvariantOutput(InvariantOutput* inout) const 
     // This is valid because the color components of the result of the kernel all come
     // exactly from existing values in the source texture.
     this->updateInvariantOutputForModulation(inout);
-    inout->fIsSingleComponent = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

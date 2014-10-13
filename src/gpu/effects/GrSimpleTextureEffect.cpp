@@ -43,7 +43,6 @@ private:
 
 void GrSimpleTextureEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     this->updateInvariantOutputForModulation(inout);
-    inout->fIsSingleComponent = false;
 }
 
 const GrBackendFragmentProcessorFactory& GrSimpleTextureEffect::getFactory() const {

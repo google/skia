@@ -50,8 +50,7 @@ private:
 };
 
 void DitherEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    inout->setToUnknown();
 }
 
 //////////////////////////////////////////////////////////////////////////////

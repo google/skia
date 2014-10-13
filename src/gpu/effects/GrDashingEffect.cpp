@@ -585,8 +585,7 @@ GrGeometryProcessor* DashingCircleEffect::Create(GrPrimitiveEdgeType edgeType, c
 DashingCircleEffect::~DashingCircleEffect() {}
 
 void DashingCircleEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    inout->mulByUnknownAlpha();
 }
 
 const GrBackendGeometryProcessorFactory& DashingCircleEffect::getFactory() const {
@@ -809,8 +808,7 @@ GrGeometryProcessor* DashingLineEffect::Create(GrPrimitiveEdgeType edgeType,
 DashingLineEffect::~DashingLineEffect() {}
 
 void DashingLineEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    inout->mulByUnknownAlpha();
 }
 
 const GrBackendGeometryProcessorFactory& DashingLineEffect::getFactory() const {

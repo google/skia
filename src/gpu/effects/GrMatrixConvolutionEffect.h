@@ -81,8 +81,7 @@ private:
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         // TODO: Try to do better?
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownColor();
     }
 
     SkIRect         fBounds;

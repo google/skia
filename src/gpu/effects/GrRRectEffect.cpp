@@ -87,8 +87,7 @@ GrFragmentProcessor* CircularRRectEffect::Create(GrPrimitiveEdgeType edgeType,
 }
 
 void CircularRRectEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    inout->mulByUnknownAlpha();
 }
 
 const GrBackendFragmentProcessorFactory& CircularRRectEffect::getFactory() const {
@@ -426,8 +425,7 @@ EllipticalRRectEffect::Create(GrPrimitiveEdgeType edgeType, const SkRRect& rrect
 }
 
 void EllipticalRRectEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    inout->mulByUnknownAlpha();
 }
 
 const GrBackendFragmentProcessorFactory& EllipticalRRectEffect::getFactory() const {

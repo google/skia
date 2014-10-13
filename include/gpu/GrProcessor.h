@@ -38,11 +38,57 @@ public:
     virtual ~GrProcessor();
 
     struct InvariantOutput{
-        GrColor fColor;
-        uint32_t fValidFlags;
-        bool fIsSingleComponent;
-
         InvariantOutput() : fColor(0), fValidFlags(0), fIsSingleComponent(false) {}
+
+        void mulByUnknownOpaqueColor() {
+            if (this->isOpaque()) {
+                fValidFlags = kA_GrColorComponentFlag;
+                fIsSingleComponent = false;
+            } else {
+                // Since the current state is not opaque we no longer care if the color being
+                // multiplied is opaque.
+                this->mulByUnknownColor(); 
+            }
+        }
+
+        void mulByUnknownColor() {
+            if (this->hasZeroAlpha()) {
+                this->setToTransparentBlack();
+            } else {
+                this->setToUnknown();
+            }
+        }
+
+        void mulByUnknownAlpha() {
+            if (this->hasZeroAlpha()) {
+                this->setToTransparentBlack();
+            } else {
+                // We don't need to change fIsSingleComponent in this case
+                fValidFlags = 0;
+            }
+        }
+
+        void invalidateComponents(uint8_t invalidateFlags) {
+            fValidFlags &= ~invalidateFlags;
+            fIsSingleComponent = false;
+        }
+
+        void setToTransparentBlack() {
+            fValidFlags = kRGBA_GrColorComponentFlags;
+            fColor = 0;
+            fIsSingleComponent = true;
+        }
+
+        void setToOther(uint8_t validFlags, GrColor color) {
+            fValidFlags = validFlags;
+            fColor = color;
+            fIsSingleComponent = false;
+        }
+
+        void setToUnknown() {
+            fValidFlags = 0;
+            fIsSingleComponent = false;
+        }
 
         bool isOpaque() const {
             return ((fValidFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(fColor));
@@ -52,6 +98,9 @@ public:
             return (fValidFlags == kRGBA_GrColorComponentFlags && 0xFFFFFFFF == fColor);
         }
 
+        GrColor color() const { return fColor; }
+        uint8_t validFlags() const { return fValidFlags; }
+
         /**
          * If isSingleComponent is true, then the flag values for r, g, b, and a must all be the
          * same. If the flags are all set then all color components must be equal.
@@ -59,12 +108,26 @@ public:
         SkDEBUGCODE(void validate() const;)
 
     private:
-        SkDEBUGCODE(bool colorComponentsAllEqual() const;)
+        bool hasZeroAlpha() const {
+            return ((fValidFlags & kA_GrColorComponentFlag) && 0 == GrColorUnpackA(fColor));
+        }
 
+        SkDEBUGCODE(bool colorComponentsAllEqual() const;)
         /**
          * If alpha is valid, check that any valid R,G,B values are <= A
          */
         SkDEBUGCODE(bool validPreMulColor() const;)
+
+        // Friended class that have "controller" code which loop over stages calling
+        // computeInvarianteOutput(). These controllers may need to manually adjust the internal
+        // members of InvariantOutput
+        friend class GrDrawState;
+        friend class GrOptDrawState;
+        friend class GrPaint;
+
+        GrColor fColor;
+        uint32_t fValidFlags;
+        bool fIsSingleComponent;
     };
 
     /**

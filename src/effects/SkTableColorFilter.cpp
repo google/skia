@@ -404,19 +404,20 @@ bool ColorTableEffect::onIsEqual(const GrProcessor& sBase) const {
 void ColorTableEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     // If we kept the table in the effect then we could actually run known inputs through the
     // table.
+    uint8_t invalidateFlags = 0;
     if (fFlags & SkTable_ColorFilter::kR_Flag) {
-        inout->fValidFlags &= ~kR_GrColorComponentFlag;
+        invalidateFlags |= kR_GrColorComponentFlag;
     }
     if (fFlags & SkTable_ColorFilter::kG_Flag) {
-        inout->fValidFlags &= ~kG_GrColorComponentFlag;
+        invalidateFlags |= kG_GrColorComponentFlag;
     }
     if (fFlags & SkTable_ColorFilter::kB_Flag) {
-        inout->fValidFlags &= ~kB_GrColorComponentFlag;
+        invalidateFlags |= kB_GrColorComponentFlag;
     }
     if (fFlags & SkTable_ColorFilter::kA_Flag) {
-        inout->fValidFlags &= ~kA_GrColorComponentFlag;
+        invalidateFlags |= kA_GrColorComponentFlag;
     }
-    inout->fIsSingleComponent = false;
+    inout->invalidateComponents(invalidateFlags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -105,8 +105,7 @@ private:
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownAlpha();
     }
 
     GrPrimitiveEdgeType   fEdgeType;
@@ -178,8 +177,7 @@ private:
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownAlpha();
     }
 
     GrPrimitiveEdgeType   fEdgeType;
@@ -253,8 +251,7 @@ private:
     virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownAlpha();
     }
 
     GrPrimitiveEdgeType   fEdgeType;

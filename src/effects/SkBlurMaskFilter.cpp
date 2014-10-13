@@ -692,7 +692,7 @@ void GrGLRectBlurEffect::emitCode(GrGLFPBuilder* builder,
     OutputRectBlurProfileLookup(fsBuilder, samplers[0], "vert_lookup", profileSizeName, "translatedPos.y", "height", "wh.y");
 
     fsBuilder->codeAppendf("\tfloat final = horiz_lookup * vert_lookup;\n");
-    fsBuilder->codeAppendf("\t%s = src * vec4(final);\n", outputColor );
+    fsBuilder->codeAppendf("\t%s = src * final;\n", outputColor );
 }
 
 void GrGLRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
@@ -766,8 +766,7 @@ bool GrRectBlurEffect::onIsEqual(const GrProcessor& sBase) const {
 }
 
 void GrRectBlurEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    inout->mulByUnknownAlpha();
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
@@ -930,8 +929,7 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
 }
 
 void GrRRectBlurEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    inout->mulByUnknownAlpha();
 }
 
 const GrBackendFragmentProcessorFactory& GrRRectBlurEffect::getFactory() const {

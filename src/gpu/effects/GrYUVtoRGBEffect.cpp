@@ -112,9 +112,7 @@ private:
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         // YUV is opaque
-        inout->fColor = 0xFF;
-        inout->fValidFlags = kA_GrColorComponentFlag;
-        inout->fIsSingleComponent = false;
+        inout->setToOther(kA_GrColorComponentFlag, 0xFF << GrColor_SHIFT_A);
     }
 
     GrCoordTransform fCoordTransform;

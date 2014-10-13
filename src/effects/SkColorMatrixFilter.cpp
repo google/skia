@@ -452,23 +452,22 @@ private:
             // If any relevant component of the color to be passed through the matrix is non-const
             // then we can't know the final result.
             if (0 != fMatrix.fMat[kAlphaRowStartIdx + i]) {
-                if (!(inout->fValidFlags & kRGBAFlags[i])) {
-                    inout->fValidFlags = 0;
+                if (!(inout->validFlags() & kRGBAFlags[i])) {
+                    inout->setToUnknown();
                     return;
                 } else {
-                    uint32_t component = (inout->fColor >> kShifts[i]) & 0xFF;
+                    uint32_t component = (inout->color() >> kShifts[i]) & 0xFF;
                     outputA += fMatrix.fMat[kAlphaRowStartIdx + i] * component;
                 }
             }
         }
         outputA += fMatrix.fMat[kAlphaRowTranslateIdx];
-        inout->fValidFlags = kA_GrColorComponentFlag;
         // We pin the color to [0,1]. This would happen to the *final* color output from the frag
         // shader but currently the effect does not pin its own output. So in the case of over/
         // underflow this may deviate from the actual result. Maybe the effect should pin its
         // result if the matrix could over/underflow for any component?
-        inout->fColor = static_cast<uint8_t>(SkScalarPin(outputA, 0, 255)) << GrColor_SHIFT_A;
-        inout->fIsSingleComponent = false;
+        inout->setToOther(kA_GrColorComponentFlag,
+                          static_cast<uint8_t>(SkScalarPin(outputA, 0, 255)) << GrColor_SHIFT_A);
     }
 
     SkColorMatrix fMatrix;

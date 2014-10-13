@@ -229,7 +229,6 @@ bool GrMagnifierEffect::onIsEqual(const GrProcessor& sBase) const {
 
 void GrMagnifierEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     this->updateInvariantOutputForModulation(inout);
-    inout->fIsSingleComponent = false;
 }
 
 #endif

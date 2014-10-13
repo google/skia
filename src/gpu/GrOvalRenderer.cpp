@@ -146,8 +146,7 @@ private:
     }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownAlpha();
     }
 
     const GrShaderVar& fInCircleEdge;
@@ -287,8 +286,7 @@ private:
     }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownAlpha();
     }
 
     const GrShaderVar& fInEllipseOffset;
@@ -456,8 +454,7 @@ private:
     }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownAlpha();
     }
 
     const GrShaderVar& fInEllipseOffsets0;

@@ -100,8 +100,7 @@ private:
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const {
         // If the texture was opaque we could know that the output color if we knew the sum of the
         // kernel values.
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownColor();
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;

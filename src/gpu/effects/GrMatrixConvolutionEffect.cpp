@@ -58,7 +58,6 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLFPBuilder* builder,
                                            const char* inputColor,
                                            const TransformedCoordsArray& coords,
                                            const TextureSamplerArray& samplers) {
-    sk_ignore_unused_variable(inputColor);
     const GrTextureDomain& domain = fp.cast<GrMatrixConvolutionEffect>().domain();
 
     fBoundsUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,

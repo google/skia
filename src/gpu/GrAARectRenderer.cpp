@@ -108,8 +108,7 @@ private:
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownAlpha();
     }
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
@@ -253,8 +252,7 @@ private:
     virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0;
-        inout->fIsSingleComponent = false;
+        inout->mulByUnknownAlpha();
     }
 
     const GrShaderVar& fInRectEdge;

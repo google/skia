@@ -128,7 +128,6 @@ bool GrConfigConversionEffect::onIsEqual(const GrProcessor& s) const {
 
 void GrConfigConversionEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     this->updateInvariantOutputForModulation(inout);
-    inout->fIsSingleComponent = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

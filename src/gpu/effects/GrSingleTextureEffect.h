@@ -49,10 +49,10 @@ protected:
      * texture.
      */
     void updateInvariantOutputForModulation(InvariantOutput* inout) const {
-        if (inout->isOpaque() && GrPixelConfigIsOpaque(this->texture(0)->config())) {
-            inout->fValidFlags = kA_GrColorComponentFlag;
+        if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
+            inout->mulByUnknownOpaqueColor();
         } else {
-            inout->fValidFlags = 0;
+            inout->mulByUnknownColor();
         }
     }
 

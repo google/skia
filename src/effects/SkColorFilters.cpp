@@ -384,17 +384,15 @@ private:
 
 void ModeColorFilterEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     float inputColor[4];
-    GrColorToRGBAFloat(inout->fColor, inputColor);
+    GrColorToRGBAFloat(inout->color(), inputColor);
     float filterColor[4];
     GrColorToRGBAFloat(fColor, filterColor);
     MaskedColorExpr result =
         color_filter_expression(fMode,
                                 MaskedColorExpr(filterColor, kRGBA_GrColorComponentFlags),
-                                MaskedColorExpr(inputColor, inout->fValidFlags));
+                                MaskedColorExpr(inputColor, inout->validFlags()));
 
-    inout->fColor = result.getColor();
-    inout->fValidFlags = result.getValidComponents();
-    inout->fIsSingleComponent = false;
+    inout->setToOther(result.getValidComponents(), result.getColor());
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ModeColorFilterEffect);

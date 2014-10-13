@@ -264,8 +264,7 @@ const GrBackendFragmentProcessorFactory& GrColorProfileEffect::getFactory() cons
 }
 
 void GrColorProfileEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->fValidFlags = 0;
-    inout->fIsSingleComponent = false;
+    inout->setToUnknown();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

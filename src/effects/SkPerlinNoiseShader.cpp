@@ -587,8 +587,7 @@ private:
     }
 
     void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->fValidFlags = 0; // This is noise. Nothing is constant.
-        inout->fIsSingleComponent = false;
+        inout->setToUnknown();
     }
 
     GrPerlinNoiseEffect(SkPerlinNoiseShader::Type type,
