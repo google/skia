@@ -7,6 +7,7 @@
 
 #include "GrDistanceFieldTextContext.h"
 #include "GrAtlas.h"
+#include "GrBitmapTextContext.h"
 #include "GrDrawTarget.h"
 #include "GrDrawTargetCaps.h"
 #include "GrFontScaler.h"
@@ -78,6 +79,16 @@ GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
     fMaxVertices = 0;
 
     fVertexBounds.setLargestInverted();
+}
+
+GrDistanceFieldTextContext* GrDistanceFieldTextContext::Create(GrContext* context,
+                                                               const SkDeviceProperties& props,
+                                                               bool enable) {
+    GrDistanceFieldTextContext* textContext = SkNEW_ARGS(GrDistanceFieldTextContext, 
+                                                         (context, props, enable));
+    textContext->fFallbackTextContext = GrBitmapTextContext::Create(context, props);
+
+    return textContext;
 }
 
 GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
@@ -196,7 +207,7 @@ static void setup_gamma_texture(GrContext* context, const SkGlyphCache* cache,
     }
 }
 
-void GrDistanceFieldTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint,
+void GrDistanceFieldTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPaint,
                                           const char text[], size_t byteLength,
                                           SkScalar x, SkScalar y) {
     SkASSERT(byteLength == 0 || text != NULL);
@@ -271,7 +282,7 @@ void GrDistanceFieldTextContext::drawText(const GrPaint& paint, const SkPaint& s
     this->finish();
 }
 
-void GrDistanceFieldTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint,
+void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skPaint,
                                              const char text[], size_t byteLength,
                                              const SkScalar pos[], int scalarsPerPosition,
                                              const SkPoint& offset) {

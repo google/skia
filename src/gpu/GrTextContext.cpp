@@ -13,7 +13,12 @@
 #include "GrFontScaler.h"
 
 GrTextContext::GrTextContext(GrContext* context, const SkDeviceProperties& properties) :
+                            fFallbackTextContext(NULL),
                             fContext(context), fDeviceProperties(properties), fDrawTarget(NULL) {
+}
+
+GrTextContext::~GrTextContext() {
+    SkDELETE(fFallbackTextContext);
 }
 
 void GrTextContext::init(const GrPaint& grPaint, const SkPaint& skPaint) {
@@ -34,6 +39,41 @@ void GrTextContext::init(const GrPaint& grPaint, const SkPaint& skPaint) {
     fPaint = grPaint;
     fSkPaint = skPaint;
 }
+
+bool GrTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint,
+                             const char text[], size_t byteLength,
+                             SkScalar x, SkScalar y) {
+
+    GrTextContext* textContext = this;
+    do {
+        if (textContext->canDraw(skPaint)) {
+            textContext->onDrawText(paint, skPaint, text, byteLength, x, y);
+            return true;
+        }
+        textContext = textContext->fFallbackTextContext;
+    } while (textContext);
+
+    return false;
+}
+
+bool GrTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint,
+                                const char text[], size_t byteLength,
+                                const SkScalar pos[], int scalarsPerPosition,
+                                const SkPoint& offset) {
+
+    GrTextContext* textContext = this;
+    do {
+        if (textContext->canDraw(skPaint)) {
+            textContext->onDrawPosText(paint, skPaint, text, byteLength, pos, scalarsPerPosition,
+                                     offset);
+            return true;
+        }
+        textContext = textContext->fFallbackTextContext;
+    } while (textContext);
+
+    return false;
+}
+
 
 //*** change to output positions?
 void GrTextContext::MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,

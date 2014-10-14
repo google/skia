@@ -133,8 +133,7 @@ private:
 
     GrClipData      fClipData;
 
-    GrTextContext*  fMainTextContext;
-    GrTextContext*  fFallbackTextContext;
+    GrTextContext*  fTextContext;
 
     // state for our render-target
     GrRenderTarget*     fRenderTarget;

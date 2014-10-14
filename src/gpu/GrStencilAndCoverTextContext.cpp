@@ -6,6 +6,7 @@
  */
 
 #include "GrStencilAndCoverTextContext.h"
+#include "GrBitmapTextContext.h"
 #include "GrDrawTarget.h"
 #include "GrGpu.h"
 #include "GrPath.h"
@@ -23,6 +24,15 @@ GrStencilAndCoverTextContext::GrStencilAndCoverTextContext(
     GrContext* context, const SkDeviceProperties& properties)
     : GrTextContext(context, properties)
     , fPendingGlyphCount(0) {
+}
+
+GrStencilAndCoverTextContext* GrStencilAndCoverTextContext::Create(GrContext* context,
+                                                                 const SkDeviceProperties& props) {
+    GrStencilAndCoverTextContext* textContext = SkNEW_ARGS(GrStencilAndCoverTextContext,
+                                                           (context, props));
+    textContext->fFallbackTextContext = GrBitmapTextContext::Create(context, props);
+
+    return textContext;
 }
 
 GrStencilAndCoverTextContext::~GrStencilAndCoverTextContext() {
@@ -52,7 +62,7 @@ bool GrStencilAndCoverTextContext::canDraw(const SkPaint& paint) {
     return rec.getFormat() != SkMask::kARGB32_Format;
 }
 
-void GrStencilAndCoverTextContext::drawText(const GrPaint& paint,
+void GrStencilAndCoverTextContext::onDrawText(const GrPaint& paint,
                                             const SkPaint& skPaint,
                                             const char text[],
                                             size_t byteLength,
@@ -142,7 +152,7 @@ void GrStencilAndCoverTextContext::drawText(const GrPaint& paint,
     this->finish();
 }
 
-void GrStencilAndCoverTextContext::drawPosText(const GrPaint& paint,
+void GrStencilAndCoverTextContext::onDrawPosText(const GrPaint& paint,
                                                const SkPaint& skPaint,
                                                const char text[],
                                                size_t byteLength,

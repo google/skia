@@ -251,13 +251,12 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
                                             const SkDeviceProperties&
                                             leakyProperties,
                                             bool enableDistanceFieldFonts) {
-    if (fGpu->caps()->pathRenderingSupport()) {
-        if (renderTarget->getStencilBuffer() && renderTarget->isMultisampled()) {
-            return SkNEW_ARGS(GrStencilAndCoverTextContext, (this, leakyProperties));
-        }
-    }
-    return SkNEW_ARGS(GrDistanceFieldTextContext, (this, leakyProperties,
-                                                   enableDistanceFieldFonts));
+    if (fGpu->caps()->pathRenderingSupport() && renderTarget->getStencilBuffer() && 
+                                                renderTarget->isMultisampled()) {
+        return GrStencilAndCoverTextContext::Create(this, leakyProperties);
+    } 
+
+    return GrDistanceFieldTextContext::Create(this, leakyProperties, enableDistanceFieldFonts);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -66,6 +66,11 @@ GrBitmapTextContext::GrBitmapTextContext(GrContext* context,
     fVertexBounds.setLargestInverted();
 }
 
+GrBitmapTextContext* GrBitmapTextContext::Create(GrContext* context,
+                                                 const SkDeviceProperties& props) {
+    return SkNEW_ARGS(GrBitmapTextContext, (context, props));
+}
+
 GrBitmapTextContext::~GrBitmapTextContext() {
     this->flush();
 }
@@ -86,7 +91,7 @@ inline void GrBitmapTextContext::init(const GrPaint& paint, const SkPaint& skPai
     fMaxVertices = 0;
 }
 
-void GrBitmapTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint,
+void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPaint,
                                    const char text[], size_t byteLength,
                                    SkScalar x, SkScalar y) {
     SkASSERT(byteLength == 0 || text != NULL);
@@ -177,7 +182,7 @@ void GrBitmapTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint,
     this->finish();
 }
 
-void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint,
+void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skPaint,
                                       const char text[], size_t byteLength,
                                       const SkScalar pos[], int scalarsPerPosition,
                                       const SkPoint& offset) {

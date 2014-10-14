@@ -147,8 +147,7 @@ SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsign
     this->setPixelGeometry(props.pixelGeometry());
 
     bool useDFFonts = !!(flags & kDFFonts_Flag);
-    fMainTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFFonts);
-    fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, this->getLeakyProperties()));
+    fTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFFonts);
 }
 
 SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo,
@@ -192,8 +191,7 @@ SkGpuDevice::~SkGpuDevice() {
         delete fDrawProcs;
     }
 
-    delete fMainTextContext;
-    delete fFallbackTextContext;
+    delete fTextContext;
 
     // The GrContext takes a ref on the target. We don't want to cause the render
     // target to be unnecessarily kept alive.
@@ -1685,22 +1683,13 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
     CHECK_SHOULD_DRAW(draw, false);
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawText", fContext);
 
-    if (fMainTextContext->canDraw(paint)) {
-        GrPaint grPaint;
-        SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
+    GrPaint grPaint;
+    SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
-        SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate();)
 
-        fMainTextContext->drawText(grPaint, paint, (const char *)text, byteLength, x, y);
-    } else if (fFallbackTextContext && fFallbackTextContext->canDraw(paint)) {
-        GrPaint grPaint;
-        SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
-
-        SkDEBUGCODE(this->validate();)
-
-        fFallbackTextContext->drawText(grPaint, paint, (const char *)text, byteLength, x, y);
-    } else {
-        // this guy will just call our drawPath()
+    if (!fTextContext->drawText(grPaint, paint, (const char *)text, byteLength, x, y)) {
+        // this will just call our drawPath()
         draw.drawText_asPaths((const char*)text, byteLength, x, y, paint);
     }
 }
@@ -1711,23 +1700,14 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawPosText", fContext);
     CHECK_SHOULD_DRAW(draw, false);
 
-    if (fMainTextContext->canDraw(paint)) {
-        GrPaint grPaint;
-        SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
+    GrPaint grPaint;
+    SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
-        SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate();)
 
-        fMainTextContext->drawPosText(grPaint, paint, (const char *)text, byteLength, pos,
-                                      scalarsPerPos, offset);
-    } else if (fFallbackTextContext && fFallbackTextContext->canDraw(paint)) {
-        GrPaint grPaint;
-        SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
-
-        SkDEBUGCODE(this->validate();)
-
-        fFallbackTextContext->drawPosText(grPaint, paint, (const char *)text, byteLength, pos,
-                                          scalarsPerPos, offset);
-    } else {
+    if (!fTextContext->drawPosText(grPaint, paint, (const char *)text, byteLength, pos,
+                                   scalarsPerPos, offset)) {
+        // this will just call our drawPath()
         draw.drawPosText_asPaths((const char*)text, byteLength, pos, scalarsPerPos, offset, paint);
     }
 }

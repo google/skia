@@ -24,18 +24,9 @@ class GrPathRange;
  */
 class GrStencilAndCoverTextContext : public GrTextContext {
 public:
-    GrStencilAndCoverTextContext(GrContext*, const SkDeviceProperties&);
+    static GrStencilAndCoverTextContext* Create(GrContext*, const SkDeviceProperties&);
+
     virtual ~GrStencilAndCoverTextContext();
-
-    virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
-
-    virtual void drawText(const GrPaint&, const SkPaint&, const char text[],
-                          size_t byteLength,
-                          SkScalar x, SkScalar y) SK_OVERRIDE;
-    virtual void drawPosText(const GrPaint&, const SkPaint&,
-                             const char text[], size_t byteLength,
-                             const SkScalar pos[], int scalarsPerPosition,
-                             const SkPoint& offset) SK_OVERRIDE;
 
 private:
     static const int kGlyphBufferSize = 1024;
@@ -72,6 +63,18 @@ private:
     int                             fPendingGlyphCount;
     SkMatrix                        fContextInitialMatrix;
     bool                            fNeedsDeviceSpaceGlyphs;
+
+    GrStencilAndCoverTextContext(GrContext*, const SkDeviceProperties&);
+
+    virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
+
+    virtual void onDrawText(const GrPaint&, const SkPaint&, const char text[],
+                            size_t byteLength,
+                            SkScalar x, SkScalar y) SK_OVERRIDE;
+    virtual void onDrawPosText(const GrPaint&, const SkPaint&,
+                               const char text[], size_t byteLength,
+                               const SkScalar pos[], int scalarsPerPosition,
+                               const SkPoint& offset) SK_OVERRIDE;
 
     void init(const GrPaint&, const SkPaint&, size_t textByteLength,
               RenderMode, const SkPoint& textTranslate);
