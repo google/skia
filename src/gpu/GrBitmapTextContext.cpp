@@ -407,6 +407,9 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
             glyph->fPath = path;
         }
 
+        // flush any accumulated draws before drawing this glyph as a path.
+        this->flush();
+
         GrContext::AutoMatrix am;
         SkMatrix translate;
         translate.setTranslate(SkFixedToScalar(vx - SkIntToFixed(glyph->fBounds.fLeft)),

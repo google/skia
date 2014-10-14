@@ -487,6 +487,9 @@ void GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
             glyph->fPath = path;
         }
 
+        // flush any accumulated draws before drawing this glyph as a path.
+        this->flush();
+
         GrContext::AutoMatrix am;
         SkMatrix ctm;
         ctm.setScale(fTextRatio, fTextRatio);
