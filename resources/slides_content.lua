@@ -1,12 +1,3 @@
-gSlideContent = {
-    { text="Skia 2.0", style="title" },
-{ text="Skia 2.0", style="slide",
-{ text=
-},
-
-
-}
-
 Skia Overview [Fall '13]
 
 One API -- many backends
@@ -19,7 +10,7 @@ One API -- many backends
 
 One Team -- many clients
 - Chrome
-ChromeOS
+- ChromeOS
 - Clank
 - Android Framework
 - 3rd parties (e.g. FireFox)
@@ -92,8 +83,3 @@ Roadmap : PDF
 - New Viewer project
 -- print-preview and more
 -- can output picture / gpu directly
-
-function parse_file(file)
-    for line in file:lines() do
-
-end

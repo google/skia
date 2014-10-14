@@ -1,3 +1,80 @@
+function tostr(t)
+    local str = ""
+    for k, v in next, t do
+        if #str > 0 then
+            str = str .. ", "
+        end
+        if type(k) == "number" then
+            str = str .. "[" .. k .. "] = "
+        else
+            str = str .. tostring(k) .. " = "
+        end
+        if type(v) == "table" then
+            str = str .. "{ " .. tostr(v) .. " }"
+        elseif type(v) == "string" then
+            str = str .. '"' .. v .. '"'
+        else
+            str = str .. tostring(v)
+        end
+    end
+    return str
+end
+
+
+function trim_ws(s)
+    return s:match("^%s*(.*)")
+end
+
+function count_hypens(s)
+    local leftover = s:match("^-*(.*)")
+    return string.len(s) - string.len(leftover)
+end
+
+function parse_file(file)
+    local slides = {}
+    local block = {}
+
+    for line in file:lines() do
+        local s = trim_ws(line)
+        if #s == 0 then   -- done with a block
+            if #block > 0 then
+                slides[#slides + 1] = block
+                block = {}
+            end
+        else
+            local n = count_hypens(s)
+            block[#block + 1] = {
+                indent = n,
+                text = trim_ws(s:sub(n + 1, -1))
+            }
+        end
+    end
+    return slides
+end
+
+function pretty_print_slide(slide)
+    io.write("{\n")
+    for i = 1, #slide do
+        local node = slide[i]
+        for j = 0, node.indent do
+            io.write("   ")
+        end
+        io.write("{ ")
+        io.write(tostr(node))
+        io.write(" },\n")
+    end
+    io.write("},\n")
+end
+
+function pretty_print_slides(slides)
+    io.write("gSlides = {\n")
+    for i = 1, #slides do
+        pretty_print_slide(slides[i])
+    end
+    io.write("}\n")
+end
+
+gSlides = parse_file(io.open("/skia/trunk/resources/slides_content.lua", "r"))
 
 function make_paint(size, color)
     local paint = Sk.newPaint();
@@ -8,35 +85,17 @@ function make_paint(size, color)
     return paint
 end
 
-function find_paint(paints, style)
-    if not style then
-        style = "child"
-    end
-    local paint = paints[style]
-    return paint
-end
-
-function draw_node(canvas, node, x, y, paints)
-    if node.text then
-        local paint = find_paint(paints, node.style)
-        canvas:drawText(node.text, x, y, paint)
-    end
-    if node.draw then
-        node.draw(canvas)
-    end
-end
-
 function drawSlide(canvas, slide, template, paints)
-    draw_node(canvas, slide, template.title.x, template.title.y, paints)
-
-    if slide.children then
-        local x = template.child.x
-        local y = template.child.y
-        local dy = template.child.dy
-        for i = 1, #slide.children do
-            draw_node(canvas, slide.children[i], x, y, paints)
-            y = y + dy
-        end
+    local scale = 1.15
+    local y = 0
+    for i = 1, #slide do
+        local node = slide[i]
+        local temp = template[node.indent + 1]
+        local paint = paints[node.indent + 1]
+        local fm = paint:getFontMetrics()
+        y = y - fm.ascent * scale
+        canvas:drawText(node.text, temp.x, y, paint)
+        y = y + fm.descent * scale
     end
 end
 
@@ -113,67 +172,20 @@ end
 --------------------------------------------------------------------------------------
 
 gTemplate = {
-    title = { x = 10, y = 64, textSize = 64 },
-    child = { x = 40, y = 120, dy = 50, textSize = 40 },
+    { x = 10, textSize = 40, bullet = "" },
+    { x = 40, textSize = 30, bullet = "\xE2\x80\xA2" },
+    { x = 70, textSize = 20, bullet = "\xE2\x97\xA6" },
 }
 
-gPaints = {}
-gPaints.title = make_paint(gTemplate.title.textSize, { a=1, r=0, g=0, b=0 } )
-gPaints.child = make_paint(gTemplate.child.textSize, { a=.75, r=0, g=0, b=0 } )
+gPaints = {
+    make_paint(gTemplate[1].textSize, { a=1, r=0, g=0, b=0 } ),
+    make_paint(gTemplate[2].textSize, { a=1, r=1, g=0, b=0 } ),
+    make_paint(gTemplate[3].textSize, { a=1, r=0, g=1, b=0 } ),
+}
 
 gRedPaint = Sk.newPaint()
 gRedPaint:setAntiAlias(true)
 gRedPaint:setColor{a=1, r=1, g=0, b=0 }
-
-gSlides = {
-    {   text = "Title1", style="title", color = { a=1, r=1, g=0, b=0 },
-        children = {
-            {   text = "bullet 1", style = "child" },
-            {   text = "bullet 2", style = "child" },
-            {   text = "bullet 3", style = "child" },
-            {   draw = function (canvas)
-                    canvas:drawOval({left=300, top=300, right=400, bottom=400}, gRedPaint)
-            end },
-        },
-        transition = fade_slide_transition
-    },
-    {   text = "Title2", style="title", color = { a=1, r=0, g=1, b=0 },
-        children = {
-            {   text = "bullet uno", style = "child" },
-            {   text = "bullet 2", style = "child" },
-            {   text = "bullet tres", style = "child" },
-        },
-        transition = slide_transition
-    },
-    {   text = "Title3", style="title",
-        children = {
-            {   text = "bullet 1", style = "child", },
-            {   text = "bullet 2", style = "child", color = { r=0, g=0, b=1 } },
-            {   text = "bullet 3", style = "child" },
-        }
-    }
-}
-
---------------------------------------------------------------------------------------
-function tostr(t)
-    local str = ""
-    for k, v in next, t do
-        if #str > 0 then
-            str = str .. ", "
-        end
-        if type(k) == "number" then
-            str = str .. "[" .. k .. "] = "
-        else
-            str = str .. tostring(k) .. " = "
-        end
-        if type(v) == "table" then
-            str = str .. "{ " .. tostr(v) .. " }"
-        else
-            str = str .. tostring(v)
-        end
-    end
-    return str
-end
 
 -- animation.proc is passed the canvas before drawing.
 -- The animation.proc returns itself or another animation (which means keep animating)
@@ -236,7 +248,7 @@ function spawn_transition(prevSlide, nextSlide, is_forward)
     end
 
     if not transition then
-        return
+        transition = fade_slide_transition
     end
 
     local rec = Sk.newPictureRecorder()
