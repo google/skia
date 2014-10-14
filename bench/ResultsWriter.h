@@ -45,6 +45,9 @@ public:
 
     // Record a single test metric.
     virtual void timer(const char name[], double ms) {}
+
+    // Flush to storage now please.
+    virtual void flush() {}
 };
 
 /**
@@ -79,9 +82,7 @@ public:
         , fConfig(NULL) {}
 
     ~NanoJSONResultsWriter() {
-        SkFILEWStream stream(fFilename.c_str());
-        stream.writeText(Json::StyledWriter().write(fRoot).c_str());
-        stream.flush();
+        this->flush();
     }
 
     // Added under "key".
@@ -111,6 +112,13 @@ public:
         }
         SkASSERT(fConfig);
         (*fConfig)[name] = ms;
+    }
+
+    // Flush to storage now please.
+    virtual void flush() {
+        SkFILEWStream stream(fFilename.c_str());
+        stream.writeText(Json::StyledWriter().write(fRoot).c_str());
+        stream.flush();
     }
 
 private:

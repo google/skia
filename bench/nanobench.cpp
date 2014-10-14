@@ -70,6 +70,7 @@ DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
 DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
+DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) return SkStringPrintf("%llu", (uint64_t)(ms*1e6));
@@ -628,6 +629,7 @@ int nanobench_main() {
     SkTDArray<Config> configs;
     create_configs(&configs);
 
+    int runs = 0;
     BenchmarkStream benchStream;
     while (Benchmark* b = benchStream.next()) {
         SkAutoTDelete<Benchmark> bench(b);
@@ -680,6 +682,9 @@ int nanobench_main() {
             log->timer("mean_ms",   stats.mean);
             log->timer("max_ms",    stats.max);
             log->timer("stddev_ms", sqrt(stats.var));
+            if (runs++ % FLAGS_flushEvery == 0) {
+                log->flush();
+            }
 
             if (kAutoTuneLoops != FLAGS_loops) {
                 if (targets.count() == 1) {
