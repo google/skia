@@ -146,55 +146,37 @@ func init() {
 	}
 	os.Chdir(cwd)
 
-	codeTemplate, err = template.ParseFiles(filepath.Join(cwd, "templates/template.cpp"))
-	if err != nil {
-		panic(err)
-	}
-	gypTemplate, err = template.ParseFiles(filepath.Join(cwd, "templates/template.gyp"))
-	if err != nil {
-		panic(err)
-	}
-	indexTemplate, err = htemplate.ParseFiles(
+	codeTemplate = template.Must(template.ParseFiles(filepath.Join(cwd, "templates/template.cpp")))
+	gypTemplate = template.Must(template.ParseFiles(filepath.Join(cwd, "templates/template.gyp")))
+	indexTemplate = htemplate.Must(htemplate.ParseFiles(
 		filepath.Join(cwd, "templates/index.html"),
 		filepath.Join(cwd, "templates/titlebar.html"),
 		filepath.Join(cwd, "templates/sidebar.html"),
 		filepath.Join(cwd, "templates/content.html"),
 		filepath.Join(cwd, "templates/headercommon.html"),
 		filepath.Join(cwd, "templates/footercommon.html"),
-	)
-	if err != nil {
-		panic(err)
-	}
-	iframeTemplate, err = htemplate.ParseFiles(
+	))
+	iframeTemplate = htemplate.Must(htemplate.ParseFiles(
 		filepath.Join(cwd, "templates/iframe.html"),
 		filepath.Join(cwd, "templates/content.html"),
 		filepath.Join(cwd, "templates/headercommon.html"),
 		filepath.Join(cwd, "templates/footercommon.html"),
-	)
-	if err != nil {
-		panic(err)
-	}
-	recentTemplate, err = htemplate.ParseFiles(
+	))
+	recentTemplate = htemplate.Must(htemplate.ParseFiles(
 		filepath.Join(cwd, "templates/recent.html"),
 		filepath.Join(cwd, "templates/titlebar.html"),
 		filepath.Join(cwd, "templates/sidebar.html"),
 		filepath.Join(cwd, "templates/headercommon.html"),
 		filepath.Join(cwd, "templates/footercommon.html"),
-	)
-	if err != nil {
-		panic(err)
-	}
-	workspaceTemplate, err = htemplate.ParseFiles(
+	))
+	workspaceTemplate = htemplate.Must(htemplate.ParseFiles(
 		filepath.Join(cwd, "templates/workspace.html"),
 		filepath.Join(cwd, "templates/titlebar.html"),
 		filepath.Join(cwd, "templates/sidebar.html"),
 		filepath.Join(cwd, "templates/content.html"),
 		filepath.Join(cwd, "templates/headercommon.html"),
 		filepath.Join(cwd, "templates/footercommon.html"),
-	)
-	if err != nil {
-		panic(err)
-	}
+	))
 
 	// The git command returns output of the format:
 	//
