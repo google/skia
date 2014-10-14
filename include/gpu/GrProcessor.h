@@ -38,7 +38,8 @@ public:
     virtual ~GrProcessor();
 
     struct InvariantOutput{
-        InvariantOutput() : fColor(0), fValidFlags(0), fIsSingleComponent(false) {}
+        InvariantOutput() : fColor(0), fValidFlags(0), fIsSingleComponent(false),
+                            fNonMulStageFound(false) {}
 
         void mulByUnknownOpaqueColor() {
             if (this->isOpaque()) {
@@ -53,15 +54,15 @@ public:
 
         void mulByUnknownColor() {
             if (this->hasZeroAlpha()) {
-                this->setToTransparentBlack();
+                this->internalSetToTransparentBlack();
             } else {
-                this->setToUnknown();
+                this->internalSetToUnknown();
             }
         }
 
         void mulByUnknownAlpha() {
             if (this->hasZeroAlpha()) {
-                this->setToTransparentBlack();
+                this->internalSetToTransparentBlack();
             } else {
                 // We don't need to change fIsSingleComponent in this case
                 fValidFlags = 0;
@@ -74,20 +75,20 @@ public:
         }
 
         void setToTransparentBlack() {
-            fValidFlags = kRGBA_GrColorComponentFlags;
-            fColor = 0;
-            fIsSingleComponent = true;
+            this->internalSetToTransparentBlack();
+            fNonMulStageFound = true;
         }
 
         void setToOther(uint8_t validFlags, GrColor color) {
             fValidFlags = validFlags;
             fColor = color;
             fIsSingleComponent = false;
+            fNonMulStageFound = true;
         }
 
         void setToUnknown() {
-            fValidFlags = 0;
-            fIsSingleComponent = false;
+            this->internalSetToUnknown();
+            fNonMulStageFound= true;
         }
 
         bool isOpaque() const {
@@ -108,6 +109,17 @@ public:
         SkDEBUGCODE(void validate() const;)
 
     private:
+        void internalSetToTransparentBlack() {
+            fValidFlags = kRGBA_GrColorComponentFlags;
+            fColor = 0;
+            fIsSingleComponent = true;
+        }
+
+        void internalSetToUnknown() {
+            fValidFlags = 0;
+            fIsSingleComponent = false;
+        }
+
         bool hasZeroAlpha() const {
             return ((fValidFlags & kA_GrColorComponentFlag) && 0 == GrColorUnpackA(fColor));
         }
@@ -128,6 +140,7 @@ public:
         GrColor fColor;
         uint32_t fValidFlags;
         bool fIsSingleComponent;
+        bool fNonMulStageFound;
     };
 
     /**
