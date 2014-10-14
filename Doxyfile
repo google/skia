@@ -1,5 +1,5 @@
 # Configuration used by
-# https://skia.googlesource.com/buildbot/+/master/slave/skia_slave_scripts/generate_doxygen.py
+# https://chromium.googlesource.com/chromium/tools/build/+/0f611b202b0e/scripts/slave/recipe_modules/skia/resources/generate_and_upload_doxygen.py
 # to generate our Doxygen docs, which are then uploaded to
 # http://chromium-skia-gm.commondatastorage.googleapis.com/doxygen/doxygen/html/index.html
 
@@ -8,7 +8,7 @@ PROJECT_NAME = skia
 PROJECT_BRIEF = 2D Graphics Library
 
 # These lines are overridden by
-# https://skia.googlesource.com/buildbot/+/master/slave/skia_slave_scripts/generate_doxygen.py ,
+# https://chromium.googlesource.com/chromium/tools/build/+/0f611b202b0e/scripts/slave/recipe_modules/skia/resources/generate_and_upload_doxygen.py
 # but they are needed in case someone wants to generate the doxygen manually
 # for some reason.
 OUTPUT_DIRECTORY = ../docs
