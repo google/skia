@@ -18,6 +18,9 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
                                          GrVertexBufferAllocPool* vertexPool,
                                          GrIndexBufferAllocPool* indexPool)
     : GrDrawTarget(gpu->getContext())
+    , fCmdBuffer(kCmdBufferInitialSizeInBytes)
+    , fLastState(NULL)
+    , fLastClip(NULL)
     , fDstGpu(gpu)
     , fClipSet(true)
     , fClipProxyState(kUnknown_ClipProxyState)
@@ -216,6 +219,7 @@ bool GrInOrderDrawBuffer::quickInsideClip(const SkRect& devBounds) {
 }
 
 int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
+    SkASSERT(!fCmdBuffer.empty());
     SkASSERT(info.isInstanced());
 
     const GeometrySrcState& geomSrc = this->getGeomSrc();
@@ -230,17 +234,17 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
     }
     // Check if there is a draw info that is compatible that uses the same VB from the pool and
     // the same IB
-    if (kDraw_Cmd != strip_trace_bit(fCmds.back())) {
+    if (kDraw_Cmd != strip_trace_bit(fCmdBuffer.back().fType)) {
         return 0;
     }
 
-    Draw* draw = &fDraws.back();
+    Draw* draw = static_cast<Draw*>(&fCmdBuffer.back());
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
     const GrVertexBuffer* vertexBuffer = poolState.fPoolVertexBuffer;
 
-    if (!draw->isInstanced() ||
-        draw->verticesPerInstance() != info.verticesPerInstance() ||
-        draw->indicesPerInstance() != info.indicesPerInstance() ||
+    if (!draw->fInfo.isInstanced() ||
+        draw->fInfo.verticesPerInstance() != info.verticesPerInstance() ||
+        draw->fInfo.indicesPerInstance() != info.indicesPerInstance() ||
         draw->vertexBuffer() != vertexBuffer ||
         draw->indexBuffer() != geomSrc.fIndexBuffer) {
         return 0;
@@ -248,15 +252,15 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
     // info does not yet account for the offset from the start of the pool's VB while the previous
     // draw record does.
     int adjustedStartVertex = poolState.fPoolStartVertex + info.startVertex();
-    if (draw->startVertex() + draw->vertexCount() != adjustedStartVertex) {
+    if (draw->fInfo.startVertex() + draw->fInfo.vertexCount() != adjustedStartVertex) {
         return 0;
     }
 
-    SkASSERT(poolState.fPoolStartVertex == draw->startVertex() + draw->vertexCount());
+    SkASSERT(poolState.fPoolStartVertex == draw->fInfo.startVertex() + draw->fInfo.vertexCount());
 
     // how many instances can be concat'ed onto draw given the size of the index buffer
     int instancesToConcat = this->indexCountInCurrentSource() / info.indicesPerInstance();
-    instancesToConcat -= draw->instanceCount();
+    instancesToConcat -= draw->fInfo.instanceCount();
     instancesToConcat = SkTMin(instancesToConcat, info.instanceCount());
 
     // update the amount of reserved vertex data actually referenced in draws
@@ -264,15 +268,15 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
                          drawState.getVertexStride();
     poolState.fUsedPoolVertexBytes = SkTMax(poolState.fUsedPoolVertexBytes, vertexBytes);
 
-    draw->adjustInstanceCount(instancesToConcat);
+    draw->fInfo.adjustInstanceCount(instancesToConcat);
 
     // update last fGpuCmdMarkers to include any additional trace markers that have been added
     if (this->getActiveTraceMarkers().count() > 0) {
-        if (cmd_has_trace_marker(fCmds.back())) {
+        if (cmd_has_trace_marker(draw->fType)) {
             fGpuCmdMarkers.back().addSet(this->getActiveTraceMarkers());
         } else {
             fGpuCmdMarkers.push_back(this->getActiveTraceMarkers());
-            fCmds.back() = add_trace_bit(fCmds.back());
+            draw->fType = add_trace_bit(draw->fType);
         }
     }
 
@@ -309,9 +313,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
         acr.set(this->drawState());
     }
 
-    if (this->needsNewClip()) {
-       this->recordClip();
-    }
+    this->recordClipIfNecessary();
     this->recordStateIfNecessary();
 
     const GrVertexBuffer* vb;
@@ -334,52 +336,51 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
     if (info.isInstanced()) {
         int instancesConcated = this->concatInstancedDraw(info);
         if (info.instanceCount() > instancesConcated) {
-            draw = this->recordDraw(info, vb, ib);
-            draw->adjustInstanceCount(-instancesConcated);
+            draw = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Draw, (info, vb, ib));
+            draw->fInfo.adjustInstanceCount(-instancesConcated);
         } else {
             return;
         }
     } else {
-        draw = this->recordDraw(info, vb, ib);
+        draw = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Draw, (info, vb, ib));
     }
+    this->recordTraceMarkersIfNecessary();
 
     // Adjust the starting vertex and index when we are using reserved or array sources to
     // compensate for the fact that the data was inserted into a larger vb/ib owned by the pool.
     if (kBuffer_GeometrySrcType != this->getGeomSrc().fVertexSrc) {
         size_t bytes = (info.vertexCount() + info.startVertex()) * drawState.getVertexStride();
         poolState.fUsedPoolVertexBytes = SkTMax(poolState.fUsedPoolVertexBytes, bytes);
-        draw->adjustStartVertex(poolState.fPoolStartVertex);
+        draw->fInfo.adjustStartVertex(poolState.fPoolStartVertex);
     }
     
     if (info.isIndexed() && kBuffer_GeometrySrcType != this->getGeomSrc().fIndexSrc) {
         size_t bytes = (info.indexCount() + info.startIndex()) * sizeof(uint16_t);
         poolState.fUsedPoolIndexBytes = SkTMax(poolState.fUsedPoolIndexBytes, bytes);
-        draw->adjustStartIndex(poolState.fPoolStartIndex);
+        draw->fInfo.adjustStartIndex(poolState.fPoolStartIndex);
     }
 }
 
 void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, SkPath::FillType fill) {
-    if (this->needsNewClip()) {
-        this->recordClip();
-    }
+    this->recordClipIfNecessary();
     // Only compare the subset of GrDrawState relevant to path stenciling?
     this->recordStateIfNecessary();
-    StencilPath* sp = this->recordStencilPath(path);
+    StencilPath* sp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, StencilPath, (path));
     sp->fFill = fill;
+    this->recordTraceMarkersIfNecessary();
 }
 
 void GrInOrderDrawBuffer::onDrawPath(const GrPath* path,
                                      SkPath::FillType fill, const GrDeviceCoordTexture* dstCopy) {
-    if (this->needsNewClip()) {
-        this->recordClip();
-    }
+    this->recordClipIfNecessary();
     // TODO: Only compare the subset of GrDrawState relevant to path covering?
     this->recordStateIfNecessary();
-    DrawPath* cp = this->recordDrawPath(path);
-    cp->fFill = fill;
+    DrawPath* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPath, (path));
+    dp->fFill = fill;
     if (dstCopy) {
-        cp->fDstCopy = *dstCopy;
+        dp->fDstCopy = *dstCopy;
     }
+    this->recordTraceMarkersIfNecessary();
 }
 
 void GrInOrderDrawBuffer::onDrawPaths(const GrPathRange* pathRange,
@@ -390,25 +391,25 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathRange* pathRange,
     SkASSERT(indices);
     SkASSERT(transforms);
 
-    if (this->needsNewClip()) {
-        this->recordClip();
-    }
+    this->recordClipIfNecessary();
     this->recordStateIfNecessary();
-    DrawPaths* dp = this->recordDrawPaths(pathRange);
-    dp->fIndices = SkNEW_ARRAY(uint32_t, count); // TODO: Accomplish this without a malloc
-    memcpy(dp->fIndices, indices, sizeof(uint32_t) * count);
+
+    int sizeOfIndices = sizeof(uint32_t) * count;
+    int sizeOfTransforms = sizeof(float) * count *
+                           GrPathRendering::PathTransformSize(transformsType);
+
+    DrawPaths* dp = GrNEW_APPEND_WITH_DATA_TO_RECORDER(fCmdBuffer, DrawPaths, (pathRange),
+                                                       sizeOfIndices + sizeOfTransforms);
+    memcpy(dp->indices(), indices, sizeOfIndices);
     dp->fCount = count;
-
-    const int transformsLength = GrPathRendering::PathTransformSize(transformsType) * count;
-    dp->fTransforms = SkNEW_ARRAY(float, transformsLength);
-    memcpy(dp->fTransforms, transforms, sizeof(float) * transformsLength);
+    memcpy(dp->transforms(), transforms, sizeOfTransforms);
     dp->fTransformsType = transformsType;
-
     dp->fFill = fill;
-
     if (dstCopy) {
         dp->fDstCopy = *dstCopy;
     }
+
+    this->recordTraceMarkersIfNecessary();
 }
 
 void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color,
@@ -425,11 +426,12 @@ void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color,
         r.setLTRB(0, 0, renderTarget->width(), renderTarget->height());
         rect = &r;
     }
-    Clear* clr = this->recordClear(renderTarget);
+    Clear* clr = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Clear, (renderTarget));
     GrColorIsPMAssert(color);
     clr->fColor = color;
     clr->fRect = *rect;
     clr->fCanIgnoreRect = canIgnoreRect;
+    this->recordTraceMarkersIfNecessary();
 }
 
 void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
@@ -440,26 +442,21 @@ void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
         renderTarget = this->drawState()->getRenderTarget();
         SkASSERT(renderTarget);
     }
-    Clear* clr = this->recordClear(renderTarget);
+    Clear* clr = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Clear, (renderTarget));
     clr->fColor = GrColor_ILLEGAL;
+    this->recordTraceMarkersIfNecessary();
 }
 
 void GrInOrderDrawBuffer::reset() {
     SkASSERT(1 == fGeoPoolStateStack.count());
     this->resetVertexSource();
     this->resetIndexSource();
-        
-    fCmds.reset();
-    fDraws.reset();
-    fStencilPaths.reset();
-    fDrawPath.reset();
-    fDrawPaths.reset();
-    fStates.reset();
-    fClears.reset();
+
+    fCmdBuffer.reset();
+    fLastState = NULL;
+    fLastClip = NULL;
     fVertexPool.reset();
     fIndexPool.reset();
-    fClips.reset();
-    fCopySurfaces.reset();
     fGpuCmdMarkers.reset();
     fClipSet = true;
 }
@@ -474,8 +471,7 @@ void GrInOrderDrawBuffer::flush() {
     SkASSERT(kReserved_GeometrySrcType != this->getGeomSrc().fVertexSrc);
     SkASSERT(kReserved_GeometrySrcType != this->getGeomSrc().fIndexSrc);
 
-    int numCmds = fCmds.count();
-    if (0 == numCmds) {
+    if (fCmdBuffer.empty()) {
         return;
     }
 
@@ -490,113 +486,35 @@ void GrInOrderDrawBuffer::flush() {
 
     GrDrawState* prevDrawState = SkRef(fDstGpu->drawState());
 
-    GrClipData clipData;
+    CmdBuffer::Iter iter(fCmdBuffer);
 
-    StateAllocator::Iter stateIter(&fStates);
-    ClipAllocator::Iter clipIter(&fClips);
-    ClearAllocator::Iter clearIter(&fClears);
-    DrawAllocator::Iter drawIter(&fDraws);
-    StencilPathAllocator::Iter stencilPathIter(&fStencilPaths);
-    DrawPathAllocator::Iter drawPathIter(&fDrawPath);
-    DrawPathsAllocator::Iter drawPathsIter(&fDrawPaths);
-    CopySurfaceAllocator::Iter copySurfaceIter(&fCopySurfaces);
-
-    int currCmdMarker   = 0;
-
+    int currCmdMarker = 0;
     fDstGpu->saveActiveTraceMarkers();
-    for (int c = 0; c < numCmds; ++c) {
+
+    while (iter.next()) {
         GrGpuTraceMarker newMarker("", -1);
         SkString traceString;
-        if (cmd_has_trace_marker(fCmds[c])) {
+        if (cmd_has_trace_marker(iter->fType)) {
             traceString = fGpuCmdMarkers[currCmdMarker].toString();
             newMarker.fMarker = traceString.c_str();
             fDstGpu->addGpuTraceMarker(&newMarker);
             ++currCmdMarker;
         }
-        switch (strip_trace_bit(fCmds[c])) {
-            case kDraw_Cmd: {
-                SkASSERT(fDstGpu->drawState() != prevDrawState);
-                SkAssertResult(drawIter.next());
-                fDstGpu->setVertexSourceToBuffer(drawIter->vertexBuffer());
-                if (drawIter->isIndexed()) {
-                    fDstGpu->setIndexSourceToBuffer(drawIter->indexBuffer());
-                }
-                fDstGpu->executeDraw(*drawIter);
-                break;
-            }
-            case kStencilPath_Cmd: {
-                SkASSERT(fDstGpu->drawState() != prevDrawState);
-                SkAssertResult(stencilPathIter.next());
-                fDstGpu->stencilPath(stencilPathIter->path(), stencilPathIter->fFill);
-                break;
-            }
-            case kDrawPath_Cmd: {
-                SkASSERT(fDstGpu->drawState() != prevDrawState);
-                SkAssertResult(drawPathIter.next());
-                fDstGpu->executeDrawPath(drawPathIter->path(), drawPathIter->fFill,
-                                         drawPathIter->fDstCopy.texture() ?
-                                            &drawPathIter->fDstCopy :
-                                            NULL);
-                break;
-            }
-            case kDrawPaths_Cmd: {
-                SkASSERT(fDstGpu->drawState() != prevDrawState);
-                SkAssertResult(drawPathsIter.next());
-                const GrDeviceCoordTexture* dstCopy =
-                    drawPathsIter->fDstCopy.texture() ? &drawPathsIter->fDstCopy : NULL;
-                fDstGpu->executeDrawPaths(drawPathsIter->pathRange(),
-                                          drawPathsIter->fIndices,
-                                          drawPathsIter->fCount,
-                                          drawPathsIter->fTransforms,
-                                          drawPathsIter->fTransformsType,
-                                          drawPathsIter->fFill,
-                                          dstCopy);
-                break;
-            }
-            case kSetState_Cmd:
-                SkAssertResult(stateIter.next());
-                fDstGpu->setDrawState(stateIter.get());
-                break;
-            case kSetClip_Cmd:
-                SkAssertResult(clipIter.next());
-                clipData.fClipStack = &clipIter->fStack;
-                clipData.fOrigin = clipIter->fOrigin;
-                fDstGpu->setClip(&clipData);
-                break;
-            case kClear_Cmd:
-                SkAssertResult(clearIter.next());
-                if (GrColor_ILLEGAL == clearIter->fColor) {
-                    fDstGpu->discard(clearIter->renderTarget());
-                } else {
-                    fDstGpu->clear(&clearIter->fRect,
-                                   clearIter->fColor,
-                                   clearIter->fCanIgnoreRect,
-                                   clearIter->renderTarget());
-                }
-                break;
-            case kCopySurface_Cmd:
-                SkAssertResult(copySurfaceIter.next());
-                fDstGpu->copySurface(copySurfaceIter->dst(),
-                                     copySurfaceIter->src(),
-                                     copySurfaceIter->fSrcRect,
-                                     copySurfaceIter->fDstPoint);
-                break;
-        }
-        if (cmd_has_trace_marker(fCmds[c])) {
+
+        SkDEBUGCODE(bool isDraw = kDraw_Cmd == strip_trace_bit(iter->fType) ||
+                                  kStencilPath_Cmd == strip_trace_bit(iter->fType) ||
+                                  kDrawPath_Cmd == strip_trace_bit(iter->fType) ||
+                                  kDrawPaths_Cmd == strip_trace_bit(iter->fType));
+        SkASSERT(!isDraw || fDstGpu->drawState() != prevDrawState);
+
+        iter->execute(fDstGpu);
+
+        if (cmd_has_trace_marker(iter->fType)) {
             fDstGpu->removeGpuTraceMarker(&newMarker);
         }
     }
-    fDstGpu->restoreActiveTraceMarkers();
-    // we should have consumed all the states, clips, etc.
-    SkASSERT(!stateIter.next());
-    SkASSERT(!clipIter.next());
-    SkASSERT(!clearIter.next());
-    SkASSERT(!drawIter.next());
-    SkASSERT(!copySurfaceIter.next());
-    SkASSERT(!stencilPathIter.next());
-    SkASSERT(!drawPathIter.next());
-    SkASSERT(!drawPathsIter.next());
 
+    fDstGpu->restoreActiveTraceMarkers();
     SkASSERT(fGpuCmdMarkers.count() == currCmdMarker);
 
     fDstGpu->setDrawState(prevDrawState);
@@ -605,14 +523,58 @@ void GrInOrderDrawBuffer::flush() {
     ++fDrawID;
 }
 
+void GrInOrderDrawBuffer::Draw::execute(GrDrawTarget* gpu) {
+    gpu->setVertexSourceToBuffer(this->vertexBuffer());
+    if (fInfo.isIndexed()) {
+        gpu->setIndexSourceToBuffer(this->indexBuffer());
+    }
+    gpu->executeDraw(fInfo);
+}
+
+void GrInOrderDrawBuffer::StencilPath::execute(GrDrawTarget* gpu) {
+    gpu->stencilPath(this->path(), fFill);
+}
+
+void GrInOrderDrawBuffer::DrawPath::execute(GrDrawTarget* gpu) {
+    gpu->executeDrawPath(this->path(), fFill, fDstCopy.texture() ? &fDstCopy : NULL);
+}
+
+void GrInOrderDrawBuffer::DrawPaths::execute(GrDrawTarget* gpu) {
+    gpu->executeDrawPaths(this->pathRange(), this->indices(), fCount, this->transforms(),
+                          fTransformsType, fFill, fDstCopy.texture() ? &fDstCopy : NULL);
+}
+
+void GrInOrderDrawBuffer::SetState::execute(GrDrawTarget* gpu) {
+    gpu->setDrawState(&fState);
+}
+
+void GrInOrderDrawBuffer::SetClip::execute(GrDrawTarget* gpu) {
+    // Our fClipData is referenced directly, so we must remain alive for the entire
+    // duration of the flush (after which the gpu's previous clip is restored).
+    gpu->setClip(&fClipData);
+}
+
+void GrInOrderDrawBuffer::Clear::execute(GrDrawTarget* gpu) {
+    if (GrColor_ILLEGAL == fColor) {
+        gpu->discard(this->renderTarget());
+    } else {
+        gpu->clear(&fRect, fColor, fCanIgnoreRect, this->renderTarget());
+    }
+}
+
+void GrInOrderDrawBuffer::CopySurface::execute(GrDrawTarget* gpu) {
+    gpu->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
+}
+
 bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
                                         GrSurface* src,
                                         const SkIRect& srcRect,
                                         const SkIPoint& dstPoint) {
     if (fDstGpu->canCopySurface(dst, src, srcRect, dstPoint)) {
-        CopySurface* cs = this->recordCopySurface(dst, src);
+        CopySurface* cs = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, CopySurface, (dst, src));
         cs->fSrcRect = srcRect;
         cs->fDstPoint = dstPoint;
+        this->recordTraceMarkersIfNecessary();
         return true;
     } else {
         return false;
@@ -832,92 +794,53 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(const GeometrySrcState& restored
 }
 
 void GrInOrderDrawBuffer::recordStateIfNecessary() {
-    if (fStates.empty()) {
-        this->convertDrawStateToPendingExec(&fStates.push_back(this->getDrawState()));
-        this->addToCmdBuffer(kSetState_Cmd);
+    if (!fLastState) {
+        SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState, (this->getDrawState()));
+        fLastState = &ss->fState;
+        this->convertDrawStateToPendingExec(fLastState);
+        this->recordTraceMarkersIfNecessary();
         return;
     }
     const GrDrawState& curr = this->getDrawState();
-    GrDrawState& prev = fStates.back();
-    switch (GrDrawState::CombineIfPossible(prev, curr, *this->caps())) {
+    switch (GrDrawState::CombineIfPossible(*fLastState, curr, *this->caps())) {
         case GrDrawState::kIncompatible_CombinedState:
-            this->convertDrawStateToPendingExec(&fStates.push_back(curr));
-            this->addToCmdBuffer(kSetState_Cmd);
+            fLastState = &GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState, (curr))->fState;
+            this->convertDrawStateToPendingExec(fLastState);
+            this->recordTraceMarkersIfNecessary();
             break;
         case GrDrawState::kA_CombinedState:
         case GrDrawState::kAOrB_CombinedState: // Treat the same as kA.
             break;
         case GrDrawState::kB_CombinedState:
             // prev has already been converted to pending execution. That is a one-way ticket.
-            // So here we just delete prev and push back a new copy of curr. Note that this
-            // goes away when we move GrIODB over to taking optimized snapshots of draw states.
-            fStates.pop_back();
-            this->convertDrawStateToPendingExec(&fStates.push_back(curr));
+            // So here we just destruct the previous state and reinit with a new copy of curr.
+            // Note that this goes away when we move GrIODB over to taking optimized snapshots
+            // of draw states.
+            fLastState->~GrDrawState();
+            SkNEW_PLACEMENT_ARGS(fLastState, GrDrawState, (curr));
+            this->convertDrawStateToPendingExec(fLastState);
             break;
     }
 }
 
-bool GrInOrderDrawBuffer::needsNewClip() const {
-    if (this->getDrawState().isClipState()) {
-       if (fClipSet &&
-           (fClips.empty() ||
-            fClips.back().fStack != *this->getClip()->fClipStack ||
-            fClips.back().fOrigin != this->getClip()->fOrigin)) {
-           return true;
-       }
+void GrInOrderDrawBuffer::recordClipIfNecessary() {
+    if (this->getDrawState().isClipState() &&
+        fClipSet &&
+        (!fLastClip || *fLastClip != *this->getClip())) {
+        fLastClip = &GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetClip, (this->getClip()))->fClipData;
+        this->recordTraceMarkersIfNecessary();
+        fClipSet = false;
     }
-    return false;
 }
 
-void GrInOrderDrawBuffer::addToCmdBuffer(uint8_t cmd) {
-    SkASSERT(!cmd_has_trace_marker(cmd));
+void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary() {
+    SkASSERT(!fCmdBuffer.empty());
+    SkASSERT(!cmd_has_trace_marker(fCmdBuffer.back().fType));
     const GrTraceMarkerSet& activeTraceMarkers = this->getActiveTraceMarkers();
     if (activeTraceMarkers.count() > 0) {
-        fCmds.push_back(add_trace_bit(cmd));
+        fCmdBuffer.back().fType = add_trace_bit(fCmdBuffer.back().fType);
         fGpuCmdMarkers.push_back(activeTraceMarkers);
-    } else {
-        fCmds.push_back(cmd);
     }
-}
-
-void GrInOrderDrawBuffer::recordClip() {
-    fClips.push_back().fStack = *this->getClip()->fClipStack;
-    fClips.back().fOrigin = this->getClip()->fOrigin;
-    fClipSet = false;
-    this->addToCmdBuffer(kSetClip_Cmd);
-}
-
-GrInOrderDrawBuffer::Draw* GrInOrderDrawBuffer::recordDraw(const DrawInfo& info,
-                                                           const GrVertexBuffer* vb,
-                                                           const GrIndexBuffer* ib) {
-    this->addToCmdBuffer(kDraw_Cmd);
-    return GrNEW_APPEND_TO_ALLOCATOR(&fDraws, Draw, (info, vb, ib));
-}
-
-GrInOrderDrawBuffer::StencilPath* GrInOrderDrawBuffer::recordStencilPath(const GrPath* path) {
-    this->addToCmdBuffer(kStencilPath_Cmd);
-    return GrNEW_APPEND_TO_ALLOCATOR(&fStencilPaths, StencilPath, (path));
-}
-
-GrInOrderDrawBuffer::DrawPath* GrInOrderDrawBuffer::recordDrawPath(const GrPath* path) {
-    this->addToCmdBuffer(kDrawPath_Cmd);
-    return GrNEW_APPEND_TO_ALLOCATOR(&fDrawPath, DrawPath, (path));
-}
-
-GrInOrderDrawBuffer::DrawPaths* GrInOrderDrawBuffer::recordDrawPaths(const GrPathRange* pathRange) {
-    this->addToCmdBuffer(kDrawPaths_Cmd);
-    return GrNEW_APPEND_TO_ALLOCATOR(&fDrawPaths, DrawPaths, (pathRange));
-}
-
-GrInOrderDrawBuffer::Clear* GrInOrderDrawBuffer::recordClear(GrRenderTarget* rt) {
-    this->addToCmdBuffer(kClear_Cmd);
-    return GrNEW_APPEND_TO_ALLOCATOR(&fClears, Clear, (rt));
-}
-
-GrInOrderDrawBuffer::CopySurface* GrInOrderDrawBuffer::recordCopySurface(GrSurface* dst,
-                                                                         GrSurface* src) {
-    this->addToCmdBuffer(kCopySurface_Cmd);
-    return GrNEW_APPEND_TO_ALLOCATOR(&fCopySurfaces, CopySurface, (dst, src));
 }
 
 void GrInOrderDrawBuffer::clipWillBeSet(const GrClipData* newClipData) {
