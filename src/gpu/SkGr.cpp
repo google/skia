@@ -159,7 +159,7 @@ static GrTexture* sk_gr_allocate_texture(GrContext* ctx,
         // cache so no one else can find it. Additionally, once unlocked, the
         // scratch texture will go to the end of the list for purging so will
         // likely be available for this volatile bitmap the next time around.
-        result = ctx->lockAndRefScratchTexture(desc, GrContext::kExact_ScratchTexMatch);
+        result = ctx->refScratchTexture(desc, GrContext::kExact_ScratchTexMatch);
         if (pixels) {
             result->writePixels(0, 0, bm.width(), bm.height(), desc.fConfig, pixels, rowBytes);
         }
@@ -248,14 +248,15 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
 
     GrTextureDesc yuvDesc;
     yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
-    GrAutoScratchTexture yuvTextures[3];
+    SkAutoTUnref<GrTexture> yuvTextures[3];
     for (int i = 0; i < 3; ++i) {
         yuvDesc.fWidth  = yuvSizes[i].fWidth;
         yuvDesc.fHeight = yuvSizes[i].fHeight;
-        yuvTextures[i].set(ctx, yuvDesc);
-        if ((NULL == yuvTextures[i].texture()) ||
-            !yuvTextures[i].texture()->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
-                                                   yuvDesc.fConfig, planes[i], rowBytes[i])) {
+        yuvTextures[i].reset(
+            ctx->refScratchTexture(yuvDesc, GrContext::kApprox_ScratchTexMatch));
+        if (!yuvTextures[i] ||
+            !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
+                                         yuvDesc.fConfig, planes[i], rowBytes[i])) {
             return NULL;
         }
     }
@@ -269,9 +270,8 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
 
     GrRenderTarget* renderTarget = result ? result->asRenderTarget() : NULL;
     if (renderTarget) {
-        SkAutoTUnref<GrFragmentProcessor> yuvToRgbProcessor(GrYUVtoRGBEffect::Create(
-            yuvTextures[0].texture(), yuvTextures[1].texture(), yuvTextures[2].texture(),
-            colorSpace));
+        SkAutoTUnref<GrFragmentProcessor> yuvToRgbProcessor(
+            GrYUVtoRGBEffect::Create(yuvTextures[0], yuvTextures[1], yuvTextures[2], colorSpace));
         GrPaint paint;
         paint.addColorProcessor(yuvToRgbProcessor);
         SkRect r = SkRect::MakeWH(SkIntToScalar(yuvSizes[0].fWidth),

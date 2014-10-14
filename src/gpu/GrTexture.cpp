@@ -53,7 +53,6 @@ size_t GrTexture::gpuMemorySize() const {
     return textureSize;
 }
 
-
 void GrTexture::onRelease() {
     SkASSERT(!this->texturePriv().isSetFlag((GrTextureFlags) kReturnToCache_FlagBit));
     INHERITED::onRelease();

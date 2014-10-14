@@ -319,9 +319,9 @@ static SkSurface* create_surface(const CanvasConfig& c, GrContext* grCtx) {
             desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fOrigin = kGpu_TopLeft_DevType == c.fDevType ?
                 kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-            GrAutoScratchTexture ast(grCtx, desc, GrContext::kExact_ScratchTexMatch);
-            SkAutoTUnref<GrTexture> tex(ast.detach());
-            return SkSurface::NewRenderTargetDirect(tex->asRenderTarget());
+            SkAutoTUnref<GrTexture> texture(
+                grCtx->refScratchTexture(desc, GrContext::kExact_ScratchTexMatch));
+            return SkSurface::NewRenderTargetDirect(texture->asRenderTarget());
 #endif
     }
     return NULL;

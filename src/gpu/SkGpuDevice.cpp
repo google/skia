@@ -607,10 +607,9 @@ bool draw_with_mask_filter(GrContext* context, const SkPath& devPath,
     desc.fHeight = dstM.fBounds.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    GrAutoScratchTexture ast(context, desc);
-    GrTexture* texture = ast.texture();
-
-    if (NULL == texture) {
+    SkAutoTUnref<GrTexture> texture(
+        context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
+    if (!texture) {
         return false;
     }
     texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
@@ -621,20 +620,18 @@ bool draw_with_mask_filter(GrContext* context, const SkPath& devPath,
     return draw_mask(context, maskRect, grp, texture);
 }
 
-// Create a mask of 'devPath' and place the result in 'mask'. Return true on
-// success; false otherwise.
-bool create_mask_GPU(GrContext* context,
-                     const SkRect& maskRect,
-                     const SkPath& devPath,
-                     const GrStrokeInfo& strokeInfo,
-                     bool doAA,
-                     GrAutoScratchTexture* mask,
-                     int SampleCnt) {
+// Create a mask of 'devPath' and place the result in 'mask'.
+GrTexture* create_mask_GPU(GrContext* context,
+                           const SkRect& maskRect,
+                           const SkPath& devPath,
+                           const GrStrokeInfo& strokeInfo,
+                           bool doAA,
+                           int sampleCnt) {
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
     desc.fWidth = SkScalarCeilToInt(maskRect.width());
     desc.fHeight = SkScalarCeilToInt(maskRect.height());
-    desc.fSampleCnt = doAA ? SampleCnt : 0;
+    desc.fSampleCnt = doAA ? sampleCnt : 0;
     // We actually only need A8, but it often isn't supported as a
     // render target so default to RGBA_8888
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -644,15 +641,14 @@ bool create_mask_GPU(GrContext* context,
         desc.fConfig = kAlpha_8_GrPixelConfig;
     }
 
-    mask->set(context, desc);
-    if (NULL == mask->texture()) {
-        return false;
+    GrTexture* mask = context->refScratchTexture(desc,GrContext::kApprox_ScratchTexMatch);
+    if (NULL == mask) {
+        return NULL;
     }
 
-    GrTexture* maskTexture = mask->texture();
     SkRect clipRect = SkRect::MakeWH(maskRect.width(), maskRect.height());
 
-    GrContext::AutoRenderTarget art(context, maskTexture->asRenderTarget());
+    GrContext::AutoRenderTarget art(context, mask->asRenderTarget());
     GrContext::AutoClip ac(context, clipRect);
 
     context->clear(NULL, 0x0, true);
@@ -676,7 +672,7 @@ bool create_mask_GPU(GrContext* context,
     translate.setTranslate(-maskRect.fLeft, -maskRect.fTop);
     am.set(context, translate);
     context->drawPath(tempPaint, devPath, strokeInfo);
-    return true;
+    return mask;
 }
 
 SkBitmap wrap_texture(GrTexture* texture) {
@@ -771,25 +767,16 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                 return;
             }
 
-            GrAutoScratchTexture mask;
 
-            if (create_mask_GPU(fContext, maskRect, *devPathPtr, strokeInfo,
-                                grPaint.isAntiAlias(), &mask, fRenderTarget->numSamples())) {
+            SkAutoTUnref<GrTexture> mask(create_mask_GPU(fContext, maskRect, *devPathPtr,
+                                                         strokeInfo, grPaint.isAntiAlias(),
+                                                         fRenderTarget->numSamples()));
+            if (mask) {
                 GrTexture* filtered;
 
-                if (paint.getMaskFilter()->filterMaskGPU(mask.texture(),
-                                                         ctm, maskRect, &filtered, true)) {
+                if (paint.getMaskFilter()->filterMaskGPU(mask, ctm, maskRect, &filtered, true)) {
                     // filterMaskGPU gives us ownership of a ref to the result
                     SkAutoTUnref<GrTexture> atu(filtered);
-
-                    // If the scratch texture that we used as the filter src also holds the filter
-                    // result then we must detach so that this texture isn't recycled for a later
-                    // draw.
-                    if (filtered == mask.texture()) {
-                        mask.detach();
-                        filtered->unref(); // detach transfers GrAutoScratchTexture's ref to us.
-                    }
-
                     if (draw_mask(fContext, maskRect, &grPaint, filtered)) {
                         // This path is completely drawn
                         return;
@@ -1771,7 +1758,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) 
     const GrContext::ScratchTexMatch match = (kSaveLayer_Usage == usage) ?
                                                 GrContext::kApprox_ScratchTexMatch :
                                                 GrContext::kExact_ScratchTexMatch;
-    texture.reset(fContext->lockAndRefScratchTexture(desc, match));
+    texture.reset(fContext->refScratchTexture(desc, match));
 #else
     texture.reset(fContext->createUncachedTexture(desc, NULL, 0));
 #endif

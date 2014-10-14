@@ -178,9 +178,19 @@ GrTexture* GaussianBlur(GrContext* context,
     desc.fHeight = SkScalarFloorToInt(srcRect.height());
     desc.fConfig = srcTexture->config();
 
-    GrAutoScratchTexture temp1, temp2;
-    GrTexture* dstTexture = temp1.set(context, desc);
-    GrTexture* tempTexture = canClobberSrc ? srcTexture : temp2.set(context, desc);
+    GrTexture* dstTexture;
+    GrTexture* tempTexture;
+    SkAutoTUnref<GrTexture> temp1, temp2;
+
+    temp1.reset(context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
+    dstTexture = temp1.get();
+    if (canClobberSrc) {
+        tempTexture = srcTexture;
+    } else {
+        temp2.reset(context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
+        tempTexture = temp2.get();
+    }
+
     if (NULL == dstTexture || NULL == tempTexture) {
         return NULL;
     }
@@ -295,14 +305,7 @@ GrTexture* GaussianBlur(GrContext* context,
         srcTexture = dstTexture;
         SkTSwap(dstTexture, tempTexture);
     }
-    if (srcTexture == temp1.texture()) {
-        return temp1.detach();
-    } else if (srcTexture == temp2.texture()) {
-        return temp2.detach();
-    } else {
-        srcTexture->ref();
-        return srcTexture;
-    }
+    return SkRef(srcTexture);
 }
 #endif
 

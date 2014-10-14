@@ -503,11 +503,9 @@ bool apply_morphology(const SkBitmap& input,
                       GrMorphologyEffect::MorphologyType morphType,
                       SkISize radius,
                       SkBitmap* dst) {
-    GrTexture* srcTexture = input.getTexture();
+    SkAutoTUnref<GrTexture> srcTexture(SkRef(input.getTexture()));
     SkASSERT(srcTexture);
     GrContext* context = srcTexture->getContext();
-    srcTexture->ref();
-    SkAutoTUnref<GrTexture> src(srcTexture);
 
     GrContext::AutoMatrix am;
     am.setIdentity(context);
@@ -524,32 +522,32 @@ bool apply_morphology(const SkBitmap& input,
     SkIRect srcRect = rect;
 
     if (radius.fWidth > 0) {
-        GrAutoScratchTexture ast(context, desc);
-        if (NULL == ast.texture()) {
+        GrTexture* texture = context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch);
+        if (NULL == texture) {
             return false;
         }
-        GrContext::AutoRenderTarget art(context, ast.texture()->asRenderTarget());
-        apply_morphology_pass(context, src, srcRect, dstRect, radius.fWidth,
+        GrContext::AutoRenderTarget art(context, texture->asRenderTarget());
+        apply_morphology_pass(context, srcTexture, srcRect, dstRect, radius.fWidth,
                               morphType, Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
                                               dstRect.width(), radius.fHeight);
         context->clear(&clearRect, GrMorphologyEffect::kErode_MorphologyType == morphType ?
                                    SK_ColorWHITE :
                                    SK_ColorTRANSPARENT, false);
-        src.reset(ast.detach());
+        srcTexture.reset(texture);
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        GrAutoScratchTexture ast(context, desc);
-        if (NULL == ast.texture()) {
+        GrTexture* texture = context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch);
+        if (NULL == texture) {
             return false;
         }
-        GrContext::AutoRenderTarget art(context, ast.texture()->asRenderTarget());
-        apply_morphology_pass(context, src, srcRect, dstRect, radius.fHeight,
+        GrContext::AutoRenderTarget art(context, texture->asRenderTarget());
+        apply_morphology_pass(context, srcTexture, srcRect, dstRect, radius.fHeight,
                               morphType, Gr1DKernelEffect::kY_Direction);
-        src.reset(ast.detach());
+        srcTexture.reset(texture);
     }
-    SkImageFilter::WrapTexture(src, rect.width(), rect.height(), dst);
+    SkImageFilter::WrapTexture(srcTexture, rect.width(), rect.height(), dst);
     return true;
 }
 

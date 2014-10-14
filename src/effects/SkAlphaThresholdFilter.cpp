@@ -284,14 +284,14 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
         // the outside.
         maskDesc.fWidth = texture->width();
         maskDesc.fHeight = texture->height();
-        GrAutoScratchTexture ast(context, maskDesc, GrContext::kApprox_ScratchTexMatch);
-        GrTexture*  maskTexture = ast.texture();
-        if (NULL == maskTexture) {
+        SkAutoTUnref<GrTexture> maskTexture(
+            context->refScratchTexture(maskDesc, GrContext::kApprox_ScratchTexMatch));
+        if (!maskTexture) {
             return false;
         }
 
         {
-            GrContext::AutoRenderTarget art(context, ast.texture()->asRenderTarget());
+            GrContext::AutoRenderTarget art(context, maskTexture->asRenderTarget());
             GrPaint grPaint;
             grPaint.setBlendFunc(kOne_GrBlendCoeff, kZero_GrBlendCoeff);
             SkRegion::Iterator iter(fRegion);

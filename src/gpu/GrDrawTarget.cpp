@@ -455,15 +455,16 @@ bool GrDrawTarget::setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const 
     desc.fWidth = copyRect.width();
     desc.fHeight = copyRect.height();
 
-    GrAutoScratchTexture ast(fContext, desc, GrContext::kApprox_ScratchTexMatch);
+    SkAutoTUnref<GrTexture> copy(
+        fContext->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
 
-    if (NULL == ast.texture()) {
+    if (!copy) {
         GrPrintf("Failed to create temporary copy of destination texture.\n");
         return false;
     }
     SkIPoint dstPoint = {0, 0};
-    if (this->copySurface(ast.texture(), rt, copyRect, dstPoint)) {
-        dstCopy->setTexture(ast.texture());
+    if (this->copySurface(copy, rt, copyRect, dstPoint)) {
+        dstCopy->setTexture(copy);
         dstCopy->setOffset(copyRect.fLeft, copyRect.fTop);
         return true;
     } else {

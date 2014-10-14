@@ -446,9 +446,8 @@ GrTexture* GrContext::createNewScratchTexture(const GrTextureDesc& desc) {
     return texture;
 }
 
-GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, ScratchTexMatch match,
-                                               bool calledDuringFlush) {
-
+GrTexture* GrContext::refScratchTexture(const GrTextureDesc& inDesc, ScratchTexMatch match,
+                                        bool calledDuringFlush) {
     // kNoStencil has no meaning if kRT isn't set.
     SkASSERT((inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
              !(inDesc.fFlags & kNoStencil_GrTextureFlagBit));
@@ -1306,9 +1305,8 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = writeConfig;
-    GrAutoScratchTexture ast(this, desc);
-    GrTexture* texture = ast.texture();
-    if (NULL == texture) {
+    SkAutoTUnref<GrTexture> texture(this->refScratchTexture(desc, kApprox_ScratchTexMatch));
+    if (!texture) {
         return false;
     }
 
@@ -1438,7 +1436,6 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     // conversions in the draw we set the corresponding bool to false so that we don't reapply it
     // on the read back pixels.
     GrTexture* src = target->asTexture();
-    GrAutoScratchTexture ast;
     if (src && (swapRAndB || unpremul || flipY)) {
         // Make the scratch a render so we can read its pixels.
         GrTextureDesc desc;
@@ -1460,8 +1457,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             fGpu->fullReadPixelsIsFasterThanPartial()) {
             match = kExact_ScratchTexMatch;
         }
-        ast.set(this, desc, match);
-        GrTexture* texture = ast.texture();
+        SkAutoTUnref<GrTexture> texture(this->refScratchTexture(desc, match));
         if (texture) {
             // compute a matrix to perform the draw
             SkMatrix textureMatrix;

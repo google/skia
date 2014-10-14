@@ -255,13 +255,14 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     desc.fHeight = bounds.height();
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    GrAutoScratchTexture dst(context, desc);
-    if (NULL == dst.texture()) {
+    SkAutoTUnref<GrTexture> dst(
+        context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
+    if (!dst) {
         return false;
     }
     GrContext::AutoMatrix am;
     am.setIdentity(context);
-    GrContext::AutoRenderTarget art(context, dst.texture()->asRenderTarget());
+    GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
     GrContext::AutoClip acs(context, dstRect);
     GrFragmentProcessor* fp;
     offset->fX = bounds.left();
@@ -275,8 +276,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
         paint.addColorProcessor(fp)->unref();
         context->drawRectToRect(paint, dstRect, srcRect);
 
-        SkAutoTUnref<GrTexture> resultTex(dst.detach());
-        WrapTexture(resultTex, bounds.width(), bounds.height(), result);
+        WrapTexture(dst, bounds.width(), bounds.height(), result);
         return true;
     }
 #endif

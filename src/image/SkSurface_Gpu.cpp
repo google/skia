@@ -146,7 +146,7 @@ SkSurface* SkSurface::NewScratchRenderTarget(GrContext* ctx, const SkImageInfo& 
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
 
-    SkAutoTUnref<GrTexture> tex(ctx->lockAndRefScratchTexture(desc, GrContext::kExact_ScratchTexMatch));
+    SkAutoTUnref<GrTexture> tex(ctx->refScratchTexture(desc, GrContext::kExact_ScratchTexMatch));
 
     if (NULL == tex) {
         return NULL;

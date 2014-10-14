@@ -228,9 +228,8 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
 
 /**
  * Get a texture (from the texture cache) of the correct size & format.
- * Return true on success; false on failure.
  */
-bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
+GrTexture* GrSWMaskHelper::createTexture() {
     GrTextureDesc desc;
     desc.fWidth = fBM.width();
     desc.fHeight = fBM.height();
@@ -249,8 +248,7 @@ bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
         SkASSERT(fContext->getGpu()->caps()->isConfigTexturable(desc.fConfig));
     }
 
-    texture->set(fContext, desc);
-    return SkToBool(texture->texture());
+    return fContext->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch);
 }
 
 void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrTextureDesc& desc,
@@ -337,14 +335,14 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
 
     helper.draw(path, stroke, SkRegion::kReplace_Op, antiAlias, 0xFF);
 
-    GrAutoScratchTexture ast;
-    if (!helper.getTexture(&ast)) {
+    GrTexture* texture(helper.createTexture());
+    if (!texture) {
         return NULL;
     }
 
-    helper.toTexture(ast.texture());
+    helper.toTexture(texture);
 
-    return ast.detach();
+    return texture;
 }
 
 void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,

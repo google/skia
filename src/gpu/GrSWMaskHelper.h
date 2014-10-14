@@ -18,7 +18,6 @@
 #include "SkTextureCompressor.h"
 #include "SkTypes.h"
 
-class GrAutoScratchTexture;
 class GrContext;
 class GrTexture;
 class SkPath;
@@ -61,10 +60,6 @@ public:
     void draw(const SkPath& path, const SkStrokeRec& stroke, SkRegion::Op op,
               bool antiAlias, uint8_t alpha);
 
-    // Helper function to get a scratch texture suitable for capturing the
-    // result (i.e., right size & format)
-    bool getTexture(GrAutoScratchTexture* texture);
-
     // Move the mask generation results from the internal bitmap to the gpu.
     void toTexture(GrTexture* texture);
 
@@ -100,6 +95,10 @@ public:
                                          const SkIRect& rect);
 
 private:
+    // Helper function to get a scratch texture suitable for capturing the
+    // result (i.e., right size & format)
+    GrTexture* createTexture();
+
     GrContext*      fContext;
     SkMatrix        fMatrix;
     SkBitmap        fBM;

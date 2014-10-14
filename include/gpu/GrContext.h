@@ -280,27 +280,28 @@ public:
     };
 
     /**
-     * Returns a texture matching the desc. It's contents are unknown. Subsequent
-     * requests with the same descriptor are not guaranteed to return the same
-     * texture. The same texture is guaranteed not be returned again until it is
-     * unlocked. Call must be balanced with an unlockTexture() call. The caller
+     * Returns a texture matching the desc. It's contents are unknown. The caller
      * owns a ref on the returned texture and must balance with a call to unref.
+     * It is guaranteed that the same texture will not be returned in subsequent
+     * calls until all refs to the texture are dropped.
      *
-     * Textures created by createAndLockTexture() hide the complications of
+     * Textures created by createTexture() hide the complications of
      * tiling non-power-of-two textures on APIs that don't support this (e.g.
-     * unextended GLES2). Tiling a NPOT texture created by lockScratchTexture on
-     * such an API will create gaps in the tiling pattern. This includes clamp
-     * mode. (This may be addressed in a future update.)7
+     * unextended GLES2). NPOT scratch textures are not tilable on such APIs.
      *
      * internalFlag is a temporary workaround until changes in the internal
      * architecture are complete. Use the default value.
      */
-    GrTexture* lockAndRefScratchTexture(const GrTextureDesc&, ScratchTexMatch match,
-                                        bool internalFlag = false);
+    GrTexture* refScratchTexture(const GrTextureDesc&, ScratchTexMatch match,
+                                 bool internalFlag = false);
 
     /**
      * Creates a texture that is outside the cache. Does not count against
      * cache's budget.
+     *
+     * Textures created by createTexture() hide the complications of
+     * tiling non-power-of-two textures on APIs that don't support this (e.g.
+     * unextended GLES2). NPOT uncached textures are not tilable on such APIs.
      */
     GrTexture* createUncachedTexture(const GrTextureDesc& desc,
                                      void* srcData,
@@ -1092,7 +1093,7 @@ public:
 
         fContext = context;
         if (fContext) {
-            fTexture = fContext->lockAndRefScratchTexture(desc, match, internalFlag);
+            fTexture = fContext->refScratchTexture(desc, match, internalFlag);
             if (NULL == fTexture) {
                 fContext = NULL;
             }

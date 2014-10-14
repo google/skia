@@ -12,7 +12,6 @@
 #include "GrPathRenderer.h"
 
 class GrContext;
-class GrAutoScratchTexture;
 
 /**
  * This class uses the software side to render a path to an SkBitmap and
