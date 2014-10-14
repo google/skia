@@ -16,7 +16,6 @@
 #include "GrPath.h"
 #include "GrPathRange.h"
 #include "GrSurface.h"
-#include "GrTRecorder.h"
 #include "GrVertexBuffer.h"
 
 #include "SkClipStack.h"
@@ -88,7 +87,7 @@ protected:
     virtual void clipWillBeSet(const GrClipData* newClip) SK_OVERRIDE;
 
 private:
-    enum {
+    enum Cmd {
         kDraw_Cmd           = 1,
         kStencilPath_Cmd    = 2,
         kSetState_Cmd       = 3,
@@ -99,40 +98,25 @@ private:
         kDrawPaths_Cmd      = 8,
     };
 
-    struct Cmd : ::SkNoncopyable {
-        Cmd(uint8_t type) : fType(type) {}
-        virtual ~Cmd() {}
-
-        virtual void execute(GrDrawTarget*) = 0;
-
-        uint8_t fType;
-    };
-
-    struct Draw : public Cmd {
+    class Draw : public DrawInfo {
+    public:
         Draw(const DrawInfo& info, const GrVertexBuffer* vb, const GrIndexBuffer* ib)
-            : Cmd(kDraw_Cmd)
-            , fInfo(info)
+            : DrawInfo(info)
             , fVertexBuffer(vb)
             , fIndexBuffer(ib) {}
 
         const GrVertexBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
         const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
 
-        virtual void execute(GrDrawTarget*);
-
-        DrawInfo fInfo;
-
     private:
         GrPendingIOResource<const GrVertexBuffer, kRead_GrIOType>    fVertexBuffer;
         GrPendingIOResource<const GrIndexBuffer, kRead_GrIOType>     fIndexBuffer;
     };
 
-    struct StencilPath : public Cmd {
-        StencilPath(const GrPath* path) : Cmd(kStencilPath_Cmd), fPath(path) {}
+    struct StencilPath : public ::SkNoncopyable {
+        StencilPath(const GrPath* path) : fPath(path) {}
 
         const GrPath* path() const { return fPath.get(); }
-
-        virtual void execute(GrDrawTarget*);
 
         SkPath::FillType fFill;
 
@@ -140,12 +124,10 @@ private:
         GrPendingIOResource<const GrPath, kRead_GrIOType>   fPath;
     };
 
-    struct DrawPath : public Cmd {
-        DrawPath(const GrPath* path) : Cmd(kDrawPath_Cmd), fPath(path) {}
+    struct DrawPath : public ::SkNoncopyable {
+        DrawPath(const GrPath* path) : fPath(path) {}
 
         const GrPath* path() const { return fPath.get(); }
-
-        virtual void execute(GrDrawTarget*);
 
         SkPath::FillType        fFill;
         GrDeviceCoordTexture    fDstCopy;
@@ -154,16 +136,24 @@ private:
         GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
     };
 
-    struct DrawPaths : public Cmd {
-        DrawPaths(const GrPathRange* pathRange) : Cmd(kDrawPaths_Cmd), fPathRange(pathRange) {}
+    struct DrawPaths : public ::SkNoncopyable {
+        DrawPaths(const GrPathRange* pathRange)
+            : fPathRange(pathRange) {}
+
+        ~DrawPaths() {
+            if (fTransforms) {
+                SkDELETE_ARRAY(fTransforms);
+            }
+            if (fIndices) {
+                SkDELETE_ARRAY(fIndices);
+            }
+        }
 
         const GrPathRange* pathRange() const { return fPathRange.get();  }
-        uint32_t* indices() { return reinterpret_cast<uint32_t*>(CmdBuffer::GetDataForItem(this)); }
-        float* transforms() { return reinterpret_cast<float*>(&this->indices()[fCount]); }
 
-        virtual void execute(GrDrawTarget*);
-
+        uint32_t*               fIndices;
         size_t                  fCount;
+        float*                  fTransforms;
         PathTransformType       fTransformsType;
         SkPath::FillType        fFill;
         GrDeviceCoordTexture    fDstCopy;
@@ -173,12 +163,10 @@ private:
     };
 
     // This is also used to record a discard by setting the color to GrColor_ILLEGAL
-    struct Clear : public Cmd {
-        Clear(GrRenderTarget* rt) : Cmd(kClear_Cmd), fRenderTarget(rt) {}
-
+    struct Clear : public ::SkNoncopyable {
+        Clear(GrRenderTarget* rt) : fRenderTarget(rt) {}
+        ~Clear() { }
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
-
-        virtual void execute(GrDrawTarget*);
 
         SkIRect fRect;
         GrColor fColor;
@@ -188,13 +176,11 @@ private:
         GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
     };
 
-    struct CopySurface : public Cmd {
-        CopySurface(GrSurface* dst, GrSurface* src) : Cmd(kCopySurface_Cmd), fDst(dst), fSrc(src) {}
+    struct CopySurface : public ::SkNoncopyable {
+        CopySurface(GrSurface* dst, GrSurface* src) : fDst(dst), fSrc(src) {}
 
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
-
-        virtual void execute(GrDrawTarget*);
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -204,32 +190,10 @@ private:
         GrPendingIOResource<GrSurface, kRead_GrIOType> fSrc;
     };
 
-    struct SetState : public Cmd {
-        SetState(const GrDrawState& state) : Cmd(kSetState_Cmd), fState(state) {}
-
-        virtual void execute(GrDrawTarget*);
-
-        GrDrawState fState;
+    struct Clip : public ::SkNoncopyable {
+        SkClipStack fStack;
+        SkIPoint    fOrigin;
     };
-
-    struct SetClip : public Cmd {
-        SetClip(const GrClipData* clipData)
-            : Cmd(kSetClip_Cmd),
-              fStackStorage(*clipData->fClipStack) {
-            fClipData.fClipStack = &fStackStorage;
-            fClipData.fOrigin = clipData->fOrigin;
-        }
-
-        virtual void execute(GrDrawTarget*);
-
-        GrClipData fClipData;
-
-    private:
-        SkClipStack fStackStorage;
-    };
-
-    typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
-    typedef GrTRecorder<Cmd, TCmdAlign> CmdBuffer;
 
     // overrides from GrDrawTarget
     virtual void onDraw(const DrawInfo&) SK_OVERRIDE;
@@ -283,25 +247,57 @@ private:
     // Determines whether the current draw operation requieres a new drawstate and if so records it.
     void recordStateIfNecessary();
     // We lazily record clip changes in order to skip clips that have no effect.
-    void recordClipIfNecessary();
-    // Records any trace markers for a command after adding it to the buffer.
-    void recordTraceMarkersIfNecessary();
+    bool needsNewClip() const;
+
+    // these functions record a command
+    void            recordState();
+    void            recordClip();
+    Draw*           recordDraw(const DrawInfo&, const GrVertexBuffer*, const GrIndexBuffer*);
+    StencilPath*    recordStencilPath(const GrPath*);
+    DrawPath*       recordDrawPath(const GrPath*);
+    DrawPaths*      recordDrawPaths(const GrPathRange*);
+    Clear*          recordClear(GrRenderTarget*);
+    CopySurface*    recordCopySurface(GrSurface* dst, GrSurface* src);
 
     virtual bool isIssued(uint32_t drawID) { return drawID != fDrawID; }
+    void addToCmdBuffer(uint8_t cmd);
 
     // TODO: Use a single allocator for commands and records
     enum {
-        kCmdBufferInitialSizeInBytes = 64 * 1024,
-        kGeoPoolStatePreAllocCnt     = 4,
+        kCmdPreallocCnt          = 32,
+        kDrawPreallocCnt         = 16,
+        kStencilPathPreallocCnt  = 8,
+        kDrawPathPreallocCnt     = 8,
+        kDrawPathsPreallocCnt    = 8,
+        kStatePreallocCnt        = 8,
+        kClipPreallocCnt         = 8,
+        kClearPreallocCnt        = 8,
+        kGeoPoolStatePreAllocCnt = 4,
+        kCopySurfacePreallocCnt  = 4,
     };
 
-    CmdBuffer                         fCmdBuffer;
-    GrDrawState*                      fLastState;
-    GrClipData*                       fLastClip;
+    typedef GrTAllocator<Draw>          DrawAllocator;
+    typedef GrTAllocator<StencilPath>   StencilPathAllocator;
+    typedef GrTAllocator<DrawPath>      DrawPathAllocator;
+    typedef GrTAllocator<DrawPaths>     DrawPathsAllocator;
+    typedef GrTAllocator<GrDrawState>   StateAllocator;
+    typedef GrTAllocator<Clear>         ClearAllocator;
+    typedef GrTAllocator<CopySurface>   CopySurfaceAllocator;
+    typedef GrTAllocator<Clip>          ClipAllocator;
 
-    SkTArray<GrTraceMarkerSet, false> fGpuCmdMarkers;
-    GrDrawTarget*                     fDstGpu;
-    bool                              fClipSet;
+    GrSTAllocator<kDrawPreallocCnt, Draw>               fDraws;
+    GrSTAllocator<kStencilPathPreallocCnt, StencilPath> fStencilPaths;
+    GrSTAllocator<kDrawPathPreallocCnt, DrawPath>       fDrawPath;
+    GrSTAllocator<kDrawPathsPreallocCnt, DrawPaths>     fDrawPaths;
+    GrSTAllocator<kStatePreallocCnt, GrDrawState>       fStates;
+    GrSTAllocator<kClearPreallocCnt, Clear>             fClears;
+    GrSTAllocator<kCopySurfacePreallocCnt, CopySurface> fCopySurfaces;
+    GrSTAllocator<kClipPreallocCnt, Clip>               fClips;
+
+    SkTArray<GrTraceMarkerSet, false>                   fGpuCmdMarkers;
+    SkSTArray<kCmdPreallocCnt, uint8_t, true>           fCmds;
+    GrDrawTarget*                                       fDstGpu;
+    bool                                                fClipSet;
 
     enum ClipProxyState {
         kUnknown_ClipProxyState,
