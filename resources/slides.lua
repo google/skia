@@ -76,25 +76,35 @@ end
 
 gSlides = parse_file(io.open("/skia/trunk/resources/slides_content.lua", "r"))
 
-function make_paint(size, color)
+function make_rect(l, t, r, b)
+    return { left = l, top = t, right = r, bottom = b }
+end
+
+function make_paint(typefacename, stylebits, size, color)
     local paint = Sk.newPaint();
     paint:setAntiAlias(true)
     paint:setSubpixelText(true)
+    paint:setTypeface(Sk.newTypeface(typefacename, stylebits))
     paint:setTextSize(size)
     paint:setColor(color)
     return paint
 end
 
-function drawSlide(canvas, slide, template, paints)
+function drawSlide(canvas, slide, template)
+    template = template.slide   -- need to sniff the slide to know if we're title or slide
+
+    local x = template.margin_x
+    local y = template.margin_y
+
     local scale = 1.15
-    local y = 0
     for i = 1, #slide do
         local node = slide[i]
-        local temp = template[node.indent + 1]
-        local paint = paints[node.indent + 1]
+        local paint = template[node.indent + 1]
         local fm = paint:getFontMetrics()
+        local x_offset = -fm.ascent * node.indent
+
         y = y - fm.ascent * scale
-        canvas:drawText(node.text, temp.x, y, paint)
+        canvas:drawText(node.text, x + x_offset, y, paint)
         y = y + fm.descent * scale
     end
 end
@@ -171,17 +181,31 @@ end
 
 --------------------------------------------------------------------------------------
 
-gTemplate = {
-    { x = 10, textSize = 40, bullet = "" },
-    { x = 40, textSize = 30, bullet = "\xE2\x80\xA2" },
-    { x = 70, textSize = 20, bullet = "\xE2\x97\xA6" },
-}
+function SkiaPoint_make_template()
+    local title = {
+        margin_x = 30,
+        margin_y = 100,
+    }
+    title[1] = make_paint("Arial", 1, 50, { a=1, r=0, g=0, b=0 })
+    title[1]:setTextAlign("center")
+    title[2] = make_paint("Arial", 1, 25, { a=1, r=.3, g=.3, b=.3 })
+    title[2]:setTextAlign("center")
 
-gPaints = {
-    make_paint(gTemplate[1].textSize, { a=1, r=0, g=0, b=0 } ),
-    make_paint(gTemplate[2].textSize, { a=1, r=1, g=0, b=0 } ),
-    make_paint(gTemplate[3].textSize, { a=1, r=0, g=1, b=0 } ),
-}
+    local slide = {
+        margin_x = 20,
+        margin_y = 30,
+    }
+    slide[1] = make_paint("Arial", 1, 36, { a=1, r=0, g=0, b=0 })
+    slide[2] = make_paint("Arial", 0, 30, { a=1, r=0, g=0, b=0 })
+    slide[3] = make_paint("Arial", 0, 24, { a=1, r=.2, g=.2, b=.2 })
+
+    return {
+        title = title,
+        slide = slide,
+    }
+end
+
+gTemplate = SkiaPoint_make_template()
 
 gRedPaint = Sk.newPaint()
 gRedPaint:setAntiAlias(true)
@@ -253,10 +277,10 @@ function spawn_transition(prevSlide, nextSlide, is_forward)
 
     local rec = Sk.newPictureRecorder()
 
-    drawSlide(rec:beginRecording(640, 480), prevSlide, gTemplate, gPaints)
+    drawSlide(rec:beginRecording(640, 480), prevSlide, gTemplate)
     local prevDrawable = new_drawable_picture(rec:endRecording())
 
-    drawSlide(rec:beginRecording(640, 480), nextSlide, gTemplate, gPaints)
+    drawSlide(rec:beginRecording(640, 480), nextSlide, gTemplate)
     local nextDrawable = new_drawable_picture(rec:endRecording())
 
     gCurrAnimation = transition(prevDrawable, nextDrawable, is_forward)
@@ -313,9 +337,13 @@ function spawn_scale_animation()
     }
 end
 
-function onDrawContent(canvas)
+function onDrawContent(canvas, width, height)
+    local matrix = Sk.newMatrix()
+    matrix:setRectToRect(make_rect(0, 0, 640, 480), make_rect(0, 0, width, height), "center")
+    canvas:concat(matrix)
+
     local drawSlideProc = function(canvas)
-        drawSlide(canvas, gSlides[gSlideIndex], gTemplate, gPaints)
+        drawSlide(canvas, gSlides[gSlideIndex], gTemplate)
     end
 
     if gCurrAnimation then

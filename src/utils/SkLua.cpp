@@ -627,6 +627,11 @@ static int lcanvas_rotate(lua_State* L) {
     return 0;
 }
 
+static int lcanvas_concat(lua_State* L) {
+    get_ref<SkCanvas>(L, 1)->concat(*get_obj<SkMatrix>(L, 2));
+    return 0;
+}
+
 static int lcanvas_newSurface(lua_State* L) {
     int width = lua2int_def(L, 2, 0);
     int height = lua2int_def(L, 2, 0);
@@ -668,6 +673,7 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
     { "scale", lcanvas_scale },
     { "translate", lcanvas_translate },
     { "rotate", lcanvas_rotate },
+    { "concat", lcanvas_concat },
 
     { "newSurface", lcanvas_newSurface },
 
@@ -1182,12 +1188,44 @@ static int lmatrix_getTranslateY(lua_State* L) {
     return 1;
 }
 
+static int lmatrix_setRectToRect(lua_State* L) {
+    SkMatrix* matrix = get_obj<SkMatrix>(L, 1);
+    SkRect srcR, dstR;
+    lua2rect(L, 2, &srcR);
+    lua2rect(L, 3, &dstR);
+    const char* scaleToFitStr = lua_tostring(L, 4);
+    SkMatrix::ScaleToFit scaleToFit = SkMatrix::kFill_ScaleToFit;
+
+    if (scaleToFitStr) {
+        const struct {
+            const char* fName;
+            SkMatrix::ScaleToFit fScaleToFit;
+        } rec[] = {
+            { "fill",   SkMatrix::kFill_ScaleToFit },
+            { "start",  SkMatrix::kStart_ScaleToFit },
+            { "center", SkMatrix::kCenter_ScaleToFit },
+            { "end",    SkMatrix::kEnd_ScaleToFit },
+        };
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
+            if (strcmp(rec[i].fName, scaleToFitStr) == 0) {
+                scaleToFit = rec[i].fScaleToFit;
+                break;
+            }
+        }
+    }
+
+    matrix->setRectToRect(srcR, dstR, scaleToFit);
+    return 0;
+}
+
 static const struct luaL_Reg gSkMatrix_Methods[] = {
     { "getType", lmatrix_getType },
     { "getScaleX", lmatrix_getScaleX },
     { "getScaleY", lmatrix_getScaleY },
     { "getTranslateX", lmatrix_getTranslateX },
     { "getTranslateY", lmatrix_getTranslateY },
+    { "setRectToRect", lmatrix_setRectToRect },
     { NULL, NULL }
 };
 
@@ -1650,6 +1688,11 @@ static int lsk_newDocumentPDF(lua_State* L) {
     }
 }
 
+static int lsk_newMatrix(lua_State* L) {
+    push_new<SkMatrix>(L)->reset();
+    return 1;
+}
+
 static int lsk_newPaint(lua_State* L) {
     push_new<SkPaint>(L);
     return 1;
@@ -1666,8 +1709,7 @@ static int lsk_newPictureRecorder(lua_State* L) {
 }
 
 static int lsk_newRRect(lua_State* L) {
-    SkRRect* rr = push_new<SkRRect>(L);
-    rr->setEmpty();
+    push_new<SkRRect>(L)->setEmpty();
     return 1;
 }
 
@@ -1734,6 +1776,7 @@ static void register_Sk(lua_State* L) {
 
     setfield_function(L, "newDocumentPDF", lsk_newDocumentPDF);
     setfield_function(L, "loadImage", lsk_loadImage);
+    setfield_function(L, "newMatrix", lsk_newMatrix);
     setfield_function(L, "newPaint", lsk_newPaint);
     setfield_function(L, "newPath", lsk_newPath);
     setfield_function(L, "newPictureRecorder", lsk_newPictureRecorder);

@@ -100,12 +100,6 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
-        SkMatrix matrix;
-        matrix.setRectToRect(SkRect::MakeWH(640, 480),
-                             SkRect::MakeWH(this->width(), this->height()),
-                             SkMatrix::kCenter_ScaleToFit);
-        canvas->concat(matrix);
-
         lua_State* L = this->ensureLua();
 
         lua_getglobal(L, gDrawName);
@@ -117,7 +111,9 @@ protected:
             // does it make sense to try to "cache" the lua version of this
             // canvas between draws?
             fLua->pushCanvas(canvas);
-            if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
+            fLua->pushScalar(this->width());
+            fLua->pushScalar(this->height());
+            if (lua_pcall(L, 3, 1, 0) != LUA_OK) {
                 SkDebugf("lua err: %s\n", lua_tostring(L, -1));
             } else {
                 if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
