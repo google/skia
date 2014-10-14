@@ -14,13 +14,27 @@ struct SkDeviceProperties {
     enum InitType {
         kLegacyLCD_InitType
     };
-    SkDeviceProperties(InitType) : fPixelGeometry(SkSurfacePropsDefaultPixelGeometry()) {}
-    SkDeviceProperties(SkPixelGeometry geo) : fPixelGeometry(geo) {}
 
+    SkDeviceProperties(InitType, float gamma = SK_GAMMA_EXPONENT)
+        : fGamma(gamma)
+        , fPixelGeometry(SkSurfacePropsDefaultPixelGeometry())
+    {}
+
+    SkDeviceProperties(SkPixelGeometry geo, float gamma = SK_GAMMA_EXPONENT)
+        : fGamma(gamma)
+        , fPixelGeometry(geo)
+    {}
+
+    SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
+    float gamma() const { return fGamma; }
+
+    void setPixelGeometry(SkPixelGeometry geo) {
+        fPixelGeometry = geo;
+    }
+
+private:
+    const float   fGamma;
     SkPixelGeometry fPixelGeometry;
-
-    // read-only attribute -- until we actually store a value (future CL)
-    float getGamma() const { return SK_GAMMA_EXPONENT; }
 };
 
 #endif

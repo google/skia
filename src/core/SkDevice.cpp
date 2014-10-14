@@ -58,7 +58,7 @@ const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
 }
 
 void SkBaseDevice::setPixelGeometry(SkPixelGeometry geo) {
-    fLeakyProperties->fPixelGeometry = geo;
+    fLeakyProperties->setPixelGeometry(geo);
 }
 
 SkSurface* SkBaseDevice::newSurface(const SkImageInfo&, const SkSurfaceProps&) { return NULL; }
