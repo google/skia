@@ -222,6 +222,10 @@ public:
 
     SkDEBUGCODE(void validate() const;)
 
+#ifdef SK_DEVELOPER
+    void writeLayersToDisk(const SkString& dirName);
+#endif
+
 private:
     static const int kAtlasTextureWidth = 1024;
     static const int kAtlasTextureHeight = 1024;

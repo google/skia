@@ -8,6 +8,7 @@
 #include "GrAtlas.h"
 #include "GrGpu.h"
 #include "GrLayerCache.h"
+#include "GrSurfacePriv.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrPictureDeletedMessage);
 
@@ -434,3 +435,33 @@ void GrLayerCache::processDeletedPictures() {
     }
 }
 
+#ifdef SK_DEVELOPER
+void GrLayerCache::writeLayersToDisk(const SkString& dirName) {
+
+    GrTexture* atlasTexture = fAtlas->getTexture();
+    if (NULL != atlasTexture) {
+        SkString fileName(dirName);
+        fileName.append("\\atlas.png");
+
+        atlasTexture->surfacePriv().savePixels(fileName.c_str());
+    }
+
+    SkTDynamicHash<GrCachedLayer, GrCachedLayer::Key>::Iter iter(&fLayerHash);
+    for (; !iter.done(); ++iter) {
+        GrCachedLayer* layer = &(*iter);
+
+        if (layer->isAtlased() || !layer->texture()) {
+            continue;
+        }
+
+        SkString fileName(dirName);
+        fileName.append("\\");
+        fileName.appendU32(layer->fKey.pictureID());
+        fileName.append("-");
+        fileName.appendU32(layer->fKey.start());
+        fileName.append(".png");
+
+        layer->texture()->surfacePriv().savePixels(fileName.c_str());
+    }
+}
+#endif
