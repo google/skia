@@ -269,18 +269,18 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     bounds.offset(-srcOffset);
     SkMatrix matrix(ctx.ctm());
     matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    this->asFragmentProcessor(&fp, srcTexture, matrix, bounds);
-    SkASSERT(fp);
-    GrPaint paint;
-    paint.addColorProcessor(fp)->unref();
-    context->drawRectToRect(paint, dstRect, srcRect);
+    if (this->asFragmentProcessor(&fp, srcTexture, matrix, bounds)) {
+        SkASSERT(fp);
+        GrPaint paint;
+        paint.addColorProcessor(fp)->unref();
+        context->drawRectToRect(paint, dstRect, srcRect);
 
-    SkAutoTUnref<GrTexture> resultTex(dst.detach());
-    WrapTexture(resultTex, bounds.width(), bounds.height(), result);
-    return true;
-#else
-    return false;
+        SkAutoTUnref<GrTexture> resultTex(dst.detach());
+        WrapTexture(resultTex, bounds.width(), bounds.height(), result);
+        return true;
+    }
 #endif
+    return false;
 }
 
 bool SkImageFilter::applyCropRect(const Context& ctx, const SkBitmap& src,

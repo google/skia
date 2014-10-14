@@ -587,11 +587,13 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     // size of the internal format whenever possible and so only use a sized internal format when
     // using texture storage.
     bool useSizedFormat = useTexStorage;
-    // At least some versions of the desktop ES3 drivers for NVIDIA won't accept GL_RED in
+    // At least some versions of the ES3 drivers for NVIDIA and IMG won't accept GL_RED in
     // glTexImage2D for the internal format but will accept GL_R8.
-    if (!useSizedFormat && kNVIDIA_GrGLVendor == this->glContext().vendor() &&
-        kGLES_GrGLStandard == this->glStandard() && this->glVersion() >= GR_GL_VER(3, 0)) {
-        useSizedFormat = true;
+    if (kNVIDIA_GrGLVendor == this->glContext().vendor() ||
+        kImagination_GrGLVendor == this->glContext().vendor()) {
+        if (kGLES_GrGLStandard == this->glStandard() && this->glVersion() >= GR_GL_VER(3, 0)) {
+           useSizedFormat = true;
+        }
     }
     if (!this->configToGLFormats(dataConfig, useSizedFormat, &internalFormat,
                                  &externalFormat, &externalType)) {
