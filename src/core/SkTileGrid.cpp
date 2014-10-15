@@ -62,12 +62,12 @@ void SkTileGrid::commonAdjust(SkRect* rect) const {
     rect->fBottom -= SK_ScalarNearlyZero;
 }
 
-// Convert user-space bounds to grid tiles they cover (LT inclusive, RB exclusive).
+// Convert user-space bounds to grid tiles they cover (LT and RB both inclusive).
 void SkTileGrid::userToGrid(const SkRect& user, SkIRect* grid) const {
     grid->fLeft   = SkPin32(user.left()   * fInvWidth , 0, fXTiles - 1);
     grid->fTop    = SkPin32(user.top()    * fInvHeight, 0, fYTiles - 1);
-    grid->fRight  = SkPin32(user.right()  * fInvWidth , 0, fXTiles - 1) + 1;
-    grid->fBottom = SkPin32(user.bottom() * fInvHeight, 0, fYTiles - 1) + 1;
+    grid->fRight  = SkPin32(user.right()  * fInvWidth , 0, fXTiles - 1);
+    grid->fBottom = SkPin32(user.bottom() * fInvHeight, 0, fYTiles - 1);
 }
 
 void SkTileGrid::insert(unsigned opIndex, const SkRect& originalBounds, bool) {
@@ -84,8 +84,8 @@ void SkTileGrid::insert(unsigned opIndex, const SkRect& originalBounds, bool) {
     SkIRect grid;
     this->userToGrid(bounds, &grid);
 
-    for (int y = grid.fTop; y < grid.fBottom; y++) {
-        for (int x = grid.fLeft; x < grid.fRight; x++) {
+    for (int y = grid.fTop; y <= grid.fBottom; y++) {
+        for (int x = grid.fLeft; x <= grid.fRight; x++) {
             fTiles[y * fXTiles + x].push(opIndex);
         }
     }
@@ -115,7 +115,7 @@ void SkTileGrid::search(const SkRect& originalQuery, SkTDArray<unsigned>* result
     SkIRect grid;
     this->userToGrid(query, &grid);
 
-    const int tilesHit = (grid.fRight - grid.fLeft) * (grid.fBottom - grid.fTop);
+    const int tilesHit = (grid.fRight - grid.fLeft + 1) * (grid.fBottom - grid.fTop + 1);
     SkASSERT(tilesHit > 0);
 
     if (tilesHit == 1) {
@@ -130,8 +130,8 @@ void SkTileGrid::search(const SkRect& originalQuery, SkTDArray<unsigned>* result
     // Gather pointers to the starts and ends of the tiles to merge.
     SkAutoSTArray<kStackAllocationTileCount, const unsigned*> starts(tilesHit), ends(tilesHit);
     int i = 0;
-    for (int y = grid.fTop; y < grid.fBottom; y++) {
-        for (int x = grid.fLeft; x < grid.fRight; x++) {
+    for (int y = grid.fTop; y <= grid.fBottom; y++) {
+        for (int x = grid.fLeft; x <= grid.fRight; x++) {
             starts[i] = fTiles[y * fXTiles + x].begin();
             ends[i]   = fTiles[y * fXTiles + x].end();
             i++;
