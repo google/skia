@@ -144,7 +144,7 @@ func init() {
 		glog.Fatal(err)
 	}
 	if err := os.Chdir(cwd); err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 
 	codeTemplate = template.Must(template.ParseFiles(filepath.Join(cwd, "templates/template.cpp")))
