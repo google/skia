@@ -126,10 +126,10 @@
  * Defaults to 1 in DEBUG and 0 in RELEASE.
  */
 #ifndef SK_ENABLE_INST_COUNT
-#  ifdef SK_DEBUG
 // Only enabled for static builds, because instance counting relies on static
 // variables in functions defined in header files.
-#    define SK_ENABLE_INST_COUNT !defined(SKIA_DLL)
+#  if defined(SK_DEBUG) && !defined(SKIA_DLL)
+#    define SK_ENABLE_INST_COUNT 1
 #  else
 #    define SK_ENABLE_INST_COUNT 0
 #  endif
