@@ -352,7 +352,7 @@ public:
     static const char* Name() { return "DisplacementMap"; }
 
 private:
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -479,7 +479,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {
 }
 
-bool GrDisplacementMapEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrDisplacementMapEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrDisplacementMapEffect& s = sBase.cast<GrDisplacementMapEffect>();
     return fDisplacementAccess.getTexture() == s.fDisplacementAccess.getTexture() &&
            fColorAccess.getTexture() == s.fColorAccess.getTexture() &&

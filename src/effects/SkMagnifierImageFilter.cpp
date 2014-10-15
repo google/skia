@@ -72,7 +72,7 @@ private:
         , fXInvInset(xInvInset)
         , fYInvInset(yInvInset) {}
 
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -216,7 +216,7 @@ const GrBackendFragmentProcessorFactory& GrMagnifierEffect::getFactory() const {
     return GrTBackendFragmentProcessorFactory<GrMagnifierEffect>::getInstance();
 }
 
-bool GrMagnifierEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMagnifierEffect& s = sBase.cast<GrMagnifierEffect>();
     return (this->texture(0) == s.texture(0) &&
             this->fXOffset == s.fXOffset &&

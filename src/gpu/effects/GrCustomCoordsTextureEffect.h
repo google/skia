@@ -37,7 +37,7 @@ public:
 private:
     GrCustomCoordsTextureEffect(GrTexture* texture, const GrTextureParams& params);
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 

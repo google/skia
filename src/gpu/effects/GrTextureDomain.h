@@ -173,7 +173,7 @@ private:
                           GrTextureParams::FilterMode,
                           GrCoordSet);
 
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 

@@ -232,7 +232,7 @@ public:
     };
 
 private:
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     GrColorCubeEffect(GrTexture* colorCube);
 
@@ -254,7 +254,7 @@ GrColorCubeEffect::GrColorCubeEffect(GrTexture* colorCube)
 GrColorCubeEffect::~GrColorCubeEffect() {
 }
 
-bool GrColorCubeEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrColorCubeEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrColorCubeEffect& s = sBase.cast<GrColorCubeEffect>();
     return fColorCubeAccess.getTexture() == s.fColorCubeAccess.getTexture();
 }

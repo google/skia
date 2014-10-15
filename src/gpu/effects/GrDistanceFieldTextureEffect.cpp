@@ -196,7 +196,7 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrTexture* texture,
 #endif
 }
 
-bool GrDistanceFieldTextureEffect::onIsEqual(const GrProcessor& other) const {
+bool GrDistanceFieldTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const GrDistanceFieldTextureEffect& cte = other.cast<GrDistanceFieldTextureEffect>();
     return fTextureAccess == cte.fTextureAccess &&
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -379,7 +379,7 @@ GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(GrTextu
     this->addTextureAccess(&fTextureAccess);
 }
 
-bool GrDistanceFieldNoGammaTextureEffect::onIsEqual(const GrProcessor& other) const {
+bool GrDistanceFieldNoGammaTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const GrDistanceFieldNoGammaTextureEffect& cte = 
                                                  other.cast<GrDistanceFieldNoGammaTextureEffect>();
     return fTextureAccess == cte.fTextureAccess && fFlags == cte.fFlags;
@@ -628,7 +628,7 @@ GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
     this->addTextureAccess(&fGammaTextureAccess);
 }
 
-bool GrDistanceFieldLCDTextureEffect::onIsEqual(const GrProcessor& other) const {
+bool GrDistanceFieldLCDTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const GrDistanceFieldLCDTextureEffect& cte = other.cast<GrDistanceFieldLCDTextureEffect>();
     return (fTextureAccess == cte.fTextureAccess &&
             fGammaTextureAccess == cte.fGammaTextureAccess &&

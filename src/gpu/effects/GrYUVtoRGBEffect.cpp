@@ -102,7 +102,7 @@ private:
         this->setWillNotUseInputColor();
     }
 
-    virtual bool onIsEqual(const GrProcessor& sBase) const {
+    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const {
         const YUVtoRGBEffect& s = sBase.cast<YUVtoRGBEffect>();
         return fYAccess.getTexture() == s.fYAccess.getTexture() &&
                fUAccess.getTexture() == s.fUAccess.getTexture() &&

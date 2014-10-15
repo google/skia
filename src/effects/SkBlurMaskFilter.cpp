@@ -590,7 +590,7 @@ public:
 
 private:
     GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blur_profile);
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -760,7 +760,7 @@ const GrBackendFragmentProcessorFactory& GrRectBlurEffect::getFactory() const {
     return GrTBackendFragmentProcessorFactory<GrRectBlurEffect>::getInstance();
 }
 
-bool GrRectBlurEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrRectBlurEffect& s = sBase.cast<GrRectBlurEffect>();
     return this->getSigma() == s.getSigma() && this->getRect() == s.getRect();
 }
@@ -841,7 +841,7 @@ public:
 private:
     GrRRectBlurEffect(float sigma, const SkRRect&, GrTexture* profileTexture);
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -944,7 +944,7 @@ GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTextur
     this->setWillReadFragmentPosition();
 }
 
-bool GrRRectBlurEffect::onIsEqual(const GrProcessor& other) const {
+bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRRectBlurEffect& rrbe = other.cast<GrRRectBlurEffect>();
     return fRRect.getSimpleRadii().fX == rrbe.fRRect.getSimpleRadii().fX && fSigma == rrbe.fSigma;
 }

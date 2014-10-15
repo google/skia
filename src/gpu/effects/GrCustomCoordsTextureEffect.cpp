@@ -67,7 +67,7 @@ GrCustomCoordsTextureEffect::GrCustomCoordsTextureEffect(GrTexture* texture,
     this->addTextureAccess(&fTextureAccess);
 }
 
-bool GrCustomCoordsTextureEffect::onIsEqual(const GrProcessor& other) const {
+bool GrCustomCoordsTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const GrCustomCoordsTextureEffect& cte = other.cast<GrCustomCoordsTextureEffect>();
     return fTextureAccess == cte.fTextureAccess;
 }

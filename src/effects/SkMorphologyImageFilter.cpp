@@ -315,7 +315,7 @@ protected:
     MorphologyType fType;
 
 private:
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -448,7 +448,7 @@ const GrBackendFragmentProcessorFactory& GrMorphologyEffect::getFactory() const 
     return GrTBackendFragmentProcessorFactory<GrMorphologyEffect>::getInstance();
 }
 
-bool GrMorphologyEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMorphologyEffect& s = sBase.cast<GrMorphologyEffect>();
     return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&

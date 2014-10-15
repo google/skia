@@ -200,7 +200,7 @@ const GrBackendFragmentProcessorFactory& GrConvolutionEffect::getFactory() const
     return GrTBackendFragmentProcessorFactory<GrConvolutionEffect>::getInstance();
 }
 
-bool GrConvolutionEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrConvolutionEffect& s = sBase.cast<GrConvolutionEffect>();
     return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&

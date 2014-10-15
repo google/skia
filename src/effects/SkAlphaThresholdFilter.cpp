@@ -100,7 +100,7 @@ private:
         this->addTextureAccess(&fMaskTextureAccess);
     }
 
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -221,7 +221,7 @@ const GrBackendFragmentProcessorFactory& AlphaThresholdEffect::getFactory() cons
     return GrTBackendFragmentProcessorFactory<AlphaThresholdEffect>::getInstance();
 }
 
-bool AlphaThresholdEffect::onIsEqual(const GrProcessor& sBase) const {
+bool AlphaThresholdEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const AlphaThresholdEffect& s = sBase.cast<AlphaThresholdEffect>();
     return (this->texture(0) == s.texture(0) &&
             this->fInnerThreshold == s.fInnerThreshold &&

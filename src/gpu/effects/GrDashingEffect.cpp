@@ -461,7 +461,7 @@ public:
 private:
     DashingCircleEffect(GrPrimitiveEdgeType edgeType, const DashInfo& info, SkScalar radius);
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -605,7 +605,7 @@ DashingCircleEffect::DashingCircleEffect(GrPrimitiveEdgeType edgeType, const Das
     fCenterX = SkScalarHalf(offLen);
 }
 
-bool DashingCircleEffect::onIsEqual(const GrProcessor& other) const {
+bool DashingCircleEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const DashingCircleEffect& dce = other.cast<DashingCircleEffect>();
     return (fEdgeType == dce.fEdgeType &&
             fIntervalLength == dce.fIntervalLength &&
@@ -673,7 +673,7 @@ public:
 private:
     DashingLineEffect(GrPrimitiveEdgeType edgeType, const DashInfo& info, SkScalar strokeWidth);
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -829,7 +829,7 @@ DashingLineEffect::DashingLineEffect(GrPrimitiveEdgeType edgeType, const DashInf
     fRect.set(halfOffLen, -halfStroke, halfOffLen + onLen, halfStroke);
 }
 
-bool DashingLineEffect::onIsEqual(const GrProcessor& other) const {
+bool DashingLineEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const DashingLineEffect& de = other.cast<DashingLineEffect>();
     return (fEdgeType == de.fEdgeType &&
             fRect == de.fRect &&

@@ -421,7 +421,7 @@ public:
 private:
     ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {}
 
-    virtual bool onIsEqual(const GrProcessor& s) const {
+    virtual bool onIsEqual(const GrFragmentProcessor& s) const {
         const ColorMatrixEffect& cme = s.cast<ColorMatrixEffect>();
         return cme.fMatrix == fMatrix;
     }

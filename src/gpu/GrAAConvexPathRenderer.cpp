@@ -584,7 +584,7 @@ private:
                                                         GrShaderVar::kAttribute_TypeModifier))) {
     }
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
         return true;
     }
 

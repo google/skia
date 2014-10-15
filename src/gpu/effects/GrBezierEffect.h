@@ -102,7 +102,7 @@ public:
 private:
     GrConicEffect(GrPrimitiveEdgeType);
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();
@@ -174,7 +174,7 @@ public:
 private:
     GrQuadEffect(GrPrimitiveEdgeType);
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();
@@ -248,7 +248,7 @@ public:
 private:
     GrCubicEffect(GrPrimitiveEdgeType);
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();

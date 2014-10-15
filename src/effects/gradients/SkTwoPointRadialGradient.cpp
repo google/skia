@@ -473,7 +473,7 @@ public:
     typedef GrGLRadial2Gradient GLProcessor;
 
 private:
-    virtual bool onIsEqual(const GrProcessor& sBase) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
         const GrRadial2Gradient& s = sBase.cast<GrRadial2Gradient>();
         return (INHERITED::onIsEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&

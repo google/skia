@@ -95,7 +95,7 @@ private:
                         bool useBounds,
                         float bounds[2]);
 
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const {
         // If the texture was opaque we could know that the output color if we knew the sum of the

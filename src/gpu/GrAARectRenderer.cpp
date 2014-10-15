@@ -105,7 +105,7 @@ private:
 
     const GrShaderVar& fInRect;
 
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
+    virtual bool onIsEqual(const GrGeometryProcessor&) const SK_OVERRIDE { return true; }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();
@@ -249,7 +249,7 @@ private:
         this->setWillReadFragmentPosition();
     }
 
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
+    virtual bool onIsEqual(const GrGeometryProcessor&) const SK_OVERRIDE { return true; }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();

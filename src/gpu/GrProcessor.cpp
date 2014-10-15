@@ -117,7 +117,7 @@ void GrProcessor::operator delete(void* target) {
 }
 
 #ifdef SK_DEBUG
-void GrProcessor::assertEquality(const GrProcessor& other) const {
+void GrProcessor::assertTexturesEqual(const GrProcessor& other) const {
     SkASSERT(this->numTextures() == other.numTextures());
     for (int i = 0; i < this->numTextures(); ++i) {
         SkASSERT(this->textureAccess(i) == other.textureAccess(i));

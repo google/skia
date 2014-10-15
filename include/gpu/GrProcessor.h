@@ -175,27 +175,6 @@ public:
      */
     virtual const GrBackendProcessorFactory& getFactory() const = 0;
 
-    /** Returns true if this and other effect conservatively draw identically. It can only return
-        true when the two effects are of the same subclass (i.e. they return the same object from
-        from getFactory()).
-
-        A return value of true from isEqual() should not be used to test whether the effects would
-        generate the same shader code. To test for identical code generation use the effects' keys
-        computed by the GrBackendEffectFactory.
-     */
-    bool isEqual(const GrProcessor& other) const {
-        if (&this->getFactory() != &other.getFactory()) {
-            return false;
-        }
-        bool result = this->onIsEqual(other);
-#ifdef SK_DEBUG
-        if (result) {
-            this->assertEquality(other);
-        }
-#endif
-        return result;
-    }
-
     /** Human-meaningful string to identify this effect; may be embedded
         in generated shader code. */
     const char* name() const;
@@ -246,13 +225,9 @@ protected:
      */
     void setWillReadFragmentPosition() { fWillReadFragmentPosition = true; }
 
-private:
-    SkDEBUGCODE(void assertEquality(const GrProcessor& other) const;)
+    SkDEBUGCODE(void assertTexturesEqual(const GrProcessor& other) const;)
 
-    /** Subclass implements this to support isEqual(). It will only be called if it is known that
-        the two effects are of the same subclass (i.e. they return the same object from
-        getFactory()).*/
-    virtual bool onIsEqual(const GrProcessor& other) const = 0;
+private:
 
     /** 
      * Subclass implements this to support getConstantColorComponents(...).
@@ -286,6 +261,26 @@ public:
     /** Will this effect read the source color value? */
     bool willUseInputColor() const { return fWillUseInputColor; }
 
+    /** Returns true if this and other effect conservatively draw identically. It can only return
+        true when the two effects are of the same subclass (i.e. they return the same object from
+        from getFactory()).
+
+        A return value of true from isEqual() should not be used to test whether the effects would
+        generate the same shader code. To test for identical code generation use the effects' keys
+        computed by the GrBackendEffectFactory. */
+    bool isEqual(const GrFragmentProcessor& other) const {
+        if (&this->getFactory() != &other.getFactory()) {
+            return false;
+        }
+        bool result = this->onIsEqual(other);
+#ifdef SK_DEBUG
+        if (result) {
+            this->assertTexturesEqual(other);
+        }
+#endif
+        return result;
+    }
+
 protected:
     /**
      * Fragment Processor subclasses call this from their constructor to register coordinate
@@ -312,6 +307,11 @@ protected:
     void setWillNotUseInputColor() { fWillUseInputColor = false; }
 
 private:
+    /** Subclass implements this to support isEqual(). It will only be called if it is known that
+        the two effects are of the same subclass (i.e. they return the same object from
+        getFactory()).*/
+    virtual bool onIsEqual(const GrFragmentProcessor& other) const = 0;
+
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
     bool                                         fWillReadDstColor;
     bool                                         fWillUseInputColor;

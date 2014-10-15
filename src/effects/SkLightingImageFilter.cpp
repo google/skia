@@ -351,7 +351,7 @@ public:
     const SkMatrix& filterMatrix() const { return fFilterMatrix; }
 
 protected:
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         // lighting shaders are complicated. We just throw up our hands.
@@ -387,7 +387,7 @@ public:
     SkScalar kd() const { return fKD; }
 
 private:
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     GrDiffuseLightingEffect(GrTexture* texture,
                             const SkLight* light,
@@ -424,7 +424,7 @@ public:
     SkScalar shininess() const { return fShininess; }
 
 private:
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     GrSpecularLightingEffect(GrTexture* texture,
                              const SkLight* light,
@@ -1302,7 +1302,7 @@ GrLightingEffect::~GrLightingEffect() {
     fLight->unref();
 }
 
-bool GrLightingEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrLightingEffect& s = sBase.cast<GrLightingEffect>();
     return this->texture(0) == s.texture(0) &&
            fLight->isEqual(*s.fLight) &&
@@ -1323,7 +1323,7 @@ const GrBackendFragmentProcessorFactory& GrDiffuseLightingEffect::getFactory() c
     return GrTBackendFragmentProcessorFactory<GrDiffuseLightingEffect>::getInstance();
 }
 
-bool GrDiffuseLightingEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrDiffuseLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrDiffuseLightingEffect& s = sBase.cast<GrDiffuseLightingEffect>();
     return INHERITED::onIsEqual(sBase) &&
             this->kd() == s.kd();
@@ -1529,7 +1529,7 @@ const GrBackendFragmentProcessorFactory& GrSpecularLightingEffect::getFactory() 
     return GrTBackendFragmentProcessorFactory<GrSpecularLightingEffect>::getInstance();
 }
 
-bool GrSpecularLightingEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrSpecularLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrSpecularLightingEffect& s = sBase.cast<GrSpecularLightingEffect>();
     return INHERITED::onIsEqual(sBase) &&
            this->ks() == s.ks() &&

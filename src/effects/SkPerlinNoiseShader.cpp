@@ -573,7 +573,7 @@ public:
     typedef GrGLPerlinNoise GLProcessor;
 
 private:
-    virtual bool onIsEqual(const GrProcessor& sBase) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
         const GrPerlinNoiseEffect& s = sBase.cast<GrPerlinNoiseEffect>();
         return fType == s.fType &&
                fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency &&

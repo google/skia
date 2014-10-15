@@ -40,7 +40,7 @@ private:
     }
 
     // All dither effects are equal
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 

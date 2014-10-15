@@ -37,7 +37,7 @@ public:
 private:
     CircleEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar radius);
 
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -71,7 +71,7 @@ CircleEffect::CircleEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkSca
     this->setWillReadFragmentPosition();
 }
 
-bool CircleEffect::onIsEqual(const GrProcessor& other) const {
+bool CircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const CircleEffect& ce = other.cast<CircleEffect>();
     return fEdgeType == ce.fEdgeType && fCenter == ce.fCenter && fRadius == ce.fRadius;
 }
@@ -209,7 +209,7 @@ public:
 private:
     EllipseEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar rx, SkScalar ry);
 
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -245,7 +245,7 @@ EllipseEffect::EllipseEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkS
     this->setWillReadFragmentPosition();
 }
 
-bool EllipseEffect::onIsEqual(const GrProcessor& other) const {
+bool EllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const EllipseEffect& ee = other.cast<EllipseEffect>();
     return fEdgeType == ee.fEdgeType && fCenter == ee.fCenter && fRadii == ee.fRadii;
 }

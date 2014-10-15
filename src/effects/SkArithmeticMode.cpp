@@ -296,7 +296,7 @@ public:
     bool enforcePMColor() const { return fEnforcePMColor; }
 
 private:
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -330,7 +330,7 @@ GrArithmeticEffect::GrArithmeticEffect(float k1, float k2, float k3, float k4,
 GrArithmeticEffect::~GrArithmeticEffect() {
 }
 
-bool GrArithmeticEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrArithmeticEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrArithmeticEffect& s = sBase.cast<GrArithmeticEffect>();
     return fK1 == s.fK1 &&
            fK2 == s.fK2 &&

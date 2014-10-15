@@ -48,7 +48,7 @@ public:
 
 private:
     BigKeyProcessor() { }
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE { return true; }
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE { }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;

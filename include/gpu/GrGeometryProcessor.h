@@ -37,6 +37,19 @@ public:
 
     const VertexAttribArray& getVertexAttribs() const { return fVertexAttribs; }
 
+    bool isEqual(const GrGeometryProcessor& that) const {
+        if (&this->getFactory() != &that.getFactory()) {
+            return false;
+        }
+        bool result = this->onIsEqual(that);
+#ifdef SK_DEBUG
+        if (result) {
+            this->assertTexturesEqual(that);
+        }
+#endif
+        return result;
+    }
+
 protected:
     /**
      * Subclasses call this from their constructor to register vertex attributes (at most
@@ -49,6 +62,8 @@ protected:
     }
 
 private:
+    virtual bool onIsEqual(const GrGeometryProcessor&) const = 0;
+
     SkSTArray<kMaxVertexAttribs, GrShaderVar, true> fVertexAttribs;
 
     typedef GrProcessor INHERITED;

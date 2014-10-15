@@ -90,7 +90,7 @@ private:
                     const SkMatrix &matrix, const SkShader::TileMode tileModes[2]);
     GrBicubicEffect(GrTexture*, const SkScalar coefficients[16],
                     const SkMatrix &matrix, const SkRect& domain);
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 

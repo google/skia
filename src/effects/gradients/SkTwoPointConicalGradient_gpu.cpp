@@ -80,7 +80,7 @@ public:
     typedef GLEdge2PtConicalEffect GLProcessor;
 
 private:
-    virtual bool onIsEqual(const GrProcessor& sBase) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
         const Edge2PtConicalEffect& s = sBase.cast<Edge2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&
@@ -394,7 +394,7 @@ public:
     typedef GLFocalOutside2PtConicalEffect GLProcessor;
 
 private:
-    virtual bool onIsEqual(const GrProcessor& sBase) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
         const FocalOutside2PtConicalEffect& s = sBase.cast<FocalOutside2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
                 this->fFocalX == s.fFocalX &&
@@ -605,7 +605,7 @@ public:
     typedef GLFocalInside2PtConicalEffect GLProcessor;
 
 private:
-    virtual bool onIsEqual(const GrProcessor& sBase) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
         const FocalInside2PtConicalEffect& s = sBase.cast<FocalInside2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
                 this->fFocalX == s.fFocalX);
@@ -847,7 +847,7 @@ public:
     typedef GLCircleInside2PtConicalEffect GLProcessor;
 
 private:
-    virtual bool onIsEqual(const GrProcessor& sBase) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
         const CircleInside2PtConicalEffect& s = sBase.cast<CircleInside2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
                 this->fInfo.fCenterEnd == s.fInfo.fCenterEnd &&
@@ -1066,7 +1066,7 @@ public:
     typedef GLCircleOutside2PtConicalEffect GLProcessor;
 
 private:
-    virtual bool onIsEqual(const GrProcessor& sBase) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
         const CircleOutside2PtConicalEffect& s = sBase.cast<CircleOutside2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
                 this->fInfo.fCenterEnd == s.fInfo.fCenterEnd &&

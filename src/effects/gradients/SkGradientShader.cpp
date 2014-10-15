@@ -1180,7 +1180,7 @@ GrGradientEffect::~GrGradientEffect() {
     }
 }
 
-bool GrGradientEffect::onIsEqual(const GrProcessor& processor) const {
+bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
     const GrGradientEffect& s = processor.cast<GrGradientEffect>();
 
     if (this->fColorType == s.getColorType()){

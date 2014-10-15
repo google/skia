@@ -109,7 +109,7 @@ public:
     };
 
 private:
-    virtual bool onIsEqual(const GrProcessor&) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE {
         return true;
     }
 

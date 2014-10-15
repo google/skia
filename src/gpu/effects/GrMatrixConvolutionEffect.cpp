@@ -176,7 +176,7 @@ const GrBackendFragmentProcessorFactory& GrMatrixConvolutionEffect::getFactory()
     return GrTBackendFragmentProcessorFactory<GrMatrixConvolutionEffect>::getInstance();
 }
 
-bool GrMatrixConvolutionEffect::onIsEqual(const GrProcessor& sBase) const {
+bool GrMatrixConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMatrixConvolutionEffect& s = sBase.cast<GrMatrixConvolutionEffect>();
     return this->texture(0) == s.texture(0) &&
            fKernelSize == s.kernelSize() &&

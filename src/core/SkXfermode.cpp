@@ -1206,7 +1206,7 @@ private:
             this->setWillReadDstColor();
         }
     }
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
         const XferEffect& s = other.cast<XferEffect>();
         return fMode == s.fMode &&
                fBackgroundAccess.getTexture() == s.fBackgroundAccess.getTexture();

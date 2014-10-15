@@ -64,7 +64,7 @@ public:
 private:
     CircularRRectEffect(GrPrimitiveEdgeType, uint32_t circularCornerFlags, const SkRRect&);
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -102,7 +102,7 @@ CircularRRectEffect::CircularRRectEffect(GrPrimitiveEdgeType edgeType, uint32_t 
     this->setWillReadFragmentPosition();
 }
 
-bool CircularRRectEffect::onIsEqual(const GrProcessor& other) const {
+bool CircularRRectEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const CircularRRectEffect& crre = other.cast<CircularRRectEffect>();
     // The corner flags are derived from fRRect, so no need to check them.
     return fEdgeType == crre.fEdgeType && fRRect == crre.fRRect;
@@ -404,7 +404,7 @@ public:
 private:
     EllipticalRRectEffect(GrPrimitiveEdgeType, const SkRRect&);
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -438,7 +438,7 @@ EllipticalRRectEffect::EllipticalRRectEffect(GrPrimitiveEdgeType edgeType, const
     this->setWillReadFragmentPosition();
 }
 
-bool EllipticalRRectEffect::onIsEqual(const GrProcessor& other) const {
+bool EllipticalRRectEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const EllipticalRRectEffect& erre = other.cast<EllipticalRRectEffect>();
     return fEdgeType == erre.fEdgeType && fRRect == erre.fRRect;
 }

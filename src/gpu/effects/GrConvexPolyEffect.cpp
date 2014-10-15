@@ -38,7 +38,7 @@ private:
         this->setWillReadFragmentPosition();
     }
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
         const AARectEffect& aare = other.cast<AARectEffect>();
         return fRect == aare.fRect;
     }
@@ -348,7 +348,7 @@ GrConvexPolyEffect::GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, cons
     this->setWillReadFragmentPosition();
 }
 
-bool GrConvexPolyEffect::onIsEqual(const GrProcessor& other) const {
+bool GrConvexPolyEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrConvexPolyEffect& cpe = other.cast<GrConvexPolyEffect>();
     // ignore the fact that 0 == -0 and just use memcmp.
     return (cpe.fEdgeType == fEdgeType && cpe.fEdgeCount == fEdgeCount &&

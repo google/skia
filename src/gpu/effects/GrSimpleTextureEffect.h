@@ -68,7 +68,7 @@ private:
         : GrSingleTextureEffect(texture, matrix, params, coordSet) {
     }
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
         const GrSimpleTextureEffect& ste = other.cast<GrSimpleTextureEffect>();
         return this->hasSameTextureParamsMatrixAndSourceCoords(ste);
     }

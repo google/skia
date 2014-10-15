@@ -140,7 +140,7 @@ private:
         fStroke = stroke;
     }
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
         const CircleEdgeEffect& cee = other.cast<CircleEdgeEffect>();
         return cee.fStroke == fStroke;
     }
@@ -280,7 +280,7 @@ private:
         fStroke = stroke;
     }
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
         const EllipseEdgeEffect& eee = other.cast<EllipseEdgeEffect>();
         return eee.fStroke == fStroke;
     }
@@ -448,7 +448,7 @@ private:
         fMode = mode;
     }
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
         const DIEllipseEdgeEffect& eee = other.cast<DIEllipseEdgeEffect>();
         return eee.fMode == fMode;
     }

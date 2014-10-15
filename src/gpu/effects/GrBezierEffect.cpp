@@ -141,7 +141,7 @@ GrConicEffect::GrConicEffect(GrPrimitiveEdgeType edgeType)
                                                        GrShaderVar::kAttribute_TypeModifier))) {
 }
 
-bool GrConicEffect::onIsEqual(const GrProcessor& other) const {
+bool GrConicEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const GrConicEffect& ce = other.cast<GrConicEffect>();
     return (ce.fEdgeType == fEdgeType);
 }
@@ -279,7 +279,7 @@ GrQuadEffect::GrQuadEffect(GrPrimitiveEdgeType edgeType)
                                                         GrShaderVar::kAttribute_TypeModifier))) {
 }
 
-bool GrQuadEffect::onIsEqual(const GrProcessor& other) const {
+bool GrQuadEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const GrQuadEffect& ce = other.cast<GrQuadEffect>();
     return (ce.fEdgeType == fEdgeType);
 }
@@ -459,7 +459,7 @@ GrCubicEffect::GrCubicEffect(GrPrimitiveEdgeType edgeType)
                                                        GrShaderVar::kAttribute_TypeModifier))) {
 }
 
-bool GrCubicEffect::onIsEqual(const GrProcessor& other) const {
+bool GrCubicEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const GrCubicEffect& ce = other.cast<GrCubicEffect>();
     return (ce.fEdgeType == fEdgeType);
 }

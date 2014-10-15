@@ -286,7 +286,7 @@ private:
         }
     }
 
-    virtual bool onIsEqual(const GrProcessor& other) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
         const ModeColorFilterEffect& s = other.cast<ModeColorFilterEffect>();
         return fMode == s.fMode && fColor == s.fColor;
     }
