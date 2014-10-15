@@ -18,7 +18,7 @@
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "GrProcessor.h"
+#include "GrFragmentProcessor.h"
 #include "GrTBackendProcessorFactory.h"
 
 class GrGLDiffuseLightingEffect;

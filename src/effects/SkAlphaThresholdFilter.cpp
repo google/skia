@@ -48,7 +48,7 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrCoordTransform.h"
-#include "GrProcessor.h"
+#include "GrFragmentProcessor.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrTBackendProcessorFactory.h"

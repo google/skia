@@ -13,8 +13,7 @@
 
 #include "GrBackendProcessorFactory.h"
 #include "GrCoordTransform.h"
-#include "GrProcessor.h"
-#include "GrGeometryProcessor.h"
+#include "GrFragmentProcessor.h"
 #include "GrProgramElementRef.h"
 #include "SkMatrix.h"
 #include "SkShader.h"

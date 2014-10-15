@@ -123,7 +123,7 @@ SkFlattenable* SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "GrBlend.h"
-#include "GrProcessor.h"
+#include "GrFragmentProcessor.h"
 #include "GrProcessorUnitTest.h"
 #include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLProcessor.h"

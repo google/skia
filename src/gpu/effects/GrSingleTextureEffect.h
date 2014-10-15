@@ -8,7 +8,7 @@
 #ifndef GrSingleTextureEffect_DEFINED
 #define GrSingleTextureEffect_DEFINED
 
-#include "GrProcessor.h"
+#include "GrFragmentProcessor.h"
 #include "SkMatrix.h"
 #include "GrCoordTransform.h"
 

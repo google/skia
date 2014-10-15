@@ -10,7 +10,7 @@
 
 #include "GrContext.h"
 #include "GrContextFactory.h"
-#include "GrProcessor.h"
+#include "GrFragmentProcessor.h"
 #include "SkColorFilter.h"
 #include "SkGr.h"
 #include "Test.h"

@@ -9,7 +9,7 @@
 #define GrGeometryProcessor_DEFINED
 
 #include "GrProcessor.h"
-class GrBackendGeometryProcessorFactory;
+#include "GrShaderVar.h"
 
 /**
  * A GrGeomteryProcessor is used to perform computation in the vertex shader and
@@ -37,6 +37,12 @@ public:
 
     const VertexAttribArray& getVertexAttribs() const { return fVertexAttribs; }
 
+    /** Returns true if this and other effect conservatively draw identically. It can only return
+        true when the two effects are of the same subclass (i.e. they return the same object from
+        from getFactory()).
+        A return value of true from isEqual() should not be used to test whether the effects would
+        generate the same shader code. To test for identical code generation use the effects' keys
+        computed by the GrBackendEffectFactory. */
     bool isEqual(const GrGeometryProcessor& that) const {
         if (&this->getFactory() != &that.getFactory()) {
             return false;

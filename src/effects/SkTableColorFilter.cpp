@@ -275,7 +275,7 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
 
 #if SK_SUPPORT_GPU
 
-#include "GrProcessor.h"
+#include "GrFragmentProcessor.h"
 #include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"

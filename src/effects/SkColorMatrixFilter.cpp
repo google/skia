@@ -332,7 +332,7 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
 }
 
 #if SK_SUPPORT_GPU
-#include "GrProcessor.h"
+#include "GrFragmentProcessor.h"
 #include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"

@@ -298,6 +298,7 @@ static inline int next_dither_toggle16(int toggle) {
 #if SK_SUPPORT_GPU
 
 #include "GrCoordTransform.h"
+#include "GrFragmentProcessor.h"
 #include "gl/GrGLProcessor.h"
 
 class GrFragmentStage;

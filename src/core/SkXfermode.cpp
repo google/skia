@@ -775,7 +775,7 @@ void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 
 #if SK_SUPPORT_GPU
 
-#include "GrProcessor.h"
+#include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrProcessorUnitTest.h"
 #include "GrTBackendProcessorFactory.h"

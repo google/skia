@@ -17,6 +17,7 @@
       '<(skia_include_path)/gpu/GrContextFactory.h',
       '<(skia_include_path)/gpu/GrCoordTransform.h',
       '<(skia_include_path)/gpu/GrFontScaler.h',
+      '<(skia_include_path)/gpu/GrFragmentProcessor.h',
       '<(skia_include_path)/gpu/GrGlyph.h',
       '<(skia_include_path)/gpu/GrGpuResource.h',
       '<(skia_include_path)/gpu/GrPaint.h',
