@@ -47,6 +47,15 @@ public:
     */
     virtual Format getFormat() const;
 
+    /** If planes or rowBytes is NULL, decodes the header and computes componentSizes
+        for memory allocation.
+        Otherwise, decodes the YUV planes into the provided image planes and
+        updates componentSizes to the final image size.
+        Returns whether the decoding was successful.
+    */
+    bool decodeYUV8Planes(SkStream* stream, SkISize componentSizes[3], void* planes[3],
+                          size_t rowBytes[3], SkYUVColorSpace*);
+
     /** Return the format of the SkStreamRewindable or kUnknown_Format if it cannot be determined.
         Rewinds the stream before returning.
     */
@@ -336,6 +345,17 @@ protected:
     // If the decoder wants to support tiled based decoding,
     // this method must be overridden. This guy is called by decodeRegion(...)
     virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) {
+        return false;
+    }
+
+    /** If planes or rowBytes is NULL, decodes the header and computes componentSizes
+        for memory allocation.
+        Otherwise, decodes the YUV planes into the provided image planes and
+        updates componentSizes to the final image size.
+        Returns whether the decoding was successful.
+    */
+    virtual bool onDecodeYUV8Planes(SkStream* stream, SkISize componentSizes[3], void* planes[3],
+                                    size_t rowBytes[3], SkYUVColorSpace*) {
         return false;
     }
 
