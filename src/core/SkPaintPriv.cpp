@@ -76,14 +76,3 @@ bool isPaintOpaque(const SkPaint* paint,
     }
     return false;
 }
-
-bool NeedsDeepCopy(const SkPaint& paint) {
-    /*
-     *  The types below are not yet immutable/reentrant-safe, and so we return
-     *  true if instances of them are present in the paint.
-     *
-     *  Eventually we hope this list will be empty, and we can always return
-     *  false.
-     */
-    return paint.getImageFilter();
-}
