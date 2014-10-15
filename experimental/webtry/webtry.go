@@ -139,12 +139,13 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 
 	// Change the current working directory to the directory of the executable.
-	var err error
 	cwd, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatal(err)
 	}
-	os.Chdir(cwd)
+	if err := os.Chdir(cwd); err != nil {
+		log.Fatal(err)
+	}
 
 	codeTemplate = template.Must(template.ParseFiles(filepath.Join(cwd, "templates/template.cpp")))
 	gypTemplate = template.Must(template.ParseFiles(filepath.Join(cwd, "templates/template.gyp")))
