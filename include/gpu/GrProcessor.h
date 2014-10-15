@@ -153,15 +153,15 @@ public:
 
     /** This object, besides creating back-end-specific helper objects, is used for run-time-type-
         identification. The factory should be an instance of templated class,
-        GrTBackendEffectFactory. It is templated on the subclass of GrProcessor. The subclass must
-        have a nested type (or typedef) named GLProcessor which will be the subclass of
+        GrTBackendProcessorFactory. It is templated on the subclass of GrProcessor. The subclass
+        must have a nested type (or typedef) named GLProcessor which will be the subclass of
         GrGLProcessor created by the factory.
 
         Example:
         class MyCustomProcessor : public GrProcessor {
         ...
-            virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
-                return GrTBackendEffectFactory<MyCustomProcessor>::getInstance();
+            virtual const GrBackendProcessorFactory& getFactory() const SK_OVERRIDE {
+                return GrTBackendProcessorFactory<MyCustomProcessor>::getInstance();
             }
         ...
         };

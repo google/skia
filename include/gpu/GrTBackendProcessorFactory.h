@@ -11,49 +11,49 @@
 #include "GrBackendProcessorFactory.h"
 
 /**
- * Implements GrBackendEffectFactory for a GrProcessor subclass as a singleton. This can be used by
- * most GrProcessor subclasses to implement the GrProcessor::getFactory() method:
+ * Implements GrBackendProcessorFactory for a GrProcessor subclass as a singleton. This can be used
+ * by most GrProcessor subclasses to implement the GrProcessor::getFactory() method:
  *
- * const GrBackendEffectFactory& MyEffect::getFactory() const {
- *     return GrTBackendEffectFactory<MyEffect>::getInstance();
+ * const GrBackendProcessorFactory& MyProcessor::getFactory() const {
+ *     return GrTBackendProcessorFactory<MyProcessor>::getInstance();
  * }
  *
  * Using this class requires that the GrProcessor subclass always produces the same GrGLProcessor
  * subclass. Additionally, it adds the following requirements to the GrProcessor and GrGLProcessor
  * subclasses:
  *
- * 1. The GrGLProcessor used by GrProcessor subclass MyEffect must be named or typedef'ed to
- *    MyEffect::GLProcessor.
- * 2. MyEffect::GLProcessor must have a static function:
- *      EffectKey GenKey(const GrProcessor, const GrGLCaps&)
+ * 1. The GrGLProcessor used by GrProcessor subclass MyProcessor must be named or typedef'ed to
+ *    MyProcessor::GLProcessor.
+ * 2. MyProcessor::GLProcessor must have a static function:
+        void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b)
  *    which generates a key that maps 1 to 1 with code variations emitted by
- *    MyEffect::GLProcessor::emitCode().
- * 3. MyEffect must have a static function:
+ *    MyProcessor::GLProcessor::emitCode().
+ * 3. MyProcessor must have a static function:
  *      const char* Name()
- *    which returns a human-readable name for the effect.
+ *    which returns a human-readable name for the processor.
  */
 template <class ProcessorClass, class BackEnd, class ProcessorBase, class GLProcessorBase>
 class GrTBackendProcessorFactory : public BackEnd {
 public:
     typedef typename ProcessorClass::GLProcessor GLProcessor;
 
-    /** Returns a human-readable name for the effect. Implemented using GLProcessor::Name as
+    /** Returns a human-readable name for the processor. Implemented using GLProcessor::Name as
      *  described in this class's comment. */
     virtual const char* name() const SK_OVERRIDE { return ProcessorClass::Name(); }
 
 
     /** Implemented using GLProcessor::GenKey as described in this class's comment. */
-    virtual void getGLProcessorKey(const GrProcessor& effect,
+    virtual void getGLProcessorKey(const GrProcessor& processor,
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE {
-        GLProcessor::GenKey(effect, caps, b);
+        GLProcessor::GenKey(processor, caps, b);
     }
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrProcessor; caller is responsible for deleting
         the object. */
-    virtual GLProcessorBase* createGLInstance(const ProcessorBase& effect) const SK_OVERRIDE {
-        return SkNEW_ARGS(GLProcessor, (*this, effect));
+    virtual GLProcessorBase* createGLInstance(const ProcessorBase& processor) const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this, processor));
     }
 
     /** This class is a singleton. This function returns the single instance. */
@@ -72,9 +72,9 @@ protected:
 };
 
 /*
- * Every effect so far derives from one of the following subclasses of GrTBackendProcessorFactory.
- * All of this machinery is necessary to ensure that creatGLInstace is typesafe and does not
- * require any casting
+ * Every processor so far derives from one of the following subclasses of
+ * GrTBackendProcessorFactory. All of this machinery is necessary to ensure that creatGLInstace is
+ * typesafe and does not require any casting.
  */
 template <class ProcessorClass>
 class GrTBackendGeometryProcessorFactory

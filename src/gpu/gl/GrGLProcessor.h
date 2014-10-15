@@ -22,7 +22,7 @@
     that their GrGLProcessors would emit the same GLSL code.
 
     The GrGLProcessor subclass must also have a constructor of the form:
-        EffectSubclass::EffectSubclass(const GrBackendEffectFactory&, const GrProcessor&)
+        EffectSubclass::EffectSubclass(const GrBackendProcessorFactory&, const GrProcessor&)
 
     These objects are created by the factory object returned by the GrProcessor::getFactory().
 */
