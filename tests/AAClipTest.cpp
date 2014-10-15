@@ -429,12 +429,10 @@ static void test_regressions() {
 // Before the fix, the following code would assert in debug builds.
 //
 static void test_crbug_422693(skiatest::Reporter* reporter) {
-#if 0
     SkRasterClip rc(SkIRect::MakeLTRB(-25000, -25000, 25000, 25000));
     SkPath path;
     path.addCircle(50, 50, 50);
     rc.op(path, rc.getBounds().size(), SkRegion::kIntersect_Op, true);
-#endif
 }
 
 DEF_TEST(AAClip, reporter) {

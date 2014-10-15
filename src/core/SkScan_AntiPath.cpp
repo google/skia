@@ -45,7 +45,7 @@
 class BaseSuperBlitter : public SkBlitter {
 public:
     BaseSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
-                     const SkRegion& clip);
+                     const SkRegion& clip, bool isInverse);
 
     /// Must be explicitly defined on subclasses.
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
@@ -73,38 +73,44 @@ protected:
     int fCurrY;
     /// Initial y coordinate (top of bounds).
     int fTop;
+
+    SkIRect fSectBounds;
 };
 
-BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
-                                   const SkRegion& clip) {
-    fRealBlitter = realBlitter;
+BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlit, const SkIRect& ir, const SkRegion& clip,
+                                   bool isInverse) {
+    fRealBlitter = realBlit;
+
+    SkIRect sectBounds;
+    if (isInverse) {
+        sectBounds = clip.getBounds();
+    } else {
+        if (!sectBounds.intersect(ir, clip.getBounds())) {
+            sectBounds.setEmpty();
+        }
+    }
 
     /*
      *  We use the clip bounds instead of the ir, since we may be asked to
      *  draw outside of the rect if we're a inverse filltype
      */
-    const int left = clip.getBounds().fLeft;
-    const int right = clip.getBounds().fRight;
+    const int left = sectBounds.left();
+    const int right = sectBounds.right();
 
     fLeft = left;
     fSuperLeft = left << SHIFT;
     fWidth = right - left;
-#if 0
-    fCurrIY = -1;
-    fCurrY = -1;
-#else
-    fTop = ir.fTop;
-    fCurrIY = ir.fTop - 1;
-    fCurrY = (ir.fTop << SHIFT) - 1;
-#endif
+    fTop = sectBounds.top();
+    fCurrIY = fTop - 1;
+    fCurrY = (fTop << SHIFT) - 1;
+
     SkDEBUGCODE(fCurrX = -1;)
 }
 
 /// Run-length-encoded supersampling antialiased blitter.
 class SuperBlitter : public BaseSuperBlitter {
 public:
-    SuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
-                 const SkRegion& clip);
+    SuperBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip, bool isInverse);
 
     virtual ~SuperBlitter() {
         this->flush();
@@ -149,9 +155,10 @@ private:
     int         fOffsetX;
 };
 
-SuperBlitter::SuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
-                           const SkRegion& clip)
-        : BaseSuperBlitter(realBlitter, ir, clip) {
+SuperBlitter::SuperBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip,
+                           bool isInverse)
+        : BaseSuperBlitter(realBlitter, ir, clip, isInverse)
+{
     fRunsToBuffer = realBlitter->requestRowsPreserved();
     fRunsBuffer = realBlitter->allocBlitMemory(fRunsToBuffer * this->getRunsSz());
     fCurrentRun = -1;
@@ -398,8 +405,7 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
 /// Masked supersampling antialiased blitter.
 class MaskSuperBlitter : public BaseSuperBlitter {
 public:
-    MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
-                     const SkRegion& clip);
+    MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion&, bool isInverse);
     virtual ~MaskSuperBlitter() {
         fRealBlitter->blitMask(fMask, fClipRect);
     }
@@ -437,10 +443,12 @@ private:
     uint32_t    fStorage[(kMAX_STORAGE >> 2) + 1];
 };
 
-MaskSuperBlitter::MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
-                                   const SkRegion& clip)
-        : BaseSuperBlitter(realBlitter, ir, clip) {
+MaskSuperBlitter::MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip,
+                                   bool isInverse)
+    : BaseSuperBlitter(realBlitter, ir, clip, isInverse)
+{
     SkASSERT(CanHandleRect(ir));
+    SkASSERT(!isInverse);
 
     fMask.fImage    = (uint8_t*)fStorage;
     fMask.fBounds   = ir;
@@ -628,6 +636,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         return;
     }
 
+    const bool isInverse = path.isInverseFillType();
     SkIRect ir;
 
     if (!safeRoundOut(path.getBounds(), &ir, SK_MaxS32 >> SHIFT)) {
@@ -638,7 +647,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         return;
     }
     if (ir.isEmpty()) {
-        if (path.isInverseFillType()) {
+        if (isInverse) {
             blitter->blitRegion(origClip);
         }
         return;
@@ -648,7 +657,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     // will overflow 32767 when << by SHIFT, we can't supersample,
     // so draw without antialiasing.
     SkIRect clippedIR;
-    if (path.isInverseFillType()) {
+    if (isInverse) {
        // If the path is an inverse fill, it's going to fill the entire
        // clip, and we care whether the entire clip exceeds our limits.
        clippedIR = origClip.getBounds();
@@ -685,7 +694,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     const SkIRect*  clipRect = clipper.getClipRect();
 
     if (clipper.getBlitter() == NULL) { // clipped out
-        if (path.isInverseFillType()) {
+        if (isInverse) {
             blitter->blitRegion(*clipRgn);
         }
         return;
@@ -694,7 +703,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     // now use the (possibly wrapped) blitter
     blitter = clipper.getBlitter();
 
-    if (path.isInverseFillType()) {
+    if (isInverse) {
         sk_blit_above(blitter, ir, *clipRgn);
     }
 
@@ -710,16 +719,16 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
 
     // MaskSuperBlitter can't handle drawing outside of ir, so we can't use it
     // if we're an inverse filltype
-    if (!path.isInverseFillType() && MaskSuperBlitter::CanHandleRect(ir) && !forceRLE) {
-        MaskSuperBlitter    superBlit(blitter, ir, *clipRgn);
+    if (!isInverse && MaskSuperBlitter::CanHandleRect(ir) && !forceRLE) {
+        MaskSuperBlitter    superBlit(blitter, ir, *clipRgn, isInverse);
         SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
         sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, *clipRgn);
     } else {
-        SuperBlitter    superBlit(blitter, ir, *clipRgn);
+        SuperBlitter    superBlit(blitter, ir, *clipRgn, isInverse);
         sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, *clipRgn);
     }
 
-    if (path.isInverseFillType()) {
+    if (isInverse) {
         sk_blit_below(blitter, ir, *clipRgn);
     }
 }
