@@ -274,17 +274,7 @@ public:
 private:
     ModeColorFilterEffect(GrColor color, SkXfermode::Mode mode)
         : fMode(mode),
-          fColor(color) {
-
-        SkXfermode::Coeff dstCoeff;
-        SkXfermode::Coeff srcCoeff;
-        SkAssertResult(SkXfermode::ModeAsCoeff(fMode, &srcCoeff, &dstCoeff));
-        // These could be calculated from the blend equation with template trickery..
-        if (SkXfermode::kZero_Coeff == dstCoeff &&
-                !GrBlendCoeffRefsDst(sk_blend_to_grblend(srcCoeff))) {
-            this->setWillNotUseInputColor();
-        }
-    }
+          fColor(color) {}
 
     virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
         const ModeColorFilterEffect& s = other.cast<ModeColorFilterEffect>();
@@ -392,7 +382,17 @@ void ModeColorFilterEffect::onComputeInvariantOutput(InvariantOutput* inout) con
                                 MaskedColorExpr(filterColor, kRGBA_GrColorComponentFlags),
                                 MaskedColorExpr(inputColor, inout->validFlags()));
 
-    inout->setToOther(result.getValidComponents(), result.getColor());
+    // Check if we will use the input color
+    SkXfermode::Coeff dstCoeff;
+    SkXfermode::Coeff srcCoeff;
+    SkAssertResult(SkXfermode::ModeAsCoeff(fMode, &srcCoeff, &dstCoeff));
+    InvariantOutput::ReadInput readInput = InvariantOutput::kWill_ReadInput;
+    // These could be calculated from the blend equation with template trickery..
+    if (SkXfermode::kZero_Coeff == dstCoeff &&
+        !GrBlendCoeffRefsDst(sk_blend_to_grblend(srcCoeff))) {
+        readInput = InvariantOutput::kWillNot_ReadInput;
+    }
+    inout->setToOther(result.getValidComponents(), result.getColor(), readInput);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ModeColorFilterEffect);

@@ -100,7 +100,8 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
         SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(test.filterColor, test.filterMode));
         SkAutoTUnref<GrFragmentProcessor> effect(cf->asFragmentProcessor(grContext));
         GrProcessor::InvariantOutput inout;
-        inout.setToOther(test.inputComponents, test.inputColor);
+        inout.setToOther(test.inputComponents, test.inputColor,
+                         GrProcessor::InvariantOutput::kWill_ReadInput);
         effect->computeInvariantOutput(&inout);
 
         REPORTER_ASSERT(reporter, filterColor(inout.color(), inout.validFlags()) == test.outputColor);

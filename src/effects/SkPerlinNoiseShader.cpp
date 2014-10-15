@@ -587,7 +587,7 @@ private:
     }
 
     void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->setToUnknown();
+        inout->setToUnknown(InvariantOutput::kWillNot_ReadInput);
     }
 
     GrPerlinNoiseEffect(SkPerlinNoiseShader::Type type,
@@ -606,7 +606,6 @@ private:
         this->addTextureAccess(&fNoiseAccess);
         fCoordTransform.reset(kLocal_GrCoordSet, matrix);
         this->addCoordTransform(&fCoordTransform);
-        this->setWillNotUseInputColor();
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;

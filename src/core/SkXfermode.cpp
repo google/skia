@@ -1213,7 +1213,7 @@ private:
     }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->setToUnknown();
+        inout->setToUnknown(InvariantOutput::kWill_ReadInput);
     }
 
     SkXfermode::Mode fMode;

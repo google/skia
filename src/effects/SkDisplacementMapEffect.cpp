@@ -473,7 +473,6 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
     this->addTextureAccess(&fDisplacementAccess);
     this->addCoordTransform(&fColorTransform);
     this->addTextureAccess(&fColorAccess);
-    this->setWillNotUseInputColor();
 }
 
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {
@@ -498,7 +497,7 @@ void GrDisplacementMapEffect::onComputeInvariantOutput(InvariantOutput* inout) c
     // and no displacement offset push any texture coordinates out of bounds OR if the constant
     // alpha is 0. Since this isn't trivial to compute at this point, let's assume the output is
     // not of constant color when a displacement effect is applied.
-    inout->setToUnknown();
+    inout->setToUnknown(InvariantOutput::kWillNot_ReadInput);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

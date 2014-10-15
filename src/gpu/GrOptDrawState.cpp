@@ -244,16 +244,19 @@ void GrOptDrawState::computeEffectiveColorStages(const GrDrawState& ds, int* fir
 
     for (int i = 0; i < ds.numColorStages(); ++i) {
         const GrFragmentProcessor* fp = ds.getColorStage(i).getProcessor();
-        if (!fp->willUseInputColor()) {
+        fp->computeInvariantOutput(&inout);
+        if (!inout.fWillUseInputColor) {
             *firstColorStageIdx = i;
             fInputColorIsUsed = false;
         }
-        fp->computeInvariantOutput(&inout);
         if (kRGBA_GrColorComponentFlags == inout.fValidFlags) {
             *firstColorStageIdx = i + 1;
             fColor = inout.fColor;
             fInputColorIsUsed = true;
             *fixedFunctionVAToRemove |= 0x1 << kColor_GrVertexAttribBinding;
+            // Since we are clearing all previous color stages we are in a state where we have found
+            // zero stages that don't multiply the inputColor.
+            inout.fNonMulStageFound = false;
         }
     }
 }
@@ -267,9 +270,11 @@ void GrOptDrawState::computeEffectiveCoverageStages(const GrDrawState& ds,
     // Don't do any optimizations on coverage stages. It should not be the case where we do not use
     // input coverage in an effect
 #ifdef OptCoverageStages
+    GrProcessor::InvariantOutput inout;
     for (int i = 0; i < ds.numCoverageStages(); ++i) {
-        const GrProcessor* processor = ds.getCoverageStage(i).getProcessor();
-        if (!processor->willUseInputColor()) {
+        const GrFragmentProcessor* fp = ds.getCoverageStage(i).getProcessor();
+        fp->computeInvariantOutput(&inout);
+        if (!inout.fWillUseInputColor) {
             *firstCoverageStageIdx = i;
             fInputCoverageIsUsed = false;
         }

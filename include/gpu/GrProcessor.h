@@ -13,6 +13,7 @@
 #include "GrProcessorUnitTest.h"
 #include "GrProgramElement.h"
 #include "GrTextureAccess.h"
+#include "SkMath.h"
 
 class GrContext;
 class GrCoordTransform;
@@ -32,7 +33,12 @@ public:
 
     struct InvariantOutput{
         InvariantOutput() : fColor(0), fValidFlags(0), fIsSingleComponent(false),
-                            fNonMulStageFound(false) {}
+                            fNonMulStageFound(false), fWillUseInputColor(true) {}
+
+        enum ReadInput {
+            kWill_ReadInput,
+            kWillNot_ReadInput,
+        };
 
         void mulByUnknownOpaqueColor() {
             if (this->isOpaque()) {
@@ -62,26 +68,44 @@ public:
             }
         }
 
-        void invalidateComponents(uint8_t invalidateFlags) {
+        void mulByKnownAlpha(uint8_t alpha) {
+            if (this->hasZeroAlpha() || 0 == alpha) {
+                this->internalSetToTransparentBlack();
+            } else {
+                if (alpha != 255) {
+                    // Multiply color by alpha
+                    fColor = GrColorPackRGBA(SkMulDiv255Round(GrColorUnpackR(fColor), alpha),
+                                             SkMulDiv255Round(GrColorUnpackG(fColor), alpha),
+                                             SkMulDiv255Round(GrColorUnpackB(fColor), alpha),
+                                             SkMulDiv255Round(GrColorUnpackA(fColor), alpha));
+                }
+            }
+        }
+
+        void invalidateComponents(uint8_t invalidateFlags, ReadInput readsInput) {
             fValidFlags &= ~invalidateFlags;
             fIsSingleComponent = false;
+            if (kWillNot_ReadInput == readsInput) {
+                fWillUseInputColor = false;
+            }
         }
 
-        void setToTransparentBlack() {
-            this->internalSetToTransparentBlack();
-            fNonMulStageFound = true;
-        }
-
-        void setToOther(uint8_t validFlags, GrColor color) {
+        void setToOther(uint8_t validFlags, GrColor color, ReadInput readsInput) {
             fValidFlags = validFlags;
             fColor = color;
             fIsSingleComponent = false;
             fNonMulStageFound = true;
+            if (kWillNot_ReadInput == readsInput) {
+                fWillUseInputColor = false;
+            }
         }
 
-        void setToUnknown() {
+        void setToUnknown(ReadInput readsInput) {
             this->internalSetToUnknown();
             fNonMulStageFound= true;
+            if (kWillNot_ReadInput == readsInput) {
+                fWillUseInputColor = false;
+            }
         }
 
         bool isOpaque() const {
@@ -129,11 +153,13 @@ public:
         friend class GrDrawState;
         friend class GrOptDrawState;
         friend class GrPaint;
+        friend class GrProcessor;
 
         GrColor fColor;
         uint32_t fValidFlags;
         bool fIsSingleComponent;
         bool fNonMulStageFound;
+        bool fWillUseInputColor;
     };
 
     /**
@@ -145,6 +171,7 @@ public:
      * meaning if the corresponding bit in validFlags is set.
      */
     void computeInvariantOutput(InvariantOutput* inout) const {
+        inout->fWillUseInputColor = true;
         this->onComputeInvariantOutput(inout);
 #ifdef SK_DEBUG
         inout->validate();

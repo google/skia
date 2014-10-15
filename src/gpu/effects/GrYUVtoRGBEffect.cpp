@@ -99,7 +99,6 @@ private:
         this->addTextureAccess(&fYAccess);
         this->addTextureAccess(&fUAccess);
         this->addTextureAccess(&fVAccess);
-        this->setWillNotUseInputColor();
     }
 
     virtual bool onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -112,7 +111,8 @@ private:
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         // YUV is opaque
-        inout->setToOther(kA_GrColorComponentFlag, 0xFF << GrColor_SHIFT_A);
+        inout->setToOther(kA_GrColorComponentFlag, 0xFF << GrColor_SHIFT_A,
+                          InvariantOutput::kWill_ReadInput);
     }
 
     GrCoordTransform fCoordTransform;

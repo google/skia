@@ -46,7 +46,7 @@ private:
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         if (fRect.isEmpty()) {
             // An empty rect will have no coverage anywhere.
-            inout->setToTransparentBlack();
+            inout->mulByKnownAlpha(0);
         } else {
             inout->mulByUnknownAlpha();
         }

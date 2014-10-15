@@ -264,7 +264,7 @@ const GrBackendFragmentProcessorFactory& GrColorCubeEffect::getFactory() const {
 }
 
 void GrColorCubeEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->setToUnknown();
+    inout->setToUnknown(InvariantOutput::kWill_ReadInput);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -133,6 +133,9 @@ void GrProcessor::InvariantOutput::validate() const {
     }
 
     SkASSERT(this->validPreMulColor());
+
+    // If we claim that we are not using the input color we must not be modulating the input.
+    SkASSERT(fNonMulStageFound || fWillUseInputColor);
 }
 
 bool GrProcessor::InvariantOutput::colorComponentsAllEqual() const {
