@@ -44,7 +44,8 @@ const (
 
 // Flags:
 var (
-	port = flag.String("port", ":8000", "HTTP service address (e.g., ':8000')")
+	port   = flag.String("port", ":8000", "HTTP service address (e.g., ':8000')")
+	public = flag.Bool("public", false, "Make this server publicly accessible.")
 )
 
 var (
@@ -358,9 +359,6 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 
 // Run the BugChomper server.
 func main() {
-	var public bool
-	flag.BoolVar(
-		&public, "public", false, "Make this server publicly accessible.")
 	flag.Parse()
 
 	http.HandleFunc("/", handleRoot)
@@ -368,7 +366,7 @@ func main() {
 	http.Handle("/res/", http.FileServer(http.Dir(curdir)))
 	log.Println("Server is running at " + scheme + "://" + localHost + *port)
 	var err error
-	if public {
+	if *public {
 		log.Println("WARNING: This server is not secure and should not be made " +
 			"publicly accessible.")
 		scheme = "https"
