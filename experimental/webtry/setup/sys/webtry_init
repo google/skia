@@ -22,7 +22,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="The Skia webtry application."
 NAME=webtry
 DAEMON=/home/webtry/skia/experimental/webtry/$NAME
-DAEMON_ARGS="--use_chroot"
+DAEMON_ARGS="--use_chroot --log_dir=/tmp/glog"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 

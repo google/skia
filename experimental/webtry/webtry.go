@@ -15,7 +15,6 @@ import (
 	_ "image/jpeg"
 	"image/png"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net"
 	"net/http"
@@ -31,6 +30,7 @@ import (
 import (
 	"github.com/fiorix/go-web/autogzip"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang/glog"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rcrowley/go-metrics"
 )
@@ -141,7 +141,7 @@ func init() {
 	// Change the current working directory to the directory of the executable.
 	cwd, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 	if err := os.Chdir(cwd); err != nil {
 		log.Fatal(err)
@@ -202,7 +202,7 @@ func init() {
 	if resp, err := client.Do(req); err == nil {
 		password, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			log.Printf("ERROR: Failed to read password from metadata server: %q\n", err)
+			glog.Errorf("Failed to read password from metadata server: %q\n", err)
 			panic(err)
 		}
 		// The IP address of the database is found here:
@@ -210,15 +210,15 @@ func init() {
 		// And 3306 is the default port for MySQL.
 		db, err = sql.Open("mysql", fmt.Sprintf("webtry:%s@tcp(173.194.83.52:3306)/webtry?parseTime=true", password))
 		if err != nil {
-			log.Printf("ERROR: Failed to open connection to SQL server: %q\n", err)
+			glog.Errorf("ERROR: Failed to open connection to SQL server: %q\n", err)
 			panic(err)
 		}
 	} else {
-		log.Printf("INFO: Failed to find metadata, unable to connect to MySQL server (Expected when running locally): %q\n", err)
+		glog.Infof("Failed to find metadata, unable to connect to MySQL server (Expected when running locally): %q\n", err)
 		// Fallback to sqlite for local use.
 		db, err = sql.Open("sqlite3", "./webtry.db")
 		if err != nil {
-			log.Printf("ERROR: Failed to open: %q\n", err)
+			glog.Errorf("Failed to open: %q\n", err)
 			panic(err)
 		}
 		sql := `CREATE TABLE IF NOT EXISTS source_images (
@@ -231,7 +231,7 @@ func init() {
              )`
 		_, err = db.Exec(sql)
 		if err != nil {
-			log.Printf("Info: status creating sqlite table for sources: %q\n", err)
+			glog.Infof("status creating sqlite table for sources: %q\n", err)
 		}
 
 		sql = `CREATE TABLE IF NOT EXISTS webtry (
@@ -247,7 +247,7 @@ func init() {
             )`
 		_, err = db.Exec(sql)
 		if err != nil {
-			log.Printf("Info: status creating sqlite table for webtry: %q\n", err)
+			glog.Infof("status creating sqlite table for webtry: %q\n", err)
 		}
 
 		sql = `CREATE TABLE IF NOT EXISTS workspace (
@@ -257,7 +257,7 @@ func init() {
         )`
 		_, err = db.Exec(sql)
 		if err != nil {
-			log.Printf("Info: status creating sqlite table for workspace: %q\n", err)
+			glog.Infof("status creating sqlite table for workspace: %q\n", err)
 		}
 
 		sql = `CREATE TABLE IF NOT EXISTS workspacetry (
@@ -274,7 +274,7 @@ func init() {
         )`
 		_, err = db.Exec(sql)
 		if err != nil {
-			log.Printf("Info: status creating sqlite table for workspace try: %q\n", err)
+			glog.Infof("status creating sqlite table for workspace try: %q\n", err)
 		}
 	}
 
@@ -283,7 +283,7 @@ func init() {
 		c := time.Tick(1 * time.Minute)
 		for _ = range c {
 			if err := db.Ping(); err != nil {
-				log.Printf("ERROR: Database failed to respond: %q\n", err)
+				glog.Errorf("Database failed to respond: %q\n", err)
 			}
 		}
 	}()
@@ -305,7 +305,7 @@ func writeOutAllSourceImages() {
 	rows, err := db.Query("SELECT id, image, create_ts FROM source_images ORDER BY create_ts DESC")
 
 	if err != nil {
-		log.Printf("ERROR: Failed to open connection to SQL server: %q\n", err)
+		glog.Errorf("Failed to open connection to SQL server: %q\n", err)
 		panic(err)
 	}
 	for rows.Next() {
@@ -313,16 +313,16 @@ func writeOutAllSourceImages() {
 		var image []byte
 		var create_ts time.Time
 		if err := rows.Scan(&id, &image, &create_ts); err != nil {
-			log.Printf("Error: failed to fetch from database: %q", err)
+			glog.Errorf("failed to fetch from database: %q", err)
 			continue
 		}
 		filename := fmt.Sprintf("../../../inout/image-%d.png", id)
 		if _, err := os.Stat(filename); os.IsExist(err) {
-			log.Printf("Skipping write since file exists: %q", filename)
+			glog.Infof("Skipping write since file exists: %q", filename)
 			continue
 		}
 		if err := ioutil.WriteFile(filename, image, 0666); err != nil {
-			log.Printf("Error: failed to write image file: %q", err)
+			glog.Errorf("failed to write image file: %q", err)
 		}
 	}
 }
@@ -415,7 +415,7 @@ type response struct {
 // run is expected to not care what its current working directory is.
 // Returns the stdout and stderr.
 func doCmd(commandLine string) (string, error) {
-	log.Printf("Command: %q\n", commandLine)
+	glog.Infof("Command: %q\n", commandLine)
 	programAndArgs := strings.SplitN(commandLine, " ", 2)
 	program := programAndArgs[0]
 	args := []string{}
@@ -424,9 +424,9 @@ func doCmd(commandLine string) (string, error) {
 	}
 	cmd := exec.Command(program, args...)
 	message, err := cmd.CombinedOutput()
-	log.Printf("StdOut + StdErr: %s\n", string(message))
+	glog.Infof("StdOut + StdErr: %s\n", string(message))
 	if err != nil {
-		log.Printf("Exit status: %s\n", err.Error())
+		glog.Errorf("Exit status: %s\n", err)
 		return string(message), fmt.Errorf("Failed to run command.")
 	}
 	return string(message), nil
@@ -434,7 +434,7 @@ func doCmd(commandLine string) (string, error) {
 
 // reportError formats an HTTP error response and also logs the detailed error message.
 func reportError(w http.ResponseWriter, r *http.Request, err error, message string) {
-	log.Printf("Error: %s\n%s", message, err.Error())
+	glog.Errorf("%s\n%s", message, err)
 	w.Header().Set("Content-Type", "text/plain")
 	http.Error(w, message, 500)
 }
@@ -445,7 +445,7 @@ func reportTryError(w http.ResponseWriter, r *http.Request, err error, message, 
 		Message: message,
 		Hash:    hash,
 	}
-	log.Printf("Error: %s\n%s", message, err.Error())
+	glog.Errorf("%s\n%s", message, err)
 	resp, err := json.Marshal(m)
 	if err != nil {
 		http.Error(w, "Failed to serialize a response", 500)
@@ -460,11 +460,11 @@ func writeToDatabase(hash string, code string, workspaceName string, source int,
 		return
 	}
 	if _, err := db.Exec("INSERT INTO webtry (code, hash, width, height, gpu, source_image_id) VALUES(?, ?, ?, ?, ?, ?)", code, hash, width, height, gpu, source); err != nil {
-		log.Printf("ERROR: Failed to insert code into database: %q\n", err)
+		glog.Errorf("Failed to insert code into database: %q\n", err)
 	}
 	if workspaceName != "" {
 		if _, err := db.Exec("INSERT INTO workspacetry (name, hash, width, height, gpu, source_image_id) VALUES(?, ?, ?, ?, ?, ?)", workspaceName, hash, width, height, gpu, source); err != nil {
-			log.Printf("ERROR: Failed to insert into workspacetry table: %q\n", err)
+			glog.Errorf("Failed to insert into workspacetry table: %q\n", err)
 		}
 	}
 }
@@ -475,7 +475,7 @@ type Sources struct {
 
 // sourcesHandler serves up the PNG of a specific try.
 func sourcesHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Sources Handler: %q\n", r.URL.Path)
+	glog.Infof("Sources Handler: %q\n", r.URL.Path)
 	if r.Method == "GET" {
 		rows, err := db.Query("SELECT id, create_ts FROM source_images WHERE hidden=0 ORDER BY create_ts DESC")
 
@@ -487,7 +487,7 @@ func sourcesHandler(w http.ResponseWriter, r *http.Request) {
 			var id int
 			var create_ts time.Time
 			if err := rows.Scan(&id, &create_ts); err != nil {
-				log.Printf("Error: failed to fetch from database: %q", err)
+				glog.Errorf("failed to fetch from database: %q", err)
 				continue
 			}
 			sources = append(sources, Sources{Id: id})
@@ -531,7 +531,7 @@ func sourcesHandler(w http.ResponseWriter, r *http.Request) {
 		width := bounds.Max.Y - bounds.Min.Y
 		height := bounds.Max.X - bounds.Min.X
 		if _, err := db.Exec("INSERT INTO source_images (image, width, height) VALUES(?, ?, ?)", b.Bytes(), width, height); err != nil {
-			log.Printf("ERROR: Failed to insert sources into database: %q\n", err)
+			glog.Errorf("Failed to insert sources into database: %q\n", err)
 			http.Error(w, fmt.Sprintf("Failed to store image: %s.", err), 500)
 			return
 		}
@@ -547,7 +547,7 @@ func sourcesHandler(w http.ResponseWriter, r *http.Request) {
 
 // imageHandler serves up the PNG of a specific try.
 func imageHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Image Handler: %q\n", r.URL.Path)
+	glog.Infof("Image Handler: %q\n", r.URL.Path)
 	if r.Method != "GET" {
 		http.NotFound(w, r)
 		return
@@ -575,7 +575,7 @@ type Recent struct {
 
 // recentHandler shows the last 20 tries.
 func recentHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Recent Handler: %q\n", r.URL.Path)
+	glog.Infof("Recent Handler: %q\n", r.URL.Path)
 
 	var err error
 	rows, err := db.Query("SELECT create_ts, hash FROM webtry ORDER BY create_ts DESC LIMIT 20")
@@ -588,14 +588,14 @@ func recentHandler(w http.ResponseWriter, r *http.Request) {
 		var hash string
 		var create_ts time.Time
 		if err := rows.Scan(&create_ts, &hash); err != nil {
-			log.Printf("Error: failed to fetch from database: %q", err)
+			glog.Errorf("failed to fetch from database: %q", err)
 			continue
 		}
 		recent = append(recent, Try{Hash: hash, CreateTS: create_ts.Format("2006-02-01")})
 	}
 	w.Header().Set("Content-Type", "text/html")
 	if err := recentTemplate.Execute(w, Recent{Tries: recent, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
-		log.Printf("ERROR: Failed to expand template: %q\n", err)
+		glog.Errorf("Failed to expand template: %q\n", err)
 	}
 }
 
@@ -621,7 +621,7 @@ func newWorkspace() (string, error) {
 		if _, err := db.Exec("INSERT INTO workspace (name) VALUES(?)", name); err == nil {
 			return name, nil
 		} else {
-			log.Printf("ERROR: Failed to insert workspace into database: %q\n", err)
+			glog.Errorf("Failed to insert workspace into database: %q\n", err)
 		}
 	}
 	return "", fmt.Errorf("Failed to create a new workspace")
@@ -635,14 +635,14 @@ func getCode(hash string) (string, int, int, int, bool, error) {
 	source := 0
 	gpu := false
 	if err := db.QueryRow("SELECT code, width, height, gpu, source_image_id FROM webtry WHERE hash=?", hash).Scan(&code, &width, &height, &gpu, &source); err != nil {
-		log.Printf("ERROR: Code for hash is missing: %q\n", err)
+		glog.Errorf("Code for hash is missing: %q\n", err)
 		return code, width, height, source, gpu, err
 	}
 	return code, width, height, source, gpu, nil
 }
 
 func workspaceHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Workspace Handler: %q\n", r.URL.Path)
+	glog.Infof("Workspace Handler: %q\n", r.URL.Path)
 	if r.Method == "GET" {
 		tries := []Try{}
 		match := workspaceLink.FindStringSubmatch(r.URL.Path)
@@ -659,7 +659,7 @@ func workspaceHandler(w http.ResponseWriter, r *http.Request) {
 				var create_ts time.Time
 				var source int
 				if err := rows.Scan(&create_ts, &hash, &source); err != nil {
-					log.Printf("Error: failed to fetch from database: %q", err)
+					glog.Errorf("failed to fetch from database: %q", err)
 					continue
 				}
 				tries = append(tries, Try{Hash: hash, Source: source, CreateTS: create_ts.Format("2006-02-01")})
@@ -681,7 +681,7 @@ func workspaceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Content-Type", "text/html")
 		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name, Hash: hash, Width: width, Height: height, GPU: gpu, Source: source, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
-			log.Printf("ERROR: Failed to expand template: %q\n", err)
+			glog.Errorf("Failed to expand template: %q\n", err)
 		}
 	} else if r.Method == "POST" {
 		name, err := newWorkspace()
@@ -715,7 +715,7 @@ type TryRequest struct {
 
 // iframeHandler handles the GET and POST of the main page.
 func iframeHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("IFrame Handler: %q\n", r.URL.Path)
+	glog.Infof("IFrame Handler: %q\n", r.URL.Path)
 	if r.Method != "GET" {
 		http.NotFound(w, r)
 		return
@@ -739,7 +739,7 @@ func iframeHandler(w http.ResponseWriter, r *http.Request) {
 	// Expand the template.
 	w.Header().Set("Content-Type", "text/html")
 	if err := iframeTemplate.Execute(w, userCode{Code: code, Width: width, Height: height, GPU: gpu, Hash: hash, Source: source}); err != nil {
-		log.Printf("ERROR: Failed to expand template: %q\n", err)
+		glog.Errorf("Failed to expand template: %q\n", err)
 	}
 }
 
@@ -754,7 +754,7 @@ type TryInfo struct {
 
 // tryInfoHandler returns information about a specific try.
 func tryInfoHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Try Info Handler: %q\n", r.URL.Path)
+	glog.Infof("Try Info Handler: %q\n", r.URL.Path)
 	if r.Method != "GET" {
 		http.NotFound(w, r)
 		return
@@ -789,13 +789,13 @@ func tryInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 func cleanCompileOutput(s, hash string) string {
 	old := "../../../cache/src/" + hash + ".cpp:"
-	log.Printf("INFO: replacing %q\n", old)
+	glog.Infof("replacing %q\n", old)
 	return strings.Replace(s, old, "usercode.cpp:", -1)
 }
 
 // mainHandler handles the GET and POST of the main page.
 func mainHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Main Handler: %q\n", r.URL.Path)
+	glog.Infof("Main Handler: %q\n", r.URL.Path)
 	requestsCounter.Inc(1)
 	if r.Method == "GET" {
 		code := DEFAULT_SAMPLE
@@ -820,7 +820,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		// Expand the template.
 		w.Header().Set("Content-Type", "text/html")
 		if err := indexTemplate.Execute(w, userCode{Code: code, Hash: hash, Source: source, Width: width, Height: height, GPU: gpu, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
-			log.Printf("ERROR: Failed to expand template: %q\n", err)
+			glog.Errorf("Failed to expand template: %q\n", err)
 		}
 	} else if r.Method == "POST" {
 		w.Header().Set("Content-Type", "application/json")
@@ -908,5 +908,5 @@ func main() {
 
 	// TODO Break out /c/ as it's own handler.
 	http.HandleFunc("/", autogzip.HandleFunc(mainHandler))
-	log.Fatal(http.ListenAndServe(*port, nil))
+	glog.Fatal(http.ListenAndServe(*port, nil))
 }
