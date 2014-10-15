@@ -285,8 +285,3 @@ bool SkImageDecoder::DecodeStream(SkStreamRewindable* stream, SkBitmap* bm, SkCo
     }
     return success;
 }
-
-bool SkImageDecoder::decodeYUV8Planes(SkStream* stream, SkISize componentSizes[3], void* planes[3],
-                                      size_t rowBytes[3], SkYUVColorSpace* colorSpace) {
-    return this->onDecodeYUV8Planes(stream, componentSizes, planes, rowBytes, colorSpace);
-}
