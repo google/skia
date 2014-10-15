@@ -83,6 +83,8 @@ BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlit, const SkIRect& ir, const
 
     SkIRect sectBounds;
     if (isInverse) {
+        // We use the clip bounds instead of the ir, since we may be asked to
+        //draw outside of the rect when we're a inverse filltype
         sectBounds = clip.getBounds();
     } else {
         if (!sectBounds.intersect(ir, clip.getBounds())) {
@@ -90,10 +92,6 @@ BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlit, const SkIRect& ir, const
         }
     }
 
-    /*
-     *  We use the clip bounds instead of the ir, since we may be asked to
-     *  draw outside of the rect if we're a inverse filltype
-     */
     const int left = sectBounds.left();
     const int right = sectBounds.right();
 
