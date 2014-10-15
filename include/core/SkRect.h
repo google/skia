@@ -75,6 +75,8 @@ struct SK_API SkIRect {
      */
     int height() const { return fBottom - fTop; }
 
+    SkISize size() const { return SkISize::Make(this->width(), this->height()); }
+
     /**
      *  Since the center of an integer rect may fall on a factional value, this
      *  method is defined to return (right + left) >> 1.
