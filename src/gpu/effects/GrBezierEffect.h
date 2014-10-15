@@ -59,12 +59,9 @@ class GrConicEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps) {
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gConicFillAA, GrConicEffect,
-                                            (kFillAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gConicHairAA, GrConicEffect,
-                                            (kHairlineAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gConicFillBW, GrConicEffect,
-                                            (kFillBW_GrProcessorEdgeType));
+        GR_CREATE_STATIC_PROCESSOR(gConicFillAA, GrConicEffect, (kFillAA_GrProcessorEdgeType));
+        GR_CREATE_STATIC_PROCESSOR(gConicHairAA, GrConicEffect, (kHairlineAA_GrProcessorEdgeType));
+        GR_CREATE_STATIC_PROCESSOR(gConicFillBW, GrConicEffect, (kFillBW_GrProcessorEdgeType));
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
@@ -131,12 +128,9 @@ class GrQuadEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps) {
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gQuadFillAA, GrQuadEffect,
-                                            (kFillAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gQuadHairAA, GrQuadEffect,
-                                            (kHairlineAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gQuadFillBW, GrQuadEffect,
-                                            (kFillBW_GrProcessorEdgeType));
+        GR_CREATE_STATIC_PROCESSOR(gQuadFillAA, GrQuadEffect, (kFillAA_GrProcessorEdgeType));
+        GR_CREATE_STATIC_PROCESSOR(gQuadHairAA, GrQuadEffect, (kHairlineAA_GrProcessorEdgeType));
+        GR_CREATE_STATIC_PROCESSOR(gQuadFillBW, GrQuadEffect, (kFillBW_GrProcessorEdgeType));
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
@@ -205,12 +199,9 @@ class GrCubicEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps) {
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gCubicFillAA, GrCubicEffect,
-                                            (kFillAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gCubicHairAA, GrCubicEffect,
-                                            (kHairlineAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gCubicFillBW, GrCubicEffect,
-                                            (kFillBW_GrProcessorEdgeType));
+        GR_CREATE_STATIC_PROCESSOR(gCubicFillAA, GrCubicEffect, (kFillAA_GrProcessorEdgeType));
+        GR_CREATE_STATIC_PROCESSOR(gCubicHairAA, GrCubicEffect, (kHairlineAA_GrProcessorEdgeType));
+        GR_CREATE_STATIC_PROCESSOR(gCubicFillBW, GrCubicEffect, (kFillBW_GrProcessorEdgeType));
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {

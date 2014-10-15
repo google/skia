@@ -21,7 +21,7 @@ class GrGLAlignedRectEffect;
 class GrAlignedRectEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create() {
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gAlignedRectEffect, GrAlignedRectEffect, ());
+        GR_CREATE_STATIC_PROCESSOR(gAlignedRectEffect, GrAlignedRectEffect, ());
         gAlignedRectEffect->ref();
         return gAlignedRectEffect;
     }
@@ -145,7 +145,7 @@ class GrGLRectEffect;
 class GrRectEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create() {
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gRectEffect, GrRectEffect, ());
+        GR_CREATE_STATIC_PROCESSOR(gRectEffect, GrRectEffect, ());
         gRectEffect->ref();
         return gRectEffect;
     }

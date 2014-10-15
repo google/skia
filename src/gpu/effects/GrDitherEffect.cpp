@@ -21,7 +21,7 @@ class GLDitherEffect;
 class DitherEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create() {
-        GR_CREATE_STATIC_FRAGMENT_PROCESSOR(gDitherEffect, DitherEffect, ())
+        GR_CREATE_STATIC_PROCESSOR(gDitherEffect, DitherEffect, ())
         return SkRef(gDitherEffect);
     }
 

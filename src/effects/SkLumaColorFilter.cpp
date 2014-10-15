@@ -63,7 +63,7 @@ void SkLumaColorFilter::toString(SkString* str) const {
 class LumaColorFilterEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create() {
-        GR_CREATE_STATIC_FRAGMENT_PROCESSOR(gLumaEffect, LumaColorFilterEffect, ());
+        GR_CREATE_STATIC_PROCESSOR(gLumaEffect, LumaColorFilterEffect, ());
         return SkRef(gLumaEffect);
     }
 

@@ -17,16 +17,13 @@
 class GrContext;
 class GrCoordTransform;
 
-/** Provides custom vertex shader, fragment shader, uniform data for a particular stage of the
-    Ganesh shading pipeline.
-    Subclasses must have a function that produces a human-readable name:
-        static const char* Name();
-    GrProcessor objects *must* be immutable: after being constructed, their fields may not change.
+/** Provides custom shader code to the Ganesh shading pipeline. GrProcessor objects *must* be
+    immutable: after being constructed, their fields may not change.
 
     Dynamically allocated GrProcessors are managed by a per-thread memory pool. The ref count of an
-    effect must reach 0 before the thread terminates and the pool is destroyed. To create a static
-    effect use the macro GR_CREATE_STATIC_EFFECT declared below.
-  */
+    processor must reach 0 before the thread terminates and the pool is destroyed. To create a
+    static processor use the helper macro GR_CREATE_STATIC_PROCESSOR declared below.
+ */
 class GrProcessor : public GrProgramElement {
 public:
     SK_DECLARE_INST_COUNT(GrProcessor)
@@ -141,7 +138,7 @@ public:
 
     /**
      * This function is used to perform optimizations. When called the invarientOuput param
-     * indicate whether the input components to this effect in the FS will have known values.
+     * indicate whether the input components to this processor in the FS will have known values.
      * In inout the validFlags member is a bitfield of GrColorComponentFlags. The isSingleComponent
      * member indicates whether the input will be 1 or 4 bytes. The function updates the members of
      * inout to indicate known values of its output. A component of the color member only has
@@ -161,17 +158,17 @@ public:
         GrGLProcessor created by the factory.
 
         Example:
-        class MyCustomEffect : public GrProcessor {
+        class MyCustomProcessor : public GrProcessor {
         ...
             virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
-                return GrTBackendEffectFactory<MyCustomEffect>::getInstance();
+                return GrTBackendEffectFactory<MyCustomProcessor>::getInstance();
             }
         ...
         };
      */
     virtual const GrBackendProcessorFactory& getFactory() const = 0;
 
-    /** Human-meaningful string to identify this effect; may be embedded
+    /** Human-meaningful string to identify this prcoessor; may be embedded
         in generated shader code. */
     const char* name() const;
 
@@ -184,7 +181,7 @@ public:
     /** Shortcut for textureAccess(index).texture(); */
     GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
 
-    /** Will this effect read the fragment position? */
+    /** Will this processor read the fragment position? */
     bool willReadFragmentPosition() const { return fWillReadFragmentPosition; }
 
     void* operator new(size_t size);
@@ -204,7 +201,7 @@ public:
 
 protected:
     /**
-     * Subclasses call this from their constructor to register GrTextureAccesses. The effect
+     * Subclasses call this from their constructor to register GrTextureAccesses. The processor
      * subclass manages the lifetime of the accesses (this function only stores a pointer). The
      * GrTextureAccess is typically a member field of the GrProcessor subclass. This must only be
      * called from the constructor because GrProcessors are immutable.
@@ -215,9 +212,9 @@ protected:
         : fWillReadFragmentPosition(false) {}
 
     /**
-     * If the effect will generate a backend-specific effect that will read the fragment position
-     * in the FS then it must call this method from its constructor. Otherwise, the request to
-     * access the fragment position will be denied.
+     * If the prcoessor will generate a backend-specific processor that will read the fragment
+     * position in the FS then it must call this method from its constructor. Otherwise, the
+     * request to access the fragment position will be denied.
      */
     void setWillReadFragmentPosition() { fWillReadFragmentPosition = true; }
 
@@ -235,5 +232,15 @@ private:
 
     typedef GrProgramElement INHERITED;
 };
+
+
+/**
+ * This creates a processor outside of the memory pool. The processor's destructor will be called
+ * at global destruction time. NAME will be the name of the created instance.
+ */
+#define GR_CREATE_STATIC_PROCESSOR(NAME, PROC_CLASS, ARGS)                                 \
+static SkAlignedSStorage<sizeof(PROC_CLASS)> g_##NAME##_Storage;                           \
+static PROC_CLASS* NAME SkNEW_PLACEMENT_ARGS(g_##NAME##_Storage.get(), PROC_CLASS, ARGS);  \
+static SkAutoTDestroy<GrProcessor> NAME##_ad(NAME);
 
 #endif

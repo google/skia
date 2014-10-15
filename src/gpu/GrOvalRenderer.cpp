@@ -63,8 +63,8 @@ inline bool circle_stays_circle(const SkMatrix& m) {
 class CircleEdgeEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(bool stroke) {
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gCircleStrokeEdge, CircleEdgeEffect, (true));
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gCircleFillEdge, CircleEdgeEffect, (false));
+        GR_CREATE_STATIC_PROCESSOR(gCircleStrokeEdge, CircleEdgeEffect, (true));
+        GR_CREATE_STATIC_PROCESSOR(gCircleFillEdge, CircleEdgeEffect, (false));
 
         if (stroke) {
             gCircleStrokeEdge->ref();
@@ -179,8 +179,8 @@ GrGeometryProcessor* CircleEdgeEffect::TestCreate(SkRandom* random,
 class EllipseEdgeEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(bool stroke) {
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gEllipseStrokeEdge, EllipseEdgeEffect, (true));
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gEllipseFillEdge, EllipseEdgeEffect, (false));
+        GR_CREATE_STATIC_PROCESSOR(gEllipseStrokeEdge, EllipseEdgeEffect, (true));
+        GR_CREATE_STATIC_PROCESSOR(gEllipseFillEdge, EllipseEdgeEffect, (false));
 
         if (stroke) {
             gEllipseStrokeEdge->ref();
@@ -323,9 +323,9 @@ public:
     enum Mode { kStroke = 0, kHairline, kFill };
 
     static GrGeometryProcessor* Create(Mode mode) {
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gEllipseStrokeEdge, DIEllipseEdgeEffect, (kStroke));
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gEllipseHairlineEdge, DIEllipseEdgeEffect, (kHairline));
-        GR_CREATE_STATIC_GEOMETRY_PROCESSOR(gEllipseFillEdge, DIEllipseEdgeEffect, (kFill));
+        GR_CREATE_STATIC_PROCESSOR(gEllipseStrokeEdge, DIEllipseEdgeEffect, (kStroke));
+        GR_CREATE_STATIC_PROCESSOR(gEllipseHairlineEdge, DIEllipseEdgeEffect, (kHairline));
+        GR_CREATE_STATIC_PROCESSOR(gEllipseFillEdge, DIEllipseEdgeEffect, (kFill));
 
         if (kStroke == mode) {
             gEllipseStrokeEdge->ref();

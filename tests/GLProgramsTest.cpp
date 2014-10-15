@@ -24,7 +24,7 @@
 #include "Test.h"
 
 /*
- * A dummy effect which just tries to insert a massive key and verify that it can retrieve the
+ * A dummy processor which just tries to insert a massive key and verify that it can retrieve the
  * whole thing correctly
  */
 static const uint32_t kMaxKeySize = 1024;
@@ -34,7 +34,7 @@ class GLBigKeyProcessor;
 class BigKeyProcessor : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create() {
-        GR_CREATE_STATIC_FRAGMENT_PROCESSOR(gBigKeyProcessor, BigKeyProcessor, ())
+        GR_CREATE_STATIC_PROCESSOR(gBigKeyProcessor, BigKeyProcessor, ())
         return SkRef(gBigKeyProcessor);
     }
 

@@ -37,12 +37,12 @@ public:
 
     const VertexAttribArray& getVertexAttribs() const { return fVertexAttribs; }
 
-    /** Returns true if this and other effect conservatively draw identically. It can only return
-        true when the two effects are of the same subclass (i.e. they return the same object from
+    /** Returns true if this and other processor conservatively draw identically. It can only return
+        true when the two prcoessors are of the same subclass (i.e. they return the same object from
         from getFactory()).
-        A return value of true from isEqual() should not be used to test whether the effects would
-        generate the same shader code. To test for identical code generation use the effects' keys
-        computed by the GrBackendEffectFactory. */
+        A return value of true from isEqual() should not be used to test whether the prcoessors
+        would generate the same shader code. To test for identical code generation use the
+        processors' keys computed by the GrBackendEffectFactory. */
     bool isEqual(const GrGeometryProcessor& that) const {
         if (&this->getFactory() != &that.getFactory()) {
             return false;
@@ -74,14 +74,5 @@ private:
 
     typedef GrProcessor INHERITED;
 };
-
-/**
- * This creates an effect outside of the effect memory pool. The effect's destructor will be called
- * at global destruction time. NAME will be the name of the created GrProcessor.
- */
-#define GR_CREATE_STATIC_GEOMETRY_PROCESSOR(NAME, GP_CLASS, ARGS)                                 \
-static SkAlignedSStorage<sizeof(GP_CLASS)> g_##NAME##_Storage;                                    \
-static GrGeometryProcessor* NAME SkNEW_PLACEMENT_ARGS(g_##NAME##_Storage.get(), GP_CLASS, ARGS);  \
-static SkAutoTDestroy<GrGeometryProcessor> NAME##_ad(NAME);
 
 #endif

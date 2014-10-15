@@ -70,9 +70,9 @@ protected:
     void addCoordTransform(const GrCoordTransform*);
 
     /**
-     * If the prceossor subclass will read the destination pixel value then it must call this function
-     * from its constructor. Otherwise, when its generated backend-specific prceossor class attempts
-     * to generate code that reads the destination pixel it will fail.
+     * If the prceossor subclass will read the destination pixel value then it must call this
+     * function from its constructor. Otherwise, when its generated backend-specific prceossor class
+     * attempts to generate code that reads the destination pixel it will fail.
      */
     void setWillReadDstColor() { fWillReadDstColor = true; }
 
@@ -95,14 +95,5 @@ private:
 
     typedef GrProcessor INHERITED;
 };
-
-/**
- * This creates an effect outside of the effect memory pool. The effect's destructor will be called
- * at global destruction time. NAME will be the name of the created GrProcessor.
- */
-#define GR_CREATE_STATIC_FRAGMENT_PROCESSOR(NAME, FP_CLASS, ARGS)                                 \
-static SkAlignedSStorage<sizeof(FP_CLASS)> g_##NAME##_Storage;                                    \
-static GrFragmentProcessor* NAME SkNEW_PLACEMENT_ARGS(g_##NAME##_Storage.get(), FP_CLASS, ARGS);  \
-static SkAutoTDestroy<GrFragmentProcessor> NAME##_ad(NAME);
 
 #endif
