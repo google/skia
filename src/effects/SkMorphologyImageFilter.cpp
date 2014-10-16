@@ -450,8 +450,7 @@ const GrBackendFragmentProcessorFactory& GrMorphologyEffect::getFactory() const 
 
 bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMorphologyEffect& s = sBase.cast<GrMorphologyEffect>();
-    return (this->texture(0) == s.texture(0) &&
-            this->radius() == s.radius() &&
+    return (this->radius() == s.radius() &&
             this->direction() == s.direction() &&
             this->type() == s.type());
 }

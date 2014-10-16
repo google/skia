@@ -1208,8 +1208,7 @@ private:
     }
     virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
         const XferEffect& s = other.cast<XferEffect>();
-        return fMode == s.fMode &&
-               fBackgroundAccess.getTexture() == s.fBackgroundAccess.getTexture();
+        return fMode == s.fMode;
     }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {

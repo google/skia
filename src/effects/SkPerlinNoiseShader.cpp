@@ -580,8 +580,6 @@ private:
                fNumOctaves == s.fNumOctaves &&
                fStitchTiles == s.fStitchTiles &&
                fAlpha == s.fAlpha &&
-               fPermutationsAccess.getTexture() == s.fPermutationsAccess.getTexture() &&
-               fNoiseAccess.getTexture() == s.fNoiseAccess.getTexture() &&
                fPaintingData->fStitchDataInit == s.fPaintingData->fStitchDataInit;
     }
 

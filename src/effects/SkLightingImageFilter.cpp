@@ -1304,8 +1304,7 @@ GrLightingEffect::~GrLightingEffect() {
 
 bool GrLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrLightingEffect& s = sBase.cast<GrLightingEffect>();
-    return this->texture(0) == s.texture(0) &&
-           fLight->isEqual(*s.fLight) &&
+    return fLight->isEqual(*s.fLight) &&
            fSurfaceScale == s.fSurfaceScale;
 }
 

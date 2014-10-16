@@ -480,9 +480,7 @@ GrDisplacementMapEffect::~GrDisplacementMapEffect() {
 
 bool GrDisplacementMapEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrDisplacementMapEffect& s = sBase.cast<GrDisplacementMapEffect>();
-    return fDisplacementAccess.getTexture() == s.fDisplacementAccess.getTexture() &&
-           fColorAccess.getTexture() == s.fColorAccess.getTexture() &&
-           fXChannelSelector == s.fXChannelSelector &&
+    return fXChannelSelector == s.fXChannelSelector &&
            fYChannelSelector == s.fYChannelSelector &&
            fScale == s.fScale;
 }

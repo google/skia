@@ -336,8 +336,7 @@ bool GrArithmeticEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
            fK2 == s.fK2 &&
            fK3 == s.fK3 &&
            fK4 == s.fK4 &&
-           fEnforcePMColor == s.fEnforcePMColor &&
-           backgroundTexture() == s.backgroundTexture();
+           fEnforcePMColor == s.fEnforcePMColor;
 }
 
 const GrBackendFragmentProcessorFactory& GrArithmeticEffect::getFactory() const {

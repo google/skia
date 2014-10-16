@@ -116,13 +116,19 @@ void GrProcessor::operator delete(void* target) {
     GrProcessor_Globals::GetTLS()->release(target);
 }
 
-#ifdef SK_DEBUG
-void GrProcessor::assertTexturesEqual(const GrProcessor& other) const {
-    SkASSERT(this->numTextures() == other.numTextures());
-    for (int i = 0; i < this->numTextures(); ++i) {
-        SkASSERT(this->textureAccess(i) == other.textureAccess(i));
+bool GrProcessor::hasSameTextureAccesses(const GrProcessor& that) const {
+    if (this->numTextures() != that.numTextures()) {
+        return false;
     }
+    for (int i = 0; i < this->numTextures(); ++i) {
+        if (this->textureAccess(i) != that.textureAccess(i)) {
+            return false;
+        }
+    }
+    return true;
 }
+
+#ifdef SK_DEBUG
 
 void GrProcessor::InvariantOutput::validate() const {
     if (fIsSingleComponent) {

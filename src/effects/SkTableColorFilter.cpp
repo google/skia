@@ -297,7 +297,7 @@ public:
     typedef GLColorTableEffect GLProcessor;
 
 private:
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE{ return true; }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
 
@@ -395,10 +395,6 @@ ColorTableEffect::~ColorTableEffect() {
 
 const GrBackendFragmentProcessorFactory&  ColorTableEffect::getFactory() const {
     return GrTBackendFragmentProcessorFactory<ColorTableEffect>::getInstance();
-}
-
-bool ColorTableEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
-    return this->texture(0) == sBase.texture(0);
 }
 
 void ColorTableEffect::onComputeInvariantOutput(InvariantOutput* inout) const {

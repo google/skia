@@ -265,8 +265,7 @@ const GrBackendFragmentProcessorFactory& GrTextureDomainEffect::getFactory() con
 
 bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrTextureDomainEffect& s = sBase.cast<GrTextureDomainEffect>();
-    return this->hasSameTextureParamsMatrixAndSourceCoords(s) &&
-           this->fTextureDomain == s.fTextureDomain;
+    return this->fTextureDomain == s.fTextureDomain;
 }
 
 void GrTextureDomainEffect::onComputeInvariantOutput(InvariantOutput* inout) const {

@@ -103,10 +103,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor& sBase) const {
         const YUVtoRGBEffect& s = sBase.cast<YUVtoRGBEffect>();
-        return fYAccess.getTexture() == s.fYAccess.getTexture() &&
-               fUAccess.getTexture() == s.fUAccess.getTexture() &&
-               fVAccess.getTexture() == s.fVAccess.getTexture() &&
-               fColorSpace == s.getColorSpace();
+        return fColorSpace == s.getColorSpace();
     }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {

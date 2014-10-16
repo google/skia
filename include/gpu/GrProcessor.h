@@ -227,6 +227,8 @@ public:
     template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
 
 protected:
+    GrProcessor() : fWillReadFragmentPosition(false) {}
+
     /**
      * Subclasses call this from their constructor to register GrTextureAccesses. The processor
      * subclass manages the lifetime of the accesses (this function only stores a pointer). The
@@ -235,8 +237,7 @@ protected:
      */
     void addTextureAccess(const GrTextureAccess* textureAccess);
 
-    GrProcessor()
-        : fWillReadFragmentPosition(false) {}
+    bool hasSameTextureAccesses(const GrProcessor&) const;
 
     /**
      * If the prcoessor will generate a backend-specific processor that will read the fragment
@@ -244,8 +245,6 @@ protected:
      * request to access the fragment position will be denied.
      */
     void setWillReadFragmentPosition() { fWillReadFragmentPosition = true; }
-
-    SkDEBUGCODE(void assertTexturesEqual(const GrProcessor& other) const;)
 
 private:
 

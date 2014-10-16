@@ -44,16 +44,10 @@ public:
         would generate the same shader code. To test for identical code generation use the
         processors' keys computed by the GrBackendEffectFactory. */
     bool isEqual(const GrGeometryProcessor& that) const {
-        if (&this->getFactory() != &that.getFactory()) {
+        if (&this->getFactory() != &that.getFactory() || !this->hasSameTextureAccesses(that)) {
             return false;
         }
-        bool result = this->onIsEqual(that);
-#ifdef SK_DEBUG
-        if (result) {
-            this->assertTexturesEqual(that);
-        }
-#endif
-        return result;
+        return this->onIsEqual(that);
     }
 
 protected:

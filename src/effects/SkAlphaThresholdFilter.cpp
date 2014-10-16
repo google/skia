@@ -223,8 +223,7 @@ const GrBackendFragmentProcessorFactory& AlphaThresholdEffect::getFactory() cons
 
 bool AlphaThresholdEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const AlphaThresholdEffect& s = sBase.cast<AlphaThresholdEffect>();
-    return (this->texture(0) == s.texture(0) &&
-            this->fInnerThreshold == s.fInnerThreshold &&
+    return (this->fInnerThreshold == s.fInnerThreshold &&
             this->fOuterThreshold == s.fOuterThreshold);
 }
 

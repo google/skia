@@ -109,9 +109,7 @@ public:
     };
 
 private:
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE {
-        return true;
-    }
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
 
     virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
         // The output is always black. The alpha value for the color passed in is arbitrary.

@@ -34,14 +34,6 @@ protected:
                           GrCoordSet = kLocal_GrCoordSet);
 
     /**
-     * Helper for subclass onIsEqual() functions.
-     */
-    bool hasSameTextureParamsMatrixAndSourceCoords(const GrSingleTextureEffect& other) const {
-        // We don't have to check the accesses' swizzles because they are inferred from the texture.
-        return fTextureAccess == other.fTextureAccess;
-    }
-
-    /**
      * Can be used as a helper to implement subclass onComputeInvariantOutput(). It assumes that
      * the subclass output color will be a modulation of the input color with a value read from the
      * texture.

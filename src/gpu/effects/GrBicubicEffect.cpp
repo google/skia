@@ -164,8 +164,7 @@ const GrBackendFragmentProcessorFactory& GrBicubicEffect::getFactory() const {
 
 bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrBicubicEffect& s = sBase.cast<GrBicubicEffect>();
-    return this->textureAccess(0) == s.textureAccess(0) &&
-           !memcmp(fCoefficients, s.coefficients(), 16) &&
+    return !memcmp(fCoefficients, s.coefficients(), 16) &&
            fDomain == s.fDomain;
 }
 

@@ -45,17 +45,13 @@ public:
         A return value of true from isEqual() should not be used to test whether the prceossor would
         generate the same shader code. To test for identical code generation use the prceossor' keys
         computed by the GrBackendProcessorFactory. */
-    bool isEqual(const GrFragmentProcessor& other) const {
-        if (&this->getFactory() != &other.getFactory() || !this->hasSameTransforms(other)) {
+    bool isEqual(const GrFragmentProcessor& that) const {
+        if (&this->getFactory() != &that.getFactory() ||
+            !this->hasSameTransforms(that) ||
+            !this->hasSameTextureAccesses(that)) {
             return false;
         }
-        bool result = this->onIsEqual(other);
-#ifdef SK_DEBUG
-        if (result) {
-            this->assertTexturesEqual(other);
-        }
-#endif
-        return result;
+        return this->onIsEqual(that);
     }
 
 protected:

@@ -218,8 +218,7 @@ const GrBackendFragmentProcessorFactory& GrMagnifierEffect::getFactory() const {
 
 bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMagnifierEffect& s = sBase.cast<GrMagnifierEffect>();
-    return (this->texture(0) == s.texture(0) &&
-            this->fXOffset == s.fXOffset &&
+    return (this->fXOffset == s.fXOffset &&
             this->fYOffset == s.fYOffset &&
             this->fXInvZoom == s.fXInvZoom &&
             this->fYInvZoom == s.fYInvZoom &&

@@ -1202,10 +1202,8 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
             }
         }
 
-        return fTextureAccess.getTexture() == s.fTextureAccess.getTexture()  &&
-            fTextureAccess.getParams().getTileModeX() ==
-                s.fTextureAccess.getParams().getTileModeX() &&
-            this->useAtlas() == s.useAtlas();
+        SkASSERT(this->useAtlas() == s.useAtlas());
+        return true;
     }
 
     return false;
