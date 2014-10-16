@@ -12,6 +12,7 @@
 #include "SkRecorder.h"
 #include "SkRecords.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 
 #define COUNT(T) + 1
 static const int kRecordTypes = SK_RECORD_TYPES(COUNT);
@@ -150,3 +151,41 @@ DEF_TEST(Recorder_IsDrawingToLayer, r) {
     REPORTER_ASSERT(r, !recorder.isDrawingToLayer());
 }
 
+DEF_TEST(Recorder_drawImage_takeReference, reporter) {
+
+    SkAutoTUnref<SkImage> image;
+    {
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(100, 100));
+        surface->getCanvas()->clear(SK_ColorGREEN);
+        image.reset(surface->newImageSnapshot());
+    }
+    {
+        SkRecord record;
+        SkRecorder recorder(&record, 100, 100);
+
+        // DrawImage is supposed to take a reference
+        recorder.drawImage(image.get(), 0, 0);
+        REPORTER_ASSERT(reporter, !image->unique());
+
+        Tally tally;
+        tally.apply(record);
+
+        REPORTER_ASSERT(reporter, 1 == tally.count<SkRecords::DrawImage>());
+    }
+    REPORTER_ASSERT(reporter, image->unique());
+
+    {
+        SkRecord record;
+        SkRecorder recorder(&record, 100, 100);
+
+        // DrawImageRect is supposed to take a reference
+        recorder.drawImageRect(image.get(), 0, SkRect::MakeWH(100, 100));
+        REPORTER_ASSERT(reporter, !image->unique());
+
+        Tally tally;
+        tally.apply(record);
+
+        REPORTER_ASSERT(reporter, 1 == tally.count<SkRecords::DrawImageRect>());
+    }
+    REPORTER_ASSERT(reporter, image->unique());
+}

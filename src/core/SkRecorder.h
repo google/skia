@@ -49,6 +49,11 @@ public:
                         const SkIRect& center,
                         const SkRect& dst,
                         const SkPaint* paint = NULL) SK_OVERRIDE;
+    virtual void drawImage(const SkImage* image, SkScalar left, SkScalar top,
+                           const SkPaint* paint = NULL) SK_OVERRIDE;
+    virtual void drawImageRect(const SkImage* image, const SkRect* src,
+                               const SkRect& dst,
+                               const SkPaint* paint = NULL) SK_OVERRIDE;
     void drawSprite(const SkBitmap& bitmap,
                     int left,
                     int top,

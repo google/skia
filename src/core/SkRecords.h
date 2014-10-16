@@ -44,6 +44,8 @@ namespace SkRecords {
     M(DrawBitmapMatrix)                                             \
     M(DrawBitmapNine)                                               \
     M(DrawBitmapRectToRect)                                         \
+    M(DrawImage)                                                    \
+    M(DrawImageRect)                                                \
     M(DrawDRRect)                                                   \
     M(DrawOval)                                                     \
     M(DrawPaint)                                                    \
@@ -234,6 +236,14 @@ RECORD5(DrawBitmapRectToRect, Optional<SkPaint>, paint,
                               SkRect, dst,
                               SkCanvas::DrawBitmapRectFlags, flags);
 RECORD3(DrawDRRect, SkPaint, paint, SkRRect, outer, SkRRect, inner);
+RECORD4(DrawImage, Optional<SkPaint>, paint,
+                   RefBox<const SkImage>, image,
+                   SkScalar, left,
+                   SkScalar, top);
+RECORD4(DrawImageRect, Optional<SkPaint>, paint,
+                       RefBox<const SkImage>, image,
+                       Optional<SkRect>, src,
+                       SkRect, dst);
 RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
 RECORD1(DrawPaint, SkPaint, paint);
 RECORD2(DrawPath, SkPaint, paint, SkPath, path);

@@ -11,11 +11,13 @@
 #include "SkDebugCanvas.h"
 #include "SkDrawPictureCallback.h"
 #include "SkDropShadowImageFilter.h"
+#include "SkImagePriv.h"
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
 #include "SkRecordOpts.h"
 #include "SkRecorder.h"
 #include "SkRecords.h"
+#include "SkSurface.h"
 
 static const int W = 1920, H = 1080;
 
@@ -251,4 +253,58 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[1].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[2].bounds, SkRect::MakeLTRB(0, 0, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[3].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
+}
+
+DEF_TEST(RecordDraw_drawImage, r){
+    class SkCanvasMock : public SkCanvas {
+    public:
+        SkCanvasMock(int width, int height) : INHERITED(width, height) {
+            this->resetTestValues();
+        }
+        virtual ~SkCanvasMock() {}
+        virtual void drawImage(const SkImage* image, SkScalar left, SkScalar top,
+                               const SkPaint* paint = NULL) SK_OVERRIDE {
+
+            fDrawImageCalled = true;
+        }
+
+        virtual void drawImageRect(const SkImage* image, const SkRect* src,
+                                   const SkRect& dst,
+                                   const SkPaint* paint = NULL) SK_OVERRIDE {
+            fDrawImageRectCalled = true;
+        }
+
+        void resetTestValues() {
+            fDrawImageCalled = fDrawImageRectCalled = false;
+        }
+
+        bool fDrawImageCalled;
+        bool fDrawImageRectCalled;
+    private:
+        typedef SkCanvas INHERITED;
+    };
+
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(10, 10));
+    surface->getCanvas()->clear(SK_ColorGREEN);
+    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+
+    SkCanvasMock canvas(10, 10);
+
+    {
+        SkRecord record;
+        SkRecorder recorder(&record, 10, 10);
+        recorder.drawImage(image, 0, 0);
+        SkRecordDraw(record, &canvas, 0, 0);
+    }
+    REPORTER_ASSERT(r, canvas.fDrawImageCalled);
+    canvas.resetTestValues();
+
+    {
+        SkRecord record;
+        SkRecorder recorder(&record, 10, 10);
+        recorder.drawImageRect(image, 0, SkRect::MakeWH(10, 10));
+        SkRecordDraw(record, &canvas, 0, 0);
+    }
+    REPORTER_ASSERT(r, canvas.fDrawImageRectCalled);
+
 }

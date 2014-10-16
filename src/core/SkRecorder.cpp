@@ -155,6 +155,17 @@ void SkRecorder::drawBitmapNine(const SkBitmap& bitmap,
     APPEND(DrawBitmapNine, this->copy(paint), delay_copy(bitmap), center, dst);
 }
 
+void SkRecorder::drawImage(const SkImage* image, SkScalar left, SkScalar top,
+                           const SkPaint* paint) {
+    APPEND(DrawImage, this->copy(paint), image, left, top);
+}
+
+void SkRecorder::drawImageRect(const SkImage* image, const SkRect* src,
+                               const SkRect& dst,
+                               const SkPaint* paint) {
+    APPEND(DrawImageRect, this->copy(paint), image, this->copy(src), dst);
+}
+
 void SkRecorder::drawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
     APPEND(DrawSprite, this->copy(paint), delay_copy(bitmap), left, top);
 }

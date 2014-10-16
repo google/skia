@@ -217,8 +217,8 @@ SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
     return SkNEW_ARGS(SkImage_Raster, (info, pr, rowBytes));
 }
 
-SkPixelRef* SkBitmapImageGetPixelRef(SkImage* image) {
-    return ((SkImage_Raster*)image)->getPixelRef();
+const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
+    return ((const SkImage_Raster*)image)->getPixelRef();
 }
 
 bool SkImage_Raster::isOpaque() const {

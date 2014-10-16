@@ -134,7 +134,7 @@ void test_replacements(skiatest::Reporter* r, bool useBBH) {
     assert_type<SkRecords::Save>(r, rerecord, 0);
     assert_type<SkRecords::Save>(r, rerecord, 1);
     assert_type<SkRecords::SetMatrix>(r, rerecord, 2);
-    assert_type<SkRecords::DrawBitmapRectToRect>(r, rerecord, 3);
+    assert_type<SkRecords::DrawImageRect>(r, rerecord, 3);
     assert_type<SkRecords::Restore>(r, rerecord, 4);
     assert_type<SkRecords::DrawRect>(r, rerecord, 5);
     assert_type<SkRecords::Restore>(r, rerecord, 6);

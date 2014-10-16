@@ -93,6 +93,8 @@ DRAW(DrawBitmapNine, drawBitmapNine(shallow_copy(r.bitmap), r.center, r.dst, r.p
 DRAW(DrawBitmapRectToRect,
         drawBitmapRectToRect(shallow_copy(r.bitmap), r.src, r.dst, r.paint, r.flags));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
+DRAW(DrawImage, drawImage(r.image, r.left, r.top, r.paint));
+DRAW(DrawImageRect, drawImageRect(r.image, r.src, r.dst, r.paint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
@@ -359,7 +361,15 @@ private:
     Bounds bounds(const DrawDRRect& op) const {
         return this->adjustAndMap(op.outer.rect(), &op.paint);
     }
+    Bounds bounds(const DrawImage& op) const {
+        const SkImage* image = op.image;
+        SkRect rect = SkRect::MakeXYWH(op.left, op.top, image->width(), image->height());
 
+        return this->adjustAndMap(rect, op.paint);
+    }
+    Bounds bounds(const DrawImageRect& op) const {
+        return this->adjustAndMap(op.dst, op.paint);
+    }
     Bounds bounds(const DrawBitmapRectToRect& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
