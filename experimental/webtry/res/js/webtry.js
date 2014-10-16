@@ -24,7 +24,7 @@
       var embedButton     = document.getElementById('embedButton');
       var code            = document.getElementById('code');
       var output          = document.getElementById('output');
-      var stdout          = document.getElementById('stdout');
+      var outputWrapper   = document.getElementById('output-wrapper');
       var gpu             = document.getElementById('use-gpu');
       var img             = document.getElementById('img');
       var imageWidth      = document.getElementById('image-width');
@@ -163,6 +163,14 @@
       editor.setSize(editor.defaultCharWidth() * code.cols,
                      null);
 
+      editor.on('beforeChange', function(instance, changeObj) {
+        var startLine = changeObj.from.line;
+        var endLine = changeObj.to.line;
+
+        for (var i = startLine ; i <= endLine ; i++) {
+          editor.removeLineClass( i, "wrap", "error" );
+        }
+      });
 
       /**
        * Callback when there's an XHR error.
@@ -175,11 +183,7 @@
 
       function clearOutput() {
         output.textContent = "";
-        output.style.display='none';
-        if (stdout) {
-          stdout.textContent = "";
-          stdout.style.display='none';
-        }
+        outputWrapper.style.display='none';
         if (embed) {
           embed.style.display='none';
         }
@@ -236,6 +240,19 @@
         tryHistory.querySelector('.tries').addEventListener('click', historyClick, true);
       }
 
+      /**
+       * Callback for when the user clicks on a compile error message
+       *
+       */
+
+      function errorClick() {
+        var line = this.getAttribute('data-line');
+        var col = this.getAttribute('data-col');
+
+        editor.setCursor(line-1,col-1);
+        editor.focus();
+      }
+
 
       /**
        * Callback for when the XHR returns after attempting to run the code.
@@ -252,14 +269,39 @@
         // image to display.
         endWait();
         body = JSON.parse(e.target.response);
-        output.textContent = body.message;
-        if (body.message) {
-          output.style.display = 'block';
-        }
-        if (stdout) {
-          stdout.textContent = body.stdout;
-          if (body.stdout) {
-            stdout.style.display = 'block';
+        if (body.compileErrors.length) {
+          html = "";
+          for (i = 0 ; i < body.compileErrors.length ; i++) {
+            compileError = body.compileErrors[i];
+
+            err = document.createElement("div");
+            err.className = "compile-error";
+
+            loc = document.createElement("span");
+            loc.className = "error-location";
+            loc.innerHTML = "Line " + compileError.line + ", col " + compileError.column + ": ";
+
+            errorMessage = document.createElement("span");
+            errorMessage.className = "error-mesage";
+            errorMessage.innerHTML = compileError.error;
+
+            err.appendChild(loc);
+            err.appendChild(errorMessage);
+
+            err.setAttribute('data-line', compileError.line);
+            err.setAttribute('data-col', compileError.column);
+
+            output.appendChild(err);
+
+            err.addEventListener('click', errorClick);
+
+            editor.addLineClass( parseInt( compileError.line ) - 1, "wrap", "error" );
+          }
+          outputWrapper.style.display = 'block';
+        } else {
+          output.textContent = body.message;
+          if (body.message) {
+            outputWrapper.style.display = 'block';
           }
         }
         if (body.hasOwnProperty('img')) {

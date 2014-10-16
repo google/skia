@@ -135,11 +135,19 @@ code {
   font-size: 70%;
 }
 
-#output, #stdout {
+#output-wrapper {
   display: none;
 }
 
+.compile-error {
+  cursor: pointer;
+}
+
 /* CodeMirror customization */
+
+.CodeMirror .error {
+  background: #f88;
+}
 
 .CodeMirror-lines,
 .CodeMirror-scroll

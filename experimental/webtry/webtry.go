@@ -22,6 +22,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -85,6 +86,9 @@ var (
 
 	// workspaceLink is the regex that matches URLs paths for workspaces.
 	workspaceLink = regexp.MustCompile("^/w/([a-z0-9-]+)$")
+
+	// errorRE is ther regex that matches compiler errors and extracts the line / column information.
+	errorRE = regexp.MustCompile("^.*.cpp:(\\d+):(\\d+):\\s*(.*)")
 
 	// workspaceNameAdj is a list of adjectives for building workspace names.
 	workspaceNameAdj = []string{
@@ -405,10 +409,10 @@ func expandGyp(hash string) error {
 
 // response is serialized to JSON as a response to POSTs.
 type response struct {
-	Message string `json:"message"`
-	StdOut  string `json:"stdout"`
-	Img     string `json:"img"`
-	Hash    string `json:"hash"`
+	Message       string         `json:"message"`
+	CompileErrors []compileError `json:"compileErrors"`
+	Img           string         `json:"img"`
+	Hash          string         `json:"hash"`
 }
 
 // doCmd executes the given command line string; the command being
@@ -447,6 +451,23 @@ func reportTryError(w http.ResponseWriter, r *http.Request, err error, message, 
 	}
 	glog.Errorf("%s\n%s", message, err)
 	resp, err := json.Marshal(m)
+
+	if err != nil {
+		http.Error(w, "Failed to serialize a response", 500)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	w.Write(resp)
+}
+
+func reportCompileError(w http.ResponseWriter, r *http.Request, compileErrors []compileError, hash string) {
+	m := response{
+		CompileErrors: compileErrors,
+		Hash:          hash,
+	}
+
+	resp, err := json.Marshal(m)
+
 	if err != nil {
 		http.Error(w, "Failed to serialize a response", 500)
 		return
@@ -794,6 +815,12 @@ func cleanCompileOutput(s, hash string) string {
 	return strings.Replace(s, old, "usercode.cpp:", -1)
 }
 
+type compileError struct {
+	Line   int    `json:"line"`
+	Column int    `json:"column"`
+	Error  string `json:"error"`
+}
+
 // mainHandler handles the GET and POST of the main page.
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	glog.Infof("Main Handler: %q\n", r.URL.Path)
@@ -869,10 +896,40 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		message, err := doCmd(cmd)
+
+		outputLines := strings.Split(message, "\n")
+		errorLines := []compileError{}
+		for _, line := range outputLines {
+			match := errorRE.FindStringSubmatch(line)
+			if len(match) > 0 {
+				lineNumber, parseError := strconv.Atoi(match[1])
+				if parseError != nil {
+					glog.Errorf("ERROR: Couldn't parse line number from %s\n", match[1])
+					continue
+				}
+				columnNumber, parseError := strconv.Atoi(match[2])
+				if parseError != nil {
+					glog.Errorf("ERROR: Couldn't parse column number from %s\n", match[2])
+					continue
+				}
+				errorLines = append(errorLines,
+					compileError{
+						Line:   lineNumber,
+						Column: columnNumber,
+						Error:  match[3],
+					})
+			}
+		}
+
 		if err != nil {
-			reportTryError(w, r, err, "Failed to run the code:\n"+message, hash)
+			if len(errorLines) > 0 {
+				reportCompileError(w, r, errorLines, hash)
+			} else {
+				reportTryError(w, r, err, "Failed to run the code:\n"+message, hash)
+			}
 			return
 		}
+
 		png, err := ioutil.ReadFile("../../../inout/" + hash + ".png")
 		if err != nil {
 			reportTryError(w, r, err, "Failed to open the generated PNG.", hash)
