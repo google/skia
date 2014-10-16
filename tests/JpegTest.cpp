@@ -6,11 +6,12 @@
  */
 
 #include "SkBitmap.h"
-#include "SkData.h"
+#include "SkDecodingImageGenerator.h"
 #include "SkForceLinking.h"
-#include "SkImage.h"
 #include "SkImageDecoder.h"
+#include "SkPixelRef.h"
 #include "SkStream.h"
+#include "SkTemplates.h"
 #include "Test.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
@@ -451,4 +452,48 @@ DEF_TEST(Jpeg, reporter) {
         "HalfOfAJpeg.png", bm8888, SkImageEncoder::kPNG_Type, 100);
     SkASSERT(writeSuccess);
     #endif
+}
+
+DEF_TEST(Jpeg_YUV, reporter) {
+    size_t len = sizeof(goodJpegImage);
+    SkMemoryStream* stream = SkNEW_ARGS(SkMemoryStream, (goodJpegImage, len));
+
+    SkBitmap bitmap;
+    SkDecodingImageGenerator::Options opts;
+    bool pixelsInstalled = SkInstallDiscardablePixelRef(
+                SkDecodingImageGenerator::Create(stream, opts), &bitmap);
+    REPORTER_ASSERT(reporter, pixelsInstalled);
+
+    if (!pixelsInstalled) {
+        return;
+    }
+
+    SkPixelRef* pixelRef = bitmap.pixelRef();
+    SkISize yuvSizes[3];
+    bool sizesComputed = (NULL != pixelRef) && pixelRef->getYUV8Planes(yuvSizes, NULL, NULL, NULL);
+    REPORTER_ASSERT(reporter, sizesComputed);
+
+    if (!sizesComputed) {
+        return;
+    }
+
+    // Allocate the memory for YUV
+    size_t totalSize(0);
+    size_t sizes[3], rowBytes[3];
+    const int32_t expected_sizes[] = {128, 64, 64};
+    for (int i = 0; i < 3; ++i) {
+        rowBytes[i] = yuvSizes[i].fWidth;
+        totalSize  += sizes[i] = rowBytes[i] * yuvSizes[i].fHeight;
+        REPORTER_ASSERT(reporter, rowBytes[i]         == (size_t)expected_sizes[i]);
+        REPORTER_ASSERT(reporter, yuvSizes[i].fWidth  == expected_sizes[i]);
+        REPORTER_ASSERT(reporter, yuvSizes[i].fHeight == expected_sizes[i]);
+    }
+    SkAutoMalloc storage(totalSize);
+    void* planes[3];
+    planes[0] = storage.get();
+    planes[1] = (uint8_t*)planes[0] + sizes[0];
+    planes[2] = (uint8_t*)planes[1] + sizes[1];
+
+    // Get the YUV planes
+    REPORTER_ASSERT(reporter, pixelRef->getYUV8Planes(yuvSizes, planes, rowBytes, NULL));
 }
