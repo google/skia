@@ -46,8 +46,6 @@ protected:
 
     virtual bool canDraw(const SkPaint& paint) = 0;
 
-    virtual void onDrawText(const GrPaint&, const SkPaint&, const char text[], size_t byteLength,
-                            SkScalar x, SkScalar y) = 0;
     virtual void onDrawPosText(const GrPaint&, const SkPaint&,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,

@@ -50,8 +50,6 @@ private:
 
     virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
 
-    virtual void onDrawText(const GrPaint&, const SkPaint&, const char text[], size_t byteLength,
-                            SkScalar x, SkScalar y) SK_OVERRIDE;
     virtual void onDrawPosText(const GrPaint&, const SkPaint&,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,

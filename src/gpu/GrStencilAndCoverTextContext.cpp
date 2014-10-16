@@ -11,7 +11,6 @@
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
-#include "SkAutoKern.h"
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
@@ -60,96 +59,6 @@ bool GrStencilAndCoverTextContext::canDraw(const SkPaint& paint) {
     SkScalerContext::Rec    rec;
     SkScalerContext::MakeRec(paint, &fDeviceProperties, NULL, &rec);
     return rec.getFormat() != SkMask::kARGB32_Format;
-}
-
-void GrStencilAndCoverTextContext::onDrawText(const GrPaint& paint,
-                                            const SkPaint& skPaint,
-                                            const char text[],
-                                            size_t byteLength,
-                                            SkScalar x, SkScalar y) {
-    SkASSERT(byteLength == 0 || text != NULL);
-
-    if (text == NULL || byteLength == 0 /*|| fRC->isEmpty()*/) {
-        return;
-    }
-
-    // This is the slow path, mainly used by Skia unit tests.  The other
-    // backends (8888, gpu, ...) use device-space dependent glyph caches. In
-    // order to match the glyph positions that the other code paths produce, we
-    // must also use device-space dependent glyph cache. This has the
-    // side-effect that the glyph shape outline will be in device-space,
-    // too. This in turn has the side-effect that NVPR can not stroke the paths,
-    // as the stroke in NVPR is defined in object-space.
-    // NOTE: here we have following coincidence that works at the moment:
-    // - When using the device-space glyphs, the transforms we pass to NVPR
-    // instanced drawing are the global transforms, and the view transform is
-    // identity. NVPR can not use non-affine transforms in the instanced
-    // drawing. This is taken care of by SkDraw::ShouldDrawTextAsPaths since it
-    // will turn off the use of device-space glyphs when perspective transforms
-    // are in use.
-
-    this->init(paint, skPaint, byteLength, kMaxAccuracy_RenderMode, SkPoint::Make(0, 0));
-
-    // Transform our starting point.
-    if (fNeedsDeviceSpaceGlyphs) {
-        SkPoint loc;
-        fContextInitialMatrix.mapXY(x, y, &loc);
-        x = loc.fX;
-        y = loc.fY;
-    }
-
-    SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
-
-    fTransformType = GrPathRendering::kTranslate_PathTransformType;
-
-    const char* stop = text + byteLength;
-
-    // Measure first if needed.
-    if (fSkPaint.getTextAlign() != SkPaint::kLeft_Align) {
-        SkFixed    stopX = 0;
-        SkFixed    stopY = 0;
-
-        const char* textPtr = text;
-        while (textPtr < stop) {
-            // We don't need x, y here, since all subpixel variants will have the
-            // same advance.
-            const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &textPtr, 0, 0);
-
-            stopX += glyph.fAdvanceX;
-            stopY += glyph.fAdvanceY;
-        }
-        SkASSERT(textPtr == stop);
-
-        SkScalar alignX = SkFixedToScalar(stopX) * fTextRatio;
-        SkScalar alignY = SkFixedToScalar(stopY) * fTextRatio;
-
-        if (fSkPaint.getTextAlign() == SkPaint::kCenter_Align) {
-            alignX = SkScalarHalf(alignX);
-            alignY = SkScalarHalf(alignY);
-        }
-
-        x -= alignX;
-        y -= alignY;
-    }
-
-    SkAutoKern autokern;
-
-    SkFixed fixedSizeRatio = SkScalarToFixed(fTextRatio);
-
-    SkFixed fx = SkScalarToFixed(x);
-    SkFixed fy = SkScalarToFixed(y);
-    while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
-        fx += SkFixedMul_portable(autokern.adjust(glyph), fixedSizeRatio);
-        if (glyph.fWidth) {
-            this->appendGlyph(glyph.getGlyphID(), SkFixedToScalar(fx), SkFixedToScalar(fy));
-        }
-
-        fx += SkFixedMul_portable(glyph.fAdvanceX, fixedSizeRatio);
-        fy += SkFixedMul_portable(glyph.fAdvanceY, fixedSizeRatio);
-    }
-
-    this->finish();
 }
 
 void GrStencilAndCoverTextContext::onDrawPosText(const GrPaint& paint,

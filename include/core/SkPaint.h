@@ -1102,6 +1102,7 @@ private:
     friend class SkDraw;
     friend class SkGraphics; // So Term() can be called.
     friend class SkPDFDevice;
+    friend class GrTextContext;
     friend class GrBitmapTextContext;
     friend class GrDistanceFieldTextContext;
     friend class GrStencilAndCoverTextContext;

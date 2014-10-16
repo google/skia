@@ -16,7 +16,6 @@
 #include "GrTextStrike_impl.h"
 #include "effects/GrCustomCoordsTextureEffect.h"
 
-#include "SkAutoKern.h"
 #include "SkColorPriv.h"
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
@@ -89,97 +88,6 @@ inline void GrBitmapTextContext::init(const GrPaint& paint, const SkPaint& skPai
 
     fVertices = NULL;
     fMaxVertices = 0;
-}
-
-void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPaint,
-                                   const char text[], size_t byteLength,
-                                   SkScalar x, SkScalar y) {
-    SkASSERT(byteLength == 0 || text != NULL);
-
-    // nothing to draw
-    if (text == NULL || byteLength == 0 /*|| fRC->isEmpty()*/) {
-        return;
-    }
-
-    this->init(paint, skPaint);
-
-    SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
-
-    SkAutoGlyphCache    autoCache(fSkPaint, &fDeviceProperties, &fContext->getMatrix());
-    SkGlyphCache*       cache = autoCache.getCache();
-    GrFontScaler*       fontScaler = GetGrFontScaler(cache);
-
-    // transform our starting point
-    {
-        SkPoint loc;
-        fContext->getMatrix().mapXY(x, y, &loc);
-        x = loc.fX;
-        y = loc.fY;
-    }
-
-    // need to measure first
-    if (fSkPaint.getTextAlign() != SkPaint::kLeft_Align) {
-        SkVector    stop;
-
-        MeasureText(cache, glyphCacheProc, text, byteLength, &stop);
-
-        SkScalar    stopX = stop.fX;
-        SkScalar    stopY = stop.fY;
-
-        if (fSkPaint.getTextAlign() == SkPaint::kCenter_Align) {
-            stopX = SkScalarHalf(stopX);
-            stopY = SkScalarHalf(stopY);
-        }
-        x -= stopX;
-        y -= stopY;
-    }
-
-    const char* stop = text + byteLength;
-
-    SkAutoKern autokern;
-
-    SkFixed fxMask = ~0;
-    SkFixed fyMask = ~0;
-    SkFixed halfSampleX, halfSampleY;
-    if (cache->isSubpixel()) {
-        halfSampleX = halfSampleY = (SK_FixedHalf >> SkGlyph::kSubBits);
-        SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(fContext->getMatrix());
-        if (kX_SkAxisAlignment == baseline) {
-            fyMask = 0;
-            halfSampleY = SK_FixedHalf;
-        } else if (kY_SkAxisAlignment == baseline) {
-            fxMask = 0;
-            halfSampleX = SK_FixedHalf;
-        }
-    } else {
-        halfSampleX = halfSampleY = SK_FixedHalf;
-    }
-
-    SkFixed fx = SkScalarToFixed(x) + halfSampleX;
-    SkFixed fy = SkScalarToFixed(y) + halfSampleY;
-
-    GrContext::AutoMatrix  autoMatrix;
-    autoMatrix.setIdentity(fContext, &fPaint);
-
-    while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
-
-        fx += autokern.adjust(glyph);
-
-        if (glyph.fWidth) {
-            this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
-                                            glyph.getSubXFixed(),
-                                            glyph.getSubYFixed()),
-                              SkFixedFloorToFixed(fx),
-                              SkFixedFloorToFixed(fy),
-                              fontScaler);
-        }
-
-        fx += glyph.fAdvanceX;
-        fy += glyph.fAdvanceY;
-    }
-
-    this->finish();
 }
 
 void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skPaint,
