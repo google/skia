@@ -41,6 +41,9 @@ public:
     SkTDArray<SkString*>* Info() {return &fInfo; };
     virtual void execute(SkCanvas* canvas) = 0;
     virtual void vizExecute(SkCanvas* canvas) { };
+
+    virtual void setUserMatrix(const SkMatrix& userMtx) { };
+
     /** Does nothing by default, but used by save() and restore()-type
         subclasses to track unresolved save() calls. */
     virtual void trackSaveState(int* state) { };
@@ -592,8 +595,10 @@ private:
 class SkSetMatrixCommand : public SkDrawCommand {
 public:
     SkSetMatrixCommand(const SkMatrix& matrix);
+    virtual void setUserMatrix(const SkMatrix&) SK_OVERRIDE;
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
+    SkMatrix fUserMatrix;
     SkMatrix fMatrix;
 
     typedef SkDrawCommand INHERITED;

@@ -964,13 +964,19 @@ void SkScaleCommand::execute(SkCanvas* canvas) {
 
 SkSetMatrixCommand::SkSetMatrixCommand(const SkMatrix& matrix)
     : INHERITED(SET_MATRIX) {
+    fUserMatrix.reset();
     fMatrix = matrix;
 
     fInfo.push(SkObjectParser::MatrixToString(matrix));
 }
 
+void SkSetMatrixCommand::setUserMatrix(const SkMatrix& userMatrix) {
+    fUserMatrix = userMatrix;
+}
+
 void SkSetMatrixCommand::execute(SkCanvas* canvas) {
-    canvas->setMatrix(fMatrix);
+    SkMatrix temp = SkMatrix::Concat(fUserMatrix, fMatrix);
+    canvas->setMatrix(temp);
 }
 
 SkSkewCommand::SkSkewCommand(SkScalar sx, SkScalar sy)

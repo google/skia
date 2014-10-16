@@ -27,6 +27,7 @@ SkDebugCanvas::SkDebugCanvas(int windowWidth, int windowHeight)
         , fTexOverrideFilter(NULL)
         , fOutstandingSaveCount(0) {
     fUserMatrix.reset();
+    fDrawNeedsReset = false;
 
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
     // operations. This can lead to problems in the debugger which expects all
@@ -81,6 +82,7 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     SkColor prev = bitmap.getColor(0,0);
     for (int i = 0; i < index; i++) {
         if (fCommandVector[i]->isVisible()) {
+            fCommandVector[i]->setUserMatrix(fUserMatrix);
             fCommandVector[i]->execute(&canvas);
         }
         if (prev != bitmap.getColor(0,0)) {
@@ -246,7 +248,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     // and restores.
     // The visibility filter also requires a full re-draw - otherwise we can
     // end up drawing the filter repeatedly.
-    if (fIndex < index && !fFilter && !fMegaVizMode && !pathOpsMode) {
+    if (fIndex < index && !fFilter && !fMegaVizMode && !pathOpsMode && !fDrawNeedsReset) {
         i = fIndex + 1;
     } else {
         for (int j = 0; j < fOutstandingSaveCount; j++) {
@@ -254,10 +256,11 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         }
         canvas->clear(SK_ColorTRANSPARENT);
         canvas->resetMatrix();
-        SkRect rect = SkRect::MakeWH(SkIntToScalar(fWindowSize.fWidth), 
+        SkRect rect = SkRect::MakeWH(SkIntToScalar(fWindowSize.fWidth),
                                      SkIntToScalar(fWindowSize.fHeight));
         canvas->clipRect(rect, SkRegion::kReplace_Op);
         this->applyUserTransform(canvas);
+        fDrawNeedsReset = false;
         fOutstandingSaveCount = 0;
     }
 
@@ -302,6 +305,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
                 //     All active culls draw their cull box
                 fCommandVector[i]->vizExecute(canvas);
             } else {
+                fCommandVector[i]->setUserMatrix(fUserMatrix);
                 fCommandVector[i]->execute(canvas);
             }
 

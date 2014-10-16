@@ -149,6 +149,7 @@ public:
 
     void setUserMatrix(SkMatrix matrix) {
         fUserMatrix = matrix;
+        fDrawNeedsReset = true;
     }
 
     SkString clipStackData() const { return fClipStackData; }
@@ -261,6 +262,7 @@ private:
     bool fMegaVizMode;
     int fIndex;
     SkMatrix fUserMatrix;
+    bool     fDrawNeedsReset; // fUserMatrix has changed so the incremental draw won't work
     SkMatrix fMatrix;
     SkIRect fClip;
 
