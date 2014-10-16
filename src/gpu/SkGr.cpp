@@ -220,6 +220,12 @@ static GrTexture *load_etc1_texture(GrContext* ctx, bool cache,
 
 static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTextureParams* params,
                                    const SkBitmap& bm, const GrTextureDesc& desc) {
+    // Subsets are not supported, the whole pixelRef is loaded when using YUV decoding
+    if ((bm.pixelRef()->info().width()  != bm.info().width()) ||
+        (bm.pixelRef()->info().height() != bm.info().height())) {
+        return NULL;
+    }
+
     SkPixelRef* pixelRef = bm.pixelRef();
     SkISize yuvSizes[3];
     if ((NULL == pixelRef) || !pixelRef->getYUV8Planes(yuvSizes, NULL, NULL, NULL)) {
