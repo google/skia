@@ -1205,8 +1205,7 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
         return fTextureAccess.getTexture() == s.fTextureAccess.getTexture()  &&
             fTextureAccess.getParams().getTileModeX() ==
                 s.fTextureAccess.getParams().getTileModeX() &&
-            this->useAtlas() == s.useAtlas() &&
-            fCoordTransform.getMatrix().cheapEqualTo(s.fCoordTransform.getMatrix());
+            this->useAtlas() == s.useAtlas();
     }
 
     return false;

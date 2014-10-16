@@ -91,11 +91,13 @@ public:
         return &fMatrix;
     }
 
-    bool operator== (const GrCoordTransform& other) const {
-        return fSourceCoords == other.fSourceCoords &&
-               fMatrix.cheapEqualTo(other.fMatrix) &&
-               fReverseY == other.fReverseY;
+    bool operator== (const GrCoordTransform& that) const {
+        return fSourceCoords == that.fSourceCoords &&
+               fMatrix.cheapEqualTo(that.fMatrix) &&
+               fReverseY == that.fReverseY;
     }
+
+    bool operator!= (const GrCoordTransform& that) const { return !(*this == that); }
 
     GrCoordSet sourceCoords() const { return fSourceCoords; }
     const SkMatrix& getMatrix() const { return fMatrix; }

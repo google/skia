@@ -579,7 +579,6 @@ private:
                fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency &&
                fNumOctaves == s.fNumOctaves &&
                fStitchTiles == s.fStitchTiles &&
-               fCoordTransform.getMatrix() == s.fCoordTransform.getMatrix() &&
                fAlpha == s.fAlpha &&
                fPermutationsAccess.getTexture() == s.fPermutationsAccess.getTexture() &&
                fNoiseAccess.getTexture() == s.fNoiseAccess.getTexture() &&

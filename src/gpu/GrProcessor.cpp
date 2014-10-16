@@ -175,3 +175,16 @@ void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
     SkDEBUGCODE(transform->setInProcessor();)
 }
+
+bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) const {
+    if (fCoordTransforms.count() != that.fCoordTransforms.count()) {
+        return false;
+    }
+    int count = fCoordTransforms.count();
+    for (int i = 0; i < count; ++i) {
+        if (*fCoordTransforms[i] != *that.fCoordTransforms[i]) {
+            return false;
+        }
+    }
+    return true;
+}

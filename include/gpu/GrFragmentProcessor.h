@@ -46,7 +46,7 @@ public:
         generate the same shader code. To test for identical code generation use the prceossor' keys
         computed by the GrBackendProcessorFactory. */
     bool isEqual(const GrFragmentProcessor& other) const {
-        if (&this->getFactory() != &other.getFactory()) {
+        if (&this->getFactory() != &other.getFactory() || !this->hasSameTransforms(other)) {
             return false;
         }
         bool result = this->onIsEqual(other);
@@ -61,11 +61,20 @@ public:
 protected:
     /**
      * Fragment Processor subclasses call this from their constructor to register coordinate
-     * transformations. The processor subclass manages the lifetime of the transformations (this
-     * function only stores a pointer). The GrCoordTransform is typically a member field of the
-     * GrProcessor subclass. When the matrix has perspective, the transformed coordinates will have
-     * 3 components. Otherwise they'll have 2. This must only be called from the constructor because
-     * GrProcessors are immutable.
+     * transformations. Coord transforms provide a mechanism for a processor to receive coordinates
+     * in their FS code. The matrix expresses a transformation from local space. For a given
+     * fragment the matrix will be applied to the local coordinate that maps to the fragment.
+     *
+     * When the transformation has perspective, the transformed coordinates will have
+     * 3 components. Otherwise they'll have 2. 
+     *
+     * This must only be called from the constructor because GrProcessors are immutable. The
+     * processor subclass manages the lifetime of the transformations (this function only stores a
+     * pointer). The GrCoordTransform is typically a member field of the GrProcessor subclass. 
+     *
+     * A processor subclass that has multiple methods of construction should always add its coord
+     * transforms in a consistent order. The non-virtual implementation of isEqual() automatically
+     * compares transforms and will assume they line up across the two processor instances.
      */
     void addCoordTransform(const GrCoordTransform*);
 
@@ -84,10 +93,15 @@ protected:
     void setWillNotUseInputColor() { fWillUseInputColor = false; }
 
 private:
-    /** Subclass implements this to support isEqual(). It will only be called if it is known that
-        the two prceossor are of the same subclass (i.e. they return the same object from
-        getFactory()).*/
-    virtual bool onIsEqual(const GrFragmentProcessor& other) const = 0;
+    /**
+     * Subclass implements this to support isEqual(). It will only be called if it is known that
+     * the two processors are of the same subclass (i.e. they return the same object from
+     * getFactory()). The processor subclass should not compare its coord transforms as that will
+     * be performed automatically in the non-virtual isEqual().
+     */
+    virtual bool onIsEqual(const GrFragmentProcessor&) const = 0;
+
+    bool hasSameTransforms(const GrFragmentProcessor&) const;
 
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
     bool                                         fWillReadDstColor;
