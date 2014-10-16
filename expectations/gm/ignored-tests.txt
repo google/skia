@@ -54,3 +54,6 @@ megalooper_0x0
 megalooper_1x4
 megalooper_4x1
 imagefiltersbase
+
+# fmalita to rebaseline after adding implicit bounds support
+textblob

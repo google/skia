@@ -2195,9 +2195,7 @@ void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPat
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
 
-    // FIXME: temporarily disable quickreject for empty bounds,
-    // pending implicit blob bounds implementation.
-    if (!blob->bounds().isEmpty() && paint.canComputeFastBounds()) {
+    if (paint.canComputeFastBounds()) {
         SkRect storage;
 
         if (this->quickReject(paint.computeFastBounds(blob->bounds().makeOffset(x, y), &storage))) {

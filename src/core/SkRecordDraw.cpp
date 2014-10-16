@@ -456,10 +456,6 @@ private:
     Bounds bounds(const DrawTextBlob& op) const {
         SkRect dst = op.blob->bounds();
         dst.offset(op.x, op.y);
-        // TODO: remove when implicit bounds are plumbed through
-        if (dst.isEmpty()) {
-            return fCurrentClipBounds;
-        }
         return this->adjustAndMap(dst, &op.paint);
     }
 
