@@ -59,29 +59,33 @@ void GrResourceCache2::releaseAll() {
 
 class GrResourceCache2::AvailableForScratchUse {
 public:
-    AvailableForScratchUse(bool calledDuringFlush) : fFlushing(calledDuringFlush) { }
+    AvailableForScratchUse(bool rejectPendingIO) : fRejectPendingIO(rejectPendingIO) { }
 
     bool operator()(const GrGpuResource* resource) const {
-        if (fFlushing) {
-            // If this request is coming during draw buffer flush then no refs are allowed
-            // either by drawing code or for pending io operations.
-            // This will be removed when flush no longer creates resources.
-            return resource->reffedOnlyByCache() && !resource->internalHasPendingIO() &&
-                   resource->isScratch();
-        } else {
-            // Because duties are currently shared between GrResourceCache and GrResourceCache2, the
-            // current interpretation of this rule is that only GrResourceCache has a ref but that
-            // it has been marked as a scratch resource.
-            return resource->reffedOnlyByCache() && resource->isScratch();
+        if (!resource->reffedOnlyByCache() || !resource->isScratch()) {
+            return false;
         }
+
+        return !fRejectPendingIO || !resource->internalHasPendingIO();
     }
 
 private:
-    bool fFlushing;
+    bool fRejectPendingIO;
 };
 
 GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrResourceKey& scratchKey,
-                                                           bool calledDuringFlush) {
+                                                           uint32_t flags) {
     SkASSERT(scratchKey.isScratch());
-    return SkSafeRef(fScratchMap.find(scratchKey, AvailableForScratchUse(calledDuringFlush)));
+
+    if (flags & (kPreferNoPendingIO_ScratchFlag | kRequireNoPendingIO_ScratchFlag)) {
+        GrGpuResource* resource = fScratchMap.find(scratchKey, AvailableForScratchUse(true));
+        if (resource) {
+            return SkRef(resource);
+        } else if (flags & kRequireNoPendingIO_ScratchFlag) {
+            return NULL;
+        }
+        // TODO: fail here when kPrefer is specified, we didn't find a resource without pending io,
+        // but there is still space in our budget for the resource.
+    }
+    return SkSafeRef(fScratchMap.find(scratchKey, AvailableForScratchUse(false)));
 }

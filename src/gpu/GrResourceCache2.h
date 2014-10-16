@@ -32,8 +32,13 @@ public:
 
     void releaseAll();
 
-    GrGpuResource* findAndRefScratchResource(const GrResourceKey& scratchKey,
-                                             bool calledDuringFlush);
+    enum {
+        /** Preferentially returns scratch resources with no pending IO. */
+        kPreferNoPendingIO_ScratchFlag = 0x1,
+        /** Will not return any resources that match but have pending IO. */
+        kRequireNoPendingIO_ScratchFlag = 0x2,
+    };
+    GrGpuResource* findAndRefScratchResource(const GrResourceKey& scratchKey, uint32_t flags = 0);
 
 private:
 #ifdef SK_DEBUG

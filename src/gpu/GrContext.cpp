@@ -470,8 +470,15 @@ GrTexture* GrContext::refScratchTexture(const GrTextureDesc& inDesc, ScratchTexM
 
         do {
             GrResourceKey key = GrTexturePriv::ComputeScratchKey(*desc);
-            GrGpuResource* resource = fResourceCache2->findAndRefScratchResource(key,
-                                                                                 calledDuringFlush);
+            uint32_t scratchFlags = 0;
+            if (calledDuringFlush) {
+                scratchFlags = GrResourceCache2::kRequireNoPendingIO_ScratchFlag;
+            } else  if (!(desc->fFlags & kRenderTarget_GrTextureFlagBit)) {
+                // If it is not a render target then it will most likely be populated by
+                // writePixels() which will trigger a flush if the texture has pending IO.
+                scratchFlags = GrResourceCache2::kPreferNoPendingIO_ScratchFlag;
+            }
+            GrGpuResource* resource = fResourceCache2->findAndRefScratchResource(key, scratchFlags);
             if (resource) {
                 fResourceCache->makeResourceMRU(resource);
                 return static_cast<GrTexture*>(resource);
