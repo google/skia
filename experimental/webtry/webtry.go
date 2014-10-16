@@ -937,9 +937,8 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		m := response{
-			Message: message,
-			Img:     base64.StdEncoding.EncodeToString([]byte(png)),
-			Hash:    hash,
+			Img:  base64.StdEncoding.EncodeToString([]byte(png)),
+			Hash: hash,
 		}
 		resp, err := json.Marshal(m)
 		if err != nil {

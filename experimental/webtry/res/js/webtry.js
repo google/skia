@@ -269,7 +269,7 @@
         // image to display.
         endWait();
         body = JSON.parse(e.target.response);
-        if (body.compileErrors.length) {
+        if (null != body.compileErrors && body.compileErrors.length) {
           html = "";
           for (i = 0 ; i < body.compileErrors.length ; i++) {
             compileError = body.compileErrors[i];
