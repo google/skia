@@ -14,39 +14,18 @@ namespace {
 class MacGLContext : public SkGLContext {
 public:
     MacGLContext();
-
-    virtual ~MacGLContext();
-
+    virtual ~MacGLContext() SK_OVERRIDE;
     virtual void makeCurrent() const SK_OVERRIDE;
     virtual void swapBuffers() const SK_OVERRIDE;
-protected:
-    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
-    virtual void destroyGLContext() SK_OVERRIDE;
 
 private:
+    void destroyGLContext();
+
     CGLContextObj fContext;
 };
 
 MacGLContext::MacGLContext()
     : fContext(NULL) {
-}
-
-MacGLContext::~MacGLContext() {
-    this->destroyGLContext();
-}
-
-void MacGLContext::destroyGLContext() {
-    if (fContext) {
-        CGLReleaseContext(fContext);
-    }
-}
-
-const GrGLInterface* MacGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
-    SkASSERT(NULL == fContext);
-    if (kGLES_GrGLStandard == forcedGpuAPI) {
-        return NULL;
-    }
-
     CGLPixelFormatAttribute attributes[] = {
 #if MAC_OS_X_VERSION_10_7
         kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
@@ -61,7 +40,7 @@ const GrGLInterface* MacGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
 
     if (NULL == pixFormat) {
         SkDebugf("CGLChoosePixelFormat failed.");
-        return NULL;
+        return;
     }
 
     CGLCreateContext(pixFormat, NULL, &fContext);
@@ -69,19 +48,34 @@ const GrGLInterface* MacGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
 
     if (NULL == fContext) {
         SkDebugf("CGLCreateContext failed.");
-        return NULL;
+        return;
     }
 
     CGLSetCurrentContext(fContext);
 
-    const GrGLInterface* interface = GrGLCreateNativeInterface();
-    if (NULL == interface) {
+    fGL.reset(GrGLCreateNativeInterface());
+    if (NULL == fGL.get()) {
         SkDebugf("Context could not create GL interface.\n");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
+    if (!fGL->validate()) {
+        SkDebugf("Context could not validate GL interface.\n");
+        this->destroyGLContext();
+        return;
+    }
+}
 
-    return interface;
+MacGLContext::~MacGLContext() {
+    this->destroyGLContext();
+}
+
+void MacGLContext::destroyGLContext() {
+    fGL.reset(NULL);
+    if (fContext) {
+        CGLReleaseContext(fContext);
+        fContext = NULL;
+    }
 }
 
 void MacGLContext::makeCurrent() const {
@@ -94,6 +88,14 @@ void MacGLContext::swapBuffers() const {
 
 } // anonymous namespace
 
-SkGLContext* SkCreatePlatformGLContext() {
-    return SkNEW(MacGLContext);
+SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
+    if (kGLES_GrGLStandard == forcedGpuAPI) {
+        return NULL;
+    }
+    MacGLContext* ctx = SkNEW(MacGLContext);
+    if (!ctx->isValid()) {
+        SkDELETE(ctx);
+        return NULL;
+    }
+    return ctx;
 }

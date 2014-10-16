@@ -46,65 +46,32 @@ static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
 
 class GLXGLContext : public SkGLContext {
 public:
-    GLXGLContext();
-
-    virtual ~GLXGLContext();
-
+    GLXGLContext(GrGLStandard forcedGpuAPI);
+    virtual ~GLXGLContext() SK_OVERRIDE;
     virtual void makeCurrent() const SK_OVERRIDE;
     virtual void swapBuffers() const SK_OVERRIDE;
-protected:
-    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
-    virtual void destroyGLContext() SK_OVERRIDE;
 
 private:
+    void destroyGLContext();
+
     GLXContext fContext;
     Display* fDisplay;
     Pixmap fPixmap;
     GLXPixmap fGlxPixmap;
 };
 
-GLXGLContext::GLXGLContext()
+GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI)
     : fContext(NULL)
     , fDisplay(NULL)
     , fPixmap(0)
     , fGlxPixmap(0) {
-}
 
-GLXGLContext::~GLXGLContext() {
-    this->destroyGLContext();
-}
-
-void GLXGLContext::destroyGLContext() {
-    if (fDisplay) {
-        glXMakeCurrent(fDisplay, 0, 0);
-
-        if (fContext) {
-            glXDestroyContext(fDisplay, fContext);
-            fContext = NULL;
-        }
-
-        if (fGlxPixmap) {
-            glXDestroyGLXPixmap(fDisplay, fGlxPixmap);
-            fGlxPixmap = 0;
-        }
-
-        if (fPixmap) {
-            XFreePixmap(fDisplay, fPixmap);
-            fPixmap = 0;
-        }
-
-        XCloseDisplay(fDisplay);
-        fDisplay = NULL;
-    }
-}
-
-const GrGLInterface* GLXGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     fDisplay = XOpenDisplay(0);
 
     if (!fDisplay) {
         SkDebugf("Failed to open X display.\n");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
 
     // Get a matching FB config
@@ -121,7 +88,7 @@ const GrGLInterface* GLXGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
             ((glx_major == 1) && (glx_minor < 3)) || (glx_major < 1)) {
         SkDebugf("GLX version 1.3 or higher required.\n");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
 
     //SkDebugf("Getting matching framebuffer configs.\n");
@@ -131,7 +98,7 @@ const GrGLInterface* GLXGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     if (!fbc) {
         SkDebugf("Failed to retrieve a framebuffer config.\n");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
     //SkDebugf("Found %d matching FB configs.\n", fbcount);
 
@@ -171,7 +138,7 @@ const GrGLInterface* GLXGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     if (!fPixmap) {
         SkDebugf("Failed to create pixmap.\n");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
 
     fGlxPixmap = glXCreateGLXPixmap(fDisplay, vi, fPixmap);
@@ -283,7 +250,7 @@ const GrGLInterface* GLXGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     if (ctxErrorOccurred || !fContext) {
         SkDebugf("Failed to create an OpenGL context.\n");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
 
     // Verify that context is a direct context
@@ -297,16 +264,51 @@ const GrGLInterface* GLXGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
       SkDebugf("Could not set the context.\n");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
 
-    const GrGLInterface* interface = GrGLCreateNativeInterface();
-    if (!interface) {
+    fGL.reset(GrGLCreateNativeInterface());
+    if (NULL == fGL.get()) {
         SkDebugf("Failed to create gl interface");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
-    return interface;
+
+    if (!fGL->validate()) {
+        SkDebugf("Failed to validate gl interface");
+        this->destroyGLContext();
+        return;
+    }
+}
+
+
+GLXGLContext::~GLXGLContext() {
+    this->destroyGLContext();
+}
+
+void GLXGLContext::destroyGLContext() {
+    fGL.reset(NULL);
+    if (fDisplay) {
+        glXMakeCurrent(fDisplay, 0, 0);
+
+        if (fContext) {
+            glXDestroyContext(fDisplay, fContext);
+            fContext = NULL;
+        }
+
+        if (fGlxPixmap) {
+            glXDestroyGLXPixmap(fDisplay, fGlxPixmap);
+            fGlxPixmap = 0;
+        }
+
+        if (fPixmap) {
+            XFreePixmap(fDisplay, fPixmap);
+            fPixmap = 0;
+        }
+
+        XCloseDisplay(fDisplay);
+        fDisplay = NULL;
+    }
 }
 
 void GLXGLContext::makeCurrent() const {
@@ -321,6 +323,11 @@ void GLXGLContext::swapBuffers() const {
 
 } // anonymous namespace
 
-SkGLContext* SkCreatePlatformGLContext() {
-    return SkNEW(GLXGLContext);
+SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
+    GLXGLContext* ctx = SkNEW_ARGS(GLXGLContext, (forcedGpuAPI));
+    if (!ctx->isValid()) {
+        SkDELETE(ctx);
+        return NULL;
+    }
+    return ctx;
 }

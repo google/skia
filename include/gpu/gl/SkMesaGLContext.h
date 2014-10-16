@@ -17,18 +17,26 @@ private:
     typedef intptr_t Context;
 
 public:
-    SkMesaGLContext();
-
-    virtual ~SkMesaGLContext();
-
+    virtual ~SkMesaGLContext() SK_OVERRIDE;
     virtual void makeCurrent() const SK_OVERRIDE;
     virtual void swapBuffers() const SK_OVERRIDE;
 
-protected:
-    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
-    virtual void destroyGLContext() SK_OVERRIDE;
+    static SkMesaGLContext* Create(GrGLStandard forcedGpuAPI) {
+        if (kGLES_GrGLStandard == forcedGpuAPI) {
+            return NULL;
+        }
+        SkMesaGLContext* ctx = SkNEW(SkMesaGLContext);
+        if (!ctx->isValid()) {
+            SkDELETE(ctx);
+            return NULL;
+        }
+        return ctx;
+    }
 
 private:
+    SkMesaGLContext();
+    void destroyGLContext();
+
     Context fContext;
     GrGLubyte *fImage;
 };

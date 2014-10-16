@@ -14,52 +14,23 @@ namespace {
 
 class EGLGLContext : public SkGLContext  {
 public:
-    EGLGLContext();
-
-    virtual ~EGLGLContext();
-
+    EGLGLContext(GrGLStandard forcedGpuAPI);
+    virtual ~EGLGLContext() SK_OVERRIDE;
     virtual void makeCurrent() const SK_OVERRIDE;
     virtual void swapBuffers() const SK_OVERRIDE;
-protected:
-    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
-    virtual void destroyGLContext() SK_OVERRIDE;
 
 private:
+    void destroyGLContext();
+
     EGLContext fContext;
     EGLDisplay fDisplay;
     EGLSurface fSurface;
 };
 
-EGLGLContext::EGLGLContext()
+EGLGLContext::EGLGLContext(GrGLStandard forcedGpuAPI)
     : fContext(EGL_NO_CONTEXT)
     , fDisplay(EGL_NO_DISPLAY)
     , fSurface(EGL_NO_SURFACE) {
-}
-
-EGLGLContext::~EGLGLContext() {
-    this->destroyGLContext();
-}
-
-void EGLGLContext::destroyGLContext() {
-    if (fDisplay) {
-        eglMakeCurrent(fDisplay, 0, 0, 0);
-
-        if (fContext) {
-            eglDestroyContext(fDisplay, fContext);
-            fContext = EGL_NO_CONTEXT;
-        }
-
-        if (fSurface) {
-            eglDestroySurface(fDisplay, fSurface);
-            fSurface = EGL_NO_SURFACE;
-        }
-
-        //TODO should we close the display?
-        fDisplay = EGL_NO_DISPLAY;
-    }
-}
-
-const GrGLInterface* EGLGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     static const EGLint kEGLContextAttribsForOpenGL[] = {
         EGL_NONE
     };
@@ -98,9 +69,7 @@ const GrGLInterface* EGLGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     }
     SkASSERT(forcedGpuAPI == kNone_GrGLStandard || kAPIs[api].fStandard == forcedGpuAPI);
 
-    const GrGLInterface* interface = NULL;
-
-    for (; NULL == interface && api < apiLimit; ++api) {
+    for (; NULL == fGL.get() && api < apiLimit; ++api) {
         fDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
         EGLint majorVersion;
@@ -160,22 +129,45 @@ const GrGLInterface* EGLGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
             continue;
         }
 
-        interface = GrGLCreateNativeInterface();
-        if (NULL == interface) {
+        fGL.reset(GrGLCreateNativeInterface());
+        if (NULL == fGL.get()) {
             SkDebugf("Failed to create gl interface.\n");
             this->destroyGLContext();
             continue;
         }
 
-        if (!interface->validate()) {
-            interface->unref();
-            interface = NULL;
+        if (!fGL->validate()) {
+            SkDebugf("Failed to validate gl interface.\n");
             this->destroyGLContext();
+            continue;
         }
     }
-
-    return interface;
 }
+
+EGLGLContext::~EGLGLContext() {
+    this->destroyGLContext();
+}
+
+void EGLGLContext::destroyGLContext() {
+    fGL.reset(NULL);
+    if (fDisplay) {
+        eglMakeCurrent(fDisplay, 0, 0, 0);
+
+        if (fContext) {
+            eglDestroyContext(fDisplay, fContext);
+            fContext = EGL_NO_CONTEXT;
+        }
+
+        if (fSurface) {
+            eglDestroySurface(fDisplay, fSurface);
+            fSurface = EGL_NO_SURFACE;
+        }
+
+        //TODO should we close the display?
+        fDisplay = EGL_NO_DISPLAY;
+    }
+}
+
 
 void EGLGLContext::makeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
@@ -191,7 +183,12 @@ void EGLGLContext::swapBuffers() const {
 
 } // anonymous namespace
 
-SkGLContext* SkCreatePlatformGLContext() {
-    return SkNEW(EGLGLContext);
+SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
+    EGLGLContext* ctx = SkNEW_ARGS(EGLGLContext, (forcedGpuAPI));
+    if (!ctx->isValid()) {
+        SkDELETE(ctx);
+        return NULL;
+    }
+    return ctx;
 }
 

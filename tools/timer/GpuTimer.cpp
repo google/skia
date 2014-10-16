@@ -15,8 +15,8 @@ GpuTimer::GpuTimer(const SkGLContext* glctx) : fContext(glctx) {
         fContext->makeCurrent();
         fStarted = false;
         fSupported = GrGLGetVersion(fContext->gl()) > GR_GL_VER(3,3) ||
-                     fContext->hasExtension("GL_ARB_timer_query") ||
-                     fContext->hasExtension("GL_EXT_timer_query");
+                fContext->gl()->hasExtension("GL_ARB_timer_query") ||
+                fContext->gl()->hasExtension("GL_EXT_timer_query");
 
         if (fSupported) {
             SK_GL(*fContext, GenQueries(1, &fQuery));

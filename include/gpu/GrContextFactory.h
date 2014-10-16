@@ -135,35 +135,33 @@ public:
         switch (type) {
             case kNVPR_GLContextType: // fallthru
             case kNative_GLContextType:
-                glCtx.reset(SkCreatePlatformGLContext());
+                glCtx.reset(SkCreatePlatformGLContext(forcedGpuAPI));
                 break;
 #ifdef SK_ANGLE
             case kANGLE_GLContextType:
-                glCtx.reset(SkNEW(SkANGLEGLContext));
+                glCtx.reset(SkANGLEGLContext::Create(forcedGpuAPI));
                 break;
 #endif
 #ifdef SK_MESA
             case kMESA_GLContextType:
-                glCtx.reset(SkNEW(SkMesaGLContext));
+                glCtx.reset(SkMesaGLContext::Create(forcedGpuAPI));
                 break;
 #endif
             case kNull_GLContextType:
-                glCtx.reset(SkNEW(SkNullGLContext));
+                glCtx.reset(SkNullGLContext::Create(forcedGpuAPI));
                 break;
             case kDebug_GLContextType:
-                glCtx.reset(SkNEW(SkDebugGLContext));
+                glCtx.reset(SkDebugGLContext::Create(forcedGpuAPI));
                 break;
         }
-        static const int kBogusSize = 1;
-        if (!glCtx.get()) {
-            return NULL;
-        }
-        if (!glCtx.get()->init(forcedGpuAPI, kBogusSize, kBogusSize)) {
+        if (NULL == glCtx.get()) {
             return NULL;
         }
 
+        SkASSERT(glCtx->isValid());
+
         // Ensure NVPR is available for the NVPR type and block it from other types.
-        SkAutoTUnref<const GrGLInterface> glInterface(SkRef(glCtx.get()->gl()));
+        SkAutoTUnref<const GrGLInterface> glInterface(SkRef(glCtx->gl()));
         if (kNVPR_GLContextType == type) {
             if (!glInterface->hasExtension("GL_NV_path_rendering")) {
                 return NULL;

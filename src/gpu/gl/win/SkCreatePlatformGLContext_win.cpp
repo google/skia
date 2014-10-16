@@ -19,17 +19,14 @@ namespace {
 
 class WinGLContext : public SkGLContext {
 public:
-    WinGLContext();
-
-    virtual ~WinGLContext();
-
+    WinGLContext(GrGLStandard forcedGpuAPI);
+	virtual ~WinGLContext() SK_OVERRIDE;
     virtual void makeCurrent() const SK_OVERRIDE;
     virtual void swapBuffers() const SK_OVERRIDE;
-protected:
-    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) SK_OVERRIDE;
-    virtual void destroyGLContext() SK_OVERRIDE;
 
 private:
+    void destroyGLContext();
+
     HWND fWindow;
     HDC fDeviceContext;
     HGLRC fGlRenderContext;
@@ -39,34 +36,11 @@ private:
 
 ATOM WinGLContext::gWC = 0;
 
-WinGLContext::WinGLContext()
+WinGLContext::WinGLContext(GrGLStandard forcedGpuAPI)
     : fWindow(NULL)
     , fDeviceContext(NULL)
     , fGlRenderContext(0)
     , fPbufferContext(NULL) {
-}
-
-WinGLContext::~WinGLContext() {
-    this->destroyGLContext();
-}
-
-void WinGLContext::destroyGLContext() {
-    SkSafeSetNull(fPbufferContext);
-    if (fGlRenderContext) {
-        wglDeleteContext(fGlRenderContext);
-        fGlRenderContext = 0;
-    }
-    if (fWindow && fDeviceContext) {
-        ReleaseDC(fWindow, fDeviceContext);
-        fDeviceContext = 0;
-    }
-    if (fWindow) {
-        DestroyWindow(fWindow);
-        fWindow = 0;
-    }
-}
-
-const GrGLInterface* WinGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
 
     if (!gWC) {
@@ -85,7 +59,7 @@ const GrGLInterface* WinGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
         gWC = RegisterClass(&wc);
         if (!gWC) {
             SkDebugf("Could not register window class.\n");
-            return NULL;
+            return;
         }
     }
 
@@ -96,13 +70,13 @@ const GrGLInterface* WinGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
                                  NULL, NULL,
                                  hInstance, NULL))) {
         SkDebugf("Could not create window.\n");
-        return NULL;
+        return;
     }
 
     if (!(fDeviceContext = GetDC(fWindow))) {
         SkDebugf("Could not get device context.\n");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
     // Requesting a Core profile would bar us from using NVPR. So we request
     // compatibility profile or GL ES.
@@ -119,7 +93,7 @@ const GrGLInterface* WinGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
         if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0, contextType))) {
             SkDebugf("Could not create rendering context.\n");
             this->destroyGLContext();
-            return NULL;
+            return;
         }
         dc = fDeviceContext;
         glrc = fGlRenderContext;
@@ -136,17 +110,41 @@ const GrGLInterface* WinGLContext::createGLContext(GrGLStandard forcedGpuAPI) {
     if (!(wglMakeCurrent(dc, glrc))) {
         SkDebugf("Could not set the context.\n");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
 
-    const GrGLInterface* interface = GrGLCreateNativeInterface();
-    if (NULL == interface) {
+    fGL.reset(GrGLCreateNativeInterface());
+    if (NULL == fGL.get()) {
         SkDebugf("Could not create GL interface.\n");
         this->destroyGLContext();
-        return NULL;
+        return;
     }
+    if (!fGL->validate()) {
+        SkDebugf("Could not validate GL interface.\n");
+        this->destroyGLContext();
+        return;
+    }
+}
 
-    return interface;
+WinGLContext::~WinGLContext() {
+    this->destroyGLContext();
+}
+
+void WinGLContext::destroyGLContext() {
+    fGL.reset(NULL);
+    SkSafeSetNull(fPbufferContext);
+    if (fGlRenderContext) {
+        wglDeleteContext(fGlRenderContext);
+        fGlRenderContext = 0;
+    }
+    if (fWindow && fDeviceContext) {
+        ReleaseDC(fWindow, fDeviceContext);
+        fDeviceContext = 0;
+    }
+    if (fWindow) {
+        DestroyWindow(fWindow);
+        fWindow = 0;
+    }
 }
 
 void WinGLContext::makeCurrent() const {
@@ -181,7 +179,12 @@ void WinGLContext::swapBuffers() const {
 
 } // anonymous namespace
 
-SkGLContext* SkCreatePlatformGLContext() {
-    return SkNEW(WinGLContext);
+SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
+    WinGLContext* ctx = SkNEW_ARGS(WinGLContext, (forcedGpuAPI));
+    if (!ctx->isValid()) {
+        SkDELETE(ctx);
+        return NULL;
+    }
+    return ctx;
 }
 

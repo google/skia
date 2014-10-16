@@ -19,17 +19,11 @@ class SK_API SkGLContext : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkGLContext)
 
-    SkGLContext();
-    virtual ~SkGLContext();
+    virtual ~SkGLContext() SK_OVERRIDE;
 
-    /**
-     * Initializes the context and makes it current.
-     */
-    bool init(GrGLStandard forcedGpuAPI, const int width, const int height);
+    bool isValid() const { return NULL != gl(); }
 
-    int getFBOID() const { return fFBO; }
-
-    const GrGLInterface* gl() const { return fGL; }
+    const GrGLInterface* gl() const { return fGL.get(); }
 
     virtual void makeCurrent() const = 0;
 
@@ -45,11 +39,6 @@ public:
      */
     virtual void swapBuffers() const = 0;
 
-    bool hasExtension(const char* extensionName) const {
-        SkASSERT(fGL);
-        return fGL->hasExtension(extensionName);
-    }
-
     /**
      * This notifies the context that we are deliberately testing abandoning
      * the context. It is useful for debugging contexts that would otherwise
@@ -59,35 +48,23 @@ public:
     void testAbandon();
 
 protected:
-    /**
-     * Subclass implements this to make a GL context. The returned GrGLInterface
-     * should be populated with functions compatible with the context. The
-     * format and size of backbuffers does not matter since an FBO will be
-     * created.
-     */
-    virtual const GrGLInterface* createGLContext(GrGLStandard forcedGpuAPI) = 0;
+    SkGLContext();
 
-    /**
-     * Subclass should destroy the underlying GL context.
-     */
-    virtual void destroyGLContext() = 0;
-
-private:
-    GrGLuint fFBO;
-    GrGLuint fColorBufferID;
-    GrGLuint fDepthStencilBufferID;
-    const GrGLInterface* fGL;
+    /** Subclass provides the gl interface object if construction was
+     *  successful. */
+    SkAutoTUnref<const GrGLInterface> fGL;
 
     typedef SkRefCnt INHERITED;
 };
 
 /** Creates platform-dependent GL context object
+ * Returns a valid gl context object or NULL if such can not be created.
  * Note: If Skia embedder needs a custom GL context that sets up the GL
  * interface, this function should be implemented by the embedder.
  * Otherwise, the default implementation for the platform should be compiled in
  * the library.
  */
-SK_API SkGLContext* SkCreatePlatformGLContext();
+SK_API SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI);
 
 /**
  * Helper macros for using the GL context through the GrGLInterface. Example:

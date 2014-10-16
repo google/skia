@@ -23,7 +23,7 @@ DEF_GPUTEST(GLInterfaceValidation, reporter, factory) {
         // support the NVPR extension.
         if (GrContextFactory::kNVPR_GLContextType == glCtxType &&
             factory->getGLContext(GrContextFactory::kNative_GLContextType) &&
-            !factory->getGLContext(GrContextFactory::kNative_GLContextType)->hasExtension("GL_NV_path_rendering")) {
+            !factory->getGLContext(GrContextFactory::kNative_GLContextType)->gl()->hasExtension("GL_NV_path_rendering")) {
             REPORTER_ASSERT(reporter, NULL == glCtx);
             continue;
         }
