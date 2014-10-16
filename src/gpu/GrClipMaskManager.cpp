@@ -485,21 +485,14 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
     fGpu->drawSimpleRect(SkRect::Make(dstBound));
 }
 
-// get a texture to act as a temporary buffer for AA clip boolean operations
-// TODO: given the expense of createTexture we may want to just cache this too
-void GrClipMaskManager::getTemp(int width, int height, GrAutoScratchTexture* temp) {
-    if (temp->texture()) {
-        // we've already allocated the temp texture
-        return;
-    }
-
+GrTexture* GrClipMaskManager::createTempMask(int width, int height) {
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    temp->set(this->getContext(), desc);
+    return fGpu->getContext()->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -593,7 +586,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
     GrDrawTarget::AutoClipRestore acr(fGpu, maskSpaceIBounds);
     drawState->enableState(GrDrawState::kClip_StateBit);
 
-    GrAutoScratchTexture temp;
+    SkAutoTUnref<GrTexture> temp;
     // walk through each clip element and perform its set op
     for (ElementList::Iter iter = elements.headIter(); iter.get(); iter.next()) {
         const Element* element = iter.get();
@@ -619,12 +612,15 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                     elementBounds.roundOut(&maskSpaceElementIBounds);
                 }
 
-                this->getTemp(maskSpaceIBounds.fRight, maskSpaceIBounds.fBottom, &temp);
-                if (NULL == temp.texture()) {
-                    fAACache.reset();
-                    return NULL;
+                if (!temp) {
+                    temp.reset(this->createTempMask(maskSpaceIBounds.fRight,
+                                                    maskSpaceIBounds.fBottom));
+                    if (!temp) {
+                        fAACache.reset();
+                        return NULL;
+                    }
                 }
-                dst = temp.texture();
+                dst = temp;
                 // clear the temp target and set blend to replace
                 fGpu->clear(&maskSpaceElementIBounds,
                             invert ? 0xffffffff : 0x00000000,
@@ -658,7 +654,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                 // Now draw into the accumulator using the real operation and the temp buffer as a
                 // texture
                 this->mergeMask(result,
-                                temp.texture(),
+                                temp,
                                 op,
                                 maskSpaceIBounds,
                                 maskSpaceElementIBounds);

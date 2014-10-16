@@ -19,7 +19,6 @@
 #include "SkTypes.h"
 
 class GrAARectRenderer;
-class GrAutoScratchTexture;
 class GrDrawState;
 class GrDrawTarget;
 class GrFontCache;
@@ -1047,67 +1046,6 @@ private:
     static bool OverbudgetCB(void* data);
 
     typedef SkRefCnt INHERITED;
-};
-
-/**
- * This is deprecated. Don't use it.
- */
-class SK_API GrAutoScratchTexture : public ::SkNoncopyable {
-public:
-    GrAutoScratchTexture()
-        : fContext(NULL)
-        , fTexture(NULL) {
-    }
-
-    GrAutoScratchTexture(GrContext* context,
-                         const GrTextureDesc& desc,
-                         GrContext::ScratchTexMatch match = GrContext::kApprox_ScratchTexMatch,
-                         bool internalFlag = false)
-      : fContext(NULL)
-      , fTexture(NULL) {
-      this->set(context, desc, match, internalFlag);
-    }
-
-    ~GrAutoScratchTexture() {
-        this->reset();
-    }
-
-    void reset() {
-        if (fContext && fTexture) {
-            fTexture->unref();
-            fTexture = NULL;
-        }
-    }
-
-    GrTexture* detach() {
-        GrTexture* texture = fTexture;
-        fTexture = NULL;
-        return texture;
-    }
-
-    GrTexture* set(GrContext* context,
-                   const GrTextureDesc& desc,
-                   GrContext::ScratchTexMatch match = GrContext::kApprox_ScratchTexMatch,
-                   bool internalFlag = 0) {
-        this->reset();
-
-        fContext = context;
-        if (fContext) {
-            fTexture = fContext->refScratchTexture(desc, match, internalFlag);
-            if (NULL == fTexture) {
-                fContext = NULL;
-            }
-            return fTexture;
-        } else {
-            return NULL;
-        }
-    }
-
-    GrTexture* texture() { return fTexture; }
-
-private:
-    GrContext*                    fContext;
-    GrTexture*                    fTexture;
 };
 
 #endif

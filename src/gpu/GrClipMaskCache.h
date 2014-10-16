@@ -40,8 +40,8 @@ public:
 
         // We could reuse the mask if bounds is a subset of last bounds. We'd have to communicate
         // an offset to the caller.
-        if (back->fLastMask.texture() &&
-            !back->fLastMask.texture()->wasDestroyed() &&
+        if (back->fLastMask &&
+            !back->fLastMask->wasDestroyed() &&
             back->fLastBound == bounds &&
             back->fLastClipGenID == clipGenID) {
             return true;
@@ -98,7 +98,7 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        return back->fLastMask.texture();
+        return back->fLastMask;
     }
 
     const GrTexture* getLastMask() const {
@@ -110,7 +110,7 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        return back->fLastMask.texture();
+        return back->fLastMask;
     }
 
     void acquireMask(int32_t clipGenID,
@@ -136,11 +136,11 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        if (NULL == back->fLastMask.texture()) {
+        if (NULL == back->fLastMask) {
             return -1;
         }
 
-        return back->fLastMask.texture()->width();
+        return back->fLastMask->width();
     }
 
     int getLastMaskHeight() const {
@@ -152,11 +152,11 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        if (NULL == back->fLastMask.texture()) {
+        if (NULL == back->fLastMask) {
             return -1;
         }
 
-        return back->fLastMask.texture()->height();
+        return back->fLastMask->height();
     }
 
     void getLastBound(SkIRect* bound) const {
@@ -206,7 +206,8 @@ private:
 
             // HACK: set the last param to true to indicate that this request is at
             // flush time and therefore we require a scratch texture with no pending IO operations.
-            fLastMask.set(context, desc, GrContext::kApprox_ScratchTexMatch, /*flushing=*/true);
+            fLastMask.reset(context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch,
+                                                       /*flushing=*/true));
 
             fLastBound = bound;
         }
@@ -216,7 +217,7 @@ private:
 
             GrTextureDesc desc;
 
-            fLastMask.set(NULL, desc);
+            fLastMask.reset(NULL);
             fLastBound.setEmpty();
         }
 
@@ -224,7 +225,7 @@ private:
         // The mask's width & height values are used by GrClipMaskManager to correctly scale the
         // texture coords for the geometry drawn with this mask. TODO: This should be a cache key
         // and not a hard ref to a texture.
-        GrAutoScratchTexture    fLastMask;
+        SkAutoTUnref<GrTexture> fLastMask;
         // fLastBound stores the bounding box of the clip mask in clip-stack space. This rect is
         // used by GrClipMaskManager to position a rect and compute texture coords for the mask.
         SkIRect                 fLastBound;

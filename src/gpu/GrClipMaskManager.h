@@ -163,7 +163,7 @@ private:
                    const SkIRect& dstBound,
                    const SkIRect& srcBound);
 
-    void getTemp(int width, int height, GrAutoScratchTexture* temp);
+    GrTexture* createTempMask(int width, int height);
 
     void setupCache(const SkClipStack& clip,
                     const SkIRect& bounds);
