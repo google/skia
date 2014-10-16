@@ -84,10 +84,15 @@ void SkTileGrid::insert(unsigned opIndex, const SkRect& originalBounds, bool) {
     SkIRect grid;
     this->userToGrid(bounds, &grid);
 
-    for (int y = grid.fTop; y <= grid.fBottom; y++) {
-        for (int x = grid.fLeft; x <= grid.fRight; x++) {
-            fTiles[y * fXTiles + x].push(opIndex);
+    // This is just a loop over y then x.  This compiles to a slightly faster and
+    // more compact loop than if we just did fTiles[y * fXTiles + x].push(opIndex).
+    SkTDArray<unsigned>* row = &fTiles[grid.fTop * fXTiles + grid.fLeft];
+    for (int y = 0; y <= grid.fBottom - grid.fTop; y++) {
+        SkTDArray<unsigned>* tile = row;
+        for (int x = 0; x <= grid.fRight - grid.fLeft; x++) {
+            (tile++)->push(opIndex);
         }
+        row += fXTiles;
     }
 }
 
