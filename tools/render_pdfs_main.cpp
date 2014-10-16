@@ -254,7 +254,7 @@ int tool_main_core(int argc, char** argv) {
             ++failures;
             continue;
         }
-        SkDebugf("[%f,%f,%f,%f] %-*s", 
+        SkDebugf("[%6g %6g %6g %6g] %-*s",
             picture->cullRect().fLeft, picture->cullRect().fTop,
             picture->cullRect().fRight, picture->cullRect().fBottom,
             maximumPathLength, basename.c_str());
