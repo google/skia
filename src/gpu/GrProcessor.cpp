@@ -92,8 +92,8 @@ private:
     }
 };
 
-int32_t GrBackendProcessorFactory::fCurrEffectClassID =
-        GrBackendProcessorFactory::kIllegalEffectClassID;
+int32_t GrBackendProcessorFactory::fCurrProcessorClassID =
+        GrBackendProcessorFactory::kIllegalProcessorClassID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -173,5 +173,5 @@ bool GrProcessor::InvariantOutput::validPreMulColor() const {
 
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
-    SkDEBUGCODE(transform->setInEffect();)
+    SkDEBUGCODE(transform->setInProcessor();)
 }

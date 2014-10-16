@@ -133,7 +133,7 @@ static bool get_meta_key(const GrProcessor& proc,
     }
     *processorKeySize = SkToU16(size);
     uint32_t textureKey = gen_texture_key(proc, caps);
-    uint32_t classID = proc.getFactory().effectClassID();
+    uint32_t classID = proc.getFactory().classID();
 
     // Currently we allow 16 bits for each of the above portions of the meta-key. Fail if they
     // don't fit.
