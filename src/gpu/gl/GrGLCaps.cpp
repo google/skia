@@ -199,9 +199,10 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     // can change based on which render target is bound
     fTwoFormatLimit = kGLES_GrGLStandard == standard;
 
+    // Frag Coords Convention support is not part of ES
     // Known issue on at least some Intel platforms:
     // http://code.google.com/p/skia/issues/detail?id=946
-    if (kIntel_GrGLVendor != ctxInfo.vendor()) {
+    if (kIntel_GrGLVendor != ctxInfo.vendor() && kGLES_GrGLStandard != standard) {
         fFragCoordsConventionSupport = ctxInfo.glslGeneration() >= k150_GrGLSLGeneration ||
                                        ctxInfo.hasExtension("GL_ARB_fragment_coord_conventions");
     }
@@ -368,7 +369,8 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fGeometryShaderSupport = ctxInfo.version() >= GR_GL_VER(3,2) &&
                                  ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
     } else {
-        fShaderDerivativeSupport = ctxInfo.hasExtension("GL_OES_standard_derivatives");
+        fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
+                                   ctxInfo.hasExtension("GL_OES_standard_derivatives");
     }
 
     if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
