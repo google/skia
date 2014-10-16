@@ -303,11 +303,11 @@ func init() {
 func writeOutAllSourceImages() {
 	// Pull all the source images from the db and write them out to inout.
 	rows, err := db.Query("SELECT id, image, create_ts FROM source_images ORDER BY create_ts DESC")
-
 	if err != nil {
 		glog.Errorf("Failed to open connection to SQL server: %q\n", err)
 		panic(err)
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var id int
 		var image []byte
@@ -478,10 +478,10 @@ func sourcesHandler(w http.ResponseWriter, r *http.Request) {
 	glog.Infof("Sources Handler: %q\n", r.URL.Path)
 	if r.Method == "GET" {
 		rows, err := db.Query("SELECT id, create_ts FROM source_images WHERE hidden=0 ORDER BY create_ts DESC")
-
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Failed to query sources: %s.", err), 500)
 		}
+		defer rows.Close()
 		sources := make([]Sources, 0, 0)
 		for rows.Next() {
 			var id int
@@ -577,12 +577,12 @@ type Recent struct {
 func recentHandler(w http.ResponseWriter, r *http.Request) {
 	glog.Infof("Recent Handler: %q\n", r.URL.Path)
 
-	var err error
 	rows, err := db.Query("SELECT create_ts, hash FROM webtry ORDER BY create_ts DESC LIMIT 20")
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
+	defer rows.Close()
 	recent := []Try{}
 	for rows.Next() {
 		var hash string
@@ -654,6 +654,7 @@ func workspaceHandler(w http.ResponseWriter, r *http.Request) {
 				reportError(w, r, err, "Failed to select.")
 				return
 			}
+			defer rows.Close()
 			for rows.Next() {
 				var hash string
 				var create_ts time.Time
