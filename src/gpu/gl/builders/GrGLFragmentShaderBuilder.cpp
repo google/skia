@@ -42,8 +42,7 @@ static void append_default_precision_qualifier(GrGLShaderVar::Precision p,
 }
 
 GrGLFragmentShaderBuilder::DstReadKey
-GrGLFragmentShaderBuilder::KeyForDstRead(const GrTexture* dstCopy,
-                                                                 const GrGLCaps& caps) {
+GrGLFragmentShaderBuilder::KeyForDstRead(const GrTexture* dstCopy, const GrGLCaps& caps) {
     uint32_t key = kYesDstRead_DstReadKeyBit;
     if (caps.fbFetchSupport()) {
         return key;
@@ -61,8 +60,7 @@ GrGLFragmentShaderBuilder::KeyForDstRead(const GrTexture* dstCopy,
 }
 
 GrGLFragmentShaderBuilder::FragPosKey
-GrGLFragmentShaderBuilder::KeyForFragmentPosition(const GrRenderTarget* dst,
-                                                                          const GrGLCaps&) {
+GrGLFragmentShaderBuilder::KeyForFragmentPosition(const GrRenderTarget* dst, const GrGLCaps&) {
     if (kTopLeft_GrSurfaceOrigin == dst->origin()) {
         return kTopLeftFragPosRead_FragPosKey;
     } else {
@@ -88,7 +86,8 @@ bool GrGLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
             if (!gpu->glCaps().shaderDerivativeSupport()) {
                 return false;
             }
-            if (kGLES_GrGLStandard == gpu->glStandard()) {
+            if (kGLES_GrGLStandard == gpu->glStandard() &&
+                k110_GrGLSLGeneration == gpu->glslGeneration()) {
                 this->addFeature(1 << kStandardDerivatives_GLSLFeature,
                                  "GL_OES_standard_derivatives");
             }
@@ -326,7 +325,9 @@ bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
 }
 
 void GrGLFragmentShaderBuilder::bindFragmentShaderLocations(GrGLuint programID) {
-    if (fHasCustomColorOutput) {
+    // ES 3.00 requires custom color output but doesn't support bindFragDataLocation
+    if (fHasCustomColorOutput &&
+        kGLES_GrGLStandard != fProgramBuilder->gpu()->ctxInfo().standard()) {
         GL_CALL(BindFragDataLocation(programID, 0, declared_color_output_name()));
     }
     if (fHasSecondaryOutput) {

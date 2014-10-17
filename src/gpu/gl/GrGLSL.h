@@ -35,6 +35,14 @@ enum GrGLSLGeneration {
      * Desktop GLSL 1.50
      */
     k150_GrGLSLGeneration,
+    /**
+     * Desktop GLSL 3.30, and ES GLSL 3.00
+     */
+    k330_GrGLSLGeneration,
+    /**
+     * ES GLSL 3.10 only TODO Make GLSLCap objects to make this more granular
+     */
+    k310es_GrGLSLGeneration,
 };
 
 /**
