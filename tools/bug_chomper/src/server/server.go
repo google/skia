@@ -20,8 +20,9 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"path"
+	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -49,19 +50,30 @@ var (
 )
 
 var (
-	scheme = "http"
+	// templates is the list of html templates used by bug_chomper.
+	templates *template.Template = nil
 
-	curdir, _       = filepath.Abs(".")
-	templatePath, _ = filepath.Abs("templates")
-	templates       = template.Must(template.ParseFiles(
-		path.Join(templatePath, "bug_chomper.html"),
-		path.Join(templatePath, "submitted.html"),
-		path.Join(templatePath, "error.html")))
-
+	scheme       = "http"
 	hashKey      = securecookie.GenerateRandomKey(32)
 	blockKey     = securecookie.GenerateRandomKey(32)
 	secureCookie = securecookie.New(hashKey, blockKey)
 )
+
+func init() {
+	// Change the current working directory to two directories up from this
+	// source file so that we can read templates.
+	_, filename, _, _ := runtime.Caller(0)
+	cwd := filepath.Join(filepath.Dir(filename), "../..")
+	if err := os.Chdir(cwd); err != nil {
+		log.Fatal(err)
+	}
+
+	templates = template.Must(template.ParseFiles(
+		filepath.Join(cwd, "templates/bug_chomper.html"),
+		filepath.Join(cwd, "templates/submitted.html"),
+		filepath.Join(cwd, "templates/error.html"),
+	))
+}
 
 // SessionState contains data for a given session.
 type SessionState struct {
@@ -363,7 +375,7 @@ func main() {
 
 	http.HandleFunc("/", handleRoot)
 	http.HandleFunc(oauthCallbackPath, handleOAuth2Callback)
-	http.Handle("/res/", http.FileServer(http.Dir(curdir)))
+	http.Handle("/res/", http.FileServer(http.Dir("./")))
 	log.Println("Server is running at " + scheme + "://" + localHost + *port)
 	var err error
 	if *public {
