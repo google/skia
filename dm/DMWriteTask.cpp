@@ -81,9 +81,13 @@ static SkString get_md5(const void* ptr, size_t len) {
     return get_md5_string(&hasher);
 }
 
+static bool write_asset(SkStreamAsset* input, SkWStream* output) {
+    return input->rewind() && output->writeStream(input, input->getLength());
+}
+
 static SkString get_md5(SkStreamAsset* stream) {
     SkMD5 hasher;
-    hasher.writeStream(stream, stream->getLength());
+    write_asset(stream, &hasher);
     return get_md5_string(&hasher);
 }
 
@@ -154,7 +158,7 @@ void WriteTask::draw() {
         return this->fail("Can't open file.");
     }
 
-    bool ok = fData ? file.writeStream(fData, fData->getLength())
+    bool ok = fData ? write_asset(fData, &file)
                     : SkImageEncoder::EncodeStream(&file, fBitmap, SkImageEncoder::kPNG_Type, 100);
     if (!ok) {
         return this->fail("Can't write to file.");
