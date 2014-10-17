@@ -76,7 +76,11 @@ const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
                 return "#version 300 es\n";
             } else {
                 SkASSERT(kGL_GrGLStandard == info.standard());
-                return "#version 330 compatibility\n";
+                if (info.caps()->isCoreProfile()) {
+                    return "#version 330\n";
+                } else {
+                    return "#version 330 compatibility\n";
+                }
             }
         case k310es_GrGLSLGeneration:
             SkASSERT(kGLES_GrGLStandard == info.standard());
