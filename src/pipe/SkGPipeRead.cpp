@@ -408,11 +408,11 @@ static void drawDRRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 static void drawPatch_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                          SkGPipeState* state) {
-
+    
     unsigned flags = DrawOp_unpackFlags(op32);
-
+    
     const SkPoint* cubics = skip<SkPoint>(reader, SkPatchUtils::kNumCtrlPts);
-
+    
     const SkColor* colors = NULL;
     if (flags & kDrawVertices_HasColors_DrawOpFlag) {
         colors = skip<SkColor>(reader, SkPatchUtils::kNumCorners);
@@ -651,40 +651,6 @@ static void drawSprite_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     }
 }
 
-static void drawImage_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
-                          SkGPipeState* state) {
-    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
-    // Balances call to ref() in SkGPipeWrite
-    SkAutoTUnref<const SkImage> image (static_cast<const SkImage*>(reader->readPtr()));
-
-    SkScalar left = reader->readScalar();
-    SkScalar top = reader->readScalar();
-
-    if (state->shouldDraw()) {
-        canvas->drawImage(image, left, top, hasPaint ? &state->paint() : NULL);
-    }
-}
-
-static void drawImageRect_rp(SkCanvas* canvas, SkReader32* reader,
-                              uint32_t op32, SkGPipeState* state) {
-    unsigned flags = DrawOp_unpackFlags(op32);
-    bool hasPaint = SkToBool(flags & kDrawBitmap_HasPaint_DrawOpFlag);
-    bool hasSrc = SkToBool(flags & kDrawBitmap_HasSrcRect_DrawOpFlag);
-    // Balances call to ref() in SkGPipeWrite
-    SkAutoTUnref<const SkImage> image (static_cast<const SkImage*>(reader->readPtr()));
-
-    const SkRect* src;
-    if (hasSrc) {
-        src = skip<SkRect>(reader);
-    } else {
-        src = NULL;
-    }
-    const SkRect* dst = skip<SkRect>(reader);
-    if (state->shouldDraw()) {
-        canvas->drawImageRect(image, src, *dst, hasPaint ? &state->paint() : NULL);
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static void drawData_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -865,8 +831,6 @@ static const ReadProc gReadTable[] = {
     drawClear_rp,
     drawData_rp,
     drawDRRect_rp,
-    drawImage_rp,
-    drawImageRect_rp,
     drawOval_rp,
     drawPaint_rp,
     drawPatch_rp,

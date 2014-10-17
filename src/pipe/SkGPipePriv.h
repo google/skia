@@ -46,8 +46,6 @@ enum DrawOps {
     kDrawClear_DrawOp,
     kDrawData_DrawOp,
     kDrawDRRect_DrawOp,
-    kDrawImage_DrawOp,
-    kDrawImageRect_DrawOp,
     kDrawOval_DrawOp,
     kDrawPaint_DrawOp,
     kDrawPatch_DrawOp,
@@ -157,10 +155,6 @@ enum {
     // SkCanvas::DrawBitmapRectFlags::kBleed_DrawBitmapRectFlag is
     // converted into and out of this flag to save space
     kDrawBitmap_Bleed_DrawOpFlag      = 1 << 2,
-};
-enum {
-    kDrawImage_HasPaint_DrawOpFlag   = 1 << 0,
-    kDrawImage_HasSrcRect_DrawOpFlag = 1 << 1,
 };
 enum {
     kClip_HasAntiAlias_DrawOpFlag = 1 << 0,
