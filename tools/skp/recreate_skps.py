@@ -72,7 +72,7 @@ def main(chrome_src_path, browser_executable):
     for line in procs.splitlines():
       if browser_executable in line:
         pid = line.strip().split(' ')[0]
-        if pid != str(os.getpid()):
+        if pid != str(os.getpid()) and not 'python' in line:
           try:
             shell_utils.run(['kill', '-9', pid])
           except shell_utils.CommandFailedException as e:
