@@ -18,9 +18,7 @@ bool GrGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation) 
     switch (gl->fStandard) {
         case kGL_GrGLStandard:
             SkASSERT(ver >= GR_GLSL_VER(1,10));
-            if (ver >= GR_GLSL_VER(3,30)) {
-                *generation = k330_GrGLSLGeneration;
-            } else if (ver >= GR_GLSL_VER(1,50)) {
+            if (ver >= GR_GLSL_VER(1,50)) {
                 *generation = k150_GrGLSLGeneration;
             } else if (ver >= GR_GLSL_VER(1,40)) {
                 *generation = k140_GrGLSLGeneration;
@@ -31,15 +29,9 @@ bool GrGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation) 
             }
             return true;
         case kGLES_GrGLStandard:
+            // version 1.00 of ES GLSL based on ver 1.20 of desktop GLSL
             SkASSERT(ver >= GR_GL_VER(1,00));
-            if (ver >= GR_GLSL_VER(3,1)) {
-                *generation = k310es_GrGLSLGeneration;
-            }
-            else if (ver >= GR_GLSL_VER(3,0)) {
-                *generation = k330_GrGLSLGeneration;
-            } else {
-                *generation = k110_GrGLSLGeneration;
-            }
+            *generation = k110_GrGLSLGeneration;
             return true;
         default:
             SkFAIL("Unknown GL Standard");
@@ -71,16 +63,6 @@ const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
             } else {
                 return "#version 150 compatibility\n";
             }
-        case k330_GrGLSLGeneration:
-            if (kGLES_GrGLStandard == info.standard()) {
-                return "#version 300 es\n";
-            } else {
-                SkASSERT(kGL_GrGLStandard == info.standard());
-                return "#version 330 compatibility\n";
-            }
-        case k310es_GrGLSLGeneration:
-            SkASSERT(kGLES_GrGLStandard == info.standard());
-            return "#version 310 es\n";
         default:
             SkFAIL("Unknown GL version.");
             return ""; // suppress warning
