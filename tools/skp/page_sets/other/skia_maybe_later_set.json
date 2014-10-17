@@ -1,0 +1,12 @@
+{
+    "description": "Pages we may add to the skia sets later.",
+    "archive_path": "data/skia_maybe_later_set.wpr",
+    "credentials_path": "data/credentials.json",
+    "pages": [
+        {
+            "url": "http://habrahabr.ru/post/149892/#habracut",
+            "wait_time_after_navigate": 5.0,
+            "why": "from chrome's list of profiled sites"
+        }
+    ]
+}

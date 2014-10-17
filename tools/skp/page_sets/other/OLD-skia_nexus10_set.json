@@ -1,0 +1,172 @@
+{
+    "description": "Pages hand-picked for Skia for Nexus10.",
+    "archive_path": "data/skia_nexus10_set.wpr",
+    "credentials_path": "data/credentials.json",
+    "user_agent_type": "nexus10",
+    "pages": [
+        {
+            "url": "http://game.deksiam.in.th/",
+            "wait_time_after_navigate": 30.0,
+            "why": "from Tom W's list"
+        },
+        {
+            "url": "http://www.sahadan.com/default.aspx",
+            "wait_time_after_navigate": 15.0,
+            "why": "from Tom W's list"
+        },
+        {
+            "url": "http://techmeme.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "from klobag"
+        },
+        {
+            "url": "http://www.cnet.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "from klobag"
+        },
+        {
+            "url": "http://www.androidpolice.com/2012/10/03/rumor-evidence-mounts-that-an-lg-optimus-g-nexus-is-coming-along-with-a-nexus-phone-certification-program/",
+            "wait_time_after_navigate": 5.0,
+            "why": "for Clank CY"
+        },
+        {
+            "url": "http://br.337.com/pages/196/DDTank",
+            "wait_time_after_navigate": 5.0,
+            "why": "from Tom W's list"
+        },
+        {
+            "url": "http://www.cnn.com/2012/10/03/politics/michelle-obama-debate/index.html",
+            "wait_time_after_navigate": 15.0,
+            "why": "#2 news worldwide"
+        },
+        {
+            "url": "http://culturalsolutions.co.uk/",
+            "wait_time_after_navigate": 5.0,
+            "why": "from parallax scrolling thread"
+        },
+        {
+            "url": "http://cuteoverload.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "for Clank CY"
+        },
+        {
+            "url": "http://digg.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "for Clank CY"
+        },
+        {
+            "url": "http://www.frantzen-lindeberg.com/se/",
+            "wait_time_after_navigate": 15.0,
+            "why": "http://code.google.com/p/chromium/issues/detail?id=136555"
+        },
+        {
+            "url": "https://mail.google.com/mail/",
+            "wait_time_after_navigate": 30.0,
+            "why": "productivity, top google properties",
+            "credentials": "google",
+            "scrollable_element_function": "function(callback) { gmonkey.load('2.0', function(api) { callback(api.getScrollableElement()); }); }"
+        },
+        {
+            "url": "https://www.google.com/calendar/",
+            "wait_time_after_navigate": 5.0,
+            "why": "productivity, top google properties",
+            "credentials": "google",
+            "scrollable_element_function": "function(callback) { callback(document.getElementById('scrolltimedeventswk')); }"
+        },
+        {
+            "url": "http://googleblog.blogspot.co.uk/",
+            "wait_time_after_navigate": 5.0,
+            "why": "for Clank CY"
+        },
+        {
+            "url": "http://www.gsp.ro/click-less-think-more",
+            "wait_time_after_navigate": 5.0,
+            "why": "for Clank CY"
+        },
+        {
+            "url": "http://www.hs.fi/",
+            "wait_time_after_navigate": 5.0,
+            "why": "for Clank CY"
+        },
+        {
+            "url": "http://mlb.mlb.com/index.jsp",
+            "wait_time_after_navigate": 5.0,
+            "why": "from Arrow scrolling thread"
+        },
+        {
+            "url": "http://nofolo.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "http://code.google.com/p/chromium/issues/detail?id=136555"
+        },
+        {
+            "url": "http://www.nytimes.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "for Clank CY"
+        },
+        {
+            "url": "http://planet.mozilla.org/",
+            "wait_time_after_navigate": 5.0,
+            "why": ""
+        },
+        {
+            "url": "http://www.pravda.ru/",
+            "wait_time_after_navigate": 5.0,
+            "why": "cyrillic font test case"
+        },
+        {
+            "url": "http://www.sfgate.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "from Arrow scrolling thread"
+        },
+        {
+            "url": "http://slashdot.org/",
+            "wait_time_after_navigate": 5.0,
+            "why": ""
+        },
+        {
+            "url": "http://www.theverge.com/",
+            "wait_time_after_navigate": 30.0,
+            "why": "for Clank CY"
+        },
+        {
+            "url": "http://www.transformice.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "from Tom W's list"
+        },
+        {
+            "url": "http://uk.wsj.com/home-page",
+            "wait_time_after_navigate": 5.0,
+            "why": "for Clank CY"
+        },
+        {
+            "url": "http://vnexpress.net/",
+            "wait_time_after_navigate": 5.0,
+            "why": "from Tom W's list"
+        },
+        {
+            "url": "http://worldjournal.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "Chinese font test case"
+        },
+        {
+            "url": "http://www.wowwiki.com/World_of_Warcraft:_Mists_of_Pandaria",
+            "wait_time_after_navigate": 5.0,
+            "why": "http://code.google.com/p/chromium/issues/detail?id=136555"
+        },
+        {
+            "url": "http://online.wsj.com/home-page",
+            "wait_time_after_navigate": 5.0,
+            "why": ""
+        },
+        {
+            "url": "http://www.youtube.com/watch?v=PC57z-oDPLs",
+            "wait_time_after_navigate": 5.0,
+            "why": "#3 (Alexa global)"
+        },
+        {
+            "url": "http://www.deviantart.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "from caryclark"
+        }
+    ]
+}

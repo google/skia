@@ -1,0 +1,13 @@
+{
+    "description": "br.337 for Skia for Desktop.",
+    "archive_data_file": "data/skia_br337_desktop.json",
+    "credentials_path": "data/credentials.json",
+    "smoothness": { "action": "scroll" },
+    "pages": [
+        {
+            "url": "http://br.337.com/pages/196/DDTank",
+            "wait_seconds": 15.0,
+            "why": "from Tom W's list"
+        }
+    ]
+}

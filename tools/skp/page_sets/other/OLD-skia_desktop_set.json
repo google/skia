@@ -1,0 +1,132 @@
+{
+    "description": "Pages hand-picked for Skia Desktop.",
+    "archive_path": "data/skia_desktop_set.wpr",
+    "credentials_path": "data/credentials.json",
+    "pages": [
+        {
+            "url": "http://ie.microsoft.com/testdrive/Performance/Chalkboard/Images/Chalkboard.svg",
+            "wait_time_after_navigate": 15.0,
+            "why": "from fmalita"
+        },
+        {
+            "url": "https://www.google.com/#hl=en&q=barack+obama",
+            "wait_time_after_navigate": 5.0,
+            "why": "top google property; a google tab is often open"
+        },
+        {
+            "url": "https://plus.google.com/110031535020051778989/posts",
+            "why": "social; top google property; Public profile; infinite scrolls",
+            "wait_time_after_navigate": 5.0,
+            "scroll_is_infinite": true
+        },
+        {
+            "name": "Blogger",
+            "url": "http://googlewebmastercentral.blogspot.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "#11 (Alexa global), google property; some blogger layouts have infinite scroll but more interesting"
+        },
+        {
+            "name": "Wordpress",
+            "url": "http://en.blog.wordpress.com/2012/09/04/freshly-pressed-editors-picks-for-august-2012/",
+            "wait_time_after_navigate": 5.0,
+            "why": "#18 (Alexa global), Picked an interesting post"
+        },
+        {
+            "name": "Facebook",
+            "url": "http://www.facebook.com/barackobama",
+            "wait_time_after_navigate": 5.0,
+            "why": "top social,Public profile",
+            "credentials": "facebook",
+            "scroll_is_infinite": true,
+            "stress_memory": {
+                "action": "compound_interaction",
+                "actions": [
+                    {
+                        "action": "click_to_navigate_interaction",
+                        "selector": "a[href=\"http://www.facebook.com/WomenforObama\"]"
+                    },
+                    {
+                        "action": "click_to_navigate_interaction",
+                        "selector": "a[href=\"http://www.facebook.com/WomenforObama/info\"]"
+                    },
+                    {
+                        "action": "click_to_navigate_interaction",
+                        "selector": "a[href=\"http://www.facebook.com/?ref=tn_tnmn\"]"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "LinkedIn",
+            "url": "http://www.linkedin.com/in/linustorvalds",
+            "wait_time_after_navigate": 5.0,
+            "why": "#12 (Alexa global),Public profile"
+        },
+        {
+            "name": "Twitter",
+            "url": "http://twitter.com/katyperry",
+            "why": "#8 (Alexa global),Picked an interesting page",
+            "wait_time_after_navigate": 5.0,
+            "scroll_is_infinite": true
+        },
+        {
+            "name": "Pinterest",
+            "url": "http://pinterest.com",
+            "why": "#37 (Alexa global)",
+            "wait_time_after_navigate": 5.0,
+            "scroll_is_infinite": true
+        },
+        {
+            "name": "ESPN",
+            "url": "http://espn.go.com",
+            "wait_time_after_navigate": 5.0,
+            "why": "#1 sports"
+        },
+        {
+            "url": "http://news.yahoo.com",
+            "wait_time_after_navigate": 5.0,
+            "why": "#1 news worldwide (Alexa global)"
+        },
+        {
+            "name": "Weather.com",
+            "url": "http://www.weather.com/weather/right-now/Mountain+View+CA+94043",
+            "wait_time_after_navigate": 5.0,
+            "why": "#7 (Alexa news); #27 total time spent,Picked interesting page"
+        },
+        {
+            "url": "http://www.amazon.com",
+            "wait_time_after_navigate": 5.0,
+            "why": "#1 world commerce website by visits; #3 commerce in the US by time spent"
+        },
+        {
+            "url": "http://games.yahoo.com",
+            "wait_time_after_navigate": 5.0,
+            "why": "#1 games according to Alexa (with actual games in it)"
+        },
+        {
+            "url": "http://booking.com",
+            "wait_time_after_navigate": 5.0,
+            "why": "#1 Alexa recreation"
+        },
+        {
+            "url": "http://answers.yahoo.com",
+            "wait_time_after_navigate": 5.0,
+            "why": "#1 Alexa reference"
+        },
+        {
+            "url": "http://sports.yahoo.com/",
+            "wait_time_after_navigate": 5.0,
+            "why": "#1 Alexa sports"
+        },
+        {
+            "url": "http://techcrunch.com",
+            "wait_time_after_navigate": 5.0,
+            "why": "top tech blog"
+        },
+        {
+            "url": "http://www.baidu.com/s?wd=barack+obama&rsv_bp=0&rsv_spt=3&rsv_sug3=9&rsv_sug=0&rsv_sug4=3824&rsv_sug1=3&inputT=4920",
+            "wait_time_after_navigate": 5.0,
+            "why": "#5 (Alexa) most visited worldwide"
+        }
+    ]
+}

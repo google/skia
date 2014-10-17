@@ -1,0 +1,13 @@
+{
+    "description": "Pages hand-picked for Skia for Galaxy Nexus.",
+    "archive_path": "data/skia_galaxynexus_set.wpr",
+    "credentials_path": "data/credentials.json",
+    "user_agent_type": "mobile",
+    "pages": [
+        {
+            "url": "http://en.m.wikipedia.org/wiki/List_of_The_X-Files_episodes#section_2",
+            "wait_time_after_navigate": 5.0,
+            "why": "#6 (Alexa) most visited worldwide; from robertphillips"
+        }
+    ]
+}

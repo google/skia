@@ -1,0 +1,18 @@
+{
+    "description": "onlinewsj for Skia for Nexus10.",
+    "archive_data_file": "data/skia_onlinewsj_nexus10.json",
+    "credentials_path": "data/credentials.json",
+    "user_agent_type": "tablet",
+    "smoothness": { "action": "scroll" },
+    "pages": [
+        {
+            "url": "http://online.wsj.com/home-page",
+            "why": "",
+            "navigate_steps" : [                                                
+               { "action": "navigate" },                                        
+               { "action": "navigate" },                                        
+               { "action": "wait", "seconds": 60 }                               
+            ]
+        }
+    ]
+}

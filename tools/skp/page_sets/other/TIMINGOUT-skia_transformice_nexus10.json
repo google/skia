@@ -1,0 +1,13 @@
+{
+    "description": "Transformice for Skia for Nexus10.",
+    "archive_path": "data/skia_transformice_nexus10.wpr",
+    "credentials_path": "data/credentials.json",
+    "user_agent_type": "nexus10",
+    "pages": [
+        {
+            "url": "http://www.transformice.com/",
+            "wait_time_after_navigate": 30.0,
+            "why": "from Tom W's list"
+        }
+    ]
+}
