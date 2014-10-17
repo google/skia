@@ -40,5 +40,6 @@ git checkout master
 
 cd experimental/webtry
 
+go get -u skia.googlesource.com/buildbot.git/perf/go/logserver
 go get -d
 ./build

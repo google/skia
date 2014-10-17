@@ -69,9 +69,11 @@ sudo su - webtry -c /home/webtry/continue_install.sh
 banner "Setting up system initialization scripts"
 
 sudo cp sys/webtry_init /etc/init.d/webtry
+sudo cp sys/logserver_init /etc/init.d/logserver
 sudo cp sys/webtry_monit /etc/monit/conf.d/webtry
 sudo cp sys/webtry_squid /etc/squid3/squid.conf
 sudo chmod 744 /etc/init.d/webtry
+sudo chmod 744 /etc/init.d/logserver
 
 # Confirm that monit is happy.
 sudo monit -t
@@ -80,5 +82,6 @@ sudo monit reload
 banner "Restarting webtry server"
 
 sudo /etc/init.d/webtry restart
+sudo /etc/init.d/logserver restart
 
 banner "All done!"
