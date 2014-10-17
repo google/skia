@@ -91,7 +91,7 @@ DEVICE_TO_PLATFORM_PREFIX = {
 
 # How many times the record_wpr binary should be retried.
 RETRY_RECORD_WPR_COUNT = 5
-# How many times the run_measurement binary should be retried.
+# How many times the run_benchmark binary should be retried.
 RETRY_RUN_MEASUREMENT_COUNT = 5
 
 X11_DISPLAY = os.getenv('DISPLAY', ':0')
@@ -204,10 +204,10 @@ class SkPicturePlayback(object):
           self._DownloadWebpagesArchive(wpr_data_file, page_set_basename)
 
       page_set_name = os.path.basename(page_set).split('.')[0]
-      run_measurement_cmd = (
+      run_benchmark_cmd = (
           'DISPLAY=%s' % X11_DISPLAY,
           'timeout', '300',
-          os.path.join(self._telemetry_binaries_dir, 'run_measurement'),
+          os.path.join(self._telemetry_binaries_dir, 'run_benchmark'),
           '--extra-browser-args=--disable-setuid-sandbox',
           '--browser=exact',
           '--browser-executable=%s' % self._browser_executable,
@@ -240,7 +240,7 @@ class SkPicturePlayback(object):
       for _ in range(RETRY_RUN_MEASUREMENT_COUNT):
         try:
           print '\n\n=======Capturing SKP of %s=======\n\n' % page_set
-          shell_utils.run(' '.join(run_measurement_cmd), shell=True)
+          shell_utils.run(' '.join(run_benchmark_cmd), shell=True)
         except shell_utils.CommandFailedException:
           # skpicture_printer sometimes fails with AssertionError but the
           # captured SKP is still valid. This is a known issue.
@@ -272,9 +272,9 @@ class SkPicturePlayback(object):
           os.remove(page_set_dst)
           os.remove(wpr_dst)
           os.remove(json_dst)
-        # If we get here then run_measurement did not succeed and thus did not
+        # If we get here then run_benchmark did not succeed and thus did not
         # break out of the loop.
-        raise Exception('run_measurement failed for page_set: %s' % page_set)
+        raise Exception('run_benchmark failed for page_set: %s' % page_set)
 
       if copied_page_set:
         os.remove(page_set_dst)
