@@ -138,8 +138,18 @@ function slide_transition(prev, next, is_forward)
     return rec
 end
 
+function sqr(value) return value * value end
+
+function ease(value) 
+function set_blur(paint, alpha)
+    local sigma = sqr(1 - alpha) * 20
+--    paint:setImageFilter(Sk.newBlurImageFilter(sigma, sigma))
+    paint:setAlpha(alpha)
+end
+
 function fade_slide_transition(prev, next, is_forward)
     local rec = {
+        paint = Sk.newPaint(),
         prevDrawable = prev,
         nextDrawable = next,
         proc = function(self, canvas, drawSlideProc)
@@ -147,8 +157,12 @@ function fade_slide_transition(prev, next, is_forward)
                 drawSlideProc(canvas)
                 return nil
             end
-            self.prevDrawable:draw(canvas, self.prev_x, 0, self.prev_a)
-            self.nextDrawable:draw(canvas, self.next_x, 0, self.next_a)
+
+            set_blur(self.paint, self.prev_a)
+            self.prevDrawable:draw(canvas, self.prev_x, 0, self.paint)
+
+            set_blur(self.paint, self.next_a)
+            self.nextDrawable:draw(canvas, self.next_x, 0, self.paint)
             self:step()
             return self
         end
@@ -263,6 +277,20 @@ function new_drawable_image(img)
     }
 end
 
+function convert_to_picture_drawable(slide)
+    local rec = Sk.newPictureRecorder()
+    drawSlide(rec:beginRecording(640, 480), slide, gTemplate)
+    return new_drawable_picture(rec:endRecording())
+end
+
+function convert_to_image_drawable(slide)
+    local surf = Sk.newRasterSurface(640, 480)
+    drawSlide(surf:getCanvas(), slide, gTemplate)
+    return new_drawable_image(surf:newImageSnapshot())
+end
+
+gMakeDrawable = convert_to_picture_drawable
+
 function spawn_transition(prevSlide, nextSlide, is_forward)
     local transition
     if is_forward then
@@ -275,14 +303,8 @@ function spawn_transition(prevSlide, nextSlide, is_forward)
         transition = fade_slide_transition
     end
 
-    local rec = Sk.newPictureRecorder()
-
-    drawSlide(rec:beginRecording(640, 480), prevSlide, gTemplate)
-    local prevDrawable = new_drawable_picture(rec:endRecording())
-
-    drawSlide(rec:beginRecording(640, 480), nextSlide, gTemplate)
-    local nextDrawable = new_drawable_picture(rec:endRecording())
-
+    local prevDrawable = gMakeDrawable(prevSlide)
+    local nextDrawable = gMakeDrawable(nextSlide)
     gCurrAnimation = transition(prevDrawable, nextDrawable, is_forward)
 end
 

@@ -11,6 +11,7 @@
 #include "GrReducedClip.h"
 #endif
 
+#include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
@@ -43,6 +44,7 @@ template <typename T> const char* get_mtname();
 DEF_MTNAME(SkCanvas)
 DEF_MTNAME(SkDocument)
 DEF_MTNAME(SkImage)
+DEF_MTNAME(SkImageFilter)
 DEF_MTNAME(SkMatrix)
 DEF_MTNAME(SkRRect)
 DEF_MTNAME(SkPath)
@@ -400,6 +402,10 @@ static SkScalar getfield_scalar_default(lua_State* L, int index, const char key[
     }
     lua_pop(L, 1);
     return value;
+}
+
+static SkScalar byte2unit(U8CPU byte) {
+    return byte / 255.0f;
 }
 
 static U8CPU unit2byte(SkScalar x) {
@@ -786,6 +792,16 @@ static int lpaint_isVerticalText(lua_State* L) {
     return 1;
 }
 
+static int lpaint_getAlpha(lua_State* L) {
+    SkLua(L).pushScalar(byte2unit(get_obj<SkPaint>(L, 1)->getAlpha()));
+    return 1;
+}
+
+static int lpaint_setAlpha(lua_State* L) {
+    get_obj<SkPaint>(L, 1)->setAlpha(unit2byte(lua2scalar(L, 2)));
+    return 0;
+}
+
 static int lpaint_getColor(lua_State* L) {
     SkLua(L).pushColor(get_obj<SkPaint>(L, 1)->getColor());
     return 1;
@@ -959,15 +975,31 @@ static int lpaint_getEffects(lua_State* L) {
     const SkPaint* paint = get_obj<SkPaint>(L, 1);
 
     lua_newtable(L);
-    setfield_bool_if(L, "looper", !!paint->getLooper());
-    setfield_bool_if(L, "pathEffect", !!paint->getPathEffect());
-    setfield_bool_if(L, "rasterizer", !!paint->getRasterizer());
-    setfield_bool_if(L, "maskFilter", !!paint->getMaskFilter());
-    setfield_bool_if(L, "shader", !!paint->getShader());
+    setfield_bool_if(L, "looper",      !!paint->getLooper());
+    setfield_bool_if(L, "pathEffect",  !!paint->getPathEffect());
+    setfield_bool_if(L, "rasterizer",  !!paint->getRasterizer());
+    setfield_bool_if(L, "maskFilter",  !!paint->getMaskFilter());
+    setfield_bool_if(L, "shader",      !!paint->getShader());
     setfield_bool_if(L, "colorFilter", !!paint->getColorFilter());
     setfield_bool_if(L, "imageFilter", !!paint->getImageFilter());
-    setfield_bool_if(L, "xfermode", !!paint->getXfermode());
+    setfield_bool_if(L, "xfermode",    !!paint->getXfermode());
     return 1;
+}
+
+static int lpaint_getImageFilter(lua_State* L) {
+    const SkPaint* paint = get_obj<SkPaint>(L, 1);
+    SkImageFilter* imf = paint->getImageFilter();
+    if (imf) {
+        push_ref(L, imf);
+        return 1;
+    }
+    return 0;
+}
+
+static int lpaint_setImageFilter(lua_State* L) {
+    SkPaint* paint = get_obj<SkPaint>(L, 1);
+    paint->setImageFilter(get_ref<SkImageFilter>(L, 2));
+    return 0;
 }
 
 static int lpaint_getShader(lua_State* L) {
@@ -1010,6 +1042,8 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "isEmbeddedBitmapText", lpaint_isEmbeddedBitmapText },
     { "isAutohinted", lpaint_isAutohinted },
     { "isVerticalText", lpaint_isVerticalText },
+    { "getAlpha", lpaint_getAlpha },
+    { "setAlpha", lpaint_setAlpha },
     { "getColor", lpaint_getColor },
     { "setColor", lpaint_setColor },
     { "getTextSize", lpaint_getTextSize },
@@ -1033,6 +1067,8 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "measureText", lpaint_measureText },
     { "getFontMetrics", lpaint_getFontMetrics },
     { "getEffects", lpaint_getEffects },
+    { "getImageFilter", lpaint_getImageFilter },
+    { "setImageFilter", lpaint_setImageFilter },
     { "getShader", lpaint_getShader },
     { "getPathEffect", lpaint_getPathEffect },
     { "__gc", lpaint_gc },
@@ -1152,6 +1188,18 @@ static int lpatheffect_gc(lua_State* L) {
 static const struct luaL_Reg gSkPathEffect_Methods[] = {
     { "asADash",        lpatheffect_asADash },
     { "__gc",           lpatheffect_gc },
+    { NULL, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+static int lpimagefilter_gc(lua_State* L) {
+    get_ref<SkImageFilter>(L, 1)->unref();
+    return 0;
+}
+
+static const struct luaL_Reg gSkImageFilter_Methods[] = {
+    { "__gc",       lpimagefilter_gc },
     { NULL, NULL }
 };
 
@@ -1688,6 +1736,19 @@ static int lsk_newDocumentPDF(lua_State* L) {
     }
 }
 
+static int lsk_newBlurImageFilter(lua_State* L) {
+    SkScalar sigmaX = lua2scalar_def(L, 1, 0);
+    SkScalar sigmaY = lua2scalar_def(L, 2, 0);
+    SkImageFilter* imf = SkBlurImageFilter::Create(sigmaX, sigmaY);
+    if (NULL == imf) {
+        lua_pushnil(L);
+    } else {
+        push_ref(L, imf);
+        imf->unref();
+    }
+    return 1;
+}
+
 static int lsk_newMatrix(lua_State* L) {
     push_new<SkMatrix>(L)->reset();
     return 1;
@@ -1776,6 +1837,7 @@ static void register_Sk(lua_State* L) {
 
     setfield_function(L, "newDocumentPDF", lsk_newDocumentPDF);
     setfield_function(L, "loadImage", lsk_loadImage);
+    setfield_function(L, "newBlurImageFilter", lsk_newBlurImageFilter);
     setfield_function(L, "newMatrix", lsk_newMatrix);
     setfield_function(L, "newPaint", lsk_newPaint);
     setfield_function(L, "newPath", lsk_newPath);
@@ -1800,6 +1862,7 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkCanvas);
     REG_CLASS(L, SkDocument);
     REG_CLASS(L, SkImage);
+    REG_CLASS(L, SkImageFilter);
     REG_CLASS(L, SkPaint);
     REG_CLASS(L, SkPath);
     REG_CLASS(L, SkPathEffect);
