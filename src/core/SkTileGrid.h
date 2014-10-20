@@ -8,7 +8,6 @@
 #ifndef SkTileGrid_DEFINED
 #define SkTileGrid_DEFINED
 
-#include "Sk4x.h"
 #include "SkBBHFactory.h"
 #include "SkBBoxHierarchy.h"
 
@@ -44,16 +43,16 @@ public:
     virtual void flushDeferredInserts() SK_OVERRIDE;
 
 private:
-    void userToGrid(const Sk4f&, SkIRect*) const;
-    bool intersectsGrid(const Sk4f&) const;
+    void commonAdjust(SkRect*) const;
+    void userToGrid(const SkRect&, SkIRect* grid) const;
 
-    const int fXTiles,    // Number of tiles in a single row.
-              fNumTiles;  // Total number of tiles.
+    const int fXTiles, fYTiles;
+    const SkScalar fInvWidth, fInvHeight;
+    const SkScalar fMarginWidth, fMarginHeight;
+    const SkPoint fOffset;
+    const SkRect  fGridBounds;
 
-    const SkRect fGridBounds;  // Only used for intersectsGrid().  Remove if that's removed.
-    const Sk4f fMargin, fOffset, fUserToGrid, fGridHigh;
-
-    // fNumTiles SkTDArrays, each listing ops overlapping that tile in order.
+    // (fXTiles * fYTiles) SkTDArrays, each listing ops overlapping that tile in order.
     SkTDArray<unsigned>* fTiles;
 
     typedef SkBBoxHierarchy INHERITED;
