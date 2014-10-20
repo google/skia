@@ -294,9 +294,12 @@ void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPai
     setup_gamma_texture(fContext, cache, fDeviceProperties, &fGammaTexture);
 
     const char*        stop = text + byteLength;
+    SkTArray<char>     fallbackTxt;
+    SkTArray<SkScalar> fallbackPos;
 
     if (SkPaint::kLeft_Align == fSkPaint.getTextAlign()) {
         while (text < stop) {
+            const char* lastText = text;
             // the last 2 parameters are ignored
             const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
 
@@ -304,12 +307,19 @@ void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPai
                 SkScalar x = offset.x() + pos[0];
                 SkScalar y = offset.y() + (2 == scalarsPerPosition ? pos[1] : 0);
 
-                this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
-                                                glyph.getSubXFixed(),
-                                                glyph.getSubYFixed()),
-                                  SkScalarToFixed(x),
-                                  SkScalarToFixed(y),
-                                  fontScaler);
+                if (!this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
+                                                     glyph.getSubXFixed(),
+                                                     glyph.getSubYFixed()),
+                                       SkScalarToFixed(x),
+                                       SkScalarToFixed(y),
+                                       fontScaler)) {
+                    // couldn't append, send to fallback
+                    fallbackTxt.push_back_n(text-lastText, lastText);
+                    fallbackPos.push_back(pos[0]);
+                    if (2 == scalarsPerPosition) {
+                        fallbackPos.push_back(pos[1]);
+                    }
+                }
             }
             pos += scalarsPerPosition;
         }
@@ -317,6 +327,7 @@ void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPai
         SkScalar alignMul = SkPaint::kCenter_Align == fSkPaint.getTextAlign() ? SK_ScalarHalf
                                                                               : SK_Scalar1;
         while (text < stop) {
+            const char* lastText = text;
             // the last 2 parameters are ignored
             const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
 
@@ -327,18 +338,30 @@ void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPai
                 SkScalar advanceX = SkFixedToScalar(glyph.fAdvanceX)*alignMul*fTextRatio;
                 SkScalar advanceY = SkFixedToScalar(glyph.fAdvanceY)*alignMul*fTextRatio;
 
-                this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
-                                                glyph.getSubXFixed(),
-                                                glyph.getSubYFixed()),
-                                  SkScalarToFixed(x - advanceX),
-                                  SkScalarToFixed(y - advanceY),
-                                  fontScaler);
+                if (!this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
+                                                     glyph.getSubXFixed(),
+                                                     glyph.getSubYFixed()),
+                                       SkScalarToFixed(x - advanceX),
+                                       SkScalarToFixed(y - advanceY),
+                                       fontScaler)) {
+                    // couldn't append, send to fallback
+                    fallbackTxt.push_back_n(text-lastText, lastText);
+                    fallbackPos.push_back(pos[0]);
+                    if (2 == scalarsPerPosition) {
+                        fallbackPos.push_back(pos[1]);
+                    }
+                }
             }
             pos += scalarsPerPosition;
         }
     }
 
     this->finish();
+    
+    if (fallbackTxt.count() > 0) {
+        fFallbackTextContext->drawPosText(paint, skPaint, fallbackTxt.begin(), fallbackTxt.count(),
+                                          fallbackPos.begin(), scalarsPerPosition, offset);
+    }
 }
 
 static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
@@ -398,11 +421,13 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
     
 }
 
-void GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
+// Returns true if this method handled the glyph, false if needs to be passed to fallback
+//
+bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
                                              SkFixed vx, SkFixed vy,
                                              GrFontScaler* scaler) {
     if (NULL == fDrawTarget) {
-        return;
+        return true;
     }
 
     if (NULL == fStrike) {
@@ -411,12 +436,12 @@ void GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
 
     GrGlyph* glyph = fStrike->getGlyph(packed, scaler);
     if (NULL == glyph || glyph->fBounds.isEmpty()) {
-        return;
+        return true;
     }
 
-    // TODO: support color glyphs
+    // fallback to color glyph support
     if (kA8_GrMaskFormat != glyph->fMaskFormat) {
-        return;
+        return false;
     }
 
     SkScalar sx = SkFixedToScalar(vx);
@@ -474,7 +499,7 @@ void GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
             if (!scaler->getGlyphPath(glyph->glyphID(), path)) {
                 // flag the glyph as being dead?
                 delete path;
-                return;
+                return true;
             }
             glyph->fPath = path;
         }
@@ -490,7 +515,7 @@ void GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
         am.setPreConcat(fContext, ctm, &tmpPaint);
         GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
         fContext->drawPath(tmpPaint, *glyph->fPath, strokeInfo);
-        return;
+        return true;
     }
 
 HAS_ATLAS:
@@ -606,6 +631,8 @@ HAS_ATLAS:
     }
 
     fCurrVertex += 4;
+    
+    return true;
 }
 
 void GrDistanceFieldTextContext::flush() {

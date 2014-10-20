@@ -5,30 +5,44 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "Resources.h"
+#include "SkCanvas.h"
+#include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTypeface.h"
 
-namespace skiagm {
-
-class DFTextGM : public GM {
+class DFTextGM : public skiagm::GM {
 public:
     DFTextGM() {
         this->setBGColor(0xFFFFFFFF);
+        fTypeface = NULL;
     }
 
     virtual ~DFTextGM() {
+        SkSafeUnref(fTypeface);
     }
 
 protected:
+    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        SkString filename = GetResourcePath("/Funkster.ttf");
+        SkAutoTUnref<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
+        if (!stream->isValid()) {
+            SkDebugf("Could not find Funkster.ttf, please set --resourcePath correctly.\n");
+            return;
+        }
+
+        fTypeface = SkTypeface::CreateFromStream(stream);
+    }
+
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
         return kGPUOnly_Flag;
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("dftext");
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(1024, 768);
     }
 
@@ -185,6 +199,10 @@ protected:
             y += paint.getFontMetrics(NULL);
         }
 
+        // check color emoji
+        paint.setTypeface(fTypeface);
+        canvas->drawText(text, textLen, 670, 100, paint);
+
 #if SK_SUPPORT_GPU
         // render offscreen buffer
         if (surface) {
@@ -199,12 +217,9 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    SkTypeface* fTypeface;
+
+    typedef skiagm::GM INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-static GM* MyFactory(void*) { return new DFTextGM; }
-static GMRegistry reg(MyFactory);
-
-}
+DEF_GM( return SkNEW(DFTextGM); )
