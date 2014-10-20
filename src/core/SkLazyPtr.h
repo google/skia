@@ -8,7 +8,7 @@
 #ifndef SkLazyPtr_DEFINED
 #define SkLazyPtr_DEFINED
 
-/** Declare a lazily-chosen static pointer (or array of pointers) of type F.
+/** Declare a lazily-chosen static pointer (or array of pointers) of type T.
  *
  *  Example usage:
  *
@@ -49,7 +49,7 @@
  */
 
 #define SK_DECLARE_STATIC_LAZY_PTR(T, name, ...) \
-    namespace {} static Private::SkLazyPtr<T, ##__VA_ARGS__> name
+    namespace {} static Private::SkLazyPtrBase<T, ##__VA_ARGS__> name
 
 #define SK_DECLARE_STATIC_LAZY_PTR_ARRAY(T, name, N, ...) \
     namespace {} static Private::SkLazyPtrArray<T, N, ##__VA_ARGS__> name
@@ -57,7 +57,6 @@
 // namespace {} forces these macros to only be legal in global scopes.  Chrome has thread-safety
 // problems with them in function-local statics because it uses -fno-threadsafe-statics, and even
 // in builds with threadsafe statics, those threadsafe statics are just unnecessary overhead.
-
 
 // Everything below here is private implementation details.  Don't touch, don't even look.
 
@@ -103,7 +102,7 @@ template <typename T> void sk_delete(T* ptr) { SkDELETE(ptr); }
 
 // This has no constructor and must be zero-initalized (the macro above does this).
 template <typename T, T* (*Create)() = sk_new<T>, void (*Destroy)(T*) = sk_delete<T> >
-class SkLazyPtr {
+class SkLazyPtrBase {
 public:
     T* get() {
         // If fPtr has already been filled, we need a consume barrier when loading it.
@@ -112,7 +111,7 @@ public:
         return ptr ? ptr : try_cas<T*, Destroy>(&fPtr, Create());
     }
 
-private:
+protected:
     void* fPtr;
 };
 
@@ -135,5 +134,19 @@ private:
 };
 
 }  // namespace Private
+
+// This version is suitable for use as a class member.
+// It's the same as above except it has a constructor to zero itself and a destructor to clean up.
+template <typename T,
+          T* (*Create)() = Private::sk_new<T>,
+          void (*Destroy)(T*) = Private::sk_delete<T> >
+class SkLazyPtr : public Private::SkLazyPtrBase<T, Create, Destroy> {
+public:
+    SkLazyPtr() { INHERITED::fPtr = NULL; }
+    ~SkLazyPtr() { if (INHERITED::fPtr) { Destroy((T*)INHERITED::fPtr); } }
+private:
+    typedef Private::SkLazyPtrBase<T, Create, Destroy> INHERITED;
+};
+
 
 #endif//SkLazyPtr_DEFINED

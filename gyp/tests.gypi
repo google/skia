@@ -130,6 +130,7 @@
     '../tests/LListTest.cpp',
     '../tests/LayerDrawLooperTest.cpp',
     '../tests/LayerRasterizerTest.cpp',
+    '../tests/LazyPtr.cpp',
     '../tests/MD5Test.cpp',
     '../tests/MallocPixelRefTest.cpp',
     '../tests/MathTest.cpp',
