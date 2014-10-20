@@ -41,8 +41,6 @@
  *
  *  You can think of SK_DECLARE_STATIC_LAZY_PTR as a cheaper specialization of
  *  SkOnce.  There is no mutex or extra storage used past the pointer itself.
- *  In debug mode, each lazy pointer will be cleaned up at process exit so we
- *  can check that we've not leaked or freed them early.
  *
  *  We may call Create more than once, but all threads will see the same pointer
  *  returned from get().  Any extra calls to Create will be cleaned up.
@@ -114,17 +112,6 @@ public:
         return ptr ? ptr : try_cas<T*, Destroy>(&fPtr, Create());
     }
 
-#ifdef SK_DEVELOPER
-    // FIXME: We know we leak refs on some classes.  For now, let them leak.
-    void cleanup(SkFontConfigInterfaceDirect*) {}
-    template <typename U> void cleanup(U* ptr) { Destroy(ptr); }
-
-    ~SkLazyPtr() {
-        this->cleanup((T*)fPtr);
-        fPtr = NULL;
-    }
-#endif
-
 private:
     void* fPtr;
 };
@@ -142,15 +129,6 @@ public:
         T* ptr = (T*)sk_consume_load(&fArray[i]);
         return ptr ? ptr : try_cas<T*, Destroy>(&fArray[i], Create(i));
     }
-
-#ifdef SK_DEVELOPER
-    ~SkLazyPtrArray() {
-        for (int i = 0; i < N; i++) {
-            Destroy((T*)fArray[i]);
-            fArray[i] = NULL;
-        }
-    }
-#endif
 
 private:
     void* fArray[N];
