@@ -933,7 +933,7 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
     if (paint && paint->getImageFilter()) {
         device = this->getDevice();
         if (device) {
-            device = device->createCompatibleDevice(info);
+            device = device->createCompatibleDeviceForImageFilter(info);
         }
     } else {
         device = this->createLayerDevice(info);

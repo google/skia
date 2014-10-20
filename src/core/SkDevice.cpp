@@ -36,6 +36,10 @@ SkBaseDevice* SkBaseDevice::createCompatibleDeviceForSaveLayer(const SkImageInfo
     return this->onCreateDevice(info, kSaveLayer_Usage);
 }
 
+SkBaseDevice* SkBaseDevice::createCompatibleDeviceForImageFilter(const SkImageInfo& info) {
+    return this->onCreateDevice(info, kImageFilter_Usage);
+}
+
 SkMetaData& SkBaseDevice::getMetaData() {
     // metadata users are rare, so we lazily allocate it. If that changes we
     // can decide to just make it a field in the device (rather than a ptr)

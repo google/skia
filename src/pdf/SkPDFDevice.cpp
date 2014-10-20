@@ -8,6 +8,7 @@
 #include "SkPDFDevice.h"
 
 #include "SkAnnotation.h"
+#include "SkBitmapDevice.h"
 #include "SkColor.h"
 #include "SkClipStack.h"
 #include "SkData.h"
@@ -567,6 +568,15 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
 }
 
 SkBaseDevice* SkPDFDevice::onCreateDevice(const SkImageInfo& info, Usage usage) {
+    // PDF does not support image filters, so render them on CPU.
+    // Note that this rendering is done at "screen" resolution (100dpi), not
+    // printer resolution.
+    // FIXME: It may be possible to express some filters natively using PDF
+    // to improve quality and file size (http://skbug.com/3043)
+    if (kImageFilter_Usage == usage) {
+        return SkBitmapDevice::Create(info);
+    }
+
     SkMatrix initialTransform;
     initialTransform.reset();
     SkISize size = SkISize::Make(info.width(), info.height());
