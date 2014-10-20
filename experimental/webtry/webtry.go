@@ -139,7 +139,7 @@ func LineNumbers(c string) string {
 	return strings.Join(ret, "\n")
 }
 
-func init() {
+func Init() {
 	rand.Seed(time.Now().UnixNano())
 
 	// Change the current working directory to the directory of the executable.
@@ -952,6 +952,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	flag.Parse()
+	Init()
 	http.HandleFunc("/i/", autogzip.HandleFunc(imageHandler))
 	http.HandleFunc("/w/", autogzip.HandleFunc(workspaceHandler))
 	http.HandleFunc("/recent/", autogzip.HandleFunc(recentHandler))
