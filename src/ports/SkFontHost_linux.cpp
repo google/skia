@@ -30,7 +30,7 @@
 /** The base SkTypeface implementation for the custom font manager. */
 class SkTypeface_Custom : public SkTypeface_FreeType {
 public:
-    SkTypeface_Custom(Style style, bool isFixedPitch,
+    SkTypeface_Custom(const SkFontStyle& style, bool isFixedPitch,
                       bool sysFont, const SkString familyName, int index)
         : INHERITED(style, SkTypefaceCache::NewFontID(), isFixedPitch)
         , fIsSysFont(sysFont), fFamilyName(familyName), fIndex(index)
@@ -67,7 +67,7 @@ private:
  */
 class SkTypeface_Empty : public SkTypeface_Custom {
 public:
-    SkTypeface_Empty() : INHERITED(SkTypeface::kNormal, false, true, SkString(), 0) {}
+    SkTypeface_Empty() : INHERITED(SkFontStyle(), false, true, SkString(), 0) {}
 
     virtual const char* getUniqueString() const SK_OVERRIDE { return NULL; }
 
@@ -81,9 +81,9 @@ private:
 /** The stream SkTypeface implementation for the custom font manager. */
 class SkTypeface_Stream : public SkTypeface_Custom {
 public:
-    SkTypeface_Stream(Style style, bool isFixedPitch, bool sysFont, const SkString familyName,
-                      SkStream* stream, int ttcIndex)
-        : INHERITED(style, isFixedPitch, sysFont, familyName, ttcIndex)
+    SkTypeface_Stream(const SkFontStyle& style, bool isFixedPitch, bool sysFont,
+                      const SkString familyName, SkStream* stream, int index)
+        : INHERITED(style, isFixedPitch, sysFont, familyName, index)
         , fStream(SkRef(stream))
     { }
 
@@ -104,8 +104,8 @@ private:
 /** The file SkTypeface implementation for the custom font manager. */
 class SkTypeface_File : public SkTypeface_Custom {
 public:
-    SkTypeface_File(Style style, bool isFixedPitch, bool sysFont, const SkString familyName,
-                    const char path[], int index)
+    SkTypeface_File(const SkFontStyle& style, bool isFixedPitch, bool sysFont,
+                    const SkString familyName, const char path[], int index)
         : INHERITED(style, isFixedPitch, sysFont, familyName, index)
         , fPath(path)
     { }
@@ -273,7 +273,7 @@ protected:
         }
 
         bool isFixedPitch;
-        SkTypeface::Style style;
+        SkFontStyle style;
         SkString name;
         if (SkTypeface_FreeType::ScanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
             return SkNEW_ARGS(SkTypeface_Stream, (style, isFixedPitch, false, name,
@@ -315,7 +315,7 @@ protected:
 private:
 
     static bool get_name_and_style(const char path[], SkString* name,
-                                   SkTypeface::Style* style, bool* isFixedPitch) {
+                                   SkFontStyle* style, bool* isFixedPitch) {
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
         if (stream.get()) {
             return SkTypeface_FreeType::ScanFont(stream, 0, name, style, isFixedPitch);
@@ -335,8 +335,7 @@ private:
 
             bool isFixedPitch;
             SkString realname;
-            SkTypeface::Style style = SkTypeface::kNormal; // avoid uninitialized warning
-
+            SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
             if (!get_name_and_style(filename.c_str(), &realname, &style, &isFixedPitch)) {
                 SkDebugf("------ can't load <%s> as a font\n", filename.c_str());
                 continue;

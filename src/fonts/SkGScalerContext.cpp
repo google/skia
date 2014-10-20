@@ -158,7 +158,7 @@ void SkGScalerContext::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 #include "SkTypefaceCache.h"
 
 SkGTypeface::SkGTypeface(SkTypeface* proxy, const SkPaint& paint)
-    : SkTypeface(proxy->style(), SkTypefaceCache::NewFontID(), false)
+    : SkTypeface(proxy->fontStyle(), SkTypefaceCache::NewFontID(), false)
     , fProxy(SkRef(proxy))
     , fPaint(paint) {}
 

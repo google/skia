@@ -126,20 +126,10 @@ static void make_canonical(LOGFONT* lf) {
 //    lf->lfClipPrecision = 64;
 }
 
-static SkTypeface::Style get_style(const LOGFONT& lf) {
-    unsigned style = 0;
-    if (lf.lfWeight >= FW_BOLD) {
-        style |= SkTypeface::kBold;
-    }
-    if (lf.lfItalic) {
-        style |= SkTypeface::kItalic;
-    }
-    return static_cast<SkTypeface::Style>(style);
-}
-
-static void setStyle(LOGFONT* lf, SkTypeface::Style style) {
-    lf->lfWeight = (style & SkTypeface::kBold) != 0 ? FW_BOLD : FW_NORMAL ;
-    lf->lfItalic = ((style & SkTypeface::kItalic) != 0);
+static SkFontStyle get_style(const LOGFONT& lf) {
+    return SkFontStyle(lf.lfWeight,
+                       lf.lfWidth,
+                       lf.lfItalic ? SkFontStyle::kItalic_Slant : SkFontStyle::kUpright_Slant);
 }
 
 static inline FIXED SkFixedToFIXED(SkFixed x) {
@@ -217,8 +207,11 @@ static unsigned calculateUPEM(HDC hdc, const LOGFONT& lf) {
 
 class LogFontTypeface : public SkTypeface {
 public:
-    LogFontTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf, bool serializeAsStream = false) :
-        SkTypeface(style, fontID, false), fLogFont(lf), fSerializeAsStream(serializeAsStream) {
+    LogFontTypeface(const SkFontStyle& style, const LOGFONT& lf, bool serializeAsStream)
+        : SkTypeface(style, SkTypefaceCache::NewFontID(), false)
+        , fLogFont(lf)
+        , fSerializeAsStream(serializeAsStream)
+    {
 
         // If the font has cubic outlines, it will not be rendered with ClearType.
         HFONT font = CreateFontIndirect(&lf);
@@ -255,9 +248,7 @@ public:
     bool fCanBeLCD;
 
     static LogFontTypeface* Create(const LOGFONT& lf) {
-        SkTypeface::Style style = get_style(lf);
-        SkFontID fontID = SkTypefaceCache::NewFontID();
-        return new LogFontTypeface(style, fontID, lf);
+        return new LogFontTypeface(get_style(lf), lf, false);
     }
 
     static void EnsureAccessible(const SkTypeface* face) {
@@ -289,9 +280,7 @@ public:
      *  The created FontMemResourceTypeface takes ownership of fontMemResource.
      */
     static FontMemResourceTypeface* Create(const LOGFONT& lf, HANDLE fontMemResource) {
-        SkTypeface::Style style = get_style(lf);
-        SkFontID fontID = SkTypefaceCache::NewFontID();
-        return new FontMemResourceTypeface(style, fontID, lf, fontMemResource);
+        return new FontMemResourceTypeface(get_style(lf), lf, fontMemResource);
     }
 
 protected:
@@ -305,9 +294,9 @@ private:
     /**
      *  Takes ownership of fontMemResource.
      */
-    FontMemResourceTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf, HANDLE fontMemResource) :
-        LogFontTypeface(style, fontID, lf, true), fFontMemResource(fontMemResource) {
-    }
+    FontMemResourceTypeface(const SkFontStyle& style, const LOGFONT& lf, HANDLE fontMemResource)
+        : LogFontTypeface(style, lf, true), fFontMemResource(fontMemResource)
+    { }
 
     HANDLE fFontMemResource;
 
@@ -319,7 +308,7 @@ static const LOGFONT& get_default_font() {
     return gDefaultFont;
 }
 
-static bool FindByLogFont(SkTypeface* face, SkTypeface::Style requestedStyle, void* ctx) {
+static bool FindByLogFont(SkTypeface* face, const SkFontStyle& requestedStyle, void* ctx) {
     LogFontTypeface* lface = static_cast<LogFontTypeface*>(face);
     const LOGFONT* lf = reinterpret_cast<const LOGFONT*>(ctx);
 
@@ -2457,12 +2446,6 @@ static int CALLBACK enum_family_proc(const LOGFONT* lf, const TEXTMETRIC*,
     return 1; // non-zero means continue
 }
 
-static SkFontStyle compute_fontstyle(const LOGFONT& lf) {
-    return SkFontStyle(lf.lfWeight, SkFontStyle::kNormal_Width,
-                       lf.lfItalic ? SkFontStyle::kItalic_Slant
-                                   : SkFontStyle::kUpright_Slant);
-}
-
 class SkFontStyleSetGDI : public SkFontStyleSet {
 public:
     SkFontStyleSetGDI(const TCHAR familyName[]) {
@@ -2482,7 +2465,7 @@ public:
 
     virtual void getStyle(int index, SkFontStyle* fs, SkString* styleName) SK_OVERRIDE {
         if (fs) {
-            *fs = compute_fontstyle(fArray[index].elfLogFont);
+            *fs = get_style(fArray[index].elfLogFont);
         }
         if (styleName) {
             const ENUMLOGFONTEX& ref = fArray[index];
@@ -2585,7 +2568,10 @@ protected:
         } else {
             logfont_for_name(familyName, &lf);
         }
-        setStyle(&lf, (SkTypeface::Style)styleBits);
+
+        SkTypeface::Style style = (SkTypeface::Style)styleBits;
+        lf.lfWeight = (style & SkTypeface::kBold) != 0 ? FW_BOLD : FW_NORMAL;
+        lf.lfItalic = ((style & SkTypeface::kItalic) != 0);
         return SkCreateTypefaceFromLOGFONT(lf);
     }
 

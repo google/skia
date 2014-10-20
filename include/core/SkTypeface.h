@@ -11,6 +11,7 @@
 #define SkTypeface_DEFINED
 
 #include "SkAdvancedTypefaceMetrics.h"
+#include "SkFontStyle.h"
 #include "SkWeakRefCnt.h"
 
 class SkDescriptor;
@@ -49,17 +50,25 @@ public:
         kBoldItalic = 0x03
     };
 
-    /** Returns the typeface's intrinsic style attributes
-    */
-    Style style() const { return fStyle; }
+    /** Returns the typeface's intrinsic style attributes. */
+    SkFontStyle fontStyle() const {
+        return fStyle;
+    }
 
-    /** Returns true if getStyle() has the kBold bit set.
-    */
-    bool isBold() const { return (fStyle & kBold) != 0; }
+    /** Returns the typeface's intrinsic style attributes.
+     *  @deprecated use fontStyle() instead.
+     */
+    Style style() const {
+        return static_cast<Style>(
+            (fStyle.weight() >= SkFontStyle::kSemiBold_Weight ? kBold : kNormal) |
+            (fStyle.slant()  != SkFontStyle::kUpright_Slant ? kItalic : kNormal));
+    }
 
-    /** Returns true if getStyle() has the kItalic bit set.
-    */
-    bool isItalic() const { return (fStyle & kItalic) != 0; }
+    /** Returns true if style() has the kBold bit set. */
+    bool isBold() const { return fStyle.weight() >= SkFontStyle::kSemiBold_Weight; }
+
+    /** Returns true if style() has the kItalic bit set. */
+    bool isItalic() const { return fStyle.slant() != SkFontStyle::kUpright_Slant; }
 
     /** Returns true if the typeface claims to be fixed-pitch.
      *  This is a style bit, advance widths may vary even if this returns true.
@@ -285,7 +294,7 @@ public:
 protected:
     /** uniqueID must be unique and non-zero
     */
-    SkTypeface(Style style, SkFontID uniqueID, bool isFixedPitch = false);
+    SkTypeface(const SkFontStyle& style, SkFontID uniqueID, bool isFixedPitch = false);
     virtual ~SkTypeface();
 
     /** Sets the fixedPitch bit. If used, must be called in the constructor. */
@@ -351,7 +360,7 @@ private:
     static void        DeleteDefault(SkTypeface*);
 
     SkFontID    fUniqueID;
-    Style       fStyle;
+    SkFontStyle fStyle;
     bool        fIsFixedPitch;
 
     friend class SkPaint;

@@ -63,7 +63,7 @@ SkTypeface* create_font(const char* name, SkTypeface::Style style) {
             atexit(release_portable_typefaces);
         }
     }
-    return SkNEW_ARGS(SkTestTypeface, (font, style));
+    return SkNEW_ARGS(SkTestTypeface, (font, SkFontStyle(style)));
 }
 
 

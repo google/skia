@@ -57,7 +57,7 @@ private:
 
 class SkTestTypeface : public SkTypeface {
 public:
-    SkTestTypeface(SkTestFont* , SkTypeface::Style style);
+    SkTestTypeface(SkTestFont*, const SkFontStyle& style);
     virtual ~SkTestTypeface() {
         SkSafeUnref(fTestFont);
     }
