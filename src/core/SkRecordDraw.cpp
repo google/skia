@@ -473,8 +473,10 @@ private:
 #ifdef SK_DEBUG
         SkRect correct = *rect;
 #endif
-        const SkScalar yPad = 2.0f * paint.getTextSize(),  // In practice, this seems to be enough.
-                       xPad = 4.0f * yPad;                 // Hack for very wide Github logo font.
+        // crbug.com/373785 ~~> xPad = 4x yPad
+        // crbug.com/424824 ~~> bump yPad from 2x text size to 2.5x
+        const SkScalar yPad = 2.5f * paint.getTextSize(),
+                       xPad = 4.0f * yPad;
         rect->outset(xPad, yPad);
 #ifdef SK_DEBUG
         SkPaint::FontMetrics metrics;
