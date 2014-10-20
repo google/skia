@@ -18,6 +18,7 @@
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
 
+#include "SkAutoKern.h"
 #include "SkColorFilter.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
@@ -212,74 +213,61 @@ void GrDistanceFieldTextContext::onDrawText(const GrPaint& paint, const SkPaint&
                                           SkScalar x, SkScalar y) {
     SkASSERT(byteLength == 0 || text != NULL);
 
-    // nothing to draw or can't draw
-    if (text == NULL || byteLength == 0 /* no raster clip? || fRC->isEmpty()*/
-        || fSkPaint.getRasterizer()) {
+    // nothing to draw
+    if (text == NULL || byteLength == 0) {
         return;
     }
 
-    this->init(paint, skPaint);
+    SkDrawCacheProc          glyphCacheProc = skPaint.getDrawCacheProc();
+    SkAutoGlyphCache         autoCache(skPaint, &fDeviceProperties, NULL);
+    SkGlyphCache*            cache = autoCache.getCache();
 
-    SkScalar sizeRatio = fTextRatio;
+    SkTArray<SkScalar> positions;
 
-    SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
+    const char* textPtr = text;
+    SkFixed stopX = 0;
+    SkFixed stopY = 0;
+    SkFixed origin;
+    switch (skPaint.getTextAlign()) {
+        case SkPaint::kRight_Align: origin = SK_Fixed1; break;
+        case SkPaint::kCenter_Align: origin = SK_FixedHalf; break;
+        case SkPaint::kLeft_Align: origin = 0; break;
+        default: SkFAIL("Invalid paint origin"); return;
+    }
 
-    SkAutoGlyphCacheNoGamma    autoCache(fSkPaint, &fDeviceProperties, NULL);
-    SkGlyphCache*              cache = autoCache.getCache();
-    GrFontScaler*              fontScaler = GetGrFontScaler(cache);
-
-    setup_gamma_texture(fContext, cache, fDeviceProperties, &fGammaTexture);
-
-    // need to measure first
-    // TODO - generate positions and pre-load cache as well?
+    SkAutoKern autokern;
     const char* stop = text + byteLength;
-    if (fSkPaint.getTextAlign() != SkPaint::kLeft_Align) {
-        SkFixed    stopX = 0;
-        SkFixed    stopY = 0;
+    while (textPtr < stop) {
+        // don't need x, y here, since all subpixel variants will have the
+        // same advance
+        const SkGlyph& glyph = glyphCacheProc(cache, &textPtr, 0, 0);
 
-        const char* textPtr = text;
-        while (textPtr < stop) {
-            // don't need x, y here, since all subpixel variants will have the
-            // same advance
-            const SkGlyph& glyph = glyphCacheProc(cache, &textPtr, 0, 0);
+        SkFixed width = glyph.fAdvanceX + autokern.adjust(glyph);
+        positions.push_back(SkFixedToScalar(stopX + SkFixedMul_portable(origin, width)));
 
-            stopX += glyph.fAdvanceX;
-            stopY += glyph.fAdvanceY;
-        }
-        SkASSERT(textPtr == stop);
+        SkFixed height = glyph.fAdvanceY;
+        positions.push_back(SkFixedToScalar(stopY + SkFixedMul_portable(origin, height)));
 
-        SkScalar alignX = SkFixedToScalar(stopX)*sizeRatio;
-        SkScalar alignY = SkFixedToScalar(stopY)*sizeRatio;
-
-        if (fSkPaint.getTextAlign() == SkPaint::kCenter_Align) {
-            alignX = SkScalarHalf(alignX);
-            alignY = SkScalarHalf(alignY);
-        }
-
-        x -= alignX;
-        y -= alignY;
+        stopX += width;
+        stopY += height;
     }
+    SkASSERT(textPtr == stop);
 
-    SkFixed fx = SkScalarToFixed(x);
-    SkFixed fy = SkScalarToFixed(y);
-    SkFixed fixedScale = SkScalarToFixed(sizeRatio);
-    while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
-
-        if (glyph.fWidth) {
-            this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
-                                            glyph.getSubXFixed(),
-                                            glyph.getSubYFixed()),
-                              fx,
-                              fy,
-                              fontScaler);
-        }
-
-        fx += SkFixedMul_portable(glyph.fAdvanceX, fixedScale);
-        fy += SkFixedMul_portable(glyph.fAdvanceY, fixedScale);
+    // now adjust starting point depending on alignment
+    SkScalar alignX = SkFixedToScalar(stopX);
+    SkScalar alignY = SkFixedToScalar(stopY);
+    if (skPaint.getTextAlign() == SkPaint::kCenter_Align) {
+        alignX = SkScalarHalf(alignX);
+        alignY = SkScalarHalf(alignY);
+    } else if (skPaint.getTextAlign() == SkPaint::kLeft_Align) {
+        alignX = 0;
+        alignY = 0;
     }
+    x -= alignX;
+    y -= alignY;
+    SkPoint offset = SkPoint::Make(x, y);
 
-    this->finish();
+    this->drawPosText(paint, skPaint, text, byteLength, positions.begin(), 2, offset);
 }
 
 void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skPaint,
@@ -326,7 +314,8 @@ void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPai
             pos += scalarsPerPosition;
         }
     } else {
-        int alignShift = SkPaint::kCenter_Align == fSkPaint.getTextAlign() ? 1 : 0;
+        SkScalar alignMul = SkPaint::kCenter_Align == fSkPaint.getTextAlign() ? SK_ScalarHalf
+                                                                              : SK_Scalar1;
         while (text < stop) {
             // the last 2 parameters are ignored
             const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
@@ -335,11 +324,14 @@ void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPai
                 SkScalar x = offset.x() + pos[0];
                 SkScalar y = offset.y() + (2 == scalarsPerPosition ? pos[1] : 0);
 
+                SkScalar advanceX = SkFixedToScalar(glyph.fAdvanceX)*alignMul*fTextRatio;
+                SkScalar advanceY = SkFixedToScalar(glyph.fAdvanceY)*alignMul*fTextRatio;
+
                 this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                 glyph.getSubXFixed(),
                                                 glyph.getSubYFixed()),
-                                  SkScalarToFixed(x) - (glyph.fAdvanceX >> alignShift),
-                                  SkScalarToFixed(y) - (glyph.fAdvanceY >> alignShift),
+                                  SkScalarToFixed(x - advanceX),
+                                  SkScalarToFixed(y - advanceY),
                                   fontScaler);
             }
             pos += scalarsPerPosition;
