@@ -49,10 +49,10 @@ public:
      *  name and style from a stream, using FreeType's API.
      */
     static bool ScanFont(SkStream* stream, int ttcIndex,
-                         SkString* name, SkTypeface::Style* style, bool* isFixedPitch);
+                         SkString* name, SkFontStyle* style, bool* isFixedPitch);
 
 protected:
-    SkTypeface_FreeType(Style style, SkFontID uniqueID, bool isFixedPitch)
+    SkTypeface_FreeType(const SkFontStyle& style, SkFontID uniqueID, bool isFixedPitch)
         : INHERITED(style, uniqueID, isFixedPitch)
         , fGlyphCount(-1)
     {}

@@ -29,7 +29,7 @@ SkTypefaceCache::~SkTypefaceCache() {
 }
 
 void SkTypefaceCache::add(SkTypeface* face,
-                          SkTypeface::Style requestedStyle,
+                          const SkFontStyle& requestedStyle,
                           bool strong) {
     if (fArray.count() >= TYPEFACE_CACHE_LIMIT) {
         this->purge(TYPEFACE_CACHE_LIMIT >> 2);
@@ -120,7 +120,7 @@ SkFontID SkTypefaceCache::NewFontID() {
 SK_DECLARE_STATIC_MUTEX(gMutex);
 
 void SkTypefaceCache::Add(SkTypeface* face,
-                          SkTypeface::Style requestedStyle,
+                          const SkFontStyle& requestedStyle,
                           bool strong) {
     SkAutoMutexAcquire ama(gMutex);
     Get().add(face, requestedStyle, strong);
@@ -145,9 +145,9 @@ void SkTypefaceCache::PurgeAll() {
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
-static bool DumpProc(SkTypeface* face, SkTypeface::Style style, void* ctx) {
-    SkDebugf("SkTypefaceCache: face %p fontID %d style %d refcnt %d\n",
-             face, face->uniqueID(), style, face->getRefCnt());
+static bool DumpProc(SkTypeface* face, const SkFontStyle& s, void* ctx) {
+    SkDebugf("SkTypefaceCache: face %p fontID %d weight %d width %d style %d refcnt %d\n",
+             face, face->uniqueID(), s.weight(), s.width(), s.slant(), face->getRefCnt());
     return false;
 }
 #endif

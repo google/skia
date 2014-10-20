@@ -110,8 +110,8 @@ void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
         fPaths[index] = path;
     }
 }
-    
-SkTestTypeface::SkTestTypeface(SkTestFont* testFont, SkTypeface::Style style)
+
+SkTestTypeface::SkTestTypeface(SkTestFont* testFont, const SkFontStyle& style)
     : SkTypeface(style, SkTypefaceCache::NewFontID(), false)
     , fTestFont(testFont) {
 }

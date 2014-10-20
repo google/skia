@@ -18,13 +18,14 @@ class FontConfigTypeface : public SkTypeface_FreeType {
     SkStream* fLocalStream;
 
 public:
-    static FontConfigTypeface* Create(Style style,
+    static FontConfigTypeface* Create(const SkFontStyle& style,
                                       const SkFontConfigInterface::FontIdentity& fi,
                                       const SkString& familyName) {
         return SkNEW_ARGS(FontConfigTypeface, (style, fi, familyName));
     }
 
-    static FontConfigTypeface* Create(Style style, bool fixedWidth, SkStream* localStream) {
+    static FontConfigTypeface* Create(const SkFontStyle& style, bool fixedWidth,
+                                      SkStream* localStream) {
         return SkNEW_ARGS(FontConfigTypeface, (style, fixedWidth, localStream));
     }
 
@@ -50,7 +51,7 @@ public:
 protected:
     friend class SkFontHost;    // hack until we can make public versions
 
-    FontConfigTypeface(Style style,
+    FontConfigTypeface(const SkFontStyle& style,
                        const SkFontConfigInterface::FontIdentity& fi,
                        const SkString& familyName)
             : INHERITED(style, SkTypefaceCache::NewFontID(), false)
@@ -58,7 +59,7 @@ protected:
             , fFamilyName(familyName)
             , fLocalStream(NULL) {}
 
-    FontConfigTypeface(Style style, bool fixedWidth, SkStream* localStream)
+    FontConfigTypeface(const SkFontStyle& style, bool fixedWidth, SkStream* localStream)
             : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth) {
         // we default to empty fFamilyName and fIdentity
         fLocalStream = localStream;
