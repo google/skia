@@ -248,7 +248,6 @@
         '<(skia_include_path)/core/SkFloatBits.h',
         '<(skia_include_path)/core/SkFloatingPoint.h',
         '<(skia_include_path)/core/SkFontHost.h',
-        '<(skia_include_path)/core/SkFontStyle.h',
         '<(skia_include_path)/core/SkGraphics.h',
         '<(skia_include_path)/core/SkImage.h',
         '<(skia_include_path)/core/SkImageDecoder.h',

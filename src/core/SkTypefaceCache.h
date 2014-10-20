@@ -31,7 +31,7 @@ public:
      * for the given context. The passed typeface is owned by the cache and is
      * not additionally ref()ed. The typeface may be in the disposed state.
      */
-    typedef bool(*FindProc)(SkTypeface*, const SkFontStyle&, void* context);
+    typedef bool (*FindProc)(SkTypeface*, SkTypeface::Style, void* context);
 
     /**
      *  Add a typeface to the cache. This ref()s the typeface, so that the
@@ -39,7 +39,7 @@ public:
      *  whose refcnt is 1 (meaning only the cache is an owner) will be
      *  unref()ed.
      */
-    void add(SkTypeface*, const SkFontStyle& requested, bool strong = true);
+    void add(SkTypeface*, SkTypeface::Style requested, bool strong = true);
 
     /**
      *  Search the cache for a typeface with the specified fontID (uniqueID).
@@ -73,7 +73,7 @@ public:
     // These are static wrappers around a global instance of a cache.
 
     static void Add(SkTypeface*,
-                    const SkFontStyle& requested,
+                    SkTypeface::Style requested,
                     bool strong = true);
     static SkTypeface* FindByID(SkFontID fontID);
     static SkTypeface* FindByProcAndRef(FindProc proc, void* ctx);
@@ -90,9 +90,9 @@ private:
     void purge(int count);
 
     struct Rec {
-        SkTypeface* fFace;
-        bool fStrong;
-        SkFontStyle fRequestedStyle;
+        SkTypeface*         fFace;
+        bool                fStrong;
+        SkTypeface::Style   fRequestedStyle;
     };
     SkTDArray<Rec> fArray;
 };

@@ -24,19 +24,22 @@
 class SkFontDescriptor;
 struct SkScalerContextRec;
 
-static SkFontStyle get_style(IDWriteFont* font) {
-    DWRITE_FONT_STYLE dwStyle = font->GetStyle();
-    return SkFontStyle(font->GetWeight(),
-                       font->GetStretch(),
-                       (DWRITE_FONT_STYLE_OBLIQUE == dwStyle ||
-                        DWRITE_FONT_STYLE_ITALIC  == dwStyle)
-                                                   ? SkFontStyle::kItalic_Slant
-                                                   : SkFontStyle::kUpright_Slant);
+static SkTypeface::Style get_style(IDWriteFont* font) {
+    int style = SkTypeface::kNormal;
+    DWRITE_FONT_WEIGHT weight = font->GetWeight();
+    if (DWRITE_FONT_WEIGHT_DEMI_BOLD <= weight) {
+        style |= SkTypeface::kBold;
+    }
+    DWRITE_FONT_STYLE angle = font->GetStyle();
+    if (DWRITE_FONT_STYLE_OBLIQUE == angle || DWRITE_FONT_STYLE_ITALIC == angle) {
+        style |= SkTypeface::kItalic;
+    }
+    return static_cast<SkTypeface::Style>(style);
 }
 
 class DWriteFontTypeface : public SkTypeface {
 private:
-    DWriteFontTypeface(const SkFontStyle& style, SkFontID fontID,
+    DWriteFontTypeface(SkTypeface::Style style, SkFontID fontID,
                        IDWriteFactory* factory,
                        IDWriteFontFace* fontFace,
                        IDWriteFont* font,
@@ -77,8 +80,9 @@ public:
                                       IDWriteFontFamily* fontFamily,
                                       IDWriteFontFileLoader* fontFileLoader = NULL,
                                       IDWriteFontCollectionLoader* fontCollectionLoader = NULL) {
+        SkTypeface::Style style = get_style(font);
         SkFontID fontID = SkTypefaceCache::NewFontID();
-        return SkNEW_ARGS(DWriteFontTypeface, (get_style(font), fontID,
+        return SkNEW_ARGS(DWriteFontTypeface, (style, fontID,
                                                factory, fontFace, font, fontFamily,
                                                fontFileLoader, fontCollectionLoader));
     }

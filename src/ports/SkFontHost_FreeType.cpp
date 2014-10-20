@@ -1669,9 +1669,8 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkTSearch.h"
 /*static*/ bool SkTypeface_FreeType::ScanFont(
-    SkStream* stream, int ttcIndex, SkString* name, SkFontStyle* style, bool* isFixedPitch)
+    SkStream* stream, int ttcIndex, SkString* name, SkTypeface::Style* style, bool* isFixedPitch)
 {
     FT_Library  library;
     if (FT_Init_FreeType(&library)) {
@@ -1705,61 +1704,19 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
         return false;
     }
 
-    int weight = SkFontStyle::kNormal_Weight;
-    int width = SkFontStyle::kNormal_Width;
-    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
+    int tempStyle = SkTypeface::kNormal;
     if (face->style_flags & FT_STYLE_FLAG_BOLD) {
-        weight = SkFontStyle::kBold_Weight;
+        tempStyle |= SkTypeface::kBold;
     }
     if (face->style_flags & FT_STYLE_FLAG_ITALIC) {
-        slant = SkFontStyle::kItalic_Slant;
-    }
-
-    PS_FontInfoRec psFontInfo;
-    TT_OS2* os2 = static_cast<TT_OS2*>(FT_Get_Sfnt_Table(face, ft_sfnt_os2));
-    if (os2 && os2->version != 0xffff) {
-        weight = os2->usWeightClass;
-        width = os2->usWidthClass;
-    } else if (0 == FT_Get_PS_Font_Info(face, &psFontInfo) && psFontInfo.weight) {
-        static const struct {
-            char const * const name;
-            int const weight;
-        } commonWeights [] = {
-            // There are probably more common names, but these are known to exist.
-            { "black", SkFontStyle::kBlack_Weight },
-            { "bold", SkFontStyle::kBold_Weight },
-            { "book", (SkFontStyle::kNormal_Weight + SkFontStyle::kLight_Weight)/2 },
-            { "demi", SkFontStyle::kSemiBold_Weight },
-            { "demibold", SkFontStyle::kSemiBold_Weight },
-            { "extrabold", SkFontStyle::kExtraBold_Weight },
-            { "extralight", SkFontStyle::kExtraLight_Weight },
-            { "heavy", SkFontStyle::kBlack_Weight },
-            { "light", SkFontStyle::kLight_Weight },
-            { "medium", SkFontStyle::kMedium_Weight },
-            { "normal", SkFontStyle::kNormal_Weight },
-            { "regular", SkFontStyle::kNormal_Weight },
-            { "semibold", SkFontStyle::kSemiBold_Weight },
-            { "thin", SkFontStyle::kThin_Weight },
-            { "ultra", SkFontStyle::kExtraBold_Weight },
-            { "ultrablack", 1000 },
-            { "ultrabold", SkFontStyle::kExtraBold_Weight },
-            { "ultraheavy", 1000 },
-            { "ultralight", SkFontStyle::kExtraLight_Weight },
-        };
-        int const index = SkStrLCSearch(&commonWeights[0].name, SK_ARRAY_COUNT(commonWeights),
-                                        psFontInfo.weight, sizeof(commonWeights));
-        if (index >= 0) {
-            weight = commonWeights[index].weight;
-        } else {
-            SkDEBUGF(("Do not know weight for: %s\n", psFontInfo.weight));
-        }
+        tempStyle |= SkTypeface::kItalic;
     }
 
     if (name) {
         name->set(face->family_name);
     }
     if (style) {
-        *style = SkFontStyle(weight, width, slant);
+        *style = (SkTypeface::Style) tempStyle;
     }
     if (isFixedPitch) {
         *isFixedPitch = FT_IS_FIXED_WIDTH(face);

@@ -60,6 +60,7 @@
         '../include/ports/SkFontConfigInterface.h',
         '../include/ports/SkFontMgr.h',
         '../include/ports/SkFontMgr_indirect.h',
+        '../include/ports/SkFontStyle.h',
         '../include/ports/SkRemotableFontMgr.h',
       ],
       'conditions': [

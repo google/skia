@@ -300,7 +300,7 @@ protected:
         }
 
         // TODO should the caller give us the style or should we get it from freetype?
-        SkFontStyle style;
+        SkTypeface::Style style = SkTypeface::kNormal;
         bool isFixedWidth = false;
         if (!SkTypeface_FreeType::ScanFont(stream, 0, NULL, &style, &isFixedWidth)) {
             return NULL;

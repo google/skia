@@ -43,8 +43,6 @@ public:
 
     SkFontStyle();
     SkFontStyle(int weight, int width, Slant);
-    /** oldStyle means the style-bits in SkTypeface::Style: bold=1, italic=2 */
-    explicit SkFontStyle(unsigned oldStyle);
 
     bool operator==(const SkFontStyle& rhs) const {
         return fUnion.fU32 == rhs.fUnion.fU32;

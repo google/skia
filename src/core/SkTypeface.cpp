@@ -14,10 +14,26 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-SkTypeface::SkTypeface(const SkFontStyle& style, SkFontID fontID, bool isFixedPitch)
-    : fUniqueID(fontID), fStyle(style), fIsFixedPitch(isFixedPitch) { }
+//#define TRACE_LIFECYCLE
 
-SkTypeface::~SkTypeface() { }
+#ifdef TRACE_LIFECYCLE
+    static int32_t gTypefaceCounter;
+#endif
+
+SkTypeface::SkTypeface(Style style, SkFontID fontID, bool isFixedPitch)
+    : fUniqueID(fontID), fStyle(style), fIsFixedPitch(isFixedPitch) {
+#ifdef TRACE_LIFECYCLE
+    SkDebugf("SkTypeface: create  %p fontID %d total %d\n",
+             this, fontID, ++gTypefaceCounter);
+#endif
+}
+
+SkTypeface::~SkTypeface() {
+#ifdef TRACE_LIFECYCLE
+    SkDebugf("SkTypeface: destroy %p fontID %d total %d\n",
+             this, fUniqueID, --gTypefaceCounter);
+#endif
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +43,7 @@ public:
         return SkNEW(SkEmptyTypeface);
     }
 protected:
-    SkEmptyTypeface() : SkTypeface(SkFontStyle(), 0, true) { }
+    SkEmptyTypeface() : SkTypeface(SkTypeface::kNormal, 0, true) { }
 
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE { return NULL; }
     virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE {

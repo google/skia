@@ -42,7 +42,7 @@ static const char* gTestFontFilePrefix = NULL;
 class SkTypeface_Android : public SkTypeface_FreeType {
 public:
     SkTypeface_Android(int index,
-                       const SkFontStyle& style,
+                       Style style,
                        bool isFixedPitch,
                        const SkString familyName)
         : INHERITED(style, SkTypefaceCache::NewFontID(), isFixedPitch)
@@ -65,7 +65,7 @@ class SkTypeface_AndroidSystem : public SkTypeface_Android {
 public:
     SkTypeface_AndroidSystem(const SkString pathName,
                              int index,
-                             const SkFontStyle& style,
+                             Style style,
                              bool isFixedPitch,
                              const SkString familyName,
                              const SkLanguage& lang,
@@ -100,7 +100,7 @@ class SkTypeface_AndroidStream : public SkTypeface_Android {
 public:
     SkTypeface_AndroidStream(SkStream* stream,
                              int index,
-                             const SkFontStyle& style,
+                             Style style,
                              bool isFixedPitch,
                              const SkString familyName)
         : INHERITED(index, style, isFixedPitch, familyName)
@@ -158,7 +158,7 @@ public:
 
             const int ttcIndex = fontFile.fIndex;
             SkString familyName;
-            SkFontStyle style;
+            SkTypeface::Style style;
             bool isFixedWidth;
             if (!SkTypeface_FreeType::ScanFont(stream.get(), ttcIndex,
                                                &familyName, &style, &isFixedWidth)) {
@@ -404,7 +404,7 @@ protected:
 
     virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
         bool isFixedPitch;
-        SkFontStyle style;
+        SkTypeface::Style style;
         SkString name;
         if (!SkTypeface_FreeType::ScanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
             return NULL;
@@ -416,7 +416,14 @@ protected:
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
                                                unsigned styleBits) const SK_OVERRIDE {
-        SkFontStyle style = SkFontStyle(styleBits);
+        SkTypeface::Style oldStyle = (SkTypeface::Style)styleBits;
+        SkFontStyle style = SkFontStyle(oldStyle & SkTypeface::kBold
+                                                 ? SkFontStyle::kBold_Weight
+                                                 : SkFontStyle::kNormal_Weight,
+                                        SkFontStyle::kNormal_Width,
+                                        oldStyle & SkTypeface::kItalic
+                                                 ? SkFontStyle::kItalic_Slant
+                                                 : SkFontStyle::kUpright_Slant);
 
         if (familyName) {
             // On Android, we must return NULL when we can't find the requested

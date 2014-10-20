@@ -373,13 +373,20 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
     FcPatternAddInteger(pattern, FC_SLANT, style.isItalic() ? FC_SLANT_ITALIC : FC_SLANT_ROMAN);
 }
 
+static SkTypeface::Style sktypefacestyle_from_fcpattern(FcPattern* pattern) {
+    int fcweight = get_int(pattern, FC_WEIGHT, FC_WEIGHT_REGULAR);
+    int fcslant = get_int(pattern, FC_SLANT, FC_SLANT_ROMAN);
+    return (SkTypeface::Style)((fcweight >= FC_WEIGHT_BOLD ? SkTypeface::kBold : 0) |
+                                (fcslant > FC_SLANT_ROMAN ? SkTypeface::kItalic : 0));
+}
+
 class SkTypeface_stream : public SkTypeface_FreeType {
 public:
     /** @param stream does not take ownership of the reference, does take ownership of the stream.*/
-    SkTypeface_stream(const SkFontStyle& style, bool fixedWidth, int index, SkStreamAsset* stream)
+    SkTypeface_stream(SkTypeface::Style style, bool fixedWidth, int ttcIndex, SkStreamAsset* stream)
         : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth)
         , fStream(SkRef(stream))
-        , fIndex(index)
+        , fIndex(ttcIndex)
     { };
 
     virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
@@ -440,7 +447,7 @@ public:
 private:
     /** @param pattern takes ownership of the reference. */
     SkTypeface_fontconfig(FcPattern* pattern)
-        : INHERITED(skfontstyle_from_fcpattern(pattern),
+        : INHERITED(sktypefacestyle_from_fcpattern(pattern),
                     SkTypefaceCache::NewFontID(),
                     FC_PROPORTIONAL != get_int(pattern, FC_SPACING, FC_PROPORTIONAL))
         , fPattern(pattern)
@@ -564,7 +571,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
                                           sizes.begin(), names.count());
     }
 
-    static bool FindByFcPattern(SkTypeface* cached, const SkFontStyle&, void* ctx) {
+    static bool FindByFcPattern(SkTypeface* cached, SkTypeface::Style, void* ctx) {
         SkTypeface_fontconfig* cshFace = static_cast<SkTypeface_fontconfig*>(cached);
         FcPattern* ctxPattern = static_cast<FcPattern*>(ctx);
         return FcTrue == FcPatternEqual(cshFace->fPattern, ctxPattern);
@@ -583,7 +590,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
             FcPatternReference(pattern);
             face = SkTypeface_fontconfig::Create(pattern);
             if (face) {
-                fTFCache.add(face, SkFontStyle(), true);
+                fTFCache.add(face, SkTypeface::kNormal, true);
             }
         }
         return face;
@@ -811,7 +818,7 @@ protected:
             return NULL;
         }
 
-        SkFontStyle style;
+        SkTypeface::Style style = SkTypeface::kNormal;
         bool isFixedWidth = false;
         if (!SkTypeface_FreeType::ScanFont(stream, ttcIndex, NULL, &style, &isFixedWidth)) {
             return NULL;

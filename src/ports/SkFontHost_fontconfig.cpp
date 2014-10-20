@@ -60,20 +60,19 @@ SkFontConfigInterface* SkFontHost_fontconfig_ref_global() {
 ///////////////////////////////////////////////////////////////////////////////
 
 struct FindRec {
-    FindRec(const char* name, const SkFontStyle& style)
+    FindRec(const char* name, SkTypeface::Style style)
         : fFamilyName(name)  // don't need to make a deep copy
         , fStyle(style) {}
 
     const char* fFamilyName;
-    SkFontStyle fStyle;
+    SkTypeface::Style fStyle;
 };
 
-static bool find_proc(SkTypeface* cachedTypeface, const SkFontStyle& cachedStyle, void* ctx) {
-    FontConfigTypeface* cachedFCTypeface = (FontConfigTypeface*)cachedTypeface;
-    const FindRec* rec = static_cast<const FindRec*>(ctx);
+static bool find_proc(SkTypeface* face, SkTypeface::Style style, void* ctx) {
+    FontConfigTypeface* fci = (FontConfigTypeface*)face;
+    const FindRec* rec = (const FindRec*)ctx;
 
-    return rec->fStyle == cachedStyle &&
-           cachedFCTypeface->isFamilyName(rec->fFamilyName);
+    return rec->fStyle == style && fci->isFamilyName(rec->fFamilyName);
 }
 
 SkTypeface* FontConfigTypeface::LegacyCreateTypeface(
@@ -90,37 +89,34 @@ SkTypeface* FontConfigTypeface::LegacyCreateTypeface(
         familyName = fct->getFamilyName();
     }
 
-    SkFontStyle requestedStyle(style);
-    FindRec rec(familyName, requestedStyle);
+    FindRec rec(familyName, style);
     SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_proc, &rec);
     if (face) {
-        //SkDebugf("found cached face <%s> <%s> %p [%d]\n",
-        //         familyName, ((FontConfigTypeface*)face)->getFamilyName(),
-        //         face, face->getRefCnt());
+//        SkDebugf("found cached face <%s> <%s> %p [%d]\n", familyName, ((FontConfigTypeface*)face)->getFamilyName(), face, face->getRefCnt());
         return face;
     }
 
     SkFontConfigInterface::FontIdentity indentity;
-    SkString outFamilyName;
-    SkTypeface::Style outStyle;
-    if (!fci->matchFamilyName(familyName, style, &indentity, &outFamilyName, &outStyle)) {
+    SkString                            outFamilyName;
+    SkTypeface::Style                   outStyle;
+
+    if (!fci->matchFamilyName(familyName, style,
+                              &indentity, &outFamilyName, &outStyle)) {
         return NULL;
     }
 
     // check if we, in fact, already have this. perhaps fontconfig aliased the
     // requested name to some other name we actually have...
     rec.fFamilyName = outFamilyName.c_str();
-    rec.fStyle = SkFontStyle(outStyle);
+    rec.fStyle = outStyle;
     face = SkTypefaceCache::FindByProcAndRef(find_proc, &rec);
     if (face) {
         return face;
     }
 
-    face = FontConfigTypeface::Create(SkFontStyle(outStyle), indentity, outFamilyName);
-    SkTypefaceCache::Add(face, requestedStyle);
-    //SkDebugf("add face <%s> <%s> %p [%d]\n",
-    //         familyName, outFamilyName.c_str(),
-    //         face, face->getRefCnt());
+    face = FontConfigTypeface::Create(outStyle, indentity, outFamilyName);
+    SkTypefaceCache::Add(face, style);
+//    SkDebugf("add face <%s> <%s> %p [%d]\n", familyName, outFamilyName.c_str(), face, face->getRefCnt());
     return face;
 }
 
