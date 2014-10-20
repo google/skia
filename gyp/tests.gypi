@@ -171,7 +171,6 @@
     '../tests/RecordPatternTest.cpp',
     '../tests/RecordTest.cpp',
     '../tests/RecorderTest.cpp',
-    '../tests/RecordingTest.cpp',
     '../tests/RecordingXfermodeTest.cpp',
     '../tests/RefCntTest.cpp',
     '../tests/RefDictTest.cpp',

@@ -151,7 +151,6 @@
         '<(skia_src_path)/core/SkRecordDraw.cpp',
         '<(skia_src_path)/core/SkRecordOpts.cpp',
         '<(skia_src_path)/core/SkRecorder.cpp',
-        '<(skia_src_path)/core/SkRecording.cpp',
         '<(skia_src_path)/core/SkRect.cpp',
         '<(skia_src_path)/core/SkRefDict.cpp',
         '<(skia_src_path)/core/SkRegion.cpp',

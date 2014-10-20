@@ -11,7 +11,6 @@
 #include "../include/core/SkPicture.h"
 #include "../include/core/SkStream.h"
 #include "../include/core/SkString.h"
-#include "../include/record/SkRecording.h"
 #include "../include/core/SkPictureRecorder.h"
 #include <cstring>
 
