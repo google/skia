@@ -7,10 +7,11 @@
 
 #include "GrLayerCache.h"
 #include "GrLayerHoister.h"
-#include "SkCanvas.h"
-#include "SkRecordDraw.h"
 #include "GrRecordReplaceDraw.h"
+
+#include "SkCanvas.h"
 #include "SkGrPixelRef.h"
+#include "SkRecordDraw.h"
 #include "SkSurface.h"
 
 // Create the layer information for the hoisted layer and secure the
@@ -18,6 +19,7 @@
 static void prepare_for_hoisting(GrLayerCache* layerCache, 
                                  const SkPicture* topLevelPicture,
                                  const GrAccelData::SaveLayerInfo& info,
+                                 const SkIRect& layerRect,
                                  SkTDArray<GrHoistedLayer>* atlased,
                                  SkTDArray<GrHoistedLayer>* nonAtlased,
                                  SkTDArray<GrHoistedLayer>* recycled) {
@@ -26,17 +28,22 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
     GrCachedLayer* layer = layerCache->findLayerOrCreate(pict->uniqueID(),
                                                          info.fSaveLayerOpID,
                                                          info.fRestoreOpID,
+                                                         layerRect,
                                                          info.fOriginXform,
                                                          info.fPaint);
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
-    desc.fWidth = info.fSize.fWidth;
-    desc.fHeight = info.fSize.fHeight;
+    desc.fWidth = layerRect.width();
+    desc.fHeight = layerRect.height();
     desc.fConfig = kSkia8888_GrPixelConfig;
     // TODO: need to deal with sample count
 
-    bool needsRendering = layerCache->lock(layer, desc, info.fHasNestedLayers || info.fIsNested);
+
+    bool disallowAtlasing = info.fHasNestedLayers || info.fIsNested ||
+                            (layer->paint() && layer->paint()->getImageFilter());
+
+    bool needsRendering = layerCache->lock(layer, desc, disallowAtlasing);
     if (NULL == layer->texture()) {
         // GPU resources could not be secured for the hoisting of this layer
         return;
@@ -57,7 +64,7 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
     layerCache->addUse(layer);
     hl->fLayer = layer;
     hl->fPicture = pict;
-    hl->fOffset = info.fOffset;
+    hl->fOffset = SkIPoint::Make(layerRect.fLeft, layerRect.fTop);
     hl->fCTM = info.fOriginXform;
 }
 
@@ -68,7 +75,6 @@ bool GrLayerHoister::FindLayersToHoist(GrContext* context,
                                        SkTDArray<GrHoistedLayer>* atlased,
                                        SkTDArray<GrHoistedLayer>* nonAtlased,
                                        SkTDArray<GrHoistedLayer>* recycled) {
-
     GrLayerCache* layerCache = context->getLayerCache();
 
     layerCache->processDeletedPictures();
@@ -102,14 +108,14 @@ bool GrLayerHoister::FindLayersToHoist(GrContext* context,
 
         const GrAccelData::SaveLayerInfo& info = topLevelGPUData->saveLayerInfo(i);
 
-        SkRect layerRect = SkRect::MakeXYWH(SkIntToScalar(info.fOffset.fX),
-                                            SkIntToScalar(info.fOffset.fY),
-                                            SkIntToScalar(info.fSize.fWidth),
-                                            SkIntToScalar(info.fSize.fHeight));
-
-        if (!SkRect::Intersects(query, layerRect)) {
+        SkRect layerRect = SkRect::Make(info.fBounds);
+        if (!layerRect.intersect(query)) {
             continue;
         }
+
+
+        SkIRect ir;
+        layerRect.roundOut(&ir);
 
         // TODO: ignore perspective projected layers here!
         // TODO: once this code is more stable unsuitable layers can
@@ -118,7 +124,7 @@ bool GrLayerHoister::FindLayersToHoist(GrContext* context,
             continue;
         }
 
-        prepare_for_hoisting(layerCache, topLevelPicture, info, atlased, nonAtlased, recycled);
+        prepare_for_hoisting(layerCache, topLevelPicture, info, ir, atlased, nonAtlased, recycled);
         anyHoisted = true;
     }
 

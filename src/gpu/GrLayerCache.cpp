@@ -129,30 +129,33 @@ void GrLayerCache::freeAll() {
 
 GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID, 
                                          int start, int stop, 
+                                         const SkIRect& bounds,
                                          const SkMatrix& ctm,
                                          const SkPaint* paint) {
     SkASSERT(pictureID != SK_InvalidGenID && start >= 0 && stop > 0);
 
-    GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (pictureID, start, stop, ctm, paint));
+    GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (pictureID, start, stop, bounds, ctm, paint));
     fLayerHash.add(layer);
     return layer;
 }
 
 GrCachedLayer* GrLayerCache::findLayer(uint32_t pictureID,
                                        int start, 
+                                       const SkIRect& bounds,
                                        const SkMatrix& ctm) {
     SkASSERT(pictureID != SK_InvalidGenID && start > 0);
-    return fLayerHash.find(GrCachedLayer::Key(pictureID, start, ctm));
+    return fLayerHash.find(GrCachedLayer::Key(pictureID, start, bounds, ctm));
 }
 
 GrCachedLayer* GrLayerCache::findLayerOrCreate(uint32_t pictureID,
                                                int start, int stop,
+                                               const SkIRect& bounds,
                                                const SkMatrix& ctm,
                                                const SkPaint* paint) {
     SkASSERT(pictureID != SK_InvalidGenID && start >= 0 && stop > 0);
-    GrCachedLayer* layer = fLayerHash.find(GrCachedLayer::Key(pictureID, start, ctm));
+    GrCachedLayer* layer = fLayerHash.find(GrCachedLayer::Key(pictureID, start, bounds, ctm));
     if (NULL == layer) {
-        layer = this->createLayer(pictureID, start, stop, ctm, paint);
+        layer = this->createLayer(pictureID, start, stop, bounds, ctm, paint);
     }
 
     return layer;
@@ -455,11 +458,7 @@ void GrLayerCache::writeLayersToDisk(const SkString& dirName) {
         }
 
         SkString fileName(dirName);
-        fileName.append("\\");
-        fileName.appendU32(layer->fKey.pictureID());
-        fileName.append("-");
-        fileName.appendU32(layer->fKey.start());
-        fileName.append(".png");
+        fileName.appendf("\\%d-%d.png", layer->fKey.pictureID(), layer->fKey.start());
 
         layer->texture()->surfacePriv().savePixels(fileName.c_str());
     }

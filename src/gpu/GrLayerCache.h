@@ -51,36 +51,41 @@ struct GrCachedLayer {
 public:
     // For SkTDynamicHash
     struct Key {
-        // TODO: the key needs to include the clip
-        Key(uint32_t pictureID, int start, const SkMatrix& ctm) 
+        Key(uint32_t pictureID, int start, const SkIRect& bounds, const SkMatrix& ctm)
         : fPictureID(pictureID)
-        , fStart(start) {
-            fCTM[0] = ctm.getScaleX();
-            fCTM[1] = ctm.getSkewX();
-            fCTM[2] = ctm.getSkewY();
-            fCTM[3] = ctm.getScaleY();
+        , fStart(start)
+        , fBounds(bounds)
+        , fCTM(ctm) {
+            fCTM.getType(); // force initialization of type so hashes match
+
             // Key needs to be tightly packed.
             GR_STATIC_ASSERT(sizeof(Key) == sizeof(uint32_t) +      // picture ID
                                             sizeof(int) +           // start index
-                                            4 * sizeof(SkScalar));  // 2x2 from CTM
+                                            4 * sizeof(uint32_t) +  // bounds
+                                            9 * sizeof(SkScalar) + sizeof(uint32_t)); // matrix
         }
 
         bool operator==(const Key& other) const {
             return fPictureID == other.fPictureID &&
                    fStart == other.fStart &&
-                   0 == memcmp(fCTM, other.fCTM, sizeof(fCTM));
+                   fBounds == other.fBounds &&
+                   fCTM.cheapEqualTo(other.fCTM);
         }
 
         uint32_t pictureID() const { return fPictureID; }
         int start() const { return fStart; }
+        const SkIRect& bound() const { return fBounds; }
+        const SkMatrix& ctm() const { return fCTM; }
 
     private:
         // ID of the picture of which this layer is a part
         const uint32_t fPictureID;
         // The the index of the saveLayer command in the picture
         const int      fStart;
+        // The bounds of the layer. The TL corner is its offset.
+        const SkIRect  fBounds;
         // The 2x2 portion of the CTM applied to this layer in the picture
-        SkScalar       fCTM[4];
+        SkMatrix       fCTM;
     };
 
     static const Key& GetKey(const GrCachedLayer& layer) { return layer.fKey; }
@@ -90,8 +95,9 @@ public:
 
     // GrCachedLayer proper
     GrCachedLayer(uint32_t pictureID, int start, int stop,
-                  const SkMatrix& ctm, const SkPaint* paint)
-        : fKey(pictureID, start, ctm)
+                  const SkIRect& bounds, const SkMatrix& ctm,
+                  const SkPaint* paint)
+        : fKey(pictureID, start, bounds, ctm)
         , fStop(stop)
         , fPaint(paint ? SkNEW_ARGS(SkPaint, (*paint)) : NULL)
         , fTexture(NULL)
@@ -109,6 +115,7 @@ public:
 
     uint32_t pictureID() const { return fKey.pictureID(); }
     int start() const { return fKey.start(); }
+    const SkIRect& bound() const { return fKey.bound(); }
 
     int stop() const { return fStop; }
     void setTexture(GrTexture* texture, const GrIRect16& rect) {
@@ -193,9 +200,11 @@ public:
     // elements by the GrContext
     void freeAll();
 
-    GrCachedLayer* findLayer(uint32_t pictureID, int start, const SkMatrix& ctm);
+    GrCachedLayer* findLayer(uint32_t pictureID, int start, 
+                             const SkIRect& bounds, const SkMatrix& ctm);
     GrCachedLayer* findLayerOrCreate(uint32_t pictureID,
                                      int start, int stop, 
+                                     const SkIRect& bounds,
                                      const SkMatrix& ctm,
                                      const SkPaint* paint);
 
@@ -265,7 +274,8 @@ private:
 
     void initAtlas();
     GrCachedLayer* createLayer(uint32_t pictureID, int start, int stop, 
-                               const SkMatrix& ctm, const SkPaint* paint);
+                               const SkIRect& bounds, const SkMatrix& ctm, 
+                               const SkPaint* paint);
 
     void purgeAll();
 

@@ -26,14 +26,11 @@ public:
         // this pointer is NULL. If it is a nested picture then the pointer
         // is non-NULL and owns a ref on the picture.
         const SkPicture* fPicture;
-        // The size of the saveLayer
-        SkISize fSize;
+        // The device space bounds of this layer.
+        SkIRect fBounds;
         // The matrix state in which this layer's draws must occur. It does not
         // include the translation needed to map the layer's top-left point to the origin.
         SkMatrix fOriginXform;
-        // The offset that needs to be passed to drawBitmap to correctly
-        // position the pre-rendered layer. It is in device space.
-        SkIPoint fOffset;
         // The paint to use on restore. Can be NULL since it is optional.
         const SkPaint* fPaint;
         // The ID of this saveLayer in the picture. 0 is an invalid ID.

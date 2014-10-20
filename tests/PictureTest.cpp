@@ -981,69 +981,69 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             const GrAccelData::SaveLayerInfo& info7 = gpuData->saveLayerInfo(6);
 
             REPORTER_ASSERT(reporter, NULL == info0.fPicture);
-            REPORTER_ASSERT(reporter, kWidth == info0.fSize.fWidth &&
-                                      kHeight == info0.fSize.fHeight);
+            REPORTER_ASSERT(reporter, kWidth == info0.fBounds.width() &&
+                                      kHeight == info0.fBounds.height());
             REPORTER_ASSERT(reporter, info0.fOriginXform.isIdentity());
-            REPORTER_ASSERT(reporter, 0 == info0.fOffset.fX && 0 == info0.fOffset.fY);
+            REPORTER_ASSERT(reporter, 0 == info0.fBounds.fLeft && 0 == info0.fBounds.fTop);
             REPORTER_ASSERT(reporter, NULL == info0.fPaint);
             REPORTER_ASSERT(reporter, !info0.fIsNested && !info0.fHasNestedLayers);
 
             REPORTER_ASSERT(reporter, NULL == info1.fPicture);
-            REPORTER_ASSERT(reporter, kWidth == info1.fSize.fWidth &&
-                                      kHeight == info1.fSize.fHeight);
+            REPORTER_ASSERT(reporter, kWidth == info1.fBounds.width() &&
+                                      kHeight == info1.fBounds.height());
             REPORTER_ASSERT(reporter, info1.fOriginXform.isIdentity());
-            REPORTER_ASSERT(reporter, 0 == info1.fOffset.fX && 0 == info1.fOffset.fY);
+            REPORTER_ASSERT(reporter, 0 == info1.fBounds.fLeft && 0 == info1.fBounds.fTop);
             REPORTER_ASSERT(reporter, NULL == info1.fPaint);
             REPORTER_ASSERT(reporter, !info1.fIsNested &&
                                       info1.fHasNestedLayers); // has a nested SL
 
             REPORTER_ASSERT(reporter, NULL == info2.fPicture);
-            REPORTER_ASSERT(reporter, kWidth / 2 == info2.fSize.fWidth &&
-                                      kHeight/2 == info2.fSize.fHeight); // bound reduces size
+            REPORTER_ASSERT(reporter, kWidth / 2 == info2.fBounds.width() &&
+                                      kHeight / 2 == info2.fBounds.height()); // bound reduces size
             REPORTER_ASSERT(reporter, !info2.fOriginXform.isIdentity());
-            REPORTER_ASSERT(reporter, kWidth/2 == info2.fOffset.fX &&   // translated
-                                      kHeight/2 == info2.fOffset.fY);
+            REPORTER_ASSERT(reporter, kWidth / 2 == info2.fBounds.fLeft &&   // translated
+                                      kHeight / 2 == info2.fBounds.fTop);
             REPORTER_ASSERT(reporter, NULL == info1.fPaint);
             REPORTER_ASSERT(reporter, info2.fIsNested && !info2.fHasNestedLayers); // is nested
 
             REPORTER_ASSERT(reporter, NULL == info3.fPicture);
-            REPORTER_ASSERT(reporter, kWidth == info3.fSize.fWidth &&
-                                      kHeight == info3.fSize.fHeight);
+            REPORTER_ASSERT(reporter, kWidth == info3.fBounds.width() &&
+                                      kHeight == info3.fBounds.height());
             REPORTER_ASSERT(reporter, info3.fOriginXform.isIdentity());
-            REPORTER_ASSERT(reporter, 0 == info3.fOffset.fX && 0 == info3.fOffset.fY);
+            REPORTER_ASSERT(reporter, 0 == info3.fBounds.fLeft && 0 == info3.fBounds.fTop);
             REPORTER_ASSERT(reporter, info3.fPaint);
             REPORTER_ASSERT(reporter, !info3.fIsNested && !info3.fHasNestedLayers);
 
             REPORTER_ASSERT(reporter, NULL == info4.fPicture);
-            REPORTER_ASSERT(reporter, kWidth == info4.fSize.fWidth &&
-                                      kHeight == info4.fSize.fHeight);
-            REPORTER_ASSERT(reporter, 0 == info4.fOffset.fX && 0 == info4.fOffset.fY);
+            REPORTER_ASSERT(reporter, kWidth == info4.fBounds.width() &&
+                                      kHeight == info4.fBounds.height());
+            REPORTER_ASSERT(reporter, 0 == info4.fBounds.fLeft && 0 == info4.fBounds.fTop);
             REPORTER_ASSERT(reporter, info4.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, info4.fPaint);
             REPORTER_ASSERT(reporter, !info4.fIsNested &&
                                       info4.fHasNestedLayers); // has a nested SL
 
             REPORTER_ASSERT(reporter, child == info5.fPicture); // in a child picture
-            REPORTER_ASSERT(reporter, kWidth == info5.fSize.fWidth &&
-                                      kHeight == info5.fSize.fHeight);
-            REPORTER_ASSERT(reporter, 0 == info5.fOffset.fX && 0 == info5.fOffset.fY);
+            REPORTER_ASSERT(reporter, kWidth == info5.fBounds.width() &&
+                                      kHeight == info5.fBounds.height());
+            REPORTER_ASSERT(reporter, 0 == info5.fBounds.fLeft && 0 == info5.fBounds.fTop);
             REPORTER_ASSERT(reporter, info5.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, NULL == info5.fPaint);
             REPORTER_ASSERT(reporter, info5.fIsNested && !info5.fHasNestedLayers); // is nested
 
             REPORTER_ASSERT(reporter, NULL == info6.fPicture);
-            REPORTER_ASSERT(reporter, kWidth == info6.fSize.fWidth &&
-                                      kHeight == info6.fSize.fHeight);
-            REPORTER_ASSERT(reporter, 0 == info6.fOffset.fX && 0 == info6.fOffset.fY);
+            REPORTER_ASSERT(reporter, kWidth == info6.fBounds.width() &&
+                                      kHeight == info6.fBounds.height());
+            REPORTER_ASSERT(reporter, 0 == info6.fBounds.fLeft && 0 == info6.fBounds.fTop);
             REPORTER_ASSERT(reporter, info6.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, info6.fPaint);
             REPORTER_ASSERT(reporter, !info6.fIsNested &&
                                       info6.fHasNestedLayers); // has a nested SL
 
             REPORTER_ASSERT(reporter, child == info7.fPicture); // in a child picture
-            REPORTER_ASSERT(reporter, kWidth == info7.fSize.fWidth &&
-                                      kHeight == info7.fSize.fHeight);
-            REPORTER_ASSERT(reporter, 0 == info7.fOffset.fX && 0 == info7.fOffset.fY);
+            REPORTER_ASSERT(reporter, kWidth == info7.fBounds.width() &&
+                                      kHeight == info7.fBounds.height());
+            REPORTER_ASSERT(reporter, 0 == info7.fBounds.fLeft && 0 == info7.fBounds.fTop);
             REPORTER_ASSERT(reporter, info7.fOriginXform.isIdentity());
             REPORTER_ASSERT(reporter, NULL == info7.fPaint);
             REPORTER_ASSERT(reporter, info7.fIsNested && !info7.fHasNestedLayers); // is nested

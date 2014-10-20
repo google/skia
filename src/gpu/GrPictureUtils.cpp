@@ -108,15 +108,14 @@ private:
         for (int i = 0; i < childData->numSaveLayers(); ++i) {
             const GrAccelData::SaveLayerInfo& src = childData->saveLayerInfo(i);
 
-            this->updateStackForSaveLayer();
-
-            // TODO: need to store an SkRect in GrAccelData::SaveLayerInfo?
-            SkRect srcRect = SkRect::MakeXYWH(SkIntToScalar(src.fOffset.fX),
-                                              SkIntToScalar(src.fOffset.fY),
-                                              SkIntToScalar(src.fSize.width()),
-                                              SkIntToScalar(src.fSize.height()));
+            SkRect srcRect = SkRect::Make(src.fBounds);
             SkIRect newClip(fCurrentClipBounds);
-            newClip.intersect(this->adjustAndMap(srcRect, dp.paint));
+
+            if (!newClip.intersect(this->adjustAndMap(srcRect, dp.paint))) {
+                continue;
+            }
+
+            this->updateStackForSaveLayer();
 
             GrAccelData::SaveLayerInfo& dst = fAccelData->addSaveLayerInfo();
 
@@ -124,8 +123,7 @@ private:
             // it belongs to a sub-picture.
             dst.fPicture = src.fPicture ? src.fPicture : static_cast<const SkPicture*>(dp.picture);
             dst.fPicture->ref();
-            dst.fSize = SkISize::Make(newClip.width(), newClip.height());
-            dst.fOffset = SkIPoint::Make(newClip.fLeft, newClip.fTop);
+            dst.fBounds = newClip;
             dst.fOriginXform = src.fOriginXform;
             dst.fOriginXform.postConcat(*fCTM);
             if (src.fPaint) {
@@ -181,8 +179,7 @@ private:
         GrAccelData::SaveLayerInfo& slInfo = fAccelData->addSaveLayerInfo();
 
         SkASSERT(NULL == slInfo.fPicture);  // This layer is in the top-most picture
-        slInfo.fSize = SkISize::Make(si.fBounds.width(), si.fBounds.height());
-        slInfo.fOffset = SkIPoint::Make(si.fBounds.fLeft, si.fBounds.fTop);
+        slInfo.fBounds = si.fBounds;
         slInfo.fOriginXform = *fCTM;
         if (si.fPaint) {
             slInfo.fPaint = SkNEW_ARGS(SkPaint, (*si.fPaint));
