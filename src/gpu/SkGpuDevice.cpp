@@ -1335,7 +1335,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
 static bool filter_texture(SkBaseDevice* device, GrContext* context,
                            GrTexture* texture, const SkImageFilter* filter,
-                           int w, int h, const SkImageFilter::Context& ctx,
+                           const SkImageFilter::Context& ctx,
                            SkBitmap* result, SkIPoint* offset) {
     SkASSERT(filter);
     SkDeviceImageFilterProxy proxy(device);
@@ -1380,7 +1380,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         // This cache is transient, and is freed (along with all its contained
         // textures) when it goes out of scope.
         SkImageFilter::Context ctx(matrix, clipBounds, cache);
-        if (filter_texture(this, fContext, texture, filter, w, h, ctx, &filteredBitmap,
+        if (filter_texture(this, fContext, texture, filter, ctx, &filteredBitmap,
                            &offset)) {
             texture = (GrTexture*) filteredBitmap.getTexture();
             w = filteredBitmap.width();
@@ -1491,7 +1491,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
         // textures) when it goes out of scope.
         SkAutoTUnref<SkImageFilter::Cache> cache(getImageFilterCache());
         SkImageFilter::Context ctx(matrix, clipBounds, cache);
-        if (filter_texture(this, fContext, devTex, filter, w, h, ctx, &filteredBitmap,
+        if (filter_texture(this, fContext, devTex, filter, ctx, &filteredBitmap,
                            &offset)) {
             devTex = filteredBitmap.getTexture();
             w = filteredBitmap.width();
@@ -1544,8 +1544,7 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
     // must be pushed upstack.
     AutoBitmapTexture abt(fContext, src, NULL, &texture);
 
-    return filter_texture(this, fContext, texture, filter, src.width(), src.height(), ctx,
-                          result, offset);
+    return filter_texture(this, fContext, texture, filter, ctx, result, offset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
