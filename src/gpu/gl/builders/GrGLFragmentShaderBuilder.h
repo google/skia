@@ -149,6 +149,7 @@ private:
     bool fHasSecondaryOutput;
     bool fSetupFragPosition;
     bool fTopLeftFragPosRead;
+    int  fCustomColorOutputIndex;
 
     // some state to verify shaders and effects are consistent, this is reset between effects by
     // the program creator

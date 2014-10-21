@@ -168,7 +168,7 @@ public:
     /**
      * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
      *
-     * TODO On desktop opengl 4.2+ we can achieve something similar to this effect
+     * TODO(joshualitt) On desktop opengl 4.2+ we can achieve something similar to this effect
      */
     bool fbFetchSupport() const { return fFBFetchSupport; }
 
@@ -367,6 +367,7 @@ private:
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;
     bool fDropsTileOnZeroDivide : 1;
+    // TODO(joshualitt) encapsulate the FB Fetch logic in a feature object
     bool fFBFetchSupport : 1;
 
     const char* fFBFetchColorName;

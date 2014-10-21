@@ -75,6 +75,7 @@ GrGLFragmentShaderBuilder::GrGLFragmentShaderBuilder(GrGLProgramBuilder* program
     , fHasSecondaryOutput(false)
     , fSetupFragPosition(false)
     , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == desc.getHeader().fFragPosKey)
+    , fCustomColorOutputIndex(-1)
     , fHasReadDstColor(false)
     , fHasReadFragmentPosition(false) {
 }
@@ -172,7 +173,15 @@ const char* GrGLFragmentShaderBuilder::dstColor() {
     if (gpu->glCaps().fbFetchSupport()) {
         this->addFeature(1 << (GrGLFragmentShaderBuilder::kLastGLSLPrivateFeature + 1),
                          gpu->glCaps().fbFetchExtensionString());
-        return gpu->glCaps().fbFetchColorName();
+
+        // On ES 3.0 we have to declare this, and use the custom color output name
+        const char* fbFetchColorName = gpu->glCaps().fbFetchColorName();
+        if (gpu->glslGeneration() >= k330_GrGLSLGeneration) {
+            this->enableCustomOutput();
+            fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
+            fbFetchColorName = declared_color_output_name();
+        }
+        return fbFetchColorName;
     } else if (fProgramBuilder->fUniformHandles.fDstCopySamplerUni.isValid()) {
         return kDstCopyColorName;
     } else {
@@ -223,11 +232,13 @@ void GrGLFragmentShaderBuilder::emitCodeToReadDstTexture() {
 }
 
 void GrGLFragmentShaderBuilder::enableCustomOutput() {
-    SkASSERT(!fHasCustomColorOutput);
-    fHasCustomColorOutput = true;
-    fOutputs.push_back().set(kVec4f_GrSLType,
-                             GrGLShaderVar::kOut_TypeModifier,
-                             declared_color_output_name());
+    if (!fHasCustomColorOutput) {
+        fHasCustomColorOutput = true;
+        fCustomColorOutputIndex = fOutputs.count();
+        fOutputs.push_back().set(kVec4f_GrSLType,
+                                 GrGLShaderVar::kOut_TypeModifier,
+                                 declared_color_output_name());
+    }
 }
 
 void GrGLFragmentShaderBuilder::enableSecondaryOutput() {
