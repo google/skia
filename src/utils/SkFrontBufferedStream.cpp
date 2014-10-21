@@ -119,6 +119,7 @@ size_t FrontBufferedStream::readFromBuffer(char* dst, size_t size) {
 size_t FrontBufferedStream::bufferAndWriteTo(char* dst, size_t size) {
     SkASSERT(size > 0);
     SkASSERT(fOffset >= fBufferedSoFar);
+    SkASSERT(fBuffer);
     // Data needs to be buffered. Buffer up to the lesser of the size requested
     // and the remainder of the max buffer size.
     const size_t bytesToBuffer = SkTMin(size, fBufferSize - fBufferedSoFar);
@@ -148,7 +149,7 @@ size_t FrontBufferedStream::readDirectlyFromStream(char* dst, size_t size) {
     // If we have read past the end of the buffer, rewinding is no longer
     // supported, so we can go ahead and free the memory.
     if (bytesReadDirectly > 0) {
-        fBuffer.reset(0);
+        sk_free(fBuffer.detach());
     }
 
     return bytesReadDirectly;
