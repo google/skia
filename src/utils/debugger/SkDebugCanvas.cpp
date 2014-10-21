@@ -61,6 +61,8 @@ void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
 }
 
 void SkDebugCanvas::draw(SkCanvas* canvas) {
+    fDrawNeedsReset = true;
+
     if (!fCommandVector.isEmpty()) {
         this->drawTo(canvas, fCommandVector.count() - 1);
     }
