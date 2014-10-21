@@ -18,8 +18,8 @@ extern "C" {
 #include "lauxlib.h"
 }
 
-#define LUA_FILENAME    "test.lua"
-//#define LUA_FILENAME    "slides.lua"
+//#define LUA_FILENAME    "test.lua"
+#define LUA_FILENAME    "slides.lua"
 
 static const char gDrawName[] = "onDrawContent";
 static const char gClickName[] = "onClickHandler";

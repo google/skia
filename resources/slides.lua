@@ -96,16 +96,25 @@ function drawSlide(canvas, slide, template)
     local x = template.margin_x
     local y = template.margin_y
 
-    local scale = 1.15
+    local scale = 1.25
     for i = 1, #slide do
         local node = slide[i]
-        local paint = template[node.indent + 1]
+        local paint = template[node.indent + 1].paint
+        local extra_dy = template[node.indent + 1].extra_dy
         local fm = paint:getFontMetrics()
         local x_offset = -fm.ascent * node.indent
 
         y = y - fm.ascent * scale
         canvas:drawText(node.text, x + x_offset, y, paint)
-        y = y + fm.descent * scale
+        y = y + fm.descent * scale + extra_dy
+    end
+end
+
+function scale_text_delta(template, delta)
+    template = template.slide
+    for i = 1, #template do
+        local paint = template[i].paint
+        paint:setTextSize(paint:getTextSize() + delta)
     end
 end
 
@@ -140,10 +149,9 @@ end
 
 function sqr(value) return value * value end
 
-function ease(value) 
 function set_blur(paint, alpha)
     local sigma = sqr(1 - alpha) * 20
---    paint:setImageFilter(Sk.newBlurImageFilter(sigma, sigma))
+    paint:setImageFilter(Sk.newBlurImageFilter(sigma, sigma))
     paint:setAlpha(alpha)
 end
 
@@ -194,24 +202,27 @@ function fade_slide_transition(prev, next, is_forward)
 end
 
 --------------------------------------------------------------------------------------
+function make_tmpl(paint, extra_dy)
+    return { paint = paint, extra_dy = extra_dy }
+end
 
 function SkiaPoint_make_template()
     local title = {
         margin_x = 30,
         margin_y = 100,
     }
-    title[1] = make_paint("Arial", 1, 50, { a=1, r=0, g=0, b=0 })
+    title[1] = make_paint("Arial", 1, 50, { a=1, r=1, g=1, b=1 })
     title[1]:setTextAlign("center")
-    title[2] = make_paint("Arial", 1, 25, { a=1, r=.3, g=.3, b=.3 })
+    title[2] = make_paint("Arial", 1, 25, { a=1, r=.75, g=.75, b=.75 })
     title[2]:setTextAlign("center")
 
     local slide = {
         margin_x = 20,
-        margin_y = 30,
+        margin_y = 25,
     }
-    slide[1] = make_paint("Arial", 1, 36, { a=1, r=0, g=0, b=0 })
-    slide[2] = make_paint("Arial", 0, 30, { a=1, r=0, g=0, b=0 })
-    slide[3] = make_paint("Arial", 0, 24, { a=1, r=.2, g=.2, b=.2 })
+    slide[1] = make_tmpl(make_paint("Arial", 1, 36, { a=1, r=1, g=1, b=1 }), 18)
+    slide[2] = make_tmpl(make_paint("Arial", 0, 30, { a=1, r=1, g=1, b=1 }), 0)
+    slide[3] = make_tmpl(make_paint("Arial", 0, 24, { a=1, r=.8, g=.8, b=.8 }), 0)
 
     return {
         title = title,
@@ -359,10 +370,25 @@ function spawn_scale_animation()
     }
 end
 
+local bgPaint = nil
+
+function draw_bg(canvas)
+    if not bgPaint then
+        bgPaint = Sk.newPaint()
+        local grad = Sk.newLinearGradient(  0,   0, { a=1, r=0, g=0, b=.3 },
+                                          640, 480, { a=1, r=0, g=0, b=.8 })
+        bgPaint:setShader(grad)
+    end
+
+    canvas:drawPaint(bgPaint)
+end
+
 function onDrawContent(canvas, width, height)
     local matrix = Sk.newMatrix()
     matrix:setRectToRect(make_rect(0, 0, 640, 480), make_rect(0, 0, width, height), "center")
     canvas:concat(matrix)
+
+    draw_bg(canvas)
 
     local drawSlideProc = function(canvas)
         drawSlide(canvas, gSlides[gSlideIndex], gTemplate)
@@ -386,6 +412,8 @@ local keyProcs = {
     p = prev_slide,
     r = spawn_rotate_animation,
     s = spawn_scale_animation,
+    u = function () scale_text_delta(gTemplate, 1) end,
+    d = function () scale_text_delta(gTemplate, -1) end,
 }
 
 function onCharHandler(uni)

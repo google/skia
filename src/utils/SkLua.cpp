@@ -16,6 +16,7 @@
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
 #include "SkDocument.h"
+#include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
@@ -71,10 +72,11 @@ template <typename T> void push_obj(lua_State* L, const T& obj) {
     lua_setmetatable(L, -2);
 }
 
-template <typename T> void push_ref(lua_State* L, T* ref) {
+template <typename T> T* push_ref(lua_State* L, T* ref) {
     *(T**)lua_newuserdata(L, sizeof(T*)) = SkSafeRef(ref);
     luaL_getmetatable(L, get_mtname<T>());
     lua_setmetatable(L, -2);
+    return ref;
 }
 
 template <typename T> T* get_ref(lua_State* L, int index) {
@@ -443,6 +445,11 @@ static int lcanvas_drawColor(lua_State* L) {
     return 0;
 }
 
+static int lcanvas_drawPaint(lua_State* L) {
+    get_ref<SkCanvas>(L, 1)->drawPaint(*get_obj<SkPaint>(L, 2));
+    return 0;
+}
+
 static int lcanvas_drawRect(lua_State* L) {
     SkRect rect;
     get_ref<SkCanvas>(L, 1)->drawRect(*lua2rect(L, 2, &rect),
@@ -646,8 +653,7 @@ static int lcanvas_newSurface(lua_State* L) {
     if (NULL == surface) {
         lua_pushnil(L);
     } else {
-        push_ref(L, surface);
-        surface->unref();
+        push_ref(L, surface)->unref();
     }
     return 1;
 }
@@ -660,6 +666,7 @@ static int lcanvas_gc(lua_State* L) {
 const struct luaL_Reg gSkCanvas_Methods[] = {
     { "clear", lcanvas_clear },
     { "drawColor", lcanvas_drawColor },
+    { "drawPaint", lcanvas_drawPaint },
     { "drawRect", lcanvas_drawRect },
     { "drawOval", lcanvas_drawOval },
     { "drawCircle", lcanvas_drawCircle },
@@ -1012,6 +1019,12 @@ static int lpaint_getShader(lua_State* L) {
     return 0;
 }
 
+static int lpaint_setShader(lua_State* L) {
+    SkPaint* paint = get_obj<SkPaint>(L, 1);
+    paint->setShader(get_ref<SkShader>(L, 2));
+    return 0;
+}
+
 static int lpaint_getPathEffect(lua_State* L) {
     const SkPaint* paint = get_obj<SkPaint>(L, 1);
     SkPathEffect* pe = paint->getPathEffect();
@@ -1070,6 +1083,7 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "getImageFilter", lpaint_getImageFilter },
     { "setImageFilter", lpaint_setImageFilter },
     { "getShader", lpaint_getShader },
+    { "setShader", lpaint_setShader },
     { "getPathEffect", lpaint_getPathEffect },
     { "__gc", lpaint_gc },
     { NULL, NULL }
@@ -1564,8 +1578,7 @@ static int lsurface_newImageSnapshot(lua_State* L) {
     if (NULL == image) {
         lua_pushnil(L);
     } else {
-        push_ref(L, image);
-        image->unref();
+        push_ref(L, image)->unref();
     }
     return 1;
 }
@@ -1578,8 +1591,7 @@ static int lsurface_newSurface(lua_State* L) {
     if (NULL == surface) {
         lua_pushnil(L);
     } else {
-        push_ref(L, surface);
-        surface->unref();
+        push_ref(L, surface)->unref();
     }
     return 1;
 }
@@ -1635,8 +1647,7 @@ static int lpicturerecorder_endRecording(lua_State* L) {
         lua_pushnil(L);
         return 1;
     }
-    push_ref(L, pic);
-    pic->unref();   // lua is the only owner, so we unref ours
+    push_ref(L, pic)->unref();
     return 1;
 }
 
@@ -1730,8 +1741,7 @@ static int lsk_newDocumentPDF(lua_State* L) {
         // do I need to push a nil on the stack and return 1?
         return 0;
     } else {
-        push_ref(L, doc);
-        doc->unref();
+        push_ref(L, doc)->unref();
         return 1;
     }
 }
@@ -1743,8 +1753,26 @@ static int lsk_newBlurImageFilter(lua_State* L) {
     if (NULL == imf) {
         lua_pushnil(L);
     } else {
-        push_ref(L, imf);
-        imf->unref();
+        push_ref(L, imf)->unref();
+    }
+    return 1;
+}
+
+static int lsk_newLinearGradient(lua_State* L) {
+    SkScalar x0 = lua2scalar_def(L, 1, 0);
+    SkScalar y0 = lua2scalar_def(L, 2, 0);
+    SkColor  c0 = lua2color(L, 3);
+    SkScalar x1 = lua2scalar_def(L, 4, 0);
+    SkScalar y1 = lua2scalar_def(L, 5, 0);
+    SkColor  c1 = lua2color(L, 6);
+
+    SkPoint pts[] = { { x0, y0 }, { x1, y1 } };
+    SkColor colors[] = { c0, c1 };
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
+    if (NULL == s) {
+        lua_pushnil(L);
+    } else {
+        push_ref(L, s)->unref();
     }
     return 1;
 }
@@ -1792,8 +1820,7 @@ static int lsk_newTypeface(lua_State* L) {
     if (NULL == face) {
         face = SkTypeface::RefDefault();
     }
-    push_ref(L, face);
-    face->unref();
+    push_ref(L, face)->unref();
     return 1;
 }
 
@@ -1805,8 +1832,7 @@ static int lsk_newRasterSurface(lua_State* L) {
     if (NULL == surface) {
         lua_pushnil(L);
     } else {
-        push_ref(L, surface);
-        surface->unref();
+        push_ref(L, surface)->unref();
     }
     return 1;
 }
@@ -1820,8 +1846,7 @@ static int lsk_loadImage(lua_State* L) {
                 SkDecodingImageGenerator::Create(data, SkDecodingImageGenerator::Options()));
 
             if (image) {
-                push_ref(L, image);
-                image->unref();
+                push_ref(L, image)->unref();
                 return 1;
             }
         }
@@ -1838,6 +1863,7 @@ static void register_Sk(lua_State* L) {
     setfield_function(L, "newDocumentPDF", lsk_newDocumentPDF);
     setfield_function(L, "loadImage", lsk_loadImage);
     setfield_function(L, "newBlurImageFilter", lsk_newBlurImageFilter);
+    setfield_function(L, "newLinearGradient", lsk_newLinearGradient);
     setfield_function(L, "newMatrix", lsk_newMatrix);
     setfield_function(L, "newPaint", lsk_newPaint);
     setfield_function(L, "newPath", lsk_newPath);
