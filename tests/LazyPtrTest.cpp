@@ -2,14 +2,45 @@
 #include "SkLazyPtr.h"
 #include "SkTaskGroup.h"
 
+namespace {
+
+struct CreateIntFromFloat {
+    CreateIntFromFloat(float val) : fVal(val) {}
+    int* operator()() const { return SkNEW_ARGS(int, ((int)fVal)); }
+    float fVal;
+};
+
+// As a template argument this must have external linkage.
+void custom_destroy(int* ptr) { *ptr = 99; }
+
+} // namespace
+
 DEF_TEST(LazyPtr, r) {
+    // Basic usage: calls SkNEW(int).
     SkLazyPtr<int> lazy;
     int* ptr = lazy.get();
-
     REPORTER_ASSERT(r, ptr);
     REPORTER_ASSERT(r, lazy.get() == ptr);
 
+    // Advanced usage: calls a functor.
+    SkLazyPtr<int> lazyFunctor;
+    int* six = lazyFunctor.get(CreateIntFromFloat(6.4f));
+    REPORTER_ASSERT(r, six);
+    REPORTER_ASSERT(r, 6 == *six);
+
+    // Just makes sure this is safe.
     SkLazyPtr<double> neverRead;
+
+    // SkLazyPtr supports custom destroy methods.
+    {
+        SkLazyPtr<int, custom_destroy> customDestroy;
+        ptr = customDestroy.get();
+        // custom_destroy called here.
+    }
+    REPORTER_ASSERT(r, ptr);
+    REPORTER_ASSERT(r, 99 == *ptr);
+    // Since custom_destroy didn't actually delete ptr, we do now.
+    SkDELETE(ptr);
 }
 
 namespace {

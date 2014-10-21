@@ -49,10 +49,10 @@
  */
 
 #define SK_DECLARE_STATIC_LAZY_PTR(T, name, ...) \
-    namespace {} static Private::SkLazyPtrBase<T, ##__VA_ARGS__> name
+    namespace {} static Private::SkStaticLazyPtr<T, ##__VA_ARGS__> name
 
 #define SK_DECLARE_STATIC_LAZY_PTR_ARRAY(T, name, N, ...) \
-    namespace {} static Private::SkLazyPtrArray<T, N, ##__VA_ARGS__> name
+    namespace {} static Private::SkStaticLazyPtrArray<T, N, ##__VA_ARGS__> name
 
 // namespace {} forces these macros to only be legal in global scopes.  Chrome has thread-safety
 // problems with them in function-local statics because it uses -fno-threadsafe-statics, and even
@@ -102,7 +102,7 @@ template <typename T> void sk_delete(T* ptr) { SkDELETE(ptr); }
 
 // This has no constructor and must be zero-initalized (the macro above does this).
 template <typename T, T* (*Create)() = sk_new<T>, void (*Destroy)(T*) = sk_delete<T> >
-class SkLazyPtrBase {
+class SkStaticLazyPtr {
 public:
     T* get() {
         // If fPtr has already been filled, we need a consume barrier when loading it.
@@ -111,7 +111,7 @@ public:
         return ptr ? ptr : try_cas<T*, Destroy>(&fPtr, Create());
     }
 
-protected:
+private:
     void* fPtr;
 };
 
@@ -119,7 +119,7 @@ template <typename T> T* sk_new_arg(int i) { return SkNEW_ARGS(T, (i)); }
 
 // This has no constructor and must be zero-initalized (the macro above does this).
 template <typename T, int N, T* (*Create)(int) = sk_new_arg<T>, void (*Destroy)(T*) = sk_delete<T> >
-class SkLazyPtrArray {
+class SkStaticLazyPtrArray {
 public:
     T* operator[](int i) {
         SkASSERT(i >= 0 && i < N);
@@ -136,16 +136,30 @@ private:
 }  // namespace Private
 
 // This version is suitable for use as a class member.
-// It's the same as above except it has a constructor to zero itself and a destructor to clean up.
-template <typename T,
-          T* (*Create)() = Private::sk_new<T>,
-          void (*Destroy)(T*) = Private::sk_delete<T> >
-class SkLazyPtr : public Private::SkLazyPtrBase<T, Create, Destroy> {
+// It's much the same as above except:
+//   - it has a constructor to zero itself;
+//   - it has a destructor to clean up;
+//   - get() calls SkNew(T) to create the pointer;
+//   - get(functor) calls functor to create the pointer.
+template <typename T, void (*Destroy)(T*) = Private::sk_delete<T> >
+class SkLazyPtr : SkNoncopyable {
 public:
-    SkLazyPtr() { INHERITED::fPtr = NULL; }
-    ~SkLazyPtr() { if (INHERITED::fPtr) { Destroy((T*)INHERITED::fPtr); } }
+    SkLazyPtr() : fPtr(NULL) {}
+    ~SkLazyPtr() { if (fPtr) { Destroy((T*)fPtr); } }
+
+    T* get() {
+        T* ptr = (T*)sk_consume_load(&fPtr);
+        return ptr ? ptr : Private::try_cas<T*, Destroy>(&fPtr, SkNEW(T));
+    }
+
+    template <typename Create>
+    T* get(const Create& create) {
+        T* ptr = (T*)sk_consume_load(&fPtr);
+        return ptr ? ptr : Private::try_cas<T*, Destroy>(&fPtr, create());
+    }
+
 private:
-    typedef Private::SkLazyPtrBase<T, Create, Destroy> INHERITED;
+    void* fPtr;
 };
 
 
