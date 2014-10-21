@@ -48,7 +48,9 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     this->adjustFromBlendOpts(drawState, &firstColorStageIdx, &firstCoverageStageIdx,
                               &fixedFunctionVAToRemove);
     // Should not be setting any more FFVA to be removed at this point
-    this->removeFixedFunctionVertexAttribs(fixedFunctionVAToRemove);
+    if (0 != fixedFunctionVAToRemove) {
+        this->removeFixedFunctionVertexAttribs(fixedFunctionVAToRemove);
+    }
     this->getStageStats(drawState, firstColorStageIdx, firstCoverageStageIdx);
     this->setOutputStateInfo(drawState, caps, firstCoverageStageIdx, &separateCoverageFromColor);
 
