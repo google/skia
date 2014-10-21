@@ -858,7 +858,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
 
 #ifndef SK_IGNORE_THIN_STROKED_RECT_FIX
     // TODO: this only really works if the X & Y margins are the same all around
-    // the rect
+    // the rect (or if they are all >= 1.0).
     SkScalar inset = SkMinScalar(SK_Scalar1, devOutside.fRight - devInside.fRight);
     inset = SkMinScalar(inset, devInside.fLeft - devOutside.fLeft);
     inset = SkMinScalar(inset, devInside.fTop - devOutside.fTop);

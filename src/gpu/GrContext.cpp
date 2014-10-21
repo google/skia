@@ -1082,15 +1082,22 @@ static bool is_nested_rects(GrDrawTarget* target,
     const SkScalar* outer = rects[0].asScalars();
     const SkScalar* inner = rects[1].asScalars();
 
+    bool allEq = true;
+
     SkScalar margin = SkScalarAbs(outer[0] - inner[0]);
+    bool allGoE1 = margin >= SK_Scalar1;
+
     for (int i = 1; i < 4; ++i) {
         SkScalar temp = SkScalarAbs(outer[i] - inner[i]);
+        if (temp < SK_Scalar1) {
+            allGoE1 = false;
+        }
         if (!SkScalarNearlyEqual(margin, temp)) {
-            return false;
+            allEq = false;
         }
     }
 
-    return true;
+    return allEq || allGoE1;
 }
 
 void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrokeInfo& strokeInfo) {
