@@ -11,7 +11,7 @@
 
 int main(int argc, char *argv[]) {
     signal(SIGPIPE, SIG_IGN);
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    /*NSAutoreleasePool* pool = */ [[NSAutoreleasePool alloc] init];
     application_init();
     int retVal =  NSApplicationMain(argc, (const char **)argv);
     

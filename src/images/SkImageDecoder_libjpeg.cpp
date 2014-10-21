@@ -749,66 +749,6 @@ static SkISize compute_yuv_size(const jpeg_decompress_struct& info, int componen
                          info.cur_comp_info[component]->downsampled_height);
 }
 
-// Enum for YUV decoding
-enum YUVSubsampling {
-    kUNKNOWN_YUVSubsampling,
-    k410_YUVSubsampling,
-    k411_YUVSubsampling,
-    k420_YUVSubsampling,
-    k422_YUVSubsampling,
-    k440_YUVSubsampling,
-    k444_YUVSubsampling
-};
-
-static YUVSubsampling yuv_subsampling(const jpeg_decompress_struct& info) {
-    if ((DCTSIZE == 8)
-        && (info.num_components == 3)
-        && (info.comps_in_scan >= info.num_components)
-        && (info.scale_denom <= 8)
-        && (info.cur_comp_info[0])
-        && (info.cur_comp_info[1])
-        && (info.cur_comp_info[2])
-        && (info.cur_comp_info[1]->h_samp_factor == 1)
-        && (info.cur_comp_info[1]->v_samp_factor == 1)
-        && (info.cur_comp_info[2]->h_samp_factor == 1)
-        && (info.cur_comp_info[2]->v_samp_factor == 1))
-    {
-        int h = info.cur_comp_info[0]->h_samp_factor;
-        int v = info.cur_comp_info[0]->v_samp_factor;
-        // 4:4:4 : (h == 1) && (v == 1)
-        // 4:4:0 : (h == 1) && (v == 2)
-        // 4:2:2 : (h == 2) && (v == 1)
-        // 4:2:0 : (h == 2) && (v == 2)
-        // 4:1:1 : (h == 4) && (v == 1)
-        // 4:1:0 : (h == 4) && (v == 2)
-        if (v == 1) {
-            switch (h) {
-                case 1:
-                    return k444_YUVSubsampling;
-                case 2:
-                    return k422_YUVSubsampling;
-                case 4:
-                    return k411_YUVSubsampling;
-                default:
-                    break;
-            }
-        } else if (v == 2) {
-            switch (h) {
-                case 1:
-                    return k440_YUVSubsampling;
-                case 2:
-                    return k420_YUVSubsampling;
-                case 4:
-                    return k410_YUVSubsampling;
-                default:
-                    break;
-            }
-        }
-    }
-
-    return kUNKNOWN_YUVSubsampling;
-}
-
 static void update_components_sizes(const jpeg_decompress_struct& cinfo, SkISize componentSizes[3],
                                     SizeType sizeType) {
     for (int i = 0; i < 3; ++i) {
