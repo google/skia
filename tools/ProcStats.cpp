@@ -22,8 +22,16 @@
     #endif
     }
 
-#else
+#elif defined(SK_BUILD_FOR_WIN32)
+    #include <windows.h>
+    #include <psapi.h>
+    int sk_tools::getMaxResidentSetSizeMB() {
+        PROCESS_MEMORY_COUNTERS info;
+        GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
+        return static_cast<int>(info.PeakWorkingSetSize / 1024 / 1024);  // Windows reports bytes.
+    }
 
+#else
     int sk_tools::getMaxResidentSetSizeMB() {
         return -1;
     }
