@@ -40,7 +40,7 @@ public:
         bool operator==(const Key& other) const {
             const uint32_t* a = this->as32();
             const uint32_t* b = other.as32();
-            for (int i = 0; i < fCount32; ++i) {
+            for (int i = 0; i < fCount32; ++i) {  // (This checks fCount == other.fCount first.)
                 if (a[i] != b[i]) {
                     return false;
                 }
@@ -49,13 +49,11 @@ public:
         }
 
     private:
-        // store fCount32 first, so we don't consider it in operator<
         int32_t  fCount32;  // 2 + user contents count32
         uint32_t fHash;
         /* uint32_t fContents32[] */
 
         const uint32_t* as32() const { return (const uint32_t*)this; }
-        const uint32_t* as32SkipCount() const { return this->as32() + 1; }
     };
 
     struct Rec {
