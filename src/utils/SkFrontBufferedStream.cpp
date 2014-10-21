@@ -176,7 +176,7 @@ size_t FrontBufferedStream::read(void* voidDst, size_t size) {
 
     // Buffer any more data that should be buffered, and copy it to the
     // destination.
-    if (size > 0 && fBufferedSoFar < fBufferSize) {
+    if (size > 0 && fBufferedSoFar < fBufferSize && !fStream->isAtEnd()) {
         const size_t buffered = this->bufferAndWriteTo(dst, size);
 
         // Update the remaining number of bytes needed to read
