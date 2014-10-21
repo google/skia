@@ -412,8 +412,8 @@ local keyProcs = {
     p = prev_slide,
     r = spawn_rotate_animation,
     s = spawn_scale_animation,
-    u = function () scale_text_delta(gTemplate, 1) end,
-    d = function () scale_text_delta(gTemplate, -1) end,
+    ["="] = function () scale_text_delta(gTemplate, 1) end,
+    ["-"] = function () scale_text_delta(gTemplate, -1) end,
 }
 
 function onCharHandler(uni)
