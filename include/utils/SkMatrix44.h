@@ -33,6 +33,16 @@
         return fabs(x);
     }
     static const SkMScalar SK_MScalarPI = 3.141592653589793;
+
+    #define SkMScalarFloor(x)           sk_double_floor(x)
+    #define SkMScalarCeil(x)            sk_double_ceil(x)
+    #define SkMScalarRound(x)           sk_double_round(x)
+
+    #define SkMScalarFloorToInt(x)      sk_double_floor2int(x)
+    #define SkMScalarCeilToInt(x)       sk_double_ceil2int(x)
+    #define SkMScalarRoundToInt(x)      sk_double_round2int(x)
+
+
 #elif defined SK_MSCALAR_IS_FLOAT
 #ifdef SK_MSCALAR_IS_DOUBLE
     #error "can't define MSCALAR both as DOUBLE and FLOAT"
@@ -55,10 +65,21 @@
         return sk_float_abs(x);
     }
     static const SkMScalar SK_MScalarPI = 3.14159265f;
+
+    #define SkMScalarFloor(x)           sk_float_floor(x)
+    #define SkMScalarCeil(x)            sk_float_ceil(x)
+    #define SkMScalarRound(x)           sk_float_round(x)
+
+    #define SkMScalarFloorToInt(x)      sk_float_floor2int(x)
+    #define SkMScalarCeilToInt(x)       sk_float_ceil2int(x)
+    #define SkMScalarRoundToInt(x)      sk_float_round2int(x)
+
 #endif
 
-#define SkMScalarToScalar SkMScalarToFloat
-#define SkScalarToMScalar SkFloatToMScalar
+#define SkIntToMScalar(n)       static_cast<SkMScalar>(n)
+
+#define SkMScalarToScalar(x)    SkMScalarToFloat(x)
+#define SkScalarToMScalar(x)    SkFloatToMScalar(x)
 
 static const SkMScalar SK_MScalar1 = 1;
 

@@ -116,6 +116,13 @@ static inline float sk_float_copysign(float x, float y) {
     #define sk_float_ceil2int(x)    (int)sk_float_ceil(x)
 #endif
 
+#define sk_double_floor(x)          floor(x)
+#define sk_double_round(x)          floor((x) + 0.5)
+#define sk_double_ceil(x)           ceil(x)
+#define sk_double_floor2int(x)      (int)floor(x)
+#define sk_double_round2int(x)      (int)floor((x) + 0.5f)
+#define sk_double_ceil2int(x)       (int)ceil(x)
+
 extern const uint32_t gIEEENotANumber;
 extern const uint32_t gIEEEInfinity;
 extern const uint32_t gIEEENegativeInfinity;
