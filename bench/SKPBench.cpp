@@ -6,6 +6,9 @@
  */
 
 #include "SKPBench.h"
+#include "SkCommandLineFlags.h"
+
+DECLARE_int32(benchTile);
 
 SKPBench::SKPBench(const char* name, const SkPicture* pic, const SkIRect& clip, SkScalar scale)
     : fPic(SkRef(pic))
@@ -32,11 +35,21 @@ SkIPoint SKPBench::onGetSize() {
 }
 
 void SKPBench::onDraw(const int loops, SkCanvas* canvas) {
-    canvas->save();
-        canvas->scale(fScale, fScale);
-        for (int i = 0; i < loops; i++) {
-            fPic->playback(canvas);
-            canvas->flush();
+    SkIRect bounds;
+    SkAssertResult(canvas->getClipDeviceBounds(&bounds));
+
+    SkAutoCanvasRestore overall(canvas, true/*save now*/);
+    canvas->scale(fScale, fScale);
+
+    for (int i = 0; i < loops; i++) {
+        for (int y = bounds.fTop; y < bounds.fBottom; y += FLAGS_benchTile) {
+            for (int x = bounds.fLeft; x < bounds.fRight; x += FLAGS_benchTile) {
+                SkAutoCanvasRestore perTile(canvas, true/*save now*/);
+                canvas->clipRect(SkRect::Make(
+                            SkIRect::MakeXYWH(x, y, FLAGS_benchTile, FLAGS_benchTile)));
+                fPic->playback(canvas);
+            }
         }
-    canvas->restore();
+        canvas->flush();
+    }
 }

@@ -70,6 +70,7 @@ DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
 DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
+DEFINE_int32(benchTile, 256, "Tile dimension used for SKP playback.");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 
 static SkString humanize(double ms) {
@@ -514,11 +515,10 @@ public:
                 }
                 if (FLAGS_bbh) {
                     // The SKP we read off disk doesn't have a BBH.  Re-record so it grows one.
-                    // Here we use an SkTileGrid with parameters optimized for FLAGS_clip.
                     const SkTileGridFactory::TileGridInfo info = {
-                        SkISize::Make(fClip.width(), fClip.height()),  // tile interval
-                        SkISize::Make(0,0),                            // margin
-                        SkIPoint::Make(fClip.left(), fClip.top()),     // offset
+                        SkISize::Make(FLAGS_benchTile, FLAGS_benchTile),  // tile interval
+                        SkISize::Make(0,0),                               // margin
+                        SkIPoint::Make(0,0),                              // offset
                     };
                     SkTileGridFactory factory(info);
                     SkPictureRecorder recorder;
