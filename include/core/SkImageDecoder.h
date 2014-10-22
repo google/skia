@@ -225,13 +225,26 @@ public:
         kDecodePixels_Mode  //!< return entire bitmap (including pixels)
     };
 
+    /** Result of a decode. If read as a boolean, a partial success is
+        considered a success (true).
+    */
+    enum Result {
+        kFailure        = 0,    //!< Image failed to decode. bitmap will be
+                                //   unchanged.
+        kPartialSuccess = 1,    //!< Part of the image decoded. The rest is
+                                //   filled in automatically
+        kSuccess        = 2     //!< The entire image was decoded, if Mode is
+                                //   kDecodePixels_Mode, or the bounds were
+                                //   decoded, in kDecodeBounds_Mode.
+    };
+
     /** Given a stream, decode it into the specified bitmap.
         If the decoder can decompress the image, it calls bitmap.setInfo(),
         and then if the Mode is kDecodePixels_Mode, call allocPixelRef(),
         which will allocated a pixelRef. To access the pixel memory, the codec
         needs to call lockPixels/unlockPixels on the
         bitmap. It can then set the pixels with the decompressed image.
-    *   If the image cannot be decompressed, return false. After the
+    *   If the image cannot be decompressed, return kFailure. After the
     *   decoding, the function converts the decoded colortype in bitmap
     *   to pref if possible. Whether a conversion is feasible is
     *   tested by Bitmap::canCopyTo(pref).
@@ -244,8 +257,8 @@ public:
         If a Peeker is installed via setPeeker, it may be used to peek into
         meta data during the decode.
     */
-    bool decode(SkStream*, SkBitmap* bitmap, SkColorType pref, Mode);
-    bool decode(SkStream* stream, SkBitmap* bitmap, Mode mode) {
+    Result decode(SkStream*, SkBitmap* bitmap, SkColorType pref, Mode);
+    Result decode(SkStream* stream, SkBitmap* bitmap, Mode mode) {
         return this->decode(stream, bitmap, kUnknown_SkColorType, mode);
     }
 
@@ -334,7 +347,7 @@ public:
 
 protected:
     // must be overridden in subclasses. This guy is called by decode(...)
-    virtual bool onDecode(SkStream*, SkBitmap* bitmap, Mode) = 0;
+    virtual Result onDecode(SkStream*, SkBitmap* bitmap, Mode) = 0;
 
     // If the decoder wants to support tiled based decoding,
     // this method must be overridden. This guy is called by buildTileIndex(...)

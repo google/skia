@@ -171,7 +171,7 @@ bool DecodingImageGenerator::onGetPixels(const SkImageInfo& info,
     TargetAllocator allocator(fInfo, pixels, rowBytes);
     decoder->setAllocator(&allocator);
     bool success = decoder->decode(fStream, &bitmap, info.colorType(),
-                                   SkImageDecoder::kDecodePixels_Mode);
+                                   SkImageDecoder::kDecodePixels_Mode) != SkImageDecoder::kFailure;
     decoder->setAllocator(NULL);
     if (!success) {
         return false;

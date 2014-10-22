@@ -22,7 +22,7 @@ public:
     }
 
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
+    virtual Result onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
 
 private:
     typedef SkImageDecoder INHERITED;
@@ -99,13 +99,13 @@ static void expand_bits_to_bytes(uint8_t dst[], const uint8_t src[], int bits)
     }
 }
 
-bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
-                                  Mode mode)
+SkImageDecoder::Result SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
+                                                    Mode mode)
 {
     wbmp_head   head;
 
     if (!head.init(stream)) {
-        return false;
+        return kFailure;
     }
 
     int width = head.fWidth;
@@ -115,7 +115,7 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
                                              kIndex_8_SkColorType, kOpaque_SkAlphaType));
 
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
-        return true;
+        return kSuccess;
     }
 
     const SkPMColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
@@ -123,7 +123,7 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
     SkAutoUnref   aur(ct);
 
     if (!this->allocPixelRef(decodedBitmap, ct)) {
-        return false;
+        return kFailure;
     }
 
     SkAutoLockPixels alp(*decodedBitmap);
@@ -135,7 +135,7 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
     size_t srcSize = height * srcRB;
     uint8_t* src = dst + decodedBitmap->getSize() - srcSize;
     if (stream->read(src, srcSize) != srcSize) {
-        return false;
+        return kFailure;
     }
 
     for (int y = 0; y < height; y++)
@@ -145,7 +145,7 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
         src += srcRB;
     }
 
-    return true;
+    return kSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

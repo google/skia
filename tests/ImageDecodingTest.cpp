@@ -93,7 +93,7 @@ static void compare_unpremul(skiatest::Reporter* reporter, const SkString& filen
     }
 
     bool success = decoder->decode(&stream, &bm8888, kN32_SkColorType,
-                                   SkImageDecoder::kDecodePixels_Mode);
+                                   SkImageDecoder::kDecodePixels_Mode) != SkImageDecoder::kFailure;
     if (!success) {
         return;
     }
@@ -106,7 +106,7 @@ static void compare_unpremul(skiatest::Reporter* reporter, const SkString& filen
 
     decoder->setRequireUnpremultipliedColors(true);
     success = decoder->decode(&stream, &bm8888Unpremul, kN32_SkColorType,
-                              SkImageDecoder::kDecodePixels_Mode);
+                              SkImageDecoder::kDecodePixels_Mode) != SkImageDecoder::kFailure;
     if (!success) {
         return;
     }
@@ -812,7 +812,7 @@ DEF_TEST(ImageDecoding_JpegOverwrite, r) {
     decoder->setSampleSize(2);
     SkBitmap bitmap;
     bool success = decoder->decode(stream, &bitmap, kRGB_565_SkColorType,
-                                   SkImageDecoder::kDecodePixels_Mode);
+                                   SkImageDecoder::kDecodePixels_Mode) != SkImageDecoder::kFailure;
     REPORTER_ASSERT(r, success);
     REPORTER_ASSERT(r, !allocator->ready());  // Decoder used correct memory
     REPORTER_ASSERT(r, sentinal == pixels[pixelCount]);

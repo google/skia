@@ -20,7 +20,7 @@ public:
     }
 
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
+    virtual Result onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
 
 private:
     typedef SkImageDecoder INHERITED;
@@ -72,12 +72,12 @@ static int calculateRowBytesFor8888(int w, int bitCount)
     return 0;
 }
 
-bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
+SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
 {
     SkAutoMalloc autoMal;
     const size_t length = SkCopyStreamToStorage(&autoMal, stream);
     if (0 == length) {
-        return false;
+        return kFailure;
     }
 
     unsigned char* buf = (unsigned char*)autoMal.get();
@@ -86,13 +86,16 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
     //incorrect values, but still decode properly?
     int reserved = read2Bytes(buf, 0);    // 0
     int type = read2Bytes(buf, 2);        // 1
-    if (reserved != 0 || type != 1)
-        return false;
+    if (reserved != 0 || type != 1) {
+        return kFailure;
+    }
+
     int count = read2Bytes(buf, 4);
 
     //need to at least have enough space to hold the initial table of info
-    if (length < (size_t)(6 + count*16))
-        return false;
+    if (length < (size_t)(6 + count*16)) {
+        return kFailure;
+    }
 
 #ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
     int choice;
@@ -137,8 +140,9 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
     }
 
     //you never know what the chooser is going to supply
-    if (choice >= count || choice < 0)
-        return false;
+    if (choice >= count || choice < 0) {
+        return kFailure;
+    }
 #else
     const int choice = 0;   // TODO: fold this value into the expressions below
 #endif
@@ -156,7 +160,7 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
     const size_t offset = read4Bytes(buf, 18 + choice*16);
     // promote the sum to 64-bits to avoid overflow
     if (((uint64_t)offset + size) > length) {
-        return false;
+        return kFailure;
     }
 
     // Check to see if this is a PNG image inside the ICO
@@ -165,13 +169,18 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
         SkAutoTDelete<SkImageDecoder> otherDecoder(SkImageDecoder::Factory(&subStream));
         if (otherDecoder.get() != NULL) {
             // Disallow nesting ICO files within one another
+            // FIXME: Can ICO files contain other formats besides PNG?
             if (otherDecoder->getFormat() == SkImageDecoder::kICO_Format) {
-                return false;
+                return kFailure;
             }
             // Set fields on the other decoder to be the same as this one.
             this->copyFieldsToOther(otherDecoder.get());
-            if(otherDecoder->decode(&subStream, bm, this->getDefaultPref(), mode)) {
-                return true;
+            const Result result = otherDecoder->decode(&subStream, bm, this->getDefaultPref(),
+                                                       mode);
+            // FIXME: Should we just return result here? Is it possible that data that looked like
+            // a subimage was not, but was actually a valid ICO?
+            if (result != kFailure) {
+                return result;
             }
         }
     }
@@ -209,7 +218,7 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
             break;
         default:
             SkDEBUGF(("Decoding %ibpp is unimplemented\n", bitCount));
-            return false;
+            return kFailure;
     }
 
     //these should all be zero, but perhaps are not - need to check
@@ -260,13 +269,13 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
 
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         delete[] colors;
-        return true;
+        return kSuccess;
     }
 
     if (!this->allocPixelRef(bm, NULL))
     {
         delete[] colors;
-        return false;
+        return kFailure;
     }
 
     SkAutoLockPixels alp(*bm);
@@ -296,7 +305,7 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
     //ensure we haven't read off the end?
     //of course this doesn't help us if the andOffset was a lie...
     //return andOffset + (andLineWidth >> 3) <= length;
-    return true;
+    return kSuccess;
 }   //onDecode
 
 //function to place the pixel, determined by the bitCount

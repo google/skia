@@ -67,7 +67,7 @@ public:
     bool decodeStream(SkStream* stream, SkBitmap* bm, WICModes wicMode, Format* format) const;
 
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode) SK_OVERRIDE;
+    virtual Result onDecode(SkStream* stream, SkBitmap* bm, Mode mode) SK_OVERRIDE;
 };
 
 struct FormatConversion {
@@ -92,7 +92,7 @@ static SkImageDecoder::Format GuidContainerFormat_to_Format(REFGUID guid) {
     return SkImageDecoder::kUnknown_Format;
 }
 
-bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
+SkImageDecoder::Result SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     WICModes wicMode;
     switch (mode) {
         case SkImageDecoder::kDecodeBounds_Mode:
@@ -102,7 +102,7 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
             wicMode = kDecodePixels_WICMode;
             break;
     }
-    return this->decodeStream(stream, bm, wicMode, NULL);
+    return this->decodeStream(stream, bm, wicMode, NULL) ? kSuccess : kFailure;
 }
 
 bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes wicMode,

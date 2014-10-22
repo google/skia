@@ -24,7 +24,7 @@ public:
     }
 
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode) SK_OVERRIDE;
+    virtual Result onDecode(SkStream* stream, SkBitmap* bm, Mode mode) SK_OVERRIDE;
 
 private:
     typedef SkImageDecoder INHERITED;
@@ -152,14 +152,15 @@ static int find_transpIndex(const SavedImage& image, int colorCount) {
     return transpIndex;
 }
 
-static bool error_return(const SkBitmap& bm, const char msg[]) {
+static SkImageDecoder::Result error_return(const SkBitmap& bm, const char msg[]) {
     if (!c_suppressGIFImageDecoderWarnings) {
         SkDebugf("libgif error [%s] bitmap [%d %d] pixels %p colortable %p\n",
                  msg, bm.width(), bm.height(), bm.getPixels(),
                  bm.getColorTable());
     }
-    return false;
+    return SkImageDecoder::kFailure;
 }
+
 static void gif_warning(const SkBitmap& bm, const char msg[]) {
     if (!c_suppressGIFImageDecoderWarnings) {
         SkDebugf("libgif warning [%s] bitmap [%d %d] pixels %p colortable %p\n",
@@ -228,7 +229,7 @@ static void sanitize_indexed_bitmap(SkBitmap* bm) {
     }
 }
 
-bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
+SkImageDecoder::Result SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
 #if GIFLIB_MAJOR < 5
     GifFileType* gif = DGifOpen(sk_stream, DecodeCallBackProc);
 #else
@@ -322,7 +323,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                                           kIndex_8_SkColorType, kPremul_SkAlphaType));
 
             if (SkImageDecoder::kDecodeBounds_Mode == mode) {
-                return true;
+                return kSuccess;
             }
 
 
@@ -423,7 +424,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                             sampler.sampleInterlaced(scanline, iter.currY());
                             iter.next();
                         }
-                        return true;
+                        return kPartialSuccess;
                     }
                     sampler.sampleInterlaced(scanline, iter.currY());
                     iter.next();
@@ -439,7 +440,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                         for (; y < outHeight; y++) {
                             sampler.next(scanline);
                         }
-                        return true;
+                        return kPartialSuccess;
                     }
                     // scanline now contains the raw data. Sample it.
                     sampler.next(scanline);
@@ -453,7 +454,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                 skip_src_rows(gif, scanline, innerWidth, innerHeight - read);
             }
             sanitize_indexed_bitmap(bm);
-            return true;
+            return kSuccess;
             } break;
 
         case EXTENSION_RECORD_TYPE:
@@ -498,7 +499,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
     } while (recType != TERMINATE_RECORD_TYPE);
 
     sanitize_indexed_bitmap(bm);
-    return true;
+    return kSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

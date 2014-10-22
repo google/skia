@@ -83,15 +83,15 @@ protected:
         // Decode a bunch of times
         SkBitmap bm;
         for (int i = 0; i < loops; ++i) {
-            SkDEBUGCODE(bool success =) fDecoder->decode(&fStream, &bm,
-                                                         SkImageDecoder::kDecodePixels_Mode);
+            SkDEBUGCODE(SkImageDecoder::Result result =) fDecoder->decode(&fStream, &bm,
+                    SkImageDecoder::kDecodePixels_Mode);
 #ifdef SK_DEBUG
-            if (!success) {
+            if (SkImageDecoder::kFailure == result) {
                 SkDebugf("failed to decode %s\n", fFilename.c_str());
                 return;
             }
 #endif
-            SkDEBUGCODE(success =) fStream.rewind();
+            SkDEBUGCODE(bool success =) fStream.rewind();
 #ifdef SK_DEBUG
             if (!success) {
                 SkDebugf("failed to rewind %s\n", fFilename.c_str());

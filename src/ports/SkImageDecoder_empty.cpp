@@ -32,8 +32,8 @@ bool SkImageDecoder::DecodeFile(const char[], SkBitmap*, SkColorType, Mode, Form
     return false;
 }
 
-bool SkImageDecoder::decode(SkStream*, SkBitmap*, SkColorType, Mode) {
-    return false;
+SkImageDecoder::Result SkImageDecoder::decode(SkStream*, SkBitmap*, SkColorType, Mode) {
+    return kFailure;
 }
 
 bool SkImageDecoder::DecodeStream(SkStreamRewindable*, SkBitmap*, SkColorType, Mode, Format*) {
