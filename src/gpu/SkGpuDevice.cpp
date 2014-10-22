@@ -1814,7 +1814,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
     GrReplacements replacements;
 
-    GrLayerHoister::DrawLayers(atlased, nonAtlased, recycled, &replacements);
+    GrLayerHoister::DrawLayers(fContext, atlased, nonAtlased, recycled, &replacements);
 
     // Render the entire picture using new layers
     const SkMatrix initialMatrix = mainCanvas->getTotalMatrix();

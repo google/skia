@@ -983,7 +983,8 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, NULL == info0.fPicture);
             REPORTER_ASSERT(reporter, kWidth == info0.fBounds.width() &&
                                       kHeight == info0.fBounds.height());
-            REPORTER_ASSERT(reporter, info0.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, info0.fLocalMat.isIdentity());
+            REPORTER_ASSERT(reporter, info0.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info0.fBounds.fLeft && 0 == info0.fBounds.fTop);
             REPORTER_ASSERT(reporter, NULL == info0.fPaint);
             REPORTER_ASSERT(reporter, !info0.fIsNested && !info0.fHasNestedLayers);
@@ -991,7 +992,8 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, NULL == info1.fPicture);
             REPORTER_ASSERT(reporter, kWidth == info1.fBounds.width() &&
                                       kHeight == info1.fBounds.height());
-            REPORTER_ASSERT(reporter, info1.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, info1.fLocalMat.isIdentity());
+            REPORTER_ASSERT(reporter, info1.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info1.fBounds.fLeft && 0 == info1.fBounds.fTop);
             REPORTER_ASSERT(reporter, NULL == info1.fPaint);
             REPORTER_ASSERT(reporter, !info1.fIsNested &&
@@ -1000,7 +1002,8 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, NULL == info2.fPicture);
             REPORTER_ASSERT(reporter, kWidth / 2 == info2.fBounds.width() &&
                                       kHeight / 2 == info2.fBounds.height()); // bound reduces size
-            REPORTER_ASSERT(reporter, !info2.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, !info2.fLocalMat.isIdentity());
+            REPORTER_ASSERT(reporter, info2.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, kWidth / 2 == info2.fBounds.fLeft &&   // translated
                                       kHeight / 2 == info2.fBounds.fTop);
             REPORTER_ASSERT(reporter, NULL == info1.fPaint);
@@ -1009,7 +1012,8 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, NULL == info3.fPicture);
             REPORTER_ASSERT(reporter, kWidth == info3.fBounds.width() &&
                                       kHeight == info3.fBounds.height());
-            REPORTER_ASSERT(reporter, info3.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, info3.fLocalMat.isIdentity());
+            REPORTER_ASSERT(reporter, info3.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info3.fBounds.fLeft && 0 == info3.fBounds.fTop);
             REPORTER_ASSERT(reporter, info3.fPaint);
             REPORTER_ASSERT(reporter, !info3.fIsNested && !info3.fHasNestedLayers);
@@ -1018,7 +1022,8 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, kWidth == info4.fBounds.width() &&
                                       kHeight == info4.fBounds.height());
             REPORTER_ASSERT(reporter, 0 == info4.fBounds.fLeft && 0 == info4.fBounds.fTop);
-            REPORTER_ASSERT(reporter, info4.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, info4.fLocalMat.isIdentity());
+            REPORTER_ASSERT(reporter, info4.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, info4.fPaint);
             REPORTER_ASSERT(reporter, !info4.fIsNested &&
                                       info4.fHasNestedLayers); // has a nested SL
@@ -1027,7 +1032,8 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, kWidth == info5.fBounds.width() &&
                                       kHeight == info5.fBounds.height());
             REPORTER_ASSERT(reporter, 0 == info5.fBounds.fLeft && 0 == info5.fBounds.fTop);
-            REPORTER_ASSERT(reporter, info5.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, info5.fLocalMat.isIdentity());
+            REPORTER_ASSERT(reporter, info5.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, NULL == info5.fPaint);
             REPORTER_ASSERT(reporter, info5.fIsNested && !info5.fHasNestedLayers); // is nested
 
@@ -1035,7 +1041,8 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, kWidth == info6.fBounds.width() &&
                                       kHeight == info6.fBounds.height());
             REPORTER_ASSERT(reporter, 0 == info6.fBounds.fLeft && 0 == info6.fBounds.fTop);
-            REPORTER_ASSERT(reporter, info6.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, info6.fLocalMat.isIdentity());
+            REPORTER_ASSERT(reporter, info6.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, info6.fPaint);
             REPORTER_ASSERT(reporter, !info6.fIsNested &&
                                       info6.fHasNestedLayers); // has a nested SL
@@ -1044,7 +1051,8 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, kWidth == info7.fBounds.width() &&
                                       kHeight == info7.fBounds.height());
             REPORTER_ASSERT(reporter, 0 == info7.fBounds.fLeft && 0 == info7.fBounds.fTop);
-            REPORTER_ASSERT(reporter, info7.fOriginXform.isIdentity());
+            REPORTER_ASSERT(reporter, info7.fLocalMat.isIdentity());
+            REPORTER_ASSERT(reporter, info7.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, NULL == info7.fPaint);
             REPORTER_ASSERT(reporter, info7.fIsNested && !info7.fHasNestedLayers); // is nested
         }

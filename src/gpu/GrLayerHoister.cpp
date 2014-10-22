@@ -25,13 +25,14 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
                                  SkTDArray<GrHoistedLayer>* recycled) {
     const SkPicture* pict = info.fPicture ? info.fPicture : topLevelPicture;
 
+    SkMatrix combined = SkMatrix::Concat(info.fPreMat, info.fLocalMat);
+
     GrCachedLayer* layer = layerCache->findLayerOrCreate(pict->uniqueID(),
                                                          info.fSaveLayerOpID,
                                                          info.fRestoreOpID,
                                                          layerRect,
-                                                         info.fOriginXform,
+                                                         combined,
                                                          info.fPaint);
-
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
     desc.fWidth = layerRect.width();
@@ -65,7 +66,8 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
     hl->fLayer = layer;
     hl->fPicture = pict;
     hl->fOffset = SkIPoint::Make(layerRect.fLeft, layerRect.fTop);
-    hl->fCTM = info.fOriginXform;
+    hl->fLocalMat = info.fLocalMat;
+    hl->fPreMat = info.fPreMat;
 }
 
 // Return true if any layers are suitable for hoisting
@@ -113,7 +115,6 @@ bool GrLayerHoister::FindLayersToHoist(GrContext* context,
             continue;
         }
 
-
         SkIRect ir;
         layerRect.roundOut(&ir);
 
@@ -144,10 +145,12 @@ static void convert_layers_to_replacements(const SkTDArray<GrHoistedLayer>& laye
         GrCachedLayer* layer = layers[i].fLayer;
         const SkPicture* picture = layers[i].fPicture;
 
+        SkMatrix combined = SkMatrix::Concat(layers[i].fPreMat, layers[i].fLocalMat);
+
         GrReplacements::ReplacementInfo* layerInfo =
                     replacements->newReplacement(picture->uniqueID(),
                                                  layer->start(),
-                                                 layers[i].fCTM);
+                                                 combined);
         layerInfo->fStop = layer->stop();
         layerInfo->fPos = layers[i].fOffset;
 
@@ -171,7 +174,8 @@ static void convert_layers_to_replacements(const SkTDArray<GrHoistedLayer>& laye
     }
 }
 
-void GrLayerHoister::DrawLayers(const SkTDArray<GrHoistedLayer>& atlased,
+void GrLayerHoister::DrawLayers(GrContext* context,
+                                const SkTDArray<GrHoistedLayer>& atlased,
                                 const SkTDArray<GrHoistedLayer>& nonAtlased,
                                 const SkTDArray<GrHoistedLayer>& recycled,
                                 GrReplacements* replacements) {
@@ -183,14 +187,17 @@ void GrLayerHoister::DrawLayers(const SkTDArray<GrHoistedLayer>& atlased,
 
         SkCanvas* atlasCanvas = surface->getCanvas();
 
-        SkPaint paint;
-        paint.setColor(SK_ColorTRANSPARENT);
-        paint.setXfermode(SkXfermode::Create(SkXfermode::kSrc_Mode))->unref();
+        SkPaint clearPaint;
+        clearPaint.setColor(SK_ColorTRANSPARENT);
+        clearPaint.setXfermode(SkXfermode::Create(SkXfermode::kSrc_Mode))->unref();
 
         for (int i = 0; i < atlased.count(); ++i) {
-            GrCachedLayer* layer = atlased[i].fLayer;
+            const GrCachedLayer* layer = atlased[i].fLayer;
             const SkPicture* pict = atlased[i].fPicture;
             const SkIPoint offset = atlased[i].fOffset;
+            SkDEBUGCODE(const SkPaint* layerPaint = layer->paint();)
+
+            SkASSERT(!layerPaint || !layerPaint->getImageFilter());
 
             atlasCanvas->save();
 
@@ -204,7 +211,7 @@ void GrLayerHoister::DrawLayers(const SkTDArray<GrHoistedLayer>& atlased,
 
             // Since 'clear' doesn't respect the clip we need to draw a rect
             // TODO: ensure none of the atlased layers contain a clear call!
-            atlasCanvas->drawRect(bound, paint);
+            atlasCanvas->drawRect(bound, clearPaint);
 
             // info.fCTM maps the layer's top/left to the origin.
             // Since this layer is atlased, the top/left corner needs
@@ -213,11 +220,13 @@ void GrLayerHoister::DrawLayers(const SkTDArray<GrHoistedLayer>& atlased,
             initialCTM.setTranslate(SkIntToScalar(-offset.fX), 
                                     SkIntToScalar(-offset.fY));
             initialCTM.postTranslate(bound.fLeft, bound.fTop);
-            
+            initialCTM.postConcat(atlased[i].fPreMat);
+
             atlasCanvas->translate(SkIntToScalar(-offset.fX), 
                                    SkIntToScalar(-offset.fY));
             atlasCanvas->translate(bound.fLeft, bound.fTop);
-            atlasCanvas->concat(atlased[i].fCTM);
+            atlasCanvas->concat(atlased[i].fPreMat);
+            atlasCanvas->concat(atlased[i].fLocalMat);
 
             SkRecordPartialDraw(*pict->fRecord.get(), atlasCanvas, bound,
                                 layer->start()+1, layer->stop(), initialCTM);
@@ -232,13 +241,15 @@ void GrLayerHoister::DrawLayers(const SkTDArray<GrHoistedLayer>& atlased,
     for (int i = 0; i < nonAtlased.count(); ++i) {
         GrCachedLayer* layer = nonAtlased[i].fLayer;
         const SkPicture* pict = nonAtlased[i].fPicture;
-        const SkIPoint offset = nonAtlased[i].fOffset;
+        const SkIPoint& offset = nonAtlased[i].fOffset;
 
         // Each non-atlased layer has its own GrTexture
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
                                         layer->texture()->asRenderTarget(), NULL));
 
         SkCanvas* layerCanvas = surface->getCanvas();
+
+        SkASSERT(0 == layer->rect().fLeft && 0 == layer->rect().fTop);
 
         // Add a rect clip to make sure the rendering doesn't
         // extend beyond the boundaries of the atlased sub-rect
@@ -252,12 +263,12 @@ void GrLayerHoister::DrawLayers(const SkTDArray<GrHoistedLayer>& atlased,
         layerCanvas->clear(SK_ColorTRANSPARENT);
 
         SkMatrix initialCTM;
-        initialCTM.setTranslate(SkIntToScalar(-offset.fX), 
-                                SkIntToScalar(-offset.fY));
+        initialCTM.setTranslate(SkIntToScalar(-offset.fX), SkIntToScalar(-offset.fY));
+        initialCTM.postConcat(nonAtlased[i].fPreMat);
 
-        layerCanvas->translate(SkIntToScalar(-offset.fX), 
-                               SkIntToScalar(-offset.fY));
-        layerCanvas->concat(nonAtlased[i].fCTM);
+        layerCanvas->translate(SkIntToScalar(-offset.fX), SkIntToScalar(-offset.fY));
+        layerCanvas->concat(nonAtlased[i].fPreMat);
+        layerCanvas->concat(nonAtlased[i].fLocalMat);
 
         SkRecordPartialDraw(*pict->fRecord.get(), layerCanvas, bound,
                             layer->start()+1, layer->stop(), initialCTM);

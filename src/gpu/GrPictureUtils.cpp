@@ -124,8 +124,9 @@ private:
             dst.fPicture = src.fPicture ? src.fPicture : static_cast<const SkPicture*>(dp.picture);
             dst.fPicture->ref();
             dst.fBounds = newClip;
-            dst.fOriginXform = src.fOriginXform;
-            dst.fOriginXform.postConcat(*fCTM);
+            dst.fLocalMat = src.fLocalMat;
+            dst.fPreMat = src.fPreMat;
+            dst.fPreMat.preConcat(*fCTM);
             if (src.fPaint) {
                 dst.fPaint = SkNEW_ARGS(SkPaint, (*src.fPaint));
             }
@@ -180,7 +181,8 @@ private:
 
         SkASSERT(NULL == slInfo.fPicture);  // This layer is in the top-most picture
         slInfo.fBounds = si.fBounds;
-        slInfo.fOriginXform = *fCTM;
+        slInfo.fLocalMat = *fCTM;
+        slInfo.fPreMat = SkMatrix::I();
         if (si.fPaint) {
             slInfo.fPaint = SkNEW_ARGS(SkPaint, (*si.fPaint));
         }

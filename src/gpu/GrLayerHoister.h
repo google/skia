@@ -21,7 +21,8 @@ public:
     const SkPicture* fPicture;
     GrCachedLayer*   fLayer;
     SkIPoint         fOffset;
-    SkMatrix         fCTM;
+    SkMatrix         fPreMat;
+    SkMatrix         fLocalMat;
 };
 
 // This class collects the layer hoisting functionality in one place.
@@ -50,13 +51,15 @@ public:
                                   SkTDArray<GrHoistedLayer>* recycled);
 
     /** Draw the specified layers into either the atlas or free floating textures.
+        @param context      Owner of the layer cache (and thus the layers)
         @param atlased      The layers to be drawn into the atlas
         @param nonAtlased   The layers to be drawn into their own textures
         @param recycled     Layers that don't need rendering but do need to go into the 
                             replacements object
         @param replacements The replacement structure to fill in with the rendered layer info
     */
-    static void DrawLayers(const SkTDArray<GrHoistedLayer>& atlased,
+    static void DrawLayers(GrContext* context,
+                           const SkTDArray<GrHoistedLayer>& atlased,
                            const SkTDArray<GrHoistedLayer>& nonAtlased,
                            const SkTDArray<GrHoistedLayer>& recycled,
                            GrReplacements* replacements);

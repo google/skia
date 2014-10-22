@@ -11,9 +11,10 @@
 #include "GrAtlas.h"
 #include "GrPictureUtils.h"
 #include "GrRect.h"
+
 #include "SkChecksum.h"
-#include "SkTDynamicHash.h"
 #include "SkMessageBus.h"
+#include "SkTDynamicHash.h"
 
 class SkPicture;
 
@@ -75,7 +76,6 @@ public:
         uint32_t pictureID() const { return fPictureID; }
         int start() const { return fStart; }
         const SkIRect& bound() const { return fBounds; }
-        const SkMatrix& ctm() const { return fCTM; }
 
     private:
         // ID of the picture of which this layer is a part

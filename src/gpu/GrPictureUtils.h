@@ -28,9 +28,17 @@ public:
         const SkPicture* fPicture;
         // The device space bounds of this layer.
         SkIRect fBounds;
-        // The matrix state in which this layer's draws must occur. It does not
-        // include the translation needed to map the layer's top-left point to the origin.
-        SkMatrix fOriginXform;
+        // The pre-matrix begins as the identity and accumulates the transforms
+        // of the containing SkPictures (if any). This matrix state has to be
+        // part of the initial matrix during replay so that it will be 
+        // preserved across setMatrix calls.
+        SkMatrix fPreMat;
+        // The matrix state (in the leaf picture) in which this layer's draws 
+        // must occur. It will/can be overridden by setMatrix calls in the
+        // layer itself. It does not include the translation needed to map the 
+        // layer's top-left point to the origin (which must be part of the
+        // initial matrix).
+        SkMatrix fLocalMat;
         // The paint to use on restore. Can be NULL since it is optional.
         const SkPaint* fPaint;
         // The ID of this saveLayer in the picture. 0 is an invalid ID.
