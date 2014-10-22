@@ -26,7 +26,7 @@
 #include "effects/GrRRectEffect.h"
 
 namespace {
-
+// TODO(joshualitt) add per vertex colors
 struct CircleVertex {
     SkPoint  fPos;
     SkPoint  fOffset;
@@ -478,13 +478,13 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bo
     // we can draw circles
     if (SkScalarNearlyEqual(oval.width(), oval.height())
         && circle_stays_circle(vm)) {
-        this->drawCircle(target, useCoverageAA, oval, stroke);
+        this->drawCircle(target, context, useCoverageAA, oval, stroke);
     // if we have shader derivative support, render as device-independent
     } else if (target->caps()->shaderDerivativeSupport()) {
-        return this->drawDIEllipse(target, useCoverageAA, oval, stroke);
+        return this->drawDIEllipse(target, context, useCoverageAA, oval, stroke);
     // otherwise axis-aligned ellipses only
     } else if (vm.rectStaysRect()) {
-        return this->drawEllipse(target, useCoverageAA, oval, stroke);
+        return this->drawEllipse(target, context, useCoverageAA, oval, stroke);
     } else {
         return false;
     }
@@ -501,6 +501,7 @@ extern const GrVertexAttrib gCircleVertexAttribs[] = {
 };
 
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
+                                const GrContext* context,
                                 bool useCoverageAA,
                                 const SkRect& circle,
                                 const SkStrokeRec& stroke)
@@ -572,22 +573,24 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     verts[0].fOuterRadius = outerRadius;
     verts[0].fInnerRadius = innerRadius;
 
-    verts[1].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
-    verts[1].fOffset = SkPoint::Make(outerRadius, -outerRadius);
+    verts[1].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
+    verts[1].fOffset = SkPoint::Make(-outerRadius, outerRadius);
     verts[1].fOuterRadius = outerRadius;
     verts[1].fInnerRadius = innerRadius;
 
-    verts[2].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
-    verts[2].fOffset = SkPoint::Make(-outerRadius, outerRadius);
+    verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
+    verts[2].fOffset = SkPoint::Make(outerRadius, outerRadius);
     verts[2].fOuterRadius = outerRadius;
     verts[2].fInnerRadius = innerRadius;
 
-    verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
-    verts[3].fOffset = SkPoint::Make(outerRadius, outerRadius);
+    verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+    verts[3].fOffset = SkPoint::Make(outerRadius, -outerRadius);
     verts[3].fOuterRadius = outerRadius;
     verts[3].fInnerRadius = innerRadius;
 
-    target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4, &bounds);
+    target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
+    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->resetIndexSource();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -607,6 +610,7 @@ extern const GrVertexAttrib gDIEllipseVertexAttribs[] = {
 };
 
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
+                                 const GrContext* context,
                                  bool useCoverageAA,
                                  const SkRect& ellipse,
                                  const SkStrokeRec& stroke)
@@ -718,27 +722,30 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     verts[0].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
     verts[0].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
-    verts[1].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
-    verts[1].fOffset = SkPoint::Make(xRadius, -yRadius);
+    verts[1].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
+    verts[1].fOffset = SkPoint::Make(-xRadius, yRadius);
     verts[1].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
     verts[1].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
-    verts[2].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
-    verts[2].fOffset = SkPoint::Make(-xRadius, yRadius);
+    verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
+    verts[2].fOffset = SkPoint::Make(xRadius, yRadius);
     verts[2].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
     verts[2].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
-    verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
-    verts[3].fOffset = SkPoint::Make(xRadius, yRadius);
+    verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+    verts[3].fOffset = SkPoint::Make(xRadius, -yRadius);
     verts[3].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
     verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
-    target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4, &bounds);
+    target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
+    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->resetIndexSource();
 
     return true;
 }
 
 bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
+                                   const GrContext* context,
                                    bool useCoverageAA,
                                    const SkRect& ellipse,
                                    const SkStrokeRec& stroke)
@@ -832,19 +839,21 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     verts[0].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy);
     verts[0].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, -innerRatioY - offsetDy);
 
-    verts[1].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
-    verts[1].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
-    verts[1].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
+    verts[1].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
+    verts[1].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy);
+    verts[1].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, innerRatioY + offsetDy);
 
-    verts[2].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
-    verts[2].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy);
-    verts[2].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, innerRatioY + offsetDy);
+    verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
+    verts[2].fOuterOffset = SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy);
+    verts[2].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, innerRatioY + offsetDy);
 
-    verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
-    verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy);
-    verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, innerRatioY + offsetDy);
+    verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+    verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
+    verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
 
-    target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4, &bounds);
+    target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
+    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->resetIndexSource();
 
     return true;
 }
@@ -869,21 +878,29 @@ static const uint16_t gRRectIndices[] = {
     5, 6, 10, 5, 10, 9
 };
 
+static const int kIndicesPerStrokeRRect = SK_ARRAY_COUNT(gRRectIndices) - 6;
+static const int kIndicesPerRRect = SK_ARRAY_COUNT(gRRectIndices);
+static const int kVertsPerRRect = 16;
+static const int kNumRRectsInIndexBuffer = 256;
 
-GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(GrGpu* gpu) {
-    if (NULL == fRRectIndexBuffer) {
-        fRRectIndexBuffer =
-        gpu->createIndexBuffer(sizeof(gRRectIndices), false);
-        if (fRRectIndexBuffer) {
-#ifdef SK_DEBUG
-            bool updated =
-#endif
-            fRRectIndexBuffer->updateData(gRRectIndices,
-                                          sizeof(gRRectIndices));
-            GR_DEBUGASSERT(updated);
+GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(bool isStrokeOnly, GrGpu* gpu) {
+    if (isStrokeOnly) {
+        if (NULL == fStrokeRRectIndexBuffer) {
+            fStrokeRRectIndexBuffer = gpu->createInstancedIndexBuffer(gRRectIndices,
+                                                                      kIndicesPerStrokeRRect,
+                                                                      kNumRRectsInIndexBuffer,
+                                                                      kVertsPerRRect);
         }
+        return fStrokeRRectIndexBuffer;
+    } else {
+        if (NULL == fRRectIndexBuffer) {
+            fRRectIndexBuffer = gpu->createInstancedIndexBuffer(gRRectIndices,
+                                                                kIndicesPerRRect,
+                                                                kNumRRectsInIndexBuffer,
+                                                                kVertsPerRRect);
+        }
+        return fRRectIndexBuffer;
     }
-    return fRRectIndexBuffer;
 }
 
 bool GrOvalRenderer::drawDRRect(GrDrawTarget* target, GrContext* context, bool useAA,
@@ -1018,7 +1035,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
         return false;
     }
 
-    GrIndexBuffer* indexBuffer = this->rRectIndexBuffer(context->getGpu());
+    GrIndexBuffer* indexBuffer = this->rRectIndexBuffer(isStrokeOnly, context->getGpu());
     if (NULL == indexBuffer) {
         GrPrintf("Failed to create index buffer!\n");
         return false;
@@ -1110,7 +1127,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
         int indexCnt = isStrokeOnly ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
                                       SK_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
-        target->drawIndexed(kTriangles_GrPrimitiveType, 0, 0, 16, indexCnt, &bounds);
+        target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 16, indexCnt, &bounds);
 
     // otherwise we use the ellipse renderer
     } else {
@@ -1217,8 +1234,9 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
         int indexCnt = isStrokeOnly ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
                                       SK_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
-        target->drawIndexed(kTriangles_GrPrimitiveType, 0, 0, 16, indexCnt, &bounds);
+        target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 16, indexCnt, &bounds);
     }
 
+    target->resetIndexSource();
     return true;
 }
