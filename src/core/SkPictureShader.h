@@ -43,13 +43,9 @@ private:
 
     SkShader* refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix) const;
 
-    const SkPicture*  fPicture;
-    SkRect            fTile;
-    TileMode          fTmx, fTmy;
-
-    mutable SkMutex                 fCachedBitmapShaderMutex;
-    mutable SkAutoTUnref<SkShader>  fCachedBitmapShader;
-    mutable SkSize                  fCachedTileScale;
+    const SkPicture* fPicture;
+    SkRect           fTile;
+    TileMode         fTmx, fTmy;
 
     class PictureShaderContext : public SkShader::Context {
     public:
