@@ -143,25 +143,6 @@ public:
     GrIndexBuffer* createIndexBuffer(size_t size, bool dynamic);
 
     /**
-     * Creates an index buffer for instance drawing with a specific pattern.
-     *
-     * @param pattern     the pattern to repeat
-     * @param patternSize size in bytes of the pattern
-     * @param reps        number of times to repeat the pattern
-     * @param vertCount   number of vertices the pattern references
-     * @param dynamic     hints whether the data will be frequently changed
-     *                    by either GrIndexBuffer::map() or
-     *                    GrIndexBuffer::updateData().
-     *
-     * @return The index buffer if successful, otherwise NULL.
-     */
-    GrIndexBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
-                                              int patternSize,
-                                              int reps,
-                                              int vertCount,
-                                              bool isDynamic = false);
-
-    /**
      * Returns an index buffer that can be used to render quads.
      * Six indices per quad: 0, 1, 2, 0, 2, 3, etc.
      * The max number of quads can be queried using GrIndexBuffer::maxQuads().

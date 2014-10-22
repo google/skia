@@ -75,6 +75,8 @@ private:
     GrIndexBuffer*              fAAMiterStrokeRectIndexBuffer;
     GrIndexBuffer*              fAABevelStrokeRectIndexBuffer;
 
+    GrIndexBuffer* aaFillRectIndexBuffer(GrGpu* gpu);
+
     static int aaStrokeRectIndexCount(bool miterStroke);
     GrIndexBuffer* aaStrokeRectIndexBuffer(GrGpu* gpu, bool miterStroke);
 
