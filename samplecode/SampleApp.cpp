@@ -2381,6 +2381,7 @@ void get_preferred_size(int* x, int* y, int* width, int* height) {
 }
 
 #ifdef SK_BUILD_FOR_IOS
+#include "SkApplication.h"
 IOS_launch_type set_cmd_line_args(int , char *[], const char* resourceDir) {
     SetResourcePath(resourceDir);
     return kApplication__iOSLaunchType;

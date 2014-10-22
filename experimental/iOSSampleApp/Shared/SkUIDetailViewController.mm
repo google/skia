@@ -104,6 +104,8 @@
 }
 
 - (void)printContent {
+    /* comment out until we rev. this to use SkDocument
+
     UIPrintInteractionController *controller = [UIPrintInteractionController sharedPrintController];
     UIPrintInfo *printInfo = [UIPrintInfo printInfo];
     printInfo.jobName = @"Skia iOS SampleApp";
@@ -132,6 +134,7 @@
     } else {
         [controller presentAnimated:YES completionHandler:SkCompletionHandler];
     }
+     */
 }
 
 - (void)presentOptions {

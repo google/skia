@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkCGUtils.h"
+#include "SkSurface.h"
 #include "SampleApp.h"
 
 #if SK_SUPPORT_GPU
@@ -119,36 +120,16 @@ public:
         fBackend = SampleWindow::kNone_BackEndType;
     }
 
-    virtual SkCanvas* createCanvas(SampleWindow::DeviceType dType,
-                                   SampleWindow* win) {
-        switch (dType) {
-            case SampleWindow::kRaster_DeviceType:
-                // fallthrough
-            case SampleWindow::kPicture_DeviceType:
-                // fallthrough
-#if SK_ANGLE
-            case SampleWindow::kANGLE_DeviceType:
-#endif
-                break;
+    virtual SkSurface* createSurface(SampleWindow::DeviceType dType, SampleWindow* win) SK_OVERRIDE{
 #if SK_SUPPORT_GPU
-            case SampleWindow::kGPU_DeviceType:
-            case SampleWindow::kNullGPU_DeviceType:
-                if (fCurContext) {
-                    SkAutoTUnref<SkBaseDevice> device(new SkGpuDevice(fCurContext,
-                                                                      fCurRenderTarget));
-                    return new SkCanvas(device);
-                } else {
-                    return NULL;
-                }
-                break;
-#endif
-            default:
-                SkASSERT(false);
-                return NULL;
+        if (SampleWindow::IsGpuDeviceType(dType) && fCurContext) {
+            SkSurfaceProps props(win->getSurfaceProps());
+            return SkSurface::NewRenderTargetDirect(fCurRenderTarget, &props);
         }
+#endif
         return NULL;
     }
-    
+
     virtual void publishCanvas(SampleWindow::DeviceType dType,
                                SkCanvas* canvas,
                                SampleWindow* win) SK_OVERRIDE {
@@ -419,23 +400,25 @@ static FPSState gFPS;
     glViewport(0, 0, fGL.fWidth, fGL.fHeight);
     
    
-    SkAutoTUnref<SkCanvas> canvas(fWind->createCanvas());
+    SkAutoTUnref<SkSurface> surface(fWind->createSurface());
+    SkCanvas* canvas = surface->getCanvas();
+
     // if we're not "retained", then we have to always redraw everything.
     // This call forces us to ignore the fDirtyRgn, and draw everywhere.
     // If we are "retained", we can skip this call (as the raster case does)
     fWind->forceInvalAll();
 
     [self drawWithCanvas:canvas];
-    
+
     // This application only creates a single color renderbuffer which is already bound at this point.
     // This call is redundant, but needed if dealing with multiple renderbuffers.
     glBindRenderbuffer(GL_RENDERBUFFER, fGL.fRenderbuffer);
     [fGL.fContext presentRenderbuffer:GL_RENDERBUFFER];
-    
 }
 
 - (void)drawInRaster {
-    SkAutoTUnref<SkCanvas> canvas(fWind->createCanvas());
+    SkAutoTUnref<SkSurface> surface(fWind->createSurface());
+    SkCanvas* canvas = surface->getCanvas();
     [self drawWithCanvas:canvas];
     CGImageRef cgimage = SkCreateCGImageRef(fWind->getBitmap());
     fRasterLayer.contents = (id)cgimage;
