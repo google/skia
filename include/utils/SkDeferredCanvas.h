@@ -164,8 +164,12 @@ public:
     virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
                                   const SkPaint* paint) SK_OVERRIDE;
     virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                                const SkRect& dst, const SkPaint* paint)
-                                SK_OVERRIDE;
+                                const SkRect& dst, const SkPaint* paint) SK_OVERRIDE;
+    virtual void drawImage(const SkImage* image, SkScalar left, SkScalar top,
+                           const SkPaint* paint) SK_OVERRIDE;
+    virtual void drawImageRect(const SkImage* image, const SkRect* src,
+                               const SkRect& dst,
+                               const SkPaint* paint) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap& bitmap, int left, int top,
                             const SkPaint* paint) SK_OVERRIDE;
     virtual void drawVertices(VertexMode vmode, int vertexCount,
@@ -197,7 +201,7 @@ protected:
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkXfermode* xmode,
                              const SkPaint& paint) SK_OVERRIDE;
-    
+
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
