@@ -235,7 +235,7 @@ func Init() {
              )`
 		_, err = db.Exec(sql)
 		if err != nil {
-			glog.Infof("status creating sqlite table for sources: %q\n", err)
+			glog.Errorf("Creating source_images table failed: %s", err)
 		}
 
 		sql = `CREATE TABLE IF NOT EXISTS webtry (
@@ -251,7 +251,7 @@ func Init() {
             )`
 		_, err = db.Exec(sql)
 		if err != nil {
-			glog.Infof("status creating sqlite table for webtry: %q\n", err)
+			glog.Errorf("Creating webtry table failed: %s", err)
 		}
 
 		sql = `CREATE TABLE IF NOT EXISTS workspace (
@@ -261,7 +261,7 @@ func Init() {
         )`
 		_, err = db.Exec(sql)
 		if err != nil {
-			glog.Infof("status creating sqlite table for workspace: %q\n", err)
+			glog.Errorf("Creating workspace table failed: %s", err)
 		}
 
 		sql = `CREATE TABLE IF NOT EXISTS workspacetry (
@@ -278,7 +278,7 @@ func Init() {
         )`
 		_, err = db.Exec(sql)
 		if err != nil {
-			glog.Infof("status creating sqlite table for workspace try: %q\n", err)
+			glog.Errorf("Creating workspacetry table failed: %s", err)
 		}
 	}
 
