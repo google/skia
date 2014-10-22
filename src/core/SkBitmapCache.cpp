@@ -28,6 +28,9 @@ static SkIRect get_bounds_from_bitmap(const SkBitmap& bm) {
     return SkIRect::MakeXYWH(origin.fX, origin.fY, bm.width(), bm.height());
 }
 
+namespace {
+static unsigned gBitmapKeyNamespaceLabel;
+
 struct BitmapKey : public SkResourceCache::Key {
 public:
     BitmapKey(uint32_t genID, SkScalar scaleX, SkScalar scaleY, const SkIRect& bounds)
@@ -36,7 +39,8 @@ public:
     , fScaleY(scaleY)
     , fBounds(bounds)
     {
-        this->init(sizeof(fGenID) + sizeof(fScaleX) + sizeof(fScaleY) + sizeof(fBounds));
+        this->init(&gBitmapKeyNamespaceLabel,
+                   sizeof(fGenID) + sizeof(fScaleX) + sizeof(fScaleY) + sizeof(fBounds));
     }
 
     uint32_t    fGenID;
@@ -69,6 +73,7 @@ struct BitmapRec : public SkResourceCache::Rec {
         return SkToBool(result->getPixels());
     }
 };
+} // namespace
 
 #define CHECK_LOCAL(localCache, localName, globalName, ...) \
     ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))

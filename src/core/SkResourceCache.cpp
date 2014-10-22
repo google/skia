@@ -10,6 +10,8 @@
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 
+#include <stddef.h>
+
 // This can be defined by the caller's build system
 //#define SK_USE_DISCARDABLE_SCALEDIMAGECACHE
 
@@ -21,12 +23,22 @@
     #define SK_DEFAULT_IMAGE_CACHE_LIMIT     (2 * 1024 * 1024)
 #endif
 
-void SkResourceCache::Key::init(size_t length) {
+void SkResourceCache::Key::init(void* nameSpace, size_t length) {
     SkASSERT(SkAlign4(length) == length);
-    // 2 is fCount32 and fHash
-    fCount32 = SkToS32(2 + (length >> 2));
-    // skip both of our fields whe computing the murmur
-    fHash = SkChecksum::Murmur3(this->as32() + 2, (fCount32 - 2) << 2);
+
+    // fCount32 and fHash are not hashed
+    static const int kUnhashedLocal32s = 2;
+    static const int kLocal32s = kUnhashedLocal32s + (sizeof(fNamespace) >> 2);
+
+    SK_COMPILE_ASSERT(sizeof(Key) == (kLocal32s << 2), unaccounted_key_locals);
+    SK_COMPILE_ASSERT(sizeof(Key) == offsetof(Key, fNamespace) + sizeof(fNamespace),
+                      namespace_field_must_be_last);
+
+    fCount32 = SkToS32(kLocal32s + (length >> 2));
+    fNamespace = nameSpace;
+    // skip unhashed fields when computing the murmur
+    fHash = SkChecksum::Murmur3(this->as32() + kUnhashedLocal32s,
+                                (fCount32 - kUnhashedLocal32s) << 2);
 }
 
 #include "SkTDynamicHash.h"

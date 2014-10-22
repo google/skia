@@ -31,8 +31,9 @@ public:
         void* writableContents() { return this + 1; }
 
         // must call this after your private data has been written.
+        // nameSpace must be unique per Key subclass.
         // length must be a multiple of 4
-        void init(size_t length);
+        void init(void* nameSpace, size_t length);
 
         // This is only valid after having called init().
         uint32_t hash() const { return fHash; }
@@ -49,8 +50,9 @@ public:
         }
 
     private:
-        int32_t  fCount32;  // 2 + user contents count32
+        int32_t  fCount32;   // local + user contents count32
         uint32_t fHash;
+        void*    fNamespace; // A unique namespace tag. This is hashed.
         /* uint32_t fContents32[] */
 
         const uint32_t* as32() const { return (const uint32_t*)this; }

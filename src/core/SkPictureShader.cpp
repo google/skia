@@ -10,16 +10,17 @@
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
-#include "SkDiscardableMemory.h"
 #include "SkMatrixUtils.h"
 #include "SkPicture.h"
 #include "SkReadBuffer.h"
 #include "SkResourceCache.h"
-#include "SkThread.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #endif
+
+namespace {
+static unsigned gBitmapSkaderKeyNamespaceLabel;
 
 struct BitmapShaderKey : public SkResourceCache::Key {
 public:
@@ -43,7 +44,7 @@ public:
                                       sizeof(fLocalMatrix);
         // This better be packed.
         SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - &fPictureID) == keySize);
-        this->init(keySize);
+        this->init(&gBitmapSkaderKeyNamespaceLabel, keySize);
     }
 
 private:
@@ -80,59 +81,15 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
     }
 };
 
-// FIXME: there's considerable boilerplate/duplication here vs. the global resource cache.
-SK_DECLARE_STATIC_MUTEX(gBitmapShaderCacheMutex);
-static SkResourceCache* gBitmapShaderCache = NULL;
-
-#ifndef SK_DEFAULT_TILE_CACHE_LIMIT
-    #define SK_DEFAULT_TILE_CACHE_LIMIT     (2 * 1024 * 1024)
-#endif
-
-static void cleanup_cache() {
-    // We'll clean this up in our own tests, but disable for clients.
-    // Chrome seems to have funky multi-process things going on in unit tests that
-    // makes this unsafe to delete when the main process atexit()s.
-    // SkLazyPtr does the same sort of thing.
-#if SK_DEVELOPER
-    SkDELETE(gBitmapShaderCache);
-#endif
-}
-
-/** Must hold gBitmapShaderCacheMutex when calling. */
-static SkResourceCache* cache() {
-    // gTileCacheMutex is always held when this is called, so we don't need to be fancy in here.
-    gBitmapShaderCacheMutex.assertHeld();
-    if (NULL == gBitmapShaderCache) {
-#ifdef SK_USE_DISCARDABLE_SCALEDIMAGECACHE
-        gBitmapShaderCache = SkNEW_ARGS(SkResourceCache, (SkDiscardableMemory::Create));
-#else
-        gBitmapShaderCache = SkNEW_ARGS(SkResourceCache, (SK_DEFAULT_TILE_CACHE_LIMIT));
-#endif
-        atexit(cleanup_cache);
-    }
-    return gBitmapShaderCache;
-}
-
-static bool cache_find(const BitmapShaderKey& key, SkAutoTUnref<SkShader>* result) {
-    SkAutoMutexAcquire am(gBitmapShaderCacheMutex);
-    return cache()->find(key, BitmapShaderRec::Visitor, result);
-}
-
-static void cache_add(BitmapShaderRec* rec) {
-    SkAutoMutexAcquire am(gBitmapShaderCacheMutex);
-    cache()->add(rec);
-}
-
 static bool cache_try_alloc_pixels(SkBitmap* bitmap) {
-    SkAutoMutexAcquire am(gBitmapShaderCacheMutex);
-    SkBitmap::Allocator* allocator = cache()->allocator();
+    SkBitmap::Allocator* allocator = SkResourceCache::GetAllocator();
 
-    if (NULL != allocator) {
-        return allocator->allocPixelRef(bitmap, NULL);
-    } else {
-        return bitmap->tryAllocPixels();
-    }
+    return NULL != allocator
+        ? allocator->allocPixelRef(bitmap, NULL)
+        : bitmap->tryAllocPixels();
 }
+
+} // namespace
 
 SkPictureShader::SkPictureShader(const SkPicture* picture, TileMode tmx, TileMode tmy,
                                  const SkMatrix* localMatrix, const SkRect* tile)
@@ -227,7 +184,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
                         tileScale,
                         this->getLocalMatrix());
 
-    if (!cache_find(key, &tileShader)) {
+    if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
         SkBitmap bm;
         bm.setInfo(SkImageInfo::MakeN32Premul(tileSize));
         if (!cache_try_alloc_pixels(&bm)) {
@@ -244,7 +201,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
         shaderMatrix.preScale(1 / tileScale.width(), 1 / tileScale.height());
         tileShader.reset(CreateBitmapShader(bm, fTmx, fTmy, &shaderMatrix));
 
-        cache_add(SkNEW_ARGS(BitmapShaderRec, (key, tileShader.get(), bm.getSize())));
+        SkResourceCache::Add(SkNEW_ARGS(BitmapShaderRec, (key, tileShader.get(), bm.getSize())));
     }
 
     return tileShader.detach();

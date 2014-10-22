@@ -12,11 +12,10 @@
 namespace {
 static void* gGlobalAddress;
 struct TestingKey : public SkResourceCache::Key {
-    void*       fPtr;
     intptr_t    fValue;
 
-    TestingKey(intptr_t value) : fPtr(&gGlobalAddress), fValue(value) {
-        this->init(sizeof(fPtr) + sizeof(fValue));
+    TestingKey(intptr_t value) : fValue(value) {
+        this->init(&gGlobalAddress, sizeof(fValue));
     }
 };
 struct TestingRec : public SkResourceCache::Rec {
