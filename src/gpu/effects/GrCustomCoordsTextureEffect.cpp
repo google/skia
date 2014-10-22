@@ -19,31 +19,25 @@ public:
     GrGLCustomCoordsTextureEffect(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-    virtual void emitCode(GrGLGPBuilder* builder,
-                          const GrGeometryProcessor& geometryProcessor,
-                          const GrProcessorKey& key,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray& samplers) SK_OVERRIDE {
+    virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrCustomCoordsTextureEffect& customCoordsTextureEffect =
-                geometryProcessor.cast<GrCustomCoordsTextureEffect>();
+                args.fGP.cast<GrCustomCoordsTextureEffect>();
         SkASSERT(1 == customCoordsTextureEffect.getVertexAttribs().count());
 
         SkString fsCoordName;
         const char* vsVaryingName;
         const char* fsVaryingNamePtr;
-        builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsVaryingNamePtr);
+        args.fPB->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsVaryingNamePtr);
         fsCoordName = fsVaryingNamePtr;
 
-        GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         const GrShaderVar& inTextureCoords = customCoordsTextureEffect.inTextureCoords();
         vsBuilder->codeAppendf("\t%s = %s;\n", vsVaryingName, inTextureCoords.c_str());
 
-        GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-        fsBuilder->codeAppendf("\t%s = ", outputColor);
-        fsBuilder->appendTextureLookupAndModulate(inputColor,
-                                                  samplers[0],
+        GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        fsBuilder->codeAppendf("\t%s = ", args.fOutput);
+        fsBuilder->appendTextureLookupAndModulate(args.fInput,
+                                                  args.fSamplers[0],
                                                   fsCoordName.c_str(),
                                                   kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");

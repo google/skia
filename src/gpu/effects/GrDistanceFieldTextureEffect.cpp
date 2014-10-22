@@ -40,37 +40,31 @@ public:
 #endif
         {}
 
-    virtual void emitCode(GrGLGPBuilder* builder,
-                          const GrGeometryProcessor& geometryProcessor,
-                          const GrProcessorKey& key,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray& samplers) SK_OVERRIDE {
+    virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldTextureEffect& dfTexEffect =
-                geometryProcessor.cast<GrDistanceFieldTextureEffect>();
+                args.fGP.cast<GrDistanceFieldTextureEffect>();
         SkASSERT(1 == dfTexEffect.getVertexAttribs().count());
 
-        GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         SkString fsCoordName;
         const char* vsCoordName;
         const char* fsCoordNamePtr;
-        builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
+        args.fPB->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
         fsCoordName = fsCoordNamePtr;
 
-        GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, dfTexEffect.inTextureCoords().c_str());
 
         const char* textureSizeUniName = NULL;
-        fTextureSizeUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                              kVec2f_GrSLType, "TextureSize",
-                                              &textureSizeUniName);
+        fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                               kVec2f_GrSLType, "TextureSize",
+                                               &textureSizeUniName);
 
         fsBuilder->codeAppend("\tvec4 texColor = ");
-        fsBuilder->appendTextureLookup(samplers[0],
+        fsBuilder->appendTextureLookup(args.fSamplers[0],
                                        fsCoordName.c_str(),
                                        kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");
@@ -92,7 +86,7 @@ public:
             fsBuilder->codeAppend("\tvec2 Jdy = dFdy(st);\n");
 
             fsBuilder->codeAppend("\tvec2 uv_grad;\n");
-            if (builder->ctxInfo().caps()->dropsTileOnZeroDivide()) {
+            if (args.fPB->ctxInfo().caps()->dropsTileOnZeroDivide()) {
                 // this is to compensate for the Adreno, which likes to drop tiles on division by 0
                 fsBuilder->codeAppend("\tfloat uv_len2 = dot(uv, uv);\n");
                 fsBuilder->codeAppend("\tif (uv_len2 < 0.0001) {\n");
@@ -115,19 +109,19 @@ public:
         // adjust based on gamma
         const char* luminanceUniName = NULL;
         // width, height, 1/(3*width)
-        fLuminanceUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                            kFloat_GrSLType, "Luminance",
-                                            &luminanceUniName);
+        fLuminanceUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                             kFloat_GrSLType, "Luminance",
+                                             &luminanceUniName);
 
         fsBuilder->codeAppendf("\tuv = vec2(val, %s);\n", luminanceUniName);
         fsBuilder->codeAppend("\tvec4 gammaColor = ");
-        fsBuilder->appendTextureLookup(samplers[1], "uv", kVec2f_GrSLType);
+        fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");
         fsBuilder->codeAppend("\tval = gammaColor.r;\n");
 #endif
 
-        fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
-                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr1("val")).c_str());
+        fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+                                   (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("val")).c_str());
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
@@ -261,37 +255,31 @@ public:
         : INHERITED(factory)
         , fTextureSize(SkISize::Make(-1, -1)) {}
 
-    virtual void emitCode(GrGLGPBuilder* builder,
-                          const GrGeometryProcessor& effect,
-                          const GrProcessorKey& key,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray& samplers) SK_OVERRIDE {
+    virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
-                                                effect.cast<GrDistanceFieldNoGammaTextureEffect>();
+                args.fGP.cast<GrDistanceFieldNoGammaTextureEffect>();
         SkASSERT(1 == dfTexEffect.getVertexAttribs().count());
 
-        GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                                      GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         SkString fsCoordName;
         const char* vsCoordName;
         const char* fsCoordNamePtr;
-        builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
+        args.fPB->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
         fsCoordName = fsCoordNamePtr;
 
-        GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         vsBuilder->codeAppendf("%s = %s;", vsCoordName, dfTexEffect.inTextureCoords().c_str());
 
         const char* textureSizeUniName = NULL;
-        fTextureSizeUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                               kVec2f_GrSLType, "TextureSize",
                                               &textureSizeUniName);
 
         fsBuilder->codeAppend("vec4 texColor = ");
-        fsBuilder->appendTextureLookup(samplers[0],
+        fsBuilder->appendTextureLookup(args.fSamplers[0],
                                        fsCoordName.c_str(),
                                        kVec2f_GrSLType);
         fsBuilder->codeAppend(";");
@@ -312,7 +300,7 @@ public:
             fsBuilder->codeAppend("vec2 Jdy = dFdy(st);");
 
             fsBuilder->codeAppend("vec2 uv_grad;");
-            if (builder->ctxInfo().caps()->dropsTileOnZeroDivide()) {
+            if (args.fPB->ctxInfo().caps()->dropsTileOnZeroDivide()) {
                 // this is to compensate for the Adreno, which likes to drop tiles on division by 0
                 fsBuilder->codeAppend("float uv_len2 = dot(uv, uv);");
                 fsBuilder->codeAppend("if (uv_len2 < 0.0001) {");
@@ -331,8 +319,8 @@ public:
         }
         fsBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
 
-        fsBuilder->codeAppendf("%s = %s;", outputColor,
-            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("val")).c_str());
+        fsBuilder->codeAppendf("%s = %s;", args.fOutput,
+            (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("val")).c_str());
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
@@ -428,33 +416,27 @@ public:
     , fTextureSize(SkISize::Make(-1,-1))
     , fTextColor(GrColor_ILLEGAL) {}
 
-    virtual void emitCode(GrGLGPBuilder* builder,
-                          const GrGeometryProcessor& geometryProcessor,
-                          const GrProcessorKey& key,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray& samplers) SK_OVERRIDE {
+    virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
-                geometryProcessor.cast<GrDistanceFieldLCDTextureEffect>();
+                args.fGP.cast<GrDistanceFieldLCDTextureEffect>();
         SkASSERT(1 == dfTexEffect.getVertexAttribs().count());
 
         SkString fsCoordName;
         const char* vsCoordName;
         const char* fsCoordNamePtr;
-        builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
+        args.fPB->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
         fsCoordName = fsCoordNamePtr;
 
-        GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, dfTexEffect.inTextureCoords().c_str());
 
         const char* textureSizeUniName = NULL;
         // width, height, 1/(3*width)
-        fTextureSizeUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                               kVec3f_GrSLType, "TextureSize",
                                               &textureSizeUniName);
 
-        GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
         SkAssertResult(fsBuilder->enableFeature(
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
@@ -474,20 +456,20 @@ public:
 
         // green is distance to uv center
         fsBuilder->codeAppend("\tvec4 texColor = ");
-        fsBuilder->appendTextureLookup(samplers[0], "uv", kVec2f_GrSLType);
+        fsBuilder->appendTextureLookup(args.fSamplers[0], "uv", kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");
         fsBuilder->codeAppend("\tvec3 distance;\n");
         fsBuilder->codeAppend("\tdistance.y = texColor.r;\n");
         // red is distance to left offset
         fsBuilder->codeAppend("\tvec2 uv_adjusted = uv - offset;\n");
         fsBuilder->codeAppend("\ttexColor = ");
-        fsBuilder->appendTextureLookup(samplers[0], "uv_adjusted", kVec2f_GrSLType);
+        fsBuilder->appendTextureLookup(args.fSamplers[0], "uv_adjusted", kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");
         fsBuilder->codeAppend("\tdistance.x = texColor.r;\n");
         // blue is distance to right offset
         fsBuilder->codeAppend("\tuv_adjusted = uv + offset;\n");
         fsBuilder->codeAppend("\ttexColor = ");
-        fsBuilder->appendTextureLookup(samplers[0], "uv_adjusted", kVec2f_GrSLType);
+        fsBuilder->appendTextureLookup(args.fSamplers[0], "uv_adjusted", kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");
         fsBuilder->codeAppend("\tdistance.z = texColor.r;\n");
 
@@ -509,7 +491,7 @@ public:
             fsBuilder->codeAppend("\tafwidth = abs(" SK_DistanceFieldAAFactor "*dx);\n");
         } else {
             fsBuilder->codeAppend("\tvec2 uv_grad;\n");
-            if (builder->ctxInfo().caps()->dropsTileOnZeroDivide()) {
+            if (args.fPB->ctxInfo().caps()->dropsTileOnZeroDivide()) {
                 // this is to compensate for the Adreno, which likes to drop tiles on division by 0
                 fsBuilder->codeAppend("\tfloat uv_len2 = dot(uv, uv);\n");
                 fsBuilder->codeAppend("\tif (uv_len2 < 0.0001) {\n");
@@ -532,30 +514,30 @@ public:
         // adjust based on gamma
         const char* textColorUniName = NULL;
         // width, height, 1/(3*width)
-        fTextColorUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                            kVec3f_GrSLType, "TextColor",
-                                            &textColorUniName);
+        fTextColorUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                             kVec3f_GrSLType, "TextColor",
+                                             &textColorUniName);
 
         fsBuilder->codeAppendf("\tuv = vec2(val.x, %s.x);\n", textColorUniName);
         fsBuilder->codeAppend("\tvec4 gammaColor = ");
-        fsBuilder->appendTextureLookup(samplers[1], "uv", kVec2f_GrSLType);
+        fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");
         fsBuilder->codeAppend("\tval.x = gammaColor.r;\n");
 
         fsBuilder->codeAppendf("\tuv = vec2(val.y, %s.y);\n", textColorUniName);
         fsBuilder->codeAppend("\tgammaColor = ");
-        fsBuilder->appendTextureLookup(samplers[1], "uv", kVec2f_GrSLType);
+        fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");
         fsBuilder->codeAppend("\tval.y = gammaColor.r;\n");
 
         fsBuilder->codeAppendf("\tuv = vec2(val.z, %s.z);\n", textColorUniName);
         fsBuilder->codeAppend("\tgammaColor = ");
-        fsBuilder->appendTextureLookup(samplers[1], "uv", kVec2f_GrSLType);
+        fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");
         fsBuilder->codeAppend("\tval.z = gammaColor.r;\n");
 
-        fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
-                               (GrGLSLExpr4(inputColor) * GrGLSLExpr4("val")).c_str());
+        fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+                               (GrGLSLExpr4(args.fInput) * GrGLSLExpr4("val")).c_str());
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,

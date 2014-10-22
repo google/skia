@@ -22,17 +22,26 @@ public:
     GrGLGeometryProcessor(const GrBackendProcessorFactory& factory)
         : INHERITED(factory) {}
 
+    struct EmitArgs {
+        EmitArgs(GrGLGPBuilder* pb,
+                 const GrGeometryProcessor& gp,
+                 const GrProcessorKey& key,
+                 const char* output,
+                 const char* input,
+                 const TextureSamplerArray& samplers)
+            : fPB(pb), fGP(gp), fKey(key), fOutput(output), fInput(input), fSamplers(samplers) {}
+        GrGLGPBuilder* fPB;
+        const GrGeometryProcessor& fGP;
+        const GrProcessorKey& fKey;
+        const char* fOutput;
+        const char* fInput;
+        const TextureSamplerArray& fSamplers;
+    };
     /**
      * This is similar to emitCode() in the base class, except it takes a full shader builder.
      * This allows the effect subclass to emit vertex code.
      */
-    virtual void emitCode(GrGLGPBuilder* builder,
-                          const GrGeometryProcessor& geometryProcessor,
-                          const GrProcessorKey& key,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray& coords,
-                          const TextureSamplerArray& samplers) = 0;
+    virtual void emitCode(const EmitArgs&) = 0;
 
 private:
     typedef GrGLProcessor INHERITED;

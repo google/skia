@@ -92,21 +92,15 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLGPBuilder* builder,
-                              const GrGeometryProcessor& geometryProcessor,
-                              const GrProcessorKey& key,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray& samplers) SK_OVERRIDE {
-            const CircleEdgeEffect& circleEffect = geometryProcessor.cast<CircleEdgeEffect>();
+        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+            const CircleEdgeEffect& circleEffect = args.fGP.cast<CircleEdgeEffect>();
             const char *vsName, *fsName;
-            builder->addVarying(kVec4f_GrSLType, "CircleEdge", &vsName, &fsName);
+            args.fPB->addVarying(kVec4f_GrSLType, "CircleEdge", &vsName, &fsName);
 
-            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();;
+            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();;
             vsBuilder->codeAppendf("\t%s = %s;\n", vsName, circleEffect.inCircleEdge().c_str());
 
-            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("\tfloat d = length(%s.xy);\n", fsName);
             fsBuilder->codeAppendf("\tfloat edgeAlpha = clamp(%s.z - d, 0.0, 1.0);\n", fsName);
             if (circleEffect.isStroked()) {
@@ -114,8 +108,8 @@ public:
                 fsBuilder->codeAppend("\tedgeAlpha *= innerAlpha;\n");
             }
 
-            fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
-                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
+            fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+                                   (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
         static void GenKey(const GrProcessor& processor, const GrGLCaps&,
@@ -209,29 +203,23 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLGPBuilder* builder,
-                              const GrGeometryProcessor& geometryProcessor,
-                              const GrProcessorKey& key,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray& samplers) SK_OVERRIDE {
-            const EllipseEdgeEffect& ellipseEffect = geometryProcessor.cast<EllipseEdgeEffect>();
+        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+            const EllipseEdgeEffect& ellipseEffect = args.fGP.cast<EllipseEdgeEffect>();
 
             const char *vsOffsetName, *fsOffsetName;
             const char *vsRadiiName, *fsRadiiName;
 
-            builder->addVarying(kVec2f_GrSLType, "EllipseOffsets", &vsOffsetName, &fsOffsetName);
+            args.fPB->addVarying(kVec2f_GrSLType, "EllipseOffsets", &vsOffsetName, &fsOffsetName);
 
-            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
             vsBuilder->codeAppendf("%s = %s;", vsOffsetName,
                                    ellipseEffect.inEllipseOffset().c_str());
 
-            builder->addVarying(kVec4f_GrSLType, "EllipseRadii", &vsRadiiName, &fsRadiiName);
+            args.fPB->addVarying(kVec4f_GrSLType, "EllipseRadii", &vsRadiiName, &fsRadiiName);
             vsBuilder->codeAppendf("%s = %s;", vsRadiiName, ellipseEffect.inEllipseRadii().c_str());
 
             // for outer curve
-            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("\tvec2 scaledOffset = %s*%s.xy;\n", fsOffsetName, fsRadiiName);
             fsBuilder->codeAppend("\tfloat test = dot(scaledOffset, scaledOffset) - 1.0;\n");
             fsBuilder->codeAppendf("\tvec2 grad = 2.0*scaledOffset*%s.xy;\n", fsRadiiName);
@@ -250,8 +238,8 @@ public:
                 fsBuilder->codeAppend("\tedgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);\n");
             }
 
-            fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
-                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
+            fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+                                   (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
         static void GenKey(const GrProcessor& processor, const GrGLCaps&,
@@ -357,30 +345,23 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLGPBuilder* builder,
-                              const GrGeometryProcessor& geometryProcessor,
-                              const GrProcessorKey& key,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray& samplers) SK_OVERRIDE {
-            const DIEllipseEdgeEffect& ellipseEffect =
-                    geometryProcessor.cast<DIEllipseEdgeEffect>();
+        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+            const DIEllipseEdgeEffect& ellipseEffect = args.fGP.cast<DIEllipseEdgeEffect>();
 
             const char *vsOffsetName0, *fsOffsetName0;
-            builder->addVarying(kVec2f_GrSLType, "EllipseOffsets0",
+            args.fPB->addVarying(kVec2f_GrSLType, "EllipseOffsets0",
                                       &vsOffsetName0, &fsOffsetName0);
 
-            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
             vsBuilder->codeAppendf("%s = %s;", vsOffsetName0,
                                    ellipseEffect.inEllipseOffsets0().c_str());
             const char *vsOffsetName1, *fsOffsetName1;
-            builder->addVarying(kVec2f_GrSLType, "EllipseOffsets1",
+            args.fPB->addVarying(kVec2f_GrSLType, "EllipseOffsets1",
                                       &vsOffsetName1, &fsOffsetName1);
             vsBuilder->codeAppendf("\t%s = %s;\n", vsOffsetName1,
                                    ellipseEffect.inEllipseOffsets1().c_str());
 
-            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             // for outer curve
@@ -417,8 +398,8 @@ public:
                 fsBuilder->codeAppend("\tedgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);\n");
             }
 
-            fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
-                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
+            fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+                                   (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
         static void GenKey(const GrProcessor& processor, const GrGLCaps&,

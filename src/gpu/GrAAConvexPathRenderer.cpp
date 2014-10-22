@@ -528,17 +528,11 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
             : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLGPBuilder* builder,
-                              const GrGeometryProcessor& geometryProcessor,
-                              const GrProcessorKey& key,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const char *vsName, *fsName;
-            builder->addVarying(kVec4f_GrSLType, "QuadEdge", &vsName, &fsName);
+            args.fPB->addVarying(kVec4f_GrSLType, "QuadEdge", &vsName, &fsName);
 
-            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
@@ -561,11 +555,11 @@ public:
                                    "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n\t\t}\n");
 
 
-            fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
-                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
+            fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+                                   (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
 
-            const GrShaderVar& inQuadEdge = geometryProcessor.cast<QuadEdgeEffect>().inQuadEdge();
-            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            const GrShaderVar& inQuadEdge = args.fGP.cast<QuadEdgeEffect>().inQuadEdge();
+            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
             vsBuilder->codeAppendf("\t%s = %s;\n", vsName, inQuadEdge.c_str());
         }
 

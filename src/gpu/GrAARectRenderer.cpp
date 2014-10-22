@@ -41,24 +41,18 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLGPBuilder* builder,
-                              const GrGeometryProcessor& geometryProcessor,
-                              const GrProcessorKey& key,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             // setup the varying for the Axis aligned rect effect
             //      xy -> interpolated offset
             //      zw -> w/2+0.5, h/2+0.5
             const char *vsRectName, *fsRectName;
-            builder->addVarying(kVec4f_GrSLType, "Rect", &vsRectName, &fsRectName);
+            args.fPB->addVarying(kVec4f_GrSLType, "Rect", &vsRectName, &fsRectName);
 
-            const GrShaderVar& inRect = geometryProcessor.cast<GrAlignedRectEffect>().inRect();
-            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            const GrShaderVar& inRect = args.fGP.cast<GrAlignedRectEffect>().inRect();
+            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
             vsBuilder->codeAppendf("\t%s = %s;\n", vsRectName, inRect.c_str());
 
-            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             // TODO: compute all these offsets, spans, and scales in the VS
             fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.z) - 0.5;\n", fsRectName);
             fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.w) - 0.5;\n", fsRectName);
@@ -83,8 +77,8 @@ public:
                 fsRectName, fsRectName);
 
 
-            fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
-                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr1("coverage")).c_str());
+            fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+                                   (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("coverage")).c_str());
         }
 
         static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
@@ -166,32 +160,26 @@ public:
         GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
-        virtual void emitCode(GrGLGPBuilder* builder,
-                              const GrGeometryProcessor& geometryProcessor,
-                              const GrProcessorKey& key,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             // setup the varying for the center point and the unit vector
             // that points down the height of the rect
             const char *vsRectEdgeName, *fsRectEdgeName;
-            builder->addVarying(kVec4f_GrSLType, "RectEdge",
+            args.fPB->addVarying(kVec4f_GrSLType, "RectEdge",
                                 &vsRectEdgeName, &fsRectEdgeName);
 
-            const GrRectEffect& rectEffect = geometryProcessor.cast<GrRectEffect>();
-            GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+            const GrRectEffect& rectEffect = args.fGP.cast<GrRectEffect>();
+            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
             vsBuilder->codeAppendf("%s = %s;", vsRectEdgeName, rectEffect.inRectEdge().c_str());
 
             // setup the varying for width/2+.5 and height/2+.5
             const char *vsWidthHeightName, *fsWidthHeightName;
-            builder->addVarying(kVec2f_GrSLType, "WidthHeight",
+            args.fPB->addVarying(kVec2f_GrSLType, "WidthHeight",
                                 &vsWidthHeightName, &fsWidthHeightName);
             vsBuilder->codeAppendf("%s = %s;",
                                    vsWidthHeightName,
                                    rectEffect.inWidthHeight().c_str());
 
-            GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             // TODO: compute all these offsets, spans, and scales in the VS
             fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.x) - 0.5;\n", fsWidthHeightName);
             fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.y) - 0.5;\n", fsWidthHeightName);
@@ -223,8 +211,8 @@ public:
                     fsWidthHeightName);
 
 
-            fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
-                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr1("coverage")).c_str());
+            fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+                                   (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("coverage")).c_str());
         }
 
         static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}

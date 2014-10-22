@@ -313,11 +313,8 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
-    SkSTArray<2, GrGLProcessor::TransformedCoords> coords;
-
-    // TODO remove coords from emit code signature, probably best to use a struct here so these
-    // updates are less painful
-    fGeometryProcessor->fGLProc->emitCode(this, gp, key, outColor, inColor, coords, samplers);
+    GrGLGeometryProcessor::EmitArgs args(this, gp, key, outColor, inColor, samplers);
+    fGeometryProcessor->fGLProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit

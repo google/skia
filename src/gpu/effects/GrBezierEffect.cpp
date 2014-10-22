@@ -17,13 +17,7 @@ class GrGLConicEffect : public GrGLGeometryProcessor {
 public:
     GrGLConicEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLGPBuilder* builder,
-                          const GrGeometryProcessor& geometryProcessor,
-                          const GrProcessorKey& key,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
 
@@ -42,23 +36,16 @@ GrGLConicEffect::GrGLConicEffect(const GrBackendProcessorFactory& factory,
     fEdgeType = ce.getEdgeType();
 }
 
-void GrGLConicEffect::emitCode(GrGLGPBuilder* builder,
-                               const GrGeometryProcessor& geometryProcessor,
-                               const GrProcessorKey& key,
-                               const char* outputColor,
-                               const char* inputColor,
-                               const TransformedCoordsArray&,
-                               const TextureSamplerArray& samplers) {
+void GrGLConicEffect::emitCode(const EmitArgs& args) {
     const char *vsName, *fsName;
 
-    builder->addVarying(kVec4f_GrSLType, "ConicCoeffs",
-                              &vsName, &fsName);
+    args.fPB->addVarying(kVec4f_GrSLType, "ConicCoeffs", &vsName, &fsName);
 
-    const GrShaderVar& inConicCoeffs = geometryProcessor.cast<GrConicEffect>().inConicCoeffs();
-    GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
+    const GrShaderVar& inConicCoeffs = args.fGP.cast<GrConicEffect>().inConicCoeffs();
+    GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
     vsBuilder->codeAppendf("%s = %s;", vsName, inConicCoeffs.c_str());
 
-    GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppend("float edgeAlpha;");
 
     switch (fEdgeType) {
@@ -115,8 +102,8 @@ void GrGLConicEffect::emitCode(GrGLGPBuilder* builder,
             SkFAIL("Shouldn't get here");
     }
 
-    fsBuilder->codeAppendf("%s = %s;", outputColor,
-                           (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
+    fsBuilder->codeAppendf("%s = %s;", args.fOutput,
+                           (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
 }
 
 void GrGLConicEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
@@ -171,13 +158,7 @@ class GrGLQuadEffect : public GrGLGeometryProcessor {
 public:
     GrGLQuadEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLGPBuilder* builder,
-                          const GrGeometryProcessor& geometryProcessor,
-                          const GrProcessorKey& key,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
 
@@ -196,21 +177,15 @@ GrGLQuadEffect::GrGLQuadEffect(const GrBackendProcessorFactory& factory,
     fEdgeType = ce.getEdgeType();
 }
 
-void GrGLQuadEffect::emitCode(GrGLGPBuilder* builder,
-                              const GrGeometryProcessor& geometryProcessor,
-                              const GrProcessorKey& key,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray& samplers) {
+void GrGLQuadEffect::emitCode(const EmitArgs& args) {
     const char *vsName, *fsName;
-    builder->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
+    args.fPB->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
 
-    GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
-    const GrShaderVar& inHairQuadEdge = geometryProcessor.cast<GrQuadEffect>().inHairQuadEdge();
+    GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+    const GrShaderVar& inHairQuadEdge = args.fGP.cast<GrQuadEffect>().inHairQuadEdge();
     vsBuilder->codeAppendf("%s = %s;", vsName, inHairQuadEdge.c_str());
 
-    GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("float edgeAlpha;");
 
     switch (fEdgeType) {
@@ -253,8 +228,8 @@ void GrGLQuadEffect::emitCode(GrGLGPBuilder* builder,
             SkFAIL("Shouldn't get here");
     }
 
-    fsBuilder->codeAppendf("%s = %s;", outputColor,
-                           (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
+    fsBuilder->codeAppendf("%s = %s;", args.fOutput,
+                           (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
 }
 
 void GrGLQuadEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
@@ -309,13 +284,7 @@ class GrGLCubicEffect : public GrGLGeometryProcessor {
 public:
     GrGLCubicEffect(const GrBackendProcessorFactory&, const GrProcessor&);
 
-    virtual void emitCode(GrGLGPBuilder* builder,
-                          const GrGeometryProcessor& geometryProcessor,
-                          const GrProcessorKey& key,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
 
@@ -334,23 +303,17 @@ GrGLCubicEffect::GrGLCubicEffect(const GrBackendProcessorFactory& factory,
     fEdgeType = ce.getEdgeType();
 }
 
-void GrGLCubicEffect::emitCode(GrGLGPBuilder* builder,
-                               const GrGeometryProcessor& geometryProcessor,
-                               const GrProcessorKey& key,
-                               const char* outputColor,
-                               const char* inputColor,
-                               const TransformedCoordsArray&,
-                               const TextureSamplerArray& samplers) {
+void GrGLCubicEffect::emitCode(const EmitArgs& args) {
     const char *vsName, *fsName;
 
-    builder->addVarying(kVec4f_GrSLType, "CubicCoeffs",
-                              &vsName, &fsName, GrGLShaderVar::kHigh_Precision);
+    args.fPB->addVarying(kVec4f_GrSLType, "CubicCoeffs",
+                         &vsName, &fsName, GrGLShaderVar::kHigh_Precision);
 
-    GrGLVertexBuilder* vsBuilder = builder->getVertexShaderBuilder();
-    const GrShaderVar& inCubicCoeffs = geometryProcessor.cast<GrCubicEffect>().inCubicCoeffs();
+    GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+    const GrShaderVar& inCubicCoeffs = args.fGP.cast<GrCubicEffect>().inCubicCoeffs();
     vsBuilder->codeAppendf("%s = %s;", vsName, inCubicCoeffs.c_str());
 
-    GrGLGPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
     GrGLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
     GrGLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
@@ -433,8 +396,8 @@ void GrGLCubicEffect::emitCode(GrGLGPBuilder* builder,
             SkFAIL("Shouldn't get here");
     }
 
-    fsBuilder->codeAppendf("%s = %s;", outputColor,
-                           (GrGLSLExpr4(inputColor) * GrGLSLExpr1(edgeAlpha.c_str())).c_str());
+    fsBuilder->codeAppendf("%s = %s;", args.fOutput,
+                           (GrGLSLExpr4(args.fInput) * GrGLSLExpr1(edgeAlpha.c_str())).c_str());
 }
 
 void GrGLCubicEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
