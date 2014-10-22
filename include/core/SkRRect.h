@@ -95,7 +95,7 @@ public:
             this->computeType();
         }
         SkASSERT(kUnknown_Type != fType);
-        return fType;
+        return static_cast<Type>(fType);
     }
 
     Type type() const { return this->getType(); }
@@ -304,7 +304,8 @@ private:
     SkRect fRect;
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
     SkVector fRadii[4];
-    mutable Type fType;
+    // use an explicitly sized type so we're sure the class is dense (no uninitialized bytes)
+    mutable int32_t fType;
     // TODO: add padding so we can use memcpy for flattening and not copy
     // uninitialized data
 
