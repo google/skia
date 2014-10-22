@@ -85,3 +85,22 @@ spritebitmap
 testimagefilters
 tileimagefilter
 xfermodeimagefilter
+
+# joshualitt batching oval renderer and AA rect
+testimagefilters
+strokes_round
+rrect
+ovals
+mixed_xfermodes
+hairmodes
+circles
+blurs
+aarectmodes
+peekpixels
+shadows
+stroke-fill
+srcmode_gpu
+rrect_draw_aa
+twopointconical
+image-surface
+

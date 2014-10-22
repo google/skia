@@ -24,7 +24,7 @@ class GrOvalRenderer : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrOvalRenderer)
 
-    GrOvalRenderer() : fRRectIndexBuffer(NULL) {}
+    GrOvalRenderer() : fRRectIndexBuffer(NULL), fStrokeRRectIndexBuffer(NULL) {}
     ~GrOvalRenderer() {
         this->reset();
     }
@@ -39,19 +39,20 @@ public:
                     const SkRRect& outer, const SkRRect& inner);
 
 private:
-    bool drawEllipse(GrDrawTarget* target, bool useCoverageAA,
+    bool drawEllipse(GrDrawTarget* target, const GrContext* context, bool useCoverageAA,
                      const SkRect& ellipse,
                      const SkStrokeRec& stroke);
-    bool drawDIEllipse(GrDrawTarget* target, bool useCoverageAA,
+    bool drawDIEllipse(GrDrawTarget* target, const GrContext* context, bool useCoverageAA,
                        const SkRect& ellipse,
                        const SkStrokeRec& stroke);
-    void drawCircle(GrDrawTarget* target, bool useCoverageAA,
+    void drawCircle(GrDrawTarget* target, const GrContext* context, bool useCoverageAA,
                     const SkRect& circle,
                     const SkStrokeRec& stroke);
 
-    GrIndexBuffer* rRectIndexBuffer(GrGpu* gpu);
+    GrIndexBuffer* rRectIndexBuffer(bool isStrokeOnly, GrGpu* gpu);
 
     GrIndexBuffer* fRRectIndexBuffer;
+    GrIndexBuffer* fStrokeRRectIndexBuffer;
 
     typedef SkRefCnt INHERITED;
 };
