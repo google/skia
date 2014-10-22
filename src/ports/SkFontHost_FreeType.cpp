@@ -1747,7 +1747,7 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
             { "ultralight", SkFontStyle::kExtraLight_Weight },
         };
         int const index = SkStrLCSearch(&commonWeights[0].name, SK_ARRAY_COUNT(commonWeights),
-                                        psFontInfo.weight, sizeof(commonWeights));
+                                        psFontInfo.weight, sizeof(commonWeights[0]));
         if (index >= 0) {
             weight = commonWeights[index].weight;
         } else {
