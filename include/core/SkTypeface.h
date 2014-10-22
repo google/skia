@@ -12,6 +12,7 @@
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkFontStyle.h"
+#include "SkLazyPtr.h"
 #include "SkWeakRefCnt.h"
 
 class SkDescriptor;
@@ -282,6 +283,13 @@ public:
     SkScalerContext* createScalerContext(const SkDescriptor*,
                                          bool allowFailure = false) const;
 
+    /**
+     *  Return a rectangle (scaled to 1-pt) that represents the union of the bounds of all
+     *  of the glyphs, but each one positioned at (0,). This may be conservatively large, and
+     *  will not take into account any hinting or other size-specific adjustments.
+     */
+    SkRect getBounds() const;
+
     // PRIVATE / EXPERIMENTAL -- do not call
     void filterRec(SkScalerContextRec* rec) const {
         this->onFilterRec(rec);
@@ -333,6 +341,8 @@ protected:
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const = 0;
 
+    virtual bool onComputeBounds(SkRect*) const;
+
 private:
     friend class SkGTypeface;
     friend class SkPDFFont;
@@ -359,9 +369,13 @@ private:
     static SkTypeface* CreateDefault(int style);  // SkLazyPtr requires an int, not a Style.
     static void        DeleteDefault(SkTypeface*);
 
-    SkFontID    fUniqueID;
-    SkFontStyle fStyle;
-    bool        fIsFixedPitch;
+    struct BoundsComputer;
+//    friend struct BoundsComputer;
+
+    SkLazyPtr<SkRect>   fLazyBounds;
+    SkFontID            fUniqueID;
+    SkFontStyle         fStyle;
+    bool                fIsFixedPitch;
 
     friend class SkPaint;
     friend class SkGlyphCache;  // GetDefaultTypeface

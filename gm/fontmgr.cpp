@@ -15,6 +15,13 @@
     #include "SkTypeface_win.h"
 #endif
 
+static void scale(SkRect* rect, SkScalar scale) {
+    rect->fLeft *= scale;
+    rect->fTop *= scale;
+    rect->fRight *= scale;
+    rect->fBottom *= scale;
+}
+
 // limit this just so we don't take too long to draw
 #define MAX_FAMILIES    30
 
@@ -220,9 +227,96 @@ private:
     typedef GM INHERITED;
 };
 
+class FontMgrBoundsGM : public skiagm::GM {
+public:
+    FontMgrBoundsGM() {
+        fName.set("fontmgr_bounds");
+        fFM.reset(SkFontMgr::RefDefault());
+    }
+
+    static void show_bounds(SkCanvas* canvas, const SkPaint& paint, SkScalar x, SkScalar y,
+                            SkColor boundsColor) {
+        const char str[] = "jyHO[]{}@-_&%$";
+
+        const SkTypeface* tf = paint.getTypeface();
+        for (int i = 0; str[i]; ++i) {
+            canvas->drawText(&str[i], 1, x, y, paint);
+        }
+        
+        SkRect r = tf->getBounds();
+        scale(&r, paint.getTextSize());
+        r.offset(x, y);
+        SkPaint p(paint);
+        p.setColor(boundsColor);
+        canvas->drawRect(r, p);
+    }
+
+protected:
+    virtual SkString onShortName() {
+        return fName;
+    }
+    
+    virtual SkISize onISize() {
+        return SkISize::Make(1024, 850);
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setSubpixelText(true);
+        paint.setTextSize(100);
+        paint.setStyle(SkPaint::kStroke_Style);
+
+        const SkColor boundsColors[2] = { SK_ColorRED, SK_ColorBLUE };
+        
+        SkFontMgr* fm = fFM;
+        int count = SkMin32(fm->countFamilies(), 32);
+
+        int index = 0;
+        SkScalar x = 0, y = 0;
+
+        canvas->translate(80, 120);
+
+        for (int i = 0; i < count; ++i) {
+            SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
+            for (int j = 0; j < set->count(); ++j) {
+                SkSafeUnref(paint.setTypeface(set->createTypeface(j)));
+                if (paint.getTypeface()) {
+                    show_bounds(canvas, paint, x, y, boundsColors[index & 1]);
+                    index += 1;
+                    x += 160;
+                    if (0 == (index % 6)) {
+                        x = 0;
+                        y += 160;
+                    }
+                    if (index >= 30) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        // fontdescriptors (and therefore serialization) don't yet understand
+        // these new styles, so skip tests that exercise that for now.
+        
+        // If certain fonts are picked up (e.g. Microsoft Jhenghei 20MB for Regular, 12MB for Bold),
+        // the resulting pdf can be ~700MB and crashes Chrome's PDF viewer.
+        
+        return kSkipPicture_Flag | kSkipPipe_Flag | kSkipPDF_Flag;
+    }
+    
+private:
+    SkAutoTUnref<SkFontMgr> fFM;
+    SkString fName;
+    typedef GM INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return SkNEW(FontMgrGM); )
+DEF_GM( return SkNEW(FontMgrBoundsGM); )
 DEF_GM( return SkNEW(FontMgrMatchGM); )
 
 #ifdef SK_BUILD_FOR_WIN

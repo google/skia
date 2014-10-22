@@ -278,9 +278,61 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
     return result;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
 bool SkTypeface::onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
                                              int32_t adjustments[]) const {
     return false;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkDescriptor.h"
+#include "SkPaint.h"
+
+struct SkTypeface::BoundsComputer {
+    const SkTypeface& fTypeface;
+
+    BoundsComputer(const SkTypeface& tf) : fTypeface(tf) {}
+
+    SkRect* operator()() const {
+        SkRect* rect = SkNEW(SkRect);
+        if (!fTypeface.onComputeBounds(rect)) {
+            rect->setEmpty();
+        }
+        return rect;
+    }
+};
+
+SkRect SkTypeface::getBounds() const {
+    return *fLazyBounds.get(BoundsComputer(*this));
+}
+
+bool SkTypeface::onComputeBounds(SkRect* bounds) const {
+    // we use a big size to ensure lots of significant bits from the scalercontext.
+    // then we scale back down to return our final answer (at 1-pt)
+    const SkScalar textSize = 2048;
+    const SkScalar invTextSize = 1 / textSize;
+
+    SkPaint paint;
+    paint.setTypeface(const_cast<SkTypeface*>(this));
+    paint.setTextSize(textSize);
+    paint.setLinearText(true);
+
+    SkScalerContext::Rec rec;
+    SkScalerContext::MakeRec(paint, NULL, NULL, &rec);
+
+    SkAutoDescriptor ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
+    SkDescriptor*    desc = ad.getDesc();
+    desc->init();
+    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+
+    SkAutoTDelete<SkScalerContext> ctx(this->createScalerContext(desc, true));
+    if (ctx.get()) {
+        SkPaint::FontMetrics fm;
+        ctx->getFontMetrics(&fm);
+        bounds->set(fm.fXMin * invTextSize, fm.fTop * invTextSize,
+                    fm.fXMax * invTextSize, fm.fBottom * invTextSize);
+        return true;
+    }
+    return false;
+}
+

@@ -147,19 +147,19 @@ public:
     SkLazyPtr() : fPtr(NULL) {}
     ~SkLazyPtr() { if (fPtr) { Destroy((T*)fPtr); } }
 
-    T* get() {
+    T* get() const {
         T* ptr = (T*)sk_consume_load(&fPtr);
         return ptr ? ptr : Private::try_cas<T*, Destroy>(&fPtr, SkNEW(T));
     }
 
     template <typename Create>
-    T* get(const Create& create) {
+    T* get(const Create& create) const {
         T* ptr = (T*)sk_consume_load(&fPtr);
         return ptr ? ptr : Private::try_cas<T*, Destroy>(&fPtr, create());
     }
 
 private:
-    void* fPtr;
+    mutable void* fPtr;
 };
 
 
