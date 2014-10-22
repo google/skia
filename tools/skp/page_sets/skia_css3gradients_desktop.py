@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(15)
 
 
-class SkiaBuildbotPageSet(page_set_module.PageSet):
+class Css3DesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaBuildbotPageSet, self).__init__(
+    super(Css3DesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_css3gradients_desktop.json')
 

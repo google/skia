@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(5)
 
 
-class SkiaBuildbotPageSet(page_set_module.PageSet):
+class RectangletransitionDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaBuildbotPageSet, self).__init__(
+    super(RectangletransitionDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_rectangletransition_desktop.json')
 

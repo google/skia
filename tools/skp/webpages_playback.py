@@ -73,6 +73,13 @@ LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'page_sets', 'data')
 TMP_SKP_DIR = tempfile.mkdtemp()
 
+# Location of the credentials.json file and the string that represents missing
+# passwords.
+CREDENTIALS_FILE_PATH = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), 'page_sets', 'data',
+    'credentials.json'
+)
+
 # Stdout that signifies that a recording has failed.
 RECORD_FAILURE_MSG = 'The recording has not been updated for these pages.'
 
@@ -93,6 +100,9 @@ DEVICE_TO_PLATFORM_PREFIX = {
 RETRY_RECORD_WPR_COUNT = 5
 # How many times the run_benchmark binary should be retried.
 RETRY_RUN_MEASUREMENT_COUNT = 5
+
+# Location of the credentials.json file in Google Storage.
+CREDENTIALS_GS_PATH = '/playback/credentials/credentials.json'
 
 X11_DISPLAY = os.getenv('DISPLAY', ':0')
 
@@ -154,6 +164,26 @@ class SkPicturePlayback(object):
   def Run(self):
     """Run the SkPicturePlayback BuildStep."""
 
+    # Download the credentials file if it was not previously downloaded.
+    if self._skip_all_gs_access:
+      print """\n\nPlease create a %s file that contains:
+      {
+        "google": {
+          "username": "google_testing_account_username",
+          "password": "google_testing_account_password"
+        },
+        "facebook": {
+          "username": "facebook_testing_account_username",
+          "password": "facebook_testing_account_password"
+        }
+      }\n\n""" % CREDENTIALS_FILE_PATH
+      raw_input("Please press a key when you are ready to proceed...")
+    elif not os.path.isfile(CREDENTIALS_FILE_PATH):
+      # Download the credentials.json file from Google Storage.
+      gs_bucket = self._dest_gsbase.lstrip(gs_utils.GS_PREFIX)
+      gs_utils.GSUtils().download_file(gs_bucket, CREDENTIALS_GS_PATH,
+                                       CREDENTIALS_FILE_PATH)
+
     # Delete any left over data files in the data directory.
     for archive_file in glob.glob(
         os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, 'skia_*')):
@@ -204,7 +234,9 @@ class SkPicturePlayback(object):
           self._DownloadWebpagesArchive(wpr_data_file, page_set_basename)
 
       page_set_name = os.path.basename(page_set).split('.')[0]
+      page_set_dir = os.path.dirname(page_set)
       run_benchmark_cmd = (
+          'PYTHONPATH=%s:$PYTHONPATH' % page_set_dir,
           'DISPLAY=%s' % X11_DISPLAY,
           'timeout', '300',
           os.path.join(self._telemetry_binaries_dir, 'run_benchmark'),
@@ -212,30 +244,11 @@ class SkPicturePlayback(object):
           '--browser=exact',
           '--browser-executable=%s' % self._browser_executable,
           SKP_BENCHMARK,
-          page_set_name,
-          '-o',
-          '/tmp/test.skp',
-          '--skp-outdir=%s' % TMP_SKP_DIR
+          '--page-set-name=%s' % page_set_name,
+          '--page-set-base-dir=%s' % page_set_dir,
+          '--skp-outdir=%s' % TMP_SKP_DIR,
+          '--also-run-disabled-tests'
       )
-      page_set_dst = os.path.join(self._telemetry_binaries_dir, 'page_sets',
-                                  os.path.basename(page_set))
-      wpr_dst = os.path.join(self._telemetry_binaries_dir, 'page_sets', 'data',
-                             wpr_data_file)
-      json_dst = os.path.join(self._telemetry_binaries_dir, 'page_sets', 'data',
-                              page_set_basename)
-      copied_page_set = False
-      if not os.path.exists(page_set_dst):
-        print 'Copying %s to %s' % (page_set, page_set_dst)
-        shutil.copyfile(page_set, page_set_dst)
-        wpr_src = os.path.join(os.path.dirname(page_set), 'data',
-                               wpr_data_file)
-        print 'Copying %s to %s' % (wpr_src, wpr_dst)
-        shutil.copyfile(wpr_src, wpr_dst)
-        json_src = os.path.join(os.path.dirname(page_set), 'data',
-                                page_set_basename)
-        print 'Copying %s to %s' % (json_src, json_dst)
-        shutil.copyfile(json_src, json_dst)
-        copied_page_set = True
 
       for _ in range(RETRY_RUN_MEASUREMENT_COUNT):
         try:
@@ -268,18 +281,9 @@ class SkPicturePlayback(object):
           print '\n\n=======Retrying %s=======\n\n' % page_set
           time.sleep(10)
       else:
-        if copied_page_set:
-          os.remove(page_set_dst)
-          os.remove(wpr_dst)
-          os.remove(json_dst)
         # If we get here then run_benchmark did not succeed and thus did not
         # break out of the loop.
         raise Exception('run_benchmark failed for page_set: %s' % page_set)
-
-      if copied_page_set:
-        os.remove(page_set_dst)
-        os.remove(wpr_dst)
-        os.remove(json_dst)
 
     print '\n\n=======Capturing SKP files took %s seconds=======\n\n' % (
         time.time() - start_time)

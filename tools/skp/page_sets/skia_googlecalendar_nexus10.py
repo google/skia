@@ -27,12 +27,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(5)
 
 
-class SkiaBuildbotPageSet(page_set_module.PageSet):
+class GoogleCalendarNexus10PageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaBuildbotPageSet, self).__init__(
+    super(GoogleCalendarNexus10PageSet, self).__init__(
       user_agent_type='tablet',
       archive_data_file='data/skia_googlecalendar_nexus10.json')
 

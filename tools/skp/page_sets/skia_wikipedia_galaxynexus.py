@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(5)
 
 
-class SkiaBuildbotPageSet(page_set_module.PageSet):
+class WikipediaGalaxynexusPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaBuildbotPageSet, self).__init__(
+    super(WikipediaGalaxynexusPageSet, self).__init__(
       user_agent_type='mobile',
       archive_data_file='data/skia_wikipedia_galaxynexus.json')
 
