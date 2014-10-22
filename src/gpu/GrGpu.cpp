@@ -164,6 +164,39 @@ GrIndexBuffer* GrGpu::createIndexBuffer(size_t size, bool dynamic) {
     return this->onCreateIndexBuffer(size, dynamic);
 }
 
+GrIndexBuffer* GrGpu::createInstancedIndexBuffer(const uint16_t* pattern,
+                                                 int patternSize,
+                                                 int reps,
+                                                 int vertCount,
+                                                 bool isDynamic) {
+    size_t bufferSize = patternSize * reps * sizeof(uint16_t);
+    GrGpu* me = const_cast<GrGpu*>(this);
+    GrIndexBuffer* buffer = me->createIndexBuffer(bufferSize, isDynamic);
+    if (buffer) {
+        uint16_t* data = (uint16_t*) buffer->map();
+        bool useTempData = (NULL == data);
+        if (useTempData) {
+            data = SkNEW_ARRAY(uint16_t, reps * patternSize);
+        }
+        for (int i = 0; i < reps; ++i) {
+            int baseIdx = i * patternSize;
+            uint16_t baseVert = (uint16_t)(i * vertCount);
+            for (int j = 0; j < patternSize; ++j) {
+                data[baseIdx+j] = baseVert + pattern[j];
+            }
+        }
+        if (useTempData) {
+            if (!buffer->updateData(data, bufferSize)) {
+                SkFAIL("Can't get indices into buffer!");
+            }
+            SkDELETE_ARRAY(data);
+        } else {
+            buffer->unmap();
+        }
+    }
+    return buffer;
+}
+
 void GrGpu::clear(const SkIRect* rect,
                   GrColor color,
                   bool canIgnoreRect,
@@ -246,39 +279,18 @@ static const int MAX_QUADS = 1 << 12; // max possible: (1 << 14) - 1;
 
 GR_STATIC_ASSERT(4 * MAX_QUADS <= 65535);
 
-static inline void fill_indices(uint16_t* indices, int quadCount) {
-    for (int i = 0; i < quadCount; ++i) {
-        indices[6 * i + 0] = 4 * i + 0;
-        indices[6 * i + 1] = 4 * i + 1;
-        indices[6 * i + 2] = 4 * i + 2;
-        indices[6 * i + 3] = 4 * i + 0;
-        indices[6 * i + 4] = 4 * i + 2;
-        indices[6 * i + 5] = 4 * i + 3;
-    }
-}
+static const uint16_t gQuadIndexPattern[] = {
+  0, 1, 2, 0, 2, 3
+};
 
 const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
     if (NULL == fQuadIndexBuffer || fQuadIndexBuffer->wasDestroyed()) {
         SkSafeUnref(fQuadIndexBuffer);
-        static const int SIZE = sizeof(uint16_t) * 6 * MAX_QUADS;
         GrGpu* me = const_cast<GrGpu*>(this);
-        fQuadIndexBuffer = me->createIndexBuffer(SIZE, false);
-        if (fQuadIndexBuffer) {
-            uint16_t* indices = (uint16_t*)fQuadIndexBuffer->map();
-            if (indices) {
-                fill_indices(indices, MAX_QUADS);
-                fQuadIndexBuffer->unmap();
-            } else {
-                indices = (uint16_t*)sk_malloc_throw(SIZE);
-                fill_indices(indices, MAX_QUADS);
-                if (!fQuadIndexBuffer->updateData(indices, SIZE)) {
-                    fQuadIndexBuffer->unref();
-                    fQuadIndexBuffer = NULL;
-                    SkFAIL("Can't get indices into buffer!");
-                }
-                sk_free(indices);
-            }
-        }
+        fQuadIndexBuffer = me->createInstancedIndexBuffer(gQuadIndexPattern,
+                                                          6,
+                                                          MAX_QUADS,
+                                                          4);
     }
 
     return fQuadIndexBuffer;
