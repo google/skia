@@ -21,9 +21,12 @@
 
 #include "effects/GrBezierEffect.h"
 
+namespace {
 // quadratics are rendered as 5-sided polys in order to bound the
 // AA stroke around the center-curve. See comments in push_quad_index_buffer and
 // bloat_quad. Quadratics and conics share an index buffer
+static const int kVertsPerQuad = 5;
+static const int kIdxsPerQuad = 9;
 
 // lines are rendered as:
 //      *______________*
@@ -33,66 +36,127 @@
 //      | /  ______/ \ |
 //      */_-__________\*
 // For: 6 vertices and 18 indices (for 6 triangles)
+static const int kVertsPerLineSeg = 6;
+static const int kIdxsPerLineSeg = 18;
 
-// Each quadratic is rendered as a five sided polygon. This poly bounds
-// the quadratic's bounding triangle but has been expanded so that the
-// 1-pixel wide area around the curve is inside the poly.
-// If a,b,c are the original control points then the poly a0,b0,c0,c1,a1
-// that is rendered would look like this:
-//              b0
-//              b
-//
-//     a0              c0
-//      a            c
-//       a1       c1
-// Each is drawn as three triangles specified by these 9 indices:
-static const uint16_t kQuadIdxBufPattern[] = {
-    0, 1, 2,
-    2, 4, 3,
-    1, 4, 2
-};
+static const int kNumQuadsInIdxBuffer = 256;
+static const size_t kQuadIdxSBufize = kIdxsPerQuad *
+                                      sizeof(uint16_t) *
+                                      kNumQuadsInIdxBuffer;
 
-static const int kIdxsPerQuad = SK_ARRAY_COUNT(kQuadIdxBufPattern);
-static const int kQuadNumVertices = 5;
-static const int kQuadsNumInIdxBuffer = 256;
+static const int kNumLineSegsInIdxBuffer = 256;
+static const size_t kLineSegIdxSBufize = kIdxsPerLineSeg *
+                                         sizeof(uint16_t) *
+                                         kNumLineSegsInIdxBuffer;
 
+static bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
+    uint16_t* data = (uint16_t*) qIdxBuffer->map();
+    bool tempData = NULL == data;
+    if (tempData) {
+        data = SkNEW_ARRAY(uint16_t, kNumQuadsInIdxBuffer * kIdxsPerQuad);
+    }
+    for (int i = 0; i < kNumQuadsInIdxBuffer; ++i) {
 
-// Each line segment is rendered as two quads and two triangles.
-// p0 and p1 have alpha = 1 while all other points have alpha = 0.
-// The four external points are offset 1 pixel perpendicular to the
-// line and half a pixel parallel to the line.
-//
-// p4                  p5
-//      p0         p1
-// p2                  p3
-//
-// Each is drawn as six triangles specified by these 18 indices:
+        // Each quadratic is rendered as a five sided polygon. This poly bounds
+        // the quadratic's bounding triangle but has been expanded so that the
+        // 1-pixel wide area around the curve is inside the poly.
+        // If a,b,c are the original control points then the poly a0,b0,c0,c1,a1
+        // that is rendered would look like this:
+        //              b0
+        //              b
+        //
+        //     a0              c0
+        //      a            c
+        //       a1       c1
+        // Each is drawn as three triangles specified by these 9 indices:
+        int baseIdx = i * kIdxsPerQuad;
+        uint16_t baseVert = (uint16_t)(i * kVertsPerQuad);
+        data[0 + baseIdx] = baseVert + 0; // a0
+        data[1 + baseIdx] = baseVert + 1; // a1
+        data[2 + baseIdx] = baseVert + 2; // b0
+        data[3 + baseIdx] = baseVert + 2; // b0
+        data[4 + baseIdx] = baseVert + 4; // c1
+        data[5 + baseIdx] = baseVert + 3; // c0
+        data[6 + baseIdx] = baseVert + 1; // a1
+        data[7 + baseIdx] = baseVert + 4; // c1
+        data[8 + baseIdx] = baseVert + 2; // b0
+    }
+    if (tempData) {
+        bool ret = qIdxBuffer->updateData(data, kQuadIdxSBufize);
+        delete[] data;
+        return ret;
+    } else {
+        qIdxBuffer->unmap();
+        return true;
+    }
+}
 
-static const uint16_t kLineSegIdxBufPattern[] = {
-    0, 1, 3,
-    0, 3, 2,
-    0, 4, 5,
-    0, 5, 1,
-    0, 2, 4,
-    1, 5, 3
-};
+static bool push_line_index_data(GrIndexBuffer* lIdxBuffer) {
+    uint16_t* data = (uint16_t*) lIdxBuffer->map();
+    bool tempData = NULL == data;
+    if (tempData) {
+        data = SkNEW_ARRAY(uint16_t, kNumLineSegsInIdxBuffer * kIdxsPerLineSeg);
+    }
+    for (int i = 0; i < kNumLineSegsInIdxBuffer; ++i) {
+        // Each line segment is rendered as two quads and two triangles.
+        // p0 and p1 have alpha = 1 while all other points have alpha = 0.
+        // The four external points are offset 1 pixel perpendicular to the
+        // line and half a pixel parallel to the line.
+        //
+        // p4                  p5
+        //      p0         p1
+        // p2                  p3
+        //
+        // Each is drawn as six triangles specified by these 18 indices:
+        int baseIdx = i * kIdxsPerLineSeg;
+        uint16_t baseVert = (uint16_t)(i * kVertsPerLineSeg);
+        data[0 + baseIdx] = baseVert + 0;
+        data[1 + baseIdx] = baseVert + 1;
+        data[2 + baseIdx] = baseVert + 3;
 
-static const int kIdxsPerLineSeg = SK_ARRAY_COUNT(kLineSegIdxBufPattern);
-static const int kLineSegNumVertices = 6;
-static const int kLineSegsNumInIdxBuffer = 256;
+        data[3 + baseIdx] = baseVert + 0;
+        data[4 + baseIdx] = baseVert + 3;
+        data[5 + baseIdx] = baseVert + 2;
+
+        data[6 + baseIdx] = baseVert + 0;
+        data[7 + baseIdx] = baseVert + 4;
+        data[8 + baseIdx] = baseVert + 5;
+
+        data[9 + baseIdx] = baseVert + 0;
+        data[10+ baseIdx] = baseVert + 5;
+        data[11+ baseIdx] = baseVert + 1;
+
+        data[12 + baseIdx] = baseVert + 0;
+        data[13 + baseIdx] = baseVert + 2;
+        data[14 + baseIdx] = baseVert + 4;
+
+        data[15 + baseIdx] = baseVert + 1;
+        data[16 + baseIdx] = baseVert + 5;
+        data[17 + baseIdx] = baseVert + 3;
+    }
+    if (tempData) {
+        bool ret = lIdxBuffer->updateData(data, kLineSegIdxSBufize);
+        delete[] data;
+        return ret;
+    } else {
+        lIdxBuffer->unmap();
+        return true;
+    }
+}
+}
 
 GrPathRenderer* GrAAHairLinePathRenderer::Create(GrContext* context) {
     GrGpu* gpu = context->getGpu();
-    GrIndexBuffer* qIdxBuf = gpu->createInstancedIndexBuffer(kQuadIdxBufPattern,
-                                                             kIdxsPerQuad,
-                                                             kQuadsNumInIdxBuffer,
-                                                             kQuadNumVertices);
+    GrIndexBuffer* qIdxBuf = gpu->createIndexBuffer(kQuadIdxSBufize, false);
     SkAutoTUnref<GrIndexBuffer> qIdxBuffer(qIdxBuf);
-    GrIndexBuffer* lIdxBuf = gpu->createInstancedIndexBuffer(kLineSegIdxBufPattern,
-                                                             kIdxsPerLineSeg,
-                                                             kLineSegsNumInIdxBuffer,
-                                                             kLineSegNumVertices);
+    if (NULL == qIdxBuf || !push_quad_index_data(qIdxBuf)) {
+        return NULL;
+    }
+    GrIndexBuffer* lIdxBuf = gpu->createIndexBuffer(kLineSegIdxSBufize, false);
     SkAutoTUnref<GrIndexBuffer> lIdxBuffer(lIdxBuf);
+    if (NULL == lIdxBuf || !push_line_index_data(lIdxBuf)) {
+        return NULL;
+    }
     return SkNEW_ARGS(GrAAHairLinePathRenderer,
                       (context, lIdxBuf, qIdxBuf));
 }
@@ -461,14 +525,14 @@ void intersect_lines(const SkPoint& ptA, const SkVector& normA,
     result->fY = SkScalarMul(result->fY, wInv);
 }
 
-void set_uv_quad(const SkPoint qpts[3], BezierVertex verts[kQuadNumVertices]) {
+void set_uv_quad(const SkPoint qpts[3], BezierVertex verts[kVertsPerQuad]) {
     // this should be in the src space, not dev coords, when we have perspective
     GrPathUtils::QuadUVMatrix DevToUV(qpts);
-    DevToUV.apply<kQuadNumVertices, sizeof(BezierVertex), sizeof(SkPoint)>(verts);
+    DevToUV.apply<kVertsPerQuad, sizeof(BezierVertex), sizeof(SkPoint)>(verts);
 }
 
 void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
-                const SkMatrix* toSrc, BezierVertex verts[kQuadNumVertices],
+                const SkMatrix* toSrc, BezierVertex verts[kVertsPerQuad],
                 SkRect* devBounds) {
     SkASSERT(!toDevice == !toSrc);
     // original quad is specified by tri a,b,c
@@ -534,10 +598,10 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     c1.fPos -= cbN;
 
     intersect_lines(a0.fPos, abN, c0.fPos, cbN, &b0.fPos);
-    devBounds->growToInclude(&verts[0].fPos, sizeof(BezierVertex), kQuadNumVertices);
+    devBounds->growToInclude(&verts[0].fPos, sizeof(BezierVertex), kVertsPerQuad);
 
     if (toSrc) {
-        toSrc->mapPointsWithStride(&verts[0].fPos, sizeof(BezierVertex), kQuadNumVertices);
+        toSrc->mapPointsWithStride(&verts[0].fPos, sizeof(BezierVertex), kVertsPerQuad);
     }
 }
 
@@ -548,13 +612,13 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
 // f(x, y, w) = f(P) = K^2 - LM
 // K = dot(k, P), L = dot(l, P), M = dot(m, P)
 // k, l, m are calculated in function GrPathUtils::getConicKLM
-void set_conic_coeffs(const SkPoint p[3], BezierVertex verts[kQuadNumVertices],
+void set_conic_coeffs(const SkPoint p[3], BezierVertex verts[kVertsPerQuad],
                       const SkScalar weight) {
     SkScalar klm[9];
 
     GrPathUtils::getConicKLM(p, weight, klm);
 
-    for (int i = 0; i < kQuadNumVertices; ++i) {
+    for (int i = 0; i < kVertsPerQuad; ++i) {
         const SkPoint pnt = verts[i].fPos;
         verts[i].fConic.fK = pnt.fX * klm[0] + pnt.fY * klm[1] + klm[2];
         verts[i].fConic.fL = pnt.fX * klm[3] + pnt.fY * klm[4] + klm[5];
@@ -570,7 +634,7 @@ void add_conics(const SkPoint p[3],
                 SkRect* devBounds) {
     bloat_quad(p, toDevice, toSrc, *vert, devBounds);
     set_conic_coeffs(p, *vert, weight);
-    *vert += kQuadNumVertices;
+    *vert += kVertsPerQuad;
 }
 
 void add_quads(const SkPoint p[3],
@@ -588,7 +652,7 @@ void add_quads(const SkPoint p[3],
     } else {
         bloat_quad(p, toDevice, toSrc, *vert, devBounds);
         set_uv_quad(p, *vert);
-        *vert += kQuadNumVertices;
+        *vert += kVertsPerQuad;
     }
 }
 
@@ -623,16 +687,16 @@ void add_line(const SkPoint p[2],
         if (toSrc) {
             toSrc->mapPointsWithStride(&(*vert)->fPos,
                                        sizeof(LineVertex),
-                                       kLineSegNumVertices);
+                                       kVertsPerLineSeg);
         }
     } else {
         // just make it degenerate and likely offscreen
-        for (int i = 0; i < kLineSegNumVertices; ++i) {
+        for (int i = 0; i < kVertsPerLineSeg; ++i) {
             (*vert)[i].fPos.set(SK_ScalarMax, SK_ScalarMax);
         }
     }
 
-    *vert += kLineSegNumVertices;
+    *vert += kVertsPerLineSeg;
 }
 
 }
@@ -665,7 +729,7 @@ bool GrAAHairLinePathRenderer::createLineGeom(const SkPath& path,
 
     const SkMatrix& viewM = drawState->getViewMatrix();
 
-    int vertCnt = kLineSegNumVertices * lineCnt;
+    int vertCnt = kVertsPerLineSeg * lineCnt;
 
     drawState->setVertexAttribs<gHairlineLineAttribs>(SK_ARRAY_COUNT(gHairlineLineAttribs),
                                                       sizeof(LineVertex));
@@ -712,7 +776,7 @@ bool GrAAHairLinePathRenderer::createBezierGeom(
 
     const SkMatrix& viewM = drawState->getViewMatrix();
 
-    int vertCnt = kQuadNumVertices * quadCnt + kQuadNumVertices * conicCnt;
+    int vertCnt = kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt;
 
     int vAttribCnt = SK_ARRAY_COUNT(gHairlineBezierAttribs);
     target->drawState()->setVertexAttribs<gHairlineBezierAttribs>(vAttribCnt, sizeof(BezierVertex));
@@ -878,19 +942,19 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
         // Check devBounds
         SkASSERT(check_bounds<LineVertex>(drawState, devBounds, arg.vertices(),
-                                          kLineSegNumVertices * lineCnt));
+                                          kVertsPerLineSeg * lineCnt));
 
         {
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fLinesIndexBuffer);
             int lines = 0;
             while (lines < lineCnt) {
-                int n = SkTMin(lineCnt - lines, kLineSegsNumInIdxBuffer);
+                int n = SkTMin(lineCnt - lines, kNumLineSegsInIdxBuffer);
                 target->drawIndexed(kTriangles_GrPrimitiveType,
-                                    kLineSegNumVertices*lines,     // startV
-                                    0,                             // startI
-                                    kLineSegNumVertices*n,         // vCount
-                                    kIdxsPerLineSeg*n,             // iCount
+                                    kVertsPerLineSeg*lines,     // startV
+                                    0,                          // startI
+                                    kVertsPerLineSeg*n,         // vCount
+                                    kIdxsPerLineSeg*n,          // iCount
                                     &devBounds);
                 lines += n;
             }
@@ -928,7 +992,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
         // Check devBounds
         SkASSERT(check_bounds<BezierVertex>(drawState, devBounds, arg.vertices(),
-                                            kQuadNumVertices * quadCnt + kQuadNumVertices * conicCnt));
+                                            kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt));
 
         if (quadCnt > 0) {
             GrGeometryProcessor* hairQuadProcessor =
@@ -939,12 +1003,12 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             drawState->setGeometryProcessor(hairQuadProcessor)->unref();
             int quads = 0;
             while (quads < quadCnt) {
-                int n = SkTMin(quadCnt - quads, kQuadsNumInIdxBuffer);
+                int n = SkTMin(quadCnt - quads, kNumQuadsInIdxBuffer);
                 target->drawIndexed(kTriangles_GrPrimitiveType,
-                                    kQuadNumVertices*quads,               // startV
-                                    0,                                    // startI
-                                    kQuadNumVertices*n,                   // vCount
-                                    kIdxsPerQuad*n,                       // iCount
+                                    kVertsPerQuad*quads,               // startV
+                                    0,                                 // startI
+                                    kVertsPerQuad*n,                   // vCount
+                                    kIdxsPerQuad*n,                    // iCount
                                     &devBounds);
                 quads += n;
             }
@@ -958,12 +1022,12 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             drawState->setGeometryProcessor(hairConicProcessor)->unref();
             int conics = 0;
             while (conics < conicCnt) {
-                int n = SkTMin(conicCnt - conics, kQuadsNumInIdxBuffer);
+                int n = SkTMin(conicCnt - conics, kNumQuadsInIdxBuffer);
                 target->drawIndexed(kTriangles_GrPrimitiveType,
-                                    kQuadNumVertices*(quadCnt + conics),  // startV
-                                    0,                                    // startI
-                                    kQuadNumVertices*n,                   // vCount
-                                    kIdxsPerQuad*n,                       // iCount
+                                    kVertsPerQuad*(quadCnt + conics),  // startV
+                                    0,                                 // startI
+                                    kVertsPerQuad*n,                   // vCount
+                                    kIdxsPerQuad*n,                    // iCount
                                     &devBounds);
                 conics += n;
             }
