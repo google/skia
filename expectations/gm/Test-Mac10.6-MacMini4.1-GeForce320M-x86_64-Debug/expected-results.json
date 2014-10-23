@@ -3694,10 +3694,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16977404852832783051
+          12481197622858590596
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "blurs_mesa.png": {
       "allowed-digests": [
@@ -3991,10 +3992,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17330283695977883716
+          14738567028836110312
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "circles_mesa.png": {
       "allowed-digests": [
@@ -12064,7 +12066,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17415758765738257200
+          11705017482638826416
         ]
       ], 
       "reviewed-by-human": true
@@ -13067,7 +13069,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2640231021989352643
+          3864012820968087366
         ]
       ], 
       "ignore-failure": false, 
@@ -14640,10 +14642,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17906437821178693762
+          6711116010979389458
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "rrect_draw_aa_pdf-mac.png": {
       "allowed-digests": [
@@ -14703,7 +14705,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15213771355689655325
+          13461679601973969360
         ]
       ], 
       "reviewed-by-human": true
@@ -16419,7 +16421,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11737893751975627655
+          4568033654741978098
         ]
       ], 
       "reviewed-by-human": true

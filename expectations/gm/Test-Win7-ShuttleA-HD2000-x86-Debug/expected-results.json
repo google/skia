@@ -3094,10 +3094,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4944406930075404493
+          6229457548275204977
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "circles_pdf-poppler.png": {
       "allowed-digests": [
@@ -8062,7 +8063,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18338026403264996017
+          3972297198646724364
         ]
       ], 
       "reviewed-by-human": true
@@ -9946,10 +9947,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3728675991435551242
+          13133003147899392137
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "ovals_pdf-poppler.png": {
       "allowed-digests": [
@@ -11192,7 +11194,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17667392016029599841
+          7154977751582284267
         ]
       ], 
       "reviewed-by-human": true
@@ -12423,7 +12425,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9452600726716245483
+          10282551222722222031
         ]
       ], 
       "reviewed-by-human": true
@@ -12564,10 +12566,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17318544268583616969
+          10691509632111809256
         ]
       ], 
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "testimagefilters_pdf-poppler.png": {
       "allowed-digests": [
