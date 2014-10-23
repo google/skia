@@ -122,10 +122,6 @@ public:
      *                          video memory that can be held in the cache.
      */
     void getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const;
-    SK_ATTR_DEPRECATED("This function has been renamed to getResourceCacheLimits().")
-    void getTextureCacheLimits(int* maxTextures, size_t* maxTextureBytes) const {
-        this->getResourceCacheLimits(maxTextures, maxTextureBytes);
-    }
 
     /**
      *  Gets the current GPU resource cache usage.
@@ -137,20 +133,6 @@ public:
      */
     void getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const;
 
-    SK_ATTR_DEPRECATED("Use getResourceCacheUsage().")
-    size_t getGpuTextureCacheBytes() const {
-        size_t bytes;
-        this->getResourceCacheUsage(NULL, &bytes);
-        return bytes;
-    }
-
-    SK_ATTR_DEPRECATED("Use getResourceCacheUsage().")
-    int getGpuTextureCacheResourceCount() const {
-        int count;
-        this->getResourceCacheUsage(&count, NULL);
-        return count;
-    }
-
     /**
      *  Specify the GPU resource cache limits. If the current cache exceeds either
      *  of these, it will be purged (LRU) to keep the cache within these limits.
@@ -161,10 +143,6 @@ public:
      *                          that can be held in the cache.
      */
     void setResourceCacheLimits(int maxResources, size_t maxResourceBytes);
-    SK_ATTR_DEPRECATED("This function has been renamed to setResourceCacheLimits().")
-    void setTextureCacheLimits(int maxTextures, size_t maxTextureBytes) {
-        this->setResourceCacheLimits(maxTextures, maxTextureBytes);
-    }
 
     /**
      * Frees GPU created by the context. Can be called to reduce GPU memory
