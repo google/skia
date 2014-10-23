@@ -2050,7 +2050,21 @@ static void append_params(SkString* str, const char label[], const SkPoint pts[]
         str->append(", ");
         append_scalar(str, conicWeight, dumpAsHex);
     }
-    str->append(");\n");
+    str->append(");");
+    if (dumpAsHex) {
+        str->append("  // ");
+        for (int i = 0; i < count; ++i) {
+            append_scalar(str, values[i], false);
+            if (i < count - 1) {
+                str->append(", ");
+            }
+        }
+        if (conicWeight >= 0) {
+            str->append(", ");
+            append_scalar(str, conicWeight, false);
+        }
+    }
+    str->append("\n");
 }
 
 void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex) const {

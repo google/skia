@@ -3468,8 +3468,9 @@ static void test_dump(skiatest::Reporter* reporter) {
     p.reset();
     p.moveTo(1, 2);
     p.lineTo(3, 4);
-    compare_dump(reporter, p, false, true,  "path.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));\n"
-                                            "path.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));\n");
+    compare_dump(reporter, p, false, true,
+                 "path.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));  // 1, 2\n"
+                 "path.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));  // 3, 4\n");
     p.reset();
     p.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));
     p.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));
