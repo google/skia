@@ -42,6 +42,23 @@ public:
      */
     virtual void textureParamsModified() = 0;
 
+    /**
+     * Informational texture flags. This will be removed soon.
+     */
+    enum FlagBits {
+        kFirstBit = (kLastPublic_GrTextureFlagBit << 1),
+
+        /**
+         * This texture should be returned to the texture cache when
+         * it is no longer reffed
+         */
+        kReturnToCache_FlagBit        = kFirstBit,
+    };
+
+    void resetFlag(GrTextureFlags flags) {
+        fDesc.fFlags = fDesc.fFlags & ~flags;
+    }
+
 #ifdef SK_DEBUG
     void validate() const {
         this->INHERITED::validate();

@@ -444,6 +444,9 @@ enum GrTextureFlags {
      * should be verified.
      */
     kCheckAllocation_GrTextureFlagBit  = 0x8,
+
+    kDummy_GrTextureFlagBit,
+    kLastPublic_GrTextureFlagBit = kDummy_GrTextureFlagBit-1,
 };
 
 GR_MAKE_BITFIELD_OPS(GrTextureFlags)
