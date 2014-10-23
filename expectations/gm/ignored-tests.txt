@@ -112,3 +112,4 @@ pathfill
 lerpmode 
 fatpathfill
 bigmatrix
+convexpaths
