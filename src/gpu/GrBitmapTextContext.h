@@ -23,17 +23,11 @@ public:
     virtual ~GrBitmapTextContext();
 
 private:
-    enum {
-        kMinRequestedGlyphs      = 1,
-        kDefaultRequestedGlyphs  = 64,
-        kMinRequestedVerts       = kMinRequestedGlyphs * 4,
-        kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
-    };
-
     GrTextStrike*                     fStrike;
     void*                             fVertices;
     int                               fCurrVertex;
-    int                               fMaxVertices;
+    int                               fAllocVertexCount;
+    int                               fTotalVertexCount;
     SkRect                            fVertexBounds;
     GrTexture*                        fCurrTexture;
     GrMaskFormat                      fCurrMaskFormat;

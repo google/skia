@@ -41,9 +41,10 @@ private:
     uint32_t                           fEffectFlags;
     GrTexture*                         fGammaTexture;
     void*                              fVertices;
-    int32_t                            fMaxVertices;
-    GrTexture*                         fCurrTexture;
     int                                fCurrVertex;
+    int                                fAllocVertexCount;
+    int                                fTotalVertexCount;
+    GrTexture*                         fCurrTexture;
     SkRect                             fVertexBounds;
 
     GrDistanceFieldTextContext(GrContext*, const SkDeviceProperties&, bool enable);

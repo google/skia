@@ -47,8 +47,10 @@ extern const GrVertexAttrib gTextVertexWithColorAttribs[] = {
     {kVec2f_GrVertexAttribType,  sizeof(SkPoint) + sizeof(GrColor), kGeometryProcessor_GrVertexAttribBinding}
 };
 
-static const size_t kTextVAColorSize = 2 * sizeof(SkPoint) + sizeof(GrColor); 
+static const size_t kTextVAColorSize = 2 * sizeof(SkPoint) + sizeof(GrColor);
 
+static const int kVerticesPerGlyph = 4;
+static const int kIndicesPerGlyph = 6;
 };
 
 GrBitmapTextContext::GrBitmapTextContext(GrContext* context,
@@ -57,11 +59,12 @@ GrBitmapTextContext::GrBitmapTextContext(GrContext* context,
     fStrike = NULL;
 
     fCurrTexture = NULL;
-    fCurrVertex = 0;
     fEffectTextureUniqueID = SK_InvalidUniqueID;
 
     fVertices = NULL;
-    fMaxVertices = 0;
+    fCurrVertex = 0;
+    fAllocVertexCount = 0;
+    fTotalVertexCount = 0;
 
     fVertexBounds.setLargestInverted();
 }
@@ -72,7 +75,7 @@ GrBitmapTextContext* GrBitmapTextContext::Create(GrContext* context,
 }
 
 GrBitmapTextContext::~GrBitmapTextContext() {
-    this->flush();
+    this->finish();
 }
 
 bool GrBitmapTextContext::canDraw(const SkPaint& paint) {
@@ -88,7 +91,8 @@ inline void GrBitmapTextContext::init(const GrPaint& paint, const SkPaint& skPai
     fCurrVertex = 0;
 
     fVertices = NULL;
-    fMaxVertices = 0;
+    fAllocVertexCount = 0;
+    fTotalVertexCount = 0;
 }
 
 void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPaint,
@@ -118,13 +122,13 @@ void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPain
     }
 
     // need to measure first
+    int numGlyphs;
     if (fSkPaint.getTextAlign() != SkPaint::kLeft_Align) {
-        SkVector    stop;
+        SkVector    stopVector;
+        numGlyphs = MeasureText(cache, glyphCacheProc, text, byteLength, &stopVector);
 
-        MeasureText(cache, glyphCacheProc, text, byteLength, &stop);
-
-        SkScalar    stopX = stop.fX;
-        SkScalar    stopY = stop.fY;
+        SkScalar    stopX = stopVector.fX;
+        SkScalar    stopY = stopVector.fY;
 
         if (fSkPaint.getTextAlign() == SkPaint::kCenter_Align) {
             stopX = SkScalarHalf(stopX);
@@ -132,7 +136,10 @@ void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPain
         }
         x -= stopX;
         y -= stopY;
+    } else {
+        numGlyphs = fSkPaint.textToGlyphs(text, byteLength, NULL);
     }
+    fTotalVertexCount = kVerticesPerGlyph*numGlyphs;
 
     const char* stop = text + byteLength;
 
@@ -206,6 +213,9 @@ void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skP
     SkMatrix ctm = fContext->getMatrix();
     GrContext::AutoMatrix  autoMatrix;
     autoMatrix.setIdentity(fContext, &fPaint);
+
+    int numGlyphs = fSkPaint.textToGlyphs(text, byteLength, NULL);
+    fTotalVertexCount = kVerticesPerGlyph*numGlyphs;
 
     const char*        stop = text + byteLength;
     SkTextAlignProc    alignProc(fSkPaint.getTextAlign());
@@ -335,6 +345,28 @@ void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skP
     this->finish();
 }
 
+static void* alloc_vertices(GrDrawTarget* drawTarget, int numVertices, bool useColorVerts) {
+    if (numVertices <= 0) {
+        return NULL;
+    }
+
+    // set up attributes
+    if (useColorVerts) {
+        drawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
+                                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs), kTextVAColorSize);
+    } else {
+        drawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
+                                    SK_ARRAY_COUNT(gTextVertexAttribs), kTextVASize);
+    }
+    void* vertices = NULL;
+    bool success = drawTarget->reserveVertexAndIndexSpace(numVertices,
+                                                          0,
+                                                          &vertices,
+                                                          NULL);
+    GrAlwaysAssert(success);
+    return vertices;
+}
+
 void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
                                       SkFixed vx, SkFixed vy,
                                       GrFontScaler* scaler) {
@@ -418,6 +450,9 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
         am.setPreConcat(fContext, translate, &tmpPaint);
         GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
         fContext->drawPath(tmpPaint, *glyph->fPath, strokeInfo);
+
+        // remove this glyph from the vertices we need to allocate
+        fTotalVertexCount -= kVerticesPerGlyph;
         return;
     }
 
@@ -434,7 +469,7 @@ HAS_ATLAS:
     GrTexture* texture = glyph->fPlot->texture();
     SkASSERT(texture);
 
-    if (fCurrTexture != texture || fCurrVertex + 4 > fMaxVertices) {
+    if (fCurrTexture != texture || fCurrVertex + kVerticesPerGlyph > fAllocVertexCount) {
         this->flush();
         fCurrTexture = texture;
         fCurrTexture->ref();
@@ -444,44 +479,9 @@ HAS_ATLAS:
     bool useColorVerts = kA8_GrMaskFormat == fCurrMaskFormat;
 
     if (NULL == fVertices) {
-       // If we need to reserve vertices allow the draw target to suggest
-        // a number of verts to reserve and whether to perform a flush.
-        fMaxVertices = kMinRequestedVerts;
-        if (useColorVerts) {
-            fDrawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
-                SK_ARRAY_COUNT(gTextVertexWithColorAttribs), kTextVAColorSize);
-        } else {
-            fDrawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
-                SK_ARRAY_COUNT(gTextVertexAttribs), kTextVASize);
-        }
-        bool flush = fDrawTarget->geometryHints(&fMaxVertices, NULL);
-        if (flush) {
-            this->flush();
-            fContext->flush();
-            if (useColorVerts) {
-                fDrawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
-                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs), kTextVAColorSize);
-            } else {
-                fDrawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
-                    SK_ARRAY_COUNT(gTextVertexAttribs), kTextVASize);
-            }
-        }
-        fMaxVertices = kDefaultRequestedVerts;
-        // ignore return, no point in flushing again.
-        fDrawTarget->geometryHints(&fMaxVertices, NULL);
-
-        int maxQuadVertices = 4 * fContext->getQuadIndexBuffer()->maxQuads();
-        if (fMaxVertices < kMinRequestedVerts) {
-            fMaxVertices = kDefaultRequestedVerts;
-        } else if (fMaxVertices > maxQuadVertices) {
-            // don't exceed the limit of the index buffer
-            fMaxVertices = maxQuadVertices;
-        }
-        bool success = fDrawTarget->reserveVertexAndIndexSpace(fMaxVertices,
-                                                               0,
-                                                               &fVertices,
-                                                               NULL);
-        GrAlwaysAssert(success);
+        int maxQuadVertices = kVerticesPerGlyph * fContext->getQuadIndexBuffer()->maxQuads();
+        fAllocVertexCount = SkMin32(fTotalVertexCount, maxQuadVertices);
+        fVertices = alloc_vertices(fDrawTarget, fAllocVertexCount, useColorVerts);
     }
 
     SkFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
@@ -597,15 +597,17 @@ void GrBitmapTextContext::flush() {
             default:
                 SkFAIL("Unexpected mask format.");
         }
-        int nGlyphs = fCurrVertex / 4;
+        int nGlyphs = fCurrVertex / kVerticesPerGlyph;
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
         fDrawTarget->drawIndexedInstances(kTriangles_GrPrimitiveType,
                                           nGlyphs,
-                                          4, 6, &fVertexBounds);
+                                          kVerticesPerGlyph, kIndicesPerGlyph, &fVertexBounds);
 
         fDrawTarget->resetVertexSource();
         fVertices = NULL;
-        fMaxVertices = 0;
+        fAllocVertexCount = 0;
+        // reset to be those that are left
+        fTotalVertexCount -= fCurrVertex;
         fCurrVertex = 0;
         fVertexBounds.setLargestInverted();
         SkSafeSetNull(fCurrTexture);
@@ -614,6 +616,7 @@ void GrBitmapTextContext::flush() {
 
 inline void GrBitmapTextContext::finish() {
     this->flush();
+    fTotalVertexCount = 0;
 
     GrTextContext::finish();
 }

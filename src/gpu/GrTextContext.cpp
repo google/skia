@@ -76,13 +76,14 @@ bool GrTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint,
 
 
 //*** change to output positions?
-void GrTextContext::MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
+int GrTextContext::MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
                                 const char text[], size_t byteLength, SkVector* stopVector) {
     SkFixed     x = 0, y = 0;
     const char* stop = text + byteLength;
 
     SkAutoKern  autokern;
 
+    int numGlyphs = 0;
     while (text < stop) {
         // don't need x, y here, since all subpixel variants will have the
         // same advance
@@ -90,10 +91,13 @@ void GrTextContext::MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheP
 
         x += autokern.adjust(glyph) + glyph.fAdvanceX;
         y += glyph.fAdvanceY;
+        ++numGlyphs;
     }
     stopVector->set(SkFixedToScalar(x), SkFixedToScalar(y));
 
     SkASSERT(text == stop);
+    
+    return numGlyphs;
 }
 
 static void GlyphCacheAuxProc(void* data) {

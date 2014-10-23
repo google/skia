@@ -57,8 +57,9 @@ protected:
     void finish() { fDrawTarget = NULL; }
 
     static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
-    static void MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
-                            const char text[], size_t byteLength, SkVector* stopVector);
+    // sets extent in stopVector and returns glyph count
+    static int MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
+                           const char text[], size_t byteLength, SkVector* stopVector);
 };
 
 #endif
