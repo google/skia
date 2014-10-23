@@ -39,6 +39,9 @@ yuv_to_rgb_effect
 # robertphillips - skia:2995
 blurrects
 
+#bsalomon changes after fixing crbug.com/426331
+bitmapfilters
+
 # derekf https://codereview.chromium.org/639523002/
 simpleblurroundrect
 blurrects

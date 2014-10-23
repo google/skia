@@ -194,15 +194,23 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
 DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kHigh_FilterLevel); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kHigh_FilterLevel); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kHigh_FilterLevel); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
+                                            SkPaint::kHigh_FilterLevel); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kMedium_FilterLevel); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kMedium_FilterLevel); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kMedium_FilterLevel); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
+                                           SkPaint::kMedium_FilterLevel); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kLow_FilterLevel); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kLow_FilterLevel); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kLow_FilterLevel); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
+                                           SkPaint::kLow_FilterLevel); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kNone_FilterLevel); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kNone_FilterLevel); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kNone_FilterLevel); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
+                                           SkPaint::kNone_FilterLevel); )
