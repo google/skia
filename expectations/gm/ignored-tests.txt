@@ -58,3 +58,21 @@ dftext
 megalooper_0x0
 megalooper_1x4
 megalooper_4x1
+
+#mtklein/reed: slight image resize fixes
+bitmaprecttest
+bitmapshaders
+downsamplebitmap_checkerboard_none_512_256
+downsamplebitmap_image_none_mandrill_512.png
+downsamplebitmap_text_none_72.00pt
+filterbitmap_checkerboard_192_192
+filterbitmap_image_mandrill_128.png
+filterbitmap_image_mandrill_256.png
+filterbitmap_image_mandrill_512.png
+filterbitmap_image_mandrill_64.png
+filterbitmap_text_10.00pt
+filterbitmap_text_7.00pt
+image-surface
+scaled_tilemode_bitmap
+tilemode_bitmap
+verylargebitmap
