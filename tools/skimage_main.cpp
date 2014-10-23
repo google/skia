@@ -34,6 +34,7 @@ DEFINE_bool(testSubsetDecoding, true, "Test decoding subsets of images.");
 DEFINE_bool(writeChecksumBasedFilenames, false,  "When writing out actual images, use checksum-"
             "based filenames, as rebaseline.py will use when downloading them from Google Storage");
 DEFINE_string2(writePath, w, "",  "Write rendered images into this directory.");
+DEFINE_bool(unpremul, false, "Require unpremultiplied colors.");
 
 struct Format {
     SkImageEncoder::Type    fType;
@@ -499,6 +500,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
 
     codec->setSkipWritingZeroes(FLAGS_skip);
     codec->setSampleSize(FLAGS_sampleSize);
+    codec->setRequireUnpremultipliedColors(FLAGS_unpremul);
     stream.rewind();
 
     // Create a string representing just the filename itself, for use in json expectations.
