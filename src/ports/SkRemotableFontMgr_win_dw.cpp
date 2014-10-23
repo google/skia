@@ -410,7 +410,7 @@ public:
 
 #ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
     virtual SkFontIdentity matchNameStyleCharacter(const char familyName[],
-                                                   const SkFontStyle&, pattern
+                                                   const SkFontStyle& pattern,
                                                    const char* bcp47[], int bcp47Count,
                                                    SkUnichar character) const SK_OVERRIDE
     {
