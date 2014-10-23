@@ -23,20 +23,22 @@ public:
      *
      * On failure, return NULL.
      */
-    static SkCachedData* FindAndRef(SkScalar sigma, const SkRRect& rrect, SkBlurStyle style,
-                                    SkBlurQuality quality, SkMask* mask,
+    static SkCachedData* FindAndRef(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
+                                    const SkRRect& rrect, SkMask* mask,
                                     SkResourceCache* localCache = NULL);
-    static SkCachedData* FindAndRef(SkScalar sigma, const SkRect rects[], int count,
-                                    SkBlurStyle style,SkMask* mask,
+    static SkCachedData* FindAndRef(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
+                                    const SkRect rects[], int count, SkMask* mask,
                                     SkResourceCache* localCache = NULL);
 
     /**
      * Add a mask and its pixel-data to the cache.
      */
-    static void Add(SkScalar sigma, const SkRRect& rrect, SkBlurStyle style, SkBlurQuality quality,
-                    const SkMask& mask, SkCachedData* data, SkResourceCache* localCache = NULL);
-    static void Add(SkScalar sigma, const SkRect rects[], int count, SkBlurStyle style,
-                    const SkMask& mask, SkCachedData* data, SkResourceCache* localCache = NULL);
+    static void Add(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
+                    const SkRRect& rrect, const SkMask& mask, SkCachedData* data,
+                    SkResourceCache* localCache = NULL);
+    static void Add(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
+                    const SkRect rects[], int count, const SkMask& mask, SkCachedData* data,
+                    SkResourceCache* localCache = NULL);
 };
 
 #endif

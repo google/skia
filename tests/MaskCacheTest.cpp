@@ -39,7 +39,7 @@ DEF_TEST(RRectMaskCache, reporter) {
     SkBlurQuality quality = kLow_SkBlurQuality;
     SkMask mask;
 
-    SkCachedData* data = SkMaskCache::FindAndRef(sigma, rrect, style, quality, &mask, &cache);
+    SkCachedData* data = SkMaskCache::FindAndRef(sigma, style, quality, rrect, &mask, &cache);
     REPORTER_ASSERT(reporter, NULL == data);
 
     size_t size = 256;
@@ -48,14 +48,14 @@ DEF_TEST(RRectMaskCache, reporter) {
     mask.fBounds.setXYWH(0, 0, 100, 100);
     mask.fRowBytes = 100;
     mask.fFormat = SkMask::kBW_Format;
-    SkMaskCache::Add(sigma, rrect, style, quality, mask, data, &cache);
+    SkMaskCache::Add(sigma, style, quality, rrect, mask, data, &cache);
     check_data(reporter, data, 2, kInCache, kLocked);
 
     data->unref();
     check_data(reporter, data, 1, kInCache, kUnlocked);
 
     sk_bzero(&mask, sizeof(mask));
-    data = SkMaskCache::FindAndRef(sigma, rrect, style, quality, &mask, &cache);
+    data = SkMaskCache::FindAndRef(sigma, style, quality, rrect, &mask, &cache);
     REPORTER_ASSERT(reporter, data);
     REPORTER_ASSERT(reporter, data->size() == size);
     REPORTER_ASSERT(reporter, mask.fBounds.top() == 0 && mask.fBounds.bottom() == 100);
@@ -74,9 +74,10 @@ DEF_TEST(RectsMaskCache, reporter) {
     SkRect rect = SkRect::MakeWH(100, 100);
     SkRect rects[2] = {rect};
     SkBlurStyle style = kNormal_SkBlurStyle;
+    SkBlurQuality quality = kLow_SkBlurQuality;
     SkMask mask;
 
-    SkCachedData* data = SkMaskCache::FindAndRef(sigma, rects, 1, style, &mask, &cache);
+    SkCachedData* data = SkMaskCache::FindAndRef(sigma, style, quality, rects, 1, &mask, &cache);
     REPORTER_ASSERT(reporter, NULL == data);
 
     size_t size = 256;
@@ -85,14 +86,14 @@ DEF_TEST(RectsMaskCache, reporter) {
     mask.fBounds.setXYWH(0, 0, 100, 100);
     mask.fRowBytes = 100;
     mask.fFormat = SkMask::kBW_Format;
-    SkMaskCache::Add(sigma, rects, 1, style, mask, data, &cache);
+    SkMaskCache::Add(sigma, style, quality, rects, 1, mask, data, &cache);
     check_data(reporter, data, 2, kInCache, kLocked);
 
     data->unref();
     check_data(reporter, data, 1, kInCache, kUnlocked);
 
     sk_bzero(&mask, sizeof(mask));
-    data = SkMaskCache::FindAndRef(sigma, rects, 1, style, &mask, &cache);
+    data = SkMaskCache::FindAndRef(sigma, style, quality, rects, 1, &mask, &cache);
     REPORTER_ASSERT(reporter, data);
     REPORTER_ASSERT(reporter, data->size() == size);
     REPORTER_ASSERT(reporter, mask.fBounds.top() == 0 && mask.fBounds.bottom() == 100);
