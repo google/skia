@@ -7,6 +7,7 @@
 
 #include "SkTextureCompressor.h"
 #include "SkTextureCompressor_Blitter.h"
+#include "SkTextureCompressor_Utils.h"
 
 #include "SkBlitter.h"
 #include "SkEndian.h"
@@ -320,7 +321,7 @@ static bool compress_4x4_a8_to_64bit(uint8_t* dst, const uint8_t* src,
 // Most of the voodoo in this function comes from Hacker's Delight, section 2-18
 static inline uint32_t convert_indices(uint32_t x) {
     // Take the top three bits...
-    x = (x & 0xE0E0E0E0) >> 5;
+    x = SkTextureCompressor::ConvertToThreeBitIndex(x);
 
     // Negate...
     x = ~((0x80808080 - x) ^ 0x7F7F7F7F);

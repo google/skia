@@ -7,6 +7,7 @@
 
 #include "SkTextureCompressor_LATC.h"
 #include "SkTextureCompressor_Blitter.h"
+#include "SkTextureCompressor_Utils.h"
 
 #include "SkBlitter.h"
 #include "SkEndian.h"
@@ -329,7 +330,7 @@ static inline uint32_t convert_index(uint32_t x) {
     //
     // This first operation takes the mapping from
     // 0 1 2 3 4 5 6 7  -->  7 6 5 4 3 2 1 0
-    x = 0x07070707 - ((x >> 5) & 0x07070707);
+    x = 0x07070707 - SkTextureCompressor::ConvertToThreeBitIndex(x);
 
     // mask is 1 if index is non-zero
     const uint32_t mask = (x | (x >> 1) | (x >> 2)) & 0x01010101;

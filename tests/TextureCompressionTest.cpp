@@ -255,7 +255,39 @@ DEF_TEST(CompressLATC, reporter) {
         // and that the three bits saved per pixel are computed from the top three
         // bits of the luminance value.
         const uint64_t kIndexEncodingMap[8] = { 1, 7, 6, 5, 4, 3, 2, 0 };
-        const uint64_t kIndex = kIndexEncodingMap[lum >> 5];
+
+        // Quantize to three bits in the same way that we do our LATC compression:
+        // 1. Divide by two
+        // 2. Add 9
+        // 3. Divide by two
+        // 4. Approximate division by three twice
+        uint32_t quant = static_cast<uint32_t>(lum);
+        quant >>= 1; // 1
+        quant += 9;  // 2
+        quant >>= 1; // 3
+
+        uint32_t a, b, c, ar, br, cr;
+
+        // First division by three
+        a = quant >> 2;
+        ar = (quant & 0x3) << 4;
+        b = quant >> 4;
+        br = (quant & 0xF) << 2;
+        c = quant >> 6;
+        cr = (quant & 0x3F);
+        quant = (a + b + c) + ((ar + br + cr) >> 6);
+
+        // Second division by three
+        a = quant >> 2;
+        ar = (quant & 0x3) << 4;
+        b = quant >> 4;
+        br = (quant & 0xF) << 2;
+        c = quant >> 6;
+        cr = (quant & 0x3F);
+        quant = (a + b + c) + ((ar + br + cr) >> 6);
+
+        const uint64_t kIndex = kIndexEncodingMap[quant];
+
         const uint64_t kConstColorEncoding =
             SkEndian_SwapLE64(
                 255 |
