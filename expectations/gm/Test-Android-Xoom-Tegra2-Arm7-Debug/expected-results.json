@@ -3106,10 +3106,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2739096684027616371
+          6401599935255967141
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "copyTo4444_565.png": {
       "allowed-digests": [
