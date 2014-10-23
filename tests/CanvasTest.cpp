@@ -343,33 +343,6 @@ SIMPLE_TEST_STEP(ClipRect, clipRect(d.fRect));
 SIMPLE_TEST_STEP(ClipPath, clipPath(d.fPath));
 SIMPLE_TEST_STEP(ClipRegion, clipRegion(d.fRegion, SkRegion::kReplace_Op));
 SIMPLE_TEST_STEP(Clear, clear(d.fColor));
-SIMPLE_TEST_STEP(DrawPaint, drawPaint(d.fPaint));
-SIMPLE_TEST_STEP(DrawPointsPoints, drawPoints(SkCanvas::kPoints_PointMode,
-    d.fPointCount, d.fPoints, d.fPaint));
-SIMPLE_TEST_STEP(DrawPointsLiness, drawPoints(SkCanvas::kLines_PointMode,
-    d.fPointCount, d.fPoints, d.fPaint));
-SIMPLE_TEST_STEP(DrawPointsPolygon, drawPoints(SkCanvas::kPolygon_PointMode,
-    d.fPointCount, d.fPoints, d.fPaint));
-SIMPLE_TEST_STEP(DrawRect, drawRect(d.fRect, d.fPaint));
-SIMPLE_TEST_STEP(DrawPath, drawPath(d.fPath, d.fPaint));
-SIMPLE_TEST_STEP(DrawBitmap, drawBitmap(d.fBitmap, 0, 0));
-SIMPLE_TEST_STEP(DrawBitmapPaint, drawBitmap(d.fBitmap, 0, 0, &d.fPaint));
-SIMPLE_TEST_STEP(DrawBitmapRect, drawBitmapRect(d.fBitmap, NULL, d.fRect, NULL));
-SIMPLE_TEST_STEP(DrawBitmapRectSrcRect, drawBitmapRect(d.fBitmap, &d.fIRect, d.fRect, NULL));
-SIMPLE_TEST_STEP(DrawBitmapRectPaint, drawBitmapRect(d.fBitmap, NULL, d.fRect, &d.fPaint));
-SIMPLE_TEST_STEP(DrawBitmapMatrix, drawBitmapMatrix(d.fBitmap, d.fMatrix, NULL));
-SIMPLE_TEST_STEP(DrawBitmapMatrixPaint, drawBitmapMatrix(d.fBitmap, d.fMatrix, &d.fPaint));
-SIMPLE_TEST_STEP(DrawBitmapNine, drawBitmapNine(d.fBitmap, d.fIRect, d.fRect, NULL));
-SIMPLE_TEST_STEP(DrawBitmapNinePaint, drawBitmapNine(d.fBitmap, d.fIRect, d.fRect, &d.fPaint));
-SIMPLE_TEST_STEP(DrawSprite, drawSprite(d.fBitmap, 0, 0, NULL));
-SIMPLE_TEST_STEP(DrawSpritePaint, drawSprite(d.fBitmap, 0, 0, &d.fPaint));
-SIMPLE_TEST_STEP(DrawText, drawText(d.fText.c_str(), d.fText.size(), 0, 1, d.fPaint));
-SIMPLE_TEST_STEP(DrawPosText, drawPosText(d.fText.c_str(), d.fText.size(), d.fPoints2, d.fPaint));
-SIMPLE_TEST_STEP(DrawTextOnPath, drawTextOnPath(d.fText.c_str(), d.fText.size(),
-                                                d.fPath, NULL, d.fPaint));
-SIMPLE_TEST_STEP(DrawTextOnPathMatrix, drawTextOnPath(d.fText.c_str(), d.fText.size(), d.fPath,
-                                                      &d.fMatrix, d.fPaint));
-SIMPLE_TEST_STEP(DrawData, drawData(d.fText.c_str(), d.fText.size()));
 SIMPLE_TEST_STEP(BeginGroup, beginCommentGroup(d.fText.c_str()));
 SIMPLE_TEST_STEP(AddComment, addComment(d.fText.c_str(), d.fText.c_str()));
 SIMPLE_TEST_STEP(EndGroup, endCommentGroup());
