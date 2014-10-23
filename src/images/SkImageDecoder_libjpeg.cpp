@@ -345,11 +345,13 @@ static bool return_false(const jpeg_decompress_struct& cinfo,
     return false;
 }
 
+#ifdef SK_BUILD_FOR_ANDROID
 static bool return_false(const jpeg_decompress_struct& cinfo,
                          const SkBitmap& bm, const char caller[]) {
     print_jpeg_decoder_errors(cinfo, bm.width(), bm.height(), caller);
     return false;
 }
+#endif
 
 static SkImageDecoder::Result return_failure(const jpeg_decompress_struct& cinfo,
                                              const SkBitmap& bm, const char caller[]) {
