@@ -104,6 +104,7 @@
         '<(skia_src_path)/core/SkLineClipper.cpp',
         '<(skia_src_path)/core/SkMallocPixelRef.cpp',
         '<(skia_src_path)/core/SkMask.cpp',
+        '<(skia_src_path)/core/SkMaskCache.cpp',
         '<(skia_src_path)/core/SkMaskFilter.cpp',
         '<(skia_src_path)/core/SkMaskGamma.cpp',
         '<(skia_src_path)/core/SkMaskGamma.h',

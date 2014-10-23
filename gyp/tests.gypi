@@ -133,6 +133,7 @@
     '../tests/LazyPtrTest.cpp',
     '../tests/MD5Test.cpp',
     '../tests/MallocPixelRefTest.cpp',
+    '../tests/MaskCacheTest.cpp',
     '../tests/MathTest.cpp',
     '../tests/Matrix44Test.cpp',
     '../tests/MatrixClipCollapseTest.cpp',

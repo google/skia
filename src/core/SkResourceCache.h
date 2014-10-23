@@ -137,6 +137,8 @@ public:
      */
     static SkBitmap::Allocator* GetAllocator();
 
+    static SkCachedData* NewCachedData(size_t bytes);
+
     /**
      *  Call SkDebugf() with diagnostic information about the state of the cache
      */

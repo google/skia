@@ -303,6 +303,15 @@ size_t SkResourceCache::setTotalByteLimit(size_t newLimit) {
     return prevLimit;
 }
 
+SkCachedData* SkResourceCache::newCachedData(size_t bytes) {
+    if (fDiscardableFactory) {
+        SkDiscardableMemory* dm = fDiscardableFactory(bytes);
+        return dm ? SkNEW_ARGS(SkCachedData, (bytes, dm)) : NULL;
+    } else {
+        return SkNEW_ARGS(SkCachedData, (sk_malloc_throw(bytes), bytes));
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkResourceCache::detach(Rec* rec) {
@@ -480,6 +489,11 @@ SkResourceCache::DiscardableFactory SkResourceCache::GetDiscardableFactory() {
 SkBitmap::Allocator* SkResourceCache::GetAllocator() {
     SkAutoMutexAcquire am(gMutex);
     return get_cache()->allocator();
+}
+
+SkCachedData* SkResourceCache::NewCachedData(size_t bytes) {
+    SkAutoMutexAcquire am(gMutex);
+    return get_cache()->newCachedData(bytes);
 }
 
 void SkResourceCache::Dump() {
