@@ -112,7 +112,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4647352962659848199
+          5207558447635277194
         ]
       ], 
       "reviewed-by-human": true
@@ -1183,10 +1183,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17423569280673366651
+          8049202976893436213
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blurs_msaa16.png": {
       "allowed-digests": [
@@ -1318,7 +1318,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10167332900422109271
+          7659224876313462683
         ]
       ], 
       "reviewed-by-human": true
@@ -6889,7 +6889,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8948103750561173979
+          15022225751661908871
         ]
       ], 
       "reviewed-by-human": true
@@ -8194,7 +8194,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2856294934376734458
+          14184278554978875101
         ]
       ], 
       "reviewed-by-human": true
@@ -9220,7 +9220,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1279912102270906485
+          13940483391176265573
         ]
       ], 
       "reviewed-by-human": true
@@ -10643,7 +10643,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15880737340733736621
+          599862192420192472
         ]
       ], 
       "reviewed-by-human": true
@@ -11858,7 +11858,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13937002808745559225
+          9396050761066994538
         ]
       ], 
       "reviewed-by-human": true
