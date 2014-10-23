@@ -53,6 +53,10 @@ drawbitmapmatrix
 # New shadow only option in SkDropShadowImageFilter
 dropshadowimagefilter
 
+# senorblanco https://codereview.chromium.org/637283009/
+# quality improvements to imagemagnifier GM
+imagemagnifier
+
 #bsalomon slight(?) changes after reseting GrContext between GMs
 dftext
 megalooper_0x0
