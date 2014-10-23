@@ -38,7 +38,11 @@ static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
     // find typeface containing the requested character and draw it
     SkString ch;
     ch.appendUnichar(character);
+#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
+    SkTypeface* typeface = fm->matchFamilyStyleCharacter(fontName, fontStyle, &bpc47, 1, character);
+#else
     SkTypeface* typeface = fm->matchFamilyStyleCharacter(fontName, fontStyle, bpc47, character);
+#endif
     SkSafeUnref(paint.setTypeface(typeface));
     x = drawString(canvas, ch, x, y, paint) + 20;
 
