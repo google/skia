@@ -55,34 +55,3 @@ dftext
 megalooper_0x0
 megalooper_1x4
 megalooper_4x1
-
-# senorblanco https://codereview.chromium.org/644323006/
-# PDF backend now supports image filters
-bitmapsource
-colorfilterimagefilter
-displacement
-dropshadowimagefilter
-imagealphathreshold
-imageblur
-imageblur2
-imageblur_large
-imageblurtiled
-imagefiltersbase
-imagefiltersclipped
-imagefilterscropexpand
-imagefilterscropped
-imagefiltersgraph
-imagefiltersscaled
-imagemagnifier
-imageresizetiled
-lighting
-matrixconvolution
-matriximagefilter
-morphology
-offsetimagefilter
-pictureimagefilter
-resizeimagefilter
-spritebitmap
-testimagefilters
-tileimagefilter
-xfermodeimagefilter
