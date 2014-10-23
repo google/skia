@@ -39,14 +39,6 @@
 // e.g. setTextSize(-1)
 //#define SK_REPORT_API_RANGE_CHECK
 
-#ifdef SK_BUILD_FOR_ANDROID
-#define GEN_ID_INC                  fGenerationID++
-#define GEN_ID_INC_EVAL(expression) if (expression) { fGenerationID++; }
-#else
-#define GEN_ID_INC
-#define GEN_ID_INC_EVAL(expression)
-#endif
-
 SkPaint::SkPaint() {
     fTypeface    = NULL;
     fPathEffect  = NULL;
@@ -75,10 +67,6 @@ SkPaint::SkPaint() {
     fBitfields.fStyle        = kFill_Style;
     fBitfields.fTextEncoding = kUTF8_TextEncoding;
     fBitfields.fHinting      = SkPaintDefaults_Hinting;
-
-#ifdef SK_BUILD_FOR_ANDROID
-    fGenerationID = 0;
-#endif
 }
 
 SkPaint::SkPaint(const SkPaint& src) {
@@ -103,10 +91,6 @@ SkPaint::SkPaint(const SkPaint& src) {
     COPY(fWidth);
     COPY(fMiterLimit);
     COPY(fBitfields);
-
-#ifdef SK_BUILD_FOR_ANDROID
-    COPY(fGenerationID);
-#endif
 
 #undef COPY
 #undef REF_COPY
@@ -153,9 +137,6 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     COPY(fWidth);
     COPY(fMiterLimit);
     COPY(fBitfields);
-#ifdef SK_BUILD_FOR_ANDROID
-    ++fGenerationID;
-#endif
 
     return *this;
 
@@ -165,7 +146,6 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
 
 bool operator==(const SkPaint& a, const SkPaint& b) {
 #define EQUAL(field) (a.field == b.field)
-    // Don't check fGenerationID, which can be different for logically equal paints.
     return EQUAL(fTypeface)
         && EQUAL(fPathEffect)
         && EQUAL(fShader)
@@ -189,38 +169,18 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
 
 void SkPaint::reset() {
     SkPaint init;
-
-#ifdef SK_BUILD_FOR_ANDROID
-    uint32_t oldGenerationID = fGenerationID;
-#endif
     *this = init;
-#ifdef SK_BUILD_FOR_ANDROID
-    fGenerationID = oldGenerationID + 1;
-#endif
 }
-
-#ifdef SK_BUILD_FOR_ANDROID
-uint32_t SkPaint::getGenerationID() const {
-    return fGenerationID;
-}
-
-void SkPaint::setGenerationID(uint32_t generationID) {
-    fGenerationID = generationID;
-}
-#endif
 
 void SkPaint::setFilterLevel(FilterLevel level) {
-    GEN_ID_INC_EVAL((unsigned) level != fBitfields.fFilterLevel);
     fBitfields.fFilterLevel = level;
 }
 
 void SkPaint::setHinting(Hinting hintingLevel) {
-    GEN_ID_INC_EVAL((unsigned) hintingLevel != fBitfields.fHinting);
     fBitfields.fHinting = hintingLevel;
 }
 
 void SkPaint::setFlags(uint32_t flags) {
-    GEN_ID_INC_EVAL(flags != fBitfields.fFlags);
     fBitfields.fFlags = flags;
 }
 
@@ -278,7 +238,6 @@ void SkPaint::setDistanceFieldTextTEMP(bool doDistanceFieldText) {
 
 void SkPaint::setStyle(Style style) {
     if ((unsigned)style < kStyleCount) {
-        GEN_ID_INC_EVAL((unsigned)style != fBitfields.fStyle);
         fBitfields.fStyle = style;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
@@ -288,7 +247,6 @@ void SkPaint::setStyle(Style style) {
 }
 
 void SkPaint::setColor(SkColor color) {
-    GEN_ID_INC_EVAL(color != fColor);
     fColor = color;
 }
 
@@ -303,7 +261,6 @@ void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
 
 void SkPaint::setStrokeWidth(SkScalar width) {
     if (width >= 0) {
-        GEN_ID_INC_EVAL(width != fWidth);
         fWidth = width;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
@@ -314,7 +271,6 @@ void SkPaint::setStrokeWidth(SkScalar width) {
 
 void SkPaint::setStrokeMiter(SkScalar limit) {
     if (limit >= 0) {
-        GEN_ID_INC_EVAL(limit != fMiterLimit);
         fMiterLimit = limit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
@@ -325,7 +281,6 @@ void SkPaint::setStrokeMiter(SkScalar limit) {
 
 void SkPaint::setStrokeCap(Cap ct) {
     if ((unsigned)ct < kCapCount) {
-        GEN_ID_INC_EVAL((unsigned)ct != fBitfields.fCapType);
         fBitfields.fCapType = SkToU8(ct);
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
@@ -336,7 +291,6 @@ void SkPaint::setStrokeCap(Cap ct) {
 
 void SkPaint::setStrokeJoin(Join jt) {
     if ((unsigned)jt < kJoinCount) {
-        GEN_ID_INC_EVAL((unsigned)jt != fBitfields.fJoinType);
         fBitfields.fJoinType = SkToU8(jt);
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
@@ -349,7 +303,6 @@ void SkPaint::setStrokeJoin(Join jt) {
 
 void SkPaint::setTextAlign(Align align) {
     if ((unsigned)align < kAlignCount) {
-        GEN_ID_INC_EVAL((unsigned)align != fBitfields.fTextAlign);
         fBitfields.fTextAlign = SkToU8(align);
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
@@ -360,7 +313,6 @@ void SkPaint::setTextAlign(Align align) {
 
 void SkPaint::setTextSize(SkScalar ts) {
     if (ts >= 0) {
-        GEN_ID_INC_EVAL(ts != fTextSize);
         fTextSize = ts;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
@@ -370,18 +322,15 @@ void SkPaint::setTextSize(SkScalar ts) {
 }
 
 void SkPaint::setTextScaleX(SkScalar scaleX) {
-    GEN_ID_INC_EVAL(scaleX != fTextScaleX);
     fTextScaleX = scaleX;
 }
 
 void SkPaint::setTextSkewX(SkScalar skewX) {
-    GEN_ID_INC_EVAL(skewX != fTextSkewX);
     fTextSkewX = skewX;
 }
 
 void SkPaint::setTextEncoding(TextEncoding encoding) {
     if ((unsigned)encoding <= kGlyphID_TextEncoding) {
-        GEN_ID_INC_EVAL((unsigned)encoding != fBitfields.fTextEncoding);
         fBitfields.fTextEncoding = encoding;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
@@ -394,31 +343,26 @@ void SkPaint::setTextEncoding(TextEncoding encoding) {
 
 SkTypeface* SkPaint::setTypeface(SkTypeface* font) {
     SkRefCnt_SafeAssign(fTypeface, font);
-    GEN_ID_INC;
     return font;
 }
 
 SkRasterizer* SkPaint::setRasterizer(SkRasterizer* r) {
     SkRefCnt_SafeAssign(fRasterizer, r);
-    GEN_ID_INC;
     return r;
 }
 
 SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
     SkRefCnt_SafeAssign(fLooper, looper);
-    GEN_ID_INC;
     return looper;
 }
 
 SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imageFilter) {
     SkRefCnt_SafeAssign(fImageFilter, imageFilter);
-    GEN_ID_INC;
     return imageFilter;
 }
 
 SkAnnotation* SkPaint::setAnnotation(SkAnnotation* annotation) {
     SkRefCnt_SafeAssign(fAnnotation, annotation);
-    GEN_ID_INC;
     return annotation;
 }
 
@@ -2060,19 +2004,16 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkShader* SkPaint::setShader(SkShader* shader) {
-    GEN_ID_INC_EVAL(shader != fShader);
     SkRefCnt_SafeAssign(fShader, shader);
     return shader;
 }
 
 SkColorFilter* SkPaint::setColorFilter(SkColorFilter* filter) {
-    GEN_ID_INC_EVAL(filter != fColorFilter);
     SkRefCnt_SafeAssign(fColorFilter, filter);
     return filter;
 }
 
 SkXfermode* SkPaint::setXfermode(SkXfermode* mode) {
-    GEN_ID_INC_EVAL(mode != fXfermode);
     SkRefCnt_SafeAssign(fXfermode, mode);
     return mode;
 }
@@ -2080,18 +2021,15 @@ SkXfermode* SkPaint::setXfermode(SkXfermode* mode) {
 SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
     SkSafeUnref(fXfermode);
     fXfermode = SkXfermode::Create(mode);
-    GEN_ID_INC;
     return fXfermode;
 }
 
 SkPathEffect* SkPaint::setPathEffect(SkPathEffect* effect) {
-    GEN_ID_INC_EVAL(effect != fPathEffect);
     SkRefCnt_SafeAssign(fPathEffect, effect);
     return effect;
 }
 
 SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter) {
-    GEN_ID_INC_EVAL(filter != fMaskFilter);
     SkRefCnt_SafeAssign(fMaskFilter, filter);
     return filter;
 }

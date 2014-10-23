@@ -921,11 +921,6 @@ public:
     void getPosTextPath(const void* text, size_t length,
                         const SkPoint pos[], SkPath* path) const;
 
-#ifdef SK_BUILD_FOR_ANDROID
-    uint32_t getGenerationID() const;
-    void setGenerationID(uint32_t generationID);
-#endif
-
     // returns true if the paint's settings (e.g. xfermode + alpha) resolve to
     // mean that we need not draw at all (e.g. SrcOver + 0-alpha)
     bool nothingToDraw() const;
@@ -1109,12 +1104,6 @@ private:
     friend class GrGLPathRendering;
     friend class SkTextToPathIter;
     friend class SkCanonicalizePaint;
-
-#ifdef SK_BUILD_FOR_ANDROID
-    // In order for the == operator to work properly this must be the last field
-    // in the struct so that we can do a memcmp to this field's offset.
-    uint32_t        fGenerationID;
-#endif
 };
 
 #endif

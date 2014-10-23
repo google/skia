@@ -158,25 +158,9 @@ DEF_TEST(Paint_copy, reporter) {
     SkPaint copiedPaint = paint;
     REPORTER_ASSERT(reporter, paint == copiedPaint);
 
-#ifdef SK_BUILD_FOR_ANDROID
-    // the copy constructor should preserve the Generation ID
-    uint32_t paintGenID = paint.getGenerationID();
-    uint32_t copiedPaintGenID = copiedPaint.getGenerationID();
-    REPORTER_ASSERT(reporter, paintGenID == copiedPaintGenID);
-    REPORTER_ASSERT(reporter, paint == copiedPaint);
-#endif
-
     // copy the paint using the equal operator and check they are the same
     copiedPaint = paint;
     REPORTER_ASSERT(reporter, paint == copiedPaint);
-
-#ifdef SK_BUILD_FOR_ANDROID
-    // the equals operator should increment the Generation ID
-    REPORTER_ASSERT(reporter, paint.getGenerationID() == paintGenID);
-    REPORTER_ASSERT(reporter, copiedPaint.getGenerationID() != copiedPaintGenID);
-    copiedPaintGenID = copiedPaint.getGenerationID(); // reset to the new value
-    REPORTER_ASSERT(reporter, paint == copiedPaint);  // operator== ignores fGenerationID
-#endif
 
     // clean the paint and check they are back to their initial states
     SkPaint cleanPaint;
@@ -184,15 +168,6 @@ DEF_TEST(Paint_copy, reporter) {
     copiedPaint.reset();
     REPORTER_ASSERT(reporter, cleanPaint == paint);
     REPORTER_ASSERT(reporter, cleanPaint == copiedPaint);
-
-#ifdef SK_BUILD_FOR_ANDROID
-    // the reset function should increment the Generation ID
-    REPORTER_ASSERT(reporter, paint.getGenerationID() != paintGenID);
-    REPORTER_ASSERT(reporter, copiedPaint.getGenerationID() != copiedPaintGenID);
-    // operator== ignores fGenerationID
-    REPORTER_ASSERT(reporter, cleanPaint == paint);
-    REPORTER_ASSERT(reporter, cleanPaint == copiedPaint);
-#endif
 }
 
 // found and fixed for webkit: mishandling when we hit recursion limit on
