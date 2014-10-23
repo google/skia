@@ -101,8 +101,8 @@ protected:
         SkImageFilter* filters[] = {
             SkBlurImageFilter::Create(SkIntToScalar(12), SkIntToScalar(12)),
             SkDropShadowImageFilter::Create(SkIntToScalar(10), SkIntToScalar(10),
-                                            SkIntToScalar(3), SkIntToScalar(3),
-                                            SK_ColorGREEN),
+                SkIntToScalar(3), SkIntToScalar(3), SK_ColorGREEN,
+                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
             SkDisplacementMapEffect::Create(SkDisplacementMapEffect::kR_ChannelSelectorType,
                                             SkDisplacementMapEffect::kR_ChannelSelectorType,
                                             SkIntToScalar(12),

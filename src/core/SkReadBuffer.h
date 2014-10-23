@@ -50,6 +50,7 @@ public:
         kRemoveAndroidPaintOpts_Version    = 32,
         kFlattenCreateProc_Version         = 33,
         kRemoveColorTableAlpha_Version     = 36,
+        kDropShadowMode_Version            = 37,
     };
 
     /**

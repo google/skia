@@ -46,6 +46,10 @@ blurcircles
 bleed
 drawbitmapmatrix
 
+# sugoi https://codereview.chromium.org/646213004/
+# New shadow only option in SkDropShadowImageFilter
+dropshadowimagefilter
+
 #bsalomon slight(?) changes after reseting GrContext between GMs
 dftext
 megalooper_0x0

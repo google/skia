@@ -11,20 +11,46 @@
 
 class SK_API SkDropShadowImageFilter : public SkImageFilter {
 public:
+    enum ShadowMode {
+        kDrawShadowAndForeground_ShadowMode,
+        kDrawShadowOnly_ShadowMode
+    };
+
+    /** @deprecated use another Create function below instead */
     static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
                                            SkScalar sigmaX, SkScalar sigmaY, SkColor color,
                                            SkImageFilter* input = NULL,
                                            const CropRect* cropRect = NULL,
                                            uint32_t uniqueID = 0) {
-        return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY,
-                                                    color, input, cropRect, uniqueID));
+        return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY, color,
+                                                    kDrawShadowAndForeground_ShadowMode,
+                                                    input, cropRect, uniqueID));
     }
+
+    static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
+                                           SkScalar sigmaX, SkScalar sigmaY, SkColor color,
+                                           ShadowMode shadowMode,
+                                           SkImageFilter* input,
+                                           const CropRect* cropRect,
+                                           uint32_t uniqueID) {
+        return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY, color,
+                                                    shadowMode, input, cropRect, uniqueID));
+    }
+
+    static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
+                                           SkScalar sigmaX, SkScalar sigmaY, SkColor color,
+                                           ShadowMode shadowMode) {
+        return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY, color,
+                                                    shadowMode, NULL, NULL, 0));
+    }
+
     virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDropShadowImageFilter)
 
 protected:
     SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor,
-                            SkImageFilter* input, const CropRect* cropRect, uint32_t uniqueID);
+                            ShadowMode shadowMode, SkImageFilter* input, const CropRect* cropRect,
+                            uint32_t uniqueID);
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
     explicit SkDropShadowImageFilter(SkReadBuffer&);
 #endif
@@ -36,5 +62,6 @@ protected:
 private:
     SkScalar fDx, fDy, fSigmaX, fSigmaY;
     SkColor fColor;
+    ShadowMode fShadowMode;
     typedef SkImageFilter INHERITED;
 };

@@ -102,7 +102,7 @@ protected:
         return SkString("dropshadowimagefilter");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(400, 700); }
+    virtual SkISize onISize() { return SkISize::Make(400, 656); }
 
     void draw_frame(SkCanvas* canvas, const SkRect& r) {
         SkPaint paint;
@@ -134,12 +134,20 @@ protected:
 
         SkImageFilter* filters[] = {
             NULL,
-            SkDropShadowImageFilter::Create(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE),
-            SkDropShadowImageFilter::Create(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE),
-            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE),
-            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, cfif),
-            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, NULL, &cropRect),
-            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, NULL, &bogusRect),
+            SkDropShadowImageFilter::Create(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE,
+                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
+            SkDropShadowImageFilter::Create(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE,
+                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
+            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
+                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode),
+            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
+                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, cfif, NULL, 0),
+            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
+                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, NULL, &cropRect, 0),
+            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
+                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, NULL, &bogusRect, 0),
+            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
+                SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));

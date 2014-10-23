@@ -122,6 +122,11 @@ static SkColor make_color() {
     return (R(2) == 1) ? 0xFFC0F0A0 : 0xFF000090;
 }
 
+static SkDropShadowImageFilter::ShadowMode make_shadow_mode() {
+    return (R(2) == 1) ? SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode :
+                         SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode;
+}
+
 static SkPoint3 make_point() {
     return SkPoint3(make_scalar(), make_scalar(), make_scalar(true));
 }
@@ -340,8 +345,9 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     }
         break;
     case DROP_SHADOW:
-        filter = SkDropShadowImageFilter::Create(make_scalar(), make_scalar(),
-                     make_scalar(true), make_scalar(true), make_color(), make_image_filter());
+        filter = SkDropShadowImageFilter::Create(make_scalar(), make_scalar(), make_scalar(true),
+                    make_scalar(true), make_color(), make_shadow_mode(), make_image_filter(),
+                    NULL, 0);
         break;
     case MORPHOLOGY:
         if (R(2) == 1) {

@@ -256,7 +256,9 @@ static void test_crop_rects(SkBaseDevice* device, skiatest::Reporter* reporter) 
                                         SkDisplacementMapEffect::kB_ChannelSelectorType,
                                         40.0f, input.get(), input.get(), &cropRect),
         SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
-        SkDropShadowImageFilter::Create(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN, input.get(), &cropRect),
+        SkDropShadowImageFilter::Create(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1,
+            SK_ColorGREEN, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
+            input.get(), &cropRect, 0),
         SkLightingImageFilter::CreatePointLitDiffuse(location, SK_ColorGREEN, 0, 0, input.get(), &cropRect),
         SkLightingImageFilter::CreatePointLitSpecular(location, SK_ColorGREEN, 0, 0, 0, input.get(), &cropRect),
         SkMatrixConvolutionImageFilter::Create(kernelSize, kernel, gain, bias, SkIPoint::Make(1, 1), SkMatrixConvolutionImageFilter::kRepeat_TileMode, false, input.get(), &cropRect),
@@ -409,7 +411,8 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
               20.0f, gradient_source.get()) },
         { "blur", SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1) },
         { "drop shadow", SkDropShadowImageFilter::Create(
-              SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN) },
+              SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN,
+              SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode) },
         { "diffuse lighting", SkLightingImageFilter::CreatePointLitDiffuse(
               location, SK_ColorGREEN, 0, 0) },
         { "specular lighting",
@@ -537,7 +540,8 @@ static SkImageFilter* makeDropShadow(SkImageFilter* input = NULL) {
     return SkDropShadowImageFilter::Create(
         SkIntToScalar(100), SkIntToScalar(100),
         SkIntToScalar(10), SkIntToScalar(10),
-        SK_ColorBLUE, input);
+        SK_ColorBLUE, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
+        input, NULL, 0);
 }
 
 DEF_TEST(ImageFilterBlurThenShadowBounds, reporter) {
