@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+// EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL
+// DO NOT USE -- FOR INTERNAL TESTING ONLY
+
 #ifndef sk_types_DEFINED
 #define sk_types_DEFINED
 
@@ -31,9 +34,12 @@ typedef enum {
 } sk_colortype_t;
 
 typedef enum {
+    OPAQUE_SK_ALPHATYPE,
     PREMUL_SK_ALPHATYPE,
     UNPREMUL_SK_ALPHATYPE,
 } sk_alphatype_t;
+
+sk_colortype_t sk_colortype_get_default_8888();
 
 typedef struct {
     int32_t         width;
@@ -83,6 +89,10 @@ void sk_canvas_draw_oval(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
 void sk_canvas_draw_path(sk_canvas_t*, const sk_path_t*, const sk_paint_t*);
 void sk_canvas_draw_image(sk_canvas_t*, const sk_image_t*, float x, float y, const sk_paint_t*);
 
+/**
+ *  Return a new image that has made a copy of the provided pixels, or NULL on failure.
+ *  Balance with a call to sk_image_unref().
+ */
 sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t*, const void* pixels, size_t rowBytes);
 void sk_image_ref(const sk_image_t*);
 void sk_image_unref(const sk_image_t*);
@@ -95,6 +105,11 @@ typedef struct sk_surface_t sk_surface_t;
 sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t*);
 sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t*, void* pixels, size_t rowBytes);
 void sk_surface_delete(sk_surface_t*);
+
+/**
+ *  Return the canvas associated with this surface. Note: the canvas is owned by the surface,
+ *  so the returned object is only valid while the owning surface is valid.
+ */
 sk_canvas_t* sk_surface_get_canvas(sk_surface_t*);
 sk_image_t* sk_surface_new_image_snapshot(sk_surface_t*);
 

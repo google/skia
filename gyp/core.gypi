@@ -7,6 +7,9 @@
 #
 {
     'sources': [
+        '<(skia_src_path)/c/sk_surface.cpp',
+        '<(skia_include_path)/c/sk_surface.h',
+
         '<(skia_src_path)/core/SkAAClip.cpp',
         '<(skia_src_path)/core/SkAnnotation.cpp',
         '<(skia_src_path)/core/SkAdvancedTypefaceMetrics.cpp',
