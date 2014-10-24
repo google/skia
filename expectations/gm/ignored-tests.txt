@@ -33,22 +33,8 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
-# rileya - https://codereview.chromium.org/516463005/ will rebaseline after bots cycle
-yuv_to_rgb_effect
-
 # robertphillips - skia:2995
 blurrects
-
-#bsalomon changes after fixing crbug.com/426331
-bitmapfilters
-filterindiabox
-
-# derekf https://codereview.chromium.org/639523002/
-simpleblurroundrect
-blurrects
-blurcircles
-bleed
-drawbitmapmatrix
 
 # sugoi https://codereview.chromium.org/646213004/
 # New shadow only option in SkDropShadowImageFilter
@@ -57,12 +43,6 @@ dropshadowimagefilter
 # senorblanco https://codereview.chromium.org/637283009/
 # quality improvements to imagemagnifier GM
 imagemagnifier
-
-#bsalomon slight(?) changes after reseting GrContext between GMs
-dftext
-megalooper_0x0
-megalooper_1x4
-megalooper_4x1
 
 #mtklein/reed: slight image resize fixes
 bitmaprecttest

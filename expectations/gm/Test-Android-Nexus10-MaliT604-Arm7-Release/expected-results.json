@@ -847,7 +847,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14312149710266134937
+          9867627344966414537
         ]
       ], 
       "reviewed-by-human": true
@@ -901,7 +901,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14565713740382103170
+          7279256031086971938
         ]
       ], 
       "reviewed-by-human": true
@@ -5044,7 +5044,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11343495394983612906
+          14484858848664747251
         ]
       ], 
       "ignore-failure": false, 
@@ -6137,19 +6137,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2286802257293267683
+          16351154972906288073
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "filterindiabox_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4050292462410603306
+          7265193290464967806
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontcache_gpu.png": {
       "allowed-digests": [
@@ -11621,7 +11621,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          590591673143621095
+          8411590397840305868
         ]
       ], 
       "reviewed-by-human": true
@@ -13202,19 +13202,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14593717200149920625
+          10584725278684600171
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "yuv_to_rgb_effect_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14593717200149920625
+          10584725278684600171
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }
   }
 }
