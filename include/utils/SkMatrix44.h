@@ -225,6 +225,13 @@ public:
         return !(this->getType() & ~(kScale_Mask | kTranslate_Mask));
     }
 
+    /**
+     *  Returns true if the matrix only contains scale or is identity.
+     */
+    inline bool isScale() const {
+            return !(this->getType() & ~kScale_Mask);
+    }
+
     inline bool hasPerspective() const {
         return SkToBool(this->getType() & kPerspective_Mask);
     }
