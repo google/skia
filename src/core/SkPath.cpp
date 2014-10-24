@@ -132,6 +132,7 @@ SkPath::SkPath()
 #endif
 {
     this->resetFields();
+    fIsVolatile = false;
 }
 
 void SkPath::resetFields() {
@@ -178,6 +179,7 @@ void SkPath::copyFields(const SkPath& that) {
     fFillType        = that.fFillType;
     fConvexity       = that.fConvexity;
     fDirection       = that.fDirection;
+    fIsVolatile      = that.fIsVolatile;
 }
 
 bool operator==(const SkPath& a, const SkPath& b) {
@@ -196,6 +198,7 @@ void SkPath::swap(SkPath& that) {
         SkTSwap<uint8_t>(fFillType, that.fFillType);
         SkTSwap<uint8_t>(fConvexity, that.fConvexity);
         SkTSwap<uint8_t>(fDirection, that.fDirection);
+        SkTSwap<SkBool8>(fIsVolatile, that.fIsVolatile);
 #ifdef SK_BUILD_FOR_ANDROID
         SkTSwap<const SkPath*>(fSourcePath, that.fSourcePath);
 #endif
@@ -1606,6 +1609,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         if (this != dst) {
             dst->fFillType = fFillType;
             dst->fConvexity = fConvexity;
+            dst->fIsVolatile = fIsVolatile;
         }
 
         if (kUnknown_Direction == fDirection) {
@@ -1978,7 +1982,8 @@ size_t SkPath::writeToMemory(void* storage) const {
 
     int32_t packed = (fConvexity << kConvexity_SerializationShift) |
                      (fFillType << kFillType_SerializationShift) |
-                     (fDirection << kDirection_SerializationShift);
+                     (fDirection << kDirection_SerializationShift) |
+                     (fIsVolatile << kIsVolatile_SerializationShift);
 
     buffer.write32(packed);
 
@@ -1999,6 +2004,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
     fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
     fDirection = (packed >> kDirection_SerializationShift) & 0x3;
+    fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
     SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
 
     size_t sizeRead = 0;

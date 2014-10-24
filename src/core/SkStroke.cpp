@@ -380,7 +380,9 @@ SkPathStroker::SkPathStroker(const SkPath& src,
     // 3x for result == inner + outer + join (swag)
     // 1x for inner == 'wag' (worst contour length would be better guess)
     fOuter.incReserve(src.countPoints() * 3);
+    fOuter.setIsVolatile(true);
     fInner.incReserve(src.countPoints());
+    fInner.setIsVolatile(true);
 #if QUAD_STROKE_APPROXIMATION
 #ifdef SK_DEBUG
     if (!gDebugStrokerErrorSet) {

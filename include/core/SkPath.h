@@ -185,6 +185,23 @@ public:
         return fPathRef->isFinite();
     }
 
+    /** Returns true if the path is volatile (i.e. should not be cached by devices.)
+     */
+    bool isVolatile() const {
+        return SkToBool(fIsVolatile);
+    }
+
+    /** Specify whether this path is volatile. Paths are not volatile by
+     default. Temporary paths that are discarded or modified after use should be
+     marked as volatile. This provides a hint to the device that the path
+     should not be cached. Providing this hint when appropriate can
+     improve performance by avoiding unnecessary overhead and resource
+     consumption on the device.
+     */
+    void setIsVolatile(bool isVolatile) {
+        fIsVolatile = isVolatile;
+    }
+
     /** Test a line for zero length
 
         @return true if the line is of zero length; otherwise false.
@@ -971,7 +988,7 @@ private:
         // 1 free bit at 29
         kUnused1_SerializationShift = 28,    // 1 free bit
         kDirection_SerializationShift = 26, // requires 2 bits
-        kUnused2_SerializationShift = 25,    // 1 free bit
+        kIsVolatile_SerializationShift = 25, // requires 1 bit
         // 1 free bit at 24
         kConvexity_SerializationShift = 16, // requires 8 bits
         kFillType_SerializationShift = 8,   // requires 8 bits
@@ -984,6 +1001,7 @@ private:
     uint8_t             fFillType;
     mutable uint8_t     fConvexity;
     mutable uint8_t     fDirection;
+    mutable SkBool8     fIsVolatile;
 #ifdef SK_BUILD_FOR_ANDROID
     const SkPath*       fSourcePath;
 #endif

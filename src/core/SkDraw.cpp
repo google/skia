@@ -595,12 +595,13 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                 if (newPaint.getStrokeCap() == SkPaint::kRound_Cap) {
                     SkPath      path;
                     SkMatrix    preMatrix;
-
+                    
                     path.addCircle(0, 0, radius);
                     for (size_t i = 0; i < count; i++) {
                         preMatrix.setTranslate(pts[i].fX, pts[i].fY);
                         // pass true for the last point, since we can modify
                         // then path then
+                        path.setIsVolatile((count-1) == i);
                         if (fDevice) {
                             fDevice->drawPath(*this, path, newPaint, &preMatrix,
                                               (count-1) == i);
@@ -719,6 +720,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                 SkPaint p(paint);
                 p.setStyle(SkPaint::kStroke_Style);
                 size_t inc = (SkCanvas::kLines_PointMode == mode) ? 2 : 1;
+                path.setIsVolatile(true);
                 for (size_t i = 0; i < count; i += inc) {
                     path.moveTo(pts[i]);
                     path.lineTo(pts[i+1]);
@@ -1011,6 +1013,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     SkPath          tmpPath;
     SkMatrix        tmpMatrix;
     const SkMatrix* matrix = fMatrix;
+    tmpPath.setIsVolatile(true);
 
     if (prePathMatrix) {
         if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style ||
@@ -1962,7 +1965,8 @@ void SkDraw::drawTextOnPath(const char text[], size_t byteLength,
         if (iterPath) {
             SkPath      tmp;
             SkMatrix    m(scaledMatrix);
-
+            
+            tmp.setIsVolatile(true);
             m.postTranslate(xpos + hOffset, 0);
             if (matrix) {
                 m.postConcat(*matrix);

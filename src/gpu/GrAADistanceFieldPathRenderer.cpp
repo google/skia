@@ -31,6 +31,11 @@
 SK_CONF_DECLARE(bool, c_DumpPathCache, "gpu.dumpPathCache", false,
                 "Dump the contents of the path cache before every purge.");
 
+#ifdef DF_PATH_TRACKING
+static int g_NumCachedPaths = 0;
+static int g_NumFreedPaths = 0;
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
     PathDataList::Iter iter;
@@ -43,6 +48,10 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
     }
     
     SkDELETE(fAtlas);
+
+#ifdef DF_PATH_TRACKING
+    SkDebugf("Cached paths: %d, freed paths: %d\n", g_NumCachedPaths, g_NumFreedPaths);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,10 +59,11 @@ bool GrAADistanceFieldPathRenderer::canDrawPath(const SkPath& path,
                                                 const SkStrokeRec& stroke,
                                                 const GrDrawTarget* target,
                                                 bool antiAlias) const {
+    
     // TODO: Support inverse fill
     // TODO: Support strokes
     if (!target->caps()->shaderDerivativeSupport() || !antiAlias || path.isInverseFillType()
-        || SkStrokeRec::kFill_Style != stroke.getStyle()) {
+        || path.isVolatile() || SkStrokeRec::kFill_Style != stroke.getStyle()) {
         return false;
     }
 
@@ -230,7 +240,10 @@ HAS_ATLAS:
     
     fPathCache.add(pathData);
     fPathList.addToTail(pathData);
-    
+#ifdef DF_PATH_TRACKING
+    ++g_NumCachedPaths;
+#endif
+
     return pathData;
 }
 
@@ -252,6 +265,9 @@ bool GrAADistanceFieldPathRenderer::freeUnusedPlot() {
             fPathCache.remove(pathData->fGenID);
             fPathList.remove(pathData);
             SkDELETE(pathData);
+#ifdef DF_PATH_TRACKING
+            ++g_NumFreedPaths;
+#endif
         }
     }
         

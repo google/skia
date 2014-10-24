@@ -81,3 +81,12 @@ image-surface
 scaled_tilemode_bitmap
 tilemode_bitmap
 verylargebitmap
+
+# jvanverth https://codereview.chromium.org/677463002/
+strokes_round
+strokes3
+nonclosedpaths
+polygons
+roundrects
+shadertext
+shadertext2

@@ -412,6 +412,7 @@ bool GrClipMaskManager::drawElement(GrTexture* target,
         default: {
             SkPath path;
             element->asPath(&path);
+            path.setIsVolatile(true);
             if (path.isInverseFillType()) {
                 path.toggleInverseFillType();
             }

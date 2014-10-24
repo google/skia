@@ -343,6 +343,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         GrPaint grPaint;
         SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
         SkPath path;
+        path.setIsVolatile(true);
         path.moveTo(pts[0]);
         path.lineTo(pts[1]);
         fContext->drawPath(grPaint, path, strokeInfo);
@@ -419,6 +420,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
 
     if (usePath) {
         SkPath path;
+        path.setIsVolatile(true);
         path.addRect(rect);
         this->drawPath(draw, path, paint, NULL, true);
         return;
@@ -485,6 +487,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
 
     if (usePath) {
         SkPath path;
+        path.setIsVolatile(true);
         path.addRRect(rect);
         this->drawPath(draw, path, paint, NULL, true);
         return;
@@ -511,6 +514,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     }
 
     SkPath path;
+    path.setIsVolatile(true);
     path.addRRect(outer);
     path.addRRect(inner);
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -542,6 +546,7 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
 
     if (usePath) {
         SkPath path;
+        path.setIsVolatile(true);
         path.addOval(oval);
         this->drawPath(draw, path, paint, NULL, true);
         return;
@@ -691,6 +696,8 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     CHECK_SHOULD_DRAW(draw, false);
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawPath", fContext);
 
+    SkASSERT(!pathIsMutable || origSrcPath.isVolatile());
+    
     GrPaint grPaint;
     SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
@@ -706,6 +713,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
         if (!pathIsMutable) {
             result = tmpPath.init();
+            result->setIsVolatile(true);
             pathIsMutable = true;
         }
         // should I push prePathMatrix on our MV stack temporarily, instead
@@ -740,6 +748,9 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
         // avoid possibly allocating a new path in transform if we can
         SkPath* devPathPtr = pathIsMutable ? pathPtr : tmpPath.init();
+        if (!pathIsMutable) {
+            devPathPtr->setIsVolatile(true);
+        }
 
         // transform the path into device space
         pathPtr->transform(fContext->getMatrix(), devPathPtr);
