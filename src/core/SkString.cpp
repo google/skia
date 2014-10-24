@@ -26,12 +26,13 @@ static const size_t kBufferSize = 1024;
     #define SNPRINTF    snprintf
 #endif
 
-#define ARGS_TO_BUFFER(format, buffer, size)        \
-    do {                                            \
-        va_list args;                               \
-        va_start(args, format);                     \
-        VSNPRINTF(buffer, size, format, args);      \
-        va_end(args);                               \
+#define ARGS_TO_BUFFER(format, buffer, size, written)      \
+    do {                                                   \
+        va_list args;                                      \
+        va_start(args, format);                            \
+        written = VSNPRINTF(buffer, size, format, args);   \
+        SkASSERT(written >= 0 && written < SkToInt(size)); \
+        va_end(args);                                      \
     } while (0)
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -557,37 +558,42 @@ void SkString::insertScalar(size_t offset, SkScalar value) {
 
 void SkString::printf(const char format[], ...) {
     char    buffer[kBufferSize];
-    ARGS_TO_BUFFER(format, buffer, kBufferSize);
+    int length;
+    ARGS_TO_BUFFER(format, buffer, kBufferSize, length);
 
-    this->set(buffer, strlen(buffer));
+    this->set(buffer, length);
 }
 
 void SkString::appendf(const char format[], ...) {
     char    buffer[kBufferSize];
-    ARGS_TO_BUFFER(format, buffer, kBufferSize);
+    int length;
+    ARGS_TO_BUFFER(format, buffer, kBufferSize, length);
 
-    this->append(buffer, strlen(buffer));
+    this->append(buffer, length);
 }
 
 void SkString::appendVAList(const char format[], va_list args) {
     char    buffer[kBufferSize];
-    VSNPRINTF(buffer, kBufferSize, format, args);
+    int length = VSNPRINTF(buffer, kBufferSize, format, args);
+    SkASSERT(length >= 0 && length < SkToInt(kBufferSize));
 
-    this->append(buffer, strlen(buffer));
+    this->append(buffer, length);
 }
 
 void SkString::prependf(const char format[], ...) {
     char    buffer[kBufferSize];
-    ARGS_TO_BUFFER(format, buffer, kBufferSize);
+    int length;
+    ARGS_TO_BUFFER(format, buffer, kBufferSize, length);
 
-    this->prepend(buffer, strlen(buffer));
+    this->prepend(buffer, length);
 }
 
 void SkString::prependVAList(const char format[], va_list args) {
     char    buffer[kBufferSize];
-    VSNPRINTF(buffer, kBufferSize, format, args);
+    int length = VSNPRINTF(buffer, kBufferSize, format, args);
+    SkASSERT(length >= 0 && length < SkToInt(kBufferSize));
 
-    this->prepend(buffer, strlen(buffer));
+    this->prepend(buffer, length);
 }
 
 
@@ -635,7 +641,8 @@ void SkString::swap(SkString& other) {
 SkString SkStringPrintf(const char* format, ...) {
     SkString formattedOutput;
     char buffer[kBufferSize];
-    ARGS_TO_BUFFER(format, buffer, kBufferSize);
+    SK_UNUSED int length;
+    ARGS_TO_BUFFER(format, buffer, kBufferSize, length);
     formattedOutput.set(buffer);
     return formattedOutput;
 }
