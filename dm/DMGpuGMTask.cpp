@@ -1,7 +1,7 @@
 #include "DMGpuGMTask.h"
 #include "DMUtil.h"
 #include "DMWriteTask.h"
-#include "SkCommandLineFlags.h"
+#include "SkCommonFlags.h"
 #include "SkSurface.h"
 #include "SkTLS.h"
 
@@ -39,6 +39,11 @@ void GpuGMTask::draw(GrContextFactory* grFactory) {
     canvas->concat(fGM->getInitialTransform());
     fGM->draw(canvas);
     canvas->flush();
+#if GR_CACHE_STATS && SK_SUPPORT_GPU
+    if (FLAGS_veryVerbose) {
+        grFactory->get(fContextType)->printCacheStats();
+    }
+#endif
 
     SkBitmap bitmap;
     bitmap.setInfo(info);

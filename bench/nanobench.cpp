@@ -576,6 +576,10 @@ int nanobench_main() {
     gGrFactory.reset(SkNEW_ARGS(GrContextFactory, (grContextOpts)));
 #endif
 
+    if (FLAGS_veryVerbose) {
+        FLAGS_verbose = true;
+    }
+
     if (kAutoTuneLoops != FLAGS_loops) {
         FLAGS_samples     = 1;
         FLAGS_gpuFrameLag = 0;
@@ -719,17 +723,23 @@ int nanobench_main() {
                         , bench->getUniqueName()
                         );
             }
+#if SK_SUPPORT_GPU && GR_CACHE_STATS
+            if (FLAGS_veryVerbose &&
+                Benchmark::kGPU_Backend == targets[j]->config.backend) {
+                gGrFactory->get(targets[j]->config.ctxType)->printCacheStats();  
+            }
+#endif
         }
         targets.deleteAll();
 
-    #if SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
         if (FLAGS_abandonGpuContext) {
             gGrFactory->abandonContexts();
         }
         if (FLAGS_resetGpuContext || FLAGS_abandonGpuContext) {
             gGrFactory->destroyContexts();
         }
-    #endif
+#endif
     }
 
     return 0;

@@ -189,7 +189,7 @@ int dm_main() {
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
-    if (FLAGS_dryRun) {
+    if (FLAGS_dryRun || FLAGS_veryVerbose) {
         FLAGS_verbose = true;
     }
 #if SK_ENABLE_INST_COUNT
