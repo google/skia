@@ -11717,9 +11717,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13521670799445673689
+          11343291210733912483
         ]
       ], 
+      "bugs": [
+        3066
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "simpleaaclip_path_pdf-poppler.png": {
