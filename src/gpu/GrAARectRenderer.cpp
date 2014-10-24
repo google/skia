@@ -45,17 +45,17 @@ public:
             // setup the varying for the Axis aligned rect effect
             //      xy -> interpolated offset
             //      zw -> w/2+0.5, h/2+0.5
-            GrGLVertToFrag v(kVec4f_GrSLType);
-            args.fPB->addVarying("Rect", &v);
+            const char *vsRectName, *fsRectName;
+            args.fPB->addVarying(kVec4f_GrSLType, "Rect", &vsRectName, &fsRectName);
 
             const GrShaderVar& inRect = args.fGP.cast<GrAlignedRectEffect>().inRect();
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-            vsBuilder->codeAppendf("\t%s = %s;\n", v.fsIn(), inRect.c_str());
+            vsBuilder->codeAppendf("\t%s = %s;\n", vsRectName, inRect.c_str());
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             // TODO: compute all these offsets, spans, and scales in the VS
-            fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.z) - 0.5;\n", v.fsIn());
-            fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.w) - 0.5;\n", v.fsIn());
+            fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.z) - 0.5;\n", fsRectName);
+            fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.w) - 0.5;\n", fsRectName);
             fsBuilder->codeAppend("\tfloat outset = 0.5;\n");
             // For rects > 1 pixel wide and tall the span's are noops (i.e., 1.0). For rects
             // < 1 pixel wide or tall they serve to normalize the < 1 ramp to a 0 .. 1 range.
@@ -69,12 +69,12 @@ public:
 
             // Compute the coverage for the rect's width
             fsBuilder->codeAppendf(
-                "\tfloat coverage = scaleW*clamp((%s.z-abs(%s.x))/spanW, 0.0, 1.0);\n", v.fsIn(),
-                v.fsIn());
+                "\tfloat coverage = scaleW*clamp((%s.z-abs(%s.x))/spanW, 0.0, 1.0);\n", fsRectName,
+                fsRectName);
             // Compute the coverage for the rect's height and merge with the width
             fsBuilder->codeAppendf(
                 "\tcoverage = coverage*scaleH*clamp((%s.w-abs(%s.y))/spanH, 0.0, 1.0);\n",
-                v.fsIn(), v.fsIn());
+                fsRectName, fsRectName);
 
 
             fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
@@ -163,24 +163,26 @@ public:
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             // setup the varying for the center point and the unit vector
             // that points down the height of the rect
-            GrGLVertToFrag rectEdge(kVec4f_GrSLType);
-            args.fPB->addVarying("RectEdge", &rectEdge);
+            const char *vsRectEdgeName, *fsRectEdgeName;
+            args.fPB->addVarying(kVec4f_GrSLType, "RectEdge",
+                                &vsRectEdgeName, &fsRectEdgeName);
 
             const GrRectEffect& rectEffect = args.fGP.cast<GrRectEffect>();
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-            vsBuilder->codeAppendf("%s = %s;", rectEdge.vsOut(), rectEffect.inRectEdge().c_str());
+            vsBuilder->codeAppendf("%s = %s;", vsRectEdgeName, rectEffect.inRectEdge().c_str());
 
             // setup the varying for width/2+.5 and height/2+.5
-            GrGLVertToFrag widthHeight(kVec2f_GrSLType);
-            args.fPB->addVarying("WidthHeight", &widthHeight);
+            const char *vsWidthHeightName, *fsWidthHeightName;
+            args.fPB->addVarying(kVec2f_GrSLType, "WidthHeight",
+                                &vsWidthHeightName, &fsWidthHeightName);
             vsBuilder->codeAppendf("%s = %s;",
-                                   widthHeight.vsOut(),
+                                   vsWidthHeightName,
                                    rectEffect.inWidthHeight().c_str());
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             // TODO: compute all these offsets, spans, and scales in the VS
-            fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.x) - 0.5;\n", widthHeight.fsIn());
-            fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.y) - 0.5;\n", widthHeight.fsIn());
+            fsBuilder->codeAppendf("\tfloat insetW = min(1.0, %s.x) - 0.5;\n", fsWidthHeightName);
+            fsBuilder->codeAppendf("\tfloat insetH = min(1.0, %s.y) - 0.5;\n", fsWidthHeightName);
             fsBuilder->codeAppend("\tfloat outset = 0.5;\n");
             // For rects > 1 pixel wide and tall the span's are noops (i.e., 1.0). For rects
             // < 1 pixel wide or tall they serve to normalize the < 1 ramp to a 0 .. 1 range.
@@ -194,19 +196,19 @@ public:
 
             // Compute the coverage for the rect's width
             fsBuilder->codeAppendf("\tvec2 offset = %s.xy - %s.xy;\n",
-                                   fsBuilder->fragmentPosition(), rectEdge.fsIn());
+                                   fsBuilder->fragmentPosition(), fsRectEdgeName);
             fsBuilder->codeAppendf("\tfloat perpDot = abs(offset.x * %s.w - offset.y * %s.z);\n",
-                                   rectEdge.fsIn(), rectEdge.fsIn());
+                                   fsRectEdgeName, fsRectEdgeName);
             fsBuilder->codeAppendf(
                 "\tfloat coverage = scaleW*clamp((%s.x-perpDot)/spanW, 0.0, 1.0);\n",
-                widthHeight.fsIn());
+                fsWidthHeightName);
 
             // Compute the coverage for the rect's height and merge with the width
             fsBuilder->codeAppendf("\tperpDot = abs(dot(offset, %s.zw));\n",
-                                   rectEdge.fsIn());
+                                   fsRectEdgeName);
             fsBuilder->codeAppendf(
                     "\tcoverage = coverage*scaleH*clamp((%s.y-perpDot)/spanH, 0.0, 1.0);\n",
-                    widthHeight.fsIn());
+                    fsWidthHeightName);
 
 
             fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,

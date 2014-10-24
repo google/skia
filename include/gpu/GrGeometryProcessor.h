@@ -23,8 +23,7 @@
  */
 class GrGeometryProcessor : public GrProcessor {
 public:
-    GrGeometryProcessor()
-        : fWillUseGeoShader(false) {}
+    GrGeometryProcessor() {}
 
     virtual const GrBackendGeometryProcessorFactory& getFactory() const = 0;
 
@@ -37,8 +36,6 @@ public:
     typedef SkTArray<GrShaderVar, true> VertexAttribArray;
 
     const VertexAttribArray& getVertexAttribs() const { return fVertexAttribs; }
-
-    bool willUseGeoShader() const { return fWillUseGeoShader; }
 
     /** Returns true if this and other processor conservatively draw identically. It can only return
         true when the two prcoessors are of the same subclass (i.e. they return the same object from
@@ -64,13 +61,10 @@ protected:
         return fVertexAttribs.push_back(var);
     }
 
-    void setWillUseGeoShader() { fWillUseGeoShader = true; }
-
 private:
     virtual bool onIsEqual(const GrGeometryProcessor&) const = 0;
 
     SkSTArray<kMaxVertexAttribs, GrShaderVar, true> fVertexAttribs;
-    bool fWillUseGeoShader;
 
     typedef GrProcessor INHERITED;
 };

@@ -69,63 +69,13 @@ public:
      */
 };
 
-// TODO move this into GrGLGPBuilder and move them both out of this file
-class GrGLVarying {
-public:
-    bool vsVarying() const { return kVertToFrag_Varying == fVarying ||
-                                    kVertToGeo_Varying == fVarying; }
-    bool fsVarying() const { return kVertToFrag_Varying == fVarying ||
-                                    kGeoToFrag_Varying == fVarying; }
-    const char* vsOut() const { return fVsOut; }
-    const char* gsIn() const { return fGsIn; }
-    const char* gsOut() const { return fGsOut; }
-    const char* fsIn() const { return fFsIn; }
-
-protected:
-    enum Varying {
-        kVertToFrag_Varying,
-        kVertToGeo_Varying,
-        kGeoToFrag_Varying,
-    };
-
-    GrGLVarying(GrSLType type, Varying varying)
-        : fVarying(varying), fType(type), fVsOut(NULL), fGsIn(NULL), fGsOut(NULL),
-          fFsIn(NULL) {}
-
-    Varying fVarying;
-
-private:
-    GrSLType fType;
-    const char* fVsOut;
-    const char* fGsIn;
-    const char* fGsOut;
-    const char* fFsIn;
-
-    friend class GrGLVertexBuilder;
-    friend class GrGLGeometryBuilder;
-    friend class GrGLFragmentShaderBuilder;
-};
-
-struct GrGLVertToFrag : public GrGLVarying {
-    GrGLVertToFrag(GrSLType type)
-        : GrGLVarying(type, kVertToFrag_Varying) {}
-};
-
-struct GrGLVertToGeo : public GrGLVarying {
-    GrGLVertToGeo(GrSLType type)
-        : GrGLVarying(type, kVertToGeo_Varying) {}
-};
-
-struct GrGLGeoToFrag : public GrGLVarying {
-    GrGLGeoToFrag(GrSLType type)
-        : GrGLVarying(type, kGeoToFrag_Varying) {}
-};
-
 /* a specialization of the above for GPs.  Lets the user add uniforms, varyings, and VS / FS code */
 class GrGLGPBuilder : public virtual GrGLUniformBuilder {
 public:
-    virtual void addVarying(const char* name,
-                            GrGLVarying*,
+    virtual void addVarying(GrSLType type,
+                            const char* name,
+                            const char** vsOutName = NULL,
+                            const char** fsInName = NULL,
                             GrGLShaderVar::Precision fsPrecision=GrGLShaderVar::kDefault_Precision) = 0;
 
     // TODO rename getFragmentBuilder
@@ -202,8 +152,10 @@ public:
     virtual GrGLVertexBuilder* getVertexShaderBuilder() SK_OVERRIDE { return &fVS; }
 
     virtual void addVarying(
+            GrSLType type,
             const char* name,
-            GrGLVarying*,
+            const char** vsOutName = NULL,
+            const char** fsInName = NULL,
             GrGLShaderVar::Precision fsPrecision=GrGLShaderVar::kDefault_Precision) SK_OVERRIDE;
 
     // Handles for program uniforms (other than per-effect uniforms)

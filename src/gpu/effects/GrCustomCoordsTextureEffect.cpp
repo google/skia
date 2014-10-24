@@ -24,20 +24,23 @@ public:
                 args.fGP.cast<GrCustomCoordsTextureEffect>();
         SkASSERT(1 == customCoordsTextureEffect.getVertexAttribs().count());
 
-        GrGLVertToFrag v(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &v);
+        SkString fsCoordName;
+        const char* vsVaryingName;
+        const char* fsVaryingNamePtr;
+        args.fPB->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsVaryingNamePtr);
+        fsCoordName = fsVaryingNamePtr;
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         const GrShaderVar& inTextureCoords = customCoordsTextureEffect.inTextureCoords();
-        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), inTextureCoords.c_str());
+        vsBuilder->codeAppendf("\t%s = %s;\n", vsVaryingName, inTextureCoords.c_str());
 
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-        fsBuilder->codeAppendf("%s = ", args.fOutput);
+        fsBuilder->codeAppendf("\t%s = ", args.fOutput);
         fsBuilder->appendTextureLookupAndModulate(args.fInput,
                                                   args.fSamplers[0],
-                                                  v.fsIn(),
+                                                  fsCoordName.c_str(),
                                                   kVec2f_GrSLType);
-        fsBuilder->codeAppend(";");
+        fsBuilder->codeAppend(";\n");
     }
 
     virtual void setData(const GrGLProgramDataManager&,

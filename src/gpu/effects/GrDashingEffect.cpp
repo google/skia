@@ -514,17 +514,17 @@ void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
                                          "params",
                                          &paramName);
 
-    GrGLVertToFrag v(kVec2f_GrSLType);
-    args.fPB->addVarying("Coord", &v);
+    const char *vsCoordName, *fsCoordName;
+    args.fPB->addVarying(kVec2f_GrSLType, "Coord", &vsCoordName, &fsCoordName);
 
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-    vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), dce.inCoord().c_str());
+    vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, dce.inCoord().c_str());
 
     // transforms all points so that we can compare them to our test circle
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("\t\tfloat xShifted = %s.x - floor(%s.x / %s.z) * %s.z;\n",
-                           v.fsIn(), v.fsIn(), paramName, paramName);
-    fsBuilder->codeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", v.fsIn());
+                           fsCoordName, fsCoordName, paramName, paramName);
+    fsBuilder->codeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", fsCoordName);
     fsBuilder->codeAppendf("\t\tvec2 center = vec2(%s.y, 0.0);\n", paramName);
     fsBuilder->codeAppend("\t\tfloat dist = length(center - fragPosShifted);\n");
     if (GrProcessorEdgeTypeIsAA(dce.getEdgeType())) {
@@ -718,16 +718,16 @@ void GLDashingLineEffect::emitCode(const EmitArgs& args) {
                                             "interval",
                                             &intervalName);
 
-    GrGLVertToFrag v(kVec2f_GrSLType);
-    args.fPB->addVarying("Coord", &v);
+    const char *vsCoordName, *fsCoordName;
+    args.fPB->addVarying(kVec2f_GrSLType, "Coord", &vsCoordName, &fsCoordName);
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-    vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), de.inCoord().c_str());
+    vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, de.inCoord().c_str());
 
     // transforms all points so that we can compare them to our test rect
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("\t\tfloat xShifted = %s.x - floor(%s.x / %s) * %s;\n",
-                           v.fsIn(), v.fsIn(), intervalName, intervalName);
-    fsBuilder->codeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", v.fsIn());
+                           fsCoordName, fsCoordName, intervalName, intervalName);
+    fsBuilder->codeAppendf("\t\tvec2 fragPosShifted = vec2(xShifted, %s.y);\n", fsCoordName);
     if (GrProcessorEdgeTypeIsAA(de.getEdgeType())) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.

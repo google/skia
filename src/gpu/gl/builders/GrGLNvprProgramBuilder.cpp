@@ -55,6 +55,7 @@ GrGLNvprProgramBuilder::addSeparableVarying(GrSLType type,
                                             const char* name,
                                             const char** vsOutName,
                                             const char** fsInName) {
+    addVarying(type, name, vsOutName, fsInName);
     SeparableVaryingInfo& varying = fSeparableVaryingInfos.push_back();
     varying.fVariable = fFS.fInputs.back();
     return GrGLInstalledFragProc::ShaderVarHandle(fSeparableVaryingInfos.count() - 1);

@@ -346,10 +346,12 @@ void GrGLFragmentShaderBuilder::bindFragmentShaderLocations(GrGLuint programID) 
     }
 }
 
-void GrGLFragmentShaderBuilder::addVarying(GrGLVarying* v, GrGLShaderVar::Precision fsPrec) {
-    v->fFsIn = v->fVsOut;
-    if (v->fGsOut) {
-        v->fFsIn = v->fGsOut;
+void GrGLFragmentShaderBuilder::addVarying(GrSLType type,
+               const char* name,
+               const char** fsInName,
+               GrGLShaderVar::Precision fsPrecision) {
+    fInputs.push_back().set(type, GrGLShaderVar::kVaryingIn_TypeModifier, name, fsPrecision);
+    if (fsInName) {
+        *fsInName = name;
     }
-    fInputs.push_back().set(v->fType, GrGLShaderVar::kVaryingIn_TypeModifier, v->fFsIn, fsPrec);
 }

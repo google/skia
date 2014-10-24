@@ -23,12 +23,17 @@ GrGLVertexBuilder::GrGLVertexBuilder(GrGLProgramBuilder* program)
     , fEffectAttribOffset(0) {
 }
 
-void GrGLVertexBuilder::addVarying(const char* name, GrGLVarying* v) {
+SkString* GrGLVertexBuilder::addVarying(GrSLType type, const char* name,
+                                              const char** vsOutName) {
     fOutputs.push_back();
-    fOutputs.back().setType(v->fType);
+    fOutputs.back().setType(type);
     fOutputs.back().setTypeModifier(GrGLShaderVar::kVaryingOut_TypeModifier);
     fProgramBuilder->nameVariable(fOutputs.back().accessName(), 'v', name);
-    v->fVsOut = fOutputs.back().getName().c_str();
+
+    if (vsOutName) {
+        *vsOutName = fOutputs.back().getName().c_str();
+    }
+    return fOutputs.back().accessName();
 }
 
 void GrGLVertexBuilder::setupLocalCoords() {
@@ -58,15 +63,15 @@ void GrGLVertexBuilder::transformGLToSkiaCoords() {
 }
 
 void GrGLVertexBuilder::setupBuiltinVertexAttribute(const char* inName, GrGLSLExpr4* out) {
-    GrGLVertToFrag v(kVec4f_GrSLType);
-    fProgramBuilder->addVarying(inName, &v);
     SkString name(inName);
+    const char *vsName, *fsName;
+    fProgramBuilder->addVarying(kVec4f_GrSLType, name.c_str(), &vsName, &fsName);
     name.prepend("in");
     this->addAttribute(GrShaderVar(name.c_str(),
                                    kVec4f_GrSLType,
                                    GrShaderVar::kAttribute_TypeModifier));
-    this->codeAppendf("%s = %s;", v.vsOut(), name.c_str());
-    *out = v.fsIn();
+    this->codeAppendf("%s = %s;", vsName, name.c_str());
+    *out = fsName;
     fEffectAttribOffset++;
 }
 

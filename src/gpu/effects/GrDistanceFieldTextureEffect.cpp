@@ -49,11 +49,14 @@ public:
         SkAssertResult(fsBuilder->enableFeature(
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
-        GrGLVertToFrag v(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &v);
+        SkString fsCoordName;
+        const char* vsCoordName;
+        const char* fsCoordNamePtr;
+        args.fPB->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
+        fsCoordName = fsCoordNamePtr;
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-        vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), dfTexEffect.inTextureCoords().c_str());
+        vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, dfTexEffect.inTextureCoords().c_str());
 
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -62,7 +65,7 @@ public:
 
         fsBuilder->codeAppend("\tvec4 texColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[0],
-                                       v.fsIn(),
+                                       fsCoordName.c_str(),
                                        kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");
         fsBuilder->codeAppend("\tfloat distance = "
@@ -72,7 +75,7 @@ public:
         // we adjust for the effect of the transformation on the distance by using
         // the length of the gradient of the texture coordinates. We use st coordinates
         // to ensure we're mapping 1:1 from texel space to pixel space.
-        fsBuilder->codeAppendf("\tvec2 uv = %s;\n", v.fsIn());
+        fsBuilder->codeAppendf("\tvec2 uv = %s;\n", fsCoordName.c_str());
         fsBuilder->codeAppendf("\tvec2 st = uv*%s;\n", textureSizeUniName);
         fsBuilder->codeAppend("\tfloat afwidth;\n");
         if (dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag) {
@@ -261,11 +264,14 @@ public:
         SkAssertResult(fsBuilder->enableFeature(
                                      GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
-        GrGLVertToFrag v(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &v);
+        SkString fsCoordName;
+        const char* vsCoordName;
+        const char* fsCoordNamePtr;
+        args.fPB->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
+        fsCoordName = fsCoordNamePtr;
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords().c_str());
+        vsBuilder->codeAppendf("%s = %s;", vsCoordName, dfTexEffect.inTextureCoords().c_str());
 
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -274,7 +280,7 @@ public:
 
         fsBuilder->codeAppend("vec4 texColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[0],
-                                       v.fsIn(),
+                                       fsCoordName.c_str(),
                                        kVec2f_GrSLType);
         fsBuilder->codeAppend(";");
         fsBuilder->codeAppend("float distance = "
@@ -283,7 +289,7 @@ public:
         // we adjust for the effect of the transformation on the distance by using
         // the length of the gradient of the texture coordinates. We use st coordinates
         // to ensure we're mapping 1:1 from texel space to pixel space.
-        fsBuilder->codeAppendf("vec2 uv = %s;", v.fsIn());
+        fsBuilder->codeAppendf("vec2 uv = %s;", fsCoordName.c_str());
         fsBuilder->codeAppendf("vec2 st = uv*%s;", textureSizeUniName);
         fsBuilder->codeAppend("float afwidth;");
         if (dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag) {
@@ -415,11 +421,14 @@ public:
                 args.fGP.cast<GrDistanceFieldLCDTextureEffect>();
         SkASSERT(1 == dfTexEffect.getVertexAttribs().count());
 
-        GrGLVertToFrag v(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &v);
+        SkString fsCoordName;
+        const char* vsCoordName;
+        const char* fsCoordNamePtr;
+        args.fPB->addVarying(kVec2f_GrSLType, "textureCoords", &vsCoordName, &fsCoordNamePtr);
+        fsCoordName = fsCoordNamePtr;
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-        vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), dfTexEffect.inTextureCoords().c_str());
+        vsBuilder->codeAppendf("\t%s = %s;\n", vsCoordName, dfTexEffect.inTextureCoords().c_str());
 
         const char* textureSizeUniName = NULL;
         // width, height, 1/(3*width)
@@ -433,7 +442,7 @@ public:
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         // create LCD offset adjusted by inverse of transform
-        fsBuilder->codeAppendf("\tvec2 uv = %s;\n", v.fsIn());
+        fsBuilder->codeAppendf("\tvec2 uv = %s;\n", fsCoordName.c_str());
         fsBuilder->codeAppendf("\tvec2 st = uv*%s.xy;\n", textureSizeUniName);
         bool isUniformScale = !!(dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask);
         if (isUniformScale) {
