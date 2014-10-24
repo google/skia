@@ -435,7 +435,7 @@ SkTypeface* SkFontMgr_DirectWrite::createTypefaceFromDWriteFont(
     if (NULL == face) {
         face = DWriteFontTypeface::Create(fFactory.get(), fontFace, font, fontFamily);
         if (face) {
-            fTFCache.add(face, get_style(font), true);
+            fTFCache.add(face, get_style(font));
         }
     }
     return face;

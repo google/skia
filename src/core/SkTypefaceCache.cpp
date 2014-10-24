@@ -19,31 +19,19 @@ SkTypefaceCache::~SkTypefaceCache() {
     const Rec* curr = fArray.begin();
     const Rec* stop = fArray.end();
     while (curr < stop) {
-        if (curr->fStrong) {
-            curr->fFace->unref();
-        } else {
-            curr->fFace->weak_unref();
-        }
+        curr->fFace->unref();
         curr += 1;
     }
 }
 
-void SkTypefaceCache::add(SkTypeface* face,
-                          const SkFontStyle& requestedStyle,
-                          bool strong) {
+void SkTypefaceCache::add(SkTypeface* face, const SkFontStyle& requestedStyle) {
     if (fArray.count() >= TYPEFACE_CACHE_LIMIT) {
         this->purge(TYPEFACE_CACHE_LIMIT >> 2);
     }
 
     Rec* rec = fArray.append();
-    rec->fFace = face;
+    rec->fFace = SkRef(face);
     rec->fRequestedStyle = requestedStyle;
-    rec->fStrong = strong;
-    if (strong) {
-        face->ref();
-    } else {
-        face->weak_ref();
-    }
 }
 
 SkTypeface* SkTypefaceCache::findByID(SkFontID fontID) const {
@@ -64,14 +52,7 @@ SkTypeface* SkTypefaceCache::findByProcAndRef(FindProc proc, void* ctx) const {
     while (curr < stop) {
         SkTypeface* currFace = curr->fFace;
         if (proc(currFace, curr->fRequestedStyle, ctx)) {
-            if (curr->fStrong) {
-                currFace->ref();
-                return currFace;
-            } else if (currFace->try_ref()) {
-                return currFace;
-            } else {
-                //remove currFace from fArray?
-            }
+            return SkRef(currFace);
         }
         curr += 1;
     }
@@ -83,13 +64,8 @@ void SkTypefaceCache::purge(int numToPurge) {
     int i = 0;
     while (i < count) {
         SkTypeface* face = fArray[i].fFace;
-        bool strong = fArray[i].fStrong;
-        if ((strong && face->unique()) || (!strong && face->weak_expired())) {
-            if (strong) {
-                face->unref();
-            } else {
-                face->weak_unref();
-            }
+        if (face->unique()) {
+            face->unref();
             fArray.remove(i);
             --count;
             if (--numToPurge == 0) {
@@ -119,11 +95,9 @@ SkFontID SkTypefaceCache::NewFontID() {
 
 SK_DECLARE_STATIC_MUTEX(gMutex);
 
-void SkTypefaceCache::Add(SkTypeface* face,
-                          const SkFontStyle& requestedStyle,
-                          bool strong) {
+void SkTypefaceCache::Add(SkTypeface* face, const SkFontStyle& requestedStyle) {
     SkAutoMutexAcquire ama(gMutex);
-    Get().add(face, requestedStyle, strong);
+    Get().add(face, requestedStyle);
 }
 
 SkTypeface* SkTypefaceCache::FindByID(SkFontID fontID) {

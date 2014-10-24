@@ -338,9 +338,8 @@ SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
 SkTypeface* SkCreateFontMemResourceTypefaceFromLOGFONT(const LOGFONT& origLF, HANDLE fontMemResource) {
     LOGFONT lf = origLF;
     make_canonical(&lf);
-    FontMemResourceTypeface* face = FontMemResourceTypeface::Create(lf, fontMemResource);
-    SkTypefaceCache::Add(face, get_style(lf), false);
-    return face;
+    // We'll never get a cache hit, so no point in putting this in SkTypefaceCache.
+    return FontMemResourceTypeface::Create(lf, fontMemResource);
 }
 
 /**

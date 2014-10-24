@@ -39,7 +39,7 @@ public:
      *  whose refcnt is 1 (meaning only the cache is an owner) will be
      *  unref()ed.
      */
-    void add(SkTypeface*, const SkFontStyle& requested, bool strong = true);
+    void add(SkTypeface*, const SkFontStyle& requested);
 
     /**
      *  Search the cache for a typeface with the specified fontID (uniqueID).
@@ -72,9 +72,7 @@ public:
 
     // These are static wrappers around a global instance of a cache.
 
-    static void Add(SkTypeface*,
-                    const SkFontStyle& requested,
-                    bool strong = true);
+    static void Add(SkTypeface*, const SkFontStyle& requested);
     static SkTypeface* FindByID(SkFontID fontID);
     static SkTypeface* FindByProcAndRef(FindProc proc, void* ctx);
     static void PurgeAll();
@@ -91,7 +89,6 @@ private:
 
     struct Rec {
         SkTypeface* fFace;
-        bool fStrong;
         SkFontStyle fRequestedStyle;
     };
     SkTDArray<Rec> fArray;

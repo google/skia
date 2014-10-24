@@ -583,7 +583,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
             FcPatternReference(pattern);
             face = SkTypeface_fontconfig::Create(pattern);
             if (face) {
-                fTFCache.add(face, SkFontStyle(), true);
+                fTFCache.add(face, SkFontStyle());
             }
         }
         return face;
