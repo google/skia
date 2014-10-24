@@ -126,13 +126,19 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu,
     , fUniforms(kVarsPerBlock) {
 }
 
-void GrGLProgramBuilder::addVarying(GrSLType type,
-                                    const char* name,
-                                    const char** vsOutName,
-                                    const char** fsInName,
+void GrGLProgramBuilder::addVarying(const char* name,
+                                    GrGLVarying* varying,
                                     GrGLShaderVar::Precision fsPrecision) {
-    SkString* fsInputName = fVS.addVarying(type, name, vsOutName);
-    fFS.addVarying(type, fsInputName->c_str(), fsInName, fsPrecision);
+    SkASSERT(varying);
+    if (varying->vsVarying()) {
+        fVS.addVarying(name, varying);
+    }
+    if (fOptState.hasGeometryProcessor() && fOptState.getGeometryProcessor()->willUseGeoShader()) {
+        fGS.addVarying(name, varying);
+    }
+    if (varying->fsVarying()) {
+        fFS.addVarying(varying, fsPrecision);
+    }
 }
 
 void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* name) {
@@ -362,9 +368,8 @@ void GrGLProgramBuilder::emitTransforms(const GrFragmentStage& effectStage,
             suffixedVaryingName.appendf("_%i", t);
             varyingName = suffixedVaryingName.c_str();
         }
-        const char* vsVaryingName;
-        const char* fsVaryingName;
-        this->addVarying(varyingType, varyingName, &vsVaryingName, &fsVaryingName);
+        GrGLVertToFrag v(varyingType);
+        this->addVarying(varyingName, &v);
 
         const GrGLShaderVar& coords =
                 kPosition_GrCoordSet == effect->coordTransform(t).sourceCoords() ?
@@ -375,13 +380,13 @@ void GrGLProgramBuilder::emitTransforms(const GrFragmentStage& effectStage,
         SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
         if (kVec2f_GrSLType == varyingType) {
             fVS.codeAppendf("%s = (%s * vec3(%s, 1)).xy;",
-                            vsVaryingName, uniName, coords.c_str());
+                            v.vsOut(), uniName, coords.c_str());
         } else {
             fVS.codeAppendf("%s = %s * vec3(%s, 1);",
-                            vsVaryingName, uniName, coords.c_str());
+                            v.vsOut(), uniName, coords.c_str());
         }
         SkNEW_APPEND_TO_TARRAY(outCoords, GrGLProcessor::TransformedCoords,
-                               (SkString(fsVaryingName), varyingType));
+                               (SkString(v.fsIn()), varyingType));
     }
 }
 
