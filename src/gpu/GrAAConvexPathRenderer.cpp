@@ -529,38 +529,38 @@ public:
             : INHERITED (factory) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
-            const char *vsName, *fsName;
-            args.fPB->addVarying(kVec4f_GrSLType, "QuadEdge", &vsName, &fsName);
+            GrGLVertToFrag v(kVec4f_GrSLType);
+            args.fPB->addVarying("QuadEdge", &v);
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
-            fsBuilder->codeAppendf("\t\tfloat edgeAlpha;\n");
+            fsBuilder->codeAppendf("float edgeAlpha;");
 
             // keep the derivative instructions outside the conditional
-            fsBuilder->codeAppendf("\t\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
-            fsBuilder->codeAppendf("\t\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
-            fsBuilder->codeAppendf("\t\tif (%s.z > 0.0 && %s.w > 0.0) {\n", fsName, fsName);
+            fsBuilder->codeAppendf("vec2 duvdx = dFdx(%s.xy);", v.fsIn());
+            fsBuilder->codeAppendf("vec2 duvdy = dFdy(%s.xy);", v.fsIn());
+            fsBuilder->codeAppendf("if (%s.z > 0.0 && %s.w > 0.0) {", v.fsIn(), v.fsIn());
             // today we know z and w are in device space. We could use derivatives
-            fsBuilder->codeAppendf("\t\t\tedgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);\n", fsName,
-                                    fsName);
-            fsBuilder->codeAppendf ("\t\t} else {\n");
-            fsBuilder->codeAppendf("\t\t\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
-                                   "\t\t\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
-                                   fsName, fsName);
-            fsBuilder->codeAppendf("\t\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName,
-                                    fsName);
-            fsBuilder->codeAppendf("\t\t\tedgeAlpha = "
-                                   "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n\t\t}\n");
+            fsBuilder->codeAppendf("edgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);", v.fsIn(),
+                                    v.fsIn());
+            fsBuilder->codeAppendf ("} else {");
+            fsBuilder->codeAppendf("vec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,"
+                                   "               2.0*%s.x*duvdy.x - duvdy.y);",
+                                   v.fsIn(), v.fsIn());
+            fsBuilder->codeAppendf("edgeAlpha = (%s.x*%s.x - %s.y);", v.fsIn(), v.fsIn(),
+                                    v.fsIn());
+            fsBuilder->codeAppendf("edgeAlpha = "
+                                   "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);}");
 
 
-            fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+            fsBuilder->codeAppendf("%s = %s;", args.fOutput,
                                    (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
 
             const GrShaderVar& inQuadEdge = args.fGP.cast<QuadEdgeEffect>().inQuadEdge();
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-            vsBuilder->codeAppendf("\t%s = %s;\n", vsName, inQuadEdge.c_str());
+            vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), inQuadEdge.c_str());
         }
 
         static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}

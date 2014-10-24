@@ -10,10 +10,8 @@
 
 #include "GrGLShaderBuilder.h"
 
-class GrGLProgramBuilder;
+class GrGLVarying;
 
-// TODO we only actually ever need to return a GrGLShaderBuilder for this guy, none of the below
-// functions need to be part of VertexShaderBuilder's public interface
 class GrGLVertexBuilder : public GrGLShaderBuilder {
 public:
     GrGLVertexBuilder(GrGLProgramBuilder* program);
@@ -33,10 +31,11 @@ public:
       */
     const GrGLShaderVar& positionAttribute() const { return *fPositionVar; }
 
+private:
     /*
      * Internal call for GrGLProgramBuilder.addVarying
      */
-    SkString* addVarying(GrSLType type, const char* name, const char** vsOutName);
+    void addVarying(const char* name, GrGLVarying*);
 
     /*
      * private helpers for compilation by GrGLProgramBuilder
@@ -49,7 +48,6 @@ public:
     void bindVertexAttributes(GrGLuint programID);
     bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;
 
-private:
     // an internal call which checks for uniquness of a var before adding it to the list of inputs
     bool addAttribute(const GrShaderVar& var);
     struct AttributePair {
@@ -63,6 +61,8 @@ private:
     GrGLShaderVar*                      fPositionVar;
     GrGLShaderVar*                      fLocalCoordsVar;
     int                                 fEffectAttribOffset;
+
+    friend class GrGLProgramBuilder;
 
     typedef GrGLShaderBuilder INHERITED;
 };

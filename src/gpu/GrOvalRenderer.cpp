@@ -94,21 +94,22 @@ public:
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const CircleEdgeEffect& circleEffect = args.fGP.cast<CircleEdgeEffect>();
-            const char *vsName, *fsName;
-            args.fPB->addVarying(kVec4f_GrSLType, "CircleEdge", &vsName, &fsName);
+            GrGLVertToFrag v(kVec4f_GrSLType);
+            args.fPB->addVarying("CircleEdge", &v);
 
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();;
-            vsBuilder->codeAppendf("\t%s = %s;\n", vsName, circleEffect.inCircleEdge().c_str());
+            vsBuilder->codeAppendf("%s = %s;", v.vsOut(), circleEffect.inCircleEdge().c_str());
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-            fsBuilder->codeAppendf("\tfloat d = length(%s.xy);\n", fsName);
-            fsBuilder->codeAppendf("\tfloat edgeAlpha = clamp(%s.z - d, 0.0, 1.0);\n", fsName);
+            fsBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
+            fsBuilder->codeAppendf("float edgeAlpha = clamp(%s.z - d, 0.0, 1.0);", v.fsIn());
             if (circleEffect.isStroked()) {
-                fsBuilder->codeAppendf("\tfloat innerAlpha = clamp(d - %s.w, 0.0, 1.0);\n", fsName);
-                fsBuilder->codeAppend("\tedgeAlpha *= innerAlpha;\n");
+                fsBuilder->codeAppendf("float innerAlpha = clamp(d - %s.w, 0.0, 1.0);",
+                                       v.fsIn());
+                fsBuilder->codeAppend("edgeAlpha *= innerAlpha;");
             }
 
-            fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+            fsBuilder->codeAppendf("%s = %s;\n", args.fOutput,
                                    (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
@@ -206,39 +207,43 @@ public:
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const EllipseEdgeEffect& ellipseEffect = args.fGP.cast<EllipseEdgeEffect>();
 
-            const char *vsOffsetName, *fsOffsetName;
-            const char *vsRadiiName, *fsRadiiName;
-
-            args.fPB->addVarying(kVec2f_GrSLType, "EllipseOffsets", &vsOffsetName, &fsOffsetName);
+            GrGLVertToFrag ellipseOffsets(kVec2f_GrSLType);
+            args.fPB->addVarying("EllipseOffsets", &ellipseOffsets);
 
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-            vsBuilder->codeAppendf("%s = %s;", vsOffsetName,
+            vsBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
                                    ellipseEffect.inEllipseOffset().c_str());
 
-            args.fPB->addVarying(kVec4f_GrSLType, "EllipseRadii", &vsRadiiName, &fsRadiiName);
-            vsBuilder->codeAppendf("%s = %s;", vsRadiiName, ellipseEffect.inEllipseRadii().c_str());
+            GrGLVertToFrag ellipseRadii(kVec4f_GrSLType);
+            args.fPB->addVarying("EllipseRadii", &ellipseRadii);
+            vsBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(),
+                                   ellipseEffect.inEllipseRadii().c_str());
 
             // for outer curve
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-            fsBuilder->codeAppendf("\tvec2 scaledOffset = %s*%s.xy;\n", fsOffsetName, fsRadiiName);
-            fsBuilder->codeAppend("\tfloat test = dot(scaledOffset, scaledOffset) - 1.0;\n");
-            fsBuilder->codeAppendf("\tvec2 grad = 2.0*scaledOffset*%s.xy;\n", fsRadiiName);
-            fsBuilder->codeAppend("\tfloat grad_dot = dot(grad, grad);\n");
+            fsBuilder->codeAppendf("vec2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
+                                   ellipseRadii.fsIn());
+            fsBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
+            fsBuilder->codeAppendf("vec2 grad = 2.0*scaledOffset*%s.xy;", ellipseRadii.fsIn());
+            fsBuilder->codeAppend("float grad_dot = dot(grad, grad);");
+
             // avoid calling inversesqrt on zero.
-            fsBuilder->codeAppend("\tgrad_dot = max(grad_dot, 1.0e-4);\n");
-            fsBuilder->codeAppend("\tfloat invlen = inversesqrt(grad_dot);\n");
-            fsBuilder->codeAppend("\tfloat edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);\n");
+            fsBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
+            fsBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
+            fsBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
 
             // for inner curve
             if (ellipseEffect.isStroked()) {
-                fsBuilder->codeAppendf("\tscaledOffset = %s*%s.zw;\n", fsOffsetName, fsRadiiName);
-                fsBuilder->codeAppend("\ttest = dot(scaledOffset, scaledOffset) - 1.0;\n");
-                fsBuilder->codeAppendf("\tgrad = 2.0*scaledOffset*%s.zw;\n", fsRadiiName);
-                fsBuilder->codeAppend("\tinvlen = inversesqrt(dot(grad, grad));\n");
-                fsBuilder->codeAppend("\tedgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);\n");
+                fsBuilder->codeAppendf("scaledOffset = %s*%s.zw;",
+                                       ellipseOffsets.fsIn(), ellipseRadii.fsIn());
+                fsBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
+                fsBuilder->codeAppendf("grad = 2.0*scaledOffset*%s.zw;",
+                                       ellipseRadii.fsIn());
+                fsBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
+                fsBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
             }
 
-            fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+            fsBuilder->codeAppendf("%s = %s;", args.fOutput,
                                    (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
@@ -348,57 +353,57 @@ public:
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const DIEllipseEdgeEffect& ellipseEffect = args.fGP.cast<DIEllipseEdgeEffect>();
 
-            const char *vsOffsetName0, *fsOffsetName0;
-            args.fPB->addVarying(kVec2f_GrSLType, "EllipseOffsets0",
-                                      &vsOffsetName0, &fsOffsetName0);
+            GrGLVertToFrag offsets0(kVec2f_GrSLType);
+            args.fPB->addVarying("EllipseOffsets0", &offsets0);
 
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-            vsBuilder->codeAppendf("%s = %s;", vsOffsetName0,
+            vsBuilder->codeAppendf("%s = %s;", offsets0.vsOut(),
                                    ellipseEffect.inEllipseOffsets0().c_str());
-            const char *vsOffsetName1, *fsOffsetName1;
-            args.fPB->addVarying(kVec2f_GrSLType, "EllipseOffsets1",
-                                      &vsOffsetName1, &fsOffsetName1);
-            vsBuilder->codeAppendf("\t%s = %s;\n", vsOffsetName1,
+
+            GrGLVertToFrag offsets1(kVec2f_GrSLType);
+            args.fPB->addVarying("EllipseOffsets1", &offsets1);
+            vsBuilder->codeAppendf("%s = %s;", offsets1.vsOut(),
                                    ellipseEffect.inEllipseOffsets1().c_str());
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             // for outer curve
-            fsBuilder->codeAppendf("\tvec2 scaledOffset = %s.xy;\n", fsOffsetName0);
-            fsBuilder->codeAppend("\tfloat test = dot(scaledOffset, scaledOffset) - 1.0;\n");
-            fsBuilder->codeAppendf("\tvec2 duvdx = dFdx(%s);\n", fsOffsetName0);
-            fsBuilder->codeAppendf("\tvec2 duvdy = dFdy(%s);\n", fsOffsetName0);
-            fsBuilder->codeAppendf("\tvec2 grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,\n"
-                                   "\t                 2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);\n",
-                                   fsOffsetName0, fsOffsetName0, fsOffsetName0, fsOffsetName0);
+            fsBuilder->codeAppendf("vec2 scaledOffset = %s.xy;", offsets0.fsIn());
+            fsBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
+            fsBuilder->codeAppendf("vec2 duvdx = dFdx(%s);", offsets0.fsIn());
+            fsBuilder->codeAppendf("vec2 duvdy = dFdy(%s);", offsets0.fsIn());
+            fsBuilder->codeAppendf("vec2 grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
+                                   "                 2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
+                                   offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn());
 
-            fsBuilder->codeAppend("\tfloat grad_dot = dot(grad, grad);\n");
+            fsBuilder->codeAppend("float grad_dot = dot(grad, grad);");
             // avoid calling inversesqrt on zero.
-            fsBuilder->codeAppend("\tgrad_dot = max(grad_dot, 1.0e-4);\n");
-            fsBuilder->codeAppend("\tfloat invlen = inversesqrt(grad_dot);\n");
+            fsBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
+            fsBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
             if (kHairline == ellipseEffect.getMode()) {
                 // can probably do this with one step
-                fsBuilder->codeAppend("\tfloat edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);\n");
-                fsBuilder->codeAppend("\tedgeAlpha *= clamp(1.0+test*invlen, 0.0, 1.0);\n");
+                fsBuilder->codeAppend("float edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);");
+                fsBuilder->codeAppend("edgeAlpha *= clamp(1.0+test*invlen, 0.0, 1.0);");
             } else {
-                fsBuilder->codeAppend("\tfloat edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);\n");
+                fsBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
             }
 
             // for inner curve
             if (kStroke == ellipseEffect.getMode()) {
-                fsBuilder->codeAppendf("\tscaledOffset = %s.xy;\n", fsOffsetName1);
-                fsBuilder->codeAppend("\ttest = dot(scaledOffset, scaledOffset) - 1.0;\n");
-                fsBuilder->codeAppendf("\tduvdx = dFdx(%s);\n", fsOffsetName1);
-                fsBuilder->codeAppendf("\tduvdy = dFdy(%s);\n", fsOffsetName1);
-                fsBuilder->codeAppendf("\tgrad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,\n"
-                                       "\t            2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);\n",
-                                       fsOffsetName1, fsOffsetName1, fsOffsetName1, fsOffsetName1);
-                fsBuilder->codeAppend("\tinvlen = inversesqrt(dot(grad, grad));\n");
-                fsBuilder->codeAppend("\tedgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);\n");
+                fsBuilder->codeAppendf("scaledOffset = %s.xy;", offsets1.fsIn());
+                fsBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
+                fsBuilder->codeAppendf("duvdx = dFdx(%s);", offsets1.fsIn());
+                fsBuilder->codeAppendf("duvdy = dFdy(%s);", offsets1.fsIn());
+                fsBuilder->codeAppendf("grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
+                                       "            2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
+                                       offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn(),
+                                       offsets1.fsIn());
+                fsBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
+                fsBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
             }
 
-            fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
+            fsBuilder->codeAppendf("%s = %s;", args.fOutput,
                                    (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
         }
 
