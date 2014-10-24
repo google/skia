@@ -54,7 +54,7 @@ size_t GrTexture::gpuMemorySize() const {
 }
 
 void GrTexture::onRelease() {
-    SkASSERT(!this->texturePriv().isSetFlag((GrTextureFlags) kReturnToCache_FlagBit));
+
     INHERITED::onRelease();
 }
 
