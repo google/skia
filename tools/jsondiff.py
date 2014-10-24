@@ -82,7 +82,6 @@ class GMDiffer(object):
         all_expectations = json_dict[gm_json.JSONKEY_EXPECTEDRESULTS]
 
         # Prevent https://code.google.com/p/skia/issues/detail?id=1588
-        # ('svndiff.py: 'NoneType' object has no attribute 'keys'')
         if not all_expectations:
             return result_dict
 
