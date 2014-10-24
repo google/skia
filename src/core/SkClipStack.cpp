@@ -125,6 +125,7 @@ void SkClipStack::Element::initPath(int saveCount, const SkPath& path, SkRegion:
         }
     }
     fPath.set(path);
+    fPath.get()->setIsVolatile(true);
     fType = kPath_Type;
     this->initCommon(saveCount, op, doAA);
 }
@@ -146,6 +147,7 @@ void SkClipStack::Element::asPath(SkPath* path) const {
             *path = *fPath.get();
             break;
     }
+    path->setIsVolatile(true);
 }
 
 void SkClipStack::Element::setEmpty() {
