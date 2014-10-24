@@ -34,7 +34,7 @@
  Ganesh wants a full 256 palette entry, even though Skia's ctable is only as big
  as the colortable.count says it is.
  */
-static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
+static void build_index8_data(void* buffer, const SkBitmap& bitmap) {
     SkASSERT(kIndex_8_SkColorType == bitmap.colorType());
 
     SkAutoLockPixels alp(bitmap);
@@ -308,12 +308,11 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
     if (kIndex_8_SkColorType == bitmap->colorType()) {
         // build_compressed_data doesn't do npot->pot expansion
         // and paletted textures can't be sub-updated
-        if (ctx->supportsIndex8PixelConfig(params, bitmap->width(), bitmap->height())) {
+        if (cache && ctx->supportsIndex8PixelConfig(params, bitmap->width(), bitmap->height())) {
             size_t imageSize = GrCompressedFormatDataSize(kIndex_8_GrPixelConfig,
                                                           bitmap->width(), bitmap->height());
             SkAutoMalloc storage(imageSize);
-
-            build_compressed_data(storage.get(), origBitmap);
+            build_index8_data(storage.get(), origBitmap);
 
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
