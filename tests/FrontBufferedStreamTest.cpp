@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkFrontBufferedStream.h"
+#include "SkImageDecoder.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTypes.h"
@@ -248,4 +250,46 @@ DEF_TEST(FrontBufferedStream, reporter) {
     test_buffers(reporter, 6);
     test_buffers(reporter, 15);
     test_buffers(reporter, 64);
+}
+
+// Test that a FrontBufferedStream does not allow reading after the end of a stream.
+// This class is a dummy SkStream which reports that it is at the end on the first
+// read (simulating a failure). Then it tracks whether someone calls read() again.
+class FailingStream : public SkStream {
+public:
+    FailingStream()
+    : fAtEnd(false)
+    , fReadAfterEnd(false)
+    {}
+    virtual size_t read(void* buffer, size_t size) SK_OVERRIDE {
+        if (fAtEnd) {
+            fReadAfterEnd = true;
+        } else {
+            fAtEnd = true;
+        }
+        return 0;
+    }
+
+    virtual bool isAtEnd() const SK_OVERRIDE {
+        return fAtEnd;
+    }
+
+    bool readAfterEnd() const {
+        return fReadAfterEnd;
+    }
+private:
+    bool fAtEnd;
+    bool fReadAfterEnd;
+};
+
+DEF_TEST(ShortFrontBufferedStream, reporter) {
+    FailingStream failingStream;
+    SkAutoTUnref<SkStreamRewindable> stream(SkFrontBufferedStream::Create(&failingStream, 64));
+    SkBitmap bm;
+    // The return value of DecodeStream is not important. We are just using DecodeStream because
+    // it simulates a bug. DecodeStream will read the stream, then rewind, then attempt to read
+    // again. FrontBufferedStream::read should not continue to read its underlying stream beyond
+    // its end.
+    SkImageDecoder::DecodeStream(stream, &bm);
+    REPORTER_ASSERT(reporter, !failingStream.readAfterEnd());
 }
