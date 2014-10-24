@@ -39,22 +39,18 @@ void GrGLNvprProgramBuilder::emitTransforms(const GrFragmentStage& processorStag
             suffixedVaryingName.appendf("_%i", t);
             varyingName = suffixedVaryingName.c_str();
         }
-        const char* vsVaryingName;
-        const char* fsVaryingName;
-        ifp->fTransforms[t].fHandle = this->addSeparableVarying(varyingType, varyingName,
-                                                                &vsVaryingName, &fsVaryingName);
+        GrGLVertToFrag v(varyingType);
+        ifp->fTransforms[t].fHandle = this->addSeparableVarying(varyingName, &v);
         ifp->fTransforms[t].fType = varyingType;
 
         SkNEW_APPEND_TO_TARRAY(outCoords, GrGLProcessor::TransformedCoords,
-                               (SkString(fsVaryingName), varyingType));
+                               (SkString(v.fsIn()), varyingType));
     }
 }
 
 GrGLInstalledFragProc::ShaderVarHandle
-GrGLNvprProgramBuilder::addSeparableVarying(GrSLType type,
-                                            const char* name,
-                                            const char** vsOutName,
-                                            const char** fsInName) {
+GrGLNvprProgramBuilder::addSeparableVarying(const char* name, GrGLVarying* v) {
+    this->addVarying(name, v);
     SeparableVaryingInfo& varying = fSeparableVaryingInfos.push_back();
     varying.fVariable = fFS.fInputs.back();
     return GrGLInstalledFragProc::ShaderVarHandle(fSeparableVaryingInfos.count() - 1);

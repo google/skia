@@ -41,10 +41,7 @@ private:
      * varyings. Without a vertex shader, such as with NV_path_rendering, GL APIs are used to
      * populate the variable. The APIs can refer to the variable through the returned handle.
      */
-    ShaderVarHandle addSeparableVarying(GrSLType type,
-                                      const char* name,
-                                      const char** vsOutName,
-                                      const char** fsInName);
+    ShaderVarHandle addSeparableVarying(const char* name, GrGLVarying* v);
 
     void resolveSeparableVaryings(GrGLuint programId);
 
