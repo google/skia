@@ -30,24 +30,24 @@ int32_t Global::getNextTimerID() {
 }
 
 // Slight modification to an original function found in the V8 sample shell.cc.
-void Global::reportException(TryCatch* tryCatch) {
-    HandleScope handleScope(fIsolate);
-    String::Utf8Value exception(tryCatch->Exception());
+void Global::reportException(v8::TryCatch* tryCatch) {
+    v8::HandleScope handleScope(fIsolate);
+    v8::String::Utf8Value exception(tryCatch->Exception());
     const char* exceptionString = to_cstring(exception);
-    Handle<Message> message = tryCatch->Message();
+    v8::Handle<v8::Message> message = tryCatch->Message();
     if (message.IsEmpty()) {
         // V8 didn't provide any extra information about this error; just
         // print the exception.
         fprintf(stderr, "%s\n", exceptionString);
     } else {
         // Print (filename):(line number): (message).
-        String::Utf8Value filename(message->GetScriptOrigin().ResourceName());
+        v8::String::Utf8Value filename(message->GetScriptOrigin().ResourceName());
         const char* filenameString = to_cstring(filename);
         int linenum = message->GetLineNumber();
         fprintf(stderr,
                 "%s:%i: %s\n", filenameString, linenum, exceptionString);
         // Print line of source code.
-        String::Utf8Value sourceline(message->GetSourceLine());
+        v8::String::Utf8Value sourceline(message->GetSourceLine());
         const char* sourceLineString = to_cstring(sourceline);
         fprintf(stderr, "%s\n", sourceLineString);
         // Print wavy underline.
@@ -60,7 +60,7 @@ void Global::reportException(TryCatch* tryCatch) {
             fprintf(stderr, "^");
         }
         fprintf(stderr, "\n");
-        String::Utf8Value stackTrace(tryCatch->StackTrace());
+        v8::String::Utf8Value stackTrace(tryCatch->StackTrace());
         if (stackTrace.length() > 0) {
             const char* stackTraceString = to_cstring(stackTrace);
             fprintf(stderr, "%s\n", stackTraceString);
@@ -72,7 +72,7 @@ void Global::reportException(TryCatch* tryCatch) {
 // Invalidates the current window, forcing a redraw.
 //
 // JS: inval();
-void Global::Inval(const v8::FunctionCallbackInfo<Value>& args) {
+void Global::Inval(const v8::FunctionCallbackInfo<v8::Value>& args) {
     gGlobal->getWindow()->inval(NULL);
 }
 
@@ -83,7 +83,7 @@ void Global::Inval(const v8::FunctionCallbackInfo<Value>& args) {
 // JS: print("foo", "bar");
 void Global::Print(const v8::FunctionCallbackInfo<v8::Value>& args) {
     bool first = true;
-    HandleScope handleScope(args.GetIsolate());
+    v8::HandleScope handleScope(args.GetIsolate());
     for (int i = 0; i < args.Length(); i++) {
         if (first) {
             first = false;
@@ -114,7 +114,7 @@ void Global::SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& args) {
         printf("Not a function passed to setTimeout.\n");
         return;
     }
-    Handle<Function> timeoutFn = Handle<Function>::Cast(args[0]);
+    v8::Handle<v8::Function> timeoutFn = v8::Handle<v8::Function>::Cast(args[0]);
 
     double delay = args[1]->NumberValue();
     int32_t id = gGlobal->getNextTimerID();
@@ -127,22 +127,22 @@ void Global::SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& args) {
     evt->setFast32(id);
     evt->postDelay(delay);
 
-    args.GetReturnValue().Set(Integer::New(gGlobal->fIsolate, id));
+    args.GetReturnValue().Set(v8::Integer::New(gGlobal->fIsolate, id));
 }
 
 // Callback function for SkEvents used to implement timeouts.
 bool Global::TimeOutProc(const SkEvent& evt) {
     // Create a handle scope to keep the temporary object references.
-    HandleScope handleScope(gGlobal->getIsolate());
+    v8::HandleScope handleScope(gGlobal->getIsolate());
 
     // Create a local context from our global context.
-    Local<Context> context = gGlobal->getContext();
+    v8::Local<v8::Context> context = gGlobal->getContext();
 
     // Enter the context so all the remaining operations take place there.
-    Context::Scope contextScope(context);
+    v8::Context::Scope contextScope(context);
 
     // Set up an exception handler before calling the Process function.
-    TryCatch tryCatch;
+    v8::TryCatch tryCatch;
 
     int32_t id = evt.getFast32();
     if (gGlobal->fTimeouts.find(gGlobal->fLastTimerID) == gGlobal->fTimeouts.end()) {
@@ -151,9 +151,9 @@ bool Global::TimeOutProc(const SkEvent& evt) {
     }
 
     const int argc = 0;
-    Local<Function> onTimeout =
-            Local<Function>::New(gGlobal->getIsolate(), gGlobal->fTimeouts[id]);
-    Handle<Value> result = onTimeout->Call(context->Global(), argc, NULL);
+    v8::Local<v8::Function> onTimeout =
+            v8::Local<v8::Function>::New(gGlobal->getIsolate(), gGlobal->fTimeouts[id]);
+    v8::Handle<v8::Value> result = onTimeout->Call(context->Global(), argc, NULL);
     gGlobal->fTimeouts.erase(id);
 
     // Handle any exceptions or output.
@@ -166,7 +166,7 @@ bool Global::TimeOutProc(const SkEvent& evt) {
         if (!result->IsUndefined()) {
             // If all went well and the result wasn't undefined then print the
             // returned value.
-            String::Utf8Value str(result);
+            v8::String::Utf8Value str(result);
             const char* cstr = to_cstring(str);
             printf("%s\n", cstr);
         }
@@ -175,9 +175,9 @@ bool Global::TimeOutProc(const SkEvent& evt) {
 }
 
 // Creates a new execution environment containing the built-in functions.
-Handle<Context> Global::createRootContext() {
+v8::Handle<v8::Context> Global::createRootContext() {
   // Create a template for the global object.
-  Handle<ObjectTemplate> global = ObjectTemplate::New();
+  v8::Handle<v8::ObjectTemplate> global = v8::ObjectTemplate::New();
 
   global->Set(v8::String::NewFromUtf8(fIsolate, "print"),
               v8::FunctionTemplate::New(fIsolate, Global::Print));
@@ -187,15 +187,15 @@ Handle<Context> Global::createRootContext() {
               v8::FunctionTemplate::New(fIsolate, Global::Inval));
 
 
-  return Context::New(fIsolate, NULL, global);
+  return v8::Context::New(fIsolate, NULL, global);
 }
 
 void Global::initialize() {
     // Create a stack-allocated handle scope.
-    HandleScope handleScope(fIsolate);
+    v8::HandleScope handleScope(fIsolate);
 
     // Create a new context.
-    Handle<Context> context = this->createRootContext();
+    v8::Handle<v8::Context> context = this->createRootContext();
 
     // Make the context persistent.
     fContext.Reset(fIsolate, context);
@@ -210,19 +210,19 @@ void Global::initialize() {
 bool Global::parseScript(const char script[]) {
 
     // Create a stack-allocated handle scope.
-    HandleScope handleScope(fIsolate);
+    v8::HandleScope handleScope(fIsolate);
 
     // Get the global context.
-    Handle<Context> context = this->getContext();
+    v8::Handle<v8::Context> context = this->getContext();
 
     // Enter the scope so all operations take place in the scope.
-    Context::Scope contextScope(context);
+    v8::Context::Scope contextScope(context);
 
     v8::TryCatch tryCatch;
 
     // Compile the source code.
-    Handle<String> source = String::NewFromUtf8(fIsolate, script);
-    Handle<Script> compiledScript = Script::Compile(source);
+    v8::Handle<v8::String> source = v8::String::NewFromUtf8(fIsolate, script);
+    v8::Handle<v8::Script> compiledScript = v8::Script::Compile(source);
 
     if (compiledScript.IsEmpty()) {
         // Print errors that happened during compilation.
@@ -231,7 +231,7 @@ bool Global::parseScript(const char script[]) {
     }
 
     // Try running it now to create the onDraw function.
-    Handle<Value> result = compiledScript->Run();
+    v8::Handle<v8::Value> result = compiledScript->Run();
 
     // Handle any exceptions or output.
     if (result.IsEmpty()) {

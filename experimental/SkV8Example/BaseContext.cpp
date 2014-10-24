@@ -8,21 +8,19 @@
  */
 #include <v8.h>
 
-using namespace v8;
-
 #include "Global.h"
 #include "BaseContext.h"
 #include "Path2D.h"
 #include "SkCanvas.h"
 
 
-BaseContext* BaseContext::Unwrap(Handle<Object> obj) {
-    Handle<External> field = Handle<External>::Cast(obj->GetInternalField(0));
+BaseContext* BaseContext::Unwrap(v8::Handle<v8::Object> obj) {
+    v8::Handle<v8::External> field = v8::Handle<v8::External>::Cast(obj->GetInternalField(0));
     void* ptr = field->Value();
     return static_cast<BaseContext*>(ptr);
 }
 
-void BaseContext::FillRect(const v8::FunctionCallbackInfo<Value>& args) {
+void BaseContext::FillRect(const v8::FunctionCallbackInfo<v8::Value>& args) {
     BaseContext* BaseContext = Unwrap(args.This());
     SkCanvas* canvas = BaseContext->getCanvas();
     if (NULL == canvas) {
@@ -49,7 +47,7 @@ void BaseContext::FillRect(const v8::FunctionCallbackInfo<Value>& args) {
     canvas->drawRect(rect, BaseContext->fFillStyle);
 }
 
-void BaseContext::Save(const v8::FunctionCallbackInfo<Value>& args) {
+void BaseContext::Save(const v8::FunctionCallbackInfo<v8::Value>& args) {
     BaseContext* BaseContext = Unwrap(args.This());
     SkCanvas* canvas = BaseContext->getCanvas();
     if (NULL == canvas) {
@@ -59,7 +57,7 @@ void BaseContext::Save(const v8::FunctionCallbackInfo<Value>& args) {
     canvas->save();
 }
 
-void BaseContext::Restore(const v8::FunctionCallbackInfo<Value>& args) {
+void BaseContext::Restore(const v8::FunctionCallbackInfo<v8::Value>& args) {
     BaseContext* BaseContext = Unwrap(args.This());
     SkCanvas* canvas = BaseContext->getCanvas();
     if (NULL == canvas) {
@@ -69,7 +67,7 @@ void BaseContext::Restore(const v8::FunctionCallbackInfo<Value>& args) {
     canvas->restore();
 }
 
-void BaseContext::Rotate(const v8::FunctionCallbackInfo<Value>& args) {
+void BaseContext::Rotate(const v8::FunctionCallbackInfo<v8::Value>& args) {
     BaseContext* BaseContext = Unwrap(args.This());
     SkCanvas* canvas = BaseContext->getCanvas();
     if (NULL == canvas) {
@@ -86,7 +84,7 @@ void BaseContext::Rotate(const v8::FunctionCallbackInfo<Value>& args) {
     canvas->rotate(SkRadiansToDegrees(angle));
 }
 
-void BaseContext::Translate(const v8::FunctionCallbackInfo<Value>& args) {
+void BaseContext::Translate(const v8::FunctionCallbackInfo<v8::Value>& args) {
     BaseContext* BaseContext = Unwrap(args.This());
     SkCanvas* canvas = BaseContext->getCanvas();
     if (NULL == canvas) {
@@ -104,7 +102,7 @@ void BaseContext::Translate(const v8::FunctionCallbackInfo<Value>& args) {
     canvas->translate(SkDoubleToScalar(dx), SkDoubleToScalar(dy));
 }
 
-void BaseContext::ResetTransform(const v8::FunctionCallbackInfo<Value>& args) {
+void BaseContext::ResetTransform(const v8::FunctionCallbackInfo<v8::Value>& args) {
     BaseContext* BaseContext = Unwrap(args.This());
     SkCanvas* canvas = BaseContext->getCanvas();
     if (NULL == canvas) {
@@ -114,7 +112,7 @@ void BaseContext::ResetTransform(const v8::FunctionCallbackInfo<Value>& args) {
     canvas->resetMatrix();
 }
 
-void BaseContext::Stroke(const v8::FunctionCallbackInfo<Value>& args) {
+void BaseContext::Stroke(const v8::FunctionCallbackInfo<v8::Value>& args) {
     BaseContext* BaseContext = Unwrap(args.This());
     SkCanvas* canvas = BaseContext->getCanvas();
     if (NULL == canvas) {
@@ -128,7 +126,7 @@ void BaseContext::Stroke(const v8::FunctionCallbackInfo<Value>& args) {
         return;
     }
 
-    Handle<External> field = Handle<External>::Cast(
+    v8::Handle<v8::External> field = v8::Handle<v8::External>::Cast(
             args[0]->ToObject()->GetInternalField(0));
     void* ptr = field->Value();
     Path2D* path = static_cast<Path2D*>(ptr);
@@ -136,7 +134,7 @@ void BaseContext::Stroke(const v8::FunctionCallbackInfo<Value>& args) {
     canvas->drawPath(path->getSkPath(), BaseContext->fStrokeStyle);
 }
 
-void BaseContext::Fill(const v8::FunctionCallbackInfo<Value>& args) {
+void BaseContext::Fill(const v8::FunctionCallbackInfo<v8::Value>& args) {
     BaseContext* BaseContext = Unwrap(args.This());
     SkCanvas* canvas = BaseContext->getCanvas();
     if (NULL == canvas) {
@@ -150,7 +148,7 @@ void BaseContext::Fill(const v8::FunctionCallbackInfo<Value>& args) {
         return;
     }
 
-    Handle<External> field = Handle<External>::Cast(
+    v8::Handle<v8::External> field = v8::Handle<v8::External>::Cast(
             args[0]->ToObject()->GetInternalField(0));
     void* ptr = field->Value();
     Path2D* path = static_cast<Path2D*>(ptr);
@@ -158,21 +156,21 @@ void BaseContext::Fill(const v8::FunctionCallbackInfo<Value>& args) {
     canvas->drawPath(path->getSkPath(), BaseContext->fFillStyle);
 }
 
-void BaseContext::GetStyle(Local<String> name,
-                         const PropertyCallbackInfo<Value>& info,
+void BaseContext::GetStyle(v8::Local<v8::String> name,
+                         const v8::PropertyCallbackInfo<v8::Value>& info,
                          const SkPaint& style) {
     char buf[8];
     SkColor color = style.getColor();
     sprintf(buf, "#%02X%02X%02X", SkColorGetR(color), SkColorGetG(color),
             SkColorGetB(color));
 
-    info.GetReturnValue().Set(String::NewFromUtf8(info.GetIsolate(), buf));
+    info.GetReturnValue().Set(v8::String::NewFromUtf8(info.GetIsolate(), buf));
 }
 
-void BaseContext::SetStyle(Local<String> name, Local<Value> value,
-                         const PropertyCallbackInfo<void>& info,
+void BaseContext::SetStyle(v8::Local<v8::String> name, v8::Local<v8::Value> value,
+                         const v8::PropertyCallbackInfo<void>& info,
                          SkPaint& style) {
-    Local<String> s = value->ToString();
+    v8::Local<v8::String> s = value->ToString();
     if (s->Length() != 7 && s->Length() != 9) {
         info.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -200,33 +198,33 @@ void BaseContext::SetStyle(Local<String> name, Local<Value> value,
     style.setColor(SkColorSetA(SkColor(color), alpha));
 }
 
-void BaseContext::GetFillStyle(Local<String> name,
-                             const PropertyCallbackInfo<Value>& info) {
+void BaseContext::GetFillStyle(v8::Local<v8::String> name,
+                             const v8::PropertyCallbackInfo<v8::Value>& info) {
     BaseContext* baseContext = Unwrap(info.This());
     GetStyle(name, info, baseContext->fFillStyle);
 }
 
-void BaseContext::GetStrokeStyle(Local<String> name,
-                               const PropertyCallbackInfo<Value>& info) {
+void BaseContext::GetStrokeStyle(v8::Local<v8::String> name,
+                               const v8::PropertyCallbackInfo<v8::Value>& info) {
     BaseContext* baseContext = Unwrap(info.This());
     GetStyle(name, info, baseContext->fStrokeStyle);
 }
 
-void BaseContext::SetFillStyle(Local<String> name, Local<Value> value,
-                            const PropertyCallbackInfo<void>& info) {
+void BaseContext::SetFillStyle(v8::Local<v8::String> name, v8::Local<v8::Value> value,
+                            const v8::PropertyCallbackInfo<void>& info) {
     BaseContext* baseContext = Unwrap(info.This());
     SetStyle(name, value, info, baseContext->fFillStyle);
 }
 
-void BaseContext::SetStrokeStyle(Local<String> name, Local<Value> value,
-                               const PropertyCallbackInfo<void>& info) {
+void BaseContext::SetStrokeStyle(v8::Local<v8::String> name, v8::Local<v8::Value> value,
+                               const v8::PropertyCallbackInfo<void>& info) {
     BaseContext* baseContext = Unwrap(info.This());
     SetStyle(name, value, info, baseContext->fStrokeStyle);
 }
 
 
-void BaseContext::GetWidth(Local<String> name,
-                         const PropertyCallbackInfo<Value>& info) {
+void BaseContext::GetWidth(v8::Local<v8::String> name,
+                         const v8::PropertyCallbackInfo<v8::Value>& info) {
     BaseContext* baseContext = Unwrap(info.This());
     SkCanvas* canvas = baseContext->getCanvas();
     if (NULL == canvas) {
@@ -235,11 +233,11 @@ void BaseContext::GetWidth(Local<String> name,
     SkISize size = canvas->getDeviceSize();
 
     info.GetReturnValue().Set(
-            Int32::New(baseContext->fGlobal->getIsolate(), size.fWidth));
+            v8::Int32::New(baseContext->fGlobal->getIsolate(), size.fWidth));
 }
 
-void BaseContext::GetHeight(Local<String> name,
-                         const PropertyCallbackInfo<Value>& info) {
+void BaseContext::GetHeight(v8::Local<v8::String> name,
+                         const v8::PropertyCallbackInfo<v8::Value>& info) {
     BaseContext* baseContext = Unwrap(info.This());
     SkCanvas* canvas = baseContext->getCanvas();
     if (NULL == canvas) {
@@ -248,30 +246,30 @@ void BaseContext::GetHeight(Local<String> name,
     SkISize size = canvas->getDeviceSize();
 
     info.GetReturnValue().Set(
-            Int32::New(baseContext->fGlobal->getIsolate(), size.fHeight));
+            v8::Int32::New(baseContext->fGlobal->getIsolate(), size.fHeight));
 }
 
 #define ADD_METHOD(name, fn) \
-    tmpl->Set(String::NewFromUtf8( \
+    tmpl->Set(v8::String::NewFromUtf8( \
          fGlobal->getIsolate(), name, \
-         String::kInternalizedString), \
-             FunctionTemplate::New(fGlobal->getIsolate(), fn))
+         v8::String::kInternalizedString), \
+             v8::FunctionTemplate::New(fGlobal->getIsolate(), fn))
 
-void BaseContext::addAttributesAndMethods(Handle<ObjectTemplate> tmpl) {
-    HandleScope scope(fGlobal->getIsolate());
+void BaseContext::addAttributesAndMethods(v8::Handle<v8::ObjectTemplate> tmpl) {
+    v8::HandleScope scope(fGlobal->getIsolate());
 
     // Add accessors for each of the fields of the context object.
-    tmpl->SetAccessor(String::NewFromUtf8(
-        fGlobal->getIsolate(), "fillStyle", String::kInternalizedString),
+    tmpl->SetAccessor(v8::String::NewFromUtf8(
+        fGlobal->getIsolate(), "fillStyle", v8::String::kInternalizedString),
             GetFillStyle, SetFillStyle);
-    tmpl->SetAccessor(String::NewFromUtf8(
-        fGlobal->getIsolate(), "strokeStyle", String::kInternalizedString),
+    tmpl->SetAccessor(v8::String::NewFromUtf8(
+        fGlobal->getIsolate(), "strokeStyle", v8::String::kInternalizedString),
             GetStrokeStyle, SetStrokeStyle);
-    tmpl->SetAccessor(String::NewFromUtf8(
-        fGlobal->getIsolate(), "width", String::kInternalizedString),
+    tmpl->SetAccessor(v8::String::NewFromUtf8(
+        fGlobal->getIsolate(), "width", v8::String::kInternalizedString),
             GetWidth);
-    tmpl->SetAccessor(String::NewFromUtf8(
-        fGlobal->getIsolate(), "height", String::kInternalizedString),
+    tmpl->SetAccessor(v8::String::NewFromUtf8(
+        fGlobal->getIsolate(), "height", v8::String::kInternalizedString),
             GetHeight);
 
     // Add methods.

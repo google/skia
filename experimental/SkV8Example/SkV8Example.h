@@ -29,7 +29,7 @@ protected:
     virtual void onSizeChange() SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual SkCanvas* createCanvas() SK_OVERRIDE;
+    virtual SkSurface* createSurface() SK_OVERRIDE;
 #endif
 
 #ifdef SK_BUILD_FOR_WIN

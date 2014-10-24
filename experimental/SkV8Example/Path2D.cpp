@@ -12,19 +12,19 @@
 
 Global* Path2D::gGlobal = NULL;
 
-void Path2D::ConstructPath(const v8::FunctionCallbackInfo<Value>& args) {
-    HandleScope handleScope(gGlobal->getIsolate());
+void Path2D::ConstructPath(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    v8::HandleScope handleScope(gGlobal->getIsolate());
     Path2D* path = new Path2D();
     args.This()->SetInternalField(
-            0, External::New(gGlobal->getIsolate(), path));
+            0, v8::External::New(gGlobal->getIsolate(), path));
 }
 
 #define ADD_METHOD(name, fn) \
     constructor->InstanceTemplate()->Set( \
-            String::NewFromUtf8( \
+            v8::String::NewFromUtf8( \
                     global->getIsolate(), name, \
-                    String::kInternalizedString), \
-            FunctionTemplate::New(global->getIsolate(), fn))
+                    v8::String::kInternalizedString), \
+            v8::FunctionTemplate::New(global->getIsolate(), fn))
 
 // Install the constructor in the global scope so Path2Ds can be constructed
 // in JS.
@@ -32,14 +32,14 @@ void Path2D::AddToGlobal(Global* global) {
     gGlobal = global;
 
     // Create a stack-allocated handle scope.
-    HandleScope handleScope(gGlobal->getIsolate());
+    v8::HandleScope handleScope(gGlobal->getIsolate());
 
-    Handle<Context> context = gGlobal->getContext();
+    v8::Handle<v8::Context> context = gGlobal->getContext();
 
     // Enter the scope so all operations take place in the scope.
-    Context::Scope contextScope(context);
+    v8::Context::Scope contextScope(context);
 
-    Local<FunctionTemplate> constructor = FunctionTemplate::New(
+    v8::Local<v8::FunctionTemplate> constructor = v8::FunctionTemplate::New(
             gGlobal->getIsolate(), Path2D::ConstructPath);
     constructor->InstanceTemplate()->SetInternalFieldCount(1);
 
@@ -53,23 +53,23 @@ void Path2D::AddToGlobal(Global* global) {
     ADD_METHOD("oval", Oval);
     ADD_METHOD("conicTo", ConicTo);
 
-    context->Global()->Set(String::NewFromUtf8(
+    context->Global()->Set(v8::String::NewFromUtf8(
             gGlobal->getIsolate(), "Path2D"), constructor->GetFunction());
 }
 
-Path2D* Path2D::Unwrap(const v8::FunctionCallbackInfo<Value>& args) {
-    Handle<External> field = Handle<External>::Cast(
+Path2D* Path2D::Unwrap(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    v8::Handle<v8::External> field = v8::Handle<v8::External>::Cast(
             args.This()->GetInternalField(0));
     void* ptr = field->Value();
     return static_cast<Path2D*>(ptr);
 }
 
-void Path2D::ClosePath(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::ClosePath(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Path2D* path = Unwrap(args);
     path->fSkPath.close();
 }
 
-void Path2D::MoveTo(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::MoveTo(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (args.Length() != 2) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -82,7 +82,7 @@ void Path2D::MoveTo(const v8::FunctionCallbackInfo<Value>& args) {
     path->fSkPath.moveTo(SkDoubleToScalar(x), SkDoubleToScalar(y));
 }
 
-void Path2D::LineTo(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::LineTo(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (args.Length() != 2) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -95,7 +95,7 @@ void Path2D::LineTo(const v8::FunctionCallbackInfo<Value>& args) {
     path->fSkPath.lineTo(SkDoubleToScalar(x), SkDoubleToScalar(y));
 }
 
-void Path2D::QuadraticCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::QuadraticCurveTo(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (args.Length() != 4) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -114,7 +114,7 @@ void Path2D::QuadraticCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
             SkDoubleToScalar(x), SkDoubleToScalar(y));
 }
 
-void Path2D::BezierCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::BezierCurveTo(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (args.Length() != 6) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -136,7 +136,7 @@ void Path2D::BezierCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
             SkDoubleToScalar(x), SkDoubleToScalar(y));
 }
 
-void Path2D::Arc(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::Arc(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (args.Length() != 5 && args.Length() != 6) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -172,7 +172,7 @@ void Path2D::Arc(const v8::FunctionCallbackInfo<Value>& args) {
                          SkRadiansToDegrees(sweepAngle));
 }
 
-void Path2D::Rect(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::Rect(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (args.Length() != 4) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -194,7 +194,7 @@ void Path2D::Rect(const v8::FunctionCallbackInfo<Value>& args) {
     path->fSkPath.addRect(rect);
 }
 
-void Path2D::Oval(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::Oval(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (args.Length() != 4 && args.Length() != 5) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -220,7 +220,7 @@ void Path2D::Oval(const v8::FunctionCallbackInfo<Value>& args) {
     path->fSkPath.addOval(rect, dir);
 }
 
-void Path2D::ConicTo(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::ConicTo(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (args.Length() != 5) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(

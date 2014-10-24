@@ -15,8 +15,6 @@
 #include "SkPaint.h"
 #include "BaseContext.h"
 
-using namespace v8;
-
 class SkCanvas;
 class Global;
 
@@ -47,14 +45,14 @@ public:
 private:
 
     // Wrap the 'this' pointer into an Object. Can be retrieved via Unwrap.
-    Handle<Object> wrap();
+    v8::Handle<v8::Object> wrap();
 
     // A handle to the onDraw function defined in the script.
-    Persistent<Function> fOnDraw;
+    v8::Persistent<v8::Function> fOnDraw;
 
     // The template for what a canvas context object looks like. The canvas
     // context object is what's passed into the JS onDraw() function.
-    static Persistent<ObjectTemplate> gContextTemplate;
+    static v8::Persistent<v8::ObjectTemplate> gContextTemplate;
 
     // Only valid when inside OnDraw().
     SkCanvas* fCanvas;

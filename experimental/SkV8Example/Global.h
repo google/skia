@@ -14,20 +14,19 @@
 
 #include <v8.h>
 
-using namespace v8;
 
 #include "SkTypes.h"
 #include "SkEvent.h"
 
 class SkOSWindow;
 
-typedef Persistent<Function, CopyablePersistentTraits<Function> > CopyablePersistentFn;
+typedef v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function> > CopyablePersistentFn;
 
 // Provides the global isolate and context for our V8 instance.
 // Also implements all the global level functions.
 class Global : SkNoncopyable  {
 public:
-    Global(Isolate* isolate)
+    Global(v8::Isolate* isolate)
         : fIsolate(isolate)
         , fWindow(NULL)
         , fLastTimerID(0)
@@ -40,11 +39,11 @@ public:
     // The script will be parsed into the context this Global contains.
     bool parseScript(const char script[]);
 
-    Local<Context> getContext() {
-        return Local<Context>::New(fIsolate, fContext);
+    v8::Local<v8::Context> getContext() {
+        return v8::Local<v8::Context>::New(fIsolate, fContext);
     }
 
-    Isolate* getIsolate() {
+    v8::Isolate* getIsolate() {
         return fIsolate;
     }
 
@@ -55,11 +54,11 @@ public:
         return fWindow;
     }
 
-    void reportException(TryCatch* tryCatch);
+    void reportException(v8::TryCatch* tryCatch);
 
 private:
     void initialize();
-    Handle<Context> createRootContext();
+    v8::Handle<v8::Context> createRootContext();
     int32_t getNextTimerID();
 
     static bool TimeOutProc(const SkEvent& evt);
@@ -68,12 +67,12 @@ private:
     // the context.
     static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Print(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Inval(const v8::FunctionCallbackInfo<Value>& args);
+    static void Inval(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-    Persistent<Context> fContext;
-    Isolate*            fIsolate;
-    SkOSWindow*         fWindow;
-    static Global*      gGlobal;
+    v8::Persistent<v8::Context> fContext;
+    v8::Isolate*                fIsolate;
+    SkOSWindow*                 fWindow;
+    static Global*              gGlobal;
 
     // Handle to the functions to call when a timeout triggers as indexed by id.
     std::map<int32_t, CopyablePersistentFn > fTimeouts;

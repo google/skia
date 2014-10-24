@@ -9,8 +9,6 @@
  */
 #include <v8.h>
 
-using namespace v8;
-
 #include "Global.h"
 #include "JsContext.h"
 #include "Path2D.h"
@@ -23,17 +21,17 @@ static const char* to_cstring(const v8::String::Utf8Value& value) {
     return *value ? *value : "<string conversion failed>";
 }
 
-Persistent<ObjectTemplate> JsContext::gContextTemplate;
+v8::Persistent<v8::ObjectTemplate> JsContext::gContextTemplate;
 
 // Wraps 'this' in a Javascript object.
-Handle<Object> JsContext::wrap() {
+v8::Handle<v8::Object> JsContext::wrap() {
     // Handle scope for temporary handles.
-    EscapableHandleScope handleScope(fGlobal->getIsolate());
+    v8::EscapableHandleScope handleScope(fGlobal->getIsolate());
 
     // Fetch the template for creating JavaScript JsContext wrappers.
     // It only has to be created once, which we do on demand.
     if (gContextTemplate.IsEmpty()) {
-        Local<ObjectTemplate> localTemplate = ObjectTemplate::New();
+        v8::Local<v8::ObjectTemplate> localTemplate = v8::ObjectTemplate::New();
 
         // Add a field to store the pointer to a JsContext instance.
         localTemplate->SetInternalFieldCount(1);
@@ -42,15 +40,15 @@ Handle<Object> JsContext::wrap() {
 
         gContextTemplate.Reset(fGlobal->getIsolate(), localTemplate);
     }
-    Handle<ObjectTemplate> templ =
-            Local<ObjectTemplate>::New(fGlobal->getIsolate(), gContextTemplate);
+    v8::Handle<v8::ObjectTemplate> templ =
+            v8::Local<v8::ObjectTemplate>::New(fGlobal->getIsolate(), gContextTemplate);
 
     // Create an empty JsContext wrapper.
-    Local<Object> result = templ->NewInstance();
+    v8::Local<v8::Object> result = templ->NewInstance();
 
     // Wrap the raw C++ pointer in an External so it can be referenced
     // from within JavaScript.
-    Handle<External> contextPtr = External::New(fGlobal->getIsolate(), this);
+    v8::Handle<v8::External> contextPtr = v8::External::New(fGlobal->getIsolate(), this);
 
     // Store the context pointer in the JavaScript wrapper.
     result->SetInternalField(0, contextPtr);
@@ -67,27 +65,27 @@ void JsContext::onDraw(SkCanvas* canvas) {
     fCanvas = canvas;
 
     // Create a handle scope to keep the temporary object references.
-    HandleScope handleScope(fGlobal->getIsolate());
+    v8::HandleScope handleScope(fGlobal->getIsolate());
 
     // Create a local context from our global context.
-    Local<Context> context = fGlobal->getContext();
+    v8::Local<v8::Context> context = fGlobal->getContext();
 
     // Enter the context so all the remaining operations take place there.
-    Context::Scope contextScope(context);
+    v8::Context::Scope contextScope(context);
 
     // Wrap the C++ this pointer in a JavaScript wrapper.
-    Handle<Object> contextObj = this->wrap();
+    v8::Handle<v8::Object> contextObj = this->wrap();
 
     // Set up an exception handler before calling the Process function.
-    TryCatch tryCatch;
+    v8::TryCatch tryCatch;
 
     // Invoke the process function, giving the global object as 'this'
     // and one argument, this JsContext.
     const int argc = 1;
-    Handle<Value> argv[argc] = { contextObj };
-    Local<Function> onDraw =
-            Local<Function>::New(fGlobal->getIsolate(), fOnDraw);
-    Handle<Value> result = onDraw->Call(context->Global(), argc, argv);
+    v8::Handle<v8::Value> argv[argc] = { contextObj };
+    v8::Local<v8::Function> onDraw =
+            v8::Local<v8::Function>::New(fGlobal->getIsolate(), fOnDraw);
+    v8::Handle<v8::Value> result = onDraw->Call(context->Global(), argc, argv);
 
     // Handle any exceptions or output.
     if (result.IsEmpty()) {
@@ -99,7 +97,7 @@ void JsContext::onDraw(SkCanvas* canvas) {
         if (!result->IsUndefined()) {
             // If all went well and the result wasn't undefined then print
             // the returned value.
-            String::Utf8Value str(result);
+            v8::String::Utf8Value str(result);
             const char* cstr = to_cstring(str);
             printf("%s\n", cstr);
         }
@@ -110,19 +108,19 @@ void JsContext::onDraw(SkCanvas* canvas) {
 bool JsContext::initialize() {
 
     // Create a stack-allocated handle scope.
-    HandleScope handleScope(fGlobal->getIsolate());
+    v8::HandleScope handleScope(fGlobal->getIsolate());
 
     // Create a local context from our global context.
-    Local<Context> context = fGlobal->getContext();
+    v8::Local<v8::Context> context = fGlobal->getContext();
 
     // Enter the scope so all operations take place in the scope.
-    Context::Scope contextScope(context);
+    v8::Context::Scope contextScope(context);
 
     v8::TryCatch try_catch;
 
-    Handle<String> fn_name = String::NewFromUtf8(
+    v8::Handle<v8::String> fn_name = v8::String::NewFromUtf8(
         fGlobal->getIsolate(), "onDraw");
-    Handle<Value> fn_val = context->Global()->Get(fn_name);
+    v8::Handle<v8::Value> fn_val = context->Global()->Get(fn_name);
 
     if (!fn_val->IsFunction()) {
         printf("Not a function.\n");
@@ -130,7 +128,7 @@ bool JsContext::initialize() {
     }
 
     // It is a function; cast it to a Function.
-    Handle<Function> fn_fun = Handle<Function>::Cast(fn_val);
+    v8::Handle<v8::Function> fn_fun = v8::Handle<v8::Function>::Cast(fn_val);
 
     // Store the function in a Persistent handle, since we also want that to
     // remain after this call returns.

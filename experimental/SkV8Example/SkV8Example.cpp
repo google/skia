@@ -7,8 +7,7 @@
  *
  */
 #include <v8.h>
-
-using namespace v8;
+#include <include/libplatform/libplatform.h>
 
 #include "SkV8Example.h"
 #include "Global.h"
@@ -110,16 +109,14 @@ void SkV8ExampleWindow::windowSizeChanged() {
 #endif
 
 #if SK_SUPPORT_GPU
-SkCanvas* SkV8ExampleWindow::createCanvas() {
+SkSurface* SkV8ExampleWindow::createSurface() {
     if (FLAGS_gpu) {
-        SkCanvas* c = fCurSurface->getCanvas();
-        // Increase the ref count since the surface keeps a reference
-        // to the canvas, but callers of createCanvas put the results
-        // in a SkAutoTUnref.
-        c->ref();
-        return c;
+        // Increase the ref count since callers of createSurface put the
+        // results in a SkAutoTUnref.
+        fCurSurface->ref();
+        return fCurSurface;
     } else {
-        return this->INHERITED::createCanvas();
+        return this->INHERITED::createSurface();
     }
 }
 #endif
@@ -163,13 +160,22 @@ void SkV8ExampleWindow::onHandleInval(const SkIRect& rect) {
 }
 #endif
 
+
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     printf("Started\n");
 
     SkCommandLineFlags::Parse(argc, argv);
 
-    // Get the default Isolate created at startup.
-    Isolate* isolate = Isolate::GetCurrent();
+    v8::V8::InitializeICU();
+    v8::Platform* platform = v8::platform::CreateDefaultPlatform();
+    v8::V8::InitializePlatform(platform);
+    v8::V8::Initialize();
+
+    v8::Isolate* isolate = v8::Isolate::New();
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+    isolate->Enter();
+
     Global* global = new Global(isolate);
 
 
