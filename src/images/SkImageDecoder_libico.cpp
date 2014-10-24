@@ -405,16 +405,13 @@ DEFINE_DECODER_CREATOR(ICOImageDecoder);
 static bool is_ico(SkStreamRewindable* stream) {
     // Check to see if the first four bytes are 0,0,1,0
     // FIXME: Is that required and sufficient?
-    SkAutoMalloc autoMal(4);
-    unsigned char* buf = (unsigned char*)autoMal.get();
-    stream->read((void*)buf, 4);
-    int reserved = read2Bytes(buf, 0);
-    int type = read2Bytes(buf, 2);
-    if (reserved != 0 || type != 1) {
-        // This stream does not represent an ICO image.
+    char buf[4];
+    if (stream->read((void*)buf, 4) != 4) {
         return false;
     }
-    return true;
+    int reserved = read2Bytes(buf, 0);
+    int type = read2Bytes(buf, 2);
+    return 0 == reserved && 1 == type;
 }
 
 static SkImageDecoder* sk_libico_dfactory(SkStreamRewindable* stream) {
