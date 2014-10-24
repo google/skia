@@ -12,6 +12,9 @@ deps = {
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/jsoncpp/jsoncpp.git@1afff032c83e26ddf7f2776e8b43de5ad666c1fa",
   "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@3fe91635df8734b23f3c1b9d1f0c4fa8cfaf4e39",
   "third_party/externals/nanomsg": "https://skia.googlesource.com/third_party/nanomsg.git@0.4-beta",
+
+  # The line below is needed for compiling SkV8Example. Do not delete.
+  #"third_party/externals/v8": "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
 }
 
 recursedeps = [
