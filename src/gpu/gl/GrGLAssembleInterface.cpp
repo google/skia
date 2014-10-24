@@ -183,6 +183,9 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(UniformMatrix4fv);
     GET_PROC(UnmapBuffer);
     GET_PROC(UseProgram);
+    GET_PROC(VertexAttrib1f);
+    GET_PROC(VertexAttrib2fv);
+    GET_PROC(VertexAttrib3fv);
     GET_PROC(VertexAttrib4fv);
     GET_PROC(VertexAttribPointer);
     GET_PROC(Viewport);
@@ -412,6 +415,9 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(UniformMatrix3fv);
     GET_PROC(UniformMatrix4fv);
     GET_PROC(UseProgram);
+    GET_PROC(VertexAttrib1f);
+    GET_PROC(VertexAttrib2fv);
+    GET_PROC(VertexAttrib3fv);
     GET_PROC(VertexAttrib4fv);
     GET_PROC(VertexAttribPointer);
     GET_PROC(Viewport);

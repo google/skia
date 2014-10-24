@@ -266,6 +266,12 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLUniformMatrix4fv(GrGLint location,
                                                     GrGLboolean transpose,
                                                     const GrGLfloat* value);
 
+ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttrib1f(GrGLuint indx, const GrGLfloat value);
+
+ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttrib2fv(GrGLuint indx, const GrGLfloat* values);
+
+ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttrib3fv(GrGLuint indx, const GrGLfloat* values);
+
  GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttrib4fv(GrGLuint indx, const GrGLfloat* values);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttribPointer(GrGLuint indx,

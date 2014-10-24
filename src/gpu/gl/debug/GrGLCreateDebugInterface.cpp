@@ -948,6 +948,9 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     functions->fUniformMatrix4fv = noOpGLUniformMatrix4fv;
     functions->fUnmapBuffer = debugGLUnmapBuffer;
     functions->fUseProgram = debugGLUseProgram;
+    functions->fVertexAttrib1f = noOpGLVertexAttrib1f;
+    functions->fVertexAttrib2fv = noOpGLVertexAttrib2fv;
+    functions->fVertexAttrib3fv = noOpGLVertexAttrib3fv;
     functions->fVertexAttrib4fv = noOpGLVertexAttrib4fv;
     functions->fVertexAttribPointer = noOpGLVertexAttribPointer;
     functions->fViewport = noOpGLViewport;

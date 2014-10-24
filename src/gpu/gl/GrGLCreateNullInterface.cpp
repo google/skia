@@ -454,6 +454,9 @@ const GrGLInterface* GrGLCreateNullInterface() {
     functions->fUniformMatrix4fv = noOpGLUniformMatrix4fv;
     functions->fUnmapBuffer = nullGLUnmapBuffer;
     functions->fUseProgram = nullGLUseProgram;
+    functions->fVertexAttrib1f = noOpGLVertexAttrib1f;
+    functions->fVertexAttrib2fv = noOpGLVertexAttrib2fv;
+    functions->fVertexAttrib3fv = noOpGLVertexAttrib3fv;
     functions->fVertexAttrib4fv = noOpGLVertexAttrib4fv;
     functions->fVertexAttribPointer = noOpGLVertexAttribPointer;
     functions->fViewport = nullGLViewport;

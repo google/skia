@@ -182,6 +182,12 @@ static GrGLFuncPtr android_get_gl_proc(void* ctx, const char name[]) {
         return (GrGLFuncPtr) glUniformMatrix4fv;
     } else if (0 == strcmp("glUseProgram", name)) {
         return (GrGLFuncPtr) glUseProgram;
+    } else if (0 == strcmp("glVertexAttrib1f", name)) {
+        return (GrGLFuncPtr) glVertexAttrib1f;
+    } else if (0 == strcmp("glVertexAttrib2fv", name)) {
+        return (GrGLFuncPtr) glVertexAttrib2fv;
+    } else if (0 == strcmp("glVertexAttrib3fv", name)) {
+        return (GrGLFuncPtr) glVertexAttrib3fv;
     } else if (0 == strcmp("glVertexAttrib4fv", name)) {
         return (GrGLFuncPtr) glVertexAttrib4fv;
     } else if (0 == strcmp("glVertexAttribPointer", name)) {
