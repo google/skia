@@ -404,22 +404,29 @@ void GrResourceCache::validate() const {
 
 void GrResourceCache::printStats() {
     int locked = 0;
+    int scratch = 0;
 
     EntryList::Iter iter;
 
     GrResourceCacheEntry* entry = iter.init(fList, EntryList::Iter::kTail_IterStart);
 
     for ( ; entry; entry = iter.prev()) {
-        if (entry->fResource->getRefCnt() > 1) {
+        if (!entry->fResource->isPurgable()) {
             ++locked;
+        }
+        if (entry->fResource->isScratch()) {
+            ++scratch;
         }
     }
 
+    float countUtilization = (100.f * fEntryCount) / fMaxCount;
+    float byteUtilization = (100.f * fEntryBytes) / fMaxBytes;
+
     SkDebugf("Budget: %d items %d bytes\n", fMaxCount, fMaxBytes);
-    SkDebugf("\t\tEntry Count: current %d (%d locked) high %d\n",
-                fEntryCount, locked, fHighWaterEntryCount);
-    SkDebugf("\t\tEntry Bytes: current %d high %d\n",
-                fEntryBytes, fHighWaterEntryBytes);
+    SkDebugf("\t\tEntry Count: current %d (%d locked, %d scratch %.2g%% full), high %d\n",
+                fEntryCount, locked, scratch, countUtilization, fHighWaterEntryCount);
+    SkDebugf("\t\tEntry Bytes: current %d (%.2g%% full) high %d\n",
+                fEntryBytes, byteUtilization, fHighWaterEntryBytes);
 }
 
 #endif

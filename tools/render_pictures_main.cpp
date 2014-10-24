@@ -474,8 +474,7 @@ int tool_main(int argc, char** argv) {
         SkDebugf("Failed to render %i pictures.\n", failures);
         return 1;
     }
-#if SK_SUPPORT_GPU
-#if GR_CACHE_STATS
+#if GR_CACHE_STATS && SK_SUPPORT_GPU
     if (renderer->isUsingGpuDevice()) {
         GrContext* ctx = renderer->getGrContext();
         ctx->printCacheStats();
@@ -484,14 +483,15 @@ int tool_main(int argc, char** argv) {
 #endif
     }
 #endif
-#if GR_GPU_STATS
+
+#if GR_GPU_STATS && SK_SUPPORT_GPU
     if (FLAGS_gpuStats && renderer->isUsingGpuDevice()) {
         GrContext* ctx = renderer->getGrContext();
         SkDebugf("RenderTarget Binds: %d\n", ctx->gpuStats()->renderTargetBinds());
         SkDebugf("Shader Compilations: %d\n", ctx->gpuStats()->shaderCompilations());
     }
 #endif
-#endif
+
     if (FLAGS_writeJsonSummaryPath.count() == 1) {
         // If there were any descriptions on the command line, insert them now.
         for (int i=0; i<FLAGS_descriptions.count(); i++) {

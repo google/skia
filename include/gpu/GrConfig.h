@@ -33,11 +33,19 @@
  */
 
 #if !defined(GR_CACHE_STATS)
-    #define GR_CACHE_STATS      0
+  #ifdef SK_DEVELOPER
+      #define GR_CACHE_STATS  1
+  #else
+      #define GR_CACHE_STATS  0
+  #endif
 #endif
 
 #if !defined(GR_GPU_STATS)
-#define GR_GPU_STATS      0
+  #ifdef SK_DEVELOPER
+      #define GR_GPU_STATS    1
+  #else
+      #define GR_GPU_STATS    0
+  #endif
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
