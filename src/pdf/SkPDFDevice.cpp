@@ -745,7 +745,7 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
     fInitialTransform.preConcat(initialTransform);
     fLegacyBitmap.setInfo(info);
 
-    SkIRect existingClip = SkIRect::MakeWH(info.width(), info.height());
+    SkIRect existingClip = info.bounds();
     fExistingClipRegion.setRect(existingClip);
     this->init();
 }
@@ -2181,7 +2181,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
     scaled.setScale(SK_Scalar1, -SK_Scalar1);
     scaled.postTranslate(0, SK_Scalar1);
     // Scale the image up from 1x1 to WxH.
-    SkIRect subset = SkIRect::MakeWH(bitmap->width(), bitmap->height());
+    SkIRect subset = bitmap->bounds();
     scaled.postScale(SkIntToScalar(subset.width()),
                      SkIntToScalar(subset.height()));
     scaled.postConcat(matrix);

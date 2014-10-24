@@ -1260,7 +1260,7 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
             SkIPoint offset = SkIPoint::Make(0, 0);
             SkMatrix matrix = *iter.fMatrix;
             matrix.postTranslate(SkIntToScalar(-pos.x()), SkIntToScalar(-pos.y()));
-            SkIRect clipBounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+            const SkIRect clipBounds = bitmap.bounds();
             SkAutoTUnref<SkImageFilter::Cache> cache(iter.fDevice->getImageFilterCache());
             SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
             if (filter->filterImage(&proxy, bitmap, ctx, &dst, &offset)) {

@@ -56,7 +56,7 @@ void runShaderTest(skiatest::Reporter* reporter, SkSurface* sourceSurface, SkSur
     destinationCanvas->clear(SK_ColorTRANSPARENT);
     destinationCanvas->drawPaint(paint);
 
-    SkIRect rect = SkIRect::MakeWH(info.width(), info.height());
+    SkIRect rect = info.bounds();
 
     SkBitmap bmOrig;
     sourceSurface->getCanvas()->readPixels(rect, &bmOrig);

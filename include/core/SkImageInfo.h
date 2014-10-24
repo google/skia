@@ -9,10 +9,11 @@
 #define SkImageInfo_DEFINED
 
 #include "SkMath.h"
+#include "SkRect.h"
 #include "SkSize.h"
 
-class SkWriteBuffer;
 class SkReadBuffer;
+class SkWriteBuffer;
 
 /**
  *  Describes how to interpret the alpha compoent of a pixel.
@@ -207,6 +208,7 @@ public:
         return SkAlphaTypeIsOpaque(fAlphaType);
     }
 
+    SkIRect bounds() const { return SkIRect::MakeWH(fWidth, fHeight); }
     SkISize dimensions() const { return SkISize::Make(fWidth, fHeight); }
 
     /**

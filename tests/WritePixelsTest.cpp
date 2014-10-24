@@ -195,7 +195,7 @@ static bool check_write(skiatest::Reporter* reporter, SkCanvas* canvas, const Sk
     // At some point this will be unsupported, as we won't allow accessBitmap() to magically call
     // readPixels for the client.
     SkBitmap secretDevBitmap;
-    canvas->readPixels(SkIRect::MakeWH(canvasInfo.width(), canvasInfo.height()), &secretDevBitmap);
+    canvas->readPixels(canvasInfo.bounds(), &secretDevBitmap);
 
     SkAutoLockPixels alp(secretDevBitmap);
     canvasRowBytes = secretDevBitmap.rowBytes();

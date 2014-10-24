@@ -220,6 +220,9 @@ public:
     void getBounds(SkRect* bounds) const;
     void getBounds(SkIRect* bounds) const;
 
+    SkIRect bounds() const { return fInfo.bounds(); }
+    SkISize dimensions() const { return fInfo.dimensions(); }
+
     bool setInfo(const SkImageInfo&, size_t rowBytes = 0);
 
     /**
