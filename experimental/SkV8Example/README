@@ -11,6 +11,6 @@ before you can compile and run this sample:
 4. Uncomment SkV8Example in gyp/everything.gyp.
 5. Run 'ninja -C out/Debug SkV8Example'
 6. Run the sample as:
-     ./out/Debug/SkV8Example --infile experimental/SkV8Example/speed.js
+     ./out/Debug/SkV8Example --infile experimental/SkV8Example/js/speed.js
 
 
