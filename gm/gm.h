@@ -24,6 +24,20 @@
     static skiagm::GM*          SK_MACRO_APPEND_LINE(F_)(void*) { code; } \
     static skiagm::GMRegistry   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
 
+// See colorwheel.cpp for example usage.
+#define DEF_SIMPLE_GM(NAME, CANVAS, W, H)                     \
+    class SK_MACRO_CONCAT(NAME, _GM) : public skiagm::GM {    \
+        virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE;    \
+        virtual SkISize onISize() SK_OVERRIDE {               \
+            return SkISize::Make((W), (H));                   \
+        }                                                     \
+        virtual SkString onShortName() SK_OVERRIDE {          \
+            return SkString(#NAME);                           \
+        }                                                     \
+    };                                                        \
+    DEF_GM( return SkNEW(SK_MACRO_CONCAT(NAME, _GM)); )       \
+    void SK_MACRO_CONCAT(NAME, _GM)::onDraw(SkCanvas* CANVAS)
+
 namespace skiagm {
 
     class GM {

@@ -10,7 +10,11 @@
 
 #include "SkString.h"
 
+class SkBitmap;
+
 SkString GetResourcePath(const char* resource = "");
 void SetResourcePath(const char* );
+
+bool GetResourceAsBitmap(const char* resource, SkBitmap* dst);
 
 #endif  // Resources_DEFINED
