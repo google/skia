@@ -1,78 +1,12 @@
-function tostr(t)
-    local str = ""
-    for k, v in next, t do
-        if #str > 0 then
-            str = str .. ", "
-        end
-        if type(k) == "number" then
-            str = str .. "[" .. k .. "] = "
-        else
-            str = str .. tostring(k) .. " = "
-        end
-        if type(v) == "table" then
-            str = str .. "{ " .. tostr(v) .. " }"
-        elseif type(v) == "string" then
-            str = str .. '"' .. v .. '"'
-        else
-            str = str .. tostring(v)
-        end
-    end
-    return str
+
+gPath = "/skia/trunk/resources/"
+
+function load_file(file)
+    package.path = package.path .. ";" .. gPath .. file .. ".lua"
+    require(file)
 end
 
-
-function trim_ws(s)
-    return s:match("^%s*(.*)")
-end
-
-function count_hypens(s)
-    local leftover = s:match("^-*(.*)")
-    return string.len(s) - string.len(leftover)
-end
-
-function parse_file(file)
-    local slides = {}
-    local block = {}
-
-    for line in file:lines() do
-        local s = trim_ws(line)
-        if #s == 0 then   -- done with a block
-            if #block > 0 then
-                slides[#slides + 1] = block
-                block = {}
-            end
-        else
-            local n = count_hypens(s)
-            block[#block + 1] = {
-                indent = n,
-                text = trim_ws(s:sub(n + 1, -1))
-            }
-        end
-    end
-    return slides
-end
-
-function pretty_print_slide(slide)
-    io.write("{\n")
-    for i = 1, #slide do
-        local node = slide[i]
-        for j = 0, node.indent do
-            io.write("   ")
-        end
-        io.write("{ ")
-        io.write(tostr(node))
-        io.write(" },\n")
-    end
-    io.write("},\n")
-end
-
-function pretty_print_slides(slides)
-    io.write("gSlides = {\n")
-    for i = 1, #slides do
-        pretty_print_slide(slides[i])
-    end
-    io.write("}\n")
-end
+load_file("slides_utils")
 
 gSlides = parse_file(io.open("/skia/trunk/resources/slides_content.lua", "r"))
 
@@ -151,7 +85,7 @@ function sqr(value) return value * value end
 
 function set_blur(paint, alpha)
     local sigma = sqr(1 - alpha) * 20
-    paint:setImageFilter(Sk.newBlurImageFilter(sigma, sigma))
+--    paint:setImageFilter(Sk.newBlurImageFilter(sigma, sigma))
     paint:setAlpha(alpha)
 end
 
@@ -244,28 +178,6 @@ local gCurrAnimation
 
 gSlideIndex = 1
 
-function next_slide()
-    local prev = gSlides[gSlideIndex]
-
-    gSlideIndex = gSlideIndex + 1
-    if gSlideIndex > #gSlides then
-        gSlideIndex = 1
-    end
-
-    spawn_transition(prev, gSlides[gSlideIndex], true)
-end
-
-function prev_slide()
-    local prev = gSlides[gSlideIndex]
-
-    gSlideIndex = gSlideIndex - 1
-    if gSlideIndex < 1 then
-        gSlideIndex = #gSlides
-    end
-
-    spawn_transition(prev, gSlides[gSlideIndex], false)
-end
-
 function new_drawable_picture(pic)
     return {
         picture = pic,
@@ -288,6 +200,44 @@ function new_drawable_image(img)
     }
 end
 
+function new_drawable_slide(slide)
+    return {
+        slide = slide,
+        draw = function (self, canvas, x, y, paint)
+            if (nil == paint or ("number" == type(paint) and (1 == paint))) then
+                canvas:save()
+            else
+                canvas:saveLayer(paint)
+            end
+            canvas:translate(x, y)
+            drawSlide(canvas, self.slide, gTemplate)
+            canvas:restore()
+        end
+    }
+end
+
+function next_slide()
+    local prev = gSlides[gSlideIndex]
+
+    gSlideIndex = gSlideIndex + 1
+    if gSlideIndex > #gSlides then
+        gSlideIndex = 1
+    end
+
+    spawn_transition(prev, gSlides[gSlideIndex], true)
+end
+
+function prev_slide()
+    local prev = gSlides[gSlideIndex]
+
+    gSlideIndex = gSlideIndex - 1
+    if gSlideIndex < 1 then
+        gSlideIndex = #gSlides
+    end
+
+    spawn_transition(prev, gSlides[gSlideIndex], false)
+end
+
 function convert_to_picture_drawable(slide)
     local rec = Sk.newPictureRecorder()
     drawSlide(rec:beginRecording(640, 480), slide, gTemplate)
@@ -300,7 +250,8 @@ function convert_to_image_drawable(slide)
     return new_drawable_image(surf:newImageSnapshot())
 end
 
-gMakeDrawable = convert_to_picture_drawable
+-- gMakeDrawable = convert_to_picture_drawable
+gMakeDrawable = new_drawable_slide
 
 function spawn_transition(prevSlide, nextSlide, is_forward)
     local transition

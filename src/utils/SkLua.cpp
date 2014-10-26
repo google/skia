@@ -615,6 +615,12 @@ static int lcanvas_save(lua_State* L) {
     return 1;
 }
 
+static int lcanvas_saveLayer(lua_State* L) {
+    SkPaint paint;
+    lua_pushinteger(L, get_ref<SkCanvas>(L, 1)->saveLayer(NULL, lua2OptionalPaint(L, 2, &paint)));
+    return 1;
+}
+
 static int lcanvas_restore(lua_State* L) {
     get_ref<SkCanvas>(L, 1)->restore();
     return 0;
@@ -682,6 +688,7 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
     { "getReducedClipStack", SkLua::lcanvas_getReducedClipStack },
 #endif
     { "save", lcanvas_save },
+    { "saveLayer", lcanvas_saveLayer },
     { "restore", lcanvas_restore },
     { "scale", lcanvas_scale },
     { "translate", lcanvas_translate },
