@@ -1763,13 +1763,11 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) 
     unsigned flags = info.isOpaque() ? 0 : kNeedClear_Flag;
 
 #if CACHE_COMPATIBLE_DEVICE_TEXTURES
-    // layers are never draw in repeat modes or with mip maps, so we can request an approx
-    // match and ignore any padding. Image filters (at present) don't tile their inputs or use mip
-    // maps, either.
-    const GrContext::ScratchTexMatch match =
-        (kSaveLayer_Usage == usage || kImageFilter_Usage == usage) ?
-            GrContext::kApprox_ScratchTexMatch :
-            GrContext::kExact_ScratchTexMatch;
+    // layers are never draw in repeat modes, so we can request an approx
+    // match and ignore any padding.
+    const GrContext::ScratchTexMatch match = (kSaveLayer_Usage == usage) ?
+                                                GrContext::kApprox_ScratchTexMatch :
+                                                GrContext::kExact_ScratchTexMatch;
     texture.reset(fContext->refScratchTexture(desc, match));
 #else
     texture.reset(fContext->createUncachedTexture(desc, NULL, 0));
