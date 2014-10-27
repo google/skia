@@ -573,12 +573,6 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData
         canvas2->getTotalMatrix(), testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, equal_clips(*canvas1, *canvas2), testStep->assertMessage());
 
-    // The following test code is commented out because the test fails when
-    // the canvas is an SkPictureRecord or SkDeferredCanvas
-    // Issue: http://code.google.com/p/skia/issues/detail?id=498
-    // Also, creating a LayerIter on an SkProxyCanvas crashes
-    // Issue: http://code.google.com/p/skia/issues/detail?id=499
-    /*
     SkCanvas::LayerIter layerIter1(const_cast<SkCanvas*>(canvas1), false);
     SkCanvas::LayerIter layerIter2(const_cast<SkCanvas*>(canvas2), false);
     while (!layerIter1.done() && !layerIter2.done()) {
@@ -599,7 +593,7 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData
         testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, layerIter2.done(),
         testStep->assertMessage());
-    */
+
 }
 
 // The following class groups static functions that need to access
