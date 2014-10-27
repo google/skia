@@ -23,7 +23,7 @@ SkTileGrid::~SkTileGrid() {
     SkDELETE_ARRAY(fTiles);
 }
 
-void SkTileGrid::reserve(unsigned opCount) {
+void SkTileGrid::reserve(int opCount) {
     if (fXTiles * fYTiles == 0) {
         return;  // A tileless tile grid is nonsensical, but happens in at least cc_unittests.
     }
@@ -44,7 +44,7 @@ void SkTileGrid::reserve(unsigned opCount) {
     // than if we made no setReserve() calls, but time spent in insert() drops by about 50%.
 }
 
-void SkTileGrid::flushDeferredInserts() {
+void SkTileGrid::shrinkToFit() {
     for (SkTDArray<unsigned>* tile = fTiles; tile != fTiles + (fXTiles * fYTiles); tile++) {
         tile->shrinkToFit();
     }
@@ -70,30 +70,35 @@ void SkTileGrid::userToGrid(const SkRect& user, SkIRect* grid) const {
     grid->fBottom = SkPin32(user.bottom() * fInvHeight, 0, fYTiles - 1);
 }
 
-void SkTileGrid::insert(unsigned opIndex, const SkRect& originalBounds, bool) {
-    SkRect bounds = originalBounds;
-    bounds.outset(fMarginWidth, fMarginHeight);
-    this->commonAdjust(&bounds);
+void SkTileGrid::insert(SkAutoTMalloc<SkRect>* boundsArray, int N) {
+    this->reserve(N);
 
-    // TODO(mtklein): can we assert this instead to save an intersection in Release mode,
-    // or just allow out-of-bound insertions to insert anyway (clamped to nearest tile)?
-    if (!SkRect::Intersects(bounds, fGridBounds)) {
-        return;
-    }
+    for (int i = 0; i < N; i++) {
+        SkRect bounds = (*boundsArray)[i];
+        bounds.outset(fMarginWidth, fMarginHeight);
+        this->commonAdjust(&bounds);
 
-    SkIRect grid;
-    this->userToGrid(bounds, &grid);
-
-    // This is just a loop over y then x.  This compiles to a slightly faster and
-    // more compact loop than if we just did fTiles[y * fXTiles + x].push(opIndex).
-    SkTDArray<unsigned>* row = &fTiles[grid.fTop * fXTiles + grid.fLeft];
-    for (int y = 0; y <= grid.fBottom - grid.fTop; y++) {
-        SkTDArray<unsigned>* tile = row;
-        for (int x = 0; x <= grid.fRight - grid.fLeft; x++) {
-            (tile++)->push(opIndex);
+        // TODO(mtklein): can we assert this instead to save an intersection in Release mode,
+        // or just allow out-of-bound insertions to insert anyway (clamped to nearest tile)?
+        if (!SkRect::Intersects(bounds, fGridBounds)) {
+            continue;
         }
-        row += fXTiles;
+
+        SkIRect grid;
+        this->userToGrid(bounds, &grid);
+
+        // This is just a loop over y then x.  This compiles to a slightly faster and
+        // more compact loop than if we just did fTiles[y * fXTiles + x].push(i).
+        SkTDArray<unsigned>* row = &fTiles[grid.fTop * fXTiles + grid.fLeft];
+        for (int y = 0; y <= grid.fBottom - grid.fTop; y++) {
+            SkTDArray<unsigned>* tile = row;
+            for (int x = 0; x <= grid.fRight - grid.fLeft; x++) {
+                (tile++)->push(i);
+            }
+            row += fXTiles;
+        }
     }
+    this->shrinkToFit();
 }
 
 // Number of tiles for which data is allocated on the stack in

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -10,45 +9,31 @@
 #define SkBBoxHierarchy_DEFINED
 
 #include "SkRect.h"
-#include "SkTDArray.h"
 #include "SkRefCnt.h"
+#include "SkTDArray.h"
+#include "SkTemplates.h"
 
 /**
- * Interface for a spatial data structure that associates user data with axis-aligned
- * bounding boxes, and allows efficient retrieval of intersections with query rectangles.
+ * Interface for a spatial data structure that stores axis-aligned bounding
+ * boxes and allows efficient retrieval of intersections with query rectangles.
  */
 class SkBBoxHierarchy : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkBBoxHierarchy)
-
     SkBBoxHierarchy() {}
+    virtual ~SkBBoxHierarchy() {}
 
     /**
-     * Hint that <= opCount calls to insert() will be made.
+     * Insert N bounding boxes into the hierarchy.
+     * The SkBBoxHierarchy may take ownership of boundsArray by calling detach().
      */
-    virtual void reserve(unsigned opCount) {}
+    virtual void insert(SkAutoTMalloc<SkRect>* boundsArray, int N) = 0;
 
     /**
-     * Insert opIndex and corresponding bounding box.
-     * @param opIndex Any value, will be returned in order.
-     * @param bounds The bounding box, should not be empty.
-     * @param defer Whether or not it is acceptable to delay insertion of this element (building up
-     *        an entire spatial data structure at once is often faster and produces better
-     *        structures than repeated inserts) until flushDeferredInserts is called or the first
-     *        search.
-     */
-    virtual void insert(unsigned opIndex, const SkRect& bounds, bool defer = false) = 0;
-
-    /**
-     * If any insertions have been deferred, force them to be inserted.
-     */
-    virtual void flushDeferredInserts() {}
-
-    /**
-     * Populate results with sorted opIndex corresponding to bounding boxes that intersect query.
+     * Populate results with the indices of bounding boxes interesecting that query.
      */
     virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const = 0;
 
+    SK_DECLARE_INST_COUNT(SkBBoxHierarchy)
 private:
     typedef SkRefCnt INHERITED;
 };

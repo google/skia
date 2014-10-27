@@ -29,12 +29,6 @@ static SkRect random_rect(SkRandom& rand) {
     return rect;
 }
 
-static void random_data_rects(SkRandom& rand, SkRect out[], int n) {
-    for (int i = 0; i < n; ++i) {
-        out[i] = random_rect(rand);
-    }
-}
-
 static bool verify_query(SkRect query, SkRect rects[], SkTDArray<unsigned>& found) {
     // TODO(mtklein): no need to do this after everything's SkRects
     query.roundOut();
@@ -73,9 +67,7 @@ static void run_queries(skiatest::Reporter* reporter, SkRandom& rand, SkRect rec
 }
 
 static void rtree_test_main(SkRTree* rtree, skiatest::Reporter* reporter) {
-    SkRect rects[NUM_RECTS];
-    SkRandom rand;
-    REPORTER_ASSERT(reporter, rtree);
+    SkASSERT(rtree);
 
     int expectedDepthMin = -1;
     int expectedDepthMax = -1;
@@ -94,42 +86,23 @@ static void rtree_test_main(SkRTree* rtree, skiatest::Reporter* reporter) {
         ++expectedDepthMax;
     }
 
+    SkRandom rand;
+    SkAutoTMalloc<SkRect> rects(NUM_RECTS);
     for (size_t i = 0; i < NUM_ITERATIONS; ++i) {
-        random_data_rects(rand, rects, NUM_RECTS);
+        rtree->clear();
+        REPORTER_ASSERT(reporter, 0 == rtree->getCount());
 
-        // First try bulk-loaded inserts
-        for (int i = 0; i < NUM_RECTS; ++i) {
-            rtree->insert(i, rects[i], true);
+        for (int j = 0; j < NUM_RECTS; j++) {
+            rects[j] = random_rect(rand);
         }
-        rtree->flushDeferredInserts();
+
+        rtree->insert(&rects, NUM_RECTS);
+        SkASSERT(rects);  // SkRTree doesn't take ownership of rects.
+
         run_queries(reporter, rand, rects, *rtree);
         REPORTER_ASSERT(reporter, NUM_RECTS == rtree->getCount());
         REPORTER_ASSERT(reporter, expectedDepthMin <= rtree->getDepth() &&
                                   expectedDepthMax >= rtree->getDepth());
-        rtree->clear();
-        REPORTER_ASSERT(reporter, 0 == rtree->getCount());
-
-        // Then try immediate inserts
-        for (int i = 0; i < NUM_RECTS; ++i) {
-            rtree->insert(i, rects[i]);
-        }
-        run_queries(reporter, rand, rects, *rtree);
-        REPORTER_ASSERT(reporter, NUM_RECTS == rtree->getCount());
-        REPORTER_ASSERT(reporter, expectedDepthMin <= rtree->getDepth() &&
-                                  expectedDepthMax >= rtree->getDepth());
-        rtree->clear();
-        REPORTER_ASSERT(reporter, 0 == rtree->getCount());
-
-        // And for good measure try immediate inserts, but in reversed order
-        for (int i = NUM_RECTS - 1; i >= 0; --i) {
-            rtree->insert(i, rects[i]);
-        }
-        run_queries(reporter, rand, rects, *rtree);
-        REPORTER_ASSERT(reporter, NUM_RECTS == rtree->getCount());
-        REPORTER_ASSERT(reporter, expectedDepthMin <= rtree->getDepth() &&
-                                  expectedDepthMax >= rtree->getDepth());
-        rtree->clear();
-        REPORTER_ASSERT(reporter, 0 == rtree->getCount());
     }
 }
 

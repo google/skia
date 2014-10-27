@@ -103,7 +103,7 @@ void test_replacements(skiatest::Reporter* r, bool useBBH) {
     {
         SkRTreeFactory bbhFactory;
         SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight), 
+        SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight),
                                                    useBBH ? &bbhFactory : NULL);
 
         SkAutoTDelete<SkPaint> paint(SkNEW(SkPaint));
@@ -116,7 +116,7 @@ void test_replacements(skiatest::Reporter* r, bool useBBH) {
     }
 
     GrReplacements replacements;
-    GrReplacements::ReplacementInfo* ri = replacements.newReplacement(pic->uniqueID(), 
+    GrReplacements::ReplacementInfo* ri = replacements.newReplacement(pic->uniqueID(),
                                                                       0, SkMatrix::I());
     ri->fStop = 2;
     ri->fPos.set(0, 0);

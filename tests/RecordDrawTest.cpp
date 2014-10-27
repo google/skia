@@ -100,9 +100,12 @@ DEF_TEST(RecordDraw_SetMatrixClobber, r) {
 }
 
 struct TestBBH : public SkBBoxHierarchy {
-    virtual void insert(unsigned opIndex, const SkRect& bounds, bool defer) SK_OVERRIDE {
-        Entry e = { opIndex, bounds };
-        fEntries.push(e);
+    virtual void insert(SkAutoTMalloc<SkRect>* boundsArray, int N) SK_OVERRIDE {
+        fEntries.setCount(N);
+        for (int i = 0; i < N; i++) {
+            Entry e = { (unsigned)i, (*boundsArray)[i] };
+            fEntries[i] = e;
+        }
     }
 
     virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE {}
