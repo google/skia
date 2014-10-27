@@ -80,6 +80,7 @@ GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc)
     , fLRUBack(NULL) {
     SkASSERT(fNumRows * fDesc.fRowHeight == fDesc.fHeight);
     this->initLRU();
+    fNormalizedYHeight = SK_Scalar1 / fDesc.fHeight;
     VALIDATE;
 }
 
