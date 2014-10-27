@@ -51,10 +51,12 @@ imagefiltersscaled
 pictureimagefilter
 testimagefilters
 imagefilterscropped
+imagemagnifier
 matriximagefilter
 imagefiltersclipped
 resizeimagefilter
 displacement
+dropshadowimagefilter
 imageblur
 imageblur2
 imageblur_large
