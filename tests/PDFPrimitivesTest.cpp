@@ -15,6 +15,7 @@
 #include "SkPDFDevice.h"
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
+#include "SkReadBuffer.h"
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkTypes.h"
@@ -427,4 +428,55 @@ DEF_TEST(PDFPrimitives, reporter) {
     test_issue1083();
 
     TestImages(reporter);
+}
+
+namespace {
+
+class DummyImageFilter : public SkImageFilter {
+public:
+    DummyImageFilter(bool visited = false) : SkImageFilter(0, NULL), fVisited(visited) {}
+    virtual ~DummyImageFilter() SK_OVERRIDE {}
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
+                               SkBitmap* result, SkIPoint* offset) const {
+        fVisited = true;
+        offset->fX = offset->fY = 0;
+        *result = src;
+        return true;
+    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyImageFilter)
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit DummyImageFilter(SkReadBuffer& buffer) : SkImageFilter(0, NULL) {
+        fVisited = buffer.readBool();
+    }
+#endif
+    bool visited() const { return fVisited; }
+
+private:
+    mutable bool fVisited;
+};
+
+SkFlattenable* DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
+    bool visited = buffer.readBool();
+    return SkNEW_ARGS(DummyImageFilter, (visited));
+}
+
+};
+
+// Check that PDF rendering of image filters successfully falls back to
+// CPU rasterization.
+DEF_TEST(PDFImageFilter, reporter) {
+    SkISize pageSize = SkISize::Make(100, 100);
+    SkAutoTUnref<SkPDFDevice> device(new SkPDFDevice(pageSize, pageSize, SkMatrix::I()));
+    SkCanvas canvas(device.get());
+    SkAutoTUnref<DummyImageFilter> filter(new DummyImageFilter());
+
+    // Filter just created; should be unvisited.
+    REPORTER_ASSERT(reporter, !filter->visited());
+    SkPaint paint;
+    paint.setImageFilter(filter.get());
+    canvas.drawRect(SkRect::MakeWH(100, 100), paint);
+
+    // Filter was used in rendering; should be visited.
+    REPORTER_ASSERT(reporter, filter->visited());
 }

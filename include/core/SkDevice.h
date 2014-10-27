@@ -121,7 +121,8 @@ public:
 protected:
     enum Usage {
        kGeneral_Usage,
-       kSaveLayer_Usage  // <! internal use only
+       kSaveLayer_Usage,  // <! internal use only
+       kImageFilter_Usage // <! internal use only
     };
 
     struct TextFlags {
@@ -368,6 +369,8 @@ private:
     void setOrigin(int x, int y) { fOrigin.set(x, y); }
     // just called by SkCanvas for saveLayer
     SkBaseDevice* createCompatibleDeviceForSaveLayer(const SkImageInfo&);
+    // just called by SkCanvas for imagefilter
+    SkBaseDevice* createCompatibleDeviceForImageFilter(const SkImageInfo&);
 
     virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) {
         return NULL;

@@ -213,10 +213,6 @@ protected:
         return fLegacyBitmap;
     }
 
-    virtual bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE {
-        return false;
-    }
-
     virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
 
 private:
