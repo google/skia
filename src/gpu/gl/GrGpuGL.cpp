@@ -1904,9 +1904,9 @@ void set_gl_stencil(const GrGLInterface* gl,
 }
 }
 
-void GrGpuGL::flushStencil(DrawType type) {
-    if (kStencilPath_DrawType != type && fHWStencilSettings != fStencilSettings) {
-        if (fStencilSettings.isDisabled()) {
+void GrGpuGL::flushStencil(const GrStencilSettings& stencilSettings, DrawType type) {
+    if (kStencilPath_DrawType != type && fHWStencilSettings != stencilSettings) {
+        if (stencilSettings.isDisabled()) {
             if (kNo_TriState != fHWStencilTestEnabled) {
                 GL_CALL(Disable(GR_GL_STENCIL_TEST));
                 fHWStencilTestEnabled = kNo_TriState;
@@ -1917,24 +1917,24 @@ void GrGpuGL::flushStencil(DrawType type) {
                 fHWStencilTestEnabled = kYes_TriState;
             }
         }
-        if (!fStencilSettings.isDisabled()) {
+        if (!stencilSettings.isDisabled()) {
             if (this->caps()->twoSidedStencilSupport()) {
                 set_gl_stencil(this->glInterface(),
-                               fStencilSettings,
+                               stencilSettings,
                                GR_GL_FRONT,
                                GrStencilSettings::kFront_Face);
                 set_gl_stencil(this->glInterface(),
-                               fStencilSettings,
+                               stencilSettings,
                                GR_GL_BACK,
                                GrStencilSettings::kBack_Face);
             } else {
                 set_gl_stencil(this->glInterface(),
-                               fStencilSettings,
+                               stencilSettings,
                                GR_GL_FRONT_AND_BACK,
                                GrStencilSettings::kFront_Face);
             }
         }
-        fHWStencilSettings = fStencilSettings;
+        fHWStencilSettings = stencilSettings;
     }
 }
 

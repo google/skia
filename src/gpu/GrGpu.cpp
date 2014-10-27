@@ -298,10 +298,12 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::setupClipAndFlushState(DrawType type, const GrDeviceCoordTexture* dstCopy,
+bool GrGpu::setupClipAndFlushState(DrawType type,
+                                   const GrDeviceCoordTexture* dstCopy,
                                    GrDrawState::AutoRestoreEffects* are,
                                    const SkRect* devBounds) {
-    if (!fClipMaskManager.setupClipping(this->getClip(), are, devBounds)) {
+    GrDrawState::AutoRestoreStencil asr;
+    if (!fClipMaskManager.setupClipping(this->getClip(), are, &asr, devBounds)) {
         return false;
     }
 
