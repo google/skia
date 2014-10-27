@@ -353,7 +353,7 @@ static SkTypeface_AndroidSystem* find_family_style_character(
         SkFontStyleSet_Android* family = fallbackNameToFamilyMap[i].styleSet;
         SkAutoTUnref<SkTypeface_AndroidSystem> face(family->matchStyle(style));
 
-        if (!langTag.isEmpty() && langTag != face->fLang.getTag()) {
+        if (!langTag.isEmpty() && !face->fLang.getTag().startsWith(langTag.c_str())) {
             continue;
         }
 
