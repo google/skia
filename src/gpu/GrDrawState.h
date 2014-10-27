@@ -346,36 +346,6 @@ public:
         int             fCoverageEffectCnt;
     };
 
-    /**
-     * AutoRestoreStencil
-     *
-     * This simple struct saves and restores the stencil settings
-     */
-    class AutoRestoreStencil : public ::SkNoncopyable {
-    public:
-        AutoRestoreStencil() : fDrawState(NULL) {}
-
-        AutoRestoreStencil(GrDrawState* ds) : fDrawState(NULL) { this->set(ds); }
-
-        ~AutoRestoreStencil() { this->set(NULL); }
-
-        void set(GrDrawState* ds) {
-            if (fDrawState) {
-                fDrawState->setStencil(fStencilSettings);
-            }
-            fDrawState = ds;
-            if (ds) {
-                fStencilSettings = ds->getStencil();
-            }
-        }
-
-        bool isSet() const { return SkToBool(fDrawState); }
-
-    private:
-        GrDrawState*       fDrawState;
-        GrStencilSettings  fStencilSettings;
-    };
-
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////

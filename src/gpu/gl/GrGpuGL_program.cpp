@@ -258,7 +258,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState->getRenderTarget());
-    this->flushStencil(optState->getStencil(), type);
+    this->flushStencil(type);
     this->flushScissor(glRT->getViewport(), glRT->origin());
     this->flushAAState(*optState.get(), type);
 

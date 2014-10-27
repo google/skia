@@ -50,9 +50,7 @@ public:
      * the manager when it must install additional effects to implement the
      * clip. devBounds is optional but can help optimize clipping.
      */
-    bool setupClipping(const GrClipData* clipDataIn,
-                       GrDrawState::AutoRestoreEffects*,
-                       GrDrawState::AutoRestoreStencil*,
+    bool setupClipping(const GrClipData* clipDataIn, GrDrawState::AutoRestoreEffects*,
                        const SkRect* devBounds);
 
     /**
@@ -175,7 +173,7 @@ private:
      * updates the GrGpu with stencil settings that account stencil-based
      * clipping.
      */
-    void setDrawStateStencil(GrDrawState::AutoRestoreStencil* asr);
+    void setGpuStencil();
 
     /**
      * Adjusts the stencil settings to account for interaction with stencil

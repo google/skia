@@ -235,7 +235,7 @@ private:
     // NULL means whole target. Can be an empty rect.
     void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
 
-    void flushStencil(const GrStencilSettings&, DrawType);
+    void flushStencil(DrawType);
     void flushAAState(const GrOptDrawState&, DrawType);
 
     bool configToGLFormats(GrPixelConfig config,
