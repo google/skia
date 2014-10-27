@@ -29,6 +29,9 @@
 #ifdef SK_BUILD_POPPLER
 #  include "SkPDFRasterizer.h"
 #  define RASTERIZE_PDF_PROC SkPopplerRasterizePDF
+#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+#  include "SkCGUtils.h"
+#  define RASTERIZE_PDF_PROC SkPDFDocumentToBitmap
 #else
 #  define RASTERIZE_PDF_PROC NULL
 #endif
