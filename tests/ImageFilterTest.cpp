@@ -23,11 +23,13 @@
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkPerlinNoiseShader.h"
 #include "SkPicture.h"
 #include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
+#include "SkRectShaderImageFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 #include "Test.h"
@@ -399,6 +401,9 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 30, 20)), greenPaint);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
     SkAutoTUnref<SkImageFilter> pictureFilter(SkPictureImageFilter::Create(picture.get()));
+    SkAutoTUnref<SkShader> shader(SkPerlinNoiseShader::CreateTurbulence(SK_Scalar1, SK_Scalar1, 1, 0));
+
+    SkAutoTUnref<SkImageFilter> rectShaderFilter(SkRectShaderImageFilter::Create(shader.get()));
 
     struct {
         const char*    fName;
@@ -430,6 +435,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
         { "matrix", SkMatrixImageFilter::Create(matrix, SkPaint::kLow_FilterLevel) },
         { "blur and offset", SkOffsetImageFilter::Create(five, five, blur.get()) },
         { "picture and blur", SkBlurImageFilter::Create(five, five, pictureFilter.get()) },
+        { "rect shader and blur", SkBlurImageFilter::Create(five, five, rectShaderFilter.get()) },
     };
 
     SkBitmap untiledResult, tiledResult;
