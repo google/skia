@@ -257,8 +257,8 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
 
     header->fEmitsPointSize = GrGpu::kDrawPoints_DrawType == drawType;
 
-    if (gpu->caps()->pathRenderingSupport() &&
-        GrGpu::IsPathRenderingDrawType(drawType) &&
+    bool isPathRendering = GrGpu::IsPathRenderingDrawType(drawType);
+    if (gpu->caps()->pathRenderingSupport() && isPathRendering &&
         gpu->glPathRendering()->texturingMode() == GrGLPathRendering::FixedFunction_TexturingMode) {
         header->fUseFragShaderOnly = true;
         SkASSERT(!optState.hasGeometryProcessor());
@@ -266,12 +266,15 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
         header->fUseFragShaderOnly = false;
     }
 
-    bool defaultToUniformInputs = GrGpu::IsPathRenderingDrawType(drawType) ||
-                                  GR_GL_NO_CONSTANT_ATTRIBUTES;
+    bool hasUniformColor = inputColorIsUsed &&
+                           (isPathRendering || !optState.hasColorVertexAttribute());
+
+    bool hasUniformCoverage = inputCoverageIsUsed &&
+                              (isPathRendering || !optState.hasCoverageVertexAttribute());
 
     if (!inputColorIsUsed) {
         header->fColorInput = kAllOnes_ColorInput;
-    } else if (defaultToUniformInputs && !optState.hasColorVertexAttribute()) {
+    } else if (hasUniformColor) {
         header->fColorInput = kUniform_ColorInput;
     } else {
         header->fColorInput = kAttribute_ColorInput;
@@ -283,7 +286,7 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
 
     if (covIsSolidWhite || !inputCoverageIsUsed) {
         header->fCoverageInput = kAllOnes_ColorInput;
-    } else if (defaultToUniformInputs && !optState.hasCoverageVertexAttribute()) {
+    } else if (hasUniformCoverage) {
         header->fCoverageInput = kUniform_ColorInput;
     } else {
         header->fCoverageInput = kAttribute_ColorInput;

@@ -60,27 +60,6 @@ public:
     virtual bool hasVertexShader() const { return true; }
 
     /**
-     * Some GL state that is relevant to programs is not stored per-program. In particular color
-     * and coverage attributes can be global state. This struct is read and updated by
-     * GrGLProgram::setColor and GrGLProgram::setCoverage to allow us to avoid setting this state
-     * redundantly.
-     */
-    struct SharedGLState {
-        GrColor fConstAttribColor;
-        int     fConstAttribColorIndex;
-        GrColor fConstAttribCoverage;
-        int     fConstAttribCoverageIndex;
-
-        SharedGLState() { this->invalidate(); }
-        void invalidate() {
-            fConstAttribColor = GrColor_ILLEGAL;
-            fConstAttribColorIndex = -1;
-            fConstAttribCoverage = GrColor_ILLEGAL;
-            fConstAttribCoverageIndex = -1;
-        }
-    };
-
-    /**
      * The GrDrawState's view matrix along with the aspects of the render target determine the
      * matrix sent to GL. The size of the render target affects the GL matrix because we must
      * convert from Skia device coords to GL's normalized coords. Also the origin of the render
@@ -152,8 +131,7 @@ public:
      */
     void setData(const GrOptDrawState&,
                  GrGpu::DrawType,
-                 const GrDeviceCoordTexture* dstCopy, // can be NULL
-                 SharedGLState*);
+                 const GrDeviceCoordTexture* dstCopy /* can be NULL*/);
 
 protected:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -173,11 +151,11 @@ protected:
 
     // Helper for setData(). Makes GL calls to specify the initial color when there is not
     // per-vertex colors.
-    void setColor(const GrOptDrawState&, GrColor color, SharedGLState*);
+    void setColor(const GrOptDrawState&, GrColor color);
 
     // Helper for setData(). Makes GL calls to specify the initial coverage when there is not
     // per-vertex coverages.
-    void setCoverage(const GrOptDrawState&, GrColor coverage, SharedGLState*);
+    void setCoverage(const GrOptDrawState&, GrColor coverage);
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
     void setFragmentData(const GrOptDrawState&);
