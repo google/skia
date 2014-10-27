@@ -294,18 +294,6 @@ public:
         return fResetTimestamp;
     }
 
-    /**
-     * These methods are called by the clip manager's setupClipping function
-     * which (called as part of GrGpu's implementation of onDraw and
-     * onStencilPath member functions.) The GrGpu subclass should flush the
-     * stencil state to the 3D API in its implementation of flushGraphicsState.
-     */
-    void enableScissor(const SkIRect& rect) {
-        fScissorState.fEnabled = true;
-        fScissorState.fRect = rect;
-    }
-    void disableScissor() { fScissorState.fEnabled = false; }
-
     // GrGpu subclass sets clip bit in the stencil buffer. The subclass is
     // free to clear the remaining bits to zero if masked clears are more
     // expensive than clearing all bits.
@@ -357,8 +345,8 @@ protected:
     // prepares clip flushes gpu state before a draw
     bool setupClipAndFlushState(DrawType,
                                 const GrDeviceCoordTexture* dstCopy,
-                                GrDrawState::AutoRestoreEffects*,
-                                const SkRect* devBounds);
+                                const SkRect* devBounds,
+                                GrDrawState::AutoRestoreEffects*);
 
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.
@@ -385,12 +373,6 @@ protected:
     const GeometryPoolState& getGeomPoolState() {
         return fGeomPoolStateStack.back();
     }
-
-    // The state of the scissor is controlled by the clip manager
-    struct ScissorState {
-        bool    fEnabled;
-        SkIRect fRect;
-    } fScissorState;
 
     // Helpers for setting up geometry state
     void finalizeReservedVertices();
@@ -464,7 +446,9 @@ private:
     // deltas from previous state at draw time. This function does the
     // backend-specific flush of the state.
     // returns false if current state is unsupported.
-    virtual bool flushGraphicsState(DrawType, const GrDeviceCoordTexture* dstCopy) = 0;
+    virtual bool flushGraphicsState(DrawType,
+                                    const ScissorState&,
+                                    const GrDeviceCoordTexture* dstCopy) = 0;
 
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target) = 0;

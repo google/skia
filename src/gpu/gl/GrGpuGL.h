@@ -148,7 +148,9 @@ private:
     virtual void clearStencil(GrRenderTarget*) SK_OVERRIDE;
     virtual void clearStencilClip(GrRenderTarget*, const SkIRect& rect,
                                   bool insideClip) SK_OVERRIDE;
-    virtual bool flushGraphicsState(DrawType, const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+    virtual bool flushGraphicsState(DrawType,
+                                    const ScissorState&,
+                                    const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 
     // GrDrawTarget overrides
     virtual void didAddGpuTraceMarker() SK_OVERRIDE;
@@ -220,7 +222,12 @@ private:
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
-    void flushScissor(const GrGLIRect& rtViewport, GrSurfaceOrigin rtOrigin);
+    void flushScissor(const ScissorState&,
+                      const GrGLIRect& rtViewport,
+                      GrSurfaceOrigin rtOrigin);
+
+    // disables the scissor
+    void disableScissor();
 
     void initFSAASupport();
 

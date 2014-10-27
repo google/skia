@@ -37,7 +37,6 @@ protected:
 public:
     SK_DECLARE_INST_COUNT(GrDrawTarget)
 
-
     typedef GrPathRendering::PathTransformType PathTransformType ;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -692,6 +691,15 @@ public:
     };
 
     virtual DrawToken getCurrentDrawToken() { return DrawToken(this, 0); }
+
+    // The state of the scissor is controlled by the clip manager, no one else should set
+    // Scissor state
+    struct ScissorState {
+        ScissorState() : fEnabled(false) {}
+        void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
+        bool    fEnabled;
+        SkIRect fRect;
+    };
 
 protected:
     // Extend access to GrDrawState::convertToPEndeingExec to subclasses.

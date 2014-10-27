@@ -211,9 +211,10 @@ bool GrClipMaskManager::installClipEffects(const GrReducedClip::ElementList& ele
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
 bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
+                                      const SkRect* devBounds,
                                       GrDrawState::AutoRestoreEffects* are,
-                                      GrDrawState::AutoRestoreStencil* asr,
-                                      const SkRect* devBounds) {
+                                      GrDrawState::AutoRestoreStencil* ars,
+                                      GrDrawTarget::ScissorState* scissorState) {
     fCurrClipMaskType = kNone_ClipMaskType;
 
     GrReducedClip::ElementList elements(16);
@@ -249,8 +250,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
     }
 
     if (ignoreClip) {
-        fGpu->disableScissor();
-        this->setDrawStateStencil(asr);
+        this->setDrawStateStencil(ars);
         return true;
     }
 
@@ -271,11 +271,9 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
             scissorSpaceIBounds.offset(-clipDataIn->fOrigin);
             if (NULL == devBounds ||
                 !SkRect::Make(scissorSpaceIBounds).contains(*devBounds)) {
-                fGpu->enableScissor(scissorSpaceIBounds);
-            } else {
-                fGpu->disableScissor();
+                scissorState->set(scissorSpaceIBounds);
             }
-            this->setDrawStateStencil(asr);
+            this->setDrawStateStencil(ars);
             return true;
         }
     }
@@ -306,8 +304,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
             rtSpaceMaskBounds.offset(-clipDataIn->fOrigin);
             are->set(fGpu->drawState());
             setup_drawstate_aaclip(fGpu, result, rtSpaceMaskBounds);
-            fGpu->disableScissor();
-            this->setDrawStateStencil(asr);
+            this->setDrawStateStencil(ars);
             return true;
         }
         // if alpha clip mask creation fails fall through to the non-AA code paths
@@ -334,8 +331,8 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
     // use both stencil and scissor test to the bounds for the final draw.
     SkIRect scissorSpaceIBounds(clipSpaceIBounds);
     scissorSpaceIBounds.offset(clipSpaceToStencilSpaceOffset);
-    fGpu->enableScissor(scissorSpaceIBounds);
-    this->setDrawStateStencil(asr);
+    scissorState->set(scissorSpaceIBounds);
+    this->setDrawStateStencil(ars);
     return true;
 }
 

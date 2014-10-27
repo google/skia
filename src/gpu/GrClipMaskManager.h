@@ -11,6 +11,7 @@
 #include "GrClipMaskCache.h"
 #include "GrContext.h"
 #include "GrDrawState.h"
+#include "GrDrawTarget.h"
 #include "GrReducedClip.h"
 #include "GrStencil.h"
 #include "GrTexture.h"
@@ -51,9 +52,10 @@ public:
      * clip. devBounds is optional but can help optimize clipping.
      */
     bool setupClipping(const GrClipData* clipDataIn,
+                       const SkRect* devBounds,
                        GrDrawState::AutoRestoreEffects*,
                        GrDrawState::AutoRestoreStencil*,
-                       const SkRect* devBounds);
+                       GrDrawTarget::ScissorState* scissorState);
 
     /**
      * Purge resources to free up memory. TODO: This class shouldn't hold any long lived refs

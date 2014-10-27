@@ -203,7 +203,9 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState,
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
-bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstCopy) {
+bool GrGpuGL::flushGraphicsState(DrawType type,
+                                 const ScissorState& scissorState,
+                                 const GrDeviceCoordTexture* dstCopy) {
     SkAutoTUnref<GrOptDrawState> optState(GrOptDrawState::Create(this->getDrawState(),
                                                                  *this->caps(),
                                                                  type));
@@ -259,7 +261,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState->getRenderTarget());
     this->flushStencil(optState->getStencil(), type);
-    this->flushScissor(glRT->getViewport(), glRT->origin());
+    this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
     this->flushAAState(*optState.get(), type);
 
     SkIRect* devRect = NULL;
