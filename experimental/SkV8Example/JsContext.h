@@ -13,7 +13,7 @@
 #include <v8.h>
 
 #include "SkPaint.h"
-#include "BaseContext.h"
+#include "DrawingMethods.h"
 
 class SkCanvas;
 class Global;
@@ -25,7 +25,7 @@ class Global;
 //    context.fillStyle="#FF0000";
 //    context.fillRect(x, y, w, h);
 //  }
-class JsContext : public BaseContext {
+class JsContext : public DrawingMethods {
 public:
     JsContext(Global* global)
             : INHERITED(global)
@@ -57,7 +57,7 @@ private:
     // Only valid when inside OnDraw().
     SkCanvas* fCanvas;
 
-    typedef BaseContext INHERITED;
+    typedef DrawingMethods INHERITED;
 };
 
 #endif

@@ -10,8 +10,8 @@
         '../third_party/externals/v8',
       ],
       'sources': [
-        '../experimental/SkV8Example/BaseContext.cpp',
-        '../experimental/SkV8Example/BaseContext.h',
+        '../experimental/SkV8Example/DrawingMethods.cpp',
+        '../experimental/SkV8Example/DrawingMethods.h',
         '../experimental/SkV8Example/Global.cpp',
         '../experimental/SkV8Example/Global.h',
         '../experimental/SkV8Example/JsContext.cpp',
