@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(5)
 
 
-class TigersvgDesktopPageSet(page_set_module.PageSet):
+class SkiaTigersvgDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(TigersvgDesktopPageSet, self).__init__(
+    super(SkiaTigersvgDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_tigersvg_desktop.json')
 

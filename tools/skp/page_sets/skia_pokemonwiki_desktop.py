@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(15)
 
 
-class PokemonwikiDesktopPageSet(page_set_module.PageSet):
+class SkiaPokemonwikiDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(PokemonwikiDesktopPageSet, self).__init__(
+    super(SkiaPokemonwikiDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_pokemonwiki_desktop.json')
 

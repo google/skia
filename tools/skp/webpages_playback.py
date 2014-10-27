@@ -202,19 +202,23 @@ class SkPicturePlayback(object):
     # Loop through all page_sets.
     for page_set in self._page_sets:
 
-      page_set_basename = os.path.basename(page_set).split('.')[0] + '.json'
+      page_set_basename = os.path.basename(page_set).split('.')[0]
+      page_set_json_name = page_set_basename + '.json'
       wpr_data_file = page_set.split(os.path.sep)[-1].split('.')[0] + '_000.wpr'
+      page_set_dir = os.path.dirname(page_set)
 
       if self._record:
         # Create an archive of the specified webpages if '--record=True' is
         # specified.
         record_wpr_cmd = (
+          'PYTHONPATH=%s:$PYTHONPATH' % page_set_dir,
           'DISPLAY=%s' % X11_DISPLAY,
           os.path.join(self._telemetry_binaries_dir, 'record_wpr'),
           '--extra-browser-args=--disable-setuid-sandbox',
           '--browser=exact',
           '--browser-executable=%s' % self._browser_executable,
-          page_set
+          '%s_page_set' % page_set_basename,
+          '--page-set-base-dir=%s' % page_set_dir
         )
         for _ in range(RETRY_RECORD_WPR_COUNT):
           output = shell_utils.run(' '.join(record_wpr_cmd), shell=True)
@@ -231,10 +235,8 @@ class SkPicturePlayback(object):
       else:
         if not self._skip_all_gs_access:
           # Get the webpages archive so that it can be replayed.
-          self._DownloadWebpagesArchive(wpr_data_file, page_set_basename)
+          self._DownloadWebpagesArchive(wpr_data_file, page_set_json_name)
 
-      page_set_name = os.path.basename(page_set).split('.')[0]
-      page_set_dir = os.path.dirname(page_set)
       run_benchmark_cmd = (
           'PYTHONPATH=%s:$PYTHONPATH' % page_set_dir,
           'DISPLAY=%s' % X11_DISPLAY,
@@ -244,7 +246,7 @@ class SkPicturePlayback(object):
           '--browser=exact',
           '--browser-executable=%s' % self._browser_executable,
           SKP_BENCHMARK,
-          '--page-set-name=%s' % page_set_name,
+          '--page-set-name=%s' % page_set_basename,
           '--page-set-base-dir=%s' % page_set_dir,
           '--skp-outdir=%s' % TMP_SKP_DIR,
           '--also-run-disabled-tests'
@@ -267,7 +269,7 @@ class SkPicturePlayback(object):
               self._local_record_webpages_archive_dir)
           shutil.move(
               os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
-                           page_set_basename),
+                           page_set_json_name),
               self._local_record_webpages_archive_dir)
 
         # Rename generated SKP files into more descriptive names.
@@ -375,13 +377,13 @@ class SkPicturePlayback(object):
         shutil.rmtree(d)
       os.makedirs(d)
 
-  def _DownloadWebpagesArchive(self, wpr_data_file, page_set_basename):
+  def _DownloadWebpagesArchive(self, wpr_data_file, page_set_json_name):
     """Downloads the webpages archive and its required page set from GS."""
     wpr_source = posixpath.join(ROOT_PLAYBACK_DIR_NAME, 'webpages_archive',
                                 wpr_data_file)
     page_set_source = posixpath.join(ROOT_PLAYBACK_DIR_NAME,
                                      'webpages_archive',
-                                     page_set_basename)
+                                     page_set_json_name)
     gs = gs_utils.GSUtils()
     gs_bucket = self._dest_gsbase.lstrip(gs_utils.GS_PREFIX)
     if (gs.does_storage_object_exist(gs_bucket, wpr_source) and
@@ -391,7 +393,7 @@ class SkPicturePlayback(object):
                                     wpr_data_file))
       gs.download_file(gs_bucket, page_set_source,
                        os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
-                                    page_set_basename))
+                                    page_set_json_name))
     else:
       raise Exception('%s and %s do not exist in Google Storage!' % (
           wpr_source, page_set_source))

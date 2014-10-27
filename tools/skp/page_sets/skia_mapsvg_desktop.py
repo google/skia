@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(10)
 
 
-class MapsvgDesktopPageSet(page_set_module.PageSet):
+class SkiaMapsvgDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(MapsvgDesktopPageSet, self).__init__(
+    super(SkiaMapsvgDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_mapsvg_desktop.json')
 

@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(5)
 
 
-class AmazonDesktopPageSet(page_set_module.PageSet):
+class SkiaAmazonDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(AmazonDesktopPageSet, self).__init__(
+    super(SkiaAmazonDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_amazon_desktop.json')
 

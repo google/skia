@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(15)
 
 
-class YoutubeDesktopPageSet(page_set_module.PageSet):
+class SkiaYoutubeDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(YoutubeDesktopPageSet, self).__init__(
+    super(SkiaYoutubeDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_youtube_desktop.json')
 

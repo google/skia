@@ -28,12 +28,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(5)
 
 
-class FacebookDesktopPageSet(page_set_module.PageSet):
+class SkiaFacebookDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(FacebookDesktopPageSet, self).__init__(
+    super(SkiaFacebookDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_facebook_desktop.json')
 

@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(5)
 
 
-class NytimesNexus10PageSet(page_set_module.PageSet):
+class SkiaNytimesNexus10PageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(NytimesNexus10PageSet, self).__init__(
+    super(SkiaNytimesNexus10PageSet, self).__init__(
       user_agent_type='tablet',
       archive_data_file='data/skia_nytimes_nexus10.json')
 

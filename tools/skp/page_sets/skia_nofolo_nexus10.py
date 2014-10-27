@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(15)
 
 
-class NofoloNexus10PageSet(page_set_module.PageSet):
+class SkiaNofoloNexus10PageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(NofoloNexus10PageSet, self).__init__(
+    super(SkiaNofoloNexus10PageSet, self).__init__(
       user_agent_type='tablet',
       archive_data_file='data/skia_nofolo_nexus10.json')
 

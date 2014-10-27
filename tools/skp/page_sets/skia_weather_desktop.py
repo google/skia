@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(15)
 
 
-class WeatherDesktopPageSet(page_set_module.PageSet):
+class SkiaWeatherDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(WeatherDesktopPageSet, self).__init__(
+    super(SkiaWeatherDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_weather_desktop.json')
 

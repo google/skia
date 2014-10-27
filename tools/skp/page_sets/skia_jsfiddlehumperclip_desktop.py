@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(10)
 
 
-class JsfiddleHumperDesktopPageSet(page_set_module.PageSet):
+class SkiaJsfiddlehumperclipDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(JsfiddleHumperDesktopPageSet, self).__init__(
+    super(SkiaJsfiddlehumperclipDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_jsfiddlehumperclip_desktop.json')
 

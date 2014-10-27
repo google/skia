@@ -23,15 +23,15 @@ class SkiaBuildbotDesktopPage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.NavigateToPage(self)
-    action_runner.Wait(5)
+    action_runner.Wait(60)
 
 
-class BaiduDesktopPageSet(page_set_module.PageSet):
+class SkiaBaiduDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(BaiduDesktopPageSet, self).__init__(
+    super(SkiaBaiduDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_baidu_desktop.json')
 

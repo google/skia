@@ -27,12 +27,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(60)
 
 
-class BloggerDesktopPageSet(page_set_module.PageSet):
+class SkiaBloggerDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(BloggerDesktopPageSet, self).__init__(
+    super(SkiaBloggerDesktopPageSet, self).__init__(
       user_agent_type='desktop',
       archive_data_file='data/skia_blogger_desktop.json')
 

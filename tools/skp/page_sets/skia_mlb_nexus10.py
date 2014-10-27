@@ -26,12 +26,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(15)
 
 
-class MlbNexus10PageSet(page_set_module.PageSet):
+class SkiaMlbNexus10PageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(MlbNexus10PageSet, self).__init__(
+    super(SkiaMlbNexus10PageSet, self).__init__(
       user_agent_type='tablet',
       archive_data_file='data/skia_mlb_nexus10.json')
 
