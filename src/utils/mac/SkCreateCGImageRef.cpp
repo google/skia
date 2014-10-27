@@ -188,17 +188,8 @@ private:
 };
 #define SkAutoPDFRelease(...) SK_REQUIRE_LOCAL_VAR(SkAutoPDFRelease)
 
-static void CGDataProviderReleaseData_FromMalloc(void*, const void* data,
-                                                 size_t size) {
-    sk_free((void*)data);
-}
-
 bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output) {
-    size_t size = stream->getLength();
-    void* ptr = sk_malloc_throw(size);
-    stream->read(ptr, size);
-    CGDataProviderRef data = CGDataProviderCreateWithData(NULL, ptr, size,
-                                          CGDataProviderReleaseData_FromMalloc);
+    CGDataProviderRef data = SkCreateDataProviderFromStream(stream);
     if (NULL == data) {
         return false;
     }
