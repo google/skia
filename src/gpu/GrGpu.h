@@ -306,18 +306,6 @@ public:
     }
     void disableScissor() { fScissorState.fEnabled = false; }
 
-    /**
-     * Like the scissor methods above this is called by setupClipping and
-     * should be flushed by the GrGpu subclass in flushGraphicsState. These
-     * stencil settings should be used in place of those on the GrDrawState.
-     * They have been adjusted to account for any interactions between the
-     * GrDrawState's stencil settings and stencil clipping.
-     */
-    void setStencilSettings(const GrStencilSettings& settings) {
-        fStencilSettings = settings;
-    }
-    void disableStencil() { fStencilSettings.setDisabled(); }
-
     // GrGpu subclass sets clip bit in the stencil buffer. The subclass is
     // free to clear the remaining bits to zero if masked clears are more
     // expensive than clearing all bits.
@@ -369,7 +357,8 @@ protected:
     // prepares clip flushes gpu state before a draw
     bool setupClipAndFlushState(DrawType,
                                 const GrDeviceCoordTexture* dstCopy,
-                                GrDrawState::AutoRestoreEffects* are,
+                                GrDrawState::AutoRestoreEffects*,
+                                GrDrawState::AutoRestoreStencil*,
                                 const SkRect* devBounds);
 
     // Functions used to map clip-respecting stencil tests into normal
@@ -403,9 +392,6 @@ protected:
         bool    fEnabled;
         SkIRect fRect;
     } fScissorState;
-
-    // The final stencil settings to use as determined by the clip manager.
-    GrStencilSettings fStencilSettings;
 
     // Helpers for setting up geometry state
     void finalizeReservedVertices();

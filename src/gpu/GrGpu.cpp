@@ -298,10 +298,12 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::setupClipAndFlushState(DrawType type, const GrDeviceCoordTexture* dstCopy,
+bool GrGpu::setupClipAndFlushState(DrawType type,
+                                   const GrDeviceCoordTexture* dstCopy,
                                    GrDrawState::AutoRestoreEffects* are,
+                                   GrDrawState::AutoRestoreStencil* ars,
                                    const SkRect* devBounds) {
-    if (!fClipMaskManager.setupClipping(this->getClip(), are, devBounds)) {
+    if (!fClipMaskManager.setupClipping(this->getClip(), are, ars, devBounds)) {
         return false;
     }
 
@@ -344,8 +346,9 @@ void GrGpu::geometrySourceWillPop(const GeometrySrcState& restoredState) {
 void GrGpu::onDraw(const DrawInfo& info) {
     this->handleDirtyContext();
     GrDrawState::AutoRestoreEffects are;
+    GrDrawState::AutoRestoreStencil asr;
     if (!this->setupClipAndFlushState(PrimTypeToDrawType(info.primitiveType()),
-                                      info.getDstCopy(), &are, info.getDevBounds())) {
+                                      info.getDstCopy(), &are, &asr, info.getDevBounds())) {
         return;
     }
     this->onGpuDraw(info);
@@ -355,7 +358,8 @@ void GrGpu::onStencilPath(const GrPath* path, SkPath::FillType fill) {
     this->handleDirtyContext();
 
     GrDrawState::AutoRestoreEffects are;
-    if (!this->setupClipAndFlushState(kStencilPath_DrawType, NULL, &are, NULL)) {
+    GrDrawState::AutoRestoreStencil asr;
+    if (!this->setupClipAndFlushState(kStencilPath_DrawType, NULL, &are, &asr, NULL)) {
         return;
     }
 
@@ -370,7 +374,8 @@ void GrGpu::onDrawPath(const GrPath* path, SkPath::FillType fill,
     drawState()->setDefaultVertexAttribs();
 
     GrDrawState::AutoRestoreEffects are;
-    if (!this->setupClipAndFlushState(kDrawPath_DrawType, dstCopy, &are, NULL)) {
+    GrDrawState::AutoRestoreStencil asr;
+    if (!this->setupClipAndFlushState(kDrawPath_DrawType, dstCopy, &are, &asr, NULL)) {
         return;
     }
 
@@ -386,7 +391,8 @@ void GrGpu::onDrawPaths(const GrPathRange* pathRange,
     drawState()->setDefaultVertexAttribs();
 
     GrDrawState::AutoRestoreEffects are;
-    if (!this->setupClipAndFlushState(kDrawPaths_DrawType, dstCopy, &are, NULL)) {
+    GrDrawState::AutoRestoreStencil asr;
+    if (!this->setupClipAndFlushState(kDrawPaths_DrawType, dstCopy, &are, &asr, NULL)) {
         return;
     }
 
