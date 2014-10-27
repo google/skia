@@ -133,8 +133,14 @@ public:
      *  Note that bpc47 is a combination of ISO 639, 15924, and 3166-1 codes,
      *  so it is fine to just pass a ISO 639 here.
      */
+#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
     virtual SkFontIdentity matchNameStyleCharacter(const char familyName[], const SkFontStyle&,
-                                                   const char bpc47[], SkUnichar character) const=0;
+                                                   const char* bcp47[], int bcp47Count,
+                                                   SkUnichar character) const=0;
+#else
+    virtual SkFontIdentity matchNameStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                   const char bcp47[], SkUnichar character) const=0;
+#endif
 
     /**
      *  Returns the data for the given data id.

@@ -408,11 +408,21 @@ public:
         SkFontIdentity fIdentity;
     };
 
+#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
     virtual SkFontIdentity matchNameStyleCharacter(const char familyName[],
                                                    const SkFontStyle& pattern,
-                                                   const char bpc47[],
-                                                   SkUnichar character) const  SK_OVERRIDE
+                                                   const char* bcp47[], int bcp47Count,
+                                                   SkUnichar character) const SK_OVERRIDE
     {
+#else
+    virtual SkFontIdentity matchNameStyleCharacter(const char familyName[],
+                                                   const SkFontStyle& pattern,
+                                                   const char bcp47_val[],
+                                                   SkUnichar character) const SK_OVERRIDE
+    {
+        const char** bcp47 = &bcp47_val;
+        int bcp47Count = bcp47_val ? 1 : 0;
+#endif
         SkFontIdentity identity = { SkFontIdentity::kInvalidDataId };
 
         IDWriteFactory* dwFactory = sk_get_dwrite_factory();
@@ -431,13 +441,14 @@ public:
             HR_GENERAL(sk_cstring_to_wchar(familyName, &dwFamilyName), NULL, identity);
         }
 
-        const SkSMallocWCHAR* dwBpc47;
-        SkSMallocWCHAR dwBpc47Local;
-        if (NULL == bpc47) {
-            dwBpc47 = &fLocaleName;
+        const SkSMallocWCHAR* dwBcp47;
+        SkSMallocWCHAR dwBcp47Local;
+        if (bcp47Count < 1) {
+            dwBcp47 = &fLocaleName;
         } else {
-            HR_GENERAL(sk_cstring_to_wchar(bpc47, &dwBpc47Local), NULL, identity);
-            dwBpc47 = &dwBpc47Local;
+            //TODO: support fallback stack.
+            HR_GENERAL(sk_cstring_to_wchar(bcp47[bcp47Count-1], &dwBcp47Local), NULL, identity);
+            dwBcp47 = &dwBcp47Local;
         }
 
         SkTScopedComPtr<IDWriteTextFormat> fallbackFormat;
@@ -447,7 +458,7 @@ public:
                                                dwStyle.fSlant,
                                                dwStyle.fWidth,
                                                72.0f,
-                                               *dwBpc47,
+                                               *dwBcp47,
                                                &fallbackFormat),
                    "Could not create text format.",
                    identity);

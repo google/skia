@@ -64,14 +64,24 @@ public:
 
     /**
      *  Use the system fallback to find a typeface for the given character.
-     *  Note that bpc47 is a combination of ISO 639, 15924, and 3166-1 codes,
+     *  Note that bcp47 is a combination of ISO 639, 15924, and 3166-1 codes,
      *  so it is fine to just pass a ISO 639 here.
      *
      *  Will return NULL if no family can be found for the character
      *  in the system fallback.
+     *
+     *  bcp47[0] is the least significant fallback, bcp47[bcp47Count-1] is the
+     *  most significant. If no specified bcp47 codes match, any font with the
+     *  requested character will be matched.
      */
+#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
     SkTypeface* matchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
-                                          const char bpc47[], uint32_t character) const;
+                                          const char* bcp47[], int bcp47Count,
+                                          SkUnichar character) const;
+#else
+    SkTypeface* matchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                          const char bcp47[], SkUnichar character) const;
+#endif
 
     SkTypeface* matchFaceStyle(const SkTypeface*, const SkFontStyle&) const;
 
@@ -117,8 +127,14 @@ protected:
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle&) const = 0;
     // TODO: pure virtual, implement on all impls.
+#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
-                                                    const char bpc47[], uint32_t character) const
+                                                    const char* bcp47[], int bcp47Count,
+                                                    SkUnichar character) const
+#else
+    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                    const char bcp47[], SkUnichar character) const
+#endif
     { return NULL; }
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                          const SkFontStyle&) const = 0;

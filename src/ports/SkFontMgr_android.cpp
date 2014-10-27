@@ -344,50 +344,79 @@ protected:
         return NULL;
     }
 
+static SkTypeface_AndroidSystem* find_family_style_character(
+        const SkTDArray<NameToFamily>& fallbackNameToFamilyMap,
+        const SkFontStyle& style, bool elegant,
+        const SkString& langTag, SkUnichar character)
+{
+    for (int i = 0; i < fallbackNameToFamilyMap.count(); ++i) {
+        SkFontStyleSet_Android* family = fallbackNameToFamilyMap[i].styleSet;
+        SkAutoTUnref<SkTypeface_AndroidSystem> face(family->matchStyle(style));
+
+        if (!langTag.isEmpty() && !face->fLang.getTag().startsWith(langTag.c_str())) {
+            continue;
+        }
+
+        if (SkToBool(face->fVariantStyle & kElegant_FontVariant) != elegant) {
+            continue;
+        }
+
+        SkPaint paint;
+        paint.setTypeface(face);
+        paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+
+        uint16_t glyphID;
+        paint.textToGlyphs(&character, sizeof(character), &glyphID);
+        if (glyphID != 0) {
+            return face.detach();
+        }
+    }
+    return NULL;
+}
+#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
                                                     const SkFontStyle& style,
-                                                    const char bpc47[],
-                                                    uint32_t character) const SK_OVERRIDE
+                                                    const char* bcp47[],
+                                                    int bcp47Count,
+                                                    SkUnichar character) const SK_OVERRIDE
     {
+#else
+    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
+                                                    const SkFontStyle& style,
+                                                    const char bcp47_val[],
+                                                    SkUnichar character) const SK_OVERRIDE
+    {
+        const char** bcp47 = &bcp47_val;
+        int bcp47Count = bcp47_val ? 1 : 0;
+#endif
         // The variant 'elegant' is 'not squashed', 'compact' is 'stays in ascent/descent'.
         // The variant 'default' means 'compact and elegant'.
         // As a result, it is not possible to know the variant context from the font alone.
         // TODO: add 'is_elegant' and 'is_compact' bits to 'style' request.
 
-        // For compatibility, try 'elegant' fonts first in fallback.
-        uint32_t variantMask = kElegant_FontVariant;
-
-        // The first time match anything in the mask, second time anything not in the mask.
-        for (bool maskMatches = true; maskMatches != false; maskMatches = false) {
-            SkLanguage lang(bpc47);
-            // Match against the language, removing a segment each time.
-            // The last time through the loop, the language will be empty.
-            // The empty language is special, and matches all languages.
-            do {
-                const SkString& langTag = lang.getTag();
-                for (int i = 0; i < fFallbackNameToFamilyMap.count(); ++i) {
-                    SkFontStyleSet_Android* family = fFallbackNameToFamilyMap[i].styleSet;
-                    SkAutoTUnref<SkTypeface_AndroidSystem> face(family->matchStyle(style));
-
-                    if (!langTag.isEmpty() && langTag != face->fLang.getTag()) {
-                        continue;
+        // The first time match anything elegant, second time anything not elegant.
+        for (int elegant = 2; elegant --> 0;) {
+            for (int bcp47Index = bcp47Count; bcp47Index --> 0;) {
+                SkLanguage lang(bcp47[bcp47Index]);
+                while (!lang.getTag().isEmpty()) {
+                    SkTypeface_AndroidSystem* matchingTypeface =
+                        find_family_style_character(fFallbackNameToFamilyMap,
+                                                    style, SkToBool(elegant),
+                                                    lang.getTag(), character);
+                    if (matchingTypeface) {
+                        return matchingTypeface;
                     }
 
-                    if (SkToBool(face->fVariantStyle & variantMask) != maskMatches) {
-                        continue;
-                    }
-
-                    SkPaint paint;
-                    paint.setTypeface(face);
-                    paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
-
-                    uint16_t glyphID;
-                    paint.textToGlyphs(&character, sizeof(character), &glyphID);
-                    if (glyphID != 0) {
-                        return face.detach();
-                    }
+                    lang = lang.getParent();
                 }
-            } while (!lang.getTag().isEmpty() && (lang = lang.getParent(), true));
+            }
+            SkTypeface_AndroidSystem* matchingTypeface =
+                find_family_style_character(fFallbackNameToFamilyMap,
+                                            style, SkToBool(elegant),
+                                            SkString(), character);
+            if (matchingTypeface) {
+                return matchingTypeface;
+            }
         }
         return NULL;
     }
