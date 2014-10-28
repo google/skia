@@ -109,12 +109,14 @@ static void intersect(const SkDCubic& cubic1, double t1s, double t1e, const SkDC
                         __FUNCTION__, t1Start, t1, t2Start, t2);
                 SkIntersections xlocals;
                 xlocals.allowNear(false);
+                xlocals.allowFlatMeasure(true);
                 intersectWithOrder(s1.fQuad, o1, s2.fQuad, o2, xlocals);
                 SkDebugf(" xlocals.fUsed=%d\n", xlocals.used());
             }
         #endif
             SkIntersections locals;
             locals.allowNear(false);
+            locals.allowFlatMeasure(true);
             intersectWithOrder(s1.fQuad, o1, s2.fQuad, o2, locals);
             int tCount = locals.used();
             for (int tIdx = 0; tIdx < tCount; ++tIdx) {
@@ -296,6 +298,7 @@ bool SkIntersections::cubicExactEnd(const SkDCubic& cubic1, bool start, const Sk
     tmpLine[1].fY -= cubic2[2 - start].fX - cubic2[t1Index].fX;
     SkIntersections impTs;
     impTs.allowNear(false);
+    impTs.allowFlatMeasure(true);
     impTs.intersectRay(cubic1, tmpLine);
     for (int index = 0; index < impTs.used(); ++index) {
         SkDPoint realPt = impTs.pt(index);
@@ -556,6 +559,7 @@ int SkIntersections::intersect(const SkDCubic& c1, const SkDCubic& c2) {
     }
     SkIntersections i;
     i.fAllowNear = false;
+    i.fFlatMeasure = true;
     i.fMax = 9;
     ::intersect(c1, 0, 1, c2, 0, 1, 1, i);
     int compCount = i.used();
@@ -662,7 +666,7 @@ int SkIntersections::intersect(const SkDCubic& c1, const SkDCubic& c2) {
 // OPTIMIZATION If this is a common use case, optimize by duplicating
 // the intersect 3 loop to avoid the promotion  / demotion code
 int SkIntersections::intersect(const SkDCubic& cubic, const SkDQuad& quad) {
-    fMax = 6;
+    fMax = 7;
     SkDCubic up = quad.toCubic();
     (void) intersect(cubic, up);
     return used();
@@ -684,7 +688,9 @@ int SkIntersections::intersect(const SkDCubic& c) {
     // OPTIMIZATION: could quick reject if neither end point tangent ray intersected the line
     // segment formed by the opposite end point to the control point
     (void) intersect(c, c);
-    if (used() > 0) {
+    if (used() > 1) {
+        fUsed = 0;
+    } else if (used() > 0) {
         if (approximately_equal_double(fT[0][0], fT[1][0])) {
             fUsed = 0;
         } else {

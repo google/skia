@@ -302,7 +302,7 @@ public:
     double calcMissingTStart(const SkOpSegment* ref, double loEnd, double min, double max,
                              double hiEnd, const SkOpSegment* other, int thisEnd);
     void checkDuplicates();
-    void checkEnds();
+    bool checkEnds();
     void checkMultiples();
     void checkSmall();
     bool checkSmall(int index) const;
@@ -323,8 +323,10 @@ public:
     int findT(double t, const SkPoint& , const SkOpSegment* ) const;
     SkOpSegment* findTop(int* tIndex, int* endIndex, bool* unsortable, bool firstPass);
     void fixOtherTIndex();
+    bool inconsistentAngle(int maxWinding, int sumWinding, int oppMaxWinding, int oppSumWinding,
+                        const SkOpAngle* angle) const;
     void initWinding(int start, int end, SkOpAngle::IncludeType angleIncludeType);
-    void initWinding(int start, int end, double tHit, int winding, SkScalar hitDx, int oppWind,
+    bool initWinding(int start, int end, double tHit, int winding, SkScalar hitDx, int oppWind,
                      SkScalar hitOppDx);
     bool isMissing(double startT, const SkPoint& pt) const;
     bool isTiny(const SkOpAngle* angle) const;
@@ -332,11 +334,13 @@ public:
                          bool cancel);
     SkOpSpan* markAndChaseDoneBinary(int index, int endIndex);
     SkOpSpan* markAndChaseDoneUnary(int index, int endIndex);
-    SkOpSpan* markAndChaseWinding(const SkOpAngle* angle, int winding, int oppWinding);
+    bool markAndChaseWinding(const SkOpAngle* angle, int winding, int oppWinding,
+                             SkOpSpan** lastPtr);
     SkOpSpan* markAngle(int maxWinding, int sumWinding, int oppMaxWinding, int oppSumWinding,
                         const SkOpAngle* angle);
     void markDone(int index, int winding);
     void markDoneBinary(int index);
+    void markDoneFinal(int index);
     void markDoneUnary(int index);
     bool nextCandidate(int* start, int* end) const;
     int nextSpan(int from, int step) const;
@@ -403,15 +407,16 @@ private:
     SkOpAngle* addSingletonAngleDown(SkOpSegment** otherPtr, SkOpAngle** );
     SkOpAngle* addSingletonAngleUp(SkOpSegment** otherPtr, SkOpAngle** );
     SkOpAngle* addSingletonAngles(int step);
+    void alignRange(int lower, int upper, const SkOpSegment* other, int oLower, int oUpper);
     void alignSpan(const SkPoint& newPt, double newT, const SkOpSegment* other, double otherT,
                    const SkOpSegment* other2, SkOpSpan* oSpan, SkTDArray<AlignedSpan>* );
     bool betweenPoints(double midT, const SkPoint& pt1, const SkPoint& pt2) const;
     void bumpCoincidentBlind(bool binary, int index, int last);
     bool bumpCoincidentThis(const SkOpSpan& oTest, bool binary, int* index,
-                           SkTArray<SkPoint, true>* outsideTs);
+                            SkTArray<SkPoint, true>* outsideTs);
     void bumpCoincidentOBlind(int index, int last);
-    void bumpCoincidentOther(const SkOpSpan& oTest, int* index,
-                           SkTArray<SkPoint, true>* outsideTs);
+    bool bumpCoincidentOther(const SkOpSpan& oTest, int* index,
+                             SkTArray<SkPoint, true>* outsideTs, const SkPoint& endPt);
     bool bumpSpan(SkOpSpan* span, int windDelta, int oppDelta);
     bool calcLoopSpanCount(const SkOpSpan& thisSpan, int* smallCounts);
     bool checkForSmall(const SkOpSpan* span, const SkPoint& pt, double newT,
@@ -438,6 +443,9 @@ private:
     const SkOpSpan& firstSpan(const SkOpSpan& thisSpan) const;
     void init(const SkPoint pts[], SkPath::Verb verb, bool operand, bool evenOdd);
     bool inCoincidentSpan(double t, const SkOpSegment* other) const;
+    bool inconsistentWinding(const SkOpAngle* , int maxWinding, int oppMaxWinding) const;
+    bool inconsistentWinding(int min, int maxWinding, int oppMaxWinding) const;
+    bool inconsistentWinding(const char* funName, int tIndex, int winding, int oppWinding) const;
     bool inLoop(const SkOpAngle* baseAngle, int spanCount, int* indexPtr) const;
 #if OLD_CHASE
     bool isSimple(int end) const;
@@ -449,30 +457,35 @@ private:
     void matchWindingValue(int tIndex, double t, bool borrowWind);
     SkOpSpan* markAndChaseDone(int index, int endIndex, int winding);
     SkOpSpan* markAndChaseDoneBinary(const SkOpAngle* angle, int winding, int oppWinding);
-    SkOpSpan* markAndChaseWinding(const SkOpAngle* angle, int winding);
-    SkOpSpan* markAndChaseWinding(int index, int endIndex, int winding);
-    SkOpSpan* markAndChaseWinding(int index, int endIndex, int winding, int oppWinding);
+    bool markAndChaseWinding(const SkOpAngle* angle, int winding, SkOpSpan** lastPtr);
+    bool markAndChaseWinding(int index, int endIndex, int winding, SkOpSpan** lastPtr);
+    bool markAndChaseWinding(int index, int endIndex, int winding, int oppWinding,
+                             SkOpSpan** lastPtr);
     SkOpSpan* markAngle(int maxWinding, int sumWinding, const SkOpAngle* angle);
     void markDoneBinary(int index, int winding, int oppWinding);
     SkOpSpan* markAndChaseDoneUnary(const SkOpAngle* angle, int winding);
     void markOneDone(const char* funName, int tIndex, int winding);
     void markOneDoneBinary(const char* funName, int tIndex);
     void markOneDoneBinary(const char* funName, int tIndex, int winding, int oppWinding);
+    void markOneDoneFinal(const char* funName, int tIndex);
     void markOneDoneUnary(const char* funName, int tIndex);
-    SkOpSpan* markOneWinding(const char* funName, int tIndex, int winding);
-    SkOpSpan* markOneWinding(const char* funName, int tIndex, int winding, int oppWinding);
-    void markWinding(int index, int winding);
-    void markWinding(int index, int winding, int oppWinding);
+    bool markOneWinding(const char* funName, int tIndex, int winding, SkOpSpan** lastPtr);
+    bool markOneWinding(const char* funName, int tIndex, int winding, int oppWinding,
+                        SkOpSpan** lastPtr);
+    bool markWinding(int index, int winding);
+    bool markWinding(int index, int winding, int oppWinding);
     bool monotonicInY(int tStart, int tEnd) const;
 
     bool multipleEnds() const { return fTs[count() - 2].fT == 1; }
     bool multipleStarts() const { return fTs[1].fT == 0; }
 
-    SkOpSegment* nextChase(int* index, int* step, int* min, SkOpSpan** last);
+    SkOpSegment* nextChase(int* index, int* step, int* min, SkOpSpan** last) const;
     int nextExactSpan(int from, int step) const;
+    void resetSpanFlags();
     bool serpentine(int tStart, int tEnd) const;
     void setCoincidentRange(const SkPoint& startPt, const SkPoint& endPt,  SkOpSegment* other);
     void setFromAngle(int endIndex, SkOpAngle* );
+    void setSpanFlags(const SkPoint& pt, double newT, SkOpSpan* span);
     void setToAngle(int endIndex, SkOpAngle* );
     void setUpWindings(int index, int endIndex, int* sumMiWinding,
             int* maxWinding, int* sumWinding);
@@ -527,6 +540,7 @@ private:
     void debugConstructQuad(SkPoint shortQuad[3]);
     void debugReset();
     void dumpDPts() const;
+    void dumpHexPts() const;
     void dumpSpan(int index) const;
 
     const SkPoint* fPts;

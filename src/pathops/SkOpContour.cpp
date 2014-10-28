@@ -13,7 +13,7 @@ bool SkOpContour::addCoincident(int index, SkOpContour* other, int otherIndex,
         const SkIntersections& ts, bool swap) {
     SkPoint pt0 = ts.pt(0).asSkPoint();
     SkPoint pt1 = ts.pt(1).asSkPoint();
-    if (pt0 == pt1) {
+    if (pt0 == pt1 || ts[0][0] == ts[0][1] || ts[1][0] == ts[1][1]) {
         // FIXME: one could imagine a case where it would be incorrect to ignore this
         // suppose two self-intersecting cubics overlap to be coincident --
         // this needs to check that by some measure the t values are far enough apart

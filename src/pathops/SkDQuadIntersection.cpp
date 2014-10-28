@@ -73,6 +73,7 @@ static int addValidRoots(const double roots[4], const int count, double valid[4]
         } else if (approximately_greater_than_one(t)) {
             t = 1;
         }
+        SkASSERT(t >= 0 && t <= 1);
         valid[result++] = t;
     }
     return result;
@@ -242,10 +243,18 @@ static double flat_measure(const SkDQuad& q) {
 
 // FIXME ? should this measure both and then use the quad that is the flattest as the line?
 static bool is_linear(const SkDQuad& q1, const SkDQuad& q2, SkIntersections* i) {
-    double measure = flat_measure(q1);
-    // OPTIMIZE: (get rid of sqrt) use approximately_zero
-    if (!approximately_zero_sqrt(measure)) {
-        return false;
+    if (i->flatMeasure()) {
+        // for backward compatibility, use the old method when called from cubics
+        // FIXME: figure out how to fix cubics when it calls the new path
+        double measure = flat_measure(q1);
+        // OPTIMIZE: (get rid of sqrt) use approximately_zero
+        if (!approximately_zero_sqrt(measure)) {  // approximately_zero_sqrt
+            return false;
+        }
+     } else {
+        if (!q1.isLinear(0, 2)) {
+            return false;
+        }
     }
     return is_linear_inner(q1, 0, 1, q2, 0, 1, i, NULL);
 }
@@ -305,6 +314,16 @@ static bool binary_search(const SkDQuad& quad1, const SkDQuad& quad2, double* t1
             SkDebugf("%s t1=%1.9g t2=%1.9g (%1.9g,%1.9g) == (%1.9g,%1.9g)\n", __FUNCTION__,
                     t1Seed, t2Seed, t1[1].fX, t1[1].fY, t2[1].fX, t2[1].fY);
     #endif
+            if (*t1Seed < 0) {
+                *t1Seed = 0;
+            } else if (*t1Seed > 1) {
+                *t1Seed = 1;
+            }
+            if (*t2Seed < 0) {
+                *t2Seed = 0;
+            } else if (*t2Seed > 1) {
+                *t2Seed = 1;
+            }
             return true;
         }
         if (calcMask & (1 << 0)) t1[0] = quad1.ptAtT(SkTMax(0., *t1Seed - tStep));
@@ -398,11 +417,13 @@ static void lookNearEnd(const SkDQuad& q1, const SkDQuad& q2, int testT,
 
 int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     fMax = 4;
+    bool exactMatch = false;
     // if the quads share an end point, check to see if they overlap
     for (int i1 = 0; i1 < 3; i1 += 2) {
         for (int i2 = 0; i2 < 3; i2 += 2) {
             if (q1[i1].asSkPoint() == q2[i2].asSkPoint()) {
                 insert(i1 >> 1, i2 >> 1, q1[i1]);
+                exactMatch = true;
             }
         }
     }
@@ -469,6 +490,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     int rootCount = findRoots(i2, q1, roots1, useCubic, flip1, 0);
     // OPTIMIZATION: could short circuit here if all roots are < 0 or > 1
     double roots1Copy[4];
+    SkDEBUGCODE(sk_bzero(roots1Copy, sizeof(roots1Copy)));
     int r1Count = addValidRoots(roots1, rootCount, roots1Copy);
     SkDPoint pts1[4];
     for (index = 0; index < r1Count; ++index) {
@@ -482,12 +504,14 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     for (index = 0; index < r2Count; ++index) {
         pts2[index] = q2.ptAtT(roots2Copy[index]);
     }
+    bool triedBinary = false;
     if (r1Count == r2Count && r1Count <= 1) {
         if (r1Count == 1 && used() == 0) {
             if (pts1[0].approximatelyEqual(pts2[0])) {
                 insert(roots1Copy[0], roots2Copy[0], pts1[0]);
             } else {
                 // find intersection by chasing t
+                triedBinary = true;
                 if (binary_search(q1, q2, roots1Copy, roots2Copy, pts1)) {
                     insert(roots1Copy[0], roots2Copy[0], pts1[0]);
                 }
@@ -528,7 +552,18 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         }
     }
     if (r1Count && r2Count && !foundSomething) {
+        if (exactMatch) {
+            SkASSERT(fUsed > 0);
+            return fUsed;
+        }
         relaxed_is_linear(&q1, 0, 1, &q2, 0, 1, this);
+        if (fUsed) {
+            return fUsed;
+        }
+        // maybe the curves are nearly coincident
+        if (!triedBinary && binary_search(q1, q2, roots1Copy, roots2Copy, pts1)) {
+            insert(roots1Copy[0], roots2Copy[0], pts1[0]);
+        }
         return fUsed;
     }
     int used = 0;
@@ -552,4 +587,31 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         closest[lowestIndex] = -1;
     } while (++used < r1Count);
     return fUsed;
+}
+
+void SkIntersections::alignQuadPts(const SkPoint q1[3], const SkPoint q2[3]) {
+    for (int index = 0; index < used(); ++index) {
+        const SkPoint result = pt(index).asSkPoint();
+        if (q1[0] == result || q1[2] == result || q2[0] == result || q2[2] == result) {
+            continue;
+        }
+        if (SkDPoint::ApproximatelyEqual(q1[0], result)) {
+            fPt[index].set(q1[0]);
+//            SkASSERT(way_roughly_zero(fT[0][index]));  // this value can be bigger than way rough
+            fT[0][index] = 0;
+        } else if (SkDPoint::ApproximatelyEqual(q1[2], result)) {
+            fPt[index].set(q1[2]);
+//            SkASSERT(way_roughly_equal(fT[0][index], 1));
+            fT[0][index] = 1;
+        }
+        if (SkDPoint::ApproximatelyEqual(q2[0], result)) {
+            fPt[index].set(q2[0]);
+//            SkASSERT(way_roughly_zero(fT[1][index]));
+            fT[1][index] = 0;
+        } else if (SkDPoint::ApproximatelyEqual(q2[2], result)) {
+            fPt[index].set(q2[2]);
+//            SkASSERT(way_roughly_equal(fT[1][index], 1));
+            fT[1][index] = 1;
+        }
+    }
 }

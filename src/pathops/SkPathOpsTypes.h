@@ -141,6 +141,12 @@ inline bool roughly_zero(double x) {
     return fabs(x) < ROUGH_EPSILON;
 }
 
+#if 0  // unused for now
+inline bool way_roughly_zero(double x) {
+    return fabs(x) < WAY_ROUGH_EPSILON;
+}
+#endif
+
 inline bool approximately_zero_inverse(double x) {
     return fabs(x) > FLT_EPSILON_INVERSE;
 }

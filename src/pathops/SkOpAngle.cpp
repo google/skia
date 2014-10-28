@@ -409,7 +409,12 @@ bool SkOpAngle::endsIntersect(const SkOpAngle& rh) const {
     for (int index = 0; index < 2; ++index) {
         const SkOpSegment& segment = index ? *rh.fSegment : *fSegment;
         SkIntersections i;
-        (*CurveIntersectRay[index ? rPts : lPts])(segment.pts(), rays[index], &i);
+        int cPts = index ? rPts : lPts;
+        (*CurveIntersectRay[cPts])(segment.pts(), rays[index], &i);
+        // if the curve is a line, then the line and the ray intersect only at their crossing
+        if (cPts == 1) { // line
+            continue;
+        }
 //      SkASSERT(i.used() >= 1);
 //        if (i.used() <= 1) {
 //            continue;
@@ -657,7 +662,7 @@ void SkOpAngle::insert(SkOpAngle* angle) {
     }
     SkOpAngle* next = fNext;
     if (next->fNext == this) {
-        if (angle->overlap(*this)) {
+        if (angle->overlap(*this)) {  // angles are essentially coincident
             return;
         }
         if (singleton || angle->after(this)) {
@@ -777,7 +782,7 @@ bool SkOpAngle::merge(SkOpAngle* angle) {
         working = next;
     } while (working != angle);
     // it's likely that a pair of the angles are unorderable
-#if DEBUG_ANGLE
+#if 0 && DEBUG_ANGLE
     SkOpAngle* last = angle;
     working = angle->fNext;
     do {
