@@ -256,7 +256,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type,
 
         this->flushBlend(*optState.get(), kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
-        fCurrentProgram->setData(*optState.get(), type, dstCopy);
+        fCurrentProgram->setData(*optState.get(), type, dstCopy, &fSharedGLProgramState);
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState->getRenderTarget());

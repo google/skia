@@ -94,7 +94,7 @@ private:
                                                         // effects that read the fragment position.
                                                         // Otherwise, 0.
 
-        SkBool8                     fUseNvpr;
+        SkBool8                     fUseFragShaderOnly;
         SkBool8                     fEmitsPointSize;
 
         ColorInput                       fColorInput : 8;
