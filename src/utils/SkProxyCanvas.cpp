@@ -95,6 +95,17 @@ void SkProxyCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     fProxy->drawPath(path, paint);
 }
 
+void SkProxyCanvas::drawImage(const SkImage* image, SkScalar left, SkScalar top,
+                       const SkPaint* paint) {
+    fProxy->drawImage(image, left, top, paint);
+}
+
+void SkProxyCanvas::drawImageRect(const SkImage* image, const SkRect* src,
+                           const SkRect& dst,
+                           const SkPaint* paint) {
+    fProxy->drawImageRect(image, src, dst, paint);
+}
+
 void SkProxyCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                                const SkPaint* paint) {
     fProxy->drawBitmap(bitmap, x, y, paint);
