@@ -2755,19 +2755,17 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10690981673844438779
+          10074125510709354851
         ]
-      ], 
-      "reviewed-by-human": true
+      ]
     }, 
     "dropshadowimagefilter_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17741586089922604508
+          12348002540930970048
         ]
-      ], 
-      "reviewed-by-human": true
+      ]
     }, 
     "drrect_565.png": {
       "allowed-digests": [
@@ -4364,7 +4362,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16124800527256131619
+          7955099457759770546
         ]
       ], 
       "reviewed-by-human": true
@@ -4373,7 +4371,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1411254310484647352
+          6913141539607550299
         ]
       ], 
       "reviewed-by-human": true
