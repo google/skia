@@ -145,8 +145,8 @@ DEF_TEST(KtxReexportPKM, reporter) {
     // Load PKM file into a bitmap
     SkBitmap etcBitmap;
     SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(pkmFilename.c_str()));
-    REPORTER_ASSERT(reporter, fileData);
     if (NULL == fileData) {
+        SkDebugf("KtxReexportPKM: can't load test file %s\n", pkmFilename.c_str());
         return;
     }
 
