@@ -747,6 +747,10 @@ bool GrDrawState::srcAlphaWillBeOne() const {
             inoutCoverage.fColor = this->getCoverageColor();
         }
 
+        if (this->hasGeometryProcessor()) {
+            fGeometryProcessor->computeInvariantOutput(&inoutCoverage);
+        }
+
         // Run through the coverage stages
         for (int s = 0; s < this->numCoverageStages(); ++s) {
             const GrProcessor* processor = this->getCoverageStage(s).getProcessor();
