@@ -55,7 +55,9 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
 
     // if we have a vertex shader(we don't only if we are using NVPR or NVPR ES), then we may have
     // to setup a few more things like builtin vertex attributes
-    bool hasVertexShader = !header.fUseFragShaderOnly;
+    bool hasVertexShader = !(header.fUseNvpr &&
+                             gpu->glPathRendering()->texturingMode() ==
+                             GrGLPathRendering::FixedFunction_TexturingMode);
     if (hasVertexShader) {
         pb->fVS.setupLocalCoords();
         pb->fVS.transformGLToSkiaCoords();
@@ -92,18 +94,15 @@ GrGLProgramBuilder::CreateProgramBuilder(const GrGLProgramDesc& desc,
                                          GrGpu::DrawType drawType,
                                          bool hasGeometryProcessor,
                                          GrGpuGL* gpu) {
-    if (desc.getHeader().fUseFragShaderOnly) {
+    if (desc.getHeader().fUseNvpr) {
         SkASSERT(gpu->glCaps().pathRenderingSupport());
-        SkASSERT(gpu->glPathRendering()->texturingMode() ==
-                 GrGLPathRendering::FixedFunction_TexturingMode);
         SkASSERT(!hasGeometryProcessor);
-        return SkNEW_ARGS(GrGLLegacyNvprProgramBuilder, (gpu, optState, desc));
-    } else if (GrGpu::IsPathRenderingDrawType(drawType)) {
-        SkASSERT(gpu->glCaps().pathRenderingSupport());
-        SkASSERT(gpu->glPathRendering()->texturingMode() ==
-                 GrGLPathRendering::SeparableShaders_TexturingMode);
-        SkASSERT(!hasGeometryProcessor);
-        return SkNEW_ARGS(GrGLNvprProgramBuilder, (gpu, optState, desc));
+        if (gpu->glPathRendering()->texturingMode() ==
+            GrGLPathRendering::FixedFunction_TexturingMode) {
+            return SkNEW_ARGS(GrGLLegacyNvprProgramBuilder, (gpu, optState, desc));
+        } else {
+            return SkNEW_ARGS(GrGLNvprProgramBuilder, (gpu, optState, desc));
+        }
     } else {
         return SkNEW_ARGS(GrGLProgramBuilder, (gpu, optState, desc));
     }
@@ -420,7 +419,9 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         this->cleanupProgram(programID, shadersToDelete);
         return NULL;
     }
-    if (!this->header().fUseFragShaderOnly) {
+    if (!(this->header().fUseNvpr &&
+          fGpu->glPathRendering()->texturingMode() ==
+          GrGLPathRendering::FixedFunction_TexturingMode)) {
         if (!fVS.compileAndAttachShaders(programID, &shadersToDelete)) {
             this->cleanupProgram(programID, shadersToDelete);
             return NULL;

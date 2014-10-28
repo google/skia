@@ -288,8 +288,6 @@ private:
     int                         fHWActiveTextureUnitIdx;
     GrGLuint                    fHWProgramID;
 
-    GrGLProgram::SharedGLState  fSharedGLProgramState;
-
     enum TriState {
         kNo_TriState,
         kYes_TriState,

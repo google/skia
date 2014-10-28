@@ -129,13 +129,12 @@ void GrGLProgram::bindTextures(const GrGLInstalledProc* ip, const GrProcessor& p
 
 void GrGLProgram::setData(const GrOptDrawState& optState,
                           GrGpu::DrawType drawType,
-                          const GrDeviceCoordTexture* dstCopy,
-                          SharedGLState* sharedState) {
+                          const GrDeviceCoordTexture* dstCopy) {
     GrColor color = optState.getColor();
     GrColor coverage = optState.getCoverageColor();
 
-    this->setColor(optState, color, sharedState);
-    this->setCoverage(optState, coverage, sharedState);
+    this->setColor(optState, color);
+    this->setCoverage(optState, coverage);
     this->setMatrixAndRenderTargetHeight(drawType, optState);
 
     if (dstCopy) {
@@ -201,80 +200,49 @@ void GrGLProgram::didSetData(GrGpu::DrawType drawType) {
     SkASSERT(!GrGpu::IsPathRenderingDrawType(drawType));
 }
 
-void GrGLProgram::setColor(const GrOptDrawState& optState,
-                           GrColor color,
-                           SharedGLState* sharedState) {
+void GrGLProgram::setColor(const GrOptDrawState& optState, GrColor color) {
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
-    if (!optState.hasColorVertexAttribute()) {
-        switch (header.fColorInput) {
-            case GrGLProgramDesc::kAttribute_ColorInput:
-                SkASSERT(-1 != header.fColorAttributeIndex);
-                if (sharedState->fConstAttribColor != color ||
-                    sharedState->fConstAttribColorIndex != header.fColorAttributeIndex) {
-                    // OpenGL ES only supports the float varieties of glVertexAttrib
-                    GrGLfloat c[4];
-                    GrColorToRGBAFloat(color, c);
-                    GL_CALL(VertexAttrib4fv(header.fColorAttributeIndex, c));
-                    sharedState->fConstAttribColor = color;
-                    sharedState->fConstAttribColorIndex = header.fColorAttributeIndex;
-                }
-                break;
-            case GrGLProgramDesc::kUniform_ColorInput:
-                if (fColor != color && fBuiltinUniformHandles.fColorUni.isValid()) {
-                    // OpenGL ES doesn't support unsigned byte varieties of glUniform
-                    GrGLfloat c[4];
-                    GrColorToRGBAFloat(color, c);
-                    fProgramDataManager.set4fv(fBuiltinUniformHandles.fColorUni, 1, c);
-                    fColor = color;
-                }
-                sharedState->fConstAttribColorIndex = -1;
-                break;
-            case GrGLProgramDesc::kAllOnes_ColorInput:
-                sharedState->fConstAttribColorIndex = -1;
-                break;
-            default:
-                SkFAIL("Unexpected color type.");
-        }
-    } else {
-        sharedState->fConstAttribColorIndex = -1;
+    switch (header.fColorInput) {
+        case GrGLProgramDesc::kAttribute_ColorInput:
+            // Attribute case is handled in GrGpuGL::setupGeometry
+            break;
+        case GrGLProgramDesc::kUniform_ColorInput:
+            if (fColor != color && fBuiltinUniformHandles.fColorUni.isValid()) {
+                // OpenGL ES doesn't support unsigned byte varieties of glUniform
+                GrGLfloat c[4];
+                GrColorToRGBAFloat(color, c);
+                fProgramDataManager.set4fv(fBuiltinUniformHandles.fColorUni, 1, c);
+                fColor = color;
+            }
+            break;
+        case GrGLProgramDesc::kAllOnes_ColorInput:
+            // Handled by shader creation
+            break;
+        default:
+            SkFAIL("Unexpected color type.");
     }
 }
 
-void GrGLProgram::setCoverage(const GrOptDrawState& optState,
-                              GrColor coverage,
-                              SharedGLState* sharedState) {
+void GrGLProgram::setCoverage(const GrOptDrawState& optState, GrColor coverage) {
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
-    if (!optState.hasCoverageVertexAttribute()) {
-        switch (header.fCoverageInput) {
-            case GrGLProgramDesc::kAttribute_ColorInput:
-                if (sharedState->fConstAttribCoverage != coverage ||
-                    sharedState->fConstAttribCoverageIndex != header.fCoverageAttributeIndex) {
-                    // OpenGL ES only supports the float varieties of  glVertexAttrib
-                    GrGLfloat c[4];
-                    GrColorToRGBAFloat(coverage, c);
-                    GL_CALL(VertexAttrib4fv(header.fCoverageAttributeIndex, c));
-                    sharedState->fConstAttribCoverage = coverage;
-                    sharedState->fConstAttribCoverageIndex = header.fCoverageAttributeIndex;
-                }
-                break;
-            case GrGLProgramDesc::kUniform_ColorInput:
-                if (fCoverage != coverage) {
-                    // OpenGL ES doesn't support unsigned byte varieties of glUniform
-                    GrGLfloat c[4];
-                    GrColorToRGBAFloat(coverage, c);
-                    fProgramDataManager.set4fv(fBuiltinUniformHandles.fCoverageUni, 1, c);
-                    fCoverage = coverage;
-                }
-                sharedState->fConstAttribCoverageIndex = -1;
-                break;
-            case GrGLProgramDesc::kAllOnes_ColorInput:
-                sharedState->fConstAttribCoverageIndex = -1;
-                break;
-            default:
-                SkFAIL("Unexpected coverage type.");
-        }
-    } else {
-        sharedState->fConstAttribCoverageIndex = -1;
+    switch (header.fCoverageInput) {
+        case GrGLProgramDesc::kAttribute_ColorInput:
+            // Attribute case is handled in GrGpuGL::setupGeometry
+            break;
+        case GrGLProgramDesc::kUniform_ColorInput:
+            if (fCoverage != coverage) {
+                // OpenGL ES doesn't support unsigned byte varieties of glUniform
+                GrGLfloat c[4];
+                GrColorToRGBAFloat(coverage, c);
+                fProgramDataManager.set4fv(fBuiltinUniformHandles.fCoverageUni, 1, c);
+                fCoverage = coverage;
+            }
+            break;
+        case GrGLProgramDesc::kAllOnes_ColorInput:
+            // Handled by shader creation
+            break;
+        default:
+            SkFAIL("Unexpected coverage type.");
     }
 }
 
