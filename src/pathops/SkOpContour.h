@@ -127,9 +127,9 @@ public:
         }
     }
 
-    bool checkEnds() {
+    void checkEnds() {
         if (!fContainsCurves) {
-            return true;
+            return;
         }
         int segmentCount = fSegments.count();
         for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
@@ -140,11 +140,8 @@ public:
             if (segment->done()) {
                 continue;   // likely coincident, nothing to do
             }
-            if (!segment->checkEnds()) {
-                return false;
-            }
+            segment->checkEnds();
         }
-        return true;
     }
 
     void checkMultiples() {

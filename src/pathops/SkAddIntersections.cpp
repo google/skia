@@ -307,7 +307,6 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next) {
                         }
                         case SkIntersectionHelper::kQuad_Segment: {
                             pts = ts.quadQuad(wt.pts(), wn.pts());
-                            ts.alignQuadPts(wt.pts(), wn.pts());
                             debugShowQuadIntersection(pts, wt, wn, ts);
                             break;
                         }

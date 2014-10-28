@@ -227,7 +227,6 @@ struct SkDPoint {
     // utilities callable by the user from the debugger when the implementation code is linked in
     void dump() const;
     static void Dump(const SkPoint& pt);
-    static void DumpHex(const SkPoint& pt);
 };
 
 #endif
