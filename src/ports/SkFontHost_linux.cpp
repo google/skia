@@ -22,7 +22,7 @@
 #include <limits>
 
 #ifndef SK_FONT_FILE_PREFIX
-#    define SK_FONT_FILE_PREFIX "/usr/share/fonts/truetype/"
+#    define SK_FONT_FILE_PREFIX "/usr/share/fonts/"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -275,7 +275,7 @@ protected:
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
-        if (SkTypeface_FreeType::ScanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
+        if (fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
             return SkNEW_ARGS(SkTypeface_Stream, (style, isFixedPitch, false, name,
                                                   stream, ttcIndex));
         } else {
@@ -314,46 +314,48 @@ protected:
 
 private:
 
-    static bool get_name_and_style(const char path[], SkString* name,
-                                   SkFontStyle* style, bool* isFixedPitch) {
-        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-        if (stream.get()) {
-            return SkTypeface_FreeType::ScanFont(stream, 0, name, style, isFixedPitch);
-        } else {
-            SkDebugf("---- failed to open <%s> as a font\n", path);
-            return false;
-        }
-    }
-
-    void load_directory_fonts(const SkString& directory) {
-        SkOSFile::Iter iter(directory.c_str(), ".ttf");
+    void load_directory_fonts(const SkString& directory, const char* suffix) {
+        SkOSFile::Iter iter(directory.c_str(), suffix);
         SkString name;
 
         while (iter.next(&name, false)) {
-            SkString filename(
-                SkOSPath::Join(directory.c_str(), name.c_str()));
-
-            bool isFixedPitch;
-            SkString realname;
-            SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
-            if (!get_name_and_style(filename.c_str(), &realname, &style, &isFixedPitch)) {
-                SkDebugf("------ can't load <%s> as a font\n", filename.c_str());
+            SkString filename(SkOSPath::Join(directory.c_str(), name.c_str()));
+            SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(filename.c_str()));
+            if (!stream.get()) {
+                SkDebugf("---- failed to open <%s>\n", filename.c_str());
                 continue;
             }
 
-            SkTypeface_Custom* tf = SkNEW_ARGS(SkTypeface_File, (
-                                                style,
-                                                isFixedPitch,
-                                                true,  // system-font (cannot delete)
-                                                realname,
-                                                filename.c_str(), 0));
-
-            SkFontStyleSet_Custom* addTo = this->onMatchFamily(realname.c_str());
-            if (NULL == addTo) {
-                addTo = new SkFontStyleSet_Custom(realname);
-                fFamilies.push_back().reset(addTo);
+            int numFaces;
+            if (!fScanner.recognizedFont(stream, &numFaces)) {
+                SkDebugf("---- failed to open <%s> as a font\n", filename.c_str());
+                continue;
             }
-            addTo->appendTypeface(tf);
+
+            for (int faceIndex = 0; faceIndex < numFaces; ++faceIndex) {
+                bool isFixedPitch;
+                SkString realname;
+                SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
+                if (!fScanner.scanFont(stream, faceIndex, &realname, &style, &isFixedPitch)) {
+                    SkDebugf("---- failed to open <%s> <%d> as a font\n",
+                             filename.c_str(), faceIndex);
+                    continue;
+                }
+
+                SkTypeface_Custom* tf = SkNEW_ARGS(SkTypeface_File, (
+                                                    style,
+                                                    isFixedPitch,
+                                                    true,  // system-font (cannot delete)
+                                                    realname,
+                                                    filename.c_str(), 0));
+
+                SkFontStyleSet_Custom* addTo = this->onMatchFamily(realname.c_str());
+                if (NULL == addTo) {
+                    addTo = new SkFontStyleSet_Custom(realname);
+                    fFamilies.push_back().reset(addTo);
+                }
+                addTo->appendTypeface(tf);
+            }
         }
 
         SkOSFile::Iter dirIter(directory.c_str());
@@ -362,13 +364,16 @@ private:
                 continue;
             }
             SkString dirname(SkOSPath::Join(directory.c_str(), name.c_str()));
-            load_directory_fonts(dirname);
+            load_directory_fonts(dirname, suffix);
         }
     }
 
     void load_system_fonts(const char* dir) {
         SkString baseDirectory(dir);
-        load_directory_fonts(baseDirectory);
+        load_directory_fonts(baseDirectory, ".ttf");
+        load_directory_fonts(baseDirectory, ".ttc");
+        load_directory_fonts(baseDirectory, ".otf");
+        load_directory_fonts(baseDirectory, ".pfb");
 
         if (fFamilies.empty()) {
             SkFontStyleSet_Custom* family = new SkFontStyleSet_Custom(SkString());
@@ -406,6 +411,7 @@ private:
     SkTArray<SkAutoTUnref<SkFontStyleSet_Custom>, true> fFamilies;
     SkFontStyleSet_Custom* gDefaultFamily;
     SkTypeface* gDefaultNormal;
+    SkTypeface_FreeType::Scanner fScanner;
 };
 
 SkFontMgr* SkFontMgr::Factory() {
