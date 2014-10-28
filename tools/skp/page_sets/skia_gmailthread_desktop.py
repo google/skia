@@ -24,7 +24,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.NavigateToPage(self)
-    action_runner.Wait(60)
+    action_runner.Wait(15)
 
 
 class SkiaGmailthreadDesktopPageSet(page_set_module.PageSet):

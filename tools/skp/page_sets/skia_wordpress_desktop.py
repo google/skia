@@ -15,22 +15,23 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         page_set=page_set,
         credentials_path='data/credentials.json')
-    self.user_agent_type = 'mobile'
-    self.archive_data_file = 'data/skia_wikipedia_galaxynexus.json'
+    self.user_agent_type = 'desktop'
+    self.archive_data_file = 'data/skia_wordpress_desktop.json'
 
 
-class SkiaWikipediaGalaxynexusPageSet(page_set_module.PageSet):
+class SkiaWordpressDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaWikipediaGalaxynexusPageSet, self).__init__(
-      user_agent_type='mobile',
-      archive_data_file='data/skia_wikipedia_galaxynexus.json')
+    super(SkiaWordpressDesktopPageSet, self).__init__(
+      user_agent_type='desktop',
+      archive_data_file='data/skia_wordpress_desktop.json')
 
     urls_list = [
-      # Why: #6 Alexa most visited worldwide; from robertphillips
-      'http://en.m.wikipedia.org/wiki/List_of_The_X-Files_episodes#section_2',
+      # Why: #18 (Alexa global), Picked an interesting post.
+      ('http://en.blog.wordpress.com/2012/09/04/'
+       'freshly-pressed-editors-picks-for-august-2012/'),
     ]
 
     for url in urls_list:

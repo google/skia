@@ -15,30 +15,29 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         page_set=page_set,
         credentials_path='data/credentials.json')
-    self.user_agent_type = 'desktop'
-    self.archive_data_file = 'data/skia_oldinboxapp_desktop.json'
+    self.user_agent_type = 'tablet'
+    self.archive_data_file = 'data/skia_transformice_nexus10.json'
 
   def RunSmoothness(self, action_runner):
     action_runner.ScrollElement()
 
   def RunNavigateSteps(self, action_runner):
     action_runner.NavigateToPage(self)
-    action_runner.Wait(5)
+    action_runner.Wait(15)
 
 
-class SkiaOldinboxappDesktopPageSet(page_set_module.PageSet):
+class SkiaTransformiceNexus10PageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaOldinboxappDesktopPageSet, self).__init__(
-      user_agent_type='desktop',
-      archive_data_file='data/skia_oldinboxapp_desktop.json')
+    super(SkiaTransformiceNexus10PageSet, self).__init__(
+      user_agent_type='tablet',
+      archive_data_file='data/skia_transformice_nexus10.json')
 
     urls_list = [
-      # Why: Page from Chromium's silk test cases
-      ('http://src.chromium.org/chrome/trunk/src/tools/perf/page_sets/'
-       'key_silk_cases/old_inbox_app.html'),
+      # Why: From Tom W's list.
+      'http://www.transformice.com/',
     ]
 
     for url in urls_list:

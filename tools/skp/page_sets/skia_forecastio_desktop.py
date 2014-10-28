@@ -18,13 +18,6 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     self.user_agent_type = 'desktop'
     self.archive_data_file = 'data/skia_forecastio_desktop.json'
 
-  def RunSmoothness(self, action_runner):
-    action_runner.ScrollElement()
-
-  def RunNavigateSteps(self, action_runner):
-    action_runner.NavigateToPage(self)
-    action_runner.Wait(20)
-
 
 class SkiaForecastioDesktopPageSet(page_set_module.PageSet):
 

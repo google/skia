@@ -18,13 +18,6 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     self.user_agent_type = 'desktop'
     self.archive_data_file = 'data/skia_samoasvg_desktop.json'
 
-  def RunSmoothness(self, action_runner):
-    action_runner.ScrollElement()
-
-  def RunNavigateSteps(self, action_runner):
-    action_runner.NavigateToPage(self)
-    action_runner.Wait(5)
-
 
 class SkiaSamoasvgDesktopPageSet(page_set_module.PageSet):
 

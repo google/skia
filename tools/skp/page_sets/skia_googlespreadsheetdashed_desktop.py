@@ -17,14 +17,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         credentials_path='data/credentials.json')
     self.user_agent_type = 'desktop'
     self.archive_data_file = 'data/skia_googlespreadsheetdashed_desktop.json'
-
-  def RunSmoothness(self, action_runner):
-    action_runner.ScrollElement()
-
-  def RunNavigateSteps(self, action_runner):
-    action_runner.NavigateToPage(self)
-    action_runner.NavigateToPage(self)
-    action_runner.Wait(10)
+    self.credentials = 'google'
 
 
 class SkiaGooglespreadsheetdashedDesktopPageSet(page_set_module.PageSet):
@@ -38,8 +31,8 @@ class SkiaGooglespreadsheetdashedDesktopPageSet(page_set_module.PageSet):
 
     urls_list = [
       # Why: from Tom W's list.
-      ('https://docs.google.com/spreadsheet/ccc?'
-       'key=0ApnDjttF0gt9dGpRM0labXFaT3ExSFhWZWstR3dQSWc#gid=0'),
+      ('https://docs.google.com/spreadsheet/ccc?key='
+       '0ApnDjttF0gt9dGpRM0labXFaT3ExSFhWZWstR3dQSWc#gid=0'),
     ]
 
     for url in urls_list:

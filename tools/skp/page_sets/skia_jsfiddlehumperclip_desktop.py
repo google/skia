@@ -23,7 +23,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.NavigateToPage(self)
-    action_runner.Wait(10)
+    action_runner.Wait(15)
 
 
 class SkiaJsfiddlehumperclipDesktopPageSet(page_set_module.PageSet):

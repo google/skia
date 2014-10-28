@@ -15,29 +15,22 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         page_set=page_set,
         credentials_path='data/credentials.json')
-    self.user_agent_type = 'desktop'
-    self.archive_data_file = 'data/skia_youtubetvvideo_desktop.json'
-
-  def RunSmoothness(self, action_runner):
-    action_runner.ScrollElement()
-
-  def RunNavigateSteps(self, action_runner):
-    action_runner.NavigateToPage(self)
-    action_runner.Wait(10)
+    self.user_agent_type = 'tablet'
+    self.archive_data_file = 'data/skia_cnn_nexus10.json'
 
 
-class SkiaYoutubetvvideoDesktopPageSet(page_set_module.PageSet):
+class SkiaCnnNexus10PageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaYoutubetvvideoDesktopPageSet, self).__init__(
-      user_agent_type='',
-      archive_data_file='data/skia_youtubetvvideo_desktop.json')
+    super(SkiaCnnNexus10PageSet, self).__init__(
+      user_agent_type='tablet',
+      archive_data_file='data/skia_cnn_nexus10.json')
 
     urls_list = [
-      # Why: from bsalomon
-      'https://www.youtube.com/tv#/watch?v=046MuD1pYJg&mode=transport',
+      # Why: #2 news worldwide.
+      'http://www.cnn.com/2012/10/03/politics/michelle-obama-debate/index.html',
     ]
 
     for url in urls_list:

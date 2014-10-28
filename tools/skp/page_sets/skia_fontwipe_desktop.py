@@ -18,13 +18,6 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     self.user_agent_type = 'desktop'
     self.archive_data_file = 'data/skia_fontwipe_desktop.json'
 
-  def RunSmoothness(self, action_runner):
-    action_runner.ScrollElement()
-
-  def RunNavigateSteps(self, action_runner):
-    action_runner.NavigateToPage(self)
-    action_runner.Wait(5)
-
 
 class SkiaFontwipeDesktopPageSet(page_set_module.PageSet):
 
@@ -37,8 +30,7 @@ class SkiaFontwipeDesktopPageSet(page_set_module.PageSet):
 
     urls_list = [
       # Why: Page from Chromium's silk test cases.
-      ('http://src.chromium.org/chrome/trunk/src/tools/perf/page_sets/'
-       'key_silk_cases/font_wipe.html'),
+      'http://jsfiddle.net/u324ffkq/embedded/result/',
     ]
 
     for url in urls_list:

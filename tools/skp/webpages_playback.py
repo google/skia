@@ -80,9 +80,6 @@ CREDENTIALS_FILE_PATH = os.path.join(
     'credentials.json'
 )
 
-# Stdout that signifies that a recording has failed.
-RECORD_FAILURE_MSG = 'The recording has not been updated for these pages.'
-
 # Name of the SKP benchmark
 SKP_BENCHMARK = 'skpicture_printer'
 
@@ -221,12 +218,13 @@ class SkPicturePlayback(object):
           '--page-set-base-dir=%s' % page_set_dir
         )
         for _ in range(RETRY_RECORD_WPR_COUNT):
-          output = shell_utils.run(' '.join(record_wpr_cmd), shell=True)
-          if RECORD_FAILURE_MSG in output:
-            print output
-          else:
+          try:
+            shell_utils.run(' '.join(record_wpr_cmd), shell=True)
             # Break out of the retry loop since there were no errors.
             break
+          except Exception:
+            # There was a failure continue with the loop.
+            traceback.print_exc()
         else:
           # If we get here then record_wpr did not succeed and thus did not
           # break out of the loop.
@@ -303,8 +301,7 @@ class SkPicturePlayback(object):
       for tools_cmd in (render_pictures_cmd, render_pdfs_cmd):
         print '\n\n=======Running %s=======' % ' '.join(tools_cmd)
         proc = subprocess.Popen(tools_cmd)
-        (code, output) = shell_utils.log_process_after_completion(proc,
-                                                                  echo=False)
+        (code, _) = shell_utils.log_process_after_completion(proc, echo=False)
         if code != 0:
           raise Exception('%s failed!' % ' '.join(tools_cmd))
 

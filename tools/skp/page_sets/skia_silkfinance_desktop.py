@@ -16,29 +16,21 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         page_set=page_set,
         credentials_path='data/credentials.json')
     self.user_agent_type = 'desktop'
-    self.archive_data_file = 'data/skia_rectangletransition_desktop.json'
-
-  def RunSmoothness(self, action_runner):
-    action_runner.ScrollElement()
-
-  def RunNavigateSteps(self, action_runner):
-    action_runner.NavigateToPage(self)
-    action_runner.Wait(5)
+    self.archive_data_file = 'data/skia_silkfinance_desktop.json'
 
 
-class SkiaRectangletransitionDesktopPageSet(page_set_module.PageSet):
+class SkiaSilkfinanceDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaRectangletransitionDesktopPageSet, self).__init__(
+    super(SkiaSilkfinanceDesktopPageSet, self).__init__(
       user_agent_type='desktop',
-      archive_data_file='data/skia_rectangletransition_desktop.json')
+      archive_data_file='data/skia_silkfinance_desktop.json')
 
     urls_list = [
       # Why: Page from Chromium's silk test cases
-      ('http://src.chromium.org/chrome/trunk/src/tools/perf/page_sets/'
-       'key_silk_cases/rectangle_transition.html'),
+      'http://jsfiddle.net/47ftse2x/embedded/result/',
     ]
 
     for url in urls_list:
