@@ -24,8 +24,9 @@ class GrAARectRenderer : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrAARectRenderer)
 
-    GrAARectRenderer()
-    : fAAFillRectIndexBuffer(NULL)
+    GrAARectRenderer(GrGpu* gpu)
+    : fGpu(gpu)
+    , fAAFillRectIndexBuffer(NULL)
     , fAAMiterStrokeRectIndexBuffer(NULL)
     , fAABevelStrokeRectIndexBuffer(NULL) {
     }
@@ -39,8 +40,7 @@ public:
     // TODO: potentialy fuse the fill & stroke methods and differentiate
     // between them by passing in stroke (==NULL means fill).
 
-    void fillAARect(GrGpu* gpu,
-                    GrDrawTarget* target,
+    void fillAARect(GrDrawTarget* target,
                     const SkRect& rect,
                     const SkMatrix& combinedMatrix,
                     const SkRect& devRect) {
@@ -53,53 +53,47 @@ public:
                                    rect, combinedMatrix);
         }
 #else
-        this->geometryFillAARect(gpu, target, rect, combinedMatrix, devRect);
+        this->geometryFillAARect(target, rect, combinedMatrix, devRect);
 #endif
     }
 
-    void strokeAARect(GrGpu* gpu,
-                      GrDrawTarget* target,
+    void strokeAARect(GrDrawTarget* target,
                       const SkRect& rect,
                       const SkMatrix& combinedMatrix,
                       const SkRect& devRect,
                       const SkStrokeRec& stroke);
 
     // First rect is outer; second rect is inner
-    void fillAANestedRects(GrGpu* gpu,
-                           GrDrawTarget* target,
+    void fillAANestedRects(GrDrawTarget* target,
                            const SkRect rects[2],
                            const SkMatrix& combinedMatrix);
 
 private:
-    GrIndexBuffer*              fAAFillRectIndexBuffer;
-    GrIndexBuffer*              fAAMiterStrokeRectIndexBuffer;
-    GrIndexBuffer*              fAABevelStrokeRectIndexBuffer;
+    GrIndexBuffer* aaStrokeRectIndexBuffer(bool miterStroke);
 
-    static int aaStrokeRectIndexCount(bool miterStroke);
-    GrIndexBuffer* aaStrokeRectIndexBuffer(GrGpu* gpu, bool miterStroke);
-
-    void geometryFillAARect(GrGpu* gpu,
-                            GrDrawTarget* target,
+    void geometryFillAARect(GrDrawTarget* target,
                             const SkRect& rect,
                             const SkMatrix& combinedMatrix,
                             const SkRect& devRect);
 
-    void shaderFillAARect(GrGpu* gpu,
-                          GrDrawTarget* target,
+    void shaderFillAARect(GrDrawTarget* target,
                           const SkRect& rect,
                           const SkMatrix& combinedMatrix);
 
-    void shaderFillAlignedAARect(GrGpu* gpu,
-                                 GrDrawTarget* target,
+    void shaderFillAlignedAARect(GrDrawTarget* target,
                                  const SkRect& rect,
                                  const SkMatrix& combinedMatrix);
 
-    void geometryStrokeAARect(GrGpu* gpu,
-                              GrDrawTarget* target,
+    void geometryStrokeAARect(GrDrawTarget* target,
                               const SkRect& devOutside,
                               const SkRect& devOutsideAssist,
                               const SkRect& devInside,
                               bool miterStroke);
+
+    GrGpu*                      fGpu;
+    GrIndexBuffer*              fAAFillRectIndexBuffer;
+    GrIndexBuffer*              fAAMiterStrokeRectIndexBuffer;
+    GrIndexBuffer*              fAABevelStrokeRectIndexBuffer;
 
     typedef SkRefCnt INHERITED;
 };

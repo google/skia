@@ -398,7 +398,6 @@ bool GrClipMaskManager::drawElement(GrTexture* target,
             // the entire mask bounds and writes 0 outside the rect.
             if (element->isAA()) {
                 this->getContext()->getAARectRenderer()->fillAARect(fGpu,
-                                                                    fGpu,
                                                                     element->getRect(),
                                                                     SkMatrix::I(),
                                                                     element->getRect());

@@ -146,7 +146,7 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
 
     fLastDrawWasBuffered = kNo_BufferedDraw;
 
-    fAARectRenderer = SkNEW(GrAARectRenderer);
+    fAARectRenderer = SkNEW_ARGS(GrAARectRenderer, (fGpu));
     fOvalRenderer = SkNEW(GrOvalRenderer);
 
     fDidTestPMConversions = false;
@@ -779,12 +779,12 @@ void GrContext::drawRect(const GrPaint& paint,
             return;
         }
         if (width >= 0) {
-            fAARectRenderer->strokeAARect(this->getGpu(), target, rect,
+            fAARectRenderer->strokeAARect(target, rect,
                                           matrix, devBoundRect,
                                           strokeRec);
         } else {
             // filled AA rect
-            fAARectRenderer->fillAARect(this->getGpu(), target,
+            fAARectRenderer->fillAARect(target,
                                         rect, matrix, devBoundRect);
         }
         return;
@@ -1174,7 +1174,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
                 return;
             }
 
-            fAARectRenderer->fillAANestedRects(this->getGpu(), target, rects, origViewMatrix);
+            fAARectRenderer->fillAANestedRects(target, rects, origViewMatrix);
             return;
         }
     }

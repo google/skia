@@ -391,35 +391,34 @@ static const int kIndicesPerBevelStrokeRect = SK_ARRAY_COUNT(gBevelStrokeAARectI
 static const int kVertsPerBevelStrokeRect = 24;
 static const int kNumBevelStrokeRectsInIndexBuffer = 256;
 
-int GrAARectRenderer::aaStrokeRectIndexCount(bool miterStroke) {
+static int aa_stroke_rect_index_count(bool miterStroke) {
     return miterStroke ? SK_ARRAY_COUNT(gMiterStrokeAARectIdx) :
                          SK_ARRAY_COUNT(gBevelStrokeAARectIdx);
 }
 
-GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(GrGpu* gpu, bool miterStroke) {
+GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(bool miterStroke) {
     if (miterStroke) {
         if (NULL == fAAMiterStrokeRectIndexBuffer) {
             fAAMiterStrokeRectIndexBuffer =
-                    gpu->createInstancedIndexBuffer(gMiterStrokeAARectIdx,
-                                                    kIndicesPerMiterStrokeRect,
-                                                    kNumMiterStrokeRectsInIndexBuffer,
-                                                    kVertsPerMiterStrokeRect);
+                    fGpu->createInstancedIndexBuffer(gMiterStrokeAARectIdx,
+                                                     kIndicesPerMiterStrokeRect,
+                                                     kNumMiterStrokeRectsInIndexBuffer,
+                                                     kVertsPerMiterStrokeRect);
         }
         return fAAMiterStrokeRectIndexBuffer;
     } else {
         if (NULL == fAABevelStrokeRectIndexBuffer) {
             fAABevelStrokeRectIndexBuffer =
-                    gpu->createInstancedIndexBuffer(gBevelStrokeAARectIdx,
-                                                    kIndicesPerBevelStrokeRect,
-                                                    kNumBevelStrokeRectsInIndexBuffer,
-                                                    kVertsPerBevelStrokeRect);
+                    fGpu->createInstancedIndexBuffer(gBevelStrokeAARectIdx,
+                                                     kIndicesPerBevelStrokeRect,
+                                                     kNumBevelStrokeRectsInIndexBuffer,
+                                                     kVertsPerBevelStrokeRect);
         }
         return fAABevelStrokeRectIndexBuffer;
     }
 }
 
-void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
-                                          GrDrawTarget* target,
+void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
                                           const SkRect& rect,
                                           const SkMatrix& combinedMatrix,
                                           const SkRect& devRect) {
@@ -439,10 +438,10 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
     }
 
     if (NULL == fAAFillRectIndexBuffer) {
-        fAAFillRectIndexBuffer = gpu->createInstancedIndexBuffer(gFillAARectIdx,
-                                                                 kIndicesPerAAFillRect,
-                                                                 kNumAAFillRectsInIndexBuffer,
-                                                                 kVertsPerAAFillRect);
+        fAAFillRectIndexBuffer = fGpu->createInstancedIndexBuffer(gFillAARectIdx,
+                                                                  kIndicesPerAAFillRect,
+                                                                  kNumAAFillRectsInIndexBuffer,
+                                                                  kVertsPerAAFillRect);
     }
     GrIndexBuffer* indexBuffer = fAAFillRectIndexBuffer;
     if (NULL == indexBuffer) {
@@ -582,8 +581,7 @@ extern const GrVertexAttrib gAAAARectVertexAttribs[] = {
 
 };
 
-void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
-                                        GrDrawTarget* target,
+void GrAARectRenderer::shaderFillAARect(GrDrawTarget* target,
                                         const SkRect& rect,
                                         const SkMatrix& combinedMatrix) {
     GrDrawState* drawState = target->drawState();
@@ -639,13 +637,12 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
     verts[2].fPos = SkPoint::Make(devBounds.fRight, devBounds.fBottom);
     verts[3].fPos = SkPoint::Make(devBounds.fRight, devBounds.fTop);
 
-    target->setIndexSourceToBuffer(gpu->getContext()->getQuadIndexBuffer());
+    target->setIndexSourceToBuffer(fGpu->getContext()->getQuadIndexBuffer());
     target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6);
     target->resetIndexSource();
 }
 
-void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
-                                               GrDrawTarget* target,
+void GrAARectRenderer::shaderFillAlignedAARect(GrDrawTarget* target,
                                                const SkRect& rect,
                                                const SkMatrix& combinedMatrix) {
     GrDrawState* drawState = target->drawState();
@@ -696,13 +693,12 @@ void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
     verts[3].fOffset = SkPoint::Make(widthHeight.fX, -widthHeight.fY);
     verts[3].fWidthHeight = widthHeight;
 
-    target->setIndexSourceToBuffer(gpu->getContext()->getQuadIndexBuffer());
+    target->setIndexSourceToBuffer(fGpu->getContext()->getQuadIndexBuffer());
     target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6);
     target->resetIndexSource();
 }
 
-void GrAARectRenderer::strokeAARect(GrGpu* gpu,
-                                    GrDrawTarget* target,
+void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
                                     const SkRect& rect,
                                     const SkMatrix& combinedMatrix,
                                     const SkRect& devRect,
@@ -749,7 +745,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     }
 
     if (spare <= 0 && miterStroke) {
-        this->fillAARect(gpu, target, devOutside, SkMatrix::I(), devOutside);
+        this->fillAARect(target, devOutside, SkMatrix::I(), devOutside);
         return;
     }
 
@@ -766,11 +762,10 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
         devOutsideAssist.outset(0, ry);
     }
 
-    this->geometryStrokeAARect(gpu, target, devOutside, devOutsideAssist, devInside, miterStroke);
+    this->geometryStrokeAARect(target, devOutside, devOutsideAssist, devInside, miterStroke);
 }
 
-void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
-                                            GrDrawTarget* target,
+void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
                                             const SkRect& devOutside,
                                             const SkRect& devOutsideAssist,
                                             const SkRect& devInside,
@@ -793,7 +788,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
         GrPrintf("Failed to get space for vertices!\n");
         return;
     }
-    GrIndexBuffer* indexBuffer = this->aaStrokeRectIndexBuffer(gpu, miterStroke);
+    GrIndexBuffer* indexBuffer = this->aaStrokeRectIndexBuffer(miterStroke);
     if (NULL == indexBuffer) {
         GrPrintf("Failed to create index buffer!\n");
         return;
@@ -900,12 +895,11 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
 
     target->setIndexSourceToBuffer(indexBuffer);
     target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1,
-                                 totalVertexNum, aaStrokeRectIndexCount(miterStroke));
+                                 totalVertexNum, aa_stroke_rect_index_count(miterStroke));
     target->resetIndexSource();
 }
 
-void GrAARectRenderer::fillAANestedRects(GrGpu* gpu,
-                                         GrDrawTarget* target,
+void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
                                          const SkRect rects[2],
                                          const SkMatrix& combinedMatrix) {
     SkASSERT(combinedMatrix.rectStaysRect());
@@ -917,9 +911,9 @@ void GrAARectRenderer::fillAANestedRects(GrGpu* gpu,
     combinedMatrix.mapPoints((SkPoint*)&devInside, (const SkPoint*)&rects[1], 2);
 
     if (devInside.isEmpty()) {
-        this->fillAARect(gpu, target, devOutside, SkMatrix::I(), devOutside);
+        this->fillAARect(target, devOutside, SkMatrix::I(), devOutside);
         return;
     }
 
-    this->geometryStrokeAARect(gpu, target, devOutside, devOutsideAssist, devInside, true);
+    this->geometryStrokeAARect(target, devOutside, devOutsideAssist, devInside, true);
 }
