@@ -1,6 +1,5 @@
 Public facing feature requests
 ------------------------------
- - ability to render against multiple targets (gpu/cpu)
  - versioning (which version of skia was this run against)
  - magnifying glass (both client side and server side)
  - specify scale, rotate, clip (possibly animating over a range)

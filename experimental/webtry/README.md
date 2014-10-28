@@ -3,7 +3,7 @@ WebTry Server
 
 Allows trying out Skia code in the browser. Run a local webserver
 and from the pages it serves try out Skia code and see the results
-immediately. To make sandboxing easier this must be built w/GPU off.
+immediately.
 
 
 Running Locally
