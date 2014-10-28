@@ -214,7 +214,7 @@ SkTypeface* SkFontStyleSet_FC::matchStyle(const SkFontStyle& pattern) {
 class SkFontMgr_fontconfig : public SkFontMgr {
     SkAutoTUnref<SkFontConfigInterface> fFCI;
     SkDataTable* fFamilyNames;
-    SkTypeface_FreeType::Scanner fScanner;
+
 
 public:
     SkFontMgr_fontconfig(SkFontConfigInterface* fci)
@@ -302,7 +302,7 @@ protected:
         // TODO should the caller give us the style or should we get it from freetype?
         SkFontStyle style;
         bool isFixedWidth = false;
-        if (!fScanner.scanFont(stream, 0, NULL, &style, &isFixedWidth)) {
+        if (!SkTypeface_FreeType::ScanFont(stream, 0, NULL, &style, &isFixedWidth)) {
             return NULL;
         }
 

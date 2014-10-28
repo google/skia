@@ -48,17 +48,8 @@ public:
     /** For SkFontMgrs to make use of our ability to extract
      *  name and style from a stream, using FreeType's API.
      */
-    class Scanner {
-    public:
-        Scanner();
-        ~Scanner();
-        bool recognizedFont(SkStream* stream, int* numFonts) const;
-        bool scanFont(SkStream* stream, int ttcIndex,
-                      SkString* name, SkFontStyle* style, bool* isFixedPitch) const;
-    private:
-        FT_Face openFace(SkStream* stream, int ttcIndex) const;
-        FT_Library fLibrary;
-    };
+    static bool ScanFont(SkStream* stream, int ttcIndex,
+                         SkString* name, SkFontStyle* style, bool* isFixedPitch);
 
 protected:
     SkTypeface_FreeType(const SkFontStyle& style, SkFontID uniqueID, bool isFixedPitch)

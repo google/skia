@@ -452,7 +452,6 @@ private:
 class SkFontMgr_fontconfig : public SkFontMgr {
     mutable SkAutoFcConfig fFC;
     SkAutoTUnref<SkDataTable> fFamilyNames;
-    SkTypeface_FreeType::Scanner fScanner;
 
     class StyleSet : public SkFontStyleSet {
     public:
@@ -828,7 +827,7 @@ protected:
 
         SkFontStyle style;
         bool isFixedWidth = false;
-        if (!fScanner.scanFont(stream, ttcIndex, NULL, &style, &isFixedWidth)) {
+        if (!SkTypeface_FreeType::ScanFont(stream, ttcIndex, NULL, &style, &isFixedWidth)) {
             return NULL;
         }
 

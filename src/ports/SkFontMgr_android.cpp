@@ -138,9 +138,7 @@ void get_path_for_sys_fonts(const char* basePath, const SkString& name, SkString
 
 class SkFontStyleSet_Android : public SkFontStyleSet {
 public:
-    explicit SkFontStyleSet_Android(const FontFamily& family, const char* basePath,
-                                    const SkTypeface_FreeType::Scanner& scanner)
-    {
+    explicit SkFontStyleSet_Android(const FontFamily& family, const char* basePath) {
         const SkString* cannonicalFamilyName = NULL;
         if (family.fNames.count() > 0) {
             cannonicalFamilyName = &family.fNames[0];
@@ -162,7 +160,8 @@ public:
             SkString familyName;
             SkFontStyle style;
             bool isFixedWidth;
-            if (!scanner.scanFont(stream.get(), ttcIndex, &familyName, &style, &isFixedWidth)) {
+            if (!SkTypeface_FreeType::ScanFont(stream.get(), ttcIndex,
+                                               &familyName, &style, &isFixedWidth)) {
                 DEBUG_FONT(("---- SystemFonts[%d] file=%s (INVALID)", i, pathName.c_str()));
                 continue;
             }
@@ -436,7 +435,7 @@ static SkTypeface_AndroidSystem* find_family_style_character(
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
-        if (!fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
+        if (!SkTypeface_FreeType::ScanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
             return NULL;
         }
         return SkNEW_ARGS(SkTypeface_AndroidStream, (stream, ttcIndex,
@@ -461,8 +460,6 @@ static SkTypeface_AndroidSystem* find_family_style_character(
 
 private:
 
-    SkTypeface_FreeType::Scanner fScanner;
-
     SkTArray<SkAutoTUnref<SkFontStyleSet_Android>, true> fFontStyleSets;
     SkFontStyleSet* fDefaultFamily;
     SkTypeface* fDefaultTypeface;
@@ -484,8 +481,7 @@ private:
                 }
             }
 
-            SkFontStyleSet_Android* newSet =
-                SkNEW_ARGS(SkFontStyleSet_Android, (family, basePath, fScanner));
+            SkFontStyleSet_Android* newSet = SkNEW_ARGS(SkFontStyleSet_Android, (family, basePath));
             if (0 == newSet->count()) {
                 SkDELETE(newSet);
                 continue;
