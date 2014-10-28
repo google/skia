@@ -447,7 +447,7 @@ GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
 // Legacy aliases
 typedef GrSurfaceFlags GrTextureFlags;
 static const GrSurfaceFlags kNone_GrTextureFlags = kNone_GrSurfaceFlags;
-static const GrSurfaceFlags kRenderTarget_GrTExtureFlagBit = kRenderTarget_GrSurfaceFlag;
+static const GrSurfaceFlags kRenderTarget_GrTextureFlagBit = kRenderTarget_GrSurfaceFlag;
 static const GrSurfaceFlags kNoStencil_GrTextureFlagBit = kNoStencil_GrSurfaceFlag;
 static const GrSurfaceFlags kCheckAllocation_GrTextureFlagBit = kCheckAllocation_GrSurfaceFlag;
 
