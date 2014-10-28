@@ -110,3 +110,10 @@ bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Co
     offset->fY = bounds.fTop;
     return true;
 }
+
+bool SkPictureImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                          SkIRect* dst) const {
+    *dst = src;
+    return true;
+}
+
