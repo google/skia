@@ -22,10 +22,10 @@ static GrTexture* createTexture(GrContext* context) {
 
     memset(textureData, 0, 4* X_SIZE * Y_SIZE);
 
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
 
     // let Skia know we will be using this texture as a render target
-    desc.fFlags     = kRenderTarget_GrTextureFlagBit;
+    desc.fFlags     = kRenderTarget_GrSurfaceFlag;
     desc.fConfig    = kSkia8888_GrPixelConfig;
     desc.fWidth     = X_SIZE;
     desc.fHeight    = Y_SIZE;
@@ -46,8 +46,8 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
     static const int kXSize = 100;
     static const int kYSize = 100;
 
-    GrTextureDesc desc;
-    desc.fFlags     = kRenderTarget_GrTextureFlagBit;
+    GrSurfaceDesc desc;
+    desc.fFlags     = kRenderTarget_GrSurfaceFlag;
     desc.fConfig    = kAlpha_8_GrPixelConfig;
     desc.fWidth     = kXSize;
     desc.fHeight    = kYSize;
@@ -148,8 +148,8 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     SkClipStack clip1(bound1);
 
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = X_SIZE;
     desc.fHeight = Y_SIZE;
     desc.fConfig = kSkia8888_GrPixelConfig;

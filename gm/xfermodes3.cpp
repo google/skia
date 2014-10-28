@@ -126,11 +126,11 @@ private:
 #if SK_SUPPORT_GPU
         GrContext* context = baseCanvas->getGrContext();
         if (context) {
-            GrTextureDesc desc;
+            GrSurfaceDesc desc;
             desc.fWidth = w;
             desc.fHeight = h;
             desc.fConfig = SkImageInfo2GrPixelConfig(baseCanvas->imageInfo());
-            desc.fFlags = kRenderTarget_GrTextureFlagBit;
+            desc.fFlags = kRenderTarget_GrSurfaceFlag;
             SkAutoTUnref<GrSurface> surface(context->createUncachedTexture(desc, NULL, 0));
             SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(surface.get(),
                                           SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)));

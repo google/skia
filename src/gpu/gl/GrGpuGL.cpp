@@ -376,7 +376,7 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
 
     GrGLTexture::Desc glTexDesc;
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
-    glTexDesc.fFlags = (GrTextureFlags) desc.fFlags;
+    glTexDesc.fFlags = (GrSurfaceFlags) desc.fFlags;
     glTexDesc.fWidth = desc.fWidth;
     glTexDesc.fHeight = desc.fHeight;
     glTexDesc.fConfig = desc.fConfig;
@@ -530,8 +530,8 @@ bool adjust_pixel_ops_params(int surfaceWidth,
     return true;
 }
 
-GrGLenum check_alloc_error(const GrTextureDesc& desc, const GrGLInterface* interface) {
-    if (SkToBool(desc.fFlags & kCheckAllocation_GrTextureFlagBit)) {
+GrGLenum check_alloc_error(const GrSurfaceDesc& desc, const GrGLInterface* interface) {
+    if (SkToBool(desc.fFlags & kCheckAllocation_GrSurfaceFlag)) {
         return GR_GL_GET_ERROR(interface);
     } else {
         return CHECK_ALLOC_ERROR(interface);
@@ -941,7 +941,7 @@ static size_t as_size_t(int x) {
 }
 #endif
 
-GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
+GrTexture* GrGpuGL::onCreateTexture(const GrSurfaceDesc& desc,
                                     const void* srcData,
                                     size_t rowBytes) {
 
@@ -969,9 +969,9 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glRTDesc.fTexFBOID = 0;
     glRTDesc.fIsWrapped = false;
     glRTDesc.fConfig = glTexDesc.fConfig;
-    glRTDesc.fCheckAllocation = SkToBool(desc.fFlags & kCheckAllocation_GrTextureFlagBit);
+    glRTDesc.fCheckAllocation = SkToBool(desc.fFlags & kCheckAllocation_GrSurfaceFlag);
 
-    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrTextureFlagBit);
+    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     glTexDesc.fOrigin = resolve_origin(desc.fOrigin, renderTarget);
     glRTDesc.fOrigin = glTexDesc.fOrigin;
@@ -1064,10 +1064,10 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     return tex;
 }
 
-GrTexture* GrGpuGL::onCreateCompressedTexture(const GrTextureDesc& desc,
+GrTexture* GrGpuGL::onCreateCompressedTexture(const GrSurfaceDesc& desc,
                                               const void* srcData) {
 
-    if(SkToBool(desc.fFlags & kRenderTarget_GrTextureFlagBit)) {
+    if(SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag)) {
         return return_null_texture();
     }
 
@@ -2411,7 +2411,7 @@ GrGLuint GrGpuGL::bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLI
     return tempFBOID;
 }
 
-void GrGpuGL::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) {
+void GrGpuGL::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
     // Check for format issues with glCopyTexSubImage2D
     if (kGLES_GrGLStandard == this->glStandard() && this->glCaps().bgraIsInternalFormat() &&
         kBGRA_8888_GrPixelConfig == src->config()) {
@@ -2433,7 +2433,7 @@ void GrGpuGL::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) 
     } else {
         desc->fConfig = src->config();
         desc->fOrigin = src->origin();
-        desc->fFlags = kNone_GrTextureFlags;
+        desc->fFlags = kNone_GrSurfaceFlags;
     }
 }
 

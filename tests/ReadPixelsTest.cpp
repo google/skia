@@ -312,8 +312,8 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
                 if (NULL == context) {
                     continue;
                 }
-                GrTextureDesc desc;
-                desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+                GrSurfaceDesc desc;
+                desc.fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
                 desc.fWidth = DEV_W;
                 desc.fHeight = DEV_H;
                 desc.fConfig = kSkia8888_GrPixelConfig;

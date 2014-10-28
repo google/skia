@@ -57,7 +57,7 @@ public:
         void invalidate() { memset(this, 0xff, sizeof(TexParams)); }
     };
 
-    struct Desc : public GrTextureDesc {
+    struct Desc : public GrSurfaceDesc {
         GrGLuint        fTextureID;
         bool            fIsWrapped;
     };

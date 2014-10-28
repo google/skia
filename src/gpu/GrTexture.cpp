@@ -68,18 +68,18 @@ void GrTexture::onAbandon() {
 void GrTexture::validateDesc() const {
     if (this->asRenderTarget()) {
         // This texture has a render target
-        SkASSERT(0 != (fDesc.fFlags & kRenderTarget_GrTextureFlagBit));
+        SkASSERT(0 != (fDesc.fFlags & kRenderTarget_GrSurfaceFlag));
 
         if (this->asRenderTarget()->getStencilBuffer()) {
-            SkASSERT(0 != (fDesc.fFlags & kNoStencil_GrTextureFlagBit));
+            SkASSERT(0 != (fDesc.fFlags & kNoStencil_GrSurfaceFlag));
         } else {
-            SkASSERT(0 == (fDesc.fFlags & kNoStencil_GrTextureFlagBit));
+            SkASSERT(0 == (fDesc.fFlags & kNoStencil_GrSurfaceFlag));
         }
 
         SkASSERT(fDesc.fSampleCnt == this->asRenderTarget()->numSamples());
     } else {
-        SkASSERT(0 == (fDesc.fFlags & kRenderTarget_GrTextureFlagBit));
-        SkASSERT(0 == (fDesc.fFlags & kNoStencil_GrTextureFlagBit));
+        SkASSERT(0 == (fDesc.fFlags & kRenderTarget_GrSurfaceFlag));
+        SkASSERT(0 == (fDesc.fFlags & kNoStencil_GrSurfaceFlag));
         SkASSERT(0 == fDesc.fSampleCnt);
     }
 }
@@ -104,7 +104,7 @@ enum TextureFlags {
 namespace {
 GrResourceKey::ResourceFlags get_texture_flags(const GrGpu* gpu,
                                                const GrTextureParams* params,
-                                               const GrTextureDesc& desc) {
+                                               const GrSurfaceDesc& desc) {
     GrResourceKey::ResourceFlags flags = 0;
     bool tiled = params && params->isTiled();
     if (tiled && !gpu->caps()->npotTextureTileSupport()) {
@@ -124,11 +124,11 @@ GrResourceKey::ResourceFlags get_texture_flags(const GrGpu* gpu,
 }
 
 // FIXME:  This should be refactored with the code in gl/GrGpuGL.cpp.
-GrSurfaceOrigin resolve_origin(const GrTextureDesc& desc) {
+GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
     // By default, GrRenderTargets are GL's normal orientation so that they
     // can be drawn to by the outside world without the client having
     // to render upside down.
-    bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrTextureFlagBit);
+    bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (kDefault_GrSurfaceOrigin == desc.fOrigin) {
         return renderTarget ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
     } else {
@@ -138,7 +138,7 @@ GrSurfaceOrigin resolve_origin(const GrTextureDesc& desc) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-GrTexture::GrTexture(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
+GrTexture::GrTexture(GrGpu* gpu, bool isWrapped, const GrSurfaceDesc& desc)
     : INHERITED(gpu, isWrapped, desc)
     , fRenderTarget(NULL)
     , fMipMapsStatus(kNotAllocated_MipMapsStatus) {
@@ -150,13 +150,13 @@ GrTexture::GrTexture(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
 
 GrResourceKey GrTexturePriv::ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* params,
-                                    const GrTextureDesc& desc,
+                                    const GrSurfaceDesc& desc,
                                     const GrCacheID& cacheID) {
     GrResourceKey::ResourceFlags flags = get_texture_flags(gpu, params, desc);
     return GrResourceKey(cacheID, ResourceType(), flags);
 }
 
-GrResourceKey GrTexturePriv::ComputeScratchKey(const GrTextureDesc& desc) {
+GrResourceKey GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc) {
     GrCacheID::Key idKey;
     // Instead of a client-provided key of the texture contents we create a key from the
     // descriptor.

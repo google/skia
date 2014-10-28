@@ -39,8 +39,8 @@ DEF_GPUTEST(FloatingPointTextureTest, reporter, factory) {
         int glCtxTypeCnt = 1;
         glCtxTypeCnt = GrContextFactory::kGLContextTypeCnt;
         for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
-            GrTextureDesc desc;
-            desc.fFlags = kRenderTarget_GrTextureFlagBit;
+            GrSurfaceDesc desc;
+            desc.fFlags = kRenderTarget_GrSurfaceFlag;
             desc.fWidth = DEV_W;
             desc.fHeight = DEV_H;
             desc.fConfig = kRGBA_float_GrPixelConfig;

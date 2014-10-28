@@ -181,7 +181,7 @@ void GrResourceCache::notifyPurgable(const GrGpuResource* resource) {
         resource->getCacheEntry()->key().isScratch() &&
         !fCaps->reuseScratchTextures() &&
         !(static_cast<const GrTexture*>(resource)->desc().fFlags &
-          kRenderTarget_GrTextureFlagBit)) {
+          kRenderTarget_GrSurfaceFlag)) {
         this->deleteResource(resource->getCacheEntry());
     }
 }

@@ -25,11 +25,11 @@ void GrGLRenderTarget::init(const Desc& desc,
 }
 
 namespace {
-GrTextureDesc MakeDesc(GrTextureFlags flags,
+GrSurfaceDesc MakeDesc(GrSurfaceFlags flags,
                        int width, int height,
                        GrPixelConfig config, int sampleCnt,
                        GrSurfaceOrigin origin) {
-    GrTextureDesc temp;
+    GrSurfaceDesc temp;
     temp.fFlags = flags;
     temp.fWidth = width;
     temp.fHeight = height;
@@ -49,7 +49,7 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
     : INHERITED(gpu,
                 desc.fIsWrapped,
                 texture,
-                MakeDesc(kNone_GrTextureFlags,
+                MakeDesc(kNone_GrSurfaceFlags,
                          viewport.fWidth, viewport.fHeight,
                          desc.fConfig, desc.fSampleCnt,
                          desc.fOrigin)) {
@@ -72,7 +72,7 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
     : INHERITED(gpu,
                 desc.fIsWrapped,
                 NULL,
-                MakeDesc(kNone_GrTextureFlags,
+                MakeDesc(kNone_GrSurfaceFlags,
                          viewport.fWidth, viewport.fHeight,
                          desc.fConfig, desc.fSampleCnt,
                          desc.fOrigin)) {

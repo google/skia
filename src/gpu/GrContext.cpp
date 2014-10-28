@@ -261,7 +261,7 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrContext::findAndRefTexture(const GrTextureDesc& desc,
+GrTexture* GrContext::findAndRefTexture(const GrSurfaceDesc& desc,
                                         const GrCacheID& cacheID,
                                         const GrTextureParams* params) {
     GrResourceKey resourceKey = GrTexturePriv::ComputeKey(fGpu, params, desc, cacheID);
@@ -270,7 +270,7 @@ GrTexture* GrContext::findAndRefTexture(const GrTextureDesc& desc,
     return static_cast<GrTexture*>(resource);
 }
 
-bool GrContext::isTextureInCache(const GrTextureDesc& desc,
+bool GrContext::isTextureInCache(const GrSurfaceDesc& desc,
                                  const GrCacheID& cacheID,
                                  const GrTextureParams* params) const {
     GrResourceKey resourceKey = GrTexturePriv::ComputeKey(fGpu, params, desc, cacheID);
@@ -332,7 +332,7 @@ extern const GrVertexAttrib gVertexAttribs[] = {
 
 // The desired texture is NPOT and tiled but that isn't supported by
 // the current hardware. Resize the texture to be a POT
-GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
+GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
                                            const GrCacheID& cacheID,
                                            const void* srcData,
                                            size_t rowBytes,
@@ -346,10 +346,10 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         }
     }
 
-    GrTextureDesc rtDesc = desc;
+    GrSurfaceDesc rtDesc = desc;
     rtDesc.fFlags =  rtDesc.fFlags |
-                     kRenderTarget_GrTextureFlagBit |
-                     kNoStencil_GrTextureFlagBit;
+                     kRenderTarget_GrSurfaceFlag |
+                     kNoStencil_GrSurfaceFlag;
     rtDesc.fWidth  = GrNextPow2(desc.fWidth);
     rtDesc.fHeight = GrNextPow2(desc.fHeight);
 
@@ -384,7 +384,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         // not. Either implement filtered stretch blit on CPU or just create
         // one when FBO case fails.
 
-        rtDesc.fFlags = kNone_GrTextureFlags;
+        rtDesc.fFlags = kNone_GrSurfaceFlags;
         // no longer need to clamp at min RT size.
         rtDesc.fWidth  = GrNextPow2(desc.fWidth);
         rtDesc.fHeight = GrNextPow2(desc.fHeight);
@@ -407,7 +407,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
 }
 
 GrTexture* GrContext::createTexture(const GrTextureParams* params,
-                                    const GrTextureDesc& desc,
+                                    const GrSurfaceDesc& desc,
                                     const GrCacheID& cacheID,
                                     const void* srcData,
                                     size_t rowBytes,
@@ -437,7 +437,7 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
     return texture;
 }
 
-GrTexture* GrContext::createNewScratchTexture(const GrTextureDesc& desc) {
+GrTexture* GrContext::createNewScratchTexture(const GrSurfaceDesc& desc) {
     GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
     if (!texture) {
         return NULL;
@@ -446,24 +446,24 @@ GrTexture* GrContext::createNewScratchTexture(const GrTextureDesc& desc) {
     return texture;
 }
 
-GrTexture* GrContext::refScratchTexture(const GrTextureDesc& inDesc, ScratchTexMatch match,
+GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexMatch match,
                                         bool calledDuringFlush) {
     // kNoStencil has no meaning if kRT isn't set.
-    SkASSERT((inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
-             !(inDesc.fFlags & kNoStencil_GrTextureFlagBit));
+    SkASSERT((inDesc.fFlags & kRenderTarget_GrSurfaceFlag) ||
+             !(inDesc.fFlags & kNoStencil_GrSurfaceFlag));
 
     // Make sure caller has checked for renderability if kRT is set.
-    SkASSERT(!(inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
+    SkASSERT(!(inDesc.fFlags & kRenderTarget_GrSurfaceFlag) ||
              this->isConfigRenderable(inDesc.fConfig, inDesc.fSampleCnt > 0));
 
-    SkTCopyOnFirstWrite<GrTextureDesc> desc(inDesc);
+    SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
 
-    if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrTextureFlagBit)) {
-        GrTextureFlags origFlags = desc->fFlags;
+    if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
+        GrSurfaceFlags origFlags = desc->fFlags;
         if (kApprox_ScratchTexMatch == match) {
             // bin by pow2 with a reasonable min
             static const int MIN_SIZE = 16;
-            GrTextureDesc* wdesc = desc.writable();
+            GrSurfaceDesc* wdesc = desc.writable();
             wdesc->fWidth  = SkTMax(MIN_SIZE, GrNextPow2(desc->fWidth));
             wdesc->fHeight = SkTMax(MIN_SIZE, GrNextPow2(desc->fHeight));
         }
@@ -473,7 +473,7 @@ GrTexture* GrContext::refScratchTexture(const GrTextureDesc& inDesc, ScratchTexM
             uint32_t scratchFlags = 0;
             if (calledDuringFlush) {
                 scratchFlags = GrResourceCache2::kRequireNoPendingIO_ScratchFlag;
-            } else  if (!(desc->fFlags & kRenderTarget_GrTextureFlagBit)) {
+            } else  if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
                 // If it is not a render target then it will most likely be populated by
                 // writePixels() which will trigger a flush if the texture has pending IO.
                 scratchFlags = GrResourceCache2::kPreferNoPendingIO_ScratchFlag;
@@ -492,8 +492,8 @@ GrTexture* GrContext::refScratchTexture(const GrTextureDesc& inDesc, ScratchTexM
             // We no longer try to reuse textures that were previously used as render targets in
             // situations where no RT is needed; doing otherwise can confuse the video driver and
             // cause significant performance problems in some cases.
-            if (desc->fFlags & kNoStencil_GrTextureFlagBit) {
-                desc.writable()->fFlags = desc->fFlags & ~kNoStencil_GrTextureFlagBit;
+            if (desc->fFlags & kNoStencil_GrSurfaceFlag) {
+                desc.writable()->fFlags = desc->fFlags & ~kNoStencil_GrSurfaceFlag;
             } else {
                 break;
             }
@@ -521,10 +521,10 @@ bool GrContext::OverbudgetCB(void* data) {
 }
 
 
-GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& descIn,
+GrTexture* GrContext::createUncachedTexture(const GrSurfaceDesc& descIn,
                                             void* srcData,
                                             size_t rowBytes) {
-    GrTextureDesc descCopy = descIn;
+    GrSurfaceDesc descCopy = descIn;
     return fGpu->createTexture(descCopy, srcData, rowBytes);
 }
 
@@ -1315,7 +1315,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         swapRAndB = true;
     }
 
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = writeConfig;
@@ -1452,8 +1452,8 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     GrTexture* src = target->asTexture();
     if (src && (swapRAndB || unpremul || flipY)) {
         // Make the scratch a render so we can read its pixels.
-        GrTextureDesc desc;
-        desc.fFlags = kRenderTarget_GrTextureFlagBit;
+        GrSurfaceDesc desc;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fWidth = width;
         desc.fHeight = height;
         desc.fConfig = readConfig;

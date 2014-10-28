@@ -105,7 +105,7 @@ public:
      *
      * @return    The texture object if successful, otherwise NULL.
      */
-    GrTexture* createTexture(const GrTextureDesc& desc,
+    GrTexture* createTexture(const GrSurfaceDesc& desc,
                              const void* srcData, size_t rowBytes);
 
     /**
@@ -399,10 +399,10 @@ private:
     virtual void onResetContext(uint32_t resetBits) = 0;
 
     // overridden by backend-specific derived class to create objects.
-    virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
+    virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
                                        const void* srcData,
                                        size_t rowBytes) = 0;
-    virtual GrTexture* onCreateCompressedTexture(const GrTextureDesc& desc,
+    virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
                                                  const void* srcData) = 0;
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) = 0;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;

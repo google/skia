@@ -230,7 +230,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
  * Get a texture (from the texture cache) of the correct size & format.
  */
 GrTexture* GrSWMaskHelper::createTexture() {
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     desc.fWidth = fBM.width();
     desc.fHeight = fBM.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
@@ -251,7 +251,7 @@ GrTexture* GrSWMaskHelper::createTexture() {
     return fContext->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch);
 }
 
-void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrTextureDesc& desc,
+void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrSurfaceDesc& desc,
                                      const void *data, int rowbytes) {
     // If we aren't reusing scratch textures we don't need to flush before
     // writing since no one else will be using 'texture'
@@ -266,7 +266,7 @@ void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrTextureDesc& de
                          reuseScratch ? 0 : GrContext::kDontFlush_PixelOpsFlag);
 }
 
-void GrSWMaskHelper::compressTextureData(GrTexture *texture, const GrTextureDesc& desc) {
+void GrSWMaskHelper::compressTextureData(GrTexture *texture, const GrSurfaceDesc& desc) {
 
     SkASSERT(GrPixelConfigIsCompressed(desc.fConfig));
     SkASSERT(fmt_to_config(fCompressedFormat) == desc.fConfig);
@@ -283,7 +283,7 @@ void GrSWMaskHelper::compressTextureData(GrTexture *texture, const GrTextureDesc
 void GrSWMaskHelper::toTexture(GrTexture *texture) {
     SkAutoLockPixels alp(fBM);
 
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     desc.fWidth = fBM.width();
     desc.fHeight = fBM.height();
     desc.fConfig = texture->config();

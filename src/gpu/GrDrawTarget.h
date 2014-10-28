@@ -472,7 +472,7 @@ public:
      * populate the origin, config, and flags fields of the desc such that copySurface is more
      * likely to succeed and be efficient.
      */
-    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc);
+    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc);
 
 
     /**

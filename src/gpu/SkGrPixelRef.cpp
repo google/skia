@@ -62,7 +62,7 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
     if (NULL == context) {
         return NULL;
     }
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
 
     SkIRect srcRect;
 
@@ -77,7 +77,7 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
         desc.fHeight = subset->height();
         srcRect = *subset;
     }
-    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
     desc.fConfig = SkImageInfo2GrPixelConfig(dstCT, kPremul_SkAlphaType);
 
     GrTexture* dst = context->createUncachedTexture(desc, NULL, 0);

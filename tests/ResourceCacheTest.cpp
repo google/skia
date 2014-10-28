@@ -263,9 +263,9 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
             continue;
         }
 
-        GrTextureDesc desc;
+        GrSurfaceDesc desc;
         desc.fConfig = kSkia8888_GrPixelConfig;
-        desc.fFlags = kRenderTarget_GrTextureFlagBit;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fWidth = gWidth;
         desc.fHeight = gHeight;
         SkImageInfo info = SkImageInfo::MakeN32Premul(gWidth, gHeight);

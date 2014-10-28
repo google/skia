@@ -174,9 +174,9 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         }
     }
 
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit |
-                  kNoStencil_GrTextureFlagBit;
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag |
+                  kNoStencil_GrSurfaceFlag;
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -189,7 +189,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     if (!tempTex.get()) {
         return;
     }
-    desc.fFlags = kNone_GrTextureFlags;
+    desc.fFlags = kNone_GrSurfaceFlags;
     SkAutoTUnref<GrTexture> dataTex(context->createUncachedTexture(desc, data, 0));
     if (!dataTex.get()) {
         return;

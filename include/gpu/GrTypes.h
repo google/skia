@@ -419,34 +419,37 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
 }
 
 /**
- * Optional bitfield flags that can be passed to createTexture.
+ * Optional bitfield flags that can be set on GrSurfaceDesc (below).
  */
-enum GrTextureFlags {
-    kNone_GrTextureFlags            = 0x0,
+enum GrSurfaceFlags {
+    kNone_GrSurfaceFlags            = 0x0,
     /**
      * Creates a texture that can be rendered to as a GrRenderTarget. Use
      * GrTexture::asRenderTarget() to access.
      */
-    kRenderTarget_GrTextureFlagBit  = 0x1,
+    kRenderTarget_GrSurfaceFlag     = 0x1,
     /**
      * By default all render targets have an associated stencil buffer that
      * may be required for path filling. This flag overrides stencil buffer
      * creation.
      * MAKE THIS PRIVATE?
      */
-    kNoStencil_GrTextureFlagBit     = 0x2,
-    /**
-     * Hint that the CPU may modify this texture after creation.
-     */
-    kDynamicUpdate_GrTextureFlagBit = 0x4,
+    kNoStencil_GrSurfaceFlag        = 0x2,
     /**
      * Indicates that all allocations (color buffer, FBO completeness, etc)
      * should be verified.
      */
-    kCheckAllocation_GrTextureFlagBit  = 0x8,
+    kCheckAllocation_GrSurfaceFlag  = 0x4,
 };
 
-GR_MAKE_BITFIELD_OPS(GrTextureFlags)
+GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
+
+// Legacy aliases
+typedef GrSurfaceFlags GrTextureFlags;
+static const GrSurfaceFlags kNone_GrTextureFlags = kNone_GrSurfaceFlags;
+static const GrSurfaceFlags kRenderTarget_GrTExtureFlagBit = kRenderTarget_GrSurfaceFlag;
+static const GrSurfaceFlags kNoStencil_GrTextureFlagBit = kNoStencil_GrSurfaceFlag;
+static const GrSurfaceFlags kCheckAllocation_GrTextureFlagBit = kCheckAllocation_GrSurfaceFlag;
 
 /**
  * Some textures will be stored such that the upper and left edges of the content meet at the
@@ -462,11 +465,11 @@ enum GrSurfaceOrigin {
 };
 
 /**
- * Describes a texture to be created.
+ * Describes a surface to be created.
  */
-struct GrTextureDesc {
-    GrTextureDesc()
-    : fFlags(kNone_GrTextureFlags)
+struct GrSurfaceDesc {
+    GrSurfaceDesc()
+    : fFlags(kNone_GrSurfaceFlags)
     , fOrigin(kDefault_GrSurfaceOrigin)
     , fWidth(0)
     , fHeight(0)
@@ -474,7 +477,7 @@ struct GrTextureDesc {
     , fSampleCnt(0) {
     }
 
-    GrTextureFlags         fFlags;  //!< bitfield of TextureFlags
+    GrSurfaceFlags         fFlags;  //!< bitfield of TextureFlags
     GrSurfaceOrigin        fOrigin; //!< origin of the texture
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
@@ -487,13 +490,16 @@ struct GrTextureDesc {
 
     /**
      * The number of samples per pixel or 0 to disable full scene AA. This only
-     * applies if the kRenderTarget_GrTextureFlagBit is set. The actual number
+     * applies if the kRenderTarget_GrSurfaceFlag is set. The actual number
      * of samples may not exactly match the request. The request will be rounded
      * up to the next supported sample count, or down if it is larger than the
      * max supported count.
      */
     int                    fSampleCnt;
 };
+
+// Legacy alias
+typedef GrSurfaceDesc GrTextureDesc;
 
 /**
  * GrCacheID is used create and find cached GrResources (e.g. GrTextures). The ID has two parts:
@@ -585,15 +591,12 @@ enum GrBackendTextureFlags {
     /**
      * No flags enabled
      */
-    kNone_GrBackendTextureFlag             = kNone_GrTextureFlags,
+    kNone_GrBackendTextureFlag             = 0,
     /**
      * Indicates that the texture is also a render target, and thus should have
      * a GrRenderTarget object.
-     *
-     * D3D (future): client must have created the texture with flags that allow
-     * it to be used as a render target.
      */
-    kRenderTarget_GrBackendTextureFlag     = kRenderTarget_GrTextureFlagBit,
+    kRenderTarget_GrBackendTextureFlag     = kRenderTarget_GrSurfaceFlag,
 };
 GR_MAKE_BITFIELD_OPS(GrBackendTextureFlags)
 

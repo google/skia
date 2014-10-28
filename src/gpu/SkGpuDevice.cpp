@@ -171,8 +171,8 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo
     }
     const SkImageInfo info = SkImageInfo::Make(origInfo.width(), origInfo.height(), ct, at);
 
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
@@ -607,7 +607,7 @@ bool draw_with_mask_filter(GrContext* context, const SkPath& devPath,
 
     // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
     // the current clip (and identity matrix) and GrPaint settings
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     desc.fWidth = dstM.fBounds.width();
     desc.fHeight = dstM.fBounds.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
@@ -632,8 +632,8 @@ GrTexture* create_mask_GPU(GrContext* context,
                            const GrStrokeInfo& strokeInfo,
                            bool doAA,
                            int sampleCnt) {
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = SkScalarCeilToInt(maskRect.width());
     desc.fHeight = SkScalarCeilToInt(maskRect.height());
     desc.fSampleCnt = doAA ? sampleCnt : 0;
@@ -1751,9 +1751,9 @@ void SkGpuDevice::flush() {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) {
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     desc.fConfig = fRenderTarget->config();
-    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
     desc.fSampleCnt = fRenderTarget->numSamples();

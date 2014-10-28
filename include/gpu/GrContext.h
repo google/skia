@@ -208,7 +208,7 @@ public:
      * @param cacheKey  (optional) If non-NULL, we'll write the cache key we used to cacheKey.
      */
     GrTexture* createTexture(const GrTextureParams* params,
-                             const GrTextureDesc& desc,
+                             const GrSurfaceDesc& desc,
                              const GrCacheID& cacheID,
                              const void* srcData,
                              size_t rowBytes,
@@ -224,7 +224,7 @@ public:
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      */
-    GrTexture* findAndRefTexture(const GrTextureDesc& desc,
+    GrTexture* findAndRefTexture(const GrSurfaceDesc& desc,
                                  const GrCacheID& cacheID,
                                  const GrTextureParams* params);
     /**
@@ -232,13 +232,13 @@ public:
      * will not be locked or returned. This call does not affect the priority of
      * the texture for deletion.
      */
-    bool isTextureInCache(const GrTextureDesc& desc,
+    bool isTextureInCache(const GrSurfaceDesc& desc,
                           const GrCacheID& cacheID,
                           const GrTextureParams* params) const;
 
     /**
      * Enum that determines how closely a returned scratch texture must match
-     * a provided GrTextureDesc.
+     * a provided GrSurfaceDesc.
      */
     enum ScratchTexMatch {
         /**
@@ -269,7 +269,7 @@ public:
      * internalFlag is a temporary workaround until changes in the internal
      * architecture are complete. Use the default value.
      */
-    GrTexture* refScratchTexture(const GrTextureDesc&, ScratchTexMatch match,
+    GrTexture* refScratchTexture(const GrSurfaceDesc&, ScratchTexMatch match,
                                  bool internalFlag = false);
 
     /**
@@ -280,7 +280,7 @@ public:
      * tiling non-power-of-two textures on APIs that don't support this (e.g.
      * unextended GLES2). NPOT uncached textures are not tilable on such APIs.
      */
-    GrTexture* createUncachedTexture(const GrTextureDesc& desc,
+    GrTexture* createUncachedTexture(const GrSurfaceDesc& desc,
                                      void* srcData,
                                      size_t rowBytes);
 
@@ -1001,13 +1001,13 @@ private:
     void internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath& path,
                           const GrStrokeInfo& stroke);
 
-    GrTexture* createResizedTexture(const GrTextureDesc& desc,
+    GrTexture* createResizedTexture(const GrSurfaceDesc& desc,
                                     const GrCacheID& cacheID,
                                     const void* srcData,
                                     size_t rowBytes,
                                     bool filter);
 
-    GrTexture* createNewScratchTexture(const GrTextureDesc& desc);
+    GrTexture* createNewScratchTexture(const GrSurfaceDesc& desc);
 
     /**
      * These functions create premul <-> unpremul effects if it is possible to generate a pair

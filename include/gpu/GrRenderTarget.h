@@ -135,7 +135,7 @@ protected:
     GrRenderTarget(GrGpu* gpu,
                    bool isWrapped,
                    GrTexture* texture,
-                   const GrTextureDesc& desc)
+                   const GrSurfaceDesc& desc)
         : INHERITED(gpu, isWrapped, desc)
         , fStencilBuffer(NULL)
         , fTexture(texture) {

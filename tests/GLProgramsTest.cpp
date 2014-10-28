@@ -103,10 +103,10 @@ static GrRenderTarget* random_render_target(GrGpuGL* gpu,
                                             SkRandom* random) {
     // setup render target
     GrTextureParams params;
-    GrTextureDesc texDesc;
+    GrSurfaceDesc texDesc;
     texDesc.fWidth = kRenderTargetWidth;
     texDesc.fHeight = kRenderTargetHeight;
-    texDesc.fFlags = kRenderTarget_GrTextureFlagBit;
+    texDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     texDesc.fConfig = kRGBA_8888_GrPixelConfig;
     texDesc.fOrigin = random->nextBool() == true ? kTopLeft_GrSurfaceOrigin :
                                                    kBottomLeft_GrSurfaceOrigin;
@@ -375,13 +375,13 @@ static void set_random_stencil(GrGpuGL* gpu, SkRandom* random) {
 
 bool GrGpuGL::programUnitTest(int maxStages) {
     // setup dummy textures
-    GrTextureDesc dummyDesc;
-    dummyDesc.fFlags = kRenderTarget_GrTextureFlagBit;
+    GrSurfaceDesc dummyDesc;
+    dummyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     dummyDesc.fConfig = kSkia8888_GrPixelConfig;
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
     SkAutoTUnref<GrTexture> dummyTexture1(this->createTexture(dummyDesc, NULL, 0));
-    dummyDesc.fFlags = kNone_GrTextureFlags;
+    dummyDesc.fFlags = kNone_GrSurfaceFlags;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;

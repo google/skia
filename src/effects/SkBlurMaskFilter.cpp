@@ -767,7 +767,7 @@ void GrGLRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
 bool GrRectBlurEffect::CreateBlurProfileTexture(GrContext *context, float sigma,
                                               GrTexture **blurProfileTexture) {
     GrTextureParams params;
-    GrTextureDesc texDesc;
+    GrSurfaceDesc texDesc;
 
     unsigned int profile_size = SkScalarCeilToInt(6*sigma);
 
@@ -944,7 +944,7 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
 
     unsigned int smallRectSide = 2*(blurRadius + cornerRadius) + 1;
     unsigned int texSide = smallRectSide + 2*blurRadius;
-    GrTextureDesc texDesc;
+    GrSurfaceDesc texDesc;
     texDesc.fWidth = texSide;
     texDesc.fHeight = texSide;
     texDesc.fConfig = kAlpha_8_GrPixelConfig;

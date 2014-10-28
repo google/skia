@@ -481,8 +481,8 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
 }
 
 GrTexture* GrClipMaskManager::createTempMask(int width, int height) {
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit;
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag|kNoStencil_GrSurfaceFlag;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kAlpha_8_GrPixelConfig;
@@ -512,8 +512,8 @@ GrTexture* GrClipMaskManager::allocMaskTexture(int32_t elementsGenID,
     // currently cached mask so it can be reused.
     fAACache.reset();
 
-    GrTextureDesc desc;
-    desc.fFlags = willUpload ? kNone_GrTextureFlags : kRenderTarget_GrTextureFlagBit;
+    GrSurfaceDesc desc;
+    desc.fFlags = willUpload ? kNone_GrSurfaceFlags : kRenderTarget_GrSurfaceFlag;
     desc.fWidth = clipSpaceIBounds.width();
     desc.fHeight = clipSpaceIBounds.height();
     desc.fConfig = kRGBA_8888_GrPixelConfig;

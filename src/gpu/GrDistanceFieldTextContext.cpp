@@ -194,8 +194,8 @@ static void setup_gamma_texture(GrContext* context, const SkGlyphCache* cache,
         SkScalerContext::GetGammaLUTData(contrast, paintGamma, deviceGamma, data.get());
 
         // TODO: Update this to use the cache rather than directly creating a texture.
-        GrTextureDesc desc;
-        desc.fFlags = kDynamicUpdate_GrTextureFlagBit;
+        GrSurfaceDesc desc;
+        desc.fFlags = kNone_GrSurfaceFlags;
         desc.fWidth = width;
         desc.fHeight = height;
         desc.fConfig = kAlpha_8_GrPixelConfig;

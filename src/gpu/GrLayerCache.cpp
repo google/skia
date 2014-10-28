@@ -104,7 +104,7 @@ void GrLayerCache::initAtlas() {
 
     SkISize textureSize = SkISize::Make(kAtlasTextureWidth, kAtlasTextureHeight);
     fAtlas.reset(SkNEW_ARGS(GrAtlas, (fContext->getGpu(), kSkia8888_GrPixelConfig,
-                                      kRenderTarget_GrTextureFlagBit,
+                                      kRenderTarget_GrSurfaceFlag,
                                       textureSize, kNumPlotsX, kNumPlotsY, false)));
 }
 
@@ -162,7 +162,7 @@ GrCachedLayer* GrLayerCache::findLayerOrCreate(uint32_t pictureID,
 }
 
 bool GrLayerCache::tryToAtlas(GrCachedLayer* layer, 
-                              const GrTextureDesc& desc, 
+                              const GrSurfaceDesc& desc, 
                               bool* needsRendering) {
     SkDEBUGCODE(GrAutoValidateLayer avl(fAtlas->getTexture(), layer);)
 
@@ -222,7 +222,7 @@ bool GrLayerCache::tryToAtlas(GrCachedLayer* layer,
     return false;
 }
 
-bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool* needsRendering) {
+bool GrLayerCache::lock(GrCachedLayer* layer, const GrSurfaceDesc& desc, bool* needsRendering) {
     if (layer->locked()) {
         // This layer is already locked
         *needsRendering = false;

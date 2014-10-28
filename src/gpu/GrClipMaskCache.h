@@ -114,7 +114,7 @@ public:
     }
 
     void acquireMask(int32_t clipGenID,
-                     const GrTextureDesc& desc,
+                     const GrSurfaceDesc& desc,
                      const SkIRect& bound) {
 
         if (fStack.empty()) {
@@ -199,7 +199,7 @@ private:
 
         void acquireMask(GrContext* context,
                          int32_t clipGenID,
-                         const GrTextureDesc& desc,
+                         const GrSurfaceDesc& desc,
                          const SkIRect& bound) {
 
             fLastClipGenID = clipGenID;
@@ -215,7 +215,7 @@ private:
         void reset () {
             fLastClipGenID = SkClipStack::kInvalidGenID;
 
-            GrTextureDesc desc;
+            GrSurfaceDesc desc;
 
             fLastMask.reset(NULL);
             fLastBound.setEmpty();

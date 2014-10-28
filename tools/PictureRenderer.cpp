@@ -148,9 +148,9 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
             SkAutoTUnref<GrSurface> target;
             if (fGrContext) {
                 // create a render target to back the device
-                GrTextureDesc desc;
+                GrSurfaceDesc desc;
                 desc.fConfig = kSkia8888_GrPixelConfig;
-                desc.fFlags = kRenderTarget_GrTextureFlagBit;
+                desc.fFlags = kRenderTarget_GrSurfaceFlag;
                 desc.fWidth = width;
                 desc.fHeight = height;
                 desc.fSampleCnt = fSampleCount;

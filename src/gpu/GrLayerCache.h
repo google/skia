@@ -211,7 +211,7 @@ public:
     // Attempt to place 'layer' in the atlas. Return true on success; false on failure.
     // When true is returned, 'needsRendering' will indicate if the layer must be (re)drawn.
     // Additionally, the GPU resources will be locked.
-    bool tryToAtlas(GrCachedLayer* layer, const GrTextureDesc& desc, bool* needsRendering);
+    bool tryToAtlas(GrCachedLayer* layer, const GrSurfaceDesc& desc, bool* needsRendering);
 
     // Attempt to lock the GPU resources required for a layer. Return true on success;
     // false on failure. When true is returned 'needsRendering' will indicate if the
@@ -221,7 +221,7 @@ public:
     // Currently, this path always uses a new scratch texture for non-Atlased layers
     // and (thus) doesn't cache anything. This can yield a lot of re-rendering.
     // TODO: allow rediscovery of free-floating layers that are still in the resource cache.
-    bool lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool* needsRendering);
+    bool lock(GrCachedLayer* layer, const GrSurfaceDesc& desc, bool* needsRendering);
 
     // addUse is just here to keep the API symmetric
     void addUse(GrCachedLayer* layer) { layer->addUse(); }

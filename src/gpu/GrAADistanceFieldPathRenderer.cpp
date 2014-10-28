@@ -140,7 +140,7 @@ GrAADistanceFieldPathRenderer::PathData* GrAADistanceFieldPathRenderer::addPathT
     if (NULL == fAtlas) {
         SkISize textureSize = SkISize::Make(ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT);
         fAtlas = SkNEW_ARGS(GrAtlas, (fContext->getGpu(), kAlpha_8_GrPixelConfig,
-                                      kNone_GrTextureFlags, textureSize,
+                                      kNone_GrSurfaceFlags, textureSize,
                                       NUM_PLOTS_X, NUM_PLOTS_Y, false));
         if (NULL == fAtlas) {
             return NULL;

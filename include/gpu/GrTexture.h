@@ -58,7 +58,7 @@ protected:
     // the subclass constructor to initialize this pointer.
     SkAutoTUnref<GrRenderTarget> fRenderTarget;
 
-    GrTexture(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc);
+    GrTexture(GrGpu* gpu, bool isWrapped, const GrSurfaceDesc& desc);
 
     virtual ~GrTexture();
 

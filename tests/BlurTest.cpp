@@ -284,9 +284,9 @@ static bool gpu_blur_path(GrContextFactory* factory, const SkPath& path,
         return false;
     }
 
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = resultCount;
     desc.fHeight = 30;
     desc.fSampleCnt = 0;

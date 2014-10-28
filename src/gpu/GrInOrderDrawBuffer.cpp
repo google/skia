@@ -588,7 +588,7 @@ bool GrInOrderDrawBuffer::onCanCopySurface(GrSurface* dst,
     return fDstGpu->canCopySurface(dst, src, srcRect, dstPoint);
 }
 
-void GrInOrderDrawBuffer::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) {
+void GrInOrderDrawBuffer::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
     fDstGpu->initCopySurfaceDstDesc(src, desc);
 }
 

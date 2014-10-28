@@ -143,7 +143,7 @@ void GrPlot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrAtlas::GrAtlas(GrGpu* gpu, GrPixelConfig config, GrTextureFlags flags,
+GrAtlas::GrAtlas(GrGpu* gpu, GrPixelConfig config, GrSurfaceFlags flags,
                  const SkISize& backingTextureSize,
                  int numPlotsX, int numPlotsY, bool batchUploads) {
     fGpu = SkRef(gpu);
@@ -219,8 +219,8 @@ GrPlot* GrAtlas::addToAtlas(ClientPlotUsage* usage,
     // before we get a new plot, make sure we have a backing texture
     if (NULL == fTexture) {
         // TODO: Update this to use the cache rather than directly creating a texture.
-        GrTextureDesc desc;
-        desc.fFlags = fFlags | kDynamicUpdate_GrTextureFlagBit;
+        GrSurfaceDesc desc;
+        desc.fFlags = fFlags;
         desc.fWidth = fBackingTextureSize.width();
         desc.fHeight = fBackingTextureSize.height();
         desc.fConfig = fPixelConfig;

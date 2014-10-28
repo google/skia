@@ -93,7 +93,7 @@ public:
         friend class GrAtlas;
     };
 
-    GrAtlas(GrGpu*, GrPixelConfig, GrTextureFlags flags, 
+    GrAtlas(GrGpu*, GrPixelConfig, GrSurfaceFlags flags, 
             const SkISize& backingTextureSize,
             int numPlotsX, int numPlotsY, bool batchUploads);
     ~GrAtlas();
@@ -135,7 +135,7 @@ private:
 
     GrGpu*         fGpu;
     GrPixelConfig  fPixelConfig;
-    GrTextureFlags fFlags;
+    GrSurfaceFlags fFlags;
     GrTexture*     fTexture;
     SkISize        fBackingTextureSize;
     int            fNumPlotsX;

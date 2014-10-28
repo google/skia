@@ -450,7 +450,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const 
 
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     this->initCopySurfaceDstDesc(rt, &desc);
     desc.fWidth = copyRect.width();
     desc.fHeight = copyRect.height();
@@ -995,10 +995,10 @@ bool GrDrawTarget::onCopySurface(GrSurface* dst,
     return true;
 }
 
-void GrDrawTarget::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) {
+void GrDrawTarget::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
     // Make the dst of the copy be a render target because the default copySurface draws to the dst.
     desc->fOrigin = kDefault_GrSurfaceOrigin;
-    desc->fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    desc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
     desc->fConfig = src->config();
 }
 

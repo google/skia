@@ -105,8 +105,8 @@ static void generate_bitmap_cache_id(const SkBitmap& bitmap, GrCacheID* id) {
     id->reset(gBitmapTextureDomain, key);
 }
 
-static void generate_bitmap_texture_desc(const SkBitmap& bitmap, GrTextureDesc* desc) {
-    desc->fFlags = kNone_GrTextureFlags;
+static void generate_bitmap_texture_desc(const SkBitmap& bitmap, GrSurfaceDesc* desc) {
+    desc->fFlags = kNone_GrSurfaceFlags;
     desc->fWidth = bitmap.width();
     desc->fHeight = bitmap.height();
     desc->fConfig = SkImageInfo2GrPixelConfig(bitmap.info());
@@ -139,7 +139,7 @@ static GrTexture* sk_gr_allocate_texture(GrContext* ctx,
                                          bool cache,
                                          const GrTextureParams* params,
                                          const SkBitmap& bm,
-                                         GrTextureDesc desc,
+                                         GrSurfaceDesc desc,
                                          const void* pixels,
                                          size_t rowBytes) {
     GrTexture* result;
@@ -170,7 +170,7 @@ static GrTexture* sk_gr_allocate_texture(GrContext* ctx,
 #ifndef SK_IGNORE_ETC1_SUPPORT
 static GrTexture *load_etc1_texture(GrContext* ctx, bool cache,
                                     const GrTextureParams* params,
-                                    const SkBitmap &bm, GrTextureDesc desc) {
+                                    const SkBitmap &bm, GrSurfaceDesc desc) {
     SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
 
     // Is this even encoded data?
@@ -219,7 +219,7 @@ static GrTexture *load_etc1_texture(GrContext* ctx, bool cache,
 #endif   // SK_IGNORE_ETC1_SUPPORT
 
 static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTextureParams* params,
-                                   const SkBitmap& bm, const GrTextureDesc& desc) {
+                                   const SkBitmap& bm, const GrSurfaceDesc& desc) {
     // Subsets are not supported, the whole pixelRef is loaded when using YUV decoding
     if ((bm.pixelRef()->info().width()  != bm.info().width()) ||
         (bm.pixelRef()->info().height() != bm.info().height())) {
@@ -252,7 +252,7 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
         return NULL;
     }
 
-    GrTextureDesc yuvDesc;
+    GrSurfaceDesc yuvDesc;
     yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
     SkAutoTUnref<GrTexture> yuvTextures[3];
     for (int i = 0; i < 3; ++i) {
@@ -267,10 +267,10 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
         }
     }
 
-    GrTextureDesc rtDesc = desc;
+    GrSurfaceDesc rtDesc = desc;
     rtDesc.fFlags = rtDesc.fFlags |
-                    kRenderTarget_GrTextureFlagBit |
-                    kNoStencil_GrTextureFlagBit;
+                    kRenderTarget_GrSurfaceFlag |
+                    kNoStencil_GrSurfaceFlag;
 
     GrTexture* result = sk_gr_allocate_texture(ctx, cache, params, bm, rtDesc, NULL, 0);
 
@@ -302,7 +302,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
 
     const SkBitmap* bitmap = &origBitmap;
 
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     generate_bitmap_texture_desc(*bitmap, &desc);
 
     if (kIndex_8_SkColorType == bitmap->colorType()) {
@@ -368,7 +368,7 @@ bool GrIsBitmapInCache(const GrContext* ctx,
     GrCacheID cacheID;
     generate_bitmap_cache_id(bitmap, &cacheID);
 
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     generate_bitmap_texture_desc(bitmap, &desc);
     return ctx->isTextureInCache(desc, cacheID, params);
 }
@@ -386,7 +386,7 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
         GrCacheID cacheID;
         generate_bitmap_cache_id(bitmap, &cacheID);
 
-        GrTextureDesc desc;
+        GrSurfaceDesc desc;
         generate_bitmap_texture_desc(bitmap, &desc);
 
         result = ctx->findAndRefTexture(desc, cacheID, params);

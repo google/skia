@@ -191,7 +191,7 @@ GrTextureStripAtlas::AtlasRow* GrTextureStripAtlas::getLRU() {
 
 void GrTextureStripAtlas::lockTexture() {
     GrTextureParams params;
-    GrTextureDesc texDesc;
+    GrSurfaceDesc texDesc;
     texDesc.fWidth = fDesc.fWidth;
     texDesc.fHeight = fDesc.fHeight;
     texDesc.fConfig = fDesc.fConfig;

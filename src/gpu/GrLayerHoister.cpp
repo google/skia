@@ -33,8 +33,8 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
                                                          layerRect,
                                                          combined,
                                                          info.fPaint);
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = layerRect.width();
     desc.fHeight = layerRect.height();
     desc.fConfig = kSkia8888_GrPixelConfig;

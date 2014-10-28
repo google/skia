@@ -61,7 +61,7 @@ static void lock_layer(skiatest::Reporter* reporter,
                        GrLayerCache* cache,
                        GrCachedLayer* layer) {
     // Make the layer 512x512 (so it can be atlased)
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     desc.fWidth = 512;
     desc.fHeight = 512;
     desc.fConfig = kSkia8888_GrPixelConfig;

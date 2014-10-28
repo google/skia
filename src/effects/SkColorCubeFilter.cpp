@@ -351,7 +351,7 @@ GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* context) 
     key.fData64[1] = 0;
     GrCacheID cacheID(gCubeDomain, key);
 
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     desc.fWidth = fCache.cubeDimension();
     desc.fHeight = fCache.cubeDimension() * fCache.cubeDimension();
     desc.fConfig = kRGBA_8888_GrPixelConfig;

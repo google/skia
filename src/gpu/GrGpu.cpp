@@ -61,13 +61,13 @@ void GrGpu::contextAbandoned() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
+GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc,
                                 const void* srcData, size_t rowBytes) {
     if (!this->caps()->isConfigTexturable(desc.fConfig)) {
         return NULL;
     }
 
-    if ((desc.fFlags & kRenderTarget_GrTextureFlagBit) &&
+    if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
         !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return NULL;
     }
@@ -75,7 +75,7 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
     GrTexture *tex = NULL;
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         // We shouldn't be rendering into this
-        SkASSERT((desc.fFlags & kRenderTarget_GrTextureFlagBit) == 0);
+        SkASSERT((desc.fFlags & kRenderTarget_GrSurfaceFlag) == 0);
 
         if (!this->caps()->npotTextureTileSupport() &&
             (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight))) {
@@ -88,8 +88,8 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
         this->handleDirtyContext();
         tex = this->onCreateTexture(desc, srcData, rowBytes);
         if (tex &&
-            (kRenderTarget_GrTextureFlagBit & desc.fFlags) &&
-            !(kNoStencil_GrTextureFlagBit & desc.fFlags)) {
+            (kRenderTarget_GrSurfaceFlag & desc.fFlags) &&
+            !(kNoStencil_GrSurfaceFlag & desc.fFlags)) {
             SkASSERT(tex->asRenderTarget());
             // TODO: defer this and attach dynamically
             if (!this->attachStencilBufferToRenderTarget(tex->asRenderTarget())) {

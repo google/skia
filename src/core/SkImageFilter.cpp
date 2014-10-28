@@ -249,8 +249,8 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
     GrContext* context = srcTexture->getContext();
 
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit,
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag,
     desc.fWidth = bounds.width();
     desc.fHeight = bounds.height();
     desc.fConfig = kRGBA_8888_GrPixelConfig;

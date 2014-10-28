@@ -58,7 +58,7 @@ public:
     /**
      * Return the descriptor describing the surface
      */
-    const GrTextureDesc& desc() const { return fDesc; }
+    const GrSurfaceDesc& desc() const { return fDesc; }
 
     /**
      * @return the texture associated with the surface, may be NULL.
@@ -136,12 +136,12 @@ protected:
     // Provides access to methods that should be public within Skia code.
     friend class GrSurfacePriv;
 
-    GrSurface(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
+    GrSurface(GrGpu* gpu, bool isWrapped, const GrSurfaceDesc& desc)
     : INHERITED(gpu, isWrapped)
     , fDesc(desc) {
     }
 
-    GrTextureDesc fDesc;
+    GrSurfaceDesc fDesc;
 
 private:
     typedef GrGpuResource INHERITED;

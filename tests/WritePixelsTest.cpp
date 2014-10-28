@@ -312,8 +312,8 @@ static SkSurface* create_surface(const CanvasConfig& c, GrContext* grCtx) {
 #if SK_SUPPORT_GPU
         case kGpu_BottomLeft_DevType:
         case kGpu_TopLeft_DevType:
-            GrTextureDesc desc;
-            desc.fFlags = kRenderTarget_GrTextureFlagBit;
+            GrSurfaceDesc desc;
+            desc.fFlags = kRenderTarget_GrSurfaceFlag;
             desc.fWidth = DEV_W;
             desc.fHeight = DEV_H;
             desc.fConfig = kSkia8888_GrPixelConfig;

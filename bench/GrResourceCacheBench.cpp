@@ -63,7 +63,7 @@ public:
         return 100 + ((fID % 1 == 0) ? -40 : 33);
     }
 
-    static GrResourceKey ComputeKey(const GrTextureDesc& desc) {
+    static GrResourceKey ComputeKey(const GrSurfaceDesc& desc) {
         GrCacheID::Key key;
         memset(&key, 0, sizeof(key));
         key.fData32[0] = (desc.fWidth) | (desc.fHeight << 16);
@@ -86,9 +86,9 @@ static void get_stencil(int i, int* w, int* h, int* s) {
     *s = i % 1 == 0 ? 0 : 4;
 }
 
-static void get_texture_desc(int i, GrTextureDesc* desc) {
-    desc->fFlags = kRenderTarget_GrTextureFlagBit |
-        kNoStencil_GrTextureFlagBit;
+static void get_texture_desc(int i, GrSurfaceDesc* desc) {
+    desc->fFlags = kRenderTarget_GrSurfaceFlag |
+        kNoStencil_GrSurfaceFlag;
     desc->fWidth  = i % 1024;
     desc->fHeight = i * 2 % 1024;
     desc->fConfig = static_cast<GrPixelConfig>(i % (kLast_GrPixelConfig + 1));
@@ -107,7 +107,7 @@ static void populate_cache(GrResourceCache* cache, GrGpu* gpu, int resourceCount
     }
 
     for (int i = 0; i < resourceCount; ++i) {
-        GrTextureDesc desc;
+        GrSurfaceDesc desc;
         get_texture_desc(i, &desc);
         GrResourceKey key =  TextureResource::ComputeKey(desc);
         GrGpuResource* resource = SkNEW_ARGS(TextureResource, (gpu, i));
@@ -120,7 +120,7 @@ static void populate_cache(GrResourceCache* cache, GrGpu* gpu, int resourceCount
 static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
     // Benchmark find calls that succeed.
     {
-        GrTextureDesc desc;
+        GrSurfaceDesc desc;
         get_texture_desc(k, &desc);
         GrResourceKey key = TextureResource::ComputeKey(desc);
         GrGpuResource* item = cache->find(key);
@@ -150,7 +150,7 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
 
     // Benchmark also find calls that always fail.
     {
-        GrTextureDesc desc;
+        GrSurfaceDesc desc;
         get_texture_desc(k, &desc);
         desc.fHeight |= 1;
         GrResourceKey key = TextureResource::ComputeKey(desc);

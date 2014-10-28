@@ -68,7 +68,7 @@ public:
                                     size_t rowBytes) const SK_OVERRIDE;
     virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
 
-    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) SK_OVERRIDE;
+    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) SK_OVERRIDE;
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
@@ -109,10 +109,10 @@ private:
     // GrGpu overrides
     virtual void onResetContext(uint32_t resetBits) SK_OVERRIDE;
 
-    virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
+    virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
                                        const void* srcData,
                                        size_t rowBytes) SK_OVERRIDE;
-    virtual GrTexture* onCreateCompressedTexture(const GrTextureDesc& desc,
+    virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
                                                  const void* srcData) SK_OVERRIDE;
     virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) SK_OVERRIDE;

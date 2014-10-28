@@ -172,8 +172,8 @@ GrTexture* GaussianBlur(GrContext* context,
              kRGBA_8888_GrPixelConfig == srcTexture->config() ||
              kAlpha_8_GrPixelConfig == srcTexture->config());
 
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
     desc.fWidth = SkScalarFloorToInt(srcRect.width());
     desc.fHeight = SkScalarFloorToInt(srcRect.height());
     desc.fConfig = srcTexture->config();

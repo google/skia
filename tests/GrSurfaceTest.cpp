@@ -18,15 +18,15 @@
 DEF_GPUTEST(GrSurface, reporter, factory) {
     GrContext* context = factory->get(GrContextFactory::kNull_GLContextType);
     if (context) {
-        GrTextureDesc desc;
+        GrSurfaceDesc desc;
         desc.fConfig = kSkia8888_GrPixelConfig;
-        desc.fFlags = kRenderTarget_GrTextureFlagBit;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fWidth = 256;
         desc.fHeight = 256;
         desc.fSampleCnt = 0;
         GrSurface* texRT1 = context->createUncachedTexture(desc, NULL, 0);
         GrSurface* texRT2 = context->createUncachedTexture(desc, NULL, 0);
-        desc.fFlags = kNone_GrTextureFlags;
+        desc.fFlags = kNone_GrSurfaceFlags;
         GrSurface* tex1 = context->createUncachedTexture(desc, NULL, 0);
 
         REPORTER_ASSERT(reporter, texRT1->surfacePriv().isSameAs(texRT1));

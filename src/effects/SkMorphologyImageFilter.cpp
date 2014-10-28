@@ -513,8 +513,8 @@ bool apply_morphology(const SkBitmap& input,
                                                     SkIntToScalar(srcTexture->height())));
 
     SkIRect dstRect = SkIRect::MakeWH(rect.width(), rect.height());
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
     desc.fWidth = rect.width();
     desc.fHeight = rect.height();
     desc.fConfig = kSkia8888_GrPixelConfig;

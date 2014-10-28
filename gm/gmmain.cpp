@@ -1759,9 +1759,9 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
             bool grSuccess = false;
             if (gr) {
                 // create a render target to back the device
-                GrTextureDesc desc;
+                GrSurfaceDesc desc;
                 desc.fConfig = kSkia8888_GrPixelConfig;
-                desc.fFlags = kRenderTarget_GrTextureFlagBit;
+                desc.fFlags = kRenderTarget_GrSurfaceFlag;
                 desc.fWidth = gm->getISize().width();
                 desc.fHeight = gm->getISize().height();
                 desc.fSampleCnt = config.fSampleCnt;
