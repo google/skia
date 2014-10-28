@@ -126,7 +126,7 @@ private:
             dst.fBounds = newClip;
             dst.fLocalMat = src.fLocalMat;
             dst.fPreMat = src.fPreMat;
-            dst.fPreMat.preConcat(*fCTM);
+            dst.fPreMat.postConcat(*fCTM);
             if (src.fPaint) {
                 dst.fPaint = SkNEW_ARGS(SkPaint, (*src.fPaint));
             }

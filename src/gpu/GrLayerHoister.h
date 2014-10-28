@@ -33,47 +33,60 @@ public:
 class GrLayerHoister {
 public:
 
+    /** Find the layers in 'topLevelPicture' that can be atlased. Note that the discovered
+        layers can be inside nested sub-pictures.
+        @param context    Owner of the layer cache (the source of new layers)
+        @param topLevelPicture The top-level picture that is about to be rendered
+        @param query       The rectangle that is about to be drawn.
+        @param atlasedNeedRendering Out parameter storing the layers that 
+                                    should be hoisted to the atlas
+        @param recycled    Out parameter storing layers that are atlased but do not need rendering
+        */
+    static void FindLayersToAtlas(GrContext* context,
+                                  const SkPicture* topLevelPicture,
+                                  const SkRect& query,
+                                  SkTDArray<GrHoistedLayer>* atlasedNeedRendering,
+                                  SkTDArray<GrHoistedLayer>* recycled);
+
     /** Find the layers in 'topLevelPicture' that need hoisting. Note that the discovered
         layers can be inside nested sub-pictures.
         @param context    Owner of the layer cache (the source of new layers)
         @param topLevelPicture The top-level picture that is about to be rendered
         @param query       The rectangle that is about to be drawn.
-        @param atlased     Out parameter storing the layers that should be hoisted to the atlas
-        @param nonAtlased  Out parameter storing the layers that should be hoisted stand alone
+        @param needRendering Out parameter storing the layers that need rendering.
+                             This should never include atlased layers.
         @param recycled    Out parameter storing layers that need hoisting but not rendering
-        Return true if any layers are suitable for hoisting; false otherwise
     */
-    static bool FindLayersToHoist(GrContext* context,
+    static void FindLayersToHoist(GrContext* context,
                                   const SkPicture* topLevelPicture,
                                   const SkRect& query,
-                                  SkTDArray<GrHoistedLayer>* atlased,
-                                  SkTDArray<GrHoistedLayer>* nonAtlased,
+                                  SkTDArray<GrHoistedLayer>* needRendering,
                                   SkTDArray<GrHoistedLayer>* recycled);
 
-    /** Draw the specified layers into either the atlas or free floating textures.
+    /** Draw the specified layers into the atlas.
         @param context      Owner of the layer cache (and thus the layers)
-        @param atlased      The layers to be drawn into the atlas
-        @param nonAtlased   The layers to be drawn into their own textures
-        @param recycled     Layers that don't need rendering but do need to go into the 
-                            replacements object
-        @param replacements The replacement structure to fill in with the rendered layer info
+        @param layers       The layers to be drawn into the atlas
     */
-    static void DrawLayers(GrContext* context,
-                           const SkTDArray<GrHoistedLayer>& atlased,
-                           const SkTDArray<GrHoistedLayer>& nonAtlased,
-                           const SkTDArray<GrHoistedLayer>& recycled,
-                           GrReplacements* replacements);
+    static void DrawLayersToAtlas(GrContext* context, const SkTDArray<GrHoistedLayer>& layers);
 
-    /** Unlock unneeded layers in the layer cache.
-        @param context    Owner of the layer cache (and thus the layers)
-        @param atlased    Unneeded layers in the atlas
-        @param nonAtlased Unneeded layers in their own textures
-        @param recycled   Unneeded layers that did not require rendering
+    /** Draw the specified layers into their own individual textures.
+        @param context      Owner of the layer cache (and thus the layers)
+        @param layers       The layers to be drawn
     */
-    static void UnlockLayers(GrContext* context,
-                             const SkTDArray<GrHoistedLayer>& atlased,
-                             const SkTDArray<GrHoistedLayer>& nonAtlased,
-                             const SkTDArray<GrHoistedLayer>& recycled);
+    static void DrawLayers(GrContext* context, const SkTDArray<GrHoistedLayer>& layers);
+
+    /** Convert all the layers in 'layers' into replacement objects in 'replacements'.
+        @param layers       The hoisted layers
+        @param replacements Replacement object that will be used for a replacement draw
+    */
+    static void ConvertLayersToReplacements(const SkTDArray<GrHoistedLayer>& layers,
+                                            GrReplacements* replacements);
+
+    /** Unlock a group of layers in the layer cache.
+        @param context    Owner of the layer cache (and thus the layers)
+        @param layers     Unneeded layers in the atlas
+    */
+    static void UnlockLayers(GrContext* context, const SkTDArray<GrHoistedLayer>& layers);
 };
 
 #endif

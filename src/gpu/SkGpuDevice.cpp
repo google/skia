@@ -1816,23 +1816,36 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return true;
     }
 
-    SkTDArray<GrHoistedLayer> atlased, nonAtlased, recycled;
+    SkTDArray<GrHoistedLayer> atlasedNeedRendering, atlasedRecycled;
 
-    if (!GrLayerHoister::FindLayersToHoist(fContext, mainPicture, clipBounds, 
-                                           &atlased, &nonAtlased, &recycled)) {
-        return false;
-    }
+    GrLayerHoister::FindLayersToAtlas(fContext, mainPicture,
+                                      clipBounds,
+                                      &atlasedNeedRendering, &atlasedRecycled);
+
+    GrLayerHoister::DrawLayersToAtlas(fContext, atlasedNeedRendering);
+
+    SkTDArray<GrHoistedLayer> needRendering, recycled;
+
+    GrLayerHoister::FindLayersToHoist(fContext, mainPicture,
+                                      clipBounds,
+                                      &needRendering, &recycled);
+
+    GrLayerHoister::DrawLayers(fContext, needRendering);
 
     GrReplacements replacements;
 
-    GrLayerHoister::DrawLayers(fContext, atlased, nonAtlased, recycled, &replacements);
+    GrLayerHoister::ConvertLayersToReplacements(needRendering, &replacements);
+    GrLayerHoister::ConvertLayersToReplacements(recycled, &replacements);
 
     // Render the entire picture using new layers
     const SkMatrix initialMatrix = mainCanvas->getTotalMatrix();
 
     GrRecordReplaceDraw(mainPicture, mainCanvas, &replacements, initialMatrix, NULL);
 
-    GrLayerHoister::UnlockLayers(fContext, atlased, nonAtlased, recycled);
+    GrLayerHoister::UnlockLayers(fContext, needRendering);
+    GrLayerHoister::UnlockLayers(fContext, recycled);
+    GrLayerHoister::UnlockLayers(fContext, atlasedNeedRendering);
+    GrLayerHoister::UnlockLayers(fContext, atlasedRecycled);
 
     return true;
 }

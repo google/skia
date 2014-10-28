@@ -66,10 +66,14 @@ static void lock_layer(skiatest::Reporter* reporter,
     desc.fHeight = 512;
     desc.fConfig = kSkia8888_GrPixelConfig;
 
-    bool needsRerendering = cache->lock(layer, desc, false);
+    bool needsRerendering;
+    bool inAtlas = cache->tryToAtlas(layer, desc, &needsRerendering);
+    if (!inAtlas) {
+        cache->lock(layer, desc, &needsRerendering);
+    }
     REPORTER_ASSERT(reporter, needsRerendering);
 
-    needsRerendering = cache->lock(layer, desc, false);
+    cache->lock(layer, desc, &needsRerendering);
     REPORTER_ASSERT(reporter, !needsRerendering);
 
     REPORTER_ASSERT(reporter, layer->texture());

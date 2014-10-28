@@ -63,7 +63,10 @@ void SkMultiPictureDraw::draw() {
 #ifndef SK_IGNORE_GPU_LAYER_HOISTING
     GrContext* context = NULL;
 
-    SkTDArray<GrHoistedLayer> atlased, nonAtlased, recycled;
+    // Start by collecting all the layers that are going to be atlased and render 
+    // them (if necessary). Hoisting the free floating layers is deferred until
+    // drawing the canvas that requires them.
+    SkTDArray<GrHoistedLayer> atlasedNeedRendering, atlasedRecycled;
 
     for (int i = 0; i < fDrawData.count(); ++i) {
         if (fDrawData[i].canvas->getGrContext() &&
@@ -80,28 +83,57 @@ void SkMultiPictureDraw::draw() {
                 continue;
             }
 
-            GrLayerHoister::FindLayersToHoist(context, fDrawData[i].picture,
-                                              clipBounds, &atlased, &nonAtlased, &recycled);
+            // TODO: sorting the cacheable layers from smallest to largest
+            // would improve the packing and reduce the number of swaps
+            // TODO: another optimization would be to make a first pass to
+            // lock any required layer that is already in the atlas
+            GrLayerHoister::FindLayersToAtlas(context, fDrawData[i].picture,
+                                              clipBounds, 
+                                              &atlasedNeedRendering, &atlasedRecycled);
         }
     }
 
-    GrReplacements replacements;
-
     if (NULL != context) {
-        GrLayerHoister::DrawLayers(atlased, nonAtlased, recycled, &replacements);
+        GrLayerHoister::DrawLayersToAtlas(context, atlasedNeedRendering);
     }
+
+    SkTDArray<GrHoistedLayer> needRendering, recycled;
 #endif
 
     for (int i = 0; i < fDrawData.count(); ++i) {
 #ifndef SK_IGNORE_GPU_LAYER_HOISTING
         if (fDrawData[i].canvas->getGrContext() && 
             !fDrawData[i].paint && fDrawData[i].matrix.isIdentity()) {
-            // Render the entire picture using new layers
+
+            SkRect clipBounds;
+            if (!fDrawData[i].canvas->getClipBounds(&clipBounds)) {
+                continue;
+            }
+
+            // Find the layers required by this canvas. It will return atlased
+            // layers in the 'recycled' list since they have already been drawn.
+            GrLayerHoister::FindLayersToHoist(context, fDrawData[i].picture,
+                                              clipBounds, &needRendering, &recycled);
+
+            GrLayerHoister::DrawLayers(context, needRendering);
+
+            GrReplacements replacements;
+
+            GrLayerHoister::ConvertLayersToReplacements(needRendering, &replacements);
+            GrLayerHoister::ConvertLayersToReplacements(recycled, &replacements);
+
             const SkMatrix initialMatrix = fDrawData[i].canvas->getTotalMatrix();
 
+            // Render the entire picture using new layers
             GrRecordReplaceDraw(fDrawData[i].picture, fDrawData[i].canvas, 
                                 &replacements, initialMatrix, NULL);
-        } else 
+
+            GrLayerHoister::UnlockLayers(context, needRendering);
+            GrLayerHoister::UnlockLayers(context, recycled);
+
+            needRendering.rewind();
+            recycled.rewind();
+        } else
 #endif
         {
             fDrawData[i].canvas->drawPicture(fDrawData[i].picture,
@@ -112,7 +144,8 @@ void SkMultiPictureDraw::draw() {
 
 #ifndef SK_IGNORE_GPU_LAYER_HOISTING
     if (NULL != context) {
-        GrLayerHoister::UnlockLayers(context, atlased, nonAtlased, recycled);
+        GrLayerHoister::UnlockLayers(context, atlasedNeedRendering);
+        GrLayerHoister::UnlockLayers(context, atlasedRecycled);
     }
 #endif
 

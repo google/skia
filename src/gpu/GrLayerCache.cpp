@@ -161,29 +161,29 @@ GrCachedLayer* GrLayerCache::findLayerOrCreate(uint32_t pictureID,
     return layer;
 }
 
-bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool dontAtlas) {
+bool GrLayerCache::tryToAtlas(GrCachedLayer* layer, 
+                              const GrTextureDesc& desc, 
+                              bool* needsRendering) {
     SkDEBUGCODE(GrAutoValidateLayer avl(fAtlas->getTexture(), layer);)
+
+    SkASSERT(PlausiblyAtlasable(desc.fWidth, desc.fHeight));
 
     if (layer->locked()) {
         // This layer is already locked
-#ifdef SK_DEBUG
-        if (layer->isAtlased()) {
-            // It claims to be atlased
-            SkASSERT(!dontAtlas);
-            SkASSERT(layer->rect().width() == desc.fWidth);
-            SkASSERT(layer->rect().height() == desc.fHeight);
-        }
-#endif
-        return false;
+        SkASSERT(layer->isAtlased());
+        SkASSERT(layer->rect().width() == desc.fWidth);
+        SkASSERT(layer->rect().height() == desc.fHeight);
+        *needsRendering = false;
+        return true;
     }
 
     if (layer->isAtlased()) {
         // Hooray it is still in the atlas - make sure it stays there
-        SkASSERT(!dontAtlas);
         layer->setLocked(true);
         this->incPlotLock(layer->plot()->id());
-        return false;
-    } else if (!dontAtlas && PlausiblyAtlasable(desc.fWidth, desc.fHeight)) {
+        *needsRendering = false;
+        return true;
+    } else {
         // Not in the atlas - will it fit?
         GrPictureInfo* pictInfo = fPictureHash.find(layer->pictureID());
         if (NULL == pictInfo) {
@@ -207,6 +207,7 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool do
                 layer->setPlot(plot);
                 layer->setLocked(true);
                 this->incPlotLock(layer->plot()->id());
+                *needsRendering = true;
                 return true;
             }
 
@@ -218,14 +219,26 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool do
         }
     }
 
-    // The texture wouldn't fit in the cache - give it it's own texture.
-    // This path always uses a new scratch texture and (thus) doesn't cache anything.
-    // This can yield a lot of re-rendering
+    return false;
+}
+
+bool GrLayerCache::lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool* needsRendering) {
+    if (layer->locked()) {
+        // This layer is already locked
+        *needsRendering = false;
+        return true;
+    }
+
     SkAutoTUnref<GrTexture> tex(
         fContext->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
 
+    if (!tex) {
+        return false;
+    }
+
     layer->setTexture(tex, GrIRect16::MakeWH(SkToS16(desc.fWidth), SkToS16(desc.fHeight)));
     layer->setLocked(true);
+    *needsRendering = true;
     return true;
 }
 
@@ -275,13 +288,7 @@ void GrLayerCache::validate() const {
         layer->validate(fAtlas->getTexture());
 
         const GrPictureInfo* pictInfo = fPictureHash.find(layer->pictureID());
-        if (pictInfo) {
-            // In aggressive cleanup mode a picture info should only exist if
-            // it has some atlased layers
-#if !DISABLE_CACHING
-            SkASSERT(!pictInfo->fPlotUsage.isEmpty());
-#endif
-        } else {
+        if (!pictInfo) {
             // If there is no picture info for this picture then all of its
             // layers should be non-atlased.
             SkASSERT(!layer->isAtlased());

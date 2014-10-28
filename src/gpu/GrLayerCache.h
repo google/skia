@@ -208,10 +208,20 @@ public:
                                      const SkMatrix& ctm,
                                      const SkPaint* paint);
 
-    // Inform the cache that layer's cached image is now required. 
-    // Return true if the layer must be re-rendered. Return false if the
-    // layer was found in the cache and can be reused.
-    bool lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool dontAtlas);
+    // Attempt to place 'layer' in the atlas. Return true on success; false on failure.
+    // When true is returned, 'needsRendering' will indicate if the layer must be (re)drawn.
+    // Additionally, the GPU resources will be locked.
+    bool tryToAtlas(GrCachedLayer* layer, const GrTextureDesc& desc, bool* needsRendering);
+
+    // Attempt to lock the GPU resources required for a layer. Return true on success;
+    // false on failure. When true is returned 'needsRendering' will indicate if the
+    // layer must be (re)drawn.
+    // Note that atlased layers should already have been locked and rendered so only
+    // free floating layers will have 'needsRendering' set.
+    // Currently, this path always uses a new scratch texture for non-Atlased layers
+    // and (thus) doesn't cache anything. This can yield a lot of re-rendering.
+    // TODO: allow rediscovery of free-floating layers that are still in the resource cache.
+    bool lock(GrCachedLayer* layer, const GrTextureDesc& desc, bool* needsRendering);
 
     // addUse is just here to keep the API symmetric
     void addUse(GrCachedLayer* layer) { layer->addUse(); }
@@ -234,6 +244,10 @@ public:
 #ifdef SK_DEVELOPER
     void writeLayersToDisk(const SkString& dirName);
 #endif
+
+    static bool PlausiblyAtlasable(int width, int height) {
+        return width <= kPlotWidth && height <= kPlotHeight;
+    }
 
 private:
     static const int kAtlasTextureWidth = 1024;
@@ -281,10 +295,6 @@ private:
 
     // Remove all the layers (and unlock any resources) associated with 'pictureID'
     void purge(uint32_t pictureID);
-
-    static bool PlausiblyAtlasable(int width, int height) {
-        return width <= kPlotWidth && height <= kPlotHeight;
-    }
 
     void purgePlot(GrPlot* plot);
 
