@@ -596,53 +596,6 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData
 
 }
 
-// The following class groups static functions that need to access
-// the privates members of SkPictureRecord
-class SkPictureTester {
-private:
-    static int EQ(const SkFlatData* a, const SkFlatData* b) {
-        return *a == *b;
-    }
-
-    static void AssertFlattenedObjectsEqual(
-        SkPictureRecord* referenceRecord,
-        SkPictureRecord* testRecord,
-        skiatest::Reporter* reporter,
-        CanvasTestStep* testStep) {
-
-        REPORTER_ASSERT_MESSAGE(reporter,
-            referenceRecord->fBitmapHeap->count() ==
-            testRecord->fBitmapHeap->count(), testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter,
-            referenceRecord->fPaints.count() ==
-            testRecord->fPaints.count(), testStep->assertMessage());
-        for (int i = 0; i < referenceRecord->fPaints.count(); ++i) {
-            REPORTER_ASSERT_MESSAGE(reporter,
-                EQ(referenceRecord->fPaints[i], testRecord->fPaints[i]),
-                                    testStep->assertMessage());
-        }
-        REPORTER_ASSERT_MESSAGE(reporter,
-            !referenceRecord->fPathHeap == !testRecord->fPathHeap,
-            testStep->assertMessage());
-        // The following tests are commented out because they currently
-        // fail. Issue: http://code.google.com/p/skia/issues/detail?id=507
-        /*
-        if (referenceRecord->fPathHeap) {
-            REPORTER_ASSERT_MESSAGE(reporter,
-                referenceRecord->fPathHeap->count() ==
-                testRecord->fPathHeap->count(),
-                testStep->assertMessage());
-            for (int i = 0; i < referenceRecord->fPathHeap->count(); ++i) {
-                REPORTER_ASSERT_MESSAGE(reporter,
-                    (*referenceRecord->fPathHeap)[i] ==
-                    (*testRecord->fPathHeap)[i], testStep->assertMessage());
-            }
-        }
-        */
-
-    }
-};
-
 static void TestPdfDevice(skiatest::Reporter* reporter,
                           const TestData& d,
                           CanvasTestStep* testStep) {

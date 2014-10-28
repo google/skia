@@ -258,7 +258,6 @@ private:
     int      fInitialSaveCount;
 
     friend class SkPictureData;   // for SkPictureData's SkPictureRecord-based constructor
-    friend class SkPictureTester; // for unit testing
 
     typedef SkCanvas INHERITED;
 };
