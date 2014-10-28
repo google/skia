@@ -27,13 +27,13 @@ if [ -z "$SCRIPT_DIR" ]; then
 fi
 
 function default_toolchain() {
-  NDK_REV=${NDK_REV-10c}
+  NDK_REV=${NDK_REV-10exp}
   ANDROID_ARCH=${ANDROID_ARCH-arm}
   
   if [[ $ANDROID_ARCH == *64* ]]; then
-    API_LEVEL=21 # Official Android 5.0 (Lollipop) system images
+    API_LEVEL=L # Experimental Android L-Release system images
   else
-    API_LEVEL=14 # Official Android 4.0 system images
+    API_LEVEL=14 # Official Android 4.0 system images  
   fi
 
   TOOLCHAIN_DIR=${SCRIPT_DIR}/../toolchains
