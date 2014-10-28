@@ -46,6 +46,12 @@
  * GR_GL_CHECK_ERROR_START: controls the initial value of gCheckErrorGL
  * when GR_GL_CHECK_ERROR is 1.  Defaults to 1.
  *
+ * GR_GL_NO_CONSTANT_ATTRIBUTES: if this evaluates to true then the GL backend
+ * will use uniforms instead of attributes in all cases when there is not
+ * per-vertex data. This is important when the underlying GL implementation
+ * doesn't actually support immediate style attribute values (e.g. when
+ * the GL stream is converted to DX as in ANGLE on Chrome). Defaults to 0.
+ *
  * GR_GL_USE_BUFFER_DATA_NULL_HINT: When specifing new data for a vertex/index
  * buffer that replaces old data Ganesh can give a hint to the driver that the
  * previous data will not be used in future draws like this:
@@ -118,6 +124,10 @@
 
 #if !defined(GR_GL_CHECK_ERROR_START)
     #define GR_GL_CHECK_ERROR_START                     1
+#endif
+
+#if !defined(GR_GL_NO_CONSTANT_ATTRIBUTES)
+    #define GR_GL_NO_CONSTANT_ATTRIBUTES                0
 #endif
 
 #if !defined(GR_GL_USE_BUFFER_DATA_NULL_HINT)

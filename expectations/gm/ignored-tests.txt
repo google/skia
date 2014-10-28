@@ -61,6 +61,3 @@ imageblur
 imageblur2
 imageblur_large
 spritebitmap
-
-#joshualitt single pixel mismatch in msaa16
-gradients_view_perspective

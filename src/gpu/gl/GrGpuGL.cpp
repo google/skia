@@ -342,6 +342,7 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
 
     if (resetBits & kProgram_GrGLBackendState) {
         fHWProgramID = 0;
+        fSharedGLProgramState.invalidate();
     }
 }
 
