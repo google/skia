@@ -21,11 +21,7 @@ class GrPlot;
 
 class GrAADistanceFieldPathRenderer : public GrPathRenderer {
 public:
-    GrAADistanceFieldPathRenderer(GrContext* context)
-        : fContext(context)
-        , fAtlas(NULL) {
-    }
-    
+    GrAADistanceFieldPathRenderer(GrContext* context);
     virtual ~GrAADistanceFieldPathRenderer();
     
     virtual bool canDrawPath(const SkPath& path,
@@ -63,6 +59,9 @@ private:
     
     GrContext*                         fContext;
     GrAtlas*                           fAtlas;
+    SkAutoTUnref<GrGeometryProcessor>  fCachedGeometryProcessor;
+    // current set of flags used to create the cached geometry processor
+    uint32_t                           fEffectFlags;
     GrAtlas::ClientPlotUsage           fPlotUsage;
     SkTDynamicHash<PathData, uint32_t> fPathCache;
     PathDataList                       fPathList;

@@ -21,7 +21,6 @@
 
 #define ATLAS_TEXTURE_WIDTH 1024
 #define ATLAS_TEXTURE_HEIGHT 1024
-
 #define PLOT_WIDTH  256
 #define PLOT_HEIGHT 256
 
@@ -37,6 +36,12 @@ static int g_NumFreedPaths = 0;
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
+GrAADistanceFieldPathRenderer::GrAADistanceFieldPathRenderer(GrContext* context)
+    : fContext(context)
+    , fAtlas(NULL)
+    , fEffectFlags(kInvalid_DistanceFieldEffectFlag) {
+}
+
 GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
     PathDataList::Iter iter;
     iter.init(fPathList, PathDataList::Iter::kHead_IterStart);
@@ -280,7 +285,6 @@ bool GrAADistanceFieldPathRenderer::freeUnusedPlot() {
 bool GrAADistanceFieldPathRenderer::internalDrawPath(const SkPath& path,
                                                      const PathData* pathData,
                                                      GrDrawTarget* target) {
-    
     GrTexture* texture = fAtlas->getTexture();
     GrDrawState* drawState = target->drawState();
     GrDrawState::AutoRestoreEffects are(drawState);
@@ -293,8 +297,7 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(const SkPath& path,
     drawState->setVertexAttribs<gSDFPathVertexAttribs>(SK_ARRAY_COUNT(gSDFPathVertexAttribs),
                                                        kSDFPathVASize);
     void* vertices = NULL;
-    void* indices = NULL;
-    bool success = target->reserveVertexAndIndexSpace(4, 6, &vertices, &indices);
+    bool success = target->reserveVertexAndIndexSpace(4, 0, &vertices, NULL);
     GrAlwaysAssert(success);
     
     SkScalar dx = pathData->fBounds.fLeft;
@@ -328,29 +331,24 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(const SkPath& path,
                               SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty + th)),
                               vertSize);
     
-    uint16_t* indexPtr = reinterpret_cast<uint16_t*>(indices);
-    *indexPtr++ = 0;
-    *indexPtr++ = 1;
-    *indexPtr++ = 2;
-    *indexPtr++ = 0;
-    *indexPtr++ = 2;
-    *indexPtr++ = 3;
-    
     // set up any flags
     uint32_t flags = 0;
     const SkMatrix& vm = drawState->getViewMatrix();
     flags |= vm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
     
     GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
-    drawState->setGeometryProcessor(GrDistanceFieldNoGammaTextureEffect::Create(texture,
-                                                                                params,
-                                                                                flags))->unref();
-    
+    if (flags != fEffectFlags) {
+        fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(texture,
+                                                                                   params,
+                                                                                   flags));
+        fEffectFlags = flags;
+    }
+    drawState->setGeometryProcessor(fCachedGeometryProcessor.get());
 
     vm.mapRect(&r);
+    target->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
     target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &r);
     target->resetVertexSource();
-    target->resetIndexSource();
     
     return true;
 }

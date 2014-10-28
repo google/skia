@@ -74,7 +74,7 @@ GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
 
     fEffectTextureUniqueID = SK_InvalidUniqueID;
     fEffectColor = GrColor_ILLEGAL;
-    fEffectFlags = 0;
+    fEffectFlags = kInvalid_DistanceFieldEffectFlag;
 
     fVertices = NULL;
     fCurrVertex = 0;
