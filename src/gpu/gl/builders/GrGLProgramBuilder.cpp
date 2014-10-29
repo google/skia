@@ -29,19 +29,17 @@ static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar:
 const int GrGLProgramBuilder::kVarsPerBlock = 8;
 
 GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
-                                               const GrGLProgramDesc& desc,
                                                GrGpu::DrawType drawType,
                                                GrGpuGL* gpu) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    SkAutoTDelete<GrGLProgramBuilder> builder(CreateProgramBuilder(desc,
-                                                                   optState,
+    SkAutoTDelete<GrGLProgramBuilder> builder(CreateProgramBuilder(optState,
                                                                    drawType,
                                                                    optState.hasGeometryProcessor(),
                                                                    gpu));
 
     GrGLProgramBuilder* pb = builder.get();
-    const GrGLProgramDesc::KeyHeader& header = pb->header();
+    const GrGLProgramDescBuilder::GLKeyHeader& header = GrGLProgramDescBuilder::GetHeader(pb->desc());
 
     // emit code to read the dst copy texture, if necessary
     if (GrGLFragmentShaderBuilder::kNoDstRead_DstReadKey != header.fDstReadKey
@@ -64,10 +62,10 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
         if (header.fEmitsPointSize) {
             pb->fVS.codeAppend("gl_PointSize = 1.0;");
         }
-        if (GrGLProgramDesc::kAttribute_ColorInput == header.fColorInput) {
+        if (GrProgramDesc::kAttribute_ColorInput == header.fColorInput) {
             pb->fVS.setupBuiltinVertexAttribute("Color", &inputColor);
         }
-        if (GrGLProgramDesc::kAttribute_ColorInput == header.fCoverageInput) {
+        if (GrProgramDesc::kAttribute_ColorInput == header.fCoverageInput) {
             pb->fVS.setupBuiltinVertexAttribute("Coverage", &inputCoverage);
         }
     }
@@ -79,7 +77,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
     }
 
     // write the secondary color output if necessary
-    if (GrOptDrawState::kNone_SecondaryOutputType != header.fSecondaryOutputType) {
+    if (GrProgramDesc::kNone_SecondaryOutputType != header.fSecondaryOutputType) {
         pb->fFS.enableSecondaryOutput(inputColor, inputCoverage);
     }
 
@@ -89,38 +87,38 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
 }
 
 GrGLProgramBuilder*
-GrGLProgramBuilder::CreateProgramBuilder(const GrGLProgramDesc& desc,
-                                         const GrOptDrawState& optState,
+GrGLProgramBuilder::CreateProgramBuilder(const GrOptDrawState& optState,
                                          GrGpu::DrawType drawType,
                                          bool hasGeometryProcessor,
                                          GrGpuGL* gpu) {
-    if (desc.getHeader().fUseNvpr) {
+    const GrProgramDesc& desc = optState.programDesc();
+    if (GrGLProgramDescBuilder::GetHeader(desc).fUseNvpr) {
         SkASSERT(gpu->glCaps().pathRenderingSupport());
+        SkASSERT(GrProgramDesc::kAttribute_ColorInput != desc.header().fColorInput);
+        SkASSERT(GrProgramDesc::kAttribute_ColorInput != desc.header().fCoverageInput);
         SkASSERT(!hasGeometryProcessor);
         if (gpu->glPathRendering()->texturingMode() ==
             GrGLPathRendering::FixedFunction_TexturingMode) {
-            return SkNEW_ARGS(GrGLLegacyNvprProgramBuilder, (gpu, optState, desc));
+            return SkNEW_ARGS(GrGLLegacyNvprProgramBuilder, (gpu, optState));
         } else {
-            return SkNEW_ARGS(GrGLNvprProgramBuilder, (gpu, optState, desc));
+            return SkNEW_ARGS(GrGLNvprProgramBuilder, (gpu, optState));
         }
     } else {
-        return SkNEW_ARGS(GrGLProgramBuilder, (gpu, optState, desc));
+        return SkNEW_ARGS(GrGLProgramBuilder, (gpu, optState));
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu,
-                                       const GrOptDrawState& optState,
-                                       const GrGLProgramDesc& desc)
+GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu, const GrOptDrawState& optState)
     : fVS(this)
     , fGS(this)
-    , fFS(this, desc)
+    , fFS(this, optState.programDesc().header().fFragPosKey)
     , fOutOfStage(true)
     , fStageIndex(-1)
     , fGeometryProcessor(NULL)
     , fOptState(optState)
-    , fDesc(desc)
+    , fDesc(optState.programDesc())
     , fGpu(gpu)
     , fUniforms(kVarsPerBlock) {
 }
@@ -202,8 +200,8 @@ const GrGLContextInfo& GrGLProgramBuilder::ctxInfo() const {
 
 void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* inputColor,
                                                               GrGLSLExpr4* inputCoverage) {
-    const GrGLProgramDesc::KeyHeader& header = this->header();
-    if (GrGLProgramDesc::kUniform_ColorInput == header.fColorInput) {
+    const GrProgramDesc::KeyHeader& header = this->header();
+    if (GrProgramDesc::kUniform_ColorInput == header.fColorInput) {
         const char* name;
         fUniformHandles.fColorUni =
             this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -211,10 +209,10 @@ void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* input
                              "Color",
                              &name);
         *inputColor = GrGLSLExpr4(name);
-    } else if (GrGLProgramDesc::kAllOnes_ColorInput == header.fColorInput) {
+    } else if (GrProgramDesc::kAllOnes_ColorInput == header.fColorInput) {
         *inputColor = GrGLSLExpr4(1);
     }
-    if (GrGLProgramDesc::kUniform_ColorInput == header.fCoverageInput) {
+    if (GrProgramDesc::kUniform_ColorInput == header.fCoverageInput) {
         const char* name;
         fUniformHandles.fCoverageUni =
             this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -222,7 +220,7 @@ void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* input
                              "Coverage",
                              &name);
         *inputCoverage = GrGLSLExpr4(name);
-    } else if (GrGLProgramDesc::kAllOnes_ColorInput == header.fCoverageInput) {
+    } else if (GrProgramDesc::kAllOnes_ColorInput == header.fCoverageInput) {
         *inputCoverage = GrGLSLExpr4(1);
     }
 }
@@ -236,7 +234,9 @@ void GrGLProgramBuilder::emitAndInstallProcs(const GrOptDrawState& optState,
     if (optState.hasGeometryProcessor()) {
         const GrGeometryProcessor& gp = *optState.getGeometryProcessor();
         fVS.emitAttributes(gp);
-        ProcKeyProvider keyProvider(&fDesc, ProcKeyProvider::kGeometry_ProcessorType);
+        ProcKeyProvider keyProvider(&fDesc,
+                                    ProcKeyProvider::kGeometry_ProcessorType,
+                                    GrGLProgramDescBuilder::kProcessorKeyOffsetsAndLengthOffset);
         GrGLSLExpr4 output;
         this->emitAndInstallProc<GrGeometryProcessor>(gp, 0, keyProvider, *inputCoverage, &output);
         *inputCoverage = output;
@@ -245,7 +245,9 @@ void GrGLProgramBuilder::emitAndInstallProcs(const GrOptDrawState& optState,
 }
 
 void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset, int numProcs, GrGLSLExpr4* inOut) {
-    ProcKeyProvider keyProvider(&fDesc, ProcKeyProvider::kFragment_ProcessorType);
+    ProcKeyProvider keyProvider(&fDesc,
+                                ProcKeyProvider::kFragment_ProcessorType,
+                                GrGLProgramDescBuilder::kProcessorKeyOffsetsAndLengthOffset);
     for (int e = procOffset; e < numProcs; ++e) {
         GrGLSLExpr4 output;
         const GrFragmentStage& stage = fOptState.getFragmentStage(e);
@@ -259,7 +261,7 @@ void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset, int numProcs, G
 template <class Proc>
 void GrGLProgramBuilder::emitAndInstallProc(const Proc& proc,
                                             int index,
-                                            const ProcKeyProvider keyProvider,
+                                            const ProcKeyProvider& keyProvider,
                                             const GrGLSLExpr4& input,
                                             GrGLSLExpr4* output) {
     // Program builders have a bit of state we need to clear with each effect
@@ -419,7 +421,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         this->cleanupProgram(programID, shadersToDelete);
         return NULL;
     }
-    if (!(this->header().fUseNvpr &&
+    if (!(GrGLProgramDescBuilder::GetHeader(fDesc).fUseNvpr &&
           fGpu->glPathRendering()->texturingMode() ==
           GrGLPathRendering::FixedFunction_TexturingMode)) {
         if (!fVS.compileAndAttachShaders(programID, &shadersToDelete)) {

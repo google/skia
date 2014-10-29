@@ -169,10 +169,7 @@ public:
      * to be used.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(const GrOptDrawState&,
-                                      const GrGLProgramDesc&,
-                                      GrGpu::DrawType,
-                                      GrGpuGL* gpu);
+    static GrGLProgram* CreateProgram(const GrOptDrawState&, GrGpu::DrawType, GrGpuGL*);
 
     virtual UniformHandle addUniform(uint32_t visibility,
                                      GrSLType type,
@@ -224,21 +221,20 @@ public:
     };
 
 protected:
-    typedef GrGLProgramDesc::ProcKeyProvider ProcKeyProvider;
+    typedef GrProgramDesc::ProcKeyProvider ProcKeyProvider;
     typedef GrGLProgramDataManager::UniformInfo UniformInfo;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
-    static GrGLProgramBuilder* CreateProgramBuilder(const GrGLProgramDesc&,
-                                                    const GrOptDrawState&,
+    static GrGLProgramBuilder* CreateProgramBuilder(const GrOptDrawState&,
                                                     GrGpu::DrawType,
                                                     bool hasGeometryProcessor,
                                                     GrGpuGL*);
 
-    GrGLProgramBuilder(GrGpuGL*, const GrOptDrawState&, const GrGLProgramDesc&);
+    GrGLProgramBuilder(GrGpuGL*, const GrOptDrawState&);
 
     const GrOptDrawState& optState() const { return fOptState; }
-    const GrGLProgramDesc& desc() const { return fDesc; }
-    const GrGLProgramDesc::KeyHeader& header() const { return fDesc.getHeader(); }
+    const GrProgramDesc& desc() const { return fDesc; }
+    const GrProgramDesc::KeyHeader& header() const { return fDesc.header(); }
 
     // Generates a name for a variable. The generated string will be name prefixed by the prefix
     // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're
@@ -252,7 +248,7 @@ protected:
     template <class Proc>
     void emitAndInstallProc(const Proc&,
                             int index,
-                            const ProcKeyProvider,
+                            const ProcKeyProvider&,
                             const GrGLSLExpr4& input,
                             GrGLSLExpr4* output);
 
@@ -332,7 +328,7 @@ protected:
     SkAutoTUnref<GrGLInstalledFragProcs> fFragmentProcessors;
 
     const GrOptDrawState& fOptState;
-    const GrGLProgramDesc& fDesc;
+    const GrProgramDesc& fDesc;
     GrGpuGL* fGpu;
     UniformInfoArray fUniforms;
 

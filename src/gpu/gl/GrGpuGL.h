@@ -19,6 +19,7 @@
 #include "GrGLVertexArray.h"
 #include "GrGLVertexBuffer.h"
 #include "GrGpu.h"
+#include "GrOptDrawState.h"
 #include "SkTypes.h"
 
 #ifdef SK_DEVELOPER
@@ -105,6 +106,12 @@ protected:
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) SK_OVERRIDE;
 
+    virtual void buildProgramDesc(const GrOptDrawState&,
+                                  const GrProgramDesc::DescInfo&,
+                                  GrGpu::DrawType,
+                                  const GrDeviceCoordTexture* dstCopy,
+                                  GrProgramDesc*) SK_OVERRIDE;
+
 private:
     // GrGpu overrides
     virtual void onResetContext(uint32_t resetBits) SK_OVERRIDE;
@@ -181,9 +188,7 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* getProgram(const GrOptDrawState&,
-                                const GrGLProgramDesc&,
-                                DrawType);
+        GrGLProgram* getProgram(const GrOptDrawState&, DrawType);
 
     private:
         enum {
@@ -199,7 +204,7 @@ private:
 
         // binary search for entry matching desc. returns index into fEntries that matches desc or ~
         // of the index of where it should be inserted.
-        int search(const GrGLProgramDesc& desc) const;
+        int search(const GrProgramDesc& desc) const;
 
         // sorted array of all the entries
         Entry*                      fEntries[kMaxEntries];

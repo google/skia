@@ -11,6 +11,7 @@
 #include "GrDrawTarget.h"
 #include "GrClipMaskManager.h"
 #include "GrPathRendering.h"
+#include "GrProgramDesc.h"
 #include "SkPath.h"
 
 class GrContext;
@@ -323,6 +324,12 @@ public:
     }
 
     GrContext::GPUStats* gpuStats() { return &fGPUStats; }
+
+    virtual void buildProgramDesc(const GrOptDrawState&,
+                                  const GrProgramDesc::DescInfo&,
+                                  GrGpu::DrawType,
+                                  const GrDeviceCoordTexture* dstCopy,
+                                  GrProgramDesc*) = 0;
 
 protected:
     DrawType PrimTypeToDrawType(GrPrimitiveType type) {

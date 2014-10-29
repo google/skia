@@ -447,32 +447,24 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         set_random_blend_func(this, &random);
         set_random_stencil(this, &random);
 
-        // create optimized draw state, setup readDst texture if required, and build a descriptor
-        // and program.  ODS creation can fail, so we have to check
-        SkAutoTUnref<GrOptDrawState> ods(GrOptDrawState::Create(this->getDrawState(),
-                                                                *this->caps(),
-                                                                drawType));
-        if (!ods.get()) {
-            ds->reset();
-            continue;
-        }
-        GrGLProgramDesc desc;
         GrDeviceCoordTexture dstCopy;
 
         if (!this->setupDstReadIfNecessary(&dstCopy, NULL)) {
             SkDebugf("Couldn't setup dst read texture");
             return false;
         }
-        if (!GrGLProgramDesc::Build(*ods,
-                                    drawType,
-                                    this,
-                                    dstCopy.texture() ? &dstCopy : NULL,
-                                    &desc)) {
-            SkDebugf("Failed to generate GL program descriptor");
-            return false;
+
+        // create optimized draw state, setup readDst texture if required, and build a descriptor
+        // and program.  ODS creation can fail, so we have to check
+        SkAutoTUnref<GrOptDrawState> ods(GrOptDrawState::Create(this->getDrawState(),
+                                                                this,
+                                                                &dstCopy,
+                                                                drawType));
+        if (!ods.get()) {
+            ds->reset();
+            continue;
         }
-        SkAutoTUnref<GrGLProgram> program(
-                GrGLProgramBuilder::CreateProgram(*ods, desc, drawType, this));
+        SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(*ods, drawType, this));
         if (NULL == program.get()) {
             SkDebugf("Failed to create program!");
             return false;

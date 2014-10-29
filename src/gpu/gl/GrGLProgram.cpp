@@ -56,7 +56,7 @@ static SkMatrix get_transform_matrix(const GrFragmentStage& processorStage,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLProgram::GrGLProgram(GrGpuGL* gpu,
-                         const GrGLProgramDesc& desc,
+                         const GrProgramDesc& desc,
                          const BuiltinUniformHandles& builtinUniforms,
                          GrGLuint programID,
                          const UniformInfoArray& uniforms,
@@ -201,12 +201,12 @@ void GrGLProgram::didSetData(GrGpu::DrawType drawType) {
 }
 
 void GrGLProgram::setColor(const GrOptDrawState& optState, GrColor color) {
-    const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
+    const GrProgramDesc::KeyHeader& header = fDesc.header();
     switch (header.fColorInput) {
-        case GrGLProgramDesc::kAttribute_ColorInput:
+        case GrProgramDesc::kAttribute_ColorInput:
             // Attribute case is handled in GrGpuGL::setupGeometry
             break;
-        case GrGLProgramDesc::kUniform_ColorInput:
+        case GrProgramDesc::kUniform_ColorInput:
             if (fColor != color && fBuiltinUniformHandles.fColorUni.isValid()) {
                 // OpenGL ES doesn't support unsigned byte varieties of glUniform
                 GrGLfloat c[4];
@@ -215,7 +215,7 @@ void GrGLProgram::setColor(const GrOptDrawState& optState, GrColor color) {
                 fColor = color;
             }
             break;
-        case GrGLProgramDesc::kAllOnes_ColorInput:
+        case GrProgramDesc::kAllOnes_ColorInput:
             // Handled by shader creation
             break;
         default:
@@ -224,12 +224,12 @@ void GrGLProgram::setColor(const GrOptDrawState& optState, GrColor color) {
 }
 
 void GrGLProgram::setCoverage(const GrOptDrawState& optState, GrColor coverage) {
-    const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
+    const GrProgramDesc::KeyHeader& header = fDesc.header();
     switch (header.fCoverageInput) {
-        case GrGLProgramDesc::kAttribute_ColorInput:
+        case GrProgramDesc::kAttribute_ColorInput:
             // Attribute case is handled in GrGpuGL::setupGeometry
             break;
-        case GrGLProgramDesc::kUniform_ColorInput:
+        case GrProgramDesc::kUniform_ColorInput:
             if (fCoverage != coverage) {
                 // OpenGL ES doesn't support unsigned byte varieties of glUniform
                 GrGLfloat c[4];
@@ -238,7 +238,7 @@ void GrGLProgram::setCoverage(const GrOptDrawState& optState, GrColor coverage) 
                 fCoverage = coverage;
             }
             break;
-        case GrGLProgramDesc::kAllOnes_ColorInput:
+        case GrProgramDesc::kAllOnes_ColorInput:
             // Handled by shader creation
             break;
         default:
@@ -286,7 +286,7 @@ void GrGLProgram::onSetMatrixAndRenderTargetHeight(GrGpu::DrawType drawType,
 /////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLNvprProgramBase::GrGLNvprProgramBase(GrGpuGL* gpu,
-                                         const GrGLProgramDesc& desc,
+                                         const GrProgramDesc& desc,
                                          const BuiltinUniformHandles& builtinUniforms,
                                          GrGLuint programID,
                                          const UniformInfoArray& uniforms,
@@ -306,7 +306,7 @@ void GrGLNvprProgramBase::onSetMatrixAndRenderTargetHeight(GrGpu::DrawType drawT
 /////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLNvprProgram::GrGLNvprProgram(GrGpuGL* gpu,
-                                 const GrGLProgramDesc& desc,
+                                 const GrProgramDesc& desc,
                                  const BuiltinUniformHandles& builtinUniforms,
                                  GrGLuint programID,
                                  const UniformInfoArray& uniforms,
@@ -355,7 +355,7 @@ void GrGLNvprProgram::setTransformData(const GrFragmentStage& proc, GrGLInstalle
 //////////////////////////////////////////////////////////////////////////////////////
 
 GrGLLegacyNvprProgram::GrGLLegacyNvprProgram(GrGpuGL* gpu,
-                                             const GrGLProgramDesc& desc,
+                                             const GrProgramDesc& desc,
                                              const BuiltinUniformHandles& builtinUniforms,
                                              GrGLuint programID,
                                              const UniformInfoArray& uniforms,

@@ -12,9 +12,8 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
 
 GrGLNvprProgramBuilder::GrGLNvprProgramBuilder(GrGpuGL* gpu,
-                                               const GrOptDrawState& optState,
-                                               const GrGLProgramDesc& desc)
-        : INHERITED(gpu, optState, desc)
+                                               const GrOptDrawState& optState)
+        : INHERITED(gpu, optState)
         , fSeparableVaryingInfos(kVarsPerBlock) {
 }
 

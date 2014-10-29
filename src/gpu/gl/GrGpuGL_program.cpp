@@ -31,14 +31,14 @@ struct GrGpuGL::ProgramCache::Entry {
 };
 
 struct GrGpuGL::ProgramCache::ProgDescLess {
-    bool operator() (const GrGLProgramDesc& desc, const Entry* entry) {
+    bool operator() (const GrProgramDesc& desc, const Entry* entry) {
         SkASSERT(entry->fProgram.get());
-        return GrGLProgramDesc::Less(desc, entry->fProgram->getDesc());
+        return GrProgramDesc::Less(desc, entry->fProgram->getDesc());
     }
 
-    bool operator() (const Entry* entry, const GrGLProgramDesc& desc) {
+    bool operator() (const Entry* entry, const GrProgramDesc& desc) {
         SkASSERT(entry->fProgram.get());
-        return GrGLProgramDesc::Less(entry->fProgram->getDesc(), desc);
+        return GrProgramDesc::Less(entry->fProgram->getDesc(), desc);
     }
 };
 
@@ -86,35 +86,33 @@ void GrGpuGL::ProgramCache::abandon() {
     fCount = 0;
 }
 
-int GrGpuGL::ProgramCache::search(const GrGLProgramDesc& desc) const {
+int GrGpuGL::ProgramCache::search(const GrProgramDesc& desc) const {
     ProgDescLess less;
     return SkTSearch(fEntries, fCount, desc, sizeof(Entry*), less);
 }
 
-GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState,
-                                               const GrGLProgramDesc& desc,
-                                               DrawType type) {
+GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState, DrawType type) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif
 
     Entry* entry = NULL;
 
-    uint32_t hashIdx = desc.getChecksum();
+    uint32_t hashIdx = optState.programDesc().getChecksum();
     hashIdx ^= hashIdx >> 16;
     if (kHashBits <= 8) {
         hashIdx ^= hashIdx >> 8;
     }
     hashIdx &=((1 << kHashBits) - 1);
     Entry* hashedEntry = fHashTable[hashIdx];
-    if (hashedEntry && hashedEntry->fProgram->getDesc() == desc) {
+    if (hashedEntry && hashedEntry->fProgram->getDesc() == optState.programDesc()) {
         SkASSERT(hashedEntry->fProgram);
         entry = hashedEntry;
     }
 
     int entryIdx;
     if (NULL == entry) {
-        entryIdx = this->search(desc);
+        entryIdx = this->search(optState.programDesc());
         if (entryIdx >= 0) {
             entry = fEntries[entryIdx];
 #ifdef PROGRAM_CACHE_STATS
@@ -128,7 +126,7 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState,
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(optState, desc, type, fGpu);
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(optState, type, fGpu);
         if (NULL == program) {
             return NULL;
         }
@@ -178,10 +176,10 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState,
         SkASSERT(fEntries[0]->fProgram.get());
         for (int i = 0; i < fCount - 1; ++i) {
             SkASSERT(fEntries[i + 1]->fProgram.get());
-            const GrGLProgramDesc& a = fEntries[i]->fProgram->getDesc();
-            const GrGLProgramDesc& b = fEntries[i + 1]->fProgram->getDesc();
-            SkASSERT(GrGLProgramDesc::Less(a, b));
-            SkASSERT(!GrGLProgramDesc::Less(b, a));
+            const GrProgramDesc& a = fEntries[i]->fProgram->getDesc();
+            const GrProgramDesc& b = fEntries[i + 1]->fProgram->getDesc();
+            SkASSERT(GrProgramDesc::Less(a, b));
+            SkASSERT(!GrProgramDesc::Less(b, a));
         }
 #endif
     }
@@ -207,7 +205,8 @@ bool GrGpuGL::flushGraphicsState(DrawType type,
                                  const ScissorState& scissorState,
                                  const GrDeviceCoordTexture* dstCopy) {
     SkAutoTUnref<GrOptDrawState> optState(GrOptDrawState::Create(this->getDrawState(),
-                                                                 *this->caps(),
+                                                                 this,
+                                                                 dstCopy,
                                                                  type));
 
     if (!optState) {
@@ -234,13 +233,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type,
             return false;
         }
 
-        GrGLProgramDesc desc;
-        if (!GrGLProgramDesc::Build(*optState.get(), type, this, dstCopy, &desc)) {
-            SkDEBUGFAIL("Failed to generate GL program descriptor");
-            return false;
-        }
-
-        fCurrentProgram.reset(fProgramCache->getProgram(*optState.get(), desc, type));
+        fCurrentProgram.reset(fProgramCache->getProgram(*optState.get(), type));
         if (NULL == fCurrentProgram.get()) {
             SkDEBUGFAIL("Failed to create program!");
             return false;
@@ -279,7 +272,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type,
 
 void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
     SkAutoTUnref<GrOptDrawState> optState(
-        GrOptDrawState::Create(this->getDrawState(), *this->caps(),
+        GrOptDrawState::Create(this->getDrawState(), this, info.getDstCopy(),
                                PrimTypeToDrawType(info.primitiveType())));
 
     // If the optState would is NULL it should have been caught in flushGraphicsState before getting
@@ -359,5 +352,15 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
                                  vertexOffsetInBytes + vertexAttrib->fOffset));
         }
         attribState->disableUnusedArrays(this, usedAttribArraysMask);
+    }
+}
+
+void GrGpuGL::buildProgramDesc(const GrOptDrawState& optState,
+                               const GrProgramDesc::DescInfo& descInfo,
+                               GrGpu::DrawType drawType,
+                               const GrDeviceCoordTexture* dstCopy,
+                               GrProgramDesc* desc) {
+    if (!GrGLProgramDescBuilder::Build(optState, descInfo, drawType, this, dstCopy, desc)) {
+        SkDEBUGFAIL("Failed to generate GL program descriptor");
     }
 }

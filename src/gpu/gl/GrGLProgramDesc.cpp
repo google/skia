@@ -4,15 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "gl/builders/GrGLFragmentShaderBuilder.h"
 #include "GrGLProgramDesc.h"
+
+#include "GrGLProcessor.h"
 #include "GrBackendProcessorFactory.h"
 #include "GrProcessor.h"
 #include "GrGpuGL.h"
 #include "GrOptDrawState.h"
-
 #include "SkChecksum.h"
+#include "gl/builders/GrGLFragmentShaderBuilder.h"
 
 /**
  * The key for an individual coord transform is made up of a matrix type and a bit that
@@ -176,10 +176,10 @@ struct FragmentProcessorKeyBuilder {
 
 template <class ProcessorKeyBuilder>
 bool
-GrGLProgramDesc::BuildStagedProcessorKey(const typename ProcessorKeyBuilder::StagedProcessor& stage,
+GrGLProgramDescBuilder::BuildStagedProcessorKey(const typename ProcessorKeyBuilder::StagedProcessor& stage,
                                          const GrGLCaps& caps,
                                          bool requiresLocalCoordAttrib,
-                                         GrGLProgramDesc* desc,
+                                         GrProgramDesc* desc,
                                          int* offsetAndSizeIndex) {
     GrProcessorKeyBuilder b(&desc->fKey);
     uint16_t processorKeySize;
@@ -192,7 +192,7 @@ GrGLProgramDesc::BuildStagedProcessorKey(const typename ProcessorKeyBuilder::Sta
     }
 
     uint16_t* offsetAndSize =
-            reinterpret_cast<uint16_t*>(desc->fKey.begin() + kEffectKeyOffsetsAndLengthOffset +
+            reinterpret_cast<uint16_t*>(desc->fKey.begin() + kProcessorKeyOffsetsAndLengthOffset +
                                         *offsetAndSizeIndex * 2 * sizeof(uint16_t));
     offsetAndSize[0] = SkToU16(processorOffset);
     offsetAndSize[1] = processorKeySize;
@@ -200,27 +200,28 @@ GrGLProgramDesc::BuildStagedProcessorKey(const typename ProcessorKeyBuilder::Sta
     return true;
 }
 
-bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
+bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
+                            const GrProgramDesc::DescInfo& descInfo,
                             GrGpu::DrawType drawType,
                             GrGpuGL* gpu,
                             const GrDeviceCoordTexture* dstCopy,
-                            GrGLProgramDesc* desc) {
-    bool inputColorIsUsed = optState.inputColorIsUsed();
-    bool inputCoverageIsUsed = optState.inputCoverageIsUsed();
+                            GrProgramDesc* desc) {
+    bool inputColorIsUsed = descInfo.fInputColorIsUsed;
+    bool inputCoverageIsUsed = descInfo.fInputCoverageIsUsed;
 
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set
     // to a canonical value to avoid duplicate programs with different keys.
 
-    bool requiresLocalCoordAttrib = optState.requiresLocalCoordAttrib();
+    bool requiresLocalCoordAttrib = descInfo.fRequiresLocalCoordAttrib;
 
     int numStages = optState.numTotalStages();
 
-    GR_STATIC_ASSERT(0 == kEffectKeyOffsetsAndLengthOffset % sizeof(uint32_t));
+    GR_STATIC_ASSERT(0 == kProcessorKeyOffsetsAndLengthOffset % sizeof(uint32_t));
     // Make room for everything up to and including the array of offsets to effect keys.
     desc->fKey.reset();
-    desc->fKey.push_back_n(kEffectKeyOffsetsAndLengthOffset + 2 * sizeof(uint16_t) * numStages);
+    desc->fKey.push_back_n(kProcessorKeyOffsetsAndLengthOffset + 2 * sizeof(uint16_t) * numStages);
 
     int offsetAndSizeIndex = 0;
 
@@ -248,7 +249,7 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
     // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
     // below here.
-    KeyHeader* header = desc->header();
+    GLKeyHeader* header = desc->atOffset<GLKeyHeader, kHeaderOffset>();
 
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
@@ -266,33 +267,33 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
     }
 
     bool hasUniformColor = inputColorIsUsed &&
-                           (isPathRendering || !optState.hasColorVertexAttribute());
+                           (isPathRendering || !descInfo.hasColorVertexAttribute());
 
     bool hasUniformCoverage = inputCoverageIsUsed &&
-                              (isPathRendering || !optState.hasCoverageVertexAttribute());
+                              (isPathRendering || !descInfo.hasCoverageVertexAttribute());
 
     if (!inputColorIsUsed) {
-        header->fColorInput = kAllOnes_ColorInput;
+        header->fColorInput = GrProgramDesc::kAllOnes_ColorInput;
     } else if (hasUniformColor) {
-        header->fColorInput = kUniform_ColorInput;
+        header->fColorInput = GrProgramDesc::kUniform_ColorInput;
     } else {
-        header->fColorInput = kAttribute_ColorInput;
+        header->fColorInput = GrProgramDesc::kAttribute_ColorInput;
         SkASSERT(!header->fUseNvpr);
     }
 
-    bool covIsSolidWhite = !optState.hasCoverageVertexAttribute() &&
+    bool covIsSolidWhite = !descInfo.hasCoverageVertexAttribute() &&
                            0xffffffff == optState.getCoverageColor();
 
     if (covIsSolidWhite || !inputCoverageIsUsed) {
-        header->fCoverageInput = kAllOnes_ColorInput;
+        header->fCoverageInput = GrProgramDesc::kAllOnes_ColorInput;
     } else if (hasUniformCoverage) {
-        header->fCoverageInput = kUniform_ColorInput;
+        header->fCoverageInput = GrProgramDesc::kUniform_ColorInput;
     } else {
-        header->fCoverageInput = kAttribute_ColorInput;
+        header->fCoverageInput = GrProgramDesc::kAttribute_ColorInput;
         SkASSERT(!header->fUseNvpr);
     }
 
-    if (optState.readsDst()) {
+    if (descInfo.fReadsDst) {
         SkASSERT(dstCopy || gpu->caps()->dstReadInShaderSupport());
         const GrTexture* dstCopyTexture = NULL;
         if (dstCopy) {
@@ -305,7 +306,7 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
         header->fDstReadKey = 0;
     }
 
-    if (optState.readsFragPosition()) {
+    if (descInfo.fReadsFragPosition) {
         header->fFragPosKey =
                 GrGLFragmentShaderBuilder::KeyForFragmentPosition(optState.getRenderTarget(),
                                                                   gpu->glCaps());
@@ -314,14 +315,14 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
     }
 
     // Record attribute indices
-    header->fPositionAttributeIndex = optState.positionAttributeIndex();
-    header->fLocalCoordAttributeIndex = optState.localCoordAttributeIndex();
+    header->fPositionAttributeIndex = descInfo.positionAttributeIndex();
+    header->fLocalCoordAttributeIndex = descInfo.localCoordAttributeIndex();
 
     // For constant color and coverage we need an attribute with an index beyond those already set
     int availableAttributeIndex = optState.getVertexAttribCount();
-    if (optState.hasColorVertexAttribute()) {
-        header->fColorAttributeIndex = optState.colorVertexAttributeIndex();
-    } else if (GrGLProgramDesc::kAttribute_ColorInput == header->fColorInput) {
+    if (descInfo.hasColorVertexAttribute()) {
+        header->fColorAttributeIndex = descInfo.colorVertexAttributeIndex();
+    } else if (GrProgramDesc::kAttribute_ColorInput == header->fColorInput) {
         SkASSERT(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
         header->fColorAttributeIndex = availableAttributeIndex;
         availableAttributeIndex++;
@@ -329,37 +330,20 @@ bool GrGLProgramDesc::Build(const GrOptDrawState& optState,
         header->fColorAttributeIndex = -1;
     }
 
-    if (optState.hasCoverageVertexAttribute()) {
-        header->fCoverageAttributeIndex = optState.coverageVertexAttributeIndex();
-    } else if (GrGLProgramDesc::kAttribute_ColorInput == header->fCoverageInput) {
+    if (descInfo.hasCoverageVertexAttribute()) {
+        header->fCoverageAttributeIndex = descInfo.coverageVertexAttributeIndex();
+    } else if (GrProgramDesc::kAttribute_ColorInput == header->fCoverageInput) {
         SkASSERT(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
         header->fCoverageAttributeIndex = availableAttributeIndex;
     } else {
         header->fCoverageAttributeIndex = -1;
     }
 
-    header->fPrimaryOutputType = optState.getPrimaryOutputType();
-    header->fSecondaryOutputType = optState.getSecondaryOutputType();
+    header->fPrimaryOutputType = descInfo.fPrimaryOutputType;
+    header->fSecondaryOutputType = descInfo.fSecondaryOutputType;
 
     header->fColorEffectCnt = optState.numColorStages();
     header->fCoverageEffectCnt = optState.numCoverageStages();
     desc->finalize();
     return true;
-}
-
-void GrGLProgramDesc::finalize() {
-    int keyLength = fKey.count();
-    SkASSERT(0 == (keyLength % 4));
-    *this->atOffset<uint32_t, kLengthOffset>() = SkToU32(keyLength);
-
-    uint32_t* checksum = this->atOffset<uint32_t, kChecksumOffset>();
-    *checksum = 0;
-    *checksum = SkChecksum::Compute(reinterpret_cast<uint32_t*>(fKey.begin()), keyLength);
-}
-
-GrGLProgramDesc& GrGLProgramDesc::operator= (const GrGLProgramDesc& other) {
-    size_t keyLength = other.keyLength();
-    fKey.reset(keyLength);
-    memcpy(fKey.begin(), other.fKey.begin(), keyLength);
-    return *this;
 }

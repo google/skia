@@ -84,7 +84,7 @@ public:
        the key is 0. */
     static FragPosKey KeyForFragmentPosition(const GrRenderTarget* dst, const GrGLCaps&);
 
-    GrGLFragmentShaderBuilder(GrGLProgramBuilder* program, const GrGLProgramDesc& desc);
+    GrGLFragmentShaderBuilder(GrGLProgramBuilder* program, uint8_t fragPosKey);
 
     // true public interface, defined explicitly in the abstract interfaces above
     virtual bool enableFeature(GLSLFeature) SK_OVERRIDE;

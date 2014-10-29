@@ -47,7 +47,7 @@ public:
      */
     void abandon();
 
-    const GrGLProgramDesc& getDesc() { return fDesc; }
+    const GrProgramDesc& getDesc() { return fDesc; }
 
     /**
      * Gets the GL program ID for this program.
@@ -138,7 +138,7 @@ protected:
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
     GrGLProgram(GrGpuGL*,
-                const GrGLProgramDesc&,
+                const GrProgramDesc&,
                 const BuiltinUniformHandles&,
                 GrGLuint programID,
                 const UniformInfoArray&,
@@ -184,7 +184,7 @@ protected:
     SkAutoTDelete<GrGLInstalledGeoProc> fGeometryProcessor;
     SkAutoTUnref<GrGLInstalledFragProcs> fFragmentProcessors;
 
-    GrGLProgramDesc fDesc;
+    GrProgramDesc fDesc;
     GrGpuGL* fGpu;
     GrGLProgramDataManager fProgramDataManager;
 
@@ -203,7 +203,7 @@ protected:
 class GrGLNvprProgramBase : public GrGLProgram {
 protected:
     GrGLNvprProgramBase(GrGpuGL*,
-                        const GrGLProgramDesc&,
+                        const GrProgramDesc&,
                         const BuiltinUniformHandles&,
                         GrGLuint programID,
                         const UniformInfoArray&,
@@ -221,7 +221,7 @@ private:
     typedef GrGLNvprProgramBuilder::SeparableVaryingInfo SeparableVaryingInfo;
     typedef GrGLNvprProgramBuilder::SeparableVaryingInfoArray SeparableVaryingInfoArray;
     GrGLNvprProgram(GrGpuGL*,
-                    const GrGLProgramDesc&,
+                    const GrProgramDesc&,
                     const BuiltinUniformHandles&,
                     GrGLuint programID,
                     const UniformInfoArray&,
@@ -249,7 +249,7 @@ public:
 
 private:
     GrGLLegacyNvprProgram(GrGpuGL* gpu,
-                          const GrGLProgramDesc& desc,
+                          const GrProgramDesc& desc,
                           const BuiltinUniformHandles&,
                           GrGLuint programID,
                           const UniformInfoArray&,

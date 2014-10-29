@@ -9,12 +9,9 @@
 #include "../GrGpuGL.h"
 
 GrGLLegacyNvprProgramBuilder::GrGLLegacyNvprProgramBuilder(GrGpuGL* gpu,
-                                                           const GrOptDrawState& optState,
-                                                           const GrGLProgramDesc& desc)
-    : INHERITED(gpu, optState, desc)
+                                                           const GrOptDrawState& optState)
+    : INHERITED(gpu, optState)
     , fTexCoordSetCnt(0) {
-    SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fColorInput);
-    SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fCoverageInput);
 }
 
 int GrGLLegacyNvprProgramBuilder::addTexCoordSets(int count) {

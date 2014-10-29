@@ -93,7 +93,7 @@ void GrGLVertexBuilder::transformSkiaToGLCoords() {
 
 void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {
     // Bind the attrib locations to same values for all shaders
-    const GrGLProgramDesc::KeyHeader& header = fProgramBuilder->header();
+    const GrProgramDesc::KeyHeader& header = fProgramBuilder->header();
     SkASSERT(-1 != header.fPositionAttributeIndex);
     GL_CALL(BindAttribLocation(programID,
                                header.fPositionAttributeIndex,

@@ -2583,6 +2583,7 @@ void GrGpuGL::didRemoveGpuTraceMarker() {
         GL_CALL(PopGroupMarker());
     }
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLAttribArrayState* GrGpuGL::HWGeometryState::bindArrayAndBuffersToDraw(

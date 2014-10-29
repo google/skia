@@ -69,12 +69,12 @@ GrGLFragmentShaderBuilder::KeyForFragmentPosition(const GrRenderTarget* dst, con
 }
 
 GrGLFragmentShaderBuilder::GrGLFragmentShaderBuilder(GrGLProgramBuilder* program,
-                                                     const GrGLProgramDesc& desc)
+                                                     uint8_t fragPosKey)
     : INHERITED(program)
     , fHasCustomColorOutput(false)
     , fHasSecondaryOutput(false)
     , fSetupFragPosition(false)
-    , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == desc.getHeader().fFragPosKey)
+    , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == fragPosKey)
     , fCustomColorOutputIndex(-1)
     , fHasReadDstColor(false)
     , fHasReadFragmentPosition(false) {
@@ -262,13 +262,13 @@ void GrGLFragmentShaderBuilder::enableSecondaryOutput(const GrGLSLExpr4& inputCo
     const char* secondaryOutputName = this->getSecondaryColorOutputName();
     GrGLSLExpr4 coeff(1);
     switch (fProgramBuilder->header().fSecondaryOutputType) {
-        case GrOptDrawState::kCoverage_SecondaryOutputType:
+        case GrProgramDesc::kCoverage_SecondaryOutputType:
             break;
-        case GrOptDrawState::kCoverageISA_SecondaryOutputType:
+        case GrProgramDesc::kCoverageISA_SecondaryOutputType:
             // Get (1-A) into coeff
             coeff = GrGLSLExpr4::VectorCast(GrGLSLExpr1(1) - inputColor.a());
             break;
-        case GrOptDrawState::kCoverageISC_SecondaryOutputType:
+        case GrProgramDesc::kCoverageISC_SecondaryOutputType:
             // Get (1-RGBA) into coeff
             coeff = GrGLSLExpr4(1) - inputColor;
             break;
@@ -283,9 +283,9 @@ void GrGLFragmentShaderBuilder::combineColorAndCoverage(const GrGLSLExpr4& input
                                                         const GrGLSLExpr4& inputCoverage) {
     GrGLSLExpr4 fragColor = inputColor * inputCoverage;
     switch (fProgramBuilder->header().fPrimaryOutputType) {
-        case GrOptDrawState::kModulate_PrimaryOutputType:
+        case GrProgramDesc::kModulate_PrimaryOutputType:
             break;
-        case GrOptDrawState::kCombineWithDst_PrimaryOutputType:
+        case GrProgramDesc::kCombineWithDst_PrimaryOutputType:
             {
                 // Tack on "+(1-coverage)dst onto the frag color.
                 GrGLSLExpr4 dstCoeff = GrGLSLExpr4(1) - inputCoverage;

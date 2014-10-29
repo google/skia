@@ -11,11 +11,13 @@
 #include "GrColor.h"
 #include "GrGpu.h"
 #include "GrProcessorStage.h"
+#include "GrProgramDesc.h"
 #include "GrStencil.h"
 #include "GrTypesPriv.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
+class GrDeviceCoordTexture;
 class GrDrawState;
 
 /**
@@ -30,8 +32,8 @@ public:
      * GrOptDrawState. In all cases the GrOptDrawState is reffed and ownership is given to the
      * caller.
      */
-    static GrOptDrawState* Create(const GrDrawState& drawState, const GrDrawTargetCaps& caps,
-                                  GrGpu::DrawType drawType);
+    static GrOptDrawState* Create(const GrDrawState& drawState, GrGpu*,
+                                  const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType drawType);
 
     bool operator== (const GrOptDrawState& that) const;
 
@@ -47,35 +49,6 @@ public:
     int getVertexAttribCount() const { return fVACount; }
 
     size_t getVertexStride() const { return fVAStride; }
-
-    /**
-     * Getters for index into getVertexAttribs() for particular bindings. -1 is returned if the
-     * binding does not appear in the current attribs. These bindings should appear only once in
-     * the attrib array.
-     */
-
-    int positionAttributeIndex() const {
-        return fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding];
-    }
-    int localCoordAttributeIndex() const {
-        return fFixedFunctionVertexAttribIndices[kLocalCoord_GrVertexAttribBinding];
-    }
-    int colorVertexAttributeIndex() const {
-        return fFixedFunctionVertexAttribIndices[kColor_GrVertexAttribBinding];
-    }
-    int coverageVertexAttributeIndex() const {
-        return fFixedFunctionVertexAttribIndices[kCoverage_GrVertexAttribBinding];
-    }
-
-    bool hasLocalCoordAttribute() const {
-        return -1 != fFixedFunctionVertexAttribIndices[kLocalCoord_GrVertexAttribBinding];
-    }
-    bool hasColorVertexAttribute() const {
-        return -1 != fFixedFunctionVertexAttribIndices[kColor_GrVertexAttribBinding];
-    }
-    bool hasCoverageVertexAttribute() const {
-        return -1 != fFixedFunctionVertexAttribIndices[kCoverage_GrVertexAttribBinding];
-    }
 
     /// @}
 
@@ -299,47 +272,9 @@ public:
         kB_CombinedState,
     };
 
-    bool inputColorIsUsed() const { return fInputColorIsUsed; }
-    bool inputCoverageIsUsed() const { return fInputCoverageIsUsed; }
-
-    bool readsDst() const { return fReadsDst; }
-    bool readsFragPosition() const { return fReadsFragPosition; }
-    bool requiresLocalCoordAttrib() const { return fRequiresLocalCoordAttrib; }
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Stage Output Types
-    ////
-
-    enum PrimaryOutputType {
-        // Modulate color and coverage, write result as the color output.
-        kModulate_PrimaryOutputType,
-        // Combines the coverage, dst, and color as coverage * color + (1 - coverage) * dst. This
-        // can only be set if fDstReadKey is non-zero.
-        kCombineWithDst_PrimaryOutputType,
-
-        kPrimaryOutputTypeCnt,
-    };
-
-    enum SecondaryOutputType {
-        // There is no secondary output
-        kNone_SecondaryOutputType,
-        // Writes coverage as the secondary output. Only set if dual source blending is supported
-        // and primary output is kModulate.
-        kCoverage_SecondaryOutputType,
-        // Writes coverage * (1 - colorA) as the secondary output. Only set if dual source blending
-        // is supported and primary output is kModulate.
-        kCoverageISA_SecondaryOutputType,
-        // Writes coverage * (1 - colorRGBA) as the secondary output. Only set if dual source
-        // blending is supported and primary output is kModulate.
-        kCoverageISC_SecondaryOutputType,
-
-        kSecondaryOutputTypeCnt,
-    };
-
-    PrimaryOutputType getPrimaryOutputType() const { return fPrimaryOutputType; }
-    SecondaryOutputType getSecondaryOutputType() const { return fSecondaryOutputType; }
-
     /// @}
+
+    const GrProgramDesc& programDesc() const { return fDesc; }
 
 private:
     /**
@@ -376,7 +311,7 @@ private:
      */
     GrOptDrawState(const GrDrawState& drawState, BlendOptFlags blendOptFlags,
                    GrBlendCoeff optSrcCoeff, GrBlendCoeff optDstCoeff,
-                   const GrDrawTargetCaps& caps);
+                   GrGpu*, const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
 
     /**
      * Loops through all the color stage effects to check if the stage will ignore color input or
@@ -384,35 +319,38 @@ private:
      * stages. In the constant color case, we can ignore all previous stages and
      * the current one and set the state color to the constant color.
      */
-    void computeEffectiveColorStages(const GrDrawState& ds, int* firstColorStageIdx,
-                                     uint8_t* fixFunctionVAToRemove);
+    void computeEffectiveColorStages(const GrDrawState& ds, GrProgramDesc::DescInfo*,
+                                     int* firstColorStageIdx, uint8_t* fixFunctionVAToRemove);
 
     /**
      * Loops through all the coverage stage effects to check if the stage will ignore color input.
      * If a coverage stage will ignore input, then we can ignore all coverage stages before it. We
      * loop to determine the first effective coverage stage.
      */
-    void computeEffectiveCoverageStages(const GrDrawState& ds, int* firstCoverageStageIdx);
+    void computeEffectiveCoverageStages(const GrDrawState& ds, GrProgramDesc::DescInfo* descInfo,
+                                        int* firstCoverageStageIdx);
 
     /**
      * This function takes in a flag and removes the corresponding fixed function vertex attributes.
      * The flags are in the same order as GrVertexAttribBinding array. If bit i of removeVAFlags is
      * set, then vertex attributes with binding (GrVertexAttribute)i will be removed.
      */
-    void removeFixedFunctionVertexAttribs(uint8_t removeVAFlags);
+    void removeFixedFunctionVertexAttribs(uint8_t removeVAFlags, GrProgramDesc::DescInfo*);
 
     /**
      * Alter the OptDrawState (adjusting stages, vertex attribs, flags, etc.) based on the
      * BlendOptFlags.
      */
-    void adjustFromBlendOpts(const GrDrawState& ds, int* firstColorStageIdx,
-                             int* firstCoverageStageIdx, uint8_t* fixedFunctionVAToRemove);
+    void adjustFromBlendOpts(const GrDrawState& ds, GrProgramDesc::DescInfo*,
+                             int* firstColorStageIdx, int* firstCoverageStageIdx,
+                             uint8_t* fixedFunctionVAToRemove);
 
     /**
      * Loop over the effect stages to determine various info like what data they will read and what
      * shaders they require.
      */
-    void getStageStats(const GrDrawState& ds, int firstColorStageIdx, int firstCoverageStageIdx);
+    void getStageStats(const GrDrawState& ds, int firstColorStageIdx, int firstCoverageStageIdx,
+                       GrProgramDesc::DescInfo*);
 
     /**
      * Calculates the primary and secondary output types of the shader. For certain output types
@@ -420,7 +358,8 @@ private:
      * blend coeffs will represent those used by backend API.
      */
     void setOutputStateInfo(const GrDrawState& ds, const GrDrawTargetCaps&,
-                            int firstCoverageStageIdx, bool* separateCoverageFromColor);
+                            int firstCoverageStageIdx, GrProgramDesc::DescInfo*,
+                            bool* separateCoverageFromColor);
 
     bool isEqual(const GrOptDrawState& that) const;
 
@@ -448,27 +387,11 @@ private:
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
     int                                 fNumColorStages;
 
-    // This is simply a different representation of info in fVertexAttribs and thus does
-    // not need to be compared in op==.
-    int fFixedFunctionVertexAttribIndices[kGrFixedFunctionVertexAttribBindingCnt];
-
-    // These flags are needed to protect the code from creating an unused uniform color/coverage
-    // which will cause shader compiler errors.
-    bool            fInputColorIsUsed;
-    bool            fInputCoverageIsUsed;
-
-    // These flags give aggregated info on the effect stages that are used when building programs.
-    bool            fReadsDst;
-    bool            fReadsFragPosition;
-    bool            fRequiresLocalCoordAttrib;
-
     SkAutoSTArray<4, GrVertexAttrib> fOptVA;
 
     BlendOptFlags   fBlendOptFlags;
 
-    // Fragment shader color outputs
-    PrimaryOutputType  fPrimaryOutputType : 8;
-    SecondaryOutputType  fSecondaryOutputType : 8;
+    GrProgramDesc fDesc;
 
     typedef SkRefCnt INHERITED;
 };

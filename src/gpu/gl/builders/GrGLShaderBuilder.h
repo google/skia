@@ -8,6 +8,7 @@
 #ifndef GrGLShaderBuilder_DEFINED
 #define GrGLShaderBuilder_DEFINED
 
+#include "gl/GrGLProcessor.h"
 #include "gl/GrGLProgramDesc.h"
 #include "gl/GrGLProgramDataManager.h"
 

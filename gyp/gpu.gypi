@@ -114,6 +114,7 @@
       '<(skia_src_path)/gpu/GrPathRendering.h',
       '<(skia_src_path)/gpu/GrPathUtils.cpp',
       '<(skia_src_path)/gpu/GrPathUtils.h',
+      '<(skia_src_path)/gpu/GrProgramDesc.h',
       '<(skia_src_path)/gpu/GrProgramElement.cpp',
       '<(skia_src_path)/gpu/GrProcessor.cpp',
       '<(skia_src_path)/gpu/GrGpuResourceRef.cpp',

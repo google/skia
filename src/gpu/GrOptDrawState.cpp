@@ -9,12 +9,15 @@
 
 #include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
+#include "gl/GrGpuGL.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                BlendOptFlags blendOptFlags,
                                GrBlendCoeff optSrcCoeff,
                                GrBlendCoeff optDstCoeff,
-                               const GrDrawTargetCaps& caps) {
+                               GrGpu* gpu,
+                               const GrDeviceCoordTexture* dstCopy,
+                               GrGpu::DrawType drawType) {
     fRenderTarget.set(SkSafeRef(drawState.getRenderTarget()), kWrite_GrIOType);
     fColor = drawState.getColor();
     fCoverage = drawState.getCoverage();
@@ -29,13 +32,14 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fBlendOptFlags = blendOptFlags;
     fSrcBlend = optSrcCoeff;
     fDstBlend = optDstCoeff;
+    GrProgramDesc::DescInfo descInfo;
 
-    memcpy(fFixedFunctionVertexAttribIndices,
+    memcpy(descInfo.fFixedFunctionVertexAttribIndices,
            drawState.getFixedFunctionVertexAttribIndices(),
-           sizeof(fFixedFunctionVertexAttribIndices));
+           sizeof(descInfo.fFixedFunctionVertexAttribIndices));
 
-    fInputColorIsUsed = true;
-    fInputCoverageIsUsed = true;
+    descInfo.fInputColorIsUsed = true;
+    descInfo.fInputCoverageIsUsed = true;
 
     int firstColorStageIdx = 0;
     int firstCoverageStageIdx = 0;
@@ -43,16 +47,18 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
 
     uint8_t fixedFunctionVAToRemove = 0;
 
-    this->computeEffectiveColorStages(drawState, &firstColorStageIdx, &fixedFunctionVAToRemove);
-    this->computeEffectiveCoverageStages(drawState, &firstCoverageStageIdx);
-    this->adjustFromBlendOpts(drawState, &firstColorStageIdx, &firstCoverageStageIdx,
+    this->computeEffectiveColorStages(drawState, &descInfo, &firstColorStageIdx,
+                                      &fixedFunctionVAToRemove);
+    this->computeEffectiveCoverageStages(drawState, &descInfo, &firstCoverageStageIdx);
+    this->adjustFromBlendOpts(drawState, &descInfo, &firstColorStageIdx, &firstCoverageStageIdx,
                               &fixedFunctionVAToRemove);
     // Should not be setting any more FFVA to be removed at this point
     if (0 != fixedFunctionVAToRemove) {
-        this->removeFixedFunctionVertexAttribs(fixedFunctionVAToRemove);
+        this->removeFixedFunctionVertexAttribs(fixedFunctionVAToRemove, &descInfo);
     }
-    this->getStageStats(drawState, firstColorStageIdx, firstCoverageStageIdx);
-    this->setOutputStateInfo(drawState, caps, firstCoverageStageIdx, &separateCoverageFromColor);
+    this->getStageStats(drawState, firstColorStageIdx, firstCoverageStageIdx, &descInfo);
+    this->setOutputStateInfo(drawState, *gpu->caps(), firstCoverageStageIdx, &descInfo,
+                             &separateCoverageFromColor);
 
     // Copy GeometryProcesssor from DS or ODS
     if (drawState.hasGeometryProcessor()) {
@@ -79,10 +85,16 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
             fNumColorStages = fFragmentStages.count();
         }
     }
+
+    // now create a key
+    gpu->buildProgramDesc(*this, descInfo, drawType, dstCopy, &fDesc);
 };
 
-GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState, const GrDrawTargetCaps& caps,
+GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState,
+                                       GrGpu* gpu,
+                                       const GrDeviceCoordTexture* dstCopy,
                                        GrGpu::DrawType drawType) {
+    const GrDrawTargetCaps& caps = *gpu->caps();
     if (NULL == drawState.fCachedOptState || caps.getUniqueID() != drawState.fCachedCapsID) {
         GrBlendCoeff srcCoeff;
         GrBlendCoeff dstCoeff;
@@ -100,7 +112,7 @@ GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState, const GrDra
         }
 
         drawState.fCachedOptState = SkNEW_ARGS(GrOptDrawState, (drawState, blendFlags, srcCoeff,
-                                                                dstCoeff, caps));
+                                                                dstCoeff, gpu, dstCopy, drawType));
         drawState.fCachedCapsID = caps.getUniqueID();
     } else {
 #ifdef SK_DEBUG
@@ -109,8 +121,8 @@ GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState, const GrDra
         BlendOptFlags blendFlags = (BlendOptFlags) drawState.getBlendOpts(false,
                                                                           &srcCoeff,
                                                                           &dstCoeff);
-        SkASSERT(GrOptDrawState(drawState, blendFlags, srcCoeff, dstCoeff, caps) ==
-                 *drawState.fCachedOptState);
+        SkASSERT(GrOptDrawState(drawState, blendFlags, srcCoeff, dstCoeff, gpu, dstCopy,
+                                drawType) == *drawState.fCachedOptState);
 #endif
     }
     drawState.fCachedOptState->ref();
@@ -120,45 +132,47 @@ GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState, const GrDra
 void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
                                         const GrDrawTargetCaps& caps,
                                         int firstCoverageStageIdx,
+                                        GrProgramDesc::DescInfo* descInfo,
                                         bool* separateCoverageFromColor) {
     // Set this default and then possibly change our mind if there is coverage.
-    fPrimaryOutputType = kModulate_PrimaryOutputType;
-    fSecondaryOutputType = kNone_SecondaryOutputType;
+    descInfo->fPrimaryOutputType = GrProgramDesc::kModulate_PrimaryOutputType;
+    descInfo->fSecondaryOutputType = GrProgramDesc::kNone_SecondaryOutputType;
 
     // If we do have coverage determine whether it matters.
     *separateCoverageFromColor = this->hasGeometryProcessor();
     if (!this->isCoverageDrawing() &&
         (ds.numCoverageStages() - firstCoverageStageIdx > 0 ||
          ds.hasGeometryProcessor() ||
-         this->hasCoverageVertexAttribute())) {
+         descInfo->hasCoverageVertexAttribute())) {
 
         if (caps.dualSourceBlendingSupport()) {
             if (kZero_GrBlendCoeff == fDstBlend) {
                 // write the coverage value to second color
-                fSecondaryOutputType =  kCoverage_SecondaryOutputType;
+                descInfo->fSecondaryOutputType = GrProgramDesc::kCoverage_SecondaryOutputType;
                 *separateCoverageFromColor = true;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             } else if (kSA_GrBlendCoeff == fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
-                fSecondaryOutputType = kCoverageISA_SecondaryOutputType;
+                descInfo->fSecondaryOutputType = GrProgramDesc::kCoverageISA_SecondaryOutputType;
                 *separateCoverageFromColor = true;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             } else if (kSC_GrBlendCoeff == fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
-                fSecondaryOutputType = kCoverageISC_SecondaryOutputType;
+                descInfo->fSecondaryOutputType = GrProgramDesc::kCoverageISC_SecondaryOutputType;
                 *separateCoverageFromColor = true;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             }
-        } else if (fReadsDst &&
+        } else if (descInfo->fReadsDst &&
                    kOne_GrBlendCoeff == fSrcBlend &&
                    kZero_GrBlendCoeff == fDstBlend) {
-            fPrimaryOutputType = kCombineWithDst_PrimaryOutputType;
+            descInfo->fPrimaryOutputType = GrProgramDesc::kCombineWithDst_PrimaryOutputType;
             *separateCoverageFromColor = true;
         }
     }
 }
 
 void GrOptDrawState::adjustFromBlendOpts(const GrDrawState& ds,
+                                         GrProgramDesc::DescInfo* descInfo,
                                          int* firstColorStageIdx,
                                          int* firstCoverageStageIdx,
                                          uint8_t* fixedFunctionVAToRemove) {
@@ -171,15 +185,15 @@ void GrOptDrawState::adjustFromBlendOpts(const GrDrawState& ds,
             break;
         case kEmitCoverage_BlendOptFlag:
             fColor = 0xffffffff;
-            fInputColorIsUsed = true;
+            descInfo->fInputColorIsUsed = true;
             *firstColorStageIdx = ds.numColorStages();
             *fixedFunctionVAToRemove |= 0x1 << kColor_GrVertexAttribBinding;
             break;
         case kEmitTransBlack_BlendOptFlag:
             fColor = 0;
             fCoverage = 0xff;
-            fInputColorIsUsed = true;
-            fInputCoverageIsUsed = true;
+            descInfo->fInputColorIsUsed = true;
+            descInfo->fInputCoverageIsUsed = true;
             *firstColorStageIdx = ds.numColorStages();
             *firstCoverageStageIdx = ds.numCoverageStages();
             *fixedFunctionVAToRemove |= (0x1 << kColor_GrVertexAttribBinding |
@@ -190,12 +204,13 @@ void GrOptDrawState::adjustFromBlendOpts(const GrDrawState& ds,
     }
 }
 
-void GrOptDrawState::removeFixedFunctionVertexAttribs(uint8_t removeVAFlag) {
+void GrOptDrawState::removeFixedFunctionVertexAttribs(uint8_t removeVAFlag,
+                                                      GrProgramDesc::DescInfo* descInfo) {
     int numToRemove = 0;
     uint8_t maskCheck = 0x1;
     // Count the number of vertex attributes that we will actually remove
     for (int i = 0; i < kGrFixedFunctionVertexAttribBindingCnt; ++i) {
-        if ((maskCheck & removeVAFlag) && -1 != fFixedFunctionVertexAttribIndices[i]) {
+        if ((maskCheck & removeVAFlag) && -1 != descInfo->fFixedFunctionVertexAttribIndices[i]) {
             ++numToRemove;
         }
         maskCheck <<= 1;
@@ -211,11 +226,11 @@ void GrOptDrawState::removeFixedFunctionVertexAttribs(uint8_t removeVAFlag) {
         if (currAttrib.fBinding < kGrFixedFunctionVertexAttribBindingCnt) {
             uint8_t maskCheck = 0x1 << currAttrib.fBinding;
             if (maskCheck & removeVAFlag) {
-                SkASSERT(-1 != fFixedFunctionVertexAttribIndices[currAttrib.fBinding]);
-                fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = -1;
+                SkASSERT(-1 != descInfo->fFixedFunctionVertexAttribIndices[currAttrib.fBinding]);
+                descInfo->fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = -1;
                 continue;
             }
-            fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = newIdx;
+            descInfo->fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = newIdx;
         }
         memcpy(dst, src, sizeof(GrVertexAttrib));
         ++newIdx;
@@ -225,12 +240,14 @@ void GrOptDrawState::removeFixedFunctionVertexAttribs(uint8_t removeVAFlag) {
     fVAPtr = fOptVA.get();
 }
 
-void GrOptDrawState::computeEffectiveColorStages(const GrDrawState& ds, int* firstColorStageIdx,
+void GrOptDrawState::computeEffectiveColorStages(const GrDrawState& ds,
+                                                 GrProgramDesc::DescInfo* descInfo,
+                                                 int* firstColorStageIdx,
                                                  uint8_t* fixedFunctionVAToRemove) {
     // Set up color and flags for ConstantColorComponent checks
     GrProcessor::InvariantOutput inout;
     inout.fIsSingleComponent = false;
-    if (!this->hasColorVertexAttribute()) {
+    if (!descInfo->hasColorVertexAttribute()) {
         inout.fColor = ds.getColor();
         inout.fValidFlags = kRGBA_GrColorComponentFlags;
     } else {
@@ -249,12 +266,12 @@ void GrOptDrawState::computeEffectiveColorStages(const GrDrawState& ds, int* fir
         fp->computeInvariantOutput(&inout);
         if (!inout.fWillUseInputColor) {
             *firstColorStageIdx = i;
-            fInputColorIsUsed = false;
+            descInfo->fInputColorIsUsed = false;
         }
         if (kRGBA_GrColorComponentFlags == inout.fValidFlags) {
             *firstColorStageIdx = i + 1;
             fColor = inout.fColor;
-            fInputColorIsUsed = true;
+            descInfo->fInputColorIsUsed = true;
             *fixedFunctionVAToRemove |= 0x1 << kColor_GrVertexAttribBinding;
             // Since we are clearing all previous color stages we are in a state where we have found
             // zero stages that don't multiply the inputColor.
@@ -264,6 +281,7 @@ void GrOptDrawState::computeEffectiveColorStages(const GrDrawState& ds, int* fir
 }
 
 void GrOptDrawState::computeEffectiveCoverageStages(const GrDrawState& ds,
+                                                    GrProgramDesc::DescInfo* descInfo,
                                                     int* firstCoverageStageIdx) {
     // We do not try to optimize out constantColor coverage effects here. It is extremely rare
     // to have a coverage effect that returns a constant value for all four channels. Thus we
@@ -278,7 +296,7 @@ void GrOptDrawState::computeEffectiveCoverageStages(const GrDrawState& ds,
         fp->computeInvariantOutput(&inout);
         if (!inout.fWillUseInputColor) {
             *firstCoverageStageIdx = i;
-            fInputCoverageIsUsed = false;
+            descInfo->fInputCoverageIsUsed = false;
         }
     }
 #endif
@@ -294,26 +312,26 @@ static void get_stage_stats(const GrFragmentStage& stage, bool* readsDst, bool* 
 }
 
 void GrOptDrawState::getStageStats(const GrDrawState& ds, int firstColorStageIdx,
-                                   int firstCoverageStageIdx) {
+                                   int firstCoverageStageIdx, GrProgramDesc::DescInfo* descInfo) {
     // We will need a local coord attrib if there is one currently set on the optState and we are
     // actually generating some effect code
-    fRequiresLocalCoordAttrib = this->hasLocalCoordAttribute() &&
+    descInfo->fRequiresLocalCoordAttrib = descInfo->hasLocalCoordAttribute() &&
         ds.numTotalStages() - firstColorStageIdx - firstCoverageStageIdx > 0;
 
-    fReadsDst = false;
-    fReadsFragPosition = false;
+    descInfo->fReadsDst = false;
+    descInfo->fReadsFragPosition = false;
 
     for (int s = firstColorStageIdx; s < ds.numColorStages(); ++s) {
         const GrFragmentStage& stage = ds.getColorStage(s);
-        get_stage_stats(stage, &fReadsDst, &fReadsFragPosition);
+        get_stage_stats(stage, &descInfo->fReadsDst, &descInfo->fReadsFragPosition);
     }
     for (int s = firstCoverageStageIdx; s < ds.numCoverageStages(); ++s) {
         const GrFragmentStage& stage = ds.getCoverageStage(s);
-        get_stage_stats(stage, &fReadsDst, &fReadsFragPosition);
+        get_stage_stats(stage, &descInfo->fReadsDst, &descInfo->fReadsFragPosition);
     }
     if (ds.hasGeometryProcessor()) {
         const GrGeometryProcessor& gp = *ds.getGeometryProcessor();
-        fReadsFragPosition = fReadsFragPosition || gp.willReadFragmentPosition();
+        descInfo->fReadsFragPosition = descInfo->fReadsFragPosition || gp.willReadFragmentPosition();
     }
 }
 
@@ -324,14 +342,15 @@ bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
 }
 
 bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
-    bool usingVertexColors = this->hasColorVertexAttribute();
+    if (this->fDesc != that.fDesc) {
+        return false;
+    }
+    bool usingVertexColors = that.fDesc.header().fColorAttributeIndex != -1;
     if (!usingVertexColors && this->fColor != that.fColor) {
         return false;
     }
 
     if (this->getRenderTarget() != that.getRenderTarget() ||
-        this->fFragmentStages.count() != that.fFragmentStages.count() ||
-        this->fNumColorStages != that.fNumColorStages ||
         !this->fViewMatrix.cheapEqualTo(that.fViewMatrix) ||
         this->fSrcBlend != that.fSrcBlend ||
         this->fDstBlend != that.fDstBlend ||
@@ -341,23 +360,15 @@ bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
         this->fVAStride != that.fVAStride ||
         memcmp(this->fVAPtr, that.fVAPtr, this->fVACount * sizeof(GrVertexAttrib)) ||
         this->fStencilSettings != that.fStencilSettings ||
-        this->fDrawFace != that.fDrawFace ||
-        this->fInputColorIsUsed != that.fInputColorIsUsed ||
-        this->fInputCoverageIsUsed != that.fInputCoverageIsUsed ||
-        this->fReadsDst != that.fReadsDst ||
-        this->fReadsFragPosition != that.fReadsFragPosition ||
-        this->fRequiresLocalCoordAttrib != that.fRequiresLocalCoordAttrib ||
-        this->fPrimaryOutputType != that.fPrimaryOutputType ||
-        this->fSecondaryOutputType != that.fSecondaryOutputType) {
+        this->fDrawFace != that.fDrawFace) {
         return false;
     }
 
-    bool usingVertexCoverage = this->hasCoverageVertexAttribute();
+    bool usingVertexCoverage = this->fDesc.header().fCoverageAttributeIndex != -1;
     if (!usingVertexCoverage && this->fCoverage != that.fCoverage) {
         return false;
     }
 
-    bool explicitLocalCoords = this->hasLocalCoordAttribute();
     if (this->hasGeometryProcessor()) {
         if (!that.hasGeometryProcessor()) {
             return false;
@@ -368,17 +379,13 @@ bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
         return false;
     }
 
+    bool explicitLocalCoords = this->fDesc.header().fLocalCoordAttributeIndex != -1;
     for (int i = 0; i < this->numFragmentStages(); i++) {
         if (!GrFragmentStage::AreCompatible(this->getFragmentStage(i), that.getFragmentStage(i),
                                             explicitLocalCoords)) {
             return false;
         }
     }
-
-    SkASSERT(0 == memcmp(this->fFixedFunctionVertexAttribIndices,
-                         that.fFixedFunctionVertexAttribIndices,
-                         sizeof(this->fFixedFunctionVertexAttribIndices)));
-
     return true;
 }
 
