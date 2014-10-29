@@ -1,6 +1,0 @@
-http_port 80 accel defaultsite=skfiddle.com
-cache_peer 127.0.0.1 parent 8000 0 no-query originserver name=myAccel
-acl our_sites dstdomain skfiddle.com
-http_access allow our_sites
-cache_peer_access myAccel allow our_sites
-cache_peer_access myAccel deny all

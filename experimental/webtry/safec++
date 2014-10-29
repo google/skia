@@ -1,7 +1,0 @@
-#!/bin/bash
-# Limit the amount of time and the core size for the compiler.
-set -e
-
-ulimit -t 5 -c 0
-
-c++ $@
