@@ -13,6 +13,7 @@
 #include "Global.h"
 #include "JsContext.h"
 #include "Path2D.h"
+#include "Path2DBuilder.h"
 
 #include "gl/GrGLUtil.h"
 #include "gl/GrGLDefines.h"
@@ -129,6 +130,8 @@ void SkV8ExampleWindow::onSizeChange() {
 #endif
 }
 
+Global* global = NULL;
+
 void SkV8ExampleWindow::onDraw(SkCanvas* canvas) {
 
     canvas->save();
@@ -164,6 +167,7 @@ void SkV8ExampleWindow::onHandleInval(const SkIRect& rect) {
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     printf("Started\n");
 
+    v8::V8::SetFlagsFromCommandLine(&argc, argv, true);
     SkCommandLineFlags::Parse(argc, argv);
 
     v8::V8::InitializeICU();
@@ -176,7 +180,7 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     v8::HandleScope handle_scope(isolate);
     isolate->Enter();
 
-    Global* global = new Global(isolate);
+    global = new Global(isolate);
 
 
     // Set up things to look like a browser by creating
@@ -210,6 +214,7 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
         printf("Could not load file: %s.\n", FLAGS_infile[0]);
         exit(1);
     }
+    Path2DBuilder::AddToGlobal(global);
     Path2D::AddToGlobal(global);
 
     if (!global->parseScript(script)) {

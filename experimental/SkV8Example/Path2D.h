@@ -17,36 +17,35 @@
 
 class Global;
 
+// Path2D bridges between JS and SkPath.
 class Path2D : SkNoncopyable {
 public:
-    Path2D() : fSkPath() {}
-    virtual ~Path2D() {}
+    Path2D(SkPath* path);
+    virtual ~Path2D();
 
-    const SkPath& getSkPath() { return fSkPath; }
+    static void AddToGlobal(Global* global) {
+        gGlobal = global;
+    }
 
-    // The JS Path2D constuctor implementation.
-    static void ConstructPath(const v8::FunctionCallbackInfo<v8::Value>& args);
+    v8::Persistent<v8::Object>& persistent() {
+        return handle_;
+    }
 
-    // Add the Path2D JS constructor to the global context.
-    static void AddToGlobal(Global* global);
+    SkPath* path() {
+        return path_;
+    }
 
-    // Path2D JS methods.
-    static void ClosePath(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void MoveTo(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void LineTo(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void QuadraticCurveTo(
-            const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void BezierCurveTo(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Arc(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Rect(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Oval(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void ConicTo(const v8::FunctionCallbackInfo<v8::Value>& args);
 private:
-    SkPath fSkPath;
+    // The handle to this object in JS space.
+    v8::Persistent<v8::Object> handle_;
 
-    static Path2D* Unwrap(const v8::FunctionCallbackInfo<v8::Value>& args);
+    SkPath* path_;
 
+    // The global context we are running in.
     static Global* gGlobal;
+
+    // The template for what a JS Path2D object looks like.
+    static v8::Persistent<v8::ObjectTemplate> gPath2DTemplate;
 };
 
 #endif

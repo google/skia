@@ -114,7 +114,7 @@ void DrawingMethods::DrawPath(const v8::FunctionCallbackInfo<v8::Value>& args) {
     fillStyle.setColor(SK_ColorBLACK);
     fillStyle.setAntiAlias(true);
     fillStyle.setStyle(SkPaint::kFill_Style);
-    canvas->drawPath(path->getSkPath(), fillStyle);
+    canvas->drawPath(*(path->path()), fillStyle);
 }
 
 

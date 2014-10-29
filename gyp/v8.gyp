@@ -16,6 +16,8 @@
         '../experimental/SkV8Example/Global.h',
         '../experimental/SkV8Example/JsContext.cpp',
         '../experimental/SkV8Example/JsContext.h',
+        '../experimental/SkV8Example/Path2DBuilder.cpp',
+        '../experimental/SkV8Example/Path2DBuilder.h',
         '../experimental/SkV8Example/Path2D.cpp',
         '../experimental/SkV8Example/Path2D.h',
         '../experimental/SkV8Example/SkV8Example.cpp',
