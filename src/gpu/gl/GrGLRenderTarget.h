@@ -24,28 +24,19 @@ public:
     // Gr doesn't know how to resolve it.
     enum { kUnresolvableFBOID = 0 };
 
-    struct Desc {
+    struct IDDesc {
         GrGLuint         fRTFBOID;
         GrGLuint         fTexFBOID;
         GrGLuint         fMSColorRenderbufferID;
         bool             fIsWrapped;
-        GrPixelConfig    fConfig;
-        int              fSampleCnt;
-        GrSurfaceOrigin  fOrigin;
-        bool             fCheckAllocation;
     };
 
     // creates a GrGLRenderTarget associated with a texture
-    GrGLRenderTarget(GrGpuGL*          gpu,
-                     const Desc&       desc,
-                     const GrGLIRect&  viewport,
-                     GrGLTexID*        texID,
-                     GrGLTexture*      texture);
+    GrGLRenderTarget(GrGpuGL*, const IDDesc&, const GrGLIRect& viewport,
+                     GrGLTexID*, GrGLTexture*);
 
     // creates an independent GrGLRenderTarget
-    GrGLRenderTarget(GrGpuGL*          gpu,
-                     const Desc&       desc,
-                     const GrGLIRect&  viewport);
+    GrGLRenderTarget(GrGpuGL*, const GrSurfaceDesc&, const IDDesc&, const GrGLIRect& viewport);
 
     virtual ~GrGLRenderTarget() { this->release(); }
 
@@ -99,7 +90,7 @@ private:
     // non-NULL if this RT was created by Gr with an associated GrGLTexture.
     SkAutoTUnref<GrGLTexID> fTexIDObj;
 
-    void init(const Desc& desc, const GrGLIRect& viewport, GrGLTexID* texID);
+    void init(const GrSurfaceDesc&, const IDDesc&, const GrGLIRect& viewport, GrGLTexID*);
 
     typedef GrRenderTarget INHERITED;
 };

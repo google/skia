@@ -13,70 +13,43 @@
 
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
-void GrGLRenderTarget::init(const Desc& desc,
+void GrGLRenderTarget::init(const GrSurfaceDesc& desc,
+                            const IDDesc& idDesc,
                             const GrGLIRect& viewport,
                             GrGLTexID* texID) {
-    fRTFBOID                = desc.fRTFBOID;
-    fTexFBOID               = desc.fTexFBOID;
-    fMSColorRenderbufferID  = desc.fMSColorRenderbufferID;
+    fRTFBOID                = idDesc.fRTFBOID;
+    fTexFBOID               = idDesc.fTexFBOID;
+    fMSColorRenderbufferID  = idDesc.fMSColorRenderbufferID;
     fViewport               = viewport;
     fTexIDObj.reset(SkSafeRef(texID));
     this->registerWithCache();
 }
 
-namespace {
-GrSurfaceDesc MakeDesc(GrSurfaceFlags flags,
-                       int width, int height,
-                       GrPixelConfig config, int sampleCnt,
-                       GrSurfaceOrigin origin) {
-    GrSurfaceDesc temp;
-    temp.fFlags = flags;
-    temp.fWidth = width;
-    temp.fHeight = height;
-    temp.fConfig = config;
-    temp.fSampleCnt = sampleCnt;
-    temp.fOrigin = origin;
-    return temp;
-}
-
-};
-
 GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
-                                   const Desc& desc,
+                                   const IDDesc& idDesc,
                                    const GrGLIRect& viewport,
                                    GrGLTexID* texID,
                                    GrGLTexture* texture)
-    : INHERITED(gpu,
-                desc.fIsWrapped,
-                texture,
-                MakeDesc(kNone_GrSurfaceFlags,
-                         viewport.fWidth, viewport.fHeight,
-                         desc.fConfig, desc.fSampleCnt,
-                         desc.fOrigin)) {
+    : INHERITED(gpu, idDesc.fIsWrapped, texture, texture->desc()) {
     SkASSERT(texID);
     SkASSERT(texture);
     // FBO 0 can't also be a texture, right?
-    SkASSERT(0 != desc.fRTFBOID);
-    SkASSERT(0 != desc.fTexFBOID);
+    SkASSERT(0 != idDesc.fRTFBOID);
+    SkASSERT(0 != idDesc.fTexFBOID);
 
     // we assume this is true, TODO: get rid of viewport as a param.
     SkASSERT(viewport.fWidth == texture->width());
     SkASSERT(viewport.fHeight == texture->height());
 
-    this->init(desc, viewport, texID);
+    this->init(texture->desc(), idDesc, viewport, texID);
 }
 
 GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
-                                   const Desc& desc,
+                                   const GrSurfaceDesc& desc,
+                                   const IDDesc& idDesc,
                                    const GrGLIRect& viewport)
-    : INHERITED(gpu,
-                desc.fIsWrapped,
-                NULL,
-                MakeDesc(kNone_GrSurfaceFlags,
-                         viewport.fWidth, viewport.fHeight,
-                         desc.fConfig, desc.fSampleCnt,
-                         desc.fOrigin)) {
-    this->init(desc, viewport, NULL);
+    : INHERITED(gpu, idDesc.fIsWrapped, NULL, desc) {
+    this->init(desc, idDesc, viewport, NULL);
 }
 
 void GrGLRenderTarget::onRelease() {

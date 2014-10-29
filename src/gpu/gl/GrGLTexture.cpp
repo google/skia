@@ -13,40 +13,41 @@
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
 void GrGLTexture::init(GrGpuGL* gpu,
-                       const Desc& textureDesc,
-                       const GrGLRenderTarget::Desc* rtDesc) {
+                       const GrSurfaceDesc& desc,
+                       const IDDesc& idDesc,
+                       const GrGLRenderTarget::IDDesc* rtIDDesc) {
 
-    SkASSERT(0 != textureDesc.fTextureID);
+    SkASSERT(0 != idDesc.fTextureID);
 
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
     fTexIDObj.reset(SkNEW_ARGS(GrGLTexID, (GPUGL->glInterface(),
-                                           textureDesc.fTextureID,
-                                           textureDesc.fIsWrapped)));
+                                           idDesc.fTextureID,
+                                           idDesc.fIsWrapped)));
 
-    if (rtDesc) {
+    if (rtIDDesc) {
         GrGLIRect vp;
         vp.fLeft   = 0;
-        vp.fWidth  = textureDesc.fWidth;
+        vp.fWidth  = desc.fWidth;
         vp.fBottom = 0;
-        vp.fHeight = textureDesc.fHeight;
+        vp.fHeight = desc.fHeight;
 
-        fRenderTarget.reset(SkNEW_ARGS(GrGLRenderTarget, (gpu, *rtDesc, vp, fTexIDObj, this)));
+        fRenderTarget.reset(SkNEW_ARGS(GrGLRenderTarget, (gpu, *rtIDDesc, vp, fTexIDObj, this)));
     }
     this->registerWithCache();
 }
 
-GrGLTexture::GrGLTexture(GrGpuGL* gpu,
-                         const Desc& textureDesc)
-    : INHERITED(gpu, textureDesc.fIsWrapped, textureDesc) {
-    this->init(gpu, textureDesc, NULL);
+GrGLTexture::GrGLTexture(GrGpuGL* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
+    : INHERITED(gpu, idDesc.fIsWrapped, desc) {
+    this->init(gpu, desc, idDesc, NULL);
 }
 
 GrGLTexture::GrGLTexture(GrGpuGL* gpu,
-                         const Desc& textureDesc,
-                         const GrGLRenderTarget::Desc& rtDesc)
-    : INHERITED(gpu, textureDesc.fIsWrapped, textureDesc) {
-    this->init(gpu, textureDesc, &rtDesc);
+                         const GrSurfaceDesc& desc,
+                         const IDDesc& idDesc,
+                         const GrGLRenderTarget::IDDesc& rtIDDesc)
+    : INHERITED(gpu, idDesc.fIsWrapped, desc) {
+    this->init(gpu, desc, idDesc, &rtIDDesc);
 }
 
 void GrGLTexture::onRelease() {

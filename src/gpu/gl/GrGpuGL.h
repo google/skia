@@ -258,7 +258,7 @@ private:
                            GrGLenum* externalFormat,
                            GrGLenum* externalType);
     // helper for onCreateTexture and writeTexturePixels
-    bool uploadTexData(const GrGLTexture::Desc& desc,
+    bool uploadTexData(const GrSurfaceDesc& desc,
                        bool isNewTexture,
                        int left, int top, int width, int height,
                        GrPixelConfig dataConfig,
@@ -271,15 +271,13 @@ private:
     // whenever a new texture needs to be created. Otherwise, we assume that
     // the texture is already in GPU memory and that it's going to be updated
     // with new data.
-    bool uploadCompressedTexData(const GrGLTexture::Desc& desc,
+    bool uploadCompressedTexData(const GrSurfaceDesc& desc,
                                  const void* data,
                                  bool isNewTexture = true,
                                  int left = 0, int top = 0,
                                  int width = -1, int height = -1);
 
-    bool createRenderTargetObjects(int width, int height,
-                                   GrGLuint texID,
-                                   GrGLRenderTarget::Desc* desc);
+    bool createRenderTargetObjects(const GrSurfaceDesc&, GrGLuint texID, GrGLRenderTarget::IDDesc*);
 
     GrGLuint bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport);
 

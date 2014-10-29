@@ -57,19 +57,16 @@ public:
         void invalidate() { memset(this, 0xff, sizeof(TexParams)); }
     };
 
-    struct Desc : public GrSurfaceDesc {
+    struct IDDesc {
         GrGLuint        fTextureID;
         bool            fIsWrapped;
     };
 
     // creates a texture that is also an RT
-    GrGLTexture(GrGpuGL* gpu,
-                const Desc& textureDesc,
-                const GrGLRenderTarget::Desc& rtDesc);
+    GrGLTexture(GrGpuGL* gpu, const GrSurfaceDesc&, const IDDesc&, const GrGLRenderTarget::IDDesc&);
 
     // creates a non-RT texture
-    GrGLTexture(GrGpuGL* gpu,
-                const Desc& textureDesc);
+    GrGLTexture(GrGpuGL* gpu, const GrSurfaceDesc&, const IDDesc&);
 
     virtual ~GrGLTexture() { this->release(); }
 
@@ -101,9 +98,7 @@ private:
     GrGpu::ResetTimestamp           fTexParamsTimestamp;
     SkAutoTUnref<GrGLTexID>         fTexIDObj;
 
-    void init(GrGpuGL* gpu,
-              const Desc& textureDesc,
-              const GrGLRenderTarget::Desc* rtDesc);
+    void init(GrGpuGL* gpu, const GrSurfaceDesc&, const IDDesc&, const GrGLRenderTarget::IDDesc*);
 
     typedef GrTexture INHERITED;
 };
