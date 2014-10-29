@@ -314,13 +314,16 @@ void GrLayerHoister::UnlockLayers(GrContext* context,
         layerCache->removeUse(layers[i].fLayer);
     }
 
-#if DISABLE_CACHING
+    SkDEBUGCODE(layerCache->validate();)
+}
+
+void GrLayerHoister::PurgeCache(GrContext* context) {
+#if !GR_CACHE_HOISTED_LAYERS
+    GrLayerCache* layerCache = context->getLayerCache();
+
     // This code completely clears out the atlas. It is required when
     // caching is disabled so the atlas doesn't fill up and force more
     // free floating layers
     layerCache->purgeAll();
 #endif
-
-    SkDEBUGCODE(layerCache->validate();)
 }
-

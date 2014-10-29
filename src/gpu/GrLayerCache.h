@@ -18,6 +18,9 @@
 
 class SkPicture;
 
+// Set to 0 to disable caching of hoisted layers
+#define GR_CACHE_HOISTED_LAYERS 0
+
 // The layer cache listens for these messages to purge picture-related resources.
 struct GrPictureDeletedMessage {
     uint32_t pictureID;
@@ -249,6 +252,10 @@ public:
         return width <= kPlotWidth && height <= kPlotHeight;
     }
 
+#if !GR_CACHE_HOISTED_LAYERS
+    void purgeAll();
+#endif
+
 private:
     static const int kAtlasTextureWidth = 1024;
     static const int kAtlasTextureHeight = 1024;
@@ -290,8 +297,6 @@ private:
     GrCachedLayer* createLayer(uint32_t pictureID, int start, int stop, 
                                const SkIRect& bounds, const SkMatrix& ctm, 
                                const SkPaint* paint);
-
-    void purgeAll();
 
     // Remove all the layers (and unlock any resources) associated with 'pictureID'
     void purge(uint32_t pictureID);

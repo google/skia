@@ -81,7 +81,6 @@ private:
 
 GrLayerCache::GrLayerCache(GrContext* context)
     : fContext(context) {
-    this->initAtlas();
     memset(fPlotLocks, 0, sizeof(fPlotLocks));
 }
 
@@ -120,11 +119,6 @@ void GrLayerCache::freeAll() {
 
     // The atlas only lets go of its texture when the atlas is deleted. 
     fAtlas.free();
-    // GrLayerCache always assumes an atlas exists so recreate it. The atlas 
-    // lazily allocates a replacement texture so reallocating a new 
-    // atlas here won't disrupt a GrContext::abandonContext or freeGpuResources.
-    // TODO: Make GrLayerCache lazily allocate the atlas manager?
-    this->initAtlas();
 }
 
 GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID, 
@@ -170,6 +164,7 @@ bool GrLayerCache::tryToAtlas(GrCachedLayer* layer,
 
     if (layer->locked()) {
         // This layer is already locked
+        SkASSERT(fAtlas);
         SkASSERT(layer->isAtlased());
         SkASSERT(layer->rect().width() == desc.fWidth);
         SkASSERT(layer->rect().height() == desc.fHeight);
@@ -178,12 +173,19 @@ bool GrLayerCache::tryToAtlas(GrCachedLayer* layer,
     }
 
     if (layer->isAtlased()) {
+        SkASSERT(fAtlas);
         // Hooray it is still in the atlas - make sure it stays there
         layer->setLocked(true);
         this->incPlotLock(layer->plot()->id());
         *needsRendering = false;
         return true;
     } else {
+        if (!fAtlas) {
+            this->initAtlas();
+            if (!fAtlas) {
+                return false;
+            }
+        }
         // Not in the atlas - will it fit?
         GrPictureInfo* pictInfo = fPictureHash.find(layer->pictureID());
         if (NULL == pictInfo) {
@@ -256,7 +258,7 @@ void GrLayerCache::unlock(GrCachedLayer* layer) {
         this->decPlotLock(plotID);
         // At this point we could aggressively clear out un-locked plots but
         // by delaying we may be able to reuse some of the atlased layers later.
-#if DISABLE_CACHING
+#if !GR_CACHE_HOISTED_LAYERS
         // This testing code aggressively removes the atlased layers. This
         // can be used to separate the performance contribution of less
         // render target pingponging from that due to the re-use of cached layers
@@ -355,6 +357,7 @@ void GrLayerCache::purge(uint32_t pictureID) {
 
 bool GrLayerCache::purgePlot() {
     SkDEBUGCODE(GrAutoValidateCache avc(this);)
+    SkASSERT(fAtlas);
 
     GrAtlas::PlotIter iter;
     GrPlot* plot;
@@ -409,7 +412,12 @@ void GrLayerCache::purgePlot(GrPlot* plot) {
     plot->resetRects();
 }
 
+#if !GR_CACHE_HOISTED_LAYERS
 void GrLayerCache::purgeAll() {
+    if (!fAtlas) {
+        return;
+    }
+
     GrAtlas::PlotIter iter;
     GrPlot* plot;
     for (plot = fAtlas->iterInit(&iter, GrAtlas::kLRUFirst_IterOrder);
@@ -419,7 +427,10 @@ void GrLayerCache::purgeAll() {
 
         this->purgePlot(plot);
     }
+
+    fContext->discardRenderTarget(fAtlas->getTexture()->asRenderTarget());
 }
+#endif
 
 class GrPictureDeletionListener : public SkPicture::DeletionListener {
     virtual void onDeletion(uint32_t pictureID) SK_OVERRIDE{
@@ -448,12 +459,14 @@ void GrLayerCache::processDeletedPictures() {
 #ifdef SK_DEVELOPER
 void GrLayerCache::writeLayersToDisk(const SkString& dirName) {
 
-    GrTexture* atlasTexture = fAtlas->getTexture();
-    if (NULL != atlasTexture) {
-        SkString fileName(dirName);
-        fileName.append("\\atlas.png");
+    if (fAtlas) {
+        GrTexture* atlasTexture = fAtlas->getTexture();
+        if (NULL != atlasTexture) {
+            SkString fileName(dirName);
+            fileName.append("\\atlas.png");
 
-        atlasTexture->surfacePriv().savePixels(fileName.c_str());
+            atlasTexture->surfacePriv().savePixels(fileName.c_str());
+        }
     }
 
     SkTDynamicHash<GrCachedLayer, GrCachedLayer::Key>::Iter iter(&fLayerHash);
