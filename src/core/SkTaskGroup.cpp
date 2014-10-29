@@ -37,6 +37,14 @@ public:
         gGlobal->add(fn, arg, pending);
     }
 
+    static void Batch(void (*fn)(void*), void* args, int N, size_t stride, int32_t* pending) {
+        if (!gGlobal) {
+            for (int i = 0; i < N; i++) { fn((char*)args + i*stride); }
+            return;
+        }
+        gGlobal->batch(fn, args, N, stride, pending);
+    }
+
     static void Wait(int32_t* pending) {
         if (!gGlobal) {  // If we have no threads, the work must already be done.
             SkASSERT(*pending == 0);
@@ -111,6 +119,19 @@ private:
         }
     }
 
+    void batch(void (*fn)(void*), void* arg, int N, size_t stride, int32_t* pending) {
+        sk_atomic_add(pending, N);  // No barrier needed.
+        {
+            AutoLock lock(&fReady);
+            Work* batch = fWork.append(N);
+            for (int i = 0; i < N; i++) {
+                Work work = { fn, (char*)arg + i*stride, pending };
+                batch[i] = work;
+            }
+            fReady.broadcast();
+        }
+    }
+
     static void Loop(void* arg) {
         ThreadPool* pool = (ThreadPool*)arg;
         Work work;
@@ -155,7 +176,10 @@ SkTaskGroup::Enabler::~Enabler() {
 
 SkTaskGroup::SkTaskGroup() : fPending(0) {}
 
+void SkTaskGroup::wait()                            { ThreadPool::Wait(&fPending); }
 void SkTaskGroup::add(SkRunnable* task)             { ThreadPool::Add(task, &fPending); }
 void SkTaskGroup::add(void (*fn)(void*), void* arg) { ThreadPool::Add(fn, arg, &fPending); }
-void SkTaskGroup::wait()                            { ThreadPool::Wait(&fPending); }
+void SkTaskGroup::batch (void (*fn)(void*), void* args, int N, size_t stride) {
+    ThreadPool::Batch(fn, args, N, stride, &fPending);
+}
 

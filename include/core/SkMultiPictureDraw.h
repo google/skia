@@ -40,7 +40,7 @@ public:
      */
     void add(SkCanvas* canvas,
              const SkPicture* picture,
-             const SkMatrix* matrix = NULL, 
+             const SkMatrix* matrix = NULL,
              const SkPaint* paint = NULL);
 
     /**
@@ -66,9 +66,7 @@ private:
 
         static void Reset(SkTDArray<DrawData>&);
 
-        static void Run(void* ctx) {
-            static_cast<DrawData*>(ctx)->draw();
-        }
+        static void Draw(DrawData* d) { d->draw(); }
     };
 
     SkTDArray<DrawData> fThreadSafeDrawData;

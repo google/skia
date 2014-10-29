@@ -58,9 +58,9 @@ void SkMultiPictureDraw::reset() {
     DrawData::Reset(fThreadSafeDrawData);
 }
 
-void SkMultiPictureDraw::add(SkCanvas* canvas, 
+void SkMultiPictureDraw::add(SkCanvas* canvas,
                              const SkPicture* picture,
-                             const SkMatrix* matrix, 
+                             const SkMatrix* matrix,
                              const SkPaint* paint) {
     if (NULL == canvas || NULL == picture) {
         SkDEBUGFAIL("parameters to SkMultiPictureDraw::add should be non-NULL");
@@ -88,7 +88,7 @@ void SkMultiPictureDraw::draw() {
 
     SkTaskGroup group;
     for (int i = 0; i < fThreadSafeDrawData.count(); ++i) {
-        group.add(DrawData::Run, &fThreadSafeDrawData[i]);
+        group.add(DrawData::Draw, &fThreadSafeDrawData[i]);
     }
     // we deliberately don't call wait() here, since the destructor will do that, this allows us
     // to continue processing gpu-data without having to wait on the cpu tasks.
@@ -127,7 +127,7 @@ void SkMultiPictureDraw::draw() {
             // TODO: another optimization would be to make a first pass to
             // lock any required layer that is already in the atlas
             GrLayerHoister::FindLayersToAtlas(context, data.fPicture,
-                                              clipBounds, 
+                                              clipBounds,
                                               &atlasedNeedRendering, &atlasedRecycled);
         }
     }

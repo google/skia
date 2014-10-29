@@ -25,31 +25,21 @@ static int tiles_needed(int fullDimension, int tileDimension) {
     return (fullDimension + tileDimension - 1) / tileDimension;
 }
 
-class Tile : public SkRunnable {
-public:
-    Tile(int x, int y, const SkPicture& picture, SkBitmap* quilt)
-        : fX(x * FLAGS_quiltTile)
-        , fY(y * FLAGS_quiltTile)
-        , fPicture(picture)
-        , fQuilt(quilt) {}
-
-    virtual void run() SK_OVERRIDE {
-        SkBitmap tile;
-        fQuilt->extractSubset(&tile, SkIRect::MakeXYWH(fX, fY, FLAGS_quiltTile, FLAGS_quiltTile));
-        SkCanvas tileCanvas(tile);
-
-        tileCanvas.translate(SkIntToScalar(-fX), SkIntToScalar(-fY));
-        fPicture.playback(&tileCanvas);
-        tileCanvas.flush();
-
-        delete this;
-    }
-
-private:
-    const int fX, fY;
-    const SkPicture& fPicture;
-    SkBitmap* fQuilt;
+struct DrawTileArgs {
+    int x, y;
+    const SkPicture* picture;
+    SkBitmap* quilt;
 };
+
+static void draw_tile(DrawTileArgs* arg) {
+    const DrawTileArgs& a = *arg;
+    SkBitmap tile;
+    a.quilt->extractSubset(&tile, SkIRect::MakeXYWH(a.x, a.y, FLAGS_quiltTile, FLAGS_quiltTile));
+    SkCanvas tileCanvas(tile);
+    tileCanvas.translate(SkIntToScalar(-a.x), SkIntToScalar(-a.y));
+    a.picture->playback(&tileCanvas);
+    tileCanvas.flush();
+}
 
 void QuiltTask::draw() {
     SkAutoTDelete<SkBBHFactory> factory;
@@ -88,13 +78,17 @@ void QuiltTask::draw() {
         canvas.flush();
     } else {
         // Draw tiles in parallel into the same bitmap, simulating aggressive impl-side painting.
-        SkTaskGroup tg;
-        for (int y = 0; y < tiles_needed(full.height(), FLAGS_quiltTile); y++) {
-            for (int x = 0; x < tiles_needed(full.width(), FLAGS_quiltTile); x++) {
-                // Deletes itself when done.
-                tg.add(new Tile(x, y, *recorded, &full));
+        int xTiles = tiles_needed(full.width(),  FLAGS_quiltTile),
+            yTiles = tiles_needed(full.height(), FLAGS_quiltTile);
+        SkTDArray<DrawTileArgs> args;
+        args.setCount(xTiles*yTiles);
+        for (int y = 0; y < yTiles; y++) {
+            for (int x = 0; x < xTiles; x++) {
+                DrawTileArgs arg = { x*FLAGS_quiltTile, y*FLAGS_quiltTile, recorded, &full };
+                args[y*xTiles + x] = arg;
             }
         }
+        SkTaskGroup().batch(draw_tile, args.begin(), args.count());
     }
 
     if (!BitmapsEqual(full, fReference)) {
