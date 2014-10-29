@@ -1495,8 +1495,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
     metrics->fBottom = ymin * scale;
     metrics->fLeading = leading * scale;
     metrics->fAvgCharWidth = avgCharWidth * scale;
-    metrics->fXMin = xmin;
-    metrics->fXMax = xmax;
+    metrics->fXMin = xmin * scale;
+    metrics->fXMax = xmax * scale;
     metrics->fXHeight = x_height;
     metrics->fCapHeight = cap_height;
     metrics->fUnderlineThickness = underlineThickness * scale;
