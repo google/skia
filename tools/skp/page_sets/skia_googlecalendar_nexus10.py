@@ -19,6 +19,10 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     self.archive_data_file = 'data/skia_googlecalendar_nexus10.json'
     self.credentials = 'google'
 
+  def RunNavigateSteps(self, action_runner):
+    action_runner.NavigateToPage(self)
+    action_runner.Wait(5)
+
 
 class SkiaGooglecalendarNexus10PageSet(page_set_module.PageSet):
 

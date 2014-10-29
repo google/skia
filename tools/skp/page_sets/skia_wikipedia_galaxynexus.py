@@ -18,6 +18,10 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     self.user_agent_type = 'mobile'
     self.archive_data_file = 'data/skia_wikipedia_galaxynexus.json'
 
+  def RunNavigateSteps(self, action_runner):
+    action_runner.NavigateToPage(self)
+    action_runner.Wait(5)
+
 
 class SkiaWikipediaGalaxynexusPageSet(page_set_module.PageSet):
 
