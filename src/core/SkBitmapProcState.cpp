@@ -144,13 +144,8 @@ bool SkBitmapProcState::possiblyScaleImage() {
     float trueDestWidth  = fOrigBitmap.width() / invScaleX;
     float trueDestHeight = fOrigBitmap.height() / invScaleY;
 
-#ifndef SK_IGNORE_PROPER_FRACTIONAL_SCALING
     float roundedDestWidth = SkScalarRoundToScalar(trueDestWidth);
     float roundedDestHeight = SkScalarRoundToScalar(trueDestHeight);
-#else
-    float roundedDestWidth = trueDestWidth;
-    float roundedDestHeight = trueDestHeight;
-#endif
 
     if (SkPaint::kHigh_FilterLevel == fFilterLevel &&
         fInvMatrix.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask) &&
