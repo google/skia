@@ -51,11 +51,11 @@ public:
     bool unique() const {
         // We believe we're reading fRefCnt in a safe way here, so we stifle the TSAN warning about
         // an unproctected read.  Generally, don't read fRefCnt, and don't stifle this warning.
-        bool const unique = (1 == SK_ANNOTATE_UNPROTECTED_READ(fRefCnt));
+        bool const unique = (1 == sk_acquire_load(&fRefCnt));
         if (unique) {
             // Acquire barrier (L/SL), if not provided by load of fRefCnt.
             // Prevents user's 'unique' code from happening before decrements.
-            //TODO: issue the barrier.
+            //TODO: issue the barrier only when unique is true
         }
         return unique;
     }
