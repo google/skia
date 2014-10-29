@@ -20,7 +20,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.NavigateToPage(self)
-    action_runner.Wait(5)
+    action_runner.Wait(25)
 
 
 class SkiaWowwikiDesktopPageSet(page_set_module.PageSet):
