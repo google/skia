@@ -9,6 +9,7 @@
 #define GrDrawTarget_DEFINED
 
 #include "GrClipData.h"
+#include "GrClipMaskManager.h"
 #include "GrContext.h"
 #include "GrDrawState.h"
 #include "GrIndexBuffer.h"
@@ -692,15 +693,6 @@ public:
 
     virtual DrawToken getCurrentDrawToken() { return DrawToken(this, 0); }
 
-    // The state of the scissor is controlled by the clip manager, no one else should set
-    // Scissor state
-    struct ScissorState {
-        ScissorState() : fEnabled(false) {}
-        void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
-        bool    fEnabled;
-        SkIRect fRect;
-    };
-
 protected:
     // Extend access to GrDrawState::convertToPEndeingExec to subclasses.
     void convertDrawStateToPendingExec(GrDrawState* ds) {
@@ -947,6 +939,21 @@ private:
     GrTraceMarkerSet                                                fStoredTraceMarkers;
 
     typedef SkRefCnt INHERITED;
+};
+
+class GrClipTarget : public GrDrawTarget {
+public:
+    GrClipTarget(GrContext* context) : INHERITED(context) {}
+    /**
+     * Clip Mask Manager(and no one else) needs to clear private stencil bits.
+     * ClipTarget subclass sets clip bit in the stencil buffer. The subclass
+     * is free to clear the remaining bits to zero if masked clears are more
+     * expensive than clearing all bits.
+     */
+    virtual void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* = NULL) = 0;
+
+private:
+    typedef GrDrawTarget INHERITED;
 };
 
 #endif

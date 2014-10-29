@@ -37,7 +37,7 @@ class GrVertexBufferAllocPool;
  * in the GrGpu object that the buffer is played back into. The buffer requires VB and IB pools to
  * store geometry.
  */
-class GrInOrderDrawBuffer : public GrDrawTarget {
+class GrInOrderDrawBuffer : public GrClipTarget {
 public:
 
     /**
@@ -75,10 +75,15 @@ public:
     // overrides from GrDrawTarget
     virtual bool geometryHints(int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
+
     virtual void clear(const SkIRect* rect,
                        GrColor color,
                        bool canIgnoreRect,
                        GrRenderTarget* renderTarget) SK_OVERRIDE;
+
+    virtual void clearStencilClip(const SkIRect& rect,
+                                  bool insideClip,
+                                  GrRenderTarget* renderTarget) SK_OVERRIDE;
 
     virtual void discard(GrRenderTarget*) SK_OVERRIDE;
 
@@ -103,7 +108,7 @@ private:
         Cmd(uint8_t type) : fType(type) {}
         virtual ~Cmd() {}
 
-        virtual void execute(GrDrawTarget*) = 0;
+        virtual void execute(GrClipTarget*) = 0;
 
         uint8_t fType;
     };
@@ -118,7 +123,7 @@ private:
         const GrVertexBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
         const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
 
-        virtual void execute(GrDrawTarget*);
+        virtual void execute(GrClipTarget*);
 
         DrawInfo fInfo;
 
@@ -132,7 +137,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        virtual void execute(GrDrawTarget*);
+        virtual void execute(GrClipTarget*);
 
         SkPath::FillType fFill;
 
@@ -145,7 +150,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        virtual void execute(GrDrawTarget*);
+        virtual void execute(GrClipTarget*);
 
         SkPath::FillType        fFill;
         GrDeviceCoordTexture    fDstCopy;
@@ -161,7 +166,7 @@ private:
         uint32_t* indices() { return reinterpret_cast<uint32_t*>(CmdBuffer::GetDataForItem(this)); }
         float* transforms() { return reinterpret_cast<float*>(&this->indices()[fCount]); }
 
-        virtual void execute(GrDrawTarget*);
+        virtual void execute(GrClipTarget*);
 
         size_t                  fCount;
         PathTransformType       fTransformsType;
@@ -178,11 +183,26 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        virtual void execute(GrDrawTarget*);
+        virtual void execute(GrClipTarget*);
 
         SkIRect fRect;
         GrColor fColor;
         bool    fCanIgnoreRect;
+
+    private:
+        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+    };
+
+    // This command is ONLY used by the clip mask manager to clear the stencil clip bits
+    struct ClearStencilClip : public Cmd {
+        ClearStencilClip(GrRenderTarget* rt) : Cmd(kClear_Cmd), fRenderTarget(rt) {}
+
+        GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
+
+        virtual void execute(GrClipTarget*);
+
+        SkIRect fRect;
+        bool    fInsideClip;
 
     private:
         GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
@@ -194,7 +214,7 @@ private:
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
 
-        virtual void execute(GrDrawTarget*);
+        virtual void execute(GrClipTarget*);
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -207,7 +227,7 @@ private:
     struct SetState : public Cmd {
         SetState(const GrDrawState& state) : Cmd(kSetState_Cmd), fState(state) {}
 
-        virtual void execute(GrDrawTarget*);
+        virtual void execute(GrClipTarget*);
 
         GrDrawState fState;
     };
@@ -220,7 +240,7 @@ private:
             fClipData.fOrigin = clipData->fOrigin;
         }
 
-        virtual void execute(GrDrawTarget*);
+        virtual void execute(GrClipTarget*);
 
         GrClipData fClipData;
 
@@ -300,7 +320,7 @@ private:
     GrClipData*                       fLastClip;
 
     SkTArray<GrTraceMarkerSet, false> fGpuCmdMarkers;
-    GrDrawTarget*                     fDstGpu;
+    GrClipTarget*                     fDstGpu;
     bool                              fClipSet;
 
     enum ClipProxyState {
@@ -332,7 +352,7 @@ private:
     bool                                                fFlushing;
     uint32_t                                            fDrawID;
 
-    typedef GrDrawTarget INHERITED;
+    typedef GrClipTarget INHERITED;
 };
 
 #endif

@@ -1359,7 +1359,7 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(size_t size, bool dynamic) {
     }
 }
 
-void GrGpuGL::flushScissor(const ScissorState& scissorState,
+void GrGpuGL::flushScissor(const GrClipMaskManager::ScissorState& scissorState,
                            const GrGLIRect& rtViewport,
                            GrSurfaceOrigin rtOrigin) {
     if (scissorState.fEnabled) {
@@ -1420,7 +1420,7 @@ void GrGpuGL::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color
     }
 
     this->flushRenderTarget(glRT, rect);
-    ScissorState scissorState;
+    GrClipMaskManager::ScissorState scissorState;
     scissorState.fEnabled = SkToBool(rect);
     if (scissorState.fEnabled) {
         scissorState.fRect = *rect;
@@ -1511,7 +1511,7 @@ void GrGpuGL::clearStencil(GrRenderTarget* target) {
     fHWStencilSettings.invalidate();
 }
 
-void GrGpuGL::clearStencilClip(GrRenderTarget* target, const SkIRect& rect, bool insideClip) {
+void GrGpuGL::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bool insideClip) {
     SkASSERT(target);
 
     // this should only be called internally when we know we have a
@@ -1538,7 +1538,7 @@ void GrGpuGL::clearStencilClip(GrRenderTarget* target, const SkIRect& rect, bool
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
-    ScissorState scissorState;
+    GrClipMaskManager::ScissorState scissorState;
     scissorState.fEnabled = true;
     scissorState.fRect = rect;
     this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
@@ -1833,7 +1833,7 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
 
             if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
                 // Apple's extension uses the scissor as the blit bounds.
-                ScissorState scissorState;
+                GrClipMaskManager::ScissorState scissorState;
                 scissorState.fEnabled = true;
                 scissorState.fRect = dirtyRect;
                 this->flushScissor(scissorState, rt->getViewport(), rt->origin());

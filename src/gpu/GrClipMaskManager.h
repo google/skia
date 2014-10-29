@@ -11,7 +11,6 @@
 #include "GrClipMaskCache.h"
 #include "GrContext.h"
 #include "GrDrawState.h"
-#include "GrDrawTarget.h"
 #include "GrReducedClip.h"
 #include "GrStencil.h"
 #include "GrTexture.h"
@@ -44,6 +43,16 @@ public:
         , fCurrClipMaskType(kNone_ClipMaskType) {
     }
 
+    // The state of the scissor is controlled by the clip manager, no one else should set
+    // Scissor state.  This should really be on Gpu itself.  We should revist this when GPU
+    // and drawtarget are separate
+    struct ScissorState {
+        ScissorState() : fEnabled(false) {}
+        void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
+        bool    fEnabled;
+        SkIRect fRect;
+    };
+
     /**
      * Creates a clip mask if necessary as a stencil buffer or alpha texture
      * and sets the GrGpu's scissor and stencil state. If the return is false
@@ -55,7 +64,7 @@ public:
                        const SkRect* devBounds,
                        GrDrawState::AutoRestoreEffects*,
                        GrDrawState::AutoRestoreStencil*,
-                       GrDrawTarget::ScissorState* scissorState);
+                       ScissorState* scissorState);
 
     /**
      * Purge resources to free up memory. TODO: This class shouldn't hold any long lived refs

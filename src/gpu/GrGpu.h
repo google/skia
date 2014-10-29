@@ -23,7 +23,7 @@ class GrPathRendererChain;
 class GrStencilBuffer;
 class GrVertexBufferAllocPool;
 
-class GrGpu : public GrDrawTarget {
+class GrGpu : public GrClipTarget {
 public:
 
     /**
@@ -272,6 +272,10 @@ public:
                        bool canIgnoreRect,
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
+    virtual void clearStencilClip(const SkIRect& rect,
+                                  bool insideClip,
+                                  GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
+
     virtual void purgeResources() SK_OVERRIDE {
         // The clip mask manager can rebuild all its clip masks so just
         // get rid of them all.
@@ -294,11 +298,6 @@ public:
     ResetTimestamp getResetTimestamp() const {
         return fResetTimestamp;
     }
-
-    // GrGpu subclass sets clip bit in the stencil buffer. The subclass is
-    // free to clear the remaining bits to zero if masked clears are more
-    // expensive than clearing all bits.
-    virtual void clearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) = 0;
 
     enum PrivateDrawStateStateBits {
         kFirstBit = (GrDrawState::kLastPublicStateBit << 1),
@@ -422,6 +421,13 @@ private:
     virtual void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
                          bool canIgnoreRect) = 0;
 
+
+    // Overridden by backend specific classes to perform a clear of the stencil clip bits.  This is
+    // ONLY used by the the clip target
+    virtual void onClearStencilClip(GrRenderTarget*,
+                                    const SkIRect& rect,
+                                    bool insideClip) = 0;
+
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onGpuDraw(const DrawInfo&) = 0;
 
@@ -454,7 +460,7 @@ private:
     // backend-specific flush of the state.
     // returns false if current state is unsupported.
     virtual bool flushGraphicsState(DrawType,
-                                    const ScissorState&,
+                                    const GrClipMaskManager::ScissorState&,
                                     const GrDeviceCoordTexture* dstCopy) = 0;
 
     // clears target's entire stencil buffer to 0
@@ -507,7 +513,7 @@ private:
     // these are mutable so they can be created on-demand
     mutable GrIndexBuffer*                                              fQuadIndexBuffer;
 
-    typedef GrDrawTarget INHERITED;
+    typedef GrClipTarget INHERITED;
 };
 
 #endif

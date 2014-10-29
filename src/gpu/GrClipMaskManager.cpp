@@ -214,7 +214,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
                                       const SkRect* devBounds,
                                       GrDrawState::AutoRestoreEffects* are,
                                       GrDrawState::AutoRestoreStencil* ars,
-                                      GrDrawTarget::ScissorState* scissorState) {
+                                      ScissorState* scissorState) {
     fCurrClipMaskType = kNone_ClipMaskType;
 
     GrReducedClip::ElementList elements(16);
@@ -731,8 +731,9 @@ bool GrClipMaskManager::createStencilClipMask(int32_t elementsGenID,
         SkASSERT((clipBit <= 16) && "Ganesh only handles 16b or smaller stencil buffers");
         clipBit = (1 << (clipBit-1));
 
-        fGpu->clearStencilClip(rt, stencilSpaceIBounds,
-                               GrReducedClip::kAllIn_InitialState == initialState);
+        fGpu->clearStencilClip(stencilSpaceIBounds,
+                               GrReducedClip::kAllIn_InitialState == initialState,
+                               rt);
 
         // walk through each clip element and perform its set op
         // with the existing clip.

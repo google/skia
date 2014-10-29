@@ -28,7 +28,7 @@ static const int INDEX_POOL_IB_COUNT = 4;
 #define DEBUG_INVAL_START_IDX -1
 
 GrGpu::GrGpu(GrContext* context)
-    : GrDrawTarget(context)
+    : INHERITED(context)
     , fResetTimestamp(kExpiredTimestamp+1)
     , fResetBits(kAll_GrBackendState)
     , fVertexPool(NULL)
@@ -212,6 +212,20 @@ void GrGpu::clear(const SkIRect* rect,
     this->onClear(renderTarget, rect, color, canIgnoreRect);
 }
 
+void GrGpu::clearStencilClip(const SkIRect& rect,
+                             bool insideClip,
+                             GrRenderTarget* renderTarget) {
+    if (NULL == renderTarget) {
+        renderTarget = this->getDrawState().getRenderTarget();
+    }
+    if (NULL == renderTarget) {
+        SkASSERT(0);
+        return;
+    }
+    this->handleDirtyContext();
+    this->onClearStencilClip(renderTarget, rect, insideClip);
+}
+
 bool GrGpu::readPixels(GrRenderTarget* target,
                        int left, int top, int width, int height,
                        GrPixelConfig config, void* buffer,
@@ -302,7 +316,7 @@ bool GrGpu::setupClipAndFlushState(DrawType type,
                                    const GrDeviceCoordTexture* dstCopy,
                                    const SkRect* devBounds,
                                    GrDrawState::AutoRestoreEffects* are) {
-    ScissorState scissorState;
+    GrClipMaskManager::ScissorState scissorState;
     GrDrawState::AutoRestoreStencil ars;
     if (!fClipMaskManager.setupClipping(this->getClip(),
                                         devBounds,

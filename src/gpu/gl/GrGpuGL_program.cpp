@@ -202,7 +202,7 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState, D
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
 bool GrGpuGL::flushGraphicsState(DrawType type,
-                                 const ScissorState& scissorState,
+                                 const GrClipMaskManager::ScissorState& scissorState,
                                  const GrDeviceCoordTexture* dstCopy) {
     SkAutoTUnref<GrOptDrawState> optState(GrOptDrawState::Create(this->getDrawState(),
                                                                  this,

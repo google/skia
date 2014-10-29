@@ -135,6 +135,10 @@ private:
     virtual void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
                          bool canIgnoreRect) SK_OVERRIDE;
 
+    virtual void onClearStencilClip(GrRenderTarget*,
+                                    const SkIRect& rect,
+                                    bool insideClip) SK_OVERRIDE;
+
     virtual bool onReadPixels(GrRenderTarget* target,
                               int left, int top,
                               int width, int height,
@@ -153,10 +157,8 @@ private:
 
 
     virtual void clearStencil(GrRenderTarget*) SK_OVERRIDE;
-    virtual void clearStencilClip(GrRenderTarget*, const SkIRect& rect,
-                                  bool insideClip) SK_OVERRIDE;
     virtual bool flushGraphicsState(DrawType,
-                                    const ScissorState&,
+                                    const GrClipMaskManager::ScissorState&,
                                     const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 
     // GrDrawTarget overrides
@@ -227,7 +229,7 @@ private:
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
-    void flushScissor(const ScissorState&,
+    void flushScissor(const GrClipMaskManager::ScissorState&,
                       const GrGLIRect& rtViewport,
                       GrSurfaceOrigin rtOrigin);
 

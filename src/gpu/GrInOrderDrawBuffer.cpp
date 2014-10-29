@@ -17,7 +17,7 @@
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
                                          GrVertexBufferAllocPool* vertexPool,
                                          GrIndexBufferAllocPool* indexPool)
-    : GrDrawTarget(gpu->getContext())
+    : INHERITED(gpu->getContext())
     , fCmdBuffer(kCmdBufferInitialSizeInBytes)
     , fLastState(NULL)
     , fLastClip(NULL)
@@ -434,6 +434,19 @@ void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color,
     this->recordTraceMarkersIfNecessary();
 }
 
+void GrInOrderDrawBuffer::clearStencilClip(const SkIRect& rect,
+                                           bool insideClip,
+                                           GrRenderTarget* renderTarget) {
+    if (NULL == renderTarget) {
+        renderTarget = this->drawState()->getRenderTarget();
+        SkASSERT(renderTarget);
+    }
+    ClearStencilClip* clr = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, ClearStencilClip, (renderTarget));
+    clr->fRect = rect;
+    clr->fInsideClip = insideClip;
+    this->recordTraceMarkersIfNecessary();
+}
+
 void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
     if (!this->caps()->discardRenderTargetSupport()) {
         return;
@@ -523,7 +536,7 @@ void GrInOrderDrawBuffer::flush() {
     ++fDrawID;
 }
 
-void GrInOrderDrawBuffer::Draw::execute(GrDrawTarget* gpu) {
+void GrInOrderDrawBuffer::Draw::execute(GrClipTarget* gpu) {
     gpu->setVertexSourceToBuffer(this->vertexBuffer());
     if (fInfo.isIndexed()) {
         gpu->setIndexSourceToBuffer(this->indexBuffer());
@@ -531,30 +544,30 @@ void GrInOrderDrawBuffer::Draw::execute(GrDrawTarget* gpu) {
     gpu->executeDraw(fInfo);
 }
 
-void GrInOrderDrawBuffer::StencilPath::execute(GrDrawTarget* gpu) {
+void GrInOrderDrawBuffer::StencilPath::execute(GrClipTarget* gpu) {
     gpu->stencilPath(this->path(), fFill);
 }
 
-void GrInOrderDrawBuffer::DrawPath::execute(GrDrawTarget* gpu) {
+void GrInOrderDrawBuffer::DrawPath::execute(GrClipTarget* gpu) {
     gpu->executeDrawPath(this->path(), fFill, fDstCopy.texture() ? &fDstCopy : NULL);
 }
 
-void GrInOrderDrawBuffer::DrawPaths::execute(GrDrawTarget* gpu) {
+void GrInOrderDrawBuffer::DrawPaths::execute(GrClipTarget* gpu) {
     gpu->executeDrawPaths(this->pathRange(), this->indices(), fCount, this->transforms(),
                           fTransformsType, fFill, fDstCopy.texture() ? &fDstCopy : NULL);
 }
 
-void GrInOrderDrawBuffer::SetState::execute(GrDrawTarget* gpu) {
+void GrInOrderDrawBuffer::SetState::execute(GrClipTarget* gpu) {
     gpu->setDrawState(&fState);
 }
 
-void GrInOrderDrawBuffer::SetClip::execute(GrDrawTarget* gpu) {
+void GrInOrderDrawBuffer::SetClip::execute(GrClipTarget* gpu) {
     // Our fClipData is referenced directly, so we must remain alive for the entire
     // duration of the flush (after which the gpu's previous clip is restored).
     gpu->setClip(&fClipData);
 }
 
-void GrInOrderDrawBuffer::Clear::execute(GrDrawTarget* gpu) {
+void GrInOrderDrawBuffer::Clear::execute(GrClipTarget* gpu) {
     if (GrColor_ILLEGAL == fColor) {
         gpu->discard(this->renderTarget());
     } else {
@@ -562,7 +575,11 @@ void GrInOrderDrawBuffer::Clear::execute(GrDrawTarget* gpu) {
     }
 }
 
-void GrInOrderDrawBuffer::CopySurface::execute(GrDrawTarget* gpu) {
+void GrInOrderDrawBuffer::ClearStencilClip::execute(GrClipTarget* gpu) {
+        gpu->clearStencilClip(fRect, fInsideClip, this->renderTarget());
+}
+
+void GrInOrderDrawBuffer::CopySurface::execute(GrClipTarget* gpu) {
     gpu->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
 }
 
