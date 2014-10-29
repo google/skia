@@ -15,6 +15,7 @@
 #include "SkPathOpsDebug.h"
 #include "SkPicture.h"
 #include "SkRTConf.h"
+#include "SkRunnable.h"
 #include "SkTSort.h"
 #include "SkStream.h"
 #include "SkString.h"

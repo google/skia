@@ -6,6 +6,7 @@
  */
 
 #include "SkOnce.h"
+#include "SkRunnable.h"
 #include "SkTaskGroup.h"
 #include "Test.h"
 

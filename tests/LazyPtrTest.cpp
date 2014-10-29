@@ -1,5 +1,6 @@
 #include "Test.h"
 #include "SkLazyPtr.h"
+#include "SkRunnable.h"
 #include "SkTaskGroup.h"
 
 namespace {

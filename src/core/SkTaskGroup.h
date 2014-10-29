@@ -9,7 +9,8 @@
 #define SkTaskGroup_DEFINED
 
 #include "SkTypes.h"
-#include "SkRunnable.h"
+
+struct SkRunnable;
 
 class SkTaskGroup : SkNoncopyable {
 public:

@@ -1,6 +1,7 @@
 #include "SkTaskGroup.h"
 
 #include "SkCondVar.h"
+#include "SkRunnable.h"
 #include "SkTDArray.h"
 #include "SkThread.h"
 #include "SkThreadUtils.h"

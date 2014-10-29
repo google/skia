@@ -24,7 +24,6 @@
       'sources': [
 		'../tests/PathOpsDebug.cpp',
         '../tests/PathOpsSkpClipTest.cpp',
-        '../src/utils/SkTaskGroup.cpp',
       ],
       'conditions': [
         [ 'skia_android_framework == 1', {
