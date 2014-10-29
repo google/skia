@@ -342,7 +342,8 @@ bool SkImageFilter::applyCropRect(const Context& ctx, Proxy* proxy, const SkBitm
 bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                    SkIRect* dst) const {
     if (fInputCount < 1) {
-        return false;
+        *dst = src;
+        return true;
     }
 
     SkIRect bounds;
