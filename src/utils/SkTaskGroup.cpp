@@ -26,7 +26,14 @@ public:
         if (!gGlobal) {  // If we have no threads, run synchronously.
             return task->run();
         }
-        gGlobal->add(task, pending);
+        gGlobal->add(&CallRunnable, task, pending);
+    }
+
+    static void Add(void (*fn)(void*), void* arg, int32_t* pending) {
+        if (!gGlobal) {
+            return fn(arg);
+        }
+        gGlobal->add(fn, arg, pending);
     }
 
     static void Wait(int32_t* pending) {
@@ -48,7 +55,7 @@ public:
             }
             // This Work isn't necessarily part of our SkTaskGroup of interest, but that's fine.
             // We threads gotta stick together.  We're always making forward progress.
-            work.task->run();
+            work.fn(work.arg);
             sk_atomic_dec(work.pending);  // Release pairs with the sk_acquire_load() just above.
         }
     }
@@ -61,9 +68,12 @@ private:
         SkCondVar* fC;
     };
 
+    static void CallRunnable(void* arg) { static_cast<SkRunnable*>(arg)->run(); }
+
     struct Work {
-        SkRunnable* task;  // A task to ->run(),
-        int32_t* pending;  // then sk_atomic_dec(pending) afterwards.
+        void (*fn)(void*);  // A function to call,
+        void* arg;          // its argument,
+        int32_t* pending;   // then sk_atomic_dec(pending) afterwards.
     };
 
     explicit ThreadPool(int threads) : fDraining(false) {
@@ -90,8 +100,8 @@ private:
         fThreads.deleteAll();
     }
 
-    void add(SkRunnable* task, int32_t* pending) {
-        Work work = { task, pending };
+    void add(void (*fn)(void*), void* arg, int32_t* pending) {
+        Work work = { fn, arg, pending };
         sk_atomic_inc(pending);  // No barrier needed.
         {
             AutoLock lock(&fReady);
@@ -114,7 +124,7 @@ private:
                 }
                 pool->fWork.pop(&work);
             }
-            work.task->run();
+            work.fn(work.arg);
             sk_atomic_dec(work.pending);  // Release pairs with sk_acquire_load() in Wait().
         }
     }
@@ -144,6 +154,7 @@ SkTaskGroup::Enabler::~Enabler() {
 
 SkTaskGroup::SkTaskGroup() : fPending(0) {}
 
-void SkTaskGroup::add(SkRunnable* task) { ThreadPool::Add(task, &fPending); }
-void SkTaskGroup::wait()                { ThreadPool::Wait(&fPending); }
+void SkTaskGroup::add(SkRunnable* task)             { ThreadPool::Add(task, &fPending); }
+void SkTaskGroup::add(void (*fn)(void*), void* arg) { ThreadPool::Add(fn, arg, &fPending); }
+void SkTaskGroup::wait()                            { ThreadPool::Wait(&fPending); }
 

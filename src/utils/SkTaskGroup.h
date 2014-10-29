@@ -22,10 +22,12 @@ public:
     SkTaskGroup();
     ~SkTaskGroup() { this->wait(); }
 
-    // Add a task to this SkTaskGroup.  It will likely run() on another thread.
+    // Add a task to this SkTaskGroup.  It will likely run on another thread.
+    // Neither add() method takes owership of any of its parameters.
     void add(SkRunnable*);
+    void add(void (*fn)(void*), void* arg);
 
-    // Block until all Tasks previously add()ed to this SkTaskGroup have run().
+    // Block until all Tasks previously add()ed to this SkTaskGroup have run.
     // You may safely reuse this SkTaskGroup after wait() returns.
     void wait();
 
