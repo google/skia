@@ -17,7 +17,7 @@
 #include "Stats.h"
 #include "Timer.h"
 
-#include "SkBBHFactory.h"
+#include "SkBBoxHierarchy.h"
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
 #include "SkForceLinking.h"
@@ -70,7 +70,6 @@ DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
 DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
-DEFINE_int32(benchTile, 256, "Tile dimension used for SKP playback.");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 
 static SkString humanize(double ms) {
@@ -515,12 +514,7 @@ public:
                 }
                 if (FLAGS_bbh) {
                     // The SKP we read off disk doesn't have a BBH.  Re-record so it grows one.
-                    const SkTileGridFactory::TileGridInfo info = {
-                        SkISize::Make(FLAGS_benchTile, FLAGS_benchTile),  // tile interval
-                        SkISize::Make(0,0),                               // margin
-                        SkIPoint::Make(0,0),                              // offset
-                    };
-                    SkTileGridFactory factory(info);
+                    SkRTreeFactory factory;
                     SkPictureRecorder recorder;
                     pic->playback(recorder.beginRecording(pic->cullRect().width(),
                                                           pic->cullRect().height(),
@@ -726,7 +720,7 @@ int nanobench_main() {
 #if SK_SUPPORT_GPU && GR_CACHE_STATS
             if (FLAGS_veryVerbose &&
                 Benchmark::kGPU_Backend == targets[j]->config.backend) {
-                gGrFactory->get(targets[j]->config.ctxType)->printCacheStats();  
+                gGrFactory->get(targets[j]->config.ctxType)->printCacheStats();
             }
 #endif
         }

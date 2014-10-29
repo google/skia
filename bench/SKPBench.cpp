@@ -8,7 +8,7 @@
 #include "SKPBench.h"
 #include "SkCommandLineFlags.h"
 
-DECLARE_int32(benchTile);
+DEFINE_int32(benchTile, 256, "Tile dimension used for SKP playback.");
 
 SKPBench::SKPBench(const char* name, const SkPicture* pic, const SkIRect& clip, SkScalar scale)
     : fPic(SkRef(pic))
