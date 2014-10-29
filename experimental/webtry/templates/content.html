@@ -51,9 +51,28 @@
     <input type="text" value="" id="embed" readonly style="display:none;">
   </div>
 
-  <p>
-  <img  touch-action='none' class='zoom' id='img' src='{{if .Hash}}/i/{{.Hash}}.png{{end}}'/>
-  </p>
+  <div id="raster-output" class="image-wrapper panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        Raster Output
+      </h3>
+    </div>
+    <div class="panel-body">
+      <img touch-action='none' class='zoom' id='raster-img' onload="onLoadImage(this)" src='{{if .Hash}}/i/{{.Hash}}_raster.png{{end}}'/>
+    </div>
+  </div>
+
+  <div id="gpu-output" class="image-wrapper panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        Ganesh Output
+      </h3>
+    </div>
+    <div class="panel-body">
+      <img touch-action='none' class='zoom' id='gpu-img' onload="onLoadImage(this)" src='{{if .Hash}}/i/{{.Hash}}_gpu.png{{end}}'/>
+    </div>
+  </div>
+
   <p id='zoomHex'></p>
 
   <div id="output-wrapper">

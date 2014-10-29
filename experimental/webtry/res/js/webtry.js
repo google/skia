@@ -26,7 +26,12 @@
       var output          = document.getElementById('output');
       var outputWrapper   = document.getElementById('output-wrapper');
       var gpu             = document.getElementById('use-gpu');
-      var img             = document.getElementById('img');
+      var raster          = document.getElementById('use-raster');
+      var pdf             = document.getElementById('use-pdf');
+      var rasterOutput    = document.getElementById('raster-output');
+      var rasterImg       = document.getElementById('raster-img');
+      var gpuOutput       = document.getElementById('gpu-output');
+      var gpuImg          = document.getElementById('gpu-img');
       var imageWidth      = document.getElementById('image-width');
       var imageHeight     = document.getElementById('image-height');
       var tryHistory      = document.getElementById('tryHistory');
@@ -148,6 +153,20 @@
       enableSource.addEventListener('click', sourceClick, true);
       selectedSource.addEventListener('click', sourceClick, true);
 
+      function configChange(e) {
+        if (!(gpu.checked || raster.checked || pdf.checked)) {
+          run.disabled = true;
+          run.innerHTML = "Choose a configuration"
+        } else {
+          run.disabled = false;
+          run.innerHTML = "Run"
+        }
+      }
+
+      gpu.addEventListener('change', configChange);
+      raster.addEventListener('change', configChange);
+      pdf.addEventListener('change', configChange);
+
 
       var editor = CodeMirror.fromTextArea(code, {
         theme: "default",
@@ -217,7 +236,8 @@
         body = JSON.parse(e.target.response);
         code.value = body.code;
         editor.setValue(body.code);
-        img.src = '/i/'+body.hash+'.png';
+        rasterImg.src = '/i/'+body.hash+'_raster.png';
+        gpuImg.src = '/i/'+body.hash+'_gpu.png';
         imageWidth.value = body.width;
         imageHeight.value = body.height;
         gpu.checked = body.gpu;
@@ -304,14 +324,23 @@
             outputWrapper.style.display = 'block';
           }
         }
-        if (body.hasOwnProperty('img')) {
-          img.src = 'data:image/png;base64,' + body.img;
+        if (body.hasOwnProperty('rasterImg') && body.rasterImg != "") {
+          rasterImg.src = 'data:image/png;base64,' + body.rasterImg;
+          rasterOutput.style.display = "inline-block";
         } else {
-          img.src = '';
+          rasterOutput.style.display = "none";
+          rasterImg.src = '';
+        }
+        if (body.hasOwnProperty('gpuImg') && body.gpuImg != "") {
+          gpuImg.src = 'data:image/png;base64,' + body.gpuImg;
+          gpuOutput.style.display = "inline-block";
+        } else {
+          gpuImg.src = '';
+          gpuOutput.style.display = "none";
         }
         // Add the image to the history if we are on a workspace page.
         if (tryHistory) {
-          addToHistory(body.hash, 'data:image/png;base64,' + body.img);
+          addToHistory(body.hash, 'data:image/png;base64,' + body.rasterImg);
         } else {
           window.history.pushState(null, null, '/c/' + body.hash);
         }
@@ -326,7 +355,6 @@
           embedButton.style.display = 'inline-block';
         }
       }
-
 
       function onSubmitCode() {
         beginWait();
@@ -343,7 +371,9 @@
           'height': parseInt(imageHeight.value),
           'name': workspaceName,
           'source': sourceId,
-          'gpu': gpu.checked
+          'gpu': gpu.checked,
+          'raster': raster.checked,
+          'pdf': pdf.checked
         }));
       }
       run.addEventListener('click', onSubmitCode);
@@ -375,3 +405,26 @@
     }
 
 })();
+
+// TODO (humper) -- move the following functions out of the global
+// namespace as part of a web-components based fiddle frontend rewrite.
+
+function collectionHas(a, b) { //helper function (see below)
+    for(var i = 0, len = a.length; i < len; i ++) {
+        if(a[i] == b) return true;
+    }
+    return false;
+}
+function findParentBySelector(elm, selector) {
+    var all = document.querySelectorAll(selector);
+    var cur = elm.parentNode;
+    while(cur && !collectionHas(all, cur)) { //keep going up until you find a match
+        cur = cur.parentNode; //go up
+    }
+    return cur; //will return null if not found
+}
+
+function onLoadImage(img) {
+  var wrapper = findParentBySelector(img, ".image-wrapper");
+  wrapper.style.display = "inline-block";
+}

@@ -79,7 +79,7 @@ var (
 	iframeLink = regexp.MustCompile("^/iframe/([a-f0-9]+)$")
 
 	// imageLink is the regex that matches URLs paths that are direct links to PNGs.
-	imageLink = regexp.MustCompile("^/i/([a-z0-9-]+.png)$")
+	imageLink = regexp.MustCompile("^/i/([a-z0-9-_]+.png)$")
 
 	// tryInfoLink is the regex that matches URLs paths that are direct links to data about a single try.
 	tryInfoLink = regexp.MustCompile("^/json/([a-f0-9]+)$")
@@ -407,7 +407,8 @@ func expandGyp(hash string) error {
 type response struct {
 	Message       string         `json:"message"`
 	CompileErrors []compileError `json:"compileErrors"`
-	Img           string         `json:"img"`
+	RasterImg     string         `json:"rasterImg"`
+	GPUImg        string         `json:"gpuImg"`
 	Hash          string         `json:"hash"`
 }
 
@@ -724,6 +725,8 @@ type TryRequest struct {
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
 	GPU    bool   `json:"gpu"`
+	Raster bool   `json:"raster"`
+	PDF    bool   `json:"pdf"`
 	Name   string `json:"name"`   // Optional name of the workspace the code is in.
 	Source int    `json:"source"` // ID of the source image, 0 if none.
 }
@@ -858,6 +861,10 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			reportTryError(w, r, err, "Coulnd't decode JSON.", "")
 			return
 		}
+		if !(request.GPU || request.Raster || request.PDF) {
+			reportTryError(w, r, nil, "No run configuration supplied...", "")
+			return
+		}
 		if hasPreProcessor(request.Code) {
 			err := fmt.Errorf("Found preprocessor macro in code.")
 			reportTryError(w, r, err, "Preprocessor macros aren't allowed.", "")
@@ -875,8 +882,14 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		cmd := fmt.Sprintf("scripts/fiddle_wrapper %s --width %d --height %d", hash, request.Width, request.Height)
+		if request.Raster {
+			cmd += " --raster"
+		}
 		if request.GPU {
 			cmd += " --gpu"
+		}
+		if request.PDF {
+			cmd += " --pdf"
 		}
 		if *useChroot {
 			cmd = "schroot -c webtry --directory=/ -- /skia_build/skia/experimental/webtry/" + cmd
@@ -920,16 +933,30 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		png, err := ioutil.ReadFile("../../../inout/" + hash + ".png")
-		if err != nil {
-			reportTryError(w, r, err, "Failed to open the generated PNG.", hash)
-			return
-		}
-
 		m := response{
-			Img:  base64.StdEncoding.EncodeToString([]byte(png)),
 			Hash: hash,
 		}
+
+		if request.Raster {
+			png, err := ioutil.ReadFile("../../../inout/" + hash + "_raster.png")
+			if err != nil {
+				reportTryError(w, r, err, "Failed to open the raster-generated PNG.", hash)
+				return
+			}
+
+			m.RasterImg = base64.StdEncoding.EncodeToString([]byte(png))
+		}
+
+		if request.GPU {
+			png, err := ioutil.ReadFile("../../../inout/" + hash + "_GPU.png")
+			if err != nil {
+				reportTryError(w, r, err, "Failed to open the GPU-generated PNG.", hash)
+				return
+			}
+
+			m.GPUImg = base64.StdEncoding.EncodeToString([]byte(png))
+		}
+
 		resp, err := json.Marshal(m)
 		if err != nil {
 			reportTryError(w, r, err, "Failed to serialize a response.", hash)

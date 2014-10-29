@@ -2,7 +2,7 @@
   <div class="panel panel-primary">
     <div class="panel-heading">
       <h3 class="panel-title">
-        Options
+        Fiddle Options
       </h3>
     </div>
     <div class="panel-body">
@@ -19,10 +19,33 @@
             <input type="number" class="form-control" id="image-height" value="{{.Height}}">
           </div>
         </div>
+      </form>
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        Run Configuration
+      </h3>
+    </div>
+    <div class="panel-body">
+      <form id="run-configuration" class="form-horizontal" role="form">
+        <div class="checkbox">
+          <label>
+            <input id="use-raster" type="checkbox" value="" checked>
+            Raster
+          </label>
+        </div>
         <div class="checkbox">
           <label>
             <input id="use-gpu" type="checkbox" value="">
             Ganesh
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input id="use-pdf" type="checkbox" value="" disabled>
+            PDF (coming soon)
           </label>
         </div>
       </form>

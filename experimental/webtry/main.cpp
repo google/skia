@@ -19,11 +19,13 @@
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-DEFINE_string(out, "", "Filename of the PNG to write to.");
+DEFINE_string(out, "", "Output basename; fiddle will append the config used and the appropriate extension");
 DEFINE_string(source, "", "Filename of the source image.");
 DEFINE_int32(width, 256, "Width of output image.");
 DEFINE_int32(height, 256, "Height of output image.");
 DEFINE_bool(gpu, false, "Use GPU (Mesa) rendering.");
+DEFINE_bool(raster, true, "Use Raster rendering.");
+DEFINE_bool(pdf, false, "Use PDF rendering.");
 
 // Defined in template.cpp.
 extern SkBitmap source;
@@ -98,6 +100,44 @@ static void setLimits() {
 
 extern void draw(SkCanvas* canvas);
 
+static void drawAndDump(SkSurface* surface, SkWStream* stream) {
+    SkCanvas *canvas = surface->getCanvas();
+    draw(canvas);
+
+    // Write out the image as a PNG.
+    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    SkAutoTUnref<SkData> data(image->encode(SkImageEncoder::kPNG_Type, 100));
+    if (NULL == data.get()) {
+        printf("Failed to encode\n");
+        exit(1);
+    }
+    stream->write(data->data(), data->size());
+}
+
+static void drawRaster(SkWStream* stream, SkImageInfo info) {
+    SkAutoTUnref<SkSurface> surface;
+    surface.reset(SkSurface::NewRaster(info)); 
+    drawAndDump(surface, stream);
+}
+
+static void drawGPU(SkWStream* stream, SkImageInfo info) {
+    SkAutoTUnref<SkSurface> surface;
+    GrContextFactory* grFactory = NULL;
+
+    GrContext::Options grContextOpts;
+    grFactory = new GrContextFactory(grContextOpts);
+    GrContext* gr = grFactory->get(GrContextFactory::kMESA_GLContextType);
+    surface.reset(SkSurface::NewRenderTarget(gr,info));
+
+    drawAndDump(surface, stream);
+
+    delete grFactory;
+}
+
+static void drawPDF(SkWStream* stream, SkImageInfo info) {
+    printf( "Not implemented yet...\n");
+}
+
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
     SkAutoGraphics init;
@@ -119,25 +159,28 @@ int main(int argc, char** argv) {
         }
     }
 
-    SkFILEWStream stream(FLAGS_out[0]);
+    // make sure to open any needed output files before we set up the security
+    // jail
+
+    SkWStream* streams[3];
+
+    if (FLAGS_raster) {
+        SkString outPath;
+        outPath.printf("%s_raster.png", FLAGS_out[0]);
+        streams[0] = SkNEW_ARGS(SkFILEWStream,(outPath.c_str()));
+    }
+    if (FLAGS_gpu) {
+        SkString outPath;
+        outPath.printf("%s_gpu.png", FLAGS_out[0]);
+        streams[1] = SkNEW_ARGS(SkFILEWStream,(outPath.c_str()));
+    }
+    if (FLAGS_pdf) {
+        SkString outPath;
+        outPath.printf("%s.pdf", FLAGS_out[0]);
+        streams[2] = SkNEW_ARGS(SkFILEWStream,(outPath.c_str()));
+    }
 
     SkImageInfo info = SkImageInfo::MakeN32(FLAGS_width, FLAGS_height, kPremul_SkAlphaType);
-
-    SkCanvas* canvas;
-    SkAutoTUnref<SkSurface> surface;
-
-    GrContextFactory* grFactory = NULL;
-
-    if (FLAGS_gpu) {
-        GrContext::Options grContextOpts;
-        grFactory = new GrContextFactory(grContextOpts);
-        GrContext* gr = grFactory->get(GrContextFactory::kMESA_GLContextType);
-        surface.reset(SkSurface::NewRenderTarget(gr,info));
-    } else {
-        surface.reset(SkSurface::NewRaster(info));
-    }    
-
-    canvas = surface->getCanvas();
 
     setLimits();
 
@@ -145,15 +188,13 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    draw(canvas);
-
-    // Write out the image as a PNG.
-    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-    SkAutoTUnref<SkData> data(image->encode(SkImageEncoder::kPNG_Type, 100));
-    if (NULL == data.get()) {
-        printf("Failed to encode\n");
-        exit(1);
+    if (FLAGS_raster) {
+        drawRaster(streams[0], info);
     }
-    stream.write(data->data(), data->size());
-    delete grFactory;
+    if (FLAGS_gpu) {
+        drawGPU(streams[1], info);
+    }
+    if (FLAGS_pdf) {
+        drawPDF(streams[2], info);
+    }
 }

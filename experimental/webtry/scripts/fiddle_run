@@ -8,4 +8,4 @@
 [ -z $SKIA_ROOT ] && SKIA_ROOT="/skia_build/skia"
 [ -z $WEBTRY_INOUT ] && WEBTRY_INOUT="/skia_build/inout"
 
-$SKIA_ROOT/out/Release/$1 --out $WEBTRY_INOUT/$1.png "${@:2}"
+$SKIA_ROOT/out/Release/$1 --out $WEBTRY_INOUT/$1 "${@:2}"
