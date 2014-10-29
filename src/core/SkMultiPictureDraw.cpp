@@ -87,9 +87,7 @@ void SkMultiPictureDraw::draw() {
     // objects until after we're finished the tasks (which have pointers to the data).
 
     SkTaskGroup group;
-    for (int i = 0; i < fThreadSafeDrawData.count(); ++i) {
-        group.add(DrawData::Draw, &fThreadSafeDrawData[i]);
-    }
+    group.batch(DrawData::Draw, fThreadSafeDrawData.begin(), fThreadSafeDrawData.count());
     // we deliberately don't call wait() here, since the destructor will do that, this allows us
     // to continue processing gpu-data without having to wait on the cpu tasks.
 
