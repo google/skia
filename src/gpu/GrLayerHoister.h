@@ -87,12 +87,6 @@ public:
         @param layers     Unneeded layers in the atlas
     */
     static void UnlockLayers(GrContext* context, const SkTDArray<GrHoistedLayer>& layers);
-
-    /** Forceably remove all cached layers and release the atlas. Useful for debugging and timing.
-        This is only functional when GR_CACHE_HOISTED_LAYERS is set to 1 in GrLayerCache.h
-        @param context    Owner of the layer cache (and thus the layers)
-     */
-    static void PurgeCache(GrContext* context);
 };
 
 #endif

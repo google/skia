@@ -146,9 +146,6 @@ void SkMultiPictureDraw::draw() {
     if (NULL != context) {
         GrLayerHoister::UnlockLayers(context, atlasedNeedRendering);
         GrLayerHoister::UnlockLayers(context, atlasedRecycled);
-#if !GR_CACHE_HOISTED_LAYERS
-        GrLayerHoister::PurgeCache(context);
-#endif
     }
 #endif
 
