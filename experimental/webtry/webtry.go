@@ -948,7 +948,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if request.GPU {
-			png, err := ioutil.ReadFile("../../../inout/" + hash + "_GPU.png")
+			png, err := ioutil.ReadFile("../../../inout/" + hash + "_gpu.png")
 			if err != nil {
 				reportTryError(w, r, err, "Failed to open the GPU-generated PNG.", hash)
 				return

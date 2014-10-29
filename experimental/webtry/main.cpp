@@ -120,18 +120,11 @@ static void drawRaster(SkWStream* stream, SkImageInfo info) {
     drawAndDump(surface, stream);
 }
 
-static void drawGPU(SkWStream* stream, SkImageInfo info) {
+static void drawGPU(SkWStream* stream, GrContext* gr, SkImageInfo info) {
     SkAutoTUnref<SkSurface> surface;
-    GrContextFactory* grFactory = NULL;
-
-    GrContext::Options grContextOpts;
-    grFactory = new GrContextFactory(grContextOpts);
-    GrContext* gr = grFactory->get(GrContextFactory::kMESA_GLContextType);
     surface.reset(SkSurface::NewRenderTarget(gr,info));
 
     drawAndDump(surface, stream);
-
-    delete grFactory;
 }
 
 static void drawPDF(SkWStream* stream, SkImageInfo info) {
@@ -162,7 +155,7 @@ int main(int argc, char** argv) {
     // make sure to open any needed output files before we set up the security
     // jail
 
-    SkWStream* streams[3];
+    SkWStream* streams[3] = {NULL, NULL, NULL};
 
     if (FLAGS_raster) {
         SkString outPath;
@@ -182,19 +175,34 @@ int main(int argc, char** argv) {
 
     SkImageInfo info = SkImageInfo::MakeN32(FLAGS_width, FLAGS_height, kPremul_SkAlphaType);
 
+    GrContext *gr = NULL;
+    GrContextFactory* grFactory = NULL;
+
+    // need to set up the GPU context before we install system call restrictions
+    if (FLAGS_gpu) {
+    
+        GrContext::Options grContextOpts;
+        grFactory = new GrContextFactory(grContextOpts);
+        gr = grFactory->get(GrContextFactory::kMESA_GLContextType);
+    }
+
     setLimits();
 
     if (!install_syscall_filter()) {
         return 1;
     }
 
-    if (FLAGS_raster) {
+    if (NULL != streams[0]) {
         drawRaster(streams[0], info);
     }
-    if (FLAGS_gpu) {
-        drawGPU(streams[1], info);
+    if (NULL != streams[1]) {
+        drawGPU(streams[1], gr, info);
     }
-    if (FLAGS_pdf) {
+    if (NULL != streams[2]) {
         drawPDF(streams[2], info);
+    }
+
+    if (gr) {
+        delete grFactory;
     }
 }
