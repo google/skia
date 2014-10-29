@@ -2251,7 +2251,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6954981046543075934
+          7701873715306298538
         ]
       ], 
       "ignore-failure": false, 
@@ -3079,7 +3079,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3141607460059164885
+          8228032421559714837
         ]
       ], 
       "reviewed-by-human": true
@@ -7266,7 +7266,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2901180190490984309
+          13768174956949374678
         ]
       ], 
       "ignore-failure": false, 
@@ -7806,10 +7806,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10490693310135040310
+          7565584286650315350
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "quadclosepath_565.png": {
       "allowed-digests": [
@@ -8002,7 +8002,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11993275834491313480
+          17664189671911970633
         ]
       ], 
       "reviewed-by-human": true
@@ -8998,7 +8998,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13167360275956341018
+          992839478642869224
         ]
       ], 
       "reviewed-by-human": true

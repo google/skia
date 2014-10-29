@@ -46,19 +46,3 @@ imagemagnifier
 
 #joshualitt single pixel mismatch in msaa16
 gradients_view_perspective
-shadertext2
-complexclip2_rect_aa
-bigblurs
-simpleaaclip_rect
-convexpaths
-circles
-polygons
-ovals
-strokes_round
-hairmodes
-convex_poly_effect
-mixed_xfermodes
-roundrects
-coloremoji
-inverse_paths
-imagefiltersbase
