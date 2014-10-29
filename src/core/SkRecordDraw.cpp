@@ -7,7 +7,6 @@
 
 #include "SkRecordDraw.h"
 #include "SkPatchUtils.h"
-#include "SkTypeface.h"
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
@@ -445,13 +444,15 @@ private:
     Bounds bounds(const DrawTextOnPath& op) const {
         SkRect dst = op.path.getBounds();
 
-        // We don't know how the text will curve aroudn the path, so
-        // pad all sides by the maximum padding in any direction we'd normally apply.
+        // Pad all sides by the maximum padding in any direction we'd normally apply.
         SkRect pad = { 0, 0, 0, 0};
         AdjustTextForFontMetrics(&pad, op.paint);
-        SkScalar max = SkTMax(SkTMax(-pad.fLeft, pad.fRight),
-                              SkTMax(-pad.fTop, pad.fBottom));
-        dst.outset(max, max);
+
+        // That maximum padding happens to always be the right pad today.
+        SkASSERT(pad.fLeft == -pad.fRight);
+        SkASSERT(pad.fTop  == -pad.fBottom);
+        SkASSERT(pad.fRight > pad.fBottom);
+        dst.outset(pad.fRight, pad.fRight);
 
         return this->adjustAndMap(dst, &op.paint);
     }
@@ -463,23 +464,14 @@ private:
     }
 
     static void AdjustTextForFontMetrics(SkRect* rect, const SkPaint& paint) {
-        // rect was built from only the text's origin points, so we need
-        // to outset it by the worst-case bounds of the typeface.
 #ifdef SK_DEBUG
         SkRect correct = *rect;
 #endif
-        SkAutoTUnref<SkTypeface> au;
-        SkTypeface* tf = paint.getTypeface();
-        if (!tf) {
-            au.reset(SkTypeface::RefDefault());
-            tf = au.get();
-        }
-        const SkScalar size = paint.getTextSize();
-        const SkRect tb = tf->getBounds();
-        rect->fLeft   += size * tb.fLeft;
-        rect->fRight  += size * tb.fRight;
-        rect->fTop    += size * tb.fTop;
-        rect->fBottom += size * tb.fBottom;
+        // crbug.com/373785 ~~> xPad = 4x yPad
+        // crbug.com/424824 ~~> bump yPad from 2x text size to 2.5x
+        const SkScalar yPad = 2.5f * paint.getTextSize(),
+                       xPad = 4.0f * yPad;
+        rect->outset(xPad, yPad);
 #ifdef SK_DEBUG
         SkPaint::FontMetrics metrics;
         paint.getFontMetrics(&metrics);
@@ -489,10 +481,9 @@ private:
         correct.fBottom += metrics.fBottom;
         // See skia:2862 for why we ignore small text sizes.
         SkASSERTF(paint.getTextSize() < 0.001f || rect->contains(correct),
-                  "%f %f %f %f vs. %f %f %f %f, text size %f\n",
-                  size*tb.fLeft, size*tb.fTop, size*tb.fRight, size*tb.fBottom,
-                  metrics.fXMin, metrics.fTop, metrics.fXMax,  metrics.fBottom,
-                  paint.getTextSize());
+                  "%f %f %f %f vs. %f %f %f %f\n",
+                  -xPad, -yPad, +xPad, +yPad,
+                  metrics.fXMin, metrics.fTop, metrics.fXMax, metrics.fBottom);
 #endif
     }
 
