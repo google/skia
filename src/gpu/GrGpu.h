@@ -9,7 +9,6 @@
 #define GrGpu_DEFINED
 
 #include "GrDrawTarget.h"
-#include "GrClipMaskManager.h"
 #include "GrPathRendering.h"
 #include "GrProgramDesc.h"
 #include "SkPath.h"
@@ -299,16 +298,6 @@ public:
         return fResetTimestamp;
     }
 
-    enum PrivateDrawStateStateBits {
-        kFirstBit = (GrDrawState::kLastPublicStateBit << 1),
-
-        kModifyStencilClip_StateBit = kFirstBit, // allows draws to modify
-                                                 // stencil bits used for
-                                                 // clipping.
-    };
-
-    void getPathStencilSettingsForFillType(SkPath::FillType fill, GrStencilSettings* outStencilSettings);
-
     enum DrawType {
         kDrawPoints_DrawType,
         kDrawLines_DrawType,
@@ -364,8 +353,6 @@ protected:
                                           unsigned int userBits,
                                           unsigned int* ref,
                                           unsigned int* mask);
-
-    GrClipMaskManager           fClipMaskManager;
 
     GrContext::GPUStats         fGPUStats;
 

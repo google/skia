@@ -505,6 +505,9 @@ public:
                           const GrDeviceCoordTexture* dstCopy) {
         this->onDrawPaths(pathRange, indices, count, transforms, transformsType, fill, dstCopy);
     }
+
+    void getPathStencilSettingsForFillType(SkPath::FillType, GrStencilSettings*);
+
     ////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -923,6 +926,7 @@ private:
 
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }
+    virtual GrClipMaskManager* getClipMaskManager() = 0;
 
     enum {
         kPreallocGeoSrcStateStackCnt = 4,
@@ -941,9 +945,21 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
+/*
+ * This class is JUST for clip mask manager.  Everyone else should just use draw target above.
+ */
 class GrClipTarget : public GrDrawTarget {
 public:
-    GrClipTarget(GrContext* context) : INHERITED(context) {}
+    GrClipTarget(GrContext* context) : INHERITED(context) {
+        fClipMaskManager.setClipTarget(this);
+    }
+
+    /* Clip mask manager needs access to the context.
+     * TODO we only need a very small subset of context in the CMM.
+     */
+    GrContext* getContext() { return INHERITED::getContext(); }
+    const GrContext* getContext() const { return INHERITED::getContext(); }
+
     /**
      * Clip Mask Manager(and no one else) needs to clear private stencil bits.
      * ClipTarget subclass sets clip bit in the stencil buffer. The subclass
@@ -952,7 +968,12 @@ public:
      */
     virtual void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* = NULL) = 0;
 
+protected:
+    GrClipMaskManager           fClipMaskManager;
+
 private:
+    GrClipMaskManager* getClipMaskManager() { return &fClipMaskManager; }
+
     typedef GrDrawTarget INHERITED;
 };
 

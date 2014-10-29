@@ -22,7 +22,7 @@
 #include "SkTLList.h"
 #include "SkTypes.h"
 
-class GrGpu;
+class GrClipTarget;
 class GrPathRenderer;
 class GrPathRendererChain;
 class GrTexture;
@@ -39,8 +39,8 @@ class SkPath;
 class GrClipMaskManager : SkNoncopyable {
 public:
     GrClipMaskManager()
-        : fGpu(NULL)
-        , fCurrClipMaskType(kNone_ClipMaskType) {
+        : fCurrClipMaskType(kNone_ClipMaskType)
+        , fClipTarget(NULL) {
     }
 
     // The state of the scissor is controlled by the clip manager, no one else should set
@@ -64,7 +64,7 @@ public:
                        const SkRect* devBounds,
                        GrDrawState::AutoRestoreEffects*,
                        GrDrawState::AutoRestoreStencil*,
-                       ScissorState* scissorState);
+                       ScissorState*);
 
     /**
      * Purge resources to free up memory. TODO: This class shouldn't hold any long lived refs
@@ -89,10 +89,19 @@ public:
         return fAACache.getContext();
     }
 
-    void setGpu(GrGpu* gpu);
+    void setClipTarget(GrClipTarget*);
 
-    void adjustPathStencilParams(GrStencilSettings* settings);
+    void adjustPathStencilParams(GrStencilSettings*);
+
 private:
+    enum PrivateDrawStateStateBits {
+        kFirstBit = (GrDrawState::kLastPublicStateBit << 1),
+
+        kModifyStencilClip_StateBit = kFirstBit, // allows draws to modify
+                                                 // stencil bits used for
+                                                 // clipping.
+    };
+
     /**
      * Informs the helper function adjustStencilParams() about how the stencil
      * buffer clip is being used.
@@ -106,21 +115,6 @@ private:
         // Neither writing to nor clipping against the clip bit.
         kIgnoreClip_StencilClipMode,
     };
-
-    GrGpu* fGpu;
-
-    /**
-     * We may represent the clip as a mask in the stencil buffer or as an alpha
-     * texture. It may be neither because the scissor rect suffices or we
-     * haven't yet examined the clip.
-     */
-    enum ClipMaskType {
-        kNone_ClipMaskType,
-        kStencil_ClipMaskType,
-        kAlpha_ClipMaskType,
-    } fCurrClipMaskType;
-
-    GrClipMaskCache fAACache;       // cache for the AA path
 
     // Attempts to install a series of coverage effects to implement the clip. Return indicates
     // whether the element list was successfully converted to effects.
@@ -195,6 +189,20 @@ private:
     void adjustStencilParams(GrStencilSettings* settings,
                              StencilClipMode mode,
                              int stencilBitCnt);
+
+    /**
+     * We may represent the clip as a mask in the stencil buffer or as an alpha
+     * texture. It may be neither because the scissor rect suffices or we
+     * haven't yet examined the clip.
+     */
+    enum ClipMaskType {
+        kNone_ClipMaskType,
+        kStencil_ClipMaskType,
+        kAlpha_ClipMaskType,
+    } fCurrClipMaskType;
+
+    GrClipMaskCache fAACache;       // cache for the AA path
+    GrClipTarget* fClipTarget;
 
     typedef SkNoncopyable INHERITED;
 };

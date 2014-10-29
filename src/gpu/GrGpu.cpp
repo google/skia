@@ -36,9 +36,6 @@ GrGpu::GrGpu(GrContext* context)
     , fVertexPoolUseCnt(0)
     , fIndexPoolUseCnt(0)
     , fQuadIndexBuffer(NULL) {
-
-    fClipMaskManager.setGpu(this);
-
     fGeomPoolStateStack.push_back();
 #ifdef SK_DEBUG
     GeometryPoolState& poolState = fGeomPoolStateStack.back();
@@ -249,43 +246,6 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     this->handleDirtyContext();
     this->onResolveRenderTarget(target);
 }
-
-static const GrStencilSettings& winding_path_stencil_settings() {
-    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
-        kIncClamp_StencilOp,
-        kIncClamp_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0xFFFF, 0xFFFF, 0xFFFF);
-    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
-}
-
-static const GrStencilSettings& even_odd_path_stencil_settings() {
-    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
-        kInvert_StencilOp,
-        kInvert_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0xFFFF, 0xFFFF, 0xFFFF);
-    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
-}
-
-void GrGpu::getPathStencilSettingsForFillType(SkPath::FillType fill, GrStencilSettings* outStencilSettings) {
-
-    switch (fill) {
-        default:
-            SkFAIL("Unexpected path fill.");
-            /* fallthrough */;
-        case SkPath::kWinding_FillType:
-        case SkPath::kInverseWinding_FillType:
-            *outStencilSettings = winding_path_stencil_settings();
-            break;
-        case SkPath::kEvenOdd_FillType:
-        case SkPath::kInverseEvenOdd_FillType:
-            *outStencilSettings = even_odd_path_stencil_settings();
-            break;
-    }
-    fClipMaskManager.adjustPathStencilParams(outStencilSettings);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
