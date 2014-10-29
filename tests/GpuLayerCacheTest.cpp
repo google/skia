@@ -145,15 +145,21 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
             // All the layers should be unlocked
             REPORTER_ASSERT(reporter, !layer->locked());
 
+            // When hoisted layers aren't cached they are aggressively removed
+            // from the atlas
+#if GR_CACHE_HOISTED_LAYERS
             // The first 4 layers should still be in the atlas.
             if (i < 4) {
                 REPORTER_ASSERT(reporter, layer->texture());
                 REPORTER_ASSERT(reporter, layer->isAtlased());
             } else {
+#endif
                 // The final layer should not be atlased.
                 REPORTER_ASSERT(reporter, NULL == layer->texture());
                 REPORTER_ASSERT(reporter, !layer->isAtlased());
+#if GR_CACHE_HOISTED_LAYERS
             }
+#endif
         }
 
         {
@@ -172,6 +178,7 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         for (int i = 0; i < kInitialNumLayers+1; ++i) {
             GrCachedLayer* layer = cache.findLayer(picture->uniqueID(), i + 1,
                                                    SkIRect::MakeEmpty(), SkMatrix::I());
+#if GR_CACHE_HOISTED_LAYERS
             // 3 old layers plus the new one should be in the atlas.
             if (1 == i || 2 == i || 3 == i || 5 == i) {
                 REPORTER_ASSERT(reporter, layer);
@@ -179,15 +186,18 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
                 REPORTER_ASSERT(reporter, layer->texture());
                 REPORTER_ASSERT(reporter, layer->isAtlased());
             } else if (4 == i) {
+#endif
                 // The one that was never atlased should still be around
                 REPORTER_ASSERT(reporter, layer);
 
                 REPORTER_ASSERT(reporter, NULL == layer->texture());
                 REPORTER_ASSERT(reporter, !layer->isAtlased());
+#if GR_CACHE_HOISTED_LAYERS
             } else {
                 // The one bumped out of the atlas (i.e., 0) should be gone
                 REPORTER_ASSERT(reporter, NULL == layer);
             }
+#endif
         }
 
         //--------------------------------------------------------------------
