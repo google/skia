@@ -122,6 +122,9 @@ protected:
     virtual bool onClose(SkWStream*) = 0;
     virtual void onAbort() = 0;
 
+    // Allows subclasses to write to the stream as pages are written.
+    SkWStream* getStream() { return fStream; }
+
     enum State {
         kBetweenPages_State,
         kInPage_State,
