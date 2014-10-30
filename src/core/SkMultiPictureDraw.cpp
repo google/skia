@@ -114,7 +114,7 @@ void SkMultiPictureDraw::draw() {
     for (int i = 0; i < count; ++i) {
         const DrawData& data = fGPUDrawData[i];
         // we only expect 1 context for all the canvases
-        SkASSERT(data.canvas->getGrContext() == context);
+        SkASSERT(data.fCanvas->getGrContext() == context);
 
         if (!data.fPaint && data.fMatrix.isIdentity()) {
             // TODO: this path always tries to optimize pictures. Should we
