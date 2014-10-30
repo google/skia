@@ -101,10 +101,11 @@ private:
 
 // Draw an SkPicture into an SkCanvas replacing saveLayer/restore blocks with
 // drawBitmap calls.  A convenience wrapper around SkRecords::Draw.
-void GrRecordReplaceDraw(const SkPicture*,
-                         SkCanvas*,
-                         const GrReplacements*,
-                         const SkMatrix& initialMatrix,
-                         SkDrawPictureCallback*);
+// It returns the number of saveLayer/restore blocks replaced with drawBitmap calls.
+int GrRecordReplaceDraw(const SkPicture*,
+                        SkCanvas*,
+                        const GrReplacements*,
+                        const SkMatrix& initialMatrix,
+                        SkDrawPictureCallback*);
 
 #endif // GrRecordReplaceDraw_DEFINED

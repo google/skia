@@ -66,15 +66,18 @@ public:
         , fReplacements(replacements)
         , fInitialMatrix(initialMatrix)
         , fCallback(callback)
-        , fIndex(0) {
+        , fIndex(0)
+        , fNumReplaced(0) {
     }
 
-    void draw() {
+    int draw() {
         const SkBBoxHierarchy* bbh = fPicture->fBBH.get();
         const SkRecord* record = fPicture->fRecord.get();
         if (NULL == record) {
-            return;
+            return 0;
         }
+
+        fNumReplaced = 0;
 
         fOps.rewind();
 
@@ -91,7 +94,7 @@ public:
 
             for (fIndex = 0; fIndex < fOps.count(); ++fIndex) {
                 if (fCallback && fCallback->abortDrawing()) {
-                    return;
+                    return fNumReplaced;
                 }
 
                 record->visit<void>(fOps[fIndex], *this);
@@ -100,12 +103,14 @@ public:
         } else {
             for (fIndex = 0; fIndex < (int) record->count(); ++fIndex) {
                 if (fCallback && fCallback->abortDrawing()) {
-                    return;
+                    return fNumReplaced;
                 }
 
                 record->visit<void>(fIndex, *this);
             }
         }
+
+        return fNumReplaced;
     }
 
     // Same as Draw for all ops except DrawPicture and SaveLayer.
@@ -118,7 +123,7 @@ public:
         // Draw sub-pictures with the same replacement list but a different picture
         ReplaceDraw draw(fCanvas, dp.picture, fReplacements, fInitialMatrix, fCallback);
 
-        draw.draw();
+        fNumReplaced += draw.draw();
     }
     void operator()(const SkRecords::SaveLayer& sl) {
 
@@ -131,12 +136,14 @@ public:
             startOffset = fIndex;
         }
 
+        const SkMatrix& ctm = fCanvas->getTotalMatrix();
         const GrReplacements::ReplacementInfo* ri = fReplacements->lookupByStart(
                                                             fPicture->uniqueID(),
                                                             startOffset,
-                                                            fCanvas->getTotalMatrix());
+                                                            ctm);
 
         if (ri) {
+            fNumReplaced++;
             draw_replacement_bitmap(ri, fCanvas, fInitialMatrix);
 
             if (fPicture->fBBH.get()) {
@@ -163,18 +170,19 @@ private:
 
     SkTDArray<unsigned>    fOps;
     int                    fIndex;
+    int                    fNumReplaced;
 
     typedef Draw INHERITED;
 };
 
-void GrRecordReplaceDraw(const SkPicture* picture,
-                         SkCanvas* canvas,
-                         const GrReplacements* replacements,
-                         const SkMatrix& initialMatrix,
-                         SkDrawPictureCallback* callback) {
+int GrRecordReplaceDraw(const SkPicture* picture,
+                        SkCanvas* canvas,
+                        const GrReplacements* replacements,
+                        const SkMatrix& initialMatrix,
+                        SkDrawPictureCallback* callback) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
     ReplaceDraw draw(canvas, picture, replacements, initialMatrix, callback);
 
-    draw.draw();
+    return draw.draw();
 }
