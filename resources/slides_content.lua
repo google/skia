@@ -1,4 +1,6 @@
-Skia Overview [Fall '13]
+Skia Overview 2014
+
+< transition =slide>
 
 One API -- many backends
 - Raster [8888, 565, A8]
@@ -8,6 +10,8 @@ One API -- many backends
 - Picture
 - Pipe
 
+<transition= fade>
+
 One Team -- many clients
 - Chrome
 - ChromeOS
@@ -15,10 +19,14 @@ One Team -- many clients
 - Android Framework
 - 3rd parties (e.g. FireFox)
 
+<transition= rotate>
+
 Optimize for CPU variety
 - x86 - 32bit (SSE, SSE2, ...), 64bit
 - Arm - thumb, arm, NEON, ... 64bit?
 - MIPS (just starting)
+
+<transition= zoom>
 
 Optimize for GPU variety
 - Nvidia

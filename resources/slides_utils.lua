@@ -29,30 +29,11 @@ function count_hypens(s)
     return string.len(s) - string.len(leftover)
 end
 
-function parse_file(file)
-    local slides = {}
-    local block = {}
-
-    for line in file:lines() do
-        local s = trim_ws(line)
-        if #s == 0 then   -- done with a block
-            if #block > 0 then
-                slides[#slides + 1] = block
-                block = {}
-            end
-        else
-            local n = count_hypens(s)
-            block[#block + 1] = {
-                indent = n,
-                text = trim_ws(s:sub(n + 1, -1))
-            }
-        end
-    end
-    return slides
-end
-
 function pretty_print_slide(slide)
     io.write("{\n")
+    if slide.transition then
+        io.write("   transition = \"", slide.transition, "\",\n")
+    end
     for i = 1, #slide do
         local node = slide[i]
         for j = 0, node.indent do
@@ -71,5 +52,37 @@ function pretty_print_slides(slides)
         pretty_print_slide(slides[i])
     end
     io.write("}\n")
+end
+
+function parse_transition_type(s)
+    return s:match("^<%s*transition%s*=%s*(%a+)%s*>$")
+end
+
+function parse_file(file)
+    local slides = {}
+    local block = {}
+
+    for line in file:lines() do
+        local s = trim_ws(line)
+        if #s == 0 then   -- done with a block
+            if #block > 0 then
+                slides[#slides + 1] = block
+                block = {}
+            end
+        else
+            local transition_type = parse_transition_type(s)
+            if transition_type then
+                block["transition"] = transition_type
+            else
+                local n = count_hypens(s)
+                block[#block + 1] = {
+                    indent = n,
+                    text = trim_ws(s:sub(n + 1, -1))
+                }
+            end
+        end
+    end
+--    pretty_print_slides(slides)
+    return slides
 end
 

@@ -2,8 +2,10 @@
 gPath = "/skia/trunk/resources/"
 
 function load_file(file)
+    local prev_path = package.path
     package.path = package.path .. ";" .. gPath .. file .. ".lua"
     require(file)
+    package.path = prev_path
 end
 
 load_file("slides_utils")
@@ -42,97 +44,6 @@ function drawSlide(canvas, slide, template)
         canvas:drawText(node.text, x + x_offset, y, paint)
         y = y + fm.descent * scale + extra_dy
     end
-end
-
-function scale_text_delta(template, delta)
-    template = template.slide
-    for i = 1, #template do
-        local paint = template[i].paint
-        paint:setTextSize(paint:getTextSize() + delta)
-    end
-end
-
-function slide_transition(prev, next, is_forward)
-    local rec = {
-        proc = function(self, canvas, drawSlideProc)
-            if self:isDone() then
-                drawSlideProc(canvas)
-                return nil
-            end
-            self.prevDrawable:draw(canvas, self.curr_x, 0)
-            self.nextDrawable:draw(canvas, self.curr_x + 640, 0)
-            self.curr_x = self.curr_x + self.step_x
-            return self
-        end
-    }
-    if is_forward then
-        rec.prevDrawable = prev
-        rec.nextDrawable = next
-        rec.curr_x = 0
-        rec.step_x = -15
-        rec.isDone = function (self) return self.curr_x <= -640 end
-    else
-        rec.prevDrawable = next
-        rec.nextDrawable = prev
-        rec.curr_x = -640
-        rec.step_x = 15
-        rec.isDone = function (self) return self.curr_x >= 0 end
-    end
-    return rec
-end
-
-function sqr(value) return value * value end
-
-function set_blur(paint, alpha)
-    local sigma = sqr(1 - alpha) * 20
---    paint:setImageFilter(Sk.newBlurImageFilter(sigma, sigma))
-    paint:setAlpha(alpha)
-end
-
-function fade_slide_transition(prev, next, is_forward)
-    local rec = {
-        paint = Sk.newPaint(),
-        prevDrawable = prev,
-        nextDrawable = next,
-        proc = function(self, canvas, drawSlideProc)
-            if self:isDone() then
-                drawSlideProc(canvas)
-                return nil
-            end
-
-            set_blur(self.paint, self.prev_a)
-            self.prevDrawable:draw(canvas, self.prev_x, 0, self.paint)
-
-            set_blur(self.paint, self.next_a)
-            self.nextDrawable:draw(canvas, self.next_x, 0, self.paint)
-            self:step()
-            return self
-        end
-    }
-    if is_forward then
-        rec.prev_x = 0
-        rec.prev_a = 1
-        rec.next_x = 640
-        rec.next_a = 0
-        rec.isDone = function (self) return self.next_x <= 0 end
-        rec.step = function (self)
-            self.next_x = self.next_x - 20
-            self.next_a = (640 - self.next_x) / 640
-            self.prev_a = 1 - self.next_a
-        end
-    else
-        rec.prev_x = 0
-        rec.prev_a = 1
-        rec.next_x = 0
-        rec.next_a = 0
-        rec.isDone = function (self) return self.prev_x >= 640 end
-        rec.step = function (self)
-            self.prev_x = self.prev_x + 20
-            self.prev_a = (640 - self.prev_x) / 640
-            self.next_a = 1 - self.prev_a
-        end
-    end
-    return rec
 end
 
 --------------------------------------------------------------------------------------
@@ -253,12 +164,14 @@ end
 -- gMakeDrawable = convert_to_picture_drawable
 gMakeDrawable = new_drawable_slide
 
+load_file("slides_transitions")
+
 function spawn_transition(prevSlide, nextSlide, is_forward)
     local transition
     if is_forward then
-        transition = prevSlide.transition
+        transition = gTransitionTable[nextSlide.transition]
     else
-        transition = nextSlide.transition
+        transition = gTransitionTable[prevSlide.transition]
     end
 
     if not transition then
