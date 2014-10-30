@@ -12,7 +12,7 @@
 
 #include "SkWindow.h"
 
-class SkIRect;
+struct SkIRect;
 
 class SkOSWindow : public SkWindow {
 public:

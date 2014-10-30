@@ -72,7 +72,6 @@
           ],
           'cflags': [
             '-fomit-frame-pointer',
-            '-mno-apcs-frame',
           ],
           'variables': {
             'arm_neon_optional%': '<(arm_neon_optional>',
@@ -147,7 +146,6 @@
             '-msse2',
             '-mfpu=neon',
             '-fomit-frame-pointer',
-            '-mno-apcs-frame',
           ]
         }],
         [ 'skia_arch_type == "arm64"', {
