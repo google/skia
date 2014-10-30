@@ -386,6 +386,7 @@ CGLContextObj createGLContext(int msaaSampleCount) {
         andGetInfo:(SkOSWindow::AttachmentInfo*) info {
     if (nil == fGLContext) {
         CGLContextObj ctx = createGLContext(sampleCount);
+        SkASSERT(ctx);
         fGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:ctx];
         CGLReleaseContext(ctx);
         if (NULL == fGLContext) {

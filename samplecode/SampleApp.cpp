@@ -259,8 +259,12 @@ public:
 
     virtual void tearDownBackend(SampleWindow *win) {
 #if SK_SUPPORT_GPU
-        SkSafeUnref(fCurContext);
-        fCurContext = NULL;
+        if (fCurContext) {
+            // in case we have outstanding refs to this guy (lua?)
+            fCurContext->abandonContext();
+            fCurContext->unref();
+            fCurContext = NULL;
+        }
 
         SkSafeUnref(fCurIntf);
         fCurIntf = NULL;
