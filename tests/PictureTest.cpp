@@ -1494,47 +1494,6 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     SkSetErrorCallback(NULL, NULL);
 }
 
-static void test_draw_empty(skiatest::Reporter* reporter) {
-    SkBitmap result;
-    make_bm(&result, 2, 2, SK_ColorBLACK, false);
-
-    SkCanvas canvas(result);
-
-    {
-        // stock SkPicture
-        SkPictureRecorder recorder;
-        recorder.beginRecording(1, 1);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-
-        canvas.drawPicture(picture);
-    }
-
-    {
-        // tile grid
-        SkTileGridFactory::TileGridInfo gridInfo;
-        gridInfo.fMargin.setEmpty();
-        gridInfo.fOffset.setZero();
-        gridInfo.fTileInterval.set(1, 1);
-
-        SkTileGridFactory factory(gridInfo);
-        SkPictureRecorder recorder;
-        recorder.beginRecording(1, 1, &factory);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-
-        canvas.drawPicture(picture);
-    }
-
-    {
-        // RTree
-        SkRTreeFactory factory;
-        SkPictureRecorder recorder;
-        recorder.beginRecording(1, 1, &factory);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-
-        canvas.drawPicture(picture);
-    }
-}
-
 static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     // Test for crbug.com/229011
     SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(4), SkIntToScalar(4),
@@ -1765,7 +1724,6 @@ DEF_TEST(Picture, reporter) {
     test_gatherpixelrefs(reporter);
     test_gatherpixelrefsandrects(reporter);
     test_bitmap_with_encoded_data(reporter);
-    test_draw_empty(reporter);
     test_clip_bound_opt(reporter);
     test_clip_expansion(reporter);
     test_hierarchical(reporter);
