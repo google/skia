@@ -19,6 +19,10 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     self.archive_data_file = 'data/skia_googlespreadsheetdashed_desktop.json'
     self.credentials = 'google'
 
+  def RunNavigateSteps(self, action_runner):
+    action_runner.NavigateToPage(self)
+    action_runner.Wait(15)
+
 
 class SkiaGooglespreadsheetdashedDesktopPageSet(page_set_module.PageSet):
 
