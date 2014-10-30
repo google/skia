@@ -5,13 +5,31 @@ UTIL_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ "$(which adb)" != "" ]; then
     ADB="$(which adb)"
-elif [ $(uname) == "Linux" ]; then
-    ADB=$UTIL_DIR/../linux/adb
-elif [ $(uname) == "Darwin" ]; then
-    ADB=$UTIL_DIR/../mac/adb
+elif [ -d "$ANDROID_SDK_ROOT" ]; then
+    ADB="${ANDROID_SDK_ROOT}/platform-tools/adb"
 else
-    echo "ERROR: Could not find ADB!"
-    exit 1;
+  echo $ANDROID_SDK_ROOT
+  echo "No ANDROID_SDK_ROOT set (check that android_setup.sh was properly sourced)"
+  exit 1
 fi
 
-#echo "ADB is: $ADB"
+if [ ! -x $ADB ]; then
+  echo "The adb binary is not executable"
+  exit 1
+fi
+
+if [ $(uname) == "Linux" ]; then
+  ADB_REQUIRED="1.0.32"
+elif [ $(uname) == "Darwin" ]; then
+  ADB_REQUIRED="1.0.31"
+fi
+
+# get the version and then truncate it to be just the version numbers
+ADB_VERSION="$($ADB version)"
+ADB_VERSION="${ADB_VERSION##* }"
+
+if [ $ADB_VERSION != $ADB_REQUIRED ]; then
+  echo "WARNING: Your ADB version is out of date!"
+  echo "  Expected ADB Version: ${ADB_REQUIRED}"
+  echo "  Actual ADB Version: ${ADB_VERSION}"
+fi
