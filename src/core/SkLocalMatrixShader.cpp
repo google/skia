@@ -60,6 +60,10 @@ void SkLocalMatrixShader::toString(SkString* str) const {
 #endif
 
 SkShader* SkShader::CreateLocalMatrixShader(SkShader* proxy, const SkMatrix& localMatrix) {
+    if (NULL == proxy) {
+        return NULL;
+    }
+
     if (localMatrix.isIdentity()) {
         return SkRef(proxy);
     }
