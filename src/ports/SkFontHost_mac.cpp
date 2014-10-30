@@ -450,16 +450,16 @@ static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
 class SkTypeface_Mac : public SkTypeface {
 public:
     SkTypeface_Mac(const SkFontStyle& fs, SkFontID fontID, bool isFixedPitch,
-                   CTFontRef fontRef, const char name[], bool isLocalStream)
+                   CTFontRef fontRef, const char requestedName[], bool isLocalStream)
         : SkTypeface(fs, fontID, isFixedPitch)
-        , fName(name)
+        , fRequestedName(requestedName)
         , fFontRef(fontRef) // caller has already called CFRetain for us
         , fIsLocalStream(isLocalStream)
     {
         SkASSERT(fontRef);
     }
 
-    SkString fName;
+    SkString fRequestedName;
     AutoCFRelease<CTFontRef> fFontRef;
 
 protected:
@@ -586,16 +586,17 @@ SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef) {
     return face;
 }
 
-struct NameStyleRec {
-    const char*         fName;
-    SkFontStyle   fStyle;
+struct NameStyle {
+    const char* fName;
+    SkFontStyle fStyle;
 };
 
-static bool FindByNameStyle(SkTypeface* face, const SkFontStyle& style, void* ctx) {
-    const SkTypeface_Mac* mface = reinterpret_cast<SkTypeface_Mac*>(face);
-    const NameStyleRec* rec = reinterpret_cast<const NameStyleRec*>(ctx);
+static bool find_by_NameStyle(SkTypeface* cachedFace, const SkFontStyle& cachedStyle, void* ctx) {
+    const SkTypeface_Mac* cachedMacFace = static_cast<SkTypeface_Mac*>(cachedFace);
+    const NameStyle* requested = static_cast<const NameStyle*>(ctx);
 
-    return rec->fStyle == style && mface->fName.equals(rec->fName);
+    return cachedStyle == requested->fStyle
+        && cachedMacFace->fRequestedName.equals(requested->fName);
 }
 
 static const char* map_css_names(const char* name) {
@@ -2016,25 +2017,14 @@ static int compute_metric(const SkFontStyle& a, const SkFontStyle& b) {
            sqr((a.isItalic() != b.isItalic()) * 900);
 }
 
-struct NameFontStyleRec {
-    SkString    fFamilyName;
-    SkFontStyle fFontStyle;
-};
-
-static bool nameFontStyleProc(SkTypeface* face, const SkFontStyle&, void* ctx) {
-    SkTypeface_Mac* macFace = (SkTypeface_Mac*)face;
-    const NameFontStyleRec* rec = (const NameFontStyleRec*)ctx;
-
-    return macFace->fontStyle() == rec->fFontStyle &&
-           macFace->fName == rec->fFamilyName;
-}
-
 static SkTypeface* createFromDesc(CFStringRef cfFamilyName, CTFontDescriptorRef desc) {
-    NameFontStyleRec rec;
-    CFStringToSkString(cfFamilyName, &rec.fFamilyName);
-    rec.fFontStyle = fontstyle_from_descriptor(desc, NULL);
+    NameStyle cacheRequest;
+    SkString skFamilyName;
+    CFStringToSkString(cfFamilyName, &skFamilyName);
+    cacheRequest.fName = skFamilyName.c_str();
+    cacheRequest.fStyle = fontstyle_from_descriptor(desc, NULL);
 
-    SkTypeface* face = SkTypefaceCache::FindByProcAndRef(nameFontStyleProc, &rec);
+    SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_NameStyle, &cacheRequest);
     if (face) {
         return face;
     }
@@ -2051,16 +2041,13 @@ static SkTypeface* createFromDesc(CFStringRef cfFamilyName, CTFontDescriptorRef 
         return NULL;
     }
 
-    SkString str;
-    CFStringToSkString(cfFamilyName, &str);
-
     bool isFixedPitch;
     AutoCFRelease<CTFontDescriptorRef> ctFontDesc(CTFontCopyFontDescriptor(ctFont));
     (void)fontstyle_from_descriptor(ctFontDesc, &isFixedPitch);
     SkFontID fontID = CTFontRef_to_SkFontID(ctFont);
 
-    face = SkNEW_ARGS(SkTypeface_Mac, (rec.fFontStyle, fontID, isFixedPitch,
-                                       ctFont, str.c_str(), false));
+    face = SkNEW_ARGS(SkTypeface_Mac, (cacheRequest.fStyle, fontID, isFixedPitch,
+                                       ctFont, skFamilyName.c_str(), false));
     SkTypefaceCache::Add(face, face->fontStyle());
     return face;
 }
@@ -2241,8 +2228,8 @@ protected:
             familyName = FONT_DEFAULT_NAME;
         }
 
-        NameStyleRec rec = { familyName, style };
-        SkTypeface* face = SkTypefaceCache::FindByProcAndRef(FindByNameStyle, &rec);
+        NameStyle cacheRequest = { familyName, style };
+        SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_NameStyle, &cacheRequest);
 
         if (NULL == face) {
             face = NewFromName(familyName, style);
