@@ -328,7 +328,7 @@ static void set_random_hints(GrGpuGL* gpu, SkRandom* random) {
 
 static void set_random_state(GrGpuGL* gpu, SkRandom* random) {
     int state = 0;
-    for (int i = 1; i <= GrDrawState::kLastPublicStateBit; i <<= 1) {
+    for (int i = 1; i <= GrDrawState::kLast_StateBit; i <<= 1) {
         state |= random->nextBool() * i;
     }
     gpu->drawState()->enableState(state);

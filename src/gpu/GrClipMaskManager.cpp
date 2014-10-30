@@ -216,6 +216,9 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
                                       GrDrawState::AutoRestoreStencil* ars,
                                       ScissorState* scissorState) {
     fCurrClipMaskType = kNone_ClipMaskType;
+    if (kRespectClip_StencilClipMode == fClipMode) {
+        fClipMode = kIgnoreClip_StencilClipMode;
+    }
 
     GrReducedClip::ElementList elements(16);
     int32_t genID;
@@ -743,7 +746,7 @@ bool GrClipMaskManager::createStencilClipMask(int32_t elementsGenID,
             const Element* element = iter.get();
             bool fillInverted = false;
             // enabled at bottom of loop
-            drawState->disableState(kModifyStencilClip_StateBit);
+            fClipMode = kIgnoreClip_StencilClipMode;
             // if the target is MSAA then we want MSAA enabled when the clip is soft
             if (rt->isMultisampled()) {
                 drawState->setState(GrDrawState::kHWAntialias_StateBit, element->isAA());
@@ -822,7 +825,7 @@ bool GrClipMaskManager::createStencilClipMask(int32_t elementsGenID,
 
             // now we modify the clip bit by rendering either the clip
             // element directly or a bounding rect of the entire clip.
-            drawState->enableState(kModifyStencilClip_StateBit);
+            fClipMode = kModifyClip_StencilClipMode;
             for (int p = 0; p < passes; ++p) {
                 *drawState->stencil() = stencilSettings[p];
                 if (canDrawDirectToClip) {
@@ -845,6 +848,7 @@ bool GrClipMaskManager::createStencilClipMask(int32_t elementsGenID,
     // set this last because recursive draws may overwrite it back to kNone.
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
     fCurrClipMaskType = kStencil_ClipMaskType;
+    fClipMode = kRespectClip_StencilClipMode;
     return true;
 }
 
@@ -911,22 +915,12 @@ void GrClipMaskManager::setDrawStateStencil(GrDrawState::AutoRestoreStencil* ars
 
     // use stencil for clipping if clipping is enabled and the clip
     // has been written into the stencil.
-    GrClipMaskManager::StencilClipMode clipMode;
-    if (this->isClipInStencil() && drawState.isClipState()) {
-        clipMode = GrClipMaskManager::kRespectClip_StencilClipMode;
-        // We can't be modifying the clip and respecting it at the same time.
-        SkASSERT(!drawState.isStateFlagEnabled(kModifyStencilClip_StateBit));
-    } else if (drawState.isStateFlagEnabled(kModifyStencilClip_StateBit)) {
-        clipMode = GrClipMaskManager::kModifyClip_StencilClipMode;
-    } else {
-        clipMode = GrClipMaskManager::kIgnoreClip_StencilClipMode;
-    }
 
     GrStencilSettings settings;
     // The GrGpu client may not be using the stencil buffer but we may need to
     // enable it in order to respect a stencil clip.
     if (drawState.getStencil().isDisabled()) {
-        if (GrClipMaskManager::kRespectClip_StencilClipMode == clipMode) {
+        if (GrClipMaskManager::kRespectClip_StencilClipMode == fClipMode) {
             settings = basic_apply_stencil_clip_settings();
         } else {
             return;
@@ -944,7 +938,7 @@ void GrClipMaskManager::setDrawStateStencil(GrDrawState::AutoRestoreStencil* ars
 
     SkASSERT(fClipTarget->caps()->stencilWrapOpsSupport() || !settings.usesWrapOp());
     SkASSERT(fClipTarget->caps()->twoSidedStencilSupport() || !settings.isTwoSided());
-    this->adjustStencilParams(&settings, clipMode, stencilBits);
+    this->adjustStencilParams(&settings, fClipMode, stencilBits);
     ars->set(fClipTarget->drawState());
     fClipTarget->drawState()->setStencil(settings);
 }
@@ -1116,22 +1110,12 @@ void GrClipMaskManager::setClipTarget(GrClipTarget* clipTarget) {
 
 void GrClipMaskManager::adjustPathStencilParams(GrStencilSettings* settings) {
     const GrDrawState& drawState = fClipTarget->getDrawState();
-    GrClipMaskManager::StencilClipMode clipMode;
-    if (this->isClipInStencil() && drawState.isClipState()) {
-        clipMode = GrClipMaskManager::kRespectClip_StencilClipMode;
-        // We can't be modifying the clip and respecting it at the same time.
-        SkASSERT(!drawState.isStateFlagEnabled(kModifyStencilClip_StateBit));
-    } else if (drawState.isStateFlagEnabled(kModifyStencilClip_StateBit)) {
-        clipMode = GrClipMaskManager::kModifyClip_StencilClipMode;
-    } else {
-        clipMode = GrClipMaskManager::kIgnoreClip_StencilClipMode;
-    }
 
     // TODO: dynamically attach a stencil buffer
     int stencilBits = 0;
     GrStencilBuffer* stencilBuffer = drawState.getRenderTarget()->getStencilBuffer();
     if (stencilBuffer) {
         stencilBits = stencilBuffer->bits();
-        this->adjustStencilParams(settings, clipMode, stencilBits);
+        this->adjustStencilParams(settings, fClipMode, stencilBits);
     }
 }

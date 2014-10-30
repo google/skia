@@ -40,7 +40,8 @@ class GrClipMaskManager : SkNoncopyable {
 public:
     GrClipMaskManager()
         : fCurrClipMaskType(kNone_ClipMaskType)
-        , fClipTarget(NULL) {
+        , fClipTarget(NULL)
+        , fClipMode(kIgnoreClip_StencilClipMode) {
     }
 
     // The state of the scissor is controlled by the clip manager, no one else should set
@@ -94,14 +95,6 @@ public:
     void adjustPathStencilParams(GrStencilSettings*);
 
 private:
-    enum PrivateDrawStateStateBits {
-        kFirstBit = (GrDrawState::kLastPublicStateBit << 1),
-
-        kModifyStencilClip_StateBit = kFirstBit, // allows draws to modify
-                                                 // stencil bits used for
-                                                 // clipping.
-    };
-
     /**
      * Informs the helper function adjustStencilParams() about how the stencil
      * buffer clip is being used.
@@ -202,7 +195,8 @@ private:
     } fCurrClipMaskType;
 
     GrClipMaskCache fAACache;       // cache for the AA path
-    GrClipTarget* fClipTarget;
+    GrClipTarget*   fClipTarget;
+    StencilClipMode fClipMode;
 
     typedef SkNoncopyable INHERITED;
 };

@@ -618,10 +618,7 @@ public:
          * setBlendFunc() which will use coverage*color as the src color.
          */
          kCoverageDrawing_StateBit = 0x10,
-
-        // Users of the class may add additional bits to the vector
-        kDummyStateBit,
-        kLastPublicStateBit = kDummyStateBit-1,
+         kLast_StateBit = kCoverageDrawing_StateBit,
     };
 
     uint32_t getFlagBits() const { return fFlagBits; }
