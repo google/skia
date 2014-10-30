@@ -33,6 +33,10 @@ struct SkPictInfo;
 
 class SkRecord;
 
+namespace SkRecords {
+    class CollectLayers;
+};
+
 /** \class SkPicture
 
     The SkPicture class records the drawing commands made to a canvas, to
@@ -276,7 +280,7 @@ private:
     friend class SkPictureRecorder;            // SkRecord-based constructor.
     friend class SkGpuDevice;                  // for fData access
     friend class GrLayerHoister;               // access to fRecord
-    friend class CollectLayers;                // access to fRecord
+    friend class SkRecords::CollectLayers;     // access to fRecord
     friend class SkPicturePlayback;            // to get fData
     friend class ReplaceDraw;
 

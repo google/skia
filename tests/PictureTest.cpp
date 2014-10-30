@@ -8,6 +8,7 @@
 #include "SkBBoxHierarchy.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
+#include "SkColorMatrixFilter.h"
 #include "SkColorPriv.h"
 #include "SkDashPathEffect.h"
 #include "SkData.h"
@@ -866,6 +867,16 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
         static const int kWidth = 100;
         static const int kHeight = 100;
 
+        // Create complex paint that the bounding box computation code can't
+        // optimize away
+        SkScalar blueToRedMatrix[20] = { 0 };
+        blueToRedMatrix[2] = blueToRedMatrix[18] = SK_Scalar1;
+        SkAutoTUnref<SkColorFilter> blueToRed(SkColorMatrixFilter::Create(blueToRedMatrix));
+        SkAutoTUnref<SkImageFilter> filter(SkColorFilterImageFilter::Create(blueToRed.get()));
+
+        SkPaint complexPaint;
+        complexPaint.setImageFilter(filter);
+
         SkAutoTUnref<SkPicture> pict, child;
 
         {
@@ -873,7 +884,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 
             SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
 
-            c->saveLayer(NULL, NULL);
+            c->saveLayer(NULL, &complexPaint);
             c->restore();
 
             child.reset(recorder.endRecording());
@@ -906,22 +917,20 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth),
                                                   SkIntToScalar(kHeight));
             // 1)
-            c->saveLayer(NULL, NULL); // layer #0
+            c->saveLayer(NULL, &complexPaint); // layer #0
             c->restore();
 
             // 2)
             c->saveLayer(NULL, NULL); // layer #1
                 c->translate(kWidth/2.0f, kHeight/2.0f);
                 SkRect r = SkRect::MakeXYWH(0, 0, kWidth/2, kHeight/2);
-                c->saveLayer(&r, NULL); // layer #2
+                c->saveLayer(&r, &complexPaint); // layer #2
                 c->restore();
             c->restore();
 
             // 3)
             {
-                SkPaint p;
-                p.setColor(SK_ColorRED);
-                c->saveLayer(NULL, &p); // layer #3
+                c->saveLayer(NULL, &complexPaint); // layer #3
                 c->restore();
             }
 
@@ -986,7 +995,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, info0.fLocalMat.isIdentity());
             REPORTER_ASSERT(reporter, info0.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, 0 == info0.fBounds.fLeft && 0 == info0.fBounds.fTop);
-            REPORTER_ASSERT(reporter, NULL == info0.fPaint);
+            REPORTER_ASSERT(reporter, NULL != info0.fPaint);
             REPORTER_ASSERT(reporter, !info0.fIsNested && !info0.fHasNestedLayers);
 
             REPORTER_ASSERT(reporter, NULL == info1.fPicture);
@@ -1006,7 +1015,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, info2.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, kWidth / 2 == info2.fBounds.fLeft &&   // translated
                                       kHeight / 2 == info2.fBounds.fTop);
-            REPORTER_ASSERT(reporter, NULL == info1.fPaint);
+            REPORTER_ASSERT(reporter, NULL != info2.fPaint);
             REPORTER_ASSERT(reporter, info2.fIsNested && !info2.fHasNestedLayers); // is nested
 
             REPORTER_ASSERT(reporter, NULL == info3.fPicture);
@@ -1034,13 +1043,13 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, 0 == info5.fBounds.fLeft && 0 == info5.fBounds.fTop);
             REPORTER_ASSERT(reporter, info5.fLocalMat.isIdentity());
             REPORTER_ASSERT(reporter, info5.fPreMat.isIdentity());
-            REPORTER_ASSERT(reporter, NULL == info5.fPaint);
+            REPORTER_ASSERT(reporter, NULL != info5.fPaint);
             REPORTER_ASSERT(reporter, info5.fIsNested && !info5.fHasNestedLayers); // is nested
 
             REPORTER_ASSERT(reporter, NULL == info6.fPicture);
-            REPORTER_ASSERT(reporter, kWidth == info6.fBounds.width() &&
-                                      kHeight == info6.fBounds.height());
-            REPORTER_ASSERT(reporter, 0 == info6.fBounds.fLeft && 0 == info6.fBounds.fTop);
+            REPORTER_ASSERT(reporter, kWidth-10 == info6.fBounds.width() &&
+                                      kHeight-10 == info6.fBounds.height());
+            REPORTER_ASSERT(reporter, 10 == info6.fBounds.fLeft && 10 == info6.fBounds.fTop);
             REPORTER_ASSERT(reporter, info6.fLocalMat.isIdentity());
             REPORTER_ASSERT(reporter, info6.fPreMat.isIdentity());
             REPORTER_ASSERT(reporter, info6.fPaint);
@@ -1053,7 +1062,7 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, 0 == info7.fBounds.fLeft && 0 == info7.fBounds.fTop);
             REPORTER_ASSERT(reporter, info7.fLocalMat.isIdentity());
             REPORTER_ASSERT(reporter, info7.fPreMat.isIdentity());
-            REPORTER_ASSERT(reporter, NULL == info7.fPaint);
+            REPORTER_ASSERT(reporter, NULL != info7.fPaint);
             REPORTER_ASSERT(reporter, info7.fIsNested && !info7.fHasNestedLayers); // is nested
         }
     }

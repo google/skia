@@ -27,7 +27,7 @@ public:
         // is non-NULL and owns a ref on the picture.
         const SkPicture* fPicture;
         // The device space bounds of this layer.
-        SkIRect fBounds;
+        SkRect fBounds;
         // The pre-matrix begins as the identity and accumulates the transforms
         // of the containing SkPictures (if any). This matrix state has to be
         // part of the initial matrix during replay so that it will be 

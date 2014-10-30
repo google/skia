@@ -111,7 +111,7 @@ void GrLayerHoister::FindLayersToAtlas(GrContext* context,
             continue;
         }
 
-        SkRect layerRect = SkRect::Make(info.fBounds);
+        SkRect layerRect = info.fBounds;
         if (!layerRect.intersect(query)) {
             continue;
         }
@@ -157,7 +157,7 @@ void GrLayerHoister::FindLayersToHoist(GrContext* context,
             continue;
         }
 
-        SkRect layerRect = SkRect::Make(info.fBounds);
+        SkRect layerRect = info.fBounds;
         if (!layerRect.intersect(query)) {
             continue;
         }
