@@ -10,6 +10,8 @@
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
 
+#if SK_SUPPORT_GPU
+
 class SkSurface_Gpu : public SkSurface_Base {
 public:
     SK_DECLARE_INST_COUNT(SkSurface_Gpu)
@@ -154,3 +156,5 @@ SkSurface* SkSurface::NewScratchRenderTarget(GrContext* ctx, const SkImageInfo& 
 
     return SkNEW_ARGS(SkSurface_Gpu, (tex->asRenderTarget(), props, true));
 }
+
+#endif

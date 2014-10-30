@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#if SK_SUPPORT_GPU
-
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkColorShader.h"
 #include "SkPaint.h"
 #include "SkSurface.h"
+
+#if SK_SUPPORT_GPU
 
 namespace skiagm {
 

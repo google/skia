@@ -43,6 +43,8 @@
 #include "SkXfermode.h"
 #include "SkErrorInternals.h"
 
+#if SK_SUPPORT_GPU
+
 enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
 
 #define CACHE_COMPATIBLE_DEVICE_TEXTURES 1
@@ -1855,3 +1857,5 @@ SkImageFilter::Cache* SkGpuDevice::getImageFilterCache() {
     // filter traversal.
     return SkImageFilter::Cache::Create(kDefaultImageFilterCacheSize);
 }
+
+#endif
