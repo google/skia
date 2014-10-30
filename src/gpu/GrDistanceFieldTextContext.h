@@ -59,7 +59,7 @@ private:
                                const SkPoint& offset) SK_OVERRIDE;
 
     void init(const GrPaint&, const SkPaint&);
-    bool appendGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);
+    bool appendGlyph(GrGlyph::PackedID, SkScalar left, SkScalar top, GrFontScaler*);
     void setupCoverageEffect(const SkColor& filteredColor);
     void flush();                 // automatically called by destructor
     void finish();

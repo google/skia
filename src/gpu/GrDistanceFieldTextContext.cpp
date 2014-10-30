@@ -316,9 +316,7 @@ void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPai
                 if (!this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                      glyph.getSubXFixed(),
                                                      glyph.getSubYFixed()),
-                                       SkScalarToFixed(x),
-                                       SkScalarToFixed(y),
-                                       fontScaler)) {
+                                       x, y, fontScaler)) {
                     // couldn't append, send to fallback
                     fallbackTxt.push_back_n(text-lastText, lastText);
                     fallbackPos.push_back(pos[0]);
@@ -347,9 +345,7 @@ void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPai
                 if (!this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                      glyph.getSubXFixed(),
                                                      glyph.getSubYFixed()),
-                                       SkScalarToFixed(x - advanceX),
-                                       SkScalarToFixed(y - advanceY),
-                                       fontScaler)) {
+                                       x - advanceX, y - advanceY, fontScaler)) {
                     // couldn't append, send to fallback
                     fallbackTxt.push_back_n(text-lastText, lastText);
                     fallbackPos.push_back(pos[0]);
@@ -452,7 +448,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
 // Returns true if this method handled the glyph, false if needs to be passed to fallback
 //
 bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
-                                             SkFixed vx, SkFixed vy,
+                                             SkScalar sx, SkScalar sy,
                                              GrFontScaler* scaler) {
     if (NULL == fDrawTarget) {
         return true;
@@ -472,8 +468,6 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
         return false;
     }
 
-    SkScalar sx = SkFixedToScalar(vx);
-    SkScalar sy = SkFixedToScalar(vy);
 /*
     // not valid, need to find a different solution for this
     vx += SkIntToFixed(glyph->fBounds.fLeft);
