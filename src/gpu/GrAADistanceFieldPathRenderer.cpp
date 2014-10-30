@@ -20,7 +20,7 @@
 #include "SkRTConf.h"
 
 #define ATLAS_TEXTURE_WIDTH 1024
-#define ATLAS_TEXTURE_HEIGHT 1024
+#define ATLAS_TEXTURE_HEIGHT 2048
 #define PLOT_WIDTH  256
 #define PLOT_HEIGHT 256
 
@@ -34,6 +34,11 @@ SK_CONF_DECLARE(bool, c_DumpPathCache, "gpu.dumpPathCache", false,
 static int g_NumCachedPaths = 0;
 static int g_NumFreedPaths = 0;
 #endif
+
+// mip levels
+static const int kSmallMIP = 32;
+static const int kMediumMIP = 64;
+static const int kLargeMIP = 128;
 
 ////////////////////////////////////////////////////////////////////////////////
 GrAADistanceFieldPathRenderer::GrAADistanceFieldPathRenderer(GrContext* context)
@@ -72,16 +77,19 @@ bool GrAADistanceFieldPathRenderer::canDrawPath(const SkPath& path,
         return false;
     }
 
-    // currently don't support perspective or scaling more than 3x
+    // currently don't support perspective
     const GrDrawState& drawState = target->getDrawState();
     const SkMatrix& vm = drawState.getViewMatrix();
-    if (vm.hasPerspective() || vm.getMaxScale() > 3.0f) {
+    if (vm.hasPerspective()) {
         return false;
     }
     
-    // only support paths smaller than 64 x 64
+    // only support paths smaller than 64x64, scaled to less than 256x256
+    // the goal is to accelerate rendering of lots of small paths that may be scaling
+    SkScalar maxScale = vm.getMaxScale();
     const SkRect& bounds = path.getBounds();
-    return bounds.width() < 64.f && bounds.height() < 64.f;
+    SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
+    return maxDim < 64.f && maxDim*maxScale < 256.f;
 }
 
 
@@ -112,11 +120,29 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const SkPath& path,
 
     SkASSERT(fContext);
 
+    // get mip level
+    const GrDrawState& drawState = target->getDrawState();
+    const SkMatrix& vm = drawState.getViewMatrix();
+    SkScalar maxScale = vm.getMaxScale();
+    const SkRect& bounds = path.getBounds();
+    SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
+    SkScalar size = maxScale*maxDim;
+    uint32_t desiredDimension;
+    if (size <= kSmallMIP) {
+        desiredDimension = kSmallMIP;
+    } else if (size <= kMediumMIP) {
+        desiredDimension = kMediumMIP;
+    } else {
+        desiredDimension = kLargeMIP;
+    }
+
     // check to see if path is cached
     // TODO: handle stroked vs. filled version of same path
-    PathData* pathData = fPathCache.find(path.getGenerationID());
+    PathData::Key key = { path.getGenerationID(), desiredDimension };
+    PathData* pathData = fPathCache.find(key);
     if (NULL == pathData) {
-        pathData = this->addPathToAtlas(path, stroke, antiAlias);
+        SkScalar scale = desiredDimension/maxDim;
+        pathData = this->addPathToAtlas(path, stroke, antiAlias, desiredDimension, scale);
         if (NULL == pathData) {
             return false;
         }
@@ -126,15 +152,15 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const SkPath& path,
     return this->internalDrawPath(path, pathData, target);
 }
 
-// factor used to scale the path prior to building distance field
-const SkScalar kScaleFactor = 2.0f;
 // padding around path bounds to allow for antialiased pixels
 const SkScalar kAntiAliasPad = 1.0f;
 
 GrAADistanceFieldPathRenderer::PathData* GrAADistanceFieldPathRenderer::addPathToAtlas(
                                                                         const SkPath& path,
                                                                         const SkStrokeRec& stroke,
-                                                                        bool antiAlias) {
+                                                                        bool antiAlias,
+                                                                        uint32_t dimension,
+                                                                        SkScalar scale) {
 
     // generate distance field and add to atlas
     if (NULL == fAtlas) {
@@ -151,11 +177,11 @@ GrAADistanceFieldPathRenderer::PathData* GrAADistanceFieldPathRenderer::addPathT
     
     // generate bounding rect for bitmap draw
     SkRect scaledBounds = bounds;
-    // scale up to improve maxification range
-    scaledBounds.fLeft *= kScaleFactor;
-    scaledBounds.fTop *= kScaleFactor;
-    scaledBounds.fRight *= kScaleFactor;
-    scaledBounds.fBottom *= kScaleFactor;
+    // scale to mip level size
+    scaledBounds.fLeft *= scale;
+    scaledBounds.fTop *= scale;
+    scaledBounds.fRight *= scale;
+    scaledBounds.fBottom *= scale;
     // move the origin to an integer boundary (gives better results)
     SkScalar dx = SkScalarFraction(scaledBounds.fLeft);
     SkScalar dy = SkScalarFraction(scaledBounds.fTop);
@@ -171,7 +197,7 @@ GrAADistanceFieldPathRenderer::PathData* GrAADistanceFieldPathRenderer::addPathT
     // draw path to bitmap
     SkMatrix drawMatrix;
     drawMatrix.setTranslate(-bounds.left(), -bounds.top());
-    drawMatrix.postScale(kScaleFactor, kScaleFactor);
+    drawMatrix.postScale(scale, scale);
     drawMatrix.postTranslate(kAntiAliasPad, kAntiAliasPad);
     GrSWMaskHelper helper(fContext);
     
@@ -226,7 +252,9 @@ GrAADistanceFieldPathRenderer::PathData* GrAADistanceFieldPathRenderer::addPathT
 HAS_ATLAS:
     // add to cache
     PathData* pathData = SkNEW(PathData);
-    pathData->fGenID = path.getGenerationID();
+    pathData->fKey.fGenID = path.getGenerationID();
+    pathData->fKey.fDimension = dimension;
+    pathData->fScale = scale;
     pathData->fPlot = plot;
     // change the scaled rect to match the size of the inset distance field
     scaledBounds.fRight = scaledBounds.fLeft +
@@ -267,7 +295,7 @@ bool GrAADistanceFieldPathRenderer::freeUnusedPlot() {
     while ((pathData = iter.get())) {
         iter.next();
         if (plot == pathData->fPlot) {
-            fPathCache.remove(pathData->fGenID);
+            fPathCache.remove(pathData->fKey);
             fPathList.remove(pathData);
             SkDELETE(pathData);
 #ifdef DF_PATH_TRACKING
@@ -305,7 +333,7 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(const SkPath& path,
     SkScalar width = pathData->fBounds.width();
     SkScalar height = pathData->fBounds.height();
     
-    SkScalar invScale = 1.0f/kScaleFactor;
+    SkScalar invScale = 1.0f/pathData->fScale;
     dx *= invScale;
     dy *= invScale;
     width *= invScale;

@@ -41,18 +41,27 @@ protected:
 
 private:
     struct PathData {
-        uint32_t   fGenID;
+        struct Key {
+            uint32_t   fGenID;
+            // rendered size for stored path (32x32 max, 64x64 max, 128x128 max)
+            uint32_t   fDimension;
+            bool operator==(const Key& other) const {
+                return other.fGenID == fGenID && other.fDimension == fDimension;
+            }
+        };
+        Key        fKey;
+        SkScalar   fScale;
         GrPlot*    fPlot;
         SkRect     fBounds;
         SkIPoint16 fAtlasLocation;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(PathData);
         
-        static inline const uint32_t& GetKey(const PathData& data) {
-            return data.fGenID;
+        static inline const Key& GetKey(const PathData& data) {
+            return data.fKey;
         }
         
-        static inline uint32_t Hash(uint32_t key) {
-            return SkChecksum::Murmur3(&key, sizeof(key));
+        static inline uint32_t Hash(Key key) {
+            return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(key));
         }
     };
     typedef SkTInternalLList<PathData> PathDataList;
@@ -63,11 +72,12 @@ private:
     // current set of flags used to create the cached geometry processor
     uint32_t                           fEffectFlags;
     GrAtlas::ClientPlotUsage           fPlotUsage;
-    SkTDynamicHash<PathData, uint32_t> fPathCache;
+    SkTDynamicHash<PathData, PathData::Key> fPathCache;
     PathDataList                       fPathList;
     
     bool internalDrawPath(const SkPath& path, const PathData* pathData, GrDrawTarget* target);
-    PathData* addPathToAtlas(const SkPath& path, const SkStrokeRec& stroke, bool antiAlias);
+    PathData* addPathToAtlas(const SkPath& path, const SkStrokeRec& stroke, bool antiAlias,
+                             uint32_t dimension, SkScalar scale);
     bool freeUnusedPlot();
     
     typedef GrPathRenderer INHERITED;
