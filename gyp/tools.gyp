@@ -160,6 +160,7 @@
       'target_name': 'skpdiff',
       'type': 'executable',
       'sources': [
+        '../src/core/SkTaskGroup.cpp',
         '../tools/skpdiff/skpdiff_main.cpp',
         '../tools/skpdiff/SkDiffContext.cpp',
         '../tools/skpdiff/SkImageDiffer.cpp',
