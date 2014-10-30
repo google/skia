@@ -100,6 +100,7 @@ GrLayerCache::~GrLayerCache() {
 
 void GrLayerCache::initAtlas() {
     SkASSERT(NULL == fAtlas.get());
+    GR_STATIC_ASSERT(kNumPlotsX*kNumPlotsX == GrPictureInfo::kNumPlots);
 
     SkISize textureSize = SkISize::Make(kAtlasTextureWidth, kAtlasTextureHeight);
     fAtlas.reset(SkNEW_ARGS(GrAtlas, (fContext->getGpu(), kSkia8888_GrPixelConfig,
@@ -201,6 +202,9 @@ bool GrLayerCache::tryToAtlas(GrCachedLayer* layer,
             // addToAtlas can allocate the backing texture
             SkDEBUGCODE(avl.setBackingTexture(fAtlas->getTexture()));
             if (plot) {
+#if !GR_CACHE_HOISTED_LAYERS
+                pictInfo->incPlotUsage(plot->id());
+#endif
                 // The layer was successfully added to the atlas
                 GrIRect16 bounds = GrIRect16::MakeXYWH(loc.fX, loc.fY,
                                                        SkToS16(desc.fWidth),
@@ -264,8 +268,12 @@ void GrLayerCache::unlock(GrCachedLayer* layer) {
         // render target pingponging from that due to the re-use of cached layers
         GrPictureInfo* pictInfo = fPictureHash.find(layer->pictureID());
         SkASSERT(pictInfo);
-        
-        GrAtlas::RemovePlot(&pictInfo->fPlotUsage, layer->plot());
+
+        pictInfo->decPlotUsage(plotID);
+
+        if (0 == pictInfo->plotUsage(plotID)) {
+            GrAtlas::RemovePlot(&pictInfo->fPlotUsage, layer->plot());
+        }
         
         layer->setPlot(NULL);
         layer->setTexture(NULL, GrIRect16::MakeEmpty());
@@ -301,6 +309,9 @@ void GrLayerCache::validate() const {
             SkASSERT(pictInfo->fPictureID == layer->pictureID());
 
             SkASSERT(pictInfo->fPlotUsage.contains(layer->plot()));
+#if !GR_CACHE_HOISTED_LAYERS
+            SkASSERT(pictInfo->plotUsage(layer->plot()->id()) > 0);
+#endif
 
             if (layer->locked()) {
                 plotLocks[layer->plot()->id()]++;
@@ -400,6 +411,9 @@ void GrLayerCache::purgePlot(GrPlot* plot) {
 
         GrPictureInfo* pictInfo = fPictureHash.find(pictureIDToRemove);
         if (pictInfo) {
+#if !GR_CACHE_HOISTED_LAYERS
+            SkASSERT(0 == pictInfo->plotUsage(plot->id()));
+#endif
             GrAtlas::RemovePlot(&pictInfo->fPlotUsage, plot);
 
             if (pictInfo->fPlotUsage.isEmpty()) {

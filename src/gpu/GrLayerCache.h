@@ -30,16 +30,44 @@ struct GrPictureDeletedMessage {
 // plot may be used to store layers from multiple pictures.
 struct GrPictureInfo {
 public:
+    static const int kNumPlots = 4;
+
     // for SkTDynamicHash - just use the pictureID as the hash key
     static const uint32_t& GetKey(const GrPictureInfo& pictInfo) { return pictInfo.fPictureID; }
     static uint32_t Hash(const uint32_t& key) { return SkChecksum::Mix(key); }
 
     // GrPictureInfo proper
-    GrPictureInfo(uint32_t pictureID) : fPictureID(pictureID) { }
+    GrPictureInfo(uint32_t pictureID) : fPictureID(pictureID) { 
+#if !GR_CACHE_HOISTED_LAYERS
+        memset(fPlotUses, 0, sizeof(fPlotUses)); 
+#endif
+    }
+
+#if !GR_CACHE_HOISTED_LAYERS
+    void incPlotUsage(int plotID) {
+        SkASSERT(plotID < kNumPlots);
+        fPlotUses[plotID]++;
+    }
+
+    void decPlotUsage(int plotID) {
+        SkASSERT(plotID < kNumPlots);
+        SkASSERT(fPlotUses[plotID] > 0);
+        fPlotUses[plotID]--;
+    }
+
+    int plotUsage(int plotID) const { 
+        SkASSERT(plotID < kNumPlots);
+        return fPlotUses[plotID];
+    }
+#endif
 
     const uint32_t fPictureID;
-
     GrAtlas::ClientPlotUsage  fPlotUsage;
+
+#if !GR_CACHE_HOISTED_LAYERS
+private:
+    int fPlotUses[kNumPlots];
+#endif
 };
 
 // GrCachedLayer encapsulates the caching information for a single saveLayer.
