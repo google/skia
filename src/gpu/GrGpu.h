@@ -275,12 +275,6 @@ public:
                                   bool insideClip,
                                   GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
-    virtual void purgeResources() SK_OVERRIDE {
-        // The clip mask manager can rebuild all its clip masks so just
-        // get rid of them all.
-        fClipMaskManager.purgeResources();
-    }
-
     // After the client interacts directly with the 3D context state the GrGpu
     // must resync its internal state and assumptions about 3D context state.
     // Each time this occurs the GrGpu bumps a timestamp.
@@ -471,10 +465,6 @@ private:
     void prepareIndexPool();
 
     void resetContext() {
-        // We call this because the client may have messed with the
-        // stencil buffer. Perhaps we should detect whether it is a
-        // internally created stencil buffer and if so skip the invalidate.
-        fClipMaskManager.invalidateStencilMask();
         this->onResetContext(fResetBits);
         fResetBits = 0;
         ++fResetTimestamp;

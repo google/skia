@@ -80,12 +80,6 @@ public:
         return kAlpha_ClipMaskType == fCurrClipMaskType;
     }
 
-    void invalidateStencilMask() {
-        if (kStencil_ClipMaskType == fCurrClipMaskType) {
-            fCurrClipMaskType = kNone_ClipMaskType;
-        }
-    }
-
     GrContext* getContext() {
         return fAACache.getContext();
     }
