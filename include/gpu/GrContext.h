@@ -941,6 +941,13 @@ public:
 #endif
 
 private:
+    // Used to indicate whether a draw should be performed immediately or queued in fDrawBuffer.
+    enum BufferedDraw {
+        kYes_BufferedDraw,
+        kNo_BufferedDraw,
+    };
+    BufferedDraw fLastDrawWasBuffered;
+
     GrGpu*                          fGpu;
     SkMatrix                        fViewMatrix;
     SkAutoTUnref<GrRenderTarget>    fRenderTarget;
@@ -989,7 +996,7 @@ private:
     class AutoCheckFlush;
     /// Sets the paint and returns the target to draw into. The paint can be NULL in which case the
     /// draw state is left unmodified.
-    GrDrawTarget* prepareToDraw(const GrPaint*, AutoRestoreEffects*, AutoCheckFlush*);
+    GrDrawTarget* prepareToDraw(const GrPaint*, BufferedDraw, AutoRestoreEffects*, AutoCheckFlush*);
 
     void internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath& path,
                           const GrStrokeInfo& stroke);
