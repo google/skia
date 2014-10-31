@@ -2403,8 +2403,11 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
                             GrSurface* src,
                             const SkIRect& srcRect,
                             const SkIPoint& dstPoint) {
+    bool inheritedCouldCopy = INHERITED::onCanCopySurface(dst, src, srcRect, dstPoint);
     bool copied = false;
-    if (can_copy_texsubimage(dst, src, this)) {
+    bool wouldNeedTempFBO = false;
+    if (can_copy_texsubimage(dst, src, this, &wouldNeedTempFBO) &&
+        (!wouldNeedTempFBO || !inheritedCouldCopy)) {
         GrGLuint srcFBO;
         GrGLIRect srcVP;
         srcFBO = this->bindSurfaceAsFBO(src, GR_GL_FRAMEBUFFER, &srcVP);
@@ -2436,7 +2439,8 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
         if (srcFBO) {
             GL_CALL(DeleteFramebuffers(1, &srcFBO));
         }
-    } else if (can_blit_framebuffer(dst, src, this)) {
+    } else if (can_blit_framebuffer(dst, src, this, &wouldNeedTempFBO) &&
+               (!wouldNeedTempFBO || !inheritedCouldCopy)) {
         SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                             srcRect.width(), srcRect.height());
         bool selfOverlap = false;
@@ -2499,6 +2503,10 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
             copied = true;
         }
     }
+    if (!copied && inheritedCouldCopy) {
+        copied = INHERITED::onCopySurface(dst, src, srcRect, dstPoint);
+        SkASSERT(copied);
+    }
     return copied;
 }
 
@@ -2506,14 +2514,11 @@ bool GrGpuGL::onCanCopySurface(GrSurface* dst,
                                GrSurface* src,
                                const SkIRect& srcRect,
                                const SkIPoint& dstPoint) {
-    // This mirrors the logic in onCopySurface.  We prefer our base makes the copy if we need to
-    // create a temp fbo
-    // TODO verify this assumption, it may not be true at all
-    bool wouldNeedTempFBO = false;
-    if (can_copy_texsubimage(dst, src, this, &wouldNeedTempFBO) && !wouldNeedTempFBO) {
+    // This mirrors the logic in onCopySurface.
+    if (can_copy_texsubimage(dst, src, this)) {
         return true;
     }
-    if (can_blit_framebuffer(dst, src, this, &wouldNeedTempFBO) && !wouldNeedTempFBO) {
+    if (can_blit_framebuffer(dst, src, this)) {
         if (dst->surfacePriv().isSameAs(src)) {
             SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                                 srcRect.width(), srcRect.height());
@@ -2524,7 +2529,7 @@ bool GrGpuGL::onCanCopySurface(GrSurface* dst,
             return true;
         }
     }
-    return false;
+    return INHERITED::onCanCopySurface(dst, src, srcRect, dstPoint);
 }
 
 void GrGpuGL::didAddGpuTraceMarker() {
