@@ -250,7 +250,7 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
         this->validate(sizeRecorded == sizeRead);
         if (fError) {
             // we could try to fix up the offset...
-            delete obj;
+            SkSafeUnref(obj);
             obj = NULL;
         }
     } else {
