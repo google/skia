@@ -86,16 +86,10 @@ void SkMultiPictureDraw::draw() {
     // we place the taskgroup after the MPDReset, to ensure that we don't delete the DrawData
     // objects until after we're finished the tasks (which have pointers to the data).
 
-#if 0
     SkTaskGroup group;
     group.batch(DrawData::Draw, fThreadSafeDrawData.begin(), fThreadSafeDrawData.count());
     // we deliberately don't call wait() here, since the destructor will do that, this allows us
     // to continue processing gpu-data without having to wait on the cpu tasks.
-#else
-    for (int i = 0; i < fThreadSafeDrawData.count(); i++) {
-        DrawData::Draw(&fThreadSafeDrawData[i]);
-    }
-#endif
 
     const int count = fGPUDrawData.count();
     if (0 == count) {
