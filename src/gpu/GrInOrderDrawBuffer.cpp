@@ -595,6 +595,9 @@ bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
         cs->fDstPoint = dstPoint;
         this->recordTraceMarkersIfNecessary();
         return true;
+    } else if (this->canCopySurface(dst, src, srcRect, dstPoint)) {
+        this->GrDrawTarget::onCopySurface(dst, src, srcRect, dstPoint);
+        return true;
     } else {
         return false;
     }

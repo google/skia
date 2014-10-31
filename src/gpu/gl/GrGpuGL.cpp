@@ -2403,11 +2403,8 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
                             GrSurface* src,
                             const SkIRect& srcRect,
                             const SkIPoint& dstPoint) {
-    bool inheritedCouldCopy = INHERITED::onCanCopySurface(dst, src, srcRect, dstPoint);
     bool copied = false;
-    bool wouldNeedTempFBO = false;
-    if (can_copy_texsubimage(dst, src, this, &wouldNeedTempFBO) &&
-        (!wouldNeedTempFBO || !inheritedCouldCopy)) {
+    if (can_copy_texsubimage(dst, src, this)) {
         GrGLuint srcFBO;
         GrGLIRect srcVP;
         srcFBO = this->bindSurfaceAsFBO(src, GR_GL_FRAMEBUFFER, &srcVP);
@@ -2439,8 +2436,7 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
         if (srcFBO) {
             GL_CALL(DeleteFramebuffers(1, &srcFBO));
         }
-    } else if (can_blit_framebuffer(dst, src, this, &wouldNeedTempFBO) &&
-               (!wouldNeedTempFBO || !inheritedCouldCopy)) {
+    } else if (can_blit_framebuffer(dst, src, this)) {
         SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                             srcRect.width(), srcRect.height());
         bool selfOverlap = false;
@@ -2503,10 +2499,6 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
             copied = true;
         }
     }
-    if (!copied && inheritedCouldCopy) {
-        copied = INHERITED::onCopySurface(dst, src, srcRect, dstPoint);
-        SkASSERT(copied);
-    }
     return copied;
 }
 
@@ -2514,11 +2506,14 @@ bool GrGpuGL::onCanCopySurface(GrSurface* dst,
                                GrSurface* src,
                                const SkIRect& srcRect,
                                const SkIPoint& dstPoint) {
-    // This mirrors the logic in onCopySurface.
-    if (can_copy_texsubimage(dst, src, this)) {
+    // This mirrors the logic in onCopySurface.  We prefer our base makes the copy if we need to
+    // create a temp fbo
+    // TODO verify this assumption, it may not be true at all
+    bool wouldNeedTempFBO = false;
+    if (can_copy_texsubimage(dst, src, this, &wouldNeedTempFBO) && !wouldNeedTempFBO) {
         return true;
     }
-    if (can_blit_framebuffer(dst, src, this)) {
+    if (can_blit_framebuffer(dst, src, this, &wouldNeedTempFBO) && !wouldNeedTempFBO) {
         if (dst->surfacePriv().isSameAs(src)) {
             SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                                 srcRect.width(), srcRect.height());
@@ -2529,7 +2524,7 @@ bool GrGpuGL::onCanCopySurface(GrSurface* dst,
             return true;
         }
     }
-    return INHERITED::onCanCopySurface(dst, src, srcRect, dstPoint);
+    return false;
 }
 
 void GrGpuGL::didAddGpuTraceMarker() {

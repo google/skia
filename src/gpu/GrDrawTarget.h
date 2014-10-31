@@ -925,7 +925,7 @@ private:
 
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }
-    virtual GrClipMaskManager* getClipMaskManager() = 0;
+    virtual GrClipMaskManager* clipMaskManager() = 0;
 
     enum {
         kPreallocGeoSrcStateStackCnt = 4,
@@ -981,7 +981,7 @@ protected:
     GrClipMaskManager           fClipMaskManager;
 
 private:
-    GrClipMaskManager* getClipMaskManager() { return &fClipMaskManager; }
+    GrClipMaskManager* clipMaskManager() { return &fClipMaskManager; }
 
     typedef GrDrawTarget INHERITED;
 };
