@@ -123,10 +123,7 @@ bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint) {
         return false;
     }
 
-    // distance fields cannot represent color fonts
-    SkScalerContext::Rec    rec;
-    SkScalerContext::MakeRec(paint, &fDeviceProperties, NULL, &rec);
-    return rec.getFormat() != SkMask::kARGB32_Format;
+    return true;
 }
 
 inline void GrDistanceFieldTextContext::init(const GrPaint& paint, const SkPaint& skPaint) {
@@ -434,7 +431,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
                                                                                 lum/255.f,
                                                                                 flags));
 #else
-            fCachedGeometryProcessor.reset(GrDistanceFieldTextureEffect::Create(fCurrTexture,
+            fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(fCurrTexture,
                                                                                 params, flags));
 #endif
         }
@@ -468,25 +465,32 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
         return false;
     }
 
-/*
-    // not valid, need to find a different solution for this
-    vx += SkIntToFixed(glyph->fBounds.fLeft);
-    vy += SkIntToFixed(glyph->fBounds.fTop);
+    SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft + SK_DistanceFieldInset);
+    SkScalar dy = SkIntToScalar(glyph->fBounds.fTop + SK_DistanceFieldInset);
+    SkScalar width = SkIntToScalar(glyph->fBounds.width() - 2*SK_DistanceFieldInset);
+    SkScalar height = SkIntToScalar(glyph->fBounds.height() - 2*SK_DistanceFieldInset);
 
-    // keep them as ints until we've done the clip-test
-    GrFixed width = glyph->fBounds.width();
-    GrFixed height = glyph->fBounds.height();
+    SkScalar scale = fTextRatio;
+    dx *= scale;
+    dy *= scale;
+    sx += dx;
+    sy += dy;
+    width *= scale;
+    height *= scale;
+    SkRect glyphRect = SkRect::MakeXYWH(sx, sy, width, height);
 
     // check if we clipped out
-    if (true || NULL == glyph->fPlot) {
-        int x = vx >> 16;
-        int y = vy >> 16;
-        if (fClipRect.quickReject(x, y, x + width, y + height)) {
+    SkRect dstRect;
+    const SkMatrix& ctm = fContext->getMatrix();
+    (void) ctm.mapRect(&dstRect, glyphRect);
+    if (fClipRect.quickReject(SkScalarTruncToInt(dstRect.left()),
+                              SkScalarTruncToInt(dstRect.top()),
+                              SkScalarTruncToInt(dstRect.right()),
+                              SkScalarTruncToInt(dstRect.bottom()))) {
 //            SkCLZ(3);    // so we can set a break-point in the debugger
-            return;
-        }
+        return true;
     }
-*/
+
     if (NULL == glyph->fPlot) {
         if (!fStrike->glyphTooLargeForAtlas(glyph)) {
             if (fStrike->addGlyphToAtlas(glyph, scaler)) {
@@ -565,31 +569,12 @@ HAS_ATLAS:
         fVertices = alloc_vertices(fDrawTarget, fAllocVertexCount, useColorVerts);
     }
 
-    SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft + SK_DistanceFieldInset);
-    SkScalar dy = SkIntToScalar(glyph->fBounds.fTop + SK_DistanceFieldInset);
-    SkScalar width = SkIntToScalar(glyph->fBounds.width() - 2*SK_DistanceFieldInset);
-    SkScalar height = SkIntToScalar(glyph->fBounds.height() - 2*SK_DistanceFieldInset);
-
-    SkScalar scale = fTextRatio;
-    dx *= scale;
-    dy *= scale;
-    sx += dx;
-    sy += dy;
-    width *= scale;
-    height *= scale;
-
     SkFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX + SK_DistanceFieldInset);
     SkFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY + SK_DistanceFieldInset);
     SkFixed tw = SkIntToFixed(glyph->fBounds.width() - 2*SK_DistanceFieldInset);
     SkFixed th = SkIntToFixed(glyph->fBounds.height() - 2*SK_DistanceFieldInset);
 
-    SkRect r;
-    r.fLeft = sx;
-    r.fTop = sy;
-    r.fRight = sx + width;
-    r.fBottom = sy + height;
-
-    fVertexBounds.joinNonEmptyArg(r);
+    fVertexBounds.joinNonEmptyArg(glyphRect);
 
     size_t vertSize = fUseLCDText ? (2 * sizeof(SkPoint))
                                   : (2 * sizeof(SkPoint) + sizeof(GrColor));
@@ -598,7 +583,8 @@ HAS_ATLAS:
 
     SkPoint* positions = reinterpret_cast<SkPoint*>(
                                reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex);
-    positions->setRectFan(r.fLeft, r.fTop, r.fRight, r.fBottom, vertSize);
+    positions->setRectFan(glyphRect.fLeft, glyphRect.fTop, glyphRect.fRight, glyphRect.fBottom,
+                          vertSize);
 
     // The texture coords are last in both the with and without color vertex layouts.
     SkPoint* textureCoords = reinterpret_cast<SkPoint*>(
