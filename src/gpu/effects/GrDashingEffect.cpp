@@ -194,7 +194,7 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
         SkMatrix rotMatrix;
         align_to_x_axis(pts, &rotMatrix, ptsRot);
         if(!rotMatrix.invert(&srcRotInv)) {
-            GrPrintf("Failed to create invertible rotation matrix!\n");
+            SkDebugf("Failed to create invertible rotation matrix!\n");
             return false;
         }
     } else {
@@ -369,7 +369,7 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
 
     GrDrawTarget::AutoReleaseGeometry geo(target, totalRectCnt * 4, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return false;
     }
 

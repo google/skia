@@ -205,7 +205,7 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
         return false;
     }
     if (maxPts > ((int)SK_MaxU16 + 1)) {
-        GrPrintf("Path not rendered, too many verts (%d)\n", maxPts);
+        SkDebugf("Path not rendered, too many verts (%d)\n", maxPts);
         return false;
     }
 

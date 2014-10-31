@@ -395,8 +395,8 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
         result = sk_gr_create_bitmap_texture(ctx, cache, params, bitmap);
     }
     if (NULL == result) {
-        GrPrintf("---- failed to create texture for cache [%d %d]\n",
-                    bitmap.width(), bitmap.height());
+        SkDebugf("---- failed to create texture for cache [%d %d]\n",
+                 bitmap.width(), bitmap.height());
     }
     return result;
 }

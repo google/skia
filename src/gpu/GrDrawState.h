@@ -419,10 +419,10 @@ public:
         }
     #ifdef SK_DEBUG
         if (GrBlendCoeffRefsDst(dstCoeff)) {
-            GrPrintf("Unexpected dst blend coeff. Won't work correctly with coverage stages.\n");
+            SkDebugf("Unexpected dst blend coeff. Won't work correctly with coverage stages.\n");
         }
         if (GrBlendCoeffRefsSrc(srcCoeff)) {
-            GrPrintf("Unexpected src blend coeff. Won't work correctly with coverage stages.\n");
+            SkDebugf("Unexpected src blend coeff. Won't work correctly with coverage stages.\n");
         }
     #endif
     }

@@ -530,7 +530,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return;
     }
 
@@ -693,7 +693,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return false;
     }
 
@@ -813,7 +813,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return false;
     }
 
@@ -1043,7 +1043,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
 
     GrIndexBuffer* indexBuffer = this->rRectIndexBuffer(isStrokeOnly, context->getGpu());
     if (NULL == indexBuffer) {
-        GrPrintf("Failed to create index buffer!\n");
+        SkDebugf("Failed to create index buffer!\n");
         return false;
     }
 
@@ -1054,7 +1054,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
         if (!geo.succeeded()) {
-            GrPrintf("Failed to get space for vertices!\n");
+            SkDebugf("Failed to get space for vertices!\n");
             return false;
         }
         CircleVertex* verts = reinterpret_cast<CircleVertex*>(geo.vertices());
@@ -1176,7 +1176,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
         if (!geo.succeeded()) {
-            GrPrintf("Failed to get space for vertices!\n");
+            SkDebugf("Failed to get space for vertices!\n");
             return false;
         }
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(geo.vertices());

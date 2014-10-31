@@ -189,7 +189,7 @@ GrAtlas::~GrAtlas() {
 
     fGpu->unref();
 #if FONT_CACHE_STATS
-      GrPrintf("Num uploads: %d\n", g_UploadCount);
+      SkDebugf("Num uploads: %d\n", g_UploadCount);
 #endif
 }
 

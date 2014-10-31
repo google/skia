@@ -30,7 +30,7 @@
  * file (if one is in use). If a GR_GL_CUSTOM_SETUP_HEADER is used they can
  * also be placed there.
  *
- * GR_GL_LOG_CALLS: if 1 Gr can print every GL call using GrPrintf. Defaults to
+ * GR_GL_LOG_CALLS: if 1 Gr can print every GL call using SkDebugf. Defaults to
  * 0. Logging can be enabled and disabled at runtime using a debugger via to
  * global gLogCallsGL. The initial value of gLogCallsGL is controlled by
  * GR_GL_LOG_CALLS_START.

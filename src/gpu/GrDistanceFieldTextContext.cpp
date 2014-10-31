@@ -658,7 +658,7 @@ void GrDistanceFieldTextContext::flush() {
             if (kOne_GrBlendCoeff != fPaint.getSrcBlendCoeff() ||
                 kISA_GrBlendCoeff != fPaint.getDstBlendCoeff() ||
                 fPaint.numColorStages()) {
-                GrPrintf("LCD Text will not draw correctly.\n");
+                SkDebugf("LCD Text will not draw correctly.\n");
             }
             SkASSERT(!drawState->hasColorVertexAttribute());
             // We don't use the GrPaint's color in this case because it's been premultiplied by

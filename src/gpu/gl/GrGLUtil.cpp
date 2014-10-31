@@ -39,14 +39,14 @@ void GrGLCheckErr(const GrGLInterface* gl,
                   const char* call) {
     uint32_t err = GR_GL_GET_ERROR(gl);
     if (GR_GL_NO_ERROR != err) {
-        GrPrintf("---- glGetError 0x%x(%s)", err, get_error_string(err));
+        SkDebugf("---- glGetError 0x%x(%s)", err, get_error_string(err));
         if (location) {
-            GrPrintf(" at\n\t%s", location);
+            SkDebugf(" at\n\t%s", location);
         }
         if (call) {
-            GrPrintf("\n\t\t%s", call);
+            SkDebugf("\n\t\t%s", call);
         }
-        GrPrintf("\n");
+        SkDebugf("\n");
     }
 }
 

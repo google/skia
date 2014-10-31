@@ -1777,7 +1777,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) 
     if (texture.get()) {
         return SkGpuDevice::Create(texture, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), flags);
     } else {
-        GrPrintf("---- failed to create compatible device texture [%d %d]\n",
+        SkDebugf("---- failed to create compatible device texture [%d %d]\n",
                  info.width(), info.height());
         return NULL;
     }

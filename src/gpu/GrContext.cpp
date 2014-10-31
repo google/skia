@@ -613,13 +613,13 @@ void GrContext::drawPaint(const GrPaint& origPaint) {
     // produce a correct result for some perspective matrices.
     if (!this->getMatrix().hasPerspective()) {
         if (!fViewMatrix.invert(&inverse)) {
-            GrPrintf("Could not invert matrix\n");
+            SkDebugf("Could not invert matrix\n");
             return;
         }
         inverse.mapRect(&r);
     } else {
         if (!am.setIdentity(this, paint.writable())) {
-            GrPrintf("Could not invert matrix\n");
+            SkDebugf("Could not invert matrix\n");
             return;
         }
     }
@@ -661,8 +661,8 @@ static void setStrokeRectStrip(SkPoint verts[10], SkRect rect,
 }
 
 static inline bool is_irect(const SkRect& r) {
-  return SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&	
-         SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);	
+  return SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&
+         SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);
 }
 
 static bool apply_aa_to_rect(GrDrawTarget* target,
@@ -673,7 +673,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
     if (!target->getDrawState().canTweakAlphaForCoverage() &&
         target->shouldDisableCoverageAAForBlend()) {
 #ifdef SK_DEBUG
-        //GrPrintf("Turning off AA to correctly apply blend.\n");
+        //SkDebugf("Turning off AA to correctly apply blend.\n");
 #endif
         return false;
     }
@@ -800,7 +800,7 @@ void GrContext::drawRect(const GrPaint& paint,
         GrDrawTarget::AutoReleaseGeometry geo(target, worstCaseVertCount, 0);
 
         if (!geo.succeeded()) {
-            GrPrintf("Failed to get space for vertices!\n");
+            SkDebugf("Failed to get space for vertices!\n");
             return;
         }
 
@@ -916,7 +916,7 @@ void GrContext::drawVertices(const GrPaint& paint,
     size_t VertexStride = drawState->getVertexStride();
     if (sizeof(SkPoint) != VertexStride) {
         if (!geo.set(target, vertexCount, 0)) {
-            GrPrintf("Failed to get space for vertices!\n");
+            SkDebugf("Failed to get space for vertices!\n");
             return;
         }
         void* curVertex = geo.vertices();
@@ -1233,7 +1233,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
 
     if (NULL == pr) {
 #ifdef SK_DEBUG
-        GrPrintf("Unable to find path renderer compatible with path.\n");
+        SkDebugf("Unable to find path renderer compatible with path.\n");
 #endif
         return;
     }
@@ -1619,7 +1619,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
 #if GR_DEBUG_PARTIAL_COVERAGE_CHECK
         if ((paint->hasMask() || 0xff != paint->fCoverage) &&
             !fDrawState->couldApplyCoverage(fGpu->caps())) {
-            GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
+            SkDebugf("Partial pixel coverage will be incorrectly blended.\n");
         }
 #endif
         // Clear any vertex attributes configured for the previous use of the

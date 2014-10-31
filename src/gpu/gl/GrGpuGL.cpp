@@ -131,15 +131,15 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
         GL_CALL_RET(vendor, GetString(GR_GL_VENDOR));
         GL_CALL_RET(renderer, GetString(GR_GL_RENDERER));
         GL_CALL_RET(version, GetString(GR_GL_VERSION));
-        GrPrintf("------------------------- create GrGpuGL %p --------------\n",
+        SkDebugf("------------------------- create GrGpuGL %p --------------\n",
                  this);
-        GrPrintf("------ VENDOR %s\n", vendor);
-        GrPrintf("------ RENDERER %s\n", renderer);
-        GrPrintf("------ VERSION %s\n",  version);
-        GrPrintf("------ EXTENSIONS\n");
+        SkDebugf("------ VENDOR %s\n", vendor);
+        SkDebugf("------ RENDERER %s\n", renderer);
+        SkDebugf("------ VERSION %s\n",  version);
+        SkDebugf("------ EXTENSIONS\n");
         ctx.extensions().print();
-        GrPrintf("\n");
-        GrPrintf(this->glCaps().dump().c_str());
+        SkDebugf("\n");
+        SkDebugf(this->glCaps().dump().c_str());
     }
 
     fProgramCache = SkNEW_ARGS(ProgramCache, (this));
@@ -934,7 +934,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrSurfaceDesc& origDesc,
     SkASSERT(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
     // We fail if the MSAA was requested and is not available.
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt) {
-        //GrPrintf("MSAA RT requested but not supported on this platform.");
+        //SkDebugf("MSAA RT requested but not supported on this platform.");
         return return_null_texture();
     }
 
@@ -950,7 +950,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrSurfaceDesc& origDesc,
     rtIDDesc.fIsWrapped = false;
 
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt) {
-        //GrPrintf("MSAA RT requested but not supported on this platform.");
+        //SkDebugf("MSAA RT requested but not supported on this platform.");
         return return_null_texture();
     }
 
@@ -1028,7 +1028,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrSurfaceDesc& origDesc,
     }
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
-    GrPrintf("--- new texture [%d] size=(%d %d) config=%d\n",
+    SkDebugf("--- new texture [%d] size=(%d %d) config=%d\n",
              glTexDesc.fTextureID, desc.fWidth, desc.fHeight, desc.fConfig);
 #endif
     return tex;
@@ -1096,7 +1096,7 @@ GrTexture* GrGpuGL::onCreateCompressedTexture(const GrSurfaceDesc& origDesc, con
     tex = SkNEW_ARGS(GrGLTexture, (this, desc, idDesc));
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
-    GrPrintf("--- new compressed texture [%d] size=(%d %d) config=%d\n",
+    SkDebugf("--- new compressed texture [%d] size=(%d %d) config=%d\n",
              glTexDesc.fTextureID, desc.fWidth, desc.fHeight, desc.fConfig);
 #endif
     return tex;
@@ -1690,7 +1690,7 @@ void GrGpuGL::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) 
             GrGLenum status;
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-                GrPrintf("GrGpuGL::flushRenderTarget glCheckFramebufferStatus %x\n", status);
+                SkDebugf("GrGpuGL::flushRenderTarget glCheckFramebufferStatus %x\n", status);
             }
         }
 #endif

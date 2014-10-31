@@ -30,7 +30,7 @@ GrGpu* GrGpu::Create(GrBackend backend, GrBackendContext backendContext, GrConte
         }
         if (NULL == glInterface) {
 #ifdef SK_DEBUG
-            GrPrintf("No GL interface provided!\n");
+            SkDebugf("No GL interface provided!\n");
 #endif
             return NULL;
         }

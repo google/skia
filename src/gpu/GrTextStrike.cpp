@@ -50,7 +50,7 @@ GrFontCache::~GrFontCache() {
     }
     fGpu->unref();
 #if FONT_CACHE_STATS
-      GrPrintf("Num purges: %d\n", g_PurgeCount);
+      SkDebugf("Num purges: %d\n", g_PurgeCount);
 #endif
 }
 
@@ -236,7 +236,7 @@ GrTextStrike::GrTextStrike(GrFontCache* cache, const GrFontDescKey* key) : fPool
     fFontCache = cache;     // no need to ref, it won't go away before we do
 
 #ifdef SK_DEBUG
-//    GrPrintf(" GrTextStrike %p %d\n", this, gCounter);
+//    SkDebugf(" GrTextStrike %p %d\n", this, gCounter);
     gCounter += 1;
 #endif
 }
@@ -251,7 +251,7 @@ GrTextStrike::~GrTextStrike() {
 
 #ifdef SK_DEBUG
     gCounter -= 1;
-//    GrPrintf("~GrTextStrike %p %d\n", this, gCounter);
+//    SkDebugf("~GrTextStrike %p %d\n", this, gCounter);
 #endif
 }
 

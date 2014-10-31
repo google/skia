@@ -138,6 +138,6 @@ void GrGLExtensions::print(const char* sep) const {
     }
     int cnt = fStrings->count();
     for (int i = 0; i < cnt; ++i) {
-        GrPrintf("%s%s", (*fStrings)[i].c_str(), (i < cnt - 1) ? sep : "");
+        SkDebugf("%s%s", (*fStrings)[i].c_str(), (i < cnt - 1) ? sep : "");
     }
 }

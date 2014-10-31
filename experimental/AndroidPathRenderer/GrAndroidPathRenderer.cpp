@@ -56,7 +56,7 @@ bool GrAndroidPathRenderer::onDrawPath(const SkPath& origPath,
     int vertCount = vertices.getSize();
     GrDrawTarget::AutoReleaseGeometry geo(target, vertCount, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return false;
     }
 

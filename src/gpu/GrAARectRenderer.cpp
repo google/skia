@@ -433,7 +433,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 8, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return;
     }
 
@@ -445,7 +445,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     }
     GrIndexBuffer* indexBuffer = fAAFillRectIndexBuffer;
     if (NULL == indexBuffer) {
-        GrPrintf("Failed to create index buffer!\n");
+        SkDebugf("Failed to create index buffer!\n");
         return;
     }
 
@@ -606,7 +606,7 @@ void GrAARectRenderer::shaderFillAARect(GrDrawTarget* target,
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return;
     }
 
@@ -653,7 +653,7 @@ void GrAARectRenderer::shaderFillAlignedAARect(GrDrawTarget* target,
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return;
     }
 
@@ -785,12 +785,12 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
 
     GrDrawTarget::AutoReleaseGeometry geo(target, totalVertexNum, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return;
     }
     GrIndexBuffer* indexBuffer = this->aaStrokeRectIndexBuffer(miterStroke);
     if (NULL == indexBuffer) {
-        GrPrintf("Failed to create index buffer!\n");
+        SkDebugf("Failed to create index buffer!\n");
         return;
     }
 

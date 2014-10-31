@@ -477,7 +477,7 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
                                       infoLen+1,
                                       &length,
                                       (char*)log.get()));
-            GrPrintf((char*)log.get());
+            SkDebugf((char*)log.get());
         }
         SkDEBUGFAIL("Error linking program");
         GL_CALL(DeleteProgram(programID));

@@ -437,13 +437,13 @@ bool GrDrawTarget::setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const 
         drawBounds->roundOut(&drawIBounds);
         if (!copyRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
-            GrPrintf("Missed an early reject. Bailing on draw from setupDstReadIfNecessary.\n");
+            SkDebugf("Missed an early reject. Bailing on draw from setupDstReadIfNecessary.\n");
 #endif
             return false;
         }
     } else {
 #ifdef SK_DEBUG
-        //GrPrintf("No dev bounds when dst copy is made.\n");
+        //SkDebugf("No dev bounds when dst copy is made.\n");
 #endif
     }
 
@@ -458,7 +458,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const 
         fContext->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
 
     if (!copy) {
-        GrPrintf("Failed to create temporary copy of destination texture.\n");
+        SkDebugf("Failed to create temporary copy of destination texture.\n");
         return false;
     }
     SkIPoint dstPoint = {0, 0};
@@ -699,7 +699,7 @@ void GrDrawTarget::onDrawRect(const SkRect& rect,
 
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return;
     }
 

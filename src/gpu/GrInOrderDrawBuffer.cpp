@@ -126,7 +126,7 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
 
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
+        SkDebugf("Failed to get space for vertices!\n");
         return;
     }
 

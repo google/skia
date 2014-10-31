@@ -61,8 +61,8 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                 GrGLsizei length = GR_GL_INIT_ZERO;
                 GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1,
                                                  &length, (char*)log.get()));
-                GrPrintf(GrGLSLPrettyPrint::PrettyPrintGLSL(shaderSrc, true).c_str());
-                GrPrintf("\n%s", log.get());
+                SkDebugf(GrGLSLPrettyPrint::PrettyPrintGLSL(shaderSrc, true).c_str());
+                SkDebugf("\n%s", log.get());
             }
             SkDEBUGFAIL("Shader compilation failed!");
             GR_GL_CALL(gli, DeleteShader(shaderId));
@@ -73,8 +73,8 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     TRACE_EVENT_INSTANT1(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "skia_gpu::GLShader",
                          TRACE_EVENT_SCOPE_THREAD, "shader", TRACE_STR_COPY(shaderSrc.c_str()));
     if (c_PrintShaders) {
-        GrPrintf(GrGLSLPrettyPrint::PrettyPrintGLSL(shaderSrc, true).c_str());
-        GrPrintf("\n");
+        SkDebugf(GrGLSLPrettyPrint::PrettyPrintGLSL(shaderSrc, true).c_str());
+        SkDebugf("\n");
     }
 
     // Attach the shader, but defer deletion until after we have linked the program.

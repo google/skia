@@ -130,13 +130,13 @@ template<int MatrixSize> void GrGLGetMatrix(GrGLfloat* dest, const SkMatrix& src
     #define GR_GL_CHECK_ERROR_IMPL(IFACE, X)
 #endif
 
-// internal macro to conditionally log the gl call using GrPrintf based on
+// internal macro to conditionally log the gl call using SkDebugf based on
 // compile-time and run-time flags.
 #if GR_GL_LOG_CALLS
     extern bool gLogCallsGL;
     #define GR_GL_LOG_CALLS_IMPL(X)                             \
         if (gLogCallsGL)                                        \
-            GrPrintf(GR_FILE_AND_LINE_STR "GL: " #X "\n")
+            SkDebugf(GR_FILE_AND_LINE_STR "GL: " #X "\n")
 #else
     #define GR_GL_LOG_CALLS_IMPL(X)
 #endif
