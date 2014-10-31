@@ -1495,8 +1495,14 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
     metrics->fBottom = ymin * scale;
     metrics->fLeading = leading * scale;
     metrics->fAvgCharWidth = avgCharWidth * scale;
+#ifdef SK_USE_SCALED_FONTMETRICS
+    // new correct behavior. need chrome to define this, and then we can remove the else code
+    metrics->fXMin = xmin * scale;
+    metrics->fXMax = xmax * scale;
+#else
     metrics->fXMin = xmin;
     metrics->fXMax = xmax;
+#endif
     metrics->fXHeight = x_height;
     metrics->fCapHeight = cap_height;
     metrics->fUnderlineThickness = underlineThickness * scale;
