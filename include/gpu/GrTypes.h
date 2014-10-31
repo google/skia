@@ -70,11 +70,6 @@ template <typename T> const T& GrMax(const T& a, const T& b) {
 }
 
 /**
- *  Count elements in an array
- */
-#define GR_ARRAY_COUNT(array)  SK_ARRAY_COUNT(array)
-
-/**
  *  16.16 fixed point type
  */
 typedef int32_t GrFixed;
