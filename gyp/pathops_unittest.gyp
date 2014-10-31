@@ -15,6 +15,7 @@
         'tools.gyp:crash_handler',
       ],
       'sources': [
+        '../src/core/SkTaskGroup.cpp',
         '../tests/PathOpsAngleIdeas.cpp',
         '../tests/PathOpsBattles.cpp',
         '../tests/PathOpsCubicLineIntersectionIdeas.cpp',

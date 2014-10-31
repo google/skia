@@ -22,6 +22,7 @@
         'tools.gyp:resources',
       ],
       'sources': [
+        '../src/core/SkTaskGroup.cpp',
 		'../tests/PathOpsDebug.cpp',
         '../tests/PathOpsSkpClipTest.cpp',
       ],
