@@ -16,6 +16,7 @@ class SkDescriptor;
 class SkTypeface;
 class GrPath;
 class GrGpu;
+class GrStencilSettings;
 
 /**
  * Abstract class wrapping HW path rendering API.
@@ -32,6 +33,18 @@ class GrGpu;
 class GrPathRendering {
 public:
     virtual ~GrPathRendering() { }
+
+    // No native support for inverse at this time
+    enum FillType {
+        /** Specifies that "inside" is computed by a non-zero sum of signed
+            edge crossings
+        */
+        kWinding_FillType,
+        /** Specifies that "inside" is computed by an odd number of edge
+            crossings
+        */
+        kEvenOdd_FillType,
+    };
 
     enum PathTransformType {
         kNone_PathTransformType,        //!< []
@@ -111,10 +124,11 @@ public:
      */
     virtual GrPathRange* createGlyphs(const SkTypeface*, const SkDescriptor*, const SkStrokeRec&) = 0;
 
-    virtual void stencilPath(const GrPath*, SkPath::FillType) = 0;
-    virtual void drawPath(const GrPath*, SkPath::FillType) = 0;
+    virtual void stencilPath(const GrPath*, const GrStencilSettings&) = 0;
+    virtual void drawPath(const GrPath*, const GrStencilSettings&) = 0;
     virtual void drawPaths(const GrPathRange*, const uint32_t indices[], int count,
-                           const float transforms[], PathTransformType, SkPath::FillType) = 0;
+                           const float transforms[], PathTransformType,
+                           const GrStencilSettings&) = 0;
 protected:
     GrPathRendering() { }
 

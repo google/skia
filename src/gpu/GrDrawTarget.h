@@ -315,15 +315,16 @@ public:
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
      * winding (not inverse or hairline). It will respect the HW antialias flag
-     * on the draw state (if possible in the 3D API).
+     * on the draw state (if possible in the 3D API).  Note, we will never have an inverse fill
+     * with stencil path
      */
-    void stencilPath(const GrPath*, SkPath::FillType fill);
+    void stencilPath(const GrPath*, GrPathRendering::FillType fill);
 
     /**
      * Draws a path. Fill must not be a hairline. It will respect the HW
      * antialias flag on the draw state (if possible in the 3D API).
      */
-    void drawPath(const GrPath*, SkPath::FillType fill);
+    void drawPath(const GrPath*, GrPathRendering::FillType fill);
 
     /**
      * Draws many paths. It will respect the HW
@@ -340,7 +341,7 @@ public:
     void drawPaths(const GrPathRange* pathRange,
                    const uint32_t indices[], int count,
                    const float transforms[], PathTransformType transformsType,
-                   SkPath::FillType fill);
+                   GrPathRendering::FillType fill);
 
     /**
      * Helper function for drawing rects. It performs a geometry src push and pop
@@ -490,7 +491,7 @@ public:
     /**
      * For subclass internal use to invoke a call to onDrawPath().
      */
-    void executeDrawPath(const GrPath* path, SkPath::FillType fill,
+    void executeDrawPath(const GrPath* path, GrPathRendering::FillType fill,
                          const GrDeviceCoordTexture* dstCopy) {
         this->onDrawPath(path, fill, dstCopy);
     }
@@ -501,12 +502,10 @@ public:
     void executeDrawPaths(const GrPathRange* pathRange,
                           const uint32_t indices[], int count,
                           const float transforms[], PathTransformType transformsType,
-                          SkPath::FillType fill,
+                          GrPathRendering::FillType fill,
                           const GrDeviceCoordTexture* dstCopy) {
         this->onDrawPaths(pathRange, indices, count, transforms, transformsType, fill, dstCopy);
     }
-
-    void getPathStencilSettingsForFillType(SkPath::FillType, GrStencilSettings*);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -898,13 +897,13 @@ private:
                             const SkRect* localRect,
                             const SkMatrix* localMatrix);
 
-    virtual void onStencilPath(const GrPath*, SkPath::FillType) = 0;
-    virtual void onDrawPath(const GrPath*, SkPath::FillType,
+    virtual void onStencilPath(const GrPath*, GrPathRendering::FillType) = 0;
+    virtual void onDrawPath(const GrPath*, GrPathRendering::FillType,
                             const GrDeviceCoordTexture* dstCopy) = 0;
     virtual void onDrawPaths(const GrPathRange*,
                              const uint32_t indices[], int count,
                              const float transforms[], PathTransformType,
-                             SkPath::FillType, const GrDeviceCoordTexture*) = 0;
+                             GrPathRendering::FillType, const GrDeviceCoordTexture*) = 0;
 
     virtual void didAddGpuTraceMarker() = 0;
     virtual void didRemoveGpuTraceMarker() = 0;

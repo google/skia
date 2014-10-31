@@ -527,28 +527,20 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
     }
 }
 
-void GrDrawTarget::stencilPath(const GrPath* path, SkPath::FillType fill) {
+void GrDrawTarget::stencilPath(const GrPath* path, GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(path);
     SkASSERT(this->caps()->pathRenderingSupport());
-    SkASSERT(!SkPath::IsInverseFillType(fill));
     this->onStencilPath(path, fill);
 }
 
-void GrDrawTarget::drawPath(const GrPath* path, SkPath::FillType fill) {
+void GrDrawTarget::drawPath(const GrPath* path, GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path rendering.
     SkASSERT(path);
     SkASSERT(this->caps()->pathRenderingSupport());
-    const GrDrawState* drawState = &getDrawState();
 
-    SkRect devBounds;
-    if (SkPath::IsInverseFillType(fill)) {
-        devBounds = SkRect::MakeWH(SkIntToScalar(drawState->getRenderTarget()->width()),
-                                   SkIntToScalar(drawState->getRenderTarget()->height()));
-    } else {
-        devBounds = path->getBounds();
-    }
-    SkMatrix viewM = drawState->getViewMatrix();
+    SkRect devBounds = path->getBounds();
+    SkMatrix viewM = this->drawState()->getViewMatrix();
     viewM.mapRect(&devBounds);
 
     GrDeviceCoordTexture dstCopy;
@@ -562,7 +554,7 @@ void GrDrawTarget::drawPath(const GrPath* path, SkPath::FillType fill) {
 void GrDrawTarget::drawPaths(const GrPathRange* pathRange,
                              const uint32_t indices[], int count,
                              const float transforms[], PathTransformType transformsType,
-                             SkPath::FillType fill) {
+                             GrPathRendering::FillType fill) {
     SkASSERT(this->caps()->pathRenderingSupport());
     SkASSERT(pathRange);
     SkASSERT(indices);
@@ -722,43 +714,6 @@ void GrDrawTarget::onDrawRect(const SkRect& rect,
 }
 
 void GrDrawTarget::clipWillBeSet(const GrClipData* clipData) {
-}
-
-static const GrStencilSettings& winding_path_stencil_settings() {
-    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
-        kIncClamp_StencilOp,
-        kIncClamp_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0xFFFF, 0xFFFF, 0xFFFF);
-    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
-}
-
-static const GrStencilSettings& even_odd_path_stencil_settings() {
-    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
-        kInvert_StencilOp,
-        kInvert_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0xFFFF, 0xFFFF, 0xFFFF);
-    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
-}
-
-void GrDrawTarget::getPathStencilSettingsForFillType(SkPath::FillType fill,
-                                                     GrStencilSettings* outStencilSettings) {
-
-    switch (fill) {
-        default:
-            SkFAIL("Unexpected path fill.");
-            /* fallthrough */;
-        case SkPath::kWinding_FillType:
-        case SkPath::kInverseWinding_FillType:
-            *outStencilSettings = winding_path_stencil_settings();
-            break;
-        case SkPath::kEvenOdd_FillType:
-        case SkPath::kInverseEvenOdd_FillType:
-            *outStencilSettings = even_odd_path_stencil_settings();
-            break;
-    }
-    this->getClipMaskManager()->adjustPathStencilParams(outStencilSettings);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

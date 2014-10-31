@@ -1871,6 +1871,7 @@ void set_gl_stencil(const GrGLInterface* gl,
 }
 
 void GrGpuGL::flushStencil(const GrStencilSettings& stencilSettings, DrawType type) {
+    // TODO figure out why we need to flush stencil settings on path draws at all
     if (kStencilPath_DrawType != type && fHWStencilSettings != stencilSettings) {
         if (stencilSettings.isDisabled()) {
             if (kNo_TriState != fHWStencilTestEnabled) {
@@ -1917,10 +1918,7 @@ void GrGpuGL::flushAAState(const GrOptDrawState& optState, DrawType type) {
     const GrRenderTarget* rt = optState.getRenderTarget();
     if (kGL_GrGLStandard == this->glStandard()) {
         if (RT_HAS_MSAA) {
-            // FIXME: GL_NV_pr doesn't seem to like MSAA disabled. The paths
-            // convex hulls of each segment appear to get filled.
-            bool enableMSAA = kStencilPath_DrawType == type ||
-                              optState.isHWAntialiasState();
+            bool enableMSAA = optState.isHWAntialiasState();
             if (enableMSAA) {
                 if (kYes_TriState != fMSAAEnabled) {
                     GL_CALL(Enable(GR_GL_MULTISAMPLE));

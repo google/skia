@@ -39,11 +39,11 @@ public:
     virtual GrPathRange* createGlyphs(const SkTypeface*,
                                       const SkDescriptor*,
                                       const SkStrokeRec&) SK_OVERRIDE;
-    virtual void stencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
-    virtual void drawPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
+    virtual void stencilPath(const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
+    virtual void drawPath(const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
     virtual void drawPaths(const GrPathRange*, const uint32_t indices[], int count,
                            const float transforms[], PathTransformType,
-                           SkPath::FillType) SK_OVERRIDE;
+                           const GrStencilSettings&) SK_OVERRIDE;
 
     /* Called when the 3D context state is unknown. */
     void resetContext();
@@ -107,7 +107,7 @@ private:
     };
     const Caps& caps() const { return fCaps; }
 
-    void flushPathStencilSettings(SkPath::FillType fill);
+    void flushPathStencilSettings(const GrStencilSettings&);
 
     // NV_path_rendering v1.2
     void stencilThenCoverFillPath(GrGLuint path, GrGLenum fillMode,

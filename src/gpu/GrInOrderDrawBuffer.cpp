@@ -361,7 +361,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
     }
 }
 
-void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, SkPath::FillType fill) {
+void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, GrPathRendering::FillType fill) {
     this->recordClipIfNecessary();
     // Only compare the subset of GrDrawState relevant to path stenciling?
     this->recordStateIfNecessary();
@@ -371,7 +371,8 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, SkPath::FillType fil
 }
 
 void GrInOrderDrawBuffer::onDrawPath(const GrPath* path,
-                                     SkPath::FillType fill, const GrDeviceCoordTexture* dstCopy) {
+                                     GrPathRendering::FillType fill,
+                                     const GrDeviceCoordTexture* dstCopy) {
     this->recordClipIfNecessary();
     // TODO: Only compare the subset of GrDrawState relevant to path covering?
     this->recordStateIfNecessary();
@@ -386,7 +387,8 @@ void GrInOrderDrawBuffer::onDrawPath(const GrPath* path,
 void GrInOrderDrawBuffer::onDrawPaths(const GrPathRange* pathRange,
                                       const uint32_t indices[], int count,
                                       const float transforms[], PathTransformType transformsType,
-                                      SkPath::FillType fill, const GrDeviceCoordTexture* dstCopy) {
+                                      GrPathRendering::FillType fill,
+                                      const GrDeviceCoordTexture* dstCopy) {
     SkASSERT(pathRange);
     SkASSERT(indices);
     SkASSERT(transforms);

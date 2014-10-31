@@ -152,90 +152,65 @@ GrPathRange* GrGLPathRendering::createGlyphs(const SkTypeface* typeface,
     return SkNEW_ARGS(GrGLPathRange, (fGpu, basePathID, numPaths, gpuMemorySize, stroke));
 }
 
-void GrGLPathRendering::stencilPath(const GrPath* path, SkPath::FillType fill) {
+void GrGLPathRendering::stencilPath(const GrPath* path, const GrStencilSettings& stencilSettings) {
     GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
     SkASSERT(fGpu->drawState()->getRenderTarget());
     SkASSERT(fGpu->drawState()->getRenderTarget()->getStencilBuffer());
 
-    this->flushPathStencilSettings(fill);
-    SkASSERT(!fHWPathStencilSettings.isTwoSided());
-
-    GrGLenum fillMode =
-        gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.passOp(GrStencilSettings::kFront_Face));
-    GrGLint writeMask = fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
-    GL_CALL(StencilFillPath(id, fillMode, writeMask));
-}
-
-void GrGLPathRendering::drawPath(const GrPath* path, SkPath::FillType fill) {
-    GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
-    SkASSERT(fGpu->drawState()->getRenderTarget());
-    SkASSERT(fGpu->drawState()->getRenderTarget()->getStencilBuffer());
-
-    this->flushPathStencilSettings(fill);
+    this->flushPathStencilSettings(stencilSettings);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     const SkStrokeRec& stroke = path->getStroke();
 
-    SkPath::FillType nonInvertedFill = SkPath::ConvertToNonInverseFillType(fill);
+    GrGLenum fillMode =
+        gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.passOp(GrStencilSettings::kFront_Face));
+    GrGLint writeMask = fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
+
+    if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
+        GL_CALL(StencilFillPath(id, fillMode, writeMask));
+    }
+    if (stroke.needToApply()) {
+        GL_CALL(StencilStrokePath(id, 0xffff, writeMask));
+    }
+}
+
+void GrGLPathRendering::drawPath(const GrPath* path, const GrStencilSettings& stencilSettings) {
+    GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
+    SkASSERT(fGpu->drawState()->getRenderTarget());
+    SkASSERT(fGpu->drawState()->getRenderTarget()->getStencilBuffer());
+
+    this->flushPathStencilSettings(stencilSettings);
+    SkASSERT(!fHWPathStencilSettings.isTwoSided());
+
+    const SkStrokeRec& stroke = path->getStroke();
 
     GrGLenum fillMode =
         gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.passOp(GrStencilSettings::kFront_Face));
     GrGLint writeMask = fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
 
-    if (nonInvertedFill == fill) {
-        if (stroke.needToApply()) {
-            if (SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
-                GL_CALL(StencilFillPath(id, fillMode, writeMask));
-            }
-            this->stencilThenCoverStrokePath(id, 0xffff, writeMask, GR_GL_BOUNDING_BOX);
-        } else {
-            this->stencilThenCoverFillPath(id, fillMode, writeMask, GR_GL_BOUNDING_BOX);
-        }
-    } else {
-        if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
+    if (stroke.needToApply()) {
+        if (SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
             GL_CALL(StencilFillPath(id, fillMode, writeMask));
         }
-        if (stroke.needToApply()) {
-            GL_CALL(StencilStrokePath(id, 0xffff, writeMask));
-        }
-
-        GrDrawState* drawState = fGpu->drawState();
-        GrDrawState::AutoViewMatrixRestore avmr;
-        SkRect bounds = SkRect::MakeLTRB(0, 0,
-                                         SkIntToScalar(drawState->getRenderTarget()->width()),
-                                         SkIntToScalar(drawState->getRenderTarget()->height()));
-        SkMatrix vmi;
-        // mapRect through persp matrix may not be correct
-        if (!drawState->getViewMatrix().hasPerspective() && drawState->getViewInverse(&vmi)) {
-            vmi.mapRect(&bounds);
-            // theoretically could set bloat = 0, instead leave it because of matrix inversion
-            // precision.
-            SkScalar bloat = drawState->getViewMatrix().getMaxScale() * SK_ScalarHalf;
-            bounds.outset(bloat, bloat);
-        } else {
-            avmr.setIdentity(drawState);
-        }
-
-        fGpu->drawSimpleRect(bounds);
+        this->stencilThenCoverStrokePath(id, 0xffff, writeMask, GR_GL_BOUNDING_BOX);
+    } else {
+        this->stencilThenCoverFillPath(id, fillMode, writeMask, GR_GL_BOUNDING_BOX);
     }
 }
 
 void GrGLPathRendering::drawPaths(const GrPathRange* pathRange, const uint32_t indices[], int count,
                                   const float transforms[], PathTransformType transformsType,
-                                  SkPath::FillType fill) {
+                                  const GrStencilSettings& stencilSettings) {
     SkASSERT(fGpu->caps()->pathRenderingSupport());
     SkASSERT(fGpu->drawState()->getRenderTarget());
     SkASSERT(fGpu->drawState()->getRenderTarget()->getStencilBuffer());
 
     GrGLuint baseID = static_cast<const GrGLPathRange*>(pathRange)->basePathID();
 
-    this->flushPathStencilSettings(fill);
+    this->flushPathStencilSettings(stencilSettings);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     const SkStrokeRec& stroke = pathRange->getStroke();
-
-    SkPath::FillType nonInvertedFill =
-        SkPath::ConvertToNonInverseFillType(fill);
 
     GrGLenum fillMode =
         gr_stencil_op_to_gl_path_rendering_fill_mode(
@@ -243,56 +218,22 @@ void GrGLPathRendering::drawPaths(const GrPathRange* pathRange, const uint32_t i
     GrGLint writeMask =
         fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
 
-    if (nonInvertedFill == fill) {
-        if (stroke.needToApply()) {
-            if (SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
-                GL_CALL(StencilFillPathInstanced(
-                                count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
-                                writeMask, gXformType2GLType[transformsType],
-                                transforms));
-            }
-            this->stencilThenCoverStrokePathInstanced(
-                                count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff, writeMask,
-                                GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                                gXformType2GLType[transformsType], transforms);
-        } else {
-            this->stencilThenCoverFillPathInstanced(
-                                count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode, writeMask,
-                                GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                                gXformType2GLType[transformsType], transforms);
-        }
-    } else {
-        if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
+    if (stroke.needToApply()) {
+        if (SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
             GL_CALL(StencilFillPathInstanced(
-                                count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
-                                writeMask, gXformType2GLType[transformsType],
-                                transforms));
+                            count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode,
+                            writeMask, gXformType2GLType[transformsType],
+                            transforms));
         }
-        if (stroke.needToApply()) {
-            GL_CALL(StencilStrokePathInstanced(
-                                count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff,
-                                writeMask, gXformType2GLType[transformsType],
-                                transforms));
-        }
-
-        GrDrawState* drawState = fGpu->drawState();
-        GrDrawState::AutoViewMatrixRestore avmr;
-        SkRect bounds = SkRect::MakeLTRB(0, 0,
-                                         SkIntToScalar(drawState->getRenderTarget()->width()),
-                                         SkIntToScalar(drawState->getRenderTarget()->height()));
-        SkMatrix vmi;
-        // mapRect through persp matrix may not be correct
-        if (!drawState->getViewMatrix().hasPerspective() && drawState->getViewInverse(&vmi)) {
-            vmi.mapRect(&bounds);
-            // theoretically could set bloat = 0, instead leave it because of matrix inversion
-            // precision.
-            SkScalar bloat = drawState->getViewMatrix().getMaxScale() * SK_ScalarHalf;
-            bounds.outset(bloat, bloat);
-        } else {
-            avmr.setIdentity(drawState);
-        }
-
-        fGpu->drawSimpleRect(bounds);
+        this->stencilThenCoverStrokePathInstanced(
+                            count, GR_GL_UNSIGNED_INT, indices, baseID, 0xffff, writeMask,
+                            GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
+                            gXformType2GLType[transformsType], transforms);
+    } else {
+        this->stencilThenCoverFillPathInstanced(
+                            count, GR_GL_UNSIGNED_INT, indices, baseID, fillMode, writeMask,
+                            GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
+                            gXformType2GLType[transformsType], transforms);
     }
 }
 
@@ -466,18 +407,16 @@ void GrGLPathRendering::deletePaths(GrGLuint path, GrGLsizei range) {
     fPathNameAllocator->free(path);
 }
 
-void GrGLPathRendering::flushPathStencilSettings(SkPath::FillType fill) {
-    GrStencilSettings pathStencilSettings;
-    fGpu->getPathStencilSettingsForFillType(fill, &pathStencilSettings);
-    if (fHWPathStencilSettings != pathStencilSettings) {
+void GrGLPathRendering::flushPathStencilSettings(const GrStencilSettings& stencilSettings) {
+    if (fHWPathStencilSettings != stencilSettings) {
         // Just the func, ref, and mask is set here. The op and write mask are params to the call
         // that draws the path to the SB (glStencilFillPath)
         GrGLenum func =
-            GrToGLStencilFunc(pathStencilSettings.func(GrStencilSettings::kFront_Face));
-        GL_CALL(PathStencilFunc(func, pathStencilSettings.funcRef(GrStencilSettings::kFront_Face),
-                                pathStencilSettings.funcMask(GrStencilSettings::kFront_Face)));
+            GrToGLStencilFunc(stencilSettings.func(GrStencilSettings::kFront_Face));
+        GL_CALL(PathStencilFunc(func, stencilSettings.funcRef(GrStencilSettings::kFront_Face),
+                                stencilSettings.funcMask(GrStencilSettings::kFront_Face)));
 
-        fHWPathStencilSettings = pathStencilSettings;
+        fHWPathStencilSettings = stencilSettings;
     }
 }
 

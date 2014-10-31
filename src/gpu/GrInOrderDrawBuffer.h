@@ -139,7 +139,7 @@ private:
 
         virtual void execute(GrClipTarget*);
 
-        SkPath::FillType fFill;
+        GrPathRendering::FillType fFill;
 
     private:
         GrPendingIOResource<const GrPath, kRead_GrIOType>   fPath;
@@ -152,8 +152,8 @@ private:
 
         virtual void execute(GrClipTarget*);
 
-        SkPath::FillType        fFill;
-        GrDeviceCoordTexture    fDstCopy;
+        GrPathRendering::FillType fFill;
+        GrDeviceCoordTexture      fDstCopy;
 
     private:
         GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
@@ -168,10 +168,10 @@ private:
 
         virtual void execute(GrClipTarget*);
 
-        size_t                  fCount;
-        PathTransformType       fTransformsType;
-        SkPath::FillType        fFill;
-        GrDeviceCoordTexture    fDstCopy;
+        size_t                    fCount;
+        PathTransformType         fTransformsType;
+        GrPathRendering::FillType fFill;
+        GrDeviceCoordTexture      fDstCopy;
 
     private:
         GrPendingIOResource<const GrPathRange, kRead_GrIOType> fPathRange;
@@ -257,13 +257,13 @@ private:
                             const SkRect* localRect,
                             const SkMatrix* localMatrix) SK_OVERRIDE;
 
-    virtual void onStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
-    virtual void onDrawPath(const GrPath*, SkPath::FillType,
+    virtual void onStencilPath(const GrPath*, GrPathRendering::FillType) SK_OVERRIDE;
+    virtual void onDrawPath(const GrPath*, GrPathRendering::FillType,
                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     virtual void onDrawPaths(const GrPathRange*,
                              const uint32_t indices[], int count,
                              const float transforms[], PathTransformType,
-                             SkPath::FillType, const GrDeviceCoordTexture*) SK_OVERRIDE;
+                             GrPathRendering::FillType, const GrDeviceCoordTexture*) SK_OVERRIDE;
 
     virtual bool onReserveVertexSpace(size_t vertexSize,
                                       int vertexCount,

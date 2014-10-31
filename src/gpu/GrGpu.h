@@ -335,7 +335,8 @@ protected:
     bool setupClipAndFlushState(DrawType,
                                 const GrDeviceCoordTexture* dstCopy,
                                 const SkRect* devBounds,
-                                GrDrawState::AutoRestoreEffects*);
+                                GrDrawState::AutoRestoreEffects*,
+                                GrDrawState::AutoRestoreStencil*);
 
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.
@@ -452,13 +453,13 @@ private:
 
     // GrDrawTarget overrides
     virtual void onDraw(const DrawInfo&) SK_OVERRIDE;
-    virtual void onStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
-    virtual void onDrawPath(const GrPath*, SkPath::FillType,
+    virtual void onStencilPath(const GrPath*, GrPathRendering::FillType) SK_OVERRIDE;
+    virtual void onDrawPath(const GrPath*, GrPathRendering::FillType,
                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     virtual void onDrawPaths(const GrPathRange*,
                              const uint32_t indices[], int count,
                              const float transforms[], PathTransformType,
-                             SkPath::FillType, const GrDeviceCoordTexture*) SK_OVERRIDE;
+                             GrPathRendering::FillType, const GrDeviceCoordTexture*) SK_OVERRIDE;
 
     // readies the pools to provide vertex/index data.
     void prepareVertexPool();
