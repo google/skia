@@ -48,15 +48,3 @@ dropshadowimagefilter
 # quality improvements to imagemagnifier GM
 imagemagnifier
 
-#joshualitt rebase tonight
-rrect_clip_bw
-multipicturedraw_rrectclip_tiled
-multipicturedraw_rrectclip_simple
-filltypespersp
-convex_poly_clip
-complexclip2_path_bw
-complexclip2_rrect_bw
-complexclip_bw_layer
-complexclip_bw
-circular-clips
-
