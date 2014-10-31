@@ -23,6 +23,8 @@ while (( "$#" )); do
     shift
   elif [[ "$1" == "--release" ]]; then
     BUILDTYPE=Release
+  elif [[ "$1" == "--clang" ]]; then
+    USE_CLANG="true"
   else
     APP_ARGS=("${APP_ARGS[@]}" "${1}")
   fi
