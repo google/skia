@@ -37,20 +37,11 @@
 #include "SkDashPathPriv.h"
 #include "SkConfig8888.h"
 #include "SkGr.h"
-#include "SkRTConf.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
 #include "SkTLS.h"
 #include "SkTraceEvent.h"
-
-// It can be useful to set this to false to test whether a bug is caused by using the
-// InOrderDrawBuffer, to compare performance of using/not using InOrderDrawBuffer, or to make
-// debugging simpler.
-SK_CONF_DECLARE(bool, c_Defer, "gpu.deferContext", true,
-                "Defers rendering in GrContext via GrInOrderDrawBuffer.");
-
-#define BUFFERED_DRAW (c_Defer ? kYes_BufferedDraw : kNo_BufferedDraw)
 
 #ifdef SK_DEBUG
     // change this to a 1 to see notifications when partial coverage fails
@@ -143,8 +134,6 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
     fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
 
     fLayerCache.reset(SkNEW_ARGS(GrLayerCache, (this)));
-
-    fLastDrawWasBuffered = kNo_BufferedDraw;
 
     fAARectRenderer = SkNEW_ARGS(GrAARectRenderer, (fGpu));
     fOvalRenderer = SkNEW(GrOvalRenderer);
@@ -356,27 +345,28 @@ GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
     GrTexture* texture = fGpu->createTexture(rtDesc, NULL, 0);
 
     if (texture) {
-        GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
-        GrDrawState* drawState = fGpu->drawState();
+        GrDrawTarget::AutoStateRestore asr(fDrawBuffer, GrDrawTarget::kReset_ASRInit);
+        GrDrawState* drawState = fDrawBuffer->drawState();
         drawState->setRenderTarget(texture->asRenderTarget());
 
         // if filtering is not desired then we want to ensure all
         // texels in the resampled image are copies of texels from
         // the original.
-        GrTextureParams params(SkShader::kClamp_TileMode, filter ? GrTextureParams::kBilerp_FilterMode :
-                                                                   GrTextureParams::kNone_FilterMode);
+        GrTextureParams params(SkShader::kClamp_TileMode,
+                               filter ? GrTextureParams::kBilerp_FilterMode :
+                                        GrTextureParams::kNone_FilterMode);
         drawState->addColorTextureProcessor(clampedTexture, SkMatrix::I(), params);
 
         drawState->setVertexAttribs<gVertexAttribs>(SK_ARRAY_COUNT(gVertexAttribs),
                                                     2 * sizeof(SkPoint));
 
-        GrDrawTarget::AutoReleaseGeometry arg(fGpu, 4, 0);
+        GrDrawTarget::AutoReleaseGeometry arg(fDrawBuffer, 4, 0);
 
         if (arg.succeeded()) {
             SkPoint* verts = (SkPoint*) arg.vertices();
             verts[0].setIRectFan(0, 0, texture->width(), texture->height(), 2 * sizeof(SkPoint));
             verts[1].setIRectFan(0, 0, 1, 1, 2 * sizeof(SkPoint));
-            fGpu->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
+            fDrawBuffer->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
         }
     } else {
         // TODO: Our CPU stretch doesn't filter. But we create separate
@@ -589,7 +579,7 @@ void GrContext::clear(const SkIRect* rect,
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContext::clear", this);
-    GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf);
+    GrDrawTarget* target = this->prepareToDraw(NULL, &are, &acf);
     if (NULL == target) {
         return;
     }
@@ -722,7 +712,7 @@ void GrContext::drawRect(const GrPaint& paint,
 
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&paint, &are, &acf);
     if (NULL == target) {
         return;
     }
@@ -836,7 +826,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
                                const SkMatrix* localMatrix) {
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&paint, &are, &acf);
     if (NULL == target) {
         return;
     }
@@ -902,7 +892,7 @@ void GrContext::drawVertices(const GrPaint& paint,
     AutoCheckFlush acf(this);
     GrDrawTarget::AutoReleaseGeometry geo; // must be inside AutoCheckFlush scope
 
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&paint, &are, &acf);
     if (NULL == target) {
         return;
     }
@@ -966,7 +956,7 @@ void GrContext::drawRRect(const GrPaint& paint,
 
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&paint, &are, &acf);
     if (NULL == target) {
         return;
     }
@@ -993,7 +983,7 @@ void GrContext::drawDRRect(const GrPaint& paint,
 
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&paint, &are, &acf);
 
     GR_CREATE_TRACE_MARKER("GrContext::drawDRRect", target);
 
@@ -1026,7 +1016,7 @@ void GrContext::drawOval(const GrPaint& paint,
 
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&paint, &are, &acf);
     if (NULL == target) {
         return;
     }
@@ -1114,7 +1104,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
         if (path.isLine(pts)) {
             AutoRestoreEffects are;
             AutoCheckFlush acf(this);
-            GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+            GrDrawTarget* target = this->prepareToDraw(&paint, &are, &acf);
             if (NULL == target) {
                 return;
             }
@@ -1151,7 +1141,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
     // OK.
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&paint, &are, &acf);
     if (NULL == target) {
         return;
     }
@@ -1374,7 +1364,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     // drawing a rect to the render target.
     // The bracket ensures we pop the stack if we wind up flushing below.
     {
-        GrDrawTarget* drawTarget = this->prepareToDraw(NULL, kYes_BufferedDraw, NULL, NULL);
+        GrDrawTarget* drawTarget = this->prepareToDraw(NULL, NULL, NULL);
         GrDrawTarget::AutoGeometryAndStatePush agasp(drawTarget, GrDrawTarget::kReset_ASRInit,
                                                      &matrix);
         GrDrawState* drawState = drawTarget->drawState();
@@ -1498,21 +1488,26 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                 // We protect the existing geometry here since it may not be
                 // clear to the caller that a draw operation (i.e., drawSimpleRect)
                 // can be invoked in this method
-                GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit);
-                GrDrawState* drawState = fGpu->drawState();
-                SkASSERT(fp);
-                drawState->addColorProcessor(fp);
+                {
+                    GrDrawTarget::AutoGeometryAndStatePush agasp(fDrawBuffer,
+                                                                 GrDrawTarget::kReset_ASRInit);
+                    GrDrawState* drawState = fDrawBuffer->drawState();
+                    SkASSERT(fp);
+                    drawState->addColorProcessor(fp);
 
-                drawState->setRenderTarget(texture->asRenderTarget());
-                SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-                fGpu->drawSimpleRect(rect);
-                // we want to read back from the scratch's origin
-                left = 0;
-                top = 0;
-                target = texture->asRenderTarget();
+                    drawState->setRenderTarget(texture->asRenderTarget());
+                    SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
+                    fDrawBuffer->drawSimpleRect(rect);
+                    // we want to read back from the scratch's origin
+                    left = 0;
+                    top = 0;
+                    target = texture->asRenderTarget();
+                }
+                this->flushSurfaceWrites(target);
             }
         }
     }
+
     if (!fGpu->readPixels(target,
                           left, top, width, height,
                           readConfig, buffer, rowBytes)) {
@@ -1556,7 +1551,7 @@ void GrContext::discardRenderTarget(GrRenderTarget* renderTarget) {
     ASSERT_OWNED_RESOURCE(renderTarget);
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
-    GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf);
+    GrDrawTarget* target = this->prepareToDraw(NULL, &are, &acf);
     if (NULL == target) {
         return;
     }
@@ -1574,7 +1569,7 @@ void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     // Since we're going to the draw target and not GPU, no need to check kNoFlush
     // here.
 
-    GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW, NULL, NULL);
+    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, NULL);
     if (NULL == target) {
         return;
     }
@@ -1594,7 +1589,6 @@ void GrContext::flushSurfaceWrites(GrSurface* surface) {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
-                                       BufferedDraw buffered,
                                        AutoRestoreEffects* are,
                                        AutoCheckFlush* acf) {
     // All users of this draw state should be freeing up all effects when they're done.
@@ -1606,10 +1600,6 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
         return NULL;
     }
 
-    if (kNo_BufferedDraw == buffered && kYes_BufferedDraw == fLastDrawWasBuffered) {
-        fDrawBuffer->flush();
-        fLastDrawWasBuffered = kNo_BufferedDraw;
-    }
     ASSERT_OWNED_RESOURCE(fRenderTarget.get());
     if (paint) {
         SkASSERT(are);
@@ -1629,20 +1619,11 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
         fDrawState->reset(fViewMatrix);
         fDrawState->setRenderTarget(fRenderTarget.get());
     }
-    GrDrawTarget* target;
-    if (kYes_BufferedDraw == buffered) {
-        fLastDrawWasBuffered = kYes_BufferedDraw;
-        target = fDrawBuffer;
-    } else {
-        SkASSERT(kNo_BufferedDraw == buffered);
-        fLastDrawWasBuffered = kNo_BufferedDraw;
-        target = fGpu;
-    }
     fDrawState->setState(GrDrawState::kClip_StateBit, fClip &&
                                                      !fClip->fClipStack->isWideOpen());
-    target->setClip(fClip);
-    SkASSERT(fDrawState == target->drawState());
-    return target;
+    fDrawBuffer->setClip(fClip);
+    SkASSERT(fDrawState == fDrawBuffer->drawState());
+    return fDrawBuffer;
 }
 
 /*
@@ -1722,7 +1703,7 @@ void GrContext::setupDrawBuffer() {
 }
 
 GrDrawTarget* GrContext::getTextTarget() {
-    return this->prepareToDraw(NULL, BUFFERED_DRAW, NULL, NULL);
+    return this->prepareToDraw(NULL, NULL, NULL);
 }
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {

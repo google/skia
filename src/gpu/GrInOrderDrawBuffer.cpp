@@ -641,7 +641,6 @@ void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(int vertexCount,
         !unreleasedIndexSpace &&
         !targetHasReservedGeom &&
         this->geometryHints(&vcount, &icount)) {
-
         this->flush();
     }
 }
