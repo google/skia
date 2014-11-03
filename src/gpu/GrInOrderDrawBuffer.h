@@ -76,6 +76,16 @@ public:
     virtual bool geometryHints(int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
 
+    virtual bool copySurface(GrSurface* dst,
+                             GrSurface* src,
+                             const SkIRect& srcRect,
+                             const SkIPoint& dstPoint)  SK_OVERRIDE;
+
+    virtual bool canCopySurface(GrSurface* dst,
+                                GrSurface* src,
+                                const SkIRect& srcRect,
+                                const SkIPoint& dstPoint) SK_OVERRIDE;
+
     virtual void clear(const SkIRect* rect,
                        GrColor color,
                        bool canIgnoreRect,
@@ -282,14 +292,6 @@ private:
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
     virtual void willReserveVertexAndIndexSpace(int vertexCount,
                                                 int indexCount) SK_OVERRIDE;
-    virtual bool onCopySurface(GrSurface* dst,
-                               GrSurface* src,
-                               const SkIRect& srcRect,
-                               const SkIPoint& dstPoint)  SK_OVERRIDE;
-    virtual bool onCanCopySurface(GrSurface* dst,
-                                  GrSurface* src,
-                                  const SkIRect& srcRect,
-                                  const SkIPoint& dstPoint) SK_OVERRIDE;
 
     bool quickInsideClip(const SkRect& devBounds);
 

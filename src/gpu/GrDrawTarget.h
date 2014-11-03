@@ -452,18 +452,18 @@ public:
      * limitations. If rect is clipped out entirely by the src or dst bounds then
      * true is returned since there is no actual copy necessary to succeed.
      */
-    bool copySurface(GrSurface* dst,
-                     GrSurface* src,
-                     const SkIRect& srcRect,
-                     const SkIPoint& dstPoint);
+    virtual bool copySurface(GrSurface* dst,
+                             GrSurface* src,
+                             const SkIRect& srcRect,
+                             const SkIPoint& dstPoint);
     /**
      * Function that determines whether a copySurface call would succeed without
      * performing the copy.
      */
-    bool canCopySurface(GrSurface* dst,
-                        GrSurface* src,
-                        const SkIRect& srcRect,
-                        const SkIPoint& dstPoint);
+    virtual bool canCopySurface(GrSurface* dst,
+                                GrSurface* src,
+                                const SkIRect& srcRect,
+                                const SkIPoint& dstPoint);
 
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. It will
@@ -740,25 +740,6 @@ protected:
         }
     }
 
-    // This method is called by copySurface  The srcRect is guaranteed to be entirely within the
-    // src bounds. Likewise, the dst rect implied by dstPoint and srcRect's width and height falls
-    // entirely within the dst. The default implementation will draw a rect from the src to the
-    // dst if the src is a texture and the dst is a render target and fail otherwise.
-    virtual bool onCopySurface(GrSurface* dst,
-                               GrSurface* src,
-                               const SkIRect& srcRect,
-                               const SkIPoint& dstPoint);
-
-    // Called to determine whether an onCopySurface call would succeed or not. This is useful for
-    // proxy subclasses to test whether the copy would succeed without executing it yet. Derived
-    // classes must keep this consistent with their implementation of onCopySurface(). The inputs
-    // are the same as onCopySurface(), i.e. srcRect and dstPoint are clipped to be inside the src
-    // and dst bounds.
-    virtual bool onCanCopySurface(GrSurface* dst,
-                                  GrSurface* src,
-                                  const SkIRect& srcRect,
-                                  const SkIPoint& dstPoint);
-
     GrContext* getContext() { return fContext; }
     const GrContext* getContext() const { return fContext; }
 
@@ -921,7 +902,7 @@ private:
 
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }
-    virtual GrClipMaskManager* getClipMaskManager() = 0;
+    virtual GrClipMaskManager* clipMaskManager() = 0;
 
     enum {
         kPreallocGeoSrcStateStackCnt = 4,
@@ -977,7 +958,7 @@ protected:
     GrClipMaskManager           fClipMaskManager;
 
 private:
-    GrClipMaskManager* getClipMaskManager() { return &fClipMaskManager; }
+    GrClipMaskManager* clipMaskManager() { return &fClipMaskManager; }
 
     typedef GrDrawTarget INHERITED;
 };

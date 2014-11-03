@@ -96,17 +96,18 @@ public:
         fHWGeometryState.notifyIndexBufferDelete(id);
     }
 
+    // DrawTarget overrides
+    virtual bool copySurface(GrSurface* dst,
+                             GrSurface* src,
+                             const SkIRect& srcRect,
+                             const SkIPoint& dstPoint) SK_OVERRIDE;
+
+    virtual bool canCopySurface(GrSurface* dst,
+                                GrSurface* src,
+                                const SkIRect& srcRect,
+                                const SkIPoint& dstPoint) SK_OVERRIDE;
+
 protected:
-    virtual bool onCopySurface(GrSurface* dst,
-                               GrSurface* src,
-                               const SkIRect& srcRect,
-                               const SkIPoint& dstPoint) SK_OVERRIDE;
-
-    virtual bool onCanCopySurface(GrSurface* dst,
-                                  GrSurface* src,
-                                  const SkIRect& srcRect,
-                                  const SkIPoint& dstPoint) SK_OVERRIDE;
-
     virtual void buildProgramDesc(const GrOptDrawState&,
                                   const GrProgramDesc::DescInfo&,
                                   GrGpu::DrawType,

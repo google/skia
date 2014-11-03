@@ -916,13 +916,30 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
                                    dstPoint,
                                    &clippedSrcRect,
                                    &clippedDstPoint)) {
-        SkASSERT(this->canCopySurface(dst, src, srcRect, dstPoint));
+        SkASSERT(GrDrawTarget::canCopySurface(dst, src, srcRect, dstPoint));
         return true;
     }
 
-    bool result = this->onCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
-    SkASSERT(result == this->canCopySurface(dst, src, clippedSrcRect, clippedDstPoint));
-    return result;
+    if (!GrDrawTarget::canCopySurface(dst, src, clippedSrcRect, clippedDstPoint)) {
+        return false;
+    }
+
+    GrRenderTarget* rt = dst->asRenderTarget();
+    GrTexture* tex = src->asTexture();
+
+    GrDrawTarget::AutoStateRestore asr(this, kReset_ASRInit);
+    this->drawState()->setRenderTarget(rt);
+    SkMatrix matrix;
+    matrix.setTranslate(SkIntToScalar(clippedSrcRect.fLeft - clippedDstPoint.fX),
+                        SkIntToScalar(clippedSrcRect.fTop - clippedDstPoint.fY));
+    matrix.postIDiv(tex->width(), tex->height());
+    this->drawState()->addColorTextureProcessor(tex, matrix);
+    SkIRect dstRect = SkIRect::MakeXYWH(clippedDstPoint.fX,
+                                        clippedDstPoint.fY,
+                                        clippedSrcRect.width(),
+                                        clippedSrcRect.height());
+    this->drawSimpleRect(dstRect);
+    return true;
 }
 
 bool GrDrawTarget::canCopySurface(GrSurface* dst,
@@ -943,47 +960,15 @@ bool GrDrawTarget::canCopySurface(GrSurface* dst,
                                    &clippedDstPoint)) {
         return true;
     }
-    return this->onCanCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
-}
 
-bool GrDrawTarget::onCanCopySurface(GrSurface* dst,
-                                    GrSurface* src,
-                                    const SkIRect& srcRect,
-                                    const SkIPoint& dstPoint) {
     // Check that the read/write rects are contained within the src/dst bounds.
-    SkASSERT(!srcRect.isEmpty());
-    SkASSERT(SkIRect::MakeWH(src->width(), src->height()).contains(srcRect));
-    SkASSERT(dstPoint.fX >= 0 && dstPoint.fY >= 0);
-    SkASSERT(dstPoint.fX + srcRect.width() <= dst->width() &&
-             dstPoint.fY + srcRect.height() <= dst->height());
+    SkASSERT(!clippedSrcRect.isEmpty());
+    SkASSERT(SkIRect::MakeWH(src->width(), src->height()).contains(clippedSrcRect));
+    SkASSERT(clippedDstPoint.fX >= 0 && clippedDstPoint.fY >= 0);
+    SkASSERT(clippedDstPoint.fX + clippedSrcRect.width() <= dst->width() &&
+             clippedDstPoint.fY + clippedSrcRect.height() <= dst->height());
 
     return !dst->surfacePriv().isSameAs(src) && dst->asRenderTarget() && src->asTexture();
-}
-
-bool GrDrawTarget::onCopySurface(GrSurface* dst,
-                                 GrSurface* src,
-                                 const SkIRect& srcRect,
-                                 const SkIPoint& dstPoint) {
-    if (!GrDrawTarget::onCanCopySurface(dst, src, srcRect, dstPoint)) {
-        return false;
-    }
-
-    GrRenderTarget* rt = dst->asRenderTarget();
-    GrTexture* tex = src->asTexture();
-
-    GrDrawTarget::AutoStateRestore asr(this, kReset_ASRInit);
-    this->drawState()->setRenderTarget(rt);
-    SkMatrix matrix;
-    matrix.setTranslate(SkIntToScalar(srcRect.fLeft - dstPoint.fX),
-                        SkIntToScalar(srcRect.fTop - dstPoint.fY));
-    matrix.postIDiv(tex->width(), tex->height());
-    this->drawState()->addColorTextureProcessor(tex, matrix);
-    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX,
-                                        dstPoint.fY,
-                                        srcRect.width(),
-                                        srcRect.height());
-    this->drawSimpleRect(dstRect);
-    return true;
 }
 
 void GrDrawTarget::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {

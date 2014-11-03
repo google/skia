@@ -582,26 +582,30 @@ void GrInOrderDrawBuffer::CopySurface::execute(GrClipTarget* gpu) {
     gpu->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
 }
 
-bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
-                                        GrSurface* src,
-                                        const SkIRect& srcRect,
-                                        const SkIPoint& dstPoint) {
+bool GrInOrderDrawBuffer::copySurface(GrSurface* dst,
+                                      GrSurface* src,
+                                      const SkIRect& srcRect,
+                                      const SkIPoint& dstPoint) {
     if (fDstGpu->canCopySurface(dst, src, srcRect, dstPoint)) {
         CopySurface* cs = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, CopySurface, (dst, src));
         cs->fSrcRect = srcRect;
         cs->fDstPoint = dstPoint;
         this->recordTraceMarkersIfNecessary();
         return true;
+    } else if (GrDrawTarget::canCopySurface(dst, src, srcRect, dstPoint)) {
+        GrDrawTarget::copySurface(dst, src, srcRect, dstPoint);
+        return true;
     } else {
         return false;
     }
 }
 
-bool GrInOrderDrawBuffer::onCanCopySurface(GrSurface* dst,
-                                           GrSurface* src,
-                                           const SkIRect& srcRect,
-                                           const SkIPoint& dstPoint) {
-    return fDstGpu->canCopySurface(dst, src, srcRect, dstPoint);
+bool GrInOrderDrawBuffer::canCopySurface(GrSurface* dst,
+                                         GrSurface* src,
+                                         const SkIRect& srcRect,
+                                         const SkIPoint& dstPoint) {
+    return fDstGpu->canCopySurface(dst, src, srcRect, dstPoint) ||
+           GrDrawTarget::canCopySurface(dst, src, srcRect, dstPoint);
 }
 
 void GrInOrderDrawBuffer::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
