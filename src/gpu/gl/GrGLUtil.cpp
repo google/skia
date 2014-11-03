@@ -94,8 +94,18 @@ GrGLStandard GrGLGetStandardInUseFromString(const char* versionString) {
 
 bool GrGLIsMesaFromVersionString(const char* versionString) {
     int major, minor, mesaMajor, mesaMinor;
-    int n = sscanf(versionString, "%d.%d Mesa %d.%d", &major, &minor, &mesaMajor, &mesaMinor);
-    return 4 == n;
+
+    GrGLStandard standard = GrGLGetStandardInUseFromString(versionString);
+
+    if (standard == kGL_GrGLStandard) {
+        int n = sscanf(versionString, "%d.%d Mesa %d.%d", &major, &minor, &mesaMajor, &mesaMinor);
+        return 4 == n;
+    }
+    else {
+        int n = sscanf(versionString, "OpenGL ES %d.%d Mesa %d.%d", &major, &minor, &mesaMajor, &mesaMinor);
+        return 4 == n;
+    }
+    return false;
 }
 
 bool GrGLIsChromiumFromRendererString(const char* rendererString) {
