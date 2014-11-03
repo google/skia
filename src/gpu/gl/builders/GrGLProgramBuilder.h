@@ -240,7 +240,7 @@ protected:
     // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're
     // generating stage code.
     void nameVariable(SkString* out, char prefix, const char* name);
-    void setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage);
+    void setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* inputColor, GrGLSLExpr1* inputCoverage);
     void emitAndInstallProcs(const GrOptDrawState& optState,
                              GrGLSLExpr4* inputColor,
                              GrGLSLExpr4* inputCoverage);

@@ -48,7 +48,8 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
     }
 
     // get the initial color and coverage to feed into the first effect in each effect chain
-    GrGLSLExpr4 inputColor, inputCoverage;
+    GrGLSLExpr4 inputColor;
+    GrGLSLExpr1 inputCoverage;
     pb->setupUniformColorAndCoverageIfNeeded(&inputColor,  &inputCoverage);
 
     // if we have a vertex shader(we don't only if we are using NVPR or NVPR ES), then we may have
@@ -70,7 +71,11 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
         }
     }
 
-    pb->emitAndInstallProcs(optState, &inputColor, &inputCoverage);
+    // TODO: Once all stages can handle taking a float or vec4 and correctly handling them we can
+    // remove this cast to a vec4.
+    GrGLSLExpr4 inputCoverageVec4 = GrGLSLExpr4::VectorCast(inputCoverage);
+
+    pb->emitAndInstallProcs(optState, &inputColor, &inputCoverageVec4);
 
     if (hasVertexShader) {
         pb->fVS.transformSkiaToGLCoords();
@@ -78,10 +83,10 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
 
     // write the secondary color output if necessary
     if (GrProgramDesc::kNone_SecondaryOutputType != header.fSecondaryOutputType) {
-        pb->fFS.enableSecondaryOutput(inputColor, inputCoverage);
+        pb->fFS.enableSecondaryOutput(inputColor, inputCoverageVec4);
     }
 
-    pb->fFS.combineColorAndCoverage(inputColor, inputCoverage);
+    pb->fFS.combineColorAndCoverage(inputColor, inputCoverageVec4);
 
     return pb->finalize();
 }
@@ -199,7 +204,7 @@ const GrGLContextInfo& GrGLProgramBuilder::ctxInfo() const {
 }
 
 void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* inputColor,
-                                                              GrGLSLExpr4* inputCoverage) {
+                                                              GrGLSLExpr1* inputCoverage) {
     const GrProgramDesc::KeyHeader& header = this->header();
     if (GrProgramDesc::kUniform_ColorInput == header.fColorInput) {
         const char* name;
@@ -216,12 +221,12 @@ void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* input
         const char* name;
         fUniformHandles.fCoverageUni =
             this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                             kVec4f_GrSLType,
+                             kFloat_GrSLType,
                              "Coverage",
                              &name);
-        *inputCoverage = GrGLSLExpr4(name);
+        *inputCoverage = GrGLSLExpr1(name);
     } else if (GrProgramDesc::kAllOnes_ColorInput == header.fCoverageInput) {
-        *inputCoverage = GrGLSLExpr4(1);
+        *inputCoverage = GrGLSLExpr1(1);
     }
 }
 

@@ -57,6 +57,19 @@ void GrGLVertexBuilder::transformGLToSkiaCoords() {
     this->codeAppendf("vec3 pos3 = %s * vec3(%s, 1);", viewMName, fPositionVar->c_str());
 }
 
+void GrGLVertexBuilder::setupBuiltinVertexAttribute(const char* inName, GrGLSLExpr1* out) {
+    GrGLVertToFrag v(kFloat_GrSLType);
+    fProgramBuilder->addVarying(inName, &v);
+    SkString name(inName);
+    name.prepend("in");
+    this->addAttribute(GrShaderVar(name.c_str(),
+                                   kFloat_GrSLType,
+                                   GrShaderVar::kAttribute_TypeModifier));
+    this->codeAppendf("%s = %s;", v.vsOut(), name.c_str());
+    *out = v.fsIn();
+    fEffectAttribOffset++;
+}
+
 void GrGLVertexBuilder::setupBuiltinVertexAttribute(const char* inName, GrGLSLExpr4* out) {
     GrGLVertToFrag v(kVec4f_GrSLType);
     fProgramBuilder->addVarying(inName, &v);

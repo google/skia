@@ -63,7 +63,7 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
                          GrGLInstalledGeoProc* geometryProcessor,
                          GrGLInstalledFragProcs* fragmentProcessors)
     : fColor(GrColor_ILLEGAL)
-    , fCoverage(GrColor_ILLEGAL)
+    , fCoverage(0)
     , fDstCopyTexUnit(-1)
     , fBuiltinUniformHandles(builtinUniforms)
     , fProgramID(programID)
@@ -131,7 +131,7 @@ void GrGLProgram::setData(const GrOptDrawState& optState,
                           GrGpu::DrawType drawType,
                           const GrDeviceCoordTexture* dstCopy) {
     GrColor color = optState.getColor();
-    GrColor coverage = optState.getCoverageColor();
+    uint8_t coverage = optState.getCoverage();
 
     this->setColor(optState, color);
     this->setCoverage(optState, coverage);
@@ -223,7 +223,7 @@ void GrGLProgram::setColor(const GrOptDrawState& optState, GrColor color) {
     }
 }
 
-void GrGLProgram::setCoverage(const GrOptDrawState& optState, GrColor coverage) {
+void GrGLProgram::setCoverage(const GrOptDrawState& optState, uint8_t coverage) {
     const GrProgramDesc::KeyHeader& header = fDesc.header();
     switch (header.fCoverageInput) {
         case GrProgramDesc::kAttribute_ColorInput:
@@ -232,9 +232,9 @@ void GrGLProgram::setCoverage(const GrOptDrawState& optState, GrColor coverage) 
         case GrProgramDesc::kUniform_ColorInput:
             if (fCoverage != coverage) {
                 // OpenGL ES doesn't support unsigned byte varieties of glUniform
-                GrGLfloat c[4];
-                GrColorToRGBAFloat(coverage, c);
-                fProgramDataManager.set4fv(fBuiltinUniformHandles.fCoverageUni, 1, c);
+                static const float ONE_OVER_255 = 1.f / 255.f;
+                GrGLfloat c = coverage * ONE_OVER_255;
+                fProgramDataManager.set1f(fBuiltinUniformHandles.fCoverageUni, c);
                 fCoverage = coverage;
             }
             break;

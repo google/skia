@@ -650,7 +650,7 @@ extern const GrVertexAttrib gHairlineBezierAttribs[] = {
 // position + coverage
 extern const GrVertexAttrib gHairlineLineAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(SkPoint), kCoverage_GrVertexAttribBinding},
+    {kUByte_GrVertexAttribType, sizeof(SkPoint), kCoverage_GrVertexAttribBinding},
 };
 
 };

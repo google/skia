@@ -42,6 +42,7 @@ private:
      */
     void setupLocalCoords();
     void transformGLToSkiaCoords();
+    void setupBuiltinVertexAttribute(const char* inName, GrGLSLExpr1* out);
     void setupBuiltinVertexAttribute(const char* inName, GrGLSLExpr4* out);
     void emitAttributes(const GrGeometryProcessor& gp);
     void transformSkiaToGLCoords();

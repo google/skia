@@ -55,7 +55,7 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
     GrProcessor::InvariantOutput inout;
     inout.fColor = GrColorPackRGBA(fCoverage, fCoverage, fCoverage, fCoverage);
     inout.fValidFlags = kRGBA_GrColorComponentFlags;
-    inout.fIsSingleComponent = false;
+    inout.fIsSingleComponent = true;
     int count = fCoverageStages.count();
     for (int i = 0; i < count; ++i) {
         fCoverageStages[i].getProcessor()->computeInvariantOutput(&inout);

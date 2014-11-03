@@ -389,7 +389,7 @@ bool GrDrawState::hasSolidCoverage() const {
     }
 
     GrProcessor::InvariantOutput inout;
-    inout.fIsSingleComponent = false;
+    inout.fIsSingleComponent = true;
     // Initialize to an unknown starting coverage if per-vertex coverage is specified.
     if (this->hasCoverageVertexAttribute()) {
         inout.fValidFlags = 0;
@@ -738,7 +738,7 @@ bool GrDrawState::srcAlphaWillBeOne() const {
         // The shader generated for coverage drawing runs the full coverage computation and then
         // makes the shader output be the multiplication of color and coverage. We mirror that here.
         GrProcessor::InvariantOutput inoutCoverage;
-        inoutCoverage.fIsSingleComponent = false;
+        inoutCoverage.fIsSingleComponent = true;
         if (this->hasCoverageVertexAttribute()) {
             inoutCoverage.fValidFlags = 0;
             inoutCoverage.fColor = 0; // suppresses any warnings.

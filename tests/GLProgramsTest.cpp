@@ -188,7 +188,7 @@ static void set_random_gp(GrGpuGL* gpu, SkRandom* random, GrTexture* dummyTextur
                               random, &attribIndex, &runningStride);
 
     // coverage
-    setup_random_ff_attribute(kCoverage_GrVertexAttribBinding, kVec4f_GrVertexAttribType,
+    setup_random_ff_attribute(kCoverage_GrVertexAttribBinding, kUByte_GrVertexAttribType,
                               random, &attribIndex, &runningStride);
 
     // Update the geometry processor attributes

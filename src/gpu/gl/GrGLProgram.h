@@ -155,7 +155,7 @@ protected:
 
     // Helper for setData(). Makes GL calls to specify the initial coverage when there is not
     // per-vertex coverages.
-    void setCoverage(const GrOptDrawState&, GrColor coverage);
+    void setCoverage(const GrOptDrawState&, uint8_t coverage);
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
     void setFragmentData(const GrOptDrawState&);
@@ -175,7 +175,7 @@ protected:
     // these reflect the current values of uniforms (GL uniform values travel with program)
     MatrixState fMatrixState;
     GrColor fColor;
-    GrColor fCoverage;
+    uint8_t fCoverage;
     int fDstCopyTexUnit;
     BuiltinUniformHandles fBuiltinUniformHandles;
     GrGLuint fProgramID;
