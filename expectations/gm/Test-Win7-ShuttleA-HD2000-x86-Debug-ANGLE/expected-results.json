@@ -4693,6 +4693,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "colortype_xfermodes_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17451342106696625296
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip2_565.png": {
       "allowed-digests": [
         [
