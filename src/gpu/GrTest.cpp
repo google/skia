@@ -8,7 +8,7 @@
 
 #include "GrTest.h"
 
-#include "GrGpu.h"
+#include "GrInOrderDrawBuffer.h"
 #include "GrResourceCache.h"
 
 void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target) {
@@ -28,7 +28,7 @@ void GrContext::getTestTarget(GrTestTarget* tar) {
     // then disconnects. This would help prevent test writers from mixing using the returned
     // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
-    tar->init(this, fGpu);
+    tar->init(this, fDrawBuffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
