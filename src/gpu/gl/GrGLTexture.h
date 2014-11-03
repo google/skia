@@ -13,38 +13,6 @@
 #include "GrTexture.h"
 #include "GrGLUtil.h"
 
-/**
- * A ref counted tex id that deletes the texture in its destructor.
- */
-class GrGLTexID : public SkRefCnt {
-public:
-    SK_DECLARE_INST_COUNT(GrGLTexID)
-
-    GrGLTexID(const GrGLInterface* gl, GrGLuint texID, bool isWrapped)
-        : fGL(gl)
-        , fTexID(texID)
-        , fIsWrapped(isWrapped) {
-    }
-
-    virtual ~GrGLTexID() {
-        if (0 != fTexID && !fIsWrapped) {
-            GR_GL_CALL(fGL, DeleteTextures(1, &fTexID));
-        }
-    }
-
-    void abandon() { fTexID = 0; }
-    GrGLuint id() const { return fTexID; }
-
-private:
-    const GrGLInterface* fGL;
-    GrGLuint             fTexID;
-    bool                 fIsWrapped;
-
-    typedef SkRefCnt INHERITED;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
 
 class GrGLTexture : public GrTexture {
 
@@ -83,7 +51,7 @@ public:
         fTexParamsTimestamp = timestamp;
     }
 
-    GrGLuint textureID() const { return (fTexIDObj.get()) ? fTexIDObj->id() : 0; }
+    GrGLuint textureID() const { return fTextureID; }
 
 protected:
     // The public constructor registers this object with the cache. However, only the most derived
@@ -100,7 +68,7 @@ protected:
 private:
     TexParams                       fTexParams;
     GrGpu::ResetTimestamp           fTexParamsTimestamp;
-    SkAutoTUnref<GrGLTexID>         fTexIDObj;
+    GrGLuint                        fTextureID;
 
     typedef GrTexture INHERITED;
 };

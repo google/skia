@@ -29,22 +29,21 @@ void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     SkASSERT(0 != idDesc.fTextureID);
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
-    fTexIDObj.reset(SkNEW_ARGS(GrGLTexID, (GPUGL->glInterface(),
-                                           idDesc.fTextureID,
-                                           idDesc.fIsWrapped)));
+    fTextureID = idDesc.fTextureID;
 }
 
 void GrGLTexture::onRelease() {
-    fTexIDObj.reset(NULL);
+    if (fTextureID) {
+        if (!this->isWrapped()) {
+            GL_CALL(DeleteTextures(1, &fTextureID));
+        }
+        fTextureID = 0;
+    }
     INHERITED::onRelease();
 }
 
 void GrGLTexture::onAbandon() {
-    if (fTexIDObj.get()) {
-        fTexIDObj->abandon();
-        fTexIDObj.reset(NULL);
-    }
-
+    fTextureID = 0;
     INHERITED::onAbandon();
 }
 
