@@ -843,15 +843,13 @@ public:
      *  other. When this returns, left <= right && top <= bottom
      */
     void sort() {
-        SkScalar min = SkMinScalar(fLeft, fRight);
-        SkScalar max = SkMaxScalar(fLeft, fRight);
-        fLeft = min;
-        fRight = max;
-        
-        min = SkMinScalar(fTop, fBottom);
-        max = SkMaxScalar(fTop, fBottom);
-        fTop = min;
-        fBottom = max;
+        if (fLeft > fRight) {
+            SkTSwap<SkScalar>(fLeft, fRight);
+        }
+
+        if (fTop > fBottom) {
+            SkTSwap<SkScalar>(fTop, fBottom);
+        }
     }
 
     /**
