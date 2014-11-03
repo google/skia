@@ -580,6 +580,8 @@ void GrContext::clear(const SkIRect* rect,
                       bool canIgnoreRect,
                       GrRenderTarget* renderTarget) {
     ASSERT_OWNED_RESOURCE(renderTarget);
+    SkASSERT(renderTarget);
+
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContext::clear", this);
@@ -753,7 +755,7 @@ void GrContext::drawRect(const GrPaint& paint,
                 // Will it blend?
                 GrColor clearColor;
                 if (paint.isOpaqueAndConstantColor(&clearColor)) {
-                    target->clear(NULL, clearColor, true);
+                    target->clear(NULL, clearColor, true, fRenderTarget);
                     return;
                 }
             }
@@ -1400,13 +1402,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                                        GrPixelConfig dstConfig, void* buffer, size_t rowBytes,
                                        uint32_t flags) {
     ASSERT_OWNED_RESOURCE(target);
-
-    if (NULL == target) {
-        target = fRenderTarget.get();
-        if (NULL == target) {
-            return false;
-        }
-    }
+    SkASSERT(target);
 
     if (!(kDontFlush_PixelOpsFlag & flags) && target->surfacePriv().hasPendingWrite()) {
         this->flush();
@@ -1541,10 +1537,12 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
 void GrContext::resolveRenderTarget(GrRenderTarget* target) {
     SkASSERT(target);
     ASSERT_OWNED_RESOURCE(target);
-    // In the future we may track whether there are any pending draws to this
-    // target. We don't today so we always perform a flush. We don't promise
-    // this to our clients, though.
-    this->flush();
+    if (!target->needsResolve()) {
+        return;
+    }
+    if (target->surfacePriv().hasPendingIO()) {
+        this->flush();
+    }
     if (fGpu) {
         fGpu->resolveRenderTarget(target);
     }

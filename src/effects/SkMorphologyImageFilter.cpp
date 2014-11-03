@@ -530,9 +530,10 @@ bool apply_morphology(const SkBitmap& input,
                               morphType, Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
                                               dstRect.width(), radius.fHeight);
-        context->clear(&clearRect, GrMorphologyEffect::kErode_MorphologyType == morphType ?
-                                   SK_ColorWHITE :
-                                   SK_ColorTRANSPARENT, false);
+        GrColor clearColor = GrMorphologyEffect::kErode_MorphologyType == morphType ?
+                                SK_ColorWHITE :
+                                SK_ColorTRANSPARENT;
+        context->clear(&clearRect, clearColor, false, texture->asRenderTarget());
         srcTexture.reset(texture);
         srcRect = dstRect;
     }

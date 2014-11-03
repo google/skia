@@ -450,12 +450,9 @@ void GrInOrderDrawBuffer::clearStencilClip(const SkIRect& rect,
 }
 
 void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
+    SkASSERT(renderTarget);
     if (!this->caps()->discardRenderTargetSupport()) {
         return;
-    }
-    if (NULL == renderTarget) {
-        renderTarget = this->drawState()->getRenderTarget();
-        SkASSERT(renderTarget);
     }
     Clear* clr = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Clear, (renderTarget));
     clr->fColor = GrColor_ILLEGAL;

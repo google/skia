@@ -410,21 +410,17 @@ public:
                               const SkRect* devBounds = NULL);
 
     /**
-     * Clear the current render target if one isn't passed in. Ignores the
-     * clip and all other draw state (blend mode, stages, etc). Clears the
-     * whole thing if rect is NULL, otherwise just the rect. If canIgnoreRect
-     * is set then the entire render target can be optionally cleared.
+     * Clear the passed in render target. Ignores the draw state and clip. Clears the whole thing if
+     * rect is NULL, otherwise just the rect. If canIgnoreRect is set then the entire render target
+     * can be optionally cleared.
      */
-    virtual void clear(const SkIRect* rect,
-                       GrColor color,
-                       bool canIgnoreRect,
-                       GrRenderTarget* renderTarget = NULL) = 0;
+    virtual void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
+                       GrRenderTarget* renderTarget) = 0;
 
     /**
-     * Discards the contents render target. NULL indicates that the current render target should
-     * be discarded.
+     * Discards the contents render target.
      **/
-    virtual void discard(GrRenderTarget* = NULL) = 0;
+    virtual void discard(GrRenderTarget*) = 0;
 
     /**
      * Called at start and end of gpu trace marking

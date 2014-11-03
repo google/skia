@@ -198,13 +198,7 @@ void GrGpu::clear(const SkIRect* rect,
                   GrColor color,
                   bool canIgnoreRect,
                   GrRenderTarget* renderTarget) {
-    if (NULL == renderTarget) {
-        renderTarget = this->getDrawState().getRenderTarget();
-    }
-    if (NULL == renderTarget) {
-        SkASSERT(0);
-        return;
-    }
+    SkASSERT(renderTarget);
     this->handleDirtyContext();
     this->onClear(renderTarget, rect, color, canIgnoreRect);
 }

@@ -434,11 +434,9 @@ public:
      * @param color the color to clear to.
      * @param canIgnoreRect allows partial clears to be converted to whole
      *                      clears on platforms for which that is cheap
-     * @param target if non-NULL, the render target to clear otherwise clear
-     *               the current render target
+     * @param target The render target to clear.
      */
-    void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
-               GrRenderTarget* target = NULL);
+    void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect, GrRenderTarget* target);
 
     /**
      *  Draw everywhere (respecting the clip) with the paint.
@@ -586,7 +584,7 @@ public:
 
     /**
      * Reads a rectangle of pixels from a render target.
-     * @param target        the render target to read from. NULL means the current render target.
+     * @param target        the render target to read from.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.

@@ -1401,14 +1401,9 @@ void GrGpuGL::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color
 }
 
 void GrGpuGL::discard(GrRenderTarget* renderTarget) {
+    SkASSERT(renderTarget);
     if (!this->caps()->discardRenderTargetSupport()) {
         return;
-    }
-    if (NULL == renderTarget) {
-        renderTarget = this->drawState()->getRenderTarget();
-        if (NULL == renderTarget) {
-            return;
-        }
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);

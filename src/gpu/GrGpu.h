@@ -266,10 +266,8 @@ public:
                             size_t rowBytes);
 
     // GrDrawTarget overrides
-    virtual void clear(const SkIRect* rect,
-                       GrColor color,
-                       bool canIgnoreRect,
-                       GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
+    virtual void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
+                       GrRenderTarget* renderTarget) SK_OVERRIDE;
 
     virtual void clearStencilClip(const SkIRect& rect,
                                   bool insideClip,

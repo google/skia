@@ -658,7 +658,7 @@ GrTexture* create_mask_GPU(GrContext* context,
     GrContext::AutoRenderTarget art(context, mask->asRenderTarget());
     GrContext::AutoClip ac(context, clipRect);
 
-    context->clear(NULL, 0x0, true);
+    context->clear(NULL, 0x0, true, mask->asRenderTarget());
 
     GrPaint tempPaint;
     if (doAA) {

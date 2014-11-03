@@ -250,7 +250,7 @@ GrTexture* GaussianBlur(GrContext* context,
                 // X convolution from reading garbage.
                 clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop,
                                               radiusX, srcIRect.height());
-                context->clear(&clearRect, 0x0, false);
+                context->clear(&clearRect, 0x0, false, context->getRenderTarget());
             }
             context->setRenderTarget(dstTexture->asRenderTarget());
             SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
@@ -267,7 +267,7 @@ GrTexture* GaussianBlur(GrContext* context,
                 // convolution from reading garbage.
                 clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom,
                                               srcIRect.width(), radiusY);
-                context->clear(&clearRect, 0x0, false);
+                context->clear(&clearRect, 0x0, false, context->getRenderTarget());
             }
 
             context->setRenderTarget(dstTexture->asRenderTarget());
@@ -285,10 +285,10 @@ GrTexture* GaussianBlur(GrContext* context,
         // upsampling.
         clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom,
                                       srcIRect.width() + 1, 1);
-        context->clear(&clearRect, 0x0, false);
+        context->clear(&clearRect, 0x0, false, context->getRenderTarget());
         clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop,
                                       1, srcIRect.height());
-        context->clear(&clearRect, 0x0, false);
+        context->clear(&clearRect, 0x0, false, context->getRenderTarget());
         SkMatrix matrix;
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         context->setRenderTarget(dstTexture->asRenderTarget());

@@ -294,7 +294,7 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
             GrPaint grPaint;
             grPaint.setBlendFunc(kOne_GrBlendCoeff, kZero_GrBlendCoeff);
             SkRegion::Iterator iter(fRegion);
-            context->clear(NULL, 0x0, true);
+            context->clear(NULL, 0x0, true, maskTexture->asRenderTarget());
 
             SkMatrix old_matrix = context->getMatrix();
             context->setMatrix(in_matrix);
