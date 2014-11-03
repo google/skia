@@ -6869,6 +6869,7 @@
           717608244765609872
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "dashcubics_pdf-poppler.png": {
@@ -17655,7 +17656,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10497222257759782905
+          11558777522282590832
         ]
       ], 
       "reviewed-by-human": true
@@ -17664,7 +17665,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6509695928299095478
+          1729916360334344548
         ]
       ], 
       "reviewed-by-human": true
