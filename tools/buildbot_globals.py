@@ -9,11 +9,8 @@ Provides read access to buildbot's global_variables.json .
 """
 
 
-import HTMLParser
 import json
-import re
 import retrieve_from_googlesource
-import svn
 import sys
 
 
