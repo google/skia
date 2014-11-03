@@ -13,10 +13,10 @@
 #include "SkInstCnt.h"
 #include "SkTInternalLList.h"
 
-class GrResourceCacheEntry;
-class GrResourceCache2;
-class GrGpu;
 class GrContext;
+class GrGpu;
+class GrResourceCache2;
+class GrResourceCacheEntry;
 
 /**
  * Base class for GrGpuResource. Handles the various types of refs we need. Separated out as a base

@@ -42,9 +42,7 @@ public:
 
 private:
 #ifdef SK_DEBUG
-    bool isInCache(const GrGpuResource* r) const {
-        return fResources.isInList(r);
-    }
+    bool isInCache(const GrGpuResource* r) const { return fResources.isInList(r); }
 #endif
 
     class AvailableForScratchUse;

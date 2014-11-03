@@ -530,9 +530,7 @@ public:
      *
      * @return    The currently set render target.
      */
-    GrRenderTarget* getRenderTarget() const {
-        return static_cast<GrRenderTarget*>(fRenderTarget.getResource());
-    }
+    GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
 
     /**
      * Sets the render-target used at the next drawing call

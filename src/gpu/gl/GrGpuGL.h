@@ -14,6 +14,7 @@
 #include "GrGLIndexBuffer.h"
 #include "GrGLPathRendering.h"
 #include "GrGLProgram.h"
+#include "GrGLRenderTarget.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLTexture.h"
 #include "GrGLVertexArray.h"

@@ -6,20 +6,12 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
-#include "GrRenderTarget.h"
 #include "GrResourceCache.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
-
-GrTexture::~GrTexture() {
-    if (fRenderTarget.get()) {
-        fRenderTarget.get()->owningTextureDestroyed();
-    }
-}
 
 void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
     if (mipMapsDirty) {
@@ -51,18 +43,6 @@ size_t GrTexture::gpuMemorySize() const {
         textureSize *= 2;
     }
     return textureSize;
-}
-
-void GrTexture::onRelease() {
-
-    INHERITED::onRelease();
-}
-
-void GrTexture::onAbandon() {
-    if (fRenderTarget.get()) {
-        fRenderTarget->abandon();
-    }
-    INHERITED::onAbandon();
 }
 
 void GrTexture::validateDesc() const {
@@ -140,7 +120,6 @@ GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
 //////////////////////////////////////////////////////////////////////////////
 GrTexture::GrTexture(GrGpu* gpu, bool isWrapped, const GrSurfaceDesc& desc)
     : INHERITED(gpu, isWrapped, desc)
-    , fRenderTarget(NULL)
     , fMipMapsStatus(kNotAllocated_MipMapsStatus) {
     this->setScratchKey(GrTexturePriv::ComputeScratchKey(desc));
     // only make sense if alloc size is pow2

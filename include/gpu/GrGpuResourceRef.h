@@ -9,6 +9,8 @@
 #define GrGpuResourceRef_DEFINED
 
 #include "GrGpuResource.h"
+#include "GrRenderTarget.h"
+#include "GrTexture.h"
 #include "SkRefCnt.h"
 
 /**
@@ -96,13 +98,56 @@ public:
 
     /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
-    GrTGpuResourceRef(T* resource, GrIOType ioType) : INHERITED(resource, ioType) {}
+    GrTGpuResourceRef(T* resource, GrIOType ioType) : INHERITED(resource, ioType) { }
 
     T* get() const { return static_cast<T*>(this->getResource()); }
 
     /** Adopts a ref from the caller. ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
     void set(T* resource, GrIOType ioType) { this->setResource(resource, ioType); }
+
+private:
+    typedef GrGpuResourceRef INHERITED;
+};
+
+// Specializations for GrTexture and GrRenderTarget because they use virtual inheritance.
+template<> class GrTGpuResourceRef<GrTexture> : public GrGpuResourceRef {
+public:
+    GrTGpuResourceRef() {}
+
+    GrTGpuResourceRef(GrTexture* texture, GrIOType ioType) : INHERITED(texture, ioType) { }
+
+    GrTexture* get() const {
+        GrSurface* surface = static_cast<GrSurface*>(this->getResource());
+        if (surface) {
+            return surface->asTexture();
+        } else {
+            return NULL;
+        }
+    }
+
+    void set(GrTexture* texture, GrIOType ioType) { this->setResource(texture, ioType); }
+
+private:
+    typedef GrGpuResourceRef INHERITED;
+};
+
+template<> class GrTGpuResourceRef<GrRenderTarget> : public GrGpuResourceRef {
+public:
+    GrTGpuResourceRef() {}
+
+    GrTGpuResourceRef(GrRenderTarget* rt, GrIOType ioType) : INHERITED(rt, ioType) { }
+
+    GrRenderTarget* get() const {
+        GrSurface* surface = static_cast<GrSurface*>(this->getResource());
+        if (surface) {
+            return surface->asRenderTarget();
+        } else {
+            return NULL;
+        }
+    }
+
+    void set(GrRenderTarget* rt, GrIOType ioType) { this->setResource(rt, ioType); }
 
 private:
     typedef GrGpuResourceRef INHERITED;

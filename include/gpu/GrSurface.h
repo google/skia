@@ -24,15 +24,11 @@ public:
 
     /**
      * Retrieves the width of the surface.
-     *
-     * @return the width in texels
      */
     int width() const { return fDesc.fWidth; }
 
     /**
      * Retrieves the height of the surface.
-     *
-     * @return the height in texels
      */
     int height() const { return fDesc.fHeight; }
 
@@ -63,14 +59,14 @@ public:
     /**
      * @return the texture associated with the surface, may be NULL.
      */
-    virtual GrTexture* asTexture() = 0;
-    virtual const GrTexture* asTexture() const = 0;
+    virtual GrTexture* asTexture() { return NULL; }
+    virtual const GrTexture* asTexture() const { return NULL; }
 
     /**
      * @return the render target underlying this surface, may be NULL.
      */
-    virtual GrRenderTarget* asRenderTarget() = 0;
-    virtual const GrRenderTarget* asRenderTarget() const = 0;
+    virtual GrRenderTarget* asRenderTarget() { return NULL; }
+    virtual const GrRenderTarget* asRenderTarget() const { return NULL; }
 
     /**
      * Reads a rectangle of pixels from the surface.

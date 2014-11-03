@@ -255,8 +255,12 @@ GrTexture* GrContext::findAndRefTexture(const GrSurfaceDesc& desc,
                                         const GrTextureParams* params) {
     GrResourceKey resourceKey = GrTexturePriv::ComputeKey(fGpu, params, desc, cacheID);
     GrGpuResource* resource = fResourceCache->find(resourceKey);
-    SkSafeRef(resource);
-    return static_cast<GrTexture*>(resource);
+    if (resource) {
+        resource->ref();
+        return static_cast<GrSurface*>(resource)->asTexture();
+    } else {
+        return NULL;
+    }
 }
 
 bool GrContext::isTextureInCache(const GrSurfaceDesc& desc,
@@ -471,7 +475,7 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
             GrGpuResource* resource = fResourceCache2->findAndRefScratchResource(key, scratchFlags);
             if (resource) {
                 fResourceCache->makeResourceMRU(resource);
-                return static_cast<GrTexture*>(resource);
+                return static_cast<GrSurface*>(resource)->asTexture();
             }
 
             if (kExact_ScratchTexMatch == match) {

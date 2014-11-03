@@ -14,11 +14,8 @@
 #include "SkScalar.h"
 
 class GrGpuGL;
-class GrGLTexture;
-class GrGLTexID;
 
 class GrGLRenderTarget : public GrRenderTarget {
-
 public:
     // set fTexFBOID to this value to indicate that it is multisampled but
     // Gr doesn't know how to resolve it.
@@ -31,12 +28,7 @@ public:
         bool             fIsWrapped;
     };
 
-    // creates a GrGLRenderTarget associated with a texture
-    GrGLRenderTarget(GrGpuGL*, const IDDesc&, const GrGLIRect& viewport,
-                     GrGLTexID*, GrGLTexture*);
-
-    // creates an independent GrGLRenderTarget
-    GrGLRenderTarget(GrGpuGL*, const GrSurfaceDesc&, const IDDesc&, const GrGLIRect& viewport);
+    GrGLRenderTarget(GrGpuGL*, const GrSurfaceDesc&, const IDDesc&);
 
     virtual ~GrGLRenderTarget() { this->release(); }
 
@@ -52,14 +44,9 @@ public:
     GrGLuint textureFBOID() const { return fTexFBOID; }
 
     // override of GrRenderTarget
-    virtual GrBackendObject getRenderTargetHandle() const {
-        return this->renderFBOID();
-    }
-    virtual GrBackendObject getRenderTargetResolvedHandle() const {
-        return this->textureFBOID();
-    }
+    virtual GrBackendObject getRenderTargetHandle() const { return this->renderFBOID(); }
+    virtual GrBackendObject getRenderTargetResolvedHandle() const { return this->textureFBOID(); }
     virtual ResolveType getResolveType() const {
-
         if (!this->isMultisampled() ||
             fRTFBOID == fTexFBOID) {
             // catches FBO 0 and non MSAA case
@@ -71,26 +58,34 @@ public:
         }
     }
 
+    virtual size_t gpuMemorySize() const SK_OVERRIDE;
+
 protected:
-    // override of GrResource
+    // The public constructor registers this object with the cache. However, only the most derived
+    // class should register with the cache. This constructor does not do the registration and
+    // rather moves that burden onto the derived class.
+    enum Derived { kDerived };
+    GrGLRenderTarget(GrGpuGL*, const GrSurfaceDesc&, const IDDesc&, Derived);
+
+    void init(const GrSurfaceDesc&, const IDDesc&);
+
     virtual void onAbandon() SK_OVERRIDE;
     virtual void onRelease() SK_OVERRIDE;
 
 private:
     GrGLuint      fRTFBOID;
     GrGLuint      fTexFBOID;
-
     GrGLuint      fMSColorRenderbufferID;
 
     // when we switch to this render target we want to set the viewport to
-    // only render to to content area (as opposed to the whole allocation) and
+    // only render to content area (as opposed to the whole allocation) and
     // we want the rendering to be at top left (GL has origin in bottom left)
     GrGLIRect fViewport;
 
-    // non-NULL if this RT was created by Gr with an associated GrGLTexture.
-    SkAutoTUnref<GrGLTexID> fTexIDObj;
-
-    void init(const GrSurfaceDesc&, const IDDesc&, const GrGLIRect& viewport, GrGLTexID*);
+    // gpuMemorySize() needs to know what how many color values are owned per pixel. However,
+    // abandon and release zero out the IDs and the cache needs to know the size even after those
+    // actions.
+    uint8_t fColorValuesPerPixel;
 
     typedef GrRenderTarget INHERITED;
 };

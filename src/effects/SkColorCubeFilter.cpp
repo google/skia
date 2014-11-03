@@ -356,11 +356,12 @@ GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* context) 
     desc.fHeight = fCache.cubeDimension() * fCache.cubeDimension();
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    SkAutoTUnref<GrTexture> textureCube(
-        static_cast<GrTexture*>(context->findAndRefCachedResource(
-            GrTexturePriv::ComputeKey(context->getGpu(), NULL, desc, cacheID))));
-
-    if (!textureCube) {
+    GrResourceKey rkey = GrTexturePriv::ComputeKey(context->getGpu(), NULL, desc, cacheID);
+    GrSurface* surface = static_cast<GrSurface*>(context->findAndRefCachedResource(rkey));
+    SkAutoTUnref<GrTexture> textureCube;
+    if (surface) {
+        textureCube.reset(surface->asTexture());
+    } else {
         textureCube.reset(context->createTexture(NULL, desc, cacheID, fCubeData->data(), 0));
     }
 

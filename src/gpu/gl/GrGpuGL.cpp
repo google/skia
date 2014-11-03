@@ -8,6 +8,7 @@
 
 #include "GrGpuGL.h"
 #include "GrGLStencilBuffer.h"
+#include "GrGLTextureRenderTarget.h"
 #include "GrOptDrawState.h"
 #include "GrSurfacePriv.h"
 #include "GrTemplates.h"
@@ -403,7 +404,7 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
         if (!this->createRenderTargetObjects(surfDesc, idDesc.fTextureID, &rtIDDesc)) {
             return NULL;
         }
-        texture = SkNEW_ARGS(GrGLTexture, (this, surfDesc, idDesc, rtIDDesc));
+        texture = SkNEW_ARGS(GrGLTextureRenderTarget, (this, surfDesc, idDesc, rtIDDesc));
     } else {
         texture = SkNEW_ARGS(GrGLTexture, (this, surfDesc, idDesc));
     }
@@ -428,13 +429,7 @@ GrRenderTarget* GrGpuGL::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     desc.fSampleCnt = wrapDesc.fSampleCnt;
     desc.fOrigin = resolve_origin(wrapDesc.fOrigin, true);
 
-    GrGLIRect viewport;
-    viewport.fLeft   = 0;
-    viewport.fBottom = 0;
-    viewport.fWidth  = desc.fWidth;
-    viewport.fHeight = desc.fHeight;
-
-    GrRenderTarget* tgt = SkNEW_ARGS(GrGLRenderTarget, (this, desc, idDesc, viewport));
+    GrRenderTarget* tgt = SkNEW_ARGS(GrGLRenderTarget, (this, desc, idDesc));
     if (wrapDesc.fStencilBits) {
         GrGLStencilBuffer::Format format;
         format.fInternalFormat = GrGLStencilBuffer::kUnknownInternalFormat;
@@ -1022,7 +1017,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrSurfaceDesc& origDesc,
             GL_CALL(DeleteTextures(1, &idDesc.fTextureID));
             return return_null_texture();
         }
-        tex = SkNEW_ARGS(GrGLTexture, (this, desc, idDesc, rtIDDesc));
+        tex = SkNEW_ARGS(GrGLTextureRenderTarget, (this, desc, idDesc, rtIDDesc));
     } else {
         tex = SkNEW_ARGS(GrGLTexture, (this, desc, idDesc));
     }
@@ -1193,7 +1188,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
 }
 
 bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTarget* rt) {
-    GrGLRenderTarget* glrt = (GrGLRenderTarget*) rt;
+    GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(rt);
 
     GrGLuint fbo = glrt->renderFBOID();
 
@@ -1575,8 +1570,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
         case GrGLRenderTarget::kCantResolve_ResolveType:
             return false;
         case GrGLRenderTarget::kAutoResolves_ResolveType:
-            this->flushRenderTarget(static_cast<GrGLRenderTarget*>(target),
-                                    &SkIRect::EmptyIRect());
+            this->flushRenderTarget(static_cast<GrGLRenderTarget*>(target), &SkIRect::EmptyIRect());
             break;
         case GrGLRenderTarget::kCanResolve_ResolveType:
             this->onResolveRenderTarget(tgt);
@@ -1989,7 +1983,7 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
     // If we created a rt/tex and rendered to it without using a texture and now we're texturing
     // from the rt it will still be the last bound texture, but it needs resolving. So keep this
     // out of the "last != next" check.
-    GrGLRenderTarget* texRT =  static_cast<GrGLRenderTarget*>(texture->asRenderTarget());
+    GrGLRenderTarget* texRT = static_cast<GrGLRenderTarget*>(texture->asRenderTarget());
     if (texRT) {
         this->onResolveRenderTarget(texRT);
     }

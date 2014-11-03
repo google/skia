@@ -247,6 +247,7 @@
       '<(skia_src_path)/gpu/gl/GrGLStencilBuffer.h',
       '<(skia_src_path)/gpu/gl/GrGLTexture.cpp',
       '<(skia_src_path)/gpu/gl/GrGLTexture.h',
+      '<(skia_src_path)/gpu/gl/GrGLTextureRenderTarget.h',
       '<(skia_src_path)/gpu/gl/GrGLUtil.cpp',
       '<(skia_src_path)/gpu/gl/GrGLUtil.h',
       '<(skia_src_path)/gpu/gl/GrGLUniformHandle.h',

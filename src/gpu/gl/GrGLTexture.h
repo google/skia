@@ -10,7 +10,8 @@
 #define GrGLTexture_DEFINED
 
 #include "GrGpu.h"
-#include "GrGLRenderTarget.h"
+#include "GrTexture.h"
+#include "GrGLUtil.h"
 
 /**
  * A ref counted tex id that deletes the texture in its destructor.
@@ -62,11 +63,7 @@ public:
         bool            fIsWrapped;
     };
 
-    // creates a texture that is also an RT
-    GrGLTexture(GrGpuGL* gpu, const GrSurfaceDesc&, const IDDesc&, const GrGLRenderTarget::IDDesc&);
-
-    // creates a non-RT texture
-    GrGLTexture(GrGpuGL* gpu, const GrSurfaceDesc&, const IDDesc&);
+    GrGLTexture(GrGpuGL*, const GrSurfaceDesc&, const IDDesc&);
 
     virtual ~GrGLTexture() { this->release(); }
 
@@ -89,7 +86,14 @@ public:
     GrGLuint textureID() const { return (fTexIDObj.get()) ? fTexIDObj->id() : 0; }
 
 protected:
-    // overrides of GrTexture
+    // The public constructor registers this object with the cache. However, only the most derived
+    // class should register with the cache. This constructor does not do the registration and
+    // rather moves that burden onto the derived class.
+    enum Derived { kDerived };
+    GrGLTexture(GrGpuGL*, const GrSurfaceDesc&, const IDDesc&, Derived);
+
+    void init(const GrSurfaceDesc&, const IDDesc&);
+
     virtual void onAbandon() SK_OVERRIDE;
     virtual void onRelease() SK_OVERRIDE;
 
@@ -97,8 +101,6 @@ private:
     TexParams                       fTexParams;
     GrGpu::ResetTimestamp           fTexParamsTimestamp;
     SkAutoTUnref<GrGLTexID>         fTexIDObj;
-
-    void init(GrGpuGL* gpu, const GrSurfaceDesc&, const IDDesc&, const GrGLRenderTarget::IDDesc*);
 
     typedef GrTexture INHERITED;
 };

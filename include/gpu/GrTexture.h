@@ -10,7 +10,6 @@
 #define GrTexture_DEFINED
 
 #include "GrSurface.h"
-#include "GrRenderTarget.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
@@ -18,7 +17,7 @@ class GrResourceKey;
 class GrTextureParams;
 class GrTexturePriv;
 
-class GrTexture : public GrSurface {
+class GrTexture : virtual public GrSurface {
 public:
     /**
      *  Approximate number of bytes used by the texture
@@ -27,8 +26,6 @@ public:
 
     virtual GrTexture* asTexture() SK_OVERRIDE { return this; }
     virtual const GrTexture* asTexture() const SK_OVERRIDE { return this; }
-    virtual GrRenderTarget* asRenderTarget() SK_OVERRIDE { return fRenderTarget.get(); }
-    virtual const GrRenderTarget* asRenderTarget() const SK_OVERRIDE { return fRenderTarget.get(); }
 
     /**
      *  Return the native ID or handle to the texture, depending on the
@@ -54,17 +51,7 @@ public:
     inline const GrTexturePriv texturePriv() const;
 
 protected:
-    // A texture refs its rt representation but not vice-versa. It is up to
-    // the subclass constructor to initialize this pointer.
-    SkAutoTUnref<GrRenderTarget> fRenderTarget;
-
     GrTexture(GrGpu* gpu, bool isWrapped, const GrSurfaceDesc& desc);
-
-    virtual ~GrTexture();
-
-    // GrResource overrides
-    virtual void onRelease() SK_OVERRIDE;
-    virtual void onAbandon() SK_OVERRIDE;
 
     void validateDesc() const;
 
