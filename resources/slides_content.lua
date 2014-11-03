@@ -21,6 +21,7 @@ One Team -- many clients
 
 <transition= rotate>
 
+<blockstyle = code>
 Optimize for CPU variety
 - x86 - 32bit (SSE, SSE2, ...), 64bit
 - Arm - thumb, arm, NEON, ... 64bit?

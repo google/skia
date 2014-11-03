@@ -10,7 +10,7 @@ end
 
 load_file("slides_utils")
 
-gSlides = parse_file(io.open("/skia/trunk/resources/slides_content.lua", "r"))
+gSlides = parse_file(io.open("/skia/trunk/resources/slides_content2.lua", "r"))
 
 function make_rect(l, t, r, b)
     return { left = l, top = t, right = r, bottom = b }
@@ -26,11 +26,25 @@ function make_paint(typefacename, stylebits, size, color)
     return paint
 end
 
-function drawSlide(canvas, slide, template)
-    template = template.slide   -- need to sniff the slide to know if we're title or slide
+function drawSlide(canvas, slide, master_template)
+    template = master_template.slide   -- need to sniff the slide to know if we're title or slide
 
     local x = template.margin_x
     local y = template.margin_y
+
+    if slide.blockstyle == "code" then
+        local paint = master_template.codePaint
+        local fm = paint:getFontMetrics()
+        local height = #slide * (fm.descent - fm.ascent)
+        y = (480 - height) / 2
+        for i = 1, #slide do
+            local node = slide[i]
+            y = y - fm.ascent
+            canvas:drawText(node.text, x, y, paint)
+            y = y + fm.descent
+        end
+        return
+    end
 
     local scale = 1.25
     for i = 1, #slide do
@@ -72,6 +86,7 @@ function SkiaPoint_make_template()
     return {
         title = title,
         slide = slide,
+        codePaint = make_paint("Courier", 0, 24, { a=1, r=.9, g=.9, b=.9 }),
     }
 end
 

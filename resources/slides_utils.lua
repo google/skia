@@ -58,6 +58,10 @@ function parse_transition_type(s)
     return s:match("^<%s*transition%s*=%s*(%a+)%s*>$")
 end
 
+function parse_blockstyle_type(s)
+    return s:match("^<%s*blockstyle%s*=%s*(%a+)%s*>$")
+end
+
 function parse_file(file)
     local slides = {}
     local block = {}
@@ -71,14 +75,21 @@ function parse_file(file)
             end
         else
             local transition_type = parse_transition_type(s)
+            local blockstyle = parse_blockstyle_type(s)
             if transition_type then
                 block["transition"] = transition_type
+            elseif blockstyle then
+                block["blockstyle"] = blockstyle
             else
-                local n = count_hypens(s)
-                block[#block + 1] = {
-                    indent = n,
-                    text = trim_ws(s:sub(n + 1, -1))
-                }
+                if block.blockstyle == "code" then
+                    block[#block + 1] = { text = line }
+                else
+                    local n = count_hypens(s)
+                    block[#block + 1] = {
+                        indent = n,
+                        text = trim_ws(s:sub(n + 1, -1))
+                    }
+                end
             end
         end
     end
