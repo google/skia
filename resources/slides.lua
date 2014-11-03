@@ -26,11 +26,23 @@ function make_paint(typefacename, stylebits, size, color)
     return paint
 end
 
+function draw_bullet(canvas, x, y, paint, indent)
+    if 0 == indent then
+        return
+    end
+    local ps = paint:getTextSize()
+    local cx = x - ps * .8
+    local cy = y - ps * .4
+    local radius = ps * .2
+    canvas:drawCircle(cx, cy, radius, paint)
+end
+
 function drawSlide(canvas, slide, master_template)
     template = master_template.slide   -- need to sniff the slide to know if we're title or slide
 
     local x = template.margin_x
     local y = template.margin_y
+    local scale = 1.25
 
     if slide.blockstyle == "code" then
         local paint = master_template.codePaint
@@ -39,22 +51,22 @@ function drawSlide(canvas, slide, master_template)
         y = (480 - height) / 2
         for i = 1, #slide do
             local node = slide[i]
-            y = y - fm.ascent
+            y = y - fm.ascent * scale
             canvas:drawText(node.text, x, y, paint)
-            y = y + fm.descent
+            y = y + fm.descent * scale
         end
         return
     end
 
-    local scale = 1.25
     for i = 1, #slide do
         local node = slide[i]
         local paint = template[node.indent + 1].paint
         local extra_dy = template[node.indent + 1].extra_dy
         local fm = paint:getFontMetrics()
-        local x_offset = -fm.ascent * node.indent
+        local x_offset = -fm.ascent * node.indent * 1.25
 
         y = y - fm.ascent * scale
+        draw_bullet(canvas, x + x_offset, y, paint, node.indent)
         canvas:drawText(node.text, x + x_offset, y, paint)
         y = y + fm.descent * scale + extra_dy
     end
@@ -70,7 +82,7 @@ function SkiaPoint_make_template()
         margin_x = 30,
         margin_y = 100,
     }
-    title[1] = make_paint("Arial", 1, 50, { a=1, r=1, g=1, b=1 })
+    title[1] = make_paint("Arial", 1, 45, { a=1, r=1, g=1, b=1 })
     title[1]:setTextAlign("center")
     title[2] = make_paint("Arial", 1, 25, { a=1, r=.75, g=.75, b=.75 })
     title[2]:setTextAlign("center")
@@ -79,14 +91,14 @@ function SkiaPoint_make_template()
         margin_x = 20,
         margin_y = 25,
     }
-    slide[1] = make_tmpl(make_paint("Arial", 1, 36, { a=1, r=1, g=1, b=1 }), 18)
-    slide[2] = make_tmpl(make_paint("Arial", 0, 30, { a=1, r=1, g=1, b=1 }), 0)
-    slide[3] = make_tmpl(make_paint("Arial", 0, 24, { a=1, r=.8, g=.8, b=.8 }), 0)
+    slide[1] = make_tmpl(make_paint("Arial", 1, 35, { a=1, r=1, g=1, b=1 }), 18)
+    slide[2] = make_tmpl(make_paint("Arial", 0, 25, { a=1, r=1, g=1, b=1 }), 0)
+    slide[3] = make_tmpl(make_paint("Arial", 0, 20, { a=1, r=.9, g=.9, b=.9 }), 0)
 
     return {
         title = title,
         slide = slide,
-        codePaint = make_paint("Courier", 0, 24, { a=1, r=.9, g=.9, b=.9 }),
+        codePaint = make_paint("Courier", 0, 20, { a=1, r=.9, g=.9, b=.9 }),
     }
 end
 
