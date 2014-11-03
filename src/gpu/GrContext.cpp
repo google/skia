@@ -1537,12 +1537,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
 void GrContext::resolveRenderTarget(GrRenderTarget* target) {
     SkASSERT(target);
     ASSERT_OWNED_RESOURCE(target);
-    if (!target->needsResolve()) {
-        return;
-    }
-    if (target->surfacePriv().hasPendingIO()) {
-        this->flush();
-    }
+    this->flush();
     if (fGpu) {
         fGpu->resolveRenderTarget(target);
     }
