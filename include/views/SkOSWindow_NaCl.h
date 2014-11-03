@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Skia
  *
@@ -6,13 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkOSWindow_NaCl_DEFINED
 #define SkOSWindow_NaCl_DEFINED
 
 #include "SkWindow.h"
-
-class SkIRect;
 
 class SkOSWindow : public SkWindow {
 public:

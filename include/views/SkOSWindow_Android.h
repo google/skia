@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Skia
  *
@@ -6,13 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkOSWindow_Android_DEFINED
 #define SkOSWindow_Android_DEFINED
 
 #include "SkWindow.h"
-
-struct SkIRect;
 
 class SkOSWindow : public SkWindow {
 public:
