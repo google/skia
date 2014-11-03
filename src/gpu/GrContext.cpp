@@ -1534,12 +1534,15 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     return true;
 }
 
-void GrContext::resolveRenderTarget(GrRenderTarget* target) {
-    SkASSERT(target);
-    ASSERT_OWNED_RESOURCE(target);
-    this->flush();
-    if (fGpu) {
-        fGpu->resolveRenderTarget(target);
+void GrContext::prepareSurfaceForExternalRead(GrSurface* surface) {
+    SkASSERT(surface);
+    ASSERT_OWNED_RESOURCE(surface);
+    if (surface->surfacePriv().hasPendingIO()) {
+        this->flush();
+    }
+    GrRenderTarget* rt = surface->asRenderTarget();
+    if (fGpu && rt) {
+        fGpu->resolveRenderTarget(rt);
     }
 }
 

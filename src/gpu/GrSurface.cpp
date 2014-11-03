@@ -82,6 +82,12 @@ void GrSurface::flushWrites() {
     }
 }
 
+void GrSurface::prepareForExternalRead() {
+    if (!this->wasDestroyed()) {
+        this->getContext()->prepareSurfaceForExternalRead(this);
+    }
+}
+
 bool GrSurface::hasPendingRead() const {
     const GrTexture* thisTex = this->asTexture();
     if (thisTex && thisTex->internalHasPendingRead()) {

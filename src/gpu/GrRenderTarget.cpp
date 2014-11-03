@@ -13,15 +13,6 @@
 #include "GrGpu.h"
 #include "GrStencilBuffer.h"
 
-void GrRenderTarget::resolve() {
-    // go through context so that all necessary flushing occurs
-    GrContext* context = this->getContext();
-    if (NULL == context) {
-        return;
-    }
-    context->resolveRenderTarget(this);
-}
-
 void GrRenderTarget::discard() {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();

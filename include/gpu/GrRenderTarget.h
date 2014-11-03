@@ -87,14 +87,6 @@ public:
     const SkIRect& getResolveRect() const { return fResolveRect; }
 
     /**
-     * If the render target is multisampled this will perform a multisample
-     * resolve. Any pending draws to the target are first flushed. This only
-     * applies to render targets that are associated with GrTextures. After the
-     * function returns the GrTexture will contain the resolved pixels.
-     */
-    void resolve();
-
-    /**
      * Provide a performance hint that the render target's contents are allowed
      * to become undefined.
      */

@@ -1747,7 +1747,7 @@ bool SkGpuDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
 
 void SkGpuDevice::flush() {
     DO_DEFERRED_CLEAR();
-    fContext->resolveRenderTarget(fRenderTarget);
+    fRenderTarget->prepareForExternalRead();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

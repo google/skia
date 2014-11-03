@@ -659,17 +659,15 @@ public:
     void flushSurfaceWrites(GrSurface* surface);
 
     /**
-     * Resolves a render target that has MSAA. The intermediate MSAA buffer is
-     * down-sampled to the associated GrTexture (accessible via
-     * GrRenderTarget::asTexture()). Any pending draws to the render target will
-     * be executed before the resolve.
+     * Equivalent to flushSurfaceWrites but also performs MSAA resolve if necessary. This call is
+     * used to make the surface contents available to be read in the backend 3D API, usually for a
+     * compositing step external to Skia.
      *
-     * This is only necessary when a client wants to access the object directly
-     * using the backend API directly. GrContext will detect when it must
-     * perform a resolve to a GrTexture used as the source of a draw or before
-     * reading pixels back from a GrTexture or GrRenderTarget.
+     * It is not necessary to call this before reading the render target via Skia/GrContext.
+     * GrContext will detect when it must perform a resolve before reading pixels back from the
+     * surface or using it as a texture.
      */
-    void resolveRenderTarget(GrRenderTarget*);
+    void prepareSurfaceForExternalRead(GrSurface*);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
