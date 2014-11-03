@@ -7172,6 +7172,7 @@
           12734850694189703805
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "degeneratesegments_pdf-poppler.png": {
