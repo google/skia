@@ -137,7 +137,7 @@ DEF_TEST(RecordDraw_BBH, r) {
     recorder.restore();
 
     TestBBH bbh;
-    SkRecordFillBounds(record, &bbh);
+    SkRecordFillBounds(SkRect::MakeWH(SkIntToScalar(W), SkIntToScalar(H)), record, &bbh);
 
     REPORTER_ASSERT(r, bbh.fEntries.count() == 5);
     for (int i = 0; i < bbh.fEntries.count(); i++) {
@@ -163,14 +163,14 @@ DEF_TEST(RecordDraw_TextBounds, r) {
     recorder.drawPosText(text, bytes, pos, SkPaint());
 
     TestBBH bbh;
-    SkRecordFillBounds(record, &bbh);
+    SkRecordFillBounds(SkRect::MakeWH(SkIntToScalar(W), SkIntToScalar(H)), record, &bbh);
     REPORTER_ASSERT(r, bbh.fEntries.count() == 2);
 
     // We can make these next assertions confidently because SkRecordFillBounds
     // builds its bounds by overestimating font metrics in a platform-independent way.
     // If that changes, these tests will need to be more flexible.
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[0].bounds, SkRect::MakeLTRB(-110,  0, 140, 60)));
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[1].bounds, SkRect::MakeLTRB(-80, 20, 180, 100)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[0].bounds, SkRect::MakeLTRB(0,  0, 140, 60)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[1].bounds, SkRect::MakeLTRB(0, 20, 180, 100)));
 }
 
 // Base test to ensure start/stop range is respected
@@ -251,12 +251,35 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     // The second bug showed up as adjusting the picture bounds (0,0,50,50) by the drop shadow too.
     // The saveLayer, clipRect, and restore bounds were incorrectly (0,0,70,50).
     TestBBH bbh;
-    SkRecordFillBounds(record, &bbh);
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, &bbh);
     REPORTER_ASSERT(r, bbh.fEntries.count() == 4);
     REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[0].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[1].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[2].bounds, SkRect::MakeLTRB(0, 0, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[3].bounds, SkRect::MakeLTRB(0, 0, 50, 50)));
+}
+
+// When a saveLayer provides an explicit bound and has a complex paint (e.g., one that
+// affects transparent black), that bound should serve to shrink the area of the required
+// backing store.
+DEF_TEST(RecordDraw_SaveLayerBoundsAffectsClipBounds, r) {
+    SkRecord record;
+    SkRecorder recorder(&record, 50, 50);
+
+    SkPaint p;
+    p.setXfermodeMode(SkXfermode::kSrc_Mode);
+
+    SkRect bounds = SkRect::MakeLTRB(10, 10, 40, 40);
+    recorder.saveLayer(&bounds, &p);
+    recorder.drawRect(SkRect::MakeLTRB(20, 20, 30, 30), SkPaint());
+    recorder.restore();
+
+    TestBBH bbh;
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, &bbh);
+    REPORTER_ASSERT(r, bbh.fEntries.count() == 3);
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[0].bounds, SkRect::MakeLTRB(10, 10, 40, 40)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[1].bounds, SkRect::MakeLTRB(20, 20, 30, 30)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[2].bounds, SkRect::MakeLTRB(10, 10, 40, 40)));
 }
 
 DEF_TEST(RecordDraw_drawImage, r){

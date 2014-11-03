@@ -116,14 +116,6 @@ DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.co
 DRAW(DrawData, drawData(r.data, r.length));
 #undef DRAW
 
-
-// This looks silly, I know.  Why not just use SkRect::MakeLargest()?
-// In practice, this is well large enough, and it has a few extra advantages:
-// it fits in an SkIRect, and we can munge it a little in both SkRect and
-// SKIRect space without worrying about overflow.
-static const SkRect kUnbounded = { -2e9f, -2e9f, 2e9f, 2e9f };
-
-
 // This is an SkRecord visitor that fills an SkBBoxHierarchy.
 //
 // The interesting part here is how to calculate bounds for ops which don't
@@ -144,11 +136,13 @@ static const SkRect kUnbounded = { -2e9f, -2e9f, 2e9f, 2e9f };
 // in for all the control ops we stashed away.
 class FillBounds : SkNoncopyable {
 public:
-    FillBounds(const SkRecord& record, SkBBoxHierarchy* bbh) : fBounds(record.count()) {
+    FillBounds(const SkRect& cullRect, const SkRecord& record, SkBBoxHierarchy* bbh) 
+        : fCullRect(cullRect)
+        , fBounds(record.count()) {
         // Calculate bounds for all ops.  This won't go quite in order, so we'll need
         // to store the bounds separately then feed them in to the BBH later in order.
         fCTM = &SkMatrix::I();
-        fCurrentClipBounds = kUnbounded;
+        fCurrentClipBounds = fCullRect;
         for (fCurrentOp = 0; fCurrentOp < record.count(); fCurrentOp++) {
             record.visit<void>(fCurrentOp, *this);
         }
@@ -161,7 +155,7 @@ public:
 
         // Any control ops not part of any Save/Restore block draw everywhere.
         while (!fControlIndices.isEmpty()) {
-            this->popControl(kUnbounded);
+            this->popControl(fCullRect);
         }
 
         // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
@@ -204,7 +198,7 @@ private:
         Bounds clip = SkRect::Make(devBounds);
         // We don't call adjustAndMap() because as its last step it would intersect the adjusted
         // clip bounds with the previous clip, exactly what we can't do when the clip grows.
-        fCurrentClipBounds = this->adjustForSaveLayerPaints(&clip) ? clip : kUnbounded;
+        fCurrentClipBounds = this->adjustForSaveLayerPaints(&clip) ? clip : fCullRect;
     }
 
     // Restore holds the devBounds for the clip after the {save,saveLayer}/restore block completes.
@@ -216,7 +210,7 @@ private:
         const int kSavesToIgnore = 1;
         Bounds clip = SkRect::Make(op.devBounds);
         fCurrentClipBounds =
-            this->adjustForSaveLayerPaints(&clip, kSavesToIgnore) ? clip : kUnbounded;
+            this->adjustForSaveLayerPaints(&clip, kSavesToIgnore) ? clip : fCullRect;
     }
 
     // We also take advantage of SaveLayer bounds when present to further cut the clip down.
@@ -253,7 +247,14 @@ private:
 
     void pushSaveBlock(const SkPaint* paint) {
         // Starting a new Save block.  Push a new entry to represent that.
-        SaveBounds sb = { 0, Bounds::MakeEmpty(), paint };
+        SaveBounds sb;
+        sb.controlOps = 0;
+        // If the paint affects transparent black, the bound shouldn't be smaller
+        // than the current clip bounds.
+        sb.bounds =
+            PaintMayAffectTransparentBlack(paint) ? fCurrentClipBounds : Bounds::MakeEmpty();
+        sb.paint = paint;
+
         fSaveStack.push(sb);
         this->pushControl();
     }
@@ -303,19 +304,15 @@ private:
         SaveBounds sb;
         fSaveStack.pop(&sb);
 
-        // If the paint affects transparent black, we can't trust any of our calculated bounds.
-        const Bounds& bounds =
-            PaintMayAffectTransparentBlack(sb.paint) ? fCurrentClipBounds : sb.bounds;
-
         while (sb.controlOps --> 0) {
-            this->popControl(bounds);
+            this->popControl(sb.bounds);
         }
 
         // This whole Save block may be part another Save block.
-        this->updateSaveBounds(bounds);
+        this->updateSaveBounds(sb.bounds);
 
         // If called from a real Restore (not a phony one for balance), it'll need the bounds.
-        return bounds;
+        return sb.bounds;
     }
 
     void pushControl() {
@@ -340,7 +337,7 @@ private:
     // FIXME: this method could use better bounds
     Bounds bounds(const DrawText&) const { return fCurrentClipBounds; }
 
-    Bounds bounds(const Clear&) const { return kUnbounded; }             // Ignores the clip.
+    Bounds bounds(const Clear&) const { return fCullRect; }             // Ignores the clip.
     Bounds bounds(const DrawPaint&) const { return fCurrentClipBounds; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
@@ -537,6 +534,9 @@ private:
         return rect;
     }
 
+    // We do not guarantee anything for operations outside of the cull rect
+    const SkRect fCullRect;
+
     // Conservative identity-space bounds for each op in the SkRecord.
     SkAutoTMalloc<Bounds> fBounds;
 
@@ -554,6 +554,6 @@ private:
 
 }  // namespace SkRecords
 
-void SkRecordFillBounds(const SkRecord& record, SkBBoxHierarchy* bbh) {
-    SkRecords::FillBounds(record, bbh);
+void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkBBoxHierarchy* bbh) {
+    SkRecords::FillBounds(cullRect, record, bbh);
 }

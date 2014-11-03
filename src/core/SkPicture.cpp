@@ -631,7 +631,7 @@ SkPicture::SkPicture(SkScalar width, SkScalar height, SkRecord* record, SkBBoxHi
     , fAnalysis(*fRecord) {
     // TODO: delay as much of this work until just before first playback?
     if (fBBH.get()) {
-        SkRecordFillBounds(*fRecord, fBBH.get());
+        SkRecordFillBounds(this->cullRect(), *fRecord, fBBH.get());
     }
     this->needsNewGenID();
 }
