@@ -71,9 +71,6 @@ void SkMultiPictureDraw::add(SkCanvas* canvas,
     array.append()->init(canvas, picture, matrix, paint);
 }
 
-#undef SK_IGNORE_GPU_LAYER_HOISTING
-#define SK_IGNORE_GPU_LAYER_HOISTING 1
-
 class AutoMPDReset : SkNoncopyable {
     SkMultiPictureDraw* fMPD;
 public:
@@ -102,7 +99,7 @@ void SkMultiPictureDraw::draw() {
         return;
     }
 
-#ifndef SK_IGNORE_GPU_LAYER_HOISTING
+#if !defined(SK_IGNORE_GPU_LAYER_HOISTING) && SK_SUPPORT_GPU
     GrContext* context = fGPUDrawData[0].fCanvas->getGrContext();
     SkASSERT(context);
 
@@ -146,7 +143,7 @@ void SkMultiPictureDraw::draw() {
         SkCanvas* canvas = data.fCanvas;
         const SkPicture* picture = data.fPicture;
 
-#ifndef SK_IGNORE_GPU_LAYER_HOISTING
+#if !defined(SK_IGNORE_GPU_LAYER_HOISTING) && SK_SUPPORT_GPU
         if (!data.fPaint && data.fMatrix.isIdentity()) {
 
             SkRect clipBounds;
@@ -183,7 +180,7 @@ void SkMultiPictureDraw::draw() {
         }
     }
 
-#ifndef SK_IGNORE_GPU_LAYER_HOISTING
+#if !defined(SK_IGNORE_GPU_LAYER_HOISTING) && SK_SUPPORT_GPU
     GrLayerHoister::UnlockLayers(context, atlasedNeedRendering);
     GrLayerHoister::UnlockLayers(context, atlasedRecycled);
 #if !GR_CACHE_HOISTED_LAYERS

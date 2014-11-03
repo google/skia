@@ -14,7 +14,8 @@
     #
     'skia_for_chromium_defines': [
       'SK_SUPPORT_LEGACY_TEXTRENDERMODE',
-      'SK_LEGACY_NO_DISTANCE_FIELD_PATHS'
+      'SK_LEGACY_NO_DISTANCE_FIELD_PATHS',
+      'SK_IGNORE_GPU_LAYER_HOISTING',
     ],
   },
 }
