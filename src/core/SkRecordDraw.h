@@ -37,6 +37,9 @@ public:
         : fInitialCTM(initialCTM ? *initialCTM : canvas->getTotalMatrix())
         , fCanvas(canvas) {}
 
+    // This operator calls methods on the |canvas|. The various draw() wrapper
+    // methods around SkCanvas are defined by the DRAW() macro in
+    // SkRecordDraw.cpp.
     template <typename T> void operator()(const T& r) {
         this->draw(r);
     }

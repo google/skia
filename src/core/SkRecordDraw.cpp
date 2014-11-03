@@ -33,6 +33,9 @@ void SkRecordDraw(const SkRecord& record,
             if (callback && callback->abortDrawing()) {
                 return;
             }
+            // This visit call uses the SkRecords::Draw::operator() to call
+            // methods on the |canvas|, wrapped by methods defined with the
+            // DRAW() macro.
             record.visit<void>(ops[i], draw);
         }
     } else {
@@ -42,6 +45,9 @@ void SkRecordDraw(const SkRecord& record,
             if (callback && callback->abortDrawing()) {
                 return;
             }
+            // This visit call uses the SkRecords::Draw::operator() to call
+            // methods on the |canvas|, wrapped by methods defined with the
+            // DRAW() macro.
             record.visit<void>(i, draw);
         }
     }
