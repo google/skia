@@ -16,16 +16,6 @@
 
 #include "SkDistanceFieldGen.h"
 
-// To get optical sizes people don't complain about when we blit correctly,
-// we need to slightly bold each glyph. On the Mac, we need a larger bold value.
-#if defined(SK_BUILD_FOR_MAC)
-#define SK_DistanceFieldLCDFactor    "0.33"
-#define SK_DistanceFieldNonLCDFactor "0.25"
-#else
-#define SK_DistanceFieldLCDFactor    "0.05"
-#define SK_DistanceFieldNonLCDFactor "0.05"
-#endif
-
 // Assuming a radius of the diagonal of the fragment, hence a factor of sqrt(2)/2
 #define SK_DistanceFieldAAFactor     "0.7071"
 
@@ -66,8 +56,7 @@ public:
                                        kVec2f_GrSLType);
         fsBuilder->codeAppend(";\n");
         fsBuilder->codeAppend("\tfloat distance = "
-                          SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ")"
-                          "+ " SK_DistanceFieldNonLCDFactor ";\n");
+                       SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");");
 
         // we adjust for the effect of the transformation on the distance by using
         // the length of the gradient of the texture coordinates. We use st coordinates
@@ -465,8 +454,7 @@ public:
         fsBuilder->codeAppend("\tdistance.z = texColor.r;\n");
 
         fsBuilder->codeAppend("\tdistance = "
-            "vec3(" SK_DistanceFieldMultiplier ")*(distance - vec3(" SK_DistanceFieldThreshold"))"
-            "+ vec3(" SK_DistanceFieldLCDFactor ");\n");
+           "vec3(" SK_DistanceFieldMultiplier ")*(distance - vec3(" SK_DistanceFieldThreshold"));");
 
         // we adjust for the effect of the transformation on the distance by using
         // the length of the gradient of the texture coordinates. We use st coordinates

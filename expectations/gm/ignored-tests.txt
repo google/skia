@@ -66,3 +66,13 @@ multipicturedraw_sierpinski_tiled
 
 #joshualitt
 texture_domain_effect
+
+#jvanverth https://codereview.chromium.org/703463002
+dftext
+nested_aa
+path-reverse
+pathfill
+polygons
+pathopsinverse
+rects
+

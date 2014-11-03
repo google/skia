@@ -34,9 +34,9 @@ SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
 
 static const int kSmallDFFontSize = 32;
 static const int kSmallDFFontLimit = 32;
-static const int kMediumDFFontSize = 64;
-static const int kMediumDFFontLimit = 64;
-static const int kLargeDFFontSize = 128;
+static const int kMediumDFFontSize = 78;
+static const int kMediumDFFontLimit = 78;
+static const int kLargeDFFontSize = 192;
 
 namespace {
 // position + texture coord
@@ -153,12 +153,24 @@ inline void GrDistanceFieldTextContext::init(const GrPaint& paint, const SkPaint
     if (scaledTextSize <= kSmallDFFontLimit) {
         fTextRatio = textSize / kSmallDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kSmallDFFontSize));
+#if DEBUG_TEXT_SIZE
+        fSkPaint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));
+        fPaint.setColor(GrColorPackRGBA(0x00, 0x00, 0xFF, 0xFF));
+#endif
     } else if (scaledTextSize <= kMediumDFFontLimit) {
         fTextRatio = textSize / kMediumDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kMediumDFFontSize));
+#if DEBUG_TEXT_SIZE
+        fSkPaint.setColor(SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00));
+        fPaint.setColor(GrColorPackRGBA(0x00, 0xFF, 0x00, 0xFF));
+#endif
     } else {
         fTextRatio = textSize / kLargeDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kLargeDFFontSize));
+#if DEBUG_TEXT_SIZE
+        fSkPaint.setColor(SkColorSetARGB(0xFF, 0xFF, 0x00, 0x00));
+        fPaint.setColor(GrColorPackRGBA(0xFF, 0x00, 0x00, 0xFF));
+#endif
     }
 
     fUseLCDText = fSkPaint.isLCDRenderText();

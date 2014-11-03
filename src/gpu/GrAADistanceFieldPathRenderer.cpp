@@ -37,8 +37,8 @@ static int g_NumFreedPaths = 0;
 
 // mip levels
 static const int kSmallMIP = 32;
-static const int kMediumMIP = 64;
-static const int kLargeMIP = 128;
+static const int kMediumMIP = 78;
+static const int kLargeMIP = 192;
 
 ////////////////////////////////////////////////////////////////////////////////
 GrAADistanceFieldPathRenderer::GrAADistanceFieldPathRenderer(GrContext* context)
