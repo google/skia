@@ -282,12 +282,6 @@ private:
                                      void** indices) SK_OVERRIDE;
     virtual void releaseReservedVertexSpace() SK_OVERRIDE;
     virtual void releaseReservedIndexSpace() SK_OVERRIDE;
-    virtual void onSetVertexSourceToArray(const void* vertexArray,
-                                          int vertexCount) SK_OVERRIDE;
-    virtual void onSetIndexSourceToArray(const void* indexArray,
-                                         int indexCount) SK_OVERRIDE;
-    virtual void releaseVertexArray() SK_OVERRIDE;
-    virtual void releaseIndexArray() SK_OVERRIDE;
     virtual void geometrySourceWillPush() SK_OVERRIDE;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
     virtual void willReserveVertexAndIndexSpace(int vertexCount,

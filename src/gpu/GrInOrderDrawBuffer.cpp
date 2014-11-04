@@ -709,8 +709,7 @@ void GrInOrderDrawBuffer::releaseReservedVertexSpace() {
 
     // If we get a release vertex space call then our current source should either be reserved
     // or array (which we copied into reserved space).
-    SkASSERT(kReserved_GeometrySrcType == geoSrc.fVertexSrc ||
-             kArray_GeometrySrcType == geoSrc.fVertexSrc);
+    SkASSERT(kReserved_GeometrySrcType == geoSrc.fVertexSrc);
 
     // When the caller reserved vertex buffer space we gave it back a pointer
     // provided by the vertex buffer pool. At each draw we tracked the largest
@@ -730,8 +729,7 @@ void GrInOrderDrawBuffer::releaseReservedIndexSpace() {
 
     // If we get a release index space call then our current source should either be reserved
     // or array (which we copied into reserved space).
-    SkASSERT(kReserved_GeometrySrcType == geoSrc.fIndexSrc ||
-             kArray_GeometrySrcType == geoSrc.fIndexSrc);
+    SkASSERT(kReserved_GeometrySrcType == geoSrc.fIndexSrc);
 
     // Similar to releaseReservedVertexSpace we return any unused portion at
     // the tail
@@ -740,46 +738,6 @@ void GrInOrderDrawBuffer::releaseReservedIndexSpace() {
     poolState.fUsedPoolIndexBytes = 0;
     poolState.fPoolIndexBuffer = NULL;
     poolState.fPoolStartIndex = 0;
-}
-
-void GrInOrderDrawBuffer::onSetVertexSourceToArray(const void* vertexArray, int vertexCount) {
-    GeometryPoolState& poolState = fGeoPoolStateStack.back();
-    SkASSERT(0 == poolState.fUsedPoolVertexBytes);
-#ifdef SK_DEBUG
-    bool success =
-#endif
-    fVertexPool.appendVertices(this->getVertexSize(),
-                               vertexCount,
-                               vertexArray,
-                               &poolState.fPoolVertexBuffer,
-                               &poolState.fPoolStartVertex);
-    GR_DEBUGASSERT(success);
-}
-
-void GrInOrderDrawBuffer::onSetIndexSourceToArray(const void* indexArray,
-                                                  int indexCount) {
-    GeometryPoolState& poolState = fGeoPoolStateStack.back();
-    SkASSERT(0 == poolState.fUsedPoolIndexBytes);
-#ifdef SK_DEBUG
-    bool success =
-#endif
-    fIndexPool.appendIndices(indexCount,
-                             indexArray,
-                             &poolState.fPoolIndexBuffer,
-                             &poolState.fPoolStartIndex);
-    GR_DEBUGASSERT(success);
-}
-
-void GrInOrderDrawBuffer::releaseVertexArray() {
-    // When the client provides an array as the vertex source we handled it
-    // by copying their array into reserved space.
-    this->GrInOrderDrawBuffer::releaseReservedVertexSpace();
-}
-
-void GrInOrderDrawBuffer::releaseIndexArray() {
-    // When the client provides an array as the index source we handled it
-    // by copying their array into reserved space.
-    this->GrInOrderDrawBuffer::releaseReservedIndexSpace();
 }
 
 void GrInOrderDrawBuffer::geometrySourceWillPush() {
@@ -801,12 +759,10 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(const GeometrySrcState& restored
     // we have to assume that any slack we had in our vertex/index data
     // is now unreleasable because data may have been appended later in the
     // pool.
-    if (kReserved_GeometrySrcType == restoredState.fVertexSrc ||
-        kArray_GeometrySrcType == restoredState.fVertexSrc) {
+    if (kReserved_GeometrySrcType == restoredState.fVertexSrc) {
         poolState.fUsedPoolVertexBytes = restoredState.fVertexSize * restoredState.fVertexCount;
     }
-    if (kReserved_GeometrySrcType == restoredState.fIndexSrc ||
-        kArray_GeometrySrcType == restoredState.fIndexSrc) {
+    if (kReserved_GeometrySrcType == restoredState.fIndexSrc) {
         poolState.fUsedPoolIndexBytes = sizeof(uint16_t) *
                                          restoredState.fIndexCount;
     }

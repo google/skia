@@ -201,25 +201,6 @@ public:
                                int* indexCount) const;
 
     /**
-     * Sets source of vertex data for the next draw. Array must contain
-     * the vertex data when this is called.
-     *
-     * @param vertexArray   cpu array containing vertex data.
-     * @param vertexCount   the number of vertices in the array. Vertex size is
-     *                      queried from the current GrDrawState.
-     */
-    void setVertexSourceToArray(const void* vertexArray, int vertexCount);
-
-    /**
-     * Sets source of index data for the next indexed draw. Array must contain
-     * the indices when this is called.
-     *
-     * @param indexArray    cpu array containing index data.
-     * @param indexCount    the number of indices in the array.
-     */
-    void setIndexSourceToArray(const void* indexArray, int indexCount);
-
-    /**
      * Sets source of vertex data for the next draw. Data does not have to be
      * in the buffer until drawIndexed, drawNonIndexed, or drawIndexedInstances.
      *
@@ -700,7 +681,6 @@ protected:
     enum GeometrySrcType {
         kNone_GeometrySrcType,     //<! src has not been specified
         kReserved_GeometrySrcType, //<! src was set using reserve*Space
-        kArray_GeometrySrcType,    //<! src was set using set*SourceToArray
         kBuffer_GeometrySrcType    //<! src was set using set*SourceToBuffer
     };
 
@@ -730,7 +710,6 @@ protected:
             case kNone_GeometrySrcType:
                 return 0;
             case kReserved_GeometrySrcType:
-            case kArray_GeometrySrcType:
                 return src.fIndexCount;
             case kBuffer_GeometrySrcType:
                 return static_cast<int>(src.fIndexBuffer->gpuMemorySize() / sizeof(uint16_t));
@@ -853,12 +832,6 @@ private:
     // implemented by subclass to handle release of reserved geom space
     virtual void releaseReservedVertexSpace() = 0;
     virtual void releaseReservedIndexSpace() = 0;
-    // subclass must consume array contents when set
-    virtual void onSetVertexSourceToArray(const void* vertexArray, int vertexCount) = 0;
-    virtual void onSetIndexSourceToArray(const void* indexArray, int indexCount) = 0;
-    // subclass is notified that geom source will be set away from an array
-    virtual void releaseVertexArray() = 0;
-    virtual void releaseIndexArray() = 0;
     // subclass overrides to be notified just before geo src state is pushed/popped.
     virtual void geometrySourceWillPush() = 0;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;

@@ -910,35 +910,32 @@ void GrContext::drawVertices(const GrPaint& paint,
     set_vertex_attributes(drawState, texCoords, colors, &colorOffset, &texOffset);
 
     size_t VertexStride = drawState->getVertexStride();
-    if (sizeof(SkPoint) != VertexStride) {
-        if (!geo.set(target, vertexCount, 0)) {
-            SkDebugf("Failed to get space for vertices!\n");
-            return;
-        }
-        void* curVertex = geo.vertices();
+    if (!geo.set(target, vertexCount, indexCount)) {
+        SkDebugf("Failed to get space for vertices!\n");
+        return;
+    }
+    void* curVertex = geo.vertices();
 
-        for (int i = 0; i < vertexCount; ++i) {
-            *((SkPoint*)curVertex) = positions[i];
+    for (int i = 0; i < vertexCount; ++i) {
+        *((SkPoint*)curVertex) = positions[i];
 
-            if (texOffset >= 0) {
-                *(SkPoint*)((intptr_t)curVertex + texOffset) = texCoords[i];
-            }
-            if (colorOffset >= 0) {
-                *(GrColor*)((intptr_t)curVertex + colorOffset) = colors[i];
-            }
-            curVertex = (void*)((intptr_t)curVertex + VertexStride);
+        if (texOffset >= 0) {
+            *(SkPoint*)((intptr_t)curVertex + texOffset) = texCoords[i];
         }
-    } else {
-        target->setVertexSourceToArray(positions, vertexCount);
+        if (colorOffset >= 0) {
+            *(GrColor*)((intptr_t)curVertex + colorOffset) = colors[i];
+        }
+        curVertex = (void*)((intptr_t)curVertex + VertexStride);
     }
 
     // we don't currently apply offscreen AA to this path. Need improved
     // management of GrDrawTarget's geometry to avoid copying points per-tile.
-
     if (indices) {
-        target->setIndexSourceToArray(indices, indexCount);
+        uint16_t* curIndex = (uint16_t*)geo.indices();
+        for (int i = 0; i < indexCount; ++i) {
+            curIndex[i] = indices[i];
+        }
         target->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
-        target->resetIndexSource();
     } else {
         target->drawNonIndexed(primitiveType, 0, vertexCount);
     }

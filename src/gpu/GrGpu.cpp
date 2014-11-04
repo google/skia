@@ -291,12 +291,10 @@ bool GrGpu::setupClipAndFlushState(DrawType type,
 
 void GrGpu::geometrySourceWillPush() {
     const GeometrySrcState& geoSrc = this->getGeomSrc();
-    if (kArray_GeometrySrcType == geoSrc.fVertexSrc ||
-        kReserved_GeometrySrcType == geoSrc.fVertexSrc) {
+    if (kReserved_GeometrySrcType == geoSrc.fVertexSrc) {
         this->finalizeReservedVertices();
     }
-    if (kArray_GeometrySrcType == geoSrc.fIndexSrc ||
-        kReserved_GeometrySrcType == geoSrc.fIndexSrc) {
+    if (kReserved_GeometrySrcType == geoSrc.fIndexSrc) {
         this->finalizeReservedIndices();
     }
     GeometryPoolState& newState = fGeomPoolStateStack.push_back();
@@ -510,53 +508,6 @@ void GrGpu::releaseReservedVertexSpace() {
 void GrGpu::releaseReservedIndexSpace() {
     const GeometrySrcState& geoSrc = this->getGeomSrc();
     SkASSERT(kReserved_GeometrySrcType == geoSrc.fIndexSrc);
-    size_t bytes = geoSrc.fIndexCount * sizeof(uint16_t);
-    fIndexPool->putBack(bytes);
-    --fIndexPoolUseCnt;
-}
-
-void GrGpu::onSetVertexSourceToArray(const void* vertexArray, int vertexCount) {
-    this->prepareVertexPool();
-    GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
-#ifdef SK_DEBUG
-    bool success =
-#endif
-    fVertexPool->appendVertices(this->getVertexSize(),
-                                vertexCount,
-                                vertexArray,
-                                &geomPoolState.fPoolVertexBuffer,
-                                &geomPoolState.fPoolStartVertex);
-    ++fVertexPoolUseCnt;
-    GR_DEBUGASSERT(success);
-}
-
-void GrGpu::onSetIndexSourceToArray(const void* indexArray, int indexCount) {
-    this->prepareIndexPool();
-    GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
-#ifdef SK_DEBUG
-    bool success =
-#endif
-    fIndexPool->appendIndices(indexCount,
-                              indexArray,
-                              &geomPoolState.fPoolIndexBuffer,
-                              &geomPoolState.fPoolStartIndex);
-    ++fIndexPoolUseCnt;
-    GR_DEBUGASSERT(success);
-}
-
-void GrGpu::releaseVertexArray() {
-    // if vertex source was array, we stowed data in the pool
-    const GeometrySrcState& geoSrc = this->getGeomSrc();
-    SkASSERT(kArray_GeometrySrcType == geoSrc.fVertexSrc);
-    size_t bytes = geoSrc.fVertexCount * geoSrc.fVertexSize;
-    fVertexPool->putBack(bytes);
-    --fVertexPoolUseCnt;
-}
-
-void GrGpu::releaseIndexArray() {
-    // if index source was array, we stowed data in the pool
-    const GeometrySrcState& geoSrc = this->getGeomSrc();
-    SkASSERT(kArray_GeometrySrcType == geoSrc.fIndexSrc);
     size_t bytes = geoSrc.fIndexCount * sizeof(uint16_t);
     fIndexPool->putBack(bytes);
     --fIndexPoolUseCnt;

@@ -232,9 +232,6 @@ void GrDrawTarget::releasePreviousVertexSource() {
     switch (geoSrc.fVertexSrc) {
         case kNone_GeometrySrcType:
             break;
-        case kArray_GeometrySrcType:
-            this->releaseVertexArray();
-            break;
         case kReserved_GeometrySrcType:
             this->releaseReservedVertexSpace();
             break;
@@ -255,9 +252,6 @@ void GrDrawTarget::releasePreviousIndexSource() {
     switch (geoSrc.fIndexSrc) {
         case kNone_GeometrySrcType:   // these two don't require
             break;
-        case kArray_GeometrySrcType:
-            this->releaseIndexArray();
-            break;
         case kReserved_GeometrySrcType:
             this->releaseReservedIndexSpace();
             break;
@@ -271,25 +265,6 @@ void GrDrawTarget::releasePreviousIndexSource() {
             SkFAIL("Unknown Index Source Type.");
             break;
     }
-}
-
-void GrDrawTarget::setVertexSourceToArray(const void* vertexArray,
-                                          int vertexCount) {
-    this->releasePreviousVertexSource();
-    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
-    geoSrc.fVertexSrc = kArray_GeometrySrcType;
-    geoSrc.fVertexSize = this->drawState()->getVertexStride();
-    geoSrc.fVertexCount = vertexCount;
-    this->onSetVertexSourceToArray(vertexArray, vertexCount);
-}
-
-void GrDrawTarget::setIndexSourceToArray(const void* indexArray,
-                                         int indexCount) {
-    this->releasePreviousIndexSource();
-    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
-    geoSrc.fIndexSrc = kArray_GeometrySrcType;
-    geoSrc.fIndexCount = indexCount;
-    this->onSetIndexSourceToArray(indexArray, indexCount);
 }
 
 void GrDrawTarget::setVertexSourceToBuffer(const GrVertexBuffer* buffer) {
@@ -358,7 +333,6 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         case kNone_GeometrySrcType:
             SkFAIL("Attempting to draw without vertex src.");
         case kReserved_GeometrySrcType: // fallthrough
-        case kArray_GeometrySrcType:
             maxValidVertex = geoSrc.fVertexCount;
             break;
         case kBuffer_GeometrySrcType:
@@ -375,7 +349,6 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
             case kNone_GeometrySrcType:
                 SkFAIL("Attempting to draw indexed geom without index src.");
             case kReserved_GeometrySrcType: // fallthrough
-            case kArray_GeometrySrcType:
                 maxValidIndex = geoSrc.fIndexCount;
                 break;
             case kBuffer_GeometrySrcType:

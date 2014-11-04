@@ -290,7 +290,6 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
         case kBuffer_GeometrySrcType:
             vbuf = (GrGLVertexBuffer*) this->getGeomSrc().fVertexBuffer;
             break;
-        case kArray_GeometrySrcType:
         case kReserved_GeometrySrcType:
             this->finalizeReservedVertices();
             vertexOffsetInBytes += geoPoolState.fPoolStartVertex * this->getGeomSrc().fVertexSize;
@@ -314,7 +313,6 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
             *indexOffsetInBytes = 0;
             ibuf = (GrGLIndexBuffer*)this->getGeomSrc().fIndexBuffer;
             break;
-        case kArray_GeometrySrcType:
         case kReserved_GeometrySrcType:
             this->finalizeReservedIndices();
             *indexOffsetInBytes = geoPoolState.fPoolStartIndex * sizeof(GrGLushort);

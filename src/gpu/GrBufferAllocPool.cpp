@@ -419,22 +419,6 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
     return ptr;
 }
 
-bool GrVertexBufferAllocPool::appendVertices(size_t vertexSize,
-                                             int vertexCount,
-                                             const void* vertices,
-                                             const GrVertexBuffer** buffer,
-                                             int* startVertex) {
-    void* space = makeSpace(vertexSize, vertexCount, buffer, startVertex);
-    if (space) {
-        memcpy(space,
-               vertices,
-               vertexSize * vertexCount);
-        return true;
-    } else {
-        return false;
-    }
-}
-
 int GrVertexBufferAllocPool::preallocatedBufferVertices(size_t vertexSize) const {
     return static_cast<int>(INHERITED::preallocatedBufferSize() / vertexSize);
 }
@@ -475,19 +459,6 @@ void* GrIndexBufferAllocPool::makeSpace(int indexCount,
     SkASSERT(0 == offset % sizeof(uint16_t));
     *startIndex = static_cast<int>(offset / sizeof(uint16_t));
     return ptr;
-}
-
-bool GrIndexBufferAllocPool::appendIndices(int indexCount,
-                                           const void* indices,
-                                           const GrIndexBuffer** buffer,
-                                           int* startIndex) {
-    void* space = makeSpace(indexCount, buffer, startIndex);
-    if (space) {
-        memcpy(space, indices, sizeof(uint16_t) * indexCount);
-        return true;
-    } else {
-        return false;
-    }
 }
 
 int GrIndexBufferAllocPool::preallocatedBufferIndices() const {
