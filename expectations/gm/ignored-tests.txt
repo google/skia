@@ -64,9 +64,6 @@ multipicturedraw_rrectclip_tiled
 multipicturedraw_sierpinski_simple
 multipicturedraw_sierpinski_tiled
 
-#joshualitt
-texture_domain_effect
-
 #jvanverth https://codereview.chromium.org/703463002
 dftext
 nested_aa
