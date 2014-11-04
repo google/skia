@@ -48,7 +48,7 @@ static inline bool SkPixelGeometryIsV(SkPixelGeometry geo) {
  *  during drawing, and can sometimes optimize its performance (e.g. disabling an expensive
  *  feature).
  */
-class SkSurfaceProps {
+class SK_API SkSurfaceProps {
 public:
     enum Flags {
         kDisallowAntiAlias_Flag     = 1 << 0,
