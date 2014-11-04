@@ -80,7 +80,6 @@
     '../bench/PerlinNoiseBench.cpp',
     '../bench/PictureNestingBench.cpp',
     '../bench/PicturePlaybackBench.cpp',
-    '../bench/PictureRecordBench.cpp',
     '../bench/PremulAndUnpremulAlphaOpsBench.cpp',
     '../bench/RTreeBench.cpp',
     '../bench/ReadPixBench.cpp',
