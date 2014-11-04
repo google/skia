@@ -548,7 +548,7 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
         GrContext::AutoMatrix am;
         SkMatrix ctm;
         ctm.setScale(fTextRatio, fTextRatio);
-        ctm.postTranslate(sx, sy);
+        ctm.postTranslate(sx - dx, sy - dy);
         GrPaint tmpPaint(fPaint);
         am.setPreConcat(fContext, ctm, &tmpPaint);
         GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
