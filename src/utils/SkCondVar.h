@@ -8,31 +8,29 @@
 #ifndef SkCondVar_DEFINED
 #define SkCondVar_DEFINED
 
-/**
- * Import any thread model setting from configuration files.
- */
 #include "SkTypes.h"
 
 #ifdef SK_USE_POSIX_THREADS
-#include <pthread.h>
+    #include <pthread.h>
 #elif defined(SK_BUILD_FOR_WIN32)
-#include <windows.h>
+    #include <windows.h>
 #else
-/**
- * Warn if the implementation of this class is empty, i.e. thread safety is not working.
- */
-#warning "Thread safety class SkCondVar has no implementation!"
+    #error "SkCondVar requires pthreads or Windows."
 #endif
 
 /**
  * Condition variable for blocking access to shared data from other threads and
  * controlling which threads are awake.
  *
- * Currently only supported on platforms with posix threads and Windows Vista and
- * above.
+ * Currently only supported on platforms with posix threads and Windows Vista and above.
  */
 class SkCondVar {
 public:
+    /** Returns true if it makes sense to create and use SkCondVars.
+     *  You _MUST_ call this method and it must return true before creating any SkCondVars.
+     */
+    static bool Supported();
+
     SkCondVar();
     ~SkCondVar();
 

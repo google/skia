@@ -165,7 +165,7 @@ ThreadPool* ThreadPool::gGlobal = NULL;
 
 SkTaskGroup::Enabler::Enabler(int threads) {
     SkASSERT(ThreadPool::gGlobal == NULL);
-    if (threads != 0) {
+    if (threads != 0 && SkCondVar::Supported()) {
         ThreadPool::gGlobal = SkNEW_ARGS(ThreadPool, (threads));
     }
 }
