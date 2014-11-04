@@ -18,13 +18,13 @@
 #include "DMCpuGMTask.h"
 #include "DMGpuGMTask.h"
 #include "DMGpuSupport.h"
+#include "DMJsonWriter.h"
 #include "DMPDFTask.h"
 #include "DMReporter.h"
 #include "DMSKPTask.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"
 #include "DMTestTask.h"
-#include "DMWriteTask.h"
 
 #ifdef SK_BUILD_POPPLER
 #  include "SkPDFRasterizer.h"
@@ -229,7 +229,7 @@ int dm_main() {
     kick_off_skps(skps, &reporter, &tasks);
     tasks.wait();
 
-    DM::WriteTask::DumpJson();
+    DM::JsonWriter::DumpJson();
 
     SkDebugf("\n");
 #ifdef SK_DEBUG

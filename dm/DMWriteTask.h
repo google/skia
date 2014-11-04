@@ -3,7 +3,6 @@
 
 #include "DMTask.h"
 #include "SkBitmap.h"
-#include "SkJSONCPP.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -29,8 +28,6 @@ public:
     virtual void draw() SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE;
-
-    static void DumpJson();
 
 private:
     SkTArray<SkString> fSuffixes;
