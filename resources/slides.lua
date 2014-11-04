@@ -27,6 +27,32 @@ function make_paint(typefacename, stylebits, size, color)
     return paint
 end
 
+function center_rect(sw, sh, dst)
+    local dw = dst.right - dst.left
+    local dh = dst.bottom - dst.top
+
+    local rw, rh
+
+    if sw / sh > dw / dh then
+        rw = dw
+        rh = sh * dw / sw
+    else
+        rh = dh
+        rw = sw * dh / sh
+    end
+
+    local x = dst.left + ((sw - rw) / 2)
+    local y = dst.top  + ((sh - rh) / 2)
+    return make_rect(x, y, x + rw, y + rh)
+end
+
+function draw_image_centered(canvas, image)
+    local sw = image:width()
+    local sh = image:height()
+    local dstR = center_rect(image:width(), image:height(), make_rect(20, 20, 620, 460))
+    canvas:drawImageRect(image, nil, dstR)
+end
+
 function draw_bullet(canvas, x, y, paint, indent)
     if 0 == indent then
         return
@@ -46,7 +72,14 @@ function stroke_rect(canvas, rect, color)
 end
 
 function drawSlide(canvas, slide, master_template)
-    template = master_template.slide   -- need to sniff the slide to know if we're title or slide
+
+    if #slide == 1 then
+        template = master_template.title
+        canvas:drawText(slide[1].text, 320, 240, template[1])
+        return
+    end
+
+    template = master_template.slide
 
     local x = template.margin_x
     local y = template.margin_y
@@ -173,23 +206,19 @@ end
 function next_slide()
     local prev = gSlides[gSlideIndex]
 
-    gSlideIndex = gSlideIndex + 1
-    if gSlideIndex > #gSlides then
-        gSlideIndex = 1
+    if gSlideIndex < #gSlides then
+        gSlideIndex = gSlideIndex + 1
+        spawn_transition(prev, gSlides[gSlideIndex], true)
     end
-
-    spawn_transition(prev, gSlides[gSlideIndex], true)
 end
 
 function prev_slide()
     local prev = gSlides[gSlideIndex]
 
-    gSlideIndex = gSlideIndex - 1
-    if gSlideIndex < 1 then
-        gSlideIndex = #gSlides
+    if gSlideIndex > 1 then
+        gSlideIndex = gSlideIndex - 1
+        spawn_transition(prev, gSlides[gSlideIndex], false)
     end
-
-    spawn_transition(prev, gSlides[gSlideIndex], false)
 end
 
 function convert_to_picture_drawable(slide)
@@ -204,7 +233,6 @@ function convert_to_image_drawable(slide)
     return new_drawable_image(surf:newImageSnapshot())
 end
 
--- gMakeDrawable = convert_to_picture_drawable
 gMakeDrawable = new_drawable_slide
 
 load_file("slides_transitions")
@@ -285,6 +313,7 @@ function draw_bg(canvas)
         local grad = Sk.newLinearGradient(  0,   0, { a=1, r=0, g=0, b=.3 },
                                           640, 480, { a=1, r=0, g=0, b=.8 })
         bgPaint:setShader(grad)
+        bgPaint:setDither(true)
     end
 
     canvas:drawPaint(bgPaint)

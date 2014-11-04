@@ -54,12 +54,17 @@ function pretty_print_slides(slides)
     io.write("}\n")
 end
 
-function parse_transition_type(s)
-    return s:match("^<%s*transition%s*=%s*(%a+)%s*>$")
+function parse_attr(s, lvalue)
+    local ts = "^<%s*" .. lvalue .. "%s*=%s*(%a+)%s*>$"
+    return s:match(ts)
 end
 
-function parse_blockstyle_type(s)
-    return s:match("^<%s*blockstyle%s*=%s*(%a+)%s*>$")
+function flush(slides, block)
+    if #block > 0 then
+        slides[#slides + 1] = block
+        return {}
+    end
+    return block
 end
 
 function parse_file(file)
@@ -69,13 +74,10 @@ function parse_file(file)
     for line in file:lines() do
         local s = trim_ws(line)
         if #s == 0 then   -- done with a block
-            if #block > 0 then
-                slides[#slides + 1] = block
-                block = {}
-            end
+            block = flush(slides, block)
         else
-            local transition_type = parse_transition_type(s)
-            local blockstyle = parse_blockstyle_type(s)
+            local transition_type = parse_attr(s, "transition")
+            local blockstyle = parse_attr(s, "blockstyle")
             if transition_type then
                 block["transition"] = transition_type
             elseif blockstyle then

@@ -761,6 +761,11 @@ static int lpaint_isDither(lua_State* L) {
     return 1;
 }
 
+static int lpaint_setDither(lua_State* L) {
+    get_obj<SkPaint>(L, 1)->setDither(lua2bool(L, 2));
+    return 0;
+}
+
 static int lpaint_isUnderlineText(lua_State* L) {
     lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isUnderlineText());
     return 1;
@@ -1061,6 +1066,7 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "isAntiAlias", lpaint_isAntiAlias },
     { "setAntiAlias", lpaint_setAntiAlias },
     { "isDither", lpaint_isDither },
+    { "setDither", lpaint_setDither },
     { "isUnderlineText", lpaint_isUnderlineText },
     { "isStrikeThruText", lpaint_isStrikeThruText },
     { "isFakeBoldText", lpaint_isFakeBoldText },
