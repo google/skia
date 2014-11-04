@@ -110,7 +110,7 @@ function drawSlide(canvas, slide, master_template)
         local blob, newBottom = Sk.newTextBlob(node.text, bounds, paint)
         draw_bullet(canvas, x + x_offset, y - fm.ascent, paint, node.indent)
         canvas:drawTextBlob(blob, 0, 0, paint)
-        y = newBottom + paint:getTextSize() * .5
+        y = newBottom + paint:getTextSize() * .5 + extra_dy
 
         if gShowBounds then
             bounds.bottom = newBottom
@@ -141,8 +141,8 @@ function SkiaPoint_make_template()
         margin_y = 25,
     }
     slide[1] = make_tmpl(make_paint("Arial", 1, 35, { a=1, r=1, g=1, b=1 }), 18)
-    slide[2] = make_tmpl(make_paint("Arial", 0, 25, { a=1, r=1, g=1, b=1 }), 0)
-    slide[3] = make_tmpl(make_paint("Arial", 0, 20, { a=1, r=.9, g=.9, b=.9 }), 0)
+    slide[2] = make_tmpl(make_paint("Arial", 0, 25, { a=1, r=1, g=1, b=1 }), 10)
+    slide[3] = make_tmpl(make_paint("Arial", 0, 20, { a=1, r=.9, g=.9, b=.9 }), 5)
 
     return {
         title = title,

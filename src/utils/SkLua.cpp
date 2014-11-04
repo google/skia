@@ -806,6 +806,11 @@ static int lpaint_isLCDRenderText(lua_State* L) {
     return 1;
 }
 
+static int lpaint_setLCDRenderText(lua_State* L) {
+    get_obj<SkPaint>(L, 1)->setLCDRenderText(lua2bool(L, 2));
+    return 1;
+}
+
 static int lpaint_isEmbeddedBitmapText(lua_State* L) {
     lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isEmbeddedBitmapText());
     return 1;
@@ -1075,6 +1080,7 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "setSubpixelText", lpaint_setSubpixelText },
     { "isDevKernText", lpaint_isDevKernText },
     { "isLCDRenderText", lpaint_isLCDRenderText },
+    { "setLCDRenderText", lpaint_setLCDRenderText },
     { "isEmbeddedBitmapText", lpaint_isEmbeddedBitmapText },
     { "isAutohinted", lpaint_isAutohinted },
     { "isVerticalText", lpaint_isVerticalText },
@@ -1731,12 +1737,26 @@ static const struct luaL_Reg gSkTextBlob_Methods[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int ltypeface_getFamilyName(lua_State* L) {
+    SkString str;
+    get_ref<SkTypeface>(L, 1)->getFamilyName(&str);
+    lua_pushstring(L, str.c_str());
+    return 1;
+}
+
+static int ltypeface_getStyle(lua_State* L) {
+    lua_pushnumber(L, (double)get_ref<SkTypeface>(L, 1)->style());
+    return 1;
+}
+
 static int ltypeface_gc(lua_State* L) {
     SkSafeUnref(get_ref<SkTypeface>(L, 1));
     return 0;
 }
 
 static const struct luaL_Reg gSkTypeface_Methods[] = {
+    { "getFamilyName", ltypeface_getFamilyName },
+    { "getStyle", ltypeface_getStyle },
     { "__gc", ltypeface_gc },
     { NULL, NULL }
 };
