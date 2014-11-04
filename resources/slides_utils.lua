@@ -95,7 +95,8 @@ function parse_file(file)
             end
         end
     end
---    pretty_print_slides(slides)
+    flush(slides, block)
+
     return slides
 end
 

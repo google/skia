@@ -39,7 +39,9 @@ function sqr(value) return value * value end
 
 function set_blur(paint, alpha)
     local sigma = sqr(1 - alpha) * 20
---    paint:setImageFilter(Sk.newBlurImageFilter(sigma, sigma))
+    if gUseBlurInTransitions then
+        paint:setImageFilter(Sk.newBlurImageFilter(sigma, sigma))
+    end
     paint:setAlpha(alpha)
 end
 

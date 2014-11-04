@@ -1,4 +1,5 @@
 gShowBounds = false
+gUseBlurInTransitions = false
 
 gPath = "/skia/trunk/resources/"
 
@@ -25,32 +26,6 @@ function make_paint(typefacename, stylebits, size, color)
     paint:setTextSize(size)
     paint:setColor(color)
     return paint
-end
-
-function center_rect(sw, sh, dst)
-    local dw = dst.right - dst.left
-    local dh = dst.bottom - dst.top
-
-    local rw, rh
-
-    if sw / sh > dw / dh then
-        rw = dw
-        rh = sh * dw / sw
-    else
-        rh = dh
-        rw = sw * dh / sh
-    end
-
-    local x = dst.left + ((sw - rw) / 2)
-    local y = dst.top  + ((sh - rh) / 2)
-    return make_rect(x, y, x + rw, y + rh)
-end
-
-function draw_image_centered(canvas, image)
-    local sw = image:width()
-    local sh = image:height()
-    local dstR = center_rect(image:width(), image:height(), make_rect(20, 20, 620, 460))
-    canvas:drawImageRect(image, nil, dstR)
 end
 
 function draw_bullet(canvas, x, y, paint, indent)
@@ -165,6 +140,8 @@ local gCurrAnimation
 
 gSlideIndex = 1
 
+-----------------------------------------------------------------------------
+
 function new_drawable_picture(pic)
     return {
         picture = pic,
@@ -187,6 +164,18 @@ function new_drawable_image(img)
     }
 end
 
+function convert_to_picture_drawable(slide)
+    local rec = Sk.newPictureRecorder()
+    drawSlide(rec:beginRecording(640, 480), slide, gTemplate)
+    return new_drawable_picture(rec:endRecording())
+end
+
+function convert_to_image_drawable(slide)
+    local surf = Sk.newRasterSurface(640, 480)
+    drawSlide(surf:getCanvas(), slide, gTemplate)
+    return new_drawable_image(surf:newImageSnapshot())
+end
+
 function new_drawable_slide(slide)
     return {
         slide = slide,
@@ -202,6 +191,14 @@ function new_drawable_slide(slide)
         end
     }
 end
+
+gNewDrawableFactory = {
+    default = new_drawable_slide,
+    picture = convert_to_picture_drawable,
+    image = convert_to_image_drawable,
+}
+
+-----------------------------------------------------------------------------
 
 function next_slide()
     local prev = gSlides[gSlideIndex]
@@ -221,19 +218,7 @@ function prev_slide()
     end
 end
 
-function convert_to_picture_drawable(slide)
-    local rec = Sk.newPictureRecorder()
-    drawSlide(rec:beginRecording(640, 480), slide, gTemplate)
-    return new_drawable_picture(rec:endRecording())
-end
-
-function convert_to_image_drawable(slide)
-    local surf = Sk.newRasterSurface(640, 480)
-    drawSlide(surf:getCanvas(), slide, gTemplate)
-    return new_drawable_image(surf:newImageSnapshot())
-end
-
-gMakeDrawable = new_drawable_slide
+gDrawableType = "default"
 
 load_file("slides_transitions")
 
@@ -249,8 +234,8 @@ function spawn_transition(prevSlide, nextSlide, is_forward)
         transition = fade_slide_transition
     end
 
-    local prevDrawable = gMakeDrawable(prevSlide)
-    local nextDrawable = gMakeDrawable(nextSlide)
+    local prevDrawable = gNewDrawableFactory[gDrawableType](prevSlide)
+    local nextDrawable = gNewDrawableFactory[gDrawableType](nextSlide)
     gCurrAnimation = transition(prevDrawable, nextDrawable, is_forward)
 end
 
@@ -352,6 +337,11 @@ local keyProcs = {
     ["-"] = function () scale_text_delta(gTemplate, -1) end,
 
     b = function () gShowBounds = not gShowBounds end,
+    B = function () gUseBlurInTransitions = not gUseBlurInTransitions end,
+
+    ["1"] = function () gDrawableType = "default" end,
+    ["2"] = function () gDrawableType = "picture" end,
+    ["3"] = function () gDrawableType = "image" end,
 }
 
 function onCharHandler(uni)
