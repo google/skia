@@ -786,7 +786,29 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
         }
     }
     picture.reset(recorder.endRecording());
-    // A lot of AA concave paths currently render an SkPicture undesireable for GPU rendering
+    // A lot of small AA concave paths should be fine for GPU rendering
+    REPORTER_ASSERT(reporter, picture->suitableForGpuRasterization(NULL));
+
+    canvas = recorder.beginRecording(100, 100);
+    {
+        SkPath path;
+
+        path.moveTo(0, 0);
+        path.lineTo(0, 100);
+        path.lineTo(50, 50);
+        path.lineTo(100, 100);
+        path.lineTo(100, 0);
+        path.close();
+        REPORTER_ASSERT(reporter, !path.isConvex());
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        for (int i = 0; i < 50; ++i) {
+            canvas->drawPath(path, paint);
+        }
+    }
+    picture.reset(recorder.endRecording());
+    // A lot of large AA concave paths currently render an SkPicture undesireable for GPU rendering
     REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
 
     canvas = recorder.beginRecording(100, 100);
