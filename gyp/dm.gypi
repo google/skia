@@ -28,7 +28,6 @@
     'tests.gypi',
   ],
   'sources': [
-    '../src/core/SkTaskGroup.cpp',
     '../dm/DM.cpp',
     '../dm/DMCpuGMTask.cpp',
     '../dm/DMGpuGMTask.cpp',

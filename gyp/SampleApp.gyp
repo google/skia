@@ -24,7 +24,6 @@
         'gmslides.gypi',
       ],
       'sources': [
-        '../src/core/SkTaskGroup.cpp',
         '../gm/gm.cpp',
         '../samplecode/GMSampleView.h',
         '../samplecode/ClockFaceView.cpp',
