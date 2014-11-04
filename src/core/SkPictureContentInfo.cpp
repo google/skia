@@ -25,7 +25,7 @@ bool SkPictureContentInfo::suitableForGpuRasterization(GrContext* context, const
                             && 0 == sampleCount);
 
     bool ret = suitableForDash &&
-                    (fNumAAConcavePaths - fNumAAHairlineConcavePaths)
+                    (fNumAAConcavePaths - fNumAAHairlineConcavePaths - fNumAADFEligibleConcavePaths)
                     < kNumAAConcavePaths;
     if (!ret && reason) {
         if (!suitableForDash) {
@@ -34,7 +34,7 @@ bool SkPictureContentInfo::suitableForGpuRasterization(GrContext* context, const
             } else {
                 *reason = "Too many non dashed path effects.";
             }
-        } else if ((fNumAAConcavePaths - fNumAAHairlineConcavePaths)
+        } else if ((fNumAAConcavePaths - fNumAAHairlineConcavePaths - fNumAADFEligibleConcavePaths)
                     >= kNumAAConcavePaths) {
             *reason = "Too many anti-aliased concave paths.";
         } else {
@@ -59,8 +59,13 @@ void SkPictureContentInfo::onDrawPath(const SkPath& path, const SkPaint& paint) 
     if (paint.isAntiAlias() && !path.isConvex()) {
         ++fNumAAConcavePaths;
 
+        SkPaint::Style paintStyle = paint.getStyle();
+        const SkRect& pathBounds = path.getBounds();
         if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
             ++fNumAAHairlineConcavePaths;
+        } else if (SkPaint::kFill_Style == paintStyle && pathBounds.width() < 64.f &&
+                   pathBounds.height() < 64.f && !path.isVolatile()) {
+            ++fNumAADFEligibleConcavePaths;
         }
     }
 }
@@ -134,6 +139,7 @@ void SkPictureContentInfo::set(const SkPictureContentInfo& src) {
     fNumFastPathDashEffects = src.fNumFastPathDashEffects;
     fNumAAConcavePaths = src.fNumAAConcavePaths;
     fNumAAHairlineConcavePaths = src.fNumAAHairlineConcavePaths;
+    fNumAADFEligibleConcavePaths = src.fNumAADFEligibleConcavePaths;
     fNumLayers = src.fNumLayers;
     fNumInteriorLayers = src.fNumInteriorLayers;
     fNumLeafLayers = src.fNumLeafLayers;
@@ -147,6 +153,7 @@ void SkPictureContentInfo::reset() {
     fNumFastPathDashEffects = 0;
     fNumAAConcavePaths = 0;
     fNumAAHairlineConcavePaths = 0;
+    fNumAADFEligibleConcavePaths = 0;
     fNumLayers = 0;
     fNumInteriorLayers = 0;
     fNumLeafLayers = 0;
@@ -160,6 +167,7 @@ void SkPictureContentInfo::swap(SkPictureContentInfo* other) {
     SkTSwap(fNumFastPathDashEffects, other->fNumFastPathDashEffects);
     SkTSwap(fNumAAConcavePaths, other->fNumAAConcavePaths);
     SkTSwap(fNumAAHairlineConcavePaths, other->fNumAAHairlineConcavePaths);
+    SkTSwap(fNumAADFEligibleConcavePaths, other->fNumAADFEligibleConcavePaths);
     SkTSwap(fNumLayers, other->fNumLayers);
     SkTSwap(fNumInteriorLayers, other->fNumInteriorLayers);
     SkTSwap(fNumLeafLayers, other->fNumLeafLayers);

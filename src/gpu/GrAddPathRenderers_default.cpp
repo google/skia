@@ -32,7 +32,5 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain
         chain->addPathRenderer(pr)->unref();
     }
     chain->addPathRenderer(SkNEW(GrAAConvexPathRenderer))->unref();
-#ifndef SK_LEGACY_NO_DISTANCE_FIELD_PATHS
     chain->addPathRenderer(SkNEW_ARGS(GrAADistanceFieldPathRenderer, (ctx)))->unref();
-#endif
 }

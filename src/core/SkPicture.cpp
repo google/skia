@@ -135,7 +135,8 @@ struct SkPicture::PathCounter {
         : numPaintWithPathEffectUses (0)
         , numFastPathDashEffects (0)
         , numAAConcavePaths (0)
-        , numAAHairlineConcavePaths (0) {
+        , numAAHairlineConcavePaths (0)
+        , numAADFEligibleConcavePaths(0) {
     }
 
     // Recurse into nested pictures.
@@ -145,6 +146,7 @@ struct SkPicture::PathCounter {
         numFastPathDashEffects     += analysis.fNumFastPathDashEffects;
         numAAConcavePaths          += analysis.fNumAAConcavePaths;
         numAAHairlineConcavePaths  += analysis.fNumAAHairlineConcavePaths;
+        numAADFEligibleConcavePaths  += analysis.fNumAADFEligibleConcavePaths;
     }
 
     void checkPaint(const SkPaint* paint) {
@@ -171,9 +173,14 @@ struct SkPicture::PathCounter {
         if (op.paint.isAntiAlias() && !op.path.isConvex()) {
             numAAConcavePaths++;
 
-            if (SkPaint::kStroke_Style == op.paint.getStyle() &&
+            SkPaint::Style paintStyle = op.paint.getStyle();
+            const SkRect& pathBounds = op.path.getBounds();
+            if (SkPaint::kStroke_Style == paintStyle &&
                 0 == op.paint.getStrokeWidth()) {
                 numAAHairlineConcavePaths++;
+            } else if (SkPaint::kFill_Style == paintStyle && pathBounds.width() < 64.f &&
+                       pathBounds.height() < 64.f && !op.path.isVolatile()) {
+                numAADFEligibleConcavePaths++;
             }
         }
     }
@@ -190,6 +197,7 @@ struct SkPicture::PathCounter {
     int numFastPathDashEffects;
     int numAAConcavePaths;
     int numAAHairlineConcavePaths;
+    int numAADFEligibleConcavePaths;
 };
 
 SkPicture::Analysis::Analysis(const SkRecord& record) {
@@ -203,6 +211,7 @@ SkPicture::Analysis::Analysis(const SkRecord& record) {
     fNumFastPathDashEffects     = counter.numFastPathDashEffects;
     fNumAAConcavePaths          = counter.numAAConcavePaths;
     fNumAAHairlineConcavePaths  = counter.numAAHairlineConcavePaths;
+    fNumAADFEligibleConcavePaths  = counter.numAADFEligibleConcavePaths;
 
     fHasText = false;
     TextHunter text;
@@ -227,7 +236,7 @@ bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
                                && 0 == sampleCount);
 
     bool ret = suitableForDash &&
-               (fNumAAConcavePaths - fNumAAHairlineConcavePaths)
+               (fNumAAConcavePaths - fNumAAHairlineConcavePaths - fNumAADFEligibleConcavePaths)
                    < kNumAAConcavePathsTol;
 
     if (!ret && reason) {
@@ -237,7 +246,7 @@ bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
             } else {
                 *reason = "Too many non dashed path effects.";
             }
-        } else if ((fNumAAConcavePaths - fNumAAHairlineConcavePaths)
+        } else if ((fNumAAConcavePaths - fNumAAHairlineConcavePaths - fNumAADFEligibleConcavePaths)
                     >= kNumAAConcavePathsTol)
             *reason = "Too many anti-aliased concave paths.";
         else

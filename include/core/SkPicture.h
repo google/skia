@@ -310,6 +310,7 @@ private:
         int         fNumFastPathDashEffects;
         int         fNumAAConcavePaths;
         int         fNumAAHairlineConcavePaths;
+        int         fNumAADFEligibleConcavePaths;
     } fAnalysis;
 };
 
