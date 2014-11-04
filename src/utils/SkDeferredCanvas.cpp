@@ -866,43 +866,6 @@ void SkDeferredCanvas::drawBitmapNine(const SkBitmap& bitmap,
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::drawImage(const SkImage* image, SkScalar left, SkScalar top,
-                                 const SkPaint* paint) {
-    SkRect imageRect = SkRect::MakeXYWH(left, top,
-        SkIntToScalar(image->width()), SkIntToScalar(image->height()));
-    bool isImageOpaque = image->isOpaque();
-    SkPaintBitmapOpacity pct = isImageOpaque
-            ? kOpaque_SkPaintBitmapOpacity : kUnknown_SkPaintBitmapOpacity;
-
-    if (fDeferredDrawing &&
-        this->isFullFrame(&imageRect, paint) &&
-        (isImageOpaque ||isPaintOpaque(paint, pct))) {
-        this->getDeferredDevice()->skipPendingCommands();
-    }
-
-    AutoImmediateDrawIfNeeded autoDraw(*this, paint);
-    this->drawingCanvas()->drawImage(image, left, top, paint);
-    this->recordedDrawCommand();
-}
-
-void SkDeferredCanvas::drawImageRect(const SkImage* image, const SkRect* src,
-                                     const SkRect& dst,
-                                     const SkPaint* paint) {
-    bool isImageOpaque = image->isOpaque();
-    SkPaintBitmapOpacity pct = isImageOpaque
-            ? kOpaque_SkPaintBitmapOpacity : kUnknown_SkPaintBitmapOpacity;
-
-    if (fDeferredDrawing &&
-        this->isFullFrame(&dst, paint) &&
-        (isImageOpaque || isPaintOpaque(paint, pct))) {
-        this->getDeferredDevice()->skipPendingCommands();
-    }
-
-    AutoImmediateDrawIfNeeded autoDraw(*this, paint);
-    this->drawingCanvas()->drawImageRect(image, src, dst, paint);
-    this->recordedDrawCommand();
-}
-
 void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
                                   const SkPaint* paint) {
     SkRect bitmapRect = SkRect::MakeXYWH(
