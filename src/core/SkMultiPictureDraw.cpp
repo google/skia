@@ -5,15 +5,18 @@
  * found in the LICENSE file.
  */
 
-#if SK_SUPPORT_GPU
-#include "GrLayerHoister.h"
-#include "GrRecordReplaceDraw.h"
-#endif
-
+// Need to include something before #if SK_SUPPORT_GPU so that the Android
+// framework build, which gets its defines from SkTypes rather than a makefile,
+// has the definition before checking it.
 #include "SkCanvas.h"
 #include "SkMultiPictureDraw.h"
 #include "SkPicture.h"
 #include "SkTaskGroup.h"
+
+#if SK_SUPPORT_GPU
+#include "GrLayerHoister.h"
+#include "GrRecordReplaceDraw.h"
+#endif
 
 void SkMultiPictureDraw::DrawData::draw() {
     fCanvas->drawPicture(fPicture, &fMatrix, fPaint);
