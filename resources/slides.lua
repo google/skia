@@ -1,3 +1,4 @@
+gShowBounds = false
 
 gPath = "/skia/trunk/resources/"
 
@@ -37,6 +38,13 @@ function draw_bullet(canvas, x, y, paint, indent)
     canvas:drawCircle(cx, cy, radius, paint)
 end
 
+function stroke_rect(canvas, rect, color)
+    local paint = Sk.newPaint()
+    paint:setStroke(true);
+    paint:setColor(color)
+    canvas:drawRect(rect, paint)
+end
+
 function drawSlide(canvas, slide, master_template)
     template = master_template.slide   -- need to sniff the slide to know if we're title or slide
 
@@ -65,10 +73,18 @@ function drawSlide(canvas, slide, master_template)
         local fm = paint:getFontMetrics()
         local x_offset = -fm.ascent * node.indent * 1.25
 
-        y = y - fm.ascent * scale
-        draw_bullet(canvas, x + x_offset, y, paint, node.indent)
-        canvas:drawText(node.text, x + x_offset, y, paint)
-        y = y + fm.descent * scale + extra_dy
+        local bounds = make_rect(x + x_offset, y, 620, 640)
+        local blob, newBottom = Sk.newTextBlob(node.text, bounds, paint)
+        draw_bullet(canvas, x + x_offset, y - fm.ascent, paint, node.indent)
+        canvas:drawTextBlob(blob, 0, 0, paint)
+        y = newBottom + paint:getTextSize() * .5
+
+        if gShowBounds then
+            bounds.bottom = newBottom
+            stroke_rect(canvas, bounds, {a=1,r=0,g=1,b=0})
+            stroke_rect(canvas, blob:bounds(), {a=1,r=1,g=0,b=0})
+        end
+
     end
 end
 
@@ -305,6 +321,8 @@ local keyProcs = {
     s = spawn_scale_animation,
     ["="] = function () scale_text_delta(gTemplate, 1) end,
     ["-"] = function () scale_text_delta(gTemplate, -1) end,
+
+    b = function () gShowBounds = not gShowBounds end,
 }
 
 function onCharHandler(uni)

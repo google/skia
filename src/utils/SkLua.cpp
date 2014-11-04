@@ -556,6 +556,15 @@ static int lcanvas_drawText(lua_State* L) {
     return 0;
 }
 
+static int lcanvas_drawTextBlob(lua_State* L) {
+    const SkTextBlob* blob = get_ref<SkTextBlob>(L, 2);
+    SkScalar x = lua2scalar(L, 3);
+    SkScalar y = lua2scalar(L, 4);
+    const SkPaint& paint = *get_obj<SkPaint>(L, 5);
+    get_ref<SkCanvas>(L, 1)->drawTextBlob(blob, x, y, paint);
+    return 0;
+}
+
 static int lcanvas_getSaveCount(lua_State* L) {
     lua_pushnumber(L, get_ref<SkCanvas>(L, 1)->getSaveCount());
     return 1;
@@ -681,6 +690,7 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
     { "drawPath", lcanvas_drawPath },
     { "drawPicture", lcanvas_drawPicture },
     { "drawText", lcanvas_drawText },
+    { "drawTextBlob", lcanvas_drawTextBlob },
     { "getSaveCount", lcanvas_getSaveCount },
     { "getTotalMatrix", lcanvas_getTotalMatrix },
     { "getClipStack", lcanvas_getClipStack },
@@ -1697,6 +1707,24 @@ static const struct luaL_Reg gSkPicture_Methods[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int ltextblob_bounds(lua_State* L) {
+    SkLua(L).pushRect(get_ref<SkTextBlob>(L, 1)->bounds());
+    return 1;
+}
+
+static int ltextblob_gc(lua_State* L) {
+    SkSafeUnref(get_ref<SkTextBlob>(L, 1));
+    return 0;
+}
+
+static const struct luaL_Reg gSkTextBlob_Methods[] = {
+    { "bounds", ltextblob_bounds },
+    { "__gc", ltextblob_gc },
+    { NULL, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 static int ltypeface_gc(lua_State* L) {
     SkSafeUnref(get_ref<SkTypeface>(L, 1));
     return 0;
@@ -1809,6 +1837,26 @@ static int lsk_newRRect(lua_State* L) {
     return 1;
 }
 
+#include "SkTextBox.h"
+// Sk.newTextBlob(text, rect, paint)
+static int lsk_newTextBlob(lua_State* L) {
+    const char* text = lua_tolstring(L, 1, NULL);
+    SkRect bounds;
+    lua2rect(L, 2, &bounds);
+    const SkPaint& paint = *get_obj<SkPaint>(L, 3);
+
+    SkTextBox box;
+    box.setMode(SkTextBox::kLineBreak_Mode);
+    box.setBox(bounds);
+    box.setText(text, strlen(text), paint);
+
+    SkScalar newBottom;
+    SkAutoTUnref<SkTextBlob> blob(box.snapshotTextBlob(&newBottom));
+    push_ref<SkTextBlob>(L, blob);
+    SkLua(L).pushScalar(newBottom);
+    return 2;
+}
+
 static int lsk_newTypeface(lua_State* L) {
     const char* name = NULL;
     int style = SkTypeface::kNormal;
@@ -1877,6 +1925,7 @@ static void register_Sk(lua_State* L) {
     setfield_function(L, "newPictureRecorder", lsk_newPictureRecorder);
     setfield_function(L, "newRRect", lsk_newRRect);
     setfield_function(L, "newRasterSurface", lsk_newRasterSurface);
+    setfield_function(L, "newTextBlob", lsk_newTextBlob);
     setfield_function(L, "newTypeface", lsk_newTypeface);
     lua_pop(L, 1);  // pop off the Sk table
 }
@@ -1896,6 +1945,7 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkDocument);
     REG_CLASS(L, SkImage);
     REG_CLASS(L, SkImageFilter);
+    REG_CLASS(L, SkMatrix);
     REG_CLASS(L, SkPaint);
     REG_CLASS(L, SkPath);
     REG_CLASS(L, SkPathEffect);
@@ -1904,8 +1954,8 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkRRect);
     REG_CLASS(L, SkShader);
     REG_CLASS(L, SkSurface);
+    REG_CLASS(L, SkTextBlob);
     REG_CLASS(L, SkTypeface);
-    REG_CLASS(L, SkMatrix);
 }
 
 extern "C" int luaopen_skia(lua_State* L);
