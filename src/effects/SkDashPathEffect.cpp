@@ -41,6 +41,116 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
                                       fInitialDashLength, fInitialDashIndex, fIntervalLength);
 }
 
+static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
+    SkScalar radius = SkScalarHalf(rec.getWidth());
+    if (0 == radius) {
+        radius = SK_Scalar1;    // hairlines
+    }
+    if (SkPaint::kMiter_Join == rec.getJoin()) {
+        radius = SkScalarMul(radius, rec.getMiter());
+    }
+    rect->outset(radius, radius);
+}
+
+// Attempt to trim the line to minimally cover the cull rect (currently 
+// only works for horizontal and vertical lines).
+// Return true if processing should continue; false otherwise.
+static bool cull_line(SkPoint* pts, const SkStrokeRec& rec,
+                      const SkMatrix& ctm, const SkRect* cullRect,
+                      const SkScalar intervalLength) {
+    if (NULL == cullRect) {
+        SkASSERT(false); // Shouldn't ever occur in practice
+        return false;
+    }
+
+    SkScalar dx = pts[1].x() - pts[0].x();
+    SkScalar dy = pts[1].y() - pts[0].y();
+
+    if (dx && dy) {
+        return false;
+    }
+
+    SkRect bounds = *cullRect;
+    outset_for_stroke(&bounds, rec);
+
+    // cullRect is in device space while pts are in the local coordinate system
+    // defined by the ctm. We want our answer in the local coordinate system.
+
+    SkASSERT(ctm.rectStaysRect());
+    SkMatrix inv;
+    if (!ctm.invert(&inv)) {
+        return false;
+    }
+
+    inv.mapRect(&bounds);
+
+    if (dx) {
+        SkASSERT(dx && !dy);
+        SkScalar minX = pts[0].fX;
+        SkScalar maxX = pts[1].fX;
+
+        if (dx < 0) {
+            SkTSwap(minX, maxX);
+        }
+
+        SkASSERT(minX < maxX);
+        if (maxX < bounds.fLeft || minX > bounds.fRight) {
+            return false;
+        }
+
+        // Now we actually perform the chop, removing the excess to the left and
+        // right of the bounds (keeping our new line "in phase" with the dash,
+        // hence the (mod intervalLength).
+
+        if (minX < bounds.fLeft) {
+            minX = bounds.fLeft - SkScalarMod(bounds.fLeft - minX, intervalLength);
+        }
+        if (maxX > bounds.fRight) {
+            maxX = bounds.fRight + SkScalarMod(maxX - bounds.fRight, intervalLength);
+        }
+
+        SkASSERT(maxX > minX);
+        if (dx < 0) {
+            SkTSwap(minX, maxX);
+        }
+        pts[0].fX = minX;
+        pts[1].fX = maxX;
+    } else {
+        SkASSERT(dy && !dx);
+        SkScalar minY = pts[0].fY;
+        SkScalar maxY = pts[1].fY;
+
+        if (dy < 0) {
+            SkTSwap(minY, maxY);
+        }
+
+        SkASSERT(minY < maxY);
+        if (maxY < bounds.fTop || minY > bounds.fBottom) {
+            return false;
+        }
+
+        // Now we actually perform the chop, removing the excess to the top and
+        // bottom of the bounds (keeping our new line "in phase" with the dash,
+        // hence the (mod intervalLength).
+
+        if (minY < bounds.fTop) {
+            minY = bounds.fTop - SkScalarMod(bounds.fTop - minY, intervalLength);
+        }
+        if (maxY > bounds.fBottom) {
+            maxY = bounds.fBottom + SkScalarMod(maxY - bounds.fBottom, intervalLength);
+        }
+
+        SkASSERT(maxY > minY);
+        if (dy < 0) {
+            SkTSwap(minY, maxY);
+        }
+        pts[0].fY = minY;
+        pts[1].fY = maxY;
+    }
+
+    return true;
+}
+
 // Currently asPoints is more restrictive then it needs to be. In the future
 // we need to:
 //      allow kRound_Cap capping (could allow rotations in the matrix with this)
@@ -83,7 +193,12 @@ bool SkDashPathEffect::asPoints(PointData* results,
         return false;
     }
 
-    SkScalar        length = SkPoint::Distance(pts[1], pts[0]);
+    // See if the line can be limited to something plausible.
+    if (!cull_line(pts, rec, matrix, cullRect, fIntervalLength)) {
+        return false;
+    }
+
+    SkScalar length = SkPoint::Distance(pts[1], pts[0]);
 
     SkVector tangent = pts[1] - pts[0];
     if (tangent.isZero()) {
@@ -94,9 +209,11 @@ bool SkDashPathEffect::asPoints(PointData* results,
 
     // TODO: make this test for horizontal & vertical lines more robust
     bool isXAxis = true;
-    if (SK_Scalar1 == tangent.fX || -SK_Scalar1 == tangent.fX) {
+    if (SkScalarNearlyEqual(SK_Scalar1, tangent.fX) ||
+        SkScalarNearlyEqual(-SK_Scalar1, tangent.fX)) {
         results->fSize.set(SkScalarHalf(fIntervals[0]), SkScalarHalf(rec.getWidth()));
-    } else if (SK_Scalar1 == tangent.fY || -SK_Scalar1 == tangent.fY) {
+    } else if (SkScalarNearlyEqual(SK_Scalar1, tangent.fY) ||
+               SkScalarNearlyEqual(-SK_Scalar1, tangent.fY)) {
         results->fSize.set(SkScalarHalf(rec.getWidth()), SkScalarHalf(fIntervals[0]));
         isXAxis = false;
     } else if (SkPaint::kRound_Cap != rec.getCap()) {
