@@ -628,7 +628,6 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                 break;
             }
             case SkCanvas::kLines_PointMode:
-#ifndef SK_DISABLE_DASHING_OPTIMIZATION
                 if (2 == count && paint.getPathEffect()) {
                     // most likely a dashed line - see if it is one of the ones
                     // we can accelerate
@@ -712,7 +711,6 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                         break;
                     }
                 }
-#endif // DISABLE_DASHING_OPTIMIZATION
                 // couldn't take fast path so fall through!
             case SkCanvas::kPolygon_PointMode: {
                 count -= 1;
