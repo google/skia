@@ -44,7 +44,7 @@ public:
     SkTypeface_Android(int index,
                        const SkFontStyle& style,
                        bool isFixedPitch,
-                       const SkString familyName)
+                       const SkString& familyName)
         : INHERITED(style, SkTypefaceCache::NewFontID(), isFixedPitch)
         , fIndex(index)
         , fFamilyName(familyName) { }
@@ -63,11 +63,11 @@ private:
 
 class SkTypeface_AndroidSystem : public SkTypeface_Android {
 public:
-    SkTypeface_AndroidSystem(const SkString pathName,
+    SkTypeface_AndroidSystem(const SkString& pathName,
                              int index,
                              const SkFontStyle& style,
                              bool isFixedPitch,
-                             const SkString familyName,
+                             const SkString& familyName,
                              const SkLanguage& lang,
                              FontVariant variantStyle)
         : INHERITED(index, style, isFixedPitch, familyName)
@@ -102,7 +102,7 @@ public:
                              int index,
                              const SkFontStyle& style,
                              bool isFixedPitch,
-                             const SkString familyName)
+                             const SkString& familyName)
         : INHERITED(index, style, isFixedPitch, familyName)
         , fStream(SkRef(stream)) { }
 
@@ -165,6 +165,10 @@ public:
             if (!scanner.scanFont(stream.get(), ttcIndex, &familyName, &style, &isFixedWidth)) {
                 DEBUG_FONT(("---- SystemFonts[%d] file=%s (INVALID)", i, pathName.c_str()));
                 continue;
+            }
+
+            if (fontFile.fWeight != 0) {
+                style = SkFontStyle(fontFile.fWeight, style.width(), style.slant());
             }
 
             const SkLanguage& lang = family.fLanguage;
@@ -231,16 +235,7 @@ public:
 
 private:
     SkFontStyle style(int index) {
-        return SkFontStyle(this->weight(index), SkFontStyle::kNormal_Width,
-                           this->slant(index));
-    }
-    SkFontStyle::Weight weight(int index) {
-        if (fStyles[index]->isBold()) return SkFontStyle::kBold_Weight;
-        return SkFontStyle::kNormal_Weight;
-    }
-    SkFontStyle::Slant slant(int index) {
-        if (fStyles[index]->isItalic()) return SkFontStyle::kItalic_Slant;
-        return SkFontStyle::kUpright_Slant;
+        return fStyles[index]->fontStyle();
     }
     static int match_score(const SkFontStyle& pattern, const SkFontStyle& candidate) {
         int score = 0;

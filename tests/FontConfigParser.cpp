@@ -19,13 +19,12 @@ int CountFallbacks(SkTDArray<FontFamily*> fontFamilies) {
     return countOfFallbackFonts;
 }
 
-void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies,
+void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstExpectedFile,
                          skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, fontFamilies[0]->fNames.count() == 5);
     REPORTER_ASSERT(reporter, !strcmp(fontFamilies[0]->fNames[0].c_str(), "sans-serif"));
     REPORTER_ASSERT(reporter,
-                    !strcmp(fontFamilies[0]->fFonts[0].fFileName.c_str(),
-                            "Roboto-Regular.ttf"));
+                    !strcmp(fontFamilies[0]->fFonts[0].fFileName.c_str(), firstExpectedFile));
     REPORTER_ASSERT(reporter, !fontFamilies[0]->fIsFallbackFont);
 }
 
@@ -71,7 +70,7 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
         REPORTER_ASSERT(reporter, CountFallbacks(preV17FontFamilies) == 10);
 
         DumpLoadedFonts(preV17FontFamilies);
-        ValidateLoadedFonts(preV17FontFamilies, reporter);
+        ValidateLoadedFonts(preV17FontFamilies, "Roboto-Regular.ttf", reporter);
     } else {
         resourcesMissing = true;
     }
@@ -87,7 +86,7 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
         REPORTER_ASSERT(reporter, CountFallbacks(v17FontFamilies) == 31);
 
         DumpLoadedFonts(v17FontFamilies);
-        ValidateLoadedFonts(v17FontFamilies, reporter);
+        ValidateLoadedFonts(v17FontFamilies, "Roboto-Regular.ttf", reporter);
     } else {
         resourcesMissing = true;
     }
@@ -103,7 +102,7 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
         REPORTER_ASSERT(reporter, CountFallbacks(v22FontFamilies) == 42);
 
         DumpLoadedFonts(v22FontFamilies);
-        ValidateLoadedFonts(v22FontFamilies, reporter);
+        ValidateLoadedFonts(v22FontFamilies, "Roboto-Thin.ttf", reporter);
     } else {
         resourcesMissing = true;
     }

@@ -203,54 +203,7 @@ void aliasElementHandler(FamilyData* familyData, const char** attributes) {
     }
 }
 
-bool findWeight400(FontFamily* family) {
-    for (int i = 0; i < family->fFonts.count(); i++) {
-        if (family->fFonts[i].fWeight == 400) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool desiredWeight(int weight) {
-    return (weight == 400 || weight == 700);
-}
-
-int countDesiredWeight(FontFamily* family) {
-    int count = 0;
-    for (int i = 0; i < family->fFonts.count(); i++) {
-        if (desiredWeight(family->fFonts[i].fWeight)) {
-            count++;
-        }
-    }
-    return count;
-}
-
-// To meet Skia's expectations, any family that contains weight=400
-// fonts should *only* contain {400,700}
-void purgeUndesiredWeights(FontFamily* family) {
-    int count = countDesiredWeight(family);
-    for (int i = 1, j = 0; i < family->fFonts.count(); i++) {
-        if (desiredWeight(family->fFonts[j].fWeight)) {
-            j++;
-        }
-        if ((i != j) && desiredWeight(family->fFonts[i].fWeight)) {
-            family->fFonts[j] = family->fFonts[i];
-        }
-    }
-    family->fFonts.resize_back(count);
-}
-
-void familysetElementEndHandler(FamilyData* familyData) {
-    for (int i = 0; i < familyData->families.count(); i++) {
-        if (findWeight400(familyData->families[i])) {
-            purgeUndesiredWeights(familyData->families[i]);
-        }
-    }
-}
-
-void startElementHandler(void* data, const char* tag,
-                         const char** attributes) {
+void startElementHandler(void* data, const char* tag, const char** attributes) {
     FamilyData* familyData = (FamilyData*) data;
     size_t len = strlen(tag);
     if (len == 6 && !strncmp(tag, "family", len)) {
@@ -268,9 +221,7 @@ void startElementHandler(void* data, const char* tag,
 void endElementHandler(void* data, const char* tag) {
     FamilyData* familyData = (FamilyData*) data;
     size_t len = strlen(tag);
-    if (len == 9 && strncmp(tag, "familyset", len) == 0) {
-        familysetElementEndHandler(familyData);
-    } else if (len == 6 && strncmp(tag, "family", len) == 0) {
+    if (len == 6 && strncmp(tag, "family", len) == 0) {
         *familyData->families.append() = familyData->currentFamily;
         familyData->currentFamily = NULL;
     } else if (len == 4 && !strncmp(tag, "font", len)) {
