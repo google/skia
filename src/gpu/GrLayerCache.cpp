@@ -94,6 +94,8 @@ GrLayerCache::~GrLayerCache() {
         SkDELETE(layer);
     }
 
+    SkASSERT(0 == fPictureHash.count());
+
     // The atlas only lets go of its texture when the atlas is deleted. 
     fAtlas.free();    
 }
@@ -273,6 +275,11 @@ void GrLayerCache::unlock(GrCachedLayer* layer) {
 
         if (0 == pictInfo->plotUsage(plotID)) {
             GrAtlas::RemovePlot(&pictInfo->fPlotUsage, layer->plot());
+
+            if (pictInfo->fPlotUsage.isEmpty()) {
+                fPictureHash.remove(pictInfo->fPictureID);
+                SkDELETE(pictInfo);
+            }
         }
         
         layer->setPlot(NULL);
@@ -441,6 +448,8 @@ void GrLayerCache::purgeAll() {
 
         this->purgePlot(plot);
     }
+
+    SkASSERT(0 == fPictureHash.count());
 
     fContext->discardRenderTarget(fAtlas->getTexture()->asRenderTarget());
 }
