@@ -121,7 +121,11 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
     if (NULL == fGpu) {
         return false;
     }
+    this->initCommon();
+    return true;
+}
 
+void GrContext::initCommon() {
     fDrawState = SkNEW(GrDrawState);
     fGpu->setDrawState(fDrawState);
 
@@ -141,8 +145,6 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
     fDidTestPMConversions = false;
 
     this->setupDrawBuffer();
-
-    return true;
 }
 
 GrContext::~GrContext() {
@@ -156,14 +158,14 @@ GrContext::~GrContext() {
         (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
     }
 
-    delete fResourceCache2;
+    SkDELETE(fResourceCache2);
     fResourceCache2 = NULL;
-    delete fResourceCache;
+    SkDELETE(fResourceCache);
     fResourceCache = NULL;
-    delete fFontCache;
-    delete fDrawBuffer;
-    delete fDrawBufferVBAllocPool;
-    delete fDrawBufferIBAllocPool;
+    SkDELETE(fFontCache);
+    SkDELETE(fDrawBuffer);
+    SkDELETE(fDrawBufferVBAllocPool);
+    SkDELETE(fDrawBufferIBAllocPool);
 
     fAARectRenderer->unref();
     fOvalRenderer->unref();

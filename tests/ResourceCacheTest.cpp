@@ -11,6 +11,7 @@
 #include "GrContextFactory.h"
 #include "GrGpu.h"
 #include "GrResourceCache.h"
+#include "GrResourceCache2.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "Test.h"
@@ -19,9 +20,7 @@ static const int gWidth = 640;
 static const int gHeight = 480;
 
 ////////////////////////////////////////////////////////////////////////////////
-static void test_cache(skiatest::Reporter* reporter,
-                       GrContext* context,
-                       SkCanvas* canvas) {
+static void test_cache(skiatest::Reporter* reporter, GrContext* context, SkCanvas* canvas) {
     const SkIRect size = SkIRect::MakeWH(gWidth, gHeight);
 
     SkBitmap src;
@@ -71,12 +70,12 @@ public:
         , fCache(NULL)
         , fToDelete(NULL)
         , fSize(size) {
-        ++fAlive;
+        ++fNumAlive;
         this->registerWithCache();
     }
 
     ~TestResource() {
-        --fAlive;
+        --fNumAlive;
         if (fToDelete) {
             // Breaks our little 2-element cycle below.
             fToDelete->setDeleteWhenDestroyed(NULL, NULL);
@@ -92,7 +91,7 @@ public:
 
     size_t gpuMemorySize() const SK_OVERRIDE { return fSize; }
 
-    static int alive() { return fAlive; }
+    static int NumAlive() { return fNumAlive; }
 
     void setDeleteWhenDestroyed(GrResourceCache* cache, TestResource* resource) {
         fCache = cache;
@@ -103,11 +102,11 @@ private:
     GrResourceCache* fCache;
     TestResource* fToDelete;
     size_t fSize;
-    static int fAlive;
+    static int fNumAlive;
 
     typedef GrGpuResource INHERITED;
 };
-int TestResource::fAlive = 0;
+int TestResource::fNumAlive = 0;
 
 static void test_purge_invalidated(skiatest::Reporter* reporter, GrContext* context) {
     GrCacheID::Domain domain = GrCacheID::GenerateDomain();
@@ -116,31 +115,34 @@ static void test_purge_invalidated(skiatest::Reporter* reporter, GrContext* cont
     keyData.fData64[1] = 18;
     GrResourceKey::ResourceType t = GrResourceKey::GenerateResourceType();
     GrResourceKey key(GrCacheID(domain, keyData), t, 0);
-
-    GrResourceCache cache(context->getGpu()->caps(), 5, 30000);
+    
+    context->setResourceCacheLimits(5, 30000);
+    GrResourceCache* cache = context->getResourceCache();
+    cache->purgeAllUnlocked();
+    SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
 
     // Add two resources with the same key that delete each other from the cache when destroyed.
     TestResource* a = new TestResource(context->getGpu());
     TestResource* b = new TestResource(context->getGpu());
-    cache.addResource(key, a);
-    cache.addResource(key, b);
+    cache->addResource(key, a);
+    cache->addResource(key, b);
     // Circle back.
-    a->setDeleteWhenDestroyed(&cache, b);
-    b->setDeleteWhenDestroyed(&cache, a);
+    a->setDeleteWhenDestroyed(cache, b);
+    b->setDeleteWhenDestroyed(cache, a);
     a->unref();
     b->unref();
 
     // Add a third independent resource also with the same key.
     GrGpuResource* r = new TestResource(context->getGpu());
-    cache.addResource(key, r);
+    cache->addResource(key, r);
     r->unref();
 
     // Invalidate all three, all three should be purged and destroyed.
-    REPORTER_ASSERT(reporter, 3 == TestResource::alive());
+    REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
     const GrResourceInvalidatedMessage msg = { key };
     SkMessageBus<GrResourceInvalidatedMessage>::Post(msg);
-    cache.purgeAsNeeded();
-    REPORTER_ASSERT(reporter, 0 == TestResource::alive());
+    cache->purgeAsNeeded();
+    REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
 }
 
 static void test_cache_delete_on_destruction(skiatest::Reporter* reporter,
@@ -154,38 +156,44 @@ static void test_cache_delete_on_destruction(skiatest::Reporter* reporter,
     GrResourceKey key(GrCacheID(domain, keyData), t, 0);
 
     {
-        {
-            GrResourceCache cache(context->getGpu()->caps(), 3, 30000);
-            TestResource* a = new TestResource(context->getGpu());
-            TestResource* b = new TestResource(context->getGpu());
-            cache.addResource(key, a);
-            cache.addResource(key, b);
+        context->setResourceCacheLimits(3, 30000);
+        GrResourceCache* cache = context->getResourceCache();
+        cache->purgeAllUnlocked();
+        SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
 
-            a->setDeleteWhenDestroyed(&cache, b);
-            b->setDeleteWhenDestroyed(&cache, a);
-
-            a->unref();
-            b->unref();
-            REPORTER_ASSERT(reporter, 2 == TestResource::alive());
-        }
-        REPORTER_ASSERT(reporter, 0 == TestResource::alive());
-    }
-    {
-        GrResourceCache cache(context->getGpu()->caps(), 3, 30000);
         TestResource* a = new TestResource(context->getGpu());
         TestResource* b = new TestResource(context->getGpu());
-        cache.addResource(key, a);
-        cache.addResource(key, b);
+        cache->addResource(key, a);
+        cache->addResource(key, b);
 
-        a->setDeleteWhenDestroyed(&cache, b);
-        b->setDeleteWhenDestroyed(&cache, a);
+        a->setDeleteWhenDestroyed(cache, b);
+        b->setDeleteWhenDestroyed(cache, a);
+
+        a->unref();
+        b->unref();
+        REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+        cache->purgeAllUnlocked();
+        REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
+    }
+    {
+        context->setResourceCacheLimits(3, 30000);
+        GrResourceCache* cache = context->getResourceCache();
+        cache->purgeAllUnlocked();
+        SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
+        TestResource* a = new TestResource(context->getGpu());
+        TestResource* b = new TestResource(context->getGpu());
+        cache->addResource(key, a);
+        cache->addResource(key, b);
+
+        a->setDeleteWhenDestroyed(cache, b);
+        b->setDeleteWhenDestroyed(cache, a);
 
         a->unref();
         b->unref();
 
-        cache.deleteResource(a->getCacheEntry());
+        cache->deleteResource(a->getCacheEntry());
 
-        REPORTER_ASSERT(reporter, 0 == TestResource::alive());
+        REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
     }
 }
 
@@ -206,48 +214,54 @@ static void test_resource_size_changed(skiatest::Reporter* reporter,
 
     // Test changing resources sizes (both increase & decrease).
     {
-        GrResourceCache cache(context->getGpu()->caps(), 2, 300);
+        context->setResourceCacheLimits(3, 30000);
+        GrResourceCache* cache = context->getResourceCache();
+        cache->purgeAllUnlocked();
+        SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
 
         TestResource* a = new TestResource(context->getGpu());
         a->setSize(100); // Test didChangeGpuMemorySize() when not in the cache.
-        cache.addResource(key1, a);
+        cache->addResource(key1, a);
         a->unref();
 
         TestResource* b = new TestResource(context->getGpu());
         b->setSize(100);
-        cache.addResource(key2, b);
+        cache->addResource(key2, b);
         b->unref();
 
-        REPORTER_ASSERT(reporter, 200 == cache.getCachedResourceBytes());
-        REPORTER_ASSERT(reporter, 2 == cache.getCachedResourceCount());
+        REPORTER_ASSERT(reporter, 200 == cache->getCachedResourceBytes());
+        REPORTER_ASSERT(reporter, 2 == cache->getCachedResourceCount());
 
-        static_cast<TestResource*>(cache.find(key2))->setSize(200);
-        static_cast<TestResource*>(cache.find(key1))->setSize(50);
+        static_cast<TestResource*>(cache->find(key2))->setSize(200);
+        static_cast<TestResource*>(cache->find(key1))->setSize(50);
 
-        REPORTER_ASSERT(reporter, 250 == cache.getCachedResourceBytes());
-        REPORTER_ASSERT(reporter, 2 == cache.getCachedResourceCount());
+        REPORTER_ASSERT(reporter, 250 == cache->getCachedResourceBytes());
+        REPORTER_ASSERT(reporter, 2 == cache->getCachedResourceCount());
     }
 
     // Test increasing a resources size beyond the cache budget.
     {
-        GrResourceCache cache(context->getGpu()->caps(), 2, 300);
+        context->setResourceCacheLimits(2, 300);
+        GrResourceCache* cache = context->getResourceCache();
+        cache->purgeAllUnlocked();
+        SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
 
         TestResource* a = new TestResource(context->getGpu(), 100);
-        cache.addResource(key1, a);
+        cache->addResource(key1, a);
         a->unref();
 
         TestResource* b = new TestResource(context->getGpu(), 100);
-        cache.addResource(key2, b);
+        cache->addResource(key2, b);
         b->unref();
 
-        REPORTER_ASSERT(reporter, 200 == cache.getCachedResourceBytes());
-        REPORTER_ASSERT(reporter, 2 == cache.getCachedResourceCount());
+        REPORTER_ASSERT(reporter, 200 == cache->getCachedResourceBytes());
+        REPORTER_ASSERT(reporter, 2 == cache->getCachedResourceCount());
 
-        static_cast<TestResource*>(cache.find(key2))->setSize(201);
-        REPORTER_ASSERT(reporter, NULL == cache.find(key1));
+        static_cast<TestResource*>(cache->find(key2))->setSize(201);
+        REPORTER_ASSERT(reporter, !cache->hasKey(key1));
 
-        REPORTER_ASSERT(reporter, 201 == cache.getCachedResourceBytes());
-        REPORTER_ASSERT(reporter, 1 == cache.getCachedResourceCount());
+        REPORTER_ASSERT(reporter, 201 == cache->getCachedResourceBytes());
+        REPORTER_ASSERT(reporter, 1 == cache->getCachedResourceCount());
     }
 }
 
@@ -262,7 +276,6 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
         if (NULL == context) {
             continue;
         }
-
         GrSurfaceDesc desc;
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -270,12 +283,19 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
         desc.fHeight = gHeight;
         SkImageInfo info = SkImageInfo::MakeN32Premul(gWidth, gHeight);
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, info));
-
         test_cache(reporter, context, surface->getCanvas());
-        test_purge_invalidated(reporter, context);
-        test_cache_delete_on_destruction(reporter, context);
-        test_resource_size_changed(reporter, context);
     }
+
+    // The below tests use a mock context.
+    SkAutoTUnref<GrContext> context(GrContext::CreateMockContext());
+    REPORTER_ASSERT(reporter, SkToBool(context));
+    if (NULL == context) {
+        return;
+    }
+
+    test_purge_invalidated(reporter, context);
+    test_cache_delete_on_destruction(reporter, context);
+    test_resource_size_changed(reporter, context);
 }
 
 #endif
