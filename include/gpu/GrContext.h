@@ -63,11 +63,6 @@ public:
      */
     static GrContext* Create(GrBackend, GrBackendContext, const Options* opts = NULL);
 
-    /**
-     * Only defined in test apps.
-     */
-    static GrContext* CreateMockContext();
-
     virtual ~GrContext();
 
     /**
@@ -983,8 +978,6 @@ private:
 
     GrContext(const Options&); // init must be called after the constructor.
     bool init(GrBackend, GrBackendContext);
-    void initMockContext();
-    void initCommon();
 
     void setupDrawBuffer();
 
