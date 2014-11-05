@@ -5670,6 +5670,24 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "dashing5_aa_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7046421740729151497
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "dashing5_bw_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10671864751655202970
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "dashing_565.png": {
       "allowed-digests": [
         [
