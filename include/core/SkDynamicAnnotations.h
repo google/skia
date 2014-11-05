@@ -42,7 +42,7 @@ inline T SK_ANNOTATE_UNPROTECTED_READ(const volatile T& x) {
 
 // Like SK_ANNOTATE_UNPROTECTED_READ, but for writes.
 template <typename T>
-inline void SK_ANNOTATE_UNPROTECTED_WRITE(T* ptr, const volatile T& val) {
+inline void SK_ANNOTATE_UNPROTECTED_WRITE(T* ptr, const T& val) {
     AnnotateIgnoreWritesBegin(__FILE__, __LINE__);
     *ptr = val;
     AnnotateIgnoreWritesEnd(__FILE__, __LINE__);
