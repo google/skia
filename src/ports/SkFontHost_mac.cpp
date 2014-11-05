@@ -351,6 +351,13 @@ Offscreen::Offscreen() : fRGBSpace(NULL), fCG(NULL),
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static bool find_dict_traits(CFDictionaryRef dict, CTFontSymbolicTraits* traits) {
+    CFNumberRef num;
+    return CFDictionaryGetValueIfPresent(dict, kCTFontSymbolicTrait, (const void**)&num)
+    && CFNumberIsFloatType(num)
+    && CFNumberGetValue(num, kCFNumberSInt32Type, traits);
+}
+
 static bool find_dict_float(CFDictionaryRef dict, CFStringRef name, float* value) {
     CFNumberRef num;
     return CFDictionaryGetValueIfPresent(dict, name, (const void**)&num)
@@ -378,44 +385,36 @@ static int unit_width_to_fontstyle(float unit) {
     return sk_float_round2int(value);
 }
 
-static SkFontStyle fontstyle_from_descriptor(CTFontDescriptorRef desc) {
+static SkFontStyle fontstyle_from_descriptor(CTFontDescriptorRef desc, bool* isFixedPitch) {
     AutoCFRelease<CFDictionaryRef> dict(
             (CFDictionaryRef)CTFontDescriptorCopyAttribute(desc, kCTFontTraitsAttribute));
     if (NULL == dict.get()) {
         return SkFontStyle();
     }
 
+    CTFontSymbolicTraits traits;
+    if (!find_dict_traits(dict, &traits)) {
+        traits = 0;
+    }
+    if (isFixedPitch) {
+        *isFixedPitch = SkToBool(traits & kCTFontMonoSpaceTrait);
+    }
+
     float weight, width, slant;
     if (!find_dict_float(dict, kCTFontWeightTrait, &weight)) {
-        weight = 0;
+        weight = (traits & kCTFontBoldTrait) ? 0.5f : 0;
     }
     if (!find_dict_float(dict, kCTFontWidthTrait, &width)) {
         width = 0;
     }
     if (!find_dict_float(dict, kCTFontSlantTrait, &slant)) {
-        slant = 0;
+        slant = (traits & kCTFontItalicTrait) ? 0.5f : 0;
     }
 
     return SkFontStyle(unit_weight_to_fontstyle(weight),
                        unit_width_to_fontstyle(width),
                        slant ? SkFontStyle::kItalic_Slant
                        : SkFontStyle::kUpright_Slant);
-}
-
-static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isFixedPitch) {
-    unsigned style = SkTypeface::kNormal;
-    CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(font);
-
-    if (traits & kCTFontBoldTrait) {
-        style |= SkTypeface::kBold;
-    }
-    if (traits & kCTFontItalicTrait) {
-        style |= SkTypeface::kItalic;
-    }
-    if (isFixedPitch) {
-        *isFixedPitch = (traits & kCTFontMonoSpaceTrait) != 0;
-    }
-    return (SkTypeface::Style)style;
 }
 
 static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
@@ -492,7 +491,8 @@ private:
 static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[], bool isLocalStream) {
     SkASSERT(fontRef);
     bool isFixedPitch;
-    SkFontStyle style = SkFontStyle(computeStyleBits(fontRef, &isFixedPitch));
+    AutoCFRelease<CTFontDescriptorRef> desc(CTFontCopyFontDescriptor(fontRef));
+    SkFontStyle style = fontstyle_from_descriptor(desc, &isFixedPitch);
     SkFontID fontID = CTFontRef_to_SkFontID(fontRef);
 
     return new SkTypeface_Mac(style, fontID, isFixedPitch, fontRef, name, isLocalStream);
@@ -2022,7 +2022,7 @@ static SkTypeface* createFromDesc(CFStringRef cfFamilyName, CTFontDescriptorRef 
     SkString skFamilyName;
     CFStringToSkString(cfFamilyName, &skFamilyName);
     cacheRequest.fName = skFamilyName.c_str();
-    cacheRequest.fStyle = fontstyle_from_descriptor(desc);
+    cacheRequest.fStyle = fontstyle_from_descriptor(desc, NULL);
 
     SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_NameStyle, &cacheRequest);
     if (face) {
@@ -2042,7 +2042,8 @@ static SkTypeface* createFromDesc(CFStringRef cfFamilyName, CTFontDescriptorRef 
     }
 
     bool isFixedPitch;
-    (void)computeStyleBits(ctFont, &isFixedPitch);
+    AutoCFRelease<CTFontDescriptorRef> ctFontDesc(CTFontCopyFontDescriptor(ctFont));
+    (void)fontstyle_from_descriptor(ctFontDesc, &isFixedPitch);
     SkFontID fontID = CTFontRef_to_SkFontID(ctFont);
 
     face = SkNEW_ARGS(SkTypeface_Mac, (cacheRequest.fStyle, fontID, isFixedPitch,
@@ -2077,7 +2078,7 @@ public:
         SkASSERT((unsigned)index < (unsigned)fCount);
         CTFontDescriptorRef desc = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fArray, index);
         if (style) {
-            *style = fontstyle_from_descriptor(desc);
+            *style = fontstyle_from_descriptor(desc, NULL);
         }
         if (name) {
             if (!find_desc_str(desc, kCTFontStyleNameAttribute, name)) {
@@ -2111,7 +2112,7 @@ private:
 
         for (int i = 0; i < fCount; ++i) {
             CTFontDescriptorRef desc = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fArray, i);
-            int metric = compute_metric(pattern, fontstyle_from_descriptor(desc));
+            int metric = compute_metric(pattern, fontstyle_from_descriptor(desc, NULL));
             if (0 == metric) {
                 return desc;
             }
