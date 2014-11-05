@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkGraphics_DEFINED
 #define SkGraphics_DEFINED
@@ -142,13 +140,6 @@ public:
      *  global font cache.
      */
     static void SetTLSFontCacheLimit(size_t bytes);
-
-private:
-    /** This is automatically called by SkGraphics::Init(), and must be
-        implemented by the host OS. This allows the host OS to register a callback
-        with the C++ runtime to call SkGraphics::FreeCaches()
-    */
-    static void InstallNewHandler();
 };
 
 class SkAutoGraphics {
