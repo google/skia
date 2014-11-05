@@ -414,8 +414,8 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathRange* pathRange,
     this->recordTraceMarkersIfNecessary();
 }
 
-void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color,
-                                bool canIgnoreRect, GrRenderTarget* renderTarget) {
+void GrInOrderDrawBuffer::onClear(const SkIRect* rect, GrColor color,
+                                  bool canIgnoreRect, GrRenderTarget* renderTarget) {
     SkIRect r;
     if (NULL == renderTarget) {
         renderTarget = this->drawState()->getRenderTarget();

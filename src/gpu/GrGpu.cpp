@@ -194,13 +194,13 @@ GrIndexBuffer* GrGpu::createInstancedIndexBuffer(const uint16_t* pattern,
     return buffer;
 }
 
-void GrGpu::clear(const SkIRect* rect,
-                  GrColor color,
-                  bool canIgnoreRect,
-                  GrRenderTarget* renderTarget) {
+void GrGpu::onClear(const SkIRect* rect,
+                    GrColor color,
+                    bool canIgnoreRect,
+                    GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
     this->handleDirtyContext();
-    this->onClear(renderTarget, rect, color, canIgnoreRect);
+    this->onGpuClear(renderTarget, rect, color, canIgnoreRect);
 }
 
 void GrGpu::clearStencilClip(const SkIRect& rect,

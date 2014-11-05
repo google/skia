@@ -395,8 +395,8 @@ public:
      * rect is NULL, otherwise just the rect. If canIgnoreRect is set then the entire render target
      * can be optionally cleared.
      */
-    virtual void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
-                       GrRenderTarget* renderTarget) = 0;
+    void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
+               GrRenderTarget* renderTarget);
 
     /**
      * Discards the contents render target.
@@ -854,6 +854,10 @@ private:
                              const uint32_t indices[], int count,
                              const float transforms[], PathTransformType,
                              GrPathRendering::FillType, const GrDeviceCoordTexture*) = 0;
+
+    virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
+                         GrRenderTarget* renderTarget) = 0;
+
 
     virtual void didAddGpuTraceMarker() = 0;
     virtual void didRemoveGpuTraceMarker() = 0;

@@ -266,9 +266,6 @@ public:
                             size_t rowBytes);
 
     // GrDrawTarget overrides
-    virtual void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
-                       GrRenderTarget* renderTarget) SK_OVERRIDE;
-
     virtual void clearStencilClip(const SkIRect& rect,
                                   bool insideClip,
                                   GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
@@ -374,7 +371,8 @@ private:
     virtual void releaseReservedIndexSpace() SK_OVERRIDE;
     virtual void geometrySourceWillPush() SK_OVERRIDE;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
-
+    virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
+                         GrRenderTarget* renderTarget) SK_OVERRIDE;
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
@@ -391,11 +389,9 @@ private:
     virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) = 0;
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) = 0;
 
-    // overridden by backend-specific derived class to perform the clear and
-    // clearRect. NULL rect means clear whole target. If canIgnoreRect is
-    // true, it is okay to perform a full clear instead of a partial clear
-    virtual void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
-                         bool canIgnoreRect) = 0;
+    // overridden by backend-specific derived class to perform the clear.
+    virtual void onGpuClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
+                            bool canIgnoreRect) = 0;
 
 
     // Overridden by backend specific classes to perform a clear of the stencil clip bits.  This is

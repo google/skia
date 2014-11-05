@@ -1356,8 +1356,8 @@ void GrGpuGL::disableScissor() {
     }
 }
 
-void GrGpuGL::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color,
-                      bool canIgnoreRect) {
+void GrGpuGL::onGpuClear(GrRenderTarget* target, const SkIRect* rect, GrColor color,
+                         bool canIgnoreRect) {
     // parent class should never let us get here with no RT
     SkASSERT(target);
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);

@@ -546,6 +546,31 @@ void GrDrawTarget::drawPaths(const GrPathRange* pathRange,
                       dstCopy.texture() ? &dstCopy : NULL);
 }
 
+void GrDrawTarget::clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
+                         GrRenderTarget* renderTarget) {
+    if (fCaps->useDrawInsteadOfClear()) {
+        // This works around a driver bug with clear by drawing a rect instead.
+        // The driver will ignore a clear if it is the only thing rendered to a
+        // target before the target is read.
+        SkIRect rtRect = SkIRect::MakeWH(renderTarget->width(), renderTarget->height());
+        if (NULL == rect || canIgnoreRect || rect->contains(rtRect)) {
+            rect = &rtRect;
+            // We first issue a discard() since that may help tilers.
+            this->discard(renderTarget);
+        }
+        AutoStateRestore asr(this, kReset_ASRInit, &SkMatrix::I());
+
+        this->drawState()->setColor(color);
+        this->drawState()->disableState(GrDrawState::kClip_StateBit);
+        this->drawState()->disableState(GrDrawState::kHWAntialias_StateBit);
+        this->drawState()->setRenderTarget(renderTarget);
+
+        this->drawSimpleRect(*rect);
+    } else {       
+        this->onClear(rect, color, canIgnoreRect, renderTarget);
+    }
+}
+
 typedef GrTraceMarkerSet::Iter TMIter;
 void GrDrawTarget::saveActiveTraceMarkers() {
     if (this->caps()->gpuTracingSupport()) {
@@ -969,6 +994,8 @@ void GrDrawTargetCaps::reset() {
     fGpuTracingSupport = false;
     fCompressedTexSubImageSupport = false;
 
+    fUseDrawInsteadOfClear = false;
+
     fMapBufferFlags = kNone_MapFlags;
 
     fMaxRenderTargetSize = 0;
@@ -994,6 +1021,8 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fReuseScratchTextures = other.fReuseScratchTextures;
     fGpuTracingSupport = other.fGpuTracingSupport;
     fCompressedTexSubImageSupport = other.fCompressedTexSubImageSupport;
+
+    fUseDrawInsteadOfClear = other.fUseDrawInsteadOfClear;
 
     fMapBufferFlags = other.fMapBufferFlags;
 
@@ -1030,25 +1059,29 @@ static SkString map_flags_to_string(uint32_t flags) {
 SkString GrDrawTargetCaps::dump() const {
     SkString r;
     static const char* gNY[] = {"NO", "YES"};
-    r.appendf("MIP Map Support              : %s\n", gNY[fMipMapSupport]);
-    r.appendf("NPOT Texture Tile Support    : %s\n", gNY[fNPOTTextureTileSupport]);
-    r.appendf("Two Sided Stencil Support    : %s\n", gNY[fTwoSidedStencilSupport]);
-    r.appendf("Stencil Wrap Ops  Support    : %s\n", gNY[fStencilWrapOpsSupport]);
-    r.appendf("HW AA Lines Support          : %s\n", gNY[fHWAALineSupport]);
-    r.appendf("Shader Derivative Support    : %s\n", gNY[fShaderDerivativeSupport]);
-    r.appendf("Geometry Shader Support      : %s\n", gNY[fGeometryShaderSupport]);
-    r.appendf("Dual Source Blending Support : %s\n", gNY[fDualSourceBlendingSupport]);
-    r.appendf("Path Rendering Support       : %s\n", gNY[fPathRenderingSupport]);
-    r.appendf("Dst Read In Shader Support   : %s\n", gNY[fDstReadInShaderSupport]);
-    r.appendf("Discard Render Target Support: %s\n", gNY[fDiscardRenderTargetSupport]);
-    r.appendf("Reuse Scratch Textures       : %s\n", gNY[fReuseScratchTextures]);
-    r.appendf("Gpu Tracing Support          : %s\n", gNY[fGpuTracingSupport]);
-    r.appendf("Compressed Update Support    : %s\n", gNY[fCompressedTexSubImageSupport]);
-    r.appendf("Max Texture Size             : %d\n", fMaxTextureSize);
-    r.appendf("Max Render Target Size       : %d\n", fMaxRenderTargetSize);
-    r.appendf("Max Sample Count             : %d\n", fMaxSampleCount);
+    r.appendf("MIP Map Support                    : %s\n", gNY[fMipMapSupport]);
+    r.appendf("NPOT Texture Tile Support          : %s\n", gNY[fNPOTTextureTileSupport]);
+    r.appendf("Two Sided Stencil Support          : %s\n", gNY[fTwoSidedStencilSupport]);
+    r.appendf("Stencil Wrap Ops  Support          : %s\n", gNY[fStencilWrapOpsSupport]);
+    r.appendf("HW AA Lines Support                : %s\n", gNY[fHWAALineSupport]);
+    r.appendf("Shader Derivative Support          : %s\n", gNY[fShaderDerivativeSupport]);
+    r.appendf("Geometry Shader Support            : %s\n", gNY[fGeometryShaderSupport]);
+    r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
+    r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
+    r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
+    r.appendf("Discard Render Target Support      : %s\n", gNY[fDiscardRenderTargetSupport]);
+    r.appendf("Reuse Scratch Textures             : %s\n", gNY[fReuseScratchTextures]);
+    r.appendf("Gpu Tracing Support                : %s\n", gNY[fGpuTracingSupport]);
+    r.appendf("Compressed Update Support          : %s\n", gNY[fCompressedTexSubImageSupport]);
 
-    r.appendf("Map Buffer Support           : %s\n", map_flags_to_string(fMapBufferFlags).c_str());
+    r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
+
+    r.appendf("Max Texture Size                   : %d\n", fMaxTextureSize);
+    r.appendf("Max Render Target Size             : %d\n", fMaxRenderTargetSize);
+    r.appendf("Max Sample Count                   : %d\n", fMaxSampleCount);
+
+    r.appendf("Map Buffer Support                 : %s\n",
+              map_flags_to_string(fMapBufferFlags).c_str());
 
     static const char* kConfigNames[] = {
         "Unknown",  // kUnknown_GrPixelConfig

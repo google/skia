@@ -191,7 +191,7 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
             return kQualcomm_GrGLVendor;
         }
         if (0 == strcmp(vendorString, "NVIDIA Corporation")) {
-                return kNVIDIA_GrGLVendor;
+            return kNVIDIA_GrGLVendor;
         }
     }
     return kOther_GrGLVendor;
@@ -203,6 +203,16 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
             return kTegra3_GrGLRenderer;
         } else if (0 == strcmp(rendererString, "NVIDIA Tegra")) {
             return kTegra2_GrGLRenderer;
+        }
+        int lastDigit;
+        int n = sscanf(rendererString, "PowerVR SGX 54%d", &lastDigit);
+        if (1 == n && lastDigit >= 0 && lastDigit <= 9) {
+            return kPowerVR54x_GrGLRenderer;
+        }
+        static const char kPowerVRRogueStr[] = "PowerVR Rogue";
+        if (0 == strncmp(rendererString, kPowerVRRogueStr,
+                         SK_ARRAY_COUNT(kPowerVRRogueStr)-1)) {
+            return kPowerVRRogue_GrGLRenderer;
         }
     }
     return kOther_GrGLRenderer;

@@ -43,7 +43,8 @@ enum GrGLVendor {
 enum GrGLRenderer {
     kTegra2_GrGLRenderer,
     kTegra3_GrGLRenderer,
-
+    kPowerVR54x_GrGLRenderer,
+    kPowerVRRogue_GrGLRenderer,
     kOther_GrGLRenderer
 };
 

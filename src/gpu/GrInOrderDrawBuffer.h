@@ -86,11 +86,6 @@ public:
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) SK_OVERRIDE;
 
-    virtual void clear(const SkIRect* rect,
-                       GrColor color,
-                       bool canIgnoreRect,
-                       GrRenderTarget* renderTarget) SK_OVERRIDE;
-
     virtual void clearStencilClip(const SkIRect& rect,
                                   bool insideClip,
                                   GrRenderTarget* renderTarget) SK_OVERRIDE;
@@ -274,6 +269,10 @@ private:
                              const uint32_t indices[], int count,
                              const float transforms[], PathTransformType,
                              GrPathRendering::FillType, const GrDeviceCoordTexture*) SK_OVERRIDE;
+    virtual void onClear(const SkIRect* rect,
+                         GrColor color,
+                         bool canIgnoreRect,
+                         GrRenderTarget* renderTarget) SK_OVERRIDE;
 
     virtual bool onReserveVertexSpace(size_t vertexSize,
                                       int vertexCount,

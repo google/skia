@@ -46,6 +46,8 @@ public:
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
     bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
 
+    bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
+
     /**
      * Indicates whether GPU->CPU memory mapping for GPU resources such as vertex buffers and
      * textures allows partial mappings or full mappings.
@@ -103,6 +105,9 @@ protected:
     bool fReuseScratchTextures      : 1;
     bool fGpuTracingSupport         : 1;
     bool fCompressedTexSubImageSupport : 1;
+
+    // Driver workaround
+    bool fUseDrawInsteadOfClear     : 1;
 
     uint32_t fMapBufferFlags;
 
