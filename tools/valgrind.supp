@@ -105,6 +105,7 @@
     font_config_bug_3
     Memcheck:Leak
     fun:*alloc
+    ...
     fun:FcConfigValues
     fun:FcConfigSubstituteWithPat
     fun:FcFontRenderPrepare
