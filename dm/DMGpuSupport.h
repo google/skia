@@ -36,7 +36,6 @@ enum GrGLStandard {
     kGL_GrGLStandard,
     kGLES_GrGLStandard
 };
-static const int kGrGLStandardCnt = 3;
 
 class GrContextFactory {
 public:
@@ -48,7 +47,6 @@ public:
                                kNVPR_GLContextType   = 0,
                                kNative_GLContextType = 0,
                                kNull_GLContextType   = 0;
-    static const int kGLContextTypeCnt = 1;
     void destroyContexts() {}
 
     void abandonContexts() {}
