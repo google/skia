@@ -73,6 +73,3 @@ polygons
 pathopsinverse
 rects
 
-#edgdaniel https://codereview.chromium.org/703783002/
-dashing
-
