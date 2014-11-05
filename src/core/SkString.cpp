@@ -90,11 +90,12 @@ char* SkStrAppendU32(char string[], uint32_t dec) {
 }
 
 char* SkStrAppendS32(char string[], int32_t dec) {
+    uint32_t udec = dec;
     if (dec < 0) {
         *string++ = '-';
-        dec = -dec;
+        udec = ~udec + 1;  // udec = -udec, but silences some warnings that are trying to be helpful
     }
-    return SkStrAppendU32(string, static_cast<uint32_t>(dec));
+    return SkStrAppendU32(string, udec);
 }
 
 char* SkStrAppendU64(char string[], uint64_t dec, int minDigits) {
@@ -124,11 +125,12 @@ char* SkStrAppendU64(char string[], uint64_t dec, int minDigits) {
 }
 
 char* SkStrAppendS64(char string[], int64_t dec, int minDigits) {
+    uint64_t udec = dec;
     if (dec < 0) {
         *string++ = '-';
-        dec = -dec;
+        udec = ~udec + 1;  // udec = -udec, but silences some warnings that are trying to be helpful
     }
-    return SkStrAppendU64(string, static_cast<uint64_t>(dec), minDigits);
+    return SkStrAppendU64(string, udec, minDigits);
 }
 
 char* SkStrAppendFloat(char string[], float value) {
