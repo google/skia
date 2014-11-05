@@ -22,6 +22,7 @@ enum GrGLStandard {
     kGL_GrGLStandard,
     kGLES_GrGLStandard,
 };
+static const int kGrGLStandardCnt = 3;
 
 ///////////////////////////////////////////////////////////////////////////////
 
