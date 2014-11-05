@@ -66,7 +66,7 @@ static bool cull_line(SkPoint* pts, const SkStrokeRec& rec,
     SkScalar dx = pts[1].x() - pts[0].x();
     SkScalar dy = pts[1].y() - pts[0].y();
 
-    if (dx && dy) {
+    if ((dx && dy) || (!dx && !dy)) {
         return false;
     }
 

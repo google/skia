@@ -34,6 +34,16 @@ static void show_giant_dash(SkCanvas* canvas) {
     drawline(canvas, 1, 1, paint, SkIntToScalar(20 * 1000));
 }
 
+static void show_zero_len_dash(SkCanvas* canvas) {
+    SkPaint paint;
+
+    drawline(canvas, 2, 2, paint, SkIntToScalar(0));
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(SkIntToScalar(2));
+    canvas->translate(0, SkIntToScalar(20));
+    drawline(canvas, 4, 4, paint, SkIntToScalar(0));
+}
+
 class DashingGM : public skiagm::GM {
 public:
     DashingGM() {}
@@ -81,6 +91,8 @@ protected:
         }
 
         show_giant_dash(canvas);
+        canvas->translate(0, SkIntToScalar(20));
+        show_zero_len_dash(canvas);
     }
 };
 

@@ -119,7 +119,7 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
         SkTSwap(minX, maxX);
     }
 
-    SkASSERT(minX < maxX);
+    SkASSERT(minX <= maxX);
     if (maxX < bounds.fLeft || minX > bounds.fRight) {
         return false;
     }
