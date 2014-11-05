@@ -4425,6 +4425,18 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "dashing5_aa_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11920207996336566373
+        ]
+      ], 
+      "bugs": [
+        3097
+      ], 
+      "reviewed-by-human": true
+    }, 
     "dashing5_aa_msaa4.png": {
       "allowed-digests": [
         [
@@ -4449,6 +4461,18 @@
           "bitmap-64bitMD5", 
           7974128150358619523
         ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "dashing5_bw_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11920207996336566373
+        ]
+      ], 
+      "bugs": [
+        3097
       ], 
       "reviewed-by-human": true
     }, 
