@@ -22,7 +22,8 @@ public:
               skiagm::GMRegistry::Factory,
               GrContextFactory::GLContextType,
               GrGLStandard gpuAPI,
-              int sampleCount);
+              int sampleCount,
+              bool useDFText);
 
     virtual void draw(GrContextFactory*) SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;
@@ -34,6 +35,7 @@ private:
     const GrContextFactory::GLContextType fContextType;
     GrGLStandard fGpuAPI;
     const int fSampleCount;
+    const bool fUseDFText;
 };
 
 }  // namespace DM

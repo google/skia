@@ -67,7 +67,7 @@ enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
 
 #define DO_DEFERRED_CLEAR()             \
     do {                                \
-        if (fNeedClear) {               \
+        if (fFlags & kNeedClear_Flag) {  \
             this->clear(SK_ColorTRANSPARENT); \
         }                               \
     } while (false)                     \
@@ -137,7 +137,7 @@ SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsign
 
     fContext = SkRef(surface->getContext());
 
-    fNeedClear = flags & kNeedClear_Flag;
+    fFlags = flags;
 
     fRenderTarget = SkRef(surface->asRenderTarget());
 
@@ -148,8 +148,8 @@ SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsign
 
     this->setPixelGeometry(props.pixelGeometry());
 
-    bool useDFFonts = !!(flags & kDFFonts_Flag);
-    fTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFFonts);
+    bool useDFT = SkToBool(flags & kDFText_Flag);
+    fTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFT);
 }
 
 SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo,
@@ -310,7 +310,7 @@ void SkGpuDevice::clear(SkColor color) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::clear", fContext);
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
     fContext->clear(&rect, SkColor2GrColor(color), true, fRenderTarget);
-    fNeedClear = false;
+    fFlags &= ~kNeedClear_Flag;
 }
 
 void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
@@ -1473,7 +1473,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     // clear of the source device must occur before CHECK_SHOULD_DRAW
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawDevice", fContext);
     SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
-    if (dev->fNeedClear) {
+    if (dev->fFlags & kNeedClear_Flag) {
         // TODO: could check here whether we really need to draw at all
         dev->clear(0x0);
     }
@@ -1763,6 +1763,8 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) 
     SkAutoTUnref<GrTexture> texture;
     // Skia's convention is to only clear a device if it is non-opaque.
     unsigned flags = info.isOpaque() ? 0 : kNeedClear_Flag;
+    // If we're using distance field text, enable in the new device
+    flags |= (fFlags & kDFText_Flag) ? kDFText_Flag : 0;
 
 #if CACHE_COMPATIBLE_DEVICE_TEXTURES
     // layers are never draw in repeat modes, so we can request an approx

@@ -39,7 +39,7 @@ SkSurface_Gpu::SkSurface_Gpu(GrRenderTarget* renderTarget, const SkSurfaceProps*
                              bool doClear)
         : INHERITED(renderTarget->width(), renderTarget->height(), props) {
     int deviceFlags = 0;
-    deviceFlags |= this->props().isUseDistanceFieldFonts() ? SkGpuDevice::kDFFonts_Flag : 0;
+    deviceFlags |= this->props().isUseDistanceFieldFonts() ? SkGpuDevice::kDFText_Flag : 0;
     fDevice = SkGpuDevice::Create(renderTarget, this->props(), deviceFlags);
 
     if (kRGB_565_GrPixelConfig != renderTarget->config() && doClear) {

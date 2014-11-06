@@ -34,7 +34,7 @@ class SK_API SkGpuDevice : public SkBaseDevice {
 public:
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
-        kDFFonts_Flag   = 1 << 1,  //!< Surface should render fonts using signed distance fields
+        kDFText_Flag   = 1 << 1,  //!< Surface should render text using signed distance fields
     };
 
     /**
@@ -136,8 +136,8 @@ private:
     GrTextContext*  fTextContext;
 
     // state for our render-target
-    GrRenderTarget*     fRenderTarget;
-    bool                fNeedClear;
+    GrRenderTarget* fRenderTarget;
+    uint32_t        fFlags;
 
     // remove when our clients don't rely on accessBitmap()
     SkBitmap fLegacyBitmap;
