@@ -64,7 +64,7 @@ GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
                                                        const SkDeviceProperties& properties,
                                                        bool enable)
                                                     : GrTextContext(context, properties) {
-#if SK_FORCE_DISTANCE_FIELD_TEXT
+#if SK_FORCE_DISTANCEFIELD_FONTS
     fEnableDFRendering = true;
 #else
     fEnableDFRendering = enable;

@@ -220,10 +220,6 @@ public:
     void setSampleCount(int sampleCount) {
         fSampleCount = sampleCount;
     }
-
-    void setUseDFText(bool useDFText) {
-        fUseDFText = useDFText;
-    }
 #endif
 
     void setDrawFilters(DrawFilterFlags const * const filters, const SkString& configName) {
@@ -278,8 +274,6 @@ public:
             case kGPU_DeviceType:
                 if (fSampleCount) {
                     config.appendf("_msaa%d", fSampleCount);
-                } else if (fUseDFText) {
-                    config.append("_gpudft");
                 } else {
                     config.append("_gpu");
                 }
@@ -331,8 +325,6 @@ public:
                     tmp = "msaa";
                     tmp.appendS32(fSampleCount);
                     result["config"] = tmp.c_str();
-                } else if (fUseDFText) {
-                    result["config"] = "gpudft";
                 } else {
                     result["config"] = "gpu";
                 }
@@ -436,7 +428,6 @@ public:
         , fGrContextFactory(opts)
         , fGrContext(NULL)
         , fSampleCount(0)
-        , fUseDFText(false)
 #endif
         {
             fGridInfo.fMargin.setEmpty();
@@ -504,7 +495,6 @@ private:
     GrContextFactory       fGrContextFactory;
     GrContext*             fGrContext;
     int                    fSampleCount;
-    bool                   fUseDFText;
 #endif
 
     virtual SkString getConfigNameInternal() = 0;

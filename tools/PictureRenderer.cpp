@@ -161,10 +161,8 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
                 return NULL;
             }
 
-            uint32_t flags = fUseDFText ? SkGpuDevice::kDFText_Flag : 0;
             SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(target,
-                                         SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
-                                         flags));
+                                         SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)));
             canvas = SkNEW_ARGS(SkCanvas, (device.get()));
             break;
         }
