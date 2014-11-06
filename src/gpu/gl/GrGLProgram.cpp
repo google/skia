@@ -232,8 +232,7 @@ void GrGLProgram::setCoverage(const GrOptDrawState& optState, uint8_t coverage) 
         case GrProgramDesc::kUniform_ColorInput:
             if (fCoverage != coverage) {
                 // OpenGL ES doesn't support unsigned byte varieties of glUniform
-                static const float ONE_OVER_255 = 1.f / 255.f;
-                GrGLfloat c = coverage * ONE_OVER_255;
+                GrGLfloat c = GrNormalizeByteToFloat(coverage);
                 fProgramDataManager.set1f(fBuiltinUniformHandles.fCoverageUni, c);
                 fCoverage = coverage;
             }

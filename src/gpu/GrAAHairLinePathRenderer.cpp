@@ -423,7 +423,7 @@ int generate_lines_and_quads(const SkPath& path,
 
 struct LineVertex {
     SkPoint fPos;
-    GrColor fCoverage;
+    float fCoverage;
 };
 
 struct BezierVertex {
@@ -594,7 +594,7 @@ void add_quads(const SkPoint p[3],
 
 void add_line(const SkPoint p[2],
               const SkMatrix* toSrc,
-              GrColor coverage,
+              uint8_t coverage,
               LineVertex** vert) {
     const SkPoint& a = p[0];
     const SkPoint& b = p[1];
@@ -607,10 +607,12 @@ void add_line(const SkPoint p[2],
         ortho.fX = 2.0f * vec.fY;
         ortho.fY = -2.0f * vec.fX;
 
+        float floatCoverage = GrNormalizeByteToFloat(coverage);
+
         (*vert)[0].fPos = a;
-        (*vert)[0].fCoverage = coverage;
+        (*vert)[0].fCoverage = floatCoverage;
         (*vert)[1].fPos = b;
-        (*vert)[1].fCoverage = coverage;
+        (*vert)[1].fCoverage = floatCoverage;
         (*vert)[2].fPos = a - vec + ortho;
         (*vert)[2].fCoverage = 0;
         (*vert)[3].fPos = b + vec + ortho;
@@ -650,7 +652,7 @@ extern const GrVertexAttrib gHairlineBezierAttribs[] = {
 // position + coverage
 extern const GrVertexAttrib gHairlineLineAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
-    {kUByte_GrVertexAttribType, sizeof(SkPoint), kCoverage_GrVertexAttribBinding},
+    {kFloat_GrVertexAttribType, sizeof(SkPoint), kCoverage_GrVertexAttribBinding},
 };
 
 };
@@ -686,7 +688,7 @@ bool GrAAHairLinePathRenderer::createLineGeom(const SkPath& path,
     }
     devBounds->set(lines.begin(), lines.count());
     for (int i = 0; i < lineCnt; ++i) {
-        add_line(&lines[2*i], toSrc, drawState->getCoverageColor(), &verts);
+        add_line(&lines[2*i], toSrc, drawState->getCoverage(), &verts);
     }
     // All the verts computed by add_line are within sqrt(1^2 + 0.5^2) of the end points.
     static const SkScalar kSqrtOfOneAndAQuarter = 1.118f;

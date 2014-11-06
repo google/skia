@@ -265,7 +265,7 @@ namespace {
 extern const GrVertexAttrib gAARectAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,                                 kPosition_GrVertexAttribBinding},
     {kVec4ub_GrVertexAttribType, sizeof(SkPoint),                   kColor_GrVertexAttribBinding},
-    {kUByte_GrVertexAttribType, sizeof(SkPoint) + sizeof(SkColor), kCoverage_GrVertexAttribBinding},
+    {kFloat_GrVertexAttribType, sizeof(SkPoint) + sizeof(SkColor),  kCoverage_GrVertexAttribBinding},
 };
 
 // Should the coverage be multiplied into the color attrib or use a separate attrib.
@@ -280,7 +280,8 @@ static CoverageAttribType set_rect_attribs(GrDrawState* drawState) {
         drawState->setVertexAttribs<gAARectAttribs>(2, sizeof(SkPoint) + sizeof(SkColor));
         return kUseColor_CoverageAttribType;
     } else {
-        drawState->setVertexAttribs<gAARectAttribs>(3, sizeof(SkPoint) + 2 * sizeof(SkColor));
+        drawState->setVertexAttribs<gAARectAttribs>(3, sizeof(SkPoint) + sizeof(SkColor) +
+                                                       sizeof(float));
         return kUseCoverage_CoverageAttribType;
     }
 }
@@ -512,7 +513,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     for (int i = 0; i < 4; ++i) {
         if (kUseCoverage_CoverageAttribType == covAttribType) {
             *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
-            *reinterpret_cast<GrColor*>(verts + i * vstride + sizeof(GrColor)) = 0;
+            *reinterpret_cast<float*>(verts + i * vstride + sizeof(GrColor)) = 0;
         } else {
             *reinterpret_cast<GrColor*>(verts + i * vstride) = 0;
         }
@@ -526,19 +527,17 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
         scale = 0xff;
     }
 
-    GrColor innerCoverage;
-    if (kUseCoverage_CoverageAttribType == covAttribType) {
-        innerCoverage = GrColorPackRGBA(scale, scale, scale, scale); 
-    } else {
-        innerCoverage = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
-    }
     verts += 4 * vstride;
+
+    float innerCoverage = GrNormalizeByteToFloat(scale);
+    GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
+
     for (int i = 0; i < 4; ++i) {
         if (kUseCoverage_CoverageAttribType == covAttribType) {
             *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
-            *reinterpret_cast<GrColor*>(verts + i * vstride + sizeof(GrColor)) = innerCoverage;
+            *reinterpret_cast<float*>(verts + i * vstride + sizeof(GrColor)) = innerCoverage;
         } else {
-            *reinterpret_cast<GrColor*>(verts + i * vstride) = innerCoverage;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = scaledColor; 
         }
     }
 
@@ -850,7 +849,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     for (int i = 0; i < outerVertexNum; ++i) {
         if (kUseCoverage_CoverageAttribType == covAttribType) {
             *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
-            *reinterpret_cast<GrColor*>(verts + i * vstride + sizeof(GrColor)) = 0;
+            *reinterpret_cast<float*>(verts + i * vstride + sizeof(GrColor)) = 0;
         } else {
             *reinterpret_cast<GrColor*>(verts + i * vstride) = 0;
         }
@@ -865,20 +864,16 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
         scale = 0xff;
     }
 
-    verts += outerVertexNum * vstride;
-    GrColor innerCoverage;
-    if (kUseCoverage_CoverageAttribType == covAttribType) {
-        innerCoverage = GrColorPackRGBA(scale, scale, scale, scale);
-    } else {
-        innerCoverage = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
-    }
+    float innerCoverage = GrNormalizeByteToFloat(scale);
+    GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
 
+    verts += outerVertexNum * vstride;
     for (int i = 0; i < outerVertexNum + innerVertexNum; ++i) {
         if (kUseCoverage_CoverageAttribType == covAttribType) {
             *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
-            *reinterpret_cast<GrColor*>(verts + i * vstride + sizeof(GrColor)) = innerCoverage;
+            *reinterpret_cast<float*>(verts + i * vstride + sizeof(GrColor)) = innerCoverage;
         } else {
-            *reinterpret_cast<GrColor*>(verts + i * vstride) = innerCoverage;
+            *reinterpret_cast<GrColor*>(verts + i * vstride) = scaledColor;
         }
     }
 

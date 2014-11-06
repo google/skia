@@ -88,6 +88,12 @@ static inline void GrColorToRGBAFloat(GrColor color, float rgba[4]) {
     rgba[3] = GrColorUnpackA(color) * ONE_OVER_255;
 }
 
+/** Normalizes and coverts an uint8_t to a float. [0, 255] -> [0.0, 1.0] */
+static inline float GrNormalizeByteToFloat(uint8_t value) {
+    static const float ONE_OVER_255 = 1.f / 255.f;
+    return value * ONE_OVER_255;
+}
+
 /** Determines whether the color is opaque or not. */
 static inline bool GrColorIsOpaque(GrColor color) {
     return (color & (0xFFU << GrColor_SHIFT_A)) == (0xFFU << GrColor_SHIFT_A);
