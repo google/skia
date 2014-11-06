@@ -125,7 +125,8 @@ static int detect_forever_loops(int loops) {
 
 static int clamp_loops(int loops) {
     if (loops < 1) {
-        SkDebugf("ERROR: clamping loops from %d to 1.\n", loops);
+        SkDebugf("ERROR: clamping loops from %d to 1. "
+                 "There's probably something wrong with the bench.\n", loops);
         return 1;
     }
     if (loops > FLAGS_maxLoops) {
@@ -228,6 +229,11 @@ static int gpu_bench(SkGLContext* gl,
         loops = 1;
         double elapsed = 0;
         do {
+            if (1<<30 == loops) {
+                // We're about to wrap.  Something's wrong with the bench.
+                loops = 0;
+                break;
+            }
             loops *= 2;
             // If the GPU lets frames lag at all, we need to make sure we're timing
             // _this_ round, not still timing last round.  We force this by looping
