@@ -54,8 +54,6 @@ public:
     // state.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
 
-    bool programUnitTest(int maxStages);
-
     // GrGpu overrides
     virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig readConfig,
                                                     GrPixelConfig surfaceConfig) const SK_OVERRIDE;

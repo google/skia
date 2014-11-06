@@ -451,6 +451,14 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type,
                                int indexCount,
                                const SkRect* devBounds) {
     if (indexCount > 0 && this->checkDraw(type, startVertex, startIndex, vertexCount, indexCount)) {
+        // Setup clip
+        GrClipMaskManager::ScissorState scissorState;
+        GrDrawState::AutoRestoreEffects are;
+        GrDrawState::AutoRestoreStencil ars;
+        if (!this->setupClip(devBounds, &are, &ars, &scissorState)) {
+            return;
+        }
+
         DrawInfo info;
         info.fPrimitiveType = type;
         info.fStartVertex   = startVertex;
@@ -469,7 +477,7 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type,
         if (!this->setupDstReadIfNecessary(&info)) {
             return;
         }
-        this->onDraw(info);
+        this->onDraw(info, scissorState);
     }
 }
 
@@ -478,6 +486,14 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
                                   int vertexCount,
                                   const SkRect* devBounds) {
     if (vertexCount > 0 && this->checkDraw(type, startVertex, -1, vertexCount, -1)) {
+        // Setup clip
+        GrClipMaskManager::ScissorState scissorState;
+        GrDrawState::AutoRestoreEffects are;
+        GrDrawState::AutoRestoreStencil ars;
+        if (!this->setupClip(devBounds, &are, &ars, &scissorState)) {
+            return;
+        }
+
         DrawInfo info;
         info.fPrimitiveType = type;
         info.fStartVertex   = startVertex;
@@ -492,19 +508,67 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
         if (devBounds) {
             info.setDevBounds(*devBounds);
         }
+
         // TODO: We should continue with incorrect blending.
         if (!this->setupDstReadIfNecessary(&info)) {
             return;
         }
-        this->onDraw(info);
+        this->onDraw(info, scissorState);
     }
+}
+
+static const GrStencilSettings& winding_path_stencil_settings() {
+    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
+        kIncClamp_StencilOp,
+        kIncClamp_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        0xFFFF, 0xFFFF, 0xFFFF);
+    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
+}
+
+static const GrStencilSettings& even_odd_path_stencil_settings() {
+    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
+        kInvert_StencilOp,
+        kInvert_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        0xFFFF, 0xFFFF, 0xFFFF);
+    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
+}
+
+void GrDrawTarget::getPathStencilSettingsForFilltype(GrPathRendering::FillType fill,
+                                                     GrStencilSettings* outStencilSettings) {
+
+    switch (fill) {
+        default:
+            SkFAIL("Unexpected path fill.");
+        case GrPathRendering::kWinding_FillType:
+            *outStencilSettings = winding_path_stencil_settings();
+            break;
+        case GrPathRendering::kEvenOdd_FillType:
+            *outStencilSettings = even_odd_path_stencil_settings();
+            break;
+    }
+    this->clipMaskManager()->adjustPathStencilParams(outStencilSettings);
 }
 
 void GrDrawTarget::stencilPath(const GrPath* path, GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(path);
     SkASSERT(this->caps()->pathRenderingSupport());
-    this->onStencilPath(path, fill);
+
+    // Setup clip
+    GrClipMaskManager::ScissorState scissorState;
+    GrDrawState::AutoRestoreEffects are;
+    GrDrawState::AutoRestoreStencil ars;
+    if (!this->setupClip(NULL, &are, &ars, &scissorState)) {
+        return;
+    }
+
+    // set stencil settings for path
+    GrStencilSettings stencilSettings;
+    this->getPathStencilSettingsForFilltype(fill, &stencilSettings);
+
+    this->onStencilPath(path, scissorState, stencilSettings);
 }
 
 void GrDrawTarget::drawPath(const GrPath* path, GrPathRendering::FillType fill) {
@@ -516,12 +580,24 @@ void GrDrawTarget::drawPath(const GrPath* path, GrPathRendering::FillType fill) 
     SkMatrix viewM = this->drawState()->getViewMatrix();
     viewM.mapRect(&devBounds);
 
+    // Setup clip
+    GrClipMaskManager::ScissorState scissorState;
+    GrDrawState::AutoRestoreEffects are;
+    GrDrawState::AutoRestoreStencil ars;
+    if (!this->setupClip(&devBounds, &are, &ars, &scissorState)) {
+       return;
+    }
+
+    // set stencil settings for path
+    GrStencilSettings stencilSettings;
+    this->getPathStencilSettingsForFilltype(fill, &stencilSettings);
+
     GrDeviceCoordTexture dstCopy;
     if (!this->setupDstReadIfNecessary(&dstCopy, &devBounds)) {
         return;
     }
 
-    this->onDrawPath(path, fill, dstCopy.texture() ? &dstCopy : NULL);
+    this->onDrawPath(path, scissorState, stencilSettings, dstCopy.texture() ? &dstCopy : NULL);
 }
 
 void GrDrawTarget::drawPaths(const GrPathRange* pathRange,
@@ -533,6 +609,19 @@ void GrDrawTarget::drawPaths(const GrPathRange* pathRange,
     SkASSERT(indices);
     SkASSERT(transforms);
 
+    // Setup clip
+    GrClipMaskManager::ScissorState scissorState;
+    GrDrawState::AutoRestoreEffects are;
+    GrDrawState::AutoRestoreStencil ars;
+
+    if (!this->setupClip(NULL, &are, &ars, &scissorState)) {
+        return;
+    }
+
+    // set stencil settings for path
+    GrStencilSettings stencilSettings;
+    this->getPathStencilSettingsForFilltype(fill, &stencilSettings);
+
     // Don't compute a bounding box for setupDstReadIfNecessary(), we'll opt
     // instead for it to just copy the entire dst. Realistically this is a moot
     // point, because any context that supports NV_path_rendering will also
@@ -542,8 +631,8 @@ void GrDrawTarget::drawPaths(const GrPathRange* pathRange,
         return;
     }
 
-    this->onDrawPaths(pathRange, indices, count, transforms, transformsType, fill,
-                      dstCopy.texture() ? &dstCopy : NULL);
+    this->onDrawPaths(pathRange, indices, count, transforms, transformsType, scissorState,
+                      stencilSettings, dstCopy.texture() ? &dstCopy : NULL);
 }
 
 void GrDrawTarget::clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
@@ -628,6 +717,14 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
         return;
     }
 
+    // Setup clip
+    GrClipMaskManager::ScissorState scissorState;
+    GrDrawState::AutoRestoreEffects are;
+    GrDrawState::AutoRestoreStencil ars;
+    if (!this->setupClip(devBounds, &are, &ars, &scissorState)) {
+        return;
+    }
+
     DrawInfo info;
     info.fPrimitiveType = type;
     info.fStartIndex = 0;
@@ -654,7 +751,7 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
                             info.fStartIndex,
                             info.fVertexCount,
                             info.fIndexCount)) {
-            this->onDraw(info);
+            this->onDraw(info, scissorState);
         }
         info.fStartVertex += info.fVertexCount;
         instanceCount -= info.fInstanceCount;
@@ -1141,3 +1238,15 @@ uint32_t GrDrawTargetCaps::CreateUniqueID() {
     return id;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool GrClipTarget::setupClip(const SkRect* devBounds,
+                             GrDrawState::AutoRestoreEffects* are,
+                             GrDrawState::AutoRestoreStencil* ars,
+                             GrClipMaskManager::ScissorState* scissorState) {
+    return fClipMaskManager.setupClipping(this->getClip(),
+                                          devBounds,
+                                          are,
+                                          ars,
+                                          scissorState);
+}

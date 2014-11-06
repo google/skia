@@ -266,29 +266,6 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::setupClipAndFlushState(DrawType type,
-                                   const GrDeviceCoordTexture* dstCopy,
-                                   const SkRect* devBounds,
-                                   GrDrawState::AutoRestoreEffects* are,
-                                   GrDrawState::AutoRestoreStencil* ars) {
-    GrClipMaskManager::ScissorState scissorState;
-    if (!fClipMaskManager.setupClipping(this->getClip(),
-                                        devBounds,
-                                        are,
-                                        ars,
-                                        &scissorState)) {
-        return false;
-    }
-
-    if (!this->flushGraphicsState(type, scissorState, dstCopy)) {
-        return false;
-    }
-
-    return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void GrGpu::geometrySourceWillPush() {
     const GeometrySrcState& geoSrc = this->getGeomSrc();
     if (kReserved_GeometrySrcType == geoSrc.fVertexSrc) {
@@ -314,108 +291,59 @@ void GrGpu::geometrySourceWillPop(const GeometrySrcState& restoredState) {
     fGeomPoolStateStack.pop_back();
 }
 
-void GrGpu::onDraw(const DrawInfo& info) {
+void GrGpu::onDraw(const DrawInfo& info, const GrClipMaskManager::ScissorState& scissorState) {
     this->handleDirtyContext();
-    GrDrawState::AutoRestoreEffects are;
-    GrDrawState::AutoRestoreStencil ars;
-    if (!this->setupClipAndFlushState(PrimTypeToDrawType(info.primitiveType()),
-                                      info.getDstCopy(),
-                                      info.getDevBounds(),
-                                      &are,
-                                      &ars)) {
+    if (!this->flushGraphicsState(PrimTypeToDrawType(info.primitiveType()),
+                                  scissorState,
+                                  info.getDstCopy())) {
         return;
     }
     this->onGpuDraw(info);
 }
 
-
-// TODO hack
-static const GrStencilSettings& winding_path_stencil_settings() {
-    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
-        kIncClamp_StencilOp,
-        kIncClamp_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0xFFFF, 0xFFFF, 0xFFFF);
-    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
-}
-
-static const GrStencilSettings& even_odd_path_stencil_settings() {
-    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
-        kInvert_StencilOp,
-        kInvert_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0xFFFF, 0xFFFF, 0xFFFF);
-    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
-}
-
-static void get_path_stencil_settings_for_filltype(GrPathRendering::FillType fill,
-                                                   GrStencilSettings* outStencilSettings) {
-
-    switch (fill) {
-        default:
-            SkFAIL("Unexpected path fill.");
-        case GrPathRendering::kWinding_FillType:
-            *outStencilSettings = winding_path_stencil_settings();
-            break;
-        case GrPathRendering::kEvenOdd_FillType:
-            *outStencilSettings = even_odd_path_stencil_settings();
-            break;
-    }
-}
-
-void GrGpu::onStencilPath(const GrPath* path, GrPathRendering::FillType fill) {
+void GrGpu::onStencilPath(const GrPath* path,
+                          const GrClipMaskManager::ScissorState& scissorState,
+                          const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
 
-    GrDrawState::AutoRestoreEffects are;
-    GrDrawState::AutoRestoreStencil ars;
-    if (!this->setupClipAndFlushState(kStencilPath_DrawType, NULL, NULL, &are, &ars)) {
+    if (!this->flushGraphicsState(kStencilPath_DrawType, scissorState, NULL)) {
         return;
     }
-
-    GrStencilSettings stencilSettings;
-    get_path_stencil_settings_for_filltype(fill, &stencilSettings);
-    fClipMaskManager.adjustPathStencilParams(&stencilSettings);
 
     this->pathRendering()->stencilPath(path, stencilSettings);
 }
 
 
-void GrGpu::onDrawPath(const GrPath* path, GrPathRendering::FillType fill,
+void GrGpu::onDrawPath(const GrPath* path,
+                       const GrClipMaskManager::ScissorState& scissorState,
+                       const GrStencilSettings& stencilSettings,
                        const GrDeviceCoordTexture* dstCopy) {
     this->handleDirtyContext();
 
     drawState()->setDefaultVertexAttribs();
 
-    GrDrawState::AutoRestoreEffects are;
-    GrDrawState::AutoRestoreStencil ars;
-    if (!this->setupClipAndFlushState(kDrawPath_DrawType, dstCopy, NULL, &are, &ars)) {
+    if (!this->flushGraphicsState(kDrawPath_DrawType, scissorState, dstCopy)) {
         return;
     }
-
-    GrStencilSettings stencilSettings;
-    get_path_stencil_settings_for_filltype(fill, &stencilSettings);
-    fClipMaskManager.adjustPathStencilParams(&stencilSettings);
 
     this->pathRendering()->drawPath(path, stencilSettings);
 }
 
 void GrGpu::onDrawPaths(const GrPathRange* pathRange,
-                        const uint32_t indices[], int count,
-                        const float transforms[], PathTransformType transformsType,
-                        GrPathRendering::FillType fill, const GrDeviceCoordTexture* dstCopy) {
+                        const uint32_t indices[],
+                        int count,
+                        const float transforms[],
+                        PathTransformType transformsType,
+                        const GrClipMaskManager::ScissorState& scissorState,
+                        const GrStencilSettings& stencilSettings,
+                        const GrDeviceCoordTexture* dstCopy) {
     this->handleDirtyContext();
 
     drawState()->setDefaultVertexAttribs();
 
-    GrDrawState::AutoRestoreEffects are;
-    GrDrawState::AutoRestoreStencil ars;
-    if (!this->setupClipAndFlushState(kDrawPaths_DrawType, dstCopy, NULL, &are, &ars)) {
+    if (!this->flushGraphicsState(kDrawPaths_DrawType, scissorState, dstCopy)) {
         return;
     }
-
-    GrStencilSettings stencilSettings;
-    get_path_stencil_settings_for_filltype(fill, &stencilSettings);
-    fClipMaskManager.adjustPathStencilParams(&stencilSettings);
 
     pathRange->willDrawPaths(indices, count);
     this->pathRendering()->drawPaths(pathRange, indices, count, transforms, transformsType,

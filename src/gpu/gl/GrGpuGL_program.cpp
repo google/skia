@@ -257,15 +257,9 @@ bool GrGpuGL::flushGraphicsState(DrawType type,
     this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
     this->flushAAState(*optState.get(), type);
 
-    SkIRect* devRect = NULL;
-    SkIRect devClipBounds;
-    if (optState->isClipState()) {
-        this->getClip()->getConservativeBounds(optState->getRenderTarget(), &devClipBounds);
-        devRect = &devClipBounds;
-    }
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(glRT, devRect);
+    this->flushRenderTarget(glRT, NULL);
 
     return true;
 }

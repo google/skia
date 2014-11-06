@@ -326,13 +326,6 @@ protected:
         }
     }
 
-    // prepares clip flushes gpu state before a draw
-    bool setupClipAndFlushState(DrawType,
-                                const GrDeviceCoordTexture* dstCopy,
-                                const SkRect* devBounds,
-                                GrDrawState::AutoRestoreEffects*,
-                                GrDrawState::AutoRestoreStencil*);
-
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.
     static GrStencilFunc ConvertStencilFunc(bool stencilInClip,
@@ -442,14 +435,22 @@ private:
     bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
 
     // GrDrawTarget overrides
-    virtual void onDraw(const DrawInfo&) SK_OVERRIDE;
-    virtual void onStencilPath(const GrPath*, GrPathRendering::FillType) SK_OVERRIDE;
-    virtual void onDrawPath(const GrPath*, GrPathRendering::FillType,
+    virtual void onDraw(const DrawInfo&, const GrClipMaskManager::ScissorState&) SK_OVERRIDE;
+    virtual void onStencilPath(const GrPath*,
+                               const GrClipMaskManager::ScissorState&,
+                               const GrStencilSettings&) SK_OVERRIDE;
+    virtual void onDrawPath(const GrPath*,
+                            const GrClipMaskManager::ScissorState&,
+                            const GrStencilSettings&,
                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     virtual void onDrawPaths(const GrPathRange*,
-                             const uint32_t indices[], int count,
-                             const float transforms[], PathTransformType,
-                             GrPathRendering::FillType, const GrDeviceCoordTexture*) SK_OVERRIDE;
+                             const uint32_t indices[],
+                             int count,
+                             const float transforms[],
+                             PathTransformType,
+                             const GrClipMaskManager::ScissorState&,
+                             const GrStencilSettings&,
+                             const GrDeviceCoordTexture*) SK_OVERRIDE;
 
     // readies the pools to provide vertex/index data.
     void prepareVertexPool();

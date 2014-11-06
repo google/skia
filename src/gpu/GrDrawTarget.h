@@ -463,25 +463,43 @@ public:
     /**
      * For subclass internal use to invoke a call to onDraw(). See DrawInfo below.
      */
-    void executeDraw(const DrawInfo& info) { this->onDraw(info); }
+    void executeDraw(const DrawInfo& info,
+                     const GrClipMaskManager::ScissorState& scissorState) {
+        this->onDraw(info, scissorState);
+    }
+
+    /**
+     * For subclass internal use to invoke a call to onStencilPath().
+     */
+    void executeStencilPath(const GrPath* path,
+                            const GrClipMaskManager::ScissorState& scissorState,
+                            const GrStencilSettings& stencilSettings) {
+        this->onStencilPath(path, scissorState, stencilSettings);
+    }
 
     /**
      * For subclass internal use to invoke a call to onDrawPath().
      */
-    void executeDrawPath(const GrPath* path, GrPathRendering::FillType fill,
+    void executeDrawPath(const GrPath* path,
+                         const GrClipMaskManager::ScissorState& scissorState,
+                         const GrStencilSettings& stencilSettings,
                          const GrDeviceCoordTexture* dstCopy) {
-        this->onDrawPath(path, fill, dstCopy);
+        this->onDrawPath(path, scissorState, stencilSettings, dstCopy);
     }
 
     /**
      * For subclass internal use to invoke a call to onDrawPaths().
      */
     void executeDrawPaths(const GrPathRange* pathRange,
-                          const uint32_t indices[], int count,
-                          const float transforms[], PathTransformType transformsType,
-                          GrPathRendering::FillType fill,
+                          const uint32_t indices[],
+                          int count,
+                          const float transforms[],
+                          PathTransformType transformsType,
+                          const GrClipMaskManager::ScissorState& scissorState,
+                          const GrStencilSettings& stencilSettings,
                           const GrDeviceCoordTexture* dstCopy) {
-        this->onDrawPaths(pathRange, indices, count, transforms, transformsType, fill, dstCopy);
+        this->onDrawPaths(pathRange, indices, count, transforms, transformsType,
+                          scissorState, stencilSettings, dstCopy);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -672,6 +690,9 @@ public:
 
     virtual DrawToken getCurrentDrawToken() { return DrawToken(this, 0); }
 
+
+    bool programUnitTest(int maxStages);
+
 protected:
     // Extend access to GrDrawState::convertToPEndeingExec to subclasses.
     void convertDrawStateToPendingExec(GrDrawState* ds) {
@@ -836,7 +857,7 @@ private:
     virtual void geometrySourceWillPush() = 0;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;
     // subclass called to perform drawing
-    virtual void onDraw(const DrawInfo&) = 0;
+    virtual void onDraw(const DrawInfo&, const GrClipMaskManager::ScissorState&) = 0;
     // Implementation of drawRect. The geometry src and vertex attribs will already
     // be saved before this is called and restored afterwards. A subclass may override
     // this to perform more optimal rect rendering. Its draws should be funneled through
@@ -847,13 +868,21 @@ private:
                             const SkRect* localRect,
                             const SkMatrix* localMatrix);
 
-    virtual void onStencilPath(const GrPath*, GrPathRendering::FillType) = 0;
-    virtual void onDrawPath(const GrPath*, GrPathRendering::FillType,
+    virtual void onStencilPath(const GrPath*,
+                               const GrClipMaskManager::ScissorState&,
+                               const GrStencilSettings&) = 0;
+    virtual void onDrawPath(const GrPath*,
+                            const GrClipMaskManager::ScissorState&,
+                            const GrStencilSettings&,
                             const GrDeviceCoordTexture* dstCopy) = 0;
     virtual void onDrawPaths(const GrPathRange*,
-                             const uint32_t indices[], int count,
-                             const float transforms[], PathTransformType,
-                             GrPathRendering::FillType, const GrDeviceCoordTexture*) = 0;
+                             const uint32_t indices[],
+                             int count,
+                             const float transforms[],
+                             PathTransformType,
+                             const GrClipMaskManager::ScissorState&,
+                             const GrStencilSettings&,
+                             const GrDeviceCoordTexture*) = 0;
 
     virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
                          GrRenderTarget* renderTarget) = 0;
@@ -879,7 +908,12 @@ private:
 
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }
+    void getPathStencilSettingsForFilltype(GrPathRendering::FillType, GrStencilSettings*);
     virtual GrClipMaskManager* clipMaskManager() = 0;
+    virtual bool setupClip(const SkRect* devBounds,
+                           GrDrawState::AutoRestoreEffects* are,
+                           GrDrawState::AutoRestoreStencil* ars,
+                           GrClipMaskManager::ScissorState* scissorState) = 0;
 
     enum {
         kPreallocGeoSrcStateStackCnt = 4,
@@ -936,6 +970,11 @@ protected:
 
 private:
     GrClipMaskManager* clipMaskManager() { return &fClipMaskManager; }
+
+    virtual bool setupClip(const SkRect* devBounds,
+                           GrDrawState::AutoRestoreEffects* are,
+                           GrDrawState::AutoRestoreStencil* ars,
+                           GrClipMaskManager::ScissorState* scissorState) SK_OVERRIDE;
 
     typedef GrDrawTarget INHERITED;
 };
