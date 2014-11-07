@@ -58,7 +58,23 @@ static inline char *SkStrDup(const char string[]) {
     return ret;
 }
 
-
+/*
+ *  The SkStrAppend... methods will write into the provided buffer, assuming it is large enough.
+ *  Each method has an associated const (e.g. SkStrAppendU32_MaxSize) which will be the largest
+ *  value needed for that method's buffer.
+ *
+ *  char storage[SkStrAppendU32_MaxSize];
+ *  SkStrAppendU32(storage, value);
+ *
+ *  Note : none of the SkStrAppend... methods write a terminating 0 to their buffers. Instead,
+ *  the methods return the ptr to the end of the written part of the buffer. This can be used
+ *  to compute the length, and/or know where to write a 0 if that is desired.
+ *
+ *  char storage[SkStrAppendU32_MaxSize + 1];
+ *  char* stop = SkStrAppendU32(storage, value);
+ *  size_t len = stop - storage;
+ *  *stop = 0;   // valid, since storage was 1 byte larger than the max.
+ */
 
 #define SkStrAppendU32_MaxSize  10
 char*   SkStrAppendU32(char buffer[], uint32_t);
