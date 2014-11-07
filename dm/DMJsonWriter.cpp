@@ -24,6 +24,14 @@ void JsonWriter::AddBitmapResult(const BitmapResult& result) {
     gBitmapResults.push_back(result);
 }
 
+SkTArray<skiatest::Failure> gFailures;
+SK_DECLARE_STATIC_MUTEX(gFailureLock);
+
+void JsonWriter::AddTestFailure(const skiatest::Failure& failure) {
+    SkAutoMutexAcquire lock(gFailureLock);
+    gFailures.push_back(failure);
+}
+
 void JsonWriter::DumpJson() {
     if (FLAGS_writePath.isEmpty()) {
         return;
@@ -49,6 +57,19 @@ void JsonWriter::DumpJson() {
             result["md5"]                    = gBitmapResults[i].md5.c_str();
 
             root["results"].append(result);
+        }
+    }
+
+    {
+        SkAutoMutexAcquire lock(gFailureLock);
+        for (int i = 0; i < gFailures.count(); i++) {
+            Json::Value result;
+            result["file_name"]     = gFailures[i].fileName;
+            result["line_no"]       = gFailures[i].lineNo;
+            result["condition"]     = gFailures[i].condition;
+            result["message"]       = gFailures[i].message.c_str();
+
+            root["test_results"]["failures"].append(result);
         }
     }
 

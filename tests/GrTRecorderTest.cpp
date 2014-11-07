@@ -214,7 +214,7 @@ static void test_subclasses(skiatest::Reporter* reporter) {
                 break;
 
             default:
-                reporter->reportFailed(SkString("Invalid class type"));
+                ERRORF(reporter, "Invalid class type");
                 break;
         }
     }

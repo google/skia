@@ -2,6 +2,7 @@
 #define DMTestTask_DEFINED
 
 #include "DMReporter.h"
+#include "DMJsonWriter.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"
 #include "SkString.h"
@@ -21,8 +22,16 @@ private:
   virtual bool allowExtendedTest() const SK_OVERRIDE;
   virtual bool verbose()           const SK_OVERRIDE;
 
-  virtual void onReportFailed(const SkString& desc) SK_OVERRIDE {
-      fFailure = desc;
+  virtual void onReportFailed(const skiatest::Failure& failure) SK_OVERRIDE {
+      JsonWriter::AddTestFailure(failure);
+
+      SkString newFailure;
+      failure.getFailureString(&newFailure);
+      // TODO: Better to store an array of failures?
+      if (!fFailure.isEmpty()) {
+          fFailure.append("\n\t\t");
+      }
+      fFailure.append(newFailure);
   }
 
   SkString fFailure;

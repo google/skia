@@ -58,7 +58,9 @@ public:
     virtual bool verbose()           const SK_OVERRIDE { return FLAGS_veryVerbose; }
 
 protected:
-    virtual void onReportFailed(const SkString& desc) SK_OVERRIDE {
+    virtual void onReportFailed(const skiatest::Failure& failure) SK_OVERRIDE {
+        SkString desc;
+        failure.getFailureString(&desc);
         SkDebugf("\nFAILED: %s", desc.c_str());
     }
 

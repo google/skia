@@ -31,8 +31,8 @@ void Reporter::startTest(Test* test) {
     this->onStart(test);
 }
 
-void Reporter::reportFailed(const SkString& desc) {
-    this->onReportFailed(desc);
+void Reporter::reportFailed(const skiatest::Failure& failure) {
+    this->onReportFailed(failure);
 }
 
 void Reporter::endTest(Test* test) {
@@ -63,11 +63,11 @@ public:
     explicit LocalReporter(Reporter* reporterToMimic) : fReporter(reporterToMimic) {}
 
     int numFailures() const { return fFailures.count(); }
-    const SkString& failure(int i) const { return fFailures[i]; }
+    const skiatest::Failure& failure(int i) const { return fFailures[i]; }
 
 protected:
-    virtual void onReportFailed(const SkString& desc) SK_OVERRIDE {
-        fFailures.push_back(desc);
+    virtual void onReportFailed(const Failure& failure) SK_OVERRIDE {
+        fFailures.push_back(failure);
     }
 
     // Proxy down to fReporter.  We assume these calls are threadsafe.
@@ -85,7 +85,7 @@ protected:
 
 private:
     Reporter* fReporter;  // Unowned.
-    SkTArray<SkString> fFailures;
+    SkTArray<skiatest::Failure> fFailures;
 };
 
 void Test::run() {

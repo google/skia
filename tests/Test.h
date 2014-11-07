@@ -20,6 +20,40 @@ namespace skiatest {
 
     class Test;
 
+    /**
+     *  Information about a single failure from a Test.
+     *
+     *  Not intended to be created/modified directly. To create one, use one of
+     *
+     *  REPORTER_ASSERT
+     *  REPORTER_ASSERT_MESSAGE
+     *  ERRORF
+     *
+     *  described in more detail further down in this file.
+     */
+    struct Failure {
+        const char* fileName;
+        int lineNo;
+        const char* condition;
+        SkString message;
+
+        // Helper to combine the failure info into one string.
+        void getFailureString(SkString* result) const {
+            if (!result) {
+                return;
+            }
+            result->printf("%s:%d\t", fileName, lineNo);
+            if (!message.isEmpty()) {
+                result->append(message);
+                if (strlen(condition) > 0) {
+                    result->append(": ");
+                }
+            }
+            result->append(condition);
+        }
+    };
+
+
     class Reporter : public SkRefCnt {
     public:
         SK_DECLARE_INST_COUNT(Reporter)
@@ -28,7 +62,7 @@ namespace skiatest {
         int countTests() const { return fTestCount; }
 
         void startTest(Test*);
-        void reportFailed(const SkString& desc);
+        void reportFailed(const Failure&);
         void endTest(Test*);
 
         virtual bool allowExtendedTest() const { return false; }
@@ -37,7 +71,7 @@ namespace skiatest {
 
     protected:
         virtual void onStart(Test*) {}
-        virtual void onReportFailed(const SkString& desc) {}
+        virtual void onReportFailed(const Failure&) {}
         virtual void onEnd(Test*) {}
 
     private:
@@ -110,31 +144,31 @@ namespace skiatest {
     }
 */
 
-#define REPORTER_ASSERT(r, cond)                                 \
-    do {                                                         \
-        if (!(cond)) {                                           \
-            SkString desc;                                       \
-            desc.printf("%s:%d\t%s", __FILE__, __LINE__, #cond); \
-            r->reportFailed(desc);                               \
-        }                                                        \
+#define REPORTER_ASSERT(r, cond)                                        \
+    do {                                                                \
+        if (!(cond)) {                                                  \
+            skiatest::Failure failure = { __FILE__, __LINE__,           \
+                                          #cond, SkString() };          \
+            r->reportFailed(failure);                                   \
+        }                                                               \
     } while(0)
 
-#define REPORTER_ASSERT_MESSAGE(r, cond, message)            \
-    do {                                                     \
-        if (!(cond)) {                                       \
-            SkString desc;                                   \
-            desc.printf("%s:%d\t%s: %s", __FILE__, __LINE__, \
-                        message, #cond);                     \
-            r->reportFailed(desc);                           \
-        }                                                    \
+#define REPORTER_ASSERT_MESSAGE(r, cond, message)                       \
+    do {                                                                \
+        if (!(cond)) {                                                  \
+            skiatest::Failure failure = { __FILE__, __LINE__,           \
+                                          #cond, SkString(message) };   \
+            r->reportFailed(failure);                                   \
+        }                                                               \
     } while(0)
 
-#define ERRORF(reporter, ...)                       \
-    do {                                            \
-        SkString desc;                              \
-        desc.printf("%s:%d\t", __FILE__, __LINE__); \
-        desc.appendf(__VA_ARGS__) ;                 \
-        (reporter)->reportFailed(desc);             \
+#define ERRORF(r, ...)                                                  \
+    do {                                                                \
+        SkString desc;                                                  \
+        desc.appendf(__VA_ARGS__) ;                                     \
+        skiatest::Failure failure = { __FILE__, __LINE__,               \
+                                      "", SkString(desc) };             \
+        r->reportFailed(failure);                                       \
     } while(0)
 
 #define DEF_TEST(name, reporter)                                        \
