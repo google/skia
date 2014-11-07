@@ -301,7 +301,7 @@ private:
 
     // TODO: Use a single allocator for commands and records
     enum {
-        kCmdBufferInitialSizeInBytes = 64 * 1024,
+        kCmdBufferInitialSizeInBytes = 8 * 1024,
         kGeoPoolStatePreAllocCnt     = 4,
     };
 

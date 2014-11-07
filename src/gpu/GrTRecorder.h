@@ -151,10 +151,12 @@ template<typename TItem>
 TItem* GrTRecorder<TBase, TAlign>::alloc_back(int dataLength) {
     const int totalLength = length_of<Header>::kValue + length_of<TItem>::kValue + dataLength;
 
-    if (fTailBlock->fBack + totalLength > fTailBlock->fLength) {
-        SkASSERT(!fTailBlock->fNext);
-        fTailBlock->fNext = MemBlock::Alloc(SkTMax(2 * fTailBlock->fLength, totalLength));
+    while (fTailBlock->fBack + totalLength > fTailBlock->fLength) {
+        if (!fTailBlock->fNext) {
+            fTailBlock->fNext = MemBlock::Alloc(SkTMax(2 * fTailBlock->fLength, totalLength));
+        }
         fTailBlock = fTailBlock->fNext;
+        SkASSERT(0 == fTailBlock->fBack);
     }
 
     Header* header = reinterpret_cast<Header*>(&(*fTailBlock)[fTailBlock->fBack]);
@@ -183,12 +185,11 @@ public:
     Iter(GrTRecorder& recorder) : fBlock(recorder.fHeadBlock), fPosition(0), fItem(NULL) {}
 
     bool next() {
-        if (fPosition >= fBlock->fBack) {
+        while (fPosition >= fBlock->fBack) {
             SkASSERT(fPosition == fBlock->fBack);
             if (!fBlock->fNext) {
                 return false;
             }
-            SkASSERT(0 != fBlock->fNext->fBack);
             fBlock = fBlock->fNext;
             fPosition = 0;
         }
@@ -218,9 +219,22 @@ void GrTRecorder<TBase, TAlign>::reset() {
     while (iter.next()) {
         iter->~TBase();
     }
-    fHeadBlock->fBack = 0;
-    MemBlock::Free(fHeadBlock->fNext);
-    fHeadBlock->fNext = NULL;
+
+    // Assume the next time this recorder fills up it will use approximately the same
+    // amount of space as last time. Leave enough space for up to ~50% growth; free
+    // everything else.
+    if (fTailBlock->fBack <= fTailBlock->fLength / 2) {
+        MemBlock::Free(fTailBlock->fNext);
+        fTailBlock->fNext = NULL;
+    } else if (fTailBlock->fNext) {
+        MemBlock::Free(fTailBlock->fNext->fNext);
+        fTailBlock->fNext->fNext = NULL;
+    }
+
+    for (MemBlock* block = fHeadBlock; block; block = block->fNext) {
+        block->fBack = 0;
+    }
+
     fTailBlock = fHeadBlock;
     fLastItem = NULL;
 }
