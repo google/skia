@@ -1297,7 +1297,8 @@ static const ConfigData gRec[] = {
     { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  4, kRW_ConfigFlag,    "msaa4",        false},
     { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNVPR_GLContextType,    4, kRW_ConfigFlag,    "nvprmsaa4",   true },
     { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNVPR_GLContextType,   16, kRW_ConfigFlag,    "nvprmsaa16",  false},
-    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRWDFT_ConfigFlag, "gpudft",       true },
+    /* Not quite ready to turn on distance field text baselines */
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRWDFT_ConfigFlag, "gpudft",      false },
     /* The gpudebug context does not generate meaningful images, so don't record
      * the images it generates!  We only run it to look for asserts. */
     { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "gpudebug",     kDebugOnly},
