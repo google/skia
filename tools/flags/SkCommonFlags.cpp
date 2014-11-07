@@ -9,7 +9,7 @@
 
 DEFINE_string(config, "565 8888 pdf gpu nonrendering angle nvprmsaa4",
               "Options: 565 8888 pdf gpu nonrendering msaa4 msaa16 nvprmsaa4 nvprmsaa16 "
-              "gpunull gpudebug angle mesa");
+              "gpudft gpunull gpudebug angle mesa");
 
 DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
 

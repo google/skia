@@ -151,6 +151,9 @@ enum ConfigFlags {
     /* Read reference GM images if a read path is provided. */
     kRead_ConfigFlag  = 0x2,
     kRW_ConfigFlag    = (kWrite_ConfigFlag | kRead_ConfigFlag),
+    /* Use distance fields for rendering text */
+    kDFText_ConfigFlag = 0x4,
+    kRWDFT_ConfigFlag = (kRW_ConfigFlag | kDFText_ConfigFlag),
 };
 
 struct ConfigData {
@@ -584,7 +587,10 @@ public:
         }
 #if SK_SUPPORT_GPU
         else {  // GPU
-            surface.reset(SkSurface::NewRenderTargetDirect(gpuTarget->asRenderTarget()));
+            uint32_t flags = (gRec.fFlags & kDFText_ConfigFlag) ?
+                             SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
+            SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+            surface.reset(SkSurface::NewRenderTargetDirect(gpuTarget->asRenderTarget(), &props));
             if (deferred) {
                 canvas.reset(SkDeferredCanvas::Create(surface));
             } else {
@@ -1291,6 +1297,7 @@ static const ConfigData gRec[] = {
     { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  4, kRW_ConfigFlag,    "msaa4",        false},
     { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNVPR_GLContextType,    4, kRW_ConfigFlag,    "nvprmsaa4",   true },
     { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNVPR_GLContextType,   16, kRW_ConfigFlag,    "nvprmsaa16",  false},
+    { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRWDFT_ConfigFlag, "gpudft",       true },
     /* The gpudebug context does not generate meaningful images, so don't record
      * the images it generates!  We only run it to look for asserts. */
     { kN32_SkColorType, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "gpudebug",     kDebugOnly},

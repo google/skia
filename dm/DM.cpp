@@ -86,18 +86,19 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
 
             START("565",        CpuGMTask, kRGB_565_SkColorType);
             START("8888",       CpuGMTask, kN32_SkColorType);
-            START("gpu",        GpuGMTask, native, gpuAPI, 0);
-            START("msaa4",      GpuGMTask, native, gpuAPI, 4);
-            START("msaa16",     GpuGMTask, native, gpuAPI, 16);
-            START("nvprmsaa4",  GpuGMTask, nvpr,   gpuAPI, 4);
-            START("nvprmsaa16", GpuGMTask, nvpr,   gpuAPI, 16);
-            START("gpunull",    GpuGMTask, null,   gpuAPI, 0);
-            START("gpudebug",   GpuGMTask, debug,  gpuAPI, 0);
+            START("gpu",        GpuGMTask, native, gpuAPI, 0,  false);
+            START("msaa4",      GpuGMTask, native, gpuAPI, 4,  false);
+            START("msaa16",     GpuGMTask, native, gpuAPI, 16, false);
+            START("nvprmsaa4",  GpuGMTask, nvpr,   gpuAPI, 4,  false);
+            START("nvprmsaa16", GpuGMTask, nvpr,   gpuAPI, 16, false);
+            START("gpudft",     GpuGMTask, native, gpuAPI, 0,  true);
+            START("gpunull",    GpuGMTask, null,   gpuAPI, 0,  false);
+            START("gpudebug",   GpuGMTask, debug,  gpuAPI, 0,  false);
 #if SK_ANGLE
-            START("angle",      GpuGMTask, angle,  gpuAPI, 0);
+            START("angle",      GpuGMTask, angle,  gpuAPI, 0,  false);
 #endif
 #if SK_MESA
-            START("mesa",       GpuGMTask, mesa,   gpuAPI, 0);
+            START("mesa",       GpuGMTask, mesa,   gpuAPI, 0,  false);
 #endif
             START("pdf",        PDFTask,   RASTERIZE_PDF_PROC);
         }

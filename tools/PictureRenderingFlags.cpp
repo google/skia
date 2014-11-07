@@ -28,7 +28,7 @@ DEFINE_string(bbh, "none", "bbhType [width height]: Set the bounding box hierarc
 #if SK_SUPPORT_GPU
 static const char kGpuAPINameGL[] = "gl";
 static const char kGpuAPINameGLES[] = "gles";
-#define GPU_CONFIG_STRING "|gpu|msaa4|msaa16|nvprmsaa4|nvprmsaa16"
+#define GPU_CONFIG_STRING "|gpu|msaa4|msaa16|nvprmsaa4|nvprmsaa16|gpudft"
 #else
 #define GPU_CONFIG_STRING ""
 #endif
@@ -286,6 +286,7 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
     }
 
     int sampleCount = 0;
+    bool useDFText = false;
 #endif
     if (FLAGS_config.count() > 0) {
         if (0 == strcmp(FLAGS_config[0], "8888")) {
@@ -310,6 +311,10 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
         else if (0 == strcmp(FLAGS_config[0], "nvprmsaa16")) {
             deviceType = sk_tools::PictureRenderer::kNVPR_DeviceType;
             sampleCount = 16;
+        }
+        else if (0 == strcmp(FLAGS_config[0], "gpudft")) {
+            deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
+            useDFText = true;
         }
 #if SK_ANGLE
         else if (0 == strcmp(FLAGS_config[0], "angle")) {
@@ -336,6 +341,7 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
         }
 #if SK_SUPPORT_GPU
         renderer->setSampleCount(sampleCount);
+        renderer->setUseDFText(useDFText);
 #endif
     }
 

@@ -13,13 +13,15 @@ GpuGMTask::GpuGMTask(const char* config,
                      skiagm::GMRegistry::Factory gmFactory,
                      GrContextFactory::GLContextType contextType,
                      GrGLStandard gpuAPI,
-                     int sampleCount)
+                     int sampleCount,
+                     bool useDFText)
     : GpuTask(reporter, taskRunner)
     , fGM(gmFactory(NULL))
     , fName(UnderJoin(fGM->getName(), config))
     , fContextType(contextType)
     , fGpuAPI(gpuAPI)
     , fSampleCount(sampleCount)
+    , fUseDFText(useDFText)
     {}
 
 static bool gAlreadyWarned[GrContextFactory::kGLContextTypeCnt][kGrGLStandardCnt];
@@ -30,7 +32,7 @@ void GpuGMTask::draw(GrContextFactory* grFactory) {
                                          kN32_SkColorType,
                                          kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(NewGpuSurface(grFactory, fContextType, fGpuAPI, info,
-                                                  fSampleCount));
+                                                  fSampleCount, fUseDFText));
     if (!surface) {
         if (!gAlreadyWarned[fContextType][fGpuAPI]) {
             SkDebugf("FYI: couldn't create GPU context, type %d API %d.  Will skip.\n",
