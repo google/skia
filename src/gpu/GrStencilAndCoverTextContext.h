@@ -59,7 +59,6 @@ private:
     GrPathRange*                    fGlyphs;
     uint32_t                        fIndexBuffer[kGlyphBufferSize];
     float                           fTransformBuffer[2 * kGlyphBufferSize];
-    GrDrawTarget::PathTransformType fTransformType;
     int                             fPendingGlyphCount;
     SkMatrix                        fContextInitialMatrix;
     bool                            fNeedsDeviceSpaceGlyphs;
@@ -76,10 +75,7 @@ private:
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset) SK_OVERRIDE;
 
-    void init(const GrPaint&, const SkPaint&, size_t textByteLength,
-              RenderMode, const SkPoint& textTranslate);
-    void initGlyphs(SkGlyphCache* cache);
-    void appendGlyph(uint16_t glyphID, float x);
+    void init(const GrPaint&, const SkPaint&, size_t textByteLength, RenderMode);
     void appendGlyph(uint16_t glyphID, float x, float y);
     void flush();
     void finish();

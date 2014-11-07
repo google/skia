@@ -88,7 +88,7 @@ void GrStencilAndCoverTextContext::onDrawText(const GrPaint& paint,
     // will turn off the use of device-space glyphs when perspective transforms
     // are in use.
 
-    this->init(paint, skPaint, byteLength, kMaxAccuracy_RenderMode, SkPoint::Make(0, 0));
+    this->init(paint, skPaint, byteLength, kMaxAccuracy_RenderMode);
 
     // Transform our starting point.
     if (fNeedsDeviceSpaceGlyphs) {
@@ -99,8 +99,6 @@ void GrStencilAndCoverTextContext::onDrawText(const GrPaint& paint,
     }
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
-
-    fTransformType = GrPathRendering::kTranslate_PathTransformType;
 
     const char* stop = text + byteLength;
 
@@ -175,49 +173,25 @@ void GrStencilAndCoverTextContext::onDrawPosText(const GrPaint& paint,
     // transform is not part of SkPaint::measureText API, and thus we use the
     // same glyphs as what were measured.
 
-    this->init(paint, skPaint, byteLength, kMaxPerformance_RenderMode, offset);
+    this->init(paint, skPaint, byteLength, kMaxPerformance_RenderMode);
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
     const char* stop = text + byteLength;
 
-    if (SkPaint::kLeft_Align == fSkPaint.getTextAlign()) {
-        if (1 == scalarsPerPosition) {
-            fTransformType = GrPathRendering::kTranslateX_PathTransformType;
-            while (text < stop) {
-                const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
-                if (glyph.fWidth) {
-                    this->appendGlyph(glyph.getGlyphID(), *pos);
-                }
-                pos++;
-            }
-        } else {
-            SkASSERT(2 == scalarsPerPosition);
-            fTransformType = GrPathRendering::kTranslate_PathTransformType;
-            while (text < stop) {
-                const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
-                if (glyph.fWidth) {
-                    this->appendGlyph(glyph.getGlyphID(), pos[0], pos[1]);
-                }
-                pos += 2;
-            }
-        }
-    } else {
-        fTransformType = GrPathRendering::kTranslate_PathTransformType;
-        SkTextMapStateProc tmsProc(SkMatrix::I(), SkPoint::Make(0, 0), scalarsPerPosition);
-        SkTextAlignProcScalar alignProc(fSkPaint.getTextAlign());
-        while (text < stop) {
-            const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
-            if (glyph.fWidth) {
-                SkPoint tmsLoc;
-                tmsProc(pos, &tmsLoc);
-                SkPoint loc;
-                alignProc(tmsLoc, glyph, &loc);
+    SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
+    SkTextAlignProcScalar alignProc(fSkPaint.getTextAlign());
+    while (text < stop) {
+        const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
+        if (glyph.fWidth) {
+            SkPoint tmsLoc;
+            tmsProc(pos, &tmsLoc);
+            SkPoint loc;
+            alignProc(tmsLoc, glyph, &loc);
 
-                this->appendGlyph(glyph.getGlyphID(), loc.x(), loc.y());
-            }
-            pos += scalarsPerPosition;
+            this->appendGlyph(glyph.getGlyphID(), loc.x(), loc.y());
         }
+        pos += scalarsPerPosition;
     }
 
     this->finish();
@@ -250,8 +224,7 @@ static GrPathRange* get_gr_glyphs(GrContext* ctx,
 void GrStencilAndCoverTextContext::init(const GrPaint& paint,
                                         const SkPaint& skPaint,
                                         size_t textByteLength,
-                                        RenderMode renderMode,
-                                        const SkPoint& textTranslate) {
+                                        RenderMode renderMode) {
     GrTextContext::init(paint, skPaint);
 
     fContextInitialMatrix = fContext->getMatrix();
@@ -267,7 +240,6 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
     if (fNeedsDeviceSpaceGlyphs) {
         // SkDraw::ShouldDrawTextAsPaths takes care of perspective transforms.
         SkASSERT(!fContextInitialMatrix.hasPerspective());
-        SkASSERT(textTranslate.isZero()); // TODO: Handle textTranslate in device-space usecase.
 
         fTextRatio = fTextInverseRatio = 1.0f;
 
@@ -349,9 +321,8 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
         }
 
         SkMatrix textMatrix;
-        textMatrix.setTranslate(textTranslate.x(), textTranslate.y());
         // Glyphs loaded by GPU path rendering have an inverted y-direction.
-        textMatrix.preScale(fTextRatio, -fTextRatio);
+        textMatrix.setScale(fTextRatio, -fTextRatio);
         fPaint.localCoordChange(textMatrix);
         fContext->concatMatrix(textMatrix);
 
@@ -380,22 +351,7 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
     SkASSERT(0 == fPendingGlyphCount);
 }
 
-inline void GrStencilAndCoverTextContext::appendGlyph(uint16_t glyphID, float x) {
-    SkASSERT(GrPathRendering::kTranslateX_PathTransformType == fTransformType);
-
-    if (fPendingGlyphCount >= kGlyphBufferSize) {
-        this->flush();
-    }
-
-    fIndexBuffer[fPendingGlyphCount] = glyphID;
-    fTransformBuffer[fPendingGlyphCount] = fTextInverseRatio * x;
-
-    ++fPendingGlyphCount;
-}
-
 inline void GrStencilAndCoverTextContext::appendGlyph(uint16_t glyphID, float x, float y) {
-    SkASSERT(GrPathRendering::kTranslate_PathTransformType == fTransformType);
-
     if (fPendingGlyphCount >= kGlyphBufferSize) {
         this->flush();
     }
@@ -412,8 +368,9 @@ void GrStencilAndCoverTextContext::flush() {
         return;
     }
 
-    fDrawTarget->drawPaths(fGlyphs, fIndexBuffer, fPendingGlyphCount,
-                           fTransformBuffer, fTransformType, GrPathRendering::kWinding_FillType);
+    fDrawTarget->drawPaths(fGlyphs, fIndexBuffer, fPendingGlyphCount, fTransformBuffer,
+                           GrPathRendering::kTranslate_PathTransformType,
+                           GrPathRendering::kWinding_FillType);
 
     fPendingGlyphCount = 0;
 }
