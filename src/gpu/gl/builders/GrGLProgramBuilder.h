@@ -241,8 +241,7 @@ protected:
     // generating stage code.
     void nameVariable(SkString* out, char prefix, const char* name);
     void setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* inputColor, GrGLSLExpr1* inputCoverage);
-    void emitAndInstallProcs(const GrOptDrawState& optState,
-                             GrGLSLExpr4* inputColor,
+    void emitAndInstallProcs(GrGLSLExpr4* inputColor,
                              GrGLSLExpr4* inputCoverage);
     void emitAndInstallFragProcs(int procOffset, int numProcs, GrGLSLExpr4* inOut);
     template <class Proc>
@@ -259,8 +258,8 @@ protected:
                             const char* inColor);
     void emitAndInstallProc(const GrGeometryProcessor&,
                             const GrProcessorKey&,
-                            const char* outColor,
-                            const char* inColor);
+                            const char* outCoverage,
+                            const char* inCoverage);
     void verify(const GrGeometryProcessor&);
     void verify(const GrFragmentProcessor&);
     void emitSamplers(const GrProcessor&,
@@ -314,6 +313,22 @@ protected:
     void enterStage() { fOutOfStage = false; }
     int stageIndex() const { return fStageIndex; }
 
+    struct TransformVarying {
+        TransformVarying(const GrGLVarying& v, const char* uniName, const char* sourceCoords)
+            : fV(v), fUniName(uniName), fSourceCoords(sourceCoords) {}
+        GrGLVarying fV;
+        SkString fUniName;
+        SkString fSourceCoords;
+    };
+
+    void addCoordVarying(const char* name, GrGLVarying* v, const char* uniName,
+                         const char* sourceCoords) {
+        this->addVarying(name, v);
+        fCoordVaryings.push_back(TransformVarying(*v, uniName, sourceCoords));
+    }
+
+    const char* rtAdjustment() const { return "rtAdjustment"; }
+
     // number of each input/output type in a single allocation block, used by many builders
     static const int kVarsPerBlock;
 
@@ -331,6 +346,7 @@ protected:
     const GrProgramDesc& fDesc;
     GrGpuGL* fGpu;
     UniformInfoArray fUniforms;
+    SkSTArray<16, TransformVarying, true> fCoordVaryings;
 
     friend class GrGLShaderBuilder;
     friend class GrGLVertexBuilder;

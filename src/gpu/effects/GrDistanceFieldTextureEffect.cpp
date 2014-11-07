@@ -45,6 +45,10 @@ public:
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), dfTexEffect.inTextureCoords().c_str());
 
+        // setup position varying
+        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
+                               vsBuilder->uViewM(), vsBuilder->inPosition());
+
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                kVec2f_GrSLType, "TextureSize",
@@ -256,6 +260,10 @@ public:
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords().c_str());
 
+        // setup position varying
+        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
+                               vsBuilder->uViewM(), vsBuilder->inPosition());
+
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                               kVec2f_GrSLType, "TextureSize",
@@ -409,6 +417,10 @@ public:
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), dfTexEffect.inTextureCoords().c_str());
+
+        // setup position varying
+        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
+                               vsBuilder->uViewM(), vsBuilder->inPosition());
 
         const char* textureSizeUniName = NULL;
         // width, height, 1/(3*width)

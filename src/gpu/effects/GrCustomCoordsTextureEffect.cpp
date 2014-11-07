@@ -31,6 +31,10 @@ public:
         const GrShaderVar& inTextureCoords = customCoordsTextureEffect.inTextureCoords();
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), inTextureCoords.c_str());
 
+        // setup position varying
+        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
+                               vsBuilder->uViewM(), vsBuilder->inPosition());
+
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("%s = ", args.fOutput);
         fsBuilder->appendTextureLookupAndModulate(args.fInput,
