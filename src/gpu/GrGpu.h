@@ -22,7 +22,7 @@ class GrPathRendererChain;
 class GrStencilBuffer;
 class GrVertexBufferAllocPool;
 
-class GrGpu : public GrClipTarget {
+class GrGpu : public SkRefCnt {
 public:
 
     /**
@@ -52,8 +52,32 @@ public:
     GrGpu(GrContext* context);
     virtual ~GrGpu();
 
-    GrContext* getContext() { return this->INHERITED::getContext(); }
-    const GrContext* getContext() const { return this->INHERITED::getContext(); }
+    GrContext* getContext() { return fContext; }
+    const GrContext* getContext() const { return fContext; }
+
+    /**
+     * Gets the capabilities of the draw target.
+     */
+    const GrDrawTargetCaps* caps() const { return fCaps.get(); }
+
+    /**
+     * Sets the draw state object for the gpu. Note that this does not
+     * make a copy. The GrGpu will take a reference to passed object.
+     * Passing NULL will cause the GrGpu to use its own internal draw
+     * state object rather than an externally provided one.
+     */
+    void setDrawState(GrDrawState*  drawState);
+
+    /**
+     * Read-only access to the GrGpu current draw state.
+     */
+    const GrDrawState& getDrawState() const { return *fDrawState; }
+
+    /**
+     * Read-write access to the GrGpu current draw state. Note that
+     * this doesn't ref.
+     */
+    GrDrawState* drawState() { return fDrawState; }
 
     GrPathRendering* pathRendering() {
         return fPathRendering.get();
@@ -265,10 +289,33 @@ public:
                             GrPixelConfig config, const void* buffer,
                             size_t rowBytes);
 
-    // GrDrawTarget overrides
-    virtual void clearStencilClip(const SkIRect& rect,
-                                  bool insideClip,
-                                  GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
+    /**
+     * Clear the passed in render target. Ignores the draw state and clip. Clears the whole thing if
+     * rect is NULL, otherwise just the rect. If canIgnoreRect is set then the entire render target
+     * can be optionally cleared.
+     */
+    void clear(const SkIRect* rect,
+               GrColor color,
+               bool canIgnoreRect,
+               GrRenderTarget* renderTarget);
+
+
+    void clearStencilClip(const SkIRect& rect,
+                          bool insideClip,
+                          GrRenderTarget* renderTarget = NULL);
+
+    /**
+     * Discards the contents render target. NULL indicates that the current render target should
+     * be discarded.
+     **/
+    virtual void discard(GrRenderTarget* = NULL) = 0;
+
+    /**
+     * This is can be called before allocating a texture to be a dst for copySurface. It will
+     * populate the origin, config, and flags fields of the desc such that copySurface is more
+     * likely to succeed and be efficient.
+     */
+    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc);
 
     // After the client interacts directly with the 3D context state the GrGpu
     // must resync its internal state and assumptions about 3D context state.
@@ -308,6 +355,99 @@ public:
                                   const GrDeviceCoordTexture* dstCopy,
                                   GrProgramDesc*) = 0;
 
+    /**
+     * Called at start and end of gpu trace marking
+     * GR_CREATE_GPU_TRACE_MARKER(marker_str, target) will automatically call these at the start
+     * and end of a code block respectively
+     */
+    void addGpuTraceMarker(const GrGpuTraceMarker* marker);
+    void removeGpuTraceMarker(const GrGpuTraceMarker* marker);
+
+    /**
+     * Takes the current active set of markers and stores them for later use. Any current marker
+     * in the active set is removed from the active set and the targets remove function is called.
+     * These functions do not work as a stack so you cannot call save a second time before calling
+     * restore. Also, it is assumed that when restore is called the current active set of markers
+     * is empty. When the stored markers are added back into the active set, the targets add marker
+     * is called.
+     */
+    void saveActiveTraceMarkers();
+    void restoreActiveTraceMarkers();
+
+    /**
+     * Query to find out if the vertex or index source is reserved.
+     */
+    bool hasReservedVerticesOrIndices() const {
+        return GrDrawTarget::kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc ||
+               GrDrawTarget::kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
+    }
+
+    // Called to determine whether an onCopySurface call would succeed or not. This is useful for
+    // proxy subclasses to test whether the copy would succeed without executing it yet. Derived
+    // classes must keep this consistent with their implementation of onCopySurface(). The inputs
+    // are the same as onCopySurface(), i.e. srcRect and dstPoint are clipped to be inside the src
+    // and dst bounds.
+    virtual bool canCopySurface(GrSurface* dst,
+                                GrSurface* src,
+                                const SkIRect& srcRect,
+                                const SkIPoint& dstPoint) = 0;
+
+    // This method is called by copySurface  The srcRect is guaranteed to be entirely within the
+    // src bounds. Likewise, the dst rect implied by dstPoint and srcRect's width and height falls
+    // entirely within the dst. The default implementation will draw a rect from the src to the
+    // dst if the src is a texture and the dst is a render target and fail otherwise.
+    virtual bool copySurface(GrSurface* dst,
+                             GrSurface* src,
+                             const SkIRect& srcRect,
+                             const SkIPoint& dstPoint) = 0;
+
+    /**
+     * Sets source of vertex data for the next draw. Data does not have to be
+     * in the buffer until drawIndexed, drawNonIndexed, or drawIndexedInstances.
+     *
+     * @param buffer        vertex buffer containing vertex data. Must be
+     *                      unlocked before draw call. Vertex size is queried
+     *                      from current GrDrawState.
+     */
+    void setVertexSourceToBuffer(const GrVertexBuffer* buffer);
+
+    /**
+     * Sets source of index data for the next indexed draw. Data does not have
+     * to be in the buffer until drawIndexed.
+     *
+     * @param buffer index buffer containing indices. Must be unlocked
+     *               before indexed draw call.
+     */
+    void setIndexSourceToBuffer(const GrIndexBuffer* buffer);
+
+    /**
+     * Resets vertex source. Drawing from reset vertices is illegal. Set vertex
+     * source to reserved, array, or buffer before next draw. May be able to free
+     * up temporary storage allocated by setVertexSourceToArray or
+     * reserveVertexSpace.
+     */
+    void resetVertexSource();
+
+    /**
+     * Resets index source. Indexed Drawing from reset indices is illegal. Set
+     * index source to reserved, array, or buffer before next indexed draw. May
+     * be able to free up temporary storage allocated by setIndexSourceToArray
+     * or reserveIndexSpace.
+     */
+    void resetIndexSource();
+
+    /**
+     * Pushes and resets the vertex/index sources. Any reserved vertex / index
+     * data is finalized (i.e. cannot be updated after the matching pop but can
+     * be drawn from). Must be balanced by a pop.
+     */
+    void pushGeometrySource();
+
+    /**
+     * Pops the vertex / index sources from the matching push.
+     */
+    void popGeometrySource();
+
 protected:
     DrawType PrimTypeToDrawType(GrPrimitiveType type) {
         switch (type) {
@@ -337,6 +477,23 @@ protected:
                                           unsigned int* ref,
                                           unsigned int* mask);
 
+    // subclasses must call this in their destructors to ensure all vertex
+    // and index sources have been released (including those held by
+    // pushGeometrySource())
+    void releaseGeometry();
+
+    // accessors for derived classes
+    const GrDrawTarget::GeometrySrcState& getGeomSrc() const { return fGeoSrcStateStack.back(); }
+
+    // it is preferable to call this rather than getGeomSrc()->fVertexSize because of the assert.
+    size_t getVertexSize() const {
+        // the vertex layout is only valid if a vertex source has been specified.
+        SkASSERT(this->getGeomSrc().fVertexSrc != GrDrawTarget::kNone_GeometrySrcType);
+        return this->getGeomSrc().fVertexSize;
+    }
+
+    const GrTraceMarkerSet& getActiveTraceMarkers() { return fActiveTraceMarkers; }
+
     GrContext::GPUStats         fGPUStats;
 
     struct GeometryPoolState {
@@ -356,16 +513,17 @@ protected:
 
     SkAutoTDelete<GrPathRendering> fPathRendering;
 
+    // Subclass must initialize this in its constructor.
+    SkAutoTUnref<const GrDrawTargetCaps> fCaps;
+
 private:
     // GrDrawTarget overrides
-    virtual bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices) SK_OVERRIDE;
-    virtual bool onReserveIndexSpace(int indexCount, void** indices) SK_OVERRIDE;
-    virtual void releaseReservedVertexSpace() SK_OVERRIDE;
-    virtual void releaseReservedIndexSpace() SK_OVERRIDE;
-    virtual void geometrySourceWillPush() SK_OVERRIDE;
-    virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
-    virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
-                         GrRenderTarget* renderTarget) SK_OVERRIDE;
+    virtual bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices);
+    virtual bool onReserveIndexSpace(int indexCount, void** indices);
+    virtual void releaseReservedVertexSpace();
+    virtual void releaseReservedIndexSpace();
+    virtual void geometrySourceWillPush();
+    virtual void geometrySourceWillPop(const GrDrawTarget::GeometrySrcState& restoredState);
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
@@ -394,7 +552,7 @@ private:
                                     bool insideClip) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onGpuDraw(const DrawInfo&) = 0;
+    virtual void onGpuDraw(const GrDrawTarget::DrawInfo&) = 0;
 
     // overridden by backend-specific derived class to perform the read pixels.
     virtual bool onReadPixels(GrRenderTarget* target,
@@ -435,22 +593,27 @@ private:
     bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
 
     // GrDrawTarget overrides
-    virtual void onDraw(const DrawInfo&, const GrClipMaskManager::ScissorState&) SK_OVERRIDE;
+    virtual void onDraw(const GrDrawTarget::DrawInfo&,
+                        const GrClipMaskManager::ScissorState&);
     virtual void onStencilPath(const GrPath*,
                                const GrClipMaskManager::ScissorState&,
-                               const GrStencilSettings&) SK_OVERRIDE;
+                               const GrStencilSettings&);
     virtual void onDrawPath(const GrPath*,
                             const GrClipMaskManager::ScissorState&,
                             const GrStencilSettings&,
-                            const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+                            const GrDeviceCoordTexture* dstCopy);
     virtual void onDrawPaths(const GrPathRange*,
                              const uint32_t indices[],
                              int count,
                              const float transforms[],
-                             PathTransformType,
+                             GrDrawTarget::PathTransformType,
                              const GrClipMaskManager::ScissorState&,
                              const GrStencilSettings&,
-                             const GrDeviceCoordTexture*) SK_OVERRIDE;
+                             const GrDeviceCoordTexture*);
+
+    virtual void didAddGpuTraceMarker() = 0;
+    virtual void didRemoveGpuTraceMarker() = 0;
+
 
     // readies the pools to provide vertex/index data.
     void prepareVertexPool();
@@ -468,6 +631,15 @@ private:
         }
     }
 
+    // called when setting a new vert/idx source to unref prev vb/ib
+    void releasePreviousVertexSource();
+    void releasePreviousIndexSource();
+
+    enum {
+        kPreallocGeoSrcStateStackCnt = 4,
+    };
+    SkSTArray<kPreallocGeoSrcStateStackCnt, GrDrawTarget::GeometrySrcState, true> fGeoSrcStateStack;
+
     enum {
         kPreallocGeomPoolStateStackCnt = 4,
     };
@@ -481,8 +653,19 @@ private:
     int                                                                 fIndexPoolUseCnt;
     // these are mutable so they can be created on-demand
     mutable GrIndexBuffer*                                              fQuadIndexBuffer;
+    GrDrawState                                                     fDefaultDrawState;
+    GrDrawState*                                                        fDrawState;
+    // To keep track that we always have at least as many debug marker adds as removes
+    int                                                                 fGpuTraceMarkerCount;
+    GrTraceMarkerSet                                                    fActiveTraceMarkers;
+    GrTraceMarkerSet                                                    fStoredTraceMarkers;
+    // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
+    GrContext*                                                          fContext;
 
-    typedef GrClipTarget INHERITED;
+    // TODO fix this
+    friend class GrInOrderDrawBuffer;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

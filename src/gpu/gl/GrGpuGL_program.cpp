@@ -264,7 +264,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type,
     return true;
 }
 
-void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
+void GrGpuGL::setupGeometry(const GrDrawTarget::DrawInfo& info, size_t* indexOffsetInBytes) {
     SkAutoTUnref<GrOptDrawState> optState(
         GrOptDrawState::Create(this->getDrawState(), this, info.getDstCopy(),
                                PrimTypeToDrawType(info.primitiveType())));
@@ -281,10 +281,10 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
 
     GrGLVertexBuffer* vbuf;
     switch (this->getGeomSrc().fVertexSrc) {
-        case kBuffer_GeometrySrcType:
+        case GrDrawTarget::kBuffer_GeometrySrcType:
             vbuf = (GrGLVertexBuffer*) this->getGeomSrc().fVertexBuffer;
             break;
-        case kReserved_GeometrySrcType:
+        case GrDrawTarget::kReserved_GeometrySrcType:
             this->finalizeReservedVertices();
             vertexOffsetInBytes += geoPoolState.fPoolStartVertex * this->getGeomSrc().fVertexSize;
             vbuf = (GrGLVertexBuffer*) geoPoolState.fPoolVertexBuffer;
@@ -303,11 +303,11 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
         SkASSERT(indexOffsetInBytes);
 
         switch (this->getGeomSrc().fIndexSrc) {
-        case kBuffer_GeometrySrcType:
+        case GrDrawTarget::kBuffer_GeometrySrcType:
             *indexOffsetInBytes = 0;
             ibuf = (GrGLIndexBuffer*)this->getGeomSrc().fIndexBuffer;
             break;
-        case kReserved_GeometrySrcType:
+        case GrDrawTarget::kReserved_GeometrySrcType:
             this->finalizeReservedIndices();
             *indexOffsetInBytes = geoPoolState.fPoolStartIndex * sizeof(GrGLushort);
             ibuf = (GrGLIndexBuffer*) geoPoolState.fPoolIndexBuffer;

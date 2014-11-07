@@ -213,7 +213,6 @@ void GrContext::resetContext(uint32_t state) {
 void GrContext::freeGpuResources() {
     this->flush();
 
-    fGpu->purgeResources();
     if (fDrawBuffer) {
         fDrawBuffer->purgeResources();
     }

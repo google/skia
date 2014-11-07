@@ -71,6 +71,16 @@ public:
 
     virtual void discard(GrRenderTarget*) SK_OVERRIDE { }
 
+    virtual bool canCopySurface(GrSurface* dst,
+                                GrSurface* src,
+                                const SkIRect& srcRect,
+                                const SkIPoint& dstPoint) SK_OVERRIDE { return false; };
+
+    virtual bool copySurface(GrSurface* dst,
+                             GrSurface* src,
+                             const SkIRect& srcRect,
+                             const SkIPoint& dstPoint) SK_OVERRIDE { return false; };
+
 private:
     virtual void onResetContext(uint32_t resetBits) { };
     virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
@@ -108,7 +118,7 @@ private:
                                     const SkIRect& rect,
                                     bool insideClip)  SK_OVERRIDE { }
 
-                                    virtual void onGpuDraw(const DrawInfo&)  SK_OVERRIDE { }
+    virtual void onGpuDraw(const GrDrawTarget::DrawInfo&)  SK_OVERRIDE { }
     virtual bool onReadPixels(GrRenderTarget* target,
                               int left, int top, int width, int height,
                               GrPixelConfig,

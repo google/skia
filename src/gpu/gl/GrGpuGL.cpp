@@ -1731,7 +1731,7 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGpuGL::onGpuDraw(const DrawInfo& info) {
+void GrGpuGL::onGpuDraw(const GrDrawTarget::DrawInfo& info) {
     size_t indexOffsetInBytes;
     this->setupGeometry(info, &indexOffsetInBytes);
 

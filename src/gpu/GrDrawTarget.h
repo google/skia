@@ -32,9 +32,6 @@ class GrPathRange;
 class GrVertexBuffer;
 
 class GrDrawTarget : public SkRefCnt {
-protected:
-    class DrawInfo;
-
 public:
     SK_DECLARE_INST_COUNT(GrDrawTarget)
 
@@ -460,6 +457,7 @@ public:
      */
     virtual void purgeResources() {};
 
+    class DrawInfo;
     /**
      * For subclass internal use to invoke a call to onDraw(). See DrawInfo below.
      */
@@ -690,6 +688,73 @@ public:
 
     virtual DrawToken getCurrentDrawToken() { return DrawToken(this, 0); }
 
+    /**
+     * Used to communicate draws to GPUs / subclasses
+     */
+    class DrawInfo {
+    public:
+        DrawInfo(const DrawInfo& di) { (*this) = di; }
+        DrawInfo& operator =(const DrawInfo& di);
+
+        GrPrimitiveType primitiveType() const { return fPrimitiveType; }
+        int startVertex() const { return fStartVertex; }
+        int startIndex() const { return fStartIndex; }
+        int vertexCount() const { return fVertexCount; }
+        int indexCount() const { return fIndexCount; }
+        int verticesPerInstance() const { return fVerticesPerInstance; }
+        int indicesPerInstance() const { return fIndicesPerInstance; }
+        int instanceCount() const { return fInstanceCount; }
+
+        bool isIndexed() const { return fIndexCount > 0; }
+#ifdef SK_DEBUG
+        bool isInstanced() const; // this version is longer because of asserts
+#else
+        bool isInstanced() const { return fInstanceCount > 0; }
+#endif
+
+        // adds or remove instances
+        void adjustInstanceCount(int instanceOffset);
+        // shifts the start vertex
+        void adjustStartVertex(int vertexOffset);
+        // shifts the start index
+        void adjustStartIndex(int indexOffset);
+
+        void setDevBounds(const SkRect& bounds) {
+            fDevBoundsStorage = bounds;
+            fDevBounds = &fDevBoundsStorage;
+        }
+        const SkRect* getDevBounds() const { return fDevBounds; }
+
+        // NULL if no copy of the dst is needed for the draw.
+        const GrDeviceCoordTexture* getDstCopy() const {
+            if (fDstCopy.texture()) {
+                return &fDstCopy;
+            } else {
+                return NULL;
+            }
+        }
+
+    private:
+        DrawInfo() { fDevBounds = NULL; }
+
+        friend class GrDrawTarget;
+
+        GrPrimitiveType         fPrimitiveType;
+
+        int                     fStartVertex;
+        int                     fStartIndex;
+        int                     fVertexCount;
+        int                     fIndexCount;
+
+        int                     fInstanceCount;
+        int                     fVerticesPerInstance;
+        int                     fIndicesPerInstance;
+
+        SkRect                  fDevBoundsStorage;
+        SkRect*                 fDevBounds;
+
+        GrDeviceCoordTexture    fDstCopy;
+    };
 
     bool programUnitTest(int maxStages);
 
@@ -765,74 +830,6 @@ protected:
     SkAutoTUnref<const GrDrawTargetCaps> fCaps;
 
     const GrTraceMarkerSet& getActiveTraceMarkers() { return fActiveTraceMarkers; }
-
-    /**
-     * Used to communicate draws to subclass's onDraw function.
-     */
-    class DrawInfo {
-    public:
-        DrawInfo(const DrawInfo& di) { (*this) = di; }
-        DrawInfo& operator =(const DrawInfo& di);
-
-        GrPrimitiveType primitiveType() const { return fPrimitiveType; }
-        int startVertex() const { return fStartVertex; }
-        int startIndex() const { return fStartIndex; }
-        int vertexCount() const { return fVertexCount; }
-        int indexCount() const { return fIndexCount; }
-        int verticesPerInstance() const { return fVerticesPerInstance; }
-        int indicesPerInstance() const { return fIndicesPerInstance; }
-        int instanceCount() const { return fInstanceCount; }
-
-        bool isIndexed() const { return fIndexCount > 0; }
-#ifdef SK_DEBUG
-        bool isInstanced() const; // this version is longer because of asserts
-#else
-        bool isInstanced() const { return fInstanceCount > 0; }
-#endif
-
-        // adds or remove instances
-        void adjustInstanceCount(int instanceOffset);
-        // shifts the start vertex
-        void adjustStartVertex(int vertexOffset);
-        // shifts the start index
-        void adjustStartIndex(int indexOffset);
-
-        void setDevBounds(const SkRect& bounds) {
-            fDevBoundsStorage = bounds;
-            fDevBounds = &fDevBoundsStorage;
-        }
-        const SkRect* getDevBounds() const { return fDevBounds; }
-
-        // NULL if no copy of the dst is needed for the draw.
-        const GrDeviceCoordTexture* getDstCopy() const {
-            if (fDstCopy.texture()) {
-                return &fDstCopy;
-            } else {
-                return NULL;
-            }
-        }
-
-    private:
-        DrawInfo() { fDevBounds = NULL; }
-
-        friend class GrDrawTarget;
-
-        GrPrimitiveType         fPrimitiveType;
-
-        int                     fStartVertex;
-        int                     fStartIndex;
-        int                     fVertexCount;
-        int                     fIndexCount;
-
-        int                     fInstanceCount;
-        int                     fVerticesPerInstance;
-        int                     fIndicesPerInstance;
-
-        SkRect                  fDevBoundsStorage;
-        SkRect*                 fDevBounds;
-
-        GrDeviceCoordTexture    fDstCopy;
-    };
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
@@ -928,6 +925,10 @@ private:
     int                                                             fGpuTraceMarkerCount;
     GrTraceMarkerSet                                                fActiveTraceMarkers;
     GrTraceMarkerSet                                                fStoredTraceMarkers;
+
+    // TODO fix this
+    friend class GrGpu;
+    friend class GrGpuGL;
 
     typedef SkRefCnt INHERITED;
 };

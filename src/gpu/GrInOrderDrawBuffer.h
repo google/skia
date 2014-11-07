@@ -110,7 +110,7 @@ private:
         Cmd(uint8_t type) : fType(type) {}
         virtual ~Cmd() {}
 
-        virtual void execute(GrClipTarget*) = 0;
+        virtual void execute(GrGpu*) = 0;
 
         uint8_t fType;
     };
@@ -129,7 +129,7 @@ private:
         const GrVertexBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
         const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
 
-        virtual void execute(GrClipTarget*);
+        virtual void execute(GrGpu*);
 
         DrawInfo     fInfo;
         ScissorState fScissorState;
@@ -144,7 +144,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        virtual void execute(GrClipTarget*);
+        virtual void execute(GrGpu*);
 
         ScissorState      fScissorState;
         GrStencilSettings fStencilSettings;
@@ -158,7 +158,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        virtual void execute(GrClipTarget*);
+        virtual void execute(GrGpu*);
 
         GrDeviceCoordTexture    fDstCopy;
         ScissorState            fScissorState;
@@ -175,7 +175,7 @@ private:
         uint32_t* indices() { return reinterpret_cast<uint32_t*>(CmdBuffer::GetDataForItem(this)); }
         float* transforms() { return reinterpret_cast<float*>(&this->indices()[fCount]); }
 
-        virtual void execute(GrClipTarget*);
+        virtual void execute(GrGpu*);
 
         size_t                  fCount;
         PathTransformType       fTransformsType;
@@ -193,7 +193,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        virtual void execute(GrClipTarget*);
+        virtual void execute(GrGpu*);
 
         SkIRect fRect;
         GrColor fColor;
@@ -209,7 +209,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        virtual void execute(GrClipTarget*);
+        virtual void execute(GrGpu*);
 
         SkIRect fRect;
         bool    fInsideClip;
@@ -224,7 +224,7 @@ private:
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
 
-        virtual void execute(GrClipTarget*);
+        virtual void execute(GrGpu*);
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -237,7 +237,7 @@ private:
     struct SetState : public Cmd {
         SetState(const GrDrawState& state) : Cmd(kSetState_Cmd), fState(state) {}
 
-        virtual void execute(GrClipTarget*);
+        virtual void execute(GrGpu*);
 
         GrDrawState fState;
     };
@@ -308,7 +308,7 @@ private:
     CmdBuffer                         fCmdBuffer;
     GrDrawState*                      fLastState;
     SkTArray<GrTraceMarkerSet, false> fGpuCmdMarkers;
-    GrClipTarget*                     fDstGpu;
+    GrGpu*                            fDstGpu;
     GrVertexBufferAllocPool&          fVertexPool;
     GrIndexBufferAllocPool&           fIndexPool;
 
