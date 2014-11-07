@@ -16,12 +16,6 @@
 #include "GrStencilBuffer.h"
 #include "GrVertexBuffer.h"
 
-// probably makes no sense for this to be less than a page
-static const size_t VERTEX_POOL_VB_SIZE = 1 << 18;
-static const int VERTEX_POOL_VB_COUNT = 4;
-static const size_t INDEX_POOL_IB_SIZE = 1 << 16;
-static const int INDEX_POOL_IB_COUNT = 4;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 #define DEBUG_INVAL_BUFFER    0xdeadcafe
@@ -30,46 +24,18 @@ static const int INDEX_POOL_IB_COUNT = 4;
 GrGpu::GrGpu(GrContext* context)
     : fResetTimestamp(kExpiredTimestamp+1)
     , fResetBits(kAll_GrBackendState)
-    , fVertexPool(NULL)
-    , fIndexPool(NULL)
-    , fVertexPoolUseCnt(0)
-    , fIndexPoolUseCnt(0)
     , fQuadIndexBuffer(NULL)
     , fContext(context) {
-    fGeomPoolStateStack.push_back();
     fDrawState = &fDefaultDrawState;
     // We assume that fDrawState always owns a ref to the object it points at.
     fDefaultDrawState.ref();
-#ifdef SK_DEBUG
-    GeometryPoolState& poolState = fGeomPoolStateStack.back();
-    poolState.fPoolVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
-    poolState.fPoolStartVertex = DEBUG_INVAL_START_IDX;
-    poolState.fPoolIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
-    poolState.fPoolStartIndex = DEBUG_INVAL_START_IDX;
-#endif
-
-    GrDrawTarget::GeometrySrcState& geoSrc = fGeoSrcStateStack.push_back();
-#ifdef SK_DEBUG
-    geoSrc.fVertexCount = DEBUG_INVAL_START_IDX;
-    geoSrc.fVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
-    geoSrc.fIndexCount = DEBUG_INVAL_START_IDX;
-    geoSrc.fIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
-#endif
-    geoSrc.fVertexSrc = GrDrawTarget::kNone_GeometrySrcType;
-    geoSrc.fIndexSrc  = GrDrawTarget::kNone_GeometrySrcType;
 }
 
 GrGpu::~GrGpu() {
     SkSafeSetNull(fQuadIndexBuffer);
-    delete fVertexPool;
-    fVertexPool = NULL;
-    delete fIndexPool;
-    fIndexPool = NULL;
-    SkASSERT(1 == fGeoSrcStateStack.count());
-    SkDEBUGCODE(GrDrawTarget::GeometrySrcState& geoSrc = fGeoSrcStateStack.back());
-    SkASSERT(GrDrawTarget::kNone_GeometrySrcType == geoSrc.fIndexSrc);
-    SkASSERT(GrDrawTarget::kNone_GeometrySrcType == geoSrc.fVertexSrc);
     SkSafeUnref(fDrawState);
+    SkSafeUnref(fGeoSrcState.fVertexBuffer);
+    SkSafeUnref(fGeoSrcState.fIndexBuffer);
 }
 
 void GrGpu::contextAbandoned() {}
@@ -308,19 +274,15 @@ void GrGpu::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
 }
 
 void GrGpu::setVertexSourceToBuffer(const GrVertexBuffer* buffer) {
-    this->releasePreviousVertexSource();
-    GrDrawTarget::GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
-    geoSrc.fVertexSrc    = GrDrawTarget::kBuffer_GeometrySrcType;
-    geoSrc.fVertexBuffer = buffer;
+    SkSafeUnref(fGeoSrcState.fVertexBuffer);
+    fGeoSrcState.fVertexBuffer = buffer;
     buffer->ref();
-    geoSrc.fVertexSize = this->drawState()->getVertexStride();
+    fGeoSrcState.fVertexSize = this->drawState()->getVertexStride();
 }
 
 void GrGpu::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
-    this->releasePreviousIndexSource();
-    GrDrawTarget::GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
-    geoSrc.fIndexSrc     = GrDrawTarget::kBuffer_GeometrySrcType;
-    geoSrc.fIndexBuffer  = buffer;
+    SkSafeUnref(fGeoSrcState.fIndexBuffer);
+    fGeoSrcState.fIndexBuffer = buffer;
     buffer->ref();
 }
 
@@ -334,41 +296,6 @@ void GrGpu::setDrawState(GrDrawState*  drawState) {
         drawState->ref();
         fDrawState = drawState;
     }
-}
-
-void GrGpu::resetVertexSource() {
-    this->releasePreviousVertexSource();
-    GrDrawTarget::GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
-    geoSrc.fVertexSrc = GrDrawTarget::kNone_GeometrySrcType;
-}
-
-void GrGpu::resetIndexSource() {
-    this->releasePreviousIndexSource();
-    GrDrawTarget::GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
-    geoSrc.fIndexSrc = GrDrawTarget::kNone_GeometrySrcType;
-}
-
-void GrGpu::pushGeometrySource() {
-    this->geometrySourceWillPush();
-    GrDrawTarget::GeometrySrcState& newState = fGeoSrcStateStack.push_back();
-    newState.fIndexSrc = GrDrawTarget::kNone_GeometrySrcType;
-    newState.fVertexSrc = GrDrawTarget::kNone_GeometrySrcType;
-#ifdef SK_DEBUG
-    newState.fVertexCount  = ~0;
-    newState.fVertexBuffer = (GrVertexBuffer*)~0;
-    newState.fIndexCount   = ~0;
-    newState.fIndexBuffer = (GrIndexBuffer*)~0;
-#endif
-}
-
-void GrGpu::popGeometrySource() {
-    // if popping last element then pops are unbalanced with pushes
-    SkASSERT(fGeoSrcStateStack.count() > 1);
-
-    this->geometrySourceWillPop(fGeoSrcStateStack.fromBack(1));
-    this->releasePreviousVertexSource();
-    this->releasePreviousIndexSource();
-    fGeoSrcStateStack.pop_back();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -395,31 +322,6 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void GrGpu::geometrySourceWillPush() {
-    const GrDrawTarget::GeometrySrcState& geoSrc = this->getGeomSrc();
-    if (GrDrawTarget::kReserved_GeometrySrcType == geoSrc.fVertexSrc) {
-        this->finalizeReservedVertices();
-    }
-    if (GrDrawTarget::kReserved_GeometrySrcType == geoSrc.fIndexSrc) {
-        this->finalizeReservedIndices();
-    }
-    GeometryPoolState& newState = fGeomPoolStateStack.push_back();
-#ifdef SK_DEBUG
-    newState.fPoolVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
-    newState.fPoolStartVertex = DEBUG_INVAL_START_IDX;
-    newState.fPoolIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
-    newState.fPoolStartIndex = DEBUG_INVAL_START_IDX;
-#else
-    (void) newState; // silence compiler warning
-#endif
-}
-
-void GrGpu::geometrySourceWillPop(const GrDrawTarget::GeometrySrcState& restoredState) {
-    // if popping last entry then pops are unbalanced with pushes
-    SkASSERT(fGeomPoolStateStack.count() > 1);
-    fGeomPoolStateStack.pop_back();
-}
 
 void GrGpu::onDraw(const GrDrawTarget::DrawInfo& info,
                    const GrClipMaskManager::ScissorState& scissorState) {
@@ -475,145 +377,4 @@ void GrGpu::onDrawPaths(const GrPathRange* pathRange,
     pathRange->willDrawPaths(indices, count);
     this->pathRendering()->drawPaths(pathRange, indices, count, transforms, transformsType,
                                      stencilSettings);
-}
-
-void GrGpu::finalizeReservedVertices() {
-    SkASSERT(fVertexPool);
-    fVertexPool->unmap();
-}
-
-void GrGpu::finalizeReservedIndices() {
-    SkASSERT(fIndexPool);
-    fIndexPool->unmap();
-}
-
-void GrGpu::prepareVertexPool() {
-    if (NULL == fVertexPool) {
-        SkASSERT(0 == fVertexPoolUseCnt);
-        fVertexPool = SkNEW_ARGS(GrVertexBufferAllocPool, (this, true,
-                                                  VERTEX_POOL_VB_SIZE,
-                                                  VERTEX_POOL_VB_COUNT));
-        fVertexPool->releaseGpuRef();
-    } else if (!fVertexPoolUseCnt) {
-        // the client doesn't have valid data in the pool
-        fVertexPool->reset();
-    }
-}
-
-void GrGpu::prepareIndexPool() {
-    if (NULL == fIndexPool) {
-        SkASSERT(0 == fIndexPoolUseCnt);
-        fIndexPool = SkNEW_ARGS(GrIndexBufferAllocPool, (this, true,
-                                                INDEX_POOL_IB_SIZE,
-                                                INDEX_POOL_IB_COUNT));
-        fIndexPool->releaseGpuRef();
-    } else if (!fIndexPoolUseCnt) {
-        // the client doesn't have valid data in the pool
-        fIndexPool->reset();
-    }
-}
-
-bool GrGpu::onReserveVertexSpace(size_t vertexSize,
-                                 int vertexCount,
-                                 void** vertices) {
-    GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
-
-    SkASSERT(vertexCount > 0);
-    SkASSERT(vertices);
-
-    this->prepareVertexPool();
-
-    *vertices = fVertexPool->makeSpace(vertexSize,
-                                       vertexCount,
-                                       &geomPoolState.fPoolVertexBuffer,
-                                       &geomPoolState.fPoolStartVertex);
-    if (NULL == *vertices) {
-        return false;
-    }
-    ++fVertexPoolUseCnt;
-    return true;
-}
-
-bool GrGpu::onReserveIndexSpace(int indexCount, void** indices) {
-    GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
-
-    SkASSERT(indexCount > 0);
-    SkASSERT(indices);
-
-    this->prepareIndexPool();
-
-    *indices = fIndexPool->makeSpace(indexCount,
-                                     &geomPoolState.fPoolIndexBuffer,
-                                     &geomPoolState.fPoolStartIndex);
-    if (NULL == *indices) {
-        return false;
-    }
-    ++fIndexPoolUseCnt;
-    return true;
-}
-
-void GrGpu::releaseReservedVertexSpace() {
-    const GrDrawTarget::GeometrySrcState& geoSrc = this->getGeomSrc();
-    SkASSERT(GrDrawTarget::kReserved_GeometrySrcType == geoSrc.fVertexSrc);
-    size_t bytes = geoSrc.fVertexCount * geoSrc.fVertexSize;
-    fVertexPool->putBack(bytes);
-    --fVertexPoolUseCnt;
-}
-
-void GrGpu::releaseReservedIndexSpace() {
-    const GrDrawTarget::GeometrySrcState& geoSrc = this->getGeomSrc();
-    SkASSERT(GrDrawTarget::kReserved_GeometrySrcType == geoSrc.fIndexSrc);
-    size_t bytes = geoSrc.fIndexCount * sizeof(uint16_t);
-    fIndexPool->putBack(bytes);
-    --fIndexPoolUseCnt;
-}
-
-void GrGpu::releasePreviousVertexSource() {
-    GrDrawTarget::GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
-    switch (geoSrc.fVertexSrc) {
-        case GrDrawTarget::kNone_GeometrySrcType:
-            break;
-        case GrDrawTarget::kReserved_GeometrySrcType:
-            this->releaseReservedVertexSpace();
-            break;
-        case GrDrawTarget::kBuffer_GeometrySrcType:
-            geoSrc.fVertexBuffer->unref();
-#ifdef SK_DEBUG
-            geoSrc.fVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
-#endif
-            break;
-        default:
-            SkFAIL("Unknown Vertex Source Type.");
-            break;
-    }
-}
-
-void GrGpu::releasePreviousIndexSource() {
-    GrDrawTarget::GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
-    switch (geoSrc.fIndexSrc) {
-        case GrDrawTarget::kNone_GeometrySrcType:   // these two don't require
-            break;
-        case GrDrawTarget::kReserved_GeometrySrcType:
-            this->releaseReservedIndexSpace();
-            break;
-        case GrDrawTarget::kBuffer_GeometrySrcType:
-            geoSrc.fIndexBuffer->unref();
-#ifdef SK_DEBUG
-            geoSrc.fIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
-#endif
-            break;
-        default:
-            SkFAIL("Unknown Index Source Type.");
-            break;
-    }
-}
-
-void GrGpu::releaseGeometry() {
-    int popCnt = fGeoSrcStateStack.count() - 1;
-    while (popCnt) {
-        this->popGeometrySource();
-        --popCnt;
-    }
-    this->resetVertexSource();
-    this->resetIndexSource();
 }

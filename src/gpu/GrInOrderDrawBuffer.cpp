@@ -559,17 +559,12 @@ void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(int vertexCount,
         !indexCount &&
         kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
 
-    // we don't want to finalize any reserved geom on the target since
-    // we don't know that the client has finished writing to it.
-    bool targetHasReservedGeom = fDstGpu->hasReservedVerticesOrIndices();
-
     int vcount = vertexCount;
     int icount = indexCount;
 
     if (!insideGeoPush &&
         !unreleasedVertexSpace &&
         !unreleasedIndexSpace &&
-        !targetHasReservedGeom &&
         this->geometryHints(&vcount, &icount)) {
         this->flush();
     }

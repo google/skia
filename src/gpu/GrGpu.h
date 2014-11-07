@@ -374,14 +374,6 @@ public:
     void saveActiveTraceMarkers();
     void restoreActiveTraceMarkers();
 
-    /**
-     * Query to find out if the vertex or index source is reserved.
-     */
-    bool hasReservedVerticesOrIndices() const {
-        return GrDrawTarget::kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc ||
-               GrDrawTarget::kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
-    }
-
     // Called to determine whether an onCopySurface call would succeed or not. This is useful for
     // proxy subclasses to test whether the copy would succeed without executing it yet. Derived
     // classes must keep this consistent with their implementation of onCopySurface(). The inputs
@@ -420,34 +412,6 @@ public:
      */
     void setIndexSourceToBuffer(const GrIndexBuffer* buffer);
 
-    /**
-     * Resets vertex source. Drawing from reset vertices is illegal. Set vertex
-     * source to reserved, array, or buffer before next draw. May be able to free
-     * up temporary storage allocated by setVertexSourceToArray or
-     * reserveVertexSpace.
-     */
-    void resetVertexSource();
-
-    /**
-     * Resets index source. Indexed Drawing from reset indices is illegal. Set
-     * index source to reserved, array, or buffer before next indexed draw. May
-     * be able to free up temporary storage allocated by setIndexSourceToArray
-     * or reserveIndexSpace.
-     */
-    void resetIndexSource();
-
-    /**
-     * Pushes and resets the vertex/index sources. Any reserved vertex / index
-     * data is finalized (i.e. cannot be updated after the matching pop but can
-     * be drawn from). Must be balanced by a pop.
-     */
-    void pushGeometrySource();
-
-    /**
-     * Pops the vertex / index sources from the matching push.
-     */
-    void popGeometrySource();
-
 protected:
     DrawType PrimTypeToDrawType(GrPrimitiveType type) {
         switch (type) {
@@ -477,18 +441,20 @@ protected:
                                           unsigned int* ref,
                                           unsigned int* mask);
 
-    // subclasses must call this in their destructors to ensure all vertex
-    // and index sources have been released (including those held by
-    // pushGeometrySource())
-    void releaseGeometry();
+    struct GeometrySrcState {
+        GeometrySrcState() : fVertexBuffer(NULL), fIndexBuffer(NULL), fVertexSize(0) {}
+        const GrVertexBuffer*   fVertexBuffer;
+        const GrIndexBuffer*    fIndexBuffer;
+        size_t                  fVertexSize;
+    };
 
     // accessors for derived classes
-    const GrDrawTarget::GeometrySrcState& getGeomSrc() const { return fGeoSrcStateStack.back(); }
+    const GeometrySrcState& getGeomSrc() const { return fGeoSrcState; }
 
     // it is preferable to call this rather than getGeomSrc()->fVertexSize because of the assert.
     size_t getVertexSize() const {
         // the vertex layout is only valid if a vertex source has been specified.
-        SkASSERT(this->getGeomSrc().fVertexSrc != GrDrawTarget::kNone_GeometrySrcType);
+        SkASSERT(this->getGeomSrc().fVertexBuffer);
         return this->getGeomSrc().fVertexSize;
     }
 
@@ -496,35 +462,12 @@ protected:
 
     GrContext::GPUStats         fGPUStats;
 
-    struct GeometryPoolState {
-        const GrVertexBuffer* fPoolVertexBuffer;
-        int                   fPoolStartVertex;
-
-        const GrIndexBuffer*  fPoolIndexBuffer;
-        int                   fPoolStartIndex;
-    };
-    const GeometryPoolState& getGeomPoolState() {
-        return fGeomPoolStateStack.back();
-    }
-
-    // Helpers for setting up geometry state
-    void finalizeReservedVertices();
-    void finalizeReservedIndices();
-
     SkAutoTDelete<GrPathRendering> fPathRendering;
 
     // Subclass must initialize this in its constructor.
     SkAutoTUnref<const GrDrawTargetCaps> fCaps;
 
 private:
-    // GrDrawTarget overrides
-    virtual bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices);
-    virtual bool onReserveIndexSpace(int indexCount, void** indices);
-    virtual void releaseReservedVertexSpace();
-    virtual void releaseReservedIndexSpace();
-    virtual void geometrySourceWillPush();
-    virtual void geometrySourceWillPop(const GrDrawTarget::GeometrySrcState& restoredState);
-
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
     virtual void onResetContext(uint32_t resetBits) = 0;
@@ -614,11 +557,6 @@ private:
     virtual void didAddGpuTraceMarker() = 0;
     virtual void didRemoveGpuTraceMarker() = 0;
 
-
-    // readies the pools to provide vertex/index data.
-    void prepareVertexPool();
-    void prepareIndexPool();
-
     void resetContext() {
         this->onResetContext(fResetBits);
         fResetBits = 0;
@@ -631,29 +569,12 @@ private:
         }
     }
 
-    // called when setting a new vert/idx source to unref prev vb/ib
-    void releasePreviousVertexSource();
-    void releasePreviousIndexSource();
-
-    enum {
-        kPreallocGeoSrcStateStackCnt = 4,
-    };
-    SkSTArray<kPreallocGeoSrcStateStackCnt, GrDrawTarget::GeometrySrcState, true> fGeoSrcStateStack;
-
-    enum {
-        kPreallocGeomPoolStateStackCnt = 4,
-    };
-    SkSTArray<kPreallocGeomPoolStateStackCnt, GeometryPoolState, true>  fGeomPoolStateStack;
+    GeometrySrcState                                                    fGeoSrcState;
     ResetTimestamp                                                      fResetTimestamp;
     uint32_t                                                            fResetBits;
-    GrVertexBufferAllocPool*                                            fVertexPool;
-    GrIndexBufferAllocPool*                                             fIndexPool;
-    // counts number of uses of vertex/index pool in the geometry stack
-    int                                                                 fVertexPoolUseCnt;
-    int                                                                 fIndexPoolUseCnt;
     // these are mutable so they can be created on-demand
     mutable GrIndexBuffer*                                              fQuadIndexBuffer;
-    GrDrawState                                                     fDefaultDrawState;
+    GrDrawState                                                         fDefaultDrawState;
     GrDrawState*                                                        fDrawState;
     // To keep track that we always have at least as many debug marker adds as removes
     int                                                                 fGpuTraceMarkerCount;

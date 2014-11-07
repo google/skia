@@ -164,9 +164,6 @@ GrGpuGL::~GrGpuGL() {
     }
 
     delete fProgramCache;
-
-    // This must be called by before the GrDrawTarget destructor
-    this->releaseGeometry();
 }
 
 void GrGpuGL::contextAbandoned() {

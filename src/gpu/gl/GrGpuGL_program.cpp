@@ -277,22 +277,8 @@ void GrGpuGL::setupGeometry(const GrDrawTarget::DrawInfo& info, size_t* indexOff
 
     size_t vertexOffsetInBytes = stride * info.startVertex();
 
-    const GeometryPoolState& geoPoolState = this->getGeomPoolState();
-
     GrGLVertexBuffer* vbuf;
-    switch (this->getGeomSrc().fVertexSrc) {
-        case GrDrawTarget::kBuffer_GeometrySrcType:
-            vbuf = (GrGLVertexBuffer*) this->getGeomSrc().fVertexBuffer;
-            break;
-        case GrDrawTarget::kReserved_GeometrySrcType:
-            this->finalizeReservedVertices();
-            vertexOffsetInBytes += geoPoolState.fPoolStartVertex * this->getGeomSrc().fVertexSize;
-            vbuf = (GrGLVertexBuffer*) geoPoolState.fPoolVertexBuffer;
-            break;
-        default:
-            vbuf = NULL; // suppress warning
-            SkFAIL("Unknown geometry src type!");
-    }
+    vbuf = (GrGLVertexBuffer*) this->getGeomSrc().fVertexBuffer;
 
     SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
@@ -302,20 +288,8 @@ void GrGpuGL::setupGeometry(const GrDrawTarget::DrawInfo& info, size_t* indexOff
     if (info.isIndexed()) {
         SkASSERT(indexOffsetInBytes);
 
-        switch (this->getGeomSrc().fIndexSrc) {
-        case GrDrawTarget::kBuffer_GeometrySrcType:
-            *indexOffsetInBytes = 0;
-            ibuf = (GrGLIndexBuffer*)this->getGeomSrc().fIndexBuffer;
-            break;
-        case GrDrawTarget::kReserved_GeometrySrcType:
-            this->finalizeReservedIndices();
-            *indexOffsetInBytes = geoPoolState.fPoolStartIndex * sizeof(GrGLushort);
-            ibuf = (GrGLIndexBuffer*) geoPoolState.fPoolIndexBuffer;
-            break;
-        default:
-            ibuf = NULL; // suppress warning
-            SkFAIL("Unknown geometry src type!");
-        }
+        *indexOffsetInBytes = 0;
+        ibuf = (GrGLIndexBuffer*)this->getGeomSrc().fIndexBuffer;
 
         SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());
