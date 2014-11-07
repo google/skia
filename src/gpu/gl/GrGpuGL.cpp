@@ -568,7 +568,8 @@ bool GrGpuGL::uploadTexData(const GrSurfaceDesc& desc,
     // At least some versions of the ES3 drivers for NVIDIA and IMG won't accept GL_RED in
     // glTexImage2D for the internal format but will accept GL_R8.
     if (kNVIDIA_GrGLVendor == this->glContext().vendor() ||
-        kImagination_GrGLVendor == this->glContext().vendor()) {
+        kImagination_GrGLVendor == this->glContext().vendor() ||
+        this->glContext().isMesa()) {
         if (kGLES_GrGLStandard == this->glStandard() && this->glVersion() >= GR_GL_VER(3, 0) &&
             kAlpha_8_GrPixelConfig == dataConfig) {
            useSizedFormat = true;
