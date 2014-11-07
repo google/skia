@@ -127,7 +127,7 @@ int test_main() {
     }
 #endif
 
-    SkGraphics::Init();
+    SkAutoGraphics ag;
 
     {
         SkString header("Skia UnitTests:");
@@ -213,7 +213,6 @@ int test_main() {
         SkDebugf("\nFinished %d tests, %d failures, %d skipped. (%d internal tests)",
                  toRun, failCount, skipCount, reporter.countTests());
     }
-    SkGraphics::Term();
 
     SkDebugf("\n");
     return (failCount == 0) ? 0 : 1;

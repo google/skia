@@ -2257,7 +2257,7 @@ int tool_main(int argc, char** argv) {
     }
 #endif
 
-    SkGraphics::Init();
+    SkAutoGraphics ag;
 
     setSystemPreferences();
     GMMain gmmain;
@@ -2474,7 +2474,6 @@ int tool_main(int argc, char** argv) {
 
     delete grFactory;
 #endif
-    SkGraphics::Term();
 
     return (reportError) ? -1 : 0;
 }
