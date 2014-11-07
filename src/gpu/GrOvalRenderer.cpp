@@ -100,10 +100,6 @@ public:
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();;
             vsBuilder->codeAppendf("%s = %s;", v.vsOut(), circleEffect.inCircleEdge().c_str());
 
-            // setup position varying
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   vsBuilder->uViewM(), vsBuilder->inPosition());
-
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
             fsBuilder->codeAppendf("float edgeAlpha = clamp(%s.z - d, 0.0, 1.0);", v.fsIn());
@@ -222,10 +218,6 @@ public:
             args.fPB->addVarying("EllipseRadii", &ellipseRadii);
             vsBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(),
                                    ellipseEffect.inEllipseRadii().c_str());
-
-            // setup position varying
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   vsBuilder->uViewM(), vsBuilder->inPosition());
 
             // for outer curve
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -372,10 +364,6 @@ public:
             args.fPB->addVarying("EllipseOffsets1", &offsets1);
             vsBuilder->codeAppendf("%s = %s;", offsets1.vsOut(),
                                    ellipseEffect.inEllipseOffsets1().c_str());
-
-            // setup position varying
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   vsBuilder->uViewM(), vsBuilder->inPosition());
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             SkAssertResult(fsBuilder->enableFeature(

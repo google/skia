@@ -31,15 +31,6 @@ public:
       */
     const GrGLShaderVar& positionAttribute() const { return *fPositionVar; }
 
-    /** returns the expected position output */
-    const char* glPosition() const { return "pos3"; }
-
-    /** returns the expected uviewM matrix */
-    // TODO all of this fixed function stuff can live on the GP/PP
-    const char* uViewM() const { return "uViewM"; }
-    const char* inPosition() const { return "inPosition"; }
-
-
 private:
     /*
      * Internal call for GrGLProgramBuilder.addVarying
@@ -49,13 +40,12 @@ private:
     /*
      * private helpers for compilation by GrGLProgramBuilder
      */
-    void transformToNormalizedDeviceSpace();
-    //TODO GP itself should setup the uniform view matrix
-    void setupUniformViewMatrix();
-    void setupPositionAndLocalCoords();
+    void setupLocalCoords();
+    void transformGLToSkiaCoords();
     void setupBuiltinVertexAttribute(const char* inName, GrGLSLExpr1* out);
     void setupBuiltinVertexAttribute(const char* inName, GrGLSLExpr4* out);
     void emitAttributes(const GrGeometryProcessor& gp);
+    void transformSkiaToGLCoords();
     void bindVertexAttributes(GrGLuint programID);
     bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;
 
@@ -71,7 +61,6 @@ private:
 
     GrGLShaderVar*                      fPositionVar;
     GrGLShaderVar*                      fLocalCoordsVar;
-    const char*                         fRtAdjustName;
     int                                 fEffectAttribOffset;
 
     friend class GrGLProgramBuilder;

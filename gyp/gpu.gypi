@@ -72,8 +72,6 @@
       '<(skia_src_path)/gpu/GrClipMaskManager.h',
       '<(skia_src_path)/gpu/GrClipMaskManager.cpp',
       '<(skia_src_path)/gpu/GrContext.cpp',
-      '<(skia_src_path)/gpu/GrDefaultGeoProcFactory.cpp',
-      '<(skia_src_path)/gpu/GrDefaultGeoProcFactory.h',
       '<(skia_src_path)/gpu/GrDefaultPathRenderer.cpp',
       '<(skia_src_path)/gpu/GrDefaultPathRenderer.h',
       '<(skia_src_path)/gpu/GrDistanceFieldTextContext.h',

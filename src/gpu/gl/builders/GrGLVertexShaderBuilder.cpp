@@ -20,7 +20,6 @@ GrGLVertexBuilder::GrGLVertexBuilder(GrGLProgramBuilder* program)
     : INHERITED(program)
     , fPositionVar(NULL)
     , fLocalCoordsVar(NULL)
-    , fRtAdjustName(NULL)
     , fEffectAttribOffset(0) {
 }
 
@@ -32,22 +31,9 @@ void GrGLVertexBuilder::addVarying(const char* name, GrGLVarying* v) {
     v->fVsOut = fOutputs.back().getName().c_str();
 }
 
-void GrGLVertexBuilder::setupUniformViewMatrix() {
-    fProgramBuilder->fUniformHandles.fViewMatrixUni =
-            fProgramBuilder->addUniform(GrGLProgramBuilder::kVertex_Visibility,
-                                        kMat33f_GrSLType,
-                                        this->uViewM());
-}
-
-void GrGLVertexBuilder::setupPositionAndLocalCoords() {
-    // Setup position
-    this->codeAppendf("vec3 %s;", this->glPosition());
-
-    // setup position and local coords attribute
+void GrGLVertexBuilder::setupLocalCoords() {
     fPositionVar = &fInputs.push_back();
-    fPositionVar->set(kVec2f_GrSLType,
-                      GrGLShaderVar::kAttribute_TypeModifier,
-                      this->inPosition());
+    fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "inPosition");
     if (-1 != fProgramBuilder->header().fLocalCoordAttributeIndex) {
         fLocalCoordsVar = &fInputs.push_back();
         fLocalCoordsVar->set(kVec2f_GrSLType,
@@ -57,6 +43,18 @@ void GrGLVertexBuilder::setupPositionAndLocalCoords() {
         fLocalCoordsVar = fPositionVar;
     }
     fEffectAttribOffset = fInputs.count();
+}
+
+void GrGLVertexBuilder::transformGLToSkiaCoords() {
+    const char* viewMName;
+    fProgramBuilder->fUniformHandles.fViewMatrixUni =
+            fProgramBuilder->addUniform(GrGLProgramBuilder::kVertex_Visibility,
+                                        kMat33f_GrSLType,
+                                        "ViewM",
+                                        &viewMName);
+
+    // Transform the position into Skia's device coords.
+    this->codeAppendf("vec3 pos3 = %s * vec3(%s, 1);", viewMName, fPositionVar->c_str());
 }
 
 void GrGLVertexBuilder::setupBuiltinVertexAttribute(const char* inName, GrGLSLExpr1* out) {
@@ -93,34 +91,17 @@ void GrGLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
     }
 }
 
-void GrGLVertexBuilder::transformToNormalizedDeviceSpace() {
-    // setup RT Uniform
+void GrGLVertexBuilder::transformSkiaToGLCoords() {
+    const char* rtAdjustName;
     fProgramBuilder->fUniformHandles.fRTAdjustmentUni =
             fProgramBuilder->addUniform(GrGLProgramBuilder::kVertex_Visibility,
                                         kVec4f_GrSLType,
-                                        fProgramBuilder->rtAdjustment(),
-                                        &fRtAdjustName);
-    // Wire transforms
-    SkTArray<GrGLProgramBuilder::TransformVarying, true>& transVs = fProgramBuilder->fCoordVaryings;
-    int transformCount = transVs.count();
-    for (int i = 0; i < transformCount; i++) {
-        const char* coords = transVs[i].fSourceCoords.c_str();
-
-        // varying = matrix * coords (logically)
-        const GrGLVarying& v = transVs[i].fV;
-        if (kVec2f_GrSLType == v.fType) {
-            this->codeAppendf("%s = (%s * vec3(%s, 1)).xy;", v.fVsOut, transVs[i].fUniName.c_str(),
-                              coords);
-        } else {
-            this->codeAppendf("%s = %s * vec3(%s, 1);", v.fVsOut, transVs[i].fUniName.c_str(),
-                              coords);
-        }
-    }
+                                        "rtAdjustment",
+                                        &rtAdjustName);
 
     // Transform from Skia's device coords to GL's normalized device coords.
-    this->codeAppendf("gl_Position = vec4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
-                      this->glPosition(), fRtAdjustName, this->glPosition(), fRtAdjustName,
-                      this->glPosition());
+    this->codeAppendf("gl_Position = vec4(dot(pos3.xz, %s.xy), dot(pos3.yz, %s.zw), 0, pos3.z);",
+                    rtAdjustName, rtAdjustName);
 }
 
 void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {

@@ -520,10 +520,6 @@ void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
     vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), dce.inCoord().c_str());
 
-    // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
-                           vsBuilder->inPosition());
-
     // transforms all points so that we can compare them to our test circle
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("\t\tfloat xShifted = %s.x - floor(%s.x / %s.z) * %s.z;\n",
@@ -726,10 +722,6 @@ void GLDashingLineEffect::emitCode(const EmitArgs& args) {
     args.fPB->addVarying("Coord", &v);
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
     vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), de.inCoord().c_str());
-
-    // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
-                           vsBuilder->inPosition());
 
     // transforms all points so that we can compare them to our test rect
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();

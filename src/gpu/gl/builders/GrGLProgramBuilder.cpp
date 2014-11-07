@@ -57,11 +57,9 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
     bool hasVertexShader = !(header.fUseNvpr &&
                              gpu->glPathRendering()->texturingMode() ==
                              GrGLPathRendering::FixedFunction_TexturingMode);
-
     if (hasVertexShader) {
-        pb->fVS.setupUniformViewMatrix();
-        pb->fVS.setupPositionAndLocalCoords();
-
+        pb->fVS.setupLocalCoords();
+        pb->fVS.transformGLToSkiaCoords();
         if (header.fEmitsPointSize) {
             pb->fVS.codeAppend("gl_PointSize = 1.0;");
         }
@@ -77,10 +75,10 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
     // remove this cast to a vec4.
     GrGLSLExpr4 inputCoverageVec4 = GrGLSLExpr4::VectorCast(inputCoverage);
 
-    pb->emitAndInstallProcs(&inputColor, &inputCoverageVec4);
+    pb->emitAndInstallProcs(optState, &inputColor, &inputCoverageVec4);
 
     if (hasVertexShader) {
-        pb->fVS.transformToNormalizedDeviceSpace();
+        pb->fVS.transformSkiaToGLCoords();
     }
 
     // write the secondary color output if necessary
@@ -173,17 +171,7 @@ GrGLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(uint32
     UniformInfo& uni = fUniforms.push_back();
     uni.fVariable.setType(type);
     uni.fVariable.setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
-    // TODO this is a bit hacky, lets think of a better way.  Basically we need to be able to use
-    // the uniform view matrix name in the GP, and the GP is immutable so it has to tell the PB
-    // exactly what name it wants to use for the uniform view matrix.  If we prefix anythings, then
-    // the names will mismatch.  I think the correct solution is to have all GPs which need the
-    // uniform view matrix, they should upload the view matrix in their setData along with regular
-    // uniforms.
-    char prefix = 'u';
-    if ('u' == name[0]) {
-        prefix = '\0';
-    }
-    this->nameVariable(uni.fVariable.accessName(), prefix, name);
+    this->nameVariable(uni.fVariable.accessName(), 'u', name);
     uni.fVariable.setArrayCount(count);
     uni.fVisibility = visibility;
 
@@ -242,40 +230,23 @@ void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* input
     }
 }
 
-void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor,
+void GrGLProgramBuilder::emitAndInstallProcs(const GrOptDrawState& optState,
+                                             GrGLSLExpr4* inputColor,
                                              GrGLSLExpr4* inputCoverage) {
-    // We need to collect all of the transforms to thread them through the GP in the case of GPs
-    // which use additional shader stages between the VS and the FS.  To do this we emit a dummy
-    // input coverage
-    GrGLSLExpr4 coverageInput = *inputCoverage;
-    if (fOptState.hasGeometryProcessor()) {
-        AutoStageAdvance adv(this);
-        SkString outColorName;
-        this->nameVariable(&outColorName, '\0', "gpOutput");
-        coverageInput = outColorName;
-    }
-    GrGLSLExpr4 gpOutput = coverageInput;
-
-    // Emit fragment processors
     fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));
-    int numProcs = fOptState.numFragmentStages();
-    this->emitAndInstallFragProcs(0, fOptState.numColorStages(), inputColor);
-    this->emitAndInstallFragProcs(fOptState.numColorStages(), numProcs,  &coverageInput);
-
-    // We have to save the existing code stack, and then append it to the fragment shader code
-    // after emiting the GP
-    if (fOptState.hasGeometryProcessor()) {
-        SkString existingCode(fFS.fCode);
-        fFS.fCode.reset();
-        const GrGeometryProcessor& gp = *fOptState.getGeometryProcessor();
+    int numProcs = optState.numFragmentStages();
+    this->emitAndInstallFragProcs(0, optState.numColorStages(), inputColor);
+    if (optState.hasGeometryProcessor()) {
+        const GrGeometryProcessor& gp = *optState.getGeometryProcessor();
         fVS.emitAttributes(gp);
         ProcKeyProvider keyProvider(&fDesc,
                                     ProcKeyProvider::kGeometry_ProcessorType,
                                     GrGLProgramDescBuilder::kProcessorKeyOffsetsAndLengthOffset);
-        this->emitAndInstallProc<GrGeometryProcessor>(gp, 0, keyProvider, *inputCoverage, &gpOutput);
-        fFS.fCode.append(existingCode);
+        GrGLSLExpr4 output;
+        this->emitAndInstallProc<GrGeometryProcessor>(gp, 0, keyProvider, *inputCoverage, &output);
+        *inputCoverage = output;
     }
-    *inputCoverage = coverageInput;
+    this->emitAndInstallFragProcs(optState.numColorStages(), numProcs,  inputCoverage);
 }
 
 void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset, int numProcs, GrGLSLExpr4* inOut) {
@@ -301,14 +272,9 @@ void GrGLProgramBuilder::emitAndInstallProc(const Proc& proc,
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
 
-    // create var to hold stage result.  If we already have a valid output name, just use that
-    // otherwise create a new mangled one.
+    // create var to hold stage result
     SkString outColorName;
-    if (output->isValid()) {
-        outColorName = output->c_str();
-    } else {
-        this->nameVariable(&outColorName, '\0', "output");
-    }
+    this->nameVariable(&outColorName, '\0', "output");
     fFS.codeAppendf("vec4 %s;", outColorName.c_str());
     *output = outColorName;
 
@@ -349,8 +315,8 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentStage& fs,
 
 void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
                                             const GrProcessorKey& key,
-                                            const char* outCoverage,
-                                            const char* inCoverage) {
+                                            const char* outColor,
+                                            const char* inColor) {
     SkASSERT(!fGeometryProcessor);
     fGeometryProcessor = SkNEW(GrGLInstalledGeoProc);
 
@@ -359,7 +325,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
-    GrGLGeometryProcessor::EmitArgs args(this, gp, key, outCoverage, inCoverage, samplers);
+    GrGLGeometryProcessor::EmitArgs args(this, gp, key, outColor, inColor, samplers);
     fGeometryProcessor->fGLProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
@@ -408,13 +374,23 @@ void GrGLProgramBuilder::emitTransforms(const GrFragmentStage& effectStage,
             suffixedVaryingName.appendf("_%i", t);
             varyingName = suffixedVaryingName.c_str();
         }
-        const char* coords = kPosition_GrCoordSet == effect->coordTransform(t).sourceCoords() ?
-                                                     fVS.positionAttribute().c_str() :
-                                                     fVS.localCoordsAttribute().c_str();
         GrGLVertToFrag v(varyingType);
-        this->addCoordVarying(varyingName, &v, uniName, coords);
+        this->addVarying(varyingName, &v);
 
+        const GrGLShaderVar& coords =
+                kPosition_GrCoordSet == effect->coordTransform(t).sourceCoords() ?
+                                          fVS.positionAttribute() :
+                                          fVS.localCoordsAttribute();
+
+        // varying = matrix * coords (logically)
         SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
+        if (kVec2f_GrSLType == varyingType) {
+            fVS.codeAppendf("%s = (%s * vec3(%s, 1)).xy;",
+                            v.vsOut(), uniName, coords.c_str());
+        } else {
+            fVS.codeAppendf("%s = %s * vec3(%s, 1);",
+                            v.vsOut(), uniName, coords.c_str());
+        }
         SkNEW_APPEND_TO_TARRAY(outCoords, GrGLProcessor::TransformedCoords,
                                (SkString(v.fsIn()), varyingType));
     }

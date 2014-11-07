@@ -7,10 +7,9 @@
 
 #include "GrOptDrawState.h"
 
-#include "GrDefaultGeoProcFactory.h"
 #include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
-#include "GrGpu.h"
+#include "gl/GrGpuGL.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                BlendOptFlags blendOptFlags,
@@ -64,10 +63,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     // Copy GeometryProcesssor from DS or ODS
     if (drawState.hasGeometryProcessor()) {
         fGeometryProcessor.initAndRef(drawState.fGeometryProcessor);
-    } else if (!GrGpu::IsPathRenderingDrawType(drawType)) {
-        // Install default GP, this will be ignored if we are rendering with fragment shader only
-        // TODO(joshualitt) rendering code should do this
-        fGeometryProcessor.reset(GrDefaultGeoProcFactory::Create());
     } else {
         fGeometryProcessor.reset(NULL);
     }

@@ -106,10 +106,6 @@ public:
         return fExpr.c_str();
     }
 
-    bool isValid() const {
-        return kFullExpr_ExprType != fType || !fExpr.isEmpty();
-    }
-
 protected:
     /** Constructs an invalid expression.
      * Useful only as a return value from functions that never actually return
@@ -168,6 +164,10 @@ protected:
     GrGLSLExpr(const char format[], const char in0[], const char in1[])
         : fType(kFullExpr_ExprType) {
         fExpr.appendf(format, in0, in1);
+    }
+
+    bool isValid() const {
+        return kFullExpr_ExprType != fType || !fExpr.isEmpty();
     }
 
     /** Returns expression casted to another type.

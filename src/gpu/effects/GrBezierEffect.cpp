@@ -44,10 +44,6 @@ void GrGLConicEffect::emitCode(const EmitArgs& args) {
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), inConicCoeffs.c_str());
 
-    // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
-                           vsBuilder->inPosition());
-
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppend("float edgeAlpha;");
 
@@ -188,10 +184,6 @@ void GrGLQuadEffect::emitCode(const EmitArgs& args) {
     const GrShaderVar& inHairQuadEdge = args.fGP.cast<GrQuadEffect>().inHairQuadEdge();
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), inHairQuadEdge.c_str());
 
-    // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
-                           vsBuilder->inPosition());
-
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("float edgeAlpha;");
 
@@ -317,10 +309,6 @@ void GrGLCubicEffect::emitCode(const EmitArgs& args) {
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
     const GrShaderVar& inCubicCoeffs = args.fGP.cast<GrCubicEffect>().inCubicCoeffs();
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), inCubicCoeffs.c_str());
-
-    // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
-                           vsBuilder->inPosition());
 
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
