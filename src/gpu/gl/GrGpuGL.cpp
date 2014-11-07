@@ -1354,8 +1354,8 @@ void GrGpuGL::disableScissor() {
     }
 }
 
-void GrGpuGL::onGpuClear(GrRenderTarget* target, const SkIRect* rect, GrColor color,
-                         bool canIgnoreRect) {
+void GrGpuGL::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color,
+                      bool canIgnoreRect) {
     // parent class should never let us get here with no RT
     SkASSERT(target);
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
@@ -1729,7 +1729,7 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGpuGL::onGpuDraw(const GrDrawTarget::DrawInfo& info) {
+void GrGpuGL::onDraw(const GrDrawTarget::DrawInfo& info) {
     size_t indexOffsetInBytes;
     this->setupGeometry(info, &indexOffsetInBytes);
 

@@ -283,9 +283,6 @@ private:
     virtual void willReserveVertexAndIndexSpace(int vertexCount,
                                                 int indexCount) SK_OVERRIDE;
 
-    virtual void didAddGpuTraceMarker() SK_OVERRIDE {}
-    virtual void didRemoveGpuTraceMarker() SK_OVERRIDE {}
-
     // Attempts to concat instances from info onto the previous draw. info must represent an
     // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
     int concatInstancedDraw(const DrawInfo& info, const GrClipMaskManager::ScissorState&);

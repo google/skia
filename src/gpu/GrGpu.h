@@ -412,6 +412,24 @@ public:
      */
     void setIndexSourceToBuffer(const GrIndexBuffer* buffer);
 
+    virtual void draw(const GrDrawTarget::DrawInfo&,
+                      const GrClipMaskManager::ScissorState&);
+    virtual void stencilPath(const GrPath*,
+                             const GrClipMaskManager::ScissorState&,
+                             const GrStencilSettings&);
+    virtual void drawPath(const GrPath*,
+                          const GrClipMaskManager::ScissorState&,
+                          const GrStencilSettings&,
+                          const GrDeviceCoordTexture* dstCopy);
+    virtual void drawPaths(const GrPathRange*,
+                           const uint32_t indices[],
+                           int count,
+                           const float transforms[],
+                           GrDrawTarget::PathTransformType,
+                           const GrClipMaskManager::ScissorState&,
+                           const GrStencilSettings&,
+                           const GrDeviceCoordTexture*);
+
 protected:
     DrawType PrimTypeToDrawType(GrPrimitiveType type) {
         switch (type) {
@@ -484,8 +502,8 @@ private:
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
-    virtual void onGpuClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
-                            bool canIgnoreRect) = 0;
+    virtual void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
+                         bool canIgnoreRect) = 0;
 
 
     // Overridden by backend specific classes to perform a clear of the stencil clip bits.  This is
@@ -495,7 +513,7 @@ private:
                                     bool insideClip) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onGpuDraw(const GrDrawTarget::DrawInfo&) = 0;
+    virtual void onDraw(const GrDrawTarget::DrawInfo&) = 0;
 
     // overridden by backend-specific derived class to perform the read pixels.
     virtual bool onReadPixels(GrRenderTarget* target,
@@ -535,25 +553,6 @@ private:
     // Given a rt, find or create a stencil buffer and attach it
     bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
 
-    // GrDrawTarget overrides
-    virtual void onDraw(const GrDrawTarget::DrawInfo&,
-                        const GrClipMaskManager::ScissorState&);
-    virtual void onStencilPath(const GrPath*,
-                               const GrClipMaskManager::ScissorState&,
-                               const GrStencilSettings&);
-    virtual void onDrawPath(const GrPath*,
-                            const GrClipMaskManager::ScissorState&,
-                            const GrStencilSettings&,
-                            const GrDeviceCoordTexture* dstCopy);
-    virtual void onDrawPaths(const GrPathRange*,
-                             const uint32_t indices[],
-                             int count,
-                             const float transforms[],
-                             GrDrawTarget::PathTransformType,
-                             const GrClipMaskManager::ScissorState&,
-                             const GrStencilSettings&,
-                             const GrDeviceCoordTexture*);
-
     virtual void didAddGpuTraceMarker() = 0;
     virtual void didRemoveGpuTraceMarker() = 0;
 
@@ -582,9 +581,6 @@ private:
     GrTraceMarkerSet                                                    fStoredTraceMarkers;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext*                                                          fContext;
-
-    // TODO fix this
-    friend class GrInOrderDrawBuffer;
 
     typedef SkRefCnt INHERITED;
 };

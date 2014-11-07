@@ -885,9 +885,6 @@ private:
                          GrRenderTarget* renderTarget) = 0;
 
 
-    virtual void didAddGpuTraceMarker() = 0;
-    virtual void didRemoveGpuTraceMarker() = 0;
-
     // helpers for reserving vertex and index space.
     bool reserveVertexSpace(size_t vertexSize,
                             int vertexCount,
@@ -925,10 +922,6 @@ private:
     int                                                             fGpuTraceMarkerCount;
     GrTraceMarkerSet                                                fActiveTraceMarkers;
     GrTraceMarkerSet                                                fStoredTraceMarkers;
-
-    // TODO fix this
-    friend class GrGpu;
-    friend class GrGpuGL;
 
     typedef SkRefCnt INHERITED;
 };

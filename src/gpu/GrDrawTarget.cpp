@@ -687,7 +687,6 @@ void GrDrawTarget::addGpuTraceMarker(const GrGpuTraceMarker* marker) {
     if (this->caps()->gpuTracingSupport()) {
         SkASSERT(fGpuTraceMarkerCount >= 0);
         this->fActiveTraceMarkers.add(*marker);
-        this->didAddGpuTraceMarker();
         ++fGpuTraceMarkerCount;
     }
 }
@@ -696,7 +695,6 @@ void GrDrawTarget::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
     if (this->caps()->gpuTracingSupport()) {
         SkASSERT(fGpuTraceMarkerCount >= 1);
         this->fActiveTraceMarkers.remove(*marker);
-        this->didRemoveGpuTraceMarker();
         --fGpuTraceMarkerCount;
     }
 }

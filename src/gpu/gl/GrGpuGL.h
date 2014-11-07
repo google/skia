@@ -132,8 +132,8 @@ private:
         GrStencilBuffer* sb,
         GrRenderTarget* rt) SK_OVERRIDE;
 
-    virtual void onGpuClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
-                            bool canIgnoreRect) SK_OVERRIDE;
+    virtual void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
+                         bool canIgnoreRect) SK_OVERRIDE;
 
     virtual void onClearStencilClip(GrRenderTarget*,
                                     const SkIRect& rect,
@@ -153,7 +153,7 @@ private:
 
     virtual void onResolveRenderTarget(GrRenderTarget* target) SK_OVERRIDE;
 
-    virtual void onGpuDraw(const GrDrawTarget::DrawInfo&) SK_OVERRIDE;
+    virtual void onDraw(const GrDrawTarget::DrawInfo&) SK_OVERRIDE;
 
 
     virtual void clearStencil(GrRenderTarget*) SK_OVERRIDE;

@@ -473,20 +473,20 @@ void GrInOrderDrawBuffer::Draw::execute(GrGpu* gpu) {
     if (fInfo.isIndexed()) {
         gpu->setIndexSourceToBuffer(this->indexBuffer());
     }
-    gpu->onDraw(fInfo, fScissorState);
+    gpu->draw(fInfo, fScissorState);
 }
 
 void GrInOrderDrawBuffer::StencilPath::execute(GrGpu* gpu) {
-    gpu->onStencilPath(this->path(), fScissorState, fStencilSettings);
+    gpu->stencilPath(this->path(), fScissorState, fStencilSettings);
 }
 
 void GrInOrderDrawBuffer::DrawPath::execute(GrGpu* gpu) {
-    gpu->onDrawPath(this->path(), fScissorState, fStencilSettings,
+    gpu->drawPath(this->path(), fScissorState, fStencilSettings,
                          fDstCopy.texture() ? &fDstCopy : NULL);
 }
 
 void GrInOrderDrawBuffer::DrawPaths::execute(GrGpu* gpu) {
-    gpu->onDrawPaths(this->pathRange(), this->indices(), fCount, this->transforms(),
+    gpu->drawPaths(this->pathRange(), this->indices(), fCount, this->transforms(),
                           fTransformsType, fScissorState, fStencilSettings,
                           fDstCopy.texture() ? &fDstCopy : NULL);
 }

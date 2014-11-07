@@ -184,7 +184,7 @@ void GrGpu::clear(const SkIRect* rect,
                   GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
     this->handleDirtyContext();
-    this->onGpuClear(renderTarget, rect, color, canIgnoreRect);
+    this->onClear(renderTarget, rect, color, canIgnoreRect);
 }
 
 void GrGpu::clearStencilClip(const SkIRect& rect,
@@ -323,7 +323,7 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::onDraw(const GrDrawTarget::DrawInfo& info,
+void GrGpu::draw(const GrDrawTarget::DrawInfo& info,
                    const GrClipMaskManager::ScissorState& scissorState) {
     this->handleDirtyContext();
     if (!this->flushGraphicsState(PrimTypeToDrawType(info.primitiveType()),
@@ -331,10 +331,10 @@ void GrGpu::onDraw(const GrDrawTarget::DrawInfo& info,
                                   info.getDstCopy())) {
         return;
     }
-    this->onGpuDraw(info);
+    this->onDraw(info);
 }
 
-void GrGpu::onStencilPath(const GrPath* path,
+void GrGpu::stencilPath(const GrPath* path,
                           const GrClipMaskManager::ScissorState& scissorState,
                           const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
@@ -347,7 +347,7 @@ void GrGpu::onStencilPath(const GrPath* path,
 }
 
 
-void GrGpu::onDrawPath(const GrPath* path,
+void GrGpu::drawPath(const GrPath* path,
                        const GrClipMaskManager::ScissorState& scissorState,
                        const GrStencilSettings& stencilSettings,
                        const GrDeviceCoordTexture* dstCopy) {
@@ -360,7 +360,7 @@ void GrGpu::onDrawPath(const GrPath* path,
     this->pathRendering()->drawPath(path, stencilSettings);
 }
 
-void GrGpu::onDrawPaths(const GrPathRange* pathRange,
+void GrGpu::drawPaths(const GrPathRange* pathRange,
                         const uint32_t indices[],
                         int count,
                         const float transforms[],
