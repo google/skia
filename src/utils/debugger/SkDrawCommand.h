@@ -15,18 +15,16 @@
 
 class SK_API SkDrawCommand {
 public:
-    /* TODO(chudy): Remove subclasses. */
     SkDrawCommand(DrawType drawType);
-    SkDrawCommand();
 
     virtual ~SkDrawCommand();
 
-    virtual SkString toString();
+    virtual SkString toString() const;
 
     void setOffset(size_t offset) { fOffset = offset; }
-    virtual size_t offset() { return fOffset; }
+    size_t offset() const { return fOffset; }
 
-    virtual const char* toCString() {
+    virtual const char* toCString() const {
         return GetCommandString(fDrawType);
     }
 
@@ -38,15 +36,15 @@ public:
         fVisible = toggle;
     }
 
-    SkTDArray<SkString*>* Info() {return &fInfo; };
-    virtual void execute(SkCanvas* canvas) = 0;
-    virtual void vizExecute(SkCanvas* canvas) { };
+    const SkTDArray<SkString*>* Info() const { return &fInfo; }
+    virtual void execute(SkCanvas*) const = 0;
+    virtual void vizExecute(SkCanvas*) const {}
 
-    virtual void setUserMatrix(const SkMatrix& userMtx) { };
+    virtual void setUserMatrix(const SkMatrix&) {}
 
     /** Does nothing by default, but used by save() and restore()-type
         subclasses to track unresolved save() calls. */
-    virtual void trackSaveState(int* state) { };
+    virtual void trackSaveState(int* state) {}
 
     // The next "active" system is only used by save, saveLayer, restore,
     // pushCull and popCull. It is used in two ways:
@@ -70,7 +68,7 @@ public:
     virtual void setActive(bool active) {}
     virtual bool active() const { return false; }
 
-    DrawType getType() { return fDrawType; };
+    DrawType getType() const { return fDrawType; }
 
     virtual bool render(SkCanvas* canvas) const { return false; }
 
@@ -88,7 +86,7 @@ private:
 class SkRestoreCommand : public SkDrawCommand {
 public:
     SkRestoreCommand();
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual void trackSaveState(int* state) SK_OVERRIDE;
     virtual Action action() const SK_OVERRIDE { return kPopLayer_Action; }
 
@@ -99,7 +97,7 @@ private:
 class SkClearCommand : public SkDrawCommand {
 public:
     SkClearCommand(SkColor color);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkColor fColor;
 
@@ -109,7 +107,7 @@ private:
 class SkClipPathCommand : public SkDrawCommand {
 public:
     SkClipPathCommand(const SkPath& path, SkRegion::Op op, bool doAA);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkPath       fPath;
@@ -122,7 +120,7 @@ private:
 class SkClipRegionCommand : public SkDrawCommand {
 public:
     SkClipRegionCommand(const SkRegion& region, SkRegion::Op op);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkRegion     fRegion;
     SkRegion::Op fOp;
@@ -133,7 +131,7 @@ private:
 class SkClipRectCommand : public SkDrawCommand {
 public:
     SkClipRectCommand(const SkRect& rect, SkRegion::Op op, bool doAA);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 
     const SkRect& rect() const { return fRect; }
     SkRegion::Op op() const { return fOp; }
@@ -150,7 +148,7 @@ private:
 class SkClipRRectCommand : public SkDrawCommand {
 public:
     SkClipRRectCommand(const SkRRect& rrect, SkRegion::Op op, bool doAA);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 
     const SkRRect& rrect() const { return fRRect; }
@@ -168,7 +166,7 @@ private:
 class SkConcatCommand : public SkDrawCommand {
 public:
     SkConcatCommand(const SkMatrix& matrix);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkMatrix fMatrix;
 
@@ -179,7 +177,7 @@ class SkDrawBitmapCommand : public SkDrawCommand {
 public:
     SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                         const SkPaint* paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkBitmap fBitmap;
@@ -195,7 +193,7 @@ class SkDrawBitmapMatrixCommand : public SkDrawCommand {
 public:
     SkDrawBitmapMatrixCommand(const SkBitmap& bitmap, const SkMatrix& matrix,
                               const SkPaint* paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkBitmap fBitmap;
@@ -210,7 +208,7 @@ class SkDrawBitmapNineCommand : public SkDrawCommand {
 public:
     SkDrawBitmapNineCommand(const SkBitmap& bitmap, const SkIRect& center,
                             const SkRect& dst, const SkPaint* paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkBitmap fBitmap;
@@ -227,7 +225,7 @@ public:
     SkDrawBitmapRectCommand(const SkBitmap& bitmap, const SkRect* src,
                             const SkRect& dst, const SkPaint* paint,
                             SkCanvas::DrawBitmapRectFlags flags);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 
     const SkBitmap& bitmap() const { return fBitmap; }
@@ -265,7 +263,7 @@ class SkDrawDataCommand : public SkDrawCommand {
 public:
     SkDrawDataCommand(const void* data, size_t length);
     virtual ~SkDrawDataCommand() { delete [] fData; }
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     char*  fData;
     size_t fLength;
@@ -276,7 +274,7 @@ private:
 class SkBeginCommentGroupCommand : public SkDrawCommand {
 public:
     SkBeginCommentGroupCommand(const char* description);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE {
         canvas->beginCommentGroup(fDescription.c_str());
     };
 private:
@@ -288,7 +286,7 @@ private:
 class SkCommentCommand : public SkDrawCommand {
 public:
     SkCommentCommand(const char* kywd, const char* value);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE {
         canvas->addComment(fKywd.c_str(), fValue.c_str());
     };
 private:
@@ -301,7 +299,7 @@ private:
 class SkEndCommentGroupCommand : public SkDrawCommand {
 public:
     SkEndCommentGroupCommand();
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE {
         canvas->endCommentGroup();
     };
 private:
@@ -311,7 +309,7 @@ private:
 class SkDrawOvalCommand : public SkDrawCommand {
 public:
     SkDrawOvalCommand(const SkRect& oval, const SkPaint& paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkRect  fOval;
@@ -323,7 +321,7 @@ private:
 class SkDrawPaintCommand : public SkDrawCommand {
 public:
     SkDrawPaintCommand(const SkPaint& paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkPaint fPaint;
@@ -334,7 +332,7 @@ private:
 class SkDrawPathCommand : public SkDrawCommand {
 public:
     SkDrawPathCommand(const SkPath& path, const SkPaint& paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 
 private:
@@ -347,7 +345,7 @@ private:
 class SkDrawPictureCommand : public SkDrawCommand {
 public:
     SkDrawPictureCommand(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 
 private:
@@ -365,7 +363,7 @@ public:
     SkDrawPointsCommand(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
                         const SkPaint& paint);
     virtual ~SkDrawPointsCommand() { delete [] fPts; }
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkCanvas::PointMode fMode;
@@ -381,7 +379,7 @@ public:
     SkDrawTextCommand(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                       const SkPaint& paint);
     virtual ~SkDrawTextCommand() { delete [] fText; }
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     char*    fText;
     size_t   fByteLength;
@@ -397,7 +395,7 @@ public:
     SkDrawPosTextCommand(const void* text, size_t byteLength, const SkPoint pos[],
                          const SkPaint& paint);
     virtual ~SkDrawPosTextCommand() { delete [] fPos; delete [] fText; }
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     char*    fText;
     size_t   fByteLength;
@@ -412,7 +410,7 @@ public:
     SkDrawTextOnPathCommand(const void* text, size_t byteLength, const SkPath& path,
                             const SkMatrix* matrix, const SkPaint& paint);
     virtual ~SkDrawTextOnPathCommand() { delete [] fText; }
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     char*    fText;
     size_t   fByteLength;
@@ -428,7 +426,7 @@ public:
     SkDrawPosTextHCommand(const void* text, size_t byteLength, const SkScalar xpos[],
                           SkScalar constY, const SkPaint& paint);
     virtual ~SkDrawPosTextHCommand() { delete [] fXpos; delete [] fText; }
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkScalar* fXpos;
     char*     fText;
@@ -443,7 +441,7 @@ class SkDrawTextBlobCommand : public SkDrawCommand {
 public:
     SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint);
 
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 
 private:
@@ -458,7 +456,7 @@ private:
 class SkDrawRectCommand : public SkDrawCommand {
 public:
     SkDrawRectCommand(const SkRect& rect, const SkPaint& paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 
     const SkRect& rect() const   { return fRect; }
     const SkPaint& paint() const { return fPaint; }
@@ -472,7 +470,7 @@ private:
 class SkDrawRRectCommand : public SkDrawCommand {
 public:
     SkDrawRRectCommand(const SkRRect& rrect, const SkPaint& paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkRRect fRRect;
@@ -485,7 +483,7 @@ class SkDrawDRRectCommand : public SkDrawCommand {
 public:
     SkDrawDRRectCommand(const SkRRect& outer, const SkRRect& inner,
                         const SkPaint& paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkRRect fOuter;
@@ -498,7 +496,7 @@ private:
 class SkDrawSpriteCommand : public SkDrawCommand {
 public:
     SkDrawSpriteCommand(const SkBitmap& bitmap, int left, int top, const SkPaint* paint);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkBitmap fBitmap;
@@ -518,7 +516,7 @@ public:
                           const uint16_t indices[], int indexCount,
                           const SkPaint& paint);
     virtual ~SkDrawVerticesCommand();
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkCanvas::VertexMode fVmode;
     int         fVertexCount;
@@ -536,7 +534,7 @@ private:
 class SkRotateCommand : public SkDrawCommand {
 public:
     SkRotateCommand(SkScalar degrees);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkScalar fDegrees;
 
@@ -546,7 +544,7 @@ private:
 class SkSaveCommand : public SkDrawCommand {
 public:
     SkSaveCommand();
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual void trackSaveState(int* state) SK_OVERRIDE;
     virtual Action action() const SK_OVERRIDE { return kPushLayer_Action; }
 private:
@@ -557,8 +555,8 @@ class SkSaveLayerCommand : public SkDrawCommand {
 public:
     SkSaveLayerCommand(const SkRect* bounds, const SkPaint* paint,
                        SkCanvas::SaveFlags flags);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
-    virtual void vizExecute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
+    virtual void vizExecute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual void trackSaveState(int* state) SK_OVERRIDE;
     virtual Action action() const SK_OVERRIDE{ return kPushLayer_Action; }
     virtual void setActive(bool active) SK_OVERRIDE { fActive = active; }
@@ -580,7 +578,7 @@ private:
 class SkScaleCommand : public SkDrawCommand {
 public:
     SkScaleCommand(SkScalar sx, SkScalar sy);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 
     SkScalar x() const { return fSx; }
     SkScalar y() const { return fSy; }
@@ -596,7 +594,7 @@ class SkSetMatrixCommand : public SkDrawCommand {
 public:
     SkSetMatrixCommand(const SkMatrix& matrix);
     virtual void setUserMatrix(const SkMatrix&) SK_OVERRIDE;
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkMatrix fUserMatrix;
     SkMatrix fMatrix;
@@ -607,7 +605,7 @@ private:
 class SkSkewCommand : public SkDrawCommand {
 public:
     SkSkewCommand(SkScalar sx, SkScalar sy);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 private:
     SkScalar fSx;
     SkScalar fSy;
@@ -618,7 +616,7 @@ private:
 class SkTranslateCommand : public SkDrawCommand {
 public:
     SkTranslateCommand(SkScalar dx, SkScalar dy);
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
 
     SkScalar x() const { return fDx; }
     SkScalar y() const { return fDy; }
@@ -633,8 +631,8 @@ private:
 class SkPushCullCommand : public SkDrawCommand {
 public:
     SkPushCullCommand(const SkRect&);
-    virtual void execute(SkCanvas*) SK_OVERRIDE;
-    virtual void vizExecute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas*) const SK_OVERRIDE;
+    virtual void vizExecute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual Action action() const { return kPushCull_Action; }
     virtual void setActive(bool active) { fActive = active; }
     virtual bool active() const { return fActive; }
@@ -648,7 +646,7 @@ private:
 class SkPopCullCommand : public SkDrawCommand {
 public:
     SkPopCullCommand();
-    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
     virtual Action action() const { return kPopCull_Action; }
 private:
     typedef SkDrawCommand INHERITED;
