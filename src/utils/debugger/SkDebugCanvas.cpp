@@ -379,7 +379,7 @@ void SkDebugCanvas::setDrawCommandAt(int index, SkDrawCommand* command) {
     fCommandVector[index] = command;
 }
 
-const SkTDArray<SkString*>* SkDebugCanvas::getCommandInfo(int index) const {
+SkTDArray<SkString*>* SkDebugCanvas::getCommandInfo(int index) {
     SkASSERT(index < fCommandVector.count());
     return fCommandVector[index]->Info();
 }

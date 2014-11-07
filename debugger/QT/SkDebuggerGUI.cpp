@@ -689,7 +689,8 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
                 fCanvasWidget.drawTo(currentRow);
                 fImageWidget.draw();
             }
-            const SkTDArray<SkString*> *currInfo = fDebugger.getCommandInfo(currentRow);
+            SkTDArray<SkString*> *currInfo = fDebugger.getCommandInfo(
+                    currentRow);
 
             /* TODO(chudy): Add command type before parameters. Rename v
              * to something more informative. */

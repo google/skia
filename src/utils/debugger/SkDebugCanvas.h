@@ -102,7 +102,7 @@ public:
         Returns information about the command at the given index.
         @param index  The index of the command
      */
-    const SkTDArray<SkString*>* getCommandInfo(int index) const;
+    SkTDArray<SkString*>* getCommandInfo(int index);
 
     /**
         Returns the visibility of the command at the given index.

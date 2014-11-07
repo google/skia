@@ -79,7 +79,7 @@ public:
         return fDebugCanvas->getCommandAtPoint(x, y, index);
     }
 
-    const SkTDArray<SkString*>* getCommandInfo(int index) const {
+    SkTDArray<SkString*>* getCommandInfo(int index) {
         return fDebugCanvas->getCommandInfo(index);
     }
 
