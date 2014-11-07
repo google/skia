@@ -9897,7 +9897,8 @@
           14065216125948059435
         ]
       ], 
-      "reviewed-by-human": false
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "path-reverse_565.png": {
       "allowed-digests": [
@@ -13255,7 +13256,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7858371400753956584
+          4187211411003539883
         ]
       ], 
       "reviewed-by-human": true
@@ -13294,7 +13295,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13010564465906914434
+          1116835874544673826
         ]
       ], 
       "reviewed-by-human": true
