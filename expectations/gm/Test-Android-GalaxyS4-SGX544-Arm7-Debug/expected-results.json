@@ -5929,10 +5929,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15001573149167641615
+          7197173552714103293
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "patheffect_565.png": {
       "allowed-digests": [
@@ -5984,10 +5985,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3259069059298760930
+          9431497723617988616
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "pathinterior_565.png": {
       "allowed-digests": [
@@ -6417,10 +6419,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10593406481253709201
+          14230676560952886134
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "rects_msaa4.png": {
       "allowed-digests": [

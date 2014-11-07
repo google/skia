@@ -63,15 +63,5 @@ multipicturedraw_rrectclip_simple
 multipicturedraw_rrectclip_tiled
 multipicturedraw_sierpinski_simple
 multipicturedraw_sierpinski_tiled
-
-#jvanverth https://codereview.chromium.org/703463002
-dftext
-nested_aa
-path-reverse
-pathfill
-polygons
-pathopsinverse
-rects
-
 #joshualitt
 complexclip2_path_aa
