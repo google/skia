@@ -43,7 +43,7 @@ public:
     /** Returns true if this and other processor conservatively draw identically. It can only return
         true when the two prcoessors are of the same subclass (i.e. they return the same object from
         from getFactory()).
-        A return value of true from isEqual() should not be used to test whether the prcoessors
+        A return value of true from isEqual() should not be used to test whether the processors
         would generate the same shader code. To test for identical code generation use the
         processors' keys computed by the GrBackendEffectFactory. */
     bool isEqual(const GrGeometryProcessor& that) const {

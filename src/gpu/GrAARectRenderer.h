@@ -44,17 +44,7 @@ public:
                     const SkRect& rect,
                     const SkMatrix& combinedMatrix,
                     const SkRect& devRect) {
-#ifdef SHADER_AA_FILL_RECT
-        if (combinedMatrix.rectStaysRect()) {
-            this->shaderFillAlignedAARect(gpu, target,
-                                          rect, combinedMatrix);
-        } else {
-            this->shaderFillAARect(gpu, target,
-                                   rect, combinedMatrix);
-        }
-#else
         this->geometryFillAARect(target, rect, combinedMatrix, devRect);
-#endif
     }
 
     void strokeAARect(GrDrawTarget* target,
@@ -75,14 +65,6 @@ private:
                             const SkRect& rect,
                             const SkMatrix& combinedMatrix,
                             const SkRect& devRect);
-
-    void shaderFillAARect(GrDrawTarget* target,
-                          const SkRect& rect,
-                          const SkMatrix& combinedMatrix);
-
-    void shaderFillAlignedAARect(GrDrawTarget* target,
-                                 const SkRect& rect,
-                                 const SkMatrix& combinedMatrix);
 
     void geometryStrokeAARect(GrDrawTarget* target,
                               const SkRect& devOutside,

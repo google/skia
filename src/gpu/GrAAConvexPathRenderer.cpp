@@ -561,6 +561,10 @@ public:
             const GrShaderVar& inQuadEdge = args.fGP.cast<QuadEdgeEffect>().inQuadEdge();
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
             vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), inQuadEdge.c_str());
+
+            // setup position varying
+            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
+                                   vsBuilder->uViewM(), vsBuilder->inPosition());
         }
 
         static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
