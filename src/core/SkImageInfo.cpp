@@ -9,6 +9,10 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
+static bool profile_type_is_valid(SkColorProfileType profileType) {
+    return (profileType >= 0) && (profileType <= kLastEnum_SkColorProfileType);
+}
+
 static bool alpha_type_is_valid(SkAlphaType alphaType) {
     return (alphaType >= 0) && (alphaType <= kLastEnum_SkAlphaType);
 }
@@ -22,10 +26,12 @@ void SkImageInfo::unflatten(SkReadBuffer& buffer) {
     fHeight = buffer.read32();
 
     uint32_t packed = buffer.read32();
-    SkASSERT(0 == (packed >> 16));
+    SkASSERT(0 == (packed >> 24));
+    fProfileType = (SkColorProfileType)((packed >> 16) & 0xFF);
     fAlphaType = (SkAlphaType)((packed >> 8) & 0xFF);
     fColorType = (SkColorType)((packed >> 0) & 0xFF);
-    buffer.validate(alpha_type_is_valid(fAlphaType) &&
+    buffer.validate(profile_type_is_valid(fProfileType) &&
+                    alpha_type_is_valid(fAlphaType) &&
                     color_type_is_valid(fColorType));
 }
 
@@ -33,9 +39,10 @@ void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
     buffer.write32(fWidth);
     buffer.write32(fHeight);
 
+    SkASSERT(0 == (fProfileType & ~0xFF));
     SkASSERT(0 == (fAlphaType & ~0xFF));
     SkASSERT(0 == (fColorType & ~0xFF));
-    uint32_t packed = (fAlphaType << 8) | fColorType;
+    uint32_t packed = (fProfileType << 16) | (fAlphaType << 8) | fColorType;
     buffer.write32(packed);
 }
 

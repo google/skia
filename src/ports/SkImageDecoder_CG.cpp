@@ -105,6 +105,16 @@ static void force_opaque(SkBitmap* bm) {
 
 #define BITMAP_INFO (kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast)
 
+static bool icc_profile_is_sRGB(const void* data, size_t length) {
+    // found by inspection -- need a cleaner way to sniff a profile
+    const size_t ICC_PROFILE_OFFSET_TO_SRGB_TAG = 52;
+
+    if (length >= ICC_PROFILE_OFFSET_TO_SRGB_TAG + 4) {
+        return !memcmp((const char*)data + ICC_PROFILE_OFFSET_TO_SRGB_TAG, "sRGB", 4);
+    }
+    return false;
+}
+
 SkImageDecoder::Result SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     CGImageSourceRef imageSrc = SkStreamToCGImageSource(stream);
 
@@ -121,8 +131,21 @@ SkImageDecoder::Result SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* b
 
     const int width = SkToInt(CGImageGetWidth(image));
     const int height = SkToInt(CGImageGetHeight(image));
+    SkColorProfileType cpType = kLinear_SkColorProfileType;
 
-    bm->setInfo(SkImageInfo::MakeN32Premul(width, height));
+    CGColorSpaceRef cs = CGImageGetColorSpace(image);
+    if (cs) {
+        CGColorSpaceModel m = CGColorSpaceGetModel(cs);
+        if (kCGColorSpaceModelRGB == m) {
+            CFDataRef data = CGColorSpaceCopyICCProfile(cs);
+            if (data && icc_profile_is_sRGB(CFDataGetBytePtr(data), CFDataGetLength(data))) {
+                cpType = kSRGB_SkColorProfileType;
+                CFRelease(data);
+            }
+        }
+    }
+
+    bm->setInfo(SkImageInfo::MakeN32Premul(width, height, cpType));
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return kSuccess;
     }

@@ -6,13 +6,47 @@
  */
 
 #include "SkTypes.h"
+#include "Test.h"
+
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
 #endif
 #include "SkImage.h"
 #include "SkSurface.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 
-#include "Test.h"
+static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) {
+    // just need a safe amount of storage
+    char storage[sizeof(SkImageInfo)*2];
+    SkWriteBuffer wb(storage, sizeof(storage));
+    info.flatten(wb);
+    SkASSERT(wb.bytesWritten() < sizeof(storage));
+
+    SkReadBuffer rb(storage, wb.bytesWritten());
+    SkImageInfo info2;
+
+    // pick a noisy byte pattern, so we ensure that unflatten sets all of our fields
+    memset(&info2, 0xB8, sizeof(info2));
+
+    info2.unflatten(rb);
+    REPORTER_ASSERT(reporter, rb.offset() == wb.bytesWritten());
+    REPORTER_ASSERT(reporter, info == info2);
+}
+
+DEF_TEST(ImageInfo_flattening, reporter) {
+    for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
+        for (int at = 0; at <= kLastEnum_SkAlphaType; ++at) {
+            for (int pt = 0; pt <= kLastEnum_SkColorProfileType; ++pt) {
+                SkImageInfo info = SkImageInfo::Make(100, 200,
+                                                     static_cast<SkColorType>(ct),
+                                                     static_cast<SkAlphaType>(at),
+                                                     static_cast<SkColorProfileType>(pt));
+                test_flatten(reporter, info);
+            }
+        }
+    }
+}
 
 static void check_isopaque(skiatest::Reporter* reporter, SkSurface* surface, bool expectedOpaque) {
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
