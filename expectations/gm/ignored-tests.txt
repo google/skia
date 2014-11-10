@@ -65,9 +65,3 @@ multipicturedraw_sierpinski_simple
 multipicturedraw_sierpinski_tiled
 #joshualitt
 complexclip2_path_aa
-
-#jvanverth Ignore some strangely flaky tests for now
-dftext
-pathfill
-polygons
-
