@@ -20,8 +20,8 @@ void SkTime::GetDateTime(DateTime* dt)
         time(&m_time);
         struct tm* tstruct;
         tstruct = localtime(&m_time);
-
-        dt->fYear       = tstruct->tm_year;
+        // http://pubs.opengroup.org/onlinepubs/009695399/basedefs/time.h.html
+        dt->fYear       = tstruct->tm_year + 1900;
         dt->fMonth      = SkToU8(tstruct->tm_mon + 1);
         dt->fDayOfWeek  = SkToU8(tstruct->tm_wday);
         dt->fDay        = SkToU8(tstruct->tm_mday);
