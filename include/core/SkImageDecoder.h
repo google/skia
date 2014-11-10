@@ -288,8 +288,7 @@ public:
     /** Decode the image stored in the specified file, and store the result
         in bitmap. Return true for success or false on failure.
 
-        @param pref If the PrefConfigTable is not set, prefer this colortype.
-                          See NOTE ABOUT PREFERRED CONFIGS.
+        @param pref Prefer this colortype.
 
         @param format On success, if format is non-null, it is set to the format
                       of the decoded file. On failure it is ignored.
@@ -303,8 +302,7 @@ public:
     /** Decode the image stored in the specified memory buffer, and store the
         result in bitmap. Return true for success or false on failure.
 
-        @param pref If the PrefConfigTable is not set, prefer this colortype.
-                          See NOTE ABOUT PREFERRED CONFIGS.
+        @param pref Prefer this colortype.
 
         @param format On success, if format is non-null, it is set to the format
                        of the decoded buffer. On failure it is ignored.
@@ -333,8 +331,7 @@ public:
     /** Decode the image stored in the specified SkStreamRewindable, and store the result
         in bitmap. Return true for success or false on failure.
 
-        @param pref If the PrefConfigTable is not set, prefer this colortype.
-                          See NOTE ABOUT PREFERRED CONFIGS.
+        @param pref Prefer this colortype.
 
         @param format On success, if format is non-null, it is set to the format
                       of the decoded stream. On failure it is ignored.
