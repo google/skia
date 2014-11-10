@@ -159,7 +159,7 @@ SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* b
     const size_t size = read4Bytes(buf, 14 + choice*16);           //matters?
     const size_t offset = read4Bytes(buf, 18 + choice*16);
     // promote the sum to 64-bits to avoid overflow
-    if (((uint64_t)offset + size) > length) {
+    if (offset > length || size > length || ((uint64_t)offset + size) > length) {
         return kFailure;
     }
 
