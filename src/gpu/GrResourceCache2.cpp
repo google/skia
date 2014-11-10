@@ -10,6 +10,25 @@
 #include "GrResourceCache2.h"
 #include "GrGpuResource.h"  
 
+GrResourceKey& GrResourceKey::NullScratchKey() {
+    static const GrCacheID::Key kBogusKey = { { {0} } };
+    static GrCacheID kBogusID(ScratchDomain(), kBogusKey);
+    static GrResourceKey kNullScratchKey(kBogusID, NoneResourceType(), 0);
+    return kNullScratchKey;
+}
+
+GrResourceKey::ResourceType GrResourceKey::NoneResourceType() {
+    static const ResourceType gNoneResourceType = GenerateResourceType();
+    return gNoneResourceType;
+}
+
+GrCacheID::Domain GrResourceKey::ScratchDomain() {
+    static const GrCacheID::Domain gDomain = GrCacheID::GenerateDomain();
+    return gDomain;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 GrResourceCache2::~GrResourceCache2() {
     this->releaseAll();
 }

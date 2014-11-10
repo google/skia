@@ -14,10 +14,7 @@
 
 class GrResourceKey {
 public:
-    static GrCacheID::Domain ScratchDomain() {
-        static const GrCacheID::Domain gDomain = GrCacheID::GenerateDomain();
-        return gDomain;
-    }
+    static GrCacheID::Domain ScratchDomain();
 
     /** Uniquely identifies the GrGpuResource subclass in the key to avoid collisions
         across resource types. */
@@ -63,12 +60,7 @@ public:
     bool operator==(const GrResourceKey& other) const { return fKey == other.fKey; }
 
     // A key indicating that the resource is not usable as a scratch resource.
-    static GrResourceKey& NullScratchKey() {
-        static const GrCacheID::Key kBogusKey = { { {0} } };
-        static GrCacheID kBogusID(ScratchDomain(), kBogusKey);
-        static GrResourceKey kNullScratchKey(kBogusID, NoneResourceType(), 0);
-        return kNullScratchKey;
-    }
+    static GrResourceKey& NullScratchKey();
 
     bool isNullScratch() const {
         return this->isScratch() && NoneResourceType() == this->getResourceType();
@@ -85,10 +77,7 @@ private:
         kPadSize = kKeySize - kPadOffset
     };
 
-    static ResourceType NoneResourceType() {
-        static const ResourceType gNoneResourceType = GenerateResourceType();
-        return gNoneResourceType;
-    }
+    static ResourceType NoneResourceType();
 
     void init(const GrCacheID::Domain domain,
               const GrCacheID::Key& key,
