@@ -340,51 +340,42 @@ protected:
         return NULL;
     }
 
-static SkTypeface_AndroidSystem* find_family_style_character(
-        const SkTDArray<NameToFamily>& fallbackNameToFamilyMap,
-        const SkFontStyle& style, bool elegant,
-        const SkString& langTag, SkUnichar character)
-{
-    for (int i = 0; i < fallbackNameToFamilyMap.count(); ++i) {
-        SkFontStyleSet_Android* family = fallbackNameToFamilyMap[i].styleSet;
-        SkAutoTUnref<SkTypeface_AndroidSystem> face(family->matchStyle(style));
+    static SkTypeface_AndroidSystem* find_family_style_character(
+            const SkTDArray<NameToFamily>& fallbackNameToFamilyMap,
+            const SkFontStyle& style, bool elegant,
+            const SkString& langTag, SkUnichar character)
+    {
+        for (int i = 0; i < fallbackNameToFamilyMap.count(); ++i) {
+            SkFontStyleSet_Android* family = fallbackNameToFamilyMap[i].styleSet;
+            SkAutoTUnref<SkTypeface_AndroidSystem> face(family->matchStyle(style));
 
-        if (!langTag.isEmpty() && !face->fLang.getTag().startsWith(langTag.c_str())) {
-            continue;
+            if (!langTag.isEmpty() && !face->fLang.getTag().startsWith(langTag.c_str())) {
+                continue;
+            }
+
+            if (SkToBool(face->fVariantStyle & kElegant_FontVariant) != elegant) {
+                continue;
+            }
+
+            SkPaint paint;
+            paint.setTypeface(face);
+            paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+
+            uint16_t glyphID;
+            paint.textToGlyphs(&character, sizeof(character), &glyphID);
+            if (glyphID != 0) {
+                return face.detach();
+            }
         }
-
-        if (SkToBool(face->fVariantStyle & kElegant_FontVariant) != elegant) {
-            continue;
-        }
-
-        SkPaint paint;
-        paint.setTypeface(face);
-        paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
-
-        uint16_t glyphID;
-        paint.textToGlyphs(&character, sizeof(character), &glyphID);
-        if (glyphID != 0) {
-            return face.detach();
-        }
+        return NULL;
     }
-    return NULL;
-}
-#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
+
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
                                                     const SkFontStyle& style,
                                                     const char* bcp47[],
                                                     int bcp47Count,
                                                     SkUnichar character) const SK_OVERRIDE
     {
-#else
-    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
-                                                    const SkFontStyle& style,
-                                                    const char bcp47_val[],
-                                                    SkUnichar character) const SK_OVERRIDE
-    {
-        const char** bcp47 = &bcp47_val;
-        int bcp47Count = bcp47_val ? 1 : 0;
-#endif
         // The variant 'elegant' is 'not squashed', 'compact' is 'stays in ascent/descent'.
         // The variant 'default' means 'compact and elegant'.
         // As a result, it is not possible to know the variant context from the font alone.

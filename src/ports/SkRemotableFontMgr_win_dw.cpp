@@ -408,21 +408,11 @@ public:
         SkFontIdentity fIdentity;
     };
 
-#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
     virtual SkFontIdentity matchNameStyleCharacter(const char familyName[],
                                                    const SkFontStyle& pattern,
                                                    const char* bcp47[], int bcp47Count,
                                                    SkUnichar character) const SK_OVERRIDE
     {
-#else
-    virtual SkFontIdentity matchNameStyleCharacter(const char familyName[],
-                                                   const SkFontStyle& pattern,
-                                                   const char bcp47_val[],
-                                                   SkUnichar character) const SK_OVERRIDE
-    {
-        const char** bcp47 = &bcp47_val;
-        int bcp47Count = bcp47_val ? 1 : 0;
-#endif
         SkFontIdentity identity = { SkFontIdentity::kInvalidDataId };
 
         IDWriteFactory* dwFactory = sk_get_dwrite_factory();

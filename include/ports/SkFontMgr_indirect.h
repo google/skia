@@ -39,18 +39,11 @@ protected:
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle& fontStyle) const SK_OVERRIDE;
 
-#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
                                                     const SkFontStyle&,
                                                     const char* bcp47[],
                                                     int bcp47Count,
                                                     SkUnichar character) const SK_OVERRIDE;
-#else
-    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
-                                                    const SkFontStyle&,
-                                                    const char bcp47[],
-                                                    SkUnichar character) const SK_OVERRIDE;
-#endif
 
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                          const SkFontStyle& fontStyle) const SK_OVERRIDE;

@@ -74,14 +74,9 @@ public:
      *  most significant. If no specified bcp47 codes match, any font with the
      *  requested character will be matched.
      */
-#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
     SkTypeface* matchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                           const char* bcp47[], int bcp47Count,
                                           SkUnichar character) const;
-#else
-    SkTypeface* matchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
-                                          const char bcp47[], SkUnichar character) const;
-#endif
 
     SkTypeface* matchFaceStyle(const SkTypeface*, const SkFontStyle&) const;
 
@@ -127,14 +122,9 @@ protected:
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle&) const = 0;
     // TODO: pure virtual, implement on all impls.
-#ifdef SK_FM_NEW_MATCH_FAMILY_STYLE_CHARACTER
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                                     const char* bcp47[], int bcp47Count,
                                                     SkUnichar character) const
-#else
-    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
-                                                    const char bcp47[], SkUnichar character) const
-#endif
     { return NULL; }
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                          const SkFontStyle&) const = 0;
