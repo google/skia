@@ -78,6 +78,24 @@ GrContext* GrGpuResource::getContext() {
     }
 }
 
+bool GrGpuResource::setCacheEntry(GrResourceCacheEntry* cacheEntry) {
+    // GrResourceCache never changes the cacheEntry once one has been added.
+    SkASSERT(NULL == cacheEntry || NULL == fCacheEntry);
+
+    fCacheEntry = cacheEntry;
+    if (this->wasDestroyed() || NULL == cacheEntry) {
+        return true;
+    }
+
+    if (!cacheEntry->key().isScratch()) {
+        if (!get_resource_cache2(fGpu)->didAddContentKey(this)) {
+            fCacheEntry = NULL;
+            return false;
+        }
+    }
+    return true;
+}
+
 void GrGpuResource::notifyIsPurgable() const {
     if (fCacheEntry && !this->wasDestroyed()) {
         get_resource_cache(fGpu)->notifyPurgable(this);
@@ -92,6 +110,7 @@ void GrGpuResource::setScratchKey(const GrResourceKey& scratchKey) {
 }
 
 const GrResourceKey* GrGpuResource::getContentKey() const {
+    // Currently scratch resources have a cache entry in GrResourceCache with a scratch key.
     if (fCacheEntry && !fCacheEntry->key().isScratch()) {
         return &fCacheEntry->key();
     }
@@ -99,8 +118,8 @@ const GrResourceKey* GrGpuResource::getContentKey() const {
 }
 
 bool GrGpuResource::isScratch() const {
-    // Currently scratch resources have a cache entry in GrResourceCache with a scratch key.
-    return NULL != fCacheEntry && fCacheEntry->key().isScratch();
+    SkASSERT(fScratchKey.isScratch());
+    return NULL == this->getContentKey() && !fScratchKey.isNullScratch();
 }
 
 uint32_t GrGpuResource::CreateUniqueID() {

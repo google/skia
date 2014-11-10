@@ -140,12 +140,6 @@ public:
      */
     int getCachedResourceCount() const { return fEntryCount; }
 
-    /**
-     *  Search for an entry with the same Key. If found, return it.
-     *  If not found, return null.
-     */
-    GrGpuResource* find(const GrResourceKey& key);
-
     void makeResourceMRU(GrGpuResource*);
 
     /** Called by GrGpuResources when they detects that they are newly purgable. */
@@ -157,14 +151,11 @@ public:
      *
      *  Ownership of the resource is transferred to the resource cache,
      *  which will unref() it when it is purged or deleted.
+     *
+     *  This can fail if the key is already taken, or the resource is already in
+     *  the cache.
      */
-    void addResource(const GrResourceKey& key, GrGpuResource* resource);
-
-    /**
-     * Determines if the cache contains an entry matching a key. If a matching
-     * entry exists but was detached then it will not be found.
-     */
-    bool hasKey(const GrResourceKey& key) const { return SkToBool(fCache.find(key)); }
+    bool addResource(const GrResourceKey& key, GrGpuResource* resource);
 
     /**
      * Notify the cache that the size of a resource has changed.

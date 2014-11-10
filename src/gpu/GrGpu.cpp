@@ -84,10 +84,8 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc,
 
 bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     SkASSERT(NULL == rt->getStencilBuffer());
-    GrStencilBuffer* sb =
-        this->getContext()->findStencilBuffer(rt->width(),
-                                              rt->height(),
-                                              rt->numSamples());
+    SkAutoTUnref<GrStencilBuffer> sb(
+        this->getContext()->findAndRefStencilBuffer(rt->width(), rt->height(), rt->numSamples()));
     if (sb) {
         rt->setStencilBuffer(sb);
         bool attached = this->attachStencilBufferToRenderTarget(sb, rt);
@@ -96,8 +94,7 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
         }
         return attached;
     }
-    if (this->createStencilBufferForRenderTarget(rt,
-                                                 rt->width(), rt->height())) {
+    if (this->createStencilBufferForRenderTarget(rt, rt->width(), rt->height())) {
         // Right now we're clearing the stencil buffer here after it is
         // attached to an RT for the first time. When we start matching
         // stencil buffers with smaller color targets this will no longer

@@ -255,20 +255,20 @@ GrTexture* GrContext::findAndRefTexture(const GrSurfaceDesc& desc,
                                         const GrCacheID& cacheID,
                                         const GrTextureParams* params) {
     GrResourceKey resourceKey = GrTexturePriv::ComputeKey(fGpu, params, desc, cacheID);
-    GrGpuResource* resource = fResourceCache->find(resourceKey);
+
+    GrGpuResource* resource = this->findAndRefCachedResource(resourceKey);
     if (resource) {
-        resource->ref();
+        SkASSERT(static_cast<GrSurface*>(resource)->asTexture());
         return static_cast<GrSurface*>(resource)->asTexture();
-    } else {
-        return NULL;
     }
+    return NULL;
 }
 
 bool GrContext::isTextureInCache(const GrSurfaceDesc& desc,
                                  const GrCacheID& cacheID,
                                  const GrTextureParams* params) const {
     GrResourceKey resourceKey = GrTexturePriv::ComputeKey(fGpu, params, desc, cacheID);
-    return fResourceCache->hasKey(resourceKey);
+    return fResourceCache2->hasContentKey(resourceKey);
 }
 
 void GrContext::addStencilBuffer(GrStencilBuffer* sb) {
@@ -280,12 +280,9 @@ void GrContext::addStencilBuffer(GrStencilBuffer* sb) {
     fResourceCache->addResource(resourceKey, sb);
 }
 
-GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
-                                              int sampleCnt) {
-    GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(width,
-                                                            height,
-                                                            sampleCnt);
-    GrGpuResource* resource = fResourceCache->find(resourceKey);
+GrStencilBuffer* GrContext::findAndRefStencilBuffer(int width, int height, int sampleCnt) {
+    GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(width, height, sampleCnt);
+    GrGpuResource* resource = this->findAndRefCachedResource(resourceKey);
     return static_cast<GrStencilBuffer*>(resource);
 }
 
@@ -1755,8 +1752,10 @@ void GrContext::addResourceToCache(const GrResourceKey& resourceKey, GrGpuResour
 }
 
 GrGpuResource* GrContext::findAndRefCachedResource(const GrResourceKey& resourceKey) {
-    GrGpuResource* resource = fResourceCache->find(resourceKey);
-    SkSafeRef(resource);
+    GrGpuResource* resource = fResourceCache2->findAndRefContentResource(resourceKey);
+    if (resource) {
+        fResourceCache->makeResourceMRU(resource);
+    }
     return resource;
 }
 

@@ -9,7 +9,6 @@
 
 #include "GrResourceCache2.h"
 #include "GrGpuResource.h"  
-#include "SkRefCnt.h"
 
 GrResourceCache2::~GrResourceCache2() {
     this->releaseAll();
@@ -22,6 +21,8 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
     fResources.addToHead(resource);
     ++fCount;
     if (!resource->getScratchKey().isNullScratch()) {
+        // TODO(bsalomon): Make this assertion possible.
+        // SkASSERT(!resource->isWrapped());
         fScratchMap.insert(resource->getScratchKey(), resource);
     }
 }
@@ -31,6 +32,9 @@ void GrResourceCache2::removeResource(GrGpuResource* resource) {
     fResources.remove(resource);    
     if (!resource->getScratchKey().isNullScratch()) {
         fScratchMap.remove(resource->getScratchKey(), resource);
+    }
+    if (const GrResourceKey* contentKey = resource->getContentKey()) {
+        fContentHash.remove(*contentKey);
     }
     --fCount;
 }
@@ -43,6 +47,7 @@ void GrResourceCache2::abandonAll() {
         SkASSERT(head != fResources.head());
     }
     SkASSERT(!fScratchMap.count());
+    SkASSERT(!fContentHash.count());
     SkASSERT(!fCount);
 }
 
@@ -88,4 +93,26 @@ GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrResourceKey& 
         // but there is still space in our budget for the resource.
     }
     return SkSafeRef(fScratchMap.find(scratchKey, AvailableForScratchUse(false)));
+}
+
+void GrResourceCache2::willRemoveContentKey(const GrGpuResource* resource) {
+    SkASSERT(resource);
+    SkASSERT(resource->getContentKey());
+    SkDEBUGCODE(GrGpuResource* res = fContentHash.find(*resource->getContentKey()));
+    SkASSERT(res == resource);
+
+    fContentHash.remove(*resource->getContentKey());
+}
+
+bool GrResourceCache2::didAddContentKey(GrGpuResource* resource) {
+    SkASSERT(resource);
+    SkASSERT(resource->getContentKey());
+
+    GrGpuResource* res = fContentHash.find(*resource->getContentKey());
+    if (NULL != res) {
+        return false;
+    }
+
+    fContentHash.add(resource);
+    return true;
 }

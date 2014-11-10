@@ -121,7 +121,10 @@ GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
 GrTexture::GrTexture(GrGpu* gpu, bool isWrapped, const GrSurfaceDesc& desc)
     : INHERITED(gpu, isWrapped, desc)
     , fMipMapsStatus(kNotAllocated_MipMapsStatus) {
-    this->setScratchKey(GrTexturePriv::ComputeScratchKey(desc));
+
+    if (!isWrapped) {
+        this->setScratchKey(GrTexturePriv::ComputeScratchKey(desc));
+    }
     // only make sense if alloc size is pow2
     fShiftFixedX = 31 - SkCLZ(fDesc.fWidth);
     fShiftFixedY = 31 - SkCLZ(fDesc.fHeight);

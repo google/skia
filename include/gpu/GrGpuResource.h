@@ -172,7 +172,7 @@ public:
      */
     virtual size_t gpuMemorySize() const = 0;
 
-    void setCacheEntry(GrResourceCacheEntry* cacheEntry) { fCacheEntry = cacheEntry; }
+    bool setCacheEntry(GrResourceCacheEntry* cacheEntry);
     GrResourceCacheEntry* getCacheEntry() const { return fCacheEntry; }
     bool isScratch() const;
 

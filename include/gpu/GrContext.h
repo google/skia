@@ -897,7 +897,7 @@ public:
      * called to check the cache for a SB that matches an RT's criteria.
      */
     void addStencilBuffer(GrStencilBuffer* sb);
-    GrStencilBuffer* findStencilBuffer(int width, int height, int sampleCnt);
+    GrStencilBuffer* findAndRefStencilBuffer(int width, int height, int sampleCnt);
 
     GrPathRenderer* getPathRenderer(
                     const SkPath& path,

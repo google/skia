@@ -49,7 +49,8 @@ GrResourceCacheEntry::GrResourceCacheEntry(GrResourceCache* resourceCache,
 }
 
 GrResourceCacheEntry::~GrResourceCacheEntry() {
-    fResource->setCacheEntry(NULL);
+    // We're relying on having the cache entry to remove this from GrResourceCache2's content hash.
+    // fResource->setCacheEntry(NULL);
     fResource->unref();
 }
 
@@ -185,26 +186,11 @@ void GrResourceCache::notifyPurgable(const GrGpuResource* resource) {
     }
 }
 
-GrGpuResource* GrResourceCache::find(const GrResourceKey& key) {
-    // GrResourceCache2 is responsible for scratch resources.
-    SkASSERT(!key.isScratch());
-
-    GrAutoResourceCacheValidate atcv(this);
-
-    GrResourceCacheEntry* entry = fCache.find(key);
-    if (NULL == entry) {
-        return NULL;
+bool GrResourceCache::addResource(const GrResourceKey& key, GrGpuResource* resource) {
+    if (NULL != resource->getCacheEntry()) {
+        return false;
     }
 
-    // Make this resource MRU
-    this->internalDetach(entry);
-    this->attachToHead(entry);
-
-    return entry->fResource;
-}
-
-void GrResourceCache::addResource(const GrResourceKey& key, GrGpuResource* resource) {
-    SkASSERT(NULL == resource->getCacheEntry());
     // we don't expect to create new resources during a purge. In theory
     // this could cause purgeAsNeeded() into an infinite loop (e.g.
     // each resource destroyed creates and locks 2 resources and
@@ -213,12 +199,16 @@ void GrResourceCache::addResource(const GrResourceKey& key, GrGpuResource* resou
     GrAutoResourceCacheValidate atcv(this);
 
     GrResourceCacheEntry* entry = SkNEW_ARGS(GrResourceCacheEntry, (this, key, resource));
-    resource->setCacheEntry(entry);
+    if (!resource->setCacheEntry(entry)) {
+        SkDELETE(entry);
+        this->purgeAsNeeded();
+        return false;
+    }
 
     this->attachToHead(entry);
     fCache.insert(key, entry);
-
     this->purgeAsNeeded();
+    return true;
 }
 
 void GrResourceCache::didIncreaseResourceSize(const GrResourceCacheEntry* entry, size_t amountInc) {

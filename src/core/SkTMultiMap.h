@@ -102,6 +102,19 @@ public:
 
     int count() const { return fCount; }
 
+#ifdef SK_DEBUG
+    // This is not particularly fast and only used for validation, so debug only.
+    int countForKey(const Key& key) const {
+        int count = 0;
+        ValueList* list = fHash.find(key);
+        while (list) {
+            list = list->fNext;
+            ++count;
+        }
+        return count;
+    }
+#endif
+
 private:
     SkTDynamicHash<ValueList, Key> fHash;
     int fCount;

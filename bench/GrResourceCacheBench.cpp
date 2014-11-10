@@ -6,13 +6,15 @@
  * found in the LICENSE file.
  */
 
+#include "Benchmark.h"
+
 #if SK_SUPPORT_GPU
 
-#include "Benchmark.h"
 #include "GrGpuResource.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrResourceCache.h"
+#include "GrResourceCache2.h"
 #include "GrStencilBuffer.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
@@ -117,18 +119,18 @@ static void populate_cache(GrResourceCache* cache, GrGpu* gpu, int resourceCount
     }
 }
 
-static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
+static void check_cache_contents_or_die(GrResourceCache2* cache, int k) {
     // Benchmark find calls that succeed.
     {
         GrSurfaceDesc desc;
         get_texture_desc(k, &desc);
         GrResourceKey key = TextureResource::ComputeKey(desc);
-        GrGpuResource* item = cache->find(key);
-        if (NULL == item) {
+        SkAutoTUnref<GrGpuResource> item(cache->findAndRefContentResource(key));
+        if (!item) {
             SkFAIL("cache add does not work as expected");
             return;
         }
-        if (static_cast<TextureResource*>(item)->fID != k) {
+        if (static_cast<TextureResource*>(item.get())->fID != k) {
             SkFAIL("cache add does not work as expected");
             return;
         }
@@ -137,12 +139,12 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         int w, h, s;
         get_stencil(k, &w, &h, &s);
         GrResourceKey key = StencilResource::ComputeKey(w, h, s);
-        GrGpuResource* item = cache->find(key);
-        if (NULL == item) {
+        SkAutoTUnref<GrGpuResource> item(cache->findAndRefContentResource(key));
+        if (!item) {
             SkFAIL("cache add does not work as expected");
             return;
         }
-        if (static_cast<TextureResource*>(item)->fID != k) {
+        if (static_cast<TextureResource*>(item.get())->fID != k) {
             SkFAIL("cache add does not work as expected");
             return;
         }
@@ -154,7 +156,7 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         get_texture_desc(k, &desc);
         desc.fHeight |= 1;
         GrResourceKey key = TextureResource::ComputeKey(desc);
-        GrGpuResource* item = cache->find(key);
+        SkAutoTUnref<GrGpuResource> item(cache->findAndRefContentResource(key));
         if (item) {
             SkFAIL("cache add does not work as expected");
             return;
@@ -165,7 +167,7 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         get_stencil(k, &w, &h, &s);
         h |= 1;
         GrResourceKey key = StencilResource::ComputeKey(w, h, s);
-        GrGpuResource* item = cache->find(key);
+        SkAutoTUnref<GrGpuResource> item(cache->findAndRefContentResource(key));
         if (item) {
             SkFAIL("cache add does not work as expected");
             return;
@@ -176,12 +178,11 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
 class GrResourceCacheBenchAdd : public Benchmark {
     enum {
         RESOURCE_COUNT = CACHE_SIZE_COUNT / 2,
-        DUPLICATE_COUNT = CACHE_SIZE_COUNT / 4,
     };
 
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
-        return backend == kGPU_Backend;
+        return backend == kNonRendering_Backend;
     }
 
 protected:
@@ -190,18 +191,32 @@ protected:
     }
 
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
-        GrGpu* gpu = canvas->getGrContext()->getGpu();
+        SkAutoTUnref<GrContext> context(GrContext::CreateMockContext());
+        if (NULL == context) {
+            return;
+        }
+        // Set the cache budget to be very large so no purging occurs.
+        context->setResourceCacheLimits(2 * RESOURCE_COUNT, 1 << 30);
+
+        GrResourceCache* cache = context->getResourceCache();
+        GrResourceCache2* cache2 = context->getResourceCache2();
+
+        // Make sure the cache is empty.
+        cache->purgeAllUnlocked();
+        SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
+
+        GrGpu* gpu = context->getGpu();
 
         for (int i = 0; i < loops; ++i) {
-            GrResourceCache cache(gpu->caps(), CACHE_SIZE_COUNT, CACHE_SIZE_BYTES);
-            populate_cache(&cache, gpu, DUPLICATE_COUNT);
-            populate_cache(&cache, gpu, RESOURCE_COUNT);
+            SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
+
+            populate_cache(cache, gpu, RESOURCE_COUNT);
 
             // Check that cache works.
             for (int k = 0; k < RESOURCE_COUNT; k += 33) {
-                check_cache_contents_or_die(&cache, k);
+                check_cache_contents_or_die(cache2, k);
             }
-            cache.purgeAllUnlocked();
+            cache->purgeAllUnlocked();
         }
     }
 
@@ -211,13 +226,12 @@ private:
 
 class GrResourceCacheBenchFind : public Benchmark {
     enum {
-        RESOURCE_COUNT = (CACHE_SIZE_COUNT / 2) - 100,
-        DUPLICATE_COUNT = 100
+        RESOURCE_COUNT = CACHE_SIZE_COUNT / 2,
     };
 
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
-        return backend == kGPU_Backend;
+        return backend == kNonRendering_Backend;
     }
 
 protected:
@@ -226,14 +240,27 @@ protected:
     }
 
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
-        GrGpu* gpu = canvas->getGrContext()->getGpu();
-        GrResourceCache cache(gpu->caps(), CACHE_SIZE_COUNT, CACHE_SIZE_BYTES);
-        populate_cache(&cache, gpu, DUPLICATE_COUNT);
-        populate_cache(&cache, gpu, RESOURCE_COUNT);
+        SkAutoTUnref<GrContext> context(GrContext::CreateMockContext());
+        if (NULL == context) {
+            return;
+        }
+        // Set the cache budget to be very large so no purging occurs.
+        context->setResourceCacheLimits(2 * RESOURCE_COUNT, 1 << 30);
+
+        GrResourceCache* cache = context->getResourceCache();
+        GrResourceCache2* cache2 = context->getResourceCache2();
+
+        // Make sure the cache is empty.
+        cache->purgeAllUnlocked();
+        SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
+
+        GrGpu* gpu = context->getGpu();
+
+        populate_cache(cache, gpu, RESOURCE_COUNT);
 
         for (int i = 0; i < loops; ++i) {
             for (int k = 0; k < RESOURCE_COUNT; ++k) {
-                check_cache_contents_or_die(&cache, k);
+                check_cache_contents_or_die(cache2, k);
             }
         }
     }

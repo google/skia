@@ -11,6 +11,7 @@
 
 #include "GrGpuResource.h"
 #include "GrResourceKey.h"
+#include "SkRefCnt.h"
 #include "SkTInternalLList.h"
 #include "SkTMultiMap.h"
 
@@ -28,6 +29,14 @@ public:
 
     void removeResource(GrGpuResource*);
 
+    void willRemoveContentKey(const GrGpuResource*);
+
+    // This currently returns a bool and fails when an existing resource has a key that collides
+    // with the new content key. In the future it will null out the content key for the existing
+    // resource. The failure is a temporary measure taken because duties are split between two
+    // cache objects currently.
+    bool didAddContentKey(GrGpuResource*);
+
     void abandonAll();
 
     void releaseAll();
@@ -39,6 +48,24 @@ public:
         kRequireNoPendingIO_ScratchFlag = 0x2,
     };
     GrGpuResource* findAndRefScratchResource(const GrResourceKey& scratchKey, uint32_t flags = 0);
+    
+#ifdef SK_DEBUG
+    // This is not particularly fast and only used for validation, so debug only.
+    int countScratchEntriesForKey(const GrResourceKey& scratchKey) const {
+        SkASSERT(scratchKey.isScratch());
+        return fScratchMap.countForKey(scratchKey);
+    }
+#endif
+
+    GrGpuResource* findAndRefContentResource(const GrResourceKey& contentKey) {
+        SkASSERT(!contentKey.isScratch());
+        return SkSafeRef(fContentHash.find(contentKey));
+    }
+
+    bool hasContentKey(const GrResourceKey& contentKey) const {
+        SkASSERT(!contentKey.isScratch());
+        return SkToBool(fContentHash.find(contentKey));
+    }
 
 private:
 #ifdef SK_DEBUG
@@ -56,10 +83,21 @@ private:
     };
     typedef SkTMultiMap<GrGpuResource, GrResourceKey, ScratchMapTraits> ScratchMap;
 
+    struct ContentHashTraits {
+        static const GrResourceKey& GetKey(const GrGpuResource& r) {
+            return *r.getContentKey();
+        }
+
+        static uint32_t Hash(const GrResourceKey& key) { return key.getHash(); }
+    };
+    typedef SkTDynamicHash<GrGpuResource, GrResourceKey, ContentHashTraits> ContentHash;
+
     int                                 fCount;
     SkTInternalLList<GrGpuResource>     fResources;
     // This map holds all resources that can be used as scratch resources.
-    ScratchMap                          fScratchMap; 
+    ScratchMap                          fScratchMap;
+    // This holds all resources that have content keys.
+    ContentHash                         fContentHash;
 };
 
 #endif
