@@ -41,12 +41,14 @@ public:
         @param atlasedNeedRendering Out parameter storing the layers that 
                                     should be hoisted to the atlas
         @param recycled    Out parameter storing layers that are atlased but do not need rendering
+        @param numSamples  The number if MSAA samples required
         */
     static void FindLayersToAtlas(GrContext* context,
                                   const SkPicture* topLevelPicture,
                                   const SkRect& query,
                                   SkTDArray<GrHoistedLayer>* atlasedNeedRendering,
-                                  SkTDArray<GrHoistedLayer>* recycled);
+                                  SkTDArray<GrHoistedLayer>* recycled,
+                                  int numSamples);
 
     /** Find the layers in 'topLevelPicture' that need hoisting. Note that the discovered
         layers can be inside nested sub-pictures.
@@ -56,12 +58,14 @@ public:
         @param needRendering Out parameter storing the layers that need rendering.
                              This should never include atlased layers.
         @param recycled    Out parameter storing layers that need hoisting but not rendering
+        @param numSamples  The number if MSAA samples required
     */
     static void FindLayersToHoist(GrContext* context,
                                   const SkPicture* topLevelPicture,
                                   const SkRect& query,
                                   SkTDArray<GrHoistedLayer>* needRendering,
-                                  SkTDArray<GrHoistedLayer>* recycled);
+                                  SkTDArray<GrHoistedLayer>* recycled,
+                                  int numSamples);
 
     /** Draw the specified layers into the atlas.
         @param context      Owner of the layer cache (and thus the layers)

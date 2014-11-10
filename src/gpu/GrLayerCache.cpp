@@ -164,6 +164,7 @@ bool GrLayerCache::tryToAtlas(GrCachedLayer* layer,
     SkDEBUGCODE(GrAutoValidateLayer avl(fAtlas ? fAtlas->getTexture() : NULL, layer);)
 
     SkASSERT(PlausiblyAtlasable(desc.fWidth, desc.fHeight));
+    SkASSERT(0 == desc.fSampleCnt);
 
     if (layer->locked()) {
         // This layer is already locked

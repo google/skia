@@ -22,7 +22,8 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
                                  const SkIRect& layerRect,
                                  SkTDArray<GrHoistedLayer>* needRendering,
                                  SkTDArray<GrHoistedLayer>* recycled,
-                                 bool attemptToAtlas) {
+                                 bool attemptToAtlas,
+                                 int numSamples) {
     const SkPicture* pict = info.fPicture ? info.fPicture : topLevelPicture;
 
     SkMatrix combined = SkMatrix::Concat(info.fPreMat, info.fLocalMat);
@@ -38,7 +39,7 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
     desc.fWidth = layerRect.width();
     desc.fHeight = layerRect.height();
     desc.fConfig = kSkia8888_GrPixelConfig;
-    // TODO: need to deal with sample count
+    desc.fSampleCnt = numSamples;
 
     bool locked, needsRendering;
     if (attemptToAtlas) {
@@ -81,7 +82,13 @@ void GrLayerHoister::FindLayersToAtlas(GrContext* context,
                                        const SkPicture* topLevelPicture,
                                        const SkRect& query,
                                        SkTDArray<GrHoistedLayer>* atlased,
-                                       SkTDArray<GrHoistedLayer>* recycled) {
+                                       SkTDArray<GrHoistedLayer>* recycled,
+                                       int numSamples) {
+    if (0 != numSamples) {
+        // MSAA layers are currently never atlased
+        return;
+    }
+
     GrLayerCache* layerCache = context->getLayerCache();
 
     layerCache->processDeletedPictures();
@@ -123,7 +130,7 @@ void GrLayerHoister::FindLayersToAtlas(GrContext* context,
             continue;
         }
 
-        prepare_for_hoisting(layerCache, topLevelPicture, info, ir, atlased, recycled, true);
+        prepare_for_hoisting(layerCache, topLevelPicture, info, ir, atlased, recycled, true, 0);
     }
 
 }
@@ -132,7 +139,8 @@ void GrLayerHoister::FindLayersToHoist(GrContext* context,
                                        const SkPicture* topLevelPicture,
                                        const SkRect& query,
                                        SkTDArray<GrHoistedLayer>* needRendering,
-                                       SkTDArray<GrHoistedLayer>* recycled) {
+                                       SkTDArray<GrHoistedLayer>* recycled,
+                                       int numSamples) {
     GrLayerCache* layerCache = context->getLayerCache();
 
     layerCache->processDeletedPictures();
@@ -166,7 +174,7 @@ void GrLayerHoister::FindLayersToHoist(GrContext* context,
         layerRect.roundOut(&ir);
 
         prepare_for_hoisting(layerCache, topLevelPicture, info, ir, 
-                             needRendering, recycled, false);
+                             needRendering, recycled, false, numSamples);
     }
 }
 

@@ -16,6 +16,7 @@
 #if SK_SUPPORT_GPU
 #include "GrLayerHoister.h"
 #include "GrRecordReplaceDraw.h"
+#include "GrRenderTarget.h"
 #endif
 
 void SkMultiPictureDraw::DrawData::draw() {
@@ -120,13 +121,17 @@ void SkMultiPictureDraw::draw() {
                 continue;
             }
 
+            GrRenderTarget* rt = data.fCanvas->internal_private_accessTopLayerRenderTarget();
+            SkASSERT(rt);
+
             // TODO: sorting the cacheable layers from smallest to largest
             // would improve the packing and reduce the number of swaps
             // TODO: another optimization would be to make a first pass to
             // lock any required layer that is already in the atlas
             GrLayerHoister::FindLayersToAtlas(context, data.fPicture,
                                               clipBounds,
-                                              &atlasedNeedRendering, &atlasedRecycled);
+                                              &atlasedNeedRendering, &atlasedRecycled,
+                                              rt->numSamples());
         }
     }
 
@@ -148,10 +153,14 @@ void SkMultiPictureDraw::draw() {
                 continue;
             }
 
+            GrRenderTarget* rt = data.fCanvas->internal_private_accessTopLayerRenderTarget();
+            SkASSERT(rt);
+
             // Find the layers required by this canvas. It will return atlased
             // layers in the 'recycled' list since they have already been drawn.
             GrLayerHoister::FindLayersToHoist(context, picture,
-                                              clipBounds, &needRendering, &recycled);
+                                              clipBounds, &needRendering, &recycled,
+                                              rt->numSamples());
 
             GrLayerHoister::DrawLayers(context, needRendering);
 

@@ -1824,7 +1824,8 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
     GrLayerHoister::FindLayersToAtlas(fContext, mainPicture,
                                       clipBounds,
-                                      &atlasedNeedRendering, &atlasedRecycled);
+                                      &atlasedNeedRendering, &atlasedRecycled,
+                                      fRenderTarget->numSamples());
 
     GrLayerHoister::DrawLayersToAtlas(fContext, atlasedNeedRendering);
 
@@ -1832,7 +1833,8 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
     GrLayerHoister::FindLayersToHoist(fContext, mainPicture,
                                       clipBounds,
-                                      &needRendering, &recycled);
+                                      &needRendering, &recycled,
+                                      fRenderTarget->numSamples());
 
     GrLayerHoister::DrawLayers(fContext, needRendering);
 
