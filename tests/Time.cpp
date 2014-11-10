@@ -14,10 +14,21 @@ DEF_TEST(Time_GetDateTime, r) {
     SkTime::GetDateTime(&dateTime);
 
     // TODO(future generation): update these values.
-    const uint16_t kMinimumSaneYear = 2014;
+    const uint16_t kMinimumSaneYear = 1964;
     const uint16_t kMaximumSaneYear = 2064;
-    REPORTER_ASSERT(r, dateTime.fYear >= kMinimumSaneYear);
-    REPORTER_ASSERT(r, dateTime.fYear <= kMaximumSaneYear);
+
+    if (dateTime.fYear < kMinimumSaneYear) {
+        ERRORF(r,
+               "SkTime::GetDateTime: %u (CurrentYear) < %u (MinimumSaneYear)",
+               static_cast<unsigned>(dateTime.fYear),
+               static_cast<unsigned>(kMinimumSaneYear));
+    }
+    if (dateTime.fYear > kMaximumSaneYear) {
+        ERRORF(r,
+               "SkTime::GetDateTime: %u (CurrentYear) > %u (MaximumSaneYear)",
+               static_cast<unsigned>(dateTime.fYear),
+               static_cast<unsigned>(kMaximumSaneYear));
+    }
 
     REPORTER_ASSERT(r, dateTime.fMonth >= 1);
     REPORTER_ASSERT(r, dateTime.fMonth <= 12);
