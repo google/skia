@@ -29,9 +29,9 @@ namespace SkRecords {
 // SkRecord visitor to gather saveLayer/restore information.
 class CollectLayers : SkNoncopyable {
 public:
-    CollectLayers(const SkPicture* pict, GrAccelData* accelData)
-        : fPictureID(pict->uniqueID())
-        , fSaveLayersInStack(0)
+    CollectLayers(const SkRect& cullRect, const SkRecord& record,
+                  SkBBoxHierarchy* bbh, GrAccelData* accelData)
+        : fSaveLayersInStack(0)
         , fAccelData(accelData) {
 
         // Calculate bounds for all ops.  This won't go quite in order, so we'll need
@@ -39,14 +39,10 @@ public:
         fCTM = &SkMatrix::I();
         fCurrentClipBounds = kUnbounded;
 
-        if (NULL == pict->fRecord.get()) {
-            return;
-        }
+        fBounds.reset(record.count());
 
-        fBounds.reset(pict->fRecord->count());
-
-        for (fCurrentOp = 0; fCurrentOp < pict->fRecord->count(); ++fCurrentOp) {
-            pict->fRecord->visit<void>(fCurrentOp, *this);
+        for (fCurrentOp = 0; fCurrentOp < record.count(); ++fCurrentOp) {
+            record.visit<void>(fCurrentOp, *this);
         }
 
         // If we have any lingering unpaired Saves, simulate restores to make
@@ -424,7 +420,13 @@ private:
     void trackSaveLayers(const DrawPicture& dp) {
         // For sub-pictures, we wrap their layer information within the parent
         // picture's rendering hierarchy
-        const GrAccelData* childData = GPUOptimize(dp.picture);
+        SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
+
+        const GrAccelData* childData = 
+            static_cast<const GrAccelData*>(dp.picture->EXPERIMENTAL_getAccelData(key));
+        if (!childData) {
+            childData = GPUOptimize(dp.picture);
+        }
 
         for (int i = 0; i < childData->numSaveLayers(); ++i) {
             const GrAccelData::SaveLayerInfo& src = childData->saveLayerInfo(i);
@@ -577,7 +579,6 @@ private:
 
     //--------- LAYER HOISTING
     // Used to collect saveLayer information for layer hoisting
-    uint32_t              fPictureID;
     int                   fSaveLayersInStack;
     SkTDArray<SaveLayerInfo> fSaveLayerStack;
     GrAccelData*          fAccelData;
@@ -586,8 +587,13 @@ private:
 
 } // namespace SkRecords
 
-// GPUOptimize is only intended to be called within the context of SkGpuDevice's
-// EXPERIMENTAL_optimize method.
+
+void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
+                           SkBBoxHierarchy* bbh, GrAccelData* data) {
+
+    SkRecords::CollectLayers collector(cullRect, record, bbh, data);
+}
+
 const GrAccelData* GPUOptimize(const SkPicture* pict) {
     if (NULL == pict || pict->cullRect().isEmpty()) {
         return NULL;
@@ -605,7 +611,7 @@ const GrAccelData* GPUOptimize(const SkPicture* pict) {
 
     pict->EXPERIMENTAL_addAccelData(data);
 
-    SkRecords::CollectLayers collector(pict, data);
+    SkRecordComputeLayers(pict->cullRect(), *pict->fRecord, NULL, data);
 
     return data;
 }

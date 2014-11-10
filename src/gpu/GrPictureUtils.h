@@ -76,6 +76,9 @@ private:
     typedef SkPicture::AccelData INHERITED;
 };
 
+void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
+                           SkBBoxHierarchy* bbh, GrAccelData* data);
+
 const GrAccelData* GPUOptimize(const SkPicture* pict);
 
 #endif // GrPictureUtils_DEFINED
