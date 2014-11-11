@@ -80,10 +80,9 @@ GrContext* GrGpuResource::getContext() {
 }
 
 bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
-    SkASSERT(!contentKey.isScratch());
     // Currently this can only be called once and can't be called when the resource is scratch.
+    SkASSERT(!contentKey.isScratch());
     SkASSERT(this->internalHasRef());
-    SkASSERT(!this->internalHasPendingIO());
     
     if (fContentKeySet) {
         return false;
