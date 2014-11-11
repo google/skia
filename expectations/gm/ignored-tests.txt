@@ -55,3 +55,6 @@ complexclip2_rect_aa
 complexclip2_rrect_aa
 convex_poly_clip
 verttext
+
+#reed
+modecolorfilters

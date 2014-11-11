@@ -2377,6 +2377,18 @@ bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// return true if the filter exists, and may affect alpha
+static bool affects_alpha(const SkColorFilter* cf) {
+    return cf && !(cf->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+}
+
+// return true if the filter exists, and may affect alpha
+static bool affects_alpha(const SkImageFilter* imf) {
+    // TODO: check if we should allow imagefilters to broadcast that they don't affect alpha
+    // ala colorfilters
+    return imf != NULL;
+}
+
 bool SkPaint::nothingToDraw() const {
     if (fLooper) {
         return false;
@@ -2389,7 +2401,10 @@ bool SkPaint::nothingToDraw() const {
             case SkXfermode::kDstOut_Mode:
             case SkXfermode::kDstOver_Mode:
             case SkXfermode::kPlus_Mode:
-                return 0 == this->getAlpha();
+                if (0 == this->getAlpha()) {
+                    return !affects_alpha(fColorFilter) && !affects_alpha(fImageFilter);
+                }
+                break;
             case SkXfermode::kDst_Mode:
                 return true;
             default:
