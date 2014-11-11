@@ -12,11 +12,6 @@
 #include "SkShader.h"
 #include "SkString.h"
 
-#if SK_SUPPORT_GPU
-#include "GrDrawTargetCaps.h"
-#include "GrTest.h"
-#endif
-
 enum Flags {
     kBig_Flag = 1 << 0,
     kAA_Flag = 1 << 1
@@ -175,21 +170,6 @@ public:
                          SkIntToScalar(points[base3+1] + yTrans),
                          weight);
         }
-    }
-
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
-#if SK_SUPPORT_GPU
-        GrContext* context = canvas->getGrContext();
-        // This is a workaround for skbug.com/2078. See also skbug.com/2033.
-        if (context) {
-            GrTestTarget tt;
-            context->getTestTarget(&tt);
-            if (tt.target()->caps()->pathRenderingSupport()) {
-                return;
-            }
-        }
-#endif
-        INHERITED::onDraw(loops, canvas);
     }
 
 private:
