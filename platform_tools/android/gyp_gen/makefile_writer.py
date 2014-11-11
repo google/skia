@@ -161,6 +161,14 @@ def write_clear_vars(f):
   """
   f.write('include $(CLEAR_VARS)\n')
 
+def write_include_stlport(f):
+  """Add a line to include stlport.
+
+  Args:
+    f: File open for writing.
+  """
+  f.write('include external/stlport/libstlport.mk\n')
+
 def write_android_mk(target_dir, common, deviations_from_common):
   """Given all the variables, write the final make file.
 
@@ -225,6 +233,7 @@ def write_android_mk(target_dir, common, deviations_from_common):
       if data.condition:
         f.write('endif\n\n')
 
+    write_include_stlport(f)
     f.write('include $(BUILD_SHARED_LIBRARY)\n')
     f.write(SKIA_TOOLS)
 
