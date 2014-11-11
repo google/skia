@@ -10,6 +10,8 @@ Download actual GM results for a particular builder.
 """
 
 # System-level imports
+import httplib
+import logging
 import optparse
 import os
 import posixpath
@@ -95,6 +97,136 @@ def get_builders_list(summaries_bucket=GM_SUMMARIES_BUCKET):
   """
   dirs, _ = gs_utils.GSUtils().list_bucket_contents(bucket=GM_SUMMARIES_BUCKET)
   return dirs
+
+
+class ActualLocation(object):
+  def __init__(self, bucket, path, generation):
+    self.bucket = bucket
+    self.path = path
+    self.generation = generation
+
+
+class TipOfTreeActuals(object):
+  def __init__(self, summaries_bucket=GM_SUMMARIES_BUCKET,
+               json_filename=DEFAULT_JSON_FILENAME):
+    """
+    Args:
+      summaries_bucket: URL pointing at the root directory
+          containing all actual-results.json files, e.g.,
+          http://domain.name/path/to/dir  OR
+          file:///absolute/path/to/localdir
+      json_filename: The JSON filename to read from within each directory.
+    """
+    self._json_filename = json_filename
+    self._summaries_bucket = summaries_bucket
+
+  def description(self):
+    return 'gm_summaries_bucket %s' % (self._summaries_bucket,)
+
+  def get_builders(self):
+    """ Returns the list of builders we have actual results for.
+    {builder:string -> ActualLocation}
+    """
+    dirs, _ = get_builders_list(self._summaries_bucket)
+    result = dict()
+    for builder in dirs:
+      result[builder] = ActualLocation(
+          self._summaries_bucket,
+          "%s/%s" % (builder, self._json_filename),
+          None)
+    return result
+
+
+class RietveldIssueActuals(object):
+  def __init__(self, issue, json_filename=DEFAULT_JSON_FILENAME):
+    """
+    Args:
+      issue: The rietveld issue from which to obtain actuals.
+      json_filename: The JSON filename to read from within each directory.
+    """
+    self._issue = issue
+    self._json_filename = json_filename
+
+  def description(self):
+    return 'rietveld issue %s' % (self._issue,)
+
+  def get_builders(self):
+    """ Returns the actuals for the given rietveld issue's tryjobs.
+    {builder:string -> ActualLocation}
+
+    e.g.
+    {'Test-Android-Xoom-Tegra2-Arm7-Release': (
+        'chromium-skia-gm-summaries',
+        'Test-Android-Xoom-Tegra2-Arm7-Release-Trybot/actual-results.json',
+        '1415041165535000')}
+    """
+    result = dict()
+    json_filename_re = re.compile(
+        '^Created: gs://([^/]+)/((?:[^/]+/)+%s)#(\d+)$'
+        % re.escape(self._json_filename), re.MULTILINE)
+    codereview_api_url = 'https://codereview.chromium.org/api'
+    upload_gm_step_url = '/steps/Upload GM Results/logs/stdio'
+
+    logging.info('Fetching issue %s ...' % (self._issue,))
+    json_issue_url = '%s/%s' % (codereview_api_url, self._issue)
+    json_issue_data = urllib2.urlopen(json_issue_url).read()
+    issue_dict = gm_json.LoadFromString(json_issue_data)
+
+    patchsets = issue_dict.get("patchsets", [])
+    patchset = patchsets[-1]
+    if not patchset:
+      logging.warning('No patchsets for rietveld issue %s.' % (self._issue,))
+      return result
+
+    logging.info('Fetching issue %s patch %s...' % (self._issue, patchset))
+    json_patchset_url = '%s/%s/%s' % (codereview_api_url, self._issue, patchset)
+    json_patchset_data = urllib2.urlopen(json_patchset_url).read()
+    patchset_dict = gm_json.LoadFromString(json_patchset_data)
+
+    # try_job_results is ordered reverse chronologically
+    try_job_results = patchset_dict.get('try_job_results', [])
+    for try_job_result in try_job_results:
+      try_builder = try_job_result.get('builder', '<bad builder>')
+      if not try_builder.endswith('-Trybot'):
+        logging.warning('Builder %s is not a trybot?' % (try_builder,))
+        continue
+      builder = try_builder[:-len('-Trybot')]
+      if builder in result:
+        continue
+
+      logging.info('Fetching issue %s patch %s try %s...' %
+                  (self._issue, patchset, try_builder))
+      build_url = try_job_result.get('url', '<bad url>')
+      gm_upload_output_url = build_url + urllib2.quote(upload_gm_step_url)
+      logging.info('Fetching %s ...' % (gm_upload_output_url,))
+
+      # Tryjobs might not produce the step, but don't let that fail everything.
+      gm_upload_output = None
+      try:
+        gm_upload_output = urllib2.urlopen(gm_upload_output_url).read()
+      except (urllib2.HTTPError, urllib2.URLError, httplib.HTTPException) as e:
+        logging.warning(e)
+      except Exception:
+        logging.exception('Error opening %s .' % (gm_upload_output_url,))
+      if not gm_upload_output:
+        logging.warning('Could not fetch %s .' % (gm_upload_output_url,))
+        continue
+
+      json_filename_match = json_filename_re.search(gm_upload_output)
+      if json_filename_match:
+        logging.info('Found issue %s patch %s try %s result gs://%s/%s#%s .' %
+                    (self._issue, patchset, builder,
+                    json_filename_match.group(1),
+                    json_filename_match.group(2),
+                    json_filename_match.group(3)))
+        result[builder] = ActualLocation(json_filename_match.group(1),
+                                         json_filename_match.group(2),
+                                         json_filename_match.group(3))
+      else:
+        logging.warning('Did not find %s for issue %s patch %s try %s.' %
+                      (self._json_filename, self._issue, patchset, try_builder))
+
+    return result
 
 
 def main():

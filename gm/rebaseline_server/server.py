@@ -260,21 +260,22 @@ class Server(object):
   """ HTTP server for our HTML rebaseline viewer. """
 
   def __init__(self,
+               actuals_source,
                actuals_dir=DEFAULT_ACTUALS_DIR,
                json_filename=DEFAULT_JSON_FILENAME,
-               gm_summaries_bucket=DEFAULT_GM_SUMMARIES_BUCKET,
                port=DEFAULT_PORT, export=False, editable=True,
                reload_seconds=0, config_pairs=None, builder_regex_list=None,
                boto_file_path=None,
                imagediffdb_threads=imagediffdb.DEFAULT_NUM_WORKER_THREADS):
     """
     Args:
+      actuals_source: actuals_source.get_builders() ->
+          {builder:string -> [ bucket:string, path:string, generation:string ]}
+          If None, don't fetch new actual-results files
+          at all, just compare to whatever files are already in actuals_dir
       actuals_dir: directory under which we will check out the latest actual
           GM results
       json_filename: basename of the JSON summary file to load for each builder
-      gm_summaries_bucket: Google Storage bucket to download json_filename
-          files from; if None or '', don't fetch new actual-results files
-          at all, just compare to whatever files are already in actuals_dir
       port: which TCP port to listen on for HTTP requests
       export: whether to allow HTTP clients on other hosts to access this server
       editable: whether HTTP clients are allowed to submit new GM baselines
@@ -292,9 +293,9 @@ class Server(object):
           public GS buckets.
       imagediffdb_threads: How many threads to spin up within imagediffdb.
     """
+    self._actuals_source = actuals_source
     self._actuals_dir = actuals_dir
     self._json_filename = json_filename
-    self._gm_summaries_bucket = gm_summaries_bucket
     self._port = port
     self._export = export
     self._editable = editable
@@ -385,28 +386,29 @@ class Server(object):
     with self.results_rlock:
       if invalidate:
         self._results = None
-      if self._gm_summaries_bucket:
+
+      if self._actuals_source:
         logging.info(
-            'Updating GM result summaries in %s from gm_summaries_bucket %s ...'
-            % (self._actuals_dir, self._gm_summaries_bucket))
+            'Updating GM result summaries in %s from %s ...'
+            % (self._actuals_dir, self._actuals_source.description()))
 
         # Clean out actuals_dir first, in case some builders have gone away
         # since we last ran.
         if os.path.isdir(self._actuals_dir):
           shutil.rmtree(self._actuals_dir)
 
-        # Get the list of builders we care about.
-        all_builders = download_actuals.get_builders_list(
-            summaries_bucket=self._gm_summaries_bucket)
+        # Get the list of actuals we care about.
+        all_actuals = self._actuals_source.get_builders()
+
         if self._builder_regex_list:
           matching_builders = []
-          for builder in all_builders:
+          for builder in all_actuals:
             for regex in self._builder_regex_list:
               if re.match(regex, builder):
                 matching_builders.append(builder)
                 break  # go on to the next builder, no need to try more regexes
         else:
-          matching_builders = all_builders
+          matching_builders = all_actuals.keys()
 
         # Download the JSON file for each builder we care about.
         #
@@ -414,8 +416,9 @@ class Server(object):
         # better off downloading them in parallel!
         for builder in matching_builders:
           self._gs.download_file(
-              source_bucket=self._gm_summaries_bucket,
-              source_path=posixpath.join(builder, self._json_filename),
+              source_bucket=all_actuals[builder].bucket,
+              source_path=all_actuals[builder].path,
+              source_generation=all_actuals[builder].generation,
               dest_path=os.path.join(self._actuals_dir, builder,
                                      self._json_filename),
               create_subdirs_if_needed=True)
@@ -899,6 +902,10 @@ def main():
                             'to access this server.  WARNING: doing so will '
                             'allow users on other hosts to modify your '
                             'GM expectations, if combined with --editable.'))
+  parser.add_argument('--rietveld-issue',
+                      help=('Download json_filename files from latest trybot'
+                            'runs on this codereview.chromium.org issue.'
+                            'Overrides --gm-summaries-bucket.'))
   parser.add_argument('--gm-summaries-bucket',
                     help=('Google Cloud Storage bucket to download '
                           'JSON_FILENAME files from. '
@@ -936,10 +943,17 @@ def main():
   else:
     config_pairs = None
 
+  if args.rietveld_issue:
+    actuals_source = download_actuals.RietveldIssueActuals(args.rietveld_issue,
+                                                           args.json_filename)
+  else:
+    actuals_source = download_actuals.TipOfTreeActuals(args.gm_summaries_bucket,
+                                                       args.json_filename)
+
   global _SERVER
-  _SERVER = Server(actuals_dir=args.actuals_dir,
+  _SERVER = Server(actuals_source,
+                   actuals_dir=args.actuals_dir,
                    json_filename=args.json_filename,
-                   gm_summaries_bucket=args.gm_summaries_bucket,
                    port=args.port, export=args.export, editable=args.editable,
                    reload_seconds=args.reload, config_pairs=config_pairs,
                    builder_regex_list=args.builders, boto_file_path=args.boto,
