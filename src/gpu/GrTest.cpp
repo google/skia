@@ -49,6 +49,8 @@ void GrContext::purgeAllUnlockedResources() {
 #include "GrInOrderDrawBuffer.h"
 #include "GrGpu.h"
 
+class GrOptDrawState;
+
 class MockGpu : public GrGpu {
 public:
     MockGpu(GrContext* context) : INHERITED(context) { fCaps.reset(SkNEW(GrDrawTargetCaps)); }
@@ -118,7 +120,7 @@ private:
                                     const SkIRect& rect,
                                     bool insideClip)  SK_OVERRIDE { }
 
-    virtual void onDraw(const GrDrawTarget::DrawInfo&)  SK_OVERRIDE { }
+    virtual void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&)  SK_OVERRIDE { }
     virtual bool onReadPixels(GrRenderTarget* target,
                               int left, int top, int width, int height,
                               GrPixelConfig,
@@ -147,7 +149,8 @@ private:
         return false;
     }
 
-    virtual bool flushGraphicsState(DrawType,
+    virtual bool flushGraphicsState(const GrOptDrawState&,
+                                    DrawType,
                                     const GrClipMaskManager::ScissorState&,
                                     const GrDeviceCoordTexture* dstCopy)  SK_OVERRIDE {
         return false;

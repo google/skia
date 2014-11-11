@@ -127,7 +127,6 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
 
 void GrContext::initCommon() {
     fDrawState = SkNEW(GrDrawState);
-    fGpu->setDrawState(fDrawState);
 
     fResourceCache = SkNEW_ARGS(GrResourceCache, (fGpu->caps(),
                                                   MAX_RESOURCE_CACHE_COUNT,

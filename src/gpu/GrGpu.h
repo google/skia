@@ -60,25 +60,6 @@ public:
      */
     const GrDrawTargetCaps* caps() const { return fCaps.get(); }
 
-    /**
-     * Sets the draw state object for the gpu. Note that this does not
-     * make a copy. The GrGpu will take a reference to passed object.
-     * Passing NULL will cause the GrGpu to use its own internal draw
-     * state object rather than an externally provided one.
-     */
-    void setDrawState(GrDrawState*  drawState);
-
-    /**
-     * Read-only access to the GrGpu current draw state.
-     */
-    const GrDrawState& getDrawState() const { return *fDrawState; }
-
-    /**
-     * Read-write access to the GrGpu current draw state. Note that
-     * this doesn't ref.
-     */
-    GrDrawState* drawState() { return fDrawState; }
-
     GrPathRendering* pathRendering() {
         return fPathRendering.get();
     }
@@ -302,7 +283,7 @@ public:
 
     void clearStencilClip(const SkIRect& rect,
                           bool insideClip,
-                          GrRenderTarget* renderTarget = NULL);
+                          GrRenderTarget* renderTarget);
 
     /**
      * Discards the contents render target. NULL indicates that the current render target should
@@ -401,7 +382,7 @@ public:
      *                      unlocked before draw call. Vertex size is queried
      *                      from current GrDrawState.
      */
-    void setVertexSourceToBuffer(const GrVertexBuffer* buffer);
+    void setVertexSourceToBuffer(const GrVertexBuffer* buffer, size_t vertexStride);
 
     /**
      * Sets source of index data for the next indexed draw. Data does not have
@@ -412,16 +393,20 @@ public:
      */
     void setIndexSourceToBuffer(const GrIndexBuffer* buffer);
 
-    virtual void draw(const GrDrawTarget::DrawInfo&,
+    virtual void draw(const GrOptDrawState&,
+                      const GrDrawTarget::DrawInfo&,
                       const GrClipMaskManager::ScissorState&);
-    virtual void stencilPath(const GrPath*,
+    virtual void stencilPath(const GrOptDrawState&,
+                             const GrPath*,
                              const GrClipMaskManager::ScissorState&,
                              const GrStencilSettings&);
-    virtual void drawPath(const GrPath*,
+    virtual void drawPath(const GrOptDrawState&,
+                          const GrPath*,
                           const GrClipMaskManager::ScissorState&,
                           const GrStencilSettings&,
                           const GrDeviceCoordTexture* dstCopy);
-    virtual void drawPaths(const GrPathRange*,
+    virtual void drawPaths(const GrOptDrawState&,
+                           const GrPathRange*,
                            const uint32_t indices[],
                            int count,
                            const float transforms[],
@@ -430,8 +415,7 @@ public:
                            const GrStencilSettings&,
                            const GrDeviceCoordTexture*);
 
-protected:
-    DrawType PrimTypeToDrawType(GrPrimitiveType type) {
+    static DrawType PrimTypeToDrawType(GrPrimitiveType type) {
         switch (type) {
             case kTriangles_GrPrimitiveType:
             case kTriangleStrip_GrPrimitiveType:
@@ -448,6 +432,7 @@ protected:
         }
     }
 
+protected:
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.
     static GrStencilFunc ConvertStencilFunc(bool stencilInClip,
@@ -513,7 +498,7 @@ private:
                                     bool insideClip) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const GrDrawTarget::DrawInfo&) = 0;
+    virtual void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) = 0;
 
     // overridden by backend-specific derived class to perform the read pixels.
     virtual bool onReadPixels(GrRenderTarget* target,
@@ -543,7 +528,8 @@ private:
     // deltas from previous state at draw time. This function does the
     // backend-specific flush of the state.
     // returns false if current state is unsupported.
-    virtual bool flushGraphicsState(DrawType,
+    virtual bool flushGraphicsState(const GrOptDrawState&,
+                                    DrawType,
                                     const GrClipMaskManager::ScissorState&,
                                     const GrDeviceCoordTexture* dstCopy) = 0;
 
@@ -573,8 +559,6 @@ private:
     uint32_t                                                            fResetBits;
     // these are mutable so they can be created on-demand
     mutable GrIndexBuffer*                                              fQuadIndexBuffer;
-    GrDrawState                                                         fDefaultDrawState;
-    GrDrawState*                                                        fDrawState;
     // To keep track that we always have at least as many debug marker adds as removes
     int                                                                 fGpuTraceMarkerCount;
     GrTraceMarkerSet                                                    fActiveTraceMarkers;

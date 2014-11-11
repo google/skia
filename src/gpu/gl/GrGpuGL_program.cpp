@@ -201,39 +201,31 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState, D
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
-bool GrGpuGL::flushGraphicsState(DrawType type,
+bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState,
+                                 DrawType type,
                                  const GrClipMaskManager::ScissorState& scissorState,
                                  const GrDeviceCoordTexture* dstCopy) {
-    SkAutoTUnref<GrOptDrawState> optState(GrOptDrawState::Create(this->getDrawState(),
-                                                                 this,
-                                                                 dstCopy,
-                                                                 type));
-
-    if (!optState) {
-        return false;
-    }
-
     // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
-    SkASSERT(optState->getRenderTarget());
+    SkASSERT(optState.getRenderTarget());
 
     if (kStencilPath_DrawType == type) {
-        const GrRenderTarget* rt = optState->getRenderTarget();
+        const GrRenderTarget* rt = optState.getRenderTarget();
         SkISize size;
         size.set(rt->width(), rt->height());
-        this->glPathRendering()->setProjectionMatrix(optState->getViewMatrix(), size, rt->origin());
+        this->glPathRendering()->setProjectionMatrix(optState.getViewMatrix(), size, rt->origin());
     } else {
-        this->flushMiscFixedFunctionState(*optState.get());
+        this->flushMiscFixedFunctionState(optState);
 
-        GrBlendCoeff srcCoeff = optState->getSrcBlendCoeff();
-        GrBlendCoeff dstCoeff = optState->getDstBlendCoeff();
+        GrBlendCoeff srcCoeff = optState.getSrcBlendCoeff();
+        GrBlendCoeff dstCoeff = optState.getDstBlendCoeff();
 
         // In these blend coeff's we end up drawing nothing so we can skip draw all together
         if (kZero_GrBlendCoeff == srcCoeff && kOne_GrBlendCoeff == dstCoeff &&
-            !optState->getStencil().doesWrite()) {
+            !optState.getStencil().doesWrite()) {
             return false;
         }
 
-        fCurrentProgram.reset(fProgramCache->getProgram(*optState.get(), type));
+        fCurrentProgram.reset(fProgramCache->getProgram(optState, type));
         if (NULL == fCurrentProgram.get()) {
             SkDEBUGFAIL("Failed to create program!");
             return false;
@@ -247,15 +239,15 @@ bool GrGpuGL::flushGraphicsState(DrawType type,
             fHWProgramID = programID;
         }
 
-        this->flushBlend(*optState.get(), kDrawLines_DrawType == type, srcCoeff, dstCoeff);
+        this->flushBlend(optState, kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
-        fCurrentProgram->setData(*optState.get(), type, dstCopy);
+        fCurrentProgram->setData(optState, type, dstCopy);
     }
 
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState->getRenderTarget());
-    this->flushStencil(optState->getStencil(), type);
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState.getRenderTarget());
+    this->flushStencil(optState.getStencil(), type);
     this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
-    this->flushAAState(*optState.get(), type);
+    this->flushAAState(optState, type);
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
@@ -264,16 +256,10 @@ bool GrGpuGL::flushGraphicsState(DrawType type,
     return true;
 }
 
-void GrGpuGL::setupGeometry(const GrDrawTarget::DrawInfo& info, size_t* indexOffsetInBytes) {
-    SkAutoTUnref<GrOptDrawState> optState(
-        GrOptDrawState::Create(this->getDrawState(), this, info.getDstCopy(),
-                               PrimTypeToDrawType(info.primitiveType())));
-
-    // If the optState would is NULL it should have been caught in flushGraphicsState before getting
-    // here.
-    SkASSERT(optState);
-
-    GrGLsizei stride = static_cast<GrGLsizei>(optState->getVertexStride());
+void GrGpuGL::setupGeometry(const GrOptDrawState& optState,
+                            const GrDrawTarget::DrawInfo& info,
+                            size_t* indexOffsetInBytes) {
+    GrGLsizei stride = static_cast<GrGLsizei>(optState.getVertexStride());
 
     size_t vertexOffsetInBytes = stride * info.startVertex();
 
@@ -299,9 +285,9 @@ void GrGpuGL::setupGeometry(const GrDrawTarget::DrawInfo& info, size_t* indexOff
         fHWGeometryState.bindArrayAndBuffersToDraw(this, vbuf, ibuf);
 
     if (fCurrentProgram->hasVertexShader()) {
-        int vertexAttribCount = optState->getVertexAttribCount();
+        int vertexAttribCount = optState.getVertexAttribCount();
         uint32_t usedAttribArraysMask = 0;
-        const GrVertexAttrib* vertexAttrib = optState->getVertexAttribs();
+        const GrVertexAttrib* vertexAttrib = optState.getVertexAttribs();
 
         for (int vertexAttribIndex = 0; vertexAttribIndex < vertexAttribCount;
              ++vertexAttribIndex, ++vertexAttrib) {

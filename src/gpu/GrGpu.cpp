@@ -26,14 +26,10 @@ GrGpu::GrGpu(GrContext* context)
     , fResetBits(kAll_GrBackendState)
     , fQuadIndexBuffer(NULL)
     , fContext(context) {
-    fDrawState = &fDefaultDrawState;
-    // We assume that fDrawState always owns a ref to the object it points at.
-    fDefaultDrawState.ref();
 }
 
 GrGpu::~GrGpu() {
     SkSafeSetNull(fQuadIndexBuffer);
-    SkSafeUnref(fDrawState);
     SkSafeUnref(fGeoSrcState.fVertexBuffer);
     SkSafeUnref(fGeoSrcState.fIndexBuffer);
 }
@@ -187,13 +183,7 @@ void GrGpu::clear(const SkIRect* rect,
 void GrGpu::clearStencilClip(const SkIRect& rect,
                              bool insideClip,
                              GrRenderTarget* renderTarget) {
-    if (NULL == renderTarget) {
-        renderTarget = this->getDrawState().getRenderTarget();
-    }
-    if (NULL == renderTarget) {
-        SkASSERT(0);
-        return;
-    }
+    SkASSERT(renderTarget);
     this->handleDirtyContext();
     this->onClearStencilClip(renderTarget, rect, insideClip);
 }
@@ -270,29 +260,17 @@ void GrGpu::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
     }
 }
 
-void GrGpu::setVertexSourceToBuffer(const GrVertexBuffer* buffer) {
+void GrGpu::setVertexSourceToBuffer(const GrVertexBuffer* buffer, size_t vertexStride) {
     SkSafeUnref(fGeoSrcState.fVertexBuffer);
     fGeoSrcState.fVertexBuffer = buffer;
     buffer->ref();
-    fGeoSrcState.fVertexSize = this->drawState()->getVertexStride();
+    fGeoSrcState.fVertexSize = vertexStride;
 }
 
 void GrGpu::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
     SkSafeUnref(fGeoSrcState.fIndexBuffer);
     fGeoSrcState.fIndexBuffer = buffer;
     buffer->ref();
-}
-
-void GrGpu::setDrawState(GrDrawState*  drawState) {
-    SkASSERT(fDrawState);
-    if (NULL == drawState) {
-        drawState = &fDefaultDrawState;
-    }
-    if (fDrawState != drawState) {
-        fDrawState->unref();
-        drawState->ref();
-        fDrawState = drawState;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,23 +298,26 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::draw(const GrDrawTarget::DrawInfo& info,
-                   const GrClipMaskManager::ScissorState& scissorState) {
+void GrGpu::draw(const GrOptDrawState& ds,
+                 const GrDrawTarget::DrawInfo& info,
+                 const GrClipMaskManager::ScissorState& scissorState) {
     this->handleDirtyContext();
-    if (!this->flushGraphicsState(PrimTypeToDrawType(info.primitiveType()),
+    if (!this->flushGraphicsState(ds,
+                                  PrimTypeToDrawType(info.primitiveType()),
                                   scissorState,
                                   info.getDstCopy())) {
         return;
     }
-    this->onDraw(info);
+    this->onDraw(ds, info);
 }
 
-void GrGpu::stencilPath(const GrPath* path,
-                          const GrClipMaskManager::ScissorState& scissorState,
-                          const GrStencilSettings& stencilSettings) {
+void GrGpu::stencilPath(const GrOptDrawState& ds,
+                        const GrPath* path,
+                        const GrClipMaskManager::ScissorState& scissorState,
+                        const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(kStencilPath_DrawType, scissorState, NULL)) {
+    if (!this->flushGraphicsState(ds, kStencilPath_DrawType, scissorState, NULL)) {
         return;
     }
 
@@ -344,30 +325,32 @@ void GrGpu::stencilPath(const GrPath* path,
 }
 
 
-void GrGpu::drawPath(const GrPath* path,
-                       const GrClipMaskManager::ScissorState& scissorState,
-                       const GrStencilSettings& stencilSettings,
-                       const GrDeviceCoordTexture* dstCopy) {
+void GrGpu::drawPath(const GrOptDrawState& ds,
+                     const GrPath* path,
+                     const GrClipMaskManager::ScissorState& scissorState,
+                     const GrStencilSettings& stencilSettings,
+                     const GrDeviceCoordTexture* dstCopy) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(kDrawPath_DrawType, scissorState, dstCopy)) {
+    if (!this->flushGraphicsState(ds, kDrawPath_DrawType, scissorState, dstCopy)) {
         return;
     }
 
     this->pathRendering()->drawPath(path, stencilSettings);
 }
 
-void GrGpu::drawPaths(const GrPathRange* pathRange,
-                        const uint32_t indices[],
-                        int count,
-                        const float transforms[],
-                        GrDrawTarget::PathTransformType transformsType,
-                        const GrClipMaskManager::ScissorState& scissorState,
-                        const GrStencilSettings& stencilSettings,
-                        const GrDeviceCoordTexture* dstCopy) {
+void GrGpu::drawPaths(const GrOptDrawState& ds,
+                      const GrPathRange* pathRange,
+                      const uint32_t indices[],
+                      int count,
+                      const float transforms[],
+                      GrDrawTarget::PathTransformType transformsType,
+                      const GrClipMaskManager::ScissorState& scissorState,
+                      const GrStencilSettings& stencilSettings,
+                      const GrDeviceCoordTexture* dstCopy) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(kDrawPaths_DrawType, scissorState, dstCopy)) {
+    if (!this->flushGraphicsState(ds, kDrawPaths_DrawType, scissorState, dstCopy)) {
         return;
     }
 

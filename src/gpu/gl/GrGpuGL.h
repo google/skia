@@ -153,11 +153,12 @@ private:
 
     virtual void onResolveRenderTarget(GrRenderTarget* target) SK_OVERRIDE;
 
-    virtual void onDraw(const GrDrawTarget::DrawInfo&) SK_OVERRIDE;
+    virtual void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) SK_OVERRIDE;
 
 
     virtual void clearStencil(GrRenderTarget*) SK_OVERRIDE;
-    virtual bool flushGraphicsState(DrawType,
+    virtual bool flushGraphicsState(const GrOptDrawState&,
+                                    DrawType,
                                     const GrClipMaskManager::ScissorState&,
                                     const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 
@@ -171,7 +172,9 @@ private:
     // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
     // an into the index buffer. It does not account for drawInfo.startIndex() but rather the start
     // index is relative to the returned offset.
-    void setupGeometry(const GrDrawTarget::DrawInfo& info, size_t* indexOffsetInBytes);
+    void setupGeometry(const GrOptDrawState&,
+                       const GrDrawTarget::DrawInfo& info,
+                       size_t* indexOffsetInBytes);
 
     // Subclasses should call this to flush the blend state.
     // The params should be the final coefficients to apply

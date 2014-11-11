@@ -154,8 +154,6 @@ GrPathRange* GrGLPathRendering::createGlyphs(const SkTypeface* typeface,
 
 void GrGLPathRendering::stencilPath(const GrPath* path, const GrStencilSettings& stencilSettings) {
     GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
-    SkASSERT(fGpu->drawState()->getRenderTarget());
-    SkASSERT(fGpu->drawState()->getRenderTarget()->getStencilBuffer());
 
     this->flushPathStencilSettings(stencilSettings);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
@@ -176,8 +174,6 @@ void GrGLPathRendering::stencilPath(const GrPath* path, const GrStencilSettings&
 
 void GrGLPathRendering::drawPath(const GrPath* path, const GrStencilSettings& stencilSettings) {
     GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
-    SkASSERT(fGpu->drawState()->getRenderTarget());
-    SkASSERT(fGpu->drawState()->getRenderTarget()->getStencilBuffer());
 
     this->flushPathStencilSettings(stencilSettings);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
@@ -202,8 +198,6 @@ void GrGLPathRendering::drawPaths(const GrPathRange* pathRange, const uint32_t i
                                   const float transforms[], PathTransformType transformsType,
                                   const GrStencilSettings& stencilSettings) {
     SkASSERT(fGpu->caps()->pathRenderingSupport());
-    SkASSERT(fGpu->drawState()->getRenderTarget());
-    SkASSERT(fGpu->drawState()->getRenderTarget()->getStencilBuffer());
 
     GrGLuint baseID = static_cast<const GrGLPathRange*>(pathRange)->basePathID();
 

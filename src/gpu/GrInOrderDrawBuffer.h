@@ -11,6 +11,7 @@
 #include "GrDrawTarget.h"
 #include "GrAllocPool.h"
 #include "GrAllocator.h"
+#include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrRenderTarget.h"
 #include "GrPath.h"
@@ -23,7 +24,6 @@
 #include "SkTemplates.h"
 #include "SkTypes.h"
 
-class GrGpu;
 class GrIndexBufferAllocPool;
 class GrVertexBufferAllocPool;
 
@@ -110,7 +110,7 @@ private:
         Cmd(uint8_t type) : fType(type) {}
         virtual ~Cmd() {}
 
-        virtual void execute(GrGpu*) = 0;
+        virtual void execute(GrGpu*, const GrOptDrawState*) = 0;
 
         uint8_t fType;
     };
@@ -129,7 +129,7 @@ private:
         const GrVertexBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
         const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
 
-        virtual void execute(GrGpu*);
+        virtual void execute(GrGpu*, const GrOptDrawState*);
 
         DrawInfo     fInfo;
         ScissorState fScissorState;
@@ -144,7 +144,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        virtual void execute(GrGpu*);
+        virtual void execute(GrGpu*, const GrOptDrawState*);
 
         ScissorState      fScissorState;
         GrStencilSettings fStencilSettings;
@@ -158,7 +158,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        virtual void execute(GrGpu*);
+        virtual void execute(GrGpu*, const GrOptDrawState*);
 
         GrDeviceCoordTexture    fDstCopy;
         ScissorState            fScissorState;
@@ -175,7 +175,7 @@ private:
         uint32_t* indices() { return reinterpret_cast<uint32_t*>(CmdBuffer::GetDataForItem(this)); }
         float* transforms() { return reinterpret_cast<float*>(&this->indices()[fCount]); }
 
-        virtual void execute(GrGpu*);
+        virtual void execute(GrGpu*, const GrOptDrawState*);
 
         size_t                  fCount;
         PathTransformType       fTransformsType;
@@ -193,7 +193,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        virtual void execute(GrGpu*);
+        virtual void execute(GrGpu*, const GrOptDrawState*);
 
         SkIRect fRect;
         GrColor fColor;
@@ -209,7 +209,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        virtual void execute(GrGpu*);
+        virtual void execute(GrGpu*, const GrOptDrawState*);
 
         SkIRect fRect;
         bool    fInsideClip;
@@ -224,7 +224,7 @@ private:
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
 
-        virtual void execute(GrGpu*);
+        virtual void execute(GrGpu*, const GrOptDrawState*);
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -237,9 +237,11 @@ private:
     struct SetState : public Cmd {
         SetState(const GrDrawState& state) : Cmd(kSetState_Cmd), fState(state) {}
 
-        virtual void execute(GrGpu*);
+        virtual void execute(GrGpu*, const GrOptDrawState*);
 
         GrDrawState fState;
+        GrGpu::DrawType fDrawType;
+        GrDeviceCoordTexture fDstCopy;
     };
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
@@ -288,7 +290,7 @@ private:
     int concatInstancedDraw(const DrawInfo& info, const GrClipMaskManager::ScissorState&);
 
     // Determines whether the current draw operation requieres a new drawstate and if so records it.
-    void recordStateIfNecessary();
+    void recordStateIfNecessary(GrGpu::DrawType, const GrDeviceCoordTexture*);
     // We lazily record clip changes in order to skip clips that have no effect.
     void recordClipIfNecessary();
     // Records any trace markers for a command after adding it to the buffer.

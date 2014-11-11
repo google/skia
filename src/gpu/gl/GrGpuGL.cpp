@@ -1729,9 +1729,9 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGpuGL::onDraw(const GrDrawTarget::DrawInfo& info) {
+void GrGpuGL::onDraw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& info) {
     size_t indexOffsetInBytes;
-    this->setupGeometry(info, &indexOffsetInBytes);
+    this->setupGeometry(ds, info, &indexOffsetInBytes);
 
     SkASSERT((size_t)info.primitiveType() < SK_ARRAY_COUNT(gPrimitiveType2GLMode));
 
