@@ -28,12 +28,12 @@ class GrDrawState : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrDrawState)
 
-    GrDrawState() : fCachedOptState(NULL) {
+    GrDrawState() {
         SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         this->reset();
     }
 
-    GrDrawState(const SkMatrix& initialViewMatrix) : fCachedOptState(NULL) {
+    GrDrawState(const SkMatrix& initialViewMatrix) {
         SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         this->reset(initialViewMatrix);
     }
@@ -41,7 +41,7 @@ public:
     /**
      * Copies another draw state.
      **/
-    GrDrawState(const GrDrawState& state) : INHERITED(), fCachedOptState(NULL) {
+    GrDrawState(const GrDrawState& state) : INHERITED() {
         SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         *this = state;
     }
@@ -175,7 +175,6 @@ public:
     void setColor(GrColor color) {
         if (color != fColor) {
             fColor = color;
-            this->invalidateOptState();
         }
     }
 
@@ -207,7 +206,6 @@ public:
     void setCoverage(uint8_t coverage) {
         if (coverage != fCoverage) {
             fCoverage = coverage;
-            this->invalidateOptState();
         }
     }
 
@@ -223,7 +221,6 @@ public:
         SkASSERT(geometryProcessor);
         SkASSERT(!this->hasGeometryProcessor());
         fGeometryProcessor.reset(SkRef(geometryProcessor));
-        this->invalidateOptState();
         return geometryProcessor;
     }
 
@@ -267,14 +264,12 @@ public:
     const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fColorStages, GrFragmentStage, (effect));
-        this->invalidateOptState();
         return effect;
     }
 
     const GrFragmentProcessor* addCoverageProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrFragmentStage, (effect));
-        this->invalidateOptState();
         return effect;
     }
 
@@ -415,7 +410,6 @@ public:
         if (srcCoeff != fSrcBlend || dstCoeff != fDstBlend) {
             fSrcBlend = srcCoeff;
             fDstBlend = dstCoeff;
-            this->invalidateOptState();
         }
     #ifdef SK_DEBUG
         if (GrBlendCoeffRefsDst(dstCoeff)) {
@@ -440,7 +434,6 @@ public:
     void setBlendConstant(GrColor constant) {
         if (constant != fBlendConstant) {
             fBlendConstant = constant;
-            this->invalidateOptState();
         }
     }
 
@@ -539,7 +532,6 @@ public:
      */
     void setRenderTarget(GrRenderTarget* target) {
         fRenderTarget.set(SkSafeRef(target), kWrite_GrIOType);
-        this->invalidateOptState();
     }
 
     /// @}
@@ -560,7 +552,6 @@ public:
     void setStencil(const GrStencilSettings& settings) {
         if (settings != fStencilSettings) {
             fStencilSettings = settings;
-            this->invalidateOptState();
         }
     }
 
@@ -570,7 +561,6 @@ public:
     void disableStencil() {
         if (!fStencilSettings.isDisabled()) {
             fStencilSettings.setDisabled();
-            this->invalidateOptState();
         }
     }
 
@@ -630,7 +620,6 @@ public:
     void resetStateFlags() {
         if (0 != fFlagBits) {
             fFlagBits = 0;
-            this->invalidateOptState();
         }
     }
 
@@ -642,7 +631,6 @@ public:
     void enableState(uint32_t stateBits) {
         if (stateBits & ~fFlagBits) {
             fFlagBits |= stateBits;
-            this->invalidateOptState();
         }
     }
 
@@ -654,7 +642,6 @@ public:
     void disableState(uint32_t stateBits) {
         if (stateBits & fFlagBits) {
             fFlagBits &= ~(stateBits);
-            this->invalidateOptState();
         }
     }
 
@@ -809,8 +796,6 @@ private:
      */
     bool srcAlphaWillBeOne() const;
 
-    void invalidateOptState() const;
-
     void onReset(const SkMatrix* initialViewMatrix);
 
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
@@ -846,9 +831,6 @@ private:
     // This is simply a different representation of info in fVertexAttribs and thus does
     // not need to be compared in op==.
     int fFixedFunctionVertexAttribIndices[kGrFixedFunctionVertexAttribBindingCnt];
-
-    mutable GrOptDrawState* fCachedOptState;
-    mutable uint32_t fCachedCapsID;
 
     friend class GrOptDrawState;
 

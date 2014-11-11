@@ -99,39 +99,23 @@ GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState,
                                        GrGpu* gpu,
                                        const GrDeviceCoordTexture* dstCopy,
                                        GrGpu::DrawType drawType) {
-    const GrDrawTargetCaps& caps = *gpu->caps();
-    if (NULL == drawState.fCachedOptState || caps.getUniqueID() != drawState.fCachedCapsID) {
-        GrBlendCoeff srcCoeff;
-        GrBlendCoeff dstCoeff;
-        BlendOptFlags blendFlags = (BlendOptFlags) drawState.getBlendOpts(false,
-                                                                          &srcCoeff,
-                                                                          &dstCoeff);
+    GrBlendCoeff srcCoeff;
+    GrBlendCoeff dstCoeff;
+    BlendOptFlags blendFlags = (BlendOptFlags) drawState.getBlendOpts(false,
+                                                                      &srcCoeff,
+                                                                      &dstCoeff);
 
-        // If our blend coeffs are set to 0,1 we know we will not end up drawing unless we are
-        // stenciling. When path rendering the stencil settings are not always set on the draw state
-        // so we must check the draw type. In cases where we will skip drawing we simply return a
-        // null GrOptDrawState.
-        if (kZero_GrBlendCoeff == srcCoeff && kOne_GrBlendCoeff == dstCoeff &&
-            !drawState.getStencil().doesWrite() && GrGpu::kStencilPath_DrawType != drawType) {
-            return NULL;
-        }
-
-        drawState.fCachedOptState = SkNEW_ARGS(GrOptDrawState, (drawState, blendFlags, srcCoeff,
-                                                                dstCoeff, gpu, dstCopy, drawType));
-        drawState.fCachedCapsID = caps.getUniqueID();
-    } else {
-#ifdef SK_DEBUG
-        GrBlendCoeff srcCoeff;
-        GrBlendCoeff dstCoeff;
-        BlendOptFlags blendFlags = (BlendOptFlags) drawState.getBlendOpts(false,
-                                                                          &srcCoeff,
-                                                                          &dstCoeff);
-        SkASSERT(GrOptDrawState(drawState, blendFlags, srcCoeff, dstCoeff, gpu, dstCopy,
-                                drawType) == *drawState.fCachedOptState);
-#endif
+    // If our blend coeffs are set to 0,1 we know we will not end up drawing unless we are
+    // stenciling. When path rendering the stencil settings are not always set on the draw state
+    // so we must check the draw type. In cases where we will skip drawing we simply return a
+    // null GrOptDrawState.
+    if (kZero_GrBlendCoeff == srcCoeff && kOne_GrBlendCoeff == dstCoeff &&
+        !drawState.getStencil().doesWrite() && GrGpu::kStencilPath_DrawType != drawType) {
+        return NULL;
     }
-    drawState.fCachedOptState->ref();
-    return drawState.fCachedOptState;
+
+    return SkNEW_ARGS(GrOptDrawState, (drawState, blendFlags, srcCoeff,
+                                       dstCoeff, gpu, dstCopy, drawType));
 }
 
 void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,

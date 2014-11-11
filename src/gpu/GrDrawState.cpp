@@ -109,8 +109,7 @@ GrDrawState::CombinedState GrDrawState::CombineIfPossible(
 
 //////////////////////////////////////////////////////////////////////////////s
 
-GrDrawState::GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatrix)
-    : fCachedOptState(NULL) {
+GrDrawState::GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatrix) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
     *this = state;
     if (!preConcatMatrix.isIdentity()) {
@@ -120,7 +119,6 @@ GrDrawState::GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatr
         for (int i = 0; i < this->numCoverageStages(); ++i) {
             fCoverageStages[i].localCoordChange(preConcatMatrix);
         }
-        this->invalidateOptState();
     }
 }
 
@@ -150,8 +148,6 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fCoverageStages = that.fCoverageStages;
 
     fHints = that.fHints;
-
-    SkRefCnt_SafeAssign(fCachedOptState, that.fCachedOptState);
 
     memcpy(fFixedFunctionVertexAttribIndices,
             that.fFixedFunctionVertexAttribIndices,
@@ -186,8 +182,6 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     fDrawFace = kBoth_DrawFace;
 
     fHints = 0;
-
-    this->invalidateOptState();
 }
 
 bool GrDrawState::setIdentityViewMatrix()  {
@@ -204,7 +198,6 @@ bool GrDrawState::setIdentityViewMatrix()  {
             fCoverageStages[s].localCoordChange(invVM);
         }
     }
-    this->invalidateOptState();
     fViewMatrix.reset();
     return true;
 }
@@ -244,7 +237,6 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
 
     this->setBlendFunc(paint.getSrcBlendCoeff(), paint.getDstBlendCoeff());
     this->setCoverage(paint.getCoverage());
-    this->invalidateOptState();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -342,7 +334,6 @@ void GrDrawState::internalSetVertexAttribs(const GrVertexAttrib* attribs, int co
         overlapCheck |= (mask << offsetShift);
 #endif
     }
-    this->invalidateOptState();
     // Positions must be specified.
     SkASSERT(-1 != fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding]);
 }
@@ -362,7 +353,6 @@ void GrDrawState::setDefaultVertexAttribs() {
            0xff,
            sizeof(fFixedFunctionVertexAttribIndices));
     fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding] = 0;
-    this->invalidateOptState();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -457,9 +447,6 @@ void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
         int n = fDrawState->numCoverageStages() - fCoverageEffectCnt;
         SkASSERT(n >= 0);
         fDrawState->fCoverageStages.pop_back_n(n);
-        if (m + n > 0) {
-            fDrawState->invalidateOptState();
-        }
         SkDEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
     }
     fDrawState = ds;
@@ -513,7 +500,6 @@ void GrDrawState::AutoViewMatrixRestore::restore() {
         for (int s = 0; s < numCoverageStages; ++s, ++i) {
             fDrawState->fCoverageStages[s].restoreCoordChange(fSavedCoordChanges[i]);
         }
-        fDrawState->invalidateOptState();
         fDrawState = NULL;
     }
 }
@@ -533,7 +519,6 @@ void GrDrawState::AutoViewMatrixRestore::set(GrDrawState* drawState,
 
     this->doEffectCoordChanges(preconcatMatrix);
     SkDEBUGCODE(++fDrawState->fBlockEffectRemovalCnt;)
-    drawState->invalidateOptState();
 }
 
 bool GrDrawState::AutoViewMatrixRestore::setIdentity(GrDrawState* drawState) {
@@ -547,7 +532,6 @@ bool GrDrawState::AutoViewMatrixRestore::setIdentity(GrDrawState* drawState) {
         return true;
     }
 
-    drawState->invalidateOptState();
     fViewMatrix = drawState->getViewMatrix();
     if (0 == drawState->numTotalStages()) {
         drawState->fViewMatrix.reset();
@@ -604,14 +588,7 @@ void GrDrawState::convertToPendingExec() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrDrawState::invalidateOptState() const {
-    SkSafeSetNull(fCachedOptState);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 GrDrawState::~GrDrawState() {
-    SkSafeUnref(fCachedOptState);
     SkASSERT(0 == fBlockEffectRemovalCnt);
 }
 

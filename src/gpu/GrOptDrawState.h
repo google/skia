@@ -27,10 +27,8 @@ class GrDrawState;
 class GrOptDrawState : public SkRefCnt {
 public:
     /**
-     * Returns a snapshot of the current optimized state. If the current drawState has a valid
-     * cached optimiezed state it will simply return a pointer to it otherwise it will create a new
-     * GrOptDrawState. In all cases the GrOptDrawState is reffed and ownership is given to the
-     * caller.
+     * Returns a snapshot of the current optimized state. The GrOptDrawState is reffed and ownership
+     * is given to the caller.
      */
     static GrOptDrawState* Create(const GrDrawState& drawState, GrGpu*,
                                   const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType drawType);
