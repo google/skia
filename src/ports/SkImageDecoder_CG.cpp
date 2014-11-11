@@ -105,14 +105,30 @@ static void force_opaque(SkBitmap* bm) {
 
 #define BITMAP_INFO (kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast)
 
-static bool icc_profile_is_sRGB(const void* data, size_t length) {
-    // found by inspection -- need a cleaner way to sniff a profile
-    const size_t ICC_PROFILE_OFFSET_TO_SRGB_TAG = 52;
+class AutoCFDataRelease {
+    CFDataRef fDR;
+public:
+    AutoCFDataRelease(CFDataRef dr) : fDR(dr) {}
+    ~AutoCFDataRelease() { if (fDR) { CFRelease(fDR); } }
 
-    if (length >= ICC_PROFILE_OFFSET_TO_SRGB_TAG + 4) {
-        return !memcmp((const char*)data + ICC_PROFILE_OFFSET_TO_SRGB_TAG, "sRGB", 4);
+    operator CFDataRef () { return fDR; }
+};
+
+static bool colorspace_is_sRGB(CGColorSpaceRef cs) {
+#ifdef SK_BUILD_FOR_IOS
+    return true;    // iOS seems to define itself to always return sRGB <reed>
+#else
+    AutoCFDataRelease data(CGColorSpaceCopyICCProfile(cs));
+    if (data) {
+        // found by inspection -- need a cleaner way to sniff a profile
+        const CFIndex ICC_PROFILE_OFFSET_TO_SRGB_TAG = 52;
+
+        if (CFDataGetLength(data) >= ICC_PROFILE_OFFSET_TO_SRGB_TAG + 4) {
+            return !memcmp(CFDataGetBytePtr(data) + ICC_PROFILE_OFFSET_TO_SRGB_TAG, "sRGB", 4);
+        }
     }
     return false;
+#endif
 }
 
 SkImageDecoder::Result SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
@@ -136,12 +152,8 @@ SkImageDecoder::Result SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* b
     CGColorSpaceRef cs = CGImageGetColorSpace(image);
     if (cs) {
         CGColorSpaceModel m = CGColorSpaceGetModel(cs);
-        if (kCGColorSpaceModelRGB == m) {
-            CFDataRef data = CGColorSpaceCopyICCProfile(cs);
-            if (data && icc_profile_is_sRGB(CFDataGetBytePtr(data), CFDataGetLength(data))) {
-                cpType = kSRGB_SkColorProfileType;
-                CFRelease(data);
-            }
+        if (kCGColorSpaceModelRGB == m && colorspace_is_sRGB(cs)) {
+            cpType = kSRGB_SkColorProfileType;
         }
     }
 
