@@ -63,5 +63,3 @@ multipicturedraw_rrectclip_simple
 multipicturedraw_rrectclip_tiled
 multipicturedraw_sierpinski_simple
 multipicturedraw_sierpinski_tiled
-#joshualitt
-complexclip2_path_aa
