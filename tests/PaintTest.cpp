@@ -344,3 +344,30 @@ DEF_TEST(Paint_getHash, r) {
     paint.setHinting(SkPaint::kNormal_Hinting);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 }
+
+#include "SkColorMatrixFilter.h"
+
+DEF_TEST(Paint_nothingToDraw, r) {
+    SkPaint paint;
+
+    REPORTER_ASSERT(r, !paint.nothingToDraw());
+    paint.setAlpha(0);
+    REPORTER_ASSERT(r, paint.nothingToDraw());
+
+    paint.setAlpha(0xFF);
+    paint.setXfermodeMode(SkXfermode::kDst_Mode);
+    REPORTER_ASSERT(r, paint.nothingToDraw());
+
+    paint.setAlpha(0);
+    paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
+
+    SkColorMatrix cm;
+    cm.setIdentity();   // does not change alpha
+    paint.setColorFilter(SkColorMatrixFilter::Create(cm))->unref();
+    REPORTER_ASSERT(r, paint.nothingToDraw());
+
+    cm.postTranslate(0, 0, 0, 1);    // wacks alpha
+    paint.setColorFilter(SkColorMatrixFilter::Create(cm))->unref();
+    REPORTER_ASSERT(r, !paint.nothingToDraw());
+}
+
