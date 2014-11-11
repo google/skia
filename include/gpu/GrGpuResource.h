@@ -174,30 +174,19 @@ public:
      */
     virtual size_t gpuMemorySize() const = 0;
 
-    // TODO(bsalomon): Move this stuff to GrGpuResourcePriv.
-    bool setContentKey(const GrResourceKey& contentKey);
-    void setCacheEntry(GrResourceCacheEntry* cacheEntry);
-    GrResourceCacheEntry* getCacheEntry() const { return fCacheEntry; }
-    bool isScratch() const;
-    /** 
-     * If this resource can be used as a scratch resource this returns a valid
-     * scratch key. Otherwise it returns a key for which isNullScratch is true.
-     * The resource may currently be used as content resource rather than scratch.
-     * Check isScratch().
-     */
-    const GrResourceKey& getScratchKey() const { return fScratchKey; }
-    /** 
-     * If this resource is currently cached by its contents then this will return
-     * the content key. Otherwise, NULL is returned.
-     */
-    const GrResourceKey* getContentKey() const;
-
     /**
      * Gets an id that is unique for this GrGpuResource object. It is static in that it does
      * not change when the content of the GrGpuResource object changes. This will never return
      * 0.
      */
     uint32_t getUniqueID() const { return fUniqueID; }
+
+    /**
+     * Internal-only helper class used for cache manipulations of the reosurce.
+     */
+    class CacheAccess;
+    inline CacheAccess cacheAccess();
+    inline const CacheAccess cacheAccess() const;
 
 protected:
     // This must be called by every GrGpuObject. It should be called once the object is fully
@@ -206,8 +195,6 @@ protected:
 
     GrGpuResource(GrGpu*, bool isWrapped);
     virtual ~GrGpuResource();
-
-    bool isInCache() const { return SkToBool(fCacheEntry); }
 
     GrGpu* getGpu() const { return fGpu; }
 
@@ -233,6 +220,9 @@ protected:
     void setScratchKey(const GrResourceKey& scratchKey);
 
 private:
+    // See comments in CacheAccess.
+    bool setContentKey(const GrResourceKey& contentKey);
+
     void notifyIsPurgable() const;
 
 #ifdef SK_DEBUG

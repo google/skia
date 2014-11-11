@@ -89,7 +89,7 @@ public:
         if (fToDelete) {
             // Breaks our little 2-element cycle below.
             fToDelete->setDeleteWhenDestroyed(NULL, NULL);
-            fCache->deleteResource(fToDelete->getCacheEntry());
+            fCache->deleteResource(fToDelete->cacheAccess().getCacheEntry());
         }
         this->release();
     }
@@ -345,7 +345,7 @@ static void test_cache_delete_on_destruction(skiatest::Reporter* reporter) {
         a->unref();
         b->unref();
 
-        cache->deleteResource(a->getCacheEntry());
+        cache->deleteResource(a->cacheAccess().getCacheEntry());
         REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
     }
 }

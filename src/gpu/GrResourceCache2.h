@@ -10,6 +10,7 @@
 #define GrResourceCache2_DEFINED
 
 #include "GrGpuResource.h"
+#include "GrGpuResourceCacheAccess.h"
 #include "GrResourceKey.h"
 #include "SkRefCnt.h"
 #include "SkTInternalLList.h"
@@ -74,7 +75,7 @@ private:
 
     struct ScratchMapTraits {
         static const GrResourceKey& GetKey(const GrGpuResource& r) {
-            return r.getScratchKey();
+            return r.cacheAccess().getScratchKey();
         }
 
         static uint32_t Hash(const GrResourceKey& key) { return key.getHash(); }
@@ -83,7 +84,7 @@ private:
 
     struct ContentHashTraits {
         static const GrResourceKey& GetKey(const GrGpuResource& r) {
-            return *r.getContentKey();
+            return *r.cacheAccess().getContentKey();
         }
 
         static uint32_t Hash(const GrResourceKey& key) { return key.getHash(); }

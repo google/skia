@@ -15,6 +15,8 @@
 #include "GrAARectRenderer.h"
 #include "GrBufferAllocPool.h"
 #include "GrGpu.h"
+#include "GrGpuResource.h"
+#include "GrGpuResourceCacheAccess.h"
 #include "GrDistanceFieldTextContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrIndexBuffer.h"
@@ -433,7 +435,7 @@ GrTexture* GrContext::createNewScratchTexture(const GrSurfaceDesc& desc) {
     if (!texture) {
         return NULL;
     }
-    fResourceCache->addResource(texture->getScratchKey(), texture);
+    fResourceCache->addResource(texture->cacheAccess().getScratchKey(), texture);
     return texture;
 }
 
@@ -496,7 +498,7 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
 
     GrTexture* texture = this->createNewScratchTexture(*desc);
     SkASSERT(NULL == texture || 
-             texture->getScratchKey() == GrTexturePriv::ComputeScratchKey(*desc));
+             texture->cacheAccess().getScratchKey() == GrTexturePriv::ComputeScratchKey(*desc));
     return texture;
 }
 

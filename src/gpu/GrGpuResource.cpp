@@ -98,12 +98,6 @@ bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
     return true;
 }
 
-void GrGpuResource::setCacheEntry(GrResourceCacheEntry* cacheEntry) {
-    // GrResourceCache never changes the cacheEntry once one has been added.
-    SkASSERT(NULL == cacheEntry || NULL == fCacheEntry);
-    fCacheEntry = cacheEntry;
-}
-
 void GrGpuResource::notifyIsPurgable() const {
     if (fCacheEntry && !this->wasDestroyed()) {
         get_resource_cache(fGpu)->notifyPurgable(this);
@@ -115,18 +109,6 @@ void GrGpuResource::setScratchKey(const GrResourceKey& scratchKey) {
     SkASSERT(scratchKey.isScratch());
     SkASSERT(!scratchKey.isNullScratch());
     fScratchKey = scratchKey;
-}
-
-const GrResourceKey* GrGpuResource::getContentKey() const {
-    if (fContentKeySet) {
-        return &fContentKey;
-    }
-    return NULL;
-}
-
-bool GrGpuResource::isScratch() const {
-    SkASSERT(fScratchKey.isScratch());
-    return NULL == this->getContentKey() && !fScratchKey.isNullScratch();
 }
 
 uint32_t GrGpuResource::CreateUniqueID() {

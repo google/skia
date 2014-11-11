@@ -39,20 +39,20 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
     SkASSERT(!this->isInCache(resource));
     fResources.addToHead(resource);
     ++fCount;
-    if (!resource->getScratchKey().isNullScratch()) {
+    if (!resource->cacheAccess().getScratchKey().isNullScratch()) {
         // TODO(bsalomon): Make this assertion possible.
         // SkASSERT(!resource->isWrapped());
-        fScratchMap.insert(resource->getScratchKey(), resource);
+        fScratchMap.insert(resource->cacheAccess().getScratchKey(), resource);
     }
 }
 
 void GrResourceCache2::removeResource(GrGpuResource* resource) {
     SkASSERT(this->isInCache(resource));
     fResources.remove(resource);    
-    if (!resource->getScratchKey().isNullScratch()) {
-        fScratchMap.remove(resource->getScratchKey(), resource);
+    if (!resource->cacheAccess().getScratchKey().isNullScratch()) {
+        fScratchMap.remove(resource->cacheAccess().getScratchKey(), resource);
     }
-    if (const GrResourceKey* contentKey = resource->getContentKey()) {
+    if (const GrResourceKey* contentKey = resource->cacheAccess().getContentKey()) {
         fContentHash.remove(*contentKey);
     }
     --fCount;
@@ -86,7 +86,7 @@ public:
     AvailableForScratchUse(bool rejectPendingIO) : fRejectPendingIO(rejectPendingIO) { }
 
     bool operator()(const GrGpuResource* resource) const {
-        if (!resource->reffedOnlyByCache() || !resource->isScratch()) {
+        if (!resource->reffedOnlyByCache() || !resource->cacheAccess().isScratch()) {
             return false;
         }
 
@@ -114,23 +114,12 @@ GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrResourceKey& 
     return SkSafeRef(fScratchMap.find(scratchKey, AvailableForScratchUse(false)));
 }
 
-#if 0
-void GrResourceCache2::willRemoveContentKey(const GrGpuResource* resource) {
-    SkASSERT(resource);
-    SkASSERT(resource->getContentKey());
-    SkDEBUGCODE(GrGpuResource* res = fContentHash.find(*resource->getContentKey()));
-    SkASSERT(res == resource);
-
-    fContentHash.remove(*resource->getContentKey());
-}
-#endif
-
 bool GrResourceCache2::didSetContentKey(GrGpuResource* resource) {
     SkASSERT(resource);
-    SkASSERT(resource->getContentKey());
-    SkASSERT(!resource->getContentKey()->isScratch());
+    SkASSERT(resource->cacheAccess().getContentKey());
+    SkASSERT(!resource->cacheAccess().getContentKey()->isScratch());
 
-    GrGpuResource* res = fContentHash.find(*resource->getContentKey());
+    GrGpuResource* res = fContentHash.find(*resource->cacheAccess().getContentKey());
     if (NULL != res) {
         return false;
     }

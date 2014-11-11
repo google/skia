@@ -10,10 +10,10 @@
 
 #include "GrContext.h"
 #include "GrGpu.h"
-#include "GrResourceCache.h"
+#include "GrResourceCache2.h"
 
 void GrStencilBuffer::transferToCache() {
-    SkASSERT(NULL == this->getCacheEntry());
+    SkASSERT(!this->cacheAccess().isInCache());
 
     this->getGpu()->getContext()->addStencilBuffer(this);
 }

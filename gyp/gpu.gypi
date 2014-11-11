@@ -87,6 +87,7 @@
       '<(skia_src_path)/gpu/GrGeometryBuffer.h',
       '<(skia_src_path)/gpu/GrGpu.cpp',
       '<(skia_src_path)/gpu/GrGpu.h',
+      '<(skia_src_path)/gpu/GrGpuResourceCacheAccess.h',
       '<(skia_src_path)/gpu/GrGpuResource.cpp',
       '<(skia_src_path)/gpu/GrGpuFactory.cpp',
       '<(skia_src_path)/gpu/GrIndexBuffer.h',

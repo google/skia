@@ -8,6 +8,7 @@
 
 #include "GrResourceCache.h"
 #include "GrGpuResource.h"
+#include "GrGpuResourceCacheAccess.h"
 #include "GrTexturePriv.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
@@ -15,7 +16,7 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGpuResource::didChangeGpuMemorySize() const {
-    if (this->isInCache()) {
+    if (this->cacheAccess().isInCache()) {
         fCacheEntry->didChangeResourceSize();
     }
 }
@@ -54,7 +55,7 @@ GrResourceCacheEntry::~GrResourceCacheEntry() {
 void GrResourceCacheEntry::validate() const {
     SkASSERT(fResourceCache);
     SkASSERT(fResource);
-    SkASSERT(fResource->getCacheEntry() == this);
+    SkASSERT(fResource->cacheAccess().getCacheEntry() == this);
     SkASSERT(fResource->gpuMemorySize() == fCachedSize);
     fResource->validate();
 }
@@ -150,7 +151,7 @@ void GrResourceCache::attachToHead(GrResourceCacheEntry* entry) {
 
 
 void GrResourceCache::makeResourceMRU(GrGpuResource* resource) {
-    GrResourceCacheEntry* entry = resource->getCacheEntry();
+    GrResourceCacheEntry* entry = resource->cacheAccess().getCacheEntry();
     if (entry) {
         this->internalDetach(entry);
         this->attachToHead(entry);
@@ -160,26 +161,27 @@ void GrResourceCache::makeResourceMRU(GrGpuResource* resource) {
 void GrResourceCache::notifyPurgable(const GrGpuResource* resource) {
     // Remove scratch textures from the cache the moment they become purgeable if
     // scratch texture reuse is turned off.
-    SkASSERT(resource->getCacheEntry());
-    if (resource->isScratch()) {
-        const GrResourceKey& key = resource->getScratchKey();
+    SkASSERT(resource->cacheAccess().getCacheEntry());
+    if (resource->cacheAccess().isScratch()) {
+        const GrResourceKey& key = resource->cacheAccess().getScratchKey();
         if (key.getResourceType() == GrTexturePriv::ResourceType() &&
             !fCaps->reuseScratchTextures() &&
             !(static_cast<const GrSurface*>(resource)->desc().fFlags & kRenderTarget_GrSurfaceFlag)) {
-            this->deleteResource(resource->getCacheEntry());
+            this->deleteResource(resource->cacheAccess().getCacheEntry());
         }
     }
 }
 
 bool GrResourceCache::addResource(const GrResourceKey& key, GrGpuResource* resource) {
-    if (NULL != resource->getCacheEntry()) {
+    if (NULL != resource->cacheAccess().getCacheEntry()) {
         return false;
     }
     
     if (key.isScratch()) {
-        SkASSERT(resource->isScratch() && key == resource->getScratchKey());
+        SkASSERT(resource->cacheAccess().isScratch());
+        SkASSERT(key == resource->cacheAccess().getScratchKey());
     } else {
-        if (!resource->setContentKey(key)) {
+        if (!resource->cacheAccess().setContentKey(key)) {
             return false;
         }
     }
@@ -192,7 +194,7 @@ bool GrResourceCache::addResource(const GrResourceKey& key, GrGpuResource* resou
     GrAutoResourceCacheValidate atcv(this);
 
     GrResourceCacheEntry* entry = SkNEW_ARGS(GrResourceCacheEntry, (this, resource));
-    resource->setCacheEntry(entry);
+    resource->cacheAccess().setCacheEntry(entry);
 
     this->attachToHead(entry);
     this->purgeAsNeeded();
@@ -370,7 +372,7 @@ void GrResourceCache::printStats() {
         if (!entry->fResource->isPurgable()) {
             ++locked;
         }
-        if (entry->fResource->isScratch()) {
+        if (entry->fResource->cacheAccess().isScratch()) {
             ++scratch;
         }
     }
