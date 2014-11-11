@@ -67,12 +67,6 @@ public:
     GrColor getColor() const { return fColor; }
 
     /**
-     * Applies fractional coverage to the entire drawn primitive. Defaults to 0xff.
-     */
-    void setCoverage(uint8_t coverage) { fCoverage = coverage; }
-    uint8_t getCoverage() const { return fCoverage; }
-
-    /**
      * Should primitives be anti-aliased or not. Defaults to false.
      */
     void setAntiAlias(bool aa) { fAntiAlias = aa; }
@@ -125,7 +119,6 @@ public:
         fDither = paint.fDither;
 
         fColor = paint.fColor;
-        fCoverage = paint.fCoverage;
 
         fColorStages = paint.fColorStages;
         fCoverageStages = paint.fCoverageStages;
@@ -140,7 +133,6 @@ public:
         this->resetBlend();
         this->resetOptions();
         this->resetColor();
-        this->resetCoverage();
         this->resetStages();
     }
 
@@ -214,7 +206,6 @@ private:
     bool                        fDither;
 
     GrColor                     fColor;
-    uint8_t                     fCoverage;
 
     void resetBlend() {
         fSrcBlendCoeff = kOne_GrBlendCoeff;
@@ -228,10 +219,6 @@ private:
 
     void resetColor() {
         fColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
-    }
-
-    void resetCoverage() {
-        fCoverage = 0xff;
     }
 
     void resetStages() {

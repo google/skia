@@ -236,7 +236,7 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
     this->setState(GrDrawState::kHWAntialias_StateBit, paint.isAntiAlias());
 
     this->setBlendFunc(paint.getSrcBlendCoeff(), paint.getDstBlendCoeff());
-    this->setCoverage(paint.getCoverage());
+    this->setCoverage(0xFF);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
