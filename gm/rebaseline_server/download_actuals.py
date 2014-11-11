@@ -127,7 +127,7 @@ class TipOfTreeActuals(object):
     """ Returns the list of builders we have actual results for.
     {builder:string -> ActualLocation}
     """
-    dirs, _ = get_builders_list(self._summaries_bucket)
+    dirs = get_builders_list(self._summaries_bucket)
     result = dict()
     for builder in dirs:
       result[builder] = ActualLocation(
