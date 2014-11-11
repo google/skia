@@ -47,6 +47,8 @@
         '<(skia_src_path)/core/SkBuffer.cpp',
         '<(skia_src_path)/core/SkCachedData.cpp',
         '<(skia_src_path)/core/SkCanvas.cpp',
+        '<(skia_src_path)/core/SkCanvasDrawable.cpp',
+        '<(skia_src_path)/core/SkCanvasDrawable.h',
         '<(skia_src_path)/core/SkChunkAlloc.cpp',
         '<(skia_src_path)/core/SkClipStack.cpp',
         '<(skia_src_path)/core/SkColor.cpp',
