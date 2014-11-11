@@ -252,36 +252,9 @@ bool SkBitmapProcState::possiblyScaleImage() {
 
     SkASSERT(SkPaint::kMedium_FilterLevel == fFilterLevel);
 
-    /**
-     *  Medium quality means use a mipmap for down-scaling, and just bilper
-     *  for upscaling. Since we're examining the inverse matrix, we look for
-     *  a scale > 1 to indicate down scaling by the CTM.
-     */
-    if (scaleSqd > SK_Scalar1) {
-        fCurrMip.reset(SkMipMapCache::FindAndRef(fOrigBitmap));
-        if (NULL == fCurrMip.get()) {
-            fCurrMip.reset(SkMipMap::Build(fOrigBitmap));
-            if (NULL == fCurrMip.get()) {
-                return false;
-            }
-            SkMipMapCache::Add(fOrigBitmap, fCurrMip);
-        }
-
-        SkScalar levelScale = SkScalarInvert(SkScalarSqrt(scaleSqd));
-        SkMipMap::Level level;
-        if (fCurrMip->extractLevel(levelScale, &level)) {
-            SkScalar invScaleFixup = level.fScale;
-            fInvMatrix.postScale(invScaleFixup, invScaleFixup);
-
-            const SkImageInfo info = fOrigBitmap.info().makeWH(level.fWidth, level.fHeight);
-            // todo: if we could wrap the fCurrMip in a pixelref, then we could just install
-            //       that here, and not need to explicitly track it ourselves.
-            fScaledBitmap.installPixels(info, level.fPixels, level.fRowBytes);
-            fBitmap = &fScaledBitmap;
-            fFilterLevel = SkPaint::kLow_FilterLevel;
-            return true;
-        }
-    }
+    // HACK: Disable use of mipmaps in M39 since they do not use discardable
+    // memory in the cache.
+    fFilterLevel = SkPaint::kLow_FilterLevel;
 
     return false;
 }
