@@ -460,7 +460,7 @@ bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
         return true;
     }
     if (paint.getStrokeCap() != SkPaint::kRound_Cap &&
-            matrix->rectStaysRect() && SkCanvas::kPoints_PointMode == mode) {
+        matrix->isScaleTranslate() && SkCanvas::kPoints_PointMode == mode) {
         SkScalar sx = matrix->get(SkMatrix::kMScaleX);
         SkScalar sy = matrix->get(SkMatrix::kMScaleY);
         if (SkScalarNearlyZero(sx - sy)) {

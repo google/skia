@@ -115,12 +115,13 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
     SkScalar minX = pts[0].fX;
     SkScalar maxX = pts[1].fX;
 
-    if (maxX < bounds.fLeft || minX > bounds.fRight) {
-        return false;
-    }
-
     if (dx < 0) {
         SkTSwap(minX, maxX);
+    }
+
+    SkASSERT(minX <= maxX);
+    if (maxX < bounds.fLeft || minX > bounds.fRight) {
+        return false;
     }
 
     // Now we actually perform the chop, removing the excess to the left and

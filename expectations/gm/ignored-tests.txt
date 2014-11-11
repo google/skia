@@ -41,3 +41,6 @@ multipicturedraw_pathclip_tiled
 
 # rileya - https://codereview.chromium.org/516463005/ will rebaseline after bots cycle
 yuv_to_rgb_effect
+
+#edgdaniel https://codereview.chromium.org/703783002/
+dashing
