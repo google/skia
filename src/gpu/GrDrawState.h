@@ -159,6 +159,12 @@ public:
      */
     bool hasSolidCoverage() const;
 
+    /**
+     * This function returns true if the render target destination pixel values will be read for
+     * blending during draw.
+     */
+    bool willBlendWithDst() const;
+
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////

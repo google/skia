@@ -742,3 +742,23 @@ bool GrDrawState::srcAlphaWillBeOne() const {
     return inoutColor.isOpaque();
 }
 
+bool GrDrawState::willBlendWithDst() const {
+    if (!this->hasSolidCoverage()) {
+        return true;
+    }
+
+    bool srcAIsOne = this->srcAlphaWillBeOne();
+    GrBlendCoeff srcCoeff = this->getSrcBlendCoeff();
+    GrBlendCoeff dstCoeff = this->getDstBlendCoeff();
+    if (kISA_GrBlendCoeff == dstCoeff && srcAIsOne) {
+        dstCoeff = kZero_GrBlendCoeff;
+    }
+    if (kOne_GrBlendCoeff != srcCoeff ||
+        kZero_GrBlendCoeff != dstCoeff ||
+        this->willEffectReadDstColor()) {
+        return true;
+    }
+
+    return false;
+}
+
