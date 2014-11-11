@@ -29,13 +29,11 @@ public:
 
     void removeResource(GrGpuResource*);
 
-    void willRemoveContentKey(const GrGpuResource*);
-
     // This currently returns a bool and fails when an existing resource has a key that collides
     // with the new content key. In the future it will null out the content key for the existing
     // resource. The failure is a temporary measure taken because duties are split between two
     // cache objects currently.
-    bool didAddContentKey(GrGpuResource*);
+    bool didSetContentKey(GrGpuResource*);
 
     void abandonAll();
 

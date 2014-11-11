@@ -29,7 +29,8 @@ GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
     : fGpu(gpu)
     , fCacheEntry(NULL)
     , fUniqueID(CreateUniqueID())
-    , fScratchKey(GrResourceKey::NullScratchKey()) {
+    , fScratchKey(GrResourceKey::NullScratchKey())
+    , fContentKeySet(false) {
     if (isWrapped) {
         fFlags = kWrapped_FlagBit;
     } else {
@@ -78,22 +79,30 @@ GrContext* GrGpuResource::getContext() {
     }
 }
 
-bool GrGpuResource::setCacheEntry(GrResourceCacheEntry* cacheEntry) {
-    // GrResourceCache never changes the cacheEntry once one has been added.
-    SkASSERT(NULL == cacheEntry || NULL == fCacheEntry);
-
-    fCacheEntry = cacheEntry;
-    if (this->wasDestroyed() || NULL == cacheEntry) {
-        return true;
+bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
+    SkASSERT(!contentKey.isScratch());
+    // Currently this can only be called once and can't be called when the resource is scratch.
+    SkASSERT(this->internalHasRef());
+    SkASSERT(!this->internalHasPendingIO());
+    
+    if (fContentKeySet) {
+        return false;
     }
 
-    if (!cacheEntry->key().isScratch()) {
-        if (!get_resource_cache2(fGpu)->didAddContentKey(this)) {
-            fCacheEntry = NULL;
-            return false;
-        }
+    fContentKey = contentKey;
+    fContentKeySet = true;
+
+    if (!get_resource_cache2(fGpu)->didSetContentKey(this)) {
+        fContentKeySet = false;
+        return false;
     }
     return true;
+}
+
+void GrGpuResource::setCacheEntry(GrResourceCacheEntry* cacheEntry) {
+    // GrResourceCache never changes the cacheEntry once one has been added.
+    SkASSERT(NULL == cacheEntry || NULL == fCacheEntry);
+    fCacheEntry = cacheEntry;
 }
 
 void GrGpuResource::notifyIsPurgable() const {
@@ -110,9 +119,8 @@ void GrGpuResource::setScratchKey(const GrResourceKey& scratchKey) {
 }
 
 const GrResourceKey* GrGpuResource::getContentKey() const {
-    // Currently scratch resources have a cache entry in GrResourceCache with a scratch key.
-    if (fCacheEntry && !fCacheEntry->key().isScratch()) {
-        return &fCacheEntry->key();
+    if (fContentKeySet) {
+        return &fContentKey;
     }
     return NULL;
 }

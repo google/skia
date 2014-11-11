@@ -35,14 +35,10 @@ GrResourceKey::ResourceType GrResourceKey::GenerateResourceType() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrResourceCacheEntry::GrResourceCacheEntry(GrResourceCache* resourceCache,
-                                           const GrResourceKey& key,
-                                           GrGpuResource* resource)
+GrResourceCacheEntry::GrResourceCacheEntry(GrResourceCache* resourceCache, GrGpuResource* resource)
         : fResourceCache(resourceCache),
-          fKey(key),
           fResource(resource),
-          fCachedSize(resource->gpuMemorySize()),
-          fIsExclusive(false) {
+          fCachedSize(resource->gpuMemorySize()) {
     // we assume ownership of the resource, and will unref it when we die
     SkASSERT(resource);
     resource->ref();
@@ -103,9 +99,6 @@ GrResourceCache::~GrResourceCache() {
     while (GrResourceCacheEntry* entry = fList.head()) {
         GrAutoResourceCacheValidate atcv(this);
 
-        // remove from our cache
-        fCache.remove(entry->fKey, entry);
-
         // remove from our llist
         this->internalDetach(entry);
 
@@ -155,16 +148,6 @@ void GrResourceCache::attachToHead(GrResourceCacheEntry* entry) {
 #endif
 }
 
-// This functor just searches for an entry with only a single ref (from
-// the texture cache itself). Presumably in this situation no one else
-// is relying on the texture.
-class GrTFindUnreffedFunctor {
-public:
-    bool operator()(const GrResourceCacheEntry* entry) const {
-        return entry->resource()->isPurgable();
-    }
-};
-
 
 void GrResourceCache::makeResourceMRU(GrGpuResource* resource) {
     GrResourceCacheEntry* entry = resource->getCacheEntry();
@@ -178,17 +161,27 @@ void GrResourceCache::notifyPurgable(const GrGpuResource* resource) {
     // Remove scratch textures from the cache the moment they become purgeable if
     // scratch texture reuse is turned off.
     SkASSERT(resource->getCacheEntry());
-    if (resource->getCacheEntry()->key().getResourceType() == GrTexturePriv::ResourceType() &&
-        resource->getCacheEntry()->key().isScratch() &&
-        !fCaps->reuseScratchTextures() &&
-        !(static_cast<const GrSurface*>(resource)->desc().fFlags & kRenderTarget_GrSurfaceFlag)) {
-        this->deleteResource(resource->getCacheEntry());
+    if (resource->isScratch()) {
+        const GrResourceKey& key = resource->getScratchKey();
+        if (key.getResourceType() == GrTexturePriv::ResourceType() &&
+            !fCaps->reuseScratchTextures() &&
+            !(static_cast<const GrSurface*>(resource)->desc().fFlags & kRenderTarget_GrSurfaceFlag)) {
+            this->deleteResource(resource->getCacheEntry());
+        }
     }
 }
 
 bool GrResourceCache::addResource(const GrResourceKey& key, GrGpuResource* resource) {
     if (NULL != resource->getCacheEntry()) {
         return false;
+    }
+    
+    if (key.isScratch()) {
+        SkASSERT(resource->isScratch() && key == resource->getScratchKey());
+    } else {
+        if (!resource->setContentKey(key)) {
+            return false;
+        }
     }
 
     // we don't expect to create new resources during a purge. In theory
@@ -198,15 +191,10 @@ bool GrResourceCache::addResource(const GrResourceKey& key, GrGpuResource* resou
     SkASSERT(!fPurging);
     GrAutoResourceCacheValidate atcv(this);
 
-    GrResourceCacheEntry* entry = SkNEW_ARGS(GrResourceCacheEntry, (this, key, resource));
-    if (!resource->setCacheEntry(entry)) {
-        SkDELETE(entry);
-        this->purgeAsNeeded();
-        return false;
-    }
+    GrResourceCacheEntry* entry = SkNEW_ARGS(GrResourceCacheEntry, (this, resource));
+    resource->setCacheEntry(entry);
 
     this->attachToHead(entry);
-    fCache.insert(key, entry);
     this->purgeAsNeeded();
     return true;
 }
@@ -244,8 +232,6 @@ void GrResourceCache::purgeAsNeeded(int extraCount, size_t extraBytes) {
 
     fPurging = true;
 
-    this->purgeInvalidated();
-
     this->internalPurge(extraCount, extraBytes);
     if (((fEntryCount+extraCount) > fMaxCount ||
         (fEntryBytes+extraBytes) > fMaxBytes) &&
@@ -261,22 +247,11 @@ void GrResourceCache::purgeAsNeeded(int extraCount, size_t extraBytes) {
 }
 
 void GrResourceCache::purgeInvalidated() {
-    SkTDArray<GrResourceInvalidatedMessage> invalidated;
-    fInvalidationInbox.poll(&invalidated);
-
-    for (int i = 0; i < invalidated.count(); i++) {
-        while (GrResourceCacheEntry* entry = fCache.find(invalidated[i].key, GrTFindUnreffedFunctor())) {
-            this->deleteResource(entry);
-        }
-    }
+    // TODO: Implement this in GrResourceCache2.
 }
 
 void GrResourceCache::deleteResource(GrResourceCacheEntry* entry) {
     SkASSERT(entry->fResource->isPurgable());
-
-    // remove from our cache
-    fCache.remove(entry->key(), entry);
-
     // remove from our llist
     this->internalDetach(entry);
     delete entry;
@@ -333,12 +308,6 @@ void GrResourceCache::purgeAllUnlocked() {
     fMaxCount = 0;
     this->purgeAsNeeded();
 
-#ifdef SK_DEBUG
-    if (!fCache.count()) {
-        SkASSERT(fList.isEmpty());
-    }
-#endif
-
     fMaxBytes = savedMaxBytes;
     fMaxCount = savedMaxCount;
 }
@@ -367,7 +336,6 @@ static bool both_zero_or_nonzero(int count, size_t bytes) {
 void GrResourceCache::validate() const {
     fList.validate();
     SkASSERT(both_zero_or_nonzero(fEntryCount, fEntryBytes));
-    SkASSERT(fEntryCount == fCache.count());
 
     EntryList::Iter iter;
 
@@ -378,7 +346,6 @@ void GrResourceCache::validate() const {
     int count = 0;
     for ( ; entry; entry = iter.next()) {
         entry->validate();
-        SkASSERT(fCache.find(entry->key()));
         count += 1;
     }
     SkASSERT(count == fEntryCount);

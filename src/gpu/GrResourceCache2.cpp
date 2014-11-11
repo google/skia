@@ -114,6 +114,7 @@ GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrResourceKey& 
     return SkSafeRef(fScratchMap.find(scratchKey, AvailableForScratchUse(false)));
 }
 
+#if 0
 void GrResourceCache2::willRemoveContentKey(const GrGpuResource* resource) {
     SkASSERT(resource);
     SkASSERT(resource->getContentKey());
@@ -122,10 +123,12 @@ void GrResourceCache2::willRemoveContentKey(const GrGpuResource* resource) {
 
     fContentHash.remove(*resource->getContentKey());
 }
+#endif
 
-bool GrResourceCache2::didAddContentKey(GrGpuResource* resource) {
+bool GrResourceCache2::didSetContentKey(GrGpuResource* resource) {
     SkASSERT(resource);
     SkASSERT(resource->getContentKey());
+    SkASSERT(!resource->getContentKey()->isScratch());
 
     GrGpuResource* res = fContentHash.find(*resource->getContentKey());
     if (NULL != res) {

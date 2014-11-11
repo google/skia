@@ -30,10 +30,10 @@ struct GrResourceInvalidatedMessage {
 class GrResourceCacheEntry {
 public:
     GrGpuResource* resource() const { return fResource; }
-    const GrResourceKey& key() const { return fKey; }
 
-    static const GrResourceKey& GetKey(const GrResourceCacheEntry& e) { return e.key(); }
-    static uint32_t Hash(const GrResourceKey& key) { return key.getHash(); }
+    static uint32_t Hash(const GrGpuResource* resource) {
+        return static_cast<uint32_t>(reinterpret_cast<intptr_t>(resource));
+    }
 #ifdef SK_DEBUG
     void validate() const;
 #else
@@ -48,16 +48,12 @@ public:
     void didChangeResourceSize();
 
 private:
-    GrResourceCacheEntry(GrResourceCache* resourceCache,
-                         const GrResourceKey& key,
-                         GrGpuResource* resource);
+    GrResourceCacheEntry(GrResourceCache*, GrGpuResource*);
     ~GrResourceCacheEntry();
 
     GrResourceCache* fResourceCache;
-    GrResourceKey    fKey;
     GrGpuResource*   fResource;
     size_t           fCachedSize;
-    bool             fIsExclusive;
 
     // Linked list for the LRU ordering.
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrResourceCacheEntry);
@@ -205,9 +201,6 @@ private:
     static size_t countBytes(const SkTInternalLList<GrResourceCacheEntry>& list);
 #endif
 
-    typedef SkTMultiMap<GrResourceCacheEntry, GrResourceKey> CacheMap;
-    CacheMap                                fCache;
-
     // We're an internal doubly linked list
     typedef SkTInternalLList<GrResourceCacheEntry> EntryList;
     EntryList                               fList;
@@ -232,10 +225,6 @@ private:
     void*                                   fOverbudgetData;
 
     SkAutoTUnref<const GrDrawTargetCaps>    fCaps;
-
-    // Listen for messages that a resource has been invalidated and purge cached junk proactively.
-   typedef  SkMessageBus<GrResourceInvalidatedMessage>::Inbox Inbox;
-   Inbox                                    fInvalidationInbox;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

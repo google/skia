@@ -76,6 +76,8 @@ protected:
     bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
     bool internalHasPendingIO() const { return SkToBool(fPendingWrites | fPendingReads); }
 
+    bool internalHasRef() const { return SkToBool(fRefCnt); }
+
 private:
     void addPendingRead() const {
         this->validate();
@@ -172,16 +174,18 @@ public:
      */
     virtual size_t gpuMemorySize() const = 0;
 
-    bool setCacheEntry(GrResourceCacheEntry* cacheEntry);
+    // TODO(bsalomon): Move this stuff to GrGpuResourcePriv.
+    bool setContentKey(const GrResourceKey& contentKey);
+    void setCacheEntry(GrResourceCacheEntry* cacheEntry);
     GrResourceCacheEntry* getCacheEntry() const { return fCacheEntry; }
     bool isScratch() const;
-
     /** 
      * If this resource can be used as a scratch resource this returns a valid
      * scratch key. Otherwise it returns a key for which isNullScratch is true.
+     * The resource may currently be used as content resource rather than scratch.
+     * Check isScratch().
      */
     const GrResourceKey& getScratchKey() const { return fScratchKey; }
-
     /** 
      * If this resource is currently cached by its contents then this will return
      * the content key. Otherwise, NULL is returned.
@@ -258,7 +262,11 @@ private:
     GrResourceCacheEntry*   fCacheEntry;  // NULL if not in cache
     const uint32_t          fUniqueID;
 
+    // TODO(bsalomon): Remove GrResourceKey and use different simpler types for content and scratch
+    // keys.
     GrResourceKey           fScratchKey;
+    GrResourceKey           fContentKey;
+    bool                    fContentKeySet;
 
     typedef GrIORef<GrGpuResource> INHERITED;
     friend class GrIORef<GrGpuResource>; // to access notifyIsPurgable.
