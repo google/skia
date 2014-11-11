@@ -37,6 +37,12 @@ public:
     }
 #endif
 
+    enum RecordFlags {
+        // This flag indicates that, if some BHH is being computed, saveLayer
+        // information should also be extracted at the same time.
+        kComputeSaveLayerInfo_RecordFlag = 0x01
+    };
+
     /** Returns the canvas that records the drawing commands.
         @param width the width of the cull rect used when recording this picture.
         @param height the height of the cull rect used when recording this picture.
@@ -72,6 +78,7 @@ private:
     friend class SkPictureRecorderReplayTester; // for unit testing
     void partialReplay(SkCanvas* canvas) const;
 
+    uint32_t                      fFlags;
     SkScalar                      fCullWidth;
     SkScalar                      fCullHeight;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;

@@ -182,10 +182,6 @@ void* SkBaseDevice::onAccessPixels(SkImageInfo* info, size_t* rowBytes) {
     return NULL;
 }
 
-void SkBaseDevice::EXPERIMENTAL_optimize(const SkPicture* picture) {
-    // The base class doesn't perform any analysis but derived classes may
-}
-
 bool SkBaseDevice::EXPERIMENTAL_drawPicture(SkCanvas*, const SkPicture*, const SkMatrix*,
                                             const SkPaint*) {
     // The base class doesn't perform any accelerated picture rendering

@@ -900,11 +900,14 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
         complexPaint.setImageFilter(filter);
 
         SkAutoTUnref<SkPicture> pict, child;
+        SkRTreeFactory bbhFactory;
 
         {
             SkPictureRecorder recorder;
 
-            SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
+            SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight),
+                                                  &bbhFactory,
+                                                  SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
 
             c->saveLayer(NULL, &complexPaint);
             c->restore();
@@ -937,7 +940,9 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             SkPictureRecorder recorder;
 
             SkCanvas* c = recorder.beginRecording(SkIntToScalar(kWidth),
-                                                  SkIntToScalar(kHeight));
+                                                  SkIntToScalar(kHeight),
+                                                  &bbhFactory,
+                                                  SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
             // 1)
             c->saveLayer(NULL, &complexPaint); // layer #0
             c->restore();
@@ -980,14 +985,6 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
 
         // Now test out the SaveLayer extraction
         {
-            SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-
-            SkAutoTUnref<SkSurface> surface(SkSurface::NewScratchRenderTarget(context, info));
-
-            SkCanvas* canvas = surface->getCanvas();
-
-            canvas->EXPERIMENTAL_optimize(pict);
-
             SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
 
             const SkPicture::AccelData* data = pict->EXPERIMENTAL_getAccelData(key);

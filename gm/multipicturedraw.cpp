@@ -55,9 +55,12 @@ static const SkPicture* make_hex_plane_picture(SkColor fillColor) {
     stroke.setStrokeWidth(3);
 
     SkPictureRecorder recorder;
+    SkRTreeFactory bbhFactory;
 
     SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kPicWidth),
-                                               SkIntToScalar(kPicHeight));
+                                               SkIntToScalar(kPicHeight),
+                                               &bbhFactory,
+                                               SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
 
     SkScalar xPos, yPos = 0;
 
@@ -102,9 +105,11 @@ static const SkPicture* make_single_layer_hex_plane_picture() {
     stroke.setStrokeWidth(3);
 
     SkPictureRecorder recorder;
+    SkRTreeFactory bbhFactory;
 
     static const SkScalar kBig = 10000.0f;
-    SkCanvas* canvas = recorder.beginRecording(kBig, kBig);
+    SkCanvas* canvas = recorder.beginRecording(kBig, kBig, &bbhFactory,
+                                               SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
 
     canvas->saveLayer(NULL, NULL);
 
@@ -156,9 +161,12 @@ static const SkPicture* make_tri_picture() {
     stroke.setStrokeWidth(3);
 
     SkPictureRecorder recorder;
+    SkRTreeFactory bbhFactory;
 
     SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kPicWidth),
-                                               SkIntToScalar(kPicHeight));
+                                               SkIntToScalar(kPicHeight),
+                                               &bbhFactory,
+                                               SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
     SkRect r = tri.getBounds();
     r.outset(2.0f, 2.0f);       // outset for stroke
     canvas->clipRect(r);
@@ -173,9 +181,12 @@ static const SkPicture* make_tri_picture() {
 
 static const SkPicture* make_sub_picture(const SkPicture* tri) {
     SkPictureRecorder recorder;
+    SkRTreeFactory bbhFactory;
 
     SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kPicWidth),
-                                               SkIntToScalar(kPicHeight));
+                                               SkIntToScalar(kPicHeight),
+                                               &bbhFactory,
+                                               SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
 
     canvas->scale(1.0f/2.0f, 1.0f/2.0f);
 
@@ -205,9 +216,12 @@ static const SkPicture* make_sierpinski_picture() {
     SkAutoTUnref<const SkPicture> pic(make_tri_picture());
 
     SkPictureRecorder recorder;
+    SkRTreeFactory bbhFactory;
 
     SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kPicWidth),
-                                               SkIntToScalar(kPicHeight));
+                                               SkIntToScalar(kPicHeight),
+                                               &bbhFactory,
+                                               SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
 
     static const int kNumLevels = 4;
     for (int i = 0; i < kNumLevels; ++i) {
@@ -343,9 +357,12 @@ static void create_content(SkMultiPictureDraw* mpd, PFContentMtd pfGen,
 
     {
         SkPictureRecorder recorder;
+        SkRTreeFactory bbhFactory;
 
         SkCanvas* pictureCanvas = recorder.beginRecording(SkIntToScalar(kPicWidth),
-                                                          SkIntToScalar(kPicHeight));
+                                                          SkIntToScalar(kPicHeight),
+                                                          &bbhFactory,
+                                                          SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
 
         (*pfGen)(pictureCanvas, pictures);
 

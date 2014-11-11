@@ -223,10 +223,14 @@ void PictureRenderer::buildBBoxHierarchy() {
     if (kNone_BBoxHierarchyType != fBBoxHierarchyType && fPicture) {
         SkAutoTDelete<SkBBHFactory> factory(this->getFactory());
         SkPictureRecorder recorder;
+        uint32_t flags = this->recordFlags();
+        if (fUseMultiPictureDraw) {
+            flags |= SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag;
+        }
         SkCanvas* canvas = recorder.beginRecording(fPicture->cullRect().width(), 
                                                    fPicture->cullRect().height(),
                                                    factory.get(),
-                                                   this->recordFlags());
+                                                   flags);
         fPicture->playback(canvas);
         fPicture.reset(recorder.endRecording());
     }
@@ -707,8 +711,12 @@ bool TiledPictureRenderer::render(SkBitmap** out) {
             surfaces[i]->getCanvas()->setMatrix(fCanvas->getTotalMatrix());
 
             SkPictureRecorder recorder;
+            SkRTreeFactory bbhFactory;
+
             SkCanvas* c = recorder.beginRecording(SkIntToScalar(fTileRects[i].width()),
-                                                  SkIntToScalar(fTileRects[i].height()));
+                                                  SkIntToScalar(fTileRects[i].height()),
+                                                  &bbhFactory,
+                                                  SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag);
             c->save();
             SkMatrix mat;
             mat.setTranslate(-SkIntToScalar(fTileRects[i].fLeft),

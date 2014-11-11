@@ -1789,29 +1789,17 @@ SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps
     return SkSurface::NewRenderTarget(fContext, info, fRenderTarget->numSamples(), &props);
 }
 
-void SkGpuDevice::EXPERIMENTAL_optimize(const SkPicture* picture) {
-    fContext->getLayerCache()->processDeletedPictures();
-
-    if (picture->fData.get() && !picture->fData->suitableForLayerOptimization()) {
-        return;
-    }
-
-    SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
-
-    const SkPicture::AccelData* existing = picture->EXPERIMENTAL_getAccelData(key);
-    if (existing) {
-        return;
-    }
-
-    GPUOptimize(picture);
-
-    fContext->getLayerCache()->trackPicture(picture);
-}
-
 bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* mainPicture,
                                            const SkMatrix* matrix, const SkPaint* paint) {
     // todo: should handle these natively
     if (matrix || paint) {
+        return false;
+    }
+
+    SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
+
+    const SkPicture::AccelData* data = mainPicture->EXPERIMENTAL_getAccelData(key);
+    if (!data) {
         return false;
     }
 

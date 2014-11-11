@@ -2430,13 +2430,6 @@ void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void SkCanvas::EXPERIMENTAL_optimize(const SkPicture* picture) {
-    SkBaseDevice* device = this->getDevice();
-    if (device) {
-        device->EXPERIMENTAL_optimize(picture);
-    }
-}
-
 void SkCanvas::drawPicture(const SkPicture* picture) {
     TRACE_EVENT0("skia", "SkCanvas::drawPicture()");
     if (picture) {

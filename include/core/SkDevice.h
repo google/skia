@@ -327,12 +327,6 @@ protected:
 
     /**
      *  PRIVATE / EXPERIMENTAL -- do not call
-     *  Construct an acceleration object and attach it to 'picture'
-     */
-    virtual void EXPERIMENTAL_optimize(const SkPicture* picture);
-
-    /**
-     *  PRIVATE / EXPERIMENTAL -- do not call
      *  This entry point gives the backend an opportunity to take over the rendering
      *  of 'picture'. If optimization data is available (due to an earlier
      *  'optimize' call) this entry point should make use of it and return true

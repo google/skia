@@ -7,6 +7,7 @@
 
 #include "GrPictureUtils.h"
 
+#include "SkBBoxHierarchy.h"
 #include "SkPaintPriv.h"
 #include "SkPatchUtils.h"
 #include "SkRecord.h"
@@ -61,6 +62,10 @@ public:
             this->popSaveLayerInfo();
         }
         //--------- LAYER HOISTING
+
+        // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
+        SkASSERT(bbh);
+        bbh->insert(&fBounds, record.count());
     }
 
     template <typename T> void operator()(const T& op) {
@@ -425,7 +430,13 @@ private:
         const GrAccelData* childData = 
             static_cast<const GrAccelData*>(dp.picture->EXPERIMENTAL_getAccelData(key));
         if (!childData) {
-            childData = GPUOptimize(dp.picture);
+            // If the child layer hasn't been generated with saveLayer data we
+            // assume the worst (i.e., that it does contain layers which nest
+            // inside existing layers). Layers within sub-pictures that don't
+            // have saveLayer data cannot be hoisted.
+            // TODO: could the analysis data be use to fine tune this?
+            this->updateStackForSaveLayer();
+            return;
         }
 
         for (int i = 0; i < childData->numSaveLayers(); ++i) {
@@ -587,31 +598,9 @@ private:
 
 } // namespace SkRecords
 
-
 void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
                            SkBBoxHierarchy* bbh, GrAccelData* data) {
-
     SkRecords::CollectLayers collector(cullRect, record, bbh, data);
 }
 
-const GrAccelData* GPUOptimize(const SkPicture* pict) {
-    if (NULL == pict || pict->cullRect().isEmpty()) {
-        return NULL;
-    }
 
-    SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
-
-    const GrAccelData* existing = 
-                            static_cast<const GrAccelData*>(pict->EXPERIMENTAL_getAccelData(key));
-    if (existing) {
-        return existing;
-    }
-
-    SkAutoTUnref<GrAccelData> data(SkNEW_ARGS(GrAccelData, (key)));
-
-    pict->EXPERIMENTAL_addAccelData(data);
-
-    SkRecordComputeLayers(pict->cullRect(), *pict->fRecord, NULL, data);
-
-    return data;
-}

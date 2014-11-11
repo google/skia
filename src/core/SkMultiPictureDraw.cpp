@@ -112,10 +112,6 @@ void SkMultiPictureDraw::draw() {
         SkASSERT(data.fCanvas->getGrContext() == context);
 
         if (!data.fPaint && data.fMatrix.isIdentity()) {
-            // TODO: this path always tries to optimize pictures. Should we
-            // switch to this API approach (vs. SkCanvas::EXPERIMENTAL_optimize)?
-            data.fCanvas->EXPERIMENTAL_optimize(data.fPicture);
-
             SkRect clipBounds;
             if (!data.fCanvas->getClipBounds(&clipBounds)) {
                 continue;
