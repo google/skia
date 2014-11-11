@@ -185,7 +185,7 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
 }
 
 bool GrDrawState::setIdentityViewMatrix()  {
-    if (this->numTotalStages()) {
+    if (this->numFragmentStages()) {
         SkMatrix invVM;
         if (!fViewMatrix.invert(&invVM)) {
             // sad trombone sound
@@ -378,6 +378,10 @@ bool GrDrawState::hasSolidCoverage() const {
         return true;
     }
 
+    if (this->numCoverageStages() > 0) {
+        return false;
+    }
+
     GrProcessor::InvariantOutput inout;
     inout.fIsSingleComponent = true;
     // Initialize to an unknown starting coverage if per-vertex coverage is specified.
@@ -388,15 +392,11 @@ bool GrDrawState::hasSolidCoverage() const {
         inout.fValidFlags = kRGBA_GrColorComponentFlags;
     }
 
-    // Run through the coverage stages and see if the coverage will be all ones at the end.
+    // check the coverage output from the GP
     if (this->hasGeometryProcessor()) {
         fGeometryProcessor->computeInvariantOutput(&inout);
     }
 
-    for (int s = 0; s < this->numCoverageStages(); ++s) {
-        const GrProcessor* processor = this->getCoverageStage(s).getProcessor();
-        processor->computeInvariantOutput(&inout);
-    }
     return inout.isSolidWhite();
 }
 
@@ -533,7 +533,7 @@ bool GrDrawState::AutoViewMatrixRestore::setIdentity(GrDrawState* drawState) {
     }
 
     fViewMatrix = drawState->getViewMatrix();
-    if (0 == drawState->numTotalStages()) {
+    if (0 == drawState->numFragmentStages()) {
         drawState->fViewMatrix.reset();
         fDrawState = drawState;
         fNumColorStages = 0;
@@ -554,7 +554,7 @@ bool GrDrawState::AutoViewMatrixRestore::setIdentity(GrDrawState* drawState) {
 }
 
 void GrDrawState::AutoViewMatrixRestore::doEffectCoordChanges(const SkMatrix& coordChangeMatrix) {
-    fSavedCoordChanges.reset(fDrawState->numTotalStages());
+    fSavedCoordChanges.reset(fDrawState->numFragmentStages());
     int i = 0;
 
     fNumColorStages = fDrawState->numColorStages();

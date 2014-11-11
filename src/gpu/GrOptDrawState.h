@@ -354,8 +354,7 @@ private:
      * blend coeffs will represent those used by backend API.
      */
     void setOutputStateInfo(const GrDrawState& ds, const GrDrawTargetCaps&,
-                            int firstCoverageStageIdx, GrProgramDesc::DescInfo*,
-                            bool* separateCoverageFromColor);
+                            GrProgramDesc::DescInfo*);
 
     bool isEqual(const GrOptDrawState& that) const;
 

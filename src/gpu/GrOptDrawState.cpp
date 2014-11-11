@@ -44,7 +44,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
 
     int firstColorStageIdx = 0;
     int firstCoverageStageIdx = 0;
-    bool separateCoverageFromColor;
 
     uint8_t fixedFunctionVAToRemove = 0;
 
@@ -58,8 +57,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         this->removeFixedFunctionVertexAttribs(fixedFunctionVAToRemove, &descInfo);
     }
     this->getStageStats(drawState, firstColorStageIdx, firstCoverageStageIdx, &descInfo);
-    this->setOutputStateInfo(drawState, *gpu->caps(), firstCoverageStageIdx, &descInfo,
-                             &separateCoverageFromColor);
 
     // Copy GeometryProcesssor from DS or ODS
     if (drawState.hasGeometryProcessor()) {
@@ -86,10 +83,9 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     if (firstCoverageStageIdx < drawState.numCoverageStages()) {
         fFragmentStages.push_back_n(drawState.numCoverageStages() - firstCoverageStageIdx,
                                     &drawState.getCoverageStage(firstCoverageStageIdx));
-        if (!separateCoverageFromColor) {
-            fNumColorStages = fFragmentStages.count();
-        }
     }
+
+    this->setOutputStateInfo(drawState, *gpu->caps(), &descInfo);
 
     // now create a key
     gpu->buildProgramDesc(*this, descInfo, drawType, dstCopy, &fDesc);
@@ -120,42 +116,35 @@ GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState,
 
 void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
                                         const GrDrawTargetCaps& caps,
-                                        int firstCoverageStageIdx,
-                                        GrProgramDesc::DescInfo* descInfo,
-                                        bool* separateCoverageFromColor) {
+                                        GrProgramDesc::DescInfo* descInfo) {
     // Set this default and then possibly change our mind if there is coverage.
     descInfo->fPrimaryOutputType = GrProgramDesc::kModulate_PrimaryOutputType;
     descInfo->fSecondaryOutputType = GrProgramDesc::kNone_SecondaryOutputType;
 
-    // If we do have coverage determine whether it matters.
-    *separateCoverageFromColor = this->hasGeometryProcessor();
-    if (!this->isCoverageDrawing() &&
-        (ds.numCoverageStages() - firstCoverageStageIdx > 0 ||
-         ds.hasGeometryProcessor() ||
-         descInfo->hasCoverageVertexAttribute())) {
-
+    // If we do have coverage determine whether it matters.  Dual source blending is expensive so
+    // we don't do it if we are doing coverage drawing.  If we aren't then We always do dual source
+    // blending if we have any effective coverage stages OR the geometry processor doesn't emits
+    // solid coverage.
+    // TODO move the gp logic into the GP base class
+    if (!this->isCoverageDrawing() && !ds.hasSolidCoverage()) {
         if (caps.dualSourceBlendingSupport()) {
             if (kZero_GrBlendCoeff == fDstBlend) {
                 // write the coverage value to second color
                 descInfo->fSecondaryOutputType = GrProgramDesc::kCoverage_SecondaryOutputType;
-                *separateCoverageFromColor = true;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             } else if (kSA_GrBlendCoeff == fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
                 descInfo->fSecondaryOutputType = GrProgramDesc::kCoverageISA_SecondaryOutputType;
-                *separateCoverageFromColor = true;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             } else if (kSC_GrBlendCoeff == fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
                 descInfo->fSecondaryOutputType = GrProgramDesc::kCoverageISC_SecondaryOutputType;
-                *separateCoverageFromColor = true;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             }
         } else if (descInfo->fReadsDst &&
                    kOne_GrBlendCoeff == fSrcBlend &&
                    kZero_GrBlendCoeff == fDstBlend) {
             descInfo->fPrimaryOutputType = GrProgramDesc::kCombineWithDst_PrimaryOutputType;
-            *separateCoverageFromColor = true;
         }
     }
 }

@@ -246,9 +246,9 @@ public:
 
     int numColorStages() const { return fColorStages.count(); }
     int numCoverageStages() const { return fCoverageStages.count(); }
+    int numFragmentStages() const { return this->numColorStages() + this->numCoverageStages(); }
     int numTotalStages() const {
-         return this->numColorStages() + this->numCoverageStages() +
-                 (this->hasGeometryProcessor() ? 1 : 0);
+         return this->numFragmentStages() + (this->hasGeometryProcessor() ? 1 : 0);
     }
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }

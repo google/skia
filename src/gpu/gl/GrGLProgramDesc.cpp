@@ -175,12 +175,12 @@ struct FragmentProcessorKeyBuilder {
 
 
 template <class ProcessorKeyBuilder>
-bool
-GrGLProgramDescBuilder::BuildStagedProcessorKey(const typename ProcessorKeyBuilder::StagedProcessor& stage,
-                                         const GrGLCaps& caps,
-                                         bool requiresLocalCoordAttrib,
-                                         GrProgramDesc* desc,
-                                         int* offsetAndSizeIndex) {
+bool GrGLProgramDescBuilder::BuildStagedProcessorKey(
+        const typename ProcessorKeyBuilder::StagedProcessor& stage,
+        const GrGLCaps& caps,
+        bool requiresLocalCoordAttrib,
+        GrProgramDesc* desc,
+        int* offsetAndSizeIndex) {
     GrProcessorKeyBuilder b(&desc->fKey);
     uint16_t processorKeySize;
     uint32_t processorOffset = desc->fKey.count();
@@ -201,11 +201,11 @@ GrGLProgramDescBuilder::BuildStagedProcessorKey(const typename ProcessorKeyBuild
 }
 
 bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
-                            const GrProgramDesc::DescInfo& descInfo,
-                            GrGpu::DrawType drawType,
-                            GrGpuGL* gpu,
-                            const GrDeviceCoordTexture* dstCopy,
-                            GrProgramDesc* desc) {
+                                   const GrProgramDesc::DescInfo& descInfo,
+                                   GrGpu::DrawType drawType,
+                                   GrGpuGL* gpu,
+                                   const GrDeviceCoordTexture* dstCopy,
+                                   GrProgramDesc* desc) {
     bool inputColorIsUsed = descInfo.fInputColorIsUsed;
     bool inputCoverageIsUsed = descInfo.fInputCoverageIsUsed;
 
