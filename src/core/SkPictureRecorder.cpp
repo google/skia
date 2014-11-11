@@ -5,16 +5,18 @@
  * found in the LICENSE file.
  */
 
-#if SK_SUPPORT_GPU
-#include "GrPictureUtils.h"
-#endif
-
 #include "SkPictureRecorder.h"
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
 #include "SkRecordOpts.h"
 #include "SkTypes.h"
+
+// Must place SK_SUPPORT_GPU after other includes so it is defined in the
+// Android framework build.
+#if SK_SUPPORT_GPU
+#include "GrPictureUtils.h"
+#endif
 
 SkPictureRecorder::SkPictureRecorder() {}
 
