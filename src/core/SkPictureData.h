@@ -9,7 +9,6 @@
 #define SkPictureData_DEFINED
 
 #include "SkBitmap.h"
-#include "SkPathHeap.h"
 #include "SkPicture.h"
 #include "SkPictureContentInfo.h"
 #include "SkPictureFlat.h"
@@ -85,18 +84,12 @@ protected:
 public:
     const SkBitmap& getBitmap(SkReader32* reader) const {
         const int index = reader->readInt();
-        if (SkBitmapHeap::INVALID_SLOT == index) {
-#ifdef SK_DEBUG
-            SkDebugf("An invalid bitmap was recorded!\n");
-#endif
-            return fBadBitmap;
-        }
         return (*fBitmaps)[index];
     }
 
     const SkPath& getPath(SkReader32* reader) const {
         int index = reader->readInt() - 1;
-        return (*fPathHeap.get())[index];
+        return (*fPaths)[index];
     }
 
     const SkPicture* getPicture(SkReader32* reader) const {
@@ -149,14 +142,11 @@ private:
     // bitmap allows playback to draw nothing and move on.
     SkBitmap fBadBitmap;
 
-    SkAutoTUnref<SkBitmapHeap> fBitmapHeap;
-
     SkTRefArray<SkBitmap>* fBitmaps;
-    SkTRefArray<SkPaint>* fPaints;
+    SkTRefArray<SkPaint>*  fPaints;
+    SkTRefArray<SkPath>*   fPaths;
 
     SkData* fOpData;    // opcodes and parameters
-
-    SkAutoTUnref<const SkPathHeap> fPathHeap;  // reference counted
 
     const SkPicture** fPictureRefs;
     int fPictureCount;

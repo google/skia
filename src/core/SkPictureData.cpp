@@ -30,10 +30,8 @@ SkPictureData::SkPictureData(const SkPictInfo& info)
 
 void SkPictureData::initForPlayback() const {
     // ensure that the paths bounds are pre-computed
-    if (fPathHeap.get()) {
-        for (int i = 0; i < fPathHeap->count(); i++) {
-            (*fPathHeap.get())[i].updateBoundsCache();
-        }
+    for (int i = 0; i < fPaths->count(); i++) {
+        (*fPaths)[i].updateBoundsCache();
     }
 }
 
@@ -48,11 +46,9 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 
     fContentInfo.set(record.fContentInfo);
 
-    fBitmaps = record.fBitmapHeap->extractBitmaps();
-    fPaints = SkTRefArray<SkPaint>::Create(record.fPaints.begin(), record.fPaints.count());
-
-    fBitmapHeap.reset(SkSafeRef(record.fBitmapHeap));
-    fPathHeap.reset(SkSafeRef(record.pathHeap()));
+    fBitmaps = SkTRefArray<SkBitmap>::Create(record.fBitmaps.begin(), record.fBitmaps.count());
+    fPaints  = SkTRefArray<SkPaint> ::Create(record.fPaints .begin(), record.fPaints .count());
+    fPaths   = SkTRefArray<SkPath>  ::Create(record.fPaths  .begin(), record.fPaths  .count());
 
     this->initForPlayback();
 
@@ -80,6 +76,7 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 void SkPictureData::init() {
     fBitmaps = NULL;
     fPaints = NULL;
+    fPaths = NULL;
     fPictureRefs = NULL;
     fPictureCount = 0;
     fTextBlobRefs = NULL;
@@ -93,6 +90,7 @@ SkPictureData::~SkPictureData() {
 
     SkSafeUnref(fBitmaps);
     SkSafeUnref(fPaints);
+    SkSafeUnref(fPaths);
 
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
@@ -210,9 +208,12 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
         }
     }
 
-    if ((n = SafeCount(fPathHeap.get())) > 0) {
+    if ((n = SafeCount(fPaths)) > 0) {
         write_tag_size(buffer, SK_PICT_PATH_BUFFER_TAG, n);
-        fPathHeap->flatten(buffer);
+        buffer.writeInt(n);
+        for (int i = 0; i < n; i++) {
+            buffer.writePath((*fPaths)[i]);
+        }
     }
 
     if (fTextBlobCount > 0) {
@@ -441,9 +442,12 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer,
         } break;
         case SK_PICT_PATH_BUFFER_TAG:
             if (size > 0) {
-                fPathHeap.reset(SkNEW_ARGS(SkPathHeap, (buffer)));
-            }
-            break;
+                const int count = buffer.readInt();
+                fPaths = SkTRefArray<SkPath>::Create(count);
+                for (int i = 0; i < count; i++) {
+                    buffer.readPath(&fPaths->writableAt(i));
+                }
+            } break;
         case SK_PICT_TEXTBLOB_BUFFER_TAG: {
             if (!buffer.validate((0 == fTextBlobCount) && (NULL == fTextBlobRefs))) {
                 return false;

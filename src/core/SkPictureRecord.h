@@ -10,7 +10,6 @@
 
 #include "SkCanvas.h"
 #include "SkFlattenable.h"
-#include "SkPathHeap.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
 #include "SkTemplates.h"
@@ -80,10 +79,6 @@ public:
         }
 
         return fWriter.snapshotAsData();
-    }
-
-    const SkPathHeap* pathHeap() const {
-        return fPathHeap.get();
     }
 
     const SkPictureContentInfo& contentInfo() const {
@@ -236,14 +231,12 @@ protected:
     void recordSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
     void recordRestore(bool fillInSkips = true);
 
-    // Allocated in the constructor and managed by this class.
-    SkBitmapHeap* fBitmapHeap;
-
 private:
     SkPictureContentInfo fContentInfo;
-    SkAutoTUnref<SkPathHeap> fPathHeap;
 
-    SkTArray<SkPaint> fPaints;
+    SkTArray<SkBitmap> fBitmaps;
+    SkTArray<SkPaint>  fPaints;
+    SkTArray<SkPath>   fPaths;
 
     SkWriter32 fWriter;
 

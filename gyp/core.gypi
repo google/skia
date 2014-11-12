@@ -127,8 +127,6 @@
         '<(skia_src_path)/core/SkPaintPriv.h',
         '<(skia_src_path)/core/SkPath.cpp',
         '<(skia_src_path)/core/SkPathEffect.cpp',
-        '<(skia_src_path)/core/SkPathHeap.cpp',
-        '<(skia_src_path)/core/SkPathHeap.h',
         '<(skia_src_path)/core/SkPathMeasure.cpp',
         '<(skia_src_path)/core/SkPathRef.cpp',
         '<(skia_src_path)/core/SkPicture.cpp',

@@ -31,16 +31,12 @@ static const uint32_t kSaveLayerWithBoundsSize = 4 * kUInt32Size + sizeof(SkRect
 
 SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
     : INHERITED(dimensions.width(), dimensions.height())
-    , fRecordFlags(flags) {
-
-    fBitmapHeap = SkNEW(SkBitmapHeap);
-
-    fFirstSavedLayerIndex = kNoSavedLayerIndex;
-    fInitialSaveCount = kNoInitialSave;
+    , fFirstSavedLayerIndex(kNoSavedLayerIndex)
+    , fRecordFlags(flags)
+    , fInitialSaveCount(kNoInitialSave) {
 }
 
 SkPictureRecord::~SkPictureRecord() {
-    SkSafeUnref(fBitmapHeap);
     fPictureRefs.unrefAll();
     fTextBlobRefs.unrefAll();
 }
@@ -905,13 +901,16 @@ SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfac
 }
 
 int SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
-    const int index = fBitmapHeap->insert(bitmap);
-    // In debug builds, a bad return value from insert() will crash, allowing for debugging. In
-    // release builds, the invalid value will be recorded so that the reader will know that there
-    // was a problem.
-    SkASSERT(index != SkBitmapHeap::INVALID_SLOT);
-    this->addInt(index);
-    return index;
+    if (bitmap.isImmutable()) {
+        fBitmaps.push_back(bitmap);
+    } else {
+        SkBitmap copy;
+        bitmap.copyTo(&copy);
+        copy.setImmutable();
+        fBitmaps.push_back(copy);
+    }
+    this->addInt(fBitmaps.count()-1);  // Unlike the rest, bitmap indicies are 0-based.
+    return fBitmaps.count();
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
@@ -930,14 +929,8 @@ void SkPictureRecord::addPaintPtr(const SkPaint* paint) {
 }
 
 int SkPictureRecord::addPathToHeap(const SkPath& path) {
-    if (NULL == fPathHeap) {
-        fPathHeap.reset(SkNEW(SkPathHeap));
-    }
-#ifdef SK_DEDUP_PICTURE_PATHS
-    return fPathHeap->insert(path);
-#else
-    return fPathHeap->append(path);
-#endif
+    fPaths.push_back(path);
+    return fPaths.count();
 }
 
 void SkPictureRecord::addPath(const SkPath& path) {
