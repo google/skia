@@ -29,15 +29,15 @@ SkBaseDevice::~SkBaseDevice() {
 }
 
 SkBaseDevice* SkBaseDevice::createCompatibleDevice(const SkImageInfo& info) {
-    return this->onCreateDevice(info, kGeneral_Usage);
+    return this->onCreateCompatibleDevice(CreateInfo(info, kGeneral_Usage));
 }
 
 SkBaseDevice* SkBaseDevice::createCompatibleDeviceForSaveLayer(const SkImageInfo& info) {
-    return this->onCreateDevice(info, kSaveLayer_Usage);
+    return this->onCreateCompatibleDevice(CreateInfo(info, kSaveLayer_Usage));
 }
 
 SkBaseDevice* SkBaseDevice::createCompatibleDeviceForImageFilter(const SkImageInfo& info) {
-    return this->onCreateDevice(info, kImageFilter_Usage);
+    return this->onCreateCompatibleDevice(CreateInfo(info, kImageFilter_Usage));
 }
 
 SkMetaData& SkBaseDevice::getMetaData() {

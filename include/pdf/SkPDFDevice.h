@@ -259,7 +259,7 @@ private:
                 const SkRegion& existingClipRegion);
 
     // override from SkBaseDevice
-    virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
+    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
     void init();
     void cleanUp(bool clearFontUsage);
