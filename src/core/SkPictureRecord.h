@@ -151,8 +151,7 @@ private:
         fWriter.writeScalar(scalar);
     }
 
-    // The command at 'offset' in the skp uses the specified bitmap
-    int addBitmap(const SkBitmap& bitmap);
+    void addBitmap(const SkBitmap& bitmap);
     void addMatrix(const SkMatrix& matrix);
     void addPaint(const SkPaint& paint) { this->addPaintPtr(&paint); }
     void addPaintPtr(const SkPaint* paint);

@@ -900,17 +900,75 @@ SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfac
     return NULL;
 }
 
-int SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
+// If we already have a stored, can we reuse it instead of also storing b?
+static bool equivalent(const SkBitmap& a, const SkBitmap& b) {
+    if (a.info() != b.info() || a.pixelRefOrigin() != b.pixelRefOrigin()) {
+        // Requiring a.info() == b.info() may be overkill in some cases (alphatype mismatch),
+        // but it sure makes things easier to reason about below.
+        return false;
+    }
+    if (a.pixelRef() == b.pixelRef()) {
+        return true;  // Same shape and same pixels -> same bitmap.
+    }
+
+    // From here down we're going to have to look at the bitmap data, so we require pixelRefs().
+    if (!a.pixelRef() || !b.pixelRef()) {
+        return false;
+    }
+
+    // If the bitmaps have encoded data, check first before locking pixels so they don't decode.
+    SkAutoTUnref<SkData> encA(a.pixelRef()->refEncodedData()),
+                         encB(b.pixelRef()->refEncodedData());
+    if (encA && encB) {
+        return encA->equals(encB);
+    } else if (encA || encB) {
+        return false;   // One has encoded data but the other does not.
+    }
+
+    // As a last resort, we have to look at the pixels.  This will read back textures.
+    SkAutoLockPixels al(a), bl(b);
+    const char* ap = (const char*)a.getPixels();
+    const char* bp = (const char*)b.getPixels();
+    if (ap && bp) {
+        // We check row by row; row bytes might differ.
+        SkASSERT(a.info() == b.info());          // We checked this above.
+        SkASSERT(a.info().bytesPerPixel() > 0);  // If we have pixelRefs, this better be true.
+        const SkImageInfo info = a.info();
+        const size_t bytesToCompare = info.width() * info.bytesPerPixel();
+        for (int row = 0; row < info.height(); row++) {
+            if (0 != memcmp(ap, bp, bytesToCompare)) {
+                return false;
+            }
+            ap += a.rowBytes();
+            bp += b.rowBytes();
+        }
+        return true;
+    }
+    return false;  // Couldn't get pixels for both bitmaps.
+}
+
+void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
+    // First see if we already have this bitmap.  This deduplication should really
+    // only be important for our tests, where bitmaps tend not to be tagged immutable.
+    // In Chrome (and hopefully Android?) they're typically immutable.
+    for (int i = 0; i < fBitmaps.count(); i++) {
+        if (equivalent(fBitmaps[i], bitmap)) {
+            this->addInt(i);  // Unlike the rest, bitmap indices are 0-based.
+            return;
+        }
+    }
+    // Don't have it.  We'll add it to our list, making sure it's tagged as immutable.
     if (bitmap.isImmutable()) {
+        // Shallow copies of bitmaps are cheap, so immutable == fast.
         fBitmaps.push_back(bitmap);
     } else {
+        // If you see this block on a memory profile, it's a good opportunity to reduce RAM usage.
         SkBitmap copy;
         bitmap.copyTo(&copy);
         copy.setImmutable();
         fBitmaps.push_back(copy);
     }
-    this->addInt(fBitmaps.count()-1);  // Unlike the rest, bitmap indicies are 0-based.
-    return fBitmaps.count();
+    this->addInt(fBitmaps.count()-1);  // Remember, 0-based.
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
