@@ -41,11 +41,15 @@ DEF_TEST(Sk4x_Conversions, r) {
     Sk4i zeroi(0,0,0,0);
     ASSERT_EQ(zeroi, zerof.cast<Sk4i>());
     ASSERT_EQ(zeroi, zerof.reinterpret<Sk4i>());
+    ASSERT_EQ(zerof, zeroi.cast<Sk4f>());
+    ASSERT_EQ(zerof, zeroi.reinterpret<Sk4f>());
 
     Sk4f twof(2,2,2,2);
     Sk4i twoi(2,2,2,2);
     ASSERT_EQ(twoi, twof.cast<Sk4i>());
     ASSERT_NE(twoi, twof.reinterpret<Sk4i>());
+    ASSERT_EQ(twof, twoi.cast<Sk4f>());
+    ASSERT_NE(twof, twoi.reinterpret<Sk4f>());
 }
 
 DEF_TEST(Sk4x_Bits, r) {
@@ -64,6 +68,10 @@ DEF_TEST(Sk4x_Arith, r) {
 
     float third = 1.0f/3.0f;
     ASSERT_EQ(Sk4f(1*third, 0.5f, 0.6f, 2*third), Sk4f(1,2,3,4).divide(Sk4f(3,4,5,6)));
+
+    ASSERT_EQ(Sk4i(4,6,8,10),    Sk4i(1,2,3,4).add(Sk4i(3,4,5,6)));
+    ASSERT_EQ(Sk4i(-2,-2,-2,-2), Sk4i(1,2,3,4).subtract(Sk4i(3,4,5,6)));
+    ASSERT_EQ(Sk4i(3,8,15,24),   Sk4i(1,2,3,4).multiply(Sk4i(3,4,5,6)));
 }
 
 DEF_TEST(Sk4x_Comparison, r) {
@@ -76,15 +84,30 @@ DEF_TEST(Sk4x_Comparison, r) {
     ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4f(1,2,3,4).lessThanEqual(Sk4f(2,3,4,5)));
     ASSERT_EQ(Sk4i(0,0,0,0),     Sk4f(1,2,3,4).greaterThan(Sk4f(2,3,4,5)));
     ASSERT_EQ(Sk4i(0,0,0,0),     Sk4f(1,2,3,4).greaterThanEqual(Sk4f(2,3,4,5)));
+
+    ASSERT_EQ(Sk4i(1,2,3,4), Sk4i(1,2,3,4));
+    ASSERT_NE(Sk4i(4,3,2,1), Sk4i(1,2,3,4));
+
+    ASSERT_EQ(Sk4i(-1,-1,0,-1), Sk4i(1,2,5,4).equal(Sk4i(1,2,3,4)));
+
+    ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4i(1,2,3,4).lessThan(Sk4i(2,3,4,5)));
+    ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4i(1,2,3,4).lessThanEqual(Sk4i(2,3,4,5)));
+    ASSERT_EQ(Sk4i(0,0,0,0),     Sk4i(1,2,3,4).greaterThan(Sk4i(2,3,4,5)));
+    ASSERT_EQ(Sk4i(0,0,0,0),     Sk4i(1,2,3,4).greaterThanEqual(Sk4i(2,3,4,5)));
 }
 
 DEF_TEST(Sk4x_MinMax, r) {
     ASSERT_EQ(Sk4f(1,2,2,1), Sk4f::Min(Sk4f(1,2,3,4), Sk4f(4,3,2,1)));
     ASSERT_EQ(Sk4f(4,3,3,4), Sk4f::Max(Sk4f(1,2,3,4), Sk4f(4,3,2,1)));
+    ASSERT_EQ(Sk4i(1,2,2,1), Sk4i::Min(Sk4i(1,2,3,4), Sk4i(4,3,2,1)));
+    ASSERT_EQ(Sk4i(4,3,3,4), Sk4i::Max(Sk4i(1,2,3,4), Sk4i(4,3,2,1)));
 }
 
 DEF_TEST(Sk4x_Swizzle, r) {
     ASSERT_EQ(Sk4f(3,4,1,2), Sk4f(1,2,3,4).zwxy());
     ASSERT_EQ(Sk4f(1,2,5,6), Sk4f::XYAB(Sk4f(1,2,3,4), Sk4f(5,6,7,8)));
     ASSERT_EQ(Sk4f(3,4,7,8), Sk4f::ZWCD(Sk4f(1,2,3,4), Sk4f(5,6,7,8)));
+    ASSERT_EQ(Sk4i(3,4,1,2), Sk4i(1,2,3,4).zwxy());
+    ASSERT_EQ(Sk4i(1,2,5,6), Sk4i::XYAB(Sk4i(1,2,3,4), Sk4i(5,6,7,8)));
+    ASSERT_EQ(Sk4i(3,4,7,8), Sk4i::ZWCD(Sk4i(1,2,3,4), Sk4i(5,6,7,8)));
 }
