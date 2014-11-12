@@ -22,6 +22,8 @@
 #include "SkColorFilter.h"
 #include "SkLayerRasterizer.h"
 
+#include "SkCanvasDrawable.h"
+
 #include "SkParsePath.h"
 static void testparse() {
     SkRect r;
@@ -36,11 +38,58 @@ static void testparse() {
 }
 
 class ArcsView : public SampleView {
+    class MyDrawable : public SkCanvasDrawable {
+        SkRect   fR;
+        SkScalar fSweep;
+    public:
+        MyDrawable(const SkRect& r) : fR(r), fSweep(0) {
+        }
+
+        void setSweep(SkScalar sweep) {
+            if (fSweep != sweep) {
+                fSweep = sweep;
+                this->notifyDrawingChanged();
+            }
+        }
+
+        void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            paint.setStrokeWidth(SkIntToScalar(2));
+
+            paint.setStyle(SkPaint::kFill_Style);
+            paint.setColor(0x800000FF);
+            canvas->drawArc(fR, 0, fSweep, true, paint);
+
+            paint.setColor(0x800FF000);
+            canvas->drawArc(fR, 0, fSweep, false, paint);
+
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setColor(SK_ColorRED);
+            canvas->drawArc(fR, 0, fSweep, true, paint);
+
+            paint.setStrokeWidth(0);
+            paint.setColor(SK_ColorBLUE);
+            canvas->drawArc(fR, 0, fSweep, false, paint);
+        }
+    };
+
 public:
+    SkRect fRect;
+    MyDrawable* fDrawable;
+
     ArcsView() {
         testparse();
         fSweep = SkIntToScalar(100);
         this->setBGColor(0xFFDDDDDD);
+
+        fRect.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
+        fRect.offset(SkIntToScalar(20), SkIntToScalar(20));
+        fDrawable = SkNEW_ARGS(MyDrawable, (fRect));
+    }
+
+    virtual ~ArcsView() SK_OVERRIDE {
+        fDrawable->unref();
     }
 
 protected:
@@ -121,48 +170,17 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
-        fSweep = SampleCode::GetAnimScalar(SkIntToScalar(360)/24,
-                                           SkIntToScalar(360));
-//        fSweep = 359.99f;
+        fDrawable->setSweep(SampleCode::GetAnimScalar(SkIntToScalar(360)/24,
+                                                      SkIntToScalar(360)));
 
-        SkRect  r;
         SkPaint paint;
-
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(2));
         paint.setStyle(SkPaint::kStroke_Style);
 
-        r.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
-        r.offset(SkIntToScalar(20), SkIntToScalar(20));
+        drawRectWithLines(canvas, fRect, paint);
 
-        if (false) {
-            const SkScalar d = SkIntToScalar(3);
-            const SkScalar rad[] = { d, d, d, d, d, d, d, d };
-            SkPath path;
-            path.addRoundRect(r, rad);
-            canvas->drawPath(path, paint);
-            return;
-        }
-
-        drawRectWithLines(canvas, r, paint);
-
-   //     printf("----- sweep %g %X\n", SkScalarToFloat(fSweep), SkDegreesToRadians(fSweep));
-
-
-        paint.setStyle(SkPaint::kFill_Style);
-        paint.setColor(0x800000FF);
-        canvas->drawArc(r, 0, fSweep, true, paint);
-
-        paint.setColor(0x800FF000);
-        canvas->drawArc(r, 0, fSweep, false, paint);
-
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(SK_ColorRED);
-        canvas->drawArc(r, 0, fSweep, true, paint);
-
-        paint.setStrokeWidth(0);
-        paint.setColor(SK_ColorBLUE);
-        canvas->drawArc(r, 0, fSweep, false, paint);
+        canvas->EXPERIMENTAL_drawDrawable(fDrawable);
 
         drawArcs(canvas);
         this->inval(NULL);

@@ -25,8 +25,9 @@
     #define SK_LEGACY_DRAWTEXT_VIRTUAL
 #endif
 
-class SkCanvasClipVisitor;
 class SkBaseDevice;
+class SkCanvasClipVisitor;
+class SkCanvasDrawable;
 class SkDraw;
 class SkDrawFilter;
 class SkImage;
@@ -1069,6 +1070,8 @@ public:
     void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
 
+    void EXPERIMENTAL_drawDrawable(SkCanvasDrawable*);
+
     /** Send a blob of data to the canvas.
         For canvases that draw, this call is effectively a no-op, as the data
         is not parsed, but just ignored. However, this call exists for
@@ -1253,6 +1256,8 @@ protected:
 
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
+
+    virtual void onDrawDrawable(SkCanvasDrawable*);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,
