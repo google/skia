@@ -285,7 +285,7 @@ DEF_TEST(RecordDraw_SaveLayerBoundsAffectsClipBounds, r) {
 DEF_TEST(RecordDraw_drawImage, r){
     class SkCanvasMock : public SkCanvas {
     public:
-        SkCanvasMock(int width, int height) : INHERITED(width, height) {
+        SkCanvasMock(int width, int height) : SkCanvas(width, height) {
             this->resetTestValues();
         }
         virtual ~SkCanvasMock() {}
@@ -307,8 +307,6 @@ DEF_TEST(RecordDraw_drawImage, r){
 
         bool fDrawImageCalled;
         bool fDrawImageRectCalled;
-    private:
-        typedef SkCanvas INHERITED;
     };
 
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(10, 10));
