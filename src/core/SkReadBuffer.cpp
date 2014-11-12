@@ -260,6 +260,11 @@ bool SkReadBuffer::readBitmap(SkBitmap* bitmap) {
             // not having a decoder.
             SkErrorInternals::SetError(kParseError_SkError,
                                        "Could not decode bitmap. Resulting bitmap will be red.");
+            // Even though we weren't able to decode the pixels, the readbuffer should still be
+            // intact, so we return true with an empty bitmap, so we don't for an abort of the
+            // larger deserialize.
+            bitmap->setInfo(SkImageInfo::MakeUnknown(width, height));
+            return true;
         } else {
             // A size of zero means the SkBitmap was simply flattened.
             if (this->isVersionLT(kNoMoreBitmapFlatten_Version)) {

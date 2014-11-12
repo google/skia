@@ -392,6 +392,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                 return false;
             }
 
+            /* Should we use SkValidatingReadBuffer instead? */
             SkReadBuffer buffer(storage.get(), size);
             buffer.setFlags(pictInfoFlagsToReadBufferFlags(fInfo.fFlags));
             buffer.setVersion(fInfo.fVersion);
@@ -400,12 +401,15 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             fTFPlayback.setupBuffer(buffer);
             buffer.setBitmapDecoder(proc);
 
-            while (!buffer.eof()) {
+            while (!buffer.eof() && buffer.isValid()) {
                 tag = buffer.readUInt();
                 size = buffer.readUInt();
                 if (!this->parseBufferTag(buffer, tag, size)) {
                     return false;
                 }
+            }
+            if (!buffer.isValid()) {
+                return false;
             }
             SkDEBUGCODE(haveBuffer = true;)
         } break;
@@ -421,8 +425,11 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer,
             fBitmaps = SkTRefArray<SkBitmap>::Create(size);
             for (int i = 0; i < count; ++i) {
                 SkBitmap* bm = &fBitmaps->writableAt(i);
-                buffer.readBitmap(bm);
-                bm->setImmutable();
+                if (buffer.readBitmap(bm)) {
+                    bm->setImmutable();
+                } else {
+                    return false;
+                }
             }
         } break;
         case SK_PICT_PAINT_BUFFER_TAG: {
