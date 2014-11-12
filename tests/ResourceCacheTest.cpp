@@ -131,6 +131,7 @@ static void test_duplicate_scratch_key(skiatest::Reporter* reporter) {
     SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
 
     GrCacheID::Key keyData;
+    memset(&keyData, 0, sizeof(keyData));
     GrCacheID::Domain domain = GrResourceKey::ScratchDomain();
     GrResourceKey::ResourceType t = GrResourceKey::GenerateResourceType();
     GrResourceKey scratchKey(GrCacheID(domain, keyData), t, 0);
