@@ -259,9 +259,9 @@ bool SkReadBuffer::readBitmap(SkBitmap* bitmap) {
             // This bitmap was encoded when written, but we are unable to decode, possibly due to
             // not having a decoder.
             SkErrorInternals::SetError(kParseError_SkError,
-                                       "Could not decode bitmap. Resulting bitmap will be red.");
+                                       "Could not decode bitmap. Resulting bitmap will be empty.");
             // Even though we weren't able to decode the pixels, the readbuffer should still be
-            // intact, so we return true with an empty bitmap, so we don't for an abort of the
+            // intact, so we return true with an empty bitmap, so we don't force an abort of the
             // larger deserialize.
             bitmap->setInfo(SkImageInfo::MakeUnknown(width, height));
             return true;
