@@ -18,7 +18,6 @@
 #include "SkPicture.h"
 #include "SkPtrRecorder.h"
 #include "SkTDynamicHash.h"
-#include "SkTRefArray.h"
 
 enum DrawType {
     UNUSED,
@@ -446,22 +445,6 @@ public:
 
         *replaced = true;
         return flat;
-    }
-
-    /**
-     *  Unflatten the objects and return them in SkTRefArray, or return NULL
-     *  if there no objects.  Caller takes ownership of result.
-     */
-    SkTRefArray<T>* unflattenToArray() const {
-        const int count = this->count();
-        if (count == 0) {
-            return NULL;
-        }
-        SkTRefArray<T>* array = SkTRefArray<T>::Create(count);
-        for (int i = 0; i < count; i++) {
-            this->unflatten(&array->writableAt(i), fIndexedData[i]);
-        }
-        return array;
     }
 
     /**

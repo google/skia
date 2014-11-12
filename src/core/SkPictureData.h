@@ -84,12 +84,12 @@ protected:
 public:
     const SkBitmap& getBitmap(SkReader32* reader) const {
         const int index = reader->readInt();
-        return (*fBitmaps)[index];
+        return fBitmaps[index];
     }
 
     const SkPath& getPath(SkReader32* reader) const {
         int index = reader->readInt() - 1;
-        return (*fPaths)[index];
+        return fPaths[index];
     }
 
     const SkPicture* getPicture(SkReader32* reader) const {
@@ -103,7 +103,7 @@ public:
         if (index == 0) {
             return NULL;
         }
-        return &(*fPaints)[index - 1];
+        return &fPaints[index - 1];
     }
 
     const SkTextBlob* getTextBlob(SkReader32* reader) const {
@@ -142,9 +142,9 @@ private:
     // bitmap allows playback to draw nothing and move on.
     SkBitmap fBadBitmap;
 
-    SkTRefArray<SkBitmap>* fBitmaps;
-    SkTRefArray<SkPaint>*  fPaints;
-    SkTRefArray<SkPath>*   fPaths;
+    SkTArray<SkBitmap> fBitmaps;
+    SkTArray<SkPaint>  fPaints;
+    SkTArray<SkPath>   fPaths;
 
     SkData* fOpData;    // opcodes and parameters
 

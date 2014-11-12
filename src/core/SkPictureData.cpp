@@ -30,8 +30,8 @@ SkPictureData::SkPictureData(const SkPictInfo& info)
 
 void SkPictureData::initForPlayback() const {
     // ensure that the paths bounds are pre-computed
-    for (int i = 0; i < fPaths->count(); i++) {
-        (*fPaths)[i].updateBoundsCache();
+    for (int i = 0; i < fPaths.count(); i++) {
+        fPaths[i].updateBoundsCache();
     }
 }
 
@@ -46,9 +46,9 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 
     fContentInfo.set(record.fContentInfo);
 
-    fBitmaps = SkTRefArray<SkBitmap>::Create(record.fBitmaps.begin(), record.fBitmaps.count());
-    fPaints  = SkTRefArray<SkPaint> ::Create(record.fPaints .begin(), record.fPaints .count());
-    fPaths   = SkTRefArray<SkPath>  ::Create(record.fPaths  .begin(), record.fPaths  .count());
+    fBitmaps = record.fBitmaps;
+    fPaints  = record.fPaints;
+    fPaths   = record.fPaths;
 
     this->initForPlayback();
 
@@ -74,9 +74,6 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 }
 
 void SkPictureData::init() {
-    fBitmaps = NULL;
-    fPaints = NULL;
-    fPaths = NULL;
     fPictureRefs = NULL;
     fPictureCount = 0;
     fTextBlobRefs = NULL;
@@ -87,10 +84,6 @@ void SkPictureData::init() {
 
 SkPictureData::~SkPictureData() {
     SkSafeUnref(fOpData);
-
-    SkSafeUnref(fBitmaps);
-    SkSafeUnref(fPaints);
-    SkSafeUnref(fPaths);
 
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
@@ -106,7 +99,7 @@ SkPictureData::~SkPictureData() {
 }
 
 bool SkPictureData::containsBitmaps() const {
-    if (fBitmaps && fBitmaps->count() > 0) {
+    if (fBitmaps.count() > 0) {
         return true;
     }
     for (int i = 0; i < fPictureCount; ++i) {
@@ -194,25 +187,25 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
 void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
     int i, n;
 
-    if ((n = SafeCount(fBitmaps)) > 0) {
+    if ((n = fBitmaps.count()) > 0) {
         write_tag_size(buffer, SK_PICT_BITMAP_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
-            buffer.writeBitmap((*fBitmaps)[i]);
+            buffer.writeBitmap(fBitmaps[i]);
         }
     }
 
-    if ((n = SafeCount(fPaints)) > 0) {
+    if ((n = fPaints.count()) > 0) {
         write_tag_size(buffer, SK_PICT_PAINT_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
-            buffer.writePaint((*fPaints)[i]);
+            buffer.writePaint(fPaints[i]);
         }
     }
 
-    if ((n = SafeCount(fPaths)) > 0) {
+    if ((n = fPaths.count()) > 0) {
         write_tag_size(buffer, SK_PICT_PATH_BUFFER_TAG, n);
         buffer.writeInt(n);
         for (int i = 0; i < n; i++) {
-            buffer.writePath((*fPaths)[i]);
+            buffer.writePath(fPaths[i]);
         }
     }
 
@@ -423,9 +416,9 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer,
     switch (tag) {
         case SK_PICT_BITMAP_BUFFER_TAG: {
             const int count = SkToInt(size);
-            fBitmaps = SkTRefArray<SkBitmap>::Create(size);
+            fBitmaps.reset(count);
             for (int i = 0; i < count; ++i) {
-                SkBitmap* bm = &fBitmaps->writableAt(i);
+                SkBitmap* bm = &fBitmaps[i];
                 if (buffer.readBitmap(bm)) {
                     bm->setImmutable();
                 } else {
@@ -435,17 +428,17 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer,
         } break;
         case SK_PICT_PAINT_BUFFER_TAG: {
             const int count = SkToInt(size);
-            fPaints = SkTRefArray<SkPaint>::Create(size);
+            fPaints.reset(count);
             for (int i = 0; i < count; ++i) {
-                buffer.readPaint(&fPaints->writableAt(i));
+                buffer.readPaint(&fPaints[i]);
             }
         } break;
         case SK_PICT_PATH_BUFFER_TAG:
             if (size > 0) {
                 const int count = buffer.readInt();
-                fPaths = SkTRefArray<SkPath>::Create(count);
+                fPaths.reset(count);
                 for (int i = 0; i < count; i++) {
-                    buffer.readPath(&fPaths->writableAt(i));
+                    buffer.readPath(&fPaths[i]);
                 }
             } break;
         case SK_PICT_TEXTBLOB_BUFFER_TAG: {

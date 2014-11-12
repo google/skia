@@ -6,7 +6,6 @@
  */
 
 #include "SkRefCnt.h"
-#include "SkTRefArray.h"
 #include "SkThreadUtils.h"
 #include "SkTypes.h"
 #include "SkWeakRefCnt.h"
@@ -26,47 +25,6 @@ public:
 };
 
 int InstCounterClass::gInstCounter;
-
-static void test_refarray(skiatest::Reporter* reporter) {
-    REPORTER_ASSERT(reporter, 0 == InstCounterClass::gInstCounter);
-
-    const int N = 10;
-    SkTRefArray<InstCounterClass>* array = SkTRefArray<InstCounterClass>::Create(N);
-
-    REPORTER_ASSERT(reporter, 1 == array->getRefCnt());
-    REPORTER_ASSERT(reporter, N == array->count());
-
-    REPORTER_ASSERT(reporter, N == InstCounterClass::gInstCounter);
-    array->unref();
-    REPORTER_ASSERT(reporter, 0 == InstCounterClass::gInstCounter);
-
-    // Now test the copy factory
-
-    int i;
-    InstCounterClass* src = new InstCounterClass[N];
-    REPORTER_ASSERT(reporter, N == InstCounterClass::gInstCounter);
-    for (i = 0; i < N; ++i) {
-        REPORTER_ASSERT(reporter, i == src[i].fCount);
-    }
-
-    array = SkTRefArray<InstCounterClass>::Create(src, N);
-    REPORTER_ASSERT(reporter, 1 == array->getRefCnt());
-    REPORTER_ASSERT(reporter, N == array->count());
-
-    REPORTER_ASSERT(reporter, 2*N == InstCounterClass::gInstCounter);
-    for (i = 0; i < N; ++i) {
-        REPORTER_ASSERT(reporter, i == (*array)[i].fCount);
-    }
-
-    delete[] src;
-    REPORTER_ASSERT(reporter, N == InstCounterClass::gInstCounter);
-
-    for (i = 0; i < N; ++i) {
-        REPORTER_ASSERT(reporter, i == (*array)[i].fCount);
-    }
-    array->unref();
-    REPORTER_ASSERT(reporter, 0 == InstCounterClass::gInstCounter);
-}
 
 static void bounce_ref(void* data) {
     SkRefCnt* ref = static_cast<SkRefCnt*>(data);
@@ -143,5 +101,4 @@ static void test_weakRefCnt(skiatest::Reporter* reporter) {
 DEF_TEST(RefCnt, reporter) {
     test_refCnt(reporter);
     test_weakRefCnt(reporter);
-    test_refarray(reporter);
 }
