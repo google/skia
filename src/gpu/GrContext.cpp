@@ -766,17 +766,14 @@ void GrContext::drawRect(const GrPaint& paint,
                   !target->getDrawState().getRenderTarget()->isMultisampled();
     bool doAA = needAA && apply_aa_to_rect(target, rect, width, matrix, &devBoundRect);
 
-    const SkStrokeRec& strokeRec = strokeInfo->getStrokeRec();
-
     if (doAA) {
         GrDrawState::AutoViewMatrixRestore avmr;
         if (!avmr.setIdentity(target->drawState())) {
             return;
         }
         if (width >= 0) {
-            fAARectRenderer->strokeAARect(target, rect,
-                                          matrix, devBoundRect,
-                                          strokeRec);
+            const SkStrokeRec& strokeRec = strokeInfo->getStrokeRec();
+            fAARectRenderer->strokeAARect(target, rect, matrix, devBoundRect, strokeRec);
         } else {
             // filled AA rect
             fAARectRenderer->fillAARect(target,
