@@ -17,6 +17,13 @@
 // Fill a BBH to be used by SkRecordDraw to accelerate playback.
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord&, SkBBoxHierarchy*);
 
+#if SK_SUPPORT_GPU
+class GrAccelData;
+
+void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
+                           SkBBoxHierarchy* bbh, GrAccelData* data);
+#endif
+
 // Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.
 void SkRecordDraw(const SkRecord&, SkCanvas*, const SkBBoxHierarchy*, SkDrawPictureCallback*);
 

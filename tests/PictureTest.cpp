@@ -1018,11 +1018,12 @@ static void test_gpu_picture_optimization(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, !info0.fIsNested && !info0.fHasNestedLayers);
 
             REPORTER_ASSERT(reporter, NULL == info1.fPicture);
-            REPORTER_ASSERT(reporter, kWidth == info1.fBounds.width() &&
-                                      kHeight == info1.fBounds.height());
+            REPORTER_ASSERT(reporter, kWidth/2.0 == info1.fBounds.width() &&
+                                      kHeight/2.0 == info1.fBounds.height());
             REPORTER_ASSERT(reporter, info1.fLocalMat.isIdentity());
             REPORTER_ASSERT(reporter, info1.fPreMat.isIdentity());
-            REPORTER_ASSERT(reporter, 0 == info1.fBounds.fLeft && 0 == info1.fBounds.fTop);
+            REPORTER_ASSERT(reporter, kWidth/2.0 == info1.fBounds.fLeft && 
+                                      kHeight/2.0 == info1.fBounds.fTop);
             REPORTER_ASSERT(reporter, NULL == info1.fPaint);
             REPORTER_ASSERT(reporter, !info1.fIsNested &&
                                       info1.fHasNestedLayers); // has a nested SL

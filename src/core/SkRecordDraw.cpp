@@ -8,6 +8,10 @@
 #include "SkRecordDraw.h"
 #include "SkPatchUtils.h"
 
+#if SK_SUPPORT_GPU
+#include "GrPictureUtils.h"
+#endif
+
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
                   const SkBBoxHierarchy* bbh,
@@ -142,17 +146,19 @@ DRAW(DrawData, drawData(r.data, r.length));
 // in for all the control ops we stashed away.
 class FillBounds : SkNoncopyable {
 public:
-    FillBounds(const SkRect& cullRect, const SkRecord& record, SkBBoxHierarchy* bbh) 
-        : fCullRect(cullRect)
+    FillBounds(const SkRect& cullRect, const SkRecord& record)
+        : fNumRecords(record.count())
+        , fCullRect(cullRect)
         , fBounds(record.count()) {
         // Calculate bounds for all ops.  This won't go quite in order, so we'll need
         // to store the bounds separately then feed them in to the BBH later in order.
         fCTM = &SkMatrix::I();
         fCurrentClipBounds = fCullRect;
-        for (fCurrentOp = 0; fCurrentOp < record.count(); fCurrentOp++) {
-            record.visit<void>(fCurrentOp, *this);
-        }
+    }
 
+    void setCurrentOp(unsigned currentOp) { fCurrentOp = currentOp; }
+
+    void cleanUp(SkBBoxHierarchy* bbh) {
         // If we have any lingering unpaired Saves, simulate restores to make
         // sure all ops in those Save blocks have their bounds calculated.
         while (!fSaveStack.isEmpty()) {
@@ -166,7 +172,7 @@ public:
 
         // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
         SkASSERT(bbh);
-        bbh->insert(&fBounds, record.count());
+        bbh->insert(&fBounds, fNumRecords);
     }
 
     template <typename T> void operator()(const T& op) {
@@ -175,10 +181,41 @@ public:
         this->trackBounds(op);
     }
 
-private:
     // In this file, SkRect are in local coordinates, Bounds are translated back to identity space.
     typedef SkRect Bounds;
 
+    unsigned currentOp() const { return fCurrentOp; }
+    const SkMatrix& ctm() const { return *fCTM; }
+    const Bounds& currentClipBounds() const { return fCurrentClipBounds; }
+    const Bounds& getBounds(unsigned index) const { return fBounds[index]; }
+
+    // Adjust rect for all paints that may affect its geometry, then map it to identity space.
+    Bounds adjustAndMap(SkRect rect, const SkPaint* paint) const {
+        // Inverted rectangles really confuse our BBHs.
+        rect.sort();
+
+        // Adjust the rect for its own paint.
+        if (!AdjustForPaint(paint, &rect)) {
+            // The paint could do anything to our bounds.  The only safe answer is the current clip.
+            return fCurrentClipBounds;
+        }
+
+        // Adjust rect for all the paints from the SaveLayers we're inside.
+        if (!this->adjustForSaveLayerPaints(&rect)) {
+            // Same deal as above.
+            return fCurrentClipBounds;
+        }
+
+        // Map the rect back to identity space.
+        fCTM->mapRect(&rect);
+
+        // Nothing can draw outside the current clip.
+        // (Only bounded ops call into this method, so oddballs like Clear don't matter here.)
+        rect.intersect(fCurrentClipBounds);
+        return rect;
+    }
+
+private:
     struct SaveBounds {
         int controlOps;        // Number of control ops in this Save block, including the Save.
         Bounds bounds;         // Bounds of everything in the block.
@@ -514,31 +551,7 @@ private:
         return true;
     }
 
-    // Adjust rect for all paints that may affect its geometry, then map it to identity space.
-    Bounds adjustAndMap(SkRect rect, const SkPaint* paint) const {
-        // Inverted rectangles really confuse our BBHs.
-        rect.sort();
-
-        // Adjust the rect for its own paint.
-        if (!AdjustForPaint(paint, &rect)) {
-            // The paint could do anything to our bounds.  The only safe answer is the current clip.
-            return fCurrentClipBounds;
-        }
-
-        // Adjust rect for all the paints from the SaveLayers we're inside.
-        if (!this->adjustForSaveLayerPaints(&rect)) {
-            // Same deal as above.
-            return fCurrentClipBounds;
-        }
-
-        // Map the rect back to identity space.
-        fCTM->mapRect(&rect);
-
-        // Nothing can draw outside the current clip.
-        // (Only bounded ops call into this method, so oddballs like Clear don't matter here.)
-        rect.intersect(fCurrentClipBounds);
-        return rect;
-    }
+    const unsigned fNumRecords;
 
     // We do not guarantee anything for operations outside of the cull rect
     const SkRect fCullRect;
@@ -558,8 +571,197 @@ private:
     SkTDArray<unsigned>   fControlIndices;
 };
 
+#if SK_SUPPORT_GPU
+// SkRecord visitor to gather saveLayer/restore information.
+class CollectLayers : SkNoncopyable {
+public:
+    CollectLayers(const SkRect& cullRect, const SkRecord& record, GrAccelData* accelData)
+        : fSaveLayersInStack(0)
+        , fAccelData(accelData)
+        , fFillBounds(cullRect, record) {
+    }
+
+    void setCurrentOp(unsigned currentOp) { fFillBounds.setCurrentOp(currentOp); }
+
+    void cleanUp(SkBBoxHierarchy* bbh) {
+        // fFillBounds must perform its cleanUp first so that all the bounding
+        // boxes associated with unbalanced restores are updated (prior to
+        // fetching their bound in popSaveLayerInfo).
+        fFillBounds.cleanUp(bbh);
+
+        while (!fSaveLayerStack.isEmpty()) {
+            this->popSaveLayerInfo();
+        }
+    }
+
+    template <typename T> void operator()(const T& op) {
+        fFillBounds(op);
+        this->trackSaveLayers(op);
+    }
+
+private:
+    struct SaveLayerInfo {
+        SaveLayerInfo() { }
+        SaveLayerInfo(int opIndex, bool isSaveLayer, const SkPaint* paint, 
+                      const FillBounds::Bounds& clipBound)
+            : fStartIndex(opIndex)
+            , fIsSaveLayer(isSaveLayer)
+            , fHasNestedSaveLayer(false)
+            , fPaint(paint)
+            , fClipBound(clipBound) {
+        }
+
+        int                fStartIndex;
+        bool               fIsSaveLayer;
+        bool               fHasNestedSaveLayer;
+        const SkPaint*     fPaint;
+        FillBounds::Bounds fClipBound;
+    };
+
+    template <typename T> void trackSaveLayers(const T& op) {
+        /* most ops aren't involved in saveLayers */
+    }
+    void trackSaveLayers(const Save& s) { this->pushSaveLayerInfo(false, NULL); }
+    void trackSaveLayers(const SaveLayer& sl) { this->pushSaveLayerInfo(true, sl.paint); }
+    void trackSaveLayers(const Restore& r) { this->popSaveLayerInfo(); }
+
+    void trackSaveLayers(const DrawPicture& dp) {
+        // For sub-pictures, we wrap their layer information within the parent
+        // picture's rendering hierarchy
+        SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
+
+        const GrAccelData* childData =
+            static_cast<const GrAccelData*>(dp.picture->EXPERIMENTAL_getAccelData(key));
+        if (!childData) {
+            // If the child layer hasn't been generated with saveLayer data we
+            // assume the worst (i.e., that it does contain layers which nest
+            // inside existing layers). Layers within sub-pictures that don't
+            // have saveLayer data cannot be hoisted.
+            // TODO: could the analysis data be use to fine tune this?
+            this->updateStackForSaveLayer();
+            return;
+        }
+
+        for (int i = 0; i < childData->numSaveLayers(); ++i) {
+            const GrAccelData::SaveLayerInfo& src = childData->saveLayerInfo(i);
+
+            FillBounds::Bounds newClip(fFillBounds.currentClipBounds());
+
+            if (!newClip.intersect(fFillBounds.adjustAndMap(src.fBounds, dp.paint))) {
+                continue;
+            }
+
+            this->updateStackForSaveLayer();
+
+            GrAccelData::SaveLayerInfo& dst = fAccelData->addSaveLayerInfo();
+
+            // If src.fPicture is NULL the layer is in dp.picture; otherwise
+            // it belongs to a sub-picture.
+            dst.fPicture = src.fPicture ? src.fPicture : static_cast<const SkPicture*>(dp.picture);
+            dst.fPicture->ref();
+            dst.fBounds = newClip;
+            dst.fLocalMat = src.fLocalMat;
+            dst.fPreMat = src.fPreMat;
+            dst.fPreMat.postConcat(fFillBounds.ctm());
+            if (src.fPaint) {
+                dst.fPaint = SkNEW_ARGS(SkPaint, (*src.fPaint));
+            }
+            dst.fSaveLayerOpID = src.fSaveLayerOpID;
+            dst.fRestoreOpID = src.fRestoreOpID;
+            dst.fHasNestedLayers = src.fHasNestedLayers;
+            dst.fIsNested = fSaveLayersInStack > 0 || src.fIsNested;
+        }
+    }
+
+    // Inform all the saveLayers already on the stack that they now have a
+    // nested saveLayer inside them
+    void updateStackForSaveLayer() {
+        for (int index = fSaveLayerStack.count() - 1; index >= 0; --index) {
+            if (fSaveLayerStack[index].fHasNestedSaveLayer) {
+                break;
+            }
+            fSaveLayerStack[index].fHasNestedSaveLayer = true;
+            if (fSaveLayerStack[index].fIsSaveLayer) {
+                break;
+            }
+        }
+    }
+
+    void pushSaveLayerInfo(bool isSaveLayer, const SkPaint* paint) {
+        if (isSaveLayer) {
+            this->updateStackForSaveLayer();
+            ++fSaveLayersInStack;
+        }
+
+        fSaveLayerStack.push(SaveLayerInfo(fFillBounds.currentOp(), isSaveLayer, paint, 
+                                           fFillBounds.currentClipBounds()));
+    }
+
+    void popSaveLayerInfo() {
+        if (fSaveLayerStack.count() <= 0) {
+            SkASSERT(false);
+            return;
+        }
+
+        SaveLayerInfo sli;
+        fSaveLayerStack.pop(&sli);
+
+        if (!sli.fIsSaveLayer) {
+            return;
+        }
+
+        --fSaveLayersInStack;
+
+        GrAccelData::SaveLayerInfo& slInfo = fAccelData->addSaveLayerInfo();
+
+        SkASSERT(NULL == slInfo.fPicture);  // This layer is in the top-most picture
+
+        slInfo.fBounds = fFillBounds.getBounds(sli.fStartIndex);
+        slInfo.fBounds.intersect(sli.fClipBound);
+        slInfo.fLocalMat = fFillBounds.ctm();
+        slInfo.fPreMat = SkMatrix::I();
+        if (sli.fPaint) {
+            slInfo.fPaint = SkNEW_ARGS(SkPaint, (*sli.fPaint));
+        }
+        slInfo.fSaveLayerOpID = sli.fStartIndex;
+        slInfo.fRestoreOpID = fFillBounds.currentOp();
+        slInfo.fHasNestedLayers = sli.fHasNestedSaveLayer;
+        slInfo.fIsNested = fSaveLayersInStack > 0;
+    }
+
+    // Used to collect saveLayer information for layer hoisting
+    int                   fSaveLayersInStack;
+    SkTDArray<SaveLayerInfo> fSaveLayerStack;
+    GrAccelData*          fAccelData;
+
+    SkRecords::FillBounds fFillBounds;
+};
+#endif
+
 }  // namespace SkRecords
 
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkBBoxHierarchy* bbh) {
-    SkRecords::FillBounds(cullRect, record, bbh);
+    SkRecords::FillBounds visitor(cullRect, record);
+
+    for (unsigned curOp = 0; curOp < record.count(); curOp++) {
+        visitor.setCurrentOp(curOp);
+        record.visit<void>(curOp, visitor);
+    }
+
+    visitor.cleanUp(bbh);
 }
+
+#if SK_SUPPORT_GPU
+void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
+                           SkBBoxHierarchy* bbh, GrAccelData* data) {
+    SkRecords::CollectLayers visitor(cullRect, record, data);
+
+    for (unsigned curOp = 0; curOp < record.count(); curOp++) {
+        visitor.setCurrentOp(curOp);
+        record.visit<void>(curOp, visitor);
+    }
+
+    visitor.cleanUp(bbh);
+}
+#endif
+

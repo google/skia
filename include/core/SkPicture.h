@@ -20,8 +20,6 @@
 class GrContext;
 #endif
 
-class GrAccelData;
-class GrReplacements;
 class SkBBoxHierarchy;
 class SkCanvas;
 class SkData;
@@ -283,7 +281,6 @@ private:
     friend class GrLayerHoister;               // access to fRecord
     friend class SkPicturePlayback;            // to get fData
     friend class ReplaceDraw;
-    friend const GrAccelData* GPUOptimize(const SkPicture* pict);
 
     typedef SkRefCnt INHERITED;
 
