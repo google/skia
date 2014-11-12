@@ -58,8 +58,6 @@ public:
         }
     }
 
-    virtual size_t gpuMemorySize() const SK_OVERRIDE;
-
 protected:
     // The public constructor registers this object with the cache. However, only the most derived
     // class should register with the cache. This constructor does not do the registration and
@@ -72,6 +70,9 @@ protected:
     virtual void onAbandon() SK_OVERRIDE;
     virtual void onRelease() SK_OVERRIDE;
 
+    // In protected because subclass GrGLTextureRenderTarget calls this version.
+    virtual size_t onGpuMemorySize() const SK_OVERRIDE;
+
 private:
     GrGLuint      fRTFBOID;
     GrGLuint      fTexFBOID;
@@ -82,7 +83,7 @@ private:
     // we want the rendering to be at top left (GL has origin in bottom left)
     GrGLIRect fViewport;
 
-    // gpuMemorySize() needs to know what how many color values are owned per pixel. However,
+    // onGpuMemorySize() needs to know what how many color values are owned per pixel. However,
     // abandon and release zero out the IDs and the cache needs to know the size even after those
     // actions.
     uint8_t fColorValuesPerPixel;

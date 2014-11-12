@@ -16,6 +16,7 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGpuResource::didChangeGpuMemorySize() const {
+    fGpuMemorySize = kInvalidGpuMemorySize;
     if (this->cacheAccess().isInCache()) {
         fCacheEntry->didChangeResourceSize();
     }

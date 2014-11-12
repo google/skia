@@ -19,11 +19,6 @@ class GrTexturePriv;
 
 class GrTexture : virtual public GrSurface {
 public:
-    /**
-     *  Approximate number of bytes used by the texture
-     */
-    virtual size_t gpuMemorySize() const SK_OVERRIDE;
-
     virtual GrTexture* asTexture() SK_OVERRIDE { return this; }
     virtual const GrTexture* asTexture() const SK_OVERRIDE { return this; }
 
@@ -56,6 +51,7 @@ protected:
     void validateDesc() const;
 
 private:
+    virtual size_t onGpuMemorySize() const SK_OVERRIDE;
     void dirtyMipMaps(bool mipMapsDirty);
 
     enum MipMapsStatus {

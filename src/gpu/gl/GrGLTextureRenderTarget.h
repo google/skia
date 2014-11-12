@@ -31,13 +31,10 @@ public:
         : GrSurface(gpu, texIDDesc.fIsWrapped, desc)
         , GrGLTexture(gpu, desc, texIDDesc, GrGLTexture::kDerived)
         , GrGLRenderTarget(gpu, desc, rtIDDesc, GrGLRenderTarget::kDerived) {
-       this->registerWithCache();
+        this->registerWithCache();
     }
 
     virtual ~GrGLTextureRenderTarget() { this->release(); }
-
-    // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory. 
-    virtual size_t gpuMemorySize() const SK_OVERRIDE { return GrGLRenderTarget::gpuMemorySize(); }
 
 protected:
     virtual void onAbandon() SK_OVERRIDE {
@@ -49,6 +46,13 @@ protected:
         GrGLRenderTarget::onRelease();
         GrGLTexture::onRelease();
     }
+
+private:
+    // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.
+    virtual size_t onGpuMemorySize() const SK_OVERRIDE {
+        return GrGLRenderTarget::onGpuMemorySize();
+    }
+
 };
 
 #ifdef SK_BUILD_FOR_WIN

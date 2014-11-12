@@ -28,7 +28,7 @@ void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
     }
 }
 
-size_t GrTexture::gpuMemorySize() const {
+size_t GrTexture::onGpuMemorySize() const {
     size_t textureSize;
 
     if (GrPixelConfigIsCompressed(fDesc.fConfig)) {

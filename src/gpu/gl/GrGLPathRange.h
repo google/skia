@@ -43,8 +43,6 @@ public:
 
     GrGLuint basePathID() const { return fBasePathID; }
 
-    virtual size_t gpuMemorySize() const SK_OVERRIDE { return fGpuMemorySize; }
-
 protected:
     virtual void onInitPath(int index, const SkPath&) const;
 
@@ -52,6 +50,8 @@ protected:
     virtual void onAbandon() SK_OVERRIDE;
 
 private:
+    virtual size_t onGpuMemorySize() const SK_OVERRIDE { return fGpuMemorySize; }
+
     GrGLuint fBasePathID;
     mutable size_t fGpuMemorySize;
 

@@ -30,15 +30,15 @@ public:
     GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke);
     virtual ~GrGLPath();
     GrGLuint pathID() const { return fPathID; }
-    // TODO: Figure out how to get an approximate size of the path in Gpu
-    // memory.
-    virtual size_t gpuMemorySize() const SK_OVERRIDE { return 100; }
 
 protected:
     virtual void onRelease() SK_OVERRIDE;
     virtual void onAbandon() SK_OVERRIDE;
 
 private:
+    // TODO: Figure out how to get an approximate size of the path in Gpu memory.
+    virtual size_t onGpuMemorySize() const SK_OVERRIDE { return 100; }
+
     GrGLuint fPathID;
 
     typedef GrPath INHERITED;

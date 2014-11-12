@@ -172,7 +172,13 @@ public:
      *
      * @return the amount of GPU memory used in bytes
      */
-    virtual size_t gpuMemorySize() const = 0;
+    size_t gpuMemorySize() const {
+        if (kInvalidGpuMemorySize == fGpuMemorySize) {
+            fGpuMemorySize = this->onGpuMemorySize();
+            SkASSERT(kInvalidGpuMemorySize != fGpuMemorySize);
+        }
+        return fGpuMemorySize;
+    }
 
     /**
      * Gets an id that is unique for this GrGpuResource object. It is static in that it does
@@ -206,10 +212,8 @@ protected:
     bool isWrapped() const { return kWrapped_FlagBit & fFlags; }
 
     /**
-     * This entry point should be called whenever gpuMemorySize() begins
-     * reporting a different size. If the object is in the cache, it will call
-     * gpuMemorySize() immediately and pass the new size on to the resource
-     * cache.
+     * This entry point should be called whenever gpuMemorySize() should report a different size.
+     * The cache will call gpuMemorySize() to update the current size of the resource.
      */
     void didChangeGpuMemorySize() const;
 
@@ -220,6 +224,8 @@ protected:
     void setScratchKey(const GrResourceKey& scratchKey);
 
 private:
+    virtual size_t onGpuMemorySize() const = 0;
+
     // See comments in CacheAccess.
     bool setContentKey(const GrResourceKey& contentKey);
 
@@ -247,9 +253,12 @@ private:
         kWrapped_FlagBit         = 0x1,
     };
 
+    static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
+
     uint32_t                fFlags;
 
     GrResourceCacheEntry*   fCacheEntry;  // NULL if not in cache
+    mutable size_t          fGpuMemorySize;
     const uint32_t          fUniqueID;
 
     // TODO(bsalomon): Remove GrResourceKey and use different simpler types for content and scratch

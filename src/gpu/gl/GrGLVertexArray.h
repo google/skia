@@ -159,9 +159,9 @@ public:
 
     void invalidateCachedState();
 
-    virtual size_t gpuMemorySize() const SK_OVERRIDE { return 0; }
-
 protected:
+    virtual size_t onGpuMemorySize() const SK_OVERRIDE { return 0; }
+
     virtual void onAbandon() SK_OVERRIDE;
 
     virtual void onRelease() SK_OVERRIDE;

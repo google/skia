@@ -45,7 +45,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     } 
 }
 
-size_t GrGLRenderTarget::gpuMemorySize() const {
+size_t GrGLRenderTarget::onGpuMemorySize() const {
     SkASSERT(kUnknown_GrPixelConfig != fDesc.fConfig);
     SkASSERT(!GrPixelConfigIsCompressed(fDesc.fConfig));
     size_t colorBytes = GrBytesPerPixel(fDesc.fConfig);

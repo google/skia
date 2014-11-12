@@ -99,8 +99,6 @@ public:
         this->didChangeGpuMemorySize();
     }
 
-    size_t gpuMemorySize() const SK_OVERRIDE { return fSize; }
-
     static int NumAlive() { return fNumAlive; }
 
     void setDeleteWhenDestroyed(GrResourceCache* cache, TestResource* resource) {
@@ -109,6 +107,8 @@ public:
     }
 
 private:
+    size_t onGpuMemorySize() const SK_OVERRIDE { return fSize; }
+
     GrResourceCache* fCache;
     TestResource* fToDelete;
     size_t fSize;

@@ -28,6 +28,7 @@ static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
 GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
     : fGpu(gpu)
     , fCacheEntry(NULL)
+    , fGpuMemorySize(kInvalidGpuMemorySize)
     , fUniqueID(CreateUniqueID())
     , fScratchKey(GrResourceKey::NullScratchKey())
     , fContentKeySet(false) {

@@ -36,10 +36,6 @@ public:
 
     virtual ~StencilResource() { this->release(); }
 
-    virtual size_t gpuMemorySize() const SK_OVERRIDE {
-        return 100 + ((fID % 1 == 0) ? -5 : 6);
-    }
-
     static GrResourceKey ComputeKey(int width, int height, int sampleCnt) {
         return GrStencilBuffer::ComputeKey(width, height, sampleCnt);
     }
@@ -47,6 +43,10 @@ public:
     int fID;
 
 private:
+    virtual size_t onGpuMemorySize() const SK_OVERRIDE {
+        return 100 + ((fID % 1 == 0) ? -5 : 6);
+    }
+
     typedef GrGpuResource INHERITED;
 };
 
@@ -60,10 +60,6 @@ public:
     }
 
     virtual ~TextureResource() { this->release(); }
-
-    virtual size_t gpuMemorySize() const SK_OVERRIDE {
-        return 100 + ((fID % 1 == 0) ? -40 : 33);
-    }
 
     static GrResourceKey ComputeKey(const GrSurfaceDesc& desc) {
         GrCacheID::Key key;
@@ -79,6 +75,10 @@ public:
     int fID;
 
 private:
+    virtual size_t onGpuMemorySize() const SK_OVERRIDE {
+        return 100 + ((fID % 1 == 0) ? -40 : 33);
+    }
+
     typedef GrGpuResource INHERITED;
 };
 
