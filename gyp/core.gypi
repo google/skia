@@ -209,6 +209,7 @@
         '<(skia_src_path)/core/SkUnPreMultiply.cpp',
         '<(skia_src_path)/core/SkUtils.cpp',
         '<(skia_src_path)/core/SkValidatingReadBuffer.cpp',
+        '<(skia_src_path)/core/SkVarAlloc.cpp',
         '<(skia_src_path)/core/SkVertState.cpp',
         '<(skia_src_path)/core/SkWriteBuffer.cpp',
         '<(skia_src_path)/core/SkWriter32.cpp',

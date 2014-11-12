@@ -8,10 +8,10 @@
 #ifndef SkRecord_DEFINED
 #define SkRecord_DEFINED
 
-#include "SkChunkAlloc.h"
 #include "SkRecords.h"
 #include "SkTLogic.h"
 #include "SkTemplates.h"
+#include "SkVarAlloc.h"
 
 // SkRecord (REC-ord) represents a sequence of SkCanvas calls, saved for future use.
 // These future uses may include: replay, optimization, serialization, or combinations of those.
@@ -27,11 +27,10 @@
 
 class SkRecord : SkNoncopyable {
     enum {
-        kChunkBytes = 4096,
         kFirstReserveCount = 64 / sizeof(void*),
     };
 public:
-    SkRecord() : fAlloc(kChunkBytes), fCount(0), fReserved(0) {}
+    SkRecord() : fAlloc(1024, 2.0f), fCount(0), fReserved(0) {}
 
     ~SkRecord() {
         Destroyer destroyer;
@@ -69,7 +68,7 @@ public:
     template <typename T>
     T* alloc(size_t count = 1) {
         // Bump up to the next pointer width if needed, so all allocations start pointer-aligned.
-        return (T*)fAlloc.allocThrow(SkAlignPtr(sizeof(T) * count));
+        return (T*)fAlloc.alloc(sizeof(T) * count, SK_MALLOC_THROW);
     }
 
     // Add a new command of type T to the end of this SkRecord.
@@ -226,7 +225,7 @@ private:
     // fRecords and fTypes need to be data structures that can append fixed length data, and need to
     // support efficient random access and forward iteration.  (They don't need to be contiguous.)
 
-    SkChunkAlloc fAlloc;
+    SkVarAlloc fAlloc;
     SkAutoTMalloc<Record> fRecords;
     SkAutoTMalloc<Type8> fTypes;
     // fCount and fReserved measure both fRecords and fTypes, which always grow in lock step.
