@@ -17,8 +17,8 @@
 
 struct SimpleFlatController : public SkFlatController {
     SimpleFlatController() : SkFlatController() {}
-    virtual void* allocThrow(size_t bytes) { return sk_malloc_throw(bytes); }
-    virtual void unalloc(void* ptr) { sk_free(ptr); }
+    virtual void* allocThrow(size_t bytes) SK_OVERRIDE { return sk_malloc_throw(bytes); }
+    virtual void unalloc(void* ptr) SK_OVERRIDE { sk_free(ptr); }
     void setBitmapStorage(SkBitmapHeap* h) { this->setBitmapHeap(h); }
 };
 
