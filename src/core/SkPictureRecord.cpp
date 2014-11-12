@@ -31,12 +31,9 @@ static const uint32_t kSaveLayerWithBoundsSize = 4 * kUInt32Size + sizeof(SkRect
 
 SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
     : INHERITED(dimensions.width(), dimensions.height())
-    , fFlattenableHeap(HEAP_BLOCK_SIZE)
-    , fPaints(&fFlattenableHeap)
     , fRecordFlags(flags) {
 
     fBitmapHeap = SkNEW(SkBitmapHeap);
-    fFlattenableHeap.setBitmapStorage(fBitmapHeap);
 
     fFirstSavedLayerIndex = kNoSavedLayerIndex;
     fInitialSaveCount = kNoInitialSave;
@@ -44,7 +41,6 @@ SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
 
 SkPictureRecord::~SkPictureRecord() {
     SkSafeUnref(fBitmapHeap);
-    fFlattenableHeap.setBitmapStorage(NULL);
     fPictureRefs.unrefAll();
     fTextBlobRefs.unrefAll();
 }
@@ -926,9 +922,8 @@ void SkPictureRecord::addPaintPtr(const SkPaint* paint) {
     fContentInfo.onAddPaintPtr(paint);
 
     if (paint) {
-        const SkFlatData* flat = fPaints.findAndReturnFlat(*paint);
-        SkASSERT(flat && flat->index() != 0);
-        this->addInt(flat->index());
+        fPaints.push_back(*paint);
+        this->addInt(fPaints.count());
     } else {
         this->addInt(0);
     }

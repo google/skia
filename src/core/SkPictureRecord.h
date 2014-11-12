@@ -13,7 +13,6 @@
 #include "SkPathHeap.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
-#include "SkPictureFlat.h"
 #include "SkTemplates.h"
 #include "SkWriter32.h"
 
@@ -244,9 +243,7 @@ private:
     SkPictureContentInfo fContentInfo;
     SkAutoTUnref<SkPathHeap> fPathHeap;
 
-    SkChunkFlatController fFlattenableHeap;
-
-    SkPaintDictionary fPaints;
+    SkTArray<SkPaint> fPaints;
 
     SkWriter32 fWriter;
 

@@ -48,11 +48,8 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 
     fContentInfo.set(record.fContentInfo);
 
-    // copy over the refcnt dictionary to our reader
-    record.fFlattenableHeap.setupPlaybacks();
-
     fBitmaps = record.fBitmapHeap->extractBitmaps();
-    fPaints = record.fPaints.unflattenToArray();
+    fPaints = SkTRefArray<SkPaint>::Create(record.fPaints.begin(), record.fPaints.count());
 
     fBitmapHeap.reset(SkSafeRef(record.fBitmapHeap));
     fPathHeap.reset(SkSafeRef(record.pathHeap()));

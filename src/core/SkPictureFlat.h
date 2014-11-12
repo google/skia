@@ -570,47 +570,4 @@ private:
     SkTDynamicHash<SkFlatData, SkFlatData, SkFlatData::HashTraits> fHash;
 };
 
-struct SkPaintFlatteningTraits {
-    static void Flatten(SkWriteBuffer& buffer, const SkPaint& paint) { paint.flatten(buffer); }
-    static void Unflatten(SkReadBuffer& buffer, SkPaint* paint) { paint->unflatten(buffer); }
-};
-
-typedef SkFlatDictionary<SkPaint, SkPaintFlatteningTraits> SkPaintDictionary;
-
-class SkChunkFlatController : public SkFlatController {
-public:
-    SkChunkFlatController(size_t minSize)
-    : fHeap(minSize)
-    , fTypefaceSet(SkNEW(SkRefCntSet))
-    , fLastAllocated(NULL) {
-        this->setTypefaceSet(fTypefaceSet);
-        this->setTypefacePlayback(&fTypefacePlayback);
-    }
-
-    virtual void* allocThrow(size_t bytes) SK_OVERRIDE {
-        fLastAllocated = fHeap.allocThrow(bytes);
-        return fLastAllocated;
-    }
-
-    virtual void unalloc(void* ptr) SK_OVERRIDE {
-        // fHeap can only free a pointer if it was the last one allocated.  Otherwise, we'll just
-        // have to wait until fHeap is destroyed.
-        if (ptr == fLastAllocated) (void)fHeap.unalloc(ptr);
-    }
-
-    void setupPlaybacks() const {
-        fTypefacePlayback.reset(fTypefaceSet.get());
-    }
-
-    void setBitmapStorage(SkBitmapHeap* heap) {
-        this->setBitmapHeap(heap);
-    }
-
-private:
-    SkChunkAlloc               fHeap;
-    SkAutoTUnref<SkRefCntSet>  fTypefaceSet;
-    void*                      fLastAllocated;
-    mutable SkTypefacePlayback fTypefacePlayback;
-};
-
 #endif

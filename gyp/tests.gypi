@@ -90,7 +90,6 @@
     '../tests/ErrorTest.cpp',
     '../tests/FillPathTest.cpp',
     '../tests/FitsInTest.cpp',
-    '../tests/FlatDataTest.cpp',
     '../tests/FlateTest.cpp',
     '../tests/FloatingPointTextureTest.cpp',
     '../tests/FontHostStreamTest.cpp',
