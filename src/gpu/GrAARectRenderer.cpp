@@ -7,6 +7,7 @@
 
 #include "GrAARectRenderer.h"
 #include "GrGpu.h"
+#include "GrInvariantOutput.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"

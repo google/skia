@@ -9,6 +9,7 @@
 #include "GrYUVtoRGBEffect.h"
 
 #include "GrCoordTransform.h"
+#include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "gl/GrGLProcessor.h"
 #include "GrTBackendProcessorFactory.h"
@@ -106,10 +107,10 @@ private:
         return fColorSpace == s.getColorSpace();
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // YUV is opaque
         inout->setToOther(kA_GrColorComponentFlag, 0xFF << GrColor_SHIFT_A,
-                          InvariantOutput::kWillNot_ReadInput);
+                          GrInvariantOutput::kWillNot_ReadInput);
     }
 
     GrCoordTransform fCoordTransform;

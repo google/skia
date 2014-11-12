@@ -276,6 +276,7 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
 #if SK_SUPPORT_GPU
 
 #include "GrFragmentProcessor.h"
+#include "GrInvariantOutput.h"
 #include "GrTBackendProcessorFactory.h"
 #include "SkGr.h"
 #include "effects/GrTextureStripAtlas.h"
@@ -302,7 +303,7 @@ public:
 private:
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atlas, int row, unsigned flags);
 
@@ -469,7 +470,7 @@ bool ColorTableEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return fRow == that.fRow;
 }
 
-void ColorTableEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void ColorTableEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     // If we kept the table in the effect then we could actually run known inputs through the
     // table.
     uint8_t invalidateFlags = 0;
@@ -485,7 +486,7 @@ void ColorTableEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
     if (fFlags & SkTable_ColorFilter::kA_Flag) {
         invalidateFlags |= kA_GrColorComponentFlag;
     }
-    inout->invalidateComponents(invalidateFlags, InvariantOutput::kWill_ReadInput);
+    inout->invalidateComponents(invalidateFlags, GrInvariantOutput::kWill_ReadInput);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

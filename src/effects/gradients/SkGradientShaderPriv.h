@@ -303,6 +303,7 @@ static inline int next_dither_toggle16(int toggle) {
 
 class GrFragmentStage;
 class GrBackendProcessorFactory;
+class GrInvariantOutput;
 
 /*
  * The interpretation of the texture matrix depends on the sample mode. The
@@ -375,7 +376,7 @@ protected:
 
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     const GrCoordTransform& getCoordTransform() const { return fCoordTransform; }
 

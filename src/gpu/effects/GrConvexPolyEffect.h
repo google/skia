@@ -13,6 +13,7 @@
 #include "GrTypesPriv.h"
 
 class GrGLConvexPolyEffect;
+class GrInvariantOutput;
 class SkPath;
 
 /**
@@ -77,7 +78,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType    fEdgeType;
     int                    fEdgeCount;

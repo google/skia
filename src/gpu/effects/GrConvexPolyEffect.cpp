@@ -7,7 +7,7 @@
 
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrConvexPolyEffect.h"
-
+#include "GrInvariantOutput.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "GrTBackendProcessorFactory.h"
@@ -43,7 +43,7 @@ private:
         return fRect == aare.fRect;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         if (fRect.isEmpty()) {
             // An empty rect will have no coverage anywhere.
             inout->mulByKnownAlpha(0);
@@ -326,7 +326,7 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType edgeType, co
 
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
 
-void GrConvexPolyEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrConvexPolyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 

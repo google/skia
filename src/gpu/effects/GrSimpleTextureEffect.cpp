@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrSimpleTextureEffect.h"
+#include "GrInvariantOutput.h"
+#include "GrTBackendProcessorFactory.h"
+#include "GrTexture.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "GrTBackendProcessorFactory.h"
-#include "GrTexture.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLSimpleTextureEffect : public GrGLFragmentProcessor {
 public:
@@ -41,7 +42,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrSimpleTextureEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrSimpleTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     this->updateInvariantOutputForModulation(inout);
 }
 

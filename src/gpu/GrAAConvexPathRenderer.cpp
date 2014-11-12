@@ -11,6 +11,7 @@
 #include "GrContext.h"
 #include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
+#include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrPathUtils.h"
 #include "GrTBackendProcessorFactory.h"
@@ -586,7 +587,7 @@ private:
         return true;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();
     }
 

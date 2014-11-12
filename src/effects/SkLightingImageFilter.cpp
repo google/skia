@@ -19,6 +19,7 @@
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrFragmentProcessor.h"
+#include "GrInvariantOutput.h"
 #include "GrTBackendProcessorFactory.h"
 
 class GrGLDiffuseLightingEffect;
@@ -353,7 +354,7 @@ public:
 protected:
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // lighting shaders are complicated. We just throw up our hands.
         inout->mulByUnknownColor();
     }

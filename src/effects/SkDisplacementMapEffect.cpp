@@ -13,6 +13,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrCoordTransform.h"
+#include "GrInvariantOutput.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrTBackendProcessorFactory.h"
@@ -354,7 +355,7 @@ public:
 private:
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
@@ -489,13 +490,13 @@ const GrBackendFragmentProcessorFactory& GrDisplacementMapEffect::getFactory() c
     return GrTBackendFragmentProcessorFactory<GrDisplacementMapEffect>::getInstance();
 }
 
-void GrDisplacementMapEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrDisplacementMapEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     // Any displacement offset bringing a pixel out of bounds will output a color of (0,0,0,0),
     // so the only way we'd get a constant alpha is if the input color image has a constant alpha
     // and no displacement offset push any texture coordinates out of bounds OR if the constant
     // alpha is 0. Since this isn't trivial to compute at this point, let's assume the output is
     // not of constant color when a displacement effect is applied.
-    inout->setToUnknown(InvariantOutput::kWillNot_ReadInput);
+    inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

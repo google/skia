@@ -6,6 +6,7 @@
  */
 
 #include "GrCustomCoordsTextureEffect.h"
+#include "GrInvariantOutput.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
@@ -66,7 +67,7 @@ bool GrCustomCoordsTextureEffect::onIsEqual(const GrGeometryProcessor& other) co
     return true;
 }
 
-void GrCustomCoordsTextureEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrCustomCoordsTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
         inout->mulByUnknownOpaqueColor();
     } else {

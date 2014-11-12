@@ -18,6 +18,7 @@
 #include "GrCoordTransform.h"
 #include "GrDrawTarget.h"
 #include "GrDrawTargetCaps.h"
+#include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrGpu.h"
 #include "GrStrokeInfo.h"
@@ -463,7 +464,7 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType    fEdgeType;
     const GrShaderVar&  fInCoord;
@@ -576,7 +577,7 @@ GrGeometryProcessor* DashingCircleEffect::Create(GrPrimitiveEdgeType edgeType, c
 
 DashingCircleEffect::~DashingCircleEffect() {}
 
-void DashingCircleEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void DashingCircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 
@@ -667,7 +668,7 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType    fEdgeType;
     const GrShaderVar&  fInCoord;
@@ -791,7 +792,7 @@ GrGeometryProcessor* DashingLineEffect::Create(GrPrimitiveEdgeType edgeType,
 
 DashingLineEffect::~DashingLineEffect() {}
 
-void DashingLineEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void DashingLineEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 

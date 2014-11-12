@@ -13,6 +13,7 @@
 #if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 #include "GrContextFactory.h"
+#include "GrInvariantOutput.h"
 #include "GrOptDrawState.h"
 #include "GrTBackendProcessorFactory.h"
 #include "GrTest.h"
@@ -50,7 +51,7 @@ public:
 private:
     BigKeyProcessor() { }
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE { }
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE { }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

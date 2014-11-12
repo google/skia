@@ -7,7 +7,7 @@
 
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrDitherEffect.h"
-
+#include "GrInvariantOutput.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "GrTBackendProcessorFactory.h"
@@ -42,15 +42,15 @@ private:
     // All dither effects are equal
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrFragmentProcessor INHERITED;
 };
 
-void DitherEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->setToUnknown(InvariantOutput::kWill_ReadInput);
+void DitherEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
+    inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
 }
 
 //////////////////////////////////////////////////////////////////////////////

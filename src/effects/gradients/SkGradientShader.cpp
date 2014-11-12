@@ -945,6 +945,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #if SK_SUPPORT_GPU
 
 #include "effects/GrTextureStripAtlas.h"
+#include "GrInvariantOutput.h"
 #include "GrTBackendProcessorFactory.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
@@ -1208,7 +1209,7 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
     return false;
 }
 
-void GrGradientEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrGradientEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (fIsOpaque) {
         inout->mulByUnknownOpaqueColor();
     } else {

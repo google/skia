@@ -333,6 +333,7 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
+#include "GrInvariantOutput.h"
 #include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
@@ -426,7 +427,7 @@ private:
         return cme.fMatrix == fMatrix;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // We only bother to check whether the alpha channel will be constant. If SkColorMatrix had
         // type flags it might be worth checking the other components.
 
@@ -453,7 +454,7 @@ private:
             // then we can't know the final result.
             if (0 != fMatrix.fMat[kAlphaRowStartIdx + i]) {
                 if (!(inout->validFlags() & kRGBAFlags[i])) {
-                    inout->setToUnknown(InvariantOutput::kWill_ReadInput);
+                    inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
                     return;
                 } else {
                     uint32_t component = (inout->color() >> kShifts[i]) & 0xFF;
@@ -468,7 +469,7 @@ private:
         // result if the matrix could over/underflow for any component?
         inout->setToOther(kA_GrColorComponentFlag,
                           static_cast<uint8_t>(SkScalarPin(outputA, 0, 255)) << GrColor_SHIFT_A,
-                          InvariantOutput::kWill_ReadInput);
+                          GrInvariantOutput::kWill_ReadInput);
     }
 
     SkColorMatrix fMatrix;

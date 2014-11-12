@@ -14,6 +14,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrCoordTransform.h"
+#include "GrInvariantOutput.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrTBackendProcessorFactory.h"
@@ -298,7 +299,7 @@ public:
 private:
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GrArithmeticEffect(float k1, float k2, float k3, float k4, bool enforcePMColor,
                        GrTexture* background);
@@ -343,9 +344,9 @@ const GrBackendFragmentProcessorFactory& GrArithmeticEffect::getFactory() const 
     return GrTBackendFragmentProcessorFactory<GrArithmeticEffect>::getInstance();
 }
 
-void GrArithmeticEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrArithmeticEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     // TODO: optimize this
-    inout->setToUnknown(InvariantOutput::kWill_ReadInput);
+    inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

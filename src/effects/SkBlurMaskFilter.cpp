@@ -21,6 +21,7 @@
 #include "GrContext.h"
 #include "GrTexture.h"
 #include "GrFragmentProcessor.h"
+#include "GrInvariantOutput.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -652,7 +653,7 @@ private:
     GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blur_profile);
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     static bool CreateBlurProfileTexture(GrContext *context, float sigma,
                                        GrTexture **blurProfileTexture);
@@ -825,7 +826,7 @@ bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     return this->getSigma() == s.getSigma() && this->getRect() == s.getRect();
 }
 
-void GrRectBlurEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 
@@ -903,7 +904,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     SkRRect             fRRect;
     float               fSigma;
@@ -988,7 +989,7 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
     return SkNEW_ARGS(GrRRectBlurEffect, (sigma, rrect, blurNinePatchTexture));
 }
 
-void GrRRectBlurEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrRRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 

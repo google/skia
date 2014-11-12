@@ -12,6 +12,7 @@
 
 class GrFragmentStage;
 class GrGLConfigConversionEffect;
+class GrInvariantOutput;
 
 /**
  * This class is used to perform config conversions. Clients may want to read/write data that is
@@ -63,7 +64,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     bool            fSwapRedAndBlue;
     PMConversion    fPMConversion;

@@ -9,6 +9,7 @@
 #include "GrBackendProcessorFactory.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
+#include "GrInvariantOutput.h"
 #include "GrMemoryPool.h"
 #include "SkTLS.h"
 
@@ -128,52 +129,13 @@ bool GrProcessor::hasSameTextureAccesses(const GrProcessor& that) const {
     return true;
 }
 
+void GrProcessor::computeInvariantOutput(GrInvariantOutput* inout) const {
+    inout->resetWillUseInputColor();
+    this->onComputeInvariantOutput(inout);
 #ifdef SK_DEBUG
-
-void GrProcessor::InvariantOutput::validate() const {
-    if (fIsSingleComponent) {
-        SkASSERT(0 == fValidFlags || kRGBA_GrColorComponentFlags == fValidFlags);
-        if (kRGBA_GrColorComponentFlags == fValidFlags) {
-            SkASSERT(this->colorComponentsAllEqual());
-        }
-    }
-
-    SkASSERT(this->validPreMulColor());
-
-    // If we claim that we are not using the input color we must not be modulating the input.
-    SkASSERT(fNonMulStageFound || fWillUseInputColor);
+    inout->validate();
+#endif
 }
-
-bool GrProcessor::InvariantOutput::colorComponentsAllEqual() const {
-    unsigned colorA = GrColorUnpackA(fColor);
-    return(GrColorUnpackR(fColor) == colorA &&
-           GrColorUnpackG(fColor) == colorA &&
-           GrColorUnpackB(fColor) == colorA);
-}
-
-bool GrProcessor::InvariantOutput::validPreMulColor() const {
-    if (kA_GrColorComponentFlag & fValidFlags) {
-        float c[4];
-        GrColorToRGBAFloat(fColor, c);
-        if (kR_GrColorComponentFlag & fValidFlags) {
-            if (c[0] > c[3]) {
-                return false;
-            }
-        }
-        if (kG_GrColorComponentFlag & fValidFlags) {
-            if (c[1] > c[3]) {
-                return false;
-            }
-        }
-        if (kB_GrColorComponentFlag & fValidFlags) {
-            if (c[2] > c[3]) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-#endif // end DEBUG
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

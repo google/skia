@@ -7,6 +7,7 @@
 
 #include "GrDrawState.h"
 
+#include "GrInvariantOutput.h"
 #include "GrOptDrawState.h"
 #include "GrPaint.h"
 
@@ -382,15 +383,17 @@ bool GrDrawState::hasSolidCoverage() const {
         return false;
     }
 
-    GrProcessor::InvariantOutput inout;
-    inout.fIsSingleComponent = true;
+    GrColor color;
+    GrColorComponentFlags flags;
     // Initialize to an unknown starting coverage if per-vertex coverage is specified.
     if (this->hasCoverageVertexAttribute()) {
-        inout.fValidFlags = 0;
+        color = 0;
+        flags = static_cast<GrColorComponentFlags>(0);
     } else {
-        inout.fColor = this->getCoverageColor();
-        inout.fValidFlags = kRGBA_GrColorComponentFlags;
+        color = this->getCoverageColor();
+        flags = kRGBA_GrColorComponentFlags;
     }
+    GrInvariantOutput inout(color, flags, true);
 
     // check the coverage output from the GP
     if (this->hasGeometryProcessor()) {
@@ -687,22 +690,22 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
 
 
 bool GrDrawState::srcAlphaWillBeOne() const {
-    GrProcessor::InvariantOutput inoutColor;
-    inoutColor.fIsSingleComponent = false;
+    GrColor color;
+    GrColorComponentFlags flags;
     // Check if per-vertex or constant color may have partial alpha
     if (this->hasColorVertexAttribute()) {
         if (fHints & kVertexColorsAreOpaque_Hint) {
-            inoutColor.fValidFlags = kA_GrColorComponentFlag;
-            inoutColor.fColor = 0xFF << GrColor_SHIFT_A;
+            flags = kA_GrColorComponentFlag;
+            color = 0xFF << GrColor_SHIFT_A;
         } else {
-            inoutColor.fValidFlags = 0;
-            // not strictly necessary but we get false alarms from tools about uninit.
-            inoutColor.fColor = 0;
+            flags = static_cast<GrColorComponentFlags>(0);
+            color = 0;
         }
     } else {
-        inoutColor.fValidFlags = kRGBA_GrColorComponentFlags;
-        inoutColor.fColor = this->getColor();
+        flags = kRGBA_GrColorComponentFlags;
+        color = this->getColor();
     }
+    GrInvariantOutput inoutColor(color, flags, false);
 
     // Run through the color stages
     for (int s = 0; s < this->numColorStages(); ++s) {
@@ -714,15 +717,14 @@ bool GrDrawState::srcAlphaWillBeOne() const {
     if (this->isCoverageDrawing()) {
         // The shader generated for coverage drawing runs the full coverage computation and then
         // makes the shader output be the multiplication of color and coverage. We mirror that here.
-        GrProcessor::InvariantOutput inoutCoverage;
-        inoutCoverage.fIsSingleComponent = true;
         if (this->hasCoverageVertexAttribute()) {
-            inoutCoverage.fValidFlags = 0;
-            inoutCoverage.fColor = 0; // suppresses any warnings.
+            flags = static_cast<GrColorComponentFlags>(0);
+            color = 0;
         } else {
-            inoutCoverage.fValidFlags = kRGBA_GrColorComponentFlags;
-            inoutCoverage.fColor = this->getCoverageColor();
+            flags = kRGBA_GrColorComponentFlags;
+            color = this->getCoverageColor();
         }
+        GrInvariantOutput inoutCoverage(color, flags, true);
 
         if (this->hasGeometryProcessor()) {
             fGeometryProcessor->computeInvariantOutput(&inoutCoverage);

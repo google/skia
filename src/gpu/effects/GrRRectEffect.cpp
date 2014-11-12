@@ -11,6 +11,7 @@
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "GrConvexPolyEffect.h"
+#include "GrInvariantOutput.h"
 #include "GrOvalEffect.h"
 #include "GrTBackendProcessorFactory.h"
 
@@ -66,7 +67,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     SkRRect                fRRect;
     GrPrimitiveEdgeType    fEdgeType;
@@ -86,7 +87,7 @@ GrFragmentProcessor* CircularRRectEffect::Create(GrPrimitiveEdgeType edgeType,
     return SkNEW_ARGS(CircularRRectEffect, (edgeType, circularCornerFlags, rrect));
 }
 
-void CircularRRectEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void CircularRRectEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 
@@ -406,7 +407,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     SkRRect             fRRect;
     GrPrimitiveEdgeType    fEdgeType;
@@ -424,7 +425,7 @@ EllipticalRRectEffect::Create(GrPrimitiveEdgeType edgeType, const SkRRect& rrect
     return SkNEW_ARGS(EllipticalRRectEffect, (edgeType, rrect));
 }
 
-void EllipticalRRectEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void EllipticalRRectEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 

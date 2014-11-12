@@ -12,6 +12,7 @@
 #include "GrGeometryProcessor.h"
 
 class GrGLCustomCoordsTextureEffect;
+class GrInvariantOutput;
 
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
@@ -39,7 +40,7 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
     const GrShaderVar& fInTextureCoords;

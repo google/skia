@@ -7,7 +7,7 @@
 
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrOvalEffect.h"
-
+#include "GrInvariantOutput.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "GrTBackendProcessorFactory.h"
@@ -39,7 +39,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     SkPoint             fCenter;
     SkScalar            fRadius;
@@ -56,7 +56,7 @@ GrFragmentProcessor* CircleEffect::Create(GrPrimitiveEdgeType edgeType, const Sk
     return SkNEW_ARGS(CircleEffect, (edgeType, center, radius));
 }
 
-void CircleEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void CircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 
@@ -211,7 +211,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     SkPoint             fCenter;
     SkVector            fRadii;
@@ -230,7 +230,7 @@ GrFragmentProcessor* EllipseEffect::Create(GrPrimitiveEdgeType edgeType,
     return SkNEW_ARGS(EllipseEffect, (edgeType, center, rx, ry));
 }
 
-void EllipseEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void EllipseEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 

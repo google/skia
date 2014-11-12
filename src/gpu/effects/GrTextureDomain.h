@@ -13,6 +13,7 @@
 
 class GrGLProgramBuilder;
 class GrGLShaderBuilder;
+class GrInvariantOutput;
 struct SkRect;
 
 /**
@@ -175,7 +176,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

@@ -7,6 +7,7 @@
 
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrTextureDomain.h"
+#include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLProcessor.h"
@@ -268,7 +269,7 @@ bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     return this->fTextureDomain == s.fTextureDomain;
 }
 
-void GrTextureDomainEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrTextureDomainEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (GrTextureDomain::kDecal_Mode == fTextureDomain.mode()) { // TODO: helper
         inout->mulByUnknownColor();
     } else {

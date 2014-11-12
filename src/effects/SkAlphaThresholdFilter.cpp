@@ -49,6 +49,7 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
+#include "GrInvariantOutput.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrTBackendProcessorFactory.h"
@@ -102,7 +103,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -227,7 +228,7 @@ bool AlphaThresholdEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
             this->fOuterThreshold == s.fOuterThreshold);
 }
 
-void AlphaThresholdEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void AlphaThresholdEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (GrPixelConfigIsOpaque(this->texture(0)->config()) && fOuterThreshold >= 1.f) {
         inout->mulByUnknownOpaqueColor();
     } else {

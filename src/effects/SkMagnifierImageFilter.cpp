@@ -19,6 +19,7 @@
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
+#include "GrInvariantOutput.h"
 #include "GrTBackendProcessorFactory.h"
 
 class GrGLMagnifierEffect;
@@ -74,7 +75,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -226,7 +227,7 @@ bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
             this->fYInvInset == s.fYInvInset);
 }
 
-void GrMagnifierEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrMagnifierEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     this->updateInvariantOutputForModulation(inout);
 }
 

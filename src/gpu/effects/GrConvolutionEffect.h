@@ -9,6 +9,7 @@
 #define GrConvolutionEffect_DEFINED
 
 #include "Gr1DKernelEffect.h"
+#include "GrInvariantOutput.h"
 
 class GrGLConvolutionEffect;
 
@@ -97,7 +98,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const {
         // If the texture was opaque we could know that the output color if we knew the sum of the
         // kernel values.
         inout->mulByUnknownColor();

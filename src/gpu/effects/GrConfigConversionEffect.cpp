@@ -7,6 +7,7 @@
 
 #include "GrConfigConversionEffect.h"
 #include "GrContext.h"
+#include "GrInvariantOutput.h"
 #include "GrTBackendProcessorFactory.h"
 #include "GrSimpleTextureEffect.h"
 #include "gl/GrGLProcessor.h"
@@ -125,7 +126,7 @@ bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
            other.fPMConversion == fPMConversion;
 }
 
-void GrConfigConversionEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrConfigConversionEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     this->updateInvariantOutputForModulation(inout);
 }
 

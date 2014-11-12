@@ -14,6 +14,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrCoordTransform.h"
+#include "GrInvariantOutput.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrTBackendProcessorFactory.h"
@@ -192,6 +193,7 @@ void SkColorCubeFilter::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
+
 class GrColorCubeEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create(GrTexture* colorCube) {
@@ -205,7 +207,7 @@ public:
 
     static const char* Name() { return "ColorCube"; }
 
-    virtual void onComputeInvariantOutput(GrProcessor::InvariantOutput*) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput*) const SK_OVERRIDE;
 
     class GLProcessor : public GrGLFragmentProcessor {
     public:
@@ -258,8 +260,8 @@ const GrBackendFragmentProcessorFactory& GrColorCubeEffect::getFactory() const {
     return GrTBackendFragmentProcessorFactory<GrColorCubeEffect>::getInstance();
 }
 
-void GrColorCubeEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
-    inout->setToUnknown(InvariantOutput::kWill_ReadInput);
+void GrColorCubeEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
+    inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

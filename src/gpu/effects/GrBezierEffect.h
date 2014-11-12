@@ -11,6 +11,7 @@
 #include "GrDrawTargetCaps.h"
 #include "GrProcessor.h"
 #include "GrGeometryProcessor.h"
+#include "GrInvariantOutput.h"
 #include "GrTypesPriv.h"
 
 /**
@@ -101,7 +102,7 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();
     }
 
@@ -170,7 +171,7 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();
     }
 
@@ -241,7 +242,7 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();
     }
 

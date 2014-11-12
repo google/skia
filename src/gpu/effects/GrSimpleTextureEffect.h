@@ -11,6 +11,7 @@
 #include "GrSingleTextureEffect.h"
 
 class GrGLSimpleTextureEffect;
+class GrInvariantOutput;
 
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
@@ -70,7 +71,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE { return true; }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

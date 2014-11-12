@@ -7,7 +7,7 @@
 
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrBicubicEffect.h"
-
+#include "GrInvariantOutput.h"
 
 #define DS(x) SkDoubleToScalar(x)
 
@@ -168,7 +168,7 @@ bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
            fDomain == s.fDomain;
 }
 
-void GrBicubicEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrBicubicEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     // FIXME: Perhaps we can do better.
     inout->mulByUnknownAlpha();
 }

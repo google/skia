@@ -14,6 +14,7 @@
 #include "SkMorphology_opts.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLProcessor.h"
@@ -317,7 +318,7 @@ protected:
 private:
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
 
@@ -455,7 +456,7 @@ bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
             this->type() == s.type());
 }
 
-void GrMorphologyEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrMorphologyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     // This is valid because the color components of the result of the kernel all come
     // exactly from existing values in the source texture.
     this->updateInvariantOutputForModulation(inout);

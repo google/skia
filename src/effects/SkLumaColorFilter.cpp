@@ -14,6 +14,7 @@
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "GrContext.h"
+#include "GrInvariantOutput.h"
 #include "GrTBackendProcessorFactory.h"
 #endif
 
@@ -111,10 +112,10 @@ public:
 private:
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // The output is always black. The alpha value for the color passed in is arbitrary.
         inout->setToOther(kRGB_GrColorComponentFlags, GrColorPackRGBA(0, 0, 0, 0),
-                          InvariantOutput::kWill_ReadInput);
+                          GrInvariantOutput::kWill_ReadInput);
     }
 };
 

@@ -777,6 +777,7 @@ void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "GrInvariantOutput.h"
 #include "GrProcessorUnitTest.h"
 #include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLProcessor.h"
@@ -1211,8 +1212,8 @@ private:
         return fMode == s.fMode;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
-        inout->setToUnknown(InvariantOutput::kWill_ReadInput);
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+        inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
     }
 
     SkXfermode::Mode fMode;

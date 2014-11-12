@@ -6,6 +6,7 @@
  */
 
 #include "GrDistanceFieldTextureEffect.h"
+#include "GrInvariantOutput.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
@@ -189,7 +190,7 @@ bool GrDistanceFieldTextureEffect::onIsEqual(const GrGeometryProcessor& other) c
            fFlags == cte.fFlags;
 }
 
-void GrDistanceFieldTextureEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrDistanceFieldTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 
@@ -363,7 +364,7 @@ bool GrDistanceFieldNoGammaTextureEffect::onIsEqual(const GrGeometryProcessor& o
     return fFlags == cte.fFlags;
 }
 
-void GrDistanceFieldNoGammaTextureEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrDistanceFieldNoGammaTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 
@@ -606,7 +607,7 @@ bool GrDistanceFieldLCDTextureEffect::onIsEqual(const GrGeometryProcessor& other
             fFlags == cte.fFlags);
 }
 
-void GrDistanceFieldLCDTextureEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void GrDistanceFieldLCDTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownColor();
 }
 

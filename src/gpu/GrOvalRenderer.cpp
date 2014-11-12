@@ -17,6 +17,7 @@
 #include "GrDrawState.h"
 #include "GrDrawTarget.h"
 #include "GrGpu.h"
+#include "GrInvariantOutput.h"
 
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
@@ -144,7 +145,7 @@ private:
         return cee.fStroke == fStroke;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();
     }
 
@@ -286,7 +287,7 @@ private:
         return eee.fStroke == fStroke;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();
     }
 
@@ -451,7 +452,7 @@ private:
         return eee.fMode == fMode;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         inout->mulByUnknownAlpha();
     }
 

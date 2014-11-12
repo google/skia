@@ -14,6 +14,7 @@
 #include "GrTBackendProcessorFactory.h"
 
 class GrGLBicubicEffect;
+class GrInvariantOutput;
 
 class GrBicubicEffect : public GrSingleTextureEffect {
 public:
@@ -92,7 +93,7 @@ private:
                     const SkMatrix &matrix, const SkRect& domain);
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     float           fCoefficients[16];
     GrTextureDomain fDomain;

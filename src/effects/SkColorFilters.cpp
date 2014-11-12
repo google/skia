@@ -124,6 +124,7 @@ SkFlattenable* SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 #if SK_SUPPORT_GPU
 #include "GrBlend.h"
 #include "GrFragmentProcessor.h"
+#include "GrInvariantOutput.h"
 #include "GrProcessorUnitTest.h"
 #include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLProcessor.h"
@@ -281,7 +282,7 @@ private:
         return fMode == s.fMode && fColor == s.fColor;
     }
 
-    virtual void onComputeInvariantOutput(InvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     SkXfermode::Mode fMode;
     GrColor fColor;
@@ -372,7 +373,7 @@ private:
 
 }
 
-void ModeColorFilterEffect::onComputeInvariantOutput(InvariantOutput* inout) const {
+void ModeColorFilterEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     float inputColor[4];
     GrColorToRGBAFloat(inout->color(), inputColor);
     float filterColor[4];
@@ -386,11 +387,11 @@ void ModeColorFilterEffect::onComputeInvariantOutput(InvariantOutput* inout) con
     SkXfermode::Coeff dstCoeff;
     SkXfermode::Coeff srcCoeff;
     SkAssertResult(SkXfermode::ModeAsCoeff(fMode, &srcCoeff, &dstCoeff));
-    InvariantOutput::ReadInput readInput = InvariantOutput::kWill_ReadInput;
+    GrInvariantOutput::ReadInput readInput = GrInvariantOutput::kWill_ReadInput;
     // These could be calculated from the blend equation with template trickery..
     if (SkXfermode::kZero_Coeff == dstCoeff &&
         !GrBlendCoeffRefsDst(sk_blend_to_grblend(srcCoeff))) {
-        readInput = InvariantOutput::kWillNot_ReadInput;
+        readInput = GrInvariantOutput::kWillNot_ReadInput;
     }
     inout->setToOther(result.getValidComponents(), result.getColor(), readInput);
 }
